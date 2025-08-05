@@ -1,39 +1,27 @@
 /**
- * Generate command for TypeScript types
+ * Generate Commands
+ *
+ * Commands for generating code from TypeSchema files
  */
 
-import { generateTypes } from '../../generator';
-import { resolve } from 'path';
+import type { CommandModule } from "yargs";
+import { generateTypescriptCommand } from "./generate/typescript";
 
-export interface GenerateCommandOptions {
-  output: string;
-  package?: string;
-  verbose?: boolean;
-}
-
-export async function generateCommand(options: GenerateCommandOptions): Promise<void> {
-  const outputDir = resolve(options.output);
-  const packagePath = options.package ? resolve(options.package) : undefined;
-
-  console.log('Generating FHIR TypeScript types...');
-  console.log(`Output directory: ${outputDir}`);
-  
-  if (packagePath) {
-    console.log(`Package: ${packagePath}`);
-  } else {
-    console.log('Using default FHIR R4 core package');
-  }
-
-  try {
-    await generateTypes({
-      outputDir,
-      packagePath,
-      verbose: options.verbose
-    });
-    
-    console.log('✨ Type generation completed successfully!');
-  } catch (error) {
-    console.error('❌ Error generating types:', error);
-    throw error;
-  }
-}
+/**
+ * Generate command group
+ */
+export const generateCommand: CommandModule = {
+	command: "generate <language>",
+	describe: "Generate code from TypeSchema files",
+	builder: (yargs) => {
+		return yargs
+			.command(generateTypescriptCommand)
+			.demandCommand(1, "You must specify a target language")
+			.help()
+			.example("$0 generate typescript -i schemas.ndjson -o ./generated", "Generate TypeScript from TypeSchema")
+			.example("$0 generate typescript --input types/ --output ./src/types", "Generate from directory");
+	},
+	handler: () => {
+		// This handler won't be called due to demandCommand(1)
+	},
+};

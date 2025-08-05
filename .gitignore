@@ -36,3 +36,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # project-specific temp directories
 tmp
 test-output
+.lsp
+.clj-kondo
+./types

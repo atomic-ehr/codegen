@@ -5,7 +5,7 @@
 import { describe, test, expect } from "bun:test";
 import { CanonicalManager } from '@atomic-ehr/fhir-canonical-manager';
 import { translate } from '@atomic-ehr/fhirschema';
-import { transformFHIRSchema } from '../../src/typeschema';
+import { transformFHIRSchema } from '../../src/lib/typeschema';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 

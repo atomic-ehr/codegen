@@ -1,0 +1,46 @@
+{
+  "name": "USCorePatient",
+  "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient",
+  "derivation": "constraint",
+  "base": "http://hl7.org/fhir/StructureDefinition/Patient",
+  "kind": "resource",
+  "type": "Patient",
+  "package_name": "hl7.fhir.us.core",
+  "package_version": "8.0.0",
+  "description": "US Core Patient Profile",
+  "publisher": "HL7 US Realm Steering Committee",
+  "experimental": false,
+  "date": "2023-10-01",
+  "elements": {
+    "Patient.identifier": {
+      "min": 1,
+      "max": "*",
+      "mustSupport": true,
+      "type": [{ "code": "Identifier" }]
+    },
+    "Patient.name": {
+      "min": 1,
+      "max": "*",
+      "mustSupport": true,
+      "type": [{ "code": "HumanName" }]
+    },
+    "Patient.gender": {
+      "min": 1,
+      "max": "1",
+      "mustSupport": true,
+      "binding": {
+        "strength": "required",
+        "valueSet": "http://hl7.org/fhir/ValueSet/administrative-gender"
+      }
+    },
+    "Patient.extension:race": {
+      "min": 0,
+      "max": "1",
+      "mustSupport": true,
+      "type": [{
+        "code": "Extension",
+        "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"]
+      }]
+    }
+  }
+}

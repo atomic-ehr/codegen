@@ -85,7 +85,7 @@ bun run generate-types -o ./generated -v
 ### Programmatic Usage
 
 ```typescript
-import { generateTypes } from '@atomic-ehr/type-schema/generator';
+import { generateTypes } from '@atomic-ehr/codegen/generators';
 
 await generateTypes({
   outputDir: './generated-types',

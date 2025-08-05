@@ -3,21 +3,11 @@
   "version": "0.0.1",
   "description": "TypeScript code generation tools for FHIR resources and type schemas",
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
-  },
   "bin": {
-    "type-schema": "./dist/cli/index.js"
+    "atomic-codegen": "./dist/cli/index.ts"
   },
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "scripts": {
     "test": "bun test",
@@ -25,8 +15,23 @@
     "typecheck": "bunx tsc --noEmit",
     "cli": "bun run src/cli/index.ts",
     "generate-types": "bun run src/cli/generate-types.ts",
-    "prepublishOnly": "bun run build",
-    "release": "bun scripts/release.ts"
+    "lint": "biome check --write ./src",
+    "check:r4": "bun run src/cli/index.ts --package hl7.fhir.r4.core --output types/r4",
+    "check:uscore": "bun run src/cli/index.ts --package hl7.fhir.us.core --output types/uscore",
+    "check:typescript": "bun run src/cli/index.ts --input types/r4/generate.ndjson --output types/r4/generated.ts",
+    "example:help": "bun run src/cli/index.ts --help",
+    "example:create": "bun run src/cli/index.ts typeschema create hl7.fhir.r4.core@4.0.1 -o types/r4.ndjson -v",
+    "example:validate": "bun run src/cli/index.ts typeschema validate types/r4.ndjson -v",
+    "example:merge": "bun run src/cli/index.ts typeschema merge types/*.ndjson -o types/merged.ndjson -v",
+    "example:generate": "bun run src/cli/index.ts generate typescript -i types/r4.ndjson -o types/generated -v",
+    "dev:create": "bun run src/cli/index.ts typeschema create -o types/dev.ndjson",
+    "dev:generate": "bun run src/cli/index.ts generate typescript -i types/dev.ndjson",
+    "dev:full": "bun run dev:create && bun run dev:generate",
+    "example:config-init": "bun run src/cli/index.ts config init --template typescript",
+    "example:config-validate": "bun run src/cli/index.ts config validate",
+    "example:config-show": "bun run src/cli/index.ts config show --show-sources",
+    "demo:full": "bun run example:create && bun run example:validate && bun run example:generate",
+    "demo:config": "bun run example:config-init && bun run example:config-validate && bun run example:config-show"
   },
   "repository": {
     "type": "git",
@@ -46,13 +51,15 @@
   "homepage": "https://github.com/atomic-ehr/codegen#readme",
   "devDependencies": {
     "@types/bun": "latest",
-    "typescript": "^5.8.3"
+    "@biomejs/biome": "^2.1.3",
+    "@types/yargs": "^17.0.33"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
     "@atomic-ehr/fhir-canonical-manager": "^0.0.8",
-    "@atomic-ehr/fhirschema": "^0.0.2"
+    "@atomic-ehr/fhirschema": "^0.0.2",
+    "yargs": "^18.0.0"
   }
 }

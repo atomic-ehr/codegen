@@ -1,4 +1,4 @@
-# @atomic-ehr/type-schema
+# @atomic-ehr/codegen
 
 [![npm version](https://badge.fury.io/js/@atomic-ehr%2Fcodegen.svg)](https://www.npmjs.com/package/@atomic-ehr/codegen)
 
@@ -89,7 +89,7 @@ bun run cli -v hl7.fhir.r4.core@4.0.1
 #### TypeScript Generation
 
 ```typescript
-import { generateTypes, TypeScriptGenerator } from '@atomic-ehr/type-schema/generator';
+import { generateTypes, TypeScriptGenerator } from '@atomic-ehr/codegen/generators';
 
 // Simple API
 await generateTypes({
@@ -109,7 +109,7 @@ await generator.generate();
 #### TypeSchema Transformation
 
 ```typescript
-import { transformFHIRSchemas, CanonicalManager } from '@atomic-ehr/type-schema';
+import { transformFHIRSchemas, CanonicalManager } from '@atomic-ehr/codegen';
 
 // Create canonical manager
 const manager = CanonicalManager({

@@ -1,6 +1,8 @@
 /**
- * Main entry point for the codegen library
+ * Main entry point for the @atomic-ehr/codegen library
  */
 
-// Re-export everything from typeschema
-export * from './typeschema';
+// Export language-specific generators
+export * from "./generators";
+// Export library modules (core, typeschema, base generators)
+export * from "./lib";
