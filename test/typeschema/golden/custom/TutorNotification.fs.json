@@ -1,0 +1,64 @@
+{
+  "id": "TutorNotification",
+  "resourceType": "FHIRSchema",
+  "url": "http://example.com/aidbox-sms-tutor/TutorNotification",
+  "type": "TutorNotification",
+  "name": "TutorNotification",
+  "base": "DomainResource",
+  "kind": "resource",
+  "derivation": "specialization",
+  "required": [
+    "sendAfter",
+    "status",
+    "subject",
+    "template",
+    "type"
+  ],
+  "elements": {
+    "type": {
+      "type": "string",
+      "scalar": true,
+      "binding": {
+        "valueSet": "http://hl7.org/fhir/ValueSet/contact-point-system",
+        "strength": "required"
+      }
+    },
+    "status": {
+      "type": "string",
+      "scalar": true,
+      "constraints": {
+        "cont-status": {
+          "human": "Status should be 'requested', 'in-progress' or 'completed'",
+          "severity": "error",
+          "expression": "%context='requested' or %context='in-progress' or %context='completed'"
+        }
+      },
+      "binding": {
+        "valueSet": "http://hl7.org/fhir/ValueSet/task-status",
+        "strength": "required"
+      }
+    },
+    "template": {
+      "type": "Reference",
+      "scalar": true,
+      "refers": [
+        "TutorNotificationTemplate"
+      ]
+    },
+    "message": {
+      "type": "string",
+      "scalar": true
+    },
+    "sendAfter": {
+      "type": "dateTime",
+      "scalar": true
+    },
+    "subject": {
+      "type": "Reference",
+      "scalar": true,
+      "refers": [
+        "Patient"
+      ]
+    }
+  }
+}

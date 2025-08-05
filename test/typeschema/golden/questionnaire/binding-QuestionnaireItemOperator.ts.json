@@ -1,0 +1,49 @@
+{
+  "identifier": {
+    "kind": "binding",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "QuestionnaireItemOperator",
+    "url": "urn:fhir:binding:QuestionnaireItemOperator"
+  },
+  "type": {
+    "kind": "primitive-type",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "code",
+    "url": "http://hl7.org/fhir/StructureDefinition/code"
+  },
+  "valueset": {
+    "kind": "value-set",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "questionnaire-enable-operator",
+    "url": "http://hl7.org/fhir/ValueSet/questionnaire-enable-operator"
+  },
+  "strength": "required",
+  "enum": [
+    "exists",
+    "=",
+    "!=",
+    ">",
+    "<",
+    ">=",
+    "<="
+  ],
+  "dependencies": [
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "code",
+      "url": "http://hl7.org/fhir/StructureDefinition/code"
+    },
+    {
+      "kind": "value-set",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "questionnaire-enable-operator",
+      "url": "http://hl7.org/fhir/ValueSet/questionnaire-enable-operator"
+    }
+  ]
+}

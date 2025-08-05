@@ -1,0 +1,40 @@
+{
+  "identifier": {
+    "kind": "binding",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "Jurisdiction",
+    "url": "urn:fhir:binding:Jurisdiction"
+  },
+  "type": {
+    "kind": "complex-type",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "CodeableConcept",
+    "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
+  },
+  "valueset": {
+    "kind": "value-set",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "jurisdiction",
+    "url": "http://hl7.org/fhir/ValueSet/jurisdiction"
+  },
+  "strength": "extensible",
+  "dependencies": [
+    {
+      "kind": "complex-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "CodeableConcept",
+      "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
+    },
+    {
+      "kind": "value-set",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "jurisdiction",
+      "url": "http://hl7.org/fhir/ValueSet/jurisdiction"
+    }
+  ]
+}

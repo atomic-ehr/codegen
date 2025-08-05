@@ -1,0 +1,40 @@
+{
+  "identifier": {
+    "kind": "binding",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "RestfulSecurityService",
+    "url": "urn:fhir:binding:RestfulSecurityService"
+  },
+  "type": {
+    "kind": "complex-type",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "CodeableConcept",
+    "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
+  },
+  "valueset": {
+    "kind": "value-set",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "restful-security-service",
+    "url": "http://hl7.org/fhir/ValueSet/restful-security-service"
+  },
+  "strength": "extensible",
+  "dependencies": [
+    {
+      "kind": "complex-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "CodeableConcept",
+      "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
+    },
+    {
+      "kind": "value-set",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "restful-security-service",
+      "url": "http://hl7.org/fhir/ValueSet/restful-security-service"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "identifier": {
+    "kind": "binding",
+    "package": "undefined",
+    "version": "undefined",
+    "name": "TutorNotification.status_binding",
+    "url": "http://example.com/aidbox-sms-tutor/TutorNotification#status_binding"
+  },
+  "type": {
+    "kind": "primitive-type",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "string",
+    "url": "http://hl7.org/fhir/StructureDefinition/string"
+  },
+  "valueset": {
+    "kind": "value-set",
+    "url": "http://hl7.org/fhir/ValueSet/task-status",
+    "name": "task-status",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1"
+  },
+  "strength": "required",
+  "dependencies": [
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "string",
+      "url": "http://hl7.org/fhir/StructureDefinition/string"
+    },
+    {
+      "kind": "value-set",
+      "url": "http://hl7.org/fhir/ValueSet/task-status",
+      "name": "task-status",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1"
+    }
+  ]
+}

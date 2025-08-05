@@ -1,0 +1,166 @@
+{
+  "identifier": {
+    "kind": "resource",
+    "package": "undefined",
+    "version": "undefined",
+    "name": "TutorNotification",
+    "url": "http://example.com/aidbox-sms-tutor/TutorNotification"
+  },
+  "dependencies": [
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "dateTime",
+      "url": "http://hl7.org/fhir/StructureDefinition/dateTime"
+    },
+    {
+      "kind": "resource",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "DomainResource",
+      "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+    },
+    {
+      "kind": "complex-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "Reference",
+      "url": "http://hl7.org/fhir/StructureDefinition/Reference"
+    },
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "string",
+      "url": "http://hl7.org/fhir/StructureDefinition/string"
+    },
+    {
+      "kind": "binding",
+      "package": "undefined",
+      "version": "undefined",
+      "name": "TutorNotification.status_binding",
+      "url": "http://example.com/aidbox-sms-tutor/TutorNotification#status_binding"
+    },
+    {
+      "kind": "binding",
+      "package": "undefined",
+      "version": "undefined",
+      "name": "TutorNotification.type_binding",
+      "url": "http://example.com/aidbox-sms-tutor/TutorNotification#type_binding"
+    }
+  ],
+  "base": {
+    "kind": "resource",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "DomainResource",
+    "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+  },
+  "fields": {
+    "type": {
+      "array": false,
+      "required": true,
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "string",
+        "url": "http://hl7.org/fhir/StructureDefinition/string"
+      },
+      "binding": {
+        "kind": "binding",
+        "package": "undefined",
+        "version": "undefined",
+        "name": "TutorNotification.type_binding",
+        "url": "http://example.com/aidbox-sms-tutor/TutorNotification#type_binding"
+      }
+    },
+    "status": {
+      "array": false,
+      "required": true,
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "string",
+        "url": "http://hl7.org/fhir/StructureDefinition/string"
+      },
+      "binding": {
+        "kind": "binding",
+        "package": "undefined",
+        "version": "undefined",
+        "name": "TutorNotification.status_binding",
+        "url": "http://example.com/aidbox-sms-tutor/TutorNotification#status_binding"
+      }
+    },
+    "template": {
+      "array": false,
+      "required": true,
+      "excluded": false,
+      "type": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "Reference",
+        "url": "http://hl7.org/fhir/StructureDefinition/Reference"
+      },
+      "reference": [
+        {
+          "kind": "resource",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "TutorNotificationTemplate",
+          "url": "http://hl7.org/fhir/StructureDefinition/TutorNotificationTemplate"
+        }
+      ]
+    },
+    "message": {
+      "array": false,
+      "required": false,
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "string",
+        "url": "http://hl7.org/fhir/StructureDefinition/string"
+      }
+    },
+    "sendAfter": {
+      "array": false,
+      "required": true,
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "dateTime",
+        "url": "http://hl7.org/fhir/StructureDefinition/dateTime"
+      }
+    },
+    "subject": {
+      "array": false,
+      "required": true,
+      "excluded": false,
+      "type": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "Reference",
+        "url": "http://hl7.org/fhir/StructureDefinition/Reference"
+      },
+      "reference": [
+        {
+          "kind": "resource",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "Patient",
+          "url": "http://hl7.org/fhir/StructureDefinition/Patient"
+        }
+      ]
+    }
+  }
+}

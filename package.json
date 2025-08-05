@@ -1,0 +1,26 @@
+{
+  "name": "@atomic-ehr/type-schema",
+  "version": "0.0.1",
+  "module": "src/index.ts",
+  "main": "src/index.ts",
+  "type": "module",
+  "bin": {
+    "type-schema": "./src/cli/index.ts"
+  },
+  "scripts": {
+    "test": "bun test",
+    "build": "bun build src/index.ts --outdir dist",
+    "cli": "bun run src/cli/index.ts",
+    "generate-types": "bun run src/cli/generate-types.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@atomic-ehr/fhir-canonical-manager": "^0.0.8",
+    "@atomic-ehr/fhirschema": "^0.0.2"
+  }
+}

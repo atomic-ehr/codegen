@@ -1,0 +1,613 @@
+{
+  "identifier": {
+    "kind": "resource",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "Bundle",
+    "url": "http://hl7.org/fhir/StructureDefinition/Bundle"
+  },
+  "dependencies": [
+    {
+      "kind": "complex-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "BackboneElement",
+      "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+    },
+    {
+      "kind": "binding",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "BundleType",
+      "url": "urn:fhir:binding:BundleType"
+    },
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "code",
+      "url": "http://hl7.org/fhir/StructureDefinition/code"
+    },
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "decimal",
+      "url": "http://hl7.org/fhir/StructureDefinition/decimal"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "entry",
+      "url": "http://hl7.org/fhir/StructureDefinition/Bundle#entry"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "entry.request",
+      "url": "http://hl7.org/fhir/StructureDefinition/Bundle#entry.request"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "entry.response",
+      "url": "http://hl7.org/fhir/StructureDefinition/Bundle#entry.response"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "entry.search",
+      "url": "http://hl7.org/fhir/StructureDefinition/Bundle#entry.search"
+    },
+    {
+      "kind": "binding",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "HTTPVerb",
+      "url": "urn:fhir:binding:HTTPVerb"
+    },
+    {
+      "kind": "complex-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "Identifier",
+      "url": "http://hl7.org/fhir/StructureDefinition/Identifier"
+    },
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "instant",
+      "url": "http://hl7.org/fhir/StructureDefinition/instant"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "link",
+      "url": "http://hl7.org/fhir/StructureDefinition/Bundle#link"
+    },
+    {
+      "kind": "resource",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "Resource",
+      "url": "http://hl7.org/fhir/StructureDefinition/Resource"
+    },
+    {
+      "kind": "binding",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "SearchEntryMode",
+      "url": "urn:fhir:binding:SearchEntryMode"
+    },
+    {
+      "kind": "complex-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "Signature",
+      "url": "http://hl7.org/fhir/StructureDefinition/Signature"
+    },
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "string",
+      "url": "http://hl7.org/fhir/StructureDefinition/string"
+    },
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "unsignedInt",
+      "url": "http://hl7.org/fhir/StructureDefinition/unsignedInt"
+    },
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "uri",
+      "url": "http://hl7.org/fhir/StructureDefinition/uri"
+    }
+  ],
+  "base": {
+    "kind": "resource",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "Resource",
+    "url": "http://hl7.org/fhir/StructureDefinition/Resource"
+  },
+  "description": "A container for a collection of resources.",
+  "fields": {
+    "identifier": {
+      "array": false,
+      "required": false,
+      "excluded": false,
+      "type": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "Identifier",
+        "url": "http://hl7.org/fhir/StructureDefinition/Identifier"
+      }
+    },
+    "type": {
+      "array": false,
+      "required": true,
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "code",
+        "url": "http://hl7.org/fhir/StructureDefinition/code"
+      },
+      "binding": {
+        "kind": "binding",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "BundleType",
+        "url": "urn:fhir:binding:BundleType"
+      },
+      "enum": [
+        "document",
+        "message",
+        "transaction",
+        "transaction-response",
+        "batch",
+        "batch-response",
+        "history",
+        "searchset",
+        "collection"
+      ]
+    },
+    "timestamp": {
+      "array": false,
+      "required": false,
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "instant",
+        "url": "http://hl7.org/fhir/StructureDefinition/instant"
+      }
+    },
+    "total": {
+      "array": false,
+      "required": false,
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "unsignedInt",
+        "url": "http://hl7.org/fhir/StructureDefinition/unsignedInt"
+      }
+    },
+    "link": {
+      "type": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "link",
+        "url": "http://hl7.org/fhir/StructureDefinition/Bundle#link"
+      },
+      "array": true,
+      "required": false,
+      "excluded": false
+    },
+    "entry": {
+      "type": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "entry",
+        "url": "http://hl7.org/fhir/StructureDefinition/Bundle#entry"
+      },
+      "array": true,
+      "required": false,
+      "excluded": false
+    },
+    "signature": {
+      "array": false,
+      "required": false,
+      "excluded": false,
+      "type": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "Signature",
+        "url": "http://hl7.org/fhir/StructureDefinition/Signature"
+      }
+    }
+  },
+  "nested": [
+    {
+      "identifier": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "entry",
+        "url": "http://hl7.org/fhir/StructureDefinition/Bundle#entry"
+      },
+      "fields": {
+        "link": {
+          "array": true,
+          "required": false,
+          "excluded": false
+        },
+        "fullUrl": {
+          "array": false,
+          "required": false,
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "uri",
+            "url": "http://hl7.org/fhir/StructureDefinition/uri"
+          }
+        },
+        "resource": {
+          "array": false,
+          "required": false,
+          "excluded": false,
+          "type": {
+            "kind": "complex-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Resource",
+            "url": "http://hl7.org/fhir/StructureDefinition/Resource"
+          }
+        },
+        "search": {
+          "type": {
+            "kind": "nested",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "entry.search",
+            "url": "http://hl7.org/fhir/StructureDefinition/Bundle#entry.search"
+          },
+          "array": false,
+          "required": false,
+          "excluded": false
+        },
+        "request": {
+          "type": {
+            "kind": "nested",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "entry.request",
+            "url": "http://hl7.org/fhir/StructureDefinition/Bundle#entry.request"
+          },
+          "array": false,
+          "required": false,
+          "excluded": false
+        },
+        "response": {
+          "type": {
+            "kind": "nested",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "entry.response",
+            "url": "http://hl7.org/fhir/StructureDefinition/Bundle#entry.response"
+          },
+          "array": false,
+          "required": false,
+          "excluded": false
+        }
+      },
+      "base": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "BackboneElement",
+        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+      }
+    },
+    {
+      "identifier": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "entry.request",
+        "url": "http://hl7.org/fhir/StructureDefinition/Bundle#entry.request"
+      },
+      "fields": {
+        "method": {
+          "array": false,
+          "required": true,
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "code",
+            "url": "http://hl7.org/fhir/StructureDefinition/code"
+          },
+          "binding": {
+            "kind": "binding",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "HTTPVerb",
+            "url": "urn:fhir:binding:HTTPVerb"
+          },
+          "enum": [
+            "GET",
+            "HEAD",
+            "POST",
+            "PUT",
+            "DELETE",
+            "PATCH"
+          ]
+        },
+        "url": {
+          "array": false,
+          "required": true,
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "uri",
+            "url": "http://hl7.org/fhir/StructureDefinition/uri"
+          }
+        },
+        "ifNoneMatch": {
+          "array": false,
+          "required": false,
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "string",
+            "url": "http://hl7.org/fhir/StructureDefinition/string"
+          }
+        },
+        "ifModifiedSince": {
+          "array": false,
+          "required": false,
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "instant",
+            "url": "http://hl7.org/fhir/StructureDefinition/instant"
+          }
+        },
+        "ifMatch": {
+          "array": false,
+          "required": false,
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "string",
+            "url": "http://hl7.org/fhir/StructureDefinition/string"
+          }
+        },
+        "ifNoneExist": {
+          "array": false,
+          "required": false,
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "string",
+            "url": "http://hl7.org/fhir/StructureDefinition/string"
+          }
+        }
+      },
+      "base": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "BackboneElement",
+        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+      }
+    },
+    {
+      "identifier": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "entry.response",
+        "url": "http://hl7.org/fhir/StructureDefinition/Bundle#entry.response"
+      },
+      "fields": {
+        "status": {
+          "array": false,
+          "required": true,
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "string",
+            "url": "http://hl7.org/fhir/StructureDefinition/string"
+          }
+        },
+        "location": {
+          "array": false,
+          "required": false,
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "uri",
+            "url": "http://hl7.org/fhir/StructureDefinition/uri"
+          }
+        },
+        "etag": {
+          "array": false,
+          "required": false,
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "string",
+            "url": "http://hl7.org/fhir/StructureDefinition/string"
+          }
+        },
+        "lastModified": {
+          "array": false,
+          "required": false,
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "instant",
+            "url": "http://hl7.org/fhir/StructureDefinition/instant"
+          }
+        },
+        "outcome": {
+          "array": false,
+          "required": false,
+          "excluded": false,
+          "type": {
+            "kind": "complex-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Resource",
+            "url": "http://hl7.org/fhir/StructureDefinition/Resource"
+          }
+        }
+      },
+      "base": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "BackboneElement",
+        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+      }
+    },
+    {
+      "identifier": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "entry.search",
+        "url": "http://hl7.org/fhir/StructureDefinition/Bundle#entry.search"
+      },
+      "fields": {
+        "mode": {
+          "array": false,
+          "required": false,
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "code",
+            "url": "http://hl7.org/fhir/StructureDefinition/code"
+          },
+          "binding": {
+            "kind": "binding",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "SearchEntryMode",
+            "url": "urn:fhir:binding:SearchEntryMode"
+          },
+          "enum": [
+            "match",
+            "include",
+            "outcome"
+          ]
+        },
+        "score": {
+          "array": false,
+          "required": false,
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "decimal",
+            "url": "http://hl7.org/fhir/StructureDefinition/decimal"
+          }
+        }
+      },
+      "base": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "BackboneElement",
+        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+      }
+    },
+    {
+      "identifier": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "link",
+        "url": "http://hl7.org/fhir/StructureDefinition/Bundle#link"
+      },
+      "fields": {
+        "relation": {
+          "array": false,
+          "required": true,
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "string",
+            "url": "http://hl7.org/fhir/StructureDefinition/string"
+          }
+        },
+        "url": {
+          "array": false,
+          "required": true,
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "uri",
+            "url": "http://hl7.org/fhir/StructureDefinition/uri"
+          }
+        }
+      },
+      "base": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "BackboneElement",
+        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+      }
+    }
+  ]
+}

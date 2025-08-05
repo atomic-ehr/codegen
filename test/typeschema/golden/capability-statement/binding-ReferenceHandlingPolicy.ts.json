@@ -1,0 +1,47 @@
+{
+  "identifier": {
+    "kind": "binding",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "ReferenceHandlingPolicy",
+    "url": "urn:fhir:binding:ReferenceHandlingPolicy"
+  },
+  "type": {
+    "kind": "primitive-type",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "code",
+    "url": "http://hl7.org/fhir/StructureDefinition/code"
+  },
+  "valueset": {
+    "kind": "value-set",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "reference-handling-policy",
+    "url": "http://hl7.org/fhir/ValueSet/reference-handling-policy"
+  },
+  "strength": "required",
+  "enum": [
+    "literal",
+    "logical",
+    "resolves",
+    "enforced",
+    "local"
+  ],
+  "dependencies": [
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "code",
+      "url": "http://hl7.org/fhir/StructureDefinition/code"
+    },
+    {
+      "kind": "value-set",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "reference-handling-policy",
+      "url": "http://hl7.org/fhir/ValueSet/reference-handling-policy"
+    }
+  ]
+}

@@ -1,0 +1,697 @@
+{
+  "description": "A Capability Statement documents a set of capabilities (behaviors) of a FHIR Server for a particular version of FHIR that may be used as a statement of actual server functionality or a statement of required or desired server implementation.",
+  "derivation": "specialization",
+  "name": "CapabilityStatement",
+  "type": "CapabilityStatement",
+  "elements": {
+    "description": {
+      "short": "Natural language description of the capability statement",
+      "type": "markdown",
+      "index": 9
+    },
+    "format": {
+      "min": 1,
+      "short": "formats supported (xml | json | ttl | mime type)",
+      "type": "code",
+      "array": true,
+      "binding": {
+        "strength": "required",
+        "valueSet": "http://hl7.org/fhir/ValueSet/mimetypes|4.0.1",
+        "bindingName": "MimeType"
+      },
+      "isSummary": true,
+      "index": 26
+    },
+    "date": {
+      "short": "Date last changed",
+      "type": "dateTime",
+      "isSummary": true,
+      "index": 6
+    },
+    "publisher": {
+      "short": "Name of the publisher (organization or individual)",
+      "type": "string",
+      "isSummary": true,
+      "index": 7
+    },
+    "patchFormat": {
+      "short": "Patch formats supported",
+      "type": "code",
+      "array": true,
+      "binding": {
+        "strength": "required",
+        "valueSet": "http://hl7.org/fhir/ValueSet/mimetypes|4.0.1",
+        "bindingName": "MimeType"
+      },
+      "isSummary": true,
+      "index": 27
+    },
+    "fhirVersion": {
+      "short": "FHIR Version the system supports",
+      "type": "code",
+      "binding": {
+        "strength": "required",
+        "valueSet": "http://hl7.org/fhir/ValueSet/FHIR-version|4.0.1",
+        "bindingName": "FHIRVersion"
+      },
+      "isSummary": true,
+      "index": 25
+    },
+    "jurisdiction": {
+      "short": "Intended jurisdiction for capability statement (if applicable)",
+      "type": "CodeableConcept",
+      "array": true,
+      "binding": {
+        "strength": "extensible",
+        "valueSet": "http://hl7.org/fhir/ValueSet/jurisdiction",
+        "bindingName": "Jurisdiction"
+      },
+      "isSummary": true,
+      "index": 11
+    },
+    "instantiates": {
+      "short": "Canonical URL of another capability statement this implements",
+      "type": "canonical",
+      "array": true,
+      "isSummary": true,
+      "index": 15
+    },
+    "purpose": {
+      "short": "Why this capability statement is defined",
+      "type": "markdown",
+      "index": 12
+    },
+    "name": {
+      "short": "Name for this capability statement (computer friendly)",
+      "type": "string",
+      "isSummary": true,
+      "index": 2
+    },
+    "useContext": {
+      "short": "The context that the content is intended to support",
+      "type": "UsageContext",
+      "array": true,
+      "isSummary": true,
+      "index": 10
+    },
+    "copyright": {
+      "short": "Use and/or publishing restrictions",
+      "type": "markdown",
+      "index": 13
+    },
+    "experimental": {
+      "short": "For testing purposes, not real usage",
+      "type": "boolean",
+      "isSummary": true,
+      "index": 5
+    },
+    "imports": {
+      "short": "Canonical URL of another capability statement this adds to",
+      "type": "canonical",
+      "array": true,
+      "isSummary": true,
+      "index": 16
+    },
+    "title": {
+      "short": "Name for this capability statement (human friendly)",
+      "type": "string",
+      "isSummary": true,
+      "index": 3
+    },
+    "document": {
+      "short": "Document definition",
+      "type": "BackboneElement",
+      "array": true,
+      "isSummary": true,
+      "index": 78,
+      "elements": {
+        "mode": {
+          "short": "producer | consumer",
+          "type": "code",
+          "binding": {
+            "strength": "required",
+            "valueSet": "http://hl7.org/fhir/ValueSet/document-mode|4.0.1",
+            "bindingName": "DocumentMode"
+          },
+          "isSummary": true,
+          "index": 79
+        },
+        "documentation": {
+          "short": "Description of document support",
+          "type": "markdown",
+          "index": 80
+        },
+        "profile": {
+          "short": "Constraint on the resources used in the document",
+          "type": "canonical",
+          "isSummary": true,
+          "index": 81
+        }
+      },
+      "required": [
+        "mode",
+        "profile"
+      ]
+    },
+    "status": {
+      "isModifier": true,
+      "short": "draft | active | retired | unknown",
+      "type": "code",
+      "binding": {
+        "strength": "required",
+        "valueSet": "http://hl7.org/fhir/ValueSet/publication-status|4.0.1",
+        "bindingName": "PublicationStatus"
+      },
+      "isModifierReason": "This is labeled as \"Is Modifier\" because applications should not use a retired {{title}} without due consideration",
+      "isSummary": true,
+      "index": 4
+    },
+    "messaging": {
+      "short": "If messaging is supported",
+      "type": "BackboneElement",
+      "array": true,
+      "isSummary": true,
+      "index": 69,
+      "elements": {
+        "endpoint": {
+          "short": "Where messages should be sent",
+          "type": "BackboneElement",
+          "array": true,
+          "index": 70,
+          "elements": {
+            "protocol": {
+              "short": "http | ftp | mllp +",
+              "type": "Coding",
+              "binding": {
+                "strength": "extensible",
+                "valueSet": "http://hl7.org/fhir/ValueSet/message-transport",
+                "bindingName": "MessageTransport"
+              },
+              "index": 71
+            },
+            "address": {
+              "short": "Network address or identifier of the end-point",
+              "type": "url",
+              "index": 72
+            }
+          },
+          "required": [
+            "address",
+            "protocol"
+          ]
+        },
+        "reliableCache": {
+          "short": "Reliable Message Cache Length (min)",
+          "type": "unsignedInt",
+          "index": 73
+        },
+        "documentation": {
+          "short": "Messaging interface behavior details",
+          "type": "markdown",
+          "index": 74
+        },
+        "supportedMessage": {
+          "short": "Messages supported by this system",
+          "type": "BackboneElement",
+          "array": true,
+          "isSummary": true,
+          "index": 75,
+          "elements": {
+            "mode": {
+              "short": "sender | receiver",
+              "type": "code",
+              "binding": {
+                "strength": "required",
+                "valueSet": "http://hl7.org/fhir/ValueSet/event-capability-mode|4.0.1",
+                "bindingName": "EventCapabilityMode"
+              },
+              "isSummary": true,
+              "index": 76
+            },
+            "definition": {
+              "short": "Message supported by this system",
+              "type": "canonical",
+              "isSummary": true,
+              "index": 77
+            }
+          },
+          "required": [
+            "definition",
+            "mode"
+          ]
+        }
+      }
+    },
+    "kind": {
+      "short": "instance | capability | requirements",
+      "type": "code",
+      "binding": {
+        "strength": "required",
+        "valueSet": "http://hl7.org/fhir/ValueSet/capability-statement-kind|4.0.1",
+        "bindingName": "CapabilityStatementKind"
+      },
+      "isSummary": true,
+      "index": 14
+    },
+    "implementationGuide": {
+      "short": "Implementation guides supported",
+      "type": "canonical",
+      "isSummary": true,
+      "array": true,
+      "index": 28
+    },
+    "url": {
+      "short": "Canonical identifier for this capability statement, represented as a URI (globally unique)",
+      "type": "uri",
+      "isSummary": true,
+      "index": 0
+    },
+    "software": {
+      "short": "Software that is covered by this capability statement",
+      "type": "BackboneElement",
+      "isSummary": true,
+      "index": 17,
+      "elements": {
+        "name": {
+          "short": "A name the software is known by",
+          "type": "string",
+          "isSummary": true,
+          "index": 18
+        },
+        "version": {
+          "short": "Version covered by this statement",
+          "type": "string",
+          "isSummary": true,
+          "index": 19
+        },
+        "releaseDate": {
+          "short": "Date this version was released",
+          "type": "dateTime",
+          "isSummary": true,
+          "index": 20
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "version": {
+      "short": "Business version of the capability statement",
+      "type": "string",
+      "isSummary": true,
+      "index": 1
+    },
+    "contact": {
+      "short": "Contact details for the publisher",
+      "type": "ContactDetail",
+      "array": true,
+      "isSummary": true,
+      "index": 8
+    },
+    "implementation": {
+      "short": "If this describes a specific instance",
+      "type": "BackboneElement",
+      "isSummary": true,
+      "index": 21,
+      "elements": {
+        "description": {
+          "short": "Describes this specific instance",
+          "type": "string",
+          "isSummary": true,
+          "index": 22
+        },
+        "url": {
+          "short": "Base URL for the installation",
+          "type": "url",
+          "isSummary": true,
+          "index": 23
+        },
+        "custodian": {
+          "short": "Organization that manages the data",
+          "refers": [
+            "http://hl7.org/fhir/StructureDefinition/Organization"
+          ],
+          "type": "Reference",
+          "isSummary": true,
+          "index": 24
+        }
+      },
+      "required": [
+        "description"
+      ]
+    },
+    "rest": {
+      "constraint": {
+        "cpb-9": {
+          "severity": "error",
+          "human": "A given resource can only be described once per RESTful mode.",
+          "expression": "resource.select(type).isDistinct()"
+        }
+      },
+      "short": "If the endpoint is a RESTful one",
+      "type": "BackboneElement",
+      "array": true,
+      "isSummary": true,
+      "index": 29,
+      "elements": {
+        "mode": {
+          "short": "client | server",
+          "type": "code",
+          "binding": {
+            "strength": "required",
+            "valueSet": "http://hl7.org/fhir/ValueSet/restful-capability-mode|4.0.1",
+            "bindingName": "RestfulCapabilityMode"
+          },
+          "isSummary": true,
+          "index": 30
+        },
+        "documentation": {
+          "short": "General description of implementation",
+          "type": "markdown",
+          "index": 31
+        },
+        "security": {
+          "short": "Information about security of implementation",
+          "type": "BackboneElement",
+          "isSummary": true,
+          "index": 32,
+          "elements": {
+            "cors": {
+              "short": "Adds CORS Headers (http://enable-cors.org/)",
+              "type": "boolean",
+              "isSummary": true,
+              "index": 33
+            },
+            "service": {
+              "short": "OAuth | SMART-on-FHIR | NTLM | Basic | Kerberos | Certificates",
+              "type": "CodeableConcept",
+              "array": true,
+              "binding": {
+                "strength": "extensible",
+                "valueSet": "http://hl7.org/fhir/ValueSet/restful-security-service",
+                "bindingName": "RestfulSecurityService"
+              },
+              "isSummary": true,
+              "index": 34
+            },
+            "description": {
+              "short": "General description of how security works",
+              "type": "markdown",
+              "index": 35
+            }
+          }
+        },
+        "resource": {
+          "constraint": {
+            "cpb-12": {
+              "severity": "error",
+              "human": "Search parameter names must be unique in the context of a resource.",
+              "expression": "searchParam.select(name).isDistinct()"
+            }
+          },
+          "short": "Resource served on the REST interface",
+          "type": "BackboneElement",
+          "array": true,
+          "isSummary": true,
+          "index": 36,
+          "elements": {
+            "searchRevInclude": {
+              "short": "_revinclude values supported by the server",
+              "type": "string",
+              "array": true,
+              "index": 53
+            },
+            "searchParam": {
+              "short": "Search parameters supported by implementation",
+              "type": "BackboneElement",
+              "array": true,
+              "index": 54,
+              "elements": {
+                "name": {
+                  "short": "Name of search parameter",
+                  "type": "string",
+                  "index": 55
+                },
+                "definition": {
+                  "short": "Source of definition for parameter",
+                  "type": "canonical",
+                  "index": 56
+                },
+                "type": {
+                  "short": "number | date | string | token | reference | composite | quantity | uri | special",
+                  "type": "code",
+                  "binding": {
+                    "strength": "required",
+                    "valueSet": "http://hl7.org/fhir/ValueSet/search-param-type|4.0.1",
+                    "bindingName": "SearchParamType"
+                  },
+                  "index": 57
+                },
+                "documentation": {
+                  "short": "Server-specific usage",
+                  "type": "markdown",
+                  "index": 58
+                }
+              },
+              "required": [
+                "name",
+                "type"
+              ]
+            },
+            "conditionalUpdate": {
+              "short": "If allows/uses conditional update",
+              "type": "boolean",
+              "index": 49
+            },
+            "conditionalRead": {
+              "short": "not-supported | modified-since | not-match | full-support",
+              "type": "code",
+              "binding": {
+                "strength": "required",
+                "valueSet": "http://hl7.org/fhir/ValueSet/conditional-read-status|4.0.1",
+                "bindingName": "ConditionalReadStatus"
+              },
+              "index": 48
+            },
+            "operation": {
+              "short": "Definition of a resource operation",
+              "type": "BackboneElement",
+              "array": true,
+              "isSummary": true,
+              "index": 59,
+              "elements": {
+                "name": {
+                  "short": "Name by which the operation/query is invoked",
+                  "type": "string",
+                  "isSummary": true,
+                  "index": 60
+                },
+                "definition": {
+                  "short": "The defined operation/query",
+                  "type": "canonical",
+                  "isSummary": true,
+                  "index": 61
+                },
+                "documentation": {
+                  "short": "Specific details about operation behavior",
+                  "type": "markdown",
+                  "index": 62
+                }
+              },
+              "required": [
+                "definition",
+                "name"
+              ]
+            },
+            "referencePolicy": {
+              "short": "literal | logical | resolves | enforced | local",
+              "type": "code",
+              "array": true,
+              "binding": {
+                "strength": "required",
+                "valueSet": "http://hl7.org/fhir/ValueSet/reference-handling-policy|4.0.1",
+                "bindingName": "ReferenceHandlingPolicy"
+              },
+              "index": 51
+            },
+            "readHistory": {
+              "short": "Whether vRead can return past versions",
+              "type": "boolean",
+              "index": 45
+            },
+            "type": {
+              "short": "A resource type that is supported",
+              "type": "code",
+              "binding": {
+                "strength": "required",
+                "valueSet": "http://hl7.org/fhir/ValueSet/resource-types|4.0.1",
+                "bindingName": "ResourceType"
+              },
+              "isSummary": true,
+              "index": 37
+            },
+            "interaction": {
+              "short": "What operations are supported?",
+              "type": "BackboneElement",
+              "array": true,
+              "index": 41,
+              "elements": {
+                "code": {
+                  "short": "read | vread | update | patch | delete | history-instance | history-type | create | search-type",
+                  "type": "code",
+                  "binding": {
+                    "strength": "required",
+                    "valueSet": "http://hl7.org/fhir/ValueSet/type-restful-interaction|4.0.1",
+                    "bindingName": "TypeRestfulInteraction"
+                  },
+                  "index": 42
+                },
+                "documentation": {
+                  "short": "Anything special about operation behavior",
+                  "type": "markdown",
+                  "index": 43
+                }
+              },
+              "required": [
+                "code"
+              ]
+            },
+            "documentation": {
+              "short": "Additional information about the use of the resource type",
+              "type": "markdown",
+              "index": 40
+            },
+            "updateCreate": {
+              "short": "If update can commit to a new identity",
+              "type": "boolean",
+              "index": 46
+            },
+            "conditionalCreate": {
+              "short": "If allows/uses conditional create",
+              "type": "boolean",
+              "index": 47
+            },
+            "supportedProfile": {
+              "short": "Profiles for use cases supported",
+              "type": "canonical",
+              "array": true,
+              "isSummary": true,
+              "index": 39
+            },
+            "searchInclude": {
+              "short": "_include values supported by the server",
+              "type": "string",
+              "array": true,
+              "index": 52
+            },
+            "versioning": {
+              "short": "no-version | versioned | versioned-update",
+              "type": "code",
+              "binding": {
+                "strength": "required",
+                "valueSet": "http://hl7.org/fhir/ValueSet/versioning-policy|4.0.1",
+                "bindingName": "ResourceVersionPolicy"
+              },
+              "index": 44
+            },
+            "profile": {
+              "short": "Base System profile for all uses of resource",
+              "type": "canonical",
+              "isSummary": true,
+              "index": 38
+            },
+            "conditionalDelete": {
+              "short": "not-supported | single | multiple - how conditional delete is supported",
+              "type": "code",
+              "binding": {
+                "strength": "required",
+                "valueSet": "http://hl7.org/fhir/ValueSet/conditional-delete-status|4.0.1",
+                "bindingName": "ConditionalDeleteStatus"
+              },
+              "index": 50
+            }
+          },
+          "required": [
+            "type"
+          ]
+        },
+        "interaction": {
+          "short": "What operations are supported?",
+          "type": "BackboneElement",
+          "array": true,
+          "index": 63,
+          "elements": {
+            "code": {
+              "short": "transaction | batch | search-system | history-system",
+              "type": "code",
+              "binding": {
+                "strength": "required",
+                "valueSet": "http://hl7.org/fhir/ValueSet/system-restful-interaction|4.0.1",
+                "bindingName": "SystemRestfulInteraction"
+              },
+              "index": 64
+            },
+            "documentation": {
+              "short": "Anything special about operation behavior",
+              "type": "markdown",
+              "index": 65
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "searchParam": {
+          "short": "Search parameters for searching all resources",
+          "elementReference": [
+            "http://hl7.org/fhir/StructureDefinition/CapabilityStatement",
+            "elements",
+            "rest",
+            "elements",
+            "resource",
+            "elements",
+            "searchParam"
+          ],
+          "array": true,
+          "index": 66
+        },
+        "operation": {
+          "elementReference": [
+            "http://hl7.org/fhir/StructureDefinition/CapabilityStatement",
+            "elements",
+            "rest",
+            "elements",
+            "resource",
+            "elements",
+            "operation"
+          ],
+          "short": "Definition of a system level operation",
+          "array": true,
+          "isSummary": true,
+          "index": 67
+        },
+        "compartment": {
+          "short": "Compartments served/used by system",
+          "type": "canonical",
+          "array": true,
+          "index": 68
+        }
+      },
+      "required": [
+        "mode"
+      ]
+    }
+  },
+  "class": "resource",
+  "kind": "resource",
+  "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement",
+  "base": "http://hl7.org/fhir/StructureDefinition/DomainResource",
+  "version": "4.0.1",
+  "required": [
+    "date",
+    "fhirVersion",
+    "format",
+    "kind",
+    "status"
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "identifier": {
+    "kind": "binding",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "QuestionnaireItemType",
+    "url": "urn:fhir:binding:QuestionnaireItemType"
+  },
+  "type": {
+    "kind": "primitive-type",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "code",
+    "url": "http://hl7.org/fhir/StructureDefinition/code"
+  },
+  "valueset": {
+    "kind": "value-set",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "item-type",
+    "url": "http://hl7.org/fhir/ValueSet/item-type"
+  },
+  "strength": "required",
+  "enum": [
+    "group",
+    "display",
+    "question",
+    "boolean",
+    "decimal",
+    "integer",
+    "date",
+    "dateTime",
+    "time",
+    "string",
+    "text",
+    "url",
+    "choice",
+    "open-choice",
+    "attachment",
+    "reference",
+    "quantity"
+  ],
+  "dependencies": [
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "code",
+      "url": "http://hl7.org/fhir/StructureDefinition/code"
+    },
+    {
+      "kind": "value-set",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "item-type",
+      "url": "http://hl7.org/fhir/ValueSet/item-type"
+    }
+  ]
+}

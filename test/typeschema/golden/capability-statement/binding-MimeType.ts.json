@@ -1,0 +1,40 @@
+{
+  "identifier": {
+    "kind": "binding",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "MimeType",
+    "url": "urn:fhir:binding:MimeType"
+  },
+  "type": {
+    "kind": "primitive-type",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "code",
+    "url": "http://hl7.org/fhir/StructureDefinition/code"
+  },
+  "valueset": {
+    "kind": "value-set",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "mimetypes",
+    "url": "http://hl7.org/fhir/ValueSet/mimetypes"
+  },
+  "strength": "required",
+  "dependencies": [
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "code",
+      "url": "http://hl7.org/fhir/StructureDefinition/code"
+    },
+    {
+      "kind": "value-set",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "mimetypes",
+      "url": "http://hl7.org/fhir/ValueSet/mimetypes"
+    }
+  ]
+}

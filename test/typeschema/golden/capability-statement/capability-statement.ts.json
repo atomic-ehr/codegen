@@ -1,0 +1,1961 @@
+{
+  "identifier": {
+    "kind": "resource",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "CapabilityStatement",
+    "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement"
+  },
+  "base": {
+    "kind": "resource",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "DomainResource",
+    "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+  },
+  "description": "A Capability Statement documents a set of capabilities (behaviors) of a FHIR Server for a particular version of FHIR that may be used as a statement of actual server functionality or a statement of required or desired server implementation.",
+  "fields": {
+    "description": {
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "markdown",
+        "url": "http://hl7.org/fhir/StructureDefinition/markdown"
+      },
+      "array": false,
+      "required": false
+    },
+    "format": {
+      "min": 1,
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "code",
+        "url": "http://hl7.org/fhir/StructureDefinition/code"
+      },
+      "array": true,
+      "binding": {
+        "kind": "binding",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "MimeType",
+        "url": "urn:fhir:binding:MimeType"
+      },
+      "required": true
+    },
+    "date": {
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "dateTime",
+        "url": "http://hl7.org/fhir/StructureDefinition/dateTime"
+      },
+      "array": false,
+      "required": true
+    },
+    "publisher": {
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "string",
+        "url": "http://hl7.org/fhir/StructureDefinition/string"
+      },
+      "array": false,
+      "required": false
+    },
+    "patchFormat": {
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "code",
+        "url": "http://hl7.org/fhir/StructureDefinition/code"
+      },
+      "array": true,
+      "binding": {
+        "kind": "binding",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "MimeType",
+        "url": "urn:fhir:binding:MimeType"
+      },
+      "required": false
+    },
+    "fhirVersion": {
+      "enum": [
+        "0.01",
+        "0.05",
+        "0.06",
+        "0.11",
+        "0.0.80",
+        "0.0.81",
+        "0.0.82",
+        "0.4.0",
+        "0.5.0",
+        "1.0.0",
+        "1.0.1",
+        "1.0.2",
+        "1.1.0",
+        "1.4.0",
+        "1.6.0",
+        "1.8.0",
+        "3.0.0",
+        "3.0.1",
+        "3.3.0",
+        "3.5.0",
+        "4.0.0",
+        "4.0.1"
+      ],
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "code",
+        "url": "http://hl7.org/fhir/StructureDefinition/code"
+      },
+      "array": false,
+      "binding": {
+        "kind": "binding",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "FHIRVersion",
+        "url": "urn:fhir:binding:FHIRVersion"
+      },
+      "required": true
+    },
+    "jurisdiction": {
+      "excluded": false,
+      "type": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "CodeableConcept",
+        "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
+      },
+      "array": true,
+      "binding": {
+        "kind": "binding",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "Jurisdiction",
+        "url": "urn:fhir:binding:Jurisdiction"
+      },
+      "required": false
+    },
+    "instantiates": {
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "canonical",
+        "url": "http://hl7.org/fhir/StructureDefinition/canonical"
+      },
+      "array": true,
+      "required": false
+    },
+    "purpose": {
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "markdown",
+        "url": "http://hl7.org/fhir/StructureDefinition/markdown"
+      },
+      "array": false,
+      "required": false
+    },
+    "name": {
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "string",
+        "url": "http://hl7.org/fhir/StructureDefinition/string"
+      },
+      "array": false,
+      "required": false
+    },
+    "useContext": {
+      "excluded": false,
+      "type": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "UsageContext",
+        "url": "http://hl7.org/fhir/StructureDefinition/UsageContext"
+      },
+      "array": true,
+      "required": false
+    },
+    "copyright": {
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "markdown",
+        "url": "http://hl7.org/fhir/StructureDefinition/markdown"
+      },
+      "array": false,
+      "required": false
+    },
+    "experimental": {
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "boolean",
+        "url": "http://hl7.org/fhir/StructureDefinition/boolean"
+      },
+      "array": false,
+      "required": false
+    },
+    "imports": {
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "canonical",
+        "url": "http://hl7.org/fhir/StructureDefinition/canonical"
+      },
+      "array": true,
+      "required": false
+    },
+    "title": {
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "string",
+        "url": "http://hl7.org/fhir/StructureDefinition/string"
+      },
+      "array": false,
+      "required": false
+    },
+    "document": {
+      "type": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "document",
+        "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#document"
+      },
+      "array": true,
+      "required": false,
+      "excluded": false
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "active",
+        "retired",
+        "unknown"
+      ],
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "code",
+        "url": "http://hl7.org/fhir/StructureDefinition/code"
+      },
+      "array": false,
+      "binding": {
+        "kind": "binding",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "PublicationStatus",
+        "url": "urn:fhir:binding:PublicationStatus"
+      },
+      "required": true
+    },
+    "messaging": {
+      "type": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "messaging",
+        "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#messaging"
+      },
+      "array": true,
+      "required": false,
+      "excluded": false
+    },
+    "kind": {
+      "enum": [
+        "instance",
+        "capability",
+        "requirements"
+      ],
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "code",
+        "url": "http://hl7.org/fhir/StructureDefinition/code"
+      },
+      "array": false,
+      "binding": {
+        "kind": "binding",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "CapabilityStatementKind",
+        "url": "urn:fhir:binding:CapabilityStatementKind"
+      },
+      "required": true
+    },
+    "implementationGuide": {
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "canonical",
+        "url": "http://hl7.org/fhir/StructureDefinition/canonical"
+      },
+      "array": true,
+      "required": false
+    },
+    "url": {
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "uri",
+        "url": "http://hl7.org/fhir/StructureDefinition/uri"
+      },
+      "array": false,
+      "required": false
+    },
+    "software": {
+      "type": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "software",
+        "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#software"
+      },
+      "array": false,
+      "required": false,
+      "excluded": false
+    },
+    "version": {
+      "excluded": false,
+      "type": {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "string",
+        "url": "http://hl7.org/fhir/StructureDefinition/string"
+      },
+      "array": false,
+      "required": false
+    },
+    "contact": {
+      "excluded": false,
+      "type": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "ContactDetail",
+        "url": "http://hl7.org/fhir/StructureDefinition/ContactDetail"
+      },
+      "array": true,
+      "required": false
+    },
+    "implementation": {
+      "type": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "implementation",
+        "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#implementation"
+      },
+      "array": false,
+      "required": false,
+      "excluded": false
+    },
+    "rest": {
+      "type": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "rest",
+        "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest"
+      },
+      "array": true,
+      "required": false,
+      "excluded": false
+    }
+  },
+  "nested": [
+    {
+      "identifier": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "document",
+        "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#document"
+      },
+      "base": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "BackboneElement",
+        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+      },
+      "fields": {
+        "mode": {
+          "enum": [
+            "producer",
+            "consumer"
+          ],
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "code",
+            "url": "http://hl7.org/fhir/StructureDefinition/code"
+          },
+          "array": false,
+          "binding": {
+            "kind": "binding",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "DocumentMode",
+            "url": "urn:fhir:binding:DocumentMode"
+          },
+          "required": true
+        },
+        "documentation": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "markdown",
+            "url": "http://hl7.org/fhir/StructureDefinition/markdown"
+          },
+          "array": false,
+          "required": false
+        },
+        "profile": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "canonical",
+            "url": "http://hl7.org/fhir/StructureDefinition/canonical"
+          },
+          "array": false,
+          "required": true
+        }
+      }
+    },
+    {
+      "identifier": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "implementation",
+        "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#implementation"
+      },
+      "base": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "BackboneElement",
+        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+      },
+      "fields": {
+        "description": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "string",
+            "url": "http://hl7.org/fhir/StructureDefinition/string"
+          },
+          "array": false,
+          "required": true
+        },
+        "url": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "url",
+            "url": "http://hl7.org/fhir/StructureDefinition/url"
+          },
+          "array": false,
+          "required": false
+        },
+        "custodian": {
+          "excluded": false,
+          "type": {
+            "kind": "complex-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Reference",
+            "url": "http://hl7.org/fhir/StructureDefinition/Reference"
+          },
+          "array": false,
+          "reference": [
+            {
+              "kind": "resource",
+              "package": "hl7.fhir.r4.core",
+              "version": "4.0.1",
+              "name": "Organization",
+              "url": "http://hl7.org/fhir/StructureDefinition/Organization"
+            }
+          ],
+          "required": false
+        }
+      }
+    },
+    {
+      "identifier": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "messaging",
+        "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#messaging"
+      },
+      "base": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "BackboneElement",
+        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+      },
+      "fields": {
+        "endpoint": {
+          "type": {
+            "kind": "nested",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "messaging.endpoint",
+            "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#messaging.endpoint"
+          },
+          "array": true,
+          "required": false,
+          "excluded": false
+        },
+        "reliableCache": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "unsignedInt",
+            "url": "http://hl7.org/fhir/StructureDefinition/unsignedInt"
+          },
+          "array": false,
+          "required": false
+        },
+        "documentation": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "markdown",
+            "url": "http://hl7.org/fhir/StructureDefinition/markdown"
+          },
+          "array": false,
+          "required": false
+        },
+        "supportedMessage": {
+          "type": {
+            "kind": "nested",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "messaging.supportedMessage",
+            "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#messaging.supportedMessage"
+          },
+          "array": true,
+          "required": false,
+          "excluded": false
+        }
+      }
+    },
+    {
+      "identifier": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "messaging.endpoint",
+        "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#messaging.endpoint"
+      },
+      "base": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "BackboneElement",
+        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+      },
+      "fields": {
+        "protocol": {
+          "excluded": false,
+          "type": {
+            "kind": "complex-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Coding",
+            "url": "http://hl7.org/fhir/StructureDefinition/Coding"
+          },
+          "array": false,
+          "binding": {
+            "kind": "binding",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "MessageTransport",
+            "url": "urn:fhir:binding:MessageTransport"
+          },
+          "required": true
+        },
+        "address": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "url",
+            "url": "http://hl7.org/fhir/StructureDefinition/url"
+          },
+          "array": false,
+          "required": true
+        }
+      }
+    },
+    {
+      "identifier": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "messaging.supportedMessage",
+        "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#messaging.supportedMessage"
+      },
+      "base": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "BackboneElement",
+        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+      },
+      "fields": {
+        "mode": {
+          "enum": [
+            "sender",
+            "receiver"
+          ],
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "code",
+            "url": "http://hl7.org/fhir/StructureDefinition/code"
+          },
+          "array": false,
+          "binding": {
+            "kind": "binding",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "EventCapabilityMode",
+            "url": "urn:fhir:binding:EventCapabilityMode"
+          },
+          "required": true
+        },
+        "definition": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "canonical",
+            "url": "http://hl7.org/fhir/StructureDefinition/canonical"
+          },
+          "array": false,
+          "required": true
+        }
+      }
+    },
+    {
+      "identifier": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "rest",
+        "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest"
+      },
+      "base": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "BackboneElement",
+        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+      },
+      "fields": {
+        "mode": {
+          "enum": [
+            "client",
+            "server"
+          ],
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "code",
+            "url": "http://hl7.org/fhir/StructureDefinition/code"
+          },
+          "array": false,
+          "binding": {
+            "kind": "binding",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "RestfulCapabilityMode",
+            "url": "urn:fhir:binding:RestfulCapabilityMode"
+          },
+          "required": true
+        },
+        "documentation": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "markdown",
+            "url": "http://hl7.org/fhir/StructureDefinition/markdown"
+          },
+          "array": false,
+          "required": false
+        },
+        "security": {
+          "type": {
+            "kind": "nested",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "rest.security",
+            "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.security"
+          },
+          "array": false,
+          "required": false,
+          "excluded": false
+        },
+        "resource": {
+          "type": {
+            "kind": "nested",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "rest.resource",
+            "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource"
+          },
+          "array": true,
+          "required": false,
+          "excluded": false
+        },
+        "interaction": {
+          "type": {
+            "kind": "nested",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "rest.interaction",
+            "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.interaction"
+          },
+          "array": true,
+          "required": false,
+          "excluded": false
+        },
+        "searchParam": {
+          "excluded": false,
+          "type": {
+            "kind": "nested",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "rest.resource.searchParam",
+            "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource.searchParam"
+          },
+          "array": true,
+          "required": false
+        },
+        "operation": {
+          "excluded": false,
+          "type": {
+            "kind": "nested",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "rest.resource.operation",
+            "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource.operation"
+          },
+          "array": true,
+          "required": false
+        },
+        "compartment": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "canonical",
+            "url": "http://hl7.org/fhir/StructureDefinition/canonical"
+          },
+          "array": true,
+          "required": false
+        }
+      }
+    },
+    {
+      "identifier": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "rest.interaction",
+        "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.interaction"
+      },
+      "base": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "BackboneElement",
+        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+      },
+      "fields": {
+        "code": {
+          "enum": [
+            "transaction",
+            "batch",
+            "search-system",
+            "history-system"
+          ],
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "code",
+            "url": "http://hl7.org/fhir/StructureDefinition/code"
+          },
+          "array": false,
+          "binding": {
+            "kind": "binding",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "SystemRestfulInteraction",
+            "url": "urn:fhir:binding:SystemRestfulInteraction"
+          },
+          "required": true
+        },
+        "documentation": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "markdown",
+            "url": "http://hl7.org/fhir/StructureDefinition/markdown"
+          },
+          "array": false,
+          "required": false
+        }
+      }
+    },
+    {
+      "identifier": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "rest.resource",
+        "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource"
+      },
+      "base": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "BackboneElement",
+        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+      },
+      "fields": {
+        "searchRevInclude": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "string",
+            "url": "http://hl7.org/fhir/StructureDefinition/string"
+          },
+          "array": true,
+          "required": false
+        },
+        "searchParam": {
+          "type": {
+            "kind": "nested",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "rest.resource.searchParam",
+            "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource.searchParam"
+          },
+          "array": true,
+          "required": false,
+          "excluded": false
+        },
+        "conditionalUpdate": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "boolean",
+            "url": "http://hl7.org/fhir/StructureDefinition/boolean"
+          },
+          "array": false,
+          "required": false
+        },
+        "conditionalRead": {
+          "enum": [
+            "not-supported",
+            "modified-since",
+            "not-match",
+            "full-support"
+          ],
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "code",
+            "url": "http://hl7.org/fhir/StructureDefinition/code"
+          },
+          "array": false,
+          "binding": {
+            "kind": "binding",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "ConditionalReadStatus",
+            "url": "urn:fhir:binding:ConditionalReadStatus"
+          },
+          "required": false
+        },
+        "operation": {
+          "type": {
+            "kind": "nested",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "rest.resource.operation",
+            "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource.operation"
+          },
+          "array": true,
+          "required": false,
+          "excluded": false
+        },
+        "referencePolicy": {
+          "enum": [
+            "literal",
+            "logical",
+            "resolves",
+            "enforced",
+            "local"
+          ],
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "code",
+            "url": "http://hl7.org/fhir/StructureDefinition/code"
+          },
+          "array": true,
+          "binding": {
+            "kind": "binding",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "ReferenceHandlingPolicy",
+            "url": "urn:fhir:binding:ReferenceHandlingPolicy"
+          },
+          "required": false
+        },
+        "readHistory": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "boolean",
+            "url": "http://hl7.org/fhir/StructureDefinition/boolean"
+          },
+          "array": false,
+          "required": false
+        },
+        "type": {
+          "enum": [
+            "Account",
+            "ActivityDefinition",
+            "AdverseEvent",
+            "AllergyIntolerance",
+            "Appointment",
+            "AppointmentResponse",
+            "AuditEvent",
+            "Basic",
+            "Binary",
+            "BiologicallyDerivedProduct",
+            "BodyStructure",
+            "Bundle",
+            "CapabilityStatement",
+            "CarePlan",
+            "CareTeam",
+            "CatalogEntry",
+            "ChargeItem",
+            "ChargeItemDefinition",
+            "Claim",
+            "ClaimResponse",
+            "ClinicalImpression",
+            "CodeSystem",
+            "Communication",
+            "CommunicationRequest",
+            "CompartmentDefinition",
+            "Composition",
+            "ConceptMap",
+            "Condition",
+            "Consent",
+            "Contract",
+            "Coverage",
+            "CoverageEligibilityRequest",
+            "CoverageEligibilityResponse",
+            "DetectedIssue",
+            "Device",
+            "DeviceDefinition",
+            "DeviceMetric",
+            "DeviceRequest",
+            "DeviceUseStatement",
+            "DiagnosticReport",
+            "DocumentManifest",
+            "DocumentReference",
+            "DomainResource",
+            "EffectEvidenceSynthesis",
+            "Encounter",
+            "Endpoint",
+            "EnrollmentRequest",
+            "EnrollmentResponse",
+            "EpisodeOfCare",
+            "EventDefinition",
+            "Evidence",
+            "EvidenceVariable",
+            "ExampleScenario",
+            "ExplanationOfBenefit",
+            "FamilyMemberHistory",
+            "Flag",
+            "Goal",
+            "GraphDefinition",
+            "Group",
+            "GuidanceResponse",
+            "HealthcareService",
+            "ImagingStudy",
+            "Immunization",
+            "ImmunizationEvaluation",
+            "ImmunizationRecommendation",
+            "ImplementationGuide",
+            "InsurancePlan",
+            "Invoice",
+            "Library",
+            "Linkage",
+            "List",
+            "Location",
+            "Measure",
+            "MeasureReport",
+            "Media",
+            "Medication",
+            "MedicationAdministration",
+            "MedicationDispense",
+            "MedicationKnowledge",
+            "MedicationRequest",
+            "MedicationStatement",
+            "MedicinalProduct",
+            "MedicinalProductAuthorization",
+            "MedicinalProductContraindication",
+            "MedicinalProductIndication",
+            "MedicinalProductIngredient",
+            "MedicinalProductInteraction",
+            "MedicinalProductManufactured",
+            "MedicinalProductPackaged",
+            "MedicinalProductPharmaceutical",
+            "MedicinalProductUndesirableEffect",
+            "MessageDefinition",
+            "MessageHeader",
+            "MolecularSequence",
+            "NamingSystem",
+            "NutritionOrder",
+            "Observation",
+            "ObservationDefinition",
+            "OperationDefinition",
+            "OperationOutcome",
+            "Organization",
+            "OrganizationAffiliation",
+            "Parameters",
+            "Patient",
+            "PaymentNotice",
+            "PaymentReconciliation",
+            "Person",
+            "PlanDefinition",
+            "Practitioner",
+            "PractitionerRole",
+            "Procedure",
+            "Provenance",
+            "Questionnaire",
+            "QuestionnaireResponse",
+            "RelatedPerson",
+            "RequestGroup",
+            "ResearchDefinition",
+            "ResearchElementDefinition",
+            "ResearchStudy",
+            "ResearchSubject",
+            "Resource",
+            "RiskAssessment",
+            "RiskEvidenceSynthesis",
+            "Schedule",
+            "SearchParameter",
+            "ServiceRequest",
+            "Slot",
+            "Specimen",
+            "SpecimenDefinition",
+            "StructureDefinition",
+            "StructureMap",
+            "Subscription",
+            "Substance",
+            "SubstanceNucleicAcid",
+            "SubstancePolymer",
+            "SubstanceProtein",
+            "SubstanceReferenceInformation",
+            "SubstanceSourceMaterial",
+            "SubstanceSpecification",
+            "SupplyDelivery",
+            "SupplyRequest",
+            "Task",
+            "TerminologyCapabilities",
+            "TestReport",
+            "TestScript",
+            "ValueSet",
+            "VerificationResult",
+            "VisionPrescription"
+          ],
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "code",
+            "url": "http://hl7.org/fhir/StructureDefinition/code"
+          },
+          "array": false,
+          "binding": {
+            "kind": "binding",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "ResourceType",
+            "url": "urn:fhir:binding:ResourceType"
+          },
+          "required": true
+        },
+        "interaction": {
+          "type": {
+            "kind": "nested",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "rest.resource.interaction",
+            "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource.interaction"
+          },
+          "array": true,
+          "required": false,
+          "excluded": false
+        },
+        "documentation": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "markdown",
+            "url": "http://hl7.org/fhir/StructureDefinition/markdown"
+          },
+          "array": false,
+          "required": false
+        },
+        "updateCreate": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "boolean",
+            "url": "http://hl7.org/fhir/StructureDefinition/boolean"
+          },
+          "array": false,
+          "required": false
+        },
+        "conditionalCreate": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "boolean",
+            "url": "http://hl7.org/fhir/StructureDefinition/boolean"
+          },
+          "array": false,
+          "required": false
+        },
+        "supportedProfile": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "canonical",
+            "url": "http://hl7.org/fhir/StructureDefinition/canonical"
+          },
+          "array": true,
+          "required": false
+        },
+        "searchInclude": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "string",
+            "url": "http://hl7.org/fhir/StructureDefinition/string"
+          },
+          "array": true,
+          "required": false
+        },
+        "versioning": {
+          "enum": [
+            "no-version",
+            "versioned",
+            "versioned-update"
+          ],
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "code",
+            "url": "http://hl7.org/fhir/StructureDefinition/code"
+          },
+          "array": false,
+          "binding": {
+            "kind": "binding",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "ResourceVersionPolicy",
+            "url": "urn:fhir:binding:ResourceVersionPolicy"
+          },
+          "required": false
+        },
+        "profile": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "canonical",
+            "url": "http://hl7.org/fhir/StructureDefinition/canonical"
+          },
+          "array": false,
+          "required": false
+        },
+        "conditionalDelete": {
+          "enum": [
+            "not-supported",
+            "single",
+            "multiple"
+          ],
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "code",
+            "url": "http://hl7.org/fhir/StructureDefinition/code"
+          },
+          "array": false,
+          "binding": {
+            "kind": "binding",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "ConditionalDeleteStatus",
+            "url": "urn:fhir:binding:ConditionalDeleteStatus"
+          },
+          "required": false
+        }
+      }
+    },
+    {
+      "identifier": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "rest.resource.interaction",
+        "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource.interaction"
+      },
+      "base": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "BackboneElement",
+        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+      },
+      "fields": {
+        "code": {
+          "enum": [
+            "read",
+            "vread",
+            "update",
+            "patch",
+            "delete",
+            "history-instance",
+            "history-type",
+            "create",
+            "search-type"
+          ],
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "code",
+            "url": "http://hl7.org/fhir/StructureDefinition/code"
+          },
+          "array": false,
+          "binding": {
+            "kind": "binding",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "TypeRestfulInteraction",
+            "url": "urn:fhir:binding:TypeRestfulInteraction"
+          },
+          "required": true
+        },
+        "documentation": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "markdown",
+            "url": "http://hl7.org/fhir/StructureDefinition/markdown"
+          },
+          "array": false,
+          "required": false
+        }
+      }
+    },
+    {
+      "identifier": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "rest.resource.operation",
+        "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource.operation"
+      },
+      "base": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "BackboneElement",
+        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+      },
+      "fields": {
+        "name": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "string",
+            "url": "http://hl7.org/fhir/StructureDefinition/string"
+          },
+          "array": false,
+          "required": true
+        },
+        "definition": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "canonical",
+            "url": "http://hl7.org/fhir/StructureDefinition/canonical"
+          },
+          "array": false,
+          "required": true
+        },
+        "documentation": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "markdown",
+            "url": "http://hl7.org/fhir/StructureDefinition/markdown"
+          },
+          "array": false,
+          "required": false
+        }
+      }
+    },
+    {
+      "identifier": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "rest.resource.searchParam",
+        "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource.searchParam"
+      },
+      "base": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "BackboneElement",
+        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+      },
+      "fields": {
+        "name": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "string",
+            "url": "http://hl7.org/fhir/StructureDefinition/string"
+          },
+          "array": false,
+          "required": true
+        },
+        "definition": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "canonical",
+            "url": "http://hl7.org/fhir/StructureDefinition/canonical"
+          },
+          "array": false,
+          "required": false
+        },
+        "type": {
+          "enum": [
+            "number",
+            "date",
+            "string",
+            "token",
+            "reference",
+            "composite",
+            "quantity",
+            "uri",
+            "special"
+          ],
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "code",
+            "url": "http://hl7.org/fhir/StructureDefinition/code"
+          },
+          "array": false,
+          "binding": {
+            "kind": "binding",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "SearchParamType",
+            "url": "urn:fhir:binding:SearchParamType"
+          },
+          "required": true
+        },
+        "documentation": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "markdown",
+            "url": "http://hl7.org/fhir/StructureDefinition/markdown"
+          },
+          "array": false,
+          "required": false
+        }
+      }
+    },
+    {
+      "identifier": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "rest.security",
+        "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.security"
+      },
+      "base": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "BackboneElement",
+        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+      },
+      "fields": {
+        "cors": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "boolean",
+            "url": "http://hl7.org/fhir/StructureDefinition/boolean"
+          },
+          "array": false,
+          "required": false
+        },
+        "service": {
+          "excluded": false,
+          "type": {
+            "kind": "complex-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "CodeableConcept",
+            "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
+          },
+          "array": true,
+          "binding": {
+            "kind": "binding",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "RestfulSecurityService",
+            "url": "urn:fhir:binding:RestfulSecurityService"
+          },
+          "required": false
+        },
+        "description": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "markdown",
+            "url": "http://hl7.org/fhir/StructureDefinition/markdown"
+          },
+          "array": false,
+          "required": false
+        }
+      }
+    },
+    {
+      "identifier": {
+        "kind": "nested",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "software",
+        "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#software"
+      },
+      "base": {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "BackboneElement",
+        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+      },
+      "fields": {
+        "name": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "string",
+            "url": "http://hl7.org/fhir/StructureDefinition/string"
+          },
+          "array": false,
+          "required": true
+        },
+        "version": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "string",
+            "url": "http://hl7.org/fhir/StructureDefinition/string"
+          },
+          "array": false,
+          "required": false
+        },
+        "releaseDate": {
+          "excluded": false,
+          "type": {
+            "kind": "primitive-type",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "dateTime",
+            "url": "http://hl7.org/fhir/StructureDefinition/dateTime"
+          },
+          "array": false,
+          "required": false
+        }
+      }
+    }
+  ],
+  "dependencies": [
+    {
+      "kind": "complex-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "BackboneElement",
+      "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+    },
+    {
+      "kind": "binding",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "CapabilityStatementKind",
+      "url": "urn:fhir:binding:CapabilityStatementKind"
+    },
+    {
+      "kind": "complex-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "CodeableConcept",
+      "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
+    },
+    {
+      "kind": "complex-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "Coding",
+      "url": "http://hl7.org/fhir/StructureDefinition/Coding"
+    },
+    {
+      "kind": "binding",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "ConditionalDeleteStatus",
+      "url": "urn:fhir:binding:ConditionalDeleteStatus"
+    },
+    {
+      "kind": "binding",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "ConditionalReadStatus",
+      "url": "urn:fhir:binding:ConditionalReadStatus"
+    },
+    {
+      "kind": "complex-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "ContactDetail",
+      "url": "http://hl7.org/fhir/StructureDefinition/ContactDetail"
+    },
+    {
+      "kind": "binding",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "DocumentMode",
+      "url": "urn:fhir:binding:DocumentMode"
+    },
+    {
+      "kind": "resource",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "DomainResource",
+      "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+    },
+    {
+      "kind": "binding",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "EventCapabilityMode",
+      "url": "urn:fhir:binding:EventCapabilityMode"
+    },
+    {
+      "kind": "binding",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "FHIRVersion",
+      "url": "urn:fhir:binding:FHIRVersion"
+    },
+    {
+      "kind": "binding",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "Jurisdiction",
+      "url": "urn:fhir:binding:Jurisdiction"
+    },
+    {
+      "kind": "binding",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "MessageTransport",
+      "url": "urn:fhir:binding:MessageTransport"
+    },
+    {
+      "kind": "binding",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "MimeType",
+      "url": "urn:fhir:binding:MimeType"
+    },
+    {
+      "kind": "binding",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "PublicationStatus",
+      "url": "urn:fhir:binding:PublicationStatus"
+    },
+    {
+      "kind": "complex-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "Reference",
+      "url": "http://hl7.org/fhir/StructureDefinition/Reference"
+    },
+    {
+      "kind": "binding",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "ReferenceHandlingPolicy",
+      "url": "urn:fhir:binding:ReferenceHandlingPolicy"
+    },
+    {
+      "kind": "binding",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "ResourceType",
+      "url": "urn:fhir:binding:ResourceType"
+    },
+    {
+      "kind": "binding",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "ResourceVersionPolicy",
+      "url": "urn:fhir:binding:ResourceVersionPolicy"
+    },
+    {
+      "kind": "binding",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "RestfulCapabilityMode",
+      "url": "urn:fhir:binding:RestfulCapabilityMode"
+    },
+    {
+      "kind": "binding",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "RestfulSecurityService",
+      "url": "urn:fhir:binding:RestfulSecurityService"
+    },
+    {
+      "kind": "binding",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "SearchParamType",
+      "url": "urn:fhir:binding:SearchParamType"
+    },
+    {
+      "kind": "binding",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "SystemRestfulInteraction",
+      "url": "urn:fhir:binding:SystemRestfulInteraction"
+    },
+    {
+      "kind": "binding",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "TypeRestfulInteraction",
+      "url": "urn:fhir:binding:TypeRestfulInteraction"
+    },
+    {
+      "kind": "complex-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "UsageContext",
+      "url": "http://hl7.org/fhir/StructureDefinition/UsageContext"
+    },
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "boolean",
+      "url": "http://hl7.org/fhir/StructureDefinition/boolean"
+    },
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "canonical",
+      "url": "http://hl7.org/fhir/StructureDefinition/canonical"
+    },
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "code",
+      "url": "http://hl7.org/fhir/StructureDefinition/code"
+    },
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "dateTime",
+      "url": "http://hl7.org/fhir/StructureDefinition/dateTime"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "document",
+      "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#document"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "implementation",
+      "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#implementation"
+    },
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "markdown",
+      "url": "http://hl7.org/fhir/StructureDefinition/markdown"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "messaging",
+      "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#messaging"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "messaging.endpoint",
+      "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#messaging.endpoint"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "messaging.supportedMessage",
+      "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#messaging.supportedMessage"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "rest",
+      "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "rest.interaction",
+      "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.interaction"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "rest.resource",
+      "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "rest.resource.interaction",
+      "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource.interaction"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "rest.resource.operation",
+      "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource.operation"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "rest.resource.searchParam",
+      "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.resource.searchParam"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "rest.security",
+      "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#rest.security"
+    },
+    {
+      "kind": "nested",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "software",
+      "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement#software"
+    },
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "string",
+      "url": "http://hl7.org/fhir/StructureDefinition/string"
+    },
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "unsignedInt",
+      "url": "http://hl7.org/fhir/StructureDefinition/unsignedInt"
+    },
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "uri",
+      "url": "http://hl7.org/fhir/StructureDefinition/uri"
+    },
+    {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "url",
+      "url": "http://hl7.org/fhir/StructureDefinition/url"
+    }
+  ]
+}
