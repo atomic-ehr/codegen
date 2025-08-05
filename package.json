@@ -1,20 +1,52 @@
 {
-  "name": "@atomic-ehr/type-schema",
+  "name": "@atomic-ehr/codegen",
   "version": "0.0.1",
-  "module": "src/index.ts",
-  "main": "src/index.ts",
+  "description": "TypeScript code generation tools for FHIR resources and type schemas",
   "type": "module",
-  "bin": {
-    "type-schema": "./src/cli/index.ts"
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
   },
+  "bin": {
+    "type-schema": "./dist/cli/index.js"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
     "test": "bun test",
-    "build": "bun build src/index.ts --outdir dist",
+    "build": "bun build src/index.ts --outdir dist --target node --format esm --splitting --external typescript",
+    "typecheck": "bunx tsc --noEmit",
     "cli": "bun run src/cli/index.ts",
-    "generate-types": "bun run src/cli/generate-types.ts"
+    "generate-types": "bun run src/cli/generate-types.ts",
+    "prepublishOnly": "bun run build",
+    "release": "bun scripts/release.ts"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atomic-ehr/codegen.git"
+  },
+  "keywords": [
+    "fhir",
+    "codegen",
+    "typescript",
+    "healthcare"
+  ],
+  "author": "Atomic EHR Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/atomic-ehr/codegen/issues"
+  },
+  "homepage": "https://github.com/atomic-ehr/codegen#readme",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "typescript": "^5.8.3"
   },
   "peerDependencies": {
     "typescript": "^5"

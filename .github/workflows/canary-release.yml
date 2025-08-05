@@ -1,0 +1,90 @@
+name: Canary Release
+
+on:
+  push:
+    branches: [main]
+    tags-ignore:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  canary-release:
+    # Skip if commit message contains [skip ci] or if it's a version bump commit
+    if: |
+      !contains(github.event.head_commit.message, '[skip ci]') &&
+      !contains(github.event.head_commit.message, 'chore: release')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+      
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: codegen-deps-${{ runner.os }}-${{ hashFiles('**/bun.lock') }}
+          restore-keys: |
+            codegen-deps-${{ runner.os }}-
+      
+      - name: Install dependencies
+        run: bun install
+      
+      - name: Run tests
+        run: bun test
+      
+      - name: Build
+        run: bun run build
+      
+      - name: Generate canary version
+        id: version
+        run: |
+          # Get current version from package.json
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          
+          # Get short commit SHA
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          
+          # Get timestamp for uniqueness
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          
+          # Create canary version with timestamp
+          CANARY_VERSION="${CURRENT_VERSION}-canary.${SHORT_SHA}.${TIMESTAMP}"
+          
+          # Update package.json without git commit
+          npm version $CANARY_VERSION --no-git-tag-version
+          
+          # Output for later steps
+          echo "version=$CANARY_VERSION" >> $GITHUB_OUTPUT
+      
+      - name: Publish to npm
+        run: npm publish --tag canary --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      
+      - name: Create deployment summary
+        run: |
+          echo "### 🚀 Canary Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** \`${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** [\`${GITHUB_SHA:0:7}\`](${{ github.event.repository.html_url }}/commit/${GITHUB_SHA})" >> $GITHUB_STEP_SUMMARY
+          echo "**Install:** \`npm install @atomic-ehr/codegen@canary\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "or install specific version:" >> $GITHUB_STEP_SUMMARY
+          echo "\`npm install @atomic-ehr/codegen@${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,32 @@
+name: Trigger Playground Build
+
+on:
+  workflow_run:
+    workflows: ["Canary Release"]
+    types:
+      - completed
+    branches: [main]
+
+jobs:
+  trigger:
+    # Only trigger if canary release was successful
+    #if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: false
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger playground workflow
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.ORG_PAT }}
+          script: |
+            console.log('Triggering playground rebuild after successful canary release');
+
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'atomic-ehr',
+              repo: 'atomic-playground',
+              workflow_id: 'deploy.yml',
+              ref: 'main'
+            });
+
+            console.log('Playground rebuild triggered successfully');

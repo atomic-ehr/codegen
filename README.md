@@ -1,5 +1,7 @@
 # @atomic-ehr/type-schema
 
+[![npm version](https://badge.fury.io/js/@atomic-ehr%2Fcodegen.svg)](https://www.npmjs.com/package/@atomic-ehr/codegen)
+
 TypeSchema transformer and TypeScript code generator for FHIR resources. This library provides a two-stage pipeline for generating strongly-typed TypeScript interfaces from FHIR StructureDefinitions.
 
 ## Overview
@@ -252,8 +254,10 @@ bun run build
 
 - `bun run test` - Run all tests
 - `bun run build` - Build the project
+- `bun run typecheck` - Run TypeScript type checking
 - `bun run cli` - Run TypeSchema CLI
 - `bun run generate-types` - Run type generation CLI
+- `bun run release [patch|minor|major]` - Create and publish a release
 
 ## Architecture
 
@@ -281,6 +285,89 @@ The generator system follows an extensible architecture:
 
 - **Naming utilities** - Consistent naming conventions for TypeScript
 - **Code utilities** - Code generation helpers (JSDoc, enums, type aliases)
+
+## Publishing & Release Management
+
+This project uses automated publishing workflows with both stable releases and canary builds.
+
+### Release Process
+
+#### Stable Releases
+
+1. **Create a release using the script:**
+   ```bash
+   # For patch releases (bug fixes)
+   bun run release patch
+   
+   # For minor releases (new features)
+   bun run release minor
+   
+   # For major releases (breaking changes)
+   bun run release major
+   ```
+
+2. The release script will:
+   - Verify you're on the main branch
+   - Check for uncommitted changes
+   - Run tests and type checking
+   - Bump the version in package.json
+   - Create a git commit and tag
+   - Build the package
+   - Publish to npm
+   - Push changes and tags to GitHub
+
+3. **GitHub Actions will also publish:**
+   - The publish workflow triggers on version tags (v*)
+   - Creates a GitHub Release with changelog
+   - Publishes to npm registry
+
+#### Canary Releases
+
+Canary releases are automatically created on every push to the main branch:
+
+- **Installation:** `npm install @atomic-ehr/codegen@canary`
+- **Versioning:** `0.0.1-canary.abc1234.20240805123456`
+- **Automatic:** No manual action required
+
+### CI/CD Workflows
+
+#### Continuous Integration (CI)
+- **Triggers:** Push/PR to main or develop branches
+- **Actions:** Tests, type checking, multi-platform testing
+- **Platforms:** Ubuntu, macOS (Windows commented out)
+
+#### Canary Release
+- **Triggers:** Push to main branch (excluding version tags)
+- **Actions:** Build, test, publish canary version
+- **Skip conditions:** `[skip ci]` in commit message or version bump commits
+
+#### Publish
+- **Triggers:** Version tags (v*)
+- **Actions:** Full test suite, build, npm publish, GitHub release
+- **Requirements:** All tests must pass
+
+#### Playground Trigger
+- **Triggers:** After successful canary release
+- **Actions:** Triggers rebuild of related playground/demo applications
+- **Status:** Currently disabled (can be enabled by setting `if: false` to a condition)
+
+### Package Configuration
+
+The package is configured for npm publishing with:
+- **Registry:** npm public registry
+- **Scope:** `@atomic-ehr`
+- **Access:** Public
+- **Files included:** `dist/`, `src/`
+- **Main entry:** `./dist/index.js`
+- **Types:** `./dist/index.d.ts`
+- **CLI binary:** `type-schema` → `./dist/cli/index.js`
+
+### Requirements
+
+To publish, you need:
+- **NPM_TOKEN** secret in GitHub repository settings
+- **Write access** to the @atomic-ehr npm organization
+- **Push access** to the main branch
 
 ## Contributing
 
