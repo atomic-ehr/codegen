@@ -1,0 +1,6 @@
+[submodule "refs/type-schema"]
+	path = refs/type-schema
+	url = git@github.com:fhir-clj/type-schema.git
+[submodule "refs/fhir-schema-codegen"]
+	path = refs/fhir-schema-codegen
+	url = git@github.com:fhir-schema/fhir-schema-codegen.git
