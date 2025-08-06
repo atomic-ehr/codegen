@@ -87,14 +87,16 @@ export async function showConfig(options: ShowConfigOptions): Promise<void> {
 
 		if (format === "json") {
 			const output: any = { config };
-			
+
 			if (showSources) {
-				output.sources = Array.from(configManager.getConfigSources().entries()).map(([key, source]) => ({
+				output.sources = Array.from(
+					configManager.getConfigSources().entries(),
+				).map(([key, source]) => ({
 					key,
 					...source,
 				}));
 			}
-			
+
 			console.log(JSON.stringify(output, null, 2));
 		} else if (format === "yaml") {
 			// For now, output JSON format (could add YAML library later)
@@ -105,7 +107,9 @@ export async function showConfig(options: ShowConfigOptions): Promise<void> {
 			printConfigText(config, configManager, showSources, showDefaults);
 		}
 	} catch (error) {
-		console.error(`❌ Failed to show configuration: ${error instanceof Error ? error.message : String(error)}`);
+		console.error(
+			`❌ Failed to show configuration: ${error instanceof Error ? error.message : String(error)}`,
+		);
 		process.exit(1);
 	}
 }
@@ -117,7 +121,7 @@ function printConfigText(
 	config: any,
 	configManager: ConfigManager,
 	showSources: boolean,
-	showDefaults: boolean
+	showDefaults: boolean,
 ): void {
 	console.log("⚙️  Atomic Codegen Configuration");
 	console.log("================================");
@@ -157,7 +161,11 @@ function printConfigText(
 	if (config.languages && Object.keys(config.languages).length > 0) {
 		console.log("🌐 Languages:");
 		for (const [lang, langConfig] of Object.entries(config.languages)) {
-			if (langConfig && typeof langConfig === "object" && Object.keys(langConfig).length > 0) {
+			if (
+				langConfig &&
+				typeof langConfig === "object" &&
+				Object.keys(langConfig).length > 0
+			) {
 				console.log(`   ${lang}:`);
 				printSection(langConfig, "     ");
 			}
@@ -182,9 +190,9 @@ function printSection(obj: any, indent: string): void {
 			console.log(`${indent}${key}:`);
 			printSection(value, indent + "  ");
 		} else {
-			const displayValue = Array.isArray(value) 
+			const displayValue = Array.isArray(value)
 				? `[${value.join(", ")}]`
-				: typeof value === "string" 
+				: typeof value === "string"
 					? `"${value}"`
 					: String(value);
 			console.log(`${indent}${key}: ${displayValue}`);

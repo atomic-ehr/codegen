@@ -7,8 +7,8 @@ import { test, expect, describe } from 'bun:test';
 describe('Simple Integration Test', () => {
   test('should verify generator module exports', async () => {
     // Just test that we can import the modules
-    const generatorModule = await import('../../src/generator/index');
-    
+    const generatorModule = await import('../../src/generators');
+
     expect(generatorModule.generateTypes).toBeDefined();
     expect(generatorModule.generateTypesFromPackage).toBeDefined();
     expect(generatorModule.TypeScriptGenerator).toBeDefined();

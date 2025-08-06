@@ -3,5 +3,5 @@
  */
 
 export * from "./code";
-export * from "./naming";
 export * from "./config";
+export * from "./naming";

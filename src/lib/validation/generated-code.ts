@@ -4,9 +4,9 @@
  * Validates generated TypeScript code for syntax errors and compilation issues
  */
 
-import { readdir, readFile, stat } from "fs/promises";
-import { join, extname, relative } from "path";
 import { spawn } from "child_process";
+import { readdir, readFile, stat } from "fs/promises";
+import { extname, join, relative } from "path";
 import { promisify } from "util";
 
 export interface GeneratedCodeValidationOptions {
@@ -52,7 +52,7 @@ export interface GeneratedCodeValidationStats {
  * Validate generated TypeScript code
  */
 export async function validateGeneratedCode(
-	options: GeneratedCodeValidationOptions
+	options: GeneratedCodeValidationOptions,
 ): Promise<GeneratedCodeValidationResult> {
 	const result: GeneratedCodeValidationResult = {
 		valid: true,
@@ -104,7 +104,9 @@ export async function validateGeneratedCode(
 		}
 
 		if (options.verbose) {
-			console.error(`[VALIDATE] Found ${tsFiles.length} TypeScript files to validate`);
+			console.error(
+				`[VALIDATE] Found ${tsFiles.length} TypeScript files to validate`,
+			);
 		}
 
 		// Validate syntax of each file
@@ -124,7 +126,10 @@ export async function validateGeneratedCode(
 		}
 
 		// Run TypeScript compilation check
-		const compilationResult = await validateTypeScriptCompilation(options.outputDir, options);
+		const compilationResult = await validateTypeScriptCompilation(
+			options.outputDir,
+			options,
+		);
 		result.errors.push(...compilationResult.errors);
 		result.warnings.push(...compilationResult.warnings);
 		result.stats.compilationErrors += compilationResult.compilationErrors;
@@ -138,7 +143,6 @@ export async function validateGeneratedCode(
 		if (options.strict && result.warnings.length > 0) {
 			result.valid = false;
 		}
-
 	} catch (error) {
 		result.errors.push({
 			type: "error",
@@ -186,7 +190,7 @@ async function findTypeScriptFiles(dir: string): Promise<string[]> {
  */
 async function validateTypeScriptFile(
 	filePath: string,
-	options: GeneratedCodeValidationOptions
+	options: GeneratedCodeValidationOptions,
 ): Promise<{
 	valid: boolean;
 	errors: GeneratedCodeValidationError[];
@@ -217,7 +221,6 @@ async function validateTypeScriptFile(
 		// Check for common generated code issues
 		const codeQualityIssues = validateCodeQuality(content, relativePath);
 		result.warnings.push(...codeQualityIssues);
-
 	} catch (error) {
 		result.errors.push({
 			type: "error",
@@ -236,7 +239,7 @@ async function validateTypeScriptFile(
  */
 function validateTypeScriptSyntax(
 	content: string,
-	filePath: string
+	filePath: string,
 ): {
 	errors: GeneratedCodeValidationError[];
 	warnings: GeneratedCodeValidationWarning[];
@@ -256,7 +259,13 @@ function validateTypeScriptSyntax(
 		const closeBraces = (line.match(/\}/g) || []).length;
 
 		// Check for missing semicolons (basic check)
-		if (line.trim().match(/^(export|import|const|let|var|function|class|interface|type)\s+.*[^;{}]$/)) {
+		if (
+			line
+				.trim()
+				.match(
+					/^(export|import|const|let|var|function|class|interface|type)\s+.*[^;{}]$/,
+				)
+		) {
 			warnings.push({
 				type: "warning",
 				message: "Possible missing semicolon",
@@ -266,7 +275,9 @@ function validateTypeScriptSyntax(
 		}
 
 		// Check for invalid characters in identifiers
-		const invalidIdentifierMatch = line.match(/\b[0-9][a-zA-Z_$][a-zA-Z0-9_$]*\b/);
+		const invalidIdentifierMatch = line.match(
+			/\b[0-9][a-zA-Z_$][a-zA-Z0-9_$]*\b/,
+		);
 		if (invalidIdentifierMatch) {
 			errors.push({
 				type: "error",
@@ -282,7 +293,11 @@ function validateTypeScriptSyntax(
 		const doubleQuotes = (line.match(/"/g) || []).length;
 		const backticks = (line.match(/`/g) || []).length;
 
-		if (singleQuotes % 2 !== 0 || doubleQuotes % 2 !== 0 || backticks % 2 !== 0) {
+		if (
+			singleQuotes % 2 !== 0 ||
+			doubleQuotes % 2 !== 0 ||
+			backticks % 2 !== 0
+		) {
 			// Only flag if it's not a comment or inside another string
 			if (!line.trim().startsWith("//") && !line.trim().startsWith("*")) {
 				warnings.push({
@@ -309,7 +324,11 @@ function validateTypeScriptSyntax(
 	}
 
 	// Check for valid TypeScript/JavaScript structure
-	if (!content.includes("export") && !content.includes("import") && content.trim().length > 0) {
+	if (
+		!content.includes("export") &&
+		!content.includes("import") &&
+		content.trim().length > 0
+	) {
 		warnings.push({
 			type: "warning",
 			message: "File contains no exports or imports",
@@ -325,7 +344,7 @@ function validateTypeScriptSyntax(
  */
 function validateCodeQuality(
 	content: string,
-	filePath: string
+	filePath: string,
 ): GeneratedCodeValidationWarning[] {
 	const warnings: GeneratedCodeValidationWarning[] = [];
 
@@ -342,8 +361,10 @@ function validateCodeQuality(
 	// Check for duplicate type definitions
 	const typeDefinitions = content.match(/(?:interface|type|class)\s+(\w+)/g);
 	if (typeDefinitions) {
-		const typeNames = typeDefinitions.map(def => def.split(/\s+/)[1]);
-		const duplicates = typeNames.filter((name, index) => typeNames.indexOf(name) !== index);
+		const typeNames = typeDefinitions.map((def) => def.split(/\s+/)[1]);
+		const duplicates = typeNames.filter(
+			(name, index) => typeNames.indexOf(name) !== index,
+		);
 
 		if (duplicates.length > 0) {
 			warnings.push({
@@ -375,7 +396,7 @@ function validateCodeQuality(
  */
 async function validateTypeScriptCompilation(
 	outputDir: string,
-	options: GeneratedCodeValidationOptions
+	options: GeneratedCodeValidationOptions,
 ): Promise<{
 	valid: boolean;
 	errors: GeneratedCodeValidationError[];
@@ -406,7 +427,6 @@ async function validateTypeScriptCompilation(
 			result.errors.push(...tscResult.errors);
 			result.warnings.push(...tscResult.warnings);
 		}
-
 	} catch (error) {
 		result.errors.push({
 			type: "error",
@@ -425,7 +445,7 @@ async function validateTypeScriptCompilation(
  */
 async function runTypeScriptCompiler(
 	outputDir: string,
-	options: GeneratedCodeValidationOptions
+	options: GeneratedCodeValidationOptions,
 ): Promise<{
 	success: boolean;
 	errors: GeneratedCodeValidationError[];
@@ -447,10 +467,14 @@ async function runTypeScriptCompiler(
 
 		return new Promise((resolve) => {
 			// Use bun to check TypeScript compilation with individual files
-			const child = spawn("bun", ["tsc", "--noEmit", "--skipLibCheck", ...tsFiles], {
-				cwd: process.cwd(),
-				stdio: ["pipe", "pipe", "pipe"],
-			});
+			const child = spawn(
+				"bun",
+				["tsc", "--noEmit", "--skipLibCheck", ...tsFiles],
+				{
+					cwd: process.cwd(),
+					stdio: ["pipe", "pipe", "pipe"],
+				},
+			);
 
 			let stdout = "";
 			let stderr = "";
@@ -475,10 +499,13 @@ async function runTypeScriptCompiler(
 				for (const line of lines) {
 					if (line.trim()) {
 						// Parse TypeScript error format: file(line,col): error TS####: message
-						const errorMatch = line.match(/^(.+?)\((\d+),(\d+)\):\s+(error|warning)\s+TS(\d+):\s+(.+)$/);
+						const errorMatch = line.match(
+							/^(.+?)\((\d+),(\d+)\):\s+(error|warning)\s+TS(\d+):\s+(.+)$/,
+						);
 
 						if (errorMatch) {
-							const [, file, lineNum, colNum, type, tsCode, message] = errorMatch;
+							const [, file, lineNum, colNum, type, tsCode, message] =
+								errorMatch;
 
 							if (type === "error") {
 								errors.push({
@@ -499,7 +526,10 @@ async function runTypeScriptCompiler(
 									column: parseInt(colNum),
 								});
 							}
-						} else if (line.includes("error") && !line.includes("Found 0 errors")) {
+						} else if (
+							line.includes("error") &&
+							!line.includes("Found 0 errors")
+						) {
 							// Generic error parsing
 							errors.push({
 								type: "error",
@@ -514,7 +544,8 @@ async function runTypeScriptCompiler(
 				if (code === 127 || stderr.includes("command not found")) {
 					warnings.push({
 						type: "warning",
-						message: "TypeScript compiler (tsc) not found. Install TypeScript globally or locally to enable compilation validation.",
+						message:
+							"TypeScript compiler (tsc) not found. Install TypeScript globally or locally to enable compilation validation.",
 					});
 				}
 
@@ -531,10 +562,12 @@ async function runTypeScriptCompiler(
 				resolve({
 					success: true,
 					errors: [],
-					warnings: [{
-						type: "warning",
-						message: `TypeScript compilation check skipped: ${error.message}`,
-					}],
+					warnings: [
+						{
+							type: "warning",
+							message: `TypeScript compilation check skipped: ${error.message}`,
+						},
+					],
 					typeErrors: 0,
 				});
 			});
@@ -543,10 +576,12 @@ async function runTypeScriptCompiler(
 		return {
 			success: true,
 			errors: [],
-			warnings: [{
-				type: "warning",
-				message: `TypeScript compilation check failed: ${error instanceof Error ? error.message : String(error)}`,
-			}],
+			warnings: [
+				{
+					type: "warning",
+					message: `TypeScript compilation check failed: ${error instanceof Error ? error.message : String(error)}`,
+				},
+			],
 			typeErrors: 0,
 		};
 	}

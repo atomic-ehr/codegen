@@ -50,3 +50,10 @@ export {
 export * from "./types";
 // Export value set processor
 export { transformValueSet } from "./value-set/processor";
+// Export validation utilities
+export {
+	validateTypeSchema,
+	validateTypeSchemas,
+	validateTypeSchemaOrThrow,
+	isValidatorAvailable,
+} from "../validation/typeschema-validator";

@@ -67,7 +67,9 @@ interface ValidateConfigOptions {
 /**
  * Validate configuration
  */
-export async function validateConfig(options: ValidateConfigOptions): Promise<void> {
+export async function validateConfig(
+	options: ValidateConfigOptions,
+): Promise<void> {
 	const { configPath, workingDir, outputFormat, verbose } = options;
 
 	try {
@@ -88,10 +90,12 @@ export async function validateConfig(options: ValidateConfigOptions): Promise<vo
 				valid: validation.valid,
 				errors: validation.errors,
 				warnings: validation.warnings,
-				sources: Array.from(configManager.getConfigSources().entries()).map(([key, source]) => ({
-					key,
-					...source,
-				})),
+				sources: Array.from(configManager.getConfigSources().entries()).map(
+					([key, source]) => ({
+						key,
+						...source,
+					}),
+				),
 				config: verbose ? config : undefined,
 			};
 			console.log(JSON.stringify(result, null, 2));
@@ -106,12 +110,20 @@ export async function validateConfig(options: ValidateConfigOptions): Promise<vo
 		}
 	} catch (error) {
 		if (outputFormat === "json") {
-			console.log(JSON.stringify({
-				valid: false,
-				error: error instanceof Error ? error.message : String(error),
-			}, null, 2));
+			console.log(
+				JSON.stringify(
+					{
+						valid: false,
+						error: error instanceof Error ? error.message : String(error),
+					},
+					null,
+					2,
+				),
+			);
 		} else {
-			console.error(`❌ Configuration error: ${error instanceof Error ? error.message : String(error)}`);
+			console.error(
+				`❌ Configuration error: ${error instanceof Error ? error.message : String(error)}`,
+			);
 		}
 		process.exit(1);
 	}
@@ -123,7 +135,7 @@ export async function validateConfig(options: ValidateConfigOptions): Promise<vo
 function printValidationResult(
 	validation: any,
 	configManager: ConfigManager,
-	verbose: boolean
+	verbose: boolean,
 ): void {
 	const sources = configManager.getConfigSources();
 

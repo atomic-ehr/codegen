@@ -118,12 +118,18 @@ async function determineBaseKind(
 	}
 
 	// Check if the URL suggests it's a profile (especially US Core)
-	if (baseUrl.includes("/us/core/") || baseUrl.includes("StructureDefinition/us-core-")) {
+	if (
+		baseUrl.includes("/us/core/") ||
+		baseUrl.includes("StructureDefinition/us-core-")
+	) {
 		return "profile";
 	}
 
 	// Check if it's any other profile URL pattern
-	if (baseUrl.includes("StructureDefinition/") && !baseUrl.startsWith("http://hl7.org/fhir/StructureDefinition/")) {
+	if (
+		baseUrl.includes("StructureDefinition/") &&
+		!baseUrl.startsWith("http://hl7.org/fhir/StructureDefinition/")
+	) {
 		// Non-standard FHIR StructureDefinition URLs are likely profiles
 		return "profile";
 	}
@@ -154,7 +160,8 @@ function extractProfileMetadata(fhirSchema: FHIRSchema): Record<string, any> {
 	if (fhirSchema.contact) metadata.contact = fhirSchema.contact;
 	if (fhirSchema.copyright) metadata.copyright = fhirSchema.copyright;
 	if (fhirSchema.purpose) metadata.purpose = fhirSchema.purpose;
-	if (fhirSchema.experimental !== undefined) metadata.experimental = fhirSchema.experimental;
+	if (fhirSchema.experimental !== undefined)
+		metadata.experimental = fhirSchema.experimental;
 	if (fhirSchema.date) metadata.date = fhirSchema.date;
 	if (fhirSchema.jurisdiction) metadata.jurisdiction = fhirSchema.jurisdiction;
 
@@ -190,8 +197,10 @@ async function processProfileConstraints(
 		if (element.mustSupport) elementConstraints.mustSupport = true;
 
 		// Fixed values
-		if (element.fixedValue !== undefined) elementConstraints.fixedValue = element.fixedValue;
-		if (element.patternValue !== undefined) elementConstraints.patternValue = element.patternValue;
+		if (element.fixedValue !== undefined)
+			elementConstraints.fixedValue = element.fixedValue;
+		if (element.patternValue !== undefined)
+			elementConstraints.patternValue = element.patternValue;
 
 		// Value set bindings
 		if (element.binding) {
@@ -202,7 +211,11 @@ async function processProfileConstraints(
 		}
 
 		// Type constraints
-		if (element.type && Array.isArray(element.type) && element.type.length > 0) {
+		if (
+			element.type &&
+			Array.isArray(element.type) &&
+			element.type.length > 0
+		) {
 			elementConstraints.types = element.type.map((t: any) => {
 				const typeConstraint: any = { code: t.code };
 				if (t.profile) typeConstraint.profile = t.profile;
@@ -241,7 +254,11 @@ async function processProfileExtensions(
 
 	// Look for extension elements
 	for (const [path, element] of Object.entries(fhirSchema.elements)) {
-		if (path.includes("extension") && element.type && Array.isArray(element.type)) {
+		if (
+			path.includes("extension") &&
+			element.type &&
+			Array.isArray(element.type)
+		) {
 			for (const type of element.type) {
 				if (type.code === "Extension" && type.profile) {
 					extensions.push({

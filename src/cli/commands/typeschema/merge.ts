@@ -4,17 +4,16 @@
  * Merge multiple TypeSchema files into a single output
  */
 
+import { mkdir, readdir, readFile, stat, writeFile } from "fs/promises";
+import { dirname, extname, join, resolve } from "path";
 import type { CommandModule } from "yargs";
-import { resolve } from "path";
-import { readFile, writeFile, mkdir, readdir, stat } from "fs/promises";
-import { join, extname, dirname } from "path";
 import type { AnyTypeSchema } from "../../../lib/typeschema/types";
 
 interface MergeCommandArgs {
 	input: string[];
 	output: string;
 	format?: "ndjson" | "json";
-	"deduplicate"?: boolean;
+	deduplicate?: boolean;
 	"sort-by"?: "name" | "kind" | "package";
 	"filter-kinds"?: string[];
 	verbose?: boolean;
@@ -77,7 +76,8 @@ export const mergeTypeschemaCommand: CommandModule<{}, MergeCommandArgs> = {
 		},
 		"filter-kinds": {
 			type: "array",
-			description: "Only include specific schema kinds (e.g., resource, complex-type)",
+			description:
+				"Only include specific schema kinds (e.g., resource, complex-type)",
 		},
 		verbose: {
 			alias: "v",
@@ -103,14 +103,18 @@ export const mergeTypeschemaCommand: CommandModule<{}, MergeCommandArgs> = {
 			printMergeStats(stats);
 		}
 
-		console.log(`✨ Successfully merged ${stats.outputSchemas} schemas to ${options.outputPath}`);
+		console.log(
+			`✨ Successfully merged ${stats.outputSchemas} schemas to ${options.outputPath}`,
+		);
 	},
 };
 
 /**
  * Merge TypeSchema files
  */
-export async function mergeTypeSchema(options: MergeOptions): Promise<MergeStats> {
+export async function mergeTypeSchema(
+	options: MergeOptions,
+): Promise<MergeStats> {
 	const log = (message: string) => {
 		if (options.verbose) {
 			console.error(`[MERGE] ${message}`);
@@ -157,11 +161,13 @@ export async function mergeTypeSchema(options: MergeOptions): Promise<MergeStats
 		let processedSchemas = allSchemas;
 		if (options.filterKinds?.length > 0) {
 			const beforeCount = processedSchemas.length;
-			processedSchemas = processedSchemas.filter(schema =>
-				options.filterKinds.includes(schema.identifier.kind)
+			processedSchemas = processedSchemas.filter((schema) =>
+				options.filterKinds.includes(schema.identifier.kind),
 			);
 			stats.schemasFiltered = beforeCount - processedSchemas.length;
-			log(`Filtered ${stats.schemasFiltered} schemas, ${processedSchemas.length} remaining`);
+			log(
+				`Filtered ${stats.schemasFiltered} schemas, ${processedSchemas.length} remaining`,
+			);
 		}
 
 		// Apply deduplication if requested
@@ -183,9 +189,10 @@ export async function mergeTypeSchema(options: MergeOptions): Promise<MergeStats
 		// Write output
 		await writeSchemas(processedSchemas, options.outputPath, options.format);
 		log(`Wrote ${stats.outputSchemas} schemas to ${options.outputPath}`);
-
 	} catch (error) {
-		throw new Error(`Failed to merge TypeSchema: ${error instanceof Error ? error.message : String(error)}`);
+		throw new Error(
+			`Failed to merge TypeSchema: ${error instanceof Error ? error.message : String(error)}`,
+		);
 	}
 
 	return stats;
@@ -194,7 +201,9 @@ export async function mergeTypeSchema(options: MergeOptions): Promise<MergeStats
 /**
  * Load schemas from file or directory path
  */
-async function loadSchemasFromPath(inputPath: string): Promise<AnyTypeSchema[]> {
+async function loadSchemasFromPath(
+	inputPath: string,
+): Promise<AnyTypeSchema[]> {
 	const stats = await stat(inputPath);
 
 	if (stats.isFile()) {
@@ -214,20 +223,27 @@ async function loadSchemasFromFile(filePath: string): Promise<AnyTypeSchema[]> {
 	const ext = extname(filePath);
 
 	if (ext === ".ndjson") {
-		const lines = content.trim().split("\n").filter(line => line.trim());
-		return lines.map(line => JSON.parse(line));
+		const lines = content
+			.trim()
+			.split("\n")
+			.filter((line) => line.trim());
+		return lines.map((line) => JSON.parse(line));
 	} else if (ext === ".json") {
 		const parsed = JSON.parse(content);
 		return Array.isArray(parsed) ? parsed : [parsed];
 	} else {
-		throw new Error(`Unsupported file format: ${ext}. Expected .ndjson or .json`);
+		throw new Error(
+			`Unsupported file format: ${ext}. Expected .ndjson or .json`,
+		);
 	}
 }
 
 /**
  * Load schemas from directory
  */
-async function loadSchemasFromDirectory(dirPath: string): Promise<AnyTypeSchema[]> {
+async function loadSchemasFromDirectory(
+	dirPath: string,
+): Promise<AnyTypeSchema[]> {
 	const files = await readdir(dirPath, { recursive: true });
 	const schemas: AnyTypeSchema[] = [];
 
@@ -235,12 +251,17 @@ async function loadSchemasFromDirectory(dirPath: string): Promise<AnyTypeSchema[
 		const filePath = join(dirPath, file);
 		const stats = await stat(filePath);
 
-		if (stats.isFile() && (file.endsWith(".json") || file.endsWith(".ndjson"))) {
+		if (
+			stats.isFile() &&
+			(file.endsWith(".json") || file.endsWith(".ndjson"))
+		) {
 			try {
 				const fileSchemas = await loadSchemasFromFile(filePath);
 				schemas.push(...fileSchemas);
 			} catch (error) {
-				console.warn(`Warning: Failed to load ${filePath}: ${error instanceof Error ? error.message : String(error)}`);
+				console.warn(
+					`Warning: Failed to load ${filePath}: ${error instanceof Error ? error.message : String(error)}`,
+				);
 			}
 		}
 	}
@@ -259,7 +280,10 @@ async function countFilesInDirectory(dirPath: string): Promise<number> {
 		const filePath = join(dirPath, file);
 		const stats = await stat(filePath);
 
-		if (stats.isFile() && (file.endsWith(".json") || file.endsWith(".ndjson"))) {
+		if (
+			stats.isFile() &&
+			(file.endsWith(".json") || file.endsWith(".ndjson"))
+		) {
 			count++;
 		}
 	}
@@ -288,7 +312,10 @@ function deduplicateSchemas(schemas: AnyTypeSchema[]): AnyTypeSchema[] {
 /**
  * Sort schemas by specified field
  */
-function sortSchemas(schemas: AnyTypeSchema[], sortBy: "name" | "kind" | "package"): AnyTypeSchema[] {
+function sortSchemas(
+	schemas: AnyTypeSchema[],
+	sortBy: "name" | "kind" | "package",
+): AnyTypeSchema[] {
 	return [...schemas].sort((a, b) => {
 		let aValue: string;
 		let bValue: string;
@@ -315,12 +342,16 @@ function sortSchemas(schemas: AnyTypeSchema[], sortBy: "name" | "kind" | "packag
 /**
  * Write schemas to output file
  */
-async function writeSchemas(schemas: AnyTypeSchema[], outputPath: string, format: "ndjson" | "json"): Promise<void> {
+async function writeSchemas(
+	schemas: AnyTypeSchema[],
+	outputPath: string,
+	format: "ndjson" | "json",
+): Promise<void> {
 	// Ensure output directory exists
 	await mkdir(dirname(outputPath), { recursive: true });
 
 	if (format === "ndjson") {
-		const lines = schemas.map(schema => JSON.stringify(schema));
+		const lines = schemas.map((schema) => JSON.stringify(schema));
 		await writeFile(outputPath, lines.join("\n"));
 	} else {
 		await writeFile(outputPath, JSON.stringify(schemas, null, 2));

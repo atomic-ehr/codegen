@@ -4,13 +4,23 @@
  * Generate TypeScript types from TypeSchema files
  */
 
+import { readdir, readFile, stat } from "fs/promises";
+import { extname, join, resolve } from "path";
 import type { CommandModule } from "yargs";
-import { resolve } from "path";
 import { TypeScriptGenerator } from "../../../generators/typescript";
-import type { GeneratorConfig, TypeScriptConfig } from "../../../lib/core/config";
+import type {
+	GeneratorConfig,
+	TypeScriptConfig,
+} from "../../../lib/core/config";
+import {
+	ErrorFactory,
+	FileSystemError,
+	GenerationError,
+	ValidationError,
+} from "../../../lib/core/errors";
+import { organizeSchemas } from "../../../lib/generators/schema-organizer";
+import type { AnyTypeSchema, TypeSchema } from "../../../lib/typeschema";
 import type { CLIArgvWithConfig } from "../index";
-import { readFile, readdir, stat } from "fs/promises";
-import { join, extname } from "path";
 
 interface TypeScriptGenerateArgs extends CLIArgvWithConfig {
 	input?: string;
@@ -24,7 +34,16 @@ interface TypeScriptGenerateArgs extends CLIArgvWithConfig {
 	overwrite?: boolean;
 	// TypeScript-specific options
 	strict?: boolean;
-	target?: "ES5" | "ES6" | "ES2015" | "ES2017" | "ES2018" | "ES2019" | "ES2020" | "ES2021" | "ES2022";
+	target?:
+		| "ES5"
+		| "ES6"
+		| "ES2015"
+		| "ES2017"
+		| "ES2018"
+		| "ES2019"
+		| "ES2020"
+		| "ES2021"
+		| "ES2022";
 	module?: "CommonJS" | "ES6" | "ES2015" | "ES2020" | "ES2022" | "ESNext";
 	declaration?: boolean;
 	"base-types-module"?: string;
@@ -35,7 +54,10 @@ interface TypeScriptGenerateArgs extends CLIArgvWithConfig {
 /**
  * Generate TypeScript command
  */
-export const generateTypescriptCommand: CommandModule<{}, TypeScriptGenerateArgs> = {
+export const generateTypescriptCommand: CommandModule<
+	{},
+	TypeScriptGenerateArgs
+> = {
 	command: "typescript",
 	aliases: ["ts"],
 	describe: "Generate TypeScript types from TypeSchema",
@@ -43,12 +65,14 @@ export const generateTypescriptCommand: CommandModule<{}, TypeScriptGenerateArgs
 		input: {
 			alias: "i",
 			type: "string",
-			description: "Input TypeSchema file or directory (.ndjson, .json, or directory)",
+			description:
+				"Input TypeSchema file or directory (.ndjson, .json, or directory)",
 		},
 		output: {
 			alias: "o",
 			type: "string",
-			description: "Output directory for generated TypeScript files. Uses config file if not specified.",
+			description:
+				"Output directory for generated TypeScript files. Uses config file if not specified.",
 			demandOption: false,
 		},
 		"include-comments": {
@@ -95,13 +119,30 @@ export const generateTypescriptCommand: CommandModule<{}, TypeScriptGenerateArgs
 		},
 		target: {
 			type: "string",
-			choices: ["ES5", "ES6", "ES2015", "ES2017", "ES2018", "ES2019", "ES2020", "ES2021", "ES2022"] as const,
+			choices: [
+				"ES5",
+				"ES6",
+				"ES2015",
+				"ES2017",
+				"ES2018",
+				"ES2019",
+				"ES2020",
+				"ES2021",
+				"ES2022",
+			] as const,
 			default: "ES2020" as const,
 			description: "TypeScript target version",
 		},
 		module: {
 			type: "string",
-			choices: ["CommonJS", "ES6", "ES2015", "ES2020", "ES2022", "ESNext"] as const,
+			choices: [
+				"CommonJS",
+				"ES6",
+				"ES2015",
+				"ES2020",
+				"ES2022",
+				"ESNext",
+			] as const,
 			default: "ES2020" as const,
 			description: "Module system to use",
 		},
@@ -135,7 +176,10 @@ export const generateTypescriptCommand: CommandModule<{}, TypeScriptGenerateArgs
 		// Get output directory from CLI args or configuration
 		const outputDir = argv.output || argv._config?.generator?.outputDir;
 		if (!outputDir) {
-			throw new Error("No output directory specified. Either provide --output or configure outputDir in .atomic-codegen.json");
+			throw ErrorFactory.missingConfig("outputDir", [
+				"Use --output flag to specify output directory",
+				"Configure outputDir in your .atomic-codegen.json file",
+			]);
 		}
 
 		// Merge CLI args with configuration
@@ -146,10 +190,16 @@ export const generateTypescriptCommand: CommandModule<{}, TypeScriptGenerateArgs
 		const generatorConfig: GeneratorConfig = {
 			target: "typescript",
 			outputDir: resolve(outputDir),
-			includeComments: argv["include-comments"] ?? configGenerator.includeComments ?? true,
-			includeValidation: argv["include-validation"] ?? configGenerator.includeValidation ?? false,
-			namespaceStyle: argv["namespace-style"] || configGenerator.namespaceStyle || "nested",
-			fileNaming: argv["file-naming"] || configGenerator.fileNaming || "PascalCase",
+			includeComments:
+				argv["include-comments"] ?? configGenerator.includeComments ?? true,
+			includeValidation:
+				argv["include-validation"] ??
+				configGenerator.includeValidation ??
+				false,
+			namespaceStyle:
+				argv["namespace-style"] || configGenerator.namespaceStyle || "nested",
+			fileNaming:
+				argv["file-naming"] || configGenerator.fileNaming || "PascalCase",
 			format: argv.format ?? configGenerator.format ?? true,
 			fileHeader: argv["file-header"] || configGenerator.fileHeader,
 			overwrite: argv.overwrite ?? configGenerator.overwrite ?? true,
@@ -161,12 +211,22 @@ export const generateTypescriptCommand: CommandModule<{}, TypeScriptGenerateArgs
 			target: argv.target || configLanguageTs.target || "ES2020",
 			module: argv.module || configLanguageTs.module || "ES2020",
 			declaration: argv.declaration ?? configLanguageTs.declaration ?? true,
-			baseTypesModule: argv["base-types-module"] || configLanguageTs.baseTypesModule,
+			baseTypesModule:
+				argv["base-types-module"] || configLanguageTs.baseTypesModule,
 			useEnums: argv["use-enums"] ?? configLanguageTs.useEnums ?? true,
-			preferInterfaces: argv["prefer-interfaces"] ?? configLanguageTs.preferInterfaces ?? true,
+			preferInterfaces:
+				argv["prefer-interfaces"] ?? configLanguageTs.preferInterfaces ?? true,
 		};
 
-		await generateTypeScript(generatorConfig, typescriptConfig, argv.input);
+		// Use logger if available from middleware
+		const logger = argv._logger;
+
+		await generateTypeScript(
+			generatorConfig,
+			typescriptConfig,
+			argv.input,
+			logger,
+		);
 	},
 };
 
@@ -176,16 +236,32 @@ export const generateTypescriptCommand: CommandModule<{}, TypeScriptGenerateArgs
 export async function generateTypeScript(
 	config: GeneratorConfig,
 	tsConfig: TypeScriptConfig,
-	inputPath?: string
+	inputPath?: string,
+	logger?: ReturnType<
+		typeof import("../../core/logger").createLoggerFromConfig
+	>,
 ): Promise<void> {
-	const log = (message: string) => {
-		if (config.verbose) {
-			console.error(`[GENERATE] ${message}`);
-		}
+	// Create child logger for this operation
+	const log = logger?.child("TypeScriptGenerator") || {
+		debug: async (msg: string, ctx?: any) =>
+			config.verbose && console.error(`[DEBUG] ${msg}`),
+		info: async (msg: string, ctx?: any) =>
+			config.verbose && console.error(`[INFO] ${msg}`),
+		warn: async (msg: string, ctx?: any) => console.error(`[WARN] ${msg}`),
+		error: async (msg: string, err?: any, ctx?: any) =>
+			console.error(`[ERROR] ${msg}`),
 	};
 
 	try {
-		log("Initializing TypeScript generator...");
+		await log.info(
+			"Initializing TypeScript generator",
+			{
+				outputDir: config.outputDir,
+				overwrite: config.overwrite,
+				format: config.format,
+			},
+			"initialize",
+		);
 
 		// Create generator with merged config
 		const generator = new TypeScriptGenerator({
@@ -199,9 +275,13 @@ export async function generateTypeScript(
 
 		// If input is provided, load schemas from file/directory
 		if (inputPath) {
-			log(`Loading TypeSchema from: ${inputPath}`);
-			const schemas = await loadTypeschemaFromPath(inputPath);
-			
+			await log.info(
+				"Loading TypeSchema from input",
+				{ inputPath },
+				"loadSchema",
+			);
+			const schemas = await loadTypeschemaFromPath(inputPath, log);
+
 			// Organize and pass schemas to the generator
 			const organizedSchemas = organizeSchemas(schemas);
 			const generatorAny = generator as any;
@@ -212,124 +292,158 @@ export async function generateTypeScript(
 				complex: organizedSchemas.complexTypes,
 				resources: organizedSchemas.resources,
 			};
+
+			await log.debug(
+				"Schema organization complete",
+				{
+					primitiveTypes: organizedSchemas.primitiveTypes?.length || 0,
+					complexTypes: organizedSchemas.complexTypes?.length || 0,
+					resources: organizedSchemas.resources?.length || 0,
+					profiles: organizedSchemas.profiles?.length || 0,
+					valueSets: organizedSchemas.valueSets?.length || 0,
+					bindings: organizedSchemas.bindings?.length || 0,
+				},
+				"organizeSchemas",
+			);
 		}
 
-		log("Generating TypeScript types...");
-		
+		await log.info("Starting TypeScript generation", undefined, "generate");
+
 		// Validate generator configuration
 		await generator.validate();
-		
+
 		// Generate types
 		await generator.generate();
 
-		console.log(`✨ Successfully generated TypeScript types in ${config.outputDir}`);
+		await log.info(
+			"TypeScript generation completed successfully",
+			{
+				outputDir: config.outputDir,
+			},
+			"complete",
+		);
 
+		console.log(
+			`✨ Successfully generated TypeScript types in ${config.outputDir}`,
+		);
 	} catch (error) {
-		throw new Error(`Failed to generate TypeScript: ${error instanceof Error ? error.message : String(error)}`);
+		const generationError = new GenerationError(
+			`Failed to generate TypeScript types`,
+			{
+				generator: "typescript",
+				outputPath: config.outputDir,
+				context: {
+					inputPath,
+					config: {
+						outputDir: config.outputDir,
+						overwrite: config.overwrite,
+						format: config.format,
+					},
+				},
+				suggestions: [
+					"Check that the input TypeSchema files are valid",
+					"Ensure the output directory is writable",
+					"Verify that all required dependencies are installed",
+					"Try running with --debug for more detailed error information",
+				],
+				recoverable: true,
+				cause: error instanceof Error ? error : undefined,
+			},
+		);
+
+		await log.error(
+			"TypeScript generation failed",
+			generationError,
+			undefined,
+			"generate",
+		);
+		throw generationError;
 	}
 }
 
 /**
  * Load TypeSchema from file or directory
  */
-async function loadTypeschemaFromPath(inputPath: string): Promise<any[]> {
+async function loadTypeschemaFromPath(
+	inputPath: string,
+	log?: any,
+): Promise<AnyTypeSchema[]> {
 	const resolvedPath = resolve(inputPath);
-	const stats = await stat(resolvedPath);
 
-	if (stats.isFile()) {
-		return await loadTypeschemaFromFile(resolvedPath);
-	} else if (stats.isDirectory()) {
-		return await loadTypeschemaFromDirectory(resolvedPath);
-	} else {
-		throw new Error(`Invalid input path: ${inputPath}`);
+	try {
+		const stats = await stat(resolvedPath);
+
+		if (stats.isFile()) {
+			await log?.debug(
+				"Loading TypeSchema from file",
+				{ path: resolvedPath },
+				"loadFile",
+			);
+			return await loadTypeschemaFromFile(resolvedPath);
+		} else if (stats.isDirectory()) {
+			await log?.debug(
+				"Loading TypeSchema from directory",
+				{ path: resolvedPath },
+				"loadDirectory",
+			);
+			return await loadTypeschemaFromDirectory(resolvedPath);
+		} else {
+			throw ErrorFactory.invalidFormat(inputPath, ["file", "directory"]);
+		}
+	} catch (error) {
+		if (error instanceof Error && error.message.includes("ENOENT")) {
+			throw ErrorFactory.fileNotFound(inputPath, [
+				"Check that the path exists and is accessible",
+				"Verify file permissions allow reading",
+			]);
+		}
+		throw error;
 	}
 }
 
 /**
  * Load TypeSchema from a single file
  */
-async function loadTypeschemaFromFile(filePath: string): Promise<any[]> {
+async function loadTypeschemaFromFile(
+	filePath: string,
+): Promise<AnyTypeSchema[]> {
 	const content = await readFile(filePath, "utf-8");
 	const ext = extname(filePath);
 
 	if (ext === ".ndjson") {
 		// Parse NDJSON format
 		const lines = content.trim().split("\n");
-		return lines.map(line => JSON.parse(line));
+		return lines.map((line) => JSON.parse(line));
 	} else if (ext === ".json") {
 		// Parse regular JSON (array or single object)
 		const parsed = JSON.parse(content);
 		return Array.isArray(parsed) ? parsed : [parsed];
 	} else {
-		throw new Error(`Unsupported file format: ${ext}. Expected .ndjson or .json`);
+		throw ErrorFactory.invalidFormat(filePath, [".ndjson", ".json"]);
 	}
 }
 
 /**
  * Load TypeSchema from directory (all .json and .ndjson files)
  */
-async function loadTypeschemaFromDirectory(dirPath: string): Promise<any[]> {
+async function loadTypeschemaFromDirectory(
+	dirPath: string,
+): Promise<AnyTypeSchema[]> {
 	const files = await readdir(dirPath, { recursive: true });
-	const schemas: any[] = [];
+	const schemas: AnyTypeSchema[] = [];
 
 	for (const file of files) {
 		const filePath = join(dirPath, file);
 		const stats = await stat(filePath);
-		
-		if (stats.isFile() && (file.endsWith(".json") || file.endsWith(".ndjson"))) {
+
+		if (
+			stats.isFile() &&
+			(file.endsWith(".json") || file.endsWith(".ndjson"))
+		) {
 			const fileSchemas = await loadTypeschemaFromFile(filePath);
 			schemas.push(...fileSchemas);
 		}
 	}
 
 	return schemas;
-}
-
-/**
- * Organize schemas by type for the generator
- */
-function organizeSchemas(schemas: any[]): {
-	primitiveTypes: any[];
-	complexTypes: any[];
-	resources: any[];
-	valueSets: any[];
-	bindings: any[];
-} {
-	const primitiveTypes: any[] = [];
-	const complexTypes: any[] = [];
-	const resources: any[] = [];
-	const valueSets: any[] = [];
-	const bindings: any[] = [];
-
-	for (const schema of schemas) {
-		const kind = schema.identifier?.kind;
-		const name = schema.identifier?.name;
-		const url = schema.identifier?.url;
-		
-		// Skip SearchParameters for now
-		if (name === "SearchParameter" || (url && url.includes("/SearchParameter/"))) {
-			continue;
-		}
-		
-		switch (kind) {
-			case "primitive-type":
-				primitiveTypes.push(schema);
-				break;
-			case "complex-type":
-				complexTypes.push(schema);
-				break;
-			case "resource":
-				resources.push(schema);
-				break;
-			case "value-set":
-				valueSets.push(schema);
-				break;
-			case "binding":
-				bindings.push(schema);
-				break;
-			// Skip other kinds for now
-		}
-	}
-
-	return { primitiveTypes, complexTypes, resources, valueSets, bindings };
 }

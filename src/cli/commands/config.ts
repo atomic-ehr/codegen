@@ -5,9 +5,9 @@
  */
 
 import type { CommandModule } from "yargs";
-import { configValidateCommand } from "./config/validate";
-import { configShowCommand } from "./config/show";
 import { configInitCommand } from "./config/init";
+import { configShowCommand } from "./config/show";
+import { configValidateCommand } from "./config/validate";
 
 /**
  * Config command group

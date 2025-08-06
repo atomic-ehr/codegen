@@ -4,21 +4,21 @@
  * Handles loading, merging, and validating atomic-codegen configuration
  */
 
-import { readFile, access } from "fs/promises";
-import { resolve, dirname, join } from "path";
 import { existsSync } from "fs";
+import { access, readFile } from "fs/promises";
+import { dirname, join, resolve } from "path";
 import type {
 	AtomicCodegenConfig,
 	ConfigFileSchema,
-	ConfigValidationResult,
-	ConfigValidationError,
 	ConfigSource,
+	ConfigValidationError,
+	ConfigValidationResult,
 	EnvironmentConfig,
 } from "./config-schema";
 import {
-	DEFAULT_ATOMIC_CODEGEN_CONFIG,
 	CONFIG_FILE_NAMES,
 	ConfigPrecedence,
+	DEFAULT_ATOMIC_CODEGEN_CONFIG,
 	isConfigFileSchema,
 } from "./config-schema";
 
@@ -32,16 +32,23 @@ export class ConfigManager {
 	/**
 	 * Load configuration from all sources with proper precedence
 	 */
-	async loadConfig(options: {
-		configPath?: string;
-		workingDir?: string;
-		cliArgs?: Partial<AtomicCodegenConfig>;
-	} = {}): Promise<AtomicCodegenConfig> {
+	async loadConfig(
+		options: {
+			configPath?: string;
+			workingDir?: string;
+			cliArgs?: Partial<AtomicCodegenConfig>;
+		} = {},
+	): Promise<AtomicCodegenConfig> {
 		const { configPath, workingDir = process.cwd(), cliArgs = {} } = options;
 
 		// Start with default configuration
-		let config: AtomicCodegenConfig = structuredClone(DEFAULT_ATOMIC_CODEGEN_CONFIG);
-		this.addConfigSource("default", { type: "default", precedence: ConfigPrecedence.DEFAULT });
+		let config: AtomicCodegenConfig = structuredClone(
+			DEFAULT_ATOMIC_CODEGEN_CONFIG,
+		);
+		this.addConfigSource("default", {
+			type: "default",
+			precedence: ConfigPrecedence.DEFAULT,
+		});
 
 		// Load configuration file
 		const fileConfig = await this.loadConfigFile(configPath, workingDir);
@@ -75,7 +82,7 @@ export class ConfigManager {
 	 */
 	private async loadConfigFile(
 		configPath?: string,
-		workingDir?: string
+		workingDir?: string,
 	): Promise<{ config: AtomicCodegenConfig; source: ConfigSource } | null> {
 		let filePath: string | null = null;
 
@@ -120,7 +127,7 @@ export class ConfigManager {
 			throw new Error(
 				`Failed to load configuration file ${filePath}: ${
 					error instanceof Error ? error.message : String(error)
-				}`
+				}`,
 			);
 		}
 	}
@@ -155,26 +162,42 @@ export class ConfigManager {
 	/**
 	 * Load configuration from environment variables
 	 */
-	private loadEnvironmentConfig(): { config: AtomicCodegenConfig; source: ConfigSource } | null {
+	private loadEnvironmentConfig(): {
+		config: AtomicCodegenConfig;
+		source: ConfigSource;
+	} | null {
 		const env = process.env;
 		const config: AtomicCodegenConfig = {};
 		let hasEnvConfig = false;
 
 		// Global configuration
 		if (env.ATOMIC_CODEGEN_VERBOSE) {
-			config.global = { ...config.global, verbose: this.parseBoolean(env.ATOMIC_CODEGEN_VERBOSE) };
+			config.global = {
+				...config.global,
+				verbose: this.parseBoolean(env.ATOMIC_CODEGEN_VERBOSE),
+			};
 			hasEnvConfig = true;
 		}
 		if (env.ATOMIC_CODEGEN_OUTPUT_DIR) {
-			config.global = { ...config.global, outputDir: env.ATOMIC_CODEGEN_OUTPUT_DIR };
+			config.global = {
+				...config.global,
+				outputDir: env.ATOMIC_CODEGEN_OUTPUT_DIR,
+			};
 			hasEnvConfig = true;
 		}
 		if (env.ATOMIC_CODEGEN_WORKING_DIR) {
-			config.project = { ...config.project, workingDir: env.ATOMIC_CODEGEN_WORKING_DIR };
+			config.project = {
+				...config.project,
+				workingDir: env.ATOMIC_CODEGEN_WORKING_DIR,
+			};
 			hasEnvConfig = true;
 		}
 		if (env.ATOMIC_CODEGEN_LOG_LEVEL) {
-			const level = env.ATOMIC_CODEGEN_LOG_LEVEL as "error" | "warn" | "info" | "debug";
+			const level = env.ATOMIC_CODEGEN_LOG_LEVEL as
+				| "error"
+				| "warn"
+				| "info"
+				| "debug";
 			config.global = {
 				...config.global,
 				logging: { ...config.global?.logging, level },
@@ -184,7 +207,10 @@ export class ConfigManager {
 
 		// TypeSchema configuration
 		if (env.ATOMIC_CODEGEN_TYPESCHEMA_FORMAT) {
-			const format = env.ATOMIC_CODEGEN_TYPESCHEMA_FORMAT as "ndjson" | "separate" | "merged";
+			const format = env.ATOMIC_CODEGEN_TYPESCHEMA_FORMAT as
+				| "ndjson"
+				| "separate"
+				| "merged";
 			config.typeschema = { ...config.typeschema, outputFormat: format };
 			hasEnvConfig = true;
 		}
@@ -205,7 +231,11 @@ export class ConfigManager {
 
 		// Generator configuration
 		if (env.ATOMIC_CODEGEN_GENERATOR_TARGET) {
-			const target = env.ATOMIC_CODEGEN_GENERATOR_TARGET as "typescript" | "python" | "java" | "rust";
+			const target = env.ATOMIC_CODEGEN_GENERATOR_TARGET as
+				| "typescript"
+				| "python"
+				| "java"
+				| "rust";
 			config.generator = { ...config.generator, target };
 			hasEnvConfig = true;
 		}
@@ -219,7 +249,9 @@ export class ConfigManager {
 		if (env.ATOMIC_CODEGEN_INCLUDE_VALIDATION) {
 			config.generator = {
 				...config.generator,
-				includeValidation: this.parseBoolean(env.ATOMIC_CODEGEN_INCLUDE_VALIDATION),
+				includeValidation: this.parseBoolean(
+					env.ATOMIC_CODEGEN_INCLUDE_VALIDATION,
+				),
 			};
 			hasEnvConfig = true;
 		}
@@ -229,7 +261,11 @@ export class ConfigManager {
 			hasEnvConfig = true;
 		}
 		if (env.ATOMIC_CODEGEN_FILE_NAMING) {
-			const naming = env.ATOMIC_CODEGEN_FILE_NAMING as "camelCase" | "kebab-case" | "snake_case" | "PascalCase";
+			const naming = env.ATOMIC_CODEGEN_FILE_NAMING as
+				| "camelCase"
+				| "kebab-case"
+				| "snake_case"
+				| "PascalCase";
 			config.generator = { ...config.generator, fileNaming: naming };
 			hasEnvConfig = true;
 		}
@@ -246,7 +282,16 @@ export class ConfigManager {
 			hasEnvConfig = true;
 		}
 		if (env.ATOMIC_CODEGEN_TS_TARGET) {
-			const target = env.ATOMIC_CODEGEN_TS_TARGET as "ES5" | "ES6" | "ES2015" | "ES2017" | "ES2018" | "ES2019" | "ES2020" | "ES2021" | "ES2022";
+			const target = env.ATOMIC_CODEGEN_TS_TARGET as
+				| "ES5"
+				| "ES6"
+				| "ES2015"
+				| "ES2017"
+				| "ES2018"
+				| "ES2019"
+				| "ES2020"
+				| "ES2021"
+				| "ES2022";
 			config.languages = {
 				...config.languages,
 				typescript: { ...config.languages?.typescript, target },
@@ -254,7 +299,13 @@ export class ConfigManager {
 			hasEnvConfig = true;
 		}
 		if (env.ATOMIC_CODEGEN_TS_MODULE) {
-			const module = env.ATOMIC_CODEGEN_TS_MODULE as "CommonJS" | "ES6" | "ES2015" | "ES2020" | "ES2022" | "ESNext";
+			const module = env.ATOMIC_CODEGEN_TS_MODULE as
+				| "CommonJS"
+				| "ES6"
+				| "ES2015"
+				| "ES2020"
+				| "ES2022"
+				| "ESNext";
 			config.languages = {
 				...config.languages,
 				typescript: { ...config.languages?.typescript, module },
@@ -286,7 +337,9 @@ export class ConfigManager {
 				...config.languages,
 				typescript: {
 					...config.languages?.typescript,
-					preferInterfaces: this.parseBoolean(env.ATOMIC_CODEGEN_TS_PREFER_INTERFACES),
+					preferInterfaces: this.parseBoolean(
+						env.ATOMIC_CODEGEN_TS_PREFER_INTERFACES,
+					),
 				},
 			};
 			hasEnvConfig = true;
@@ -316,7 +369,10 @@ export class ConfigManager {
 		if (config.typeschema) {
 			const ts = config.typeschema;
 
-			if (ts.outputFormat && !["ndjson", "separate", "merged"].includes(ts.outputFormat)) {
+			if (
+				ts.outputFormat &&
+				!["ndjson", "separate", "merged"].includes(ts.outputFormat)
+			) {
 				errors.push({
 					path: "typeschema.outputFormat",
 					message: `Invalid output format: ${ts.outputFormat}`,
@@ -325,7 +381,10 @@ export class ConfigManager {
 				});
 			}
 
-			if (ts.packages && (!Array.isArray(ts.packages) || ts.packages.length === 0)) {
+			if (
+				ts.packages &&
+				(!Array.isArray(ts.packages) || ts.packages.length === 0)
+			) {
 				errors.push({
 					path: "typeschema.packages",
 					message: "Packages must be a non-empty array",
@@ -339,7 +398,10 @@ export class ConfigManager {
 		if (config.generator) {
 			const gen = config.generator;
 
-			if (gen.target && !["typescript", "python", "java", "rust"].includes(gen.target)) {
+			if (
+				gen.target &&
+				!["typescript", "python", "java", "rust"].includes(gen.target)
+			) {
 				errors.push({
 					path: "generator.target",
 					message: `Invalid generator target: ${gen.target}`,
@@ -348,7 +410,10 @@ export class ConfigManager {
 				});
 			}
 
-			if (gen.namespaceStyle && !["nested", "flat"].includes(gen.namespaceStyle)) {
+			if (
+				gen.namespaceStyle &&
+				!["nested", "flat"].includes(gen.namespaceStyle)
+			) {
 				errors.push({
 					path: "generator.namespaceStyle",
 					message: `Invalid namespace style: ${gen.namespaceStyle}`,
@@ -357,12 +422,18 @@ export class ConfigManager {
 				});
 			}
 
-			if (gen.fileNaming && !["camelCase", "kebab-case", "snake_case", "PascalCase"].includes(gen.fileNaming)) {
+			if (
+				gen.fileNaming &&
+				!["camelCase", "kebab-case", "snake_case", "PascalCase"].includes(
+					gen.fileNaming,
+				)
+			) {
 				errors.push({
 					path: "generator.fileNaming",
 					message: `Invalid file naming convention: ${gen.fileNaming}`,
 					value: gen.fileNaming,
-					suggestion: "Use 'camelCase', 'kebab-case', 'snake_case', or 'PascalCase'",
+					suggestion:
+						"Use 'camelCase', 'kebab-case', 'snake_case', or 'PascalCase'",
 				});
 			}
 
@@ -380,7 +451,20 @@ export class ConfigManager {
 		if (config.languages?.typescript) {
 			const ts = config.languages.typescript;
 
-			if (ts.target && !["ES5", "ES6", "ES2015", "ES2017", "ES2018", "ES2019", "ES2020", "ES2021", "ES2022"].includes(ts.target)) {
+			if (
+				ts.target &&
+				![
+					"ES5",
+					"ES6",
+					"ES2015",
+					"ES2017",
+					"ES2018",
+					"ES2019",
+					"ES2020",
+					"ES2021",
+					"ES2022",
+				].includes(ts.target)
+			) {
 				errors.push({
 					path: "languages.typescript.target",
 					message: `Invalid TypeScript target: ${ts.target}`,
@@ -389,7 +473,12 @@ export class ConfigManager {
 				});
 			}
 
-			if (ts.module && !["CommonJS", "ES6", "ES2015", "ES2020", "ES2022", "ESNext"].includes(ts.module)) {
+			if (
+				ts.module &&
+				!["CommonJS", "ES6", "ES2015", "ES2020", "ES2022", "ESNext"].includes(
+					ts.module,
+				)
+			) {
 				errors.push({
 					path: "languages.typescript.module",
 					message: `Invalid TypeScript module system: ${ts.module}`,
@@ -435,7 +524,7 @@ export class ConfigManager {
 	 */
 	private mergeConfigs(
 		base: AtomicCodegenConfig,
-		override: Partial<AtomicCodegenConfig>
+		override: Partial<AtomicCodegenConfig>,
 	): AtomicCodegenConfig {
 		const result = structuredClone(base);
 
@@ -511,7 +600,9 @@ export class ConfigManager {
 	 */
 	private parseBoolean(value: string): boolean {
 		const lower = value.toLowerCase();
-		return lower === "true" || lower === "1" || lower === "yes" || lower === "on";
+		return (
+			lower === "true" || lower === "1" || lower === "yes" || lower === "on"
+		);
 	}
 
 	/**
@@ -520,7 +611,7 @@ export class ConfigManager {
 	private validateUnknownProperties(
 		obj: any,
 		path: string,
-		warnings: ConfigValidationError[]
+		warnings: ConfigValidationError[],
 	): void {
 		// This would be more complex in a real implementation
 		// For now, we'll skip detailed unknown property validation

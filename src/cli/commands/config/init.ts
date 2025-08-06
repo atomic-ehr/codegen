@@ -4,9 +4,9 @@
  * Initialize atomic-codegen configuration file
  */
 
+import { access, writeFile } from "fs/promises";
+import { join, resolve } from "path";
 import type { CommandModule } from "yargs";
-import { writeFile, access } from "fs/promises";
-import { resolve, join } from "path";
 import type { ConfigFileSchema } from "../../../lib/core/config-schema";
 
 interface InitCommandArgs {
@@ -82,8 +82,11 @@ export async function initConfig(options: InitConfigOptions): Promise<void> {
 
 	try {
 		// Determine output file path
-		const fileName = format === "js" ? ".atomic-codegen.js" : ".atomic-codegen.json";
-		const filePath = outputPath ? resolve(outputPath) : join(workingDir, fileName);
+		const fileName =
+			format === "js" ? ".atomic-codegen.js" : ".atomic-codegen.json";
+		const filePath = outputPath
+			? resolve(outputPath)
+			: join(workingDir, fileName);
 
 		// Check if file already exists
 		try {
@@ -111,10 +114,16 @@ export async function initConfig(options: InitConfigOptions): Promise<void> {
 		console.log();
 		console.log("📝 Next steps:");
 		console.log(`   1. Review and customize the configuration in ${filePath}`);
-		console.log("   2. Validate your configuration: atomic-codegen config validate");
-		console.log("   3. Test your setup: atomic-codegen typeschema create hl7.fhir.r4.core");
+		console.log(
+			"   2. Validate your configuration: atomic-codegen config validate",
+		);
+		console.log(
+			"   3. Test your setup: atomic-codegen typeschema create hl7.fhir.r4.core",
+		);
 	} catch (error) {
-		console.error(`❌ Failed to initialize configuration: ${error instanceof Error ? error.message : String(error)}`);
+		console.error(
+			`❌ Failed to initialize configuration: ${error instanceof Error ? error.message : String(error)}`,
+		);
 		process.exit(1);
 	}
 }
@@ -122,7 +131,9 @@ export async function initConfig(options: InitConfigOptions): Promise<void> {
 /**
  * Generate configuration template
  */
-function generateConfigTemplate(template: "minimal" | "full" | "typescript" | "multi-lang"): ConfigFileSchema {
+function generateConfigTemplate(
+	template: "minimal" | "full" | "typescript" | "multi-lang",
+): ConfigFileSchema {
 	const baseConfig: ConfigFileSchema = {
 		$schema: "https://atomic-ehr.github.io/codegen/config-schema.json",
 		version: "1.0.0",
@@ -287,7 +298,10 @@ function generateConfigTemplate(template: "minimal" | "full" | "typescript" | "m
 /**
  * Write JSON configuration file
  */
-async function writeJSONConfig(filePath: string, config: ConfigFileSchema): Promise<void> {
+async function writeJSONConfig(
+	filePath: string,
+	config: ConfigFileSchema,
+): Promise<void> {
 	const content = JSON.stringify(config, null, 2);
 	await writeFile(filePath, content, "utf-8");
 }
@@ -295,7 +309,10 @@ async function writeJSONConfig(filePath: string, config: ConfigFileSchema): Prom
 /**
  * Write JavaScript configuration file
  */
-async function writeJSConfig(filePath: string, config: ConfigFileSchema): Promise<void> {
+async function writeJSConfig(
+	filePath: string,
+	config: ConfigFileSchema,
+): Promise<void> {
 	const content = `/**
  * Atomic Codegen Configuration
  * 

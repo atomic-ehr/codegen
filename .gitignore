@@ -38,4 +38,4 @@ tmp
 test-output
 .lsp
 .clj-kondo
-./types
+/types/

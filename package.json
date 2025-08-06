@@ -1,7 +1,17 @@
 {
   "name": "@atomic-ehr/codegen",
   "version": "0.0.1",
-  "description": "TypeScript code generation tools for FHIR resources and type schemas",
+  "description": "Code generation tools for FHIR resources and TypeSchema definitions",
+  "keywords": [
+    "fhir",
+    "codegen",
+    "typescript",
+    "healthcare",
+    "ehr",
+    "typeschema"
+  ],
+  "module": "src/index.ts",
+  "main": "src/index.ts",
   "type": "module",
   "bin": {
     "atomic-codegen": "./dist/cli/index.ts"
@@ -37,12 +47,6 @@
     "type": "git",
     "url": "git+https://github.com/atomic-ehr/codegen.git"
   },
-  "keywords": [
-    "fhir",
-    "codegen",
-    "typescript",
-    "healthcare"
-  ],
   "author": "Atomic EHR Team",
   "license": "MIT",
   "bugs": {
@@ -60,6 +64,7 @@
   "dependencies": {
     "@atomic-ehr/fhir-canonical-manager": "^0.0.8",
     "@atomic-ehr/fhirschema": "^0.0.2",
+    "ajv": "^8.17.1",
     "yargs": "^18.0.0"
   }
 }

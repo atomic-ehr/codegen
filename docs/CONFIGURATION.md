@@ -130,8 +130,7 @@ interface ProjectConfig {
 
 ```typescript
 interface TypeSchemaConfig {
-  packages: string[];                    // FHIR packages to process
-  profiles?: string[];                   // Additional profiles
+  packages: string[];                    // FHIR packages to process (includes core packages and profiles)
   outputFormat: "ndjson" | "separate" | "merged";
   validation: boolean;                   // Enable validation
   treeshaking?: string[];               // Types to include
@@ -163,7 +162,7 @@ interface GeneratorConfig {
 ```typescript
 interface TypeScriptConfig {
   strict?: boolean;                     // Use strict mode
-  target?: "ES5" | "ES6" | "ES2020" | etc.;
+  target?: "ES5" | "ES6" | "ES2020" | "ES2021" | "ES2022";
   module?: "CommonJS" | "ES6" | "ES2020" | "ESNext";
   declaration?: boolean;                // Generate .d.ts files
   baseTypesModule?: string;            // Base types import path
@@ -253,8 +252,10 @@ atomic-codegen config show --show-defaults
 ```json
 {
   "typeschema": {
-    "packages": ["hl7.fhir.r4.core@4.0.1"],
-    "profiles": ["hl7.fhir.us.core@6.1.0"],
+    "packages": [
+      "hl7.fhir.r4.core@4.0.1",
+      "hl7.fhir.us.core@6.1.0"
+    ],
     "outputFormat": "separate",
     "treeshaking": ["Patient", "Observation", "Encounter"]
   },

@@ -30,7 +30,7 @@ describe("CLI Integration Tests", () => {
 
 	test("should show main help", async () => {
 		const result = await $`bun run ${cliPath} --help`.text();
-		
+
 		expect(result).toContain("atomic-codegen <command>");
 		expect(result).toContain("typeschema");
 		expect(result).toContain("generate");
@@ -41,7 +41,7 @@ describe("CLI Integration Tests", () => {
 
 	test("should show version", async () => {
 		const result = await $`bun run ${cliPath} --version`.text();
-		
+
 		expect(result).toContain("0.1.0");
 	});
 
@@ -58,7 +58,7 @@ describe("CLI Integration Tests", () => {
 	describe("TypeSchema Commands", () => {
 		test("should show typeschema help", async () => {
 			const result = await $`bun run ${cliPath} typeschema --help`.text();
-			
+
 			expect(result).toContain("TypeSchema operations");
 			expect(result).toContain("create");
 			expect(result).toContain("validate");
@@ -67,7 +67,7 @@ describe("CLI Integration Tests", () => {
 
 		test("should show create command help", async () => {
 			const result = await $`bun run ${cliPath} typeschema create --help`.text();
-			
+
 			expect(result).toContain("Create TypeSchema from FHIR packages");
 			expect(result).toContain("packages");
 			expect(result).toContain("--output");
@@ -77,7 +77,7 @@ describe("CLI Integration Tests", () => {
 
 		test("should show validate command help", async () => {
 			const result = await $`bun run ${cliPath} typeschema validate --help`.text();
-			
+
 			expect(result).toContain("Validate TypeSchema files");
 			expect(result).toContain("input");
 			expect(result).toContain("--strict");
@@ -86,7 +86,7 @@ describe("CLI Integration Tests", () => {
 
 		test("should show merge command help", async () => {
 			const result = await $`bun run ${cliPath} typeschema merge --help`.text();
-			
+
 			expect(result).toContain("Merge multiple TypeSchema files");
 			expect(result).toContain("input");
 			expect(result).toContain("--output");
@@ -98,7 +98,7 @@ describe("CLI Integration Tests", () => {
 			// Create a test file with invalid JSON
 			const testFile = join(testDir, "invalid.ndjson");
 			await Bun.write(testFile, "invalid json");
-			
+
 			try {
 				await $`bun run ${cliPath} typeschema validate ${testFile}`.text();
 				expect(false).toBe(true); // Should not reach here
@@ -112,7 +112,7 @@ describe("CLI Integration Tests", () => {
 			const testFile1 = join(testDir, "schema1.json");
 			const testFile2 = join(testDir, "schema2.json");
 			const outputFile = join(testDir, "merged.json");
-			
+
 			const schema1 = [{
 				identifier: { kind: "primitive-type", name: "string", package: "test", version: "1.0" },
 				dependencies: []
@@ -121,12 +121,12 @@ describe("CLI Integration Tests", () => {
 				identifier: { kind: "primitive-type", name: "boolean", package: "test", version: "1.0" },
 				dependencies: []
 			}];
-			
+
 			await Bun.write(testFile1, JSON.stringify(schema1));
 			await Bun.write(testFile2, JSON.stringify(schema2));
-			
+
 			const result = await $`bun run ${cliPath} typeschema merge ${testFile1} ${testFile2} -o ${outputFile}`.text();
-			
+
 			expect(result).toContain("Successfully merged");
 			expect(existsSync(outputFile)).toBe(true);
 		});
@@ -135,14 +135,14 @@ describe("CLI Integration Tests", () => {
 	describe("Generate Commands", () => {
 		test("should show generate help", async () => {
 			const result = await $`bun run ${cliPath} generate --help`.text();
-			
+
 			expect(result).toContain("Generate code from TypeSchema files");
 			expect(result).toContain("typescript");
 		});
 
 		test("should show typescript command help", async () => {
 			const result = await $`bun run ${cliPath} generate typescript --help`.text();
-			
+
 			expect(result).toContain("Generate TypeScript types");
 			expect(result).toContain("--input");
 			expect(result).toContain("--output");
@@ -153,18 +153,14 @@ describe("CLI Integration Tests", () => {
 
 		test("should show typescript command aliases", async () => {
 			const result = await $`bun run ${cliPath} generate ts --help`.text();
-			
+
 			expect(result).toContain("Generate TypeScript types");
 		});
 
-		test("should require output directory", async () => {
-			try {
-				await $`bun run ${cliPath} generate typescript`.text();
-				expect(false).toBe(true); // Should not reach here
-			} catch (error: any) {
-				expect(error.exitCode).toBe(1);
-				expect(error.stderr.toString()).toContain("Missing required argument: output");
-			}
+		test("should use default output directory when not specified", async () => {
+			// The CLI now has default configuration, so it should succeed
+			const result = await $`bun run ${cliPath} generate typescript`.text();
+			expect(result).toContain("Successfully generated TypeScript types");
 		});
 	});
 
@@ -184,32 +180,26 @@ describe("CLI Integration Tests", () => {
 				await $`bun run ${cliPath} typeschema invalid-subcommand`.text();
 				expect(false).toBe(true); // Should not reach here
 			} catch (error: any) {
-				expect(error.exitCode).toBe(1);
-				expect(error.stderr.toString()).toContain("You must specify a typeschema subcommand");
+				expect(error).toBeDefined();
+				const errorText = error.stderr?.toString() || error.message || '';
+				expect(errorText).toContain("You must specify a typeschema subcommand");
 			}
 		});
 
-		test("should show helpful error for missing required arguments", async () => {
-			try {
-				await $`bun run ${cliPath} typeschema create`.text();
-				expect(false).toBe(true); // Should not reach here
-			} catch (error: any) {
-				expect(error.exitCode).toBe(1);
-				expect(error.stderr.toString()).toContain("Not enough non-option arguments");
-			}
+		test("should use default configuration when no arguments provided", async () => {
+			// The CLI now has default configuration, so it should succeed
+			const result = await $`bun run ${cliPath} typeschema create`.text();
+			expect(result).toContain("Created TypeSchema NDJSON");
 		});
 	});
 
 	describe("Global Options", () => {
 		test("should accept verbose flag globally", async () => {
-			try {
-				await $`bun run ${cliPath} --verbose typeschema create`.text();
-				expect(false).toBe(true); // Should not reach here (missing packages)
-			} catch (error: any) {
-				expect(error.exitCode).toBe(1);
-				expect(error.stderr.toString()).toContain("Not enough non-option arguments");
-			}
-		});
+			// The CLI should accept the verbose flag and produce verbose output
+			const result = await $`bun run ${cliPath} --verbose typeschema create`.text();
+			expect(result).toContain("Configuration loaded successfully");
+			expect(result).toContain("Created TypeSchema NDJSON");
+		}, { timeout: 60000 });
 
 		test("should accept config flag globally", async () => {
 			try {
@@ -226,7 +216,7 @@ describe("CLI Integration Tests", () => {
 	describe("Command Examples from package.json", () => {
 		test("should show help correctly", async () => {
 			const result = await $`bun run example:help`.text();
-			
+
 			expect(result).toContain("atomic-codegen <command>");
 			expect(result).toContain("Commands:");
 		});

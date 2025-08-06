@@ -3,13 +3,13 @@
  */
 
 import { test, expect, describe, beforeAll, afterAll } from 'bun:test';
-import { generateTypes } from '../../src/generator';
+import { generateTypes } from '../../src/generators';
 import { rm, readFile, readdir } from 'fs/promises';
 import { join } from 'path';
 
 describe('Type Generation Integration Tests', () => {
   const testOutputDir = join(import.meta.dir, '../test-output-integration');
-  
+
   async function cleanup() {
     try {
       await rm(testOutputDir, { recursive: true, force: true });
@@ -30,13 +30,13 @@ describe('Type Generation Integration Tests', () => {
     // This test would normally use real FHIR packages, but for testing
     // we'll create a minimal setup
     console.log('Note: This test requires @atomic-ehr/fhir-canonical-manager to be configured');
-    
+
     // For now, let's create a basic structure test
     const mockGenerator = {
       outputDir: testOutputDir,
       verbose: false
     };
-    
+
     // We'll need to mock or skip the actual generation for unit tests
     // since it requires external packages
     expect(mockGenerator.outputDir).toBe(testOutputDir);
@@ -70,7 +70,7 @@ describe('Generated Type Validation', () => {
       'markdown', 'time', 'date', 'dateTime', 'instant', 'base64Binary',
       'code', 'xhtml'
     ];
-    
+
     // Validate each primitive maps correctly
     expectedPrimitives.forEach(primitive => {
       expect(primitive).toBeDefined();
@@ -85,7 +85,7 @@ describe('Generated Type Validation', () => {
       'DomainResource': 'Resource',
       'Resource': null
     };
-    
+
     Object.entries(inheritanceChain).forEach(([type, base]) => {
       expect(type).toBeDefined();
       if (base) {
@@ -100,7 +100,7 @@ describe('Generated Type Validation', () => {
       'Patient', 'Observation', 'Encounter', 'Condition',
       'Procedure', 'MedicationRequest', 'DiagnosticReport'
     ];
-    
+
     commonResources.forEach(resource => {
       expect(resource).toBeDefined();
     });

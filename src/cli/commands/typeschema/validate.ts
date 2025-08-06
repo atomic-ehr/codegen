@@ -4,12 +4,22 @@
  * Validate TypeSchema files for correctness and consistency
  */
 
+import { readdir, readFile, stat } from "fs/promises";
+import { extname, join, resolve } from "path";
 import type { CommandModule } from "yargs";
-import { resolve } from "path";
-import { readFile, readdir, stat } from "fs/promises";
-import { join, extname } from "path";
-import type { AnyTypeSchema, TypeSchemaIdentifier } from "../../../lib/typeschema/types";
-import { isTypeSchema, isTypeSchemaBinding, isTypeSchemaValueSet } from "../../../lib/typeschema/types";
+import type {
+	AnyTypeSchema,
+	AnyTypeSchemaCompliant,
+	TypeSchemaIdentifier,
+} from "../../../lib/typeschema/types";
+import {
+	isTypeSchema,
+	isTypeSchemaBinding,
+	isTypeSchemaValueSet,
+	validateTypeSchema as validateWithJsonSchema,
+	validateTypeSchemas as validateMultipleWithJsonSchema,
+	isValidatorAvailable,
+} from "../../../lib/typeschema";
 
 interface ValidateCommandArgs {
 	input: string[];
@@ -17,6 +27,7 @@ interface ValidateCommandArgs {
 	strict?: boolean;
 	"check-dependencies"?: boolean;
 	"output-format"?: "text" | "json";
+	"json-schema"?: boolean;
 }
 
 interface ValidationResult {
@@ -55,60 +66,67 @@ interface ValidationStats {
 /**
  * TypeSchema validate command
  */
-export const validateTypeschemaCommand: CommandModule<{}, ValidateCommandArgs> = {
-	command: "validate <input..>",
-	describe: "Validate TypeSchema files for correctness",
-	builder: {
-		input: {
-			type: "string",
-			array: true,
-			description: "TypeSchema files or directories to validate",
-			demandOption: true,
+export const validateTypeschemaCommand: CommandModule<{}, ValidateCommandArgs> =
+	{
+		command: "validate <input..>",
+		describe: "Validate TypeSchema files for correctness",
+		builder: {
+			input: {
+				type: "string",
+				array: true,
+				description: "TypeSchema files or directories to validate",
+				demandOption: true,
+			},
+			verbose: {
+				alias: "v",
+				type: "boolean",
+				default: false,
+				description: "Show detailed validation information",
+			},
+			strict: {
+				type: "boolean",
+				default: false,
+				description: "Enable strict validation (fail on warnings)",
+			},
+			"check-dependencies": {
+				type: "boolean",
+				default: true,
+				description: "Validate dependency references",
+			},
+			"output-format": {
+				type: "string",
+				choices: ["text", "json"] as const,
+				default: "text" as const,
+				description: "Output format for validation results",
+			},
+			"json-schema": {
+				type: "boolean",
+				default: false,
+				description: "Validate against JSON schema from type-schema reference",
+			},
 		},
-		verbose: {
-			alias: "v",
-			type: "boolean",
-			default: false,
-			description: "Show detailed validation information",
-		},
-		strict: {
-			type: "boolean",
-			default: false,
-			description: "Enable strict validation (fail on warnings)",
-		},
-		"check-dependencies": {
-			type: "boolean",
-			default: true,
-			description: "Validate dependency references",
-		},
-		"output-format": {
-			type: "string",
-			choices: ["text", "json"] as const,
-			default: "text" as const,
-			description: "Output format for validation results",
-		},
-	},
-	handler: async (argv) => {
-		const result = await validateTypeSchema({
-			inputPaths: argv.input,
-			verbose: argv.verbose ?? false,
-			strict: argv.strict ?? false,
-			checkDependencies: argv["check-dependencies"] ?? true,
-			outputFormat: argv["output-format"] || "text",
-		});
+		handler: async (argv) => {
+			const result = await validateTypeSchema({
+				inputPaths: argv.input,
+				verbose: argv.verbose ?? false,
+				strict: argv.strict ?? false,
+				checkDependencies: argv["check-dependencies"] ?? true,
+				outputFormat: argv["output-format"] || "text",
+				useJsonSchema: argv["json-schema"] ?? false,
+			});
 
-		if (argv["output-format"] === "json") {
-			console.log(JSON.stringify(result, null, 2));
-		} else {
-			printValidationResult(result, argv.verbose ?? false);
-		}
+			if (argv["output-format"] === "json") {
+				console.log(JSON.stringify(result, null, 2));
+			} else {
+				printValidationResult(result, argv.verbose ?? false);
+			}
 
-		// Exit with error code if validation failed
-		if (!result.valid) {
-			process.exit(1);
-		}
-	},
-};
+			// Exit with error code if validation failed
+			if (!result.valid) {
+				process.exit(1);
+			}
+		},
+	};
 
 interface ValidateOptions {
 	inputPaths: string[];
@@ -116,12 +134,15 @@ interface ValidateOptions {
 	strict: boolean;
 	checkDependencies: boolean;
 	outputFormat: "text" | "json";
+	useJsonSchema: boolean;
 }
 
 /**
  * Validate TypeSchema files
  */
-export async function validateTypeSchema(options: ValidateOptions): Promise<ValidationResult> {
+export async function validateTypeSchema(
+	options: ValidateOptions,
+): Promise<ValidationResult> {
 	const result: ValidationResult = {
 		valid: true,
 		errors: [],
@@ -155,6 +176,46 @@ export async function validateTypeSchema(options: ValidateOptions): Promise<Vali
 				severity: "critical",
 			});
 			result.valid = false;
+			return result;
+		}
+
+		// Use JSON schema validation if requested
+		if (options.useJsonSchema) {
+			if (!(await isValidatorAvailable())) {
+				result.errors.push({
+					type: "error",
+					message: "JSON schema validator not available - docs/type-schema.schema.json missing",
+					severity: "critical",
+				});
+				result.valid = false;
+				return result;
+			}
+
+			// Validate all schemas with JSON schema
+			const jsonSchemaResults = await validateMultipleWithJsonSchema(allSchemas as AnyTypeSchemaCompliant[]);
+			
+			for (let i = 0; i < jsonSchemaResults.length; i++) {
+				const jsonResult = jsonSchemaResults[i];
+				const schema = allSchemas[i];
+				const schemaName = schema.identifier?.name || "unknown";
+
+				if (!jsonResult.valid && jsonResult.errors) {
+					for (const error of jsonResult.errors) {
+						result.errors.push({
+							type: "error",
+							message: `JSON Schema validation: ${error}`,
+							schema: schemaName,
+							severity: "major",
+						});
+					}
+					result.stats.invalidSchemas++;
+					result.valid = false;
+				} else {
+					result.stats.validSchemas++;
+				}
+			}
+
+			// If using JSON schema validation, skip the rest
 			return result;
 		}
 
@@ -206,7 +267,7 @@ export async function validateTypeSchema(options: ValidateOptions): Promise<Vali
 			const depResult = validateDependencies(allSchemas, identifierMap);
 			result.errors.push(...depResult.errors);
 			result.warnings.push(...depResult.warnings);
-			
+
 			if (!depResult.valid) {
 				result.valid = false;
 			}
@@ -216,7 +277,6 @@ export async function validateTypeSchema(options: ValidateOptions): Promise<Vali
 		if (options.strict && result.warnings.length > 0) {
 			result.valid = false;
 		}
-
 	} catch (error) {
 		result.errors.push({
 			type: "error",
@@ -389,7 +449,12 @@ function validateValueSetFields(schema: any, result: ValidationResult): void {
 /**
  * Validate a single field
  */
-function validateField(fieldName: string, field: any, schemaName: string, result: ValidationResult): void {
+function validateField(
+	fieldName: string,
+	field: any,
+	schemaName: string,
+	result: ValidationResult,
+): void {
 	if (typeof field !== "object") {
 		result.errors.push({
 			type: "error",
@@ -440,7 +505,10 @@ function validateField(fieldName: string, field: any, schemaName: string, result
 /**
  * Validate dependencies between schemas
  */
-function validateDependencies(schemas: AnyTypeSchema[], identifierMap: Map<string, TypeSchemaIdentifier>): ValidationResult {
+function validateDependencies(
+	schemas: AnyTypeSchema[],
+	identifierMap: Map<string, TypeSchemaIdentifier>,
+): ValidationResult {
 	const result: ValidationResult = {
 		valid: true,
 		errors: [],
@@ -472,7 +540,9 @@ function validateDependencies(schemas: AnyTypeSchema[], identifierMap: Map<strin
 /**
  * Load schemas from file or directory path
  */
-async function loadSchemasFromPath(inputPath: string): Promise<AnyTypeSchema[]> {
+async function loadSchemasFromPath(
+	inputPath: string,
+): Promise<AnyTypeSchema[]> {
 	const stats = await stat(inputPath);
 
 	if (stats.isFile()) {
@@ -493,7 +563,7 @@ async function loadSchemasFromFile(filePath: string): Promise<AnyTypeSchema[]> {
 
 	if (ext === ".ndjson") {
 		const lines = content.trim().split("\n");
-		return lines.map(line => JSON.parse(line));
+		return lines.map((line) => JSON.parse(line));
 	} else if (ext === ".json") {
 		const parsed = JSON.parse(content);
 		return Array.isArray(parsed) ? parsed : [parsed];
@@ -505,15 +575,20 @@ async function loadSchemasFromFile(filePath: string): Promise<AnyTypeSchema[]> {
 /**
  * Load schemas from directory
  */
-async function loadSchemasFromDirectory(dirPath: string): Promise<AnyTypeSchema[]> {
+async function loadSchemasFromDirectory(
+	dirPath: string,
+): Promise<AnyTypeSchema[]> {
 	const files = await readdir(dirPath, { recursive: true });
 	const schemas: AnyTypeSchema[] = [];
 
 	for (const file of files) {
 		const filePath = join(dirPath, file);
 		const stats = await stat(filePath);
-		
-		if (stats.isFile() && (file.endsWith(".json") || file.endsWith(".ndjson"))) {
+
+		if (
+			stats.isFile() &&
+			(file.endsWith(".json") || file.endsWith(".ndjson"))
+		) {
 			const fileSchemas = await loadSchemasFromFile(filePath);
 			schemas.push(...fileSchemas);
 		}
@@ -525,7 +600,10 @@ async function loadSchemasFromDirectory(dirPath: string): Promise<AnyTypeSchema[
 /**
  * Print validation result to console
  */
-function printValidationResult(result: ValidationResult, verbose: boolean): void {
+function printValidationResult(
+	result: ValidationResult,
+	verbose: boolean,
+): void {
 	// Print summary
 	console.log(`\n📊 Validation Summary:`);
 	console.log(`   Total schemas: ${result.stats.totalSchemas}`);
@@ -548,7 +626,9 @@ function printValidationResult(result: ValidationResult, verbose: boolean): void
 		console.log(`\n❌ Errors:`);
 		for (const error of result.errors) {
 			const location = [error.schema, error.field].filter(Boolean).join(".");
-			console.log(`   ${error.severity.toUpperCase()}: ${error.message}${location ? ` (${location})` : ""}`);
+			console.log(
+				`   ${error.severity.toUpperCase()}: ${error.message}${location ? ` (${location})` : ""}`,
+			);
 		}
 	}
 
@@ -556,7 +636,9 @@ function printValidationResult(result: ValidationResult, verbose: boolean): void
 	if (result.warnings.length > 0) {
 		console.log(`\n⚠️  Warnings:`);
 		for (const warning of result.warnings) {
-			const location = [warning.schema, warning.field].filter(Boolean).join(".");
+			const location = [warning.schema, warning.field]
+				.filter(Boolean)
+				.join(".");
 			console.log(`   ${warning.message}${location ? ` (${location})` : ""}`);
 		}
 	}

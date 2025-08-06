@@ -16,9 +16,9 @@ export interface TypeSchemaIdentifier {
 		| "resource"
 		| "complex-type"
 		| "nested"
+		| "logical"
 		| "binding"
 		| "value-set"
-		| "constraint"
 		| "profile";
 	package: string;
 	version: string;
@@ -27,28 +27,62 @@ export interface TypeSchemaIdentifier {
 }
 
 /**
- * Field definition in a TypeSchema
+ * Regular field definition in a TypeSchema
  */
-export interface TypeSchemaField {
+export interface TypeSchemaFieldRegular {
 	type?: TypeSchemaIdentifier;
-	array: boolean;
-	required: boolean;
-	excluded: boolean;
+	reference?: TypeSchemaIdentifier[];
+	required?: boolean;
+	excluded?: boolean;
+	array?: boolean;
+	binding?: TypeSchemaIdentifier;
+	enum?: string[];
 	min?: number;
 	max?: number;
-	choices?: string[];
-	choiceOf?: string;
-	enum?: string[];
-	binding?: TypeSchemaIdentifier;
-	reference?: TypeSchemaIdentifier[];
 }
+
+/**
+ * Polymorphic declaration field (e.g., value[x])
+ */
+export interface TypeSchemaFieldPolymorphicDeclaration {
+	choices: string[];
+	required?: boolean;
+	excluded?: boolean;
+	array?: boolean;
+	min?: number;
+	max?: number;
+}
+
+/**
+ * Polymorphic instance field (e.g., valueString, valueInteger)
+ */
+export interface TypeSchemaFieldPolymorphicInstance {
+	choiceOf: string;
+	type?: TypeSchemaIdentifier;
+	reference?: TypeSchemaIdentifier[];
+	required?: boolean;
+	excluded?: boolean;
+	array?: boolean;
+	binding?: TypeSchemaIdentifier;
+	enum?: string[];
+	min?: number;
+	max?: number;
+}
+
+/**
+ * Union type for all field types
+ */
+export type TypeSchemaField = 
+	| TypeSchemaFieldRegular 
+	| TypeSchemaFieldPolymorphicDeclaration 
+	| TypeSchemaFieldPolymorphicInstance;
 
 /**
  * Nested type (BackboneElement) definition
  */
 export interface TypeSchemaNestedType {
 	identifier: TypeSchemaIdentifier;
-	base?: TypeSchemaIdentifier;
+	base: TypeSchemaIdentifier;
 	fields: Record<string, TypeSchemaField>;
 }
 
@@ -103,16 +137,46 @@ export interface ProfileValidationRule {
 }
 
 /**
- * Main TypeSchema for resources, complex types, and primitive types
+ * Primitive Type TypeSchema
  */
-export interface TypeSchema {
+export interface TypeSchemaPrimitiveType {
+	identifier: TypeSchemaIdentifier;
+	description?: string;
+}
+
+/**
+ * Resource/Complex Type TypeSchema
+ */
+export interface TypeSchemaResourceType {
 	identifier: TypeSchemaIdentifier;
 	base?: TypeSchemaIdentifier;
 	description?: string;
 	fields?: Record<string, TypeSchemaField>;
 	nested?: TypeSchemaNestedType[];
-	dependencies: TypeSchemaIdentifier[];
+}
+
+/**
+ * Profile TypeSchema
+ */
+export interface TypeSchemaProfile {
+	identifier: TypeSchemaIdentifier;
+	base: TypeSchemaIdentifier;
+	description?: string;
+	fields?: Record<string, TypeSchemaField>;
+	nested?: TypeSchemaNestedType[];
 	// Profile-specific fields
+	metadata?: Record<string, any>;
+	constraints?: Record<string, ProfileConstraint>;
+	extensions?: ProfileExtension[];
+	validation?: ProfileValidationRule[];
+}
+
+/**
+ * Legacy TypeSchema interface for backward compatibility
+ */
+export interface TypeSchema extends TypeSchemaResourceType {
+	dependencies?: TypeSchemaIdentifier[];
+	// Profile-specific fields (legacy)
 	metadata?: Record<string, any>;
 	constraints?: Record<string, ProfileConstraint>;
 	extensions?: ProfileExtension[];
@@ -138,9 +202,9 @@ export interface TypeSchemaValueSet {
 	identifier: TypeSchemaIdentifier;
 	description?: string;
 	concept?: Array<{
-		system: string;
 		code: string;
 		display?: string;
+		system?: string;
 	}>;
 	compose?: {
 		include?: Array<{
@@ -170,16 +234,63 @@ export interface TypeSchemaValueSet {
 			valueSet?: string[];
 		}>;
 	};
-	dependencies: TypeSchemaIdentifier[];
 }
 
 /**
- * Union type for all TypeSchema variants
+ * Union type for all TypeSchema variants (spec-compliant)
+ */
+export type AnyTypeSchemaCompliant = 
+	| TypeSchemaPrimitiveType 
+	| TypeSchemaResourceType 
+	| TypeSchemaProfile
+	| TypeSchemaValueSet 
+	| TypeSchemaBinding;
+
+/**
+ * Union type for all TypeSchema variants (legacy compatibility)
  */
 export type AnyTypeSchema = TypeSchema | TypeSchemaBinding | TypeSchemaValueSet;
 
 /**
- * Type guards
+ * Type guards for field types
+ */
+export function isRegularField(field: TypeSchemaField): field is TypeSchemaFieldRegular {
+	return !("choices" in field) && !("choiceOf" in field);
+}
+
+export function isPolymorphicDeclarationField(field: TypeSchemaField): field is TypeSchemaFieldPolymorphicDeclaration {
+	return "choices" in field;
+}
+
+export function isPolymorphicInstanceField(field: TypeSchemaField): field is TypeSchemaFieldPolymorphicInstance {
+	return "choiceOf" in field;
+}
+
+/**
+ * Type guards for schema types (spec-compliant)
+ */
+export function isPrimitiveTypeSchema(schema: AnyTypeSchemaCompliant): schema is TypeSchemaPrimitiveType {
+	return schema.identifier.kind === "primitive-type";
+}
+
+export function isResourceTypeSchema(schema: AnyTypeSchemaCompliant): schema is TypeSchemaResourceType {
+	return ["resource", "complex-type", "logical", "nested"].includes(schema.identifier.kind);
+}
+
+export function isProfileTypeSchema(schema: AnyTypeSchemaCompliant): schema is TypeSchemaProfile {
+	return schema.identifier.kind === "profile";
+}
+
+export function isTypeSchemaBinding(schema: AnyTypeSchemaCompliant): schema is TypeSchemaBinding {
+	return schema.identifier.kind === "binding" && "valueset" in schema && "strength" in schema;
+}
+
+export function isTypeSchemaValueSet(schema: AnyTypeSchemaCompliant): schema is TypeSchemaValueSet {
+	return schema.identifier.kind === "value-set" && ("concept" in schema || "compose" in schema);
+}
+
+/**
+ * Legacy type guards
  */
 export function isTypeSchema(schema: AnyTypeSchema): schema is TypeSchema {
 	return (
@@ -187,13 +298,13 @@ export function isTypeSchema(schema: AnyTypeSchema): schema is TypeSchema {
 	);
 }
 
-export function isTypeSchemaBinding(
+export function isLegacyTypeSchemaBinding(
 	schema: AnyTypeSchema,
 ): schema is TypeSchemaBinding {
 	return "valueset" in schema && "strength" in schema;
 }
 
-export function isTypeSchemaValueSet(
+export function isLegacyTypeSchemaValueSet(
 	schema: AnyTypeSchema,
 ): schema is TypeSchemaValueSet {
 	return (

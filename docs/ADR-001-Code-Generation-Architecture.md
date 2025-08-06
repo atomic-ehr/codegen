@@ -117,8 +117,7 @@ generated/
 #### Library Configuration:
 ```typescript
 interface TypeSchemaConfig {
-  packages: string[];
-  profiles?: string[];
+  packages: string[];  // FHIR packages to process (includes core packages and profiles)
   outputFormat: 'ndjson' | 'separate' | 'merged';
   validation: boolean;
   treeshaking?: string[];
@@ -147,9 +146,9 @@ interface Generator {
   generate(schemas: TypeSchema[], config: GeneratorConfig): Promise<void>;
 }
 
-class GeneratorRegistry {
-  register(generator: Generator): void;
-  get(name: string): Generator;
+abstract class GeneratorRegistry {
+  abstract register(generator: Generator): void;
+  abstract get(name: string): Generator;
 }
 ```
 

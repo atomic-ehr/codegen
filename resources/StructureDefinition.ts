@@ -1,0 +1,96 @@
+import * as primitives from '../types/primitives';
+import * as complex from '../types/complex';
+import * as Valuesets from '../types/valuesets';
+import type { Reference } from '../types/primitives'
+import { DomainResource } from './DomainResource';
+
+/**
+ * A definition of a FHIR structure. This resource is used to describe the underlying resources, data types defined in FHIR, and also for describing extensions and constraints on resources and data types.
+ * 
+ * @see http://hl7.org/fhir/StructureDefinition/StructureDefinition
+ * @extends DomainResource
+ */
+export interface StructureDefinition extends DomainResource {
+  /** url field of type uri */
+  url: string;
+  /** name field of type string */
+  name: string;
+  /** status field of type code */
+  status: string;
+  /** kind field of type code */
+  kind: string;
+  /** abstract field of type boolean */
+  abstract: boolean;
+  /** type field of type uri */
+  type: string;
+  /** identifier field of type Identifier */
+  identifier?: complex.Identifier[];
+  /** version field of type string */
+  version?: string;
+  /** title field of type string */
+  title?: string;
+  /** experimental field of type boolean */
+  experimental?: boolean;
+  /** date field of type dateTime */
+  date?: string;
+  /** publisher field of type string */
+  publisher?: string;
+  /** contact field of type ContactDetail */
+  contact?: complex.ContactDetail[];
+  /** description field of type markdown */
+  description?: string;
+  /** useContext field of type UsageContext */
+  useContext?: complex.UsageContext[];
+  /** jurisdiction field of type CodeableConcept */
+  jurisdiction?: complex.CodeableConcept[];
+  /** purpose field of type markdown */
+  purpose?: string;
+  /** copyright field of type markdown */
+  copyright?: string;
+  /** keyword field of type Coding */
+  keyword?: complex.Coding[];
+  /** fhirVersion field of type code */
+  fhirVersion?: string;
+  /** mapping field of type mapping */
+  mapping?: Mapping[];
+  /** context field of type context */
+  context?: Context[];
+  /** contextInvariant field of type string */
+  contextInvariant?: string[];
+  /** baseDefinition field of type canonical */
+  baseDefinition?: string;
+  /** derivation field of type code */
+  derivation?: string;
+  /** snapshot field of type snapshot */
+  snapshot?: Snapshot;
+  /** differential field of type differential */
+  differential?: Differential;
+}
+
+export interface Context extends complex.BackboneElement {
+  /** type field of type code */
+  type: string;
+  /** expression field of type string */
+  expression: string;
+}
+
+export interface Differential extends complex.BackboneElement {
+  /** element field of type ElementDefinition | Cardinality: 1..* */
+  element: complex.ElementDefinition[];
+}
+
+export interface Mapping extends complex.BackboneElement {
+  /** identity field of type id */
+  identity: string;
+  /** uri field of type uri */
+  uri?: string;
+  /** name field of type string */
+  name?: string;
+  /** comment field of type string */
+  comment?: string;
+}
+
+export interface Snapshot extends complex.BackboneElement {
+  /** element field of type ElementDefinition | Cardinality: 1..* */
+  element: complex.ElementDefinition[];
+}

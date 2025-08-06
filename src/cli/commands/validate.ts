@@ -4,12 +4,12 @@
  * Top-level validation command that runs all validation types
  */
 
-import type { CommandModule } from "yargs";
 import { resolve } from "path";
-import { validateConfig } from "./config/validate";
-import { validateTypeSchema } from "./typeschema/validate";
+import type { CommandModule } from "yargs";
 import { validateGeneratedCode } from "../../lib/validation/generated-code";
+import { validateConfig } from "./config/validate";
 import type { CLIArgvWithConfig } from "./index";
+import { validateTypeSchema } from "./typeschema/validate";
 
 interface ValidateCommandArgs extends CLIArgvWithConfig {
 	input?: string[];
@@ -174,7 +174,7 @@ interface ComprehensiveValidationOptions {
  * Run comprehensive validation
  */
 export async function runComprehensiveValidation(
-	options: ComprehensiveValidationOptions
+	options: ComprehensiveValidationOptions,
 ): Promise<ValidationSummary> {
 	const summary: ValidationSummary = {
 		valid: true,
@@ -192,12 +192,25 @@ export async function runComprehensiveValidation(
 
 	try {
 		// Determine which validations to run
-		const runConfig = !options.skipConfig && (!options.typeschemaOnly && !options.generatedCodeOnly);
-		const runTypeschema = !options.skipTypeschema && (!options.configOnly && !options.generatedCodeOnly) && options.inputPaths.length > 0;
-		const runGeneratedCode = !options.skipGeneratedCode && (!options.configOnly && !options.typeschemaOnly) && options.outputDir;
+		const runConfig =
+			!options.skipConfig &&
+			!options.typeschemaOnly &&
+			!options.generatedCodeOnly;
+		const runTypeschema =
+			!options.skipTypeschema &&
+			!options.configOnly &&
+			!options.generatedCodeOnly &&
+			options.inputPaths.length > 0;
+		const runGeneratedCode =
+			!options.skipGeneratedCode &&
+			!options.configOnly &&
+			!options.typeschemaOnly &&
+			options.outputDir;
 
 		if (options.verbose) {
-			console.error(`[VALIDATE] Running validations: config=${runConfig}, typeschema=${runTypeschema}, generated-code=${runGeneratedCode}`);
+			console.error(
+				`[VALIDATE] Running validations: config=${runConfig}, typeschema=${runTypeschema}, generated-code=${runGeneratedCode}`,
+			);
 		}
 
 		// Run configuration validation
@@ -213,7 +226,9 @@ export async function runComprehensiveValidation(
 				const originalConsoleError = console.error;
 				let configOutput = "";
 
-				console.log = (msg: string) => { configOutput += msg + "\n"; };
+				console.log = (msg: string) => {
+					configOutput += msg + "\n";
+				};
 				console.error = () => {}; // Suppress config validation output
 
 				await validateConfig({
@@ -269,7 +284,6 @@ export async function runComprehensiveValidation(
 						severity: "critical",
 					});
 				}
-
 			} catch (error) {
 				summary.stats.failedValidations++;
 				summary.valid = false;
@@ -324,7 +338,6 @@ export async function runComprehensiveValidation(
 						message: warning.message,
 					});
 				}
-
 			} catch (error) {
 				summary.stats.failedValidations++;
 				summary.valid = false;
@@ -377,7 +390,6 @@ export async function runComprehensiveValidation(
 						message: warning.message,
 					});
 				}
-
 			} catch (error) {
 				summary.stats.failedValidations++;
 				summary.valid = false;
@@ -405,11 +417,11 @@ export async function runComprehensiveValidation(
 			summary.errors.push({
 				type: "error",
 				source: "config",
-				message: "No validations were run. Please specify input files or output directory.",
+				message:
+					"No validations were run. Please specify input files or output directory.",
 				severity: "critical",
 			});
 		}
-
 	} catch (error) {
 		summary.valid = false;
 		summary.errors.push({
@@ -426,7 +438,10 @@ export async function runComprehensiveValidation(
 /**
  * Print validation summary to console
  */
-function printValidationSummary(summary: ValidationSummary, verbose: boolean): void {
+function printValidationSummary(
+	summary: ValidationSummary,
+	verbose: boolean,
+): void {
 	console.log("\n🔍 Comprehensive Validation Summary:");
 	console.log(`   Total validations: ${summary.stats.totalValidations}`);
 	console.log(`   Passed: ${summary.stats.passedValidations}`);
@@ -438,24 +453,33 @@ function printValidationSummary(summary: ValidationSummary, verbose: boolean): v
 	if (verbose) {
 		console.log("\n📋 Validation Results:");
 		if (summary.results.config) {
-			console.log(`   Configuration: ${summary.results.config.valid ? "✅ Valid" : "❌ Invalid"}`);
+			console.log(
+				`   Configuration: ${summary.results.config.valid ? "✅ Valid" : "❌ Invalid"}`,
+			);
 		}
 		if (summary.results.typeschema) {
-			console.log(`   TypeSchema: ${summary.results.typeschema.valid ? "✅ Valid" : "❌ Invalid"}`);
+			console.log(
+				`   TypeSchema: ${summary.results.typeschema.valid ? "✅ Valid" : "❌ Invalid"}`,
+			);
 		}
 		if (summary.results.generatedCode) {
-			console.log(`   Generated Code: ${summary.results.generatedCode.valid ? "✅ Valid" : "❌ Invalid"}`);
+			console.log(
+				`   Generated Code: ${summary.results.generatedCode.valid ? "✅ Valid" : "❌ Invalid"}`,
+			);
 		}
 	}
 
 	// Print errors by source
 	if (summary.errors.length > 0) {
 		console.log("\n❌ Errors:");
-		const errorsBySource = summary.errors.reduce((acc, error) => {
-			if (!acc[error.source]) acc[error.source] = [];
-			acc[error.source].push(error);
-			return acc;
-		}, {} as Record<string, ValidationError[]>);
+		const errorsBySource = summary.errors.reduce(
+			(acc, error) => {
+				if (!acc[error.source]) acc[error.source] = [];
+				acc[error.source].push(error);
+				return acc;
+			},
+			{} as Record<string, ValidationError[]>,
+		);
 
 		for (const [source, errors] of Object.entries(errorsBySource)) {
 			console.log(`   ${source.toUpperCase()}:`);
@@ -468,11 +492,14 @@ function printValidationSummary(summary: ValidationSummary, verbose: boolean): v
 	// Print warnings by source
 	if (summary.warnings.length > 0) {
 		console.log("\n⚠️  Warnings:");
-		const warningsBySource = summary.warnings.reduce((acc, warning) => {
-			if (!acc[warning.source]) acc[warning.source] = [];
-			acc[warning.source].push(warning);
-			return acc;
-		}, {} as Record<string, ValidationWarning[]>);
+		const warningsBySource = summary.warnings.reduce(
+			(acc, warning) => {
+				if (!acc[warning.source]) acc[warning.source] = [];
+				acc[warning.source].push(warning);
+				return acc;
+			},
+			{} as Record<string, ValidationWarning[]>,
+		);
 
 		for (const [source, warnings] of Object.entries(warningsBySource)) {
 			console.log(`   ${source.toUpperCase()}:`);

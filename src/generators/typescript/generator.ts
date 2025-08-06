@@ -9,13 +9,38 @@ import {
 	type GeneratorOptions,
 } from "../../lib/generators/base";
 import { type LoadedSchemas, SchemaLoader } from "../../lib/generators/loader";
+import {
+	isRegularField,
+	isPolymorphicDeclarationField,
+	isPolymorphicInstanceField,
+} from "../../lib/typeschema/types";
 import type {
+	ProfileConstraint,
+	ProfileExtension,
 	TypeSchema,
 	TypeSchemaField,
+	TypeSchemaFieldRegular,
+	TypeSchemaFieldPolymorphicDeclaration,
+	TypeSchemaFieldPolymorphicInstance,
 	TypeSchemaIdentifier,
 	TypeSchemaNestedType,
 	TypeSchemaValueSet,
 } from "../../lib/typeschema";
+import { toValidInterfaceName } from "../../lib/utils/naming";
+
+interface ValueSetBinding {
+	identifier: TypeSchemaIdentifier;
+	description?: string;
+	strength?: string;
+	valueset?: {
+		concept?: ValueSetConcept[];
+	};
+}
+
+interface ValueSetConcept {
+	code: string;
+	display?: string;
+}
 
 export interface TypeScriptGeneratorOptions extends GeneratorOptions {
 	packagePath?: string;
@@ -29,6 +54,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 	private schemas: LoadedSchemas | null = null;
 	private loader: SchemaLoader;
 	private generatedTypes = new Set<string>();
+	private generatedValuesets = new Set<string>();
 	private typeMapping = new Map<string, string>([
 		["boolean", "boolean"],
 		["integer", "number"],
@@ -79,9 +105,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 		this.log("Generating resources...");
 		await this.generateResources();
 
-		// Generate value sets
-		this.log("Generating value sets...");
-		await this.generateValueSets();
+		// Skip generating dedicated value sets file - inline enum values in resources instead
 
 		// Generate profiles
 		this.log("Generating profiles...");
@@ -146,7 +170,11 @@ export class TypeScriptGenerator extends BaseGenerator {
 		const sorted = this.topologicalSort(this.schemas.complexTypes);
 
 		for (const type of sorted) {
-			this.generateInterface(type);
+			// Skip the FHIR "Reference" complex type since we use our generic Reference<T> instead
+			if (type.identifier.name === 'Reference') {
+				continue;
+			}
+			this.generateComplexInterface(type);
 			this.blank();
 		}
 	}
@@ -207,20 +235,34 @@ export class TypeScriptGenerator extends BaseGenerator {
 		);
 		this.blank();
 
-		// Generate type aliases for each ValueSet
-		for (const valueSet of valueSets) {
-			this.generateValueSetType(valueSet);
+		// Merge valuesets and bindings to avoid duplicates
+		const mergedTypes = this.mergeValueSetsAndBindings(valueSets, bindings);
+		
+		// Generate type aliases for merged valuesets
+		for (const mergedType of mergedTypes) {
+			if (mergedType.type === 'binding') {
+				const binding = mergedType.data as ValueSetBinding;
+				this.generateBindingType(binding);
+				// Track generated valueset
+				const bindingName = this.getTypeName(binding.identifier, "binding");
+				this.generatedValuesets.add(bindingName);
+			} else {
+				const valueSet = mergedType.data as TypeSchemaValueSet;
+				this.generateValueSetType(valueSet);
+				// Track generated valueset
+				const valueSetName = this.getTypeName(valueSet.identifier, "value-set");
+				this.generatedValuesets.add(valueSetName);
+			}
 			this.blank();
 		}
-		// // Generate type aliases for each binding
-		// for (const binding of bindings) {
-		// 	this.generateBindingType(binding);
-		// 	this.blank();
-		// }
 	}
 
 	private async generateProfiles(): Promise<void> {
-		if (!this.schemas || !this.schemas.profiles || this.schemas.profiles.length === 0) {
+		if (
+			!this.schemas ||
+			!this.schemas.profiles ||
+			this.schemas.profiles.length === 0
+		) {
 			return;
 		}
 
@@ -233,8 +275,10 @@ export class TypeScriptGenerator extends BaseGenerator {
 		this.generateProfilesIndex();
 
 		// Generate US Core specific index if we have US Core profiles
-		const usCoreProfiles = this.schemas.profiles.filter(p =>
-			p.metadata?.isUSCore || p.identifier.name.toLowerCase().includes('uscore')
+		const usCoreProfiles = this.schemas.profiles.filter(
+			(p) =>
+				p.metadata?.isUSCore ||
+				p.identifier.name.toLowerCase().includes("uscore"),
 		);
 		if (usCoreProfiles.length > 0) {
 			this.generateUSCoreIndex(usCoreProfiles);
@@ -254,6 +298,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 		// Imports
 		this.line("import * as primitives from '../../types/primitives';");
 		this.line("import * as complex from '../../types/complex';");
+		this.line("import type { Reference } from '../../types/primitives'");
 
 		// Import base resource/profile
 		if (profile.base) {
@@ -262,8 +307,12 @@ export class TypeScriptGenerator extends BaseGenerator {
 				this.line(`import { ${baseName} } from '../${profile.base.name}';`);
 			} else if (profile.base.kind === "profile") {
 				// Import from another profile
-				const baseDirectory = profile.base.package?.includes("us.core") ? "uscore" : ".";
-				this.line(`import { ${baseName} } from './${baseDirectory}/${profile.base.name}';`);
+				const baseDirectory = profile.base.package?.includes("us.core")
+					? "uscore"
+					: ".";
+				this.line(
+					`import { ${baseName} } from './${baseDirectory}/${profile.base.name}';`,
+				);
 			}
 		}
 
@@ -276,7 +325,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 		if (profile.nested) {
 			this.blank();
 			for (const nested of profile.nested) {
-				this.generateNestedInterface(nested);
+				this.generateNestedInterface(nested, profile.identifier.name);
 				this.blank();
 			}
 		}
@@ -359,9 +408,12 @@ export class TypeScriptGenerator extends BaseGenerator {
 		}
 	}
 
-	private generateConstraintField(path: string, constraint: any): void {
+	private generateConstraintField(
+		path: string,
+		constraint: ProfileConstraint,
+	): void {
 		// Extract field name from path (e.g., "Patient.name" -> "name")
-		const fieldName = path.split('.').pop() || path;
+		const fieldName = path.split(".").pop() || path;
 
 		// Generate JSDoc with constraint information
 		const docLines: string[] = [];
@@ -380,15 +432,17 @@ export class TypeScriptGenerator extends BaseGenerator {
 			docLines.push(`Fixed value: ${JSON.stringify(constraint.fixedValue)}`);
 		}
 		if (constraint.binding) {
-			docLines.push(`Value set binding: ${constraint.binding.valueSet} (${constraint.binding.strength})`);
+			docLines.push(
+				`Value set binding: ${constraint.binding.valueSet} (${constraint.binding.strength})`,
+			);
 		}
 
 		this.line(`/** ${docLines.join(" | ")} */`);
 
 		// Determine field type based on constraint
-		let fieldType = "any";
+		let fieldType = "unknown";
 		if (constraint.types && constraint.types.length > 0) {
-			const typeNames = constraint.types.map((t: any) => t.code).join(" | ");
+			const typeNames = constraint.types.map((t) => t.code).join(" | ");
 			fieldType = typeNames;
 		}
 		if (constraint.binding && constraint.binding.valueSet) {
@@ -403,9 +457,9 @@ export class TypeScriptGenerator extends BaseGenerator {
 		this.line(`${fieldDeclaration}: ${fieldType};`);
 	}
 
-	private generateExtensionField(extension: any): void {
+	private generateExtensionField(extension: ProfileExtension): void {
 		// Extract extension name from path
-		const extensionName = extension.path.split('.').pop() || extension.path;
+		const extensionName = extension.path.split(".").pop() || extension.path;
 
 		// Generate JSDoc for extension
 		const docLines: string[] = [];
@@ -431,7 +485,11 @@ export class TypeScriptGenerator extends BaseGenerator {
 	}
 
 	private generateProfilesIndex(): void {
-		if (!this.schemas || !this.schemas.profiles || this.schemas.profiles.length === 0) {
+		if (
+			!this.schemas ||
+			!this.schemas.profiles ||
+			this.schemas.profiles.length === 0
+		) {
 			return;
 		}
 
@@ -463,7 +521,9 @@ export class TypeScriptGenerator extends BaseGenerator {
 			const usCoreProfiles = profilesByType.get("uscore")!;
 			for (const profile of usCoreProfiles) {
 				const name = this.getTypeName(profile.identifier, "profile");
-				this.line(`export { ${name} } from './uscore/${profile.identifier.name}';`);
+				this.line(
+					`export { ${name} } from './uscore/${profile.identifier.name}';`,
+				);
 			}
 			this.blank();
 		}
@@ -484,7 +544,9 @@ export class TypeScriptGenerator extends BaseGenerator {
 		this.line("export const ProfileRegistry = {");
 		for (const profile of this.schemas.profiles) {
 			const name = this.getTypeName(profile.identifier, "profile");
-			this.line(`  "${profile.identifier.url || profile.identifier.name}": "${name}",`);
+			this.line(
+				`  "${profile.identifier.url || profile.identifier.name}": "${name}",`,
+			);
 		}
 		this.line("} as const;");
 		this.blank();
@@ -495,9 +557,9 @@ export class TypeScriptGenerator extends BaseGenerator {
 		for (const profile of this.schemas.profiles) {
 			const name = this.getTypeName(profile.identifier, "profile");
 			this.line(`  "${name}": {`);
-			this.line(`    url: "${profile.identifier.url || ''}",`);
+			this.line(`    url: "${profile.identifier.url || ""}",`);
 			this.line(`    name: "${profile.identifier.name}",`);
-			this.line(`    base: "${profile.base?.name || ''}",`);
+			this.line(`    base: "${profile.base?.name || ""}",`);
 			if (profile.metadata?.isUSCore) {
 				this.line(`    isUSCore: true,`);
 			}
@@ -544,62 +606,135 @@ export class TypeScriptGenerator extends BaseGenerator {
 
 		// Export US Core profile types union
 		this.comment("US Core Profile Union Type");
-		const profileNames = usCoreProfiles.map(p => this.getTypeName(p.identifier, "profile"));
+		const profileNames = usCoreProfiles.map((p) =>
+			this.getTypeName(p.identifier, "profile"),
+		);
 		this.line(`export type USCoreProfile = ${profileNames.join(" | ")};`);
 		this.blank();
 
 		// Export US Core specific utilities
 		this.comment("US Core Utilities");
 		this.line("export function isUSCoreProfile(profileUrl: string): boolean {");
-		this.line("  return profileUrl.includes('/us/core/') || profileUrl.includes('us-core-');");
+		this.line(
+			"  return profileUrl.includes('/us/core/') || profileUrl.includes('us-core-');",
+		);
 		this.line("}");
 		this.blank();
 
-		this.line("export function getUSCoreProfileName(profileUrl: string): string | undefined {");
+		this.line(
+			"export function getUSCoreProfileName(profileUrl: string): string | undefined {",
+		);
 		this.line("  const entries = Object.entries(USCoreProfileRegistry);");
-		this.line("  const found = entries.find(([key]) => profileUrl.includes(key));");
+		this.line(
+			"  const found = entries.find(([key]) => profileUrl.includes(key));",
+		);
 		this.line("  return found?.[1];");
 		this.line("}");
 	}
 
 	private generateValueSetType(valueSet: TypeSchemaValueSet): void {
 		const name = this.getTypeName(valueSet.identifier, "value-set");
+		
 		// Check if we have concrete codes (using 'concept' field)
 		const concepts = valueSet.concept || [];
-		if (concepts.length > 0) {
-			console.log(name, valueSet.identifier, concepts.length);
+		
+		// Also check compose.include[].concept for inline codes
+		const composeConcepts: Array<{code: string, display?: string}> = [];
+		if (valueSet.compose?.include) {
+			for (const include of valueSet.compose.include) {
+				if (include.concept) {
+					composeConcepts.push(...include.concept);
+				}
+			}
+		}
+
+		// Combine all concepts
+		const allConcepts = [...concepts, ...composeConcepts];
+		
+		if (allConcepts.length > 0) {
 			// Generate union type with concrete codes
-			const codeValues = concepts
+			const codeValues = allConcepts
 				.map((concept) => `"${concept.code}"`)
 				.join(" | ");
-			this.comment(`${valueSet.description || name}`);
+			
+			// Generate comprehensive JSDoc with all codes and their displays
+			const docLines = [valueSet.description || name];
+			if (allConcepts.some(c => c.display)) {
+				docLines.push("");
+				docLines.push("Possible values:");
+				for (const concept of allConcepts) {
+					if (concept.display) {
+						docLines.push(`- \`${concept.code}\`: ${concept.display}`);
+					} else {
+						docLines.push(`- \`${concept.code}\``);
+					}
+				}
+			}
+			
+			this.multiLineComment(docLines.join("\n"));
 			this.line(`export type ${name} = ${codeValues};`);
 		} else {
-			// Fallback to string type
-			this.comment(`${valueSet.description || name} (codes not available)`);
+			// No codes available, but still create the type for consistency
+			this.comment(`${valueSet.description || name} (codes not available - using string)`);
 			this.line(`export type ${name} = string;`);
 		}
 	}
 
-	private generateBindingType(binding: any): void {
+	private generateBindingType(binding: ValueSetBinding): void {
 		const name = this.getTypeName(binding.identifier, "binding");
+
+		// Check if the binding has direct enum values
+		if (binding.enum && binding.enum.length > 0) {
+			// Generate union type from enum values
+			const codeValues = binding.enum
+				.map((code: string) => `"${code}"`)
+				.join(" | ");
+			
+			const docLines = [
+				binding.description || name,
+				`Binding strength: ${binding.strength || "required"}`
+			];
+			
+			this.multiLineComment(docLines.join("\n"));
+			this.line(`export type ${name} = ${codeValues};`);
+			return;
+		}
 
 		// Check if the binding has a valueset with concepts
 		const valueSet = binding.valueset;
 		if (valueSet && valueSet.concept && valueSet.concept.length > 0) {
 			// Generate union type with concrete codes
 			const codeValues = valueSet.concept
-				.map((concept: any) => `"${concept.code}"`)
+				.map((concept: ValueSetConcept) => `"${concept.code}"`)
 				.join(" | ");
-			this.comment(
-				`${binding.description || name} - ${binding.strength || "required"} binding`,
-			);
+			
+			const docLines = [
+				binding.description || name,
+				`Binding strength: ${binding.strength || "required"}`,
+				"",
+				"Possible values:"
+			];
+
+			// Add code documentation
+			for (const concept of valueSet.concept) {
+				if (concept.display) {
+					docLines.push(`- \`${concept.code}\`: ${concept.display}`);
+				} else {
+					docLines.push(`- \`${concept.code}\``);
+				}
+			}
+			
+			this.multiLineComment(docLines.join("\n"));
 			this.line(`export type ${name} = ${codeValues};`);
 		} else {
-			// Fallback to string type
-			this.comment(
-				`${binding.description || name} - ${binding.strength || "required"} binding (codes not available)`,
-			);
+			// No codes available, but document the binding strength
+			const docLines = [
+				binding.description || name,
+				`Binding strength: ${binding.strength || "required"}`,
+				"(codes not available - using string)"
+			];
+			
+			this.multiLineComment(docLines.join("\n"));
 			this.line(`export type ${name} = string;`);
 		}
 	}
@@ -611,14 +746,23 @@ export class TypeScriptGenerator extends BaseGenerator {
 		// Imports
 		this.line("import * as primitives from '../types/primitives';");
 		this.line("import * as complex from '../types/complex';");
+		// No longer need Valuesets import - enum values are inlined
+		this.line("import type { Reference } from '../types/primitives'");
+
+		// Add base type imports
+		if (resource.base) {
+			const baseName = this.sanitizeIdentifier(resource.base.name);
+			this.line(`import { ${baseName} } from './${baseName}';`);
+		}
 
 		// Add specific imports for dependencies
 		const deps = this.getResourceDependencies(resource);
 		if (deps.length > 0) {
 			this.blank();
 			for (const dep of deps) {
-				if (dep !== resource.identifier.name) {
-					this.line(`import { ${dep} } from './${dep}';`);
+				const sanitizedDep = this.sanitizeIdentifier(dep);
+				if (sanitizedDep !== resource.identifier.name) {
+					this.line(`import { ${sanitizedDep} } from './${sanitizedDep}';`);
 				}
 			}
 		}
@@ -632,7 +776,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 		if (resource.nested) {
 			this.blank();
 			for (const nested of resource.nested) {
-				this.generateNestedInterface(nested);
+				this.generateNestedInterface(nested, resource.identifier.name);
 				this.blank();
 			}
 		}
@@ -674,7 +818,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 				);
 
 				for (const [fieldName, field] of sortedFields) {
-					this.generateField(fieldName, field, schema.identifier.kind);
+					this.generateField(fieldName, field, schema.identifier.kind, schema.identifier.name);
 				}
 			}
 		});
@@ -682,15 +826,62 @@ export class TypeScriptGenerator extends BaseGenerator {
 		this.generatedTypes.add(name);
 	}
 
-	private generateNestedInterface(nested: TypeSchemaNestedType): void {
-		const name = this.getTypeName(nested.identifier, "nested");
+	private generateComplexInterface(schema: TypeSchema): void {
+		const name = this.getTypeName(schema.identifier, "complex-type");
+		const base = schema.base
+			? this.getTypeName(schema.base, "complex-type")
+			: null;
+
+		// Generate JSDoc comment with description and metadata
+		const jsdocLines = [schema.description || `${name} interface`];
+
+		if (schema.identifier.url) {
+			jsdocLines.push("", `@see ${schema.identifier.url}`);
+		}
+
+		if (base) {
+			jsdocLines.push(`@extends ${base}`);
+		}
+
+		this.multiLineComment(jsdocLines.join("\n"));
+
+		const header = base
+			? `export interface ${name} extends ${base}`
+			: `export interface ${name}`;
+
+		this.curlyBlock(header, () => {
+			if (schema.fields) {
+				// Sort fields: required first, then optional
+				const sortedFields = Object.entries(schema.fields).sort(
+					([, a], [, b]) => {
+						if (a.required !== b.required) {
+							return a.required ? -1 : 1;
+						}
+						return 0;
+					},
+				);
+
+				for (const [fieldName, field] of sortedFields) {
+					this.generateField(fieldName, field, "complex-type", schema.identifier.name);
+				}
+			}
+		});
+
+		this.generatedTypes.add(name);
+	}
+
+	private generateNestedInterface(nested: TypeSchemaNestedType, parentName?: string): void {
+		// Create prefixed name for nested interfaces
+		const baseName = this.getTypeName(nested.identifier, "nested");
+		const name = parentName ? `${parentName}${baseName}` : baseName;
+		
 		const base = nested.base
 			? this.getTypeName(nested.base, "resource")
 			: "complex.BackboneElement";
 
 		this.curlyBlock(`export interface ${name} extends ${base}`, () => {
 			for (const [fieldName, field] of Object.entries(nested.fields)) {
-				this.generateField(fieldName, field, "resource");
+				this.generateField(fieldName, field, "resource", parentName);
 			}
 		});
 	}
@@ -699,36 +890,63 @@ export class TypeScriptGenerator extends BaseGenerator {
 		name: string,
 		field: TypeSchemaField,
 		currentContext?: string,
+		parentResourceName?: string,
 	): void {
-		if (field.excluded) return;
+		if (isRegularField(field) && field.excluded) return;
+		if (isPolymorphicDeclarationField(field) && field.excluded) return;
+		if (isPolymorphicInstanceField(field) && field.excluded) return;
 
 		// Generate JSDoc comment for the field
-		if (field.type?.name || field.reference || field.choices) {
-			const docLines: string[] = [];
-
+		const docLines: string[] = [];
+		
+		if (isRegularField(field)) {
 			if (field.type?.name) {
 				docLines.push(`${name} field of type ${field.type.name}`);
 			} else if (field.reference) {
 				const refTypes = field.reference.map((ref) => ref.name).join(" | ");
 				docLines.push(`Reference to ${refTypes}`);
-			} else if (field.choices) {
-				docLines.push(
-					`Choice element - can be one of: ${field.choices.join(", ")}`,
-				);
 			}
 
 			if (field.min !== undefined || field.max !== undefined) {
 				const cardinality = `${field.min ?? 0}..${field.max ?? "*"}`;
 				docLines.push(`Cardinality: ${cardinality}`);
 			}
+		} else if (isPolymorphicDeclarationField(field)) {
+			docLines.push(
+				`Choice element - can be one of: ${field.choices.join(", ")}`,
+			);
 
-			if (docLines.length > 0) {
-				this.line(`/** ${docLines.join(" | ")} */`);
+			if (field.min !== undefined || field.max !== undefined) {
+				const cardinality = `${field.min ?? 0}..${field.max ?? "*"}`;
+				docLines.push(`Cardinality: ${cardinality}`);
+			}
+		} else if (isPolymorphicInstanceField(field)) {
+			docLines.push(`Polymorphic instance of ${field.choiceOf}`);
+			
+			if (field.type?.name) {
+				docLines.push(`Type: ${field.type.name}`);
+			} else if (field.reference) {
+				const refTypes = field.reference.map((ref) => ref.name).join(" | ");
+				docLines.push(`Reference to ${refTypes}`);
+			}
+
+			if (field.min !== undefined || field.max !== undefined) {
+				const cardinality = `${field.min ?? 0}..${field.max ?? "*"}`;
+				docLines.push(`Cardinality: ${cardinality}`);
 			}
 		}
 
-		const fieldName = field.required ? name : `${name}?`;
-		const fieldType = this.getFieldType(field, currentContext);
+		if (docLines.length > 0) {
+			this.line(`/** ${docLines.join(" | ")} */`);
+		}
+
+		const isRequired = isRegularField(field) ? field.required 
+			: isPolymorphicDeclarationField(field) ? field.required
+			: isPolymorphicInstanceField(field) ? field.required
+			: false;
+
+		const fieldName = isRequired ? name : `${name}?`;
+		const fieldType = this.getFieldType(field, currentContext, parentResourceName);
 
 		this.line(`${fieldName}: ${fieldType};`);
 	}
@@ -736,38 +954,89 @@ export class TypeScriptGenerator extends BaseGenerator {
 	private getFieldType(
 		field: TypeSchemaField,
 		currentContext?: string,
+		parentResourceName?: string,
 	): string {
-		let baseType = "any";
+		let baseType = "unknown";
 
-		if (field.type) {
-			baseType = this.getTypeName(field.type, currentContext);
-		} else if (field.reference) {
-			// Reference field - use generic Reference<T> types
-			if (field.reference.length === 1) {
-				const refType = this.getTypeName(field.reference[0], currentContext);
-				baseType = `Reference<${refType}>`;
-			} else {
-				// Multiple reference types - union of Reference<T>
-				const refTypes = field.reference
-					.map((ref) => `Reference<${this.getTypeName(ref, currentContext)}>`)
-					.join(" | ");
-				baseType = refTypes;
+		if (isRegularField(field)) {
+			// Check for enum values first (highest priority)
+			if (field.enum && field.enum.length > 0) {
+				// Direct enum values - create inline union type
+				const enumValues = field.enum.map(value => `"${value}"`).join(" | ");
+				baseType = enumValues;
 			}
-		} else if (field.choices && field.choices.length > 0) {
+			// Check for binding to valueset (second priority)
+			else if (field.binding) {
+				// Look up the binding to get its enum values
+				const enumValues = this.getBindingEnumValues(field.binding);
+				if (enumValues && enumValues.length > 0) {
+					// Inline the enum values directly
+					baseType = enumValues.map(value => `"${value}"`).join(" | ");
+				} else if (field.type) {
+					// No enum values available, fall back to the field type
+					const typeName = this.getTypeName(field.type, currentContext);
+					
+					// If we have a parent resource name and this appears to be a nested type,
+					// prefix it with the resource name
+					if (parentResourceName && this.isNestedType(field.type, parentResourceName)) {
+						baseType = `${parentResourceName}${typeName}`;
+					} else {
+						baseType = typeName;
+					}
+				} else {
+					// No enum values or type, use string as fallback
+					baseType = "string";
+				}
+			}
+			// Prioritize reference arrays when they exist (typed references)
+			else if (field.reference) {
+				// Reference field - use generic Reference<'Type1' | 'Type2'> pattern
+				if (field.reference.length === 1) {
+					const refType = this.getTypeName(field.reference[0], currentContext);
+					baseType = `Reference<'${refType}'>`;
+				} else {
+					// Multiple reference types - union of string literals within single Reference<T>
+					const refTypes = field.reference
+						.map((ref) => `'${this.getTypeName(ref, currentContext)}'`)
+						.join(" | ");
+					baseType = `Reference<${refTypes}>`;
+				}
+			} else if (field.type) {
+				const typeName = this.getTypeName(field.type, currentContext);
+				
+				// If we have a parent resource name and this appears to be a nested type,
+				// prefix it with the resource name
+				if (parentResourceName && this.isNestedType(field.type, parentResourceName)) {
+					baseType = `${parentResourceName}${typeName}`;
+				} else {
+					baseType = typeName;
+				}
+			}
+
+			// Handle arrays
+			if (field.array) {
+				return `${baseType}[]`;
+			}
+		} else if (isPolymorphicDeclarationField(field)) {
 			// Choice type - handle value[x] patterns
 			baseType = this.generateChoiceType(field.choices);
-		} else if (field.choiceOf) {
+
+			// Handle arrays
+			if (field.array) {
+				return `${baseType}[]`;
+			}
+		} else if (isPolymorphicInstanceField(field)) {
 			// This field is part of a choice element
 			baseType = this.getChoiceElementType(
 				field.choiceOf,
 				field.type,
 				currentContext,
 			);
-		}
 
-		// Handle arrays
-		if (field.array) {
-			return `${baseType}[]`;
+			// Handle arrays
+			if (field.array) {
+				return `${baseType}[]`;
+			}
 		}
 
 		return baseType;
@@ -781,12 +1050,45 @@ export class TypeScriptGenerator extends BaseGenerator {
 			const typeMatch = choice.match(/^value([A-Z].*)$/);
 			if (typeMatch?.[1]) {
 				const typeName = typeMatch[1].toLowerCase();
-				return this.typeMapping.get(typeName) || "any";
+				const mappedType = this.typeMapping.get(typeName);
+				if (mappedType) {
+					return mappedType;
+				}
+				// Try to map common FHIR types
+				switch (typeName) {
+					case "datetime":
+						return "string";
+					case "period":
+						return "complex.Period";
+					case "timing":
+						return "complex.Timing";
+					case "reference":
+						return "complex.Reference";
+					case "codeableconcept":
+						return "complex.CodeableConcept";
+					case "quantity":
+						return "complex.Quantity";
+					case "attachment":
+						return "complex.Attachment";
+					case "coding":
+						return "complex.Coding";
+					case "contactpoint":
+						return "complex.ContactPoint";
+					case "humanname":
+						return "complex.HumanName";
+					case "address":
+						return "complex.Address";
+					case "identifier":
+						return "complex.Identifier";
+					default:
+						return `complex.${typeName.charAt(0).toUpperCase() + typeName.slice(1)}`;
+				}
 			}
-			return "any";
+			// If no pattern match, assume it's a complex type
+			return `complex.${choice.charAt(0).toUpperCase() + choice.slice(1)}`;
 		});
 
-		return choiceTypes.length > 0 ? choiceTypes.join(" | ") : "any";
+		return choiceTypes.length > 0 ? choiceTypes.join(" | ") : "unknown";
 	}
 
 	private getChoiceElementType(
@@ -802,22 +1104,63 @@ export class TypeScriptGenerator extends BaseGenerator {
 		const typeMatch = choiceOf.match(/^value([A-Z].*)$/);
 		if (typeMatch?.[1]) {
 			const typeName = typeMatch[1].toLowerCase();
-			return this.typeMapping.get(typeName) || "any";
+			const mappedType = this.typeMapping.get(typeName);
+			if (mappedType) {
+				return mappedType;
+			}
+			// Try to map common FHIR types
+			switch (typeName) {
+				case "datetime":
+					return "string";
+				case "period":
+					return "complex.Period";
+				case "timing":
+					return "complex.Timing";
+				case "reference":
+					return "complex.Reference";
+				case "codeableconcept":
+					return "complex.CodeableConcept";
+				case "quantity":
+					return "complex.Quantity";
+				case "attachment":
+					return "complex.Attachment";
+				case "coding":
+					return "complex.Coding";
+				case "contactpoint":
+					return "complex.ContactPoint";
+				case "humanname":
+					return "complex.HumanName";
+				case "address":
+					return "complex.Address";
+				case "identifier":
+					return "complex.Identifier";
+				default:
+					return `complex.${typeName.charAt(0).toUpperCase() + typeName.slice(1)}`;
+			}
 		}
 
-		return "any";
+		return "unknown";
 	}
 
 	private getTypeName(
 		identifier: TypeSchemaIdentifier,
 		currentContext?: string,
 	): string {
-		const name = identifier.name;
-
-		// Check if it's a primitive type
-		if (this.typeMapping.has(name)) {
-			return this.typeMapping.get(name) as string;
+		const rawName = identifier.name;
+		
+		// Check if it's a primitive type (use raw name for mapping check)
+		if (this.typeMapping.has(rawName)) {
+			return this.typeMapping.get(rawName) as string;
 		}
+		
+		// Extract resource name from FHIR URLs if needed
+		let extractedName = rawName;
+		if (rawName.includes("http://hl7.org/fhir/StructureDefinition/")) {
+			extractedName = rawName.split("/").pop() || rawName;
+		}
+		
+		// Convert name to valid TypeScript identifier
+		const name = toValidInterfaceName(extractedName);
 
 		// Add namespace prefix based on kind and context
 		switch (identifier.kind) {
@@ -831,9 +1174,193 @@ export class TypeScriptGenerator extends BaseGenerator {
 			case "profile":
 				// Profiles use their name directly as they're exported at the top level
 				return name;
+			case "value-set":
+			case "binding":
+				// Use meaningful names for valuesets based on resource-field pattern
+				return this.getMeaningfulValuesetName(identifier, name);
 			default:
 				return name;
 		}
+	}
+
+	private mergeValueSetsAndBindings(
+		valueSets: TypeSchemaValueSet[],
+		bindings: ValueSetBinding[]
+	): Array<{ type: 'valueset' | 'binding'; data: TypeSchemaValueSet | ValueSetBinding }> {
+		const result: Array<{ type: 'valueset' | 'binding'; data: TypeSchemaValueSet | ValueSetBinding }> = [];
+		const processedNames = new Set<string>();
+		const processedUrls = new Set<string>();
+		const urlToValueSet = new Map<string, TypeSchemaValueSet>();
+		
+		// First, build a map of URLs to valuesets, prioritizing those with codes
+		for (const valueSet of valueSets) {
+			const url = valueSet.identifier.url;
+			const existingValueSet = urlToValueSet.get(url);
+			
+			const hasConcepts = valueSet.concept && valueSet.concept.length > 0;
+			const hasComposeConcepts = valueSet.compose?.include?.some(include => 
+				include.concept && include.concept.length > 0
+			);
+			
+			// Only keep valuesets with actual codes, or if we don't have one yet
+			if (!existingValueSet || hasConcepts || hasComposeConcepts) {
+				urlToValueSet.set(url, valueSet);
+			}
+		}
+		
+		// Process bindings first (they have better names)
+		for (const binding of bindings) {
+			const name = this.getTypeName(binding.identifier, "binding");
+			
+			// Check if there's a valueset with codes for this binding
+			const valueSetUrl = binding.valueset?.url;
+			const valueSet = valueSetUrl ? urlToValueSet.get(valueSetUrl) : undefined;
+			
+			if (valueSet && valueSet.concept && valueSet.concept.length > 0) {
+				// We have a valueset with codes - use it with the binding's name
+				const mergedValueSet = {
+					...valueSet,
+					identifier: {
+						...valueSet.identifier,
+						name: binding.identifier.name, // Use binding's name for better Resource-field naming
+					}
+				};
+				
+				if (!processedNames.has(name)) {
+					result.push({ type: 'valueset', data: mergedValueSet });
+					processedNames.add(name);
+					processedUrls.add(valueSetUrl);
+					// Mark this valueset as processed
+					urlToValueSet.delete(valueSetUrl);
+				}
+			} else if (binding.enum && binding.enum.length > 0) {
+				// Binding has enum values directly - use it
+				if (!processedNames.has(name)) {
+					result.push({ type: 'binding', data: binding });
+					processedNames.add(name);
+					if (valueSetUrl) {
+						processedUrls.add(valueSetUrl);
+						urlToValueSet.delete(valueSetUrl);
+					}
+				}
+			}
+			// Skip bindings without codes - we don't want string fallbacks
+		}
+		
+		// Add remaining valuesets that weren't matched to bindings
+		// But ONLY if they have actual codes
+		for (const valueSet of urlToValueSet.values()) {
+			const hasConcepts = valueSet.concept && valueSet.concept.length > 0;
+			const hasComposeConcepts = valueSet.compose?.include?.some(include => 
+				include.concept && include.concept.length > 0
+			);
+			
+			if (hasConcepts || hasComposeConcepts) {
+				const name = this.getTypeName(valueSet.identifier, "value-set");
+				if (!processedNames.has(name) && !processedUrls.has(valueSet.identifier.url)) {
+					result.push({ type: 'valueset', data: valueSet });
+					processedNames.add(name);
+					processedUrls.add(valueSet.identifier.url);
+				}
+			}
+			// Skip valuesets without codes - no string fallbacks
+		}
+		
+		return result;
+	}
+
+	private isValuesetGenerated(valuesetName: string): boolean {
+		return this.generatedValuesets.has(valuesetName);
+	}
+
+	/**
+	 * Get enum values from a binding
+	 */
+	private getBindingEnumValues(binding: TypeSchemaIdentifier): string[] | null {
+		if (!this.schemas) return null;
+
+		// Find the binding schema
+		const bindingSchema = this.schemas.bindings?.find(b => 
+			b.identifier.name === binding.name && b.identifier.url === binding.url
+		);
+
+		if (!bindingSchema) {
+			return null;
+		}
+
+		// Check if binding has direct enum values
+		if (bindingSchema.enum && bindingSchema.enum.length > 0) {
+			return bindingSchema.enum;
+		}
+
+		// Check if binding has a valueset with concepts
+		const valueset = this.schemas.valueSets?.find(vs => 
+			vs.identifier.name === bindingSchema.valueset?.name || 
+			vs.identifier.url === bindingSchema.valueset?.url
+		);
+
+		if (valueset) {
+			// Get concepts from direct concept array
+			if (valueset.concept && valueset.concept.length > 0) {
+				return valueset.concept.map(c => c.code);
+			}
+
+			// Get concepts from compose structure
+			if (valueset.compose?.include) {
+				const codes: string[] = [];
+				for (const include of valueset.compose.include) {
+					if (include.concept) {
+						codes.push(...include.concept.map(c => c.code));
+					}
+				}
+				if (codes.length > 0) {
+					return codes;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	private getMeaningfulValuesetName(identifier: TypeSchemaIdentifier, fallbackName: string): string {
+		// Try to extract meaningful name from binding identifier
+		if (identifier.kind === "binding" && identifier.name.includes(".")) {
+			// Format: ResourceName.fieldName_binding -> ResourceName-fieldName
+			const parts = identifier.name.replace("_binding", "").split(".");
+			if (parts.length >= 2) {
+				const resourceName = parts[0];
+				const fieldName = parts[parts.length - 1];
+				return toValidInterfaceName(`${resourceName}-${fieldName}`);
+			}
+		}
+		
+		// For value-sets, try to extract from URL or description
+		if (identifier.kind === "value-set") {
+			// Try to match common FHIR patterns
+			const url = identifier.url || "";
+			
+			// Handle standard FHIR valuesets
+			if (url.includes("/ValueSet/")) {
+				const valueSetId = url.split("/ValueSet/").pop()?.split("|")[0];
+				if (valueSetId) {
+					// Convert kebab-case to PascalCase
+					return toValidInterfaceName(valueSetId.replace(/-/g, " "));
+				}
+			}
+			
+			// Handle account-specific valuesets
+			if (url.includes("account") || identifier.name.toLowerCase().includes("account")) {
+				if (url.includes("status") || identifier.name.toLowerCase().includes("status")) {
+					return "AccountStatus";
+				}
+				if (url.includes("type") || identifier.name.toLowerCase().includes("type")) {
+					return "AccountType";
+				}
+			}
+		}
+		
+		// Fallback to original name
+		return fallbackName;
 	}
 
 	private generateReferenceType(): void {
@@ -872,18 +1399,23 @@ export class TypeScriptGenerator extends BaseGenerator {
 				"@template T - The type of resource or profile being referenced",
 			].join("\n"),
 		);
-		this.curlyBlock("export interface ProfileReference<T = any> extends Reference<T>", () => {
-			this.line("/** Profile URL that the referenced resource conforms to */");
-			this.line("profile?: string;");
-			this.blank();
-			this.line("/** Additional profile metadata */");
-			this.line("_profile?: {");
-			this.line("  /** Profile name for easier identification */");
-			this.line("  name?: string;");
-			this.line("  /** Whether this is a US Core profile */");
-			this.line("  isUSCore?: boolean;");
-			this.line("};");
-		});
+		this.curlyBlock(
+			"export interface ProfileReference<T = any> extends Reference<T>",
+			() => {
+				this.line(
+					"/** Profile URL that the referenced resource conforms to */",
+				);
+				this.line("profile?: string;");
+				this.blank();
+				this.line("/** Additional profile metadata */");
+				this.line("_profile?: {");
+				this.line("  /** Profile name for easier identification */");
+				this.line("  name?: string;");
+				this.line("  /** Whether this is a US Core profile */");
+				this.line("  isUSCore?: boolean;");
+				this.line("};");
+			},
+		);
 		this.blank();
 
 		// Generate utility types for references
@@ -894,7 +1426,9 @@ export class TypeScriptGenerator extends BaseGenerator {
 				"@template T - The resource type name (e.g., 'Patient', 'Observation')",
 			].join("\n"),
 		);
-		this.line("export type ResourceReference<T extends string> = Reference & { type: T };");
+		this.line(
+			"export type ResourceReference<T extends string> = Reference & { type: T };",
+		);
 		this.blank();
 
 		this.multiLineComment(
@@ -905,7 +1439,9 @@ export class TypeScriptGenerator extends BaseGenerator {
 				"@template P - The profile URL",
 			].join("\n"),
 		);
-		this.line("export type TypedProfileReference<T, P extends string> = ProfileReference<T> & { profile: P };");
+		this.line(
+			"export type TypedProfileReference<T, P extends string> = ProfileReference<T> & { profile: P };",
+		);
 	}
 
 	private generateTypeAlias(primitive: TypeSchema): void {
@@ -969,7 +1505,9 @@ export class TypeScriptGenerator extends BaseGenerator {
 			for (const profile of this.schemas.profiles) {
 				const name = this.getTypeName(profile.identifier, "profile");
 				const directory = profile.metadata?.isUSCore ? "uscore/" : "";
-				this.line(`export type { ${name} } from './resources/profiles/${directory}${profile.identifier.name}';`);
+				this.line(
+					`export type { ${name} } from './resources/profiles/${directory}${profile.identifier.name}';`,
+				);
 			}
 			this.blank();
 
@@ -979,8 +1517,10 @@ export class TypeScriptGenerator extends BaseGenerator {
 			this.blank();
 
 			// Export US Core profiles specifically if they exist
-			const usCoreProfiles = this.schemas.profiles.filter(p =>
-				p.metadata?.isUSCore || p.identifier.name.toLowerCase().includes('uscore')
+			const usCoreProfiles = this.schemas.profiles.filter(
+				(p) =>
+					p.metadata?.isUSCore ||
+					p.identifier.name.toLowerCase().includes("uscore"),
 			);
 			if (usCoreProfiles.length > 0) {
 				this.comment("US Core profile exports");
@@ -1002,13 +1542,14 @@ export class TypeScriptGenerator extends BaseGenerator {
 				"```",
 			].join("\n"),
 		);
-		this.curlyBlock("export const ResourceTypeMap = {", () => {
-			for (const resource of this.schemas.resources) {
-				const name = resource.identifier.name;
-				this.line(`${name}: true,`);
-			}
-		});
-		this.line(" as const;");
+		this.line("export const ResourceTypeMap = {");
+		this.indent();
+		for (const resource of this.schemas.resources) {
+			const name = resource.identifier.name;
+			this.line(`${name}: true,`);
+		}
+		this.dedent();
+		this.line("} as const;");
 		this.blank();
 
 		// Generate ResourceType union
@@ -1047,7 +1588,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 			].join("\n"),
 		);
 		this.curlyBlock(
-			"export function isFHIRResource(obj: any): obj is AnyResource",
+			"export function isFHIRResource(obj: unknown): obj is AnyResource",
 			() => {
 				this.line(
 					"return obj && typeof obj === 'object' && obj.resourceType in ResourceTypeMap;",
@@ -1100,13 +1641,34 @@ export class TypeScriptGenerator extends BaseGenerator {
 	private getResourceDependencies(resource: TypeSchema): string[] {
 		const deps = new Set<string>();
 
-		// Check field references
+		// Check field references - but skip Reference fields since they only use string literals
 		if (resource.fields) {
 			for (const field of Object.values(resource.fields)) {
-				if (field.reference) {
-					for (const ref of field.reference) {
-						if (ref.kind === "resource") {
-							deps.add(ref.name);
+				// Skip reference fields - they only use string literals in Reference<'Type'>
+				if (isRegularField(field) && field.reference) {
+					continue;
+				}
+				
+				// Check for actual type usage (non-reference fields that use resource types)
+				if (isRegularField(field) && field.type && field.type.kind === "resource") {
+					deps.add(field.type.name);
+				}
+			}
+		}
+
+		// Check nested types for actual dependencies
+		if (resource.nested) {
+			for (const nested of resource.nested) {
+				if (nested.fields) {
+					for (const field of Object.values(nested.fields)) {
+						// Skip reference fields
+						if (isRegularField(field) && field.reference) {
+							continue;
+						}
+						
+						// Check for actual type usage
+						if (isRegularField(field) && field.type && field.type.kind === "resource") {
+							deps.add(field.type.name);
 						}
 					}
 				}
@@ -1114,5 +1676,55 @@ export class TypeScriptGenerator extends BaseGenerator {
 		}
 
 		return Array.from(deps);
+	}
+
+	private isNestedType(typeIdentifier: TypeSchemaIdentifier, parentResourceName: string): boolean {
+		// More comprehensive detection: check if it's a simple name (no URL) 
+		// that matches common nested interface patterns
+		const typeName = typeIdentifier.name;
+		
+		// If it has a URL namespace, it's likely not a nested type
+		if (typeName.includes('http://') || typeName.includes('/')) {
+			return false;
+		}
+		
+		// If it's a primitive type, it's not nested
+		if (this.typeMapping.has(typeName)) {
+			return false;
+		}
+		
+		// If it's a well-known complex type, it's not nested
+		const wellKnownComplexTypes = [
+			'Element', 'BackboneElement', 'Extension', 'Meta', 'Narrative',
+			'Identifier', 'CodeableConcept', 'Coding', 'Quantity', 'Range',
+			'Ratio', 'SampledData', 'Period', 'Attachment', 'ContactPoint',
+			'HumanName', 'Address', 'Timing', 'Signature', 'Annotation',
+			'Reference', 'Count', 'Distance', 'Duration', 'Age', 'Money'
+		];
+		
+		if (wellKnownComplexTypes.includes(typeName)) {
+			return false;
+		}
+		
+		// If it's a simple name and not a known global type, assume it's nested
+		return true;
+	}
+
+	/**
+	 * Sanitize identifier to be a valid TypeScript identifier
+	 * Converts URLs and invalid characters to valid identifiers
+	 */
+	private sanitizeIdentifier(identifier: string): string {
+		// If it's a URL, extract the last part
+		if (identifier.includes("://")) {
+			const parts = identifier.split("/");
+			identifier = parts[parts.length - 1] || identifier;
+		}
+
+		// Remove invalid characters and convert to PascalCase
+		return identifier
+			.replace(/[^a-zA-Z0-9]/g, "")
+			.replace(/^[0-9]/, "_$&") // Prefix with underscore if starts with number
+			.replace(/^./, (char) => char.toUpperCase()); // Ensure starts with uppercase
 	}
 }

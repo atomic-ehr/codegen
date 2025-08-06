@@ -127,7 +127,7 @@ export class SchemaLoader {
 	 * Clean up resources
 	 */
 	async cleanup(): Promise<void> {
-		if (this.canonicalManager && this.canonicalManager.destroy) {
+		if (this.canonicalManager?.destroy) {
 			await this.canonicalManager.destroy();
 		}
 	}

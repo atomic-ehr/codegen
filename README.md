@@ -56,32 +56,45 @@ src/
 
 ```bash
 # Generate types to ./generated directory using default FHIR R4 package
-bun run generate-types -o ./generated
+atomic-codegen generate typescript -o ./generated
 
 # With verbose output
-bun run generate-types -o ./generated -v
+atomic-codegen generate typescript -o ./generated -v
 
-# From specific FHIR package
-bun run generate-types -o ./generated -p hl7.fhir.r4.core@4.0.1
+# From specific TypeSchema input file
+atomic-codegen generate typescript -i types/r4.ndjson -o ./generated
 
 # Help
-bun run generate-types -h
+atomic-codegen generate typescript --help
 ```
 
-#### Generate TypeSchema (Intermediate Format)
+#### TypeSchema Operations
 
 ```bash
-# Output to stdout
-bun run cli hl7.fhir.r4.core@4.0.1
+# Create TypeSchema from FHIR package
+atomic-codegen typeschema create hl7.fhir.r4.core@4.0.1 -o types/r4.ndjson
 
-# Save to NDJSON file
-bun run cli -o schemas.ndjson hl7.fhir.r4.core@4.0.1
+# Validate TypeSchema file
+atomic-codegen typeschema validate types/r4.ndjson
 
-# Save to separate files
-bun run cli -o ./schemas --separated-files hl7.fhir.r4.core@4.0.1
+# Merge multiple TypeSchema files
+atomic-codegen typeschema merge types/*.ndjson -o types/merged.ndjson
 
 # With verbose output
-bun run cli -v hl7.fhir.r4.core@4.0.1
+atomic-codegen typeschema create hl7.fhir.r4.core@4.0.1 -o types/r4.ndjson -v
+```
+
+#### Configuration Management
+
+```bash
+# Initialize configuration
+atomic-codegen config init --template typescript
+
+# Validate configuration
+atomic-codegen config validate
+
+# Show current configuration
+atomic-codegen config show --show-sources
 ```
 
 ### Programmatic API

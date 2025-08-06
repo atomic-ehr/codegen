@@ -14,10 +14,10 @@ export class GeneratorError extends Error {
 	constructor(
 		message: string,
 		public readonly code: string,
-		public readonly context?: Record<string, unknown>
+		public readonly context?: Record<string, unknown>,
 	) {
 		super(message);
-		this.name = 'GeneratorError';
+		this.name = "GeneratorError";
 	}
 }
 
@@ -57,19 +57,19 @@ export interface Generator {
 export interface GeneratorOptions {
 	/** Output directory for generated files */
 	outputDir: string;
-	
+
 	/** Enable verbose logging */
 	verbose?: boolean;
-	
+
 	/** Whether to overwrite existing files */
 	overwrite?: boolean;
-	
+
 	/** File encoding to use (default: utf-8) */
 	encoding?: BufferEncoding;
-	
+
 	/** Whether to format generated code */
 	format?: boolean;
-	
+
 	/** Custom file header to add to all generated files */
 	fileHeader?: string;
 }
@@ -81,14 +81,14 @@ export interface FileContent {
 
 /**
  * Abstract base class for all code generators
- * 
+ *
  * Provides common functionality for file management, code formatting,
  * and generation utilities. All language-specific generators should extend this class.
  */
 export abstract class BaseGenerator implements Generator {
 	/** Generator name - must be implemented by subclasses */
 	abstract readonly name: string;
-	
+
 	/** Target language/format - must be implemented by subclasses */
 	abstract readonly target: string;
 
@@ -102,9 +102,9 @@ export abstract class BaseGenerator implements Generator {
 	constructor(options: GeneratorOptions) {
 		this.options = {
 			...options,
-			encoding: options.encoding || 'utf-8',
+			encoding: options.encoding || "utf-8",
 			overwrite: options.overwrite ?? true,
-			format: options.format ?? true
+			format: options.format ?? true,
 		};
 	}
 
@@ -112,27 +112,30 @@ export abstract class BaseGenerator implements Generator {
 	 * Main generation method to be implemented by subclasses
 	 */
 	abstract generate(): Promise<void>;
-	
+
 	/**
 	 * Validate generator configuration and prerequisites
 	 */
 	async validate(): Promise<void> {
 		if (!this.options.outputDir) {
-			throw new GeneratorError('Output directory is required', 'MISSING_OUTPUT_DIR');
+			throw new GeneratorError(
+				"Output directory is required",
+				"MISSING_OUTPUT_DIR",
+			);
 		}
-		
+
 		// Check if output directory exists and is writable
 		try {
 			await Bun.$`mkdir -p ${this.options.outputDir}`.quiet();
 		} catch (error) {
 			throw new GeneratorError(
 				`Cannot create output directory: ${this.options.outputDir}`,
-				'INVALID_OUTPUT_DIR',
-				{ cause: error }
+				"INVALID_OUTPUT_DIR",
+				{ cause: error },
 			);
 		}
 	}
-	
+
 	/**
 	 * Clean up resources - can be overridden by subclasses
 	 */
@@ -158,25 +161,25 @@ export abstract class BaseGenerator implements Generator {
 		};
 		this.currentContent = [];
 		this.currentIndent = 0;
-		
+
 		// Add file header if configured
 		if (this.options.fileHeader) {
 			this.multiLineComment(this.options.fileHeader);
 			this.blank();
 		}
 	}
-	
+
 	/**
 	 * Build the final file content with proper formatting
 	 */
 	private buildFileContent(): string {
 		let content = this.currentContent.join("\n");
-		
+
 		// Add trailing newline if not present
 		if (content && !content.endsWith("\n")) {
 			content += "\n";
 		}
-		
+
 		return content;
 	}
 
@@ -263,9 +266,9 @@ export abstract class BaseGenerator implements Generator {
 	 */
 	protected async writeFiles(): Promise<void> {
 		const files = this.getFiles();
-		
+
 		if (files.length === 0) {
-			this.log('No files to write');
+			this.log("No files to write");
 			return;
 		}
 
@@ -277,15 +280,15 @@ export abstract class BaseGenerator implements Generator {
 			} catch (error) {
 				throw new GeneratorError(
 					`Failed to write file: ${file.path}`,
-					'FILE_WRITE_ERROR',
-					{ path: file.path, cause: error }
+					"FILE_WRITE_ERROR",
+					{ path: file.path, cause: error },
 				);
 			}
 		}
-		
+
 		this.log(`Successfully wrote ${files.length} files`);
 	}
-	
+
 	/**
 	 * Write a single file to disk
 	 */
@@ -298,11 +301,11 @@ export abstract class BaseGenerator implements Generator {
 		} catch (error) {
 			throw new GeneratorError(
 				`Failed to create directory: ${dir}`,
-				'DIRECTORY_CREATE_ERROR',
-				{ directory: dir, cause: error }
+				"DIRECTORY_CREATE_ERROR",
+				{ directory: dir, cause: error },
 			);
 		}
-		
+
 		// Check if file exists and overwrite is disabled
 		if (!this.options.overwrite) {
 			try {
@@ -310,8 +313,8 @@ export abstract class BaseGenerator implements Generator {
 				if (await existingFile.exists()) {
 					throw new GeneratorError(
 						`File already exists and overwrite is disabled: ${file.path}`,
-						'FILE_EXISTS_ERROR',
-						{ path: file.path }
+						"FILE_EXISTS_ERROR",
+						{ path: file.path },
 					);
 				}
 			} catch (error) {

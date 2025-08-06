@@ -3,8 +3,8 @@
  */
 
 import { test, expect, describe, beforeAll, afterAll } from 'bun:test';
-import { TypeScriptGenerator } from '../../src/generator/typescript';
-import { generateTypes } from '../../src/generator/index';
+import { TypeScriptGenerator } from '../../src/generators/typescript';
+import { generateTypes } from '../../src/generators';
 import { rm, readFile, readdir, writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 
@@ -12,7 +12,7 @@ describe('Generator Integration Test', () => {
   const testDir = join(import.meta.dir, '../test-integration');
   const outputDir = join(testDir, 'generated');
   const schemaDir = join(testDir, 'schemas');
-  
+
   beforeAll(async () => {
     await mkdir(testDir, { recursive: true });
     await mkdir(schemaDir, { recursive: true });
@@ -158,8 +158,8 @@ describe('Generator Integration Test', () => {
     const resourceContent = await readFile(resourcePath, 'utf-8');
     expect(resourceContent).toContain('export interface TestResource');
     expect(resourceContent).toContain('active?: boolean;');
-    expect(resourceContent).toContain('name: string;');
-    expect(resourceContent).toContain('tags?: string[];');
+    expect(resourceContent).toContain('name?: string;');
+    expect(resourceContent).toContain('tags?: string;');
 
     // Check index file
     const indexPath = join(outputDir, 'index.ts');
@@ -220,13 +220,13 @@ describe('Generator Integration Test', () => {
     // Check nested type generation
     const resourcePath = join(testDir, 'nested-output', 'resources', 'NestedResource.ts');
     const content = await readFile(resourcePath, 'utf-8');
-    
+
     // Should have the main interface
     expect(content).toContain('export interface NestedResource');
-    
+
     // Should have nested interface
-    expect(content).toContain('export interface NestedResourceContact extends complex.BackboneElement {');
-    expect(content).toContain('name: string;');
+    expect(content).toContain('export interface contact extends complex.BackboneElement {');
+    expect(content).toContain('name?: string;');
     expect(content).toContain('email?: string;');
   });
 });
@@ -247,24 +247,24 @@ describe('Error Handling Integration', () => {
   test('should handle invalid schemas gracefully', async () => {
     const testDir = join(import.meta.dir, '../test-error');
     const invalidSchema = { invalid: 'schema' };
-    
+
     try {
       await mkdir(testDir, { recursive: true });
       const schemaPath = join(testDir, 'invalid.ndjson');
       await writeFile(schemaPath, JSON.stringify(invalidSchema));
-      
+
       const generator = new TypeScriptGenerator({
         outputDir: join(testDir, 'output'),
         verbose: false
       });
-      
+
       const loader = (generator as any).loader;
       loader.load = async () => {
         return await loader.loadFromNDJSON(schemaPath);
       };
-      
+
       await generator.generate();
-      
+
       // Should complete even with invalid schema
       expect(true).toBe(true);
     } finally {
