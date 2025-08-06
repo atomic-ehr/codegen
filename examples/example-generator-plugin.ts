@@ -26,14 +26,13 @@ class ExampleDocumentationGenerator extends BaseGenerator {
 	readonly name = "example-docs";
 	readonly target = "documentation";
 
-	private options: ExampleGeneratorOptions;
+	protected declare options: ExampleGeneratorOptions;
 
 	constructor(options: ExampleGeneratorOptions) {
 		super(options);
-		this.options = options;
 	}
 
-	async generate(): Promise<void> {
+	override async generate(): Promise<void> {
 		// Generate a README file
 		this.file("README.md");
 
@@ -84,7 +83,7 @@ class ExampleDocumentationGenerator extends BaseGenerator {
 		await this.writeFiles();
 	}
 
-	async validate(): Promise<void> {
+	override async validate(): Promise<void> {
 		await super.validate();
 
 		// Custom validation logic

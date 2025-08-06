@@ -199,8 +199,7 @@ function generateConfigTemplate(
 					description: "FHIR types for multiple programming languages",
 				},
 				typeschema: {
-					packages: ["hl7.fhir.r4.core@4.0.1"],
-					profiles: ["hl7.fhir.us.core@6.1.0"],
+					packages: ["hl7.fhir.r4.core@4.0.1", "hl7.fhir.us.core@6.1.0"],
 					outputFormat: "ndjson",
 					validation: true,
 				},
@@ -243,8 +242,7 @@ function generateConfigTemplate(
 					workingDir: "tmp/atomic-codegen",
 				},
 				typeschema: {
-					packages: ["hl7.fhir.r4.core@4.0.1"],
-					profiles: ["hl7.fhir.us.core@6.1.0"],
+					packages: ["hl7.fhir.r4.core@4.0.1", "hl7.fhir.us.core@6.1.0"],
 					outputFormat: "separate",
 					validation: true,
 					treeshaking: ["Patient", "Observation", "Encounter"],

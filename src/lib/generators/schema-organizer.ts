@@ -48,6 +48,7 @@ export function organizeSchemas(schemas: AnyTypeSchema[]): OrganizedSchemas {
 
 		// Only include schemas with fields (actual type definitions)
 		// or bindings/valuesets/profiles which don't need fields
+		// or complex types that extend other types (even without their own fields)
 		const hasFields =
 			isTypeSchema(schema) &&
 			schema.fields &&
@@ -55,8 +56,16 @@ export function organizeSchemas(schemas: AnyTypeSchema[]): OrganizedSchemas {
 		const isBinding = kind === "binding";
 		const isValueSet = kind === "value-set";
 		const isProfile = kind === "profile";
+		const isExtensionType =
+			kind === "complex-type" && isTypeSchema(schema) && schema.base;
 
-		if (!hasFields && !isBinding && !isValueSet && !isProfile) {
+		if (
+			!hasFields &&
+			!isBinding &&
+			!isValueSet &&
+			!isProfile &&
+			!isExtensionType
+		) {
 			continue;
 		}
 

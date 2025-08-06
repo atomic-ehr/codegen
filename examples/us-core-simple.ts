@@ -28,10 +28,8 @@ async function main() {
       packages: ['hl7.fhir.us.core'],
       workingDir,
       verbose: true,
-      output: {
-        format: 'ndjson',
-        separate: false,
-      },
+      outputFormat: 'ndjson',
+      validation: true,
       treeshaking: [
         // Focus on just Patient profile for this simple example
         'Patient',
@@ -50,17 +48,21 @@ async function main() {
     console.log('🔧 Step 2: Generating TypeScript types...');
 
     const generatorConfig: GeneratorConfig = {
-      verbose: true,
+      target: "typescript",
       outputDir: typesOutput,
+      includeComments: true,
+      includeValidation: false,
+      namespaceStyle: "nested",
+      verbose: true,
     };
 
     const typescriptConfig: TypeScriptConfig = {
       strict: true,
-      generateIndex: true,
-      generateProfiles: true,
-      profileNamespaces: {
-        'us-core': 'USCore'
-      }
+      target: "ES2020",
+      module: "ES2020",
+      declaration: true,
+      useEnums: true,
+      preferInterfaces: true,
     };
 
     await generateTypeScript(generatorConfig, typescriptConfig, typeschemaOutput);

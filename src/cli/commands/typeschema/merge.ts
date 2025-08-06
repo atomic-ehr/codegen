@@ -159,10 +159,10 @@ export async function mergeTypeSchema(
 
 		// Apply filtering if requested
 		let processedSchemas = allSchemas;
-		if (options.filterKinds?.length > 0) {
+		if (options.filterKinds?.length && options.filterKinds.length > 0) {
 			const beforeCount = processedSchemas.length;
 			processedSchemas = processedSchemas.filter((schema) =>
-				options.filterKinds.includes(schema.identifier.kind),
+				options.filterKinds!.includes(schema.identifier.kind),
 			);
 			stats.schemasFiltered = beforeCount - processedSchemas.length;
 			log(

@@ -7,6 +7,13 @@
 export { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 // Re-export useful types from dependencies
 export type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
+// Export validation utilities
+export {
+	isValidatorAvailable,
+	validateTypeSchema,
+	validateTypeSchemaOrThrow,
+	validateTypeSchemas,
+} from "../validation/typeschema-validator";
 export {
 	buildEnum,
 	collectBindingSchemas,
@@ -41,17 +48,8 @@ export {
 	transformFHIRSchemas,
 } from "./core/transformer";
 // Export profile processor
-export {
-	transformProfile,
-} from "./profile/processor";
+export { transformProfile } from "./profile/processor";
 // Export all types
 export * from "./types";
 // Export value set processor
 export { transformValueSet } from "./value-set/processor";
-// Export validation utilities
-export {
-	validateTypeSchema,
-	validateTypeSchemas,
-	validateTypeSchemaOrThrow,
-	isValidatorAvailable,
-} from "../validation/typeschema-validator";

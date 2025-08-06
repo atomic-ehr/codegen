@@ -110,14 +110,17 @@ export function buildValueSetIdentifier(
 		// Convert kebab-case or snake_case to PascalCase for better readability
 		name = lastSegment
 			.split(/[-_]/)
-			.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+			.map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
 			.join("");
 	}
 
 	// Only fall back to valueSet.id if we couldn't extract a meaningful name from URL
 	// and the ID doesn't look like a hash (no long alphanumeric strings)
-	if (name === "unknown" && valueSet?.id &&
-		!/^[a-zA-Z0-9_-]{20,}$/.test(valueSet.id)) {
+	if (
+		name === "unknown" &&
+		valueSet?.id &&
+		!/^[a-zA-Z0-9_-]{20,}$/.test(valueSet.id)
+	) {
 		name = valueSet.id;
 	}
 

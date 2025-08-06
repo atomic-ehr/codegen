@@ -83,6 +83,15 @@ export interface PythonConfig {
 
 	/** Import style */
 	importStyle?: "absolute" | "relative";
+
+	/** Generate __init__.py files */
+	generateInit?: boolean;
+
+	/** Include type checking imports and annotations */
+	typeChecking?: boolean;
+
+	/** Use strict optional typing */
+	strictOptional?: boolean;
 }
 
 /**
@@ -122,6 +131,9 @@ export interface RustConfig {
 export interface GlobalConfig {
 	/** Default verbose mode */
 	verbose?: boolean;
+
+	/** Debug mode */
+	debug?: boolean;
 
 	/** Default output directory */
 	outputDir?: string;

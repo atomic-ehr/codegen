@@ -171,9 +171,9 @@ async function demonstrateUSCorePatientUsage() {
   };
 
   console.log('✅ US Core Patient created successfully');
-  console.log(`   Name: ${usCorePatient.name[0].given?.join(' ')} ${usCorePatient.name[0].family}`);
+  console.log(`   Name: ${usCorePatient.name?.[0]?.given?.join(' ')} ${usCorePatient.name?.[0]?.family}`);
   console.log(`   Gender: ${usCorePatient.gender}`);
-  console.log(`   Identifier: ${usCorePatient.identifier[0].value}`);
+  console.log(`   Identifier: ${usCorePatient.identifier?.[0]?.value}`);
   console.log(`   Extensions: ${usCorePatient.extension?.length || 0} US Core extensions`);
   console.log('');
 
@@ -230,7 +230,7 @@ async function demonstrateAPIUsage() {
   async function createPatientInEHR(patient: USCorePatientProfile): Promise<string> {
     // Simulate API call
     console.log('📤 Sending US Core Patient to EHR system...');
-    console.log(`   Patient: ${patient.name[0].given?.join(' ')} ${patient.name[0].family}`);
+    console.log(`   Patient: ${patient.name?.[0]?.given?.join(' ')} ${patient.name?.[0]?.family}`);
 
     // In a real implementation, this would make an HTTP request
     // return fetch('/fhir/Patient', { method: 'POST', body: JSON.stringify(patient) });

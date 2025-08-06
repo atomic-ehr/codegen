@@ -18,6 +18,7 @@ import {
 	GenerationError,
 	ValidationError,
 } from "../../../lib/core/errors";
+import type { ILogger } from "../../../lib/core/logger";
 import { organizeSchemas } from "../../../lib/generators/schema-organizer";
 import type { AnyTypeSchema, TypeSchema } from "../../../lib/typeschema";
 import type { CLIArgvWithConfig } from "../index";
@@ -183,7 +184,7 @@ export const generateTypescriptCommand: CommandModule<
 		}
 
 		// Merge CLI args with configuration
-		const configGenerator = argv._config?.generator || {};
+		const configGenerator = argv._config?.generator || {} as Partial<GeneratorConfig>;
 		const configGlobal = argv._config?.global || {};
 		const configLanguageTs = argv._config?.languages?.typescript || {};
 
@@ -238,9 +239,7 @@ export async function generateTypeScript(
 	config: GeneratorConfig,
 	tsConfig: TypeScriptConfig,
 	inputPath?: string,
-	logger?: ReturnType<
-		typeof import("../../core/logger").createLoggerFromConfig
-	>,
+	logger?: ILogger,
 ): Promise<void> {
 	// Create child logger for this operation
 	const log = logger?.child("TypeScriptGenerator") || {
@@ -261,7 +260,6 @@ export async function generateTypeScript(
 				overwrite: config.overwrite,
 				format: config.format,
 			},
-			"initialize",
 		);
 
 		// Create generator with merged config
@@ -280,7 +278,6 @@ export async function generateTypeScript(
 			await log.info(
 				"Loading TypeSchema from input",
 				{ inputPath },
-				"loadSchema",
 			);
 			const schemas = await loadTypeschemaFromPath(inputPath, log);
 
@@ -305,11 +302,10 @@ export async function generateTypeScript(
 					valueSets: organizedSchemas.valueSets?.length || 0,
 					bindings: organizedSchemas.bindings?.length || 0,
 				},
-				"organizeSchemas",
 			);
 		}
 
-		await log.info("Starting TypeScript generation", undefined, "generate");
+		await log.info("Starting TypeScript generation");
 
 		// Validate generator configuration
 		await generator.validate();
@@ -322,7 +318,6 @@ export async function generateTypeScript(
 			{
 				outputDir: config.outputDir,
 			},
-			"complete",
 		);
 
 		console.log(
@@ -356,8 +351,6 @@ export async function generateTypeScript(
 		await log.error(
 			"TypeScript generation failed",
 			generationError,
-			undefined,
-			"generate",
 		);
 		throw generationError;
 	}

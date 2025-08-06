@@ -59,6 +59,17 @@ export interface LogOutput {
 }
 
 /**
+ * Logger interface for type safety
+ */
+export interface ILogger {
+	debug(message: string, context?: Record<string, unknown>): Promise<void>;
+	info(message: string, context?: Record<string, unknown>): Promise<void>;
+	warn(message: string, context?: Record<string, unknown>): Promise<void>;
+	error(message: string, error?: Error, context?: Record<string, unknown>): Promise<void>;
+	child(component: string): ILogger;
+}
+
+/**
  * Console output implementation
  */
 export class ConsoleOutput implements LogOutput {

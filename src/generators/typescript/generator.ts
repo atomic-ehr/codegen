@@ -130,7 +130,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 	private async generatePrimitiveTypes(): Promise<void> {
 		if (!this.schemas) return;
 
-		this.file("types/primitive.ts");
+		this.file("base-types/Reference.ts");
 
 		this.multiLineComment(
 			[
@@ -167,29 +167,16 @@ export class TypeScriptGenerator extends BaseGenerator {
 	}
 
 	private generateComplexTypeFile(type: TypeSchema): void {
-		const fileName = `types/complex/${type.identifier.name}.ts`;
+		const fileName = `base-types/${type.identifier.name}.ts`;
 		this.file(fileName);
-
-		// Import Reference type from primitives
-		this.line("import type { Reference } from '../primitives';");
 
 		// Import other complex types that this type depends on
 		const dependencies = this.getComplexTypeDependencies(type);
 		for (const dep of dependencies) {
-			if (dep !== type.identifier.name && dep !== "Reference") {
+			if (dep !== type.identifier.name) {
 				this.line(`import type { ${dep} } from './${dep}';`);
 			}
 		}
-		this.blank();
-
-		this.multiLineComment(
-			[
-				`FHIR ${type.identifier.name} Complex Type`,
-				"",
-				type.description || `${type.identifier.name} complex data type used in FHIR resources.`,
-				"This type represents structured data elements that can contain multiple fields.",
-			].join("\n"),
-		);
 		this.blank();
 
 		this.generateComplexInterface(type);
@@ -205,7 +192,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 	}
 
 	private generateComplexTypesIndex(sortedTypes: TypeSchema[]): void {
-		this.file("types/complex/index.ts");
+		this.file("base-types/index.ts");
 
 		this.multiLineComment(
 			[
@@ -230,17 +217,61 @@ export class TypeScriptGenerator extends BaseGenerator {
 	private getComplexTypeDependencies(type: TypeSchema): string[] {
 		const dependencies = new Set<string>();
 
+		// Add base type if it exists
+		if (type.base?.kind === "complex-type") {
+			dependencies.add(type.base.name);
+		}
+
 		if (type.fields) {
 			for (const [, field] of Object.entries(type.fields)) {
 				this.extractTypeDependencies(field, dependencies);
+				// Also extract from generated field type strings
+				const fieldType = this.getFieldType(
+					field,
+					"complex-type",
+					undefined,
+					type,
+				);
+				this.extractTypeReferencesFromString(fieldType, dependencies);
+			}
+		}
+
+		// Check nested types for their base types
+		if (type.nested) {
+			for (const nested of type.nested) {
+				if (nested.base?.kind === "complex-type") {
+					dependencies.add(nested.base.name);
+				} else {
+					// If no explicit base, nested types default to BackboneElement
+					dependencies.add("BackboneElement");
+				}
+				// Also check nested fields
+				for (const [, field] of Object.entries(nested.fields)) {
+					this.extractTypeDependencies(field, dependencies);
+					const fieldType = this.getFieldType(
+						field,
+						"complex-type",
+						undefined,
+						type,
+					);
+					this.extractTypeReferencesFromString(fieldType, dependencies);
+				}
 			}
 		}
 
 		return Array.from(dependencies);
 	}
 
-	private extractTypeDependencies(field: TypeSchemaField, dependencies: Set<string>): void {
+	private extractTypeDependencies(
+		field: TypeSchemaField,
+		dependencies: Set<string>,
+	): void {
 		if (isRegularField(field)) {
+			// For reference fields, we need to add Reference as a dependency
+			// because Reference<'Type'> actually uses the Reference interface
+			if (field.reference) {
+				dependencies.add("Reference");
+			}
 			if (field.type?.kind === "complex-type") {
 				dependencies.add(field.type.name);
 			}
@@ -256,8 +287,39 @@ export class TypeScriptGenerator extends BaseGenerator {
 				}
 			}
 		} else if (isPolymorphicInstanceField(field)) {
+			// For reference fields in polymorphic instances, add Reference dependency
+			if (field.reference) {
+				dependencies.add("Reference");
+			}
 			if (field.type?.kind === "complex-type") {
 				dependencies.add(field.type.name);
+			}
+		}
+	}
+
+	private extractTypeReferencesFromString(
+		typeString: string,
+		dependencies: Set<string>,
+	): void {
+		if (!this.schemas) return;
+
+		// Get all complex types from the loaded schemas
+		const complexTypes = this.getComplexTypeNames(this.schemas);
+
+		// Remove Reference<'...'> patterns to avoid importing types used only as string literals
+		// This regex matches patterns like Reference<'Type'>, Reference<'Type1' | 'Type2'>, etc.
+		// It handles nested quotes and complex union types within Reference generics
+		const cleanedTypeString = typeString
+			.replace(/Reference<'[^>]+'>?/g, "")
+			// Also remove string literal types in union types (e.g., "Reference" | "code" | "string")
+			.replace(/"[^"]+"/g, "");
+
+		// Extract type references from the cleaned type string
+		for (const complexType of complexTypes) {
+			// Match the type name as a whole word (not part of another word)
+			const regex = new RegExp(`\\b${complexType}\\b`, "g");
+			if (regex.test(cleanedTypeString)) {
+				dependencies.add(complexType);
 			}
 		}
 	}
@@ -306,7 +368,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 			return;
 		}
 
-		this.file("types/valuesets.ts");
+		this.file("base-types/valuesets.ts");
 
 		this.multiLineComment(
 			[
@@ -350,7 +412,9 @@ export class TypeScriptGenerator extends BaseGenerator {
 		}
 
 		// Group profiles by package
-		const profilesByPackage = this.groupProfilesByPackage(this.schemas.profiles);
+		const profilesByPackage = this.groupProfilesByPackage(
+			this.schemas.profiles,
+		);
 
 		// Generate individual profile files
 		for (const profile of this.schemas.profiles) {
@@ -377,21 +441,33 @@ export class TypeScriptGenerator extends BaseGenerator {
 		// Calculate relative path depth for imports
 		const relativeDepth = "../".repeat(packageName.split("/").length + 1);
 
-		// Imports
-		this.line(`import type { Reference } from '${relativeDepth}types/primitives';`);
-		this.line(`import * as complex from '${relativeDepth}types/complex';`);
+		// Collect used complex types
+		const usedComplexTypes = this.getUsedComplexTypes(profile);
+
+		// Generate direct imports for used complex types
+		if (usedComplexTypes.size > 0) {
+			const sortedComplexTypes = Array.from(usedComplexTypes).sort();
+			for (const complexType of sortedComplexTypes) {
+				this.line(
+					`import type { ${complexType} } from '${relativeDepth}base-types/${complexType}';`,
+				);
+			}
+		}
 
 		// Import base resource/profile
 		if (profile.base) {
 			const baseName = this.getTypeName(profile.base, profile.base.kind);
 			if (profile.base.kind === "resource") {
-				this.line(`import { ${baseName} } from '${relativeDepth}resources/${profile.base.name}';`);
+				this.line(
+					`import type { ${baseName} } from '${relativeDepth}resources/${profile.base.name}';`,
+				);
 			} else if (profile.base.kind === "profile") {
 				// Import from another profile
 				const basePackageName = this.getPackageNameFromIdentifier(profile.base);
-				const baseDirectory = basePackageName === packageName ? "." : `../${basePackageName}`;
+				const baseDirectory =
+					basePackageName === packageName ? "." : `../${basePackageName}`;
 				this.line(
-					`import { ${baseName} } from '${baseDirectory}/${profile.base.name}';`,
+					`import type { ${baseName} } from '${baseDirectory}/${profile.base.name}';`,
 				);
 			}
 		}
@@ -411,7 +487,9 @@ export class TypeScriptGenerator extends BaseGenerator {
 		}
 	}
 
-	private groupProfilesByPackage(profiles: TypeSchema[]): Record<string, TypeSchema[]> {
+	private groupProfilesByPackage(
+		profiles: TypeSchema[],
+	): Record<string, TypeSchema[]> {
 		const grouped: Record<string, TypeSchema[]> = {};
 
 		for (const profile of profiles) {
@@ -433,19 +511,21 @@ export class TypeScriptGenerator extends BaseGenerator {
 
 		// Try to extract from identifier URL
 		if (profile.identifier.url) {
-			if (profile.identifier.url.includes('/us/core/')) {
-				return 'hl7-fhir-us-core';
+			if (profile.identifier.url.includes("/us/core/")) {
+				return "hl7-fhir-us-core";
 			}
-			if (profile.identifier.url.includes('hl7.org/fhir/')) {
-				return 'hl7-fhir-r4-core';
+			if (profile.identifier.url.includes("hl7.org/fhir/")) {
+				return "hl7-fhir-r4-core";
 			}
 		}
 
 		// Fallback to core
-		return 'hl7-fhir-r4-core';
+		return "hl7-fhir-r4-core";
 	}
 
-	private getPackageNameFromIdentifier(identifier: TypeSchemaIdentifier): string {
+	private getPackageNameFromIdentifier(
+		identifier: TypeSchemaIdentifier,
+	): string {
 		// Extract package name from identifier
 		if (identifier.package) {
 			return this.sanitizePackageName(identifier.package);
@@ -453,27 +533,30 @@ export class TypeScriptGenerator extends BaseGenerator {
 
 		// Try to extract from URL
 		if (identifier.url) {
-			if (identifier.url.includes('/us/core/')) {
-				return 'hl7-fhir-us-core';
+			if (identifier.url.includes("/us/core/")) {
+				return "hl7-fhir-us-core";
 			}
-			if (identifier.url.includes('hl7.org/fhir/')) {
-				return 'hl7-fhir-r4-core';
+			if (identifier.url.includes("hl7.org/fhir/")) {
+				return "hl7-fhir-r4-core";
 			}
 		}
 
 		// Fallback to core
-		return 'hl7-fhir-r4-core';
+		return "hl7-fhir-r4-core";
 	}
 
 	private sanitizePackageName(packageName: string): string {
 		// Convert package names like "hl7.fhir.us.core@6.1.0" to "hl7-fhir-us-core"
 		return packageName
-			.split('@')[0] // Remove version
-			.replace(/\./g, '-') // Replace dots with dashes
+			.split("@")[0] // Remove version
+			.replace(/\./g, "-") // Replace dots with dashes
 			.toLowerCase();
 	}
 
-	private generatePackageProfilesIndex(packageName: string, profiles: TypeSchema[]): void {
+	private generatePackageProfilesIndex(
+		packageName: string,
+		profiles: TypeSchema[],
+	): void {
 		const fileName = `resources/profiles/${packageName}/index.ts`;
 		this.file(fileName);
 
@@ -500,7 +583,9 @@ export class TypeScriptGenerator extends BaseGenerator {
 
 		// Create package-specific registry
 		this.comment("Profile Registry");
-		this.line(`export const ${this.toPascalCase(packageName)}ProfileRegistry = {`);
+		this.line(
+			`export const ${this.toPascalCase(packageName)}ProfileRegistry = {`,
+		);
 		for (const profile of profiles) {
 			const name = this.getTypeName(profile.identifier, "profile");
 			this.line(`  "${profile.identifier.name}": "${name}",`);
@@ -513,14 +598,16 @@ export class TypeScriptGenerator extends BaseGenerator {
 		const profileNames = profiles.map((p) =>
 			this.getTypeName(p.identifier, "profile"),
 		);
-		this.line(`export type ${this.toPascalCase(packageName)}Profile = ${profileNames.join(" | ")};`);
+		this.line(
+			`export type ${this.toPascalCase(packageName)}Profile = ${profileNames.join(" | ")};`,
+		);
 	}
 
 	private toPascalCase(str: string): string {
 		return str
-			.split('-')
-			.map(word => word.charAt(0).toUpperCase() + word.slice(1))
-			.join('');
+			.split("-")
+			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+			.join("");
 	}
 
 	private generateProfileInterface(profile: TypeSchema): void {
@@ -595,7 +682,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 			);
 
 			for (const [fieldName, field] of sortedFields) {
-				this.generateField(fieldName, field, "profile");
+				this.generateField(fieldName, field, "profile", undefined, profile);
 			}
 		}
 	}
@@ -673,10 +760,12 @@ export class TypeScriptGenerator extends BaseGenerator {
 		const fieldDeclaration = isRequired ? extensionName : `${extensionName}?`;
 
 		// Extensions are typically complex types or primitives
-		this.line(`${fieldDeclaration}: complex.Extension | complex.Extension[];`);
+		this.line(`${fieldDeclaration}: Extension | Extension[];`);
 	}
 
-	private generateProfilesIndex(profilesByPackage: Record<string, TypeSchema[]>): void {
+	private generateProfilesIndex(
+		profilesByPackage: Record<string, TypeSchema[]>,
+	): void {
 		this.file("resources/profiles/index.ts");
 
 		this.multiLineComment(
@@ -734,10 +823,11 @@ export class TypeScriptGenerator extends BaseGenerator {
 
 		// Export package names for easy access
 		this.comment("Available Packages");
-		const packageNames = Object.keys(profilesByPackage).map(name => `"${name}"`).join(" | ");
+		const packageNames = Object.keys(profilesByPackage)
+			.map((name) => `"${name}"`)
+			.join(" | ");
 		this.line(`export type ProfilePackage = ${packageNames};`);
 	}
-
 
 	private generateValueSetType(valueSet: TypeSchemaValueSet): void {
 		const name = this.getTypeName(valueSet.identifier, "value-set");
@@ -852,16 +942,29 @@ export class TypeScriptGenerator extends BaseGenerator {
 		const fileName = `resources/${resource.identifier.name}.ts`;
 		this.file(fileName);
 
-		// Imports
-		this.line("import * as primitives from '../types/primitives';");
-		this.line("import * as complex from '../types/complex';");
-		// No longer need Valuesets import - enum values are inlined
-		this.line("import type { Reference } from '../types/primitives'");
+		// Collect used complex types
+		const usedComplexTypes = this.getUsedComplexTypes(resource);
+
+		// Generate direct imports for used complex types
+		if (usedComplexTypes.size > 0) {
+			const sortedComplexTypes = Array.from(usedComplexTypes).sort();
+			for (const complexType of sortedComplexTypes) {
+				// Skip if this complex type is the same as the base type to avoid duplicate imports
+				const baseName = resource.base
+					? this.sanitizeIdentifier(resource.base.name)
+					: null;
+				if (complexType !== baseName) {
+					this.line(
+						`import type { ${complexType} } from '../base-types/${complexType}';`,
+					);
+				}
+			}
+		}
 
 		// Add base type imports
 		if (resource.base) {
 			const baseName = this.sanitizeIdentifier(resource.base.name);
-			this.line(`import { ${baseName} } from './${baseName}';`);
+			this.line(`import type { ${baseName} } from './${baseName}';`);
 		}
 
 		// Add specific imports for dependencies
@@ -871,7 +974,9 @@ export class TypeScriptGenerator extends BaseGenerator {
 			for (const dep of deps) {
 				const sanitizedDep = this.sanitizeIdentifier(dep);
 				if (sanitizedDep !== resource.identifier.name) {
-					this.line(`import { ${sanitizedDep} } from './${sanitizedDep}';`);
+					this.line(
+						`import type { ${sanitizedDep} } from './${sanitizedDep}';`,
+					);
 				}
 			}
 		}
@@ -932,6 +1037,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 						field,
 						schema.identifier.kind,
 						schema.identifier.name,
+						schema,
 					);
 				}
 			}
@@ -959,9 +1065,13 @@ export class TypeScriptGenerator extends BaseGenerator {
 
 		this.multiLineComment(jsdocLines.join("\n"));
 
+		// Add generic support for CodeableConcept and Coding
+		const isGenericType = name === "CodeableConcept" || name === "Coding";
+		const genericParam = isGenericType ? "<T extends string = string>" : "";
+
 		const header = base
-			? `export interface ${name} extends ${base}`
-			: `export interface ${name}`;
+			? `export interface ${name}${genericParam} extends ${base}`
+			: `export interface ${name}${genericParam}`;
 
 		this.curlyBlock(header, () => {
 			if (schema.fields) {
@@ -981,6 +1091,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 						field,
 						"complex-type",
 						schema.identifier.name,
+						schema,
 					);
 				}
 			}
@@ -999,11 +1110,22 @@ export class TypeScriptGenerator extends BaseGenerator {
 
 		const base = nested.base
 			? this.getTypeName(nested.base, "resource")
-			: "complex.BackboneElement";
+			: "BackboneElement";
 
 		this.curlyBlock(`export interface ${name} extends ${base}`, () => {
 			for (const [fieldName, field] of Object.entries(nested.fields)) {
-				this.generateField(fieldName, field, "resource", parentName);
+				// Create a mock schema with just the nested fields for choice field checking
+				const mockSchema = {
+					fields: nested.fields,
+					nested: undefined,
+				};
+				this.generateField(
+					fieldName,
+					field,
+					"resource",
+					parentName,
+					mockSchema as any,
+				);
 			}
 		});
 	}
@@ -1013,49 +1135,53 @@ export class TypeScriptGenerator extends BaseGenerator {
 		field: TypeSchemaField,
 		currentContext?: string,
 		parentResourceName?: string,
+		schema?: TypeSchema,
 	): void {
 		if (isRegularField(field) && field.excluded) return;
 		if (isPolymorphicDeclarationField(field) && field.excluded) return;
 		if (isPolymorphicInstanceField(field) && field.excluded) return;
 
-		// Generate JSDoc comment for the field
+		// Skip base choice field if polymorphic instances exist
+		if (isPolymorphicDeclarationField(field) && schema) {
+			const hasPolymorphicInstances = field.choices.some((choiceName) => {
+				// Check in main schema fields
+				if (
+					schema.fields?.[choiceName] &&
+					isPolymorphicInstanceField(schema.fields[choiceName])
+				) {
+					return true;
+				}
+				// Check in nested types
+				if (schema.nested) {
+					for (const nested of schema.nested) {
+						if (
+							nested.fields[choiceName] &&
+							isPolymorphicInstanceField(nested.fields[choiceName])
+						) {
+							return true;
+						}
+					}
+				}
+				return false;
+			});
+			if (hasPolymorphicInstances) {
+				return; // Skip generating the base choice field
+			}
+		}
+
+		// Generate JSDoc comment for the field only if field has specific description
 		const docLines: string[] = [];
 
-		if (isRegularField(field)) {
-			if (field.type?.name) {
-				docLines.push(`${name} field of type ${field.type.name}`);
-			} else if (field.reference) {
-				const refTypes = field.reference.map((ref) => ref.name).join(" | ");
-				docLines.push(`Reference to ${refTypes}`);
-			}
+		// Check if field has its own description
+		const fieldDescription =
+			isRegularField(field) ||
+			isPolymorphicDeclarationField(field) ||
+			isPolymorphicInstanceField(field)
+				? field.description
+				: undefined;
 
-			if (field.min !== undefined || field.max !== undefined) {
-				const cardinality = `${field.min ?? 0}..${field.max ?? "*"}`;
-				docLines.push(`Cardinality: ${cardinality}`);
-			}
-		} else if (isPolymorphicDeclarationField(field)) {
-			docLines.push(
-				`Choice element - can be one of: ${field.choices.join(", ")}`,
-			);
-
-			if (field.min !== undefined || field.max !== undefined) {
-				const cardinality = `${field.min ?? 0}..${field.max ?? "*"}`;
-				docLines.push(`Cardinality: ${cardinality}`);
-			}
-		} else if (isPolymorphicInstanceField(field)) {
-			docLines.push(`Polymorphic instance of ${field.choiceOf}`);
-
-			if (field.type?.name) {
-				docLines.push(`Type: ${field.type.name}`);
-			} else if (field.reference) {
-				const refTypes = field.reference.map((ref) => ref.name).join(" | ");
-				docLines.push(`Reference to ${refTypes}`);
-			}
-
-			if (field.min !== undefined || field.max !== undefined) {
-				const cardinality = `${field.min ?? 0}..${field.max ?? "*"}`;
-				docLines.push(`Cardinality: ${cardinality}`);
-			}
+		if (fieldDescription) {
+			docLines.push(fieldDescription);
 		}
 
 		if (docLines.length > 0) {
@@ -1075,6 +1201,8 @@ export class TypeScriptGenerator extends BaseGenerator {
 			field,
 			currentContext,
 			parentResourceName,
+			schema,
+			name,
 		);
 
 		this.line(`${fieldName}: ${fieldType};`);
@@ -1084,23 +1212,41 @@ export class TypeScriptGenerator extends BaseGenerator {
 		field: TypeSchemaField,
 		currentContext?: string,
 		parentResourceName?: string,
+		schema?: TypeSchema,
+		fieldName?: string,
 	): string {
 		let baseType = "unknown";
 
 		if (isRegularField(field)) {
 			// Check for enum values first (highest priority)
 			if (field.enum && field.enum.length > 0) {
-				// Direct enum values - create inline union type
-				const enumValues = field.enum.map((value) => `"${value}"`).join(" | ");
-				baseType = enumValues;
+				// For Coding fields, use generic Coding<T> with enum union
+				if (field.type?.name === "Coding") {
+					const enumUnion = field.enum.map((value) => `"${value}"`).join(" | ");
+					baseType = `Coding<${enumUnion}>`;
+				} else {
+					// Direct enum values - create inline union type for other types
+					const enumValues = field.enum
+						.map((value) => `"${value}"`)
+						.join(" | ");
+					baseType = enumValues;
+				}
 			}
 			// Check for binding to valueset (second priority)
 			else if (field.binding) {
 				// Look up the binding to get its enum values
 				const enumValues = this.getBindingEnumValues(field.binding);
 				if (enumValues && enumValues.length > 0) {
-					// Inline the enum values directly
-					baseType = enumValues.map((value) => `"${value}"`).join(" | ");
+					// For Coding fields, use generic Coding<T> with enum union
+					if (field.type?.name === "Coding") {
+						const enumUnion = enumValues
+							.map((value) => `"${value}"`)
+							.join(" | ");
+						baseType = `Coding<${enumUnion}>`;
+					} else {
+						// Inline the enum values directly for other types
+						baseType = enumValues.map((value) => `"${value}"`).join(" | ");
+					}
 				} else if (field.type) {
 					// No enum values available, fall back to the field type
 					const typeName = this.getTypeName(field.type, currentContext);
@@ -1136,9 +1282,47 @@ export class TypeScriptGenerator extends BaseGenerator {
 			} else if (field.type) {
 				const typeName = this.getTypeName(field.type, currentContext);
 
+				// Special handling for generic types within their own interfaces
+				if (schema?.identifier?.name === "Coding" && fieldName === "code") {
+					// For Coding interface, code field should use generic type T
+					baseType = "T";
+				} else if (
+					schema?.identifier?.name === "CodeableConcept" &&
+					fieldName === "coding" &&
+					field.type.name === "Coding"
+				) {
+					// For CodeableConcept interface, coding array should use Coding<T>
+					baseType = "Coding<T>";
+				}
+				// Check if this is a Coding with binding that has enum values
+				else if (field.type.name === "Coding" && field.binding) {
+					const enumValues = this.getBindingEnumValues(field.binding);
+					if (enumValues && enumValues.length > 0) {
+						// Create generic Coding with enum union type
+						const enumUnion = enumValues
+							.map((value) => `"${value}"`)
+							.join(" | ");
+						baseType = `Coding<${enumUnion}>`;
+					} else {
+						baseType = "Coding";
+					}
+				}
+				// Check if this is a CodeableConcept with binding that has enum values
+				else if (field.type.name === "CodeableConcept" && field.binding) {
+					const enumValues = this.getBindingEnumValues(field.binding);
+					if (enumValues && enumValues.length > 0) {
+						// Create generic CodeableConcept with enum union type
+						const enumUnion = enumValues
+							.map((value) => `"${value}"`)
+							.join(" | ");
+						baseType = `CodeableConcept<${enumUnion}>`;
+					} else {
+						baseType = "CodeableConcept";
+					}
+				}
 				// If we have a parent resource name and this appears to be a nested type,
 				// prefix it with the resource name
-				if (
+				else if (
 					parentResourceName &&
 					this.isNestedType(field.type, parentResourceName)
 				) {
@@ -1154,7 +1338,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 			}
 		} else if (isPolymorphicDeclarationField(field)) {
 			// Choice type - handle value[x] patterns
-			baseType = this.generateChoiceType(field.choices);
+			baseType = this.generateChoiceType(field.choices, schema, fieldName);
 
 			// Handle arrays
 			if (field.array) {
@@ -1177,50 +1361,135 @@ export class TypeScriptGenerator extends BaseGenerator {
 		return baseType;
 	}
 
-	private generateChoiceType(choices: string[]): string {
-		// Transform choice elements like ["valueString", "valueInteger", "valueBoolean"]
-		// into union type like "string | number | boolean"
-		const choiceTypes = choices.map((choice) => {
-			// Extract the type from choice element name (e.g., "valueString" -> "string")
-			const typeMatch = choice.match(/^value([A-Z].*)$/);
-			if (typeMatch?.[1]) {
-				const typeName = typeMatch[1].toLowerCase();
-				const mappedType = this.typeMapping.get(typeName);
-				if (mappedType) {
-					return mappedType;
+	private generateChoiceType(
+		choices: string[],
+		schema?: TypeSchema,
+		fieldName?: string,
+	): string {
+		// For value[x] patterns, use the existing logic
+		if (choices.some((choice) => choice.match(/^value([A-Z].*)$/))) {
+			// Transform choice elements like ["valueString", "valueInteger", "valueBoolean"]
+			// into union type like "string | number | boolean"
+			const choiceTypes = choices.map((choice) => {
+				// Extract the type from choice element name (e.g., "valueString" -> "string")
+				const typeMatch = choice.match(/^value([A-Z].*)$/);
+				if (typeMatch?.[1]) {
+					const typeName = typeMatch[1].toLowerCase();
+					const mappedType = this.typeMapping.get(typeName);
+					if (mappedType) {
+						return mappedType;
+					}
+					// Try to map common FHIR types
+					switch (typeName) {
+						case "datetime":
+							return "string";
+						case "period":
+							return "Period";
+						case "timing":
+							return "Timing";
+						case "reference":
+							return "Reference";
+						case "codeableconcept":
+							return "CodeableConcept";
+						case "quantity":
+							return "Quantity";
+						case "attachment":
+							return "Attachment";
+						case "coding":
+							return "Coding";
+						case "contactpoint":
+							return "ContactPoint";
+						case "humanname":
+							return "HumanName";
+						case "address":
+							return "Address";
+						case "identifier":
+							return "Identifier";
+						default:
+							return `${typeName.charAt(0).toUpperCase() + typeName.slice(1)}`;
+					}
 				}
-				// Try to map common FHIR types
-				switch (typeName) {
-					case "datetime":
-						return "string";
-					case "period":
-						return "complex.Period";
-					case "timing":
-						return "complex.Timing";
-					case "reference":
-						return "complex.Reference";
-					case "codeableconcept":
-						return "complex.CodeableConcept";
-					case "quantity":
-						return "complex.Quantity";
-					case "attachment":
-						return "complex.Attachment";
-					case "coding":
-						return "complex.Coding";
-					case "contactpoint":
-						return "complex.ContactPoint";
-					case "humanname":
-						return "complex.HumanName";
-					case "address":
-						return "complex.Address";
-					case "identifier":
-						return "complex.Identifier";
-					default:
-						return `complex.${typeName.charAt(0).toUpperCase() + typeName.slice(1)}`;
+				// If no pattern match, assume it's a complex type
+				return `${choice.charAt(0).toUpperCase() + choice.slice(1)}`;
+			});
+
+			return choiceTypes.length > 0 ? choiceTypes.join(" | ") : "unknown";
+		}
+
+		// For non-value[x] patterns, collect actual types from polymorphic instances
+		if (schema && fieldName) {
+			const choiceTypes: string[] = [];
+
+			for (const choice of choices) {
+				const instanceField = schema.fields?.[choice];
+				if (instanceField && isPolymorphicInstanceField(instanceField)) {
+					if (instanceField.type) {
+						const typeName = this.getTypeName(
+							instanceField.type,
+							"complex-type",
+						);
+						choiceTypes.push(typeName);
+					} else if (
+						instanceField.reference &&
+						instanceField.reference.length > 0
+					) {
+						// Handle reference types
+						if (instanceField.reference.length === 1) {
+							const refType = this.getTypeName(
+								instanceField.reference[0],
+								"complex-type",
+							);
+							choiceTypes.push(`Reference<'${refType}'>`);
+						} else {
+							const refTypes = instanceField.reference
+								.map((ref) => `'${this.getTypeName(ref, "complex-type")}'`)
+								.join(" | ");
+							choiceTypes.push(`Reference<${refTypes}>`);
+						}
+					}
+				}
+				// Also check nested types for choice fields
+				else if (schema.nested) {
+					for (const nested of schema.nested) {
+						const nestedField = nested.fields[choice];
+						if (nestedField && isPolymorphicInstanceField(nestedField)) {
+							if (nestedField.type) {
+								const typeName = this.getTypeName(
+									nestedField.type,
+									"complex-type",
+								);
+								choiceTypes.push(typeName);
+							} else if (
+								nestedField.reference &&
+								nestedField.reference.length > 0
+							) {
+								// Handle reference types
+								if (nestedField.reference.length === 1) {
+									const refType = this.getTypeName(
+										nestedField.reference[0],
+										"complex-type",
+									);
+									choiceTypes.push(`Reference<'${refType}'>`);
+								} else {
+									const refTypes = nestedField.reference
+										.map((ref) => `'${this.getTypeName(ref, "complex-type")}'`)
+										.join(" | ");
+									choiceTypes.push(`Reference<${refTypes}>`);
+								}
+							}
+						}
+					}
 				}
 			}
-			// If no pattern match, assume it's a complex type
-			return `complex.${choice.charAt(0).toUpperCase() + choice.slice(1)}`;
+
+			if (choiceTypes.length > 0) {
+				return choiceTypes.join(" | ");
+			}
+		}
+
+		// Fallback to original logic for backward compatibility
+		const choiceTypes = choices.map((choice) => {
+			return `${choice.charAt(0).toUpperCase() + choice.slice(1)}`;
 		});
 
 		return choiceTypes.length > 0 ? choiceTypes.join(" | ") : "unknown";
@@ -1248,29 +1517,29 @@ export class TypeScriptGenerator extends BaseGenerator {
 				case "datetime":
 					return "string";
 				case "period":
-					return "complex.Period";
+					return "Period";
 				case "timing":
-					return "complex.Timing";
+					return "Timing";
 				case "reference":
-					return "complex.Reference";
+					return "Reference";
 				case "codeableconcept":
-					return "complex.CodeableConcept";
+					return "CodeableConcept";
 				case "quantity":
-					return "complex.Quantity";
+					return "Quantity";
 				case "attachment":
-					return "complex.Attachment";
+					return "Attachment";
 				case "coding":
-					return "complex.Coding";
+					return "Coding";
 				case "contactpoint":
-					return "complex.ContactPoint";
+					return "ContactPoint";
 				case "humanname":
-					return "complex.HumanName";
+					return "HumanName";
 				case "address":
-					return "complex.Address";
+					return "Address";
 				case "identifier":
-					return "complex.Identifier";
+					return "Identifier";
 				default:
-					return `complex.${typeName.charAt(0).toUpperCase() + typeName.slice(1)}`;
+					return `${typeName.charAt(0).toUpperCase() + typeName.slice(1)}`;
 			}
 		}
 
@@ -1300,10 +1569,10 @@ export class TypeScriptGenerator extends BaseGenerator {
 		// Add namespace prefix based on kind and context
 		switch (identifier.kind) {
 			case "primitive-type":
-				return `primitives.${name}`;
+				return this.typeMapping.get(rawName) || name;
 			case "complex-type":
-				// If we're already in complex type context, don't add prefix
-				return currentContext === "complex-type" ? name : `complex.${name}`;
+				// Use direct name for both resource files and complex type files
+				return name;
 			case "resource":
 				return name;
 			case "profile":
@@ -1494,7 +1763,10 @@ export class TypeScriptGenerator extends BaseGenerator {
 			if (isHashLikeName && url) {
 				// Handle CapabilityStatement URLs
 				if (url.includes("/CapabilityStatement/")) {
-					const capabilityId = url.split("/CapabilityStatement/").pop()?.split("|")[0];
+					const capabilityId = url
+						.split("/CapabilityStatement/")
+						.pop()
+						?.split("|")[0];
 					if (capabilityId) {
 						return toValidInterfaceName(`CapabilityStatement ${capabilityId}`);
 					}
@@ -1507,7 +1779,12 @@ export class TypeScriptGenerator extends BaseGenerator {
 					const resourceId = urlParts[urlParts.length - 1].split("|")[0];
 
 					// Generate meaningful name from resource type and ID
-					if (resourceType && resourceId && resourceId !== "base" && resourceId !== "base2") {
+					if (
+						resourceType &&
+						resourceId &&
+						resourceId !== "base" &&
+						resourceId !== "base2"
+					) {
 						return toValidInterfaceName(`${resourceType} ${resourceId}`);
 					} else if (resourceType) {
 						return toValidInterfaceName(resourceType);
@@ -1517,13 +1794,15 @@ export class TypeScriptGenerator extends BaseGenerator {
 				// Handle URN-style URLs
 				if (url.startsWith("urn:uuid:")) {
 					const uuid = url.replace("urn:uuid:", "");
-					return toValidInterfaceName(`Resource ${uuid.substring(0, 8).toLowerCase()}`);
+					return toValidInterfaceName(
+						`Resource ${uuid.substring(0, 8).toLowerCase()}`,
+					);
 				}
 
 				// Extract domain-based names
 				try {
 					const urlObj = new URL(url);
-					const pathParts = urlObj.pathname.split("/").filter(p => p);
+					const pathParts = urlObj.pathname.split("/").filter((p) => p);
 					if (pathParts.length > 0) {
 						const lastPart = pathParts[pathParts.length - 1];
 						if (lastPart && lastPart !== "base" && lastPart !== "base2") {
@@ -1535,7 +1814,9 @@ export class TypeScriptGenerator extends BaseGenerator {
 						}
 					}
 					// Use hostname as fallback, but avoid "fhir" prefix
-					const hostname = urlObj.hostname.replace(/^www\./, "").replace(/^fhir\./, "");
+					const hostname = urlObj.hostname
+						.replace(/^www\./, "")
+						.replace(/^fhir\./, "");
 					return toValidInterfaceName(`${hostname} Resource`);
 				} catch {
 					// If URL parsing fails, use a generic name
@@ -1582,6 +1863,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 	}
 
 	private generateReferenceType(): void {
+		this.line("import type { Identifier } from './Identifier';");
 		this.multiLineComment(
 			[
 				"Generic Reference type for FHIR references",
@@ -1589,12 +1871,12 @@ export class TypeScriptGenerator extends BaseGenerator {
 				"@template T - The type of resource being referenced",
 			].join("\n"),
 		);
-		this.curlyBlock("export interface Reference<T = any>", () => {
+		this.curlyBlock("export interface Reference<T = string>", () => {
 			this.line("/** Literal reference, Relative, internal or absolute URL */");
 			this.line("reference?: string;");
 			this.blank();
 			this.line('/** Type the reference refers to (e.g. "Patient") */');
-			this.line("type?: string;");
+			this.line("type?: T;");
 			this.blank();
 			this.line(
 				"/** Logical reference, when literal reference is not known */",
@@ -1691,17 +1973,23 @@ export class TypeScriptGenerator extends BaseGenerator {
 
 		// Export complex types and Reference types (primitive type aliases removed)
 		this.comment("Core type exports");
-		// this.line("export * as primitives from './types/primitives';");
-		this.line("export * as complex from './types/complex';");
-		this.line("export type { Reference } from './types/primitives';");
+		this.line("export * as complex from './base-types';");
+		this.line("export type { Reference } from './base-types/Reference';");
 
-		// Export valuesets if they exist
-		const valueSets = this.schemas.valueSets || [];
-		const bindings = this.schemas.bindings || [];
-		if (valueSets.length > 0 || bindings.length > 0) {
-			this.line("export * as valuesets from './types/valuesets';");
+		this.blank();
+
+		// Import resource types for union type
+		this.comment("Import resource types for union type");
+		this.line("import type {");
+		this.indent();
+		for (let i = 0; i < this.schemas.resources.length; i++) {
+			const resource = this.schemas.resources[i];
+			const name = resource.identifier.name;
+			const isLast = i === this.schemas.resources.length - 1;
+			this.line(`${name}${isLast ? "" : ","}`);
 		}
-
+		this.dedent();
+		this.line("} from './resources';");
 		this.blank();
 
 		// Export all resources individually
@@ -1724,7 +2012,9 @@ export class TypeScriptGenerator extends BaseGenerator {
 			this.schemas.profiles.length > 0
 		) {
 			// Group profiles by package for organized exports
-			const profilesByPackage = this.groupProfilesByPackage(this.schemas.profiles);
+			const profilesByPackage = this.groupProfilesByPackage(
+				this.schemas.profiles,
+			);
 
 			this.comment("Individual profile exports by package");
 			for (const [packageName, profiles] of Object.entries(profilesByPackage)) {
@@ -1747,7 +2037,9 @@ export class TypeScriptGenerator extends BaseGenerator {
 			this.comment("Package-specific profile exports");
 			for (const packageName of Object.keys(profilesByPackage)) {
 				const namespaceName = this.toPascalCase(packageName).toLowerCase();
-				this.line(`export * as ${namespaceName} from './resources/profiles/${packageName}';`);
+				this.line(
+					`export * as ${namespaceName} from './resources/profiles/${packageName}';`,
+				);
 			}
 			this.blank();
 		}
@@ -1782,10 +2074,15 @@ export class TypeScriptGenerator extends BaseGenerator {
 
 		// Generate AnyResource union
 		this.multiLineComment("Union type of all FHIR resource interfaces");
-		const resourceImports = this.schemas.resources
-			.map((r) => r.identifier.name)
-			.join(" | ");
-		this.line(`export type AnyResource = ${resourceImports};`);
+		this.line("export type AnyResource =");
+		this.indent();
+		for (let i = 0; i < this.schemas.resources.length; i++) {
+			const resource = this.schemas.resources[i];
+			const name = resource.identifier.name;
+			const isLast = i === this.schemas.resources.length - 1;
+			this.line(`${i === 0 ? "" : "| "}${name}${isLast ? ";" : ""}`);
+		}
+		this.dedent();
 		this.blank();
 
 		// Generate utility types
@@ -1794,11 +2091,14 @@ export class TypeScriptGenerator extends BaseGenerator {
 			[
 				"Extract the resource type from a resource object",
 				"",
+				"Note: This type assumes the resource object has a resourceType property at runtime,",
+				"which is part of the FHIR specification but not included in the generated type definitions.",
+				"",
 				"@template T - The resource type",
 			].join("\n"),
 		);
 		this.line(
-			"export type ResourceTypeOf<T extends AnyResource> = T['resourceType'];",
+			"export type ResourceTypeOf<T extends AnyResource> = T extends { resourceType: infer R } ? R : ResourceType;",
 		);
 		this.blank();
 
@@ -1814,7 +2114,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 			"export function isFHIRResource(obj: unknown): obj is AnyResource",
 			() => {
 				this.line(
-					"return obj && typeof obj === 'object' && obj.resourceType in ResourceTypeMap;",
+					"return obj && typeof obj === 'object' && 'resourceType' in obj && (obj.resourceType as string) in ResourceTypeMap;",
 				);
 			},
 		);
@@ -1859,6 +2159,61 @@ export class TypeScriptGenerator extends BaseGenerator {
 		}
 
 		return sorted;
+	}
+
+	private getUsedComplexTypes(resource: TypeSchema): Set<string> {
+		const usedTypes = new Set<string>();
+
+		// Check main resource fields
+		if (resource.fields) {
+			for (const [, field] of Object.entries(resource.fields)) {
+				this.collectComplexTypesFromField(field, usedTypes);
+			}
+		}
+
+		// Check nested types
+		if (resource.nested) {
+			for (const nested of resource.nested) {
+				// Check if nested type extends a complex type
+				if (nested.base?.kind === "complex-type") {
+					usedTypes.add(nested.base.name);
+				}
+				// Check nested fields
+				if (nested.fields) {
+					for (const [, field] of Object.entries(nested.fields)) {
+						this.collectComplexTypesFromField(field, usedTypes);
+					}
+				}
+			}
+		}
+
+		return usedTypes;
+	}
+
+	private collectComplexTypesFromField(
+		field: TypeSchemaField,
+		usedTypes: Set<string>,
+	): void {
+		if (isRegularField(field)) {
+			if (field.type?.kind === "complex-type") {
+				usedTypes.add(field.type.name);
+			}
+			if (field.elementType?.kind === "complex-type") {
+				usedTypes.add(field.elementType.name);
+			}
+		} else if (isPolymorphicDeclarationField(field)) {
+			if (field.choiceOf && Array.isArray(field.choiceOf)) {
+				for (const choice of field.choiceOf) {
+					if (choice.type?.kind === "complex-type") {
+						usedTypes.add(choice.type.name);
+					}
+				}
+			}
+		} else if (isPolymorphicInstanceField(field)) {
+			if (field.type?.kind === "complex-type") {
+				usedTypes.add(field.type.name);
+			}
+		}
 	}
 
 	private getResourceDependencies(resource: TypeSchema): string[] {
@@ -1928,36 +2283,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 		}
 
 		// If it's a well-known complex type, it's not nested
-		const wellKnownComplexTypes = [
-			"Element",
-			"BackboneElement",
-			"Extension",
-			"Meta",
-			"Narrative",
-			"Identifier",
-			"CodeableConcept",
-			"Coding",
-			"Quantity",
-			"Range",
-			"Ratio",
-			"SampledData",
-			"Period",
-			"Attachment",
-			"ContactPoint",
-			"HumanName",
-			"Address",
-			"Timing",
-			"Signature",
-			"Annotation",
-			"Reference",
-			"Count",
-			"Distance",
-			"Duration",
-			"Age",
-			"Money",
-		];
-
-		if (wellKnownComplexTypes.includes(typeName)) {
+		if (this.schemas && this.isKnownComplexType(typeName, this.schemas)) {
 			return false;
 		}
 

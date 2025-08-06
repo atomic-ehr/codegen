@@ -39,6 +39,7 @@ export interface TypeSchemaFieldRegular {
 	enum?: string[];
 	min?: number;
 	max?: number;
+	description?: string;
 }
 
 /**
@@ -51,6 +52,7 @@ export interface TypeSchemaFieldPolymorphicDeclaration {
 	array?: boolean;
 	min?: number;
 	max?: number;
+	description?: string;
 }
 
 /**
@@ -67,14 +69,15 @@ export interface TypeSchemaFieldPolymorphicInstance {
 	enum?: string[];
 	min?: number;
 	max?: number;
+	description?: string;
 }
 
 /**
  * Union type for all field types
  */
-export type TypeSchemaField = 
-	| TypeSchemaFieldRegular 
-	| TypeSchemaFieldPolymorphicDeclaration 
+export type TypeSchemaField =
+	| TypeSchemaFieldRegular
+	| TypeSchemaFieldPolymorphicDeclaration
 	| TypeSchemaFieldPolymorphicInstance;
 
 /**
@@ -239,11 +242,11 @@ export interface TypeSchemaValueSet {
 /**
  * Union type for all TypeSchema variants (spec-compliant)
  */
-export type AnyTypeSchemaCompliant = 
-	| TypeSchemaPrimitiveType 
-	| TypeSchemaResourceType 
+export type AnyTypeSchemaCompliant =
+	| TypeSchemaPrimitiveType
+	| TypeSchemaResourceType
 	| TypeSchemaProfile
-	| TypeSchemaValueSet 
+	| TypeSchemaValueSet
 	| TypeSchemaBinding;
 
 /**
@@ -254,39 +257,64 @@ export type AnyTypeSchema = TypeSchema | TypeSchemaBinding | TypeSchemaValueSet;
 /**
  * Type guards for field types
  */
-export function isRegularField(field: TypeSchemaField): field is TypeSchemaFieldRegular {
+export function isRegularField(
+	field: TypeSchemaField,
+): field is TypeSchemaFieldRegular {
 	return !("choices" in field) && !("choiceOf" in field);
 }
 
-export function isPolymorphicDeclarationField(field: TypeSchemaField): field is TypeSchemaFieldPolymorphicDeclaration {
+export function isPolymorphicDeclarationField(
+	field: TypeSchemaField,
+): field is TypeSchemaFieldPolymorphicDeclaration {
 	return "choices" in field;
 }
 
-export function isPolymorphicInstanceField(field: TypeSchemaField): field is TypeSchemaFieldPolymorphicInstance {
+export function isPolymorphicInstanceField(
+	field: TypeSchemaField,
+): field is TypeSchemaFieldPolymorphicInstance {
 	return "choiceOf" in field;
 }
 
 /**
  * Type guards for schema types (spec-compliant)
  */
-export function isPrimitiveTypeSchema(schema: AnyTypeSchemaCompliant): schema is TypeSchemaPrimitiveType {
+export function isPrimitiveTypeSchema(
+	schema: AnyTypeSchemaCompliant,
+): schema is TypeSchemaPrimitiveType {
 	return schema.identifier.kind === "primitive-type";
 }
 
-export function isResourceTypeSchema(schema: AnyTypeSchemaCompliant): schema is TypeSchemaResourceType {
-	return ["resource", "complex-type", "logical", "nested"].includes(schema.identifier.kind);
+export function isResourceTypeSchema(
+	schema: AnyTypeSchemaCompliant,
+): schema is TypeSchemaResourceType {
+	return ["resource", "complex-type", "logical", "nested"].includes(
+		schema.identifier.kind,
+	);
 }
 
-export function isProfileTypeSchema(schema: AnyTypeSchemaCompliant): schema is TypeSchemaProfile {
+export function isProfileTypeSchema(
+	schema: AnyTypeSchemaCompliant,
+): schema is TypeSchemaProfile {
 	return schema.identifier.kind === "profile";
 }
 
-export function isTypeSchemaBinding(schema: AnyTypeSchemaCompliant): schema is TypeSchemaBinding {
-	return schema.identifier.kind === "binding" && "valueset" in schema && "strength" in schema;
+export function isTypeSchemaBinding(
+	schema: AnyTypeSchemaCompliant,
+): schema is TypeSchemaBinding {
+	return (
+		schema.identifier.kind === "binding" &&
+		"valueset" in schema &&
+		"strength" in schema
+	);
 }
 
-export function isTypeSchemaValueSet(schema: AnyTypeSchemaCompliant): schema is TypeSchemaValueSet {
-	return schema.identifier.kind === "value-set" && ("concept" in schema || "compose" in schema);
+export function isTypeSchemaValueSet(
+	schema: AnyTypeSchemaCompliant,
+): schema is TypeSchemaValueSet {
+	return (
+		schema.identifier.kind === "value-set" &&
+		("concept" in schema || "compose" in schema)
+	);
 }
 
 /**

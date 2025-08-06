@@ -11,7 +11,7 @@ import { hideBin } from "yargs/helpers";
 import { ConfigManager } from "../../lib/core/config-manager";
 import type { AtomicCodegenConfig } from "../../lib/core/config-schema";
 import { AtomicCodegenError, ConfigurationError } from "../../lib/core/errors";
-import { createLoggerFromConfig, LogLevel } from "../../lib/core/logger";
+import { createLoggerFromConfig, type ILogger, LogLevel } from "../../lib/core/logger";
 import { ensureInitialized } from "../../lib/generators";
 import { configCommand } from "./config";
 import { generateCommand } from "./generate";
@@ -30,13 +30,13 @@ export interface CLIArgvWithConfig {
 	logFormat?: string;
 	logFile?: string;
 	_config?: AtomicCodegenConfig;
-	_logger?: ReturnType<typeof createLoggerFromConfig>;
+	_logger?: ILogger;
 }
 
 /**
  * Middleware to load configuration and setup logging
  */
-async function loadConfigMiddleware(argv: CLIArgvWithConfig) {
+async function loadConfigMiddleware(argv: any) {
 	// Create logger first so we can use it for configuration loading
 	const logger = createLoggerFromConfig({
 		verbose: argv.verbose,
@@ -96,9 +96,9 @@ async function loadConfigMiddleware(argv: CLIArgvWithConfig) {
 		} catch (error) {
 			await logger.warn(
 				"Generator system initialization failed",
-				error instanceof Error ? error : new Error(String(error)),
-				undefined,
-				"loadConfig",
+				{
+					error: error instanceof Error ? error.message : String(error),
+				},
 			);
 		}
 	} catch (error) {
@@ -129,9 +129,9 @@ async function loadConfigMiddleware(argv: CLIArgvWithConfig) {
 
 		await logger.warn(
 			"Configuration loading failed, using defaults",
-			configError,
-			undefined,
-			"loadConfig",
+			{
+				error: configError.message,
+			},
 		);
 	}
 }

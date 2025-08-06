@@ -7,19 +7,19 @@
 import { readdir, readFile, stat } from "fs/promises";
 import { extname, join, resolve } from "path";
 import type { CommandModule } from "yargs";
+import {
+	isTypeSchema,
+	isTypeSchemaBinding,
+	isTypeSchemaValueSet,
+	isValidatorAvailable,
+	validateTypeSchemas as validateMultipleWithJsonSchema,
+	validateTypeSchema as validateWithJsonSchema,
+} from "../../../lib/typeschema";
 import type {
 	AnyTypeSchema,
 	AnyTypeSchemaCompliant,
 	TypeSchemaIdentifier,
 } from "../../../lib/typeschema/types";
-import {
-	isTypeSchema,
-	isTypeSchemaBinding,
-	isTypeSchemaValueSet,
-	validateTypeSchema as validateWithJsonSchema,
-	validateTypeSchemas as validateMultipleWithJsonSchema,
-	isValidatorAvailable,
-} from "../../../lib/typeschema";
 
 interface ValidateCommandArgs {
 	input: string[];
@@ -184,7 +184,8 @@ export async function validateTypeSchema(
 			if (!(await isValidatorAvailable())) {
 				result.errors.push({
 					type: "error",
-					message: "JSON schema validator not available - docs/type-schema.schema.json missing",
+					message:
+						"JSON schema validator not available - docs/type-schema.schema.json missing",
 					severity: "critical",
 				});
 				result.valid = false;
@@ -192,11 +193,15 @@ export async function validateTypeSchema(
 			}
 
 			// Validate all schemas with JSON schema
-			const jsonSchemaResults = await validateMultipleWithJsonSchema(allSchemas as AnyTypeSchemaCompliant[]);
-			
+			const jsonSchemaResults = await validateMultipleWithJsonSchema(
+				allSchemas as AnyTypeSchemaCompliant[],
+			);
+
 			for (let i = 0; i < jsonSchemaResults.length; i++) {
 				const jsonResult = jsonSchemaResults[i];
 				const schema = allSchemas[i];
+				if (!jsonResult || !schema) continue;
+				
 				const schemaName = schema.identifier?.name || "unknown";
 
 				if (!jsonResult.valid && jsonResult.errors) {
@@ -519,8 +524,8 @@ function validateDependencies(
 	for (const schema of schemas) {
 		const schemaName = schema.identifier?.name || "unknown";
 
-		// Check dependencies array
-		if (schema.dependencies) {
+		// Check dependencies array (only available on certain schema types)
+		if ('dependencies' in schema && schema.dependencies) {
 			for (const dep of schema.dependencies) {
 				const depKey = `${dep.package}:${dep.name}`;
 				if (!identifierMap.has(depKey)) {

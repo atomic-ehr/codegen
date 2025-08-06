@@ -138,7 +138,6 @@ async function determineBaseKind(
 	return "resource";
 }
 
-
 /**
  * Extract profile metadata from FHIR schema
  */
@@ -158,10 +157,10 @@ function extractProfileMetadata(fhirSchema: FHIRSchema): Record<string, any> {
 	// Add package-specific metadata
 	if (fhirSchema.url) {
 		// Extract package information from URL
-		if (fhirSchema.url.includes('/us/core/')) {
-			metadata.package = 'hl7.fhir.us.core';
-		} else if (fhirSchema.url.includes('hl7.org/fhir/')) {
-			metadata.package = 'hl7.fhir.r4.core';
+		if (fhirSchema.url.includes("/us/core/")) {
+			metadata.package = "hl7.fhir.us.core";
+		} else if (fhirSchema.url.includes("hl7.org/fhir/")) {
+			metadata.package = "hl7.fhir.r4.core";
 		}
 	}
 
@@ -295,4 +294,3 @@ function extractValidationRules(fhirSchema: FHIRSchema): any[] {
 
 	return rules;
 }
-

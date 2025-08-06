@@ -78,17 +78,10 @@ export const createTypeschemaCommand: CommandModule<{}, CreateCommandArgs> = {
 				: argv._config?.typeschema?.packages;
 
 		// Merge CLI args with configuration
-		const configTypeschema = argv._config?.typeschema || {};
+		const configTypeschema = argv._config?.typeschema || {} as Partial<TypeSchemaConfig>;
 		const configGlobal = argv._config?.global || {};
 
-		// For backward compatibility, merge any legacy profiles configuration into packages
-		const legacyProfiles = configTypeschema.profiles;
-		if (legacyProfiles && legacyProfiles.length > 0) {
-			packages = packages ? [...packages, ...legacyProfiles] : legacyProfiles;
-			console.warn(
-				"Warning: 'profiles' configuration is deprecated. Please move profile packages to the 'packages' array.",
-			);
-		}
+		// Profiles are now included directly in the packages array
 
 		if (!packages || packages.length === 0) {
 			throw new Error(
@@ -147,21 +140,29 @@ export async function createTypeSchema(
 
 		// Extract package info from config
 		// For now, use the first package as default (could be enhanced to map resources to specific packages)
-		const defaultPackageInfo = config.packages.length > 0 ? (() => {
-			const pkg = config.packages[0];
-			const [name, version] = pkg.includes('@') ? pkg.split('@') : [pkg, 'unknown'];
-			return { name, version };
-		})() : { name: 'unknown', version: 'unknown' };
+		const defaultPackageInfo =
+			config.packages.length > 0 && config.packages[0]
+				? (() => {
+						const pkg = config.packages[0];
+						const [name, version] = pkg.includes("@")
+							? pkg.split("@")
+							: [pkg, "unknown"];
+						return { name: name || "unknown", version: version || "unknown" };
+					})()
+				: { name: "unknown", version: "unknown" };
 
-		log(`Using default package info: ${defaultPackageInfo.name}@${defaultPackageInfo.version}`);
+		log(
+			`Using default package info: ${defaultPackageInfo.name}@${defaultPackageInfo.version}`,
+		);
 
 		// Process all StructureDefinitions
 		const allSchemas: any[] = [];
 
 		log("Processing StructureDefinitions...");
-		const structureDefinitions = await manager.search({
-			resourceType: "StructureDefinition",
-		});
+		const allResources = await manager.search({});
+		const structureDefinitions = allResources.filter((resource: any) => 
+			resource.resourceType === "StructureDefinition"
+		);
 
 		log(`Found ${structureDefinitions.length} StructureDefinitions`);
 
@@ -185,7 +186,10 @@ export async function createTypeSchema(
 
 		// Process ValueSets
 		log("Processing ValueSets...");
-		const valueSets = await manager.search({ resourceType: "ValueSet" });
+		const allValueSets = await manager.search({});
+		const valueSets = allValueSets.filter((resource: any) => 
+			resource.resourceType === "ValueSet"
+		);
 
 		for (const vs of valueSets) {
 			log(`Processing ValueSet ${vs.id}...`);

@@ -1,237 +1,278 @@
-# Troubleshooting Guide
+# Troubleshooting
 
-This guide helps you resolve common issues when using Atomic EHR Codegen.
+Common issues and solutions when using Atomic EHR Codegen.
 
-## Quick Diagnostics
+## Installation Issues
 
-Before diving into specific issues, run these diagnostic commands:
+### Command Not Found
 
-```bash
-# Check CLI installation
-atomic-codegen --version
+**Problem**: `atomic-codegen: command not found` after installation
 
-# Validate configuration
-atomic-codegen config validate
+**Solutions**:
 
-# Test with verbose output
-atomic-codegen generate typescript -o ./test-output -v
-
-# Check available generators
-atomic-codegen generators list
-```
-
-## Common Issues
-
-### 1. Installation and Setup Issues
-
-#### Issue: `atomic-codegen: command not found`
-
-**Symptoms:**
-```bash
-$ atomic-codegen --version
-atomic-codegen: command not found
-```
-
-**Solutions:**
-
-1. **Check installation:**
+1. **Check global installation path**:
    ```bash
-   # If installed globally
-   bun install -g @atomic-ehr/codegen
+   # For Bun
+   echo $PATH | grep -o "[^:]*\.bun[^:]*"
    
-   # If using from source
-   cd /path/to/codegen
-   bun install
-   bun link
+   # For npm
+   npm config get prefix
    ```
 
-2. **Check PATH:**
+2. **Add to PATH** (if missing):
    ```bash
-   # Add to your shell profile (.bashrc, .zshrc, etc.)
+   # Bun (add to ~/.bashrc or ~/.zshrc)
    export PATH="$HOME/.bun/bin:$PATH"
-   ```
-
-3. **Use npx/bunx:**
-   ```bash
-   bunx @atomic-ehr/codegen --version
-   ```
-
-#### Issue: Permission denied errors
-
-**Symptoms:**
-```bash
-Error: EACCES: permission denied, mkdir '/output/directory'
-```
-
-**Solutions:**
-
-1. **Check directory permissions:**
-   ```bash
-   ls -la /path/to/parent/directory
-   chmod 755 /path/to/parent/directory
-   ```
-
-2. **Use a different output directory:**
-   ```bash
-   atomic-codegen generate typescript -o ~/my-types
-   ```
-
-3. **Run with appropriate permissions:**
-   ```bash
-   sudo atomic-codegen generate typescript -o /system/directory
-   ```
-
-### 2. Package and Network Issues
-
-#### Issue: FHIR package not found
-
-**Symptoms:**
-```bash
-Error: Package 'hl7.fhir.r4.core@4.0.1' not found
-Error: Failed to download package from registry
-```
-
-**Solutions:**
-
-1. **Verify package name and version:**
-   ```bash
-   # Check available packages at https://packages.fhir.org/
-   # Common packages:
-   # - hl7.fhir.r4.core@4.0.1
-   # - hl7.fhir.us.core@6.1.0
-   # - hl7.fhir.r5.core@5.0.0
-   ```
-
-2. **Check network connectivity:**
-   ```bash
-   curl -I https://packages.fhir.org/
-   ```
-
-3. **Use proxy settings if needed:**
-   ```bash
-   export HTTP_PROXY=http://proxy.company.com:8080
-   export HTTPS_PROXY=http://proxy.company.com:8080
-   ```
-
-4. **Try with explicit package:**
-   ```bash
-   atomic-codegen generate typescript --package hl7.fhir.r4.core@4.0.1 -o ./output
-   ```
-
-#### Issue: Network timeout or slow downloads
-
-**Symptoms:**
-```bash
-Error: Request timeout while downloading package
-Warning: Download is taking longer than expected
-```
-
-**Solutions:**
-
-1. **Increase timeout:**
-   ```bash
-   export ATOMIC_CODEGEN_TIMEOUT=300000  # 5 minutes
-   ```
-
-2. **Use cached packages:**
-   ```bash
-   # Check cache location
-   atomic-codegen config show | grep cache
    
-   # Clear cache if corrupted
-   rm -rf ~/.atomic-codegen/cache
+   # npm
+   export PATH="$HOME/.npm-global/bin:$PATH"
    ```
 
-3. **Download manually:**
+3. **Use package runners**:
    ```bash
-   # Download package manually and use local file
-   wget https://packages.fhir.org/hl7.fhir.r4.core/4.0.1
-   atomic-codegen typeschema create ./hl7.fhir.r4.core-4.0.1.tgz -o schema.ndjson
+   # Instead of global install
+   bunx @atomic-ehr/codegen --help
+   npx @atomic-ehr/codegen --help
    ```
 
-### 3. Configuration Issues
+### Permission Errors
 
-#### Issue: Configuration file not found or invalid
+**Problem**: Permission denied during global installation
 
-**Symptoms:**
+**Solutions**:
+
+1. **Use package manager's fix**:
+   ```bash
+   # npm - configure different directory
+   npm config set prefix ~/.npm-global
+   
+   # Then install
+   npm install -g @atomic-ehr/codegen
+   ```
+
+2. **Use sudo** (not recommended):
+   ```bash
+   sudo bun install -g @atomic-ehr/codegen
+   ```
+
+3. **Use local installation**:
+   ```bash
+   # Install locally instead
+   bun add -d @atomic-ehr/codegen
+   bunx atomic-codegen --help
+   ```
+
+### TypeScript Peer Dependency Warning
+
+**Problem**: Peer dependency warnings about TypeScript
+
+**Solution**:
 ```bash
-Error: Configuration file '.atomic-codegen.json' is invalid
-Warning: No configuration file found, using defaults
+# Install TypeScript
+bun install -g typescript
+# or
+npm install -g typescript
+
+# For projects, install locally
+bun add -d typescript
 ```
 
-**Solutions:**
+## Configuration Issues
 
-1. **Initialize configuration:**
+### Configuration Not Found
+
+**Problem**: Tool can't find configuration file
+
+**Diagnostic**:
+```bash
+# Check current directory
+pwd
+ls -la | grep atomic-codegen
+
+# Show what configuration is being used
+atomic-codegen config show
+```
+
+**Solutions**:
+
+1. **Create configuration**:
    ```bash
-   atomic-codegen config init --template typescript
+   atomic-codegen config init
    ```
 
-2. **Validate configuration:**
+2. **Specify configuration explicitly**:
    ```bash
-   atomic-codegen config validate
+   atomic-codegen --config ./my-config.json typeschema create
    ```
 
-3. **Check configuration syntax:**
+3. **Check file naming**:
+   ```bash
+   # Supported names
+   .atomic-codegen.json
+   .atomic-codegen.js
+   atomic-codegen.config.json
+   atomic-codegen.config.js
+   ```
+
+### Configuration Validation Errors
+
+**Problem**: Invalid configuration file
+
+**Diagnostic**:
+```bash
+atomic-codegen config validate --verbose
+```
+
+**Common fixes**:
+
+1. **JSON syntax errors**:
    ```bash
    # Validate JSON syntax
    cat .atomic-codegen.json | jq .
    ```
 
-4. **Use minimal configuration:**
+2. **Missing required fields**:
    ```json
    {
-     "version": "1.0.0",
-     "generator": {
-       "target": "typescript",
-       "outputDir": "./generated"
+     "typeschema": {
+       "packages": ["hl7.fhir.r4.core@4.0.1"],
+       "outputFormat": "ndjson",
+       "validation": true
      }
    }
    ```
 
-#### Issue: Environment variables not working
+3. **Invalid field values**:
+   ```json
+   {
+     "generator": {
+       "target": "typescript",  // not "typscript"
+       "namespaceStyle": "nested",  // not "flatten"
+       "fileNaming": "PascalCase"  // not "pascal"
+     }
+   }
+   ```
 
-**Symptoms:**
-```bash
-# Environment variable ignored
-export OUTPUT_DIR=./my-output
-atomic-codegen generate typescript  # Still uses default output
+## FHIR Package Issues
+
+### Package Not Found
+
+**Problem**: Cannot find FHIR package
+
+```
+Error: Package 'hl7.fhir.r4.core@4.0.1' not found
 ```
 
-**Solutions:**
+**Solutions**:
 
-1. **Use correct prefix:**
+1. **Check package name and version**:
    ```bash
-   # Wrong
-   export OUTPUT_DIR=./my-output
+   # List available packages (if registry supports it)
+   atomic-codegen typeschema create --help
    
-   # Correct
-   export ATOMIC_CODEGEN_OUTPUT_DIR=./my-output
+   # Common package names
+   hl7.fhir.r4.core@4.0.1
+   hl7.fhir.us.core@6.1.0
+   hl7.fhir.r5.core@5.0.0
    ```
 
-2. **Check variable names:**
+2. **Clear package cache**:
    ```bash
-   # List all supported environment variables
-   atomic-codegen config show --show-sources
+   atomic-codegen typeschema create --drop-cache hl7.fhir.r4.core@4.0.1
    ```
 
-3. **Verify variable is set:**
+3. **Check network connectivity**:
    ```bash
-   env | grep ATOMIC_CODEGEN
+   # Test connection to FHIR registry
+   curl -I https://packages.fhir.org/
    ```
 
-### 4. Generation Issues
+### Package Download Timeout
 
-#### Issue: TypeScript compilation errors in generated code
+**Problem**: Package download times out
 
-**Symptoms:**
+**Solutions**:
+
+1. **Increase timeout** (if supported):
+   ```bash
+   # Use verbose mode to see progress
+   atomic-codegen --verbose typeschema create hl7.fhir.r4.core@4.0.1
+   ```
+
+2. **Check proxy settings**:
+   ```bash
+   # Set proxy if needed
+   export HTTP_PROXY=http://proxy.company.com:8080
+   export HTTPS_PROXY=http://proxy.company.com:8080
+   ```
+
+3. **Use cached packages**:
+   ```bash
+   # Don't drop cache
+   atomic-codegen typeschema create hl7.fhir.r4.core@4.0.1
+   ```
+
+## Generation Issues
+
+### Empty Output
+
+**Problem**: Code generation produces no files
+
+**Diagnostic**:
 ```bash
-error TS2304: Cannot find name 'Resource'
-error TS2322: Type 'string' is not assignable to type 'ResourceType'
+# Use verbose mode
+atomic-codegen --verbose generate typescript -i schemas.ndjson -o ./types
+
+# Check input file
+ls -la schemas.ndjson
+head -5 schemas.ndjson
+
+# Validate input
+atomic-codegen typeschema validate schemas.ndjson
 ```
 
-**Solutions:**
+**Solutions**:
 
-1. **Check TypeScript configuration:**
+1. **Check input file format**:
+   ```bash
+   # Should be NDJSON (newline-delimited JSON)
+   cat schemas.ndjson | head -1 | jq .
+   ```
+
+2. **Verify schemas contain data**:
+   ```bash
+   wc -l schemas.ndjson  # Should show number of schemas
+   grep -c '"kind":' schemas.ndjson  # Count schema types
+   ```
+
+3. **Check output directory permissions**:
+   ```bash
+   mkdir -p ./types
+   touch ./types/test.txt  # Test write permissions
+   rm ./types/test.txt
+   ```
+
+### TypeScript Compilation Errors
+
+**Problem**: Generated TypeScript code has compilation errors
+
+**Diagnostic**:
+```bash
+# Check TypeScript version
+bunx tsc --version
+
+# Compile generated files
+bunx tsc --noEmit types/fhir/*.ts
+```
+
+**Solutions**:
+
+1. **Update TypeScript**:
+   ```bash
+   bun add -d typescript@latest
+   ```
+
+2. **Check tsconfig.json**:
    ```json
    {
      "compilerOptions": {
@@ -243,336 +284,256 @@ error TS2322: Type 'string' is not assignable to type 'ResourceType'
    }
    ```
 
-2. **Regenerate with correct settings:**
+3. **Regenerate with correct settings**:
    ```bash
-   atomic-codegen generate typescript -o ./generated --clean
+   atomic-codegen generate typescript \
+     -i schemas.ndjson \
+     -o ./types \
+     --format
    ```
 
-3. **Check import paths:**
-   ```typescript
-   // Correct imports
-   import { Patient } from './generated';
-   import * as primitives from './generated/types/primitives';
+### Python Import Errors
+
+**Problem**: Generated Python modules can't be imported
+
+**Solutions**:
+
+1. **Check __init__.py files**:
+   ```bash
+   # Should have __init__.py in each directory
+   find ./fhir_models -name "__init__.py" | head -5
    ```
 
-#### Issue: Memory errors during generation
-
-**Symptoms:**
-```bash
-Error: JavaScript heap out of memory
-FATAL ERROR: Ineffective mark-compacts near heap limit
-```
-
-**Solutions:**
-
-1. **Increase memory limit:**
-   ```bash
-   export NODE_OPTIONS="--max-old-space-size=8192"
-   atomic-codegen generate typescript -o ./output
-   ```
-
-2. **Use streaming mode:**
-   ```bash
-   atomic-codegen generate typescript -o ./output --streaming
-   ```
-
-3. **Generate in smaller batches:**
-   ```bash
-   # Generate only specific resources
-   atomic-codegen generate typescript -o ./output --include "Patient,Observation"
-   ```
-
-#### Issue: Slow generation performance
-
-**Symptoms:**
-- Generation takes very long time
-- High CPU usage
-- Process appears stuck
-
-**Solutions:**
-
-1. **Use verbose mode to see progress:**
-   ```bash
-   atomic-codegen generate typescript -o ./output -v
-   ```
-
-2. **Enable parallel processing:**
-   ```bash
-   export ATOMIC_CODEGEN_PARALLEL=true
-   atomic-codegen generate typescript -o ./output
-   ```
-
-3. **Use cached TypeSchema:**
-   ```bash
-   # Create TypeSchema once
-   atomic-codegen typeschema create hl7.fhir.r4.core@4.0.1 -o schema.ndjson
+2. **Add to Python path**:
+   ```python
+   import sys
+   sys.path.append('./fhir_models')
    
-   # Reuse for multiple generations
-   atomic-codegen generate typescript -i schema.ndjson -o ./output
+   from patient import Patient
    ```
 
-### 5. Output and File Issues
-
-#### Issue: Generated files are empty or incomplete
-
-**Symptoms:**
-- Empty TypeScript files
-- Missing resource types
-- Incomplete interfaces
-
-**Solutions:**
-
-1. **Check input schema:**
+3. **Use proper package structure**:
    ```bash
-   # Validate TypeSchema
-   atomic-codegen typeschema validate schema.ndjson
+   # Regenerate with proper structure
+   atomic-codegen generate python \
+     -i schemas.ndjson \
+     -o ./src/fhir_models \
+     --namespace-style nested
    ```
 
-2. **Regenerate with clean output:**
-   ```bash
-   rm -rf ./output
-   atomic-codegen generate typescript -o ./output -v
-   ```
+## Performance Issues
 
-3. **Check for filtering:**
-   ```bash
-   # Remove any include/exclude filters
-   atomic-codegen generate typescript -o ./output --no-filter
-   ```
+### Slow Generation
 
-#### Issue: Import/export errors in generated code
+**Problem**: Code generation takes very long
 
-**Symptoms:**
-```typescript
-// Generated code has issues
-export { Patient } from './Patient';  // File not found
-import { Resource } from '../types/base';  // Module not found
-```
+**Solutions**:
 
-**Solutions:**
-
-1. **Check file structure:**
-   ```bash
-   find ./generated -name "*.ts" | head -10
-   ```
-
-2. **Regenerate with correct structure:**
-   ```bash
-   atomic-codegen generate typescript -o ./generated --file-structure nested
-   ```
-
-3. **Verify index file:**
-   ```bash
-   cat ./generated/index.ts
-   ```
-
-### 6. Runtime and Usage Issues
-
-#### Issue: Type errors when using generated types
-
-**Symptoms:**
-```typescript
-const patient: Patient = {
-  resourceType: 'Patient',  // Error: Type '"Patient"' is not assignable
-  // ...
-};
-```
-
-**Solutions:**
-
-1. **Check type imports:**
-   ```typescript
-   // Ensure correct import
-   import { Patient } from './generated';
-   // or
-   import { Patient } from './generated/resources/Patient';
-   ```
-
-2. **Verify generated types:**
-   ```bash
-   # Check if Patient type exists
-   grep -n "interface Patient" ./generated/resources/Patient.ts
-   ```
-
-3. **Use type assertion if needed:**
-   ```typescript
-   const patient = {
-     resourceType: 'Patient' as const,
-     // ...
-   } satisfies Patient;
-   ```
-
-#### Issue: Value set types not working
-
-**Symptoms:**
-```typescript
-// Value set types not recognized
-const code: AdministrativeGenderValueSet = 'male';  // Error
-```
-
-**Solutions:**
-
-1. **Check value set generation:**
-   ```bash
-   ls ./generated/types/valuesets.ts
-   cat ./generated/types/valuesets.ts | grep AdministrativeGender
-   ```
-
-2. **Import value sets:**
-   ```typescript
-   import { AdministrativeGenderValueSet } from './generated/types/valuesets';
-   ```
-
-3. **Regenerate with value sets:**
-   ```bash
-   atomic-codegen generate typescript -o ./generated --include-valuesets
-   ```
-
-## Advanced Troubleshooting
-
-### Debug Mode
-
-Enable debug logging for detailed information:
-
-```bash
-export ATOMIC_CODEGEN_LOG_LEVEL=debug
-atomic-codegen generate typescript -o ./output -v
-```
-
-### Cache Issues
-
-Clear caches if experiencing persistent issues:
-
-```bash
-# Clear all caches
-rm -rf ~/.atomic-codegen/cache
-
-# Clear specific package cache
-rm -rf ~/.atomic-codegen/cache/hl7.fhir.r4.core@4.0.1
-```
-
-### Configuration Debugging
-
-Show all configuration sources:
-
-```bash
-atomic-codegen config show --show-sources --verbose
-```
-
-### Performance Profiling
-
-Profile generation performance:
-
-```bash
-export ATOMIC_CODEGEN_PROFILE=true
-atomic-codegen generate typescript -o ./output -v
-```
-
-## Getting Help
-
-### Self-Help Resources
-
-1. **Check documentation:**
-   - [Getting Started Guide](./GETTING_STARTED.md)
-   - [Configuration Guide](./CONFIGURATION.md)
-   - [API Documentation](./FHIR_TYPE_GENERATION.md)
-
-2. **Review examples:**
-   ```bash
-   ls examples/
-   cat examples/generate-types.ts
-   ```
-
-3. **Run diagnostics:**
-   ```bash
-   atomic-codegen --help
-   atomic-codegen config validate
-   atomic-codegen generators list
-   ```
-
-### Community Support
-
-1. **GitHub Issues:**
-   - Search existing issues: https://github.com/atomic-ehr/codegen/issues
-   - Create new issue with:
-     - Operating system and version
-     - Bun/Node.js version
-     - Command that failed
-     - Full error message
-     - Configuration file (if applicable)
-
-2. **Discussion Forums:**
-   - GitHub Discussions for questions and ideas
-   - Stack Overflow with `atomic-ehr-codegen` tag
-
-### Issue Reporting Template
-
-When reporting issues, include:
-
-```bash
-# System information
-bun --version
-atomic-codegen --version
-uname -a
-
-# Configuration
-atomic-codegen config show
-
-# Command that failed
-atomic-codegen generate typescript -o ./output -v
-
-# Error output
-[paste full error message]
-
-# Additional context
-[describe what you were trying to achieve]
-```
-
-## Prevention Tips
-
-### Best Practices
-
-1. **Use configuration files:**
-   ```bash
-   atomic-codegen config init --template typescript
-   ```
-
-2. **Version control configuration:**
-   ```bash
-   git add .atomic-codegen.json
-   ```
-
-3. **Use specific package versions:**
+1. **Use treeshaking**:
    ```json
    {
      "typeschema": {
-       "packages": ["hl7.fhir.r4.core@4.0.1"]
+       "packages": ["hl7.fhir.r4.core@4.0.1"],
+       "treeshaking": ["Patient", "Observation", "Encounter"]
      }
    }
    ```
 
-4. **Test in CI/CD:**
-   ```yaml
-   # .github/workflows/test.yml
-   - name: Generate FHIR types
-     run: atomic-codegen generate typescript -o ./generated
-   ```
-
-5. **Keep dependencies updated:**
+2. **Reduce package scope**:
    ```bash
-   bun update @atomic-ehr/codegen
+   # Instead of full US Core
+   atomic-codegen typeschema create hl7.fhir.r4.core@4.0.1
+   # Add specific profiles later
    ```
 
-### Monitoring
+3. **Use separate output format**:
+   ```json
+   {
+     "typeschema": {
+       "outputFormat": "separate"  // Instead of merged
+     }
+   }
+   ```
 
-Set up monitoring for production usage:
+### Memory Issues
 
+**Problem**: Out of memory errors during generation
+
+**Solutions**:
+
+1. **Increase memory limit**:
+   ```bash
+   # For Node.js/Bun
+   NODE_OPTIONS="--max-old-space-size=8192" atomic-codegen generate typescript
+   ```
+
+2. **Process in batches**:
+   ```bash
+   # Split large TypeSchema files
+   atomic-codegen typeschema merge \
+     schemas1.ndjson schemas2.ndjson \
+     --filter-kinds resource \
+     -o resources-only.ndjson
+   ```
+
+3. **Use streaming processing** (if available):
+   ```json
+   {
+     "generator": {
+       "streaming": true  // If supported
+     }
+   }
+   ```
+
+## Validation Issues
+
+### Schema Validation Errors
+
+**Problem**: TypeSchema validation fails
+
+**Diagnostic**:
 ```bash
-# Log generation metrics
-atomic-codegen generate typescript -o ./output --metrics > generation.log
-
-# Monitor file sizes
-du -sh ./generated/
+atomic-codegen typeschema validate --verbose schemas.ndjson
 ```
 
-Remember: Most issues can be resolved by checking configuration, clearing caches, or regenerating with verbose output. When in doubt, start with the basics and work your way up to more complex solutions.
+**Solutions**:
+
+1. **Check schema format**:
+   ```bash
+   # Each line should be valid JSON
+   cat schemas.ndjson | jq -c . > /dev/null
+   ```
+
+2. **Fix malformed schemas**:
+   ```bash
+   # Remove invalid lines
+   cat schemas.ndjson | jq -c . > valid-schemas.ndjson
+   ```
+
+3. **Regenerate TypeSchema**:
+   ```bash
+   atomic-codegen typeschema create \
+     --validation \
+     hl7.fhir.r4.core@4.0.1 \
+     -o new-schemas.ndjson
+   ```
+
+### Generated Code Validation
+
+**Problem**: Generated code fails validation
+
+**Solutions**:
+
+1. **Run formatter**:
+   ```bash
+   # TypeScript
+   bunx prettier --write types/fhir/*.ts
+   
+   # Python
+   python -m black fhir_models/
+   ```
+
+2. **Check linting rules**:
+   ```bash
+   # Disable problematic rules
+   /* eslint-disable @typescript-eslint/no-unused-vars */
+   ```
+
+3. **Regenerate with formatting**:
+   ```bash
+   atomic-codegen generate typescript \
+     -i schemas.ndjson \
+     -o ./types \
+     --format
+   ```
+
+## Debug Mode
+
+Enable debug logging for detailed troubleshooting:
+
+```bash
+# Global debug mode
+atomic-codegen --debug --log-file debug.log typeschema create hl7.fhir.r4.core@4.0.1
+
+# Verbose with JSON logging
+atomic-codegen --verbose --log-format json typeschema create hl7.fhir.r4.core@4.0.1
+
+# Check log file
+tail -f debug.log
+```
+
+## Getting Help
+
+### Community Support
+
+1. **GitHub Issues**: [Report bugs and ask questions](https://github.com/atomic-ehr/codegen/issues)
+2. **Discussions**: [Community discussions](https://github.com/atomic-ehr/codegen/discussions)
+3. **Discord**: [Join our community](https://discord.gg/atomic-ehr)
+
+### Reporting Issues
+
+When reporting issues, include:
+
+1. **Version information**:
+   ```bash
+   atomic-codegen --version
+   bun --version  # or node --version
+   ```
+
+2. **Configuration**:
+   ```bash
+   atomic-codegen config show
+   ```
+
+3. **Command that failed**:
+   ```bash
+   atomic-codegen --verbose <your-command-here>
+   ```
+
+4. **Error logs**:
+   ```bash
+   atomic-codegen --debug --log-file error.log <command>
+   # Attach error.log to issue
+   ```
+
+5. **Environment**:
+   - Operating system
+   - Shell (bash, zsh, etc.)
+   - Package manager used
+
+### Common Fix Patterns
+
+1. **Clear cache and retry**:
+   ```bash
+   atomic-codegen typeschema create --drop-cache <packages>
+   ```
+
+2. **Regenerate from scratch**:
+   ```bash
+   rm -rf schemas/ types/
+   atomic-codegen typeschema create <packages>
+   atomic-codegen generate typescript
+   ```
+
+3. **Use minimal configuration**:
+   ```json
+   {
+     "typeschema": {
+       "packages": ["hl7.fhir.r4.core@4.0.1"],
+       "validation": false
+     },
+     "generator": {
+       "target": "typescript",
+       "outputDir": "./types"
+     }
+   }
+   ```
+
+4. **Check dependencies**:
+   ```bash
+   # Verify all peer dependencies
+   bun install
+   bunx tsc --version
+   ```
+
+Remember: When in doubt, start with the simplest possible configuration and gradually add complexity once the basics are working.

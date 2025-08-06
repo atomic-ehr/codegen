@@ -163,10 +163,44 @@ export async function transformFHIRSchema(
 			? fhirSchema.base
 			: `http://hl7.org/fhir/StructureDefinition/${fhirSchema.base}`;
 		const baseName = fhirSchema.base.split("/").pop() || fhirSchema.base;
-		const kind =
-			baseName === "Element" || baseName === "BackboneElement"
-				? "complex-type"
-				: "resource";
+		// Check if this is a known complex type by looking at common FHIR complex types
+		const complexTypes = new Set([
+			"Element",
+			"BackboneElement",
+			"Quantity",
+			"Duration",
+			"Distance",
+			"Count",
+			"Age",
+			"Address",
+			"Annotation",
+			"Attachment",
+			"CodeableConcept",
+			"Coding",
+			"ContactPoint",
+			"HumanName",
+			"Identifier",
+			"Period",
+			"Range",
+			"Ratio",
+			"Reference",
+			"Timing",
+			"Money",
+			"SampledData",
+			"Signature",
+			"ContactDetail",
+			"Contributor",
+			"DataRequirement",
+			"Expression",
+			"ParameterDefinition",
+			"RelatedArtifact",
+			"TriggerDefinition",
+			"UsageContext",
+			"Dosage",
+			"Meta",
+			"Extension",
+		]);
+		const kind = complexTypes.has(baseName) ? "complex-type" : "resource";
 		// For standard FHIR types, use the standard package even if no package info
 		const isStandardFhir = baseUrl.startsWith("http://hl7.org/fhir/");
 		base = {

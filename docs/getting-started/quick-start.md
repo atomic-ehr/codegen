@@ -1,125 +1,243 @@
-# Quick Start Guide
+# Quick Start
 
-Get up and running with @atomic-ehr/type-schema in just a few minutes.
+Get up and running with Atomic EHR Codegen in minutes.
 
-## Prerequisites
+## Overview
 
-- [Bun](https://bun.sh) runtime installed
-- Basic knowledge of TypeScript and FHIR
+Atomic EHR Codegen follows a two-step process:
 
-## Installation
+1. **TypeSchema Creation**: Extract type information from FHIR packages
+2. **Code Generation**: Generate strongly-typed code in your target language
 
-```bash
-bun install @atomic-ehr/type-schema
-```
+## Step 1: Create TypeSchema
 
-## Generate Types in 3 Steps
-
-### 1. Install the Package
+Generate a TypeSchema file from FHIR packages:
 
 ```bash
-# Create a new project
-mkdir my-fhir-project
-cd my-fhir-project
+# Basic FHIR R4 types
+atomic-codegen typeschema create hl7.fhir.r4.core@4.0.1 -o fhir-types.ndjson
 
-# Initialize and install
-bun init -y
-bun install @atomic-ehr/type-schema
+# With US Core profiles
+atomic-codegen typeschema create hl7.fhir.r4.core@4.0.1 hl7.fhir.us.core@6.1.0 -o fhir-with-profiles.ndjson
+
+# Verbose output to see what's happening
+atomic-codegen typeschema create hl7.fhir.r4.core@4.0.1 -o fhir-types.ndjson --verbose
 ```
 
-### 2. Generate TypeScript Types
+### What is TypeSchema?
+
+TypeSchema is an intermediate format that captures type information from FHIR resources in a language-agnostic way. It includes:
+
+- Resource definitions
+- Data types (primitives and complex)
+- Value sets and bindings
+- Profile constraints
+- Documentation and metadata
+
+## Step 2: Generate Code
+
+### TypeScript Generation
 
 ```bash
-# Generate types from FHIR R4 core package
-bunx type-schema generate-types -o ./generated
+# Basic TypeScript generation
+atomic-codegen generate typescript -i fhir-types.ndjson -o ./types
 
-# Or with verbose output to see progress
-bunx type-schema generate-types -o ./generated -v
+# With additional options
+atomic-codegen generate typescript \
+  -i fhir-types.ndjson \
+  -o ./src/types/fhir \
+  --include-validation \
+  --format \
+  --verbose
 ```
 
-### 3. Use the Generated Types
-
-Create a `patient.ts` file:
+This creates TypeScript interfaces like:
 
 ```typescript
-import { Patient, HumanName, ContactPoint } from './generated';
+// Generated Patient interface
+export interface Patient extends DomainResource {
+  resourceType: 'Patient';
+  identifier?: Identifier[];
+  active?: boolean;
+  name?: HumanName[];
+  telecom?: ContactPoint[];
+  gender?: 'male' | 'female' | 'other' | 'unknown';
+  birthDate?: string;
+  // ... more fields
+}
+```
 
-// Create a strongly-typed patient
+### Python Generation
+
+```bash
+# Basic Python generation
+atomic-codegen generate python -i fhir-types.ndjson -o ./python_types
+
+# With Pydantic models
+atomic-codegen generate python \
+  -i fhir-types.ndjson \
+  -o ./src/fhir_models \
+  --namespace-style flat \
+  --format
+```
+
+This creates Pydantic models like:
+
+```python
+from typing import Optional, List
+from pydantic import BaseModel
+
+class Patient(DomainResource):
+    resource_type: str = "Patient"
+    identifier: Optional[List[Identifier]] = None
+    active: Optional[bool] = None
+    name: Optional[List[HumanName]] = None
+    gender: Optional[str] = None
+    birth_date: Optional[str] = None
+    # ... more fields
+```
+
+## Step 3: Use Generated Types
+
+### In TypeScript Projects
+
+```typescript
+import { Patient, Observation, Bundle } from './types/fhir';
+
+// Type-safe FHIR resource creation
 const patient: Patient = {
   resourceType: 'Patient',
-  id: 'example-patient',
+  id: 'patient-123',
   active: true,
   name: [{
     use: 'official',
     family: 'Smith',
-    given: ['John', 'Jacob'],
-    prefix: ['Mr.']
+    given: ['John', 'Michael']
   }],
   gender: 'male',
-  birthDate: '1970-01-01',
-  telecom: [{
-    system: 'phone',
-    value: '555-123-4567',
-    use: 'home'
-  }, {
-    system: 'email',
-    value: 'john.smith@example.com'
-  }]
+  birthDate: '1980-01-01'
 };
 
-// TypeScript provides full IntelliSense and type checking
-console.log(`Patient: ${patient.name?.[0]?.given?.join(' ')} ${patient.name?.[0]?.family}`);
+// Type checking catches errors at compile time
+// patient.invalidProperty = 'value'; // ✗ TypeScript error
+
+// Build a Bundle
+const bundle: Bundle = {
+  resourceType: 'Bundle',
+  type: 'collection',
+  entry: [
+    {
+      resource: patient
+    }
+  ]
+};
 ```
 
-## What's Generated?
+### In Python Projects
 
-After running the generator, you'll have:
+```python
+from fhir_models import Patient, HumanName
 
+# Create type-safe FHIR resources
+patient = Patient(
+    id="patient-123",
+    active=True,
+    name=[
+        HumanName(
+            use="official",
+            family="Smith",
+            given=["John", "Michael"]
+        )
+    ],
+    gender="male",
+    birth_date="1980-01-01"
+)
+
+# Pydantic provides automatic validation
+# patient.gender = "invalid"  # ✗ Validation error
+
+# Serialize to JSON
+patient_json = patient.model_dump_json()
+
+# Parse from JSON with validation
+patient_from_json = Patient.model_validate_json(patient_json)
 ```
-generated/
-├── index.ts              # Main entry point with all exports
-├── types/
-│   ├── primitives.ts    # FHIR primitive types (string, boolean, etc.)
-│   └── complex.ts       # Complex types (CodeableConcept, Reference, etc.)
-└── resources/
-    ├── Patient.ts       # Patient resource interface
-    ├── Observation.ts   # Observation resource interface
-    └── ...              # All other FHIR resources
+
+## Common Workflows
+
+### Healthcare Application Development
+
+```bash
+# 1. Generate comprehensive FHIR types
+atomic-codegen typeschema create \
+  hl7.fhir.r4.core@4.0.1 \
+  hl7.fhir.us.core@6.1.0 \
+  -o healthcare-types.ndjson
+
+# 2. Generate TypeScript for frontend
+atomic-codegen generate typescript \
+  -i healthcare-types.ndjson \
+  -o ./frontend/src/types/fhir
+
+# 3. Generate Python for backend API
+atomic-codegen generate python \
+  -i healthcare-types.ndjson \
+  -o ./backend/src/fhir_models
+```
+
+### API Integration
+
+```bash
+# Generate types for specific FHIR profiles your API uses
+atomic-codegen typeschema create \
+  hl7.fhir.r4.core@4.0.1 \
+  --treeshaking Patient Observation Encounter \
+  -o api-types.ndjson
+
+atomic-codegen generate typescript -i api-types.ndjson -o ./types
+```
+
+### Testing and Validation
+
+```bash
+# Generate types with validation enabled
+atomic-codegen generate typescript \
+  -i fhir-types.ndjson \
+  -o ./types \
+  --include-validation
+
+# Validate the generated TypeSchema
+atomic-codegen typeschema validate fhir-types.ndjson
+```
+
+## Configuration Files
+
+For complex projects, use configuration files to manage settings:
+
+```bash
+# Initialize a configuration file
+atomic-codegen config init --template typescript
+
+# Use configuration for consistent builds
+atomic-codegen typeschema create  # Uses packages from config
+atomic-codegen generate typescript  # Uses settings from config
 ```
 
 ## Next Steps
 
-- Learn about [all installation options](./installation.md)
-- Explore [basic usage patterns](./basic-usage.md)
-- Understand the [generated code structure](../guide/using-generated-types.md)
-- Read about [customization options](../guide/customization.md)
-
-## Common Commands
-
-```bash
-# Generate with custom FHIR package
-bunx type-schema generate-types -o ./generated -p hl7.fhir.r4.core@4.0.1
-
-# Generate TypeSchema intermediate format (for debugging)
-bunx type-schema cli hl7.fhir.r4.core@4.0.1 -o schemas.ndjson
-
-# Get help
-bunx type-schema generate-types --help
-```
+- [Configuration Guide](../guides/configuration.md) - Learn about advanced configuration options
+- [CLI Reference](../api-reference/cli.md) - Complete command reference
+- [TypeScript Guide](../guides/typescript.md) - TypeScript-specific features
+- [Python Guide](../guides/python.md) - Python-specific features
+- [Examples](../examples/README.md) - Real-world usage examples
 
 ## Troubleshooting
 
 If you encounter issues:
 
-1. Ensure Bun is installed: `bun --version`
-2. Check network connectivity (package download requires internet)
-3. Try with verbose mode: `bunx type-schema generate-types -o ./generated -v`
-4. See our [troubleshooting guide](../guide/troubleshooting.md)
+1. **Check package versions**: Ensure FHIR packages exist with `atomic-codegen typeschema create --help`
+2. **Validate TypeSchema**: Run `atomic-codegen typeschema validate your-file.ndjson`
+3. **Use verbose mode**: Add `--verbose` to see detailed output
+4. **Check configuration**: Run `atomic-codegen config show` to see current settings
 
-## Example Projects
-
-Check out these example projects:
-
-- [Basic FHIR App](https://github.com/atomic-ehr/examples/basic-fhir)
-- [React FHIR Forms](https://github.com/atomic-ehr/examples/react-forms)
-- [FHIR Server with Types](https://github.com/atomic-ehr/examples/typed-server)
+For more help, see the [troubleshooting guide](../troubleshooting.md) or [open an issue](https://github.com/atomic-ehr/codegen/issues).

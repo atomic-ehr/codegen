@@ -6,6 +6,8 @@
  */
 
 import { join } from "path";
+import type { LoadedSchemas } from "./loader";
+import type { TypeSchema } from "../typeschema";
 
 /**
  * Custom error class for generator-related errors
@@ -72,6 +74,9 @@ export interface GeneratorOptions {
 
 	/** Custom file header to add to all generated files */
 	fileHeader?: string;
+
+	/** Whether to generate profiles */
+	generateProfiles?: boolean;
 }
 
 export interface FileContent {
@@ -98,6 +103,9 @@ export abstract class BaseGenerator implements Generator {
 	protected files: FileContent[] = [];
 	protected currentFile: FileContent | null = null;
 	protected currentContent: string[] = [];
+	
+	/** Cache for complex type names to avoid repeated extraction */
+	private _complexTypeNamesCache: Set<string> | null = null;
 
 	constructor(options: GeneratorOptions) {
 		this.options = {
@@ -144,6 +152,7 @@ export abstract class BaseGenerator implements Generator {
 		this.currentFile = null;
 		this.currentContent = [];
 		this.currentIndent = 0;
+		this._complexTypeNamesCache = null;
 	}
 
 	/**
@@ -329,6 +338,48 @@ export abstract class BaseGenerator implements Generator {
 		if (this.options.verbose) {
 			console.log(`Generated: ${file.path}`);
 		}
+	}
+
+	/**
+	 * Extract complex type names from loaded schemas with caching
+	 * This replaces hardcoded lists of well-known types with dynamic discovery
+	 * 
+	 * @param schemas - The loaded schemas containing complex types
+	 * @returns Set of complex type names available in the schema
+	 */
+	protected getComplexTypeNames(schemas: LoadedSchemas): Set<string> {
+		// Return cached result if available
+		if (this._complexTypeNamesCache) {
+			return this._complexTypeNamesCache;
+		}
+		
+		const complexTypeNames = new Set<string>();
+		
+		// Add all complex types from the schema
+		for (const complexType of schemas.complexTypes) {
+			complexTypeNames.add(complexType.identifier.name);
+		}
+		
+		// Also add resource names as they are complex types
+		for (const resource of schemas.resources) {
+			complexTypeNames.add(resource.identifier.name);
+		}
+		
+		// Cache the result for future use
+		this._complexTypeNamesCache = complexTypeNames;
+		return complexTypeNames;
+	}
+
+	/**
+	 * Check if a type name is a known complex type based on loaded schemas
+	 * 
+	 * @param typeName - The type name to check
+	 * @param schemas - The loaded schemas
+	 * @returns true if the type is a known complex type
+	 */
+	protected isKnownComplexType(typeName: string, schemas: LoadedSchemas): boolean {
+		const complexTypes = this.getComplexTypeNames(schemas);
+		return complexTypes.has(typeName);
 	}
 
 	/**

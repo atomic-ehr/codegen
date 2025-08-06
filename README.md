@@ -1,90 +1,63 @@
-# @atomic-ehr/codegen
+# Atomic EHR Codegen
 
-[![npm version](https://badge.fury.io/js/@atomic-ehr%2Fcodegen.svg)](https://www.npmjs.com/package/@atomic-ehr/codegen)
+A powerful command-line tool for generating strongly-typed code from FHIR (Fast Healthcare Interoperability Resources) specifications. Transform FHIR resource definitions into TypeScript and Python types with complete validation and IntelliSense support.
 
-TypeSchema transformer and TypeScript code generator for FHIR resources. This library provides a two-stage pipeline for generating strongly-typed TypeScript interfaces from FHIR StructureDefinitions.
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![npm version](https://img.shields.io/npm/v/@atomic-ehr/codegen.svg)](https://www.npmjs.com/package/@atomic-ehr/codegen)
+[![Built with Bun](https://img.shields.io/badge/Built%20with-Bun-black)](https://bun.sh)
 
-## Overview
+## ✨ Features
 
-This project consists of two main components:
+- **🚀 Fast Generation**: Built with Bun for maximum performance
+- **📋 Multiple Languages**: Generate TypeScript and Python types
+- **🔍 FHIR Compliance**: Full support for FHIR R4 and US Core profiles
+- **⚡ Type Safety**: Complete type safety with validation
+- **🎯 Configurable**: Flexible configuration system
+- **📦 Package Support**: Direct integration with FHIR package registry
+- **🔧 CLI & Programmatic**: Use as CLI tool or integrate into your build process
 
-1. **TypeSchema Transformer** - Converts FHIR StructureDefinitions into a simplified intermediate format (TypeSchema)
-2. **TypeScript Generator** - Generates TypeScript interfaces from TypeSchema
-
-## Features
-
-- 🔄 **Two-Stage Processing**: FHIR → TypeSchema → TypeScript
-- 📦 **Complete FHIR R4 Support**: Resources, complex types, primitives, and value sets
-- 🏗️ **Modular Architecture**: Separate transformation and generation stages
-- 🔍 **Type Safety**: Proper inheritance, references, and nested types
-- 📁 **Organized Output**: Separate files for primitives, complex types, and resources
-- ⚡ **Bun Runtime**: Fast execution with built-in TypeScript support
-- 🧪 **Well Tested**: Comprehensive unit tests for all components
-
-## Installation
+## 📦 Installation
 
 ```bash
-bun install
+# Install globally
+bun install -g @atomic-ehr/codegen
+
+# Or use npx/bunx without installation
+bunx @atomic-ehr/codegen --help
 ```
 
-## Project Structure
+## 🚀 Quick Start
 
-```
-src/
-├── typeschema/           # FHIR to TypeSchema transformation
-│   ├── core/            # Core transformation logic
-│   ├── value-set/       # Value set processing
-│   └── types.ts         # TypeSchema type definitions
-├── generator/           # Code generation from TypeSchema
-│   ├── base.ts         # Abstract base generator
-│   ├── loader.ts       # Schema loading utilities
-│   ├── typescript.ts   # TypeScript code generator
-│   └── index.ts        # Generator exports
-├── utils/              # Utility functions
-│   ├── naming.ts       # Naming conventions
-│   └── code.ts         # Code generation helpers
-└── cli/                # Command-line interfaces
-    ├── index.ts        # TypeSchema CLI
-    └── generate-types.ts # TypeScript generation CLI
-```
-
-## Usage
-
-### Command Line Interface
-
-#### Generate TypeScript Types
+### 1. Generate TypeSchema from FHIR Package
 
 ```bash
-# Generate types to ./generated directory using default FHIR R4 package
-atomic-codegen generate typescript -o ./generated
+# Generate TypeSchema from FHIR R4 Core package
+atomic-codegen typeschema create hl7.fhir.r4.core@4.0.1 -o fhir-r4.ndjson
 
-# With verbose output
-atomic-codegen generate typescript -o ./generated -v
-
-# From specific TypeSchema input file
-atomic-codegen generate typescript -i types/r4.ndjson -o ./generated
-
-# Help
-atomic-codegen generate typescript --help
+# Include US Core profiles
+atomic-codegen typeschema create hl7.fhir.r4.core@4.0.1 hl7.fhir.us.core@6.1.0 -o fhir-with-uscore.ndjson
 ```
 
-#### TypeSchema Operations
+### 2. Generate TypeScript Types
 
 ```bash
-# Create TypeSchema from FHIR package
-atomic-codegen typeschema create hl7.fhir.r4.core@4.0.1 -o types/r4.ndjson
+# Generate TypeScript from TypeSchema
+atomic-codegen generate typescript -i fhir-r4.ndjson -o ./types/fhir
 
-# Validate TypeSchema file
-atomic-codegen typeschema validate types/r4.ndjson
-
-# Merge multiple TypeSchema files
-atomic-codegen typeschema merge types/*.ndjson -o types/merged.ndjson
-
-# With verbose output
-atomic-codegen typeschema create hl7.fhir.r4.core@4.0.1 -o types/r4.ndjson -v
+# With validation and formatting
+atomic-codegen generate typescript -i fhir-r4.ndjson -o ./types/fhir --include-validation --format
 ```
 
-#### Configuration Management
+### 3. Generate Python Types
+
+```bash
+# Generate Python with Pydantic models
+atomic-codegen generate python -i fhir-r4.ndjson -o ./python_types --namespace-style flat
+```
+
+## 🎛️ Configuration
+
+Create a configuration file for consistent settings:
 
 ```bash
 # Initialize configuration
@@ -94,317 +67,262 @@ atomic-codegen config init --template typescript
 atomic-codegen config validate
 
 # Show current configuration
-atomic-codegen config show --show-sources
+atomic-codegen config show
 ```
 
-### Programmatic API
+### Configuration File Example
 
-#### TypeScript Generation
+```json
+{
+  "$schema": "https://atomic-ehr.github.io/codegen/config-schema.json",
+  "version": "1.0.0",
+  "typeschema": {
+    "packages": ["hl7.fhir.r4.core@4.0.1", "hl7.fhir.us.core@6.1.0"],
+    "outputFormat": "ndjson",
+    "validation": true
+  },
+  "generator": {
+    "target": "typescript",
+    "outputDir": "./src/types/fhir",
+    "includeComments": true,
+    "includeValidation": false,
+    "namespaceStyle": "nested",
+    "fileNaming": "PascalCase",
+    "format": true,
+    "generateProfiles": true
+  },
+  "languages": {
+    "typescript": {
+      "strict": true,
+      "target": "ES2020",
+      "module": "ES2020",
+      "declaration": true,
+      "useEnums": true,
+      "preferInterfaces": true
+    }
+  }
+}
+```
+
+## 📖 Commands
+
+### TypeSchema Commands
+
+| Command | Description |
+|---------|-------------|
+| `typeschema create <packages...>` | Create TypeSchema from FHIR packages |
+| `typeschema validate <file>` | Validate TypeSchema files |
+| `typeschema merge <files...>` | Merge multiple TypeSchema files |
+
+### Generation Commands
+
+| Command | Description |
+|---------|-------------|
+| `generate typescript` | Generate TypeScript types |
+| `generate python` | Generate Python types |
+| `generators list` | List available generators |
+
+### Configuration Commands
+
+| Command | Description |
+|---------|-------------|
+| `config init` | Initialize configuration file |
+| `config validate` | Validate configuration |
+| `config show` | Show current configuration |
+
+### Validation Commands
+
+| Command | Description |
+|---------|-------------|
+| `validate <files...>` | Validate generated code |
+
+## 🎯 Use Cases
+
+### Healthcare Applications
+
+Generate type-safe FHIR resources for your healthcare applications:
 
 ```typescript
-import { generateTypes, TypeScriptGenerator } from '@atomic-ehr/codegen/generators';
+import { Patient, Observation } from './types/fhir';
 
-// Simple API
-await generateTypes({
-  outputDir: './generated',
-  packagePath: 'hl7.fhir.r4.core@4.0.1', // optional
-  verbose: true
-});
+const patient: Patient = {
+  resourceType: 'Patient',
+  id: 'patient-123',
+  name: [{
+    family: 'Doe',
+    given: ['John']
+  }],
+  gender: 'male',
+  birthDate: '1990-01-01'
+};
 
-// Advanced usage with custom generator
+const observation: Observation = {
+  resourceType: 'Observation',
+  id: 'obs-123',
+  status: 'final',
+  code: {
+    coding: [{
+      system: 'http://loinc.org',
+      code: '8302-2',
+      display: 'Body height'
+    }]
+  },
+  subject: {
+    reference: `Patient/${patient.id}`
+  },
+  valueQuantity: {
+    value: 180,
+    unit: 'cm',
+    system: 'http://unitsofmeasure.org',
+    code: 'cm'
+  }
+};
+```
+
+### API Development
+
+Perfect for building FHIR-compliant APIs with full type safety:
+
+```python
+from typing import Optional
+from pydantic import BaseModel
+from .fhir_types import Patient, Observation
+
+class PatientService:
+    def create_patient(self, patient_data: Patient) -> Patient:
+        # Full type safety and validation
+        return patient_data
+    
+    def get_patient(self, patient_id: str) -> Optional[Patient]:
+        # Your implementation here
+        pass
+```
+
+## 🔧 Advanced Usage
+
+### Custom Templates
+
+```bash
+# Use custom configuration templates
+atomic-codegen config init --template custom --output .atomic-codegen.js
+```
+
+### Programmatic Usage
+
+```typescript
+import { TypeScriptGenerator } from '@atomic-ehr/codegen';
+
 const generator = new TypeScriptGenerator({
-  outputDir: './custom-output',
-  verbose: true
+  outputDir: './types',
+  includeComments: true,
+  includeValidation: true
 });
+
 await generator.generate();
 ```
 
-#### TypeSchema Transformation
+### CI/CD Integration
 
-```typescript
-import { transformFHIRSchemas, CanonicalManager } from '@atomic-ehr/codegen';
-
-// Create canonical manager
-const manager = CanonicalManager({
-  packages: ['hl7.fhir.r4.core@4.0.1'],
-  workingDir: 'tmp/fhir'
-});
-await manager.init();
-
-// Get FHIR schemas
-const structureDefinitions = await manager.search({ type: 'StructureDefinition' });
-
-// Transform to TypeSchema
-const typeSchemas = await transformFHIRSchemas(structureDefinitions, {
-  packageInfo: {
-    name: 'hl7.fhir.r4.core',
-    version: '4.0.1'
-  },
-  verbose: true
-});
+```yaml
+name: Generate FHIR Types
+on: [push]
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+      - name: Generate Types
+        run: |
+          bunx @atomic-ehr/codegen typeschema create hl7.fhir.r4.core@4.0.1 -o fhir.ndjson
+          bunx @atomic-ehr/codegen generate typescript -i fhir.ndjson -o ./src/types
+      - name: Commit generated types
+        run: |
+          git add src/types
+          git commit -m "Update FHIR types" || exit 0
+          git push
 ```
 
-#### Using Generated Types
+## 🛠️ Development
 
-```typescript
-// Import generated types
-import { Patient, Observation, Encounter } from './generated';
-import * as primitives from './generated/types/primitives';
-import * as complex from './generated/types/complex';
-import { ResourceTypeMap, AnyResource } from './generated';
+### Prerequisites
 
-// Create strongly-typed FHIR resources
-const patient: Patient = {
-  resourceType: 'Patient',
-  id: '123',
-  active: true,
-  name: [{
-    use: 'official',
-    family: 'Smith',
-    given: ['John', 'Jacob']
-  }],
-  birthDate: '1970-01-01',
-  gender: 'male',
-  address: [{
-    use: 'home',
-    line: ['123 Main St'],
-    city: 'Boston',
-    state: 'MA',
-    postalCode: '02101'
-  }]
-};
+- [Bun](https://bun.sh/) >= 1.0
+- Node.js >= 18 (for TypeScript peer dependency)
 
-// Type-safe resource type checking
-function processResource(resource: AnyResource) {
-  if (resource.resourceType === 'Patient') {
-    // TypeScript knows this is a Patient
-    console.log(resource.name?.[0]?.family);
-  }
-}
-
-// Runtime type checking
-function isValidResourceType(type: string): type is keyof typeof ResourceTypeMap {
-  return type in ResourceTypeMap;
-}
-```
-
-## Generated Output Structure
-
-```
-generated/
-├── index.ts                    # Main entry point
-│   ├── Re-exports all types
-│   ├── ResourceTypeMap constant
-│   └── AnyResource union type
-├── types/
-│   ├── primitives.ts          # FHIR primitive types
-│   │   └── string, boolean, integer, decimal, etc.
-│   └── complex.ts             # Complex data types
-│       └── Element, Extension, CodeableConcept, etc.
-└── resources/
-    ├── Patient.ts             # Individual resource files
-    ├── Observation.ts
-    ├── Encounter.ts
-    └── ... (all FHIR resources)
-```
-
-## TypeSchema Format
-
-TypeSchema is an intermediate representation that simplifies FHIR's complex schema format:
-
-```typescript
-interface TypeSchema {
-  identifier: {
-    kind: 'resource' | 'complex-type' | 'primitive-type' | 'nested';
-    package: string;
-    version: string;
-    name: string;
-    url: string;
-  };
-  base?: TypeSchemaIdentifier;      // Parent type
-  description?: string;
-  fields?: Record<string, {
-    type?: TypeSchemaIdentifier;
-    array: boolean;
-    required: boolean;
-    excluded: boolean;
-    min?: number;
-    max?: number;
-    choices?: string[];
-    reference?: TypeSchemaIdentifier[];
-    binding?: TypeSchemaIdentifier;
-  }>;
-  nested?: TypeSchemaNestedType[];  // BackboneElements
-  dependencies: TypeSchemaIdentifier[];
-}
-```
-
-## Development
-
-### Running Tests
+### Setup
 
 ```bash
-# Run all tests
+# Clone repository
+git clone https://github.com/atomic-ehr/codegen.git
+cd codegen
+
+# Install dependencies
+bun install
+
+# Run development CLI
+bun run cli
+
+# Run tests
 bun test
 
-# Run specific test suite
-bun test src/generator/
-bun test src/utils/
-bun test src/typeschema/
+# Type checking
+bun run typecheck
 
-# Run with coverage
-bun test --coverage
+# Linting
+bun run lint
 ```
 
-### Building
+### Project Structure
 
-```bash
-# Build the project
-bun run build
+```
+src/
+├── cli/                    # CLI commands and interface
+│   ├── commands/           # Individual CLI commands
+│   └── index.ts           # CLI entry point
+├── generators/            # Code generators for different languages
+│   ├── typescript/        # TypeScript generator
+│   └── python/           # Python generator
+├── lib/                  # Core library code
+│   ├── core/             # Core utilities and configuration
+│   ├── generators/       # Generator framework
+│   ├── typeschema/      # TypeSchema processing
+│   └── validation/      # Code validation utilities
+└── index.ts             # Library entry point
 ```
 
-### Project Scripts
+## 🤝 Contributing
 
-- `bun run test` - Run all tests
-- `bun run build` - Build the project
-- `bun run typecheck` - Run TypeScript type checking
-- `bun run cli` - Run TypeSchema CLI
-- `bun run generate-types` - Run type generation CLI
-- `bun run release [patch|minor|major]` - Create and publish a release
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-## Architecture
+### Development Workflow
 
-### Generator System
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Run the test suite
+6. Submit a pull request
 
-The generator system follows an extensible architecture:
+### Reporting Issues
 
-1. **BaseGenerator** - Abstract base class providing:
-   - File and directory management
-   - Code formatting utilities (indentation, blocks)
-   - Multi-file output support
+Please use our [GitHub Issues](https://github.com/atomic-ehr/codegen/issues) to report bugs or request features.
 
-2. **SchemaLoader** - Loads and categorizes FHIR schemas:
-   - Uses `@atomic-ehr/fhir-canonical-manager` for package management
-   - Transforms FHIR schemas to TypeSchema format
-   - Categorizes by type (resources, complex types, primitives)
+## 📄 License
 
-3. **TypeScriptGenerator** - Generates TypeScript code:
-   - Type mappings for FHIR primitives
-   - Proper inheritance chains
-   - Reference type handling
-   - Nested type (BackboneElement) support
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### Utilities
+## 🙏 Acknowledgments
 
-- **Naming utilities** - Consistent naming conventions for TypeScript
-- **Code utilities** - Code generation helpers (JSDoc, enums, type aliases)
+- [FHIR Foundation](https://www.hl7.org/fhir/) for the FHIR specification
+- [Bun](https://bun.sh/) for the amazing runtime
+- The healthcare developer community
 
-## Publishing & Release Management
+## 🔗 Related Projects
 
-This project uses automated publishing workflows with both stable releases and canary builds.
+- [@atomic-ehr/fhirschema](https://github.com/atomic-ehr/fhirschema) - FHIR Schema utilities
+- [@atomic-ehr/fhir-canonical-manager](https://github.com/atomic-ehr/fhir-canonical-manager) - FHIR package management
 
-### Release Process
+---
 
-#### Stable Releases
-
-1. **Create a release using the script:**
-   ```bash
-   # For patch releases (bug fixes)
-   bun run release patch
-   
-   # For minor releases (new features)
-   bun run release minor
-   
-   # For major releases (breaking changes)
-   bun run release major
-   ```
-
-2. The release script will:
-   - Verify you're on the main branch
-   - Check for uncommitted changes
-   - Run tests and type checking
-   - Bump the version in package.json
-   - Create a git commit and tag
-   - Build the package
-   - Publish to npm
-   - Push changes and tags to GitHub
-
-3. **GitHub Actions will also publish:**
-   - The publish workflow triggers on version tags (v*)
-   - Creates a GitHub Release with changelog
-   - Publishes to npm registry
-
-#### Canary Releases
-
-Canary releases are automatically created on every push to the main branch:
-
-- **Installation:** `npm install @atomic-ehr/codegen@canary`
-- **Versioning:** `0.0.1-canary.abc1234.20240805123456`
-- **Automatic:** No manual action required
-
-### CI/CD Workflows
-
-#### Continuous Integration (CI)
-- **Triggers:** Push/PR to main or develop branches
-- **Actions:** Tests, type checking, multi-platform testing
-- **Platforms:** Ubuntu, macOS (Windows commented out)
-
-#### Canary Release
-- **Triggers:** Push to main branch (excluding version tags)
-- **Actions:** Build, test, publish canary version
-- **Skip conditions:** `[skip ci]` in commit message or version bump commits
-
-#### Publish
-- **Triggers:** Version tags (v*)
-- **Actions:** Full test suite, build, npm publish, GitHub release
-- **Requirements:** All tests must pass
-
-#### Playground Trigger
-- **Triggers:** After successful canary release
-- **Actions:** Triggers rebuild of related playground/demo applications
-- **Status:** Currently disabled (can be enabled by setting `if: false` to a condition)
-
-### Package Configuration
-
-The package is configured for npm publishing with:
-- **Registry:** npm public registry
-- **Scope:** `@atomic-ehr`
-- **Access:** Public
-- **Files included:** `dist/`, `src/`
-- **Main entry:** `./dist/index.js`
-- **Types:** `./dist/index.d.ts`
-- **CLI binary:** `type-schema` → `./dist/cli/index.js`
-
-### Requirements
-
-To publish, you need:
-- **NPM_TOKEN** secret in GitHub repository settings
-- **Write access** to the @atomic-ehr npm organization
-- **Push access** to the main branch
-
-## Contributing
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
-
-## Task Management
-
-This project uses a task-based workflow. Check the `tasks/` directory:
-- `todo/` - Planned tasks
-- `in-progress/` - Active development
-- `done/` - Completed tasks
-
-## Dependencies
-
-- [Bun](https://bun.sh) - JavaScript runtime and toolkit
-- [@atomic-ehr/fhirschema](https://www.npmjs.com/package/@atomic-ehr/fhirschema) - FHIR schema translation
-- [@atomic-ehr/fhir-canonical-manager](https://www.npmjs.com/package/@atomic-ehr/fhir-canonical-manager) - FHIR package management
-
-## License
-
-[License information here]
-
-## Related Documentation
-
-- [Type Generation Architecture](./docs/FHIR_TYPE_GENERATION.md)
-- [TypeSchema Specification](./README-type-schema.md)
-- [Task Templates](./tasks/README.md)
+**Built with ❤️ by the Atomic EHR Team**

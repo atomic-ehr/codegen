@@ -15,6 +15,7 @@ import {
 	GenerationError,
 	ValidationError,
 } from "../../../lib/core/errors";
+import type { ILogger } from "../../../lib/core/logger";
 import { organizeSchemas } from "../../../lib/generators/schema-organizer";
 import type { AnyTypeSchema, TypeSchema } from "../../../lib/typeschema";
 import type { CLIArgvWithConfig } from "../index";
@@ -139,7 +140,7 @@ export const generatePythonCommand: CommandModule<{}, PythonGenerateArgs> = {
 		}
 
 		// Merge CLI args with configuration
-		const configGenerator = argv._config?.generator || {};
+		const configGenerator = argv._config?.generator || {} as Partial<GeneratorConfig>;
 		const configGlobal = argv._config?.global || {};
 		const configLanguagePy = argv._config?.languages?.python || {};
 
@@ -192,9 +193,7 @@ export async function generatePython(
 	config: GeneratorConfig,
 	pythonConfig: any,
 	inputPath?: string,
-	logger?: ReturnType<
-		typeof import("../../core/logger").createLoggerFromConfig
-	>,
+	logger?: ILogger,
 ): Promise<void> {
 	// Create child logger for this operation
 	const log = logger?.child("PythonGenerator") || {
@@ -216,7 +215,6 @@ export async function generatePython(
 				format: config.format,
 				usePydantic: pythonConfig.usePydantic,
 			},
-			"initialize",
 		);
 
 		// Create generator with merged config
@@ -235,7 +233,6 @@ export async function generatePython(
 			await log.info(
 				"Loading TypeSchema from input",
 				{ inputPath },
-				"loadSchema",
 			);
 			const schemas = await loadTypeschemaFromPath(inputPath, log);
 
@@ -257,11 +254,10 @@ export async function generatePython(
 					complexTypes: organizedSchemas.complexTypes?.length || 0,
 					resources: Object.keys(organizedSchemas.resources || {}).length,
 				},
-				"organizeSchemas",
 			);
 		}
 
-		await log.info("Starting Python generation", undefined, "generate");
+		await log.info("Starting Python generation");
 
 		// Validate generator configuration
 		await generator.validate();
@@ -274,7 +270,6 @@ export async function generatePython(
 			{
 				outputDir: config.outputDir,
 			},
-			"complete",
 		);
 
 		console.log(
@@ -308,8 +303,6 @@ export async function generatePython(
 		await log.error(
 			"Python generation failed",
 			generationError,
-			undefined,
-			"generate",
 		);
 		throw generationError;
 	}

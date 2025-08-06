@@ -9,16 +9,13 @@ import { extname, join, resolve } from "path";
 import type { CommandModule } from "yargs";
 import type { GeneratorConfig } from "../../lib/core/config";
 import {
-	ErrorFactory,
 	FileSystemError,
-	GenerationError,
 	ValidationError,
 } from "../../lib/core/errors";
+import type { ILogger } from "../../lib/core/logger";
 import { defaultRegistry, ensureInitialized } from "../../lib/generators";
 import { organizeSchemas } from "../../lib/generators/schema-organizer";
 import type { AnyTypeSchema } from "../../lib/typeschema";
-import { generatePythonCommand } from "./generate/python";
-import { generateTypescriptCommand } from "./generate/typescript";
 import type { CLIArgvWithConfig } from "./index";
 
 /**
@@ -158,9 +155,9 @@ export const generateCommand: CommandModule<{}, GenerateArgs> = {
 			argv._logger?.info("Code generation completed successfully");
 		} catch (error) {
 			if (error instanceof Error) {
-				argv._logger?.error("Generation failed:", error);
+				argv._logger?.error("Generation failed", error);
 			} else {
-				argv._logger?.error("Generation failed:", String(error));
+				argv._logger?.error("Generation failed", new Error(String(error)));
 			}
 			process.exit(1);
 		}
@@ -172,9 +169,7 @@ export const generateCommand: CommandModule<{}, GenerateArgs> = {
  */
 async function loadTypeschemaFromPath(
 	inputPath: string,
-	log?: ReturnType<
-		typeof import("../../lib/core/logger").createLoggerFromConfig
-	>,
+	log?: ILogger,
 ): Promise<AnyTypeSchema[]> {
 	try {
 		const stats = await stat(inputPath);
