@@ -145,6 +145,16 @@ export async function createTypeSchema(
 
 		await manager.init();
 
+		// Extract package info from config
+		// For now, use the first package as default (could be enhanced to map resources to specific packages)
+		const defaultPackageInfo = config.packages.length > 0 ? (() => {
+			const pkg = config.packages[0];
+			const [name, version] = pkg.includes('@') ? pkg.split('@') : [pkg, 'unknown'];
+			return { name, version };
+		})() : { name: 'unknown', version: 'unknown' };
+
+		log(`Using default package info: ${defaultPackageInfo.name}@${defaultPackageInfo.version}`);
+
 		// Process all StructureDefinitions
 		const allSchemas: any[] = [];
 
@@ -161,11 +171,8 @@ export async function createTypeSchema(
 			// Convert to FHIRSchema
 			const fhirSchema = translate(sd as any);
 
-			// Extract package info
-			const packageInfo = {
-				name: sd.package?.name || "unknown",
-				version: sd.package?.version || "unknown",
-			};
+			// Use default package info from config
+			const packageInfo = defaultPackageInfo;
 
 			// Transform to TypeSchema
 			const schemas = await transformFHIRSchema(
@@ -183,10 +190,8 @@ export async function createTypeSchema(
 		for (const vs of valueSets) {
 			log(`Processing ValueSet ${vs.id}...`);
 
-			const packageInfo = {
-				name: vs.package?.name || "unknown",
-				version: vs.package?.version || "unknown",
-			};
+			// Use default package info from config
+			const packageInfo = defaultPackageInfo;
 
 			const schema = await transformValueSet(vs, manager, packageInfo);
 			allSchemas.push(schema);

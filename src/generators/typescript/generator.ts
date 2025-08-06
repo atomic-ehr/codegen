@@ -9,23 +9,23 @@ import {
 	type GeneratorOptions,
 } from "../../lib/generators/base";
 import { type LoadedSchemas, SchemaLoader } from "../../lib/generators/loader";
-import {
-	isRegularField,
-	isPolymorphicDeclarationField,
-	isPolymorphicInstanceField,
-} from "../../lib/typeschema/types";
 import type {
 	ProfileConstraint,
 	ProfileExtension,
 	TypeSchema,
 	TypeSchemaField,
-	TypeSchemaFieldRegular,
 	TypeSchemaFieldPolymorphicDeclaration,
 	TypeSchemaFieldPolymorphicInstance,
+	TypeSchemaFieldRegular,
 	TypeSchemaIdentifier,
 	TypeSchemaNestedType,
 	TypeSchemaValueSet,
 } from "../../lib/typeschema";
+import {
+	isPolymorphicDeclarationField,
+	isPolymorphicInstanceField,
+	isRegularField,
+} from "../../lib/typeschema/types";
 import { toValidInterfaceName } from "../../lib/utils/naming";
 
 interface ValueSetBinding {
@@ -45,6 +45,7 @@ interface ValueSetConcept {
 export interface TypeScriptGeneratorOptions extends GeneratorOptions {
 	packagePath?: string;
 	baseTypesModule?: string;
+	generateProfiles?: boolean;
 }
 
 export class TypeScriptGenerator extends BaseGenerator {
@@ -93,7 +94,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 			this.schemas = await this.loader.load();
 		}
 
-		// Generate primitive types
+		// Generate primitive types (Reference types only - primitive type aliases removed)
 		this.log("Generating primitive types...");
 		await this.generatePrimitiveTypes();
 
@@ -107,9 +108,13 @@ export class TypeScriptGenerator extends BaseGenerator {
 
 		// Skip generating dedicated value sets file - inline enum values in resources instead
 
-		// Generate profiles
-		this.log("Generating profiles...");
-		await this.generateProfiles();
+		// Generate profiles (if enabled)
+		if (this.options.generateProfiles !== false) {
+			this.log("Generating profiles...");
+			await this.generateProfiles();
+		} else {
+			this.log("Skipping profile generation (generateProfiles: false)");
+		}
 
 		// Generate index file
 		this.log("Generating index file...");
@@ -125,7 +130,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 	private async generatePrimitiveTypes(): Promise<void> {
 		if (!this.schemas) return;
 
-		this.file("types/primitives.ts");
+		this.file("types/primitive.ts");
 
 		this.multiLineComment(
 			[
@@ -140,42 +145,120 @@ export class TypeScriptGenerator extends BaseGenerator {
 		// Generate base reference type first
 		this.generateReferenceType();
 		this.blank();
-
-		for (const primitive of this.schemas.primitiveTypes) {
-			this.generateTypeAlias(primitive);
-			this.blank();
-		}
 	}
 
 	private async generateComplexTypes(): Promise<void> {
 		if (!this.schemas) return;
 
-		this.file("types/complex.ts");
+		// Sort by dependencies
+		const sorted = this.topologicalSort(this.schemas.complexTypes);
 
-		this.line("import * as primitives from './primitives';");
-		this.line("import type { Reference } from './primitives';");
+		// Generate individual complex type files
+		for (const type of sorted) {
+			// Skip the FHIR "Reference" complex type since we use our generic Reference<T> instead
+			if (type.identifier.name === "Reference") {
+				continue;
+			}
+			this.generateComplexTypeFile(type);
+		}
+
+		// Generate complex types index file
+		this.generateComplexTypesIndex(sorted);
+	}
+
+	private generateComplexTypeFile(type: TypeSchema): void {
+		const fileName = `types/complex/${type.identifier.name}.ts`;
+		this.file(fileName);
+
+		// Import Reference type from primitives
+		this.line("import type { Reference } from '../primitives';");
+
+		// Import other complex types that this type depends on
+		const dependencies = this.getComplexTypeDependencies(type);
+		for (const dep of dependencies) {
+			if (dep !== type.identifier.name && dep !== "Reference") {
+				this.line(`import type { ${dep} } from './${dep}';`);
+			}
+		}
 		this.blank();
 
 		this.multiLineComment(
 			[
-				"FHIR Complex Types",
+				`FHIR ${type.identifier.name} Complex Type`,
 				"",
-				"Complex data types used in FHIR resources.",
-				"These types represent structured data elements that can contain multiple fields.",
+				type.description || `${type.identifier.name} complex data type used in FHIR resources.`,
+				"This type represents structured data elements that can contain multiple fields.",
 			].join("\n"),
 		);
 		this.blank();
 
-		// Sort by dependencies
-		const sorted = this.topologicalSort(this.schemas.complexTypes);
+		this.generateComplexInterface(type);
 
-		for (const type of sorted) {
-			// Skip the FHIR "Reference" complex type since we use our generic Reference<T> instead
-			if (type.identifier.name === 'Reference') {
+		// Generate nested types if any
+		if (type.nested) {
+			this.blank();
+			for (const nested of type.nested) {
+				this.generateNestedInterface(nested, type.identifier.name);
+				this.blank();
+			}
+		}
+	}
+
+	private generateComplexTypesIndex(sortedTypes: TypeSchema[]): void {
+		this.file("types/complex/index.ts");
+
+		this.multiLineComment(
+			[
+				"FHIR Complex Types Exports",
+				"",
+				"Barrel export for all FHIR complex types.",
+				"Each complex type is defined in its own file for better organization.",
+			].join("\n"),
+		);
+		this.blank();
+
+		// Export all complex types
+		for (const type of sortedTypes) {
+			if (type.identifier.name === "Reference") {
 				continue;
 			}
-			this.generateComplexInterface(type);
-			this.blank();
+			const name = type.identifier.name;
+			this.line(`export type { ${name} } from './${name}';`);
+		}
+	}
+
+	private getComplexTypeDependencies(type: TypeSchema): string[] {
+		const dependencies = new Set<string>();
+
+		if (type.fields) {
+			for (const [, field] of Object.entries(type.fields)) {
+				this.extractTypeDependencies(field, dependencies);
+			}
+		}
+
+		return Array.from(dependencies);
+	}
+
+	private extractTypeDependencies(field: TypeSchemaField, dependencies: Set<string>): void {
+		if (isRegularField(field)) {
+			if (field.type?.kind === "complex-type") {
+				dependencies.add(field.type.name);
+			}
+			if (field.elementType?.kind === "complex-type") {
+				dependencies.add(field.elementType.name);
+			}
+		} else if (isPolymorphicDeclarationField(field)) {
+			if (field.choiceOf && Array.isArray(field.choiceOf)) {
+				for (const choice of field.choiceOf) {
+					if (choice.type?.kind === "complex-type") {
+						dependencies.add(choice.type.name);
+					}
+				}
+			}
+		} else if (isPolymorphicInstanceField(field)) {
+			if (field.type?.kind === "complex-type") {
+				dependencies.add(field.type.name);
+			}
 		}
 	}
 
@@ -237,10 +320,10 @@ export class TypeScriptGenerator extends BaseGenerator {
 
 		// Merge valuesets and bindings to avoid duplicates
 		const mergedTypes = this.mergeValueSetsAndBindings(valueSets, bindings);
-		
+
 		// Generate type aliases for merged valuesets
 		for (const mergedType of mergedTypes) {
-			if (mergedType.type === 'binding') {
+			if (mergedType.type === "binding") {
 				const binding = mergedType.data as ValueSetBinding;
 				this.generateBindingType(binding);
 				// Track generated valueset
@@ -266,52 +349,49 @@ export class TypeScriptGenerator extends BaseGenerator {
 			return;
 		}
 
+		// Group profiles by package
+		const profilesByPackage = this.groupProfilesByPackage(this.schemas.profiles);
+
 		// Generate individual profile files
 		for (const profile of this.schemas.profiles) {
 			this.generateProfileFile(profile);
 		}
 
-		// Generate profiles index file
-		this.generateProfilesIndex();
-
-		// Generate US Core specific index if we have US Core profiles
-		const usCoreProfiles = this.schemas.profiles.filter(
-			(p) =>
-				p.metadata?.isUSCore ||
-				p.identifier.name.toLowerCase().includes("uscore"),
-		);
-		if (usCoreProfiles.length > 0) {
-			this.generateUSCoreIndex(usCoreProfiles);
+		// Generate package-specific index files
+		for (const [packageName, profiles] of Object.entries(profilesByPackage)) {
+			this.generatePackageProfilesIndex(packageName, profiles);
 		}
+
+		// Generate main profiles index file
+		this.generateProfilesIndex(profilesByPackage);
 	}
 
 	private generateProfileFile(profile: TypeSchema): void {
-		// Determine the directory structure based on profile type
-		let directory = "resources/profiles";
-		if (profile.metadata?.isUSCore) {
-			directory = "resources/profiles/uscore";
-		}
+		// Determine the directory structure based on profile package
+		const packageName = this.getPackageNameFromProfile(profile);
+		const directory = `resources/profiles/${packageName}`;
 
 		const fileName = `${directory}/${profile.identifier.name}.ts`;
 		this.file(fileName);
 
+		// Calculate relative path depth for imports
+		const relativeDepth = "../".repeat(packageName.split("/").length + 1);
+
 		// Imports
-		this.line("import * as primitives from '../../types/primitives';");
-		this.line("import * as complex from '../../types/complex';");
-		this.line("import type { Reference } from '../../types/primitives'");
+		this.line(`import type { Reference } from '${relativeDepth}types/primitives';`);
+		this.line(`import * as complex from '${relativeDepth}types/complex';`);
 
 		// Import base resource/profile
 		if (profile.base) {
 			const baseName = this.getTypeName(profile.base, profile.base.kind);
 			if (profile.base.kind === "resource") {
-				this.line(`import { ${baseName} } from '../${profile.base.name}';`);
+				this.line(`import { ${baseName} } from '${relativeDepth}resources/${profile.base.name}';`);
 			} else if (profile.base.kind === "profile") {
 				// Import from another profile
-				const baseDirectory = profile.base.package?.includes("us.core")
-					? "uscore"
-					: ".";
+				const basePackageName = this.getPackageNameFromIdentifier(profile.base);
+				const baseDirectory = basePackageName === packageName ? "." : `../${basePackageName}`;
 				this.line(
-					`import { ${baseName} } from './${baseDirectory}/${profile.base.name}';`,
+					`import { ${baseName} } from '${baseDirectory}/${profile.base.name}';`,
 				);
 			}
 		}
@@ -329,6 +409,118 @@ export class TypeScriptGenerator extends BaseGenerator {
 				this.blank();
 			}
 		}
+	}
+
+	private groupProfilesByPackage(profiles: TypeSchema[]): Record<string, TypeSchema[]> {
+		const grouped: Record<string, TypeSchema[]> = {};
+
+		for (const profile of profiles) {
+			const packageName = this.getPackageNameFromProfile(profile);
+			if (!grouped[packageName]) {
+				grouped[packageName] = [];
+			}
+			grouped[packageName].push(profile);
+		}
+
+		return grouped;
+	}
+
+	private getPackageNameFromProfile(profile: TypeSchema): string {
+		// Extract package name from profile metadata or identifier
+		if (profile.metadata?.package) {
+			return this.sanitizePackageName(profile.metadata.package);
+		}
+
+		// Try to extract from identifier URL
+		if (profile.identifier.url) {
+			if (profile.identifier.url.includes('/us/core/')) {
+				return 'hl7-fhir-us-core';
+			}
+			if (profile.identifier.url.includes('hl7.org/fhir/')) {
+				return 'hl7-fhir-r4-core';
+			}
+		}
+
+		// Fallback to core
+		return 'hl7-fhir-r4-core';
+	}
+
+	private getPackageNameFromIdentifier(identifier: TypeSchemaIdentifier): string {
+		// Extract package name from identifier
+		if (identifier.package) {
+			return this.sanitizePackageName(identifier.package);
+		}
+
+		// Try to extract from URL
+		if (identifier.url) {
+			if (identifier.url.includes('/us/core/')) {
+				return 'hl7-fhir-us-core';
+			}
+			if (identifier.url.includes('hl7.org/fhir/')) {
+				return 'hl7-fhir-r4-core';
+			}
+		}
+
+		// Fallback to core
+		return 'hl7-fhir-r4-core';
+	}
+
+	private sanitizePackageName(packageName: string): string {
+		// Convert package names like "hl7.fhir.us.core@6.1.0" to "hl7-fhir-us-core"
+		return packageName
+			.split('@')[0] // Remove version
+			.replace(/\./g, '-') // Replace dots with dashes
+			.toLowerCase();
+	}
+
+	private generatePackageProfilesIndex(packageName: string, profiles: TypeSchema[]): void {
+		const fileName = `resources/profiles/${packageName}/index.ts`;
+		this.file(fileName);
+
+		// Calculate relative path depth for imports
+		const relativeDepth = "../".repeat(packageName.split("-").length);
+
+		this.multiLineComment(
+			[
+				`${packageName} Profile Exports`,
+				"",
+				`Profiles from the ${packageName} package.`,
+				"Each profile extends base FHIR resources with additional constraints.",
+			].join("\n"),
+		);
+		this.blank();
+
+		// Export all profiles in this package
+		this.comment("Profile Interfaces");
+		for (const profile of profiles) {
+			const name = this.getTypeName(profile.identifier, "profile");
+			this.line(`export type { ${name} } from './${profile.identifier.name}';`);
+		}
+		this.blank();
+
+		// Create package-specific registry
+		this.comment("Profile Registry");
+		this.line(`export const ${this.toPascalCase(packageName)}ProfileRegistry = {`);
+		for (const profile of profiles) {
+			const name = this.getTypeName(profile.identifier, "profile");
+			this.line(`  "${profile.identifier.name}": "${name}",`);
+		}
+		this.line("} as const;");
+		this.blank();
+
+		// Export profile types union
+		this.comment("Profile Union Type");
+		const profileNames = profiles.map((p) =>
+			this.getTypeName(p.identifier, "profile"),
+		);
+		this.line(`export type ${this.toPascalCase(packageName)}Profile = ${profileNames.join(" | ")};`);
+	}
+
+	private toPascalCase(str: string): string {
+		return str
+			.split('-')
+			.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+			.join('');
 	}
 
 	private generateProfileInterface(profile: TypeSchema): void {
@@ -353,8 +545,8 @@ export class TypeScriptGenerator extends BaseGenerator {
 			if (profile.metadata.publisher) {
 				jsdocLines.push(`@publisher ${profile.metadata.publisher}`);
 			}
-			if (profile.metadata.isUSCore) {
-				jsdocLines.push("@profile US Core Profile");
+			if (profile.metadata.package) {
+				jsdocLines.push(`@package ${profile.metadata.package}`);
 			}
 			if (profile.metadata.date) {
 				jsdocLines.push(`@date ${profile.metadata.date}`);
@@ -484,162 +676,77 @@ export class TypeScriptGenerator extends BaseGenerator {
 		this.line(`${fieldDeclaration}: complex.Extension | complex.Extension[];`);
 	}
 
-	private generateProfilesIndex(): void {
-		if (
-			!this.schemas ||
-			!this.schemas.profiles ||
-			this.schemas.profiles.length === 0
-		) {
-			return;
-		}
-
+	private generateProfilesIndex(profilesByPackage: Record<string, TypeSchema[]>): void {
 		this.file("resources/profiles/index.ts");
 
 		this.multiLineComment(
 			[
 				"FHIR Profile Exports",
 				"",
-				"Barrel export for all FHIR profiles.",
-				"Profiles extend base FHIR resources with additional constraints and extensions.",
+				"Barrel export for all FHIR profiles organized by package.",
+				"Each package contains profiles with specific constraints and extensions.",
 			].join("\n"),
 		);
 		this.blank();
 
-		// Group profiles by type for better organization
-		const profilesByType = new Map<string, TypeSchema[]>();
-		for (const profile of this.schemas.profiles) {
-			const profileType = profile.metadata?.isUSCore ? "uscore" : "general";
-			if (!profilesByType.has(profileType)) {
-				profilesByType.set(profileType, []);
-			}
-			profilesByType.get(profileType)!.push(profile);
+		// Export profiles from each package
+		for (const [packageName, profiles] of Object.entries(profilesByPackage)) {
+			this.comment(`${packageName} Profiles`);
+			this.line(`export * from './${packageName}';`);
+			this.blank();
 		}
 
-		// Export US Core profiles
-		if (profilesByType.has("uscore")) {
-			this.comment("US Core Profiles");
-			const usCoreProfiles = profilesByType.get("uscore")!;
-			for (const profile of usCoreProfiles) {
+		// Export combined profile registry for runtime discovery
+		this.comment("Combined Profile Registry");
+		this.line("export const ProfileRegistry = {");
+		for (const [packageName, profiles] of Object.entries(profilesByPackage)) {
+			for (const profile of profiles) {
 				const name = this.getTypeName(profile.identifier, "profile");
 				this.line(
-					`export { ${name} } from './uscore/${profile.identifier.name}';`,
+					`  "${profile.identifier.url || profile.identifier.name}": "${name}",`,
 				);
 			}
-			this.blank();
-		}
-
-		// Export general profiles
-		if (profilesByType.has("general")) {
-			this.comment("General Profiles");
-			const generalProfiles = profilesByType.get("general")!;
-			for (const profile of generalProfiles) {
-				const name = this.getTypeName(profile.identifier, "profile");
-				this.line(`export { ${name} } from './${profile.identifier.name}';`);
-			}
-			this.blank();
-		}
-
-		// Export profile registry for runtime discovery
-		this.comment("Profile Registry");
-		this.line("export const ProfileRegistry = {");
-		for (const profile of this.schemas.profiles) {
-			const name = this.getTypeName(profile.identifier, "profile");
-			this.line(
-				`  "${profile.identifier.url || profile.identifier.name}": "${name}",`,
-			);
 		}
 		this.line("} as const;");
 		this.blank();
 
-		// Export profile metadata
-		this.comment("Profile Metadata");
+		// Export profile metadata organized by package
+		this.comment("Profile Metadata by Package");
 		this.line("export const ProfileMetadata = {");
-		for (const profile of this.schemas.profiles) {
-			const name = this.getTypeName(profile.identifier, "profile");
-			this.line(`  "${name}": {`);
-			this.line(`    url: "${profile.identifier.url || ""}",`);
-			this.line(`    name: "${profile.identifier.name}",`);
-			this.line(`    base: "${profile.base?.name || ""}",`);
-			if (profile.metadata?.isUSCore) {
-				this.line(`    isUSCore: true,`);
-			}
-			if (profile.metadata?.publisher) {
-				this.line(`    publisher: "${profile.metadata.publisher}",`);
+		for (const [packageName, profiles] of Object.entries(profilesByPackage)) {
+			this.line(`  "${packageName}": {`);
+			for (const profile of profiles) {
+				const name = this.getTypeName(profile.identifier, "profile");
+				this.line(`    "${name}": {`);
+				this.line(`      url: "${profile.identifier.url || ""}",`);
+				this.line(`      name: "${profile.identifier.name}",`);
+				this.line(`      base: "${profile.base?.name || ""}",`);
+				this.line(`      package: "${packageName}",`);
+				if (profile.metadata?.publisher) {
+					this.line(`      publisher: "${profile.metadata.publisher}",`);
+				}
+				this.line(`    },`);
 			}
 			this.line(`  },`);
 		}
 		this.line("} as const;");
+		this.blank();
+
+		// Export package names for easy access
+		this.comment("Available Packages");
+		const packageNames = Object.keys(profilesByPackage).map(name => `"${name}"`).join(" | ");
+		this.line(`export type ProfilePackage = ${packageNames};`);
 	}
 
-	private generateUSCoreIndex(usCoreProfiles: TypeSchema[]): void {
-		this.file("resources/profiles/uscore/index.ts");
-
-		this.multiLineComment(
-			[
-				"US Core Profile Exports",
-				"",
-				"US Core profiles provide a foundation for building FHIR implementations",
-				"that support the most common clinical data elements.",
-				"",
-				"@see http://hl7.org/fhir/us/core/",
-			].join("\n"),
-		);
-		this.blank();
-
-		// Export all US Core profiles
-		this.comment("US Core Profile Interfaces");
-		for (const profile of usCoreProfiles) {
-			const name = this.getTypeName(profile.identifier, "profile");
-			this.line(`export { ${name} } from './${profile.identifier.name}';`);
-		}
-		this.blank();
-
-		// Create US Core specific registry
-		this.comment("US Core Profile Registry");
-		this.line("export const USCoreProfileRegistry = {");
-		for (const profile of usCoreProfiles) {
-			const name = this.getTypeName(profile.identifier, "profile");
-			this.line(`  "${profile.identifier.name}": "${name}",`);
-		}
-		this.line("} as const;");
-		this.blank();
-
-		// Export US Core profile types union
-		this.comment("US Core Profile Union Type");
-		const profileNames = usCoreProfiles.map((p) =>
-			this.getTypeName(p.identifier, "profile"),
-		);
-		this.line(`export type USCoreProfile = ${profileNames.join(" | ")};`);
-		this.blank();
-
-		// Export US Core specific utilities
-		this.comment("US Core Utilities");
-		this.line("export function isUSCoreProfile(profileUrl: string): boolean {");
-		this.line(
-			"  return profileUrl.includes('/us/core/') || profileUrl.includes('us-core-');",
-		);
-		this.line("}");
-		this.blank();
-
-		this.line(
-			"export function getUSCoreProfileName(profileUrl: string): string | undefined {",
-		);
-		this.line("  const entries = Object.entries(USCoreProfileRegistry);");
-		this.line(
-			"  const found = entries.find(([key]) => profileUrl.includes(key));",
-		);
-		this.line("  return found?.[1];");
-		this.line("}");
-	}
 
 	private generateValueSetType(valueSet: TypeSchemaValueSet): void {
 		const name = this.getTypeName(valueSet.identifier, "value-set");
-		
+
 		// Check if we have concrete codes (using 'concept' field)
 		const concepts = valueSet.concept || [];
-		
+
 		// Also check compose.include[].concept for inline codes
-		const composeConcepts: Array<{code: string, display?: string}> = [];
+		const composeConcepts: Array<{ code: string; display?: string }> = [];
 		if (valueSet.compose?.include) {
 			for (const include of valueSet.compose.include) {
 				if (include.concept) {
@@ -650,16 +757,16 @@ export class TypeScriptGenerator extends BaseGenerator {
 
 		// Combine all concepts
 		const allConcepts = [...concepts, ...composeConcepts];
-		
+
 		if (allConcepts.length > 0) {
 			// Generate union type with concrete codes
 			const codeValues = allConcepts
 				.map((concept) => `"${concept.code}"`)
 				.join(" | ");
-			
+
 			// Generate comprehensive JSDoc with all codes and their displays
 			const docLines = [valueSet.description || name];
-			if (allConcepts.some(c => c.display)) {
+			if (allConcepts.some((c) => c.display)) {
 				docLines.push("");
 				docLines.push("Possible values:");
 				for (const concept of allConcepts) {
@@ -670,12 +777,14 @@ export class TypeScriptGenerator extends BaseGenerator {
 					}
 				}
 			}
-			
+
 			this.multiLineComment(docLines.join("\n"));
 			this.line(`export type ${name} = ${codeValues};`);
 		} else {
 			// No codes available, but still create the type for consistency
-			this.comment(`${valueSet.description || name} (codes not available - using string)`);
+			this.comment(
+				`${valueSet.description || name} (codes not available - using string)`,
+			);
 			this.line(`export type ${name} = string;`);
 		}
 	}
@@ -689,12 +798,12 @@ export class TypeScriptGenerator extends BaseGenerator {
 			const codeValues = binding.enum
 				.map((code: string) => `"${code}"`)
 				.join(" | ");
-			
+
 			const docLines = [
 				binding.description || name,
-				`Binding strength: ${binding.strength || "required"}`
+				`Binding strength: ${binding.strength || "required"}`,
 			];
-			
+
 			this.multiLineComment(docLines.join("\n"));
 			this.line(`export type ${name} = ${codeValues};`);
 			return;
@@ -707,12 +816,12 @@ export class TypeScriptGenerator extends BaseGenerator {
 			const codeValues = valueSet.concept
 				.map((concept: ValueSetConcept) => `"${concept.code}"`)
 				.join(" | ");
-			
+
 			const docLines = [
 				binding.description || name,
 				`Binding strength: ${binding.strength || "required"}`,
 				"",
-				"Possible values:"
+				"Possible values:",
 			];
 
 			// Add code documentation
@@ -723,7 +832,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 					docLines.push(`- \`${concept.code}\``);
 				}
 			}
-			
+
 			this.multiLineComment(docLines.join("\n"));
 			this.line(`export type ${name} = ${codeValues};`);
 		} else {
@@ -731,9 +840,9 @@ export class TypeScriptGenerator extends BaseGenerator {
 			const docLines = [
 				binding.description || name,
 				`Binding strength: ${binding.strength || "required"}`,
-				"(codes not available - using string)"
+				"(codes not available - using string)",
 			];
-			
+
 			this.multiLineComment(docLines.join("\n"));
 			this.line(`export type ${name} = string;`);
 		}
@@ -818,7 +927,12 @@ export class TypeScriptGenerator extends BaseGenerator {
 				);
 
 				for (const [fieldName, field] of sortedFields) {
-					this.generateField(fieldName, field, schema.identifier.kind, schema.identifier.name);
+					this.generateField(
+						fieldName,
+						field,
+						schema.identifier.kind,
+						schema.identifier.name,
+					);
 				}
 			}
 		});
@@ -862,7 +976,12 @@ export class TypeScriptGenerator extends BaseGenerator {
 				);
 
 				for (const [fieldName, field] of sortedFields) {
-					this.generateField(fieldName, field, "complex-type", schema.identifier.name);
+					this.generateField(
+						fieldName,
+						field,
+						"complex-type",
+						schema.identifier.name,
+					);
 				}
 			}
 		});
@@ -870,11 +989,14 @@ export class TypeScriptGenerator extends BaseGenerator {
 		this.generatedTypes.add(name);
 	}
 
-	private generateNestedInterface(nested: TypeSchemaNestedType, parentName?: string): void {
+	private generateNestedInterface(
+		nested: TypeSchemaNestedType,
+		parentName?: string,
+	): void {
 		// Create prefixed name for nested interfaces
 		const baseName = this.getTypeName(nested.identifier, "nested");
 		const name = parentName ? `${parentName}${baseName}` : baseName;
-		
+
 		const base = nested.base
 			? this.getTypeName(nested.base, "resource")
 			: "complex.BackboneElement";
@@ -898,7 +1020,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 
 		// Generate JSDoc comment for the field
 		const docLines: string[] = [];
-		
+
 		if (isRegularField(field)) {
 			if (field.type?.name) {
 				docLines.push(`${name} field of type ${field.type.name}`);
@@ -922,7 +1044,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 			}
 		} else if (isPolymorphicInstanceField(field)) {
 			docLines.push(`Polymorphic instance of ${field.choiceOf}`);
-			
+
 			if (field.type?.name) {
 				docLines.push(`Type: ${field.type.name}`);
 			} else if (field.reference) {
@@ -940,13 +1062,20 @@ export class TypeScriptGenerator extends BaseGenerator {
 			this.line(`/** ${docLines.join(" | ")} */`);
 		}
 
-		const isRequired = isRegularField(field) ? field.required 
-			: isPolymorphicDeclarationField(field) ? field.required
-			: isPolymorphicInstanceField(field) ? field.required
-			: false;
+		const isRequired = isRegularField(field)
+			? field.required
+			: isPolymorphicDeclarationField(field)
+				? field.required
+				: isPolymorphicInstanceField(field)
+					? field.required
+					: false;
 
 		const fieldName = isRequired ? name : `${name}?`;
-		const fieldType = this.getFieldType(field, currentContext, parentResourceName);
+		const fieldType = this.getFieldType(
+			field,
+			currentContext,
+			parentResourceName,
+		);
 
 		this.line(`${fieldName}: ${fieldType};`);
 	}
@@ -962,7 +1091,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 			// Check for enum values first (highest priority)
 			if (field.enum && field.enum.length > 0) {
 				// Direct enum values - create inline union type
-				const enumValues = field.enum.map(value => `"${value}"`).join(" | ");
+				const enumValues = field.enum.map((value) => `"${value}"`).join(" | ");
 				baseType = enumValues;
 			}
 			// Check for binding to valueset (second priority)
@@ -971,14 +1100,17 @@ export class TypeScriptGenerator extends BaseGenerator {
 				const enumValues = this.getBindingEnumValues(field.binding);
 				if (enumValues && enumValues.length > 0) {
 					// Inline the enum values directly
-					baseType = enumValues.map(value => `"${value}"`).join(" | ");
+					baseType = enumValues.map((value) => `"${value}"`).join(" | ");
 				} else if (field.type) {
 					// No enum values available, fall back to the field type
 					const typeName = this.getTypeName(field.type, currentContext);
-					
+
 					// If we have a parent resource name and this appears to be a nested type,
 					// prefix it with the resource name
-					if (parentResourceName && this.isNestedType(field.type, parentResourceName)) {
+					if (
+						parentResourceName &&
+						this.isNestedType(field.type, parentResourceName)
+					) {
 						baseType = `${parentResourceName}${typeName}`;
 					} else {
 						baseType = typeName;
@@ -1003,10 +1135,13 @@ export class TypeScriptGenerator extends BaseGenerator {
 				}
 			} else if (field.type) {
 				const typeName = this.getTypeName(field.type, currentContext);
-				
+
 				// If we have a parent resource name and this appears to be a nested type,
 				// prefix it with the resource name
-				if (parentResourceName && this.isNestedType(field.type, parentResourceName)) {
+				if (
+					parentResourceName &&
+					this.isNestedType(field.type, parentResourceName)
+				) {
 					baseType = `${parentResourceName}${typeName}`;
 				} else {
 					baseType = typeName;
@@ -1147,18 +1282,18 @@ export class TypeScriptGenerator extends BaseGenerator {
 		currentContext?: string,
 	): string {
 		const rawName = identifier.name;
-		
+
 		// Check if it's a primitive type (use raw name for mapping check)
 		if (this.typeMapping.has(rawName)) {
 			return this.typeMapping.get(rawName) as string;
 		}
-		
+
 		// Extract resource name from FHIR URLs if needed
 		let extractedName = rawName;
 		if (rawName.includes("http://hl7.org/fhir/StructureDefinition/")) {
 			extractedName = rawName.split("/").pop() || rawName;
 		}
-		
+
 		// Convert name to valid TypeScript identifier
 		const name = toValidInterfaceName(extractedName);
 
@@ -1185,37 +1320,43 @@ export class TypeScriptGenerator extends BaseGenerator {
 
 	private mergeValueSetsAndBindings(
 		valueSets: TypeSchemaValueSet[],
-		bindings: ValueSetBinding[]
-	): Array<{ type: 'valueset' | 'binding'; data: TypeSchemaValueSet | ValueSetBinding }> {
-		const result: Array<{ type: 'valueset' | 'binding'; data: TypeSchemaValueSet | ValueSetBinding }> = [];
+		bindings: ValueSetBinding[],
+	): Array<{
+		type: "valueset" | "binding";
+		data: TypeSchemaValueSet | ValueSetBinding;
+	}> {
+		const result: Array<{
+			type: "valueset" | "binding";
+			data: TypeSchemaValueSet | ValueSetBinding;
+		}> = [];
 		const processedNames = new Set<string>();
 		const processedUrls = new Set<string>();
 		const urlToValueSet = new Map<string, TypeSchemaValueSet>();
-		
+
 		// First, build a map of URLs to valuesets, prioritizing those with codes
 		for (const valueSet of valueSets) {
 			const url = valueSet.identifier.url;
 			const existingValueSet = urlToValueSet.get(url);
-			
+
 			const hasConcepts = valueSet.concept && valueSet.concept.length > 0;
-			const hasComposeConcepts = valueSet.compose?.include?.some(include => 
-				include.concept && include.concept.length > 0
+			const hasComposeConcepts = valueSet.compose?.include?.some(
+				(include) => include.concept && include.concept.length > 0,
 			);
-			
+
 			// Only keep valuesets with actual codes, or if we don't have one yet
 			if (!existingValueSet || hasConcepts || hasComposeConcepts) {
 				urlToValueSet.set(url, valueSet);
 			}
 		}
-		
+
 		// Process bindings first (they have better names)
 		for (const binding of bindings) {
 			const name = this.getTypeName(binding.identifier, "binding");
-			
+
 			// Check if there's a valueset with codes for this binding
 			const valueSetUrl = binding.valueset?.url;
 			const valueSet = valueSetUrl ? urlToValueSet.get(valueSetUrl) : undefined;
-			
+
 			if (valueSet && valueSet.concept && valueSet.concept.length > 0) {
 				// We have a valueset with codes - use it with the binding's name
 				const mergedValueSet = {
@@ -1223,11 +1364,11 @@ export class TypeScriptGenerator extends BaseGenerator {
 					identifier: {
 						...valueSet.identifier,
 						name: binding.identifier.name, // Use binding's name for better Resource-field naming
-					}
+					},
 				};
-				
+
 				if (!processedNames.has(name)) {
-					result.push({ type: 'valueset', data: mergedValueSet });
+					result.push({ type: "valueset", data: mergedValueSet });
 					processedNames.add(name);
 					processedUrls.add(valueSetUrl);
 					// Mark this valueset as processed
@@ -1236,7 +1377,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 			} else if (binding.enum && binding.enum.length > 0) {
 				// Binding has enum values directly - use it
 				if (!processedNames.has(name)) {
-					result.push({ type: 'binding', data: binding });
+					result.push({ type: "binding", data: binding });
 					processedNames.add(name);
 					if (valueSetUrl) {
 						processedUrls.add(valueSetUrl);
@@ -1246,26 +1387,29 @@ export class TypeScriptGenerator extends BaseGenerator {
 			}
 			// Skip bindings without codes - we don't want string fallbacks
 		}
-		
+
 		// Add remaining valuesets that weren't matched to bindings
 		// But ONLY if they have actual codes
 		for (const valueSet of urlToValueSet.values()) {
 			const hasConcepts = valueSet.concept && valueSet.concept.length > 0;
-			const hasComposeConcepts = valueSet.compose?.include?.some(include => 
-				include.concept && include.concept.length > 0
+			const hasComposeConcepts = valueSet.compose?.include?.some(
+				(include) => include.concept && include.concept.length > 0,
 			);
-			
+
 			if (hasConcepts || hasComposeConcepts) {
 				const name = this.getTypeName(valueSet.identifier, "value-set");
-				if (!processedNames.has(name) && !processedUrls.has(valueSet.identifier.url)) {
-					result.push({ type: 'valueset', data: valueSet });
+				if (
+					!processedNames.has(name) &&
+					!processedUrls.has(valueSet.identifier.url)
+				) {
+					result.push({ type: "valueset", data: valueSet });
 					processedNames.add(name);
 					processedUrls.add(valueSet.identifier.url);
 				}
 			}
 			// Skip valuesets without codes - no string fallbacks
 		}
-		
+
 		return result;
 	}
 
@@ -1280,8 +1424,9 @@ export class TypeScriptGenerator extends BaseGenerator {
 		if (!this.schemas) return null;
 
 		// Find the binding schema
-		const bindingSchema = this.schemas.bindings?.find(b => 
-			b.identifier.name === binding.name && b.identifier.url === binding.url
+		const bindingSchema = this.schemas.bindings?.find(
+			(b) =>
+				b.identifier.name === binding.name && b.identifier.url === binding.url,
 		);
 
 		if (!bindingSchema) {
@@ -1294,15 +1439,16 @@ export class TypeScriptGenerator extends BaseGenerator {
 		}
 
 		// Check if binding has a valueset with concepts
-		const valueset = this.schemas.valueSets?.find(vs => 
-			vs.identifier.name === bindingSchema.valueset?.name || 
-			vs.identifier.url === bindingSchema.valueset?.url
+		const valueset = this.schemas.valueSets?.find(
+			(vs) =>
+				vs.identifier.name === bindingSchema.valueset?.name ||
+				vs.identifier.url === bindingSchema.valueset?.url,
 		);
 
 		if (valueset) {
 			// Get concepts from direct concept array
 			if (valueset.concept && valueset.concept.length > 0) {
-				return valueset.concept.map(c => c.code);
+				return valueset.concept.map((c) => c.code);
 			}
 
 			// Get concepts from compose structure
@@ -1310,7 +1456,7 @@ export class TypeScriptGenerator extends BaseGenerator {
 				const codes: string[] = [];
 				for (const include of valueset.compose.include) {
 					if (include.concept) {
-						codes.push(...include.concept.map(c => c.code));
+						codes.push(...include.concept.map((c) => c.code));
 					}
 				}
 				if (codes.length > 0) {
@@ -1322,7 +1468,13 @@ export class TypeScriptGenerator extends BaseGenerator {
 		return null;
 	}
 
-	private getMeaningfulValuesetName(identifier: TypeSchemaIdentifier, fallbackName: string): string {
+	private getMeaningfulValuesetName(
+		identifier: TypeSchemaIdentifier,
+		fallbackName: string,
+	): string {
+		// Check if the fallback name is a hash-like string (base64-like pattern)
+		const isHashLikeName = /^[A-Za-z0-9_-]{40,}$/.test(fallbackName);
+
 		// Try to extract meaningful name from binding identifier
 		if (identifier.kind === "binding" && identifier.name.includes(".")) {
 			// Format: ResourceName.fieldName_binding -> ResourceName-fieldName
@@ -1333,13 +1485,65 @@ export class TypeScriptGenerator extends BaseGenerator {
 				return toValidInterfaceName(`${resourceName}-${fieldName}`);
 			}
 		}
-		
+
 		// For value-sets, try to extract from URL or description
 		if (identifier.kind === "value-set") {
-			// Try to match common FHIR patterns
 			const url = identifier.url || "";
-			
-			// Handle standard FHIR valuesets
+
+			// If we have a hash-like name, try harder to extract meaningful name from URL
+			if (isHashLikeName && url) {
+				// Handle CapabilityStatement URLs
+				if (url.includes("/CapabilityStatement/")) {
+					const capabilityId = url.split("/CapabilityStatement/").pop()?.split("|")[0];
+					if (capabilityId) {
+						return toValidInterfaceName(`CapabilityStatement ${capabilityId}`);
+					}
+				}
+
+				// Handle other FHIR resource URLs
+				const urlParts = url.split("/");
+				if (urlParts.length >= 2) {
+					const resourceType = urlParts[urlParts.length - 2];
+					const resourceId = urlParts[urlParts.length - 1].split("|")[0];
+
+					// Generate meaningful name from resource type and ID
+					if (resourceType && resourceId && resourceId !== "base" && resourceId !== "base2") {
+						return toValidInterfaceName(`${resourceType} ${resourceId}`);
+					} else if (resourceType) {
+						return toValidInterfaceName(resourceType);
+					}
+				}
+
+				// Handle URN-style URLs
+				if (url.startsWith("urn:uuid:")) {
+					const uuid = url.replace("urn:uuid:", "");
+					return toValidInterfaceName(`Resource ${uuid.substring(0, 8).toLowerCase()}`);
+				}
+
+				// Extract domain-based names
+				try {
+					const urlObj = new URL(url);
+					const pathParts = urlObj.pathname.split("/").filter(p => p);
+					if (pathParts.length > 0) {
+						const lastPart = pathParts[pathParts.length - 1];
+						if (lastPart && lastPart !== "base" && lastPart !== "base2") {
+							// Handle special cases like "knowledge-repository"
+							if (lastPart === "knowledge-repository") {
+								return "KnowledgeRepository";
+							}
+							return toValidInterfaceName(lastPart.replace(/-/g, " "));
+						}
+					}
+					// Use hostname as fallback, but avoid "fhir" prefix
+					const hostname = urlObj.hostname.replace(/^www\./, "").replace(/^fhir\./, "");
+					return toValidInterfaceName(`${hostname} Resource`);
+				} catch {
+					// If URL parsing fails, use a generic name
+					return toValidInterfaceName("Unknown Resource");
+				}
+			}
+
+			// Handle standard FHIR valuesets (non-hash names)
 			if (url.includes("/ValueSet/")) {
 				const valueSetId = url.split("/ValueSet/").pop()?.split("|")[0];
 				if (valueSetId) {
@@ -1347,18 +1551,32 @@ export class TypeScriptGenerator extends BaseGenerator {
 					return toValidInterfaceName(valueSetId.replace(/-/g, " "));
 				}
 			}
-			
+
 			// Handle account-specific valuesets
-			if (url.includes("account") || identifier.name.toLowerCase().includes("account")) {
-				if (url.includes("status") || identifier.name.toLowerCase().includes("status")) {
+			if (
+				url.includes("account") ||
+				identifier.name.toLowerCase().includes("account")
+			) {
+				if (
+					url.includes("status") ||
+					identifier.name.toLowerCase().includes("status")
+				) {
 					return "AccountStatus";
 				}
-				if (url.includes("type") || identifier.name.toLowerCase().includes("type")) {
+				if (
+					url.includes("type") ||
+					identifier.name.toLowerCase().includes("type")
+				) {
 					return "AccountType";
 				}
 			}
 		}
-		
+
+		// If it's a hash-like name and we couldn't extract from URL, use a generic name
+		if (isHashLikeName) {
+			return toValidInterfaceName("Generated Resource");
+		}
+
 		// Fallback to original name
 		return fallbackName;
 	}
@@ -1411,8 +1629,8 @@ export class TypeScriptGenerator extends BaseGenerator {
 				this.line("_profile?: {");
 				this.line("  /** Profile name for easier identification */");
 				this.line("  name?: string;");
-				this.line("  /** Whether this is a US Core profile */");
-				this.line("  isUSCore?: boolean;");
+				this.line("  /** Package name that this profile belongs to */");
+				this.line("  package?: string;");
 				this.line("};");
 			},
 		);
@@ -1463,17 +1681,17 @@ export class TypeScriptGenerator extends BaseGenerator {
 				"",
 				"Auto-generated from FHIR schemas using atomic-codegen.",
 				"",
-				"This module provides complete TypeScript definitions for FHIR R4 resources,",
-				"complex types, and primitive types with proper inheritance and references.",
+				"This module provides complete TypeScript definitions for FHIR R4 resources",
+				"and complex types with proper inheritance and references.",
 				"",
 				"@packageDocumentation",
 			].join("\n"),
 		);
 		this.blank();
 
-		// Export primitives and complex types
+		// Export complex types and Reference types (primitive type aliases removed)
 		this.comment("Core type exports");
-		this.line("export * as primitives from './types/primitives';");
+		// this.line("export * as primitives from './types/primitives';");
 		this.line("export * as complex from './types/complex';");
 		this.line("export type { Reference } from './types/primitives';");
 
@@ -1499,34 +1717,39 @@ export class TypeScriptGenerator extends BaseGenerator {
 		this.line("export * as resources from './resources';");
 		this.blank();
 
-		// Export profiles if they exist
-		if (this.schemas.profiles && this.schemas.profiles.length > 0) {
-			this.comment("Individual profile exports");
-			for (const profile of this.schemas.profiles) {
-				const name = this.getTypeName(profile.identifier, "profile");
-				const directory = profile.metadata?.isUSCore ? "uscore/" : "";
-				this.line(
-					`export type { ${name} } from './resources/profiles/${directory}${profile.identifier.name}';`,
-				);
+		// Export profiles if they exist and profile generation is enabled
+		if (
+			this.options.generateProfiles !== false &&
+			this.schemas.profiles &&
+			this.schemas.profiles.length > 0
+		) {
+			// Group profiles by package for organized exports
+			const profilesByPackage = this.groupProfilesByPackage(this.schemas.profiles);
+
+			this.comment("Individual profile exports by package");
+			for (const [packageName, profiles] of Object.entries(profilesByPackage)) {
+				this.comment(`${packageName} profiles`);
+				for (const profile of profiles) {
+					const name = this.getTypeName(profile.identifier, "profile");
+					this.line(
+						`export type { ${name} } from './resources/profiles/${packageName}/${profile.identifier.name}';`,
+					);
+				}
+				this.blank();
 			}
-			this.blank();
 
 			// Create a barrel export for all profiles
 			this.comment("Barrel export for all profiles");
 			this.line("export * as profiles from './resources/profiles';");
 			this.blank();
 
-			// Export US Core profiles specifically if they exist
-			const usCoreProfiles = this.schemas.profiles.filter(
-				(p) =>
-					p.metadata?.isUSCore ||
-					p.identifier.name.toLowerCase().includes("uscore"),
-			);
-			if (usCoreProfiles.length > 0) {
-				this.comment("US Core profile exports");
-				this.line("export * as uscore from './resources/profiles/uscore';");
-				this.blank();
+			// Export package-specific profile namespaces
+			this.comment("Package-specific profile exports");
+			for (const packageName of Object.keys(profilesByPackage)) {
+				const namespaceName = this.toPascalCase(packageName).toLowerCase();
+				this.line(`export * as ${namespaceName} from './resources/profiles/${packageName}';`);
 			}
+			this.blank();
 		}
 
 		// Generate ResourceTypeMap for runtime type checking
@@ -1648,9 +1871,13 @@ export class TypeScriptGenerator extends BaseGenerator {
 				if (isRegularField(field) && field.reference) {
 					continue;
 				}
-				
+
 				// Check for actual type usage (non-reference fields that use resource types)
-				if (isRegularField(field) && field.type && field.type.kind === "resource") {
+				if (
+					isRegularField(field) &&
+					field.type &&
+					field.type.kind === "resource"
+				) {
 					deps.add(field.type.name);
 				}
 			}
@@ -1665,9 +1892,13 @@ export class TypeScriptGenerator extends BaseGenerator {
 						if (isRegularField(field) && field.reference) {
 							continue;
 						}
-						
+
 						// Check for actual type usage
-						if (isRegularField(field) && field.type && field.type.kind === "resource") {
+						if (
+							isRegularField(field) &&
+							field.type &&
+							field.type.kind === "resource"
+						) {
 							deps.add(field.type.name);
 						}
 					}
@@ -1678,34 +1909,58 @@ export class TypeScriptGenerator extends BaseGenerator {
 		return Array.from(deps);
 	}
 
-	private isNestedType(typeIdentifier: TypeSchemaIdentifier, parentResourceName: string): boolean {
-		// More comprehensive detection: check if it's a simple name (no URL) 
+	private isNestedType(
+		typeIdentifier: TypeSchemaIdentifier,
+		parentResourceName: string,
+	): boolean {
+		// More comprehensive detection: check if it's a simple name (no URL)
 		// that matches common nested interface patterns
 		const typeName = typeIdentifier.name;
-		
+
 		// If it has a URL namespace, it's likely not a nested type
-		if (typeName.includes('http://') || typeName.includes('/')) {
+		if (typeName.includes("http://") || typeName.includes("/")) {
 			return false;
 		}
-		
+
 		// If it's a primitive type, it's not nested
 		if (this.typeMapping.has(typeName)) {
 			return false;
 		}
-		
+
 		// If it's a well-known complex type, it's not nested
 		const wellKnownComplexTypes = [
-			'Element', 'BackboneElement', 'Extension', 'Meta', 'Narrative',
-			'Identifier', 'CodeableConcept', 'Coding', 'Quantity', 'Range',
-			'Ratio', 'SampledData', 'Period', 'Attachment', 'ContactPoint',
-			'HumanName', 'Address', 'Timing', 'Signature', 'Annotation',
-			'Reference', 'Count', 'Distance', 'Duration', 'Age', 'Money'
+			"Element",
+			"BackboneElement",
+			"Extension",
+			"Meta",
+			"Narrative",
+			"Identifier",
+			"CodeableConcept",
+			"Coding",
+			"Quantity",
+			"Range",
+			"Ratio",
+			"SampledData",
+			"Period",
+			"Attachment",
+			"ContactPoint",
+			"HumanName",
+			"Address",
+			"Timing",
+			"Signature",
+			"Annotation",
+			"Reference",
+			"Count",
+			"Distance",
+			"Duration",
+			"Age",
+			"Money",
 		];
-		
+
 		if (wellKnownComplexTypes.includes(typeName)) {
 			return false;
 		}
-		
+
 		// If it's a simple name and not a known global type, assume it's nested
 		return true;
 	}

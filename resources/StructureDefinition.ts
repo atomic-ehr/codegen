@@ -1,6 +1,5 @@
 import * as primitives from '../types/primitives';
 import * as complex from '../types/complex';
-import * as Valuesets from '../types/valuesets';
 import type { Reference } from '../types/primitives'
 import { DomainResource } from './DomainResource';
 
@@ -36,11 +35,11 @@ export interface StructureDefinition extends DomainResource {
   /** publisher field of type string */
   publisher?: string;
   /** contact field of type ContactDetail */
-  contact?: complex.ContactDetail[];
+  contact?: StructureDefinitioncomplex.ContactDetail[];
   /** description field of type markdown */
   description?: string;
   /** useContext field of type UsageContext */
-  useContext?: complex.UsageContext[];
+  useContext?: StructureDefinitioncomplex.UsageContext[];
   /** jurisdiction field of type CodeableConcept */
   jurisdiction?: complex.CodeableConcept[];
   /** purpose field of type markdown */
@@ -52,9 +51,9 @@ export interface StructureDefinition extends DomainResource {
   /** fhirVersion field of type code */
   fhirVersion?: string;
   /** mapping field of type mapping */
-  mapping?: Mapping[];
+  mapping?: StructureDefinitionMapping[];
   /** context field of type context */
-  context?: Context[];
+  context?: StructureDefinitionContext[];
   /** contextInvariant field of type string */
   contextInvariant?: string[];
   /** baseDefinition field of type canonical */
@@ -62,24 +61,24 @@ export interface StructureDefinition extends DomainResource {
   /** derivation field of type code */
   derivation?: string;
   /** snapshot field of type snapshot */
-  snapshot?: Snapshot;
+  snapshot?: StructureDefinitionSnapshot;
   /** differential field of type differential */
-  differential?: Differential;
+  differential?: StructureDefinitionDifferential;
 }
 
-export interface Context extends complex.BackboneElement {
+export interface StructureDefinitionContext extends complex.BackboneElement {
   /** type field of type code */
   type: string;
   /** expression field of type string */
   expression: string;
 }
 
-export interface Differential extends complex.BackboneElement {
+export interface StructureDefinitionDifferential extends complex.BackboneElement {
   /** element field of type ElementDefinition | Cardinality: 1..* */
-  element: complex.ElementDefinition[];
+  element: StructureDefinitioncomplex.ElementDefinition[];
 }
 
-export interface Mapping extends complex.BackboneElement {
+export interface StructureDefinitionMapping extends complex.BackboneElement {
   /** identity field of type id */
   identity: string;
   /** uri field of type uri */
@@ -90,7 +89,7 @@ export interface Mapping extends complex.BackboneElement {
   comment?: string;
 }
 
-export interface Snapshot extends complex.BackboneElement {
+export interface StructureDefinitionSnapshot extends complex.BackboneElement {
   /** element field of type ElementDefinition | Cardinality: 1..* */
-  element: complex.ElementDefinition[];
+  element: StructureDefinitioncomplex.ElementDefinition[];
 }

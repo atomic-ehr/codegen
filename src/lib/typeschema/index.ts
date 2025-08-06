@@ -42,8 +42,6 @@ export {
 } from "./core/transformer";
 // Export profile processor
 export {
-	extractUSCoreConstraints,
-	isUSCoreProfile,
 	transformProfile,
 } from "./profile/processor";
 // Export all types

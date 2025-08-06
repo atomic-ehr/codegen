@@ -138,16 +138,6 @@ async function determineBaseKind(
 	return "resource";
 }
 
-/**
- * Check if a FHIR schema represents a US Core profile
- */
-export function isUSCoreProfile(fhirSchema: FHIRSchema): boolean {
-	return (
-		fhirSchema.url?.includes("us/core") ||
-		fhirSchema.name?.toLowerCase().includes("uscore") ||
-		fhirSchema.name?.toLowerCase().includes("us-core")
-	);
-}
 
 /**
  * Extract profile metadata from FHIR schema
@@ -165,10 +155,14 @@ function extractProfileMetadata(fhirSchema: FHIRSchema): Record<string, any> {
 	if (fhirSchema.date) metadata.date = fhirSchema.date;
 	if (fhirSchema.jurisdiction) metadata.jurisdiction = fhirSchema.jurisdiction;
 
-	// Add US Core specific metadata
-	if (isUSCoreProfile(fhirSchema)) {
-		metadata.isUSCore = true;
-		metadata.profileType = "us-core";
+	// Add package-specific metadata
+	if (fhirSchema.url) {
+		// Extract package information from URL
+		if (fhirSchema.url.includes('/us/core/')) {
+			metadata.package = 'hl7.fhir.us.core';
+		} else if (fhirSchema.url.includes('hl7.org/fhir/')) {
+			metadata.package = 'hl7.fhir.r4.core';
+		}
 	}
 
 	return metadata;
@@ -302,44 +296,3 @@ function extractValidationRules(fhirSchema: FHIRSchema): any[] {
 	return rules;
 }
 
-/**
- * Extract US Core specific validation rules
- * Enhanced version with actual US Core constraint extraction
- */
-export function extractUSCoreConstraints(
-	fhirSchema: FHIRSchema,
-): Record<string, any> {
-	const constraints: Record<string, any> = {};
-
-	if (!isUSCoreProfile(fhirSchema)) return constraints;
-
-	// US Core specific processing
-	if (fhirSchema.elements) {
-		for (const [path, element] of Object.entries(fhirSchema.elements)) {
-			const usCoreConstraints: Record<string, any> = {};
-
-			// Must Support elements are critical in US Core
-			if (element.mustSupport) {
-				usCoreConstraints.mustSupport = true;
-				usCoreConstraints.usCoreRequirement = "SHALL support";
-			}
-
-			// Required value sets in US Core
-			if (element.binding && element.binding.strength === "required") {
-				usCoreConstraints.requiredValueSet = element.binding.valueSet;
-			}
-
-			// US Core cardinality requirements
-			if (element.min && element.min > 0) {
-				usCoreConstraints.required = true;
-				usCoreConstraints.minCardinality = element.min;
-			}
-
-			if (Object.keys(usCoreConstraints).length > 0) {
-				constraints[path] = usCoreConstraints;
-			}
-		}
-	}
-
-	return constraints;
-}

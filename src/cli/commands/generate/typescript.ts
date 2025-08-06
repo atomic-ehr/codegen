@@ -204,6 +204,7 @@ export const generateTypescriptCommand: CommandModule<
 			fileHeader: argv["file-header"] || configGenerator.fileHeader,
 			overwrite: argv.overwrite ?? configGenerator.overwrite ?? true,
 			verbose: argv.verbose ?? configGlobal.verbose ?? false,
+			generateProfiles: configGenerator.generateProfiles ?? true,
 		};
 
 		const typescriptConfig: TypeScriptConfig = {
@@ -270,6 +271,7 @@ export async function generateTypeScript(
 			overwrite: config.overwrite,
 			format: config.format,
 			fileHeader: config.fileHeader,
+			generateProfiles: config.generateProfiles,
 			// TODO: Apply tsConfig to generator when enhanced generator supports it
 		});
 

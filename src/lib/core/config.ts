@@ -63,6 +63,9 @@ export interface GeneratorConfig {
 
 	/** Verbose logging */
 	verbose?: boolean;
+
+	/** Whether to generate profiles */
+	generateProfiles?: boolean;
 }
 
 /**

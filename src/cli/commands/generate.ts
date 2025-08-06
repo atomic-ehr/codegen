@@ -115,6 +115,7 @@ export const generateCommand: CommandModule<{}, GenerateArgs> = {
 				verbose: argv.verbose,
 				overwrite: argv.overwrite,
 				format: argv.format,
+				generateProfiles: argv._config?.generator?.generateProfiles,
 			});
 
 			// Load input schemas

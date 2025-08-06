@@ -99,11 +99,33 @@ export function buildValueSetIdentifier(
 ): TypeSchemaIdentifier {
 	const cleanUrl = dropVersionFromUrl(valueSetUrl) || valueSetUrl;
 
+	// Generate a meaningful name from the URL instead of using potentially hash-like IDs
+	let name = "unknown";
+
+	// First try to get the last segment of the URL path
+	const urlParts = cleanUrl.split("/");
+	const lastSegment = urlParts[urlParts.length - 1];
+
+	if (lastSegment && lastSegment.length > 0) {
+		// Convert kebab-case or snake_case to PascalCase for better readability
+		name = lastSegment
+			.split(/[-_]/)
+			.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+			.join("");
+	}
+
+	// Only fall back to valueSet.id if we couldn't extract a meaningful name from URL
+	// and the ID doesn't look like a hash (no long alphanumeric strings)
+	if (name === "unknown" && valueSet?.id &&
+		!/^[a-zA-Z0-9_-]{20,}$/.test(valueSet.id)) {
+		name = valueSet.id;
+	}
+
 	return {
 		kind: "value-set",
 		package: packageInfo?.name || valueSet?.package_name || "undefined",
 		version: packageInfo?.version || valueSet?.package_version || "undefined",
-		name: valueSet?.id || cleanUrl.split("/").pop() || "unknown",
+		name,
 		url: cleanUrl,
 	};
 }
