@@ -27,11 +27,11 @@
   },
   "include": [
     "./src",
-    "./examples",
     "./test"
   ],
   "exclude": [
     "./types",
-    "generated"
+    "generated",
+    "examples"
   ]
 }

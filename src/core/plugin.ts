@@ -4,7 +4,6 @@
  * Core plugin management and registry system
  */
 
-import { AtomicCodegenError } from "./utils/errors";
 import type {
 	GenerationContext,
 	GenerationResult,
@@ -12,6 +11,7 @@ import type {
 	PluginCapabilities,
 	PluginLifecycle,
 } from "./types";
+import { AtomicCodegenError } from "./utils/errors";
 
 /**
  * Plugin metadata
@@ -119,7 +119,7 @@ export class PluginRegistry {
 	unregister(id: string): boolean {
 		// Destroy instance if exists
 		const instance = this.instances.get(id);
-		if (instance && instance.onDestroy) {
+		if (instance?.onDestroy) {
 			instance.onDestroy();
 		}
 		this.instances.delete(id);

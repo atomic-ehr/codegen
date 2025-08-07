@@ -119,7 +119,7 @@ function deduplicateDependencies(
  */
 function isExtensionSchema(
 	fhirSchema: FHIRSchema,
-	identifier: TypeSchemaIdentifier,
+	_identifier: TypeSchemaIdentifier,
 ): boolean {
 	// Check if this is based on Extension
 	if (
@@ -155,7 +155,7 @@ function isExtensionSchema(
  */
 async function transformValueSet(
 	fhirSchema: FHIRSchema,
-	manager: CanonicalManager,
+	_manager: CanonicalManager,
 	packageInfo?: PackageInfo,
 ): Promise<TypeSchemaValueSet | null> {
 	try {
@@ -176,7 +176,7 @@ async function transformValueSet(
 			}> = [];
 
 			// Extract concepts from elements (simplified approach)
-			for (const [key, element] of Object.entries(fhirSchema.elements)) {
+			for (const [_key, element] of Object.entries(fhirSchema.elements)) {
 				if (element.code) {
 					concepts.push({
 						code: element.code,
@@ -506,7 +506,7 @@ export async function transformFHIRSchema(
  */
 export async function transformFHIRSchemas(
 	fhirSchemas: FHIRSchema[],
-	manager: CanonicalManager,
+	manager: ReturnType<typeof CanonicalManager>,
 	packageInfo?: PackageInfo,
 ): Promise<AnyTypeSchema[]> {
 	const allResults: AnyTypeSchema[] = [];

@@ -6,66 +6,43 @@
  * code systems, and operations.
  */
 
-// CodeSystem generation
 export {
-	createCodeSystemConcept,
-	findConceptByCode,
-	generateCodeSystemType,
-	generateCodeSystemTypes,
-	generateConstantsFromCodeSystem,
-	generateEnumFromCodeSystem,
-	getAllConceptCodes,
-	validateCodeSystemConcepts,
-} from "./codesystems";
-// Extension generation
+	getAllFHIRComplexTypes,
+	getInterfaceNameForComplexType,
+	hasChoiceElements,
+	isCodedType,
+	isQuantityType,
+	isReferenceType,
+	isTemporalType,
+} from "./core/complex-types";
+// Core utilities
 export {
-	createExtensionDefinitionInfo,
-	generateExtensionType,
-	generateExtensionTypes,
-} from "./extensions";
-// Main generator
-export {
-	FHIRGenerator,
-	generateFHIRFromPackage,
-	generateFHIRFromTypeSchemas,
-} from "./generator";
-// Operation generation
-export {
-	generateOperationType,
-	generateOperationTypes,
-} from "./operations";
-// Profile generation
-export {
-	createProfileConstraintInfo,
-	generateProfileType,
-	generateProfileTypes,
-} from "./profiles";
+	getAllFHIRPrimitiveTypes,
+	getTypeScriptTypeForPrimitive,
+	isPrimitiveFHIRType,
+	validatePrimitiveValue,
+} from "./core/primitives";
 // Resource generation
 export {
 	createResourceDependency,
 	generateResourceType,
 	generateResourceTypes,
-} from "./resources";
-// Types and interfaces
+} from "./core/resources";
+// Core types and utilities
+// Feature types
 export type {
 	BackboneElementInfo,
-	// Utility types
 	ChoiceTypeInfo,
 	CodeSystemConcept,
-	// CodeSystem types
 	CodeSystemInfo,
 	ExtensionContext,
-	// Extension types
 	ExtensionDefinitionInfo,
 	FHIRGenerationContext,
-	// Generator options and context
 	FHIRGeneratorOptions,
 	FHIRResourceGenerationResult,
 	GenerationWarning,
-	// Operation types
 	OperationDefinitionInfo,
 	OperationParameter,
-	// Profile types
 	ProfileConstraintInfo,
 	ProfileExtension,
 	ResourceDependency,
@@ -75,10 +52,8 @@ export type {
 	ValueSetExpansion,
 	ValueSetFilter,
 	ValueSetInclude,
-	// ValueSet types
 	ValueSetInfo,
-} from "./types";
-// Utility functions (TypeSchema-based, no hardcoded constants)
+} from "./core/types";
 export {
 	getFHIRComplexTypes,
 	getFHIRPrimitiveTypes,
@@ -87,8 +62,72 @@ export {
 	isFHIRComplexType,
 	isFHIRPrimitiveType,
 	isFHIRResourceType,
-} from "./types";
-// ValueSet generation
+} from "./core/types";
+export {
+	ValidationErrorCodes,
+	type ValidationResult,
+} from "./core/validation";
+// Feature modules
+export {
+	createCodeSystemConcept,
+	findConceptByCode,
+	generateCodeSystemType,
+	generateCodeSystemTypes,
+	generateConstantsFromCodeSystem,
+	generateEnumFromCodeSystem,
+	getAllConceptCodes,
+	validateCodeSystemConcepts,
+} from "./features/codesystems";
+export {
+	createExtensionDefinitionInfo,
+	generateExtensionType,
+	generateExtensionTypes,
+} from "./features/extensions";
+export {
+	generateOperationType,
+	generateOperationTypes,
+} from "./features/operations";
+export {
+	createProfileConstraintInfo,
+	generateProfileType,
+	generateProfileTypes,
+} from "./features/profiles";
+// Search functionality
+export {
+	ChainedSearchBuilder,
+	FHIRSearchBuilder,
+	OperationBuilder,
+} from "./features/search/builder";
+export type {
+	ProcessedSearchParameter,
+	ResourceSearchParameters,
+	SearchParameterModifier,
+	SearchParameterPrefix,
+	SearchParameterType,
+} from "./features/search/parameters";
+export {
+	extractAllSearchParameters,
+	extractSearchParametersForResource,
+	generateSearchParameterTypes,
+} from "./features/search/parameters";
+export type {
+	ChainedParam,
+	CommonSearchParams,
+	CompositeParam,
+	DateParam,
+	ModifiedParam,
+	NumberParam,
+	PrefixedParam,
+	QuantityParam,
+	ReferenceParam,
+	SearchBundle,
+	SearchBundleEntry,
+	SearchParameterDefinition,
+	SearchResponse,
+	StringParam,
+	TokenParam,
+	UriParam,
+} from "./features/search/types";
 export {
 	createValueSetConcept,
 	createValueSetFilter,
@@ -97,4 +136,58 @@ export {
 	generateValueSetType,
 	generateValueSetTypes,
 	validateValueSetCompose,
-} from "./valuesets";
+} from "./features/valuesets";
+export {
+	type GraphQLClientGenerationOptions,
+	generateGraphQLClient,
+} from "./generators/client/graphql";
+// Client generators
+export {
+	generateRestClient,
+	type RestClientGenerationOptions,
+} from "./generators/client/rest";
+export {
+	generateEnhancedSearchClient,
+	type EnhancedSearchClientGenerationOptions,
+} from "./generators/client/search";
+export {
+	type BuilderGenerationOptions,
+	generateBuilders,
+} from "./generators/typescript/builders";
+// TypeScript generators
+export {
+	DEFAULT_INTERFACE_OPTIONS,
+	EnhancedInterfaceGenerator,
+	type EnhancedInterfaceResult,
+	generateEnhancedInterfaces,
+	type InterfaceGeneratorOptions,
+} from "./generators/typescript/enhanced-interfaces";
+export type {
+	CardinalityConstraint,
+	ChoiceTypeDiscriminator,
+	ChoiceTypeInfo as GuardChoiceTypeInfo,
+	FieldTypeGuard,
+	GuardGenerationOptions,
+	PrimitiveTypeGuard,
+	ResourceTypeGuard,
+	TypeGuardError,
+	TypeGuardMetadata,
+	TypeGuardResult,
+	ValidationResult as GuardValidationResult,
+} from "./generators/typescript/guards";
+// Type guards and validation
+export {
+	createChoiceTypeGuard,
+	createFieldValidator,
+	createReferenceValidator,
+	FHIRGuardGenerator,
+	generateAllTypeGuards,
+	isChoiceTypeInstance,
+	narrowChoiceType,
+	validateCardinality,
+} from "./generators/typescript/guards";
+export {
+	generateValidators,
+	type ValidatorFunction,
+	type ValidatorGenerationOptions,
+} from "./generators/typescript/validators";

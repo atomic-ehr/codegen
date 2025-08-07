@@ -278,6 +278,13 @@ export interface GeneratorOptions {
 	outputFormat?: "ndjson" | "json";
 	includeValueSets?: boolean;
 	includeBindings?: boolean;
+	includeProfiles?: boolean;
+	includeExtensions?: boolean;
+	includeCodeSystems?: boolean;
+	includeOperations?: boolean;
+	fhirVersion?: "R4" | "R5";
+	resourceTypes?: string[];
+	maxDepth?: number;
 	verbose?: boolean;
 }
 
@@ -311,24 +318,6 @@ export interface ValidationWarning {
 	path?: string;
 	code?: string;
 	severity: "warning";
-}
-
-/**
- * Cache options for TypeSchema operations
- */
-export interface CacheOptions {
-	enabled?: boolean;
-	maxSize?: number;
-	ttl?: number;
-}
-
-/**
- * Cache entry for TypeSchema documents
- */
-export interface CacheEntry {
-	schema: AnyTypeSchema;
-	timestamp: number;
-	key: string;
 }
 
 /**

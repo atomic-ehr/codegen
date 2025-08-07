@@ -5,9 +5,9 @@
  * All legacy config functionality has been removed.
  */
 
-import { existsSync } from "fs";
-import { readFile } from "fs/promises";
-import { join, resolve } from "path";
+import { existsSync } from "node:fs";
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
 
 /**
  * TypeScript generator configuration options
@@ -22,6 +22,56 @@ export interface TypeScriptGeneratorConfig {
 	generateGuards?: boolean;
 	includeProfiles?: boolean;
 	includeExtensions?: boolean;
+	includeValueSets?: boolean;
+	includeCodeSystems?: boolean;
+	includeOperations?: boolean;
+	fhirVersion?: "R4" | "R5";
+	resourceTypes?: string[];
+	maxDepth?: number;
+
+	// Builder generation options
+	generateBuilders?: boolean;
+	builderOptions?: {
+		includeValidation?: boolean;
+		includeFactoryMethods?: boolean;
+		includeInterfaces?: boolean;
+		generateNestedBuilders?: boolean;
+		includeHelperMethods?: boolean;
+		supportPartialBuild?: boolean;
+		includeJSDoc?: boolean;
+		generateFactories?: boolean;
+		includeTypeGuards?: boolean;
+		handleChoiceTypes?: boolean;
+		generateArrayHelpers?: boolean;
+	};
+
+	// Validator generation options
+	validatorOptions?: {
+		includeCardinality?: boolean;
+		includeTypes?: boolean;
+		includeConstraints?: boolean;
+		includeInvariants?: boolean;
+		validateRequired?: boolean;
+		allowAdditional?: boolean;
+		strictValidation?: boolean;
+		collectMetrics?: boolean;
+		generateAssertions?: boolean;
+		generatePartialValidators?: boolean;
+		optimizePerformance?: boolean;
+		includeJSDoc?: boolean;
+		generateCompositeValidators?: boolean;
+	};
+
+	// Type guard generation options
+	guardOptions?: {
+		includeRuntimeValidation?: boolean;
+		includeErrorMessages?: boolean;
+		treeShakeable?: boolean;
+		targetTSVersion?: "3.8" | "4.0" | "4.5" | "5.0";
+		strictGuards?: boolean;
+		includeNullChecks?: boolean;
+		verbose?: boolean;
+	};
 }
 
 /**
@@ -34,6 +84,27 @@ export interface RESTClientGeneratorConfig {
 	apiVersion?: string;
 	generateMocks?: boolean;
 	authType?: "none" | "bearer" | "apikey" | "oauth2";
+}
+
+/**
+ * TypeSchema Configuration
+ * Controls TypeSchema generation and caching behavior
+ */
+export interface TypeSchemaConfig {
+	/** Enable persistent caching of generated TypeSchemas */
+	enablePersistence?: boolean;
+	/** Directory to store cached TypeSchemas (relative to outputDir) */
+	cacheDir?: string;
+	/** Maximum age of cached schemas in milliseconds before regeneration */
+	maxAge?: number;
+	/** Whether to validate cached schemas before reuse */
+	validateCached?: boolean;
+	/** Force regeneration of schemas even if cached */
+	forceRegenerate?: boolean;
+	/** Share cache across multiple codegen runs */
+	shareCache?: boolean;
+	/** Cache key prefix for namespacing */
+	cacheKeyPrefix?: string;
 }
 
 /**
@@ -50,6 +121,7 @@ export interface Config {
 	// Generator configurations
 	typescript?: TypeScriptGeneratorConfig;
 	restClient?: RESTClientGeneratorConfig;
+	typeSchema?: TypeSchemaConfig;
 
 	// Input sources
 	packages?: string[];
@@ -78,13 +150,71 @@ export const DEFAULT_CONFIG: Required<Config> = {
 		generateGuards: true,
 		includeProfiles: true,
 		includeExtensions: false,
+		includeValueSets: true,
+		includeCodeSystems: false,
+		includeOperations: false,
+		fhirVersion: "R4",
+		resourceTypes: [],
+		maxDepth: 10,
+
+		// Builder generation defaults
+		generateBuilders: false,
+		builderOptions: {
+			includeValidation: true,
+			includeFactoryMethods: true,
+			includeInterfaces: true,
+			generateNestedBuilders: true,
+			includeHelperMethods: true,
+			supportPartialBuild: true,
+			includeJSDoc: true,
+			generateFactories: true,
+			includeTypeGuards: true,
+			handleChoiceTypes: true,
+			generateArrayHelpers: true,
+		},
+
+		// Validator generation defaults
+		validatorOptions: {
+			includeCardinality: true,
+			includeTypes: true,
+			includeConstraints: true,
+			includeInvariants: false,
+			validateRequired: true,
+			allowAdditional: false,
+			strictValidation: false,
+			collectMetrics: false,
+			generateAssertions: true,
+			generatePartialValidators: true,
+			optimizePerformance: true,
+			includeJSDoc: true,
+			generateCompositeValidators: true,
+		},
+
+		// Type guard generation defaults
+		guardOptions: {
+			includeRuntimeValidation: true,
+			includeErrorMessages: true,
+			treeShakeable: true,
+			targetTSVersion: "5.0",
+			strictGuards: false,
+			includeNullChecks: true,
+			verbose: false,
+		},
 	},
 	restClient: {
 		clientName: "FHIRClient",
 		baseUrl: "https://api.example.com/fhir",
-		apiVersion: "R4",
 		generateMocks: false,
 		authType: "none",
+	},
+	typeSchema: {
+		enablePersistence: true,
+		cacheDir: ".typeschema-cache",
+		maxAge: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
+		validateCached: true,
+		forceRegenerate: false,
+		shareCache: true,
+		cacheKeyPrefix: "",
 	},
 	packages: [],
 	files: [],
@@ -285,6 +415,114 @@ export class ConfigValidator {
 			if (cfg[field] !== undefined && typeof cfg[field] !== "boolean") {
 				errors.push({
 					path: `typescript.${field}`,
+					message: `${field} must be a boolean`,
+					value: cfg[field],
+				});
+			}
+		}
+
+		// Validate validatorOptions
+		if (cfg.validatorOptions !== undefined) {
+			const validatorErrors = this.validateValidatorOptions(
+				cfg.validatorOptions,
+			);
+			errors.push(...validatorErrors);
+		}
+
+		// Validate guardOptions
+		if (cfg.guardOptions !== undefined) {
+			const guardErrors = this.validateGuardOptions(cfg.guardOptions);
+			errors.push(...guardErrors);
+		}
+
+		return errors;
+	}
+
+	private validateValidatorOptions(config: unknown): ConfigValidationError[] {
+		const errors: ConfigValidationError[] = [];
+
+		if (typeof config !== "object" || config === null) {
+			errors.push({
+				path: "typescript.validatorOptions",
+				message: "validatorOptions must be an object",
+				value: config,
+			});
+			return errors;
+		}
+
+		const cfg = config as Record<string, unknown>;
+
+		// Validate boolean fields
+		const booleanFields = [
+			"includeCardinality",
+			"includeTypes",
+			"includeConstraints",
+			"includeInvariants",
+			"validateRequired",
+			"allowAdditional",
+			"strictValidation",
+			"collectMetrics",
+			"generateAssertions",
+			"generatePartialValidators",
+			"optimizePerformance",
+			"includeJSDoc",
+			"generateCompositeValidators",
+		];
+
+		for (const field of booleanFields) {
+			if (cfg[field] !== undefined && typeof cfg[field] !== "boolean") {
+				errors.push({
+					path: `typescript.validatorOptions.${field}`,
+					message: `${field} must be a boolean`,
+					value: cfg[field],
+				});
+			}
+		}
+
+		return errors;
+	}
+
+	private validateGuardOptions(config: unknown): ConfigValidationError[] {
+		const errors: ConfigValidationError[] = [];
+
+		if (typeof config !== "object" || config === null) {
+			errors.push({
+				path: "typescript.guardOptions",
+				message: "guardOptions must be an object",
+				value: config,
+			});
+			return errors;
+		}
+
+		const cfg = config as Record<string, unknown>;
+
+		// Validate targetTSVersion
+		if (cfg.targetTSVersion !== undefined) {
+			if (
+				!["3.8", "4.0", "4.5", "5.0"].includes(cfg.targetTSVersion as string)
+			) {
+				errors.push({
+					path: "typescript.guardOptions.targetTSVersion",
+					message: 'targetTSVersion must be one of: "3.8", "4.0", "4.5", "5.0"',
+					value: cfg.targetTSVersion,
+				});
+			}
+		}
+
+		// Validate boolean fields
+		const booleanFields = [
+			"includeRuntimeValidation",
+			"includeErrorMessages",
+			"treeShakeable",
+			"strictGuards",
+			"includeNullChecks",
+			"verbose",
+		];
+
+		for (const field of booleanFields) {
+			if (cfg[field] !== undefined && typeof cfg[field] !== "boolean") {
+				errors.push({
+					path: `typescript.guardOptions.${field}`,
 					message: `${field} must be a boolean`,
 					value: cfg[field],
 				});

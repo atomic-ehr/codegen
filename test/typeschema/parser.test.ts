@@ -67,7 +67,7 @@ describe("TypeSchemaParser", () => {
 
 			const schemas = await parser.parseFromFile(filePath);
 			expect(schemas).toHaveLength(1);
-			expect(schemas[0].identifier.name).toBe("Patient");
+			expect(schemas[0]?.identifier.name).toBe("Patient");
 		});
 
 		test("should detect NDJSON format from file extension", async () => {
@@ -80,8 +80,8 @@ describe("TypeSchemaParser", () => {
 
 			const schemas = await parser.parseFromFile(filePath);
 			expect(schemas).toHaveLength(2);
-			expect(schemas[0].identifier.name).toBe("Patient");
-			expect(schemas[1].identifier.name).toBe("Observation");
+			expect(schemas[0]?.identifier.name).toBe("Patient");
+			expect(schemas[1]?.identifier.name).toBe("Observation");
 		});
 
 		test("should auto-detect JSON format from content", async () => {
@@ -89,7 +89,7 @@ describe("TypeSchemaParser", () => {
 			const schemas = await parser.parseFromString(jsonContent);
 			
 			expect(schemas).toHaveLength(1);
-			expect(schemas[0].identifier.name).toBe("Patient");
+			expect(schemas[0]?.identifier.name).toBe("Patient");
 		});
 
 		test("should auto-detect NDJSON format from content", async () => {
@@ -100,8 +100,8 @@ describe("TypeSchemaParser", () => {
 			const schemas = await parser.parseFromString(ndjsonContent);
 			
 			expect(schemas).toHaveLength(2);
-			expect(schemas[0].identifier.name).toBe("Patient");
-			expect(schemas[1].identifier.name).toBe("Observation");
+			expect(schemas[0]?.identifier.name).toBe("Patient");
+			expect(schemas[1]?.identifier.name).toBe("Observation");
 		});
 	});
 
@@ -122,8 +122,8 @@ describe("TypeSchemaParser", () => {
 			const schemas = await parser.parseFromString(jsonContent, 'json');
 			
 			expect(schemas).toHaveLength(2);
-			expect(schemas[0].identifier.name).toBe("Patient");
-			expect(schemas[1].identifier.name).toBe("Observation");
+			expect(schemas[0]?.identifier.name).toBe("Patient");
+			expect(schemas[1]?.identifier.name).toBe("Observation");
 		});
 
 		test("should parse multiple schemas from NDJSON", async () => {
@@ -136,8 +136,8 @@ describe("TypeSchemaParser", () => {
 			const schemas = await parser.parseFromString(ndjsonContent, 'ndjson');
 			
 			expect(schemas).toHaveLength(3);
-			expect(schemas[0].identifier.name).toBe("Patient");
-			expect(schemas[1].identifier.name).toBe("Observation");
+			expect(schemas[0]?.identifier.name).toBe("Patient");
+			expect(schemas[1]?.identifier.name).toBe("Observation");
 			expect(schemas[2].identifier.name).toBe("Practitioner");
 		});
 
@@ -152,8 +152,8 @@ describe("TypeSchemaParser", () => {
 			const schemas = await parser.parseFromString(ndjsonContent, 'ndjson');
 			
 			expect(schemas).toHaveLength(2);
-			expect(schemas[0].identifier.name).toBe("Patient");
-			expect(schemas[1].identifier.name).toBe("Observation");
+			expect(schemas[0]?.identifier.name).toBe("Patient");
+			expect(schemas[1]?.identifier.name).toBe("Observation");
 		});
 	});
 
@@ -335,7 +335,7 @@ describe("TypeSchemaParser", () => {
 			const schemas = await parser.parseFromString(ndjsonContent, 'ndjson');
 			
 			expect(schemas).toHaveLength(2);
-			expect(schemas[0].identifier.name).toBe("Patient");
+			expect(schemas[0]?.identifier.name).toBe("Patient");
 			expect(schemas[1].identifier.name).toBe("Valid");
 		});
 	});
@@ -367,7 +367,7 @@ describe("TypeSchemaParser", () => {
 
 			const schemas = await parseTypeSchemaFromFile(filePath);
 			expect(schemas).toHaveLength(1);
-			expect(schemas[0].identifier.name).toBe("Patient");
+			expect(schemas[0]?.identifier.name).toBe("Patient");
 		});
 
 		test("parseTypeSchemaFromString should work", async () => {
@@ -375,7 +375,7 @@ describe("TypeSchemaParser", () => {
 			const schemas = await parseTypeSchemaFromString(content, 'json');
 			
 			expect(schemas).toHaveLength(1);
-			expect(schemas[0].identifier.name).toBe("Patient");
+			expect(schemas[0]?.identifier.name).toBe("Patient");
 		});
 	});
 });

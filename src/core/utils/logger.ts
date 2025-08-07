@@ -94,9 +94,9 @@ export class ConsoleOutput implements LogOutput {
 export class FileOutput implements LogOutput {
 	constructor(private filePath: string) {}
 
-	async write(entry: LogEntry, formatted: string): Promise<void> {
-		const file = Bun.file(this.filePath);
-		const content = formatted + "\n";
+	async write(_entry: LogEntry, formatted: string): Promise<void> {
+		const _file = Bun.file(this.filePath);
+		const content = `${formatted}\n`;
 
 		try {
 			// Append to file
@@ -199,8 +199,6 @@ export class Logger {
 
 			case "compact":
 				return this.formatCompact(entry);
-
-			case "pretty":
 			default:
 				return this.formatPretty(entry);
 		}

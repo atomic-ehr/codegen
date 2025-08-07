@@ -4,7 +4,7 @@
  * Interactive prompts for better CLI user experience
  */
 
-import { checkbox, confirm, input, password, select } from "@inquirer/prompts";
+import { checkbox, confirm, input, select } from "@inquirer/prompts";
 import pc from "picocolors";
 
 /**

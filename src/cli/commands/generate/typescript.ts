@@ -5,8 +5,8 @@
  */
 
 import { APIBuilder } from "../../../api";
-import type { Config, TypeScriptGeneratorConfig } from "../../../config";
-import { ErrorFactory, GenerationError } from "../../../core/utils/errors";
+import type { Config } from "../../../config";
+import { GenerationError } from "../../../core/utils/errors";
 import type { CLIArgv } from "../index";
 
 interface TypeScriptGenerateArgs extends CLIArgv {

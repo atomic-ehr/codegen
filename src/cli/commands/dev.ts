@@ -523,7 +523,7 @@ async function validateTemplate(argv: TemplateArgs): Promise<void> {
 
 function startDebugSession(argv: DebugArgs): void {
 	const level = argv.level ? parseDebugLevel(argv.level) : undefined;
-	const session = createDebugSession({
+	const _session = createDebugSession({
 		level,
 		format: argv.format,
 		fileOutput: argv.file,

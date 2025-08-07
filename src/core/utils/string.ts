@@ -70,8 +70,6 @@ export function pad(
 			const rightPad = padding - leftPad;
 			return padChar.repeat(leftPad) + str + padChar.repeat(rightPad);
 		}
-
-		case "right":
 		default:
 			return str + padChar.repeat(padding);
 	}
@@ -546,7 +544,7 @@ export function safeStringify(obj: any, space?: string | number): string {
 
 	return JSON.stringify(
 		obj,
-		(key, value) => {
+		(_key, value) => {
 			if (typeof value === "object" && value !== null) {
 				if (seen.has(value)) {
 					return "[Circular]";

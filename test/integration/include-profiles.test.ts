@@ -38,7 +38,7 @@ describe('includeProfiles configuration', () => {
 			generateIndex: true,
 			includeDocuments: false,
 			namingConvention: 'PascalCase',
-			strictMode: true,
+			// strictMode: true, // This option doesn't exist
 			generateValidators: false,
 			generateGuards: false,
 			includeProfiles: false, // This should prevent profiles generation
@@ -65,8 +65,32 @@ describe('includeProfiles configuration', () => {
 			cache: false,
 		});
 
-		// Load a small FHIR package for testing
-		builder.fromPackage('hl7.fhir.r4.core', '4.0.1');
+		// Use mock schemas instead of downloading packages to avoid network hangs
+		const mockSchemas = [
+			{
+				identifier: {
+					kind: "resource" as const,
+					package: "hl7.fhir.r4.core",
+					version: "4.0.1",
+					name: "Patient",
+					url: "http://hl7.org/fhir/StructureDefinition/Patient",
+				},
+				fields: {},
+				dependencies: [],
+			},
+			{
+				identifier: {
+					kind: "profile" as const,
+					package: "hl7.fhir.r4.core",
+					version: "4.0.1",
+					name: "USCorePatient",
+					url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient",
+				},
+				fields: {},
+				dependencies: [],
+			}
+		];
+		builder.fromSchemas(mockSchemas);
 
 		// Configure TypeScript generation with includeProfiles: true
 		builder.typescript({
@@ -74,7 +98,7 @@ describe('includeProfiles configuration', () => {
 			generateIndex: true,
 			includeDocuments: false,
 			namingConvention: 'PascalCase',
-			strictMode: true,
+			// strictMode: true, // This option doesn't exist
 			generateValidators: false,
 			generateGuards: false,
 			includeProfiles: true, // This should enable profiles generation

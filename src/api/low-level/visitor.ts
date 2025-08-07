@@ -610,7 +610,7 @@ export class VisitorEngine {
 	}
 
 	private shouldSkipNode(node: ASTNode, options: VisitorOptions): boolean {
-		if (options.skipNodes && options.skipNodes.includes(node.kind)) {
+		if (options.skipNodes?.includes(node.kind)) {
 			return true;
 		}
 
@@ -732,7 +732,7 @@ export namespace LanguageVisitors {
 
 			visitClassLike: async (
 				node: ASTNode,
-				context: VisitorContext,
+				_context: VisitorContext,
 			): Promise<string> => {
 				if (node.kind === "InterfaceDeclaration") {
 					const interfaceNode = node as InterfaceDeclaration;
@@ -767,8 +767,8 @@ export namespace LanguageVisitors {
 			},
 
 			visitFieldLike: async (
-				node: ASTNode,
-				context: VisitorContext,
+				_node: ASTNode,
+				_context: VisitorContext,
 			): Promise<string> => {
 				// Handle Python field generation
 				return "";
@@ -776,7 +776,7 @@ export namespace LanguageVisitors {
 
 			visitTypeLike: async (
 				node: ASTNode,
-				context: VisitorContext,
+				_context: VisitorContext,
 			): Promise<string> => {
 				// Handle Python type mapping
 				return mapTypeToPython(node as TypeNode);
@@ -833,7 +833,7 @@ export namespace LanguageVisitors {
 
 			visitClassLike: async (
 				node: ASTNode,
-				context: VisitorContext,
+				_context: VisitorContext,
 			): Promise<string> => {
 				if (node.kind === "InterfaceDeclaration") {
 					const interfaceNode = node as InterfaceDeclaration;

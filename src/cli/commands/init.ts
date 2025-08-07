@@ -4,8 +4,8 @@
  * Interactive command for setting up new atomic-codegen projects
  */
 
-import { access, writeFile } from "fs/promises";
-import { join, resolve } from "path";
+import { access, writeFile } from "node:fs/promises";
+import { join } from "node:path";
 import pc from "picocolors";
 import type { CommandModule } from "yargs";
 import type { Config } from "../../config";
@@ -16,7 +16,6 @@ import {
 	promptInitConfig,
 	showError,
 	showInfo,
-	showSuccess,
 } from "../utils/prompts";
 import { createSpinner, withSpinner } from "../utils/spinner";
 

@@ -380,7 +380,7 @@ export class ModuleManager {
 				if (!importMap.has(key)) {
 					importMap.set(key, []);
 				}
-				importMap.get(key)!.push(imp);
+				importMap.get(key)?.push(imp);
 			});
 
 			importMap.forEach((imports, moduleSpec) => {
@@ -852,7 +852,7 @@ export class DependencyGraph {
 		if (!this.nodes.has(from)) this.addNode(from);
 		if (!this.nodes.has(to)) this.addNode(to);
 
-		this.edges.get(from)!.add({ target: to, dependency });
+		this.edges.get(from)?.add({ target: to, dependency });
 	}
 
 	getNodes(): string[] {

@@ -12,7 +12,7 @@ import type {
 	TypeSchemaNestedType,
 } from "../types";
 import { buildField, buildNestedField, isNestedElement } from "./field-builder";
-import { buildNestedIdentifier, buildSchemaIdentifier } from "./identifier";
+import { buildNestedIdentifier } from "./identifier";
 
 /**
  * Collect all nested elements from a FHIRSchema

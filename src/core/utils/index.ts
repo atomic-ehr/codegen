@@ -123,7 +123,7 @@ export const BatchUtils = {
 
 			if (executing.length >= concurrency) {
 				await Promise.race(executing);
-				const settled = executing.filter((p, index) => {
+				const settled = executing.filter((p, _index) => {
 					// Remove settled promises
 					return p.then(
 						() => false,
@@ -456,7 +456,7 @@ export const ObjectUtils = {
 	clone<T>(obj: T): T {
 		if (obj === null || typeof obj !== "object") return obj;
 		if (obj instanceof Date) return new Date(obj) as any;
-		if (obj instanceof Array) return obj.map(this.clone) as any;
+		if (Array.isArray(obj)) return obj.map(this.clone) as any;
 
 		const cloned = {} as T;
 		for (const key in obj) {

@@ -13,7 +13,7 @@ import {
 	join,
 	relative,
 	resolve,
-} from "path";
+} from "node:path";
 import type { FileStat, FileSystem, ProgressReporter } from "../types";
 
 /**
@@ -60,7 +60,7 @@ export class BunFileSystem implements FileSystem {
 		options?: { recursive?: boolean },
 	): Promise<void> {
 		try {
-			const fs = await import("fs/promises");
+			const fs = await import("node:fs/promises");
 			await fs.mkdir(dirPath, { recursive: options?.recursive ?? false });
 		} catch (error) {
 			if ((error as any).code !== "EEXIST") {
@@ -75,7 +75,7 @@ export class BunFileSystem implements FileSystem {
 
 	async readdir(dirPath: string): Promise<string[]> {
 		try {
-			const fs = await import("fs/promises");
+			const fs = await import("node:fs/promises");
 			return await fs.readdir(dirPath);
 		} catch (error) {
 			throw new FileSystemError(`Failed to read directory: ${dirPath}`, {
@@ -88,7 +88,7 @@ export class BunFileSystem implements FileSystem {
 
 	async stat(filePath: string): Promise<FileStat> {
 		try {
-			const fs = await import("fs/promises");
+			const fs = await import("node:fs/promises");
 			const stats = await fs.stat(filePath);
 
 			return {
@@ -112,7 +112,7 @@ export class BunFileSystem implements FileSystem {
 		options?: { recursive?: boolean; force?: boolean },
 	): Promise<void> {
 		try {
-			const fs = await import("fs/promises");
+			const fs = await import("node:fs/promises");
 			await fs.rm(filePath, {
 				recursive: options?.recursive ?? false,
 				force: options?.force ?? false,
@@ -201,7 +201,7 @@ export const Path = {
 	 * Ensure path ends with separator
 	 */
 	ensureTrailingSlash: (dirPath: string): string => {
-		return dirPath.endsWith("/") ? dirPath : dirPath + "/";
+		return dirPath.endsWith("/") ? dirPath : `${dirPath}/`;
 	},
 
 	/**
@@ -237,7 +237,7 @@ export const FileReader = {
 	 */
 	readText: async (
 		filePath: string,
-		encoding: BufferEncoding = "utf-8",
+		_encoding: BufferEncoding = "utf-8",
 	): Promise<string> => {
 		return await fs.readFile(filePath);
 	},
@@ -428,7 +428,7 @@ export const FileWriter = {
 			await fs.writeFile(tempPath, content);
 
 			// Rename temp file to final path (atomic on most filesystems)
-			const fsSync = await import("fs");
+			const fsSync = await import("node:fs");
 			fsSync.renameSync(tempPath, filePath);
 		} catch (error) {
 			// Clean up temp file on error
@@ -652,7 +652,7 @@ export const FileWatcher = {
 	 */
 	watchFile: (
 		filePath: string,
-		callback: (event: "change" | "rename", filename?: string) => void,
+		_callback: (event: "change" | "rename", filename?: string) => void,
 	): (() => void) => {
 		// This would typically use fs.watch or a proper file watcher
 		// For now, we'll return a no-op cleanup function
@@ -667,7 +667,7 @@ export const FileWatcher = {
 	 */
 	watchDirectory: (
 		dirPath: string,
-		callback: (event: "change" | "rename", filename?: string) => void,
+		_callback: (event: "change" | "rename", filename?: string) => void,
 	): (() => void) => {
 		console.log(`Watching directory: ${dirPath}`);
 		return () => {

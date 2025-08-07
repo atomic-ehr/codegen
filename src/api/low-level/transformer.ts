@@ -5,12 +5,7 @@
  * Supports custom transformers, middleware, and transformation contexts.
  */
 
-import type {
-	ASTNode,
-	InterfaceDeclaration,
-	PropertySignature,
-	TypeNode,
-} from "./ast";
+import type { ASTNode, InterfaceDeclaration, PropertySignature } from "./ast";
 import { ASTManipulator, ASTTraverser } from "./ast";
 import type { CodeFragment } from "./fragment";
 
@@ -457,7 +452,7 @@ export class TransformationEngine {
 		node: ASTNode,
 		transformers: Transformer[],
 		context: TransformationContext,
-		continueOnError: boolean,
+		_continueOnError: boolean,
 	): Promise<ASTNode> {
 		// Note: Parallel execution is complex for AST transformations
 		// as transformers may depend on previous results.
@@ -514,7 +509,7 @@ export class TransformationEngine {
 			.filter((r) => r.error !== null)
 			.forEach((r) => {
 				const transformationError: TransformationError = {
-					message: r.error!.message,
+					message: r.error?.message,
 					code: "PARALLEL_TRANSFORMER_FAILED",
 					severity: "error",
 					transformer: r.transformer.name,
@@ -711,7 +706,7 @@ export namespace BuiltInTransformers {
 
 		async transform(
 			node: ASTNode,
-			context: TransformationContext,
+			_context: TransformationContext,
 		): Promise<ASTNode | null> {
 			const interfaceNode = node as InterfaceDeclaration;
 			const manipulator = new ASTManipulator();
@@ -727,6 +722,7 @@ export namespace BuiltInTransformers {
 							typeRef.name = this.typeMap[typeRef.name];
 						}
 					}
+					return undefined;
 				},
 			});
 
@@ -786,7 +782,7 @@ export namespace BuiltInMiddleware {
 			this.logger(`[${context.id}] Starting transformation of ${node.kind}`);
 		}
 
-		async after(node: ASTNode, context: TransformationContext): Promise<void> {
+		async after(_node: ASTNode, context: TransformationContext): Promise<void> {
 			this.logger(
 				`[${context.id}] Completed transformation in ${context.statistics.duration || 0}ms`,
 			);

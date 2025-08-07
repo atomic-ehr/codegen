@@ -4,10 +4,9 @@
  * Validates generated TypeScript code for syntax errors and compilation issues
  */
 
-import { spawn } from "child_process";
-import { readdir, readFile, stat } from "fs/promises";
-import { extname, join, relative } from "path";
-import { promisify } from "util";
+import { spawn } from "node:child_process";
+import { readdir, readFile, stat } from "node:fs/promises";
+import { extname, join, relative } from "node:path";
 
 export interface GeneratedCodeValidationOptions {
 	outputDir: string;
@@ -81,7 +80,7 @@ export async function validateGeneratedCode(
 				result.valid = false;
 				return result;
 			}
-		} catch (error) {
+		} catch (_error) {
 			result.errors.push({
 				type: "error",
 				message: `Output directory does not exist: ${options.outputDir}`,
@@ -255,8 +254,8 @@ function validateTypeScriptSyntax(
 		const lineNumber = i + 1;
 
 		// Check for unmatched braces
-		const openBraces = (line.match(/\{/g) || []).length;
-		const closeBraces = (line.match(/\}/g) || []).length;
+		const _openBraces = (line.match(/\{/g) || []).length;
+		const _closeBraces = (line.match(/\}/g) || []).length;
 
 		// Check for missing semicolons (basic check)
 		if (
@@ -445,7 +444,7 @@ async function validateTypeScriptCompilation(
  */
 async function runTypeScriptCompiler(
 	outputDir: string,
-	options: GeneratedCodeValidationOptions,
+	_options: GeneratedCodeValidationOptions,
 ): Promise<{
 	success: boolean;
 	errors: GeneratedCodeValidationError[];

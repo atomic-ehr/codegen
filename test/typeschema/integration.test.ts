@@ -1,6 +1,6 @@
 /**
  * Integration Tests for TypeSchema Core
- * 
+ *
  * Tests the complete TypeSchema workflow from generation to TypeScript output.
  */
 
@@ -114,11 +114,6 @@ describe("TypeSchema Integration", () => {
 
 	beforeEach(() => {
 		api = createTypeSchemaAPI({
-			cache: {
-				enabled: true,
-				maxSize: 100,
-				ttl: 60000,
-			},
 			validator: {
 				strict: false,
 			},
@@ -147,6 +142,7 @@ describe("TypeSchema Integration", () => {
 			expect(cache.has(schema.identifier)).toBe(true);
 
 			const retrieved = cache.get(schema.identifier);
+			expect(retrieved).toBeDefined();
 			expect(retrieved).toEqual(schema);
 		});
 	});
@@ -213,7 +209,7 @@ describe("TypeSchema Integration", () => {
 		test("should parse and process schemas", async () => {
 			const parser = api.getParser();
 			const jsonContent = JSON.stringify(sampleSchemas);
-			
+
 			const parsed = await parser.parseFromString(jsonContent, 'json');
 			expect(parsed).toHaveLength(3);
 
@@ -226,10 +222,10 @@ describe("TypeSchema Integration", () => {
 		test("should handle schema dependencies", () => {
 			const parser = api.getParser();
 			const patientSchema = sampleSchemas.find(s => s.identifier.name === "Patient")!;
-			
+
 			const dependencies = parser.getDependencies(patientSchema);
 			expect(dependencies.length).toBeGreaterThan(0);
-			
+
 			const resolved = parser.resolveDependencies(sampleSchemas, patientSchema);
 			expect(resolved.length).toBeGreaterThan(0);
 		});
@@ -312,7 +308,7 @@ describe("TypeSchema Integration", () => {
 	describe("Performance", () => {
 		test("should handle multiple schemas efficiently", async () => {
 			const largeSchemaSet: AnyTypeSchema[] = [];
-			
+
 			// Create 100 test schemas
 			for (let i = 0; i < 100; i++) {
 				largeSchemaSet.push({
@@ -354,17 +350,16 @@ describe("TypeSchema Integration", () => {
 describe("TypeSchema API Factory Functions", () => {
 	test("createTypeSchemaAPI should work", () => {
 		const api = createTypeSchemaAPI({
-			cache: { maxSize: 50 },
 			validator: { strict: true },
 		});
 
 		expect(api).toBeInstanceOf(TypeSchemaAPI);
-		expect(api.getCache().getOptions().maxSize).toBe(50);
+		expect(api.getCache()).toBeInstanceOf(TypeSchemaCache);
 	});
 
 	test("API should handle default options", () => {
 		const api = createTypeSchemaAPI();
-		
+
 		expect(api).toBeInstanceOf(TypeSchemaAPI);
 		expect(api.getGenerator()).toBeInstanceOf(TypeSchemaGenerator);
 		expect(api.getParser()).toBeInstanceOf(TypeSchemaParser);

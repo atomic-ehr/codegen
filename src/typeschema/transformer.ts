@@ -25,7 +25,6 @@ import type {
 	TypeSchemaFieldRegular,
 	TypeSchemaIdentifier,
 	TypeSchemaNestedType,
-	TypeSchemaProfile,
 	TypeSchemaValueSet,
 	TypeScriptGeneratorOptions,
 } from "./types";
@@ -265,7 +264,7 @@ export class TypeScriptTransformer {
 		const { mkdir } = await import("node:fs/promises");
 		try {
 			await mkdir(dirPath, { recursive: true });
-		} catch (error) {
+		} catch (_error) {
 			// Directory might already exist, ignore error
 		}
 	}
@@ -291,7 +290,7 @@ export class TypeScriptTransformer {
 		const parts: string[] = [];
 
 		// Get the current schema name to prevent self-imports
-		const currentSchemaName = this.formatTypeName(schema.identifier.name);
+		const _currentSchemaName = this.formatTypeName(schema.identifier.name);
 
 		// First generate the interface to collect imports
 		const interfaceContent: string[] = [];
@@ -337,6 +336,13 @@ export class TypeScriptTransformer {
 		// Special handling for Reference type - make it generic
 		if (interfaceName === "Reference") {
 			return this.generateReferenceInterface(schema);
+		}
+
+		// Check if this should be a primitive type alias instead of an interface
+		if (this.shouldGeneratePrimitiveTypeAlias(schema)) {
+			const primitiveType = this.getPrimitiveTypeForSchema(schema);
+			parts.push(`export type ${interfaceName} = ${primitiveType};`);
+			return parts.join("\n");
 		}
 
 		// Interface declaration
@@ -664,7 +670,7 @@ export class TypeScriptTransformer {
 	 */
 	private generateFieldComment(
 		field: TypeSchemaFieldRegular | TypeSchemaFieldPolymorphicInstance,
-		fieldName: string,
+		_fieldName: string,
 	): string {
 		const parts: string[] = [];
 
@@ -736,7 +742,7 @@ export class TypeScriptTransformer {
 	 */
 	private generatePolymorphicFieldComment(
 		field: TypeSchemaFieldPolymorphicInstance,
-		fieldName: string,
+		_fieldName: string,
 	): string {
 		const parts: string[] = [];
 
@@ -766,7 +772,7 @@ export class TypeScriptTransformer {
 	private generateFieldType(
 		field: TypeSchemaFieldRegular | TypeSchemaFieldPolymorphicInstance,
 		parentResourceName?: string,
-		currentTypeName?: string,
+		_currentTypeName?: string,
 	): string {
 		let baseType: string;
 
@@ -1050,24 +1056,6 @@ export class TypeScriptTransformer {
 			// Only complex types - use direct union
 			return complexTypes.join(" | ");
 		}
-	}
-
-	/**
-	 * Extract clean resource name from FHIR URL or identifier
-	 */
-	private extractResourceNameFromUrl(urlOrName: string): string {
-		// Handle FHIR structure definition URLs
-		if (urlOrName.startsWith("http://hl7.org/fhir/StructureDefinition/")) {
-			return urlOrName.replace("http://hl7.org/fhir/StructureDefinition/", "");
-		}
-
-		// Handle names that contain the full URL in the name field
-		if (urlOrName.startsWith("http://hl7.org/fhir/StructureDefinition/")) {
-			return urlOrName.split("/").pop() || urlOrName;
-		}
-
-		// Handle simple resource names
-		return urlOrName;
 	}
 
 	/**
@@ -1473,64 +1461,6 @@ export class TypeScriptTransformer {
 	}
 
 	/**
-	 * Group imports by package for better organization
-	 */
-	private groupImportsByPackage(schema: AnyTypeSchema): Map<string, string[]> {
-		const groups = new Map<string, string[]>();
-		const excludeFromGrouping = new Set(["Reference", "Extension"]);
-
-		for (const importName of Array.from(this.imports.keys())) {
-			if (excludeFromGrouping.has(importName)) {
-				continue;
-			}
-
-			// Try to determine package from dependencies
-			const packageName = this.findPackageForImport(importName, schema);
-			if (!groups.has(packageName)) {
-				groups.set(packageName, []);
-			}
-			groups.get(packageName)!.push(importName);
-		}
-
-		return groups;
-	}
-
-	/**
-	 * Find package for an import based on schema dependencies
-	 */
-	private findPackageForImport(
-		importName: string,
-		schema: AnyTypeSchema,
-	): string {
-		if ("dependencies" in schema && schema.dependencies) {
-			for (const dep of schema.dependencies) {
-				if (this.formatTypeName(dep.name) === importName) {
-					return dep.package;
-				}
-			}
-		}
-		return "unknown";
-	}
-
-	/**
-	 * Resolve module reference for imports
-	 */
-	private resolveModuleReference(
-		packageName: string,
-		schema: AnyTypeSchema,
-	): string {
-		const currentPackage = schema.identifier.package;
-
-		// Same package - use relative import
-		if (packageName === currentPackage || packageName === "unknown") {
-			return "./types";
-		}
-
-		// Different package - use package-based import
-		return `@fhir/${packageName}`;
-	}
-
-	/**
 	 * Generate enhanced documentation comment
 	 */
 	private generateDocComment(
@@ -1609,6 +1539,14 @@ export class TypeScriptTransformer {
 	 */
 	private getBaseExtends(schema: TypeSchema): string | null {
 		if (schema.base) {
+			// Check if the base type is a primitive type
+			if (
+				schema.base.kind === "primitive-type" &&
+				PRIMITIVE_TYPE_MAP[schema.base.name]
+			) {
+				return PRIMITIVE_TYPE_MAP[schema.base.name];
+			}
+
 			const baseName = this.formatTypeName(schema.base.name);
 			this.addImportForType(schema.base);
 			return baseName;
@@ -1802,6 +1740,51 @@ export class TypeScriptTransformer {
 				imports: result.imports.length,
 			});
 		}
+	}
+
+	/**
+	 * Check if a schema should be generated as a primitive type alias
+	 */
+	private shouldGeneratePrimitiveTypeAlias(schema: AnyTypeSchema): boolean {
+		// Only generate primitive aliases for primitive-type schemas with no fields
+		if (schema.identifier.kind !== "primitive-type") {
+			return false;
+		}
+
+		// If it has fields, it should be an interface
+		if (schema.fields && Object.keys(schema.fields).length > 0) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Get the primitive TypeScript type for a schema
+	 */
+	private getPrimitiveTypeForSchema(schema: AnyTypeSchema): string {
+		const primitiveMap: Record<string, string> = {
+			string: "string",
+			boolean: "boolean",
+			integer: "number",
+			decimal: "number",
+			uri: "string",
+			url: "string",
+			canonical: "string",
+			base64Binary: "string",
+			instant: "string",
+			date: "string",
+			dateTime: "string",
+			time: "string",
+			code: "string",
+			oid: "string",
+			id: "string",
+			markdown: "string",
+			unsignedInt: "number",
+			positiveInt: "number",
+		};
+
+		return primitiveMap[schema.identifier.name] || "any";
 	}
 }
 

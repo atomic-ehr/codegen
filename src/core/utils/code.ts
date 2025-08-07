@@ -100,7 +100,7 @@ export function toEnumKey(value: string): string {
 
 	// Ensure it doesn't start with a digit
 	if (/^\d/.test(key)) {
-		key = "_" + key;
+		key = `_${key}`;
 	}
 
 	return key.toUpperCase();

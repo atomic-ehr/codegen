@@ -6,7 +6,7 @@
  * mapping between original TypeSchema and generated code.
  */
 
-import type { ASTNode, Position, SourceRange } from "./ast";
+import type { ASTNode, Position } from "./ast";
 import type { CodeFragment } from "./fragment";
 
 /**
@@ -80,7 +80,7 @@ export class SourceMapGenerator {
 			includeSourcesContent: true,
 			includeNames: true,
 			enableInlineSourceMap: false,
-			outputSourceMapFile: options.file + ".map",
+			outputSourceMapFile: `${options.file}.map`,
 			...options,
 		};
 
@@ -282,7 +282,7 @@ export class SourceMapGenerator {
 		}
 	}
 
-	private getSourceContent(source: string): string | null {
+	private getSourceContent(_source: string): string | null {
 		// In a real implementation, this would read the original source file
 		// For now, return null to indicate content is not available
 		return null;
@@ -497,7 +497,7 @@ export class SourceMapBuilder {
 			if (!fragmentsByFile.has(targetFile)) {
 				fragmentsByFile.set(targetFile, []);
 			}
-			fragmentsByFile.get(targetFile)!.push(fragment);
+			fragmentsByFile.get(targetFile)?.push(fragment);
 		});
 
 		// Generate source maps for each file
@@ -551,7 +551,7 @@ export class SourceMapBuilder {
 		let currentColumn = 0;
 
 		for (const [filename, generator] of this.generators) {
-			const sourceMap = generator.generateSourceMap();
+			const _sourceMap = generator.generateSourceMap();
 
 			// Add file header comment
 			const headerComment = `// From: ${filename}\n`;
@@ -631,9 +631,9 @@ export namespace SourceMapUtils {
 	 * Extract original position from source map
 	 */
 	export function getOriginalPosition(
-		sourceMap: SourceMap,
-		generatedLine: number,
-		generatedColumn: number,
+		_sourceMap: SourceMap,
+		_generatedLine: number,
+		_generatedColumn: number,
 	): { source?: string; line?: number; column?: number; name?: string } | null {
 		// This would require a full source map decoder implementation
 		// For now, return null as placeholder

@@ -39,8 +39,21 @@ let suiteStartTime: number;
 
 // Make test configuration globally available
 declare global {
-	var TEST_CONFIG: typeof TEST_CONFIG;
+	var TEST_CONFIG: {
+		TEMP_DIR: string;
+		FIXTURES_DIR: string;
+		SNAPSHOTS_DIR: string;
+		DEFAULT_TIMEOUT: number;
+		INTEGRATION_TIMEOUT: number;
+		E2E_TIMEOUT: number;
+		PERFORMANCE_THRESHOLDS: {
+			TYPESCHEMA_GENERATION: number;
+			CODE_GENERATION: number;
+			FILE_OPERATIONS: number;
+		};
+	};
 	var testUtils: typeof import('./utils').testUtils;
+	var restoreConsole: () => void;
 }
 
 globalThis.TEST_CONFIG = TEST_CONFIG;

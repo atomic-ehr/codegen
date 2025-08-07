@@ -40,3 +40,4 @@ test-output
 .clj-kondo
 /types/
 /generated
+.typeschema-cache

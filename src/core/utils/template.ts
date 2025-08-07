@@ -419,7 +419,7 @@ export class TemplateEngine {
 				case "conditional":
 					lines.push(`if (getValue('${node.condition}')) {`);
 					lines.push(this.generateCode(node.body!));
-					if (node.else!.length > 0) {
+					if (node.else?.length > 0) {
 						lines.push("} else {");
 						lines.push(this.generateCode(node.else!));
 					}
@@ -531,7 +531,7 @@ export class TemplateEngine {
 		// Date filters
 		this.registerFilter("date", (value: any, format: string = "YYYY-MM-DD") => {
 			const date = new Date(value);
-			if (isNaN(date.getTime())) return String(value);
+			if (Number.isNaN(date.getTime())) return String(value);
 
 			// Simple date formatting
 			return format
@@ -560,7 +560,7 @@ export class TemplateEngine {
 	private registerBuiltinHelpers(): void {
 		this.registerHelper(
 			"include",
-			(templateName: string, context: TemplateContext = {}) => {
+			(templateName: string, _context: TemplateContext = {}) => {
 				// This would require a template loader
 				return `<!-- Include: ${templateName} -->`;
 			},

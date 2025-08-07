@@ -1,0 +1,4 @@
+type RequiredPatientFields = never;
+type OptionalPatientFields = 'id' | 'name' | 'gender';
+
+export type PatientTypeGuard = ResourceTypeGuard<Patient>;

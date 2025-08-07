@@ -35,21 +35,7 @@
 		"codegen:all": "bun run src/cli/index.ts generate typescript",
 		"codegen:dev": "bun run src/cli/index.ts dev --template",
 		"codegen:test": "bun test test/codegen/",
-		"lint": "biome check --write ./src",
-		"docs": "typedoc",
-		"docs:api": "typedoc --out docs/api",
-		"docs:serve": "bunx serve docs -p 8080",
-		"docs:watch": "typedoc --watch",
-		"docs:build": "bun run docs:api && bun run docs:validate",
-		"docs:validate": "bun run docs:validate:links && bun run docs:validate:examples",
-		"docs:validate:links": "echo 'Validating documentation links...' && find docs -name '*.md' -exec grep -l 'http' {} \\;",
-		"docs:validate:examples": "echo 'Validating code examples...' && bun run examples:test",
-		"docs:clean": "rm -rf docs/api && mkdir -p docs/api",
-		"examples": "echo 'Running all examples...' && bun run examples:basic && bun run examples:frontend && bun run examples:api",
-		"examples:basic": "cd examples/basic-usage && bun install && bun run generate:all",
-		"examples:frontend": "cd examples/frontend-app && bun install && bun run build",
-		"examples:api": "cd examples/healthcare-api && bun install && bun run build",
-		"examples:test": "bun run examples:basic && echo 'Examples validated successfully'"
+		"lint": "biome check --write ./src"
 	},
 	"repository": {
 		"type": "git",
@@ -66,8 +52,6 @@
 		"@types/bun": "latest",
 		"@types/node": "22",
 		"@types/yargs": "^17.0.33",
-		"typedoc": "^0.28.9",
-		"typedoc-plugin-markdown": "^4.0.0",
 		"typescript": "^5.8.3"
 	},
 	"dependencies": {

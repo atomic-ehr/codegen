@@ -172,7 +172,7 @@ function extractProfileMetadata(fhirSchema: FHIRSchema): Record<string, any> {
  */
 async function processProfileConstraints(
 	fhirSchema: FHIRSchema,
-	manager: CanonicalManager,
+	_manager: CanonicalManager,
 ): Promise<Record<string, any>> {
 	const constraints: Record<string, any> = {};
 
@@ -239,7 +239,7 @@ async function processProfileConstraints(
  */
 async function processProfileExtensions(
 	fhirSchema: FHIRSchema,
-	manager: CanonicalManager,
+	_manager: CanonicalManager,
 ): Promise<any[]> {
 	const extensions: any[] = [];
 

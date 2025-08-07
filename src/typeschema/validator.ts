@@ -26,8 +26,6 @@ import type {
  * structure validation, dependency validation, and consistency checks.
  */
 export class TypeSchemaValidator {
-	private strict: boolean;
-
 	constructor(strict = false) {
 		this.strict = strict;
 	}
@@ -273,7 +271,7 @@ export class TypeSchemaValidator {
 	private validateFields(
 		schema: AnyTypeSchema,
 		errors: ValidationError[],
-		warnings: ValidationWarning[],
+		_warnings: ValidationWarning[],
 		path = "",
 	): void {
 		if (!("fields" in schema) || !schema.fields) {
@@ -332,7 +330,7 @@ export class TypeSchemaValidator {
 	private validateNested(
 		schema: AnyTypeSchema,
 		errors: ValidationError[],
-		warnings: ValidationWarning[],
+		_warnings: ValidationWarning[],
 		path = "",
 	): void {
 		if (!("nested" in schema) || !schema.nested) {
@@ -383,7 +381,7 @@ export class TypeSchemaValidator {
 	private validateBindings(
 		schema: AnyTypeSchema,
 		errors: ValidationError[],
-		warnings: ValidationWarning[],
+		_warnings: ValidationWarning[],
 		path = "",
 	): void {
 		if (!("valueset" in schema)) {

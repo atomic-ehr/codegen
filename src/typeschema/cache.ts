@@ -1,298 +1,149 @@
 /**
  * TypeSchema Cache System
  *
- * High-performance caching system for TypeSchema documents to optimize
- * repeated parsing, validation, and transformation operations.
+ * Caching system for TypeSchema documents with both in-memory and persistent file-based storage.
  */
 
-import type {
-	AnyTypeSchema,
-	CacheEntry,
-	CacheOptions,
-	TypeSchemaIdentifier,
-} from "./types";
+import { existsSync, mkdirSync } from "node:fs";
+import { readdir, readFile, stat, unlink, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import type { TypeSchemaConfig } from "../config";
+import type { AnyTypeSchema, TypeSchemaIdentifier } from "./types";
 
 /**
- * LRU Cache implementation for TypeSchema documents
+ * Cached schema metadata for persistence
  */
-class LRUCache<K, V> {
-	private cache = new Map<K, V>();
-	private maxSize: number;
-
-	constructor(maxSize: number) {
-		this.maxSize = maxSize;
-	}
-
-	get(key: K): V | undefined {
-		const value = this.cache.get(key);
-		if (value !== undefined) {
-			// Move to end (most recently used)
-			this.cache.delete(key);
-			this.cache.set(key, value);
-		}
-		return value;
-	}
-
-	set(key: K, value: V): void {
-		// Remove if already exists
-		if (this.cache.has(key)) {
-			this.cache.delete(key);
-		} else if (this.cache.size >= this.maxSize) {
-			// Remove least recently used (first entry)
-			const firstKey = this.cache.keys().next().value;
-			this.cache.delete(firstKey);
-		}
-
-		this.cache.set(key, value);
-	}
-
-	has(key: K): boolean {
-		return this.cache.has(key);
-	}
-
-	delete(key: K): boolean {
-		return this.cache.delete(key);
-	}
-
-	clear(): void {
-		this.cache.clear();
-	}
-
-	size(): number {
-		return this.cache.size;
-	}
-
-	keys(): IterableIterator<K> {
-		return this.cache.keys();
-	}
+interface CachedSchemaMetadata {
+	schema: AnyTypeSchema;
+	timestamp: number;
+	version: string;
 }
 
 /**
- * TypeSchema Cache class
- *
- * Provides high-performance caching for TypeSchema documents with TTL support,
- * LRU eviction, and efficient lookup by various criteria.
+ * TypeSchema Cache with optional persistent storage
  */
 export class TypeSchemaCache {
-	private cache: LRUCache<string, CacheEntry>;
-	private urlIndex = new Map<string, string>(); // url -> key
-	private packageIndex = new Map<string, Set<string>>(); // package -> keys
-	private kindIndex = new Map<string, Set<string>>(); // kind -> keys
-	private options: Required<CacheOptions>;
+	private cache = new Map<string, AnyTypeSchema>();
+	private config: TypeSchemaConfig;
+	private cacheDir?: string;
 
-	constructor(options: CacheOptions = {}) {
-		this.options = {
-			enabled: true,
-			maxSize: 1000,
-			ttl: 30 * 60 * 1000, // 30 minutes
-			...options,
+	constructor(config?: TypeSchemaConfig) {
+		this.config = {
+			enablePersistence: true,
+			cacheDir: ".typeschema-cache",
+			maxAge: 24 * 60 * 60 * 1000, // 24 hours
+			validateCached: true,
+			...config,
 		};
 
-		this.cache = new LRUCache(this.options.maxSize);
+		if (this.config.enablePersistence && this.config.cacheDir) {
+			this.cacheDir = this.config.cacheDir;
+		}
 	}
 
 	/**
 	 * Store a schema in the cache
 	 */
-	set(schema: AnyTypeSchema): void {
-		if (!this.options.enabled) return;
-
+	async set(schema: AnyTypeSchema): Promise<void> {
 		const key = this.generateKey(schema.identifier);
-		const entry: CacheEntry = {
-			schema,
-			timestamp: Date.now(),
-			key,
-		};
+		this.cache.set(key, schema);
 
-		this.cache.set(key, entry);
-		this.updateIndexes(key, schema.identifier);
+		// Persist to disk if enabled
+		if (this.config.enablePersistence && this.cacheDir) {
+			await this.persistSchema(schema);
+		}
 	}
 
 	/**
 	 * Retrieve a schema by identifier
 	 */
 	get(identifier: TypeSchemaIdentifier): AnyTypeSchema | null {
-		if (!this.options.enabled) return null;
-
 		const key = this.generateKey(identifier);
-		const entry = this.cache.get(key);
-
-		if (!entry) return null;
-
-		// Check TTL
-		if (this.isExpired(entry)) {
-			this.delete(identifier);
-			return null;
-		}
-
-		return entry.schema;
+		return this.cache.get(key) || null;
 	}
 
 	/**
 	 * Retrieve a schema by URL
 	 */
 	getByUrl(url: string): AnyTypeSchema | null {
-		if (!this.options.enabled) return null;
-
-		const key = this.urlIndex.get(url);
-		if (!key) return null;
-
-		const entry = this.cache.get(key);
-		if (!entry) {
-			// Clean up stale index
-			this.urlIndex.delete(url);
-			return null;
+		for (const schema of this.cache.values()) {
+			if (schema.identifier.url === url) {
+				return schema;
+			}
 		}
-
-		// Check TTL
-		if (this.isExpired(entry)) {
-			this.deleteByKey(key);
-			return null;
-		}
-
-		return entry.schema;
+		return null;
 	}
 
 	/**
 	 * Check if a schema exists in cache
 	 */
 	has(identifier: TypeSchemaIdentifier): boolean {
-		if (!this.options.enabled) return false;
-
 		const key = this.generateKey(identifier);
-		const entry = this.cache.get(key);
-
-		if (!entry) return false;
-
-		if (this.isExpired(entry)) {
-			this.deleteByKey(key);
-			return false;
-		}
-
-		return true;
+		return this.cache.has(key);
 	}
 
 	/**
 	 * Check if a schema exists by URL
 	 */
 	hasByUrl(url: string): boolean {
-		if (!this.options.enabled) return false;
-
-		const key = this.urlIndex.get(url);
-		if (!key) return false;
-
-		const entry = this.cache.get(key);
-		if (!entry) {
-			this.urlIndex.delete(url);
-			return false;
+		for (const schema of this.cache.values()) {
+			if (schema.identifier.url === url) {
+				return true;
+			}
 		}
-
-		if (this.isExpired(entry)) {
-			this.deleteByKey(key);
-			return false;
-		}
-
-		return true;
+		return false;
 	}
 
 	/**
 	 * Delete a schema from cache
 	 */
 	delete(identifier: TypeSchemaIdentifier): boolean {
-		if (!this.options.enabled) return false;
-
 		const key = this.generateKey(identifier);
-		return this.deleteByKey(key);
+		return this.cache.delete(key);
 	}
 
 	/**
 	 * Delete a schema by URL
 	 */
 	deleteByUrl(url: string): boolean {
-		if (!this.options.enabled) return false;
-
-		const key = this.urlIndex.get(url);
-		if (!key) return false;
-
-		return this.deleteByKey(key);
+		for (const [key, schema] of this.cache.entries()) {
+			if (schema.identifier.url === url) {
+				return this.cache.delete(key);
+			}
+		}
+		return false;
 	}
 
 	/**
-	 * Get all schemas for a package
+	 * Get schemas by package
 	 */
 	getByPackage(packageName: string): AnyTypeSchema[] {
-		if (!this.options.enabled) return [];
-
-		const keys = this.packageIndex.get(packageName);
-		if (!keys) return [];
-
-		const schemas: AnyTypeSchema[] = [];
-		const expiredKeys: string[] = [];
-
-		for (const key of keys) {
-			const entry = this.cache.get(key);
-			if (!entry) {
-				expiredKeys.push(key);
-				continue;
+		const results: AnyTypeSchema[] = [];
+		for (const schema of this.cache.values()) {
+			if (schema.identifier.package === packageName) {
+				results.push(schema);
 			}
-
-			if (this.isExpired(entry)) {
-				expiredKeys.push(key);
-				continue;
-			}
-
-			schemas.push(entry.schema);
 		}
-
-		// Clean up expired keys
-		for (const key of expiredKeys) {
-			keys.delete(key);
-		}
-
-		return schemas;
+		return results;
 	}
 
 	/**
-	 * Get all schemas of a specific kind
+	 * Get schemas by kind
 	 */
-	getByKind(kind: TypeSchemaIdentifier["kind"]): AnyTypeSchema[] {
-		if (!this.options.enabled) return [];
-
-		const keys = this.kindIndex.get(kind);
-		if (!keys) return [];
-
-		const schemas: AnyTypeSchema[] = [];
-		const expiredKeys: string[] = [];
-
-		for (const key of keys) {
-			const entry = this.cache.get(key);
-			if (!entry) {
-				expiredKeys.push(key);
-				continue;
+	getByKind(kind: string): AnyTypeSchema[] {
+		const results: AnyTypeSchema[] = [];
+		for (const schema of this.cache.values()) {
+			if (schema.identifier.kind === kind) {
+				results.push(schema);
 			}
-
-			if (this.isExpired(entry)) {
-				expiredKeys.push(key);
-				continue;
-			}
-
-			schemas.push(entry.schema);
 		}
-
-		// Clean up expired keys
-		for (const key of expiredKeys) {
-			keys.delete(key);
-		}
-
-		return schemas;
+		return results;
 	}
 
 	/**
-	 * Store multiple schemas at once
+	 * Store multiple schemas
 	 */
 	setMany(schemas: AnyTypeSchema[]): void {
-		if (!this.options.enabled) return;
-
 		for (const schema of schemas) {
 			this.set(schema);
 		}
@@ -303,182 +154,133 @@ export class TypeSchemaCache {
 	 */
 	clear(): void {
 		this.cache.clear();
-		this.urlIndex.clear();
-		this.packageIndex.clear();
-		this.kindIndex.clear();
 	}
 
 	/**
-	 * Clear expired entries
-	 */
-	clearExpired(): number {
-		if (!this.options.enabled) return 0;
-
-		let removedCount = 0;
-		const expiredKeys: string[] = [];
-
-		for (const key of this.cache.keys()) {
-			const entry = this.cache.get(key);
-			if (entry && this.isExpired(entry)) {
-				expiredKeys.push(key);
-			}
-		}
-
-		for (const key of expiredKeys) {
-			this.deleteByKey(key);
-			removedCount++;
-		}
-
-		return removedCount;
-	}
-
-	/**
-	 * Get cache statistics
-	 */
-	getStats(): {
-		size: number;
-		maxSize: number;
-		hitRatio: number;
-		expiredCount: number;
-	} {
-		const expiredCount = this.countExpiredEntries();
-
-		return {
-			size: this.cache.size(),
-			maxSize: this.options.maxSize,
-			hitRatio: 0, // Would need to track hits/misses
-			expiredCount,
-		};
-	}
-
-	/**
-	 * Update cache options
-	 */
-	setOptions(options: Partial<CacheOptions>): void {
-		this.options = { ...this.options, ...options };
-
-		// Resize cache if needed
-		if (options.maxSize && options.maxSize !== this.cache.size()) {
-			const newCache = new LRUCache<string, CacheEntry>(options.maxSize);
-
-			// Copy existing entries (up to new limit)
-			let count = 0;
-			for (const key of this.cache.keys()) {
-				if (count >= options.maxSize) break;
-				const entry = this.cache.get(key);
-				if (entry) {
-					newCache.set(key, entry);
-					count++;
-				}
-			}
-
-			this.cache = newCache;
-		}
-	}
-
-	/**
-	 * Get current cache options
-	 */
-	getOptions(): Required<CacheOptions> {
-		return { ...this.options };
-	}
-
-	/**
-	 * Generate cache key from identifier
+	 * Generate cache key for identifier
 	 */
 	private generateKey(identifier: TypeSchemaIdentifier): string {
 		return `${identifier.package}:${identifier.version}:${identifier.kind}:${identifier.name}`;
 	}
 
 	/**
-	 * Check if entry is expired
+	 * Initialize cache directory if persistence is enabled
 	 */
-	private isExpired(entry: CacheEntry): boolean {
-		return Date.now() - entry.timestamp > this.options.ttl;
-	}
-
-	/**
-	 * Delete by internal key
-	 */
-	private deleteByKey(key: string): boolean {
-		const entry = this.cache.get(key);
-		if (!entry) return false;
-
-		const deleted = this.cache.delete(key);
-		if (deleted) {
-			this.removeFromIndexes(key, entry.schema.identifier);
-		}
-
-		return deleted;
-	}
-
-	/**
-	 * Update indexes when adding entry
-	 */
-	private updateIndexes(key: string, identifier: TypeSchemaIdentifier): void {
-		// Update URL index
-		this.urlIndex.set(identifier.url, key);
-
-		// Update package index
-		let packageKeys = this.packageIndex.get(identifier.package);
-		if (!packageKeys) {
-			packageKeys = new Set();
-			this.packageIndex.set(identifier.package, packageKeys);
-		}
-		packageKeys.add(key);
-
-		// Update kind index
-		let kindKeys = this.kindIndex.get(identifier.kind);
-		if (!kindKeys) {
-			kindKeys = new Set();
-			this.kindIndex.set(identifier.kind, kindKeys);
-		}
-		kindKeys.add(key);
-	}
-
-	/**
-	 * Remove from indexes when deleting entry
-	 */
-	private removeFromIndexes(
-		key: string,
-		identifier: TypeSchemaIdentifier,
-	): void {
-		// Remove from URL index
-		this.urlIndex.delete(identifier.url);
-
-		// Remove from package index
-		const packageKeys = this.packageIndex.get(identifier.package);
-		if (packageKeys) {
-			packageKeys.delete(key);
-			if (packageKeys.size === 0) {
-				this.packageIndex.delete(identifier.package);
+	async initialize(): Promise<void> {
+		if (this.config.enablePersistence && this.cacheDir) {
+			// Ensure cache directory exists
+			if (!existsSync(this.cacheDir)) {
+				mkdirSync(this.cacheDir, { recursive: true });
 			}
-		}
 
-		// Remove from kind index
-		const kindKeys = this.kindIndex.get(identifier.kind);
-		if (kindKeys) {
-			kindKeys.delete(key);
-			if (kindKeys.size === 0) {
-				this.kindIndex.delete(identifier.kind);
-			}
+			// Load all cached schemas from disk
+			await this.loadFromDisk();
 		}
 	}
 
 	/**
-	 * Count expired entries without removing them
+	 * Load all cached schemas from disk
 	 */
-	private countExpiredEntries(): number {
-		let count = 0;
-		// Convert keys to array to avoid iterator modification during iteration
-		const keys = Array.from(this.cache.keys());
-		for (const key of keys) {
-			const entry = this.cache.get(key);
-			if (entry && this.isExpired(entry)) {
-				count++;
-			}
+	private async loadFromDisk(): Promise<void> {
+		if (!this.cacheDir || !existsSync(this.cacheDir)) {
+			return;
 		}
-		return count;
+
+		try {
+			const files = await readdir(this.cacheDir);
+			const schemaFiles = files.filter((f) => f.endsWith(".typeschema.json"));
+
+			for (const file of schemaFiles) {
+				const filePath = join(this.cacheDir, file);
+				const stats = await stat(filePath);
+
+				// Check if cache is expired
+				if (this.config.maxAge) {
+					const age = Date.now() - stats.mtimeMs;
+					if (age > this.config.maxAge) {
+						// Remove expired cache file
+						await unlink(filePath);
+						continue;
+					}
+				}
+
+				try {
+					const content = await readFile(filePath, "utf-8");
+					const metadata: CachedSchemaMetadata = JSON.parse(content);
+
+					// Validate cached schema if configured
+					if (this.config.validateCached) {
+						// Basic validation - check required fields
+						if (!metadata.schema?.identifier) {
+							continue;
+						}
+					}
+
+					// Add to in-memory cache
+					const key = this.generateKey(metadata.schema.identifier);
+					this.cache.set(key, metadata.schema);
+				} catch (error) {
+					console.warn(`Failed to load cached schema from ${file}:`, error);
+				}
+			}
+		} catch (error) {
+			console.warn("Failed to load cached schemas from disk:", error);
+		}
+	}
+
+	/**
+	 * Persist a schema to disk
+	 */
+	private async persistSchema(schema: AnyTypeSchema): Promise<void> {
+		if (!this.cacheDir) {
+			return;
+		}
+
+		// Ensure cache directory exists
+		if (!existsSync(this.cacheDir)) {
+			mkdirSync(this.cacheDir, { recursive: true });
+		}
+
+		const metadata: CachedSchemaMetadata = {
+			schema,
+			timestamp: Date.now(),
+			version: schema.identifier.version,
+		};
+
+		// Generate filename from identifier
+		const fileName =
+			`${schema.identifier.package}-${schema.identifier.version}-${schema.identifier.kind}-${schema.identifier.name}.typeschema.json`.replace(
+				/[^a-zA-Z0-9.-]/g,
+				"_",
+			);
+
+		const filePath = join(this.cacheDir, fileName);
+
+		try {
+			await writeFile(filePath, JSON.stringify(metadata, null, 2), "utf-8");
+		} catch (error) {
+			console.warn(`Failed to persist schema to ${filePath}:`, error);
+		}
+	}
+
+	/**
+	 * Clear cache directory
+	 */
+	async clearDisk(): Promise<void> {
+		if (!this.cacheDir || !existsSync(this.cacheDir)) {
+			return;
+		}
+
+		try {
+			const files = await readdir(this.cacheDir);
+			const schemaFiles = files.filter((f) => f.endsWith(".typeschema.json"));
+
+			for (const file of schemaFiles) {
+				await unlink(join(this.cacheDir, file));
+			}
+		} catch (error) {
+			console.warn("Failed to clear cache directory:", error);
+		}
 	}
 }
 
@@ -486,54 +288,55 @@ export class TypeSchemaCache {
 let globalCache: TypeSchemaCache | null = null;
 
 /**
- * Get the global TypeSchema cache instance
+ * Get the global cache instance
  */
-export function getGlobalCache(): TypeSchemaCache {
+export function getGlobalCache(config?: TypeSchemaConfig): TypeSchemaCache {
 	if (!globalCache) {
-		globalCache = new TypeSchemaCache();
+		globalCache = new TypeSchemaCache(config);
 	}
 	return globalCache;
 }
 
 /**
- * Initialize global cache with options
+ * Initialize global cache with configuration
  */
-export function initializeGlobalCache(options: CacheOptions): TypeSchemaCache {
-	globalCache = new TypeSchemaCache(options);
+export async function initializeGlobalCache(
+	config?: TypeSchemaConfig,
+): Promise<TypeSchemaCache> {
+	globalCache = new TypeSchemaCache(config);
+	await globalCache.initialize();
 	return globalCache;
 }
 
 /**
- * Clear global cache
+ * Clear the global cache
  */
 export function clearGlobalCache(): void {
 	if (globalCache) {
 		globalCache.clear();
 	}
+	globalCache = null;
 }
 
 /**
- * Convenience function to cache a schema using global cache
+ * Cache a schema using global cache
  */
 export function cacheSchema(schema: AnyTypeSchema): void {
-	const cache = getGlobalCache();
-	cache.set(schema);
+	getGlobalCache().set(schema);
 }
 
 /**
- * Convenience function to retrieve a cached schema using global cache
+ * Get cached schema using global cache
  */
 export function getCachedSchema(
 	identifier: TypeSchemaIdentifier,
 ): AnyTypeSchema | null {
-	const cache = getGlobalCache();
-	return cache.get(identifier);
+	return getGlobalCache().get(identifier);
 }
 
 /**
- * Convenience function to check if schema is cached using global cache
+ * Check if schema is cached using global cache
  */
 export function isCached(identifier: TypeSchemaIdentifier): boolean {
-	const cache = getGlobalCache();
-	return cache.has(identifier);
+	return getGlobalCache().has(identifier);
 }

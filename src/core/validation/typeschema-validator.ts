@@ -5,9 +5,9 @@
  * from https://github.com/fhir-clj/type-schema
  */
 
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 import Ajv, { type ValidateFunction } from "ajv";
-import * as fs from "fs/promises";
-import * as path from "path";
 import type { AnyTypeSchemaCompliant } from "../typeschema/types";
 
 const SCHEMA_PATH = path.join(

@@ -4,7 +4,7 @@
  * Top-level validation command that runs all validation types
  */
 
-import { resolve } from "path";
+import { resolve } from "node:path";
 import type { CommandModule } from "yargs";
 import { validateGeneratedCode } from "../../core/validation/generated-code";
 import type { CLIArgv } from "./index";

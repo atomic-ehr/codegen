@@ -10,7 +10,16 @@ import { dirname, join } from "node:path";
 import {
 	extractAllSearchParameters,
 	generateSearchParameterTypes,
-} from "../../fhir/search-parameters";
+} from "../../fhir/features/search/parameters";
+import {
+	type EnhancedRestClientOptions,
+	generateEnhancedClientPackageJson,
+	generateEnhancedRestClient,
+} from "../../fhir/generators/client/enhanced-rest-client";
+import {
+	type EnhancedSearchClientGenerationOptions,
+	generateEnhancedSearchClient,
+} from "../../fhir/generators/client/search";
 import type { TypeSchemaGenerator } from "../../typeschema/generator";
 import type { AnyTypeSchema, TypeSchema } from "../../typeschema/types";
 
@@ -26,6 +35,10 @@ export interface RESTClientAPIOptions {
 	baseUrl?: string;
 	apiVersion?: string;
 	authentication?: "bearer" | "basic" | "none";
+	/** Enhanced search features */
+	enhancedSearch?: EnhancedSearchClientGenerationOptions;
+	/** Enhanced REST client features */
+	enhancedClient?: EnhancedRestClientOptions;
 }
 
 /**
@@ -122,6 +135,68 @@ export class RESTClientAPIGenerator {
 				filename: "types.ts",
 				content: typesFile.content,
 				exports: typesFile.exports,
+			});
+		}
+
+		// Generate enhanced search client if requested and TypeScript
+		if (this.options.language === "typescript" && this.options.enhancedSearch) {
+			const enhancedSearchClient = await generateEnhancedSearchClient(schemas, {
+				...this.options.enhancedSearch,
+				generator,
+			});
+
+			const enhancedSearchPath = join(
+				this.options.outputDir,
+				"enhanced-search-client.ts",
+			);
+			await writeFile(enhancedSearchPath, enhancedSearchClient, "utf-8");
+			generatedFiles.push({
+				path: enhancedSearchPath,
+				filename: "enhanced-search-client.ts",
+				content: enhancedSearchClient,
+				exports: ["EnhancedFHIRSearchClient"],
+			});
+		}
+
+		// Generate enhanced REST client if requested and TypeScript
+		if (this.options.language === "typescript" && this.options.enhancedClient) {
+			const enhancedClientOptions: EnhancedRestClientOptions = {
+				httpClient: this.options.httpClient,
+				baseUrl: this.options.baseUrl,
+				authentication: this.options.authentication,
+				...this.options.enhancedClient,
+			};
+
+			const enhancedClient = generateEnhancedRestClient(
+				schemas,
+				enhancedClientOptions,
+			);
+			const enhancedClientPath = join(
+				this.options.outputDir,
+				"enhanced-client.ts",
+			);
+			await writeFile(enhancedClientPath, enhancedClient, "utf-8");
+			generatedFiles.push({
+				path: enhancedClientPath,
+				filename: "enhanced-client.ts",
+				content: enhancedClient,
+				exports: [enhancedClientOptions.className || "EnhancedFHIRClient"],
+			});
+
+			// Generate enhanced package.json
+			const enhancedPackageJson = generateEnhancedClientPackageJson(
+				enhancedClientOptions,
+			);
+			const enhancedPackagePath = join(
+				this.options.outputDir,
+				"enhanced-package.json",
+			);
+			await writeFile(enhancedPackagePath, enhancedPackageJson, "utf-8");
+			generatedFiles.push({
+				path: enhancedPackagePath,
+				filename: "enhanced-package.json",
+				content: enhancedPackageJson,
+				exports: [],
 			});
 		}
 
@@ -309,12 +384,12 @@ export class RESTClientAPIGenerator {
 			lines.push("import type * as FHIR from '../types';");
 
 			// Import search parameter types if available, otherwise use basic types
-			if (searchParametersMap && searchParametersMap.size > 0) {
+			if (searchParametersMap?.size && searchParametersMap.size > 0) {
 				lines.push(
 					"import type { SearchParamsMap, ChainableParams } from './search-types';",
 				);
 				lines.push(
-					"import { FHIRSearchBuilder, OperationBuilder } from '../../src/fhir/search-builder';",
+					"import { FHIRSearchBuilder, OperationBuilder, AdvancedSearchResultProcessor } from '../../src/fhir/features/search/builder';",
 				);
 			} else {
 				// Add basic search builder support even without full search parameter extraction
@@ -335,7 +410,9 @@ export class RESTClientAPIGenerator {
 		// Add BasicSearchBuilder class if TypeScript and no full search parameters
 		if (
 			this.options.language === "typescript" &&
-			(!searchParametersMap || searchParametersMap.size === 0)
+			(!searchParametersMap ||
+				!searchParametersMap.size ||
+				searchParametersMap.size === 0)
 		) {
 			this.generateBasicSearchBuilder(lines);
 		}
@@ -391,6 +468,7 @@ export class RESTClientAPIGenerator {
 		lines.push("export type ResourceType = ");
 		for (let i = 0; i < resources.length; i++) {
 			const resource = resources[i];
+			if (!resource?.identifier?.name) continue;
 			const isLast = i === resources.length - 1;
 			lines.push(
 				`  ${i === 0 ? "" : "| "}"${resource.identifier.name}"${isLast ? ";" : ""}`,
@@ -402,6 +480,7 @@ export class RESTClientAPIGenerator {
 		lines.push("export type AnyResource = ");
 		for (let i = 0; i < resources.length; i++) {
 			const resource = resources[i];
+			if (!resource?.identifier?.name) continue;
 			const isLast = i === resources.length - 1;
 			lines.push(
 				`  ${i === 0 ? "" : "| "}FHIR.${resource.identifier.name}${isLast ? ";" : ""}`,
@@ -445,7 +524,7 @@ export class RESTClientAPIGenerator {
 
 	private generateGenericClientClass(
 		lines: string[],
-		resources: TypeSchema[],
+		_resources: TypeSchema[],
 		searchParametersMap?: Map<string, any>,
 	): void {
 		const classDeclaration =
@@ -678,7 +757,7 @@ export class RESTClientAPIGenerator {
 
 		// Add search builder methods if TypeScript
 		if (this.options.language === "typescript") {
-			if (searchParametersMap?.size > 0) {
+			if (searchParametersMap?.size && searchParametersMap.size > 0) {
 				// Full type-safe version with generated search parameters
 				lines.push("  /**");
 				lines.push(
@@ -938,8 +1017,8 @@ export class RESTClientAPIGenerator {
 			devDependencies: {
 				...(this.options.language === "typescript"
 					? {
-							typescript: "^5.0.0",
-							"@types/node": "^20.0.0",
+							typescript: "^5.8.3",
+							"@types/node": "^22.0.0",
 						}
 					: {}),
 				...(this.options.httpClient === "node-fetch"
@@ -966,10 +1045,6 @@ export class RESTClientAPIGenerator {
 
 	private getFileExtension(): string {
 		return this.options.language === "typescript" ? "ts" : "js";
-	}
-
-	private getFileName(name: string): string {
-		return name.toLowerCase().replace(/[^a-z0-9]/gi, "-");
 	}
 
 	private async ensureDirectoryExists(filePath: string): Promise<void> {

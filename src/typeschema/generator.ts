@@ -7,6 +7,9 @@
 
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import { type FHIRSchema, translate } from "@atomic-ehr/fhirschema";
+import type { TypeSchemaConfig } from "../config";
+import { isFHIRResourceType } from "../fhir/core/types";
+import { TypeSchemaCache } from "./cache";
 import { transformFHIRSchema, transformFHIRSchemas } from "./core/transformer";
 import type {
 	AnyTypeSchema,
@@ -24,15 +27,35 @@ import type {
 export class TypeSchemaGenerator {
 	private manager: ReturnType<typeof CanonicalManager>;
 	private options: GeneratorOptions;
+	private cache: TypeSchemaCache | null = null;
+	private cacheConfig?: TypeSchemaConfig;
 
-	constructor(options: GeneratorOptions = {}) {
+	constructor(options: GeneratorOptions = {}, cacheConfig?: TypeSchemaConfig) {
 		this.options = {
 			includeValueSets: true,
 			includeBindings: true,
+			includeProfiles: true,
+			includeExtensions: false,
+			includeCodeSystems: false,
+			includeOperations: false,
+			fhirVersion: "R4",
+			resourceTypes: [],
+			maxDepth: 10,
 			verbose: false,
 			...options,
 		};
 		this.manager = CanonicalManager({ packages: [], workingDir: "tmp/fhir" });
+		this.cacheConfig = cacheConfig;
+	}
+
+	/**
+	 * Initialize the cache if configured
+	 */
+	private async initializeCache(): Promise<void> {
+		if (this.cacheConfig && !this.cache) {
+			this.cache = new TypeSchemaCache(this.cacheConfig);
+			await this.cache.initialize();
+		}
 	}
 
 	/**
@@ -42,6 +65,25 @@ export class TypeSchemaGenerator {
 		packageName: string,
 		packageVersion?: string,
 	): Promise<AnyTypeSchema[]> {
+		// Initialize cache if needed
+		await this.initializeCache();
+
+		// Check if we should force regeneration
+		const forceRegenerate = this.cacheConfig?.forceRegenerate ?? false;
+
+		// Try to load from cache if enabled and not forcing regeneration
+		if (this.cache && !forceRegenerate) {
+			const cachedSchemas = this.cache.getByPackage(packageName);
+			if (cachedSchemas.length > 0) {
+				if (this.options.verbose) {
+					console.log(
+						`Using cached TypeSchemas for package: ${packageName} (${cachedSchemas.length} schemas)`,
+					);
+				}
+				return cachedSchemas;
+			}
+		}
+
 		if (this.options.verbose) {
 			console.log(
 				`Loading FHIR package: ${packageName}${packageVersion ? `@${packageVersion}` : ""}`,
@@ -101,7 +143,21 @@ export class TypeSchemaGenerator {
 		};
 
 		// Transform all FHIR schemas to TypeSchema format
-		return await this.generateFromSchemas(fhirSchemas, packageInfo);
+		const schemas = await this.generateFromSchemas(fhirSchemas, packageInfo);
+
+		// Cache the generated schemas if caching is enabled
+		if (this.cache && schemas.length > 0) {
+			for (const schema of schemas) {
+				await this.cache.set(schema);
+			}
+			if (this.options.verbose) {
+				console.log(
+					`Cached ${schemas.length} TypeSchemas for package: ${packageName}`,
+				);
+			}
+		}
+
+		return schemas;
 	}
 
 	/**
@@ -111,7 +167,7 @@ export class TypeSchemaGenerator {
 		fhirSchema: FHIRSchema,
 		packageInfo?: PackageInfo,
 	): Promise<AnyTypeSchema[]> {
-		const context: TransformContext = {
+		const _context: TransformContext = {
 			packageInfo,
 			verbose: this.options.verbose,
 		};
@@ -126,13 +182,13 @@ export class TypeSchemaGenerator {
 	}
 
 	/**
-	 * Generate TypeSchema from multiple FHIR schemas
+	 * Generate TypeSchema from multiple FHIR schemas with FHIR-specific enhancements
 	 */
 	async generateFromSchemas(
 		fhirSchemas: FHIRSchema[],
 		packageInfo?: PackageInfo,
 	): Promise<AnyTypeSchema[]> {
-		const context: TransformContext = {
+		const _context: TransformContext = {
 			packageInfo,
 			verbose: this.options.verbose,
 		};
@@ -141,7 +197,80 @@ export class TypeSchemaGenerator {
 			console.log(`Transforming ${fhirSchemas.length} schemas`);
 		}
 
-		return await transformFHIRSchemas(fhirSchemas, this.manager, packageInfo);
+		// First, transform FHIR schemas to TypeSchemas using the core transformer
+		const baseSchemas = await transformFHIRSchemas(
+			fhirSchemas,
+			this.manager,
+			packageInfo,
+		);
+
+		// Apply FHIR-specific processing
+		const results: AnyTypeSchema[] = [];
+
+		// Filter schemas based on options
+		const filteredSchemas = this.filterTypeSchemas(baseSchemas);
+
+		if (this.options.verbose) {
+			console.log(`Processing ${filteredSchemas.length} filtered TypeSchemas`);
+		}
+
+		// Group schemas by type for efficient processing
+		const groupedSchemas = this.groupTypeSchemas(filteredSchemas);
+
+		// Process resources, complex types, and primitives (core types)
+		results.push(...groupedSchemas.resources);
+		results.push(...groupedSchemas.complexTypes);
+		results.push(...groupedSchemas.primitives);
+
+		// Generate profiles if enabled
+		if (this.options.includeProfiles && groupedSchemas.profiles.length > 0) {
+			const profileResults = await this.enhanceProfiles(
+				groupedSchemas.profiles,
+			);
+			results.push(...profileResults);
+		}
+
+		// Generate extensions if enabled
+		if (
+			this.options.includeExtensions &&
+			groupedSchemas.extensions.length > 0
+		) {
+			const extensionResults = await this.enhanceExtensions(
+				groupedSchemas.extensions,
+			);
+			results.push(...extensionResults);
+		}
+
+		// Generate value sets if enabled
+		if (this.options.includeValueSets && groupedSchemas.valueSets.length > 0) {
+			const valueSetResults = await this.enhanceValueSets(
+				groupedSchemas.valueSets,
+			);
+			results.push(...valueSetResults);
+		}
+
+		// Generate code systems if enabled
+		if (
+			this.options.includeCodeSystems &&
+			groupedSchemas.codeSystems.length > 0
+		) {
+			const codeSystemResults = await this.enhanceCodeSystems(
+				groupedSchemas.codeSystems,
+			);
+			results.push(...codeSystemResults);
+		}
+
+		// Generate operations if enabled
+		if (this.options.includeOperations) {
+			const operationResults = await this.generateOperations();
+			results.push(...operationResults);
+		}
+
+		if (this.options.verbose) {
+			console.log(`Generated ${results.length} enhanced FHIR type schemas`);
+		}
+
+		return results;
 	}
 
 	/**
@@ -149,7 +278,7 @@ export class TypeSchemaGenerator {
 	 */
 	async generateFiltered(
 		packageName: string,
-		filter: {
+		_filter: {
 			resourceTypes?: string[];
 			includeProfiles?: boolean;
 			includeExtensions?: boolean;
@@ -292,9 +421,8 @@ export class TypeSchemaGenerator {
 
 			// Filter by resource type if specified
 			if (resourceType) {
-				operationDefinitions = operationDefinitions.filter(
-					(resource: any) =>
-						resource.resource && resource.resource.includes(resourceType),
+				operationDefinitions = operationDefinitions.filter((resource: any) =>
+					resource.resource?.includes(resourceType),
 				);
 			}
 
@@ -366,55 +494,118 @@ export class TypeSchemaGenerator {
 		this.manager = CanonicalManager({ packages: [], workingDir: "tmp/fhir" });
 	}
 
-	/**
-	 * Convert a FHIR StructureDefinition to FHIRSchema format
-	 * This is a helper method for compatibility with raw FHIR resources
-	 */
-	private convertStructureDefinitionToFHIRSchema(
-		structureDefinition: any,
-		packageInfo?: PackageInfo,
-	): FHIRSchema {
-		// Basic conversion from StructureDefinition to FHIRSchema
-		// This would need to be implemented based on the fhrischema format
-		const schema: FHIRSchema = {
-			url: structureDefinition.url,
-			name: structureDefinition.name,
-			id: structureDefinition.id,
-			type: structureDefinition.type,
-			kind: structureDefinition.kind,
-			baseDefinition: structureDefinition.baseDefinition,
-			description: structureDefinition.description,
-			package_name: packageInfo?.name,
-			package_version: packageInfo?.version,
+	// Private FHIR-specific helper methods
+
+	private filterTypeSchemas(schemas: AnyTypeSchema[]): AnyTypeSchema[] {
+		let filtered = schemas;
+
+		// Filter by resource types if specified
+		if (this.options.resourceTypes && this.options.resourceTypes.length > 0) {
+			filtered = filtered.filter(
+				(schema) =>
+					!schema.identifier.name ||
+					this.options.resourceTypes?.includes(schema.identifier.name) ||
+					!isFHIRResourceType(schema.identifier.name, schemas),
+			);
+		}
+
+		return filtered;
+	}
+
+	private groupTypeSchemas(schemas: AnyTypeSchema[]): {
+		resources: AnyTypeSchema[];
+		complexTypes: AnyTypeSchema[];
+		primitives: AnyTypeSchema[];
+		profiles: AnyTypeSchema[];
+		extensions: AnyTypeSchema[];
+		valueSets: AnyTypeSchema[];
+		codeSystems: AnyTypeSchema[];
+	} {
+		const groups = {
+			resources: [] as AnyTypeSchema[],
+			complexTypes: [] as AnyTypeSchema[],
+			primitives: [] as AnyTypeSchema[],
+			profiles: [] as AnyTypeSchema[],
+			extensions: [] as AnyTypeSchema[],
+			valueSets: [] as AnyTypeSchema[],
+			codeSystems: [] as AnyTypeSchema[],
 		};
 
-		// Convert elements if present
-		if (
-			structureDefinition.snapshot?.element ||
-			structureDefinition.differential?.element
-		) {
-			const elements =
-				structureDefinition.snapshot?.element ||
-				structureDefinition.differential?.element;
-			schema.elements = {};
-
-			for (const element of elements) {
-				if (element.path && element.path !== structureDefinition.type) {
-					const path = element.path.replace(`${structureDefinition.type}.`, "");
-					schema.elements[path] = {
-						path: element.path,
-						min: element.min,
-						max: element.max,
-						type: element.type,
-						binding: element.binding,
-						definition: element.definition,
-						short: element.short,
-					};
-				}
+		for (const schema of schemas) {
+			switch (schema.identifier.kind) {
+				case "resource":
+					groups.resources.push(schema);
+					break;
+				case "complex-type":
+					groups.complexTypes.push(schema);
+					break;
+				case "primitive-type":
+					groups.primitives.push(schema);
+					break;
+				case "profile":
+					groups.profiles.push(schema);
+					break;
+				case "binding":
+					// Extensions are complex-types with special metadata
+					if ("metadata" in schema && (schema as any).metadata?.isExtension) {
+						groups.extensions.push(schema);
+					} else {
+						groups.complexTypes.push(schema);
+					}
+					break;
+				case "value-set":
+					groups.valueSets.push(schema);
+					break;
+				default:
+					// Check metadata for special types
+					if ("metadata" in schema && (schema as any).metadata?.isCodeSystem) {
+						groups.codeSystems.push(schema);
+					} else {
+						groups.complexTypes.push(schema);
+					}
+					break;
 			}
 		}
 
-		return schema;
+		return groups;
+	}
+
+	private async enhanceProfiles(
+		schemas: AnyTypeSchema[],
+	): Promise<AnyTypeSchema[]> {
+		// Profiles are already generated by TypeSchema transformer
+		// Add any FHIR-specific enhancements here if needed
+		return schemas;
+	}
+
+	private async enhanceExtensions(
+		schemas: AnyTypeSchema[],
+	): Promise<AnyTypeSchema[]> {
+		// Extensions are already generated by TypeSchema transformer
+		// Add any FHIR-specific enhancements here if needed
+		return schemas;
+	}
+
+	private async enhanceValueSets(
+		schemas: AnyTypeSchema[],
+	): Promise<AnyTypeSchema[]> {
+		// ValueSets are already generated by TypeSchema transformer
+		// Add any FHIR-specific enhancements here if needed
+		return schemas;
+	}
+
+	private async enhanceCodeSystems(
+		schemas: AnyTypeSchema[],
+	): Promise<AnyTypeSchema[]> {
+		// CodeSystems are already generated by TypeSchema transformer
+		// Add any FHIR-specific enhancements here if needed
+		return schemas;
+	}
+
+	private async generateOperations(): Promise<AnyTypeSchema[]> {
+		// Operations generation would be implemented here if needed
+		// For now, return empty array as operations are rarely used
+		return [];
 	}
 }
 

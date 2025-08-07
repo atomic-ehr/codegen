@@ -9,10 +9,8 @@ import { readFile } from "node:fs/promises";
 import type {
 	AnyTypeSchema,
 	ParserOptions,
-	TypeSchema,
 	TypeSchemaBinding,
 	TypeSchemaIdentifier,
-	TypeSchemaValueSet,
 } from "./types";
 
 /**

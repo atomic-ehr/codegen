@@ -7,12 +7,12 @@ import {
 	generateResourceTypeGuards,
 	generateComplexTypeGuards,
 	generateNestedTypeGuards,
-} from '../../../../src/fhir/guards/resources';
+} from '../../../../src/fhir/generators/typescript/guards';
 import type {
 	GuardGenerationContext,
 	GuardGenerationOptions,
-} from '../../../../src/fhir/guards/types';
-import type { AnyTypeSchema } from '../../../../src/lib/typeschema/types';
+} from '../../../../src/fhir/generators/typescript/guards';
+import type { AnyTypeSchema } from '../../../../src/typeschema/types';
 
 describe('FHIR Resource Type Guards', () => {
 	let context: GuardGenerationContext;

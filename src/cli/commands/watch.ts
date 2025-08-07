@@ -4,13 +4,13 @@
  * Watch TypeSchema files and regenerate code on changes
  */
 
+import { watch as fsWatch } from "node:fs";
+import { readdir, stat } from "node:fs/promises";
+import { extname, join, relative, resolve } from "node:path";
 import chalk from "chalk";
-import { watch as fsWatch } from "fs";
-import { readdir, stat } from "fs/promises";
-import { extname, join, relative, resolve } from "path";
 import type { CommandModule } from "yargs";
 import { APIBuilder } from "../../api";
-import { FileSystemError, ValidationError } from "../../core/utils/errors";
+import { ValidationError } from "../../core/utils/errors";
 import type { ILogger } from "../../core/utils/logger";
 import type { AnyTypeSchema } from "../../lib/typeschema";
 import type { CLIArgvWithConfig } from "./index";
@@ -59,7 +59,7 @@ class WatchState {
 			}
 
 			this.isGenerating = true;
-			const files = Array.from(this.filesChanged);
+			const _files = Array.from(this.filesChanged);
 			this.filesChanged.clear();
 
 			try {
@@ -99,7 +99,7 @@ async function loadSchemas(
 		for (const file of ndjsonFiles) {
 			const filePath = join(resolvedPath, file);
 			try {
-				const { readFile } = await import("fs/promises");
+				const { readFile } = await import("node:fs/promises");
 				const content = await readFile(filePath, "utf-8");
 				const lines = content.trim().split("\n").filter(Boolean);
 
@@ -119,7 +119,7 @@ async function loadSchemas(
 		}
 	} else {
 		// Single file
-		const { readFile } = await import("fs/promises");
+		const { readFile } = await import("node:fs/promises");
 		const content = await readFile(resolvedPath, "utf-8");
 
 		if (extname(resolvedPath) === ".ndjson") {
@@ -137,7 +137,7 @@ async function loadSchemas(
 			try {
 				const schema = JSON.parse(content) as AnyTypeSchema;
 				schemas.push(schema);
-			} catch (error) {
+			} catch (_error) {
 				throw new ValidationError(`Invalid TypeSchema file: ${resolvedPath}`);
 			}
 		}

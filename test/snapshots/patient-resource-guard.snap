@@ -1,0 +1,14 @@
+/**
+ * Type guard for Patient
+ */
+export function isPatient(value: unknown): value is Patient {
+	if (typeof value !== 'object' || value === null) return false;
+	const obj = value as Record<string, unknown>;
+	
+	if (typeof obj.resourceType !== 'string' || obj.resourceType !== 'Patient') return false;
+	if (obj.id !== undefined && !isid(obj.id)) return false;
+	if (obj.name !== undefined && (!Array.isArray(obj.name) || !obj.name.every(item => isHumanName(item)))) return false;
+	if (obj.gender !== undefined && !iscode(obj.gender)) return false;
+	
+	return true;
+}

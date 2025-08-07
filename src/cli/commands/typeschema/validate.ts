@@ -4,8 +4,8 @@
  * Validate TypeSchema files for correctness and consistency
  */
 
-import { readdir, readFile, stat } from "fs/promises";
-import { extname, join, resolve } from "path";
+import { readdir, readFile, stat } from "node:fs/promises";
+import { extname, join, resolve } from "node:path";
 import type { CommandModule } from "yargs";
 import {
 	isTypeSchema,
@@ -13,7 +13,6 @@ import {
 	isTypeSchemaValueSet,
 	isValidatorAvailable,
 	validateTypeSchemas as validateMultipleWithJsonSchema,
-	validateTypeSchema as validateWithJsonSchema,
 } from "../../../typeschema";
 import type {
 	AnyTypeSchema,

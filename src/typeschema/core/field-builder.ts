@@ -16,7 +16,6 @@ import {
 	buildBindingIdentifier,
 	buildNestedIdentifier,
 	buildSchemaIdentifier,
-	dropVersionFromUrl,
 } from "./identifier";
 
 /**
@@ -25,7 +24,7 @@ import {
 export function getElementHierarchy(
 	fhirSchema: FHIRSchema,
 	path: string[],
-	manager: CanonicalManager,
+	_manager: CanonicalManager,
 ): FHIRSchemaElement[] {
 	const hierarchy: FHIRSchemaElement[] = [];
 
@@ -101,7 +100,7 @@ export function mergeElementHierarchy(
 export function isRequired(
 	fhirSchema: FHIRSchema,
 	path: string[],
-	manager: CanonicalManager,
+	_manager: CanonicalManager,
 ): boolean {
 	if (path.length === 0) return false;
 
@@ -134,7 +133,7 @@ export function isRequired(
 export function isExcluded(
 	fhirSchema: FHIRSchema,
 	path: string[],
-	manager: CanonicalManager,
+	_manager: CanonicalManager,
 ): boolean {
 	if (path.length === 0) return false;
 
@@ -213,9 +212,9 @@ export function buildReferences(
  */
 export function buildFieldType(
 	fhirSchema: FHIRSchema,
-	path: string[],
+	_path: string[],
 	element: FHIRSchemaElement,
-	manager: CanonicalManager,
+	_manager: CanonicalManager,
 	packageInfo?: PackageInfo,
 ): TypeSchemaIdentifier | undefined {
 	// Handle element reference (for slicing)

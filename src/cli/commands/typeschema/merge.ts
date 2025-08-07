@@ -4,8 +4,8 @@
  * Merge multiple TypeSchema files into a single output
  */
 
-import { mkdir, readdir, readFile, stat, writeFile } from "fs/promises";
-import { dirname, extname, join, resolve } from "path";
+import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
+import { dirname, extname, join, resolve } from "node:path";
 import type { CommandModule } from "yargs";
 import type { AnyTypeSchema } from "../../../typeschema/lib-types";
 
@@ -162,7 +162,7 @@ export async function mergeTypeSchema(
 		if (options.filterKinds?.length && options.filterKinds.length > 0) {
 			const beforeCount = processedSchemas.length;
 			processedSchemas = processedSchemas.filter((schema) =>
-				options.filterKinds!.includes(schema.identifier.kind),
+				options.filterKinds?.includes(schema.identifier.kind),
 			);
 			stats.schemasFiltered = beforeCount - processedSchemas.length;
 			log(

@@ -9,7 +9,7 @@
  */
 
 // Core AST building and manipulation
-export {
+export type {
 	ArrayType,
 	// AST Builder and Manipulation
 	ASTBuilder,
@@ -32,7 +32,7 @@ export {
 } from "./ast";
 
 // Code fragment composition
-export {
+export type {
 	ASTRenderer,
 	// Fragment Types
 	CodeFragment,
@@ -45,7 +45,7 @@ export {
 	FragmentTemplate,
 } from "./fragment";
 // Module management
-export {
+export type {
 	DependencyGraph,
 	DependencyResolutionResult,
 	ImportOptimizationOptions,
@@ -58,7 +58,7 @@ export {
 	ModuleResolutionOptions,
 } from "./module-manager";
 // Source map support
-export {
+export type {
 	MappingContext,
 	// Source Map Types
 	SourceMap,
@@ -71,7 +71,7 @@ export {
 	SourceMapUtils,
 } from "./sourcemap";
 // Transformation system
-export {
+export type {
 	BuiltInMiddleware,
 	// Built-in Transformers
 	BuiltInTransformers,
@@ -88,7 +88,7 @@ export {
 	TransformerMiddleware,
 } from "./transformer";
 // Visitor pattern
-export {
+export type {
 	BuiltInVisitors,
 	// Language-specific Visitors
 	LanguageVisitors,
@@ -177,7 +177,7 @@ export namespace FHIRHelpers {
 		} = {},
 	) {
 		const builder = new ASTBuilder();
-		const patterns = new ASTPatterns();
+		const _patterns = new ASTPatterns();
 
 		// Create base interface with extension support
 		const baseTypes = [];

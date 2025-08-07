@@ -217,7 +217,7 @@ export class EventEmitter {
 		if (!this.events.has(event)) {
 			this.events.set(event, new Set());
 		}
-		this.events.get(event)!.add(handler);
+		this.events.get(event)?.add(handler);
 	}
 
 	off(event: string, handler: (...args: any[]) => void): void {

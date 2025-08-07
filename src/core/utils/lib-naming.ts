@@ -11,7 +11,7 @@ export function toTypeScriptIdentifier(name: string): string {
 	// Handle special cases
 	if (name.startsWith("_")) {
 		const rest = name.substring(1);
-		return "Element" + rest.charAt(0).toUpperCase() + rest.slice(1);
+		return `Element${rest.charAt(0).toUpperCase()}${rest.slice(1)}`;
 	}
 
 	// Ensure first character is uppercase
@@ -29,7 +29,7 @@ export function toPropertyName(name: string): string {
 
 	// Handle underscore prefixed fields (primitives)
 	if (name.startsWith("_")) {
-		return "_" + name.substring(1);
+		return `_${name.substring(1)}`;
 	}
 
 	return name;
@@ -161,7 +161,7 @@ export function getModuleName(typeName: string): string {
 /**
  * Generate import statement for a type
  */
-export function generateImport(typeName: string, fromModule: string): string {
+export function generateImport(typeName: string, _fromModule: string): string {
 	const module = getModuleName(typeName);
 
 	if (module === "primitives") {

@@ -4,8 +4,8 @@
  * Visual progress indicators for long-running operations
  */
 
+import { performance } from "node:perf_hooks";
 import ora, { type Ora } from "ora";
-import { performance } from "perf_hooks";
 import pc from "picocolors";
 
 /**

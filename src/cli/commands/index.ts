@@ -9,11 +9,7 @@
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { AtomicCodegenError } from "../../core/utils/errors";
-import {
-	createLoggerFromConfig,
-	type ILogger,
-	LogLevel,
-} from "../../core/utils/logger";
+import { createLoggerFromConfig, type ILogger } from "../../core/utils/logger";
 import { configCommand } from "./config";
 import { devCommand } from "./dev";
 import { generateCommand } from "./generate";
@@ -168,7 +164,7 @@ export function createCLI() {
 			"$0 --config my-config.json generate typescript",
 			"Use custom configuration file",
 		)
-		.fail(async (msg, err, yargs) => {
+		.fail(async (msg, err, _yargs) => {
 			// Create a logger for error handling (fallback if middleware hasn't run)
 			const logger = createLoggerFromConfig({
 				debug: !!process.env.DEBUG,
@@ -179,7 +175,7 @@ export function createCLI() {
 			if (err) {
 				if (err instanceof AtomicCodegenError) {
 					await logger.error("Command failed", err, undefined, "command");
-					console.error("\n" + err.getFormattedMessage());
+					console.error(`\n${err.getFormattedMessage()}`);
 				} else {
 					await logger.error(
 						"Unexpected error occurred",

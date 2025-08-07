@@ -5,6 +5,13 @@
  * for FHIR-to-TypeSchema generation, parsing, validation, and transformation.
  */
 
+import { TypeSchemaCache } from "./cache";
+// Import components for internal use
+import { TypeSchemaGenerator } from "./generator";
+import { TypeSchemaParser } from "./parser";
+import { TypeScriptTransformer } from "./transformer";
+import { TypeSchemaValidator } from "./validator";
+
 // Re-export core dependencies
 export { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 export type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
@@ -111,14 +118,13 @@ export class TypeSchemaAPI {
 			parser?: import("./parser").ParserOptions;
 			validator?: { strict?: boolean };
 			transformer?: import("./transformer").TypeScriptGeneratorOptions;
-			cache?: import("./cache").CacheOptions;
 		} = {},
 	) {
 		this.generator = new TypeSchemaGenerator(options.generator);
 		this.parser = new TypeSchemaParser(options.parser);
 		this.validator = new TypeSchemaValidator(options.validator?.strict);
 		this.transformer = new TypeScriptTransformer(options.transformer);
-		this.cache = new TypeSchemaCache(options.cache);
+		this.cache = new TypeSchemaCache();
 	}
 
 	/**
@@ -126,7 +132,7 @@ export class TypeSchemaAPI {
 	 */
 	async generateTypesFromPackage(
 		packageName: string,
-		outputDir: string,
+		_outputDir: string,
 		packageVersion?: string,
 	): Promise<void> {
 		// Generate TypeSchema

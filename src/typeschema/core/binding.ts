@@ -6,15 +6,10 @@
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import {
-	type PackageInfo,
-	type TypeSchemaBinding,
-	TypeSchemaIdentifier,
-} from "../types";
+import type { PackageInfo, TypeSchemaBinding } from "../types";
 import { buildFieldType } from "./field-builder";
 import {
 	buildBindingIdentifier,
-	buildSchemaIdentifier,
 	buildValueSetIdentifier,
 	dropVersionFromUrl,
 } from "./identifier";

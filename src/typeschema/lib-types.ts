@@ -5,8 +5,6 @@
  * which is an intermediate representation for FHIR SDK generation.
  */
 
-import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-
 /**
  * Identifier for any TypeSchema entity
  */

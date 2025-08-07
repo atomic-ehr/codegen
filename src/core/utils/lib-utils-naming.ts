@@ -47,7 +47,7 @@ export function toValidInterfaceName(name: string): string {
 
 	// Step 4: Ensure it starts with a valid character
 	if (!/^[a-zA-Z_$]/.test(result)) {
-		return "I" + result;
+		return `I${result}`;
 	}
 
 	return result;

@@ -5,11 +5,14 @@
  * This builder pattern allows users to configure generation in a declarative way.
  */
 
-import { TypeSchemaCache } from "../typeschema/cache";
-import { TypeSchemaGenerator } from "../typeschema/generator";
-import { TypeSchemaParser } from "../typeschema/parser";
-import type { AnyTypeSchema } from "../typeschema/types";
-import { TypeSchemaValidator } from "../typeschema/validator";
+import type { TypeSchemaConfig } from "../config";
+import type { AnyTypeSchema } from "../typeschema";
+import {
+	TypeSchemaCache,
+	TypeSchemaGenerator,
+	TypeSchemaParser,
+	TypeSchemaValidator,
+} from "../typeschema";
 import { RESTClientAPIGenerator } from "./generators/rest-client";
 import { TypeScriptAPIGenerator } from "./generators/typescript";
 
@@ -22,6 +25,7 @@ export interface APIBuilderOptions {
 	overwrite?: boolean;
 	validate?: boolean;
 	cache?: boolean;
+	typeSchemaConfig?: TypeSchemaConfig;
 }
 
 /**
@@ -54,13 +58,17 @@ export interface GenerationResult {
  */
 export class APIBuilder {
 	private schemas: AnyTypeSchema[] = [];
-	private options: Required<APIBuilderOptions>;
+	private options: Omit<Required<APIBuilderOptions>, "typeSchemaConfig"> & {
+		typeSchemaConfig?: TypeSchemaConfig;
+	};
 	private generators: Map<string, any> = new Map();
 	private progressCallback?: ProgressCallback;
 	private validator?: TypeSchemaValidator;
 	private cache?: TypeSchemaCache;
 	private pendingOperations: Promise<void>[] = [];
 	private typeSchemaGenerator?: TypeSchemaGenerator;
+
+	private typeSchemaConfig?: TypeSchemaConfig;
 
 	constructor(options: APIBuilderOptions = {}) {
 		this.options = {
@@ -69,14 +77,13 @@ export class APIBuilder {
 			overwrite: options.overwrite ?? true,
 			validate: options.validate ?? true,
 			cache: options.cache ?? true,
+			typeSchemaConfig: options.typeSchemaConfig,
 		};
 
+		this.typeSchemaConfig = options.typeSchemaConfig;
+
 		if (this.options.cache) {
-			this.cache = new TypeSchemaCache({
-				enabled: true,
-				maxSize: 1000,
-				ttl: 30 * 60 * 1000, // 30 minutes
-			});
+			this.cache = new TypeSchemaCache(this.typeSchemaConfig);
 		}
 
 		if (this.options.validate) {
@@ -111,19 +118,7 @@ export class APIBuilder {
 	}
 
 	/**
-	 * Load TypeSchema from NDJSON string
-	 */
-	fromString(
-		content: string,
-		format: "ndjson" | "json" = "ndjson",
-	): APIBuilder {
-		const operation = this.loadFromString(content, format);
-		this.pendingOperations.push(operation);
-		return this;
-	}
-
-	/**
-	 * Configure TypeScript generation
+	 * Configure TypeScript generation with validation support
 	 */
 	typescript(
 		options: {
@@ -133,6 +128,12 @@ export class APIBuilder {
 			namingConvention?: "PascalCase" | "camelCase";
 			includeExtensions?: boolean;
 			includeProfiles?: boolean;
+			// Validation options
+			generateValidators?: boolean;
+			generateGuards?: boolean;
+			generateBuilders?: boolean;
+			strictValidation?: boolean;
+			includePerformanceMetrics?: boolean;
 		} = {},
 	): APIBuilder {
 		// Hardcode types subfolder
@@ -146,6 +147,24 @@ export class APIBuilder {
 			namingConvention: options.namingConvention || "PascalCase",
 			includeExtensions: options.includeExtensions ?? false,
 			includeProfiles: options.includeProfiles ?? false,
+			// Enhanced validation and builder options
+			generateValidators: options.generateValidators ?? true,
+			generateGuards: options.generateGuards ?? true,
+			generateBuilders: options.generateBuilders ?? false,
+			validatorOptions: {
+				strict: options.strictValidation ?? false,
+				collectMetrics: options.includePerformanceMetrics ?? false,
+				includeJSDoc: true,
+				generateAssertions: true,
+				generatePartialValidators: true,
+				generateCompositeValidators: true,
+			},
+			guardOptions: {
+				strict: options.strictValidation ?? false,
+				includeRuntimeValidation: true,
+				includeErrorMessages: true,
+				treeShakeable: true,
+			},
 		});
 
 		this.generators.set("typescript", generator);
@@ -157,7 +176,6 @@ export class APIBuilder {
 	 */
 	restClient(
 		options: {
-			language?: "typescript" | "javascript";
 			httpClient?: "fetch" | "axios" | "node-fetch";
 			generateTypes?: boolean;
 			includeValidation?: boolean;
@@ -169,7 +187,6 @@ export class APIBuilder {
 
 		const generator = new RESTClientAPIGenerator({
 			outputDir: clientOutputDir,
-			language: options.language || "typescript",
 			httpClient: options.httpClient || "fetch",
 			generateTypes: options.generateTypes ?? true,
 			includeValidation: options.includeValidation ?? false,
@@ -181,7 +198,7 @@ export class APIBuilder {
 	}
 
 	/**
-	 * Set progress callback for monitoring generation
+	 * Set a progress callback for monitoring generation
 	 */
 	onProgress(callback: ProgressCallback): APIBuilder {
 		this.progressCallback = callback;
@@ -189,7 +206,7 @@ export class APIBuilder {
 	}
 
 	/**
-	 * Set output directory for all generators
+	 * Set the output directory for all generators
 	 */
 	outputTo(directory: string): APIBuilder {
 		this.options.outputDir = directory;
@@ -303,7 +320,7 @@ export class APIBuilder {
 			}
 		}
 
-		const results: any = {};
+		const results: Record<string, unknown> = {};
 
 		for (const [type, generator] of this.generators.entries()) {
 			if (generator.build) {
@@ -344,9 +361,12 @@ export class APIBuilder {
 		packageName: string,
 		version?: string,
 	): Promise<void> {
-		const generator = new TypeSchemaGenerator({
-			verbose: this.options.verbose,
-		});
+		const generator = new TypeSchemaGenerator(
+			{
+				verbose: this.options.verbose,
+			},
+			this.typeSchemaConfig,
+		);
 
 		this.typeSchemaGenerator = generator; // Store for REST client generation
 		const schemas = await generator.generateFromPackage(packageName, version);
@@ -358,12 +378,13 @@ export class APIBuilder {
 	}
 
 	private async loadFromFiles(filePaths: string[]): Promise<void> {
-		// Initialize TypeSchemaGenerator for REST client generation
 		if (!this.typeSchemaGenerator) {
-			const generator = new TypeSchemaGenerator({
-				verbose: this.options.verbose,
-			});
-			this.typeSchemaGenerator = generator;
+			this.typeSchemaGenerator = new TypeSchemaGenerator(
+				{
+					verbose: this.options.verbose,
+				},
+				this.typeSchemaConfig,
+			);
 		}
 
 		const parser = new TypeSchemaParser({
@@ -378,32 +399,6 @@ export class APIBuilder {
 			this.cache.setMany(schemas);
 		}
 	}
-
-	private async loadFromString(
-		content: string,
-		format: "ndjson" | "json",
-	): Promise<void> {
-		// Initialize TypeSchemaGenerator for REST client generation
-		if (!this.typeSchemaGenerator) {
-			const generator = new TypeSchemaGenerator({
-				verbose: this.options.verbose,
-			});
-			this.typeSchemaGenerator = generator;
-		}
-
-		const parser = new TypeSchemaParser({
-			format: "auto",
-			validate: this.options.validate,
-		});
-
-		const schemas = await parser.parseFromString(content, format);
-		this.schemas = [...this.schemas, ...schemas];
-
-		if (this.cache) {
-			this.cache.setMany(schemas);
-		}
-	}
-
 	private async resolveSchemas(): Promise<void> {
 		// Wait for all pending async operations to complete
 		if (this.pendingOperations.length > 0) {
@@ -441,13 +436,13 @@ export class APIBuilder {
 			);
 
 			try {
-				// Pass TypeSchemaGenerator to REST client for search parameter generation
+				// Pass TypeSchemaGenerator to the REST client for search parameter generation
 				const files =
 					type === "restclient"
 						? await generator.generate(this.schemas, this.typeSchemaGenerator)
 						: await generator.generate(this.schemas);
 				result.filesGenerated.push(
-					...files.map((f: any) => f.path || f.filename),
+					...files.map((f: Record<string, string>) => f.path || f.filename),
 				);
 			} catch (error) {
 				result.errors.push(

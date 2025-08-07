@@ -28,6 +28,15 @@ const config: Config = {
 		generateMocks: false,
 		authType: "none",
 	},
+	typeSchema: {
+		enablePersistence: true,
+		cacheDir: ".typeschema-cache",
+		maxAge: 24 * 60 * 60 * 1000, // 24 hours
+		validateCached: true,
+		forceRegenerate: false,
+		shareCache: true,
+		cacheKeyPrefix: "",
+	},
 	packages: ["hl7.fhir.r4.core@4.0.1"],
 	files: [],
 };

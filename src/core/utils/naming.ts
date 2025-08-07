@@ -189,7 +189,7 @@ export function toDotCase(input: string): string {
  */
 export function toValidIdentifier(input: string, prefix = "I"): string {
 	if (!input?.trim()) {
-		return prefix + "Unknown";
+		return `${prefix}Unknown`;
 	}
 
 	let result = toPascalCase(input);
@@ -204,7 +204,7 @@ export function toValidIdentifier(input: string, prefix = "I"): string {
 
 	// Ensure it's not empty after cleaning
 	if (!result) {
-		return prefix + "Unknown";
+		return `${prefix}Unknown`;
 	}
 
 	return result;
@@ -268,11 +268,11 @@ export function pluralize(word: string): string {
 	}
 	// Words ending in -s, -ss, -sh, -ch, -x, -z, -o
 	else if (/[sxz]$|[^aeiou]o$|[^aeiou]h$/.test(lower)) {
-		result = word + "es";
+		result = `${word}es`;
 	}
 	// Words ending in consonant + y
 	else if (/[^aeiou]y$/.test(lower)) {
-		result = word.slice(0, -1) + "ies";
+		result = `${word.slice(0, -1)}ies`;
 	}
 	// Words ending in -f or -fe
 	else if (/fe?$/.test(lower)) {
@@ -280,7 +280,7 @@ export function pluralize(word: string): string {
 	}
 	// Default: add -s
 	else {
-		result = word + "s";
+		result = `${word}s`;
 	}
 
 	transformationCache.set(cacheKey, result);
@@ -320,11 +320,11 @@ export function singularize(word: string): string {
 	}
 	// Words ending in -ies
 	else if (/ies$/.test(lower)) {
-		result = word.slice(0, -3) + "y";
+		result = `${word.slice(0, -3)}y`;
 	}
 	// Words ending in -ves
 	else if (/ves$/.test(lower)) {
-		result = word.slice(0, -3) + "f";
+		result = `${word.slice(0, -3)}f`;
 	}
 	// Words ending in -es
 	else if (/[sxz]es$|[^aeiou]hes$|[^aeiou]oes$/.test(lower)) {

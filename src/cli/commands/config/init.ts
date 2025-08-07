@@ -4,8 +4,8 @@
  * Initialize atomic-codegen configuration file
  */
 
-import { access, writeFile } from "fs/promises";
-import { join, resolve } from "path";
+import { access, writeFile } from "node:fs/promises";
+import { join, resolve } from "node:path";
 import type { CommandModule } from "yargs";
 import type { Config } from "../../../config";
 
@@ -142,7 +142,7 @@ function generateConfigTemplate(
 					strictMode: true,
 					generateValidators: false,
 					generateGuards: false,
-					includeProfile: true,
+					includeProfiles: true,
 					includeExtensions: false,
 				},
 			};
@@ -160,7 +160,7 @@ function generateConfigTemplate(
 					strictMode: true,
 					generateValidators: true,
 					generateGuards: true,
-					includeProfile: true,
+					includeProfiles: true,
 					includeExtensions: false,
 				},
 			};
@@ -177,7 +177,7 @@ function generateConfigTemplate(
 					strictMode: true,
 					generateValidators: true,
 					generateGuards: true,
-					includeProfile: true,
+					includeProfiles: true,
 					includeExtensions: false,
 				},
 				restClient: {
@@ -203,7 +203,7 @@ function generateConfigTemplate(
 					strictMode: true,
 					generateValidators: true,
 					generateGuards: true,
-					includeProfile: true,
+					includeProfiles: true,
 					includeExtensions: true,
 				},
 				restClient: {

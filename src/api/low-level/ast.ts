@@ -685,7 +685,7 @@ export class ASTTraverser {
 				parent?: ASTNode,
 				key?: string,
 				index?: number,
-			) => void | false;
+			) => undefined | false;
 			exit?: (
 				node: ASTNode,
 				parent?: ASTNode,
@@ -705,7 +705,7 @@ export class ASTTraverser {
 				parent?: ASTNode,
 				key?: string,
 				index?: number,
-			) => void | false;
+			) => undefined | false;
 			exit?: (
 				node: ASTNode,
 				parent?: ASTNode,
@@ -821,6 +821,7 @@ export class ASTTraverser {
 				if (predicate(node)) {
 					results.push(node);
 				}
+				return undefined;
 			},
 		});
 

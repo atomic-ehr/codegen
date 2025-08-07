@@ -7,8 +7,8 @@
 import { mkdirSync, writeFileSync, readFileSync, rmSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { performance } from 'perf_hooks';
-import type { AnyTypeSchema } from '../src/lib/typeschema/types';
-import type { PackageInfo } from '../src/lib/typeschema/types';
+import type { AnyTypeSchema } from '../src/typeschema/types';
+import type { PackageInfo } from '../src/typeschema/types';
 
 /**
  * Test utilities object containing all helper functions

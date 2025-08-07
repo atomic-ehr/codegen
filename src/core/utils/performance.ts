@@ -361,7 +361,7 @@ export class ResourcePool<T> {
 
 		if (this.destroyer) {
 			await Promise.all(
-				allResources.map((resource) => this.destroyer!(resource)),
+				allResources.map((resource) => this.destroyer?.(resource)),
 			);
 		}
 

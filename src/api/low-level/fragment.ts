@@ -132,7 +132,7 @@ export class CodeFragmentBuilder {
 		// Handle {{#each items}} blocks
 		content = content.replace(
 			/\{\{#each\s+(\w+)\}\}(.*?)\{\{\/each\}\}/gs,
-			(match, arrayKey, blockContent) => {
+			(_match, arrayKey, blockContent) => {
 				const array = data[arrayKey];
 				if (!array || !Array.isArray(array)) return "";
 
@@ -153,7 +153,7 @@ export class CodeFragmentBuilder {
 		// Handle {{#if condition}} blocks
 		content = content.replace(
 			/\{\{#if\s+(\w+)\}\}(.*?)(?:\{\{else\}\}(.*?))?\{\{\/if\}\}/gs,
-			(match, condition, trueContent, falseContent) => {
+			(_match, condition, trueContent, falseContent) => {
 				const value = data[condition];
 				if (value) {
 					return trueContent;
@@ -167,7 +167,7 @@ export class CodeFragmentBuilder {
 		// Handle Python-specific template for decorators
 		if (content.includes("{{decorators}}")) {
 			const decorators = data.decorators
-				? data.decorators.join("\n") + "\n"
+				? `${data.decorators.join("\n")}\n`
 				: "";
 			const baseClassList =
 				data.baseClasses && data.baseClasses.length > 0
@@ -335,7 +335,7 @@ export class CodeFragmentBuilder {
 			if (extendMatches) {
 				extendMatches.forEach((match) => {
 					const typeName = match.replace("extends ", "").trim();
-					if (!options.availableTypes!.includes(typeName)) {
+					if (!options.availableTypes?.includes(typeName)) {
 						errors.push(`Unknown type referenced: ${typeName}`);
 					}
 				});
@@ -453,7 +453,7 @@ export class CodeFragmentBuilder {
 			if (!groups.has(value)) {
 				groups.set(value, []);
 			}
-			groups.get(value)!.push(fragment);
+			groups.get(value)?.push(fragment);
 		});
 
 		return groups;
@@ -657,15 +657,12 @@ export class CodeFragmentBuilder {
 				break;
 			case "multi-line": {
 				const lines = documentation.split("\n");
-				content =
-					"/*\n" + lines.map((line) => ` * ${line}`).join("\n") + "\n */";
+				content = `/*\n${lines.map((line) => ` * ${line}`).join("\n")}\n */`;
 				break;
 			}
-			case "jsdoc":
 			default: {
 				const docLines = documentation.split("\n");
-				content =
-					"/**\n" + docLines.map((line) => ` * ${line}`).join("\n") + "\n */";
+				content = `/**\n${docLines.map((line) => ` * ${line}`).join("\n")}\n */`;
 				break;
 			}
 		}
@@ -695,7 +692,9 @@ export class CodeFragmentBuilder {
 		let match;
 
 		while ((match = placeholderRegex.exec(template)) !== null) {
-			foundPlaceholders.add(match[1]);
+			if (match[1]) {
+				foundPlaceholders.add(match[1]);
+			}
 		}
 
 		return {
@@ -1198,11 +1197,11 @@ export class ASTRenderer {
 
 		// Add documentation
 		if (documentation && node.metadata?.documentation) {
-			lines.push(this.indent(indentLevel) + "/**");
+			lines.push(`${this.indent(indentLevel)}/**`);
 			lines.push(
-				this.indent(indentLevel) + ` * ${node.metadata.documentation}`,
+				`${this.indent(indentLevel)} * ${node.metadata.documentation}`,
 			);
-			lines.push(this.indent(indentLevel) + " */");
+			lines.push(`${this.indent(indentLevel)} */`);
 		}
 
 		// Interface declaration line
@@ -1249,7 +1248,7 @@ export class ASTRenderer {
 		}
 
 		// Closing brace
-		lines.push(this.indent(indentLevel) + "}");
+		lines.push(`${this.indent(indentLevel)}}`);
 
 		return lines.join("\n");
 	}
@@ -1268,9 +1267,9 @@ export class ASTRenderer {
 
 		// Add documentation
 		if (node.documentation) {
-			lines.push(this.indent(indentLevel) + "/**");
-			lines.push(this.indent(indentLevel) + ` * ${node.documentation}`);
-			lines.push(this.indent(indentLevel) + " */");
+			lines.push(`${this.indent(indentLevel)}/**`);
+			lines.push(`${this.indent(indentLevel)} * ${node.documentation}`);
+			lines.push(`${this.indent(indentLevel)} */`);
 		}
 
 		// Property line
