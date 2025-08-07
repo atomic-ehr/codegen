@@ -7,14 +7,13 @@
 import { access, writeFile } from "fs/promises";
 import { join, resolve } from "path";
 import type { CommandModule } from "yargs";
-import type { ConfigFileSchema } from "../../../lib/core/config-schema";
+import type { Config } from "../../../config";
 
 interface InitCommandArgs {
 	output?: string;
 	"working-dir"?: string;
 	template?: "minimal" | "full" | "typescript" | "multi-lang";
 	force?: boolean;
-	format?: "json" | "js";
 }
 
 /**
@@ -48,12 +47,6 @@ export const configInitCommand: CommandModule<{}, InitCommandArgs> = {
 			default: false,
 			description: "Overwrite existing configuration file",
 		},
-		format: {
-			type: "string",
-			choices: ["json", "js"] as const,
-			default: "json" as const,
-			description: "Configuration file format",
-		},
 	},
 	handler: async (argv) => {
 		await initConfig({
@@ -61,7 +54,6 @@ export const configInitCommand: CommandModule<{}, InitCommandArgs> = {
 			workingDir: argv["working-dir"] || process.cwd(),
 			template: argv.template || "minimal",
 			force: argv.force || false,
-			format: argv.format || "json",
 		});
 	},
 };
@@ -71,19 +63,17 @@ interface InitConfigOptions {
 	workingDir: string;
 	template: "minimal" | "full" | "typescript" | "multi-lang";
 	force: boolean;
-	format: "json" | "js";
 }
 
 /**
  * Initialize configuration file
  */
 export async function initConfig(options: InitConfigOptions): Promise<void> {
-	const { outputPath, workingDir, template, force, format } = options;
+	const { outputPath, workingDir, template, force } = options;
 
 	try {
 		// Determine output file path
-		const fileName =
-			format === "js" ? ".atomic-codegen.js" : ".atomic-codegen.json";
+		const fileName = "atomic-codegen.config.ts";
 		const filePath = outputPath
 			? resolve(outputPath)
 			: join(workingDir, fileName);
@@ -103,22 +93,18 @@ export async function initConfig(options: InitConfigOptions): Promise<void> {
 		// Generate configuration based on template
 		const config = generateConfigTemplate(template);
 
-		// Write configuration file
-		if (format === "js") {
-			await writeJSConfig(filePath, config);
-		} else {
-			await writeJSONConfig(filePath, config);
-		}
+		// Write TypeScript configuration file
+		await writeTSConfig(filePath, config);
 
 		console.log(`✅ Created configuration file: ${filePath}`);
 		console.log();
 		console.log("📝 Next steps:");
 		console.log(`   1. Review and customize the configuration in ${filePath}`);
 		console.log(
-			"   2. Validate your configuration: atomic-codegen config validate",
+			"   2. Generate TypeScript types: atomic-codegen generate typescript",
 		);
 		console.log(
-			"   3. Test your setup: atomic-codegen typeschema create hl7.fhir.r4.core",
+			"   3. Or generate with specific packages: atomic-codegen generate typescript --packages hl7.fhir.r4.core",
 		);
 	} catch (error) {
 		console.error(
@@ -133,158 +119,99 @@ export async function initConfig(options: InitConfigOptions): Promise<void> {
  */
 function generateConfigTemplate(
 	template: "minimal" | "full" | "typescript" | "multi-lang",
-): ConfigFileSchema {
-	const baseConfig: ConfigFileSchema = {
+): Config {
+	const baseConfig: Config = {
 		$schema: "https://atomic-ehr.github.io/codegen/config-schema.json",
-		version: "1.0.0",
+		outputDir: "./generated",
+		verbose: false,
+		overwrite: true,
+		validate: true,
+		cache: true,
 	};
 
 	switch (template) {
 		case "minimal":
 			return {
 				...baseConfig,
-				typeschema: {
-					packages: ["hl7.fhir.r4.core@4.0.1"],
-					outputFormat: "ndjson",
-					validation: true,
-				},
-				generator: {
-					target: "typescript",
-					outputDir: "./generated",
-					includeComments: true,
-					includeValidation: false,
-					namespaceStyle: "nested",
+				packages: ["hl7.fhir.r4.core@4.0.1"],
+				typescript: {
+					moduleFormat: "esm",
+					generateIndex: true,
+					includeDocuments: false,
+					namingConvention: "PascalCase",
+					strictMode: true,
+					generateValidators: false,
+					generateGuards: false,
+					includeProfile: true,
+					includeExtensions: false,
 				},
 			};
 
 		case "typescript":
 			return {
 				...baseConfig,
-				project: {
-					name: "my-fhir-project",
-					description: "FHIR TypeScript types generated with atomic-codegen",
-				},
-				typeschema: {
-					packages: ["hl7.fhir.r4.core@4.0.1"],
-					outputFormat: "ndjson",
-					validation: true,
-				},
-				generator: {
-					target: "typescript",
-					outputDir: "./src/types/fhir",
-					includeComments: true,
-					includeValidation: false,
-					namespaceStyle: "nested",
-					fileNaming: "PascalCase",
-					format: true,
-					fileHeader: "Auto-generated FHIR types - DO NOT EDIT",
-				},
-				languages: {
-					typescript: {
-						strict: true,
-						target: "ES2020",
-						module: "ES2020",
-						declaration: true,
-						useEnums: true,
-						preferInterfaces: true,
-					},
+				outputDir: "./src/types/fhir",
+				packages: ["hl7.fhir.r4.core@4.0.1"],
+				typescript: {
+					moduleFormat: "esm",
+					generateIndex: true,
+					includeDocuments: true,
+					namingConvention: "PascalCase",
+					strictMode: true,
+					generateValidators: true,
+					generateGuards: true,
+					includeProfile: true,
+					includeExtensions: false,
 				},
 			};
 
 		case "multi-lang":
 			return {
 				...baseConfig,
-				project: {
-					name: "multi-language-fhir",
-					description: "FHIR types for multiple programming languages",
+				packages: ["hl7.fhir.r4.core@4.0.1", "hl7.fhir.us.core@6.1.0"],
+				typescript: {
+					moduleFormat: "esm",
+					generateIndex: true,
+					includeDocuments: true,
+					namingConvention: "PascalCase",
+					strictMode: true,
+					generateValidators: true,
+					generateGuards: true,
+					includeProfile: true,
+					includeExtensions: false,
 				},
-				typeschema: {
-					packages: ["hl7.fhir.r4.core@4.0.1", "hl7.fhir.us.core@6.1.0"],
-					outputFormat: "ndjson",
-					validation: true,
-				},
-				generator: {
-					target: "typescript",
-					outputDir: "./generated",
-					includeComments: true,
-					includeValidation: true,
-					namespaceStyle: "nested",
-				},
-				languages: {
-					typescript: {
-						strict: true,
-						target: "ES2020",
-						module: "ES2020",
-						declaration: true,
-					},
-					python: {
-						version: "3.11",
-						typeHints: true,
-						usePydantic: true,
-					},
-					java: {
-						version: "17",
-						packageName: "com.example.fhir",
-						useJackson: true,
-						useValidation: true,
-					},
+				restClient: {
+					clientName: "FHIRClient",
+					baseUrl: "https://api.example.com/fhir",
+					apiVersion: "R4",
+					generateMocks: false,
+					authType: "none",
 				},
 			};
 
 		case "full":
 			return {
 				...baseConfig,
-				project: {
-					name: "comprehensive-fhir-setup",
-					version: "1.0.0",
-					description: "Complete FHIR code generation setup",
-					rootDir: process.cwd(),
-					workingDir: "tmp/atomic-codegen",
+				outputDir: "./src/generated",
+				verbose: true,
+				packages: ["hl7.fhir.r4.core@4.0.1", "hl7.fhir.us.core@6.1.0"],
+				typescript: {
+					moduleFormat: "esm",
+					generateIndex: true,
+					includeDocuments: true,
+					namingConvention: "PascalCase",
+					strictMode: true,
+					generateValidators: true,
+					generateGuards: true,
+					includeProfile: true,
+					includeExtensions: true,
 				},
-				typeschema: {
-					packages: ["hl7.fhir.r4.core@4.0.1", "hl7.fhir.us.core@6.1.0"],
-					outputFormat: "separate",
-					validation: true,
-					treeshaking: ["Patient", "Observation", "Encounter"],
-					verbose: false,
-					dropCache: false,
-				},
-				generator: {
-					target: "typescript",
-					outputDir: "./src/generated",
-					includeComments: true,
-					includeValidation: true,
-					namespaceStyle: "nested",
-					fileNaming: "PascalCase",
-					format: true,
-					fileHeader: "Generated by atomic-codegen",
-					overwrite: true,
-					verbose: false,
-				},
-				languages: {
-					typescript: {
-						strict: true,
-						target: "ES2020",
-						module: "ES2020",
-						declaration: true,
-						baseTypesModule: "@types/fhir",
-						useEnums: true,
-						preferInterfaces: true,
-					},
-				},
-				global: {
-					verbose: false,
-					cache: {
-						enabled: true,
-						directory: "tmp/cache",
-						ttl: 3600,
-						maxSize: 100,
-					},
-					logging: {
-						level: "info",
-						format: "text",
-						output: "console",
-					},
+				restClient: {
+					clientName: "FHIRClient",
+					baseUrl: "https://api.example.com/fhir",
+					apiVersion: "R4",
+					generateMocks: true,
+					authType: "bearer",
 				},
 			};
 
@@ -294,29 +221,17 @@ function generateConfigTemplate(
 }
 
 /**
- * Write JSON configuration file
+ * Write TypeScript configuration file
  */
-async function writeJSONConfig(
-	filePath: string,
-	config: ConfigFileSchema,
-): Promise<void> {
-	const content = JSON.stringify(config, null, 2);
-	await writeFile(filePath, content, "utf-8");
-}
+async function writeTSConfig(filePath: string, config: Config): Promise<void> {
+	const content = `import type { Config } from '@atomic-ehr/codegen';
 
 /**
- * Write JavaScript configuration file
- */
-async function writeJSConfig(
-	filePath: string,
-	config: ConfigFileSchema,
-): Promise<void> {
-	const content = `/**
  * Atomic Codegen Configuration
- * 
- * @type {import('@atomic-ehr/codegen').ConfigFileSchema}
  */
-module.exports = ${JSON.stringify(config, null, 2)};
+const config: Config = ${JSON.stringify(config, null, 2)};
+
+export default config;
 `;
 	await writeFile(filePath, content, "utf-8");
 }

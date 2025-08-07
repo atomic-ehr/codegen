@@ -7,7 +7,7 @@
 import { mkdir, readdir, readFile, stat, writeFile } from "fs/promises";
 import { dirname, extname, join, resolve } from "path";
 import type { CommandModule } from "yargs";
-import type { AnyTypeSchema } from "../../../lib/typeschema/types";
+import type { AnyTypeSchema } from "../../../typeschema/lib-types";
 
 interface MergeCommandArgs {
 	input: string[];

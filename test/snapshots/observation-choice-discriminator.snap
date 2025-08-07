@@ -1,0 +1,42 @@
+/**
+ * Discriminate value[x] choice type
+ */
+export function discriminateValueChoice(value: unknown): ValueChoiceResult | null {
+	if (!value || typeof value !== 'object') return null;
+	const obj = value as Record<string, unknown>;
+	
+	if ('valueQuantity' in obj && obj.valueQuantity !== undefined) {
+		return { type: 'Quantity', value: obj.valueQuantity, fieldName: 'valueQuantity' };
+	}
+	if ('valueCodeableConcept' in obj && obj.valueCodeableConcept !== undefined) {
+		return { type: 'CodeableConcept', value: obj.valueCodeableConcept, fieldName: 'valueCodeableConcept' };
+	}
+	if ('valueString' in obj && obj.valueString !== undefined) {
+		return { type: 'string', value: obj.valueString, fieldName: 'valueString' };
+	}
+	if ('valueBoolean' in obj && obj.valueBoolean !== undefined) {
+		return { type: 'boolean', value: obj.valueBoolean, fieldName: 'valueBoolean' };
+	}
+	
+	return null;
+}
+
+/**
+ * Type guard for value[x] choice type validity
+ */
+export function isValueChoiceValid(value: unknown): boolean {
+	if (!value || typeof value !== 'object') return false;
+	const obj = value as Record<string, unknown>;
+	
+	let choiceCount = 0;
+	const choiceFields = ['valueQuantity', 'valueCodeableConcept', 'valueString', 'valueBoolean'];
+	
+	for (const fieldName of choiceFields) {
+		if (fieldName in obj && obj[fieldName] !== undefined) {
+			choiceCount++;
+		}
+	}
+	
+	// Valid choice type must have exactly one choice field
+	return choiceCount === 1;
+}

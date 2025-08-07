@@ -39,3 +39,4 @@ test-output
 .lsp
 .clj-kondo
 /types/
+/generated

@@ -14,12 +14,12 @@ import {
 	isValidatorAvailable,
 	validateTypeSchemas as validateMultipleWithJsonSchema,
 	validateTypeSchema as validateWithJsonSchema,
-} from "../../../lib/typeschema";
+} from "../../../typeschema";
 import type {
 	AnyTypeSchema,
 	AnyTypeSchemaCompliant,
 	TypeSchemaIdentifier,
-} from "../../../lib/typeschema/types";
+} from "../../../typeschema/lib-types";
 
 interface ValidateCommandArgs {
 	input: string[];
@@ -201,7 +201,7 @@ export async function validateTypeSchema(
 				const jsonResult = jsonSchemaResults[i];
 				const schema = allSchemas[i];
 				if (!jsonResult || !schema) continue;
-				
+
 				const schemaName = schema.identifier?.name || "unknown";
 
 				if (!jsonResult.valid && jsonResult.errors) {
@@ -525,7 +525,7 @@ function validateDependencies(
 		const schemaName = schema.identifier?.name || "unknown";
 
 		// Check dependencies array (only available on certain schema types)
-		if ('dependencies' in schema && schema.dependencies) {
+		if ("dependencies" in schema && schema.dependencies) {
 			for (const dep of schema.dependencies) {
 				const depKey = `${dep.package}:${dep.name}`;
 				if (!identifierMap.has(depKey)) {

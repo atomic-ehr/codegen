@@ -1,0 +1,91 @@
+/**
+ * High-Level API Module
+ *
+ * Main entry point for the atomic-codegen high-level API.
+ * Provides convenient access to all generators and utilities.
+ *
+ * @packageDocumentation
+ */
+
+// Re-export core utilities
+export {
+	TypeSchemaCache,
+	TypeSchemaGenerator,
+	TypeSchemaParser,
+	TypeSchemaValidator,
+	TypeScriptTransformer,
+} from "../typeschema";
+// Re-export core TypeSchema types for convenience
+export type {
+	AnyTypeSchema,
+	PackageInfo,
+	TypeSchema,
+	TypeSchemaField,
+	TypeSchemaFieldPolymorphicDeclaration,
+	TypeSchemaFieldPolymorphicInstance,
+	TypeSchemaFieldRegular,
+	TypeSchemaIdentifier,
+} from "../typeschema/types";
+// Export types and interfaces
+export type {
+	APIBuilderOptions,
+	GenerationResult,
+	ProgressCallback,
+} from "./builder";
+// Export main API builder and utilities
+export {
+	APIBuilder,
+	createAPI,
+	generateTypesFromFiles,
+	generateTypesFromPackage,
+} from "./builder";
+export type {
+	GeneratedRESTClientFile,
+	RESTClientAPIOptions,
+} from "./generators/rest-client";
+export { RESTClientAPIGenerator } from "./generators/rest-client";
+export type {
+	GeneratedFile,
+	TypeScriptAPIOptions,
+} from "./generators/typescript";
+// Export generator classes for advanced usage
+export { TypeScriptAPIGenerator } from "./generators/typescript";
+
+/**
+ * Quick start examples:
+ *
+ * @example
+ * Generate TypeScript types from a FHIR package:
+ * ```typescript
+ * import { createAPI } from '@atomic-codegen/api';
+ *
+ * const result = await createAPI()
+ *   .fromPackage('hl7.fhir.r4.core')
+ *   .typescript()
+ *   .generate();
+ * ```
+ *
+ * @example
+ * Generate REST client from TypeSchema files:
+ * ```typescript
+ * import { createAPI } from '@atomic-codegen/api';
+ *
+ * const result = await createAPI()
+ *   .fromFiles('./schemas/*.ndjson')
+ *   .typescript()
+ *   .restClient({ httpClient: 'fetch' })
+ *   .generate();
+ * ```
+ *
+ * @example
+ * Build in-memory without writing files:
+ * ```typescript
+ * import { createAPI } from '@atomic-codegen/api';
+ *
+ * const results = await createAPI()
+ *   .fromPackage('hl7.fhir.r4.core')
+ *   .typescript()
+ *   .restClient()
+ *   .build();
+ * ```
+ */

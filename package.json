@@ -1,70 +1,82 @@
 {
-  "name": "@atomic-ehr/codegen",
-  "version": "0.0.1",
-  "description": "Code generation tools for FHIR resources and TypeSchema definitions",
-  "keywords": [
-    "fhir",
-    "codegen",
-    "typescript",
-    "healthcare",
-    "ehr",
-    "typeschema"
-  ],
-  "module": "src/index.ts",
-  "main": "src/index.ts",
-  "type": "module",
-  "bin": {
-    "atomic-codegen": "./dist/cli/index.ts"
-  },
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "test": "bun test",
-    "build": "bun build src/index.ts --outdir dist --target node --format esm --splitting --external typescript",
-    "typecheck": "bunx tsc --noEmit",
-    "cli": "bun run src/cli/index.ts",
-    "generate-types": "bun run src/cli/generate-types.ts",
-    "lint": "biome check --write ./src",
-    "check:r4": "bun run src/cli/index.ts --package hl7.fhir.r4.core --output types/r4",
-    "check:uscore": "bun run src/cli/index.ts --package hl7.fhir.us.core --output types/uscore",
-    "check:typescript": "bun run src/cli/index.ts --input types/r4/generate.ndjson --output types/r4/generated.ts",
-    "example:help": "bun run src/cli/index.ts --help",
-    "example:create": "bun run src/cli/index.ts typeschema create hl7.fhir.r4.core@4.0.1 -o types/r4.ndjson -v",
-    "example:validate": "bun run src/cli/index.ts typeschema validate types/r4.ndjson -v",
-    "example:merge": "bun run src/cli/index.ts typeschema merge types/*.ndjson -o types/merged.ndjson -v",
-    "example:generate": "bun run src/cli/index.ts generate typescript -i types/r4.ndjson -o types/generated -v",
-    "dev:create": "bun run src/cli/index.ts typeschema create -o types/dev.ndjson",
-    "dev:generate": "bun run src/cli/index.ts generate typescript -i types/dev.ndjson",
-    "dev:full": "bun run dev:create && bun run dev:generate",
-    "example:config-init": "bun run src/cli/index.ts config init --template typescript",
-    "example:config-validate": "bun run src/cli/index.ts config validate",
-    "example:config-show": "bun run src/cli/index.ts config show --show-sources",
-    "demo:full": "bun run example:create && bun run example:validate && bun run example:generate",
-    "demo:config": "bun run example:config-init && bun run example:config-validate && bun run example:config-show"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/atomic-ehr/codegen.git"
-  },
-  "author": "Atomic EHR Team",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/atomic-ehr/codegen/issues"
-  },
-  "homepage": "https://github.com/atomic-ehr/codegen#readme",
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@biomejs/biome": "^2.1.3",
-    "@types/yargs": "^17.0.33"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
-  "dependencies": {
-    "@atomic-ehr/fhir-canonical-manager": "^0.0.8",
-    "@atomic-ehr/fhirschema": "^0.0.2",
-    "ajv": "^8.17.1",
-    "yargs": "^18.0.0"
-  }
+	"name": "@atomic-ehr/codegen",
+	"version": "0.0.1",
+	"description": "Code generation tools for FHIR resources and TypeSchema definitions",
+	"keywords": [
+		"fhir",
+		"codegen",
+		"typescript",
+		"healthcare",
+		"ehr",
+		"typeschema"
+	],
+	"module": "src/index.ts",
+	"main": "src/index.ts",
+	"type": "module",
+	"bin": {
+		"atomic-codegen": "./dist/cli/index.ts"
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"test": "bun test",
+		"test:watch": "bun test --watch",
+		"test:coverage": "bun test --coverage",
+		"test:unit": "bun test test/unit/",
+		"test:integration": "bun test test/integration/",
+		"test:e2e": "bun test test/e2e/",
+		"test:benchmarks": "bun test test/benchmarks/",
+		"test:ci": "bun test --coverage --bail",
+		"build": "bun build src/index.ts --outdir dist --target node --format esm --splitting --external typescript",
+		"typecheck": "bunx tsc --noEmit",
+		"cli": "bun run src/cli/index.ts",
+		"codegen": "bun run src/cli/index.ts",
+		"codegen:all": "bun run src/cli/index.ts generate typescript",
+		"codegen:dev": "bun run src/cli/index.ts dev --template",
+		"codegen:test": "bun test test/codegen/",
+		"lint": "biome check --write ./src",
+		"docs": "typedoc",
+		"docs:api": "typedoc --out docs/api",
+		"docs:serve": "bunx serve docs -p 8080",
+		"docs:watch": "typedoc --watch",
+		"docs:build": "bun run docs:api && bun run docs:validate",
+		"docs:validate": "bun run docs:validate:links && bun run docs:validate:examples",
+		"docs:validate:links": "echo 'Validating documentation links...' && find docs -name '*.md' -exec grep -l 'http' {} \\;",
+		"docs:validate:examples": "echo 'Validating code examples...' && bun run examples:test",
+		"docs:clean": "rm -rf docs/api && mkdir -p docs/api",
+		"examples": "echo 'Running all examples...' && bun run examples:basic && bun run examples:frontend && bun run examples:api",
+		"examples:basic": "cd examples/basic-usage && bun install && bun run generate:all",
+		"examples:frontend": "cd examples/frontend-app && bun install && bun run build",
+		"examples:api": "cd examples/healthcare-api && bun install && bun run build",
+		"examples:test": "bun run examples:basic && echo 'Examples validated successfully'"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/atomic-ehr/codegen.git"
+	},
+	"author": "Atomic EHR Team",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/atomic-ehr/codegen/issues"
+	},
+	"homepage": "https://github.com/atomic-ehr/codegen#readme",
+	"devDependencies": {
+		"@biomejs/biome": "^2.1.3",
+		"@types/bun": "latest",
+		"@types/node": "22",
+		"@types/yargs": "^17.0.33",
+		"typedoc": "^0.28.9",
+		"typedoc-plugin-markdown": "^4.0.0",
+		"typescript": "^5.8.3"
+	},
+	"dependencies": {
+		"@atomic-ehr/fhir-canonical-manager": "^0.0.10",
+		"@atomic-ehr/fhirschema": "^0.0.2",
+		"@inquirer/prompts": "^7.0.0",
+		"ajv": "^8.17.1",
+		"picocolors": "^1.0.0",
+		"ora": "^8.1.0",
+		"yargs": "^18.0.0"
+	}
 }

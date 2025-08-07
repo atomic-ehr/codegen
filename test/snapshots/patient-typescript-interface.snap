@@ -1,0 +1,24 @@
+/**
+ * Demographics and other administrative information about an individual or animal receiving care or other health-related services.
+ */
+export interface Patient {
+	resourceType: "Patient";
+	
+	/** Logical id of this artifact */
+	id?: string;
+	
+	/** Metadata about the resource */
+	meta?: Meta;
+	
+	/** A name associated with the patient */
+	name?: HumanName[];
+	
+	/** Administrative Gender - male | female | other | unknown */
+	gender?: "male" | "female" | "other" | "unknown";
+	
+	/** The date of birth for the individual */
+	birthDate?: string;
+	
+	/** Whether this patient's record is in active use */
+	active?: boolean;
+}

@@ -8,36 +8,38 @@
 
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { ConfigManager } from "../../lib/core/config-manager";
-import type { AtomicCodegenConfig } from "../../lib/core/config-schema";
-import { AtomicCodegenError, ConfigurationError } from "../../lib/core/errors";
-import { createLoggerFromConfig, type ILogger, LogLevel } from "../../lib/core/logger";
-import { ensureInitialized } from "../../lib/generators";
+import { AtomicCodegenError } from "../../core/utils/errors";
+import {
+	createLoggerFromConfig,
+	type ILogger,
+	LogLevel,
+} from "../../core/utils/logger";
 import { configCommand } from "./config";
+import { devCommand } from "./dev";
 import { generateCommand } from "./generate";
-import { generatorsCommand } from "./generators";
+import { initCommand } from "./init";
 import { typeschemaCommand } from "./typeschema";
 import { validateCommand } from "./validate";
+import { watchCommand } from "./watch";
 
 /**
- * Extended argv interface with config
+ * CLI arguments interface
  */
-export interface CLIArgvWithConfig {
+export interface CLIArgv {
 	config?: string;
 	verbose?: boolean;
 	debug?: boolean;
 	logLevel?: string;
 	logFormat?: string;
 	logFile?: string;
-	_config?: AtomicCodegenConfig;
 	_logger?: ILogger;
 }
 
 /**
- * Middleware to load configuration and setup logging
+ * Middleware to setup logging
  */
-async function loadConfigMiddleware(argv: any) {
-	// Create logger first so we can use it for configuration loading
+async function setupLoggingMiddleware(argv: any) {
+	// Create logger for CLI operations
 	const logger = createLoggerFromConfig({
 		verbose: argv.verbose,
 		debug: argv.debug,
@@ -49,91 +51,6 @@ async function loadConfigMiddleware(argv: any) {
 
 	// Attach logger to argv for use in commands
 	argv._logger = logger;
-
-	try {
-		await logger.debug(
-			"Loading configuration",
-			{
-				configPath: argv.config,
-				workingDir: process.cwd(),
-			},
-			"loadConfig",
-		);
-
-		const configManager = new ConfigManager();
-		const config = await configManager.loadConfig({
-			configPath: argv.config,
-			workingDir: process.cwd(),
-			cliArgs: {
-				global: {
-					verbose: argv.verbose,
-					debug: argv.debug,
-				},
-			},
-		});
-
-		// Attach config to argv for use in commands
-		argv._config = config;
-
-		const sources = Array.from(configManager.getConfigSources().values());
-		await logger.info(
-			"Configuration loaded successfully",
-			{
-				sources: sources.map((s) => s.type),
-				configPath: argv.config || "default",
-			},
-			"loadConfig",
-		);
-
-		// Initialize generator system
-		try {
-			await ensureInitialized();
-			await logger.debug(
-				"Generator system initialized",
-				undefined,
-				"loadConfig",
-			);
-		} catch (error) {
-			await logger.warn(
-				"Generator system initialization failed",
-				{
-					error: error instanceof Error ? error.message : String(error),
-				},
-			);
-		}
-	} catch (error) {
-		// If config loading fails, continue with defaults but warn
-		const configError =
-			error instanceof Error
-				? new ConfigurationError(
-						`Failed to load configuration: ${error.message}`,
-						{
-							context: {
-								configPath: argv.config,
-								workingDir: process.cwd(),
-							},
-							suggestions: [
-								"Check that the configuration file exists and is readable",
-								"Verify the configuration file syntax is valid JSON",
-								'Run "atomic-codegen config validate" to check your configuration',
-								'Use "atomic-codegen config init" to create a new configuration file',
-							],
-							recoverable: true,
-							cause: error,
-						},
-					)
-				: new ConfigurationError("Unknown configuration error", {
-						context: { configPath: argv.config },
-						recoverable: true,
-					});
-
-		await logger.warn(
-			"Configuration loading failed, using defaults",
-			{
-				error: configError.message,
-			},
-		);
-	}
 }
 
 /**
@@ -143,12 +60,14 @@ export function createCLI() {
 	return yargs(hideBin(process.argv))
 		.scriptName("atomic-codegen")
 		.usage("$0 <command> [options]")
-		.middleware(loadConfigMiddleware)
+		.middleware(setupLoggingMiddleware)
+		.command(initCommand)
 		.command(typeschemaCommand)
 		.command(generateCommand)
+		.command(watchCommand)
+		.command(devCommand)
 		.command(configCommand)
 		.command(validateCommand)
-		.command(generatorsCommand)
 		.option("verbose", {
 			alias: "v",
 			type: "boolean",
@@ -188,12 +107,49 @@ export function createCLI() {
 				"Path to configuration file (.atomic-codegen.json by default)",
 			global: true,
 		})
-		.demandCommand(1, "You must specify a command")
+		.demandCommand(0) // Allow 0 commands so we can handle it ourselves
+		.middleware((argv) => {
+			// Check if no command was provided (only the script name in argv._)
+			if (argv._.length === 0) {
+				// Show available commands instead of error
+				console.log("🚀 Welcome to Atomic Codegen!\n");
+				console.log("📋 Available commands:\n");
+				console.log("  init         Initialize a new atomic-codegen project");
+				console.log(
+					"  typeschema   Generate, validate and merge TypeSchema files",
+				);
+				console.log(
+					"  generate     Generate code from TypeSchema (TypeScript, REST clients)",
+				);
+				console.log(
+					"  watch        Watch files and regenerate code on changes",
+				);
+				console.log("  dev          Development tools and utilities");
+				console.log("  config       Manage configuration files");
+				console.log("  validate     Run comprehensive validation");
+				console.log(
+					"\nUse 'atomic-codegen <command> --help' for more information about a command.",
+				);
+				console.log("\n✨ Quick examples:");
+				console.log(
+					"  atomic-codegen typeschema generate hl7.fhir.r4.core@4.0.1 -o schemas.ndjson",
+				);
+				console.log(
+					"  atomic-codegen generate typescript -i schemas.ndjson -o ./types",
+				);
+				console.log(
+					"  atomic-codegen generate rest-client -i schemas.ndjson -o ./client",
+				);
+				console.log("  atomic-codegen config init");
+				console.log("\nUse 'atomic-codegen --help' to see all options.");
+				process.exit(0);
+			}
+		})
 		.help()
 		.version("0.1.0")
 		.example(
-			"$0 typeschema create hl7.fhir.r4.core",
-			"Create TypeSchema from FHIR package",
+			"$0 generate typescript --input types.ndjson",
+			"Generate TypeScript from TypeSchema files",
 		)
 		.example(
 			"$0 generate typescript -i types.ndjson -o ./generated",
@@ -209,7 +165,7 @@ export function createCLI() {
 			"Run comprehensive validation",
 		)
 		.example(
-			"$0 --config my-config.json typeschema create",
+			"$0 --config my-config.json generate typescript",
 			"Use custom configuration file",
 		)
 		.fail(async (msg, err, yargs) => {

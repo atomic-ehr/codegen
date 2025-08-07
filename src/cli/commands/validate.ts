@@ -6,18 +6,15 @@
 
 import { resolve } from "path";
 import type { CommandModule } from "yargs";
-import { validateGeneratedCode } from "../../lib/validation/generated-code";
-import { validateConfig } from "./config/validate";
-import type { CLIArgvWithConfig } from "./index";
+import { validateGeneratedCode } from "../../core/validation/generated-code";
+import type { CLIArgv } from "./index";
 import { validateTypeSchema } from "./typeschema/validate";
 
-interface ValidateCommandArgs extends CLIArgvWithConfig {
+interface ValidateCommandArgs extends CLIArgv {
 	input?: string[];
 	output?: string;
-	"config-only"?: boolean;
 	"typeschema-only"?: boolean;
 	"generated-code-only"?: boolean;
-	"skip-config"?: boolean;
 	"skip-typeschema"?: boolean;
 	"skip-generated-code"?: boolean;
 	verbose?: boolean;
@@ -28,7 +25,6 @@ interface ValidateCommandArgs extends CLIArgvWithConfig {
 interface ValidationSummary {
 	valid: boolean;
 	results: {
-		config?: any;
 		typeschema?: any;
 		generatedCode?: any;
 	};
@@ -39,14 +35,14 @@ interface ValidationSummary {
 
 interface ValidationError {
 	type: "error";
-	source: "config" | "typeschema" | "generated-code";
+	source: "typeschema" | "generated-code";
 	message: string;
 	severity: "critical" | "major" | "minor";
 }
 
 interface ValidationWarning {
 	type: "warning";
-	source: "config" | "typeschema" | "generated-code";
+	source: "typeschema" | "generated-code";
 	message: string;
 }
 
@@ -75,11 +71,6 @@ export const validateCommand: CommandModule<{}, ValidateCommandArgs> = {
 			type: "string",
 			description: "Generated code output directory to validate",
 		},
-		"config-only": {
-			type: "boolean",
-			default: false,
-			description: "Only validate configuration",
-		},
 		"typeschema-only": {
 			type: "boolean",
 			default: false,
@@ -89,11 +80,6 @@ export const validateCommand: CommandModule<{}, ValidateCommandArgs> = {
 			type: "boolean",
 			default: false,
 			description: "Only validate generated code",
-		},
-		"skip-config": {
-			type: "boolean",
-			default: false,
-			description: "Skip configuration validation",
 		},
 		"skip-typeschema": {
 			type: "boolean",
@@ -128,17 +114,14 @@ export const validateCommand: CommandModule<{}, ValidateCommandArgs> = {
 		const result = await runComprehensiveValidation({
 			inputPaths: argv.input || [],
 			outputDir: argv.output,
-			configOnly: argv["config-only"] || false,
 			typeschemaOnly: argv["typeschema-only"] || false,
 			generatedCodeOnly: argv["generated-code-only"] || false,
-			skipConfig: argv["skip-config"] || false,
 			skipTypeschema: argv["skip-typeschema"] || false,
 			skipGeneratedCode: argv["skip-generated-code"] || false,
 			verbose: argv.verbose || false,
 			strict: argv.strict || false,
 			outputFormat: argv["output-format"] || "text",
 			workingDir: process.cwd(),
-			configPath: argv.config,
 		});
 
 		if (argv["output-format"] === "json") {
@@ -157,17 +140,14 @@ export const validateCommand: CommandModule<{}, ValidateCommandArgs> = {
 interface ComprehensiveValidationOptions {
 	inputPaths: string[];
 	outputDir?: string;
-	configOnly: boolean;
 	typeschemaOnly: boolean;
 	generatedCodeOnly: boolean;
-	skipConfig: boolean;
 	skipTypeschema: boolean;
 	skipGeneratedCode: boolean;
 	verbose: boolean;
 	strict: boolean;
 	outputFormat: "text" | "json";
 	workingDir: string;
-	configPath?: string;
 }
 
 /**
@@ -192,108 +172,19 @@ export async function runComprehensiveValidation(
 
 	try {
 		// Determine which validations to run
-		const runConfig =
-			!options.skipConfig &&
-			!options.typeschemaOnly &&
-			!options.generatedCodeOnly;
 		const runTypeschema =
 			!options.skipTypeschema &&
-			!options.configOnly &&
 			!options.generatedCodeOnly &&
 			options.inputPaths.length > 0;
 		const runGeneratedCode =
 			!options.skipGeneratedCode &&
-			!options.configOnly &&
 			!options.typeschemaOnly &&
 			options.outputDir;
 
 		if (options.verbose) {
 			console.error(
-				`[VALIDATE] Running validations: config=${runConfig}, typeschema=${runTypeschema}, generated-code=${runGeneratedCode}`,
+				`[VALIDATE] Running validations: typeschema=${runTypeschema}, generated-code=${runGeneratedCode}`,
 			);
-		}
-
-		// Run configuration validation
-		if (runConfig) {
-			summary.stats.totalValidations++;
-			try {
-				if (options.verbose) {
-					console.error("[VALIDATE] Validating configuration...");
-				}
-
-				// Capture config validation output
-				const originalConsoleLog = console.log;
-				const originalConsoleError = console.error;
-				let configOutput = "";
-
-				console.log = (msg: string) => {
-					configOutput += msg + "\n";
-				};
-				console.error = () => {}; // Suppress config validation output
-
-				await validateConfig({
-					configPath: options.configPath,
-					workingDir: options.workingDir,
-					outputFormat: "json",
-					verbose: options.verbose,
-				});
-
-				console.log = originalConsoleLog;
-				console.error = originalConsoleError;
-
-				// Parse config validation result
-				try {
-					const configResult = JSON.parse(configOutput);
-					summary.results.config = configResult;
-
-					if (configResult.valid) {
-						summary.stats.passedValidations++;
-					} else {
-						summary.stats.failedValidations++;
-						summary.valid = false;
-
-						// Convert config errors to summary format
-						if (configResult.errors) {
-							for (const error of configResult.errors) {
-								summary.errors.push({
-									type: "error",
-									source: "config",
-									message: error.message || error,
-									severity: "major",
-								});
-							}
-						}
-					}
-
-					if (configResult.warnings) {
-						for (const warning of configResult.warnings) {
-							summary.warnings.push({
-								type: "warning",
-								source: "config",
-								message: warning.message || warning,
-							});
-						}
-					}
-				} catch (parseError) {
-					summary.stats.failedValidations++;
-					summary.valid = false;
-					summary.errors.push({
-						type: "error",
-						source: "config",
-						message: "Failed to parse configuration validation result",
-						severity: "critical",
-					});
-				}
-			} catch (error) {
-				summary.stats.failedValidations++;
-				summary.valid = false;
-				summary.errors.push({
-					type: "error",
-					source: "config",
-					message: `Configuration validation failed: ${error instanceof Error ? error.message : String(error)}`,
-					severity: "critical",
-				});
-			}
 		}
 
 		// Run TypeSchema validation
@@ -416,7 +307,7 @@ export async function runComprehensiveValidation(
 			summary.valid = false;
 			summary.errors.push({
 				type: "error",
-				source: "config",
+				source: "typeschema",
 				message:
 					"No validations were run. Please specify input files or output directory.",
 				severity: "critical",
@@ -426,7 +317,7 @@ export async function runComprehensiveValidation(
 		summary.valid = false;
 		summary.errors.push({
 			type: "error",
-			source: "config",
+			source: "typeschema",
 			message: `Comprehensive validation failed: ${error instanceof Error ? error.message : String(error)}`,
 			severity: "critical",
 		});
@@ -452,11 +343,6 @@ function printValidationSummary(
 	// Print validation results
 	if (verbose) {
 		console.log("\n📋 Validation Results:");
-		if (summary.results.config) {
-			console.log(
-				`   Configuration: ${summary.results.config.valid ? "✅ Valid" : "❌ Invalid"}`,
-			);
-		}
 		if (summary.results.typeschema) {
 			console.log(
 				`   TypeSchema: ${summary.results.typeschema.valid ? "✅ Valid" : "❌ Invalid"}`,

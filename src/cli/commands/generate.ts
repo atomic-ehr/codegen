@@ -1,255 +1,307 @@
 /**
- * Generate Commands
+ * Generate Command - High-Level API
  *
- * Commands for generating code from TypeSchema files using the registry system
+ * Main generate command that uses the high-level API for end-to-end generation
  */
 
-import { readdir, readFile, stat } from "fs/promises";
-import { extname, join, resolve } from "path";
 import type { CommandModule } from "yargs";
-import type { GeneratorConfig } from "../../lib/core/config";
-import {
-	FileSystemError,
-	ValidationError,
-} from "../../lib/core/errors";
-import type { ILogger } from "../../lib/core/logger";
-import { defaultRegistry, ensureInitialized } from "../../lib/generators";
-import { organizeSchemas } from "../../lib/generators/schema-organizer";
-import type { AnyTypeSchema } from "../../lib/typeschema";
-import type { CLIArgvWithConfig } from "./index";
+import { APIBuilder } from "../../api";
+import { loadConfig } from "../../config";
+import type { CLIArgv } from "./index";
 
-/**
- * Arguments for generate command
- */
-interface GenerateArgs extends CLIArgvWithConfig {
-	generator: string;
-	input: string;
+interface GenerateArgs extends CLIArgv {
+	packages?: string[];
+	input?: string;
 	output?: string;
-	verbose?: boolean;
-	overwrite?: boolean;
-	format?: boolean;
+	typescript?: boolean;
+	"rest-client"?: boolean;
+	format?: "esm" | "cjs";
+	"generate-index"?: boolean;
+	"include-docs"?: boolean;
+	"naming-convention"?: "PascalCase" | "camelCase";
 }
 
 /**
- * Generate command using registry system
+ * Main generate command using high-level API
  */
 export const generateCommand: CommandModule<{}, GenerateArgs> = {
-	command: "generate <generator>",
-	describe: "Generate code from TypeSchema files",
-	builder: (yargs) => {
-		return yargs
+	command: "generate [generator]",
+	describe:
+		"Generate code using the high-level API (supports TypeScript and REST client)",
+	builder: (yargs) =>
+		yargs
 			.positional("generator", {
+				describe: "Generator type",
+				choices: ["typescript", "ts", "rest-client", "client"],
+				default: "typescript",
+			})
+			.option("packages", {
+				alias: "p",
 				type: "string",
-				describe: "Generator ID (e.g., 'typescript')",
-				demandOption: true,
+				array: true,
+				description: "FHIR packages to load (e.g., hl7.fhir.r4.core@4.0.1)",
 			})
 			.option("input", {
 				alias: "i",
 				type: "string",
-				describe: "Input TypeSchema file or directory",
-				demandOption: true,
+				description: "Input TypeSchema files or directory",
 			})
 			.option("output", {
 				alias: "o",
 				type: "string",
-				describe: "Output directory (defaults to config generator.outputDir)",
-				demandOption: false,
+				description: "Output directory",
+			})
+			.option("typescript", {
+				type: "boolean",
+				description: "Generate TypeScript types",
+			})
+			.option("rest-client", {
+				type: "boolean",
+				description: "Generate REST API client",
+			})
+			.option("format", {
+				type: "string",
+				choices: ["esm", "cjs"] as const,
+				default: "esm" as const,
+				description: "Module format",
+			})
+			.option("generate-index", {
+				type: "boolean",
+				default: true,
+				description: "Generate index files",
+			})
+			.option("include-docs", {
+				type: "boolean",
+				default: true,
+				description: "Include documentation comments",
+			})
+			.option("naming-convention", {
+				type: "string",
+				choices: ["PascalCase", "camelCase"] as const,
+				default: "PascalCase" as const,
+				description: "Naming convention for generated files",
+			})
+			// REST Client specific options
+			.option("http-client", {
+				type: "string",
+				choices: ["fetch", "axios", "node-fetch"] as const,
+				default: "fetch" as const,
+				description: "HTTP client library for REST client",
+			})
+			.option("base-url", {
+				type: "string",
+				description: "Base URL for the REST API",
+			})
+			.option("api-version", {
+				type: "string",
+				description: "API version for the REST client",
+			})
+			.option("authentication", {
+				type: "string",
+				choices: ["bearer", "basic", "none"] as const,
+				default: "none" as const,
+				description: "Authentication method for REST client",
+			})
+			.option("include-validation", {
+				type: "boolean",
+				default: false,
+				description: "Include validation in REST client",
 			})
 			.option("verbose", {
 				alias: "v",
 				type: "boolean",
-				describe: "Enable verbose logging",
 				default: false,
-			})
-			.option("overwrite", {
-				type: "boolean",
-				describe: "Overwrite existing files",
-				default: true,
-			})
-			.option("format", {
-				type: "boolean",
-				describe: "Format generated code",
-				default: true,
+				description: "Enable verbose output",
 			})
 			.example(
-				"$0 generate typescript -i schemas.ndjson -o ./generated",
-				"Generate TypeScript from TypeSchema",
+				"$0 generate typescript",
+				"Generate TypeScript types using config file",
 			)
 			.example(
-				"$0 generate typescript --input types/ --output ./src/types",
-				"Generate from directory",
+				"$0 generate typescript -p hl7.fhir.r4.core -o ./types",
+				"Generate TypeScript types from FHIR R4 core package",
 			)
-			.example("$0 generators list", "List available generators");
-	},
+			.example(
+				"$0 generate rest-client -i ./schemas/*.ndjson -o ./client",
+				"Generate REST client from TypeSchema files",
+			)
+			.example(
+				"$0 generate rest-client -i schemas.ndjson -o ./client --http-client axios --base-url https://api.example.com",
+				"Generate REST client with custom HTTP client and base URL",
+			)
+			.example(
+				"$0 generate typescript --typescript --rest-client -o ./generated",
+				"Generate both TypeScript types and REST client",
+			)
+			.example(
+				"$0 generate rest-client --authentication bearer --include-validation",
+				"Generate REST client with authentication and validation",
+			),
 	handler: async (argv) => {
 		try {
-			// Ensure generator system is initialized
-			await ensureInitialized();
+			// Load config file first, then merge with CLI args (CLI args take priority)
+			const config = await loadConfig(process.cwd());
 
-			// Check if generator exists
-			if (!defaultRegistry.has(argv.generator)) {
-				console.error(`Generator not found: ${argv.generator}`);
-				console.log("\nAvailable generators:");
-				const generators = defaultRegistry.list();
-				for (const gen of generators) {
-					console.log(`  ${gen.id} - ${gen.name} (${gen.target})`);
-				}
-				console.log("\nUse 'generators list' for more details.");
-				process.exit(1);
+			const generator = argv.generator as string;
+			const verbose = argv.verbose ?? config.verbose ?? false;
+
+			if (verbose) {
+				console.log("🚀 Starting high-level API generation...");
+				console.log("📋 Config loaded from:", process.cwd());
+				console.log("📋 Config packages:", config.packages);
+				console.log("📋 Config files:", config.files);
 			}
 
-			// Determine output directory - use provided argument or config default
-			const outputDir = argv.output || argv._config?.generator?.outputDir;
-			if (!outputDir) {
-				throw new ValidationError(
-					"Output directory must be specified either via --output argument or generator.outputDir in config",
-				);
-			}
-
-			// Create generator instance
-			const generator = await defaultRegistry.create(argv.generator, {
-				outputDir: resolve(outputDir),
-				verbose: argv.verbose,
-				overwrite: argv.overwrite,
-				format: argv.format,
-				generateProfiles: argv._config?.generator?.generateProfiles,
+			// Create API builder with options (CLI args override config)
+			const builder = new APIBuilder({
+				outputDir: argv.output || config.outputDir || "./generated",
+				verbose,
+				overwrite: config.overwrite ?? true,
+				validate: config.validate ?? false, // Temporarily disable validation
+				cache: config.cache ?? true,
 			});
 
-			// Load input schemas
-			const inputPath = resolve(argv.input);
-			const schemas = await loadTypeschemaFromPath(inputPath, argv._logger);
-
-			if (schemas.length === 0) {
-				throw new ValidationError(
-					"No valid TypeSchema files found in input path",
+			// Load data sources - CLI args take priority over config
+			if (argv.packages && argv.packages.length > 0) {
+				if (verbose) {
+					console.log(
+						`📦 Loading FHIR packages from CLI: ${argv.packages.join(", ")}`,
+					);
+				}
+				for (const packageSpec of argv.packages) {
+					const [name, version] = packageSpec.includes("@")
+						? packageSpec.split("@")
+						: [packageSpec, undefined];
+					builder.fromPackage(name, version);
+				}
+			} else if (argv.input) {
+				if (verbose) {
+					console.log(`📁 Loading TypeSchema from CLI: ${argv.input}`);
+				}
+				builder.fromFiles(argv.input);
+			} else if (config.packages && config.packages.length > 0) {
+				// Use packages from config file
+				if (verbose) {
+					console.log(
+						`📦 Loading packages from config: ${config.packages.join(", ")}`,
+					);
+				}
+				for (const packageSpec of config.packages) {
+					const [name, version] = packageSpec.includes("@")
+						? packageSpec.split("@")
+						: [packageSpec, undefined];
+					builder.fromPackage(name, version);
+				}
+			} else if (config.files && config.files.length > 0) {
+				// Use files from config
+				if (verbose) {
+					console.log(
+						`📁 Loading files from config: ${config.files.join(", ")}`,
+					);
+				}
+				for (const file of config.files) {
+					builder.fromFiles(file);
+				}
+			} else {
+				throw new Error(
+					"No data source specified. Use --packages, --input, or configure packages/files in your config file.",
 				);
 			}
 
-			argv._logger?.info(
-				`Loaded ${schemas.length} schema(s) from ${inputPath}`,
-			);
-			argv._logger?.info(
-				`Using generator: ${generator.name} (${generator.target})`,
-			);
-			argv._logger?.info(`Output directory: ${outputDir}`);
+			// Configure generators based on arguments or command
+			const shouldGenerateTypeScript =
+				argv.typescript ||
+				generator === "typescript" ||
+				generator === "ts" ||
+				(!argv["rest-client"] && !generator);
 
-			// Organize and pass schemas to the generator
-			const organizedSchemas = organizeSchemas(schemas);
-			const generatorAny = generator as any;
-			generatorAny.schemas = {
-				...organizedSchemas,
-				// Legacy format for compatibility
-				primitives: organizedSchemas.primitiveTypes,
-				complex: organizedSchemas.complexTypes,
-				resources: organizedSchemas.resources,
-			};
+			const shouldGenerateRestClient =
+				config.restClient ||
+				argv["rest-client"] ||
+				generator === "rest-client" ||
+				generator === "client";
 
-			// Validate generator
-			if (generator.validate) {
-				await generator.validate();
+			if (shouldGenerateTypeScript) {
+				if (verbose) {
+					console.log("⚡ Configuring TypeScript generation...");
+				}
+				builder.typescript({
+					// CLI args override config values
+					moduleFormat: argv.format || config.typescript?.moduleFormat || "esm",
+					generateIndex:
+						argv["generate-index"] ?? config.typescript?.generateIndex ?? true,
+					includeDocuments:
+						argv["include-docs"] ??
+						config.typescript?.includeDocuments ??
+						false,
+					namingConvention:
+						argv["naming-convention"] ||
+						config.typescript?.namingConvention ||
+						"PascalCase",
+					generateValidators: config.typescript?.generateValidators ?? true,
+					generateGuards: config.typescript?.generateGuards ?? true,
+					includeProfiles: config.typescript?.includeProfiles ?? false,
+				});
 			}
 
-			// Generate code
-			await generator.generate();
+			if (shouldGenerateRestClient) {
+				if (verbose) {
+					console.log("🌐 Configuring REST client generation...");
+				}
+				builder.restClient({
+					language: "typescript",
+					httpClient: argv["http-client"] as any,
+					generateTypes: !shouldGenerateTypeScript, // Don't duplicate types
+					includeValidation: argv["include-validation"],
+					// CLI args override config values
+					baseUrl: (argv["base-url"] as string) || config.restClient?.baseUrl,
+					apiVersion: argv["api-version"] || config.restClient?.apiVersion,
+					authentication: argv.authentication as any,
+					clientName: config.restClient?.clientName || "FHIRClient",
+					generateMocks: config.restClient?.generateMocks ?? false,
+					authType: config.restClient?.authType || "none",
+				});
+			}
 
-			argv._logger?.info("Code generation completed successfully");
-		} catch (error) {
-			if (error instanceof Error) {
-				argv._logger?.error("Generation failed", error);
+			// Add progress callback if verbose
+			if (verbose) {
+				builder.onProgress((phase, current, total, message) => {
+					const progress = Math.round((current / total) * 100);
+					console.log(
+						`[${phase}] ${progress}% - ${message || "Processing..."}`,
+					);
+				});
+			}
+
+			// Execute generation
+			const result = await builder.generate();
+
+			if (result.success) {
+				console.log(
+					`✨ Successfully generated ${result.filesGenerated.length} files in ${result.duration.toFixed(2)}ms`,
+				);
+				console.log(`📁 Output directory: ${result.outputDir}`);
+
+				if (result.warnings.length > 0) {
+					console.warn(`⚠️  ${result.warnings.length} warnings:`);
+					result.warnings.forEach((warning) => console.warn(`  ${warning}`));
+				}
 			} else {
-				argv._logger?.error("Generation failed", new Error(String(error)));
+				console.error("❌ Generation failed:");
+				result.errors.forEach((error) => {
+					console.error(`  ${error}`);
+				});
+				process.exit(1);
+			}
+		} catch (error) {
+			console.error(
+				"💥 Generation failed:",
+				error instanceof Error ? error.message : String(error),
+			);
+			if (argv.verbose && error instanceof Error) {
+				console.error(error.stack);
 			}
 			process.exit(1);
 		}
 	},
 };
-
-/**
- * Load TypeSchema from path (file or directory)
- */
-async function loadTypeschemaFromPath(
-	inputPath: string,
-	log?: ILogger,
-): Promise<AnyTypeSchema[]> {
-	try {
-		const stats = await stat(inputPath);
-
-		if (stats.isFile()) {
-			return await loadTypeschemaFromFile(inputPath);
-		} else if (stats.isDirectory()) {
-			return await loadTypeschemaFromDirectory(inputPath);
-		} else {
-			throw new FileSystemError(`Invalid input path: ${inputPath}`);
-		}
-	} catch (error) {
-		if (error instanceof Error && "code" in error && error.code === "ENOENT") {
-			throw new FileSystemError(`Input path not found: ${inputPath}`);
-		}
-		throw error;
-	}
-}
-
-/**
- * Load TypeSchema from a single file
- */
-async function loadTypeschemaFromFile(
-	filePath: string,
-): Promise<AnyTypeSchema[]> {
-	const content = await readFile(filePath, "utf-8");
-	const schemas: AnyTypeSchema[] = [];
-
-	if (extname(filePath) === ".ndjson") {
-		// Parse NDJSON format
-		const lines = content.split("\n").filter((line) => line.trim());
-		for (const line of lines) {
-			try {
-				schemas.push(JSON.parse(line));
-			} catch (error) {
-				console.warn(`Failed to parse line in ${filePath}:`, line);
-			}
-		}
-	} else {
-		// Parse regular JSON
-		try {
-			const parsed = JSON.parse(content);
-			if (Array.isArray(parsed)) {
-				schemas.push(...parsed);
-			} else {
-				schemas.push(parsed);
-			}
-		} catch (error) {
-			throw new ValidationError(`Invalid JSON in file: ${filePath}`);
-		}
-	}
-
-	return schemas;
-}
-
-/**
- * Load TypeSchema from directory
- */
-async function loadTypeschemaFromDirectory(
-	dirPath: string,
-): Promise<AnyTypeSchema[]> {
-	const schemas: AnyTypeSchema[] = [];
-	const entries = await readdir(dirPath);
-
-	for (const entry of entries) {
-		const entryPath = join(dirPath, entry);
-		const stats = await stat(entryPath);
-
-		if (
-			stats.isFile() &&
-			(entry.endsWith(".json") || entry.endsWith(".ndjson"))
-		) {
-			try {
-				const fileSchemas = await loadTypeschemaFromFile(entryPath);
-				schemas.push(...fileSchemas);
-			} catch (error) {
-				console.warn(`Failed to load schemas from ${entryPath}:`, error);
-			}
-		}
-	}
-
-	return schemas;
-}

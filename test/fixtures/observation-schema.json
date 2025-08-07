@@ -1,0 +1,93 @@
+{
+  "identifier": {
+    "name": "Observation",
+    "kind": "resource",
+    "url": "http://hl7.org/fhir/Observation",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1"
+  },
+  "description": "Measurements and simple assertions made about a patient, device or other subject.",
+  "fields": {
+    "id": {
+      "type": {
+        "name": "id",
+        "kind": "primitive-type",
+        "url": "http://hl7.org/fhir/id",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1"
+      },
+      "required": false,
+      "description": "Logical id of this artifact"
+    },
+    "status": {
+      "type": {
+        "name": "code",
+        "kind": "primitive-type",
+        "url": "http://hl7.org/fhir/code",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1"
+      },
+      "enum": ["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"],
+      "required": true,
+      "description": "registered | preliminary | final | amended +"
+    },
+    "code": {
+      "type": {
+        "name": "CodeableConcept",
+        "kind": "complex-type",
+        "url": "http://hl7.org/fhir/CodeableConcept",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1"
+      },
+      "required": true,
+      "description": "Type of observation (code / type)"
+    },
+    "subject": {
+      "reference": [
+        {
+          "name": "Patient",
+          "kind": "resource",
+          "url": "http://hl7.org/fhir/Patient",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1"
+        },
+        {
+          "name": "Group",
+          "kind": "resource",
+          "url": "http://hl7.org/fhir/Group",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1"
+        }
+      ],
+      "required": false,
+      "description": "Who and/or what the observation is about"
+    },
+    "value[x]": {
+      "choices": ["Quantity", "CodeableConcept", "string", "boolean", "integer", "Range", "Ratio", "SampledData", "time", "dateTime", "Period"],
+      "required": false,
+      "description": "Actual result"
+    },
+    "valueQuantity": {
+      "choiceOf": "value[x]",
+      "type": {
+        "name": "Quantity",
+        "kind": "complex-type",
+        "url": "http://hl7.org/fhir/Quantity",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1"
+      },
+      "required": false
+    },
+    "valueString": {
+      "choiceOf": "value[x]",
+      "type": {
+        "name": "string",
+        "kind": "primitive-type",
+        "url": "http://hl7.org/fhir/string",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1"
+      },
+      "required": false
+    }
+  }
+}
