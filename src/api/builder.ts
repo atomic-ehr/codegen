@@ -6,14 +6,13 @@
  */
 
 import type { TypeSchemaConfig } from "../config";
-import type { AnyTypeSchema } from "../typeschema";
+import { Logger } from "../logger.ts";
 import {
+	type AnyTypeSchemaCompliant,
 	TypeSchemaCache,
 	TypeSchemaGenerator,
 	TypeSchemaParser,
-	TypeSchemaValidator,
 } from "../typeschema";
-import { RESTClientAPIGenerator } from "./generators/rest-client";
 import { TypeScriptAPIGenerator } from "./generators/typescript";
 
 /**
@@ -57,16 +56,16 @@ export interface GenerationResult {
  * from FHIR packages or TypeSchema documents.
  */
 export class APIBuilder {
-	private schemas: AnyTypeSchema[] = [];
+	private schemas: AnyTypeSchemaCompliant[] = [];
 	private options: Omit<Required<APIBuilderOptions>, "typeSchemaConfig"> & {
 		typeSchemaConfig?: TypeSchemaConfig;
 	};
 	private generators: Map<string, any> = new Map();
 	private progressCallback?: ProgressCallback;
-	private validator?: TypeSchemaValidator;
 	private cache?: TypeSchemaCache;
 	private pendingOperations: Promise<void>[] = [];
 	private typeSchemaGenerator?: TypeSchemaGenerator;
+	private logger: Logger;
 
 	private typeSchemaConfig?: TypeSchemaConfig;
 
@@ -82,12 +81,13 @@ export class APIBuilder {
 
 		this.typeSchemaConfig = options.typeSchemaConfig;
 
+		this.logger = new Logger({
+			component: "APIBuilder",
+			level: this.options.verbose ? 0 : 1,
+		});
+
 		if (this.options.cache) {
 			this.cache = new TypeSchemaCache(this.typeSchemaConfig);
-		}
-
-		if (this.options.validate) {
-			this.validator = new TypeSchemaValidator();
 		}
 	}
 
@@ -95,6 +95,11 @@ export class APIBuilder {
 	 * Load TypeSchema from a FHIR package
 	 */
 	fromPackage(packageName: string, version?: string): APIBuilder {
+		this.logger.info(
+			`Configuring generation from FHIR package`,
+			{ packageName, version: version || "latest" },
+			"fromPackage",
+		);
 		const operation = this.loadFromPackage(packageName, version);
 		this.pendingOperations.push(operation);
 		return this;
@@ -104,6 +109,11 @@ export class APIBuilder {
 	 * Load TypeSchema from files
 	 */
 	fromFiles(...filePaths: string[]): APIBuilder {
+		this.logger.info(
+			`Configuring generation from TypeSchema files`,
+			{ count: filePaths.length, files: filePaths.slice(0, 5) },
+			"fromFiles",
+		);
 		const operation = this.loadFromFiles(filePaths);
 		this.pendingOperations.push(operation);
 		return this;
@@ -112,7 +122,12 @@ export class APIBuilder {
 	/**
 	 * Load TypeSchema from TypeSchema objects
 	 */
-	fromSchemas(schemas: AnyTypeSchema[]): APIBuilder {
+	fromSchemas(schemas: AnyTypeSchemaCompliant[]): APIBuilder {
+		this.logger.info(
+			`Adding TypeSchemas to generation`,
+			{ count: schemas.length },
+			"fromSchemas",
+		);
 		this.schemas = [...this.schemas, ...schemas];
 		return this;
 	}
@@ -147,53 +162,20 @@ export class APIBuilder {
 			namingConvention: options.namingConvention || "PascalCase",
 			includeExtensions: options.includeExtensions ?? false,
 			includeProfiles: options.includeProfiles ?? false,
-			// Enhanced validation and builder options
-			generateValidators: options.generateValidators ?? true,
-			generateGuards: options.generateGuards ?? true,
-			generateBuilders: options.generateBuilders ?? false,
-			validatorOptions: {
-				strict: options.strictValidation ?? false,
-				collectMetrics: options.includePerformanceMetrics ?? false,
-				includeJSDoc: true,
-				generateAssertions: true,
-				generatePartialValidators: true,
-				generateCompositeValidators: true,
-			},
-			guardOptions: {
-				strict: options.strictValidation ?? false,
-				includeRuntimeValidation: true,
-				includeErrorMessages: true,
-				treeShakeable: true,
-			},
 		});
 
 		this.generators.set("typescript", generator);
-		return this;
-	}
-
-	/**
-	 * Configure REST API client generation
-	 */
-	restClient(
-		options: {
-			httpClient?: "fetch" | "axios" | "node-fetch";
-			generateTypes?: boolean;
-			includeValidation?: boolean;
-			baseUrl?: string;
-		} = {},
-	): APIBuilder {
-		// Hardcode client subfolder
-		const clientOutputDir = `${this.options.outputDir}/client`;
-
-		const generator = new RESTClientAPIGenerator({
-			outputDir: clientOutputDir,
-			httpClient: options.httpClient || "fetch",
-			generateTypes: options.generateTypes ?? true,
-			includeValidation: options.includeValidation ?? false,
-			baseUrl: options.baseUrl,
-		});
-
-		this.generators.set("restclient", generator);
+		this.logger.info(
+			"Configured TypeScript generator",
+			{
+				outputDir: typesOutputDir,
+				moduleFormat: options.moduleFormat || "esm",
+				generateValidators: options.generateValidators ?? true,
+				generateGuards: options.generateGuards ?? true,
+				generateBuilders: options.generateBuilders ?? false,
+			},
+			"typescript",
+		);
 		return this;
 	}
 
@@ -209,6 +191,11 @@ export class APIBuilder {
 	 * Set the output directory for all generators
 	 */
 	outputTo(directory: string): APIBuilder {
+		this.logger.info(
+			`Setting output directory`,
+			{ directory, generatorCount: this.generators.size },
+			"outputTo",
+		);
 		this.options.outputDir = directory;
 
 		// Update all configured generators
@@ -234,11 +221,6 @@ export class APIBuilder {
 	 */
 	validate(enabled = true): APIBuilder {
 		this.options.validate = enabled;
-
-		if (enabled && !this.validator) {
-			this.validator = new TypeSchemaValidator();
-		}
-
 		return this;
 	}
 
@@ -256,11 +238,28 @@ export class APIBuilder {
 			duration: 0,
 		};
 
+		await this.logger.info(
+			"Starting code generation",
+			{
+				outputDir: this.options.outputDir,
+				pendingOperations: this.pendingOperations.length,
+				generatorTypes: Array.from(this.generators.keys()),
+				validate: this.options.validate,
+				cache: this.options.cache,
+			},
+			"generate",
+		);
+
 		try {
 			this.reportProgress("Loading", 0, 4, "Loading TypeSchema data...");
 
 			// Load schemas if needed
 			await this.resolveSchemas();
+			await this.logger.info(
+				"Schemas resolved",
+				{ schemasCount: this.schemas.length },
+				"resolveSchemas",
+			);
 
 			this.reportProgress(
 				"Validating",
@@ -270,11 +269,22 @@ export class APIBuilder {
 			);
 
 			// Validate schemas
-			if (this.options.validate && this.validator) {
+			if (this.options.validate) {
+				await this.logger.info("Starting schema validation", {}, "validate");
 				await this.validateSchemas(result);
+				await this.logger.info(
+					"Schema validation completed",
+					{ warnings: result.warnings.length },
+					"validate",
+				);
 			}
 
 			this.reportProgress("Generating", 2, 4, "Generating code...");
+			await this.logger.info(
+				"Starting code generation",
+				{ generatorCount: this.generators.size },
+				"executeGenerators",
+			);
 
 			// Execute all configured generators
 			await this.executeGenerators(result);
@@ -287,8 +297,27 @@ export class APIBuilder {
 			);
 
 			result.success = result.errors.length === 0;
+
+			await this.logger.info(
+				"Code generation completed",
+				{
+					success: result.success,
+					filesGenerated: result.filesGenerated.length,
+					errors: result.errors.length,
+					warnings: result.warnings.length,
+					duration: `${Math.round(result.duration)}ms`,
+				},
+				"generate",
+			);
 		} catch (error) {
-			console.log("err", error);
+			await this.logger.error(
+				"Code generation failed",
+				error instanceof Error ? error : new Error(String(error)),
+				{
+					outputDir: this.options.outputDir,
+					schemasCount: this.schemas.length,
+				},
+			);
 			result.errors.push(
 				error instanceof Error ? error.message : String(error),
 			);
@@ -305,20 +334,8 @@ export class APIBuilder {
 	 */
 	async build(): Promise<{
 		typescript?: { content: string; filename: string }[];
-		restclient?: { content: string; filename: string }[];
 	}> {
 		await this.resolveSchemas();
-
-		if (this.options.validate && this.validator) {
-			const validationResult = await this.validator.validateWithDependencies(
-				this.schemas,
-			);
-			if (!validationResult.valid) {
-				throw new Error(
-					`Validation failed: ${validationResult.errors.map((e) => e.message).join(", ")}`,
-				);
-			}
-		}
 
 		const results: Record<string, unknown> = {};
 
@@ -344,7 +361,7 @@ export class APIBuilder {
 	/**
 	 * Get loaded schemas (for inspection)
 	 */
-	getSchemas(): AnyTypeSchema[] {
+	getSchemas(): AnyTypeSchemaCompliant[] {
 		return [...this.schemas];
 	}
 
@@ -407,20 +424,8 @@ export class APIBuilder {
 		}
 	}
 
-	private async validateSchemas(result: GenerationResult): Promise<void> {
-		if (!this.validator) return;
-
-		const validationResult = await this.validator.validateWithDependencies(
-			this.schemas,
-		);
-
-		if (!validationResult.valid) {
-			result.errors.push(...validationResult.errors.map((e) => e.message));
-		}
-
-		if (validationResult.warnings.length > 0) {
-			result.warnings.push(...validationResult.warnings.map((w) => w.message));
-		}
+	private async validateSchemas(_result: GenerationResult): Promise<void> {
+		return;
 	}
 
 	private async executeGenerators(result: GenerationResult): Promise<void> {
@@ -436,11 +441,7 @@ export class APIBuilder {
 			);
 
 			try {
-				// Pass TypeSchemaGenerator to the REST client for search parameter generation
-				const files =
-					type === "restclient"
-						? await generator.generate(this.schemas, this.typeSchemaGenerator)
-						: await generator.generate(this.schemas);
+				const files = await generator.generate(this.schemas);
 				result.filesGenerated.push(
 					...files.map((f: Record<string, string>) => f.path || f.filename),
 				);

@@ -180,13 +180,6 @@ function generateConfigTemplate(
 					includeProfiles: true,
 					includeExtensions: false,
 				},
-				restClient: {
-					clientName: "FHIRClient",
-					baseUrl: "https://api.example.com/fhir",
-					apiVersion: "R4",
-					generateMocks: false,
-					authType: "none",
-				},
 			};
 
 		case "full":
@@ -205,13 +198,6 @@ function generateConfigTemplate(
 					generateGuards: true,
 					includeProfiles: true,
 					includeExtensions: true,
-				},
-				restClient: {
-					clientName: "FHIRClient",
-					baseUrl: "https://api.example.com/fhir",
-					apiVersion: "R4",
-					generateMocks: true,
-					authType: "bearer",
 				},
 			};
 

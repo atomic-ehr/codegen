@@ -19,7 +19,7 @@ import {
  */
 export async function extractValueSetConcepts(
 	valueSetUrl: string,
-	manager: CanonicalManager,
+	manager: ReturnType<typeof CanonicalManager>,
 ): Promise<
 	Array<{ system: string; code: string; display?: string }> | undefined
 > {
@@ -91,7 +91,7 @@ export async function extractValueSetConcepts(
  */
 export async function buildEnum(
 	element: FHIRSchemaElement,
-	manager: CanonicalManager,
+	manager: ReturnType<typeof CanonicalManager>,
 ): Promise<string[] | undefined> {
 	if (!element.binding) return undefined;
 
@@ -145,7 +145,7 @@ export async function generateBindingSchema(
 	fhirSchema: FHIRSchema,
 	path: string[],
 	element: FHIRSchemaElement,
-	manager: CanonicalManager,
+	manager: ReturnType<typeof CanonicalManager>,
 	packageInfo?: PackageInfo,
 ): Promise<TypeSchemaBinding | undefined> {
 	if (!element.binding?.valueSet) return undefined;
@@ -200,7 +200,7 @@ export async function generateBindingSchema(
  */
 export async function collectBindingSchemas(
 	fhirSchema: FHIRSchema,
-	manager: CanonicalManager,
+	manager: ReturnType<typeof CanonicalManager>,
 	packageInfo?: PackageInfo,
 ): Promise<TypeSchemaBinding[]> {
 	const bindings: TypeSchemaBinding[] = [];

@@ -12,14 +12,10 @@ export {
 	TypeSchemaCache,
 	TypeSchemaGenerator,
 	TypeSchemaParser,
-	TypeSchemaValidator,
-	TypeScriptTransformer,
 } from "../typeschema";
 // Re-export core TypeSchema types for convenience
 export type {
-	AnyTypeSchema,
 	PackageInfo,
-	TypeSchema,
 	TypeSchemaField,
 	TypeSchemaFieldPolymorphicDeclaration,
 	TypeSchemaFieldPolymorphicInstance,
@@ -39,11 +35,6 @@ export {
 	generateTypesFromFiles,
 	generateTypesFromPackage,
 } from "./builder";
-export type {
-	GeneratedRESTClientFile,
-	RESTClientAPIOptions,
-} from "./generators/rest-client";
-export { RESTClientAPIGenerator } from "./generators/rest-client";
 export type {
 	GeneratedFile,
 	TypeScriptAPIOptions,
@@ -66,14 +57,13 @@ export { TypeScriptAPIGenerator } from "./generators/typescript";
  * ```
  *
  * @example
- * Generate REST client from TypeSchema files:
+ * Generate TypeScript types from TypeSchema files:
  * ```typescript
  * import { createAPI } from '@atomic-codegen/api';
  *
  * const result = await createAPI()
  *   .fromFiles('./schemas/*.ndjson')
  *   .typescript()
- *   .restClient({ httpClient: 'fetch' })
  *   .generate();
  * ```
  *
@@ -85,7 +75,6 @@ export { TypeScriptAPIGenerator } from "./generators/typescript";
  * const results = await createAPI()
  *   .fromPackage('hl7.fhir.r4.core')
  *   .typescript()
- *   .restClient()
  *   .build();
  * ```
  */

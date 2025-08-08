@@ -896,7 +896,7 @@ export namespace BuiltInVisitors {
 	 */
 	export class StatisticsVisitor implements Visitor<void> {
 		name = "StatisticsVisitor";
-		languageTarget = "generic";
+		languageTarget: "generic" = "generic";
 
 		private stats = {
 			interfaces: 0,
@@ -949,7 +949,7 @@ export namespace BuiltInVisitors {
 	 */
 	export class DependencyAnalyzer implements Visitor<string[]> {
 		name = "DependencyAnalyzer";
-		languageTarget = "generic";
+		languageTarget: "generic" = "generic";
 
 		private dependencies = new Set<string>();
 
@@ -977,7 +977,7 @@ export namespace BuiltInVisitors {
 		implements Visitor<Record<string, string>>
 	{
 		name = "DocumentationExtractor";
-		languageTarget = "generic";
+		languageTarget: "generic" = "generic";
 
 		private documentation: Record<string, string> = {};
 

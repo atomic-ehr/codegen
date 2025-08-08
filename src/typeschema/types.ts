@@ -172,16 +172,6 @@ export interface TypeSchemaProfile {
 	validation?: ProfileValidationRule[];
 }
 
-/**
- * Legacy TypeSchema interface for backward compatibility
- */
-export interface TypeSchema extends TypeSchemaResourceType {
-	dependencies?: TypeSchemaIdentifier[];
-	metadata?: Record<string, any>;
-	constraints?: Record<string, ProfileConstraint>;
-	extensions?: ProfileExtension[];
-	validation?: ProfileValidationRule[];
-}
 
 /**
  * Binding TypeSchema for value set bindings
@@ -246,10 +236,6 @@ export type AnyTypeSchemaCompliant =
 	| TypeSchemaValueSet
 	| TypeSchemaBinding;
 
-/**
- * Union type for all TypeSchema variants (legacy compatibility)
- */
-export type AnyTypeSchema = TypeSchema | TypeSchemaBinding | TypeSchemaValueSet;
 
 /**
  * Package metadata from fhir-canonical-manager
@@ -392,23 +378,18 @@ export function isTypeSchemaValueSet(
 	);
 }
 
-// Legacy type guards
-export function isTypeSchema(schema: AnyTypeSchema): schema is TypeSchema {
-	return (
-		!("valueset" in schema) && !("concept" in schema && "compose" in schema)
-	);
-}
 
-export function isLegacyTypeSchemaBinding(
-	schema: AnyTypeSchema,
-): schema is TypeSchemaBinding {
-	return "valueset" in schema && "strength" in schema;
-}
 
-export function isLegacyTypeSchemaValueSet(
-	schema: AnyTypeSchema,
-): schema is TypeSchemaValueSet {
-	return (
-		("concept" in schema || "compose" in schema) && !("valueset" in schema)
-	);
+// Type guard for valid kind values
+export function isValidKind(kind: string): kind is TypeSchemaIdentifier["kind"] {
+	return [
+		"primitive-type",
+		"resource",
+		"complex-type",
+		"nested",
+		"logical",
+		"binding",
+		"value-set",
+		"profile",
+	].includes(kind as TypeSchemaIdentifier["kind"]);
 }

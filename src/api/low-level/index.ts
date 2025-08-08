@@ -260,7 +260,12 @@ export namespace FHIRHelpers {
 					property.metadata.cardinality = constraint.cardinality;
 				}
 
-				builder.addPropertyToInterface?.(profileInterface, property);
+				if (
+					"addPropertyToInterface" in builder &&
+					typeof builder.addPropertyToInterface === "function"
+				) {
+					builder.addPropertyToInterface(profileInterface, property);
+				}
 			}
 		});
 
@@ -390,10 +395,6 @@ export namespace PythonHelpers {
 					),
 				) || [],
 			documentation: options.documentation,
-			metadata: {
-				languageTarget: "python",
-				decorators: options.decorators,
-			},
 		});
 	}
 

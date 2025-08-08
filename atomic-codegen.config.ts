@@ -21,13 +21,13 @@ const config: Config = {
 		includeProfiles: false,
 		includeExtensions: false,
 	},
-	restClient: {
-		clientName: "FHIRClient",
-		baseUrl: "https://api.example.com/fhir",
-		apiVersion: "R4",
-		generateMocks: false,
-		authType: "none",
-	},
+	// restClient: {
+	// 	clientName: "FHIRClient",
+	// 	baseUrl: "https://api.example.com/fhir",
+	// 	apiVersion: "R4",
+	// 	generateMocks: false,
+	// 	authType: "none",
+	// },
 	typeSchema: {
 		enablePersistence: true,
 		cacheDir: ".typeschema-cache",

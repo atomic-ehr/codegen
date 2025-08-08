@@ -77,6 +77,7 @@ export class SourceMapGenerator {
 
 	constructor(options: SourceMapOptions) {
 		this.options = {
+			sourceRoot: "",
 			includeSourcesContent: true,
 			includeNames: true,
 			enableInlineSourceMap: false,
@@ -189,8 +190,8 @@ export class SourceMapGenerator {
 
 		// If we added multiple lines, we're at the end of the last line
 		if (lines.length > 1) {
-			this.context.currentLine = this.context.generatedCode.length;
-			this.context.currentColumn = lines[lines.length - 1].length;
+			this.context.currentLine = this.context.generatedCode?.length || 0;
+			this.context.currentColumn = lines[lines.length - 1]?.length || 0;
 		}
 	}
 
@@ -207,7 +208,9 @@ export class SourceMapGenerator {
 			sourceRoot: this.options.sourceRoot,
 			sources,
 			sourcesContent: this.options.includeSourcesContent
-				? sources.map((source) => this.getSourceContent(source))
+				? sources
+						.map((source) => this.getSourceContent(source))
+						.filter((content): content is string => content !== null)
 				: undefined,
 			names: this.options.includeNames ? names : [],
 			mappings: this.encodeMappings(),
@@ -407,6 +410,7 @@ class VLQEncoder {
 				}
 
 				const char = encoded[index++];
+				if (!char) break;
 				const digit = VLQEncoder.BASE64_CHARS.indexOf(char);
 
 				if (digit === -1) {
@@ -519,7 +523,7 @@ export class SourceMapBuilder {
 				const lines = fragment.content.split("\n");
 				if (lines.length > 1) {
 					currentLine += lines.length - 1;
-					currentColumn = lines[lines.length - 1].length;
+					currentColumn = lines[lines.length - 1]?.length || 0;
 				} else {
 					currentColumn += fragment.content.length;
 				}
@@ -598,12 +602,17 @@ export namespace SourceMapUtils {
 		}
 
 		if (sourceMaps.length === 1) {
-			return sourceMaps[0];
+			return sourceMaps[0]!;
+		}
+
+		const firstMap = sourceMaps[0];
+		if (!firstMap) {
+			throw new Error("No source maps to merge");
 		}
 
 		const merged: SourceMap = {
 			version: 3,
-			file: sourceMaps[0].file,
+			file: firstMap.file,
 			sources: [],
 			names: [],
 			mappings: "",
@@ -614,8 +623,10 @@ export namespace SourceMapUtils {
 		const nameSet = new Set<string>();
 
 		sourceMaps.forEach((map) => {
-			map.sources.forEach((source) => sourceSet.add(source));
-			map.names.forEach((name) => nameSet.add(name));
+			if (map) {
+				map.sources?.forEach((source) => sourceSet.add(source));
+				map.names?.forEach((name) => nameSet.add(name));
+			}
 		});
 
 		merged.sources = Array.from(sourceSet);

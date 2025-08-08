@@ -7,26 +7,8 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import {
-	type BuilderGenerationOptions,
-	DEFAULT_BUILDER_OPTIONS,
-	generateBuilders,
-} from "../../fhir/generators/typescript/builders";
-import {
-	DEFAULT_INTERFACE_OPTIONS,
-	EnhancedInterfaceGenerator,
-	type InterfaceGeneratorOptions,
-} from "../../fhir/generators/typescript/enhanced-interfaces";
-import {
-	type GuardGenerationOptions,
-	generateAllTypeGuards,
-} from "../../fhir/generators/typescript/guards";
-import {
-	generateValidators,
-	type ValidatorGenerationOptions,
-} from "../../fhir/generators/typescript/validators";
-import type { AnyTypeSchema } from "../../typeschema";
-import { TypeScriptTransformer } from "../../typeschema";
+import type { AnyTypeSchemaCompliant } from "../../typeschema";
+import { TypeScriptTransformer } from "./typescript/transformer";
 
 /**
  * Options for the TypeScript API generator
@@ -39,20 +21,6 @@ export interface TypeScriptAPIOptions {
 	namingConvention?: "PascalCase" | "camelCase";
 	includeExtensions?: boolean;
 	includeProfiles?: boolean;
-
-	// Enhanced interface generation options
-	useEnhancedGenerator?: boolean;
-	enhancedOptions?: Partial<InterfaceGeneratorOptions>;
-
-	// Builder generation options
-	generateBuilders?: boolean;
-	builderOptions?: Partial<BuilderGenerationOptions>;
-
-	// Validation generation options
-	generateValidators?: boolean;
-	generateGuards?: boolean;
-	validatorOptions?: Partial<ValidatorGenerationOptions>;
-	guardOptions?: Partial<GuardGenerationOptions>;
 }
 
 /**
@@ -73,7 +41,6 @@ export interface GeneratedFile {
  */
 export class TypeScriptAPIGenerator {
 	private transformer: TypeScriptTransformer;
-	private enhancedGenerator?: EnhancedInterfaceGenerator;
 	private options: Required<TypeScriptAPIOptions>;
 
 	constructor(options: TypeScriptAPIOptions) {
@@ -84,14 +51,6 @@ export class TypeScriptAPIGenerator {
 			namingConvention: "PascalCase",
 			includeExtensions: false,
 			includeProfiles: false,
-			useEnhancedGenerator: false,
-			enhancedOptions: {},
-			generateBuilders: false,
-			builderOptions: {},
-			generateValidators: false,
-			generateGuards: false,
-			validatorOptions: {},
-			guardOptions: {},
 			...options,
 		};
 
@@ -104,27 +63,13 @@ export class TypeScriptAPIGenerator {
 			includeExtensions: this.options.includeExtensions,
 			includeProfiles: this.options.includeProfiles,
 		});
-
-		// Initialize enhanced generator if enabled
-		if (this.options.useEnhancedGenerator) {
-			const enhancedOptions = {
-				...DEFAULT_INTERFACE_OPTIONS,
-				...this.options.enhancedOptions,
-			};
-			this.enhancedGenerator = new EnhancedInterfaceGenerator(enhancedOptions);
-		}
 	}
 
 	/**
 	 * Generate TypeScript files from TypeSchema documents
 	 */
-	async generate(schemas: AnyTypeSchema[]): Promise<GeneratedFile[]> {
+	async generate(schemas: AnyTypeSchemaCompliant[]): Promise<GeneratedFile[]> {
 		const filteredSchemas = this.filterSchemas(schemas);
-
-		// Use enhanced generator if enabled
-		if (this.enhancedGenerator) {
-			return this.generateWithEnhancedGenerator(filteredSchemas);
-		}
 
 		// Use legacy transformer
 		const results = await this.transformer.transformSchemas(filteredSchemas);
@@ -201,160 +146,6 @@ export class TypeScriptAPIGenerator {
 	}
 
 	/**
-	 * Generate TypeScript files using the enhanced generator
-	 */
-	private async generateWithEnhancedGenerator(
-		schemas: AnyTypeSchema[],
-	): Promise<GeneratedFile[]> {
-		if (!this.enhancedGenerator) {
-			throw new Error("Enhanced generator not initialized");
-		}
-
-		const result = this.enhancedGenerator.generateInterfaces(schemas);
-		const generatedFiles: GeneratedFile[] = [];
-
-		// Ensure output directory exists
-		await mkdir(this.options.outputDir, { recursive: true });
-
-		// Write the main interfaces file
-		if (result.content) {
-			const mainFilePath = join(this.options.outputDir, "interfaces.ts");
-			await writeFile(mainFilePath, result.content, "utf-8");
-
-			generatedFiles.push({
-				path: mainFilePath,
-				filename: "interfaces.ts",
-				content: result.content,
-				exports: result.exports,
-			});
-		}
-
-		// Generate builders if enabled
-		if (this.options.generateBuilders) {
-			const builderOptions = {
-				...DEFAULT_BUILDER_OPTIONS,
-				...this.options.builderOptions,
-			};
-			const builderContent = generateBuilders(schemas, builderOptions);
-
-			if (builderContent) {
-				const builderFilePath = join(this.options.outputDir, "builders.ts");
-				await writeFile(builderFilePath, builderContent, "utf-8");
-
-				generatedFiles.push({
-					path: builderFilePath,
-					filename: "builders.ts",
-					content: builderContent,
-					exports: this.extractExports(builderContent),
-				});
-			}
-		}
-
-		// Generate type guards if enabled
-		if (this.options.generateGuards) {
-			const guardOptions = {
-				includeRuntimeValidation: true,
-				includeErrorMessages: true,
-				treeShakeable: true,
-				targetTSVersion: "5.0" as const,
-				strict: false,
-				includeNullChecks: true,
-				...this.options.guardOptions,
-			};
-
-			const guardResult = await generateAllTypeGuards(schemas, guardOptions);
-
-			if (guardResult.guardCode) {
-				const guardFilePath = join(this.options.outputDir, "guards.ts");
-				await writeFile(guardFilePath, guardResult.guardCode, "utf-8");
-
-				generatedFiles.push({
-					path: guardFilePath,
-					filename: "guards.ts",
-					content: guardResult.guardCode,
-					exports: guardResult.imports,
-				});
-			}
-		}
-
-		// Generate validators if enabled
-		if (this.options.generateValidators) {
-			const validatorOptions = {
-				includeCardinality: true,
-				includeTypes: true,
-				includeConstraints: true,
-				includeInvariants: false,
-				validateRequired: true,
-				allowAdditional: false,
-				strict: false,
-				collectMetrics: false,
-				maxDepth: 10,
-				generateAssertions: true,
-				generatePartialValidators: true,
-				optimizePerformance: true,
-				includeJSDoc: true,
-				generateCompositeValidators: true,
-				...this.options.validatorOptions,
-			};
-
-			const validatorContent = generateValidators(schemas, validatorOptions);
-
-			if (validatorContent) {
-				const validatorFilePath = join(this.options.outputDir, "validators.ts");
-				await writeFile(validatorFilePath, validatorContent, "utf-8");
-
-				generatedFiles.push({
-					path: validatorFilePath,
-					filename: "validators.ts",
-					content: validatorContent,
-					exports: this.extractExports(validatorContent),
-				});
-			}
-		}
-
-		// Generate index file
-		if (this.options.generateIndex) {
-			const indexContent = this.generateEnhancedIndexFile(result);
-			const indexPath = join(this.options.outputDir, "index.ts");
-			await writeFile(indexPath, indexContent, "utf-8");
-
-			generatedFiles.push({
-				path: indexPath,
-				filename: "index.ts",
-				content: indexContent,
-				exports: [
-					...result.exports,
-					...result.helperTypes,
-					...result.brandedTypes,
-				],
-			});
-		}
-
-		// Generate package.json and tsconfig.json
-		const packageJsonFile = await this.generatePackageJson();
-		const packagePath = join(this.options.outputDir, "package.json");
-		await writeFile(packagePath, packageJsonFile, "utf-8");
-		generatedFiles.push({
-			path: packagePath,
-			filename: "package.json",
-			content: packageJsonFile,
-			exports: [],
-		});
-
-		const tsConfigFile = await this.generateTsConfig();
-		const tsConfigPath = join(this.options.outputDir, "tsconfig.json");
-		await writeFile(tsConfigPath, tsConfigFile, "utf-8");
-		generatedFiles.push({
-			path: tsConfigPath,
-			filename: "tsconfig.json",
-			content: tsConfigFile,
-			exports: [],
-		});
-
-		return generatedFiles;
-	}
-
-	/**
 	 * Generate index file for enhanced generator
 	 */
 	private generateEnhancedIndexFile(result: any): string {
@@ -381,27 +172,6 @@ export class TypeScriptAPIGenerator {
 		lines.push("export * from './interfaces';");
 		lines.push("");
 
-		// Export builders if enabled
-		if (this.options.generateBuilders) {
-			lines.push("// FHIR Builder classes for fluent resource creation");
-			lines.push("export * from './builders';");
-			lines.push("");
-		}
-
-		// Export type guards if enabled
-		if (this.options.generateGuards) {
-			lines.push("// FHIR Type Guards for runtime type checking");
-			lines.push("export * from './guards';");
-			lines.push("");
-		}
-
-		// Export validators if enabled
-		if (this.options.generateValidators) {
-			lines.push("// FHIR Validators for comprehensive runtime validation");
-			lines.push("export * from './validators';");
-			lines.push("");
-		}
-
 		// Add utility exports if there are helper types
 		if (result.helperTypes.length > 0 || result.brandedTypes.length > 0) {
 			lines.push("// Utility types for enhanced developer experience");
@@ -422,7 +192,7 @@ export class TypeScriptAPIGenerator {
 	/**
 	 * Generate and return results without writing to files
 	 */
-	async build(schemas: AnyTypeSchema[]): Promise<GeneratedFile[]> {
+	async build(schemas: AnyTypeSchemaCompliant[]): Promise<GeneratedFile[]> {
 		const filteredSchemas = this.filterSchemas(schemas);
 		const results = await this.transformer.transformSchemas(filteredSchemas);
 		const generatedFiles: GeneratedFile[] = [];
@@ -683,7 +453,9 @@ export class TypeScriptAPIGenerator {
 	/**
 	 * Filter schemas based on includeExtensions option
 	 */
-	private filterSchemas(schemas: AnyTypeSchema[]): AnyTypeSchema[] {
+	private filterSchemas(
+		schemas: AnyTypeSchemaCompliant[],
+	): AnyTypeSchemaCompliant[] {
 		if (this.options.includeExtensions) {
 			return schemas;
 		}
@@ -724,7 +496,7 @@ export class TypeScriptAPIGenerator {
 	/**
 	 * Check if a schema represents an extension type
 	 */
-	private isExtensionSchema(schema: AnyTypeSchema): boolean {
+	private isExtensionSchema(schema: AnyTypeSchemaCompliant): boolean {
 		// Check metadata for extension marker (only for schemas that have metadata)
 		if ("metadata" in schema && schema.metadata?.isExtension === true) {
 			return true;

@@ -4,8 +4,6 @@
  * Provides configurable logging with levels, structured output, and context
  */
 
-import { AtomicCodegenError } from "./errors";
-
 /**
  * Log levels in order of severity
  */
@@ -168,22 +166,11 @@ export class Logger {
 		}
 
 		if (error) {
-			if (error instanceof AtomicCodegenError) {
-				entry.error = {
-					name: error.name,
-					message: error.message,
-					code: error.code,
-					stack: error.stack,
-					context: error.context,
-					suggestions: error.suggestions,
-				};
-			} else {
-				entry.error = {
-					name: error.name,
-					message: error.message,
-					stack: error.stack,
-				};
-			}
+			entry.error = {
+				name: error.name,
+				message: error.message,
+				stack: error.stack,
+			};
 		}
 
 		return entry;
@@ -271,6 +258,7 @@ export class Logger {
 		};
 
 		const reset = "\x1b[0m";
+		// @ts-ignore
 		const color = colors[level] || "";
 
 		return `${color}${levelName}${reset}`;

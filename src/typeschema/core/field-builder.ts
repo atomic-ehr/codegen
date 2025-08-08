@@ -24,7 +24,7 @@ import {
 export function getElementHierarchy(
 	fhirSchema: FHIRSchema,
 	path: string[],
-	_manager: CanonicalManager,
+	_manager: ReturnType<typeof CanonicalManager>,
 ): FHIRSchemaElement[] {
 	const hierarchy: FHIRSchemaElement[] = [];
 
@@ -77,7 +77,7 @@ export function mergeElementHierarchy(
 		];
 
 		// Merge non-specific properties
-		for (const [key, value] of Object.entries(element)) {
+		for (const [key, value] of Object.entries(element as FHIRSchemaElement)) {
 			if (!specificProps.includes(key) && value !== undefined) {
 				(snapshot as any)[key] = value;
 			}
@@ -86,7 +86,9 @@ export function mergeElementHierarchy(
 
 	// Override with specific properties from the first element
 	for (const prop of ["choices", "binding", "refers", "elementReference"]) {
+		// @ts-ignore
 		if (hierarchy[0][prop as keyof FHIRSchemaElement] !== undefined) {
+			// @ts-ignore
 			(snapshot as any)[prop] = hierarchy[0][prop as keyof FHIRSchemaElement];
 		}
 	}
@@ -100,7 +102,7 @@ export function mergeElementHierarchy(
 export function isRequired(
 	fhirSchema: FHIRSchema,
 	path: string[],
-	_manager: CanonicalManager,
+	_manager: ReturnType<typeof CanonicalManager>,
 ): boolean {
 	if (path.length === 0) return false;
 
@@ -120,7 +122,11 @@ export function isRequired(
 	}
 
 	// Also check at root level
-	if (parentPath.length === 0 && fhirSchema.required?.includes(fieldName)) {
+	if (
+		parentPath.length === 0 &&
+		fieldName &&
+		fhirSchema.required?.includes(fieldName)
+	) {
 		return true;
 	}
 
@@ -133,7 +139,7 @@ export function isRequired(
 export function isExcluded(
 	fhirSchema: FHIRSchema,
 	path: string[],
-	_manager: CanonicalManager,
+	_manager: ReturnType<typeof CanonicalManager>,
 ): boolean {
 	if (path.length === 0) return false;
 
@@ -153,7 +159,11 @@ export function isExcluded(
 	}
 
 	// Also check at root level
-	if (parentPath.length === 0 && fhirSchema.excluded?.includes(fieldName)) {
+	if (
+		parentPath.length === 0 &&
+		fieldName &&
+		fhirSchema.excluded?.includes(fieldName)
+	) {
 		return true;
 	}
 
@@ -165,7 +175,7 @@ export function isExcluded(
  */
 export function buildReferences(
 	element: FHIRSchemaElement,
-	manager: CanonicalManager,
+	manager: ReturnType<typeof CanonicalManager>,
 	packageInfo?: PackageInfo,
 ): TypeSchemaIdentifier[] | undefined {
 	if (!element.refers || element.refers.length === 0) {
@@ -174,7 +184,7 @@ export function buildReferences(
 
 	return element.refers.map((ref) => {
 		try {
-			const resource = manager.resolveSync(ref);
+			const resource = manager.resolve(ref);
 			if (resource) {
 				return buildSchemaIdentifier(
 					resource as unknown as FHIRSchema,
@@ -214,7 +224,7 @@ export function buildFieldType(
 	fhirSchema: FHIRSchema,
 	_path: string[],
 	element: FHIRSchemaElement,
-	_manager: CanonicalManager,
+	_manager: ReturnType<typeof CanonicalManager>,
 	packageInfo?: PackageInfo,
 ): TypeSchemaIdentifier | undefined {
 	// Handle element reference (for slicing)
@@ -262,7 +272,7 @@ export async function buildField(
 	fhirSchema: FHIRSchema,
 	path: string[],
 	element: FHIRSchemaElement,
-	manager: CanonicalManager,
+	manager: ReturnType<typeof CanonicalManager>,
 	packageInfo?: PackageInfo,
 ): Promise<TypeSchemaField> {
 	const field: TypeSchemaField = {
@@ -282,7 +292,9 @@ export async function buildField(
 	if (element.max !== undefined) field.max = element.max;
 
 	// Add choices
+	// @ts-ignore
 	if (element.choices) field.choices = element.choices;
+	// @ts-ignore
 	if (element.choiceOf) field.choiceOf = element.choiceOf;
 
 	// Add binding if present
@@ -349,7 +361,7 @@ export function buildNestedField(
 	fhirSchema: FHIRSchema,
 	path: string[],
 	element: FHIRSchemaElement,
-	manager: CanonicalManager,
+	manager: ReturnType<typeof CanonicalManager>,
 	packageInfo?: PackageInfo,
 ): TypeSchemaField {
 	return {

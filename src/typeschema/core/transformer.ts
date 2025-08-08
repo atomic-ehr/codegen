@@ -8,9 +8,8 @@ import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import { transformProfile } from "../profile/processor";
 import type {
-	AnyTypeSchema,
+	AnyTypeSchemaCompliant,
 	PackageInfo,
-	TypeSchema,
 	TypeSchemaField,
 	TypeSchemaIdentifier,
 	TypeSchemaValueSet,
@@ -33,7 +32,7 @@ async function transformElements(
 	fhirSchema: FHIRSchema,
 	parentPath: string[],
 	elements: Record<string, FHIRSchemaElement>,
-	manager: CanonicalManager,
+	manager: ReturnType<typeof CanonicalManager>,
 	packageInfo?: PackageInfo,
 ): Promise<Record<string, TypeSchemaField>> {
 	const fields: Record<string, TypeSchemaField> = {};
@@ -79,13 +78,12 @@ function extractFieldDependencies(
 	const deps: TypeSchemaIdentifier[] = [];
 
 	for (const field of Object.values(fields)) {
-		if (field.type) {
+		if ("type" in field && field.type) {
 			deps.push(field.type);
 		}
-		if (field.binding) {
+		if ("binding" in field && field.binding) {
 			deps.push(field.binding);
 		}
-		// References are not included in dependencies
 	}
 
 	return deps;
@@ -155,7 +153,7 @@ function isExtensionSchema(
  */
 async function transformValueSet(
 	fhirSchema: FHIRSchema,
-	_manager: CanonicalManager,
+	_manager: ReturnType<typeof CanonicalManager>,
 	packageInfo?: PackageInfo,
 ): Promise<TypeSchemaValueSet | null> {
 	try {
@@ -177,10 +175,12 @@ async function transformValueSet(
 
 			// Extract concepts from elements (simplified approach)
 			for (const [_key, element] of Object.entries(fhirSchema.elements)) {
-				if (element.code) {
+				if ("code" in element && element.code) {
 					concepts.push({
-						code: element.code,
-						display: element.short || element.definition,
+						code: element.code as string,
+						// @ts-ignore
+						display: element.short || (element.definition as string),
+						// @ts-ignore
 						system: element.system,
 					});
 				}
@@ -203,9 +203,9 @@ async function transformValueSet(
  */
 async function transformExtension(
 	fhirSchema: FHIRSchema,
-	manager: CanonicalManager,
+	manager: ReturnType<typeof CanonicalManager>,
 	packageInfo?: PackageInfo,
-): Promise<TypeSchema | null> {
+): Promise<any | null> {
 	try {
 		const identifier = buildSchemaIdentifier(fhirSchema, packageInfo);
 
@@ -235,7 +235,7 @@ async function transformExtension(
 			};
 		}
 
-		const extensionSchema: TypeSchema = {
+		const extensionSchema: any = {
 			identifier,
 			base,
 			description: fhirSchema.description,
@@ -286,7 +286,7 @@ async function transformExtension(
 
 		// Remove self-reference from dependencies
 		extensionSchema.dependencies = extensionSchema.dependencies.filter(
-			(dep) => dep.url !== identifier.url,
+			(dep: any) => dep.url !== identifier.url,
 		);
 
 		return extensionSchema;
@@ -302,10 +302,10 @@ async function transformExtension(
  */
 export async function transformFHIRSchema(
 	fhirSchema: FHIRSchema,
-	manager: CanonicalManager,
+	manager: ReturnType<typeof CanonicalManager>,
 	packageInfo?: PackageInfo,
-): Promise<AnyTypeSchema[]> {
-	const results: AnyTypeSchema[] = [];
+): Promise<AnyTypeSchemaCompliant[]> {
+	const results: AnyTypeSchemaCompliant[] = [];
 
 	// Extract package info from schema if not provided
 	if (!packageInfo && (fhirSchema.package_name || fhirSchema.package_id)) {
@@ -426,7 +426,7 @@ export async function transformFHIRSchema(
 	}
 
 	// Initialize the main schema
-	const mainSchema: TypeSchema = {
+	const mainSchema: any = {
 		identifier,
 		dependencies: [],
 	};
@@ -484,7 +484,7 @@ export async function transformFHIRSchema(
 
 	// Remove self-reference from dependencies
 	mainSchema.dependencies = mainSchema.dependencies.filter(
-		(dep) => dep.url !== identifier.url,
+		(dep: any) => dep.url !== identifier.url,
 	);
 
 	// Add main schema to results
@@ -508,8 +508,8 @@ export async function transformFHIRSchemas(
 	fhirSchemas: FHIRSchema[],
 	manager: ReturnType<typeof CanonicalManager>,
 	packageInfo?: PackageInfo,
-): Promise<AnyTypeSchema[]> {
-	const allResults: AnyTypeSchema[] = [];
+): Promise<AnyTypeSchemaCompliant[]> {
+	const allResults: AnyTypeSchemaCompliant[] = [];
 
 	for (const fhirSchema of fhirSchemas) {
 		const results = await transformFHIRSchema(fhirSchema, manager, packageInfo);

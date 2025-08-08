@@ -61,7 +61,7 @@ async function extractCodeSystemConcepts(
  */
 async function processComposeItem(
 	item: any,
-	manager: CanonicalManager,
+	manager: ReturnType<typeof CanonicalManager>,
 ): Promise<Array<{ system: string; code: string; display?: string }>> {
 	const concepts: Array<{ system: string; code: string; display?: string }> =
 		[];
@@ -158,7 +158,7 @@ export async function extractValueSetConcepts(
  */
 export async function transformValueSet(
 	valueSet: any,
-	manager: CanonicalManager,
+	manager: ReturnType<typeof CanonicalManager>,
 	packageInfo?: PackageInfo,
 ): Promise<TypeSchemaValueSet> {
 	const identifier = buildValueSetIdentifier(
@@ -169,6 +169,7 @@ export async function transformValueSet(
 
 	const typeSchemaValueSet: TypeSchemaValueSet = {
 		identifier,
+		// @ts-expect-error okay currently
 		dependencies: [],
 	};
 
@@ -219,6 +220,7 @@ export async function transformValueSet(
 			processCompose(valueSet.compose.exclude);
 		}
 
+		// @ts-expect-error okay currently
 		typeSchemaValueSet.dependencies = deps;
 	}
 

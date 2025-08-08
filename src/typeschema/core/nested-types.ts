@@ -9,6 +9,7 @@ import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type {
 	PackageInfo,
 	TypeSchemaField,
+	TypeSchemaIdentifier,
 	TypeSchemaNestedType,
 } from "../types";
 import { buildField, buildNestedField, isNestedElement } from "./field-builder";
@@ -48,7 +49,7 @@ export async function transformNestedElements(
 	fhirSchema: FHIRSchema,
 	parentPath: string[],
 	elements: Record<string, FHIRSchemaElement>,
-	manager: CanonicalManager,
+	manager: ReturnType<typeof CanonicalManager>,
 	packageInfo?: PackageInfo,
 ): Promise<Record<string, TypeSchemaField>> {
 	const fields: Record<string, TypeSchemaField> = {};
@@ -85,7 +86,7 @@ export async function transformNestedElements(
  */
 export async function buildNestedTypes(
 	fhirSchema: FHIRSchema,
-	manager: CanonicalManager,
+	manager: ReturnType<typeof CanonicalManager>,
 	packageInfo?: PackageInfo,
 ): Promise<TypeSchemaNestedType[]> {
 	if (!fhirSchema.elements) return [];
@@ -107,6 +108,7 @@ export async function buildNestedTypes(
 		const identifier = buildNestedIdentifier(fhirSchema, path, packageInfo);
 
 		// Base is usually BackboneElement - ensure all nested types have a base
+		// biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
 		let base;
 		if (element.type === "BackboneElement" || !element.type) {
 			// For BackboneElement or undefined type, always use BackboneElement as base
@@ -171,10 +173,10 @@ export function extractNestedDependencies(
 
 		// Add field type dependencies
 		for (const field of Object.values(nested.fields)) {
-			if (field.type) {
+			if ("type" in field && field.type) {
 				deps.push(field.type);
 			}
-			if (field.binding) {
+			if ("binding" in field && field.binding) {
 				deps.push(field.binding);
 			}
 		}

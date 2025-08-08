@@ -84,9 +84,3 @@ export * from "./api";
 
 // Export new config system
 export * from "./config";
-
-// Export core architecture
-export * from "./core";
-
-// Export TypeSchema functionality
-export * from "./typeschema";

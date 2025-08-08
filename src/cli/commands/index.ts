@@ -8,15 +8,10 @@
 
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { AtomicCodegenError } from "../../core/utils/errors";
-import { createLoggerFromConfig, type ILogger } from "../../core/utils/logger";
+import { createLoggerFromConfig, type ILogger } from "../../logger.ts";
 import { configCommand } from "./config";
-import { devCommand } from "./dev";
 import { generateCommand } from "./generate";
-import { initCommand } from "./init";
 import { typeschemaCommand } from "./typeschema";
-import { validateCommand } from "./validate";
-import { watchCommand } from "./watch";
 
 /**
  * CLI arguments interface
@@ -36,7 +31,8 @@ export interface CLIArgv {
  */
 async function setupLoggingMiddleware(argv: any) {
 	// Create logger for CLI operations
-	const logger = createLoggerFromConfig({
+	// Attach logger to argv for use in commands
+	argv._logger = createLoggerFromConfig({
 		verbose: argv.verbose,
 		debug: argv.debug,
 		logLevel: argv.logLevel,
@@ -44,9 +40,6 @@ async function setupLoggingMiddleware(argv: any) {
 		logFile: argv.logFile,
 		component: "CLI",
 	});
-
-	// Attach logger to argv for use in commands
-	argv._logger = logger;
 }
 
 /**
@@ -57,13 +50,9 @@ export function createCLI() {
 		.scriptName("atomic-codegen")
 		.usage("$0 <command> [options]")
 		.middleware(setupLoggingMiddleware)
-		.command(initCommand)
 		.command(typeschemaCommand)
 		.command(generateCommand)
-		.command(watchCommand)
-		.command(devCommand)
 		.command(configCommand)
-		.command(validateCommand)
 		.option("verbose", {
 			alias: "v",
 			type: "boolean",
@@ -173,20 +162,15 @@ export function createCLI() {
 			});
 
 			if (err) {
-				if (err instanceof AtomicCodegenError) {
-					await logger.error("Command failed", err, undefined, "command");
-					console.error(`\n${err.getFormattedMessage()}`);
-				} else {
-					await logger.error(
-						"Unexpected error occurred",
-						err,
-						undefined,
-						"command",
-					);
-					console.error("Error:", err.message);
-					if (process.env.DEBUG) {
-						console.error(err.stack);
-					}
+				await logger.error(
+					"Unexpected error occurred",
+					err,
+					undefined,
+					"command",
+				);
+				console.error("Error:", err.message);
+				if (process.env.DEBUG) {
+					console.error(err.stack);
 				}
 			} else {
 				await logger.error(

@@ -7,11 +7,12 @@
 
 import { readFile } from "node:fs/promises";
 import type {
-	AnyTypeSchema,
+	AnyTypeSchemaCompliant,
 	ParserOptions,
 	TypeSchemaBinding,
 	TypeSchemaIdentifier,
 } from "./types";
+import { isValidKind } from "./types";
 
 /**
  * TypeSchema Parser class
@@ -34,7 +35,7 @@ export class TypeSchemaParser {
 	/**
 	 * Parse TypeSchema from file
 	 */
-	async parseFromFile(filePath: string): Promise<AnyTypeSchema[]> {
+	async parseFromFile(filePath: string): Promise<AnyTypeSchemaCompliant[]> {
 		const content = await readFile(filePath, "utf-8");
 		const format =
 			this.options.format === "auto"
@@ -50,10 +51,10 @@ export class TypeSchemaParser {
 	async parseFromString(
 		content: string,
 		format?: "ndjson" | "json",
-	): Promise<AnyTypeSchema[]> {
+	): Promise<AnyTypeSchemaCompliant[]> {
 		const actualFormat = format || this.detectFormat(content);
 
-		let schemas: AnyTypeSchema[];
+		let schemas: AnyTypeSchemaCompliant[];
 
 		if (actualFormat === "ndjson") {
 			schemas = this.parseNDJSON(content);
@@ -71,8 +72,8 @@ export class TypeSchemaParser {
 	/**
 	 * Parse multiple TypeSchema files
 	 */
-	async parseFromFiles(filePaths: string[]): Promise<AnyTypeSchema[]> {
-		const allSchemas: AnyTypeSchema[] = [];
+	async parseFromFiles(filePaths: string[]): Promise<AnyTypeSchemaCompliant[]> {
+		const allSchemas: AnyTypeSchemaCompliant[] = [];
 
 		for (const filePath of filePaths) {
 			const schemas = await this.parseFromFile(filePath);
@@ -85,7 +86,7 @@ export class TypeSchemaParser {
 	/**
 	 * Parse a single TypeSchema object
 	 */
-	parseSchema(schemaData: any): AnyTypeSchema {
+	parseSchema(schemaData: any): AnyTypeSchemaCompliant {
 		// Basic validation of required fields
 		if (!schemaData.identifier) {
 			throw new Error("TypeSchema must have an identifier");
@@ -97,16 +98,16 @@ export class TypeSchemaParser {
 
 		// Return the schema (assuming it's already in correct format)
 		// Additional validation would be performed by the validator
-		return schemaData as AnyTypeSchema;
+		return schemaData as AnyTypeSchemaCompliant;
 	}
 
 	/**
 	 * Find schemas by identifier
 	 */
 	findByIdentifier(
-		schemas: AnyTypeSchema[],
+		schemas: AnyTypeSchemaCompliant[],
 		identifier: Partial<TypeSchemaIdentifier>,
-	): AnyTypeSchema[] {
+	): AnyTypeSchemaCompliant[] {
 		return schemas.filter((schema) =>
 			this.matchesIdentifier(schema.identifier, identifier),
 		);
@@ -115,7 +116,10 @@ export class TypeSchemaParser {
 	/**
 	 * Find schema by URL
 	 */
-	findByUrl(schemas: AnyTypeSchema[], url: string): AnyTypeSchema | undefined {
+	findByUrl(
+		schemas: AnyTypeSchemaCompliant[],
+		url: string,
+	): AnyTypeSchemaCompliant | undefined {
 		return schemas.find((schema) => schema.identifier.url === url);
 	}
 
@@ -123,9 +127,9 @@ export class TypeSchemaParser {
 	 * Find schemas by kind
 	 */
 	findByKind(
-		schemas: AnyTypeSchema[],
+		schemas: AnyTypeSchemaCompliant[],
 		kind: TypeSchemaIdentifier["kind"],
-	): AnyTypeSchema[] {
+	): AnyTypeSchemaCompliant[] {
 		return schemas.filter((schema) => schema.identifier.kind === kind);
 	}
 
@@ -133,9 +137,9 @@ export class TypeSchemaParser {
 	 * Find schemas by package
 	 */
 	findByPackage(
-		schemas: AnyTypeSchema[],
+		schemas: AnyTypeSchemaCompliant[],
 		packageName: string,
-	): AnyTypeSchema[] {
+	): AnyTypeSchemaCompliant[] {
 		return schemas.filter(
 			(schema) => schema.identifier.package === packageName,
 		);
@@ -144,7 +148,7 @@ export class TypeSchemaParser {
 	/**
 	 * Get all dependencies from a schema
 	 */
-	getDependencies(schema: AnyTypeSchema): TypeSchemaIdentifier[] {
+	getDependencies(schema: AnyTypeSchemaCompliant): TypeSchemaIdentifier[] {
 		const dependencies: TypeSchemaIdentifier[] = [];
 
 		// Add base dependency
@@ -160,13 +164,13 @@ export class TypeSchemaParser {
 		// Add field type dependencies
 		if ("fields" in schema && schema.fields) {
 			for (const field of Object.values(schema.fields)) {
-				if (field.type) {
+				if ("type" in field && field.type) {
 					dependencies.push(field.type);
 				}
-				if (field.binding) {
+				if ("binding" in field && field.binding) {
 					dependencies.push(field.binding);
 				}
-				if (field.reference) {
+				if ("reference" in field && field.reference) {
 					dependencies.push(...field.reference);
 				}
 			}
@@ -179,13 +183,13 @@ export class TypeSchemaParser {
 				dependencies.push(nested.base);
 
 				for (const field of Object.values(nested.fields)) {
-					if (field.type) {
+					if ("type" in field && field.type) {
 						dependencies.push(field.type);
 					}
-					if (field.binding) {
+					if ("binding" in field && field.binding) {
 						dependencies.push(field.binding);
 					}
-					if (field.reference) {
+					if ("reference" in field && field.reference) {
 						dependencies.push(...field.reference);
 					}
 				}
@@ -209,11 +213,11 @@ export class TypeSchemaParser {
 	 * Resolve schema dependencies
 	 */
 	resolveDependencies(
-		schemas: AnyTypeSchema[],
-		targetSchema: AnyTypeSchema,
-	): AnyTypeSchema[] {
+		schemas: AnyTypeSchemaCompliant[],
+		targetSchema: AnyTypeSchemaCompliant,
+	): AnyTypeSchemaCompliant[] {
 		const dependencies = this.getDependencies(targetSchema);
-		const resolved: AnyTypeSchema[] = [];
+		const resolved: AnyTypeSchemaCompliant[] = [];
 
 		for (const dep of dependencies) {
 			const depSchema = this.findByUrl(schemas, dep.url);
@@ -257,8 +261,9 @@ export class TypeSchemaParser {
 			const lines = trimmed.split("\n").filter((line) => line.trim());
 			if (lines.length > 1) {
 				try {
-					// Try to parse first line as JSON
-					JSON.parse(lines[0]);
+					if (lines[0]) {
+						JSON.parse(lines[0]);
+					}
 					return "ndjson";
 				} catch {
 					// Fall through to JSON detection
@@ -273,8 +278,8 @@ export class TypeSchemaParser {
 	/**
 	 * Parse NDJSON format
 	 */
-	private parseNDJSON(content: string): AnyTypeSchema[] {
-		const schemas: AnyTypeSchema[] = [];
+	private parseNDJSON(content: string): AnyTypeSchemaCompliant[] {
+		const schemas: AnyTypeSchemaCompliant[] = [];
 		const lines = content.split("\n").filter((line) => line.trim());
 
 		for (const line of lines) {
@@ -295,7 +300,7 @@ export class TypeSchemaParser {
 	/**
 	 * Parse JSON format
 	 */
-	private parseJSON(content: string): AnyTypeSchema[] {
+	private parseJSON(content: string): AnyTypeSchemaCompliant[] {
 		try {
 			const parsed = JSON.parse(content);
 
@@ -312,7 +317,7 @@ export class TypeSchemaParser {
 	/**
 	 * Validate schemas
 	 */
-	private validateSchemas(schemas: AnyTypeSchema[]): void {
+	private validateSchemas(schemas: AnyTypeSchemaCompliant[]): void {
 		for (const schema of schemas) {
 			if (!schema.identifier) {
 				throw new Error("Schema missing identifier");
@@ -336,6 +341,7 @@ export class TypeSchemaParser {
 			typeof identifier === "object" &&
 			identifier !== null &&
 			typeof identifier.kind === "string" &&
+			isValidKind(identifier.kind) &&
 			typeof identifier.package === "string" &&
 			typeof identifier.version === "string" &&
 			typeof identifier.name === "string" &&
@@ -385,7 +391,7 @@ export class TypeSchemaParser {
 export async function parseTypeSchemaFromFile(
 	filePath: string,
 	options?: ParserOptions,
-): Promise<AnyTypeSchema[]> {
+): Promise<AnyTypeSchemaCompliant[]> {
 	const parser = new TypeSchemaParser(options);
 	return await parser.parseFromFile(filePath);
 }
@@ -397,7 +403,7 @@ export async function parseTypeSchemaFromString(
 	content: string,
 	format?: "ndjson" | "json",
 	options?: ParserOptions,
-): Promise<AnyTypeSchema[]> {
+): Promise<AnyTypeSchemaCompliant[]> {
 	const parser = new TypeSchemaParser(options);
 	return await parser.parseFromString(content, format);
 }
@@ -408,7 +414,7 @@ export async function parseTypeSchemaFromString(
 export async function parseTypeSchemaFromFiles(
 	filePaths: string[],
 	options?: ParserOptions,
-): Promise<AnyTypeSchema[]> {
+): Promise<AnyTypeSchemaCompliant[]> {
 	const parser = new TypeSchemaParser(options);
 	return await parser.parseFromFiles(filePaths);
 }

@@ -93,7 +93,6 @@ export const generateTypeschemaCommand: CommandModule<
 				includeProfiles: argv["include-profiles"],
 				includeExtensions: argv["include-extensions"],
 				includeValueSets: argv["include-valuesets"],
-				skipCoreResources: argv["skip-core-resources"],
 			});
 
 			// Generate schemas from all packages

@@ -1,27 +1,24 @@
 /**
  * TypeSchema Core Module
  *
- * Main entry point for the TypeSchema library providing a unified API
- * for FHIR-to-TypeSchema generation, parsing, validation, and transformation.
+ * Main entry point for the TypeSchema library providing core functions
+ * for FHIR-to-TypeSchema generation, parsing, and validation.
+ *
+ * This module focuses on:
+ * - Converting FHIR to TypeSchema format
+ * - Reading TypeSchema documents
+ * - Validating TypeSchema documents
  */
 
 import { TypeSchemaCache } from "./cache";
-// Import components for internal use
 import { TypeSchemaGenerator } from "./generator";
 import { TypeSchemaParser } from "./parser";
-import { TypeScriptTransformer } from "./transformer";
-import { TypeSchemaValidator } from "./validator";
+import type { AnyTypeSchemaCompliant, ParserOptions } from "./types.ts";
 
 // Re-export core dependencies
 export { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 export type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-// Re-export validation utilities
-export {
-	isValidatorAvailable,
-	validateTypeSchema as validateTypeSchemaCore,
-	validateTypeSchemaOrThrow as validateTypeSchemaOrThrowCore,
-	validateTypeSchemas as validateTypeSchemasCore,
-} from "../core/validation/typeschema-validator";
+
 // Export cache functionality
 export {
 	cacheSchema,
@@ -32,7 +29,8 @@ export {
 	isCached,
 	TypeSchemaCache,
 } from "./cache";
-// Re-export utility functions
+
+// Re-export utility functions for FHIR processing
 export {
 	buildEnum,
 	collectBindingSchemas,
@@ -60,82 +58,69 @@ export {
 	collectNestedElements,
 	extractNestedDependencies,
 } from "./core/nested-types";
-// Re-export transformation utilities
+
+// Re-export FHIR transformation utilities
 export {
 	transformFHIRSchema,
 	transformFHIRSchemas,
 } from "./core/transformer";
-// Export generator functionality
+
+// Export generator functionality (FHIR -> TypeSchema)
 export {
 	generateTypeSchemaFromPackage,
 	generateTypeSchemaFromSchema,
 	generateTypeSchemaFromSchemas,
 	TypeSchemaGenerator,
 } from "./generator";
-// Export parser functionality
+
+// Export parser functionality (Read TypeSchema)
 export {
 	parseTypeSchemaFromFile,
 	parseTypeSchemaFromFiles,
 	parseTypeSchemaFromString,
 	TypeSchemaParser,
 } from "./parser";
+
+// Export profile processing
 export { transformProfile } from "./profile/processor";
-// Export transformer functionality
-export {
-	generateTypeScriptFiles,
-	TypeScriptTransformer,
-	transformTypeSchemasToTypeScript,
-	transformTypeSchemaToTypeScript,
-} from "./transformer";
+
 // Export all types and interfaces
 export * from "./types";
-// Export validator functionality
-export {
-	TypeSchemaValidator,
-	validateTypeSchema,
-	validateTypeSchemaOrThrow,
-	validateTypeSchemas,
-	validateTypeSchemasWithDependencies,
-} from "./validator";
+
+// Export value set processing
 export { transformValueSet } from "./value-set/processor";
 
 /**
- * TypeSchema API class
+ * TypeSchema Core API class
  *
- * High-level API that combines all TypeSchema functionality into a single,
- * easy-to-use interface for common workflows.
+ * Provides core TypeSchema functionality: convert, read, and validate.
+ * Does NOT include target-specific generation (like TypeScript generation).
+ * Use target generators in src/api/generators/ for output generation.
  */
 export class TypeSchemaAPI {
 	private generator: TypeSchemaGenerator;
 	private parser: TypeSchemaParser;
-	private validator: TypeSchemaValidator;
-	private transformer: TypeScriptTransformer;
 	private cache: TypeSchemaCache;
 
 	constructor(
 		options: {
-			generator?: import("./generator").GeneratorOptions;
-			parser?: import("./parser").ParserOptions;
+			generator?: any;
+			parser?: ParserOptions;
 			validator?: { strict?: boolean };
-			transformer?: import("./transformer").TypeScriptGeneratorOptions;
 		} = {},
 	) {
 		this.generator = new TypeSchemaGenerator(options.generator);
 		this.parser = new TypeSchemaParser(options.parser);
-		this.validator = new TypeSchemaValidator(options.validator?.strict);
-		this.transformer = new TypeScriptTransformer(options.transformer);
 		this.cache = new TypeSchemaCache();
 	}
 
 	/**
-	 * Complete workflow: Generate TypeSchema from FHIR package and convert to TypeScript
+	 * Convert FHIR package to TypeSchema
 	 */
-	async generateTypesFromPackage(
+	async generateFromPackage(
 		packageName: string,
-		_outputDir: string,
 		packageVersion?: string,
-	): Promise<void> {
-		// Generate TypeSchema
+	): Promise<import("./types").AnyTypeSchemaCompliant[]> {
 		const schemas = await this.generator.generateFromPackage(
 			packageName,
 			packageVersion,
@@ -144,96 +129,21 @@ export class TypeSchemaAPI {
 		// Cache generated schemas
 		this.cache.setMany(schemas);
 
-		// Validate schemas
-		const validationResult =
-			await this.validator.validateWithDependencies(schemas);
-		if (!validationResult.valid) {
-			throw new Error(
-				`Validation failed: ${validationResult.errors.map((e) => e.message).join(", ")}`,
-			);
-		}
-
-		// Transform to TypeScript
-		await this.transformer.generateToFiles(schemas);
+		return schemas;
 	}
 
 	/**
-	 * Complete workflow: Parse TypeSchema files and convert to TypeScript
+	 * Parse TypeSchema from files
 	 */
-	async generateTypesFromFiles(
+	async parseFromFiles(
 		inputFiles: string[],
-		outputDir: string,
-	): Promise<void> {
-		// Parse TypeSchema files
+	): Promise<AnyTypeSchemaCompliant[]> {
 		const schemas = await this.parser.parseFromFiles(inputFiles);
 
 		// Cache parsed schemas
 		this.cache.setMany(schemas);
 
-		// Validate schemas
-		const validationResult =
-			await this.validator.validateWithDependencies(schemas);
-		if (!validationResult.valid) {
-			throw new Error(
-				`Validation failed: ${validationResult.errors.map((e) => e.message).join(", ")}`,
-			);
-		}
-
-		// Set output directory and transform to TypeScript
-		this.transformer.setOptions({ outputDir });
-		await this.transformer.generateToFiles(schemas);
-	}
-
-	/**
-	 * Validate TypeSchema files
-	 */
-	async validateFiles(
-		filePaths: string[],
-	): Promise<import("./validator").ValidationResult> {
-		const schemas = await this.parser.parseFromFiles(filePaths);
-		return await this.validator.validateWithDependencies(schemas);
-	}
-
-	/**
-	 * Get the generator instance
-	 */
-	getGenerator(): TypeSchemaGenerator {
-		return this.generator;
-	}
-
-	/**
-	 * Get the parser instance
-	 */
-	getParser(): TypeSchemaParser {
-		return this.parser;
-	}
-
-	/**
-	 * Get the validator instance
-	 */
-	getValidator(): TypeSchemaValidator {
-		return this.validator;
-	}
-
-	/**
-	 * Get the transformer instance
-	 */
-	getTransformer(): TypeScriptTransformer {
-		return this.transformer;
-	}
-
-	/**
-	 * Get the cache instance
-	 */
-	getCache(): TypeSchemaCache {
-		return this.cache;
-	}
-
-	/**
-	 * Clear all caches
-	 */
-	clearCache(): void {
-		this.cache.clear();
+		return schemas;
 	}
 }
 
@@ -247,30 +157,22 @@ export function createTypeSchemaAPI(
 }
 
 /**
- * Convenience function for the most common workflow
+ * Convenience function to convert FHIR package to TypeSchema
  */
-export async function generateTypesFromPackage(
+export async function generateTypeSchemaFromPackageCore(
 	packageName: string,
-	outputDir: string,
 	packageVersion?: string,
-): Promise<void> {
-	const api = createTypeSchemaAPI({
-		transformer: { outputDir },
-	});
-
-	await api.generateTypesFromPackage(packageName, outputDir, packageVersion);
+): Promise<import("./types").AnyTypeSchemaCompliant[]> {
+	const api = createTypeSchemaAPI();
+	return await api.generateFromPackage(packageName, packageVersion);
 }
 
 /**
- * Convenience function for parsing and generating from files
+ * Convenience function to parse TypeSchema from files
  */
-export async function generateTypesFromFiles(
+export async function parseTypeSchemaFromFilesCore(
 	inputFiles: string[],
-	outputDir: string,
-): Promise<void> {
-	const api = createTypeSchemaAPI({
-		transformer: { outputDir },
-	});
-
-	await api.generateTypesFromFiles(inputFiles, outputDir);
+): Promise<import("./types").AnyTypeSchemaCompliant[]> {
+	const api = createTypeSchemaAPI();
+	return await api.parseFromFiles(inputFiles);
 }

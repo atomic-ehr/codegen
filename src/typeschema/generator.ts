@@ -8,11 +8,11 @@
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import { type FHIRSchema, translate } from "@atomic-ehr/fhirschema";
 import type { TypeSchemaConfig } from "../config";
-import { isFHIRResourceType } from "../fhir/core/types";
+import { Logger } from "../logger";
 import { TypeSchemaCache } from "./cache";
 import { transformFHIRSchema, transformFHIRSchemas } from "./core/transformer";
 import type {
-	AnyTypeSchema,
+	AnyTypeSchemaCompliant,
 	GeneratorOptions,
 	PackageInfo,
 	TransformContext,
@@ -29,6 +29,7 @@ export class TypeSchemaGenerator {
 	private options: GeneratorOptions;
 	private cache: TypeSchemaCache | null = null;
 	private cacheConfig?: TypeSchemaConfig;
+	private logger: Logger;
 
 	constructor(options: GeneratorOptions = {}, cacheConfig?: TypeSchemaConfig) {
 		this.options = {
@@ -46,6 +47,10 @@ export class TypeSchemaGenerator {
 		};
 		this.manager = CanonicalManager({ packages: [], workingDir: "tmp/fhir" });
 		this.cacheConfig = cacheConfig;
+		this.logger = new Logger({
+			component: "TypeSchemaGenerator",
+			level: this.options.verbose ? 0 : 1,
+		});
 	}
 
 	/**
@@ -64,7 +69,7 @@ export class TypeSchemaGenerator {
 	async generateFromPackage(
 		packageName: string,
 		packageVersion?: string,
-	): Promise<AnyTypeSchema[]> {
+	): Promise<AnyTypeSchemaCompliant[]> {
 		// Initialize cache if needed
 		await this.initializeCache();
 
@@ -75,20 +80,19 @@ export class TypeSchemaGenerator {
 		if (this.cache && !forceRegenerate) {
 			const cachedSchemas = this.cache.getByPackage(packageName);
 			if (cachedSchemas.length > 0) {
-				if (this.options.verbose) {
-					console.log(
-						`Using cached TypeSchemas for package: ${packageName} (${cachedSchemas.length} schemas)`,
-					);
-				}
+				await this.logger.info(
+					`Using cached TypeSchemas for package: ${packageName}`,
+					{ schemasCount: cachedSchemas.length },
+				);
 				return cachedSchemas;
 			}
 		}
 
-		if (this.options.verbose) {
-			console.log(
-				`Loading FHIR package: ${packageName}${packageVersion ? `@${packageVersion}` : ""}`,
-			);
-		}
+		await this.logger.info(
+			`Loading FHIR package: ${packageName}${packageVersion ? `@${packageVersion}` : ""}`,
+			{ packageName, packageVersion: packageVersion || "latest" },
+			"loadPackage",
+		);
 
 		// Initialize FHIR canonical manager to load packages
 		this.manager = CanonicalManager({
@@ -107,33 +111,63 @@ export class TypeSchemaGenerator {
 			(resource) => resource.resourceType === "ValueSet",
 		);
 
-		if (this.options.verbose) {
-			console.log(
-				`Found ${structureDefinitions.length} StructureDefinitions and ${valueSets.length} ValueSets in package`,
-			);
-		}
+		await this.logger.info(
+			`Found resources in package`,
+			{
+				structureDefinitions: structureDefinitions.length,
+				valueSets: valueSets.length,
+			},
+			"scanPackage",
+		);
 
 		// Convert StructureDefinitions to FHIRSchemas
+		await this.logger.info(
+			"Converting StructureDefinitions to FHIRSchemas",
+			{ total: structureDefinitions.length },
+			"convertSchemas",
+		);
+
 		const fhirSchemas: FHIRSchema[] = [];
+		let convertedCount = 0;
+		let failedCount = 0;
+
 		for (const sd of structureDefinitions) {
 			try {
 				const fhirSchema = translate(sd as any);
 				fhirSchemas.push(fhirSchema);
+				convertedCount++;
+
+				await this.logger.debug(
+					`Converted StructureDefinition: ${sd.name || sd.id}`,
+					{ resourceType: sd.resourceType, url: sd.url },
+				);
 			} catch (error) {
-				if (this.options.verbose) {
-					console.warn(
-						`Failed to convert ${sd.name || sd.id}: ${error instanceof Error ? error.message : String(error)}`,
-					);
-				}
+				failedCount++;
+				await this.logger.warn(`Failed to convert StructureDefinition`, {
+					name: sd.name || sd.id,
+					resourceType: sd.resourceType,
+					error: error instanceof Error ? error.message : String(error),
+				});
 			}
 		}
 
+		await this.logger.info(
+			"Schema conversion completed",
+			{
+				converted: convertedCount,
+				failed: failedCount,
+				total: structureDefinitions.length,
+			},
+			"convertSchemas",
+		);
+
 		// Store ValueSets for enum extraction during binding processing
 		// The CanonicalManager will handle ValueSet resolution, but we ensure they're available
-		if (valueSets.length > 0 && this.options.verbose) {
-			console.log(
-				`ValueSets available for enum extraction: ${valueSets.map((vs) => vs.name || vs.id).join(", ")}`,
-			);
+		if (valueSets.length > 0) {
+			await this.logger.debug("ValueSets available for enum extraction", {
+				count: valueSets.length,
+				valueSets: valueSets.map((vs) => vs.name || vs.id).slice(0, 10),
+			});
 		}
 
 		// Create package info
@@ -147,14 +181,19 @@ export class TypeSchemaGenerator {
 
 		// Cache the generated schemas if caching is enabled
 		if (this.cache && schemas.length > 0) {
+			await this.logger.info(
+				"Caching generated schemas",
+				{ count: schemas.length, packageName },
+				"cacheSchemas",
+			);
+
 			for (const schema of schemas) {
 				await this.cache.set(schema);
 			}
-			if (this.options.verbose) {
-				console.log(
-					`Cached ${schemas.length} TypeSchemas for package: ${packageName}`,
-				);
-			}
+
+			await this.logger.info(`Cached TypeSchemas for package: ${packageName}`, {
+				count: schemas.length,
+			});
 		}
 
 		return schemas;
@@ -166,17 +205,21 @@ export class TypeSchemaGenerator {
 	async generateFromSchema(
 		fhirSchema: FHIRSchema,
 		packageInfo?: PackageInfo,
-	): Promise<AnyTypeSchema[]> {
+	): Promise<AnyTypeSchemaCompliant[]> {
 		const _context: TransformContext = {
 			packageInfo,
 			verbose: this.options.verbose,
 		};
 
-		if (this.options.verbose) {
-			console.log(
-				`Transforming schema: ${fhirSchema.url || fhirSchema.name || "unnamed"}`,
-			);
-		}
+		await this.logger.info(
+			"Transforming FHIR schema to TypeSchema",
+			{
+				url: fhirSchema.url,
+				name: fhirSchema.name || "unnamed",
+				schemaType: fhirSchema.type,
+			},
+			"transformSchema",
+		);
 
 		return await transformFHIRSchema(fhirSchema, this.manager, packageInfo);
 	}
@@ -187,15 +230,17 @@ export class TypeSchemaGenerator {
 	async generateFromSchemas(
 		fhirSchemas: FHIRSchema[],
 		packageInfo?: PackageInfo,
-	): Promise<AnyTypeSchema[]> {
+	): Promise<AnyTypeSchemaCompliant[]> {
 		const _context: TransformContext = {
 			packageInfo,
 			verbose: this.options.verbose,
 		};
 
-		if (this.options.verbose) {
-			console.log(`Transforming ${fhirSchemas.length} schemas`);
-		}
+		await this.logger.info(
+			`Transforming multiple FHIR schemas to TypeSchema`,
+			{ count: fhirSchemas.length },
+			"transformSchemas",
+		);
 
 		// First, transform FHIR schemas to TypeSchemas using the core transformer
 		const baseSchemas = await transformFHIRSchemas(
@@ -205,14 +250,16 @@ export class TypeSchemaGenerator {
 		);
 
 		// Apply FHIR-specific processing
-		const results: AnyTypeSchema[] = [];
+		const results: AnyTypeSchemaCompliant[] = [];
 
 		// Filter schemas based on options
 		const filteredSchemas = this.filterTypeSchemas(baseSchemas);
 
-		if (this.options.verbose) {
-			console.log(`Processing ${filteredSchemas.length} filtered TypeSchemas`);
-		}
+		await this.logger.info(
+			"Processing filtered TypeSchemas",
+			{ count: filteredSchemas.length },
+			"processSchemas",
+		);
 
 		// Group schemas by type for efficient processing
 		const groupedSchemas = this.groupTypeSchemas(filteredSchemas);
@@ -224,6 +271,11 @@ export class TypeSchemaGenerator {
 
 		// Generate profiles if enabled
 		if (this.options.includeProfiles && groupedSchemas.profiles.length > 0) {
+			await this.logger.info(
+				"Enhancing profiles",
+				{ count: groupedSchemas.profiles.length },
+				"enhanceProfiles",
+			);
 			const profileResults = await this.enhanceProfiles(
 				groupedSchemas.profiles,
 			);
@@ -235,6 +287,11 @@ export class TypeSchemaGenerator {
 			this.options.includeExtensions &&
 			groupedSchemas.extensions.length > 0
 		) {
+			await this.logger.info(
+				"Enhancing extensions",
+				{ count: groupedSchemas.extensions.length },
+				"enhanceExtensions",
+			);
 			const extensionResults = await this.enhanceExtensions(
 				groupedSchemas.extensions,
 			);
@@ -243,6 +300,11 @@ export class TypeSchemaGenerator {
 
 		// Generate value sets if enabled
 		if (this.options.includeValueSets && groupedSchemas.valueSets.length > 0) {
+			await this.logger.info(
+				"Enhancing value sets",
+				{ count: groupedSchemas.valueSets.length },
+				"enhanceValueSets",
+			);
 			const valueSetResults = await this.enhanceValueSets(
 				groupedSchemas.valueSets,
 			);
@@ -254,6 +316,11 @@ export class TypeSchemaGenerator {
 			this.options.includeCodeSystems &&
 			groupedSchemas.codeSystems.length > 0
 		) {
+			await this.logger.info(
+				"Enhancing code systems",
+				{ count: groupedSchemas.codeSystems.length },
+				"enhanceCodeSystems",
+			);
 			const codeSystemResults = await this.enhanceCodeSystems(
 				groupedSchemas.codeSystems,
 			);
@@ -262,241 +329,38 @@ export class TypeSchemaGenerator {
 
 		// Generate operations if enabled
 		if (this.options.includeOperations) {
+			await this.logger.info("Generating operations", {}, "generateOperations");
 			const operationResults = await this.generateOperations();
 			results.push(...operationResults);
 		}
 
-		if (this.options.verbose) {
-			console.log(`Generated ${results.length} enhanced FHIR type schemas`);
-		}
+		await this.logger.info("Generated enhanced FHIR type schemas", {
+			totalSchemas: results.length,
+			resources: groupedSchemas.resources.length,
+			complexTypes: groupedSchemas.complexTypes.length,
+			primitives: groupedSchemas.primitives.length,
+			profiles: this.options.includeProfiles
+				? groupedSchemas.profiles.length
+				: 0,
+			extensions: this.options.includeExtensions
+				? groupedSchemas.extensions.length
+				: 0,
+			valueSets: this.options.includeValueSets
+				? groupedSchemas.valueSets.length
+				: 0,
+			codeSystems: this.options.includeCodeSystems
+				? groupedSchemas.codeSystems.length
+				: 0,
+		});
 
 		return results;
 	}
 
-	/**
-	 * Generate TypeSchema with filtered resource types
-	 */
-	async generateFiltered(
-		packageName: string,
-		_filter: {
-			resourceTypes?: string[];
-			includeProfiles?: boolean;
-			includeExtensions?: boolean;
-			includeValueSets?: boolean;
-		},
-		packageVersion?: string,
-	): Promise<AnyTypeSchema[]> {
-		if (this.options.verbose) {
-			console.log(`Loading filtered FHIR package: ${packageName}`);
-		}
-
-		// TODO: Implement filtering functionality - for now, delegate to generateFromPackage
-		return await this.generateFromPackage(packageName, packageVersion);
-		//
-		// // Filter schemas based on criteria
-		// let filteredSchemas = allSchemas;
-		//
-		// if (filter.resourceTypes) {
-		// 	filteredSchemas = filteredSchemas.filter((schema) =>
-		// 		filter.resourceTypes!.includes(schema.name || schema.id),
-		// 	);
-		// }
-		//
-		// if (filter.includeProfiles === false) {
-		// 	filteredSchemas = filteredSchemas.filter(
-		// 		(schema) => schema.kind !== "profile",
-		// 	);
-		// }
-		//
-		// if (filter.includeExtensions === false) {
-		// 	filteredSchemas = filteredSchemas.filter(
-		// 		(schema) => schema.type !== "Extension",
-		// 	);
-		// }
-		//
-		// if (filter.includeValueSets === false) {
-		// 	filteredSchemas = filteredSchemas.filter(
-		// 		(schema) => schema.kind !== "value-set",
-		// 	);
-		// }
-		//
-		// if (this.options.verbose) {
-		// 	console.log(`Filtered to ${filteredSchemas.length} schemas`);
-		// }
-		//
-		// const packageInfo: PackageInfo = {
-		// 	name: packageName,
-		// 	version: packageVersion || "latest",
-		// };
-		//
-		// return await this.generateFromSchemas(filteredSchemas, packageInfo);
-	}
-
-	/**
-	 * Set generator options
-	 */
-	setOptions(options: Partial<GeneratorOptions>): void {
-		this.options = { ...this.options, ...options };
-	}
-
-	/**
-	 * Get current generator options
-	 */
-	getOptions(): GeneratorOptions {
-		return { ...this.options };
-	}
-
-	/**
-	 * Add a package to the canonical manager for dependency resolution
-	 */
-	async addDependencyPackage(
-		packageName: string,
-		packageVersion?: string,
-	): Promise<void> {
-		if (this.options.verbose) {
-			console.log(
-				`Adding dependency package: ${packageName}${packageVersion ? `@${packageVersion}` : ""}`,
-			);
-		}
-
-		// TODO: Implement comparison functionality - for now, delegate to generateFromPackage
-		return await this.generateFromPackage(packageName, packageVersion);
-
-		// // Add schemas to canonical manager
-		// for (const schema of schemas) {
-		// 	if (schema.url) {
-		// 		await this.manager.register(schema.url, schema);
-		// 	}
-		// }
-	}
-
-	/**
-	 * Extract SearchParameter definitions for a specific resource type
-	 */
-	async getSearchParameters(resourceType: string): Promise<any[]> {
-		if (!this.manager) {
-			throw new Error(
-				"Manager not initialized. Call generateFromPackage first.",
-			);
-		}
-
-		try {
-			// Get SearchParameter resources for the specified resource type
-			const searchParameters =
-				await this.manager.getSearchParametersForResource(resourceType);
-
-			if (this.options.verbose) {
-				console.log(
-					`Found ${searchParameters.length} SearchParameters for ${resourceType}`,
-				);
-			}
-
-			return searchParameters;
-		} catch (error) {
-			if (this.options.verbose) {
-				console.warn(
-					`Failed to get SearchParameters for ${resourceType}: ${error instanceof Error ? error.message : String(error)}`,
-				);
-			}
-			return [];
-		}
-	}
-
-	/**
-	 * Extract OperationDefinition resources for a specific resource type
-	 */
-	async getOperationDefinitions(resourceType?: string): Promise<any[]> {
-		if (!this.manager) {
-			throw new Error(
-				"Manager not initialized. Call generateFromPackage first.",
-			);
-		}
-
-		try {
-			// Search for OperationDefinition resources
-			const allResources = await this.manager.search({});
-			let operationDefinitions = allResources.filter(
-				(resource: any) => resource.resourceType === "OperationDefinition",
-			);
-
-			// Filter by resource type if specified
-			if (resourceType) {
-				operationDefinitions = operationDefinitions.filter((resource: any) =>
-					resource.resource?.includes(resourceType),
-				);
-			}
-
-			if (this.options.verbose) {
-				console.log(
-					`Found ${operationDefinitions.length} OperationDefinitions${resourceType ? ` for ${resourceType}` : ""}`,
-				);
-			}
-
-			return operationDefinitions;
-		} catch (error) {
-			if (this.options.verbose) {
-				console.warn(
-					`Failed to get OperationDefinitions${resourceType ? ` for ${resourceType}` : ""}: ${error instanceof Error ? error.message : String(error)}`,
-				);
-			}
-			return [];
-		}
-	}
-
-	/**
-	 * Get all resource types from loaded StructureDefinitions
-	 */
-	async getResourceTypes(): Promise<string[]> {
-		if (!this.manager) {
-			throw new Error(
-				"Manager not initialized. Call generateFromPackage first.",
-			);
-		}
-
-		try {
-			const allResources = await this.manager.search({});
-			const structureDefinitions = allResources.filter(
-				(resource) =>
-					resource.resourceType === "StructureDefinition" &&
-					resource.kind === "resource" &&
-					resource.derivation === "specialization",
-			);
-
-			const resourceTypes = structureDefinitions
-				.map((sd) => sd.name || sd.type)
-				.filter(
-					(name: string) =>
-						name && name !== "Resource" && name !== "DomainResource",
-				)
-				.sort();
-
-			if (this.options.verbose) {
-				console.log(
-					`Found ${resourceTypes.length} resource types: ${resourceTypes.join(", ")}`,
-				);
-			}
-
-			return resourceTypes;
-		} catch (error) {
-			if (this.options.verbose) {
-				console.warn(
-					`Failed to get resource types: ${error instanceof Error ? error.message : String(error)}`,
-				);
-			}
-			return [];
-		}
-	}
-
-	/**
-	 * Clear the canonical manager cache
-	 */
-	clearCache(): void {
-		this.manager = CanonicalManager({ packages: [], workingDir: "tmp/fhir" });
-	}
-
 	// Private FHIR-specific helper methods
 
-	private filterTypeSchemas(schemas: AnyTypeSchema[]): AnyTypeSchema[] {
+	private filterTypeSchemas(
+		schemas: AnyTypeSchemaCompliant[],
+	): AnyTypeSchemaCompliant[] {
 		let filtered = schemas;
 
 		// Filter by resource types if specified
@@ -504,31 +368,31 @@ export class TypeSchemaGenerator {
 			filtered = filtered.filter(
 				(schema) =>
 					!schema.identifier.name ||
-					this.options.resourceTypes?.includes(schema.identifier.name) ||
-					!isFHIRResourceType(schema.identifier.name, schemas),
+					this.options.resourceTypes?.includes(schema.identifier.name),
+				// !isFHIRResourceType(schema.identifier.name, schemas),
 			);
 		}
 
 		return filtered;
 	}
 
-	private groupTypeSchemas(schemas: AnyTypeSchema[]): {
-		resources: AnyTypeSchema[];
-		complexTypes: AnyTypeSchema[];
-		primitives: AnyTypeSchema[];
-		profiles: AnyTypeSchema[];
-		extensions: AnyTypeSchema[];
-		valueSets: AnyTypeSchema[];
-		codeSystems: AnyTypeSchema[];
+	private groupTypeSchemas(schemas: AnyTypeSchemaCompliant[]): {
+		resources: AnyTypeSchemaCompliant[];
+		complexTypes: AnyTypeSchemaCompliant[];
+		primitives: AnyTypeSchemaCompliant[];
+		profiles: AnyTypeSchemaCompliant[];
+		extensions: AnyTypeSchemaCompliant[];
+		valueSets: AnyTypeSchemaCompliant[];
+		codeSystems: AnyTypeSchemaCompliant[];
 	} {
 		const groups = {
-			resources: [] as AnyTypeSchema[],
-			complexTypes: [] as AnyTypeSchema[],
-			primitives: [] as AnyTypeSchema[],
-			profiles: [] as AnyTypeSchema[],
-			extensions: [] as AnyTypeSchema[],
-			valueSets: [] as AnyTypeSchema[],
-			codeSystems: [] as AnyTypeSchema[],
+			resources: [] as AnyTypeSchemaCompliant[],
+			complexTypes: [] as AnyTypeSchemaCompliant[],
+			primitives: [] as AnyTypeSchemaCompliant[],
+			profiles: [] as AnyTypeSchemaCompliant[],
+			extensions: [] as AnyTypeSchemaCompliant[],
+			valueSets: [] as AnyTypeSchemaCompliant[],
+			codeSystems: [] as AnyTypeSchemaCompliant[],
 		};
 
 		for (const schema of schemas) {
@@ -571,38 +435,38 @@ export class TypeSchemaGenerator {
 	}
 
 	private async enhanceProfiles(
-		schemas: AnyTypeSchema[],
-	): Promise<AnyTypeSchema[]> {
+		schemas: AnyTypeSchemaCompliant[],
+	): Promise<AnyTypeSchemaCompliant[]> {
 		// Profiles are already generated by TypeSchema transformer
 		// Add any FHIR-specific enhancements here if needed
 		return schemas;
 	}
 
 	private async enhanceExtensions(
-		schemas: AnyTypeSchema[],
-	): Promise<AnyTypeSchema[]> {
+		schemas: AnyTypeSchemaCompliant[],
+	): Promise<AnyTypeSchemaCompliant[]> {
 		// Extensions are already generated by TypeSchema transformer
 		// Add any FHIR-specific enhancements here if needed
 		return schemas;
 	}
 
 	private async enhanceValueSets(
-		schemas: AnyTypeSchema[],
-	): Promise<AnyTypeSchema[]> {
+		schemas: AnyTypeSchemaCompliant[],
+	): Promise<AnyTypeSchemaCompliant[]> {
 		// ValueSets are already generated by TypeSchema transformer
 		// Add any FHIR-specific enhancements here if needed
 		return schemas;
 	}
 
 	private async enhanceCodeSystems(
-		schemas: AnyTypeSchema[],
-	): Promise<AnyTypeSchema[]> {
+		schemas: AnyTypeSchemaCompliant[],
+	): Promise<AnyTypeSchemaCompliant[]> {
 		// CodeSystems are already generated by TypeSchema transformer
 		// Add any FHIR-specific enhancements here if needed
 		return schemas;
 	}
 
-	private async generateOperations(): Promise<AnyTypeSchema[]> {
+	private async generateOperations(): Promise<AnyTypeSchemaCompliant[]> {
 		// Operations generation would be implemented here if needed
 		// For now, return empty array as operations are rarely used
 		return [];
@@ -615,7 +479,7 @@ export class TypeSchemaGenerator {
 export async function generateTypeSchemaFromPackage(
 	packageName: string,
 	options: GeneratorOptions = {},
-): Promise<AnyTypeSchema[]> {
+): Promise<AnyTypeSchemaCompliant[]> {
 	const generator = new TypeSchemaGenerator(options);
 	return await generator.generateFromPackage(packageName);
 }
@@ -627,7 +491,7 @@ export async function generateTypeSchemaFromSchemas(
 	fhirSchemas: FHIRSchema[],
 	packageInfo?: PackageInfo,
 	options: GeneratorOptions = {},
-): Promise<AnyTypeSchema[]> {
+): Promise<AnyTypeSchemaCompliant[]> {
 	const generator = new TypeSchemaGenerator(options);
 	return await generator.generateFromSchemas(fhirSchemas, packageInfo);
 }
@@ -639,7 +503,7 @@ export async function generateTypeSchemaFromSchema(
 	fhirSchema: FHIRSchema,
 	packageInfo?: PackageInfo,
 	options: GeneratorOptions = {},
-): Promise<AnyTypeSchema[]> {
+): Promise<AnyTypeSchemaCompliant[]> {
 	const generator = new TypeSchemaGenerator(options);
 	return await generator.generateFromSchema(fhirSchema, packageInfo);
 }

@@ -75,18 +75,6 @@ export interface TypeScriptGeneratorConfig {
 }
 
 /**
- * REST Client generator configuration options
- * Inherits TypeScript generation settings from the main typescript config
- */
-export interface RESTClientGeneratorConfig {
-	clientName?: string;
-	baseUrl?: string;
-	apiVersion?: string;
-	generateMocks?: boolean;
-	authType?: "none" | "bearer" | "apikey" | "oauth2";
-}
-
-/**
  * TypeSchema Configuration
  * Controls TypeSchema generation and caching behavior
  */
@@ -120,7 +108,6 @@ export interface Config {
 
 	// Generator configurations
 	typescript?: TypeScriptGeneratorConfig;
-	restClient?: RESTClientGeneratorConfig;
 	typeSchema?: TypeSchemaConfig;
 
 	// Input sources
@@ -200,12 +187,6 @@ export const DEFAULT_CONFIG: Required<Config> = {
 			includeNullChecks: true,
 			verbose: false,
 		},
-	},
-	restClient: {
-		clientName: "FHIRClient",
-		baseUrl: "https://api.example.com/fhir",
-		generateMocks: false,
-		authType: "none",
 	},
 	typeSchema: {
 		enablePersistence: true,
@@ -305,12 +286,6 @@ export class ConfigValidator {
 		if (cfg.typescript !== undefined) {
 			const tsErrors = this.validateTypeScriptConfig(cfg.typescript);
 			result.errors.push(...tsErrors);
-		}
-
-		// Validate restClient config
-		if (cfg.restClient !== undefined) {
-			const restErrors = this.validateRESTClientConfig(cfg.restClient);
-			result.errors.push(...restErrors);
 		}
 
 		// Validate packages array
@@ -531,48 +506,6 @@ export class ConfigValidator {
 
 		return errors;
 	}
-
-	private validateRESTClientConfig(config: unknown): ConfigValidationError[] {
-		const errors: ConfigValidationError[] = [];
-
-		if (typeof config !== "object" || config === null) {
-			errors.push({
-				path: "restClient",
-				message: "restClient config must be an object",
-				value: config,
-			});
-			return errors;
-		}
-
-		const cfg = config as Record<string, unknown>;
-
-		// Validate authType
-		if (cfg.authType !== undefined) {
-			if (
-				!["none", "bearer", "apikey", "oauth2"].includes(cfg.authType as string)
-			) {
-				errors.push({
-					path: "restClient.authType",
-					message: "authType must be one of: none, bearer, apikey, oauth2",
-					value: cfg.authType,
-				});
-			}
-		}
-
-		// Validate boolean fields
-		const booleanFields = ["generateMocks"];
-		for (const field of booleanFields) {
-			if (cfg[field] !== undefined && typeof cfg[field] !== "boolean") {
-				errors.push({
-					path: `restClient.${field}`,
-					message: `${field} must be a boolean`,
-					value: cfg[field],
-				});
-			}
-		}
-
-		return errors;
-	}
 }
 
 /**
@@ -657,10 +590,6 @@ export class ConfigLoader {
 			typescript: {
 				...DEFAULT_CONFIG.typescript,
 				...userConfig.typescript,
-			},
-			restClient: {
-				...DEFAULT_CONFIG.restClient,
-				...userConfig.restClient,
 			},
 		};
 	}

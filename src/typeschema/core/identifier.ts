@@ -33,7 +33,7 @@ function determineKind(fhirSchema: FHIRSchema): TypeSchemaIdentifier["kind"] {
 		) {
 			return "profile";
 		}
-		return "constraint";
+		return "profile";
 	}
 
 	// Use explicit kind if available
