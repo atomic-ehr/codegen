@@ -11,7 +11,6 @@ import {
 	type StructureDefinition,
 	translate,
 } from "@atomic-ehr/fhirschema";
-import type { Type } from "ajv/dist/compile/util";
 import type { TypeSchemaConfig } from "../config";
 import { Logger } from "../logger";
 import { TypeSchemaCache } from "./cache";

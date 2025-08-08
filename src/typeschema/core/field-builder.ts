@@ -94,7 +94,10 @@ export function mergeElementHierarchy(
 	// Override with specific properties from the first element
 	for (const prop of ["choices", "binding", "refers", "elementReference"]) {
 		// @ts-ignore
-		if (hierarchy[0] && hierarchy[0][prop as keyof FHIRSchemaElement] !== undefined) {
+		if (
+			hierarchy[0] &&
+			hierarchy[0][prop as keyof FHIRSchemaElement] !== undefined
+		) {
 			// @ts-ignore
 			(snapshot as any)[prop] = hierarchy[0][prop as keyof FHIRSchemaElement];
 		}

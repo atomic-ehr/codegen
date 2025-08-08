@@ -23,20 +23,13 @@
 		"test": "bun test",
 		"test:watch": "bun test --watch",
 		"test:coverage": "bun test --coverage",
-		"test:unit": "bun test test/unit/",
-		"test:integration": "bun test test/integration/",
-		"test:e2e": "bun test test/e2e/",
-		"test:benchmarks": "bun test test/benchmarks/",
 		"test:ci": "bun test --coverage --bail",
-		"build": "bun build src/index.ts --outdir dist --target node --format esm --splitting --external typescript",
+		"build": "rm -rf dist && bun build src/index.ts --outdir dist --target node --format esm --splitting --external typescript && bunx tsc --project tsconfig.build.json",
 		"typecheck": "bunx tsc --noEmit",
 		"cli": "bun run src/cli/index.ts",
 		"codegen": "bun run src/cli/index.ts",
 		"codegen:all": "bun run src/cli/index.ts generate typescript",
-		"codegen:test": "bun test test/codegen/",
-		"lint": "biome check --write ./src",
-		"example:basic": "bun run examples/basic-usage.ts",
-		"example:preview": "bun run examples/rest-client-preview.ts"
+		"lint": "biome check --write ./src"
 	},
 	"repository": {
 		"type": "git",

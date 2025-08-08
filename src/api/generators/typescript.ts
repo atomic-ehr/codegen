@@ -7,7 +7,6 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { ref } from "node:process";
 import {
 	isPolymorphicInstanceField,
 	isRegularField,

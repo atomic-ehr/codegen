@@ -15,12 +15,19 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
+			"suspicious": {
+				"noImplicitAnyLet": "warn",
+				"noAssignInExpressions": "warn"
+			},
+			"correctness": {
+				"noUnusedPrivateClassMembers": "warn"
+			},
 			"recommended": true
 		}
 	},
 	"javascript": {
 		"formatter": {
-          "indentWidth": 2,
+			"indentWidth": 2,
 			"quoteStyle": "double"
 		}
 	},

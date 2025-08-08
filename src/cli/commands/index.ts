@@ -9,7 +9,6 @@
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { createLoggerFromConfig, type ILogger } from "../../logger.ts";
-import { configCommand } from "./config";
 import { generateCommand } from "./generate";
 import { typeschemaCommand } from "./typeschema";
 
@@ -52,7 +51,6 @@ export function createCLI() {
 		.middleware(setupLoggingMiddleware)
 		.command(typeschemaCommand)
 		.command(generateCommand)
-		.command(configCommand)
 		.option("verbose", {
 			alias: "v",
 			type: "boolean",
@@ -107,12 +105,6 @@ export function createCLI() {
 					"  generate     Generate code from TypeSchema (TypeScript, REST clients)",
 				);
 				console.log(
-					"  watch        Watch files and regenerate code on changes",
-				);
-				console.log("  dev          Development tools and utilities");
-				console.log("  config       Manage configuration files");
-				console.log("  validate     Run comprehensive validation");
-				console.log(
 					"\nUse 'atomic-codegen <command> --help' for more information about a command.",
 				);
 				console.log("\n✨ Quick examples:");
@@ -125,7 +117,6 @@ export function createCLI() {
 				console.log(
 					"  atomic-codegen generate rest-client -i schemas.ndjson -o ./client",
 				);
-				console.log("  atomic-codegen config init");
 				console.log("\nUse 'atomic-codegen --help' to see all options.");
 				process.exit(0);
 			}
