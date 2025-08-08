@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
 /**
  * Atomic Codegen CLI - Simplified High-Level API
@@ -6,7 +6,6 @@
  * Clean, performant CLI with only essential commands:
  * - typeschema: Create and manage TypeSchema files
  * - generate: Generate code from TypeSchema
- * - dev: Development utilities
  */
 
 import { runCLI } from "./commands";

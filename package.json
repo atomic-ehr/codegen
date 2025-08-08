@@ -25,7 +25,7 @@
 		"test:watch": "bun test --watch",
 		"test:coverage": "bun test --coverage",
 		"test:ci": "bun test --coverage --bail",
-		"build": "rm -rf dist && bun build src/index.ts src/cli/index.ts --outdir dist --target node --format esm --splitting --external typescript && bunx tsc --project tsconfig.build.json && sed -i '' 's|#!/usr/bin/env bun|#!/usr/bin/env node|' dist/cli/index.js && chmod +x dist/cli/index.js",
+		"build": "rm -rf dist && bun build src/index.ts src/cli/index.ts --outdir dist --target node --format esm --splitting --external typescript && bunx tsc --project tsconfig.build.json && chmod +x dist/cli/index.js",
 		"typecheck": "bunx tsc --noEmit",
 		"cli": "bun run src/cli/index.ts",
 		"codegen": "bun run src/cli/index.ts",
