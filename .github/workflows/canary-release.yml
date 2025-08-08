@@ -57,24 +57,3 @@ jobs:
         npm publish --tag canary --access public
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-    
-    - name: Create GitHub release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: v${{ steps.version.outputs.canary_version }}
-        release_name: Canary Release v${{ steps.version.outputs.canary_version }}
-        body: |
-          🚀 Canary release from commit ${{ github.sha }}
-          
-          This is an automated canary release. Use with caution in production.
-          
-          **Installation:**
-          ```bash
-          npm install @atomic-ehr/codegen@canary
-          # or
-          bun add @atomic-ehr/codegen@canary
-          ```
-        draft: false
-        prerelease: true
