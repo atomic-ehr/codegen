@@ -26,9 +26,9 @@
  * // Generate FHIR types from packages
  * await api
  *   .fromFHIRPackages(['hl7.fhir.r4.core@4.0.1', 'hl7.fhir.us.core@6.1.0'])
- *   .generateTypeScript('./src/types/fhir')
+ *   .typescript('./src/types/fhir')
  *   .withValidation()
- *   .execute();
+ *   .generate();
  * ```
  *
  * ## Architecture

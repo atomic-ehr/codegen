@@ -7,8 +7,23 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import type { AnyTypeSchemaCompliant } from "../../typeschema";
-import { TypeScriptTransformer } from "./typescript/transformer";
+import { ref } from "node:process";
+import {
+	isPolymorphicInstanceField,
+	isRegularField,
+	isTypeSchemaForResourceComplexTypeLogical,
+	type PolymorphicValueXFieldInstance,
+	type RegularField,
+	type TypeSchema,
+	type TypeSchemaField,
+	type TypeSchemaForResourceComplexTypeLogical,
+	type TypeSchemaIdentifier,
+} from "../../typeschema";
+import { toPascalCase } from "../../utils.ts";
+
+type MakeRequiredNonNullable<T, K extends keyof T> = Omit<T, K> & {
+	[P in K]-?: NonNullable<T[P]>;
+};
 
 /**
  * Options for the TypeScript API generator
@@ -33,6 +48,46 @@ export interface GeneratedFile {
 	exports: string[];
 }
 
+export interface GeneratedTypeScript {
+	content: string;
+	imports: Map<string, string>;
+	exports: string[];
+	filename: string;
+}
+
+/**
+ * Mapping of FHIR primitive types to TypeScript types
+ */
+const PRIMITIVE_TYPE_MAP: Record<string, string> = {
+	// String types
+	string: "string",
+	code: "string",
+	uri: "string",
+	url: "string",
+	canonical: "string",
+	oid: "string",
+	uuid: "string",
+	id: "string",
+	markdown: "string",
+	xhtml: "string",
+	base64Binary: "string",
+
+	// Numeric types
+	integer: "number",
+	unsignedInt: "number",
+	positiveInt: "number",
+	decimal: "number",
+
+	// Boolean type
+	boolean: "boolean",
+
+	// Date/time types (as strings for JSON compatibility)
+	date: "string",
+	dateTime: "string",
+	instant: "string",
+	time: "string",
+};
+
 /**
  * High-Level TypeScript Generator
  *
@@ -40,8 +95,11 @@ export interface GeneratedFile {
  * features like index generation, documentation, and flexible output options.
  */
 export class TypeScriptAPIGenerator {
-	private transformer: TypeScriptTransformer;
 	private options: Required<TypeScriptAPIOptions>;
+	private imports = new Map<string, string>();
+	private exports = new Set<string>();
+	private resourceTypes = new Set<string>();
+	private currentSchemaName?: string;
 
 	constructor(options: TypeScriptAPIOptions) {
 		this.options = {
@@ -53,45 +111,304 @@ export class TypeScriptAPIGenerator {
 			includeProfiles: false,
 			...options,
 		};
+	}
 
-		this.transformer = new TypeScriptTransformer({
-			outputDir: this.options.outputDir,
-			moduleFormat: this.options.moduleFormat,
-			generateIndex: this.options.generateIndex,
-			includeDocuments: this.options.includeDocuments,
-			namingConvention: this.options.namingConvention,
-			includeExtensions: this.options.includeExtensions,
-			includeProfiles: this.options.includeProfiles,
-		});
+	/**
+	 * Transform a single TypeSchema to TypeScript
+	 */
+	async transformSchema(
+		schema: TypeSchema,
+	): Promise<GeneratedTypeScript | undefined> {
+		this.currentSchemaName = this.formatTypeName(schema.identifier.name);
+
+		if (
+			schema.identifier.kind === "value-set" ||
+			schema.identifier.kind === "binding" ||
+			schema.identifier.kind === "primitive-type" ||
+			schema.identifier.kind === "profile"
+		) {
+			return undefined;
+		}
+
+		// Clear state for new transformation
+		this.imports.clear();
+		this.exports.clear();
+		this.currentSchemaName = this.formatTypeName(schema.identifier.name);
+
+		// Generate TypeScript content
+		const content = this.generateTypeScriptForSchema(schema);
+
+		const imports = new Map(this.imports);
+		const filename = this.getFilename(schema.identifier);
+		const exports = Array.from(this.exports.keys());
+
+		return {
+			content,
+			imports,
+			exports,
+			filename,
+		};
+	}
+
+	/**
+	 * Generate TypeScript for a single schema
+	 */
+	private generateTypeScriptForSchema(schema: TypeSchema): string {
+		const lines: string[] = [];
+
+		// Add interface declaration
+		const interfaceName = this.formatTypeName(schema.identifier.name);
+
+		let overridedName: string | undefined;
+
+		if (interfaceName === "Reference") {
+			overridedName = `Reference<T extends ResourceTypes = ResourceTypes>`;
+		}
+
+		this.exports.add(interfaceName);
+
+		const baseInterface = this.getBaseInterface(schema);
+		if (baseInterface && !baseInterface.isPrimitive) {
+			this.imports.set(baseInterface.value, baseInterface.value);
+			lines.push(
+				`export interface ${overridedName ?? interfaceName} extends ${baseInterface.value} {`,
+			);
+		} else {
+			lines.push(`export interface ${overridedName ?? interfaceName} {`);
+		}
+
+		if (
+			schema.identifier.kind === "resource" &&
+			interfaceName !== "DomainResource" &&
+			interfaceName !== "Resource"
+		) {
+			this.resourceTypes.add(interfaceName);
+			lines.push(`\tresourceType: '${interfaceName}';`);
+		}
+		if (isTypeSchemaForResourceComplexTypeLogical(schema)) {
+			if (schema.fields) {
+				for (const [fieldName, field] of Object.entries(schema.fields)) {
+					const fieldLine = this.generateField(fieldName, field, {
+						isNested: "type" in field && field.type.kind === "nested",
+						baseName: interfaceName,
+					});
+					if (fieldLine) {
+						lines.push(`\t${fieldLine}`);
+					}
+				}
+			}
+
+			lines.push("}");
+
+			// Add nested types if any
+			if (schema.nested) {
+				for (const nested of schema.nested) {
+					lines.push("");
+					// TODO: improve typings later
+					// @ts-expect-error
+					lines.push(this.generateNested(this.currentSchemaName ?? "", nested));
+				}
+			}
+		} else {
+			lines.push("}");
+		}
+
+		return lines.join("\n");
+	}
+
+	/**
+	 * Generate TypeScript for nested type
+	 */
+	private generateNested(
+		baseName: string,
+		nested: MakeRequiredNonNullable<
+			TypeSchemaForResourceComplexTypeLogical,
+			"nested"
+		>,
+	): string {
+		const lines: string[] = [];
+		const interfaceName = this.formatTypeName(nested.identifier.name);
+
+		this.exports.add(interfaceName);
+
+		if (nested.base) {
+			const baseInterface = this.getType(nested.base);
+
+			if (baseInterface.isPrimitive) {
+				lines.push(`export interface ${baseName}${interfaceName}{`);
+			} else {
+				this.imports.set(baseInterface.value, baseInterface.value);
+				lines.push(
+					`export interface ${baseName}${interfaceName} extends ${baseInterface.value} {`,
+				);
+			}
+		} else {
+			lines.push(`export interface ${baseName}${interfaceName}{`);
+		}
+
+		if (nested.fields) {
+			for (const [fieldName, field] of Object.entries(nested.fields)) {
+				const fieldLine = this.generateField(fieldName, field);
+				if (fieldLine) {
+					lines.push(`\t${fieldLine}`);
+				}
+			}
+		}
+
+		lines.push("}");
+
+		return lines.join("\n");
+	}
+
+	/**
+	 * Generate TypeScript for a field
+	 */
+	private generateField(
+		fieldName: string,
+		field: TypeSchemaField,
+		nestedOpts?: { isNested?: boolean; baseName?: string },
+	): string {
+		if (isPolymorphicInstanceField(field)) {
+			return this.generatePolymorphicInstance(fieldName, field, nestedOpts);
+		} else if (isRegularField(field)) {
+			return this.generateRegularField(fieldName, field, nestedOpts);
+		}
+
+		return "";
+	}
+
+	/**
+	 * Generate TypeScript for polymorphic instance
+	 */
+	private generatePolymorphicInstance(
+		fieldName: string,
+		field: PolymorphicValueXFieldInstance,
+		nestedOpts?: { isNested?: boolean; baseName?: string },
+	): string {
+		let typeString = "any";
+
+		if (field.reference) {
+			typeString = this.buildReferenceType(field.reference);
+		} else if (field.type) {
+			const subType = this.getType(field.type);
+			if (!subType.isPrimitive && !nestedOpts?.isNested) {
+				this.imports.set(subType.value, subType.value);
+			}
+			typeString = subType.value;
+		}
+
+		const optional = !field.required ? "?" : "";
+		const array = field.array ? "[]" : "";
+
+		return `${fieldName}${optional}: ${nestedOpts?.isNested && nestedOpts.baseName ? nestedOpts.baseName : ""}${typeString}${array};`;
+	}
+
+	/**
+	 * Generate TypeScript for a regular field
+	 */
+	private generateRegularField(
+		fieldName: string,
+		field: RegularField,
+		nestedOpts?: { isNested?: boolean; baseName?: string },
+	): string {
+		let typeString = "any";
+
+		if (field.enum) {
+			if (field.enum.length > 15) {
+				typeString = "string";
+			} else {
+				typeString = `${field.enum.map((e) => `'${e}'`).join(" | ")}`;
+			}
+		} else if (field.reference) {
+			typeString = this.buildReferenceType(field.reference);
+		} else if (field.type) {
+			const subType = this.getType(field.type);
+			if (!subType.isPrimitive && !nestedOpts?.isNested) {
+				this.imports.set(subType.value, subType.value);
+			}
+			typeString = subType.value;
+		}
+
+		if (nestedOpts?.baseName === "Reference" && fieldName === "type") {
+			typeString = "T";
+			this.imports.set("ResourceTypes", "utility");
+		}
+
+		const optional = !field.required ? "?" : "";
+		const array = field.array ? "[]" : "";
+
+		return `${fieldName}${optional}: ${nestedOpts?.isNested && nestedOpts.baseName ? nestedOpts.baseName : ""}${typeString}${array};`;
+	}
+
+	private buildReferenceType(refers: TypeSchemaIdentifier[]) {
+		this.imports.set("Reference", "Reference");
+		if (refers.length === 0) {
+			return "Reference";
+		}
+		if (refers.length === 1 && refers[0]?.name === "Resource") {
+			return "Reference";
+		}
+		return `Reference<${refers.map((r) => `'${r.name}'`).join(" | ")}>`;
+	}
+
+	/**
+	 * Transform multiple schemas
+	 */
+	async transformSchemas(
+		schemas: TypeSchema[],
+	): Promise<GeneratedTypeScript[]> {
+		const results: GeneratedTypeScript[] = [];
+
+		for (const schema of schemas) {
+			const result = await this.transformSchema(schema);
+			if (result) {
+				results.push(result);
+			}
+		}
+
+		return results;
 	}
 
 	/**
 	 * Generate TypeScript files from TypeSchema documents
 	 */
-	async generate(schemas: AnyTypeSchemaCompliant[]): Promise<GeneratedFile[]> {
+	async generate(schemas: TypeSchema[]): Promise<GeneratedFile[]> {
 		const filteredSchemas = this.filterSchemas(schemas);
 
 		// Use legacy transformer
-		const results = await this.transformer.transformSchemas(filteredSchemas);
+		const results = await this.transformSchemas(filteredSchemas);
 		const generatedFiles: GeneratedFile[] = [];
 
 		// Ensure output directory and subfolders exist
 		await mkdir(this.options.outputDir, { recursive: true });
-		await mkdir(join(this.options.outputDir, "valuesets"), { recursive: true });
+
 		if (this.options.includeProfiles) {
 			await mkdir(join(this.options.outputDir, "profiles"), {
 				recursive: true,
 			});
 		}
-		await mkdir(join(this.options.outputDir, "extensions"), {
-			recursive: true,
+		if (this.options.includeExtensions) {
+			await mkdir(join(this.options.outputDir, "extensions"), {
+				recursive: true,
+			});
+		}
+
+		results.push({
+			filename: "utility.ts",
+			content: `export type ResourceTypes = ${Array.from(this.resourceTypes.keys().map((key) => `'${key}'`)).join(" | ")};\n\n`,
+			imports: new Map(),
+			exports: ["ResourceTypes"],
 		});
 
 		// Write individual type files
 		for (const result of results) {
 			const filePath = join(this.options.outputDir, result.filename);
 			await this.ensureDirectoryExists(filePath);
-			await writeFile(filePath, result.content, "utf-8");
+			await writeFile(
+				filePath,
+				`${this.generateImportStatements(result.imports)}\n\n${result.content}`,
+				"utf-8",
+			);
 
 			generatedFiles.push({
 				path: filePath,
@@ -118,72 +435,14 @@ export class TypeScriptAPIGenerator {
 			await this.generateSubfolderIndexFiles(results, generatedFiles);
 		}
 
-		// Generate package.json for the generated code
-		const packageJsonFile = await this.generatePackageJson();
-		const packagePath = join(this.options.outputDir, "package.json");
-		await writeFile(packagePath, packageJsonFile, "utf-8");
-
-		generatedFiles.push({
-			path: packagePath,
-			filename: "package.json",
-			content: packageJsonFile,
-			exports: [],
-		});
-
-		// Generate TypeScript configuration
-		const tsConfigFile = await this.generateTsConfig();
-		const tsConfigPath = join(this.options.outputDir, "tsconfig.json");
-		await writeFile(tsConfigPath, tsConfigFile, "utf-8");
-
-		generatedFiles.push({
-			path: tsConfigPath,
-			filename: "tsconfig.json",
-			content: tsConfigFile,
-			exports: [],
-		});
-
 		return generatedFiles;
 	}
 
-	/**
-	 * Generate index file for enhanced generator
-	 */
-	private generateEnhancedIndexFile(result: any): string {
+	private generateImportStatements(imports: Map<string, string>): string {
 		const lines: string[] = [];
 
-		// Add header
-		lines.push("/**");
-		lines.push(" * Enhanced FHIR TypeScript Interfaces");
-		lines.push(" * ");
-		lines.push(
-			" * Auto-generated TypeScript interfaces with advanced features:",
-		);
-		lines.push(" * - Branded types for type-safe IDs");
-		lines.push(" * - Discriminated unions for choice types");
-		lines.push(" * - Rich JSDoc documentation with examples");
-		lines.push(" * - Helper types for common patterns");
-		lines.push(" * ");
-		lines.push(" * @packageDocumentation");
-		lines.push(" */");
-		lines.push("");
-
-		// Export all interfaces
-		lines.push("// Main FHIR interfaces");
-		lines.push("export * from './interfaces';");
-		lines.push("");
-
-		// Add utility exports if there are helper types
-		if (result.helperTypes.length > 0 || result.brandedTypes.length > 0) {
-			lines.push("// Utility types for enhanced developer experience");
-			lines.push("export type {");
-
-			const allUtilityTypes = [...result.helperTypes, ...result.brandedTypes];
-			allUtilityTypes.forEach((typeName, index) => {
-				const isLast = index === allUtilityTypes.length - 1;
-				lines.push(`  ${typeName}${isLast ? "" : ","}`);
-			});
-
-			lines.push("} from './interfaces';");
+		for (const [item, pkg] of imports.entries()) {
+			lines.push(`import type { ${item} } from './${pkg}';`);
 		}
 
 		return lines.join("\n");
@@ -192,9 +451,9 @@ export class TypeScriptAPIGenerator {
 	/**
 	 * Generate and return results without writing to files
 	 */
-	async build(schemas: AnyTypeSchemaCompliant[]): Promise<GeneratedFile[]> {
+	async build(schemas: TypeSchema[]): Promise<GeneratedFile[]> {
 		const filteredSchemas = this.filterSchemas(schemas);
-		const results = await this.transformer.transformSchemas(filteredSchemas);
+		const results = await this.transformSchemas(filteredSchemas);
 		const generatedFiles: GeneratedFile[] = [];
 
 		// Convert transformer results to API format
@@ -226,7 +485,6 @@ export class TypeScriptAPIGenerator {
 	 */
 	setOutputDir(directory: string): void {
 		this.options.outputDir = directory;
-		this.transformer.setOptions({ outputDir: directory });
 	}
 
 	/**
@@ -234,7 +492,6 @@ export class TypeScriptAPIGenerator {
 	 */
 	setOptions(options: Partial<TypeScriptAPIOptions>): void {
 		this.options = { ...this.options, ...options };
-		this.transformer.setOptions(options);
 	}
 
 	/**
@@ -243,8 +500,6 @@ export class TypeScriptAPIGenerator {
 	getOptions(): Required<TypeScriptAPIOptions> {
 		return { ...this.options };
 	}
-
-	// Private helper methods
 
 	private async generateIndexFile(
 		results: any[],
@@ -369,10 +624,11 @@ export class TypeScriptAPIGenerator {
 		);
 		lines.push('export * as ValueSets from "./valuesets";');
 		lines.push("");
-
-		lines.push("// Extensions namespace - contains all FHIR Extension types");
-		lines.push('export * as Extensions from "./extensions";');
-		lines.push("");
+		if (this.options.includeExtensions) {
+			lines.push("// Extensions namespace - contains all FHIR Extension types");
+			lines.push('export * as Extensions from "./extensions";');
+			lines.push("");
+		}
 
 		if (profiles.length > 0) {
 			lines.push("// Profiles namespace - contains all FHIR Profile types");
@@ -384,67 +640,6 @@ export class TypeScriptAPIGenerator {
 		return { content, exports };
 	}
 
-	private async generatePackageJson(): Promise<string> {
-		const packageJson = {
-			name: "generated-fhir-types",
-			version: "1.0.0",
-			description: "Generated TypeScript type definitions for FHIR",
-			main: this.options.moduleFormat === "cjs" ? "index.js" : undefined,
-			module: this.options.moduleFormat === "esm" ? "index.js" : undefined,
-			types: "index.d.ts",
-			type: this.options.moduleFormat === "esm" ? "module" : "commonjs",
-			files: ["*.ts", "*.js", "*.d.ts", "**/*.ts", "**/*.js", "**/*.d.ts"],
-			scripts: {
-				build: "tsc",
-				"type-check": "tsc --noEmit",
-			},
-			devDependencies: {
-				typescript: "^5.0.0",
-			},
-			keywords: [
-				"fhir",
-				"typescript",
-				"types",
-				"healthcare",
-				"ehr",
-				"generated",
-			],
-			license: "MIT",
-			author: "atomic-codegen",
-			repository: {
-				type: "git",
-				url: "generated by atomic-codegen",
-			},
-		};
-
-		return JSON.stringify(packageJson, null, 2);
-	}
-
-	private async generateTsConfig(): Promise<string> {
-		const tsConfig = {
-			compilerOptions: {
-				target: "ES2020",
-				module: this.options.moduleFormat === "esm" ? "ESNext" : "CommonJS",
-				moduleResolution: "node",
-				declaration: true,
-				declarationMap: true,
-				sourceMap: true,
-				outDir: "./dist",
-				rootDir: "./",
-				strict: true,
-				esModuleInterop: true,
-				skipLibCheck: true,
-				forceConsistentCasingInFileNames: true,
-				lib: ["ES2020"],
-				types: ["node"],
-			},
-			include: ["*.ts", "**/*.ts"],
-			exclude: ["node_modules", "dist", "*.test.ts", "**/*.test.ts"],
-		};
-
-		return JSON.stringify(tsConfig, null, 2);
-	}
-
 	private async ensureDirectoryExists(filePath: string): Promise<void> {
 		const dir = dirname(filePath);
 		await mkdir(dir, { recursive: true });
@@ -453,85 +648,13 @@ export class TypeScriptAPIGenerator {
 	/**
 	 * Filter schemas based on includeExtensions option
 	 */
-	private filterSchemas(
-		schemas: AnyTypeSchemaCompliant[],
-	): AnyTypeSchemaCompliant[] {
+	private filterSchemas(schemas: TypeSchema[]): TypeSchema[] {
 		if (this.options.includeExtensions) {
 			return schemas;
 		}
 
-		return schemas.filter((schema) => {
-			// Check if this schema represents an extension
-			if (this.isExtensionSchema(schema)) {
-				return false;
-			}
-			return true;
-		});
-	}
-
-	/**
-	 * Extract exports from generated content
-	 */
-	private extractExports(content: string): string[] {
-		const exports: string[] = [];
-
-		// Extract export declarations
-		const exportMatches = content.match(
-			/export\s+(?:class|interface|function|const|type)\s+([A-Za-z_$][A-Za-z0-9_$]*)/g,
-		);
-		if (exportMatches) {
-			for (const match of exportMatches) {
-				const nameMatch = match.match(
-					/export\s+(?:class|interface|function|const|type)\s+([A-Za-z_$][A-Za-z0-9_$]*)/,
-				);
-				if (nameMatch?.[1]) {
-					exports.push(nameMatch[1]);
-				}
-			}
-		}
-
-		return exports;
-	}
-
-	/**
-	 * Check if a schema represents an extension type
-	 */
-	private isExtensionSchema(schema: AnyTypeSchemaCompliant): boolean {
-		// Check metadata for extension marker (only for schemas that have metadata)
-		if ("metadata" in schema && schema.metadata?.isExtension === true) {
-			return true;
-		}
-
-		// Check if base type is Extension (only for schemas that have base)
-		if (
-			"base" in schema &&
-			schema.base &&
-			schema.base.name === "Extension" &&
-			schema.base.url === "http://hl7.org/fhir/StructureDefinition/Extension"
-		) {
-			return true;
-		}
-
-		// Check if the schema identifier represents an Extension type
-		if (
-			schema.identifier?.name === "Extension" &&
-			schema.identifier?.url ===
-				"http://hl7.org/fhir/StructureDefinition/Extension"
-		) {
-			return true;
-		}
-
-		// Check if the identifier kind suggests this is an extension
-		// Note: "extension" is not currently in the TypeSchemaIdentifier kind union, but this is future-proofing
-		if (
-			schema.identifier?.kind === "complex-type" &&
-			(schema.identifier.name?.includes("Extension") ||
-				schema.identifier.url?.includes("extension"))
-		) {
-			return true;
-		}
-
-		return false;
+		// TODO: fix later
+		return schemas;
 	}
 
 	/**
@@ -541,7 +664,10 @@ export class TypeScriptAPIGenerator {
 		results: any[],
 		generatedFiles: GeneratedFile[],
 	): Promise<void> {
-		const subfolders = ["valuesets", "extensions"];
+		const subfolders: string[] = [];
+		if (this.options.includeExtensions) {
+			subfolders.push("extensions");
+		}
 
 		for (const subfolder of subfolders) {
 			const subfolderResults = results.filter((r) =>
@@ -610,5 +736,51 @@ export class TypeScriptAPIGenerator {
 		}
 
 		return lines.join("\n");
+	}
+
+	/**
+	 * Format type name according to naming convention
+	 */
+	private formatTypeName(name: string): string {
+		if (this.options.namingConvention === "PascalCase") {
+			return toPascalCase(name);
+		}
+		return name;
+	}
+
+	/**
+	 * Get TypeScript type for a TypeSchema identifier
+	 */
+	private getType(identifier: TypeSchemaIdentifier): {
+		isPrimitive: boolean;
+		value: string;
+	} {
+		const primitiveType = PRIMITIVE_TYPE_MAP[identifier.name];
+		if (primitiveType) {
+			return { isPrimitive: true, value: primitiveType };
+		}
+
+		// Return formatted type name
+		return { isPrimitive: false, value: this.formatTypeName(identifier.name) };
+	}
+
+	/**
+	 * Get base interface for schema
+	 */
+	private getBaseInterface(
+		schema: TypeSchema,
+	): { isPrimitive: boolean; value: string } | null {
+		if (isTypeSchemaForResourceComplexTypeLogical(schema) && schema.base) {
+			return this.getType(schema.base);
+		}
+		return null;
+	}
+
+	/**
+	 * Get filename for schema
+	 */
+	private getFilename(identifier: TypeSchemaIdentifier): string {
+		const name = toPascalCase(identifier.name);
+		return `${name}.ts`;
 	}
 }

@@ -13,7 +13,7 @@
 import { TypeSchemaCache } from "./cache";
 import { TypeSchemaGenerator } from "./generator";
 import { TypeSchemaParser } from "./parser";
-import type { AnyTypeSchemaCompliant, ParserOptions } from "./types.ts";
+import type { TypeSchema, TypeschemaParserOptions } from "./types.ts";
 
 // Re-export core dependencies
 export { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
@@ -86,6 +86,7 @@ export { transformProfile } from "./profile/processor";
 
 // Export all types and interfaces
 export * from "./types";
+export * from "./utils";
 
 // Export value set processing
 export { transformValueSet } from "./value-set/processor";
@@ -105,7 +106,7 @@ export class TypeSchemaAPI {
 	constructor(
 		options: {
 			generator?: any;
-			parser?: ParserOptions;
+			parser?: TypeschemaParserOptions;
 			validator?: { strict?: boolean };
 		} = {},
 	) {
@@ -120,7 +121,7 @@ export class TypeSchemaAPI {
 	async generateFromPackage(
 		packageName: string,
 		packageVersion?: string,
-	): Promise<import("./types").AnyTypeSchemaCompliant[]> {
+	): Promise<TypeSchema[]> {
 		const schemas = await this.generator.generateFromPackage(
 			packageName,
 			packageVersion,
@@ -135,9 +136,7 @@ export class TypeSchemaAPI {
 	/**
 	 * Parse TypeSchema from files
 	 */
-	async parseFromFiles(
-		inputFiles: string[],
-	): Promise<AnyTypeSchemaCompliant[]> {
+	async parseFromFiles(inputFiles: string[]): Promise<TypeSchema[]> {
 		const schemas = await this.parser.parseFromFiles(inputFiles);
 
 		// Cache parsed schemas
@@ -162,7 +161,7 @@ export function createTypeSchemaAPI(
 export async function generateTypeSchemaFromPackageCore(
 	packageName: string,
 	packageVersion?: string,
-): Promise<import("./types").AnyTypeSchemaCompliant[]> {
+): Promise<TypeSchema[]> {
 	const api = createTypeSchemaAPI();
 	return await api.generateFromPackage(packageName, packageVersion);
 }
@@ -172,7 +171,7 @@ export async function generateTypeSchemaFromPackageCore(
  */
 export async function parseTypeSchemaFromFilesCore(
 	inputFiles: string[],
-): Promise<import("./types").AnyTypeSchemaCompliant[]> {
+): Promise<TypeSchema[]> {
 	const api = createTypeSchemaAPI();
 	return await api.parseFromFiles(inputFiles);
 }

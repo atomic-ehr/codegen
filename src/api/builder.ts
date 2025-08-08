@@ -8,7 +8,7 @@
 import type { TypeSchemaConfig } from "../config";
 import { Logger } from "../logger.ts";
 import {
-	type AnyTypeSchemaCompliant,
+	type TypeSchema,
 	TypeSchemaCache,
 	TypeSchemaGenerator,
 	TypeSchemaParser,
@@ -56,7 +56,7 @@ export interface GenerationResult {
  * from FHIR packages or TypeSchema documents.
  */
 export class APIBuilder {
-	private schemas: AnyTypeSchemaCompliant[] = [];
+	private schemas: TypeSchema[] = [];
 	private options: Omit<Required<APIBuilderOptions>, "typeSchemaConfig"> & {
 		typeSchemaConfig?: TypeSchemaConfig;
 	};
@@ -122,7 +122,7 @@ export class APIBuilder {
 	/**
 	 * Load TypeSchema from TypeSchema objects
 	 */
-	fromSchemas(schemas: AnyTypeSchemaCompliant[]): APIBuilder {
+	fromSchemas(schemas: TypeSchema[]): APIBuilder {
 		this.logger.info(
 			`Adding TypeSchemas to generation`,
 			{ count: schemas.length },
@@ -361,7 +361,7 @@ export class APIBuilder {
 	/**
 	 * Get loaded schemas (for inspection)
 	 */
-	getSchemas(): AnyTypeSchemaCompliant[] {
+	getSchemas(): TypeSchema[] {
 		return [...this.schemas];
 	}
 

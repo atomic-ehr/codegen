@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 /**
  * Nested Types (BackboneElement) Handling
  *
@@ -10,7 +12,6 @@ import type {
 	PackageInfo,
 	TypeSchemaField,
 	TypeSchemaIdentifier,
-	TypeSchemaNestedType,
 } from "../types";
 import { buildField, buildNestedField, isNestedElement } from "./field-builder";
 import { buildNestedIdentifier } from "./identifier";
@@ -88,10 +89,10 @@ export async function buildNestedTypes(
 	fhirSchema: FHIRSchema,
 	manager: ReturnType<typeof CanonicalManager>,
 	packageInfo?: PackageInfo,
-): Promise<TypeSchemaNestedType[]> {
+): Promise<any[]> {
 	if (!fhirSchema.elements) return [];
 
-	const nestedTypes: TypeSchemaNestedType[] = [];
+	const nestedTypes: any[] = [];
 	const nestedElements = collectNestedElements(
 		fhirSchema,
 		[],

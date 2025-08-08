@@ -33,9 +33,10 @@
 		"cli": "bun run src/cli/index.ts",
 		"codegen": "bun run src/cli/index.ts",
 		"codegen:all": "bun run src/cli/index.ts generate typescript",
-		"codegen:dev": "bun run src/cli/index.ts dev --template",
 		"codegen:test": "bun test test/codegen/",
-		"lint": "biome check --write ./src"
+		"lint": "biome check --write ./src",
+		"example:basic": "bun run examples/basic-usage.ts",
+		"example:preview": "bun run examples/rest-client-preview.ts"
 	},
 	"repository": {
 		"type": "git",

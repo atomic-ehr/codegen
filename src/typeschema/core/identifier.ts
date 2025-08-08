@@ -5,7 +5,11 @@
  */
 
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
-import type { PackageInfo, TypeSchemaIdentifier } from "../types";
+import type {
+	PackageInfo,
+	TypeSchemaForValueSet,
+	TypeSchemaIdentifier,
+} from "../types";
 
 /**
  * Drop version suffix from canonical URL (e.g., "http://example.com|1.0.0" -> "http://example.com")
@@ -96,7 +100,7 @@ export function buildValueSetIdentifier(
 	valueSetUrl: string,
 	valueSet?: any,
 	packageInfo?: PackageInfo,
-): TypeSchemaIdentifier {
+): TypeSchemaForValueSet["identifier"] {
 	const cleanUrl = dropVersionFromUrl(valueSetUrl) || valueSetUrl;
 
 	// Generate a meaningful name from the URL instead of using potentially hash-like IDs

@@ -17,9 +17,6 @@ export {
 export type {
 	PackageInfo,
 	TypeSchemaField,
-	TypeSchemaFieldPolymorphicDeclaration,
-	TypeSchemaFieldPolymorphicInstance,
-	TypeSchemaFieldRegular,
 	TypeSchemaIdentifier,
 } from "../typeschema/types";
 // Export types and interfaces

@@ -8,8 +8,8 @@ import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import { buildValueSetIdentifier } from "../core/identifier";
 import type {
 	PackageInfo,
+	TypeSchemaForValueSet,
 	TypeSchemaIdentifier,
-	TypeSchemaValueSet,
 } from "../types";
 
 /**
@@ -160,17 +160,15 @@ export async function transformValueSet(
 	valueSet: any,
 	manager: ReturnType<typeof CanonicalManager>,
 	packageInfo?: PackageInfo,
-): Promise<TypeSchemaValueSet> {
+): Promise<TypeSchemaForValueSet> {
 	const identifier = buildValueSetIdentifier(
 		valueSet.url,
 		valueSet,
 		packageInfo,
 	);
 
-	const typeSchemaValueSet: TypeSchemaValueSet = {
+	const typeSchemaValueSet: TypeSchemaForValueSet = {
 		identifier,
-		// @ts-expect-error okay currently
-		dependencies: [],
 	};
 
 	// Add description if present
@@ -219,9 +217,6 @@ export async function transformValueSet(
 		if (valueSet.compose.exclude) {
 			processCompose(valueSet.compose.exclude);
 		}
-
-		// @ts-expect-error okay currently
-		typeSchemaValueSet.dependencies = deps;
 	}
 
 	return typeSchemaValueSet;

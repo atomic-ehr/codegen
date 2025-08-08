@@ -14,10 +14,6 @@ interface GenerateTypeschemaArgs {
 	output?: string;
 	format?: "ndjson" | "json";
 	verbose?: boolean;
-	"include-profiles"?: boolean;
-	"include-extensions"?: boolean;
-	"include-valuesets"?: boolean;
-	"skip-core-resources"?: boolean;
 }
 
 /**
@@ -55,26 +51,6 @@ export const generateTypeschemaCommand: CommandModule<
 			default: false,
 			describe: "Enable verbose output",
 		},
-		"include-profiles": {
-			type: "boolean",
-			default: true,
-			describe: "Include FHIR profiles in output",
-		},
-		"include-extensions": {
-			type: "boolean",
-			default: true,
-			describe: "Include FHIR extensions in output",
-		},
-		"include-valuesets": {
-			type: "boolean",
-			default: true,
-			describe: "Include FHIR value sets in output",
-		},
-		"skip-core-resources": {
-			type: "boolean",
-			default: false,
-			describe: "Skip core FHIR resources (only profiles/extensions)",
-		},
 	},
 	handler: async (argv) => {
 		try {
@@ -90,9 +66,6 @@ export const generateTypeschemaCommand: CommandModule<
 			// Create TypeSchema generator
 			const generator = new TypeSchemaGenerator({
 				verbose: argv.verbose,
-				includeProfiles: argv["include-profiles"],
-				includeExtensions: argv["include-extensions"],
-				includeValueSets: argv["include-valuesets"],
 			});
 
 			// Generate schemas from all packages

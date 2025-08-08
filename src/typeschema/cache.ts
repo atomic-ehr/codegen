@@ -8,13 +8,13 @@ import { existsSync, mkdirSync } from "node:fs";
 import { readdir, readFile, stat, unlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { TypeSchemaConfig } from "../config";
-import type { AnyTypeSchemaCompliant, TypeSchemaIdentifier } from "./types";
+import type { TypeSchema, TypeSchemaIdentifier } from "./types";
 
 /**
  * Cached schema metadata for persistence
  */
 interface CachedSchemaMetadata {
-	schema: AnyTypeSchemaCompliant;
+	schema: TypeSchema;
 	timestamp: number;
 	version: string;
 }
@@ -23,7 +23,7 @@ interface CachedSchemaMetadata {
  * TypeSchema Cache with optional persistent storage
  */
 export class TypeSchemaCache {
-	private cache = new Map<string, AnyTypeSchemaCompliant>();
+	private cache = new Map<string, TypeSchema>();
 	private config: TypeSchemaConfig;
 	private cacheDir?: string;
 
@@ -44,7 +44,7 @@ export class TypeSchemaCache {
 	/**
 	 * Store a schema in the cache
 	 */
-	async set(schema: AnyTypeSchemaCompliant): Promise<void> {
+	async set(schema: TypeSchema): Promise<void> {
 		const key = this.generateKey(schema.identifier);
 		this.cache.set(key, schema);
 
@@ -57,7 +57,7 @@ export class TypeSchemaCache {
 	/**
 	 * Retrieve a schema by identifier
 	 */
-	get(identifier: TypeSchemaIdentifier): AnyTypeSchemaCompliant | null {
+	get(identifier: TypeSchemaIdentifier): TypeSchema | null {
 		const key = this.generateKey(identifier);
 		return this.cache.get(key) || null;
 	}
@@ -65,7 +65,7 @@ export class TypeSchemaCache {
 	/**
 	 * Retrieve a schema by URL
 	 */
-	getByUrl(url: string): AnyTypeSchemaCompliant | null {
+	getByUrl(url: string): TypeSchema | null {
 		for (const schema of this.cache.values()) {
 			if (schema.identifier.url === url) {
 				return schema;
@@ -117,8 +117,8 @@ export class TypeSchemaCache {
 	/**
 	 * Get schemas by package
 	 */
-	getByPackage(packageName: string): AnyTypeSchemaCompliant[] {
-		const results: AnyTypeSchemaCompliant[] = [];
+	getByPackage(packageName: string): TypeSchema[] {
+		const results: TypeSchema[] = [];
 		for (const schema of this.cache.values()) {
 			if (schema.identifier.package === packageName) {
 				results.push(schema);
@@ -130,8 +130,8 @@ export class TypeSchemaCache {
 	/**
 	 * Get schemas by kind
 	 */
-	getByKind(kind: string): AnyTypeSchemaCompliant[] {
-		const results: AnyTypeSchemaCompliant[] = [];
+	getByKind(kind: string): TypeSchema[] {
+		const results: TypeSchema[] = [];
 		for (const schema of this.cache.values()) {
 			if (schema.identifier.kind === kind) {
 				results.push(schema);
@@ -143,7 +143,7 @@ export class TypeSchemaCache {
 	/**
 	 * Store multiple schemas
 	 */
-	setMany(schemas: AnyTypeSchemaCompliant[]): void {
+	setMany(schemas: TypeSchema[]): void {
 		for (const schema of schemas) {
 			this.set(schema);
 		}
@@ -231,7 +231,7 @@ export class TypeSchemaCache {
 	/**
 	 * Persist a schema to disk
 	 */
-	private async persistSchema(schema: AnyTypeSchemaCompliant): Promise<void> {
+	private async persistSchema(schema: TypeSchema): Promise<void> {
 		if (!this.cacheDir) {
 			return;
 		}
@@ -244,7 +244,7 @@ export class TypeSchemaCache {
 		const metadata: CachedSchemaMetadata = {
 			schema,
 			timestamp: Date.now(),
-			version: schema.identifier.version,
+			version: schema.identifier.version as string,
 		};
 
 		// Generate filename from identifier
@@ -321,7 +321,7 @@ export function clearGlobalCache(): void {
 /**
  * Cache a schema using global cache
  */
-export function cacheSchema(schema: AnyTypeSchemaCompliant): void {
+export function cacheSchema(schema: TypeSchema): void {
 	getGlobalCache().set(schema);
 }
 
@@ -330,7 +330,7 @@ export function cacheSchema(schema: AnyTypeSchemaCompliant): void {
  */
 export function getCachedSchema(
 	identifier: TypeSchemaIdentifier,
-): AnyTypeSchemaCompliant | null {
+): TypeSchema | null {
 	return getGlobalCache().get(identifier);
 }
 
