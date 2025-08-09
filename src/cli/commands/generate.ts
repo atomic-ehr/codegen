@@ -179,10 +179,7 @@ export const generateCommand: CommandModule<{}, GenerateArgs> = {
 
 			// Configure generators based on arguments or command
 			const shouldGenerateTypeScript =
-				argv.typescript ||
-				generator === "typescript" ||
-				generator === "ts" ||
-				true; // Always generate TypeScript by default
+				argv.typescript || generator === "typescript" || generator === "ts";
 
 			if (shouldGenerateTypeScript) {
 				await logger.info(
@@ -222,6 +219,10 @@ export const generateCommand: CommandModule<{}, GenerateArgs> = {
 					generateGuards: config.typescript?.generateGuards ?? true,
 					includeProfiles: config.typescript?.includeProfiles ?? false,
 				});
+			}
+
+			if (config.restClient) {
+				builder.restClient(config.restClient);
 			}
 
 			// Add progress callback if verbose

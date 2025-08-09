@@ -129,6 +129,10 @@ export class TypeScriptAPIGenerator {
 			return undefined;
 		}
 
+		if (this.currentSchemaName === "Uri") {
+			console.log(schema);
+		}
+
 		// Clear state for new transformation
 		this.imports.clear();
 		this.exports.clear();

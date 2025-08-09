@@ -5,7 +5,12 @@
  * This builder pattern allows users to configure generation in a declarative way.
  */
 
-import type { TypeSchemaConfig } from "../config";
+import type {
+	TypeSchemaConfig,
+	Config,
+	RestClientConfig,
+	TypeScriptGeneratorConfig,
+} from "../config";
 import { Logger } from "../logger.ts";
 import {
 	type TypeSchema,
@@ -14,6 +19,7 @@ import {
 	TypeSchemaParser,
 } from "../typeschema";
 import { TypeScriptAPIGenerator } from "./generators/typescript";
+import { RestClientGenerator } from "./generators/rest-client";
 
 /**
  * Configuration options for the API builder
@@ -180,6 +186,34 @@ export class APIBuilder {
 	}
 
 	/**
+	 * Configure REST client generation
+	 */
+	restClient(options: RestClientConfig = {}): APIBuilder {
+		// REST client goes in client subfolder
+		const clientOutputDir = `${this.options.outputDir}/client`;
+
+		const generator = new RestClientGenerator({
+			outputDir: clientOutputDir,
+			...options, // Pass all RestClientConfig options
+		});
+
+		this.generators.set("restclient", generator);
+		this.logger.info(
+			"Configured REST client generator",
+			{
+				outputDir: clientOutputDir,
+				clientName: options.clientName || "FHIRClient",
+				includeValidation: options.includeValidation ?? false,
+				includeErrorHandling: options.includeErrorHandling ?? true,
+				enhancedSearch: options.enhancedSearch ?? false,
+				useCanonicalManager: options.useCanonicalManager ?? true,
+			},
+			"restclient",
+		);
+		return this;
+	}
+
+	/**
 	 * Set a progress callback for monitoring generation
 	 */
 	onProgress(callback: ProgressCallback): APIBuilder {
@@ -225,9 +259,36 @@ export class APIBuilder {
 	}
 
 	/**
+	 * Ensure TypeScript generator is configured if REST client is configured
+	 */
+	private ensureTypeScriptForRestClient(): void {
+		const hasRestClient = this.generators.has("restclient");
+		const hasTypeScript = this.generators.has("typescript");
+
+		if (hasRestClient && !hasTypeScript) {
+			this.logger.info(
+				"Automatically adding TypeScript generator for REST client",
+				{},
+				"ensureTypeScriptForRestClient",
+			);
+
+			// Add TypeScript generator with minimal config
+			this.typescript({
+				moduleFormat: "esm",
+				generateIndex: true,
+				includeDocuments: false,
+				namingConvention: "PascalCase",
+			});
+		}
+	}
+
+	/**
 	 * Execute the generation process
 	 */
 	async generate(): Promise<GenerationResult> {
+		// Ensure TypeScript is configured if REST client is configured
+		this.ensureTypeScriptForRestClient();
+
 		const startTime = performance.now();
 		const result: GenerationResult = {
 			success: false,
@@ -476,6 +537,45 @@ export class APIBuilder {
  */
 export function createAPI(options?: APIBuilderOptions): APIBuilder {
 	return new APIBuilder(options);
+}
+
+/**
+ * Create an API builder instance from a configuration object
+ */
+export function createAPIFromConfig(config: Config): APIBuilder {
+	const builder = new APIBuilder({
+		outputDir: config.outputDir,
+		verbose: config.verbose,
+		overwrite: config.overwrite,
+		validate: config.validate,
+		cache: config.cache,
+		typeSchemaConfig: config.typeSchema,
+	});
+
+	// Add packages if specified
+	if (config.packages && config.packages.length > 0) {
+		for (const pkg of config.packages) {
+			builder.fromPackage(pkg);
+		}
+	}
+
+	// Add files if specified
+	if (config.files && config.files.length > 0) {
+		builder.fromFiles(...config.files);
+	}
+
+	// Configure TypeScript generator if specified
+	if (config.typescript) {
+		builder.typescript(config.typescript);
+	}
+
+	// Configure REST client generator if specified
+	if (config.restClient) {
+		console.log("fsdfdsfsdfdsf");
+		builder.restClient(config.restClient);
+	}
+
+	return builder;
 }
 
 /**
