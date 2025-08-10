@@ -12,7 +12,7 @@ import type { TypeSchema } from "../../typeschema";
  */
 export interface ValidationOptions {
 	/** Validation profile to use (strict, lenient, etc.) */
-	profile?: 'strict' | 'lenient' | 'minimal';
+	profile?: "strict" | "lenient" | "minimal";
 	/** Whether to throw on validation errors or return result */
 	throwOnError?: boolean;
 	/** Whether to validate required fields */
@@ -32,7 +32,7 @@ export interface ValidationOptions {
  */
 export interface ValidationError {
 	/** Error severity */
-	severity: 'error' | 'warning' | 'information';
+	severity: "error" | "warning" | "information";
 	/** Error code */
 	code: string;
 	/** Human-readable error message */
@@ -86,7 +86,7 @@ export interface ValidationResult {
 
 /**
  * Validation Generator class
- * 
+ *
  * Generates client-side validation logic for FHIR resources including
  * validation types, validators, and integration helpers.
  */
@@ -237,15 +237,8 @@ export class ValidationException extends Error {
  * Generated automatically from FHIR schemas.
  */
 
-import type { ResourceTypes, ${resourceTypesArray.join(', ')} } from '../types';
+import type { ResourceTypes, ResourceTypeMap, ${resourceTypesArray.join(", ")} } from './utility';
 import type { ValidationOptions, ValidationResult, ValidationError, ValidationWarning, ValidationException } from './validation-types';
-
-/**
- * Resource type mapping for validation
- */
-type ResourceTypeMap = {
-	${resourceTypesArray.map(type => `'${type}': ${type}`).join(';\n\t')};
-};
 
 /**
  * Main Resource Validator class
@@ -367,9 +360,13 @@ ${this.generateResourceSpecificValidators()}
 		options: Required<ValidationOptions>
 	): void {
 		switch (resourceType) {
-${resourceTypesArray.map(type => `			case '${type}':
+${resourceTypesArray
+	.map(
+		(type) => `			case '${type}':
 				this.validate${type}(resource as ${type}, result, options);
-				break;`).join('\n')}
+				break;`,
+	)
+	.join("\n")}
 			default:
 				result.warnings.push({
 					code: 'UNKNOWN_RESOURCE_TYPE',
@@ -485,8 +482,14 @@ ${resourceTypesArray.map(type => `			case '${type}':
 		const validators: string[] = [];
 
 		// Generate validators for key resource types
-		const keyResourceTypes = ['Patient', 'Observation', 'Organization', 'Practitioner', 'Bundle'];
-		
+		const keyResourceTypes = [
+			"Patient",
+			"Observation",
+			"Organization",
+			"Practitioner",
+			"Bundle",
+		];
+
 		for (const resourceType of keyResourceTypes) {
 			if (this.resourceTypes.has(resourceType)) {
 				validators.push(this.generateResourceValidator(resourceType));
@@ -500,7 +503,7 @@ ${resourceTypesArray.map(type => `			case '${type}':
 			}
 		}
 
-		return validators.join('\n\n');
+		return validators.join("\n\n");
 	}
 
 	/**
@@ -519,16 +522,19 @@ ${resourceTypesArray.map(type => `			case '${type}':
 	): void {
 		// Validate required fields
 		if (options.validateRequired) {
-			this.validateRequired(resource, [${validationRules.required.map(f => `'${f}'`).join(', ')}], result, '${resourceType.toLowerCase()}');
+			this.validateRequired(resource, [${validationRules.required.map((f) => `'${f}'`).join(", ")}], result, '${resourceType.toLowerCase()}');
 		}
 
 		// Validate field types
 		if (options.validateTypes) {
-			${validationRules.fields.map(field => 
-				`if (resource.${field.name} !== undefined) {
+			${validationRules.fields
+				.map(
+					(field) =>
+						`if (resource.${field.name} !== undefined) {
 				this.validateFieldType(resource.${field.name}, '${field.type}', '${field.name}', result, '${resourceType.toLowerCase()}');
-			}`
-			).join('\n\t\t\t')}
+			}`,
+				)
+				.join("\n\t\t\t")}
 		}
 
 		// Validate specific constraints for ${resourceType}
@@ -582,95 +588,95 @@ ${resourceTypesArray.map(type => `			case '${type}':
 	 */
 	private getValidationRules(resourceType: string): {
 		required: string[];
-		fields: Array<{ name: string; type: string; }>;
+		fields: Array<{ name: string; type: string }>;
 	} {
 		switch (resourceType) {
-			case 'Patient':
+			case "Patient":
 				return {
-					required: ['resourceType'],
+					required: ["resourceType"],
 					fields: [
-						{ name: 'id', type: 'string' },
-						{ name: 'meta', type: 'object' },
-						{ name: 'identifier', type: 'array' },
-						{ name: 'active', type: 'boolean' },
-						{ name: 'name', type: 'array' },
-						{ name: 'telecom', type: 'array' },
-						{ name: 'gender', type: 'string' },
-						{ name: 'birthDate', type: 'string' },
-						{ name: 'address', type: 'array' }
-					]
+						{ name: "id", type: "string" },
+						{ name: "meta", type: "object" },
+						{ name: "identifier", type: "array" },
+						{ name: "active", type: "boolean" },
+						{ name: "name", type: "array" },
+						{ name: "telecom", type: "array" },
+						{ name: "gender", type: "string" },
+						{ name: "birthDate", type: "string" },
+						{ name: "address", type: "array" },
+					],
 				};
 
-			case 'Observation':
+			case "Observation":
 				return {
-					required: ['resourceType', 'status', 'code'],
+					required: ["resourceType", "status", "code"],
 					fields: [
-						{ name: 'id', type: 'string' },
-						{ name: 'meta', type: 'object' },
-						{ name: 'identifier', type: 'array' },
-						{ name: 'status', type: 'string' },
-						{ name: 'category', type: 'array' },
-						{ name: 'code', type: 'object' },
-						{ name: 'subject', type: 'object' },
-						{ name: 'effectiveDateTime', type: 'string' },
-						{ name: 'valueQuantity', type: 'object' },
-						{ name: 'valueString', type: 'string' },
-						{ name: 'valueBoolean', type: 'boolean' }
-					]
+						{ name: "id", type: "string" },
+						{ name: "meta", type: "object" },
+						{ name: "identifier", type: "array" },
+						{ name: "status", type: "string" },
+						{ name: "category", type: "array" },
+						{ name: "code", type: "object" },
+						{ name: "subject", type: "object" },
+						{ name: "effectiveDateTime", type: "string" },
+						{ name: "valueQuantity", type: "object" },
+						{ name: "valueString", type: "string" },
+						{ name: "valueBoolean", type: "boolean" },
+					],
 				};
 
-			case 'Organization':
+			case "Organization":
 				return {
-					required: ['resourceType'],
+					required: ["resourceType"],
 					fields: [
-						{ name: 'id', type: 'string' },
-						{ name: 'meta', type: 'object' },
-						{ name: 'identifier', type: 'array' },
-						{ name: 'active', type: 'boolean' },
-						{ name: 'type', type: 'array' },
-						{ name: 'name', type: 'string' },
-						{ name: 'telecom', type: 'array' },
-						{ name: 'address', type: 'array' }
-					]
+						{ name: "id", type: "string" },
+						{ name: "meta", type: "object" },
+						{ name: "identifier", type: "array" },
+						{ name: "active", type: "boolean" },
+						{ name: "type", type: "array" },
+						{ name: "name", type: "string" },
+						{ name: "telecom", type: "array" },
+						{ name: "address", type: "array" },
+					],
 				};
 
-			case 'Practitioner':
+			case "Practitioner":
 				return {
-					required: ['resourceType'],
+					required: ["resourceType"],
 					fields: [
-						{ name: 'id', type: 'string' },
-						{ name: 'meta', type: 'object' },
-						{ name: 'identifier', type: 'array' },
-						{ name: 'active', type: 'boolean' },
-						{ name: 'name', type: 'array' },
-						{ name: 'telecom', type: 'array' },
-						{ name: 'address', type: 'array' },
-						{ name: 'gender', type: 'string' },
-						{ name: 'birthDate', type: 'string' }
-					]
+						{ name: "id", type: "string" },
+						{ name: "meta", type: "object" },
+						{ name: "identifier", type: "array" },
+						{ name: "active", type: "boolean" },
+						{ name: "name", type: "array" },
+						{ name: "telecom", type: "array" },
+						{ name: "address", type: "array" },
+						{ name: "gender", type: "string" },
+						{ name: "birthDate", type: "string" },
+					],
 				};
 
-			case 'Bundle':
+			case "Bundle":
 				return {
-					required: ['resourceType', 'type'],
+					required: ["resourceType", "type"],
 					fields: [
-						{ name: 'id', type: 'string' },
-						{ name: 'meta', type: 'object' },
-						{ name: 'identifier', type: 'object' },
-						{ name: 'type', type: 'string' },
-						{ name: 'timestamp', type: 'string' },
-						{ name: 'total', type: 'number' },
-						{ name: 'entry', type: 'array' }
-					]
+						{ name: "id", type: "string" },
+						{ name: "meta", type: "object" },
+						{ name: "identifier", type: "object" },
+						{ name: "type", type: "string" },
+						{ name: "timestamp", type: "string" },
+						{ name: "total", type: "number" },
+						{ name: "entry", type: "array" },
+					],
 				};
 
 			default:
 				return {
-					required: ['resourceType'],
+					required: ["resourceType"],
 					fields: [
-						{ name: 'id', type: 'string' },
-						{ name: 'meta', type: 'object' }
-					]
+						{ name: "id", type: "string" },
+						{ name: "meta", type: "object" },
+					],
 				};
 		}
 	}
@@ -680,7 +686,7 @@ ${resourceTypesArray.map(type => `			case '${type}':
 	 */
 	private generateResourceSpecificConstraints(resourceType: string): string {
 		switch (resourceType) {
-			case 'Patient':
+			case "Patient":
 				return `// Patient-specific constraints
 			if (resource.gender && !['male', 'female', 'other', 'unknown'].includes(resource.gender)) {
 				result.errors.push({
@@ -695,7 +701,7 @@ ${resourceTypesArray.map(type => `			case '${type}':
 				result.valid = false;
 			}`;
 
-			case 'Observation':
+			case "Observation":
 				return `// Observation-specific constraints
 			if (resource.status && !['registered', 'preliminary', 'final', 'amended', 'corrected', 'cancelled', 'entered-in-error', 'unknown'].includes(resource.status)) {
 				result.errors.push({
@@ -710,7 +716,7 @@ ${resourceTypesArray.map(type => `			case '${type}':
 				result.valid = false;
 			}`;
 
-			case 'Bundle':
+			case "Bundle":
 				return `// Bundle-specific constraints
 			if (resource.type && !['document', 'message', 'transaction', 'transaction-response', 'batch', 'batch-response', 'history', 'searchset', 'collection'].includes(resource.type)) {
 				result.errors.push({

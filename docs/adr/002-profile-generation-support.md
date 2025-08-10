@@ -1,7 +1,7 @@
 # ADR 002: FHIR Profile Generation Support
 
 ## Status
-Proposed
+Implemented
 
 ## Context
 FHIR profiles are constraints on base resources and data types that define how they should be used in specific contexts. Currently, the TypeSchema generator has basic profile support through `transformProfile` but doesn't fully generate TypeScript types for profiles. Implementation guides like US Core define critical profiles for interoperability in the US healthcare system.
@@ -13,11 +13,11 @@ The current implementation:
 - Has `includeProfiles` config option that defaults to true but isn't fully implemented
 
 ## Decision
-We will enhance profile generation to create TypeScript types that extend base resources with profile-specific constraints. This will start with US Core profiles as the primary use case.
+We have enhanced profile generation to create TypeScript types that extend base resources with profile-specific constraints. The implementation is generic and works with any FHIR profile package, not limited to specific implementation guides.
 
-## Proposed Implementation
+## Implementation
 
-### Configuration Extension
+### Configuration Extension ✅ COMPLETED
 ```typescript
 export interface TypeScriptGeneratorConfig {
   // ... existing options ...
@@ -43,8 +43,8 @@ export interface TypeSchemaConfig {
 }
 ```
 
-### TypeSchema Enhancement for Profiles
-The existing `transformProfile` function will be enhanced to generate complete TypeSchema with fields:
+### TypeSchema Enhancement for Profiles ✅ COMPLETED
+The existing `transformProfile` function has been enhanced to generate complete TypeSchema with fields:
 
 ```typescript
 // Enhanced TypeSchema for profiles
@@ -78,9 +78,9 @@ interface ProfileConstraints {
 }
 ```
 
-### Generated TypeScript for Profiles
+### Generated TypeScript for Profiles ✅ COMPLETED
 
-#### US Core Patient Example
+#### Generic Profile Example (showing US Core Patient pattern)
 ```typescript
 // generated/profiles/USCorePatient.ts
 import type { Patient } from '../Patient';
@@ -216,7 +216,7 @@ export function validateUSCorePatient(resource: unknown): ValidationResult {
 }
 ```
 
-#### Profile Index Generation
+#### Profile Index Generation ✅ COMPLETED
 ```typescript
 // generated/profiles/index.ts
 /**
@@ -251,9 +251,9 @@ export { isUSCorePractitioner } from './USCorePractitioner';
 export * as USCore from './us-core';
 ```
 
-### Integration with TypeSchema Transformer
+### Integration with TypeSchema Transformer ✅ COMPLETED
 
-The `transformProfile` function will be enhanced to:
+The `transformProfile` function has been enhanced to:
 
 ```typescript
 export async function transformProfile(
@@ -289,9 +289,9 @@ export async function transformProfile(
 }
 ```
 
-### TypeScript Generator Enhancement
+### TypeScript Generator Enhancement ✅ COMPLETED
 
-The TypeScript generator will handle profiles specially:
+The TypeScript generator now handles profiles specially:
 
 ```typescript
 private async generateProfile(
@@ -367,11 +367,11 @@ private async generateProfile(
 - **Documentation**: Must document profile usage patterns
 - **Versioning**: Handle multiple versions of profile packages
 
-## Migration Path
-1. Existing `includeProfiles: false` continues to work (no profiles generated)
-2. Default changes to generate profiles when packages include them
-3. Profile types generated in separate `profiles/` folder
-4. Base resource types remain unchanged
+## Migration Path ✅ COMPLETED
+1. ✅ Existing `includeProfiles: false` continues to work (no profiles generated)
+2. ✅ Profile types generated in separate `profiles/` folder  
+3. ✅ Base resource types remain unchanged
+4. ✅ New configuration options added with sensible defaults
 
 ## Example Usage
 
@@ -427,14 +427,42 @@ function processPatient(patient: Patient) {
 }
 ```
 
-## Testing Strategy
+## Testing Strategy 📋 PLANNED
 
 1. **Unit tests**: Test profile constraint extraction and validation
-2. **Integration tests**: Test with actual US Core package
+2. **Integration tests**: Test with actual profile packages (US Core, etc.)
 3. **Type tests**: Ensure generated types compile and work correctly
 4. **Validation tests**: Test profile validators with valid/invalid data
 
+> Note: Test framework is documented but tests need to be implemented
+
+## Implementation Summary
+
+### ✅ Completed Features
+- **Generic Profile Support**: Works with any FHIR profile package (not US Core specific)
+- **Enhanced TypeSchema**: Complete `TypeSchemaForProfile` with constraints and extensions
+- **Configuration System**: `profileOptions` and profile package configuration
+- **TypeScript Generation**: Profile interfaces, validators, and type guards
+- **Constraint Processing**: Cardinality, must-support, fixed values, value set bindings
+- **Extension Framework**: Generic extension handling by profile URL
+- **Index Generation**: Proper subfolder organization and exports
+- **Runtime Support**: Validation functions and type guards
+
+### 📂 Files Modified/Created
+- `src/config.ts` - Added profile configuration options
+- `src/typeschema/types.ts` - Enhanced with profile-specific interfaces
+- `src/typeschema/profile/processor.ts` - Enhanced profile transformer
+- `src/api/generators/typescript.ts` - Added profile TypeScript generation
+- `src/api/generators/types.ts` - Common validation types
+- `tasks/profile-generation/` - Implementation task breakdown
+
+### 🎯 Key Design Decisions
+- **Generic Approach**: No hardcoded implementation guide rules
+- **TypeScript First**: Strong typing throughout the generation pipeline  
+- **Backwards Compatible**: Existing functionality unchanged
+- **Extensible**: Framework supports future profile features
+
 ## References
-- [US Core Implementation Guide](http://hl7.org/fhir/us/core/)
 - [FHIR Profiling](http://hl7.org/fhir/profiling.html)
 - [TypeSchema Profile Processor](src/typeschema/profile/processor.ts)
+- [Profile Generation Tasks](tasks/profile-generation/)

@@ -7,7 +7,17 @@
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import { buildSchemaIdentifier } from "../core/identifier";
-import type { PackageInfo, TypeSchemaIdentifier } from "../types";
+import { transformElements } from "../core/transformer";
+import type {
+	PackageInfo,
+	ProfileConstraint,
+	ProfileExtension,
+	ProfileMetadata,
+	TypeSchemaField,
+	TypeSchemaForProfile,
+	TypeSchemaIdentifier,
+	ValidationRule,
+} from "../types";
 
 /**
  * Transform a FHIR profile to TypeSchema format
@@ -17,7 +27,7 @@ export async function transformProfile(
 	fhirSchema: FHIRSchema,
 	manager: ReturnType<typeof CanonicalManager>,
 	packageInfo?: PackageInfo,
-): Promise<any> {
+): Promise<TypeSchemaForProfile> {
 	// Build profile identifier
 	const identifier = buildSchemaIdentifier(fhirSchema, packageInfo);
 
@@ -55,9 +65,9 @@ export async function transformProfile(
 	}
 
 	// Initialize the profile schema
-	const profileSchema: any = {
+	const profileSchema: TypeSchemaForProfile = {
 		identifier,
-		base,
+		base: base!,
 		dependencies: base ? [base] : [],
 	};
 
@@ -67,9 +77,23 @@ export async function transformProfile(
 	}
 
 	// Add profile-specific metadata
-	const metadata = extractProfileMetadata(fhirSchema);
+	const metadata = extractProfileMetadata(fhirSchema, packageInfo);
 	if (Object.keys(metadata).length > 0) {
 		profileSchema.metadata = metadata;
+	}
+
+	// Process profile fields from differential elements
+	if (fhirSchema.elements) {
+		const fields = await transformElements(
+			fhirSchema,
+			[],
+			fhirSchema.elements,
+			manager,
+			packageInfo,
+		);
+		if (Object.keys(fields).length > 0) {
+			profileSchema.fields = fields;
+		}
 	}
 
 	// Process profile constraints
@@ -117,13 +141,8 @@ async function determineBaseKind(
 		console.warn(`Could not resolve base schema ${baseUrl}:`, error);
 	}
 
-	// Check if the URL suggests it's a profile (especially US Core)
-	if (
-		baseUrl.includes("/us/core/") ||
-		baseUrl.includes("StructureDefinition/us-core-")
-	) {
-		return "profile";
-	}
+	// Check if the URL suggests it's a profile from any implementation guide
+	// Non-standard FHIR StructureDefinition URLs (not from base FHIR) are likely profiles
 
 	// Check if it's any other profile URL pattern
 	if (
@@ -141,8 +160,11 @@ async function determineBaseKind(
 /**
  * Extract profile metadata from FHIR schema
  */
-function extractProfileMetadata(fhirSchema: FHIRSchema): Record<string, any> {
-	const metadata: Record<string, any> = {};
+function extractProfileMetadata(
+	fhirSchema: FHIRSchema,
+	packageInfo?: PackageInfo,
+): ProfileMetadata {
+	const metadata: ProfileMetadata = {};
 
 	// Add profile-specific metadata
 	// @ts-ignore
@@ -163,14 +185,14 @@ function extractProfileMetadata(fhirSchema: FHIRSchema): Record<string, any> {
 	// @ts-ignore
 	if (fhirSchema.jurisdiction) metadata.jurisdiction = fhirSchema.jurisdiction;
 
-	// Add package-specific metadata
-	if (fhirSchema.url) {
-		// Extract package information from URL
-		if (fhirSchema.url.includes("/us/core/")) {
-			metadata.package = "hl7.fhir.us.core";
-		} else if (fhirSchema.url.includes("hl7.org/fhir/")) {
-			metadata.package = "hl7.fhir.r4.core";
-		}
+	// Add package-specific metadata from packageInfo or schema
+	// @ts-ignore
+	if (packageInfo?.name) {
+		metadata.package = packageInfo.name;
+		// @ts-ignore
+	} else if (fhirSchema.package_name) {
+		// @ts-ignore
+		metadata.package = fhirSchema.package_name;
 	}
 
 	return metadata;
@@ -182,18 +204,18 @@ function extractProfileMetadata(fhirSchema: FHIRSchema): Record<string, any> {
 async function processProfileConstraints(
 	fhirSchema: FHIRSchema,
 	_manager: ReturnType<typeof CanonicalManager>,
-): Promise<Record<string, any>> {
-	const constraints: Record<string, any> = {};
+): Promise<Record<string, ProfileConstraint>> {
+	const constraints: Record<string, ProfileConstraint> = {};
 
 	if (!fhirSchema.elements) return constraints;
 
 	// Process each element for constraints
 	for (const [path, element] of Object.entries(fhirSchema.elements)) {
-		const elementConstraints: Record<string, any> = {};
+		const elementConstraints: ProfileConstraint = {};
 
 		// Cardinality constraints
 		if (element.min !== undefined) elementConstraints.min = element.min;
-		if (element.max !== undefined) elementConstraints.max = element.max;
+		if (element.max !== undefined) elementConstraints.max = String(element.max);
 
 		// Must Support elements
 		if (element.mustSupport) elementConstraints.mustSupport = true;
@@ -211,8 +233,12 @@ async function processProfileConstraints(
 		// Value set bindings
 		if (element.binding) {
 			elementConstraints.binding = {
-				strength: element.binding.strength,
-				valueSet: element.binding.valueSet,
+				strength: element.binding.strength as
+					| "required"
+					| "extensible"
+					| "preferred"
+					| "example",
+				valueSet: element.binding.valueSet ?? "",
 			};
 		}
 
@@ -233,8 +259,8 @@ async function processProfileConstraints(
 		// Slicing information
 		if (element.slicing) {
 			elementConstraints.slicing = {
-				discriminator: element.slicing.discriminator,
-				rules: element.slicing.rules,
+				discriminator: element.slicing.discriminator ?? [],
+				rules: String(element.slicing),
 				ordered: element.slicing.ordered,
 			};
 		}
@@ -253,8 +279,8 @@ async function processProfileConstraints(
 async function processProfileExtensions(
 	fhirSchema: FHIRSchema,
 	_manager: ReturnType<typeof CanonicalManager>,
-): Promise<any[]> {
-	const extensions: any[] = [];
+): Promise<ProfileExtension[]> {
+	const extensions: ProfileExtension[] = [];
 
 	if (!fhirSchema.elements) return extensions;
 
@@ -271,7 +297,7 @@ async function processProfileExtensions(
 						path,
 						profile: type.profile,
 						min: element.min,
-						max: element.max,
+						max: String(element.max),
 						mustSupport: element.mustSupport,
 					});
 				}
@@ -285,8 +311,8 @@ async function processProfileExtensions(
 /**
  * Extract validation rules from profile
  */
-function extractValidationRules(fhirSchema: FHIRSchema): any[] {
-	const rules: any[] = [];
+function extractValidationRules(fhirSchema: FHIRSchema): ValidationRule[] {
+	const rules: ValidationRule[] = [];
 
 	if (!fhirSchema.elements) return rules;
 

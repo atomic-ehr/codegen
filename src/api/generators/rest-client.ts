@@ -7,8 +7,8 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import type { TypeSchema, TypeSchemaIdentifier } from "../../typeschema";
 import type { RestClientConfig } from "../../config";
+import type { TypeSchema, TypeSchemaIdentifier } from "../../typeschema";
 import { SearchParameterEnhancer } from "./search-parameter-enhancer";
 import { ValidationGenerator } from "./validation-generator";
 
@@ -57,10 +57,17 @@ export class RestClientGenerator {
 			defaultRetries: 0,
 			includeDocumentation: true,
 			generateExamples: false,
+			chainedSearchBuilder: false,
+			searchAutocomplete: true,
+			generateValueSetEnums: true,
 			...options,
 		};
-		
-		this.searchParameterEnhancer = new SearchParameterEnhancer();
+		console.log(`[DEBUG] REST client configured with options:`, this.options);
+
+		this.searchParameterEnhancer = new SearchParameterEnhancer({
+			autocomplete: this.options.searchAutocomplete ?? false,
+			valueSetEnums: this.options.generateValueSetEnums ?? false,
+		});
 		this.validationGenerator = new ValidationGenerator();
 	}
 
@@ -126,7 +133,10 @@ export class RestClientGenerator {
 		// Generate enhanced search parameters file if enabled
 		if (this.options.enhancedSearch) {
 			const searchParamsFile = await this.generateEnhancedSearchParamsFile();
-			const searchParamsPath = join(this.options.outputDir, searchParamsFile.filename);
+			const searchParamsPath = join(
+				this.options.outputDir,
+				searchParamsFile.filename,
+			);
 			await writeFile(searchParamsPath, searchParamsFile.content, "utf-8");
 
 			generatedFiles.push({
@@ -138,8 +148,15 @@ export class RestClientGenerator {
 		// Generate validation files if validation is enabled
 		if (this.options.includeValidation || this.options.generateValidators) {
 			const validationTypesFile = await this.generateValidationTypesFile();
-			const validationTypesPath = join(this.options.outputDir, validationTypesFile.filename);
-			await writeFile(validationTypesPath, validationTypesFile.content, "utf-8");
+			const validationTypesPath = join(
+				this.options.outputDir,
+				validationTypesFile.filename,
+			);
+			await writeFile(
+				validationTypesPath,
+				validationTypesFile.content,
+				"utf-8",
+			);
 
 			generatedFiles.push({
 				...validationTypesFile,
@@ -147,7 +164,10 @@ export class RestClientGenerator {
 			});
 
 			const validatorsFile = await this.generateValidatorsFile();
-			const validatorsPath = join(this.options.outputDir, validatorsFile.filename);
+			const validatorsPath = join(
+				this.options.outputDir,
+				validatorsFile.filename,
+			);
 			await writeFile(validatorsPath, validatorsFile.content, "utf-8");
 
 			generatedFiles.push({
@@ -155,6 +175,16 @@ export class RestClientGenerator {
 				path: validatorsPath,
 			});
 		}
+
+		// Generate utility file with ResourceTypeMap
+		const utilityFile = await this.generateUtilityFile();
+		const utilityPath = join(this.options.outputDir, utilityFile.filename);
+		await writeFile(utilityPath, utilityFile.content, "utf-8");
+
+		generatedFiles.push({
+			...utilityFile,
+			path: utilityPath,
+		});
 
 		return generatedFiles;
 	}
@@ -169,23 +199,25 @@ export class RestClientGenerator {
 		const clientName = this.options.clientName;
 
 		// Generate imports conditionally
-		const enhancedSearchImports = this.options.enhancedSearch 
+		const enhancedSearchImports = this.options.enhancedSearch
 			? `import type { 
 	EnhancedSearchParams,
-	SearchParameterValidator 
-} from './enhanced-search-params';` 
-			: '';
+	SearchParameterValidator${(this.options as any).searchAutocomplete ? ",\n\tSearchParamName,\n\tBaseEnhancedSearchParams" : ""} 
+} from './enhanced-search-params';`
+			: "";
 
-		const validationImports = this.options.includeValidation || this.options.generateValidators
-			? `import type { 
+		const validationImports =
+			this.options.includeValidation || this.options.generateValidators
+				? `import type { 
 	ValidationOptions,
 	ValidationResult,
 	ValidationException 
 } from './validation-types';
 import { ResourceValidator } from './resource-validators';`
-			: '';
+				: "";
 
-		const searchParamType = this.options.enhancedSearch ? '' : 'SearchParams,';
+		// Always import SearchParams to keep backward compatibility typings
+		const searchParamType = "SearchParams,";
 
 		const content = `/**
  * FHIR REST Client
@@ -213,13 +245,7 @@ import type {
 } from './client-types';
 ${enhancedSearchImports}
 ${validationImports}
-
-/**
- * Type-safe FHIR resource type mapping
- */
-type ResourceTypeMap = {
-	${resourceTypesArray.map((type) => `'${type}': ${type}`).join(";\n\t")};
-};
+import type { ResourceTypeMap } from './utility';
 
 /**
  * Main FHIR REST Client
@@ -342,6 +368,9 @@ export default ${clientName};`;
  * Type definitions for the FHIR REST client.
  */
 
+import type { Bundle } from '../types';
+import type { ResourceTypeMap } from './utility';
+
 /**
  * HTTP methods supported by the client
  */
@@ -394,9 +423,9 @@ export interface SearchParams {
 /**
  * Response type for create operations
  */
-export interface CreateResponse<T> {
+export interface CreateResponse<T extends keyof ResourceTypeMap> {
 	/** The created resource */
-	resource: T;
+	resource: ResourceTypeMap[T];
 	/** Response status code */
 	status: number;
 	/** Response headers */
@@ -406,9 +435,9 @@ export interface CreateResponse<T> {
 /**
  * Response type for read operations
  */
-export interface ReadResponse<T> {
+export interface ReadResponse<T extends keyof ResourceTypeMap> {
 	/** The retrieved resource */
-	resource: T;
+	resource: ResourceTypeMap[T];
 	/** Response status code */
 	status: number;
 	/** Response headers */
@@ -418,9 +447,9 @@ export interface ReadResponse<T> {
 /**
  * Response type for update operations
  */
-export interface UpdateResponse<T> {
+export interface UpdateResponse<T extends keyof ResourceTypeMap> {
 	/** The updated resource */
-	resource: T;
+	resource: ResourceTypeMap[T];
 	/** Response status code */
 	status: number;
 	/** Response headers */
@@ -440,9 +469,9 @@ export interface DeleteResponse {
 /**
  * Response type for search operations
  */
-export interface SearchResponse<T> {
+export interface SearchResponse<T extends keyof ResourceTypeMap> {
 	/** The search result bundle */
-	bundle: import('../types').Bundle<T>;
+	bundle: Bundle<ResourceTypeMap[T]>;
 	/** Response status code */
 	status: number;
 	/** Response headers */
@@ -553,20 +582,41 @@ export interface FHIRError extends Error {
 	/**
 	 * Generate enhanced search parameters file
 	 */
-	private async generateEnhancedSearchParamsFile(): Promise<Omit<GeneratedRestClient, "path">> {
+	private async generateEnhancedSearchParamsFile(): Promise<
+		Omit<GeneratedRestClient, "path">
+	> {
 		const content = this.searchParameterEnhancer.generateEnhancedSearchTypes();
+
+		const baseExports = [
+			"EnhancedSearchParams",
+			"SearchParameterValidator",
+			"SearchModifiers",
+			"BaseEnhancedSearchParams",
+			// Add all resource-specific search param interfaces
+			...Array.from(this.resourceTypes)
+				.sort()
+				.map((type) => `${type}SearchParams`),
+		];
+
+		// If autocomplete is enabled, also export the search param name unions
+		const autocompleteExports = (this.options as any).searchAutocomplete
+			? [
+					"BaseSearchParamName",
+					"SearchParamName",
+					...Array.from(this.resourceTypes)
+						.sort()
+						.map((type) => `${type}SearchParamName`),
+				]
+			: [];
+
+		const valueSetEnumExports = (this.options as any).generateValueSetEnums
+			? ["PatientGender", "ObservationStatus", "ImmunizationStatus"]
+			: [];
 
 		return {
 			filename: "enhanced-search-params.ts",
 			content,
-			exports: [
-				"EnhancedSearchParams",
-				"SearchParameterValidator",
-				"SearchModifiers",
-				"BaseEnhancedSearchParams",
-				// Add all resource-specific search param interfaces
-				...Array.from(this.resourceTypes).sort().map(type => `${type}SearchParams`)
-			],
+			exports: [...baseExports, ...autocompleteExports, ...valueSetEnumExports],
 		};
 	}
 
@@ -590,13 +640,15 @@ export interface FHIRError extends Error {
 		validateResponses?: boolean;
 	};`;
 		}
-		return '';
+		return "";
 	}
 
 	/**
 	 * Generate validation types file
 	 */
-	private async generateValidationTypesFile(): Promise<Omit<GeneratedRestClient, "path">> {
+	private async generateValidationTypesFile(): Promise<
+		Omit<GeneratedRestClient, "path">
+	> {
 		const content = this.validationGenerator.generateValidationTypes();
 
 		return {
@@ -605,9 +657,9 @@ export interface FHIRError extends Error {
 			exports: [
 				"ValidationOptions",
 				"ValidationError",
-				"ValidationWarning", 
+				"ValidationWarning",
 				"ValidationResult",
-				"ValidationException"
+				"ValidationException",
 			],
 		};
 	}
@@ -615,7 +667,9 @@ export interface FHIRError extends Error {
 	/**
 	 * Generate resource validators file
 	 */
-	private async generateValidatorsFile(): Promise<Omit<GeneratedRestClient, "path">> {
+	private async generateValidatorsFile(): Promise<
+		Omit<GeneratedRestClient, "path">
+	> {
 		const content = this.validationGenerator.generateResourceValidators();
 
 		return {
@@ -623,7 +677,9 @@ export interface FHIRError extends Error {
 			content,
 			exports: [
 				"ResourceValidator",
-				...Array.from(this.resourceTypes).sort().map(type => `validate${type}`)
+				...Array.from(this.resourceTypes)
+					.sort()
+					.map((type) => `validate${type}`),
 			],
 		};
 	}
@@ -632,8 +688,9 @@ export interface FHIRError extends Error {
 	 * Generate CRUD methods with conditional validation support
 	 */
 	private generateCRUDMethods(): string {
-		const validationEnabled = this.options.includeValidation || this.options.generateValidators;
-		
+		const validationEnabled =
+			this.options.includeValidation || this.options.generateValidators;
+
 		return `	/**
 	 * Create a new FHIR resource
 	 */
@@ -644,7 +701,7 @@ export interface FHIRError extends Error {
 		const resourceType = resource.resourceType as T;
 		const url = \`\${this.baseUrl}/\${resourceType}\`;
 		
-		${validationEnabled ? this.generateValidationCode('create', 'resource') : ''}
+		${validationEnabled ? this.generateValidationCode("create", "resource") : ""}
 		
 		return this.request<ResourceTypeMap[T]>('POST', url, resource, options);
 	}
@@ -678,7 +735,7 @@ export interface FHIRError extends Error {
 
 		const url = \`\${this.baseUrl}/\${resourceType}/\${id}\`;
 		
-		${validationEnabled ? this.generateValidationCode('update', 'resource') : ''}
+		${validationEnabled ? this.generateValidationCode("update", "resource") : ""}
 		
 		return this.request<ResourceTypeMap[T]>('PUT', url, resource, options);
 	}
@@ -700,7 +757,10 @@ export interface FHIRError extends Error {
 	/**
 	 * Generate validation code for CRUD operations
 	 */
-	private generateValidationCode(operation: string, resourceVar: string): string {
+	private generateValidationCode(
+		operation: string,
+		resourceVar: string,
+	): string {
 		return `// Client-side validation if enabled
 		if (this.config.validation?.enabled && this.config.validation?.validateBeforeRequest) {
 			const validationResult = ResourceValidator.validate(${resourceVar}, {
@@ -723,26 +783,73 @@ export interface FHIRError extends Error {
 	 * Generate the search method with conditional enhanced search support
 	 */
 	private generateSearchMethod(): string {
-		const paramType = this.options.enhancedSearch ? 'EnhancedSearchParams<T>' : 'SearchParams';
-		const paramHandling = this.generateSearchParameterHandlingCode();
-
-		return `	/**
-	 * Search for FHIR resources
-	 */
-	async search<T extends ResourceTypes>(
-		resourceType: T,
-		params?: ${paramType},
-		options?: RequestOptions
-	): Promise<SearchResponse<ResourceTypeMap[T]>> {
-		let url = \`\${this.baseUrl}/\${resourceType}\`;
-		
-		if (params && Object.keys(params).length > 0) {
-			${paramHandling}
-			url += \`?\${searchParams.toString()}\`;
+		if (this.options.enhancedSearch) {
+			const autocompleteOverload = (this.options as any).searchAutocomplete
+				? `\n\tasync search<T extends ResourceTypes>(\n\t\tresourceType: T,\n\t\tparams?: Partial<Record<SearchParamName<T>, any>> & BaseEnhancedSearchParams,\n\t\toptions?: RequestOptions\n\t): Promise<SearchResponse<ResourceTypeMap[T]>>;`
+				: "";
+			return `\t/**
+\t * Search for FHIR resources
+\t */
+\tasync search<T extends ResourceTypes>(
+\t\tresourceType: T,
+\t\tparams?: EnhancedSearchParams<T>,
+\t\toptions?: RequestOptions
+\t): Promise<SearchResponse<ResourceTypeMap[T]>>;${autocompleteOverload}
+\tasync search<T extends ResourceTypes>(
+\t\tresourceType: T,
+\t\tparams?: SearchParams,
+\t\toptions?: RequestOptions
+\t): Promise<SearchResponse<ResourceTypeMap[T]>>;
+\tasync search<T extends ResourceTypes>(
+\t\tresourceType: T,
+\t\tparams?: any,
+\t\toptions?: RequestOptions
+\t): Promise<SearchResponse<ResourceTypeMap[T]>> {
+\t\tlet url = \`\${this.baseUrl}/\${resourceType}\`;
+\t\t
+\t\tif (params && Object.keys(params).length > 0) {
+\t\t\tlet searchParams: URLSearchParams | undefined;
+\t\t\ttry {
+\t\t\t\tconst validation = SearchParameterValidator.validate(resourceType, params);
+\t\t\t\tif (validation.valid) {
+\t\t\t\t\tsearchParams = SearchParameterValidator.buildSearchParams(resourceType, params);
+\t\t\t\t}
+\t\t\t} catch {}
+\t\t\tif (!searchParams) {
+\t\t\t\tsearchParams = new URLSearchParams();
+\t\t\t\tfor (const [key, value] of Object.entries(params)) {
+\t\t\t\t\tif (Array.isArray(value)) {
+\t\t\t\t\t\tvalue.forEach((v) => searchParams!.append(key, String(v)));
+\t\t\t\t\t} else if (value !== undefined) {
+\t\t\t\t\t\tsearchParams.append(key, String(value));
+\t\t\t\t\t}
+\t\t\t\t}
+\t\t\t}
+\t\t\turl += \`?\${searchParams.toString()}\`;
+\t\t}
+\t\t
+\t\treturn this.request<Bundle<ResourceTypeMap[T]>>('GET', url, undefined, options);
+\t}`;
 		}
-
-		return this.request<Bundle<ResourceTypeMap[T]>>('GET', url, undefined, options);
-	}`;
+		// Non-enhanced search: keep original behavior
+		const paramHandling = this.generateSearchParameterHandlingCode();
+		return `\t/**
+\t * Search for FHIR resources
+\t */
+\tasync search<T extends ResourceTypes>(
+\t\tresourceType: T,
+\t\tparams?: SearchParams,
+\t\toptions?: RequestOptions
+\t): Promise<SearchResponse<ResourceTypeMap[T]>> {
+\t\tlet url = \`\${this.baseUrl}/\${resourceType}\`;
+\t\t
+\t\tif (params && Object.keys(params).length > 0) {
+\t\t\t${paramHandling}
+\t\t\turl += \`?\${searchParams.toString()}\`;
+\t\t}
+\t\t
+\t\treturn this.request<Bundle<ResourceTypeMap[T]>>('GET', url, undefined, options);
+\t}`;
 	}
 
 	/**
@@ -776,7 +883,7 @@ export interface FHIRError extends Error {
 		this.config.validation = { ...this.config.validation, ...validationConfig };
 	}`;
 		}
-		return '';
+		return "";
 	}
 
 	/**
@@ -801,6 +908,44 @@ export interface FHIRError extends Error {
 				}
 			}`;
 		}
+	}
+
+	/**
+	 * Generate utility file with ResourceTypeMap
+	 */
+	private async generateUtilityFile(): Promise<
+		Omit<GeneratedRestClient, "path">
+	> {
+		const resourceTypesArray = Array.from(this.resourceTypes).sort();
+
+		const content = `/**
+ * Utility types for FHIR REST Client
+ * 
+ * Shared type definitions and utilities.
+ */
+
+// Import all the resource types
+${resourceTypesArray.map(type => `import type { ${type} } from '../types/${type}';`).join('\n')}
+
+export type ResourceTypes = ${resourceTypesArray.map(type => `'${type}'`).join(' | ')};
+
+/**
+ * Resource type mapping from resource type strings to interfaces
+ */
+export type ResourceTypeMap = {
+${resourceTypesArray.map(type => `  '${type}': ${type};`).join('\n')}
+};
+`;
+
+		return {
+			filename: "utility.ts",
+			content: content,
+			exports: [
+				"ResourceTypes",
+				"ResourceTypeMap",
+				...resourceTypesArray,
+			],
+		};
 	}
 
 	private async ensureDirectoryExists(filePath: string): Promise<void> {

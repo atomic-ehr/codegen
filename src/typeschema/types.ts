@@ -117,7 +117,181 @@ export interface WithBindingKind {
 
 export interface TypeSchemaForProfile {
 	identifier: TypeSchemaIdentifier & WithProfileKind;
-	[k: string]: unknown;
+	/**
+	 * The base resource or type this profile constrains
+	 */
+	base: TypeSchemaIdentifier;
+	/**
+	 * Human-readable description of the profile
+	 */
+	description?: string;
+	/**
+	 * Fields defined or constrained by this profile
+	 */
+	fields?: Record<string, TypeSchemaField>;
+	/**
+	 * Profile-specific constraints on elements
+	 */
+	constraints?: Record<string, ProfileConstraint>;
+	/**
+	 * Extensions used by this profile
+	 */
+	extensions?: ProfileExtension[];
+	/**
+	 * Validation rules specific to this profile
+	 */
+	validation?: ValidationRule[];
+	/**
+	 * Other types that this profile depends on
+	 */
+	dependencies?: TypeSchemaIdentifier[];
+	/**
+	 * Additional profile metadata
+	 */
+	metadata?: ProfileMetadata;
+	/**
+	 * Nested types if any
+	 */
+	nested?: any[];
+}
+
+/**
+ * Profile constraint on a field
+ */
+export interface ProfileConstraint {
+	/**
+	 * Minimum cardinality
+	 */
+	min?: number;
+	/**
+	 * Maximum cardinality
+	 */
+	max?: string;
+	/**
+	 * Must Support flag
+	 */
+	mustSupport?: boolean;
+	/**
+	 * Fixed value constraint
+	 */
+	fixedValue?: any;
+	/**
+	 * Pattern value constraint
+	 */
+	patternValue?: any;
+	/**
+	 * Value set binding constraint
+	 */
+	binding?: {
+		strength: "required" | "extensible" | "preferred" | "example";
+		valueSet: string;
+	};
+	/**
+	 * Type constraints
+	 */
+	types?: Array<{
+		code: string;
+		profile?: string[];
+		targetProfile?: string[];
+	}>;
+	/**
+	 * Slicing information
+	 */
+	slicing?: {
+		discriminator: any[];
+		rules: string;
+		ordered?: boolean;
+	};
+}
+
+/**
+ * Profile extension information
+ */
+export interface ProfileExtension {
+	/**
+	 * Element path where extension applies
+	 */
+	path: string;
+	/**
+	 * Extension profile URL
+	 */
+	profile: string | string[];
+	/**
+	 * Minimum cardinality
+	 */
+	min?: number;
+	/**
+	 * Maximum cardinality
+	 */
+	max?: string;
+	/**
+	 * Must Support flag
+	 */
+	mustSupport?: boolean;
+}
+
+/**
+ * Profile validation rule
+ */
+export interface ValidationRule {
+	/**
+	 * Element path this rule applies to
+	 */
+	path: string;
+	/**
+	 * Rule key/identifier
+	 */
+	key: string;
+	/**
+	 * Severity level
+	 */
+	severity: "error" | "warning" | "information";
+	/**
+	 * Human readable description
+	 */
+	human: string;
+	/**
+	 * FHIRPath expression
+	 */
+	expression?: string;
+}
+
+/**
+ * Profile metadata
+ */
+export interface ProfileMetadata {
+	/**
+	 * Publisher information
+	 */
+	publisher?: string;
+	/**
+	 * Contact information
+	 */
+	contact?: any[];
+	/**
+	 * Copyright notice
+	 */
+	copyright?: string;
+	/**
+	 * Purpose statement
+	 */
+	purpose?: string;
+	/**
+	 * Experimental flag
+	 */
+	experimental?: boolean;
+	/**
+	 * Publication date
+	 */
+	date?: string;
+	/**
+	 * Jurisdiction
+	 */
+	jurisdiction?: any[];
+	/**
+	 * Package information
+	 */
+	package?: string;
 }
 
 /**

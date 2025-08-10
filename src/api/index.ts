@@ -34,13 +34,16 @@ export {
 	generateTypesFromPackage,
 } from "./builder";
 export type {
+	GeneratedRestClient,
+	RestClientOptions,
+} from "./generators/rest-client";
+export { RestClientGenerator } from "./generators/rest-client";
+export type {
 	GeneratedFile,
 	TypeScriptAPIOptions,
 } from "./generators/typescript";
 // Export generator classes for advanced usage
 export { TypeScriptAPIGenerator } from "./generators/typescript";
-export { RestClientGenerator } from "./generators/rest-client";
-export type { RestClientOptions, GeneratedRestClient } from "./generators/rest-client";
 
 /**
  * Quick start examples:

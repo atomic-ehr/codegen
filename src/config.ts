@@ -25,6 +25,12 @@ export interface RestClientConfig {
 	baseUrlOverride?: string;
 	/** Generate enhanced search parameter types */
 	enhancedSearch?: boolean;
+	/** Enable chained search builder generation with fluent API */
+	chainedSearchBuilder?: boolean;
+	/** Enable IDE autocomplete for search params via string literal unions */
+	searchAutocomplete?: boolean;
+	/** Generate enums (string literal unions) from bound ValueSets when possible */
+	generateValueSetEnums?: boolean;
 	/** Generate utility methods */
 	includeUtilities?: boolean;
 	/** Generate resource validators */
@@ -60,6 +66,16 @@ export interface TypeScriptGeneratorConfig {
 	fhirVersion?: "R4" | "R5";
 	resourceTypes?: string[];
 	maxDepth?: number;
+
+	// Profile generation options
+	profileOptions?: {
+		generateKind?: "interface" | "type" | "both";
+		includeConstraints?: boolean;
+		includeDocumentation?: boolean;
+		generateValidators?: boolean;
+		strictMode?: boolean;
+		subfolder?: string;
+	};
 
 	// Builder generation options
 	generateBuilders?: boolean;
@@ -125,6 +141,13 @@ export interface TypeSchemaConfig {
 	shareCache?: boolean;
 	/** Cache key prefix for namespacing */
 	cacheKeyPrefix?: string;
+	/** Profile packages configuration */
+	profiles?: {
+		/** Profile packages to include (e.g., "hl7.fhir.us.core@5.0.1") */
+		packages?: string[];
+		/** Auto-detect profiles in packages */
+		autoDetect?: boolean;
+	};
 }
 
 /**
@@ -167,6 +190,9 @@ export const DEFAULT_CONFIG: Required<Config> = {
 		includeRequestInterceptors: false,
 		baseUrlOverride: "",
 		enhancedSearch: false,
+		chainedSearchBuilder: false,
+		searchAutocomplete: true,
+		generateValueSetEnums: true,
 		includeUtilities: true,
 		generateValidators: false,
 		useCanonicalManager: true,
@@ -191,6 +217,16 @@ export const DEFAULT_CONFIG: Required<Config> = {
 		fhirVersion: "R4",
 		resourceTypes: [],
 		maxDepth: 10,
+
+		// Profile generation defaults
+		profileOptions: {
+			generateKind: "interface",
+			includeConstraints: true,
+			includeDocumentation: true,
+			generateValidators: true,
+			strictMode: false,
+			subfolder: "profiles",
+		},
 
 		// Builder generation defaults
 		generateBuilders: false,
@@ -244,6 +280,10 @@ export const DEFAULT_CONFIG: Required<Config> = {
 		forceRegenerate: false,
 		shareCache: true,
 		cacheKeyPrefix: "",
+		profiles: {
+			packages: [],
+			autoDetect: true,
+		},
 	},
 	packages: [],
 	files: [],
@@ -333,6 +373,12 @@ export class ConfigValidator {
 		// Validate typescript config
 		if (cfg.typescript !== undefined) {
 			const tsErrors = this.validateTypeScriptConfig(cfg.typescript);
+			result.errors.push(...tsErrors);
+		}
+
+		// Validate typeSchema config
+		if (cfg.typeSchema !== undefined) {
+			const tsErrors = this.validateTypeSchemaConfig(cfg.typeSchema);
 			result.errors.push(...tsErrors);
 		}
 
@@ -464,6 +510,12 @@ export class ConfigValidator {
 			errors.push(...guardErrors);
 		}
 
+		// Validate profileOptions
+		if (cfg.profileOptions !== undefined) {
+			const profileErrors = this.validateProfileOptions(cfg.profileOptions);
+			errors.push(...profileErrors);
+		}
+
 		return errors;
 	}
 
@@ -535,7 +587,10 @@ export class ConfigValidator {
 		}
 
 		// Validate baseUrlOverride
-		if (cfg.baseUrlOverride !== undefined && typeof cfg.baseUrlOverride !== "string") {
+		if (
+			cfg.baseUrlOverride !== undefined &&
+			typeof cfg.baseUrlOverride !== "string"
+		) {
 			errors.push({
 				path: "restClient.baseUrlOverride",
 				message: "baseUrlOverride must be a string",
@@ -571,6 +626,9 @@ export class ConfigValidator {
 			"includeErrorHandling",
 			"includeRequestInterceptors",
 			"enhancedSearch",
+			"chainedSearchBuilder",
+			"searchAutocomplete",
+			"generateValueSetEnums",
 			"includeUtilities",
 			"generateValidators",
 			"useCanonicalManager",
@@ -635,6 +693,166 @@ export class ConfigValidator {
 					message: `${field} must be a boolean`,
 					value: cfg[field],
 				});
+			}
+		}
+
+		return errors;
+	}
+
+	private validateProfileOptions(config: unknown): ConfigValidationError[] {
+		const errors: ConfigValidationError[] = [];
+
+		if (typeof config !== "object" || config === null) {
+			errors.push({
+				path: "typescript.profileOptions",
+				message: "profileOptions must be an object",
+				value: config,
+			});
+			return errors;
+		}
+
+		const cfg = config as Record<string, unknown>;
+
+		// Validate generateKind
+		if (cfg.generateKind !== undefined) {
+			if (!["interface", "type", "both"].includes(cfg.generateKind as string)) {
+				errors.push({
+					path: "typescript.profileOptions.generateKind",
+					message: 'generateKind must be "interface", "type", or "both"',
+					value: cfg.generateKind,
+				});
+			}
+		}
+
+		// Validate subfolder
+		if (cfg.subfolder !== undefined && typeof cfg.subfolder !== "string") {
+			errors.push({
+				path: "typescript.profileOptions.subfolder",
+				message: "subfolder must be a string",
+				value: cfg.subfolder,
+			});
+		}
+
+		// Validate boolean fields
+		const booleanFields = [
+			"includeConstraints",
+			"includeDocumentation",
+			"generateValidators",
+			"strictMode",
+		];
+
+		for (const field of booleanFields) {
+			if (cfg[field] !== undefined && typeof cfg[field] !== "boolean") {
+				errors.push({
+					path: `typescript.profileOptions.${field}`,
+					message: `${field} must be a boolean`,
+					value: cfg[field],
+				});
+			}
+		}
+
+		return errors;
+	}
+
+	private validateTypeSchemaConfig(config: unknown): ConfigValidationError[] {
+		const errors: ConfigValidationError[] = [];
+
+		if (typeof config !== "object" || config === null) {
+			errors.push({
+				path: "typeSchema",
+				message: "typeSchema config must be an object",
+				value: config,
+			});
+			return errors;
+		}
+
+		const cfg = config as Record<string, unknown>;
+
+		// Validate boolean fields
+		const booleanFields = [
+			"enablePersistence",
+			"validateCached",
+			"forceRegenerate",
+			"shareCache",
+		];
+
+		for (const field of booleanFields) {
+			if (cfg[field] !== undefined && typeof cfg[field] !== "boolean") {
+				errors.push({
+					path: `typeSchema.${field}`,
+					message: `${field} must be a boolean`,
+					value: cfg[field],
+				});
+			}
+		}
+
+		// Validate string fields
+		const stringFields = ["cacheDir", "cacheKeyPrefix"];
+
+		for (const field of stringFields) {
+			if (cfg[field] !== undefined && typeof cfg[field] !== "string") {
+				errors.push({
+					path: `typeSchema.${field}`,
+					message: `${field} must be a string`,
+					value: cfg[field],
+				});
+			}
+		}
+
+		// Validate maxAge
+		if (cfg.maxAge !== undefined) {
+			if (typeof cfg.maxAge !== "number" || cfg.maxAge <= 0) {
+				errors.push({
+					path: "typeSchema.maxAge",
+					message: "maxAge must be a positive number",
+					value: cfg.maxAge,
+				});
+			}
+		}
+
+		// Validate profiles
+		if (cfg.profiles !== undefined) {
+			if (typeof cfg.profiles !== "object" || cfg.profiles === null) {
+				errors.push({
+					path: "typeSchema.profiles",
+					message: "profiles must be an object",
+					value: cfg.profiles,
+				});
+			} else {
+				const profiles = cfg.profiles as Record<string, unknown>;
+
+				// Validate packages array
+				if (profiles.packages !== undefined) {
+					if (!Array.isArray(profiles.packages)) {
+						errors.push({
+							path: "typeSchema.profiles.packages",
+							message: "packages must be an array",
+							value: profiles.packages,
+						});
+					} else {
+						profiles.packages.forEach((pkg, index) => {
+							if (typeof pkg !== "string") {
+								errors.push({
+									path: `typeSchema.profiles.packages[${index}]`,
+									message: "package name must be a string",
+									value: pkg,
+								});
+							}
+						});
+					}
+				}
+
+				// Validate autoDetect
+				if (
+					profiles.autoDetect !== undefined &&
+					typeof profiles.autoDetect !== "boolean"
+				) {
+					errors.push({
+						path: "typeSchema.profiles.autoDetect",
+						message: "autoDetect must be a boolean",
+						value: profiles.autoDetect,
+					});
+				}
 			}
 		}
 

@@ -272,7 +272,11 @@ describe("TypeScript Generator Core Logic", () => {
 					url: "http://example.org/EnumType",
 				},
 				fields: {
-					status: { enum: ["active", "inactive", "pending"], required: true },
+					status: { 
+						type: { name: "code", kind: "primitive-type", package: "hl7.fhir.r4.core", version: "4.0.1", url: "http://hl7.org/fhir/code" },
+						enum: ["active", "inactive", "pending"], 
+						required: true 
+					},
 				},
 				dependencies: [],
 			};
@@ -280,9 +284,8 @@ describe("TypeScript Generator Core Logic", () => {
 			const result = await generator.transformSchema(schema);
 
 			expect(result).toBeDefined();
-			expect(result?.content).toContain(
-				"status: 'active' | 'inactive' | 'pending'",
-			);
+			expect(result?.content).toContain("status: EnumTypeStatusValues");
+			expect(result?.exports).toContain("EnumTypeStatusValues");
 		});
 
 		it("should handle enum fields with large sets", async () => {
@@ -296,7 +299,11 @@ describe("TypeScript Generator Core Logic", () => {
 					url: "http://example.org/LargeEnumType",
 				},
 				fields: {
-					code: { enum: largeEnum, required: true },
+					code: { 
+						type: { name: "code", kind: "primitive-type", package: "hl7.fhir.r4.core", version: "4.0.1", url: "http://hl7.org/fhir/code" },
+						enum: largeEnum, 
+						required: true 
+					},
 				},
 				dependencies: [],
 			};
@@ -304,8 +311,8 @@ describe("TypeScript Generator Core Logic", () => {
 			const result = await generator.transformSchema(schema);
 
 			expect(result).toBeDefined();
-			expect(result?.content).toContain("code: string");
-			expect(result?.content).not.toContain("value0");
+			expect(result?.content).toContain("code: LargeEnumTypeCodeValues");
+			expect(result?.exports).toContain("LargeEnumTypeCodeValues");
 		});
 
 		it("should handle nested types", async () => {
@@ -798,7 +805,16 @@ describe("TypeScript Generator Core Logic", () => {
 							url: "",
 						},
 					},
-					enumField: { enum: ["a", "b", "c"] },
+					enumField: { 
+						type: {
+							kind: "primitive-type",
+							name: "code",
+							package: "hl7.fhir.r4.core",
+							version: "4.0.1",
+							url: "",
+						},
+						enum: ["a", "b", "c"] 
+					},
 					complexField: {
 						type: {
 							kind: "complex-type",
@@ -848,7 +864,8 @@ describe("TypeScript Generator Core Logic", () => {
 			expect(result).toBeDefined();
 			expect(result?.content).toContain("resourceType: 'MixedResource'");
 			expect(result?.content).toContain("simpleString?: string");
-			expect(result?.content).toContain("enumField?: 'a' | 'b' | 'c'");
+			expect(result?.content).toContain("enumField?: MixedResourceEnumFieldValues");
+			expect(result?.exports).toContain("MixedResourceEnumFieldValues");
 			expect(result?.content).toContain("complexField?: Address");
 			expect(result?.content).toContain("arrayField?: number[]");
 			expect(result?.content).toContain("requiredField: boolean");

@@ -30,7 +30,7 @@ import { buildNestedTypes, extractNestedDependencies } from "./nested-types";
 /**
  * Transform elements into fields
  */
-async function transformElements(
+export async function transformElements(
 	fhirSchema: FHIRSchema,
 	parentPath: string[],
 	elements: Record<string, FHIRSchemaElement>,

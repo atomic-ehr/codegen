@@ -18,7 +18,7 @@ import {
 	type TypeSchemaForResourceComplexTypeLogical,
 	type TypeSchemaIdentifier,
 } from "../../typeschema";
-import { toPascalCase } from "../../utils.ts";
+import { toPascalCase } from "../../utils";
 
 type MakeRequiredNonNullable<T, K extends keyof T> = Omit<T, K> & {
 	[P in K]-?: NonNullable<T[P]>;
@@ -99,6 +99,16 @@ export class TypeScriptAPIGenerator {
 	private exports = new Set<string>();
 	private resourceTypes = new Set<string>();
 	private currentSchemaName?: string;
+	private profileTypes = new Set<string>();
+	private enumTypes = new Map<
+		string,
+		{ values: string[]; description?: string }
+	>();
+	private globalEnumTypes = new Map<
+		string,
+		{ values: string[]; description?: string }
+	>();
+	private fieldEnumMap = new Map<string, string>();
 
 	constructor(options: TypeScriptAPIOptions) {
 		this.options = {
@@ -123,9 +133,16 @@ export class TypeScriptAPIGenerator {
 		if (
 			schema.identifier.kind === "value-set" ||
 			schema.identifier.kind === "binding" ||
-			schema.identifier.kind === "primitive-type" ||
-			schema.identifier.kind === "profile"
+			schema.identifier.kind === "primitive-type"
 		) {
+			return undefined;
+		}
+
+		// Handle profiles separately if includeProfiles is true
+		if (schema.identifier.kind === "profile") {
+			if (this.options.includeProfiles) {
+				return this.generateProfile(schema);
+			}
 			return undefined;
 		}
 
@@ -140,6 +157,11 @@ export class TypeScriptAPIGenerator {
 
 		// Generate TypeScript content
 		const content = this.generateTypeScriptForSchema(schema);
+
+		// Add enum types to imports if any were used in this schema
+		for (const enumTypeName of this.enumTypes.keys()) {
+			this.imports.set(enumTypeName, "utility");
+		}
 
 		const imports = new Map(this.imports);
 		const filename = this.getFilename(schema.identifier);
@@ -159,6 +181,9 @@ export class TypeScriptAPIGenerator {
 	private generateTypeScriptForSchema(schema: TypeSchema): string {
 		const lines: string[] = [];
 
+		// Clear local enum types for this schema
+		this.enumTypes.clear();
+
 		// Add interface declaration
 		const interfaceName = this.formatTypeName(schema.identifier.name);
 
@@ -166,6 +191,9 @@ export class TypeScriptAPIGenerator {
 
 		if (interfaceName === "Reference") {
 			overridedName = `Reference<T extends ResourceTypes = ResourceTypes>`;
+		} else if (interfaceName === "Bundle") {
+			overridedName = `Bundle<T extends keyof ResourceTypeMap = keyof ResourceTypeMap>`;
+			this.imports.set("ResourceTypeMap", "utility");
 		}
 
 		this.exports.add(interfaceName);
@@ -216,6 +244,8 @@ export class TypeScriptAPIGenerator {
 			lines.push("}");
 		}
 
+		// Enum types are exported from utility.ts for reuse
+
 		return lines.join("\n");
 	}
 
@@ -231,27 +261,37 @@ export class TypeScriptAPIGenerator {
 	): string {
 		const lines: string[] = [];
 		const interfaceName = this.formatTypeName(nested.identifier.name);
+		let fullTypeName = `${baseName}${interfaceName}`;
 
-		this.exports.add(interfaceName);
+		// Add generic support for BundleEntry
+		if (fullTypeName === "BundleEntry") {
+			fullTypeName = `BundleEntry<T extends keyof ResourceTypeMap = keyof ResourceTypeMap>`;
+			this.imports.set("ResourceTypeMap", "utility");
+		}
+
+		this.exports.add(baseName + interfaceName); // Export the base name for imports
 
 		if (nested.base) {
 			const baseInterface = this.getType(nested.base);
 
 			if (baseInterface.isPrimitive) {
-				lines.push(`export interface ${baseName}${interfaceName}{`);
+				lines.push(`export interface ${fullTypeName}{`);
 			} else {
 				this.imports.set(baseInterface.value, baseInterface.value);
 				lines.push(
-					`export interface ${baseName}${interfaceName} extends ${baseInterface.value} {`,
+					`export interface ${fullTypeName} extends ${baseInterface.value} {`,
 				);
 			}
 		} else {
-			lines.push(`export interface ${baseName}${interfaceName}{`);
+			lines.push(`export interface ${fullTypeName}{`);
 		}
 
 		if (nested.fields) {
 			for (const [fieldName, field] of Object.entries(nested.fields)) {
-				const fieldLine = this.generateField(fieldName, field);
+				const fieldLine = this.generateField(fieldName, field, {
+					isNested: false,
+					baseName: fullTypeName,
+				});
 				if (fieldLine) {
 					lines.push(`\t${fieldLine}`);
 				}
@@ -290,7 +330,15 @@ export class TypeScriptAPIGenerator {
 	): string {
 		let typeString = "any";
 
-		if (field.reference) {
+		if (field.enum) {
+			// Generate a separate enum type for this field
+			const enumTypeName = this.generateEnumType(
+				fieldName,
+				field.enum,
+				nestedOpts?.baseName,
+			);
+			typeString = enumTypeName;
+		} else if (field.reference) {
 			typeString = this.buildReferenceType(field.reference);
 		} else if (field.type) {
 			const subType = this.getType(field.type);
@@ -317,11 +365,13 @@ export class TypeScriptAPIGenerator {
 		let typeString = "any";
 
 		if (field.enum) {
-			if (field.enum.length > 15) {
-				typeString = "string";
-			} else {
-				typeString = `${field.enum.map((e) => `'${e}'`).join(" | ")}`;
-			}
+			// Generate a separate enum type for this field
+			const enumTypeName = this.generateEnumType(
+				fieldName,
+				field.enum,
+				nestedOpts?.baseName,
+			);
+			typeString = enumTypeName;
 		} else if (field.reference) {
 			typeString = this.buildReferenceType(field.reference);
 		} else if (field.type) {
@@ -335,12 +385,25 @@ export class TypeScriptAPIGenerator {
 		if (nestedOpts?.baseName === "Reference" && fieldName === "type") {
 			typeString = "T";
 			this.imports.set("ResourceTypes", "utility");
+		} else if (
+			nestedOpts?.baseName?.startsWith("BundleEntry") &&
+			fieldName === "resource"
+		) {
+			typeString = "ResourceTypeMap[T]";
+			this.imports.set("ResourceTypeMap", "utility");
+		} else if (this.currentSchemaName === "Bundle" && fieldName === "entry") {
+			typeString = "BundleEntry<T>";
 		}
 
 		const optional = !field.required ? "?" : "";
 		const array = field.array ? "[]" : "";
 
-		return `${fieldName}${optional}: ${nestedOpts?.isNested && nestedOpts.baseName ? nestedOpts.baseName : ""}${typeString}${array};`;
+		// Don't add baseName prefix for special cases like Bundle entry field
+		const shouldAddPrefix =
+			nestedOpts?.isNested &&
+			nestedOpts.baseName &&
+			!(this.currentSchemaName === "Bundle" && fieldName === "entry");
+		return `${fieldName}${optional}: ${shouldAddPrefix ? nestedOpts.baseName : ""}${typeString}${array};`;
 	}
 
 	private buildReferenceType(refers: TypeSchemaIdentifier[]) {
@@ -396,22 +459,50 @@ export class TypeScriptAPIGenerator {
 			});
 		}
 
+		// Generate utility types file
+		let utilityContent = `export type ResourceTypes = ${Array.from(
+			this.resourceTypes,
+		)
+			.map((key) => `'${key}'`)
+			.join(" | ")};\n\n`;
+
+		// Note: ResourceTypeMap is now generated by the REST client generator
+		// to prevent circular dependencies between generators
+
+		// Add all global enum types to utility file
+		if (this.globalEnumTypes.size > 0) {
+			utilityContent += "// Shared Enum Types\n\n";
+			for (const [typeName, enumDef] of this.globalEnumTypes) {
+				if (enumDef.description) {
+					utilityContent += `/**\n * ${enumDef.description}\n */\n`;
+				}
+				const unionType = enumDef.values.map((v) => `'${v}'`).join(" | ");
+				utilityContent += `export type ${typeName} = ${unionType};\n\n`;
+			}
+		}
+
 		results.push({
 			filename: "utility.ts",
-			content: `export type ResourceTypes = ${Array.from(this.resourceTypes.keys().map((key) => `'${key}'`)).join(" | ")};\n\n`,
+			content: utilityContent,
 			imports: new Map(),
-			exports: ["ResourceTypes"],
+			exports: [
+				"ResourceTypes",
+				...Array.from(this.globalEnumTypes.keys()),
+			],
 		});
 
 		// Write individual type files
 		for (const result of results) {
 			const filePath = join(this.options.outputDir, result.filename);
 			await this.ensureDirectoryExists(filePath);
-			await writeFile(
-				filePath,
-				`${this.generateImportStatements(result.imports)}\n\n${result.content}`,
-				"utf-8",
-			);
+			const imports =
+				result.filename === "utility.ts"
+					? ""
+					: this.generateImportStatements(result.imports);
+			const content = imports
+				? `${imports}\n\n${result.content}`
+				: result.content;
+			await writeFile(filePath, content, "utf-8");
 
 			generatedFiles.push({
 				path: filePath,
@@ -444,8 +535,25 @@ export class TypeScriptAPIGenerator {
 	private generateImportStatements(imports: Map<string, string>): string {
 		const lines: string[] = [];
 
-		for (const [item, pkg] of imports.entries()) {
-			lines.push(`import type { ${item} } from './${pkg}';`);
+		// Group imports by package
+		const importsByPackage = new Map<string, string[]>();
+
+		for (const [item, pkg] of imports) {
+			if (!importsByPackage.has(pkg)) {
+				importsByPackage.set(pkg, []);
+			}
+			importsByPackage.get(pkg)!.push(item);
+		}
+
+		// Generate import statements
+		for (const [pkg, items] of importsByPackage) {
+			if (items.length === 1) {
+				lines.push(`import type { ${items[0]} } from './${pkg}';`);
+			} else {
+				lines.push(
+					`import type {\n\t${items.join(",\n\t")}\n} from './${pkg}';`,
+				);
+			}
 		}
 
 		return lines.join("\n");
@@ -531,15 +639,15 @@ export class TypeScriptAPIGenerator {
 
 		for (const result of results) {
 			for (const exportName of result.exports) {
-				// Categorize exports based on naming patterns
-				if (result.filename.includes("primitive")) {
+				// Categorize exports based on filename patterns
+				if (result.filename.includes("profiles/")) {
+					profiles.push(exportName);
+				} else if (result.filename.includes("primitive")) {
 					primitiveTypes.push(exportName);
 				} else if (result.filename.includes("complex")) {
 					complexTypes.push(exportName);
 				} else if (result.filename.includes("resource")) {
 					resources.push(exportName);
-				} else if (result.filename.includes("profile")) {
-					profiles.push(exportName);
 				} else if (result.filename.includes("valueset")) {
 					valueSets.push(exportName);
 				} else {
@@ -553,7 +661,7 @@ export class TypeScriptAPIGenerator {
 			if (
 				baseName.startsWith("valueset") ||
 				baseName.startsWith("extension") ||
-				baseName.startsWith("profile")
+				baseName.startsWith("profiles/")
 			) {
 				continue;
 			}
@@ -633,7 +741,7 @@ export class TypeScriptAPIGenerator {
 			lines.push("");
 		}
 
-		if (profiles.length > 0) {
+		if (this.options.includeProfiles) {
 			lines.push("// Profiles namespace - contains all FHIR Profile types");
 			lines.push('export * as Profiles from "./profiles";');
 			lines.push("");
@@ -670,6 +778,9 @@ export class TypeScriptAPIGenerator {
 		const subfolders: string[] = [];
 		if (this.options.includeExtensions) {
 			subfolders.push("extensions");
+		}
+		if (this.options.includeProfiles) {
+			subfolders.push("profiles");
 		}
 
 		for (const subfolder of subfolders) {
@@ -773,8 +884,13 @@ export class TypeScriptAPIGenerator {
 	private getBaseInterface(
 		schema: TypeSchema,
 	): { isPrimitive: boolean; value: string } | null {
-		if (isTypeSchemaForResourceComplexTypeLogical(schema) && schema.base) {
-			return this.getType(schema.base);
+		// Handle profiles (which have kind: "profile") as well as resources/complex-types
+		if (
+			(isTypeSchemaForResourceComplexTypeLogical(schema) ||
+				schema.identifier.kind === "profile") &&
+			(schema as any).base
+		) {
+			return this.getType((schema as any).base);
 		}
 		return null;
 	}
@@ -784,6 +900,589 @@ export class TypeScriptAPIGenerator {
 	 */
 	private getFilename(identifier: TypeSchemaIdentifier): string {
 		const name = toPascalCase(identifier.name);
+
+		// Place profiles in subfolder if configured
+		if (identifier.kind === "profile" && this.options.includeProfiles) {
+			const subfolder = "profiles"; // Could be made configurable
+			return `${subfolder}/${name}.ts`;
+		}
+
 		return `${name}.ts`;
+	}
+
+	/**
+	 * Generate TypeScript for a profile schema
+	 */
+	private async generateProfile(
+		schema: TypeSchema,
+	): Promise<GeneratedTypeScript | undefined> {
+		// Clear state for new transformation
+		this.imports.clear();
+		this.exports.clear();
+		this.currentSchemaName = this.formatTypeName(schema.identifier.name);
+
+		// Track as profile type
+		this.profileTypes.add(this.currentSchemaName);
+
+		// Generate TypeScript content for profile
+		const content = this.generateTypeScriptForProfile(schema);
+
+		const imports = new Map(this.imports);
+		const filename = this.getFilename(schema.identifier);
+		const exports = Array.from(this.exports.keys());
+
+		return {
+			content,
+			imports,
+			exports,
+			filename,
+		};
+	}
+
+	/**
+	 * Generate TypeScript for a profile schema
+	 */
+	private generateTypeScriptForProfile(schema: TypeSchema): string {
+		const lines: string[] = [];
+		const interfaceName = this.formatTypeName(schema.identifier.name);
+
+		// Add documentation if available
+		if (schema.description) {
+			lines.push("/**");
+			lines.push(` * ${schema.description}`);
+			lines.push(` * @profile ${schema.identifier.url}`);
+			lines.push(" */");
+		}
+
+		this.exports.add(interfaceName);
+
+		// Get base interface (profiles should always have a base)
+		const baseInterface = this.getBaseInterface(schema);
+		if (baseInterface && !baseInterface.isPrimitive) {
+			// Import base from parent directory if in profiles subfolder
+			const importPath = baseInterface.value;
+			this.imports.set(baseInterface.value, `../${importPath}`);
+			lines.push(
+				`export interface ${interfaceName} extends ${baseInterface.value} {`,
+			);
+		} else {
+			lines.push(`export interface ${interfaceName} {`);
+		}
+
+		// For profiles, we typically don't override fields unless there are specific constraints
+		// Profiles usually just add constraints to existing base resource fields
+		if (
+			isTypeSchemaForResourceComplexTypeLogical(schema) ||
+			schema.identifier.kind === "profile"
+		) {
+			// For profiles, only generate field overrides that have meaningful constraints
+
+			// Check schema.constraints for fields that need to be overridden
+			if (
+				(schema as any).constraints &&
+				Object.keys((schema as any).constraints).length > 0
+			) {
+				for (const [path, constraint] of Object.entries(
+					(schema as any).constraints as Record<string, any>,
+				)) {
+					const fieldName = path.includes(".") ? path.split(".").pop() : path;
+					if (!fieldName) continue;
+
+					// Only generate field override if constraint makes it meaningfully different
+					if ((constraint as any).min && (constraint as any).min > 0) {
+						// Field is now required - need to override to remove optional marker
+						const field = (schema as any).fields?.[fieldName];
+						if (field) {
+							const fieldLine = this.generateProfileField(
+								fieldName,
+								field,
+								schema,
+							);
+							if (fieldLine) {
+								lines.push(`\t${fieldLine}`);
+							}
+						}
+					}
+				}
+			}
+
+			lines.push("}");
+
+			// Add nested types if any (rare for profiles)
+			if ((schema as any).nested) {
+				for (const nested of (schema as any).nested) {
+					lines.push("");
+					lines.push(this.generateNested(this.currentSchemaName ?? "", nested));
+				}
+			}
+		} else {
+			lines.push("}");
+		}
+
+		// Generate validator if configured
+		if (this.options.includeProfiles) {
+			lines.push("");
+			lines.push(this.generateProfileValidator(interfaceName, schema));
+		}
+
+		// Generate type guard
+		lines.push("");
+		lines.push(this.generateProfileTypeGuard(interfaceName, schema));
+
+		return lines.join("\n");
+	}
+
+	/**
+	 * Generate TypeScript for a profile field with constraints
+	 */
+	private generateProfileField(
+		fieldName: string,
+		field: TypeSchemaField,
+		schema: TypeSchema,
+	): string {
+		// Apply profile-specific constraints
+		let typeString = "any";
+		let required = false;
+		let array = false;
+
+		if (isRegularField(field)) {
+			required = field.required || false;
+			array = field.array || false;
+
+			// Handle constrained value sets
+			if (field.enum) {
+				// Generate a separate enum type for this field
+				const enumTypeName = this.generateEnumType(
+					fieldName,
+					field.enum,
+					this.currentSchemaName,
+				);
+				typeString = enumTypeName;
+			} else if (field.reference) {
+				typeString = this.buildReferenceType(field.reference);
+			} else if (field.type) {
+				const subType = this.getType(field.type);
+				if (!subType.isPrimitive) {
+					// Import from parent directory for profiles
+					this.imports.set(subType.value, `../${subType.value}`);
+				}
+				typeString = subType.value;
+			}
+		} else if (isPolymorphicInstanceField(field)) {
+			required = field.required || false;
+			array = field.array || false;
+
+			if (field.reference) {
+				typeString = this.buildReferenceType(field.reference);
+			} else if (field.type) {
+				const subType = this.getType(field.type);
+				if (!subType.isPrimitive) {
+					this.imports.set(subType.value, `../${subType.value}`);
+				}
+				typeString = subType.value;
+			}
+		} else if ("choices" in field) {
+			// Handle choice fields (fields with choices array but no choiceOf)
+			required = field.required || false;
+			array = field.array || false;
+
+			// For choice fields, we don't generate the field itself in profiles
+			// The choice fields are handled by the individual choice options
+			return ""; // Skip generating this field
+		}
+
+		// Apply cardinality constraints from profile
+		// Check if field has specific profile constraints (would need to be in schema)
+		// Check for profile-specific metadata
+		if ((schema as any).constraints && (schema as any).constraints[fieldName]) {
+			const constraint = (schema as any).constraints[fieldName] as any;
+			if (constraint.min && constraint.min > 0) {
+				required = true;
+			}
+			if (constraint.max === "*") {
+				array = true;
+			}
+		}
+
+		const optional = !required ? "?" : "";
+		const arrayType = array ? "[]" : "";
+
+		return `${fieldName}${optional}: ${typeString}${arrayType};`;
+	}
+
+	/**
+	 * Generate profile validator function
+	 */
+	private generateProfileValidator(
+		interfaceName: string,
+		schema: TypeSchema,
+	): string {
+		const lines: string[] = [];
+		const validatorName = `validate${interfaceName}`;
+
+		lines.push("/**");
+		lines.push(` * Validate a resource against the ${interfaceName} profile`);
+		lines.push(" */");
+		lines.push(
+			`export function ${validatorName}(resource: unknown): ValidationResult {`,
+		);
+		lines.push("\tconst errors: string[] = [];");
+		lines.push("");
+
+		// Get base validator if exists
+		const baseInterface = this.getBaseInterface(schema);
+		if (baseInterface && !baseInterface.isPrimitive) {
+			// Import base type guard
+			this.imports.set(`is${baseInterface.value}`, `../${baseInterface.value}`);
+
+			lines.push(`\t// Validate base resource`);
+			lines.push(`\tif (!is${baseInterface.value}(resource)) {`);
+			lines.push(
+				`\t\treturn { valid: false, errors: ['Not a valid ${baseInterface.value} resource'] };`,
+			);
+			lines.push("\t}");
+			lines.push("");
+			lines.push(`\tconst typed = resource as ${baseInterface.value};`);
+			lines.push("");
+		}
+
+		// Add profile-specific constraint validation
+		if ((schema as any).constraints) {
+			lines.push("\t// Profile constraint validation");
+			for (const [path, constraint] of Object.entries(
+				(schema as any).constraints as Record<string, any>,
+			)) {
+				this.generateConstraintValidation(lines, path, constraint);
+			}
+			lines.push("");
+		}
+
+		// Add must-support validation
+		if ((schema as any).constraints) {
+			const mustSupportFields: string[] = [];
+			for (const [path, constraint] of Object.entries(
+				(schema as any).constraints as Record<string, any>,
+			)) {
+				if ((constraint as any).mustSupport) {
+					mustSupportFields.push(path);
+				}
+			}
+
+			if (mustSupportFields.length > 0) {
+				lines.push("\t// Must Support elements validation");
+				for (const field of mustSupportFields) {
+					lines.push(`\t// Must support: ${field}`);
+					lines.push(`\t// Note: Must Support validation is context-dependent`);
+				}
+				lines.push("");
+			}
+		}
+
+		lines.push("\treturn {");
+		lines.push("\t\tvalid: errors.length === 0,");
+		lines.push("\t\terrors");
+		lines.push("\t};");
+		lines.push("}");
+
+		// Add ValidationResult type if not imported
+		this.imports.set("ValidationResult", "../types");
+
+		return lines.join("\n");
+	}
+
+	/**
+	 * Generate TypeScript field with profile constraints applied
+	 */
+	private generateConstrainedProfileField(
+		path: string,
+		constraint: any,
+		schema: TypeSchema,
+	): string {
+		const fieldPath = path.includes(".") ? path.split(".").pop() : path;
+		if (!fieldPath) return "";
+
+		// Determine type based on field name and constraint
+		let typeString = "any";
+		let required = false;
+		let array = false;
+
+		// Apply constraints
+		if (constraint.min !== undefined && constraint.min > 0) {
+			required = true;
+		}
+
+		if (constraint.max === "*") {
+			array = true;
+		}
+
+		// Handle specific field types based on common FHIR field names
+		switch (fieldPath) {
+			case "status":
+				typeString = "string";
+				break;
+			case "category":
+				typeString = "CodeableConcept";
+				array = true;
+				this.imports.set("CodeableConcept", "../CodeableConcept");
+				break;
+			case "code":
+				typeString = "CodeableConcept";
+				this.imports.set("CodeableConcept", "../CodeableConcept");
+				break;
+			case "subject":
+				typeString = "Reference";
+				this.imports.set("Reference", "../Reference");
+				break;
+			case "effective":
+			case "effectiveDateTime":
+				typeString = "string";
+				break;
+			case "effectivePeriod":
+				typeString = "Period";
+				this.imports.set("Period", "../Period");
+				break;
+			case "dataAbsentReason":
+				typeString = "CodeableConcept";
+				this.imports.set("CodeableConcept", "../CodeableConcept");
+				break;
+			case "component":
+				typeString = "any"; // Component is complex
+				array = true;
+				break;
+			default:
+				// For enum constraints, use the enum values
+				if (constraint.binding && constraint.binding.strength === "required") {
+					// Would need value set expansion here
+					typeString = "string";
+				}
+		}
+
+		// Apply fixed value constraint
+		if (constraint.fixedValue !== undefined) {
+			if (typeof constraint.fixedValue === "string") {
+				typeString = `'${constraint.fixedValue}'`;
+			} else {
+				typeString = JSON.stringify(constraint.fixedValue);
+			}
+		}
+
+		const optional = !required ? "?" : "";
+		const arrayType = array ? "[]" : "";
+
+		return `${fieldPath}${optional}: ${typeString}${arrayType};`;
+	}
+
+	/**
+	 * Generate validation logic for a specific constraint
+	 */
+	private generateConstraintValidation(
+		lines: string[],
+		path: string,
+		constraint: any,
+	): void {
+		const fieldPath = path.includes(".") ? path.split(".").pop() : path;
+
+		// Cardinality validation
+		if (constraint.min !== undefined && constraint.min > 0) {
+			if (constraint.min === 1) {
+				lines.push(`\tif (!typed.${fieldPath}) {`);
+				lines.push(
+					`\t\terrors.push('${fieldPath} is required for this profile');`,
+				);
+				lines.push("\t}");
+			} else {
+				lines.push(
+					`\tif (!typed.${fieldPath} || (Array.isArray(typed.${fieldPath}) && typed.${fieldPath}.length < ${constraint.min})) {`,
+				);
+				lines.push(
+					`\t\terrors.push('${fieldPath} must have at least ${constraint.min} item(s)');`,
+				);
+				lines.push("\t}");
+			}
+		}
+
+		// Fixed value validation
+		if (constraint.fixedValue !== undefined) {
+			const fixedValue =
+				typeof constraint.fixedValue === "string"
+					? `'${constraint.fixedValue}'`
+					: JSON.stringify(constraint.fixedValue);
+			lines.push(`\tif (typed.${fieldPath} !== ${fixedValue}) {`);
+			lines.push(
+				`\t\terrors.push('${fieldPath} must have fixed value ${fixedValue}');`,
+			);
+			lines.push("\t}");
+		}
+
+		// Value set binding validation (simplified)
+		if (constraint.binding && constraint.binding.strength === "required") {
+			lines.push(`\t// Required binding validation for ${fieldPath}`);
+			lines.push(
+				`\t// Note: Full value set validation requires external value set service`,
+			);
+		}
+	}
+
+	/**
+	 * Generate an enum type for a field with enumerated values
+	 */
+	private generateEnumType(
+		fieldName: string,
+		enumValues: string[],
+		baseName?: string,
+	): string {
+		// Create a type name based on the current schema and field
+		const prefix = baseName || this.currentSchemaName || "";
+		const enumTypeName = `${prefix}${this.toPascalCase(fieldName)}Values`;
+
+		// Store the enum type if not already stored
+		if (!this.enumTypes.has(enumTypeName)) {
+			this.enumTypes.set(enumTypeName, {
+				values: enumValues,
+				description: `Valid values for ${fieldName} field in ${prefix}`,
+			});
+			this.exports.add(enumTypeName);
+
+			// Also add to global enum types for cross-file reuse
+			if (!this.globalEnumTypes.has(enumTypeName)) {
+				this.globalEnumTypes.set(enumTypeName, {
+					values: enumValues,
+					description: `Valid values for ${fieldName} field in ${prefix}`,
+				});
+			}
+		}
+
+		return enumTypeName;
+	}
+
+	/**
+	 * Generate all enum type definitions
+	 */
+	private generateEnumTypes(): string {
+		const lines: string[] = [];
+
+		if (this.enumTypes.size > 0) {
+			lines.push("// Enum Types");
+			lines.push("");
+
+			for (const [typeName, enumDef] of this.enumTypes) {
+				if (enumDef.description) {
+					lines.push("/**");
+					lines.push(` * ${enumDef.description}`);
+					lines.push(" */");
+				}
+
+				// Generate as a union type
+				const unionType = enumDef.values.map((v) => `'${v}'`).join(" | ");
+				lines.push(`export type ${typeName} = ${unionType};`);
+				lines.push("");
+			}
+		}
+
+		return lines.join("\n");
+	}
+
+	/**
+	 * Convert string to PascalCase
+	 */
+	private toPascalCase(str: string): string {
+		return str.charAt(0).toUpperCase() + str.slice(1);
+	}
+
+	/**
+	 * Generate profile type guard function
+	 */
+	private generateProfileTypeGuard(
+		interfaceName: string,
+		schema: TypeSchema,
+	): string {
+		const lines: string[] = [];
+		const guardName = `is${interfaceName}`;
+
+		lines.push("/**");
+		lines.push(` * Type guard for ${interfaceName} profile`);
+		lines.push(" */");
+		lines.push(
+			`export function ${guardName}(resource: unknown): resource is ${interfaceName} {`,
+		);
+
+		// Check base type first
+		const baseInterface = this.getBaseInterface(schema);
+		if (baseInterface && !baseInterface.isPrimitive) {
+			// Import base type guard
+			this.imports.set(`is${baseInterface.value}`, `../${baseInterface.value}`);
+
+			lines.push(`\tif (!is${baseInterface.value}(resource)) return false;`);
+			lines.push("");
+			lines.push(`\tconst typed = resource as ${baseInterface.value};`);
+		} else {
+			lines.push(
+				`\tif (!resource || typeof resource !== 'object') return false;`,
+			);
+			lines.push("");
+			lines.push("\tconst typed = resource as any;");
+		}
+
+		// Add profile-specific constraint checks
+		if ((schema as any).constraints) {
+			lines.push("\t// Profile constraint checks");
+			let hasRequiredChecks = false;
+
+			for (const [path, constraint] of Object.entries(
+				(schema as any).constraints as Record<string, any>,
+			)) {
+				const fieldPath = path.includes(".") ? path.split(".").pop() : path;
+
+				// Check required fields (min cardinality > 0)
+				if (
+					(constraint as any).min !== undefined &&
+					(constraint as any).min > 0
+				) {
+					hasRequiredChecks = true;
+					if ((constraint as any).min === 1) {
+						lines.push(`\tif (!typed.${fieldPath}) return false;`);
+					} else {
+						lines.push(
+							`\tif (!typed.${fieldPath} || (Array.isArray(typed.${fieldPath}) && typed.${fieldPath}.length < ${(constraint as any).min})) return false;`,
+						);
+					}
+				}
+
+				// Check fixed values
+				if ((constraint as any).fixedValue !== undefined) {
+					hasRequiredChecks = true;
+					const fixedValue =
+						typeof (constraint as any).fixedValue === "string"
+							? `'${(constraint as any).fixedValue}'`
+							: JSON.stringify((constraint as any).fixedValue);
+					lines.push(
+						`\tif (typed.${fieldPath} !== ${fixedValue}) return false;`,
+					);
+				}
+			}
+
+			if (hasRequiredChecks) {
+				lines.push("");
+			}
+		}
+
+		// Add extension checks for known profile extensions
+		if ((schema as any).extensions && (schema as any).extensions.length > 0) {
+			lines.push("\t// Extension presence checks (simplified)");
+			for (const ext of (schema as any).extensions) {
+				if (ext.min && ext.min > 0) {
+					lines.push(`\t// Required extension: ${ext.profile}`);
+					lines.push(
+						`\t// Note: Full extension validation requires examining extension array`,
+					);
+				}
+			}
+			lines.push("");
+		}
+
+		lines.push("\treturn true;");
+		lines.push("}");
+
+		return lines.join("\n");
 	}
 }

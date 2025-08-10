@@ -6,9 +6,9 @@
  */
 
 import type {
-	TypeSchemaConfig,
 	Config,
 	RestClientConfig,
+	TypeSchemaConfig,
 	TypeScriptGeneratorConfig,
 } from "../config";
 import { Logger } from "../logger.ts";
@@ -18,8 +18,8 @@ import {
 	TypeSchemaGenerator,
 	TypeSchemaParser,
 } from "../typeschema";
-import { TypeScriptAPIGenerator } from "./generators/typescript";
 import { RestClientGenerator } from "./generators/rest-client";
+import { TypeScriptAPIGenerator } from "./generators/typescript";
 
 /**
  * Configuration options for the API builder
