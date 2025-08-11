@@ -56,8 +56,6 @@ export interface TypeScriptGeneratorConfig {
 	includeDocuments?: boolean;
 	namingConvention?: "PascalCase" | "camelCase";
 	strictMode?: boolean;
-	generateValidators?: boolean;
-	generateGuards?: boolean;
 	includeProfiles?: boolean;
 	includeExtensions?: boolean;
 	includeValueSets?: boolean;
@@ -72,7 +70,6 @@ export interface TypeScriptGeneratorConfig {
 		generateKind?: "interface" | "type" | "both";
 		includeConstraints?: boolean;
 		includeDocumentation?: boolean;
-		generateValidators?: boolean;
 		strictMode?: boolean;
 		subfolder?: string;
 	};
@@ -207,8 +204,6 @@ export const DEFAULT_CONFIG: Required<Config> = {
 		includeDocuments: false,
 		namingConvention: "PascalCase",
 		strictMode: true,
-		generateValidators: true,
-		generateGuards: true,
 		includeProfiles: true,
 		includeExtensions: false,
 		includeValueSets: true,
@@ -223,7 +218,6 @@ export const DEFAULT_CONFIG: Required<Config> = {
 			generateKind: "interface",
 			includeConstraints: true,
 			includeDocumentation: true,
-			generateValidators: true,
 			strictMode: false,
 			subfolder: "profiles",
 		},
@@ -481,8 +475,6 @@ export class ConfigValidator {
 			"generateIndex",
 			"includeDocuments",
 			"strictMode",
-			"generateValidators",
-			"generateGuards",
 			"includeProfiles",
 			"includeExtensions",
 		];
@@ -737,7 +729,6 @@ export class ConfigValidator {
 		const booleanFields = [
 			"includeConstraints",
 			"includeDocumentation",
-			"generateValidators",
 			"strictMode",
 		];
 

@@ -193,8 +193,6 @@ export const generateCommand: CommandModule<{}, GenerateArgs> = {
 						argv["naming-convention"] ||
 						config.typescript?.namingConvention ||
 						"PascalCase",
-					generateValidators: config.typescript?.generateValidators ?? true,
-					generateGuards: config.typescript?.generateGuards ?? true,
 					includeProfiles: config.typescript?.includeProfiles ?? false,
 				});
 			}

@@ -137,7 +137,7 @@ export class APIBuilder {
 	}
 
 	/**
-	 * Configure TypeScript generation with validation support
+	 * Configure TypeScript generation
 	 */
 	typescript(
 		options: {
@@ -147,12 +147,6 @@ export class APIBuilder {
 			namingConvention?: "PascalCase" | "camelCase";
 			includeExtensions?: boolean;
 			includeProfiles?: boolean;
-			// Validation options
-			generateValidators?: boolean;
-			generateGuards?: boolean;
-			generateBuilders?: boolean;
-			strictValidation?: boolean;
-			includePerformanceMetrics?: boolean;
 		} = {},
 	): APIBuilder {
 		// Hardcode types subfolder

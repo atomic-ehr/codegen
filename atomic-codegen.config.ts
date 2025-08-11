@@ -30,8 +30,6 @@ const config: Config = {
 		includeDocuments: true,
 		namingConvention: "PascalCase",
 		strictMode: true,
-		generateValidators: true,
-		generateGuards: true,
 		includeProfiles: true, // ✅ Enable FHIR profile generation
 		includeExtensions: false,
 
@@ -40,7 +38,6 @@ const config: Config = {
 			generateKind: "interface", // Generate TypeScript interfaces for profiles
 			includeConstraints: true, // Include profile constraints in generated types
 			includeDocumentation: true, // Generate JSDoc for profiles
-			generateValidators: false, // Generate profile validator functions
 			strictMode: false, // Relaxed mode for profile constraints
 			subfolder: "profiles", // Generate profiles in ./generated/profiles/
 		},
