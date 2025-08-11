@@ -222,9 +222,7 @@ export class TypeSchemaGenerator {
 
 		// Generate profiles if enabled
 		if (groupedSchemas.profiles.length > 0) {
-			this.logger.info(
-				`Enhancing ${groupedSchemas.profiles.length} profiles`,
-			);
+			this.logger.info(`Enhancing ${groupedSchemas.profiles.length} profiles`);
 			const profileResults = await this.enhanceProfiles(
 				groupedSchemas.profiles,
 			);

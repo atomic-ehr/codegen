@@ -40,7 +40,7 @@ const config: Config = {
 			generateKind: "interface", // Generate TypeScript interfaces for profiles
 			includeConstraints: true, // Include profile constraints in generated types
 			includeDocumentation: true, // Generate JSDoc for profiles
-			generateValidators: true, // Generate profile validator functions
+			generateValidators: false, // Generate profile validator functions
 			strictMode: false, // Relaxed mode for profile constraints
 			subfolder: "profiles", // Generate profiles in ./generated/profiles/
 		},

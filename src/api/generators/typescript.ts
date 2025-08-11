@@ -5,7 +5,7 @@
  * This wraps the core TypeSchema transformer with additional convenience features.
  */
 
-import { mkdir, writeFile } from "node:fs/promises";
+import { access, mkdir, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import {
 	isPolymorphicInstanceField,
@@ -105,6 +105,8 @@ export class TypeScriptAPIGenerator {
 	private resourceTypes = new Set<string>();
 	private currentSchemaName?: string;
 	private profileTypes = new Set<string>();
+	private profilesByPackage = new Map<string, string[]>();
+	private packageNameMap = new Map<string, string>(); // Maps sanitized name -> original name
 	private enumTypes = new Map<
 		string,
 		{ values: string[]; description?: string }
@@ -452,10 +454,14 @@ export class TypeScriptAPIGenerator {
 		const results = await this.transformSchemas(filteredSchemas);
 		const generatedFiles: GeneratedFile[] = [];
 
+		// Clean output directory if it exists
+		await this.cleanOutputDirectory();
+
 		// Ensure output directory and subfolders exist
 		await mkdir(this.options.outputDir, { recursive: true });
 
 		if (this.options.includeProfiles) {
+			// Create profiles directory - package subfolders will be created as needed
 			await mkdir(join(this.options.outputDir, "profiles"), {
 				recursive: true,
 			});
@@ -761,6 +767,24 @@ export class TypeScriptAPIGenerator {
 	}
 
 	/**
+	 * Clean the output directory by removing all existing files and subdirectories
+	 */
+	private async cleanOutputDirectory(): Promise<void> {
+		try {
+			// Check if the directory exists
+			await access(this.options.outputDir);
+			// If it exists, remove all its contents
+			this.logger.debug(`Cleaning output directory: ${this.options.outputDir}`);
+			await rm(this.options.outputDir, { recursive: true, force: true });
+		} catch (error) {
+			// Directory doesn't exist, no need to clean
+			if ((error as NodeJS.ErrnoException)?.code !== "ENOENT") {
+				this.logger.warn(`Failed to clean output directory: ${error}`);
+			}
+		}
+	}
+
+	/**
 	 * Filter schemas based on includeExtensions option
 	 */
 	private filterSchemas(schemas: TypeSchema[]): TypeSchema[] {
@@ -788,25 +812,139 @@ export class TypeScriptAPIGenerator {
 		}
 
 		for (const subfolder of subfolders) {
-			const subfolderResults = results.filter((r) =>
-				r.filename.startsWith(`${subfolder}/`),
-			);
+			if (subfolder === "profiles") {
+				// Handle profiles with package-based organization
+				await this.generateProfileIndexFiles(generatedFiles);
+			} else {
+				const subfolderResults = results.filter((r) =>
+					r.filename.startsWith(`${subfolder}/`),
+				);
 
-			// Always generate index file, even for empty directories
-			const indexContent = this.generateSubfolderIndex(
-				subfolderResults,
-				subfolder,
+				// Always generate index file, even for empty directories
+				const indexContent = this.generateSubfolderIndex(
+					subfolderResults,
+					subfolder,
+				);
+				const indexPath = join(this.options.outputDir, subfolder, "index.ts");
+				await writeFile(indexPath, indexContent, "utf-8");
+
+				generatedFiles.push({
+					path: indexPath,
+					filename: `${subfolder}/index.ts`,
+					content: indexContent,
+					exports: subfolderResults.flatMap((r) => r.exports),
+				});
+			}
+		}
+	}
+
+	/**
+	 * Generate profile index files with package-based organization
+	 */
+	private async generateProfileIndexFiles(
+		generatedFiles: GeneratedFile[],
+	): Promise<void> {
+		// Generate index file for each package
+		for (const [
+			packageName,
+			profileNames,
+		] of this.profilesByPackage.entries()) {
+			const packageIndexContent = this.generatePackageIndex(
+				packageName,
+				profileNames,
 			);
-			const indexPath = join(this.options.outputDir, subfolder, "index.ts");
-			await writeFile(indexPath, indexContent, "utf-8");
+			const packageIndexPath = join(
+				this.options.outputDir,
+				"profiles",
+				packageName,
+				"index.ts",
+			);
+			await writeFile(packageIndexPath, packageIndexContent, "utf-8");
 
 			generatedFiles.push({
-				path: indexPath,
-				filename: `${subfolder}/index.ts`,
-				content: indexContent,
-				exports: subfolderResults.flatMap((r) => r.exports),
+				path: packageIndexPath,
+				filename: `profiles/${packageName}/index.ts`,
+				content: packageIndexContent,
+				exports: profileNames,
 			});
 		}
+
+		// Generate main profiles index with namespace exports
+		const mainProfilesIndex = this.generateMainProfilesIndex();
+		const mainIndexPath = join(this.options.outputDir, "profiles", "index.ts");
+		await writeFile(mainIndexPath, mainProfilesIndex, "utf-8");
+
+		generatedFiles.push({
+			path: mainIndexPath,
+			filename: "profiles/index.ts",
+			content: mainProfilesIndex,
+			exports: Array.from(this.profilesByPackage.keys()),
+		});
+	}
+
+	/**
+	 * Generate index file for a specific package
+	 */
+	private generatePackageIndex(
+		packageName: string,
+		profileNames: string[],
+	): string {
+		const lines: string[] = [];
+
+		lines.push("/**");
+		lines.push(` * ${packageName} Profiles Index`);
+		lines.push(" * ");
+		lines.push(
+			" * Auto-generated exports for all profile types in this package.",
+		);
+		lines.push(" */");
+		lines.push("");
+
+		// If no profiles, export empty object
+		if (profileNames.length === 0) {
+			lines.push("// No profiles in this package");
+			lines.push("export {};");
+			return lines.join("\n");
+		}
+
+		// Export all profiles from their files
+		for (const profileName of profileNames) {
+			lines.push(`export type { ${profileName} } from './${profileName}';`);
+		}
+
+		return lines.join("\n");
+	}
+
+	/**
+	 * Generate main profiles index with namespace exports
+	 */
+	private generateMainProfilesIndex(): string {
+		const lines: string[] = [];
+
+		lines.push("/**");
+		lines.push(" * Profiles Index");
+		lines.push(" * ");
+		lines.push(" * Auto-generated namespace exports for all profile packages.");
+		lines.push(" */");
+		lines.push("");
+
+		// If no packages, export empty object
+		if (this.profilesByPackage.size === 0) {
+			lines.push("// No profile packages found");
+			lines.push("export {};");
+			return lines.join("\n");
+		}
+
+		// Export each package as a namespace
+		for (const sanitizedPackageName of this.profilesByPackage.keys()) {
+			const originalPackageName = this.packageNameMap.get(sanitizedPackageName)!;
+			const namespaceNameForExport = this.generateNamespaceName(originalPackageName);
+			lines.push(
+				`export * as ${namespaceNameForExport} from './${sanitizedPackageName}';`,
+			);
+		}
+
+		return lines.join("\n");
 	}
 
 	/**
@@ -887,14 +1025,19 @@ export class TypeScriptAPIGenerator {
 	 */
 	private getBaseInterface(
 		schema: TypeSchema,
-	): { isPrimitive: boolean; value: string } | null {
+	): { isPrimitive: boolean; value: string; baseIdentifier?: TypeSchemaIdentifier } | null {
 		// Handle profiles (which have kind: "profile") as well as resources/complex-types
 		if (
 			(isTypeSchemaForResourceComplexTypeLogical(schema) ||
 				schema.identifier.kind === "profile") &&
 			(schema as any).base
 		) {
-			return this.getType((schema as any).base);
+			const baseIdentifier = (schema as any).base as TypeSchemaIdentifier;
+			const typeInfo = this.getType(baseIdentifier);
+			return {
+				...typeInfo,
+				baseIdentifier
+			};
 		}
 		return null;
 	}
@@ -905,13 +1048,67 @@ export class TypeScriptAPIGenerator {
 	private getFilename(identifier: TypeSchemaIdentifier): string {
 		const name = toPascalCase(identifier.name);
 
-		// Place profiles in subfolder if configured
+		// Place profiles in package-based subfolder if configured
 		if (identifier.kind === "profile" && this.options.includeProfiles) {
-			const subfolder = "profiles"; // Could be made configurable
+			const originalPackageName = identifier.package;
+			const sanitizedPackageName = this.sanitizePackageName(originalPackageName);
+			const subfolder = `profiles/${sanitizedPackageName}`;
+
+			// Track profiles by package for index generation
+			if (!this.profilesByPackage.has(sanitizedPackageName)) {
+				this.profilesByPackage.set(sanitizedPackageName, []);
+				this.packageNameMap.set(sanitizedPackageName, originalPackageName);
+			}
+			this.profilesByPackage.get(sanitizedPackageName)!.push(name);
+
 			return `${subfolder}/${name}.ts`;
 		}
 
 		return `${name}.ts`;
+	}
+
+	/**
+	 * Sanitize package name for use as directory name
+	 */
+	private sanitizePackageName(packageName: string): string {
+		// Convert package name to a safe directory name
+		return packageName
+			.replace(/[@/\.]/g, "-") // Replace @, /, and . with -
+			.replace(/[^a-zA-Z0-9\-_]/g, "") // Remove other special chars
+			.toLowerCase();
+	}
+
+	/**
+	 * Generate namespace name from original package name by capitalizing each dot-separated segment
+	 */
+	private generateNamespaceName(originalPackageName: string): string {
+		// Split by dots and capitalize each segment
+		return originalPackageName
+			.split(".")
+			.map(segment => this.toPascalCase(segment))
+			.join("");
+	}
+
+	/**
+	 * Calculate the correct import path from current profile to base type
+	 */
+	private calculateImportPath(currentSchema: TypeSchema, baseIdentifier: TypeSchemaIdentifier): string {
+		if (baseIdentifier.kind === "profile") {
+			// Base is another profile - calculate relative path between profile directories
+			const currentPackage = this.sanitizePackageName(currentSchema.identifier.package);
+			const basePackage = this.sanitizePackageName(baseIdentifier.package);
+			
+			if (currentPackage === basePackage) {
+				// Same package - import from same directory
+				return `./${this.formatTypeName(baseIdentifier.name)}`;
+			} else {
+				// Different package - import from sibling package directory
+				return `../${basePackage}/${this.formatTypeName(baseIdentifier.name)}`;
+			}
+		} else {
+			// Base is a regular resource/complex-type - import from types root
+			return `../../${this.formatTypeName(baseIdentifier.name)}`;
+		}
 	}
 
 	/**
@@ -962,10 +1159,10 @@ export class TypeScriptAPIGenerator {
 
 		// Get base interface (profiles should always have a base)
 		const baseInterface = this.getBaseInterface(schema);
-		if (baseInterface && !baseInterface.isPrimitive) {
-			// Import base from parent directory if in profiles subfolder
-			const importPath = baseInterface.value;
-			this.imports.set(baseInterface.value, `../${importPath}`);
+		if (baseInterface && !baseInterface.isPrimitive && baseInterface.baseIdentifier) {
+			// Calculate correct import path based on whether base is a profile or resource
+			const importPath = this.calculateImportPath(schema, baseInterface.baseIdentifier);
+			this.imports.set(baseInterface.value, importPath);
 			lines.push(
 				`export interface ${interfaceName} extends ${baseInterface.value} {`,
 			);
@@ -1067,8 +1264,9 @@ export class TypeScriptAPIGenerator {
 			} else if (field.type) {
 				const subType = this.getType(field.type);
 				if (!subType.isPrimitive) {
-					// Import from parent directory for profiles
-					this.imports.set(subType.value, `../${subType.value}`);
+					// Calculate correct import path for profile field types
+					const importPath = this.calculateImportPath(schema, field.type);
+					this.imports.set(subType.value, importPath);
 				}
 				typeString = subType.value;
 			}
@@ -1081,7 +1279,9 @@ export class TypeScriptAPIGenerator {
 			} else if (field.type) {
 				const subType = this.getType(field.type);
 				if (!subType.isPrimitive) {
-					this.imports.set(subType.value, `../${subType.value}`);
+					// Calculate correct import path for profile field types
+					const importPath = this.calculateImportPath(schema, field.type);
+					this.imports.set(subType.value, importPath);
 				}
 				typeString = subType.value;
 			}
@@ -1135,9 +1335,13 @@ export class TypeScriptAPIGenerator {
 
 		// Get base validator if exists
 		const baseInterface = this.getBaseInterface(schema);
-		if (baseInterface && !baseInterface.isPrimitive) {
-			// Import base type guard
-			this.imports.set(`is${baseInterface.value}`, `../${baseInterface.value}`);
+		if (baseInterface && !baseInterface.isPrimitive && baseInterface.baseIdentifier) {
+			// Calculate correct import path for base type guard
+			const importPath = this.calculateImportPath(schema, baseInterface.baseIdentifier);
+			this.imports.set(
+				`is${baseInterface.value}`,
+				importPath,
+			);
 
 			lines.push(`\t// Validate base resource`);
 			lines.push(`\tif (!is${baseInterface.value}(resource)) {`);
@@ -1189,7 +1393,7 @@ export class TypeScriptAPIGenerator {
 		lines.push("}");
 
 		// Add ValidationResult type if not imported
-		this.imports.set("ValidationResult", "../types");
+		this.imports.set("ValidationResult", "../../types");
 
 		return lines.join("\n");
 	}
@@ -1412,9 +1616,13 @@ export class TypeScriptAPIGenerator {
 
 		// Check base type first
 		const baseInterface = this.getBaseInterface(schema);
-		if (baseInterface && !baseInterface.isPrimitive) {
-			// Import base type guard
-			this.imports.set(`is${baseInterface.value}`, `../${baseInterface.value}`);
+		if (baseInterface && !baseInterface.isPrimitive && baseInterface.baseIdentifier) {
+			// Calculate correct import path for base type guard
+			const importPath = this.calculateImportPath(schema, baseInterface.baseIdentifier);
+			this.imports.set(
+				`is${baseInterface.value}`,
+				importPath,
+			);
 
 			lines.push(`\tif (!is${baseInterface.value}(resource)) return false;`);
 			lines.push("");
