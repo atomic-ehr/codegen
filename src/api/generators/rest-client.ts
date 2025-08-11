@@ -583,7 +583,7 @@ export interface FHIRError extends Error {
 	/**
 	 * Get current options
 	 */
-	getOptions(): Required<RestClientOptions> {
+	getOptions(): RestClientOptions {
 		return { ...this.options };
 	}
 

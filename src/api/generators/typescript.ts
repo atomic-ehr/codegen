@@ -612,7 +612,7 @@ export class TypeScriptAPIGenerator {
 	/**
 	 * Get current options
 	 */
-	getOptions(): Required<TypeScriptAPIOptions> {
+	getOptions(): TypeScriptAPIOptions {
 		return { ...this.options };
 	}
 

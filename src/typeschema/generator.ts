@@ -186,17 +186,9 @@ export class TypeSchemaGenerator {
 		fhirSchema: FHIRSchema,
 		packageInfo?: PackageInfo,
 	): Promise<TypeSchema[]> {
-		await this.logger.info(
-			"Transforming FHIR schema to TypeSchema",
-			{
-				url: fhirSchema.url,
-				name: fhirSchema.name || "unnamed",
-				schemaType: fhirSchema.type,
-			},
-			"transformSchema",
-		);
+		this.logger.info("Transforming FHIR schema to TypeSchema");
 
-		return await transformFHIRSchema(fhirSchema, this.manager, packageInfo);
+		return transformFHIRSchema(fhirSchema, this.manager, packageInfo);
 	}
 
 	/**
@@ -206,10 +198,8 @@ export class TypeSchemaGenerator {
 		fhirSchemas: FHIRSchema[],
 		packageInfo?: PackageInfo,
 	): Promise<TypeSchema[]> {
-		await this.logger.info(
-			`Transforming multiple FHIR schemas to TypeSchema`,
-			{ count: fhirSchemas.length },
-			"transformSchemas",
+		this.logger.info(
+			`Transforming ${fhirSchemas.length} FHIR schemas to TypeSchema`,
 		);
 
 		// First, transform FHIR schemas to TypeSchemas using the core transformer
@@ -232,10 +222,8 @@ export class TypeSchemaGenerator {
 
 		// Generate profiles if enabled
 		if (groupedSchemas.profiles.length > 0) {
-			await this.logger.info(
-				"Enhancing profiles",
-				{ count: groupedSchemas.profiles.length },
-				"enhanceProfiles",
+			this.logger.info(
+				`Enhancing ${groupedSchemas.profiles.length} profiles`,
 			);
 			const profileResults = await this.enhanceProfiles(
 				groupedSchemas.profiles,
@@ -245,10 +233,8 @@ export class TypeSchemaGenerator {
 
 		// Generate extensions if enabled
 		if (groupedSchemas.extensions.length > 0) {
-			await this.logger.info(
-				"Enhancing extensions",
-				{ count: groupedSchemas.extensions.length },
-				"enhanceExtensions",
+			this.logger.info(
+				`Enhancing ${groupedSchemas.extensions.length} extensions`,
 			);
 			const extensionResults = await this.enhanceExtensions(
 				groupedSchemas.extensions,
@@ -258,10 +244,8 @@ export class TypeSchemaGenerator {
 
 		// Generate value sets if enabled
 		if (groupedSchemas.valueSets.length > 0) {
-			await this.logger.info(
-				"Enhancing value sets",
-				{ count: groupedSchemas.valueSets.length },
-				"enhanceValueSets",
+			this.logger.info(
+				`Enhancing ${groupedSchemas.valueSets.length} value sets`,
 			);
 			const valueSetResults = await this.enhanceValueSets(
 				groupedSchemas.valueSets,
@@ -271,10 +255,8 @@ export class TypeSchemaGenerator {
 
 		// Generate code systems if enabled
 		if (groupedSchemas.codeSystems.length > 0) {
-			await this.logger.info(
-				"Enhancing code systems",
-				{ count: groupedSchemas.codeSystems.length },
-				"enhanceCodeSystems",
+			this.logger.info(
+				`Enhancing ${groupedSchemas.codeSystems.length} code systems`,
 			);
 			const codeSystemResults = await this.enhanceCodeSystems(
 				groupedSchemas.codeSystems,
@@ -282,16 +264,9 @@ export class TypeSchemaGenerator {
 			results.push(...codeSystemResults);
 		}
 
-		await this.logger.info("Generated enhanced FHIR type schemas", {
-			totalSchemas: results.length,
-			resources: groupedSchemas.resources.length,
-			complexTypes: groupedSchemas.complexTypes.length,
-			primitives: groupedSchemas.primitives.length,
-			profiles: groupedSchemas.profiles.length,
-			extensions: groupedSchemas.extensions.length,
-			valueSets: groupedSchemas.valueSets.length,
-			codeSystems: groupedSchemas.codeSystems.length,
-		});
+		this.logger.success(
+			`Generated ${results.length} enhanced FHIR type schemas: ${groupedSchemas.resources.length} resources, ${groupedSchemas.complexTypes.length} complex types, ${groupedSchemas.primitives.length} primitives`,
+		);
 
 		return results;
 	}
