@@ -12,7 +12,8 @@ import {
 	translate,
 } from "@atomic-ehr/fhirschema";
 import type { TypeSchemaConfig } from "../config";
-import { Logger } from "../logger";
+import type { CodegenLogger } from "../utils/codegen-logger";
+import { createLogger } from "../utils/codegen-logger";
 import { TypeSchemaCache } from "./cache";
 import { transformFHIRSchema, transformFHIRSchemas } from "./core/transformer";
 import type {
@@ -32,7 +33,7 @@ export class TypeSchemaGenerator {
 	private options: TypeschemaGeneratorOptions;
 	private cache: TypeSchemaCache | null = null;
 	private cacheConfig?: TypeSchemaConfig;
-	private logger: Logger;
+	private logger: CodegenLogger;
 
 	constructor(
 		options: TypeschemaGeneratorOptions = {},
@@ -46,10 +47,12 @@ export class TypeSchemaGenerator {
 		};
 		this.manager = CanonicalManager({ packages: [], workingDir: "tmp/fhir" });
 		this.cacheConfig = cacheConfig;
-		this.logger = new Logger({
-			component: "TypeSchemaGenerator",
-			level: this.options.verbose ? 0 : 1,
-		});
+		this.logger =
+			options.logger ||
+			createLogger({
+				verbose: this.options.verbose,
+				prefix: "TypeSchema",
+			});
 	}
 
 	/**
@@ -79,18 +82,15 @@ export class TypeSchemaGenerator {
 		if (this.cache && !forceRegenerate) {
 			const cachedSchemas = this.cache.getByPackage(packageName);
 			if (cachedSchemas.length > 0) {
-				await this.logger.info(
-					`Using cached TypeSchemas for package: ${packageName}`,
-					{ schemasCount: cachedSchemas.length },
+				this.logger.info(
+					`Using cached TypeSchemas for package: ${packageName} (${cachedSchemas.length} schemas)`,
 				);
 				return cachedSchemas;
 			}
 		}
 
-		await this.logger.info(
+		this.logger.step(
 			`Loading FHIR package: ${packageName}${packageVersion ? `@${packageVersion}` : ""}`,
-			{ packageName, packageVersion: packageVersion || "latest" },
-			"loadPackage",
 		);
 
 		// Initialize FHIR canonical manager to load packages
@@ -110,20 +110,13 @@ export class TypeSchemaGenerator {
 			(resource) => resource.resourceType === "ValueSet",
 		);
 
-		await this.logger.info(
-			`Found resources in package`,
-			{
-				structureDefinitions: structureDefinitions.length,
-				valueSets: valueSets.length,
-			},
-			"scanPackage",
+		this.logger.info(
+			`Found ${structureDefinitions.length} StructureDefinitions and ${valueSets.length} ValueSets in package`,
 		);
 
 		// Convert StructureDefinitions to FHIRSchemas
-		await this.logger.info(
-			"Converting StructureDefinitions to FHIRSchemas",
-			{ total: structureDefinitions.length },
-			"convertSchemas",
+		this.logger.progress(
+			`Converting ${structureDefinitions.length} StructureDefinitions to FHIRSchemas`,
 		);
 
 		const fhirSchemas: FHIRSchema[] = [];
@@ -136,37 +129,27 @@ export class TypeSchemaGenerator {
 				fhirSchemas.push(fhirSchema);
 				convertedCount++;
 
-				await this.logger.debug(
-					`Converted StructureDefinition: ${sd.name || sd.id}`,
-					{ resourceType: sd.resourceType, url: sd.url },
+				this.logger.debug(
+					`Converted StructureDefinition: ${sd.name || sd.id} (${sd.resourceType})`,
 				);
 			} catch (error) {
 				failedCount++;
-				await this.logger.warn(`Failed to convert StructureDefinition`, {
-					name: sd.name || sd.id,
-					resourceType: sd.resourceType,
-					error: error instanceof Error ? error.message : String(error),
-				});
+				this.logger.warn(
+					`Failed to convert StructureDefinition ${sd.name || sd.id}: ${error instanceof Error ? error.message : String(error)}`,
+				);
 			}
 		}
 
-		await this.logger.info(
-			"Schema conversion completed",
-			{
-				converted: convertedCount,
-				failed: failedCount,
-				total: structureDefinitions.length,
-			},
-			"convertSchemas",
+		this.logger.success(
+			`Schema conversion completed: ${convertedCount}/${structureDefinitions.length} successful, ${failedCount} failed`,
 		);
 
 		// Store ValueSets for enum extraction during binding processing
 		// The CanonicalManager will handle ValueSet resolution, but we ensure they're available
 		if (valueSets.length > 0) {
-			await this.logger.debug("ValueSets available for enum extraction", {
-				count: valueSets.length,
-				valueSets: valueSets.map((vs) => vs.name || vs.id).slice(0, 10),
-			});
+			this.logger.debug(
+				`${valueSets.length} ValueSets available for enum extraction`,
+			);
 		}
 
 		// Create package info
@@ -180,19 +163,17 @@ export class TypeSchemaGenerator {
 
 		// Cache the generated schemas if caching is enabled
 		if (this.cache && schemas.length > 0) {
-			await this.logger.info(
-				"Caching generated schemas",
-				{ count: schemas.length, packageName },
-				"cacheSchemas",
+			this.logger.info(
+				`Caching ${schemas.length} generated schemas for package: ${packageName}`,
 			);
 
 			for (const schema of schemas) {
 				await this.cache.set(schema);
 			}
 
-			await this.logger.info(`Cached TypeSchemas for package: ${packageName}`, {
-				count: schemas.length,
-			});
+			this.logger.success(
+				`Cached ${schemas.length} TypeSchemas for package: ${packageName}`,
+			);
 		}
 
 		return schemas;

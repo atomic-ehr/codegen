@@ -6,6 +6,8 @@
  */
 
 import type { TypeSchema } from "../../typeschema";
+import type { CodegenLogger } from "../../utils/codegen-logger";
+import { createLogger } from "../../utils/codegen-logger";
 
 /**
  * Search parameter modifier types for enhanced type safety
@@ -128,6 +130,7 @@ export class SearchParameterEnhancer {
 	>();
 	private autocompleteEnabled: boolean;
 	private valueSetEnumsEnabled: boolean;
+	private logger: CodegenLogger;
 	private availableEnumTypes = new Map<string, string>();
 	private static readonly BASE_PARAM_NAMES: readonly string[] = [
 		"_count",
@@ -144,11 +147,16 @@ export class SearchParameterEnhancer {
 		"_content",
 	];
 
-	constructor(options?: { autocomplete?: boolean; valueSetEnums?: boolean }) {
+	constructor(options?: {
+		autocomplete?: boolean;
+		valueSetEnums?: boolean;
+		logger?: CodegenLogger;
+	}) {
 		this.autocompleteEnabled = !!options?.autocomplete;
 		this.valueSetEnumsEnabled = !!options?.valueSetEnums;
-		console.log(
-			`[DEBUG] SearchParameterEnhancer initialized: autocomplete=${this.autocompleteEnabled}, valueSetEnums=${this.valueSetEnumsEnabled}`,
+		this.logger = options?.logger || createLogger({ prefix: "SearchParam" });
+		this.logger.debug(
+			`SearchParameterEnhancer initialized: autocomplete=${this.autocompleteEnabled}, valueSetEnums=${this.valueSetEnumsEnabled}`,
 		);
 	}
 

@@ -287,7 +287,7 @@ export const DEFAULT_CONFIG: Required<Config> = {
 	},
 	packages: [],
 	files: [],
-	$schema: "https://atomic-ehr.github.io/codegen/config-schema.json",
+	$schema: "",
 };
 
 /**

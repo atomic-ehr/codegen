@@ -6,6 +6,7 @@
 
 import { APIBuilder } from "../../../api";
 import type { Config } from "../../../config";
+import { createLogger } from "../../utils/log";
 import type { CLIArgv } from "../index";
 
 interface TypeScriptGenerateArgs extends CLIArgv {
@@ -44,9 +45,12 @@ export async function generateTypeScript(
 	config: Config,
 	inputPath?: string,
 ): Promise<void> {
-	if (config.verbose) {
-		console.log("🚀 Generating TypeScript types using high-level API...");
-	}
+	const log = createLogger({
+		verbose: config.verbose,
+		prefix: "TypeScript",
+	});
+
+	log.step("Generating TypeScript types using high-level API");
 
 	// Create API builder with config options
 	const builder = new APIBuilder({
@@ -59,9 +63,7 @@ export async function generateTypeScript(
 
 	// Load TypeSchema from input path if provided
 	if (inputPath) {
-		if (config.verbose) {
-			console.log(`📁 Loading TypeSchema from: ${inputPath}`);
-		}
+		log.info(`Loading TypeSchema from: ${inputPath}`);
 		builder.fromFiles(inputPath);
 	}
 
@@ -72,7 +74,7 @@ export async function generateTypeScript(
 	if (config.verbose) {
 		builder.onProgress((phase, current, total, message) => {
 			const progress = Math.round((current / total) * 100);
-			console.log(`[${phase}] ${progress}% - ${message || "Processing..."}`);
+			log.progress(`[${phase}] ${progress}% - ${message || "Processing..."}`);
 		});
 	}
 
@@ -80,14 +82,15 @@ export async function generateTypeScript(
 	const result = await builder.generate();
 
 	if (result.success) {
-		console.log(
-			`✨ Successfully generated ${result.filesGenerated.length} TypeScript files in ${result.duration.toFixed(2)}ms`,
+		log.success(
+			`Generated ${result.filesGenerated.length} TypeScript files in ${result.duration.toFixed(2)}ms`,
 		);
 		if (result.warnings.length > 0) {
-			console.warn(`⚠️  ${result.warnings.length} warnings:`);
-			result.warnings.forEach((warning) => console.warn(`  ${warning}`));
+			log.warn(`${result.warnings.length} warnings found`);
+			result.warnings.forEach((warning) => log.dim(`  ${warning}`));
 		}
 	} else {
+		log.error(`TypeScript generation failed: ${result.errors.join(", ")}`);
 		throw new Error(
 			`TypeScript generation failed: ${result.errors.join(", ")}`,
 		);

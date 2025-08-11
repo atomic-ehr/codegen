@@ -19,6 +19,8 @@ import {
 	type TypeSchemaIdentifier,
 } from "../../typeschema";
 import { toPascalCase } from "../../utils";
+import type { CodegenLogger } from "../../utils/codegen-logger";
+import { createLogger } from "../../utils/codegen-logger";
 
 type MakeRequiredNonNullable<T, K extends keyof T> = Omit<T, K> & {
 	[P in K]-?: NonNullable<T[P]>;
@@ -35,6 +37,7 @@ export interface TypeScriptAPIOptions {
 	namingConvention?: "PascalCase" | "camelCase";
 	includeExtensions?: boolean;
 	includeProfiles?: boolean;
+	logger?: CodegenLogger;
 }
 
 /**
@@ -94,7 +97,9 @@ const PRIMITIVE_TYPE_MAP: Record<string, string> = {
  * features like index generation, documentation, and flexible output options.
  */
 export class TypeScriptAPIGenerator {
-	private options: Required<TypeScriptAPIOptions>;
+	private options: Required<Omit<TypeScriptAPIOptions, "logger">> & {
+		logger?: CodegenLogger;
+	};
 	private imports = new Map<string, string>();
 	private exports = new Set<string>();
 	private resourceTypes = new Set<string>();
@@ -109,6 +114,7 @@ export class TypeScriptAPIGenerator {
 		{ values: string[]; description?: string }
 	>();
 	private fieldEnumMap = new Map<string, string>();
+	private logger: CodegenLogger;
 
 	constructor(options: TypeScriptAPIOptions) {
 		this.options = {
@@ -120,6 +126,7 @@ export class TypeScriptAPIGenerator {
 			includeProfiles: false,
 			...options,
 		};
+		this.logger = options.logger || createLogger({ prefix: "TypeScript" });
 	}
 
 	/**
@@ -147,7 +154,7 @@ export class TypeScriptAPIGenerator {
 		}
 
 		if (this.currentSchemaName === "Uri") {
-			console.log(schema);
+			this.logger.debug(`Processing schema: ${schema.identifier.name}`);
 		}
 
 		// Clear state for new transformation
@@ -485,10 +492,7 @@ export class TypeScriptAPIGenerator {
 			filename: "utility.ts",
 			content: utilityContent,
 			imports: new Map(),
-			exports: [
-				"ResourceTypes",
-				...Array.from(this.globalEnumTypes.keys()),
-			],
+			exports: ["ResourceTypes", ...Array.from(this.globalEnumTypes.keys())],
 		});
 
 		// Write individual type files

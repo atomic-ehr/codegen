@@ -17,7 +17,6 @@ import type { Config } from "./src/config";
  *    - Add multiple packages to both packages and typeSchema.profiles.packages arrays
  */
 const config: Config = {
-	$schema: "https://atomic-ehr.github.io/codegen/config-schema.json",
 	outputDir: "./generated",
 	verbose: false,
 	overwrite: true,

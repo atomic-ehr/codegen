@@ -9,6 +9,8 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import type { RestClientConfig } from "../../config";
 import type { TypeSchema, TypeSchemaIdentifier } from "../../typeschema";
+import type { CodegenLogger } from "../../utils/codegen-logger";
+import { createLogger } from "../../utils/codegen-logger";
 import { SearchParameterEnhancer } from "./search-parameter-enhancer";
 import { ValidationGenerator } from "./validation-generator";
 
@@ -18,6 +20,7 @@ import { ValidationGenerator } from "./validation-generator";
  */
 export interface RestClientOptions extends RestClientConfig {
 	outputDir: string;
+	logger?: CodegenLogger;
 }
 
 /**
@@ -37,10 +40,13 @@ export interface GeneratedRestClient {
  * available resource types.
  */
 export class RestClientGenerator {
-	private options: Required<RestClientOptions>;
+	private options: Required<Omit<RestClientOptions, "logger">> & {
+		logger?: CodegenLogger;
+	};
 	private resourceTypes = new Set<string>();
 	private searchParameterEnhancer: SearchParameterEnhancer;
 	private validationGenerator: ValidationGenerator;
+	private logger: CodegenLogger;
 
 	constructor(options: RestClientOptions) {
 		this.options = {
@@ -62,11 +68,13 @@ export class RestClientGenerator {
 			generateValueSetEnums: true,
 			...options,
 		};
-		console.log(`[DEBUG] REST client configured with options:`, this.options);
+		this.logger = options.logger || createLogger({ prefix: "REST" });
+		this.logger.debug(`REST client configured: ${this.options.clientName}`);
 
 		this.searchParameterEnhancer = new SearchParameterEnhancer({
 			autocomplete: this.options.searchAutocomplete ?? false,
 			valueSetEnums: this.options.generateValueSetEnums ?? false,
+			logger: this.logger.child("Search"),
 		});
 		this.validationGenerator = new ValidationGenerator();
 	}
@@ -925,26 +933,22 @@ export interface FHIRError extends Error {
  */
 
 // Import all the resource types
-${resourceTypesArray.map(type => `import type { ${type} } from '../types/${type}';`).join('\n')}
+${resourceTypesArray.map((type) => `import type { ${type} } from '../types/${type}';`).join("\n")}
 
-export type ResourceTypes = ${resourceTypesArray.map(type => `'${type}'`).join(' | ')};
+export type ResourceTypes = ${resourceTypesArray.map((type) => `'${type}'`).join(" | ")};
 
 /**
  * Resource type mapping from resource type strings to interfaces
  */
 export type ResourceTypeMap = {
-${resourceTypesArray.map(type => `  '${type}': ${type};`).join('\n')}
+${resourceTypesArray.map((type) => `  '${type}': ${type};`).join("\n")}
 };
 `;
 
 		return {
 			filename: "utility.ts",
 			content: content,
-			exports: [
-				"ResourceTypes",
-				"ResourceTypeMap",
-				...resourceTypesArray,
-			],
+			exports: ["ResourceTypes", "ResourceTypeMap", ...resourceTypesArray],
 		};
 	}
 

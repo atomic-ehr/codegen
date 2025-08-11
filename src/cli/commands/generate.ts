@@ -7,7 +7,7 @@
 import type { CommandModule } from "yargs";
 import { APIBuilder } from "../../api";
 import { loadConfig } from "../../config";
-import { createLoggerFromConfig } from "../../logger.ts";
+import { createLogger, error, step, success, warn } from "../utils/log";
 import type { CLIArgv } from "./index";
 
 interface GenerateArgs extends CLIArgv {
@@ -102,22 +102,18 @@ export const generateCommand: CommandModule<{}, GenerateArgs> = {
 		const verbose = argv.verbose ?? config.verbose ?? false;
 
 		// Create logger for CLI command
-		const logger = createLoggerFromConfig({
+		const logger = createLogger({
 			verbose,
-			component: "CLI-Generate",
+			prefix: "Generate",
 		});
 
 		try {
-			await logger.info(
-				"Starting high-level API generation",
-				{
-					generator,
-					configDir: process.cwd(),
-					packages: config.packages?.length || 0,
-					files: config.files?.length || 0,
-				},
-				"startGeneration",
-			);
+			step(`Starting ${generator} generation`);
+			if (verbose) {
+				logger.info(`Config directory: ${process.cwd()}`);
+				logger.info(`Packages: ${config.packages?.length || 0}`);
+				logger.info(`Files: ${config.files?.length || 0}`);
+			}
 
 			// Create API builder with options (CLI args override config)
 			const builder = new APIBuilder({
@@ -126,15 +122,12 @@ export const generateCommand: CommandModule<{}, GenerateArgs> = {
 				overwrite: config.overwrite ?? true,
 				validate: config.validate ?? false, // Temporarily disable validation
 				cache: config.cache ?? true,
+				logger, // Pass the CLI logger to the API builder
 			});
 
 			// Load data sources - CLI args take priority over config
 			if (argv.packages && argv.packages.length > 0) {
-				await logger.info(
-					"Loading FHIR packages from CLI arguments",
-					{ packages: argv.packages },
-					"loadPackages",
-				);
+				logger.info(`Loading FHIR packages: ${argv.packages.join(", ")}`);
 				for (const packageSpec of argv.packages) {
 					const [name, version] = packageSpec.includes("@")
 						? packageSpec.split("@")
@@ -142,18 +135,12 @@ export const generateCommand: CommandModule<{}, GenerateArgs> = {
 					builder.fromPackage(name, version);
 				}
 			} else if (argv.input) {
-				await logger.info(
-					"Loading TypeSchema from CLI input",
-					{ input: argv.input },
-					"loadInput",
-				);
+				logger.info(`Loading TypeSchema from: ${argv.input}`);
 				builder.fromFiles(argv.input);
 			} else if (config.packages && config.packages.length > 0) {
 				// Use packages from config file
-				await logger.info(
-					"Loading packages from configuration file",
-					{ packages: config.packages },
-					"loadConfigPackages",
+				logger.info(
+					`Loading packages from config: ${config.packages.join(", ")}`,
 				);
 				for (const packageSpec of config.packages) {
 					const [name, version] = packageSpec.includes("@")
@@ -163,11 +150,7 @@ export const generateCommand: CommandModule<{}, GenerateArgs> = {
 				}
 			} else if (config.files && config.files.length > 0) {
 				// Use files from config
-				await logger.info(
-					"Loading files from configuration",
-					{ files: config.files },
-					"loadConfigFiles",
-				);
+				logger.info(`Loading files from config: ${config.files.join(", ")}`);
 				for (const file of config.files) {
 					builder.fromFiles(file);
 				}
@@ -182,26 +165,21 @@ export const generateCommand: CommandModule<{}, GenerateArgs> = {
 				argv.typescript || generator === "typescript" || generator === "ts";
 
 			if (shouldGenerateTypeScript) {
-				await logger.info(
-					"Configuring TypeScript generation",
-					{
-						moduleFormat:
-							argv.format || config.typescript?.moduleFormat || "esm",
-						generateIndex:
-							argv["generate-index"] ??
-							config.typescript?.generateIndex ??
-							true,
-						includeDocuments:
-							argv["include-docs"] ??
-							config.typescript?.includeDocuments ??
-							false,
-						namingConvention:
-							argv["naming-convention"] ||
-							config.typescript?.namingConvention ||
-							"PascalCase",
-					},
-					"configureTypeScript",
-				);
+				if (verbose) {
+					logger.info("Configuring TypeScript generation");
+					logger.debug(
+						`Module format: ${argv.format || config.typescript?.moduleFormat || "esm"}`,
+					);
+					logger.debug(
+						`Generate index: ${argv["generate-index"] ?? config.typescript?.generateIndex ?? true}`,
+					);
+					logger.debug(
+						`Include docs: ${argv["include-docs"] ?? config.typescript?.includeDocuments ?? false}`,
+					);
+					logger.debug(
+						`Naming convention: ${argv["naming-convention"] || config.typescript?.namingConvention || "PascalCase"}`,
+					);
+				}
 				builder.typescript({
 					// CLI args override config values
 					moduleFormat: argv.format || config.typescript?.moduleFormat || "esm",
@@ -229,51 +207,38 @@ export const generateCommand: CommandModule<{}, GenerateArgs> = {
 			if (verbose) {
 				builder.onProgress((phase, current, total, message) => {
 					const progress = Math.round((current / total) * 100);
-					logger.info(
-						`Generation progress: [${phase}] ${progress}%`,
-						{ phase, progress, message: message || "Processing..." },
-						"progress",
+					logger.progress(
+						`[${phase}] ${progress}% - ${message || "Processing..."}`,
 					);
 				});
 			}
 
 			// Execute generation
-			await logger.info("Executing generation", {}, "executeGeneration");
+			logger.step("Executing generation...");
 			const result = await builder.generate();
 
 			if (result.success) {
-				await logger.info(
-					"Generation completed successfully",
-					{
-						filesGenerated: result.filesGenerated.length,
-						duration: `${result.duration.toFixed(2)}ms`,
-						outputDir: result.outputDir,
-						warnings: result.warnings.length,
-					},
-					"generationSuccess",
+				success(
+					`Generated ${result.filesGenerated.length} files in ${result.duration.toFixed(2)}ms`,
 				);
+				logger.dim(`Output directory: ${result.outputDir}`);
 
 				if (result.warnings.length > 0) {
 					for (const warning of result.warnings) {
-						await logger.warn("Generation warning", { warning });
+						warn(warning);
 					}
 				}
 			} else {
-				await logger.error(
-					"Generation failed",
-					new Error("Generation process completed with errors"),
-					{
-						errorCount: result.errors.length,
-						errors: result.errors,
-					},
-				);
+				error(`Generation failed with ${result.errors.length} errors`);
+				for (const err of result.errors) {
+					logger.dim(`  ${err}`);
+				}
 				process.exit(1);
 			}
-		} catch (error) {
-			await logger.error(
+		} catch (err) {
+			error(
 				"Generation failed with unexpected error",
-				error instanceof Error ? error : new Error(String(error)),
-				{ verbose: argv.verbose },
+				err instanceof Error ? err : new Error(String(err)),
 			);
 			process.exit(1);
 		}

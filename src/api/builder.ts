@@ -11,13 +11,14 @@ import type {
 	TypeSchemaConfig,
 	TypeScriptGeneratorConfig,
 } from "../config";
-import { Logger } from "../logger.ts";
 import {
 	type TypeSchema,
 	TypeSchemaCache,
 	TypeSchemaGenerator,
 	TypeSchemaParser,
 } from "../typeschema";
+import type { CodegenLogger } from "../utils/codegen-logger";
+import { createLogger } from "../utils/codegen-logger";
 import { RestClientGenerator } from "./generators/rest-client";
 import { TypeScriptAPIGenerator } from "./generators/typescript";
 
@@ -31,6 +32,7 @@ export interface APIBuilderOptions {
 	validate?: boolean;
 	cache?: boolean;
 	typeSchemaConfig?: TypeSchemaConfig;
+	logger?: CodegenLogger;
 }
 
 /**
@@ -63,7 +65,10 @@ export interface GenerationResult {
  */
 export class APIBuilder {
 	private schemas: TypeSchema[] = [];
-	private options: Omit<Required<APIBuilderOptions>, "typeSchemaConfig"> & {
+	private options: Omit<
+		Required<APIBuilderOptions>,
+		"typeSchemaConfig" | "logger"
+	> & {
 		typeSchemaConfig?: TypeSchemaConfig;
 	};
 	private generators: Map<string, any> = new Map();
@@ -71,7 +76,7 @@ export class APIBuilder {
 	private cache?: TypeSchemaCache;
 	private pendingOperations: Promise<void>[] = [];
 	private typeSchemaGenerator?: TypeSchemaGenerator;
-	private logger: Logger;
+	private logger: CodegenLogger;
 
 	private typeSchemaConfig?: TypeSchemaConfig;
 
@@ -87,10 +92,13 @@ export class APIBuilder {
 
 		this.typeSchemaConfig = options.typeSchemaConfig;
 
-		this.logger = new Logger({
-			component: "APIBuilder",
-			level: this.options.verbose ? 0 : 1,
-		});
+		// Use provided logger or create a default one
+		this.logger =
+			options.logger ||
+			createLogger({
+				verbose: this.options.verbose,
+				prefix: "API",
+			});
 
 		if (this.options.cache) {
 			this.cache = new TypeSchemaCache(this.typeSchemaConfig);
@@ -101,10 +109,8 @@ export class APIBuilder {
 	 * Load TypeSchema from a FHIR package
 	 */
 	fromPackage(packageName: string, version?: string): APIBuilder {
-		this.logger.info(
-			`Configuring generation from FHIR package`,
-			{ packageName, version: version || "latest" },
-			"fromPackage",
+		this.logger.debug(
+			`Loading from FHIR package: ${packageName}@${version || "latest"}`,
 		);
 		const operation = this.loadFromPackage(packageName, version);
 		this.pendingOperations.push(operation);
@@ -115,11 +121,7 @@ export class APIBuilder {
 	 * Load TypeSchema from files
 	 */
 	fromFiles(...filePaths: string[]): APIBuilder {
-		this.logger.info(
-			`Configuring generation from TypeSchema files`,
-			{ count: filePaths.length, files: filePaths.slice(0, 5) },
-			"fromFiles",
-		);
+		this.logger.debug(`Loading from ${filePaths.length} TypeSchema files`);
 		const operation = this.loadFromFiles(filePaths);
 		this.pendingOperations.push(operation);
 		return this;
@@ -129,11 +131,7 @@ export class APIBuilder {
 	 * Load TypeSchema from TypeSchema objects
 	 */
 	fromSchemas(schemas: TypeSchema[]): APIBuilder {
-		this.logger.info(
-			`Adding TypeSchemas to generation`,
-			{ count: schemas.length },
-			"fromSchemas",
-		);
+		this.logger.debug(`Adding ${schemas.length} TypeSchemas to generation`);
 		this.schemas = [...this.schemas, ...schemas];
 		return this;
 	}
@@ -168,19 +166,12 @@ export class APIBuilder {
 			namingConvention: options.namingConvention || "PascalCase",
 			includeExtensions: options.includeExtensions ?? false,
 			includeProfiles: options.includeProfiles ?? false,
+			logger: this.logger.child("TS"),
 		});
 
 		this.generators.set("typescript", generator);
-		this.logger.info(
-			"Configured TypeScript generator",
-			{
-				outputDir: typesOutputDir,
-				moduleFormat: options.moduleFormat || "esm",
-				generateValidators: options.generateValidators ?? true,
-				generateGuards: options.generateGuards ?? true,
-				generateBuilders: options.generateBuilders ?? false,
-			},
-			"typescript",
+		this.logger.debug(
+			`Configured TypeScript generator (${options.moduleFormat || "esm"})`,
 		);
 		return this;
 	}
@@ -194,21 +185,13 @@ export class APIBuilder {
 
 		const generator = new RestClientGenerator({
 			outputDir: clientOutputDir,
+			logger: this.logger.child("REST"),
 			...options, // Pass all RestClientConfig options
 		});
 
 		this.generators.set("restclient", generator);
-		this.logger.info(
-			"Configured REST client generator",
-			{
-				outputDir: clientOutputDir,
-				clientName: options.clientName || "FHIRClient",
-				includeValidation: options.includeValidation ?? false,
-				includeErrorHandling: options.includeErrorHandling ?? true,
-				enhancedSearch: options.enhancedSearch ?? false,
-				useCanonicalManager: options.useCanonicalManager ?? true,
-			},
-			"restclient",
+		this.logger.debug(
+			`Configured REST client generator (${options.clientName || "FHIRClient"})`,
 		);
 		return this;
 	}
@@ -225,11 +208,7 @@ export class APIBuilder {
 	 * Set the output directory for all generators
 	 */
 	outputTo(directory: string): APIBuilder {
-		this.logger.info(
-			`Setting output directory`,
-			{ directory, generatorCount: this.generators.size },
-			"outputTo",
-		);
+		this.logger.debug(`Setting output directory: ${directory}`);
 		this.options.outputDir = directory;
 
 		// Update all configured generators
@@ -266,10 +245,8 @@ export class APIBuilder {
 		const hasTypeScript = this.generators.has("typescript");
 
 		if (hasRestClient && !hasTypeScript) {
-			this.logger.info(
+			this.logger.debug(
 				"Automatically adding TypeScript generator for REST client",
-				{},
-				"ensureTypeScriptForRestClient",
 			);
 
 			// Add TypeScript generator with minimal config
@@ -299,16 +276,8 @@ export class APIBuilder {
 			duration: 0,
 		};
 
-		await this.logger.info(
-			"Starting code generation",
-			{
-				outputDir: this.options.outputDir,
-				pendingOperations: this.pendingOperations.length,
-				generatorTypes: Array.from(this.generators.keys()),
-				validate: this.options.validate,
-				cache: this.options.cache,
-			},
-			"generate",
+		this.logger.debug(
+			`Starting generation with ${this.generators.size} generators`,
 		);
 
 		try {
@@ -316,11 +285,7 @@ export class APIBuilder {
 
 			// Load schemas if needed
 			await this.resolveSchemas();
-			await this.logger.info(
-				"Schemas resolved",
-				{ schemasCount: this.schemas.length },
-				"resolveSchemas",
-			);
+			this.logger.debug(`Resolved ${this.schemas.length} schemas`);
 
 			this.reportProgress(
 				"Validating",
@@ -331,21 +296,13 @@ export class APIBuilder {
 
 			// Validate schemas
 			if (this.options.validate) {
-				await this.logger.info("Starting schema validation", {}, "validate");
+				this.logger.debug("Starting schema validation");
 				await this.validateSchemas(result);
-				await this.logger.info(
-					"Schema validation completed",
-					{ warnings: result.warnings.length },
-					"validate",
-				);
+				this.logger.debug("Schema validation completed");
 			}
 
 			this.reportProgress("Generating", 2, 4, "Generating code...");
-			await this.logger.info(
-				"Starting code generation",
-				{ generatorCount: this.generators.size },
-				"executeGenerators",
-			);
+			this.logger.debug(`Executing ${this.generators.size} generators`);
 
 			// Execute all configured generators
 			await this.executeGenerators(result);
@@ -359,25 +316,13 @@ export class APIBuilder {
 
 			result.success = result.errors.length === 0;
 
-			await this.logger.info(
-				"Code generation completed",
-				{
-					success: result.success,
-					filesGenerated: result.filesGenerated.length,
-					errors: result.errors.length,
-					warnings: result.warnings.length,
-					duration: `${Math.round(result.duration)}ms`,
-				},
-				"generate",
+			this.logger.debug(
+				`Generation completed: ${result.filesGenerated.length} files`,
 			);
 		} catch (error) {
-			await this.logger.error(
+			this.logger.error(
 				"Code generation failed",
 				error instanceof Error ? error : new Error(String(error)),
-				{
-					outputDir: this.options.outputDir,
-					schemasCount: this.schemas.length,
-				},
 			);
 			result.errors.push(
 				error instanceof Error ? error.message : String(error),
@@ -442,6 +387,7 @@ export class APIBuilder {
 		const generator = new TypeSchemaGenerator(
 			{
 				verbose: this.options.verbose,
+				logger: this.logger.child("Schema"),
 			},
 			this.typeSchemaConfig,
 		);
@@ -460,6 +406,7 @@ export class APIBuilder {
 			this.typeSchemaGenerator = new TypeSchemaGenerator(
 				{
 					verbose: this.options.verbose,
+					logger: this.logger.child("Schema"),
 				},
 				this.typeSchemaConfig,
 			);
@@ -527,7 +474,7 @@ export class APIBuilder {
 		}
 
 		if (this.options.verbose && message) {
-			console.log(`[${phase}] ${message}`);
+			this.logger.debug(`[${phase}] ${message}`);
 		}
 	}
 }

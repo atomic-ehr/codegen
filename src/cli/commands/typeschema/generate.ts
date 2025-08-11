@@ -8,6 +8,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import type { CommandModule } from "yargs";
 import { TypeSchemaGenerator } from "../../../typeschema/generator";
+import { complete, createLogger, list } from "../../utils/log";
 
 interface GenerateTypeschemaArgs {
 	packages: string[];
@@ -53,13 +54,16 @@ export const generateTypeschemaCommand: CommandModule<
 		},
 	},
 	handler: async (argv) => {
+		const log = createLogger({
+			verbose: argv.verbose,
+			prefix: "TypeSchema",
+		});
+
 		try {
-			if (argv.verbose) {
-				console.log("🔄 Generating TypeSchema from FHIR packages...");
-				console.log(`📦 Packages: ${argv.packages.join(", ")}`);
-				console.log(`📁 Output: ${argv.output}`);
-				console.log(`📄 Format: ${argv.format}`);
-			}
+			log.step("Generating TypeSchema from FHIR packages");
+			log.info(`Packages: ${argv.packages.join(", ")}`);
+			log.info(`Output: ${argv.output}`);
+			log.debug(`Format: ${argv.format}`);
 
 			const startTime = Date.now();
 
@@ -76,11 +80,9 @@ export const generateTypeschemaCommand: CommandModule<
 					? packageSpec.split("@")
 					: [packageSpec, undefined];
 
-				if (argv.verbose) {
-					console.log(
-						`📦 Processing package: ${name}${version ? `@${version}` : ""}`,
-					);
-				}
+				log.progress(
+					`Processing package: ${name}${version ? `@${version}` : ""}`,
+				);
 
 				const schemas = await generator.generateFromPackage(name, version);
 				allSchemas.push(...schemas);
@@ -108,25 +110,26 @@ export const generateTypeschemaCommand: CommandModule<
 			await writeFile(outputPath, content, "utf-8");
 
 			const duration = Date.now() - startTime;
-			console.log(
-				`✨ Successfully generated ${allSchemas.length} TypeSchema definitions in ${duration}ms`,
+			complete(
+				`Generated ${allSchemas.length} TypeSchema definitions`,
+				duration,
+				{ schemas: allSchemas.length },
 			);
-			console.log(`📁 Output: ${outputPath}`);
+			log.dim(`Output: ${outputPath}`);
 
 			if (argv.verbose) {
-				console.log("\n📋 Generated schemas:");
-				allSchemas.forEach((schema: any) => {
-					console.log(
-						`  • ${schema.identifier?.name || "Unknown"} (${schema.identifier?.kind || "unknown"})`,
-					);
-				});
+				log.debug("Generated schemas:");
+				const schemaNames = allSchemas.map(
+					(schema: any) =>
+						`${schema.identifier?.name || "Unknown"} (${schema.identifier?.kind || "unknown"})`,
+				);
+				list(schemaNames);
 			}
 		} catch (error) {
-			console.error("❌ Failed to generate TypeSchema:");
-			console.error(error instanceof Error ? error.message : String(error));
-			if (argv.verbose && error instanceof Error && error.stack) {
-				console.error(error.stack);
-			}
+			log.error(
+				"Failed to generate TypeSchema",
+				error instanceof Error ? error : new Error(String(error)),
+			);
 			process.exit(1);
 		}
 	},
