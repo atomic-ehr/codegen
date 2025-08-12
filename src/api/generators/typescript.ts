@@ -105,7 +105,7 @@ export class TypeScriptAPIGenerator {
 	private resourceTypes = new Set<string>();
 	private currentSchemaName?: string;
 	private profileTypes = new Set<string>();
-	private profilesByPackage = new Map<string, string[]>();
+	private profilesByPackage = new Map<string, Array<{filename: string, interfaceName: string}>>();
 	private packageNameMap = new Map<string, string>(); // Maps sanitized name -> original name
 	private enumTypes = new Map<
 		string,
@@ -438,6 +438,13 @@ export class TypeScriptAPIGenerator {
 			const result = await this.transformSchema(schema);
 			if (result) {
 				results.push(result);
+				
+				// Track actual interface names for profile barrel files
+				if (schema.identifier.kind === 'profile' && result.exports && result.exports.length > 0) {
+					// Use the first (and typically only) export as the interface name
+					const interfaceName = result.exports[0];
+					this.trackProfileInterfaceName(schema.identifier, result.filename, interfaceName ?? '');
+				}
 			}
 		}
 
@@ -448,6 +455,10 @@ export class TypeScriptAPIGenerator {
 	 * Generate TypeScript files from TypeSchema documents
 	 */
 	async generate(schemas: TypeSchema[]): Promise<GeneratedFile[]> {
+		// Clear profile tracking from previous generations
+		this.profilesByPackage.clear();
+		this.packageNameMap.clear();
+		
 		const filteredSchemas = this.filterSchemas(schemas);
 
 		// Use legacy transformer
@@ -847,11 +858,11 @@ export class TypeScriptAPIGenerator {
 		// Generate index file for each package
 		for (const [
 			packageName,
-			profileNames,
+			profiles,
 		] of this.profilesByPackage.entries()) {
 			const packageIndexContent = this.generatePackageIndex(
 				packageName,
-				profileNames,
+				profiles,
 			);
 			const packageIndexPath = join(
 				this.options.outputDir,
@@ -865,7 +876,7 @@ export class TypeScriptAPIGenerator {
 				path: packageIndexPath,
 				filename: `profiles/${packageName}/index.ts`,
 				content: packageIndexContent,
-				exports: profileNames,
+				exports: profiles.map(p => p.interfaceName),
 			});
 		}
 
@@ -887,7 +898,7 @@ export class TypeScriptAPIGenerator {
 	 */
 	private generatePackageIndex(
 		packageName: string,
-		profileNames: string[],
+		profiles: Array<{filename: string, interfaceName: string}>,
 	): string {
 		const lines: string[] = [];
 
@@ -901,15 +912,15 @@ export class TypeScriptAPIGenerator {
 		lines.push("");
 
 		// If no profiles, export empty object
-		if (profileNames.length === 0) {
+		if (profiles.length === 0) {
 			lines.push("// No profiles in this package");
 			lines.push("export {};");
 			return lines.join("\n");
 		}
 
 		// Export all profiles from their files
-		for (const profileName of profileNames) {
-			lines.push(`export type { ${profileName} } from './${profileName}';`);
+		for (const profile of profiles) {
+			lines.push(`export type { ${profile.interfaceName} } from './${profile.filename}';`);
 		}
 
 		return lines.join("\n");
@@ -1016,8 +1027,85 @@ export class TypeScriptAPIGenerator {
 			return { isPrimitive: true, value: primitiveType };
 		}
 
+		// For profiles, the name might need special formatting
+		let typeName = identifier.name;
+		if (identifier.kind === 'profile') {
+			// Check if this is an extension profile by looking at the URL or base type
+			if (this.isExtensionProfile(identifier)) {
+				// Generate extension name from URL
+				typeName = this.generateExtensionName(identifier);
+			} else if (identifier.url && identifier.url.includes('vitalsigns') && !typeName.includes('Observation')) {
+				// For FHIR profiles, check if we need to add a prefix based on the URL pattern
+				typeName = `observation-${typeName}`;
+			}
+		}
+
 		// Return formatted type name
-		return { isPrimitive: false, value: this.formatTypeName(identifier.name) };
+		return { isPrimitive: false, value: this.formatTypeName(typeName) };
+	}
+
+	/**
+	 * Check if a profile identifier represents an extension
+	 */
+	private isExtensionProfile(identifier: TypeSchemaIdentifier): boolean {
+		// We'll need to check this based on schema data, but for now use URL patterns
+		if (identifier.url) {
+			// Skip known profile patterns
+			const isKnownProfile = identifier.url.includes('/vitalsigns') ||
+								  identifier.url.includes('/bmi') ||
+								  identifier.url.includes('/bodyheight') ||
+								  identifier.url.includes('/bodyweight') ||
+								  identifier.url.includes('/bodytemp') ||
+								  identifier.url.includes('/headcircum') ||
+								  identifier.url.includes('/heartrate') ||
+								  identifier.url.includes('/oxygensat') ||
+								  identifier.url.includes('/resprate') ||
+								  identifier.url.includes('/bp') ||
+								  identifier.url.includes('/vitalspanel');
+			
+			// If it's a StructureDefinition URL but not a known profile, likely an extension
+			return identifier.url.includes('/StructureDefinition/') && !isKnownProfile;
+		}
+		return false;
+	}
+
+	/**
+	 * Check if a schema extends Extension by looking at its base type
+	 */
+	private isExtensionSchema(schema: TypeSchema): boolean {
+		if (schema.identifier.kind === 'profile') {
+			const profileSchema = schema as any;
+			if (profileSchema.base && profileSchema.base.name === 'Extension') {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Generate extension name from URL
+	 * e.g., http://hl7.org/fhir/StructureDefinition/contactpoint-area -> ExtensionContactpointArea
+	 */
+	private generateExtensionName(identifier: TypeSchemaIdentifier): string {
+		if (!identifier.url) {
+			return `Extension${this.formatTypeName(identifier.name)}`;
+		}
+
+		// Extract the extension name from the URL
+		const urlParts = identifier.url.split('/');
+		const extensionName = urlParts[urlParts.length - 1];
+		
+		if (!extensionName) {
+			return `Extension${this.formatTypeName(identifier.name)}`;
+		}
+
+		// Convert kebab-case or snake_case to PascalCase and add Extension prefix
+		const formattedName = extensionName
+			.split(/[-_]/)
+			.map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+			.join('');
+			
+		return `Extension${formattedName}`;
 	}
 
 	/**
@@ -1054,12 +1142,11 @@ export class TypeScriptAPIGenerator {
 			const sanitizedPackageName = this.sanitizePackageName(originalPackageName);
 			const subfolder = `profiles/${sanitizedPackageName}`;
 
-			// Track profiles by package for index generation
+			// Initialize profile tracking for this package (actual interface names will be added later)
 			if (!this.profilesByPackage.has(sanitizedPackageName)) {
 				this.profilesByPackage.set(sanitizedPackageName, []);
 				this.packageNameMap.set(sanitizedPackageName, originalPackageName);
 			}
-			this.profilesByPackage.get(sanitizedPackageName)!.push(name);
 
 			return `${subfolder}/${name}.ts`;
 		}
@@ -1100,14 +1187,42 @@ export class TypeScriptAPIGenerator {
 			
 			if (currentPackage === basePackage) {
 				// Same package - import from same directory
-				return `./${this.formatTypeName(baseIdentifier.name)}`;
+				// Need to use the properly formatted type name
+				const baseTypeInfo = this.getType(baseIdentifier);
+				return `./${baseTypeInfo.value}`;
 			} else {
 				// Different package - import from sibling package directory
-				return `../${basePackage}/${this.formatTypeName(baseIdentifier.name)}`;
+				const baseTypeInfo = this.getType(baseIdentifier);
+				return `../${basePackage}/${baseTypeInfo.value}`;
 			}
 		} else {
 			// Base is a regular resource/complex-type - import from types root
 			return `../../${this.formatTypeName(baseIdentifier.name)}`;
+		}
+	}
+
+	/**
+	 * Track actual interface names for profile index generation
+	 */
+	private trackProfileInterfaceName(identifier: TypeSchemaIdentifier, filename: string, interfaceName: string): void {
+		if (identifier.kind === 'profile' && identifier.package) {
+			const originalPackageName = identifier.package;
+			const sanitizedPackageName = this.sanitizePackageName(originalPackageName);
+			
+			// Ensure package exists in tracking
+			if (!this.profilesByPackage.has(sanitizedPackageName)) {
+				this.profilesByPackage.set(sanitizedPackageName, []);
+				this.packageNameMap.set(sanitizedPackageName, originalPackageName);
+			}
+			
+			// Extract just the filename without path and extension
+			const baseFilename = filename.split('/').pop()?.replace(/\.ts$/, '') || filename;
+			
+			// Track the actual interface name
+			this.profilesByPackage.get(sanitizedPackageName)!.push({
+				filename: baseFilename,
+				interfaceName: interfaceName
+			});
 		}
 	}
 
@@ -1120,7 +1235,13 @@ export class TypeScriptAPIGenerator {
 		// Clear state for new transformation
 		this.imports.clear();
 		this.exports.clear();
-		this.currentSchemaName = this.formatTypeName(schema.identifier.name);
+		
+		// Use proper naming for extensions
+		if (this.isExtensionSchema(schema)) {
+			this.currentSchemaName = this.generateExtensionName(schema.identifier);
+		} else {
+			this.currentSchemaName = this.formatTypeName(schema.identifier.name);
+		}
 
 		// Track as profile type
 		this.profileTypes.add(this.currentSchemaName);
@@ -1145,18 +1266,20 @@ export class TypeScriptAPIGenerator {
 	 */
 	private generateTypeScriptForProfile(schema: TypeSchema): string {
 		const lines: string[] = [];
-		const interfaceName = this.formatTypeName(schema.identifier.name);
+		const interfaceName = this.currentSchemaName || this.formatTypeName(schema.identifier.name);
+		const isExtension = this.isExtensionSchema(schema);
 
 		// Add documentation if available
 		if (schema.description) {
 			lines.push("/**");
 			lines.push(` * ${schema.description}`);
-			lines.push(` * @profile ${schema.identifier.url}`);
+			if (isExtension) {
+				lines.push(` * @extension ${schema.identifier.url}`);
+			} else {
+				lines.push(` * @profile ${schema.identifier.url}`);
+			}
 			lines.push(" */");
 		}
-		// if (interfaceName === 'ObservationVitalsigns') {
-		// 	console.log(schema);
-		// }
 
 		this.exports.add(interfaceName);
 
@@ -1173,15 +1296,50 @@ export class TypeScriptAPIGenerator {
 			lines.push(`export interface ${interfaceName} {`);
 		}
 
-		// For profiles, we typically don't override fields unless there are specific constraints
-		// Profiles usually just add constraints to existing base resource fields
-		if (
-			isTypeSchemaForResourceComplexTypeLogical(schema) ||
-			schema.identifier.kind === "profile"
-		) {
-			// For profiles, only generate field overrides that have meaningful constraints
-
-			// Check schema.constraints for fields that need to be overridden
+		// For profiles, generate field overrides for all constrained fields
+		if (schema.identifier.kind === "profile") {
+			const constrainedFields = this.getConstrainedFields(schema);
+			
+			// Collect imports for constrained field types
+			for (const fieldName of constrainedFields) {
+				this.collectImportsForField(fieldName, schema);
+			}
+			
+			if (constrainedFields.length > 0) {
+				// If we have constrained fields, use Omit to exclude them from base type
+				const baseType = baseInterface?.value || "{}";
+				
+				// For extensions, also omit the url field since we're making it const
+				let fieldsToOmit = constrainedFields;
+				if (isExtension && !fieldsToOmit.includes('url')) {
+					fieldsToOmit = [...constrainedFields, 'url'];
+				}
+				
+				const omittedFields = fieldsToOmit.map(field => `'${field}'`).join(' | ');
+				
+				// Update the interface declaration to use Omit
+				lines[lines.length - 1] = `export interface ${interfaceName} extends Omit<${baseType}, ${omittedFields}> {`;
+				
+				// For extensions, add the const url property first
+				if (isExtension) {
+					lines.push(`\turl: '${schema.identifier.url}';`);
+				}
+				
+				// Generate field overrides for each constrained field
+				for (const fieldName of constrainedFields) {
+					const fieldLine = this.generateConstrainedProfileField(fieldName, schema);
+					if (fieldLine) {
+						lines.push(`\t${fieldLine}`);
+					}
+				}
+			} else if (isExtension) {
+				// Extension with no constrained fields, but still need to make url const
+				const baseType = baseInterface?.value || "Extension";
+				lines[lines.length - 1] = `export interface ${interfaceName} extends Omit<${baseType}, 'url'> {`;
+				lines.push(`\turl: '${schema.identifier.url}';`);
+			}
+		} else if (isTypeSchemaForResourceComplexTypeLogical(schema)) {
+			// Handle regular complex types (non-profiles)
 			if (
 				(schema as any).constraints &&
 				Object.keys((schema as any).constraints).length > 0
@@ -1209,18 +1367,16 @@ export class TypeScriptAPIGenerator {
 					}
 				}
 			}
+		}
 
-			lines.push("}");
+		lines.push("}");
 
-			// Add nested types if any (rare for profiles)
-			if ((schema as any).nested) {
-				for (const nested of (schema as any).nested) {
-					lines.push("");
-					lines.push(this.generateNested(this.currentSchemaName ?? "", nested));
-				}
+		// Add nested types if any (rare for profiles)
+		if ((schema as any).nested) {
+			for (const nested of (schema as any).nested) {
+				lines.push("");
+				lines.push(this.generateNested(this.currentSchemaName ?? "", nested));
 			}
-		} else {
-			lines.push("}");
 		}
 
 
@@ -1308,8 +1464,311 @@ export class TypeScriptAPIGenerator {
 		return `${fieldName}${optional}: ${typeString}${arrayType};`;
 	}
 
+	/**
+	 * Get list of field names that have constraints in a profile
+	 */
+	private getConstrainedFields(schema: TypeSchema): string[] {
+		const constrainedFields: string[] = [];
+		const choiceBaseFields = new Set<string>();
 
+		// First, collect all choice base field names and choice instances
+		if ((schema as any).fields) {
+			const fields = (schema as any).fields as Record<string, any>;
+			for (const [fieldName, field] of Object.entries(fields)) {
+				if (field.choices && Array.isArray(field.choices)) {
+					// This is a choice declaration field - it should be omitted from base interface
+					choiceBaseFields.add(fieldName);
+				}
+				if (field.choiceOf) {
+					// This is a choice instance, add its base to omitted fields
+					choiceBaseFields.add(field.choiceOf);
+					// And include this choice instance as a constrained field
+					constrainedFields.push(fieldName);
+				} else if (this.hasSignificantConstraints(field, fieldName, schema)) {
+					// Check if field has meaningful constraints that differ from base
+					constrainedFields.push(fieldName);
+				}
+			}
+		}
 
+		// Also check constraints section for additional constrained fields
+		if ((schema as any).constraints) {
+			const constraints = (schema as any).constraints as Record<string, any>;
+			for (const [path, constraint] of Object.entries(constraints)) {
+				const fieldName = path.includes(".") ? path.split(".").pop() : path;
+				if (fieldName && !constrainedFields.includes(fieldName)) {
+					// Check if this constraint is meaningful
+					if (this.isSignificantConstraint(constraint)) {
+						constrainedFields.push(fieldName);
+					}
+				}
+			}
+		}
+
+		// Add all choice base fields to be omitted from base interface
+		for (const choiceBaseField of choiceBaseFields) {
+			if (!constrainedFields.includes(choiceBaseField)) {
+				constrainedFields.push(choiceBaseField);
+			}
+		}
+
+		return constrainedFields;
+	}
+
+	/**
+	 * Check if a field has significant constraints that warrant generation
+	 */
+	private hasSignificantConstraints(field: any, fieldName: string, schema: TypeSchema): boolean {
+		// Check for binding constraints (value sets)
+		if (field.binding && field.binding.strength && field.binding.valueSet) {
+			return true;
+		}
+
+		// Check for cardinality constraints
+		if (field.min !== undefined && field.min > 0) {
+			return true;
+		}
+
+		// Check for type restrictions (e.g., reference constraints)
+		if (field.type && Array.isArray(field.type) && field.type.length > 0) {
+			// Check if type constraints are more restrictive than base
+			return true;
+		}
+
+		// Check for choice field constraints
+		if (field.choices && Array.isArray(field.choices)) {
+			return true;
+		}
+
+		// Check for enum values
+		if (field.values && Array.isArray(field.values)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Check if a constraint is significant enough to warrant field generation
+	 */
+	private isSignificantConstraint(constraint: any): boolean {
+		// Required constraint (min > 0)
+		if (constraint.min !== undefined && constraint.min > 0) {
+			return true;
+		}
+
+		// Type restrictions
+		if (constraint.type && Array.isArray(constraint.type)) {
+			return true;
+		}
+
+		// Binding restrictions
+		if (constraint.binding) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Generate a constrained field for a profile with proper typing
+	 */
+	private generateConstrainedProfileField(fieldName: string, schema: TypeSchema): string | null {
+		// Get field definition
+		const field = (schema as any).fields?.[fieldName];
+		if (!field) {
+			// Check if it's in constraints only
+			const constraint = (schema as any).constraints?.[fieldName];
+			if (constraint) {
+				return this.generateFieldFromConstraint(fieldName, constraint, schema);
+			}
+			return null;
+		}
+
+		// Skip fields that are choice declarations (have choices property)
+		// We'll handle them by omitting them from base interface and generating choice instances
+		if (field.choices && Array.isArray(field.choices)) {
+			// Don't generate the base choice field, it will be omitted from base interface
+			return null;
+		}
+
+		// Handle choice instance fields (have choiceOf property)
+		if (field.choiceOf) {
+			// Generate the choice instance field directly
+			return this.generateChoiceInstanceField(fieldName, field, schema);
+		}
+
+		// Determine if field is required
+		let required = field.required || false;
+		if (field.min !== undefined && field.min > 0) {
+			required = true;
+		}
+
+		// Check constraints for additional requirements
+		const constraint = (schema as any).constraints?.[fieldName];
+		if (constraint && constraint.min !== undefined && constraint.min > 0) {
+			required = true;
+		}
+
+		// Determine type string
+		let typeString = "any";
+		if (field.type) {
+			const typeInfo = this.getType(field.type);
+			typeString = typeInfo.value;
+		}
+
+		// Handle enum values for constrained fields
+		if (field.enum && Array.isArray(field.enum)) {
+			// Generate enum type from field.enum (which has the constrained values)
+			const enumValues = field.enum.map((v: any) => `'${v}'`).join(' | ');
+			typeString = enumValues;
+		} else if (field.values && Array.isArray(field.values)) {
+			// Generate enum type from field.values as fallback
+			const enumValues = field.values.map((v: any) => `'${v}'`).join(' | ');
+			typeString = enumValues;
+		}
+
+		// Handle binding constraints
+		if (field.binding && field.binding.strength === 'required' && field.binding.valueSet) {
+			// For required bindings, we might want to generate enum types
+			// For now, keep as CodeableConcept but could be enhanced
+		}
+
+		// Handle reference constraints
+		if (field.type && Array.isArray(field.type)) {
+			const referenceTypes = field.type
+				.filter((t: any) => t.code === 'Reference' && t.targetProfile)
+				.map((t: any) => {
+					const profile = t.targetProfile.split('/').pop();
+					return `'${profile}'`;
+				});
+			
+			if (referenceTypes.length > 0) {
+				typeString = `Reference<${referenceTypes.join(' | ')}>`;
+			}
+		}
+
+		// Determine if array
+		let array = field.array || false;
+		if (field.max === "*" || (constraint && constraint.max === "*")) {
+			array = true;
+		}
+
+		const optional = !required ? "?" : "";
+		const arrayType = array ? "[]" : "";
+
+		return `${fieldName}${optional}: ${typeString}${arrayType};`;
+	}
+
+	/**
+	 * Generate a choice instance field (e.g., effectiveDateTime, effectivePeriod)
+	 */
+	private generateChoiceInstanceField(fieldName: string, field: any, schema: TypeSchema): string {
+		// Determine if field is required
+		let required = field.required || false;
+		if (field.min !== undefined && field.min > 0) {
+			required = true;
+		}
+
+		// Check constraints for additional requirements
+		const constraint = (schema as any).constraints?.[fieldName];
+		if (constraint && constraint.min !== undefined && constraint.min > 0) {
+			required = true;
+		}
+
+		// Determine type string
+		let typeString = "any";
+		if (field.type) {
+			const typeInfo = this.getType(field.type);
+			typeString = typeInfo.value;
+			
+			// Add import if needed
+			if (!typeInfo.isPrimitive) {
+				const importPath = this.calculateImportPath(schema, field.type);
+				this.imports.set(typeInfo.value, importPath);
+			}
+		}
+
+		// Handle enum values
+		if (field.enum && Array.isArray(field.enum)) {
+			const enumValues = field.enum.map((v: any) => `'${v}'`).join(' | ');
+			typeString = enumValues;
+		}
+
+		// Handle reference constraints
+		if (field.reference && Array.isArray(field.reference)) {
+			typeString = this.buildReferenceType(field.reference);
+		}
+
+		// Determine if array
+		let array = field.array || false;
+		if (field.max === "*" || (constraint && constraint.max === "*")) {
+			array = true;
+		}
+
+		const optional = !required ? "?" : "";
+		const arrayType = array ? "[]" : "";
+
+		return `${fieldName}${optional}: ${typeString}${arrayType};`;
+	}
+
+	/**
+	 * Generate field from constraint-only definition
+	 */
+	private generateFieldFromConstraint(fieldName: string, constraint: any, schema: TypeSchema): string | null {
+		let typeString = "any";
+		let required = constraint.min !== undefined && constraint.min > 0;
+		let array = constraint.max === "*";
+
+		// Try to infer type from constraint
+		if (constraint.type && Array.isArray(constraint.type)) {
+			const types = constraint.type.map((t: any) => {
+				if (t.code === 'Reference' && t.targetProfile) {
+					const profile = t.targetProfile.split('/').pop();
+					return `Reference<'${profile}'>`;
+				}
+				return t.code || t;
+			});
+			typeString = types.length === 1 ? types[0] : `(${types.join(' | ')})`;
+		}
+
+		const optional = !required ? "?" : "";
+		const arrayType = array ? "[]" : "";
+
+		return `${fieldName}${optional}: ${typeString}${arrayType};`;
+	}
+
+	/**
+	 * Collect imports needed for a constrained field
+	 */
+	private collectImportsForField(fieldName: string, schema: TypeSchema): void {
+		const field = (schema as any).fields?.[fieldName];
+		if (!field) return;
+
+		// Handle main field type
+		if (field.type && !field.type.isPrimitive) {
+			const typeInfo = this.getType(field.type);
+			if (!typeInfo.isPrimitive) {
+				// Calculate import path for non-primitive types
+				const importPath = this.calculateImportPath(schema, field.type);
+				this.imports.set(typeInfo.value, importPath);
+			}
+		}
+
+		// Handle choice field types
+		if (field.choices && Array.isArray(field.choices)) {
+			field.choices.forEach((choice: string) => {
+				const choiceField = (schema as any).fields?.[choice];
+				if (choiceField && choiceField.type) {
+					const typeInfo = this.getType(choiceField.type);
+					if (!typeInfo.isPrimitive) {
+						const importPath = this.calculateImportPath(schema, choiceField.type);
+						this.imports.set(typeInfo.value, importPath);
+					}
+				}
+			});
+		}
+	}
 
 	/**
 	 * Generate an enum type for a field with enumerated values
@@ -1376,5 +1835,4 @@ export class TypeScriptAPIGenerator {
 	private toPascalCase(str: string): string {
 		return str.charAt(0).toUpperCase() + str.slice(1);
 	}
-
 }

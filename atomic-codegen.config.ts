@@ -31,7 +31,7 @@ const config: Config = {
 		namingConvention: "PascalCase",
 		strictMode: true,
 		includeProfiles: true, // ✅ Enable FHIR profile generation
-		includeExtensions: false,
+		includeExtensions: true,
 
 		// Profile generation configuration
 		profileOptions: {
