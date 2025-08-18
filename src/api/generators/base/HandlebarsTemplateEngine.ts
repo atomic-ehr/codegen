@@ -45,7 +45,7 @@ export class HandlebarsTemplateEngine extends TemplateEngine {
     // Auto-load templates if requested
     if (this.options.autoLoadTemplates && this.options.templateDirectory) {
       this.loadTemplatesFromDirectory(this.options.templateDirectory).catch(error => {
-        this.logger.warn('Failed to auto-load templates:', error);
+        this.logger.warn('Failed to auto-load templates:', error instanceof Error ? error : undefined);
       });
     }
   }
@@ -60,8 +60,7 @@ export class HandlebarsTemplateEngine extends TemplateEngine {
           templateName,
           context,
           {
-            availableTemplates: this.getAvailableTemplates(),
-            suggestedTemplates: this.findSimilarTemplates(templateName)
+            availableTemplates: this.getAvailableTemplates()
           }
         );
       }
@@ -82,7 +81,7 @@ export class HandlebarsTemplateEngine extends TemplateEngine {
         templateName,
         context,
         {
-          originalError: error instanceof Error ? error.message : String(error)
+          templateSource: error instanceof Error ? error.message : String(error)
         }
       );
     }
@@ -121,7 +120,7 @@ export class HandlebarsTemplateEngine extends TemplateEngine {
         `Failed to register template '${name}': ${error}`,
         name,
         {},
-        { originalError: error instanceof Error ? error.message : String(error) }
+        { templateSource: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -146,7 +145,7 @@ export class HandlebarsTemplateEngine extends TemplateEngine {
           `Template directory not found: ${directory}`,
           'directory-load',
           { directory },
-          { originalError: error.message }
+          { templateSource: error.message }
         );
       }
       
@@ -154,7 +153,7 @@ export class HandlebarsTemplateEngine extends TemplateEngine {
         `Failed to load templates from directory '${directory}': ${error}`,
         'directory-load',
         { directory },
-        { originalError: error instanceof Error ? error.message : String(error) }
+        { templateSource: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -188,18 +187,18 @@ export class HandlebarsTemplateEngine extends TemplateEngine {
   private setupHandlebars(): void {
     // Register all our helpers with Handlebars
     for (const [name, helper] of this.helpers) {
-      this.handlebars.registerHelper(name, helper);
+      this.handlebars.registerHelper(name, helper as Handlebars.HelperDelegate);
     }
     
     // Override the registerHelper to keep Handlebars instance in sync
     const originalRegisterHelper = this.registerHelper.bind(this);
     this.registerHelper = (name: string, helper: Function) => {
       originalRegisterHelper(name, helper);
-      this.handlebars.registerHelper(name, helper);
+      this.handlebars.registerHelper(name, helper as Handlebars.HelperDelegate);
     };
 
     // Add code generation specific helpers
-    this.handlebars.registerHelper('ifEqual', function(a, b, options) {
+    this.handlebars.registerHelper('ifEqual', function(this: any, a: any, b: any, options: Handlebars.HelperOptions) {
       if (a === b) {
         return options.fn(this);
       } else {
@@ -207,7 +206,7 @@ export class HandlebarsTemplateEngine extends TemplateEngine {
       }
     });
 
-    this.handlebars.registerHelper('ifNotEqual', function(a, b, options) {
+    this.handlebars.registerHelper('ifNotEqual', function(this: any, a: any, b: any, options: Handlebars.HelperOptions) {
       if (a !== b) {
         return options.fn(this);
       } else {
@@ -215,7 +214,7 @@ export class HandlebarsTemplateEngine extends TemplateEngine {
       }
     });
 
-    this.handlebars.registerHelper('each_with_index', function(array, options) {
+    this.handlebars.registerHelper('each_with_index', function(this: any, array: any[], options: Handlebars.HelperOptions) {
       let result = '';
       if (Array.isArray(array)) {
         for (let i = 0; i < array.length; i++) {
@@ -270,7 +269,7 @@ export class HandlebarsTemplateEngine extends TemplateEngine {
         }
       }
     } catch (error) {
-      this.logger.warn(`Failed to read directory ${directory}:`, error);
+      this.logger.warn(`Failed to read directory ${directory}:`, error instanceof Error ? error : undefined);
     }
     
     return files;
@@ -298,7 +297,7 @@ export class HandlebarsTemplateEngine extends TemplateEngine {
       });
 
     } catch (error) {
-      this.logger.warn(`Failed to load template file ${filePath}:`, error);
+      this.logger.warn(`Failed to load template file ${filePath}:`, error instanceof Error ? error : undefined);
     }
   }
 
@@ -328,21 +327,21 @@ export class HandlebarsTemplateEngine extends TemplateEngine {
   private levenshteinDistance(str1: string, str2: string): number {
     const matrix = Array(str2.length + 1).fill(null).map(() => Array(str1.length + 1).fill(0));
     
-    for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
-    for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
+    for (let i = 0; i <= str1.length; i++) matrix[0]![i] = i;
+    for (let j = 0; j <= str2.length; j++) matrix[j]![0] = j;
     
     for (let j = 1; j <= str2.length; j++) {
       for (let i = 1; i <= str1.length; i++) {
         const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
-        matrix[j][i] = Math.min(
-          matrix[j][i - 1] + 1,
-          matrix[j - 1][i] + 1,
-          matrix[j - 1][i - 1] + indicator
+        matrix[j]![i] = Math.min(
+          matrix[j]![i - 1] + 1,
+          matrix[j - 1]![i] + 1,
+          matrix[j - 1]![i - 1] + indicator
         );
       }
     }
     
-    return matrix[str2.length][str1.length];
+    return matrix[str2.length]![str1.length];
   }
 }
 

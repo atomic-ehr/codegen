@@ -60,7 +60,6 @@ export type { IndexBuilderConfig } from './builders/IndexBuilder';
 export { TemplateEngine } from './TemplateEngine';
 export { HandlebarsTemplateEngine } from './HandlebarsTemplateEngine';
 export type { 
-  TemplateContext, 
   TemplateOptions, 
   TemplateInfo 
 } from './TemplateEngine';

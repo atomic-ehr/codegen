@@ -40,10 +40,10 @@ export type {
 export { RestClientGenerator } from "./generators/rest-client";
 export type {
 	GeneratedFile,
-	TypeScriptAPIOptions,
+	TypeScriptGeneratorOptions,
 } from "./generators/typescript";
 // Export generator classes for advanced usage
-export { TypeScriptAPIGenerator } from "./generators/typescript";
+export { TypeScriptGenerator } from "./generators/typescript";
 
 /**
  * Quick start examples:

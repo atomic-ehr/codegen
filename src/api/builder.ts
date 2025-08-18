@@ -20,7 +20,7 @@ import {
 import type { CodegenLogger } from "../utils/codegen-logger";
 import { createLogger } from "../utils/codegen-logger";
 import { RestClientGenerator } from "./generators/rest-client";
-import { TypeScriptAPIGenerator } from "./generators/typescript";
+import { TypeScriptGenerator } from "./generators/typescript";
 
 /**
  * Configuration options for the API builder
@@ -152,7 +152,7 @@ export class APIBuilder {
 		// Hardcode types subfolder
 		const typesOutputDir = `${this.options.outputDir}/types`;
 
-		const generator = new TypeScriptAPIGenerator({
+		const generator = new TypeScriptGenerator({
 			outputDir: typesOutputDir,
 			moduleFormat: options.moduleFormat || "esm",
 			generateIndex: options.generateIndex ?? true,
@@ -161,6 +161,9 @@ export class APIBuilder {
 			includeExtensions: options.includeExtensions ?? false,
 			includeProfiles: options.includeProfiles ?? false,
 			logger: this.logger.child("TS"),
+			verbose: this.options.verbose,
+			validate: true, // Enable validation for debugging
+			overwrite: this.options.overwrite
 		});
 
 		this.generators.set("typescript", generator);

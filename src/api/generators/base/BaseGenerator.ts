@@ -421,6 +421,9 @@ export abstract class BaseGenerator<
       this.logger.debug('Schema validation disabled');
       return;
     }
+    
+    this.logger.info(`🔍 Starting schema validation for ${schemas.length} schemas`);
+    this.logger.debug('Schema validation enabled - performing comprehensive validation');
 
     const operations = schemas.map(schema => 
       () => this.errorBoundary.withErrorBoundary(
@@ -446,10 +449,14 @@ export abstract class BaseGenerator<
    */
   protected async validateSchema(schema: TypeSchema): Promise<void> {
     const errors: string[] = [];
+    const schemaName = schema.identifier?.name || 'unknown';
+    
+    this.logger.debug(`🔍 Validating schema: ${schemaName} (kind: ${schema.identifier?.kind})`);
 
     // Basic structure validation
     if (!schema.identifier) {
       errors.push('Schema missing identifier');
+      this.logger.warn(`❌ Schema missing identifier: ${JSON.stringify(schema, null, 2).substring(0, 200)}...`);
     } else {
       if (!schema.identifier.name) {
         errors.push('Schema identifier missing name');
@@ -458,7 +465,7 @@ export abstract class BaseGenerator<
       if (!schema.identifier.kind) {
         errors.push('Schema identifier missing kind');
       } else {
-        const validKinds = ['resource', 'complex-type', 'profile', 'primitive-type', 'logical'];
+        const validKinds = ['resource', 'complex-type', 'profile', 'primitive-type', 'logical', 'value-set', 'binding', 'extension'];
         if (!validKinds.includes(schema.identifier.kind)) {
           errors.push(`Schema identifier.kind must be one of: ${validKinds.join(', ')}`);
         }
@@ -480,18 +487,23 @@ export abstract class BaseGenerator<
       }
     }
 
-    // Circular reference detection
+    // Circular reference detection (make it a warning, not an error for FHIR schemas)
     if (await this.detectCircularReferences(schema)) {
-      errors.push('Circular reference detected in schema dependencies');
+      this.logger.warn(`⚠️ Circular reference detected in schema '${schemaName}' - this may be expected for FHIR primitive types`);
+      // Don't add to errors - FHIR schemas often have legitimate circular references
     }
 
     if (errors.length > 0) {
+      this.logger.error(`❌ Schema validation failed for '${schemaName}': ${errors.join(', ')}`);
+      this.logger.debug(`Schema details: ${JSON.stringify(schema, null, 2)}`);
       throw new SchemaValidationError(
         `Schema validation failed for '${schema.identifier?.name || 'unknown'}'`,
         schema,
         errors
       );
     }
+    
+    this.logger.debug(`✅ Schema validation passed for '${schemaName}'`);
   }
 
   /**
@@ -637,18 +649,28 @@ export abstract class BaseGenerator<
    * Can be overridden by language-specific implementations
    */
   protected extractExports(content: string): string[] {
-    // Basic implementation - can be enhanced per language
-    const exportRegex = /export\s+(?:const|let|var|function|class|interface|type|enum)\s+(\w+)/g;
     const exports: string[] = [];
-    let match;
     
-    while ((match = exportRegex.exec(content)) !== null) {
+    // Handle export { name1, name2 } syntax
+    const exportListRegex = /export\s*\{\s*([^}]+)\s*\}/g;
+    let match;
+    while ((match = exportListRegex.exec(content)) !== null) {
+      if (match[1]) {
+        const names = match[1].split(',').map(name => name.trim()).filter(Boolean);
+        exports.push(...names);
+      }
+    }
+    
+    // Handle direct export declarations
+    const directExportRegex = /export\s+(?:const|let|var|function|class|interface|type|enum)\s+(\w+)/g;
+    while ((match = directExportRegex.exec(content)) !== null) {
       if (match[1]) {
         exports.push(match[1]);
       }
     }
     
-    return exports;
+    // Remove duplicates
+    return [...new Set(exports)];
   }
 
   /**

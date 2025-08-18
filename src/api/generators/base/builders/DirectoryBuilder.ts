@@ -121,7 +121,7 @@ export class DirectoryBuilder {
           savedPaths.push(path);
           return path;
         } catch (error) {
-          this.config.logger.error(`Failed to save file ${filename}:`, error);
+          this.config.logger.error(`Failed to save file ${filename}:`, error instanceof Error ? error : undefined);
           throw error;
         }
       }
@@ -135,7 +135,7 @@ export class DirectoryBuilder {
         const subdirPaths = await subdir.save();
         savedPaths.push(...subdirPaths);
       } catch (error) {
-        this.config.logger.error(`Failed to save subdirectory ${name}:`, error);
+        this.config.logger.error(`Failed to save subdirectory ${name}:`, error instanceof Error ? error : undefined);
         throw error;
       }
     }
@@ -146,7 +146,7 @@ export class DirectoryBuilder {
         const indexPath = await this.indexBuilder.save();
         savedPaths.push(indexPath);
       } catch (error) {
-        this.config.logger.error('Failed to save index file:', error);
+        this.config.logger.error('Failed to save index file:', error instanceof Error ? error : undefined);
         throw error;
       }
     }

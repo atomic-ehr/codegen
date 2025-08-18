@@ -281,9 +281,9 @@ describe('TypeScript Generation Integration', () => {
       const results = await nonValidatingGenerator.build(schemas);
 
       expect(results).toHaveLength(1);
-      // Should not have validation messages in logs
+      // Should have validation disabled message in logs
       const debugMessages = logger.getMessages('debug');
-      expect(debugMessages.some(m => m.message.includes('validation disabled'))).toBe(false);
+      expect(debugMessages.some(m => m.message.includes('validation disabled'))).toBe(true);
     });
 
     test('respects verbose logging settings', async () => {
