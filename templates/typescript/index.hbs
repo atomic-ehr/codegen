@@ -1,0 +1,20 @@
+{{!-- TypeScript Index File Template --}}
+{{#if header}}
+{{header}}
+
+{{/if}}
+{{#if exports}}
+{{#each groupedExports}}
+// {{@key}}
+{{#each this}}
+export type { {{.}} } from './{{.}}';
+{{/each}}
+
+{{/each}}
+{{else}}
+{{exports exports}}
+{{/if}}
+{{#if footer}}
+
+{{footer}}
+{{/if}}

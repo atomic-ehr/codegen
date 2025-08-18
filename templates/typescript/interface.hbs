@@ -1,0 +1,32 @@
+{{!-- TypeScript Interface Template --}}
+{{#if imports}}
+{{#each imports}}
+import type { {{@key}} } from '{{this}}';
+{{/each}}
+
+{{/if}}
+{{#if includeDocuments}}
+/**
+ * {{schema.description}}
+ {{#if schema.identifier.url}}
+ * @see {{schema.identifier.url}}
+ {{/if}}
+ {{#if schema.identifier.package}}
+ * @package {{schema.identifier.package}}
+ {{/if}}
+ */
+{{/if}}
+{{#if schema.baseType}}
+export interface {{pascalCase schema.identifier.name}} extends {{pascalCase schema.baseType}} {
+{{else}}
+export interface {{pascalCase schema.identifier.name}} {
+{{/if}}
+{{#each schema.fields}}
+  {{#if this.description}}
+  {{#if ../includeDocuments}}
+  /** {{this.description}} */
+  {{/if}}
+  {{/if}}
+  {{camelCase this.name}}{{#unless this.required}}?{{/unless}}: {{this.type}}{{#if this.isArray}}[]{{/if}};
+{{/each}}
+}

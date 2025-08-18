@@ -22,15 +22,22 @@
 	],
 	"scripts": {
 		"test": "bun test",
+		"test:unit": "bun test test/unit/",
+		"test:integration": "bun test test/integration/",
+		"test:performance": "bun test test/performance/",
 		"test:watch": "bun test --watch",
 		"test:coverage": "bun test --coverage",
 		"test:ci": "bun test --coverage --bail",
+		"test:verbose": "bun test --verbose",
+		"test:helpers": "bun test test/helpers/",
+		"test:quick": "bun test test/unit/ --timeout 5000",
 		"build": "rm -rf dist && bun build src/index.ts src/cli/index.ts --outdir dist --target node --format esm --splitting --external typescript && bunx tsc --project tsconfig.build.json && chmod +x dist/cli/index.js",
 		"typecheck": "bunx tsc --noEmit",
+		"lint": "biome check --write ./src",
+		"quality": "bun run typecheck && bun run lint && bun run test:unit",
 		"cli": "bun run src/cli/index.ts",
 		"codegen": "bun run src/cli/index.ts",
-		"codegen:all": "bun run src/cli/index.ts generate typescript",
-		"lint": "biome check --write ./src"
+		"codegen:all": "bun run src/cli/index.ts generate typescript"
 	},
 	"repository": {
 		"type": "git",
@@ -45,6 +52,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "^2.1.4",
 		"@types/bun": "latest",
+		"@types/handlebars": "^4.1.0",
 		"@types/node": "^22.17.1",
 		"@types/yargs": "^17.0.33",
 		"typescript": "^5.9.2"
@@ -54,8 +62,9 @@
 		"@atomic-ehr/fhirschema": "^0.0.2",
 		"@inquirer/prompts": "^7.8.1",
 		"ajv": "^8.17.1",
-		"picocolors": "^1.1.1",
+		"handlebars": "^4.7.8",
 		"ora": "^8.2.0",
+		"picocolors": "^1.1.1",
 		"yargs": "^18.0.0"
 	}
 }

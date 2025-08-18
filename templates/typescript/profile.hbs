@@ -1,0 +1,38 @@
+{{!-- TypeScript Profile Template --}}
+{{#if imports}}
+{{imports imports}}
+
+{{/if}}
+{{#if includeDocuments}}
+/**
+ * FHIR Profile: {{schema.description}}
+ * Package: {{schema.identifier.package}}
+ {{#if schema.identifier.url}}
+ * @see {{schema.identifier.url}}
+ {{/if}}
+ */
+{{/if}}
+export interface {{pascalCase schema.identifier.name}} extends {{pascalCase schema.baseType}} {
+  /** Resource type discriminator */
+  resourceType: '{{schema.identifier.name}}';
+
+{{#each schema.fields}}
+  {{#if this.description}}
+  {{#if ../includeDocuments}}
+  /** {{this.description}} */
+  {{/if}}
+  {{/if}}
+  {{camelCase this.name}}{{#unless this.required}}?{{/unless}}: {{this.type}}{{#if this.isArray}}[]{{/if}};
+{{/each}}
+}
+
+{{#if schema.constraints}}
+// Profile constraints for {{pascalCase schema.identifier.name}}
+{{#each schema.constraints}}
+/**
+ * {{this.description}}
+ */
+export type {{pascalCase ../schema.identifier.name}}{{pascalCase this.name}} = {{this.constraintType}};
+
+{{/each}}
+{{/if}}

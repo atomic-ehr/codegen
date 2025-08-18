@@ -1,3 +1,14 @@
 # Bun Configuration
 [test]
-# Test setup file
+# Test files patterns
+testPathIgnorePatterns = ["node_modules", "dist", ".typeschema-cache"]
+
+# Test environment
+env = { NODE_ENV = "test" }
+
+# Coverage settings - configured via command line flags
+# Use bun test --coverage to enable coverage reporting
+
+# Performance settings  
+timeout = 30000      # 30 second timeout for long-running tests
+parallel = true      # Run tests in parallel for speed
