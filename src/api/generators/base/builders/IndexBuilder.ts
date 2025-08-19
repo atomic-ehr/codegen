@@ -12,7 +12,7 @@ import type { TemplateEngine } from "../types";
 export interface IndexBuilderConfig {
 	directory: string;
 	fileManager: FileManager;
-	templateEngine: TemplateEngine;
+	templateEngine?: TemplateEngine;
 	logger: CodegenLogger;
 }
 

@@ -202,11 +202,11 @@ describe('TypeScript Generation Integration', () => {
       
       // Create a generator that validates content strictly
       const strictGenerator = new class extends TestGenerator {
-        protected async generateSchemaContent(schema: any): Promise<string> {
+        protected override async generateSchemaContent(schema: any, context: any): Promise<string> {
           if (schema.identifier.name === 'Patient') {
             return 'INVALID content'; // This will fail validation
           }
-          return super.generateSchemaContent(schema);
+          return super.generateSchemaContent(schema, context);
         }
       }({
         outputDir: testFs.getBasePath(),
@@ -303,15 +303,14 @@ describe('TypeScript Generation Integration', () => {
   });
 
   describe('API Compatibility', () => {
-    test('fluent API methods chain correctly', async () => {
-      const fileBuilder = generator.file('test-file');
-      const dirBuilder = generator.directory('test-dir');
-      const indexBuilder = generator.index('.');
+    test('fluent API methods throw appropriate errors', async () => {
+      // File and index builders should throw when no template engine is available
+      expect(() => generator.file('test-file')).toThrow('Template engine is required');
+      expect(() => generator.index('.')).toThrow('Template engine is required');
 
-      // Should not throw errors when called
-      expect(fileBuilder).toBeDefined();
+      // Directory builder should work without template engine
+      const dirBuilder = generator.directory('test-dir');
       expect(dirBuilder).toBeDefined();
-      expect(indexBuilder).toBeDefined();
     });
 
     test('progress callbacks integrate properly', async () => {

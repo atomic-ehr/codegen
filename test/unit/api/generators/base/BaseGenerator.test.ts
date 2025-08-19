@@ -105,7 +105,7 @@ describe('BaseGenerator', () => {
 
     test('validates generated content', async () => {
       const generator = new class extends TestGenerator {
-        protected async generateSchemaContent(): Promise<string> {
+        protected override async generateSchemaContent(schema: any, context: any): Promise<string> {
           return 'INVALID content that should fail validation';
         }
       }({
@@ -186,9 +186,8 @@ describe('BaseGenerator', () => {
   });
 
   describe('Fluent API', () => {
-    test('file builder creates file with correct extension', () => {
-      const fileBuilder = generator.file('test-file');
-      expect(fileBuilder).toBeDefined();
+    test('file builder throws error when template engine not available', () => {
+      expect(() => generator.file('test-file')).toThrow('Template engine is required for fluent file generation');
     });
 
     test('directory builder creates directory structure', () => {
@@ -196,9 +195,8 @@ describe('BaseGenerator', () => {
       expect(dirBuilder).toBeDefined();
     });
 
-    test('index builder creates index files', () => {
-      const indexBuilder = generator.index('.');
-      expect(indexBuilder).toBeDefined();
+    test('index builder throws error when template engine not available', () => {
+      expect(() => generator.index('.')).toThrow('Template engine is required for index file generation');
     });
 
     test('progress callback receives updates', async () => {

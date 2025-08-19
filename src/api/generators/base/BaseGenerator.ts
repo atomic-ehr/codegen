@@ -47,8 +47,8 @@ export abstract class BaseGenerator<
 	/** File manager for all file operations */
 	protected readonly fileManager: FileManager;
 
-	/** Template engine for content generation */
-	protected readonly templateEngine: TemplateEngine;
+	/** Template engine for content generation (optional) */
+	protected readonly templateEngine?: TemplateEngine;
 
 	/** Language-specific type mapper */
 	protected readonly typeMapper: TypeMapper;
@@ -196,13 +196,12 @@ export abstract class BaseGenerator<
 
 	/**
 	 * Create template engine instance - can be overridden for custom templates
+	 * Returns undefined if template engine is not needed
 	 */
-	protected createTemplateEngine(): TemplateEngine {
-		// This will be implemented in the TemplateEngine class
-		const { TemplateEngine } = require("./TemplateEngine");
-		return new TemplateEngine({
-			logger: this.logger.child("Templates"),
-		});
+	protected createTemplateEngine(): TemplateEngine | undefined {
+		// Default implementation returns undefined (no template engine)
+		// Subclasses can override to provide template engine if needed
+		return undefined;
 	}
 
 	// ==========================================
@@ -320,6 +319,11 @@ export abstract class BaseGenerator<
 	 * @param filename - Name of the file to create
 	 */
 	public file(filename: string): import("./builders/FileBuilder").FileBuilder {
+		if (!this.templateEngine) {
+			throw new Error(
+				"Template engine is required for fluent file generation. Override createTemplateEngine() in your generator.",
+			);
+		}
 		const { FileBuilder } = require("./builders/FileBuilder");
 		return new FileBuilder({
 			filename: this.ensureFileExtension(filename),
@@ -352,6 +356,11 @@ export abstract class BaseGenerator<
 	public index(
 		directory: string = ".",
 	): import("./builders/IndexBuilder").IndexBuilder {
+		if (!this.templateEngine) {
+			throw new Error(
+				"Template engine is required for index file generation. Override createTemplateEngine() in your generator.",
+			);
+		}
 		const { IndexBuilder } = require("./builders/IndexBuilder");
 		return new IndexBuilder({
 			directory,

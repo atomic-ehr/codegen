@@ -21,7 +21,7 @@ import type {
 export interface FileBuilderConfig {
 	filename: string;
 	fileManager: FileManager;
-	templateEngine: TemplateEngine;
+	templateEngine?: TemplateEngine;
 	typeMapper: TypeMapper;
 	logger: CodegenLogger;
 }
@@ -89,6 +89,14 @@ export class FileBuilder {
 		templateName: string,
 		context: Record<string, unknown>,
 	): FileBuilder {
+		if (!this.config.templateEngine) {
+			throw new TemplateError(
+				`Template engine is required for template rendering. Template: '${templateName}'`,
+				templateName,
+				context,
+			);
+		}
+
 		this.options.template = templateName;
 
 		try {

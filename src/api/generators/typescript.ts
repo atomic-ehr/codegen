@@ -6,12 +6,7 @@
  */
 
 import type { TypeSchema, TypeSchemaIdentifier } from "../../typeschema";
-import { resolveTemplatePath, toPascalCase } from "../../utils";
 import { BaseGenerator } from "./base/BaseGenerator";
-import {
-	HandlebarsTemplateEngine,
-	type HandlebarsTemplateEngineOptions,
-} from "./base/HandlebarsTemplateEngine";
 import {
 	TypeScriptTypeMapper,
 	type TypeScriptTypeMapperOptions,
@@ -20,7 +15,6 @@ import type {
 	BaseGeneratorOptions,
 	GeneratedFile,
 	TemplateContext,
-	TemplateEngine,
 	TypeMapper,
 } from "./base/types";
 
@@ -48,9 +42,6 @@ export interface TypeScriptGeneratorOptions extends BaseGeneratorOptions {
 
 	/** Type mapper options */
 	typeMapperOptions?: TypeScriptTypeMapperOptions;
-
-	/** Template engine options */
-	templateOptions?: Partial<HandlebarsTemplateEngineOptions>;
 }
 
 /**
@@ -110,24 +101,6 @@ export class TypeScriptGenerator extends BaseGenerator<
 			preferUndefined: true,
 			...options.typeMapperOptions,
 		}) as unknown as TypeMapper;
-	}
-
-	protected override createTemplateEngine(): TemplateEngine {
-		const options = this.options as TypeScriptGeneratorOptions;
-		const templateDir = resolveTemplatePath("typescript");
-		const handlebarsEngine = new HandlebarsTemplateEngine({
-			logger: this.logger,
-			templateDirectory: templateDir,
-			autoLoadTemplates: false, // We'll load manually to ensure they're ready
-			...options.templateOptions,
-		});
-
-		// Load templates synchronously during initialization
-		handlebarsEngine.loadTemplatesFromDirectory(templateDir).catch((error) => {
-			this.logger.error("Failed to load TypeScript templates:", error);
-		});
-
-		return handlebarsEngine as unknown as TemplateEngine;
 	}
 
 	protected async generateSchemaContent(
@@ -283,100 +256,9 @@ export class TypeScriptGenerator extends BaseGenerator<
 		return false;
 	}
 
-	private getTemplateForSchema(schema: TypeSchema): string {
-		return "interface";
-	}
-
-	private filterSchemas(schemas: TypeSchema[]): TypeSchema[] {
-		return schemas.filter((schema) => !this.shouldSkipSchema(schema));
-	}
-
 	private getFilenameForSchema(schema: TypeSchema): string {
 		const baseName = this.typeMapper.formatFileName(schema.identifier.name);
 		return `${baseName}${this.getFileExtension()}`;
-	}
-
-	private async buildTemplateContext(
-		schema: TypeSchema,
-		baseContext: TemplateContext,
-	): Promise<TemplateContext> {
-		const fields = await this.processSchemaFields(schema);
-
-		const imports = this.calculateImportsForSchema(schema);
-
-		const exports = new Set([
-			this.typeMapper.formatTypeName(schema.identifier.name),
-		]);
-
-		return {
-			...baseContext,
-			schema,
-			formattedName: this.typeMapper.formatTypeName(schema.identifier.name),
-			description: this.formatDescription(schema.description),
-			fields,
-			imports,
-			exports,
-			includeDocuments: this.tsOptions.includeDocuments,
-			moduleFormat: this.tsOptions.moduleFormat,
-			namingConvention: this.tsOptions.namingConvention,
-		};
-	}
-
-	private async processSchemaFields(schema: TypeSchema): Promise<any> {
-		if (!("elements" in schema) || !schema.elements) {
-			return {};
-		}
-
-		const processedFields: Record<string, any> = {};
-
-		for (const [fieldName, fieldDef] of Object.entries(schema.elements)) {
-			const processedField = await this.processField(
-				fieldName,
-				fieldDef,
-				schema,
-			);
-			if (processedField) {
-				processedFields[fieldName] = processedField;
-			}
-		}
-
-		return processedFields;
-	}
-
-	private async processField(
-		fieldName: string,
-		fieldDef: any,
-		schema: TypeSchema,
-	): Promise<any> {
-		const fieldType = this.typeMapper.mapType(fieldDef);
-
-		return {
-			name: this.typeMapper.formatFieldName(fieldName),
-			type: fieldType.name,
-			required: fieldDef.min >= 1,
-			isArray: fieldDef.max !== 1,
-			description: this.formatDescription(fieldDef.description),
-			originalName: fieldName,
-			languageType: fieldType,
-		};
-	}
-
-	private calculateImportsForSchema(schema: TypeSchema): Map<string, string> {
-		const imports = new Map<string, string>();
-
-		if (!("elements" in schema) || !schema.elements) {
-			return imports;
-		}
-
-		for (const [fieldName, fieldDef] of Object.entries(schema.elements)) {
-			const fieldType = this.typeMapper.mapType(fieldDef);
-
-			if (!fieldType.isPrimitive && fieldType.importPath) {
-				imports.set(fieldType.name, fieldType.importPath);
-			}
-		}
-
-		return imports;
 	}
 
 	private extractImportsFromContent(
@@ -422,44 +304,11 @@ export class TypeScriptGenerator extends BaseGenerator<
 		return exports;
 	}
 
-	private async generateIndexFiles(
-		results: GeneratedFile[],
-	): Promise<GeneratedFile[]> {
-		const indexFiles: GeneratedFile[] = [];
-
-		// Generate main index file
-		const mainIndex = await this.generateMainIndexFile(results);
-		indexFiles.push(mainIndex);
-
-		// Generate sub-index files if profiles are included
-		if (this.tsOptions.includeProfiles && this.profilesByPackage.size > 0) {
-			const profileIndexes = await this.generateProfileIndexFiles();
-			indexFiles.push(...profileIndexes);
-		}
-
-		return indexFiles;
-	}
-
 	private async generateMainIndexFile(
 		results: GeneratedFile[],
 	): Promise<GeneratedFile> {
 		const exportGroups = this.groupExportsByCategory(results);
-
-		const context: TemplateContext = {
-			schema: {} as TypeSchema,
-			typeMapper: this.typeMapper,
-			filename: "index.ts",
-			language: "TypeScript",
-			timestamp: new Date().toISOString(),
-			exports: new Set(),
-			imports: new Map(),
-			header:
-				"// Auto-generated TypeScript FHIR types\n// Generated by @atomic-ehr/codegen",
-			groupedExports: exportGroups,
-			moduleFormat: this.tsOptions.moduleFormat,
-		};
-
-		const content = await this.templateEngine.render("index", context);
+		const content = this.generateMainIndexContent(exportGroups);
 
 		return {
 			path: this.fileManager.getRelativeImportPath("", "index.ts"),
@@ -476,46 +325,20 @@ export class TypeScriptGenerator extends BaseGenerator<
 
 		for (const [packageName, profiles] of this.profilesByPackage) {
 			const sanitizedPackage = this.sanitizePackageName(packageName);
-
-			const context: TemplateContext = {
-				schema: {} as TypeSchema,
-				typeMapper: this.typeMapper,
-				filename: `profiles/${sanitizedPackage}/index.ts`,
-				language: "TypeScript",
-				timestamp: new Date().toISOString(),
-				exports: new Set(profiles.map((p) => p.interfaceName)),
-				imports: new Map(),
-				header: `// ${packageName} FHIR Profiles`,
-				packageName,
-				profiles,
-			};
-
-			const content = await this.templateEngine.render(
-				"profile-index",
-				context,
-			);
+			const filename = `profiles/${sanitizedPackage}/index.ts`;
+			const content = this.generateProfileIndexContent(packageName, profiles);
 
 			indexFiles.push({
-				path: context.filename,
-				filename: `profiles/${sanitizedPackage}/index.ts`,
+				path: filename,
+				filename,
 				content,
-				exports: Array.from(context.exports!),
+				exports: profiles.map((p) => p.interfaceName),
 				size: Buffer.byteLength(content, "utf-8"),
 				timestamp: new Date(),
 			});
 		}
 
 		return indexFiles;
-	}
-
-	private hasEnumFields(schema: TypeSchema): boolean {
-		if (!("elements" in schema) || !schema.elements) {
-			return false;
-		}
-
-		return Object.values(schema.elements).some(
-			(field) => field.binding && field.binding.strength === "required",
-		);
 	}
 
 	private formatDescription(description?: string): string {
@@ -567,6 +390,66 @@ export class TypeScriptGenerator extends BaseGenerator<
 	}
 
 	/**
+	 * Generate main index file content using simple string generation
+	 */
+	private generateMainIndexContent(
+		exportGroups: Record<string, string[]>,
+	): string {
+		const lines: string[] = [];
+
+		// Add file header
+		lines.push("// Auto-generated TypeScript FHIR types");
+		lines.push("// Generated by @atomic-ehr/codegen");
+		lines.push("");
+
+		// Generate exports by category
+		for (const [category, exports] of Object.entries(exportGroups)) {
+			if (exports.length === 0) continue;
+
+			lines.push(`// ${category}`);
+			for (const exportName of exports.sort()) {
+				const fileName = this.typeMapper.formatFileName(exportName);
+				lines.push(`export type { ${exportName} } from './${fileName}';`);
+			}
+			lines.push("");
+		}
+
+		// Add utilities export
+		lines.push("// Utilities");
+		lines.push(
+			"export type { ResourceType, TypedReference } from './utilities';",
+		);
+
+		return lines.join("\n");
+	}
+
+	/**
+	 * Generate profile index file content using simple string generation
+	 */
+	private generateProfileIndexContent(
+		packageName: string,
+		profiles: Array<{ filename: string; interfaceName: string }>,
+	): string {
+		const lines: string[] = [];
+
+		// Add file header
+		lines.push(`// ${packageName} FHIR Profiles`);
+		lines.push("// Generated by @atomic-ehr/codegen");
+		lines.push("");
+
+		// Generate exports for each profile
+		for (const profile of profiles.sort((a, b) =>
+			a.interfaceName.localeCompare(b.interfaceName),
+		)) {
+			lines.push(
+				`export type { ${profile.interfaceName} } from './${profile.filename}';`,
+			);
+		}
+
+		return lines.join("\n");
+	}
+
+	/**
 	 * Generate special Reference interface with generics
 	 */
 	private generateReferenceInterface(schema: TypeSchema): string {
@@ -574,11 +457,9 @@ export class TypeScriptGenerator extends BaseGenerator<
 		const imports = new Set<string>();
 
 		if ("fields" in schema && schema.fields) {
-			for (const [fieldName, field] of Object.entries(schema.fields)) {
-				if (fieldName !== "type") {
-					const importDeps = this.collectFieldImports(field);
-					importDeps.forEach((imp) => imports.add(imp));
-				}
+			for (const [, field] of Object.entries(schema.fields)) {
+				const importDeps = this.collectFieldImports(field);
+				importDeps.forEach((imp) => imports.add(imp));
 			}
 		}
 
@@ -640,7 +521,7 @@ export class TypeScriptGenerator extends BaseGenerator<
 		const imports = new Set<string>();
 
 		if ("fields" in schema && schema.fields) {
-			for (const [fieldName, field] of Object.entries(schema.fields)) {
+			for (const [, field] of Object.entries(schema.fields)) {
 				const importDeps = this.collectFieldImports(field);
 				importDeps.forEach((imp) => imports.add(imp));
 			}
@@ -741,25 +622,6 @@ export class TypeScriptGenerator extends BaseGenerator<
 		}
 
 		return [...new Set(resourceTypes)]; // Remove duplicates
-	}
-
-	/**
-	 * Extract resource type name from FHIR URL
-	 */
-	private extractResourceTypeFromUrl(url: string): string | null {
-		if (!url || typeof url !== "string") return null;
-
-		const match = url.match(/\/StructureDefinition\/([A-Za-z][A-Za-z0-9]*)/);
-		if (match && match[1]) {
-			return this.typeMapper.formatTypeName(match[1]);
-		}
-
-		const directMatch = url.match(/^[A-Za-z][A-Za-z0-9]*$/);
-		if (directMatch) {
-			return this.typeMapper.formatTypeName(url);
-		}
-
-		return null;
 	}
 
 	/**

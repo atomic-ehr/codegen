@@ -1,6 +1,3 @@
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-
 /**
  * Convert a string into PascalCase.
  * Examples:
@@ -46,20 +43,4 @@ export function chunkArray<T>(arr: T[], size: number): T[][] {
 	}
 
 	return result;
-}
-
-/**
- * Resolve template directory path based on whether we're running in development or built mode
- * @param templateSubPath - The subdirectory path under templates (e.g., 'typescript')
- * @returns Absolute path to the template directory
- */
-export function resolveTemplatePath(templateSubPath: string = ""): string {
-	const currentFile = fileURLToPath(import.meta.url);
-	const currentDir = dirname(currentFile);
-
-	// In built mode: dist/utils.js -> ../templates/
-	// In dev mode: src/utils.ts -> ../templates/
-	const templatesDir = join(currentDir, "..", "templates");
-
-	return templateSubPath ? join(templatesDir, templateSubPath) : templatesDir;
 }
