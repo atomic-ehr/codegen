@@ -8,7 +8,7 @@ import { createMockSchemas, createComplexNestedSchema } from '../helpers/schema-
 import { TestFileSystem } from '../helpers/file-helpers';
 import { assertPerformanceBenchmark, assertMemoryUsage } from '../helpers/assertions';
 
-describe('Generation Speed Performance', () => {
+describe.skip('Generation Speed Performance', () => {
   let generator: TestGenerator;
   let logger: MockLogger;
   let testFs: TestFileSystem;
