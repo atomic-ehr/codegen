@@ -7,6 +7,8 @@
 
 import type { TypeSchema, TypeSchemaIdentifier } from '../../typeschema';
 import { BaseGenerator } from './base/BaseGenerator';
+import { TypeMapper } from './base/types';
+import type { TemplateEngine } from './base/types';
 import { TypeScriptTypeMapper, type TypeScriptTypeMapperOptions } from './base/TypeScriptTypeMapper';
 import { HandlebarsTemplateEngine, type HandlebarsTemplateEngineOptions } from './base/HandlebarsTemplateEngine';
 import { 
@@ -88,19 +90,19 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
     return '.ts';
   }
 
-  protected createTypeMapper() {
+  protected override createTypeMapper(): TypeMapper {
     const options = this.options as TypeScriptGeneratorOptions;
     return new TypeScriptTypeMapper({
       namingConvention: (options.namingConvention ?? 'PascalCase') === 'PascalCase' ? 'PascalCase' : 'camelCase',
-      moduleFormat: options.moduleFormat ?? 'esm',
+      moduleFormat: options.moduleFormat === 'cjs' ? 'commonjs' : 'esm',
       preferUndefined: true,
       ...options.typeMapperOptions
-    });
+    }) as unknown as TypeMapper;
   }
 
-  protected createTemplateEngine() {
+  protected override createTemplateEngine(): TemplateEngine {
     const options = this.options as TypeScriptGeneratorOptions;
-    const engine = new HandlebarsTemplateEngine({
+    const handlebarsEngine = new HandlebarsTemplateEngine({
       logger: this.logger,
       templateDirectory: './templates/typescript',
       autoLoadTemplates: false, // We'll load manually to ensure they're ready
@@ -108,11 +110,11 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
     });
     
     // Load templates synchronously during initialization
-    engine.loadTemplatesFromDirectory('./templates/typescript').catch(error => {
+    handlebarsEngine.loadTemplatesFromDirectory('./templates/typescript').catch(error => {
       this.logger.error('Failed to load TypeScript templates:', error);
     });
     
-    return engine;
+    return handlebarsEngine as unknown as TemplateEngine;
   }
 
   protected async generateSchemaContent(schema: TypeSchema, context: TemplateContext): Promise<string> {
@@ -172,6 +174,22 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
   }
 
   /**
+   * Transform multiple schemas into TypeScript
+   */
+  async transformSchemas(schemas: TypeSchema[]): Promise<GeneratedTypeScript[]> {
+    const results: GeneratedTypeScript[] = [];
+    
+    for (const schema of schemas) {
+      const result = await this.transformSchema(schema);
+      if (result) {
+        results.push(result);
+      }
+    }
+    
+    return results;
+  }
+
+  /**
    * Transform a single schema into TypeScript
    */
   async transformSchema(schema: TypeSchema): Promise<GeneratedTypeScript | undefined> {
@@ -226,7 +244,7 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
     }
 
     // Skip extensions if not included  
-    if (schema.identifier.kind === 'extension' && !this.tsOptions.includeExtensions) {
+    if (schema.identifier.url?.includes('/extension/') && !this.tsOptions.includeExtensions) {
       return true;
     }
 
@@ -263,12 +281,10 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
 
     return {
       ...baseContext,
-      schema: {
-        ...schema,
-        formattedName: this.typeMapper.formatTypeName(schema.identifier.name),
-        description: this.formatDescription(schema.description),
-        fields
-      },
+      schema,
+      formattedName: this.typeMapper.formatTypeName(schema.identifier.name),
+      description: this.formatDescription(schema.description),
+      fields,
       imports,
       exports,
       includeDocuments: this.tsOptions.includeDocuments,
@@ -339,9 +355,12 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
     
     let match;
     while ((match = importRegex.exec(content)) !== null) {
-      const symbols = match[1].split(',').map(s => s.trim());
+      const symbolsStr = match[1];
       const path = match[2];
       
+      if (!symbolsStr || !path) continue;
+      
+      const symbols = symbolsStr.split(',').map(s => s.trim());
       for (const symbol of symbols) {
         imports.set(symbol, path);
       }
@@ -358,7 +377,7 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
     
     let match;
     while ((match = exportRegex.exec(content)) !== null) {
-      exports.add(match[1]);
+      if (match[1]) exports.add(match[1]);
     }
 
     // Always include the main interface name
@@ -484,13 +503,13 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
 
     for (const result of results) {
       if (result.filename.includes('profile')) {
-        groups['Profiles'].push(...result.exports);
+        groups['Profiles']!.push(...result.exports || []);
       } else if (result.filename.includes('extension')) {
-        groups['Extensions'].push(...result.exports);
+        groups['Extensions']!.push(...result.exports || []);
       } else if (this.isResourceType(result)) {
-        groups['Resources'].push(...result.exports);
+        groups['Resources']!.push(...result.exports || []);
       } else {
-        groups['Complex Types'].push(...result.exports);
+        groups['Complex Types']!.push(...result.exports || []);
       }
     }
 
@@ -502,7 +521,7 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
 
   private isResourceType(result: GeneratedFile): boolean {
     // Heuristic to determine if this is a FHIR resource
-    return result.exports.some(exp => 
+    return (result.exports || []).some(exp => 
       exp.endsWith('Resource') || 
       ['Patient', 'Observation', 'Practitioner'].includes(exp)
     );
@@ -750,7 +769,7 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
   /**
    * Extract exported symbols from TypeScript content
    */
-  protected extractExports(content: string): string[] {
+  protected override extractExports(content: string): string[] {
     const exports: string[] = [];
     
     // Match export { name1, name2 } pattern first
@@ -800,6 +819,7 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
    * Update generator options for compatibility with API builder
    */
   setOptions(options: Partial<TypeScriptGeneratorOptions>): void {
+    // Merge with existing options
     this.options = { ...this.options, ...options };
   }
 
@@ -817,7 +837,7 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
   /**
    * Run post-generation hooks - generate utility files
    */
-  protected async runPostGenerationHooks(): Promise<void> {
+  protected override async runPostGenerationHooks(): Promise<void> {
     await super.runPostGenerationHooks();
     
     // Generate utilities.ts with ResourceType union

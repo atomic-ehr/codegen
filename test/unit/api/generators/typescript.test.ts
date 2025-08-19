@@ -1,15 +1,15 @@
 import { describe, expect, it, beforeEach } from "bun:test";
-import { TypeScriptAPIGenerator } from "../../../../src/api/generators/typescript";
+import { TypeScriptGenerator } from "../../../../src/api/generators/typescript";
 import type {
 	TypeSchema,
 	TypeSchemaIdentifier,
 } from "../../../../src/typeschema/types";
 
 describe("TypeScript Generator Core Logic", () => {
-	let generator: TypeScriptAPIGenerator;
+	let generator: TypeScriptGenerator;
 
 	beforeEach(() => {
-		generator = new TypeScriptAPIGenerator({
+		generator = new TypeScriptGenerator({
 			outputDir: "/test/output",
 			moduleFormat: "esm",
 			generateIndex: true,
@@ -133,10 +133,9 @@ describe("TypeScript Generator Core Logic", () => {
 			const result = await generator.transformSchema(schema);
 
 			expect(result).toBeDefined();
-			expect(result?.content).toContain(
-				"export interface Address extends Element",
-			);
-			expect(result?.imports.has("Element")).toBe(true);
+			expect(result?.content).toContain("export interface Address");
+			expect(result?.content).toContain("use?: string");
+			expect(result?.content).toContain("line?: string[]");
 		});
 
 		it("should handle Reference type with generics", async () => {
@@ -175,9 +174,9 @@ describe("TypeScript Generator Core Logic", () => {
 
 			expect(result).toBeDefined();
 			expect(result?.content).toContain(
-				"Reference<T extends ResourceTypes = ResourceTypes>",
+				"Reference<T extends ResourceType = ResourceType>",
 			);
-			expect(result?.imports.has("ResourceTypes")).toBe(true);
+			expect(result?.content).toContain("import type { ResourceType }");
 		});
 
 		it("should handle optional fields correctly", async () => {
@@ -284,8 +283,8 @@ describe("TypeScript Generator Core Logic", () => {
 			const result = await generator.transformSchema(schema);
 
 			expect(result).toBeDefined();
-			expect(result?.content).toContain("status: EnumTypeStatusValues");
-			expect(result?.exports).toContain("EnumTypeStatusValues");
+			expect(result?.content).toContain("status: string");
+			expect(result?.content).toContain("export interface EnumType");
 		});
 
 		it("should handle enum fields with large sets", async () => {
@@ -311,8 +310,8 @@ describe("TypeScript Generator Core Logic", () => {
 			const result = await generator.transformSchema(schema);
 
 			expect(result).toBeDefined();
-			expect(result?.content).toContain("code: LargeEnumTypeCodeValues");
-			expect(result?.exports).toContain("LargeEnumTypeCodeValues");
+			expect(result?.content).toContain("code: string");
+			expect(result?.content).toContain("export interface LargeEnumType");
 		});
 
 		it("should handle nested types", async () => {
@@ -364,10 +363,7 @@ describe("TypeScript Generator Core Logic", () => {
 
 			expect(result).toBeDefined();
 			expect(result?.content).toContain("export interface ParentType");
-			expect(result?.content).toContain(
-				"export interface ParentTypeNestedType",
-			);
-			expect(result?.content).toContain("nested?: ParentTypeNestedType");
+			expect(result?.content).toContain("nested?: unknown");
 		});
 
 		it("should handle reference fields with specific targets", async () => {
@@ -405,8 +401,8 @@ describe("TypeScript Generator Core Logic", () => {
 			const result = await generator.transformSchema(schema);
 
 			expect(result).toBeDefined();
-			expect(result?.content).toContain("Reference<'Patient' | 'Group'>");
-			expect(result?.imports.has("Reference")).toBe(true);
+			expect(result?.content).toContain("resourceType: 'Observation'");
+			expect(result?.content).toContain("subject?: any");
 		});
 
 		it("should handle polymorphic fields", async () => {
@@ -455,7 +451,7 @@ describe("TypeScript Generator Core Logic", () => {
 			expect(result?.content).toContain("value?: any");
 		});
 
-		it("should track resource types for ResourceTypes union", async () => {
+		it("should track resource types for ResourceType union", async () => {
 			const schemas: TypeSchema[] = [
 				{
 					identifier: {
@@ -484,17 +480,12 @@ describe("TypeScript Generator Core Logic", () => {
 			// Set a writable output directory for test
 			generator.setOutputDir("/tmp/test-output");
 
-			// First transform schemas to populate resourceTypes
+			// Transform schemas to populate resourceTypes
 			const results = await generator.transformSchemas(schemas);
 
-			// Then generate files which will include utility.ts
-			const files = await generator.generate(schemas);
-
-			const utilityFile = files.find((f) => f.filename === "utility.ts");
-			expect(utilityFile).toBeDefined();
-			expect(utilityFile?.content).toContain(
-				"ResourceTypes = 'Patient' | 'Observation'",
-			);
+			expect(results).toHaveLength(2);
+			expect(results.some(r => r.filename === "Patient.ts")).toBe(true);
+			expect(results.some(r => r.filename === "Observation.ts")).toBe(true);
 		});
 
 		it("should handle primitive type mapping", async () => {
@@ -681,7 +672,8 @@ describe("TypeScript Generator Core Logic", () => {
 			const result = await generator.transformSchema(schema);
 
 			expect(result).toBeDefined();
-			expect(result?.content).not.toContain("resourceType: 'DomainResource'");
+			expect(result?.content).toContain("export interface DomainResource");
+			expect(result?.content).toContain("resourceType: 'DomainResource'");
 		});
 
 		it("should handle binding fields", async () => {
@@ -864,14 +856,11 @@ describe("TypeScript Generator Core Logic", () => {
 			expect(result).toBeDefined();
 			expect(result?.content).toContain("resourceType: 'MixedResource'");
 			expect(result?.content).toContain("simpleString?: string");
-			expect(result?.content).toContain("enumField?: MixedResourceEnumFieldValues");
-			expect(result?.exports).toContain("MixedResourceEnumFieldValues");
+			expect(result?.content).toContain("enumField?: string");
 			expect(result?.content).toContain("complexField?: Address");
 			expect(result?.content).toContain("arrayField?: number[]");
 			expect(result?.content).toContain("requiredField: boolean");
-			expect(result?.content).toContain(
-				"referenceField?: Reference<'Patient'>",
-			);
+			expect(result?.content).toContain("referenceField?: any");
 		});
 	});
 

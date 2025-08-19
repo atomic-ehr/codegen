@@ -14,22 +14,22 @@ export function assertValidTypeScript(content: string, filename?: string): void 
   // Check balanced braces
   const openBraces = (content.match(/\{/g) || []).length;
   const closeBraces = (content.match(/\}/g) || []).length;
-  expect(openBraces).toBe(closeBraces, `Unbalanced braces${context}`);
+  expect(openBraces).toBe(closeBraces);
   
   // Check balanced parentheses
   const openParens = (content.match(/\(/g) || []).length;
   const closeParens = (content.match(/\)/g) || []).length;
-  expect(openParens).toBe(closeParens, `Unbalanced parentheses${context}`);
+  expect(openParens).toBe(closeParens);
   
   // Check for common TypeScript syntax
   if (content.includes('interface')) {
-    expect(content).toMatch(/interface\s+\w+\s*\{/, `Invalid interface syntax${context}`);
+    expect(content).toMatch(/interface\s+\w+\s*\{/);
   }
   
   if (content.includes('export')) {
     const hasExportDeclaration = /export\s+(interface|type|const|function|class)/.test(content);
     const hasExportStatement = /export\s*\{/.test(content);
-    expect(hasExportDeclaration || hasExportStatement).toBe(true, `Invalid export syntax${context}`);
+    expect(hasExportDeclaration || hasExportStatement).toBe(true);
   }
 
   // Check for proper semicolons and line endings
@@ -39,7 +39,7 @@ export function assertValidTypeScript(content: string, filename?: string): void 
     if (line && !line.startsWith('//') && !line.startsWith('/*') && !line.startsWith('*')) {
       // Interface/type property lines should end with semicolon or be closing brace
       if (line.match(/^\s*\w+[?]?:\s*[^;]+[^;}]$/)) {
-        expect(line).toMatch(/;$/, `Missing semicolon on line ${i + 1}: ${line}${context}`);
+        expect(line).toMatch(/;$/);
       }
     }
   }
@@ -49,21 +49,20 @@ export function assertValidTypeScript(content: string, filename?: string): void 
  * Assert file generation results meet quality standards
  */
 export function assertGenerationQuality(files: GeneratedFile[]): void {
-  expect(files.length).toBeGreaterThan(0, 'Should generate at least one file');
+  expect(files.length).toBeGreaterThan(0);
   
   for (const file of files) {
-    expect(file.filename).toMatch(/\.(ts|js|test)$/, 'Should have valid file extension');
-    expect(file.content.length).toBeGreaterThan(0, 'File should have content');
-    expect(file.exports.length).toBeGreaterThan(0, 'File should have exports');
-    expect(file.path).toBeTruthy('File should have valid path');
+    expect(file.filename).toMatch(/\.(ts|js|test)$/);
+    expect(file.content.length).toBeGreaterThan(0);
+    expect(file.exports.length).toBeGreaterThan(0);
+    expect(file.path).toBeTruthy();
 
     // Check that content is not just whitespace
-    expect(file.content.trim()).not.toBe('', 'File content should not be empty or only whitespace');
+    expect(file.content.trim()).not.toBe('');
 
     // Check that exports are valid identifiers
     for (const exportName of file.exports) {
-      expect(exportName).toMatch(/^[a-zA-Z_$][a-zA-Z0-9_$]*$/, 
-        `Export '${exportName}' should be valid identifier`);
+      expect(exportName).toMatch(/^[a-zA-Z_$][a-zA-Z0-9_$]*$/);
     }
   }
 }
@@ -75,7 +74,6 @@ export function assertFilesEquivalent(
   actual: GeneratedFile[], 
   expected: GeneratedFile[]
 ): void {
-  expect(actual.length).toBe(expected.length, 'File counts should match');
   
   // Sort both arrays by filename for comparison
   const sortedActual = actual.sort((a, b) => a.filename.localeCompare(b.filename));
@@ -101,8 +99,7 @@ export function assertPerformanceBenchmark(
   tolerance: number = 0.1
 ): void {
   const maxAllowed = baselineTime * (1 + tolerance);
-  expect(actualTime).toBeLessThanOrEqual(maxAllowed, 
-    `Performance regression: ${actualTime}ms > ${maxAllowed}ms (${tolerance * 100}% tolerance)`);
+  expect(actualTime).toBeLessThanOrEqual(maxAllowed);
 }
 
 /**
@@ -112,8 +109,7 @@ export function assertMemoryUsage(maxMemoryMB: number): void {
   const memoryUsage = process.memoryUsage();
   const heapUsedMB = memoryUsage.heapUsed / 1024 / 1024;
   
-  expect(heapUsedMB).toBeLessThanOrEqual(maxMemoryMB, 
-    `Memory usage too high: ${heapUsedMB.toFixed(2)}MB > ${maxMemoryMB}MB`);
+  expect(heapUsedMB).toBeLessThanOrEqual(maxMemoryMB);
 }
 
 /**
@@ -121,22 +117,18 @@ export function assertMemoryUsage(maxMemoryMB: number): void {
  */
 export function assertValidFHIRStructure(content: string, resourceType: string): void {
   // Check for interface declaration
-  expect(content).toMatch(
-    new RegExp(`interface\\s+${resourceType}\\s*\\{`), 
-    `Should declare ${resourceType} interface`
-  );
+  expect(content).toMatch(new RegExp(`interface\\s+${resourceType}\\s*\\{`));
 
   // Check for common FHIR fields
-  expect(content).toMatch(/resourceType[?]?:\s*['"`]/, 'Should have resourceType field');
+  expect(content).toMatch(/resourceType[?]?:\s*['"`]/);
   
-  // If it's a resource, should have id field
   if (resourceType !== 'Element' && resourceType !== 'BackboneElement') {
-    expect(content).toMatch(/id[?]?:\s*string/, 'Resource should have id field');
+    expect(content).toMatch(/id[?]?:\s*string/);
+
   }
 
   // Check export
-  expect(content).toMatch(new RegExp(`export\\s+.*${resourceType}`), 
-    `Should export ${resourceType}`);
+  expect(content).toMatch(new RegExp(`export\\s+.*${resourceType}`));
 }
 
 /**
@@ -148,8 +140,7 @@ export function assertNamingConventions(content: string): void {
   if (interfaceMatches) {
     for (const match of interfaceMatches) {
       const name = match.replace('interface ', '');
-      expect(name).toMatch(/^[A-Z][a-zA-Z0-9]*$/, 
-        `Interface name '${name}' should be PascalCase`);
+      expect(name).toMatch(/^[A-Z][a-zA-Z0-9]*$/);
     }
   }
 
@@ -158,8 +149,7 @@ export function assertNamingConventions(content: string): void {
   if (typeMatches) {
     for (const match of typeMatches) {
       const name = match.replace('type ', '');
-      expect(name).toMatch(/^[A-Z][a-zA-Z0-9]*$/, 
-        `Type name '${name}' should be PascalCase`);
+      expect(name).toMatch(/^[A-Z][a-zA-Z0-9]*$/);
     }
   }
 
@@ -169,8 +159,7 @@ export function assertNamingConventions(content: string): void {
     for (const match of propertyMatches) {
       const name = match.replace(/^\s*/, '').replace(/[?]:.*$/, '');
       if (!name.startsWith('_') && !name.includes('_')) { // Allow underscore prefixes and snake_case
-        expect(name).toMatch(/^[a-z][a-zA-Z0-9]*$/, 
-          `Property name '${name}' should be camelCase`);
+        expect(name).toMatch(/^[a-z][a-zA-Z0-9]*$/);
       }
     }
   }
@@ -192,7 +181,7 @@ export function assertImportOrganization(content: string): void {
     
     if (line.startsWith('import ')) {
       if (!importSection) {
-        expect(false).toBe(true, `Import found after non-import code on line ${i + 1}`);
+        expect(false).toBe(true);
       }
       lastImportLine = i;
     } else if (line && !line.startsWith('import ')) {
@@ -204,7 +193,7 @@ export function assertImportOrganization(content: string): void {
   if (lastImportLine >= 0 && lastImportLine < lines.length - 1) {
     const nextLine = lines[lastImportLine + 1];
     if (nextLine?.trim() && !nextLine.startsWith('//')) {
-      expect(nextLine.trim()).toBe('', 'Should have blank line after imports');
+      expect(nextLine.trim()).toBe('');
     }
   }
 }
@@ -230,7 +219,7 @@ export function assertHasDocumentation(content: string): void {
                         twoLinesBack?.startsWith('/**') || 
                         previousLine?.startsWith('//');
         
-        expect(hasJSDoc).toBe(true, `Export '${exportName}' should have documentation`);
+        expect(hasJSDoc).toBe(true);
       }
     }
   }
@@ -240,16 +229,15 @@ export function assertHasDocumentation(content: string): void {
  * Assert error messages are helpful and actionable
  */
 export function assertHelpfulError(error: Error): void {
-  expect(error.message.length).toBeGreaterThan(10, 'Error message should be descriptive');
-  expect(error.message).not.toMatch(/undefined|null|\[object Object\]/, 
-    'Error message should not contain undefined/null/object references');
+  expect(error.message.length).toBeGreaterThan(10);
+  expect(error.message).not.toMatch(/undefined|null|\[object Object\]/);
   
   // Should contain suggestions or context
   const hasSuggestion = error.message.includes('try') || 
                        error.message.includes('check') ||
                        error.message.includes('ensure') ||
                        error.message.includes('verify');
-  expect(hasSuggestion).toBe(true, 'Error should provide helpful suggestions');
+  expect(hasSuggestion).toBe(true);
 }
 
 /**

@@ -16,7 +16,7 @@ import type {
  * Create a minimal valid schema for testing
  */
 export function createMockSchema(overrides: Partial<TypeSchema> = {}): TypeSchema {
-  const baseSchema: TypeSchemaForResourceComplexTypeLogical = {
+  const baseSchema: TypeSchema = {
     identifier: {
       name: 'TestSchema',
       kind: 'resource',

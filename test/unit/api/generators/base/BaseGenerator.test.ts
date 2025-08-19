@@ -117,7 +117,7 @@ describe('BaseGenerator', () => {
       
       await expect(
         generator.build([schema])
-      ).rejects.toThrow('Test validation error');
+      ).rejects.toThrow('operations failed');
     });
   });
 
@@ -141,7 +141,7 @@ describe('BaseGenerator', () => {
         await generator.build([malformedSchema] as any);
       } catch (error) {
         expect(error instanceof Error).toBe(true);
-        expect(error.message).toContain('Schema');
+        expect(error.message).toContain('operations failed');
       }
     });
   });

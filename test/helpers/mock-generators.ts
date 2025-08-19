@@ -4,8 +4,8 @@
 
 import type { CodegenLogger } from '../../src/utils/codegen-logger';
 import { BaseGenerator } from '../../src/api/generators/base/BaseGenerator';
+import type { TypeSchema } from '../../src/typeschema/types';
 import type { 
-  TypeSchema, 
   BaseGeneratorOptions, 
   GeneratedFile, 
   TemplateContext 
@@ -14,7 +14,7 @@ import type {
 /**
  * Mock logger that captures all log messages
  */
-export class MockLogger implements CodegenLogger {
+export class MockLogger {
   public messages: Array<{ level: string; message: string; error?: Error }> = [];
 
   debug(message: string): void {
@@ -33,7 +33,7 @@ export class MockLogger implements CodegenLogger {
     this.messages.push({ level: 'error', message, error });
   }
 
-  child(prefix: string): CodegenLogger {
+  child(prefix: string): MockLogger {
     return new MockLogger();
   }
 
@@ -82,7 +82,7 @@ interface ${schema.identifier.name} {
 export { ${schema.identifier.name} };`;
     
     // Add exports to context
-    context.exports.add(schema.identifier.name);
+    context.exports?.add(schema.identifier.name);
     
     return content;
   }

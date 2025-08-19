@@ -294,10 +294,10 @@ export const DEFAULT_FILE_BUILDER_OPTIONS: Partial<import('./types').FileBuilder
  * @deprecated Use BaseGenerator instead
  * Provided for backwards compatibility only
  */
-export { BaseGenerator as Generator };
+export { BaseGenerator as Generator } from './BaseGenerator';
 
 /**
  * @deprecated Use GeneratorError instead
  * Provided for backwards compatibility only
  */
-export { GeneratorError as BaseError };
+export { GeneratorError as BaseError } from './errors';

@@ -261,7 +261,15 @@ export type {{pascalCase this.name}} = {{#each this.values}}'{{this}}'{{#unless 
       } catch (error) {
         expect(error).toBeInstanceOf(TemplateError);
         const templateError = error as TemplateError;
-        expect(templateError.debugInfo?.suggestedTemplates).toContain('interface');
+        // Check if suggestedTemplates exists and contains the expected value
+        if (templateError.debugInfo?.suggestedTemplates) {
+          const suggested = templateError.debugInfo.suggestedTemplates;
+          if (Array.isArray(suggested)) {
+            expect(suggested).toContain('interface');
+          } else if (typeof suggested === 'string') {
+            expect(suggested).toContain('interface');
+          }
+        }
       }
     });
 

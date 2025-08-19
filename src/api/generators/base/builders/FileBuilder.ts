@@ -317,7 +317,7 @@ export class FileBuilder {
         try {
           await hook(error instanceof Error ? error : new Error(String(error)), context);
         } catch (hookError) {
-          this.config.logger.warn('Error hook failed:', hookError instanceof Error ? hookError : undefined);
+          this.config.logger.warn(`Error hook failed: ${hookError instanceof Error ? hookError.message : String(hookError)}`);
         }
       }
       

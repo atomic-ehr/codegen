@@ -45,7 +45,7 @@ export class HandlebarsTemplateEngine extends TemplateEngine {
     // Auto-load templates if requested
     if (this.options.autoLoadTemplates && this.options.templateDirectory) {
       this.loadTemplatesFromDirectory(this.options.templateDirectory).catch(error => {
-        this.logger.warn('Failed to auto-load templates:', error instanceof Error ? error : undefined);
+        this.logger.warn(`Failed to auto-load templates: ${error instanceof Error ? error.message : String(error)}`);
       });
     }
   }
@@ -269,7 +269,7 @@ export class HandlebarsTemplateEngine extends TemplateEngine {
         }
       }
     } catch (error) {
-      this.logger.warn(`Failed to read directory ${directory}:`, error instanceof Error ? error : undefined);
+      this.logger.warn(`Failed to read directory ${directory}: ${error instanceof Error ? error.message : String(error)}`);
     }
     
     return files;
@@ -297,7 +297,7 @@ export class HandlebarsTemplateEngine extends TemplateEngine {
       });
 
     } catch (error) {
-      this.logger.warn(`Failed to load template file ${filePath}:`, error instanceof Error ? error : undefined);
+      this.logger.warn(`Failed to load template file ${filePath}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 

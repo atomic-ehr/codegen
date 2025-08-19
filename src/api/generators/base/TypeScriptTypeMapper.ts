@@ -128,7 +128,7 @@ export class TypeScriptTypeMapper extends TypeMapper {
 
     // Single target - typed reference
     if (targets.length === 1) {
-      const targetType = this.formatTypeName(targets[0].name || 'unknown');
+      const targetType = this.formatTypeName(targets[0]?.name || 'unknown');
       return {
         name: 'Reference',
         isPrimitive: false,
