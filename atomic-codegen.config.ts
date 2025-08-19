@@ -23,15 +23,14 @@ const config: Config = {
 	validate: true,
 	cache: true,
 
-	// TypeScript type generation configuration
 	typescript: {
 		moduleFormat: "esm",
 		generateIndex: true,
 		includeDocuments: true,
 		namingConvention: "PascalCase",
 		strictMode: true,
-		includeProfiles: true, // ✅ Enable FHIR profile generation
-		includeExtensions: true,
+		includeProfiles: false,
+		includeExtensions: false,
 
 		// Profile generation configuration
 		profileOptions: {
@@ -42,34 +41,33 @@ const config: Config = {
 			subfolder: "profiles", // Generate profiles in ./generated/profiles/
 		},
 	},
+	// restClient: {
+	// 	// Basic client configuration
+	// 	clientName: "FHIRClient", // Name of the generated client class
+	// 	includeErrorHandling: true, // Include enhanced error handling
+	// 	includeUtilities: true, // Include utility methods
+	// 	includeDocumentation: true, // Generate comprehensive documentation
 
-	// REST Client generation configuration
-	restClient: {
-		// Basic client configuration
-		clientName: "FHIRClient", // Name of the generated client class
-		includeErrorHandling: true, // Include enhanced error handling
-		includeUtilities: true, // Include utility methods
-		includeDocumentation: true, // Generate comprehensive documentation
+	// 	// Enhanced features (Phase 2 capabilities)
+	// 	enhancedSearch: true, // Enhanced search parameter types with modifiers
+	// 	searchAutocomplete: true, // Enable IDE autocompletion for search parameter names
+	// 	includeValidation: true, // Client-side resource validation
+	// 	generateValidators: true, // Generate validation methods per resource
+	// 	useCanonicalManager: true, // Use FHIR canonical manager for search parameters and operations
 
-		// Enhanced features (Phase 2 capabilities)
-		enhancedSearch: true, // Enhanced search parameter types with modifiers
-		searchAutocomplete: true, // Enable IDE autocompletion for search parameter names
-		includeValidation: true, // Client-side resource validation
-		generateValidators: true, // Generate validation methods per resource
-		useCanonicalManager: true, // Use FHIR canonical manager for search parameters and operations
+	// 	// Client behavior configuration
+	// 	defaultTimeout: 30000, // Default request timeout (30 seconds)
+	// 	defaultRetries: 0, // Default number of retries
 
-		// Client behavior configuration
-		defaultTimeout: 30000, // Default request timeout (30 seconds)
-		defaultRetries: 0, // Default number of retries
+	// 	// Development and testing features
+	// 	generateExamples: false, // Generate usage examples
+	// 	includeRequestInterceptors: false, // Include request interceptor support
+	// 	baseUrlOverride: "", // Override base URL (for testing)
+	// },
 
-		// Development and testing features
-		generateExamples: false, // Generate usage examples
-		includeRequestInterceptors: false, // Include request interceptor support
-		baseUrlOverride: "", // Override base URL (for testing)
-	},
-
-	// TypeSchema caching configuration
 	typeSchema: {
+		treeshake: ["Patient"],
+		singleFile: true,
 		enablePersistence: true,
 		cacheDir: ".typeschema-cache",
 		maxAge: 24 * 60 * 60 * 1000, // 24 hours
@@ -78,15 +76,9 @@ const config: Config = {
 		shareCache: true,
 		cacheKeyPrefix: "",
 
-		// Profile package configuration
 		profiles: {
 			packages: [
-				// Uncomment to include US Core profiles
 				"hl7.fhir.us.core@5.0.1",
-
-				// Uncomment to include other implementation guide profiles
-				// "hl7.fhir.au.base@4.0.0", // AU Base profiles
-				// "hl7.fhir.uv.ips@1.0.0",  // International Patient Summary
 			],
 			autoDetect: true, // Automatically detect profiles in packages
 		},

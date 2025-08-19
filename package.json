@@ -31,7 +31,7 @@
 		"test:verbose": "bun test --verbose",
 		"test:helpers": "bun test test/helpers/",
 		"test:quick": "bun test test/unit/ --timeout 5000",
-		"build": "rm -rf dist && bun build src/index.ts src/cli/index.ts --outdir dist --target node --format esm --splitting --external typescript && bunx tsc --project tsconfig.build.json && chmod +x dist/cli/index.js",
+		"build": "rm -rf dist && bun build src/index.ts src/cli/index.ts --outdir dist --target node --format esm --splitting --external typescript && bunx tsc --project tsconfig.build.json && cp -r templates dist/ && chmod +x dist/cli/index.js",
 		"typecheck": "bunx tsc --noEmit",
 		"lint": "biome check --write ./src",
 		"quality": "bun run typecheck && bun run lint && bun run test:unit",

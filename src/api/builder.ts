@@ -163,7 +163,7 @@ export class APIBuilder {
 			logger: this.logger.child("TS"),
 			verbose: this.options.verbose,
 			validate: true, // Enable validation for debugging
-			overwrite: this.options.overwrite
+			overwrite: this.options.overwrite,
 		});
 
 		this.generators.set("typescript", generator);
@@ -385,6 +385,7 @@ export class APIBuilder {
 			{
 				verbose: this.options.verbose,
 				logger: this.logger.child("Schema"),
+				treeshake: this.typeSchemaConfig?.treeshake,
 			},
 			this.typeSchemaConfig,
 		);
@@ -404,6 +405,7 @@ export class APIBuilder {
 				{
 					verbose: this.options.verbose,
 					logger: this.logger.child("Schema"),
+					treeshake: this.typeSchemaConfig?.treeshake,
 				},
 				this.typeSchemaConfig,
 			);

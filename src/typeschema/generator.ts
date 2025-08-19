@@ -72,13 +72,10 @@ export class TypeSchemaGenerator {
 		packageName: string,
 		packageVersion?: string,
 	): Promise<TypeSchema[]> {
-		// Initialize cache if needed
 		await this.initializeCache();
 
-		// Check if we should force regeneration
 		const forceRegenerate = this.cacheConfig?.forceRegenerate ?? false;
 
-		// Try to load from cache if enabled and not forcing regeneration
 		if (this.cache && !forceRegenerate) {
 			const cachedSchemas = this.cache.getByPackage(packageName);
 			if (cachedSchemas.length > 0) {
@@ -93,7 +90,6 @@ export class TypeSchemaGenerator {
 			`Loading FHIR package: ${packageName}${packageVersion ? `@${packageVersion}` : ""}`,
 		);
 
-		// Initialize FHIR canonical manager to load packages
 		this.manager = CanonicalManager({
 			packages: [`${packageName}${packageVersion ? `@${packageVersion}` : ""}`],
 			workingDir: "tmp/fhir",
@@ -101,7 +97,6 @@ export class TypeSchemaGenerator {
 
 		await this.manager.init();
 
-		// Get all resources from the package
 		const allResources = await this.manager.search({});
 		const structureDefinitions = allResources.filter(
 			(resource) => resource.resourceType === "StructureDefinition",
@@ -114,16 +109,18 @@ export class TypeSchemaGenerator {
 			`Found ${structureDefinitions.length} StructureDefinitions and ${valueSets.length} ValueSets in package`,
 		);
 
-		// Convert StructureDefinitions to FHIRSchemas
 		this.logger.progress(
 			`Converting ${structureDefinitions.length} StructureDefinitions to FHIRSchemas`,
 		);
+
+		const filteredStructureDefinitions =
+			this.applyStructureDefinitionTreeshaking(structureDefinitions);
 
 		const fhirSchemas: FHIRSchema[] = [];
 		let convertedCount = 0;
 		let failedCount = 0;
 
-		for (const sd of structureDefinitions) {
+		for (const sd of filteredStructureDefinitions) {
 			try {
 				const fhirSchema = translate(sd as StructureDefinition);
 				fhirSchemas.push(fhirSchema);
@@ -141,27 +138,21 @@ export class TypeSchemaGenerator {
 		}
 
 		this.logger.success(
-			`Schema conversion completed: ${convertedCount}/${structureDefinitions.length} successful, ${failedCount} failed`,
+			`Schema conversion completed: ${convertedCount}/${filteredStructureDefinitions.length} successful, ${failedCount} failed`,
 		);
 
-		// Store ValueSets for enum extraction during binding processing
-		// The CanonicalManager will handle ValueSet resolution, but we ensure they're available
 		if (valueSets.length > 0) {
 			this.logger.debug(
 				`${valueSets.length} ValueSets available for enum extraction`,
 			);
 		}
 
-		// Create package info
 		const packageInfo: PackageInfo = {
 			name: packageName,
 			version: packageVersion || "latest",
 		};
 
-		// Transform all FHIR schemas to TypeSchema format
 		const schemas = await this.generateFromSchemas(fhirSchemas, packageInfo);
-
-		// Cache the generated schemas if caching is enabled
 		if (this.cache && schemas.length > 0) {
 			this.logger.info(
 				`Caching ${schemas.length} generated schemas for package: ${packageName}`,
@@ -202,25 +193,19 @@ export class TypeSchemaGenerator {
 			`Transforming ${fhirSchemas.length} FHIR schemas to TypeSchema`,
 		);
 
-		// First, transform FHIR schemas to TypeSchemas using the core transformer
 		const baseSchemas = await transformFHIRSchemas(
 			fhirSchemas,
 			this.manager,
 			packageInfo,
 		);
 
-		// Apply FHIR-specific processing
 		const results: TypeSchema[] = [];
-		// Filter schemas based on options
-
-		// Group schemas by type for efficient processing
 		const groupedSchemas = this.groupTypeSchemas(baseSchemas);
 
 		results.push(...groupedSchemas.resources);
 		results.push(...groupedSchemas.complexTypes);
 		results.push(...groupedSchemas.primitives);
 
-		// Generate profiles if enabled
 		if (groupedSchemas.profiles.length > 0) {
 			this.logger.info(`Enhancing ${groupedSchemas.profiles.length} profiles`);
 			const profileResults = await this.enhanceProfiles(
@@ -229,7 +214,6 @@ export class TypeSchemaGenerator {
 			results.push(...profileResults);
 		}
 
-		// Generate extensions if enabled
 		if (groupedSchemas.extensions.length > 0) {
 			this.logger.info(
 				`Enhancing ${groupedSchemas.extensions.length} extensions`,
@@ -240,7 +224,6 @@ export class TypeSchemaGenerator {
 			results.push(...extensionResults);
 		}
 
-		// Generate value sets if enabled
 		if (groupedSchemas.valueSets.length > 0) {
 			this.logger.info(
 				`Enhancing ${groupedSchemas.valueSets.length} value sets`,
@@ -251,7 +234,6 @@ export class TypeSchemaGenerator {
 			results.push(...valueSetResults);
 		}
 
-		// Generate code systems if enabled
 		if (groupedSchemas.codeSystems.length > 0) {
 			this.logger.info(
 				`Enhancing ${groupedSchemas.codeSystems.length} code systems`,
@@ -299,7 +281,6 @@ export class TypeSchemaGenerator {
 					groups.primitives.push(schema);
 					break;
 				case "binding":
-					// Extensions are complex-types with special metadata
 					if ("metadata" in schema && (schema as any).metadata?.isExtension) {
 						groups.extensions.push(schema);
 					} else {
@@ -310,7 +291,6 @@ export class TypeSchemaGenerator {
 					groups.valueSets.push(schema);
 					break;
 				default:
-					// Check metadata for special types
 					if ("metadata" in schema && (schema as any).metadata?.isCodeSystem) {
 						groups.codeSystems.push(schema);
 					} else {
@@ -324,31 +304,304 @@ export class TypeSchemaGenerator {
 	}
 
 	private async enhanceProfiles(schemas: TypeSchema[]): Promise<TypeSchema[]> {
-		// Profiles are already generated by TypeSchema transformer
-		// Add any FHIR-specific enhancements here if needed
 		return schemas;
 	}
 
 	private async enhanceExtensions(
 		schemas: TypeSchema[],
 	): Promise<TypeSchema[]> {
-		// Extensions are already generated by TypeSchema transformer
-		// Add any FHIR-specific enhancements here if needed
 		return schemas;
 	}
 
 	private async enhanceValueSets(schemas: TypeSchema[]): Promise<TypeSchema[]> {
-		// ValueSets are already generated by TypeSchema transformer
-		// Add any FHIR-specific enhancements here if needed
 		return schemas;
 	}
 
 	private async enhanceCodeSystems(
 		schemas: TypeSchema[],
 	): Promise<TypeSchema[]> {
-		// CodeSystems are already generated by TypeSchema transformer
-		// Add any FHIR-specific enhancements here if needed
 		return schemas;
+	}
+
+	/**
+	 * Apply treeshaking to StructureDefinitions before FHIR schema transformation
+	 * This is more efficient and includes smart reference handling
+	 */
+	private applyStructureDefinitionTreeshaking(
+		structureDefinitions: any[],
+	): any[] {
+		const treeshakeList = this.options.treeshake;
+
+		if (!treeshakeList || treeshakeList.length === 0) {
+			return structureDefinitions;
+		}
+
+		this.logger.info(
+			`Applying treeshaking filter for ResourceTypes: ${treeshakeList.join(", ")}`,
+		);
+
+		const allStructureDefinitions = new Map<string, any>();
+		const realDependencies = new Map<string, Set<string>>();
+		const referenceTargets = new Map<string, Set<string>>();
+
+		for (const sd of structureDefinitions) {
+			const name = sd.name || sd.id;
+			if (name) {
+				allStructureDefinitions.set(name, sd);
+				realDependencies.set(name, new Set());
+				referenceTargets.set(name, new Set());
+			}
+		}
+
+		for (const sd of structureDefinitions) {
+			const name = sd.name || sd.id;
+			if (!name) continue;
+
+			const { realDeps, refTargets } =
+				this.extractStructureDefinitionDependenciesWithReferences(sd);
+			realDependencies.set(name, new Set(realDeps));
+			referenceTargets.set(name, new Set(refTargets));
+		}
+
+		const structureDefinitionsToKeep = new Set<string>();
+
+		for (const resourceType of treeshakeList) {
+			if (allStructureDefinitions.has(resourceType)) {
+				structureDefinitionsToKeep.add(resourceType);
+			} else {
+				this.logger.warn(
+					`ResourceType '${resourceType}' not found in structure definitions`,
+				);
+			}
+		}
+
+		const addRealDependenciesRecursively = (
+			name: string,
+			visited = new Set<string>(),
+		) => {
+			if (visited.has(name) || !realDependencies.has(name)) {
+				return;
+			}
+
+			visited.add(name);
+			const deps = realDependencies.get(name) || new Set();
+
+			for (const dep of Array.from(deps)) {
+				if (allStructureDefinitions.has(dep)) {
+					structureDefinitionsToKeep.add(dep);
+					addRealDependenciesRecursively(dep, visited);
+				}
+			}
+		};
+
+		for (const resourceType of Array.from(structureDefinitionsToKeep)) {
+			addRealDependenciesRecursively(resourceType);
+		}
+
+		const filteredStructureDefinitions = structureDefinitions.filter((sd) => {
+			const name = sd.name || sd.id;
+			return name && structureDefinitionsToKeep.has(name);
+		});
+
+		const excludedReferenceTargets = new Set<string>();
+		for (const sd of structureDefinitions) {
+			const name = sd.name || sd.id;
+			if (name && !structureDefinitionsToKeep.has(name)) {
+				const isOnlyReferenceTarget = Array.from(
+					referenceTargets.values(),
+				).some((targets) => targets.has(name));
+
+				if (isOnlyReferenceTarget) {
+					excludedReferenceTargets.add(name);
+				}
+			}
+		}
+
+		if (excludedReferenceTargets.size > 0) {
+			this.logger.info(
+				`Excluded reference-only targets: ${Array.from(excludedReferenceTargets).join(", ")}`,
+			);
+		}
+
+		this.logger.success(
+			`Treeshaking completed: kept ${filteredStructureDefinitions.length}/${structureDefinitions.length} structure definitions`,
+		);
+
+		return filteredStructureDefinitions;
+	}
+
+	/**
+	 * Extract dependencies from StructureDefinition with smart reference handling
+	 * Returns both real dependencies and reference targets separately
+	 */
+	private extractStructureDefinitionDependenciesWithReferences(sd: any): {
+		realDeps: string[];
+		refTargets: string[];
+	} {
+		const realDeps = new Set<string>();
+		const refTargets = new Set<string>();
+
+		if (sd.baseDefinition) {
+			const baseName = this.extractResourceNameFromUrl(sd.baseDefinition);
+			if (baseName) {
+				realDeps.add(baseName);
+			}
+		}
+
+		if (sd.snapshot?.element || sd.differential?.element) {
+			const elements = sd.snapshot?.element || sd.differential?.element;
+
+			for (const element of elements) {
+				if (element.type) {
+					for (const type of element.type) {
+						if (type.code) {
+							realDeps.add(type.code);
+
+							if (type.code === "Reference" && type.targetProfile) {
+								for (const targetProfile of type.targetProfile) {
+									const targetName =
+										this.extractResourceNameFromUrl(targetProfile);
+									if (targetName) {
+										refTargets.add(targetName);
+									}
+								}
+							}
+						}
+
+						if (type.profile) {
+							for (const profile of type.profile) {
+								const profileName = this.extractResourceNameFromUrl(profile);
+								if (profileName) {
+									realDeps.add(profileName);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return {
+			realDeps: Array.from(realDeps),
+			refTargets: Array.from(refTargets),
+		};
+	}
+
+	/**
+	 * Extract resource name from FHIR URL
+	 */
+	private extractResourceNameFromUrl(url: string): string | null {
+		const match = url.match(/\/([^/]+)$/);
+		return match ? (match[1] ?? null) : null;
+	}
+
+	/**
+	 * Extract dependency names from a TypeSchema
+	 */
+	private extractDependencies(schema: TypeSchema): string[] {
+		const dependencies = new Set<string>();
+
+		if ("dependencies" in schema && schema.dependencies) {
+			for (const dep of schema.dependencies) {
+				dependencies.add(dep.name);
+			}
+		}
+
+		if (
+			"base" in schema &&
+			schema.base &&
+			typeof schema.base === "object" &&
+			"name" in schema.base &&
+			typeof schema.base.name === "string"
+		) {
+			dependencies.add(schema.base.name);
+		}
+
+		if ("fields" in schema && schema.fields) {
+			for (const field of Object.values(schema.fields)) {
+				if (typeof field === "object" && field) {
+					if (
+						"type" in field &&
+						field.type &&
+						typeof field.type === "object" &&
+						"name" in field.type &&
+						typeof field.type.name === "string"
+					) {
+						dependencies.add(field.type.name);
+					}
+					if ("reference" in field && Array.isArray(field.reference)) {
+						for (const ref of field.reference) {
+							if (
+								typeof ref === "object" &&
+								ref &&
+								"name" in ref &&
+								typeof ref.name === "string"
+							) {
+								dependencies.add(ref.name);
+							}
+						}
+					}
+					if (
+						"binding" in field &&
+						field.binding &&
+						typeof field.binding === "object" &&
+						"name" in field.binding &&
+						typeof field.binding.name === "string"
+					) {
+						dependencies.add(field.binding.name);
+					}
+				}
+			}
+		}
+
+		if ("nested" in schema && Array.isArray(schema.nested)) {
+			for (const nested of schema.nested) {
+				if (typeof nested === "object" && nested) {
+					if (
+						"base" in nested &&
+						nested.base &&
+						typeof nested.base === "object" &&
+						"name" in nested.base &&
+						typeof nested.base.name === "string"
+					) {
+						dependencies.add(nested.base.name);
+					}
+					if (
+						"fields" in nested &&
+						nested.fields &&
+						typeof nested.fields === "object"
+					) {
+						for (const field of Object.values(nested.fields)) {
+							if (typeof field === "object" && field) {
+								if (
+									"type" in field &&
+									field.type &&
+									typeof field.type === "object" &&
+									"name" in field.type &&
+									typeof field.type.name === "string"
+								) {
+									dependencies.add(field.type.name);
+								}
+								if ("reference" in field && Array.isArray(field.reference)) {
+									for (const ref of field.reference) {
+										if (
+											typeof ref === "object" &&
+											ref &&
+											"name" in ref &&
+											typeof ref.name === "string"
+										) {
+											dependencies.add(ref.name);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return Array.from(dependencies);
 	}
 }
 

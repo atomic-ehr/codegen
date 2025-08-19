@@ -138,6 +138,10 @@ export interface TypeSchemaConfig {
 	shareCache?: boolean;
 	/** Cache key prefix for namespacing */
 	cacheKeyPrefix?: string;
+	/** Only generate TypeSchemas for specific ResourceTypes (treeshaking) */
+	treeshake?: string[];
+	/** Generate single TypeSchema file instead of multiple files */
+	singleFile?: boolean;
 	/** Profile packages configuration */
 	profiles?: {
 		/** Profile packages to include (e.g., "hl7.fhir.us.core@5.0.1") */
@@ -274,6 +278,8 @@ export const DEFAULT_CONFIG: Required<Config> = {
 		forceRegenerate: false,
 		shareCache: true,
 		cacheKeyPrefix: "",
+		treeshake: [],
+		singleFile: false,
 		profiles: {
 			packages: [],
 			autoDetect: true,
@@ -927,18 +933,27 @@ export class ConfigLoader {
 	 * Merge user config with defaults
 	 */
 	private mergeWithDefaults(userConfig: Config): Config {
-		return {
+		const merged: Config = {
 			...DEFAULT_CONFIG,
 			...userConfig,
 			typescript: {
 				...DEFAULT_CONFIG.typescript,
 				...userConfig.typescript,
 			},
-			restClient: {
+		};
+
+		// Only include restClient if it was explicitly defined in user config
+		if (userConfig.restClient !== undefined) {
+			merged.restClient = {
 				...DEFAULT_CONFIG.restClient,
 				...userConfig.restClient,
-			},
-		};
+			};
+		} else {
+			// Remove restClient from merged config if not defined in user config
+			delete merged.restClient;
+		}
+
+		return merged;
 	}
 }
 

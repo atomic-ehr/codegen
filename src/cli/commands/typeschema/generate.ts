@@ -7,6 +7,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import type { CommandModule } from "yargs";
+import { loadConfig } from "../../../config";
 import { TypeSchemaGenerator } from "../../../typeschema/generator";
 import { complete, createLogger, list } from "../../utils/log";
 
@@ -15,6 +16,8 @@ interface GenerateTypeschemaArgs {
 	output?: string;
 	format?: "ndjson" | "json";
 	verbose?: boolean;
+	treeshake?: string[];
+	singleFile?: boolean;
 }
 
 /**
@@ -46,6 +49,20 @@ export const generateTypeschemaCommand: CommandModule<
 			default: "ndjson" as const,
 			describe: "Output format for TypeSchema files",
 		},
+		treeshake: {
+			alias: "t",
+			type: "string",
+			array: true,
+			describe:
+				"Only generate TypeSchemas for specific ResourceTypes (treeshaking)",
+		},
+		singleFile: {
+			alias: "s",
+			type: "boolean",
+			default: false,
+			describe:
+				"Generate single TypeSchema file instead of multiple files (NDJSON format)",
+		},
 		verbose: {
 			alias: "v",
 			type: "boolean",
@@ -60,16 +77,45 @@ export const generateTypeschemaCommand: CommandModule<
 		});
 
 		try {
+			// Load configuration from file
+			const config = await loadConfig(process.cwd());
+
 			log.step("Generating TypeSchema from FHIR packages");
 			log.info(`Packages: ${argv.packages.join(", ")}`);
 			log.info(`Output: ${argv.output}`);
-			log.debug(`Format: ${argv.format}`);
+			// Merge singleFile options: CLI args take precedence over config file
+			const singleFileOption =
+				argv.singleFile !== undefined
+					? argv.singleFile
+					: (config.typeSchema?.singleFile ?? false);
+
+			const outputFormat = singleFileOption ? "ndjson" : argv.format;
+			log.debug(
+				`Format: ${outputFormat}${singleFileOption && argv.format === "json" ? " (forced from json due to singleFile)" : ""}`,
+			);
+
+			// Merge treeshake options: CLI args take precedence over config file
+			const treeshakeOptions =
+				argv.treeshake && argv.treeshake.length > 0
+					? argv.treeshake
+					: config.typeSchema?.treeshake;
+
+			if (treeshakeOptions && treeshakeOptions.length > 0) {
+				log.info(
+					`Treeshaking enabled for ResourceTypes: ${treeshakeOptions.join(", ")}`,
+				);
+			}
+
+			if (singleFileOption) {
+				log.info("Single file output enabled (NDJSON format)");
+			}
 
 			const startTime = Date.now();
 
 			// Create TypeSchema generator
 			const generator = new TypeSchemaGenerator({
 				verbose: argv.verbose,
+				treeshake: treeshakeOptions,
 			});
 
 			// Generate schemas from all packages
@@ -94,16 +140,18 @@ export const generateTypeschemaCommand: CommandModule<
 				);
 			}
 
+			// Use the output format determined earlier
+
 			// Ensure output directory exists
 			const outputPath = argv.output!;
 			await mkdir(dirname(outputPath), { recursive: true });
 
 			// Format and write the schemas
 			let content: string;
-			if (argv.format === "json") {
+			if (outputFormat === "json") {
 				content = JSON.stringify(allSchemas, null, 2);
 			} else {
-				// NDJSON format
+				// NDJSON format (default for single file)
 				content = allSchemas.map((schema) => JSON.stringify(schema)).join("\n");
 			}
 

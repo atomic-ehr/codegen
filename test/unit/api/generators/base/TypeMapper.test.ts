@@ -44,7 +44,7 @@ describe('TypeMapper System', () => {
       const result = mapper.mapReference([{ name: 'Patient', kind: 'resource' }]);
       
       expect(result.name).toBe('Reference');
-      expect(result.generics).toEqual(['Patient']);
+      expect(result.generics).toEqual(["'Patient'"]);
       expect(result.importPath).toBe('./Reference');
       expect(result.isPrimitive).toBe(false);
     });
@@ -56,7 +56,7 @@ describe('TypeMapper System', () => {
       ]);
       
       expect(result.name).toBe('Reference');
-      expect(result.generics).toEqual(['Patient | Practitioner']);
+      expect(result.generics).toEqual(["'Patient' | 'Practitioner'"]);
     });
 
     test('maps generic reference when no targets', () => {
@@ -115,7 +115,7 @@ describe('TypeMapper System', () => {
     });
 
     test('formats type names using PascalCase', () => {
-      expect(mapper.formatTypeName('patient')).toBe('Patient');
+      expect(mapper.formatTypeName('patient')).toBe("Patient");
       expect(mapper.formatTypeName('patient_resource')).toBe('PatientResource');
       expect(mapper.formatTypeName('patient-resource')).toBe('PatientResource');
     });
@@ -280,7 +280,7 @@ describe('TypeMapper System', () => {
       const result = mapper.mapType(refSchema);
       
       expect(result.name).toBe('Reference');
-      expect(result.generics).toEqual(['Patient']);
+      expect(result.generics).toEqual(["'Patient'"]);
     });
 
     test('maps array schemas', () => {

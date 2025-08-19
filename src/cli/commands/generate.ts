@@ -122,6 +122,7 @@ export const generateCommand: CommandModule<{}, GenerateArgs> = {
 				overwrite: config.overwrite ?? true,
 				validate: config.validate ?? false, // Temporarily disable validation
 				cache: config.cache ?? true,
+				typeSchemaConfig: config.typeSchema, // Pass typeSchema config for treeshake and other options
 				logger, // Pass the CLI logger to the API builder
 			});
 

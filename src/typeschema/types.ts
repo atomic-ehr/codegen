@@ -564,6 +564,7 @@ export interface TypeschemaGeneratorOptions {
 	verbose?: boolean;
 	maxDepth?: number;
 	logger?: import("../utils/codegen-logger").CodegenLogger;
+	treeshake?: string[];
 }
 
 export interface PackageInfo {
