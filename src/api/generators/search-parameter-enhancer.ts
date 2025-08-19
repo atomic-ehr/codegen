@@ -764,13 +764,6 @@ export class SearchParameterEnhancer {
 	}
 
 	/**
-	 * Generate value set union type aliases (curated set)
-	 */
-	private generateValueSetUnionTypes(): string {
-		return `/**\n * Curated ValueSet unions (string literal types)\n */\nexport type PatientGender = 'male' | 'female' | 'other' | 'unknown';\nexport type ObservationStatus = 'registered' | 'preliminary' | 'final' | 'amended' | 'corrected' | 'cancelled' | 'entered-in-error' | 'unknown';\nexport type ImmunizationStatus = 'completed' | 'entered-in-error' | 'not-done';`;
-	}
-
-	/**
 	 * Pre-populate enum types by processing all search parameters
 	 */
 	private preprocessEnumTypes(): void {

@@ -380,14 +380,14 @@ export class TemplateError extends GeneratorError {
 			for (let i = 1; i <= str1.length; i++) {
 				const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
 				matrix[j]![i] = Math.min(
-					matrix[j]![i - 1]! + 1, // deletion
-					matrix[j - 1]![i]! + 1, // insertion
-					matrix[j - 1]![i - 1]! + indicator, // substitution
+					matrix[j]?.[i - 1]! + 1, // deletion
+					matrix[j - 1]?.[i]! + 1, // insertion
+					matrix[j - 1]?.[i - 1]! + indicator, // substitution
 				);
 			}
 		}
 
-		return matrix[str2.length]![str1.length]!;
+		return matrix[str2.length]?.[str1.length]!;
 	}
 
 	override isRecoverable(): boolean {
@@ -804,7 +804,7 @@ export class BatchOperationError extends GeneratorError {
 			if (!errorGroups.has(type)) {
 				errorGroups.set(type, []);
 			}
-			errorGroups.get(type)!.push(error);
+			errorGroups.get(type)?.push(error);
 		});
 
 		// Show error breakdown

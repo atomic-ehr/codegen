@@ -145,7 +145,7 @@ export class IndexBuilder {
 	 * Auto-discover exports from directory
 	 * @param filePattern Pattern to match files (e.g., "*.ts")
 	 */
-	async autoDiscover(filePattern?: string): Promise<IndexBuilder> {
+	async autoDiscover(_filePattern?: string): Promise<IndexBuilder> {
 		// This is a placeholder - in a real implementation, this would:
 		// 1. Read all files in the directory
 		// 2. Parse TypeScript/JavaScript to extract exports
@@ -234,7 +234,7 @@ export class IndexBuilder {
 			.join("\n")
 			.replace(/\n{3,}/g, "\n\n")
 			.trim();
-		return content + "\n"; // Ensure file ends with newline
+		return `${content}\n`; // Ensure file ends with newline
 	}
 
 	/**
@@ -259,7 +259,7 @@ export class IndexBuilder {
 			if (!exportsByPath.has(fromPath)) {
 				exportsByPath.set(fromPath, []);
 			}
-			exportsByPath.get(fromPath)!.push(exportName);
+			exportsByPath.get(fromPath)?.push(exportName);
 		}
 
 		// Generate export statements
@@ -303,7 +303,7 @@ export class IndexBuilder {
 				groupMap.set(fromPath, []);
 			}
 
-			groupMap.get(fromPath)!.push(exportName);
+			groupMap.get(fromPath)?.push(exportName);
 		}
 
 		// Generate grouped output

@@ -237,7 +237,7 @@ export function validateGeneratorOptions(
 
 	// Path validation (only if outputDir is a valid string)
 	if (options.outputDir && typeof options.outputDir === "string") {
-		const path = require("path");
+		const path = require("node:path");
 		if (!path.isAbsolute(options.outputDir)) {
 			warnings.push(
 				"Using relative path for outputDir - consider using absolute path",

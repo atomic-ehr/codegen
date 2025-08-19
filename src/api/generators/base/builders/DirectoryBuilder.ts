@@ -176,7 +176,7 @@ export class DirectoryBuilder {
 			files.push(`${this.config.path}/${filename}`);
 		}
 
-		for (const [name, subdir] of this.subdirectories) {
+		for (const [_name, subdir] of this.subdirectories) {
 			const subdirFiles = subdir.getFileList();
 			files.push(...subdirFiles);
 		}

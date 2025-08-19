@@ -417,7 +417,10 @@ export abstract class BaseGenerator<
 		}
 
 		// Warnings for suboptimal configuration
-		if (options.outputDir && !require("path").isAbsolute(options.outputDir)) {
+		if (
+			options.outputDir &&
+			!require("node:path").isAbsolute(options.outputDir)
+		) {
 			warnings.push(
 				"Using relative path for outputDir - consider using absolute path",
 			);

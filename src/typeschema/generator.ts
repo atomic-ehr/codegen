@@ -17,10 +17,7 @@ import { createLogger } from "../utils/codegen-logger";
 import { TypeSchemaCache } from "./cache";
 import { transformFHIRSchema, transformFHIRSchemas } from "./core/transformer";
 import type { TypeSchema } from "./type-schema.types";
-import type {
-	PackageInfo,
-	TypeschemaGeneratorOptions,
-} from "./types";
+import type { PackageInfo, TypeschemaGeneratorOptions } from "./types";
 
 /**
  * TypeSchema Generator class
@@ -493,115 +490,6 @@ export class TypeSchemaGenerator {
 	private extractResourceNameFromUrl(url: string): string | null {
 		const match = url.match(/\/([^/]+)$/);
 		return match ? (match[1] ?? null) : null;
-	}
-
-	/**
-	 * Extract dependency names from a TypeSchema
-	 */
-	private extractDependencies(schema: TypeSchema): string[] {
-		const dependencies = new Set<string>();
-
-		if ("dependencies" in schema && schema.dependencies) {
-			for (const dep of schema.dependencies) {
-				dependencies.add(dep.name);
-			}
-		}
-
-		if (
-			"base" in schema &&
-			schema.base &&
-			typeof schema.base === "object" &&
-			"name" in schema.base &&
-			typeof schema.base.name === "string"
-		) {
-			dependencies.add(schema.base.name);
-		}
-
-		if ("fields" in schema && schema.fields) {
-			for (const field of Object.values(schema.fields)) {
-				if (typeof field === "object" && field) {
-					if (
-						"type" in field &&
-						field.type &&
-						typeof field.type === "object" &&
-						"name" in field.type &&
-						typeof field.type.name === "string"
-					) {
-						dependencies.add(field.type.name);
-					}
-					if ("reference" in field && Array.isArray(field.reference)) {
-						for (const ref of field.reference) {
-							if (
-								typeof ref === "object" &&
-								ref &&
-								"name" in ref &&
-								typeof ref.name === "string"
-							) {
-								dependencies.add(ref.name);
-							}
-						}
-					}
-					if (
-						"binding" in field &&
-						field.binding &&
-						typeof field.binding === "object" &&
-						"name" in field.binding &&
-						typeof field.binding.name === "string"
-					) {
-						dependencies.add(field.binding.name);
-					}
-				}
-			}
-		}
-
-		if ("nested" in schema && Array.isArray(schema.nested)) {
-			for (const nested of schema.nested) {
-				if (typeof nested === "object" && nested) {
-					if (
-						"base" in nested &&
-						nested.base &&
-						typeof nested.base === "object" &&
-						"name" in nested.base &&
-						typeof nested.base.name === "string"
-					) {
-						dependencies.add(nested.base.name);
-					}
-					if (
-						"fields" in nested &&
-						nested.fields &&
-						typeof nested.fields === "object"
-					) {
-						for (const field of Object.values(nested.fields)) {
-							if (typeof field === "object" && field) {
-								if (
-									"type" in field &&
-									field.type &&
-									typeof field.type === "object" &&
-									"name" in field.type &&
-									typeof field.type.name === "string"
-								) {
-									dependencies.add(field.type.name);
-								}
-								if ("reference" in field && Array.isArray(field.reference)) {
-									for (const ref of field.reference) {
-										if (
-											typeof ref === "object" &&
-											ref &&
-											"name" in ref &&
-											typeof ref.name === "string"
-										) {
-											dependencies.add(ref.name);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		return Array.from(dependencies);
 	}
 }
 

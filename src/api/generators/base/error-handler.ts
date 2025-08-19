@@ -63,7 +63,7 @@ export class ErrorHandler {
 	 */
 	private handleGeneratorError(
 		error: GeneratorError,
-		context?: { schema?: TypeSchema; filename?: string },
+		_context?: { schema?: TypeSchema; filename?: string },
 	): void {
 		switch (this.options.outputFormat) {
 			case "json":
@@ -184,7 +184,7 @@ export class ErrorHandler {
 			if (!errorGroups.has(type)) {
 				errorGroups.set(type, []);
 			}
-			errorGroups.get(type)!.push(error);
+			errorGroups.get(type)?.push(error);
 		});
 
 		// Report each group
@@ -282,7 +282,7 @@ export class GeneratorErrorBoundary {
 	 */
 	async withBatchErrorBoundary<T>(
 		operations: Array<() => Promise<T>>,
-		context?: { operationName?: string },
+		_context?: { operationName?: string },
 	): Promise<T[]> {
 		const results: T[] = [];
 		const errors: Error[] = [];

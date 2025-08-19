@@ -5,7 +5,7 @@
  * Built using the BaseGenerator architecture with TypeMapper, TemplateEngine, and FileManager.
  */
 
-import type { TypeSchema, TypeSchemaIdentifier } from "../../typeschema/type-schema.types";
+import type { TypeSchema } from "../../typeschema/type-schema.types";
 import { BaseGenerator } from "./base/BaseGenerator";
 import {
 	TypeScriptTypeMapper,
@@ -64,19 +64,11 @@ export class TypeScriptGenerator extends BaseGenerator<
 	TypeScriptGeneratorOptions,
 	GeneratedFile[]
 > {
-	private readonly enumTypes = new Map<
-		string,
-		{ values: string[]; description?: string }
-	>();
 	private readonly profilesByPackage = new Map<
 		string,
 		Array<{ filename: string; interfaceName: string }>
 	>();
 	private readonly resourceTypes = new Set<string>();
-
-	constructor(options: TypeScriptGeneratorOptions) {
-		super(options);
-	}
 
 	private get tsOptions(): Required<TypeScriptGeneratorOptions> {
 		return this.options as Required<TypeScriptGeneratorOptions>;
@@ -120,7 +112,8 @@ export class TypeScriptGenerator extends BaseGenerator<
 		}
 
 		// Update filename for profiles to include proper directory structure
-		if (false) { // Profile support removed - not in core schema
+		if (false) {
+			// Profile support removed - not in core schema
 			const sanitizedPackage = this.sanitizePackageName(
 				schema.identifier.package || "unknown",
 			);
@@ -133,7 +126,7 @@ export class TypeScriptGenerator extends BaseGenerator<
 			if (!this.profilesByPackage.has(schema.identifier.package || "unknown")) {
 				this.profilesByPackage.set(schema.identifier.package || "unknown", []);
 			}
-			this.profilesByPackage.get(schema.identifier.package || "unknown")!.push({
+			this.profilesByPackage.get(schema.identifier.package || "unknown")?.push({
 				filename: profileFileName,
 				interfaceName: this.typeMapper.formatTypeName(schema.identifier.name),
 			});
@@ -258,7 +251,7 @@ export class TypeScriptGenerator extends BaseGenerator<
 
 	private extractImportsFromContent(
 		content: string,
-		schema: TypeSchema,
+		_schema: TypeSchema,
 	): Map<string, string> {
 		const imports = new Map<string, string>();
 		const importRegex =
@@ -299,149 +292,8 @@ export class TypeScriptGenerator extends BaseGenerator<
 		return exports;
 	}
 
-	private async generateMainIndexFile(
-		results: GeneratedFile[],
-	): Promise<GeneratedFile> {
-		const exportGroups = this.groupExportsByCategory(results);
-		const content = this.generateMainIndexContent(exportGroups);
-
-		return {
-			path: this.fileManager.getRelativeImportPath("", "index.ts"),
-			filename: "index.ts",
-			content,
-			exports: [],
-			size: Buffer.byteLength(content, "utf-8"),
-			timestamp: new Date(),
-		};
-	}
-
-	private async generateProfileIndexFiles(): Promise<GeneratedFile[]> {
-		const indexFiles: GeneratedFile[] = [];
-
-		for (const [packageName, profiles] of this.profilesByPackage) {
-			const sanitizedPackage = this.sanitizePackageName(packageName);
-			const filename = `profiles/${sanitizedPackage}/index.ts`;
-			const content = this.generateProfileIndexContent(packageName, profiles);
-
-			indexFiles.push({
-				path: filename,
-				filename,
-				content,
-				exports: profiles.map((p) => p.interfaceName),
-				size: Buffer.byteLength(content, "utf-8"),
-				timestamp: new Date(),
-			});
-		}
-
-		return indexFiles;
-	}
-
-	private formatDescription(description?: string): string {
-		if (!description) return "";
-
-		return description
-			.replace(/\s+/g, " ")
-			.replace(/^\s+|\s+$/g, "")
-			.replace(/"/g, '\\"');
-	}
-
-	private groupExportsByCategory(
-		results: GeneratedFile[],
-	): Record<string, string[]> {
-		const groups: Record<string, string[]> = {
-			Resources: [],
-			"Complex Types": [],
-			Profiles: [],
-			Extensions: [],
-		};
-
-		for (const result of results) {
-			if (result.filename.includes("profile")) {
-				groups["Profiles"]!.push(...(result.exports || []));
-			} else if (result.filename.includes("extension")) {
-				groups["Extensions"]!.push(...(result.exports || []));
-			} else if (this.isResourceType(result)) {
-				groups["Resources"]!.push(...(result.exports || []));
-			} else {
-				groups["Complex Types"]!.push(...(result.exports || []));
-			}
-		}
-
-		return Object.fromEntries(
-			Object.entries(groups).filter(([, exports]) => exports.length > 0),
-		);
-	}
-
-	private isResourceType(result: GeneratedFile): boolean {
-		return (result.exports || []).some(
-			(exp) =>
-				exp.endsWith("Resource") ||
-				["Patient", "Observation", "Practitioner"].includes(exp),
-		);
-	}
-
 	private sanitizePackageName(packageName: string): string {
 		return packageName.replace(/[^a-zA-Z0-9-_.]/g, "-");
-	}
-
-	/**
-	 * Generate main index file content using simple string generation
-	 */
-	private generateMainIndexContent(
-		exportGroups: Record<string, string[]>,
-	): string {
-		const lines: string[] = [];
-
-		// Add file header
-		lines.push("// Auto-generated TypeScript FHIR types");
-		lines.push("// Generated by @atomic-ehr/codegen");
-		lines.push("");
-
-		// Generate exports by category
-		for (const [category, exports] of Object.entries(exportGroups)) {
-			if (exports.length === 0) continue;
-
-			lines.push(`// ${category}`);
-			for (const exportName of exports.sort()) {
-				const fileName = this.typeMapper.formatFileName(exportName);
-				lines.push(`export type { ${exportName} } from './${fileName}';`);
-			}
-			lines.push("");
-		}
-
-		// Add utilities export
-		lines.push("// Utilities");
-		lines.push(
-			"export type { ResourceType, TypedReference } from './utilities';",
-		);
-
-		return lines.join("\n");
-	}
-
-	/**
-	 * Generate profile index file content using simple string generation
-	 */
-	private generateProfileIndexContent(
-		packageName: string,
-		profiles: Array<{ filename: string; interfaceName: string }>,
-	): string {
-		const lines: string[] = [];
-
-		// Add file header
-		lines.push(`// ${packageName} FHIR Profiles`);
-		lines.push("// Generated by @atomic-ehr/codegen");
-		lines.push("");
-
-		// Generate exports for each profile
-		for (const profile of profiles.sort((a, b) =>
-			a.interfaceName.localeCompare(b.interfaceName),
-		)) {
-			lines.push(
-				`export type { ${profile.interfaceName} } from './${profile.filename}';`,
-			);
-		}
-
-		return lines.join("\n");
 	}
 
 	/**

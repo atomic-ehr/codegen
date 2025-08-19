@@ -57,7 +57,7 @@ export class PythonTypeMapper extends TypeMapper {
 		};
 	}
 
-	mapEnum(values: string[], name?: string): LanguageType {
+	mapEnum(_values: string[], name?: string): LanguageType {
 		return {
 			name: name ? this.formatTypeName(name) : "Literal",
 			isPrimitive: false,

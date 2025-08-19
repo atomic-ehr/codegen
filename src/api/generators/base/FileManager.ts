@@ -37,10 +37,6 @@ export interface WriteFileResult {
 export class FileManager {
 	private readonly options: Required<FileManagerOptions>;
 	private readonly logger: CodegenLogger;
-	private readonly pendingOperations = new Map<
-		string,
-		Promise<WriteFileResult>
-	>();
 
 	constructor(options: FileManagerOptions) {
 		this.options = {
@@ -208,7 +204,7 @@ export class FileManager {
 
 		// Ensure relative imports start with './' or '../'
 		if (!relativePath.startsWith(".")) {
-			relativePath = "./" + relativePath;
+			relativePath = `./${relativePath}`;
 		}
 
 		// Remove file extension for imports (handle .d.ts files properly)

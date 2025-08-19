@@ -95,8 +95,8 @@ export type {
 } from "./types";
 // Export typeschema-specific utils (renamed to avoid conflicts)
 export {
-	isTypeSchemaForResourceComplexTypeLogical,
 	isTypeSchemaBinding,
+	isTypeSchemaForResourceComplexTypeLogical,
 	isTypeSchemaValueSet,
 } from "./utils";
 

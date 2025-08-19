@@ -106,7 +106,7 @@ export class FileBuilder {
 				exports: this.exports,
 				filename: this.config.filename,
 			});
-		} catch (error) {
+		} catch (_error) {
 			throw new TemplateError(
 				`Failed to render template '${templateName}'`,
 				templateName,
@@ -398,7 +398,7 @@ export class FileBuilder {
 			if (!importsByPath.has(resolvedPath)) {
 				importsByPath.set(resolvedPath, []);
 			}
-			importsByPath.get(resolvedPath)!.push(symbol);
+			importsByPath.get(resolvedPath)?.push(symbol);
 		}
 
 		// Generate import statements
