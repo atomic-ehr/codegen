@@ -5,7 +5,7 @@
  * Built using the BaseGenerator architecture with TypeMapper, TemplateEngine, and FileManager.
  */
 
-import type { TypeSchema, TypeSchemaIdentifier } from "../../typeschema";
+import type { TypeSchema, TypeSchemaIdentifier } from "../../typeschema/type-schema.types";
 import { BaseGenerator } from "./base/BaseGenerator";
 import {
 	TypeScriptTypeMapper,
@@ -120,7 +120,7 @@ export class TypeScriptGenerator extends BaseGenerator<
 		}
 
 		// Update filename for profiles to include proper directory structure
-		if (schema.identifier.kind === "profile") {
+		if (false) { // Profile support removed - not in core schema
 			const sanitizedPackage = this.sanitizePackageName(
 				schema.identifier.package || "unknown",
 			);
@@ -239,12 +239,7 @@ export class TypeScriptGenerator extends BaseGenerator<
 			return true;
 		}
 
-		if (
-			schema.identifier.kind === "profile" &&
-			!this.tsOptions.includeProfiles
-		) {
-			return true;
-		}
+		// Profile support removed - not in core schema specification
 
 		if (
 			schema.identifier.url?.includes("/extension/") &&

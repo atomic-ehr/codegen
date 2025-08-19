@@ -4,7 +4,7 @@
 
 import type { CodegenLogger } from '../../src/utils/codegen-logger';
 import { BaseGenerator } from '../../src/api/generators/base/BaseGenerator';
-import type { TypeSchema } from '../../src/typeschema/types';
+import type { TypeSchema } from '../../src/typeschema/type-schema.types';
 import type { 
   BaseGeneratorOptions, 
   GeneratedFile, 

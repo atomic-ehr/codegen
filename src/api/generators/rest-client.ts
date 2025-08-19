@@ -8,7 +8,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import type { RestClientConfig } from "../../config";
-import type { TypeSchema, TypeSchemaIdentifier } from "../../typeschema";
+import type { TypeSchema, TypeSchemaIdentifier } from "../../typeschema/type-schema.types";
 import type { CodegenLogger } from "../../utils/codegen-logger";
 import { createLogger } from "../../utils/codegen-logger";
 import { SearchParameterEnhancer } from "./search-parameter-enhancer";

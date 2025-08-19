@@ -6,7 +6,7 @@
  * specific logic for type mapping, content generation, and validation.
  */
 
-import type { TypeSchema } from "../../../typeschema";
+import type { TypeSchema } from "../../../typeschema/type-schema.types";
 import type { CodegenLogger } from "../../../utils/codegen-logger";
 import { createLogger } from "../../../utils/codegen-logger";
 import { ErrorHandler, GeneratorErrorBoundary } from "./error-handler";

@@ -11,8 +11,8 @@ import type {
 	TypeSchemaConfig,
 	TypeScriptGeneratorConfig,
 } from "../config";
+import type { TypeSchema } from "../typeschema/type-schema.types";
 import {
-	type TypeSchema,
 	TypeSchemaCache,
 	TypeSchemaGenerator,
 	TypeSchemaParser,

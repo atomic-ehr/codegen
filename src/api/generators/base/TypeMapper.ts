@@ -5,7 +5,7 @@
  * to convert FHIR TypeSchema types into their target language types.
  */
 
-import type { TypeSchema, TypeSchemaIdentifier } from "../../../typeschema";
+import type { TypeSchema, TypeSchemaIdentifier } from "../../../typeschema/type-schema.types";
 
 /**
  * Represents a type in the target language

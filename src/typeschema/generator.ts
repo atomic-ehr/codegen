@@ -16,9 +16,9 @@ import type { CodegenLogger } from "../utils/codegen-logger";
 import { createLogger } from "../utils/codegen-logger";
 import { TypeSchemaCache } from "./cache";
 import { transformFHIRSchema, transformFHIRSchemas } from "./core/transformer";
+import type { TypeSchema } from "./type-schema.types";
 import type {
 	PackageInfo,
-	TypeSchema,
 	TypeschemaGeneratorOptions,
 } from "./types";
 

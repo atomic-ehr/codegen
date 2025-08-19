@@ -5,7 +5,7 @@
  * Provides better type safety, validation, and developer experience for search operations.
  */
 
-import type { TypeSchema } from "../../typeschema";
+import type { TypeSchema } from "../../typeschema/type-schema.types";
 import type { CodegenLogger } from "../../utils/codegen-logger";
 import { createLogger } from "../../utils/codegen-logger";
 

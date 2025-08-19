@@ -10,12 +10,12 @@ import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import { transformProfile } from "../profile/processor";
 import type {
-	PackageInfo,
 	TypeSchema,
 	TypeSchemaField,
 	TypeSchemaForValueSet,
 	TypeSchemaIdentifier,
-} from "../types";
+} from "../type-schema.types";
+import type { PackageInfo } from "../types";
 import { collectBindingSchemas } from "./binding";
 import {
 	buildField,

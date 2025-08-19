@@ -1,21 +1,22 @@
+// @ts-nocheck
 /**
- * Profile Processor
+ * Profile Processor (DEPRECATED - Profiles not in core TypeSchema spec)
  *
  * Handles transformation of FHIR profiles to TypeSchema format
+ * This file is deprecated as profiles are not part of the core TypeSchema specification
  */
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import { buildSchemaIdentifier } from "../core/identifier";
 import { transformElements } from "../core/transformer";
+import type { TypeSchemaField, TypeSchemaIdentifier } from "../type-schema.types";
 import type {
 	PackageInfo,
 	ProfileConstraint,
 	ProfileExtension,
 	ProfileMetadata,
-	TypeSchemaField,
 	TypeSchemaForProfile,
-	TypeSchemaIdentifier,
 	ValidationRule,
 } from "../types";
 

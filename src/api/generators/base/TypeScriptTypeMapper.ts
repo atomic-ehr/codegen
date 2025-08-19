@@ -2,7 +2,7 @@
  * TypeScript-specific type mapper implementation
  */
 
-import type { TypeSchemaIdentifier } from "../../../typeschema";
+import type { TypeSchemaIdentifier } from "../../../typeschema/type-schema.types";
 import {
 	type LanguageType,
 	TypeMapper,

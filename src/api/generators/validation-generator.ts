@@ -5,7 +5,7 @@
  * resource validators, and validation helpers for the REST client.
  */
 
-import type { TypeSchema } from "../../typeschema";
+import type { TypeSchema } from "../../typeschema/type-schema.types";
 
 /**
  * Validation options for resource validation

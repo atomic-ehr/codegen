@@ -9,7 +9,7 @@
  * - Offers smart error recovery suggestions
  */
 
-import type { TypeSchema } from "../../../typeschema";
+import type { TypeSchema } from "../../../typeschema/type-schema.types";
 import type { CodegenLogger } from "../../../utils/codegen-logger";
 import { BatchOperationError, GeneratorError } from "./errors";
 

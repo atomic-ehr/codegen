@@ -13,7 +13,8 @@
 import { TypeSchemaCache } from "./cache";
 import { TypeSchemaGenerator } from "./generator";
 import { TypeSchemaParser } from "./parser";
-import type { TypeSchema, TypeschemaParserOptions } from "./types.ts";
+import type { TypeSchema } from "./type-schema.types";
+import type { TypeschemaParserOptions } from "./types";
 
 // Re-export core dependencies
 export { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
@@ -81,12 +82,23 @@ export {
 	TypeSchemaParser,
 } from "./parser";
 
-// Export profile processing
-export { transformProfile } from "./profile/processor";
+// Profile processing temporarily disabled (not in core TypeSchema spec)
+// export { transformProfile } from "./profile/processor";
 
-// Export all types and interfaces
-export * from "./types";
-export * from "./utils";
+// Export new comprehensive types (preferred)
+export * from "./type-schema.types";
+// Export legacy types for compatibility (keeping separate names)
+export type {
+	PackageInfo,
+	TypeschemaGeneratorOptions,
+	TypeschemaParserOptions,
+} from "./types";
+// Export typeschema-specific utils (renamed to avoid conflicts)
+export {
+	isTypeSchemaForResourceComplexTypeLogical,
+	isTypeSchemaBinding,
+	isTypeSchemaValueSet,
+} from "./utils";
 
 // Export value set processing
 export { transformValueSet } from "./value-set/processor";
