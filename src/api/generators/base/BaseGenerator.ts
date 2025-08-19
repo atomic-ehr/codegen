@@ -42,7 +42,7 @@ export abstract class BaseGenerator<
   TResult extends GeneratedFile[] = GeneratedFile[]
 > {
   /** Validated and merged options */
-  protected readonly options: Required<TOptions>;
+  protected options: Required<TOptions>;
   
   /** Logger instance for this generator */
   protected readonly logger: CodegenLogger;
