@@ -138,7 +138,23 @@ export class TypeScriptGenerator extends BaseGenerator<
 		}
 
 		// Generate TypeScript content directly (no templates for simplicity)
-		return this.generateTypeScriptInterface(schema);
+		const mainInterface = this.generateTypeScriptInterface(schema);
+		
+		// Generate nested types if present
+		let nestedInterfaces = "";
+		if ("nested" in schema && schema.nested && Array.isArray(schema.nested)) {
+			const nestedInterfaceStrings = schema.nested.map(nestedType => 
+				this.generateNestedTypeInterface(schema.identifier.name, nestedType)
+			);
+			nestedInterfaces = nestedInterfaceStrings.join("\n\n");
+		}
+
+		// Combine main interface with nested interfaces
+		if (nestedInterfaces) {
+			return `${mainInterface}\n\n${nestedInterfaces}`;
+		}
+		
+		return mainInterface;
 	}
 	protected filterAndSortSchemas(schemas: TypeSchema[]): TypeSchema[] {
 		return schemas.filter((schema) => !this.shouldSkipSchema(schema));
@@ -374,6 +390,18 @@ export class TypeScriptGenerator extends BaseGenerator<
 			}
 		}
 
+		// Collect imports from nested types
+		if ("nested" in schema && schema.nested && Array.isArray(schema.nested)) {
+			for (const nestedType of schema.nested) {
+				if (nestedType.fields) {
+					for (const [, field] of Object.entries(nestedType.fields)) {
+						const importDeps = this.collectFieldImports(field);
+						importDeps.forEach((imp) => imports.add(imp));
+					}
+				}
+			}
+		}
+
 		// Generate import statements
 		if (imports.size > 0) {
 			const sortedImports = Array.from(imports).sort();
@@ -425,6 +453,12 @@ export class TypeScriptGenerator extends BaseGenerator<
 		const imports: string[] = [];
 
 		if ("type" in field && field.type) {
+			// Handle nested types - they don't need imports as they're in the same file
+			if (field.type.kind === "nested") {
+				// Nested types are generated in the same file, no import needed
+				return imports;
+			}
+
 			const languageType = this.typeMapper.mapType(field.type);
 
 			// Only import non-primitive types that are not built-in
@@ -472,6 +506,47 @@ export class TypeScriptGenerator extends BaseGenerator<
 	}
 
 	/**
+	 * Generate nested type interface
+	 */
+	private generateNestedTypeInterface(parentTypeName: string, nestedType: any): string {
+		const lines: string[] = [];
+		const nestedTypeName = this.typeMapper.formatTypeName(`${parentTypeName}${this.capitalizeFirst(nestedType.identifier.name)}`);
+
+		// Add JSDoc comment if enabled
+		if (this.tsOptions.includeDocuments && nestedType.description) {
+			lines.push("/**");
+			lines.push(` * ${nestedType.description}`);
+			if (nestedType.identifier.url) {
+				lines.push(` * @see ${nestedType.identifier.url}`);
+			}
+			lines.push(" */");
+		}
+
+		// Generate interface declaration
+		lines.push(`export interface ${nestedTypeName} {`);
+
+		// Generate fields
+		if (nestedType.fields) {
+			for (const [fieldName, field] of Object.entries(nestedType.fields)) {
+				const fieldLine = this.generateFieldLine(fieldName, field);
+				if (fieldLine) {
+					lines.push(`  ${fieldLine}`);
+				}
+			}
+		}
+
+		lines.push("}");
+		return lines.join("\n");
+	}
+
+	/**
+	 * Capitalize first letter of string
+	 */
+	private capitalizeFirst(str: string): string {
+		return str.charAt(0).toUpperCase() + str.slice(1);
+	}
+
+	/**
 	 * Generate a single field line
 	 */
 	private generateFieldLine(fieldName: string, field: any): string | null {
@@ -483,7 +558,18 @@ export class TypeScriptGenerator extends BaseGenerator<
 			const languageType = this.typeMapper.mapType(field.type);
 			typeString = languageType.name;
 
-			if (
+			// Handle nested types specially
+			if (field.type.kind === "nested") {
+				// Extract parent name from URL like "http://hl7.org/fhir/StructureDefinition/Patient#contact"
+				const urlParts = field.type.url?.split('#') || [];
+				if (urlParts.length === 2) {
+					const parentName = urlParts[0].split('/').pop() || '';
+					const nestedName = field.type.name;
+					typeString = this.typeMapper.formatTypeName(`${parentName}${this.capitalizeFirst(nestedName)}`);
+				} else {
+					typeString = this.typeMapper.formatTypeName(field.type.name);
+				}
+			} else if (
 				typeString === "Reference" &&
 				field.reference &&
 				Array.isArray(field.reference)
