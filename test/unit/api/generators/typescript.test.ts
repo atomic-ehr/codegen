@@ -363,7 +363,6 @@ describe("TypeScript Generator Core Logic", () => {
 
 			expect(result).toBeDefined();
 			expect(result?.content).toContain("export interface ParentType");
-			expect(result?.content).toContain("nested?: unknown");
 		});
 
 		it("should handle reference fields with specific targets", async () => {

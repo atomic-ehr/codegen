@@ -50,18 +50,6 @@ export type { FileManagerOptions, WriteFileResult } from "./FileManager";
 export { FileManager } from "./FileManager";
 
 // ==========================================
-// Template System
-// ==========================================
-
-export type { HandlebarsTemplateEngineOptions } from "./HandlebarsTemplateEngine";
-export { HandlebarsTemplateEngine } from "./HandlebarsTemplateEngine";
-export type {
-	TemplateInfo,
-	TemplateOptions,
-} from "./TemplateEngine";
-export { TemplateEngine } from "./TemplateEngine";
-
-// ==========================================
 // Error Handling System
 // ==========================================
 

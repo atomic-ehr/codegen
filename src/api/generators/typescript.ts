@@ -112,25 +112,25 @@ export class TypeScriptGenerator extends BaseGenerator<
 		}
 
 		// Update filename for profiles to include proper directory structure
-		if (false) {
-			// Profile support removed - not in core schema
-			const sanitizedPackage = this.sanitizePackageName(
-				schema.identifier.package || "unknown",
-			);
-			const profileFileName = this.typeMapper.formatFileName(
-				schema.identifier.name,
-			);
-			context.filename = `profiles/${sanitizedPackage}/${profileFileName}`;
+		// if (false) {
+		// 	// Profile support removed - not in core schema
+		// 	const sanitizedPackage = this.sanitizePackageName(
+		// 		schema.identifier.package || "unknown",
+		// 	);
+		// 	const profileFileName = this.typeMapper.formatFileName(
+		// 		schema.identifier.name,
+		// 	);
+		// 	context.filename = `profiles/${sanitizedPackage}/${profileFileName}`;
 
-			// Track profile for index generation
-			if (!this.profilesByPackage.has(schema.identifier.package || "unknown")) {
-				this.profilesByPackage.set(schema.identifier.package || "unknown", []);
-			}
-			this.profilesByPackage.get(schema.identifier.package || "unknown")?.push({
-				filename: profileFileName,
-				interfaceName: this.typeMapper.formatTypeName(schema.identifier.name),
-			});
-		}
+		// 	// Track profile for index generation
+		// 	if (!this.profilesByPackage.has(schema.identifier.package || "unknown")) {
+		// 		this.profilesByPackage.set(schema.identifier.package || "unknown", []);
+		// 	}
+		// 	this.profilesByPackage.get(schema.identifier.package || "unknown")?.push({
+		// 		filename: profileFileName,
+		// 		interfaceName: this.typeMapper.formatTypeName(schema.identifier.name),
+		// 	});
+		// }
 
 		// Handle Reference type specially
 		if (schema.identifier.name === "Reference") {
@@ -139,12 +139,12 @@ export class TypeScriptGenerator extends BaseGenerator<
 
 		// Generate TypeScript content directly (no templates for simplicity)
 		const mainInterface = this.generateTypeScriptInterface(schema);
-		
+
 		// Generate nested types if present
 		let nestedInterfaces = "";
 		if ("nested" in schema && schema.nested && Array.isArray(schema.nested)) {
-			const nestedInterfaceStrings = schema.nested.map(nestedType => 
-				this.generateNestedTypeInterface(schema.identifier.name, nestedType)
+			const nestedInterfaceStrings = schema.nested.map((nestedType) =>
+				this.generateNestedTypeInterface(schema.identifier.name, nestedType),
 			);
 			nestedInterfaces = nestedInterfaceStrings.join("\n\n");
 		}
@@ -153,7 +153,7 @@ export class TypeScriptGenerator extends BaseGenerator<
 		if (nestedInterfaces) {
 			return `${mainInterface}\n\n${nestedInterfaces}`;
 		}
-		
+
 		return mainInterface;
 	}
 	protected filterAndSortSchemas(schemas: TypeSchema[]): TypeSchema[] {
@@ -508,9 +508,14 @@ export class TypeScriptGenerator extends BaseGenerator<
 	/**
 	 * Generate nested type interface
 	 */
-	private generateNestedTypeInterface(parentTypeName: string, nestedType: any): string {
+	private generateNestedTypeInterface(
+		parentTypeName: string,
+		nestedType: any,
+	): string {
 		const lines: string[] = [];
-		const nestedTypeName = this.typeMapper.formatTypeName(`${parentTypeName}${this.capitalizeFirst(nestedType.identifier.name)}`);
+		const nestedTypeName = this.typeMapper.formatTypeName(
+			`${parentTypeName}${this.capitalizeFirst(nestedType.identifier.name)}`,
+		);
 
 		// Add JSDoc comment if enabled
 		if (this.tsOptions.includeDocuments && nestedType.description) {
@@ -561,11 +566,13 @@ export class TypeScriptGenerator extends BaseGenerator<
 			// Handle nested types specially
 			if (field.type.kind === "nested") {
 				// Extract parent name from URL like "http://hl7.org/fhir/StructureDefinition/Patient#contact"
-				const urlParts = field.type.url?.split('#') || [];
+				const urlParts = field.type.url?.split("#") || [];
 				if (urlParts.length === 2) {
-					const parentName = urlParts[0].split('/').pop() || '';
+					const parentName = urlParts[0].split("/").pop() || "";
 					const nestedName = field.type.name;
-					typeString = this.typeMapper.formatTypeName(`${parentName}${this.capitalizeFirst(nestedName)}`);
+					typeString = this.typeMapper.formatTypeName(
+						`${parentName}${this.capitalizeFirst(nestedName)}`,
+					);
 				} else {
 					typeString = this.typeMapper.formatTypeName(field.type.name);
 				}
