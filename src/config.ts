@@ -144,8 +144,6 @@ export interface TypeSchemaConfig {
 	singleFile?: boolean;
 	/** Profile packages configuration */
 	profiles?: {
-		/** Profile packages to include (e.g., "hl7.fhir.us.core@5.0.1") */
-		packages?: string[];
 		/** Auto-detect profiles in packages */
 		autoDetect?: boolean;
 	};
@@ -281,7 +279,6 @@ export const DEFAULT_CONFIG: Required<Config> = {
 		treeshake: [],
 		singleFile: false,
 		profiles: {
-			packages: [],
 			autoDetect: true,
 		},
 	},
@@ -818,27 +815,6 @@ export class ConfigValidator {
 			} else {
 				const profiles = cfg.profiles as Record<string, unknown>;
 
-				// Validate packages array
-				if (profiles.packages !== undefined) {
-					if (!Array.isArray(profiles.packages)) {
-						errors.push({
-							path: "typeSchema.profiles.packages",
-							message: "packages must be an array",
-							value: profiles.packages,
-						});
-					} else {
-						profiles.packages.forEach((pkg, index) => {
-							if (typeof pkg !== "string") {
-								errors.push({
-									path: `typeSchema.profiles.packages[${index}]`,
-									message: "package name must be a string",
-									value: pkg,
-								});
-							}
-						});
-					}
-				}
-
 				// Validate autoDetect
 				if (
 					profiles.autoDetect !== undefined &&
@@ -976,4 +952,29 @@ export function isConfig(obj: unknown): obj is Config {
 	const validator = new ConfigValidator();
 	const result = validator.validate(obj);
 	return result.valid;
+}
+
+/**
+ * Define configuration with type safety and IntelliSense support.
+ * Similar to Vite's defineConfig function pattern.
+ * 
+ * @example
+ * ```typescript
+ * import { defineConfig } from "@atomic-ehr/codegen";
+ * 
+ * export default defineConfig({
+ *   outputDir: "./generated",
+ *   packages: [
+ *     "hl7.fhir.r4.core@4.0.1",
+ *     "hl7.fhir.us.core@6.1.0"
+ *   ],
+ *   typescript: {
+ *     generateIndex: true,
+ *     strictMode: true
+ *   }
+ * });
+ * ```
+ */
+export function defineConfig(config: Config): Config {
+	return config;
 }
