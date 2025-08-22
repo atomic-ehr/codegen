@@ -43,7 +43,7 @@
 		"test:verbose": "bun test --verbose",
 		"test:helpers": "bun test test/helpers/",
 		"test:quick": "bun test test/unit/ --timeout 5000",
-		"build": "rm -rf dist && bunx tsc --project tsconfig.build.json && chmod +x dist/cli/index.js",
+		"build": "rm -rf dist && bunx tsc --project tsconfig.build.json && bun build src/cli/index.ts --outfile dist/cli/atomic-codegen.js --target node --format esm --minify --external typescript && tail -n +2 dist/cli/atomic-codegen.js > dist/cli/temp.js && echo '#!/usr/bin/env node' > dist/cli/index.js && cat dist/cli/temp.js >> dist/cli/index.js && chmod +x dist/cli/index.js && rm dist/cli/atomic-codegen.js dist/cli/temp.js",
 		"typecheck": "bunx tsc --noEmit",
 		"lint": "biome check --write",
 		"quality": "bun run typecheck && bun run lint && bun run test:unit",
