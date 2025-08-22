@@ -80,7 +80,7 @@
  */
 
 // Export new high-level API (primary)
-export * from "./api";
+export * from "./api/index.js";
 
 // Export new config system
-export * from "./config";
+export * from "./config.js";

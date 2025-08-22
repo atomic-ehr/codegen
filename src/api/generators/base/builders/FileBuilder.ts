@@ -5,9 +5,9 @@
  * exports, content generation, and lifecycle hooks for customization.
  */
 
-import type { CodegenLogger } from "../../../../utils/codegen-logger";
+import type { CodegenLogger } from "../../../../utils/codegen-logger.js";
 import { FileOperationError, TemplateError } from "../errors";
-import type { FileManager } from "../FileManager";
+import type { FileManager } from "../FileManager.js";
 import type {
 	AfterSaveHook,
 	BeforeSaveHook,

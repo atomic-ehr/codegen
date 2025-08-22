@@ -11,13 +11,16 @@ import {
 	type StructureDefinition,
 	translate,
 } from "@atomic-ehr/fhirschema";
-import type { TypeSchemaConfig } from "../config";
-import type { CodegenLogger } from "../utils/codegen-logger";
-import { createLogger } from "../utils/codegen-logger";
-import { TypeSchemaCache } from "./cache";
-import { transformFHIRSchema, transformFHIRSchemas } from "./core/transformer";
-import type { TypeSchema } from "./type-schema.types";
-import type { PackageInfo, TypeschemaGeneratorOptions } from "./types";
+import type { TypeSchemaConfig } from "../config.js";
+import type { CodegenLogger } from "../utils/codegen-logger.js";
+import { createLogger } from "../utils/codegen-logger.js";
+import { TypeSchemaCache } from "./cache.js";
+import {
+	transformFHIRSchema,
+	transformFHIRSchemas,
+} from "./core/transformer.js";
+import type { TypeSchema } from "./type-schema.types.js";
+import type { PackageInfo, TypeschemaGeneratorOptions } from "./types.js";
 
 /**
  * TypeSchema Generator class

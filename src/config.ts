@@ -957,11 +957,11 @@ export function isConfig(obj: unknown): obj is Config {
 /**
  * Define configuration with type safety and IntelliSense support.
  * Similar to Vite's defineConfig function pattern.
- * 
+ *
  * @example
  * ```typescript
  * import { defineConfig } from "@atomic-ehr/codegen";
- * 
+ *
  * export default defineConfig({
  *   outputDir: "./generated",
  *   packages: [

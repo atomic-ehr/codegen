@@ -12,9 +12,13 @@ import type {
 	PackageInfo,
 	TypeSchemaField,
 	TypeSchemaIdentifier,
-} from "../types";
-import { buildField, buildNestedField, isNestedElement } from "./field-builder";
-import { buildNestedIdentifier } from "./identifier";
+} from "../types.js";
+import {
+	buildField,
+	buildNestedField,
+	isNestedElement,
+} from "./field-builder.js";
+import { buildNestedIdentifier } from "./identifier.js";
 
 /**
  * Collect all nested elements from a FHIRSchema

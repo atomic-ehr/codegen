@@ -8,8 +8,8 @@
  */
 
 import { readFile } from "node:fs/promises";
-import type { TypeSchema, TypeSchemaIdentifier } from "./type-schema.types";
-import type { TypeschemaParserOptions } from "./types";
+import type { TypeSchema, TypeSchemaIdentifier } from "./type-schema.types.js";
+import type { TypeschemaParserOptions } from "./types.js";
 
 /**
  * TypeSchema Parser class

@@ -8,8 +8,8 @@
  * - Inline templates (template literals)
  */
 
-import type { CodegenLogger } from "../../../utils/codegen-logger";
-import { TemplateError } from "./errors";
+import type { CodegenLogger } from "../../../utils/codegen-logger.js";
+import { TemplateError } from "./errors.js";
 
 /**
  * Template context passed to templates

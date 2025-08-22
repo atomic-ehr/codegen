@@ -4,10 +4,10 @@
  * Generate TypeScript types from TypeSchema files using the new high-level API
  */
 
-import { APIBuilder } from "../../../api";
-import type { Config } from "../../../config";
-import { createLogger } from "../../utils/log";
-import type { CLIArgv } from "../index";
+import { APIBuilder } from "../../../api/index.js";
+import type { Config } from "../../../config.js";
+import { createLogger } from "../../utils/log.js";
+import type { CLIArgv } from "../index.js";
 
 interface TypeScriptGenerateArgs extends CLIArgv {
 	input?: string;

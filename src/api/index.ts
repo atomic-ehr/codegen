@@ -12,20 +12,20 @@ export {
 	TypeSchemaCache,
 	TypeSchemaGenerator,
 	TypeSchemaParser,
-} from "../typeschema";
+} from "../typeschema/index.js";
 // Re-export core TypeSchema types for convenience
 export type {
 	TypeSchema,
 	TypeSchemaField,
 	TypeSchemaIdentifier,
-} from "../typeschema/type-schema.types";
-export type { PackageInfo } from "../typeschema/types";
+} from "../typeschema/type-schema.types.js";
+export type { PackageInfo } from "../typeschema/types.js";
 // Export types and interfaces
 export type {
 	APIBuilderOptions,
 	GenerationResult,
 	ProgressCallback,
-} from "./builder";
+} from "./builder.js";
 // Export main API builder and utilities
 export {
 	APIBuilder,
@@ -33,16 +33,16 @@ export {
 	createAPIFromConfig,
 	generateTypesFromFiles,
 	generateTypesFromPackage,
-} from "./builder";
-export type { GeneratedFile } from "./generators/base";
+} from "./builder.js";
+export type { GeneratedFile } from "./generators/base/index.js";
 export type {
 	GeneratedRestClient,
 	RestClientOptions,
-} from "./generators/rest-client";
-export { RestClientGenerator } from "./generators/rest-client";
-export type { TypeScriptGeneratorOptions } from "./generators/typescript";
+} from "./generators/rest-client.js";
+export { RestClientGenerator } from "./generators/rest-client.js";
+export type { TypeScriptGeneratorOptions } from "./generators/typescript.js";
 // Export generator classes for advanced usage
-export { TypeScriptGenerator } from "./generators/typescript";
+export { TypeScriptGenerator } from "./generators/typescript.js";
 
 /**
  * Quick start examples:

@@ -6,8 +6,8 @@
  */
 
 import type { TypeSchema } from "../../typeschema/type-schema.types";
-import type { CodegenLogger } from "../../utils/codegen-logger";
-import { createLogger } from "../../utils/codegen-logger";
+import type { CodegenLogger } from "../../utils/codegen-logger.js";
+import { createLogger } from "../../utils/codegen-logger.js";
 
 /**
  * Search parameter modifier types for enhanced type safety

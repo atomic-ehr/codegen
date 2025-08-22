@@ -6,7 +6,8 @@
 		"useIgnoreFile": false
 	},
 	"files": {
-		"ignoreUnknown": false
+		"ignoreUnknown": false,
+		"includes": ["src", "atomic-codegen.config.js"]
 	},
 	"formatter": {
 		"enabled": true,

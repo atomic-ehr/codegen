@@ -10,9 +10,20 @@
 		"ehr",
 		"typeschema"
 	],
-	"module": "./dist/index.js",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
+		},
+		"./cli": {
+			"types": "./dist/cli/index.d.ts",
+			"import": "./dist/cli/index.js",
+			"default": "./dist/cli/index.js"
+		}
+	},
 	"type": "module",
 	"bin": {
 		"atomic-codegen": "./dist/cli/index.js"
@@ -31,9 +42,9 @@
 		"test:verbose": "bun test --verbose",
 		"test:helpers": "bun test test/helpers/",
 		"test:quick": "bun test test/unit/ --timeout 5000",
-		"build": "rm -rf dist && bun build src/index.ts src/cli/index.ts --outdir dist --target node --format esm --splitting --external typescript && bunx tsc --project tsconfig.build.json && chmod +x dist/cli/index.js",
+		"build": "rm -rf dist && bunx tsc --project tsconfig.build.json && chmod +x dist/cli/index.js",
 		"typecheck": "bunx tsc --noEmit",
-		"lint": "biome check --write ./src",
+		"lint": "biome check --write",
 		"quality": "bun run typecheck && bun run lint && bun run test:unit",
 		"cli": "bun run src/cli/index.ts",
 		"codegen": "bun run src/cli/index.ts",

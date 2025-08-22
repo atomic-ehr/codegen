@@ -7,9 +7,9 @@
 
 import { access, mkdir, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, join, relative } from "node:path";
-import type { CodegenLogger } from "../../../utils/codegen-logger";
-import { FileOperationError } from "./errors";
-import type { FileStats } from "./types";
+import type { CodegenLogger } from "../../../utils/codegen-logger.js";
+import { FileOperationError } from "./errors.js";
+import type { FileStats } from "./types.js";
 
 export interface FileManagerOptions {
 	outputDir: string;

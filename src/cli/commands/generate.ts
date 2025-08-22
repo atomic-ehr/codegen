@@ -1,104 +1,62 @@
 /**
- * Generate Command - High-Level API
+ * Generate Command - Config-Driven Generation
  *
- * Main generate command that uses the high-level API for end-to-end generation
+ * Main generate command that reads all configuration from the config file
+ * and executes generation based purely on config settings.
  */
 
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
 import type { CommandModule } from "yargs";
-import { APIBuilder } from "../../api";
-import { loadConfig } from "../../config";
-import { createLogger, error, step, success, warn } from "../utils/log";
-import type { CLIArgv } from "./index";
+import { APIBuilder } from "../../api/index.js";
+import { CONFIG_FILE_NAMES, configLoader, loadConfig } from "../../config.js";
+import { createLogger, error, step, success, warn } from "../utils/log.js";
+import type { CLIArgv } from "./index.js";
 
 interface GenerateArgs extends CLIArgv {
-	packages?: string[];
-	input?: string;
-	output?: string;
-	typescript?: boolean;
-	format?: "esm" | "cjs";
-	"generate-index"?: boolean;
-	"include-docs"?: boolean;
-	"naming-convention"?: "PascalCase" | "camelCase";
+	// Only verbose flag remains as it's a general CLI flag
 }
 
 /**
- * Main generate command using high-level API
+ * Main generate command - fully config-driven
  */
 export const generateCommand: CommandModule<{}, GenerateArgs> = {
-	command: "generate [generator]",
-	describe: "Generate code using the high-level API (supports TypeScript)",
+	command: "generate",
+	describe: "Generate code based on configuration file settings",
 	builder: (yargs) =>
 		yargs
-			.positional("generator", {
-				describe: "Generator type",
-				choices: ["typescript", "ts"],
-				default: "typescript",
-			})
-			.option("packages", {
-				alias: "p",
-				type: "string",
-				array: true,
-				description: "FHIR packages to load (e.g., hl7.fhir.r4.core@4.0.1)",
-			})
-			.option("input", {
-				alias: "i",
-				type: "string",
-				description: "Input TypeSchema files or directory",
-			})
-			.option("output", {
-				alias: "o",
-				type: "string",
-				description: "Output directory",
-			})
-			.option("typescript", {
-				type: "boolean",
-				description: "Generate TypeScript types",
-			})
-			.option("format", {
-				type: "string",
-				choices: ["esm", "cjs"] as const,
-				default: "esm" as const,
-				description: "Module format",
-			})
-			.option("generate-index", {
-				type: "boolean",
-				default: true,
-				description: "Generate index files",
-			})
-			.option("include-docs", {
-				type: "boolean",
-				default: true,
-				description: "Include documentation comments",
-			})
-			.option("naming-convention", {
-				type: "string",
-				choices: ["PascalCase", "camelCase"] as const,
-				default: "PascalCase" as const,
-				description: "Naming convention for generated files",
-			})
 			.option("verbose", {
 				alias: "v",
 				type: "boolean",
 				default: false,
 				description: "Enable verbose output",
 			})
-			.example(
-				"$0 generate typescript",
-				"Generate TypeScript types using config file",
-			)
-			.example(
-				"$0 generate typescript -p hl7.fhir.r4.core -o ./types",
-				"Generate TypeScript types from FHIR R4 core package",
-			)
-			.example(
-				"$0 generate typescript -i ./schemas/*.ndjson -o ./types",
-				"Generate TypeScript types from TypeSchema files",
-			),
+			.example("$0 generate", "Generate code using settings from config file")
+			.example("$0 generate --verbose", "Generate with verbose output"),
 	handler: async (argv) => {
-		// Load config file first, then merge with CLI args (CLI args take priority)
-		const config = await loadConfig(process.cwd());
+		// Check if config file exists first
+		const workingDir = process.cwd();
+		const configPath = await findConfigFile(workingDir);
 
-		const generator = argv.generator as string;
+		if (!configPath) {
+			const configFilesList = CONFIG_FILE_NAMES.map(
+				(name) => `  - ${name}`,
+			).join("\n");
+			error(
+				`No configuration file found. Please create one of the following files in your project root:\n${configFilesList}\n\nExample atomic-codegen.config.ts:\n\n` +
+					`import { defineConfig } from '@atomic-ehr/codegen';\n\n` +
+					`export default defineConfig({\n` +
+					`  packages: ['hl7.fhir.r4.core@4.0.1'],\n` +
+					`  typescript: {\n` +
+					`    generateIndex: true\n` +
+					`  }\n` +
+					`});`,
+			);
+			process.exit(1);
+		}
+
+		// Load config file
+		const config = await loadConfig(workingDir);
 		const verbose = argv.verbose ?? config.verbose ?? false;
 
 		// Create logger for CLI command
@@ -108,38 +66,33 @@ export const generateCommand: CommandModule<{}, GenerateArgs> = {
 		});
 
 		try {
-			step(`Starting ${generator} generation`);
+			step("Starting generation from config");
 			if (verbose) {
-				logger.info(`Config directory: ${process.cwd()}`);
+				logger.info(`Config file: ${configPath}`);
+				logger.info(`Output directory: ${config.outputDir || "./generated"}`);
 				logger.info(`Packages: ${config.packages?.length || 0}`);
 				logger.info(`Files: ${config.files?.length || 0}`);
+				logger.info(
+					`TypeScript generation: ${config.typescript ? "enabled" : "disabled"}`,
+				);
+				logger.info(
+					`REST Client generation: ${config.restClient ? "enabled" : "disabled"}`,
+				);
 			}
 
-			// Create API builder with options (CLI args override config)
+			// Create API builder with config options
 			const builder = new APIBuilder({
-				outputDir: argv.output || config.outputDir || "./generated",
+				outputDir: config.outputDir || "./generated",
 				verbose,
 				overwrite: config.overwrite ?? true,
-				validate: config.validate ?? false, // Temporarily disable validation
+				validate: config.validate ?? true,
 				cache: config.cache ?? true,
-				typeSchemaConfig: config.typeSchema, // Pass typeSchema config for treeshake and other options
-				logger, // Pass the CLI logger to the API builder
+				typeSchemaConfig: config.typeSchema,
+				logger,
 			});
 
-			// Load data sources - CLI args take priority over config
-			if (argv.packages && argv.packages.length > 0) {
-				logger.info(`Loading FHIR packages: ${argv.packages.join(", ")}`);
-				for (const packageSpec of argv.packages) {
-					const [name, version] = packageSpec.includes("@")
-						? packageSpec.split("@")
-						: [packageSpec, undefined];
-					builder.fromPackage(name, version);
-				}
-			} else if (argv.input) {
-				logger.info(`Loading TypeSchema from: ${argv.input}`);
-				builder.fromFiles(argv.input);
-			} else if (config.packages && config.packages.length > 0) {
-				// Use packages from config file
+			// Load data sources from config
+			if (config.packages && config.packages.length > 0) {
 				logger.info(
 					`Loading packages from config: ${config.packages.join(", ")}`,
 				);
@@ -150,56 +103,57 @@ export const generateCommand: CommandModule<{}, GenerateArgs> = {
 					builder.fromPackage(name, version);
 				}
 			} else if (config.files && config.files.length > 0) {
-				// Use files from config
 				logger.info(`Loading files from config: ${config.files.join(", ")}`);
 				for (const file of config.files) {
 					builder.fromFiles(file);
 				}
 			} else {
 				throw new Error(
-					"No data source specified. Use --packages, --input, or configure packages/files in your config file.",
+					"No data source specified in config. Please configure 'packages' or 'files' in your config file.",
 				);
 			}
 
-			// Configure generators based on arguments or command
-			const shouldGenerateTypeScript =
-				argv.typescript || generator === "typescript" || generator === "ts";
-
-			if (shouldGenerateTypeScript) {
+			// Configure generators from config
+			if (config.typescript) {
 				if (verbose) {
-					logger.info("Configuring TypeScript generation");
+					logger.info("Configuring TypeScript generation from config");
 					logger.debug(
-						`Module format: ${argv.format || config.typescript?.moduleFormat || "esm"}`,
+						`Module format: ${config.typescript.moduleFormat || "esm"}`,
 					);
 					logger.debug(
-						`Generate index: ${argv["generate-index"] ?? config.typescript?.generateIndex ?? true}`,
+						`Generate index: ${config.typescript.generateIndex ?? true}`,
 					);
 					logger.debug(
-						`Include docs: ${argv["include-docs"] ?? config.typescript?.includeDocuments ?? false}`,
+						`Include docs: ${config.typescript.includeDocuments ?? false}`,
 					);
 					logger.debug(
-						`Naming convention: ${argv["naming-convention"] || config.typescript?.namingConvention || "PascalCase"}`,
+						`Naming convention: ${config.typescript.namingConvention || "PascalCase"}`,
 					);
 				}
-				builder.typescript({
-					// CLI args override config values
-					moduleFormat: argv.format || config.typescript?.moduleFormat || "esm",
-					generateIndex:
-						argv["generate-index"] ?? config.typescript?.generateIndex ?? true,
-					includeDocuments:
-						argv["include-docs"] ??
-						config.typescript?.includeDocuments ??
-						false,
-					namingConvention:
-						argv["naming-convention"] ||
-						config.typescript?.namingConvention ||
-						"PascalCase",
-					includeProfiles: config.typescript?.includeProfiles ?? false,
-				});
+				builder.typescript(config.typescript);
 			}
 
 			if (config.restClient) {
+				if (verbose) {
+					logger.info("Configuring REST Client generation from config");
+					logger.debug(
+						`Client name: ${config.restClient.clientName || "FHIRClient"}`,
+					);
+					logger.debug(
+						`Include validation: ${config.restClient.includeValidation ?? false}`,
+					);
+					logger.debug(
+						`Enhanced search: ${config.restClient.enhancedSearch ?? false}`,
+					);
+				}
 				builder.restClient(config.restClient);
+			}
+
+			// Check that at least one generator is configured
+			if (!config.typescript && !config.restClient) {
+				throw new Error(
+					"No generators configured. Please enable 'typescript' or 'restClient' in your config file.",
+				);
 			}
 
 			// Add progress callback if verbose
@@ -243,3 +197,16 @@ export const generateCommand: CommandModule<{}, GenerateArgs> = {
 		}
 	},
 };
+
+/**
+ * Helper function to find config file in the given directory
+ */
+async function findConfigFile(startDir: string): Promise<string | null> {
+	for (const fileName of CONFIG_FILE_NAMES) {
+		const configPath = resolve(startDir, fileName);
+		if (existsSync(configPath)) {
+			return configPath;
+		}
+	}
+	return null;
+}

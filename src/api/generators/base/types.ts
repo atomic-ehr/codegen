@@ -5,8 +5,11 @@
  * build upon, ensuring consistency and type safety across the system.
  */
 
-import type { TypeSchema, TypeSchemaIdentifier } from "../../../typeschema";
-import type { CodegenLogger } from "../../../utils/codegen-logger";
+import type {
+	TypeSchema,
+	TypeSchemaIdentifier,
+} from "../../../typeschema/index.js";
+import type { CodegenLogger } from "../../../utils/codegen-logger.js";
 
 /**
  * Base configuration options that all generators must support

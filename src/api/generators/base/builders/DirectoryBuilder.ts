@@ -5,10 +5,10 @@
  * including subdirectories, index files, and batch operations.
  */
 
-import type { CodegenLogger } from "../../../../utils/codegen-logger";
-import type { FileManager } from "../FileManager";
-import type { FileBuilder } from "./FileBuilder";
-import type { IndexBuilder } from "./IndexBuilder";
+import type { CodegenLogger } from "../../../../utils/codegen-logger.js";
+import type { FileManager } from "../FileManager.js";
+import type { FileBuilder } from "./FileBuilder.js";
+import type { IndexBuilder } from "./IndexBuilder.js";
 
 export interface DirectoryBuilderConfig {
 	path: string;

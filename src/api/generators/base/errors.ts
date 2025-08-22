@@ -5,8 +5,8 @@
  * at all skill levels understand and resolve issues quickly.
  */
 
-import type { TypeSchema } from "../../../typeschema";
-import type { FileContext } from "./types";
+import type { TypeSchema } from "../../../typeschema/index.js";
+import type { FileContext } from "./types.js";
 
 /**
  * Base error class for all generator-related errors

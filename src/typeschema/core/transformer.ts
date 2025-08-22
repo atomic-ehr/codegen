@@ -8,24 +8,24 @@
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import { transformProfile } from "../profile/processor";
+import { transformProfile } from "../profile/processor.js";
 import type {
 	TypeSchema,
 	TypeSchemaField,
 	TypeSchemaForValueSet,
 	TypeSchemaIdentifier,
-} from "../type-schema.types";
-import type { PackageInfo } from "../types";
-import { collectBindingSchemas } from "./binding";
+} from "../type-schema.types.js";
+import type { PackageInfo } from "../types.js";
+import { collectBindingSchemas } from "./binding.js";
 import {
 	buildField,
 	buildNestedField,
 	getElementHierarchy,
 	isNestedElement,
 	mergeElementHierarchy,
-} from "./field-builder";
-import { buildSchemaIdentifier } from "./identifier";
-import { buildNestedTypes, extractNestedDependencies } from "./nested-types";
+} from "./field-builder.js";
+import { buildSchemaIdentifier } from "./identifier.js";
+import { buildNestedTypes, extractNestedDependencies } from "./nested-types.js";
 
 /**
  * Transform elements into fields

@@ -7,12 +7,12 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import type { RestClientConfig } from "../../config";
+import type { RestClientConfig } from "../../config.js";
 import type { TypeSchema } from "../../typeschema/type-schema.types";
-import type { CodegenLogger } from "../../utils/codegen-logger";
-import { createLogger } from "../../utils/codegen-logger";
-import { SearchParameterEnhancer } from "./search-parameter-enhancer";
-import { ValidationGenerator } from "./validation-generator";
+import type { CodegenLogger } from "../../utils/codegen-logger.js";
+import { createLogger } from "../../utils/codegen-logger.js";
+import { SearchParameterEnhancer } from "./search-parameter-enhancer.js";
+import { ValidationGenerator } from "./validation-generator.js";
 
 /**
  * Options for the REST Client generator
@@ -211,7 +211,7 @@ export class RestClientGenerator {
 			? `import type { 
 	EnhancedSearchParams,
 	SearchParameterValidator${(this.options as any).searchAutocomplete ? ",\n\tSearchParamName,\n\tBaseEnhancedSearchParams" : ""} 
-} from './enhanced-search-params';`
+} from './enhanced-search-params.js';`
 			: "";
 
 		const validationImports =
@@ -220,8 +220,8 @@ export class RestClientGenerator {
 	ValidationOptions,
 	ValidationResult,
 	ValidationException 
-} from './validation-types';
-import { ResourceValidator } from './resource-validators';`
+} from './validation-types.js';
+import { ResourceValidator } from './resource-validators.js';`
 				: "";
 
 		// Always import SearchParams to keep backward compatibility typings
@@ -250,10 +250,10 @@ import type {
 	SearchResponse,
 	RequestOptions,
 	HTTPMethod 
-} from './client-types';
+} from './client-types.js';
 ${enhancedSearchImports}
 ${validationImports}
-import type { ResourceTypeMap } from './utility';
+import type { ResourceTypeMap } from './utility.js';
 
 /**
  * Main FHIR REST Client
@@ -377,7 +377,7 @@ export default ${clientName};`;
  */
 
 import type { Bundle } from '../types';
-import type { ResourceTypeMap } from './utility';
+import type { ResourceTypeMap } from './utility.js';
 
 /**
  * HTTP methods supported by the client

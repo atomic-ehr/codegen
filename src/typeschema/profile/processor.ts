@@ -8,9 +8,9 @@
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
-import { buildSchemaIdentifier } from "../core/identifier";
-import { transformElements } from "../core/transformer";
-import type { TypeSchemaIdentifier } from "../type-schema.types";
+import { buildSchemaIdentifier } from "../core/identifier.js";
+import { transformElements } from "../core/transformer.js";
+import type { TypeSchemaIdentifier } from "../type-schema.types.js";
 import type {
 	PackageInfo,
 	ProfileConstraint,
@@ -18,7 +18,7 @@ import type {
 	ProfileMetadata,
 	TypeSchemaForProfile,
 	ValidationRule,
-} from "../types";
+} from "../types.js";
 
 /**
  * Transform a FHIR profile to TypeSchema format

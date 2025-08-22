@@ -5,8 +5,8 @@
  */
 
 import type { CommandModule } from "yargs";
-import { error, info, list } from "../utils/log";
-import { generateTypeschemaCommand } from "./typeschema/generate";
+import { error, info, list } from "../utils/log.js";
+import { generateTypeschemaCommand } from "./typeschema/generate.js";
 
 /**
  * TypeSchema command group

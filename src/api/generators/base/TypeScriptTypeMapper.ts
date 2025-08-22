@@ -7,7 +7,7 @@ import {
 	type LanguageType,
 	TypeMapper,
 	type TypeMapperOptions,
-} from "./TypeMapper";
+} from "./TypeMapper.js";
 
 /**
  * TypeScript-specific options

@@ -7,8 +7,8 @@
 import { existsSync, mkdirSync } from "node:fs";
 import { readdir, readFile, stat, unlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import type { TypeSchemaConfig } from "../config";
-import type { TypeSchema, TypeSchemaIdentifier } from "./type-schema.types";
+import type { TypeSchemaConfig } from "../config.js";
+import type { TypeSchema, TypeSchemaIdentifier } from "./type-schema.types.js";
 
 /**
  * Cached schema metadata for persistence

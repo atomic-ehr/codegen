@@ -2,7 +2,7 @@
  * CLI Utilities - Re-exports from main utils with spinner support
  */
 
-import { createSpinner } from "./spinner";
+import { createSpinner } from "./spinner.js";
 
 // Re-export all logger functions from the main utils
 export {
@@ -24,7 +24,7 @@ export {
 	success,
 	table,
 	warn,
-} from "../../utils/codegen-logger";
+} from "../../utils/codegen-logger.js";
 
 // Export CLI-specific utilities
 export { createSpinner };

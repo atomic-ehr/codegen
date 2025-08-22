@@ -4,7 +4,7 @@ import type {
 	TypeSchema,
 	TypeSchemaField,
 	TypeSchemaForResourceComplexTypeLogical,
-} from "./types";
+} from "./types.js";
 
 export const isPolymorphicInstanceField = (
 	field: TypeSchemaField,

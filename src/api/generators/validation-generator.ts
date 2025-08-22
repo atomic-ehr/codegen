@@ -237,8 +237,8 @@ export class ValidationException extends Error {
  * Generated automatically from FHIR schemas.
  */
 
-import type { ResourceTypes, ResourceTypeMap, ${resourceTypesArray.join(", ")} } from './utility';
-import type { ValidationOptions, ValidationResult, ValidationError, ValidationWarning, ValidationException } from './validation-types';
+import type { ResourceTypes, ResourceTypeMap, ${resourceTypesArray.join(", ")} } from './utility.js';
+import type { ValidationOptions, ValidationResult, ValidationError, ValidationWarning, ValidationException } from './validation-types.js';
 
 /**
  * Main Resource Validator class

@@ -7,13 +7,13 @@
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import type { PackageInfo, TypeSchemaForBinding } from "../types";
-import { buildFieldType } from "./field-builder";
+import type { PackageInfo, TypeSchemaForBinding } from "../types.js";
+import { buildFieldType } from "./field-builder.js";
 import {
 	buildBindingIdentifier,
 	buildValueSetIdentifier,
 	dropVersionFromUrl,
-} from "./identifier";
+} from "./identifier.js";
 
 /**
  * Extract concepts from a ValueSet

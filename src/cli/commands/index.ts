@@ -8,9 +8,9 @@
 
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { configure, error, header } from "../utils/log";
-import { generateCommand } from "./generate";
-import { typeschemaCommand } from "./typeschema";
+import { configure, error, header } from "../utils/log.js";
+import { generateCommand } from "./generate.js";
+import { typeschemaCommand } from "./typeschema.js";
 
 /**
  * CLI arguments interface
@@ -70,13 +70,10 @@ export function createCLI() {
 				// Show available commands instead of error
 				header("Welcome to Atomic Codegen!");
 				console.log("Available commands:");
-				console.log("  init         Initialize a new atomic-codegen project");
 				console.log(
 					"  typeschema   Generate, validate and merge TypeSchema files",
 				);
-				console.log(
-					"  generate     Generate code from TypeSchema (TypeScript, REST clients)",
-				);
+				console.log("  generate     Generate code based on configuration file");
 				console.log(
 					"\nUse 'atomic-codegen <command> --help' for more information about a command.",
 				);
@@ -85,10 +82,7 @@ export function createCLI() {
 					"  atomic-codegen typeschema generate hl7.fhir.r4.core@4.0.1 -o schemas.ndjson",
 				);
 				console.log(
-					"  atomic-codegen generate typescript -i schemas.ndjson -o ./types",
-				);
-				console.log(
-					"  atomic-codegen generate rest-client -i schemas.ndjson -o ./client",
+					"  atomic-codegen generate  # Uses atomic-codegen.config.ts",
 				);
 				console.log("\nUse 'atomic-codegen --help' to see all options.");
 				process.exit(0);
@@ -96,26 +90,15 @@ export function createCLI() {
 		})
 		.help()
 		.version("0.1.0")
+		.example("$0 generate", "Generate code using atomic-codegen.config.ts")
+		.example("$0 generate --verbose", "Generate with detailed progress output")
 		.example(
-			"$0 generate typescript --input types.ndjson",
-			"Generate TypeScript from TypeSchema files",
-		)
-		.example(
-			"$0 generate typescript -i types.ndjson -o ./generated",
-			"Generate TypeScript from TypeSchema",
-		)
-		.example(
-			"$0 config init --template typescript",
-			"Initialize TypeScript configuration",
-		)
-		.example("$0 config validate", "Validate current configuration")
-		.example(
-			"$0 validate -i types.ndjson -o ./generated",
-			"Run comprehensive validation",
-		)
-		.example(
-			"$0 --config my-config.json generate typescript",
+			"$0 --config custom-config.ts generate",
 			"Use custom configuration file",
+		)
+		.example(
+			"$0 typeschema generate hl7.fhir.r4.core@4.0.1 -o schemas.ndjson",
+			"Generate TypeSchemas from FHIR package",
 		)
 		.fail((msg, err, _yargs) => {
 			if (err) {

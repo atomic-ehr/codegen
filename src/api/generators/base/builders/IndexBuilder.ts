@@ -5,8 +5,8 @@
  * from a directory, with support for grouping and namespaces.
  */
 
-import type { CodegenLogger } from "../../../../utils/codegen-logger";
-import type { FileManager } from "../FileManager";
+import type { CodegenLogger } from "../../../../utils/codegen-logger.js";
+import type { FileManager } from "../FileManager.js";
 import type { TemplateEngine } from "../types";
 
 export interface IndexBuilderConfig {

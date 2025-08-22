@@ -12,13 +12,13 @@ import type {
 	PackageInfo,
 	TypeSchemaField,
 	TypeSchemaIdentifier,
-} from "../types";
-import { buildEnum } from "./binding";
+} from "../types.js";
+import { buildEnum } from "./binding.js";
 import {
 	buildBindingIdentifier,
 	buildNestedIdentifier,
 	buildSchemaIdentifier,
-} from "./identifier";
+} from "./identifier.js";
 
 /**
  * Get the full element hierarchy for a given path

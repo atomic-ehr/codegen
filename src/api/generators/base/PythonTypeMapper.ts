@@ -2,8 +2,8 @@
  * Python type mapper implementation (basic version)
  */
 
-import type { TypeSchemaIdentifier } from "../../../typeschema";
-import { type LanguageType, TypeMapper } from "./TypeMapper";
+import type { TypeSchemaIdentifier } from "../../../typeschema/index.js";
+import { type LanguageType, TypeMapper } from "./TypeMapper.js";
 
 export class PythonTypeMapper extends TypeMapper {
 	getLanguageName(): string {

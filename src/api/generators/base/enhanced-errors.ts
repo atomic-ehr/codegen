@@ -6,8 +6,8 @@
  * user experience for developers at all skill levels.
  */
 
-import type { TypeSchema } from "../../../typeschema";
-import { GeneratorError } from "./errors";
+import type { TypeSchema } from "../../../typeschema/index.js";
+import { GeneratorError } from "./errors.js";
 
 /**
  * Enhanced schema validation error with smart suggestions

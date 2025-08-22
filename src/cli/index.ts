@@ -8,7 +8,7 @@
  * - generate: Generate code from TypeSchema
  */
 
-import { runCLI } from "./commands";
+import { runCLI } from "./commands/index.js";
 
 // Export the simplified CLI
 

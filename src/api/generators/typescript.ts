@@ -6,17 +6,17 @@
  */
 
 import type { TypeSchema } from "../../typeschema/type-schema.types";
-import { BaseGenerator } from "./base/BaseGenerator";
+import { BaseGenerator } from "./base/BaseGenerator.js";
 import {
 	TypeScriptTypeMapper,
 	type TypeScriptTypeMapperOptions,
-} from "./base/TypeScriptTypeMapper";
+} from "./base/TypeScriptTypeMapper.js";
 import type {
 	BaseGeneratorOptions,
 	GeneratedFile,
 	TemplateContext,
 	TypeMapper,
-} from "./base/types";
+} from "./base/types.js";
 
 /**
  * TypeScript-specific generator options
@@ -326,12 +326,12 @@ export class TypeScriptGenerator extends BaseGenerator<
 			}
 		}
 
-		lines.push("import type { ResourceType } from './utilities';");
+		lines.push("import type { ResourceType } from './utilities.js';");
 
 		if (imports.size > 0) {
 			const sortedImports = Array.from(imports).sort();
 			for (const importName of sortedImports) {
-				lines.push(`import type { ${importName} } from './${importName}';`);
+				lines.push(`import type { ${importName} } from './${importName}.js';`);
 			}
 		}
 		lines.push(""); // Add blank line after imports
@@ -406,7 +406,7 @@ export class TypeScriptGenerator extends BaseGenerator<
 		if (imports.size > 0) {
 			const sortedImports = Array.from(imports).sort();
 			for (const importName of sortedImports) {
-				lines.push(`import type { ${importName} } from './${importName}';`);
+				lines.push(`import type { ${importName} } from './${importName}.js';`);
 			}
 			lines.push(""); // Add blank line after imports
 		}

@@ -10,11 +10,11 @@
  * - Validating TypeSchema documents
  */
 
-import { TypeSchemaCache } from "./cache";
-import { TypeSchemaGenerator } from "./generator";
-import { TypeSchemaParser } from "./parser";
-import type { TypeSchema } from "./type-schema.types";
-import type { TypeschemaParserOptions } from "./types";
+import { TypeSchemaCache } from "./cache.js";
+import { TypeSchemaGenerator } from "./generator.js";
+import { TypeSchemaParser } from "./parser.js";
+import type { TypeSchema } from "./type-schema.types.js";
+import type { TypeschemaParserOptions } from "./types.js";
 
 // Re-export core dependencies
 export { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
@@ -29,7 +29,7 @@ export {
 	initializeGlobalCache,
 	isCached,
 	TypeSchemaCache,
-} from "./cache";
+} from "./cache.js";
 
 // Re-export utility functions for FHIR processing
 export {
@@ -37,7 +37,7 @@ export {
 	collectBindingSchemas,
 	extractValueSetConcepts,
 	generateBindingSchema,
-} from "./core/binding";
+} from "./core/binding.js";
 export {
 	buildField,
 	buildNestedField,
@@ -46,25 +46,25 @@ export {
 	isNestedElement,
 	isRequired,
 	mergeElementHierarchy,
-} from "./core/field-builder";
+} from "./core/field-builder.js";
 export {
 	buildBindingIdentifier,
 	buildNestedIdentifier,
 	buildSchemaIdentifier,
 	buildValueSetIdentifier,
 	dropVersionFromUrl,
-} from "./core/identifier";
+} from "./core/identifier.js";
 export {
 	buildNestedTypes,
 	collectNestedElements,
 	extractNestedDependencies,
-} from "./core/nested-types";
+} from "./core/nested-types.js";
 
 // Re-export FHIR transformation utilities
 export {
 	transformFHIRSchema,
 	transformFHIRSchemas,
-} from "./core/transformer";
+} from "./core/transformer.js";
 
 // Export generator functionality (FHIR -> TypeSchema)
 export {
@@ -72,7 +72,7 @@ export {
 	generateTypeSchemaFromSchema,
 	generateTypeSchemaFromSchemas,
 	TypeSchemaGenerator,
-} from "./generator";
+} from "./generator.js";
 
 // Export parser functionality (Read TypeSchema)
 export {
@@ -80,28 +80,28 @@ export {
 	parseTypeSchemaFromFiles,
 	parseTypeSchemaFromString,
 	TypeSchemaParser,
-} from "./parser";
+} from "./parser.js";
 
 // Profile processing temporarily disabled (not in core TypeSchema spec)
 // export { transformProfile } from "./profile/processor";
 
 // Export new comprehensive types (preferred)
-export * from "./type-schema.types";
+export * from "./type-schema.types.js";
 // Export legacy types for compatibility (keeping separate names)
 export type {
 	PackageInfo,
 	TypeschemaGeneratorOptions,
 	TypeschemaParserOptions,
-} from "./types";
+} from "./types.js";
 // Export typeschema-specific utils (renamed to avoid conflicts)
 export {
 	isTypeSchemaBinding,
 	isTypeSchemaForResourceComplexTypeLogical,
 	isTypeSchemaValueSet,
-} from "./utils";
+} from "./utils.js";
 
 // Export value set processing
-export { transformValueSet } from "./value-set/processor";
+export { transformValueSet } from "./value-set/processor.js";
 
 /**
  * TypeSchema Core API class

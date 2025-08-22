@@ -7,11 +7,11 @@
  */
 
 import type { TypeSchema } from "../../../typeschema/type-schema.types";
-import type { CodegenLogger } from "../../../utils/codegen-logger";
-import { createLogger } from "../../../utils/codegen-logger";
-import { ErrorHandler, GeneratorErrorBoundary } from "./error-handler";
-import { ConfigurationError, SchemaValidationError } from "./errors";
-import { FileManager } from "./FileManager";
+import type { CodegenLogger } from "../../../utils/codegen-logger.js";
+import { createLogger } from "../../../utils/codegen-logger.js";
+import { ErrorHandler, GeneratorErrorBoundary } from "./error-handler.js";
+import { ConfigurationError, SchemaValidationError } from "./errors.js";
+import { FileManager } from "./FileManager.js";
 import type {
 	BaseGeneratorOptions,
 	ConfigValidationResult,
@@ -21,7 +21,7 @@ import type {
 	TemplateContext,
 	TemplateEngine,
 	TypeMapper,
-} from "./types";
+} from "./types.js";
 
 /**
  * Abstract base generator class with comprehensive functionality
