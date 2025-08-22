@@ -34,6 +34,20 @@ export const generateCommand: CommandModule<{}, GenerateArgs> = {
 			.example("$0 generate", "Generate code using settings from config file")
 			.example("$0 generate --verbose", "Generate with verbose output"),
 	handler: async (argv) => {
+		// Check for old command syntax and provide helpful error
+		if (argv._.length > 1) {
+			const extraArgs = argv._.slice(1).join(' ');
+			error(
+				`Invalid syntax: 'atomic-codegen generate ${extraArgs}'\n\n` +
+				`The CLI has been simplified and no longer uses subcommands.\n\n` +
+				`✅ Use: atomic-codegen generate\n` +
+				`❌ Old: atomic-codegen generate typescript\n\n` +
+				`All generation settings are now configured in your config file.\n` +
+				`Create an atomic-codegen.config.ts file to get started.`
+			);
+			process.exit(1);
+		}
+
 		// Check if config file exists first
 		const workingDir = process.cwd();
 		const configPath = await findConfigFile(workingDir);

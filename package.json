@@ -28,6 +28,7 @@
 	"bin": {
 		"atomic-codegen": "./dist/cli/index.js"
 	},
+	"preferGlobal": true,
 	"files": [
 		"dist"
 	],
