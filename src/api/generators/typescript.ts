@@ -361,9 +361,11 @@ export class TypeScriptGenerator extends BaseGenerator<
 					// Special handling for the type field to use the generic parameter
 					lines.push("  type?: T;");
 				} else {
-					const fieldLine = this.generateFieldLine(fieldName, field);
-					if (fieldLine) {
-						lines.push(`  ${fieldLine}`);
+					const fieldLines = this.generateFieldLines(fieldName, field);
+					for (const fieldLine of fieldLines) {
+						if (fieldLine) {
+							lines.push(`  ${fieldLine}`);
+						}
 					}
 				}
 			}
@@ -435,9 +437,11 @@ export class TypeScriptGenerator extends BaseGenerator<
 		// Generate fields (if any)
 		if ("fields" in schema && schema.fields) {
 			for (const [fieldName, field] of Object.entries(schema.fields)) {
-				const fieldLine = this.generateFieldLine(fieldName, field);
-				if (fieldLine) {
-					lines.push(`  ${fieldLine}`);
+				const fieldLines = this.generateFieldLines(fieldName, field);
+				for (const fieldLine of fieldLines) {
+					if (fieldLine) {
+						lines.push(`  ${fieldLine}`);
+					}
 				}
 			}
 		}
@@ -452,6 +456,12 @@ export class TypeScriptGenerator extends BaseGenerator<
 	private collectFieldImports(field: any): string[] {
 		const imports: string[] = [];
 
+		// Skip polymorphic declaration fields (they don't have types to import)
+		if ("choices" in field && field.choices && Array.isArray(field.choices)) {
+			return imports;
+		}
+
+		// Handle all other fields (regular fields and polymorphic instance fields)
 		if ("type" in field && field.type) {
 			// Handle nested types - they don't need imports as they're in the same file
 			if (field.type.kind === "nested") {
@@ -478,7 +488,7 @@ export class TypeScriptGenerator extends BaseGenerator<
 			}
 		}
 
-		return imports;
+		return [...new Set(imports)]; // Remove duplicates
 	}
 
 	/**
@@ -533,9 +543,11 @@ export class TypeScriptGenerator extends BaseGenerator<
 		// Generate fields
 		if (nestedType.fields) {
 			for (const [fieldName, field] of Object.entries(nestedType.fields)) {
-				const fieldLine = this.generateFieldLine(fieldName, field);
-				if (fieldLine) {
-					lines.push(`  ${fieldLine}`);
+				const fieldLines = this.generateFieldLines(fieldName, field);
+				for (const fieldLine of fieldLines) {
+					if (fieldLine) {
+						lines.push(`  ${fieldLine}`);
+					}
 				}
 			}
 		}
@@ -549,6 +561,23 @@ export class TypeScriptGenerator extends BaseGenerator<
 	 */
 	private capitalizeFirst(str: string): string {
 		return str.charAt(0).toUpperCase() + str.slice(1);
+	}
+
+	/**
+	 * Generate field lines (handles polymorphic fields by expanding them)
+	 */
+	private generateFieldLines(fieldName: string, field: any): string[] {
+		// Check if this field has choices (polymorphic declaration field)
+		if ("choices" in field && field.choices && Array.isArray(field.choices)) {
+			// Skip declaration fields - the actual instance fields are generated separately
+			// Declaration fields like `{"choices": ["deceasedBoolean", "deceasedDateTime"]}` 
+			// are just metadata and shouldn't be rendered as actual TypeScript fields
+			return [];
+		}
+		
+		// For all other fields (including polymorphic instance fields with choiceOf), generate normally
+		const fieldLine = this.generateFieldLine(fieldName, field);
+		return fieldLine ? [fieldLine] : [];
 	}
 
 	/**

@@ -49,7 +49,7 @@
 		"quality": "bun run typecheck && bun run lint && bun run test:unit",
 		"cli": "bun run src/cli/index.ts",
 		"codegen": "bun run src/cli/index.ts",
-		"codegen:all": "bun run src/cli/index.ts generate typescript"
+		"codegen:all": "bun run src/cli/index.ts generate"
 	},
 	"repository": {
 		"type": "git",
