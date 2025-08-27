@@ -21,6 +21,7 @@ import {
 } from "./core/transformer.js";
 import type { TypeSchema } from "./type-schema.types.js";
 import type { PackageInfo, TypeschemaGeneratorOptions } from "./types.js";
+import { transformValueSet } from "./value-set/processor.js";
 
 /**
  * TypeSchema Generator class
@@ -152,22 +153,56 @@ export class TypeSchemaGenerator {
 			version: packageVersion || "latest",
 		};
 
+		// Process ValueSets separately to add to TypeSchema output
+		const valueSetSchemas: TypeSchema[] = [];
+		if (valueSets.length > 0) {
+			this.logger.progress(`Converting ${valueSets.length} ValueSets to TypeSchema`);
+			
+			let valueSetConvertedCount = 0;
+			let valueSetFailedCount = 0;
+			
+			for (const vs of valueSets) {
+				try {
+					const valueSetSchema = await transformValueSet(vs, this.manager, packageInfo);
+					if (valueSetSchema) {
+						valueSetSchemas.push(valueSetSchema);
+						valueSetConvertedCount++;
+						
+						this.logger.debug(`Converted ValueSet: ${vs.name || vs.id}`);
+					}
+				} catch (error) {
+					valueSetFailedCount++;
+					this.logger.warn(
+						`Failed to convert ValueSet ${vs.name || vs.id}: ${error instanceof Error ? error.message : String(error)}`,
+					);
+				}
+			}
+			
+			this.logger.success(
+				`ValueSet conversion completed: ${valueSetConvertedCount}/${valueSets.length} successful, ${valueSetFailedCount} failed`
+			);
+		}
+
 		const schemas = await this.generateFromSchemas(fhirSchemas, packageInfo);
-		if (this.cache && schemas.length > 0) {
+		
+		// Add the converted ValueSets to the final results
+		const allSchemas = [...schemas, ...valueSetSchemas];
+		
+		if (this.cache && allSchemas.length > 0) {
 			this.logger.info(
-				`Caching ${schemas.length} generated schemas for package: ${packageName}`,
+				`Caching ${allSchemas.length} generated schemas for package: ${packageName}`,
 			);
 
-			for (const schema of schemas) {
+			for (const schema of allSchemas) {
 				await this.cache.set(schema);
 			}
 
 			this.logger.success(
-				`Cached ${schemas.length} TypeSchemas for package: ${packageName}`,
+				`Cached ${allSchemas.length} TypeSchemas for package: ${packageName}`,
 			);
 		}
 
-		return schemas;
+		return allSchemas;
 	}
 
 	/**

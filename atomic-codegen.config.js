@@ -1,4 +1,4 @@
-import { defineConfig } from "@atomic-ehr/codegen";
+import { defineConfig } from "./src";
 
 export default defineConfig({
     outputDir: "./generated",
@@ -11,12 +11,16 @@ export default defineConfig({
 		cacheDir: ".typeschema-cache",
 	},
 	packages: ["hl7.fhir.r4.core@4.0.1"],
-    typescript: {
+	typescript: {
 		includeDocuments: true,
 		namingConvention: "PascalCase",
 		includeProfiles: false,
 		includeExtensions: false,
 		generateIndex: true,
 		strictMode: true,
+		generateValueSets: true,
+		includeValueSetHelpers: true,
+		valueSetStrengths: ["required", "preferred"],
+		valueSetMode: 'custom'
 	},
 });

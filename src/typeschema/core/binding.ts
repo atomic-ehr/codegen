@@ -105,10 +105,11 @@ export async function buildEnum(
 	// 1. Required bindings (always)
 	// 2. Extensible bindings on code types (for better type safety)
 	// 3. Preferred bindings on code types (for common usage patterns)
+	// 4. Extensible bindings on Coding types (broader coverage)
 	const shouldGenerateEnum =
 		strength === "required" ||
-		(strength === "extensible" && element.type === "code") ||
-		(strength === "preferred" && element.type === "code");
+		(strength === "extensible" && (element.type === "code" || element.type === "Coding")) ||
+		(strength === "preferred" && (element.type === "code" || element.type === "Coding"));
 
 	if (!shouldGenerateEnum) {
 		return undefined;
@@ -131,7 +132,8 @@ export async function buildEnum(
 			);
 
 		// Only return if we have valid codes and not too many (avoid huge enums)
-		return codes.length > 0 && codes.length <= 50 ? codes : undefined;
+		// Increased limit from 50 to 100 for better value set coverage
+		return codes.length > 0 && codes.length <= 100 ? codes : undefined;
 	} catch (error) {
 		// Log the error for debugging but don't fail the generation
 		console.debug(`Failed to extract enum values for ${valueSet}: ${error}`);

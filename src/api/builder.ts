@@ -142,6 +142,11 @@ export class APIBuilder {
 			namingConvention?: "PascalCase" | "camelCase";
 			includeExtensions?: boolean;
 			includeProfiles?: boolean;
+			generateValueSets?: boolean;
+			includeValueSetHelpers?: boolean;
+			valueSetStrengths?: ('required' | 'preferred' | 'extensible' | 'example')[];
+			valueSetMode?: 'all' | 'required-only' | 'custom';
+			valueSetDirectory?: string;
 		} = {},
 	): APIBuilder {
 		// Hardcode types subfolder
@@ -155,7 +160,12 @@ export class APIBuilder {
 			namingConvention: options.namingConvention || "PascalCase",
 			includeExtensions: options.includeExtensions ?? false,
 			includeProfiles: options.includeProfiles ?? false,
+			generateValueSets: options.generateValueSets ?? false,
+			includeValueSetHelpers: options.includeValueSetHelpers ?? false,
+			valueSetStrengths: options.valueSetStrengths ?? ['required'],
 			logger: this.logger.child("TS"),
+			valueSetMode: options.valueSetMode ?? 'required-only',
+			valueSetDirectory: options.valueSetDirectory ?? 'valuesets',
 			verbose: this.options.verbose,
 			validate: true, // Enable validation for debugging
 			overwrite: this.options.overwrite,

@@ -58,9 +58,18 @@ export interface TypeScriptGeneratorConfig {
 	strictMode?: boolean;
 	includeProfiles?: boolean;
 	includeExtensions?: boolean;
-	includeValueSets?: boolean;
 	includeCodeSystems?: boolean;
 	includeOperations?: boolean;
+	/** Generate individual TypeScript files for value sets (default: false) */
+	generateValueSets?: boolean;
+	/** Include helper validation functions in value set files (default: false) */
+	includeValueSetHelpers?: boolean;
+	/** Which binding strengths to generate value sets for (default: ['required']) */
+	valueSetStrengths?: ('required' | 'preferred' | 'extensible' | 'example')[];
+	/** Directory name for value set files (relative to outputDir) (default: 'valuesets') */
+	valueSetDirectory?: string;
+	/** Value set generation mode (default: 'required-only') */
+	valueSetMode?: 'all' | 'required-only' | 'custom';
 	fhirVersion?: "R4" | "R5";
 	resourceTypes?: string[];
 	maxDepth?: number;
@@ -208,9 +217,13 @@ export const DEFAULT_CONFIG: Required<Config> = {
 		strictMode: true,
 		includeProfiles: true,
 		includeExtensions: false,
-		includeValueSets: true,
 		includeCodeSystems: false,
 		includeOperations: false,
+		generateValueSets: false,
+		valueSetDirectory: 'valuesets',
+		valueSetMode: 'required-only',
+		valueSetStrengths: ['required'],
+		includeValueSetHelpers: false,
 		fhirVersion: "R4",
 		resourceTypes: [],
 		maxDepth: 10,
@@ -480,6 +493,10 @@ export class ConfigValidator {
 			"strictMode",
 			"includeProfiles",
 			"includeExtensions",
+			"includeCodeSystems",
+			"includeOperations",
+			"generateValueSets",
+			"includeValueSetHelpers",
 		];
 		for (const field of booleanFields) {
 			if (cfg[field] !== undefined && typeof cfg[field] !== "boolean") {
