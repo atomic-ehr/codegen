@@ -380,8 +380,22 @@ export class TypeScriptGenerator extends BaseGenerator<
 		_schema: TypeSchema,
 	): Map<string, string> {
 		const imports = new Map<string, string>();
-		// This method can be enhanced to parse imports from content
-		// For now, return empty map
+		const importRegex =
+			/import\s+(?:type\s+)?{\s*([^}]+)\s*}\s+from\s+['"]([^'"]+)['"];?/g;
+
+		let match;
+		while ((match = importRegex.exec(content)) !== null) {
+			const symbolsStr = match[1];
+			const path = match[2];
+
+			if (!symbolsStr || !path) continue;
+
+			const symbols = symbolsStr.split(",").map((s) => s.trim());
+			for (const symbol of symbols) {
+				imports.set(symbol, path);
+			}
+		}
+
 		return imports;
 	}
 

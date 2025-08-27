@@ -29,14 +29,14 @@ yarn add @atomic-ehr/codegen
 ### 1. Using the CLI
 
 ```bash
-# Initialize configuration
-bunx atomic-codegen config init
+# Generate using configuration file
+bunx atomic-codegen generate
 
-# Generate TypeScript types from FHIR R4
-bunx atomic-codegen generate typescript
+# Generate with verbose output
+bunx atomic-codegen generate --verbose
 
-# Generate from specific package
-bunx atomic-codegen typeschema generate --package hl7.fhir.r4.core
+# Generate TypeSchemas from FHIR package
+bunx atomic-codegen typeschema generate hl7.fhir.r4.core@4.0.1 -o schemas.ndjson
 ```
 
 ### 2. Using the Fluent API
@@ -74,23 +74,25 @@ await builder
 Create `atomic-codegen.config.ts`:
 
 ```typescript
-import { defineConfig } from '@atomic-ehr/codegen';
+import { defineConfig } from "@atomic-ehr/codegen";
 
 export default defineConfig({
-  packages: [
-    {
-      name: 'hl7.fhir.r4.core',
-      version: '4.0.1'
-    }
-  ],
-  generators: {
-    typescript: {
-      outputDir: './src/types/fhir',
-      generateIndex: true,
-      namingConvention: 'PascalCase',
-      includeExtensions: false,
-      includeProfiles: true
-    }
+  outputDir: "./generated",
+  overwrite: true,
+  validate: true,
+  cache: true,
+  packages: ["hl7.fhir.r4.core@4.0.1"],
+  typescript: {
+    includeDocuments: true,
+    namingConvention: "PascalCase",
+    includeProfiles: false,
+    includeExtensions: false,
+    generateIndex: true,
+    strictMode: true,
+    generateValueSets: true,
+    includeValueSetHelpers: true,
+    valueSetStrengths: ["required", "preferred"],
+    valueSetMode: "custom"
   }
 });
 ```
@@ -98,7 +100,7 @@ export default defineConfig({
 Then run:
 
 ```bash
-bunx atomic-codegen generate typescript
+bunx atomic-codegen generate
 ```
 
 ## Architecture
@@ -225,23 +227,31 @@ const bundle: Bundle = {
 ## CLI Commands
 
 ```bash
-# Configuration
-atomic-codegen config init        # Initialize configuration
-atomic-codegen config validate    # Validate configuration
-
-# Generation
-atomic-codegen generate typescript  # Generate TypeScript types
-atomic-codegen generate python     # Generate Python types (coming soon)
+# Generate code using configuration file
+atomic-codegen generate                    # Uses atomic-codegen.config.ts
+atomic-codegen generate --verbose          # With detailed output
+atomic-codegen generate --config custom.ts # Custom config file
 
 # TypeSchema operations
-atomic-codegen typeschema generate  # Generate TypeSchema from FHIR
-atomic-codegen typeschema validate  # Validate TypeSchema documents
+atomic-codegen typeschema generate hl7.fhir.r4.core@4.0.1 -o schemas.ndjson
+atomic-codegen typeschema validate schemas.ndjson
 
-# Development
-atomic-codegen dev               # Start development mode with watch
+# Help and debugging
+atomic-codegen --help                      # Show help
+atomic-codegen --debug generate            # Debug mode
 ```
 
 ## Configuration Options
+
+### Global Configuration Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `outputDir` | `string` | `./generated` | Base output directory for all generated files |
+| `overwrite` | `boolean` | `false` | Overwrite existing files without prompting |
+| `validate` | `boolean` | `true` | Validate generated TypeSchema before processing |
+| `cache` | `boolean` | `true` | Enable caching for improved performance |
+| `packages` | `string[]` | `[]` | FHIR packages to process (e.g., `"hl7.fhir.r4.core@4.0.1"`) |
 
 ### TypeScript Generator Options
 
@@ -254,7 +264,77 @@ atomic-codegen dev               # Start development mode with watch
 | `namingConvention` | `'PascalCase' \| 'camelCase'` | `'PascalCase'` | Type naming convention |
 | `includeExtensions` | `boolean` | `false` | Include FHIR extensions |
 | `includeProfiles` | `boolean` | `false` | Include FHIR profiles |
+| `generateValueSets` | `boolean` | `false` | Generate strongly-typed value sets from FHIR bindings |
+| `valueSetStrengths` | `string[]` | `['required']` | Which binding strengths to generate |
+| `includeValueSetHelpers` | `boolean` | `false` | Include validation helper functions |
+| `valueSetDirectory` | `string` | `'valuesets'` | Output directory for value set files |
+## Value Set Generation
 
+Generate strongly-typed TypeScript enums from FHIR value sets for enhanced type safety:
+
+```typescript
+// Configuration
+export default defineConfig({
+  generators: {
+    typescript: {
+      generateValueSets: true,
+      valueSetStrengths: ['required', 'preferred'],
+      includeValueSetHelpers: true,
+    },
+  },
+});
+```
+
+### Generated Structure
+
+```
+generated/
+├── types/
+│   ├── Patient.ts           # Uses value set types
+│   └── Address.ts           # Uses value set types  
+└── valuesets/
+    ├── AdministrativeGender.ts
+    ├── AddressUse.ts
+    └── index.ts             # Re-exports all value sets
+```
+
+### Type-Safe Usage
+
+```typescript
+// Import generated types
+import { Patient } from './generated/types/Patient.js';
+import { AdministrativeGender } from './generated/valuesets/index.js';
+
+// Type-safe patient creation
+const patient: Patient = {
+  resourceType: 'Patient',
+  gender: 'male', // Type-safe! Only valid values accepted
+  // gender: 'invalid', // ❌ Compile error
+};
+```
+
+### Runtime Validation
+
+```typescript
+import { isValidAdministrativeGender } from './generated/valuesets/AdministrativeGender.js';
+
+function validateGender(input: string) {
+  if (isValidAdministrativeGender(input)) {
+    // input is now typed as AdministrativeGender
+    return input;
+  }
+  throw new Error(`Invalid gender: ${input}`);
+}
+```
+
+### Value Set Configuration Options
+
+- **generateValueSets**: Enable value set generation
+- **valueSetStrengths**: Control which binding strengths generate types (`'required'`, `'preferred'`, `'extensible'`, `'example'`)
+- **includeValueSetHelpers**: Include runtime validation functions
+- **valueSetDirectory**: Customize output directory name
+
+For comprehensive usage examples and migration guides, see [Value Set Documentation](docs/features/value-set-generation.md).
 ## Advanced Features
 
 ### Custom Type Mappings
@@ -428,6 +508,7 @@ See our detailed [**ROADMAP.md**](ROADMAP.md) for the complete development plan.
 - [x] FHIR R4 core package support
 - [x] Configuration file support
 - [x] Comprehensive test suite (72+ tests)
+- [x] **Value Set Generation** - Strongly-typed enums from FHIR bindings
 - [~] **Profile & Extension Support** - Basic parsing (US Core in development)
 - [ ] **Complete Multi-Package Support** - Custom packages and dependencies
 - [ ] **REST Client Generation** - Fetch-based FHIR clients
