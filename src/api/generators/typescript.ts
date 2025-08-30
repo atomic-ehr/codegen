@@ -319,6 +319,11 @@ export class TypeScriptGenerator extends BaseGenerator<
 			return false;
 		}
 
+		// If generateValueSets is false, never use value set types
+		if (!this.tsOptions.generateValueSets) {
+			return false;
+		}
+
 		const valueSetTypeName = this.typeMapper.formatTypeName(binding.name);
 		return this.collectedValueSets.has(valueSetTypeName);
 	}
@@ -328,6 +333,36 @@ export class TypeScriptGenerator extends BaseGenerator<
 	 */
 	private getValueSetTypeName(binding: any): string {
 		return this.typeMapper.formatTypeName(binding.name);
+	}
+
+	/**
+	 * Check if a field has enum values that should be inlined
+	 */
+	private shouldUseInlineEnum(field: any): boolean {
+		if (!field) {
+			return false;
+		}
+
+		// Only use inline enums when generateValueSets is false
+		if (this.tsOptions.generateValueSets) {
+			return false;
+		}
+
+		// Check if field has enum values directly on the field
+		return field.enum && Array.isArray(field.enum) && field.enum.length > 0;
+	}
+
+	/**
+	 * Generate inline enum type from field enum values
+	 */
+	private generateInlineEnumType(field: any): string {
+		if (!field.enum || !Array.isArray(field.enum)) {
+			return "string"; // fallback
+		}
+
+		// Create union type from enum values
+		const enumValues = field.enum.map((value: string) => `'${value}'`).join(' | ');
+		return enumValues;
 	}
 
 	private shouldSkipSchema(schema: TypeSchema): boolean {
@@ -599,7 +634,7 @@ export class TypeScriptGenerator extends BaseGenerator<
 			return imports;
 		}
 
-		// Handle value set imports
+		// Handle value set imports (only when generateValueSets is true)
 		if (field.binding && this.shouldUseValueSetType(field.binding)) {
 			const valueSetTypeName = this.getValueSetTypeName(field.binding);
 			imports.push(valueSetTypeName);
@@ -738,6 +773,9 @@ export class TypeScriptGenerator extends BaseGenerator<
 			if (field.binding && this.shouldUseValueSetType(field.binding)) {
 				const valueSetTypeName = this.getValueSetTypeName(field.binding);
 				typeString = valueSetTypeName;
+			} else if (field.binding && this.shouldUseInlineEnum(field)) {
+				// Generate inline enum union type when generateValueSets is false
+				typeString = this.generateInlineEnumType(field);
 			} else {
 				// Existing type mapping logic
 				const languageType = this.typeMapper.mapType(field.type);
@@ -847,6 +885,18 @@ export class TypeScriptGenerator extends BaseGenerator<
 	 */
 	getOptions(): TypeScriptGeneratorOptions {
 		return { ...this.options };
+	}
+
+	/**
+	 * Override generate to clean directory first
+	 */
+	public override async generate(schemas: TypeSchema[]): Promise<GeneratedFile[]> {
+		// Clean output directory before generation
+		await this.fileManager.cleanDirectory();
+		this.logger.debug("Cleaned output directory before generation");
+		
+		// Call parent implementation
+		return super.generate(schemas);
 	}
 
 	/**
@@ -1051,7 +1101,7 @@ export class TypeScriptGenerator extends BaseGenerator<
 		lines.push('export * from "./utilities.js";');
 
 		// Export value sets if any were generated
-		if (this.collectedValueSets.size > 0) {
+		if (this.tsOptions.generateValueSets && this.collectedValueSets.size > 0) {
 			lines.push('');
 			lines.push('// Value Sets');
 			lines.push('export * from "./valuesets/index.js";');
@@ -1059,6 +1109,6 @@ export class TypeScriptGenerator extends BaseGenerator<
 
 		const content = lines.join('\n');
 		await this.fileManager.writeFile('index.ts', content);
-		this.logger.info(`Generated index.ts with type exports${this.collectedValueSets.size > 0 ? ' and value sets' : ''}`);
+		this.logger.info(`Generated index.ts with type exports${this.tsOptions.generateValueSets && this.collectedValueSets.size > 0 ? ' and value sets' : ''}`);
 	}
 }

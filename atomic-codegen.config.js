@@ -1,13 +1,13 @@
 import { defineConfig } from "./src";
 
 export default defineConfig({
-    outputDir: "./generated",
-    overwrite: true,
+	outputDir: "./generated",
+	overwrite: true,
 	validate: true,
 	cache: true,
 	typeSchema: {
-        treeshake: ["Patient"],
-        enablePersistence: true,
+		treeshake: ["Patient"],
+		enablePersistence: true,
 		cacheDir: ".typeschema-cache",
 	},
 	packages: ["hl7.fhir.r4.core@4.0.1"],
@@ -21,6 +21,6 @@ export default defineConfig({
 		generateValueSets: true,
 		includeValueSetHelpers: true,
 		valueSetStrengths: ["required", "preferred"],
-		valueSetMode: 'custom'
+		valueSetMode: "custom",
 	},
 });
