@@ -17,6 +17,9 @@ if (!bumpType || !["patch", "minor", "major"].includes(bumpType)) {
   process.exit(1);
 }
 
+// Optional publish tag, defaults to 'latest'.
+const publishTag = process.env.PUBLISH_TAG?.trim() || "latest";
+
 async function getCurrentBranch(): Promise<string> {
   const result = await $`git branch --show-current`.quiet();
   return result.text().trim();
@@ -50,7 +53,7 @@ function bumpVersion(currentVersion: string, type: "patch" | "minor" | "major"):
   const major = parts[0] ?? 0;
   const minor = parts[1] ?? 0;
   const patch = parts[2] ?? 0;
-  
+
   switch (type) {
     case "major":
       return `${major + 1}.0.0`;
@@ -83,7 +86,7 @@ async function main() {
   // Get current version and calculate new version
   const currentVersion = await getLatestVersion();
   const newVersion = bumpVersion(currentVersion, bumpType as any);
-  
+
   console.log(`\nCurrent version: ${yellow(currentVersion)}`);
   console.log(`New version: ${yellow(newVersion)}`);
 
@@ -147,11 +150,11 @@ async function main() {
     process.exit(1);
   }
 
-  // Publish to npm
-  console.log("\nPublishing to npm...");
+  // Publish to npm via Bun, with explicit dist-tag
+  console.log("\nPublishing to npm via Bun...");
   try {
-    await $`npm publish --access public --ignore-scripts`;
-    console.log(green("✓ Published to npm"));
+    await $`bun publish --access public --ignore-scripts --tag ${publishTag}`;
+    console.log(green(`✓ Published to npm with tag '${publishTag}'`));
   } catch (error) {
     console.error(red("❌ Failed to publish to npm!"));
     // Rollback
@@ -168,7 +171,7 @@ async function main() {
 
   console.log("\n" + green("🎉 Release successful!"));
   console.log(`\nVersion ${yellow(newVersion)} has been published.`);
-  console.log(`Install with: ${blue(`npm install @atomic-ehr/codegen@${newVersion}`)}`);
+  console.log(`Install with: ${blue(`bun add @atomic-ehr/codegen@${newVersion}`)}`);
   console.log(`\nGitHub Actions will also attempt to publish this version.`);
   console.log(`Check the Actions tab for status: ${blue("https://github.com/atomic-ehr/codegen/actions")}`);
 }

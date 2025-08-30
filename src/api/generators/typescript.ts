@@ -6,7 +6,7 @@
  */
 
 import type { TypeSchema, TypeSchemaForBinding } from "../../typeschema/type-schema.types";
-import { isBindingSchema } from "../../typeschema/type-schema.types";
+import { isBindingSchema } from "../../typeschema/type-schema.types.js";
 import { BaseGenerator } from "./base/BaseGenerator.js";
 import {
 	TypeScriptTypeMapper,
@@ -47,20 +47,20 @@ export interface TypeScriptGeneratorOptions extends BaseGeneratorOptions {
 	/** Include helper validation functions (default: false) */
 	includeValueSetHelpers?: boolean;
 
-	/** 
+	/**
 	 * Which binding strengths to generate value sets for
 	 * Only used when valueSetMode is 'custom'
 	 * @default ['required']
 	 */
 	valueSetStrengths?: ('required' | 'preferred' | 'extensible' | 'example')[];
 
-	/** 
+	/**
 	 * Directory name for value set files (relative to outputDir)
 	 * @default 'valuesets'
 	 */
 	valueSetDirectory?: string;
 
-	/** 
+	/**
 	 * Value set generation mode
 	 * - 'all': Generate for all binding strengths with enums
 	 * - 'required-only': Generate only for required bindings (safe default)
@@ -189,7 +189,7 @@ export class TypeScriptGenerator extends BaseGenerator<
 	protected override filterAndSortSchemas(schemas: TypeSchema[]): TypeSchema[] {
 		// Collect value sets from ALL schemas before filtering
 		this.collectedValueSets = this.collectValueSets(schemas);
-		
+
 		return schemas.filter((schema) => !this.shouldSkipSchema(schema));
 	}
 
@@ -300,14 +300,14 @@ export class TypeScriptGenerator extends BaseGenerator<
 	 */
 	private collectValueSets(schemas: TypeSchema[]): Map<string, TypeSchemaForBinding> {
 		const valueSets = new Map<string, TypeSchemaForBinding>();
-		
+
 		for (const schema of schemas) {
 			if (this.shouldGenerateValueSet(schema) && isBindingSchema(schema)) {
 				const name = this.typeMapper.formatTypeName(schema.identifier.name);
 				valueSets.set(name, schema);
 			}
 		}
-		
+
 		return valueSets;
 	}
 
@@ -318,7 +318,7 @@ export class TypeScriptGenerator extends BaseGenerator<
 		if (!binding) {
 			return false;
 		}
-		
+
 		const valueSetTypeName = this.typeMapper.formatTypeName(binding.name);
 		return this.collectedValueSets.has(valueSetTypeName);
 	}
@@ -349,7 +349,7 @@ export class TypeScriptGenerator extends BaseGenerator<
 				// Extensions typically have URLs like:
 				// http://hl7.org/fhir/StructureDefinition/extension-name
 				// http://hl7.org/fhir/StructureDefinition/resource-extension
-				
+
 				// Get the part after StructureDefinition/
 				const structDefPart = url.split("StructureDefinition/")[1];
 				if (structDefPart) {
@@ -357,7 +357,7 @@ export class TypeScriptGenerator extends BaseGenerator<
 					// FHIR extensions are profiles with hyphenated names
 					const hasHyphenPattern = structDefPart.includes("-");
 					const isProfileKind = (schema.identifier as any).kind === "profile";
-					
+
 					// Extensions are profiles with hyphenated StructureDefinition names
 					// But we need to exclude core resources that also have hyphens
 					if (hasHyphenPattern && isProfileKind) {
@@ -500,7 +500,7 @@ export class TypeScriptGenerator extends BaseGenerator<
 		if ("fields" in schema && schema.fields) {
 			for (const [, field] of Object.entries(schema.fields)) {
 				const fieldImports = this.collectFieldImports(field);
-				
+
 				for (const imp of fieldImports) {
 					// Check if this is a value set import
 					if (this.collectedValueSets.has(imp)) {
@@ -518,7 +518,7 @@ export class TypeScriptGenerator extends BaseGenerator<
 				if (nestedType.fields) {
 					for (const [, field] of Object.entries(nestedType.fields)) {
 						const fieldImports = this.collectFieldImports(field);
-						
+
 						for (const imp of fieldImports) {
 							// Check if this is a value set import
 							if (this.collectedValueSets.has(imp)) {
@@ -715,11 +715,11 @@ export class TypeScriptGenerator extends BaseGenerator<
 		// Check if this field has choices (polymorphic declaration field)
 		if ("choices" in field && field.choices && Array.isArray(field.choices)) {
 			// Skip declaration fields - the actual instance fields are generated separately
-			// Declaration fields like `{"choices": ["deceasedBoolean", "deceasedDateTime"]}` 
+			// Declaration fields like `{"choices": ["deceasedBoolean", "deceasedDateTime"]}`
 			// are just metadata and shouldn't be rendered as actual TypeScript fields
 			return [];
 		}
-		
+
 		// For all other fields (including polymorphic instance fields with choiceOf), generate normally
 		const fieldLine = this.generateFieldLine(fieldName, field);
 		return fieldLine ? [fieldLine] : [];
@@ -929,9 +929,9 @@ export class TypeScriptGenerator extends BaseGenerator<
 	private generateValueSetFile(binding: TypeSchemaForBinding): string {
 		const name = this.typeMapper.formatTypeName(binding.identifier.name);
 		const values = binding.enum?.map((v: string) => `  '${v}'`).join(',\n') || '';
-		
+
 		const lines: string[] = [];
-		
+
 		// Add file header comment
 		if (this.options.includeDocuments) {
 			lines.push('/**');
@@ -949,7 +949,7 @@ export class TypeScriptGenerator extends BaseGenerator<
 			lines.push(' */');
 			lines.push('');
 		}
-		
+
 		// Add values array
 		lines.push(`export const ${name}Values = [`);
 		if (values) {
@@ -957,17 +957,17 @@ export class TypeScriptGenerator extends BaseGenerator<
 		}
 		lines.push('] as const;');
 		lines.push('');
-		
+
 		// Add union type
 		lines.push(`export type ${name} = typeof ${name}Values[number];`);
-		
+
 		// Add helper function if enabled
 		if (this.tsOptions.includeValueSetHelpers) {
 			lines.push('');
 			lines.push(`export const isValid${name} = (value: string): value is ${name} =>`);
 			lines.push(`  ${name}Values.includes(value as ${name});`);
 		}
-		
+
 		return lines.join('\n');
 	}
 
@@ -978,16 +978,16 @@ export class TypeScriptGenerator extends BaseGenerator<
 		if (!this.tsOptions.generateValueSets || this.collectedValueSets.size === 0) {
 			return;
 		}
-		
+
 		// Generate individual value set files in valuesets/
 		for (const [name, binding] of this.collectedValueSets) {
 			const content = this.generateValueSetFile(binding);
 			const fileName = `valuesets/${name}.ts`;
-			
+
 			await this.fileManager.writeFile(fileName, content);
 			this.logger.info(`Generated value set: ${fileName}`);
 		}
-		
+
 		// Generate index file in valuesets/
 		await this.generateValueSetIndexFile();
 	}
@@ -997,7 +997,7 @@ export class TypeScriptGenerator extends BaseGenerator<
 	 */
 	private async generateValueSetIndexFile(): Promise<void> {
 		const lines: string[] = [];
-		
+
 		if (this.tsOptions.includeDocuments) {
 			lines.push('/**');
 			lines.push(' * FHIR Value Sets');
@@ -1007,14 +1007,14 @@ export class TypeScriptGenerator extends BaseGenerator<
 			lines.push(' */');
 			lines.push('');
 		}
-		
+
 		// Sort value sets for consistent output
 		const sortedValueSets = Array.from(this.collectedValueSets.keys()).sort();
-		
+
 		for (const name of sortedValueSets) {
 			lines.push(`export * from './${name}.js';`);
 		}
-		
+
 		const content = lines.join('\n');
 		await this.fileManager.writeFile('valuesets/index.ts', content);
 		this.logger.info(`Generated valuesets/index.ts with ${this.collectedValueSets.size} value sets`);
@@ -1029,7 +1029,7 @@ export class TypeScriptGenerator extends BaseGenerator<
 		}
 
 		const lines: string[] = [];
-		
+
 		if (this.tsOptions.includeDocuments) {
 			lines.push('/**');
 			lines.push(' * FHIR R4 TypeScript Types');
@@ -1041,9 +1041,9 @@ export class TypeScriptGenerator extends BaseGenerator<
 		}
 
 		// Generate exports for all generated files - we'll keep this simple
-		// and avoid accessing private fields for now. The key functionality 
+		// and avoid accessing private fields for now. The key functionality
 		// (value set generation and interface type updates) is already working.
-		
+
 		// For now, we'll skip the individual file exports since they're complex
 		// and the main functionality is already working. This can be improved later.
 
