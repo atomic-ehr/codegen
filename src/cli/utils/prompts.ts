@@ -47,7 +47,6 @@ export async function promptInitConfig(): Promise<{
 		choices: [
 			{ name: "TypeScript", value: "typescript", checked: true },
 			{ name: "Python", value: "python" },
-			{ name: "REST Client", value: "rest-client" },
 		],
 	});
 
@@ -189,28 +188,6 @@ export async function promptGeneratorConfig(
 			});
 			break;
 
-		case "rest-client":
-			config.httpClient = await select({
-				message: "HTTP client library:",
-				choices: [
-					{ name: "Fetch (native)", value: "fetch" },
-					{ name: "Axios", value: "axios" },
-					{ name: "Node fetch", value: "node-fetch" },
-				],
-				default: "fetch",
-			});
-
-			config.authentication = await select({
-				message: "Authentication type:",
-				choices: [
-					{ name: "None", value: "none" },
-					{ name: "Bearer token", value: "bearer" },
-					{ name: "Basic auth", value: "basic" },
-					{ name: "OAuth2", value: "oauth2" },
-				],
-				default: "none",
-			});
-			break;
 	}
 
 	return config;

@@ -5,7 +5,7 @@
  * This builder pattern allows users to configure generation in a declarative way.
  */
 
-import type { Config, RestClientConfig, TypeSchemaConfig } from "../config.js";
+import type { Config, TypeSchemaConfig } from "../config.js";
 import {
 	TypeSchemaCache,
 	TypeSchemaGenerator,
@@ -14,7 +14,6 @@ import {
 import type { TypeSchema } from "../typeschema/type-schema.types.js";
 import type { CodegenLogger } from "../utils/codegen-logger.js";
 import { createLogger } from "../utils/codegen-logger.js";
-import { RestClientGenerator } from "./generators/rest-client.js";
 import { TypeScriptGenerator } from "./generators/typescript.js";
 
 /**
@@ -178,25 +177,6 @@ export class APIBuilder {
 		return this;
 	}
 
-	/**
-	 * Configure REST client generation
-	 */
-	restClient(options: RestClientConfig = {}): APIBuilder {
-		// REST client goes in client subfolder
-		const clientOutputDir = `${this.options.outputDir}/client`;
-
-		const generator = new RestClientGenerator({
-			outputDir: clientOutputDir,
-			logger: this.logger.child("REST"),
-			...options, // Pass all RestClientConfig options
-		});
-
-		this.generators.set("restclient", generator);
-		this.logger.debug(
-			`Configured REST client generator (${options.clientName || "FHIRClient"})`,
-		);
-		return this;
-	}
 
 	/**
 	 * Set a progress callback for monitoring generation
@@ -239,34 +219,11 @@ export class APIBuilder {
 		return this;
 	}
 
-	/**
-	 * Ensure TypeScript generator is configured if REST client is configured
-	 */
-	private ensureTypeScriptForRestClient(): void {
-		const hasRestClient = this.generators.has("restclient");
-		const hasTypeScript = this.generators.has("typescript");
-
-		if (hasRestClient && !hasTypeScript) {
-			this.logger.debug(
-				"Automatically adding TypeScript generator for REST client",
-			);
-
-			// Add TypeScript generator with minimal config
-			this.typescript({
-				moduleFormat: "esm",
-				generateIndex: true,
-				includeDocuments: false,
-				namingConvention: "PascalCase",
-			});
-		}
-	}
 
 	/**
 	 * Execute the generation process
 	 */
 	async generate(): Promise<GenerationResult> {
-		// Ensure TypeScript is configured if REST client is configured
-		this.ensureTypeScriptForRestClient();
 
 		const startTime = performance.now();
 		const result: GenerationResult = {
@@ -520,11 +477,6 @@ export function createAPIFromConfig(config: Config): APIBuilder {
 		builder.typescript(config.typescript);
 	}
 
-	// Configure REST client generator if specified
-	if (config.restClient) {
-		console.log("fsdfdsfsdfdsf");
-		builder.restClient(config.restClient);
-	}
 
 	return builder;
 }

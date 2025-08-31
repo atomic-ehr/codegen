@@ -43,7 +43,7 @@ This is a FHIR code generation toolkit with a **three-stage pipeline**:
 ### 3. CLI Interface (`src/cli/`)
 - **Commands** (`commands/`):
   - `typeschema`: Generate and validate TypeSchema from FHIR packages
-  - `generate`: Generate code from TypeSchema (TypeScript, REST clients)
+  - `generate`: Generate code from TypeSchema (TypeScript)
 - **Main entry** (`index.ts`): CLI setup with yargs
 
 ### Key Data Flow
@@ -109,7 +109,7 @@ FHIR Package → TypeSchema Generator → TypeSchema Format → Code Generators 
 ## Roadmap Context
 
 This toolkit is expanding beyond type generation:
-- **Phase 1 (Q2 2024)**: REST client generation
+- **Phase 1 (Future)**: REST client generation (removed from current scope)
 - **Phase 2 (Q3 2024)**: Smart chained search builders
 - **Phase 3 (Q4 2024)**: FHIR operation generation
 - Future: Multi-language support, GraphQL schemas, validation functions

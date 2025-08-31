@@ -89,9 +89,6 @@ export const generateCommand: CommandModule<{}, GenerateArgs> = {
 				logger.info(
 					`TypeScript generation: ${config.typescript ? "enabled" : "disabled"}`,
 				);
-				logger.info(
-					`REST Client generation: ${config.restClient ? "enabled" : "disabled"}`,
-				);
 			}
 
 			// Create API builder with config options
@@ -147,26 +144,11 @@ export const generateCommand: CommandModule<{}, GenerateArgs> = {
 				builder.typescript(config.typescript);
 			}
 
-			if (config.restClient) {
-				if (verbose) {
-					logger.info("Configuring REST Client generation from config");
-					logger.debug(
-						`Client name: ${config.restClient.clientName || "FHIRClient"}`,
-					);
-					logger.debug(
-						`Include validation: ${config.restClient.includeValidation ?? false}`,
-					);
-					logger.debug(
-						`Enhanced search: ${config.restClient.enhancedSearch ?? false}`,
-					);
-				}
-				builder.restClient(config.restClient);
-			}
 
 			// Check that at least one generator is configured
-			if (!config.typescript && !config.restClient) {
+			if (!config.typescript) {
 				throw new Error(
-					"No generators configured. Please enable 'typescript' or 'restClient' in your config file.",
+					"No generators configured. Please enable 'typescript' in your config file.",
 				);
 			}
 

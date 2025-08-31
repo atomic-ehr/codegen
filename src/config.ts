@@ -9,43 +9,6 @@ import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
-/**
- * REST Client generator configuration options
- */
-export interface RestClientConfig {
-	/** Name of the generated client class */
-	clientName?: string;
-	/** Include client-side resource validation */
-	includeValidation?: boolean;
-	/** Include enhanced error handling */
-	includeErrorHandling?: boolean;
-	/** Include request interceptors */
-	includeRequestInterceptors?: boolean;
-	/** Override base URL in client (for testing) */
-	baseUrlOverride?: string;
-	/** Generate enhanced search parameter types */
-	enhancedSearch?: boolean;
-	/** Enable chained search builder generation with fluent API */
-	chainedSearchBuilder?: boolean;
-	/** Enable IDE autocomplete for search params via string literal unions */
-	searchAutocomplete?: boolean;
-	/** Generate enums (string literal unions) from bound ValueSets when possible */
-	generateValueSetEnums?: boolean;
-	/** Generate utility methods */
-	includeUtilities?: boolean;
-	/** Generate resource validators */
-	generateValidators?: boolean;
-	/** Use FHIR canonical manager for search parameters */
-	useCanonicalManager?: boolean;
-	/** Timeout for HTTP requests */
-	defaultTimeout?: number;
-	/** Default retry count */
-	defaultRetries?: number;
-	/** Include documentation in generated client */
-	includeDocumentation?: boolean;
-	/** Generate examples and usage patterns */
-	generateExamples?: boolean;
-}
 
 /**
  * TypeScript generator configuration options
@@ -171,7 +134,6 @@ export interface Config {
 
 	// Generator configurations
 	typescript?: TypeScriptGeneratorConfig;
-	restClient?: RestClientConfig;
 	typeSchema?: TypeSchemaConfig;
 
 	// Input sources
@@ -191,24 +153,6 @@ export const DEFAULT_CONFIG: Required<Config> = {
 	overwrite: true,
 	validate: true,
 	cache: true,
-	restClient: {
-		clientName: "FHIRClient",
-		includeValidation: false,
-		includeErrorHandling: true,
-		includeRequestInterceptors: false,
-		baseUrlOverride: "",
-		enhancedSearch: false,
-		chainedSearchBuilder: false,
-		searchAutocomplete: true,
-		generateValueSetEnums: true,
-		includeUtilities: true,
-		generateValidators: false,
-		useCanonicalManager: true,
-		defaultTimeout: 30000,
-		defaultRetries: 0,
-		includeDocumentation: true,
-		generateExamples: false,
-	},
 	typescript: {
 		moduleFormat: "esm",
 		generateIndex: true,
@@ -392,11 +336,6 @@ export class ConfigValidator {
 			result.errors.push(...tsErrors);
 		}
 
-		// Validate restClient config
-		if (cfg.restClient !== undefined) {
-			const rcErrors = this.validateRestClientConfig(cfg.restClient);
-			result.errors.push(...rcErrors);
-		}
 
 		// Validate packages array
 		if (cfg.packages !== undefined) {
@@ -575,91 +514,6 @@ export class ConfigValidator {
 		return errors;
 	}
 
-	private validateRestClientConfig(config: unknown): ConfigValidationError[] {
-		const errors: ConfigValidationError[] = [];
-
-		if (typeof config !== "object" || config === null) {
-			errors.push({
-				path: "restClient",
-				message: "restClient config must be an object",
-				value: config,
-			});
-			return errors;
-		}
-
-		const cfg = config as Record<string, unknown>;
-
-		// Validate clientName
-		if (cfg.clientName !== undefined && typeof cfg.clientName !== "string") {
-			errors.push({
-				path: "restClient.clientName",
-				message: "clientName must be a string",
-				value: cfg.clientName,
-			});
-		}
-
-		// Validate baseUrlOverride
-		if (
-			cfg.baseUrlOverride !== undefined &&
-			typeof cfg.baseUrlOverride !== "string"
-		) {
-			errors.push({
-				path: "restClient.baseUrlOverride",
-				message: "baseUrlOverride must be a string",
-				value: cfg.baseUrlOverride,
-			});
-		}
-
-		// Validate timeout
-		if (cfg.defaultTimeout !== undefined) {
-			if (typeof cfg.defaultTimeout !== "number" || cfg.defaultTimeout <= 0) {
-				errors.push({
-					path: "restClient.defaultTimeout",
-					message: "defaultTimeout must be a positive number",
-					value: cfg.defaultTimeout,
-				});
-			}
-		}
-
-		// Validate retries
-		if (cfg.defaultRetries !== undefined) {
-			if (typeof cfg.defaultRetries !== "number" || cfg.defaultRetries < 0) {
-				errors.push({
-					path: "restClient.defaultRetries",
-					message: "defaultRetries must be a non-negative number",
-					value: cfg.defaultRetries,
-				});
-			}
-		}
-
-		// Validate boolean fields
-		const booleanFields = [
-			"includeValidation",
-			"includeErrorHandling",
-			"includeRequestInterceptors",
-			"enhancedSearch",
-			"chainedSearchBuilder",
-			"searchAutocomplete",
-			"generateValueSetEnums",
-			"includeUtilities",
-			"generateValidators",
-			"useCanonicalManager",
-			"includeDocumentation",
-			"generateExamples",
-		];
-
-		for (const field of booleanFields) {
-			if (cfg[field] !== undefined && typeof cfg[field] !== "boolean") {
-				errors.push({
-					path: `restClient.${field}`,
-					message: `${field} must be a boolean`,
-					value: cfg[field],
-				});
-			}
-		}
-
-		return errors;
-	}
 
 	private validateGuardOptions(config: unknown): ConfigValidationError[] {
 		const errors: ConfigValidationError[] = [];
@@ -935,16 +789,6 @@ export class ConfigLoader {
 			},
 		};
 
-		// Only include restClient if it was explicitly defined in user config
-		if (userConfig.restClient !== undefined) {
-			merged.restClient = {
-				...DEFAULT_CONFIG.restClient,
-				...userConfig.restClient,
-			};
-		} else {
-			// Remove restClient from merged config if not defined in user config
-			delete merged.restClient;
-		}
 
 		return merged;
 	}
