@@ -108,10 +108,7 @@ FHIR Package → TypeSchema Generator → TypeSchema Format → Code Generators 
 
 ## Roadmap Context
 
-This toolkit is expanding beyond type generation:
-- **Phase 1 (Future)**: REST client generation (removed from current scope)
-- **Phase 2 (Q3 2024)**: Smart chained search builders
-- **Phase 3 (Q4 2024)**: FHIR operation generation
-- Future: Multi-language support, GraphQL schemas, validation functions
-
-The current focus is completing profile/extension support and expanding the TypeScript generator capabilities.
+This toolkit focuses on type generation and code generation:
+- **Current**: TypeScript interface generation from FHIR schemas
+- **Next**: Profile/extension support and expanded TypeScript generator capabilities
+- **Future**: Multi-language support, GraphQL schemas, validation functions

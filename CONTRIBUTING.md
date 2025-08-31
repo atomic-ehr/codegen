@@ -424,22 +424,20 @@ We welcome contributions toward our [roadmap](ROADMAP.md) goals:
 
 ### Current Priorities (Help Needed!)
 
-1. **REST Client Generation** - Target: Q2 2024
-   - HTTP adapter system with fetch implementation
-   - Resource-specific client classes
-   - Authentication strategies
-   - Error handling and response parsing
+1. **Profile & Extension Support** - Current Focus
+   - US Core profile implementation refinement
+   - Complex constraint handling
+   - Extension inheritance and composition
 
-2. **Smart Chained Search** - Target: Q3 2024
-   - SearchParameter analysis and parsing
-   - Chained search builder implementation
-   - Search modifiers and operators
-   - Include/revinclude support
+2. **Multi-language Support** - Future
+   - Python generator implementation
+   - Rust generator implementation  
+   - Generator plugin architecture
 
-3. **Operation Generation** - Target: Q4 2024
-   - OperationDefinition parsing
-   - Operation parameter validation
-   - Instance/type/system-level operations
+3. **Enhanced TypeScript Features** - Future
+   - Validation function generation
+   - Builder pattern generation
+   - Runtime type guards
 
 ### How to Contribute to Roadmap Items
 

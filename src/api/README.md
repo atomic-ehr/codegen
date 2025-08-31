@@ -1,6 +1,6 @@
 # High-Level API
 
-The high-level API provides a fluent, chainable interface for common FHIR code generation use cases. It simplifies the process of generating TypeScript types and REST API clients from FHIR packages or TypeSchema documents.
+The high-level API provides a fluent, chainable interface for common FHIR code generation use cases. It simplifies the process of generating TypeScript types from FHIR packages or TypeSchema documents.
 
 ## Quick Start
 
@@ -58,7 +58,7 @@ api.fromString(ndjsonContent, 'ndjson')
 
 ### Generators
 
-Configure different output generators:
+Configure TypeScript output generators:
 
 ```typescript
 // TypeScript interfaces
@@ -66,14 +66,6 @@ api.typescript({
   moduleFormat: 'esm',
   generateIndex: true,
   namingConvention: 'PascalCase'
-})
-
-// REST API client
-api.restClient({
-  language: 'typescript',
-  httpClient: 'fetch',
-  authentication: 'bearer',
-  baseUrl: 'https://api.example.com/fhir/R4'
 })
 ```
 
@@ -118,65 +110,6 @@ if (result.success) {
 }
 ```
 
-### Generate REST API Client
-
-```typescript
-import { createAPI } from '@atomic-codegen/api';
-
-const result = await createAPI({
-  outputDir: './src/clients/fhir'
-})
-  .fromPackage('hl7.fhir.r4.core')
-  .restClient({
-    language: 'typescript',
-    httpClient: 'fetch',
-    authentication: 'bearer',
-    baseUrl: 'https://fhir.example.com/R4',
-    generateTypes: true
-  })
-  .generate();
-
-// Use the generated client
-import { FHIRClient } from './src/clients/fhir/fhir-client';
-
-const client = new FHIRClient({
-  baseUrl: 'https://fhir.example.com/R4',
-  auth: { token: 'your-token' }
-});
-
-// CRUD operations
-const patient = await client.patient.create({ 
-  resourceType: 'Patient',
-  name: [{ family: 'Doe', given: ['John'] }]
-});
-
-const patientById = await client.patient.read(patient.data.id);
-const searchResults = await client.patient.search({ name: 'John' });
-```
-
-### Generate Both Types and Client
-
-```typescript
-import { createAPI } from '@atomic-codegen/api';
-
-const result = await createAPI({
-  outputDir: './src/generated'
-})
-  .fromFiles('./schemas/patient.ndjson', './schemas/observation.ndjson')
-  .typescript({
-    moduleFormat: 'esm',
-    generateIndex: true
-  })
-  .restClient({
-    language: 'typescript',
-    httpClient: 'axios'
-  })
-  .verbose(true)
-  .generate();
-
-console.log('TypeScript files:', result.filesGenerated.filter(f => f.endsWith('.ts')));
-```
-
 ### Build Without Writing Files
 
 ```typescript
@@ -185,18 +118,11 @@ import { createAPI } from '@atomic-codegen/api';
 const results = await createAPI()
   .fromPackage('hl7.fhir.r4.core')
   .typescript()
-  .restClient()
   .build();
 
 // Process TypeScript files
 for (const file of results.typescript || []) {
   console.log(`TypeScript: ${file.filename}`);
-  console.log(file.content.substring(0, 200) + '...');
-}
-
-// Process REST client files
-for (const file of results.restclient || []) {
-  console.log(`REST Client: ${file.filename}`);
   console.log(file.content.substring(0, 200) + '...');
 }
 ```
@@ -209,7 +135,6 @@ import { createAPI } from '@atomic-codegen/api';
 const api = createAPI()
   .fromPackage('hl7.fhir.r4.core')
   .typescript()
-  .restClient()
   .onProgress((phase, current, total, message) => {
     const progress = Math.round((current / total) * 100);
     console.log(`[${phase}] ${progress}% - ${message}`);
@@ -234,12 +159,6 @@ const api = createAPI({
     moduleFormat: 'cjs',
     generateIndex: false,
     namingConvention: 'camelCase'
-  })
-  .restClient({
-    language: 'javascript',
-    httpClient: 'node-fetch',
-    authentication: 'basic',
-    includeValidation: true
   })
   .outputTo('./custom-output')  // Override output directory
   .verbose(false);              // Disable verbose logging
@@ -273,21 +192,6 @@ interface TypeScriptAPIOptions {
 }
 ```
 
-### REST Client Generator Options
-
-```typescript
-interface RESTClientAPIOptions {
-  outputDir: string;                           // Output directory
-  language?: 'typescript' | 'javascript';     // Target language (default: 'typescript')
-  httpClient?: 'fetch' | 'axios' | 'node-fetch'; // HTTP client library (default: 'fetch')
-  generateTypes?: boolean;                     // Generate type definitions (default: true)
-  includeValidation?: boolean;                 // Include validation (default: false)
-  baseUrl?: string;                           // Default base URL
-  apiVersion?: string;                        // API version (default: 'R4')
-  authentication?: 'bearer' | 'basic' | 'none'; // Authentication method (default: 'none')
-}
-```
-
 ## Error Handling
 
 ```typescript
@@ -314,29 +218,6 @@ try {
 ```
 
 ## Advanced Usage
-
-### Using Individual Generators
-
-```typescript
-import { TypeScriptAPIGenerator, RESTClientAPIGenerator } from '@atomic-codegen/api';
-
-// Direct generator usage
-const tsGenerator = new TypeScriptAPIGenerator({
-  outputDir: './types',
-  moduleFormat: 'esm'
-});
-
-const restGenerator = new RESTClientAPIGenerator({
-  outputDir: './clients',
-  language: 'typescript',
-  httpClient: 'axios'
-});
-
-// Generate from schemas
-const schemas = /* load your schemas */;
-const tsFiles = await tsGenerator.generate(schemas);
-const restFiles = await restGenerator.generate(schemas);
-```
 
 ### Custom Schema Processing
 
@@ -375,8 +256,7 @@ const result = await createAPI()
 {
   "scripts": {
     "generate:types": "node scripts/generate-types.js",
-    "generate:client": "node scripts/generate-client.js",
-    "generate:all": "npm run generate:types && npm run generate:client",
+    "generate:all": "npm run generate:types",
     "prebuild": "npm run generate:all"
   }
 }

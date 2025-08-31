@@ -13,10 +13,7 @@ This directory contains examples demonstrating the current capabilities and futu
 
 ### 🔮 Preview Examples
 
-- **`rest-client-preview.ts`** - Shows planned REST client API (not yet implemented)
-  - Preview of REST client generation (Phase 1)
-  - Smart chained search examples (Phase 2)  
-  - Operation generation examples (Phase 3)
+- Future examples and previews will be added as new features are developed
 
 ## Running Examples
 
@@ -45,9 +42,9 @@ bun run example:preview         # Show roadmap preview
 - **Multi-Package Dependencies** - Core functionality present, needs debugging
 
 ### 📋 Planned Features
-- **REST Client Generation** (Q2 2024)
-- **Smart Chained Search** (Q3 2024)
-- **Operation Generation** (Q4 2024)
+- **Multi-language Support** (Future)
+- **GraphQL Schema Generation** (Future)
+- **Validation Functions** (Future)
 
 ## Contributing
 

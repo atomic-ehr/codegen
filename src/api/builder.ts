@@ -352,7 +352,7 @@ export class APIBuilder {
 			this.typeSchemaConfig,
 		);
 
-		this.typeSchemaGenerator = generator; // Store for REST client generation
+		this.typeSchemaGenerator = generator;
 		const schemas = await generator.generateFromPackage(packageName, version);
 		this.schemas = [...this.schemas, ...schemas];
 
