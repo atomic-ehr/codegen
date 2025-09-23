@@ -15,10 +15,7 @@ import type { TypeSchemaConfig } from "../config.js";
 import type { CodegenLogger } from "../utils/codegen-logger.js";
 import { createLogger } from "../utils/codegen-logger.js";
 import { TypeSchemaCache } from "./cache.js";
-import {
-  transformFHIRSchema,
-  transformFHIRSchemas,
-} from "./core/transformer.js";
+import { transformFHIRSchema } from "./core/transformer.js";
 import type { TypeSchema } from "./type-schema.types.js";
 import type { PackageInfo, TypeschemaGeneratorOptions } from "./types.js";
 import { transformValueSet } from "./value-set/processor.js";
@@ -106,14 +103,14 @@ export class TypeSchemaGenerator {
     const filteredStructureDefinitions =
       this.applyStructureDefinitionTreeshaking(structureDefinitions);
 
-    const fhirSchemas: FHIRSchema[] = [];
+    const resourceFhirSchemas: FHIRSchema[] = [];
     let convertedCount = 0;
     let failedCount = 0;
 
     for (const sd of filteredStructureDefinitions) {
       try {
         const fhirSchema = translate(sd as StructureDefinition);
-        fhirSchemas.push(fhirSchema);
+        resourceFhirSchemas.push(fhirSchema);
         convertedCount++;
 
         this.logger.debug(
@@ -178,39 +175,21 @@ export class TypeSchemaGenerator {
       );
     }
 
-    const schemas = await this.generateFromSchemas(fhirSchemas, packageInfo);
+    const schemas = await this.generateFromSchemas(
+      resourceFhirSchemas,
+      packageInfo,
+    );
 
-    // Add the converted ValueSets to the final results
     const allSchemas = [...schemas, ...valueSetSchemas];
-
-    if (this.cache && allSchemas.length > 0) {
-      this.logger.info(
-        `Caching ${allSchemas.length} generated schemas for package: ${packageName}`,
-      );
-
+    if (this.cache) {
       for (const schema of allSchemas) {
         await this.cache.set(schema);
       }
-
-      this.logger.success(
-        `Cached ${allSchemas.length} TypeSchemas for package: ${packageName}`,
-      );
     }
 
     return allSchemas;
   }
 
-  async generateFromFhirSchema(
-    fhirSchema: FHIRSchema,
-    packageInfo?: PackageInfo,
-  ): Promise<TypeSchema[]> {
-    this.logger.info("Transforming FHIR schema to TypeSchema");
-    return transformFHIRSchema(fhirSchema, this.manager, packageInfo);
-  }
-
-  /**
-   * Generate TypeSchema from multiple FHIR schemas with FHIR-specific enhancements
-   */
   async generateFromSchemas(
     fhirSchemas: FHIRSchema[],
     packageInfo?: PackageInfo,
@@ -219,11 +198,12 @@ export class TypeSchemaGenerator {
       `Transforming ${fhirSchemas.length} FHIR schemas to TypeSchema`,
     );
 
-    const baseSchemas = await transformFHIRSchemas(
-      fhirSchemas,
-      this.manager,
-      packageInfo,
-    );
+    const baseSchemas: TypeSchema[] = [];
+    for (const fhirSchema of fhirSchemas) {
+      baseSchemas.push(
+        ...(await transformFHIRSchema(fhirSchema, this.manager, packageInfo)),
+      );
+    }
 
     const results: TypeSchema[] = [];
     const groupedSchemas = this.groupTypeSchemas(baseSchemas);
@@ -276,6 +256,7 @@ export class TypeSchemaGenerator {
 
     return results;
   }
+
   private groupTypeSchemas(schemas: TypeSchema[]): {
     resources: TypeSchema[];
     complexTypes: TypeSchema[];
@@ -520,39 +501,4 @@ export class TypeSchemaGenerator {
     const match = url.match(/\/([^/]+)$/);
     return match ? (match[1] ?? null) : null;
   }
-}
-
-/**
- * Convenience function to generate TypeSchema from a package
- */
-export async function generateTypeSchemaFromPackage(
-  packageName: string,
-  options: TypeschemaGeneratorOptions = {},
-): Promise<TypeSchema[]> {
-  const generator = new TypeSchemaGenerator(options);
-  return await generator.generateFromPackage(packageName);
-}
-
-/**
- * Convenience function to generate TypeSchema from FHIR schemas
- */
-export async function generateTypeSchemaFromSchemas(
-  fhirSchemas: FHIRSchema[],
-  packageInfo?: PackageInfo,
-  options: TypeschemaGeneratorOptions = {},
-): Promise<TypeSchema[]> {
-  const generator = new TypeSchemaGenerator(options);
-  return await generator.generateFromSchemas(fhirSchemas, packageInfo);
-}
-
-/**
- * Convenience function to generate TypeSchema from a single FHIR schema
- */
-export async function generateTypeSchemaFromSchema(
-  fhirSchema: FHIRSchema,
-  packageInfo?: PackageInfo,
-  options: TypeschemaGeneratorOptions = {},
-): Promise<TypeSchema[]> {
-  const generator = new TypeSchemaGenerator(options);
-  return await generator.generateFromFhirSchema(fhirSchema, packageInfo);
 }
