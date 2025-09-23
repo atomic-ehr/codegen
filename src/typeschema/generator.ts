@@ -9,8 +9,8 @@ import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import {
   type FHIRSchema,
   type StructureDefinition,
-  translate,
 } from "@atomic-ehr/fhirschema";
+import * as fhirschema from "@atomic-ehr/fhirschema";
 import type { TypeSchemaConfig } from "../config.js";
 import type { CodegenLogger } from "../utils/codegen-logger.js";
 import { createLogger } from "../utils/codegen-logger.js";
@@ -61,9 +61,7 @@ export class TypeSchemaGenerator {
   ): Promise<TypeSchema[]> {
     await this.initializeCache();
 
-    const forceRegenerate = this.cacheConfig?.forceRegenerate ?? false;
-
-    if (this.cache && !forceRegenerate) {
+    if (this.cache && !(this.cacheConfig?.forceRegenerate ?? false)) {
       const cachedSchemas = this.cache.getByPackage(packageName);
       if (cachedSchemas.length > 0) {
         this.logger.info(
@@ -81,7 +79,6 @@ export class TypeSchemaGenerator {
       packages: [`${packageName}${packageVersion ? `@${packageVersion}` : ""}`],
       workingDir: "tmp/fhir",
     });
-
     await this.manager.init();
 
     const allResources = await this.manager.search({});
@@ -100,6 +97,7 @@ export class TypeSchemaGenerator {
       `Converting ${structureDefinitions.length} StructureDefinitions to FHIRSchemas`,
     );
 
+    // TODO: do it on the TypeSchema
     const filteredStructureDefinitions =
       this.applyStructureDefinitionTreeshaking(structureDefinitions);
 
@@ -109,7 +107,7 @@ export class TypeSchemaGenerator {
 
     for (const sd of filteredStructureDefinitions) {
       try {
-        const fhirSchema = translate(sd as StructureDefinition);
+        const fhirSchema = fhirschema.translate(sd as StructureDefinition);
         resourceFhirSchemas.push(fhirSchema);
         convertedCount++;
 
@@ -195,139 +193,16 @@ export class TypeSchemaGenerator {
     packageInfo?: PackageInfo,
   ): Promise<TypeSchema[]> {
     this.logger.info(
-      `Transforming ${fhirSchemas.length} FHIR schemas to TypeSchema`,
+      `Transforming ${fhirSchemas.length} FHIR schemas to Type Schema`,
     );
 
-    const baseSchemas: TypeSchema[] = [];
+    const typeSchemas: TypeSchema[] = [];
     for (const fhirSchema of fhirSchemas) {
-      baseSchemas.push(
+      typeSchemas.push(
         ...(await transformFHIRSchema(fhirSchema, this.manager, packageInfo)),
       );
     }
-
-    const results: TypeSchema[] = [];
-    const groupedSchemas = this.groupTypeSchemas(baseSchemas);
-
-    results.push(...groupedSchemas.resources);
-    results.push(...groupedSchemas.complexTypes);
-    results.push(...groupedSchemas.primitives);
-
-    if (groupedSchemas.profiles.length > 0) {
-      this.logger.info(`Enhancing ${groupedSchemas.profiles.length} profiles`);
-      const profileResults = await this.enhanceProfiles(
-        groupedSchemas.profiles,
-      );
-      results.push(...profileResults);
-    }
-
-    if (groupedSchemas.extensions.length > 0) {
-      this.logger.info(
-        `Enhancing ${groupedSchemas.extensions.length} extensions`,
-      );
-      const extensionResults = await this.enhanceExtensions(
-        groupedSchemas.extensions,
-      );
-      results.push(...extensionResults);
-    }
-
-    if (groupedSchemas.valueSets.length > 0) {
-      this.logger.info(
-        `Enhancing ${groupedSchemas.valueSets.length} value sets`,
-      );
-      const valueSetResults = await this.enhanceValueSets(
-        groupedSchemas.valueSets,
-      );
-      results.push(...valueSetResults);
-    }
-
-    if (groupedSchemas.codeSystems.length > 0) {
-      this.logger.info(
-        `Enhancing ${groupedSchemas.codeSystems.length} code systems`,
-      );
-      const codeSystemResults = await this.enhanceCodeSystems(
-        groupedSchemas.codeSystems,
-      );
-      results.push(...codeSystemResults);
-    }
-
-    this.logger.success(
-      `Generated ${results.length} enhanced FHIR type schemas: ${groupedSchemas.resources.length} resources, ${groupedSchemas.complexTypes.length} complex types, ${groupedSchemas.primitives.length} primitives`,
-    );
-
-    return results;
-  }
-
-  private groupTypeSchemas(schemas: TypeSchema[]): {
-    resources: TypeSchema[];
-    complexTypes: TypeSchema[];
-    primitives: TypeSchema[];
-    profiles: TypeSchema[];
-    extensions: TypeSchema[];
-    valueSets: TypeSchema[];
-    codeSystems: TypeSchema[];
-  } {
-    const groups = {
-      resources: [] as TypeSchema[],
-      complexTypes: [] as TypeSchema[],
-      primitives: [] as TypeSchema[],
-      profiles: [] as TypeSchema[],
-      extensions: [] as TypeSchema[],
-      valueSets: [] as TypeSchema[],
-      codeSystems: [] as TypeSchema[],
-    };
-
-    for (const schema of schemas) {
-      switch (schema.identifier.kind) {
-        case "resource":
-          groups.resources.push(schema);
-          break;
-        case "complex-type":
-          groups.complexTypes.push(schema);
-          break;
-        case "primitive-type":
-          groups.primitives.push(schema);
-          break;
-        case "binding":
-          if ("metadata" in schema && (schema as any).metadata?.isExtension) {
-            groups.extensions.push(schema);
-          } else {
-            groups.complexTypes.push(schema);
-          }
-          break;
-        case "value-set":
-          groups.valueSets.push(schema);
-          break;
-        default:
-          if ("metadata" in schema && (schema as any).metadata?.isCodeSystem) {
-            groups.codeSystems.push(schema);
-          } else {
-            groups.complexTypes.push(schema);
-          }
-          break;
-      }
-    }
-
-    return groups;
-  }
-
-  private async enhanceProfiles(schemas: TypeSchema[]): Promise<TypeSchema[]> {
-    return schemas;
-  }
-
-  private async enhanceExtensions(
-    schemas: TypeSchema[],
-  ): Promise<TypeSchema[]> {
-    return schemas;
-  }
-
-  private async enhanceValueSets(schemas: TypeSchema[]): Promise<TypeSchema[]> {
-    return schemas;
-  }
-
-  private async enhanceCodeSystems(
-    schemas: TypeSchema[],
-  ): Promise<TypeSchema[]> {
-    return schemas;
+    return typeSchemas;
   }
 
   /**
