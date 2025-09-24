@@ -80,10 +80,11 @@ describe("TypeSchema Transformer Core Logic", () => {
             choices: ["deceasedBoolean", "deceasedDateTime"],
           },
           deceasedDateTime: {
-            type: "dateTime",
             choiceOf: "deceased",
+            type: "dateTime",
           },
           deceasedBoolean: {
+            choiceOf: "deceased",
             type: "boolean",
           },
         },
@@ -108,6 +109,8 @@ describe("TypeSchema Transformer Core Logic", () => {
               required: false,
             },
             deceasedBoolean: {
+              choiceOf: "deceased",
+
               type: { name: "boolean" },
               excluded: false,
               array: false,
@@ -119,7 +122,7 @@ describe("TypeSchema Transformer Core Logic", () => {
       ]);
     });
 
-    it.todo("Check choice field with limited options in children", async () => {
+    it("Check choice field with limited options in children", async () => {
       const fs: FS = {
         url: "RequiredChoiceLimited",
         base: "RequiredChoice",
@@ -130,6 +133,7 @@ describe("TypeSchema Transformer Core Logic", () => {
             choices: ["deceasedBoolean"],
           },
           deceasedBoolean: {
+            choiceOf: "deceased",
             type: "boolean",
           },
         },
@@ -141,19 +145,57 @@ describe("TypeSchema Transformer Core Logic", () => {
           base: { name: "RequiredChoice" },
           fields: {
             deceased: {
-              excluded: false,
               choices: ["deceasedBoolean"],
+              excluded: false,
               array: false,
               required: true,
             },
             deceasedBoolean: {
+              choiceOf: "deceased",
               type: { name: "boolean" },
               excluded: false,
               array: false,
               required: false,
             },
           },
-          dependencies: [{ name: "boolean" }],
+          dependencies: [{ name: "boolean" }, { name: "RequiredChoice" }],
+        },
+      ]);
+    });
+
+    it.todo("Limit choice types without instance repetition", async () => {
+      const fs: FS = {
+        url: "RequiredChoiceLimited",
+        base: "RequiredChoice",
+        kind: "resource",
+        required: ["deceased"],
+        elements: {
+          deceased: {
+            choices: ["deceasedBoolean"],
+          },
+        },
+      };
+
+      expect(await fs2ts(fs)).toMatchObject([
+        {
+          identifier: { kind: "resource", url: "RequiredChoiceLimited" },
+          base: { name: "RequiredChoice" },
+          fields: {
+            deceased: {
+              choices: ["deceasedBoolean"],
+              excluded: false,
+              array: false,
+              required: true,
+            },
+            deceasedBoolean: {
+              choiceOf: "deceased",
+              type: { name: "boolean" },
+              excluded: false,
+              array: false,
+              required: false,
+            },
+          },
+          dependencies: [{ name: "boolean" }, { name: "RequiredChoice" }],
         },
       ]);
     });
