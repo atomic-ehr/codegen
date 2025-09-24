@@ -298,6 +298,20 @@ async function transformExtension(
   }
 }
 
+function ensurePackageInfo(
+  fhirSchema: FHIRSchema,
+  packageInfo?: PackageInfo,
+): PackageInfo {
+  if (!packageInfo && (fhirSchema.package_name || fhirSchema.package_id)) {
+    return {
+      name: fhirSchema.package_name || fhirSchema.package_id || "undefined",
+      version: fhirSchema.package_version || "undefined",
+    };
+  }
+
+  return packageInfo;
+}
+
 /**
  * Transform a single FHIRSchema to TypeSchema(s) with enhanced categorization
  * Returns the main schema plus any binding schemas
@@ -307,17 +321,10 @@ export async function transformFHIRSchema(
   fhirSchema: FHIRSchema,
   packageInfo?: PackageInfo,
 ): Promise<TypeSchema[]> {
+  packageInfo = ensurePackageInfo(fhirSchema, packageInfo);
+
   const results: TypeSchema[] = [];
 
-  // Extract package info from schema if not provided
-  if (!packageInfo && (fhirSchema.package_name || fhirSchema.package_id)) {
-    packageInfo = {
-      name: fhirSchema.package_name || fhirSchema.package_id || "undefined",
-      version: fhirSchema.package_version || "undefined",
-    };
-  }
-
-  // Build main identifier with enhanced categorization
   const identifier = buildSchemaIdentifier(fhirSchema, packageInfo);
 
   // Handle profiles with specialized processor
