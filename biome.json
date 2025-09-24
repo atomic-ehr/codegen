@@ -1,45 +1,45 @@
 {
-  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "vcs": {
-    "enabled": false,
-    "clientKind": "git",
-    "useIgnoreFile": false
-  },
-  "files": {
-    "ignoreUnknown": false,
-    "includes": ["src", "atomic-codegen.config.js"]
-  },
-  "formatter": {
-    "enabled": true,
-    "indentStyle": "tab",
-    "lineWidth": 120
-  },
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "suspicious": {
-        "noImplicitAnyLet": "off",
-        "noExplicitAny": "off",
-        "noAssignInExpressions": "off"
-      },
-      "correctness": {
-        "noUnusedPrivateClassMembers": "warn"
-      },
-      "recommended": true
-    }
-  },
-  "javascript": {
-    "formatter": {
-      "indentWidth": 2,
-      "quoteStyle": "double"
-    }
-  },
-  "assist": {
-    "enabled": true,
-    "actions": {
-      "source": {
-        "organizeImports": "on"
-      }
-    }
-  }
+	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+	"vcs": {
+		"enabled": false,
+		"clientKind": "git",
+		"useIgnoreFile": false
+	},
+	"files": {
+		"ignoreUnknown": false,
+		"includes": ["src", "atomic-codegen.config.js"]
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab",
+		"lineWidth": 120
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"suspicious": {
+				"noImplicitAnyLet": "off",
+				"noExplicitAny": "off",
+				"noAssignInExpressions": "off"
+			},
+			"correctness": {
+				"noUnusedPrivateClassMembers": "warn"
+			},
+			"recommended": true
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"indentWidth": 2,
+			"quoteStyle": "double"
+		}
+	},
+	"assist": {
+		"enabled": true,
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
+	}
 }
