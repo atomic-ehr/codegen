@@ -205,7 +205,10 @@ export class TypeSchemaGenerator {
       valueSets,
       packageInfo,
     );
-    const schemas = await this.generateFromSchemas(packageInfo, fhirSchemas);
+    const schemas = await this.generateResourceTypeSchemas(
+      fhirSchemas,
+      packageInfo,
+    );
 
     const allSchemas = [...schemas, ...valueSetSchemas];
     if (this.cache) {
@@ -217,9 +220,9 @@ export class TypeSchemaGenerator {
     return allSchemas;
   }
 
-  async generateFromSchemas(
-    packageInfo: PackageInfo,
+  async generateResourceTypeSchemas(
     fhirSchemas: FHIRSchema[],
+    packageInfo: PackageInfo,
   ): Promise<TypeSchema[]> {
     this.logger.info(
       `Transforming ${fhirSchemas.length} FHIR schemas to Type Schema`,

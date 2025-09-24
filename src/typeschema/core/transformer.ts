@@ -305,7 +305,7 @@ async function transformExtension(
 export async function transformFHIRSchema(
   manager: ReturnType<typeof CanonicalManager>,
   fhirSchema: FHIRSchema,
-  packageInfo: PackageInfo,
+  packageInfo?: PackageInfo,
 ): Promise<TypeSchema[]> {
   const results: TypeSchema[] = [];
 
