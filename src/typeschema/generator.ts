@@ -55,22 +55,14 @@ export class TypeSchemaGenerator {
     }
   }
 
-  async generateFromPackage(
+  async fetchPackage(
     packageName: string,
     packageVersion?: string,
-  ): Promise<TypeSchema[]> {
-    await this.initializeCache();
-
-    if (this.cache && !(this.cacheConfig?.forceRegenerate ?? false)) {
-      const cachedSchemas = this.cache.getByPackage(packageName);
-      if (cachedSchemas.length > 0) {
-        this.logger.info(
-          `Using cached TypeSchemas for package: ${packageName} (${cachedSchemas.length} schemas)`,
-        );
-        return cachedSchemas;
-      }
-    }
-
+  ): Promise<{
+    structureDefinitions: StructureDefinition[];
+    // FIXME: add type for valueset
+    valueSets: any[];
+  }> {
     this.logger.step(
       `Loading FHIR package: ${packageName}${packageVersion ? `@${packageVersion}` : ""}`,
     );
@@ -82,17 +74,23 @@ export class TypeSchemaGenerator {
     await this.manager.init();
 
     const allResources = await this.manager.search({});
+
     const structureDefinitions = allResources.filter(
       (resource) => resource.resourceType === "StructureDefinition",
-    );
+    ) as StructureDefinition[];
+
     const valueSets = allResources.filter(
       (resource) => resource.resourceType === "ValueSet",
-    );
+    ) as any[];
 
     this.logger.info(
       `Found ${structureDefinitions.length} StructureDefinitions and ${valueSets.length} ValueSets in package`,
     );
 
+    return { structureDefinitions, valueSets };
+  }
+
+  generateFhirSchemas(structureDefinitions: StructureDefinition[]) {
     this.logger.progress(
       `Converting ${structureDefinitions.length} StructureDefinitions to FHIRSchemas`,
     );
@@ -101,14 +99,14 @@ export class TypeSchemaGenerator {
     const filteredStructureDefinitions =
       this.applyStructureDefinitionTreeshaking(structureDefinitions);
 
-    const resourceFhirSchemas: FHIRSchema[] = [];
+    const fhirSchemas: FHIRSchema[] = [];
     let convertedCount = 0;
     let failedCount = 0;
 
     for (const sd of filteredStructureDefinitions) {
       try {
         const fhirSchema = fhirschema.translate(sd as StructureDefinition);
-        resourceFhirSchemas.push(fhirSchema);
+        fhirSchemas.push(fhirSchema);
         convertedCount++;
 
         this.logger.debug(
@@ -123,19 +121,20 @@ export class TypeSchemaGenerator {
     }
 
     this.logger.success(
-      `Schema conversion completed: ${convertedCount}/${filteredStructureDefinitions.length} successful, ${failedCount} failed`,
+      `FHIR Schema conversion completed: ${convertedCount}/${filteredStructureDefinitions.length} successful, ${failedCount} failed`,
     );
+    return fhirSchemas;
+  }
 
+  async generateValueSetSchemas(
+    valueSets: any[],
+    packageInfo: PackageInfo,
+  ): Promise<TypeSchema[]> {
     if (valueSets.length > 0) {
       this.logger.debug(
         `${valueSets.length} ValueSets available for enum extraction`,
       );
     }
-
-    const packageInfo: PackageInfo = {
-      name: packageName,
-      version: packageVersion || "latest",
-    };
 
     // Process ValueSets separately to add to TypeSchema output
     const valueSetSchemas: TypeSchema[] = [];
@@ -172,11 +171,41 @@ export class TypeSchemaGenerator {
         `ValueSet conversion completed: ${valueSetConvertedCount}/${valueSets.length} successful, ${valueSetFailedCount} failed`,
       );
     }
+    return valueSetSchemas;
+  }
 
-    const schemas = await this.generateFromSchemas(
-      resourceFhirSchemas,
+  async generateFromPackage(
+    packageName: string,
+    packageVersion?: string,
+  ): Promise<TypeSchema[]> {
+    await this.initializeCache();
+    if (this.cache && !(this.cacheConfig?.forceRegenerate ?? false)) {
+      const cachedSchemas = this.cache.getByPackage(packageName);
+      if (cachedSchemas.length > 0) {
+        this.logger.info(
+          `Using cached TypeSchemas for package: ${packageName} (${cachedSchemas.length} schemas)`,
+        );
+        return cachedSchemas;
+      }
+    }
+
+    const packageInfo: PackageInfo = {
+      name: packageName,
+      version: packageVersion || "latest",
+    };
+
+    const { valueSets, structureDefinitions } = await this.fetchPackage(
+      packageName,
+      packageVersion,
+    );
+
+    const fhirSchemas = this.generateFhirSchemas(structureDefinitions);
+
+    const valueSetSchemas = await this.generateValueSetSchemas(
+      valueSets,
       packageInfo,
     );
+    const schemas = await this.generateFromSchemas(packageInfo, fhirSchemas);
 
     const allSchemas = [...schemas, ...valueSetSchemas];
     if (this.cache) {
@@ -189,8 +218,8 @@ export class TypeSchemaGenerator {
   }
 
   async generateFromSchemas(
+    packageInfo: PackageInfo,
     fhirSchemas: FHIRSchema[],
-    packageInfo?: PackageInfo,
   ): Promise<TypeSchema[]> {
     this.logger.info(
       `Transforming ${fhirSchemas.length} FHIR schemas to Type Schema`,
@@ -199,7 +228,7 @@ export class TypeSchemaGenerator {
     const typeSchemas: TypeSchema[] = [];
     for (const fhirSchema of fhirSchemas) {
       typeSchemas.push(
-        ...(await transformFHIRSchema(fhirSchema, this.manager, packageInfo)),
+        ...(await transformFHIRSchema(this.manager, fhirSchema, packageInfo)),
       );
     }
     return typeSchemas;

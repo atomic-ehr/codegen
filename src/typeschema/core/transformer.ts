@@ -303,9 +303,9 @@ async function transformExtension(
  * Returns the main schema plus any binding schemas
  */
 export async function transformFHIRSchema(
-  fhirSchema: FHIRSchema,
   manager: ReturnType<typeof CanonicalManager>,
-  packageInfo?: PackageInfo,
+  fhirSchema: FHIRSchema,
+  packageInfo: PackageInfo,
 ): Promise<TypeSchema[]> {
   const results: TypeSchema[] = [];
 
