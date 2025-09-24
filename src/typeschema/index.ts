@@ -15,4 +15,4 @@ export type { FHIRSchema } from "@atomic-ehr/fhirschema";
 export { TypeSchemaCache } from "./cache.js";
 export { TypeSchemaGenerator } from "./generator.js";
 export { TypeSchemaParser } from "./parser.js";
-export * from "./type-schema.types.js";
+export type { Identifier, TypeSchema } from "./types";

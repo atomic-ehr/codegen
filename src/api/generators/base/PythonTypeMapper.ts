@@ -2,7 +2,7 @@
  * Python type mapper implementation (basic version)
  */
 
-import type { TypeSchemaIdentifier } from "../../../typeschema/index.js";
+import type { Identifier } from "@typeschema/index";
 import { type LanguageType, TypeMapper } from "./TypeMapper.js";
 
 export class PythonTypeMapper extends TypeMapper {
@@ -28,7 +28,7 @@ export class PythonTypeMapper extends TypeMapper {
     };
   }
 
-  mapReference(_targets: TypeSchemaIdentifier[]): LanguageType {
+  mapReference(_targets: Identifier[]): LanguageType {
     return {
       name: "Reference",
       isPrimitive: false,

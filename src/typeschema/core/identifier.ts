@@ -5,11 +5,7 @@
  */
 
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
-import type {
-  PackageInfo,
-  TypeSchemaForValueSet,
-  TypeSchemaIdentifier,
-} from "../types";
+import type { PackageInfo, TypeSchemaForValueSet, Identifier } from "../types";
 
 /**
  * Drop version suffix from canonical URL (e.g., "http://example.com|1.0.0" -> "http://example.com")
@@ -24,7 +20,7 @@ export function dropVersionFromUrl(
 /**
  * Determine the kind of schema based on FHIRSchema properties
  */
-function determineKind(fhirSchema: FHIRSchema): TypeSchemaIdentifier["kind"] {
+function determineKind(fhirSchema: FHIRSchema): Identifier["kind"] {
   // Check for constraint/profile
   if (fhirSchema.derivation === "constraint") {
     // Distinguish between profiles and other constraints
@@ -62,7 +58,7 @@ function determineKind(fhirSchema: FHIRSchema): TypeSchemaIdentifier["kind"] {
 export function buildSchemaIdentifier(
   fhirSchema: FHIRSchema,
   packageInfo?: PackageInfo,
-): TypeSchemaIdentifier {
+): Identifier {
   const kind = determineKind(fhirSchema);
 
   return {
@@ -81,7 +77,7 @@ export function buildNestedIdentifier(
   fhirSchema: FHIRSchema,
   path: string[],
   packageInfo?: PackageInfo,
-): TypeSchemaIdentifier {
+): Identifier {
   const nestedName = path.join(".");
 
   return {
@@ -145,7 +141,7 @@ export function buildBindingIdentifier(
   path: string[],
   bindingName?: string,
   packageInfo?: PackageInfo,
-): TypeSchemaIdentifier {
+): Identifier {
   const pathStr = path.join(".");
   const name = bindingName || `${fhirSchema.name}.${pathStr}_binding`;
 

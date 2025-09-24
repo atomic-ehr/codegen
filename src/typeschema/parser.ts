@@ -8,7 +8,7 @@
  */
 
 import { readFile } from "node:fs/promises";
-import type { TypeSchema, TypeSchemaIdentifier } from "./type-schema.types.js";
+import type { TypeSchema, Identifier } from "@typeschema/types";
 import type { TypeschemaParserOptions } from "./types.js";
 
 /**
@@ -103,7 +103,7 @@ export class TypeSchemaParser {
    */
   findByIdentifier(
     schemas: TypeSchema[],
-    identifier: Partial<TypeSchemaIdentifier>,
+    identifier: Partial<Identifier>,
   ): TypeSchema[] {
     return schemas.filter((schema) =>
       this.matchesIdentifier(schema.identifier, identifier),
@@ -120,10 +120,7 @@ export class TypeSchemaParser {
   /**
    * Find schemas by kind
    */
-  findByKind(
-    schemas: TypeSchema[],
-    kind: TypeSchemaIdentifier["kind"],
-  ): TypeSchema[] {
+  findByKind(schemas: TypeSchema[], kind: Identifier["kind"]): TypeSchema[] {
     return schemas.filter((schema) => schema.identifier.kind === kind);
   }
 
@@ -139,8 +136,8 @@ export class TypeSchemaParser {
   /**
    * Get all dependencies from a schema
    */
-  getDependencies(schema: TypeSchema): TypeSchemaIdentifier[] {
-    const dependencies: TypeSchemaIdentifier[] = [];
+  getDependencies(schema: TypeSchema): Identifier[] {
+    const dependencies: Identifier[] = [];
 
     // Add base dependency
     if ("base" in schema && schema.base) {
@@ -311,9 +308,7 @@ export class TypeSchemaParser {
   /**
    * Validate identifier structure
    */
-  private isValidIdentifier(
-    identifier: any,
-  ): identifier is TypeSchemaIdentifier {
+  private isValidIdentifier(identifier: any): identifier is Identifier {
     return (
       typeof identifier === "object" &&
       identifier !== null &&
@@ -329,8 +324,8 @@ export class TypeSchemaParser {
    * Check if identifier matches criteria
    */
   private matchesIdentifier(
-    identifier: TypeSchemaIdentifier,
-    criteria: Partial<TypeSchemaIdentifier>,
+    identifier: Identifier,
+    criteria: Partial<Identifier>,
   ): boolean {
     return (
       (!criteria.kind || identifier.kind === criteria.kind) &&
@@ -344,11 +339,9 @@ export class TypeSchemaParser {
   /**
    * Remove duplicate dependencies
    */
-  private deduplicateDependencies(
-    deps: TypeSchemaIdentifier[],
-  ): TypeSchemaIdentifier[] {
+  private deduplicateDependencies(deps: Identifier[]): Identifier[] {
     const seen = new Set<string>();
-    const unique: TypeSchemaIdentifier[] = [];
+    const unique: Identifier[] = [];
 
     for (const dep of deps) {
       if (!seen.has(dep.url)) {

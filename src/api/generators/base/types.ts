@@ -5,10 +5,7 @@
  * build upon, ensuring consistency and type safety across the system.
  */
 
-import type {
-  TypeSchema,
-  TypeSchemaIdentifier,
-} from "../../../typeschema/index.js";
+import type { TypeSchema, Identifier } from "@typeschema/index";
 import type { CodegenLogger } from "../../../utils/codegen-logger.js";
 
 /**
@@ -270,7 +267,7 @@ export abstract class TypeMapper {
    * @param targets - Array of possible reference targets
    * @returns Language-specific reference type
    */
-  abstract mapReference(targets: TypeSchemaIdentifier[]): LanguageType;
+  abstract mapReference(targets: Identifier[]): LanguageType;
 
   /**
    * Map an array type in the target language
@@ -321,7 +318,7 @@ export abstract class TypeMapper {
    * @param identifier - FHIR type identifier
    * @returns Language-specific type representation
    */
-  abstract mapType(identifier: TypeSchemaIdentifier): LanguageType;
+  abstract mapType(identifier: Identifier): LanguageType;
 
   /**
    * Get import statement format for the target language

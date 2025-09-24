@@ -2,7 +2,7 @@
  * TypeScript-specific type mapper implementation
  */
 
-import type { TypeSchemaIdentifier } from "../../../typeschema/type-schema.types";
+import type { Identifier } from "@typeschema/types";
 import {
   type LanguageType,
   TypeMapper,
@@ -113,7 +113,7 @@ export class TypeScriptTypeMapper extends TypeMapper {
     };
   }
 
-  mapReference(targets: TypeSchemaIdentifier[]): LanguageType {
+  mapReference(targets: Identifier[]): LanguageType {
     if (!targets || targets.length === 0) {
       return {
         name: "Reference",

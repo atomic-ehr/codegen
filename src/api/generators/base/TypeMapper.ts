@@ -5,7 +5,7 @@
  * to convert FHIR TypeSchema types into their target language types.
  */
 
-import type { TypeSchemaIdentifier } from "../../../typeschema/type-schema.types";
+import type { Identifier } from "@typeschema/types";
 
 /**
  * Represents a type in the target language
@@ -89,7 +89,7 @@ export abstract class TypeMapper {
    * Map a reference type to target language
    * @param targets Array of possible reference targets
    */
-  abstract mapReference(targets: TypeSchemaIdentifier[]): LanguageType;
+  abstract mapReference(targets: Identifier[]): LanguageType;
 
   /**
    * Map an array type to target language

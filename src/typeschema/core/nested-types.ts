@@ -8,11 +8,7 @@
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import type {
-  PackageInfo,
-  TypeSchemaField,
-  TypeSchemaIdentifier,
-} from "../types.js";
+import type { PackageInfo, TypeSchemaField, Identifier } from "../types.js";
 import {
   buildField,
   buildNestedField,
@@ -164,8 +160,8 @@ export async function buildNestedTypes(
  */
 export function extractNestedDependencies(
   nestedTypes: TypeSchemaNestedType[],
-): TypeSchemaIdentifier[] {
-  const deps: TypeSchemaIdentifier[] = [];
+): Identifier[] {
+  const deps: Identifier[] = [];
 
   for (const nested of nestedTypes) {
     // Add the nested type itself as a dependency

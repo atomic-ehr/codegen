@@ -86,10 +86,7 @@ export type {
 // ==========================================
 
 // TypeSchema types (commonly needed by generator implementations)
-export type {
-  TypeSchema,
-  TypeSchemaIdentifier,
-} from "../../../typeschema/index.js";
+export type { TypeSchema, Identifier } from "@typeschema/index";
 
 // Logger interface
 export type { CodegenLogger } from "../../../utils/codegen-logger.js";

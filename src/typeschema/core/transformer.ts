@@ -13,8 +13,8 @@ import type {
   TypeSchema,
   TypeSchemaField,
   TypeSchemaForValueSet,
-  TypeSchemaIdentifier,
-} from "../type-schema.types.js";
+  Identifier,
+} from "@typeschema/types";
 import type { PackageInfo } from "../types.js";
 import { collectBindingSchemas } from "./binding.js";
 import {
@@ -76,8 +76,8 @@ export async function transformElements(
  */
 function extractFieldDependencies(
   fields: Record<string, TypeSchemaField>,
-): TypeSchemaIdentifier[] {
-  const deps: TypeSchemaIdentifier[] = [];
+): Identifier[] {
+  const deps: Identifier[] = [];
 
   for (const field of Object.values(fields)) {
     if ("type" in field && field.type) {
@@ -94,11 +94,9 @@ function extractFieldDependencies(
 /**
  * Remove duplicate dependencies
  */
-function deduplicateDependencies(
-  deps: TypeSchemaIdentifier[],
-): TypeSchemaIdentifier[] {
+function deduplicateDependencies(deps: Identifier[]): Identifier[] {
   const seen = new Set<string>();
-  const unique: TypeSchemaIdentifier[] = [];
+  const unique: Identifier[] = [];
 
   for (const dep of deps) {
     const key = dep.url;
@@ -119,7 +117,7 @@ function deduplicateDependencies(
  */
 function isExtensionSchema(
   fhirSchema: FHIRSchema,
-  _identifier: TypeSchemaIdentifier,
+  _identifier: Identifier,
 ): boolean {
   // Check if this is based on Extension
   if (
@@ -212,7 +210,7 @@ async function transformExtension(
     const identifier = buildSchemaIdentifier(fhirSchema, packageInfo);
 
     // Build base identifier if present
-    let base: TypeSchemaIdentifier | undefined;
+    let base: Identifier | undefined;
     if (fhirSchema.base && fhirSchema.base !== "Extension") {
       const baseUrl = fhirSchema.base.includes("/")
         ? fhirSchema.base
@@ -374,7 +372,7 @@ export async function transformFHIRSchema(
   }
 
   // Build base identifier if present
-  let base: TypeSchemaIdentifier | undefined;
+  let base: Identifier | undefined;
   if (fhirSchema.base && fhirSchema.type !== "Element") {
     // Create base identifier directly
     const baseUrl = fhirSchema.base.includes("/")
@@ -441,7 +439,7 @@ export async function transformFHIRSchema(
   };
 
   // Collect dependencies in the same order as Clojure implementation
-  const allDependencies: TypeSchemaIdentifier[] = [];
+  const allDependencies: Identifier[] = [];
 
   // Add base if present (first in dependencies)
   if (base) {

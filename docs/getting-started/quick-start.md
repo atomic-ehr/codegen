@@ -27,32 +27,32 @@ export class JsonTypeMapper extends TypeMapper {
   mapPrimitive(fhirType: string): LanguageType {
     const typeMap: Record<string, string> = {
       'string': 'string',
-      'integer': 'number', 
+      'integer': 'number',
       'boolean': 'boolean',
       'dateTime': 'string',
       'decimal': 'number',
       'code': 'string'
     };
-    
+
     return {
       name: typeMap[fhirType] || 'string',
       isPrimitive: true
     };
   }
-  
+
   formatTypeName(name: string): string {
     return name.charAt(0).toUpperCase() + name.slice(1);
   }
-  
+
   formatFileName(name: string): string {
     return this.formatTypeName(name);
   }
-  
+
   mapType(identifier: TypeSchemaIdentifier): LanguageType {
     if (identifier.kind === 'primitive-type') {
       return this.mapPrimitive(identifier.name);
     }
-    
+
     return {
       name: this.formatTypeName(identifier.name),
       isPrimitive: false
@@ -73,17 +73,17 @@ export class JsonGenerator extends BaseGenerator {
   protected getLanguageName(): string {
     return 'JSON Schema';
   }
-  
+
   protected getFileExtension(): string {
     return '.json';
   }
-  
+
   protected createTypeMapper(): JsonTypeMapper {
     return new JsonTypeMapper();
   }
-  
+
   protected async generateSchemaContent(
-    schema: TypeSchema, 
+    schema: TypeSchema,
     context: TemplateContext
   ): Promise<string> {
     const jsonSchema = {
@@ -94,10 +94,10 @@ export class JsonGenerator extends BaseGenerator {
       properties: this.buildProperties(schema),
       required: this.getRequiredFields(schema)
     };
-    
+
     return JSON.stringify(jsonSchema, null, 2);
   }
-  
+
   protected async validateContent(content: string): Promise<void> {
     try {
       JSON.parse(content);
@@ -105,16 +105,16 @@ export class JsonGenerator extends BaseGenerator {
       throw new Error(`Generated JSON is invalid: ${error}`);
     }
   }
-  
+
   protected filterAndSortSchemas(schemas: TypeSchema[]): TypeSchema[] {
     return schemas
       .filter(schema => schema.identifier.kind !== 'primitive-type')
       .sort((a, b) => a.identifier.name.localeCompare(b.identifier.name));
   }
-  
+
   private buildProperties(schema: TypeSchema): Record<string, any> {
     const properties: Record<string, any> = {};
-    
+
     if ('fields' in schema && schema.fields) {
       for (const [fieldName, field] of Object.entries(schema.fields)) {
         if ('type' in field && field.type) {
@@ -123,7 +123,7 @@ export class JsonGenerator extends BaseGenerator {
             type: languageType.name.toLowerCase(),
             description: field.description || `${fieldName} field`
           };
-          
+
           if (field.array) {
             properties[fieldName] = {
               type: 'array',
@@ -133,13 +133,13 @@ export class JsonGenerator extends BaseGenerator {
         }
       }
     }
-    
+
     return properties;
   }
-  
+
   private getRequiredFields(schema: TypeSchema): string[] {
     if (!('fields' in schema) || !schema.fields) return [];
-    
+
     return Object.entries(schema.fields)
       .filter(([_, field]) => 'required' in field && field.required)
       .map(([fieldName, _]) => fieldName);
@@ -200,16 +200,16 @@ async function main() {
       }
     }
   };
-  
+
   // Create generator
   const generator = new JsonGenerator({
     outputDir: './json-schemas',
     verbose: true
   });
-  
+
   // Generate files
   const results = await generator.generate([patientSchema]);
-  
+
   console.log(`Generated ${results.length} JSON schema files:`);
   results.forEach(file => {
     console.log(`  - ${file.filename} (${file.size} bytes)`);
@@ -237,7 +237,7 @@ bun run src/generate.ts
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Patient",
-  "description": "Demographics and other administrative information about an individual", 
+  "description": "Demographics and other administrative information about an individual",
   "type": "object",
   "properties": {
     "id": {
@@ -269,7 +269,7 @@ You've created your first generator! The JSON schema file was created in the `js
 Now that you have a basic generator working, you can:
 
 1. **[Add Fluent API Support](../guides/creating-generators.md#fluent-api)** - Use the chainable file builder API
-2. **[Add Templates](../guides/creating-generators.md#templates)** - Use template engines for complex generation  
+2. **[Add Templates](../guides/creating-generators.md#templates)** - Use template engines for complex generation
 3. **[Add Error Handling](../guides/creating-generators.md#error-handling)** - Provide helpful error messages
 4. **[Add Tests](../guides/testing-guide.md)** - Test your generator thoroughly
 5. **[Add Performance](../guides/performance-guide.md)** - Optimize for large schema sets
@@ -284,7 +284,7 @@ Now that you have a basic generator working, you can:
 ## 📚 What's Next?
 
 - [🔧 Build Your First Real Generator](first-generator.md) - More advanced example
-- [❓ Troubleshooting Guide](troubleshooting.md) - Solutions to common problems  
+- [❓ Troubleshooting Guide](troubleshooting.md) - Solutions to common problems
 - [📖 API Reference](../api-reference/) - Detailed API documentation
 
 ## 🔄 Using the Fluent API
@@ -301,7 +301,7 @@ await generator
   .save();
 
 await generator
-  .file('Observation') 
+  .file('Observation')
   .withContent(observationInterface)
   .addImport('Resource', './Resource')
   .addExport('Observation')
@@ -329,9 +329,9 @@ describe('JsonGenerator', () => {
   test('generates valid JSON schema', async () => {
     const generator = new JsonGenerator({ outputDir: './test-output' });
     const schema = createMockSchema();
-    
+
     const results = await generator.build([schema]);
-    
+
     expect(results).toHaveLength(1);
     expect(() => JSON.parse(results[0].content)).not.toThrow();
   });

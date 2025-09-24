@@ -8,11 +8,7 @@
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import type {
-  PackageInfo,
-  TypeSchemaField,
-  TypeSchemaIdentifier,
-} from "../types.js";
+import type { PackageInfo, TypeSchemaField, Identifier } from "../types.js";
 import { buildEnum } from "./binding.js";
 import {
   buildBindingIdentifier,
@@ -187,7 +183,7 @@ export async function buildReferences(
   element: FHIRSchemaElement,
   manager: ReturnType<typeof CanonicalManager>,
   packageInfo?: PackageInfo,
-): Promise<TypeSchemaIdentifier[] | undefined> {
+): Promise<Identifier[] | undefined> {
   if (!element.refers || element.refers.length === 0) {
     return undefined;
   }
@@ -217,7 +213,7 @@ export function buildFieldType(
   element: FHIRSchemaElement,
   _manager: ReturnType<typeof CanonicalManager>,
   packageInfo?: PackageInfo,
-): TypeSchemaIdentifier | undefined {
+): Identifier | undefined {
   // Handle element reference (for slicing)
   if (element.elementReference) {
     const refPath = element.elementReference

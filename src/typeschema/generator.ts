@@ -16,7 +16,7 @@ import type { CodegenLogger } from "../utils/codegen-logger.js";
 import { createLogger } from "../utils/codegen-logger.js";
 import { TypeSchemaCache } from "./cache.js";
 import { transformFHIRSchema } from "./core/transformer.js";
-import type { TypeSchema } from "./type-schema.types.js";
+import type { TypeSchema } from "@typeschema/types";
 import type { PackageInfo, TypeschemaGeneratorOptions } from "./types.js";
 import { transformValueSet } from "./value-set/processor.js";
 

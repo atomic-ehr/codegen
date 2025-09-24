@@ -59,26 +59,26 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
   protected getLanguageName(): string {
     return 'TypeScript';
   }
-  
+
   protected getFileExtension(): string {
     return '.ts';
   }
-  
+
   protected createTypeMapper(): TypeScriptTypeMapper {
     return new TypeScriptTypeMapper(this.options);
   }
-  
+
   protected async generateSchemaContent(
-    schema: TypeSchema, 
+    schema: TypeSchema,
     context: TemplateContext
   ): Promise<string> {
     // Generate TypeScript interface content
   }
-  
+
   protected async validateContent(content: string): Promise<void> {
     // Validate TypeScript syntax
   }
-  
+
   protected filterAndSortSchemas(schemas: TypeSchema[]): TypeSchema[] {
     // Filter and organize schemas
   }
@@ -103,18 +103,18 @@ export class TypeScriptTypeMapper extends TypeMapper {
       'uri': 'string',
       'id': 'string'
     };
-    
+
     return {
       name: typeMap[fhirType] || 'unknown',
       isPrimitive: true
     };
   }
-  
+
   mapType(identifier: TypeSchemaIdentifier): LanguageType {
     if (identifier.kind === 'primitive-type') {
       return this.mapPrimitive(identifier.name);
     }
-    
+
     return {
       name: this.formatTypeName(identifier.name),
       isPrimitive: false
@@ -165,17 +165,17 @@ import { HumanName } from './HumanName';
 
 /**
  * Demographics and other administrative information about an individual
- * 
+ *
  * Generated from FHIR StructureDefinition: Patient
  * Package: hl7.fhir.r4.core@4.0.1
  */
 export interface Patient {
   /** Logical id of this artifact */
   id: string;
-  
+
   /** A name associated with the individual */
   name?: HumanName[];
-  
+
   /** Administrative Gender */
   gender?: 'male' | 'female' | 'other' | 'unknown';
 }
@@ -214,18 +214,18 @@ describe('TypeScriptGenerator', () => {
       outputDir: './test-output',
       generateEnums: true
     });
-    
+
     const schema = createMockSchema({
       identifier: { name: 'Patient', kind: 'resource' }
     });
-    
+
     const results = await generator.build([schema]);
-    
+
     expect(results).toHaveLength(1);
     expect(results[0].content).toContain('export interface Patient');
     expect(results[0].exports).toContain('Patient');
   });
-  
+
   test('handles enum fields correctly', async () => {
     const schema = createMockSchema({
       fields: {
@@ -236,10 +236,10 @@ describe('TypeScriptGenerator', () => {
         }
       }
     });
-    
+
     const results = await generator.build([schema]);
     const content = results[0].content;
-    
+
     expect(content).toContain("status: 'active' | 'inactive' | 'pending'");
     expect(content).toContain('export type TestSchemaStatus = ');
   });
@@ -288,17 +288,17 @@ export interface TypeScriptGeneratorOptions extends BaseGeneratorOptions {
   generateEnums?: boolean;          // Generate enum types
   useOptionalProperties?: boolean;  // Use ? for optional props
   generateUnions?: boolean;         // Generate union types
-  
+
   // Import/export options
   useRelativeImports?: boolean;     // Relative vs absolute imports
   generateIndexFiles?: boolean;     // Auto-generate index.ts
   exportStyle?: 'named' | 'default' | 'both';
-  
+
   // Code style options
   indentSize?: number;              // Spaces per indent level
   useTrailingSemicolons?: boolean;  // Add trailing semicolons
   useSingleQuotes?: boolean;        // Single vs double quotes
-  
+
   // Documentation options
   generateJSDoc?: boolean;          // Add JSDoc comments
   includeFHIRMetadata?: boolean;    // Add FHIR-specific metadata
@@ -343,7 +343,7 @@ await generator
   .save();
 
 await generator
-  .directory('./models/datatypes')  
+  .directory('./models/datatypes')
   .withFiles(dataTypeFiles)
   .withHeader('/* FHIR Data Types */')
   .save();
@@ -432,7 +432,7 @@ This example demonstrates:
 
 1. **Generator Architecture** - How to structure a real generator
 2. **Type Mapping** - Converting between type systems
-3. **Content Generation** - Building code programmatically  
+3. **Content Generation** - Building code programmatically
 4. **Validation** - Ensuring output quality
 5. **Testing** - Comprehensive test strategies
 6. **Performance** - Optimization techniques

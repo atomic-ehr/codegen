@@ -10,7 +10,7 @@ import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import { buildSchemaIdentifier } from "../core/identifier.js";
 import { transformElements } from "../core/transformer.js";
-import type { TypeSchemaIdentifier } from "../type-schema.types.js";
+import type { Identifier } from "@typeschema/types";
 import type {
   PackageInfo,
   ProfileConstraint,
@@ -40,7 +40,7 @@ export async function transformProfile(
   }
 
   // Build base identifier - profiles always have a base
-  let base: TypeSchemaIdentifier | undefined;
+  let base: Identifier | undefined;
   if (fhirSchema.base) {
     const baseUrl = fhirSchema.base.includes("/")
       ? fhirSchema.base
@@ -124,7 +124,7 @@ export async function transformProfile(
 async function determineBaseKind(
   baseUrl: string,
   manager: ReturnType<typeof CanonicalManager>,
-): Promise<TypeSchemaIdentifier["kind"]> {
+): Promise<Identifier["kind"]> {
   try {
     // Try to resolve the base schema
     const baseSchema = await manager.resolve(baseUrl);

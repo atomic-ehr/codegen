@@ -9,7 +9,7 @@ import { buildValueSetIdentifier } from "../core/identifier.js";
 import type {
   PackageInfo,
   TypeSchemaForValueSet,
-  TypeSchemaIdentifier,
+  Identifier,
 } from "../types.js";
 
 /**
@@ -189,7 +189,7 @@ export async function transformValueSet(
 
   // Extract dependencies from compose
   if (valueSet.compose) {
-    const deps: TypeSchemaIdentifier[] = [];
+    const deps: Identifier[] = [];
 
     // Helper to process include/exclude
     const processCompose = (items: any[]) => {

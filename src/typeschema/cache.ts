@@ -7,8 +7,8 @@
 import { existsSync, mkdirSync } from "node:fs";
 import { readdir, readFile, stat, unlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import type { TypeSchemaConfig } from "../config.js";
-import type { TypeSchema, TypeSchemaIdentifier } from "./type-schema.types.js";
+import type { TypeSchemaConfig } from "@root/config";
+import type { TypeSchema, Identifier } from "@typeschema/types";
 
 /**
  * Cached schema metadata for persistence
@@ -57,7 +57,7 @@ export class TypeSchemaCache {
   /**
    * Retrieve a schema by identifier
    */
-  get(identifier: TypeSchemaIdentifier): TypeSchema | null {
+  get(identifier: Identifier): TypeSchema | null {
     const key = this.generateKey(identifier);
     return this.cache.get(key) || null;
   }
@@ -77,7 +77,7 @@ export class TypeSchemaCache {
   /**
    * Check if a schema exists in cache
    */
-  has(identifier: TypeSchemaIdentifier): boolean {
+  has(identifier: Identifier): boolean {
     const key = this.generateKey(identifier);
     return this.cache.has(key);
   }
@@ -97,7 +97,7 @@ export class TypeSchemaCache {
   /**
    * Delete a schema from cache
    */
-  delete(identifier: TypeSchemaIdentifier): boolean {
+  delete(identifier: Identifier): boolean {
     const key = this.generateKey(identifier);
     return this.cache.delete(key);
   }
@@ -159,7 +159,7 @@ export class TypeSchemaCache {
   /**
    * Generate cache key for identifier
    */
-  private generateKey(identifier: TypeSchemaIdentifier): string {
+  private generateKey(identifier: Identifier): string {
     return `${identifier.package}:${identifier.version}:${identifier.kind}:${identifier.name}`;
   }
 
@@ -328,15 +328,13 @@ export function cacheSchema(schema: TypeSchema): void {
 /**
  * Get cached schema using global cache
  */
-export function getCachedSchema(
-  identifier: TypeSchemaIdentifier,
-): TypeSchema | null {
+export function getCachedSchema(identifier: Identifier): TypeSchema | null {
   return getGlobalCache().get(identifier);
 }
 
 /**
  * Check if schema is cached using global cache
  */
-export function isCached(identifier: TypeSchemaIdentifier): boolean {
+export function isCached(identifier: Identifier): boolean {
   return getGlobalCache().has(identifier);
 }
