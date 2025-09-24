@@ -9,14 +9,14 @@
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type {
-	PackageInfo,
-	TypeSchemaField,
-	TypeSchemaIdentifier,
+  PackageInfo,
+  TypeSchemaField,
+  TypeSchemaIdentifier,
 } from "../types.js";
 import {
-	buildField,
-	buildNestedField,
-	isNestedElement,
+  buildField,
+  buildNestedField,
+  isNestedElement,
 } from "./field-builder.js";
 import { buildNestedIdentifier } from "./identifier.js";
 
@@ -24,168 +24,168 @@ import { buildNestedIdentifier } from "./identifier.js";
  * Collect all nested elements from a FHIRSchema
  */
 export function collectNestedElements(
-	fhirSchema: FHIRSchema,
-	parentPath: string[],
-	elements: Record<string, FHIRSchemaElement>,
+  fhirSchema: FHIRSchema,
+  parentPath: string[],
+  elements: Record<string, FHIRSchemaElement>,
 ): Array<[string[], FHIRSchemaElement]> {
-	const nested: Array<[string[], FHIRSchemaElement]> = [];
+  const nested: Array<[string[], FHIRSchemaElement]> = [];
 
-	for (const [key, element] of Object.entries(elements)) {
-		const path = [...parentPath, key];
+  for (const [key, element] of Object.entries(elements)) {
+    const path = [...parentPath, key];
 
-		// Add this element if it's nested (BackboneElement or has elements)
-		if (isNestedElement(element)) {
-			nested.push([path, element]);
-		}
+    // Add this element if it's nested (BackboneElement or has elements)
+    if (isNestedElement(element)) {
+      nested.push([path, element]);
+    }
 
-		// Recursively collect from child elements
-		if (element.elements) {
-			nested.push(...collectNestedElements(fhirSchema, path, element.elements));
-		}
-	}
+    // Recursively collect from child elements
+    if (element.elements) {
+      nested.push(...collectNestedElements(fhirSchema, path, element.elements));
+    }
+  }
 
-	return nested;
+  return nested;
 }
 
 /**
  * Transform elements into fields for a nested type
  */
 export async function transformNestedElements(
-	fhirSchema: FHIRSchema,
-	parentPath: string[],
-	elements: Record<string, FHIRSchemaElement>,
-	manager: ReturnType<typeof CanonicalManager>,
-	packageInfo?: PackageInfo,
+  fhirSchema: FHIRSchema,
+  parentPath: string[],
+  elements: Record<string, FHIRSchemaElement>,
+  manager: ReturnType<typeof CanonicalManager>,
+  packageInfo?: PackageInfo,
 ): Promise<Record<string, TypeSchemaField>> {
-	const fields: Record<string, TypeSchemaField> = {};
+  const fields: Record<string, TypeSchemaField> = {};
 
-	for (const [key, element] of Object.entries(elements)) {
-		const path = [...parentPath, key];
+  for (const [key, element] of Object.entries(elements)) {
+    const path = [...parentPath, key];
 
-		if (isNestedElement(element)) {
-			// Reference to another nested type
-			fields[key] = buildNestedField(
-				fhirSchema,
-				path,
-				element,
-				manager,
-				packageInfo,
-			);
-		} else {
-			// Regular field
-			fields[key] = await buildField(
-				fhirSchema,
-				path,
-				element,
-				manager,
-				packageInfo,
-			);
-		}
-	}
+    if (isNestedElement(element)) {
+      // Reference to another nested type
+      fields[key] = buildNestedField(
+        fhirSchema,
+        path,
+        element,
+        manager,
+        packageInfo,
+      );
+    } else {
+      // Regular field
+      fields[key] = await buildField(
+        fhirSchema,
+        path,
+        element,
+        manager,
+        packageInfo,
+      );
+    }
+  }
 
-	return fields;
+  return fields;
 }
 
 /**
  * Build TypeSchema for all nested types in a FHIRSchema
  */
 export async function buildNestedTypes(
-	fhirSchema: FHIRSchema,
-	manager: ReturnType<typeof CanonicalManager>,
-	packageInfo?: PackageInfo,
+  fhirSchema: FHIRSchema,
+  manager: ReturnType<typeof CanonicalManager>,
+  packageInfo?: PackageInfo,
 ): Promise<any[]> {
-	if (!fhirSchema.elements) return [];
+  if (!fhirSchema.elements) return [];
 
-	const nestedTypes: any[] = [];
-	const nestedElements = collectNestedElements(
-		fhirSchema,
-		[],
-		fhirSchema.elements,
-	);
+  const nestedTypes: any[] = [];
+  const nestedElements = collectNestedElements(
+    fhirSchema,
+    [],
+    fhirSchema.elements,
+  );
 
-	// Filter to only include elements that have sub-elements (actual nested types)
-	const actualNested = nestedElements.filter(
-		([_, element]) =>
-			element.elements && Object.keys(element.elements).length > 0,
-	);
+  // Filter to only include elements that have sub-elements (actual nested types)
+  const actualNested = nestedElements.filter(
+    ([_, element]) =>
+      element.elements && Object.keys(element.elements).length > 0,
+  );
 
-	for (const [path, element] of actualNested) {
-		const identifier = buildNestedIdentifier(fhirSchema, path, packageInfo);
+  for (const [path, element] of actualNested) {
+    const identifier = buildNestedIdentifier(fhirSchema, path, packageInfo);
 
-		// Base is usually BackboneElement - ensure all nested types have a base
-		// biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
-		let base;
-		if (element.type === "BackboneElement" || !element.type) {
-			// For BackboneElement or undefined type, always use BackboneElement as base
-			base = {
-				kind: "complex-type" as const,
-				package: packageInfo?.name || "hl7.fhir.r4.core",
-				version: packageInfo?.version || "4.0.1",
-				name: "BackboneElement",
-				url: "http://hl7.org/fhir/StructureDefinition/BackboneElement",
-			};
-		} else {
-			// Use the specified type as base
-			base = {
-				kind: "complex-type" as const,
-				package: packageInfo?.name || "hl7.fhir.r4.core",
-				version: packageInfo?.version || "4.0.1",
-				name: element.type,
-				url: `http://hl7.org/fhir/StructureDefinition/${element.type}`,
-			};
-		}
+    // Base is usually BackboneElement - ensure all nested types have a base
+    // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
+    let base;
+    if (element.type === "BackboneElement" || !element.type) {
+      // For BackboneElement or undefined type, always use BackboneElement as base
+      base = {
+        kind: "complex-type" as const,
+        package: packageInfo?.name || "hl7.fhir.r4.core",
+        version: packageInfo?.version || "4.0.1",
+        name: "BackboneElement",
+        url: "http://hl7.org/fhir/StructureDefinition/BackboneElement",
+      };
+    } else {
+      // Use the specified type as base
+      base = {
+        kind: "complex-type" as const,
+        package: packageInfo?.name || "hl7.fhir.r4.core",
+        version: packageInfo?.version || "4.0.1",
+        name: element.type,
+        url: `http://hl7.org/fhir/StructureDefinition/${element.type}`,
+      };
+    }
 
-		// Transform sub-elements into fields
-		const fields = await transformNestedElements(
-			fhirSchema,
-			path,
-			element.elements!,
-			manager,
-			packageInfo,
-		);
+    // Transform sub-elements into fields
+    const fields = await transformNestedElements(
+      fhirSchema,
+      path,
+      element.elements!,
+      manager,
+      packageInfo,
+    );
 
-		const nestedType: TypeSchemaNestedType = {
-			identifier,
-			base, // Always include base
-			fields,
-		};
+    const nestedType: TypeSchemaNestedType = {
+      identifier,
+      base, // Always include base
+      fields,
+    };
 
-		nestedTypes.push(nestedType);
-	}
+    nestedTypes.push(nestedType);
+  }
 
-	// Sort by URL for consistent output
-	nestedTypes.sort((a, b) => a.identifier.url.localeCompare(b.identifier.url));
+  // Sort by URL for consistent output
+  nestedTypes.sort((a, b) => a.identifier.url.localeCompare(b.identifier.url));
 
-	return nestedTypes;
+  return nestedTypes;
 }
 
 /**
  * Extract dependencies from nested types
  */
 export function extractNestedDependencies(
-	nestedTypes: TypeSchemaNestedType[],
+  nestedTypes: TypeSchemaNestedType[],
 ): TypeSchemaIdentifier[] {
-	const deps: TypeSchemaIdentifier[] = [];
+  const deps: TypeSchemaIdentifier[] = [];
 
-	for (const nested of nestedTypes) {
-		// Add the nested type itself as a dependency
-		deps.push(nested.identifier);
+  for (const nested of nestedTypes) {
+    // Add the nested type itself as a dependency
+    deps.push(nested.identifier);
 
-		// Add base dependency
-		if (nested.base) {
-			deps.push(nested.base);
-		}
+    // Add base dependency
+    if (nested.base) {
+      deps.push(nested.base);
+    }
 
-		// Add field type dependencies
-		for (const field of Object.values(nested.fields)) {
-			if ("type" in field && field.type) {
-				deps.push(field.type);
-			}
-			if ("binding" in field && field.binding) {
-				deps.push(field.binding);
-			}
-		}
-	}
+    // Add field type dependencies
+    for (const field of Object.values(nested.fields)) {
+      if ("type" in field && field.type) {
+        deps.push(field.type);
+      }
+      if ("binding" in field && field.binding) {
+        deps.push(field.binding);
+      }
+    }
+  }
 
-	return deps;
+  return deps;
 }

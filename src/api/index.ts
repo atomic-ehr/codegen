@@ -9,30 +9,30 @@
 
 // Re-export core utilities
 export {
-	TypeSchemaCache,
-	TypeSchemaGenerator,
-	TypeSchemaParser,
+  TypeSchemaCache,
+  TypeSchemaGenerator,
+  TypeSchemaParser,
 } from "../typeschema/index.js";
 // Re-export core TypeSchema types for convenience
 export type {
-	TypeSchema,
-	TypeSchemaField,
-	TypeSchemaIdentifier,
+  TypeSchema,
+  TypeSchemaField,
+  TypeSchemaIdentifier,
 } from "../typeschema/type-schema.types.js";
 export type { PackageInfo } from "../typeschema/types.js";
 // Export types and interfaces
 export type {
-	APIBuilderOptions,
-	GenerationResult,
-	ProgressCallback,
+  APIBuilderOptions,
+  GenerationResult,
+  ProgressCallback,
 } from "./builder.js";
 // Export main API builder and utilities
 export {
-	APIBuilder,
-	createAPI,
-	createAPIFromConfig,
-	generateTypesFromFiles,
-	generateTypesFromPackage,
+  APIBuilder,
+  createAPI,
+  createAPIFromConfig,
+  generateTypesFromFiles,
+  generateTypesFromPackage,
 } from "./builder.js";
 export type { GeneratedFile } from "./generators/base/index.js";
 export type { TypeScriptGeneratorOptions } from "./generators/typescript.js";

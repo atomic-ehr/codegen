@@ -19,20 +19,17 @@ export { TypeMapper } from "./TypeMapper.js";
 export type { TypeScriptTypeMapperOptions } from "./TypeScriptTypeMapper.js";
 export { TypeScriptTypeMapper } from "./TypeScriptTypeMapper.js";
 export type {
-	ConfigValidationResult,
-	GeneratorCapabilities,
-	LanguageType,
-	TemplateContext,
+  ConfigValidationResult,
+  GeneratorCapabilities,
+  LanguageType,
+  TemplateContext,
 } from "./types.js";
 
 // ==========================================
 // Configuration and Options
 // ==========================================
 
-export type {
-	BaseGeneratorOptions,
-	FileBuilderOptions,
-} from "./types.js";
+export type { BaseGeneratorOptions, FileBuilderOptions } from "./types.js";
 
 // ==========================================
 // File Management System
@@ -55,14 +52,14 @@ export { FileManager } from "./FileManager.js";
 
 // All error classes for comprehensive error handling
 export {
-	BatchOperationError,
-	ConfigurationError,
-	createErrorWithContext,
-	FileOperationError,
-	GeneratorError,
-	SchemaValidationError,
-	TemplateError,
-	TypeMappingError,
+  BatchOperationError,
+  ConfigurationError,
+  createErrorWithContext,
+  FileOperationError,
+  GeneratorError,
+  SchemaValidationError,
+  TemplateError,
+  TypeMappingError,
 } from "./errors.js";
 
 // ==========================================
@@ -74,14 +71,14 @@ export {
 // Lifecycle hooks for customization
 // Batch operations
 export type {
-	AfterSaveHook,
-	BatchResult,
-	BeforeSaveHook,
-	ErrorHook,
-	FileContext,
-	FileStats,
-	GeneratedFile,
-	ProgressCallback,
+  AfterSaveHook,
+  BatchResult,
+  BeforeSaveHook,
+  ErrorHook,
+  FileContext,
+  FileStats,
+  GeneratedFile,
+  ProgressCallback,
 } from "./types.js";
 
 // ==========================================
@@ -90,8 +87,8 @@ export type {
 
 // TypeSchema types (commonly needed by generator implementations)
 export type {
-	TypeSchema,
-	TypeSchemaIdentifier,
+  TypeSchema,
+  TypeSchemaIdentifier,
 } from "../../../typeschema/index.js";
 
 // Logger interface
@@ -113,7 +110,7 @@ export type { CodegenLogger } from "../../../utils/codegen-logger.js";
  * ```
  */
 export type GeneratorOptions<TExtensions = {}> =
-	import("./types").BaseGeneratorOptions & TExtensions;
+  import("./types").BaseGeneratorOptions & TExtensions;
 
 /**
  * Helper type for generator result arrays
@@ -125,36 +122,36 @@ export type GeneratorResult = import("./types").GeneratedFile[];
  * Helper type for async generator functions
  */
 export type AsyncGenerator<
-	TOptions extends import("./types").BaseGeneratorOptions,
-	TResult extends import("./types").GeneratedFile[],
+  TOptions extends import("./types").BaseGeneratorOptions,
+  TResult extends import("./types").GeneratedFile[],
 > = (options: TOptions) => Promise<TResult>;
 
 /**
  * Type guard to check if an object is a GeneratedFile
  */
 export function isGeneratedFile(
-	obj: unknown,
+  obj: unknown,
 ): obj is import("./types").GeneratedFile {
-	return (
-		typeof obj === "object" &&
-		obj !== null &&
-		"path" in obj &&
-		"filename" in obj &&
-		"content" in obj &&
-		"exports" in obj &&
-		"size" in obj &&
-		"timestamp" in obj
-	);
+  return (
+    typeof obj === "object" &&
+    obj !== null &&
+    "path" in obj &&
+    "filename" in obj &&
+    "content" in obj &&
+    "exports" in obj &&
+    "size" in obj &&
+    "timestamp" in obj
+  );
 }
 
 /**
  * Type guard to check if an error is a GeneratorError
  */
 export function isGeneratorError(
-	error: unknown,
+  error: unknown,
 ): error is import("./errors").GeneratorError {
-	const { GeneratorError } = require("./errors");
-	return error instanceof GeneratorError;
+  const { GeneratorError } = require("./errors");
+  return error instanceof GeneratorError;
 }
 
 // ==========================================
@@ -182,11 +179,11 @@ export const SUPPORTED_TYPESCHEMA_VERSION = "1.0.0";
  * @param verbose - Enable verbose logging
  */
 export function createDevLogger(
-	prefix: string = "Dev",
-	verbose: boolean = true,
+  prefix: string = "Dev",
+  verbose: boolean = true,
 ) {
-	const { createLogger } = require("../../../utils/codegen-logger");
-	return createLogger({ prefix, verbose });
+  const { createLogger } = require("../../../utils/codegen-logger");
+  return createLogger({ prefix, verbose });
 }
 
 /**
@@ -195,59 +192,59 @@ export function createDevLogger(
  * @returns Validation result with errors and suggestions
  */
 export function validateGeneratorOptions(
-	options: import("./types").BaseGeneratorOptions,
+  options: import("./types").BaseGeneratorOptions,
 ): import("./types").ConfigValidationResult {
-	const errors: string[] = [];
-	const warnings: string[] = [];
-	const suggestions: string[] = [];
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  const suggestions: string[] = [];
 
-	// Required field validation
-	if (!options.outputDir) {
-		errors.push("outputDir is required");
-		suggestions.push("Provide a valid output directory path");
-	}
+  // Required field validation
+  if (!options.outputDir) {
+    errors.push("outputDir is required");
+    suggestions.push("Provide a valid output directory path");
+  }
 
-	// Type validation
-	if (options.outputDir && typeof options.outputDir !== "string") {
-		errors.push("outputDir must be a string");
-	}
+  // Type validation
+  if (options.outputDir && typeof options.outputDir !== "string") {
+    errors.push("outputDir must be a string");
+  }
 
-	if (
-		options.overwrite !== undefined &&
-		typeof options.overwrite !== "boolean"
-	) {
-		errors.push("overwrite must be a boolean");
-	}
+  if (
+    options.overwrite !== undefined &&
+    typeof options.overwrite !== "boolean"
+  ) {
+    errors.push("overwrite must be a boolean");
+  }
 
-	if (options.validate !== undefined && typeof options.validate !== "boolean") {
-		errors.push("validate must be a boolean");
-	}
+  if (options.validate !== undefined && typeof options.validate !== "boolean") {
+    errors.push("validate must be a boolean");
+  }
 
-	// Path validation (only if outputDir is a valid string)
-	if (options.outputDir && typeof options.outputDir === "string") {
-		const path = require("node:path");
-		if (!path.isAbsolute(options.outputDir)) {
-			warnings.push(
-				"Using relative path for outputDir - consider using absolute path",
-			);
-			suggestions.push("Use path.resolve() to convert to absolute path");
-		}
-	}
+  // Path validation (only if outputDir is a valid string)
+  if (options.outputDir && typeof options.outputDir === "string") {
+    const path = require("node:path");
+    if (!path.isAbsolute(options.outputDir)) {
+      warnings.push(
+        "Using relative path for outputDir - consider using absolute path",
+      );
+      suggestions.push("Use path.resolve() to convert to absolute path");
+    }
+  }
 
-	// Performance warnings
-	if (options.validate === false) {
-		warnings.push(
-			"Validation is disabled - this may lead to invalid generated code",
-		);
-		suggestions.push("Consider enabling validation for better code quality");
-	}
+  // Performance warnings
+  if (options.validate === false) {
+    warnings.push(
+      "Validation is disabled - this may lead to invalid generated code",
+    );
+    suggestions.push("Consider enabling validation for better code quality");
+  }
 
-	return {
-		isValid: errors.length === 0,
-		errors,
-		warnings,
-		suggestions,
-	};
+  return {
+    isValid: errors.length === 0,
+    errors,
+    warnings,
+    suggestions,
+  };
 }
 
 // ==========================================
@@ -258,14 +255,14 @@ export function validateGeneratorOptions(
  * Default generator options
  */
 export const DEFAULT_GENERATOR_OPTIONS: Partial<
-	import("./types").BaseGeneratorOptions
+  import("./types").BaseGeneratorOptions
 > = {
-	outputDir: "./generated",
-	overwrite: true,
-	validate: true,
-	verbose: false,
-	beginnerMode: false,
-	errorFormat: "console",
+  outputDir: "./generated",
+  overwrite: true,
+  validate: true,
+  verbose: false,
+  beginnerMode: false,
+  errorFormat: "console",
 };
 
 /**
@@ -277,17 +274,17 @@ export const MAX_BATCH_SIZE = 50;
  * Default file builder options
  */
 export const DEFAULT_FILE_BUILDER_OPTIONS: Partial<
-	import("./types").FileBuilderOptions
+  import("./types").FileBuilderOptions
 > = {
-	importStrategy: "auto",
-	validation: "strict",
-	prettify: true,
-	formatting: {
-		indentSize: 2,
-		useTabs: false,
-		maxLineLength: 100,
-	},
-	encoding: "utf-8",
+  importStrategy: "auto",
+  validation: "strict",
+  prettify: true,
+  formatting: {
+    indentSize: 2,
+    useTabs: false,
+    maxLineLength: 100,
+  },
+  encoding: "utf-8",
 };
 
 // ==========================================
