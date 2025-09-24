@@ -11,7 +11,6 @@
  */
 
 // Re-export core dependencies
-export type { FHIRSchema } from "@atomic-ehr/fhirschema";
 export { TypeSchemaCache } from "./cache.js";
 export { TypeSchemaGenerator } from "./generator.js";
 export { TypeSchemaParser } from "./parser.js";
