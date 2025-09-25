@@ -1,7 +1,14 @@
 import { describe, expect, it, beforeEach } from "bun:test";
 import { transformFHIRSchema } from "../../../src/typeschema/core/transformer";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
-import type { TypeSchema, PackageInfo } from "../../../src/typeschema/types";
+import type {
+  TypeSchema,
+  PackageInfo,
+  RichFHIRSchema,
+} from "../../../src/typeschema/types";
+import { enrichFHIRSchema } from "../../../src/typeschema/types";
+
+type FS = Partial<FHIRSchema>;
 
 describe("TypeSchema Transformer Core Logic", () => {
   const mockManager = {
@@ -15,9 +22,17 @@ describe("TypeSchema Transformer Core Logic", () => {
     version: "1.0.0",
   };
 
+  const fs2ts = async (fs: FS) => {
+    if (!fs.package_meta) fs.package_meta = basePackageInfo;
+    return await transformFHIRSchema(
+      mockManager as any,
+      enrichFHIRSchema(fs as FHIRSchema),
+    );
+  };
+
   describe("transformFHIRSchema", () => {
     it("should transform a basic resource schema", async () => {
-      const fhirSchema: FHIRSchema = {
+      const fhirSchema: FS = {
         name: "TestResource",
         type: "TestResource",
         kind: "resource",
@@ -30,11 +45,7 @@ describe("TypeSchema Transformer Core Logic", () => {
         class: "",
       };
 
-      const result = await transformFHIRSchema(
-        mockManager as any,
-        fhirSchema,
-        basePackageInfo,
-      );
+      const result = await fs2ts(fhirSchema);
 
       expect(result).toHaveLength(1);
       expect(result[0]?.identifier.name).toBe("TestResource");
@@ -42,7 +53,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle schema with base type", async () => {
-      const fhirSchema: FHIRSchema = {
+      const fhirSchema: FS = {
         name: "CustomPatient",
         type: "Patient",
         kind: "resource",
@@ -52,11 +63,7 @@ describe("TypeSchema Transformer Core Logic", () => {
         class: "",
       };
 
-      const result = await transformFHIRSchema(
-        mockManager as any,
-        fhirSchema,
-        basePackageInfo,
-      );
+      const result = await fs2ts(fhirSchema);
 
       expect(result).toHaveLength(1);
       expect(result[0]?.base).toBeDefined();
@@ -64,7 +71,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should transform primitive type schema", async () => {
-      const fhirSchema: FHIRSchema = {
+      const fhirSchema: FS = {
         name: "string",
         type: "string",
         kind: "primitive-type",
@@ -72,14 +79,14 @@ describe("TypeSchema Transformer Core Logic", () => {
         class: "",
       };
 
-      const result = await transformFHIRSchema(mockManager as any, fhirSchema);
+      const result = await fs2ts(fhirSchema);
 
       expect(result).toHaveLength(1);
       expect(result[0]?.identifier.kind).toBe("primitive-type");
     });
 
     it("should transform complex type schema", async () => {
-      const fhirSchema: FHIRSchema = {
+      const fhirSchema: FS = {
         name: "Address",
         type: "Address",
         kind: "complex-type",
@@ -93,7 +100,7 @@ describe("TypeSchema Transformer Core Logic", () => {
         },
       };
 
-      const result = await transformFHIRSchema(mockManager as any, fhirSchema);
+      const result = await fs2ts(fhirSchema);
 
       expect(result).toHaveLength(1);
       expect(result[0]?.identifier.kind).toBe("complex-type");
@@ -101,7 +108,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle extension schemas", async () => {
-      const fhirSchema: FHIRSchema = {
+      const fhirSchema: FS = {
         name: "PatientExtension",
         type: "Extension",
         kind: "complex-type",
@@ -116,11 +123,7 @@ describe("TypeSchema Transformer Core Logic", () => {
         },
       };
 
-      const result = await transformFHIRSchema(
-        mockManager as any,
-        fhirSchema,
-        basePackageInfo,
-      );
+      const result = await fs2ts(fhirSchema);
 
       expect(result).toHaveLength(1);
       expect(result[0]?.metadata?.isExtension).toBe(true);
@@ -128,7 +131,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should transform value set schema", async () => {
-      const fhirSchema: FHIRSchema = {
+      const fhirSchema: FS = {
         name: "TestValueSet",
         type: "ValueSet",
         kind: "value-set",
@@ -140,11 +143,7 @@ describe("TypeSchema Transformer Core Logic", () => {
         },
       };
 
-      const result = await transformFHIRSchema(
-        mockManager as any,
-        fhirSchema,
-        basePackageInfo,
-      );
+      const result = await fs2ts(fhirSchema);
 
       expect(result).toHaveLength(1);
       expect(result[0]?.identifier.kind).toBe("value-set");
@@ -152,7 +151,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle nested elements", async () => {
-      const fhirSchema: FHIRSchema = {
+      const fhirSchema: FS = {
         name: "ComplexResource",
         type: "ComplexResource",
         kind: "resource",
@@ -168,18 +167,14 @@ describe("TypeSchema Transformer Core Logic", () => {
         class: "",
       };
 
-      const result = await transformFHIRSchema(
-        mockManager as any,
-        fhirSchema,
-        basePackageInfo,
-      );
+      const result = await fs2ts(fhirSchema);
 
       expect(result).toHaveLength(1);
       expect(result[0].fields?.contact).toBeDefined();
     });
 
     it("should extract and deduplicate dependencies", async () => {
-      const fhirSchema: FHIRSchema = {
+      const fhirSchema: FS = {
         name: "ResourceWithDeps",
         type: "ResourceWithDeps",
         kind: "resource",
@@ -191,11 +186,7 @@ describe("TypeSchema Transformer Core Logic", () => {
         },
       };
 
-      const result = await transformFHIRSchema(
-        mockManager as any,
-        fhirSchema,
-        basePackageInfo,
-      );
+      const result = await fs2ts(fhirSchema);
 
       expect(result).toHaveLength(1);
       expect(result[0].dependencies).toBeDefined();
@@ -206,7 +197,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle profile schemas", async () => {
-      const fhirSchema: FHIRSchema = {
+      const fhirSchema: FS = {
         name: "USCorePatient",
         type: "Patient",
         kind: "resource",
@@ -216,18 +207,14 @@ describe("TypeSchema Transformer Core Logic", () => {
         elements: {},
       };
 
-      const result = await transformFHIRSchema(
-        mockManager as any,
-        fhirSchema,
-        basePackageInfo,
-      );
+      const result = await fs2ts(fhirSchema);
 
       expect(result).toHaveLength(1);
       expect(result[0].identifier.kind).toBe("profile");
     });
 
     it("should handle array fields correctly", async () => {
-      const fhirSchema: FHIRSchema = {
+      const fhirSchema: FS = {
         name: "ArrayResource",
         type: "ArrayResource",
         kind: "resource",
@@ -238,11 +225,7 @@ describe("TypeSchema Transformer Core Logic", () => {
         },
       };
 
-      const result = await transformFHIRSchema(
-        mockManager as any,
-        fhirSchema,
-        basePackageInfo,
-      );
+      const result = await fs2ts(fhirSchema);
 
       expect(result).toHaveLength(1);
       expect(result[0].fields?.names?.array).toBe(true);
@@ -250,7 +233,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle required fields", async () => {
-      const fhirSchema: FHIRSchema = {
+      const fhirSchema: FS = {
         name: "RequiredFieldsResource",
         type: "RequiredFieldsResource",
         kind: "resource",
@@ -262,11 +245,7 @@ describe("TypeSchema Transformer Core Logic", () => {
         },
       };
 
-      const result = await transformFHIRSchema(
-        mockManager as any,
-        fhirSchema,
-        basePackageInfo,
-      );
+      const result = await fs2ts(fhirSchema);
 
       expect(result).toHaveLength(1);
       expect(result[0].fields?.mandatoryField?.required).toBe(true);
@@ -274,7 +253,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle polymorphic fields", async () => {
-      const fhirSchema: FHIRSchema = {
+      const fhirSchema: FS = {
         name: "PolymorphicResource",
         type: "PolymorphicResource",
         kind: "resource",
@@ -286,18 +265,14 @@ describe("TypeSchema Transformer Core Logic", () => {
         },
       };
 
-      const result = await transformFHIRSchema(
-        mockManager as any,
-        fhirSchema,
-        basePackageInfo,
-      );
+      const result = await fs2ts(fhirSchema);
 
       expect(result).toHaveLength(1);
       expect(result[0].fields?.value).toBeDefined();
     });
 
     it("should handle binding to value sets", async () => {
-      const fhirSchema: FHIRSchema = {
+      const fhirSchema: FS = {
         name: "BoundResource",
         type: "BoundResource",
         kind: "resource",
@@ -313,18 +288,14 @@ describe("TypeSchema Transformer Core Logic", () => {
         },
       };
 
-      const result = await transformFHIRSchema(
-        mockManager as any,
-        fhirSchema,
-        basePackageInfo,
-      );
+      const result = await fs2ts(fhirSchema);
 
       expect(result.length).toBeGreaterThanOrEqual(1);
       expect(result[0].fields?.status).toBeDefined();
     });
 
     it("should filter self-references from dependencies", async () => {
-      const fhirSchema: FHIRSchema = {
+      const fhirSchema: FS = {
         name: "SelfReferencingResource",
         type: "SelfReferencingResource",
         kind: "resource",
@@ -337,11 +308,7 @@ describe("TypeSchema Transformer Core Logic", () => {
         },
       };
 
-      const result = await transformFHIRSchema(
-        mockManager as any,
-        fhirSchema,
-        basePackageInfo,
-      );
+      const result = await fs2ts(fhirSchema);
 
       expect(result).toHaveLength(1);
       const deps = result[0].dependencies || [];
@@ -350,18 +317,14 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle schemas without elements", async () => {
-      const fhirSchema: FHIRSchema = {
+      const fhirSchema: FS = {
         name: "EmptyResource",
         type: "EmptyResource",
         kind: "resource",
         url: "http://example.org/EmptyResource",
       };
 
-      const result = await transformFHIRSchema(
-        mockManager as any,
-        fhirSchema,
-        basePackageInfo,
-      );
+      const result = await fs2ts(fhirSchema);
 
       expect(result).toHaveLength(1);
       expect(result[0].identifier.name).toBe("EmptyResource");
@@ -374,18 +337,15 @@ describe("TypeSchema Transformer Core Logic", () => {
         version: "2.0.0",
       };
 
-      const fhirSchema: FHIRSchema = {
+      const fhirSchema: FS = {
         name: "PackagedResource",
         type: "PackagedResource",
         kind: "resource",
         url: "http://example.org/PackagedResource",
+        package_meta: customPackageInfo,
       };
 
-      const result = await transformFHIRSchema(
-        mockManager as any,
-        fhirSchema,
-        customPackageInfo,
-      );
+      const result = await fs2ts(fhirSchema);
 
       expect(result).toHaveLength(1);
       expect(result[0].identifier.package).toBe("custom.package");
@@ -393,7 +353,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle fixed values in elements", async () => {
-      const fhirSchema: FHIRSchema = {
+      const fhirSchema: FS = {
         name: "FixedValueResource",
         type: "FixedValueResource",
         kind: "resource",
@@ -404,11 +364,7 @@ describe("TypeSchema Transformer Core Logic", () => {
         },
       };
 
-      const result = await transformFHIRSchema(
-        mockManager as any,
-        fhirSchema,
-        basePackageInfo,
-      );
+      const result = await fs2ts(fhirSchema);
 
       expect(result).toHaveLength(1);
       expect(result[0].fields?.type).toBeDefined();
@@ -416,7 +372,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle schemas with enum values", async () => {
-      const fhirSchema: FHIRSchema = {
+      const fhirSchema: FS = {
         name: "EnumResource",
         type: "EnumResource",
         kind: "resource",
@@ -432,11 +388,7 @@ describe("TypeSchema Transformer Core Logic", () => {
         },
       };
 
-      const result = await transformFHIRSchema(
-        mockManager as any,
-        fhirSchema,
-        basePackageInfo,
-      );
+      const result = await fs2ts(fhirSchema);
 
       // Binding schemas are also generated
       expect(result.length).toBeGreaterThanOrEqual(1);
@@ -446,7 +398,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle extension schemas with url pattern matching", async () => {
-      const fhirSchema: FHIRSchema = {
+      const fhirSchema: FS = {
         name: "CustomType",
         type: "CustomType",
         kind: "complex-type",
@@ -454,18 +406,14 @@ describe("TypeSchema Transformer Core Logic", () => {
         elements: {},
       };
 
-      const result = await transformFHIRSchema(
-        mockManager as any,
-        fhirSchema,
-        basePackageInfo,
-      );
+      const result = await fs2ts(fhirSchema);
 
       expect(result).toHaveLength(1);
       expect(result[0].metadata?.isExtension).toBe(true);
     });
 
     it("should handle complex nested structures", async () => {
-      const fhirSchema: FHIRSchema = {
+      const fhirSchema: FS = {
         name: "DeeplyNestedResource",
         type: "DeeplyNestedResource",
         kind: "resource",
@@ -483,11 +431,7 @@ describe("TypeSchema Transformer Core Logic", () => {
         },
       };
 
-      const result = await transformFHIRSchema(
-        mockManager as any,
-        fhirSchema,
-        basePackageInfo,
-      );
+      const result = await fs2ts(fhirSchema);
 
       expect(result).toHaveLength(1);
       expect(result[0].fields?.level1).toBeDefined();

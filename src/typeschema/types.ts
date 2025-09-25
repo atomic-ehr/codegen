@@ -3,10 +3,27 @@
  * FHIR Schema designed to simplify SDK resource classes/types generation.
  */
 
+import type * as FS from "@atomic-ehr/fhirschema";
+
 export interface PackageInfo {
   name: string;
   version: string;
 }
+
+export type RichFHIRSchema = Omit<FS.FHIRSchema, "package_meta"> & {
+  package_meta: PackageInfo;
+};
+
+export const enrichFHIRSchema = (schema: FS.FHIRSchema): RichFHIRSchema => {
+  return {
+    ...schema,
+    package_meta: {
+      name: schema.package_name || schema.package_meta.name || "undefined",
+      version:
+        schema.package_version || schema.package_meta.version || "undefined",
+    },
+  };
+};
 
 type IdentifierBase = {
   name: string;

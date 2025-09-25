@@ -11,14 +11,19 @@ import {
   type StructureDefinition,
 } from "@atomic-ehr/fhirschema";
 import * as fhirschema from "@atomic-ehr/fhirschema";
-import type { TypeSchemaConfig } from "../config.js";
-import type { CodegenLogger } from "../utils/codegen-logger.js";
-import { createLogger } from "../utils/codegen-logger.js";
-import { TypeSchemaCache } from "./cache.js";
-import { transformFHIRSchema } from "./core/transformer.js";
-import type { TypeSchema } from "@typeschema/types";
-import type { PackageInfo, TypeschemaGeneratorOptions } from "./types.js";
-import { transformValueSet } from "./value-set/processor.js";
+import type { TypeSchemaConfig } from "@root/config";
+import type { CodegenLogger } from "@root/utils/codegen-logger";
+import { createLogger } from "@root/utils/codegen-logger";
+import { TypeSchemaCache } from "./cache";
+import { transformFHIRSchema } from "./core/transformer";
+import type {
+  PackageInfo,
+  RichFHIRSchema,
+  TypeSchema,
+  TypeschemaGeneratorOptions,
+} from "./types";
+import { enrichFHIRSchema } from "./types";
+import { transformValueSet } from "./value-set/processor";
 
 /**
  * TypeSchema Generator class
@@ -199,16 +204,14 @@ export class TypeSchemaGenerator {
       packageVersion,
     );
 
-    const fhirSchemas = this.generateFhirSchemas(structureDefinitions);
+    const fhirSchemas =
+      this.generateFhirSchemas(structureDefinitions).map(enrichFHIRSchema);
 
     const valueSetSchemas = await this.generateValueSetSchemas(
       valueSets,
       packageInfo,
     );
-    const schemas = await this.generateResourceTypeSchemas(
-      fhirSchemas,
-      packageInfo,
-    );
+    const schemas = await this.generateResourceTypeSchemas(fhirSchemas);
 
     const allSchemas = [...schemas, ...valueSetSchemas];
     if (this.cache) {
@@ -221,8 +224,7 @@ export class TypeSchemaGenerator {
   }
 
   async generateResourceTypeSchemas(
-    fhirSchemas: FHIRSchema[],
-    packageInfo: PackageInfo,
+    fhirSchemas: RichFHIRSchema[],
   ): Promise<TypeSchema[]> {
     this.logger.info(
       `Transforming ${fhirSchemas.length} FHIR schemas to Type Schema`,
@@ -231,7 +233,7 @@ export class TypeSchemaGenerator {
     const typeSchemas: TypeSchema[] = [];
     for (const fhirSchema of fhirSchemas) {
       typeSchemas.push(
-        ...(await transformFHIRSchema(this.manager, fhirSchema, packageInfo)),
+        ...(await transformFHIRSchema(this.manager, fhirSchema)),
       );
     }
     return typeSchemas;

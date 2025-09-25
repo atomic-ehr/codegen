@@ -25,12 +25,12 @@ import type {
  * Profiles are treated as specialized resources that extend base resources
  */
 export async function transformProfile(
-  fhirSchema: FHIRSchema,
+  fhirSchema: RichFHIRSchema,
   manager: ReturnType<typeof CanonicalManager>,
-  packageInfo?: PackageInfo,
 ): Promise<TypeSchemaForProfile> {
   // Build profile identifier
-  const identifier = buildSchemaIdentifier(fhirSchema, packageInfo);
+  const identifier = buildSchemaIdentifier(fhirSchema);
+  const packageInfo = fhirSchema.package_meta;
 
   // Ensure this is recognized as a profile
   if (identifier.kind !== "profile") {
@@ -56,10 +56,10 @@ export async function transformProfile(
       kind: baseKind,
       package: isStandardFhir
         ? "hl7.fhir.r4.core"
-        : packageInfo?.name || fhirSchema.package_name || "undefined",
+        : fhirSchema.package_meta.name || "undefined",
       version: isStandardFhir
         ? "4.0.1"
-        : packageInfo?.version || fhirSchema.package_version || "undefined",
+        : fhirSchema.package_meta.version || "undefined",
       name: baseName,
       url: baseUrl,
     };
@@ -78,7 +78,7 @@ export async function transformProfile(
   }
 
   // Add profile-specific metadata
-  const metadata = extractProfileMetadata(fhirSchema, packageInfo);
+  const metadata = extractProfileMetadata(fhirSchema);
   if (Object.keys(metadata).length > 0) {
     profileSchema.metadata = metadata;
   }
@@ -161,11 +161,9 @@ async function determineBaseKind(
 /**
  * Extract profile metadata from FHIR schema
  */
-function extractProfileMetadata(
-  fhirSchema: FHIRSchema,
-  packageInfo?: PackageInfo,
-): ProfileMetadata {
+function extractProfileMetadata(fhirSchema: FHIRSchema): ProfileMetadata {
   const metadata: ProfileMetadata = {};
+  const packageInfo = fhirSchema.package_meta;
 
   // Add profile-specific metadata
   // @ts-ignore
@@ -191,9 +189,9 @@ function extractProfileMetadata(
   if (packageInfo?.name) {
     metadata.package = packageInfo.name;
     // @ts-ignore
-  } else if (fhirSchema.package_name) {
+  } else if (fhirSchema.package_meta.name) {
     // @ts-ignore
-    metadata.package = fhirSchema.package_name;
+    metadata.package = fhirSchema.package_meta.name;
   }
 
   return metadata;

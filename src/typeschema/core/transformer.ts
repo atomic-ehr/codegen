@@ -13,6 +13,7 @@ import type {
   TypeSchema,
   TypeSchemaField,
   TypeSchemaForValueSet,
+  RichFHIRSchema,
   Identifier,
 } from "@typeschema/types";
 import type { PackageInfo } from "../types.js";
@@ -157,7 +158,7 @@ async function transformValueSet(
   packageInfo?: PackageInfo,
 ): Promise<TypeSchemaForValueSet | null> {
   try {
-    const identifier = buildSchemaIdentifier(fhirSchema, packageInfo);
+    const identifier = buildSchemaIdentifier(fhirSchema);
     identifier.kind = "value-set"; // Ensure correct kind
 
     const valueSetSchema: TypeSchemaForValueSet = {
@@ -207,7 +208,7 @@ async function transformExtension(
   packageInfo?: PackageInfo,
 ): Promise<any | null> {
   try {
-    const identifier = buildSchemaIdentifier(fhirSchema, packageInfo);
+    const identifier = buildSchemaIdentifier(fhirSchema);
 
     // Build base identifier if present
     let base: Identifier | undefined;
@@ -219,8 +220,8 @@ async function transformExtension(
 
       base = {
         kind: "complex-type",
-        package: packageInfo?.name || "hl7.fhir.r4.core",
-        version: packageInfo?.version || "4.0.1",
+        package: "hl7.fhir.r4.core",
+        version: "4.0.1",
         name: baseName,
         url: baseUrl,
       };
@@ -296,41 +297,23 @@ async function transformExtension(
   }
 }
 
-function ensurePackageInfo(
-  fhirSchema: FHIRSchema,
-  packageInfo?: PackageInfo,
-): PackageInfo {
-  if (!packageInfo && (fhirSchema.package_name || fhirSchema.package_id)) {
-    return {
-      name: fhirSchema.package_name || fhirSchema.package_id || "undefined",
-      version: fhirSchema.package_version || "undefined",
-    };
-  }
-
-  return packageInfo;
-}
-
 /**
  * Transform a single FHIRSchema to TypeSchema(s) with enhanced categorization
  * Returns the main schema plus any binding schemas
  */
 export async function transformFHIRSchema(
   manager: ReturnType<typeof CanonicalManager>,
-  fhirSchema: FHIRSchema,
-  packageInfo?: PackageInfo,
+  fhirSchema: RichFHIRSchema,
 ): Promise<TypeSchema[]> {
-  packageInfo = ensurePackageInfo(fhirSchema, packageInfo);
-
   const results: TypeSchema[] = [];
-
-  const identifier = buildSchemaIdentifier(fhirSchema, packageInfo);
+  const identifier = buildSchemaIdentifier(fhirSchema);
 
   // Handle profiles with specialized processor
   if (identifier.kind === "profile") {
     const profileSchema = await transformProfile(
       fhirSchema,
       manager,
-      packageInfo,
+      fhirSchema.package_meta,
     );
     results.push(profileSchema);
 
@@ -338,7 +321,7 @@ export async function transformFHIRSchema(
     const bindingSchemas = await collectBindingSchemas(
       fhirSchema,
       manager,
-      packageInfo,
+      fhirSchema.package_meta,
     );
     results.push(...bindingSchemas);
 
@@ -350,7 +333,7 @@ export async function transformFHIRSchema(
     const valueSetSchema = await transformValueSet(
       fhirSchema,
       manager,
-      packageInfo,
+      fhirSchema.package_meta,
     );
     if (valueSetSchema) {
       results.push(valueSetSchema);
@@ -363,7 +346,7 @@ export async function transformFHIRSchema(
     const extensionSchema = await transformExtension(
       fhirSchema,
       manager,
-      packageInfo,
+      fhirSchema.package_meta,
     );
     if (extensionSchema) {
       results.push(extensionSchema);
@@ -423,10 +406,10 @@ export async function transformFHIRSchema(
       kind: kind as any,
       package: isStandardFhir
         ? "hl7.fhir.r4.core"
-        : packageInfo?.name || fhirSchema.package_name || "undefined",
+        : fhirSchema.package_meta.name || "undefined",
       version: isStandardFhir
         ? "4.0.1"
-        : packageInfo?.version || fhirSchema.package_version || "undefined",
+        : fhirSchema.package_meta.version || "undefined",
       name: baseName,
       url: baseUrl,
     };
@@ -459,7 +442,7 @@ export async function transformFHIRSchema(
       [],
       fhirSchema.elements,
       manager,
-      packageInfo,
+      fhirSchema.package_meta,
     );
 
     if (Object.keys(fields).length > 0) {
@@ -473,7 +456,7 @@ export async function transformFHIRSchema(
     const nestedTypes = await buildNestedTypes(
       fhirSchema,
       manager,
-      packageInfo,
+      fhirSchema.package_meta,
     );
     if (nestedTypes.length > 0) {
       mainSchema.nested = nestedTypes;
@@ -501,7 +484,7 @@ export async function transformFHIRSchema(
   const bindingSchemas = await collectBindingSchemas(
     fhirSchema,
     manager,
-    packageInfo,
+    fhirSchema.package_meta,
   );
   results.push(...bindingSchemas);
 

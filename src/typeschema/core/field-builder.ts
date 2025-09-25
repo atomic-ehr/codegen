@@ -195,7 +195,7 @@ export async function buildReferences(
       const resource = await manager.resolve(ref);
       if (resource) {
         references.push(
-          buildSchemaIdentifier(resource as unknown as FHIRSchema, packageInfo),
+          buildSchemaIdentifier(resource as unknown as FHIRSchema),
         );
       }
     } catch {}

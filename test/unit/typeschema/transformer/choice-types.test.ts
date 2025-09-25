@@ -1,7 +1,7 @@
-import { describe, expect, it, beforeEach } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import { transformFHIRSchema } from "../../../../src/typeschema/core/transformer";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
-import type { TypeSchema, PackageInfo } from "../../../../src/typeschema/types";
+import { enrichFHIRSchema } from "../../../../src/typeschema/types";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 
 type FS = Partial<FHIRSchema>;
@@ -11,9 +11,12 @@ describe("TypeSchema Transformer Core Logic", () => {
     packages: ["hl7.fhir.r4.core@4.0.1"],
     workingDir: "tmp/fhir",
   });
-  const packageInfo: PackageInfo = { name: "test.package", version: "1.0.0" };
   const fs2ts = async (fs: FS) => {
-    return await transformFHIRSchema(manager, fs as FHIRSchema, packageInfo);
+    fs.package_meta = { name: "test.package", version: "1.0.0" };
+    return await transformFHIRSchema(
+      manager,
+      enrichFHIRSchema(fs as FHIRSchema),
+    );
   };
 
   describe("Choice type translation", () => {

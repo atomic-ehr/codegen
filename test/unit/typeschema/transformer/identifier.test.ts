@@ -1,9 +1,7 @@
-import { describe, expect, it, beforeEach } from "bun:test";
-import { transformFHIRSchema } from "../../../../src/typeschema/core/transformer";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
-import type { TypeSchema, PackageInfo } from "../../../../src/typeschema/types";
-import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
+import { describe, expect, it } from "bun:test";
 import { buildSchemaIdentifier } from "../../../../src/typeschema/core/identifier";
+import type { RichFHIRSchema } from "../../../../src/typeschema/types";
 
 type FS = Partial<FHIRSchema>;
 
@@ -16,8 +14,9 @@ describe("Identifier generation", () => {
       kind: "complex-type",
       url: "http://hl7.org/fhir/StructureDefinition/valueset-systemRef",
       base: "http://hl7.org/fhir/StructureDefinition/Extension",
+      package_meta: { name: "hl7.fhir.r4.core", version: "4.0.1" },
     };
-    const id = buildSchemaIdentifier(fs as FHIRSchema);
+    const id = buildSchemaIdentifier(fs as RichFHIRSchema);
     expect(id).toMatchObject({
       kind: "complex-type-constraint",
       package: "hl7.fhir.r4.core",

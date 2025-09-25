@@ -5,7 +5,12 @@
  */
 
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
-import type { PackageInfo, TypeSchemaForValueSet, Identifier } from "../types";
+import type {
+  PackageInfo,
+  TypeSchemaForValueSet,
+  Identifier,
+  RichFHIRSchema,
+} from "../types";
 
 export function dropVersionFromUrl(
   url: string | undefined,
@@ -22,14 +27,11 @@ function determineKind(fhirSchema: FHIRSchema): Identifier["kind"] {
   return "resource";
 }
 
-export function buildSchemaIdentifier(
-  fhirSchema: FHIRSchema,
-  packageInfo?: PackageInfo,
-): Identifier {
+export function buildSchemaIdentifier(fhirSchema: RichFHIRSchema): Identifier {
   return {
     kind: determineKind(fhirSchema),
-    package: packageInfo?.name || fhirSchema.package_name || "undefined",
-    version: packageInfo?.version || fhirSchema.package_version || "undefined",
+    package: fhirSchema.package_meta.name,
+    version: fhirSchema.package_meta.version,
     name: fhirSchema.name,
     url: fhirSchema.url,
   };
@@ -43,8 +45,9 @@ export function buildNestedIdentifier(
   const nestedName = path.join(".");
   return {
     kind: "nested",
-    package: packageInfo?.name || fhirSchema.package_name || "undefined",
-    version: packageInfo?.version || fhirSchema.package_version || "undefined",
+    package: packageInfo?.name || fhirSchema.package_meta.name || "undefined",
+    version:
+      packageInfo?.version || fhirSchema.package_meta.version || "undefined",
     name: nestedName,
     url: `${fhirSchema.url}#${nestedName}`,
   };
@@ -105,8 +108,9 @@ export function buildBindingIdentifier(
 
   return {
     kind: "binding",
-    package: packageInfo?.name || fhirSchema.package_name || "undefined",
-    version: packageInfo?.version || fhirSchema.package_version || "undefined",
+    package: packageInfo?.name || fhirSchema.package_meta.name || "undefined",
+    version:
+      packageInfo?.version || fhirSchema.package_meta.version || "undefined",
     name,
     url: bindingName
       ? `urn:fhir:binding:${name}`
