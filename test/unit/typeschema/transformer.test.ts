@@ -7,8 +7,7 @@ import type {
   RichFHIRSchema,
 } from "../../../src/typeschema/types";
 import { enrichFHIRSchema } from "../../../src/typeschema/types";
-
-type FS = Partial<FHIRSchema>;
+import type { PFS } from "../../../test/unit/typeschema/utils";
 
 describe("TypeSchema Transformer Core Logic", () => {
   const mockManager = {
@@ -22,7 +21,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     version: "1.0.0",
   };
 
-  const fs2ts = async (fs: FS) => {
+  const fs2ts = async (fs: PFS) => {
     if (!fs.package_meta) fs.package_meta = basePackageInfo;
     return await transformFHIRSchema(
       mockManager as any,
@@ -32,7 +31,7 @@ describe("TypeSchema Transformer Core Logic", () => {
 
   describe("transformFHIRSchema", () => {
     it("should transform a basic resource schema", async () => {
-      const fhirSchema: FS = {
+      const fhirSchema: PFS = {
         name: "TestResource",
         type: "TestResource",
         kind: "resource",
@@ -53,7 +52,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle schema with base type", async () => {
-      const fhirSchema: FS = {
+      const fhirSchema: PFS = {
         name: "CustomPatient",
         type: "Patient",
         kind: "resource",
@@ -71,7 +70,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should transform primitive type schema", async () => {
-      const fhirSchema: FS = {
+      const fhirSchema: PFS = {
         name: "string",
         type: "string",
         kind: "primitive-type",
@@ -86,7 +85,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should transform complex type schema", async () => {
-      const fhirSchema: FS = {
+      const fhirSchema: PFS = {
         name: "Address",
         type: "Address",
         kind: "complex-type",
@@ -108,7 +107,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle extension schemas", async () => {
-      const fhirSchema: FS = {
+      const fhirSchema: PFS = {
         name: "PatientExtension",
         type: "Extension",
         kind: "complex-type",
@@ -131,7 +130,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should transform value set schema", async () => {
-      const fhirSchema: FS = {
+      const fhirSchema: PFS = {
         name: "TestValueSet",
         type: "ValueSet",
         kind: "value-set",
@@ -151,7 +150,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle nested elements", async () => {
-      const fhirSchema: FS = {
+      const fhirSchema: PFS = {
         name: "ComplexResource",
         type: "ComplexResource",
         kind: "resource",
@@ -174,7 +173,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should extract and deduplicate dependencies", async () => {
-      const fhirSchema: FS = {
+      const fhirSchema: PFS = {
         name: "ResourceWithDeps",
         type: "ResourceWithDeps",
         kind: "resource",
@@ -197,7 +196,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle profile schemas", async () => {
-      const fhirSchema: FS = {
+      const fhirSchema: PFS = {
         name: "USCorePatient",
         type: "Patient",
         kind: "resource",
@@ -214,7 +213,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle array fields correctly", async () => {
-      const fhirSchema: FS = {
+      const fhirSchema: PFS = {
         name: "ArrayResource",
         type: "ArrayResource",
         kind: "resource",
@@ -233,7 +232,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle required fields", async () => {
-      const fhirSchema: FS = {
+      const fhirSchema: PFS = {
         name: "RequiredFieldsResource",
         type: "RequiredFieldsResource",
         kind: "resource",
@@ -253,7 +252,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle polymorphic fields", async () => {
-      const fhirSchema: FS = {
+      const fhirSchema: PFS = {
         name: "PolymorphicResource",
         type: "PolymorphicResource",
         kind: "resource",
@@ -272,7 +271,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle binding to value sets", async () => {
-      const fhirSchema: FS = {
+      const fhirSchema: PFS = {
         name: "BoundResource",
         type: "BoundResource",
         kind: "resource",
@@ -295,7 +294,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should filter self-references from dependencies", async () => {
-      const fhirSchema: FS = {
+      const fhirSchema: PFS = {
         name: "SelfReferencingResource",
         type: "SelfReferencingResource",
         kind: "resource",
@@ -317,7 +316,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle schemas without elements", async () => {
-      const fhirSchema: FS = {
+      const fhirSchema: PFS = {
         name: "EmptyResource",
         type: "EmptyResource",
         kind: "resource",
@@ -337,7 +336,7 @@ describe("TypeSchema Transformer Core Logic", () => {
         version: "2.0.0",
       };
 
-      const fhirSchema: FS = {
+      const fhirSchema: PFS = {
         name: "PackagedResource",
         type: "PackagedResource",
         kind: "resource",
@@ -353,7 +352,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle fixed values in elements", async () => {
-      const fhirSchema: FS = {
+      const fhirSchema: PFS = {
         name: "FixedValueResource",
         type: "FixedValueResource",
         kind: "resource",
@@ -372,7 +371,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle schemas with enum values", async () => {
-      const fhirSchema: FS = {
+      const fhirSchema: PFS = {
         name: "EnumResource",
         type: "EnumResource",
         kind: "resource",
@@ -398,7 +397,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle extension schemas with url pattern matching", async () => {
-      const fhirSchema: FS = {
+      const fhirSchema: PFS = {
         name: "CustomType",
         type: "CustomType",
         kind: "complex-type",
@@ -413,7 +412,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("should handle complex nested structures", async () => {
-      const fhirSchema: FS = {
+      const fhirSchema: PFS = {
         name: "DeeplyNestedResource",
         type: "DeeplyNestedResource",
         kind: "resource",

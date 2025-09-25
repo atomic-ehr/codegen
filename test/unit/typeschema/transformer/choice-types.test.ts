@@ -1,27 +1,11 @@
 import { describe, expect, it } from "bun:test";
-import { transformFHIRSchema } from "../../../../src/typeschema/core/transformer";
-import type { FHIRSchema } from "@atomic-ehr/fhirschema";
-import { enrichFHIRSchema } from "../../../../src/typeschema/types";
-import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
-
-type FS = Partial<FHIRSchema>;
+import type { PFS } from "../../../../test/unit/typeschema/utils";
+import { fs2ts, r4 } from "../../../../test/unit/typeschema/utils";
 
 describe("TypeSchema Transformer Core Logic", () => {
-  const manager = CanonicalManager({
-    packages: ["hl7.fhir.r4.core@4.0.1"],
-    workingDir: "tmp/fhir",
-  });
-  const fs2ts = async (fs: FS) => {
-    fs.package_meta = { name: "test.package", version: "1.0.0" };
-    return await transformFHIRSchema(
-      manager,
-      enrichFHIRSchema(fs as FHIRSchema),
-    );
-  };
-
   describe("Choice type translation", () => {
     it("Check optional choice fields", async () => {
-      const fs: FS = {
+      const fs: PFS = {
         url: "OptionalChoice",
         kind: "resource",
         elements: {
@@ -37,7 +21,7 @@ describe("TypeSchema Transformer Core Logic", () => {
           },
         },
       };
-      expect(await fs2ts(fs)).toMatchObject([
+      expect(await fs2ts(r4, fs)).toMatchObject([
         {
           identifier: {
             kind: "resource",
@@ -74,7 +58,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("Check required choice fields", async () => {
-      const fs: FS = {
+      const fs: PFS = {
         url: "RequiredChoice",
         kind: "resource",
         required: ["deceased"],
@@ -92,7 +76,7 @@ describe("TypeSchema Transformer Core Logic", () => {
           },
         },
       };
-      expect(await fs2ts(fs)).toMatchObject([
+      expect(await fs2ts(r4, fs)).toMatchObject([
         {
           identifier: {
             url: "RequiredChoice",
@@ -126,7 +110,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it("Check choice field with limited options in children", async () => {
-      const fs: FS = {
+      const fs: PFS = {
         url: "RequiredChoiceLimited",
         base: "RequiredChoice",
         kind: "resource",
@@ -142,7 +126,7 @@ describe("TypeSchema Transformer Core Logic", () => {
         },
       };
 
-      expect(await fs2ts(fs)).toMatchObject([
+      expect(await fs2ts(r4, fs)).toMatchObject([
         {
           identifier: { kind: "resource", url: "RequiredChoiceLimited" },
           base: { name: "RequiredChoice" },
@@ -167,7 +151,7 @@ describe("TypeSchema Transformer Core Logic", () => {
     });
 
     it.todo("Limit choice types without instance repetition", async () => {
-      const fs: FS = {
+      const fs: PFS = {
         url: "RequiredChoiceLimited",
         base: "RequiredChoice",
         kind: "resource",
@@ -179,7 +163,7 @@ describe("TypeSchema Transformer Core Logic", () => {
         },
       };
 
-      expect(await fs2ts(fs)).toMatchObject([
+      expect(await fs2ts(r4, fs)).toMatchObject([
         {
           identifier: { kind: "resource", url: "RequiredChoiceLimited" },
           base: { name: "RequiredChoice" },
