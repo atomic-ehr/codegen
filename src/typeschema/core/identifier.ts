@@ -7,9 +7,6 @@
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import type { PackageInfo, TypeSchemaForValueSet, Identifier } from "../types";
 
-/**
- * Drop version suffix from canonical URL (e.g., "http://example.com|1.0.0" -> "http://example.com")
- */
 export function dropVersionFromUrl(
   url: string | undefined,
 ): string | undefined {
@@ -17,52 +14,20 @@ export function dropVersionFromUrl(
   return url.split("|")[0];
 }
 
-/**
- * Determine the kind of schema based on FHIRSchema properties
- */
 function determineKind(fhirSchema: FHIRSchema): Identifier["kind"] {
-  // Check for constraint/profile
-  if (fhirSchema.derivation === "constraint") {
-    // Distinguish between profiles and other constraints
-    // Profiles typically constrain resources or complex types and have a base type
-    if (
-      fhirSchema.base &&
-      (fhirSchema.type === "Resource" ||
-        fhirSchema.kind === "resource" ||
-        fhirSchema.kind === "complex-type")
-    ) {
-      return "profile";
-    }
-    return "profile";
-  }
-
-  // Use explicit kind if available
-  if (fhirSchema.kind) {
-    switch (fhirSchema.kind) {
-      case "primitive-type":
-        return "primitive-type";
-      case "complex-type":
-        return "complex-type";
-      case "resource":
-        return "resource";
-    }
-  }
-
-  // Default to resource
+  if (fhirSchema.derivation === "constraint") return "profile";
+  if (fhirSchema.kind === "primitive-type") return "primitive-type";
+  if (fhirSchema.kind === "complex-type") return "complex-type";
+  if (fhirSchema.kind === "resource") return "resource";
   return "resource";
 }
 
-/**
- * Build identifier for primitive-type, complex-type, resource, or constraint
- */
 export function buildSchemaIdentifier(
   fhirSchema: FHIRSchema,
   packageInfo?: PackageInfo,
 ): Identifier {
-  const kind = determineKind(fhirSchema);
-
   return {
-    kind,
+    kind: determineKind(fhirSchema),
     package: packageInfo?.name || fhirSchema.package_name || "undefined",
     version: packageInfo?.version || fhirSchema.package_version || "undefined",
     name: fhirSchema.name,
@@ -70,16 +35,12 @@ export function buildSchemaIdentifier(
   };
 }
 
-/**
- * Build nested type identifier for BackboneElements
- */
 export function buildNestedIdentifier(
   fhirSchema: FHIRSchema,
   path: string[],
   packageInfo?: PackageInfo,
 ): Identifier {
   const nestedName = path.join(".");
-
   return {
     kind: "nested",
     package: packageInfo?.name || fhirSchema.package_name || "undefined",
@@ -89,12 +50,9 @@ export function buildNestedIdentifier(
   };
 }
 
-/**
- * Build value set identifier
- */
 export function buildValueSetIdentifier(
   valueSetUrl: string,
-  valueSet?: any,
+  valueSet: any,
   packageInfo?: PackageInfo,
 ): TypeSchemaForValueSet["identifier"] {
   const cleanUrl = dropVersionFromUrl(valueSetUrl) || valueSetUrl;
