@@ -11,7 +11,7 @@
  */
 
 // Re-export core dependencies
-export { TypeSchemaCache } from "./cache.js";
-export { TypeSchemaGenerator } from "./generator.js";
-export { TypeSchemaParser } from "./parser.js";
+export { TypeSchemaCache } from "./cache";
+export { TypeSchemaGenerator } from "./generator";
+export { TypeSchemaParser } from "./parser";
 export type { Identifier, TypeSchema } from "./types";

@@ -5,16 +5,16 @@
  * This builder pattern allows users to configure generation in a declarative way.
  */
 
-import type { Config, TypeSchemaConfig } from "../config.js";
+import type { Config, TypeSchemaConfig } from "../config";
 import {
   TypeSchemaCache,
   TypeSchemaGenerator,
   TypeSchemaParser,
 } from "@typeschema/index";
 import type { TypeSchema } from "@typeschema/types";
-import type { CodegenLogger } from "../utils/codegen-logger.js";
-import { createLogger } from "../utils/codegen-logger.js";
-import { TypeScriptGenerator } from "./generators/typescript.js";
+import type { CodegenLogger } from "../utils/codegen-logger";
+import { createLogger } from "../utils/codegen-logger";
+import { TypeScriptGenerator } from "./generators/typescript";
 
 /**
  * Configuration options for the API builder

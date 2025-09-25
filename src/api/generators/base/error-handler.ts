@@ -10,8 +10,8 @@
  */
 
 import type { TypeSchema } from "@typeschema/types";
-import type { CodegenLogger } from "../../../utils/codegen-logger.js";
-import { BatchOperationError, GeneratorError } from "./errors.js";
+import type { CodegenLogger } from "../../../utils/codegen-logger";
+import { BatchOperationError, GeneratorError } from "./errors";
 
 export interface ErrorHandlerOptions {
   logger: CodegenLogger;

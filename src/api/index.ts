@@ -25,7 +25,7 @@ export type {
   APIBuilderOptions,
   GenerationResult,
   ProgressCallback,
-} from "./builder.js";
+} from "./builder";
 // Export main API builder and utilities
 export {
   APIBuilder,
@@ -33,11 +33,11 @@ export {
   createAPIFromConfig,
   generateTypesFromFiles,
   generateTypesFromPackage,
-} from "./builder.js";
-export type { GeneratedFile } from "./generators/base/index.js";
-export type { TypeScriptGeneratorOptions } from "./generators/typescript.js";
+} from "./builder";
+export type { GeneratedFile } from "./generators/base/index";
+export type { TypeScriptGeneratorOptions } from "./generators/typescript";
 // Export generator classes for advanced usage
-export { TypeScriptGenerator } from "./generators/typescript.js";
+export { TypeScriptGenerator } from "./generators/typescript";
 
 /**
  * Quick start examples:

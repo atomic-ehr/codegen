@@ -6,7 +6,7 @@
  */
 
 import type { TypeSchema } from "@typeschema/index";
-import type { FileContext } from "./types.js";
+import type { FileContext } from "./types";
 
 /**
  * Base error class for all generator-related errors

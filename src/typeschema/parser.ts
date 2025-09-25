@@ -9,7 +9,7 @@
 
 import { readFile } from "node:fs/promises";
 import type { TypeSchema, Identifier } from "@typeschema/types";
-import type { TypeschemaParserOptions } from "./types.js";
+import type { TypeschemaParserOptions } from "./types";
 
 /**
  * TypeSchema Parser class

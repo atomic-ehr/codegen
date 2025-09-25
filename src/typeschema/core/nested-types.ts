@@ -8,13 +8,9 @@
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import type { PackageInfo, TypeSchemaField, Identifier } from "../types.js";
-import {
-  buildField,
-  buildNestedField,
-  isNestedElement,
-} from "./field-builder.js";
-import { buildNestedIdentifier } from "./identifier.js";
+import type { PackageInfo, TypeSchemaField, Identifier } from "../types";
+import { buildField, buildNestedField, isNestedElement } from "./field-builder";
+import { buildNestedIdentifier } from "./identifier";
 
 /**
  * Collect all nested elements from a FHIRSchema

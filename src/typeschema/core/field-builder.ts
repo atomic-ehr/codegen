@@ -8,13 +8,13 @@
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import type { PackageInfo, TypeSchemaField, Identifier } from "../types.js";
-import { buildEnum } from "./binding.js";
+import type { PackageInfo, TypeSchemaField, Identifier } from "../types";
+import { buildEnum } from "./binding";
 import {
   buildBindingIdentifier,
   buildNestedIdentifier,
   buildSchemaIdentifier,
-} from "./identifier.js";
+} from "./identifier";
 
 /**
  * Get the full element hierarchy for a given path

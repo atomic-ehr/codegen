@@ -7,17 +7,17 @@
 
 import type { TypeSchema, TypeSchemaForBinding } from "@typeschema/types";
 import { isBindingSchema } from "@typeschema/types";
-import { BaseGenerator } from "./base/BaseGenerator.js";
+import { BaseGenerator } from "./base/BaseGenerator";
 import {
   TypeScriptTypeMapper,
   type TypeScriptTypeMapperOptions,
-} from "./base/TypeScriptTypeMapper.js";
+} from "./base/TypeScriptTypeMapper";
 import type {
   BaseGeneratorOptions,
   GeneratedFile,
   TemplateContext,
   TypeMapper,
-} from "./base/types.js";
+} from "./base/types";
 
 /**
  * TypeScript-specific generator options
@@ -1125,13 +1125,13 @@ export class TypeScriptGenerator extends BaseGenerator<
     // and the main functionality is already working. This can be improved later.
 
     // Export utilities
-    lines.push('export * from "./utilities.js";');
+    lines.push('export * from "./utilities";');
 
     // Export value sets if any were generated
     if (this.tsOptions.generateValueSets && this.collectedValueSets.size > 0) {
       lines.push("");
       lines.push("// Value Sets");
-      lines.push('export * from "./valuesets/index.js";');
+      lines.push('export * from "./valuesets/index";');
     }
 
     const content = lines.join("\n");

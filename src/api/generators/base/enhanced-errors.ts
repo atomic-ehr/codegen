@@ -7,7 +7,7 @@
  */
 
 import type { TypeSchema } from "@typeschema/index";
-import { GeneratorError } from "./errors.js";
+import { GeneratorError } from "./errors";
 
 /**
  * Enhanced schema validation error with smart suggestions

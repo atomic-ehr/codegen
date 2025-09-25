@@ -2,9 +2,9 @@
  * Integration tests for value set workflow
  */
 import { describe, test, expect, beforeEach, afterEach } from "bun:test";
-import { TypeScriptGenerator } from "../../src/api/generators/typescript.js";
+import { TypeScriptGenerator } from "../../src/api/generators/typescript";
 import type { TypeSchema, TypeSchemaForBinding } from "@typeschema/types";
-import { createLogger } from "../../src/utils/codegen-logger.js";
+import { createLogger } from "../../src/utils/codegen-logger";
 import * as fs from "node:fs";
 import * as path from "node:path";
 

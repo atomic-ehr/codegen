@@ -11,40 +11,40 @@
 // ==========================================
 
 // Main base generator class
-export { BaseGenerator } from "./BaseGenerator.js";
-export { PythonTypeMapper } from "./PythonTypeMapper.js";
-export type { TypeMapperOptions } from "./TypeMapper.js";
+export { BaseGenerator } from "./BaseGenerator";
+export { PythonTypeMapper } from "./PythonTypeMapper";
+export type { TypeMapperOptions } from "./TypeMapper";
 // Type system and mapping
-export { TypeMapper } from "./TypeMapper.js";
-export type { TypeScriptTypeMapperOptions } from "./TypeScriptTypeMapper.js";
-export { TypeScriptTypeMapper } from "./TypeScriptTypeMapper.js";
+export { TypeMapper } from "./TypeMapper";
+export type { TypeScriptTypeMapperOptions } from "./TypeScriptTypeMapper";
+export { TypeScriptTypeMapper } from "./TypeScriptTypeMapper";
 export type {
   ConfigValidationResult,
   GeneratorCapabilities,
   LanguageType,
   TemplateContext,
-} from "./types.js";
+} from "./types";
 
 // ==========================================
 // Configuration and Options
 // ==========================================
 
-export type { BaseGeneratorOptions, FileBuilderOptions } from "./types.js";
+export type { BaseGeneratorOptions, FileBuilderOptions } from "./types";
 
 // ==========================================
 // File Management System
 // ==========================================
 
-export type { DirectoryBuilderConfig } from "./builders/DirectoryBuilder.js";
-export { DirectoryBuilder } from "./builders/DirectoryBuilder.js";
-export type { FileBuilderConfig } from "./builders/FileBuilder.js";
+export type { DirectoryBuilderConfig } from "./builders/DirectoryBuilder";
+export { DirectoryBuilder } from "./builders/DirectoryBuilder";
+export type { FileBuilderConfig } from "./builders/FileBuilder";
 // Fluent builders
-export { FileBuilder } from "./builders/FileBuilder.js";
-export type { IndexBuilderConfig } from "./builders/IndexBuilder.js";
-export { IndexBuilder } from "./builders/IndexBuilder.js";
-export type { FileManagerOptions, WriteFileResult } from "./FileManager.js";
+export { FileBuilder } from "./builders/FileBuilder";
+export type { IndexBuilderConfig } from "./builders/IndexBuilder";
+export { IndexBuilder } from "./builders/IndexBuilder";
+export type { FileManagerOptions, WriteFileResult } from "./FileManager";
 // Core file management
-export { FileManager } from "./FileManager.js";
+export { FileManager } from "./FileManager";
 
 // ==========================================
 // Error Handling System
@@ -60,7 +60,7 @@ export {
   SchemaValidationError,
   TemplateError,
   TypeMappingError,
-} from "./errors.js";
+} from "./errors";
 
 // ==========================================
 // Core Types and Interfaces
@@ -79,7 +79,7 @@ export type {
   FileStats,
   GeneratedFile,
   ProgressCallback,
-} from "./types.js";
+} from "./types";
 
 // ==========================================
 // External Dependencies (re-exported for convenience)
@@ -89,7 +89,7 @@ export type {
 export type { TypeSchema, Identifier } from "@typeschema/index";
 
 // Logger interface
-export type { CodegenLogger } from "../../../utils/codegen-logger.js";
+export type { CodegenLogger } from "../../../utils/codegen-logger";
 
 // ==========================================
 // Utility Types for Generator Development
@@ -292,10 +292,10 @@ export const DEFAULT_FILE_BUILDER_OPTIONS: Partial<
  * @deprecated Use BaseGenerator instead
  * Provided for backwards compatibility only
  */
-export { BaseGenerator as Generator } from "./BaseGenerator.js";
+export { BaseGenerator as Generator } from "./BaseGenerator";
 
 /**
  * @deprecated Use GeneratorError instead
  * Provided for backwards compatibility only
  */
-export { GeneratorError as BaseError } from "./errors.js";
+export { GeneratorError as BaseError } from "./errors";

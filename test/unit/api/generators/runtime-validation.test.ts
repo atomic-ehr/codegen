@@ -2,9 +2,9 @@
  * Runtime validation tests for generated value set helper functions
  */
 import { describe, test, expect } from "bun:test";
-import { TypeScriptGenerator } from "../../../../src/api/generators/typescript.js";
+import { TypeScriptGenerator } from "../../../../src/api/generators/typescript";
 import type { TypeSchemaForBinding } from "@typeschema/types";
-import { createLogger } from "../../../../src/utils/codegen-logger.js";
+import { createLogger } from "../../../../src/utils/codegen-logger";
 
 describe("Generated Code Structure Tests", () => {
   test("should generate TypeScript arrays and types correctly", () => {

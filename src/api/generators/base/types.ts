@@ -6,7 +6,7 @@
  */
 
 import type { TypeSchema, Identifier } from "@typeschema/index";
-import type { CodegenLogger } from "../../../utils/codegen-logger.js";
+import type { CodegenLogger } from "../../../utils/codegen-logger";
 
 /**
  * Base configuration options that all generators must support

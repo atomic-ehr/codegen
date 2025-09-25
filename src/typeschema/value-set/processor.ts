@@ -5,12 +5,8 @@
  */
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
-import { buildValueSetIdentifier } from "../core/identifier.js";
-import type {
-  PackageInfo,
-  TypeSchemaForValueSet,
-  Identifier,
-} from "../types.js";
+import { buildValueSetIdentifier } from "../core/identifier";
+import type { PackageInfo, TypeSchemaForValueSet, Identifier } from "../types";
 
 /**
  * Extract concepts from a CodeSystem

@@ -3,7 +3,7 @@
  */
 
 import type { Identifier } from "@typeschema/index";
-import { type LanguageType, TypeMapper } from "./TypeMapper.js";
+import { type LanguageType, TypeMapper } from "./TypeMapper";
 
 export class PythonTypeMapper extends TypeMapper {
   getLanguageName(): string {
