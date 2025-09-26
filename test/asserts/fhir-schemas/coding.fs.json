@@ -1,0 +1,43 @@
+{
+  "description" : "Base StructureDefinition for Coding Type: A reference to a code defined by a terminology system.",
+  "derivation" : "specialization",
+  "name" : "Coding",
+  "type" : "Coding",
+  "elements" : {
+    "system" : {
+      "short" : "Identity of the terminology system",
+      "type" : "uri",
+      "isSummary" : true,
+      "index" : 0
+    },
+    "version" : {
+      "short" : "Version of the system - if relevant",
+      "type" : "string",
+      "isSummary" : true,
+      "index" : 1
+    },
+    "code" : {
+      "short" : "Symbol in syntax defined by the system",
+      "type" : "code",
+      "isSummary" : true,
+      "index" : 2
+    },
+    "display" : {
+      "short" : "Representation defined by the system",
+      "type" : "string",
+      "isSummary" : true,
+      "index" : 3
+    },
+    "userSelected" : {
+      "short" : "If this coding was chosen directly by the user",
+      "type" : "boolean",
+      "isSummary" : true,
+      "index" : 4
+    }
+  },
+  "class" : "complex-type",
+  "kind" : "complex-type",
+  "url" : "http://hl7.org/fhir/StructureDefinition/Coding",
+  "base" : "http://hl7.org/fhir/StructureDefinition/Element",
+  "version" : "4.0.1"
+}

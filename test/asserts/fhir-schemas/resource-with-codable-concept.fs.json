@@ -1,0 +1,27 @@
+{
+  "package-meta": {
+    "name": "hl7.fhir.core.r4",
+    "version": "4.0.1"
+  },
+  "description": "description",
+  "derivation": "specialization",
+  "type": "WithCodableConcept",
+  "name": "WithCodableConcept",
+  "kind": "resource",
+  "url": "http://example.io/fhir/WithCodableConcept",
+  "base": "http://hl7.org/fhir/StructureDefinition/DomainResource",
+  "elements": {
+    "maritalStatus": {
+      "short": "Marital (civil) status of a patient",
+      "type": "CodeableConcept",
+      "binding": {
+        "strength": "extensible",
+        "valueSet": "http://hl7.org/fhir/ValueSet/marital-status",
+        "bindingName": "MaritalStatus"
+      },
+      "index": 1
+    }
+  },
+  "class": "resource",
+  "version": "4.0.1"
+}

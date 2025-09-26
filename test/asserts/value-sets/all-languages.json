@@ -1,0 +1,60 @@
+{
+  "url": "http://hl7.org/fhir/ValueSet/all-languages",
+  "experimental": false,
+  "id": "all-languages",
+  "name": "AllLanguages",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-wg",
+      "valueCode": "fhir"
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status",
+      "valueCode": "normative"
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-normative-version",
+      "valueCode": "4.0.0"
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-fmm",
+      "valueInteger": 5
+    }
+  ],
+  "status": "active",
+  "identifier": [
+    {
+      "value": "urn:oid:2.16.840.1.113883.4.642.3.21",
+      "system": "urn:ietf:rfc:3986"
+    }
+  ],
+  "compose": {
+    "include": [
+      {
+        "system": "urn:ietf:bcp:47"
+      }
+    ]
+  },
+  "title": "All Languages",
+  "publisher": "HL7 International - FHIR-Infrastructure",
+  "version": "4.0.1",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/shareablevalueset"
+    ],
+    "lastUpdated": "2019-11-01T09:29:23.356+11:00"
+  },
+  "date": "2019-11-01T09:29:23+11:00",
+  "resourceType": "ValueSet",
+  "contact": [
+    {
+      "telecom": [
+        {
+          "value": "http://hl7.org/fhir",
+          "system": "url"
+        }
+      ]
+    }
+  ],
+  "description": "This value set includes all possible codes from BCP-47 (http://tools.ietf.org/html/bcp47)"
+}

@@ -1,0 +1,44 @@
+{
+  "description" : "Base StructureDefinition for Coding Type: A reference to a code defined by a terminology system.",
+  "derivation" : "specialization",
+  "name" : "Cardinality",
+  "type" : "Cardinality",
+  "elements" : {
+    "zero_or_one" : {
+      "type" : "string",
+      "isSummary" : true,
+      "array": true,
+      "min": 0,
+      "max": 1
+    },
+    "one" : {
+      "type" : "string",
+      "isSummary" : true,
+      "array": true,
+      "min": 1,
+      "max": 1
+    },
+    "many" : {
+      "type" : "string",
+      "isSummary" : true,
+      "array": true,
+      "min": 42,
+      "max": 42
+    },
+    "one_or_many" : {
+      "type" : "string",
+      "isSummary" : true,
+      "array": true,
+      "min": 1
+    },
+    "zero_or_many" : {
+      "type" : "string",
+      "array": true
+    }
+  },
+  "class" : "complex-type",
+  "kind" : "complex-type",
+  "url" : "http://hl7.org/fhir/StructureDefinition/Cardinality",
+  "base" : "http://hl7.org/fhir/StructureDefinition/Element",
+  "version" : "4.0.1"
+}

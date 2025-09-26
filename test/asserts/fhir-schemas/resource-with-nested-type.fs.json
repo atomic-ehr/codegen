@@ -1,0 +1,36 @@
+{
+  "package-meta": {
+    "name": "hl7.fhir.core.r4",
+    "version": "4.0.1"
+  },
+  "description": "some description",
+  "derivation": "specialization",
+  "name": "WithNestedType",
+  "type": "WithNestedType",
+  "elements": {
+    "link": {
+      "isModifier": true,
+      "short": "Link to another patient resource that concerns the same actual person",
+      "index": 30,
+      "type": "BackboneElement",
+      "array": true,
+      "elements": {
+        "someString": {
+          "short": "some description",
+          "type": "string",
+          "isSummary": true,
+          "index": 10
+        }
+      },
+      "isModifierReason": "reason...",
+      "required": ["someString"],
+      "isSummary": true
+    }
+  },
+  "id": "WithNestedType",
+  "class": "resource",
+  "kind": "resource",
+  "url": "http://example.io/fhir/WithNestedType",
+  "base": "http://hl7.org/fhir/StructureDefinition/DomainResource",
+  "version": "4.0.1"
+}

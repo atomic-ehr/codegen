@@ -1,0 +1,28 @@
+{
+  "package-meta": {
+    "name": "hl7.fhir.core.r4",
+    "version": "4.0.1"
+  },
+  "description": "description",
+  "derivation": "specialization",
+  "type": "WithCode",
+  "name": "WithCode",
+  "kind": "resource",
+  "url": "http://example.io/fhir/WithCode",
+  "base": "http://hl7.org/fhir/StructureDefinition/DomainResource",
+  "elements": {
+    "gender": {
+      "short": "male | female | other | unknown",
+      "type": "code",
+      "binding": {
+        "strength": "required",
+        "valueSet": "http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1",
+        "bindingName": "AdministrativeGender"
+      },
+      "isSummary": true,
+      "index": 1
+    }
+  },
+  "class": "resource",
+  "version": "4.0.1"
+}

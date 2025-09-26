@@ -1,0 +1,68 @@
+{
+  "url": "http://hl7.org/fhir/ValueSet/marital-status",
+  "experimental": false,
+  "id": "marital-status",
+  "name": "Marital Status Codes",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-wg",
+      "valueCode": "pa"
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status",
+      "valueCode": "normative"
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-normative-version",
+      "valueCode": "4.0.0"
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-fmm",
+      "valueInteger": 5
+    }
+  ],
+  "status": "active",
+  "identifier": [
+    {
+      "value": "urn:oid:2.16.840.1.113883.4.642.3.29",
+      "system": "urn:ietf:rfc:3986"
+    }
+  ],
+  "compose": {
+    "include": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
+        "concept": [
+          {
+            "code": "UNK"
+          }
+        ]
+      }
+    ]
+  },
+  "title": "MaritalStatus",
+  "publisher": "FHIR Project team",
+  "version": "4.0.1",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/shareablevalueset"
+    ],
+    "lastUpdated": "2019-11-01T09:29:23.356+11:00"
+  },
+  "date": "2019-11-01T09:29:23+11:00",
+  "resourceType": "ValueSet",
+  "contact": [
+    {
+      "telecom": [
+        {
+          "value": "http://hl7.org/fhir",
+          "system": "url"
+        }
+      ]
+    }
+  ],
+  "description": "This value set defines the set of codes that can be used to indicate the marital status of a person."
+}

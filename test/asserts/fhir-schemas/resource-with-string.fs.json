@@ -1,0 +1,24 @@
+{
+  "package-meta": {
+    "name": "hl7.fhir.core.r4",
+    "version": "4.0.1"
+  },
+  "description": "description",
+  "derivation": "specialization",
+  "type": "WithPrimitiveString",
+  "name": "WithPrimitiveString",
+  "kind": "resource",
+  "url": "http://example.io/fhir/WithPrimitiveString",
+  "base": "http://hl7.org/fhir/StructureDefinition/DomainResource",
+  "elements": {
+    "someString": {
+      "short": "some description",
+      "type": "string",
+      "isSummary": true,
+      "index": 10
+    }
+  },
+  "required": ["someString"],
+  "class": "resource",
+  "version": "4.0.1"
+}

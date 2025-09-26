@@ -1,0 +1,65 @@
+{
+  "url": "http://hl7.org/fhir/ValueSet/administrative-gender",
+  "experimental": false,
+  "immutable": true,
+  "id": "administrative-gender",
+  "name": "AdministrativeGender",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-wg",
+      "valueCode": "pa"
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status",
+      "valueCode": "normative"
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-fmm",
+      "valueInteger": 5
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-normative-version",
+      "valueCode": "4.0.0"
+    }
+  ],
+  "status": "active",
+  "identifier": [
+    {
+      "value": "urn:oid:2.16.840.1.113883.4.642.3.1",
+      "system": "urn:ietf:rfc:3986"
+    }
+  ],
+  "compose": {
+    "include": [
+      {
+        "system": "http://hl7.org/fhir/administrative-gender"
+      }
+    ]
+  },
+  "title": "AdministrativeGender",
+  "publisher": "HL7 (FHIR Project)",
+  "version": "4.0.1",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/shareablevalueset"
+    ],
+    "lastUpdated": "2019-11-01T09:29:23.356+11:00"
+  },
+  "date": "2019-11-01T09:29:23+11:00",
+  "resourceType": "ValueSet",
+  "contact": [
+    {
+      "telecom": [
+        {
+          "value": "http://hl7.org/fhir",
+          "system": "url"
+        },
+        {
+          "value": "fhir@lists.hl7.org",
+          "system": "email"
+        }
+      ]
+    }
+  ],
+  "description": "The gender of a person used for administrative purposes."
+}

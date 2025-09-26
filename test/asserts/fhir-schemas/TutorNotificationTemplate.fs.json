@@ -1,0 +1,19 @@
+{
+  "id": "TutorNotificationTemplate",
+  "resourceType": "FHIRSchema",
+  "url": "http://example.com/aidbox-sms-tutor/TutorNotificationTemplate",
+  "type": "TutorNotificationTemplate",
+  "name": "TutorNotificationTemplate",
+  "base": "DomainResource",
+  "kind": "resource",
+  "derivation": "specialization",
+  "required": [
+    "template"
+  ],
+  "elements": {
+    "template": {
+      "type": "string",
+      "scalar": true
+    }
+  }
+}
