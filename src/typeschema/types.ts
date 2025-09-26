@@ -18,9 +18,9 @@ export const enrichFHIRSchema = (schema: FS.FHIRSchema): RichFHIRSchema => {
   return {
     ...schema,
     package_meta: {
-      name: schema.package_name || schema.package_meta.name || "undefined",
+      name: schema.package_name || schema.package_meta?.name || "undefined",
       version:
-        schema.package_version || schema.package_meta.version || "undefined",
+        schema.package_version || schema.package_meta?.version || "undefined",
     },
   };
 };
@@ -215,6 +215,7 @@ export interface TypeschemaGeneratorOptions {
   verbose?: boolean;
   logger?: import("../utils/codegen-logger").CodegenLogger;
   treeshake?: string[];
+  manager?: ReturnType<typeof import("@atomic-ehr/fhir-canonical-manager").CanonicalManager> | null;
 }
 
 export function isBindingSchema(
