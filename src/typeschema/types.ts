@@ -4,6 +4,7 @@
  */
 
 import type * as FS from "@atomic-ehr/fhirschema";
+import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 
 export interface PackageInfo {
   name: string;
@@ -215,7 +216,7 @@ export interface TypeschemaGeneratorOptions {
   verbose?: boolean;
   logger?: import("../utils/codegen-logger").CodegenLogger;
   treeshake?: string[];
-  manager?: ReturnType<typeof import("@atomic-ehr/fhir-canonical-manager").CanonicalManager> | null;
+  manager?: ReturnType<typeof CanonicalManager> | null;
 }
 
 export function isBindingSchema(

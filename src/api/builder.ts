@@ -15,6 +15,7 @@ import type { TypeSchema } from "@typeschema/types";
 import type { CodegenLogger } from "../utils/codegen-logger";
 import { createLogger } from "../utils/codegen-logger";
 import { TypeScriptGenerator } from "./generators/typescript";
+import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 
 /**
  * Configuration options for the API builder
@@ -27,7 +28,7 @@ export interface APIBuilderOptions {
   cache?: boolean;
   typeSchemaConfig?: TypeSchemaConfig;
   logger?: CodegenLogger;
-  manager?: ReturnType<typeof import("@atomic-ehr/fhir-canonical-manager").CanonicalManager> | null;
+  manager?: ReturnType<typeof CanonicalManager> | null;
 }
 
 /**
