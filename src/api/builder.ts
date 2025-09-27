@@ -15,6 +15,7 @@ import type { TypeSchema } from "@typeschema/types";
 import type { CodegenLogger } from "../utils/codegen-logger";
 import { createLogger } from "../utils/codegen-logger";
 import { TypeScriptGenerator } from "./generators/typescript";
+import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 
 /**
  * Configuration options for the API builder
@@ -27,6 +28,7 @@ export interface APIBuilderOptions {
   cache?: boolean;
   typeSchemaConfig?: TypeSchemaConfig;
   logger?: CodegenLogger;
+  manager?: ReturnType<typeof CanonicalManager> | null;
 }
 
 /**
@@ -82,6 +84,7 @@ export class APIBuilder {
       validate: options.validate ?? true,
       cache: options.cache ?? true,
       typeSchemaConfig: options.typeSchemaConfig,
+      manager: options.manager || null,
     };
 
     this.typeSchemaConfig = options.typeSchemaConfig;
@@ -350,6 +353,7 @@ export class APIBuilder {
         verbose: this.options.verbose,
         logger: this.logger.child("Schema"),
         treeshake: this.typeSchemaConfig?.treeshake,
+        manager: this.options.manager,
       },
       this.typeSchemaConfig,
     );

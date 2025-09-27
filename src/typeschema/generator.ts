@@ -33,6 +33,7 @@ import { transformValueSet } from "./value-set/processor";
  */
 export class TypeSchemaGenerator {
   private manager: ReturnType<typeof CanonicalManager>;
+
   private options: TypeschemaGeneratorOptions;
   private cacheConfig?: TypeSchemaConfig;
   private cache?: TypeSchemaCache;
@@ -43,7 +44,8 @@ export class TypeSchemaGenerator {
     cacheConfig?: TypeSchemaConfig,
   ) {
     this.options = { verbose: false, ...options };
-    this.manager = CanonicalManager({ packages: [], workingDir: "tmp/fhir" });
+    this.manager = options.manager || 
+      CanonicalManager({ packages: [], workingDir: "tmp/fhir" });
     this.cacheConfig = cacheConfig;
     this.logger =
       options.logger ||
@@ -71,12 +73,7 @@ export class TypeSchemaGenerator {
     this.logger.step(
       `Loading FHIR package: ${packageName}${packageVersion ? `@${packageVersion}` : ""}`,
     );
-
-    this.manager = CanonicalManager({
-      packages: [`${packageName}${packageVersion ? `@${packageVersion}` : ""}`],
-      workingDir: "tmp/fhir",
-    });
-    await this.manager.init();
+    await this.manager.addPackages(`${packageName}${packageVersion ? `@${packageVersion}` : ""}`);
 
     const allResources = await this.manager.search({});
 
