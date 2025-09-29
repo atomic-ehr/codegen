@@ -1,23 +1,12 @@
-import { describe, expect, it, beforeEach } from "bun:test";
-import { transformFHIRSchema } from "../../../src/typeschema/core/transformer";
+import { describe, expect, it } from "bun:test";
+import { transformFHIRSchema } from "@typeschema/core/transformer";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
-import type {
-  TypeSchema,
-  PackageInfo,
-  RichFHIRSchema,
-} from "../../../src/typeschema/types";
-import { enrichFHIRSchema } from "../../../src/typeschema/types";
+import { mkR4Register } from "@typeschema-test/utils";
+import { type PackageInfo, enrichFHIRSchema } from "@typeschema/types";
 import type { PFS } from "@typeschema-test/utils";
 
-describe("TypeSchema Transformer Core Logic", () => {
-  const mockManager = {
-    resolveCanonical: () => null,
-    getSchema: () => null,
-    resolve: () => null,
-    dictCT: () => {
-      return {};
-    },
-  };
+describe("TypeSchema Transformer Core Logic", async () => {
+  const r4 = await mkR4Register();
 
   const basePackageInfo: PackageInfo = {
     name: "test.package",
@@ -26,10 +15,7 @@ describe("TypeSchema Transformer Core Logic", () => {
 
   const fs2ts = async (fs: PFS) => {
     if (!fs.package_meta) fs.package_meta = basePackageInfo;
-    return await transformFHIRSchema(
-      mockManager as any,
-      enrichFHIRSchema(fs as FHIRSchema),
-    );
+    return await transformFHIRSchema(r4, enrichFHIRSchema(fs as FHIRSchema));
   };
 
   describe("transformFHIRSchema", () => {

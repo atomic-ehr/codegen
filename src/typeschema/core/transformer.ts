@@ -330,7 +330,9 @@ async function transformResource(
       ? fhirSchema.base
       : `http://hl7.org/fhir/StructureDefinition/${fhirSchema.base}`;
     const baseName = fhirSchema.base.split("/").pop() || fhirSchema.base;
-    const kind = register.dictCT()[baseName] ? "complex-type" : "resource";
+    const kind = register.complexTypeDict()[baseName]
+      ? "complex-type"
+      : "resource";
     const isStandardFhir = baseUrl.startsWith("http://hl7.org/fhir/");
     base = {
       kind,

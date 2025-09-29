@@ -9,9 +9,8 @@ import {
 } from "../../../src/typeschema/register";
 export type PFS = Partial<FHIRSchema>;
 
-export const r4 = await registerFromPackageMetas([
-  { name: "hl7.fhir.r4.core", version: "4.0.1" },
-]);
+export const mkR4Register = async () =>
+  registerFromPackageMetas([{ name: "hl7.fhir.r4.core", version: "4.0.1" }]);
 
 export const fs2ts = async (manager: Register, fs: PFS) => {
   fs.package_meta = { name: "test.package", version: "1.0.0" };

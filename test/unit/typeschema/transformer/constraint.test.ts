@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { PFS } from "@typeschema-test/utils";
-import { fs2ts, r4 } from "@typeschema-test/utils";
+import { fs2ts, mkR4Register } from "@typeschema-test/utils";
 
 describe("TypeSchema Transformer Core Logic", () => {
   const A: PFS = {
@@ -18,7 +18,7 @@ describe("TypeSchema Transformer Core Logic", () => {
   };
 
   it.todo("Check optional choice fields", async () => {
-    expect(await fs2ts(r4, A)).toMatchObject([
+    expect(await fs2ts(mkR4Register, A)).toMatchObject([
       {
         identifier: { kind: "resource", name: "a", url: "A" },
         fields: {
@@ -70,7 +70,7 @@ describe("TypeSchema Transformer Core Logic", () => {
   };
 
   it.todo("Check optional choice fields", async () => {
-    expect(await fs2ts(r4, A)).toMatchObject([
+    expect(await fs2ts(mkR4Register, A)).toMatchObject([
       {
         identifier: { kind: "constraint", name: "b", url: "B" },
         base: { kind: "resource", name: "a", url: "A" },
@@ -98,7 +98,7 @@ describe("TypeSchema Transformer Core Logic", () => {
 
   describe("Choice type translation", () => {
     it.todo("Check optional choice fields", async () => {
-      expect(await fs2ts(r4, A)).toMatchObject([
+      expect(await fs2ts(mkR4Register, A)).toMatchObject([
         {
           identifier: { kind: "constraint", name: "c", url: "C" },
           base: { kind: "constraint", name: "b", url: "B" },

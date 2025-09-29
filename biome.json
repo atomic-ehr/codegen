@@ -23,7 +23,11 @@
 				"noAssignInExpressions": "off"
 			},
 			"correctness": {
-				"noUnusedPrivateClassMembers": "warn"
+				"noUnusedPrivateClassMembers": "warn",
+				"noUnusedImports": "warn"
+			},
+			"nursery": {
+				"noUnresolvedImports": "warn"
 			},
 			"recommended": true
 		}
