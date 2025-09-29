@@ -7,7 +7,11 @@
  */
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
-import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
+import type {
+  FHIRSchema,
+  FHIRSchemaElement,
+  StructureDefinition,
+} from "@atomic-ehr/fhirschema";
 import { transformProfile } from "../profile/processor";
 import type {
   TypeSchema,
@@ -37,8 +41,9 @@ export async function transformElements(
   elements: Record<string, FHIRSchemaElement>,
   manager: ReturnType<typeof CanonicalManager>,
   packageInfo?: PackageInfo,
-): Promise<Record<string, TypeSchemaField>> {
+): Promise<Record<string, TypeSchemaField> | undefined> {
   const fields: Record<string, TypeSchemaField> = {};
+  if (!elements) return undefined;
 
   for (const [key, element] of Object.entries(elements)) {
     const path = [...parentPath, key];
@@ -72,9 +77,6 @@ export async function transformElements(
   return fields;
 }
 
-/**
- * Extract dependencies from fields
- */
 function extractFieldDependencies(
   fields: Record<string, TypeSchemaField>,
 ): Identifier[] {
@@ -92,9 +94,6 @@ function extractFieldDependencies(
   return deps;
 }
 
-/**
- * Remove duplicate dependencies
- */
 function deduplicateDependencies(deps: Identifier[]): Identifier[] {
   const seen = new Set<string>();
   const unique: Identifier[] = [];
@@ -297,12 +296,91 @@ async function transformExtension(
   }
 }
 
-/**
- * Transform a single FHIRSchema to TypeSchema(s) with enhanced categorization
- * Returns the main schema plus any binding schemas
- */
+function extractDependencies(
+  identifier: Identifier,
+  base: Identifier | undefined,
+  fields: Record<string, TypeSchemaField> | undefined,
+  nestedTypes: NestedType[] | undefined,
+): Identifier[] | undefined {
+  let deps = [];
+  if (base) deps.push(base);
+  if (fields) deps.push(...extractFieldDependencies(fields));
+  if (nestedTypes) deps.push(...extractNestedDependencies(nestedTypes));
+
+  const uniqDeps = {};
+  for (const dep of deps) {
+    if (dep.url === identifier.url) continue;
+    uniqDeps[dep.url] = dep;
+  }
+
+  const result = Object.values(uniqDeps).sort((a, b) =>
+    a.name.localeCompare(b.name),
+  );
+  return result.length > 0 ? result : undefined;
+}
+
+async function transformResource(
+  register: Register,
+  fhirSchema: RichFHIRSchema,
+) {
+  const identifier = buildSchemaIdentifier(fhirSchema);
+  let base: Identifier | undefined;
+  if (fhirSchema.base && fhirSchema.type !== "Element") {
+    const baseUrl = fhirSchema.base.includes("/")
+      ? fhirSchema.base
+      : `http://hl7.org/fhir/StructureDefinition/${fhirSchema.base}`;
+    const baseName = fhirSchema.base.split("/").pop() || fhirSchema.base;
+    console.log(baseName, register.dictCT);
+    const kind = register.dictCT()[baseName] ? "complex-type" : "resource";
+    const isStandardFhir = baseUrl.startsWith("http://hl7.org/fhir/");
+    base = {
+      kind,
+      package: isStandardFhir
+        ? "hl7.fhir.r4.core"
+        : fhirSchema.package_meta.name || "undefined",
+      version: isStandardFhir
+        ? "4.0.1"
+        : fhirSchema.package_meta.version || "undefined",
+      name: baseName,
+      url: baseUrl,
+    };
+  }
+
+  const fields = await transformElements(
+    fhirSchema,
+    [],
+    fhirSchema.elements,
+    register,
+    fhirSchema.package_meta,
+  );
+
+  const nested = await buildNestedTypes(
+    fhirSchema,
+    register,
+    fhirSchema.package_meta,
+  );
+
+  const dependencies = extractDependencies(identifier, base, fields, nested);
+
+  const results: TypeSchema[] = [
+    {
+      identifier,
+      base,
+      fields,
+      nested,
+      description: fhirSchema.description,
+      dependencies,
+    },
+  ];
+
+  const bindingSchemas = await collectBindingSchemas(fhirSchema, register);
+  results.push(...bindingSchemas);
+
+  return results;
+}
+
 export async function transformFHIRSchema(
-  manager: ReturnType<typeof CanonicalManager>,
+  register: Register,
   fhirSchema: RichFHIRSchema,
 ): Promise<TypeSchema[]> {
   const results: TypeSchema[] = [];
@@ -312,7 +390,7 @@ export async function transformFHIRSchema(
   if (identifier.kind === "profile") {
     const profileSchema = await transformProfile(
       fhirSchema,
-      manager,
+      register,
       fhirSchema.package_meta,
     );
     results.push(profileSchema);
@@ -320,7 +398,7 @@ export async function transformFHIRSchema(
     // Collect binding schemas for profiles too
     const bindingSchemas = await collectBindingSchemas(
       fhirSchema,
-      manager,
+      register,
       fhirSchema.package_meta,
     );
     results.push(...bindingSchemas);
@@ -332,7 +410,7 @@ export async function transformFHIRSchema(
   if (identifier.kind === "value-set" || fhirSchema.kind === "value-set") {
     const valueSetSchema = await transformValueSet(
       fhirSchema,
-      manager,
+      register,
       fhirSchema.package_meta,
     );
     if (valueSetSchema) {
@@ -345,7 +423,7 @@ export async function transformFHIRSchema(
   if (isExtensionSchema(fhirSchema, identifier)) {
     const extensionSchema = await transformExtension(
       fhirSchema,
-      manager,
+      register,
       fhirSchema.package_meta,
     );
     if (extensionSchema) {
@@ -354,139 +432,5 @@ export async function transformFHIRSchema(
     return results;
   }
 
-  // Build base identifier if present
-  let base: Identifier | undefined;
-  if (fhirSchema.base && fhirSchema.type !== "Element") {
-    // Create base identifier directly
-    const baseUrl = fhirSchema.base.includes("/")
-      ? fhirSchema.base
-      : `http://hl7.org/fhir/StructureDefinition/${fhirSchema.base}`;
-    const baseName = fhirSchema.base.split("/").pop() || fhirSchema.base;
-    // Check if this is a known complex type by looking at common FHIR complex types
-    const complexTypes = new Set([
-      "Element",
-      "BackboneElement",
-      "Quantity",
-      "Duration",
-      "Distance",
-      "Count",
-      "Age",
-      "Address",
-      "Annotation",
-      "Attachment",
-      "CodeableConcept",
-      "Coding",
-      "ContactPoint",
-      "HumanName",
-      "Identifier",
-      "Period",
-      "Range",
-      "Ratio",
-      "Reference",
-      "Timing",
-      "Money",
-      "SampledData",
-      "Signature",
-      "ContactDetail",
-      "Contributor",
-      "DataRequirement",
-      "Expression",
-      "ParameterDefinition",
-      "RelatedArtifact",
-      "TriggerDefinition",
-      "UsageContext",
-      "Dosage",
-      "Meta",
-      "Extension",
-    ]);
-    const kind = complexTypes.has(baseName) ? "complex-type" : "resource";
-    // For standard FHIR types, use the standard package even if no package info
-    const isStandardFhir = baseUrl.startsWith("http://hl7.org/fhir/");
-    base = {
-      kind: kind as any,
-      package: isStandardFhir
-        ? "hl7.fhir.r4.core"
-        : fhirSchema.package_meta.name || "undefined",
-      version: isStandardFhir
-        ? "4.0.1"
-        : fhirSchema.package_meta.version || "undefined",
-      name: baseName,
-      url: baseUrl,
-    };
-  }
-
-  // Initialize the main schema
-  const mainSchema: any = {
-    identifier,
-    dependencies: [],
-  };
-
-  // Collect dependencies in the same order as Clojure implementation
-  const allDependencies: Identifier[] = [];
-
-  // Add base if present (first in dependencies)
-  if (base) {
-    mainSchema.base = base;
-    allDependencies.push(base);
-  }
-
-  // Add description if present
-  if (fhirSchema.description) {
-    mainSchema.description = fhirSchema.description;
-  }
-
-  // Transform elements into fields (for non-primitive types)
-  if (fhirSchema.kind !== "primitive-type" && fhirSchema.elements) {
-    const fields = await transformElements(
-      fhirSchema,
-      [],
-      fhirSchema.elements,
-      manager,
-      fhirSchema.package_meta,
-    );
-
-    if (Object.keys(fields).length > 0) {
-      mainSchema.fields = fields;
-    }
-
-    // Extract field dependencies (types and bindings)
-    allDependencies.push(...extractFieldDependencies(fields));
-
-    // Build nested types
-    const nestedTypes = await buildNestedTypes(
-      fhirSchema,
-      manager,
-      fhirSchema.package_meta,
-    );
-    if (nestedTypes.length > 0) {
-      mainSchema.nested = nestedTypes;
-
-      // Add nested type dependencies
-      allDependencies.push(...extractNestedDependencies(nestedTypes));
-    }
-  }
-
-  // Set all dependencies at once
-  mainSchema.dependencies = allDependencies;
-
-  // Deduplicate and sort dependencies
-  mainSchema.dependencies = deduplicateDependencies(mainSchema.dependencies);
-
-  // Remove self-reference from dependencies
-  mainSchema.dependencies = mainSchema.dependencies.filter(
-    (dep: any) => dep.url !== identifier.url,
-  );
-
-  // Add main schema to results
-  results.push(mainSchema);
-
-  // Collect and add binding schemas
-  const bindingSchemas = await collectBindingSchemas(
-    fhirSchema,
-    manager,
-    fhirSchema.package_meta,
-  );
-  results.push(...bindingSchemas);
-
-  return results;
+  return await transformResource(register, fhirSchema);
 }

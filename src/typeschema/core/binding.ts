@@ -204,10 +204,10 @@ export async function generateBindingSchema(
  * Collect all binding schemas from a FHIRSchema
  */
 export async function collectBindingSchemas(
-  fhirSchema: FHIRSchema,
+  fhirSchema: RichFHIRSchema,
   manager: ReturnType<typeof CanonicalManager>,
-  packageInfo?: PackageInfo,
 ): Promise<TypeSchemaForBinding[]> {
+  const packageInfo = fhirSchema.packageInfo;
   const bindings: TypeSchemaForBinding[] = [];
   const processedPaths = new Set<string>();
 
@@ -238,22 +238,18 @@ export async function collectBindingSchemas(
         }
       }
 
-      // Process nested elements
       if (element.elements) {
         await processElement(element.elements, path);
       }
     }
   }
 
-  // Start processing from root elements
   if (fhirSchema.elements) {
     await processElement(fhirSchema.elements, []);
   }
 
-  // Sort bindings by identifier name for consistent output
   bindings.sort((a, b) => a.identifier.name.localeCompare(b.identifier.name));
 
-  // Remove duplicates (same identifier URL)
   const uniqueBindings: TypeSchemaForBinding[] = [];
   const seenUrls = new Set<string>();
 

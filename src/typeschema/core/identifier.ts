@@ -38,16 +38,14 @@ export function buildSchemaIdentifier(fhirSchema: RichFHIRSchema): Identifier {
 }
 
 export function buildNestedIdentifier(
-  fhirSchema: FHIRSchema,
+  fhirSchema: RichFHIRSchema,
   path: string[],
-  packageInfo?: PackageInfo,
 ): Identifier {
   const nestedName = path.join(".");
   return {
     kind: "nested",
-    package: packageInfo?.name || fhirSchema.package_meta.name || "undefined",
-    version:
-      packageInfo?.version || fhirSchema.package_meta.version || "undefined",
+    package: fhirSchema.package_meta.name,
+    version: fhirSchema.package_meta.version,
     name: nestedName,
     url: `${fhirSchema.url}#${nestedName}`,
   };

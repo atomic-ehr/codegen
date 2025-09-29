@@ -223,7 +223,7 @@ export function buildFieldType(
 
     // Only return nested identifier if we have a non-empty path
     if (refPath.length > 0) {
-      return buildNestedIdentifier(fhirSchema, refPath, packageInfo);
+      return buildNestedIdentifier(fhirSchema, refPath);
     }
   }
 
@@ -352,7 +352,7 @@ export function buildNestedField(
   packageInfo?: PackageInfo,
 ): TypeSchemaField {
   return {
-    type: buildNestedIdentifier(fhirSchema, path, packageInfo),
+    type: buildNestedIdentifier(fhirSchema, path),
     array: element.array || false,
     required: isRequired(fhirSchema, path, manager),
     excluded: isExcluded(fhirSchema, path, manager),

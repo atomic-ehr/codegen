@@ -14,6 +14,9 @@ describe("TypeSchema Transformer Core Logic", () => {
     resolveCanonical: () => null,
     getSchema: () => null,
     resolve: () => null,
+    dictCT: () => {
+      return {};
+    },
   };
 
   const basePackageInfo: PackageInfo = {

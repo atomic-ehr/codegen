@@ -72,7 +72,7 @@ describe("Field Builder Core Logic", () => {
         ["name"],
         element,
         mockManager as any,
-        basePackageInfo
+        basePackageInfo,
       );
 
       expect(field.type).toBeDefined();
@@ -98,7 +98,7 @@ describe("Field Builder Core Logic", () => {
         ["items"],
         element,
         mockManager as any,
-        basePackageInfo
+        basePackageInfo,
       );
 
       expect(field.array).toBe(true);
@@ -126,7 +126,7 @@ describe("Field Builder Core Logic", () => {
         ["status"],
         element,
         mockManager as any,
-        basePackageInfo
+        basePackageInfo,
       );
 
       // Enum values are only added when valueSet can be resolved
@@ -152,7 +152,7 @@ describe("Field Builder Core Logic", () => {
         ["subject"],
         element,
         mockManager as any,
-        basePackageInfo
+        basePackageInfo,
       );
 
       // References are only added when refers can be resolved by manager
@@ -180,7 +180,7 @@ describe("Field Builder Core Logic", () => {
         ["status"],
         element,
         mockManager as any,
-        basePackageInfo
+        basePackageInfo,
       );
 
       expect(field.binding).toBeDefined();
@@ -205,11 +205,15 @@ describe("Field Builder Core Logic", () => {
         ["value"],
         element,
         mockManager as any,
-        basePackageInfo
+        basePackageInfo,
       );
 
       // Polymorphic fields are handled via choices
-      expect(field.choices).toEqual(["valueString", "valueInteger", "valueBoolean"]);
+      expect(field.choices).toEqual([
+        "valueString",
+        "valueInteger",
+        "valueBoolean",
+      ]);
     });
 
     it("should handle fixed values", async () => {
@@ -230,7 +234,7 @@ describe("Field Builder Core Logic", () => {
         ["type"],
         element,
         mockManager as any,
-        basePackageInfo
+        basePackageInfo,
       );
 
       // Fixed values are preserved in the field
@@ -256,7 +260,7 @@ describe("Field Builder Core Logic", () => {
         ["phone"],
         element,
         mockManager as any,
-        basePackageInfo
+        basePackageInfo,
       );
 
       // Pattern is preserved in the field
@@ -282,7 +286,7 @@ describe("Field Builder Core Logic", () => {
         ["score"],
         element,
         mockManager as any,
-        basePackageInfo
+        basePackageInfo,
       );
 
       // Min/max are preserved in the field
@@ -308,7 +312,7 @@ describe("Field Builder Core Logic", () => {
         ["description"],
         element,
         mockManager as any,
-        basePackageInfo
+        basePackageInfo,
       );
 
       // Description is not preserved in fields
@@ -330,6 +334,7 @@ describe("Field Builder Core Logic", () => {
         type: "TestSchema",
         kind: "resource",
         url: "http://example.org/TestSchema",
+        package_meta: basePackageInfo,
       };
 
       const field = buildNestedField(
@@ -337,7 +342,7 @@ describe("Field Builder Core Logic", () => {
         ["nested", "field"],
         element,
         mockManager as any,
-        basePackageInfo
+        basePackageInfo,
       );
 
       expect(field.type).toBeDefined();
@@ -359,6 +364,7 @@ describe("Field Builder Core Logic", () => {
         type: "TestSchema",
         kind: "resource",
         url: "http://example.org/TestSchema",
+        package_meta: basePackageInfo,
       };
 
       const field = buildNestedField(
@@ -366,7 +372,7 @@ describe("Field Builder Core Logic", () => {
         ["items"],
         element,
         mockManager as any,
-        basePackageInfo
+        basePackageInfo,
       );
 
       expect(field.array).toBe(true);
@@ -386,6 +392,7 @@ describe("Field Builder Core Logic", () => {
         kind: "resource",
         url: "http://example.org/TestSchema",
         required: ["mandatory"],
+        package_meta: basePackageInfo,
       };
 
       const field = buildNestedField(
@@ -393,7 +400,7 @@ describe("Field Builder Core Logic", () => {
         ["mandatory"],
         element,
         mockManager as any,
-        basePackageInfo
+        basePackageInfo,
       );
 
       expect(field.required).toBe(true);
@@ -419,7 +426,7 @@ describe("Field Builder Core Logic", () => {
       const hierarchy = getElementHierarchy(
         fhirSchema,
         ["field1"],
-        mockManager as any
+        mockManager as any,
       );
 
       expect(hierarchy).toHaveLength(1);
@@ -447,7 +454,7 @@ describe("Field Builder Core Logic", () => {
       const hierarchy = getElementHierarchy(
         fhirSchema,
         ["parent"],
-        mockManager as any
+        mockManager as any,
       );
 
       expect(hierarchy).toHaveLength(1);
@@ -466,7 +473,7 @@ describe("Field Builder Core Logic", () => {
       const hierarchy = getElementHierarchy(
         fhirSchema,
         ["nonexistent"],
-        mockManager as any
+        mockManager as any,
       );
 
       expect(hierarchy).toHaveLength(0);
@@ -505,8 +512,8 @@ describe("Field Builder Core Logic", () => {
       const merged = mergeElementHierarchy(elements);
 
       expect(merged.type).toBe("string");
-      expect(merged.required).toBe(false);  // First element's required is kept
-      expect(merged.short).toBe("Base description");  // First element's short is kept
+      expect(merged.required).toBe(false); // First element's required is kept
+      expect(merged.short).toBe("Base description"); // First element's short is kept
       expect(merged.min).toBe(1);
     });
 

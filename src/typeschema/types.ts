@@ -66,6 +66,12 @@ interface TypeSchemaForPrimitiveType {
   dependencies?: Identifier[];
 }
 
+export interface NestedType {
+  identifier: NestedIdentifier;
+  base: Identifier;
+  fields: Record<string, TypeSchemaField>;
+}
+
 interface TypeSchemaForProfile {
   identifier: ProfileIdentifier;
   base: Identifier;
@@ -76,7 +82,7 @@ interface TypeSchemaForProfile {
   validation?: ValidationRule[];
   dependencies?: Identifier[];
   metadata?: ProfileMetadata;
-  nested?: any[];
+  nested?: NestedType[];
 }
 
 interface ProfileConstraint {

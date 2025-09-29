@@ -24,6 +24,8 @@ import type {
 } from "./types";
 import { enrichFHIRSchema } from "./types";
 import { transformValueSet } from "./value-set/processor";
+import { registerFromManager } from "@typeschema/register";
+import type { Register } from "@typeschema/register";
 
 /**
  * TypeSchema Generator class
@@ -62,37 +64,22 @@ export class TypeSchemaGenerator {
     }
   }
 
-  async fetchPackage(
-    packageName: string,
-    packageVersion?: string,
-  ): Promise<{
-    structureDefinitions: StructureDefinition[];
-    // FIXME: add type for valueset
-    valueSets: any[];
-  }> {
-    this.logger.step(
-      `Loading FHIR package: ${packageName}${packageVersion ? `@${packageVersion}` : ""}`,
+  async registerFromPackageMetas(
+    packageMetas: PackageInfo[],
+  ): Promise<Register> {
+    const packageNames = packageMetas.map(
+      (meta) => `${meta.name}${meta.version}`,
     );
-    await this.manager.addPackages(`${packageName}${packageVersion ? `@${packageVersion}` : ""}`);
+    this.logger.step(`Loading FHIR packages: ${packageNames.join(", ")}`);
 
-    const allResources = await this.manager.search({});
+    await this.manager.init();
 
-    const structureDefinitions = allResources.filter(
-      (resource) => resource.resourceType === "StructureDefinition",
-    ) as StructureDefinition[];
-
-    const valueSets = allResources.filter(
-      (resource) => resource.resourceType === "ValueSet",
-    ) as any[];
-
-    this.logger.info(
-      `Found ${structureDefinitions.length} StructureDefinitions and ${valueSets.length} ValueSets in package`,
-    );
-
-    return { structureDefinitions, valueSets };
+    return registerFromManager(this.manager);
   }
 
-  generateFhirSchemas(structureDefinitions: StructureDefinition[]) {
+  generateFhirSchemas(
+    structureDefinitions: StructureDefinition[],
+  ): FHIRSchema[] {
     this.logger.progress(
       `Converting ${structureDefinitions.length} StructureDefinitions to FHIRSchemas`,
     );
@@ -196,21 +183,18 @@ export class TypeSchemaGenerator {
       version: packageVersion || "latest",
     };
 
-    const { valueSets, structureDefinitions } = await this.fetchPackage(
-      packageName,
-      packageVersion,
-    );
+    const register = await this.registerFromPackageMetas([packageInfo]);
+    const allSchemas = [
+      ...(
+        await Promise.all(
+          register
+            .allFS()
+            .map(async (fs) => await transformFHIRSchema(register, fs)),
+        )
+      ).flat(),
+      ...(await this.generateValueSetSchemas(register.allVS(), packageInfo)),
+    ];
 
-    const fhirSchemas =
-      this.generateFhirSchemas(structureDefinitions).map(enrichFHIRSchema);
-
-    const valueSetSchemas = await this.generateValueSetSchemas(
-      valueSets,
-      packageInfo,
-    );
-    const schemas = await this.generateResourceTypeSchemas(fhirSchemas);
-
-    const allSchemas = [...schemas, ...valueSetSchemas];
     if (this.cache) {
       for (const schema of allSchemas) {
         await this.cache.set(schema);

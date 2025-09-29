@@ -85,8 +85,8 @@ export async function buildNestedTypes(
   fhirSchema: FHIRSchema,
   manager: ReturnType<typeof CanonicalManager>,
   packageInfo?: PackageInfo,
-): Promise<any[]> {
-  if (!fhirSchema.elements) return [];
+): Promise<any[] | undefined> {
+  if (!fhirSchema.elements) return undefined;
 
   const nestedTypes: any[] = [];
   const nestedElements = collectNestedElements(
@@ -102,7 +102,7 @@ export async function buildNestedTypes(
   );
 
   for (const [path, element] of actualNested) {
-    const identifier = buildNestedIdentifier(fhirSchema, path, packageInfo);
+    const identifier = buildNestedIdentifier(fhirSchema, path);
 
     // Base is usually BackboneElement - ensure all nested types have a base
     // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
