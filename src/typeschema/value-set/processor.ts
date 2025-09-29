@@ -5,8 +5,8 @@
  */
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
-import { buildValueSetIdentifier } from "../core/identifier";
-import type { PackageInfo, TypeSchemaForValueSet, Identifier } from "../types";
+import { mkValueSetIdentifier } from "../core/identifier";
+import type { PackageMeta, TypeSchemaForValueSet, Identifier } from "../types";
 
 /**
  * Extract concepts from a CodeSystem
@@ -155,13 +155,9 @@ export async function extractValueSetConcepts(
 export async function transformValueSet(
   valueSet: any,
   manager: ReturnType<typeof CanonicalManager>,
-  packageInfo?: PackageInfo,
+  packageInfo?: PackageMeta,
 ): Promise<TypeSchemaForValueSet> {
-  const identifier = buildValueSetIdentifier(
-    valueSet.url,
-    valueSet,
-    packageInfo,
-  );
+  const identifier = mkValueSetIdentifier(valueSet.url, valueSet, packageInfo);
 
   const typeSchemaValueSet: TypeSchemaForValueSet = {
     identifier,
@@ -201,7 +197,7 @@ export async function transformValueSet(
         }
         if (item.valueSet) {
           for (const vsUrl of item.valueSet) {
-            deps.push(buildValueSetIdentifier(vsUrl, undefined, packageInfo));
+            deps.push(mkValueSetIdentifier(vsUrl, undefined, packageInfo));
           }
         }
       }

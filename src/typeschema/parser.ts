@@ -6,8 +6,11 @@
  */
 
 import { readFile } from "node:fs/promises";
-import type { TypeSchema, Identifier } from "@typeschema/types";
-import type { TypeschemaParserOptions } from "./types";
+import type {
+  TypeSchema,
+  Identifier,
+  TypeschemaParserOptions,
+} from "@typeschema/types";
 
 /**
  * TypeSchema Parser class
@@ -134,86 +137,85 @@ export class TypeSchemaParser {
   /**
    * Get all dependencies from a schema
    */
-  getDependencies(schema: TypeSchema): Identifier[] {
-    const dependencies: Identifier[] = [];
+  // getDependencies(schema: TypeSchema): Identifier[] {
+  //   const dependencies: Identifier[] = [];
 
-    // Add base dependency
-    if ("base" in schema && schema.base) {
-      dependencies.push(schema.base);
-    }
+  //   // Add base dependency
+  //   if ("base" in schema && schema.base) {
+  //     dependencies.push(schema.base);
+  //   }
 
-    // Add explicit dependencies
-    if ("dependencies" in schema && schema.dependencies) {
-      dependencies.push(...schema.dependencies);
-    }
+  //   // Add explicit dependencies
+  //   if ("dependencies" in schema && schema.dependencies) {
+  //     dependencies.push(...schema.dependencies);
+  //   }
 
-    // Add field type dependencies
-    if ("fields" in schema && schema.fields) {
-      for (const field of Object.values(schema.fields)) {
-        if ("type" in field && field.type) {
-          dependencies.push(field.type);
-        }
-        if ("binding" in field && field.binding) {
-          dependencies.push(field.binding);
-        }
-        if ("reference" in field && field.reference) {
-          dependencies.push(...field.reference);
-        }
-      }
-    }
+  //   // Add field type dependencies
+  //   if ("fields" in schema && schema.fields) {
+  //     for (const field of Object.values(schema.fields)) {
+  //       if ("type" in field && field.type) {
+  //         dependencies.push(field.type);
+  //       }
+  //       if ("binding" in field && field.binding) {
+  //         dependencies.push(field.binding);
+  //       }
+  //       if ("reference" in field && field.reference) {
+  //         dependencies.push(...field.reference);
+  //       }
+  //     }
+  //   }
 
-    // Add nested type dependencies
-    if ("nested" in schema && schema.nested) {
-      for (const nested of schema.nested) {
-        dependencies.push(nested.identifier);
-        dependencies.push(nested.base);
+  //   if ("nested" in schema && schema.nested) {
+  //     for (const nested of schema.nested) {
+  //       dependencies.push(nested.identifier);
+  //       dependencies.push(nested.base);
 
-        for (const field of Object.values(nested.fields)) {
-          if ("type" in field && field.type) {
-            dependencies.push(field.type);
-          }
-          if ("binding" in field && field.binding) {
-            dependencies.push(field.binding);
-          }
-          if ("reference" in field && field.reference) {
-            dependencies.push(...field.reference);
-          }
-        }
-      }
-    }
+  //       for (const field of Object.values(nested.fields)) {
+  //         if ("type" in field && field.type) {
+  //           dependencies.push(field.type);
+  //         }
+  //         if ("binding" in field && field.binding) {
+  //           dependencies.push(field.binding);
+  //         }
+  //         if ("reference" in field && field.reference) {
+  //           dependencies.push(...field.reference);
+  //         }
+  //       }
+  //     }
+  //   }
 
-    // Add binding dependencies
-    if ("valueset" in schema) {
-      const bindingSchema = schema as any;
-      dependencies.push(bindingSchema.valueset);
-      if (bindingSchema.type) {
-        dependencies.push(bindingSchema.type);
-      }
-    }
+  //   // Add binding dependencies
+  //   if ("valueset" in schema) {
+  //     const bindingSchema = schema as any;
+  //     dependencies.push(bindingSchema.valueset);
+  //     if (bindingSchema.type) {
+  //       dependencies.push(bindingSchema.type);
+  //     }
+  //   }
 
-    // Remove duplicates
-    return this.deduplicateDependencies(dependencies);
-  }
+  //   // Remove duplicates
+  //   return this.deduplicateDependencies(dependencies);
+  // }
 
   /**
    * Resolve schema dependencies
    */
-  resolveDependencies(
-    schemas: TypeSchema[],
-    targetSchema: TypeSchema,
-  ): TypeSchema[] {
-    const dependencies = this.getDependencies(targetSchema);
-    const resolved: TypeSchema[] = [];
+  // resolveDependencies(
+  //   schemas: TypeSchema[],
+  //   targetSchema: TypeSchema,
+  // ): TypeSchema[] {
+  //   const dependencies = this.getDependencies(targetSchema);
+  //   const resolved: TypeSchema[] = [];
 
-    for (const dep of dependencies) {
-      const depSchema = this.findByUrl(schemas, dep.url);
-      if (depSchema) {
-        resolved.push(depSchema);
-      }
-    }
+  //   for (const dep of dependencies) {
+  //     const depSchema = this.findByUrl(schemas, dep.url);
+  //     if (depSchema) {
+  //       resolved.push(depSchema);
+  //     }
+  //   }
 
-    return resolved;
-  }
+  //   return resolved;
+  // }
 
   /**
    * Detect format from content or filename

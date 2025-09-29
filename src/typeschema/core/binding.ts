@@ -6,11 +6,16 @@
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import type { PackageInfo, TypeSchemaForBinding } from "../types";
+import type {
+  Identifier,
+  PackageMeta,
+  TypeSchemaForBinding,
+  RichFHIRSchema,
+} from "../types";
 import { buildFieldType } from "./field-builder";
 import {
-  buildBindingIdentifier,
-  buildValueSetIdentifier,
+  mkBindingIdentifier,
+  mkValueSetIdentifier,
   dropVersionFromUrl,
 } from "./identifier";
 
@@ -142,19 +147,16 @@ export async function buildEnum(
   }
 }
 
-/**
- * Generate a binding TypeSchema
- */
 export async function generateBindingSchema(
-  fhirSchema: FHIRSchema,
+  fhirSchema: RichFHIRSchema,
   path: string[],
   element: FHIRSchemaElement,
   manager: ReturnType<typeof CanonicalManager>,
-  packageInfo?: PackageInfo,
+  packageInfo?: PackageMeta,
 ): Promise<TypeSchemaForBinding | undefined> {
   if (!element.binding?.valueSet) return undefined;
 
-  const identifier = buildBindingIdentifier(
+  const identifier = mkBindingIdentifier(
     fhirSchema,
     path,
     element.binding.bindingName,
@@ -168,35 +170,28 @@ export async function generateBindingSchema(
     manager,
     packageInfo,
   );
-  const valueSetIdentifier = buildValueSetIdentifier(
+  const valueSetIdentifier = mkValueSetIdentifier(
     element.binding.valueSet,
     undefined,
     packageInfo,
   );
 
-  const binding: TypeSchemaForBinding = {
+  const dependencies: Identifier[] = [];
+  if (fieldType) {
+    dependencies.push(fieldType);
+  }
+  dependencies.push(valueSetIdentifier);
+
+  const enumValues = await buildEnum(element, manager);
+
+  return {
     identifier,
     type: fieldType,
     valueset: valueSetIdentifier,
     strength: element.binding.strength,
-    dependencies: [],
+    enum: enumValues,
+    dependencies,
   };
-
-  // Add dependencies in specific order: type first, then value set
-  if (fieldType) {
-    binding.dependencies.push(fieldType);
-  }
-  binding.dependencies.push(valueSetIdentifier);
-
-  // Add enum if applicable
-  const enumValues = await buildEnum(element, manager);
-  if (enumValues) {
-    binding.enum = enumValues;
-  }
-
-  // Don't sort dependencies - keep them in the order: type, then value set
-
-  return binding;
 }
 
 /**
@@ -206,7 +201,7 @@ export async function collectBindingSchemas(
   fhirSchema: RichFHIRSchema,
   manager: ReturnType<typeof CanonicalManager>,
 ): Promise<TypeSchemaForBinding[]> {
-  const packageInfo = fhirSchema.packageInfo;
+  const packageInfo = fhirSchema.package_meta;
   const bindings: TypeSchemaForBinding[] = [];
   const processedPaths = new Set<string>();
 

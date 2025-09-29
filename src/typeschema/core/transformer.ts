@@ -4,12 +4,7 @@
  * Core transformation logic for converting FHIRSchema to TypeSchema format
  */
 
-import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
-import type {
-  FHIRSchema,
-  FHIRSchemaElement,
-  StructureDefinition,
-} from "@atomic-ehr/fhirschema";
+import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import { type Register } from "@typeschema/register";
 import { transformProfile } from "../profile/processor";
 import type {
@@ -17,29 +12,28 @@ import type {
   TypeSchemaField,
   TypeSchemaForValueSet,
   RichFHIRSchema,
+  ValueSetIdentifier,
+  NestedType,
   Identifier,
 } from "@typeschema/types";
-import type { PackageInfo } from "../types";
+import type { PackageMeta } from "../types";
 import { collectBindingSchemas } from "./binding";
 import {
   buildField,
-  buildNestedField,
+  mkNestedField,
   getElementHierarchy,
   isNestedElement,
   mergeElementHierarchy,
 } from "./field-builder";
-import { buildSchemaIdentifier } from "./identifier";
+import { mkIdentifier } from "./identifier";
 import { buildNestedTypes, extractNestedDependencies } from "./nested-types";
 
-/**
- * Transform elements into fields
- */
 export async function transformElements(
-  fhirSchema: FHIRSchema,
+  fhirSchema: RichFHIRSchema,
   parentPath: string[],
-  elements: Record<string, FHIRSchemaElement>,
-  manager: ReturnType<typeof CanonicalManager>,
-  packageInfo?: PackageInfo,
+  elements: Record<string, FHIRSchemaElement> | undefined,
+  register: Register,
+  packageInfo?: PackageMeta,
 ): Promise<Record<string, TypeSchemaField> | undefined> {
   const fields: Record<string, TypeSchemaField> = {};
   if (!elements) return undefined;
@@ -48,17 +42,17 @@ export async function transformElements(
     const path = [...parentPath, key];
 
     // Get element snapshot from hierarchy
-    const hierarchy = getElementHierarchy(fhirSchema, path, manager);
+    const hierarchy = getElementHierarchy(fhirSchema, path, register);
     const snapshot =
       hierarchy.length > 0 ? mergeElementHierarchy(hierarchy) : element;
 
     if (isNestedElement(snapshot)) {
       // Reference to nested type
-      fields[key] = buildNestedField(
+      fields[key] = mkNestedField(
         fhirSchema,
         path,
         snapshot,
-        manager,
+        register,
         packageInfo,
       );
     } else {
@@ -67,7 +61,7 @@ export async function transformElements(
         fhirSchema,
         path,
         snapshot,
-        manager,
+        register,
         packageInfo,
       );
     }
@@ -151,16 +145,16 @@ function isExtensionSchema(
  * Transform a ValueSet FHIRSchema to TypeSchemaValueSet
  */
 async function transformValueSet(
-  fhirSchema: FHIRSchema,
-  _manager: ReturnType<typeof CanonicalManager>,
-  packageInfo?: PackageInfo,
+  fhirSchema: RichFHIRSchema,
+  _register: Register,
+  packageInfo?: PackageMeta,
 ): Promise<TypeSchemaForValueSet | null> {
   try {
-    const identifier = buildSchemaIdentifier(fhirSchema);
-    identifier.kind = "value-set"; // Ensure correct kind
+    const identifier = mkIdentifier(fhirSchema);
+    identifier.kind = "value-set";
 
     const valueSetSchema: TypeSchemaForValueSet = {
-      identifier,
+      identifier: identifier as ValueSetIdentifier,
       description: fhirSchema.description,
     };
 
@@ -201,12 +195,12 @@ async function transformValueSet(
  * Transform an Extension FHIRSchema to TypeSchema with extension metadata
  */
 async function transformExtension(
-  fhirSchema: FHIRSchema,
-  manager: ReturnType<typeof CanonicalManager>,
-  packageInfo?: PackageInfo,
+  fhirSchema: RichFHIRSchema,
+  register: Register,
+  packageInfo?: PackageMeta,
 ): Promise<any | null> {
   try {
-    const identifier = buildSchemaIdentifier(fhirSchema);
+    const identifier = mkIdentifier(fhirSchema);
 
     // Build base identifier if present
     let base: Identifier | undefined;
@@ -255,11 +249,11 @@ async function transformExtension(
         fhirSchema,
         [],
         fhirSchema.elements,
-        manager,
+        register,
         packageInfo,
       );
 
-      if (Object.keys(fields).length > 0) {
+      if (fields && Object.keys(fields).length > 0) {
         extensionSchema.fields = fields;
         extensionSchema.dependencies.push(...extractFieldDependencies(fields));
       }
@@ -268,10 +262,10 @@ async function transformExtension(
     // Build nested types
     const nestedTypes = await buildNestedTypes(
       fhirSchema,
-      manager,
+      register,
       packageInfo,
     );
-    if (nestedTypes.length > 0) {
+    if (nestedTypes && nestedTypes.length > 0) {
       extensionSchema.nested = nestedTypes;
       extensionSchema.dependencies.push(
         ...extractNestedDependencies(nestedTypes),
@@ -306,7 +300,7 @@ function extractDependencies(
   if (fields) deps.push(...extractFieldDependencies(fields));
   if (nestedTypes) deps.push(...extractNestedDependencies(nestedTypes));
 
-  const uniqDeps = {};
+  const uniqDeps: Record<string, Identifier> = {};
   for (const dep of deps) {
     if (dep.url === identifier.url) continue;
     uniqDeps[dep.url] = dep;
@@ -321,29 +315,13 @@ function extractDependencies(
 async function transformResource(
   register: Register,
   fhirSchema: RichFHIRSchema,
-) {
-  const identifier = buildSchemaIdentifier(fhirSchema);
+): Promise<TypeSchema[]> {
+  const identifier = mkIdentifier(fhirSchema);
   let base: Identifier | undefined;
   if (fhirSchema.base && fhirSchema.type !== "Element") {
-    const baseUrl = fhirSchema.base.includes("/")
-      ? fhirSchema.base
-      : `http://hl7.org/fhir/StructureDefinition/${fhirSchema.base}`;
-    const baseName = fhirSchema.base.split("/").pop() || fhirSchema.base;
-    const kind = register.complexTypeDict()[baseName]
-      ? "complex-type"
-      : "resource";
-    const isStandardFhir = baseUrl.startsWith("http://hl7.org/fhir/");
-    base = {
-      kind,
-      package: isStandardFhir
-        ? "hl7.fhir.r4.core"
-        : fhirSchema.package_meta.name || "undefined",
-      version: isStandardFhir
-        ? "4.0.1"
-        : fhirSchema.package_meta.version || "undefined",
-      name: baseName,
-      url: baseUrl,
-    };
+    const curl = register.ensureCanonicalUrl(fhirSchema.base);
+    const baseFS = register.resolveFS(curl);
+    base = mkIdentifier(baseFS!);
   }
 
   const fields = await transformElements(
@@ -384,23 +362,15 @@ export async function transformFHIRSchema(
   fhirSchema: RichFHIRSchema,
 ): Promise<TypeSchema[]> {
   const results: TypeSchema[] = [];
-  const identifier = buildSchemaIdentifier(fhirSchema);
+  const identifier = mkIdentifier(fhirSchema);
 
   // Handle profiles with specialized processor
   if (identifier.kind === "profile") {
-    const profileSchema = await transformProfile(
-      fhirSchema,
-      register,
-      fhirSchema.package_meta,
-    );
+    const profileSchema = await transformProfile(fhirSchema, register);
     results.push(profileSchema);
 
     // Collect binding schemas for profiles too
-    const bindingSchemas = await collectBindingSchemas(
-      fhirSchema,
-      register,
-      fhirSchema.package_meta,
-    );
+    const bindingSchemas = await collectBindingSchemas(fhirSchema, register);
     results.push(...bindingSchemas);
 
     return results;

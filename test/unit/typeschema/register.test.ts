@@ -7,7 +7,7 @@ import {
   type Register,
   registerFromPackageMetas,
   registerFromManager,
-} from "../../../src/typeschema/register";
+} from "@typeschema/register";
 
 export type PFS = Partial<FHIRSchema>;
 

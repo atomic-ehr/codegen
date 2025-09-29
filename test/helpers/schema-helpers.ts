@@ -10,7 +10,7 @@ import type {
   TypeSchemaForValueSet,
   TypeSchemaForPrimitiveType,
   RegularField,
-} from "../../src/typeschema";
+} from "@typeschema";
 
 /**
  * Create a minimal valid schema for testing

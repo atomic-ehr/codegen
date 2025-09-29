@@ -4,7 +4,7 @@ import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import {
   type RichFHIRSchema,
-  type PackageInfo,
+  type PackageMeta,
   enrichFHIRSchema,
 } from "@typeschema/types";
 
@@ -22,7 +22,7 @@ export type Register = {
 export const registerFromManager = async (
   manager: ReturnType<typeof CanonicalManager>,
   logger?: CodegenLogger,
-  packageInfo?: PackageInfo,
+  packageInfo?: PackageMeta,
 ): Promise<Register> => {
   const resources = await manager.search({});
 
@@ -86,7 +86,7 @@ export const registerFromManager = async (
 };
 
 export const registerFromPackageMetas = async (
-  packageMetas: PackageInfo[],
+  packageMetas: PackageMeta[],
   logger?: CodegenLogger,
 ): Promise<Register> => {
   const packageNames = packageMetas.map(

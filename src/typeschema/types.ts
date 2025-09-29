@@ -6,18 +6,18 @@
 import type * as FS from "@atomic-ehr/fhirschema";
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 
-export interface PackageInfo {
+export interface PackageMeta {
   name: string;
   version: string;
 }
 
 export type RichFHIRSchema = Omit<FS.FHIRSchema, "package_meta"> & {
-  package_meta: PackageInfo;
+  package_meta: PackageMeta;
 };
 
 export const enrichFHIRSchema = (
   schema: FS.FHIRSchema,
-  packageMeta?: PackageInfo,
+  packageMeta?: PackageMeta,
 ): RichFHIRSchema => {
   if (!packageMeta) {
     packageMeta = { name: "undefined", version: "undefined" };
@@ -38,9 +38,9 @@ type IdentifierBase = {
 type PrimitiveIdentifier = { kind: "primitive-type" } & IdentifierBase;
 type ComplexTypeIdentifier = { kind: "complex-type" } & IdentifierBase;
 type ResourceIdentifier = { kind: "resource" } & IdentifierBase;
-type ValueSetIdentifier = { kind: "value-set" } & IdentifierBase;
-type NestedIdentifier = { kind: "nested" } & IdentifierBase;
-type BindingIdentifier = { kind: "binding" } & IdentifierBase;
+export type ValueSetIdentifier = { kind: "value-set" } & IdentifierBase;
+export type NestedIdentifier = { kind: "nested" } & IdentifierBase;
+export type BindingIdentifier = { kind: "binding" } & IdentifierBase;
 type ProfileIdentifier = { kind: "profile" } & IdentifierBase;
 type LogicalIdentifier = { kind: "logical" } & IdentifierBase;
 
@@ -74,7 +74,7 @@ export interface NestedType {
   fields: Record<string, TypeSchemaField>;
 }
 
-interface TypeSchemaForProfile {
+export interface TypeSchemaForProfile {
   identifier: ProfileIdentifier;
   base: Identifier;
   description?: string;
@@ -87,7 +87,7 @@ interface TypeSchemaForProfile {
   nested?: NestedType[];
 }
 
-interface ProfileConstraint {
+export interface ProfileConstraint {
   min?: number;
   max?: string;
   mustSupport?: boolean;
@@ -109,7 +109,7 @@ interface ProfileConstraint {
   };
 }
 
-interface ProfileExtension {
+export interface ProfileExtension {
   path: string;
   profile: string | string[];
   min?: number;
@@ -117,7 +117,7 @@ interface ProfileExtension {
   mustSupport?: boolean;
 }
 
-interface ValidationRule {
+export interface ValidationRule {
   path: string;
   key: string;
   severity: "error" | "warning" | "information";
@@ -125,7 +125,7 @@ interface ValidationRule {
   expression?: string;
 }
 
-interface ProfileMetadata {
+export interface ProfileMetadata {
   publisher?: string;
   contact?: any[];
   copyright?: string;
@@ -136,8 +136,20 @@ interface ProfileMetadata {
   package?: string;
 }
 
+export interface TypeSchemaNestedType {
+  identifier: NestedIdentifier;
+  base: Identifier;
+  fields?: {
+    [k: string]:
+      | RegularField
+      | PolymorphicValueXFieldDeclaration
+      | PolymorphicValueXFieldInstance;
+  };
+}
+
 export interface TypeSchemaForResourceComplexTypeLogical {
-  identifier: ResourceIdentifier | ComplexTypeIdentifier | LogicalIdentifier;
+  // TODO: restrict to ResourceIdentifier | ComplexTypeIdentifier | LogicalIdentifier
+  identifier: Identifier;
   base?: Identifier;
   description?: string;
   fields?: {
@@ -146,16 +158,7 @@ export interface TypeSchemaForResourceComplexTypeLogical {
       | PolymorphicValueXFieldDeclaration
       | PolymorphicValueXFieldInstance;
   };
-  nested?: {
-    identifier: NestedIdentifier;
-    base: Identifier;
-    fields?: {
-      [k: string]:
-        | RegularField
-        | PolymorphicValueXFieldDeclaration
-        | PolymorphicValueXFieldInstance;
-    };
-  }[];
+  nested?: TypeSchemaNestedType[];
   dependencies?: Identifier[];
 }
 
@@ -232,3 +235,9 @@ export function isBindingSchema(
 ): schema is TypeSchemaForBinding {
   return schema.identifier.kind === "binding";
 }
+
+export type TypeschemaParserOptions = {
+  format?: "auto" | "ndjson" | "json";
+  validate?: boolean;
+  strict?: boolean;
+};

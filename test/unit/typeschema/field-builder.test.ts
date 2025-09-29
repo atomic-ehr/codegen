@@ -1,21 +1,19 @@
 import { describe, expect, it } from "bun:test";
 import {
   buildField,
-  buildNestedField,
+  mkNestedField,
   getElementHierarchy,
   isNestedElement,
   mergeElementHierarchy,
-} from "../../../src/typeschema/core/field-builder";
+} from "@typeschema/core/field-builder";
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import type { PackageInfo } from "../../../src/typeschema/types";
+import type { PackageMeta } from "@typeschema/types";
+import { mkR4Register } from "@typeschema-test/utils";
 
-describe("Field Builder Core Logic", () => {
-  const mockManager = {
-    resolveCanonical: () => null,
-    getSchema: () => null,
-  };
+describe("Field Builder Core Logic", async () => {
+  const r4 = await mkR4Register();
 
-  const basePackageInfo: PackageInfo = {
+  const basePackageInfo: PackageMeta = {
     name: "test.package",
     version: "1.0.0",
   };
@@ -71,7 +69,7 @@ describe("Field Builder Core Logic", () => {
         fhirSchema,
         ["name"],
         element,
-        mockManager as any,
+        r4 as any,
         basePackageInfo,
       );
 
@@ -97,7 +95,7 @@ describe("Field Builder Core Logic", () => {
         fhirSchema,
         ["items"],
         element,
-        mockManager as any,
+        r4 as any,
         basePackageInfo,
       );
 
@@ -125,7 +123,7 @@ describe("Field Builder Core Logic", () => {
         fhirSchema,
         ["status"],
         element,
-        mockManager as any,
+        r4 as any,
         basePackageInfo,
       );
 
@@ -151,7 +149,7 @@ describe("Field Builder Core Logic", () => {
         fhirSchema,
         ["subject"],
         element,
-        mockManager as any,
+        r4 as any,
         basePackageInfo,
       );
 
@@ -179,7 +177,7 @@ describe("Field Builder Core Logic", () => {
         fhirSchema,
         ["status"],
         element,
-        mockManager as any,
+        r4 as any,
         basePackageInfo,
       );
 
@@ -204,7 +202,7 @@ describe("Field Builder Core Logic", () => {
         fhirSchema,
         ["value"],
         element,
-        mockManager as any,
+        r4 as any,
         basePackageInfo,
       );
 
@@ -233,7 +231,7 @@ describe("Field Builder Core Logic", () => {
         fhirSchema,
         ["type"],
         element,
-        mockManager as any,
+        r4 as any,
         basePackageInfo,
       );
 
@@ -259,7 +257,7 @@ describe("Field Builder Core Logic", () => {
         fhirSchema,
         ["phone"],
         element,
-        mockManager as any,
+        r4 as any,
         basePackageInfo,
       );
 
@@ -285,7 +283,7 @@ describe("Field Builder Core Logic", () => {
         fhirSchema,
         ["score"],
         element,
-        mockManager as any,
+        r4 as any,
         basePackageInfo,
       );
 
@@ -311,7 +309,7 @@ describe("Field Builder Core Logic", () => {
         fhirSchema,
         ["description"],
         element,
-        mockManager as any,
+        r4 as any,
         basePackageInfo,
       );
 
@@ -337,11 +335,11 @@ describe("Field Builder Core Logic", () => {
         package_meta: basePackageInfo,
       };
 
-      const field = buildNestedField(
+      const field = mkNestedField(
         fhirSchema,
         ["nested", "field"],
         element,
-        mockManager as any,
+        r4 as any,
         basePackageInfo,
       );
 
@@ -367,11 +365,11 @@ describe("Field Builder Core Logic", () => {
         package_meta: basePackageInfo,
       };
 
-      const field = buildNestedField(
+      const field = mkNestedField(
         fhirSchema,
         ["items"],
         element,
-        mockManager as any,
+        r4 as any,
         basePackageInfo,
       );
 
@@ -395,11 +393,11 @@ describe("Field Builder Core Logic", () => {
         package_meta: basePackageInfo,
       };
 
-      const field = buildNestedField(
+      const field = mkNestedField(
         fhirSchema,
         ["mandatory"],
         element,
-        mockManager as any,
+        r4 as any,
         basePackageInfo,
       );
 
@@ -423,11 +421,7 @@ describe("Field Builder Core Logic", () => {
         },
       };
 
-      const hierarchy = getElementHierarchy(
-        fhirSchema,
-        ["field1"],
-        mockManager as any,
-      );
+      const hierarchy = getElementHierarchy(fhirSchema, ["field1"], r4 as any);
 
       expect(hierarchy).toHaveLength(1);
       expect(hierarchy[0].type).toBe("string");
@@ -451,11 +445,7 @@ describe("Field Builder Core Logic", () => {
       };
 
       // The function navigates through elements, not nested elements
-      const hierarchy = getElementHierarchy(
-        fhirSchema,
-        ["parent"],
-        mockManager as any,
-      );
+      const hierarchy = getElementHierarchy(fhirSchema, ["parent"], r4 as any);
 
       expect(hierarchy).toHaveLength(1);
       expect(hierarchy[0].elements?.child).toBeDefined();
@@ -473,7 +463,7 @@ describe("Field Builder Core Logic", () => {
       const hierarchy = getElementHierarchy(
         fhirSchema,
         ["nonexistent"],
-        mockManager as any,
+        r4 as any,
       );
 
       expect(hierarchy).toHaveLength(0);

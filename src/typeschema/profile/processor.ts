@@ -7,17 +7,18 @@
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
-import { buildSchemaIdentifier } from "../core/identifier";
+import { mkIdentifier } from "../core/identifier";
 import { transformElements } from "../core/transformer";
-import type { Identifier } from "@typeschema/types";
+import type { Identifier, RichFHIRSchema } from "@typeschema/types";
 import type {
-  PackageInfo,
+  PackageMeta,
   ProfileConstraint,
   ProfileExtension,
   ProfileMetadata,
   TypeSchemaForProfile,
   ValidationRule,
 } from "../types";
+import type { Register } from "@root/typeschema/register";
 
 /**
  * Transform a FHIR profile to TypeSchema format
@@ -25,10 +26,10 @@ import type {
  */
 export async function transformProfile(
   fhirSchema: RichFHIRSchema,
-  manager: ReturnType<typeof CanonicalManager>,
+  register: Register,
 ): Promise<TypeSchemaForProfile> {
   // Build profile identifier
-  const identifier = buildSchemaIdentifier(fhirSchema);
+  const identifier = mkIdentifier(fhirSchema);
   const packageInfo = fhirSchema.package_meta;
 
   // Ensure this is recognized as a profile
@@ -47,7 +48,7 @@ export async function transformProfile(
     const baseName = fhirSchema.base.split("/").pop() || fhirSchema.base;
 
     // Determine base kind - could be another profile or a base resource
-    const baseKind = await determineBaseKind(baseUrl, manager);
+    const baseKind = await determineBaseKind(baseUrl, register);
 
     // For standard FHIR types, use the standard package
     const isStandardFhir = baseUrl.startsWith("http://hl7.org/fhir/");
@@ -88,22 +89,22 @@ export async function transformProfile(
       fhirSchema,
       [],
       fhirSchema.elements,
-      manager,
+      register,
       packageInfo,
     );
-    if (Object.keys(fields).length > 0) {
+    if (fields && Object.keys(fields).length > 0) {
       profileSchema.fields = fields;
     }
   }
 
   // Process profile constraints
-  const constraints = await processProfileConstraints(fhirSchema, manager);
+  const constraints = await processProfileConstraints(fhirSchema, register);
   if (Object.keys(constraints).length > 0) {
     profileSchema.constraints = constraints;
   }
 
   // Process extensions
-  const extensions = await processProfileExtensions(fhirSchema, manager);
+  const extensions = await processProfileExtensions(fhirSchema, register);
   if (extensions.length > 0) {
     profileSchema.extensions = extensions;
   }

@@ -6,13 +6,19 @@
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import type { PackageInfo, TypeSchemaField, Identifier } from "../types";
+import type {
+  PackageMeta,
+  TypeSchemaField,
+  Identifier,
+  RichFHIRSchema,
+} from "../types";
 import { buildEnum } from "./binding";
 import {
-  buildBindingIdentifier,
-  buildNestedIdentifier,
-  buildSchemaIdentifier,
+  mkBindingIdentifier,
+  mkNestedIdentifier,
+  mkIdentifier,
 } from "./identifier";
+import type { Register } from "@root/typeschema/register";
 
 /**
  * Get the full element hierarchy for a given path
@@ -174,43 +180,28 @@ export function isExcluded(
   return false;
 }
 
-/**
- * Build reference array from element refers
- */
-export async function buildReferences(
+export const buildReferences = (
   element: FHIRSchemaElement,
-  manager: ReturnType<typeof CanonicalManager>,
-  packageInfo?: PackageInfo,
-): Promise<Identifier[] | undefined> {
-  if (!element.refers || element.refers.length === 0) {
-    return undefined;
-  }
-
-  const references = [];
-
-  for (const ref of element.refers) {
-    try {
-      const resource = await manager.resolve(ref);
-      if (resource) {
-        references.push(
-          buildSchemaIdentifier(resource as unknown as FHIRSchema),
-        );
-      }
-    } catch {}
-  }
-
-  return references;
-}
+  register: Register,
+  packageInfo?: PackageMeta,
+): Identifier[] | undefined => {
+  if (!element.refers) return undefined;
+  return element.refers.map((ref) => {
+    const curl = register.ensureCanonicalUrl(ref);
+    const fs = register.resolveFS(curl)!;
+    return mkIdentifier(fs);
+  });
+};
 
 /**
  * Build field type identifier
  */
 export function buildFieldType(
-  fhirSchema: FHIRSchema,
+  fhirSchema: RichFHIRSchema,
   _path: string[],
   element: FHIRSchemaElement,
   _manager: ReturnType<typeof CanonicalManager>,
-  packageInfo?: PackageInfo,
+  packageInfo?: PackageMeta,
 ): Identifier | undefined {
   // Handle element reference (for slicing)
   if (element.elementReference) {
@@ -221,7 +212,7 @@ export function buildFieldType(
 
     // Only return nested identifier if we have a non-empty path
     if (refPath.length > 0) {
-      return buildNestedIdentifier(fhirSchema, refPath);
+      return mkNestedIdentifier(fhirSchema, refPath);
     }
   }
 
@@ -250,69 +241,46 @@ export function buildFieldType(
   return undefined;
 }
 
-/**
- * Build a TypeSchema field from a FHIRSchema element
- */
-export async function buildField(
-  fhirSchema: FHIRSchema,
+export const buildField = (
+  fhirSchema: RichFHIRSchema,
   path: string[],
   element: FHIRSchemaElement,
-  manager: ReturnType<typeof CanonicalManager>,
-  packageInfo?: PackageInfo,
-): Promise<TypeSchemaField> {
-  const field: TypeSchemaField = {
-    array: element.array || false,
-    required: isRequired(fhirSchema, path, manager),
-    excluded: isExcluded(fhirSchema, path, manager),
-  };
-
-  // Add type if present
-  const type = buildFieldType(fhirSchema, path, element, manager, packageInfo);
-  if (type) {
-    field.type = type;
-  }
-
-  // Add cardinality
-  if (element.min !== undefined) field.min = element.min;
-  if (element.max !== undefined) field.max = element.max;
-
-  // Add choices
-  // @ts-ignore
-  if (element.choices) field.choices = element.choices;
-  // @ts-ignore
-  if (element.choiceOf) field.choiceOf = element.choiceOf;
-
-  // Add binding if present
+  register: Register,
+  packageInfo?: PackageMeta,
+): TypeSchemaField => {
+  let binding;
+  let enumValues;
   if (element.binding) {
-    field.binding = buildBindingIdentifier(
+    binding = mkBindingIdentifier(
       fhirSchema,
       path,
       element.binding.bindingName,
       packageInfo,
     );
 
-    // Add enum for required bindings on code types
     if (element.binding.strength === "required" && element.type === "code") {
-      const enumValues = await buildEnum(element, manager);
-      if (enumValues && enumValues.length > 0) {
-        field.enum = enumValues;
-      }
+      enumValues = buildEnum(element, register);
     }
   }
 
-  // Add references
-  const references = await buildReferences(element, manager, packageInfo);
-  if (references) {
-    field.reference = references;
-  }
+  return {
+    type: buildFieldType(fhirSchema, path, element, register, packageInfo)!,
+    required: isRequired(fhirSchema, path, register),
+    excluded: isExcluded(fhirSchema, path, register),
 
-  // Remove empty/default values
-  return removeEmptyValues(field);
-}
+    reference: buildReferences(element, register, packageInfo),
 
-/**
- * Remove empty values from an object
- */
+    array: element.array || false,
+    min: element.min,
+    max: element.max,
+
+    choices: element.choices,
+    choiceOf: element.choiceOf,
+
+    binding: binding,
+  };
+};
+
 function removeEmptyValues<T extends Record<string, any>>(obj: T): T {
   const result: any = {};
 
@@ -339,18 +307,15 @@ export function isNestedElement(element: FHIRSchemaElement): boolean {
   );
 }
 
-/**
- * Build a field reference to a nested type
- */
-export function buildNestedField(
-  fhirSchema: FHIRSchema,
+export function mkNestedField(
+  fhirSchema: RichFHIRSchema,
   path: string[],
   element: FHIRSchemaElement,
   manager: ReturnType<typeof CanonicalManager>,
-  packageInfo?: PackageInfo,
+  packageInfo?: PackageMeta,
 ): TypeSchemaField {
   return {
-    type: buildNestedIdentifier(fhirSchema, path),
+    type: mkNestedIdentifier(fhirSchema, path),
     array: element.array || false,
     required: isRequired(fhirSchema, path, manager),
     excluded: isExcluded(fhirSchema, path, manager),

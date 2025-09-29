@@ -1,18 +1,17 @@
 import { describe, expect, it } from "bun:test";
-import { transformFHIRSchema } from "../../../src/typeschema/core/transformer";
+import { transformFHIRSchema } from "@typeschema/core/transformer";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
-import { enrichFHIRSchema } from "../../../src/typeschema/types";
+import { enrichFHIRSchema } from "@typeschema/types";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
-import {
-  type Register,
-  registerFromPackageMetas,
-} from "../../../src/typeschema/register";
+import { type Register, registerFromPackageMetas } from "@typeschema/register";
 export type PFS = Partial<FHIRSchema>;
 
 export const mkR4Register = async () =>
   registerFromPackageMetas([{ name: "hl7.fhir.r4.core", version: "4.0.1" }]);
 
-export const fs2ts = async (manager: Register, fs: PFS) => {
+export const fs2ts = async (register: Register, fs: PFS) => {
   fs.package_meta = { name: "test.package", version: "1.0.0" };
-  return await transformFHIRSchema(manager, enrichFHIRSchema(fs as FHIRSchema));
+  const rfs = enrichFHIRSchema(fs as FHIRSchema);
+  // register.appendFS(rfs);
+  return await transformFHIRSchema(register, rfs);
 };

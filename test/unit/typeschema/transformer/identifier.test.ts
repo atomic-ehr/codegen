@@ -1,6 +1,6 @@
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import { describe, expect, it } from "bun:test";
-import { buildSchemaIdentifier } from "@typeschema/core/identifier";
+import { mkIdentifier } from "@typeschema/core/identifier";
 import type { RichFHIRSchema } from "@typeschema/types";
 
 type FS = Partial<FHIRSchema>;
@@ -16,7 +16,7 @@ describe("Identifier generation", () => {
       base: "http://hl7.org/fhir/StructureDefinition/Extension",
       package_meta: { name: "hl7.fhir.r4.core", version: "4.0.1" },
     };
-    const id = buildSchemaIdentifier(fs as RichFHIRSchema);
+    const id = mkIdentifier(fs as RichFHIRSchema);
     expect(id).toMatchObject({
       kind: "complex-type-constraint",
       package: "hl7.fhir.r4.core",

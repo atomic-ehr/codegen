@@ -4,11 +4,13 @@
  * Functions for creating TypeSchema identifiers from FHIRSchema entities
  */
 
-import type { FHIRSchema } from "@atomic-ehr/fhirschema";
+import type { FHIRSchema, FHIRSchemaBinding } from "@atomic-ehr/fhirschema";
 import type {
-  PackageInfo,
+  PackageMeta,
   TypeSchemaForValueSet,
   Identifier,
+  BindingIdentifier,
+  NestedIdentifier,
   RichFHIRSchema,
 } from "../types";
 
@@ -19,7 +21,7 @@ export function dropVersionFromUrl(
   return url.split("|")[0];
 }
 
-function determineKind(fhirSchema: FHIRSchema): Identifier["kind"] {
+function determineKind(fhirSchema: RichFHIRSchema): Identifier["kind"] {
   if (fhirSchema.derivation === "constraint") return "profile";
   if (fhirSchema.kind === "primitive-type") return "primitive-type";
   if (fhirSchema.kind === "complex-type") return "complex-type";
@@ -27,7 +29,7 @@ function determineKind(fhirSchema: FHIRSchema): Identifier["kind"] {
   return "resource";
 }
 
-export function buildSchemaIdentifier(fhirSchema: RichFHIRSchema): Identifier {
+export function mkIdentifier(fhirSchema: RichFHIRSchema): Identifier {
   return {
     kind: determineKind(fhirSchema),
     package: fhirSchema.package_meta.name,
@@ -37,10 +39,10 @@ export function buildSchemaIdentifier(fhirSchema: RichFHIRSchema): Identifier {
   };
 }
 
-export function buildNestedIdentifier(
+export function mkNestedIdentifier(
   fhirSchema: RichFHIRSchema,
   path: string[],
-): Identifier {
+): NestedIdentifier {
   const nestedName = path.join(".");
   return {
     kind: "nested",
@@ -51,10 +53,10 @@ export function buildNestedIdentifier(
   };
 }
 
-export function buildValueSetIdentifier(
+export function mkValueSetIdentifier(
   valueSetUrl: string,
   valueSet: any,
-  packageInfo?: PackageInfo,
+  packageInfo?: PackageMeta,
 ): TypeSchemaForValueSet["identifier"] {
   const cleanUrl = dropVersionFromUrl(valueSetUrl) || valueSetUrl;
 
@@ -92,15 +94,12 @@ export function buildValueSetIdentifier(
   };
 }
 
-/**
- * Build binding identifier for an element with value set binding
- */
-export function buildBindingIdentifier(
+export function mkBindingIdentifier(
   fhirSchema: FHIRSchema,
   path: string[],
   bindingName?: string,
-  packageInfo?: PackageInfo,
-): Identifier {
+  packageInfo?: PackageMeta,
+): BindingIdentifier {
   const pathStr = path.join(".");
   const name = bindingName || `${fhirSchema.name}.${pathStr}_binding`;
 

@@ -19,7 +19,7 @@ export type {
   TypeSchemaField,
   Identifier as TypeSchemaIdentifier,
 } from "@typeschema/types";
-export type { PackageInfo } from "@typeschema/types";
+export type { PackageMeta as PackageInfo } from "@typeschema/types";
 // Export types and interfaces
 export type {
   APIBuilderOptions,

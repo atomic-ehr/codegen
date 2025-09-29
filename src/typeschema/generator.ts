@@ -17,7 +17,7 @@ import { createLogger } from "@root/utils/codegen-logger";
 import { TypeSchemaCache } from "./cache";
 import { transformFHIRSchema } from "./core/transformer";
 import type {
-  PackageInfo,
+  PackageMeta,
   RichFHIRSchema,
   TypeSchema,
   TypeschemaGeneratorOptions,
@@ -66,7 +66,7 @@ export class TypeSchemaGenerator {
   }
 
   async registerFromPackageMetas(
-    packageMetas: PackageInfo[],
+    packageMetas: PackageMeta[],
   ): Promise<Register> {
     const packageNames = packageMetas.map(
       (meta) => `${meta.name}${meta.version}`,
@@ -118,7 +118,7 @@ export class TypeSchemaGenerator {
 
   async generateValueSetSchemas(
     valueSets: any[],
-    packageInfo: PackageInfo,
+    packageInfo: PackageMeta,
   ): Promise<TypeSchema[]> {
     if (valueSets.length > 0) {
       this.logger.debug(
@@ -179,7 +179,7 @@ export class TypeSchemaGenerator {
       }
     }
 
-    const packageInfo: PackageInfo = {
+    const packageInfo: PackageMeta = {
       name: packageName,
       version: packageVersion || "latest",
     };
@@ -205,21 +205,21 @@ export class TypeSchemaGenerator {
     return allSchemas;
   }
 
-  async generateResourceTypeSchemas(
-    fhirSchemas: RichFHIRSchema[],
-  ): Promise<TypeSchema[]> {
-    this.logger.info(
-      `Transforming ${fhirSchemas.length} FHIR schemas to Type Schema`,
-    );
+  // async generateResourceTypeSchemas(
+  //   fhirSchemas: RichFHIRSchema[],
+  // ): Promise<TypeSchema[]> {
+  //   this.logger.info(
+  //     `Transforming ${fhirSchemas.length} FHIR schemas to Type Schema`,
+  //   );
 
-    const typeSchemas: TypeSchema[] = [];
-    for (const fhirSchema of fhirSchemas) {
-      typeSchemas.push(
-        ...(await transformFHIRSchema(this.manager, fhirSchema)),
-      );
-    }
-    return typeSchemas;
-  }
+  //   const typeSchemas: TypeSchema[] = [];
+  //   for (const fhirSchema of fhirSchemas) {
+  //     typeSchemas.push(
+  //       ...(await transformFHIRSchema(this.manager, fhirSchema)),
+  //     );
+  //   }
+  //   return typeSchemas;
+  // }
 
   /**
    * Apply treeshaking to StructureDefinitions before FHIR schema transformation

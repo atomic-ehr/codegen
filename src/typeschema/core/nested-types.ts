@@ -6,9 +6,16 @@
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import type { PackageInfo, TypeSchemaField, Identifier } from "../types";
-import { buildField, buildNestedField, isNestedElement } from "./field-builder";
-import { buildNestedIdentifier } from "./identifier";
+import type {
+  PackageMeta,
+  RichFHIRSchema,
+  TypeSchemaField,
+  Identifier,
+  TypeSchemaNestedType,
+} from "../types";
+import { buildField, mkNestedField, isNestedElement } from "./field-builder";
+import { mkNestedIdentifier } from "./identifier";
+import type { Register } from "@root/typeschema/register";
 
 /**
  * Collect all nested elements from a FHIRSchema
@@ -37,15 +44,12 @@ export function collectNestedElements(
   return nested;
 }
 
-/**
- * Transform elements into fields for a nested type
- */
 export async function transformNestedElements(
-  fhirSchema: FHIRSchema,
+  fhirSchema: RichFHIRSchema,
   parentPath: string[],
   elements: Record<string, FHIRSchemaElement>,
-  manager: ReturnType<typeof CanonicalManager>,
-  packageInfo?: PackageInfo,
+  register: Register,
+  packageInfo?: PackageMeta,
 ): Promise<Record<string, TypeSchemaField>> {
   const fields: Record<string, TypeSchemaField> = {};
 
@@ -54,11 +58,11 @@ export async function transformNestedElements(
 
     if (isNestedElement(element)) {
       // Reference to another nested type
-      fields[key] = buildNestedField(
+      fields[key] = mkNestedField(
         fhirSchema,
         path,
         element,
-        manager,
+        register,
         packageInfo,
       );
     } else {
@@ -67,7 +71,7 @@ export async function transformNestedElements(
         fhirSchema,
         path,
         element,
-        manager,
+        register,
         packageInfo,
       );
     }
@@ -80,9 +84,9 @@ export async function transformNestedElements(
  * Build TypeSchema for all nested types in a FHIRSchema
  */
 export async function buildNestedTypes(
-  fhirSchema: FHIRSchema,
-  manager: ReturnType<typeof CanonicalManager>,
-  packageInfo?: PackageInfo,
+  fhirSchema: RichFHIRSchema,
+  register: Register,
+  packageInfo?: PackageMeta,
 ): Promise<any[] | undefined> {
   if (!fhirSchema.elements) return undefined;
 
@@ -100,7 +104,7 @@ export async function buildNestedTypes(
   );
 
   for (const [path, element] of actualNested) {
-    const identifier = buildNestedIdentifier(fhirSchema, path);
+    const identifier = mkNestedIdentifier(fhirSchema, path);
 
     // Base is usually BackboneElement - ensure all nested types have a base
     // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
@@ -130,7 +134,7 @@ export async function buildNestedTypes(
       fhirSchema,
       path,
       element.elements!,
-      manager,
+      register,
       packageInfo,
     );
 
@@ -167,7 +171,7 @@ export function extractNestedDependencies(
     }
 
     // Add field type dependencies
-    for (const field of Object.values(nested.fields)) {
+    for (const field of Object.values(nested.fields || {})) {
       if ("type" in field && field.type) {
         deps.push(field.type);
       }
