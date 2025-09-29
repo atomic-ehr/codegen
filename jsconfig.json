@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@root/*": ["./src/*"],
+      "@typeschema/*": ["./src/typeschema/*"],
+      "@typeschema-test/*": ["./test/unit/typeschema/*"]
+    }
+  },
+  "include": ["./src", "./test"],
+  "exclude": ["node_modules", "dist", "generated"]
+}
