@@ -24,7 +24,8 @@
     "noPropertyAccessFromIndexSignature": false,
     "paths": {
       "@root/*": ["./src/*"],
-      "@typeschema/*": ["./src/typeschema/*"]
+      "@typeschema/*": ["./src/typeschema/*"],
+      "@typeschema-test/*": ["./test/unit/typeschema/*"]
     }
   },
   "include": ["./src", "./test"],

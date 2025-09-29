@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import type { PFS } from "../../../../test/unit/typeschema/utils";
-import { fs2ts, r4 } from "../../../../test/unit/typeschema/utils";
+import type { PFS } from "@typeschema-test/utils";
+import { fs2ts, r4 } from "@typeschema-test/utils";
 
 describe("Check hierarchy translation", () => {
   describe("Top level", () => {

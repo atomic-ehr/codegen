@@ -1,7 +1,7 @@
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import { describe, expect, it } from "bun:test";
-import { buildSchemaIdentifier } from "../../../../src/typeschema/core/identifier";
-import type { RichFHIRSchema } from "../../../../src/typeschema/types";
+import { buildSchemaIdentifier } from "@typeschema/core/identifier";
+import type { RichFHIRSchema } from "@typeschema/types";
 
 type FS = Partial<FHIRSchema>;
 

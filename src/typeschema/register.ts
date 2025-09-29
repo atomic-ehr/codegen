@@ -66,8 +66,6 @@ export const registerFromManager = async (
     }
   }
 
-  console.log("complexTypes", complexTypes);
-
   return {
     ...manager,
     // resolveSD: async (canonicalUrl: string) => {

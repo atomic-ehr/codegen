@@ -7,7 +7,7 @@ import type {
   RichFHIRSchema,
 } from "../../../src/typeschema/types";
 import { enrichFHIRSchema } from "../../../src/typeschema/types";
-import type { PFS } from "../../../test/unit/typeschema/utils";
+import type { PFS } from "@typeschema-test/utils";
 
 describe("TypeSchema Transformer Core Logic", () => {
   const mockManager = {
