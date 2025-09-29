@@ -15,14 +15,16 @@ export type RichFHIRSchema = Omit<FS.FHIRSchema, "package_meta"> & {
   package_meta: PackageInfo;
 };
 
-export const enrichFHIRSchema = (schema: FS.FHIRSchema): RichFHIRSchema => {
+export const enrichFHIRSchema = (
+  schema: FS.FHIRSchema,
+  packageMeta?: PackageInfo,
+): RichFHIRSchema => {
+  if (!packageMeta) {
+    packageMeta = { name: "undefined", version: "undefined" };
+  }
   return {
     ...schema,
-    package_meta: {
-      name: schema.package_name || schema.package_meta?.name || "undefined",
-      version:
-        schema.package_version || schema.package_meta?.version || "undefined",
-    },
+    package_meta: schema.package_meta || packageMeta,
   };
 };
 

@@ -7,21 +7,22 @@ import {
   type PackageInfo,
   enrichFHIRSchema,
 } from "@typeschema/types";
-import type { Code } from "ajv";
 
 export type Register = {
-  // resolveSD(canonicalUrl: string): Promise<StructureDefinition | undefined>;
   appendFS(fs: FHIRSchema): void;
+  ensureCanonicalUrl(canonicalUrl: string): string;
+  resolveSD(canonicalUrl: string): StructureDefinition | undefined;
   resolveFS(canonicalUrl: string): RichFHIRSchema | undefined;
   allSD(): StructureDefinition[];
   allFS(): RichFHIRSchema[];
   allVS(): any[];
-  dictCT(): Record<string, RichFHIRSchema>;
+  complexTypeDict(): Record<string, RichFHIRSchema>;
 } & ReturnType<typeof CanonicalManager>;
 
 export const registerFromManager = async (
   manager: ReturnType<typeof CanonicalManager>,
   logger?: CodegenLogger,
+  packageInfo?: PackageInfo,
 ): Promise<Register> => {
   const resources = await manager.search({});
 
@@ -33,13 +34,15 @@ export const registerFromManager = async (
   }
 
   const fhirSchemas = {} as Record<string, RichFHIRSchema>;
+  const nameDict = {} as Record<string, string>;
   let [success, failed] = [0, 0];
 
   for (const sd of Object.values(structureDefinitions)) {
     try {
       const fs = fhirschema.translate(sd);
-      const rfs = enrichFHIRSchema(fs);
+      const rfs = enrichFHIRSchema(fs, packageInfo);
       fhirSchemas[rfs.url] = rfs;
+      nameDict[rfs.name] = rfs.url;
       success++;
     } catch (error) {
       logger?.warn(
@@ -68,17 +71,17 @@ export const registerFromManager = async (
 
   return {
     ...manager,
-    // resolveSD: async (canonicalUrl: string) => {
-    //   return structureDefinitions[canonicalUrl];
-    // },
     appendFS(fs: FHIRSchema) {
       fhirSchemas[fs.url] = enrichFHIRSchema(fs);
     },
     resolveFS: (canonicalUrl: string) => fhirSchemas[canonicalUrl],
+    ensureCanonicalUrl: (canonicalUrl: string) =>
+      nameDict[canonicalUrl] || canonicalUrl,
     allSD: () => Object.values(structureDefinitions),
+    resolveSD: (canonicalUrl: string) => structureDefinitions[canonicalUrl],
     allFS: () => Object.values(fhirSchemas),
     allVS: () => Object.values(valueSets),
-    dictCT: () => complexTypes,
+    complexTypeDict: () => complexTypes,
   };
 };
 
@@ -95,5 +98,6 @@ export const registerFromPackageMetas = async (
     workingDir: "tmp/fhir",
   });
   await manager.init();
-  return await registerFromManager(manager);
+  // Pass package info from the first package (assuming single package for now)
+  return await registerFromManager(manager, logger, packageMetas[0]);
 };
