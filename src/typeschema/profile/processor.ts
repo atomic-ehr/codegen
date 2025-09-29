@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Profile Processor (DEPRECATED - Profiles not in core TypeSchema spec)
  *

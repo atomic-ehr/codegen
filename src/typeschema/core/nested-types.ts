@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 /**
  * Nested Types (BackboneElement) Handling
  *

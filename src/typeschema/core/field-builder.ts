@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 /**
  * Field Building Utilities
  *

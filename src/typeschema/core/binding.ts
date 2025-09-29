@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Binding and Enum Handling
  *

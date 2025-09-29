@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 /**
  * Main FHIRSchema to TypeSchema Transformer
  *
@@ -12,6 +10,7 @@ import type {
   FHIRSchemaElement,
   StructureDefinition,
 } from "@atomic-ehr/fhirschema";
+import { type Register } from "@typeschema/register";
 import { transformProfile } from "../profile/processor";
 import type {
   TypeSchema,

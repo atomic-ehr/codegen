@@ -46,7 +46,8 @@ export class TypeSchemaGenerator {
     cacheConfig?: TypeSchemaConfig,
   ) {
     this.options = { verbose: false, ...options };
-    this.manager = options.manager || 
+    this.manager =
+      options.manager ||
       CanonicalManager({ packages: [], workingDir: "tmp/fhir" });
     this.cacheConfig = cacheConfig;
     this.logger =
