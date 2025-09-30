@@ -124,3 +124,8 @@ export const resolveFsElementGenealogy = (genealogy: RichFHIRSchema[], path: str
         })
         .filter((elem) => elem !== undefined);
 };
+
+export function fsElementSnapshot(genealogy: FHIRSchemaElement[]): FHIRSchemaElement {
+    // FIXME: nested elements will break it
+    return genealogy.reverse().reduce((snapshot, elem) => ({ ...snapshot, ...elem }), {});
+}

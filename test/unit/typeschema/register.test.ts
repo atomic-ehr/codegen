@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import { type CanonicalUrl, enrichFHIRSchema, type Name } from "@root/typeschema/types";
-import { registerFromPackageMetas, resolveFsElementGenealogy } from "@typeschema/register";
+import { fsElementSnapshot, registerFromPackageMetas, resolveFsElementGenealogy } from "@typeschema/register";
 
 export type PFS = Partial<FHIRSchema>;
 
@@ -50,13 +50,11 @@ describe("Register tests", async () => {
     describe("Genealogy", () => {
         const pat = r4.resolveFsGenealogy("http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl)!;
 
-        expect(pat.map((fs) => fs.url)).toEqual(
-            expect.arrayContaining([
-                "http://hl7.org/fhir/StructureDefinition/Patient",
-                "http://hl7.org/fhir/StructureDefinition/DomainResource",
-                "http://hl7.org/fhir/StructureDefinition/Resource",
-            ]),
-        );
+        expect(pat.map((fs) => fs.url)).toMatchObject([
+            "http://hl7.org/fhir/StructureDefinition/Patient",
+            "http://hl7.org/fhir/StructureDefinition/DomainResource",
+            "http://hl7.org/fhir/StructureDefinition/Resource",
+        ]);
 
         expect(resolveFsElementGenealogy(pat, ["gender"])).toMatchObject([
             {
@@ -75,29 +73,44 @@ describe("Register tests", async () => {
     describe("resolve element genealogy", () => {
         const flatGenealogy = [
             {
-                url: "A" as CanonicalUrl,
-                elements: {
-                    foo: { type: "string", array: true },
-                },
-            },
-            {
                 base: "A" as CanonicalUrl,
                 url: "B" as CanonicalUrl,
                 required: ["foo"],
                 elements: {
                     foo: { min: 1 },
-                    bar: { type: "code" },
+                    bar: { min: 12 },
+                },
+            },
+            {
+                url: "A" as CanonicalUrl,
+                elements: {
+                    foo: { type: "string", array: true },
+                    bar: { type: "code", array: true, min: 0 },
                 },
             },
         ];
 
+        expect(resolveFsElementGenealogyT(flatGenealogy, ["foo"])).toMatchObject([
+            { min: 1 },
+            { array: true, type: "string" },
+        ]);
+        expect(fsElementSnapshot(resolveFsElementGenealogyT(flatGenealogy, ["foo"]))).toMatchObject({
+            array: true,
+            min: 1,
+            type: "string",
+        });
+
+        expect(resolveFsElementGenealogyT(flatGenealogy, ["bar"])).toMatchObject([
+            { min: 12 },
+            { array: true, min: 0, type: "code" },
+        ]);
+        expect(fsElementSnapshot(resolveFsElementGenealogyT(flatGenealogy, ["bar"]))).toMatchObject({
+            array: true,
+            min: 12,
+            type: "code",
+        });
+
         const deepGenealogy = [
-            {
-                url: "A" as CanonicalUrl,
-                elements: {
-                    foo: { type: "string", elements: { bar: { type: "string", array: true } } },
-                },
-            },
             {
                 base: "A" as CanonicalUrl,
                 url: "B" as CanonicalUrl,
@@ -106,23 +119,32 @@ describe("Register tests", async () => {
                     foo: { elements: { bar: { type: "string", min: 1 } } },
                 },
             },
+            {
+                url: "A" as CanonicalUrl,
+                elements: {
+                    foo: { type: "string", elements: { bar: { type: "string", array: true } } },
+                },
+            },
         ];
 
-        expect(resolveFsElementGenealogyT(flatGenealogy, ["foo"])).toMatchObject([
-            { array: true, type: "string" },
-            { min: 1 },
-        ]);
         expect(resolveFsElementGenealogyT(deepGenealogy, ["foo"])).toMatchObject([
-            {
-                elements: { bar: { array: true, type: "string" } },
-                type: "string",
-            },
             { elements: { bar: { min: 1, type: "string" } } },
+            { elements: { bar: { array: true, type: "string" } }, type: "string" },
         ]);
+        expect(fsElementSnapshot(resolveFsElementGenealogyT(deepGenealogy, ["foo"]))).toMatchObject({
+            elements: { bar: { min: 1, type: "string" } },
+            type: "string",
+        });
+
         expect(resolveFsElementGenealogyT(deepGenealogy, ["foo", "bar"])).toMatchObject([
-            { array: true, type: "string" },
             { min: 1, type: "string" },
+            { array: true, type: "string" },
         ]);
+        expect(fsElementSnapshot(resolveFsElementGenealogyT(deepGenealogy, ["foo", "bar"]))).toMatchObject({
+            array: true,
+            min: 1,
+            type: "string",
+        });
     });
 
     // describe("appendFS()", () => {
