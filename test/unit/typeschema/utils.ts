@@ -4,10 +4,17 @@ import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import { enrichFHIRSchema } from "@typeschema/types";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import { type Register, registerFromPackageMetas } from "@typeschema/register";
+import { createLogger } from "@root/utils/codegen-logger";
 export type PFS = Partial<FHIRSchema>;
 
 export const mkR4Register = async () =>
-  registerFromPackageMetas([{ name: "hl7.fhir.r4.core", version: "4.0.1" }]);
+  registerFromPackageMetas(
+    [{ name: "hl7.fhir.r4.core", version: "4.0.1" }],
+    // createLogger({
+    //   verbose: true,
+    //   prefix: "TEST",
+    // }),
+  );
 
 export const fs2ts = async (register: Register, fs: PFS) => {
   fs.package_meta = { name: "test.package", version: "1.0.0" };

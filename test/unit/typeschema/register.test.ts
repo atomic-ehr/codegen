@@ -15,9 +15,7 @@ export type PFS = Partial<FHIRSchema>;
 
 describe("Register tests", async () => {
   const r4Package = { name: "hl7.fhir.r4.core", version: "4.0.1" };
-  const r4 = await registerFromPackageMetas([
-    { name: "hl7.fhir.r4.core", version: "4.0.1" },
-  ]);
+  const r4 = await registerFromPackageMetas([r4Package]);
 
   it("ensureCanonicalUrl", () => {
     expect(r4.ensureCanonicalUrl("Patient")).toBe(
