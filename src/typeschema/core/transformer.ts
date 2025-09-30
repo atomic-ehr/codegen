@@ -29,28 +29,24 @@ import { mkIdentifier } from "./identifier";
 import { buildNestedTypes, extractNestedDependencies } from "./nested-types";
 
 export async function transformElements(
+    register: Register,
     fhirSchema: RichFHIRSchema,
     parentPath: string[],
     elements: Record<string, FHIRSchemaElement> | undefined,
-    register: Register,
-    packageInfo?: PackageMeta,
 ): Promise<Record<string, TypeSchemaField> | undefined> {
-    const fields: Record<string, TypeSchemaField> = {};
     if (!elements) return undefined;
 
+    const fields: Record<string, TypeSchemaField> = {};
     for (const [key, element] of Object.entries(elements)) {
         const path = [...parentPath, key];
 
-        // Get element snapshot from hierarchy
         const hierarchy = getElementHierarchy(fhirSchema, path, register);
         const snapshot = hierarchy.length > 0 ? mergeElementHierarchy(hierarchy) : element;
 
         if (isNestedElement(snapshot)) {
-            // Reference to nested type
-            fields[key] = mkNestedField(fhirSchema, path, snapshot, register, packageInfo);
+            fields[key] = mkNestedField(fhirSchema, path, snapshot, register, fhirSchema.package_meta);
         } else {
-            // Regular field
-            fields[key] = await buildField(fhirSchema, path, snapshot, register, packageInfo);
+            fields[key] = buildField(fhirSchema, path, snapshot, register, fhirSchema.package_meta);
         }
     }
 
@@ -221,7 +217,7 @@ async function transformExtension(
 
         // Transform elements into fields if present
         if (fhirSchema.elements) {
-            const fields = await transformElements(fhirSchema, [], fhirSchema.elements, register, packageInfo);
+            const fields = await transformElements(register, fhirSchema, [], fhirSchema.elements);
 
             if (fields && Object.keys(fields).length > 0) {
                 extensionSchema.fields = fields;
@@ -272,34 +268,29 @@ function extractDependencies(
 
 async function transformResource(register: Register, fhirSchema: RichFHIRSchema): Promise<TypeSchema[]> {
     const identifier = mkIdentifier(fhirSchema);
+
     let base: Identifier | undefined;
     if (fhirSchema.base && fhirSchema.type !== "Element") {
-        const curl = register.ensureCanonicalUrl(fhirSchema.base);
-        const baseFS = register.resolveFS(curl);
-        base = mkIdentifier(baseFS!);
+        const baseFs = register.resolveFS(register.ensureCanonicalUrl(fhirSchema.base));
+        base = mkIdentifier(baseFs!);
     }
 
-    const fields = await transformElements(fhirSchema, [], fhirSchema.elements, register, fhirSchema.package_meta);
-
+    const fields = await transformElements(register, fhirSchema, [], fhirSchema.elements);
     const nested = await buildNestedTypes(fhirSchema, register, fhirSchema.package_meta);
-
     const dependencies = extractDependencies(identifier, base, fields, nested);
 
-    const results: TypeSchema[] = [
-        {
-            identifier,
-            base,
-            fields,
-            nested,
-            description: fhirSchema.description,
-            dependencies,
-        },
-    ];
+    const typeSchema: TypeSchema = {
+        identifier,
+        base,
+        fields,
+        nested,
+        description: fhirSchema.description,
+        dependencies,
+    };
 
     const bindingSchemas = await collectBindingSchemas(fhirSchema, register);
-    results.push(...bindingSchemas);
 
-    return results;
+    return [typeSchema, ...bindingSchemas];
 }
 
 export async function transformFHIRSchema(register: Register, fhirSchema: RichFHIRSchema): Promise<TypeSchema[]> {
@@ -308,7 +299,7 @@ export async function transformFHIRSchema(register: Register, fhirSchema: RichFH
 
     // Handle profiles with specialized processor
     if (identifier.kind === "profile") {
-        const profileSchema = await transformProfile(fhirSchema, register);
+        const profileSchema = await transformProfile(register, fhirSchema);
         results.push(profileSchema);
 
         // Collect binding schemas for profiles too

@@ -23,7 +23,7 @@ import type {
  * Transform a FHIR profile to TypeSchema format
  * Profiles are treated as specialized resources that extend base resources
  */
-export async function transformProfile(fhirSchema: RichFHIRSchema, register: Register): Promise<TypeSchemaForProfile> {
+export async function transformProfile(register: Register, fhirSchema: RichFHIRSchema): Promise<TypeSchemaForProfile> {
     // Build profile identifier
     const identifier = mkIdentifier(fhirSchema);
     const packageInfo = fhirSchema.package_meta;
@@ -75,7 +75,7 @@ export async function transformProfile(fhirSchema: RichFHIRSchema, register: Reg
 
     // Process profile fields from differential elements
     if (fhirSchema.elements) {
-        const fields = await transformElements(fhirSchema, [], fhirSchema.elements, register, packageInfo);
+        const fields = await transformElements(register, fhirSchema, [], fhirSchema.elements);
         if (fields && Object.keys(fields).length > 0) {
             profileSchema.fields = fields;
         }
