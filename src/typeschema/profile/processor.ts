@@ -8,7 +8,7 @@
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
-import type { Identifier, RichFHIRSchema } from "@typeschema/types";
+import type { CanonicalUrl, Identifier, Name, RichFHIRSchema } from "@typeschema/types";
 import { mkIdentifier } from "../core/identifier";
 import { transformElements } from "../core/transformer";
 import type {
@@ -50,8 +50,8 @@ export async function transformProfile(register: Register, fhirSchema: RichFHIRS
             kind: baseKind,
             package: isStandardFhir ? "hl7.fhir.r4.core" : fhirSchema.package_meta.name || "undefined",
             version: isStandardFhir ? "4.0.1" : fhirSchema.package_meta.version || "undefined",
-            name: baseName,
-            url: baseUrl,
+            name: baseName as Name,
+            url: baseUrl as CanonicalUrl,
         };
     }
 

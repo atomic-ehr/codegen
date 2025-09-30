@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
+import type { CanonicalUrl, Name } from "@root/typeschema/types";
 import { registerFromPackageMetas } from "@typeschema/register";
 
 export type PFS = Partial<FHIRSchema>;
@@ -11,7 +12,9 @@ describe("Register tests", async () => {
     const r4 = await registerFromPackageMetas([r4Package]);
 
     it("ensureCanonicalUrl", () => {
-        expect(r4.ensureCanonicalUrl("Patient")).toBe("http://hl7.org/fhir/StructureDefinition/Patient");
+        expect(r4.ensureCanonicalUrl("Patient" as Name)).toBe(
+            "http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl,
+        );
     });
 
     describe("Structure definition", () => {
@@ -20,7 +23,7 @@ describe("Register tests", async () => {
             expect(Array.isArray(allSD)).toBe(true);
             expect(allSD.length).toBe(655);
 
-            const patientSD = r4.resolveSd("http://hl7.org/fhir/StructureDefinition/Patient")!;
+            const patientSD = r4.resolveSd("http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl)!;
             expect(patientSD).toBeDefined();
         });
     });
@@ -31,15 +34,14 @@ describe("Register tests", async () => {
             expect(Array.isArray(allFS)).toBe(true);
             expect(allFS.length).toBe(655);
 
-            const patientFS = r4.resolveFs("http://hl7.org/fhir/StructureDefinition/Patient")!;
+            const patientFS = r4.resolveFs("http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl)!;
             expect(patientFS).toBeDefined();
             expect(patientFS.package_meta).toMatchObject(r4Package);
         });
     });
 
     describe("Genealogy", () => {
-        const pat = r4.resolveFSGenealogy("http://hl7.org/fhir/StructureDefinition/Patient")!;
-        console.log(pat);
+        const pat = r4.resolveFsGenealogy("http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl)!;
         expect(pat.map((fs) => fs.url)).toEqual(
             expect.arrayContaining([
                 "http://hl7.org/fhir/StructureDefinition/Patient",

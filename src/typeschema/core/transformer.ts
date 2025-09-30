@@ -16,7 +16,7 @@ import type {
     ValueSetIdentifier,
 } from "@typeschema/types";
 import { transformProfile } from "../profile/processor";
-import type { PackageMeta } from "../types";
+import type { CanonicalUrl, Name, PackageMeta } from "../types";
 import { collectBindingSchemas } from "./binding";
 import {
     buildField,
@@ -186,8 +186,8 @@ async function transformExtension(
                 kind: "complex-type",
                 package: "hl7.fhir.r4.core",
                 version: "4.0.1",
-                name: baseName,
-                url: baseUrl,
+                name: baseName as Name,
+                url: baseUrl as CanonicalUrl,
             };
         } else {
             // Default to Extension base
@@ -195,8 +195,8 @@ async function transformExtension(
                 kind: "complex-type",
                 package: "hl7.fhir.r4.core",
                 version: "4.0.1",
-                name: "Extension",
-                url: "http://hl7.org/fhir/StructureDefinition/Extension",
+                name: "Extension" as Name,
+                url: "http://hl7.org/fhir/StructureDefinition/Extension" as CanonicalUrl,
             };
         }
 

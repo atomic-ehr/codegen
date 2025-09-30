@@ -7,7 +7,7 @@
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
-import type { Identifier, PackageMeta, RichFHIRSchema, TypeSchemaField } from "../types";
+import type { CanonicalUrl, Identifier, Name, PackageMeta, RichFHIRSchema, TypeSchemaField } from "../types";
 import { buildEnum } from "./binding";
 import { mkBindingIdentifier, mkIdentifier, mkNestedIdentifier } from "./identifier";
 
@@ -165,7 +165,7 @@ export const buildReferences = (
 ): Identifier[] | undefined => {
     if (!element.refers) return undefined;
     return element.refers.map((ref) => {
-        const curl = register.ensureCanonicalUrl(ref);
+        const curl = register.ensureCanonicalUrl(ref as Name);
         const fs = register.resolveFs(curl)!;
         return mkIdentifier(fs);
     });
@@ -207,8 +207,8 @@ export function buildFieldType(
             kind: kind as any,
             package: isStandardFhir ? "hl7.fhir.r4.core" : packageInfo?.name || "undefined",
             version: isStandardFhir ? "4.0.1" : packageInfo?.version || "undefined",
-            name: element.type,
-            url: typeUrl,
+            name: element.type as Name,
+            url: typeUrl as CanonicalUrl,
         };
     }
 

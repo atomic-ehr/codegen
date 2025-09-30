@@ -7,12 +7,14 @@
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import type {
     BindingIdentifier,
+    CanonicalUrl,
     Identifier,
+    Name,
     NestedIdentifier,
     PackageMeta,
     RichFHIRSchema,
     TypeSchemaForValueSet,
-} from "../types";
+} from "@typeschema/types";
 
 export function dropVersionFromUrl(url: string | undefined): string | undefined {
     if (!url) return undefined;
@@ -43,8 +45,8 @@ export function mkNestedIdentifier(fhirSchema: RichFHIRSchema, path: string[]): 
         kind: "nested",
         package: fhirSchema.package_meta.name,
         version: fhirSchema.package_meta.version,
-        name: nestedName,
-        url: `${fhirSchema.url}#${nestedName}`,
+        name: nestedName as Name,
+        url: `${fhirSchema.url}#${nestedName}` as CanonicalUrl,
     };
 }
 
@@ -80,8 +82,8 @@ export function mkValueSetIdentifier(
         kind: "value-set",
         package: packageInfo?.name || valueSet?.package_name || "undefined",
         version: packageInfo?.version || valueSet?.package_version || "undefined",
-        name,
-        url: cleanUrl,
+        name: name as Name,
+        url: cleanUrl as CanonicalUrl,
     };
 }
 
@@ -92,13 +94,14 @@ export function mkBindingIdentifier(
     packageInfo?: PackageMeta,
 ): BindingIdentifier {
     const pathStr = path.join(".");
-    const name = bindingName || `${fhirSchema.name}.${pathStr}_binding`;
-
+    const [name, url] = bindingName
+        ? [bindingName, `urn:fhir:binding:${bindingName}`]
+        : [`${fhirSchema.name}.${pathStr}_binding`, `${fhirSchema.url}#${pathStr}_binding`];
     return {
         kind: "binding",
-        package: packageInfo?.name || fhirSchema.package_meta.name || "undefined",
-        version: packageInfo?.version || fhirSchema.package_meta.version || "undefined",
-        name,
-        url: bindingName ? `urn:fhir:binding:${name}` : `${fhirSchema.url}#${pathStr}_binding`,
+        package: fhirSchema.package_meta.name,
+        version: fhirSchema.package_meta.version,
+        name: name as Name,
+        url: url as CanonicalUrl,
     };
 }

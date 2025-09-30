@@ -105,6 +105,10 @@ describe("Field Builder Core Logic", async () => {
                 type: "TestSchema",
                 kind: "resource",
                 url: "http://example.org/TestSchema",
+                package_meta: {
+                    name: "TestPackage",
+                    version: "1.0.0",
+                },
             };
 
             const field = await buildField(fhirSchema, ["status"], element, r4 as any, basePackageInfo);
@@ -147,6 +151,10 @@ describe("Field Builder Core Logic", async () => {
                 type: "TestSchema",
                 kind: "resource",
                 url: "http://example.org/TestSchema",
+                package_meta: {
+                    name: "TestPackage",
+                    version: "1.0.0",
+                },
             };
 
             const field = await buildField(fhirSchema, ["status"], element, r4 as any, basePackageInfo);

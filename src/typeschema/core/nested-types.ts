@@ -6,7 +6,15 @@
 
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
-import type { Identifier, PackageMeta, RichFHIRSchema, TypeSchemaField, TypeSchemaNestedType } from "../types";
+import type {
+    CanonicalUrl,
+    Identifier,
+    Name,
+    PackageMeta,
+    RichFHIRSchema,
+    TypeSchemaField,
+    TypeSchemaNestedType,
+} from "../types";
 import { buildField, isNestedElement, mkNestedField } from "./field-builder";
 import { mkNestedIdentifier } from "./identifier";
 
@@ -91,8 +99,8 @@ export async function buildNestedTypes(
                 kind: "complex-type" as const,
                 package: packageInfo?.name || "hl7.fhir.r4.core",
                 version: packageInfo?.version || "4.0.1",
-                name: "BackboneElement",
-                url: "http://hl7.org/fhir/StructureDefinition/BackboneElement",
+                name: "BackboneElement" as Name,
+                url: "http://hl7.org/fhir/StructureDefinition/BackboneElement" as CanonicalUrl,
             };
         } else {
             // Use the specified type as base
@@ -100,8 +108,8 @@ export async function buildNestedTypes(
                 kind: "complex-type" as const,
                 package: packageInfo?.name || "hl7.fhir.r4.core",
                 version: packageInfo?.version || "4.0.1",
-                name: element.type,
-                url: `http://hl7.org/fhir/StructureDefinition/${element.type}`,
+                name: element.type as Name,
+                url: `http://hl7.org/fhir/StructureDefinition/${element.type}` as CanonicalUrl,
             };
         }
 

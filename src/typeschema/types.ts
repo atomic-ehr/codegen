@@ -6,13 +6,19 @@
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type * as FS from "@atomic-ehr/fhirschema";
 
+export type Name = string & { readonly __brand: unique symbol };
+export type CanonicalUrl = string & { readonly __brand: unique symbol };
+
 export interface PackageMeta {
     name: string;
     version: string;
 }
 
-export type RichFHIRSchema = Omit<FS.FHIRSchema, "package_meta"> & {
+export type RichFHIRSchema = Omit<FS.FHIRSchema, "package_meta" | "base" | "name" | "url"> & {
     package_meta: PackageMeta;
+    name: Name;
+    url: CanonicalUrl;
+    base: CanonicalUrl;
 };
 
 export const enrichFHIRSchema = (schema: FS.FHIRSchema, packageMeta?: PackageMeta): RichFHIRSchema => {
@@ -22,14 +28,17 @@ export const enrichFHIRSchema = (schema: FS.FHIRSchema, packageMeta?: PackageMet
     return {
         ...schema,
         package_meta: schema.package_meta || packageMeta,
+        name: schema.name as Name,
+        url: schema.url as CanonicalUrl,
+        base: schema.base as CanonicalUrl,
     };
 };
 
 type IdentifierBase = {
-    name: string;
+    name: Name;
+    url: CanonicalUrl;
     package: string;
     version: string;
-    url: string;
 };
 
 type PrimitiveIdentifier = { kind: "primitive-type" } & IdentifierBase;
