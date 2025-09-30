@@ -292,11 +292,12 @@ export class TypeScriptGenerator extends BaseGenerator<
         return true; // Generate for all binding strengths
       case "required-only":
         return schema.strength === "required";
-      case "custom":
+      case "custom": {
         const strengths = (this.options as any).valueSetStrengths || [
           "required",
         ];
         return strengths.includes(schema.strength as any);
+      }
       default:
         return schema.strength === "required";
     }
