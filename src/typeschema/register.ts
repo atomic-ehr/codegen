@@ -9,6 +9,7 @@ export type Register = {
     ensureCanonicalUrl(canonicalUrl: string): string;
     resolveSD(canonicalUrl: string): StructureDefinition | undefined;
     resolveFS(canonicalUrl: string): RichFHIRSchema | undefined;
+    resolveFSGenealogy(canonicalUrl: string): RichFHIRSchema[] | undefined;
     allSD(): StructureDefinition[];
     allFS(): RichFHIRSchema[];
     allVS(): any[];
@@ -65,12 +66,24 @@ export const registerFromManager = async (
         }
     }
 
+    const resolveFSGenealogy = (canonicalUrl: string) => {
+        let fs = fhirSchemas[canonicalUrl];
+        if (!fs) return undefined;
+        const genealogy = [fs];
+        while (fs && fs.base) {
+            fs = fhirSchemas[fs.base]!;
+            genealogy.push(fs);
+        }
+        return genealogy;
+    };
+
     return {
         ...manager,
         appendFS(fs: FHIRSchema) {
             fhirSchemas[fs.url] = enrichFHIRSchema(fs);
         },
         resolveFS: (canonicalUrl: string) => fhirSchemas[canonicalUrl],
+        resolveFSGenealogy: resolveFSGenealogy,
         ensureCanonicalUrl: (canonicalUrl: string) => nameDict[canonicalUrl] || canonicalUrl,
         allSD: () => Object.values(structureDefinitions),
         resolveSD: (canonicalUrl: string) => structureDefinitions[canonicalUrl],

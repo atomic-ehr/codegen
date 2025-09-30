@@ -37,6 +37,18 @@ describe("Register tests", async () => {
         });
     });
 
+    describe("Genealogy", () => {
+        const pat = r4.resolveFSGenealogy("http://hl7.org/fhir/StructureDefinition/Patient")!;
+        console.log(pat);
+        expect(pat.map((fs) => fs.url)).toEqual(
+            expect.arrayContaining([
+                "http://hl7.org/fhir/StructureDefinition/Patient",
+                "http://hl7.org/fhir/StructureDefinition/DomainResource",
+                "http://hl7.org/fhir/StructureDefinition/Resource",
+            ]),
+        );
+    });
+
     // describe("appendFS()", () => {
     //   it("should add a new FHIRSchema to the registry", () => {
     //     const customFS: FHIRSchema = {
