@@ -90,7 +90,7 @@ export const registerFromPackageMetas = async (
   logger?: CodegenLogger,
 ): Promise<Register> => {
   const packageNames = packageMetas.map(
-    (meta) => `${meta.name}${meta.version}`,
+    (meta) => `${meta.name}@${meta.version}`,
   );
   logger?.step(`Loading FHIR packages: ${packageNames.join(", ")}`);
   const manager = CanonicalManager({
