@@ -7,15 +7,15 @@
  *  - "patientName" -> "PatientName"
  */
 export function toPascalCase(input: string): string {
-	const parts = input
-		.replace(/[^A-Za-z0-9]+/g, " ")
-		.split(" ")
-		.map((p) => p.trim())
-		.filter(Boolean);
+    const parts = input
+        .replace(/[^A-Za-z0-9]+/g, " ")
+        .split(" ")
+        .map((p) => p.trim())
+        .filter(Boolean);
 
-	if (parts.length === 0) return "";
+    if (parts.length === 0) return "";
 
-	return parts.map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join("");
+    return parts.map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join("");
 }
 
 /**
@@ -31,16 +31,16 @@ export function toPascalCase(input: string): string {
  * @throws RangeError if size is less than 1.
  */
 export function chunkArray<T>(arr: T[], size: number): T[][] {
-	if (!Number.isInteger(size) || size < 1) {
-		throw new RangeError("chunk size must be an integer greater than 0");
-	}
+    if (!Number.isInteger(size) || size < 1) {
+        throw new RangeError("chunk size must be an integer greater than 0");
+    }
 
-	const result: T[][] = [];
-	if (!arr || arr.length === 0) return result;
+    const result: T[][] = [];
+    if (!arr || arr.length === 0) return result;
 
-	for (let i = 0; i < arr.length; i += size) {
-		result.push(arr.slice(i, i + size));
-	}
+    for (let i = 0; i < arr.length; i += size) {
+        result.push(arr.slice(i, i + size));
+    }
 
-	return result;
+    return result;
 }

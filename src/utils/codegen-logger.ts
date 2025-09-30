@@ -7,132 +7,120 @@
 import pc from "picocolors";
 
 export interface LogOptions {
-	prefix?: string;
-	timestamp?: boolean;
-	verbose?: boolean;
+    prefix?: string;
+    timestamp?: boolean;
+    verbose?: boolean;
 }
 
 /**
  * Simple code generation logger with pretty colors and clean formatting
  */
 export class CodegenLogger {
-	private options: LogOptions;
+    private options: LogOptions;
 
-	constructor(options: LogOptions = {}) {
-		this.options = {
-			timestamp: false,
-			verbose: false,
-			...options,
-		};
-	}
+    constructor(options: LogOptions = {}) {
+        this.options = {
+            timestamp: false,
+            verbose: false,
+            ...options,
+        };
+    }
 
-	private formatMessage(
-		level: string,
-		message: string,
-		color: (str: string) => string,
-	): string {
-		const timestamp = this.options.timestamp
-			? `${pc.gray(new Date().toLocaleTimeString())} `
-			: "";
-		const prefix = this.options.prefix
-			? `${pc.cyan(`[${this.options.prefix}]`)} `
-			: "";
-		return `${timestamp}${color(level)} ${prefix}${message}`;
-	}
+    private formatMessage(level: string, message: string, color: (str: string) => string): string {
+        const timestamp = this.options.timestamp ? `${pc.gray(new Date().toLocaleTimeString())} ` : "";
+        const prefix = this.options.prefix ? `${pc.cyan(`[${this.options.prefix}]`)} ` : "";
+        return `${timestamp}${color(level)} ${prefix}${message}`;
+    }
 
-	/**
-	 * Success message with checkmark
-	 */
-	success(message: string): void {
-		console.log(this.formatMessage("✅", message, pc.green));
-	}
+    /**
+     * Success message with checkmark
+     */
+    success(message: string): void {
+        console.log(this.formatMessage("✅", message, pc.green));
+    }
 
-	/**
-	 * Error message with X mark
-	 */
-	error(message: string, error?: Error): void {
-		console.error(this.formatMessage("❌", message, pc.red));
-		if (error && this.options.verbose) {
-			console.error(pc.red(`   ${error.message}`));
-			if (error.stack) {
-				console.error(pc.gray(error.stack));
-			}
-		}
-	}
+    /**
+     * Error message with X mark
+     */
+    error(message: string, error?: Error): void {
+        console.error(this.formatMessage("❌", message, pc.red));
+        if (error && this.options.verbose) {
+            console.error(pc.red(`   ${error.message}`));
+            if (error.stack) {
+                console.error(pc.gray(error.stack));
+            }
+        }
+    }
 
-	/**
-	 * Warning message with warning sign
-	 */
-	warn(message: string): void {
-		console.warn(this.formatMessage("⚠️", message, pc.yellow));
-	}
+    /**
+     * Warning message with warning sign
+     */
+    warn(message: string): void {
+        console.warn(this.formatMessage("⚠️", message, pc.yellow));
+    }
 
-	/**
-	 * Info message with info icon
-	 */
-	info(message: string): void {
-		console.log(this.formatMessage("ℹ️", message, pc.blue));
-	}
+    /**
+     * Info message with info icon
+     */
+    info(message: string): void {
+        console.log(this.formatMessage("ℹ️", message, pc.blue));
+    }
 
-	/**
-	 * Debug message (only shows in verbose mode)
-	 */
-	debug(message: string): void {
-		if (this.options.verbose) {
-			console.log(this.formatMessage("🐛", message, pc.magenta));
-		}
-	}
+    /**
+     * Debug message (only shows in verbose mode)
+     */
+    debug(message: string): void {
+        if (this.options.verbose) {
+            console.log(this.formatMessage("🐛", message, pc.magenta));
+        }
+    }
 
-	/**
-	 * Step message with rocket
-	 */
-	step(message: string): void {
-		console.log(this.formatMessage("🚀", message, pc.cyan));
-	}
+    /**
+     * Step message with rocket
+     */
+    step(message: string): void {
+        console.log(this.formatMessage("🚀", message, pc.cyan));
+    }
 
-	/**
-	 * Progress message with clock
-	 */
-	progress(message: string): void {
-		console.log(this.formatMessage("⏳", message, pc.blue));
-	}
+    /**
+     * Progress message with clock
+     */
+    progress(message: string): void {
+        console.log(this.formatMessage("⏳", message, pc.blue));
+    }
 
-	/**
-	 * Plain message (no icon, just colored text)
-	 */
-	plain(message: string, color: (str: string) => string = (s) => s): void {
-		const timestamp = this.options.timestamp
-			? `${pc.gray(new Date().toLocaleTimeString())} `
-			: "";
-		const prefix = this.options.prefix
-			? `${pc.cyan(`[${this.options.prefix}]`)} `
-			: "";
-		console.log(`${timestamp}${prefix}${color(message)}`);
-	}
+    /**
+     * Plain message (no icon, just colored text)
+     */
+    plain(message: string, color: (str: string) => string = (s) => s): void {
+        const timestamp = this.options.timestamp ? `${pc.gray(new Date().toLocaleTimeString())} ` : "";
+        const prefix = this.options.prefix ? `${pc.cyan(`[${this.options.prefix}]`)} ` : "";
+        console.log(`${timestamp}${prefix}${color(message)}`);
+    }
 
-	/**
-	 * Dimmed/gray text for less important info
-	 */
-	dim(message: string): void {
-		this.plain(message, pc.gray);
-	}
+    /**
+     * Dimmed/gray text for less important info
+     */
+    dim(message: string): void {
+        this.plain(message, pc.gray);
+    }
 
-	/**
-	 * Create a child logger with a prefix
-	 */
-	child(prefix: string): CodegenLogger {
-		return new CodegenLogger({
-			...this.options,
-			prefix: this.options.prefix ? `${this.options.prefix}:${prefix}` : prefix,
-		});
-	}
+    /**
+     * Create a child logger with a prefix
+     */
+    child(prefix: string): CodegenLogger {
+        return new CodegenLogger({
+            ...this.options,
+            prefix: this.options.prefix ? `${this.options.prefix}:${prefix}` : prefix,
+        });
+    }
 
-	/**
-	 * Update options
-	 */
-	configure(options: Partial<LogOptions>): void {
-		this.options = { ...this.options, ...options };
-	}
+    /**
+     * Update options
+     */
+    configure(options: Partial<LogOptions>): void {
+        this.options = { ...this.options, ...options };
+    }
 }
 
 /**
@@ -142,53 +130,53 @@ export class CodegenLogger {
 const defaultLogger = new CodegenLogger();
 
 export function success(message: string): void {
-	defaultLogger.success(message);
+    defaultLogger.success(message);
 }
 
 export function error(message: string, err?: Error): void {
-	defaultLogger.error(message, err);
+    defaultLogger.error(message, err);
 }
 
 export function warn(message: string): void {
-	defaultLogger.warn(message);
+    defaultLogger.warn(message);
 }
 
 export function info(message: string): void {
-	defaultLogger.info(message);
+    defaultLogger.info(message);
 }
 
 export function debug(message: string): void {
-	defaultLogger.debug(message);
+    defaultLogger.debug(message);
 }
 
 export function step(message: string): void {
-	defaultLogger.step(message);
+    defaultLogger.step(message);
 }
 
 export function progress(message: string): void {
-	defaultLogger.progress(message);
+    defaultLogger.progress(message);
 }
 
 export function plain(message: string, color?: (str: string) => string): void {
-	defaultLogger.plain(message, color);
+    defaultLogger.plain(message, color);
 }
 
 export function dim(message: string): void {
-	defaultLogger.dim(message);
+    defaultLogger.dim(message);
 }
 
 /**
  * Configure the default logger
  */
 export function configure(options: Partial<LogOptions>): void {
-	defaultLogger.configure(options);
+    defaultLogger.configure(options);
 }
 
 /**
  * Create a new logger instance
  */
 export function createLogger(options: LogOptions = {}): CodegenLogger {
-	return new CodegenLogger(options);
+    return new CodegenLogger(options);
 }
 
 /**
@@ -199,55 +187,51 @@ export function createLogger(options: LogOptions = {}): CodegenLogger {
  * Show a command header with separator
  */
 export function header(title: string): void {
-	console.log();
-	console.log(pc.cyan(pc.bold(`━━━ ${title} ━━━`)));
+    console.log();
+    console.log(pc.cyan(pc.bold(`━━━ ${title} ━━━`)));
 }
 
 /**
  * Show a section break
  */
 export function section(title: string): void {
-	console.log();
-	console.log(pc.bold(title));
+    console.log();
+    console.log(pc.bold(title));
 }
 
 /**
  * Show completion message with stats
  */
-export function complete(
-	message: string,
-	duration?: number,
-	stats?: Record<string, number>,
-): void {
-	let msg = message;
-	if (duration) {
-		msg += ` ${pc.gray(`(${duration}ms)`)}`;
-	}
-	success(msg);
+export function complete(message: string, duration?: number, stats?: Record<string, number>): void {
+    let msg = message;
+    if (duration) {
+        msg += ` ${pc.gray(`(${duration}ms)`)}`;
+    }
+    success(msg);
 
-	if (stats) {
-		Object.entries(stats).forEach(([key, value]) => {
-			dim(`  ${key}: ${value}`);
-		});
-	}
+    if (stats) {
+        Object.entries(stats).forEach(([key, value]) => {
+            dim(`  ${key}: ${value}`);
+        });
+    }
 }
 
 /**
  * Show a list of items
  */
 export function list(items: string[], bullet = "•"): void {
-	items.forEach((item) => {
-		console.log(pc.gray(`  ${bullet} ${item}`));
-	});
+    items.forEach((item) => {
+        console.log(pc.gray(`  ${bullet} ${item}`));
+    });
 }
 
 /**
  * Show key-value pairs
  */
 export function table(data: Record<string, string | number>): void {
-	const maxKeyLength = Math.max(...Object.keys(data).map((k) => k.length));
-	Object.entries(data).forEach(([key, value]) => {
-		const paddedKey = key.padEnd(maxKeyLength);
-		console.log(`  ${pc.blue(paddedKey)} ${pc.gray("─")} ${value}`);
-	});
+    const maxKeyLength = Math.max(...Object.keys(data).map((k) => k.length));
+    Object.entries(data).forEach(([key, value]) => {
+        const paddedKey = key.padEnd(maxKeyLength);
+        console.log(`  ${pc.blue(paddedKey)} ${pc.gray("─")} ${value}`);
+    });
 }

@@ -7,32 +7,32 @@ import type { TypeSchemaForBinding } from "@typeschema/types";
 import { createLogger } from "../../../../src/utils/codegen-logger";
 
 describe("Value Set Generation Snapshots", () => {
-  test("should generate consistent output for basic binding", () => {
-    const generator = new TypeScriptGenerator({
-      generateValueSets: true,
-      includeValueSetHelpers: true,
-      includeDocuments: true,
-      outputDir: "/tmp/test",
-      logger: createLogger({ prefix: "Test", verbose: false }),
-    });
+    test("should generate consistent output for basic binding", () => {
+        const generator = new TypeScriptGenerator({
+            generateValueSets: true,
+            includeValueSetHelpers: true,
+            includeDocuments: true,
+            outputDir: "/tmp/test",
+            logger: createLogger({ prefix: "Test", verbose: false }),
+        });
 
-    const binding: TypeSchemaForBinding = {
-      identifier: {
-        name: "AdministrativeGender",
-        kind: "binding",
-        package: "hl7.fhir.r4.core",
-        version: "4.0.1",
-        url: "http://hl7.org/fhir/administrative-gender",
-      },
-      strength: "required",
-      enum: ["male", "female", "other", "unknown"],
-      valueset: { url: "http://hl7.org/fhir/ValueSet/administrative-gender" },
-    };
+        const binding: TypeSchemaForBinding = {
+            identifier: {
+                name: "AdministrativeGender",
+                kind: "binding",
+                package: "hl7.fhir.r4.core",
+                version: "4.0.1",
+                url: "http://hl7.org/fhir/administrative-gender",
+            },
+            strength: "required",
+            enum: ["male", "female", "other", "unknown"],
+            valueset: { url: "http://hl7.org/fhir/ValueSet/administrative-gender" },
+        };
 
-    const generatedCode = (generator as any).generateValueSetFile(binding);
+        const generatedCode = (generator as any).generateValueSetFile(binding);
 
-    // This snapshot test ensures the output remains consistent
-    expect(generatedCode).toBe(`/**
+        // This snapshot test ensures the output remains consistent
+        expect(generatedCode).toBe(`/**
  * AdministrativeGender value set
  * @see http://hl7.org/fhir/ValueSet/administrative-gender
  * @package hl7.fhir.r4.core
@@ -50,33 +50,33 @@ export type AdministrativeGender = typeof AdministrativeGenderValues[number];
 
 export const isValidAdministrativeGender = (value: string): value is AdministrativeGender =>
   AdministrativeGenderValues.includes(value as AdministrativeGender);`);
-  });
-
-  test("should generate consistent output for binding without helpers", () => {
-    const generator = new TypeScriptGenerator({
-      generateValueSets: true,
-      includeValueSetHelpers: false,
-      includeDocuments: true,
-      outputDir: "/tmp/test",
-      logger: createLogger({ prefix: "Test", verbose: false }),
     });
 
-    const binding: TypeSchemaForBinding = {
-      identifier: {
-        name: "ContactPointSystem",
-        kind: "binding",
-        package: "hl7.fhir.r4.core",
-        version: "4.0.1",
-        url: "http://hl7.org/fhir/contact-point-system",
-      },
-      strength: "required",
-      enum: ["phone", "fax", "email", "pager", "url", "sms", "other"],
-      valueset: { url: "http://hl7.org/fhir/ValueSet/contact-point-system" },
-    };
+    test("should generate consistent output for binding without helpers", () => {
+        const generator = new TypeScriptGenerator({
+            generateValueSets: true,
+            includeValueSetHelpers: false,
+            includeDocuments: true,
+            outputDir: "/tmp/test",
+            logger: createLogger({ prefix: "Test", verbose: false }),
+        });
 
-    const generatedCode = (generator as any).generateValueSetFile(binding);
+        const binding: TypeSchemaForBinding = {
+            identifier: {
+                name: "ContactPointSystem",
+                kind: "binding",
+                package: "hl7.fhir.r4.core",
+                version: "4.0.1",
+                url: "http://hl7.org/fhir/contact-point-system",
+            },
+            strength: "required",
+            enum: ["phone", "fax", "email", "pager", "url", "sms", "other"],
+            valueset: { url: "http://hl7.org/fhir/ValueSet/contact-point-system" },
+        };
 
-    expect(generatedCode).toBe(`/**
+        const generatedCode = (generator as any).generateValueSetFile(binding);
+
+        expect(generatedCode).toBe(`/**
  * ContactPointSystem value set
  * @see http://hl7.org/fhir/ValueSet/contact-point-system
  * @package hl7.fhir.r4.core
@@ -94,33 +94,33 @@ export const ContactPointSystemValues = [
 ] as const;
 
 export type ContactPointSystem = typeof ContactPointSystemValues[number];`);
-  });
-
-  test("should generate consistent output without documentation", () => {
-    const generator = new TypeScriptGenerator({
-      generateValueSets: true,
-      includeValueSetHelpers: true,
-      includeDocuments: false,
-      outputDir: "/tmp/test",
-      logger: createLogger({ prefix: "Test", verbose: false }),
     });
 
-    const binding: TypeSchemaForBinding = {
-      identifier: {
-        name: "PublicationStatus",
-        kind: "binding",
-        package: "hl7.fhir.r4.core",
-        version: "4.0.1",
-        url: "http://hl7.org/fhir/publication-status",
-      },
-      strength: "required",
-      enum: ["draft", "active", "retired", "unknown"],
-      valueset: { url: "http://hl7.org/fhir/ValueSet/publication-status" },
-    };
+    test("should generate consistent output without documentation", () => {
+        const generator = new TypeScriptGenerator({
+            generateValueSets: true,
+            includeValueSetHelpers: true,
+            includeDocuments: false,
+            outputDir: "/tmp/test",
+            logger: createLogger({ prefix: "Test", verbose: false }),
+        });
 
-    const generatedCode = (generator as any).generateValueSetFile(binding);
+        const binding: TypeSchemaForBinding = {
+            identifier: {
+                name: "PublicationStatus",
+                kind: "binding",
+                package: "hl7.fhir.r4.core",
+                version: "4.0.1",
+                url: "http://hl7.org/fhir/publication-status",
+            },
+            strength: "required",
+            enum: ["draft", "active", "retired", "unknown"],
+            valueset: { url: "http://hl7.org/fhir/ValueSet/publication-status" },
+        };
 
-    expect(generatedCode).toBe(`export const PublicationStatusValues = [
+        const generatedCode = (generator as any).generateValueSetFile(binding);
+
+        expect(generatedCode).toBe(`export const PublicationStatusValues = [
   'draft',
   'active',
   'retired',
@@ -131,38 +131,38 @@ export type PublicationStatus = typeof PublicationStatusValues[number];
 
 export const isValidPublicationStatus = (value: string): value is PublicationStatus =>
   PublicationStatusValues.includes(value as PublicationStatus);`);
-  });
-
-  test("should generate consistent output for special characters", () => {
-    const generator = new TypeScriptGenerator({
-      generateValueSets: true,
-      includeValueSetHelpers: true,
-      includeDocuments: false,
-      outputDir: "/tmp/test",
-      logger: createLogger({ prefix: "Test", verbose: false }),
     });
 
-    const binding: TypeSchemaForBinding = {
-      identifier: {
-        name: "SpecialCharsBinding",
-        kind: "binding",
-        package: "test.package",
-        version: "1.0.0",
-        url: "http://test.com/special-chars",
-      },
-      strength: "required",
-      enum: [
-        "1.2.840.10065.1.12.1.1",
-        "http://terminology.hl7.org/CodeSystem/v3-ActCode",
-        "value-with-hyphens",
-        "value_with_underscores",
-      ],
-      valueset: { url: "http://test.com/valueset/special-chars" },
-    };
+    test("should generate consistent output for special characters", () => {
+        const generator = new TypeScriptGenerator({
+            generateValueSets: true,
+            includeValueSetHelpers: true,
+            includeDocuments: false,
+            outputDir: "/tmp/test",
+            logger: createLogger({ prefix: "Test", verbose: false }),
+        });
 
-    const generatedCode = (generator as any).generateValueSetFile(binding);
+        const binding: TypeSchemaForBinding = {
+            identifier: {
+                name: "SpecialCharsBinding",
+                kind: "binding",
+                package: "test.package",
+                version: "1.0.0",
+                url: "http://test.com/special-chars",
+            },
+            strength: "required",
+            enum: [
+                "1.2.840.10065.1.12.1.1",
+                "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "value-with-hyphens",
+                "value_with_underscores",
+            ],
+            valueset: { url: "http://test.com/valueset/special-chars" },
+        };
 
-    expect(generatedCode).toBe(`export const SpecialCharsBindingValues = [
+        const generatedCode = (generator as any).generateValueSetFile(binding);
+
+        expect(generatedCode).toBe(`export const SpecialCharsBindingValues = [
   '1.2.840.10065.1.12.1.1',
   'http://terminology.hl7.org/CodeSystem/v3-ActCode',
   'value-with-hyphens',
@@ -173,37 +173,37 @@ export type SpecialCharsBinding = typeof SpecialCharsBindingValues[number];
 
 export const isValidSpecialCharsBinding = (value: string): value is SpecialCharsBinding =>
   SpecialCharsBindingValues.includes(value as SpecialCharsBinding);`);
-  });
-
-  test("should generate consistent output for minimal binding", () => {
-    const generator = new TypeScriptGenerator({
-      generateValueSets: true,
-      includeValueSetHelpers: false,
-      includeDocuments: false,
-      outputDir: "/tmp/test",
-      logger: createLogger({ prefix: "Test", verbose: false }),
     });
 
-    const binding: TypeSchemaForBinding = {
-      identifier: {
-        name: "MinimalBinding",
-        kind: "binding",
-        package: "test.package",
-        version: "1.0.0",
-        url: "http://test.com/minimal",
-      },
-      strength: "required",
-      enum: ["one", "two"],
-      valueset: { url: "http://test.com/valueset/minimal" },
-    };
+    test("should generate consistent output for minimal binding", () => {
+        const generator = new TypeScriptGenerator({
+            generateValueSets: true,
+            includeValueSetHelpers: false,
+            includeDocuments: false,
+            outputDir: "/tmp/test",
+            logger: createLogger({ prefix: "Test", verbose: false }),
+        });
 
-    const generatedCode = (generator as any).generateValueSetFile(binding);
+        const binding: TypeSchemaForBinding = {
+            identifier: {
+                name: "MinimalBinding",
+                kind: "binding",
+                package: "test.package",
+                version: "1.0.0",
+                url: "http://test.com/minimal",
+            },
+            strength: "required",
+            enum: ["one", "two"],
+            valueset: { url: "http://test.com/valueset/minimal" },
+        };
 
-    expect(generatedCode).toBe(`export const MinimalBindingValues = [
+        const generatedCode = (generator as any).generateValueSetFile(binding);
+
+        expect(generatedCode).toBe(`export const MinimalBindingValues = [
   'one',
   'two'
 ] as const;
 
 export type MinimalBinding = typeof MinimalBindingValues[number];`);
-  });
+    });
 });

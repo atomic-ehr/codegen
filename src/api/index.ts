@@ -9,30 +9,30 @@
 
 // Re-export core utilities
 export {
-  TypeSchemaCache,
-  TypeSchemaGenerator,
-  TypeSchemaParser,
+    TypeSchemaCache,
+    TypeSchemaGenerator,
+    TypeSchemaParser,
 } from "@typeschema/index";
 // Re-export core TypeSchema types for convenience
 export type {
-  TypeSchema,
-  TypeSchemaField,
-  Identifier as TypeSchemaIdentifier,
+    TypeSchema,
+    TypeSchemaField,
+    Identifier as TypeSchemaIdentifier,
 } from "@typeschema/types";
 export type { PackageMeta as PackageInfo } from "@typeschema/types";
 // Export types and interfaces
 export type {
-  APIBuilderOptions,
-  GenerationResult,
-  ProgressCallback,
+    APIBuilderOptions,
+    GenerationResult,
+    ProgressCallback,
 } from "./builder";
 // Export main API builder and utilities
 export {
-  APIBuilder,
-  createAPI,
-  createAPIFromConfig,
-  generateTypesFromFiles,
-  generateTypesFromPackage,
+    APIBuilder,
+    createAPI,
+    createAPIFromConfig,
+    generateTypesFromFiles,
+    generateTypesFromPackage,
 } from "./builder";
 export type { GeneratedFile } from "./generators/base/index";
 export type { TypeScriptGeneratorOptions } from "./generators/typescript";

@@ -6,318 +6,285 @@
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import type {
-  PackageMeta,
-  TypeSchemaField,
-  Identifier,
-  RichFHIRSchema,
-} from "../types";
+import type { PackageMeta, TypeSchemaField, Identifier, RichFHIRSchema } from "../types";
 import { buildEnum } from "./binding";
-import {
-  mkBindingIdentifier,
-  mkNestedIdentifier,
-  mkIdentifier,
-} from "./identifier";
+import { mkBindingIdentifier, mkNestedIdentifier, mkIdentifier } from "./identifier";
 import type { Register } from "@root/typeschema/register";
 
 /**
  * Get the full element hierarchy for a given path
  */
 export function getElementHierarchy(
-  fhirSchema: FHIRSchema,
-  path: string[],
-  _manager: ReturnType<typeof CanonicalManager>,
+    fhirSchema: FHIRSchema,
+    path: string[],
+    _manager: ReturnType<typeof CanonicalManager>,
 ): FHIRSchemaElement[] {
-  const hierarchy: FHIRSchemaElement[] = [];
+    const hierarchy: FHIRSchemaElement[] = [];
 
-  // Get element at path from current schema
-  let element: any = fhirSchema.elements;
-  for (const key of path) {
-    element = element?.[key];
-    if (!element) break;
-  }
+    // Get element at path from current schema
+    let element: any = fhirSchema.elements;
+    for (const key of path) {
+        element = element?.[key];
+        if (!element) break;
+    }
 
-  if (element) {
-    hierarchy.push(element);
-  }
+    if (element) {
+        hierarchy.push(element);
+    }
 
-  // For now, we only use the current schema's element
-  // TODO: Implement base schema traversal when we have proper schema loading
+    // For now, we only use the current schema's element
+    // TODO: Implement base schema traversal when we have proper schema loading
 
-  return hierarchy;
+    return hierarchy;
 }
 
 /**
  * Merge element hierarchy into a snapshot
  */
-export function mergeElementHierarchy(
-  hierarchy: FHIRSchemaElement[],
-): FHIRSchemaElement {
-  // Handle empty hierarchy
-  if (hierarchy.length === 0) {
-    return {};
-  }
-
-  // Start with the most specific (first) element
-  const snapshot = { ...hierarchy[0] };
-
-  // Merge properties from base elements (reverse order to apply from base to specific)
-  for (let i = hierarchy.length - 1; i >= 0; i--) {
-    const element = hierarchy[i];
-
-    // Properties that should be taken from the most specific element
-    const specificProps = [
-      "choices",
-      "short",
-      "index",
-      "elements",
-      "required",
-      "excluded",
-      "binding",
-      "refers",
-      "elementReference",
-      "mustSupport",
-      "slices",
-      "slicing",
-      "url",
-      "extensions",
-    ];
-
-    // Merge non-specific properties
-    for (const [key, value] of Object.entries(element as FHIRSchemaElement)) {
-      if (!specificProps.includes(key) && value !== undefined) {
-        (snapshot as any)[key] = value;
-      }
+export function mergeElementHierarchy(hierarchy: FHIRSchemaElement[]): FHIRSchemaElement {
+    // Handle empty hierarchy
+    if (hierarchy.length === 0) {
+        return {};
     }
-  }
 
-  // Override with specific properties from the first element
-  for (const prop of ["choices", "binding", "refers", "elementReference"]) {
-    // @ts-ignore
-    if (
-      hierarchy[0] &&
-      hierarchy[0][prop as keyof FHIRSchemaElement] !== undefined
-    ) {
-      // @ts-ignore
-      (snapshot as any)[prop] = hierarchy[0][prop as keyof FHIRSchemaElement];
+    // Start with the most specific (first) element
+    const snapshot = { ...hierarchy[0] };
+
+    // Merge properties from base elements (reverse order to apply from base to specific)
+    for (let i = hierarchy.length - 1; i >= 0; i--) {
+        const element = hierarchy[i];
+
+        // Properties that should be taken from the most specific element
+        const specificProps = [
+            "choices",
+            "short",
+            "index",
+            "elements",
+            "required",
+            "excluded",
+            "binding",
+            "refers",
+            "elementReference",
+            "mustSupport",
+            "slices",
+            "slicing",
+            "url",
+            "extensions",
+        ];
+
+        // Merge non-specific properties
+        for (const [key, value] of Object.entries(element as FHIRSchemaElement)) {
+            if (!specificProps.includes(key) && value !== undefined) {
+                (snapshot as any)[key] = value;
+            }
+        }
     }
-  }
 
-  return snapshot;
+    // Override with specific properties from the first element
+    for (const prop of ["choices", "binding", "refers", "elementReference"]) {
+        // @ts-ignore
+        if (hierarchy[0] && hierarchy[0][prop as keyof FHIRSchemaElement] !== undefined) {
+            // @ts-ignore
+            (snapshot as any)[prop] = hierarchy[0][prop as keyof FHIRSchemaElement];
+        }
+    }
+
+    return snapshot;
 }
 
 /**
  * Check if a field is required based on parent required arrays
  */
 export function isRequired(
-  fhirSchema: FHIRSchema,
-  path: string[],
-  _manager: ReturnType<typeof CanonicalManager>,
+    fhirSchema: FHIRSchema,
+    path: string[],
+    _manager: ReturnType<typeof CanonicalManager>,
 ): boolean {
-  if (path.length === 0) return false;
+    if (path.length === 0) return false;
 
-  const fieldName = path[path.length - 1];
-  const parentPath = path.slice(0, -1);
+    const fieldName = path[path.length - 1];
+    const parentPath = path.slice(0, -1);
 
-  // Navigate to parent element
-  let parentElement: any = fhirSchema;
-  for (const key of parentPath) {
-    parentElement = parentElement.elements?.[key];
-    if (!parentElement) break;
-  }
+    // Navigate to parent element
+    let parentElement: any = fhirSchema;
+    for (const key of parentPath) {
+        parentElement = parentElement.elements?.[key];
+        if (!parentElement) break;
+    }
 
-  // Check if field is in required array
-  if (parentElement?.required?.includes(fieldName)) {
-    return true;
-  }
+    // Check if field is in required array
+    if (parentElement?.required?.includes(fieldName)) {
+        return true;
+    }
 
-  // Also check at root level
-  if (
-    parentPath.length === 0 &&
-    fieldName &&
-    fhirSchema.required?.includes(fieldName)
-  ) {
-    return true;
-  }
+    // Also check at root level
+    if (parentPath.length === 0 && fieldName && fhirSchema.required?.includes(fieldName)) {
+        return true;
+    }
 
-  return false;
+    return false;
 }
 
 /**
  * Check if a field is excluded
  */
 export function isExcluded(
-  fhirSchema: FHIRSchema,
-  path: string[],
-  _manager: ReturnType<typeof CanonicalManager>,
+    fhirSchema: FHIRSchema,
+    path: string[],
+    _manager: ReturnType<typeof CanonicalManager>,
 ): boolean {
-  if (path.length === 0) return false;
+    if (path.length === 0) return false;
 
-  const fieldName = path[path.length - 1];
-  const parentPath = path.slice(0, -1);
+    const fieldName = path[path.length - 1];
+    const parentPath = path.slice(0, -1);
 
-  // Navigate to parent element
-  let parentElement: any = fhirSchema;
-  for (const key of parentPath) {
-    parentElement = parentElement.elements?.[key];
-    if (!parentElement) break;
-  }
+    // Navigate to parent element
+    let parentElement: any = fhirSchema;
+    for (const key of parentPath) {
+        parentElement = parentElement.elements?.[key];
+        if (!parentElement) break;
+    }
 
-  // Check if field is in excluded array
-  if (parentElement?.excluded?.includes(fieldName)) {
-    return true;
-  }
+    // Check if field is in excluded array
+    if (parentElement?.excluded?.includes(fieldName)) {
+        return true;
+    }
 
-  // Also check at root level
-  if (
-    parentPath.length === 0 &&
-    fieldName &&
-    fhirSchema.excluded?.includes(fieldName)
-  ) {
-    return true;
-  }
+    // Also check at root level
+    if (parentPath.length === 0 && fieldName && fhirSchema.excluded?.includes(fieldName)) {
+        return true;
+    }
 
-  return false;
+    return false;
 }
 
 export const buildReferences = (
-  element: FHIRSchemaElement,
-  register: Register,
-  packageInfo?: PackageMeta,
+    element: FHIRSchemaElement,
+    register: Register,
+    packageInfo?: PackageMeta,
 ): Identifier[] | undefined => {
-  if (!element.refers) return undefined;
-  return element.refers.map((ref) => {
-    const curl = register.ensureCanonicalUrl(ref);
-    const fs = register.resolveFS(curl)!;
-    return mkIdentifier(fs);
-  });
+    if (!element.refers) return undefined;
+    return element.refers.map((ref) => {
+        const curl = register.ensureCanonicalUrl(ref);
+        const fs = register.resolveFS(curl)!;
+        return mkIdentifier(fs);
+    });
 };
 
 /**
  * Build field type identifier
  */
 export function buildFieldType(
-  fhirSchema: RichFHIRSchema,
-  _path: string[],
-  element: FHIRSchemaElement,
-  _manager: ReturnType<typeof CanonicalManager>,
-  packageInfo?: PackageMeta,
+    fhirSchema: RichFHIRSchema,
+    _path: string[],
+    element: FHIRSchemaElement,
+    _manager: ReturnType<typeof CanonicalManager>,
+    packageInfo?: PackageMeta,
 ): Identifier | undefined {
-  // Handle element reference (for slicing)
-  if (element.elementReference) {
-    const refPath = element.elementReference
-      .filter((_, i) => i % 2 === 1) // Get odd indices (the actual path parts)
-      .map((p) => p as string)
-      .filter((p) => p !== "elements"); // Remove 'elements' which is just a container
+    // Handle element reference (for slicing)
+    if (element.elementReference) {
+        const refPath = element.elementReference
+            .filter((_, i) => i % 2 === 1) // Get odd indices (the actual path parts)
+            .map((p) => p as string)
+            .filter((p) => p !== "elements"); // Remove 'elements' which is just a container
 
-    // Only return nested identifier if we have a non-empty path
-    if (refPath.length > 0) {
-      return mkNestedIdentifier(fhirSchema, refPath);
+        // Only return nested identifier if we have a non-empty path
+        if (refPath.length > 0) {
+            return mkNestedIdentifier(fhirSchema, refPath);
+        }
     }
-  }
 
-  // Handle normal type
-  if (element.type) {
-    const typeUrl = element.type.includes("/")
-      ? element.type
-      : `http://hl7.org/fhir/StructureDefinition/${element.type}`;
+    // Handle normal type
+    if (element.type) {
+        const typeUrl = element.type.includes("/")
+            ? element.type
+            : `http://hl7.org/fhir/StructureDefinition/${element.type}`;
 
-    // Always create a type identifier, even if we can't resolve
-    const kind = element.type.match(/^[a-z]/)
-      ? "primitive-type"
-      : "complex-type";
-    const isStandardFhir = typeUrl.startsWith("http://hl7.org/fhir/");
-    return {
-      kind: kind as any,
-      package: isStandardFhir
-        ? "hl7.fhir.r4.core"
-        : packageInfo?.name || "undefined",
-      version: isStandardFhir ? "4.0.1" : packageInfo?.version || "undefined",
-      name: element.type,
-      url: typeUrl,
-    };
-  }
+        // Always create a type identifier, even if we can't resolve
+        const kind = element.type.match(/^[a-z]/) ? "primitive-type" : "complex-type";
+        const isStandardFhir = typeUrl.startsWith("http://hl7.org/fhir/");
+        return {
+            kind: kind as any,
+            package: isStandardFhir ? "hl7.fhir.r4.core" : packageInfo?.name || "undefined",
+            version: isStandardFhir ? "4.0.1" : packageInfo?.version || "undefined",
+            name: element.type,
+            url: typeUrl,
+        };
+    }
 
-  return undefined;
+    return undefined;
 }
 
 export const buildField = (
-  fhirSchema: RichFHIRSchema,
-  path: string[],
-  element: FHIRSchemaElement,
-  register: Register,
-  packageInfo?: PackageMeta,
+    fhirSchema: RichFHIRSchema,
+    path: string[],
+    element: FHIRSchemaElement,
+    register: Register,
+    packageInfo?: PackageMeta,
 ): TypeSchemaField => {
-  let binding;
-  let enumValues;
-  if (element.binding) {
-    binding = mkBindingIdentifier(
-      fhirSchema,
-      path,
-      element.binding.bindingName,
-      packageInfo,
-    );
+    let binding;
+    let enumValues;
+    if (element.binding) {
+        binding = mkBindingIdentifier(fhirSchema, path, element.binding.bindingName, packageInfo);
 
-    if (element.binding.strength === "required" && element.type === "code") {
-      enumValues = buildEnum(element, register);
+        if (element.binding.strength === "required" && element.type === "code") {
+            enumValues = buildEnum(element, register);
+        }
     }
-  }
 
-  return {
-    type: buildFieldType(fhirSchema, path, element, register, packageInfo)!,
-    required: isRequired(fhirSchema, path, register),
-    excluded: isExcluded(fhirSchema, path, register),
+    return {
+        type: buildFieldType(fhirSchema, path, element, register, packageInfo)!,
+        required: isRequired(fhirSchema, path, register),
+        excluded: isExcluded(fhirSchema, path, register),
 
-    reference: buildReferences(element, register, packageInfo),
+        reference: buildReferences(element, register, packageInfo),
 
-    array: element.array || false,
-    min: element.min,
-    max: element.max,
+        array: element.array || false,
+        min: element.min,
+        max: element.max,
 
-    choices: element.choices,
-    choiceOf: element.choiceOf,
+        choices: element.choices,
+        choiceOf: element.choiceOf,
 
-    binding: binding,
-  };
+        binding: binding,
+    };
 };
 
 function removeEmptyValues<T extends Record<string, any>>(obj: T): T {
-  const result: any = {};
+    const result: any = {};
 
-  for (const [key, value] of Object.entries(obj)) {
-    if (value !== undefined && value !== null) {
-      if (Array.isArray(value) && value.length === 0) {
-        continue;
-      }
-      result[key] = value;
+    for (const [key, value] of Object.entries(obj)) {
+        if (value !== undefined && value !== null) {
+            if (Array.isArray(value) && value.length === 0) {
+                continue;
+            }
+            result[key] = value;
+        }
     }
-  }
 
-  return result;
+    return result;
 }
 
 /**
  * Check if an element represents a nested type (BackboneElement)
  */
 export function isNestedElement(element: FHIRSchemaElement): boolean {
-  return (
-    element.type === "BackboneElement" ||
-    (element.elements && Object.keys(element.elements).length > 0) ||
-    false
-  );
+    return (
+        element.type === "BackboneElement" || (element.elements && Object.keys(element.elements).length > 0) || false
+    );
 }
 
 export function mkNestedField(
-  fhirSchema: RichFHIRSchema,
-  path: string[],
-  element: FHIRSchemaElement,
-  manager: ReturnType<typeof CanonicalManager>,
-  packageInfo?: PackageMeta,
+    fhirSchema: RichFHIRSchema,
+    path: string[],
+    element: FHIRSchemaElement,
+    manager: ReturnType<typeof CanonicalManager>,
+    packageInfo?: PackageMeta,
 ): TypeSchemaField {
-  return {
-    type: mkNestedIdentifier(fhirSchema, path),
-    array: element.array || false,
-    required: isRequired(fhirSchema, path, manager),
-    excluded: isExcluded(fhirSchema, path, manager),
-  };
+    return {
+        type: mkNestedIdentifier(fhirSchema, path),
+        array: element.array || false,
+        required: isRequired(fhirSchema, path, manager),
+        excluded: isExcluded(fhirSchema, path, manager),
+    };
 }

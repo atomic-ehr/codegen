@@ -13,8 +13,8 @@ import { runCLI } from "./commands/index";
 // Export the simplified CLI
 
 if (import.meta.main) {
-  runCLI().catch((error) => {
-    console.error("CLI Error:", error instanceof Error ? error.message : error);
-    process.exit(1);
-  });
+    runCLI().catch((error) => {
+        console.error("CLI Error:", error instanceof Error ? error.message : error);
+        process.exit(1);
+    });
 }
