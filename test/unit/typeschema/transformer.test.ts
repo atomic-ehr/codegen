@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
-import { transformFHIRSchema } from "@typeschema/core/transformer";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
-import { mkR4Register } from "@typeschema-test/utils";
-import { type PackageMeta, enrichFHIRSchema } from "@typeschema/types";
+import { transformFHIRSchema } from "@typeschema/core/transformer";
+import { enrichFHIRSchema, type PackageMeta } from "@typeschema/types";
 import type { PFS } from "@typeschema-test/utils";
+import { mkR4Register } from "@typeschema-test/utils";
 
 describe("TypeSchema Transformer Core Logic", async () => {
     const r4 = await mkR4Register();

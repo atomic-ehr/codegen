@@ -2,9 +2,8 @@
  * Mock implementations for testing
  */
 
-import type { CodegenLogger } from "../../src/utils/codegen-logger";
-import { BaseGenerator } from "../../src/api/generators/base/BaseGenerator";
 import type { TypeSchema } from "@typeschema/types";
+import { BaseGenerator } from "../../src/api/generators/base/BaseGenerator";
 import type { BaseGeneratorOptions, GeneratedFile, TemplateContext } from "../../src/api/generators/base/types";
 
 /**
@@ -29,7 +28,7 @@ export class MockLogger {
         this.messages.push({ level: "error", message, error });
     }
 
-    child(prefix: string): MockLogger {
+    child(_prefix: string): MockLogger {
         return new MockLogger();
     }
 
@@ -80,7 +79,7 @@ export { ${schema.identifier.name} };`;
         return content;
     }
 
-    protected async validateContent(content: string, context: TemplateContext): Promise<void> {
+    protected async validateContent(content: string, _context: TemplateContext): Promise<void> {
         if (content.includes("INVALID")) {
             throw new Error("Test validation error");
         }

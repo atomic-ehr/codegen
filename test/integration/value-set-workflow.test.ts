@@ -1,12 +1,11 @@
 /**
  * Integration tests for value set workflow
  */
-import { describe, test, expect, beforeEach, afterEach } from "bun:test";
-import { TypeScriptGenerator } from "../../src/api/generators/typescript";
-import type { TypeSchema, TypeSchemaForBinding } from "@typeschema/types";
-import { createLogger } from "../../src/utils/codegen-logger";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import * as fs from "node:fs";
-import * as path from "node:path";
+import type { TypeSchema, TypeSchemaForBinding } from "@typeschema/types";
+import { TypeScriptGenerator } from "../../src/api/generators/typescript";
+import { createLogger } from "../../src/utils/codegen-logger";
 
 describe("Value Set Integration Workflow", () => {
     const testOutputDir = "/tmp/test-value-sets";
@@ -105,7 +104,7 @@ describe("Value Set Integration Workflow", () => {
             valueset: { url: "http://test.com/valueset" },
         };
 
-        const results = await generator.generate([schema]);
+        const _results = await generator.generate([schema]);
 
         // Value sets are processed but not returned in the results array
         // Check that the value set was collected and can generate correct content

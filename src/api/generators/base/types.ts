@@ -5,7 +5,7 @@
  * build upon, ensuring consistency and type safety across the system.
  */
 
-import type { TypeSchema, Identifier } from "@typeschema/index";
+import type { Identifier, TypeSchema } from "@typeschema/index";
 import type { CodegenLogger } from "../../../utils/codegen-logger";
 
 /**

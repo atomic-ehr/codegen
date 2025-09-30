@@ -1,12 +1,12 @@
 import { describe, expect, it } from "bun:test";
+import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import {
     buildField,
-    mkNestedField,
     getElementHierarchy,
     isNestedElement,
     mergeElementHierarchy,
+    mkNestedField,
 } from "@typeschema/core/field-builder";
-import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { PackageMeta } from "@typeschema/types";
 import { mkR4Register } from "@typeschema-test/utils";
 

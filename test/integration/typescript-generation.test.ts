@@ -2,21 +2,16 @@
  * Integration tests for TypeScript generation workflow
  */
 
-import { describe, test, expect, beforeEach, afterEach } from "bun:test";
-import { TestGenerator, MockLogger } from "../helpers/mock-generators";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { assertGenerationQuality } from "../helpers/assertions";
+import { assertFileSystemState, TestFileSystem } from "../helpers/file-helpers";
+import { MockLogger, TestGenerator } from "../helpers/mock-generators";
 import {
-    createMockSchemas,
     createComplexNestedSchema,
+    createMockSchemas,
     createPrimitiveTypeSchema,
     generateEdgeCaseSchemas,
 } from "../helpers/schema-helpers";
-import { TestFileSystem, assertFileSystemState } from "../helpers/file-helpers";
-import {
-    assertGenerationQuality,
-    assertValidTypeScript,
-    assertNamingConventions,
-    assertImportOrganization,
-} from "../helpers/assertions";
 
 describe("TypeScript Generation Integration", () => {
     let generator: TestGenerator;
@@ -178,8 +173,8 @@ describe("TypeScript Generation Integration", () => {
             // Progress should increment correctly
             const validationUpdates = progressUpdates.filter((u) => u.phase === "validation");
             if (validationUpdates.length > 1) {
-                expect(validationUpdates[0]!.current).toBeLessThan(
-                    validationUpdates[validationUpdates.length - 1]!.current,
+                expect(validationUpdates[0]?.current).toBeLessThan(
+                    validationUpdates[validationUpdates.length - 1]?.current,
                 );
             }
         });

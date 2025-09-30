@@ -82,7 +82,6 @@ export interface GeneratedTypeScript {
  * Uses the new BaseGenerator architecture for maintainability and extensibility.
  */
 export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOptions, GeneratedFile[]> {
-    private readonly profilesByPackage = new Map<string, Array<{ filename: string; interfaceName: string }>>();
     private readonly resourceTypes = new Set<string>();
     private collectedValueSets = new Map<string, TypeSchemaForBinding>();
 
@@ -108,7 +107,7 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
         }) as unknown as TypeMapper;
     }
 
-    protected async generateSchemaContent(schema: TypeSchema, context: TemplateContext): Promise<string> {
+    protected async generateSchemaContent(schema: TypeSchema, _context: TemplateContext): Promise<string> {
         // Skip unsupported schema types
         if (this.shouldSkipSchema(schema)) {
             return "";
@@ -350,7 +349,7 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
         if (!this.tsOptions.includeExtensions) {
             // Check if this is a FHIR extension by looking at the URL pattern
             const url = schema.identifier.url;
-            if (url && url.includes("StructureDefinition/")) {
+            if (url?.includes("StructureDefinition/")) {
                 // Extensions typically have URLs like:
                 // http://hl7.org/fhir/StructureDefinition/extension-name
                 // http://hl7.org/fhir/StructureDefinition/resource-extension
@@ -413,10 +412,6 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
         exports.add(this.typeMapper.formatTypeName(schema.identifier.name));
 
         return exports;
-    }
-
-    private sanitizePackageName(packageName: string): string {
-        return packageName.replace(/[^a-zA-Z0-9-_.]/g, "-");
     }
 
     /**

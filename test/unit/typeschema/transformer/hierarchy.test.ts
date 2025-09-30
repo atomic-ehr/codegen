@@ -64,7 +64,7 @@ describe("Check hierarchy translation", () => {
     });
 
     describe("Choice type translation", () => {
-        const C: PFS = {
+        const _C: PFS = {
             base: "B",
             url: "C",
             required: ["bar", "baz"],

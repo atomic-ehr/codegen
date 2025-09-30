@@ -61,7 +61,7 @@ describe("TypeSchema Transformer Core Logic", () => {
         ]);
     });
 
-    const B: PFS = {
+    const _B: PFS = {
         base: "A",
         url: "B",
         name: "b",
@@ -88,7 +88,7 @@ describe("TypeSchema Transformer Core Logic", () => {
         ]);
     });
 
-    const C: PFS = {
+    const _C: PFS = {
         base: "B",
         url: "C",
         name: "c",

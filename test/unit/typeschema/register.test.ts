@@ -1,9 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { transformFHIRSchema } from "@typeschema/core/transformer";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
-import { enrichFHIRSchema } from "@typeschema/types";
-import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
-import { type Register, registerFromPackageMetas, registerFromManager } from "@typeschema/register";
+import { registerFromPackageMetas } from "@typeschema/register";
 
 export type PFS = Partial<FHIRSchema>;
 

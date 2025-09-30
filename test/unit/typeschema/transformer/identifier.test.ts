@@ -1,5 +1,5 @@
-import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import { describe, expect, it } from "bun:test";
+import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import { mkIdentifier } from "@typeschema/core/identifier";
 import type { RichFHIRSchema } from "@typeschema/types";
 

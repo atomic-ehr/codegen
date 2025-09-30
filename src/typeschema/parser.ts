@@ -6,7 +6,7 @@
  */
 
 import { readFile } from "node:fs/promises";
-import type { TypeSchema, Identifier, TypeschemaParserOptions } from "@typeschema/types";
+import type { Identifier, TypeSchema, TypeschemaParserOptions } from "@typeschema/types";
 
 /**
  * TypeSchema Parser class
@@ -312,23 +312,6 @@ export class TypeSchemaParser {
             (!criteria.name || identifier.name === criteria.name) &&
             (!criteria.url || identifier.url === criteria.url)
         );
-    }
-
-    /**
-     * Remove duplicate dependencies
-     */
-    private deduplicateDependencies(deps: Identifier[]): Identifier[] {
-        const seen = new Set<string>();
-        const unique: Identifier[] = [];
-
-        for (const dep of deps) {
-            if (!seen.has(dep.url)) {
-                seen.add(dep.url);
-                unique.push(dep);
-            }
-        }
-
-        return unique.sort((a, b) => a.name.localeCompare(b.name));
     }
 }
 

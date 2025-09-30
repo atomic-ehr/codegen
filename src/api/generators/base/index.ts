@@ -86,7 +86,7 @@ export type {
 // ==========================================
 
 // TypeSchema types (commonly needed by generator implementations)
-export type { TypeSchema, Identifier } from "@typeschema/index";
+export type { Identifier, TypeSchema } from "@typeschema/index";
 
 // Logger interface
 export type { CodegenLogger } from "../../../utils/codegen-logger";

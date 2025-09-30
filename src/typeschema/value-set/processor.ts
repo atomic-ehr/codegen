@@ -6,7 +6,7 @@
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import { mkValueSetIdentifier } from "../core/identifier";
-import type { PackageMeta, TypeSchemaForValueSet, Identifier } from "../types";
+import type { Identifier, PackageMeta, TypeSchemaForValueSet } from "../types";
 
 /**
  * Extract concepts from a CodeSystem

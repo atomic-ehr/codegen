@@ -1,9 +1,9 @@
 /**
  * Snapshot tests for value set generation output
  */
-import { describe, test, expect } from "bun:test";
-import { TypeScriptGenerator } from "../../../../src/api/generators/typescript";
+import { describe, expect, test } from "bun:test";
 import type { TypeSchemaForBinding } from "@typeschema/types";
+import { TypeScriptGenerator } from "../../../../src/api/generators/typescript";
 import { createLogger } from "../../../../src/utils/codegen-logger";
 
 describe("Value Set Generation Snapshots", () => {

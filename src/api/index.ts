@@ -15,11 +15,11 @@ export {
 } from "@typeschema/index";
 // Re-export core TypeSchema types for convenience
 export type {
+    Identifier as TypeSchemaIdentifier,
+    PackageMeta as PackageInfo,
     TypeSchema,
     TypeSchemaField,
-    Identifier as TypeSchemaIdentifier,
 } from "@typeschema/types";
-export type { PackageMeta as PackageInfo } from "@typeschema/types";
 // Export types and interfaces
 export type {
     APIBuilderOptions,

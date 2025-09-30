@@ -6,9 +6,9 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
+import { TypeSchemaGenerator } from "@typeschema/generator";
 import type { CommandModule } from "yargs";
 import { loadConfig } from "../../../config";
-import { TypeSchemaGenerator } from "@typeschema/generator";
 import { complete, createLogger, list } from "../../utils/log";
 
 interface GenerateTypeschemaArgs {

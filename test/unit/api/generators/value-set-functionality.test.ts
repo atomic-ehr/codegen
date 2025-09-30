@@ -1,9 +1,9 @@
 /**
  * Focused unit tests for value set functionality
  */
-import { describe, test, expect, beforeEach } from "bun:test";
-import { TypeScriptGenerator } from "../../../../src/api/generators/typescript";
+import { beforeEach, describe, expect, test } from "bun:test";
 import type { TypeSchema, TypeSchemaForBinding } from "@typeschema/types";
+import { TypeScriptGenerator } from "../../../../src/api/generators/typescript";
 import { createLogger } from "../../../../src/utils/codegen-logger";
 
 describe("Value Set Core Functionality", () => {

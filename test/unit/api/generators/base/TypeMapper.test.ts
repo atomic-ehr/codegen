@@ -1,6 +1,6 @@
-import { describe, test, expect } from "bun:test";
-import { TypeScriptTypeMapper } from "../../../../../src/api/generators/base/TypeScriptTypeMapper";
+import { describe, expect, test } from "bun:test";
 import { PythonTypeMapper } from "../../../../../src/api/generators/base/PythonTypeMapper";
+import { TypeScriptTypeMapper } from "../../../../../src/api/generators/base/TypeScriptTypeMapper";
 
 describe("TypeMapper System", () => {
     describe("TypeScript Type Mapper", () => {

@@ -5,13 +5,13 @@
  * This builder pattern allows users to configure generation in a declarative way.
  */
 
-import type { Config, TypeSchemaConfig } from "../config";
+import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import { TypeSchemaCache, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";
 import type { TypeSchema } from "@typeschema/types";
+import type { Config, TypeSchemaConfig } from "../config";
 import type { CodegenLogger } from "../utils/codegen-logger";
 import { createLogger } from "../utils/codegen-logger";
 import { TypeScriptGenerator } from "./generators/typescript";
-import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 
 /**
  * Configuration options for the API builder

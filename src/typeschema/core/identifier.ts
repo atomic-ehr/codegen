@@ -4,14 +4,14 @@
  * Functions for creating TypeSchema identifiers from FHIRSchema entities
  */
 
-import type { FHIRSchema, FHIRSchemaBinding } from "@atomic-ehr/fhirschema";
+import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import type {
-    PackageMeta,
-    TypeSchemaForValueSet,
-    Identifier,
     BindingIdentifier,
+    Identifier,
     NestedIdentifier,
+    PackageMeta,
     RichFHIRSchema,
+    TypeSchemaForValueSet,
 } from "../types";
 
 export function dropVersionFromUrl(url: string | undefined): string | undefined {

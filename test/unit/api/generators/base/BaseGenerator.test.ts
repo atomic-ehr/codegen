@@ -2,11 +2,11 @@
  * Unit tests for BaseGenerator
  */
 
-import { describe, test, expect, beforeEach, afterEach } from "bun:test";
-import { TestGenerator, MockLogger } from "../../../../helpers/mock-generators";
-import { createMockSchema, createMockSchemas, generateMalformedSchemas } from "../../../../helpers/schema-helpers";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { assertGenerationQuality, assertPerformanceBenchmark } from "../../../../helpers/assertions";
 import { TestFileSystem } from "../../../../helpers/file-helpers";
+import { MockLogger, TestGenerator } from "../../../../helpers/mock-generators";
+import { createMockSchema, createMockSchemas, generateMalformedSchemas } from "../../../../helpers/schema-helpers";
 
 describe("BaseGenerator", () => {
     let generator: TestGenerator;
@@ -103,7 +103,7 @@ describe("BaseGenerator", () => {
 
         test("validates generated content", async () => {
             const generator = new (class extends TestGenerator {
-                protected override async generateSchemaContent(schema: any, context: any): Promise<string> {
+                protected override async generateSchemaContent(_schema: any, _context: any): Promise<string> {
                     return "INVALID content that should fail validation";
                 }
             })({

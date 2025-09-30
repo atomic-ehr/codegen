@@ -6,10 +6,10 @@
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import type { PackageMeta, TypeSchemaField, Identifier, RichFHIRSchema } from "../types";
-import { buildEnum } from "./binding";
-import { mkBindingIdentifier, mkNestedIdentifier, mkIdentifier } from "./identifier";
 import type { Register } from "@root/typeschema/register";
+import type { Identifier, PackageMeta, RichFHIRSchema, TypeSchemaField } from "../types";
+import { buildEnum } from "./binding";
+import { mkBindingIdentifier, mkIdentifier, mkNestedIdentifier } from "./identifier";
 
 /**
  * Get the full element hierarchy for a given path
@@ -161,7 +161,7 @@ export function isExcluded(
 export const buildReferences = (
     element: FHIRSchemaElement,
     register: Register,
-    packageInfo?: PackageMeta,
+    _packageInfo?: PackageMeta,
 ): Identifier[] | undefined => {
     if (!element.refers) return undefined;
     return element.refers.map((ref) => {
@@ -223,12 +223,12 @@ export const buildField = (
     packageInfo?: PackageMeta,
 ): TypeSchemaField => {
     let binding;
-    let enumValues;
+    let _enumValues;
     if (element.binding) {
         binding = mkBindingIdentifier(fhirSchema, path, element.binding.bindingName, packageInfo);
 
         if (element.binding.strength === "required" && element.type === "code") {
-            enumValues = buildEnum(element, register);
+            _enumValues = buildEnum(element, register);
         }
     }
 
@@ -250,7 +250,7 @@ export const buildField = (
     };
 };
 
-function removeEmptyValues<T extends Record<string, any>>(obj: T): T {
+function _removeEmptyValues<T extends Record<string, any>>(obj: T): T {
     const result: any = {};
 
     for (const [key, value] of Object.entries(obj)) {
@@ -279,7 +279,7 @@ export function mkNestedField(
     path: string[],
     element: FHIRSchemaElement,
     manager: ReturnType<typeof CanonicalManager>,
-    packageInfo?: PackageMeta,
+    _packageInfo?: PackageMeta,
 ): TypeSchemaField {
     return {
         type: mkNestedIdentifier(fhirSchema, path),

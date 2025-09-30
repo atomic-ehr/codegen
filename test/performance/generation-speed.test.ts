@@ -2,11 +2,11 @@
  * Performance benchmarks for code generation speed
  */
 
-import { describe, test, expect, beforeEach, afterEach } from "bun:test";
-import { TestGenerator, MockLogger } from "../helpers/mock-generators";
-import { createMockSchemas, createComplexNestedSchema } from "../helpers/schema-helpers";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { assertMemoryUsage, assertPerformanceBenchmark } from "../helpers/assertions";
 import { TestFileSystem } from "../helpers/file-helpers";
-import { assertPerformanceBenchmark, assertMemoryUsage } from "../helpers/assertions";
+import { MockLogger, TestGenerator } from "../helpers/mock-generators";
+import { createComplexNestedSchema, createMockSchemas } from "../helpers/schema-helpers";
 
 describe.skip("Generation Speed Performance", () => {
     let generator: TestGenerator;

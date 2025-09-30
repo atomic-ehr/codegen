@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
+import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import type { PFS } from "@typeschema-test/utils";
 import { fs2ts, mkR4Register } from "@typeschema-test/utils";
-import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 
 describe("TypeSchema Transformer Core Logic", async () => {
     const r4 = await mkR4Register();

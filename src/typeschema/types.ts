@@ -3,8 +3,8 @@
  * FHIR Schema designed to simplify SDK resource classes/types generation.
  */
 
-import type * as FS from "@atomic-ehr/fhirschema";
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
+import type * as FS from "@atomic-ehr/fhirschema";
 
 export interface PackageMeta {
     name: string;

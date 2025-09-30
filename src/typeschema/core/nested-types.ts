@@ -4,12 +4,11 @@
  * Functions for extracting and transforming nested types from FHIRSchema
  */
 
-import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import type { PackageMeta, RichFHIRSchema, TypeSchemaField, Identifier, TypeSchemaNestedType } from "../types";
-import { buildField, mkNestedField, isNestedElement } from "./field-builder";
-import { mkNestedIdentifier } from "./identifier";
 import type { Register } from "@root/typeschema/register";
+import type { Identifier, PackageMeta, RichFHIRSchema, TypeSchemaField, TypeSchemaNestedType } from "../types";
+import { buildField, isNestedElement, mkNestedField } from "./field-builder";
+import { mkNestedIdentifier } from "./identifier";
 
 /**
  * Collect all nested elements from a FHIRSchema

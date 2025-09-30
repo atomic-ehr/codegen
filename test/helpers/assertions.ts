@@ -9,7 +9,7 @@ import type { GeneratedFile } from "../../src/api/generators/base/types";
  * Assert that generated file has valid TypeScript syntax
  */
 export function assertValidTypeScript(content: string, filename?: string): void {
-    const context = filename ? ` in ${filename}` : "";
+    const _context = filename ? ` in ${filename}` : "";
 
     // Check balanced braces
     const openBraces = (content.match(/\{/g) || []).length;
@@ -199,7 +199,7 @@ export function assertHasDocumentation(content: string): void {
         const lines = content.split("\n");
 
         for (const match of exportMatches) {
-            const exportName = match.split(/\s+/).pop();
+            const _exportName = match.split(/\s+/).pop();
             const exportLineIndex = lines.findIndex((line) => line.includes(match));
 
             if (exportLineIndex > 0) {

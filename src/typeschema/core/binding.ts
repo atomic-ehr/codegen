@@ -5,10 +5,10 @@
  */
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
-import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import type { Identifier, PackageMeta, TypeSchemaForBinding, RichFHIRSchema } from "../types";
+import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
+import type { Identifier, PackageMeta, RichFHIRSchema, TypeSchemaForBinding } from "../types";
 import { buildFieldType } from "./field-builder";
-import { mkBindingIdentifier, mkValueSetIdentifier, dropVersionFromUrl } from "./identifier";
+import { dropVersionFromUrl, mkBindingIdentifier, mkValueSetIdentifier } from "./identifier";
 
 /**
  * Extract concepts from a ValueSet

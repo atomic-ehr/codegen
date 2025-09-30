@@ -2,15 +2,15 @@
  * Comprehensive tests for enhanced error handling system
  */
 
-import { describe, test, expect, beforeEach } from "bun:test";
+import { beforeEach, describe, expect, test } from "bun:test";
 import {
-    EnhancedSchemaValidationError,
     EnhancedFileOperationError,
+    EnhancedSchemaValidationError,
     EnhancedTemplateError,
 } from "../../../../../src/api/generators/base/enhanced-errors";
 import { ErrorHandler, GeneratorErrorBoundary } from "../../../../../src/api/generators/base/error-handler";
-import { createMockSchema } from "../../../../helpers/schema-helpers";
 import { MockLogger } from "../../../../helpers/mock-generators";
+import { createMockSchema } from "../../../../helpers/schema-helpers";
 
 describe("Enhanced Error Handling", () => {
     describe("EnhancedSchemaValidationError", () => {

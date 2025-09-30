@@ -1,8 +1,8 @@
+import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, StructureDefinition } from "@atomic-ehr/fhirschema";
 import * as fhirschema from "@atomic-ehr/fhirschema";
-import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
-import { type RichFHIRSchema, type PackageMeta, enrichFHIRSchema } from "@typeschema/types";
+import { enrichFHIRSchema, type PackageMeta, type RichFHIRSchema } from "@typeschema/types";
 
 export type Register = {
     appendFS(fs: FHIRSchema): void;

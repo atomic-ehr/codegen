@@ -5,25 +5,25 @@
  */
 
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import { type Register } from "@typeschema/register";
-import { transformProfile } from "../profile/processor";
+import type { Register } from "@typeschema/register";
 import type {
+    Identifier,
+    NestedType,
+    RichFHIRSchema,
     TypeSchema,
     TypeSchemaField,
     TypeSchemaForValueSet,
-    RichFHIRSchema,
     ValueSetIdentifier,
-    NestedType,
-    Identifier,
 } from "@typeschema/types";
+import { transformProfile } from "../profile/processor";
 import type { PackageMeta } from "../types";
 import { collectBindingSchemas } from "./binding";
 import {
     buildField,
-    mkNestedField,
     getElementHierarchy,
     isNestedElement,
     mergeElementHierarchy,
+    mkNestedField,
 } from "./field-builder";
 import { mkIdentifier } from "./identifier";
 import { buildNestedTypes, extractNestedDependencies } from "./nested-types";
@@ -123,7 +123,7 @@ function isExtensionSchema(fhirSchema: FHIRSchema, _identifier: Identifier): boo
 async function transformValueSet(
     fhirSchema: RichFHIRSchema,
     _register: Register,
-    packageInfo?: PackageMeta,
+    _packageInfo?: PackageMeta,
 ): Promise<TypeSchemaForValueSet | null> {
     try {
         const identifier = mkIdentifier(fhirSchema);
@@ -255,7 +255,7 @@ function extractDependencies(
     fields: Record<string, TypeSchemaField> | undefined,
     nestedTypes: NestedType[] | undefined,
 ): Identifier[] | undefined {
-    let deps = [];
+    const deps = [];
     if (base) deps.push(base);
     if (fields) deps.push(...extractFieldDependencies(fields));
     if (nestedTypes) deps.push(...extractNestedDependencies(nestedTypes));

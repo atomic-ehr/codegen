@@ -2,9 +2,9 @@
  * File system testing utilities
  */
 
-import { rm, mkdir, writeFile, readFile } from "node:fs/promises";
-import { join, dirname } from "node:path";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
 
 /**
  * Test file system manager

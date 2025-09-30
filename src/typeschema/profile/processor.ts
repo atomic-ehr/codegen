@@ -7,18 +7,17 @@
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
+import type { Register } from "@root/typeschema/register";
+import type { Identifier, RichFHIRSchema } from "@typeschema/types";
 import { mkIdentifier } from "../core/identifier";
 import { transformElements } from "../core/transformer";
-import type { Identifier, RichFHIRSchema } from "@typeschema/types";
 import type {
-    PackageMeta,
     ProfileConstraint,
     ProfileExtension,
     ProfileMetadata,
     TypeSchemaForProfile,
     ValidationRule,
 } from "../types";
-import type { Register } from "@root/typeschema/register";
 
 /**
  * Transform a FHIR profile to TypeSchema format

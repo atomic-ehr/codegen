@@ -2,18 +2,18 @@
  * Unit tests for FileBuilder
  */
 
-import { describe, test, expect, beforeEach, afterEach } from "bun:test";
-import { MockLogger } from "../../../../../helpers/mock-generators";
-import { TestFileSystem } from "../../../../../helpers/file-helpers";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { assertValidTypeScript } from "../../../../../helpers/assertions";
+import { TestFileSystem } from "../../../../../helpers/file-helpers";
+import { MockLogger } from "../../../../../helpers/mock-generators";
 
 describe("FileBuilder", () => {
     let testFs: TestFileSystem;
-    let logger: MockLogger;
+    let _logger: MockLogger;
 
     beforeEach(async () => {
         testFs = await TestFileSystem.createTempTestDir();
-        logger = new MockLogger();
+        _logger = new MockLogger();
     });
 
     afterEach(async () => {
@@ -232,7 +232,7 @@ interface Patient {
 
         test("handles file write errors gracefully", async () => {
             // Test that we can catch and handle file write errors
-            const mockWrite = async (filename: string, content: string) => {
+            const mockWrite = async (_filename: string, _content: string) => {
                 throw new Error("Permission denied");
             };
 

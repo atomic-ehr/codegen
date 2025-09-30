@@ -4,12 +4,10 @@
 
 import type {
     TypeSchema,
-    TypeSchemaIdentifier,
-    TypeSchemaForResourceComplexTypeLogical,
-    TypeSchemaForProfile,
-    TypeSchemaForValueSet,
     TypeSchemaForPrimitiveType,
-    RegularField,
+    TypeSchemaForProfile,
+    TypeSchemaForResourceComplexTypeLogical,
+    TypeSchemaForValueSet,
 } from "@typeschema";
 
 /**
@@ -185,7 +183,7 @@ export function generateEdgeCaseSchemas(): TypeSchema[] {
                 name: "A".repeat(100),
                 kind: "resource",
                 package: "test.package",
-                url: "http://test.com/StructureDefinition/" + "A".repeat(100),
+                url: `http://test.com/StructureDefinition/${"A".repeat(100)}`,
                 version: "1.0.0",
             },
         }),

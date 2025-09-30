@@ -1,10 +1,7 @@
-import { describe, expect, it } from "bun:test";
-import { transformFHIRSchema } from "@typeschema/core/transformer";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
-import { enrichFHIRSchema } from "@typeschema/types";
-import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
+import { transformFHIRSchema } from "@typeschema/core/transformer";
 import { type Register, registerFromPackageMetas } from "@typeschema/register";
-import { createLogger } from "@root/utils/codegen-logger";
+import { enrichFHIRSchema } from "@typeschema/types";
 export type PFS = Partial<FHIRSchema>;
 
 export const mkR4Register = async () =>

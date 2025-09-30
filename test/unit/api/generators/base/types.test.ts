@@ -2,17 +2,17 @@
  * Unit tests for base generator types and interfaces
  */
 
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import {
-    DEFAULT_GENERATOR_OPTIONS,
     DEFAULT_FILE_BUILDER_OPTIONS,
-    validateGeneratorOptions,
+    DEFAULT_GENERATOR_OPTIONS,
     isGeneratedFile,
     isGeneratorError,
     VERSION,
+    validateGeneratorOptions,
 } from "../../../../../src/api/generators/base";
 import { GeneratorError } from "../../../../../src/api/generators/base/errors";
-import type { GeneratedFile, BaseGeneratorOptions, LanguageType } from "../../../../../src/api/generators/base/types";
+import type { BaseGeneratorOptions, GeneratedFile, LanguageType } from "../../../../../src/api/generators/base/types";
 
 describe("Base Generator Types", () => {
     describe("Default Options", () => {

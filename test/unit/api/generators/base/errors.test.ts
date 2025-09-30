@@ -2,19 +2,19 @@
  * Unit tests for generator error classes
  */
 
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import {
+    BatchOperationError,
+    ConfigurationError,
+    createErrorWithContext,
+    FileOperationError,
     GeneratorError,
     SchemaValidationError,
     TemplateError,
-    FileOperationError,
     TypeMappingError,
-    ConfigurationError,
-    BatchOperationError,
-    createErrorWithContext,
 } from "@root/api/generators/base/errors";
-import type { TypeSchema } from "@typeschema/index";
 import type { FileContext } from "@root/api/generators/base/types";
+import type { TypeSchema } from "@typeschema/index";
 
 // Helper function to create mock schemas
 function createMockSchema(overrides: Partial<TypeSchema> = {}): TypeSchema {

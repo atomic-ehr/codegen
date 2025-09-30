@@ -2,11 +2,11 @@
  * Unit tests for FileManager
  */
 
-import { describe, test, expect, beforeEach, afterEach } from "bun:test";
-import { rm, access, readFile } from "node:fs/promises";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { access, readFile, rm } from "node:fs/promises";
 import { join } from "node:path";
-import { FileManager } from "../../../../../src/api/generators/base/FileManager";
 import { FileOperationError } from "../../../../../src/api/generators/base/errors";
+import { FileManager } from "../../../../../src/api/generators/base/FileManager";
 import { createLogger } from "../../../../../src/utils/codegen-logger";
 
 function createMockLogger() {
@@ -234,9 +234,9 @@ describe("FileManager", () => {
             const stats = await fileManager.getFileStats(filePath);
 
             expect(stats).not.toBeNull();
-            expect(stats!.size).toBe(Buffer.byteLength(content, "utf-8"));
-            expect(stats!.generationTime).toBe(0); // Set by caller
-            expect(stats!.writeTime).toBe(0); // Set by caller
+            expect(stats?.size).toBe(Buffer.byteLength(content, "utf-8"));
+            expect(stats?.generationTime).toBe(0); // Set by caller
+            expect(stats?.writeTime).toBe(0); // Set by caller
         });
 
         test("provides output directory access", () => {

@@ -1,6 +1,6 @@
-import { describe, expect, it, beforeEach } from "bun:test";
-import { TypeScriptGenerator } from "../../../../src/api/generators/typescript";
+import { beforeEach, describe, expect, it } from "bun:test";
 import type { TypeSchema } from "@typeschema/types";
+import { TypeScriptGenerator } from "../../../../src/api/generators/typescript";
 
 describe("TypeScript Generator Core Logic", () => {
     let generator: TypeScriptGenerator;

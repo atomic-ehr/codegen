@@ -1,9 +1,9 @@
 /**
  * Unit tests for value set generation functionality
  */
-import { describe, test, expect, beforeEach } from "bun:test";
+import { beforeEach, describe, expect, test } from "bun:test";
+import type { TypeSchemaForBinding } from "@typeschema/types";
 import { TypeScriptGenerator } from "../../../../src/api/generators/typescript";
-import type { TypeSchema, TypeSchemaForBinding } from "@typeschema/types";
 import { createLogger } from "../../../../src/utils/codegen-logger";
 
 describe("Value Set Detection", () => {

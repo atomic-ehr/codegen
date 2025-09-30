@@ -6,18 +6,17 @@
  */
 
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
-import { type FHIRSchema, type StructureDefinition } from "@atomic-ehr/fhirschema";
+import type { FHIRSchema, StructureDefinition } from "@atomic-ehr/fhirschema";
 import * as fhirschema from "@atomic-ehr/fhirschema";
 import type { TypeSchemaConfig } from "@root/config";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import { createLogger } from "@root/utils/codegen-logger";
+import type { Register } from "@typeschema/register";
+import { registerFromManager } from "@typeschema/register";
 import { TypeSchemaCache } from "./cache";
 import { transformFHIRSchema } from "./core/transformer";
-import type { PackageMeta, RichFHIRSchema, TypeSchema, TypeschemaGeneratorOptions } from "./types";
-import { enrichFHIRSchema } from "./types";
+import type { PackageMeta, TypeSchema, TypeschemaGeneratorOptions } from "./types";
 import { transformValueSet } from "./value-set/processor";
-import { registerFromManager } from "@typeschema/register";
-import type { Register } from "@typeschema/register";
 
 /**
  * TypeSchema Generator class
