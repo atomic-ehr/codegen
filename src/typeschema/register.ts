@@ -1,5 +1,5 @@
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
-import type { FHIRSchema, StructureDefinition } from "@atomic-ehr/fhirschema";
+import type { FHIRSchema, FHIRSchemaElement, StructureDefinition } from "@atomic-ehr/fhirschema";
 import * as fhirschema from "@atomic-ehr/fhirschema";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import type { CanonicalUrl, Name, PackageMeta, RichFHIRSchema } from "@typeschema/types";
@@ -108,4 +108,19 @@ export const registerFromPackageMetas = async (
     await manager.init();
     // Pass package info from the first package (assuming single package for now)
     return await registerFromManager(manager, logger, packageMetas[0]);
+};
+
+export const resolveFsElementGenealogy = (genealogy: RichFHIRSchema[], path: string[]): FHIRSchemaElement[] => {
+    const [top, ...rest] = path;
+    if (top === undefined) return [];
+    return genealogy
+        .map((fs) => {
+            if (!fs.elements) return undefined;
+            let elem = fs.elements?.[top];
+            for (const k of rest) {
+                elem = elem?.elements?.[k];
+            }
+            return elem;
+        })
+        .filter((elem) => elem !== undefined);
 };

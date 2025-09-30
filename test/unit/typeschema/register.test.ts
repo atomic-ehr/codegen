@@ -1,9 +1,16 @@
 import { describe, expect, it } from "bun:test";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
-import type { CanonicalUrl, Name } from "@root/typeschema/types";
-import { registerFromPackageMetas } from "@typeschema/register";
+import { type CanonicalUrl, enrichFHIRSchema, type Name } from "@root/typeschema/types";
+import { registerFromPackageMetas, resolveFsElementGenealogy } from "@typeschema/register";
 
 export type PFS = Partial<FHIRSchema>;
+
+const resolveFsElementGenealogyT = (pfss: PFS[], path: string[]) => {
+    return resolveFsElementGenealogy(
+        pfss.map((pfs) => enrichFHIRSchema(pfs as FHIRSchema)),
+        path,
+    );
+};
 
 // TODO: multipackage mode and package info
 
@@ -42,6 +49,7 @@ describe("Register tests", async () => {
 
     describe("Genealogy", () => {
         const pat = r4.resolveFsGenealogy("http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl)!;
+
         expect(pat.map((fs) => fs.url)).toEqual(
             expect.arrayContaining([
                 "http://hl7.org/fhir/StructureDefinition/Patient",
@@ -49,6 +57,72 @@ describe("Register tests", async () => {
                 "http://hl7.org/fhir/StructureDefinition/Resource",
             ]),
         );
+
+        expect(resolveFsElementGenealogy(pat, ["gender"])).toMatchObject([
+            {
+                binding: {
+                    bindingName: "AdministrativeGender",
+                    strength: "required",
+                    valueSet: "http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1",
+                },
+                isSummary: true,
+                short: "male | female | other | unknown",
+                type: "code",
+            },
+        ]);
+    });
+
+    describe("resolve element genealogy", () => {
+        const flatGenealogy = [
+            {
+                url: "A" as CanonicalUrl,
+                elements: {
+                    foo: { type: "string", array: true },
+                },
+            },
+            {
+                base: "A" as CanonicalUrl,
+                url: "B" as CanonicalUrl,
+                required: ["foo"],
+                elements: {
+                    foo: { min: 1 },
+                    bar: { type: "code" },
+                },
+            },
+        ];
+
+        const deepGenealogy = [
+            {
+                url: "A" as CanonicalUrl,
+                elements: {
+                    foo: { type: "string", elements: { bar: { type: "string", array: true } } },
+                },
+            },
+            {
+                base: "A" as CanonicalUrl,
+                url: "B" as CanonicalUrl,
+                required: ["foo"],
+                elements: {
+                    foo: { elements: { bar: { type: "string", min: 1 } } },
+                },
+            },
+        ];
+
+        expect(resolveFsElementGenealogyT(flatGenealogy, ["foo"])).toMatchObject([
+            { array: true, type: "string" },
+            { min: 1 },
+        ]);
+        expect(resolveFsElementGenealogyT(deepGenealogy, ["foo"])).toMatchObject([
+            {
+                elements: { bar: { array: true, type: "string" } },
+                type: "string",
+            },
+            { elements: { bar: { min: 1, type: "string" } } },
+        ]);
+        expect(resolveFsElementGenealogyT(deepGenealogy, ["foo", "bar"])).toMatchObject([
+            { array: true, type: "string" },
+            { min: 1, type: "string" },
+        ]);
     });
 
     // describe("appendFS()", () => {
