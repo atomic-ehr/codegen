@@ -147,8 +147,8 @@ export class TypeSchemaGenerator {
 
         const register = await this.registerFromPackageMetas([packageInfo]);
         const allSchemas = [
-            ...(await Promise.all(register.allFS().map(async (fs) => await transformFHIRSchema(register, fs)))).flat(),
-            ...(await this.generateValueSetSchemas(register.allVS(), packageInfo)),
+            ...(await Promise.all(register.allFs().map(async (fs) => await transformFHIRSchema(register, fs)))).flat(),
+            ...(await this.generateValueSetSchemas(register.allVs(), packageInfo)),
         ];
 
         if (this.cache) {

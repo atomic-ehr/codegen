@@ -166,7 +166,7 @@ export const buildReferences = (
     if (!element.refers) return undefined;
     return element.refers.map((ref) => {
         const curl = register.ensureCanonicalUrl(ref);
-        const fs = register.resolveFS(curl)!;
+        const fs = register.resolveFs(curl)!;
         return mkIdentifier(fs);
     });
 };

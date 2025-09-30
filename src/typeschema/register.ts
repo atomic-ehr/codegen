@@ -5,14 +5,14 @@ import type { CodegenLogger } from "@root/utils/codegen-logger";
 import { enrichFHIRSchema, type PackageMeta, type RichFHIRSchema } from "@typeschema/types";
 
 export type Register = {
-    appendFS(fs: FHIRSchema): void;
+    appendFs(fs: FHIRSchema): void;
     ensureCanonicalUrl(canonicalUrl: string): string;
-    resolveSD(canonicalUrl: string): StructureDefinition | undefined;
-    resolveFS(canonicalUrl: string): RichFHIRSchema | undefined;
+    resolveSd(canonicalUrl: string): StructureDefinition | undefined;
+    resolveFs(canonicalUrl: string): RichFHIRSchema | undefined;
     resolveFSGenealogy(canonicalUrl: string): RichFHIRSchema[] | undefined;
-    allSD(): StructureDefinition[];
-    allFS(): RichFHIRSchema[];
-    allVS(): any[];
+    allSd(): StructureDefinition[];
+    allFs(): RichFHIRSchema[];
+    allVs(): any[];
     complexTypeDict(): Record<string, RichFHIRSchema>;
 } & ReturnType<typeof CanonicalManager>;
 
@@ -79,16 +79,16 @@ export const registerFromManager = async (
 
     return {
         ...manager,
-        appendFS(fs: FHIRSchema) {
+        appendFs(fs: FHIRSchema) {
             fhirSchemas[fs.url] = enrichFHIRSchema(fs);
         },
-        resolveFS: (canonicalUrl: string) => fhirSchemas[canonicalUrl],
+        resolveFs: (canonicalUrl: string) => fhirSchemas[canonicalUrl],
         resolveFSGenealogy: resolveFSGenealogy,
         ensureCanonicalUrl: (canonicalUrl: string) => nameDict[canonicalUrl] || canonicalUrl,
-        allSD: () => Object.values(structureDefinitions),
-        resolveSD: (canonicalUrl: string) => structureDefinitions[canonicalUrl],
-        allFS: () => Object.values(fhirSchemas),
-        allVS: () => Object.values(valueSets),
+        allSd: () => Object.values(structureDefinitions),
+        resolveSd: (canonicalUrl: string) => structureDefinitions[canonicalUrl],
+        allFs: () => Object.values(fhirSchemas),
+        allVs: () => Object.values(valueSets),
         complexTypeDict: () => complexTypes,
     };
 };

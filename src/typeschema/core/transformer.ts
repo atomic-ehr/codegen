@@ -271,7 +271,7 @@ async function transformResource(register: Register, fhirSchema: RichFHIRSchema)
 
     let base: Identifier | undefined;
     if (fhirSchema.base && fhirSchema.type !== "Element") {
-        const baseFs = register.resolveFS(register.ensureCanonicalUrl(fhirSchema.base));
+        const baseFs = register.resolveFs(register.ensureCanonicalUrl(fhirSchema.base));
         base = mkIdentifier(baseFs!);
     }
 

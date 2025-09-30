@@ -16,22 +16,22 @@ describe("Register tests", async () => {
 
     describe("Structure definition", () => {
         it("should return all StructureDefinitions", () => {
-            const allSD = r4.allSD();
+            const allSD = r4.allSd();
             expect(Array.isArray(allSD)).toBe(true);
             expect(allSD.length).toBe(655);
 
-            const patientSD = r4.resolveSD("http://hl7.org/fhir/StructureDefinition/Patient")!;
+            const patientSD = r4.resolveSd("http://hl7.org/fhir/StructureDefinition/Patient")!;
             expect(patientSD).toBeDefined();
         });
     });
 
     describe("FHIR Schema", () => {
         it("should return all FHIRSchemas", () => {
-            const allFS = r4.allFS();
+            const allFS = r4.allFs();
             expect(Array.isArray(allFS)).toBe(true);
             expect(allFS.length).toBe(655);
 
-            const patientFS = r4.resolveFS("http://hl7.org/fhir/StructureDefinition/Patient")!;
+            const patientFS = r4.resolveFs("http://hl7.org/fhir/StructureDefinition/Patient")!;
             expect(patientFS).toBeDefined();
             expect(patientFS.package_meta).toMatchObject(r4Package);
         });

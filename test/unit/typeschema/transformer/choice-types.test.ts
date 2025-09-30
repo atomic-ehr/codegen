@@ -24,7 +24,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                     },
                 },
             };
-            r4.appendFS(fs as FHIRSchema);
+            r4.appendFs(fs as FHIRSchema);
             expect(await fs2ts(r4, fs)).toMatchObject([
                 {
                     identifier: {
@@ -80,7 +80,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                     },
                 },
             };
-            r4.appendFS(fs as FHIRSchema);
+            r4.appendFs(fs as FHIRSchema);
             expect(await fs2ts(r4, fs)).toMatchObject([
                 {
                     identifier: {
