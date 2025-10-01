@@ -7,7 +7,7 @@
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
 import type { CanonicalUrl, Field, Identifier, Name, NestedType, PackageMeta, RichFHIRSchema } from "../types";
-import { buildField, isNestedElement, mkNestedField } from "./field-builder";
+import { isNestedElement, mkField, mkNestedField } from "./field-builder";
 import { mkNestedIdentifier } from "./identifier";
 
 export function collectNestedElements(
@@ -37,7 +37,7 @@ export async function transformNestedElements(
     parentPath: string[],
     elements: Record<string, FHIRSchemaElement>,
     register: Register,
-    packageInfo?: PackageMeta,
+    _packageInfo?: PackageMeta,
 ): Promise<Record<string, Field>> {
     const fields: Record<string, Field> = {};
 
@@ -45,11 +45,9 @@ export async function transformNestedElements(
         const path = [...parentPath, key];
 
         if (isNestedElement(element)) {
-            // Reference to another nested type
             fields[key] = mkNestedField(register, fhirSchema, path, element);
         } else {
-            // Regular field
-            fields[key] = await buildField(fhirSchema, path, element, register, packageInfo);
+            fields[key] = mkField(register, fhirSchema, path, element);
         }
     }
 
@@ -113,7 +111,7 @@ export async function mkNestedTypes(register: Register, fhirSchema: RichFHIRSche
     // Sort by URL for consistent output
     nestedTypes.sort((a, b) => a.identifier.url.localeCompare(b.identifier.url));
 
-    return nestedTypes;
+    return nestedTypes.length === 0 ? undefined : nestedTypes;
 }
 
 export function extractNestedDependencies(nestedTypes: NestedType[]): Identifier[] {

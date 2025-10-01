@@ -16,7 +16,7 @@ export const registerFs = (register: Register, fs: PFS) => {
     register.appendFs(rfs);
 };
 
-export const fs2ts = async (register: Register, fs: PFS) => {
+export const registerFsAndMkTs = async (register: Register, fs: PFS) => {
     registerFs(register, fs);
     return await transformFHIRSchema(register, register.resolveFs(fs.url as CanonicalUrl)!);
 };

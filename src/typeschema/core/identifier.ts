@@ -16,9 +16,9 @@ import type {
     TypeSchemaForValueSet,
 } from "@typeschema/types";
 
-export function dropVersionFromUrl(url: string | undefined): string | undefined {
+export function dropVersionFromUrl(url: CanonicalUrl | undefined): CanonicalUrl | undefined {
     if (!url) return undefined;
-    return url.split("|")[0];
+    return url.split("|")[0] as CanonicalUrl;
 }
 
 function determineKind(fhirSchema: RichFHIRSchema): Identifier["kind"] {
@@ -51,7 +51,7 @@ export function mkNestedIdentifier(fhirSchema: RichFHIRSchema, path: string[]): 
 }
 
 export function mkValueSetIdentifier(
-    valueSetUrl: string,
+    valueSetUrl: CanonicalUrl,
     valueSet: any,
     packageInfo?: PackageMeta,
 ): TypeSchemaForValueSet["identifier"] {

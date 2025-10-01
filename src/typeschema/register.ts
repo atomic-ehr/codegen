@@ -14,7 +14,9 @@ export type Register = {
     allSd(): StructureDefinition[];
     allFs(): RichFHIRSchema[];
     allVs(): any[];
+    resolveVs(canonicalUrl: CanonicalUrl): any | undefined;
     complexTypeDict(): Record<string, RichFHIRSchema>;
+    resolveAny(canonicalUrl: CanonicalUrl): any | undefined;
 } & ReturnType<typeof CanonicalManager>;
 
 export const registerFromManager = async (
@@ -23,6 +25,13 @@ export const registerFromManager = async (
     packageInfo?: PackageMeta,
 ): Promise<Register> => {
     const resources = await manager.search({});
+
+    const any = {} as Record<CanonicalUrl, any>;
+    for (const resource of resources) {
+        const url = resource.url as CanonicalUrl;
+        if (!url) continue;
+        any[url] = resource;
+    }
 
     const structureDefinitions = {} as Record<CanonicalUrl, StructureDefinition>;
     for (const resource of resources) {
@@ -93,7 +102,9 @@ export const registerFromManager = async (
         resolveSd: (canonicalUrl: CanonicalUrl) => structureDefinitions[canonicalUrl],
         allFs: () => Object.values(fhirSchemas),
         allVs: () => Object.values(valueSets),
+        resolveVs: (canonicalUrl: CanonicalUrl) => valueSets[canonicalUrl],
         complexTypeDict: () => complexTypes,
+        resolveAny: (canonicalUrl: CanonicalUrl) => any[canonicalUrl],
     };
 };
 

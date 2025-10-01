@@ -4,23 +4,22 @@
  * Functions for processing value set bindings and generating enums
  */
 
-import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import type { Identifier, PackageMeta, RichFHIRSchema, TypeSchemaForBinding } from "../types";
+import type { Register } from "@typeschema/register";
+import type { CanonicalUrl, Identifier, PackageMeta, RichFHIRSchema, TypeSchemaForBinding } from "@typeschema/types";
 import { buildFieldType } from "./field-builder";
 import { dropVersionFromUrl, mkBindingIdentifier, mkValueSetIdentifier } from "./identifier";
 
 /**
  * Extract concepts from a ValueSet
  */
-export async function extractValueSetConcepts(
-    valueSetUrl: string,
-    manager: ReturnType<typeof CanonicalManager>,
-): Promise<Array<{ system: string; code: string; display?: string }> | undefined> {
+export function extractValueSetConcepts(
+    valueSetUrl: CanonicalUrl,
+    register: Register,
+): { system: string; code: string; display?: string }[] | undefined {
     try {
         const cleanUrl = dropVersionFromUrl(valueSetUrl) || valueSetUrl;
-        const valueSet = await manager.resolve(cleanUrl);
-
+        const valueSet = register.resolveVs(cleanUrl as CanonicalUrl);
         if (!valueSet) return undefined;
 
         // If expansion is available, use it
@@ -49,7 +48,7 @@ export async function extractValueSetConcepts(
                 } else if (include.system && !include.filter) {
                     // Include all from CodeSystem
                     try {
-                        const codeSystem = await manager.resolve(include.system);
+                        const codeSystem = register.resolveAny(include.system);
                         if (codeSystem?.concept) {
                             const extractConcepts = (conceptList: any[], system: string) => {
                                 for (const concept of conceptList) {
@@ -82,10 +81,7 @@ export async function extractValueSetConcepts(
 /**
  * Build enum values from binding if applicable
  */
-export async function buildEnum(
-    element: FHIRSchemaElement,
-    manager: ReturnType<typeof CanonicalManager>,
-): Promise<string[] | undefined> {
+export function buildEnum(element: FHIRSchemaElement, register: Register): string[] | undefined {
     if (!element.binding) return undefined;
 
     const { strength, valueSet } = element.binding;
@@ -107,13 +103,8 @@ export async function buildEnum(
         return undefined;
     }
 
-    // Check if manager is available and functional
-    if (!manager.resolve) {
-        return undefined;
-    }
-
     try {
-        const concepts = await extractValueSetConcepts(valueSet, manager);
+        const concepts = extractValueSetConcepts(valueSet as CanonicalUrl, register);
         if (!concepts || concepts.length === 0) return undefined;
 
         // Extract just the codes and filter out any empty/invalid ones
@@ -135,15 +126,15 @@ export async function generateBindingSchema(
     fhirSchema: RichFHIRSchema,
     path: string[],
     element: FHIRSchemaElement,
-    manager: ReturnType<typeof CanonicalManager>,
+    register: Register,
     packageInfo?: PackageMeta,
 ): Promise<TypeSchemaForBinding | undefined> {
     if (!element.binding?.valueSet) return undefined;
 
     const identifier = mkBindingIdentifier(fhirSchema, path, element.binding.bindingName, packageInfo);
 
-    const fieldType = buildFieldType(fhirSchema, path, element, manager, packageInfo);
-    const valueSetIdentifier = mkValueSetIdentifier(element.binding.valueSet, undefined, packageInfo);
+    const fieldType = buildFieldType(fhirSchema, path, element, register, packageInfo);
+    const valueSetIdentifier = mkValueSetIdentifier(element.binding.valueSet as CanonicalUrl, undefined, packageInfo);
 
     const dependencies: Identifier[] = [];
     if (fieldType) {
@@ -151,7 +142,7 @@ export async function generateBindingSchema(
     }
     dependencies.push(valueSetIdentifier);
 
-    const enumValues = await buildEnum(element, manager);
+    const enumValues = await buildEnum(element, register);
 
     return {
         identifier,
@@ -168,7 +159,7 @@ export async function generateBindingSchema(
  */
 export async function collectBindingSchemas(
     fhirSchema: RichFHIRSchema,
-    manager: ReturnType<typeof CanonicalManager>,
+    register: Register,
 ): Promise<TypeSchemaForBinding[]> {
     const packageInfo = fhirSchema.package_meta;
     const bindings: TypeSchemaForBinding[] = [];
@@ -186,7 +177,7 @@ export async function collectBindingSchemas(
 
             // Generate binding if present
             if (element.binding) {
-                const binding = await generateBindingSchema(fhirSchema, path, element, manager, packageInfo);
+                const binding = await generateBindingSchema(fhirSchema, path, element, register, packageInfo);
                 if (binding) {
                     bindings.push(binding);
                 }

@@ -7,7 +7,16 @@
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
-import type { CanonicalUrl, Field, Identifier, Name, PackageMeta, RegularField, RichFHIRSchema } from "../types";
+import type {
+    BindingIdentifier,
+    CanonicalUrl,
+    Field,
+    Identifier,
+    Name,
+    PackageMeta,
+    RegularField,
+    RichFHIRSchema,
+} from "../types";
 import { buildEnum } from "./binding";
 import { mkBindingIdentifier, mkIdentifier, mkNestedIdentifier } from "./identifier";
 
@@ -120,29 +129,28 @@ export function buildFieldType(
     return undefined;
 }
 
-export const buildField = (
+export const mkField = (
+    register: Register,
     fhirSchema: RichFHIRSchema,
     path: string[],
     element: FHIRSchemaElement,
-    register: Register,
-    packageInfo?: PackageMeta,
 ): Field => {
-    let binding;
-    let _enumValues;
+    let binding: BindingIdentifier | undefined;
+    let enumValues: string[] | undefined;
     if (element.binding) {
-        binding = mkBindingIdentifier(fhirSchema, path, element.binding.bindingName, packageInfo);
+        binding = mkBindingIdentifier(fhirSchema, path, element.binding.bindingName, fhirSchema.package_meta);
 
         if (element.binding.strength === "required" && element.type === "code") {
-            _enumValues = buildEnum(element, register);
+            enumValues = buildEnum(element, register);
         }
     }
 
     return {
-        type: buildFieldType(fhirSchema, path, element, register, packageInfo)!,
+        type: buildFieldType(fhirSchema, path, element, register, fhirSchema.package_meta)!,
         required: isRequired(fhirSchema, path),
         excluded: isExcluded(fhirSchema, path),
 
-        reference: buildReferences(element, register, packageInfo),
+        reference: buildReferences(element, register, fhirSchema.package_meta),
 
         array: element.array || false,
         min: element.min,
@@ -152,6 +160,7 @@ export const buildField = (
         choiceOf: element.choiceOf,
 
         binding: binding,
+        enum: enumValues,
     };
 };
 

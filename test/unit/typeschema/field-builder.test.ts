@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import { buildField, isNestedElement, mkNestedField } from "@typeschema/core/field-builder";
+import { isNestedElement, mkField, mkNestedField } from "@typeschema/core/field-builder";
 import type { PackageMeta } from "@typeschema/types";
 import { mkR4Register } from "@typeschema-test/utils";
 
@@ -59,7 +59,7 @@ describe("Field Builder Core Logic", async () => {
                 required: ["name"],
             };
 
-            const field = await buildField(fhirSchema, ["name"], element, r4 as any, basePackageInfo);
+            const field = mkField(r4, fhirSchema, ["name"], element);
 
             expect(field.type).toBeDefined();
             expect(field.type?.name).toBe("string");
@@ -79,7 +79,7 @@ describe("Field Builder Core Logic", async () => {
                 url: "http://example.org/TestSchema",
             };
 
-            const field = await buildField(fhirSchema, ["items"], element, r4 as any, basePackageInfo);
+            const field = mkField(r4, fhirSchema, ["items"], element);
 
             expect(field.array).toBe(true);
             expect(field.type?.name).toBe("string");
@@ -105,7 +105,7 @@ describe("Field Builder Core Logic", async () => {
                 },
             };
 
-            const field = await buildField(fhirSchema, ["status"], element, r4 as any, basePackageInfo);
+            const field = mkField(r4, fhirSchema, ["status"], element);
 
             // Enum values are only added when valueSet can be resolved
             expect(field.type?.name).toBe("code");
@@ -125,7 +125,7 @@ describe("Field Builder Core Logic", async () => {
                 url: "http://example.org/TestSchema",
             };
 
-            const field = await buildField(fhirSchema, ["subject"], element, r4 as any, basePackageInfo);
+            const field = mkField(r4, fhirSchema, ["subject"], element);
 
             // References are only added when refers can be resolved by manager
             expect(field.type?.name).toBe("Reference");
@@ -151,7 +151,7 @@ describe("Field Builder Core Logic", async () => {
                 },
             };
 
-            const field = await buildField(fhirSchema, ["status"], element, r4 as any, basePackageInfo);
+            const field = await mkField(r4, fhirSchema, ["status"], element);
 
             expect(field.binding).toBeDefined();
             expect(field.binding?.url).toContain("binding");
@@ -170,7 +170,7 @@ describe("Field Builder Core Logic", async () => {
                 url: "http://example.org/TestSchema",
             };
 
-            const field = await buildField(fhirSchema, ["value"], element, r4 as any, basePackageInfo);
+            const field = await mkField(r4, fhirSchema, ["value"], element);
 
             // Polymorphic fields are handled via choices
             expect(field.choices).toEqual(["valueString", "valueInteger", "valueBoolean"]);
@@ -189,7 +189,7 @@ describe("Field Builder Core Logic", async () => {
                 url: "http://example.org/TestSchema",
             };
 
-            const field = await buildField(fhirSchema, ["type"], element, r4 as any, basePackageInfo);
+            const field = mkField(r4, fhirSchema, ["type"], element);
 
             // Fixed values are preserved in the field
             expect(field.type?.name).toBe("code");
@@ -209,7 +209,7 @@ describe("Field Builder Core Logic", async () => {
                 url: "http://example.org/TestSchema",
             };
 
-            const field = await buildField(fhirSchema, ["phone"], element, r4 as any, basePackageInfo);
+            const field = mkField(r4, fhirSchema, ["phone"], element);
 
             // Pattern is preserved in the field
             expect(field.type?.name).toBe("string");
@@ -229,7 +229,7 @@ describe("Field Builder Core Logic", async () => {
                 url: "http://example.org/TestSchema",
             };
 
-            const field = await buildField(fhirSchema, ["score"], element, r4 as any, basePackageInfo);
+            const field = mkField(r4, fhirSchema, ["score"], element);
 
             // Min/max are preserved in the field
             expect(field.type?.name).toBe("integer");
@@ -249,7 +249,7 @@ describe("Field Builder Core Logic", async () => {
                 url: "http://example.org/TestSchema",
             };
 
-            const field = await buildField(fhirSchema, ["description"], element, r4 as any, basePackageInfo);
+            const field = mkField(r4, fhirSchema, ["description"], element);
 
             // Description is not preserved in fields
             expect(field.type?.name).toBe("string");

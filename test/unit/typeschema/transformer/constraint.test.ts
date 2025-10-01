@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { PFS } from "@typeschema-test/utils";
-import { fs2ts, mkR4Register, registerFs } from "@typeschema-test/utils";
+import { mkR4Register, registerFs, registerFsAndMkTs } from "@typeschema-test/utils";
 
 describe("Processing constraint generation", async () => {
     const r4 = await mkR4Register();
@@ -19,7 +19,7 @@ describe("Processing constraint generation", async () => {
     };
     registerFs(r4, A);
     it("Generate nested type for resource", async () => {
-        expect(await fs2ts(r4, A)).toMatchObject([
+        expect(await registerFsAndMkTs(r4, A)).toMatchObject([
             {
                 identifier: { kind: "resource", name: "a", url: "uri::A" },
                 fields: {
@@ -48,7 +48,7 @@ describe("Processing constraint generation", async () => {
         elements: { foo: { min: 1 } },
     };
     it.todo("Constraint nested type for resource in profile", async () => {
-        expect(await fs2ts(r4, B)).toMatchObject([
+        expect(await registerFsAndMkTs(r4, B)).toMatchObject([
             {
                 identifier: { kind: "constraint", name: "b", url: "uri::B" },
                 base: { kind: "resource", name: "a", url: "uri::A" },
@@ -73,7 +73,7 @@ describe("Processing constraint generation", async () => {
     };
 
     it.todo("Constraint nested type for resource in profile", async () => {
-        expect(await fs2ts(r4, C)).toMatchObject([
+        expect(await registerFsAndMkTs(r4, C)).toMatchObject([
             {
                 identifier: { kind: "constraint", name: "c", url: "C" },
                 base: { kind: "constraint", name: "b", url: "B" },

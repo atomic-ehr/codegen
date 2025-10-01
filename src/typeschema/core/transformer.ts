@@ -18,7 +18,7 @@ import type {
 import { transformProfile } from "../profile/processor";
 import type { CanonicalUrl, Name, PackageMeta } from "../types";
 import { collectBindingSchemas } from "./binding";
-import { buildField, isNestedElement, mkNestedField } from "./field-builder";
+import { isNestedElement, mkField, mkNestedField } from "./field-builder";
 import { mkIdentifier } from "./identifier";
 import { extractNestedDependencies, mkNestedTypes } from "./nested-types";
 
@@ -29,20 +29,41 @@ export async function mkFields(
     elements: Record<string, FHIRSchemaElement> | undefined,
 ): Promise<Record<string, Field> | undefined> {
     if (!elements) return undefined;
-
     const geneology = register.resolveFsGenealogy(fhirSchema.url);
 
-    const fields: Record<string, Field> = {};
-    for (const [key, _element] of Object.entries(elements)) {
+    const elems = {} as Record<
+        string,
+        {
+            elem: FHIRSchemaElement | undefined;
+            elemSnapshot: FHIRSchemaElement;
+            path: string[];
+        }
+    >;
+    for (const [key, elem] of Object.entries(elements)) {
         const path = [...parentPath, key];
-
         const elemGeneology = resolveFsElementGenealogy(geneology, path);
         const elemSnapshot = fsElementSnapshot(elemGeneology);
 
+        elems[key] = { elem, elemSnapshot, path };
+    }
+
+    for (const [_key, { elem, elemSnapshot, path }] of Object.entries(elems)) {
+        for (const choiceKey of elem?.choices || []) {
+            if (!elems[choiceKey]) {
+                const path = [...parentPath, choiceKey];
+                const elemGeneology = resolveFsElementGenealogy(geneology, path);
+                const elemSnapshot = fsElementSnapshot(elemGeneology);
+                elems[choiceKey] = { elem: undefined, elemSnapshot, path };
+            }
+        }
+    }
+
+    const fields: Record<string, Field> = {};
+    for (const [key, { elem, elemSnapshot, path }] of Object.entries(elems)) {
         if (isNestedElement(elemSnapshot)) {
             fields[key] = mkNestedField(register, fhirSchema, path, elemSnapshot);
         } else {
-            fields[key] = buildField(fhirSchema, path, elemSnapshot, register, fhirSchema.package_meta);
+            fields[key] = mkField(register, fhirSchema, path, elemSnapshot);
         }
     }
 
@@ -260,20 +281,15 @@ function extractDependencies(
 
     const localNestedTypeUrls = new Set(nestedTypes?.map((nt) => nt.identifier.url));
 
-    console.log(1, Object.values(uniqDeps));
-    console.log(2, localNestedTypeUrls);
-
     const result = Object.values(uniqDeps)
         .filter((e) => !(e.kind === "nested" && localNestedTypeUrls.has(e.url)))
         .sort((a, b) => a.name.localeCompare(b.name));
-    console.log(3, result);
 
     return result.length > 0 ? result : undefined;
 }
 
 async function transformResource(register: Register, fhirSchema: RichFHIRSchema): Promise<TypeSchema[]> {
     const identifier = mkIdentifier(fhirSchema);
-    console.log(6, fhirSchema.name);
 
     let base: Identifier | undefined;
     if (fhirSchema.base && fhirSchema.type !== "Element") {
@@ -285,7 +301,6 @@ async function transformResource(register: Register, fhirSchema: RichFHIRSchema)
     }
 
     const fields = await mkFields(register, fhirSchema, [], fhirSchema.elements);
-    console.log(0, fields);
     const nested = await mkNestedTypes(register, fhirSchema);
     const dependencies = extractDependencies(identifier, base, fields, nested);
 
@@ -306,7 +321,6 @@ async function transformResource(register: Register, fhirSchema: RichFHIRSchema)
 export async function transformFHIRSchema(register: Register, fhirSchema: RichFHIRSchema): Promise<TypeSchema[]> {
     const results: TypeSchema[] = [];
     const identifier = mkIdentifier(fhirSchema);
-    console.log(5, fhirSchema.name);
     // Handle profiles with specialized processor
     if (identifier.kind === "profile") {
         const profileSchema = await transformProfile(register, fhirSchema);

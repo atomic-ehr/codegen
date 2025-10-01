@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { PFS } from "@typeschema-test/utils";
-import { fs2ts, mkR4Register } from "@typeschema-test/utils";
+import { mkR4Register, registerFsAndMkTs } from "@typeschema-test/utils";
 
 describe("Check hierarchy translation", async () => {
     const r4 = await mkR4Register();
@@ -12,7 +12,7 @@ describe("Check hierarchy translation", async () => {
             },
         };
         it("Base", async () => {
-            expect(await fs2ts(r4, A)).toMatchObject([
+            expect(await registerFsAndMkTs(r4, A)).toMatchObject([
                 {
                     identifier: { url: "A" },
                     fields: {
@@ -40,7 +40,7 @@ describe("Check hierarchy translation", async () => {
             },
         };
 
-        expect(await fs2ts(r4, B)).toMatchObject([
+        expect(await registerFsAndMkTs(r4, B)).toMatchObject([
             {
                 identifier: { url: "B" },
                 base: { url: "A" },
@@ -75,7 +75,7 @@ describe("Check hierarchy translation", async () => {
             },
         };
         it.todo("Check optional choice fields", async () => {
-            expect(await fs2ts(r4, C)).toMatchObject([
+            expect(await registerFsAndMkTs(r4, C)).toMatchObject([
                 {
                     identifier: { url: "C" },
                     base: { url: "B" },
