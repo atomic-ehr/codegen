@@ -2,13 +2,7 @@
  * Helper functions for creating test schemas
  */
 
-import type {
-    TypeSchema,
-    TypeSchemaForPrimitiveType,
-    TypeSchemaForProfile,
-    TypeSchemaForResourceComplexTypeLogical,
-    TypeSchemaForValueSet,
-} from "@typeschema";
+import type { TypeSchema } from "@typeschema/index";
 
 /**
  * Create a minimal valid schema for testing
@@ -325,33 +319,5 @@ export function createPrimitiveTypeSchema(name: string): TypeSchemaForPrimitiveT
             version: "4.0.1",
             url: "http://hl7.org/fhir/StructureDefinition/Element",
         },
-    };
-}
-
-/**
- * Create a value set schema
- */
-export function createValueSetSchema(name: string): TypeSchemaForValueSet {
-    return {
-        identifier: {
-            name,
-            kind: "value-set",
-            package: "hl7.fhir.r4.core",
-            version: "4.0.1",
-            url: `http://hl7.org/fhir/ValueSet/${name}`,
-        },
-        description: `Test value set: ${name}`,
-        concept: [
-            {
-                code: "active",
-                display: "Active",
-                system: "http://hl7.org/fhir/publication-status",
-            },
-            {
-                code: "inactive",
-                display: "Inactive",
-                system: "http://hl7.org/fhir/publication-status",
-            },
-        ],
     };
 }

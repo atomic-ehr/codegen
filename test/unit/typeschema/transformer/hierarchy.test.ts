@@ -2,7 +2,8 @@ import { describe, expect, it } from "bun:test";
 import type { PFS } from "@typeschema-test/utils";
 import { fs2ts, mkR4Register } from "@typeschema-test/utils";
 
-describe("Check hierarchy translation", () => {
+describe("Check hierarchy translation", async () => {
+    const r4 = await mkR4Register();
     describe("Top level", () => {
         const A: PFS = {
             url: "A",
@@ -11,7 +12,7 @@ describe("Check hierarchy translation", () => {
             },
         };
         it("Base", async () => {
-            expect(await fs2ts(await mkR4Register(), A)).toMatchObject([
+            expect(await fs2ts(r4, A)).toMatchObject([
                 {
                     identifier: { url: "A" },
                     fields: {
@@ -39,7 +40,7 @@ describe("Check hierarchy translation", () => {
             },
         };
 
-        expect(await fs2ts(mkR4Register, B)).toMatchObject([
+        expect(await fs2ts(r4, B)).toMatchObject([
             {
                 identifier: { url: "B" },
                 base: { url: "A" },
@@ -64,7 +65,7 @@ describe("Check hierarchy translation", () => {
     });
 
     describe("Choice type translation", () => {
-        const _C: PFS = {
+        const C: PFS = {
             base: "B",
             url: "C",
             required: ["bar", "baz"],
@@ -74,7 +75,7 @@ describe("Check hierarchy translation", () => {
             },
         };
         it.todo("Check optional choice fields", async () => {
-            expect(await fs2ts(mkR4Register, A)).toMatchObject([
+            expect(await fs2ts(r4, C)).toMatchObject([
                 {
                     identifier: { url: "C" },
                     base: { url: "B" },
