@@ -1,11 +1,11 @@
 import { describe, expect, it } from "bun:test";
 import type { PFS } from "@typeschema-test/utils";
-import { fs2ts, mkR4Register } from "@typeschema-test/utils";
+import { fs2ts, mkR4Register, registerFs } from "@typeschema-test/utils";
 
-describe("TypeSchema Transformer Core Logic", async () => {
+describe("Processing constraint generation", async () => {
     const r4 = await mkR4Register();
     const A: PFS = {
-        url: "A",
+        url: "uri::A",
         derivation: "specialization",
         name: "a",
         elements: {
@@ -17,75 +17,50 @@ describe("TypeSchema Transformer Core Logic", async () => {
             },
         },
     };
-
-    it.todo("Check optional choice fields", async () => {
+    registerFs(r4, A);
+    it("Generate nested type for resource", async () => {
         expect(await fs2ts(r4, A)).toMatchObject([
             {
-                identifier: { kind: "resource", name: "a", url: "A" },
+                identifier: { kind: "resource", name: "a", url: "uri::A" },
                 fields: {
-                    foo: { type: { kind: "nested", name: "foo", url: "A#foo" } },
+                    foo: { type: { kind: "nested", name: "foo", url: "uri::A#foo" } },
                 },
                 nested: [
                     {
-                        identifier: { kind: "nested", name: "foo", url: "A#foo" },
-                        base: {
-                            kind: "complex-type",
-                            name: "BackboneElement",
-                            url: "http://hl7.org/fhir/StructureDefinition/BackboneElement",
-                        },
-                        fields: {
-                            bar: {
-                                type: {
-                                    kind: "primitive-type",
-                                    name: "string",
-                                    url: "http://hl7.org/fhir/StructureDefinition/string",
-                                },
-                            },
-                        },
+                        identifier: { kind: "nested", name: "foo", url: "uri::A#foo" },
+                        base: { url: "http://hl7.org/fhir/StructureDefinition/BackboneElement" },
+                        fields: { bar: { type: { url: "http://hl7.org/fhir/StructureDefinition/string" } } },
                     },
                 ],
                 dependencies: [
-                    {
-                        kind: "complex-type",
-                        name: "BackboneElement",
-                        url: "http://hl7.org/fhir/StructureDefinition/BackboneElement",
-                    },
-                    {
-                        kind: "primitive-type",
-                        name: "string",
-                        url: "http://hl7.org/fhir/StructureDefinition/string",
-                    },
-                    null,
+                    { url: "http://hl7.org/fhir/StructureDefinition/BackboneElement" },
+                    { url: "http://hl7.org/fhir/StructureDefinition/string" },
                 ],
             },
-            null,
         ]);
     });
 
-    const _B: PFS = {
-        base: "A",
-        url: "B",
+    const B: PFS = {
+        base: "uri::A",
+        url: "uri::B",
         name: "b",
         derivation: "constraint",
         elements: { foo: { min: 1 } },
     };
-
-    it.todo("Check optional choice fields", async () => {
-        expect(await fs2ts(r4, A)).toMatchObject([
+    it.todo("Constraint nested type for resource in profile", async () => {
+        expect(await fs2ts(r4, B)).toMatchObject([
             {
-                identifier: { kind: "constraint", name: "b", url: "B" },
-                base: { kind: "resource", name: "a", url: "A" },
+                identifier: { kind: "constraint", name: "b", url: "uri::B" },
+                base: { kind: "resource", name: "a", url: "uri::A" },
                 fields: {
-                    foo: { type: { kind: "nested", name: "foo", url: "A#foo" } },
+                    foo: { type: { kind: "nested", name: "foo", url: "uri::A#foo" } },
                 },
-                nested: "nil?",
+                nested: undefined,
                 dependencies: [
-                    { kind: "resource", name: "a", url: "A" },
-                    { kind: "nested", name: "foo", url: "A#foo" },
-                    null,
+                    { kind: "resource", name: "a", url: "uri::A" },
+                    { kind: "nested", name: "foo", url: "uri::A#foo" },
                 ],
             },
-            null,
         ]);
     });
 
@@ -97,24 +72,22 @@ describe("TypeSchema Transformer Core Logic", async () => {
         elements: { foo: { max: 1 } },
     };
 
-    describe("Choice type translation", () => {
-        it.todo("Check optional choice fields", async () => {
-            expect(await fs2ts(r4, C)).toMatchObject([
-                {
-                    identifier: { kind: "constraint", name: "c", url: "C" },
-                    base: { kind: "constraint", name: "b", url: "B" },
-                    fields: {
-                        foo: { type: { kind: "nested", name: "foo", url: "A#foo" } },
-                    },
-                    nested: "nil?",
-                    dependencies: [
-                        { kind: "constraint", name: "b", url: "B" },
-                        { kind: "nested", name: "foo", url: "A#foo" },
-                        null,
-                    ],
+    it.todo("Constraint nested type for resource in profile", async () => {
+        expect(await fs2ts(r4, C)).toMatchObject([
+            {
+                identifier: { kind: "constraint", name: "c", url: "C" },
+                base: { kind: "constraint", name: "b", url: "B" },
+                fields: {
+                    foo: { type: { kind: "nested", name: "foo", url: "A#foo" } },
                 },
-                null,
-            ]);
-        });
+                nested: "nil?",
+                dependencies: [
+                    { kind: "constraint", name: "b", url: "B" },
+                    { kind: "nested", name: "foo", url: "A#foo" },
+                    null,
+                ],
+            },
+            null,
+        ]);
     });
 });

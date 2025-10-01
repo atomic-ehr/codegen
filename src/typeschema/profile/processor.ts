@@ -10,7 +10,7 @@ import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
 import type { CanonicalUrl, Identifier, Name, RichFHIRSchema } from "@typeschema/types";
 import { mkIdentifier } from "../core/identifier";
-import { transformElements } from "../core/transformer";
+import { mkFields } from "../core/transformer";
 import type {
     ProfileConstraint,
     ProfileExtension,
@@ -75,7 +75,7 @@ export async function transformProfile(register: Register, fhirSchema: RichFHIRS
 
     // Process profile fields from differential elements
     if (fhirSchema.elements) {
-        const fields = await transformElements(register, fhirSchema, [], fhirSchema.elements);
+        const fields = await mkFields(register, fhirSchema, [], fhirSchema.elements);
         if (fields && Object.keys(fields).length > 0) {
             profileSchema.fields = fields;
         }
@@ -105,13 +105,12 @@ export async function transformProfile(register: Register, fhirSchema: RichFHIRS
 /**
  * Determine the kind of the base type for a profile
  */
-async function determineBaseKind(
-    baseUrl: string,
-    manager: ReturnType<typeof CanonicalManager>,
-): Promise<Identifier["kind"]> {
+async function determineBaseKind(baseUrl: string, register: Register): Promise<Identifier["kind"]> {
     try {
         // Try to resolve the base schema
-        const baseSchema = await manager.resolve(baseUrl);
+        const baseSchema = register.resolveFs(baseUrl as CanonicalUrl);
+        if (!baseSchema) return "resource";
+
         if (baseSchema) {
             // If it's also a constraint, it's likely another profile
             if (baseSchema.derivation === "constraint") {

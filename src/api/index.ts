@@ -15,10 +15,10 @@ export {
 } from "@typeschema/index";
 // Re-export core TypeSchema types for convenience
 export type {
+    Field as TypeSchemaField,
     Identifier as TypeSchemaIdentifier,
     PackageMeta as PackageInfo,
     TypeSchema,
-    TypeSchemaField,
 } from "@typeschema/types";
 // Export types and interfaces
 export type {

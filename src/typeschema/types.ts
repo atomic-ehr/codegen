@@ -77,14 +77,14 @@ interface TypeSchemaForPrimitiveType {
 export interface NestedType {
     identifier: NestedIdentifier;
     base: Identifier;
-    fields: Record<string, TypeSchemaField>;
+    fields: Record<string, Field>;
 }
 
 export interface TypeSchemaForProfile {
     identifier: ProfileIdentifier;
     base: Identifier;
     description?: string;
-    fields?: Record<string, TypeSchemaField>;
+    fields?: Record<string, Field>;
     constraints?: Record<string, ProfileConstraint>;
     extensions?: ProfileExtension[];
     validation?: ValidationRule[];
@@ -142,23 +142,13 @@ export interface ProfileMetadata {
     package?: string;
 }
 
-export interface TypeSchemaNestedType {
-    identifier: NestedIdentifier;
-    base: Identifier;
-    fields?: {
-        [k: string]: RegularField | PolymorphicValueXFieldDeclaration | PolymorphicValueXFieldInstance;
-    };
-}
-
 export interface TypeSchemaForResourceComplexTypeLogical {
     // TODO: restrict to ResourceIdentifier | ComplexTypeIdentifier | LogicalIdentifier
     identifier: Identifier;
     base?: Identifier;
     description?: string;
-    fields?: {
-        [k: string]: RegularField | PolymorphicValueXFieldDeclaration | PolymorphicValueXFieldInstance;
-    };
-    nested?: TypeSchemaNestedType[];
+    fields?: { [k: string]: Field };
+    nested?: NestedType[];
     dependencies?: Identifier[];
 }
 
@@ -174,7 +164,7 @@ export interface RegularField {
     max?: number;
 }
 
-export interface PolymorphicValueXFieldDeclaration {
+export interface PolymorphicDeclarationField {
     choices: string[];
     required?: boolean;
     excluded?: boolean;
@@ -183,7 +173,7 @@ export interface PolymorphicValueXFieldDeclaration {
     max?: number;
 }
 
-export interface PolymorphicValueXFieldInstance {
+export interface PolymorphicInstanceField {
     choiceOf: string;
     type: Identifier;
     required?: boolean;
@@ -218,7 +208,7 @@ export interface TypeSchemaForBinding {
     dependencies?: Identifier[];
 }
 
-export type TypeSchemaField = RegularField | PolymorphicValueXFieldDeclaration | PolymorphicValueXFieldInstance;
+export type Field = RegularField | PolymorphicDeclarationField | PolymorphicInstanceField;
 
 export interface TypeschemaGeneratorOptions {
     verbose?: boolean;

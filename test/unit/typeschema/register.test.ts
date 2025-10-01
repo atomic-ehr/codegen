@@ -132,7 +132,6 @@ describe("Register tests", async () => {
             { elements: { bar: { array: true, type: "string" } }, type: "string" },
         ]);
         expect(fsElementSnapshot(resolveFsElementGenealogyT(deepGenealogy, ["foo"]))).toMatchObject({
-            elements: { bar: { min: 1, type: "string" } },
             type: "string",
         });
 

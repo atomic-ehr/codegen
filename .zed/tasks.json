@@ -9,7 +9,7 @@
   },
   {
     "label": "codegen",
-    "command": "bun run typecheck && bun run format && bunx biome lint --diagnostic-level=error --write && bun run test"
+    "command": "bun run typecheck && bun run format && bunx biome lint --diagnostic-level=error --write --unsafe && bun run test"
   },
   {
     "label": "lint --unsafe",

@@ -7,15 +7,11 @@
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
-import type { CanonicalUrl, Identifier, Name, PackageMeta, RichFHIRSchema, TypeSchemaField } from "../types";
+import type { CanonicalUrl, Field, Identifier, Name, PackageMeta, RegularField, RichFHIRSchema } from "../types";
 import { buildEnum } from "./binding";
 import { mkBindingIdentifier, mkIdentifier, mkNestedIdentifier } from "./identifier";
 
-export function isRequired(
-    fhirSchema: FHIRSchema,
-    path: string[],
-    _manager: ReturnType<typeof CanonicalManager>,
-): boolean {
+export function isRequired(fhirSchema: FHIRSchema, path: string[]): boolean {
     if (path.length === 0) return false;
 
     const fieldName = path[path.length - 1];
@@ -41,14 +37,7 @@ export function isRequired(
     return false;
 }
 
-/**
- * Check if a field is excluded
- */
-export function isExcluded(
-    fhirSchema: FHIRSchema,
-    path: string[],
-    _manager: ReturnType<typeof CanonicalManager>,
-): boolean {
+export function isExcluded(fhirSchema: FHIRSchema, path: string[]): boolean {
     if (path.length === 0) return false;
 
     const fieldName = path[path.length - 1];
@@ -137,7 +126,7 @@ export const buildField = (
     element: FHIRSchemaElement,
     register: Register,
     packageInfo?: PackageMeta,
-): TypeSchemaField => {
+): Field => {
     let binding;
     let _enumValues;
     if (element.binding) {
@@ -150,8 +139,8 @@ export const buildField = (
 
     return {
         type: buildFieldType(fhirSchema, path, element, register, packageInfo)!,
-        required: isRequired(fhirSchema, path, register),
-        excluded: isExcluded(fhirSchema, path, register),
+        required: isRequired(fhirSchema, path),
+        excluded: isExcluded(fhirSchema, path),
 
         reference: buildReferences(element, register, packageInfo),
 
@@ -166,41 +155,33 @@ export const buildField = (
     };
 };
 
-function _removeEmptyValues<T extends Record<string, any>>(obj: T): T {
-    const result: any = {};
-
-    for (const [key, value] of Object.entries(obj)) {
-        if (value !== undefined && value !== null) {
-            if (Array.isArray(value) && value.length === 0) {
-                continue;
-            }
-            result[key] = value;
-        }
-    }
-
-    return result;
-}
-
-/**
- * Check if an element represents a nested type (BackboneElement)
- */
 export function isNestedElement(element: FHIRSchemaElement): boolean {
-    return (
-        element.type === "BackboneElement" || (element.elements && Object.keys(element.elements).length > 0) || false
-    );
+    const isBackbone = element.type === "BackboneElement";
+    const isElement =
+        element.type === "Element" && element.elements !== undefined && Object.keys(element.elements).length > 0;
+    //     ;; TODO: Observation <- vitalsigns <- bodyweight
+    //     ;; In Observation we have value[x] with choices
+    //     ;; In bodyweight we have valueQuantity with additional constaraints on it's elements
+    //     ;; So we need to build nested type from Quantity for here, but don't do that right now.
+
+    const elementsWithoutType =
+        element.type === undefined &&
+        element.choiceOf === undefined &&
+        element.elements !== undefined &&
+        Object.keys(element.elements).length > 0;
+    return isBackbone || isElement || elementsWithoutType;
 }
 
 export function mkNestedField(
+    _register: Register,
     fhirSchema: RichFHIRSchema,
     path: string[],
     element: FHIRSchemaElement,
-    manager: ReturnType<typeof CanonicalManager>,
-    _packageInfo?: PackageMeta,
-): TypeSchemaField {
+): RegularField {
     return {
         type: mkNestedIdentifier(fhirSchema, path),
         array: element.array || false,
-        required: isRequired(fhirSchema, path, manager),
-        excluded: isExcluded(fhirSchema, path, manager),
+        required: isRequired(fhirSchema, path),
+        excluded: isExcluded(fhirSchema, path),
     };
 }

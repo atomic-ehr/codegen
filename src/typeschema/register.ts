@@ -69,13 +69,12 @@ export const registerFromManager = async (
 
     const resolveFsGenealogy = (canonicalUrl: CanonicalUrl) => {
         let fs = fhirSchemas[canonicalUrl]!;
-        if (fs === undefined) throw new Error(`Failed to resolve FHIR Schema genealogy for ${canonicalUrl}`);
+        if (fs === undefined) throw new Error(`Failed to resolve FHIR Schema genealogy for '${canonicalUrl}'`);
         const genealogy = [fs];
         while (fs?.base) {
-            console.log(1, fs.base);
             fs = fhirSchemas[fs.base]! || fhirSchemas[nameDict[fs.base as string as Name]!]!;
             genealogy.push(fs);
-            if (fs === undefined) throw new Error(`Failed to resolve FHIR Schema genealogy for ${canonicalUrl}`);
+            if (fs === undefined) throw new Error(`Failed to resolve FHIR Schema genealogy for '${canonicalUrl}'`);
         }
         return genealogy;
     };
@@ -85,6 +84,7 @@ export const registerFromManager = async (
         appendFs(fs: FHIRSchema) {
             const rfs = enrichFHIRSchema(fs);
             fhirSchemas[rfs.url] = rfs;
+            nameDict[rfs.name] = rfs.url;
         },
         resolveFs: (canonicalUrl: CanonicalUrl) => fhirSchemas[canonicalUrl],
         resolveFsGenealogy: resolveFsGenealogy,
@@ -129,5 +129,8 @@ export const resolveFsElementGenealogy = (genealogy: RichFHIRSchema[], path: str
 
 export function fsElementSnapshot(genealogy: FHIRSchemaElement[]): FHIRSchemaElement {
     // FIXME: nested elements will break it
-    return genealogy.reverse().reduce((snapshot, elem) => ({ ...snapshot, ...elem }), {});
+    const snapshot = genealogy.reverse().reduce((snapshot, elem) => ({ ...snapshot, ...elem }), {});
+    // NOTE: to avoid regeneration nested types
+    snapshot.elements = undefined;
+    return snapshot;
 }
