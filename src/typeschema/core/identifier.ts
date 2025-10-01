@@ -91,7 +91,7 @@ export function mkBindingIdentifier(
     fhirSchema: FHIRSchema,
     path: string[],
     bindingName?: string,
-    packageInfo?: PackageMeta,
+    _packageInfo?: PackageMeta,
 ): BindingIdentifier {
     const pathStr = path.join(".");
     const [name, url] = bindingName

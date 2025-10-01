@@ -11,7 +11,7 @@ describe("Check hierarchy translation", () => {
             },
         };
         it("Base", async () => {
-            expect(await fs2ts(mkR4Register, A)).toMatchObject([
+            expect(await fs2ts(await mkR4Register(), A)).toMatchObject([
                 {
                     identifier: { url: "A" },
                     fields: {

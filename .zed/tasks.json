@@ -1,0 +1,18 @@
+[
+  {
+    "label": "typeschema",
+    "command": "bun run typecheck && bun run format && bunx biome lint --diagnostic-level=error --write && bun run test typeschema"
+  },
+  {
+    "label": "register",
+    "command": "bun run typecheck && bun run format && bunx biome lint --diagnostic-level=error --write && bun run test register"
+  },
+  {
+    "label": "codegen",
+    "command": "bun run typecheck && bun run format && bunx biome lint --diagnostic-level=error --write && bun run test"
+  },
+  {
+    "label": "lint --unsafe",
+    "command": "bun run format && bunx biome lint --unsafe --write && bun run test"
+  }
+]

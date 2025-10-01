@@ -5,7 +5,7 @@
  */
 
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import type { Register } from "@typeschema/register";
+import { fsElementSnapshot, type Register, resolveFsElementGenealogy } from "@typeschema/register";
 import type {
     Identifier,
     NestedType,
@@ -18,13 +18,7 @@ import type {
 import { transformProfile } from "../profile/processor";
 import type { CanonicalUrl, Name, PackageMeta } from "../types";
 import { collectBindingSchemas } from "./binding";
-import {
-    buildField,
-    getElementHierarchy,
-    isNestedElement,
-    mergeElementHierarchy,
-    mkNestedField,
-} from "./field-builder";
+import { buildField, isNestedElement, mkNestedField } from "./field-builder";
 import { mkIdentifier } from "./identifier";
 import { buildNestedTypes, extractNestedDependencies } from "./nested-types";
 
@@ -36,12 +30,14 @@ export async function transformElements(
 ): Promise<Record<string, TypeSchemaField> | undefined> {
     if (!elements) return undefined;
 
+    const geneology = register.resolveFsGenealogy(fhirSchema.url);
+
     const fields: Record<string, TypeSchemaField> = {};
-    for (const [key, element] of Object.entries(elements)) {
+    for (const [key, _element] of Object.entries(elements)) {
         const path = [...parentPath, key];
 
-        const hierarchy = getElementHierarchy(fhirSchema, path, register);
-        const snapshot = hierarchy.length > 0 ? mergeElementHierarchy(hierarchy) : element;
+        const elemGeneology = resolveFsElementGenealogy(geneology, path);
+        const snapshot = fsElementSnapshot(elemGeneology);
 
         if (isNestedElement(snapshot)) {
             fields[key] = mkNestedField(fhirSchema, path, snapshot, register, fhirSchema.package_meta);

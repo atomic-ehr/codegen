@@ -14,8 +14,8 @@ export const mkR4Register = async () =>
     );
 
 export const fs2ts = async (register: Register, fs: PFS) => {
-    fs.package_meta = { name: "test.package", version: "1.0.0" };
+    if (!fs.package_meta) fs.package_meta = { name: "test.package", version: "1.0.0" };
     const rfs = enrichFHIRSchema(fs as FHIRSchema);
-    // register.appendFS(rfs);
+    register.appendFs(rfs);
     return await transformFHIRSchema(register, rfs);
 };

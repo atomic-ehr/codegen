@@ -10,7 +10,7 @@ export type Register = {
     ensureCanonicalUrl(name: Name | CanonicalUrl): CanonicalUrl;
     resolveSd(canonicalUrl: CanonicalUrl): StructureDefinition | undefined;
     resolveFs(canonicalUrl: CanonicalUrl): RichFHIRSchema | undefined;
-    resolveFsGenealogy(canonicalUrl: CanonicalUrl): RichFHIRSchema[] | undefined;
+    resolveFsGenealogy(canonicalUrl: CanonicalUrl): RichFHIRSchema[];
     allSd(): StructureDefinition[];
     allFs(): RichFHIRSchema[];
     allVs(): any[];
@@ -68,12 +68,14 @@ export const registerFromManager = async (
     }
 
     const resolveFsGenealogy = (canonicalUrl: CanonicalUrl) => {
-        let fs = fhirSchemas[canonicalUrl];
-        if (!fs) return undefined;
+        let fs = fhirSchemas[canonicalUrl]!;
+        if (fs === undefined) throw new Error(`Failed to resolve FHIR Schema genealogy for ${canonicalUrl}`);
         const genealogy = [fs];
-        while (fs && fs.base) {
-            fs = fhirSchemas[fs.base]!;
+        while (fs?.base) {
+            console.log(1, fs.base);
+            fs = fhirSchemas[fs.base]! || fhirSchemas[nameDict[fs.base as string as Name]!]!;
             genealogy.push(fs);
+            if (fs === undefined) throw new Error(`Failed to resolve FHIR Schema genealogy for ${canonicalUrl}`);
         }
         return genealogy;
     };

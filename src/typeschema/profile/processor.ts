@@ -26,7 +26,7 @@ import type {
 export async function transformProfile(register: Register, fhirSchema: RichFHIRSchema): Promise<TypeSchemaForProfile> {
     // Build profile identifier
     const identifier = mkIdentifier(fhirSchema);
-    const packageInfo = fhirSchema.package_meta;
+    const _packageInfo = fhirSchema.package_meta;
 
     // Ensure this is recognized as a profile
     if (identifier.kind !== "profile") {

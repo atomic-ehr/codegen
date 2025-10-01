@@ -1,21 +1,14 @@
 import { describe, expect, it } from "bun:test";
-import type { FHIRSchema } from "@atomic-ehr/fhirschema";
-import { transformFHIRSchema } from "@typeschema/core/transformer";
-import { enrichFHIRSchema, type PackageMeta } from "@typeschema/types";
+import type { PackageMeta } from "@typeschema/types";
 import type { PFS } from "@typeschema-test/utils";
-import { mkR4Register } from "@typeschema-test/utils";
+import { fs2ts, mkR4Register } from "@typeschema-test/utils";
 
 describe("TypeSchema Transformer Core Logic", async () => {
     const r4 = await mkR4Register();
 
-    const basePackageInfo: PackageMeta = {
+    const _basePackageInfo: PackageMeta = {
         name: "test.package",
         version: "1.0.0",
-    };
-
-    const fs2ts = async (fs: PFS) => {
-        if (!fs.package_meta) fs.package_meta = basePackageInfo;
-        return await transformFHIRSchema(r4, enrichFHIRSchema(fs as FHIRSchema));
     };
 
     describe("transformFHIRSchema", () => {
@@ -33,7 +26,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 class: "",
             };
 
-            const result = await fs2ts(fhirSchema);
+            const result = await fs2ts(r4, fhirSchema);
 
             expect(result).toHaveLength(1);
             expect(result[0]?.identifier.name).toBe("TestResource");
@@ -51,7 +44,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 class: "",
             };
 
-            const result = await fs2ts(fhirSchema);
+            const result = await fs2ts(r4, fhirSchema);
 
             expect(result).toHaveLength(1);
             expect(result[0]?.base).toBeDefined();
@@ -67,7 +60,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 class: "",
             };
 
-            const result = await fs2ts(fhirSchema);
+            const result = await fs2ts(r4, fhirSchema);
 
             expect(result).toHaveLength(1);
             expect(result[0]?.identifier.kind).toBe("primitive-type");
@@ -88,7 +81,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await fs2ts(fhirSchema);
+            const result = await fs2ts(r4, fhirSchema);
 
             expect(result).toHaveLength(1);
             expect(result[0]?.identifier.kind).toBe("complex-type");
@@ -111,7 +104,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await fs2ts(fhirSchema);
+            const result = await fs2ts(r4, fhirSchema);
 
             expect(result).toHaveLength(1);
             expect(result[0]?.metadata?.isExtension).toBe(true);
@@ -131,7 +124,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await fs2ts(fhirSchema);
+            const result = await fs2ts(r4, fhirSchema);
 
             expect(result).toHaveLength(1);
             expect(result[0]?.identifier.kind).toBe("value-set");
@@ -155,7 +148,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 class: "",
             };
 
-            const result = await fs2ts(fhirSchema);
+            const result = await fs2ts(r4, fhirSchema);
 
             expect(result).toHaveLength(1);
             expect(result[0].fields?.contact).toBeDefined();
@@ -174,7 +167,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await fs2ts(fhirSchema);
+            const result = await fs2ts(r4, fhirSchema);
 
             expect(result).toHaveLength(1);
             expect(result[0].dependencies).toBeDefined();
@@ -195,7 +188,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 elements: {},
             };
 
-            const result = await fs2ts(fhirSchema);
+            const result = await fs2ts(r4, fhirSchema);
 
             expect(result).toHaveLength(1);
             expect(result[0].identifier.kind).toBe("profile");
@@ -213,7 +206,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await fs2ts(fhirSchema);
+            const result = await fs2ts(r4, fhirSchema);
 
             expect(result).toHaveLength(1);
             expect(result[0].fields?.names?.array).toBe(true);
@@ -233,7 +226,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await fs2ts(fhirSchema);
+            const result = await fs2ts(r4, fhirSchema);
 
             expect(result).toHaveLength(1);
             expect(result[0].fields?.mandatoryField?.required).toBe(true);
@@ -253,7 +246,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await fs2ts(fhirSchema);
+            const result = await fs2ts(r4, fhirSchema);
 
             expect(result).toHaveLength(1);
             expect(result[0].fields?.value).toBeDefined();
@@ -276,7 +269,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await fs2ts(fhirSchema);
+            const result = await fs2ts(r4, fhirSchema);
 
             expect(result.length).toBeGreaterThanOrEqual(1);
             expect(result[0].fields?.status).toBeDefined();
@@ -296,7 +289,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await fs2ts(fhirSchema);
+            const result = await fs2ts(r4, fhirSchema);
 
             expect(result).toHaveLength(1);
             const deps = result[0].dependencies || [];
@@ -312,7 +305,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 url: "http://example.org/EmptyResource",
             };
 
-            const result = await fs2ts(fhirSchema);
+            const result = await fs2ts(r4, fhirSchema);
 
             expect(result).toHaveLength(1);
             expect(result[0].identifier.name).toBe("EmptyResource");
@@ -333,7 +326,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 package_meta: customPackageInfo,
             };
 
-            const result = await fs2ts(fhirSchema);
+            const result = await fs2ts(r4, fhirSchema);
 
             expect(result).toHaveLength(1);
             expect(result[0].identifier.package).toBe("custom.package");
@@ -352,7 +345,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await fs2ts(fhirSchema);
+            const result = await fs2ts(r4, fhirSchema);
 
             expect(result).toHaveLength(1);
             expect(result[0].fields?.type).toBeDefined();
@@ -376,7 +369,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await fs2ts(fhirSchema);
+            const result = await fs2ts(r4, fhirSchema);
 
             // Binding schemas are also generated
             expect(result.length).toBeGreaterThanOrEqual(1);
@@ -394,7 +387,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 elements: {},
             };
 
-            const result = await fs2ts(fhirSchema);
+            const result = await fs2ts(r4, fhirSchema);
 
             expect(result).toHaveLength(1);
             expect(result[0].metadata?.isExtension).toBe(true);
@@ -419,7 +412,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await fs2ts(fhirSchema);
+            const result = await fs2ts(r4, fhirSchema);
 
             expect(result).toHaveLength(1);
             expect(result[0].fields?.level1).toBeDefined();
