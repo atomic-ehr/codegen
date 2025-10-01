@@ -159,11 +159,11 @@ export function isNestedElement(element: FHIRSchemaElement): boolean {
     const isBackbone = element.type === "BackboneElement";
     const isElement =
         element.type === "Element" && element.elements !== undefined && Object.keys(element.elements).length > 0;
-    //     ;; TODO: Observation <- vitalsigns <- bodyweight
-    //     ;; In Observation we have value[x] with choices
-    //     ;; In bodyweight we have valueQuantity with additional constaraints on it's elements
-    //     ;; So we need to build nested type from Quantity for here, but don't do that right now.
 
+    // TODO: Observation <- vitalsigns <- bodyweight
+    // In Observation we have value[x] with choices
+    // In bodyweight we have valueQuantity with additional constaraints on it's elements
+    // So we need to build nested type from Quantity for here, but don't do that right now.
     const elementsWithoutType =
         element.type === undefined &&
         element.choiceOf === undefined &&
