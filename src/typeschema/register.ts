@@ -77,16 +77,16 @@ export const registerFromManager = async (
     }
 
     const resolveFsGenealogy = (canonicalUrl: CanonicalUrl) => {
-        let fs = fhirSchemas[canonicalUrl]!;
+        let fs = fhirSchemas[canonicalUrl];
         if (fs === undefined) throw new Error(`Failed to resolve FHIR Schema genealogy for '${canonicalUrl}'`);
         const genealogy = [fs];
         while (fs?.base) {
-            const directLookup = fhirSchemas[fs.base];
+            const directLookup: RichFHIRSchema | undefined = fhirSchemas[fs.base];
             const nameDictKey = fs.base as string;
             const translatedName = nameDict[nameDictKey as Name];
             const indirectLookup = translatedName ? fhirSchemas[translatedName] : undefined;
 
-            const nextFs = directLookup || indirectLookup;
+            const nextFs: RichFHIRSchema | undefined = directLookup || indirectLookup;
 
             if (nextFs === undefined) {
                 throw new Error(`Failed to resolve FHIR Schema genealogy for '${canonicalUrl}' at base '${fs.base}'`);

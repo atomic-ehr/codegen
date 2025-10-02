@@ -63,7 +63,7 @@ describe("TypeScript Generation Integration", () => {
             const results = await generator.build([complexSchema]);
 
             expect(results).toHaveLength(1);
-            const file = results[0]!;
+            const file = results[0];
 
             expect(file.content).toContain("Test content for DiagnosticReport");
             expect(file.filename).toBe("DiagnosticReport.test");

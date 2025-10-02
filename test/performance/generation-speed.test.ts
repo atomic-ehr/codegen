@@ -30,8 +30,8 @@ describe.skip("Generation Speed Performance", () => {
 
     describe("Small Schema Sets (1-10 schemas)", () => {
         test("generates single schema within performance target", async () => {
-            const schema = createMockSchemas(["Patient"])[0]!;
-
+            const schema = createMockSchemas(["Patient"])[0];
+            expect(schema).toBeDefined();
             const startTime = performance.now();
             const results = await generator.build([schema]);
             const duration = performance.now() - startTime;

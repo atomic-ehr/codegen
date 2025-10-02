@@ -333,30 +333,19 @@ export class TemplateError extends GeneratorError {
      * Calculate Levenshtein distance between two strings
      */
     private levenshteinDistance(str1: string, str2: string): number {
-        const matrix = Array(str2.length + 1)
+        const matrix: number[][] = Array(str2.length + 1)
             .fill(null)
             .map(() => Array(str1.length + 1).fill(0));
-        if (matrix[0] === undefined) throw new Error("Matrix is not properly initialized");
         for (let i = 0; i <= str1.length; i++) {
             matrix[0][i] = i;
         }
         for (let j = 0; j <= str2.length; j++) {
-            if (matrix[j] === undefined) throw new Error("Matrix is not properly initialized");
             matrix[j][0] = j;
         }
 
         for (let j = 1; j <= str2.length; j++) {
             for (let i = 1; i <= str1.length; i++) {
                 const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
-                if (
-                    matrix[j] === undefined ||
-                    matrix[j - 1] === undefined ||
-                    matrix[j - 1]?.[i - 1] === undefined ||
-                    matrix[j]?.[i - 1] === undefined ||
-                    matrix[j - 1]?.[i] === undefined
-                )
-                    throw new Error("Matrix is not properly initialized");
-
                 matrix[j][i] = Math.min(
                     matrix[j]?.[i - 1] + 1, // deletion
                     matrix[j - 1]?.[i] + 1, // insertion

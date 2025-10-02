@@ -30,7 +30,7 @@ describe("Register tests", async () => {
             expect(Array.isArray(allSD)).toBe(true);
             expect(allSD.length).toBe(655);
 
-            const patientSD = r4.resolveSd("http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl)!;
+            const patientSD = r4.resolveSd("http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl);
             expect(patientSD).toBeDefined();
         });
     });
