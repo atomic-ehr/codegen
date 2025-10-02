@@ -48,7 +48,8 @@ describe("Register tests", async () => {
     });
 
     describe("Genealogy", () => {
-        const pat = r4.resolveFsGenealogy("http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl)!;
+        const pat = r4.resolveFsGenealogy("http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl);
+        if (!pat) throw new Error("Patient FHIRSchema not found");
 
         expect(pat.map((fs) => fs.url)).toMatchObject([
             "http://hl7.org/fhir/StructureDefinition/Patient",

@@ -52,9 +52,9 @@ export async function transformProfile(register: Register, fhirSchema: RichFHIRS
     // Initialize the profile schema
     const profileSchema: ProfileTypeSchema = {
         identifier,
-        base: base!,
+        base: base,
         dependencies: base ? [base] : [],
-    };
+    } as ProfileTypeSchema;
 
     // Add description if present
     if (fhirSchema.description) {

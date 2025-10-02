@@ -10,6 +10,8 @@ import type { Register } from "@root/typeschema/register";
 import type {
     BindingIdentifier,
     CanonicalUrl,
+    ChoiceFieldDeclaration,
+    ChoiceFieldInstance,
     Field,
     Identifier,
     Name,
@@ -126,8 +128,11 @@ export const mkField = (
     }
 
     const fieldType = buildFieldType(fhirSchema, path, element, register, fhirSchema.package_meta);
-    return {
-        type: fieldType!,
+    const choiceOf = element.choiceOf;
+
+    const res = {
+        ...(fieldType !== undefined && { type: fieldType }),
+        ...(choiceOf !== undefined && { choiceOf: choiceOf }),
         required: isRequired(register, fhirSchema, path),
         excluded: isExcluded(register, fhirSchema, path),
 
@@ -138,11 +143,11 @@ export const mkField = (
         max: element.max,
 
         choices: element.choices,
-        choiceOf: element.choiceOf,
 
         binding: binding,
         enum: enumValues,
     };
+    return res as ChoiceFieldInstance | RegularField | ChoiceFieldDeclaration;
 };
 
 export function isNestedElement(element: FHIRSchemaElement): boolean {
