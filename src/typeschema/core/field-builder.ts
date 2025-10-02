@@ -65,7 +65,8 @@ export const buildReferences = (
     if (!element.refers) return undefined;
     return element.refers.map((ref) => {
         const curl = register.ensureCanonicalUrl(ref as Name);
-        const fs = register.resolveFs(curl)!;
+        const fs = register.resolveFs(curl);
+        if (!fs) throw new Error("Failed to resolve reference to " + ref);
         return mkIdentifier(fs);
     });
 };

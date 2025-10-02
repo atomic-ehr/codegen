@@ -36,7 +36,7 @@ export const registerFromManager = async (
     const structureDefinitions = {} as Record<CanonicalUrl, StructureDefinition>;
     for (const resource of resources) {
         if (resource.resourceType === "StructureDefinition") {
-            const url = resource.url! as CanonicalUrl;
+            const url = resource.url as CanonicalUrl;
             structureDefinitions[url] = resource as StructureDefinition;
         }
     }
@@ -81,9 +81,19 @@ export const registerFromManager = async (
         if (fs === undefined) throw new Error(`Failed to resolve FHIR Schema genealogy for '${canonicalUrl}'`);
         const genealogy = [fs];
         while (fs?.base) {
-            fs = fhirSchemas[fs.base]! || fhirSchemas[nameDict[fs.base as string as Name]!]!;
+            const directLookup = fhirSchemas[fs.base];
+            const nameDictKey = fs.base as string;
+            const translatedName = nameDict[nameDictKey as Name];
+            const indirectLookup = translatedName ? fhirSchemas[translatedName] : undefined;
+
+            const nextFs = directLookup || indirectLookup;
+
+            if (nextFs === undefined) {
+                throw new Error(`Failed to resolve FHIR Schema genealogy for '${canonicalUrl}' at base '${fs.base}'`);
+            }
+
+            fs = nextFs;
             genealogy.push(fs);
-            if (fs === undefined) throw new Error(`Failed to resolve FHIR Schema genealogy for '${canonicalUrl}'`);
         }
         return genealogy;
     };
