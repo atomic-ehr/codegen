@@ -12,7 +12,7 @@ export const mkR4Register = async () =>
     );
 
 export const registerFs = (register: Register, fs: PFS) => {
-    if (!fs.package_meta) fs.package_meta = { name: "test.package", version: "1.0.0" };
+    if (!fs.package_meta) fs.package_meta = { name: "mypackage", version: "0.0.0" };
     const rfs = enrichFHIRSchema(fs as FHIRSchema);
     register.appendFs(rfs);
     return rfs;

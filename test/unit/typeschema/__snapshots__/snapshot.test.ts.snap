@@ -1,0 +1,160 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`FHIR Schema to Type Schema (snapshot) with cardinality 1`] = `
+"[
+  {
+    "identifier": {
+      "kind": "complex-type",
+      "package": "mypackage",
+      "version": "0.0.0",
+      "name": "Cardinality",
+      "url": "http://hl7.org/fhir/StructureDefinition/Cardinality"
+    },
+    "base": {
+      "kind": "complex-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "Element",
+      "url": "http://hl7.org/fhir/StructureDefinition/Element"
+    },
+    "fields": {
+      "zero_or_one": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "string",
+          "url": "http://hl7.org/fhir/StructureDefinition/string"
+        },
+        "required": false,
+        "excluded": false,
+        "array": true,
+        "min": 0,
+        "max": 1
+      },
+      "one": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "string",
+          "url": "http://hl7.org/fhir/StructureDefinition/string"
+        },
+        "required": false,
+        "excluded": false,
+        "array": true,
+        "min": 1,
+        "max": 1
+      },
+      "many": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "string",
+          "url": "http://hl7.org/fhir/StructureDefinition/string"
+        },
+        "required": false,
+        "excluded": false,
+        "array": true,
+        "min": 42,
+        "max": 42
+      },
+      "one_or_many": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "string",
+          "url": "http://hl7.org/fhir/StructureDefinition/string"
+        },
+        "required": false,
+        "excluded": false,
+        "array": true,
+        "min": 1
+      },
+      "zero_or_many": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "string",
+          "url": "http://hl7.org/fhir/StructureDefinition/string"
+        },
+        "required": false,
+        "excluded": false,
+        "array": true
+      }
+    },
+    "description": "Base StructureDefinition for Coding Type: A reference to a code defined by a terminology system.",
+    "dependencies": [
+      {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "Element",
+        "url": "http://hl7.org/fhir/StructureDefinition/Element"
+      },
+      {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "string",
+        "url": "http://hl7.org/fhir/StructureDefinition/string"
+      }
+    ]
+  }
+]"
+`;
+
+exports[`FHIR Schema to Type Schema (snapshot) with resource with string 1`] = `
+"[
+  {
+    "identifier": {
+      "kind": "resource",
+      "package": "mypackage",
+      "version": "0.0.0",
+      "name": "WithPrimitiveString",
+      "url": "http://example.io/fhir/WithPrimitiveString"
+    },
+    "base": {
+      "kind": "resource",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "DomainResource",
+      "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+    },
+    "fields": {
+      "someString": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "string",
+          "url": "http://hl7.org/fhir/StructureDefinition/string"
+        },
+        "required": true,
+        "excluded": false,
+        "array": false
+      }
+    },
+    "description": "description",
+    "dependencies": [
+      {
+        "kind": "resource",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "DomainResource",
+        "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+      },
+      {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "string",
+        "url": "http://hl7.org/fhir/StructureDefinition/string"
+      }
+    ]
+  }
+]"
+`;
