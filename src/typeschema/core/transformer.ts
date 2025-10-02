@@ -12,8 +12,8 @@ import type {
     NestedType,
     RichFHIRSchema,
     TypeSchema,
-    TypeSchemaForValueSet,
     ValueSetIdentifier,
+    ValueSetTypeSchema,
 } from "@typeschema/types";
 import { transformProfile } from "../profile/processor";
 import type { CanonicalUrl, Name, PackageMeta } from "../types";
@@ -136,12 +136,12 @@ async function transformValueSet(
     fhirSchema: RichFHIRSchema,
     _register: Register,
     _packageInfo?: PackageMeta,
-): Promise<TypeSchemaForValueSet | null> {
+): Promise<ValueSetTypeSchema | null> {
     try {
         const identifier = mkIdentifier(fhirSchema);
         identifier.kind = "value-set";
 
-        const valueSetSchema: TypeSchemaForValueSet = {
+        const valueSetSchema: ValueSetTypeSchema = {
             identifier: identifier as ValueSetIdentifier,
             description: fhirSchema.description,
         };

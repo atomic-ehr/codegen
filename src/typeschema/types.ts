@@ -61,13 +61,13 @@ export type Identifier =
     | LogicalIdentifier;
 
 export type TypeSchema =
-    | TypeSchemaForPrimitiveType
-    | TypeSchemaForResourceComplexTypeLogical
-    | TypeSchemaForValueSet
-    | TypeSchemaForBinding
-    | TypeSchemaForProfile;
+    | RegularTypeSchema
+    | PrimitiveTypeSchema
+    | ValueSetTypeSchema
+    | BindingTypeSchema
+    | ProfileTypeSchema;
 
-interface TypeSchemaForPrimitiveType {
+interface PrimitiveTypeSchema {
     identifier: PrimitiveIdentifier;
     description?: string;
     base: Identifier;
@@ -80,7 +80,7 @@ export interface NestedType {
     fields: Record<string, Field>;
 }
 
-export interface TypeSchemaForProfile {
+export interface ProfileTypeSchema {
     identifier: ProfileIdentifier;
     base: Identifier;
     description?: string;
@@ -142,7 +142,7 @@ export interface ProfileMetadata {
     package?: string;
 }
 
-export interface TypeSchemaForResourceComplexTypeLogical {
+export interface RegularTypeSchema {
     // TODO: restrict to ResourceIdentifier | ComplexTypeIdentifier | LogicalIdentifier
     identifier: Identifier;
     base?: Identifier;
@@ -186,7 +186,7 @@ export interface ChoiceFieldInstance {
     max?: number;
 }
 
-export interface TypeSchemaForValueSet {
+export interface ValueSetTypeSchema {
     identifier: ValueSetIdentifier;
     description?: string;
     concept?: {
@@ -198,7 +198,7 @@ export interface TypeSchemaForValueSet {
         [k: string]: unknown;
     };
 }
-export interface TypeSchemaForBinding {
+export interface BindingTypeSchema {
     identifier: BindingIdentifier;
     description?: string;
     type?: Identifier;
@@ -217,7 +217,7 @@ export interface TypeschemaGeneratorOptions {
     manager?: ReturnType<typeof CanonicalManager> | null;
 }
 
-export function isBindingSchema(schema: TypeSchema): schema is TypeSchemaForBinding {
+export function isBindingSchema(schema: TypeSchema): schema is BindingTypeSchema {
     return schema.identifier.kind === "binding";
 }
 

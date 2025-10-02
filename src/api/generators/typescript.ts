@@ -5,7 +5,7 @@
  * Built using the BaseGenerator architecture with TypeMapper, TemplateEngine, and FileManager.
  */
 
-import type { TypeSchema, TypeSchemaForBinding } from "@typeschema/types";
+import type { BindingTypeSchema, TypeSchema } from "@typeschema/types";
 import { isBindingSchema } from "@typeschema/types";
 import { BaseGenerator } from "./base/BaseGenerator";
 import { TypeScriptTypeMapper, type TypeScriptTypeMapperOptions } from "./base/TypeScriptTypeMapper";
@@ -83,7 +83,7 @@ export interface GeneratedTypeScript {
  */
 export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOptions, GeneratedFile[]> {
     private readonly resourceTypes = new Set<string>();
-    private collectedValueSets = new Map<string, TypeSchemaForBinding>();
+    private collectedValueSets = new Map<string, BindingTypeSchema>();
 
     private get tsOptions(): Required<TypeScriptGeneratorOptions> {
         return this.options as Required<TypeScriptGeneratorOptions>;
@@ -267,8 +267,8 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
     /**
      * Collect value sets from schemas that should generate value set files
      */
-    private collectValueSets(schemas: TypeSchema[]): Map<string, TypeSchemaForBinding> {
-        const valueSets = new Map<string, TypeSchemaForBinding>();
+    private collectValueSets(schemas: TypeSchema[]): Map<string, BindingTypeSchema> {
+        const valueSets = new Map<string, BindingTypeSchema>();
 
         for (const schema of schemas) {
             if (this.shouldGenerateValueSet(schema) && isBindingSchema(schema)) {
@@ -904,7 +904,7 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
     /**
      * Generate a complete value set TypeScript file
      */
-    private generateValueSetFile(binding: TypeSchemaForBinding): string {
+    private generateValueSetFile(binding: BindingTypeSchema): string {
         const name = this.typeMapper.formatTypeName(binding.identifier.name);
         const values = binding.enum?.map((v: string) => `  '${v}'`).join(",\n") || "";
 

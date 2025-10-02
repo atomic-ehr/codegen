@@ -13,7 +13,7 @@ import type {
     NestedIdentifier,
     PackageMeta,
     RichFHIRSchema,
-    TypeSchemaForValueSet,
+    ValueSetTypeSchema,
 } from "@typeschema/types";
 
 export function dropVersionFromUrl(url: CanonicalUrl | undefined): CanonicalUrl | undefined {
@@ -54,7 +54,7 @@ export function mkValueSetIdentifier(
     valueSetUrl: CanonicalUrl,
     valueSet: any,
     packageInfo?: PackageMeta,
-): TypeSchemaForValueSet["identifier"] {
+): ValueSetTypeSchema["identifier"] {
     const cleanUrl = dropVersionFromUrl(valueSetUrl) || valueSetUrl;
 
     // Generate a meaningful name from the URL instead of using potentially hash-like IDs

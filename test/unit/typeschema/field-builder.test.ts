@@ -24,7 +24,7 @@ describe("Field Builder Core Logic", async () => {
     };
 
     describe("isNestedElement", () => {
-        it.todo("should identify nested elements with sub-elements", () => {
+        it("should identify nested elements with sub-elements", () => {
             const element: FHIRSchemaElement = {
                 elements: {
                     subField1: { type: "string" },

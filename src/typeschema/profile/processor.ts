@@ -11,19 +11,13 @@ import type { Register } from "@root/typeschema/register";
 import type { CanonicalUrl, Identifier, Name, RichFHIRSchema } from "@typeschema/types";
 import { mkIdentifier } from "../core/identifier";
 import { mkFields } from "../core/transformer";
-import type {
-    ProfileConstraint,
-    ProfileExtension,
-    ProfileMetadata,
-    TypeSchemaForProfile,
-    ValidationRule,
-} from "../types";
+import type { ProfileConstraint, ProfileExtension, ProfileMetadata, ProfileTypeSchema, ValidationRule } from "../types";
 
 /**
  * Transform a FHIR profile to TypeSchema format
  * Profiles are treated as specialized resources that extend base resources
  */
-export async function transformProfile(register: Register, fhirSchema: RichFHIRSchema): Promise<TypeSchemaForProfile> {
+export async function transformProfile(register: Register, fhirSchema: RichFHIRSchema): Promise<ProfileTypeSchema> {
     // Build profile identifier
     const identifier = mkIdentifier(fhirSchema);
     const _packageInfo = fhirSchema.package_meta;
@@ -56,7 +50,7 @@ export async function transformProfile(register: Register, fhirSchema: RichFHIRS
     }
 
     // Initialize the profile schema
-    const profileSchema: TypeSchemaForProfile = {
+    const profileSchema: ProfileTypeSchema = {
         identifier,
         base: base!,
         dependencies: base ? [base] : [],

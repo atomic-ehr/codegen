@@ -2,7 +2,7 @@
  * Unit tests for value set generation functionality
  */
 import { beforeEach, describe, expect, test } from "bun:test";
-import type { TypeSchemaForBinding } from "@typeschema/types";
+import type { BindingTypeSchema } from "@typeschema/types";
 import { TypeScriptGenerator } from "../../../../src/api/generators/typescript";
 import { createLogger } from "../../../../src/utils/codegen-logger";
 
@@ -18,7 +18,7 @@ describe("Value Set Detection", () => {
     });
 
     test("should detect required binding with enum", () => {
-        const schema: TypeSchemaForBinding = {
+        const schema: BindingTypeSchema = {
             identifier: {
                 kind: "binding",
                 name: "TestBinding",
@@ -35,7 +35,7 @@ describe("Value Set Detection", () => {
     });
 
     test("should not detect preferred binding by default (required-only mode)", () => {
-        const schema: TypeSchemaForBinding = {
+        const schema: BindingTypeSchema = {
             identifier: {
                 kind: "binding",
                 name: "TestBinding",
@@ -60,7 +60,7 @@ describe("Value Set Detection", () => {
             logger: createLogger({ prefix: "Test", verbose: false }),
         });
 
-        const schema: TypeSchemaForBinding = {
+        const schema: BindingTypeSchema = {
             identifier: {
                 kind: "binding",
                 name: "TestBinding",
@@ -84,7 +84,7 @@ describe("Value Set Detection", () => {
             logger: createLogger({ prefix: "Test", verbose: false }),
         });
 
-        const schema: TypeSchemaForBinding = {
+        const schema: BindingTypeSchema = {
             identifier: {
                 kind: "binding",
                 name: "TestBinding",
@@ -101,7 +101,7 @@ describe("Value Set Detection", () => {
     });
 
     test("should not detect binding without enum", () => {
-        const schema: TypeSchemaForBinding = {
+        const schema: BindingTypeSchema = {
             identifier: {
                 kind: "binding",
                 name: "TestBinding",
@@ -117,7 +117,7 @@ describe("Value Set Detection", () => {
     });
 
     test("should not detect binding with empty enum", () => {
-        const schema: TypeSchemaForBinding = {
+        const schema: BindingTypeSchema = {
             identifier: {
                 kind: "binding",
                 name: "TestBinding",
@@ -147,7 +147,7 @@ describe("Value Set File Generation", () => {
     });
 
     test("should generate correct TypeScript file content", () => {
-        const binding: TypeSchemaForBinding = {
+        const binding: BindingTypeSchema = {
             identifier: {
                 name: "AdministrativeGender",
                 kind: "binding",
@@ -180,7 +180,7 @@ describe("Value Set File Generation", () => {
             logger: createLogger({ prefix: "Test", verbose: false }),
         });
 
-        const binding: TypeSchemaForBinding = {
+        const binding: BindingTypeSchema = {
             identifier: {
                 name: "TestBinding",
                 kind: "binding",
@@ -207,7 +207,7 @@ describe("Value Set File Generation", () => {
             logger: createLogger({ prefix: "Test", verbose: false }),
         });
 
-        const binding: TypeSchemaForBinding = {
+        const binding: BindingTypeSchema = {
             identifier: {
                 name: "TestBinding",
                 kind: "binding",
@@ -226,7 +226,7 @@ describe("Value Set File Generation", () => {
     });
 
     test("should handle special characters in enum values", () => {
-        const binding: TypeSchemaForBinding = {
+        const binding: BindingTypeSchema = {
             identifier: {
                 name: "SpecialBinding",
                 kind: "binding",

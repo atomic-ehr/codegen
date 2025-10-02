@@ -3,7 +3,7 @@
  */
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import * as fs from "node:fs";
-import type { TypeSchema, TypeSchemaForBinding } from "@typeschema/types";
+import type { BindingTypeSchema, TypeSchema } from "@typeschema/types";
 import { TypeScriptGenerator } from "../../src/api/generators/typescript";
 import { createLogger } from "../../src/utils/codegen-logger";
 
@@ -50,7 +50,7 @@ describe("Value Set Integration Workflow", () => {
                 strength: "required",
                 enum: ["male", "female", "other", "unknown"],
                 valueset: { url: "http://hl7.org/fhir/ValueSet/administrative-gender" },
-            } as TypeSchemaForBinding,
+            } as BindingTypeSchema,
 
             // Interface schema using the bindings
             {
@@ -91,7 +91,7 @@ describe("Value Set Integration Workflow", () => {
     });
 
     test("should generate valid TypeScript content", async () => {
-        const schema: TypeSchemaForBinding = {
+        const schema: BindingTypeSchema = {
             identifier: {
                 kind: "binding",
                 name: "TestBinding",

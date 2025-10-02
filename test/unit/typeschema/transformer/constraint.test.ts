@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { PFS } from "@typeschema-test/utils";
-import { mkR4Register, registerFs, registerFsAndMkTs } from "@typeschema-test/utils";
+import { mkR4Register, registerFsAndMkTs } from "@typeschema-test/utils";
 
 describe("Processing constraint generation", async () => {
     const r4 = await mkR4Register();
@@ -17,7 +17,6 @@ describe("Processing constraint generation", async () => {
             },
         },
     };
-    registerFs(r4, A);
     it("Generate nested type for resource", async () => {
         expect(await registerFsAndMkTs(r4, A)).toMatchObject([
             {

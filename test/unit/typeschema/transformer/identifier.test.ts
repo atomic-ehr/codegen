@@ -6,7 +6,7 @@ import type { RichFHIRSchema } from "@typeschema/types";
 type FS = Partial<FHIRSchema>;
 
 describe("Identifier generation", () => {
-    it.todo("Generate identifier for complex type constraint", async () => {
+    it.todo("Complex type constraint", async () => {
         const fs: FS = {
             derivation: "constraint",
             name: "systemRef",

@@ -6,7 +6,7 @@
 
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@typeschema/register";
-import type { CanonicalUrl, Identifier, PackageMeta, RichFHIRSchema, TypeSchemaForBinding } from "@typeschema/types";
+import type { BindingTypeSchema, CanonicalUrl, Identifier, PackageMeta, RichFHIRSchema } from "@typeschema/types";
 import { buildFieldType } from "./field-builder";
 import { dropVersionFromUrl, mkBindingIdentifier, mkValueSetIdentifier } from "./identifier";
 
@@ -128,7 +128,7 @@ export async function generateBindingSchema(
     element: FHIRSchemaElement,
     register: Register,
     packageInfo?: PackageMeta,
-): Promise<TypeSchemaForBinding | undefined> {
+): Promise<BindingTypeSchema | undefined> {
     if (!element.binding?.valueSet) return undefined;
 
     const identifier = mkBindingIdentifier(fhirSchema, path, element.binding.bindingName, packageInfo);
@@ -160,9 +160,9 @@ export async function generateBindingSchema(
 export async function collectBindingSchemas(
     fhirSchema: RichFHIRSchema,
     register: Register,
-): Promise<TypeSchemaForBinding[]> {
+): Promise<BindingTypeSchema[]> {
     const packageInfo = fhirSchema.package_meta;
-    const bindings: TypeSchemaForBinding[] = [];
+    const bindings: BindingTypeSchema[] = [];
     const processedPaths = new Set<string>();
 
     // Recursive function to process elements
@@ -195,7 +195,7 @@ export async function collectBindingSchemas(
 
     bindings.sort((a, b) => a.identifier.name.localeCompare(b.identifier.name));
 
-    const uniqueBindings: TypeSchemaForBinding[] = [];
+    const uniqueBindings: BindingTypeSchema[] = [];
     const seenUrls = new Set<string>();
 
     for (const binding of bindings) {

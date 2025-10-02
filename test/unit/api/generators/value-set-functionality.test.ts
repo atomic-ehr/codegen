@@ -2,7 +2,7 @@
  * Focused unit tests for value set functionality
  */
 import { beforeEach, describe, expect, test } from "bun:test";
-import type { TypeSchema, TypeSchemaForBinding } from "@typeschema/types";
+import type { BindingTypeSchema, TypeSchema } from "@typeschema/types";
 import { TypeScriptGenerator } from "../../../../src/api/generators/typescript";
 import { createLogger } from "../../../../src/utils/codegen-logger";
 
@@ -19,7 +19,7 @@ describe("Value Set Core Functionality", () => {
 
     describe("Value Set Detection Logic", () => {
         test("should detect required bindings with enum values", () => {
-            const schema: TypeSchemaForBinding = {
+            const schema: BindingTypeSchema = {
                 identifier: {
                     kind: "binding",
                     name: "AdministrativeGender",
@@ -36,7 +36,7 @@ describe("Value Set Core Functionality", () => {
         });
 
         test("should not detect preferred bindings in required-only mode", () => {
-            const schema: TypeSchemaForBinding = {
+            const schema: BindingTypeSchema = {
                 identifier: {
                     kind: "binding",
                     name: "PreferredBinding",
@@ -61,7 +61,7 @@ describe("Value Set Core Functionality", () => {
                 logger: createLogger({ prefix: "Test", verbose: false }),
             });
 
-            const schema: TypeSchemaForBinding = {
+            const schema: BindingTypeSchema = {
                 identifier: {
                     kind: "binding",
                     name: "PreferredBinding",
@@ -85,7 +85,7 @@ describe("Value Set Core Functionality", () => {
                 logger: createLogger({ prefix: "Test", verbose: false }),
             });
 
-            const schema: TypeSchemaForBinding = {
+            const schema: BindingTypeSchema = {
                 identifier: {
                     kind: "binding",
                     name: "ExampleBinding",
@@ -102,7 +102,7 @@ describe("Value Set Core Functionality", () => {
         });
 
         test("should not detect bindings without enum", () => {
-            const schema: TypeSchemaForBinding = {
+            const schema: BindingTypeSchema = {
                 identifier: {
                     kind: "binding",
                     name: "NoEnumBinding",
@@ -118,7 +118,7 @@ describe("Value Set Core Functionality", () => {
         });
 
         test("should not detect bindings with empty enum", () => {
-            const schema: TypeSchemaForBinding = {
+            const schema: BindingTypeSchema = {
                 identifier: {
                     kind: "binding",
                     name: "EmptyEnumBinding",
@@ -137,7 +137,7 @@ describe("Value Set Core Functionality", () => {
 
     describe("Value Set File Generation", () => {
         test("should generate TypeScript const array and type", () => {
-            const binding: TypeSchemaForBinding = {
+            const binding: BindingTypeSchema = {
                 identifier: {
                     name: "AdministrativeGender",
                     kind: "binding",
@@ -169,7 +169,7 @@ describe("Value Set Core Functionality", () => {
                 logger: createLogger({ prefix: "Test", verbose: false }),
             });
 
-            const binding: TypeSchemaForBinding = {
+            const binding: BindingTypeSchema = {
                 identifier: {
                     name: "TestBinding",
                     kind: "binding",
@@ -200,7 +200,7 @@ describe("Value Set Core Functionality", () => {
                 logger: createLogger({ prefix: "Test", verbose: false }),
             });
 
-            const binding: TypeSchemaForBinding = {
+            const binding: BindingTypeSchema = {
                 identifier: {
                     name: "TestBinding",
                     kind: "binding",
@@ -227,7 +227,7 @@ describe("Value Set Core Functionality", () => {
                 logger: createLogger({ prefix: "Test", verbose: false }),
             });
 
-            const binding: TypeSchemaForBinding = {
+            const binding: BindingTypeSchema = {
                 identifier: {
                     name: "TestBinding",
                     kind: "binding",
@@ -246,7 +246,7 @@ describe("Value Set Core Functionality", () => {
         });
 
         test("should handle special characters and URIs in enum values", () => {
-            const binding: TypeSchemaForBinding = {
+            const binding: BindingTypeSchema = {
                 identifier: {
                     name: "SpecialCharsBinding",
                     kind: "binding",
@@ -295,7 +295,7 @@ describe("Value Set Core Functionality", () => {
 
         test("should use fallback directory when valueSetDirectory is undefined", () => {
             // This tests the || 'valuesets' fallback in the code
-            const binding: TypeSchemaForBinding = {
+            const binding: BindingTypeSchema = {
                 identifier: {
                     name: "TestBinding",
                     kind: "binding",
@@ -328,7 +328,7 @@ describe("Value Set Core Functionality", () => {
                     strength: "required",
                     enum: ["val1", "val2"],
                     valueset: { url: "http://test.com/required-valueset" },
-                } as TypeSchemaForBinding,
+                } as BindingTypeSchema,
 
                 // Preferred binding - should not be included (required-only mode)
                 {
@@ -342,7 +342,7 @@ describe("Value Set Core Functionality", () => {
                     strength: "preferred",
                     enum: ["pref1", "pref2"],
                     valueset: { url: "http://test.com/preferred-valueset" },
-                } as TypeSchemaForBinding,
+                } as BindingTypeSchema,
 
                 // Non-binding schema - should be ignored
                 {
@@ -367,7 +367,7 @@ describe("Value Set Core Functionality", () => {
                     },
                     strength: "required",
                     valueset: { url: "http://test.com/no-enum-valueset" },
-                } as TypeSchemaForBinding,
+                } as BindingTypeSchema,
             ];
 
             const result = (generator as any).collectValueSets(schemas);
@@ -400,7 +400,7 @@ describe("Value Set Core Functionality", () => {
                     strength: "required",
                     enum: ["r1", "r2"],
                     valueset: { url: "http://test.com/required-valueset" },
-                } as TypeSchemaForBinding,
+                } as BindingTypeSchema,
                 {
                     identifier: {
                         kind: "binding",
@@ -412,7 +412,7 @@ describe("Value Set Core Functionality", () => {
                     strength: "preferred",
                     enum: ["p1", "p2"],
                     valueset: { url: "http://test.com/preferred-valueset" },
-                } as TypeSchemaForBinding,
+                } as BindingTypeSchema,
                 {
                     identifier: {
                         kind: "binding",
@@ -424,7 +424,7 @@ describe("Value Set Core Functionality", () => {
                     strength: "extensible",
                     enum: ["e1", "e2"],
                     valueset: { url: "http://test.com/extensible-valueset" },
-                } as TypeSchemaForBinding,
+                } as BindingTypeSchema,
                 {
                     identifier: {
                         kind: "binding",
@@ -436,7 +436,7 @@ describe("Value Set Core Functionality", () => {
                     strength: "example",
                     enum: ["ex1", "ex2"],
                     valueset: { url: "http://test.com/example-valueset" },
-                } as TypeSchemaForBinding,
+                } as BindingTypeSchema,
             ];
 
             const result = (generator as any).collectValueSets(schemas);

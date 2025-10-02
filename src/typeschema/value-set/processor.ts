@@ -6,7 +6,7 @@
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import { mkValueSetIdentifier } from "../core/identifier";
-import type { Identifier, PackageMeta, TypeSchemaForValueSet } from "../types";
+import type { Identifier, PackageMeta, ValueSetTypeSchema } from "../types";
 
 /**
  * Extract concepts from a CodeSystem
@@ -147,10 +147,10 @@ export async function transformValueSet(
     valueSet: any,
     manager: ReturnType<typeof CanonicalManager>,
     packageInfo?: PackageMeta,
-): Promise<TypeSchemaForValueSet> {
+): Promise<ValueSetTypeSchema> {
     const identifier = mkValueSetIdentifier(valueSet.url, valueSet, packageInfo);
 
-    const typeSchemaValueSet: TypeSchemaForValueSet = {
+    const typeSchemaValueSet: ValueSetTypeSchema = {
         identifier,
     };
 

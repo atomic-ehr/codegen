@@ -4,7 +4,7 @@ import { mkR4Register, registerFsAndMkTs } from "@typeschema-test/utils";
 
 const r4 = await mkR4Register();
 
-describe("Type Schema generation from ValueSet", async () => {
+describe("ValueSet to Type Schema (snapshot)", async () => {
     it.todo("administrative-gender", async () => {
         const fs: PFS = await Bun.file("test/asserts/value-sets/administrative-gender.json").json();
         const ts = await registerFsAndMkTs(r4, fs);
@@ -24,7 +24,7 @@ describe("Type Schema generation from ValueSet", async () => {
     });
 });
 
-describe("Type Schema generation from FHIR Schema", async () => {
+describe("FHIR Schema to Type Schema (snapshot)", async () => {
     it.todo("with cardinality", async () => {
         const fs: PFS = await Bun.file("test/asserts/fhir-schemas/with-cardinality.fs.json").json();
         const ts = await registerFsAndMkTs(r4, fs);

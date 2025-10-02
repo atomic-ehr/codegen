@@ -2,7 +2,7 @@
  * Snapshot tests for value set generation output
  */
 import { describe, expect, test } from "bun:test";
-import type { TypeSchemaForBinding } from "@typeschema/types";
+import type { BindingTypeSchema } from "@typeschema/types";
 import { TypeScriptGenerator } from "../../../../src/api/generators/typescript";
 import { createLogger } from "../../../../src/utils/codegen-logger";
 
@@ -16,7 +16,7 @@ describe("Value Set Generation Snapshots", () => {
             logger: createLogger({ prefix: "Test", verbose: false }),
         });
 
-        const binding: TypeSchemaForBinding = {
+        const binding: BindingTypeSchema = {
             identifier: {
                 name: "AdministrativeGender",
                 kind: "binding",
@@ -61,7 +61,7 @@ export const isValidAdministrativeGender = (value: string): value is Administrat
             logger: createLogger({ prefix: "Test", verbose: false }),
         });
 
-        const binding: TypeSchemaForBinding = {
+        const binding: BindingTypeSchema = {
             identifier: {
                 name: "ContactPointSystem",
                 kind: "binding",
@@ -105,7 +105,7 @@ export type ContactPointSystem = typeof ContactPointSystemValues[number];`);
             logger: createLogger({ prefix: "Test", verbose: false }),
         });
 
-        const binding: TypeSchemaForBinding = {
+        const binding: BindingTypeSchema = {
             identifier: {
                 name: "PublicationStatus",
                 kind: "binding",
@@ -142,7 +142,7 @@ export const isValidPublicationStatus = (value: string): value is PublicationSta
             logger: createLogger({ prefix: "Test", verbose: false }),
         });
 
-        const binding: TypeSchemaForBinding = {
+        const binding: BindingTypeSchema = {
             identifier: {
                 name: "SpecialCharsBinding",
                 kind: "binding",
@@ -184,7 +184,7 @@ export const isValidSpecialCharsBinding = (value: string): value is SpecialChars
             logger: createLogger({ prefix: "Test", verbose: false }),
         });
 
-        const binding: TypeSchemaForBinding = {
+        const binding: BindingTypeSchema = {
             identifier: {
                 name: "MinimalBinding",
                 kind: "binding",
