@@ -20,7 +20,7 @@ interface GenerateArgs extends CLIArgv {
 /**
  * Main generate command - fully config-driven
  */
-export const generateCommand: CommandModule<{}, GenerateArgs> = {
+export const generateCommand: CommandModule<Record<string, unknown>, GenerateArgs> = {
     command: "generate",
     describe: "Generate code based on configuration file settings",
     builder: (yargs) =>

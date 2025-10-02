@@ -417,14 +417,14 @@ export interface TemplateEngine {
      * @param name - Template name
      * @param template - Template content or compiled template
      */
-    registerTemplate(name: string, template: string | Function): void;
+    registerTemplate(name: string, template: string | ((...args: any[]) => any)): void;
 
     /**
      * Register a helper function
      * @param name - Helper name
      * @param helper - Helper function
      */
-    registerHelper(name: string, helper: Function): void;
+    registerHelper(name: string, helper: (...args: any[]) => any): void;
 
     /**
      * Check if a template exists
