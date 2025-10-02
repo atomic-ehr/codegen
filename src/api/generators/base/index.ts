@@ -106,7 +106,8 @@ export type { CodegenLogger } from "../../../utils/codegen-logger";
  * }> {}
  * ```
  */
-export type GeneratorOptions<TExtensions = {}> = import("./types").BaseGeneratorOptions & TExtensions;
+export type GeneratorOptions<TExtensions = Record<string, unknown>> = import("./types").BaseGeneratorOptions &
+    TExtensions;
 
 /**
  * Helper type for generator result arrays

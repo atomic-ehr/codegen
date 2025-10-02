@@ -23,7 +23,7 @@ interface GenerateTypeschemaArgs {
 /**
  * Generate TypeSchema from FHIR packages
  */
-export const generateTypeschemaCommand: CommandModule<{}, GenerateTypeschemaArgs> = {
+export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, GenerateTypeschemaArgs> = {
     command: "generate <packages..>",
     describe: "Generate TypeSchema files from FHIR packages",
     builder: {

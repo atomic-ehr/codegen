@@ -20,5 +20,7 @@ export const registerFs = (register: Register, fs: PFS) => {
 
 export const registerFsAndMkTs = async (register: Register, fs: PFS) => {
     registerFs(register, fs);
-    return await transformFHIRSchema(register, register.resolveFs(fs.url as CanonicalUrl)!);
+    const rfs = register.resolveFs(fs.url as CanonicalUrl);
+    if (!rfs) throw new Error("Failed to resolve registered FHIR schema");
+    return await transformFHIRSchema(register, rfs);
 };
