@@ -76,8 +76,11 @@ export function assertFilesEquivalent(actual: GeneratedFile[], expected: Generat
     const sortedExpected = expected.sort((a, b) => a.filename.localeCompare(b.filename));
 
     for (let i = 0; i < sortedActual.length; i++) {
-        const actualFile = sortedActual[i]!;
-        const expectedFile = sortedExpected[i]!;
+        const actualFile = sortedActual[i];
+        if (!actualFile) throw new Error("Actual file missing");
+
+        const expectedFile = sortedExpected[i];
+        if (!expectedFile) throw new Error("Expected file missing for actual file: " + actualFile.filename);
 
         expect(actualFile.filename).toBe(expectedFile.filename);
         expect(normalizeWhitespace(actualFile.content)).toBe(normalizeWhitespace(expectedFile.content));

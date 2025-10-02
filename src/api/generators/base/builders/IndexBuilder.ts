@@ -290,7 +290,8 @@ export class IndexBuilder {
                 groups.set(group, new Map());
             }
 
-            const groupMap = groups.get(group)!;
+            const groupMap = groups.get(group);
+            if (!groupMap) throw new Error(`Group ${group} does not exist`);
             if (!groupMap.has(fromPath)) {
                 groupMap.set(fromPath, []);
             }

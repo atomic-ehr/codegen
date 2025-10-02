@@ -65,7 +65,11 @@ export const registerFromManager = async (
     const valueSets = {} as Record<string, any[]>;
     for (const resource of resources) {
         if (resource.resourceType === "ValueSet") {
-            valueSets[resource.url!] = resource as any;
+            if (!resource.url) {
+                logger?.warn(`ValueSet resource is missing 'url' property, skipping`);
+                continue;
+            }
+            valueSets[resource.url] = resource as any;
         }
     }
 
