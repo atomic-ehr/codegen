@@ -1,28 +1,18 @@
 import { describe, expect, it } from "bun:test";
-import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
+import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
 import { isNestedElement, mkField, mkNestedField } from "@typeschema/core/field-builder";
-import type { PackageMeta, RichFHIRSchema } from "@typeschema/types";
-import { mkR4Register } from "@typeschema-test/utils";
+import type { ChoiceFieldDeclaration, Name, PackageMeta, RegularField } from "@typeschema/types";
+import { mkR4Register, type PFS, registerFs } from "@typeschema-test/utils";
 
-const registerAndMkField = (
-    register: Register,
-    fhirSchema: RichFHIRSchema,
-    path: string[],
-    element: FHIRSchemaElement,
-) => {
-    register.appendFs(fhirSchema);
-    return mkField(register, fhirSchema, path, element);
+const registerAndMkField = (register: Register, fhirSchema: PFS, path: string[], element: FHIRSchemaElement) => {
+    const rfs = registerFs(register, fhirSchema);
+    return mkField(register, rfs, path, element);
 };
 
-const registerAndMkNestedField = (
-    register: Register,
-    fhirSchema: RichFHIRSchema,
-    path: string[],
-    element: FHIRSchemaElement,
-) => {
-    register.appendFs(fhirSchema);
-    return mkNestedField(register, fhirSchema, path, element);
+const registerAndMkNestedField = (register: Register, fhirSchema: PFS, path: string[], element: FHIRSchemaElement) => {
+    const rfs = registerFs(register, fhirSchema);
+    return mkNestedField(register, rfs, path, element);
 };
 
 describe("Field Builder Core Logic", async () => {
@@ -72,7 +62,7 @@ describe("Field Builder Core Logic", async () => {
                 type: "string",
             };
 
-            const fhirSchema: FHIRSchema = {
+            const fhirSchema: PFS = {
                 name: "TestSchema",
                 type: "TestSchema",
                 kind: "resource",
@@ -81,10 +71,10 @@ describe("Field Builder Core Logic", async () => {
                 elements: { name: element },
             };
 
-            const field = registerAndMkField(r4, fhirSchema, ["name"], element);
+            const field = registerAndMkField(r4, fhirSchema, ["name"], element) as RegularField;
 
             expect(field.type).toBeDefined();
-            expect(field.type?.name).toBe("string");
+            expect(field.type?.name).toBe("string" as Name);
             expect(field.required).toBe(true);
         });
 
@@ -94,17 +84,17 @@ describe("Field Builder Core Logic", async () => {
                 array: true,
             };
 
-            const fhirSchema: FHIRSchema = {
+            const fhirSchema: PFS = {
                 name: "TestSchema",
                 type: "TestSchema",
                 kind: "resource",
                 url: "http://example.org/TestSchema",
             };
 
-            const field = registerAndMkField(r4, fhirSchema, ["items"], element);
+            const field = registerAndMkField(r4, fhirSchema, ["items"], element) as RegularField;
 
             expect(field.array).toBe(true);
-            expect(field.type?.name).toBe("string");
+            expect(field.type?.name).toBe("string" as Name);
         });
 
         it("should build field with enum values", async () => {
@@ -116,7 +106,7 @@ describe("Field Builder Core Logic", async () => {
                 },
             };
 
-            const fhirSchema: FHIRSchema = {
+            const fhirSchema: PFS = {
                 name: "TestSchema",
                 type: "TestSchema",
                 kind: "resource",
@@ -127,10 +117,10 @@ describe("Field Builder Core Logic", async () => {
                 },
             };
 
-            const field = registerAndMkField(r4, fhirSchema, ["status"], element);
+            const field = registerAndMkField(r4, fhirSchema, ["status"], element) as RegularField;
 
             // Enum values are only added when valueSet can be resolved
-            expect(field.type?.name).toBe("code");
+            expect(field.type?.name).toBe("code" as Name);
             expect(field.binding).toBeDefined();
         });
 
@@ -140,17 +130,17 @@ describe("Field Builder Core Logic", async () => {
                 refers: ["Patient", "Practitioner"],
             };
 
-            const fhirSchema: FHIRSchema = {
+            const fhirSchema: PFS = {
                 name: "TestSchema",
                 type: "TestSchema",
                 kind: "resource",
                 url: "http://example.org/TestSchema",
             };
 
-            const field = registerAndMkField(r4, fhirSchema, ["subject"], element);
+            const field = registerAndMkField(r4, fhirSchema, ["subject"], element) as RegularField;
 
             // References are only added when refers can be resolved by manager
-            expect(field.type?.name).toBe("Reference");
+            expect(field.type?.name).toBe("Reference" as Name);
         });
 
         it("should build field with binding", async () => {
@@ -162,7 +152,7 @@ describe("Field Builder Core Logic", async () => {
                 },
             };
 
-            const fhirSchema: FHIRSchema = {
+            const fhirSchema: PFS = {
                 name: "TestSchema",
                 type: "TestSchema",
                 kind: "resource",
@@ -173,7 +163,7 @@ describe("Field Builder Core Logic", async () => {
                 },
             };
 
-            const field = await registerAndMkField(r4, fhirSchema, ["status"], element);
+            const field = (await registerAndMkField(r4, fhirSchema, ["status"], element)) as RegularField;
 
             expect(field.binding).toBeDefined();
             expect(field.binding?.url).toContain("binding");
@@ -185,14 +175,14 @@ describe("Field Builder Core Logic", async () => {
                 choices: ["valueString", "valueInteger", "valueBoolean"],
             };
 
-            const fhirSchema: FHIRSchema = {
+            const fhirSchema: PFS = {
                 name: "TestSchema",
                 type: "TestSchema",
                 kind: "resource",
                 url: "http://example.org/TestSchema",
             };
 
-            const field = await registerAndMkField(r4, fhirSchema, ["value"], element);
+            const field = (await registerAndMkField(r4, fhirSchema, ["value"], element)) as ChoiceFieldDeclaration;
 
             // Polymorphic fields are handled via choices
             expect(field.choices).toEqual(["valueString", "valueInteger", "valueBoolean"]);
@@ -201,40 +191,41 @@ describe("Field Builder Core Logic", async () => {
         it("should handle fixed values", async () => {
             const element: FHIRSchemaElement = {
                 type: "code",
+                // @ts-ignore
                 fixed: "fixed-value",
             };
 
-            const fhirSchema: FHIRSchema = {
+            const fhirSchema: PFS = {
                 name: "TestSchema",
                 type: "TestSchema",
                 kind: "resource",
                 url: "http://example.org/TestSchema",
             };
 
-            const field = registerAndMkField(r4, fhirSchema, ["type"], element);
+            const field = registerAndMkField(r4, fhirSchema, ["type"], element) as RegularField;
 
             // Fixed values are preserved in the field
-            expect(field.type?.name).toBe("code");
-            expect(field.type?.name).toBe("code");
+            expect(field.type?.name).toBe("code" as Name);
         });
 
         it("should handle pattern constraints", async () => {
             const element: FHIRSchemaElement = {
                 type: "string",
+                // @ts-ignore
                 pattern: "\\d{3}-\\d{3}-\\d{4}",
             };
 
-            const fhirSchema: FHIRSchema = {
+            const fhirSchema: PFS = {
                 name: "TestSchema",
                 type: "TestSchema",
                 kind: "resource",
                 url: "http://example.org/TestSchema",
             };
 
-            const field = registerAndMkField(r4, fhirSchema, ["phone"], element);
+            const field = registerAndMkField(r4, fhirSchema, ["phone"], element) as RegularField;
 
             // Pattern is preserved in the field
-            expect(field.type?.name).toBe("string");
+            expect(field.type?.name).toBe("string" as Name);
         });
 
         it("should handle min and max constraints", async () => {
@@ -244,37 +235,38 @@ describe("Field Builder Core Logic", async () => {
                 max: 100,
             };
 
-            const fhirSchema: FHIRSchema = {
+            const fhirSchema: PFS = {
                 name: "TestSchema",
                 type: "TestSchema",
                 kind: "resource",
                 url: "http://example.org/TestSchema",
             };
 
-            const field = registerAndMkField(r4, fhirSchema, ["score"], element);
+            const field = registerAndMkField(r4, fhirSchema, ["score"], element) as RegularField;
 
             // Min/max are preserved in the field
-            expect(field.type?.name).toBe("integer");
+            expect(field.type?.name).toBe("integer" as Name);
         });
 
         it("should preserve description", async () => {
             const element: FHIRSchemaElement = {
                 type: "string",
                 short: "Short description",
+                // @ts-ignore
                 definition: "Detailed definition",
             };
 
-            const fhirSchema: FHIRSchema = {
+            const fhirSchema: PFS = {
                 name: "TestSchema",
                 type: "TestSchema",
                 kind: "resource",
                 url: "http://example.org/TestSchema",
             };
 
-            const field = registerAndMkField(r4, fhirSchema, ["description"], element);
+            const field = registerAndMkField(r4, fhirSchema, ["description"], element) as RegularField;
 
             // Description is not preserved in fields
-            expect(field.type?.name).toBe("string");
+            expect(field.type?.name).toBe("string" as Name);
         });
     });
 
@@ -287,7 +279,7 @@ describe("Field Builder Core Logic", async () => {
                 },
             };
 
-            const fhirSchema: FHIRSchema = {
+            const fhirSchema: PFS = {
                 name: "TestSchema",
                 type: "TestSchema",
                 kind: "resource",
@@ -299,7 +291,7 @@ describe("Field Builder Core Logic", async () => {
 
             expect(field.type).toBeDefined();
             expect(field.type?.kind).toBe("nested");
-            expect(field.type?.name).toBe("nested.field");
+            expect(field.type?.name).toBe("nested.field" as Name);
         });
 
         it("should handle array nested fields", () => {
@@ -311,7 +303,7 @@ describe("Field Builder Core Logic", async () => {
                 },
             };
 
-            const fhirSchema: FHIRSchema = {
+            const fhirSchema: PFS = {
                 name: "TestSchema",
                 type: "TestSchema",
                 kind: "resource",
@@ -332,7 +324,7 @@ describe("Field Builder Core Logic", async () => {
                 },
             };
 
-            const fhirSchema: FHIRSchema = {
+            const fhirSchema: PFS = {
                 name: "TestSchema",
                 type: "TestSchema",
                 kind: "resource",

@@ -164,7 +164,7 @@ export interface RegularField {
     max?: number;
 }
 
-export interface PolymorphicDeclarationField {
+export interface ChoiceFieldDeclaration {
     choices: string[];
     required?: boolean;
     excluded?: boolean;
@@ -173,7 +173,7 @@ export interface PolymorphicDeclarationField {
     max?: number;
 }
 
-export interface PolymorphicInstanceField {
+export interface ChoiceFieldInstance {
     choiceOf: string;
     type: Identifier;
     required?: boolean;
@@ -208,7 +208,7 @@ export interface TypeSchemaForBinding {
     dependencies?: Identifier[];
 }
 
-export type Field = RegularField | PolymorphicDeclarationField | PolymorphicInstanceField;
+export type Field = RegularField | ChoiceFieldDeclaration | ChoiceFieldInstance;
 
 export interface TypeschemaGeneratorOptions {
     verbose?: boolean;

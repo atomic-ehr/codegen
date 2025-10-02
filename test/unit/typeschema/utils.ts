@@ -2,6 +2,7 @@ import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import { transformFHIRSchema } from "@typeschema/core/transformer";
 import { type Register, registerFromPackageMetas } from "@typeschema/register";
 import { type CanonicalUrl, enrichFHIRSchema } from "@typeschema/types";
+
 export type PFS = Partial<FHIRSchema>;
 
 export const mkR4Register = async () =>
@@ -14,6 +15,7 @@ export const registerFs = (register: Register, fs: PFS) => {
     if (!fs.package_meta) fs.package_meta = { name: "test.package", version: "1.0.0" };
     const rfs = enrichFHIRSchema(fs as FHIRSchema);
     register.appendFs(rfs);
+    return rfs;
 };
 
 export const registerFsAndMkTs = async (register: Register, fs: PFS) => {

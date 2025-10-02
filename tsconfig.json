@@ -49,7 +49,6 @@
     "./test/unit/api/generators/value-set-functionality.test.ts",
     "./test/unit/api/generators/value-set-generation.test.ts",
     "./test/unit/api/generators/value-set-snapshots.test.ts",
-    "./test/unit/typeschema/field-builder.test.ts",
     "./test/unit/typeschema/transformer.test.ts"
   ]
 }
