@@ -21,7 +21,8 @@ import { buildEnum } from "./binding";
 import { mkBindingIdentifier, mkIdentifier, mkNestedIdentifier } from "./identifier";
 
 export function isRequired(register: Register, fhirSchema: RichFHIRSchema, path: string[]): boolean {
-    const fieldName = path[path.length - 1]!;
+    const fieldName = path[path.length - 1];
+    if (!fieldName) throw new Error(`Internal error: fieldName is missing for path ${path.join("/")}`);
     const parentPath = path.slice(0, -1);
 
     const requires = register.resolveFsGenealogy(fhirSchema.url).flatMap((fs) => {
@@ -124,8 +125,9 @@ export const mkField = (
         }
     }
 
+    const fieldType = buildFieldType(fhirSchema, path, element, register, fhirSchema.package_meta);
     return {
-        type: buildFieldType(fhirSchema, path, element, register, fhirSchema.package_meta)!,
+        type: fieldType!,
         required: isRequired(register, fhirSchema, path),
         excluded: isExcluded(register, fhirSchema, path),
 

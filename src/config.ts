@@ -729,7 +729,11 @@ export class ConfigLoader {
             }
 
             // Merge with defaults
-            return this.mergeWithDefaults(validation.config!);
+            const config_ = validation.config;
+            if (!config_) {
+                throw new Error("Configuration is undefined after validation");
+            }
+            return this.mergeWithDefaults(config_);
         } catch (error) {
             if (error instanceof Error) {
                 throw new Error(`Failed to load config from ${filePath}: ${error.message}`);

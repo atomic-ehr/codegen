@@ -343,15 +343,27 @@ export class TemplateError extends GeneratorError {
         for (let j = 1; j <= str2.length; j++) {
             for (let i = 1; i <= str1.length; i++) {
                 const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
-                matrix[j]![i] = Math.min(
-                    matrix[j]?.[i - 1]! + 1, // deletion
-                    matrix[j - 1]?.[i]! + 1, // insertion
-                    matrix[j - 1]?.[i - 1]! + indicator, // substitution
+                if (
+                    matrix[j] === undefined ||
+                    matrix[j - 1] === undefined ||
+                    matrix[j - 1]?.[i - 1] === undefined ||
+                    matrix[j]?.[i - 1] === undefined ||
+                    matrix[j - 1]?.[i] === undefined
+                )
+                    throw new Error("Matrix is not properly initialized");
+
+                matrix[j][i] = Math.min(
+                    matrix[j]?.[i - 1] + 1, // deletion
+                    matrix[j - 1]?.[i] + 1, // insertion
+                    matrix[j - 1]?.[i - 1] + indicator, // substitution
                 );
             }
         }
-
-        return matrix[str2.length]?.[str1.length]!;
+        const res = matrix[str2.length]?.[str1.length];
+        if (!res) {
+            throw new Error("Matrix calculation failed");
+        }
+        return res;
     }
 
     override isRecoverable(): boolean {
