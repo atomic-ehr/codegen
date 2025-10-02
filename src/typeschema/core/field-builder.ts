@@ -38,7 +38,7 @@ export function isRequired(register: Register, fhirSchema: RichFHIRSchema, path:
 
 export function isExcluded(register: Register, fhirSchema: RichFHIRSchema, path: string[]): boolean {
     const fieldName = path[path.length - 1];
-    if (!fieldName) throw new Error("Filename cannot be empty");
+    if (!fieldName) throw new Error(`Internal error: fieldName is missing for path ${path.join("/")}`);
     const parentPath = path.slice(0, -1);
 
     const requires = register.resolveFsGenealogy(fhirSchema.url).flatMap((fs) => {
