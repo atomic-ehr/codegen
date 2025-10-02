@@ -2,11 +2,12 @@ import { describe, expect, it } from "bun:test";
 import type { PFS } from "@typeschema-test/utils";
 import { mkR4Register, registerFsAndMkTs } from "@typeschema-test/utils";
 
-describe("Check hierarchy translation", async () => {
+describe("TypeSchema: Nested types", async () => {
     const r4 = await mkR4Register();
-    describe("Top level", () => {
+    describe("A with array field", () => {
         const A: PFS = {
-            url: "A",
+            url: "uri::A",
+            name: "A",
             elements: {
                 foo: { type: "string", array: true },
             },
@@ -14,7 +15,7 @@ describe("Check hierarchy translation", async () => {
         it("Base", async () => {
             expect(await registerFsAndMkTs(r4, A)).toMatchObject([
                 {
-                    identifier: { url: "A" },
+                    identifier: { url: "uri::A" },
                     fields: {
                         foo: {
                             type: { name: "string" },
@@ -29,10 +30,11 @@ describe("Check hierarchy translation", async () => {
         });
     });
 
-    it.todo("A + min cardinality + new field", async () => {
+    it("A + min cardinality + new field", async () => {
         const B: PFS = {
-            base: "A",
-            url: "B",
+            base: "uri::A",
+            url: "uri::B",
+            name: "B",
             required: ["foo"],
             elements: {
                 foo: { min: 1 },
@@ -42,8 +44,8 @@ describe("Check hierarchy translation", async () => {
 
         expect(await registerFsAndMkTs(r4, B)).toMatchObject([
             {
-                identifier: { url: "B" },
-                base: { url: "A" },
+                identifier: { url: "uri::B" },
+                base: { url: "uri::A" },
                 fields: {
                     foo: {
                         type: { name: "string" },
@@ -53,60 +55,51 @@ describe("Check hierarchy translation", async () => {
                         min: 1,
                     },
                     bar: {
-                        excluded: false,
                         type: { name: "code" },
+                        excluded: false,
                         array: false,
                         required: false,
                     },
                 },
-                dependencies: [{ name: "code" }, { name: "string" }, null],
+                dependencies: [{ name: "code" }, { name: "string" }, { uri: "uri::A" }],
             },
         ]);
     });
 
     describe("Choice type translation", () => {
         const C: PFS = {
-            base: "B",
-            url: "C",
+            base: "uri::B",
+            url: "uri::C",
+            name: "C",
             required: ["bar", "baz"],
             elements: {
                 foo: { max: 2 },
                 baz: { type: "string" },
             },
         };
-        it.todo("Check optional choice fields", async () => {
+        it("Check optional choice fields", async () => {
             expect(await registerFsAndMkTs(r4, C)).toMatchObject([
                 {
-                    identifier: { url: "C" },
-                    base: { url: "B" },
+                    identifier: { url: "uri::C" },
+                    base: { url: "uri::B" },
                     fields: {
                         foo: {
-                            excluded: false,
                             type: { name: "string" },
+                            excluded: false,
                             array: true,
                             min: 1,
                             max: 2,
                             required: true,
                         },
                         baz: {
-                            excluded: false,
                             type: { name: "string" },
+                            excluded: false,
                             array: false,
                             required: true,
                         },
-                        bar: null,
                     },
-                    dependencies: [
-                        {
-                            kind: "primitive-type",
-                            package: "hl7.fhir.r4.core",
-                            version: "4.0.1",
-                            name: "string",
-                            url: "http://hl7.org/fhir/StructureDefinition/string",
-                        },
-                    ],
+                    dependencies: [{ name: "string" }, { url: "uri::B" }],
                 },
-                null,
             ]);
         });
     });

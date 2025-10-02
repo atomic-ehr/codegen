@@ -43,7 +43,6 @@ export async function mkFields(
         const path = [...parentPath, key];
         const elemGeneology = resolveFsElementGenealogy(geneology, path);
         const elemSnapshot = fsElementSnapshot(elemGeneology);
-
         elems[key] = { elem, elemSnapshot, path };
     }
 

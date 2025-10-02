@@ -5,7 +5,7 @@
  */
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
-import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
+import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
 import type {
     BindingIdentifier,
@@ -20,56 +20,37 @@ import type {
 import { buildEnum } from "./binding";
 import { mkBindingIdentifier, mkIdentifier, mkNestedIdentifier } from "./identifier";
 
-export function isRequired(fhirSchema: FHIRSchema, path: string[]): boolean {
-    if (path.length === 0) return false;
-
-    const fieldName = path[path.length - 1];
+export function isRequired(register: Register, fhirSchema: RichFHIRSchema, path: string[]): boolean {
+    const fieldName = path[path.length - 1]!;
     const parentPath = path.slice(0, -1);
 
-    // Navigate to parent element
-    let parentElement: any = fhirSchema;
-    for (const key of parentPath) {
-        parentElement = parentElement.elements?.[key];
-        if (!parentElement) break;
-    }
-
-    // Check if field is in required array
-    if (parentElement?.required?.includes(fieldName)) {
-        return true;
-    }
-
-    // Also check at root level
-    if (parentPath.length === 0 && fieldName && fhirSchema.required?.includes(fieldName)) {
-        return true;
-    }
-
-    return false;
+    const requires = register.resolveFsGenealogy(fhirSchema.url).flatMap((fs) => {
+        if (parentPath.length === 0) return fs.required || [];
+        if (!fs.elements) return [];
+        let elem: RichFHIRSchema | FHIRSchemaElement | undefined = fs;
+        for (const k of parentPath) {
+            elem = elem?.elements?.[k];
+        }
+        return elem?.required || [];
+    });
+    return new Set(requires).has(fieldName);
 }
 
-export function isExcluded(fhirSchema: FHIRSchema, path: string[]): boolean {
-    if (path.length === 0) return false;
-
-    const fieldName = path[path.length - 1];
+export function isExcluded(register: Register, fhirSchema: RichFHIRSchema, path: string[]): boolean {
+    const fieldName = path[path.length - 1]!;
     const parentPath = path.slice(0, -1);
 
-    // Navigate to parent element
-    let parentElement: any = fhirSchema;
-    for (const key of parentPath) {
-        parentElement = parentElement.elements?.[key];
-        if (!parentElement) break;
-    }
+    const requires = register.resolveFsGenealogy(fhirSchema.url).flatMap((fs) => {
+        if (parentPath.length === 0) return fs.excluded || [];
+        if (!fs.elements) return [];
+        let elem: RichFHIRSchema | FHIRSchemaElement | undefined = fs;
+        for (const k of parentPath) {
+            elem = elem?.elements?.[k];
+        }
+        return elem?.excluded || [];
+    });
 
-    // Check if field is in excluded array
-    if (parentElement?.excluded?.includes(fieldName)) {
-        return true;
-    }
-
-    // Also check at root level
-    if (parentPath.length === 0 && fieldName && fhirSchema.excluded?.includes(fieldName)) {
-        return true;
-    }
-
-    return false;
+    return new Set(requires).has(fieldName);
 }
 
 export const buildReferences = (
@@ -85,9 +66,6 @@ export const buildReferences = (
     });
 };
 
-/**
- * Build field type identifier
- */
 export function buildFieldType(
     fhirSchema: RichFHIRSchema,
     _path: string[],
@@ -147,8 +125,8 @@ export const mkField = (
 
     return {
         type: buildFieldType(fhirSchema, path, element, register, fhirSchema.package_meta)!,
-        required: isRequired(fhirSchema, path),
-        excluded: isExcluded(fhirSchema, path),
+        required: isRequired(register, fhirSchema, path),
+        excluded: isExcluded(register, fhirSchema, path),
 
         reference: buildReferences(element, register, fhirSchema.package_meta),
 
@@ -182,7 +160,7 @@ export function isNestedElement(element: FHIRSchemaElement): boolean {
 }
 
 export function mkNestedField(
-    _register: Register,
+    register: Register,
     fhirSchema: RichFHIRSchema,
     path: string[],
     element: FHIRSchemaElement,
@@ -190,7 +168,7 @@ export function mkNestedField(
     return {
         type: mkNestedIdentifier(fhirSchema, path),
         array: element.array || false,
-        required: isRequired(fhirSchema, path),
-        excluded: isExcluded(fhirSchema, path),
+        required: isRequired(register, fhirSchema, path),
+        excluded: isExcluded(register, fhirSchema, path),
     };
 }
