@@ -7,7 +7,7 @@ import { enrichFHIRSchema } from "@typeschema/types";
 
 export type Register = {
     appendFs(fs: FHIRSchema): void;
-    ensureCanonicalUrl(name: Name | CanonicalUrl): CanonicalUrl;
+    ensureCanonicalUrl(name: string | Name | CanonicalUrl): CanonicalUrl;
     resolveSd(canonicalUrl: CanonicalUrl): StructureDefinition | undefined;
     resolveFs(canonicalUrl: CanonicalUrl): RichFHIRSchema | undefined;
     resolveFsGenealogy(canonicalUrl: CanonicalUrl): RichFHIRSchema[];
@@ -18,6 +18,8 @@ export type Register = {
     complexTypeDict(): Record<string, RichFHIRSchema>;
     resolveAny(canonicalUrl: CanonicalUrl): any | undefined;
 } & ReturnType<typeof CanonicalManager>;
+
+// FIXME: working with multiple packages
 
 export const registerFromManager = async (
     manager: ReturnType<typeof CanonicalManager>,
@@ -111,7 +113,7 @@ export const registerFromManager = async (
         },
         resolveFs: (canonicalUrl: CanonicalUrl) => fhirSchemas[canonicalUrl],
         resolveFsGenealogy: resolveFsGenealogy,
-        ensureCanonicalUrl: (name: Name | CanonicalUrl) => nameDict[name as Name] || (name as CanonicalUrl),
+        ensureCanonicalUrl: (name: string | Name | CanonicalUrl) => nameDict[name as Name] || (name as CanonicalUrl),
         allSd: () => Object.values(structureDefinitions),
         resolveSd: (canonicalUrl: CanonicalUrl) => structureDefinitions[canonicalUrl],
         allFs: () => Object.values(fhirSchemas),

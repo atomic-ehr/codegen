@@ -6,13 +6,10 @@
 
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@typeschema/register";
-import type { BindingTypeSchema, CanonicalUrl, Identifier, PackageMeta, RichFHIRSchema } from "@typeschema/types";
+import type { BindingTypeSchema, CanonicalUrl, Identifier, RichFHIRSchema } from "@typeschema/types";
 import { buildFieldType } from "./field-builder";
 import { dropVersionFromUrl, mkBindingIdentifier, mkValueSetIdentifier } from "./identifier";
 
-/**
- * Extract concepts from a ValueSet
- */
 export function extractValueSetConcepts(
     valueSetUrl: CanonicalUrl,
     register: Register,
@@ -22,7 +19,6 @@ export function extractValueSetConcepts(
         const valueSet = register.resolveVs(cleanUrl as CanonicalUrl);
         if (!valueSet) return undefined;
 
-        // If expansion is available, use it
         if (valueSet.expansion?.contains) {
             return valueSet.expansion.contains.map((concept: any) => ({
                 system: concept.system,
@@ -31,13 +27,11 @@ export function extractValueSetConcepts(
             }));
         }
 
-        // Otherwise try to extract from compose
         const concepts: Array<{ system: string; code: string; display?: string }> = [];
 
         if (valueSet.compose?.include) {
             for (const include of valueSet.compose.include) {
                 if (include.concept) {
-                    // Direct concept list
                     for (const concept of include.concept) {
                         concepts.push({
                             system: include.system,
@@ -46,7 +40,6 @@ export function extractValueSetConcepts(
                         });
                     }
                 } else if (include.system && !include.filter) {
-                    // Include all from CodeSystem
                     try {
                         const codeSystem = register.resolveAny(include.system);
                         if (codeSystem?.concept) {
@@ -78,9 +71,8 @@ export function extractValueSetConcepts(
     }
 }
 
-/**
- * Build enum values from binding if applicable
- */
+const MAX_ENUM_LENGTH = 100;
+
 export function buildEnum(element: FHIRSchemaElement, register: Register): string[] | undefined {
     if (!element.binding) return undefined;
 
@@ -103,38 +95,33 @@ export function buildEnum(element: FHIRSchemaElement, register: Register): strin
         return undefined;
     }
 
-    try {
-        const concepts = extractValueSetConcepts(valueSet as CanonicalUrl, register);
-        if (!concepts || concepts.length === 0) return undefined;
+    const concepts = extractValueSetConcepts(valueSet as CanonicalUrl, register);
+    if (!concepts || concepts.length === 0) return undefined;
 
-        // Extract just the codes and filter out any empty/invalid ones
-        const codes = concepts
-            .map((c) => c.code)
-            .filter((code) => code && typeof code === "string" && code.trim().length > 0);
+    const codes = concepts
+        .map((c) => c.code)
+        .filter((code) => code && typeof code === "string" && code.trim().length > 0);
 
-        // Only return if we have valid codes and not too many (avoid huge enums)
-        // Increased limit from 50 to 100 for better value set coverage
-        return codes.length > 0 && codes.length <= 100 ? codes : undefined;
-    } catch (error) {
-        // Log the error for debugging but don't fail the generation
-        console.debug(`Failed to extract enum values for ${valueSet}: ${error}`);
+    if (codes.length > MAX_ENUM_LENGTH) {
+        console.warn(
+            `Value set ${valueSet} has more than ${MAX_ENUM_LENGTH} codes, which may cause issues with code generation.`,
+        );
         return undefined;
     }
+    return codes.length > 0 ? codes : undefined;
 }
 
 export async function generateBindingSchema(
+    register: Register,
     fhirSchema: RichFHIRSchema,
     path: string[],
     element: FHIRSchemaElement,
-    register: Register,
-    packageInfo?: PackageMeta,
 ): Promise<BindingTypeSchema | undefined> {
     if (!element.binding?.valueSet) return undefined;
 
-    const identifier = mkBindingIdentifier(fhirSchema, path, element.binding.bindingName, packageInfo);
-
-    const fieldType = buildFieldType(fhirSchema, path, element, register, packageInfo);
-    const valueSetIdentifier = mkValueSetIdentifier(element.binding.valueSet as CanonicalUrl, undefined, packageInfo);
+    const identifier = mkBindingIdentifier(fhirSchema, path, element.binding.bindingName);
+    const fieldType = buildFieldType(register, fhirSchema, element);
+    const valueSetIdentifier = mkValueSetIdentifier(register, element.binding.valueSet as CanonicalUrl);
 
     const dependencies: Identifier[] = [];
     if (fieldType) {
@@ -142,7 +129,7 @@ export async function generateBindingSchema(
     }
     dependencies.push(valueSetIdentifier);
 
-    const enumValues = await buildEnum(element, register);
+    const enumValues = buildEnum(element, register);
 
     return {
         identifier,
@@ -154,44 +141,35 @@ export async function generateBindingSchema(
     };
 }
 
-/**
- * Collect all binding schemas from a FHIRSchema
- */
 export async function collectBindingSchemas(
-    fhirSchema: RichFHIRSchema,
     register: Register,
+    fhirSchema: RichFHIRSchema,
 ): Promise<BindingTypeSchema[]> {
-    const packageInfo = fhirSchema.package_meta;
-    const bindings: BindingTypeSchema[] = [];
     const processedPaths = new Set<string>();
+    if (!fhirSchema.elements) return [];
 
-    // Recursive function to process elements
-    async function processElement(elements: Record<string, FHIRSchemaElement>, parentPath: string[]) {
+    const bindings: BindingTypeSchema[] = [];
+    async function collectBindings(elements: Record<string, FHIRSchemaElement>, parentPath: string[]) {
         for (const [key, element] of Object.entries(elements)) {
             const path = [...parentPath, key];
             const pathKey = path.join(".");
 
-            // Skip if already processed
             if (processedPaths.has(pathKey)) continue;
             processedPaths.add(pathKey);
 
-            // Generate binding if present
             if (element.binding) {
-                const binding = await generateBindingSchema(fhirSchema, path, element, register, packageInfo);
+                const binding = await generateBindingSchema(register, fhirSchema, path, element);
                 if (binding) {
                     bindings.push(binding);
                 }
             }
 
             if (element.elements) {
-                await processElement(element.elements, path);
+                await collectBindings(element.elements, path);
             }
         }
     }
-
-    if (fhirSchema.elements) {
-        await processElement(fhirSchema.elements, []);
-    }
+    await collectBindings(fhirSchema.elements, []);
 
     bindings.sort((a, b) => a.identifier.name.localeCompare(b.identifier.name));
 

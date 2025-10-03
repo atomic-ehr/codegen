@@ -106,7 +106,11 @@ export class TypeSchemaGenerator {
 
             for (const vs of valueSets) {
                 try {
-                    const valueSetSchema = await transformValueSet(vs, this.manager, packageInfo);
+                    const valueSetSchema = await transformValueSet(
+                        vs,
+                        await registerFromManager(this.manager),
+                        packageInfo,
+                    );
                     if (valueSetSchema) {
                         valueSetSchemas.push(valueSetSchema);
                         valueSetConvertedCount++;

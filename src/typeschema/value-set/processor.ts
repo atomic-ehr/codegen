@@ -6,6 +6,7 @@
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import { mkValueSetIdentifier } from "../core/identifier";
+import type { Register } from "../register";
 import type { Identifier, PackageMeta, ValueSetTypeSchema } from "../types";
 
 /**
@@ -145,10 +146,10 @@ export async function extractValueSetConcepts(
  */
 export async function transformValueSet(
     valueSet: any,
-    manager: ReturnType<typeof CanonicalManager>,
+    register: Register,
     packageInfo?: PackageMeta,
 ): Promise<ValueSetTypeSchema> {
-    const identifier = mkValueSetIdentifier(valueSet.url, valueSet, packageInfo);
+    const identifier = mkValueSetIdentifier(valueSet.url, valueSet);
 
     const typeSchemaValueSet: ValueSetTypeSchema = {
         identifier,
@@ -160,7 +161,7 @@ export async function transformValueSet(
     }
 
     // Try to extract concepts
-    const concepts = await extractValueSetConcepts(valueSet, manager);
+    const concepts = await extractValueSetConcepts(valueSet, register);
 
     if (concepts && concepts.length > 0) {
         // If we can expand, include the concepts
@@ -188,7 +189,7 @@ export async function transformValueSet(
                 }
                 if (item.valueSet) {
                     for (const vsUrl of item.valueSet) {
-                        deps.push(mkValueSetIdentifier(vsUrl, undefined, packageInfo));
+                        deps.push(mkValueSetIdentifier(register, vsUrl));
                     }
                 }
             }

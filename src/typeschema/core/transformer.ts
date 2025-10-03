@@ -282,7 +282,7 @@ function extractDependencies(
 
     const result = Object.values(uniqDeps)
         .filter((e) => !(e.kind === "nested" && localNestedTypeUrls.has(e.url)))
-        .sort((a, b) => a.name.localeCompare(b.name));
+        .sort((a, b) => a.url.localeCompare(b.url));
 
     return result.length > 0 ? result : undefined;
 }
@@ -312,7 +312,7 @@ async function transformResource(register: Register, fhirSchema: RichFHIRSchema)
         dependencies,
     };
 
-    const bindingSchemas = await collectBindingSchemas(fhirSchema, register);
+    const bindingSchemas = await collectBindingSchemas(register, fhirSchema);
 
     return [typeSchema, ...bindingSchemas];
 }
@@ -326,7 +326,7 @@ export async function transformFHIRSchema(register: Register, fhirSchema: RichFH
         results.push(profileSchema);
 
         // Collect binding schemas for profiles too
-        const bindingSchemas = await collectBindingSchemas(fhirSchema, register);
+        const bindingSchemas = await collectBindingSchemas(register, fhirSchema);
         results.push(...bindingSchemas);
 
         return results;
