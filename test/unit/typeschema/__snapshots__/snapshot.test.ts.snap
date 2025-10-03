@@ -276,3 +276,109 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with code 1`] = `
   }
 ]"
 `;
+
+exports[`FHIR Schema to Type Schema (snapshot) with resource with codable concept 1`] = `
+"[
+  {
+    "identifier": {
+      "kind": "resource",
+      "package": "mypackage",
+      "version": "0.0.0",
+      "name": "WithCodableConcept",
+      "url": "http://example.io/fhir/WithCodableConcept"
+    },
+    "base": {
+      "kind": "resource",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "DomainResource",
+      "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+    },
+    "fields": {
+      "maritalStatus": {
+        "type": {
+          "kind": "complex-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "CodeableConcept",
+          "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
+        },
+        "required": false,
+        "excluded": false,
+        "array": false,
+        "binding": {
+          "kind": "binding",
+          "package": "shared",
+          "version": "1.0.0",
+          "name": "MaritalStatus",
+          "url": "urn:fhir:binding:MaritalStatus"
+        }
+      }
+    },
+    "description": "description",
+    "dependencies": [
+      {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "CodeableConcept",
+        "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
+      },
+      {
+        "kind": "resource",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "DomainResource",
+        "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+      },
+      {
+        "kind": "binding",
+        "package": "shared",
+        "version": "1.0.0",
+        "name": "MaritalStatus",
+        "url": "urn:fhir:binding:MaritalStatus"
+      }
+    ]
+  },
+  {
+    "identifier": {
+      "kind": "binding",
+      "package": "shared",
+      "version": "1.0.0",
+      "name": "MaritalStatus",
+      "url": "urn:fhir:binding:MaritalStatus"
+    },
+    "type": {
+      "kind": "complex-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "CodeableConcept",
+      "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
+    },
+    "valueset": {
+      "kind": "value-set",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "MaritalStatus",
+      "url": "http://hl7.org/fhir/ValueSet/marital-status"
+    },
+    "strength": "extensible",
+    "dependencies": [
+      {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "CodeableConcept",
+        "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
+      },
+      {
+        "kind": "value-set",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "MaritalStatus",
+        "url": "http://hl7.org/fhir/ValueSet/marital-status"
+      }
+    ]
+  }
+]"
+`;
