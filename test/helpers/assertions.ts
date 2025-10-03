@@ -80,7 +80,7 @@ export function assertFilesEquivalent(actual: GeneratedFile[], expected: Generat
         if (!actualFile) throw new Error("Actual file missing");
 
         const expectedFile = sortedExpected[i];
-        if (!expectedFile) throw new Error("Expected file missing for actual file: " + actualFile.filename);
+        if (!expectedFile) throw new Error(`Expected·file·missing·for·actual·file:·${actualFile.filename}`);
 
         expect(actualFile.filename).toBe(expectedFile.filename);
         expect(normalizeWhitespace(actualFile.content)).toBe(normalizeWhitespace(expectedFile.content));

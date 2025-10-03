@@ -333,31 +333,66 @@ export class TemplateError extends GeneratorError {
      * Calculate Levenshtein distance between two strings
      */
     private levenshteinDistance(str1: string, str2: string): number {
-        const matrix: number[][] = Array(str2.length + 1)
-            .fill(null)
-            .map(() => Array(str1.length + 1).fill(0));
-        for (let i = 0; i <= str1.length; i++) {
-            matrix[0][i] = i;
-        }
+        const matrix: number[][] = [];
+
+        // Initialize the matrix with proper dimensions
         for (let j = 0; j <= str2.length; j++) {
-            matrix[j][0] = j;
+            matrix[j] = [];
+            for (let i = 0; i <= str1.length; i++) {
+                if (j === 0) {
+                    const row = matrix[j];
+                    if (!row) throw new Error("Matrix row is undefined");
+                    row[i] = i;
+                } else if (i === 0) {
+                    const row = matrix[j];
+                    if (!row) throw new Error("Matrix row is undefined");
+                    row[i] = j;
+                } else {
+                    const row = matrix[j];
+                    if (!row) throw new Error("Matrix row is undefined");
+                    row[i] = 0; // Will be calculated below
+                }
+            }
         }
 
+        // Calculate the Levenshtein distance
         for (let j = 1; j <= str2.length; j++) {
             for (let i = 1; i <= str1.length; i++) {
+                const currentRow = matrix[j];
+                const previousRow = matrix[j - 1];
+
+                if (!currentRow || !previousRow) {
+                    throw new Error("Matrix row is undefined");
+                }
+
+                const substitutionCost = previousRow[i - 1];
+                const insertionCost = currentRow[i - 1];
+                const deletionCost = previousRow[i];
+
+                if (substitutionCost === undefined || insertionCost === undefined || deletionCost === undefined) {
+                    throw new Error("Matrix cell is undefined");
+                }
+
                 const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
-                matrix[j][i] = Math.min(
-                    matrix[j]?.[i - 1] + 1, // deletion
-                    matrix[j - 1]?.[i] + 1, // insertion
-                    matrix[j - 1]?.[i - 1] + indicator, // substitution
+                currentRow[i] = Math.min(
+                    insertionCost + 1, // insertion
+                    deletionCost + 1, // deletion
+                    substitutionCost + indicator, // substitution
                 );
             }
         }
-        const res = matrix[str2.length]?.[str1.length];
-        if (!res) {
-            throw new Error("Matrix calculation failed");
+
+        const lastRow = matrix[str2.length];
+        if (!lastRow) {
+            throw new Error("Last matrix row is undefined");
         }
-        return res;
+
+        const result = lastRow[str1.length];
+        if (result === undefined) {
+            throw new Error("Final result is undefined");
+        }
+
+        return result;
     }
 
     override isRecoverable(): boolean {
