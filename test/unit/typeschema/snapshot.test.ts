@@ -87,7 +87,7 @@ describe("FHIR Schema to Type Schema (snapshot)", async () => {
             const ts = await registerFsAndMkTs(r4, fs);
             expect(JSON.stringify(ts, null, 2)).toMatchSnapshot();
         });
-        it.todo("TutorNotification", async () => {
+        it("TutorNotification", async () => {
             const fs: PFS = await Bun.file("test/asserts/fhir-schemas/TutorNotification.fs.json").json();
             const ts = await registerFsAndMkTs(r4, fs);
             expect(JSON.stringify(ts, null, 2)).toMatchSnapshot();
