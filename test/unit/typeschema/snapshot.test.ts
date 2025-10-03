@@ -82,14 +82,13 @@ describe("FHIR Schema to Type Schema (snapshot)", async () => {
     });
 
     describe("Custom resource", async () => {
-        it.todo("TutorNotification", async () => {
-            const fs: PFS = await Bun.file("test/asserts/fhir-schemas/TutorNotification.fs.json").json();
+        it("TutorNotificationTemplate", async () => {
+            const fs: PFS = await Bun.file("test/asserts/fhir-schemas/TutorNotificationTemplate.fs.json").json();
             const ts = await registerFsAndMkTs(r4, fs);
             expect(JSON.stringify(ts, null, 2)).toMatchSnapshot();
         });
-
-        it.todo("TutorNotificationTemplate", async () => {
-            const fs: PFS = await Bun.file("test/asserts/fhir-schemas/TutorNotificationTemplate.fs.json").json();
+        it.todo("TutorNotification", async () => {
+            const fs: PFS = await Bun.file("test/asserts/fhir-schemas/TutorNotification.fs.json").json();
             const ts = await registerFsAndMkTs(r4, fs);
             expect(JSON.stringify(ts, null, 2)).toMatchSnapshot();
         });

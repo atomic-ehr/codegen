@@ -952,3 +952,54 @@ exports[`ValueSet to Type Schema (snapshot) marital-status 1`] = `
   ]
 }"
 `;
+
+exports[`FHIR Schema to Type Schema (snapshot) Custom resource TutorNotificationTemplate 1`] = `
+"[
+  {
+    "identifier": {
+      "kind": "resource",
+      "package": "mypackage",
+      "version": "0.0.0",
+      "name": "TutorNotificationTemplate",
+      "url": "http://example.com/aidbox-sms-tutor/TutorNotificationTemplate"
+    },
+    "base": {
+      "kind": "resource",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "DomainResource",
+      "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+    },
+    "fields": {
+      "template": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "mypackage",
+          "version": "0.0.0",
+          "name": "string",
+          "url": "http://hl7.org/fhir/StructureDefinition/string"
+        },
+        "required": true,
+        "excluded": false,
+        "array": false
+      }
+    },
+    "dependencies": [
+      {
+        "kind": "resource",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "DomainResource",
+        "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+      },
+      {
+        "kind": "primitive-type",
+        "package": "mypackage",
+        "version": "0.0.0",
+        "name": "string",
+        "url": "http://hl7.org/fhir/StructureDefinition/string"
+      }
+    ]
+  }
+]"
+`;
