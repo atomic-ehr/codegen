@@ -11,14 +11,14 @@ import type {
     Identifier,
     Name,
     NestedIdentifier,
-    PackageMeta,
     RichFHIRSchema,
     ValueSetTypeSchema,
 } from "@typeschema/types";
+import type { Register } from "../register";
 
-export function dropVersionFromUrl(url: CanonicalUrl | undefined): CanonicalUrl | undefined {
-    if (!url) return undefined;
-    return url.split("|")[0] as CanonicalUrl;
+export function dropVersionFromUrl(url: CanonicalUrl): CanonicalUrl {
+    const baseUrl = url.split("|")[0];
+    return baseUrl ? (baseUrl as CanonicalUrl) : url;
 }
 
 function determineKind(fhirSchema: RichFHIRSchema): Identifier["kind"] {
@@ -50,18 +50,14 @@ export function mkNestedIdentifier(fhirSchema: RichFHIRSchema, path: string[]): 
     };
 }
 
-export function mkValueSetIdentifier(
-    valueSetUrl: CanonicalUrl,
-    valueSet: any,
-    packageInfo?: PackageMeta,
-): ValueSetTypeSchema["identifier"] {
-    const cleanUrl = dropVersionFromUrl(valueSetUrl) || valueSetUrl;
-
+export function mkValueSetIdentifier(register: Register, valueSetUrl: CanonicalUrl): ValueSetTypeSchema["identifier"] {
+    valueSetUrl = dropVersionFromUrl(valueSetUrl);
+    const valueSet = register.resolveVs(valueSetUrl);
     // Generate a meaningful name from the URL instead of using potentially hash-like IDs
     let name = "unknown";
 
     // First try to get the last segment of the URL path
-    const urlParts = cleanUrl.split("/");
+    const urlParts = valueSetUrl.split("/");
     const lastSegment = urlParts[urlParts.length - 1];
 
     if (lastSegment && lastSegment.length > 0) {
@@ -80,27 +76,25 @@ export function mkValueSetIdentifier(
 
     return {
         kind: "value-set",
-        package: packageInfo?.name || valueSet?.package_name || "undefined",
-        version: packageInfo?.version || valueSet?.package_version || "undefined",
+        package: valueSet?.package_meta.name,
+        version: valueSet?.package_meta.version,
         name: name as Name,
-        url: cleanUrl as CanonicalUrl,
+        url: valueSetUrl as CanonicalUrl,
     };
 }
 
-export function mkBindingIdentifier(
-    fhirSchema: FHIRSchema,
-    path: string[],
-    bindingName?: string,
-    _packageInfo?: PackageMeta,
-): BindingIdentifier {
+export function mkBindingIdentifier(fhirSchema: FHIRSchema, path: string[], bindingName?: string): BindingIdentifier {
     const pathStr = path.join(".");
-    const [name, url] = bindingName
-        ? [bindingName, `urn:fhir:binding:${bindingName}`]
-        : [`${fhirSchema.name}.${pathStr}_binding`, `${fhirSchema.url}#${pathStr}_binding`];
+    // NOTE: if SD specify `bindingName`, the definition should be shared between all
+    // packages. So we put it in the dedicated shared package.
+    // TODO: provide setting for `shared` package name.
+    const [pkg, name, url] = bindingName
+        ? [{ name: "shared", version: "1.0.0" }, bindingName, `urn:fhir:binding:${bindingName}`]
+        : [fhirSchema.package_meta, `${fhirSchema.name}.${pathStr}_binding`, `${fhirSchema.url}#${pathStr}_binding`];
     return {
         kind: "binding",
-        package: fhirSchema.package_meta.name,
-        version: fhirSchema.package_meta.version,
+        package: pkg.name,
+        version: pkg.version,
         name: name as Name,
         url: url as CanonicalUrl,
     };

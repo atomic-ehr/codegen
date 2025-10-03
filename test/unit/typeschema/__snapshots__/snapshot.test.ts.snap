@@ -158,3 +158,121 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with string 1`] = `
   }
 ]"
 `;
+
+exports[`FHIR Schema to Type Schema (snapshot) with resource with code 1`] = `
+"[
+  {
+    "identifier": {
+      "kind": "resource",
+      "package": "mypackage",
+      "version": "0.0.0",
+      "name": "WithCode",
+      "url": "http://example.io/fhir/WithCode"
+    },
+    "base": {
+      "kind": "resource",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "DomainResource",
+      "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+    },
+    "fields": {
+      "gender": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "code",
+          "url": "http://hl7.org/fhir/StructureDefinition/code"
+        },
+        "required": false,
+        "excluded": false,
+        "array": false,
+        "binding": {
+          "kind": "binding",
+          "package": "shared",
+          "version": "1.0.0",
+          "name": "AdministrativeGender",
+          "url": "urn:fhir:binding:AdministrativeGender"
+        },
+        "enum": [
+          "male",
+          "female",
+          "other",
+          "unknown"
+        ]
+      }
+    },
+    "description": "description",
+    "dependencies": [
+      {
+        "kind": "binding",
+        "package": "shared",
+        "version": "1.0.0",
+        "name": "AdministrativeGender",
+        "url": "urn:fhir:binding:AdministrativeGender"
+      },
+      {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "code",
+        "url": "http://hl7.org/fhir/StructureDefinition/code"
+      },
+      {
+        "kind": "resource",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "DomainResource",
+        "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+      }
+    ]
+  },
+  {
+    "identifier": {
+      "kind": "binding",
+      "package": "shared",
+      "version": "1.0.0",
+      "name": "AdministrativeGender",
+      "url": "urn:fhir:binding:AdministrativeGender"
+    },
+    "type": {
+      "kind": "primitive-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "code",
+      "url": "http://hl7.org/fhir/StructureDefinition/code"
+    },
+    "valueset": {
+      "kind": "value-set",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "AdministrativeGender",
+      "url": "http://hl7.org/fhir/ValueSet/administrative-gender"
+    },
+    "strength": "required",
+    "enum": [
+      "male",
+      "female",
+      "other",
+      "unknown"
+    ],
+    "dependencies": [
+      {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "code",
+        "url": "http://hl7.org/fhir/StructureDefinition/code"
+      },
+      {
+        "kind": "value-set",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "AdministrativeGender",
+        "url": "http://hl7.org/fhir/ValueSet/administrative-gender"
+      }
+    ]
+  }
+]"
+`;

@@ -19,6 +19,8 @@ export type Register = {
     resolveAny(canonicalUrl: CanonicalUrl): any | undefined;
 } & ReturnType<typeof CanonicalManager>;
 
+// FIXME: working with multiple packages
+
 export const registerFromManager = async (
     manager: ReturnType<typeof CanonicalManager>,
     logger?: CodegenLogger,
@@ -65,6 +67,9 @@ export const registerFromManager = async (
     const valueSets = {} as Record<string, any[]>;
     for (const resource of resources) {
         if (resource.resourceType === "ValueSet") {
+            if (!resource.package_meta) {
+                resource.package_meta = packageInfo;
+            }
             valueSets[resource.url!] = resource as any;
         }
     }
