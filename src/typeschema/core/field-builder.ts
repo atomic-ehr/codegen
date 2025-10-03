@@ -4,19 +4,9 @@
  * Functions for transforming FHIRSchema elements into TypeSchema fields
  */
 
-import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
-import type {
-    BindingIdentifier,
-    CanonicalUrl,
-    Field,
-    Identifier,
-    Name,
-    PackageMeta,
-    RegularField,
-    RichFHIRSchema,
-} from "../types";
+import type { BindingIdentifier, Field, Identifier, Name, PackageMeta, RegularField, RichFHIRSchema } from "../types";
 import { buildEnum } from "./binding";
 import { mkBindingIdentifier, mkIdentifier, mkNestedIdentifier } from "./identifier";
 
@@ -68,11 +58,9 @@ export const buildReferences = (
 };
 
 export function buildFieldType(
+    register: Register,
     fhirSchema: RichFHIRSchema,
-    _path: string[],
     element: FHIRSchemaElement,
-    _manager: ReturnType<typeof CanonicalManager>,
-    packageInfo?: PackageMeta,
 ): Identifier | undefined {
     // Handle element reference (for slicing)
     if (element.elementReference) {
@@ -87,21 +75,19 @@ export function buildFieldType(
         }
     }
 
-    // Handle normal type
     if (element.type) {
-        const typeUrl = element.type.includes("/")
-            ? element.type
-            : `http://hl7.org/fhir/StructureDefinition/${element.type}`;
-
-        // Always create a type identifier, even if we can't resolve
         const kind = element.type.match(/^[a-z]/) ? "primitive-type" : "complex-type";
-        const isStandardFhir = typeUrl.startsWith("http://hl7.org/fhir/");
+        const url = register.ensureCanonicalUrl(element.type);
+        const fieldFs = register.resolveFs(url);
+        if (!fieldFs) {
+            throw new Error(`Could not resolve field '${element.type}'`);
+        }
         return {
-            kind: kind as any,
-            package: isStandardFhir ? "hl7.fhir.r4.core" : packageInfo?.name || "undefined",
-            version: isStandardFhir ? "4.0.1" : packageInfo?.version || "undefined",
+            kind: kind,
+            package: fieldFs.package_meta.name,
+            version: fieldFs.package_meta.version,
             name: element.type as Name,
-            url: typeUrl as CanonicalUrl,
+            url: url,
         };
     }
 
@@ -125,7 +111,7 @@ export const mkField = (
     }
 
     return {
-        type: buildFieldType(fhirSchema, path, element, register, fhirSchema.package_meta)!,
+        type: buildFieldType(register, fhirSchema, element)!,
         required: isRequired(register, fhirSchema, path),
         excluded: isExcluded(register, fhirSchema, path),
 

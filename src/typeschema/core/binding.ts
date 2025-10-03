@@ -112,17 +112,15 @@ export function buildEnum(element: FHIRSchemaElement, register: Register): strin
 }
 
 export async function generateBindingSchema(
+    register: Register,
     fhirSchema: RichFHIRSchema,
     path: string[],
     element: FHIRSchemaElement,
-    register: Register,
 ): Promise<BindingTypeSchema | undefined> {
     if (!element.binding?.valueSet) return undefined;
 
     const identifier = mkBindingIdentifier(fhirSchema, path, element.binding.bindingName);
-
-    const fieldType = buildFieldType(fhirSchema, path, element, register);
-
+    const fieldType = buildFieldType(register, fhirSchema, element);
     const valueSetIdentifier = mkValueSetIdentifier(register, element.binding.valueSet as CanonicalUrl);
 
     const dependencies: Identifier[] = [];
@@ -160,7 +158,7 @@ export async function collectBindingSchemas(
             processedPaths.add(pathKey);
 
             if (element.binding) {
-                const binding = await generateBindingSchema(fhirSchema, path, element, register);
+                const binding = await generateBindingSchema(register, fhirSchema, path, element);
                 if (binding) {
                     bindings.push(binding);
                 }
