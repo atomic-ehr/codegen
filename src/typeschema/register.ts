@@ -38,7 +38,7 @@ export const registerFromManager = async (
     const structureDefinitions = {} as Record<CanonicalUrl, StructureDefinition>;
     for (const resource of resources) {
         if (resource.resourceType === "StructureDefinition") {
-            const url = resource.url! as CanonicalUrl;
+            const url = resource.url as CanonicalUrl;
             structureDefinitions[url] = resource as StructureDefinition;
         }
     }
@@ -67,10 +67,11 @@ export const registerFromManager = async (
     const valueSets = {} as Record<string, any[]>;
     for (const resource of resources) {
         if (resource.resourceType === "ValueSet") {
-            if (!resource.package_meta) {
-                resource.package_meta = packageInfo;
+            if (!resource.url) {
+                logger?.warn(`ValueSet resource is missing 'url' property, skipping`);
+                continue;
             }
-            valueSets[resource.url!] = resource as any;
+            valueSets[resource.url] = resource as any;
         }
     }
 
@@ -82,13 +83,23 @@ export const registerFromManager = async (
     }
 
     const resolveFsGenealogy = (canonicalUrl: CanonicalUrl) => {
-        let fs = fhirSchemas[canonicalUrl]!;
+        let fs = fhirSchemas[canonicalUrl];
         if (fs === undefined) throw new Error(`Failed to resolve FHIR Schema genealogy for '${canonicalUrl}'`);
         const genealogy = [fs];
         while (fs?.base) {
-            fs = fhirSchemas[fs.base]! || fhirSchemas[nameDict[fs.base as string as Name]!]!;
+            const directLookup: RichFHIRSchema | undefined = fhirSchemas[fs.base];
+            const nameDictKey = fs.base as string;
+            const translatedName = nameDict[nameDictKey as Name];
+            const indirectLookup = translatedName ? fhirSchemas[translatedName] : undefined;
+
+            const nextFs: RichFHIRSchema | undefined = directLookup || indirectLookup;
+
+            if (nextFs === undefined) {
+                throw new Error(`Failed to resolve FHIR Schema genealogy for '${canonicalUrl}' at base '${fs.base}'`);
+            }
+
+            fs = nextFs;
             genealogy.push(fs);
-            if (fs === undefined) throw new Error(`Failed to resolve FHIR Schema genealogy for '${canonicalUrl}'`);
         }
         return genealogy;
     };

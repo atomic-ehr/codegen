@@ -6,12 +6,25 @@
 
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
-import type { BindingIdentifier, Field, Identifier, Name, PackageMeta, RegularField, RichFHIRSchema } from "../types";
+import type {
+    BindingIdentifier,
+    CanonicalUrl,
+    ChoiceFieldDeclaration,
+    ChoiceFieldInstance,
+    Field,
+    Identifier,
+    Name,
+    PackageMeta,
+    RegularField,
+    RichFHIRSchema,
+} from "../types";
+
 import { buildEnum } from "./binding";
 import { mkBindingIdentifier, mkIdentifier, mkNestedIdentifier } from "./identifier";
 
 export function isRequired(register: Register, fhirSchema: RichFHIRSchema, path: string[]): boolean {
-    const fieldName = path[path.length - 1]!;
+    const fieldName = path[path.length - 1];
+    if (!fieldName) throw new Error(`Internal error: fieldName is missing for path ${path.join("/")}`);
     const parentPath = path.slice(0, -1);
 
     const requires = register.resolveFsGenealogy(fhirSchema.url).flatMap((fs) => {
@@ -52,7 +65,8 @@ export const buildReferences = (
     if (!element.refers) return undefined;
     return element.refers.map((ref) => {
         const curl = register.ensureCanonicalUrl(ref as Name);
-        const fs = register.resolveFs(curl)!;
+        const fs = register.resolveFs(curl);
+        if (!fs) throw new Error(`Failed·to·resolve·reference·to·${ref}`);
         return mkIdentifier(fs);
     });
 };
@@ -110,8 +124,13 @@ export const mkField = (
         }
     }
 
-    return {
-        type: buildFieldType(register, fhirSchema, element)!,
+    const fieldType = buildFieldType(fhirSchema, path, element, register, fhirSchema.package_meta);
+    const choiceOf = element.choiceOf;
+
+    const res = {
+        ...(fieldType !== undefined && { type: fieldType }),
+        ...(choiceOf !== undefined && { choiceOf: choiceOf }),
+
         required: isRequired(register, fhirSchema, path),
         excluded: isExcluded(register, fhirSchema, path),
 
@@ -122,11 +141,11 @@ export const mkField = (
         max: element.max,
 
         choices: element.choices,
-        choiceOf: element.choiceOf,
 
         binding: binding,
         enum: enumValues,
     };
+    return res as ChoiceFieldInstance | RegularField | ChoiceFieldDeclaration;
 };
 
 export function isNestedElement(element: FHIRSchemaElement): boolean {

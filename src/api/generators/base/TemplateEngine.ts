@@ -51,7 +51,7 @@ export interface TemplateOptions {
     cache?: boolean;
 
     /** Custom helpers for the template */
-    helpers?: Record<string, Function>;
+    helpers?: Record<string, (...args: any[]) => any>;
 
     /** Template-specific options */
     options?: Record<string, unknown>;
@@ -78,7 +78,7 @@ export abstract class TemplateEngine {
     protected readonly logger: CodegenLogger;
     protected readonly templates = new Map<string, any>();
     protected readonly templateCache = new Map<string, any>();
-    protected readonly helpers = new Map<string, Function>();
+    protected readonly helpers = new Map<string, (...args: any[]) => any>();
 
     constructor(options: { logger: CodegenLogger }) {
         this.logger = options.logger;
@@ -102,7 +102,11 @@ export abstract class TemplateEngine {
      * @param template Template content or function
      * @param options Template options
      */
-    abstract registerTemplate(name: string, template: string | Function, options?: TemplateOptions): void;
+    abstract registerTemplate(
+        name: string,
+        template: string | ((...args: any[]) => any),
+        options?: TemplateOptions,
+    ): void;
 
     /**
      * Load templates from directory
@@ -119,7 +123,7 @@ export abstract class TemplateEngine {
      * @param name Helper name
      * @param helper Helper function
      */
-    registerHelper(name: string, helper: Function): void {
+    registerHelper(name: string, helper: (...args: any[]) => any): void {
         this.helpers.set(name, helper);
         this.logger.debug(`Registered template helper: ${name}`);
     }

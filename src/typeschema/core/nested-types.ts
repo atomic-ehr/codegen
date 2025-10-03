@@ -90,14 +90,11 @@ export async function mkNestedTypes(register: Register, fhirSchema: RichFHIRSche
             };
         }
 
+        const els = element.elements;
+        if (!els) throw new Error("No elements defined");
+
         // Transform sub-elements into fields
-        const fields = await transformNestedElements(
-            fhirSchema,
-            path,
-            element.elements!,
-            register,
-            fhirSchema.package_meta,
-        );
+        const fields = await transformNestedElements(fhirSchema, path, els, register, fhirSchema.package_meta);
 
         const nestedType: NestedType = {
             identifier,
