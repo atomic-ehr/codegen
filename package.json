@@ -50,7 +50,8 @@
     "quality": "bun run typecheck && bun run lint && bun run test:unit",
     "cli": "bun run src/cli/index.ts",
     "codegen": "bun run src/cli/index.ts",
-    "codegen:all": "bun run src/cli/index.ts generate"
+    "codegen:all": "bun run src/cli/index.ts generate",
+    "prune": "ts-prune --project tsconfig.json"
   },
   "repository": {
     "type": "git",
@@ -68,6 +69,7 @@
     "@types/handlebars": "^4.1.0",
     "@types/node": "^22.17.1",
     "@types/yargs": "^17.0.33",
+    "ts-prune": "^0.10.3",
     "typescript": "^5.9.2"
   },
   "dependencies": {
