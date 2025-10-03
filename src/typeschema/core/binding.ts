@@ -6,79 +6,75 @@
 
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@typeschema/register";
-import type { BindingTypeSchema, CanonicalUrl, Identifier, RichFHIRSchema } from "@typeschema/types";
+import type {
+    BindingTypeSchema,
+    CanonicalUrl,
+    CodeSystem,
+    CodeSystemConcept,
+    Concept,
+    Identifier,
+    RichFHIRSchema,
+    RichValueSet,
+} from "@typeschema/types";
 import { buildFieldType } from "./field-builder";
-import { dropVersionFromUrl, mkBindingIdentifier, mkValueSetIdentifier } from "./identifier";
+import { dropVersionFromUrl, mkBindingIdentifier, mkValueSetIdentifierByUrl } from "./identifier";
 
-export function extractValueSetConcepts(
-    valueSetUrl: CanonicalUrl,
-    register: Register,
-): { system: string; code: string; display?: string }[] | undefined {
-    try {
-        const cleanUrl = dropVersionFromUrl(valueSetUrl) || valueSetUrl;
-        const valueSet = register.resolveVs(cleanUrl as CanonicalUrl);
-        if (!valueSet) return undefined;
+export function extractValueSetConceptsByUrl(register: Register, valueSetUrl: CanonicalUrl): Concept[] | undefined {
+    const cleanUrl = dropVersionFromUrl(valueSetUrl) || valueSetUrl;
+    const valueSet = register.resolveVs(cleanUrl as CanonicalUrl);
+    if (!valueSet) return undefined;
+    return extractValueSetConcepts(register, valueSet);
+}
 
-        if (valueSet.expansion?.contains) {
-            return valueSet.expansion.contains.map((concept: any) => ({
-                system: concept.system,
-                code: concept.code,
-                display: concept.display,
-            }));
-        }
+export function extractValueSetConcepts(register: Register, valueSet: RichValueSet): Concept[] | undefined {
+    if (valueSet.expansion?.contains) return valueSet.expansion.contains;
 
-        const concepts: Array<{ system: string; code: string; display?: string }> = [];
-
-        if (valueSet.compose?.include) {
-            for (const include of valueSet.compose.include) {
-                if (include.concept) {
-                    for (const concept of include.concept) {
-                        concepts.push({
-                            system: include.system,
-                            code: concept.code,
-                            display: concept.display,
-                        });
-                    }
-                } else if (include.system && !include.filter) {
-                    try {
-                        const codeSystem = register.resolveAny(include.system);
-                        if (codeSystem?.concept) {
-                            const extractConcepts = (conceptList: any[], system: string) => {
-                                for (const concept of conceptList) {
-                                    concepts.push({
-                                        system,
-                                        code: concept.code,
-                                        display: concept.display,
-                                    });
-                                    // Handle nested concepts
-                                    if (concept.concept) {
-                                        extractConcepts(concept.concept, system);
-                                    }
+    const concepts = [] as Concept[];
+    if (valueSet.compose?.include) {
+        for (const include of valueSet.compose.include) {
+            if (include.concept) {
+                for (const concept of include.concept) {
+                    concepts.push({
+                        system: include.system,
+                        code: concept.code,
+                        display: concept.display,
+                    });
+                }
+            } else if (include.system && !include.filter) {
+                try {
+                    const codeSystem: CodeSystem = register.resolveAny(include.system as CanonicalUrl);
+                    if (codeSystem?.concept) {
+                        const extractConcepts = (conceptList: CodeSystemConcept[], system: string) => {
+                            for (const concept of conceptList) {
+                                concepts.push({
+                                    system,
+                                    code: concept.code,
+                                    display: concept.display,
+                                });
+                                if (concept.concept) {
+                                    extractConcepts(concept.concept, system);
                                 }
-                            };
-                            extractConcepts(codeSystem.concept, include.system);
-                        }
-                    } catch {
-                        // Ignore if we can't resolve the CodeSystem
+                            }
+                        };
+                        extractConcepts(codeSystem.concept, include.system);
                     }
+                } catch {
+                    // Ignore if we can't resolve the CodeSystem
                 }
             }
         }
-
-        return concepts.length > 0 ? concepts : undefined;
-    } catch {
-        return undefined;
     }
+    return concepts.length > 0 ? concepts : undefined;
 }
 
 const MAX_ENUM_LENGTH = 100;
 
-export function buildEnum(element: FHIRSchemaElement, register: Register): string[] | undefined {
+export function buildEnum(register: Register, element: FHIRSchemaElement): string[] | undefined {
     if (!element.binding) return undefined;
 
-    const { strength, valueSet } = element.binding;
-
-    if (!valueSet) return undefined;
+    const strength = element.binding.strength;
+    const valueSetUrl = element.binding.valueSet as CanonicalUrl;
+    if (!valueSetUrl) return undefined;
 
     // Enhanced support for more binding strengths and types
     // Generate enum for:
@@ -91,11 +87,9 @@ export function buildEnum(element: FHIRSchemaElement, register: Register): strin
         (strength === "extensible" && (element.type === "code" || element.type === "Coding")) ||
         (strength === "preferred" && (element.type === "code" || element.type === "Coding"));
 
-    if (!shouldGenerateEnum) {
-        return undefined;
-    }
+    if (!shouldGenerateEnum) return undefined;
 
-    const concepts = extractValueSetConcepts(valueSet as CanonicalUrl, register);
+    const concepts = extractValueSetConceptsByUrl(register, valueSetUrl);
     if (!concepts || concepts.length === 0) return undefined;
 
     const codes = concepts
@@ -104,7 +98,7 @@ export function buildEnum(element: FHIRSchemaElement, register: Register): strin
 
     if (codes.length > MAX_ENUM_LENGTH) {
         console.warn(
-            `Value set ${valueSet} has more than ${MAX_ENUM_LENGTH} codes, which may cause issues with code generation.`,
+            `Value set ${valueSetUrl} has more than ${MAX_ENUM_LENGTH} codes, which may cause issues with code generation.`,
         );
         return undefined;
     }
@@ -121,7 +115,7 @@ export async function generateBindingSchema(
 
     const identifier = mkBindingIdentifier(fhirSchema, path, element.binding.bindingName);
     const fieldType = buildFieldType(register, fhirSchema, element);
-    const valueSetIdentifier = mkValueSetIdentifier(register, element.binding.valueSet as CanonicalUrl);
+    const valueSetIdentifier = mkValueSetIdentifierByUrl(register, element.binding.valueSet as CanonicalUrl);
 
     const dependencies: Identifier[] = [];
     if (fieldType) {
@@ -129,7 +123,7 @@ export async function generateBindingSchema(
     }
     dependencies.push(valueSetIdentifier);
 
-    const enumValues = buildEnum(element, register);
+    const enumValues = buildEnum(register, element);
 
     return {
         identifier,

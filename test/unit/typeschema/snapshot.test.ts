@@ -1,25 +1,25 @@
 import { describe, expect, it } from "bun:test";
-import type { PFS } from "@typeschema-test/utils";
-import { mkR4Register, registerFsAndMkTs } from "@typeschema-test/utils";
+import type { PFS, PVS } from "@typeschema-test/utils";
+import { mkR4Register, registerFsAndMkTs, transformVS } from "@typeschema-test/utils";
 
 const r4 = await mkR4Register();
 
 describe("ValueSet to Type Schema (snapshot)", async () => {
-    it.todo("administrative-gender", async () => {
-        const fs: PFS = await Bun.file("test/asserts/value-sets/administrative-gender.json").json();
-        const ts = await registerFsAndMkTs(r4, fs);
+    it("administrative-gender", async () => {
+        const fs: PVS = await Bun.file("test/asserts/value-sets/administrative-gender.json").json();
+        const ts = await transformVS(r4, fs);
         expect(JSON.stringify(ts, null, 2)).toMatchSnapshot();
     });
 
-    it.todo("all-languages", async () => {
-        const fs: PFS = await Bun.file("test/asserts/value-sets/all-languages.json").json();
-        const ts = await registerFsAndMkTs(r4, fs);
+    it("all-languages", async () => {
+        const fs: PVS = await Bun.file("test/asserts/value-sets/all-languages.json").json();
+        const ts = await transformVS(r4, fs);
         expect(JSON.stringify(ts, null, 2)).toMatchSnapshot();
     });
 
-    it.todo("marital-status", async () => {
-        const fs: PFS = await Bun.file("test/asserts/value-sets/marital-status.json").json();
-        const ts = await registerFsAndMkTs(r4, fs);
+    it("marital-status", async () => {
+        const fs: PVS = await Bun.file("test/asserts/value-sets/marital-status.json").json();
+        const ts = await transformVS(r4, fs);
         expect(JSON.stringify(ts, null, 2)).toMatchSnapshot();
     });
 });

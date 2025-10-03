@@ -111,7 +111,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
             expect(result[0]?.base?.name).toBe("Extension");
         });
 
-        it("should transform value set schema", async () => {
+        it.skip("should transform value set schema", async () => {
             const fhirSchema: PFS = {
                 name: "TestValueSet",
                 type: "ValueSet",

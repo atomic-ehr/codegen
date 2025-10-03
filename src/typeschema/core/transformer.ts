@@ -11,15 +11,15 @@ import type {
     Identifier,
     NestedType,
     RichFHIRSchema,
+    RichValueSet,
     TypeSchema,
-    ValueSetIdentifier,
     ValueSetTypeSchema,
 } from "@typeschema/types";
 import { transformProfile } from "../profile/processor";
 import type { CanonicalUrl, Name, PackageMeta } from "../types";
-import { collectBindingSchemas } from "./binding";
+import { collectBindingSchemas, extractValueSetConceptsByUrl } from "./binding";
 import { isNestedElement, mkField, mkNestedField } from "./field-builder";
-import { mkIdentifier } from "./identifier";
+import { mkIdentifier, mkValueSetIdentifierByUrl } from "./identifier";
 import { extractNestedDependencies, mkNestedTypes } from "./nested-types";
 
 export async function mkFields(
@@ -129,54 +129,17 @@ function isExtensionSchema(fhirSchema: FHIRSchema, _identifier: Identifier): boo
     return false;
 }
 
-/**
- * Transform a ValueSet FHIRSchema to TypeSchemaValueSet
- */
-async function transformValueSet(
-    fhirSchema: RichFHIRSchema,
-    _register: Register,
-    _packageInfo?: PackageMeta,
-): Promise<ValueSetTypeSchema | null> {
-    try {
-        const identifier = mkIdentifier(fhirSchema);
-        identifier.kind = "value-set";
+export async function transformValueSet(register: Register, valueSet: RichValueSet): Promise<ValueSetTypeSchema> {
+    if (!valueSet.url) throw new Error("ValueSet URL is required");
 
-        const valueSetSchema: ValueSetTypeSchema = {
-            identifier: identifier as ValueSetIdentifier,
-            description: fhirSchema.description,
-        };
-
-        // If there are elements that represent concepts
-        if (fhirSchema.elements) {
-            const concepts: Array<{
-                code: string;
-                display?: string;
-                system?: string;
-            }> = [];
-
-            // Extract concepts from elements (simplified approach)
-            for (const [_key, element] of Object.entries(fhirSchema.elements)) {
-                if ("code" in element && element.code) {
-                    concepts.push({
-                        code: element.code as string,
-                        // @ts-ignore
-                        display: element.short || (element.definition as string),
-                        // @ts-ignore
-                        system: element.system,
-                    });
-                }
-            }
-
-            if (concepts.length > 0) {
-                valueSetSchema.concept = concepts;
-            }
-        }
-
-        return valueSetSchema;
-    } catch (error) {
-        console.warn(`Failed to transform value set ${fhirSchema.name}: ${error}`);
-        return null;
-    }
+    const identifier = mkValueSetIdentifierByUrl(register, valueSet.url);
+    const concept = extractValueSetConceptsByUrl(register, valueSet.url);
+    return {
+        identifier: identifier,
+        description: valueSet.description,
+        concept: concept,
+        compose: !concept ? valueSet.compose : undefined,
+    };
 }
 
 /**
@@ -320,28 +283,16 @@ async function transformResource(register: Register, fhirSchema: RichFHIRSchema)
 export async function transformFHIRSchema(register: Register, fhirSchema: RichFHIRSchema): Promise<TypeSchema[]> {
     const results: TypeSchema[] = [];
     const identifier = mkIdentifier(fhirSchema);
-    // Handle profiles with specialized processor
     if (identifier.kind === "profile") {
         const profileSchema = await transformProfile(register, fhirSchema);
         results.push(profileSchema);
 
-        // Collect binding schemas for profiles too
         const bindingSchemas = await collectBindingSchemas(register, fhirSchema);
         results.push(...bindingSchemas);
 
         return results;
     }
 
-    // Handle value sets specially
-    if (identifier.kind === "value-set" || fhirSchema.kind === "value-set") {
-        const valueSetSchema = await transformValueSet(fhirSchema, register, fhirSchema.package_meta);
-        if (valueSetSchema) {
-            results.push(valueSetSchema);
-        }
-        return results;
-    }
-
-    // Handle extensions specially
     if (isExtensionSchema(fhirSchema, identifier)) {
         const extensionSchema = await transformExtension(fhirSchema, register, fhirSchema.package_meta);
         if (extensionSchema) {

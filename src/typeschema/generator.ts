@@ -14,9 +14,8 @@ import { createLogger } from "@root/utils/codegen-logger";
 import type { Register } from "@typeschema/register";
 import { registerFromManager } from "@typeschema/register";
 import { TypeSchemaCache } from "./cache";
-import { transformFHIRSchema } from "./core/transformer";
+import { transformFHIRSchema, transformValueSet } from "./core/transformer";
 import type { PackageMeta, TypeSchema, TypeschemaGeneratorOptions } from "./types";
-import { transformValueSet } from "./value-set/processor";
 
 /**
  * TypeSchema Generator class
@@ -63,7 +62,7 @@ export class TypeSchemaGenerator {
     generateFhirSchemas(structureDefinitions: StructureDefinition[]): FHIRSchema[] {
         this.logger.progress(`Converting ${structureDefinitions.length} StructureDefinitions to FHIRSchemas`);
 
-        // TODO: do it on the TypeSchema
+        // TODO: do it on the TypeSchema?
         const filteredStructureDefinitions = this.applyStructureDefinitionTreeshaking(structureDefinitions);
 
         const fhirSchemas: FHIRSchema[] = [];
@@ -91,7 +90,7 @@ export class TypeSchemaGenerator {
         return fhirSchemas;
     }
 
-    async generateValueSetSchemas(valueSets: any[], packageInfo: PackageMeta): Promise<TypeSchema[]> {
+    async generateValueSetSchemas(valueSets: any[], _packageInfo: PackageMeta): Promise<TypeSchema[]> {
         if (valueSets.length > 0) {
             this.logger.debug(`${valueSets.length} ValueSets available for enum extraction`);
         }
@@ -106,11 +105,7 @@ export class TypeSchemaGenerator {
 
             for (const vs of valueSets) {
                 try {
-                    const valueSetSchema = await transformValueSet(
-                        vs,
-                        await registerFromManager(this.manager),
-                        packageInfo,
-                    );
+                    const valueSetSchema = await transformValueSet(await registerFromManager(this.manager), vs);
                     if (valueSetSchema) {
                         valueSetSchemas.push(valueSetSchema);
                         valueSetConvertedCount++;

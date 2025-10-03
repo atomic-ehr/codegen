@@ -1,9 +1,10 @@
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
-import { transformFHIRSchema } from "@typeschema/core/transformer";
+import { transformFHIRSchema, transformValueSet } from "@typeschema/core/transformer";
 import { type Register, registerFromPackageMetas } from "@typeschema/register";
-import { type CanonicalUrl, enrichFHIRSchema } from "@typeschema/types";
+import { type CanonicalUrl, enrichFHIRSchema, type RichValueSet, type ValueSet } from "@typeschema/types";
 
 export type PFS = Partial<FHIRSchema>;
+export type PVS = Partial<ValueSet>;
 
 export const mkR4Register = async () =>
     registerFromPackageMetas(
@@ -23,4 +24,8 @@ export const registerFsAndMkTs = async (register: Register, fs: PFS) => {
     const rfs = register.resolveFs(fs.url as CanonicalUrl);
     if (!rfs) throw new Error("Failed to resolve registered FHIR schema");
     return await transformFHIRSchema(register, rfs);
+};
+
+export const transformVS = async (register: Register, vs: PVS) => {
+    return await transformValueSet(register, vs as RichValueSet);
 };

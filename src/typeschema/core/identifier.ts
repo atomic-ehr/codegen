@@ -12,13 +12,19 @@ import type {
     Name,
     NestedIdentifier,
     RichFHIRSchema,
-    ValueSetTypeSchema,
+    RichValueSet,
+    ValueSetIdentifier,
 } from "@typeschema/types";
 import type { Register } from "../register";
 
 export function dropVersionFromUrl(url: CanonicalUrl): CanonicalUrl {
     const baseUrl = url.split("|")[0];
     return baseUrl ? (baseUrl as CanonicalUrl) : url;
+}
+
+export function getVersionFromUrl(url: CanonicalUrl): string | undefined {
+    const version = url.split("|")[1];
+    return version;
 }
 
 function determineKind(fhirSchema: RichFHIRSchema): Identifier["kind"] {
@@ -50,36 +56,44 @@ export function mkNestedIdentifier(fhirSchema: RichFHIRSchema, path: string[]): 
     };
 }
 
-export function mkValueSetIdentifier(register: Register, valueSetUrl: CanonicalUrl): ValueSetTypeSchema["identifier"] {
-    valueSetUrl = dropVersionFromUrl(valueSetUrl);
-    const valueSet = register.resolveVs(valueSetUrl);
-    // Generate a meaningful name from the URL instead of using potentially hash-like IDs
-    let name = "unknown";
-
-    // First try to get the last segment of the URL path
-    const urlParts = valueSetUrl.split("/");
+const getValueSetName = (url: CanonicalUrl): Name => {
+    const urlParts = url.split("/");
     const lastSegment = urlParts[urlParts.length - 1];
 
     if (lastSegment && lastSegment.length > 0) {
-        // Convert kebab-case or snake_case to PascalCase for better readability
-        name = lastSegment
+        return lastSegment
             .split(/[-_]/)
             .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-            .join("");
+            .join("") as Name;
     }
+    return url as string as Name;
+};
 
-    // Only fall back to valueSet.id if we couldn't extract a meaningful name from URL
-    // and the ID doesn't look like a hash (no long alphanumeric strings)
-    if (name === "unknown" && valueSet?.id && !/^[a-zA-Z0-9_-]{20,}$/.test(valueSet.id)) {
-        name = valueSet.id;
-    }
+export function mkValueSetIdentifierByUrl(register: Register, fullValueSetUrl: CanonicalUrl): ValueSetIdentifier {
+    const valueSetUrl = dropVersionFromUrl(fullValueSetUrl);
+    const valueSetNameFallback = getValueSetName(valueSetUrl);
+    const valuesSetFallback: RichValueSet = {
+        resourceType: "ValueSet",
+        package_meta: {
+            name: "missing_valuesets",
+            version: getVersionFromUrl(valueSetUrl) || "0.0.0",
+        },
+        name: valueSetNameFallback,
+        id: fullValueSetUrl,
+        url: valueSetUrl,
+    };
+    const valueSet: RichValueSet = register.resolveVs(valueSetUrl) || valuesSetFallback;
+
+    // NOTE: ignore valueSet.name due to human name
+    const valueSetName: Name =
+        valueSet?.id && !/^[a-zA-Z0-9_-]{20,}$/.test(valueSet.id) ? (valueSet.id as Name) : valueSetNameFallback;
 
     return {
         kind: "value-set",
         package: valueSet?.package_meta.name,
         version: valueSet?.package_meta.version,
-        name: name as Name,
-        url: valueSetUrl as CanonicalUrl,
+        name: valueSetName,
+        url: valueSetUrl,
     };
 }
 

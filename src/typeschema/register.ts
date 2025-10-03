@@ -2,7 +2,7 @@ import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, FHIRSchemaElement, StructureDefinition } from "@atomic-ehr/fhirschema";
 import * as fhirschema from "@atomic-ehr/fhirschema";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
-import type { CanonicalUrl, Name, PackageMeta, RichFHIRSchema } from "@typeschema/types";
+import type { CanonicalUrl, Name, PackageMeta, RichFHIRSchema, RichValueSet } from "@typeschema/types";
 import { enrichFHIRSchema } from "@typeschema/types";
 
 export type Register = {
@@ -13,8 +13,8 @@ export type Register = {
     resolveFsGenealogy(canonicalUrl: CanonicalUrl): RichFHIRSchema[];
     allSd(): StructureDefinition[];
     allFs(): RichFHIRSchema[];
-    allVs(): any[];
-    resolveVs(canonicalUrl: CanonicalUrl): any | undefined;
+    allVs(): RichValueSet[];
+    resolveVs(canonicalUrl: CanonicalUrl): RichValueSet | undefined;
     complexTypeDict(): Record<string, RichFHIRSchema>;
     resolveAny(canonicalUrl: CanonicalUrl): any | undefined;
 } & ReturnType<typeof CanonicalManager>;
@@ -64,13 +64,13 @@ export const registerFromManager = async (
         );
     }
 
-    const valueSets = {} as Record<string, any[]>;
+    const valueSets = {} as Record<string, RichValueSet>;
     for (const resource of resources) {
         if (resource.resourceType === "ValueSet") {
             if (!resource.package_meta) {
                 resource.package_meta = packageInfo;
             }
-            valueSets[resource.url!] = resource as any;
+            valueSets[resource.url!] = resource as RichValueSet;
         }
     }
 

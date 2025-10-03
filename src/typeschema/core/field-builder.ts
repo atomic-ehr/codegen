@@ -106,7 +106,7 @@ export const mkField = (
         binding = mkBindingIdentifier(fhirSchema, path, element.binding.bindingName);
 
         if (element.binding.strength === "required" && element.type === "code") {
-            enumValues = buildEnum(element, register);
+            enumValues = buildEnum(register, element);
         }
     }
 

@@ -186,18 +186,19 @@ export interface ChoiceFieldInstance {
     max?: number;
 }
 
+export type Concept = {
+    code: string;
+    display?: string;
+    system?: string;
+};
+
 export interface ValueSetTypeSchema {
     identifier: ValueSetIdentifier;
     description?: string;
-    concept?: {
-        code: string;
-        display?: string;
-        system?: string;
-    }[];
-    compose?: {
-        [k: string]: unknown;
-    };
+    concept?: Concept[];
+    compose?: ValueSetCompose;
 }
+
 export interface BindingTypeSchema {
     identifier: BindingIdentifier;
     description?: string;
@@ -225,4 +226,55 @@ export type TypeschemaParserOptions = {
     format?: "auto" | "ndjson" | "json";
     validate?: boolean;
     strict?: boolean;
+};
+
+///////////////////////////////////////////////////////////
+// ValueSet
+///////////////////////////////////////////////////////////
+
+export type ValueSet = {
+    resourceType: "ValueSet";
+    id: string;
+    name?: string;
+    url?: string;
+    description?: string;
+    compose?: ValueSetCompose;
+    expansion?: {
+        contains: Concept[];
+    };
+    experimental?: boolean;
+    immutable?: boolean;
+    extension?: any[];
+    status?: string;
+    identifier?: any[];
+    title?: string;
+    publisher?: string;
+    version?: string;
+    meta?: any;
+    date?: string;
+    contact?: any;
+};
+
+export type ValueSetCompose = {
+    include: {
+        concept?: Concept[];
+        system?: string;
+        filter?: {}[];
+    }[];
+};
+
+export type CodeSystem = {
+    concept: CodeSystemConcept[];
+};
+
+export type CodeSystemConcept = {
+    concept: CodeSystemConcept[];
+    code: string;
+    display: string;
+};
+
+export type RichValueSet = Omit<ValueSet, "name" | "url"> & {
+    package_meta: PackageMeta;
+    name?: Name;
+    url?: CanonicalUrl;
 };
