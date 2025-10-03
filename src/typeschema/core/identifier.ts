@@ -22,7 +22,7 @@ export function dropVersionFromUrl(url: CanonicalUrl): CanonicalUrl {
     return baseUrl ? (baseUrl as CanonicalUrl) : url;
 }
 
-export function getVersionFromUrl(url: CanonicalUrl): string | undefined {
+function getVersionFromUrl(url: CanonicalUrl): string | undefined {
     const version = url.split("|")[1];
     return version;
 }

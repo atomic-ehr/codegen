@@ -26,7 +26,7 @@ export function extractValueSetConceptsByUrl(register: Register, valueSetUrl: Ca
     return extractValueSetConcepts(register, valueSet);
 }
 
-export function extractValueSetConcepts(register: Register, valueSet: RichValueSet): Concept[] | undefined {
+function extractValueSetConcepts(register: Register, valueSet: RichValueSet): Concept[] | undefined {
     if (valueSet.expansion?.contains) return valueSet.expansion.contains;
 
     const concepts = [] as Concept[];
@@ -105,7 +105,7 @@ export function buildEnum(register: Register, element: FHIRSchemaElement): strin
     return codes.length > 0 ? codes : undefined;
 }
 
-export async function generateBindingSchema(
+async function generateBindingSchema(
     register: Register,
     fhirSchema: RichFHIRSchema,
     path: string[],

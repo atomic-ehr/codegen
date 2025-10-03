@@ -10,7 +10,7 @@ import type { CanonicalUrl, Field, Identifier, Name, NestedType, PackageMeta, Ri
 import { isNestedElement, mkField, mkNestedField } from "./field-builder";
 import { mkNestedIdentifier } from "./identifier";
 
-export function collectNestedElements(
+function collectNestedElements(
     fhirSchema: FHIRSchema,
     parentPath: string[],
     elements: Record<string, FHIRSchemaElement>,
@@ -32,7 +32,7 @@ export function collectNestedElements(
     return nested;
 }
 
-export async function transformNestedElements(
+async function transformNestedElements(
     fhirSchema: RichFHIRSchema,
     parentPath: string[],
     elements: Record<string, FHIRSchemaElement>,

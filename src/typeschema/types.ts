@@ -142,7 +142,7 @@ export interface ProfileMetadata {
     package?: string;
 }
 
-export interface RegularTypeSchema {
+interface RegularTypeSchema {
     // TODO: restrict to ResourceIdentifier | ComplexTypeIdentifier | LogicalIdentifier
     identifier: Identifier;
     base?: Identifier;
@@ -173,7 +173,7 @@ export interface ChoiceFieldDeclaration {
     max?: number;
 }
 
-export interface ChoiceFieldInstance {
+interface ChoiceFieldInstance {
     choiceOf: string;
     type: Identifier;
     required?: boolean;
@@ -255,7 +255,7 @@ export type ValueSet = {
     contact?: any;
 };
 
-export type ValueSetCompose = {
+type ValueSetCompose = {
     include: {
         concept?: Concept[];
         system?: string;

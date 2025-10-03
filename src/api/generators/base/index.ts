@@ -90,7 +90,6 @@ export type { Identifier, TypeSchema } from "@typeschema/index";
 
 // Logger interface
 export type { CodegenLogger } from "../../../utils/codegen-logger";
-
 // ==========================================
 // Utility Types for Generator Development
 // ==========================================
@@ -156,12 +155,10 @@ export function isGeneratorError(error: unknown): error is import("./errors").Ge
  * Updated automatically during build process
  */
 export const VERSION = "1.0.0";
-
 /**
  * Supported TypeSchema version
  */
 export const SUPPORTED_TYPESCHEMA_VERSION = "1.0.0";
-
 // ==========================================
 // Development Utilities
 // ==========================================
@@ -175,7 +172,6 @@ export function createDevLogger(prefix: string = "Dev", verbose: boolean = true)
     const { createLogger } = require("../../../utils/codegen-logger");
     return createLogger({ prefix, verbose });
 }
-
 /**
  * Validate generator options before instantiation
  * @param options - Options to validate
@@ -229,7 +225,6 @@ export function validateGeneratorOptions(
         suggestions,
     };
 }
-
 // ==========================================
 // Constants and Defaults
 // ==========================================
@@ -245,12 +240,10 @@ export const DEFAULT_GENERATOR_OPTIONS: Partial<import("./types").BaseGeneratorO
     beginnerMode: false,
     errorFormat: "console",
 };
-
 /**
  * Maximum recommended batch size for schema processing
  */
 export const MAX_BATCH_SIZE = 50;
-
 /**
  * Default file builder options
  */
@@ -265,7 +258,6 @@ export const DEFAULT_FILE_BUILDER_OPTIONS: Partial<import("./types").FileBuilder
     },
     encoding: "utf-8",
 };
-
 // ==========================================
 // Backwards Compatibility
 // ==========================================
@@ -275,7 +267,6 @@ export const DEFAULT_FILE_BUILDER_OPTIONS: Partial<import("./types").FileBuilder
  * Provided for backwards compatibility only
  */
 export { BaseGenerator as Generator } from "./BaseGenerator";
-
 /**
  * @deprecated Use GeneratorError instead
  * Provided for backwards compatibility only

@@ -10,7 +10,7 @@ import type { BindingIdentifier, Field, Identifier, Name, PackageMeta, RegularFi
 import { buildEnum } from "./binding";
 import { mkBindingIdentifier, mkIdentifier, mkNestedIdentifier } from "./identifier";
 
-export function isRequired(register: Register, fhirSchema: RichFHIRSchema, path: string[]): boolean {
+function isRequired(register: Register, fhirSchema: RichFHIRSchema, path: string[]): boolean {
     const fieldName = path[path.length - 1]!;
     const parentPath = path.slice(0, -1);
 
@@ -26,7 +26,7 @@ export function isRequired(register: Register, fhirSchema: RichFHIRSchema, path:
     return new Set(requires).has(fieldName);
 }
 
-export function isExcluded(register: Register, fhirSchema: RichFHIRSchema, path: string[]): boolean {
+function isExcluded(register: Register, fhirSchema: RichFHIRSchema, path: string[]): boolean {
     const fieldName = path[path.length - 1];
     if (!fieldName) throw new Error(`Internal error: fieldName is missing for path ${path.join("/")}`);
     const parentPath = path.slice(0, -1);
@@ -44,7 +44,7 @@ export function isExcluded(register: Register, fhirSchema: RichFHIRSchema, path:
     return new Set(requires).has(fieldName);
 }
 
-export const buildReferences = (
+const buildReferences = (
     element: FHIRSchemaElement,
     register: Register,
     _packageInfo?: PackageMeta,
