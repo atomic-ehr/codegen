@@ -55,16 +55,30 @@ describe("FHIR Schema to Type Schema (snapshot)", async () => {
         expect(JSON.stringify(ts, null, 2)).toMatchSnapshot();
     });
 
-    it.todo("with resource with nested type", async () => {
+    it("with resource with nested type", async () => {
         const fs: PFS = await Bun.file("test/asserts/fhir-schemas/resource-with-nested-type.fs.json").json();
         const ts = await registerFsAndMkTs(r4, fs);
         expect(JSON.stringify(ts, null, 2)).toMatchSnapshot();
     });
 
-    it.todo("with resource with nested type 2", async () => {
+    it("with resource with nested type 2", async () => {
         const fs: PFS = await Bun.file("test/asserts/fhir-schemas/resource-with-nested-type-2.fs.json").json();
         const ts = await registerFsAndMkTs(r4, fs);
         expect(JSON.stringify(ts, null, 2)).toMatchSnapshot();
+    });
+
+    describe("Real world examples", async () => {
+        it("coding primitive type", async () => {
+            const fs: PFS = await Bun.file("test/asserts/fhir-schemas/coding.fs.json").json();
+            const ts = await registerFsAndMkTs(r4, fs);
+            expect(JSON.stringify(ts, null, 2)).toMatchSnapshot();
+        });
+
+        it("string primitive type", async () => {
+            const fs: PFS = await Bun.file("test/asserts/fhir-schemas/string.fs.json").json();
+            const ts = await registerFsAndMkTs(r4, fs);
+            expect(JSON.stringify(ts, null, 2)).toMatchSnapshot();
+        });
     });
 
     describe("Custom resource", async () => {
@@ -76,20 +90,6 @@ describe("FHIR Schema to Type Schema (snapshot)", async () => {
 
         it.todo("TutorNotificationTemplate", async () => {
             const fs: PFS = await Bun.file("test/asserts/fhir-schemas/TutorNotificationTemplate.fs.json").json();
-            const ts = await registerFsAndMkTs(r4, fs);
-            expect(JSON.stringify(ts, null, 2)).toMatchSnapshot();
-        });
-    });
-
-    describe("Real world examples", async () => {
-        it.todo("coding primitive type", async () => {
-            const fs: PFS = await Bun.file("test/asserts/fhir-schemas/coding.fs.json").json();
-            const ts = await registerFsAndMkTs(r4, fs);
-            expect(JSON.stringify(ts, null, 2)).toMatchSnapshot();
-        });
-
-        it.todo("string primitive type", async () => {
-            const fs: PFS = await Bun.file("test/asserts/fhir-schemas/string.fs.json").json();
             const ts = await registerFsAndMkTs(r4, fs);
             expect(JSON.stringify(ts, null, 2)).toMatchSnapshot();
         });

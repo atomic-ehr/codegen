@@ -464,3 +464,367 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with choice 1`] = `
   }
 ]"
 `;
+
+exports[`FHIR Schema to Type Schema (snapshot) with resource with nested type 1`] = `
+"[
+  {
+    "identifier": {
+      "kind": "resource",
+      "package": "mypackage",
+      "version": "0.0.0",
+      "name": "WithNestedType",
+      "url": "http://example.io/fhir/WithNestedType"
+    },
+    "base": {
+      "kind": "resource",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "DomainResource",
+      "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+    },
+    "fields": {
+      "link": {
+        "type": {
+          "kind": "nested",
+          "package": "mypackage",
+          "version": "0.0.0",
+          "name": "link",
+          "url": "http://example.io/fhir/WithNestedType#link"
+        },
+        "array": true,
+        "required": false,
+        "excluded": false
+      }
+    },
+    "nested": [
+      {
+        "identifier": {
+          "kind": "nested",
+          "package": "mypackage",
+          "version": "0.0.0",
+          "name": "link",
+          "url": "http://example.io/fhir/WithNestedType#link"
+        },
+        "base": {
+          "kind": "complex-type",
+          "package": "mypackage",
+          "version": "0.0.0",
+          "name": "BackboneElement",
+          "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+        },
+        "fields": {
+          "someString": {
+            "type": {
+              "kind": "primitive-type",
+              "package": "hl7.fhir.r4.core",
+              "version": "4.0.1",
+              "name": "string",
+              "url": "http://hl7.org/fhir/StructureDefinition/string"
+            },
+            "required": true,
+            "excluded": false,
+            "array": false
+          }
+        }
+      }
+    ],
+    "description": "some description",
+    "dependencies": [
+      {
+        "kind": "complex-type",
+        "package": "mypackage",
+        "version": "0.0.0",
+        "name": "BackboneElement",
+        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+      },
+      {
+        "kind": "resource",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "DomainResource",
+        "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+      },
+      {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "string",
+        "url": "http://hl7.org/fhir/StructureDefinition/string"
+      }
+    ]
+  }
+]"
+`;
+
+exports[`FHIR Schema to Type Schema (snapshot) with resource with nested type 2 1`] = `
+"[
+  {
+    "identifier": {
+      "kind": "resource",
+      "package": "mypackage",
+      "version": "0.0.0",
+      "name": "Root",
+      "url": "http://example.io/fhir/Root"
+    },
+    "base": {
+      "kind": "resource",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "DomainResource",
+      "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+    },
+    "fields": {
+      "field": {
+        "type": {
+          "kind": "nested",
+          "package": "mypackage",
+          "version": "0.0.0",
+          "name": "field",
+          "url": "http://example.io/fhir/Root#field"
+        },
+        "array": true,
+        "required": false,
+        "excluded": false
+      }
+    },
+    "nested": [
+      {
+        "identifier": {
+          "kind": "nested",
+          "package": "mypackage",
+          "version": "0.0.0",
+          "name": "field",
+          "url": "http://example.io/fhir/Root#field"
+        },
+        "base": {
+          "kind": "complex-type",
+          "package": "mypackage",
+          "version": "0.0.0",
+          "name": "BackboneElement",
+          "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+        },
+        "fields": {
+          "subfield": {
+            "type": {
+              "kind": "nested",
+              "package": "mypackage",
+              "version": "0.0.0",
+              "name": "field.subfield",
+              "url": "http://example.io/fhir/Root#field.subfield"
+            },
+            "array": true,
+            "required": false,
+            "excluded": false
+          }
+        }
+      },
+      {
+        "identifier": {
+          "kind": "nested",
+          "package": "mypackage",
+          "version": "0.0.0",
+          "name": "field.subfield",
+          "url": "http://example.io/fhir/Root#field.subfield"
+        },
+        "base": {
+          "kind": "complex-type",
+          "package": "mypackage",
+          "version": "0.0.0",
+          "name": "BackboneElement",
+          "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+        },
+        "fields": {
+          "subsubfield": {
+            "type": {
+              "kind": "primitive-type",
+              "package": "hl7.fhir.r4.core",
+              "version": "4.0.1",
+              "name": "string",
+              "url": "http://hl7.org/fhir/StructureDefinition/string"
+            },
+            "required": false,
+            "excluded": false,
+            "array": false
+          }
+        }
+      }
+    ],
+    "description": "some description",
+    "dependencies": [
+      {
+        "kind": "complex-type",
+        "package": "mypackage",
+        "version": "0.0.0",
+        "name": "BackboneElement",
+        "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
+      },
+      {
+        "kind": "resource",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "DomainResource",
+        "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+      },
+      {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "string",
+        "url": "http://hl7.org/fhir/StructureDefinition/string"
+      }
+    ]
+  }
+]"
+`;
+
+exports[`FHIR Schema to Type Schema (snapshot) Real world examples coding primitive type 1`] = `
+"[
+  {
+    "identifier": {
+      "kind": "complex-type",
+      "package": "mypackage",
+      "version": "0.0.0",
+      "name": "Coding",
+      "url": "http://hl7.org/fhir/StructureDefinition/Coding"
+    },
+    "base": {
+      "kind": "complex-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "Element",
+      "url": "http://hl7.org/fhir/StructureDefinition/Element"
+    },
+    "fields": {
+      "system": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "uri",
+          "url": "http://hl7.org/fhir/StructureDefinition/uri"
+        },
+        "required": false,
+        "excluded": false,
+        "array": false
+      },
+      "version": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "string",
+          "url": "http://hl7.org/fhir/StructureDefinition/string"
+        },
+        "required": false,
+        "excluded": false,
+        "array": false
+      },
+      "code": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "code",
+          "url": "http://hl7.org/fhir/StructureDefinition/code"
+        },
+        "required": false,
+        "excluded": false,
+        "array": false
+      },
+      "display": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "string",
+          "url": "http://hl7.org/fhir/StructureDefinition/string"
+        },
+        "required": false,
+        "excluded": false,
+        "array": false
+      },
+      "userSelected": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "boolean",
+          "url": "http://hl7.org/fhir/StructureDefinition/boolean"
+        },
+        "required": false,
+        "excluded": false,
+        "array": false
+      }
+    },
+    "description": "Base StructureDefinition for Coding Type: A reference to a code defined by a terminology system.",
+    "dependencies": [
+      {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "boolean",
+        "url": "http://hl7.org/fhir/StructureDefinition/boolean"
+      },
+      {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "code",
+        "url": "http://hl7.org/fhir/StructureDefinition/code"
+      },
+      {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "Element",
+        "url": "http://hl7.org/fhir/StructureDefinition/Element"
+      },
+      {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "string",
+        "url": "http://hl7.org/fhir/StructureDefinition/string"
+      },
+      {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "uri",
+        "url": "http://hl7.org/fhir/StructureDefinition/uri"
+      }
+    ]
+  }
+]"
+`;
+
+exports[`FHIR Schema to Type Schema (snapshot) Real world examples string primitive type 1`] = `
+"[
+  {
+    "identifier": {
+      "kind": "primitive-type",
+      "package": "mypackage",
+      "version": "0.0.0",
+      "name": "string",
+      "url": "http://hl7.org/fhir/StructureDefinition/string"
+    },
+    "base": {
+      "kind": "complex-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "Element",
+      "url": "http://hl7.org/fhir/StructureDefinition/Element"
+    },
+    "description": "Base StructureDefinition for string Type: A sequence of Unicode characters",
+    "dependencies": [
+      {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "Element",
+        "url": "http://hl7.org/fhir/StructureDefinition/Element"
+      }
+    ]
+  }
+]"
+`;
