@@ -297,27 +297,66 @@ export class EnhancedTemplateError extends GeneratorError {
     private levenshteinDistance(str1: string, str2: string): number {
         const matrix: number[][] = [];
 
+        // Initialize the matrix
         for (let i = 0; i <= str2.length; i++) {
-            matrix[i] = [i];
+            matrix[i] = [];
+            for (let j = 0; j <= str1.length; j++) {
+                if (i === 0) {
+                    const row = matrix[i];
+                    if (!row) throw new Error("Matrix row is undefined during initialization");
+                    row[j] = j;
+                } else if (j === 0) {
+                    const row = matrix[i];
+                    if (!row) throw new Error("Matrix row is undefined during initialization");
+                    row[j] = i;
+                } else {
+                    const row = matrix[i];
+                    if (!row) throw new Error("Matrix row is undefined during initialization");
+                    row[j] = 0;
+                }
+            }
         }
 
-        for (let j = 0; j <= str1.length; j++) {
-            matrix[0][j] = j;
-        }
-
+        // Calculate the Levenshtein distance
         for (let i = 1; i <= str2.length; i++) {
             for (let j = 1; j <= str1.length; j++) {
+                const currentRow = matrix[i];
+                const previousRow = matrix[i - 1];
+
+                if (!currentRow || !previousRow) {
+                    throw new Error("Matrix row is undefined");
+                }
+
+                const substitutionCost = previousRow[j - 1];
+                const insertionCost = currentRow[j - 1];
+                const deletionCost = previousRow[j];
+
+                if (substitutionCost === undefined || insertionCost === undefined || deletionCost === undefined) {
+                    throw new Error("Matrix cell is undefined");
+                }
+
                 if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
-                    matrix[i][j] = matrix[i - 1][j - 1];
+                    currentRow[j] = substitutionCost;
                 } else {
-                    matrix[i][j] = Math.min(
-                        matrix[i - 1][j - 1] + 1, // substitution
-                        matrix[i][j - 1] + 1, // insertion
-                        matrix[i - 1][j] + 1, // deletion
+                    currentRow[j] = Math.min(
+                        substitutionCost + 1, // substitution
+                        insertionCost + 1, // insertion
+                        deletionCost + 1, // deletion
                     );
                 }
             }
         }
-        return matrix[str2.length][str1.length];
+
+        const lastRow = matrix[str2.length];
+        if (!lastRow) {
+            throw new Error("Last matrix row is undefined");
+        }
+
+        const result = lastRow[str1.length];
+        if (result === undefined) {
+            throw new Error("Final result is undefined");
+        }
+
+        return result;
     }
 }
