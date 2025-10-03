@@ -34,14 +34,14 @@ describe("Type Schema generator > Binding", async () => {
                 identifier: { package: "mypackage", url: "http://example.io/fhir/WithCode" },
                 base: { package: "hl7.fhir.r4.core", url: "http://hl7.org/fhir/StructureDefinition/DomainResource" },
                 dependencies: [
+                    { package: "hl7.fhir.r4.core", url: "http://hl7.org/fhir/StructureDefinition/code" },
+                    { package: "hl7.fhir.r4.core", url: "http://hl7.org/fhir/StructureDefinition/DomainResource" },
                     {
                         kind: "binding",
                         name: "AdministrativeGender",
                         package: "shared",
                         url: "urn:fhir:binding:AdministrativeGender",
                     },
-                    { package: "hl7.fhir.r4.core", url: "http://hl7.org/fhir/StructureDefinition/code" },
-                    { package: "hl7.fhir.r4.core", url: "http://hl7.org/fhir/StructureDefinition/DomainResource" },
                 ],
                 fields: {
                     gender: {

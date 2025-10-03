@@ -49,7 +49,7 @@ describe("FHIR Schema to Type Schema (snapshot)", async () => {
         expect(JSON.stringify(ts, null, 2)).toMatchSnapshot();
     });
 
-    it.todo("with resource with choice", async () => {
+    it("with resource with choice", async () => {
         const fs: PFS = await Bun.file("test/asserts/fhir-schemas/resource-with-choice.fs.json").json();
         const ts = await registerFsAndMkTs(r4, fs);
         expect(JSON.stringify(ts, null, 2)).toMatchSnapshot();

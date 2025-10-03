@@ -206,13 +206,6 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with code 1`] = `
     "description": "description",
     "dependencies": [
       {
-        "kind": "binding",
-        "package": "shared",
-        "version": "1.0.0",
-        "name": "AdministrativeGender",
-        "url": "urn:fhir:binding:AdministrativeGender"
-      },
-      {
         "kind": "primitive-type",
         "package": "hl7.fhir.r4.core",
         "version": "4.0.1",
@@ -225,6 +218,13 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with code 1`] = `
         "version": "4.0.1",
         "name": "DomainResource",
         "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+      },
+      {
+        "kind": "binding",
+        "package": "shared",
+        "version": "1.0.0",
+        "name": "AdministrativeGender",
+        "url": "urn:fhir:binding:AdministrativeGender"
       }
     ]
   },
@@ -377,6 +377,88 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with codable concep
         "version": "4.0.1",
         "name": "MaritalStatus",
         "url": "http://hl7.org/fhir/ValueSet/marital-status"
+      }
+    ]
+  }
+]"
+`;
+
+exports[`FHIR Schema to Type Schema (snapshot) with resource with choice 1`] = `
+"[
+  {
+    "identifier": {
+      "kind": "resource",
+      "package": "mypackage",
+      "version": "0.0.0",
+      "name": "WithChoice",
+      "url": "http://example.io/fhir/WithChoice"
+    },
+    "base": {
+      "kind": "resource",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "DomainResource",
+      "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+    },
+    "fields": {
+      "deceasedDateTime": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "dateTime",
+          "url": "http://hl7.org/fhir/StructureDefinition/dateTime"
+        },
+        "required": false,
+        "excluded": false,
+        "array": false,
+        "choiceOf": "deceased"
+      },
+      "deceasedBoolean": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "boolean",
+          "url": "http://hl7.org/fhir/StructureDefinition/boolean"
+        },
+        "required": false,
+        "excluded": false,
+        "array": false,
+        "choiceOf": "deceased"
+      },
+      "deceased": {
+        "required": false,
+        "excluded": false,
+        "array": false,
+        "choices": [
+          "deceasedBoolean",
+          "deceasedDateTime"
+        ]
+      }
+    },
+    "description": "description",
+    "dependencies": [
+      {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "boolean",
+        "url": "http://hl7.org/fhir/StructureDefinition/boolean"
+      },
+      {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "dateTime",
+        "url": "http://hl7.org/fhir/StructureDefinition/dateTime"
+      },
+      {
+        "kind": "resource",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "DomainResource",
+        "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
       }
     ]
   }

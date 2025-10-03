@@ -282,7 +282,7 @@ function extractDependencies(
 
     const result = Object.values(uniqDeps)
         .filter((e) => !(e.kind === "nested" && localNestedTypeUrls.has(e.url)))
-        .sort((a, b) => a.name.localeCompare(b.name));
+        .sort((a, b) => a.url.localeCompare(b.url));
 
     return result.length > 0 ? result : undefined;
 }
