@@ -22,12 +22,12 @@ import { isNestedElement, mkField, mkNestedField } from "./field-builder";
 import { mkIdentifier, mkValueSetIdentifierByUrl } from "./identifier";
 import { extractNestedDependencies, mkNestedTypes } from "./nested-types";
 
-export async function mkFields(
+export function mkFields(
     register: Register,
     fhirSchema: RichFHIRSchema,
     parentPath: string[],
     elements: Record<string, FHIRSchemaElement> | undefined,
-): Promise<Record<string, Field> | undefined> {
+): Record<string, Field> | undefined {
     if (!elements) return undefined;
     const geneology = register.resolveFsGenealogy(fhirSchema.url);
 
@@ -196,7 +196,7 @@ async function transformExtension(
 
         // Transform elements into fields if present
         if (fhirSchema.elements) {
-            const fields = await mkFields(register, fhirSchema, [], fhirSchema.elements);
+            const fields = mkFields(register, fhirSchema, [], fhirSchema.elements);
 
             if (fields && Object.keys(fields).length > 0) {
                 extensionSchema.fields = fields;
@@ -205,7 +205,7 @@ async function transformExtension(
         }
 
         // Build nested types
-        const nestedTypes = await mkNestedTypes(register, fhirSchema);
+        const nestedTypes = mkNestedTypes(register, fhirSchema);
         if (nestedTypes && nestedTypes.length > 0) {
             extensionSchema.nested = nestedTypes;
             extensionSchema.dependencies.push(...extractNestedDependencies(nestedTypes));
@@ -250,7 +250,7 @@ function extractDependencies(
     return result.length > 0 ? result : undefined;
 }
 
-async function transformResource(register: Register, fhirSchema: RichFHIRSchema): Promise<TypeSchema[]> {
+function transformFhirSchemaResource(register: Register, fhirSchema: RichFHIRSchema): TypeSchema[] {
     const identifier = mkIdentifier(fhirSchema);
 
     let base: Identifier | undefined;
@@ -262,8 +262,8 @@ async function transformResource(register: Register, fhirSchema: RichFHIRSchema)
         base = mkIdentifier(baseFs);
     }
 
-    const fields = await mkFields(register, fhirSchema, [], fhirSchema.elements);
-    const nested = await mkNestedTypes(register, fhirSchema);
+    const fields = mkFields(register, fhirSchema, [], fhirSchema.elements);
+    const nested = mkNestedTypes(register, fhirSchema);
     const dependencies = extractDependencies(identifier, base, fields, nested);
 
     const typeSchema: TypeSchema = {
@@ -275,19 +275,19 @@ async function transformResource(register: Register, fhirSchema: RichFHIRSchema)
         dependencies,
     };
 
-    const bindingSchemas = await collectBindingSchemas(register, fhirSchema);
+    const bindingSchemas = collectBindingSchemas(register, fhirSchema);
 
     return [typeSchema, ...bindingSchemas];
 }
 
-export async function transformFHIRSchema(register: Register, fhirSchema: RichFHIRSchema): Promise<TypeSchema[]> {
+export async function transformFhirSchema(register: Register, fhirSchema: RichFHIRSchema): Promise<TypeSchema[]> {
     const results: TypeSchema[] = [];
     const identifier = mkIdentifier(fhirSchema);
     if (identifier.kind === "profile") {
         const profileSchema = await transformProfile(register, fhirSchema);
         results.push(profileSchema);
 
-        const bindingSchemas = await collectBindingSchemas(register, fhirSchema);
+        const bindingSchemas = collectBindingSchemas(register, fhirSchema);
         results.push(...bindingSchemas);
 
         return results;
@@ -301,5 +301,5 @@ export async function transformFHIRSchema(register: Register, fhirSchema: RichFH
         return results;
     }
 
-    return await transformResource(register, fhirSchema);
+    return transformFhirSchemaResource(register, fhirSchema);
 }

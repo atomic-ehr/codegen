@@ -105,12 +105,12 @@ export function buildEnum(register: Register, element: FHIRSchemaElement): strin
     return codes.length > 0 ? codes : undefined;
 }
 
-async function generateBindingSchema(
+function generateBindingSchema(
     register: Register,
     fhirSchema: RichFHIRSchema,
     path: string[],
     element: FHIRSchemaElement,
-): Promise<BindingTypeSchema | undefined> {
+): BindingTypeSchema | undefined {
     if (!element.binding?.valueSet) return undefined;
 
     const identifier = mkBindingIdentifier(fhirSchema, path, element.binding.bindingName);
@@ -135,15 +135,12 @@ async function generateBindingSchema(
     };
 }
 
-export async function collectBindingSchemas(
-    register: Register,
-    fhirSchema: RichFHIRSchema,
-): Promise<BindingTypeSchema[]> {
+export function collectBindingSchemas(register: Register, fhirSchema: RichFHIRSchema): BindingTypeSchema[] {
     const processedPaths = new Set<string>();
     if (!fhirSchema.elements) return [];
 
     const bindings: BindingTypeSchema[] = [];
-    async function collectBindings(elements: Record<string, FHIRSchemaElement>, parentPath: string[]) {
+    function collectBindings(elements: Record<string, FHIRSchemaElement>, parentPath: string[]) {
         for (const [key, element] of Object.entries(elements)) {
             const path = [...parentPath, key];
             const pathKey = path.join(".");
@@ -152,18 +149,18 @@ export async function collectBindingSchemas(
             processedPaths.add(pathKey);
 
             if (element.binding) {
-                const binding = await generateBindingSchema(register, fhirSchema, path, element);
+                const binding = generateBindingSchema(register, fhirSchema, path, element);
                 if (binding) {
                     bindings.push(binding);
                 }
             }
 
             if (element.elements) {
-                await collectBindings(element.elements, path);
+                collectBindings(element.elements, path);
             }
         }
     }
-    await collectBindings(fhirSchema.elements, []);
+    collectBindings(fhirSchema.elements, []);
 
     bindings.sort((a, b) => a.identifier.name.localeCompare(b.identifier.name));
 

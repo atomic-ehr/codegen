@@ -20,7 +20,6 @@ import type { ProfileConstraint, ProfileExtension, ProfileMetadata, ProfileTypeS
 export async function transformProfile(register: Register, fhirSchema: RichFHIRSchema): Promise<ProfileTypeSchema> {
     // Build profile identifier
     const identifier = mkIdentifier(fhirSchema);
-    const _packageInfo = fhirSchema.package_meta;
 
     // Ensure this is recognized as a profile
     if (identifier.kind !== "profile") {

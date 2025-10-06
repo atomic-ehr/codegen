@@ -14,7 +14,7 @@ import { createLogger } from "@root/utils/codegen-logger";
 import type { Register } from "@typeschema/register";
 import { registerFromManager } from "@typeschema/register";
 import { TypeSchemaCache } from "./cache";
-import { transformFHIRSchema, transformValueSet } from "./core/transformer";
+import { transformFhirSchema, transformValueSet } from "./core/transformer";
 import type { PackageMeta, TypeSchema, TypeschemaGeneratorOptions } from "./types";
 
 /**
@@ -146,7 +146,7 @@ export class TypeSchemaGenerator {
 
         const register = await this.registerFromPackageMetas([packageInfo]);
         const allSchemas = [
-            ...(await Promise.all(register.allFs().map(async (fs) => await transformFHIRSchema(register, fs)))).flat(),
+            ...(await Promise.all(register.allFs().map(async (fs) => await transformFhirSchema(register, fs)))).flat(),
             ...(await this.generateValueSetSchemas(register.allVs(), packageInfo)),
         ];
 
@@ -158,22 +158,6 @@ export class TypeSchemaGenerator {
 
         return allSchemas;
     }
-
-    // async generateResourceTypeSchemas(
-    //   fhirSchemas: RichFHIRSchema[],
-    // ): Promise<TypeSchema[]> {
-    //   this.logger.info(
-    //     `Transforming ${fhirSchemas.length} FHIR schemas to Type Schema`,
-    //   );
-
-    //   const typeSchemas: TypeSchema[] = [];
-    //   for (const fhirSchema of fhirSchemas) {
-    //     typeSchemas.push(
-    //       ...(await transformFHIRSchema(this.manager, fhirSchema)),
-    //     );
-    //   }
-    //   return typeSchemas;
-    // }
 
     /**
      * Apply treeshaking to StructureDefinitions before FHIR schema transformation
@@ -270,10 +254,6 @@ export class TypeSchemaGenerator {
         return filteredStructureDefinitions;
     }
 
-    /**
-     * Extract dependencies from StructureDefinition with smart reference handling
-     * Returns both real dependencies and reference targets separately
-     */
     private extractStructureDefinitionDependenciesWithReferences(sd: any): {
         realDeps: string[];
         refTargets: string[];
@@ -326,9 +306,6 @@ export class TypeSchemaGenerator {
         };
     }
 
-    /**
-     * Extract resource name from FHIR URL
-     */
     private extractResourceNameFromUrl(url: string): string | null {
         const match = url.match(/\/([^/]+)$/);
         return match ? (match[1] ?? null) : null;
