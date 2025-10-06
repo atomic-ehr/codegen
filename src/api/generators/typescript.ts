@@ -825,11 +825,9 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
      * Override generate to clean directory first
      */
     public override async generate(schemas: TypeSchema[]): Promise<GeneratedFile[]> {
-        // Clean output directory before generation
         await this.fileManager.cleanDirectory();
-        this.logger.debug("Cleaned output directory before generation");
 
-        // Call parent implementation
+        this.logger.debug("Cleaned output directory before generation");
         return super.generate(schemas);
     }
 

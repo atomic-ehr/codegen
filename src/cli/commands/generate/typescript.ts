@@ -45,7 +45,6 @@ export async function generateTypeScript(config: Config, inputPath?: string): Pr
         outputDir: config.outputDir,
         verbose: config.verbose,
         overwrite: config.overwrite,
-        validate: config.validate,
         cache: config.cache,
     });
 

@@ -92,7 +92,6 @@ export const generateCommand: CommandModule<Record<string, unknown>, GenerateArg
                 outputDir: config.outputDir || "./generated",
                 verbose,
                 overwrite: config.overwrite ?? true,
-                validate: config.validate ?? true,
                 cache: config.cache ?? true,
                 typeSchemaConfig: config.typeSchema,
                 logger,

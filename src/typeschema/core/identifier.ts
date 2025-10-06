@@ -83,15 +83,14 @@ export function mkValueSetIdentifierByUrl(register: Register, fullValueSetUrl: C
         url: valueSetUrl,
     };
     const valueSet: RichValueSet = register.resolveVs(valueSetUrl) || valuesSetFallback;
-
     // NOTE: ignore valueSet.name due to human name
     const valueSetName: Name =
         valueSet?.id && !/^[a-zA-Z0-9_-]{20,}$/.test(valueSet.id) ? (valueSet.id as Name) : valueSetNameFallback;
 
     return {
         kind: "value-set",
-        package: valueSet?.package_meta.name,
-        version: valueSet?.package_meta.version,
+        package: valueSet.package_meta.name,
+        version: valueSet.package_meta.version,
         name: valueSetName,
         url: valueSetUrl,
     };

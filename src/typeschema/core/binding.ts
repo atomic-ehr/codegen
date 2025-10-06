@@ -98,7 +98,7 @@ export function buildEnum(register: Register, element: FHIRSchemaElement): strin
 
     if (codes.length > MAX_ENUM_LENGTH) {
         console.warn(
-            `Value set ${valueSetUrl} has more than ${MAX_ENUM_LENGTH} codes, which may cause issues with code generation.`,
+            `Value set ${valueSetUrl} has ${codes.length} which is more than ${MAX_ENUM_LENGTH} codes, which may cause issues with code generation.`,
         );
         return undefined;
     }

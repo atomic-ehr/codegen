@@ -15,7 +15,7 @@ import type { Register } from "@typeschema/register";
 import { registerFromManager } from "@typeschema/register";
 import { TypeSchemaCache } from "./cache";
 import { transformFhirSchema, transformValueSet } from "./core/transformer";
-import type { PackageMeta, TypeSchema, TypeschemaGeneratorOptions } from "./types";
+import type { PackageMeta, RichValueSet, TypeSchema, TypeschemaGeneratorOptions } from "./types";
 
 /**
  * TypeSchema Generator class
@@ -90,10 +90,12 @@ export class TypeSchemaGenerator {
         return fhirSchemas;
     }
 
-    async generateValueSetSchemas(valueSets: any[], _packageInfo: PackageMeta): Promise<TypeSchema[]> {
+    async generateValueSetSchemas(valueSets: RichValueSet[]): Promise<TypeSchema[]> {
         if (valueSets.length > 0) {
             this.logger.debug(`${valueSets.length} ValueSets available for enum extraction`);
         }
+
+        const register = await registerFromManager(this.manager);
 
         // Process ValueSets separately to add to TypeSchema output
         const valueSetSchemas: TypeSchema[] = [];
@@ -105,7 +107,7 @@ export class TypeSchemaGenerator {
 
             for (const vs of valueSets) {
                 try {
-                    const valueSetSchema = await transformValueSet(await registerFromManager(this.manager), vs);
+                    const valueSetSchema = await transformValueSet(register, vs);
                     if (valueSetSchema) {
                         valueSetSchemas.push(valueSetSchema);
                         valueSetConvertedCount++;
@@ -145,10 +147,12 @@ export class TypeSchemaGenerator {
         };
 
         const register = await this.registerFromPackageMetas([packageInfo]);
-        const allSchemas = [
-            ...(await Promise.all(register.allFs().map(async (fs) => await transformFhirSchema(register, fs)))).flat(),
-            ...(await this.generateValueSetSchemas(register.allVs(), packageInfo)),
-        ];
+        const valueSets = await this.generateValueSetSchemas(register.allVs());
+        const fhirSchemas = (
+            await Promise.all(register.allFs().map(async (fs) => await transformFhirSchema(register, fs)))
+        ).flat();
+        const allSchemas = [...fhirSchemas, ...valueSets];
+        console.debug(111);
 
         if (this.cache) {
             for (const schema of allSchemas) {
