@@ -34,6 +34,7 @@
   ],
   "scripts": {
     "test": "bun test",
+    "test:short-logs": "FORCE_COLOR=true bun test 2>&1 | grep -v '✓' | grep -v '^$' | grep -v '(pass)'",
     "test:unit": "bun test test/unit/",
     "test:integration": "bun test test/integration/",
     "test:performance": "bun test test/performance/",
@@ -71,6 +72,7 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
+    "@atomic-ehr/codegen": "^0.0.1-canary.20250808231821.ab61009",
     "@atomic-ehr/fhir-canonical-manager": "0.0.11-canary.355d62d.20250926143544",
     "@atomic-ehr/fhirschema": "^0.0.2",
     "@inquirer/prompts": "^7.8.1",

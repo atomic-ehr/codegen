@@ -9,8 +9,21 @@ import {
     EnhancedTemplateError,
 } from "../../../../../src/api/generators/base/enhanced-errors";
 import { ErrorHandler, GeneratorErrorBoundary } from "../../../../../src/api/generators/base/error-handler";
-import { MockLogger } from "../../../../helpers/mock-generators";
+// import { MockLogger } from "../../../../helpers/mock-generators";
+import { CodegenLogger } from "../../../../../src/utils/codegen-logger";
 import { createMockSchema } from "../../../../helpers/schema-helpers";
+import {LogLevel} from "@root/logger";
+
+class MockLogger extends CodegenLogger{
+    constructor() {
+        super({
+            prefix: "TEST",
+            timestamp: false,
+            verbose: true,
+            suppressLoggingLevel: [LogLevel.ERROR]
+            });
+    }
+}
 
 describe("Enhanced Error Handling", () => {
     describe("EnhancedSchemaValidationError", () => {
@@ -172,7 +185,7 @@ describe("Enhanced Error Handling", () => {
             logger = new MockLogger();
             handler = new ErrorHandler({
                 logger: logger as any,
-                outputFormat: "console",
+                outputFormat: "this.options.logger",
                 verbose: true,
             });
         });

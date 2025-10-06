@@ -17,7 +17,7 @@ export interface ErrorHandlerOptions {
     logger: CodegenLogger;
     verbose?: boolean;
     beginnerMode?: boolean;
-    outputFormat?: "console" | "json" | "structured";
+    outputFormat?: "this.options.logger" | "json" | "structured";
 }
 
 /**
@@ -76,25 +76,25 @@ export class ErrorHandler {
         this.options.logger.error("Unexpected error occurred:", error);
 
         if (this.options.verbose) {
-            console.error("\n🚨 Unexpected Error Details:");
-            console.error(`   Type: ${error.constructor.name}`);
-            console.error(`   Message: ${error.message}`);
+            this.options.logger.error("\n🚨 Unexpected Error Details:");
+            this.options.logger.error(`   Type: ${error.constructor.name}`);
+            this.options.logger.error(`   Message: ${error.message}`);
             if (error.stack) {
-                console.error(`   Stack: ${error.stack}`);
+                this.options.logger.error(`   Stack: ${error.stack}`);
             }
             if (context?.schema) {
-                console.error(`   Schema: ${context.schema.identifier.name}`);
+                this.options.logger.error(`   Schema: ${context.schema.identifier.name}`);
             }
             if (context?.filename) {
-                console.error(`   File: ${context.filename}`);
+                this.options.logger.error(`   File: ${context.filename}`);
             }
         }
 
-        console.error("\n💡 General troubleshooting suggestions:");
-        console.error("   • Run with --verbose flag for more details");
-        console.error("   • Check your input files for corruption");
-        console.error("   • Update to the latest version of atomic-codegen");
-        console.error("   • Report this issue at: https://github.com/atomic-ehr/codegen/issues");
+        this.options.logger.error("\n💡 General troubleshooting suggestions:");
+        this.options.logger.error("   • Run with --verbose flag for more details");
+        this.options.logger.error("   • Check your input files for corruption");
+        this.options.logger.error("   • Update to the latest version of atomic-codegen");
+        this.options.logger.error("   • Report this issue at: https://github.com/atomic-ehr/codegen/issues");
     }
 
     /**
@@ -102,22 +102,22 @@ export class ErrorHandler {
      */
     private reportErrorToConsole(error: GeneratorError): void {
         if ("getFormattedMessage" in error) {
-            console.error((error as any).getFormattedMessage());
+            this.options.logger.error((error as any).getFormattedMessage());
         } else {
-            console.error(`\n❌ ${error.constructor.name}: ${error.message}`);
+            this.options.logger.error(`\n❌ ${error.constructor.name}: ${error.message}`);
 
             const suggestions = error.getSuggestions();
             if (suggestions.length > 0) {
-                console.error("\n💡 Suggestions:");
+                this.options.logger.error("\n💡 Suggestions:");
                 suggestions.forEach((suggestion) => {
-                    console.error(`   • ${suggestion}`);
+                    this.options.logger.error(`   • ${suggestion}`);
                 });
             }
         }
 
         if (this.options.verbose && error.context) {
-            console.error("\n🔍 Debug Information:");
-            console.error(JSON.stringify(error.context, null, 2));
+            this.options.logger.error("\n🔍 Debug Information:");
+            this.options.logger.error(JSON.stringify(error.context, null, 2));
         }
     }
 
@@ -134,7 +134,7 @@ export class ErrorHandler {
             timestamp: new Date().toISOString(),
         };
 
-        console.error(JSON.stringify(errorData, null, 2));
+        this.options.logger.error(JSON.stringify(errorData, null, 2));
     }
 
     /**
@@ -152,17 +152,17 @@ export class ErrorHandler {
             actions: this.getRecoveryActions(error),
         };
 
-        console.error("---");
-        console.error("Error Report:");
-        console.error(JSON.stringify(structure, null, 2));
-        console.error("---");
+        this.options.logger.error("---");
+        this.options.logger.error("Error Report:");
+        this.options.logger.error(JSON.stringify(structure, null, 2));
+        this.options.logger.error("---");
     }
 
     /**
      * Report multiple errors efficiently
      */
     private reportBatchErrors(errors: GeneratorError[]): void {
-        console.error(`\n❌ ${errors.length} errors occurred during generation:`);
+        this.options.logger.error(`\n❌ ${errors.length} errors occurred during generation:`);
 
         // Group errors by type
         const errorGroups = new Map<string, GeneratorError[]>();
@@ -176,21 +176,21 @@ export class ErrorHandler {
 
         // Report each group
         for (const [type, groupErrors] of errorGroups) {
-            console.error(`\n📋 ${type} (${groupErrors.length} occurrences):`);
+            this.options.logger.error(`\n📋 ${type} (${groupErrors.length} occurrences):`);
 
             groupErrors.forEach((error, index) => {
-                console.error(`   ${index + 1}. ${error.message}`);
+                this.options.logger.error(`   ${index + 1}. ${error.message}`);
                 if (error.context?.schemaName) {
-                    console.error(`      Schema: ${error.context.schemaName}`);
+                    this.options.logger.error(`      Schema: ${error.context.schemaName}`);
                 }
             });
 
             // Show common suggestions for this error type
             const commonSuggestions = this.getCommonSuggestions(groupErrors);
             if (commonSuggestions.length > 0) {
-                console.error("\n   💡 Common suggestions:");
+                this.options.logger.error("\n   💡 Common suggestions:");
                 commonSuggestions.forEach((suggestion) => {
-                    console.error(`      • ${suggestion}`);
+                    this.options.logger.error(`      • ${suggestion}`);
                 });
             }
         }

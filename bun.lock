@@ -4,6 +4,7 @@
     "": {
       "name": "@atomic-ehr/codegen",
       "dependencies": {
+        "@atomic-ehr/codegen": "^0.0.1-canary.20250808231821.ab61009",
         "@atomic-ehr/fhir-canonical-manager": "0.0.11-canary.355d62d.20250926143544",
         "@atomic-ehr/fhirschema": "^0.0.2",
         "@inquirer/prompts": "^7.8.1",
@@ -24,6 +25,8 @@
     },
   },
   "packages": {
+    "@atomic-ehr/codegen": ["@atomic-ehr/codegen@0.0.1-canary.20250808231821.ab61009", "", { "dependencies": { "@atomic-ehr/fhir-canonical-manager": "^0.0.10", "@atomic-ehr/fhirschema": "^0.0.2", "@inquirer/prompts": "^7.0.0", "ajv": "^8.17.1", "ora": "^8.1.0", "picocolors": "^1.0.0", "yargs": "^18.0.0" }, "bin": { "atomic-codegen": "dist/cli/index.ts" } }, "sha512-n/8FPkMTD8QdTPz0vZ/U0TYxRaGf85UaycNxpEWs4D3v3WFa2xQKXVGmZYQUl0Jkm8KB9N0xWg1iXchrRTZfUg=="],
+
     "@atomic-ehr/fhir-canonical-manager": ["@atomic-ehr/fhir-canonical-manager@0.0.11-canary.355d62d.20250926143544", "", { "peerDependencies": { "typescript": "^5" }, "bin": { "fcm": "dist/cli/index.js" } }, "sha512-3FOfV7yyPhkcQ5ug+uE7ESp2ZmM2nVTEI73geOT5uqqi3lBd+G22tZA/HVUaPm2mTbcjQ0KWERG1J+3qxzoB1g=="],
 
     "@atomic-ehr/fhirschema": ["@atomic-ehr/fhirschema@0.0.2", "", { "peerDependencies": { "typescript": "^5" } }, "sha512-OA4CVjTUEdw43Efg5I5rj95je4GC3lRiLM/kUqadcK3Po24vnINUsB8YdOP/F3ffdUYKQcJ+z09sWQVeAC2z/A=="],
@@ -191,6 +194,8 @@
     "yargs-parser": ["yargs-parser@22.0.0", "", {}, "sha512-rwu/ClNdSMpkSrUb+d6BRsSkLUq1fmfsY6TOpYzTwvwkg1/NRG85KBy3kq++A8LKQwX6lsu+aWad+2khvuXrqw=="],
 
     "yoctocolors-cjs": ["yoctocolors-cjs@2.1.2", "", {}, "sha512-cYVsTjKl8b+FrnidjibDWskAv7UKOfcwaVZdp/it9n1s9fU3IkgDbhdIRKCW4JDsAlECJY0ytoVPT3sK6kideA=="],
+
+    "@atomic-ehr/codegen/@atomic-ehr/fhir-canonical-manager": ["@atomic-ehr/fhir-canonical-manager@0.0.10", "", { "peerDependencies": { "typescript": "^5" }, "bin": { "fcm": "dist/cli/index.js" } }, "sha512-c4iItoLkNy3zt50rx90RmBatF40jz2PxLfxTpHn25Ka7s0YtNKlQ6SZF13khcvszCYEPOPXDxRoU/hcYd0uzqg=="],
 
     "@inquirer/core/wrap-ansi": ["wrap-ansi@6.2.0", "", { "dependencies": { "ansi-styles": "^4.0.0", "string-width": "^4.1.0", "strip-ansi": "^6.0.0" } }, "sha512-r6lPcBGxZXlIcymEu7InxDMhdW0KDxpLgoFLcguasxCaJ/SOIZwINatK9KY/tf+ZrlywOKU0UDj3ATXUBfxJXA=="],
 

@@ -1,6 +1,5 @@
 # Bun Configuration
 [test]
-preload = ["./test/setup.ts"]
 # Test files patterns
 testPathIgnorePatterns = ["node_modules", "dist", ".typeschema-cache"]
 
