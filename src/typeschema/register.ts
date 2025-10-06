@@ -19,74 +19,81 @@ export type Register = {
     resolveAny(canonicalUrl: CanonicalUrl): any | undefined;
 } & ReturnType<typeof CanonicalManager>;
 
-// FIXME: working with multiple packages
-
 export const registerFromManager = async (
     manager: ReturnType<typeof CanonicalManager>,
     logger?: CodegenLogger,
-    packageInfo?: PackageMeta,
 ): Promise<Register> => {
-    const resources = await manager.search({});
-
-    const any = {} as Record<CanonicalUrl, any>;
-    for (const resource of resources) {
-        const url = resource.url as CanonicalUrl;
-        if (!url) continue;
-        any[url] = resource;
-    }
-
-    const structureDefinitions = {} as Record<CanonicalUrl, StructureDefinition>;
-    for (const resource of resources) {
-        if (resource.resourceType === "StructureDefinition") {
-            const url = resource.url! as CanonicalUrl;
-            structureDefinitions[url] = resource as StructureDefinition;
+    const packages = await manager.packages();
+    const flatRawIndex: Record<CanonicalUrl, any> = {};
+    const indexByPackages = [] as {
+        package_meta: PackageMeta;
+        index: Record<CanonicalUrl, any>;
+    }[];
+    for (const pkg of packages) {
+        const resources = await manager.search({ package: pkg });
+        const index = {} as Record<CanonicalUrl, any>;
+        for (const resource of resources) {
+            const url = resource.url as CanonicalUrl;
+            if (!url) continue;
+            index[url] = resource;
+            flatRawIndex[url] = resource;
         }
+        indexByPackages.push({
+            package_meta: pkg,
+            index: index,
+        });
     }
 
-    const fhirSchemas = {} as Record<CanonicalUrl, RichFHIRSchema>;
-    const nameDict = {} as Record<Name, CanonicalUrl>;
-    let [success, failed] = [0, 0];
+    const sdIndex = {} as Record<CanonicalUrl, StructureDefinition>;
+    const vsIndex = {} as Record<string, RichValueSet>;
+    const fsIndex = {} as Record<CanonicalUrl, RichFHIRSchema>;
+    const nameToCanonical = {} as Record<Name, CanonicalUrl>;
+    let [fsSuccess, fsFailed] = [0, 0];
 
-    for (const sd of Object.values(structureDefinitions)) {
-        try {
-            const rfs = enrichFHIRSchema(fhirschema.translate(sd), packageInfo);
-            fhirSchemas[rfs.url] = rfs;
-            nameDict[rfs.name] = rfs.url;
-            success++;
-        } catch (error) {
-            logger?.warn(
-                `Failed to convert StructureDefinition ${sd.name || sd.id}: ${error instanceof Error ? error.message : String(error)}`,
-            );
-            failed++;
-        }
-        logger?.success(
-            `FHIR Schema conversion completed: ${success}/${Object.values(structureDefinitions).length} successful, ${failed} failed`,
-        );
-    }
-
-    const valueSets = {} as Record<string, RichValueSet>;
-    for (const resource of resources) {
-        if (resource.resourceType === "ValueSet") {
-            if (!resource.package_meta) {
-                resource.package_meta = packageInfo;
+    for (const resourcesByPackage of indexByPackages) {
+        const packageMeta = resourcesByPackage.package_meta;
+        for (const [surl, resource] of Object.entries(resourcesByPackage.index)) {
+            const url = surl as CanonicalUrl;
+            if (resource.resourceType === "StructureDefinition") {
+                const sd = resource as StructureDefinition;
+                sdIndex[url] = sd;
+                try {
+                    const rfs = enrichFHIRSchema(fhirschema.translate(sd), packageMeta);
+                    fsIndex[rfs.url] = rfs;
+                    nameToCanonical[rfs.name] = rfs.url;
+                    fsSuccess++;
+                } catch (error) {
+                    logger?.warn(
+                        `Failed to convert StructureDefinition ${sd.name || sd.id}: ${error instanceof Error ? error.message : String(error)}`,
+                    );
+                    fsFailed++;
+                }
+                logger?.success(
+                    `FHIR Schema conversion completed: ${fsSuccess}/${Object.values(sdIndex).length} successful, ${fsFailed} failed`,
+                );
             }
-            valueSets[resource.url!] = resource as RichValueSet;
+            if (resource.resourceType === "ValueSet") {
+                if (!resource.package_meta) {
+                    resource.package_meta = packageMeta;
+                }
+                vsIndex[resource.url!] = resource as RichValueSet;
+            }
         }
     }
 
     const complexTypes = {} as Record<string, RichFHIRSchema>;
-    for (const fs of Object.values(fhirSchemas)) {
+    for (const fs of Object.values(fsIndex)) {
         if (fs.kind === "complex-type") {
             complexTypes[fs.url] = fs;
         }
     }
 
     const resolveFsGenealogy = (canonicalUrl: CanonicalUrl) => {
-        let fs = fhirSchemas[canonicalUrl]!;
+        let fs = fsIndex[canonicalUrl]!;
         if (fs === undefined) throw new Error(`Failed to resolve FHIR Schema genealogy for '${canonicalUrl}'`);
         const genealogy = [fs];
         while (fs?.base) {
-            fs = fhirSchemas[fs.base]! || fhirSchemas[nameDict[fs.base as string as Name]!]!;
+            fs = fsIndex[fs.base]! || fsIndex[nameToCanonical[fs.base as string as Name]!]!;
             genealogy.push(fs);
             if (fs === undefined) throw new Error(`Failed to resolve FHIR Schema genealogy for '${canonicalUrl}'`);
         }
@@ -97,19 +104,20 @@ export const registerFromManager = async (
         ...manager,
         appendFs(fs: FHIRSchema) {
             const rfs = enrichFHIRSchema(fs);
-            fhirSchemas[rfs.url] = rfs;
-            nameDict[rfs.name] = rfs.url;
+            fsIndex[rfs.url] = rfs;
+            nameToCanonical[rfs.name] = rfs.url;
         },
-        resolveFs: (canonicalUrl: CanonicalUrl) => fhirSchemas[canonicalUrl],
+        resolveFs: (canonicalUrl: CanonicalUrl) => fsIndex[canonicalUrl],
         resolveFsGenealogy: resolveFsGenealogy,
-        ensureCanonicalUrl: (name: string | Name | CanonicalUrl) => nameDict[name as Name] || (name as CanonicalUrl),
-        allSd: () => Object.values(structureDefinitions),
-        resolveSd: (canonicalUrl: CanonicalUrl) => structureDefinitions[canonicalUrl],
-        allFs: () => Object.values(fhirSchemas),
-        allVs: () => Object.values(valueSets),
-        resolveVs: (canonicalUrl: CanonicalUrl) => valueSets[canonicalUrl],
+        ensureCanonicalUrl: (name: string | Name | CanonicalUrl) =>
+            nameToCanonical[name as Name] || (name as CanonicalUrl),
+        allSd: () => Object.values(sdIndex),
+        resolveSd: (canonicalUrl: CanonicalUrl) => sdIndex[canonicalUrl],
+        allFs: () => Object.values(fsIndex),
+        allVs: () => Object.values(vsIndex),
+        resolveVs: (canonicalUrl: CanonicalUrl) => vsIndex[canonicalUrl],
         complexTypeDict: () => complexTypes,
-        resolveAny: (canonicalUrl: CanonicalUrl) => any[canonicalUrl],
+        resolveAny: (canonicalUrl: CanonicalUrl) => flatRawIndex[canonicalUrl],
     };
 };
 
@@ -124,8 +132,7 @@ export const registerFromPackageMetas = async (
         workingDir: "tmp/fhir",
     });
     await manager.init();
-    // Pass package info from the first package (assuming single package for now)
-    return await registerFromManager(manager, logger, packageMetas[0]);
+    return await registerFromManager(manager, logger);
 };
 
 export const resolveFsElementGenealogy = (genealogy: RichFHIRSchema[], path: string[]): FHIRSchemaElement[] => {
