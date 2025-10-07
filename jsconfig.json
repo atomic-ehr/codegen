@@ -4,7 +4,8 @@
     "paths": {
       "@root/*": ["./src/*"],
       "@typeschema/*": ["./src/typeschema/*"],
-      "@typeschema-test/*": ["./test/unit/typeschema/*"]
+      "@typeschema-test/*": ["./test/unit/typeschema/*"],
+      "@test/*": ["./test/*"]
     }
   },
   "include": ["./src", "./test"],
