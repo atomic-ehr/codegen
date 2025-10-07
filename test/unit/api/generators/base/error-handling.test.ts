@@ -3,27 +3,14 @@
  */
 
 import { beforeEach, describe, expect, test } from "bun:test";
-import { LogLevel } from "@root/logger";
 import {
     EnhancedFileOperationError,
     EnhancedSchemaValidationError,
     EnhancedTemplateError,
-} from "../../../../../src/api/generators/base/enhanced-errors";
-import { ErrorHandler, GeneratorErrorBoundary } from "../../../../../src/api/generators/base/error-handler";
-// import { MockLogger } from "../../../../helpers/mock-generators";
-import { CodegenLogger } from "../../../../../src/utils/codegen-logger";
+} from "@root/api/generators/base/enhanced-errors";
+import { ErrorHandler, GeneratorErrorBoundary } from "@root/api/generators/base/error-handler";
 import { createMockSchema } from "../../../../helpers/schema-helpers";
-
-class MockLogger extends CodegenLogger {
-    constructor() {
-        super({
-            prefix: "",
-            timestamp: false,
-            verbose: true,
-            suppressLoggingLevel: [LogLevel.ERROR],
-        });
-    }
-}
+import { MockLogger } from "../../../../helpers/mock-generators";
 
 describe("Enhanced Error Handling", () => {
     describe("EnhancedSchemaValidationError", () => {

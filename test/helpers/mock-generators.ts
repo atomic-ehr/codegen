@@ -3,8 +3,8 @@
  */
 
 import type { TypeSchema } from "@typeschema/types";
-import { BaseGenerator } from "../../src/api/generators/base/BaseGenerator";
-import type { BaseGeneratorOptions, GeneratedFile, TemplateContext } from "../../src/api/generators/base/types";
+import { BaseGenerator } from "@root/api/generators/base/BaseGenerator";
+import type { BaseGeneratorOptions, GeneratedFile, TemplateContext } from "@root/api/generators/base/types";
 
 /**
  * Mock logger that captures all log messages
