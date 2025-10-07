@@ -5,7 +5,7 @@
  */
 
 import pc from "picocolors";
-import {LogLevel} from "../logger";
+import { LogLevel } from "../logger";
 
 export interface LogOptions {
     prefix?: string;
@@ -34,7 +34,7 @@ export class CodegenLogger {
         [LogLevel.ERROR]: console.error,
         [LogLevel.DEBUG]: console.log,
         [LogLevel.SILENT]: () => {},
-}
+    };
 
     private formatMessage(level: string, message: string, color: (str: string) => string): string {
         const timestamp = this.options.timestamp ? `${pc.gray(new Date().toLocaleTimeString())} ` : "";
@@ -44,14 +44,12 @@ export class CodegenLogger {
 
     private isSuppressed(level: LogLevel): boolean {
         return (
-            this.options.suppressLoggingLevel === "all" ||
-            this.options.suppressLoggingLevel?.includes(level) ||
-            false
+            this.options.suppressLoggingLevel === "all" || this.options.suppressLoggingLevel?.includes(level) || false
         );
     }
 
     private tryWriteToConsole(level: LogLevel, formattedMessage: string): void {
-        if(this.isSuppressed(level)) return;
+        if (this.isSuppressed(level)) return;
         const logFn = CodegenLogger.consoleLevelsMap[level] || console.log;
         logFn(formattedMessage);
     }
@@ -67,7 +65,7 @@ export class CodegenLogger {
      * Error message with X mark
      */
     error(message: string, error?: Error): void {
-        if(this.isSuppressed(LogLevel.ERROR)) return;
+        if (this.isSuppressed(LogLevel.ERROR)) return;
         console.error(this.formatMessage("", message, pc.red));
         if (error && this.options.verbose) {
             console.error(pc.red(`   ${error.message}`));

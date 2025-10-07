@@ -103,7 +103,7 @@ export abstract class BaseGenerator<
             logger: this.logger,
             verbose: this.options.verbose || false,
             beginnerMode: this.options.beginnerMode || false,
-            outputFormat: this.options.errorFormat || "console",
+            outputFormat: "this.options.logger",
         });
 
         this.errorBoundary = new GeneratorErrorBoundary(this.errorHandler);
