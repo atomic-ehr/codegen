@@ -31,9 +31,6 @@
   },
   "include": ["./src", "./test"],
   "exclude": [
-    "./types",
-    "generated",
-    "examples",
     "./test/helpers/schema-helpers.ts",
     "./test/integration/typescript-generation.test.ts",
     "./test/integration/value-set-workflow.test.ts",

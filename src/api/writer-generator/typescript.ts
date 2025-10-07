@@ -44,47 +44,51 @@ const primitiveType2tsType: Record<string, string> = {
     xhtml: "string",
 };
 
-const canonicalToName = (canonical: string | undefined, dropFragment = true) => {
-    if (!canonical) return undefined;
-    let localName = canonical.split("/").pop();
-    if (dropFragment && localName?.includes("#")) {
-        localName = localName.split("#")[0];
-    }
-    if (/^\d/.test(localName ?? "")) {
-        localName = `number_${localName}`;
-    }
-    return localName?.replace(/[- ]/g, "_");
+const tsFhirPackageDir = (name: string): string => {
+    return kebabCase(name);
 };
 
-const tsBaseFileName = (id: Identifier): string => {
+const tsModuleName = (id: Identifier): string => {
     // if (id.kind === "constraint") return `${pascalCase(canonicalToName(id.url) ?? "")}_profile`;
     return pascalCase(id.name);
 };
 
-const tsFileName = (id: Identifier): string => {
-    return `${tsBaseFileName(id)}.ts`;
+const tsModuleFileName = (id: Identifier): string => {
+    return `${tsModuleName(id)}.ts`;
 };
 
-const normalizeName = (n: string): string => {
-    if (n === "extends") {
-        return "extends_";
+const canonicalToName = (canonical: string | undefined, dropFragment = true) => {
+    if (!canonical) return undefined;
+    let localName = canonical.split("/").pop();
+    if (!localName) return undefined;
+    if (dropFragment && localName.includes("#")) {
+        localName = localName.split("#")[0];
     }
-    return n.replace(/[- ]/g, "_");
+    if (!localName) return undefined;
+    if (/^\d/.test(localName)) {
+        localName = `number_${localName}`;
+    }
+    return normalizeTsName(localName);
 };
 
-const resourceName = (id: Identifier): string => {
+const tsResourceName = (id: Identifier): string => {
     // if (id.kind === "constraint") return pascalCase(canonicalToName(id.url) ?? "");
-    return normalizeName(id.name);
+    if (id.kind === "nested") {
+        const url = id.url;
+        const path = canonicalToName(url, false);
+        if (!path) return "";
+        const [resourceName, fragment] = path.split("#");
+        const name = uppercaseFirstLetterOfEach((fragment ?? "").split(".")).join("");
+        return normalizeTsName([resourceName, name].join(""));
+    }
+    return normalizeTsName(id.name);
 };
 
-const deriveNestedSchemaName = (url: string): string => {
-    const path = canonicalToName(url, false);
-    if (!path) {
-        return "";
-    }
-    const [resourceName, fragment] = path.split("#");
-    const name = uppercaseFirstLetterOfEach((fragment ?? "").split(".")).join("");
-    return [resourceName, name].join("");
+const tsFieldName = (n: string): string => normalizeTsName(n);
+
+const normalizeTsName = (n: string): string => {
+    // if (n === "extends") return "extends_";
+    return n.replace(/[- ]/g, "_");
 };
 
 export type TypeScriptOptions = {} & WriterOptions;
@@ -92,8 +96,8 @@ export type TypeScriptOptions = {} & WriterOptions;
 export class TypeScript extends Writer {
     resourceRelatives: TypeRelation[] = [];
 
-    tsImport(tsPackageName: string, ...entities: string[]) {
-        this.lineSM(`import { ${entities.join(", ")} } from '${tsPackageName}'`);
+    tsImportType(tsPackageName: string, ...entities: string[]) {
+        this.lineSM(`import type { ${entities.join(", ")} } from '${tsPackageName}'`);
     }
 
     generateFhirPackageIndexFile(schemas: TypeSchema[]) {
@@ -101,39 +105,20 @@ export class TypeScript extends Writer {
             let exports = schemas
                 .map((schema) => ({
                     identifier: schema.identifier,
-                    tsPackageName: tsBaseFileName(schema.identifier),
-                    resourceName: resourceName(schema.identifier),
+                    tsPackageName: tsModuleName(schema.identifier),
+                    resourceName: tsResourceName(schema.identifier),
                 }))
                 .sort((a, b) => a.resourceName.localeCompare(b.resourceName));
 
-            // FIXME: actually, duplication means internal error...
+            // FIXME: actually, duplication may means internal error...
             exports = Array.from(new Map(exports.map((exp) => [exp.resourceName.toLowerCase(), exp])).values()).sort(
                 (a, b) => a.resourceName.localeCompare(b.resourceName),
             );
 
             for (const exp of exports) {
                 this.debugComment(exp.identifier);
-                this.tsImport(`./${exp.tsPackageName}`, exp.resourceName);
+                this.lineSM(`export type { ${exp.resourceName} } from './${exp.tsPackageName}'`);
             }
-            this.lineSM(`export { ${exports.map((e) => e.resourceName).join(", ")} }`);
-
-            this.line("");
-
-            this.curlyBlock(["export type ResourceTypeMap = "], () => {
-                this.lineSM("User: Record<string, any>");
-                exports.forEach((exp) => {
-                    this.debugComment(exp.identifier);
-                    this.lineSM(`${exp.resourceName}: ${exp.resourceName}`);
-                });
-            });
-            this.lineSM("export type ResourceType = keyof ResourceTypeMap");
-
-            this.squareBlock(["export const resourceList: readonly ResourceType[] = "], () => {
-                exports.forEach((exp) => {
-                    this.debugComment(exp.identifier);
-                    this.line(`'${exp.resourceName}', `);
-                });
-            });
         });
     }
 
@@ -150,13 +135,13 @@ export class TypeScript extends Writer {
                     .filter((dep) => ["nested"].includes(dep.kind))
                     .map((dep) => ({
                         tsPackage: `../${kebabCase(dep.package)}/${pascalCase(canonicalToName(dep.url) ?? "")}`,
-                        name: deriveNestedSchemaName(dep.url),
+                        name: tsResourceName(dep),
                     })),
             ].sort((a, b) => a.name.localeCompare(b.name));
             for (const dep of deps) {
-                this.tsImport(dep.tsPackage, dep.name);
+                this.tsImportType(dep.tsPackage, dep.name);
             }
-
+            this.line();
             // // NOTE: for primitive type extensions
             // const element = this.loader.complexTypes().find((e) => e.identifier.name === "Element");
             // if (
@@ -170,9 +155,24 @@ export class TypeScript extends Writer {
         }
     }
 
+    generateComplexTypeReexports(schema: RegularTypeSchema) {
+        const complexTypeDeps = schema.dependencies
+            ?.filter((dep) => ["complex-type"].includes(dep.kind))
+            .map((dep) => ({
+                tsPackage: `../${kebabCase(dep.package)}/${pascalCase(dep.name)}`,
+                name: uppercaseFirstLetter(dep.name),
+            }));
+        if (complexTypeDeps && complexTypeDeps.length > 0) {
+            for (const dep of complexTypeDeps) {
+                this.lineSM(`export type { ${dep.name} }from '${dep.tsPackage}';`);
+            }
+            this.line();
+        }
+    }
+
     addFieldExtension(fieldName: string, field: RegularField): void {
         if (field.type.kind === "primitive-type") {
-            this.lineSM(`_${normalizeName(fieldName)}?: Element`);
+            this.lineSM(`_${tsFieldName(fieldName)}?: Element`);
         }
     }
 
@@ -181,9 +181,9 @@ export class TypeScript extends Writer {
         if (schema.identifier.name === "Reference") {
             name = "Reference<T extends string = string>";
         } else if (schema.identifier.kind === "nested") {
-            name = normalizeName(deriveNestedSchemaName(schema.identifier.url));
+            name = tsResourceName(schema.identifier);
         } else {
-            name = normalizeName(schema.identifier.name);
+            name = tsResourceName(schema.identifier);
         }
 
         const parent = canonicalToName(schema.base?.url);
@@ -192,9 +192,7 @@ export class TypeScript extends Writer {
         this.debugComment(schema.identifier);
 
         this.curlyBlock(["export", "interface", name, extendsClause], () => {
-            if (!schema.fields) {
-                return;
-            }
+            if (!schema.fields) return;
 
             if (schema.identifier.kind === "resource") {
                 const possibleResourceTypes: Identifier[] = [schema.identifier];
@@ -204,14 +202,13 @@ export class TypeScript extends Writer {
             }
 
             const fields = Object.entries(schema.fields).sort((a, b) => a[0].localeCompare(b[0]));
-
             for (const [fieldName, anyField] of fields) {
                 const field = notChoiceDeclaration(anyField);
                 if (field === undefined) continue;
 
                 this.debugComment(fieldName, ":", field);
 
-                const fieldNameFixed = normalizeName(fieldName);
+                const fieldNameFixed = tsFieldName(fieldName);
                 const optionalSymbol = field.required ? "" : "?";
                 const arraySymbol = field.array ? "[]" : "";
 
@@ -221,7 +218,7 @@ export class TypeScript extends Writer {
                 let type = field.type.name as string;
 
                 if (field.type.kind === "nested") {
-                    type = deriveNestedSchemaName(field.type.url);
+                    type = tsResourceName(field.type);
                 }
 
                 if (field.type.kind === "primitive-type") {
@@ -262,12 +259,12 @@ export class TypeScript extends Writer {
     }
 
     generateResourceModule(schema: TypeSchema) {
-        this.cat(`${tsFileName(schema.identifier)}`, () => {
+        this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
             this.generateDisclaimer();
 
             if (["complex-type", "resource", "logical", "nested"].includes(schema.identifier.kind)) {
                 this.generateDependenciesImports(schema);
-                this.line();
+                this.generateComplexTypeReexports(schema);
                 this.generateNestedTypes(schema);
                 this.generateType(schema);
                 // } else if (schema.identifier.kind === 'constraint') {
@@ -279,20 +276,19 @@ export class TypeScript extends Writer {
     }
 
     override generate(schemas: TypeSchema[]) {
-        this.resourceRelatives = resourceRelatives(schemas);
-
         const typesToGenerate = [
             ...collectComplexTypes(schemas),
             ...collectResources(schemas),
             // ...collectLogicalModels(typeSchemas),
             // ...collectProfiles(typeSchemas),
         ];
+        this.resourceRelatives = resourceRelatives(typesToGenerate);
         const grouped = groupByPackages(typesToGenerate);
 
         this.cd("/", () => {
             for (const [packageName, packageSchemas] of Object.entries(grouped)) {
-                const tsPackageName = kebabCase(packageName);
-                this.cd(tsPackageName, () => {
+                const tsPackageDir = tsFhirPackageDir(packageName);
+                this.cd(tsPackageDir, () => {
                     for (const schema of packageSchemas) {
                         this.generateResourceModule(schema);
                     }
