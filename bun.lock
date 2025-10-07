@@ -192,8 +192,6 @@
 
     "yoctocolors-cjs": ["yoctocolors-cjs@2.1.2", "", {}, "sha512-cYVsTjKl8b+FrnidjibDWskAv7UKOfcwaVZdp/it9n1s9fU3IkgDbhdIRKCW4JDsAlECJY0ytoVPT3sK6kideA=="],
 
-    "@atomic-ehr/codegen/@atomic-ehr/fhir-canonical-manager": ["@atomic-ehr/fhir-canonical-manager@0.0.10", "", { "peerDependencies": { "typescript": "^5" }, "bin": { "fcm": "dist/cli/index.js" } }, "sha512-c4iItoLkNy3zt50rx90RmBatF40jz2PxLfxTpHn25Ka7s0YtNKlQ6SZF13khcvszCYEPOPXDxRoU/hcYd0uzqg=="],
-
     "@inquirer/core/wrap-ansi": ["wrap-ansi@6.2.0", "", { "dependencies": { "ansi-styles": "^4.0.0", "string-width": "^4.1.0", "strip-ansi": "^6.0.0" } }, "sha512-r6lPcBGxZXlIcymEu7InxDMhdW0KDxpLgoFLcguasxCaJ/SOIZwINatK9KY/tf+ZrlywOKU0UDj3ATXUBfxJXA=="],
 
     "bun-types/@types/node": ["@types/node@24.2.0", "", { "dependencies": { "undici-types": "~7.10.0" } }, "sha512-3xyG3pMCq3oYCNg7/ZP+E1ooTaGB4cG8JWRsqqOYQdbWNY4zbaV0Ennrd7stjiJEFZCaybcIgpTjJWHRfBSIDw=="],
