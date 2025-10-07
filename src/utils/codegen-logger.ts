@@ -5,11 +5,13 @@
  */
 
 import pc from "picocolors";
+import { LogLevel } from "../logger";
 
 export interface LogOptions {
     prefix?: string;
     timestamp?: boolean;
     verbose?: boolean;
+    suppressLoggingLevel?: LogLevel[] | "all";
 }
 
 /**
@@ -27,24 +29,45 @@ export class CodegenLogger {
         };
     }
 
+    private static consoleLevelsMap: Record<LogLevel, Function> = {
+        [LogLevel.INFO]: console.log,
+        [LogLevel.WARN]: console.warn,
+        [LogLevel.ERROR]: console.error,
+        [LogLevel.DEBUG]: console.log,
+        [LogLevel.SILENT]: () => {},
+    };
+
     private formatMessage(level: string, message: string, color: (str: string) => string): string {
         const timestamp = this.options.timestamp ? `${pc.gray(new Date().toLocaleTimeString())} ` : "";
         const prefix = this.options.prefix ? `${pc.cyan(`[${this.options.prefix}]`)} ` : "";
         return `${timestamp}${color(level)} ${prefix}${message}`;
     }
 
+    private isSuppressed(level: LogLevel): boolean {
+        return (
+            this.options.suppressLoggingLevel === "all" || this.options.suppressLoggingLevel?.includes(level) || false
+        );
+    }
+
+    private tryWriteToConsole(level: LogLevel, formattedMessage: string): void {
+        if (this.isSuppressed(level)) return;
+        const logFn = CodegenLogger.consoleLevelsMap[level] || console.log;
+        logFn(formattedMessage);
+    }
+
     /**
      * Success message with checkmark
      */
     success(message: string): void {
-        console.log(this.formatMessage("✅", message, pc.green));
+        this.tryWriteToConsole(LogLevel.INFO, this.formatMessage("", message, pc.green));
     }
 
     /**
      * Error message with X mark
      */
     error(message: string, error?: Error): void {
-        console.error(this.formatMessage("❌", message, pc.red));
+        if (this.isSuppressed(LogLevel.ERROR)) return;
+        console.error(this.formatMessage("", message, pc.red));
         if (error && this.options.verbose) {
             console.error(pc.red(`   ${error.message}`));
             if (error.stack) {
@@ -57,7 +80,7 @@ export class CodegenLogger {
      * Warning message with warning sign
      */
     warn(message: string): void {
-        console.warn(this.formatMessage("!", message, pc.yellow));
+        this.tryWriteToConsole(LogLevel.WARN, this.formatMessage("!", message, pc.yellow));
     }
 
     dry_warn(message: string): void {
@@ -71,7 +94,7 @@ export class CodegenLogger {
      * Info message with info icon
      */
     info(message: string): void {
-        console.log(this.formatMessage("i", message, pc.blue));
+        this.tryWriteToConsole(LogLevel.INFO, this.formatMessage("i", message, pc.blue));
     }
 
     /**
@@ -79,7 +102,7 @@ export class CodegenLogger {
      */
     debug(message: string): void {
         if (this.options.verbose) {
-            console.log(this.formatMessage("🐛", message, pc.magenta));
+            this.tryWriteToConsole(LogLevel.DEBUG, this.formatMessage("🐛", message, pc.magenta));
         }
     }
 
@@ -87,14 +110,14 @@ export class CodegenLogger {
      * Step message with rocket
      */
     step(message: string): void {
-        console.log(this.formatMessage("🚀", message, pc.cyan));
+        this.tryWriteToConsole(LogLevel.INFO, this.formatMessage("🚀", message, pc.cyan));
     }
 
     /**
      * Progress message with clock
      */
     progress(message: string): void {
-        console.log(this.formatMessage("⏳", message, pc.blue));
+        this.tryWriteToConsole(LogLevel.INFO, this.formatMessage("⏳", message, pc.blue));
     }
 
     /**
@@ -103,7 +126,7 @@ export class CodegenLogger {
     plain(message: string, color: (str: string) => string = (s) => s): void {
         const timestamp = this.options.timestamp ? `${pc.gray(new Date().toLocaleTimeString())} ` : "";
         const prefix = this.options.prefix ? `${pc.cyan(`[${this.options.prefix}]`)} ` : "";
-        console.log(`${timestamp}${prefix}${color(message)}`);
+        this.tryWriteToConsole(LogLevel.INFO, `${timestamp}${prefix}${color(message)}`);
     }
 
     /**
