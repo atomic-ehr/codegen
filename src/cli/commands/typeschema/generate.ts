@@ -66,7 +66,7 @@ export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, G
         },
     },
     handler: async (argv) => {
-        const log = createLogger({
+        const logger = createLogger({
             verbose: argv.verbose,
             prefix: "TypeSchema",
         });
@@ -75,15 +75,15 @@ export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, G
             // Load configuration from file
             const config = await loadConfig(process.cwd());
 
-            log.step("Generating TypeSchema from FHIR packages");
-            log.info(`Packages: ${argv.packages.join(", ")}`);
-            log.info(`Output: ${argv.output}`);
+            logger.step("Generating TypeSchema from FHIR packages");
+            logger.info(`Packages: ${argv.packages.join(", ")}`);
+            logger.info(`Output: ${argv.output}`);
             // Merge singleFile options: CLI args take precedence over config file
             const singleFileOption =
                 argv.singleFile !== undefined ? argv.singleFile : (config.typeSchema?.singleFile ?? false);
 
             const outputFormat = singleFileOption ? "ndjson" : argv.format;
-            log.debug(
+            logger.debug(
                 `Format: ${outputFormat}${singleFileOption && argv.format === "json" ? " (forced from json due to singleFile)" : ""}`,
             );
 
@@ -92,11 +92,11 @@ export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, G
                 argv.treeshake && argv.treeshake.length > 0 ? argv.treeshake : config.typeSchema?.treeshake;
 
             if (treeshakeOptions && treeshakeOptions.length > 0) {
-                log.info(`Treeshaking enabled for ResourceTypes: ${treeshakeOptions.join(", ")}`);
+                logger.info(`Treeshaking enabled for ResourceTypes: ${treeshakeOptions.join(", ")}`);
             }
 
             if (singleFileOption) {
-                log.info("Single file output enabled (NDJSON format)");
+                logger.info("Single file output enabled (NDJSON format)");
             }
 
             const startTime = Date.now();
@@ -113,9 +113,9 @@ export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, G
             for (const packageSpec of argv.packages) {
                 const [name, version] = packageSpec.includes("@") ? packageSpec.split("@") : [packageSpec, undefined];
 
-                log.progress(`Processing package: ${name}${version ? `@${version}` : ""}`);
+                logger.progress(`Processing package: ${name}${version ? `@${version}` : ""}`);
 
-                const schemas = await generator.generateFromPackage(name, version);
+                const schemas = await generator.generateFromPackage(name, version, logger);
                 allSchemas.push(...schemas);
             }
 
@@ -142,10 +142,10 @@ export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, G
 
             const duration = Date.now() - startTime;
             complete(`Generated ${allSchemas.length} TypeSchema definitions`, duration, { schemas: allSchemas.length });
-            log.dim(`Output: ${outputPath}`);
+            logger.dim(`Output: ${outputPath}`);
 
             if (argv.verbose) {
-                log.debug("Generated schemas:");
+                logger.debug("Generated schemas:");
                 const schemaNames = allSchemas.map(
                     (schema: any) =>
                         `${schema.identifier?.name || "Unknown"} (${schema.identifier?.kind || "unknown"})`,
@@ -153,7 +153,7 @@ export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, G
                 list(schemaNames);
             }
         } catch (error) {
-            log.error("Failed to generate TypeSchema", error instanceof Error ? error : new Error(String(error)));
+            logger.error("Failed to generate TypeSchema", error instanceof Error ? error : new Error(String(error)));
             process.exit(1);
         }
     },

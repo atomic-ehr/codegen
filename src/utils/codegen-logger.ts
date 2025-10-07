@@ -17,6 +17,7 @@ export interface LogOptions {
  */
 export class CodegenLogger {
     private options: LogOptions;
+    private dryWarnSet: Set<string> = new Set();
 
     constructor(options: LogOptions = {}) {
         this.options = {
@@ -56,14 +57,21 @@ export class CodegenLogger {
      * Warning message with warning sign
      */
     warn(message: string): void {
-        console.warn(this.formatMessage("⚠️", message, pc.yellow));
+        console.warn(this.formatMessage("!", message, pc.yellow));
+    }
+
+    dry_warn(message: string): void {
+        if (!this.dryWarnSet.has(message)) {
+            this.warn(message);
+            this.dryWarnSet.add(message);
+        }
     }
 
     /**
      * Info message with info icon
      */
     info(message: string): void {
-        console.log(this.formatMessage("ℹ️", message, pc.blue));
+        console.log(this.formatMessage("i", message, pc.blue));
     }
 
     /**

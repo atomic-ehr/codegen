@@ -5,6 +5,7 @@
  */
 
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
+import type { CodegenLogger } from "@root/utils/codegen-logger";
 import type { Register } from "@typeschema/register";
 import type {
     BindingTypeSchema,
@@ -19,14 +20,22 @@ import type {
 import { buildFieldType } from "./field-builder";
 import { dropVersionFromUrl, mkBindingIdentifier, mkValueSetIdentifierByUrl } from "./identifier";
 
-export function extractValueSetConceptsByUrl(register: Register, valueSetUrl: CanonicalUrl): Concept[] | undefined {
+export function extractValueSetConceptsByUrl(
+    register: Register,
+    valueSetUrl: CanonicalUrl,
+    logger?: CodegenLogger,
+): Concept[] | undefined {
     const cleanUrl = dropVersionFromUrl(valueSetUrl) || valueSetUrl;
     const valueSet = register.resolveVs(cleanUrl as CanonicalUrl);
     if (!valueSet) return undefined;
-    return extractValueSetConcepts(register, valueSet);
+    return extractValueSetConcepts(register, valueSet, logger);
 }
 
-function extractValueSetConcepts(register: Register, valueSet: RichValueSet): Concept[] | undefined {
+function extractValueSetConcepts(
+    register: Register,
+    valueSet: RichValueSet,
+    _logger?: CodegenLogger,
+): Concept[] | undefined {
     if (valueSet.expansion?.contains) return valueSet.expansion.contains;
 
     const concepts = [] as Concept[];
@@ -69,7 +78,11 @@ function extractValueSetConcepts(register: Register, valueSet: RichValueSet): Co
 
 const MAX_ENUM_LENGTH = 100;
 
-export function buildEnum(register: Register, element: FHIRSchemaElement): string[] | undefined {
+export function buildEnum(
+    register: Register,
+    element: FHIRSchemaElement,
+    logger?: CodegenLogger,
+): string[] | undefined {
     if (!element.binding) return undefined;
 
     const strength = element.binding.strength;
@@ -97,7 +110,7 @@ export function buildEnum(register: Register, element: FHIRSchemaElement): strin
         .filter((code) => code && typeof code === "string" && code.trim().length > 0);
 
     if (codes.length > MAX_ENUM_LENGTH) {
-        console.warn(
+        logger?.dry_warn(
             `Value set ${valueSetUrl} has ${codes.length} which is more than ${MAX_ENUM_LENGTH} codes, which may cause issues with code generation.`,
         );
         return undefined;
@@ -110,6 +123,7 @@ function generateBindingSchema(
     fhirSchema: RichFHIRSchema,
     path: string[],
     element: FHIRSchemaElement,
+    logger?: CodegenLogger,
 ): BindingTypeSchema | undefined {
     if (!element.binding?.valueSet) return undefined;
 
@@ -123,7 +137,7 @@ function generateBindingSchema(
     }
     dependencies.push(valueSetIdentifier);
 
-    const enumValues = buildEnum(register, element);
+    const enumValues = buildEnum(register, element, logger);
 
     return {
         identifier,
@@ -135,7 +149,11 @@ function generateBindingSchema(
     };
 }
 
-export function collectBindingSchemas(register: Register, fhirSchema: RichFHIRSchema): BindingTypeSchema[] {
+export function collectBindingSchemas(
+    register: Register,
+    fhirSchema: RichFHIRSchema,
+    logger?: CodegenLogger,
+): BindingTypeSchema[] {
     const processedPaths = new Set<string>();
     if (!fhirSchema.elements) return [];
 
@@ -149,7 +167,7 @@ export function collectBindingSchemas(register: Register, fhirSchema: RichFHIRSc
             processedPaths.add(pathKey);
 
             if (element.binding) {
-                const binding = generateBindingSchema(register, fhirSchema, path, element);
+                const binding = generateBindingSchema(register, fhirSchema, path, element, logger);
                 if (binding) {
                     bindings.push(binding);
                 }

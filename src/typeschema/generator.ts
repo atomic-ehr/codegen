@@ -29,7 +29,7 @@ export class TypeSchemaGenerator {
     private options: TypeschemaGeneratorOptions;
     private cacheConfig?: TypeSchemaConfig;
     private cache?: TypeSchemaCache;
-    private logger: CodegenLogger;
+    private logger?: CodegenLogger;
 
     constructor(options: TypeschemaGeneratorOptions = {}, cacheConfig?: TypeSchemaConfig) {
         this.options = { verbose: false, ...options };
@@ -52,7 +52,7 @@ export class TypeSchemaGenerator {
 
     async registerFromPackageMetas(packageMetas: PackageMeta[]): Promise<Register> {
         const packageNames = packageMetas.map((meta) => `${meta.name}${meta.version}`);
-        this.logger.step(`Loading FHIR packages: ${packageNames.join(", ")}`);
+        this.logger?.step(`Loading FHIR packages: ${packageNames.join(", ")}`);
 
         await this.manager.init();
 
@@ -60,7 +60,7 @@ export class TypeSchemaGenerator {
     }
 
     generateFhirSchemas(structureDefinitions: StructureDefinition[]): FHIRSchema[] {
-        this.logger.progress(`Converting ${structureDefinitions.length} StructureDefinitions to FHIRSchemas`);
+        this.logger?.progress(`Converting ${structureDefinitions.length} StructureDefinitions to FHIRSchemas`);
 
         // TODO: do it on the TypeSchema?
         const filteredStructureDefinitions = this.applyStructureDefinitionTreeshaking(structureDefinitions);
@@ -75,66 +75,70 @@ export class TypeSchemaGenerator {
                 fhirSchemas.push(fhirSchema);
                 convertedCount++;
 
-                this.logger.debug(`Converted StructureDefinition: ${sd.name || sd.id} (${sd.resourceType})`);
+                this.logger?.debug(`Converted StructureDefinition: ${sd.name || sd.id} (${sd.resourceType})`);
             } catch (error) {
                 failedCount++;
-                this.logger.warn(
+                this.logger?.warn(
                     `Failed to convert StructureDefinition ${sd.name || sd.id}: ${error instanceof Error ? error.message : String(error)}`,
                 );
             }
         }
 
-        this.logger.success(
+        this.logger?.success(
             `FHIR Schema conversion completed: ${convertedCount}/${filteredStructureDefinitions.length} successful, ${failedCount} failed`,
         );
         return fhirSchemas;
     }
 
-    async generateValueSetSchemas(valueSets: RichValueSet[]): Promise<TypeSchema[]> {
+    async generateValueSetSchemas(valueSets: RichValueSet[], logger?: CodegenLogger): Promise<TypeSchema[]> {
         if (valueSets.length > 0) {
-            this.logger.debug(`${valueSets.length} ValueSets available for enum extraction`);
+            this.logger?.debug(`${valueSets.length} ValueSets available for enum extraction`);
         }
 
-        const register = await registerFromManager(this.manager);
+        const register = await registerFromManager(this.manager, logger);
 
         // Process ValueSets separately to add to TypeSchema output
         const valueSetSchemas: TypeSchema[] = [];
         if (valueSets.length > 0) {
-            this.logger.progress(`Converting ${valueSets.length} ValueSets to TypeSchema`);
+            this.logger?.progress(`Converting ${valueSets.length} ValueSets to TypeSchema`);
 
             let valueSetConvertedCount = 0;
             let valueSetFailedCount = 0;
 
             for (const vs of valueSets) {
                 try {
-                    const valueSetSchema = await transformValueSet(register, vs);
+                    const valueSetSchema = await transformValueSet(register, vs, logger);
                     if (valueSetSchema) {
                         valueSetSchemas.push(valueSetSchema);
                         valueSetConvertedCount++;
 
-                        this.logger.debug(`Converted ValueSet: ${vs.name || vs.id}`);
+                        this.logger?.debug(`Converted ValueSet: ${vs.name || vs.id}`);
                     }
                 } catch (error) {
                     valueSetFailedCount++;
-                    this.logger.warn(
+                    this.logger?.warn(
                         `Failed to convert ValueSet ${vs.name || vs.id}: ${error instanceof Error ? error.message : String(error)}`,
                     );
                 }
             }
 
-            this.logger.success(
+            this.logger?.success(
                 `ValueSet conversion completed: ${valueSetConvertedCount}/${valueSets.length} successful, ${valueSetFailedCount} failed`,
             );
         }
         return valueSetSchemas;
     }
 
-    async generateFromPackage(packageName: string, packageVersion?: string): Promise<TypeSchema[]> {
+    async generateFromPackage(
+        packageName: string,
+        packageVersion: string | undefined,
+        logger?: CodegenLogger,
+    ): Promise<TypeSchema[]> {
         await this.initializeCache();
         if (this.cache && !(this.cacheConfig?.forceRegenerate ?? false)) {
             const cachedSchemas = this.cache.getByPackage(packageName);
             if (cachedSchemas.length > 0) {
-                this.logger.info(
+                this.logger?.info(
                     `Using cached TypeSchemas for package: ${packageName} (${cachedSchemas.length} schemas)`,
                 );
                 return cachedSchemas;
@@ -147,12 +151,11 @@ export class TypeSchemaGenerator {
         };
 
         const register = await this.registerFromPackageMetas([packageInfo]);
-        const valueSets = await this.generateValueSetSchemas(register.allVs());
+        const valueSets = await this.generateValueSetSchemas(register.allVs(), logger);
         const fhirSchemas = (
-            await Promise.all(register.allFs().map(async (fs) => await transformFhirSchema(register, fs)))
+            await Promise.all(register.allFs().map(async (fs) => await transformFhirSchema(register, fs, logger)))
         ).flat();
         const allSchemas = [...fhirSchemas, ...valueSets];
-        console.debug(111);
 
         if (this.cache) {
             for (const schema of allSchemas) {
@@ -174,7 +177,7 @@ export class TypeSchemaGenerator {
             return structureDefinitions;
         }
 
-        this.logger.info(`Applying treeshaking filter for ResourceTypes: ${treeshakeList.join(", ")}`);
+        this.logger?.info(`Applying treeshaking filter for ResourceTypes: ${treeshakeList.join(", ")}`);
 
         const allStructureDefinitions = new Map<string, any>();
         const realDependencies = new Map<string, Set<string>>();
@@ -204,7 +207,7 @@ export class TypeSchemaGenerator {
             if (allStructureDefinitions.has(resourceType)) {
                 structureDefinitionsToKeep.add(resourceType);
             } else {
-                this.logger.warn(`ResourceType '${resourceType}' not found in structure definitions`);
+                this.logger?.warn(`ResourceType '${resourceType}' not found in structure definitions`);
             }
         }
 
@@ -248,10 +251,10 @@ export class TypeSchemaGenerator {
         }
 
         if (excludedReferenceTargets.size > 0) {
-            this.logger.info(`Excluded reference-only targets: ${Array.from(excludedReferenceTargets).join(", ")}`);
+            this.logger?.info(`Excluded reference-only targets: ${Array.from(excludedReferenceTargets).join(", ")}`);
         }
 
-        this.logger.success(
+        this.logger?.success(
             `Treeshaking completed: kept ${filteredStructureDefinitions.length}/${structureDefinitions.length} structure definitions`,
         );
 

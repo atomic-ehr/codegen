@@ -145,7 +145,7 @@ export interface ProfileMetadata {
     package?: string;
 }
 
-interface RegularTypeSchema {
+export interface RegularTypeSchema {
     // TODO: restrict to ResourceIdentifier | ComplexTypeIdentifier | LogicalIdentifier
     identifier: Identifier;
     base?: Identifier;
@@ -176,7 +176,7 @@ export interface ChoiceFieldDeclaration {
     max?: number;
 }
 
-interface ChoiceFieldInstance {
+export interface ChoiceFieldInstance {
     choiceOf: string;
     type: Identifier;
     required?: boolean;

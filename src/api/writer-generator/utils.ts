@@ -29,14 +29,11 @@ export const snakeCase = (s: string) => {
         .join("_");
 };
 
-export const canonicalToName = (canonical: string | undefined) => {
-    if (!canonical) return undefined;
-    let localName = canonical.split("/").pop();
-    if (localName?.includes("#")) {
-        localName = localName.split("#")[0];
-    }
-    if (/^\d/.test(localName ?? "")) {
-        localName = `number_${localName}`;
-    }
-    return localName;
+export const uppercaseFirstLetter = (str: string): string => {
+    if (!str || str.length === 0) return str;
+    return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+export const uppercaseFirstLetterOfEach = (strings: string[]): string[] => {
+    return strings.map((str) => uppercaseFirstLetter(str));
 };

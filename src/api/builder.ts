@@ -194,7 +194,7 @@ export class APIBuilder {
         const writerOpts = {
             outputDir: Path.join(this.options.outputDir, "/types"),
             tabSize: 2,
-            withDebugComment: true,
+            withDebugComment: false,
             commentLinePrefix: "//",
         };
         const effectiveOpts = { logger: this.logger, ...writerOpts, ...opts };
@@ -261,7 +261,7 @@ export class APIBuilder {
             });
             await manager.init();
             const register = await registerFromManager(manager, this.logger);
-            const typeSchemas = await generateTypeSchemas(register);
+            const typeSchemas = await generateTypeSchemas(register, this.logger);
 
             this.logger.debug(`Executing ${this.generators.size} generators`);
 

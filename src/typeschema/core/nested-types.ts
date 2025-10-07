@@ -6,6 +6,7 @@
 
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
+import type { CodegenLogger } from "@root/utils/codegen-logger";
 import type { CanonicalUrl, Field, Identifier, Name, NestedType, RichFHIRSchema } from "../types";
 import { isNestedElement, mkField, mkNestedField } from "./field-builder";
 import { mkNestedIdentifier } from "./identifier";
@@ -37,6 +38,7 @@ function transformNestedElements(
     parentPath: string[],
     elements: Record<string, FHIRSchemaElement>,
     register: Register,
+    logger?: CodegenLogger,
 ): Record<string, Field> {
     const fields: Record<string, Field> = {};
 
@@ -46,14 +48,18 @@ function transformNestedElements(
         if (isNestedElement(element)) {
             fields[key] = mkNestedField(register, fhirSchema, path, element);
         } else {
-            fields[key] = mkField(register, fhirSchema, path, element);
+            fields[key] = mkField(register, fhirSchema, path, element, logger);
         }
     }
 
     return fields;
 }
 
-export function mkNestedTypes(register: Register, fhirSchema: RichFHIRSchema): NestedType[] | undefined {
+export function mkNestedTypes(
+    register: Register,
+    fhirSchema: RichFHIRSchema,
+    logger?: CodegenLogger,
+): NestedType[] | undefined {
     if (!fhirSchema.elements) return undefined;
 
     const nestedElements = collectNestedElements(fhirSchema, [], fhirSchema.elements);
@@ -89,7 +95,7 @@ export function mkNestedTypes(register: Register, fhirSchema: RichFHIRSchema): N
             };
         }
 
-        const fields = transformNestedElements(fhirSchema, path, element.elements!, register);
+        const fields = transformNestedElements(fhirSchema, path, element.elements!, register, logger);
 
         const nestedType: NestedType = {
             identifier,

@@ -6,6 +6,7 @@
 
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
+import type { CodegenLogger } from "@root/utils/codegen-logger";
 import type { BindingIdentifier, Field, Identifier, Name, PackageMeta, RegularField, RichFHIRSchema } from "../types";
 import { buildEnum } from "./binding";
 import { mkBindingIdentifier, mkIdentifier, mkNestedIdentifier } from "./identifier";
@@ -99,6 +100,7 @@ export const mkField = (
     fhirSchema: RichFHIRSchema,
     path: string[],
     element: FHIRSchemaElement,
+    logger?: CodegenLogger,
 ): Field => {
     let binding: BindingIdentifier | undefined;
     let enumValues: string[] | undefined;
@@ -106,7 +108,7 @@ export const mkField = (
         binding = mkBindingIdentifier(fhirSchema, path, element.binding.bindingName);
 
         if (element.binding.strength === "required" && element.type === "code") {
-            enumValues = buildEnum(register, element);
+            enumValues = buildEnum(register, element, logger);
         }
     }
 

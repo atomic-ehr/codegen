@@ -5,6 +5,7 @@
  */
 
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
+import type { CodegenLogger } from "@root/utils/codegen-logger";
 import { fsElementSnapshot, type Register, resolveFsElementGenealogy } from "@typeschema/register";
 import type {
     Field,
@@ -16,7 +17,7 @@ import type {
     ValueSetTypeSchema,
 } from "@typeschema/types";
 import { transformProfile } from "../profile/processor";
-import type { CanonicalUrl, Name, PackageMeta } from "../types";
+import type { CanonicalUrl, Name } from "../types";
 import { collectBindingSchemas, extractValueSetConceptsByUrl } from "./binding";
 import { isNestedElement, mkField, mkNestedField } from "./field-builder";
 import { mkIdentifier, mkValueSetIdentifierByUrl } from "./identifier";
@@ -27,6 +28,7 @@ export function mkFields(
     fhirSchema: RichFHIRSchema,
     parentPath: string[],
     elements: Record<string, FHIRSchemaElement> | undefined,
+    logger?: CodegenLogger,
 ): Record<string, Field> | undefined {
     if (!elements) return undefined;
     const geneology = register.resolveFsGenealogy(fhirSchema.url);
@@ -62,7 +64,7 @@ export function mkFields(
         if (isNestedElement(elemSnapshot)) {
             fields[key] = mkNestedField(register, fhirSchema, path, elemSnapshot);
         } else {
-            fields[key] = mkField(register, fhirSchema, path, elemSnapshot);
+            fields[key] = mkField(register, fhirSchema, path, elemSnapshot, logger);
         }
     }
 
@@ -129,11 +131,15 @@ function isExtensionSchema(fhirSchema: FHIRSchema, _identifier: Identifier): boo
     return false;
 }
 
-export async function transformValueSet(register: Register, valueSet: RichValueSet): Promise<ValueSetTypeSchema> {
+export async function transformValueSet(
+    register: Register,
+    valueSet: RichValueSet,
+    logger?: CodegenLogger,
+): Promise<ValueSetTypeSchema> {
     if (!valueSet.url) throw new Error("ValueSet URL is required");
 
     const identifier = mkValueSetIdentifierByUrl(register, valueSet.url);
-    const concept = extractValueSetConceptsByUrl(register, valueSet.url);
+    const concept = extractValueSetConceptsByUrl(register, valueSet.url, logger);
     return {
         identifier: identifier,
         description: valueSet.description,
@@ -148,7 +154,7 @@ export async function transformValueSet(register: Register, valueSet: RichValueS
 async function transformExtension(
     fhirSchema: RichFHIRSchema,
     register: Register,
-    _packageInfo?: PackageMeta,
+    logger?: CodegenLogger,
 ): Promise<any | null> {
     try {
         const identifier = mkIdentifier(fhirSchema);
@@ -196,7 +202,7 @@ async function transformExtension(
 
         // Transform elements into fields if present
         if (fhirSchema.elements) {
-            const fields = mkFields(register, fhirSchema, [], fhirSchema.elements);
+            const fields = mkFields(register, fhirSchema, [], fhirSchema.elements, logger);
 
             if (fields && Object.keys(fields).length > 0) {
                 extensionSchema.fields = fields;
@@ -205,7 +211,7 @@ async function transformExtension(
         }
 
         // Build nested types
-        const nestedTypes = mkNestedTypes(register, fhirSchema);
+        const nestedTypes = mkNestedTypes(register, fhirSchema, logger);
         if (nestedTypes && nestedTypes.length > 0) {
             extensionSchema.nested = nestedTypes;
             extensionSchema.dependencies.push(...extractNestedDependencies(nestedTypes));
@@ -250,7 +256,11 @@ function extractDependencies(
     return result.length > 0 ? result : undefined;
 }
 
-function transformFhirSchemaResource(register: Register, fhirSchema: RichFHIRSchema): TypeSchema[] {
+function transformFhirSchemaResource(
+    register: Register,
+    fhirSchema: RichFHIRSchema,
+    logger?: CodegenLogger,
+): TypeSchema[] {
     const identifier = mkIdentifier(fhirSchema);
 
     let base: Identifier | undefined;
@@ -262,8 +272,8 @@ function transformFhirSchemaResource(register: Register, fhirSchema: RichFHIRSch
         base = mkIdentifier(baseFs);
     }
 
-    const fields = mkFields(register, fhirSchema, [], fhirSchema.elements);
-    const nested = mkNestedTypes(register, fhirSchema);
+    const fields = mkFields(register, fhirSchema, [], fhirSchema.elements, logger);
+    const nested = mkNestedTypes(register, fhirSchema, logger);
     const dependencies = extractDependencies(identifier, base, fields, nested);
 
     const typeSchema: TypeSchema = {
@@ -275,31 +285,35 @@ function transformFhirSchemaResource(register: Register, fhirSchema: RichFHIRSch
         dependencies,
     };
 
-    const bindingSchemas = collectBindingSchemas(register, fhirSchema);
+    const bindingSchemas = collectBindingSchemas(register, fhirSchema, logger);
 
     return [typeSchema, ...bindingSchemas];
 }
 
-export async function transformFhirSchema(register: Register, fhirSchema: RichFHIRSchema): Promise<TypeSchema[]> {
+export async function transformFhirSchema(
+    register: Register,
+    fhirSchema: RichFHIRSchema,
+    logger?: CodegenLogger,
+): Promise<TypeSchema[]> {
     const results: TypeSchema[] = [];
     const identifier = mkIdentifier(fhirSchema);
     if (identifier.kind === "profile") {
-        const profileSchema = await transformProfile(register, fhirSchema);
+        const profileSchema = await transformProfile(register, fhirSchema, logger);
         results.push(profileSchema);
 
-        const bindingSchemas = collectBindingSchemas(register, fhirSchema);
+        const bindingSchemas = collectBindingSchemas(register, fhirSchema, logger);
         results.push(...bindingSchemas);
 
         return results;
     }
 
     if (isExtensionSchema(fhirSchema, identifier)) {
-        const extensionSchema = await transformExtension(fhirSchema, register, fhirSchema.package_meta);
+        const extensionSchema = await transformExtension(fhirSchema, register, logger);
         if (extensionSchema) {
             results.push(extensionSchema);
         }
         return results;
     }
 
-    return transformFhirSchemaResource(register, fhirSchema);
+    return transformFhirSchemaResource(register, fhirSchema, logger);
 }
