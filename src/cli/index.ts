@@ -14,6 +14,6 @@ import { runCLI } from "./commands/index";
 
 // Run CLI (works in both Node.js and Bun)
 runCLI().catch((error) => {
-	console.error("CLI Error:", error instanceof Error ? error.message : error);
-	process.exit(1);
+    console.error("CLI Error:", error instanceof Error ? error.message : error);
+    process.exit(1);
 });

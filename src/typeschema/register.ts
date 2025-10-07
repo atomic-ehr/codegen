@@ -3,7 +3,7 @@ import type { FHIRSchema, FHIRSchemaElement, StructureDefinition } from "@atomic
 import * as fhirschema from "@atomic-ehr/fhirschema";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import type { CanonicalUrl, Name, PackageMeta, RichFHIRSchema, RichValueSet } from "@typeschema/types";
-import { enrichFHIRSchema, packageMetaToString } from "@typeschema/types";
+import { enrichFHIRSchema, packageMetaToFhir } from "@typeschema/types";
 
 export type Register = {
     appendFs(fs: FHIRSchema): void;
@@ -77,7 +77,7 @@ export const registerFromManager = async (
             }
         }
         logger?.success(
-            `FHIR Schema conversion for '${packageMetaToString(packageMeta)}' completed: ${fsSuccess} successful, ${fsFailed} failed`,
+            `FHIR Schema conversion for '${packageMetaToFhir(packageMeta)}' completed: ${fsSuccess} successful, ${fsFailed} failed`,
         );
     }
 

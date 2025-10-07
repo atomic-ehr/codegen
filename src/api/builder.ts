@@ -5,14 +5,18 @@
  * This builder pattern allows users to configure generation in a declarative way.
  */
 
+import * as Path from "node:path";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
-import { type Register, registerFromManager } from "@root/typeschema/register";
-import { TypeSchemaCache, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";
-import type { TypeSchema } from "@typeschema/types";
+import type { GeneratedFile } from "@root/api/generators/base/types";
+import { registerFromManager } from "@root/typeschema/register";
+import { generateTypeSchemas, TypeSchemaCache, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";
+import { packageMetaToNpm, type TypeSchema } from "@typeschema/types";
 import type { Config, TypeSchemaConfig } from "../config";
 import type { CodegenLogger } from "../utils/codegen-logger";
 import { createLogger } from "../utils/codegen-logger";
 import { TypeScriptGenerator } from "./generators/typescript";
+import * as TS2 from "./writer-generator/typescript";
+import type { Writer, WriterOptions } from "./writer-generator/writer";
 
 /**
  * Configuration options for the API builder
@@ -25,7 +29,7 @@ export interface APIBuilderOptions {
     typeSchemaConfig?: TypeSchemaConfig;
     logger?: CodegenLogger;
     manager?: ReturnType<typeof CanonicalManager> | null;
-    debug?: boolean;
+    throwException?: boolean;
 }
 
 /**
@@ -45,6 +49,35 @@ export interface GenerationResult {
     duration: number;
 }
 
+interface Generator {
+    generate: (schemas: TypeSchema[]) => Promise<GeneratedFile[]>;
+    setOutputDir: (outputDir: string) => void;
+    build: (schemas: TypeSchema[]) => Promise<GeneratedFile[]>;
+}
+
+const writerToGenerator = (writerGen: Writer): Generator => {
+    const getGeneratedFiles = () => {
+        return writerGen.writtenFiles().map((fn: string) => {
+            return {
+                path: Path.normalize(Path.join(writerGen.opts.outputDir, fn)),
+                filename: fn.replace(/^.*[\\/]/, ""),
+                content: "",
+                exports: [],
+                size: 0,
+                timestamp: new Date(),
+            };
+        });
+    };
+    return {
+        generate: async (schemas: TypeSchema[]): Promise<GeneratedFile[]> => {
+            writerGen.generate(schemas);
+            return getGeneratedFiles();
+        },
+        setOutputDir: (outputDir: string) => (writerGen.opts.outputDir = outputDir),
+        build: async (_schemas: TypeSchema[]) => getGeneratedFiles(),
+    };
+};
+
 /**
  * High-Level API Builder class
  *
@@ -56,7 +89,7 @@ export class APIBuilder {
     private options: Omit<Required<APIBuilderOptions>, "typeSchemaConfig" | "logger"> & {
         typeSchemaConfig?: TypeSchemaConfig;
     };
-    private generators: Map<string, any> = new Map();
+    private generators: Map<string, Generator> = new Map();
     private cache?: TypeSchemaCache;
     private pendingOperations: Promise<void>[] = [];
     private typeSchemaGenerator?: TypeSchemaGenerator;
@@ -73,7 +106,7 @@ export class APIBuilder {
             cache: options.cache ?? true,
             typeSchemaConfig: options.typeSchemaConfig,
             manager: options.manager || null,
-            debug: options.debug || false,
+            throwException: options.throwException || false,
         };
 
         this.typeSchemaConfig = options.typeSchemaConfig;
@@ -92,7 +125,7 @@ export class APIBuilder {
     }
 
     fromPackage(packageName: string, version?: string): APIBuilder {
-        this.packages.push(`${packageName}#${version || "latest"}`);
+        this.packages.push(packageMetaToNpm({ name: packageName, version: version || "latest" }));
         return this;
     }
 
@@ -157,6 +190,20 @@ export class APIBuilder {
         return this;
     }
 
+    typescript2(opts: Partial<WriterOptions>) {
+        const writerOpts = {
+            outputDir: Path.join(this.options.outputDir, "/types"),
+            tabSize: 2,
+            withDebugComment: true,
+            commentLinePrefix: "//",
+        };
+        const effectiveOpts = { logger: this.logger, ...writerOpts, ...opts };
+        const generator = writerToGenerator(new TS2.TypeScript(effectiveOpts));
+        this.generators.set("typescript2", generator);
+        this.logger.debug(`Configured TypeScript2 generator (${JSON.stringify(effectiveOpts, undefined, 2)})`);
+        return this;
+    }
+
     /**
      * Set a progress callback for monitoring generation
      */
@@ -184,11 +231,12 @@ export class APIBuilder {
 
     verbose(enabled = true): APIBuilder {
         this.options.verbose = enabled;
+        this.logger?.configure({ verbose: enabled });
         return this;
     }
 
-    debug(enabled = true): APIBuilder {
-        this.options.debug = enabled;
+    throwException(enabled = true): APIBuilder {
+        this.options.throwException = enabled;
         return this;
     }
 
@@ -213,10 +261,11 @@ export class APIBuilder {
             });
             await manager.init();
             const register = await registerFromManager(manager, this.logger);
+            const typeSchemas = await generateTypeSchemas(register);
 
             this.logger.debug(`Executing ${this.generators.size} generators`);
 
-            await this.executeGenerators(register, result);
+            await this.executeGenerators(result, typeSchemas);
 
             this.logger.info("Generation completed successfully");
 
@@ -300,14 +349,14 @@ export class APIBuilder {
         }
     }
 
-    private async executeGenerators(_register: Register, result: GenerationResult): Promise<void> {
+    private async executeGenerators(result: GenerationResult, typeSchemas: TypeSchema[]): Promise<void> {
         for (const [type, generator] of this.generators.entries()) {
             this.logger.info(`Generating ${type}...`);
 
             try {
-                const files = await generator.generate(this.schemas);
-                result.filesGenerated.push(...files.map((f: Record<string, string>) => f.path || f.filename));
-                this.logger.info(`Generating ${type} finished succ`);
+                const files = await generator.generate(typeSchemas);
+                result.filesGenerated.push(...files.map((f: GeneratedFile) => f.path || f.filename));
+                this.logger.info(`Generating ${type} finished successfully`);
             } catch (error) {
                 result.errors.push(
                     `${type} generator failed: ${error instanceof Error ? error.message : String(error)}`,

@@ -14,7 +14,8 @@ export interface PackageMeta {
     version: string;
 }
 
-export const packageMetaToString = (packageMeta: PackageMeta) => `${packageMeta.name}#${packageMeta.version}`;
+export const packageMetaToFhir = (packageMeta: PackageMeta) => `${packageMeta.name}#${packageMeta.version}`;
+export const packageMetaToNpm = (packageMeta: PackageMeta) => `${packageMeta.name}@${packageMeta.version}`;
 
 export type RichFHIRSchema = Omit<FS.FHIRSchema, "package_meta" | "base" | "name" | "url"> & {
     package_meta: PackageMeta;

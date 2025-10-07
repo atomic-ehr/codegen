@@ -7,14 +7,11 @@ if (require.main === module) {
     console.log("📦 Generating FHIR R4 Core Types...");
 
     const builder = new APIBuilder()
-        .fromPackage("hl7.fhir.r4.core", "4.0.1")
-        .debug()
         .verbose()
-        .typescript({
-            generateIndex: true,
-            includeDocuments: true,
-        })
-        .outputTo("./tmp/ts/fhir-r4");
+        .throwException()
+        .fromPackage("hl7.fhir.r4.core", "4.0.1")
+        .typescript2({})
+        .outputTo("./tmp/ts-fhir-r4");
 
     const report = await builder.generate();
 
