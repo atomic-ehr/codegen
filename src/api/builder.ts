@@ -5,13 +5,18 @@
  * This builder pattern allows users to configure generation in a declarative way.
  */
 
-import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
-import { TypeSchemaCache, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";
-import type { TypeSchema } from "@typeschema/types";
+import * as Path from "node:path";
+import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
+import type { GeneratedFile } from "@root/api/generators/base/types";
+import { registerFromManager } from "@root/typeschema/register";
+import { generateTypeSchemas, TypeSchemaCache, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";
+import { packageMetaToNpm, type TypeSchema } from "@typeschema/types";
 import type { Config, TypeSchemaConfig } from "../config";
 import type { CodegenLogger } from "../utils/codegen-logger";
 import { createLogger } from "../utils/codegen-logger";
 import { TypeScriptGenerator } from "./generators/typescript";
+import * as TS2 from "./writer-generator/typescript";
+import type { Writer, WriterOptions } from "./writer-generator/writer";
 
 /**
  * Configuration options for the API builder
@@ -20,11 +25,11 @@ export interface APIBuilderOptions {
     outputDir?: string;
     verbose?: boolean;
     overwrite?: boolean;
-    validate?: boolean;
     cache?: boolean;
     typeSchemaConfig?: TypeSchemaConfig;
     logger?: CodegenLogger;
     manager?: ReturnType<typeof CanonicalManager> | null;
+    throwException?: boolean;
 }
 
 /**
@@ -44,6 +49,35 @@ export interface GenerationResult {
     duration: number;
 }
 
+interface Generator {
+    generate: (schemas: TypeSchema[]) => Promise<GeneratedFile[]>;
+    setOutputDir: (outputDir: string) => void;
+    build: (schemas: TypeSchema[]) => Promise<GeneratedFile[]>;
+}
+
+const writerToGenerator = (writerGen: Writer): Generator => {
+    const getGeneratedFiles = () => {
+        return writerGen.writtenFiles().map((fn: string) => {
+            return {
+                path: Path.normalize(Path.join(writerGen.opts.outputDir, fn)),
+                filename: fn.replace(/^.*[\\/]/, ""),
+                content: "",
+                exports: [],
+                size: 0,
+                timestamp: new Date(),
+            };
+        });
+    };
+    return {
+        generate: async (schemas: TypeSchema[]): Promise<GeneratedFile[]> => {
+            writerGen.generate(schemas);
+            return getGeneratedFiles();
+        },
+        setOutputDir: (outputDir: string) => (writerGen.opts.outputDir = outputDir),
+        build: async (_schemas: TypeSchema[]) => getGeneratedFiles(),
+    };
+};
+
 /**
  * High-Level API Builder class
  *
@@ -55,13 +89,13 @@ export class APIBuilder {
     private options: Omit<Required<APIBuilderOptions>, "typeSchemaConfig" | "logger"> & {
         typeSchemaConfig?: TypeSchemaConfig;
     };
-    private generators: Map<string, any> = new Map();
-    private progressCallback?: ProgressCallback;
+    private generators: Map<string, Generator> = new Map();
     private cache?: TypeSchemaCache;
     private pendingOperations: Promise<void>[] = [];
     private typeSchemaGenerator?: TypeSchemaGenerator;
     private logger: CodegenLogger;
-
+    private packages: string[] = [];
+    progressCallback: any;
     private typeSchemaConfig?: TypeSchemaConfig;
 
     constructor(options: APIBuilderOptions = {}) {
@@ -69,10 +103,10 @@ export class APIBuilder {
             outputDir: options.outputDir || "./generated",
             verbose: options.verbose ?? false,
             overwrite: options.overwrite ?? true,
-            validate: options.validate ?? true,
             cache: options.cache ?? true,
             typeSchemaConfig: options.typeSchemaConfig,
             manager: options.manager || null,
+            throwException: options.throwException || false,
         };
 
         this.typeSchemaConfig = options.typeSchemaConfig;
@@ -90,13 +124,8 @@ export class APIBuilder {
         }
     }
 
-    /**
-     * Load TypeSchema from a FHIR package
-     */
     fromPackage(packageName: string, version?: string): APIBuilder {
-        this.logger.debug(`Loading from FHIR package: ${packageName}@${version || "latest"}`);
-        const operation = this.loadFromPackage(packageName, version);
-        this.pendingOperations.push(operation);
+        this.packages.push(packageMetaToNpm({ name: packageName, version: version || "latest" }));
         return this;
     }
 
@@ -119,9 +148,6 @@ export class APIBuilder {
         return this;
     }
 
-    /**
-     * Configure TypeScript generation
-     */
     typescript(
         options: {
             moduleFormat?: "esm" | "cjs";
@@ -164,6 +190,20 @@ export class APIBuilder {
         return this;
     }
 
+    typescript2(opts: Partial<WriterOptions>) {
+        const writerOpts = {
+            outputDir: Path.join(this.options.outputDir, "/types"),
+            tabSize: 2,
+            withDebugComment: false,
+            commentLinePrefix: "//",
+        };
+        const effectiveOpts = { logger: this.logger, ...writerOpts, ...opts };
+        const generator = writerToGenerator(new TS2.TypeScript(effectiveOpts));
+        this.generators.set("typescript2", generator);
+        this.logger.debug(`Configured TypeScript2 generator (${JSON.stringify(effectiveOpts, undefined, 2)})`);
+        return this;
+    }
+
     /**
      * Set a progress callback for monitoring generation
      */
@@ -189,25 +229,17 @@ export class APIBuilder {
         return this;
     }
 
-    /**
-     * Enable/disable verbose logging
-     */
     verbose(enabled = true): APIBuilder {
         this.options.verbose = enabled;
+        this.logger?.configure({ verbose: enabled });
         return this;
     }
 
-    /**
-     * Enable/disable validation
-     */
-    validate(enabled = true): APIBuilder {
-        this.options.validate = enabled;
+    throwException(enabled = true): APIBuilder {
+        this.options.throwException = enabled;
         return this;
     }
 
-    /**
-     * Execute the generation process
-     */
     async generate(): Promise<GenerationResult> {
         const startTime = performance.now();
         const result: GenerationResult = {
@@ -222,28 +254,20 @@ export class APIBuilder {
         this.logger.debug(`Starting generation with ${this.generators.size} generators`);
 
         try {
-            this.reportProgress("Loading", 0, 4, "Loading TypeSchema data...");
+            this.logger.info("Initialize Canonical Manager");
+            const manager = CanonicalManager({
+                packages: this.packages,
+                workingDir: "tmp/fhir",
+            });
+            await manager.init();
+            const register = await registerFromManager(manager, this.logger);
+            const typeSchemas = await generateTypeSchemas(register, this.logger);
 
-            // Load schemas if needed
-            await this.resolveSchemas();
-            this.logger.debug(`Resolved ${this.schemas.length} schemas`);
-
-            this.reportProgress("Validating", 1, 4, "Validating TypeSchema documents...");
-
-            // Validate schemas
-            if (this.options.validate) {
-                this.logger.debug("Starting schema validation");
-                await this.validateSchemas(result);
-                this.logger.debug("Schema validation completed");
-            }
-
-            this.reportProgress("Generating", 2, 4, "Generating code...");
             this.logger.debug(`Executing ${this.generators.size} generators`);
 
-            // Execute all configured generators
-            await this.executeGenerators(result);
+            await this.executeGenerators(result, typeSchemas);
 
-            this.reportProgress("Complete", 4, 4, "Generation completed successfully");
+            this.logger.info("Generation completed successfully");
 
             result.success = result.errors.length === 0;
 
@@ -251,12 +275,13 @@ export class APIBuilder {
         } catch (error) {
             this.logger.error("Code generation failed", error instanceof Error ? error : new Error(String(error)));
             result.errors.push(error instanceof Error ? error.message : String(error));
-            result.success = false;
-        } finally {
-            result.duration = performance.now() - startTime;
         }
 
-        return result;
+        return {
+            ...result,
+            success: result.errors.length === 0,
+            duration: performance.now() - startTime,
+        };
     }
 
     /**
@@ -265,8 +290,6 @@ export class APIBuilder {
     async build(): Promise<{
         typescript?: { content: string; filename: string }[];
     }> {
-        await this.resolveSchemas();
-
         const results: Record<string, unknown> = {};
 
         for (const [type, generator] of this.generators.entries()) {
@@ -302,28 +325,6 @@ export class APIBuilder {
         return Array.from(this.generators.keys());
     }
 
-    // Private implementation methods
-
-    private async loadFromPackage(packageName: string, version?: string): Promise<void> {
-        const generator = new TypeSchemaGenerator(
-            {
-                verbose: this.options.verbose,
-                logger: this.logger.child("Schema"),
-                treeshake: this.typeSchemaConfig?.treeshake,
-                manager: this.options.manager,
-            },
-            this.typeSchemaConfig,
-        );
-
-        this.typeSchemaGenerator = generator;
-        const schemas = await generator.generateFromPackage(packageName, version);
-        this.schemas = [...this.schemas, ...schemas];
-
-        if (this.cache) {
-            this.cache.setMany(schemas);
-        }
-    }
-
     private async loadFromFiles(filePaths: string[]): Promise<void> {
         if (!this.typeSchemaGenerator) {
             this.typeSchemaGenerator = new TypeSchemaGenerator(
@@ -338,7 +339,6 @@ export class APIBuilder {
 
         const parser = new TypeSchemaParser({
             format: "auto",
-            validate: this.options.validate,
         });
 
         const schemas = await parser.parseFromFiles(filePaths);
@@ -348,45 +348,20 @@ export class APIBuilder {
             this.cache.setMany(schemas);
         }
     }
-    private async resolveSchemas(): Promise<void> {
-        // Wait for all pending async operations to complete
-        if (this.pendingOperations.length > 0) {
-            await Promise.all(this.pendingOperations);
-            this.pendingOperations = []; // Clear completed operations
-        }
-    }
 
-    private async validateSchemas(_result: GenerationResult): Promise<void> {
-        return;
-    }
-
-    private async executeGenerators(result: GenerationResult): Promise<void> {
-        const generatorCount = this.generators.size;
-        let current = 0;
-
+    private async executeGenerators(result: GenerationResult, typeSchemas: TypeSchema[]): Promise<void> {
         for (const [type, generator] of this.generators.entries()) {
-            this.reportProgress("Generating", 2 + current / generatorCount, 4, `Generating ${type}...`);
+            this.logger.info(`Generating ${type}...`);
 
             try {
-                const files = await generator.generate(this.schemas);
-                result.filesGenerated.push(...files.map((f: Record<string, string>) => f.path || f.filename));
+                const files = await generator.generate(typeSchemas);
+                result.filesGenerated.push(...files.map((f: GeneratedFile) => f.path || f.filename));
+                this.logger.info(`Generating ${type} finished successfully`);
             } catch (error) {
                 result.errors.push(
                     `${type} generator failed: ${error instanceof Error ? error.message : String(error)}`,
                 );
             }
-
-            current++;
-        }
-    }
-
-    private reportProgress(phase: string, current: number, total: number, message?: string): void {
-        if (this.progressCallback) {
-            this.progressCallback(phase, current, total, message);
-        }
-
-        if (this.options.verbose && message) {
-            this.logger.debug(`[${phase}] ${message}`);
         }
     }
 }
@@ -406,7 +381,6 @@ export function createAPIFromConfig(config: Config): APIBuilder {
         outputDir: config.outputDir,
         verbose: config.verbose,
         overwrite: config.overwrite,
-        validate: config.validate,
         cache: config.cache,
         typeSchemaConfig: config.typeSchema,
     });
@@ -446,7 +420,6 @@ export async function generateTypesFromPackage(
     return createAPI({
         outputDir,
         verbose: options.verbose,
-        validate: options.validate,
     })
         .fromPackage(packageName, options.version)
         .typescript()
@@ -467,7 +440,6 @@ export async function generateTypesFromFiles(
     return createAPI({
         outputDir,
         verbose: options.verbose,
-        validate: options.validate,
     })
         .fromFiles(...inputFiles)
         .typescript()

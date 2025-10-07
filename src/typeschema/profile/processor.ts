@@ -8,6 +8,7 @@
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
+import type { CodegenLogger } from "@root/utils/codegen-logger";
 import type { CanonicalUrl, Identifier, Name, RichFHIRSchema } from "@typeschema/types";
 import { mkIdentifier } from "../core/identifier";
 import { mkFields } from "../core/transformer";
@@ -17,10 +18,13 @@ import type { ProfileConstraint, ProfileExtension, ProfileMetadata, ProfileTypeS
  * Transform a FHIR profile to TypeSchema format
  * Profiles are treated as specialized resources that extend base resources
  */
-export async function transformProfile(register: Register, fhirSchema: RichFHIRSchema): Promise<ProfileTypeSchema> {
+export async function transformProfile(
+    register: Register,
+    fhirSchema: RichFHIRSchema,
+    logger?: CodegenLogger,
+): Promise<ProfileTypeSchema> {
     // Build profile identifier
     const identifier = mkIdentifier(fhirSchema);
-    const _packageInfo = fhirSchema.package_meta;
 
     // Ensure this is recognized as a profile
     if (identifier.kind !== "profile") {
@@ -69,7 +73,7 @@ export async function transformProfile(register: Register, fhirSchema: RichFHIRS
 
     // Process profile fields from differential elements
     if (fhirSchema.elements) {
-        const fields = await mkFields(register, fhirSchema, [], fhirSchema.elements);
+        const fields = await mkFields(register, fhirSchema, [], fhirSchema.elements, logger);
         if (fields && Object.keys(fields).length > 0) {
             profileSchema.fields = fields;
         }

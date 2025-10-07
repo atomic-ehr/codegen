@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["src/**/*.ts", "test/**/*.ts", "atomic-codegen.config.js", "biome.json"]
+    "includes": ["src/**/*.ts", "test/**/*.ts", "atomic-codegen.config.js", "biome.json", "examples/**/*.ts"]
   },
   "formatter": {
     "enabled": true,
@@ -28,6 +28,14 @@
       },
       "nursery": {
         "noUnresolvedImports": "off"
+      },
+      "complexity": {
+        "noExcessiveCognitiveComplexity": {
+          "level": "warn",
+          "options": {
+            "maxAllowedComplexity": 50
+          }
+        }
       },
       "recommended": true
     }

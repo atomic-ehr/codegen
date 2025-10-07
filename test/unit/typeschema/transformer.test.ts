@@ -111,26 +111,6 @@ describe("TypeSchema Transformer Core Logic", async () => {
             expect(result[0]?.base?.name).toBe("Extension");
         });
 
-        it("should transform value set schema", async () => {
-            const fhirSchema: PFS = {
-                name: "TestValueSet",
-                type: "ValueSet",
-                kind: "value-set",
-                url: "http://example.org/ValueSet/test",
-                description: "Test value set",
-                elements: {
-                    active: { code: "active", short: "Active status" },
-                    inactive: { code: "inactive", short: "Inactive status" },
-                },
-            };
-
-            const result = await registerFsAndMkTs(r4, fhirSchema);
-
-            expect(result).toHaveLength(1);
-            expect(result[0]?.identifier.kind).toBe("value-set");
-            expect(result[0]?.concept).toBeDefined();
-        });
-
         it("should handle nested elements", async () => {
             const fhirSchema: PFS = {
                 name: "ComplexResource",

@@ -3,7 +3,7 @@ import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import { type CanonicalUrl, enrichFHIRSchema, type Name } from "@root/typeschema/types";
 import { fsElementSnapshot, registerFromPackageMetas, resolveFsElementGenealogy } from "@typeschema/register";
 
-export type PFS = Partial<FHIRSchema>;
+type PFS = Partial<FHIRSchema>;
 
 const resolveFsElementGenealogyT = (pfss: PFS[], path: string[]) => {
     return resolveFsElementGenealogy(

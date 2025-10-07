@@ -6,11 +6,12 @@
 
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
+import type { CodegenLogger } from "@root/utils/codegen-logger";
 import type { BindingIdentifier, Field, Identifier, Name, PackageMeta, RegularField, RichFHIRSchema } from "../types";
 import { buildEnum } from "./binding";
 import { mkBindingIdentifier, mkIdentifier, mkNestedIdentifier } from "./identifier";
 
-export function isRequired(register: Register, fhirSchema: RichFHIRSchema, path: string[]): boolean {
+function isRequired(register: Register, fhirSchema: RichFHIRSchema, path: string[]): boolean {
     const fieldName = path[path.length - 1]!;
     const parentPath = path.slice(0, -1);
 
@@ -26,7 +27,7 @@ export function isRequired(register: Register, fhirSchema: RichFHIRSchema, path:
     return new Set(requires).has(fieldName);
 }
 
-export function isExcluded(register: Register, fhirSchema: RichFHIRSchema, path: string[]): boolean {
+function isExcluded(register: Register, fhirSchema: RichFHIRSchema, path: string[]): boolean {
     const fieldName = path[path.length - 1];
     if (!fieldName) throw new Error(`Internal error: fieldName is missing for path ${path.join("/")}`);
     const parentPath = path.slice(0, -1);
@@ -44,7 +45,7 @@ export function isExcluded(register: Register, fhirSchema: RichFHIRSchema, path:
     return new Set(requires).has(fieldName);
 }
 
-export const buildReferences = (
+const buildReferences = (
     element: FHIRSchemaElement,
     register: Register,
     _packageInfo?: PackageMeta,
@@ -99,6 +100,7 @@ export const mkField = (
     fhirSchema: RichFHIRSchema,
     path: string[],
     element: FHIRSchemaElement,
+    logger?: CodegenLogger,
 ): Field => {
     let binding: BindingIdentifier | undefined;
     let enumValues: string[] | undefined;
@@ -106,7 +108,7 @@ export const mkField = (
         binding = mkBindingIdentifier(fhirSchema, path, element.binding.bindingName);
 
         if (element.binding.strength === "required" && element.type === "code") {
-            enumValues = buildEnum(element, register);
+            enumValues = buildEnum(register, element, logger);
         }
     }
 

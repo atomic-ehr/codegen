@@ -314,37 +314,3 @@ export class TypeSchemaParser {
         );
     }
 }
-
-/**
- * Convenience function to parse TypeSchema from file
- */
-export async function parseTypeSchemaFromFile(
-    filePath: string,
-    options?: TypeschemaParserOptions,
-): Promise<TypeSchema[]> {
-    const parser = new TypeSchemaParser(options);
-    return await parser.parseFromFile(filePath);
-}
-
-/**
- * Convenience function to parse TypeSchema from string
- */
-export async function parseTypeSchemaFromString(
-    content: string,
-    format?: "ndjson" | "json",
-    options?: TypeschemaParserOptions,
-): Promise<TypeSchema[]> {
-    const parser = new TypeSchemaParser(options);
-    return await parser.parseFromString(content, format);
-}
-
-/**
- * Convenience function to parse TypeSchema from multiple files
- */
-export async function parseTypeSchemaFromFiles(
-    filePaths: string[],
-    options?: TypeschemaParserOptions,
-): Promise<TypeSchema[]> {
-    const parser = new TypeSchemaParser(options);
-    return await parser.parseFromFiles(filePaths);
-}
