@@ -1,18 +1,18 @@
 [
   {
     "label": "typeschema",
-    "command": "bun run typecheck && bun run format && bunx biome lint --diagnostic-level=error --write --unsafe && bun run test typeschema"
+    "command": "make test-typeschema"
   },
   {
     "label": "register",
-    "command": "bun run typecheck && bun run format && bunx biome lint --diagnostic-level=error --write --unsafe && bun run test register"
+    "command": "make test-register"
   },
   {
     "label": "codegen",
-    "command": "bun run typecheck && bun run format && bunx biome lint --diagnostic-level=error --write --unsafe && bun run test"
+    "command": "make test-codegen"
   },
   {
-    "label": "ts codegen",
-    "command": "bun run typecheck && bun run format && bunx biome lint --diagnostic-level=error --write --unsafe && bun run examples/ts-r4.ts"
+    "label": "typescript r4 example",
+    "command": "make test-typescript-r4-example"
   }
 ]
