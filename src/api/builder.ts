@@ -62,7 +62,7 @@ export class APIBuilder {
     private typeSchemaGenerator?: TypeSchemaGenerator;
     private logger: CodegenLogger;
     private packages: string[] = [];
-
+    progressCallback: any;
     private typeSchemaConfig?: TypeSchemaConfig;
 
     constructor(options: APIBuilderOptions = {}) {
