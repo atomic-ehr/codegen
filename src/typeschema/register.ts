@@ -11,6 +11,7 @@ export type Register = {
     resolveSd(canonicalUrl: CanonicalUrl): StructureDefinition | undefined;
     resolveFs(canonicalUrl: CanonicalUrl): RichFHIRSchema | undefined;
     resolveFsGenealogy(canonicalUrl: CanonicalUrl): RichFHIRSchema[];
+    resolveFsSpecializations(canonicalUrl: CanonicalUrl): RichFHIRSchema[];
     allSd(): StructureDefinition[];
     allFs(): RichFHIRSchema[];
     allVs(): RichValueSet[];
@@ -100,6 +101,10 @@ export const registerFromManager = async (
         return genealogy;
     };
 
+    const resolveFsSpecializations = (canonicalUrl: CanonicalUrl): RichFHIRSchema[] => {
+        return resolveFsGenealogy(canonicalUrl).filter((fs) => fs.derivation === "specialization");
+    };
+
     return {
         ...manager,
         appendFs(fs: FHIRSchema) {
@@ -109,6 +114,7 @@ export const registerFromManager = async (
         },
         resolveFs: (canonicalUrl: CanonicalUrl) => fsIndex[canonicalUrl],
         resolveFsGenealogy: resolveFsGenealogy,
+        resolveFsSpecializations: resolveFsSpecializations,
         ensureCanonicalUrl: (name: string | Name | CanonicalUrl) =>
             nameToCanonical[name as Name] || (name as CanonicalUrl),
         allSd: () => Object.values(sdIndex),

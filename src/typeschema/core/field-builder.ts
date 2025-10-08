@@ -9,7 +9,8 @@ import type { Register } from "@root/typeschema/register";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import type { BindingIdentifier, Field, Identifier, Name, PackageMeta, RegularField, RichFHIRSchema } from "../types";
 import { buildEnum } from "./binding";
-import { mkBindingIdentifier, mkIdentifier, mkNestedIdentifier } from "./identifier";
+import { mkBindingIdentifier, mkIdentifier } from "./identifier";
+import { mkNestedIdentifier } from "./nested-types";
 
 function isRequired(register: Register, fhirSchema: RichFHIRSchema, path: string[]): boolean {
     const fieldName = path[path.length - 1]!;
@@ -62,6 +63,7 @@ export function buildFieldType(
     register: Register,
     fhirSchema: RichFHIRSchema,
     element: FHIRSchemaElement,
+    logger?: CodegenLogger,
 ): Identifier | undefined {
     // Handle element reference (for slicing)
     if (element.elementReference) {
@@ -72,7 +74,7 @@ export function buildFieldType(
 
         // Only return nested identifier if we have a non-empty path
         if (refPath.length > 0) {
-            return mkNestedIdentifier(fhirSchema, refPath);
+            return mkNestedIdentifier(register, fhirSchema, refPath, logger);
         }
     }
 
@@ -113,7 +115,7 @@ export const mkField = (
     }
 
     return {
-        type: buildFieldType(register, fhirSchema, element)!,
+        type: buildFieldType(register, fhirSchema, element, logger)!,
         required: isRequired(register, fhirSchema, path),
         excluded: isExcluded(register, fhirSchema, path),
 
@@ -153,9 +155,10 @@ export function mkNestedField(
     fhirSchema: RichFHIRSchema,
     path: string[],
     element: FHIRSchemaElement,
+    logger?: CodegenLogger,
 ): RegularField {
     return {
-        type: mkNestedIdentifier(fhirSchema, path),
+        type: mkNestedIdentifier(register, fhirSchema, path, logger),
         array: element.array || false,
         required: isRequired(register, fhirSchema, path),
         excluded: isExcluded(register, fhirSchema, path),

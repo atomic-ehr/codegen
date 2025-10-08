@@ -7,9 +7,37 @@
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
-import type { CanonicalUrl, Field, Identifier, Name, NestedType, RichFHIRSchema } from "../types";
+import type { CanonicalUrl, Field, Identifier, Name, NestedIdentifier, NestedType, RichFHIRSchema } from "../types";
 import { isNestedElement, mkField, mkNestedField } from "./field-builder";
-import { mkNestedIdentifier } from "./identifier";
+
+export function mkNestedIdentifier(
+    register: Register,
+    fhirSchema: RichFHIRSchema,
+    path: string[],
+    logger?: CodegenLogger,
+): NestedIdentifier {
+    // NOTE: profiles should no redefine types, they should reuse alredy defined in previous specializations
+    var nestedTypeOrigins = {} as Record<Name, CanonicalUrl>;
+    if (fhirSchema.derivation === "constraint") {
+        const specializations = register.resolveFsSpecializations(fhirSchema.url);
+        const nestedTypeGenealogy = specializations
+            .map((fs) => mkNestedTypes(register, fs, logger))
+            .filter((e) => e !== undefined)
+            .flat();
+        for (const nt of nestedTypeGenealogy.reverse()) {
+            nestedTypeOrigins[nt.identifier.name] = nt.identifier.url;
+        }
+    }
+    const nestedName = path.join(".") as Name;
+    const url = nestedTypeOrigins[nestedName] ?? (`${fhirSchema.url}#${nestedName}` as CanonicalUrl);
+    return {
+        kind: "nested",
+        package: fhirSchema.package_meta.name,
+        version: fhirSchema.package_meta.version,
+        name: nestedName,
+        url: url,
+    };
+}
 
 function collectNestedElements(
     fhirSchema: FHIRSchema,
@@ -34,10 +62,10 @@ function collectNestedElements(
 }
 
 function transformNestedElements(
+    register: Register,
     fhirSchema: RichFHIRSchema,
     parentPath: string[],
     elements: Record<string, FHIRSchemaElement>,
-    register: Register,
     logger?: CodegenLogger,
 ): Record<string, Field> {
     const fields: Record<string, Field> = {};
@@ -46,7 +74,7 @@ function transformNestedElements(
         const path = [...parentPath, key];
 
         if (isNestedElement(element)) {
-            fields[key] = mkNestedField(register, fhirSchema, path, element);
+            fields[key] = mkNestedField(register, fhirSchema, path, element, logger);
         } else {
             fields[key] = mkField(register, fhirSchema, path, element, logger);
         }
@@ -62,51 +90,38 @@ export function mkNestedTypes(
 ): NestedType[] | undefined {
     if (!fhirSchema.elements) return undefined;
 
-    const nestedElements = collectNestedElements(fhirSchema, [], fhirSchema.elements);
-
-    const actualNested = nestedElements.filter(
+    const nested = collectNestedElements(fhirSchema, [], fhirSchema.elements).filter(
         ([_, element]) => element.elements && Object.keys(element.elements).length > 0,
     );
 
-    const nestedTypes: NestedType[] = [];
-    for (const [path, element] of actualNested) {
-        const identifier = mkNestedIdentifier(fhirSchema, path);
+    const nestedTypes = [] as NestedType[];
+    for (const [path, element] of nested) {
+        const identifier = mkNestedIdentifier(register, fhirSchema, path, logger);
 
-        // Base is usually BackboneElement - ensure all nested types have a base
-        // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
-        let base;
+        let baseName: Name;
         if (element.type === "BackboneElement" || !element.type) {
-            // For BackboneElement or undefined type, always use BackboneElement as base
-            base = {
-                kind: "complex-type" as const,
-                package: fhirSchema.package_meta.name,
-                version: fhirSchema.package_meta.version,
-                name: "BackboneElement" as Name,
-                url: "http://hl7.org/fhir/StructureDefinition/BackboneElement" as CanonicalUrl,
-            };
+            baseName = "BackboneElement" as Name;
         } else {
-            // Use the specified type as base
-            base = {
-                kind: "complex-type" as const,
-                package: fhirSchema.package_meta.name,
-                version: fhirSchema.package_meta.version,
-                name: element.type as Name,
-                url: `http://hl7.org/fhir/StructureDefinition/${element.type}` as CanonicalUrl,
-            };
+            baseName = element.type as Name;
         }
+        const base: Identifier = {
+            kind: "complex-type",
+            package: fhirSchema.package_meta.name,
+            version: fhirSchema.package_meta.version,
+            name: baseName,
+            url: register.ensureCanonicalUrl(baseName),
+        };
 
-        const fields = transformNestedElements(fhirSchema, path, element.elements!, register, logger);
+        const fields = transformNestedElements(register, fhirSchema, path, element.elements!, logger);
 
         const nestedType: NestedType = {
             identifier,
             base,
             fields,
         };
-
         nestedTypes.push(nestedType);
     }
 
-    // Sort by URL for consistent output
     nestedTypes.sort((a, b) => a.identifier.url.localeCompare(b.identifier.url));
 
     return nestedTypes.length === 0 ? undefined : nestedTypes;

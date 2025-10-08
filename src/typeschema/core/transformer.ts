@@ -16,7 +16,6 @@ import type {
     TypeSchema,
     ValueSetTypeSchema,
 } from "@typeschema/types";
-import { transformProfile } from "../profile/processor";
 import type { CanonicalUrl, Name } from "../types";
 import { collectBindingSchemas, extractValueSetConceptsByUrl } from "./binding";
 import { isNestedElement, mkField, mkNestedField } from "./field-builder";
@@ -62,7 +61,7 @@ export function mkFields(
     const fields: Record<string, Field> = {};
     for (const [key, { elem, elemSnapshot, path }] of Object.entries(elems)) {
         if (isNestedElement(elemSnapshot)) {
-            fields[key] = mkNestedField(register, fhirSchema, path, elemSnapshot);
+            fields[key] = mkNestedField(register, fhirSchema, path, elemSnapshot, logger);
         } else {
             fields[key] = mkField(register, fhirSchema, path, elemSnapshot, logger);
         }
@@ -297,15 +296,6 @@ export async function transformFhirSchema(
 ): Promise<TypeSchema[]> {
     const results: TypeSchema[] = [];
     const identifier = mkIdentifier(fhirSchema);
-    if (identifier.kind === "profile") {
-        const profileSchema = await transformProfile(register, fhirSchema, logger);
-        results.push(profileSchema);
-
-        const bindingSchemas = collectBindingSchemas(register, fhirSchema, logger);
-        results.push(...bindingSchemas);
-
-        return results;
-    }
 
     if (isExtensionSchema(fhirSchema, identifier)) {
         const extensionSchema = await transformExtension(fhirSchema, register, logger);

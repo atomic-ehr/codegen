@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
+import type { CodegenLogger } from "@root/utils/codegen-logger";
 import { isNestedElement, mkField, mkNestedField } from "@typeschema/core/field-builder";
 import type { ChoiceFieldDeclaration, Name, PackageMeta, RegularField } from "@typeschema/types";
 import { mkR4Register, type PFS, registerFs } from "@typeschema-test/utils";
@@ -10,9 +11,15 @@ const registerAndMkField = (register: Register, fhirSchema: PFS, path: string[],
     return mkField(register, rfs, path, element);
 };
 
-const registerAndMkNestedField = (register: Register, fhirSchema: PFS, path: string[], element: FHIRSchemaElement) => {
+const registerAndMkNestedField = (
+    register: Register,
+    fhirSchema: PFS,
+    path: string[],
+    element: FHIRSchemaElement,
+    logger?: CodegenLogger,
+) => {
     const rfs = registerFs(register, fhirSchema);
-    return mkNestedField(register, rfs, path, element);
+    return mkNestedField(register, rfs, path, element, logger);
 };
 
 describe("Field Builder Core Logic", async () => {

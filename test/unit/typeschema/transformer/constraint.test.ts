@@ -46,10 +46,10 @@ describe("Processing constraint generation", async () => {
         derivation: "constraint",
         elements: { foo: { min: 1 } },
     };
-    it.todo("Constraint nested type for resource in profile", async () => {
+    it("Constraint nested type for resource in profile", async () => {
         expect(await registerFsAndMkTs(r4, B)).toMatchObject([
             {
-                identifier: { kind: "constraint", name: "b", url: "uri::B" },
+                identifier: { kind: "profile", name: "b", url: "uri::B" },
                 base: { kind: "resource", name: "a", url: "uri::A" },
                 fields: {
                     foo: { type: { kind: "nested", name: "foo", url: "uri::A#foo" } },
@@ -64,29 +64,27 @@ describe("Processing constraint generation", async () => {
     });
 
     const C: PFS = {
-        base: "B",
-        url: "C",
+        base: "uri::B",
+        url: "uri::C",
         name: "c",
         derivation: "constraint",
         elements: { foo: { max: 1 } },
     };
 
-    it.todo("Constraint nested type for resource in profile", async () => {
+    it("Constraint nested type for resource in profile", async () => {
         expect(await registerFsAndMkTs(r4, C)).toMatchObject([
             {
-                identifier: { kind: "constraint", name: "c", url: "C" },
-                base: { kind: "constraint", name: "b", url: "B" },
+                identifier: { kind: "profile", name: "c", url: "uri::C" },
+                base: { kind: "profile", name: "b", url: "uri::B" },
                 fields: {
-                    foo: { type: { kind: "nested", name: "foo", url: "A#foo" } },
+                    foo: { type: { kind: "nested", name: "foo", url: "uri::A#foo" } },
                 },
-                nested: "nil?",
+                nested: undefined,
                 dependencies: [
-                    { kind: "constraint", name: "b", url: "B" },
-                    { kind: "nested", name: "foo", url: "A#foo" },
-                    null,
+                    { kind: "nested", name: "foo", url: "uri::A#foo" },
+                    { kind: "profile", name: "b", url: "uri::B" },
                 ],
             },
-            null,
         ]);
     });
 });

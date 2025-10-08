@@ -10,7 +10,6 @@ import type {
     CanonicalUrl,
     Identifier,
     Name,
-    NestedIdentifier,
     RichFHIRSchema,
     RichValueSet,
     ValueSetIdentifier,
@@ -42,17 +41,6 @@ export function mkIdentifier(fhirSchema: RichFHIRSchema): Identifier {
         version: fhirSchema.package_meta.version,
         name: fhirSchema.name,
         url: fhirSchema.url,
-    };
-}
-
-export function mkNestedIdentifier(fhirSchema: RichFHIRSchema, path: string[]): NestedIdentifier {
-    const nestedName = path.join(".");
-    return {
-        kind: "nested",
-        package: fhirSchema.package_meta.name,
-        version: fhirSchema.package_meta.version,
-        name: nestedName as Name,
-        url: `${fhirSchema.url}#${nestedName}` as CanonicalUrl,
     };
 }
 
