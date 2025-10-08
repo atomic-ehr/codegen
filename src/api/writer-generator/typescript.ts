@@ -6,15 +6,14 @@ import {
 } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
 import type { Identifier, Name, TypeSchema } from "@root/typeschema";
-import type { RegularField, RegularTypeSchema } from "@root/typeschema/types";
+import type { ProfileTypeSchema, RegularField, RegularTypeSchema } from "@root/typeschema/types";
 import {
     collectComplexTypes,
     collectResources,
     groupByPackages,
+    mkTypeSchemaIndex,
     notChoiceDeclaration,
-    resourceChildren,
-    resourceRelatives,
-    type TypeRelation,
+    type TypeSchemaIndex,
 } from "@root/typeschema/utils";
 
 const primitiveType2tsType: Record<string, string> = {
@@ -49,7 +48,7 @@ const tsFhirPackageDir = (name: string): string => {
 };
 
 const tsModuleName = (id: Identifier): string => {
-    // if (id.kind === "constraint") return `${pascalCase(canonicalToName(id.url) ?? "")}_profile`;
+    if (id.kind === "profile") return `${tsResourceName(id)}_profile`;
     return pascalCase(id.name);
 };
 
@@ -94,7 +93,7 @@ const normalizeTsName = (n: string): string => {
 export type TypeScriptOptions = {} & WriterOptions;
 
 export class TypeScript extends Writer {
-    resourceRelatives: TypeRelation[] = [];
+    tsIndex: TypeSchemaIndex = mkTypeSchemaIndex([]);
 
     tsImportType(tsPackageName: string, ...entities: string[]) {
         this.lineSM(`import type { ${entities.join(", ")} } from "${tsPackageName}"`);
@@ -196,7 +195,7 @@ export class TypeScript extends Writer {
 
             if (schema.identifier.kind === "resource") {
                 const possibleResourceTypes: Identifier[] = [schema.identifier];
-                possibleResourceTypes.push(...resourceChildren(this.resourceRelatives, schema.identifier));
+                possibleResourceTypes.push(...this.tsIndex.resourceChildren(schema.identifier));
                 this.lineSM(`resourceType: ${possibleResourceTypes.map((e) => `"${e.name}"`).join(" | ")}`);
                 this.line();
             }
@@ -208,37 +207,36 @@ export class TypeScript extends Writer {
 
                 this.debugComment(fieldName, ":", field);
 
-                const fieldNameFixed = tsFieldName(fieldName);
+                const tsName = tsFieldName(fieldName);
                 const optionalSymbol = field.required ? "" : "?";
                 const arraySymbol = field.array ? "[]" : "";
 
-                if (field.type === undefined) {
-                    continue;
-                }
-                let type = field.type.name as string;
+                if (field.type === undefined) continue;
+
+                let tsType = field.type.name as string;
 
                 if (field.type.kind === "nested") {
-                    type = tsResourceName(field.type);
+                    tsType = tsResourceName(field.type);
                 }
 
                 if (field.type.kind === "primitive-type") {
-                    type = (primitiveType2tsType[field.type.name] ?? "string") as Name;
+                    tsType = (primitiveType2tsType[field.type.name] ?? "string") as Name;
                 }
 
-                if (schema.identifier.name === "Reference" && fieldNameFixed === "reference") {
-                    type = "`${T}/${string}`";
+                if (schema.identifier.name === "Reference" && tsName === "reference") {
+                    tsType = "`${T}/${string}`";
                 }
 
                 if (field.reference?.length) {
                     const references = field.reference.map((ref) => `"${ref.name}"`).join(" | ");
-                    type = `Reference<${references}>`;
+                    tsType = `Reference<${references}>`;
                 }
 
                 if (field.enum) {
-                    type = field.enum.map((e) => `"${e}"`).join(" | ");
+                    tsType = field.enum.map((e) => `"${e}"`).join(" | ");
                 }
 
-                this.lineSM(`${fieldNameFixed}${optionalSymbol}:`, `${type}${arraySymbol}`);
+                this.lineSM(`${tsName}${optionalSymbol}:`, `${tsType}${arraySymbol}`);
 
                 if (["resource", "complex-type"].includes(schema.identifier.kind)) {
                     this.addFieldExtension(fieldName, field);
@@ -255,6 +253,58 @@ export class TypeScript extends Writer {
         }
     }
 
+    generateProfileType(schema: ProfileTypeSchema) {
+        const name = tsResourceName(schema.identifier);
+        this.debugComment(schema.identifier);
+        this.curlyBlock(["export", "interface", name], () => {
+            this.lineSM(`__profileUrl: "${schema.identifier.url}"`);
+            this.line();
+
+            for (const [fieldName, anyField] of Object.entries((schema as RegularTypeSchema).fields ?? {})) {
+                const field = notChoiceDeclaration(anyField);
+                if (field === undefined) continue;
+                this.debugComment(fieldName, field);
+
+                const tsName = tsFieldName(fieldName);
+
+                let tsType: string;
+                if (field.type.kind === "nested") {
+                    tsType = tsResourceName(field.type);
+                } else if (field.enum) {
+                    tsType = field.enum.map((e) => `'${e}'`).join(" | ");
+                } else if (field.reference?.length) {
+                    const specializationId = this.tsIndex.findLastSpecialization(schema.identifier);
+                    const specialization = this.tsIndex.resolve(specializationId) as RegularTypeSchema | undefined;
+                    const sField = (specialization?.fields?.[fieldName] ?? {
+                        reference: [],
+                    }) as RegularField;
+                    const sRefs = (sField.reference ?? []).map((e) => e.name);
+                    const references = field.reference
+                        .map((ref) => {
+                            const resRef = this.tsIndex.findLastSpecialization(ref);
+                            if (resRef.name !== ref.name) {
+                                return `"${resRef.name}" /*${ref.name}*/`;
+                            }
+                            return `'${ref.name}'`;
+                        })
+                        .join(" | ");
+                    if (sRefs.length === 1 && sRefs[0] === "Resource" && references !== '"Resource"') {
+                        // FIXME: should be generilized to type families
+                        tsType = `Reference<"Resource" /* ${references} */ >`;
+                    } else {
+                        tsType = `Reference<${references}>`;
+                    }
+                } else {
+                    tsType = primitiveType2tsType[field.type.name] ?? field.type.name;
+                }
+
+                this.lineSM(`${tsName}${!field.required ? "?" : ""}: ${tsType}${field.array ? "[]" : ""}`);
+            }
+        });
+
+        this.line();
+    }
+
     generateResourceModule(schema: TypeSchema) {
         this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
             this.generateDisclaimer();
@@ -264,8 +314,14 @@ export class TypeScript extends Writer {
                 this.generateComplexTypeReexports(schema);
                 this.generateNestedTypes(schema);
                 this.generateType(schema);
-                // } else if (schema.identifier.kind === 'constraint') {
-                //     this.generateProfile(schema);
+            } else if (schema.identifier.kind === "profile") {
+                const flatProfile = this.tsIndex.flatProfile(schema as ProfileTypeSchema);
+                this.debugComment(flatProfile.dependencies);
+                this.generateDependenciesImports(flatProfile);
+                this.generateProfileType(flatProfile);
+                // this.generateAttachProfile(flatProfile);
+                // this.line();
+                // this.generateExtractProfile(flatProfile);
             } else {
                 throw new Error(`Profile generation not implemented for kind: ${schema.identifier.kind}`);
             }
@@ -276,10 +332,10 @@ export class TypeScript extends Writer {
         const typesToGenerate = [
             ...collectComplexTypes(schemas),
             ...collectResources(schemas),
-            // ...collectLogicalModels(typeSchemas),
-            // ...collectProfiles(typeSchemas),
+            // ...collectLogicalModels(schemas),
+            // ...collectProfiles(schemas),
         ];
-        this.resourceRelatives = resourceRelatives(typesToGenerate);
+        this.tsIndex = mkTypeSchemaIndex(typesToGenerate);
         const grouped = groupByPackages(typesToGenerate);
 
         this.cd("/", () => {
