@@ -2,89 +2,83 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Annotation } from '../hl7-fhir-r4-core/Annotation';
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { Annotation } from "../hl7-fhir-r4-core/Annotation";
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Annotation }from '../hl7-fhir-r4-core/Annotation';;
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { Annotation } from "../hl7-fhir-r4-core/Annotation";
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface ImmunizationEducation extends BackboneElement {
-  documentType?: string;
-  presentationDate?: string;
-  publicationDate?: string;
-  reference?: string;
+    documentType?: string;
+    presentationDate?: string;
+    publicationDate?: string;
+    reference?: string;
 }
-
 export interface ImmunizationPerformer extends BackboneElement {
-  actor: Reference<'Organization' | 'Practitioner' | 'PractitionerRole'>;
-  function?: CodeableConcept;
+    actor: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
+    function?: CodeableConcept;
 }
-
 export interface ImmunizationProtocolApplied extends BackboneElement {
-  authority?: Reference<'Organization'>;
-  doseNumberPositiveInt?: number;
-  doseNumberString?: string;
-  series?: string;
-  seriesDosesPositiveInt?: number;
-  seriesDosesString?: string;
-  targetDisease?: CodeableConcept[];
+    authority?: Reference<"Organization">;
+    doseNumberPositiveInt?: number;
+    doseNumberString?: string;
+    series?: string;
+    seriesDosesPositiveInt?: number;
+    seriesDosesString?: string;
+    targetDisease?: CodeableConcept[];
 }
-
 export interface ImmunizationReaction extends BackboneElement {
-  date?: string;
-  detail?: Reference<'Observation'>;
-  reported?: boolean;
+    date?: string;
+    detail?: Reference<"Observation">;
+    reported?: boolean;
 }
-
 export interface Immunization extends DomainResource {
-  resourceType: 'Immunization';
-  
-  doseQuantity?: Quantity;
-  education?: ImmunizationEducation[];
-  encounter?: Reference<'Encounter'>;
-  expirationDate?: string;
-  _expirationDate?: Element;
-  fundingSource?: CodeableConcept;
-  identifier?: Identifier[];
-  isSubpotent?: boolean;
-  _isSubpotent?: Element;
-  location?: Reference<'Location'>;
-  lotNumber?: string;
-  _lotNumber?: Element;
-  manufacturer?: Reference<'Organization'>;
-  note?: Annotation[];
-  occurrenceDateTime?: string;
-  _occurrenceDateTime?: Element;
-  occurrenceString?: string;
-  _occurrenceString?: Element;
-  patient: Reference<'Patient'>;
-  performer?: ImmunizationPerformer[];
-  primarySource?: boolean;
-  _primarySource?: Element;
-  programEligibility?: CodeableConcept[];
-  protocolApplied?: ImmunizationProtocolApplied[];
-  reaction?: ImmunizationReaction[];
-  reasonCode?: CodeableConcept[];
-  reasonReference?: Reference<'Condition' | 'DiagnosticReport' | 'Observation'>[];
-  recorded?: string;
-  _recorded?: Element;
-  reportOrigin?: CodeableConcept;
-  route?: CodeableConcept;
-  site?: CodeableConcept;
-  status: 'completed' | 'entered-in-error' | 'not-done';
-  _status?: Element;
-  statusReason?: CodeableConcept;
-  subpotentReason?: CodeableConcept[];
-  vaccineCode: CodeableConcept;
-}
+    resourceType: "Immunization";
 
+    doseQuantity?: Quantity;
+    education?: ImmunizationEducation[];
+    encounter?: Reference<"Encounter">;
+    expirationDate?: string;
+    _expirationDate?: Element;
+    fundingSource?: CodeableConcept;
+    identifier?: Identifier[];
+    isSubpotent?: boolean;
+    _isSubpotent?: Element;
+    location?: Reference<"Location">;
+    lotNumber?: string;
+    _lotNumber?: Element;
+    manufacturer?: Reference<"Organization">;
+    note?: Annotation[];
+    occurrenceDateTime?: string;
+    _occurrenceDateTime?: Element;
+    occurrenceString?: string;
+    _occurrenceString?: Element;
+    patient: Reference<"Patient">;
+    performer?: ImmunizationPerformer[];
+    primarySource?: boolean;
+    _primarySource?: Element;
+    programEligibility?: CodeableConcept[];
+    protocolApplied?: ImmunizationProtocolApplied[];
+    reaction?: ImmunizationReaction[];
+    reasonCode?: CodeableConcept[];
+    reasonReference?: Reference<"Condition" | "DiagnosticReport" | "Observation">[];
+    recorded?: string;
+    _recorded?: Element;
+    reportOrigin?: CodeableConcept;
+    route?: CodeableConcept;
+    site?: CodeableConcept;
+    status: "completed" | "entered-in-error" | "not-done";
+    _status?: Element;
+    statusReason?: CodeableConcept;
+    subpotentReason?: CodeableConcept[];
+    vaccineCode: CodeableConcept;
+}

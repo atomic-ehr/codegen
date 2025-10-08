@@ -2,75 +2,69 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Money } from '../hl7-fhir-r4-core/Money';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Money } from "../hl7-fhir-r4-core/Money";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Money }from '../hl7-fhir-r4-core/Money';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Money } from "../hl7-fhir-r4-core/Money";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface CoverageEligibilityRequestInsurance extends BackboneElement {
-  businessArrangement?: string;
-  coverage: Reference<'Coverage'>;
-  focal?: boolean;
+    businessArrangement?: string;
+    coverage: Reference<"Coverage">;
+    focal?: boolean;
 }
-
 export interface CoverageEligibilityRequestItem extends BackboneElement {
-  category?: CodeableConcept;
-  detail?: Reference<'Resource'>[];
-  diagnosis?: CoverageEligibilityRequestItemDiagnosis[];
-  facility?: Reference<'Location' | 'Organization'>;
-  modifier?: CodeableConcept[];
-  productOrService?: CodeableConcept;
-  provider?: Reference<'Practitioner' | 'PractitionerRole'>;
-  quantity?: Quantity;
-  supportingInfoSequence?: number[];
-  unitPrice?: Money;
+    category?: CodeableConcept;
+    detail?: Reference<"Resource">[];
+    diagnosis?: CoverageEligibilityRequestItemDiagnosis[];
+    facility?: Reference<"Location" | "Organization">;
+    modifier?: CodeableConcept[];
+    productOrService?: CodeableConcept;
+    provider?: Reference<"Practitioner" | "PractitionerRole">;
+    quantity?: Quantity;
+    supportingInfoSequence?: number[];
+    unitPrice?: Money;
 }
-
 export interface CoverageEligibilityRequestItemDiagnosis extends BackboneElement {
-  diagnosisCodeableConcept?: CodeableConcept;
-  diagnosisReference?: Reference<'Condition'>;
+    diagnosisCodeableConcept?: CodeableConcept;
+    diagnosisReference?: Reference<"Condition">;
 }
-
 export interface CoverageEligibilityRequestSupportingInfo extends BackboneElement {
-  appliesToAll?: boolean;
-  information: Reference<'Resource'>;
-  sequence: number;
+    appliesToAll?: boolean;
+    information: Reference<"Resource">;
+    sequence: number;
 }
-
 export interface CoverageEligibilityRequest extends DomainResource {
-  resourceType: 'CoverageEligibilityRequest';
-  
-  created: string;
-  _created?: Element;
-  enterer?: Reference<'Practitioner' | 'PractitionerRole'>;
-  facility?: Reference<'Location'>;
-  identifier?: Identifier[];
-  insurance?: CoverageEligibilityRequestInsurance[];
-  insurer: Reference<'Organization'>;
-  item?: CoverageEligibilityRequestItem[];
-  patient: Reference<'Patient'>;
-  priority?: CodeableConcept;
-  provider?: Reference<'Organization' | 'Practitioner' | 'PractitionerRole'>;
-  purpose: 'auth-requirements' | 'benefits' | 'discovery' | 'validation'[];
-  _purpose?: Element;
-  servicedDate?: string;
-  _servicedDate?: Element;
-  servicedPeriod?: Period;
-  status: 'active' | 'cancelled' | 'draft' | 'entered-in-error';
-  _status?: Element;
-  supportingInfo?: CoverageEligibilityRequestSupportingInfo[];
-}
+    resourceType: "CoverageEligibilityRequest";
 
+    created: string;
+    _created?: Element;
+    enterer?: Reference<"Practitioner" | "PractitionerRole">;
+    facility?: Reference<"Location">;
+    identifier?: Identifier[];
+    insurance?: CoverageEligibilityRequestInsurance[];
+    insurer: Reference<"Organization">;
+    item?: CoverageEligibilityRequestItem[];
+    patient: Reference<"Patient">;
+    priority?: CodeableConcept;
+    provider?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
+    purpose: "auth-requirements" | "benefits" | "discovery" | "validation"[];
+    _purpose?: Element;
+    servicedDate?: string;
+    _servicedDate?: Element;
+    servicedPeriod?: Period;
+    status: "active" | "cancelled" | "draft" | "entered-in-error";
+    _status?: Element;
+    supportingInfo?: CoverageEligibilityRequestSupportingInfo[];
+}

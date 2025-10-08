@@ -2,25 +2,24 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Coding } from '../hl7-fhir-r4-core/Coding';
-import type { Element } from '../hl7-fhir-r4-core/Element';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { Coding } from "../hl7-fhir-r4-core/Coding";
+import type { Element } from "../hl7-fhir-r4-core/Element";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Coding }from '../hl7-fhir-r4-core/Coding';;
-export type { Element }from '../hl7-fhir-r4-core/Element';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
+export type { Coding } from "../hl7-fhir-r4-core/Coding";
+export type { Element } from "../hl7-fhir-r4-core/Element";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface Signature extends Element {
-  data?: string;
-  _data?: Element;
-  onBehalfOf?: Reference<'Device' | 'Organization' | 'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
-  sigFormat?: string;
-  _sigFormat?: Element;
-  targetFormat?: string;
-  _targetFormat?: Element;
-  type: Coding[];
-  when: string;
-  _when?: Element;
-  who: Reference<'Device' | 'Organization' | 'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
+    data?: string;
+    _data?: Element;
+    onBehalfOf?: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
+    sigFormat?: string;
+    _sigFormat?: Element;
+    targetFormat?: string;
+    _targetFormat?: Element;
+    type: Coding[];
+    when: string;
+    _when?: Element;
+    who: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
 }
-

@@ -2,93 +2,88 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Annotation } from '../hl7-fhir-r4-core/Annotation';
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Dosage } from '../hl7-fhir-r4-core/Dosage';
-import type { Duration } from '../hl7-fhir-r4-core/Duration';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { Annotation } from "../hl7-fhir-r4-core/Annotation";
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Dosage } from "../hl7-fhir-r4-core/Dosage";
+import type { Duration } from "../hl7-fhir-r4-core/Duration";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Annotation }from '../hl7-fhir-r4-core/Annotation';;
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Dosage }from '../hl7-fhir-r4-core/Dosage';;
-export type { Duration }from '../hl7-fhir-r4-core/Duration';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { Annotation } from "../hl7-fhir-r4-core/Annotation";
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Dosage } from "../hl7-fhir-r4-core/Dosage";
+export type { Duration } from "../hl7-fhir-r4-core/Duration";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface MedicationRequestDispenseRequest extends BackboneElement {
-  dispenseInterval?: Duration;
-  expectedSupplyDuration?: Duration;
-  initialFill?: MedicationRequestDispenseRequestInitialFill;
-  numberOfRepeatsAllowed?: number;
-  performer?: Reference<'Organization'>;
-  quantity?: Quantity;
-  validityPeriod?: Period;
+    dispenseInterval?: Duration;
+    expectedSupplyDuration?: Duration;
+    initialFill?: MedicationRequestDispenseRequestInitialFill;
+    numberOfRepeatsAllowed?: number;
+    performer?: Reference<"Organization">;
+    quantity?: Quantity;
+    validityPeriod?: Period;
 }
-
 export interface MedicationRequestDispenseRequestInitialFill extends BackboneElement {
-  duration?: Duration;
-  quantity?: Quantity;
+    duration?: Duration;
+    quantity?: Quantity;
 }
-
 export interface MedicationRequestSubstitution extends BackboneElement {
-  allowedBoolean?: boolean;
-  allowedCodeableConcept?: CodeableConcept;
-  reason?: CodeableConcept;
+    allowedBoolean?: boolean;
+    allowedCodeableConcept?: CodeableConcept;
+    reason?: CodeableConcept;
 }
-
 export interface MedicationRequest extends DomainResource {
-  resourceType: 'MedicationRequest';
-  
-  authoredOn?: string;
-  _authoredOn?: Element;
-  basedOn?: Reference<'CarePlan' | 'ImmunizationRecommendation' | 'MedicationRequest' | 'ServiceRequest'>[];
-  category?: CodeableConcept[];
-  courseOfTherapyType?: CodeableConcept;
-  detectedIssue?: Reference<'DetectedIssue'>[];
-  dispenseRequest?: MedicationRequestDispenseRequest;
-  doNotPerform?: boolean;
-  _doNotPerform?: Element;
-  dosageInstruction?: Dosage[];
-  encounter?: Reference<'Encounter'>;
-  eventHistory?: Reference<'Provenance'>[];
-  groupIdentifier?: Identifier;
-  identifier?: Identifier[];
-  instantiatesCanonical?: string[];
-  _instantiatesCanonical?: Element;
-  instantiatesUri?: string[];
-  _instantiatesUri?: Element;
-  insurance?: Reference<'ClaimResponse' | 'Coverage'>[];
-  intent: 'proposal' | 'plan' | 'order' | 'original-order' | 'reflex-order' | 'filler-order' | 'instance-order' | 'option';
-  _intent?: Element;
-  medicationCodeableConcept?: CodeableConcept;
-  medicationReference?: Reference<'Medication'>;
-  note?: Annotation[];
-  performer?: Reference<'CareTeam' | 'Device' | 'Organization' | 'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
-  performerType?: CodeableConcept;
-  priority?: 'routine' | 'urgent' | 'asap' | 'stat';
-  _priority?: Element;
-  priorPrescription?: Reference<'MedicationRequest'>;
-  reasonCode?: CodeableConcept[];
-  reasonReference?: Reference<'Condition' | 'Observation'>[];
-  recorder?: Reference<'Practitioner' | 'PractitionerRole'>;
-  reportedBoolean?: boolean;
-  _reportedBoolean?: Element;
-  reportedReference?: Reference<'Organization' | 'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
-  requester?: Reference<'Device' | 'Organization' | 'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
-  status: 'active' | 'on-hold' | 'cancelled' | 'completed' | 'entered-in-error' | 'stopped' | 'draft' | 'unknown';
-  _status?: Element;
-  statusReason?: CodeableConcept;
-  subject: Reference<'Group' | 'Patient'>;
-  substitution?: MedicationRequestSubstitution;
-  supportingInformation?: Reference<'Resource'>[];
-}
+    resourceType: "MedicationRequest";
 
+    authoredOn?: string;
+    _authoredOn?: Element;
+    basedOn?: Reference<"CarePlan" | "ImmunizationRecommendation" | "MedicationRequest" | "ServiceRequest">[];
+    category?: CodeableConcept[];
+    courseOfTherapyType?: CodeableConcept;
+    detectedIssue?: Reference<"DetectedIssue">[];
+    dispenseRequest?: MedicationRequestDispenseRequest;
+    doNotPerform?: boolean;
+    _doNotPerform?: Element;
+    dosageInstruction?: Dosage[];
+    encounter?: Reference<"Encounter">;
+    eventHistory?: Reference<"Provenance">[];
+    groupIdentifier?: Identifier;
+    identifier?: Identifier[];
+    instantiatesCanonical?: string[];
+    _instantiatesCanonical?: Element;
+    instantiatesUri?: string[];
+    _instantiatesUri?: Element;
+    insurance?: Reference<"ClaimResponse" | "Coverage">[];
+    intent: "proposal" | "plan" | "order" | "original-order" | "reflex-order" | "filler-order" | "instance-order" | "option";
+    _intent?: Element;
+    medicationCodeableConcept?: CodeableConcept;
+    medicationReference?: Reference<"Medication">;
+    note?: Annotation[];
+    performer?: Reference<"CareTeam" | "Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
+    performerType?: CodeableConcept;
+    priority?: "routine" | "urgent" | "asap" | "stat";
+    _priority?: Element;
+    priorPrescription?: Reference<"MedicationRequest">;
+    reasonCode?: CodeableConcept[];
+    reasonReference?: Reference<"Condition" | "Observation">[];
+    recorder?: Reference<"Practitioner" | "PractitionerRole">;
+    reportedBoolean?: boolean;
+    _reportedBoolean?: Element;
+    reportedReference?: Reference<"Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
+    requester?: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
+    status: "active" | "on-hold" | "cancelled" | "completed" | "entered-in-error" | "stopped" | "draft" | "unknown";
+    _status?: Element;
+    statusReason?: CodeableConcept;
+    subject: Reference<"Group" | "Patient">;
+    substitution?: MedicationRequestSubstitution;
+    supportingInformation?: Reference<"Resource">[];
+}

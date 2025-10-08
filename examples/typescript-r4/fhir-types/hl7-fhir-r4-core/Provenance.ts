@@ -2,48 +2,44 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
-import type { Signature } from '../hl7-fhir-r4-core/Signature';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
+import type { Signature } from "../hl7-fhir-r4-core/Signature";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-export type { Signature }from '../hl7-fhir-r4-core/Signature';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
+export type { Signature } from "../hl7-fhir-r4-core/Signature";
 
 export interface ProvenanceAgent extends BackboneElement {
-  onBehalfOf?: Reference<'Device' | 'Organization' | 'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
-  role?: CodeableConcept[];
-  type?: CodeableConcept;
-  who: Reference<'Device' | 'Organization' | 'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
+    onBehalfOf?: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
+    role?: CodeableConcept[];
+    type?: CodeableConcept;
+    who: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
 }
-
 export interface ProvenanceEntity extends BackboneElement {
-  role: 'derivation' | 'revision' | 'quotation' | 'source' | 'removal';
-  what: Reference<'Resource'>;
+    role: "derivation" | "revision" | "quotation" | "source" | "removal";
+    what: Reference<"Resource">;
 }
-
 export interface Provenance extends DomainResource {
-  resourceType: 'Provenance';
-  
-  activity?: CodeableConcept;
-  agent: ProvenanceAgent[];
-  entity?: ProvenanceEntity[];
-  location?: Reference<'Location'>;
-  occurredDateTime?: string;
-  _occurredDateTime?: Element;
-  occurredPeriod?: Period;
-  policy?: string[];
-  _policy?: Element;
-  reason?: CodeableConcept[];
-  recorded: string;
-  _recorded?: Element;
-  signature?: Signature[];
-  target: Reference<'Resource'>[];
-}
+    resourceType: "Provenance";
 
+    activity?: CodeableConcept;
+    agent: ProvenanceAgent[];
+    entity?: ProvenanceEntity[];
+    location?: Reference<"Location">;
+    occurredDateTime?: string;
+    _occurredDateTime?: Element;
+    occurredPeriod?: Period;
+    policy?: string[];
+    _policy?: Element;
+    reason?: CodeableConcept[];
+    recorded: string;
+    _recorded?: Element;
+    signature?: Signature[];
+    target: Reference<"Resource">[];
+}

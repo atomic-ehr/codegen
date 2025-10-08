@@ -2,51 +2,48 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { ContactDetail } from '../hl7-fhir-r4-core/ContactDetail';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { UsageContext } from '../hl7-fhir-r4-core/UsageContext';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { ContactDetail }from '../hl7-fhir-r4-core/ContactDetail';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { UsageContext }from '../hl7-fhir-r4-core/UsageContext';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
 export interface NamingSystemUniqueId extends BackboneElement {
-  comment?: string;
-  period?: Period;
-  preferred?: boolean;
-  type: 'oid' | 'uuid' | 'uri' | 'other';
-  value: string;
+    comment?: string;
+    period?: Period;
+    preferred?: boolean;
+    type: "oid" | "uuid" | "uri" | "other";
+    value: string;
 }
-
 export interface NamingSystem extends DomainResource {
-  resourceType: 'NamingSystem';
-  
-  contact?: ContactDetail[];
-  date: string;
-  _date?: Element;
-  description?: string;
-  _description?: Element;
-  jurisdiction?: CodeableConcept[];
-  kind: 'codesystem' | 'identifier' | 'root';
-  _kind?: Element;
-  name: string;
-  _name?: Element;
-  publisher?: string;
-  _publisher?: Element;
-  responsible?: string;
-  _responsible?: Element;
-  status: 'draft' | 'active' | 'retired' | 'unknown';
-  _status?: Element;
-  type?: CodeableConcept;
-  uniqueId: NamingSystemUniqueId[];
-  usage?: string;
-  _usage?: Element;
-  useContext?: UsageContext[];
-}
+    resourceType: "NamingSystem";
 
+    contact?: ContactDetail[];
+    date: string;
+    _date?: Element;
+    description?: string;
+    _description?: Element;
+    jurisdiction?: CodeableConcept[];
+    kind: "codesystem" | "identifier" | "root";
+    _kind?: Element;
+    name: string;
+    _name?: Element;
+    publisher?: string;
+    _publisher?: Element;
+    responsible?: string;
+    _responsible?: Element;
+    status: "draft" | "active" | "retired" | "unknown";
+    _status?: Element;
+    type?: CodeableConcept;
+    uniqueId: NamingSystemUniqueId[];
+    usage?: string;
+    _usage?: Element;
+    useContext?: UsageContext[];
+}

@@ -2,25 +2,24 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { Element } from '../hl7-fhir-r4-core/Element';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { Element } from "../hl7-fhir-r4-core/Element";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Element }from '../hl7-fhir-r4-core/Element';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Element } from "../hl7-fhir-r4-core/Element";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface Identifier extends Element {
-  assigner?: Reference<'Organization'>;
-  period?: Period;
-  system?: string;
-  _system?: Element;
-  type?: CodeableConcept;
-  use?: 'usual' | 'official' | 'temp' | 'secondary' | 'old';
-  _use?: Element;
-  value?: string;
-  _value?: Element;
+    assigner?: Reference<"Organization">;
+    period?: Period;
+    system?: string;
+    _system?: Element;
+    type?: CodeableConcept;
+    use?: "usual" | "official" | "temp" | "secondary" | "old";
+    _use?: Element;
+    value?: string;
+    _value?: Element;
 }
-

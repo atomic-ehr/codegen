@@ -2,27 +2,26 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface EnrollmentResponse extends DomainResource {
-  resourceType: 'EnrollmentResponse';
-  
-  created?: string;
-  _created?: Element;
-  disposition?: string;
-  _disposition?: Element;
-  identifier?: Identifier[];
-  organization?: Reference<'Organization'>;
-  outcome?: 'queued' | 'complete' | 'error' | 'partial';
-  _outcome?: Element;
-  request?: Reference<'EnrollmentRequest'>;
-  requestProvider?: Reference<'Organization' | 'Practitioner' | 'PractitionerRole'>;
-  status?: 'active' | 'cancelled' | 'draft' | 'entered-in-error';
-  _status?: Element;
-}
+    resourceType: "EnrollmentResponse";
 
+    created?: string;
+    _created?: Element;
+    disposition?: string;
+    _disposition?: Element;
+    identifier?: Identifier[];
+    organization?: Reference<"Organization">;
+    outcome?: "queued" | "complete" | "error" | "partial";
+    _outcome?: Element;
+    request?: Reference<"EnrollmentRequest">;
+    requestProvider?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
+    status?: "active" | "cancelled" | "draft" | "entered-in-error";
+    _status?: Element;
+}

@@ -2,144 +2,126 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Dosage } from '../hl7-fhir-r4-core/Dosage';
-import type { Duration } from '../hl7-fhir-r4-core/Duration';
-import type { Money } from '../hl7-fhir-r4-core/Money';
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
-import type { Ratio } from '../hl7-fhir-r4-core/Ratio';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Dosage } from "../hl7-fhir-r4-core/Dosage";
+import type { Duration } from "../hl7-fhir-r4-core/Duration";
+import type { Money } from "../hl7-fhir-r4-core/Money";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+import type { Ratio } from "../hl7-fhir-r4-core/Ratio";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Dosage }from '../hl7-fhir-r4-core/Dosage';;
-export type { Duration }from '../hl7-fhir-r4-core/Duration';;
-export type { Money }from '../hl7-fhir-r4-core/Money';;
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
-export type { Ratio }from '../hl7-fhir-r4-core/Ratio';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Dosage } from "../hl7-fhir-r4-core/Dosage";
+export type { Duration } from "../hl7-fhir-r4-core/Duration";
+export type { Money } from "../hl7-fhir-r4-core/Money";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+export type { Ratio } from "../hl7-fhir-r4-core/Ratio";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface MedicationKnowledgeAdministrationGuidelines extends BackboneElement {
-  dosage?: MedicationKnowledgeAdministrationGuidelinesDosage[];
-  indicationCodeableConcept?: CodeableConcept;
-  indicationReference?: Reference<'ObservationDefinition'>;
-  patientCharacteristics?: MedicationKnowledgeAdministrationGuidelinesPatientCharacteristics[];
+    dosage?: MedicationKnowledgeAdministrationGuidelinesDosage[];
+    indicationCodeableConcept?: CodeableConcept;
+    indicationReference?: Reference<"ObservationDefinition">;
+    patientCharacteristics?: MedicationKnowledgeAdministrationGuidelinesPatientCharacteristics[];
 }
-
 export interface MedicationKnowledgeAdministrationGuidelinesDosage extends BackboneElement {
-  dosage: Dosage[];
-  type: CodeableConcept;
+    dosage: Dosage[];
+    type: CodeableConcept;
 }
-
 export interface MedicationKnowledgeAdministrationGuidelinesPatientCharacteristics extends BackboneElement {
-  characteristicCodeableConcept?: CodeableConcept;
-  characteristicQuantity?: Quantity;
-  value?: string[];
+    characteristicCodeableConcept?: CodeableConcept;
+    characteristicQuantity?: Quantity;
+    value?: string[];
 }
-
 export interface MedicationKnowledgeCost extends BackboneElement {
-  cost: Money;
-  source?: string;
-  type: CodeableConcept;
+    cost: Money;
+    source?: string;
+    type: CodeableConcept;
 }
-
 export interface MedicationKnowledgeDrugCharacteristic extends BackboneElement {
-  type?: CodeableConcept;
-  valueBase64Binary?: string;
-  valueCodeableConcept?: CodeableConcept;
-  valueQuantity?: Quantity;
-  valueString?: string;
+    type?: CodeableConcept;
+    valueBase64Binary?: string;
+    valueCodeableConcept?: CodeableConcept;
+    valueQuantity?: Quantity;
+    valueString?: string;
 }
-
 export interface MedicationKnowledgeIngredient extends BackboneElement {
-  isActive?: boolean;
-  itemCodeableConcept?: CodeableConcept;
-  itemReference?: Reference<'Substance'>;
-  strength?: Ratio;
+    isActive?: boolean;
+    itemCodeableConcept?: CodeableConcept;
+    itemReference?: Reference<"Substance">;
+    strength?: Ratio;
 }
-
 export interface MedicationKnowledgeKinetics extends BackboneElement {
-  areaUnderCurve?: Quantity[];
-  halfLifePeriod?: Duration;
-  lethalDose50?: Quantity[];
+    areaUnderCurve?: Quantity[];
+    halfLifePeriod?: Duration;
+    lethalDose50?: Quantity[];
 }
-
 export interface MedicationKnowledgeMedicineClassification extends BackboneElement {
-  classification?: CodeableConcept[];
-  type: CodeableConcept;
+    classification?: CodeableConcept[];
+    type: CodeableConcept;
 }
-
 export interface MedicationKnowledgeMonitoringProgram extends BackboneElement {
-  name?: string;
-  type?: CodeableConcept;
+    name?: string;
+    type?: CodeableConcept;
 }
-
 export interface MedicationKnowledgeMonograph extends BackboneElement {
-  source?: Reference<'DocumentReference' | 'Media'>;
-  type?: CodeableConcept;
+    source?: Reference<"DocumentReference" | "Media">;
+    type?: CodeableConcept;
 }
-
 export interface MedicationKnowledgePackaging extends BackboneElement {
-  quantity?: Quantity;
-  type?: CodeableConcept;
+    quantity?: Quantity;
+    type?: CodeableConcept;
 }
-
 export interface MedicationKnowledgeRegulatory extends BackboneElement {
-  maxDispense?: MedicationKnowledgeRegulatoryMaxDispense;
-  regulatoryAuthority: Reference<'Organization'>;
-  schedule?: MedicationKnowledgeRegulatorySchedule[];
-  substitution?: MedicationKnowledgeRegulatorySubstitution[];
+    maxDispense?: MedicationKnowledgeRegulatoryMaxDispense;
+    regulatoryAuthority: Reference<"Organization">;
+    schedule?: MedicationKnowledgeRegulatorySchedule[];
+    substitution?: MedicationKnowledgeRegulatorySubstitution[];
 }
-
 export interface MedicationKnowledgeRegulatoryMaxDispense extends BackboneElement {
-  period?: Duration;
-  quantity: Quantity;
+    period?: Duration;
+    quantity: Quantity;
 }
-
 export interface MedicationKnowledgeRegulatorySchedule extends BackboneElement {
-  schedule: CodeableConcept;
+    schedule: CodeableConcept;
 }
-
 export interface MedicationKnowledgeRegulatorySubstitution extends BackboneElement {
-  allowed: boolean;
-  type: CodeableConcept;
+    allowed: boolean;
+    type: CodeableConcept;
 }
-
 export interface MedicationKnowledgeRelatedMedicationKnowledge extends BackboneElement {
-  reference: Reference<'MedicationKnowledge'>[];
-  type: CodeableConcept;
+    reference: Reference<"MedicationKnowledge">[];
+    type: CodeableConcept;
 }
-
 export interface MedicationKnowledge extends DomainResource {
-  resourceType: 'MedicationKnowledge';
-  
-  administrationGuidelines?: MedicationKnowledgeAdministrationGuidelines[];
-  amount?: Quantity;
-  associatedMedication?: Reference<'Medication'>[];
-  code?: CodeableConcept;
-  contraindication?: Reference<'DetectedIssue'>[];
-  cost?: MedicationKnowledgeCost[];
-  doseForm?: CodeableConcept;
-  drugCharacteristic?: MedicationKnowledgeDrugCharacteristic[];
-  ingredient?: MedicationKnowledgeIngredient[];
-  intendedRoute?: CodeableConcept[];
-  kinetics?: MedicationKnowledgeKinetics[];
-  manufacturer?: Reference<'Organization'>;
-  medicineClassification?: MedicationKnowledgeMedicineClassification[];
-  monitoringProgram?: MedicationKnowledgeMonitoringProgram[];
-  monograph?: MedicationKnowledgeMonograph[];
-  packaging?: MedicationKnowledgePackaging;
-  preparationInstruction?: string;
-  _preparationInstruction?: Element;
-  productType?: CodeableConcept[];
-  regulatory?: MedicationKnowledgeRegulatory[];
-  relatedMedicationKnowledge?: MedicationKnowledgeRelatedMedicationKnowledge[];
-  status?: 'active' | 'inactive' | 'entered-in-error';
-  _status?: Element;
-  synonym?: string[];
-  _synonym?: Element;
-}
+    resourceType: "MedicationKnowledge";
 
+    administrationGuidelines?: MedicationKnowledgeAdministrationGuidelines[];
+    amount?: Quantity;
+    associatedMedication?: Reference<"Medication">[];
+    code?: CodeableConcept;
+    contraindication?: Reference<"DetectedIssue">[];
+    cost?: MedicationKnowledgeCost[];
+    doseForm?: CodeableConcept;
+    drugCharacteristic?: MedicationKnowledgeDrugCharacteristic[];
+    ingredient?: MedicationKnowledgeIngredient[];
+    intendedRoute?: CodeableConcept[];
+    kinetics?: MedicationKnowledgeKinetics[];
+    manufacturer?: Reference<"Organization">;
+    medicineClassification?: MedicationKnowledgeMedicineClassification[];
+    monitoringProgram?: MedicationKnowledgeMonitoringProgram[];
+    monograph?: MedicationKnowledgeMonograph[];
+    packaging?: MedicationKnowledgePackaging;
+    preparationInstruction?: string;
+    _preparationInstruction?: Element;
+    productType?: CodeableConcept[];
+    regulatory?: MedicationKnowledgeRegulatory[];
+    relatedMedicationKnowledge?: MedicationKnowledgeRelatedMedicationKnowledge[];
+    status?: "active" | "inactive" | "entered-in-error";
+    _status?: Element;
+    synonym?: string[];
+    _synonym?: Element;
+}

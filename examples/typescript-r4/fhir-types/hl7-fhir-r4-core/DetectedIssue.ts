@@ -2,51 +2,47 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface DetectedIssueEvidence extends BackboneElement {
-  code?: CodeableConcept[];
-  detail?: Reference<'Resource'>[];
+    code?: CodeableConcept[];
+    detail?: Reference<"Resource">[];
 }
-
 export interface DetectedIssueMitigation extends BackboneElement {
-  action: CodeableConcept;
-  author?: Reference<'Practitioner' | 'PractitionerRole'>;
-  date?: string;
+    action: CodeableConcept;
+    author?: Reference<"Practitioner" | "PractitionerRole">;
+    date?: string;
 }
-
 export interface DetectedIssue extends DomainResource {
-  resourceType: 'DetectedIssue';
-  
-  author?: Reference<'Device' | 'Practitioner' | 'PractitionerRole'>;
-  code?: CodeableConcept;
-  detail?: string;
-  _detail?: Element;
-  evidence?: DetectedIssueEvidence[];
-  identifiedDateTime?: string;
-  _identifiedDateTime?: Element;
-  identifiedPeriod?: Period;
-  identifier?: Identifier[];
-  implicated?: Reference<'Resource'>[];
-  mitigation?: DetectedIssueMitigation[];
-  patient?: Reference<'Patient'>;
-  reference?: string;
-  _reference?: Element;
-  severity?: 'high' | 'moderate' | 'low';
-  _severity?: Element;
-  status: 'registered' | 'preliminary' | 'final' | 'amended' | 'corrected' | 'cancelled' | 'entered-in-error' | 'unknown';
-  _status?: Element;
-}
+    resourceType: "DetectedIssue";
 
+    author?: Reference<"Device" | "Practitioner" | "PractitionerRole">;
+    code?: CodeableConcept;
+    detail?: string;
+    _detail?: Element;
+    evidence?: DetectedIssueEvidence[];
+    identifiedDateTime?: string;
+    _identifiedDateTime?: Element;
+    identifiedPeriod?: Period;
+    identifier?: Identifier[];
+    implicated?: Reference<"Resource">[];
+    mitigation?: DetectedIssueMitigation[];
+    patient?: Reference<"Patient">;
+    reference?: string;
+    _reference?: Element;
+    severity?: "high" | "moderate" | "low";
+    _severity?: Element;
+    status: "registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown";
+    _status?: Element;
+}

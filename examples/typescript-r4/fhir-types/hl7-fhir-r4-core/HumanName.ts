@@ -2,25 +2,24 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Element } from '../hl7-fhir-r4-core/Element';
-import type { Period } from '../hl7-fhir-r4-core/Period';
+import type { Element } from "../hl7-fhir-r4-core/Element";
+import type { Period } from "../hl7-fhir-r4-core/Period";
 
-export type { Element }from '../hl7-fhir-r4-core/Element';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
+export type { Element } from "../hl7-fhir-r4-core/Element";
+export type { Period } from "../hl7-fhir-r4-core/Period";
 
 export interface HumanName extends Element {
-  family?: string;
-  _family?: Element;
-  given?: string[];
-  _given?: Element;
-  period?: Period;
-  prefix?: string[];
-  _prefix?: Element;
-  suffix?: string[];
-  _suffix?: Element;
-  text?: string;
-  _text?: Element;
-  use?: 'usual' | 'official' | 'temp' | 'nickname' | 'anonymous' | 'old' | 'maiden';
-  _use?: Element;
+    family?: string;
+    _family?: Element;
+    given?: string[];
+    _given?: Element;
+    period?: Period;
+    prefix?: string[];
+    _prefix?: Element;
+    suffix?: string[];
+    _suffix?: Element;
+    text?: string;
+    _text?: Element;
+    use?: "usual" | "official" | "temp" | "nickname" | "anonymous" | "old" | "maiden";
+    _use?: Element;
 }
-

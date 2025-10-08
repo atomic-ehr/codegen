@@ -2,91 +2,83 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Annotation } from '../hl7-fhir-r4-core/Annotation';
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { ContactPoint } from '../hl7-fhir-r4-core/ContactPoint';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { ProdCharacteristic } from '../hl7-fhir-r4-core/ProdCharacteristic';
-import type { ProductShelfLife } from '../hl7-fhir-r4-core/ProductShelfLife';
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { Annotation } from "../hl7-fhir-r4-core/Annotation";
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { ContactPoint } from "../hl7-fhir-r4-core/ContactPoint";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { ProdCharacteristic } from "../hl7-fhir-r4-core/ProdCharacteristic";
+import type { ProductShelfLife } from "../hl7-fhir-r4-core/ProductShelfLife";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Annotation }from '../hl7-fhir-r4-core/Annotation';;
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { ContactPoint }from '../hl7-fhir-r4-core/ContactPoint';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { ProdCharacteristic }from '../hl7-fhir-r4-core/ProdCharacteristic';;
-export type { ProductShelfLife }from '../hl7-fhir-r4-core/ProductShelfLife';;
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { Annotation } from "../hl7-fhir-r4-core/Annotation";
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { ContactPoint } from "../hl7-fhir-r4-core/ContactPoint";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { ProdCharacteristic } from "../hl7-fhir-r4-core/ProdCharacteristic";
+export type { ProductShelfLife } from "../hl7-fhir-r4-core/ProductShelfLife";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface DeviceDefinitionCapability extends BackboneElement {
-  description?: CodeableConcept[];
-  type: CodeableConcept;
+    description?: CodeableConcept[];
+    type: CodeableConcept;
 }
-
 export interface DeviceDefinitionDeviceName extends BackboneElement {
-  name: string;
-  type: 'udi-label-name' | 'user-friendly-name' | 'patient-reported-name' | 'manufacturer-name' | 'model-name' | 'other';
+    name: string;
+    type: "udi-label-name" | "user-friendly-name" | "patient-reported-name" | "manufacturer-name" | "model-name" | "other";
 }
-
 export interface DeviceDefinitionMaterial extends BackboneElement {
-  allergenicIndicator?: boolean;
-  alternate?: boolean;
-  substance: CodeableConcept;
+    allergenicIndicator?: boolean;
+    alternate?: boolean;
+    substance: CodeableConcept;
 }
-
 export interface DeviceDefinitionProperty extends BackboneElement {
-  type: CodeableConcept;
-  valueCode?: CodeableConcept[];
-  valueQuantity?: Quantity[];
+    type: CodeableConcept;
+    valueCode?: CodeableConcept[];
+    valueQuantity?: Quantity[];
 }
-
 export interface DeviceDefinitionSpecialization extends BackboneElement {
-  systemType: string;
-  version?: string;
+    systemType: string;
+    version?: string;
 }
-
 export interface DeviceDefinitionUdiDeviceIdentifier extends BackboneElement {
-  deviceIdentifier: string;
-  issuer: string;
-  jurisdiction: string;
+    deviceIdentifier: string;
+    issuer: string;
+    jurisdiction: string;
 }
-
 export interface DeviceDefinition extends DomainResource {
-  resourceType: 'DeviceDefinition';
-  
-  capability?: DeviceDefinitionCapability[];
-  contact?: ContactPoint[];
-  deviceName?: DeviceDefinitionDeviceName[];
-  identifier?: Identifier[];
-  languageCode?: CodeableConcept[];
-  manufacturerReference?: Reference<'Organization'>;
-  manufacturerString?: string;
-  _manufacturerString?: Element;
-  material?: DeviceDefinitionMaterial[];
-  modelNumber?: string;
-  _modelNumber?: Element;
-  note?: Annotation[];
-  onlineInformation?: string;
-  _onlineInformation?: Element;
-  owner?: Reference<'Organization'>;
-  parentDevice?: Reference<'DeviceDefinition'>;
-  physicalCharacteristics?: ProdCharacteristic;
-  property?: DeviceDefinitionProperty[];
-  quantity?: Quantity;
-  safety?: CodeableConcept[];
-  shelfLifeStorage?: ProductShelfLife[];
-  specialization?: DeviceDefinitionSpecialization[];
-  type?: CodeableConcept;
-  udiDeviceIdentifier?: DeviceDefinitionUdiDeviceIdentifier[];
-  url?: string;
-  _url?: Element;
-  version?: string[];
-  _version?: Element;
-}
+    resourceType: "DeviceDefinition";
 
+    capability?: DeviceDefinitionCapability[];
+    contact?: ContactPoint[];
+    deviceName?: DeviceDefinitionDeviceName[];
+    identifier?: Identifier[];
+    languageCode?: CodeableConcept[];
+    manufacturerReference?: Reference<"Organization">;
+    manufacturerString?: string;
+    _manufacturerString?: Element;
+    material?: DeviceDefinitionMaterial[];
+    modelNumber?: string;
+    _modelNumber?: Element;
+    note?: Annotation[];
+    onlineInformation?: string;
+    _onlineInformation?: Element;
+    owner?: Reference<"Organization">;
+    parentDevice?: Reference<"DeviceDefinition">;
+    physicalCharacteristics?: ProdCharacteristic;
+    property?: DeviceDefinitionProperty[];
+    quantity?: Quantity;
+    safety?: CodeableConcept[];
+    shelfLifeStorage?: ProductShelfLife[];
+    specialization?: DeviceDefinitionSpecialization[];
+    type?: CodeableConcept;
+    udiDeviceIdentifier?: DeviceDefinitionUdiDeviceIdentifier[];
+    url?: string;
+    _url?: Element;
+    version?: string[];
+    _version?: Element;
+}

@@ -4,4 +4,3 @@
 
 export interface FiveWs {
 }
-

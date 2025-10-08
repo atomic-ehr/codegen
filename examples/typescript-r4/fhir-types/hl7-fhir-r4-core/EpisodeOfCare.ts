@@ -2,46 +2,42 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface EpisodeOfCareDiagnosis extends BackboneElement {
-  condition: Reference<'Condition'>;
-  rank?: number;
-  role?: CodeableConcept;
+    condition: Reference<"Condition">;
+    rank?: number;
+    role?: CodeableConcept;
 }
-
 export interface EpisodeOfCareStatusHistory extends BackboneElement {
-  period: Period;
-  status: 'planned' | 'waitlist' | 'active' | 'onhold' | 'finished' | 'cancelled' | 'entered-in-error';
+    period: Period;
+    status: "planned" | "waitlist" | "active" | "onhold" | "finished" | "cancelled" | "entered-in-error";
 }
-
 export interface EpisodeOfCare extends DomainResource {
-  resourceType: 'EpisodeOfCare';
-  
-  account?: Reference<'Account'>[];
-  careManager?: Reference<'Practitioner' | 'PractitionerRole'>;
-  diagnosis?: EpisodeOfCareDiagnosis[];
-  identifier?: Identifier[];
-  managingOrganization?: Reference<'Organization'>;
-  patient: Reference<'Patient'>;
-  period?: Period;
-  referralRequest?: Reference<'ServiceRequest'>[];
-  status: 'planned' | 'waitlist' | 'active' | 'onhold' | 'finished' | 'cancelled' | 'entered-in-error';
-  _status?: Element;
-  statusHistory?: EpisodeOfCareStatusHistory[];
-  team?: Reference<'CareTeam'>[];
-  type?: CodeableConcept[];
-}
+    resourceType: "EpisodeOfCare";
 
+    account?: Reference<"Account">[];
+    careManager?: Reference<"Practitioner" | "PractitionerRole">;
+    diagnosis?: EpisodeOfCareDiagnosis[];
+    identifier?: Identifier[];
+    managingOrganization?: Reference<"Organization">;
+    patient: Reference<"Patient">;
+    period?: Period;
+    referralRequest?: Reference<"ServiceRequest">[];
+    status: "planned" | "waitlist" | "active" | "onhold" | "finished" | "cancelled" | "entered-in-error";
+    _status?: Element;
+    statusHistory?: EpisodeOfCareStatusHistory[];
+    team?: Reference<"CareTeam">[];
+    type?: CodeableConcept[];
+}

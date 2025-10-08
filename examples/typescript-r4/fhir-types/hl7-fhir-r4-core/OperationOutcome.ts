@@ -2,26 +2,23 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 
 export interface OperationOutcomeIssue extends BackboneElement {
-  code: 'invalid' | 'structure' | 'required' | 'value' | 'invariant' | 'security' | 'login' | 'unknown' | 'expired' | 'forbidden' | 'suppressed' | 'processing' | 'not-supported' | 'duplicate' | 'multiple-matches' | 'not-found' | 'deleted' | 'too-long' | 'code-invalid' | 'extension' | 'too-costly' | 'business-rule' | 'conflict' | 'transient' | 'lock-error' | 'no-store' | 'exception' | 'timeout' | 'incomplete' | 'throttled' | 'informational';
-  details?: CodeableConcept;
-  diagnostics?: string;
-  expression?: string[];
-  location?: string[];
-  severity: 'fatal' | 'error' | 'warning' | 'information';
+    code: "invalid" | "structure" | "required" | "value" | "invariant" | "security" | "login" | "unknown" | "expired" | "forbidden" | "suppressed" | "processing" | "not-supported" | "duplicate" | "multiple-matches" | "not-found" | "deleted" | "too-long" | "code-invalid" | "extension" | "too-costly" | "business-rule" | "conflict" | "transient" | "lock-error" | "no-store" | "exception" | "timeout" | "incomplete" | "throttled" | "informational";
+    details?: CodeableConcept;
+    diagnostics?: string;
+    expression?: string[];
+    location?: string[];
+    severity: "fatal" | "error" | "warning" | "information";
 }
-
 export interface OperationOutcome extends DomainResource {
-  resourceType: 'OperationOutcome';
-  
-  issue: OperationOutcomeIssue[];
-}
+    resourceType: "OperationOutcome";
 
+    issue: OperationOutcomeIssue[];
+}

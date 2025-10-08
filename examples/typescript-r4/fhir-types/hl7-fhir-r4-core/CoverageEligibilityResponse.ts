@@ -2,85 +2,79 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Money } from '../hl7-fhir-r4-core/Money';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Money } from "../hl7-fhir-r4-core/Money";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Money }from '../hl7-fhir-r4-core/Money';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Money } from "../hl7-fhir-r4-core/Money";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface CoverageEligibilityResponseError extends BackboneElement {
-  code: CodeableConcept;
+    code: CodeableConcept;
 }
-
 export interface CoverageEligibilityResponseInsurance extends BackboneElement {
-  benefitPeriod?: Period;
-  coverage: Reference<'Coverage'>;
-  inforce?: boolean;
-  item?: CoverageEligibilityResponseInsuranceItem[];
+    benefitPeriod?: Period;
+    coverage: Reference<"Coverage">;
+    inforce?: boolean;
+    item?: CoverageEligibilityResponseInsuranceItem[];
 }
-
 export interface CoverageEligibilityResponseInsuranceItem extends BackboneElement {
-  authorizationRequired?: boolean;
-  authorizationSupporting?: CodeableConcept[];
-  authorizationUrl?: string;
-  benefit?: CoverageEligibilityResponseInsuranceItemBenefit[];
-  category?: CodeableConcept;
-  description?: string;
-  excluded?: boolean;
-  modifier?: CodeableConcept[];
-  name?: string;
-  network?: CodeableConcept;
-  productOrService?: CodeableConcept;
-  provider?: Reference<'Practitioner' | 'PractitionerRole'>;
-  term?: CodeableConcept;
-  unit?: CodeableConcept;
+    authorizationRequired?: boolean;
+    authorizationSupporting?: CodeableConcept[];
+    authorizationUrl?: string;
+    benefit?: CoverageEligibilityResponseInsuranceItemBenefit[];
+    category?: CodeableConcept;
+    description?: string;
+    excluded?: boolean;
+    modifier?: CodeableConcept[];
+    name?: string;
+    network?: CodeableConcept;
+    productOrService?: CodeableConcept;
+    provider?: Reference<"Practitioner" | "PractitionerRole">;
+    term?: CodeableConcept;
+    unit?: CodeableConcept;
 }
-
 export interface CoverageEligibilityResponseInsuranceItemBenefit extends BackboneElement {
-  allowedMoney?: Money;
-  allowedString?: string;
-  allowedUnsignedInt?: number;
-  type: CodeableConcept;
-  usedMoney?: Money;
-  usedString?: string;
-  usedUnsignedInt?: number;
+    allowedMoney?: Money;
+    allowedString?: string;
+    allowedUnsignedInt?: number;
+    type: CodeableConcept;
+    usedMoney?: Money;
+    usedString?: string;
+    usedUnsignedInt?: number;
 }
-
 export interface CoverageEligibilityResponse extends DomainResource {
-  resourceType: 'CoverageEligibilityResponse';
-  
-  created: string;
-  _created?: Element;
-  disposition?: string;
-  _disposition?: Element;
-  error?: CoverageEligibilityResponseError[];
-  form?: CodeableConcept;
-  identifier?: Identifier[];
-  insurance?: CoverageEligibilityResponseInsurance[];
-  insurer: Reference<'Organization'>;
-  outcome: 'queued' | 'complete' | 'error' | 'partial';
-  _outcome?: Element;
-  patient: Reference<'Patient'>;
-  preAuthRef?: string;
-  _preAuthRef?: Element;
-  purpose: 'auth-requirements' | 'benefits' | 'discovery' | 'validation'[];
-  _purpose?: Element;
-  request: Reference<'CoverageEligibilityRequest'>;
-  requestor?: Reference<'Organization' | 'Practitioner' | 'PractitionerRole'>;
-  servicedDate?: string;
-  _servicedDate?: Element;
-  servicedPeriod?: Period;
-  status: 'active' | 'cancelled' | 'draft' | 'entered-in-error';
-  _status?: Element;
-}
+    resourceType: "CoverageEligibilityResponse";
 
+    created: string;
+    _created?: Element;
+    disposition?: string;
+    _disposition?: Element;
+    error?: CoverageEligibilityResponseError[];
+    form?: CodeableConcept;
+    identifier?: Identifier[];
+    insurance?: CoverageEligibilityResponseInsurance[];
+    insurer: Reference<"Organization">;
+    outcome: "queued" | "complete" | "error" | "partial";
+    _outcome?: Element;
+    patient: Reference<"Patient">;
+    preAuthRef?: string;
+    _preAuthRef?: Element;
+    purpose: "auth-requirements" | "benefits" | "discovery" | "validation"[];
+    _purpose?: Element;
+    request: Reference<"CoverageEligibilityRequest">;
+    requestor?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
+    servicedDate?: string;
+    _servicedDate?: Element;
+    servicedPeriod?: Period;
+    status: "active" | "cancelled" | "draft" | "entered-in-error";
+    _status?: Element;
+}

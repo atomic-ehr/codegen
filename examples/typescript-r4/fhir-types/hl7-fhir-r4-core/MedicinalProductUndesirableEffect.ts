@@ -2,22 +2,21 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Population } from '../hl7-fhir-r4-core/Population';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Population } from "../hl7-fhir-r4-core/Population";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Population }from '../hl7-fhir-r4-core/Population';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Population } from "../hl7-fhir-r4-core/Population";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface MedicinalProductUndesirableEffect extends DomainResource {
-  resourceType: 'MedicinalProductUndesirableEffect';
-  
-  classification?: CodeableConcept;
-  frequencyOfOccurrence?: CodeableConcept;
-  population?: Population[];
-  subject?: Reference<'Medication' | 'MedicinalProduct'>[];
-  symptomConditionEffect?: CodeableConcept;
-}
+    resourceType: "MedicinalProductUndesirableEffect";
 
+    classification?: CodeableConcept;
+    frequencyOfOccurrence?: CodeableConcept;
+    population?: Population[];
+    subject?: Reference<"Medication" | "MedicinalProduct">[];
+    symptomConditionEffect?: CodeableConcept;
+}

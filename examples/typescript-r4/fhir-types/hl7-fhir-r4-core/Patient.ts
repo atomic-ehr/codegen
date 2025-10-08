@@ -2,75 +2,70 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Address } from '../hl7-fhir-r4-core/Address';
-import type { Attachment } from '../hl7-fhir-r4-core/Attachment';
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { ContactPoint } from '../hl7-fhir-r4-core/ContactPoint';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { HumanName } from '../hl7-fhir-r4-core/HumanName';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { Address } from "../hl7-fhir-r4-core/Address";
+import type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { ContactPoint } from "../hl7-fhir-r4-core/ContactPoint";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { HumanName } from "../hl7-fhir-r4-core/HumanName";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Address }from '../hl7-fhir-r4-core/Address';;
-export type { Attachment }from '../hl7-fhir-r4-core/Attachment';;
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { ContactPoint }from '../hl7-fhir-r4-core/ContactPoint';;
-export type { HumanName }from '../hl7-fhir-r4-core/HumanName';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { Address } from "../hl7-fhir-r4-core/Address";
+export type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { ContactPoint } from "../hl7-fhir-r4-core/ContactPoint";
+export type { HumanName } from "../hl7-fhir-r4-core/HumanName";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface PatientCommunication extends BackboneElement {
-  language: CodeableConcept;
-  preferred?: boolean;
+    language: CodeableConcept;
+    preferred?: boolean;
 }
-
 export interface PatientContact extends BackboneElement {
-  address?: Address;
-  gender?: 'male' | 'female' | 'other' | 'unknown';
-  name?: HumanName;
-  organization?: Reference<'Organization'>;
-  period?: Period;
-  relationship?: CodeableConcept[];
-  telecom?: ContactPoint[];
+    address?: Address;
+    gender?: "male" | "female" | "other" | "unknown";
+    name?: HumanName;
+    organization?: Reference<"Organization">;
+    period?: Period;
+    relationship?: CodeableConcept[];
+    telecom?: ContactPoint[];
 }
-
 export interface PatientLink extends BackboneElement {
-  other: Reference<'Patient' | 'RelatedPerson'>;
-  type: 'replaced-by' | 'replaces' | 'refer' | 'seealso';
+    other: Reference<"Patient" | "RelatedPerson">;
+    type: "replaced-by" | "replaces" | "refer" | "seealso";
 }
-
 export interface Patient extends DomainResource {
-  resourceType: 'Patient';
-  
-  active?: boolean;
-  _active?: Element;
-  address?: Address[];
-  birthDate?: string;
-  _birthDate?: Element;
-  communication?: PatientCommunication[];
-  contact?: PatientContact[];
-  deceasedBoolean?: boolean;
-  _deceasedBoolean?: Element;
-  deceasedDateTime?: string;
-  _deceasedDateTime?: Element;
-  gender?: 'male' | 'female' | 'other' | 'unknown';
-  _gender?: Element;
-  generalPractitioner?: Reference<'Organization' | 'Practitioner' | 'PractitionerRole'>[];
-  identifier?: Identifier[];
-  link?: PatientLink[];
-  managingOrganization?: Reference<'Organization'>;
-  maritalStatus?: CodeableConcept;
-  multipleBirthBoolean?: boolean;
-  _multipleBirthBoolean?: Element;
-  multipleBirthInteger?: number;
-  _multipleBirthInteger?: Element;
-  name?: HumanName[];
-  photo?: Attachment[];
-  telecom?: ContactPoint[];
-}
+    resourceType: "Patient";
 
+    active?: boolean;
+    _active?: Element;
+    address?: Address[];
+    birthDate?: string;
+    _birthDate?: Element;
+    communication?: PatientCommunication[];
+    contact?: PatientContact[];
+    deceasedBoolean?: boolean;
+    _deceasedBoolean?: Element;
+    deceasedDateTime?: string;
+    _deceasedDateTime?: Element;
+    gender?: "male" | "female" | "other" | "unknown";
+    _gender?: Element;
+    generalPractitioner?: Reference<"Organization" | "Practitioner" | "PractitionerRole">[];
+    identifier?: Identifier[];
+    link?: PatientLink[];
+    managingOrganization?: Reference<"Organization">;
+    maritalStatus?: CodeableConcept;
+    multipleBirthBoolean?: boolean;
+    _multipleBirthBoolean?: Element;
+    multipleBirthInteger?: number;
+    _multipleBirthInteger?: Element;
+    name?: HumanName[];
+    photo?: Attachment[];
+    telecom?: ContactPoint[];
+}

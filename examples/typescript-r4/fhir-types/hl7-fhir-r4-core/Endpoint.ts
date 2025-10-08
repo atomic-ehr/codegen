@@ -2,39 +2,38 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { Coding } from '../hl7-fhir-r4-core/Coding';
-import type { ContactPoint } from '../hl7-fhir-r4-core/ContactPoint';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { Coding } from "../hl7-fhir-r4-core/Coding";
+import type { ContactPoint } from "../hl7-fhir-r4-core/ContactPoint";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Coding }from '../hl7-fhir-r4-core/Coding';;
-export type { ContactPoint }from '../hl7-fhir-r4-core/ContactPoint';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Coding } from "../hl7-fhir-r4-core/Coding";
+export type { ContactPoint } from "../hl7-fhir-r4-core/ContactPoint";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface Endpoint extends DomainResource {
-  resourceType: 'Endpoint';
-  
-  address: string;
-  _address?: Element;
-  connectionType: Coding;
-  contact?: ContactPoint[];
-  header?: string[];
-  _header?: Element;
-  identifier?: Identifier[];
-  managingOrganization?: Reference<'Organization'>;
-  name?: string;
-  _name?: Element;
-  payloadMimeType?: string[];
-  _payloadMimeType?: Element;
-  payloadType: CodeableConcept[];
-  period?: Period;
-  status: 'active' | 'suspended' | 'error' | 'off' | 'entered-in-error' | 'test';
-  _status?: Element;
-}
+    resourceType: "Endpoint";
 
+    address: string;
+    _address?: Element;
+    connectionType: Coding;
+    contact?: ContactPoint[];
+    header?: string[];
+    _header?: Element;
+    identifier?: Identifier[];
+    managingOrganization?: Reference<"Organization">;
+    name?: string;
+    _name?: Element;
+    payloadMimeType?: string[];
+    _payloadMimeType?: Element;
+    payloadType: CodeableConcept[];
+    period?: Period;
+    status: "active" | "suspended" | "error" | "off" | "entered-in-error" | "test";
+    _status?: Element;
+}

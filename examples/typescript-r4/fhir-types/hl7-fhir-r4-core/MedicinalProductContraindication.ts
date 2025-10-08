@@ -2,33 +2,30 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Population } from '../hl7-fhir-r4-core/Population';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Population } from "../hl7-fhir-r4-core/Population";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Population }from '../hl7-fhir-r4-core/Population';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Population } from "../hl7-fhir-r4-core/Population";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface MedicinalProductContraindicationOtherTherapy extends BackboneElement {
-  medicationCodeableConcept?: CodeableConcept;
-  medicationReference?: Reference<'Medication' | 'MedicinalProduct' | 'Substance' | 'SubstanceSpecification'>;
-  therapyRelationshipType: CodeableConcept;
+    medicationCodeableConcept?: CodeableConcept;
+    medicationReference?: Reference<"Medication" | "MedicinalProduct" | "Substance" | "SubstanceSpecification">;
+    therapyRelationshipType: CodeableConcept;
 }
-
 export interface MedicinalProductContraindication extends DomainResource {
-  resourceType: 'MedicinalProductContraindication';
-  
-  comorbidity?: CodeableConcept[];
-  disease?: CodeableConcept;
-  diseaseStatus?: CodeableConcept;
-  otherTherapy?: MedicinalProductContraindicationOtherTherapy[];
-  population?: Population[];
-  subject?: Reference<'Medication' | 'MedicinalProduct'>[];
-  therapeuticIndication?: Reference<'MedicinalProductIndication'>[];
-}
+    resourceType: "MedicinalProductContraindication";
 
+    comorbidity?: CodeableConcept[];
+    disease?: CodeableConcept;
+    diseaseStatus?: CodeableConcept;
+    otherTherapy?: MedicinalProductContraindicationOtherTherapy[];
+    population?: Population[];
+    subject?: Reference<"Medication" | "MedicinalProduct">[];
+    therapeuticIndication?: Reference<"MedicinalProductIndication">[];
+}

@@ -2,62 +2,57 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Annotation } from '../hl7-fhir-r4-core/Annotation';
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Money } from '../hl7-fhir-r4-core/Money';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { Annotation } from "../hl7-fhir-r4-core/Annotation";
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Money } from "../hl7-fhir-r4-core/Money";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Annotation }from '../hl7-fhir-r4-core/Annotation';;
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Money }from '../hl7-fhir-r4-core/Money';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { Annotation } from "../hl7-fhir-r4-core/Annotation";
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Money } from "../hl7-fhir-r4-core/Money";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface InvoiceLineItem extends BackboneElement {
-  chargeItemCodeableConcept?: CodeableConcept;
-  chargeItemReference?: Reference<'ChargeItem'>;
-  priceComponent?: InvoiceLineItemPriceComponent[];
-  sequence?: number;
+    chargeItemCodeableConcept?: CodeableConcept;
+    chargeItemReference?: Reference<"ChargeItem">;
+    priceComponent?: InvoiceLineItemPriceComponent[];
+    sequence?: number;
 }
-
 export interface InvoiceLineItemPriceComponent extends BackboneElement {
-  amount?: Money;
-  code?: CodeableConcept;
-  factor?: number;
-  type: 'base' | 'surcharge' | 'deduction' | 'discount' | 'tax' | 'informational';
+    amount?: Money;
+    code?: CodeableConcept;
+    factor?: number;
+    type: "base" | "surcharge" | "deduction" | "discount" | "tax" | "informational";
 }
-
 export interface InvoiceParticipant extends BackboneElement {
-  actor: Reference<'Device' | 'Organization' | 'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
-  role?: CodeableConcept;
+    actor: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
+    role?: CodeableConcept;
 }
-
 export interface Invoice extends DomainResource {
-  resourceType: 'Invoice';
-  
-  account?: Reference<'Account'>;
-  cancelledReason?: string;
-  _cancelledReason?: Element;
-  date?: string;
-  _date?: Element;
-  identifier?: Identifier[];
-  issuer?: Reference<'Organization'>;
-  lineItem?: InvoiceLineItem[];
-  note?: Annotation[];
-  participant?: InvoiceParticipant[];
-  paymentTerms?: string;
-  _paymentTerms?: Element;
-  recipient?: Reference<'Organization' | 'Patient' | 'RelatedPerson'>;
-  status: 'draft' | 'issued' | 'balanced' | 'cancelled' | 'entered-in-error';
-  _status?: Element;
-  subject?: Reference<'Group' | 'Patient'>;
-  totalGross?: Money;
-  totalNet?: Money;
-  type?: CodeableConcept;
-}
+    resourceType: "Invoice";
 
+    account?: Reference<"Account">;
+    cancelledReason?: string;
+    _cancelledReason?: Element;
+    date?: string;
+    _date?: Element;
+    identifier?: Identifier[];
+    issuer?: Reference<"Organization">;
+    lineItem?: InvoiceLineItem[];
+    note?: Annotation[];
+    participant?: InvoiceParticipant[];
+    paymentTerms?: string;
+    _paymentTerms?: Element;
+    recipient?: Reference<"Organization" | "Patient" | "RelatedPerson">;
+    status: "draft" | "issued" | "balanced" | "cancelled" | "entered-in-error";
+    _status?: Element;
+    subject?: Reference<"Group" | "Patient">;
+    totalGross?: Money;
+    totalNet?: Money;
+    type?: CodeableConcept;
+}

@@ -2,57 +2,53 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { MarketingStatus } from '../hl7-fhir-r4-core/MarketingStatus';
-import type { ProdCharacteristic } from '../hl7-fhir-r4-core/ProdCharacteristic';
-import type { ProductShelfLife } from '../hl7-fhir-r4-core/ProductShelfLife';
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { MarketingStatus } from "../hl7-fhir-r4-core/MarketingStatus";
+import type { ProdCharacteristic } from "../hl7-fhir-r4-core/ProdCharacteristic";
+import type { ProductShelfLife } from "../hl7-fhir-r4-core/ProductShelfLife";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { MarketingStatus }from '../hl7-fhir-r4-core/MarketingStatus';;
-export type { ProdCharacteristic }from '../hl7-fhir-r4-core/ProdCharacteristic';;
-export type { ProductShelfLife }from '../hl7-fhir-r4-core/ProductShelfLife';;
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { MarketingStatus } from "../hl7-fhir-r4-core/MarketingStatus";
+export type { ProdCharacteristic } from "../hl7-fhir-r4-core/ProdCharacteristic";
+export type { ProductShelfLife } from "../hl7-fhir-r4-core/ProductShelfLife";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface MedicinalProductPackagedBatchIdentifier extends BackboneElement {
-  immediatePackaging?: Identifier;
-  outerPackaging: Identifier;
+    immediatePackaging?: Identifier;
+    outerPackaging: Identifier;
 }
-
 export interface MedicinalProductPackagedPackageItem extends BackboneElement {
-  alternateMaterial?: CodeableConcept[];
-  device?: Reference<'DeviceDefinition'>[];
-  identifier?: Identifier[];
-  manufacturedItem?: Reference<'MedicinalProductManufactured'>[];
-  manufacturer?: Reference<'Organization'>[];
-  material?: CodeableConcept[];
-  otherCharacteristics?: CodeableConcept[];
-  physicalCharacteristics?: ProdCharacteristic;
-  quantity: Quantity;
-  shelfLifeStorage?: ProductShelfLife[];
-  type: CodeableConcept;
+    alternateMaterial?: CodeableConcept[];
+    device?: Reference<"DeviceDefinition">[];
+    identifier?: Identifier[];
+    manufacturedItem?: Reference<"MedicinalProductManufactured">[];
+    manufacturer?: Reference<"Organization">[];
+    material?: CodeableConcept[];
+    otherCharacteristics?: CodeableConcept[];
+    physicalCharacteristics?: ProdCharacteristic;
+    quantity: Quantity;
+    shelfLifeStorage?: ProductShelfLife[];
+    type: CodeableConcept;
 }
-
 export interface MedicinalProductPackaged extends DomainResource {
-  resourceType: 'MedicinalProductPackaged';
-  
-  batchIdentifier?: MedicinalProductPackagedBatchIdentifier[];
-  description?: string;
-  _description?: Element;
-  identifier?: Identifier[];
-  legalStatusOfSupply?: CodeableConcept;
-  manufacturer?: Reference<'Organization'>[];
-  marketingAuthorization?: Reference<'MedicinalProductAuthorization'>;
-  marketingStatus?: MarketingStatus[];
-  packageItem: MedicinalProductPackagedPackageItem[];
-  subject?: Reference<'MedicinalProduct'>[];
-}
+    resourceType: "MedicinalProductPackaged";
 
+    batchIdentifier?: MedicinalProductPackagedBatchIdentifier[];
+    description?: string;
+    _description?: Element;
+    identifier?: Identifier[];
+    legalStatusOfSupply?: CodeableConcept;
+    manufacturer?: Reference<"Organization">[];
+    marketingAuthorization?: Reference<"MedicinalProductAuthorization">;
+    marketingStatus?: MarketingStatus[];
+    packageItem: MedicinalProductPackagedPackageItem[];
+    subject?: Reference<"MedicinalProduct">[];
+}

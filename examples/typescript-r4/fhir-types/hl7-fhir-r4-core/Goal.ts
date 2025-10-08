@@ -2,64 +2,61 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Annotation } from '../hl7-fhir-r4-core/Annotation';
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Duration } from '../hl7-fhir-r4-core/Duration';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
-import type { Range } from '../hl7-fhir-r4-core/Range';
-import type { Ratio } from '../hl7-fhir-r4-core/Ratio';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { Annotation } from "../hl7-fhir-r4-core/Annotation";
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Duration } from "../hl7-fhir-r4-core/Duration";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+import type { Range } from "../hl7-fhir-r4-core/Range";
+import type { Ratio } from "../hl7-fhir-r4-core/Ratio";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Annotation }from '../hl7-fhir-r4-core/Annotation';;
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Duration }from '../hl7-fhir-r4-core/Duration';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
-export type { Range }from '../hl7-fhir-r4-core/Range';;
-export type { Ratio }from '../hl7-fhir-r4-core/Ratio';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { Annotation } from "../hl7-fhir-r4-core/Annotation";
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Duration } from "../hl7-fhir-r4-core/Duration";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+export type { Range } from "../hl7-fhir-r4-core/Range";
+export type { Ratio } from "../hl7-fhir-r4-core/Ratio";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface GoalTarget extends BackboneElement {
-  detailBoolean?: boolean;
-  detailCodeableConcept?: CodeableConcept;
-  detailInteger?: number;
-  detailQuantity?: Quantity;
-  detailRange?: Range;
-  detailRatio?: Ratio;
-  detailString?: string;
-  dueDate?: string;
-  dueDuration?: Duration;
-  measure?: CodeableConcept;
+    detailBoolean?: boolean;
+    detailCodeableConcept?: CodeableConcept;
+    detailInteger?: number;
+    detailQuantity?: Quantity;
+    detailRange?: Range;
+    detailRatio?: Ratio;
+    detailString?: string;
+    dueDate?: string;
+    dueDuration?: Duration;
+    measure?: CodeableConcept;
 }
-
 export interface Goal extends DomainResource {
-  resourceType: 'Goal';
-  
-  achievementStatus?: CodeableConcept;
-  addresses?: Reference<'Condition' | 'MedicationStatement' | 'NutritionOrder' | 'Observation' | 'RiskAssessment' | 'ServiceRequest'>[];
-  category?: CodeableConcept[];
-  description: CodeableConcept;
-  expressedBy?: Reference<'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
-  identifier?: Identifier[];
-  lifecycleStatus: 'proposed' | 'planned' | 'accepted' | 'active' | 'on-hold' | 'completed' | 'cancelled' | 'entered-in-error' | 'rejected';
-  _lifecycleStatus?: Element;
-  note?: Annotation[];
-  outcomeCode?: CodeableConcept[];
-  outcomeReference?: Reference<'Observation'>[];
-  priority?: CodeableConcept;
-  startCodeableConcept?: CodeableConcept;
-  startDate?: string;
-  _startDate?: Element;
-  statusDate?: string;
-  _statusDate?: Element;
-  statusReason?: string;
-  _statusReason?: Element;
-  subject: Reference<'Group' | 'Organization' | 'Patient'>;
-  target?: GoalTarget[];
-}
+    resourceType: "Goal";
 
+    achievementStatus?: CodeableConcept;
+    addresses?: Reference<"Condition" | "MedicationStatement" | "NutritionOrder" | "Observation" | "RiskAssessment" | "ServiceRequest">[];
+    category?: CodeableConcept[];
+    description: CodeableConcept;
+    expressedBy?: Reference<"Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
+    identifier?: Identifier[];
+    lifecycleStatus: "proposed" | "planned" | "accepted" | "active" | "on-hold" | "completed" | "cancelled" | "entered-in-error" | "rejected";
+    _lifecycleStatus?: Element;
+    note?: Annotation[];
+    outcomeCode?: CodeableConcept[];
+    outcomeReference?: Reference<"Observation">[];
+    priority?: CodeableConcept;
+    startCodeableConcept?: CodeableConcept;
+    startDate?: string;
+    _startDate?: Element;
+    statusDate?: string;
+    _statusDate?: Element;
+    statusReason?: string;
+    _statusReason?: Element;
+    subject: Reference<"Group" | "Organization" | "Patient">;
+    target?: GoalTarget[];
+}

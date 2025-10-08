@@ -2,62 +2,58 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Money } from '../hl7-fhir-r4-core/Money';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Money } from "../hl7-fhir-r4-core/Money";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Money }from '../hl7-fhir-r4-core/Money';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Money } from "../hl7-fhir-r4-core/Money";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface PaymentReconciliationDetail extends BackboneElement {
-  amount?: Money;
-  date?: string;
-  identifier?: Identifier;
-  payee?: Reference<'Organization' | 'Practitioner' | 'PractitionerRole'>;
-  predecessor?: Identifier;
-  request?: Reference<'Resource'>;
-  response?: Reference<'Resource'>;
-  responsible?: Reference<'PractitionerRole'>;
-  submitter?: Reference<'Organization' | 'Practitioner' | 'PractitionerRole'>;
-  type: CodeableConcept;
+    amount?: Money;
+    date?: string;
+    identifier?: Identifier;
+    payee?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
+    predecessor?: Identifier;
+    request?: Reference<"Resource">;
+    response?: Reference<"Resource">;
+    responsible?: Reference<"PractitionerRole">;
+    submitter?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
+    type: CodeableConcept;
 }
-
 export interface PaymentReconciliationProcessNote extends BackboneElement {
-  text?: string;
-  type?: 'display' | 'print' | 'printoper';
+    text?: string;
+    type?: "display" | "print" | "printoper";
 }
-
 export interface PaymentReconciliation extends DomainResource {
-  resourceType: 'PaymentReconciliation';
-  
-  created: string;
-  _created?: Element;
-  detail?: PaymentReconciliationDetail[];
-  disposition?: string;
-  _disposition?: Element;
-  formCode?: CodeableConcept;
-  identifier?: Identifier[];
-  outcome?: 'queued' | 'complete' | 'error' | 'partial';
-  _outcome?: Element;
-  paymentAmount: Money;
-  paymentDate: string;
-  _paymentDate?: Element;
-  paymentIdentifier?: Identifier;
-  paymentIssuer?: Reference<'Organization'>;
-  period?: Period;
-  processNote?: PaymentReconciliationProcessNote[];
-  request?: Reference<'Task'>;
-  requestor?: Reference<'Organization' | 'Practitioner' | 'PractitionerRole'>;
-  status: 'active' | 'cancelled' | 'draft' | 'entered-in-error';
-  _status?: Element;
-}
+    resourceType: "PaymentReconciliation";
 
+    created: string;
+    _created?: Element;
+    detail?: PaymentReconciliationDetail[];
+    disposition?: string;
+    _disposition?: Element;
+    formCode?: CodeableConcept;
+    identifier?: Identifier[];
+    outcome?: "queued" | "complete" | "error" | "partial";
+    _outcome?: Element;
+    paymentAmount: Money;
+    paymentDate: string;
+    _paymentDate?: Element;
+    paymentIdentifier?: Identifier;
+    paymentIssuer?: Reference<"Organization">;
+    period?: Period;
+    processNote?: PaymentReconciliationProcessNote[];
+    request?: Reference<"Task">;
+    requestor?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
+    status: "active" | "cancelled" | "draft" | "entered-in-error";
+    _status?: Element;
+}

@@ -2,14 +2,13 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Element } from '../hl7-fhir-r4-core/Element';
+import type { Element } from "../hl7-fhir-r4-core/Element";
 
-export type { Element }from '../hl7-fhir-r4-core/Element';;
+export type { Element } from "../hl7-fhir-r4-core/Element";
 
 export interface Narrative extends Element {
-  div: string;
-  _div?: Element;
-  status: 'generated' | 'extensions' | 'additional' | 'empty';
-  _status?: Element;
+    div: string;
+    _div?: Element;
+    status: "generated" | "extensions" | "additional" | "empty";
+    _status?: Element;
 }
-

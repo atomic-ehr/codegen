@@ -2,95 +2,89 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { ContactDetail } from '../hl7-fhir-r4-core/ContactDetail';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { UsageContext } from '../hl7-fhir-r4-core/UsageContext';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { ContactDetail }from '../hl7-fhir-r4-core/ContactDetail';;
-export type { UsageContext }from '../hl7-fhir-r4-core/UsageContext';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
+export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
 export interface OperationDefinitionOverload extends BackboneElement {
-  comment?: string;
-  parameterName?: string[];
+    comment?: string;
+    parameterName?: string[];
 }
-
 export interface OperationDefinitionParameter extends BackboneElement {
-  binding?: OperationDefinitionParameterBinding;
-  documentation?: string;
-  max: string;
-  min: number;
-  name: string;
-  referencedFrom?: OperationDefinitionParameterReferencedFrom[];
-  searchType?: 'number' | 'date' | 'string' | 'token' | 'reference' | 'composite' | 'quantity' | 'uri' | 'special';
-  targetProfile?: string[];
-  type?: string;
-  use: 'in' | 'out';
+    binding?: OperationDefinitionParameterBinding;
+    documentation?: string;
+    max: string;
+    min: number;
+    name: string;
+    referencedFrom?: OperationDefinitionParameterReferencedFrom[];
+    searchType?: "number" | "date" | "string" | "token" | "reference" | "composite" | "quantity" | "uri" | "special";
+    targetProfile?: string[];
+    type?: string;
+    use: "in" | "out";
 }
-
 export interface OperationDefinitionParameterBinding extends BackboneElement {
-  strength: 'required' | 'extensible' | 'preferred' | 'example';
-  valueSet: string;
+    strength: "required" | "extensible" | "preferred" | "example";
+    valueSet: string;
 }
-
 export interface OperationDefinitionParameterReferencedFrom extends BackboneElement {
-  source: string;
-  sourceId?: string;
+    source: string;
+    sourceId?: string;
 }
-
 export interface OperationDefinition extends DomainResource {
-  resourceType: 'OperationDefinition';
-  
-  affectsState?: boolean;
-  _affectsState?: Element;
-  base?: string;
-  _base?: Element;
-  code: string;
-  _code?: Element;
-  comment?: string;
-  _comment?: Element;
-  contact?: ContactDetail[];
-  date?: string;
-  _date?: Element;
-  description?: string;
-  _description?: Element;
-  experimental?: boolean;
-  _experimental?: Element;
-  inputProfile?: string;
-  _inputProfile?: Element;
-  instance: boolean;
-  _instance?: Element;
-  jurisdiction?: CodeableConcept[];
-  kind: 'operation' | 'query';
-  _kind?: Element;
-  name: string;
-  _name?: Element;
-  outputProfile?: string;
-  _outputProfile?: Element;
-  overload?: OperationDefinitionOverload[];
-  parameter?: OperationDefinitionParameter[];
-  publisher?: string;
-  _publisher?: Element;
-  purpose?: string;
-  _purpose?: Element;
-  resource?: string[];
-  _resource?: Element;
-  status: 'draft' | 'active' | 'retired' | 'unknown';
-  _status?: Element;
-  system: boolean;
-  _system?: Element;
-  title?: string;
-  _title?: Element;
-  type: boolean;
-  _type?: Element;
-  url?: string;
-  _url?: Element;
-  useContext?: UsageContext[];
-  version?: string;
-  _version?: Element;
-}
+    resourceType: "OperationDefinition";
 
+    affectsState?: boolean;
+    _affectsState?: Element;
+    base?: string;
+    _base?: Element;
+    code: string;
+    _code?: Element;
+    comment?: string;
+    _comment?: Element;
+    contact?: ContactDetail[];
+    date?: string;
+    _date?: Element;
+    description?: string;
+    _description?: Element;
+    experimental?: boolean;
+    _experimental?: Element;
+    inputProfile?: string;
+    _inputProfile?: Element;
+    instance: boolean;
+    _instance?: Element;
+    jurisdiction?: CodeableConcept[];
+    kind: "operation" | "query";
+    _kind?: Element;
+    name: string;
+    _name?: Element;
+    outputProfile?: string;
+    _outputProfile?: Element;
+    overload?: OperationDefinitionOverload[];
+    parameter?: OperationDefinitionParameter[];
+    publisher?: string;
+    _publisher?: Element;
+    purpose?: string;
+    _purpose?: Element;
+    resource?: string[];
+    _resource?: Element;
+    status: "draft" | "active" | "retired" | "unknown";
+    _status?: Element;
+    system: boolean;
+    _system?: Element;
+    title?: string;
+    _title?: Element;
+    type: boolean;
+    _type?: Element;
+    url?: string;
+    _url?: Element;
+    useContext?: UsageContext[];
+    version?: string;
+    _version?: Element;
+}

@@ -2,20 +2,19 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { Period } from '../hl7-fhir-r4-core/Period';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { Period } from "../hl7-fhir-r4-core/Period";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Period } from "../hl7-fhir-r4-core/Period";
 
 export interface MarketingStatus extends BackboneElement {
-  country: CodeableConcept;
-  dateRange: Period;
-  jurisdiction?: CodeableConcept;
-  restoreDate?: string;
-  _restoreDate?: Element;
-  status: CodeableConcept;
+    country: CodeableConcept;
+    dateRange: Period;
+    jurisdiction?: CodeableConcept;
+    restoreDate?: string;
+    _restoreDate?: Element;
+    status: CodeableConcept;
 }
-

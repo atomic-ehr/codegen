@@ -2,59 +2,53 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Duration } from '../hl7-fhir-r4-core/Duration';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
-import type { Ratio } from '../hl7-fhir-r4-core/Ratio';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Duration } from "../hl7-fhir-r4-core/Duration";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+import type { Ratio } from "../hl7-fhir-r4-core/Ratio";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Duration }from '../hl7-fhir-r4-core/Duration';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
-export type { Ratio }from '../hl7-fhir-r4-core/Ratio';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Duration } from "../hl7-fhir-r4-core/Duration";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+export type { Ratio } from "../hl7-fhir-r4-core/Ratio";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface MedicinalProductPharmaceuticalCharacteristics extends BackboneElement {
-  code: CodeableConcept;
-  status?: CodeableConcept;
+    code: CodeableConcept;
+    status?: CodeableConcept;
 }
-
 export interface MedicinalProductPharmaceuticalRouteOfAdministration extends BackboneElement {
-  code: CodeableConcept;
-  firstDose?: Quantity;
-  maxDosePerDay?: Quantity;
-  maxDosePerTreatmentPeriod?: Ratio;
-  maxSingleDose?: Quantity;
-  maxTreatmentPeriod?: Duration;
-  targetSpecies?: MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpecies[];
+    code: CodeableConcept;
+    firstDose?: Quantity;
+    maxDosePerDay?: Quantity;
+    maxDosePerTreatmentPeriod?: Ratio;
+    maxSingleDose?: Quantity;
+    maxTreatmentPeriod?: Duration;
+    targetSpecies?: MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpecies[];
 }
-
 export interface MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpecies extends BackboneElement {
-  code: CodeableConcept;
-  withdrawalPeriod?: MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpeciesWithdrawalPeriod[];
+    code: CodeableConcept;
+    withdrawalPeriod?: MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpeciesWithdrawalPeriod[];
 }
-
 export interface MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpeciesWithdrawalPeriod extends BackboneElement {
-  supportingInformation?: string;
-  tissue: CodeableConcept;
-  value: Quantity;
+    supportingInformation?: string;
+    tissue: CodeableConcept;
+    value: Quantity;
 }
-
 export interface MedicinalProductPharmaceutical extends DomainResource {
-  resourceType: 'MedicinalProductPharmaceutical';
-  
-  administrableDoseForm: CodeableConcept;
-  characteristics?: MedicinalProductPharmaceuticalCharacteristics[];
-  device?: Reference<'DeviceDefinition'>[];
-  identifier?: Identifier[];
-  ingredient?: Reference<'MedicinalProductIngredient'>[];
-  routeOfAdministration: MedicinalProductPharmaceuticalRouteOfAdministration[];
-  unitOfPresentation?: CodeableConcept;
-}
+    resourceType: "MedicinalProductPharmaceutical";
 
+    administrableDoseForm: CodeableConcept;
+    characteristics?: MedicinalProductPharmaceuticalCharacteristics[];
+    device?: Reference<"DeviceDefinition">[];
+    identifier?: Identifier[];
+    ingredient?: Reference<"MedicinalProductIngredient">[];
+    routeOfAdministration: MedicinalProductPharmaceuticalRouteOfAdministration[];
+    unitOfPresentation?: CodeableConcept;
+}

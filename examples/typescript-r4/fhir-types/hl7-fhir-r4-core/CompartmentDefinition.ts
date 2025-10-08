@@ -2,49 +2,46 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { ContactDetail } from '../hl7-fhir-r4-core/ContactDetail';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { UsageContext } from '../hl7-fhir-r4-core/UsageContext';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { ContactDetail }from '../hl7-fhir-r4-core/ContactDetail';;
-export type { UsageContext }from '../hl7-fhir-r4-core/UsageContext';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
+export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
 export interface CompartmentDefinitionResource extends BackboneElement {
-  code: string;
-  documentation?: string;
-  param?: string[];
+    code: string;
+    documentation?: string;
+    param?: string[];
 }
-
 export interface CompartmentDefinition extends DomainResource {
-  resourceType: 'CompartmentDefinition';
-  
-  code: 'Patient' | 'Encounter' | 'RelatedPerson' | 'Practitioner' | 'Device';
-  _code?: Element;
-  contact?: ContactDetail[];
-  date?: string;
-  _date?: Element;
-  description?: string;
-  _description?: Element;
-  experimental?: boolean;
-  _experimental?: Element;
-  name: string;
-  _name?: Element;
-  publisher?: string;
-  _publisher?: Element;
-  purpose?: string;
-  _purpose?: Element;
-  resource?: CompartmentDefinitionResource[];
-  search: boolean;
-  _search?: Element;
-  status: 'draft' | 'active' | 'retired' | 'unknown';
-  _status?: Element;
-  url: string;
-  _url?: Element;
-  useContext?: UsageContext[];
-  version?: string;
-  _version?: Element;
-}
+    resourceType: "CompartmentDefinition";
 
+    code: "Patient" | "Encounter" | "RelatedPerson" | "Practitioner" | "Device";
+    _code?: Element;
+    contact?: ContactDetail[];
+    date?: string;
+    _date?: Element;
+    description?: string;
+    _description?: Element;
+    experimental?: boolean;
+    _experimental?: Element;
+    name: string;
+    _name?: Element;
+    publisher?: string;
+    _publisher?: Element;
+    purpose?: string;
+    _purpose?: Element;
+    resource?: CompartmentDefinitionResource[];
+    search: boolean;
+    _search?: Element;
+    status: "draft" | "active" | "retired" | "unknown";
+    _status?: Element;
+    url: string;
+    _url?: Element;
+    useContext?: UsageContext[];
+    version?: string;
+    _version?: Element;
+}

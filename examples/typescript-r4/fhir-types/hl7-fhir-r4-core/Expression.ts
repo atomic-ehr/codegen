@@ -2,20 +2,19 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Element } from '../hl7-fhir-r4-core/Element';
+import type { Element } from "../hl7-fhir-r4-core/Element";
 
-export type { Element }from '../hl7-fhir-r4-core/Element';;
+export type { Element } from "../hl7-fhir-r4-core/Element";
 
 export interface Expression extends Element {
-  description?: string;
-  _description?: Element;
-  expression?: string;
-  _expression?: Element;
-  language: string;
-  _language?: Element;
-  name?: string;
-  _name?: Element;
-  reference?: string;
-  _reference?: Element;
+    description?: string;
+    _description?: Element;
+    expression?: string;
+    _expression?: Element;
+    language: string;
+    _language?: Element;
+    name?: string;
+    _name?: Element;
+    reference?: string;
+    _reference?: Element;
 }
-

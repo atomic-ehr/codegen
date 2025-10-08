@@ -2,56 +2,52 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface AdverseEventSuspectEntity extends BackboneElement {
-  causality?: AdverseEventSuspectEntityCausality[];
-  instance: Reference<'Device' | 'Immunization' | 'Medication' | 'MedicationAdministration' | 'MedicationStatement' | 'Procedure' | 'Substance'>;
+    causality?: AdverseEventSuspectEntityCausality[];
+    instance: Reference<"Device" | "Immunization" | "Medication" | "MedicationAdministration" | "MedicationStatement" | "Procedure" | "Substance">;
 }
-
 export interface AdverseEventSuspectEntityCausality extends BackboneElement {
-  assessment?: CodeableConcept;
-  author?: Reference<'Practitioner' | 'PractitionerRole'>;
-  method?: CodeableConcept;
-  productRelatedness?: string;
+    assessment?: CodeableConcept;
+    author?: Reference<"Practitioner" | "PractitionerRole">;
+    method?: CodeableConcept;
+    productRelatedness?: string;
 }
-
 export interface AdverseEvent extends DomainResource {
-  resourceType: 'AdverseEvent';
-  
-  actuality: 'actual' | 'potential';
-  _actuality?: Element;
-  category?: CodeableConcept[];
-  contributor?: Reference<'Device' | 'Practitioner' | 'PractitionerRole'>[];
-  date?: string;
-  _date?: Element;
-  detected?: string;
-  _detected?: Element;
-  encounter?: Reference<'Encounter'>;
-  event?: CodeableConcept;
-  identifier?: Identifier;
-  location?: Reference<'Location'>;
-  outcome?: CodeableConcept;
-  recordedDate?: string;
-  _recordedDate?: Element;
-  recorder?: Reference<'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
-  referenceDocument?: Reference<'DocumentReference'>[];
-  resultingCondition?: Reference<'Condition'>[];
-  seriousness?: CodeableConcept;
-  severity?: CodeableConcept;
-  study?: Reference<'ResearchStudy'>[];
-  subject: Reference<'Group' | 'Patient' | 'Practitioner' | 'RelatedPerson'>;
-  subjectMedicalHistory?: Reference<'AllergyIntolerance' | 'Condition' | 'DocumentReference' | 'FamilyMemberHistory' | 'Immunization' | 'Media' | 'Observation' | 'Procedure'>[];
-  suspectEntity?: AdverseEventSuspectEntity[];
-}
+    resourceType: "AdverseEvent";
 
+    actuality: "actual" | "potential";
+    _actuality?: Element;
+    category?: CodeableConcept[];
+    contributor?: Reference<"Device" | "Practitioner" | "PractitionerRole">[];
+    date?: string;
+    _date?: Element;
+    detected?: string;
+    _detected?: Element;
+    encounter?: Reference<"Encounter">;
+    event?: CodeableConcept;
+    identifier?: Identifier;
+    location?: Reference<"Location">;
+    outcome?: CodeableConcept;
+    recordedDate?: string;
+    _recordedDate?: Element;
+    recorder?: Reference<"Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
+    referenceDocument?: Reference<"DocumentReference">[];
+    resultingCondition?: Reference<"Condition">[];
+    seriousness?: CodeableConcept;
+    severity?: CodeableConcept;
+    study?: Reference<"ResearchStudy">[];
+    subject: Reference<"Group" | "Patient" | "Practitioner" | "RelatedPerson">;
+    subjectMedicalHistory?: Reference<"AllergyIntolerance" | "Condition" | "DocumentReference" | "FamilyMemberHistory" | "Immunization" | "Media" | "Observation" | "Procedure">[];
+    suspectEntity?: AdverseEventSuspectEntity[];
+}

@@ -2,18 +2,17 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
-import type { Resource } from '../hl7-fhir-r4-core/Resource';
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
+import type { Resource } from "../hl7-fhir-r4-core/Resource";
 
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface Binary extends Resource {
-  resourceType: 'Binary';
-  
-  contentType: string;
-  _contentType?: Element;
-  data?: string;
-  _data?: Element;
-  securityContext?: Reference<'Resource'>;
-}
+    resourceType: "Binary";
 
+    contentType: string;
+    _contentType?: Element;
+    data?: string;
+    _data?: Element;
+    securityContext?: Reference<"Resource">;
+}

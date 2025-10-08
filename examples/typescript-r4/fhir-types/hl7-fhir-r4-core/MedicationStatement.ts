@@ -2,45 +2,44 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Annotation } from '../hl7-fhir-r4-core/Annotation';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Dosage } from '../hl7-fhir-r4-core/Dosage';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { Annotation } from "../hl7-fhir-r4-core/Annotation";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Dosage } from "../hl7-fhir-r4-core/Dosage";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Annotation }from '../hl7-fhir-r4-core/Annotation';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Dosage }from '../hl7-fhir-r4-core/Dosage';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
+export type { Annotation } from "../hl7-fhir-r4-core/Annotation";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Dosage } from "../hl7-fhir-r4-core/Dosage";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface MedicationStatement extends DomainResource {
-  resourceType: 'MedicationStatement';
-  
-  basedOn?: Reference<'CarePlan' | 'MedicationRequest' | 'ServiceRequest'>[];
-  category?: CodeableConcept;
-  context?: Reference<'Encounter' | 'EpisodeOfCare'>;
-  dateAsserted?: string;
-  _dateAsserted?: Element;
-  derivedFrom?: Reference<'Resource'>[];
-  dosage?: Dosage[];
-  effectiveDateTime?: string;
-  _effectiveDateTime?: Element;
-  effectivePeriod?: Period;
-  identifier?: Identifier[];
-  informationSource?: Reference<'Organization' | 'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
-  medicationCodeableConcept?: CodeableConcept;
-  medicationReference?: Reference<'Medication'>;
-  note?: Annotation[];
-  partOf?: Reference<'MedicationAdministration' | 'MedicationDispense' | 'MedicationStatement' | 'Observation' | 'Procedure'>[];
-  reasonCode?: CodeableConcept[];
-  reasonReference?: Reference<'Condition' | 'DiagnosticReport' | 'Observation'>[];
-  status: 'active' | 'completed' | 'entered-in-error' | 'intended' | 'stopped' | 'on-hold' | 'unknown' | 'not-taken';
-  _status?: Element;
-  statusReason?: CodeableConcept[];
-  subject: Reference<'Group' | 'Patient'>;
-}
+    resourceType: "MedicationStatement";
 
+    basedOn?: Reference<"CarePlan" | "MedicationRequest" | "ServiceRequest">[];
+    category?: CodeableConcept;
+    context?: Reference<"Encounter" | "EpisodeOfCare">;
+    dateAsserted?: string;
+    _dateAsserted?: Element;
+    derivedFrom?: Reference<"Resource">[];
+    dosage?: Dosage[];
+    effectiveDateTime?: string;
+    _effectiveDateTime?: Element;
+    effectivePeriod?: Period;
+    identifier?: Identifier[];
+    informationSource?: Reference<"Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
+    medicationCodeableConcept?: CodeableConcept;
+    medicationReference?: Reference<"Medication">;
+    note?: Annotation[];
+    partOf?: Reference<"MedicationAdministration" | "MedicationDispense" | "MedicationStatement" | "Observation" | "Procedure">[];
+    reasonCode?: CodeableConcept[];
+    reasonReference?: Reference<"Condition" | "DiagnosticReport" | "Observation">[];
+    status: "active" | "completed" | "entered-in-error" | "intended" | "stopped" | "on-hold" | "unknown" | "not-taken";
+    _status?: Element;
+    statusReason?: CodeableConcept[];
+    subject: Reference<"Group" | "Patient">;
+}

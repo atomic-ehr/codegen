@@ -2,91 +2,85 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { Coding } from '../hl7-fhir-r4-core/Coding';
-import type { ContactDetail } from '../hl7-fhir-r4-core/ContactDetail';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { ElementDefinition } from '../hl7-fhir-r4-core/ElementDefinition';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { UsageContext } from '../hl7-fhir-r4-core/UsageContext';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { Coding } from "../hl7-fhir-r4-core/Coding";
+import type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { ElementDefinition } from "../hl7-fhir-r4-core/ElementDefinition";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Coding }from '../hl7-fhir-r4-core/Coding';;
-export type { ContactDetail }from '../hl7-fhir-r4-core/ContactDetail';;
-export type { ElementDefinition }from '../hl7-fhir-r4-core/ElementDefinition';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { UsageContext }from '../hl7-fhir-r4-core/UsageContext';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Coding } from "../hl7-fhir-r4-core/Coding";
+export type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
+export type { ElementDefinition } from "../hl7-fhir-r4-core/ElementDefinition";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
 export interface StructureDefinitionContext extends BackboneElement {
-  expression: string;
-  type: 'fhirpath' | 'element' | 'extension';
+    expression: string;
+    type: "fhirpath" | "element" | "extension";
 }
-
 export interface StructureDefinitionDifferential extends BackboneElement {
-  element: ElementDefinition[];
+    element: ElementDefinition[];
 }
-
 export interface StructureDefinitionMapping extends BackboneElement {
-  comment?: string;
-  identity: string;
-  name?: string;
-  uri?: string;
+    comment?: string;
+    identity: string;
+    name?: string;
+    uri?: string;
 }
-
 export interface StructureDefinitionSnapshot extends BackboneElement {
-  element: ElementDefinition[];
+    element: ElementDefinition[];
 }
-
 export interface StructureDefinition extends DomainResource {
-  resourceType: 'StructureDefinition';
-  
-  abstract: boolean;
-  _abstract?: Element;
-  baseDefinition?: string;
-  _baseDefinition?: Element;
-  contact?: ContactDetail[];
-  context?: StructureDefinitionContext[];
-  contextInvariant?: string[];
-  _contextInvariant?: Element;
-  copyright?: string;
-  _copyright?: Element;
-  date?: string;
-  _date?: Element;
-  derivation?: 'specialization' | 'constraint';
-  _derivation?: Element;
-  description?: string;
-  _description?: Element;
-  differential?: StructureDefinitionDifferential;
-  experimental?: boolean;
-  _experimental?: Element;
-  fhirVersion?: '0.01' | '0.05' | '0.06' | '0.11' | '0.0.80' | '0.0.81' | '0.0.82' | '0.4.0' | '0.5.0' | '1.0.0' | '1.0.1' | '1.0.2' | '1.1.0' | '1.4.0' | '1.6.0' | '1.8.0' | '3.0.0' | '3.0.1' | '3.3.0' | '3.5.0' | '4.0.0' | '4.0.1';
-  _fhirVersion?: Element;
-  identifier?: Identifier[];
-  jurisdiction?: CodeableConcept[];
-  keyword?: Coding[];
-  kind: 'primitive-type' | 'complex-type' | 'resource' | 'logical';
-  _kind?: Element;
-  mapping?: StructureDefinitionMapping[];
-  name: string;
-  _name?: Element;
-  publisher?: string;
-  _publisher?: Element;
-  purpose?: string;
-  _purpose?: Element;
-  snapshot?: StructureDefinitionSnapshot;
-  status: 'draft' | 'active' | 'retired' | 'unknown';
-  _status?: Element;
-  title?: string;
-  _title?: Element;
-  type: string;
-  _type?: Element;
-  url: string;
-  _url?: Element;
-  useContext?: UsageContext[];
-  version?: string;
-  _version?: Element;
-}
+    resourceType: "StructureDefinition";
 
+    abstract: boolean;
+    _abstract?: Element;
+    baseDefinition?: string;
+    _baseDefinition?: Element;
+    contact?: ContactDetail[];
+    context?: StructureDefinitionContext[];
+    contextInvariant?: string[];
+    _contextInvariant?: Element;
+    copyright?: string;
+    _copyright?: Element;
+    date?: string;
+    _date?: Element;
+    derivation?: "specialization" | "constraint";
+    _derivation?: Element;
+    description?: string;
+    _description?: Element;
+    differential?: StructureDefinitionDifferential;
+    experimental?: boolean;
+    _experimental?: Element;
+    fhirVersion?: "0.01" | "0.05" | "0.06" | "0.11" | "0.0.80" | "0.0.81" | "0.0.82" | "0.4.0" | "0.5.0" | "1.0.0" | "1.0.1" | "1.0.2" | "1.1.0" | "1.4.0" | "1.6.0" | "1.8.0" | "3.0.0" | "3.0.1" | "3.3.0" | "3.5.0" | "4.0.0" | "4.0.1";
+    _fhirVersion?: Element;
+    identifier?: Identifier[];
+    jurisdiction?: CodeableConcept[];
+    keyword?: Coding[];
+    kind: "primitive-type" | "complex-type" | "resource" | "logical";
+    _kind?: Element;
+    mapping?: StructureDefinitionMapping[];
+    name: string;
+    _name?: Element;
+    publisher?: string;
+    _publisher?: Element;
+    purpose?: string;
+    _purpose?: Element;
+    snapshot?: StructureDefinitionSnapshot;
+    status: "draft" | "active" | "retired" | "unknown";
+    _status?: Element;
+    title?: string;
+    _title?: Element;
+    type: string;
+    _type?: Element;
+    url: string;
+    _url?: Element;
+    useContext?: UsageContext[];
+    version?: string;
+    _version?: Element;
+}

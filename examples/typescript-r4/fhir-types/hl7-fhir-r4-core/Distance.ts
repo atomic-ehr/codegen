@@ -2,10 +2,9 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 
 export interface Distance extends Quantity {
 }
-

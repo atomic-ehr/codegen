@@ -2,70 +2,65 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { ContactDetail } from '../hl7-fhir-r4-core/ContactDetail';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { UsageContext } from '../hl7-fhir-r4-core/UsageContext';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { ContactDetail }from '../hl7-fhir-r4-core/ContactDetail';;
-export type { UsageContext }from '../hl7-fhir-r4-core/UsageContext';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
+export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
 export interface GraphDefinitionLink extends BackboneElement {
-  description?: string;
-  max?: string;
-  min?: number;
-  path?: string;
-  sliceName?: string;
-  target?: GraphDefinitionLinkTarget[];
+    description?: string;
+    max?: string;
+    min?: number;
+    path?: string;
+    sliceName?: string;
+    target?: GraphDefinitionLinkTarget[];
 }
-
 export interface GraphDefinitionLinkTarget extends BackboneElement {
-  compartment?: GraphDefinitionLinkTargetCompartment[];
-  params?: string;
-  profile?: string;
-  type: string;
+    compartment?: GraphDefinitionLinkTargetCompartment[];
+    params?: string;
+    profile?: string;
+    type: string;
 }
-
 export interface GraphDefinitionLinkTargetCompartment extends BackboneElement {
-  code: 'Patient' | 'Encounter' | 'RelatedPerson' | 'Practitioner' | 'Device';
-  description?: string;
-  expression?: string;
-  rule: 'identical' | 'matching' | 'different' | 'custom';
-  use: 'condition' | 'requirement';
+    code: "Patient" | "Encounter" | "RelatedPerson" | "Practitioner" | "Device";
+    description?: string;
+    expression?: string;
+    rule: "identical" | "matching" | "different" | "custom";
+    use: "condition" | "requirement";
 }
-
 export interface GraphDefinition extends DomainResource {
-  resourceType: 'GraphDefinition';
-  
-  contact?: ContactDetail[];
-  date?: string;
-  _date?: Element;
-  description?: string;
-  _description?: Element;
-  experimental?: boolean;
-  _experimental?: Element;
-  jurisdiction?: CodeableConcept[];
-  link?: GraphDefinitionLink[];
-  name: string;
-  _name?: Element;
-  profile?: string;
-  _profile?: Element;
-  publisher?: string;
-  _publisher?: Element;
-  purpose?: string;
-  _purpose?: Element;
-  start: string;
-  _start?: Element;
-  status: 'draft' | 'active' | 'retired' | 'unknown';
-  _status?: Element;
-  url?: string;
-  _url?: Element;
-  useContext?: UsageContext[];
-  version?: string;
-  _version?: Element;
-}
+    resourceType: "GraphDefinition";
 
+    contact?: ContactDetail[];
+    date?: string;
+    _date?: Element;
+    description?: string;
+    _description?: Element;
+    experimental?: boolean;
+    _experimental?: Element;
+    jurisdiction?: CodeableConcept[];
+    link?: GraphDefinitionLink[];
+    name: string;
+    _name?: Element;
+    profile?: string;
+    _profile?: Element;
+    publisher?: string;
+    _publisher?: Element;
+    purpose?: string;
+    _purpose?: Element;
+    start: string;
+    _start?: Element;
+    status: "draft" | "active" | "retired" | "unknown";
+    _status?: Element;
+    url?: string;
+    _url?: Element;
+    useContext?: UsageContext[];
+    version?: string;
+    _version?: Element;
+}

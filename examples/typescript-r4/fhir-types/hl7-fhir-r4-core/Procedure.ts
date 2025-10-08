@@ -2,76 +2,72 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Age } from '../hl7-fhir-r4-core/Age';
-import type { Annotation } from '../hl7-fhir-r4-core/Annotation';
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Range } from '../hl7-fhir-r4-core/Range';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { Age } from "../hl7-fhir-r4-core/Age";
+import type { Annotation } from "../hl7-fhir-r4-core/Annotation";
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Range } from "../hl7-fhir-r4-core/Range";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Age }from '../hl7-fhir-r4-core/Age';;
-export type { Annotation }from '../hl7-fhir-r4-core/Annotation';;
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Range }from '../hl7-fhir-r4-core/Range';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { Age } from "../hl7-fhir-r4-core/Age";
+export type { Annotation } from "../hl7-fhir-r4-core/Annotation";
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Range } from "../hl7-fhir-r4-core/Range";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface ProcedureFocalDevice extends BackboneElement {
-  action?: CodeableConcept;
-  manipulated: Reference<'Device'>;
+    action?: CodeableConcept;
+    manipulated: Reference<"Device">;
 }
-
 export interface ProcedurePerformer extends BackboneElement {
-  actor: Reference<'Device' | 'Organization' | 'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
-  function?: CodeableConcept;
-  onBehalfOf?: Reference<'Organization'>;
+    actor: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
+    function?: CodeableConcept;
+    onBehalfOf?: Reference<"Organization">;
 }
-
 export interface Procedure extends DomainResource {
-  resourceType: 'Procedure';
-  
-  asserter?: Reference<'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
-  basedOn?: Reference<'CarePlan' | 'ServiceRequest'>[];
-  bodySite?: CodeableConcept[];
-  category?: CodeableConcept;
-  code?: CodeableConcept;
-  complication?: CodeableConcept[];
-  complicationDetail?: Reference<'Condition'>[];
-  encounter?: Reference<'Encounter'>;
-  focalDevice?: ProcedureFocalDevice[];
-  followUp?: CodeableConcept[];
-  identifier?: Identifier[];
-  instantiatesCanonical?: string[];
-  _instantiatesCanonical?: Element;
-  instantiatesUri?: string[];
-  _instantiatesUri?: Element;
-  location?: Reference<'Location'>;
-  note?: Annotation[];
-  outcome?: CodeableConcept;
-  partOf?: Reference<'MedicationAdministration' | 'Observation' | 'Procedure'>[];
-  performedAge?: Age;
-  performedDateTime?: string;
-  _performedDateTime?: Element;
-  performedPeriod?: Period;
-  performedRange?: Range;
-  performedString?: string;
-  _performedString?: Element;
-  performer?: ProcedurePerformer[];
-  reasonCode?: CodeableConcept[];
-  reasonReference?: Reference<'Condition' | 'DiagnosticReport' | 'DocumentReference' | 'Observation' | 'Procedure'>[];
-  recorder?: Reference<'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
-  report?: Reference<'Composition' | 'DiagnosticReport' | 'DocumentReference'>[];
-  status: 'preparation' | 'in-progress' | 'not-done' | 'on-hold' | 'stopped' | 'completed' | 'entered-in-error' | 'unknown';
-  _status?: Element;
-  statusReason?: CodeableConcept;
-  subject: Reference<'Group' | 'Patient'>;
-  usedCode?: CodeableConcept[];
-  usedReference?: Reference<'Device' | 'Medication' | 'Substance'>[];
-}
+    resourceType: "Procedure";
 
+    asserter?: Reference<"Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
+    basedOn?: Reference<"CarePlan" | "ServiceRequest">[];
+    bodySite?: CodeableConcept[];
+    category?: CodeableConcept;
+    code?: CodeableConcept;
+    complication?: CodeableConcept[];
+    complicationDetail?: Reference<"Condition">[];
+    encounter?: Reference<"Encounter">;
+    focalDevice?: ProcedureFocalDevice[];
+    followUp?: CodeableConcept[];
+    identifier?: Identifier[];
+    instantiatesCanonical?: string[];
+    _instantiatesCanonical?: Element;
+    instantiatesUri?: string[];
+    _instantiatesUri?: Element;
+    location?: Reference<"Location">;
+    note?: Annotation[];
+    outcome?: CodeableConcept;
+    partOf?: Reference<"MedicationAdministration" | "Observation" | "Procedure">[];
+    performedAge?: Age;
+    performedDateTime?: string;
+    _performedDateTime?: Element;
+    performedPeriod?: Period;
+    performedRange?: Range;
+    performedString?: string;
+    _performedString?: Element;
+    performer?: ProcedurePerformer[];
+    reasonCode?: CodeableConcept[];
+    reasonReference?: Reference<"Condition" | "DiagnosticReport" | "DocumentReference" | "Observation" | "Procedure">[];
+    recorder?: Reference<"Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
+    report?: Reference<"Composition" | "DiagnosticReport" | "DocumentReference">[];
+    status: "preparation" | "in-progress" | "not-done" | "on-hold" | "stopped" | "completed" | "entered-in-error" | "unknown";
+    _status?: Element;
+    statusReason?: CodeableConcept;
+    subject: Reference<"Group" | "Patient">;
+    usedCode?: CodeableConcept[];
+    usedReference?: Reference<"Device" | "Medication" | "Substance">[];
+}

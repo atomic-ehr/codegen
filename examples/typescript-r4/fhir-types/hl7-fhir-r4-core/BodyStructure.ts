@@ -2,29 +2,28 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Attachment } from '../hl7-fhir-r4-core/Attachment';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Attachment }from '../hl7-fhir-r4-core/Attachment';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
+export type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface BodyStructure extends DomainResource {
-  resourceType: 'BodyStructure';
-  
-  active?: boolean;
-  _active?: Element;
-  description?: string;
-  _description?: Element;
-  identifier?: Identifier[];
-  image?: Attachment[];
-  location?: CodeableConcept;
-  locationQualifier?: CodeableConcept[];
-  morphology?: CodeableConcept;
-  patient: Reference<'Patient'>;
-}
+    resourceType: "BodyStructure";
 
+    active?: boolean;
+    _active?: Element;
+    description?: string;
+    _description?: Element;
+    identifier?: Identifier[];
+    image?: Attachment[];
+    location?: CodeableConcept;
+    locationQualifier?: CodeableConcept[];
+    morphology?: CodeableConcept;
+    patient: Reference<"Patient">;
+}

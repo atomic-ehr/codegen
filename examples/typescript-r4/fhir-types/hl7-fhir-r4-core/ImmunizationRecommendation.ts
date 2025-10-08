@@ -2,48 +2,44 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface ImmunizationRecommendationRecommendation extends BackboneElement {
-  contraindicatedVaccineCode?: CodeableConcept[];
-  dateCriterion?: ImmunizationRecommendationRecommendationDateCriterion[];
-  description?: string;
-  doseNumberPositiveInt?: number;
-  doseNumberString?: string;
-  forecastReason?: CodeableConcept[];
-  forecastStatus: CodeableConcept;
-  series?: string;
-  seriesDosesPositiveInt?: number;
-  seriesDosesString?: string;
-  supportingImmunization?: Reference<'Immunization' | 'ImmunizationEvaluation'>[];
-  supportingPatientInformation?: Reference<'Resource'>[];
-  targetDisease?: CodeableConcept;
-  vaccineCode?: CodeableConcept[];
+    contraindicatedVaccineCode?: CodeableConcept[];
+    dateCriterion?: ImmunizationRecommendationRecommendationDateCriterion[];
+    description?: string;
+    doseNumberPositiveInt?: number;
+    doseNumberString?: string;
+    forecastReason?: CodeableConcept[];
+    forecastStatus: CodeableConcept;
+    series?: string;
+    seriesDosesPositiveInt?: number;
+    seriesDosesString?: string;
+    supportingImmunization?: Reference<"Immunization" | "ImmunizationEvaluation">[];
+    supportingPatientInformation?: Reference<"Resource">[];
+    targetDisease?: CodeableConcept;
+    vaccineCode?: CodeableConcept[];
 }
-
 export interface ImmunizationRecommendationRecommendationDateCriterion extends BackboneElement {
-  code: CodeableConcept;
-  value: string;
+    code: CodeableConcept;
+    value: string;
 }
-
 export interface ImmunizationRecommendation extends DomainResource {
-  resourceType: 'ImmunizationRecommendation';
-  
-  authority?: Reference<'Organization'>;
-  date: string;
-  _date?: Element;
-  identifier?: Identifier[];
-  patient: Reference<'Patient'>;
-  recommendation: ImmunizationRecommendationRecommendation[];
-}
+    resourceType: "ImmunizationRecommendation";
 
+    authority?: Reference<"Organization">;
+    date: string;
+    _date?: Element;
+    identifier?: Identifier[];
+    patient: Reference<"Patient">;
+    recommendation: ImmunizationRecommendationRecommendation[];
+}

@@ -2,24 +2,23 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Element } from '../hl7-fhir-r4-core/Element';
+import type { Element } from "../hl7-fhir-r4-core/Element";
 
-export type { Element }from '../hl7-fhir-r4-core/Element';;
+export type { Element } from "../hl7-fhir-r4-core/Element";
 
 export interface ParameterDefinition extends Element {
-  documentation?: string;
-  _documentation?: Element;
-  max?: string;
-  _max?: Element;
-  min?: number;
-  _min?: Element;
-  name?: string;
-  _name?: Element;
-  profile?: string;
-  _profile?: Element;
-  type: string;
-  _type?: Element;
-  use: 'in' | 'out';
-  _use?: Element;
+    documentation?: string;
+    _documentation?: Element;
+    max?: string;
+    _max?: Element;
+    min?: number;
+    _min?: Element;
+    name?: string;
+    _name?: Element;
+    profile?: string;
+    _profile?: Element;
+    type: string;
+    _type?: Element;
+    use: "in" | "out";
+    _use?: Element;
 }
-

@@ -2,19 +2,18 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { Range } from '../hl7-fhir-r4-core/Range';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { Range } from "../hl7-fhir-r4-core/Range";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Range }from '../hl7-fhir-r4-core/Range';;
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Range } from "../hl7-fhir-r4-core/Range";
 
 export interface Population extends BackboneElement {
-  ageCodeableConcept?: CodeableConcept;
-  ageRange?: Range;
-  gender?: CodeableConcept;
-  physiologicalCondition?: CodeableConcept;
-  race?: CodeableConcept;
+    ageCodeableConcept?: CodeableConcept;
+    ageRange?: Range;
+    gender?: CodeableConcept;
+    physiologicalCondition?: CodeableConcept;
+    race?: CodeableConcept;
 }
-

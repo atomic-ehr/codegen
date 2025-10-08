@@ -2,297 +2,275 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Address } from '../hl7-fhir-r4-core/Address';
-import type { Attachment } from '../hl7-fhir-r4-core/Attachment';
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { Coding } from '../hl7-fhir-r4-core/Coding';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Money } from '../hl7-fhir-r4-core/Money';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { Address } from "../hl7-fhir-r4-core/Address";
+import type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { Coding } from "../hl7-fhir-r4-core/Coding";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Money } from "../hl7-fhir-r4-core/Money";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Address }from '../hl7-fhir-r4-core/Address';;
-export type { Attachment }from '../hl7-fhir-r4-core/Attachment';;
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Coding }from '../hl7-fhir-r4-core/Coding';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Money }from '../hl7-fhir-r4-core/Money';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { Address } from "../hl7-fhir-r4-core/Address";
+export type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Coding } from "../hl7-fhir-r4-core/Coding";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Money } from "../hl7-fhir-r4-core/Money";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface ExplanationOfBenefitAccident extends BackboneElement {
-  date?: string;
-  locationAddress?: Address;
-  locationReference?: Reference<'Location'>;
-  type?: CodeableConcept;
+    date?: string;
+    locationAddress?: Address;
+    locationReference?: Reference<"Location">;
+    type?: CodeableConcept;
 }
-
 export interface ExplanationOfBenefitAddItem extends BackboneElement {
-  bodySite?: CodeableConcept;
-  detail?: ExplanationOfBenefitAddItemDetail[];
-  detailSequence?: number[];
-  factor?: number;
-  itemSequence?: number[];
-  locationAddress?: Address;
-  locationCodeableConcept?: CodeableConcept;
-  locationReference?: Reference<'Location'>;
-  modifier?: CodeableConcept[];
-  net?: Money;
-  noteNumber?: number[];
-  productOrService: CodeableConcept;
-  programCode?: CodeableConcept[];
-  provider?: Reference<'Organization' | 'Practitioner' | 'PractitionerRole'>[];
-  quantity?: Quantity;
-  servicedDate?: string;
-  servicedPeriod?: Period;
-  subDetailSequence?: number[];
-  subSite?: CodeableConcept[];
-  unitPrice?: Money;
+    bodySite?: CodeableConcept;
+    detail?: ExplanationOfBenefitAddItemDetail[];
+    detailSequence?: number[];
+    factor?: number;
+    itemSequence?: number[];
+    locationAddress?: Address;
+    locationCodeableConcept?: CodeableConcept;
+    locationReference?: Reference<"Location">;
+    modifier?: CodeableConcept[];
+    net?: Money;
+    noteNumber?: number[];
+    productOrService: CodeableConcept;
+    programCode?: CodeableConcept[];
+    provider?: Reference<"Organization" | "Practitioner" | "PractitionerRole">[];
+    quantity?: Quantity;
+    servicedDate?: string;
+    servicedPeriod?: Period;
+    subDetailSequence?: number[];
+    subSite?: CodeableConcept[];
+    unitPrice?: Money;
 }
-
 export interface ExplanationOfBenefitAddItemDetail extends BackboneElement {
-  factor?: number;
-  modifier?: CodeableConcept[];
-  net?: Money;
-  noteNumber?: number[];
-  productOrService: CodeableConcept;
-  quantity?: Quantity;
-  subDetail?: ExplanationOfBenefitAddItemDetailSubDetail[];
-  unitPrice?: Money;
+    factor?: number;
+    modifier?: CodeableConcept[];
+    net?: Money;
+    noteNumber?: number[];
+    productOrService: CodeableConcept;
+    quantity?: Quantity;
+    subDetail?: ExplanationOfBenefitAddItemDetailSubDetail[];
+    unitPrice?: Money;
 }
-
 export interface ExplanationOfBenefitAddItemDetailSubDetail extends BackboneElement {
-  factor?: number;
-  modifier?: CodeableConcept[];
-  net?: Money;
-  noteNumber?: number[];
-  productOrService: CodeableConcept;
-  quantity?: Quantity;
-  unitPrice?: Money;
+    factor?: number;
+    modifier?: CodeableConcept[];
+    net?: Money;
+    noteNumber?: number[];
+    productOrService: CodeableConcept;
+    quantity?: Quantity;
+    unitPrice?: Money;
 }
-
 export interface ExplanationOfBenefitBenefitBalance extends BackboneElement {
-  category: CodeableConcept;
-  description?: string;
-  excluded?: boolean;
-  financial?: ExplanationOfBenefitBenefitBalanceFinancial[];
-  name?: string;
-  network?: CodeableConcept;
-  term?: CodeableConcept;
-  unit?: CodeableConcept;
+    category: CodeableConcept;
+    description?: string;
+    excluded?: boolean;
+    financial?: ExplanationOfBenefitBenefitBalanceFinancial[];
+    name?: string;
+    network?: CodeableConcept;
+    term?: CodeableConcept;
+    unit?: CodeableConcept;
 }
-
 export interface ExplanationOfBenefitBenefitBalanceFinancial extends BackboneElement {
-  allowedMoney?: Money;
-  allowedString?: string;
-  allowedUnsignedInt?: number;
-  type: CodeableConcept;
-  usedMoney?: Money;
-  usedUnsignedInt?: number;
+    allowedMoney?: Money;
+    allowedString?: string;
+    allowedUnsignedInt?: number;
+    type: CodeableConcept;
+    usedMoney?: Money;
+    usedUnsignedInt?: number;
 }
-
 export interface ExplanationOfBenefitCareTeam extends BackboneElement {
-  provider: Reference<'Organization' | 'Practitioner' | 'PractitionerRole'>;
-  qualification?: CodeableConcept;
-  responsible?: boolean;
-  role?: CodeableConcept;
-  sequence: number;
+    provider: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
+    qualification?: CodeableConcept;
+    responsible?: boolean;
+    role?: CodeableConcept;
+    sequence: number;
 }
-
 export interface ExplanationOfBenefitDiagnosis extends BackboneElement {
-  diagnosisCodeableConcept?: CodeableConcept;
-  diagnosisReference?: Reference<'Condition'>;
-  onAdmission?: CodeableConcept;
-  packageCode?: CodeableConcept;
-  sequence: number;
-  type?: CodeableConcept[];
+    diagnosisCodeableConcept?: CodeableConcept;
+    diagnosisReference?: Reference<"Condition">;
+    onAdmission?: CodeableConcept;
+    packageCode?: CodeableConcept;
+    sequence: number;
+    type?: CodeableConcept[];
 }
-
 export interface ExplanationOfBenefitInsurance extends BackboneElement {
-  coverage: Reference<'Coverage'>;
-  focal: boolean;
-  preAuthRef?: string[];
+    coverage: Reference<"Coverage">;
+    focal: boolean;
+    preAuthRef?: string[];
 }
-
 export interface ExplanationOfBenefitItem extends BackboneElement {
-  adjudication?: ExplanationOfBenefitItemAdjudication[];
-  bodySite?: CodeableConcept;
-  careTeamSequence?: number[];
-  category?: CodeableConcept;
-  detail?: ExplanationOfBenefitItemDetail[];
-  diagnosisSequence?: number[];
-  encounter?: Reference<'Encounter'>[];
-  factor?: number;
-  informationSequence?: number[];
-  locationAddress?: Address;
-  locationCodeableConcept?: CodeableConcept;
-  locationReference?: Reference<'Location'>;
-  modifier?: CodeableConcept[];
-  net?: Money;
-  noteNumber?: number[];
-  procedureSequence?: number[];
-  productOrService: CodeableConcept;
-  programCode?: CodeableConcept[];
-  quantity?: Quantity;
-  revenue?: CodeableConcept;
-  sequence: number;
-  servicedDate?: string;
-  servicedPeriod?: Period;
-  subSite?: CodeableConcept[];
-  udi?: Reference<'Device'>[];
-  unitPrice?: Money;
+    adjudication?: ExplanationOfBenefitItemAdjudication[];
+    bodySite?: CodeableConcept;
+    careTeamSequence?: number[];
+    category?: CodeableConcept;
+    detail?: ExplanationOfBenefitItemDetail[];
+    diagnosisSequence?: number[];
+    encounter?: Reference<"Encounter">[];
+    factor?: number;
+    informationSequence?: number[];
+    locationAddress?: Address;
+    locationCodeableConcept?: CodeableConcept;
+    locationReference?: Reference<"Location">;
+    modifier?: CodeableConcept[];
+    net?: Money;
+    noteNumber?: number[];
+    procedureSequence?: number[];
+    productOrService: CodeableConcept;
+    programCode?: CodeableConcept[];
+    quantity?: Quantity;
+    revenue?: CodeableConcept;
+    sequence: number;
+    servicedDate?: string;
+    servicedPeriod?: Period;
+    subSite?: CodeableConcept[];
+    udi?: Reference<"Device">[];
+    unitPrice?: Money;
 }
-
 export interface ExplanationOfBenefitItemAdjudication extends BackboneElement {
-  amount?: Money;
-  category: CodeableConcept;
-  reason?: CodeableConcept;
-  value?: number;
+    amount?: Money;
+    category: CodeableConcept;
+    reason?: CodeableConcept;
+    value?: number;
 }
-
 export interface ExplanationOfBenefitItemDetail extends BackboneElement {
-  category?: CodeableConcept;
-  factor?: number;
-  modifier?: CodeableConcept[];
-  net?: Money;
-  noteNumber?: number[];
-  productOrService: CodeableConcept;
-  programCode?: CodeableConcept[];
-  quantity?: Quantity;
-  revenue?: CodeableConcept;
-  sequence: number;
-  subDetail?: ExplanationOfBenefitItemDetailSubDetail[];
-  udi?: Reference<'Device'>[];
-  unitPrice?: Money;
+    category?: CodeableConcept;
+    factor?: number;
+    modifier?: CodeableConcept[];
+    net?: Money;
+    noteNumber?: number[];
+    productOrService: CodeableConcept;
+    programCode?: CodeableConcept[];
+    quantity?: Quantity;
+    revenue?: CodeableConcept;
+    sequence: number;
+    subDetail?: ExplanationOfBenefitItemDetailSubDetail[];
+    udi?: Reference<"Device">[];
+    unitPrice?: Money;
 }
-
 export interface ExplanationOfBenefitItemDetailSubDetail extends BackboneElement {
-  category?: CodeableConcept;
-  factor?: number;
-  modifier?: CodeableConcept[];
-  net?: Money;
-  noteNumber?: number[];
-  productOrService: CodeableConcept;
-  programCode?: CodeableConcept[];
-  quantity?: Quantity;
-  revenue?: CodeableConcept;
-  sequence: number;
-  udi?: Reference<'Device'>[];
-  unitPrice?: Money;
+    category?: CodeableConcept;
+    factor?: number;
+    modifier?: CodeableConcept[];
+    net?: Money;
+    noteNumber?: number[];
+    productOrService: CodeableConcept;
+    programCode?: CodeableConcept[];
+    quantity?: Quantity;
+    revenue?: CodeableConcept;
+    sequence: number;
+    udi?: Reference<"Device">[];
+    unitPrice?: Money;
 }
-
 export interface ExplanationOfBenefitPayee extends BackboneElement {
-  party?: Reference<'Organization' | 'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
-  type?: CodeableConcept;
+    party?: Reference<"Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
+    type?: CodeableConcept;
 }
-
 export interface ExplanationOfBenefitPayment extends BackboneElement {
-  adjustment?: Money;
-  adjustmentReason?: CodeableConcept;
-  amount?: Money;
-  date?: string;
-  identifier?: Identifier;
-  type?: CodeableConcept;
+    adjustment?: Money;
+    adjustmentReason?: CodeableConcept;
+    amount?: Money;
+    date?: string;
+    identifier?: Identifier;
+    type?: CodeableConcept;
 }
-
 export interface ExplanationOfBenefitProcedure extends BackboneElement {
-  date?: string;
-  procedureCodeableConcept?: CodeableConcept;
-  procedureReference?: Reference<'Procedure'>;
-  sequence: number;
-  type?: CodeableConcept[];
-  udi?: Reference<'Device'>[];
+    date?: string;
+    procedureCodeableConcept?: CodeableConcept;
+    procedureReference?: Reference<"Procedure">;
+    sequence: number;
+    type?: CodeableConcept[];
+    udi?: Reference<"Device">[];
 }
-
 export interface ExplanationOfBenefitProcessNote extends BackboneElement {
-  language?: CodeableConcept;
-  number?: number;
-  text?: string;
-  type?: 'display' | 'print' | 'printoper';
+    language?: CodeableConcept;
+    number?: number;
+    text?: string;
+    type?: "display" | "print" | "printoper";
 }
-
 export interface ExplanationOfBenefitRelated extends BackboneElement {
-  claim?: Reference<'Claim'>;
-  reference?: Identifier;
-  relationship?: CodeableConcept;
+    claim?: Reference<"Claim">;
+    reference?: Identifier;
+    relationship?: CodeableConcept;
 }
-
 export interface ExplanationOfBenefitSupportingInfo extends BackboneElement {
-  category: CodeableConcept;
-  code?: CodeableConcept;
-  reason?: Coding;
-  sequence: number;
-  timingDate?: string;
-  timingPeriod?: Period;
-  valueAttachment?: Attachment;
-  valueBoolean?: boolean;
-  valueQuantity?: Quantity;
-  valueReference?: Reference<'Resource'>;
-  valueString?: string;
+    category: CodeableConcept;
+    code?: CodeableConcept;
+    reason?: Coding;
+    sequence: number;
+    timingDate?: string;
+    timingPeriod?: Period;
+    valueAttachment?: Attachment;
+    valueBoolean?: boolean;
+    valueQuantity?: Quantity;
+    valueReference?: Reference<"Resource">;
+    valueString?: string;
 }
-
 export interface ExplanationOfBenefitTotal extends BackboneElement {
-  amount: Money;
-  category: CodeableConcept;
+    amount: Money;
+    category: CodeableConcept;
 }
-
 export interface ExplanationOfBenefit extends DomainResource {
-  resourceType: 'ExplanationOfBenefit';
-  
-  accident?: ExplanationOfBenefitAccident;
-  addItem?: ExplanationOfBenefitAddItem[];
-  benefitBalance?: ExplanationOfBenefitBenefitBalance[];
-  benefitPeriod?: Period;
-  billablePeriod?: Period;
-  careTeam?: ExplanationOfBenefitCareTeam[];
-  claim?: Reference<'Claim'>;
-  claimResponse?: Reference<'ClaimResponse'>;
-  created: string;
-  _created?: Element;
-  diagnosis?: ExplanationOfBenefitDiagnosis[];
-  disposition?: string;
-  _disposition?: Element;
-  enterer?: Reference<'Practitioner' | 'PractitionerRole'>;
-  facility?: Reference<'Location'>;
-  form?: Attachment;
-  formCode?: CodeableConcept;
-  fundsReserve?: CodeableConcept;
-  fundsReserveRequested?: CodeableConcept;
-  identifier?: Identifier[];
-  insurance: ExplanationOfBenefitInsurance[];
-  insurer: Reference<'Organization'>;
-  item?: ExplanationOfBenefitItem[];
-  originalPrescription?: Reference<'MedicationRequest'>;
-  outcome: 'queued' | 'complete' | 'error' | 'partial';
-  _outcome?: Element;
-  patient: Reference<'Patient'>;
-  payee?: ExplanationOfBenefitPayee;
-  payment?: ExplanationOfBenefitPayment;
-  preAuthRef?: string[];
-  _preAuthRef?: Element;
-  preAuthRefPeriod?: Period[];
-  precedence?: number;
-  _precedence?: Element;
-  prescription?: Reference<'MedicationRequest' | 'VisionPrescription'>;
-  priority?: CodeableConcept;
-  procedure?: ExplanationOfBenefitProcedure[];
-  processNote?: ExplanationOfBenefitProcessNote[];
-  provider: Reference<'Organization' | 'Practitioner' | 'PractitionerRole'>;
-  referral?: Reference<'ServiceRequest'>;
-  related?: ExplanationOfBenefitRelated[];
-  status: 'active' | 'cancelled' | 'draft' | 'entered-in-error';
-  _status?: Element;
-  subType?: CodeableConcept;
-  supportingInfo?: ExplanationOfBenefitSupportingInfo[];
-  total?: ExplanationOfBenefitTotal[];
-  type: CodeableConcept;
-  use: 'claim' | 'preauthorization' | 'predetermination';
-  _use?: Element;
-}
+    resourceType: "ExplanationOfBenefit";
 
+    accident?: ExplanationOfBenefitAccident;
+    addItem?: ExplanationOfBenefitAddItem[];
+    benefitBalance?: ExplanationOfBenefitBenefitBalance[];
+    benefitPeriod?: Period;
+    billablePeriod?: Period;
+    careTeam?: ExplanationOfBenefitCareTeam[];
+    claim?: Reference<"Claim">;
+    claimResponse?: Reference<"ClaimResponse">;
+    created: string;
+    _created?: Element;
+    diagnosis?: ExplanationOfBenefitDiagnosis[];
+    disposition?: string;
+    _disposition?: Element;
+    enterer?: Reference<"Practitioner" | "PractitionerRole">;
+    facility?: Reference<"Location">;
+    form?: Attachment;
+    formCode?: CodeableConcept;
+    fundsReserve?: CodeableConcept;
+    fundsReserveRequested?: CodeableConcept;
+    identifier?: Identifier[];
+    insurance: ExplanationOfBenefitInsurance[];
+    insurer: Reference<"Organization">;
+    item?: ExplanationOfBenefitItem[];
+    originalPrescription?: Reference<"MedicationRequest">;
+    outcome: "queued" | "complete" | "error" | "partial";
+    _outcome?: Element;
+    patient: Reference<"Patient">;
+    payee?: ExplanationOfBenefitPayee;
+    payment?: ExplanationOfBenefitPayment;
+    preAuthRef?: string[];
+    _preAuthRef?: Element;
+    preAuthRefPeriod?: Period[];
+    precedence?: number;
+    _precedence?: Element;
+    prescription?: Reference<"MedicationRequest" | "VisionPrescription">;
+    priority?: CodeableConcept;
+    procedure?: ExplanationOfBenefitProcedure[];
+    processNote?: ExplanationOfBenefitProcessNote[];
+    provider: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
+    referral?: Reference<"ServiceRequest">;
+    related?: ExplanationOfBenefitRelated[];
+    status: "active" | "cancelled" | "draft" | "entered-in-error";
+    _status?: Element;
+    subType?: CodeableConcept;
+    supportingInfo?: ExplanationOfBenefitSupportingInfo[];
+    total?: ExplanationOfBenefitTotal[];
+    type: CodeableConcept;
+    use: "claim" | "preauthorization" | "predetermination";
+    _use?: Element;
+}

@@ -2,22 +2,21 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Coding } from '../hl7-fhir-r4-core/Coding';
-import type { Element } from '../hl7-fhir-r4-core/Element';
+import type { Coding } from "../hl7-fhir-r4-core/Coding";
+import type { Element } from "../hl7-fhir-r4-core/Element";
 
-export type { Coding }from '../hl7-fhir-r4-core/Coding';;
-export type { Element }from '../hl7-fhir-r4-core/Element';;
+export type { Coding } from "../hl7-fhir-r4-core/Coding";
+export type { Element } from "../hl7-fhir-r4-core/Element";
 
 export interface Meta extends Element {
-  lastUpdated?: string;
-  _lastUpdated?: Element;
-  profile?: string[];
-  _profile?: Element;
-  security?: Coding[];
-  source?: string;
-  _source?: Element;
-  tag?: Coding[];
-  versionId?: string;
-  _versionId?: Element;
+    lastUpdated?: string;
+    _lastUpdated?: Element;
+    profile?: string[];
+    _profile?: Element;
+    security?: Coding[];
+    source?: string;
+    _source?: Element;
+    tag?: Coding[];
+    versionId?: string;
+    _versionId?: Element;
 }
-

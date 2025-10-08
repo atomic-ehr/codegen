@@ -2,45 +2,41 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
-import type { Ratio } from '../hl7-fhir-r4-core/Ratio';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+import type { Ratio } from "../hl7-fhir-r4-core/Ratio";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
-export type { Ratio }from '../hl7-fhir-r4-core/Ratio';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+export type { Ratio } from "../hl7-fhir-r4-core/Ratio";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface SubstanceIngredient extends BackboneElement {
-  quantity?: Ratio;
-  substanceCodeableConcept?: CodeableConcept;
-  substanceReference?: Reference<'Substance'>;
+    quantity?: Ratio;
+    substanceCodeableConcept?: CodeableConcept;
+    substanceReference?: Reference<"Substance">;
 }
-
 export interface SubstanceInstance extends BackboneElement {
-  expiry?: string;
-  identifier?: Identifier;
-  quantity?: Quantity;
+    expiry?: string;
+    identifier?: Identifier;
+    quantity?: Quantity;
 }
-
 export interface Substance extends DomainResource {
-  resourceType: 'Substance';
-  
-  category?: CodeableConcept[];
-  code: CodeableConcept;
-  description?: string;
-  _description?: Element;
-  identifier?: Identifier[];
-  ingredient?: SubstanceIngredient[];
-  instance?: SubstanceInstance[];
-  status?: 'active' | 'inactive' | 'entered-in-error';
-  _status?: Element;
-}
+    resourceType: "Substance";
 
+    category?: CodeableConcept[];
+    code: CodeableConcept;
+    description?: string;
+    _description?: Element;
+    identifier?: Identifier[];
+    ingredient?: SubstanceIngredient[];
+    instance?: SubstanceInstance[];
+    status?: "active" | "inactive" | "entered-in-error";
+    _status?: Element;
+}

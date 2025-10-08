@@ -2,14 +2,13 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Element } from '../hl7-fhir-r4-core/Element';
+import type { Element } from "../hl7-fhir-r4-core/Element";
 
-export type { Element }from '../hl7-fhir-r4-core/Element';;
+export type { Element } from "../hl7-fhir-r4-core/Element";
 
 export interface Money extends Element {
-  currency?: string;
-  _currency?: Element;
-  value?: number;
-  _value?: Element;
+    currency?: string;
+    _currency?: Element;
+    value?: number;
+    _value?: Element;
 }
-

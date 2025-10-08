@@ -193,7 +193,7 @@ export class APIBuilder {
     typescript2(opts: Partial<WriterOptions>) {
         const writerOpts = {
             outputDir: Path.join(this.options.outputDir, "/types"),
-            tabSize: 2,
+            tabSize: 4,
             withDebugComment: false,
             commentLinePrefix: "//",
         };

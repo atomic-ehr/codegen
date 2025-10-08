@@ -2,44 +2,41 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Address } from '../hl7-fhir-r4-core/Address';
-import type { Attachment } from '../hl7-fhir-r4-core/Attachment';
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { ContactPoint } from '../hl7-fhir-r4-core/ContactPoint';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { HumanName } from '../hl7-fhir-r4-core/HumanName';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { Address } from "../hl7-fhir-r4-core/Address";
+import type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { ContactPoint } from "../hl7-fhir-r4-core/ContactPoint";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { HumanName } from "../hl7-fhir-r4-core/HumanName";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Address }from '../hl7-fhir-r4-core/Address';;
-export type { Attachment }from '../hl7-fhir-r4-core/Attachment';;
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { ContactPoint }from '../hl7-fhir-r4-core/ContactPoint';;
-export type { HumanName }from '../hl7-fhir-r4-core/HumanName';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { Address } from "../hl7-fhir-r4-core/Address";
+export type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { ContactPoint } from "../hl7-fhir-r4-core/ContactPoint";
+export type { HumanName } from "../hl7-fhir-r4-core/HumanName";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface PersonLink extends BackboneElement {
-  assurance?: 'level1' | 'level2' | 'level3' | 'level4';
-  target: Reference<'Patient' | 'Person' | 'Practitioner' | 'RelatedPerson'>;
+    assurance?: "level1" | "level2" | "level3" | "level4";
+    target: Reference<"Patient" | "Person" | "Practitioner" | "RelatedPerson">;
 }
-
 export interface Person extends DomainResource {
-  resourceType: 'Person';
-  
-  active?: boolean;
-  _active?: Element;
-  address?: Address[];
-  birthDate?: string;
-  _birthDate?: Element;
-  gender?: 'male' | 'female' | 'other' | 'unknown';
-  _gender?: Element;
-  identifier?: Identifier[];
-  link?: PersonLink[];
-  managingOrganization?: Reference<'Organization'>;
-  name?: HumanName[];
-  photo?: Attachment;
-  telecom?: ContactPoint[];
-}
+    resourceType: "Person";
 
+    active?: boolean;
+    _active?: Element;
+    address?: Address[];
+    birthDate?: string;
+    _birthDate?: Element;
+    gender?: "male" | "female" | "other" | "unknown";
+    _gender?: Element;
+    identifier?: Identifier[];
+    link?: PersonLink[];
+    managingOrganization?: Reference<"Organization">;
+    name?: HumanName[];
+    photo?: Attachment;
+    telecom?: ContactPoint[];
+}

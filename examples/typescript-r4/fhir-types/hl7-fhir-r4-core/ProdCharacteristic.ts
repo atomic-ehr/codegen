@@ -2,30 +2,29 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Attachment } from '../hl7-fhir-r4-core/Attachment';
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
+import type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 
-export type { Attachment }from '../hl7-fhir-r4-core/Attachment';;
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
+export type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 
 export interface ProdCharacteristic extends BackboneElement {
-  color?: string[];
-  _color?: Element;
-  depth?: Quantity;
-  externalDiameter?: Quantity;
-  height?: Quantity;
-  image?: Attachment[];
-  imprint?: string[];
-  _imprint?: Element;
-  nominalVolume?: Quantity;
-  scoring?: CodeableConcept;
-  shape?: string;
-  _shape?: Element;
-  weight?: Quantity;
-  width?: Quantity;
+    color?: string[];
+    _color?: Element;
+    depth?: Quantity;
+    externalDiameter?: Quantity;
+    height?: Quantity;
+    image?: Attachment[];
+    imprint?: string[];
+    _imprint?: Element;
+    nominalVolume?: Quantity;
+    scoring?: CodeableConcept;
+    shape?: string;
+    _shape?: Element;
+    weight?: Quantity;
+    width?: Quantity;
 }
-

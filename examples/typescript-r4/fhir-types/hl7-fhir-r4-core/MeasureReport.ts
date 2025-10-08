@@ -2,75 +2,67 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface MeasureReportGroup extends BackboneElement {
-  code?: CodeableConcept;
-  measureScore?: Quantity;
-  population?: MeasureReportGroupPopulation[];
-  stratifier?: MeasureReportGroupStratifier[];
+    code?: CodeableConcept;
+    measureScore?: Quantity;
+    population?: MeasureReportGroupPopulation[];
+    stratifier?: MeasureReportGroupStratifier[];
 }
-
 export interface MeasureReportGroupPopulation extends BackboneElement {
-  code?: CodeableConcept;
-  count?: number;
-  subjectResults?: Reference<'List'>;
+    code?: CodeableConcept;
+    count?: number;
+    subjectResults?: Reference<"List">;
 }
-
 export interface MeasureReportGroupStratifier extends BackboneElement {
-  code?: CodeableConcept[];
-  stratum?: MeasureReportGroupStratifierStratum[];
+    code?: CodeableConcept[];
+    stratum?: MeasureReportGroupStratifierStratum[];
 }
-
 export interface MeasureReportGroupStratifierStratum extends BackboneElement {
-  component?: MeasureReportGroupStratifierStratumComponent[];
-  measureScore?: Quantity;
-  population?: MeasureReportGroupStratifierStratumPopulation[];
-  value?: CodeableConcept;
+    component?: MeasureReportGroupStratifierStratumComponent[];
+    measureScore?: Quantity;
+    population?: MeasureReportGroupStratifierStratumPopulation[];
+    value?: CodeableConcept;
 }
-
 export interface MeasureReportGroupStratifierStratumComponent extends BackboneElement {
-  code: CodeableConcept;
-  value: CodeableConcept;
+    code: CodeableConcept;
+    value: CodeableConcept;
 }
-
 export interface MeasureReportGroupStratifierStratumPopulation extends BackboneElement {
-  code?: CodeableConcept;
-  count?: number;
-  subjectResults?: Reference<'List'>;
+    code?: CodeableConcept;
+    count?: number;
+    subjectResults?: Reference<"List">;
 }
-
 export interface MeasureReport extends DomainResource {
-  resourceType: 'MeasureReport';
-  
-  date?: string;
-  _date?: Element;
-  evaluatedResource?: Reference<'Resource'>[];
-  group?: MeasureReportGroup[];
-  identifier?: Identifier[];
-  improvementNotation?: CodeableConcept;
-  measure: string;
-  _measure?: Element;
-  period: Period;
-  reporter?: Reference<'Location' | 'Organization' | 'Practitioner' | 'PractitionerRole'>;
-  status: 'complete' | 'pending' | 'error';
-  _status?: Element;
-  subject?: Reference<'Device' | 'Group' | 'Location' | 'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
-  type: 'individual' | 'subject-list' | 'summary' | 'data-collection';
-  _type?: Element;
-}
+    resourceType: "MeasureReport";
 
+    date?: string;
+    _date?: Element;
+    evaluatedResource?: Reference<"Resource">[];
+    group?: MeasureReportGroup[];
+    identifier?: Identifier[];
+    improvementNotation?: CodeableConcept;
+    measure: string;
+    _measure?: Element;
+    period: Period;
+    reporter?: Reference<"Location" | "Organization" | "Practitioner" | "PractitionerRole">;
+    status: "complete" | "pending" | "error";
+    _status?: Element;
+    subject?: Reference<"Device" | "Group" | "Location" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
+    type: "individual" | "subject-list" | "summary" | "data-collection";
+    _type?: Element;
+}

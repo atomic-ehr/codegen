@@ -2,79 +2,75 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { Coding } from '../hl7-fhir-r4-core/Coding';
-import type { ContactDetail } from '../hl7-fhir-r4-core/ContactDetail';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { UsageContext } from '../hl7-fhir-r4-core/UsageContext';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { Coding } from "../hl7-fhir-r4-core/Coding";
+import type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Coding }from '../hl7-fhir-r4-core/Coding';;
-export type { ContactDetail }from '../hl7-fhir-r4-core/ContactDetail';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { UsageContext }from '../hl7-fhir-r4-core/UsageContext';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Coding } from "../hl7-fhir-r4-core/Coding";
+export type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
 export interface MessageDefinitionAllowedResponse extends BackboneElement {
-  message: string;
-  situation?: string;
+    message: string;
+    situation?: string;
 }
-
 export interface MessageDefinitionFocus extends BackboneElement {
-  code: string;
-  max?: string;
-  min: number;
-  profile?: string;
+    code: string;
+    max?: string;
+    min: number;
+    profile?: string;
 }
-
 export interface MessageDefinition extends DomainResource {
-  resourceType: 'MessageDefinition';
-  
-  allowedResponse?: MessageDefinitionAllowedResponse[];
-  base?: string;
-  _base?: Element;
-  category?: 'consequence' | 'currency' | 'notification';
-  _category?: Element;
-  contact?: ContactDetail[];
-  copyright?: string;
-  _copyright?: Element;
-  date: string;
-  _date?: Element;
-  description?: string;
-  _description?: Element;
-  eventCoding?: Coding;
-  eventUri?: string;
-  _eventUri?: Element;
-  experimental?: boolean;
-  _experimental?: Element;
-  focus?: MessageDefinitionFocus[];
-  graph?: string[];
-  _graph?: Element;
-  identifier?: Identifier[];
-  jurisdiction?: CodeableConcept[];
-  name?: string;
-  _name?: Element;
-  parent?: string[];
-  _parent?: Element;
-  publisher?: string;
-  _publisher?: Element;
-  purpose?: string;
-  _purpose?: Element;
-  replaces?: string[];
-  _replaces?: Element;
-  responseRequired?: 'always' | 'on-error' | 'never' | 'on-success';
-  _responseRequired?: Element;
-  status: 'draft' | 'active' | 'retired' | 'unknown';
-  _status?: Element;
-  title?: string;
-  _title?: Element;
-  url?: string;
-  _url?: Element;
-  useContext?: UsageContext[];
-  version?: string;
-  _version?: Element;
-}
+    resourceType: "MessageDefinition";
 
+    allowedResponse?: MessageDefinitionAllowedResponse[];
+    base?: string;
+    _base?: Element;
+    category?: "consequence" | "currency" | "notification";
+    _category?: Element;
+    contact?: ContactDetail[];
+    copyright?: string;
+    _copyright?: Element;
+    date: string;
+    _date?: Element;
+    description?: string;
+    _description?: Element;
+    eventCoding?: Coding;
+    eventUri?: string;
+    _eventUri?: Element;
+    experimental?: boolean;
+    _experimental?: Element;
+    focus?: MessageDefinitionFocus[];
+    graph?: string[];
+    _graph?: Element;
+    identifier?: Identifier[];
+    jurisdiction?: CodeableConcept[];
+    name?: string;
+    _name?: Element;
+    parent?: string[];
+    _parent?: Element;
+    publisher?: string;
+    _publisher?: Element;
+    purpose?: string;
+    _purpose?: Element;
+    replaces?: string[];
+    _replaces?: Element;
+    responseRequired?: "always" | "on-error" | "never" | "on-success";
+    _responseRequired?: Element;
+    status: "draft" | "active" | "retired" | "unknown";
+    _status?: Element;
+    title?: string;
+    _title?: Element;
+    url?: string;
+    _url?: Element;
+    useContext?: UsageContext[];
+    version?: string;
+    _version?: Element;
+}

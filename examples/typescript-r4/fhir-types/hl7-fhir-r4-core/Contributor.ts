@@ -2,17 +2,16 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { ContactDetail } from '../hl7-fhir-r4-core/ContactDetail';
-import type { Element } from '../hl7-fhir-r4-core/Element';
+import type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
+import type { Element } from "../hl7-fhir-r4-core/Element";
 
-export type { ContactDetail }from '../hl7-fhir-r4-core/ContactDetail';;
-export type { Element }from '../hl7-fhir-r4-core/Element';;
+export type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
+export type { Element } from "../hl7-fhir-r4-core/Element";
 
 export interface Contributor extends Element {
-  contact?: ContactDetail[];
-  name: string;
-  _name?: Element;
-  type: 'author' | 'editor' | 'reviewer' | 'endorser';
-  _type?: Element;
+    contact?: ContactDetail[];
+    name: string;
+    _name?: Element;
+    type: "author" | "editor" | "reviewer" | "endorser";
+    _type?: Element;
 }
-

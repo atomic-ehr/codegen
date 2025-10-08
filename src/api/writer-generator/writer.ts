@@ -86,8 +86,11 @@ export class Writer extends FileSystemWriter {
     }
 
     line(...tokens: string[]) {
-        this.writeIndent();
-        this.write(`${tokens.join(" ")}\n`);
+        if (tokens.length === 0) {
+            this.write("\n");
+        } else {
+            this.write(`${tokens.join(" ")}\n`);
+        }
     }
 
     lineSM(...tokens: string[]) {

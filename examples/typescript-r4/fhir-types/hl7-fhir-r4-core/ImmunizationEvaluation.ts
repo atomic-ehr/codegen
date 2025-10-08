@@ -2,40 +2,39 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface ImmunizationEvaluation extends DomainResource {
-  resourceType: 'ImmunizationEvaluation';
-  
-  authority?: Reference<'Organization'>;
-  date?: string;
-  _date?: Element;
-  description?: string;
-  _description?: Element;
-  doseNumberPositiveInt?: number;
-  _doseNumberPositiveInt?: Element;
-  doseNumberString?: string;
-  _doseNumberString?: Element;
-  doseStatus: CodeableConcept;
-  doseStatusReason?: CodeableConcept[];
-  identifier?: Identifier[];
-  immunizationEvent: Reference<'Immunization'>;
-  patient: Reference<'Patient'>;
-  series?: string;
-  _series?: Element;
-  seriesDosesPositiveInt?: number;
-  _seriesDosesPositiveInt?: Element;
-  seriesDosesString?: string;
-  _seriesDosesString?: Element;
-  status: 'completed' | 'entered-in-error';
-  _status?: Element;
-  targetDisease: CodeableConcept;
-}
+    resourceType: "ImmunizationEvaluation";
 
+    authority?: Reference<"Organization">;
+    date?: string;
+    _date?: Element;
+    description?: string;
+    _description?: Element;
+    doseNumberPositiveInt?: number;
+    _doseNumberPositiveInt?: Element;
+    doseNumberString?: string;
+    _doseNumberString?: Element;
+    doseStatus: CodeableConcept;
+    doseStatusReason?: CodeableConcept[];
+    identifier?: Identifier[];
+    immunizationEvent: Reference<"Immunization">;
+    patient: Reference<"Patient">;
+    series?: string;
+    _series?: Element;
+    seriesDosesPositiveInt?: number;
+    _seriesDosesPositiveInt?: Element;
+    seriesDosesString?: string;
+    _seriesDosesString?: Element;
+    status: "completed" | "entered-in-error";
+    _status?: Element;
+    targetDisease: CodeableConcept;
+}

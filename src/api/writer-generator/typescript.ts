@@ -97,7 +97,7 @@ export class TypeScript extends Writer {
     resourceRelatives: TypeRelation[] = [];
 
     tsImportType(tsPackageName: string, ...entities: string[]) {
-        this.lineSM(`import type { ${entities.join(", ")} } from '${tsPackageName}'`);
+        this.lineSM(`import type { ${entities.join(", ")} } from "${tsPackageName}"`);
     }
 
     generateFhirPackageIndexFile(schemas: TypeSchema[]) {
@@ -117,7 +117,7 @@ export class TypeScript extends Writer {
 
             for (const exp of exports) {
                 this.debugComment(exp.identifier);
-                this.lineSM(`export type { ${exp.resourceName} } from './${exp.tsPackageName}'`);
+                this.lineSM(`export type { ${exp.resourceName} } from "./${exp.tsPackageName}"`);
             }
         });
     }
@@ -164,7 +164,7 @@ export class TypeScript extends Writer {
             }));
         if (complexTypeDeps && complexTypeDeps.length > 0) {
             for (const dep of complexTypeDeps) {
-                this.lineSM(`export type { ${dep.name} }from '${dep.tsPackage}';`);
+                this.lineSM(`export type { ${dep.name} } from "${dep.tsPackage}"`);
             }
             this.line();
         }
@@ -197,7 +197,7 @@ export class TypeScript extends Writer {
             if (schema.identifier.kind === "resource") {
                 const possibleResourceTypes: Identifier[] = [schema.identifier];
                 possibleResourceTypes.push(...resourceChildren(this.resourceRelatives, schema.identifier));
-                this.lineSM(`resourceType: ${possibleResourceTypes.map((e) => `'${e.name}'`).join(" | ")}`);
+                this.lineSM(`resourceType: ${possibleResourceTypes.map((e) => `"${e.name}"`).join(" | ")}`);
                 this.line();
             }
 
@@ -230,12 +230,12 @@ export class TypeScript extends Writer {
                 }
 
                 if (field.reference?.length) {
-                    const references = field.reference.map((ref) => `'${ref.name}'`).join(" | ");
+                    const references = field.reference.map((ref) => `"${ref.name}"`).join(" | ");
                     type = `Reference<${references}>`;
                 }
 
                 if (field.enum) {
-                    type = field.enum.map((e) => `'${e}'`).join(" | ");
+                    type = field.enum.map((e) => `"${e}"`).join(" | ");
                 }
 
                 this.lineSM(`${fieldNameFixed}${optionalSymbol}:`, `${type}${arraySymbol}`);
@@ -245,13 +245,10 @@ export class TypeScript extends Writer {
                 }
             }
         });
-
-        this.line();
     }
 
     generateNestedTypes(schema: RegularTypeSchema) {
         if (schema.nested) {
-            this.line();
             for (const subtype of schema.nested) {
                 this.generateType(subtype);
             }

@@ -2,56 +2,52 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Range } from '../hl7-fhir-r4-core/Range';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Range } from "../hl7-fhir-r4-core/Range";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Range }from '../hl7-fhir-r4-core/Range';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Range } from "../hl7-fhir-r4-core/Range";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface ObservationDefinitionQualifiedInterval extends BackboneElement {
-  age?: Range;
-  appliesTo?: CodeableConcept[];
-  category?: 'reference' | 'critical' | 'absolute';
-  condition?: string;
-  context?: CodeableConcept;
-  gender?: 'male' | 'female' | 'other' | 'unknown';
-  gestationalAge?: Range;
-  range?: Range;
+    age?: Range;
+    appliesTo?: CodeableConcept[];
+    category?: "reference" | "critical" | "absolute";
+    condition?: string;
+    context?: CodeableConcept;
+    gender?: "male" | "female" | "other" | "unknown";
+    gestationalAge?: Range;
+    range?: Range;
 }
-
 export interface ObservationDefinitionQuantitativeDetails extends BackboneElement {
-  conversionFactor?: number;
-  customaryUnit?: CodeableConcept;
-  decimalPrecision?: number;
-  unit?: CodeableConcept;
+    conversionFactor?: number;
+    customaryUnit?: CodeableConcept;
+    decimalPrecision?: number;
+    unit?: CodeableConcept;
 }
-
 export interface ObservationDefinition extends DomainResource {
-  resourceType: 'ObservationDefinition';
-  
-  abnormalCodedValueSet?: Reference<'ValueSet'>;
-  category?: CodeableConcept[];
-  code: CodeableConcept;
-  criticalCodedValueSet?: Reference<'ValueSet'>;
-  identifier?: Identifier[];
-  method?: CodeableConcept;
-  multipleResultsAllowed?: boolean;
-  _multipleResultsAllowed?: Element;
-  normalCodedValueSet?: Reference<'ValueSet'>;
-  permittedDataType?: 'Quantity' | 'CodeableConcept' | 'string' | 'boolean' | 'integer' | 'Range' | 'Ratio' | 'SampledData' | 'time' | 'dateTime' | 'Period'[];
-  _permittedDataType?: Element;
-  preferredReportName?: string;
-  _preferredReportName?: Element;
-  qualifiedInterval?: ObservationDefinitionQualifiedInterval[];
-  quantitativeDetails?: ObservationDefinitionQuantitativeDetails;
-  validCodedValueSet?: Reference<'ValueSet'>;
-}
+    resourceType: "ObservationDefinition";
 
+    abnormalCodedValueSet?: Reference<"ValueSet">;
+    category?: CodeableConcept[];
+    code: CodeableConcept;
+    criticalCodedValueSet?: Reference<"ValueSet">;
+    identifier?: Identifier[];
+    method?: CodeableConcept;
+    multipleResultsAllowed?: boolean;
+    _multipleResultsAllowed?: Element;
+    normalCodedValueSet?: Reference<"ValueSet">;
+    permittedDataType?: "Quantity" | "CodeableConcept" | "string" | "boolean" | "integer" | "Range" | "Ratio" | "SampledData" | "time" | "dateTime" | "Period"[];
+    _permittedDataType?: Element;
+    preferredReportName?: string;
+    _preferredReportName?: Element;
+    qualifiedInterval?: ObservationDefinitionQualifiedInterval[];
+    quantitativeDetails?: ObservationDefinitionQuantitativeDetails;
+    validCodedValueSet?: Reference<"ValueSet">;
+}

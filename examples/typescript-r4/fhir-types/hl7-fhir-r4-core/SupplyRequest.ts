@@ -2,58 +2,55 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
-import type { Range } from '../hl7-fhir-r4-core/Range';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
-import type { Timing } from '../hl7-fhir-r4-core/Timing';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+import type { Range } from "../hl7-fhir-r4-core/Range";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
+import type { Timing } from "../hl7-fhir-r4-core/Timing";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
-export type { Range }from '../hl7-fhir-r4-core/Range';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-export type { Timing }from '../hl7-fhir-r4-core/Timing';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+export type { Range } from "../hl7-fhir-r4-core/Range";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
+export type { Timing } from "../hl7-fhir-r4-core/Timing";
 
 export interface SupplyRequestParameter extends BackboneElement {
-  code?: CodeableConcept;
-  valueBoolean?: boolean;
-  valueCodeableConcept?: CodeableConcept;
-  valueQuantity?: Quantity;
-  valueRange?: Range;
+    code?: CodeableConcept;
+    valueBoolean?: boolean;
+    valueCodeableConcept?: CodeableConcept;
+    valueQuantity?: Quantity;
+    valueRange?: Range;
 }
-
 export interface SupplyRequest extends DomainResource {
-  resourceType: 'SupplyRequest';
-  
-  authoredOn?: string;
-  _authoredOn?: Element;
-  category?: CodeableConcept;
-  deliverFrom?: Reference<'Location' | 'Organization'>;
-  deliverTo?: Reference<'Location' | 'Organization' | 'Patient'>;
-  identifier?: Identifier[];
-  itemCodeableConcept?: CodeableConcept;
-  itemReference?: Reference<'Device' | 'Medication' | 'Substance'>;
-  occurrenceDateTime?: string;
-  _occurrenceDateTime?: Element;
-  occurrencePeriod?: Period;
-  occurrenceTiming?: Timing;
-  parameter?: SupplyRequestParameter[];
-  priority?: 'routine' | 'urgent' | 'asap' | 'stat';
-  _priority?: Element;
-  quantity: Quantity;
-  reasonCode?: CodeableConcept[];
-  reasonReference?: Reference<'Condition' | 'DiagnosticReport' | 'DocumentReference' | 'Observation'>[];
-  requester?: Reference<'Device' | 'Organization' | 'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
-  status?: 'draft' | 'active' | 'suspended' | 'cancelled' | 'completed' | 'entered-in-error' | 'unknown';
-  _status?: Element;
-  supplier?: Reference<'HealthcareService' | 'Organization'>[];
-}
+    resourceType: "SupplyRequest";
 
+    authoredOn?: string;
+    _authoredOn?: Element;
+    category?: CodeableConcept;
+    deliverFrom?: Reference<"Location" | "Organization">;
+    deliverTo?: Reference<"Location" | "Organization" | "Patient">;
+    identifier?: Identifier[];
+    itemCodeableConcept?: CodeableConcept;
+    itemReference?: Reference<"Device" | "Medication" | "Substance">;
+    occurrenceDateTime?: string;
+    _occurrenceDateTime?: Element;
+    occurrencePeriod?: Period;
+    occurrenceTiming?: Timing;
+    parameter?: SupplyRequestParameter[];
+    priority?: "routine" | "urgent" | "asap" | "stat";
+    _priority?: Element;
+    quantity: Quantity;
+    reasonCode?: CodeableConcept[];
+    reasonReference?: Reference<"Condition" | "DiagnosticReport" | "DocumentReference" | "Observation">[];
+    requester?: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
+    status?: "draft" | "active" | "suspended" | "cancelled" | "completed" | "entered-in-error" | "unknown";
+    _status?: Element;
+    supplier?: Reference<"HealthcareService" | "Organization">[];
+}

@@ -2,76 +2,71 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Annotation } from '../hl7-fhir-r4-core/Annotation';
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { Coding } from '../hl7-fhir-r4-core/Coding';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { Annotation } from "../hl7-fhir-r4-core/Annotation";
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { Coding } from "../hl7-fhir-r4-core/Coding";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Annotation }from '../hl7-fhir-r4-core/Annotation';;
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Coding }from '../hl7-fhir-r4-core/Coding';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { Annotation } from "../hl7-fhir-r4-core/Annotation";
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Coding } from "../hl7-fhir-r4-core/Coding";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface ImagingStudySeries extends BackboneElement {
-  bodySite?: Coding;
-  description?: string;
-  endpoint?: Reference<'Endpoint'>[];
-  instance?: ImagingStudySeriesInstance[];
-  laterality?: Coding;
-  modality: Coding;
-  number?: number;
-  numberOfInstances?: number;
-  performer?: ImagingStudySeriesPerformer[];
-  specimen?: Reference<'Specimen'>[];
-  started?: string;
-  uid: string;
+    bodySite?: Coding;
+    description?: string;
+    endpoint?: Reference<"Endpoint">[];
+    instance?: ImagingStudySeriesInstance[];
+    laterality?: Coding;
+    modality: Coding;
+    number?: number;
+    numberOfInstances?: number;
+    performer?: ImagingStudySeriesPerformer[];
+    specimen?: Reference<"Specimen">[];
+    started?: string;
+    uid: string;
 }
-
 export interface ImagingStudySeriesInstance extends BackboneElement {
-  number?: number;
-  sopClass: Coding;
-  title?: string;
-  uid: string;
+    number?: number;
+    sopClass: Coding;
+    title?: string;
+    uid: string;
 }
-
 export interface ImagingStudySeriesPerformer extends BackboneElement {
-  actor: Reference<'CareTeam' | 'Device' | 'Organization' | 'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
-  function?: CodeableConcept;
+    actor: Reference<"CareTeam" | "Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
+    function?: CodeableConcept;
 }
-
 export interface ImagingStudy extends DomainResource {
-  resourceType: 'ImagingStudy';
-  
-  basedOn?: Reference<'Appointment' | 'AppointmentResponse' | 'CarePlan' | 'ServiceRequest' | 'Task'>[];
-  description?: string;
-  _description?: Element;
-  encounter?: Reference<'Encounter'>;
-  endpoint?: Reference<'Endpoint'>[];
-  identifier?: Identifier[];
-  interpreter?: Reference<'Practitioner' | 'PractitionerRole'>[];
-  location?: Reference<'Location'>;
-  modality?: Coding[];
-  note?: Annotation[];
-  numberOfInstances?: number;
-  _numberOfInstances?: Element;
-  numberOfSeries?: number;
-  _numberOfSeries?: Element;
-  procedureCode?: CodeableConcept[];
-  procedureReference?: Reference<'Procedure'>;
-  reasonCode?: CodeableConcept[];
-  reasonReference?: Reference<'Condition' | 'DiagnosticReport' | 'DocumentReference' | 'Media' | 'Observation'>[];
-  referrer?: Reference<'Practitioner' | 'PractitionerRole'>;
-  series?: ImagingStudySeries[];
-  started?: string;
-  _started?: Element;
-  status: 'registered' | 'available' | 'cancelled' | 'entered-in-error' | 'unknown';
-  _status?: Element;
-  subject: Reference<'Device' | 'Group' | 'Patient'>;
-}
+    resourceType: "ImagingStudy";
 
+    basedOn?: Reference<"Appointment" | "AppointmentResponse" | "CarePlan" | "ServiceRequest" | "Task">[];
+    description?: string;
+    _description?: Element;
+    encounter?: Reference<"Encounter">;
+    endpoint?: Reference<"Endpoint">[];
+    identifier?: Identifier[];
+    interpreter?: Reference<"Practitioner" | "PractitionerRole">[];
+    location?: Reference<"Location">;
+    modality?: Coding[];
+    note?: Annotation[];
+    numberOfInstances?: number;
+    _numberOfInstances?: Element;
+    numberOfSeries?: number;
+    _numberOfSeries?: Element;
+    procedureCode?: CodeableConcept[];
+    procedureReference?: Reference<"Procedure">;
+    reasonCode?: CodeableConcept[];
+    reasonReference?: Reference<"Condition" | "DiagnosticReport" | "DocumentReference" | "Media" | "Observation">[];
+    referrer?: Reference<"Practitioner" | "PractitionerRole">;
+    series?: ImagingStudySeries[];
+    started?: string;
+    _started?: Element;
+    status: "registered" | "available" | "cancelled" | "entered-in-error" | "unknown";
+    _status?: Element;
+    subject: Reference<"Device" | "Group" | "Patient">;
+}

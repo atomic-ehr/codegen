@@ -2,73 +2,68 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Attachment } from '../hl7-fhir-r4-core/Attachment';
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { ContactPoint } from '../hl7-fhir-r4-core/ContactPoint';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { ContactPoint } from "../hl7-fhir-r4-core/ContactPoint";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Attachment }from '../hl7-fhir-r4-core/Attachment';;
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { ContactPoint }from '../hl7-fhir-r4-core/ContactPoint';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { ContactPoint } from "../hl7-fhir-r4-core/ContactPoint";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface HealthcareServiceAvailableTime extends BackboneElement {
-  allDay?: boolean;
-  availableEndTime?: string;
-  availableStartTime?: string;
-  daysOfWeek?: 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun'[];
+    allDay?: boolean;
+    availableEndTime?: string;
+    availableStartTime?: string;
+    daysOfWeek?: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun"[];
 }
-
 export interface HealthcareServiceEligibility extends BackboneElement {
-  code?: CodeableConcept;
-  comment?: string;
+    code?: CodeableConcept;
+    comment?: string;
 }
-
 export interface HealthcareServiceNotAvailable extends BackboneElement {
-  description: string;
-  during?: Period;
+    description: string;
+    during?: Period;
 }
-
 export interface HealthcareService extends DomainResource {
-  resourceType: 'HealthcareService';
-  
-  active?: boolean;
-  _active?: Element;
-  appointmentRequired?: boolean;
-  _appointmentRequired?: Element;
-  availabilityExceptions?: string;
-  _availabilityExceptions?: Element;
-  availableTime?: HealthcareServiceAvailableTime[];
-  category?: CodeableConcept[];
-  characteristic?: CodeableConcept[];
-  comment?: string;
-  _comment?: Element;
-  communication?: CodeableConcept[];
-  coverageArea?: Reference<'Location'>[];
-  eligibility?: HealthcareServiceEligibility[];
-  endpoint?: Reference<'Endpoint'>[];
-  extraDetails?: string;
-  _extraDetails?: Element;
-  identifier?: Identifier[];
-  location?: Reference<'Location'>[];
-  name?: string;
-  _name?: Element;
-  notAvailable?: HealthcareServiceNotAvailable[];
-  photo?: Attachment;
-  program?: CodeableConcept[];
-  providedBy?: Reference<'Organization'>;
-  referralMethod?: CodeableConcept[];
-  serviceProvisionCode?: CodeableConcept[];
-  specialty?: CodeableConcept[];
-  telecom?: ContactPoint[];
-  type?: CodeableConcept[];
-}
+    resourceType: "HealthcareService";
 
+    active?: boolean;
+    _active?: Element;
+    appointmentRequired?: boolean;
+    _appointmentRequired?: Element;
+    availabilityExceptions?: string;
+    _availabilityExceptions?: Element;
+    availableTime?: HealthcareServiceAvailableTime[];
+    category?: CodeableConcept[];
+    characteristic?: CodeableConcept[];
+    comment?: string;
+    _comment?: Element;
+    communication?: CodeableConcept[];
+    coverageArea?: Reference<"Location">[];
+    eligibility?: HealthcareServiceEligibility[];
+    endpoint?: Reference<"Endpoint">[];
+    extraDetails?: string;
+    _extraDetails?: Element;
+    identifier?: Identifier[];
+    location?: Reference<"Location">[];
+    name?: string;
+    _name?: Element;
+    notAvailable?: HealthcareServiceNotAvailable[];
+    photo?: Attachment;
+    program?: CodeableConcept[];
+    providedBy?: Reference<"Organization">;
+    referralMethod?: CodeableConcept[];
+    serviceProvisionCode?: CodeableConcept[];
+    specialty?: CodeableConcept[];
+    telecom?: ContactPoint[];
+    type?: CodeableConcept[];
+}

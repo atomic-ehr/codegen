@@ -2,106 +2,95 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Address } from '../hl7-fhir-r4-core/Address';
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { ContactPoint } from '../hl7-fhir-r4-core/ContactPoint';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { HumanName } from '../hl7-fhir-r4-core/HumanName';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Money } from '../hl7-fhir-r4-core/Money';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { Address } from "../hl7-fhir-r4-core/Address";
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { ContactPoint } from "../hl7-fhir-r4-core/ContactPoint";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { HumanName } from "../hl7-fhir-r4-core/HumanName";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Money } from "../hl7-fhir-r4-core/Money";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Address }from '../hl7-fhir-r4-core/Address';;
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { ContactPoint }from '../hl7-fhir-r4-core/ContactPoint';;
-export type { HumanName }from '../hl7-fhir-r4-core/HumanName';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Money }from '../hl7-fhir-r4-core/Money';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { Address } from "../hl7-fhir-r4-core/Address";
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { ContactPoint } from "../hl7-fhir-r4-core/ContactPoint";
+export type { HumanName } from "../hl7-fhir-r4-core/HumanName";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Money } from "../hl7-fhir-r4-core/Money";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface InsurancePlanContact extends BackboneElement {
-  address?: Address;
-  name?: HumanName;
-  purpose?: CodeableConcept;
-  telecom?: ContactPoint[];
+    address?: Address;
+    name?: HumanName;
+    purpose?: CodeableConcept;
+    telecom?: ContactPoint[];
 }
-
 export interface InsurancePlanCoverage extends BackboneElement {
-  benefit: InsurancePlanCoverageBenefit[];
-  network?: Reference<'Organization'>[];
-  type: CodeableConcept;
+    benefit: InsurancePlanCoverageBenefit[];
+    network?: Reference<"Organization">[];
+    type: CodeableConcept;
 }
-
 export interface InsurancePlanCoverageBenefit extends BackboneElement {
-  limit?: InsurancePlanCoverageBenefitLimit[];
-  requirement?: string;
-  type: CodeableConcept;
+    limit?: InsurancePlanCoverageBenefitLimit[];
+    requirement?: string;
+    type: CodeableConcept;
 }
-
 export interface InsurancePlanCoverageBenefitLimit extends BackboneElement {
-  code?: CodeableConcept;
-  value?: Quantity;
+    code?: CodeableConcept;
+    value?: Quantity;
 }
-
 export interface InsurancePlanPlan extends BackboneElement {
-  coverageArea?: Reference<'Location'>[];
-  generalCost?: InsurancePlanPlanGeneralCost[];
-  identifier?: Identifier[];
-  network?: Reference<'Organization'>[];
-  specificCost?: InsurancePlanPlanSpecificCost[];
-  type?: CodeableConcept;
+    coverageArea?: Reference<"Location">[];
+    generalCost?: InsurancePlanPlanGeneralCost[];
+    identifier?: Identifier[];
+    network?: Reference<"Organization">[];
+    specificCost?: InsurancePlanPlanSpecificCost[];
+    type?: CodeableConcept;
 }
-
 export interface InsurancePlanPlanGeneralCost extends BackboneElement {
-  comment?: string;
-  cost?: Money;
-  groupSize?: number;
-  type?: CodeableConcept;
+    comment?: string;
+    cost?: Money;
+    groupSize?: number;
+    type?: CodeableConcept;
 }
-
 export interface InsurancePlanPlanSpecificCost extends BackboneElement {
-  benefit?: InsurancePlanPlanSpecificCostBenefit[];
-  category: CodeableConcept;
+    benefit?: InsurancePlanPlanSpecificCostBenefit[];
+    category: CodeableConcept;
 }
-
 export interface InsurancePlanPlanSpecificCostBenefit extends BackboneElement {
-  cost?: InsurancePlanPlanSpecificCostBenefitCost[];
-  type: CodeableConcept;
+    cost?: InsurancePlanPlanSpecificCostBenefitCost[];
+    type: CodeableConcept;
 }
-
 export interface InsurancePlanPlanSpecificCostBenefitCost extends BackboneElement {
-  applicability?: CodeableConcept;
-  qualifiers?: CodeableConcept[];
-  type: CodeableConcept;
-  value?: Quantity;
+    applicability?: CodeableConcept;
+    qualifiers?: CodeableConcept[];
+    type: CodeableConcept;
+    value?: Quantity;
 }
-
 export interface InsurancePlan extends DomainResource {
-  resourceType: 'InsurancePlan';
-  
-  administeredBy?: Reference<'Organization'>;
-  alias?: string[];
-  _alias?: Element;
-  contact?: InsurancePlanContact[];
-  coverage?: InsurancePlanCoverage[];
-  coverageArea?: Reference<'Location'>[];
-  endpoint?: Reference<'Endpoint'>[];
-  identifier?: Identifier[];
-  name?: string;
-  _name?: Element;
-  network?: Reference<'Organization'>[];
-  ownedBy?: Reference<'Organization'>;
-  period?: Period;
-  plan?: InsurancePlanPlan[];
-  status?: 'draft' | 'active' | 'retired' | 'unknown';
-  _status?: Element;
-  type?: CodeableConcept[];
-}
+    resourceType: "InsurancePlan";
 
+    administeredBy?: Reference<"Organization">;
+    alias?: string[];
+    _alias?: Element;
+    contact?: InsurancePlanContact[];
+    coverage?: InsurancePlanCoverage[];
+    coverageArea?: Reference<"Location">[];
+    endpoint?: Reference<"Endpoint">[];
+    identifier?: Identifier[];
+    name?: string;
+    _name?: Element;
+    network?: Reference<"Organization">[];
+    ownedBy?: Reference<"Organization">;
+    period?: Period;
+    plan?: InsurancePlanPlan[];
+    status?: "draft" | "active" | "retired" | "unknown";
+    _status?: Element;
+    type?: CodeableConcept[];
+}

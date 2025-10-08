@@ -2,19 +2,18 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Element } from '../hl7-fhir-r4-core/Element';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
+import type { Element } from "../hl7-fhir-r4-core/Element";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 
-export type { Element }from '../hl7-fhir-r4-core/Element';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
+export type { Element } from "../hl7-fhir-r4-core/Element";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 
 export interface Reference<T extends string = string> extends Element {
-  display?: string;
-  _display?: Element;
-  identifier?: Identifier;
-  reference?: `${T}/${string}`;
-  _reference?: Element;
-  type?: string;
-  _type?: Element;
+    display?: string;
+    _display?: Element;
+    identifier?: Identifier;
+    reference?: `${T}/${string}`;
+    _reference?: Element;
+    type?: string;
+    _type?: Element;
 }
-

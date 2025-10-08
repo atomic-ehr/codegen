@@ -2,14 +2,13 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Element } from '../hl7-fhir-r4-core/Element';
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
+import type { Element } from "../hl7-fhir-r4-core/Element";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 
-export type { Element }from '../hl7-fhir-r4-core/Element';;
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
+export type { Element } from "../hl7-fhir-r4-core/Element";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 
 export interface Range extends Element {
-  high?: Quantity;
-  low?: Quantity;
+    high?: Quantity;
+    low?: Quantity;
 }
-

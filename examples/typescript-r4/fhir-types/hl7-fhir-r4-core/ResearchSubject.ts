@@ -2,28 +2,27 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface ResearchSubject extends DomainResource {
-  resourceType: 'ResearchSubject';
-  
-  actualArm?: string;
-  _actualArm?: Element;
-  assignedArm?: string;
-  _assignedArm?: Element;
-  consent?: Reference<'Consent'>;
-  identifier?: Identifier[];
-  individual: Reference<'Patient'>;
-  period?: Period;
-  status: 'candidate' | 'eligible' | 'follow-up' | 'ineligible' | 'not-registered' | 'off-study' | 'on-study' | 'on-study-intervention' | 'on-study-observation' | 'pending-on-study' | 'potential-candidate' | 'screening' | 'withdrawn';
-  _status?: Element;
-  study: Reference<'ResearchStudy'>;
-}
+    resourceType: "ResearchSubject";
 
+    actualArm?: string;
+    _actualArm?: Element;
+    assignedArm?: string;
+    _assignedArm?: Element;
+    consent?: Reference<"Consent">;
+    identifier?: Identifier[];
+    individual: Reference<"Patient">;
+    period?: Period;
+    status: "candidate" | "eligible" | "follow-up" | "ineligible" | "not-registered" | "off-study" | "on-study" | "on-study-intervention" | "on-study-observation" | "pending-on-study" | "potential-candidate" | "screening" | "withdrawn";
+    _status?: Element;
+    study: Reference<"ResearchStudy">;
+}

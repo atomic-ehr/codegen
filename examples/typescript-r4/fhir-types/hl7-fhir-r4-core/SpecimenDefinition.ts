@@ -2,68 +2,62 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Duration } from '../hl7-fhir-r4-core/Duration';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
-import type { Range } from '../hl7-fhir-r4-core/Range';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Duration } from "../hl7-fhir-r4-core/Duration";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+import type { Range } from "../hl7-fhir-r4-core/Range";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Duration }from '../hl7-fhir-r4-core/Duration';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
-export type { Range }from '../hl7-fhir-r4-core/Range';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Duration } from "../hl7-fhir-r4-core/Duration";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+export type { Range } from "../hl7-fhir-r4-core/Range";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface SpecimenDefinitionTypeTested extends BackboneElement {
-  container?: SpecimenDefinitionTypeTestedContainer;
-  handling?: SpecimenDefinitionTypeTestedHandling[];
-  isDerived?: boolean;
-  preference: 'preferred' | 'alternate';
-  rejectionCriterion?: CodeableConcept[];
-  requirement?: string;
-  retentionTime?: Duration;
-  type?: CodeableConcept;
+    container?: SpecimenDefinitionTypeTestedContainer;
+    handling?: SpecimenDefinitionTypeTestedHandling[];
+    isDerived?: boolean;
+    preference: "preferred" | "alternate";
+    rejectionCriterion?: CodeableConcept[];
+    requirement?: string;
+    retentionTime?: Duration;
+    type?: CodeableConcept;
 }
-
 export interface SpecimenDefinitionTypeTestedContainer extends BackboneElement {
-  additive?: SpecimenDefinitionTypeTestedContainerAdditive[];
-  cap?: CodeableConcept;
-  capacity?: Quantity;
-  description?: string;
-  material?: CodeableConcept;
-  minimumVolumeQuantity?: Quantity;
-  minimumVolumeString?: string;
-  preparation?: string;
-  type?: CodeableConcept;
+    additive?: SpecimenDefinitionTypeTestedContainerAdditive[];
+    cap?: CodeableConcept;
+    capacity?: Quantity;
+    description?: string;
+    material?: CodeableConcept;
+    minimumVolumeQuantity?: Quantity;
+    minimumVolumeString?: string;
+    preparation?: string;
+    type?: CodeableConcept;
 }
-
 export interface SpecimenDefinitionTypeTestedContainerAdditive extends BackboneElement {
-  additiveCodeableConcept?: CodeableConcept;
-  additiveReference?: Reference<'Substance'>;
+    additiveCodeableConcept?: CodeableConcept;
+    additiveReference?: Reference<"Substance">;
 }
-
 export interface SpecimenDefinitionTypeTestedHandling extends BackboneElement {
-  instruction?: string;
-  maxDuration?: Duration;
-  temperatureQualifier?: CodeableConcept;
-  temperatureRange?: Range;
+    instruction?: string;
+    maxDuration?: Duration;
+    temperatureQualifier?: CodeableConcept;
+    temperatureRange?: Range;
 }
-
 export interface SpecimenDefinition extends DomainResource {
-  resourceType: 'SpecimenDefinition';
-  
-  collection?: CodeableConcept[];
-  identifier?: Identifier;
-  patientPreparation?: CodeableConcept[];
-  timeAspect?: string;
-  _timeAspect?: Element;
-  typeCollected?: CodeableConcept;
-  typeTested?: SpecimenDefinitionTypeTested[];
-}
+    resourceType: "SpecimenDefinition";
 
+    collection?: CodeableConcept[];
+    identifier?: Identifier;
+    patientPreparation?: CodeableConcept[];
+    timeAspect?: string;
+    _timeAspect?: Element;
+    typeCollected?: CodeableConcept;
+    typeTested?: SpecimenDefinitionTypeTested[];
+}

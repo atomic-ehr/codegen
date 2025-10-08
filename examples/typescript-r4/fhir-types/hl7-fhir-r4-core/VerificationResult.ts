@@ -2,68 +2,63 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
-import type { Signature } from '../hl7-fhir-r4-core/Signature';
-import type { Timing } from '../hl7-fhir-r4-core/Timing';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
+import type { Signature } from "../hl7-fhir-r4-core/Signature";
+import type { Timing } from "../hl7-fhir-r4-core/Timing";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-export type { Signature }from '../hl7-fhir-r4-core/Signature';;
-export type { Timing }from '../hl7-fhir-r4-core/Timing';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
+export type { Signature } from "../hl7-fhir-r4-core/Signature";
+export type { Timing } from "../hl7-fhir-r4-core/Timing";
 
 export interface VerificationResultAttestation extends BackboneElement {
-  communicationMethod?: CodeableConcept;
-  date?: string;
-  onBehalfOf?: Reference<'Organization' | 'Practitioner' | 'PractitionerRole'>;
-  proxyIdentityCertificate?: string;
-  proxySignature?: Signature;
-  sourceIdentityCertificate?: string;
-  sourceSignature?: Signature;
-  who?: Reference<'Organization' | 'Practitioner' | 'PractitionerRole'>;
+    communicationMethod?: CodeableConcept;
+    date?: string;
+    onBehalfOf?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
+    proxyIdentityCertificate?: string;
+    proxySignature?: Signature;
+    sourceIdentityCertificate?: string;
+    sourceSignature?: Signature;
+    who?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
 }
-
 export interface VerificationResultPrimarySource extends BackboneElement {
-  canPushUpdates?: CodeableConcept;
-  communicationMethod?: CodeableConcept[];
-  pushTypeAvailable?: CodeableConcept[];
-  type?: CodeableConcept[];
-  validationDate?: string;
-  validationStatus?: CodeableConcept;
-  who?: Reference<'Organization' | 'Practitioner' | 'PractitionerRole'>;
+    canPushUpdates?: CodeableConcept;
+    communicationMethod?: CodeableConcept[];
+    pushTypeAvailable?: CodeableConcept[];
+    type?: CodeableConcept[];
+    validationDate?: string;
+    validationStatus?: CodeableConcept;
+    who?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
 }
-
 export interface VerificationResultValidator extends BackboneElement {
-  attestationSignature?: Signature;
-  identityCertificate?: string;
-  organization: Reference<'Organization'>;
+    attestationSignature?: Signature;
+    identityCertificate?: string;
+    organization: Reference<"Organization">;
 }
-
 export interface VerificationResult extends DomainResource {
-  resourceType: 'VerificationResult';
-  
-  attestation?: VerificationResultAttestation;
-  failureAction?: CodeableConcept;
-  frequency?: Timing;
-  lastPerformed?: string;
-  _lastPerformed?: Element;
-  need?: CodeableConcept;
-  nextScheduled?: string;
-  _nextScheduled?: Element;
-  primarySource?: VerificationResultPrimarySource[];
-  status: 'attested' | 'validated' | 'in-process' | 'req-revalid' | 'val-fail' | 'reval-fail';
-  _status?: Element;
-  statusDate?: string;
-  _statusDate?: Element;
-  target?: Reference<'Resource'>[];
-  targetLocation?: string[];
-  _targetLocation?: Element;
-  validationProcess?: CodeableConcept[];
-  validationType?: CodeableConcept;
-  validator?: VerificationResultValidator[];
-}
+    resourceType: "VerificationResult";
 
+    attestation?: VerificationResultAttestation;
+    failureAction?: CodeableConcept;
+    frequency?: Timing;
+    lastPerformed?: string;
+    _lastPerformed?: Element;
+    need?: CodeableConcept;
+    nextScheduled?: string;
+    _nextScheduled?: Element;
+    primarySource?: VerificationResultPrimarySource[];
+    status: "attested" | "validated" | "in-process" | "req-revalid" | "val-fail" | "reval-fail";
+    _status?: Element;
+    statusDate?: string;
+    _statusDate?: Element;
+    target?: Reference<"Resource">[];
+    targetLocation?: string[];
+    _targetLocation?: Element;
+    validationProcess?: CodeableConcept[];
+    validationType?: CodeableConcept;
+    validator?: VerificationResultValidator[];
+}

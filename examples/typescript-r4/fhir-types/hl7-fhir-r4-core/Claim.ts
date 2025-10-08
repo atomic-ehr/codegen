@@ -2,184 +2,171 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Address } from '../hl7-fhir-r4-core/Address';
-import type { Attachment } from '../hl7-fhir-r4-core/Attachment';
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Money } from '../hl7-fhir-r4-core/Money';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { Address } from "../hl7-fhir-r4-core/Address";
+import type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Money } from "../hl7-fhir-r4-core/Money";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Address }from '../hl7-fhir-r4-core/Address';;
-export type { Attachment }from '../hl7-fhir-r4-core/Attachment';;
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Money }from '../hl7-fhir-r4-core/Money';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { Address } from "../hl7-fhir-r4-core/Address";
+export type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Money } from "../hl7-fhir-r4-core/Money";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface ClaimAccident extends BackboneElement {
-  date: string;
-  locationAddress?: Address;
-  locationReference?: Reference<'Location'>;
-  type?: CodeableConcept;
+    date: string;
+    locationAddress?: Address;
+    locationReference?: Reference<"Location">;
+    type?: CodeableConcept;
 }
-
 export interface ClaimCareTeam extends BackboneElement {
-  provider: Reference<'Organization' | 'Practitioner' | 'PractitionerRole'>;
-  qualification?: CodeableConcept;
-  responsible?: boolean;
-  role?: CodeableConcept;
-  sequence: number;
+    provider: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
+    qualification?: CodeableConcept;
+    responsible?: boolean;
+    role?: CodeableConcept;
+    sequence: number;
 }
-
 export interface ClaimDiagnosis extends BackboneElement {
-  diagnosisCodeableConcept?: CodeableConcept;
-  diagnosisReference?: Reference<'Condition'>;
-  onAdmission?: CodeableConcept;
-  packageCode?: CodeableConcept;
-  sequence: number;
-  type?: CodeableConcept[];
+    diagnosisCodeableConcept?: CodeableConcept;
+    diagnosisReference?: Reference<"Condition">;
+    onAdmission?: CodeableConcept;
+    packageCode?: CodeableConcept;
+    sequence: number;
+    type?: CodeableConcept[];
 }
-
 export interface ClaimInsurance extends BackboneElement {
-  businessArrangement?: string;
-  claimResponse?: Reference<'ClaimResponse'>;
-  coverage: Reference<'Coverage'>;
-  focal: boolean;
-  identifier?: Identifier;
-  preAuthRef?: string[];
-  sequence: number;
+    businessArrangement?: string;
+    claimResponse?: Reference<"ClaimResponse">;
+    coverage: Reference<"Coverage">;
+    focal: boolean;
+    identifier?: Identifier;
+    preAuthRef?: string[];
+    sequence: number;
 }
-
 export interface ClaimItem extends BackboneElement {
-  bodySite?: CodeableConcept;
-  careTeamSequence?: number[];
-  category?: CodeableConcept;
-  detail?: ClaimItemDetail[];
-  diagnosisSequence?: number[];
-  encounter?: Reference<'Encounter'>[];
-  factor?: number;
-  informationSequence?: number[];
-  locationAddress?: Address;
-  locationCodeableConcept?: CodeableConcept;
-  locationReference?: Reference<'Location'>;
-  modifier?: CodeableConcept[];
-  net?: Money;
-  procedureSequence?: number[];
-  productOrService: CodeableConcept;
-  programCode?: CodeableConcept[];
-  quantity?: Quantity;
-  revenue?: CodeableConcept;
-  sequence: number;
-  servicedDate?: string;
-  servicedPeriod?: Period;
-  subSite?: CodeableConcept[];
-  udi?: Reference<'Device'>[];
-  unitPrice?: Money;
+    bodySite?: CodeableConcept;
+    careTeamSequence?: number[];
+    category?: CodeableConcept;
+    detail?: ClaimItemDetail[];
+    diagnosisSequence?: number[];
+    encounter?: Reference<"Encounter">[];
+    factor?: number;
+    informationSequence?: number[];
+    locationAddress?: Address;
+    locationCodeableConcept?: CodeableConcept;
+    locationReference?: Reference<"Location">;
+    modifier?: CodeableConcept[];
+    net?: Money;
+    procedureSequence?: number[];
+    productOrService: CodeableConcept;
+    programCode?: CodeableConcept[];
+    quantity?: Quantity;
+    revenue?: CodeableConcept;
+    sequence: number;
+    servicedDate?: string;
+    servicedPeriod?: Period;
+    subSite?: CodeableConcept[];
+    udi?: Reference<"Device">[];
+    unitPrice?: Money;
 }
-
 export interface ClaimItemDetail extends BackboneElement {
-  category?: CodeableConcept;
-  factor?: number;
-  modifier?: CodeableConcept[];
-  net?: Money;
-  productOrService: CodeableConcept;
-  programCode?: CodeableConcept[];
-  quantity?: Quantity;
-  revenue?: CodeableConcept;
-  sequence: number;
-  subDetail?: ClaimItemDetailSubDetail[];
-  udi?: Reference<'Device'>[];
-  unitPrice?: Money;
+    category?: CodeableConcept;
+    factor?: number;
+    modifier?: CodeableConcept[];
+    net?: Money;
+    productOrService: CodeableConcept;
+    programCode?: CodeableConcept[];
+    quantity?: Quantity;
+    revenue?: CodeableConcept;
+    sequence: number;
+    subDetail?: ClaimItemDetailSubDetail[];
+    udi?: Reference<"Device">[];
+    unitPrice?: Money;
 }
-
 export interface ClaimItemDetailSubDetail extends BackboneElement {
-  category?: CodeableConcept;
-  factor?: number;
-  modifier?: CodeableConcept[];
-  net?: Money;
-  productOrService: CodeableConcept;
-  programCode?: CodeableConcept[];
-  quantity?: Quantity;
-  revenue?: CodeableConcept;
-  sequence: number;
-  udi?: Reference<'Device'>[];
-  unitPrice?: Money;
+    category?: CodeableConcept;
+    factor?: number;
+    modifier?: CodeableConcept[];
+    net?: Money;
+    productOrService: CodeableConcept;
+    programCode?: CodeableConcept[];
+    quantity?: Quantity;
+    revenue?: CodeableConcept;
+    sequence: number;
+    udi?: Reference<"Device">[];
+    unitPrice?: Money;
 }
-
 export interface ClaimPayee extends BackboneElement {
-  party?: Reference<'Organization' | 'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
-  type: CodeableConcept;
+    party?: Reference<"Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
+    type: CodeableConcept;
 }
-
 export interface ClaimProcedure extends BackboneElement {
-  date?: string;
-  procedureCodeableConcept?: CodeableConcept;
-  procedureReference?: Reference<'Procedure'>;
-  sequence: number;
-  type?: CodeableConcept[];
-  udi?: Reference<'Device'>[];
+    date?: string;
+    procedureCodeableConcept?: CodeableConcept;
+    procedureReference?: Reference<"Procedure">;
+    sequence: number;
+    type?: CodeableConcept[];
+    udi?: Reference<"Device">[];
 }
-
 export interface ClaimRelated extends BackboneElement {
-  claim?: Reference<'Claim'>;
-  reference?: Identifier;
-  relationship?: CodeableConcept;
+    claim?: Reference<"Claim">;
+    reference?: Identifier;
+    relationship?: CodeableConcept;
 }
-
 export interface ClaimSupportingInfo extends BackboneElement {
-  category: CodeableConcept;
-  code?: CodeableConcept;
-  reason?: CodeableConcept;
-  sequence: number;
-  timingDate?: string;
-  timingPeriod?: Period;
-  valueAttachment?: Attachment;
-  valueBoolean?: boolean;
-  valueQuantity?: Quantity;
-  valueReference?: Reference<'Resource'>;
-  valueString?: string;
+    category: CodeableConcept;
+    code?: CodeableConcept;
+    reason?: CodeableConcept;
+    sequence: number;
+    timingDate?: string;
+    timingPeriod?: Period;
+    valueAttachment?: Attachment;
+    valueBoolean?: boolean;
+    valueQuantity?: Quantity;
+    valueReference?: Reference<"Resource">;
+    valueString?: string;
 }
-
 export interface Claim extends DomainResource {
-  resourceType: 'Claim';
-  
-  accident?: ClaimAccident;
-  billablePeriod?: Period;
-  careTeam?: ClaimCareTeam[];
-  created: string;
-  _created?: Element;
-  diagnosis?: ClaimDiagnosis[];
-  enterer?: Reference<'Practitioner' | 'PractitionerRole'>;
-  facility?: Reference<'Location'>;
-  fundsReserve?: CodeableConcept;
-  identifier?: Identifier[];
-  insurance: ClaimInsurance[];
-  insurer?: Reference<'Organization'>;
-  item?: ClaimItem[];
-  originalPrescription?: Reference<'DeviceRequest' | 'MedicationRequest' | 'VisionPrescription'>;
-  patient: Reference<'Patient'>;
-  payee?: ClaimPayee;
-  prescription?: Reference<'DeviceRequest' | 'MedicationRequest' | 'VisionPrescription'>;
-  priority: CodeableConcept;
-  procedure?: ClaimProcedure[];
-  provider: Reference<'Organization' | 'Practitioner' | 'PractitionerRole'>;
-  referral?: Reference<'ServiceRequest'>;
-  related?: ClaimRelated[];
-  status: 'active' | 'cancelled' | 'draft' | 'entered-in-error';
-  _status?: Element;
-  subType?: CodeableConcept;
-  supportingInfo?: ClaimSupportingInfo[];
-  total?: Money;
-  type: CodeableConcept;
-  use: 'claim' | 'preauthorization' | 'predetermination';
-  _use?: Element;
-}
+    resourceType: "Claim";
 
+    accident?: ClaimAccident;
+    billablePeriod?: Period;
+    careTeam?: ClaimCareTeam[];
+    created: string;
+    _created?: Element;
+    diagnosis?: ClaimDiagnosis[];
+    enterer?: Reference<"Practitioner" | "PractitionerRole">;
+    facility?: Reference<"Location">;
+    fundsReserve?: CodeableConcept;
+    identifier?: Identifier[];
+    insurance: ClaimInsurance[];
+    insurer?: Reference<"Organization">;
+    item?: ClaimItem[];
+    originalPrescription?: Reference<"DeviceRequest" | "MedicationRequest" | "VisionPrescription">;
+    patient: Reference<"Patient">;
+    payee?: ClaimPayee;
+    prescription?: Reference<"DeviceRequest" | "MedicationRequest" | "VisionPrescription">;
+    priority: CodeableConcept;
+    procedure?: ClaimProcedure[];
+    provider: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
+    referral?: Reference<"ServiceRequest">;
+    related?: ClaimRelated[];
+    status: "active" | "cancelled" | "draft" | "entered-in-error";
+    _status?: Element;
+    subType?: CodeableConcept;
+    supportingInfo?: ClaimSupportingInfo[];
+    total?: Money;
+    type: CodeableConcept;
+    use: "claim" | "preauthorization" | "predetermination";
+    _use?: Element;
+}

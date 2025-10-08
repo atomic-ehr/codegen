@@ -2,14 +2,13 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Element } from '../hl7-fhir-r4-core/Element';
+import type { Element } from "../hl7-fhir-r4-core/Element";
 
-export type { Element }from '../hl7-fhir-r4-core/Element';;
+export type { Element } from "../hl7-fhir-r4-core/Element";
 
 export interface Period extends Element {
-  end?: string;
-  _end?: Element;
-  start?: string;
-  _start?: Element;
+    end?: string;
+    _end?: Element;
+    start?: string;
+    _start?: Element;
 }
-

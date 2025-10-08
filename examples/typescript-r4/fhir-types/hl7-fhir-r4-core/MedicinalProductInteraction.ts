@@ -2,31 +2,28 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface MedicinalProductInteractionInteractant extends BackboneElement {
-  itemCodeableConcept?: CodeableConcept;
-  itemReference?: Reference<'Medication' | 'MedicinalProduct' | 'ObservationDefinition' | 'Substance'>;
+    itemCodeableConcept?: CodeableConcept;
+    itemReference?: Reference<"Medication" | "MedicinalProduct" | "ObservationDefinition" | "Substance">;
 }
-
 export interface MedicinalProductInteraction extends DomainResource {
-  resourceType: 'MedicinalProductInteraction';
-  
-  description?: string;
-  _description?: Element;
-  effect?: CodeableConcept;
-  incidence?: CodeableConcept;
-  interactant?: MedicinalProductInteractionInteractant[];
-  management?: CodeableConcept;
-  subject?: Reference<'Medication' | 'MedicinalProduct' | 'Substance'>[];
-  type?: CodeableConcept;
-}
+    resourceType: "MedicinalProductInteraction";
 
+    description?: string;
+    _description?: Element;
+    effect?: CodeableConcept;
+    incidence?: CodeableConcept;
+    interactant?: MedicinalProductInteractionInteractant[];
+    management?: CodeableConcept;
+    subject?: Reference<"Medication" | "MedicinalProduct" | "Substance">[];
+    type?: CodeableConcept;
+}

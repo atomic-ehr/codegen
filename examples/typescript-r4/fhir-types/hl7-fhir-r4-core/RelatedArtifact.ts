@@ -2,25 +2,24 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Attachment } from '../hl7-fhir-r4-core/Attachment';
-import type { Element } from '../hl7-fhir-r4-core/Element';
+import type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+import type { Element } from "../hl7-fhir-r4-core/Element";
 
-export type { Attachment }from '../hl7-fhir-r4-core/Attachment';;
-export type { Element }from '../hl7-fhir-r4-core/Element';;
+export type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+export type { Element } from "../hl7-fhir-r4-core/Element";
 
 export interface RelatedArtifact extends Element {
-  citation?: string;
-  _citation?: Element;
-  display?: string;
-  _display?: Element;
-  document?: Attachment;
-  label?: string;
-  _label?: Element;
-  resource?: string;
-  _resource?: Element;
-  type: 'documentation' | 'justification' | 'citation' | 'predecessor' | 'successor' | 'derived-from' | 'depends-on' | 'composed-of';
-  _type?: Element;
-  url?: string;
-  _url?: Element;
+    citation?: string;
+    _citation?: Element;
+    display?: string;
+    _display?: Element;
+    document?: Attachment;
+    label?: string;
+    _label?: Element;
+    resource?: string;
+    _resource?: Element;
+    type: "documentation" | "justification" | "citation" | "predecessor" | "successor" | "derived-from" | "depends-on" | "composed-of";
+    _type?: Element;
+    url?: string;
+    _url?: Element;
 }
-

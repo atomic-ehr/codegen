@@ -2,57 +2,52 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { Coding } from '../hl7-fhir-r4-core/Coding';
-import type { ContactPoint } from '../hl7-fhir-r4-core/ContactPoint';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { Coding } from "../hl7-fhir-r4-core/Coding";
+import type { ContactPoint } from "../hl7-fhir-r4-core/ContactPoint";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Coding }from '../hl7-fhir-r4-core/Coding';;
-export type { ContactPoint }from '../hl7-fhir-r4-core/ContactPoint';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Coding } from "../hl7-fhir-r4-core/Coding";
+export type { ContactPoint } from "../hl7-fhir-r4-core/ContactPoint";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface MessageHeaderDestination extends BackboneElement {
-  endpoint: string;
-  name?: string;
-  receiver?: Reference<'Organization' | 'Practitioner' | 'PractitionerRole'>;
-  target?: Reference<'Device'>;
+    endpoint: string;
+    name?: string;
+    receiver?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
+    target?: Reference<"Device">;
 }
-
 export interface MessageHeaderResponse extends BackboneElement {
-  code: 'ok' | 'transient-error' | 'fatal-error';
-  details?: Reference<'OperationOutcome'>;
-  identifier: string;
+    code: "ok" | "transient-error" | "fatal-error";
+    details?: Reference<"OperationOutcome">;
+    identifier: string;
 }
-
 export interface MessageHeaderSource extends BackboneElement {
-  contact?: ContactPoint;
-  endpoint: string;
-  name?: string;
-  software?: string;
-  version?: string;
+    contact?: ContactPoint;
+    endpoint: string;
+    name?: string;
+    software?: string;
+    version?: string;
 }
-
 export interface MessageHeader extends DomainResource {
-  resourceType: 'MessageHeader';
-  
-  author?: Reference<'Practitioner' | 'PractitionerRole'>;
-  definition?: string;
-  _definition?: Element;
-  destination?: MessageHeaderDestination[];
-  enterer?: Reference<'Practitioner' | 'PractitionerRole'>;
-  eventCoding?: Coding;
-  eventUri?: string;
-  _eventUri?: Element;
-  focus?: Reference<'Resource'>[];
-  reason?: CodeableConcept;
-  response?: MessageHeaderResponse;
-  responsible?: Reference<'Organization' | 'Practitioner' | 'PractitionerRole'>;
-  sender?: Reference<'Organization' | 'Practitioner' | 'PractitionerRole'>;
-  source: MessageHeaderSource;
-}
+    resourceType: "MessageHeader";
 
+    author?: Reference<"Practitioner" | "PractitionerRole">;
+    definition?: string;
+    _definition?: Element;
+    destination?: MessageHeaderDestination[];
+    enterer?: Reference<"Practitioner" | "PractitionerRole">;
+    eventCoding?: Coding;
+    eventUri?: string;
+    _eventUri?: Element;
+    focus?: Reference<"Resource">[];
+    reason?: CodeableConcept;
+    response?: MessageHeaderResponse;
+    responsible?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
+    sender?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
+    source: MessageHeaderSource;
+}

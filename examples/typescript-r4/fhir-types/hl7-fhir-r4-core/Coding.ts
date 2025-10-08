@@ -2,20 +2,19 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Element } from '../hl7-fhir-r4-core/Element';
+import type { Element } from "../hl7-fhir-r4-core/Element";
 
-export type { Element }from '../hl7-fhir-r4-core/Element';;
+export type { Element } from "../hl7-fhir-r4-core/Element";
 
 export interface Coding extends Element {
-  code?: string;
-  _code?: Element;
-  display?: string;
-  _display?: Element;
-  system?: string;
-  _system?: Element;
-  userSelected?: boolean;
-  _userSelected?: Element;
-  version?: string;
-  _version?: Element;
+    code?: string;
+    _code?: Element;
+    display?: string;
+    _display?: Element;
+    system?: string;
+    _system?: Element;
+    userSelected?: boolean;
+    _userSelected?: Element;
+    version?: string;
+    _version?: Element;
 }
-

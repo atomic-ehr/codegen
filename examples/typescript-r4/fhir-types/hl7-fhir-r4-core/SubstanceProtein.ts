@@ -2,37 +2,34 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Attachment } from '../hl7-fhir-r4-core/Attachment';
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
+import type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 
-export type { Attachment }from '../hl7-fhir-r4-core/Attachment';;
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-
+export type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 
 export interface SubstanceProteinSubunit extends BackboneElement {
-  cTerminalModification?: string;
-  cTerminalModificationId?: Identifier;
-  length?: number;
-  nTerminalModification?: string;
-  nTerminalModificationId?: Identifier;
-  sequence?: string;
-  sequenceAttachment?: Attachment;
-  subunit?: number;
+    cTerminalModification?: string;
+    cTerminalModificationId?: Identifier;
+    length?: number;
+    nTerminalModification?: string;
+    nTerminalModificationId?: Identifier;
+    sequence?: string;
+    sequenceAttachment?: Attachment;
+    subunit?: number;
 }
-
 export interface SubstanceProtein extends DomainResource {
-  resourceType: 'SubstanceProtein';
-  
-  disulfideLinkage?: string[];
-  _disulfideLinkage?: Element;
-  numberOfSubunits?: number;
-  _numberOfSubunits?: Element;
-  sequenceType?: CodeableConcept;
-  subunit?: SubstanceProteinSubunit[];
-}
+    resourceType: "SubstanceProtein";
 
+    disulfideLinkage?: string[];
+    _disulfideLinkage?: Element;
+    numberOfSubunits?: number;
+    _numberOfSubunits?: Element;
+    sequenceType?: CodeableConcept;
+    subunit?: SubstanceProteinSubunit[];
+}

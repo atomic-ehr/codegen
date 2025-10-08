@@ -2,139 +2,127 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Attachment } from '../hl7-fhir-r4-core/Attachment';
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
-import type { Range } from '../hl7-fhir-r4-core/Range';
-import type { Ratio } from '../hl7-fhir-r4-core/Ratio';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+import type { Range } from "../hl7-fhir-r4-core/Range";
+import type { Ratio } from "../hl7-fhir-r4-core/Ratio";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Attachment }from '../hl7-fhir-r4-core/Attachment';;
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
-export type { Range }from '../hl7-fhir-r4-core/Range';;
-export type { Ratio }from '../hl7-fhir-r4-core/Ratio';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+export type { Range } from "../hl7-fhir-r4-core/Range";
+export type { Ratio } from "../hl7-fhir-r4-core/Ratio";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface SubstanceSpecificationCode extends BackboneElement {
-  code?: CodeableConcept;
-  comment?: string;
-  source?: Reference<'DocumentReference'>[];
-  status?: CodeableConcept;
-  statusDate?: string;
+    code?: CodeableConcept;
+    comment?: string;
+    source?: Reference<"DocumentReference">[];
+    status?: CodeableConcept;
+    statusDate?: string;
 }
-
 export interface SubstanceSpecificationMoiety extends BackboneElement {
-  amountQuantity?: Quantity;
-  amountString?: string;
-  identifier?: Identifier;
-  molecularFormula?: string;
-  name?: string;
-  opticalActivity?: CodeableConcept;
-  role?: CodeableConcept;
-  stereochemistry?: CodeableConcept;
+    amountQuantity?: Quantity;
+    amountString?: string;
+    identifier?: Identifier;
+    molecularFormula?: string;
+    name?: string;
+    opticalActivity?: CodeableConcept;
+    role?: CodeableConcept;
+    stereochemistry?: CodeableConcept;
 }
-
 export interface SubstanceSpecificationName extends BackboneElement {
-  domain?: CodeableConcept[];
-  jurisdiction?: CodeableConcept[];
-  language?: CodeableConcept[];
-  name: string;
-  official?: SubstanceSpecificationNameOfficial[];
-  preferred?: boolean;
-  source?: Reference<'DocumentReference'>[];
-  status?: CodeableConcept;
-  type?: CodeableConcept;
+    domain?: CodeableConcept[];
+    jurisdiction?: CodeableConcept[];
+    language?: CodeableConcept[];
+    name: string;
+    official?: SubstanceSpecificationNameOfficial[];
+    preferred?: boolean;
+    source?: Reference<"DocumentReference">[];
+    status?: CodeableConcept;
+    type?: CodeableConcept;
 }
-
 export interface SubstanceSpecificationNameOfficial extends BackboneElement {
-  authority?: CodeableConcept;
-  date?: string;
-  status?: CodeableConcept;
+    authority?: CodeableConcept;
+    date?: string;
+    status?: CodeableConcept;
 }
-
 export interface SubstanceSpecificationProperty extends BackboneElement {
-  amountQuantity?: Quantity;
-  amountString?: string;
-  category?: CodeableConcept;
-  code?: CodeableConcept;
-  definingSubstanceCodeableConcept?: CodeableConcept;
-  definingSubstanceReference?: Reference<'Substance' | 'SubstanceSpecification'>;
-  parameters?: string;
+    amountQuantity?: Quantity;
+    amountString?: string;
+    category?: CodeableConcept;
+    code?: CodeableConcept;
+    definingSubstanceCodeableConcept?: CodeableConcept;
+    definingSubstanceReference?: Reference<"Substance" | "SubstanceSpecification">;
+    parameters?: string;
 }
-
 export interface SubstanceSpecificationRelationship extends BackboneElement {
-  amountQuantity?: Quantity;
-  amountRange?: Range;
-  amountRatio?: Ratio;
-  amountRatioLowLimit?: Ratio;
-  amountString?: string;
-  amountType?: CodeableConcept;
-  isDefining?: boolean;
-  relationship?: CodeableConcept;
-  source?: Reference<'DocumentReference'>[];
-  substanceCodeableConcept?: CodeableConcept;
-  substanceReference?: Reference<'SubstanceSpecification'>;
+    amountQuantity?: Quantity;
+    amountRange?: Range;
+    amountRatio?: Ratio;
+    amountRatioLowLimit?: Ratio;
+    amountString?: string;
+    amountType?: CodeableConcept;
+    isDefining?: boolean;
+    relationship?: CodeableConcept;
+    source?: Reference<"DocumentReference">[];
+    substanceCodeableConcept?: CodeableConcept;
+    substanceReference?: Reference<"SubstanceSpecification">;
 }
-
 export interface SubstanceSpecificationStructure extends BackboneElement {
-  isotope?: SubstanceSpecificationStructureIsotope[];
-  molecularFormula?: string;
-  molecularFormulaByMoiety?: string;
-  opticalActivity?: CodeableConcept;
-  representation?: SubstanceSpecificationStructureRepresentation[];
-  source?: Reference<'DocumentReference'>[];
-  stereochemistry?: CodeableConcept;
+    isotope?: SubstanceSpecificationStructureIsotope[];
+    molecularFormula?: string;
+    molecularFormulaByMoiety?: string;
+    opticalActivity?: CodeableConcept;
+    representation?: SubstanceSpecificationStructureRepresentation[];
+    source?: Reference<"DocumentReference">[];
+    stereochemistry?: CodeableConcept;
 }
-
 export interface SubstanceSpecificationStructureIsotope extends BackboneElement {
-  halfLife?: Quantity;
-  identifier?: Identifier;
-  molecularWeight?: SubstanceSpecificationStructureIsotopeMolecularWeight;
-  name?: CodeableConcept;
-  substitution?: CodeableConcept;
+    halfLife?: Quantity;
+    identifier?: Identifier;
+    molecularWeight?: SubstanceSpecificationStructureIsotopeMolecularWeight;
+    name?: CodeableConcept;
+    substitution?: CodeableConcept;
 }
-
 export interface SubstanceSpecificationStructureIsotopeMolecularWeight extends BackboneElement {
-  amount?: Quantity;
-  method?: CodeableConcept;
-  type?: CodeableConcept;
+    amount?: Quantity;
+    method?: CodeableConcept;
+    type?: CodeableConcept;
 }
-
 export interface SubstanceSpecificationStructureRepresentation extends BackboneElement {
-  attachment?: Attachment;
-  representation?: string;
-  type?: CodeableConcept;
+    attachment?: Attachment;
+    representation?: string;
+    type?: CodeableConcept;
 }
-
 export interface SubstanceSpecification extends DomainResource {
-  resourceType: 'SubstanceSpecification';
-  
-  code?: SubstanceSpecificationCode[];
-  comment?: string;
-  _comment?: Element;
-  description?: string;
-  _description?: Element;
-  domain?: CodeableConcept;
-  identifier?: Identifier;
-  moiety?: SubstanceSpecificationMoiety[];
-  name?: SubstanceSpecificationName[];
-  nucleicAcid?: Reference<'SubstanceNucleicAcid'>;
-  polymer?: Reference<'SubstancePolymer'>;
-  property?: SubstanceSpecificationProperty[];
-  protein?: Reference<'SubstanceProtein'>;
-  referenceInformation?: Reference<'SubstanceReferenceInformation'>;
-  relationship?: SubstanceSpecificationRelationship[];
-  source?: Reference<'DocumentReference'>[];
-  sourceMaterial?: Reference<'SubstanceSourceMaterial'>;
-  status?: CodeableConcept;
-  structure?: SubstanceSpecificationStructure;
-  type?: CodeableConcept;
-}
+    resourceType: "SubstanceSpecification";
 
+    code?: SubstanceSpecificationCode[];
+    comment?: string;
+    _comment?: Element;
+    description?: string;
+    _description?: Element;
+    domain?: CodeableConcept;
+    identifier?: Identifier;
+    moiety?: SubstanceSpecificationMoiety[];
+    name?: SubstanceSpecificationName[];
+    nucleicAcid?: Reference<"SubstanceNucleicAcid">;
+    polymer?: Reference<"SubstancePolymer">;
+    property?: SubstanceSpecificationProperty[];
+    protein?: Reference<"SubstanceProtein">;
+    referenceInformation?: Reference<"SubstanceReferenceInformation">;
+    relationship?: SubstanceSpecificationRelationship[];
+    source?: Reference<"DocumentReference">[];
+    sourceMaterial?: Reference<"SubstanceSourceMaterial">;
+    status?: CodeableConcept;
+    structure?: SubstanceSpecificationStructure;
+    type?: CodeableConcept;
+}

@@ -2,76 +2,69 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Attachment } from '../hl7-fhir-r4-core/Attachment';
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { Coding } from '../hl7-fhir-r4-core/Coding';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { Coding } from "../hl7-fhir-r4-core/Coding";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Attachment }from '../hl7-fhir-r4-core/Attachment';;
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Coding }from '../hl7-fhir-r4-core/Coding';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Coding } from "../hl7-fhir-r4-core/Coding";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface ConsentPolicy extends BackboneElement {
-  authority?: string;
-  uri?: string;
+    authority?: string;
+    uri?: string;
 }
-
 export interface ConsentProvision extends BackboneElement {
-  action?: CodeableConcept[];
-  actor?: ConsentProvisionActor[];
-  class?: Coding[];
-  code?: CodeableConcept[];
-  data?: ConsentProvisionData[];
-  dataPeriod?: Period;
-  period?: Period;
-  purpose?: Coding[];
-  securityLabel?: Coding[];
-  type?: 'deny' | 'permit';
+    action?: CodeableConcept[];
+    actor?: ConsentProvisionActor[];
+    class?: Coding[];
+    code?: CodeableConcept[];
+    data?: ConsentProvisionData[];
+    dataPeriod?: Period;
+    period?: Period;
+    purpose?: Coding[];
+    securityLabel?: Coding[];
+    type?: "deny" | "permit";
 }
-
 export interface ConsentProvisionActor extends BackboneElement {
-  reference: Reference<'CareTeam' | 'Device' | 'Group' | 'Organization' | 'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
-  role: CodeableConcept;
+    reference: Reference<"CareTeam" | "Device" | "Group" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
+    role: CodeableConcept;
 }
-
 export interface ConsentProvisionData extends BackboneElement {
-  meaning: 'instance' | 'related' | 'dependents' | 'authoredby';
-  reference: Reference<'Resource'>;
+    meaning: "instance" | "related" | "dependents" | "authoredby";
+    reference: Reference<"Resource">;
 }
-
 export interface ConsentVerification extends BackboneElement {
-  verificationDate?: string;
-  verified: boolean;
-  verifiedWith?: Reference<'Patient' | 'RelatedPerson'>;
+    verificationDate?: string;
+    verified: boolean;
+    verifiedWith?: Reference<"Patient" | "RelatedPerson">;
 }
-
 export interface Consent extends DomainResource {
-  resourceType: 'Consent';
-  
-  category: CodeableConcept[];
-  dateTime?: string;
-  _dateTime?: Element;
-  identifier?: Identifier[];
-  organization?: Reference<'Organization'>[];
-  patient?: Reference<'Patient'>;
-  performer?: Reference<'Organization' | 'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>[];
-  policy?: ConsentPolicy[];
-  policyRule?: CodeableConcept;
-  provision?: ConsentProvision;
-  scope: CodeableConcept;
-  sourceAttachment?: Attachment;
-  sourceReference?: Reference<'Consent' | 'Contract' | 'DocumentReference' | 'QuestionnaireResponse'>;
-  status: 'draft' | 'proposed' | 'active' | 'rejected' | 'inactive' | 'entered-in-error';
-  _status?: Element;
-  verification?: ConsentVerification[];
-}
+    resourceType: "Consent";
 
+    category: CodeableConcept[];
+    dateTime?: string;
+    _dateTime?: Element;
+    identifier?: Identifier[];
+    organization?: Reference<"Organization">[];
+    patient?: Reference<"Patient">;
+    performer?: Reference<"Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">[];
+    policy?: ConsentPolicy[];
+    policyRule?: CodeableConcept;
+    provision?: ConsentProvision;
+    scope: CodeableConcept;
+    sourceAttachment?: Attachment;
+    sourceReference?: Reference<"Consent" | "Contract" | "DocumentReference" | "QuestionnaireResponse">;
+    status: "draft" | "proposed" | "active" | "rejected" | "inactive" | "entered-in-error";
+    _status?: Element;
+    verification?: ConsentVerification[];
+}

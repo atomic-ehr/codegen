@@ -2,82 +2,77 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { ContactDetail } from '../hl7-fhir-r4-core/ContactDetail';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Money } from '../hl7-fhir-r4-core/Money';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
-import type { UsageContext } from '../hl7-fhir-r4-core/UsageContext';
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Money } from "../hl7-fhir-r4-core/Money";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
+import type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { ContactDetail }from '../hl7-fhir-r4-core/ContactDetail';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Money }from '../hl7-fhir-r4-core/Money';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-export type { UsageContext }from '../hl7-fhir-r4-core/UsageContext';;
-
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Money } from "../hl7-fhir-r4-core/Money";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
+export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
 export interface ChargeItemDefinitionApplicability extends BackboneElement {
-  description?: string;
-  expression?: string;
-  language?: string;
+    description?: string;
+    expression?: string;
+    language?: string;
 }
-
 export interface ChargeItemDefinitionPropertyGroup extends BackboneElement {
-  priceComponent?: ChargeItemDefinitionPropertyGroupPriceComponent[];
+    priceComponent?: ChargeItemDefinitionPropertyGroupPriceComponent[];
 }
-
 export interface ChargeItemDefinitionPropertyGroupPriceComponent extends BackboneElement {
-  amount?: Money;
-  code?: CodeableConcept;
-  factor?: number;
-  type: 'base' | 'surcharge' | 'deduction' | 'discount' | 'tax' | 'informational';
+    amount?: Money;
+    code?: CodeableConcept;
+    factor?: number;
+    type: "base" | "surcharge" | "deduction" | "discount" | "tax" | "informational";
 }
-
 export interface ChargeItemDefinition extends DomainResource {
-  resourceType: 'ChargeItemDefinition';
-  
-  applicability?: ChargeItemDefinitionApplicability[];
-  approvalDate?: string;
-  _approvalDate?: Element;
-  code?: CodeableConcept;
-  contact?: ContactDetail[];
-  copyright?: string;
-  _copyright?: Element;
-  date?: string;
-  _date?: Element;
-  derivedFromUri?: string[];
-  _derivedFromUri?: Element;
-  description?: string;
-  _description?: Element;
-  effectivePeriod?: Period;
-  experimental?: boolean;
-  _experimental?: Element;
-  identifier?: Identifier[];
-  instance?: Reference<'Device' | 'Medication' | 'Substance'>[];
-  jurisdiction?: CodeableConcept[];
-  lastReviewDate?: string;
-  _lastReviewDate?: Element;
-  partOf?: string[];
-  _partOf?: Element;
-  propertyGroup?: ChargeItemDefinitionPropertyGroup[];
-  publisher?: string;
-  _publisher?: Element;
-  replaces?: string[];
-  _replaces?: Element;
-  status: 'draft' | 'active' | 'retired' | 'unknown';
-  _status?: Element;
-  title?: string;
-  _title?: Element;
-  url: string;
-  _url?: Element;
-  useContext?: UsageContext[];
-  version?: string;
-  _version?: Element;
-}
+    resourceType: "ChargeItemDefinition";
 
+    applicability?: ChargeItemDefinitionApplicability[];
+    approvalDate?: string;
+    _approvalDate?: Element;
+    code?: CodeableConcept;
+    contact?: ContactDetail[];
+    copyright?: string;
+    _copyright?: Element;
+    date?: string;
+    _date?: Element;
+    derivedFromUri?: string[];
+    _derivedFromUri?: Element;
+    description?: string;
+    _description?: Element;
+    effectivePeriod?: Period;
+    experimental?: boolean;
+    _experimental?: Element;
+    identifier?: Identifier[];
+    instance?: Reference<"Device" | "Medication" | "Substance">[];
+    jurisdiction?: CodeableConcept[];
+    lastReviewDate?: string;
+    _lastReviewDate?: Element;
+    partOf?: string[];
+    _partOf?: Element;
+    propertyGroup?: ChargeItemDefinitionPropertyGroup[];
+    publisher?: string;
+    _publisher?: Element;
+    replaces?: string[];
+    _replaces?: Element;
+    status: "draft" | "active" | "retired" | "unknown";
+    _status?: Element;
+    title?: string;
+    _title?: Element;
+    url: string;
+    _url?: Element;
+    useContext?: UsageContext[];
+    version?: string;
+    _version?: Element;
+}

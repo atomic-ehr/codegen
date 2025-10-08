@@ -2,28 +2,27 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface Flag extends DomainResource {
-  resourceType: 'Flag';
-  
-  author?: Reference<'Device' | 'Organization' | 'Patient' | 'Practitioner' | 'PractitionerRole'>;
-  category?: CodeableConcept[];
-  code: CodeableConcept;
-  encounter?: Reference<'Encounter'>;
-  identifier?: Identifier[];
-  period?: Period;
-  status: 'active' | 'inactive' | 'entered-in-error';
-  _status?: Element;
-  subject: Reference<'Group' | 'Location' | 'Medication' | 'Organization' | 'Patient' | 'PlanDefinition' | 'Practitioner' | 'Procedure'>;
-}
+    resourceType: "Flag";
 
+    author?: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole">;
+    category?: CodeableConcept[];
+    code: CodeableConcept;
+    encounter?: Reference<"Encounter">;
+    identifier?: Identifier[];
+    period?: Period;
+    status: "active" | "inactive" | "entered-in-error";
+    _status?: Element;
+    subject: Reference<"Group" | "Location" | "Medication" | "Organization" | "Patient" | "PlanDefinition" | "Practitioner" | "Procedure">;
+}

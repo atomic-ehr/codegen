@@ -2,67 +2,63 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Annotation } from '../hl7-fhir-r4-core/Annotation';
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
-import type { Ratio } from '../hl7-fhir-r4-core/Ratio';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { Annotation } from "../hl7-fhir-r4-core/Annotation";
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+import type { Ratio } from "../hl7-fhir-r4-core/Ratio";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Annotation }from '../hl7-fhir-r4-core/Annotation';;
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
-export type { Ratio }from '../hl7-fhir-r4-core/Ratio';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { Annotation } from "../hl7-fhir-r4-core/Annotation";
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+export type { Ratio } from "../hl7-fhir-r4-core/Ratio";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface MedicationAdministrationDosage extends BackboneElement {
-  dose?: Quantity;
-  method?: CodeableConcept;
-  rateQuantity?: Quantity;
-  rateRatio?: Ratio;
-  route?: CodeableConcept;
-  site?: CodeableConcept;
-  text?: string;
+    dose?: Quantity;
+    method?: CodeableConcept;
+    rateQuantity?: Quantity;
+    rateRatio?: Ratio;
+    route?: CodeableConcept;
+    site?: CodeableConcept;
+    text?: string;
 }
-
 export interface MedicationAdministrationPerformer extends BackboneElement {
-  actor: Reference<'Device' | 'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
-  function?: CodeableConcept;
+    actor: Reference<"Device" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
+    function?: CodeableConcept;
 }
-
 export interface MedicationAdministration extends DomainResource {
-  resourceType: 'MedicationAdministration';
-  
-  category?: CodeableConcept;
-  context?: Reference<'Encounter' | 'EpisodeOfCare'>;
-  device?: Reference<'Device'>[];
-  dosage?: MedicationAdministrationDosage;
-  effectiveDateTime?: string;
-  _effectiveDateTime?: Element;
-  effectivePeriod?: Period;
-  eventHistory?: Reference<'Provenance'>[];
-  identifier?: Identifier[];
-  instantiates?: string[];
-  _instantiates?: Element;
-  medicationCodeableConcept?: CodeableConcept;
-  medicationReference?: Reference<'Medication'>;
-  note?: Annotation[];
-  partOf?: Reference<'MedicationAdministration' | 'Procedure'>[];
-  performer?: MedicationAdministrationPerformer[];
-  reasonCode?: CodeableConcept[];
-  reasonReference?: Reference<'Condition' | 'DiagnosticReport' | 'Observation'>[];
-  request?: Reference<'MedicationRequest'>;
-  status: 'in-progress' | 'not-done' | 'on-hold' | 'completed' | 'entered-in-error' | 'stopped' | 'unknown';
-  _status?: Element;
-  statusReason?: CodeableConcept[];
-  subject: Reference<'Group' | 'Patient'>;
-  supportingInformation?: Reference<'Resource'>[];
-}
+    resourceType: "MedicationAdministration";
 
+    category?: CodeableConcept;
+    context?: Reference<"Encounter" | "EpisodeOfCare">;
+    device?: Reference<"Device">[];
+    dosage?: MedicationAdministrationDosage;
+    effectiveDateTime?: string;
+    _effectiveDateTime?: Element;
+    effectivePeriod?: Period;
+    eventHistory?: Reference<"Provenance">[];
+    identifier?: Identifier[];
+    instantiates?: string[];
+    _instantiates?: Element;
+    medicationCodeableConcept?: CodeableConcept;
+    medicationReference?: Reference<"Medication">;
+    note?: Annotation[];
+    partOf?: Reference<"MedicationAdministration" | "Procedure">[];
+    performer?: MedicationAdministrationPerformer[];
+    reasonCode?: CodeableConcept[];
+    reasonReference?: Reference<"Condition" | "DiagnosticReport" | "Observation">[];
+    request?: Reference<"MedicationRequest">;
+    status: "in-progress" | "not-done" | "on-hold" | "completed" | "entered-in-error" | "stopped" | "unknown";
+    _status?: Element;
+    statusReason?: CodeableConcept[];
+    subject: Reference<"Group" | "Patient">;
+    supportingInformation?: Reference<"Resource">[];
+}

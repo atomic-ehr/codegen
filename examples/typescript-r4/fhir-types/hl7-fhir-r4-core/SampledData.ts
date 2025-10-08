@@ -2,25 +2,24 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Element } from '../hl7-fhir-r4-core/Element';
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
+import type { Element } from "../hl7-fhir-r4-core/Element";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 
-export type { Element }from '../hl7-fhir-r4-core/Element';;
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
+export type { Element } from "../hl7-fhir-r4-core/Element";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 
 export interface SampledData extends Element {
-  data?: string;
-  _data?: Element;
-  dimensions: number;
-  _dimensions?: Element;
-  factor?: number;
-  _factor?: Element;
-  lowerLimit?: number;
-  _lowerLimit?: Element;
-  origin: Quantity;
-  period: number;
-  _period?: Element;
-  upperLimit?: number;
-  _upperLimit?: Element;
+    data?: string;
+    _data?: Element;
+    dimensions: number;
+    _dimensions?: Element;
+    factor?: number;
+    _factor?: Element;
+    lowerLimit?: number;
+    _lowerLimit?: Element;
+    origin: Quantity;
+    period: number;
+    _period?: Element;
+    upperLimit?: number;
+    _upperLimit?: Element;
 }
-

@@ -2,167 +2,153 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { Address } from '../hl7-fhir-r4-core/Address';
-import type { Attachment } from '../hl7-fhir-r4-core/Attachment';
-import type { BackboneElement } from '../hl7-fhir-r4-core/BackboneElement';
-import type { CodeableConcept } from '../hl7-fhir-r4-core/CodeableConcept';
-import type { DomainResource } from '../hl7-fhir-r4-core/DomainResource';
-import type { Identifier } from '../hl7-fhir-r4-core/Identifier';
-import type { Money } from '../hl7-fhir-r4-core/Money';
-import type { Period } from '../hl7-fhir-r4-core/Period';
-import type { Quantity } from '../hl7-fhir-r4-core/Quantity';
-import type { Reference } from '../hl7-fhir-r4-core/Reference';
+import type { Address } from "../hl7-fhir-r4-core/Address";
+import type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
+import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+import type { Money } from "../hl7-fhir-r4-core/Money";
+import type { Period } from "../hl7-fhir-r4-core/Period";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-export type { Address }from '../hl7-fhir-r4-core/Address';;
-export type { Attachment }from '../hl7-fhir-r4-core/Attachment';;
-export type { BackboneElement }from '../hl7-fhir-r4-core/BackboneElement';;
-export type { CodeableConcept }from '../hl7-fhir-r4-core/CodeableConcept';;
-export type { Identifier }from '../hl7-fhir-r4-core/Identifier';;
-export type { Money }from '../hl7-fhir-r4-core/Money';;
-export type { Period }from '../hl7-fhir-r4-core/Period';;
-export type { Quantity }from '../hl7-fhir-r4-core/Quantity';;
-export type { Reference }from '../hl7-fhir-r4-core/Reference';;
-
+export type { Address } from "../hl7-fhir-r4-core/Address";
+export type { Attachment } from "../hl7-fhir-r4-core/Attachment";
+export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
+export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
+export type { Money } from "../hl7-fhir-r4-core/Money";
+export type { Period } from "../hl7-fhir-r4-core/Period";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
+export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface ClaimResponseAddItem extends BackboneElement {
-  bodySite?: CodeableConcept;
-  detail?: ClaimResponseAddItemDetail[];
-  detailSequence?: number[];
-  factor?: number;
-  itemSequence?: number[];
-  locationAddress?: Address;
-  locationCodeableConcept?: CodeableConcept;
-  locationReference?: Reference<'Location'>;
-  modifier?: CodeableConcept[];
-  net?: Money;
-  noteNumber?: number[];
-  productOrService: CodeableConcept;
-  programCode?: CodeableConcept[];
-  provider?: Reference<'Organization' | 'Practitioner' | 'PractitionerRole'>[];
-  quantity?: Quantity;
-  servicedDate?: string;
-  servicedPeriod?: Period;
-  subdetailSequence?: number[];
-  subSite?: CodeableConcept[];
-  unitPrice?: Money;
+    bodySite?: CodeableConcept;
+    detail?: ClaimResponseAddItemDetail[];
+    detailSequence?: number[];
+    factor?: number;
+    itemSequence?: number[];
+    locationAddress?: Address;
+    locationCodeableConcept?: CodeableConcept;
+    locationReference?: Reference<"Location">;
+    modifier?: CodeableConcept[];
+    net?: Money;
+    noteNumber?: number[];
+    productOrService: CodeableConcept;
+    programCode?: CodeableConcept[];
+    provider?: Reference<"Organization" | "Practitioner" | "PractitionerRole">[];
+    quantity?: Quantity;
+    servicedDate?: string;
+    servicedPeriod?: Period;
+    subdetailSequence?: number[];
+    subSite?: CodeableConcept[];
+    unitPrice?: Money;
 }
-
 export interface ClaimResponseAddItemDetail extends BackboneElement {
-  factor?: number;
-  modifier?: CodeableConcept[];
-  net?: Money;
-  noteNumber?: number[];
-  productOrService: CodeableConcept;
-  quantity?: Quantity;
-  subDetail?: ClaimResponseAddItemDetailSubDetail[];
-  unitPrice?: Money;
+    factor?: number;
+    modifier?: CodeableConcept[];
+    net?: Money;
+    noteNumber?: number[];
+    productOrService: CodeableConcept;
+    quantity?: Quantity;
+    subDetail?: ClaimResponseAddItemDetailSubDetail[];
+    unitPrice?: Money;
 }
-
 export interface ClaimResponseAddItemDetailSubDetail extends BackboneElement {
-  factor?: number;
-  modifier?: CodeableConcept[];
-  net?: Money;
-  noteNumber?: number[];
-  productOrService: CodeableConcept;
-  quantity?: Quantity;
-  unitPrice?: Money;
+    factor?: number;
+    modifier?: CodeableConcept[];
+    net?: Money;
+    noteNumber?: number[];
+    productOrService: CodeableConcept;
+    quantity?: Quantity;
+    unitPrice?: Money;
 }
-
 export interface ClaimResponseError extends BackboneElement {
-  code: CodeableConcept;
-  detailSequence?: number;
-  itemSequence?: number;
-  subDetailSequence?: number;
+    code: CodeableConcept;
+    detailSequence?: number;
+    itemSequence?: number;
+    subDetailSequence?: number;
 }
-
 export interface ClaimResponseInsurance extends BackboneElement {
-  businessArrangement?: string;
-  claimResponse?: Reference<'ClaimResponse'>;
-  coverage: Reference<'Coverage'>;
-  focal: boolean;
-  sequence: number;
+    businessArrangement?: string;
+    claimResponse?: Reference<"ClaimResponse">;
+    coverage: Reference<"Coverage">;
+    focal: boolean;
+    sequence: number;
 }
-
 export interface ClaimResponseItem extends BackboneElement {
-  adjudication: ClaimResponseItemAdjudication[];
-  detail?: ClaimResponseItemDetail[];
-  itemSequence: number;
-  noteNumber?: number[];
+    adjudication: ClaimResponseItemAdjudication[];
+    detail?: ClaimResponseItemDetail[];
+    itemSequence: number;
+    noteNumber?: number[];
 }
-
 export interface ClaimResponseItemAdjudication extends BackboneElement {
-  amount?: Money;
-  category: CodeableConcept;
-  reason?: CodeableConcept;
-  value?: number;
+    amount?: Money;
+    category: CodeableConcept;
+    reason?: CodeableConcept;
+    value?: number;
 }
-
 export interface ClaimResponseItemDetail extends BackboneElement {
-  detailSequence: number;
-  noteNumber?: number[];
-  subDetail?: ClaimResponseItemDetailSubDetail[];
+    detailSequence: number;
+    noteNumber?: number[];
+    subDetail?: ClaimResponseItemDetailSubDetail[];
 }
-
 export interface ClaimResponseItemDetailSubDetail extends BackboneElement {
-  noteNumber?: number[];
-  subDetailSequence: number;
+    noteNumber?: number[];
+    subDetailSequence: number;
 }
-
 export interface ClaimResponsePayment extends BackboneElement {
-  adjustment?: Money;
-  adjustmentReason?: CodeableConcept;
-  amount: Money;
-  date?: string;
-  identifier?: Identifier;
-  type: CodeableConcept;
+    adjustment?: Money;
+    adjustmentReason?: CodeableConcept;
+    amount: Money;
+    date?: string;
+    identifier?: Identifier;
+    type: CodeableConcept;
 }
-
 export interface ClaimResponseProcessNote extends BackboneElement {
-  language?: CodeableConcept;
-  number?: number;
-  text: string;
-  type?: 'display' | 'print' | 'printoper';
+    language?: CodeableConcept;
+    number?: number;
+    text: string;
+    type?: "display" | "print" | "printoper";
 }
-
 export interface ClaimResponseTotal extends BackboneElement {
-  amount: Money;
-  category: CodeableConcept;
+    amount: Money;
+    category: CodeableConcept;
 }
-
 export interface ClaimResponse extends DomainResource {
-  resourceType: 'ClaimResponse';
-  
-  addItem?: ClaimResponseAddItem[];
-  communicationRequest?: Reference<'CommunicationRequest'>[];
-  created: string;
-  _created?: Element;
-  disposition?: string;
-  _disposition?: Element;
-  error?: ClaimResponseError[];
-  form?: Attachment;
-  formCode?: CodeableConcept;
-  fundsReserve?: CodeableConcept;
-  identifier?: Identifier[];
-  insurance?: ClaimResponseInsurance[];
-  insurer: Reference<'Organization'>;
-  item?: ClaimResponseItem[];
-  outcome: 'queued' | 'complete' | 'error' | 'partial';
-  _outcome?: Element;
-  patient: Reference<'Patient'>;
-  payeeType?: CodeableConcept;
-  payment?: ClaimResponsePayment;
-  preAuthPeriod?: Period;
-  preAuthRef?: string;
-  _preAuthRef?: Element;
-  processNote?: ClaimResponseProcessNote[];
-  request?: Reference<'Claim'>;
-  requestor?: Reference<'Organization' | 'Practitioner' | 'PractitionerRole'>;
-  status: 'active' | 'cancelled' | 'draft' | 'entered-in-error';
-  _status?: Element;
-  subType?: CodeableConcept;
-  total?: ClaimResponseTotal[];
-  type: CodeableConcept;
-  use: 'claim' | 'preauthorization' | 'predetermination';
-  _use?: Element;
-}
+    resourceType: "ClaimResponse";
 
+    addItem?: ClaimResponseAddItem[];
+    communicationRequest?: Reference<"CommunicationRequest">[];
+    created: string;
+    _created?: Element;
+    disposition?: string;
+    _disposition?: Element;
+    error?: ClaimResponseError[];
+    form?: Attachment;
+    formCode?: CodeableConcept;
+    fundsReserve?: CodeableConcept;
+    identifier?: Identifier[];
+    insurance?: ClaimResponseInsurance[];
+    insurer: Reference<"Organization">;
+    item?: ClaimResponseItem[];
+    outcome: "queued" | "complete" | "error" | "partial";
+    _outcome?: Element;
+    patient: Reference<"Patient">;
+    payeeType?: CodeableConcept;
+    payment?: ClaimResponsePayment;
+    preAuthPeriod?: Period;
+    preAuthRef?: string;
+    _preAuthRef?: Element;
+    processNote?: ClaimResponseProcessNote[];
+    request?: Reference<"Claim">;
+    requestor?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
+    status: "active" | "cancelled" | "draft" | "entered-in-error";
+    _status?: Element;
+    subType?: CodeableConcept;
+    total?: ClaimResponseTotal[];
+    type: CodeableConcept;
+    use: "claim" | "preauthorization" | "predetermination";
+    _use?: Element;
+}

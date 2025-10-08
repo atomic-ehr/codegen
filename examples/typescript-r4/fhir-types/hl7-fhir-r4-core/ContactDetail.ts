@@ -2,15 +2,14 @@
 // GitHub: https://github.com/orgs/atomic-ehr/repositories
 // Any manual changes made to this file may be overwritten.
 
-import type { ContactPoint } from '../hl7-fhir-r4-core/ContactPoint';
-import type { Element } from '../hl7-fhir-r4-core/Element';
+import type { ContactPoint } from "../hl7-fhir-r4-core/ContactPoint";
+import type { Element } from "../hl7-fhir-r4-core/Element";
 
-export type { ContactPoint }from '../hl7-fhir-r4-core/ContactPoint';;
-export type { Element }from '../hl7-fhir-r4-core/Element';;
+export type { ContactPoint } from "../hl7-fhir-r4-core/ContactPoint";
+export type { Element } from "../hl7-fhir-r4-core/Element";
 
 export interface ContactDetail extends Element {
-  name?: string;
-  _name?: Element;
-  telecom?: ContactPoint[];
+    name?: string;
+    _name?: Element;
+    telecom?: ContactPoint[];
 }
-
