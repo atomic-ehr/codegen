@@ -1,18 +1,18 @@
 [
   {
-    "label": "typeschema",
+    "label": "test-typeschema",
     "command": "make test-typeschema"
   },
   {
-    "label": "register",
+    "label": "test-register",
     "command": "make test-register"
   },
   {
-    "label": "codegen",
+    "label": "test-codegen",
     "command": "make test-codegen"
   },
   {
-    "label": "typescript r4 example",
+    "label": "test-typescript-r4-example",
     "command": "make test-typescript-r4-example"
   }
 ]

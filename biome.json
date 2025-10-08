@@ -24,7 +24,7 @@
       },
       "correctness": {
         "noUnusedPrivateClassMembers": "error",
-        "noUnusedImports": { "level": "error", "fix": "safe" }
+        "noUnusedImports": { "level": "error" }
       },
       "nursery": {
         "noUnresolvedImports": "off"
@@ -39,7 +39,8 @@
       },
       "style": {
         "useConsistentArrayType": "error",
-        "useArrayLiterals": "error"
+        "useArrayLiterals": "error",
+        "noNestedTernary": "error"
       },
       "recommended": true
     }
