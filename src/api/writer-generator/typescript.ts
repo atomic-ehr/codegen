@@ -292,7 +292,7 @@ export class TypeScript extends Writer {
                 } else if (field.reference && field.reference.length > 0) {
                     const specializationId = this.tsIndex.findLastSpecialization(schema.identifier);
                     const specialization = this.tsIndex.resolve(specializationId);
-                    if (specialization === undefined || !isSpecializationTypeSchema(specialization))
+                    if (!isSpecializationTypeSchema(specialization))
                         throw new Error(`Invalid specialization for ${schema.identifier}`);
 
                     const sField = specialization.fields?.[fieldName];
