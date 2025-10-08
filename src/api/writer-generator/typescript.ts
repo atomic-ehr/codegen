@@ -8,9 +8,10 @@ import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
 import type { Identifier, Name, TypeSchema } from "@root/typeschema";
 import {
     isFhirSchemaBased,
-    isNotChoiceFieldDeclaration,
-    isProfile,
-    isSpecialization,
+    isNestedIdentifier,
+    isNotChoiceDeclarationField,
+    isProfileTypeSchema,
+    isSpecializationTypeSchema,
     type ProfileTypeSchema,
     type RegularField,
     type RegularTypeSchema,
@@ -137,12 +138,10 @@ export class TypeScript extends Writer {
                         tsPackage: `../${kebabCase(dep.package)}/${pascalCase(dep.name)}`,
                         name: uppercaseFirstLetter(dep.name),
                     })),
-                ...schema.dependencies
-                    .filter((dep) => ["nested"].includes(dep.kind))
-                    .map((dep) => ({
-                        tsPackage: `../${kebabCase(dep.package)}/${pascalCase(canonicalToName(dep.url) ?? "")}`,
-                        name: tsResourceName(dep),
-                    })),
+                ...schema.dependencies.filter(isNestedIdentifier).map((dep) => ({
+                    tsPackage: `../${kebabCase(dep.package)}/${pascalCase(canonicalToName(dep.url) ?? "")}`,
+                    name: tsResourceName(dep),
+                })),
             ].sort((a, b) => a.name.localeCompare(b.name));
             for (const dep of deps) {
                 this.tsImportType(dep.tsPackage, dep.name);
@@ -209,7 +208,7 @@ export class TypeScript extends Writer {
 
             const fields = Object.entries(schema.fields).sort((a, b) => a[0].localeCompare(b[0]));
             for (const [fieldName, field] of fields) {
-                if (!isNotChoiceFieldDeclaration(field)) continue;
+                if (!isNotChoiceDeclarationField(field)) continue;
 
                 this.debugComment(fieldName, ":", field);
 
@@ -268,7 +267,7 @@ export class TypeScript extends Writer {
 
             if (!isFhirSchemaBased(schema)) return;
             for (const [fieldName, field] of Object.entries(schema.fields ?? {})) {
-                if (!isNotChoiceFieldDeclaration(field)) continue;
+                if (!isNotChoiceDeclarationField(field)) continue;
                 this.debugComment(fieldName, field);
 
                 const tsName = tsFieldName(fieldName);
@@ -281,11 +280,11 @@ export class TypeScript extends Writer {
                 } else if (field.reference && field.reference.length > 0) {
                     const specializationId = this.tsIndex.findLastSpecialization(schema.identifier);
                     const specialization = this.tsIndex.resolve(specializationId);
-                    if (specialization === undefined || !isSpecialization(specialization))
+                    if (specialization === undefined || !isSpecializationTypeSchema(specialization))
                         throw new Error(`Invalid specialization for ${schema.identifier}`);
 
                     const sField = specialization.fields?.[fieldName];
-                    if (sField === undefined || !isNotChoiceFieldDeclaration(sField))
+                    if (sField === undefined || !isNotChoiceDeclarationField(sField))
                         throw new Error(`Invalid field declaration for ${fieldName}`);
 
                     const sRefs = (sField.reference ?? []).map((e) => e.name);
@@ -324,7 +323,7 @@ export class TypeScript extends Writer {
                 this.generateComplexTypeReexports(schema);
                 this.generateNestedTypes(schema);
                 this.generateType(schema);
-            } else if (isProfile(schema)) {
+            } else if (isProfileTypeSchema(schema)) {
                 const flatProfile = this.tsIndex.flatProfile(schema);
                 this.debugComment(flatProfile.dependencies);
                 this.generateDependenciesImports(flatProfile);

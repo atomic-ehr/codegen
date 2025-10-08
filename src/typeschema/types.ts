@@ -63,6 +63,10 @@ export type Identifier =
     | ProfileIdentifier
     | LogicalIdentifier;
 
+export const isNestedIdentifier = (id: Identifier): id is NestedIdentifier => {
+    return id.kind === "nested";
+};
+
 export type TypeSchema =
     | RegularTypeSchema
     | PrimitiveTypeSchema
@@ -76,7 +80,7 @@ export const isFhirSchemaBased = (
     return schema.identifier.kind !== "value-set";
 };
 
-export const isSpecialization = (schema: TypeSchema): schema is RegularTypeSchema => {
+export const isSpecializationTypeSchema = (schema: TypeSchema): schema is RegularTypeSchema => {
     return (
         schema.identifier.kind === "resource" ||
         schema.identifier.kind === "complex-type" ||
@@ -84,9 +88,13 @@ export const isSpecialization = (schema: TypeSchema): schema is RegularTypeSchem
     );
 };
 
-export const isProfile = (schema: TypeSchema): schema is ProfileTypeSchema => {
+export const isProfileTypeSchema = (schema: TypeSchema): schema is ProfileTypeSchema => {
     return schema.identifier.kind === "profile";
 };
+
+export function isBindingSchema(schema: TypeSchema): schema is BindingTypeSchema {
+    return schema.identifier.kind === "binding";
+}
 
 interface PrimitiveTypeSchema {
     identifier: PrimitiveIdentifier;
@@ -232,13 +240,9 @@ export interface BindingTypeSchema {
 
 export type Field = RegularField | ChoiceFieldDeclaration | ChoiceFieldInstance;
 
-export const isNotChoiceFieldDeclaration = (field: Field): field is RegularField | ChoiceFieldInstance => {
+export const isNotChoiceDeclarationField = (field: Field): field is RegularField | ChoiceFieldInstance => {
     return (field as ChoiceFieldDeclaration).choices === undefined;
 };
-
-export function isBindingSchema(schema: TypeSchema): schema is BindingTypeSchema {
-    return schema.identifier.kind === "binding";
-}
 
 export type TypeschemaParserOptions = {
     format?: "auto" | "ndjson" | "json";
