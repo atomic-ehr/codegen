@@ -131,7 +131,7 @@ export class Writer extends FileSystemWriter {
         this.line();
     }
 
-    curlyBlock(tokens: Array<string | undefined>, gencontent: () => void, endTokens?: Array<string>) {
+    curlyBlock(tokens: Array<string | undefined>, gencontent: () => void, endTokens?: string[]) {
         this.line(`${tokens.filter(Boolean).join(" ")} {`);
         this.indent();
         gencontent();
@@ -139,7 +139,7 @@ export class Writer extends FileSystemWriter {
         this.line(`}${endTokens?.filter(Boolean).join(" ") ?? ""}`);
     }
 
-    squareBlock(tokens: Array<string | undefined>, gencontent: () => void, endTokens?: Array<string>) {
+    squareBlock(tokens: Array<string | undefined>, gencontent: () => void, endTokens?: string[]) {
         this.line(`${tokens.filter(Boolean).join(" ")} [`);
         this.indent();
         gencontent();

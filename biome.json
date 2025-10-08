@@ -37,6 +37,10 @@
           }
         }
       },
+      "style": {
+        "useConsistentArrayType": "error",
+        "useArrayLiterals": "error"
+      },
       "recommended": true
     }
   },

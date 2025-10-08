@@ -43,8 +43,8 @@ function collectNestedElements(
     fhirSchema: FHIRSchema,
     parentPath: string[],
     elements: Record<string, FHIRSchemaElement>,
-): Array<[string[], FHIRSchemaElement]> {
-    const nested: Array<[string[], FHIRSchemaElement]> = [];
+): [string[], FHIRSchemaElement][] {
+    const nested: [string[], FHIRSchemaElement][] = [];
 
     for (const [key, element] of Object.entries(elements)) {
         const path = [...parentPath, key];
