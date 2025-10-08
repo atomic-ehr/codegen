@@ -18,6 +18,7 @@ import {
 } from "@root/typeschema/types";
 import {
     collectComplexTypes,
+    collectProfiles,
     collectResources,
     groupByPackages,
     mkTypeSchemaIndex,
@@ -270,7 +271,8 @@ export class TypeScript extends Writer {
 
     generateProfileType(schema: ProfileTypeSchema) {
         const name = tsResourceName(schema.identifier);
-        this.debugComment(schema.identifier);
+        this.debugComment("identifier", schema.identifier);
+        this.debugComment("base", schema.base);
         this.curlyBlock(["export", "interface", name], () => {
             this.lineSM(`__profileUrl: "${schema.identifier.url}"`);
             this.line();
@@ -324,10 +326,119 @@ export class TypeScript extends Writer {
         this.line();
     }
 
+    generateAttachProfile(flatProfile: ProfileTypeSchema) {
+        const tsBaseResourceName = tsResourceName(flatProfile.base);
+        const tsProfileName = tsResourceName(flatProfile.identifier);
+        const profileFields = Object.entries(flatProfile.fields || {})
+            .filter(([_fieldName, field]) => {
+                return field && isNotChoiceDeclarationField(field) && field.type !== undefined;
+            })
+            .map(([fieldName]) => tsFieldName(fieldName));
+
+        this.curlyBlock(
+            [
+                `export const attach_${tsProfileName} =`,
+                `(resource: ${tsBaseResourceName}, profile: ${tsProfileName}): ${tsBaseResourceName}`,
+                "=>",
+            ],
+            () => {
+                this.curlyBlock(["return"], () => {
+                    this.line("...resource,");
+                    // FIXME: don't rewrite all profiles
+                    this.curlyBlock(["meta:"], () => {
+                        this.line(`profile: ['${flatProfile.identifier.url}']`);
+                    }, [","]);
+                    profileFields.forEach((fieldName) => {
+                        this.line(`${fieldName}:`, `profile.${fieldName},`);
+                    });
+                });
+            },
+        );
+        this.line();
+    }
+
+    generateExtractProfile(flatProfile: ProfileTypeSchema) {
+        const tsBaseResourceName = tsResourceName(flatProfile.base);
+        const tsProfileName = tsResourceName(flatProfile.identifier);
+
+        const profileFields = Object.entries(flatProfile.fields || {})
+            .filter(([_fieldName, field]) => {
+                return isNotChoiceDeclarationField(field) && field.type !== undefined;
+            })
+            .map(([fieldName]) => fieldName);
+
+        const specialization = this.tsIndex.resolve(this.tsIndex.findLastSpecialization(flatProfile.identifier));
+        if (!isSpecializationTypeSchema(specialization))
+            throw new Error(`Specialization not found for ${flatProfile.identifier.url}`);
+
+        const shouldCast: Record<string, boolean> = {};
+        this.curlyBlock(
+            [
+                `export const extract_${tsBaseResourceName} =`,
+                `(resource: ${tsBaseResourceName}): ${tsProfileName}`,
+                "=>",
+            ],
+            () => {
+                profileFields.forEach((fieldName) => {
+                    const tsField = tsFieldName(fieldName);
+                    const pField = flatProfile.fields?.[fieldName];
+                    const rField = specialization.fields?.[fieldName];
+                    if (!isNotChoiceDeclarationField(pField) || !isNotChoiceDeclarationField(rField)) return;
+
+                    if (pField.required && !rField.required) {
+                        this.curlyBlock([`if (resource.${tsField} === undefined)`], () =>
+                            this.lineSM(
+                                `throw new Error("'${tsField}' is required for ${flatProfile.identifier.url}")`,
+                            ),
+                        );
+                    }
+
+                    const pRefs = pField?.reference?.map((ref) => ref.name);
+                    const rRefs = rField?.reference?.map((ref) => ref.name);
+                    if (pRefs && rRefs && pRefs.length !== rRefs.length) {
+                        const predName = `reference_pred_${tsField}`;
+                        this.curlyBlock(["const", predName, "=", "(ref?: Reference)", "=>"], () => {
+                            this.line("return !ref");
+                            this.indentBlock(() => {
+                                rRefs.forEach((ref) => {
+                                    this.line(`|| ref.reference?.startsWith('${ref}/')`);
+                                });
+                                this.line(";");
+                            });
+                        });
+                        let cond: string = !pField?.required ? `!resource.${tsField} || ` : "";
+                        if (pField.array) {
+                            cond += `resource.${tsField}.every( (ref) => ${predName}(ref) )`;
+                        } else {
+                            cond += `${predName}(resource.${tsField})`;
+                        }
+                        this.curlyBlock(["if (", cond, ")"], () => {
+                            this.lineSM(
+                                `throw new Error("'${fieldName}' has different references in profile and specialization")`,
+                            );
+                        });
+                        this.line();
+                        shouldCast[fieldName] = true;
+                    }
+                });
+                this.curlyBlock(["return"], () => {
+                    this.line(`__profileUrl: '${flatProfile.identifier.url}',`);
+                    profileFields.forEach((fieldName) => {
+                        const tsField = tsFieldName(fieldName);
+                        if (shouldCast[fieldName]) {
+                            this.line(`${tsField}:`, `resource.${tsField} as ${tsProfileName}['${tsField}'],`);
+                        } else {
+                            this.line(`${tsField}:`, `resource.${tsField},`);
+                        }
+                    });
+                });
+            },
+        );
+    }
+
     generateResourceModule(schema: TypeSchema) {
         this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
             this.generateDisclaimer();
-
             if (["complex-type", "resource", "logical"].includes(schema.identifier.kind)) {
                 this.generateDependenciesImports(schema);
                 this.generateComplexTypeReexports(schema);
@@ -337,23 +448,22 @@ export class TypeScript extends Writer {
                 const flatProfile = this.tsIndex.flatProfile(schema);
                 this.generateDependenciesImports(flatProfile);
                 this.generateProfileType(flatProfile);
-                // this.generateAttachProfile(flatProfile);
-                // this.line();
-                // this.generateExtractProfile(flatProfile);
-            } else {
-                throw new Error(`Profile generation not implemented for kind: ${schema.identifier.kind}`);
-            }
+                this.generateAttachProfile(flatProfile);
+                this.generateExtractProfile(flatProfile);
+            } else throw new Error(`Profile generation not implemented for kind: ${schema.identifier.kind}`);
         });
     }
 
     override generate(schemas: TypeSchema[]) {
+        this.tsIndex = mkTypeSchemaIndex(schemas);
         const typesToGenerate = [
             ...collectComplexTypes(schemas),
             ...collectResources(schemas),
             // ...collectLogicalModels(schemas),
-            // ...collectProfiles(schemas),
+            ...collectProfiles(schemas)
+                // NOTE: because non Resource don't have `meta` field
+                .filter((p) => this.tsIndex.isWithMetaField(p)),
         ];
-        this.tsIndex = mkTypeSchemaIndex(typesToGenerate);
         const grouped = groupByPackages(typesToGenerate);
 
         this.cd("/", () => {

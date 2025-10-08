@@ -1,4 +1,13 @@
-import type { CanonicalUrl, Field, Identifier, ProfileTypeSchema, RegularTypeSchema, TypeSchema } from "./types";
+import {
+    type CanonicalUrl,
+    type Field,
+    type Identifier,
+    isProfileTypeSchema,
+    isSpecializationTypeSchema,
+    type ProfileTypeSchema,
+    type RegularTypeSchema,
+    type TypeSchema,
+} from "./types";
 
 ///////////////////////////////////////////////////////////
 // TypeSchema processing
@@ -27,7 +36,7 @@ export const collectResources = (tss: TypeSchema[]): RegularTypeSchema[] =>
 export const collectLogicalModels = (tss: TypeSchema[]): RegularTypeSchema[] =>
     tss.filter((t) => t.identifier.kind === "logical");
 
-export const collectProfiles = (tss: TypeSchema[]) => tss.filter((t) => t.identifier.kind === "profile");
+export const collectProfiles = (tss: TypeSchema[]) => tss.filter(isProfileTypeSchema);
 
 ///////////////////////////////////////////////////////////
 // Type Schema Relations
@@ -87,6 +96,7 @@ export type TypeSchemaIndex = {
     hierarchy: (schema: TypeSchema) => TypeSchema[];
     findLastSpecialization: (id: Identifier) => Identifier;
     flatProfile: (schema: ProfileTypeSchema) => ProfileTypeSchema;
+    isWithMetaField: (profile: ProfileTypeSchema) => boolean;
 };
 
 export const mkTypeSchemaIndex = (schemas: TypeSchema[]): TypeSchemaIndex => {
@@ -118,7 +128,9 @@ export const mkTypeSchemaIndex = (schemas: TypeSchema[]): TypeSchemaIndex => {
             if (base === undefined) break;
             const resolved = resolve(base);
             if (!resolved) {
-                throw new Error(`Failed to resolve base type: ${JSON.stringify(base)}`);
+                throw new Error(
+                    `Failed to resolve base type: ${(res.map((e) => `${e.identifier.url} (${e.identifier.kind})`)).join(", ")}`,
+                );
             }
             cur = resolved;
         }
@@ -173,6 +185,15 @@ export const mkTypeSchemaIndex = (schemas: TypeSchema[]): TypeSchemaIndex => {
         };
     };
 
+    const isWithMetaField = (profile: ProfileTypeSchema): boolean => {
+        return hierarchy(profile)
+            .filter(isSpecializationTypeSchema)
+            .some((schema) => {
+                console.log(schema.fields?.meta);
+                return schema.fields?.meta !== undefined;
+            });
+    };
+
     return {
         schemaIndex: index,
         relations,
@@ -181,5 +202,6 @@ export const mkTypeSchemaIndex = (schemas: TypeSchema[]): TypeSchemaIndex => {
         hierarchy,
         findLastSpecialization,
         flatProfile,
+        isWithMetaField,
     };
 };

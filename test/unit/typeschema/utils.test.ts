@@ -157,7 +157,7 @@ describe("TypeSchema Index", () => {
             const index = mkTypeSchemaIndex([bSchema]);
 
             expect(() => index.hierarchy(bSchema)).toThrow(
-                'Failed to resolve base type: {"name":"A","package":"test","kind":"resource","version":"1.0.0","url":"http://example.org/StructureDefinition/A"}',
+                "Failed to resolve base type: http://example.org/StructureDefinition/B (profile)",
             );
         });
 
