@@ -132,20 +132,29 @@ export class TypeScript extends Writer {
 
     generateDependenciesImports(schema: RegularTypeSchema) {
         if (schema.dependencies) {
-            const deps = [
-                ...schema.dependencies
-                    .filter((dep) => ["complex-type", "resource", "logical"].includes(dep.kind))
-                    .map((dep) => ({
+            const imports = [];
+            const skipped = [];
+            for (const dep of schema.dependencies) {
+                if (["complex-type", "resource", "logical"].includes(dep.kind)) {
+                    imports.push({
                         tsPackage: `../${kebabCase(dep.package)}/${pascalCase(dep.name)}`,
                         name: uppercaseFirstLetter(dep.name),
-                    })),
-                ...schema.dependencies.filter(isNestedIdentifier).map((dep) => ({
-                    tsPackage: `../${kebabCase(dep.package)}/${pascalCase(canonicalToName(dep.url) ?? "")}`,
-                    name: tsResourceName(dep),
-                })),
-            ].sort((a, b) => a.name.localeCompare(b.name));
-            for (const dep of deps) {
+                    });
+                } else if (isNestedIdentifier(dep)) {
+                    imports.push({
+                        tsPackage: `../${kebabCase(dep.package)}/${pascalCase(canonicalToName(dep.url) ?? "")}`,
+                        name: tsResourceName(dep),
+                    });
+                } else {
+                    skipped.push(dep);
+                }
+            }
+            imports.sort((a, b) => a.name.localeCompare(b.name));
+            for (const dep of imports) {
                 this.tsImportType(dep.tsPackage, dep.name);
+            }
+            for (const dep of skipped) {
+                this.debugComment("skip:", dep);
             }
             this.line();
             // // NOTE: for primitive type extensions
@@ -319,14 +328,13 @@ export class TypeScript extends Writer {
         this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
             this.generateDisclaimer();
 
-            if (["complex-type", "resource", "logical", "nested"].includes(schema.identifier.kind)) {
+            if (["complex-type", "resource", "logical"].includes(schema.identifier.kind)) {
                 this.generateDependenciesImports(schema);
                 this.generateComplexTypeReexports(schema);
                 this.generateNestedTypes(schema);
                 this.generateType(schema);
             } else if (isProfileTypeSchema(schema)) {
                 const flatProfile = this.tsIndex.flatProfile(schema);
-                this.debugComment(flatProfile.dependencies);
                 this.generateDependenciesImports(flatProfile);
                 this.generateProfileType(flatProfile);
                 // this.generateAttachProfile(flatProfile);
