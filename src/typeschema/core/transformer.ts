@@ -7,14 +7,16 @@
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import { fsElementSnapshot, type Register, resolveFsElementGenealogy } from "@typeschema/register";
-import type {
-    Field,
-    Identifier,
-    NestedType,
-    RichFHIRSchema,
-    RichValueSet,
-    TypeSchema,
-    ValueSetTypeSchema,
+import {
+    type Field,
+    type Identifier,
+    isNestedIdentifier,
+    isProfileIdentifier,
+    type NestedType,
+    type RichFHIRSchema,
+    type RichValueSet,
+    type TypeSchema,
+    type ValueSetTypeSchema,
 } from "@typeschema/types";
 import type { CanonicalUrl, Name } from "../types";
 import { collectBindingSchemas, extractValueSetConceptsByUrl } from "./binding";
@@ -249,7 +251,11 @@ function extractDependencies(
     const localNestedTypeUrls = new Set(nestedTypes?.map((nt) => nt.identifier.url));
 
     const result = Object.values(uniqDeps)
-        .filter((e) => !(e.kind === "nested" && localNestedTypeUrls.has(e.url)))
+        .filter((e) => {
+            if (isProfileIdentifier(identifier)) return true;
+            if (!isNestedIdentifier(e)) return true;
+            return !localNestedTypeUrls.has(e.url);
+        })
         .sort((a, b) => a.url.localeCompare(b.url));
 
     return result.length > 0 ? result : undefined;

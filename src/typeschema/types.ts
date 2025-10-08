@@ -67,6 +67,10 @@ export const isNestedIdentifier = (id: Identifier): id is NestedIdentifier => {
     return id.kind === "nested";
 };
 
+export const isProfileIdentifier = (id: Identifier): id is ProfileIdentifier => {
+    return id.kind === "profile";
+};
+
 export type TypeSchema =
     | RegularTypeSchema
     | PrimitiveTypeSchema

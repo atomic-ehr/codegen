@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import type { PFS } from "@typeschema-test/utils";
-import { mkR4Register, registerFsAndMkTs } from "@typeschema-test/utils";
+import type { CanonicalUrl } from "@root/typeschema";
+import { mkR4Register, type PFS, registerFsAndMkTs } from "@typeschema-test/utils";
 
-describe("Processing constraint generation", async () => {
+describe("TypeSchema Processing constraint generation", async () => {
     const r4 = await mkR4Register();
     const A: PFS = {
         url: "uri::A",
@@ -83,6 +83,32 @@ describe("Processing constraint generation", async () => {
                 dependencies: [
                     { kind: "nested", name: "foo", url: "uri::A#foo" },
                     { kind: "profile", name: "b", url: "uri::B" },
+                ],
+            },
+        ]);
+    });
+
+    it("Use nested type in profile.", async () => {
+        const profile = r4.resolveFs("http://hl7.org/fhir/StructureDefinition/shareablecodesystem" as CanonicalUrl)!;
+        expect(await registerFsAndMkTs(r4, profile)).toMatchObject([
+            {
+                base: { kind: "resource", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem" },
+                identifier: { kind: "profile", url: "http://hl7.org/fhir/StructureDefinition/shareablecodesystem" },
+                fields: {
+                    concept: {
+                        type: { kind: "nested", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept" },
+                    },
+                },
+                dependencies: [
+                    { kind: "complex-type", url: "http://hl7.org/fhir/StructureDefinition/BackboneElement" },
+                    { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/boolean" },
+                    { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/code" },
+                    { kind: "resource", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem" },
+                    { kind: "nested", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept" },
+                    { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/rendering-markdown" },
+                    { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/string" },
+                    { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/uri" },
+                    { kind: "binding", url: "urn:fhir:binding:PublicationStatus" },
                 ],
             },
         ]);
