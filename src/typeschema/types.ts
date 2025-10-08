@@ -70,6 +70,24 @@ export type TypeSchema =
     | BindingTypeSchema
     | ProfileTypeSchema;
 
+export const isFhirSchemaBased = (
+    schema: TypeSchema,
+): schema is RegularTypeSchema | PrimitiveTypeSchema | BindingTypeSchema | ProfileTypeSchema => {
+    return schema.identifier.kind !== "value-set";
+};
+
+export const isSpecialization = (schema: TypeSchema): schema is RegularTypeSchema => {
+    return (
+        schema.identifier.kind === "resource" ||
+        schema.identifier.kind === "complex-type" ||
+        schema.identifier.kind === "logical"
+    );
+};
+
+export const isProfile = (schema: TypeSchema): schema is ProfileTypeSchema => {
+    return schema.identifier.kind === "profile";
+};
+
 interface PrimitiveTypeSchema {
     identifier: PrimitiveIdentifier;
     description?: string;
@@ -214,12 +232,9 @@ export interface BindingTypeSchema {
 
 export type Field = RegularField | ChoiceFieldDeclaration | ChoiceFieldInstance;
 
-export interface TypeschemaGeneratorOptions {
-    verbose?: boolean;
-    logger?: import("../utils/codegen-logger").CodegenLogger;
-    treeshake?: string[];
-    manager?: ReturnType<typeof CanonicalManager> | null;
-}
+export const isNotChoiceFieldDeclaration = (field: Field): field is RegularField | ChoiceFieldInstance => {
+    return (field as ChoiceFieldDeclaration).choices === undefined;
+};
 
 export function isBindingSchema(schema: TypeSchema): schema is BindingTypeSchema {
     return schema.identifier.kind === "binding";
@@ -281,3 +296,12 @@ export type RichValueSet = Omit<ValueSet, "name" | "url"> & {
     name?: Name;
     url?: CanonicalUrl;
 };
+
+///////////////////////////////////////////////////////////
+
+export interface TypeschemaGeneratorOptions {
+    verbose?: boolean;
+    logger?: import("../utils/codegen-logger").CodegenLogger;
+    treeshake?: string[];
+    manager?: ReturnType<typeof CanonicalManager> | null;
+}

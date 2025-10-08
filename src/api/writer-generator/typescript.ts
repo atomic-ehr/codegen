@@ -6,13 +6,20 @@ import {
 } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
 import type { Identifier, Name, TypeSchema } from "@root/typeschema";
-import type { ProfileTypeSchema, RegularField, RegularTypeSchema } from "@root/typeschema/types";
+import {
+    isFhirSchemaBased,
+    isNotChoiceFieldDeclaration,
+    isProfile,
+    isSpecialization,
+    type ProfileTypeSchema,
+    type RegularField,
+    type RegularTypeSchema,
+} from "@root/typeschema/types";
 import {
     collectComplexTypes,
     collectResources,
     groupByPackages,
     mkTypeSchemaIndex,
-    notChoiceDeclaration,
     type TypeSchemaIndex,
 } from "@root/typeschema/utils";
 
@@ -201,9 +208,8 @@ export class TypeScript extends Writer {
             }
 
             const fields = Object.entries(schema.fields).sort((a, b) => a[0].localeCompare(b[0]));
-            for (const [fieldName, anyField] of fields) {
-                const field = notChoiceDeclaration(anyField);
-                if (field === undefined) continue;
+            for (const [fieldName, field] of fields) {
+                if (!isNotChoiceFieldDeclaration(field)) continue;
 
                 this.debugComment(fieldName, ":", field);
 
@@ -260,9 +266,9 @@ export class TypeScript extends Writer {
             this.lineSM(`__profileUrl: "${schema.identifier.url}"`);
             this.line();
 
-            for (const [fieldName, anyField] of Object.entries((schema as RegularTypeSchema).fields ?? {})) {
-                const field = notChoiceDeclaration(anyField);
-                if (field === undefined) continue;
+            if (!isFhirSchemaBased(schema)) return;
+            for (const [fieldName, field] of Object.entries(schema.fields ?? {})) {
+                if (!isNotChoiceFieldDeclaration(field)) continue;
                 this.debugComment(fieldName, field);
 
                 const tsName = tsFieldName(fieldName);
@@ -272,12 +278,16 @@ export class TypeScript extends Writer {
                     tsType = tsResourceName(field.type);
                 } else if (field.enum) {
                     tsType = field.enum.map((e) => `'${e}'`).join(" | ");
-                } else if (field.reference?.length) {
+                } else if (field.reference && field.reference.length > 0) {
                     const specializationId = this.tsIndex.findLastSpecialization(schema.identifier);
-                    const specialization = this.tsIndex.resolve(specializationId) as RegularTypeSchema | undefined;
-                    const sField = (specialization?.fields?.[fieldName] ?? {
-                        reference: [],
-                    }) as RegularField;
+                    const specialization = this.tsIndex.resolve(specializationId);
+                    if (specialization === undefined || !isSpecialization(specialization))
+                        throw new Error(`Invalid specialization for ${schema.identifier}`);
+
+                    const sField = specialization.fields?.[fieldName];
+                    if (sField === undefined || !isNotChoiceFieldDeclaration(sField))
+                        throw new Error(`Invalid field declaration for ${fieldName}`);
+
                     const sRefs = (sField.reference ?? []).map((e) => e.name);
                     const references = field.reference
                         .map((ref) => {
@@ -314,8 +324,8 @@ export class TypeScript extends Writer {
                 this.generateComplexTypeReexports(schema);
                 this.generateNestedTypes(schema);
                 this.generateType(schema);
-            } else if (schema.identifier.kind === "profile") {
-                const flatProfile = this.tsIndex.flatProfile(schema as ProfileTypeSchema);
+            } else if (isProfile(schema)) {
+                const flatProfile = this.tsIndex.flatProfile(schema);
                 this.debugComment(flatProfile.dependencies);
                 this.generateDependenciesImports(flatProfile);
                 this.generateProfileType(flatProfile);

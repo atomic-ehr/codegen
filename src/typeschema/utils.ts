@@ -1,14 +1,4 @@
-import type {
-    CanonicalUrl,
-    ChoiceFieldDeclaration,
-    ChoiceFieldInstance,
-    Field,
-    Identifier,
-    ProfileTypeSchema,
-    RegularField,
-    RegularTypeSchema,
-    TypeSchema,
-} from "./types";
+import type { CanonicalUrl, Field, Identifier, ProfileTypeSchema, RegularTypeSchema, TypeSchema } from "./types";
 
 ///////////////////////////////////////////////////////////
 // TypeSchema processing
@@ -38,15 +28,6 @@ export const collectLogicalModels = (tss: TypeSchema[]): RegularTypeSchema[] =>
     tss.filter((t) => t.identifier.kind === "logical");
 
 export const collectProfiles = (tss: TypeSchema[]) => tss.filter((t) => t.identifier.kind === "profile");
-
-///////////////////////////////////////////////////////////
-// Field Processing
-
-export const notChoiceDeclaration = (field: Field): RegularField | ChoiceFieldInstance | undefined => {
-    if ((field as ChoiceFieldDeclaration).choices) return undefined;
-    if ((field as ChoiceFieldInstance).choiceOf) return field as ChoiceFieldInstance;
-    return field as RegularField;
-};
 
 ///////////////////////////////////////////////////////////
 // Type Schema Relations
