@@ -39,7 +39,7 @@ export interface SpecimenContainer extends BackboneElement {
     description?: string;
     identifier?: Identifier[];
     specimenQuantity?: Quantity;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface SpecimenProcessing extends BackboneElement {
     additive?: Reference<"Substance">[];
@@ -65,5 +65,5 @@ export interface Specimen extends DomainResource {
     status?: "available" | "unavailable" | "unsatisfactory" | "entered-in-error";
     _status?: Element;
     subject?: Reference<"Device" | "Group" | "Location" | "Patient" | "Substance">;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }

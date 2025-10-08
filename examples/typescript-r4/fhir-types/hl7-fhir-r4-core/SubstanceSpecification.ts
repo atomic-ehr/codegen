@@ -47,7 +47,7 @@ export interface SubstanceSpecificationName extends BackboneElement {
     preferred?: boolean;
     source?: Reference<"DocumentReference">[];
     status?: CodeableConcept;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface SubstanceSpecificationNameOfficial extends BackboneElement {
     authority?: CodeableConcept;
@@ -95,12 +95,12 @@ export interface SubstanceSpecificationStructureIsotope extends BackboneElement 
 export interface SubstanceSpecificationStructureIsotopeMolecularWeight extends BackboneElement {
     amount?: Quantity;
     method?: CodeableConcept;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface SubstanceSpecificationStructureRepresentation extends BackboneElement {
     attachment?: Attachment;
     representation?: string;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface SubstanceSpecification extends DomainResource {
     resourceType: "SubstanceSpecification";
@@ -124,5 +124,5 @@ export interface SubstanceSpecification extends DomainResource {
     sourceMaterial?: Reference<"SubstanceSourceMaterial">;
     status?: CodeableConcept;
     structure?: SubstanceSpecificationStructure;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }

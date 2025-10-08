@@ -96,7 +96,7 @@ export interface TestScriptSetupActionOperation extends BackboneElement {
     responseId?: string;
     sourceId?: string;
     targetId?: string;
-    type?: Coding;
+    type_?: Coding;
     url?: string;
 }
 export interface TestScriptSetupActionOperationRequestHeader extends BackboneElement {

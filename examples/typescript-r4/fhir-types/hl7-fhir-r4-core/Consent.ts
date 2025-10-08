@@ -26,14 +26,14 @@ export interface ConsentPolicy extends BackboneElement {
 export interface ConsentProvision extends BackboneElement {
     action?: CodeableConcept[];
     actor?: ConsentProvisionActor[];
-    class?: Coding[];
+    class_?: Coding[];
     code?: CodeableConcept[];
     data?: ConsentProvisionData[];
     dataPeriod?: Period;
     period?: Period;
     purpose?: Coding[];
     securityLabel?: Coding[];
-    type?: "deny" | "permit";
+    type_?: "deny" | "permit";
 }
 export interface ConsentProvisionActor extends BackboneElement {
     reference: Reference<"CareTeam" | "Device" | "Group" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;

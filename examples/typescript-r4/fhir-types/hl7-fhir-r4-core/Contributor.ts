@@ -12,6 +12,6 @@ export interface Contributor extends Element {
     contact?: ContactDetail[];
     name: string;
     _name?: Element;
-    type: "author" | "editor" | "reviewer" | "endorser";
-    _type?: Element;
+    type_: "author" | "editor" | "reviewer" | "endorser";
+    _type_?: Element;
 }

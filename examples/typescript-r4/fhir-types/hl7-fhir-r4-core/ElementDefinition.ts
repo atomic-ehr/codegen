@@ -156,7 +156,7 @@ export interface ElementDefinitionSlicing extends Element {
 }
 export interface ElementDefinitionSlicingDiscriminator extends Element {
     path: string;
-    type: "value" | "exists" | "pattern" | "type" | "profile";
+    type_: "value" | "exists" | "pattern" | "type" | "profile";
 }
 export interface ElementDefinitionType extends Element {
     aggregation?: "contained" | "referenced" | "bundled"[];
@@ -456,5 +456,5 @@ export interface ElementDefinition extends BackboneElement {
     sliceName?: string;
     _sliceName?: Element;
     slicing?: Element;
-    type?: Element[];
+    type_?: Element[];
 }

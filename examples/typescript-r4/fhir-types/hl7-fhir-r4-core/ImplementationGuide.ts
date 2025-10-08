@@ -57,7 +57,7 @@ export interface ImplementationGuideDependsOn extends BackboneElement {
 }
 export interface ImplementationGuideGlobal extends BackboneElement {
     profile: string;
-    type: string;
+    type_: string;
 }
 export interface ImplementationGuideManifest extends BackboneElement {
     image?: string[];

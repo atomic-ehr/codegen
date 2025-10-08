@@ -31,7 +31,7 @@ export interface SubstanceReferenceInformationGene extends BackboneElement {
 export interface SubstanceReferenceInformationGeneElement extends BackboneElement {
     element?: Identifier;
     source?: Reference<"DocumentReference">[];
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface SubstanceReferenceInformationTarget extends BackboneElement {
     amountQuantity?: Quantity;
@@ -43,7 +43,7 @@ export interface SubstanceReferenceInformationTarget extends BackboneElement {
     organismType?: CodeableConcept;
     source?: Reference<"DocumentReference">[];
     target?: Identifier;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface SubstanceReferenceInformation extends DomainResource {
     resourceType: "SubstanceReferenceInformation";

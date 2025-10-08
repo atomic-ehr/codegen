@@ -27,7 +27,7 @@ export interface InvoiceLineItemPriceComponent extends BackboneElement {
     amount?: Money;
     code?: CodeableConcept;
     factor?: number;
-    type: "base" | "surcharge" | "deduction" | "discount" | "tax" | "informational";
+    type_: "base" | "surcharge" | "deduction" | "discount" | "tax" | "informational";
 }
 export interface InvoiceParticipant extends BackboneElement {
     actor: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
@@ -54,5 +54,5 @@ export interface Invoice extends DomainResource {
     subject?: Reference<"Group" | "Patient">;
     totalGross?: Money;
     totalNet?: Money;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }

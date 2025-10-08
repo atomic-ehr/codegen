@@ -36,7 +36,7 @@ export interface MedicinalProductPackagedPackageItem extends BackboneElement {
     physicalCharacteristics?: ProdCharacteristic;
     quantity: Quantity;
     shelfLifeStorage?: ProductShelfLife[];
-    type: CodeableConcept;
+    type_: CodeableConcept;
 }
 export interface MedicinalProductPackaged extends DomainResource {
     resourceType: "MedicinalProductPackaged";

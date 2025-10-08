@@ -29,7 +29,7 @@ export interface ExplanationOfBenefitAccident extends BackboneElement {
     date?: string;
     locationAddress?: Address;
     locationReference?: Reference<"Location">;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface ExplanationOfBenefitAddItem extends BackboneElement {
     bodySite?: CodeableConcept;
@@ -86,7 +86,7 @@ export interface ExplanationOfBenefitBenefitBalanceFinancial extends BackboneEle
     allowedMoney?: Money;
     allowedString?: string;
     allowedUnsignedInt?: number;
-    type: CodeableConcept;
+    type_: CodeableConcept;
     usedMoney?: Money;
     usedUnsignedInt?: number;
 }
@@ -103,7 +103,7 @@ export interface ExplanationOfBenefitDiagnosis extends BackboneElement {
     onAdmission?: CodeableConcept;
     packageCode?: CodeableConcept;
     sequence: number;
-    type?: CodeableConcept[];
+    type_?: CodeableConcept[];
 }
 export interface ExplanationOfBenefitInsurance extends BackboneElement {
     coverage: Reference<"Coverage">;
@@ -175,7 +175,7 @@ export interface ExplanationOfBenefitItemDetailSubDetail extends BackboneElement
 }
 export interface ExplanationOfBenefitPayee extends BackboneElement {
     party?: Reference<"Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface ExplanationOfBenefitPayment extends BackboneElement {
     adjustment?: Money;
@@ -183,21 +183,21 @@ export interface ExplanationOfBenefitPayment extends BackboneElement {
     amount?: Money;
     date?: string;
     identifier?: Identifier;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface ExplanationOfBenefitProcedure extends BackboneElement {
     date?: string;
     procedureCodeableConcept?: CodeableConcept;
     procedureReference?: Reference<"Procedure">;
     sequence: number;
-    type?: CodeableConcept[];
+    type_?: CodeableConcept[];
     udi?: Reference<"Device">[];
 }
 export interface ExplanationOfBenefitProcessNote extends BackboneElement {
     language?: CodeableConcept;
-    number?: number;
+    number_?: number;
     text?: string;
-    type?: "display" | "print" | "printoper";
+    type_?: "display" | "print" | "printoper";
 }
 export interface ExplanationOfBenefitRelated extends BackboneElement {
     claim?: Reference<"Claim">;
@@ -270,7 +270,7 @@ export interface ExplanationOfBenefit extends DomainResource {
     subType?: CodeableConcept;
     supportingInfo?: ExplanationOfBenefitSupportingInfo[];
     total?: ExplanationOfBenefitTotal[];
-    type: CodeableConcept;
+    type_: CodeableConcept;
     use: "claim" | "preauthorization" | "predetermination";
     _use?: Element;
 }

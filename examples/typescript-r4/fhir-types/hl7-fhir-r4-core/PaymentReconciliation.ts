@@ -27,11 +27,11 @@ export interface PaymentReconciliationDetail extends BackboneElement {
     response?: Reference<"Resource">;
     responsible?: Reference<"PractitionerRole">;
     submitter?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
-    type: CodeableConcept;
+    type_: CodeableConcept;
 }
 export interface PaymentReconciliationProcessNote extends BackboneElement {
     text?: string;
-    type?: "display" | "print" | "printoper";
+    type_?: "display" | "print" | "printoper";
 }
 export interface PaymentReconciliation extends DomainResource {
     resourceType: "PaymentReconciliation";

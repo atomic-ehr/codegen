@@ -19,7 +19,7 @@ export interface ExampleScenarioActor extends BackboneElement {
     actorId: string;
     description?: string;
     name?: string;
-    type: "person" | "entity";
+    type_: "person" | "entity";
 }
 export interface ExampleScenarioInstance extends BackboneElement {
     containedInstance?: ExampleScenarioInstanceContainedInstance[];
@@ -58,10 +58,10 @@ export interface ExampleScenarioProcessStepOperation extends BackboneElement {
     initiator?: string;
     initiatorActive?: boolean;
     name?: string;
-    number: string;
+    number_: string;
     receiver?: string;
     receiverActive?: boolean;
-    type?: string;
+    type_?: string;
 }
 export interface ExampleScenario extends DomainResource {
     resourceType: "ExampleScenario";

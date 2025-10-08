@@ -31,21 +31,21 @@ export interface EffectEvidenceSynthesisCertainty extends BackboneElement {
 export interface EffectEvidenceSynthesisCertaintyCertaintySubcomponent extends BackboneElement {
     note?: Annotation[];
     rating?: CodeableConcept[];
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface EffectEvidenceSynthesisEffectEstimate extends BackboneElement {
     description?: string;
     precisionEstimate?: EffectEvidenceSynthesisEffectEstimatePrecisionEstimate[];
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
     unitOfMeasure?: CodeableConcept;
     value?: number;
     variantState?: CodeableConcept;
 }
 export interface EffectEvidenceSynthesisEffectEstimatePrecisionEstimate extends BackboneElement {
-    from?: number;
+    from_?: number;
     level?: number;
     to?: number;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface EffectEvidenceSynthesisResultsByExposure extends BackboneElement {
     description?: string;

@@ -26,7 +26,7 @@ export interface OperationDefinitionParameter extends BackboneElement {
     referencedFrom?: OperationDefinitionParameterReferencedFrom[];
     searchType?: "number" | "date" | "string" | "token" | "reference" | "composite" | "quantity" | "uri" | "special";
     targetProfile?: string[];
-    type?: string;
+    type_?: string;
     use: "in" | "out";
 }
 export interface OperationDefinitionParameterBinding extends BackboneElement {
@@ -80,8 +80,8 @@ export interface OperationDefinition extends DomainResource {
     _system?: Element;
     title?: string;
     _title?: Element;
-    type: boolean;
-    _type?: Element;
+    type_: boolean;
+    _type_?: Element;
     url?: string;
     _url?: Element;
     useContext?: UsageContext[];

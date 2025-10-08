@@ -34,12 +34,12 @@ export interface InsurancePlanContact extends BackboneElement {
 export interface InsurancePlanCoverage extends BackboneElement {
     benefit: InsurancePlanCoverageBenefit[];
     network?: Reference<"Organization">[];
-    type: CodeableConcept;
+    type_: CodeableConcept;
 }
 export interface InsurancePlanCoverageBenefit extends BackboneElement {
     limit?: InsurancePlanCoverageBenefitLimit[];
     requirement?: string;
-    type: CodeableConcept;
+    type_: CodeableConcept;
 }
 export interface InsurancePlanCoverageBenefitLimit extends BackboneElement {
     code?: CodeableConcept;
@@ -51,13 +51,13 @@ export interface InsurancePlanPlan extends BackboneElement {
     identifier?: Identifier[];
     network?: Reference<"Organization">[];
     specificCost?: InsurancePlanPlanSpecificCost[];
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface InsurancePlanPlanGeneralCost extends BackboneElement {
     comment?: string;
     cost?: Money;
     groupSize?: number;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface InsurancePlanPlanSpecificCost extends BackboneElement {
     benefit?: InsurancePlanPlanSpecificCostBenefit[];
@@ -65,12 +65,12 @@ export interface InsurancePlanPlanSpecificCost extends BackboneElement {
 }
 export interface InsurancePlanPlanSpecificCostBenefit extends BackboneElement {
     cost?: InsurancePlanPlanSpecificCostBenefitCost[];
-    type: CodeableConcept;
+    type_: CodeableConcept;
 }
 export interface InsurancePlanPlanSpecificCostBenefitCost extends BackboneElement {
     applicability?: CodeableConcept;
     qualifiers?: CodeableConcept[];
-    type: CodeableConcept;
+    type_: CodeableConcept;
     value?: Quantity;
 }
 export interface InsurancePlan extends DomainResource {
@@ -92,5 +92,5 @@ export interface InsurancePlan extends DomainResource {
     plan?: InsurancePlanPlan[];
     status?: "draft" | "active" | "retired" | "unknown";
     _status?: Element;
-    type?: CodeableConcept[];
+    type_?: CodeableConcept[];
 }

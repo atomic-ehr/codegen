@@ -26,7 +26,7 @@ export interface MedicinalProductAuthorizationProcedure extends BackboneElement 
     dateDateTime?: string;
     datePeriod?: Period;
     identifier?: Identifier;
-    type: CodeableConcept;
+    type_: CodeableConcept;
 }
 export interface MedicinalProductAuthorization extends DomainResource {
     resourceType: "MedicinalProductAuthorization";

@@ -31,22 +31,22 @@ export interface RiskEvidenceSynthesisCertainty extends BackboneElement {
 export interface RiskEvidenceSynthesisCertaintyCertaintySubcomponent extends BackboneElement {
     note?: Annotation[];
     rating?: CodeableConcept[];
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface RiskEvidenceSynthesisRiskEstimate extends BackboneElement {
     denominatorCount?: number;
     description?: string;
     numeratorCount?: number;
     precisionEstimate?: RiskEvidenceSynthesisRiskEstimatePrecisionEstimate[];
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
     unitOfMeasure?: CodeableConcept;
     value?: number;
 }
 export interface RiskEvidenceSynthesisRiskEstimatePrecisionEstimate extends BackboneElement {
-    from?: number;
+    from_?: number;
     level?: number;
     to?: number;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface RiskEvidenceSynthesisSampleSize extends BackboneElement {
     description?: string;

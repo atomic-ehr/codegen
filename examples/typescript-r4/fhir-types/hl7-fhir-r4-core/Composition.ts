@@ -64,5 +64,5 @@ export interface Composition extends DomainResource {
     subject?: Reference<"Resource">;
     title: string;
     _title?: Element;
-    type: CodeableConcept;
+    type_: CodeableConcept;
 }

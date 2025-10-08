@@ -35,7 +35,7 @@ export interface CatalogEntry extends DomainResource {
     relatedEntry?: CatalogEntryRelatedEntry[];
     status?: "draft" | "active" | "retired" | "unknown";
     _status?: Element;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
     validityPeriod?: Period;
     validTo?: string;
     _validTo?: Element;

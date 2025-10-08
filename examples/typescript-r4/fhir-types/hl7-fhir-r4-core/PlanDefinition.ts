@@ -70,7 +70,7 @@ export interface PlanDefinitionAction extends BackboneElement {
     title?: string;
     transform?: string;
     trigger?: TriggerDefinition[];
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface PlanDefinitionActionCondition extends BackboneElement {
     expression?: Expression;
@@ -82,7 +82,7 @@ export interface PlanDefinitionActionDynamicValue extends BackboneElement {
 }
 export interface PlanDefinitionActionParticipant extends BackboneElement {
     role?: CodeableConcept;
-    type: "patient" | "practitioner" | "related-person" | "device";
+    type_: "patient" | "practitioner" | "related-person" | "device";
 }
 export interface PlanDefinitionActionRelatedAction extends BackboneElement {
     actionId: string;
@@ -149,7 +149,7 @@ export interface PlanDefinition extends DomainResource {
     title?: string;
     _title?: Element;
     topic?: CodeableConcept[];
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
     url?: string;
     _url?: Element;
     usage?: string;

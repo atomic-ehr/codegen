@@ -18,8 +18,8 @@ export interface RelatedArtifact extends Element {
     _label?: Element;
     resource?: string;
     _resource?: Element;
-    type: "documentation" | "justification" | "citation" | "predecessor" | "successor" | "derived-from" | "depends-on" | "composed-of";
-    _type?: Element;
+    type_: "documentation" | "justification" | "citation" | "predecessor" | "successor" | "derived-from" | "depends-on" | "composed-of";
+    _type_?: Element;
     url?: string;
     _url?: Element;
 }

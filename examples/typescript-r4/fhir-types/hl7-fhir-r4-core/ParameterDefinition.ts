@@ -17,8 +17,8 @@ export interface ParameterDefinition extends Element {
     _name?: Element;
     profile?: string;
     _profile?: Element;
-    type: string;
-    _type?: Element;
+    type_: string;
+    _type_?: Element;
     use: "in" | "out";
     _use?: Element;
 }

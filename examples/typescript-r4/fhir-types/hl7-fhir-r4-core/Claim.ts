@@ -27,7 +27,7 @@ export interface ClaimAccident extends BackboneElement {
     date: string;
     locationAddress?: Address;
     locationReference?: Reference<"Location">;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface ClaimCareTeam extends BackboneElement {
     provider: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
@@ -42,7 +42,7 @@ export interface ClaimDiagnosis extends BackboneElement {
     onAdmission?: CodeableConcept;
     packageCode?: CodeableConcept;
     sequence: number;
-    type?: CodeableConcept[];
+    type_?: CodeableConcept[];
 }
 export interface ClaimInsurance extends BackboneElement {
     businessArrangement?: string;
@@ -108,14 +108,14 @@ export interface ClaimItemDetailSubDetail extends BackboneElement {
 }
 export interface ClaimPayee extends BackboneElement {
     party?: Reference<"Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    type: CodeableConcept;
+    type_: CodeableConcept;
 }
 export interface ClaimProcedure extends BackboneElement {
     date?: string;
     procedureCodeableConcept?: CodeableConcept;
     procedureReference?: Reference<"Procedure">;
     sequence: number;
-    type?: CodeableConcept[];
+    type_?: CodeableConcept[];
     udi?: Reference<"Device">[];
 }
 export interface ClaimRelated extends BackboneElement {
@@ -166,7 +166,7 @@ export interface Claim extends DomainResource {
     subType?: CodeableConcept;
     supportingInfo?: ClaimSupportingInfo[];
     total?: Money;
-    type: CodeableConcept;
+    type_: CodeableConcept;
     use: "claim" | "preauthorization" | "predetermination";
     _use?: Element;
 }

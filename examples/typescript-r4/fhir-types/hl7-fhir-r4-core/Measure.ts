@@ -111,7 +111,7 @@ export interface Measure extends DomainResource {
     title?: string;
     _title?: Element;
     topic?: CodeableConcept[];
-    type?: CodeableConcept[];
+    type_?: CodeableConcept[];
     url?: string;
     _url?: Element;
     usage?: string;

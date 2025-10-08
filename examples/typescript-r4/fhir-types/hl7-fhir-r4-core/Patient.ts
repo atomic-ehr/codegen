@@ -38,7 +38,7 @@ export interface PatientContact extends BackboneElement {
 }
 export interface PatientLink extends BackboneElement {
     other: Reference<"Patient" | "RelatedPerson">;
-    type: "replaced-by" | "replaces" | "refer" | "seealso";
+    type_: "replaced-by" | "replaces" | "refer" | "seealso";
 }
 export interface Patient extends DomainResource {
     resourceType: "Patient";

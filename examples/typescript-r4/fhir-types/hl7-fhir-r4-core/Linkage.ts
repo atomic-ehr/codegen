@@ -11,7 +11,7 @@ export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface LinkageItem extends BackboneElement {
     resource: Reference<"Resource">;
-    type: "source" | "alternate" | "historical";
+    type_: "source" | "alternate" | "historical";
 }
 export interface Linkage extends DomainResource {
     resourceType: "Linkage";

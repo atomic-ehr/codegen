@@ -24,8 +24,8 @@ export interface Address extends Element {
     _state?: Element;
     text?: string;
     _text?: Element;
-    type?: "postal" | "physical" | "both";
-    _type?: Element;
+    type_?: "postal" | "physical" | "both";
+    _type_?: Element;
     use?: "home" | "work" | "temp" | "old" | "billing";
     _use?: Element;
 }

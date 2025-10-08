@@ -45,6 +45,6 @@ export interface DataRequirement extends Element {
     sort?: Element[];
     subjectCodeableConcept?: CodeableConcept;
     subjectReference?: Reference<"Group">;
-    type: string;
-    _type?: Element;
+    type_: string;
+    _type_?: Element;
 }

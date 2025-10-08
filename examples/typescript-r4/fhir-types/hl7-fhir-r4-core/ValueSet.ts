@@ -53,7 +53,7 @@ export interface ValueSetExpansion extends BackboneElement {
     total?: number;
 }
 export interface ValueSetExpansionContains extends BackboneElement {
-    abstract?: boolean;
+    abstract_?: boolean;
     code?: string;
     display?: string;
     inactive?: boolean;

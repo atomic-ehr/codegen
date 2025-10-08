@@ -20,7 +20,7 @@ export interface AppointmentParticipant extends BackboneElement {
     period?: Period;
     required?: "required" | "optional" | "information-only";
     status: "accepted" | "declined" | "tentative" | "needs-action";
-    type?: CodeableConcept[];
+    type_?: CodeableConcept[];
 }
 export interface Appointment extends DomainResource {
     resourceType: "Appointment";

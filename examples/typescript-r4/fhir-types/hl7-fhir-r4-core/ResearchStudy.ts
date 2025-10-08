@@ -24,11 +24,11 @@ export type { RelatedArtifact } from "../hl7-fhir-r4-core/RelatedArtifact";
 export interface ResearchStudyArm extends BackboneElement {
     description?: string;
     name: string;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface ResearchStudyObjective extends BackboneElement {
     name?: string;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface ResearchStudy extends DomainResource {
     resourceType: "ResearchStudy";

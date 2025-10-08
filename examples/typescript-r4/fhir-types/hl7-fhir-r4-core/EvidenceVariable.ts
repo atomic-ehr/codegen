@@ -87,8 +87,8 @@ export interface EvidenceVariable extends DomainResource {
     title?: string;
     _title?: Element;
     topic?: CodeableConcept[];
-    type?: "dichotomous" | "continuous" | "descriptive";
-    _type?: Element;
+    type_?: "dichotomous" | "continuous" | "descriptive";
+    _type_?: Element;
     url?: string;
     _url?: Element;
     useContext?: UsageContext[];

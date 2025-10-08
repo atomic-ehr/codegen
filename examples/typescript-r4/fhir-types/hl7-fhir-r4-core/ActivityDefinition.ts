@@ -41,7 +41,7 @@ export interface ActivityDefinitionDynamicValue extends BackboneElement {
 }
 export interface ActivityDefinitionParticipant extends BackboneElement {
     role?: CodeableConcept;
-    type: "patient" | "practitioner" | "related-person" | "device";
+    type_: "patient" | "practitioner" | "related-person" | "device";
 }
 export interface ActivityDefinition extends DomainResource {
     resourceType: "ActivityDefinition";

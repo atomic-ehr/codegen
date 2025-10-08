@@ -18,7 +18,7 @@ export type { Signature } from "../hl7-fhir-r4-core/Signature";
 export interface ProvenanceAgent extends BackboneElement {
     onBehalfOf?: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     role?: CodeableConcept[];
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
     who: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
 }
 export interface ProvenanceEntity extends BackboneElement {

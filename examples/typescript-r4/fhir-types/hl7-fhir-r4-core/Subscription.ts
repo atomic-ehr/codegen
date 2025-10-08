@@ -13,7 +13,7 @@ export interface SubscriptionChannel extends BackboneElement {
     endpoint?: string;
     header?: string[];
     payload?: string;
-    type: "rest-hook" | "websocket" | "email" | "sms" | "message";
+    type_: "rest-hook" | "websocket" | "email" | "sms" | "message";
 }
 export interface Subscription extends DomainResource {
     resourceType: "Subscription";

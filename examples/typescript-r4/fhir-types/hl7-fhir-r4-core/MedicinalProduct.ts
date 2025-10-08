@@ -37,7 +37,7 @@ export interface MedicinalProductNameCountryLanguage extends BackboneElement {
 }
 export interface MedicinalProductNameNamePart extends BackboneElement {
     part: string;
-    type: Coding;
+    type_: Coding;
 }
 export interface MedicinalProductSpecialDesignation extends BackboneElement {
     date?: string;
@@ -47,7 +47,7 @@ export interface MedicinalProductSpecialDesignation extends BackboneElement {
     intendedUse?: CodeableConcept;
     species?: CodeableConcept;
     status?: CodeableConcept;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface MedicinalProduct extends DomainResource {
     resourceType: "MedicinalProduct";
@@ -72,5 +72,5 @@ export interface MedicinalProduct extends DomainResource {
     specialDesignation?: MedicinalProductSpecialDesignation[];
     specialMeasures?: string[];
     _specialMeasures?: Element;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }

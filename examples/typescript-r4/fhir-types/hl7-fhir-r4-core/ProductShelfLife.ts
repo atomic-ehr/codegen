@@ -16,5 +16,5 @@ export interface ProductShelfLife extends BackboneElement {
     identifier?: Identifier;
     period: Quantity;
     specialPrecautionsForStorage?: CodeableConcept[];
-    type: CodeableConcept;
+    type_: CodeableConcept;
 }

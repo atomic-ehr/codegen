@@ -55,5 +55,5 @@ export interface Location extends DomainResource {
     status?: "active" | "suspended" | "inactive";
     _status?: Element;
     telecom?: ContactPoint[];
-    type?: CodeableConcept[];
+    type_?: CodeableConcept[];
 }

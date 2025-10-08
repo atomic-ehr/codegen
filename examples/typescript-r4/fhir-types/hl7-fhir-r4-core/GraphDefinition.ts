@@ -25,7 +25,7 @@ export interface GraphDefinitionLinkTarget extends BackboneElement {
     compartment?: GraphDefinitionLinkTargetCompartment[];
     params?: string;
     profile?: string;
-    type: string;
+    type_: string;
 }
 export interface GraphDefinitionLinkTargetCompartment extends BackboneElement {
     code: "Patient" | "Encounter" | "RelatedPerson" | "Practitioner" | "Device";

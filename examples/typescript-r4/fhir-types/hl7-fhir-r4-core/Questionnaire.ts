@@ -40,7 +40,7 @@ export interface QuestionnaireItem extends BackboneElement {
     repeats?: boolean;
     required?: boolean;
     text?: string;
-    type: "group" | "display" | "question" | "boolean" | "decimal" | "integer" | "date" | "dateTime" | "time" | "string" | "text" | "url" | "choice" | "open-choice" | "attachment" | "reference" | "quantity";
+    type_: "group" | "display" | "question" | "boolean" | "decimal" | "integer" | "date" | "dateTime" | "time" | "string" | "text" | "url" | "choice" | "open-choice" | "attachment" | "reference" | "quantity";
 }
 export interface QuestionnaireItemAnswerOption extends BackboneElement {
     initialSelected?: boolean;

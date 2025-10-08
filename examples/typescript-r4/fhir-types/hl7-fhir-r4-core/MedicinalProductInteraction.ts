@@ -25,5 +25,5 @@ export interface MedicinalProductInteraction extends DomainResource {
     interactant?: MedicinalProductInteractionInteractant[];
     management?: CodeableConcept;
     subject?: Reference<"Medication" | "MedicinalProduct" | "Substance">[];
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }

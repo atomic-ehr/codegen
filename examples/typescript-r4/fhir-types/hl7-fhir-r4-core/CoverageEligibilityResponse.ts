@@ -46,7 +46,7 @@ export interface CoverageEligibilityResponseInsuranceItemBenefit extends Backbon
     allowedMoney?: Money;
     allowedString?: string;
     allowedUnsignedInt?: number;
-    type: CodeableConcept;
+    type_: CodeableConcept;
     usedMoney?: Money;
     usedString?: string;
     usedUnsignedInt?: number;

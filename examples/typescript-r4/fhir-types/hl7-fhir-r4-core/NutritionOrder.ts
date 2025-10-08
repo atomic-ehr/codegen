@@ -44,7 +44,7 @@ export interface NutritionOrderOralDiet extends BackboneElement {
     nutrient?: NutritionOrderOralDietNutrient[];
     schedule?: Timing[];
     texture?: NutritionOrderOralDietTexture[];
-    type?: CodeableConcept[];
+    type_?: CodeableConcept[];
 }
 export interface NutritionOrderOralDietNutrient extends BackboneElement {
     amount?: Quantity;
@@ -59,7 +59,7 @@ export interface NutritionOrderSupplement extends BackboneElement {
     productName?: string;
     quantity?: Quantity;
     schedule?: Timing[];
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface NutritionOrder extends DomainResource {
     resourceType: "NutritionOrder";

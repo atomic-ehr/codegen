@@ -28,7 +28,7 @@ export interface ConditionEvidence extends BackboneElement {
 export interface ConditionStage extends BackboneElement {
     assessment?: Reference<"ClinicalImpression" | "DiagnosticReport" | "Observation">[];
     summary?: CodeableConcept;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface Condition extends DomainResource {
     resourceType: "Condition";

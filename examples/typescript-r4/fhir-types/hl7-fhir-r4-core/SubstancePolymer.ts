@@ -21,7 +21,7 @@ export interface SubstancePolymerMonomerSetStartingMaterial extends BackboneElem
     amount?: SubstanceAmount;
     isDefining?: boolean;
     material?: CodeableConcept;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface SubstancePolymerRepeat extends BackboneElement {
     averageMolecularFormula?: string;
@@ -43,12 +43,12 @@ export interface SubstancePolymerRepeatRepeatUnitDegreeOfPolymerisation extends 
 export interface SubstancePolymerRepeatRepeatUnitStructuralRepresentation extends BackboneElement {
     attachment?: Attachment;
     representation?: string;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface SubstancePolymer extends DomainResource {
     resourceType: "SubstancePolymer";
 
-    class?: CodeableConcept;
+    class_?: CodeableConcept;
     copolymerConnectivity?: CodeableConcept[];
     geometry?: CodeableConcept;
     modification?: string[];

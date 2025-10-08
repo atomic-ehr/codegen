@@ -24,7 +24,7 @@ export interface DosageDoseAndRate extends Element {
     rateQuantity?: Quantity;
     rateRange?: Range;
     rateRatio?: Ratio;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface Dosage extends BackboneElement {
     additionalInstruction?: CodeableConcept[];

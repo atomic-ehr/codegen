@@ -68,7 +68,7 @@ export interface CapabilityStatementRestResource extends BackboneElement {
     searchParam?: CapabilityStatementRestResourceSearchParam[];
     searchRevInclude?: string[];
     supportedProfile?: string[];
-    type: string;
+    type_: string;
     updateCreate?: boolean;
     versioning?: "no-version" | "versioned" | "versioned-update";
 }
@@ -85,7 +85,7 @@ export interface CapabilityStatementRestResourceSearchParam extends BackboneElem
     definition?: string;
     documentation?: string;
     name: string;
-    type: "number" | "date" | "string" | "token" | "reference" | "composite" | "quantity" | "uri" | "special";
+    type_: "number" | "date" | "string" | "token" | "reference" | "composite" | "quantity" | "uri" | "special";
 }
 export interface CapabilityStatementRestSecurity extends BackboneElement {
     cors?: boolean;

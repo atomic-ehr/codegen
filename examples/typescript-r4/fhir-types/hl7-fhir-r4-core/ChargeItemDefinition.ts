@@ -33,7 +33,7 @@ export interface ChargeItemDefinitionPropertyGroupPriceComponent extends Backbon
     amount?: Money;
     code?: CodeableConcept;
     factor?: number;
-    type: "base" | "surcharge" | "deduction" | "discount" | "tax" | "informational";
+    type_: "base" | "surcharge" | "deduction" | "discount" | "tax" | "informational";
 }
 export interface ChargeItemDefinition extends DomainResource {
     resourceType: "ChargeItemDefinition";

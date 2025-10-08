@@ -32,7 +32,7 @@ export interface MedicationAdministrationDosage extends BackboneElement {
 }
 export interface MedicationAdministrationPerformer extends BackboneElement {
     actor: Reference<"Device" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    function?: CodeableConcept;
+    function_?: CodeableConcept;
 }
 export interface MedicationAdministration extends DomainResource {
     resourceType: "MedicationAdministration";

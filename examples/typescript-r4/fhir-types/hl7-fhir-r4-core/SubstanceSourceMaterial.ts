@@ -37,7 +37,7 @@ export interface SubstanceSourceMaterialOrganismHybrid extends BackboneElement {
     paternalOrganismName?: string;
 }
 export interface SubstanceSourceMaterialOrganismOrganismGeneral extends BackboneElement {
-    class?: CodeableConcept;
+    class_?: CodeableConcept;
     kingdom?: CodeableConcept;
     order?: CodeableConcept;
     phylum?: CodeableConcept;

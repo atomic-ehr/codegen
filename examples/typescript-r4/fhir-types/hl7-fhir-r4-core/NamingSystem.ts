@@ -19,7 +19,7 @@ export interface NamingSystemUniqueId extends BackboneElement {
     comment?: string;
     period?: Period;
     preferred?: boolean;
-    type: "oid" | "uuid" | "uri" | "other";
+    type_: "oid" | "uuid" | "uri" | "other";
     value: string;
 }
 export interface NamingSystem extends DomainResource {
@@ -41,7 +41,7 @@ export interface NamingSystem extends DomainResource {
     _responsible?: Element;
     status: "draft" | "active" | "retired" | "unknown";
     _status?: Element;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
     uniqueId: NamingSystemUniqueId[];
     usage?: string;
     _usage?: Element;

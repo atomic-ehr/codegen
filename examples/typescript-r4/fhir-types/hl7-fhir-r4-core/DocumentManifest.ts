@@ -35,5 +35,5 @@ export interface DocumentManifest extends DomainResource {
     status: "current" | "superseded" | "entered-in-error";
     _status?: Element;
     subject?: Reference<"Device" | "Group" | "Patient" | "Practitioner">;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }

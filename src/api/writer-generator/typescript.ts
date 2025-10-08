@@ -79,7 +79,6 @@ const canonicalToName = (canonical: string | undefined, dropFragment = true) => 
 };
 
 const tsResourceName = (id: Identifier): string => {
-    // if (id.kind === "constraint") return pascalCase(canonicalToName(id.url) ?? "");
     if (id.kind === "nested") {
         const url = id.url;
         const path = canonicalToName(url, false);
@@ -94,7 +93,9 @@ const tsResourceName = (id: Identifier): string => {
 const tsFieldName = (n: string): string => normalizeTsName(n);
 
 const normalizeTsName = (n: string): string => {
-    // if (n === "extends") return "extends_";
+    // biome-ignore format: too long
+    const tsKeywords = new Set(["abstract", "any", "as", "async", "await", "boolean", "bigint", "break", "case", "catch", "class", "const", "constructor", "continue", "debugger", "declare", "default", "delete", "do", "else", "enum", "export", "extends", "extern", "false", "finally", "for", "function", "from", "get", "goto", "if", "implements", "import", "in", "infer", "instanceof", "interface", "keyof", "let", "module", "namespace", "never", "new", "null", "number", "object", "of", "override", "private", "protected", "public", "readonly", "return", "satisfies", "set", "static", "string", "super", "switch", "this", "throw", "true", "try", "type", "typeof", "unknown", "var", "void", "while"]);
+    if (tsKeywords.has(n)) n = `${n}_`;
     return n.replace(/[- ]/g, "_");
 };
 

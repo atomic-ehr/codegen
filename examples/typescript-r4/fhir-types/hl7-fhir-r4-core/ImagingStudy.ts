@@ -24,7 +24,7 @@ export interface ImagingStudySeries extends BackboneElement {
     instance?: ImagingStudySeriesInstance[];
     laterality?: Coding;
     modality: Coding;
-    number?: number;
+    number_?: number;
     numberOfInstances?: number;
     performer?: ImagingStudySeriesPerformer[];
     specimen?: Reference<"Specimen">[];
@@ -32,14 +32,14 @@ export interface ImagingStudySeries extends BackboneElement {
     uid: string;
 }
 export interface ImagingStudySeriesInstance extends BackboneElement {
-    number?: number;
+    number_?: number;
     sopClass: Coding;
     title?: string;
     uid: string;
 }
 export interface ImagingStudySeriesPerformer extends BackboneElement {
     actor: Reference<"CareTeam" | "Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    function?: CodeableConcept;
+    function_?: CodeableConcept;
 }
 export interface ImagingStudy extends DomainResource {
     resourceType: "ImagingStudy";

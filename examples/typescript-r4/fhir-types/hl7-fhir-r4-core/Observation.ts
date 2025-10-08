@@ -49,7 +49,7 @@ export interface ObservationReferenceRange extends BackboneElement {
     high?: Quantity;
     low?: Quantity;
     text?: string;
-    type?: CodeableConcept;
+    type_?: CodeableConcept;
 }
 export interface Observation extends DomainResource {
     resourceType: "Observation";
