@@ -187,7 +187,7 @@ export class TypeScript extends Writer {
     }
 
     generateType(tsIndex: TypeSchemaIndex, schema: RegularTypeSchema) {
-        var name: string;
+        let name: string;
         if (schema.identifier.name === "Reference") {
             name = "Reference<T extends string = string>";
         } else if (schema.identifier.kind === "nested") {
@@ -196,7 +196,7 @@ export class TypeScript extends Writer {
             name = tsResourceName(schema.identifier);
         }
 
-        var extendsClause: string | undefined;
+        let extendsClause: string | undefined;
         if (schema.base) extendsClause = `extends ${canonicalToName(schema.base.url)}`;
 
         this.debugComment(schema.identifier);

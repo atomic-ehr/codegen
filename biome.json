@@ -20,7 +20,8 @@
       "suspicious": {
         "noImplicitAnyLet": "off",
         "noExplicitAny": "off",
-        "noAssignInExpressions": "off"
+        "noAssignInExpressions": "off",
+        "noVar": "error"
       },
       "correctness": {
         "noUnusedPrivateClassMembers": "error",
