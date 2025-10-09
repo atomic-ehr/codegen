@@ -3,4 +3,6 @@
 // Any manual changes made to this file may be overwritten.
 
 export interface Request {
+    resourceType: "Request";
+
 }

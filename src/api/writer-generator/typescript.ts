@@ -201,7 +201,6 @@ export class TypeScript extends Writer {
 
         this.debugComment(schema.identifier);
         this.curlyBlock(["export", "interface", name, extendsClause], () => {
-            if (!schema.fields) return; // FIXME: move down
             if (isResourceTypeSchema(schema)) {
                 const possibleResourceTypes = [schema.identifier];
                 possibleResourceTypes.push(...tsIndex.resourceChildren(schema.identifier));
@@ -209,6 +208,7 @@ export class TypeScript extends Writer {
                 this.line();
             }
 
+            if (!schema.fields) return;
             const fields = Object.entries(schema.fields).sort((a, b) => a[0].localeCompare(b[0]));
             for (const [fieldName, field] of fields) {
                 if (isChoiceDeclarationField(field)) continue;
