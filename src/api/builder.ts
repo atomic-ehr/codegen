@@ -384,6 +384,7 @@ export class APIBuilder {
                 result.errors.push(
                     `${type} generator failed: ${error instanceof Error ? error.message : String(error)}`,
                 );
+                if (this.options.throwException) throw error;
             }
         }
     }
