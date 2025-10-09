@@ -328,7 +328,7 @@ export class TypeScript extends Writer {
 
         this.curlyBlock(
             [
-                `export const attach_${tsProfileName} =`,
+                `export const attach_${tsProfileName}_to_${tsBaseResourceName} =`,
                 `(resource: ${tsBaseResourceName}, profile: ${tsProfileName}): ${tsBaseResourceName}`,
                 "=>",
             ],
@@ -365,7 +365,7 @@ export class TypeScript extends Writer {
         const shouldCast: Record<string, boolean> = {};
         this.curlyBlock(
             [
-                `export const extract_${tsBaseResourceName} =`,
+                `export const extract_${tsProfileName}_from_${tsBaseResourceName} =`,
                 `(resource: ${tsBaseResourceName}): ${tsProfileName}`,
                 "=>",
             ],
@@ -387,7 +387,7 @@ export class TypeScript extends Writer {
                     const pRefs = pField?.reference?.map((ref) => ref.name);
                     const rRefs = rField?.reference?.map((ref) => ref.name);
                     if (pRefs && rRefs && pRefs.length !== rRefs.length) {
-                        const predName = `reference_pred_${tsField}`;
+                        const predName = `reference_is_valid_${tsField}`;
                         this.curlyBlock(["const", predName, "=", "(ref?: Reference)", "=>"], () => {
                             this.line("return !ref");
                             this.indentBlock(() => {
@@ -401,7 +401,7 @@ export class TypeScript extends Writer {
                         if (pField.array) {
                             cond += `resource.${tsField}.every( (ref) => ${predName}(ref) )`;
                         } else {
-                            cond += `${predName}(resource.${tsField})`;
+                            cond += `!${predName}(resource.${tsField})`;
                         }
                         this.curlyBlock(["if (", cond, ")"], () => {
                             this.lineSM(
