@@ -130,6 +130,7 @@ export interface Config {
     overwrite?: boolean;
     validate?: boolean;
     cache?: boolean;
+    cleanOutput?: boolean;
 
     // Generator configurations
     typescript?: TypeScriptGeneratorConfig;
@@ -152,6 +153,7 @@ export const DEFAULT_CONFIG: Required<Config> = {
     overwrite: true,
     validate: true,
     cache: true,
+    cleanOutput: true,
     typescript: {
         moduleFormat: "esm",
         generateIndex: true,

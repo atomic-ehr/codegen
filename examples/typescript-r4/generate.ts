@@ -11,7 +11,8 @@ if (require.main === module) {
         .throwException()
         .fromPackage("hl7.fhir.r4.core", "4.0.1")
         .typescript2({ withDebugComment: false })
-        .outputTo("./examples/typescript-r4/fhir-types");
+        .outputTo("./examples/typescript-r4/fhir-types")
+        .cleanOutput(true);
 
     const report = await builder.generate();
 

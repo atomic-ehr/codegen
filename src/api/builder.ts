@@ -5,6 +5,7 @@
  * This builder pattern allows users to configure generation in a declarative way.
  */
 
+import * as fs from "node:fs";
 import * as Path from "node:path";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { GeneratedFile } from "@root/api/generators/base/types";
@@ -26,6 +27,7 @@ export interface APIBuilderOptions {
     verbose?: boolean;
     overwrite?: boolean;
     cache?: boolean;
+    cleanOutput?: boolean;
     typeSchemaConfig?: TypeSchemaConfig;
     logger?: CodegenLogger;
     manager?: ReturnType<typeof CanonicalManager> | null;
@@ -88,6 +90,7 @@ export class APIBuilder {
     private schemas: TypeSchema[] = [];
     private options: Omit<Required<APIBuilderOptions>, "typeSchemaConfig" | "logger"> & {
         typeSchemaConfig?: TypeSchemaConfig;
+        cleanOutput: boolean;
     };
     private generators: Map<string, Generator> = new Map();
     private cache?: TypeSchemaCache;
@@ -104,6 +107,7 @@ export class APIBuilder {
             verbose: options.verbose ?? false,
             overwrite: options.overwrite ?? true,
             cache: options.cache ?? true,
+            cleanOutput: options.cleanOutput ?? true,
             typeSchemaConfig: options.typeSchemaConfig,
             manager: options.manager || null,
             throwException: options.throwException || false,
@@ -240,6 +244,11 @@ export class APIBuilder {
         return this;
     }
 
+    cleanOutput(enabled = true): APIBuilder {
+        this.options.cleanOutput = enabled;
+        return this;
+    }
+
     async generate(): Promise<GenerationResult> {
         const startTime = performance.now();
         const result: GenerationResult = {
@@ -252,6 +261,18 @@ export class APIBuilder {
         };
 
         this.logger.debug(`Starting generation with ${this.generators.size} generators`);
+
+        if (this.options.cleanOutput) {
+            this.logger.info(`Cleaning output directory: ${this.options.outputDir}`);
+            try {
+                fs.rmSync(this.options.outputDir, { recursive: true, force: true });
+                fs.mkdirSync(this.options.outputDir, { recursive: true });
+            } catch (error) {
+                this.logger.warn(
+                    `Error cleaning output directory: ${error instanceof Error ? error.message : String(error)}`,
+                );
+            }
+        }
 
         try {
             this.logger.info("Initialize Canonical Manager");
@@ -382,6 +403,7 @@ export function createAPIFromConfig(config: Config): APIBuilder {
         verbose: config.verbose,
         overwrite: config.overwrite,
         cache: config.cache,
+        cleanOutput: config.cleanOutput,
         typeSchemaConfig: config.typeSchema,
     });
 
