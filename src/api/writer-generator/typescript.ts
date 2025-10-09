@@ -5,10 +5,9 @@ import {
     uppercaseFirstLetterOfEach,
 } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
-import type { Identifier, Name, TypeSchema } from "@root/typeschema";
+import type { Identifier, TypeSchema } from "@root/typeschema";
 import {
     isChoiceDeclarationField,
-    isFhirSchemaBased,
     isNestedIdentifier,
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
@@ -46,6 +45,12 @@ const primitiveType2tsType: Record<string, string> = {
     markdown: "string",
     id: "string",
     xhtml: "string",
+};
+
+const resolvePrimitiveType = (name: string) => {
+    const tsType = primitiveType2tsType[name];
+    if (tsType === undefined) throw new Error(`Unknown primitive type ${name}`);
+    return tsType;
 };
 
 const tsFhirPackageDir = (name: string): string => {
@@ -227,7 +232,7 @@ export class TypeScript extends Writer {
                     const references = field.reference.map((ref) => `"${ref.name}"`).join(" | ");
                     tsType = `Reference<${references}>`;
                 } else if (isPrimitiveIdentifier(field.type)) {
-                    tsType = (primitiveType2tsType[field.type.name] ?? "string") as Name;
+                    tsType = resolvePrimitiveType(field.type.name);
                 } else if (isNestedIdentifier(field.type)) {
                     tsType = tsResourceName(field.type);
                 } else {
@@ -253,40 +258,36 @@ export class TypeScript extends Writer {
         }
     }
 
-    generateProfileType(tsIndex: TypeSchemaIndex, schema: ProfileTypeSchema) {
-        const name = tsResourceName(schema.identifier);
-        this.debugComment("identifier", schema.identifier);
-        this.debugComment("base", schema.base);
-        this.curlyBlock(["export", "interface", name], () => {
-            this.lineSM(`__profileUrl: "${schema.identifier.url}"`);
+    generateProfileType(tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) {
+        const tsName = tsResourceName(flatProfile.identifier);
+        this.debugComment("identifier", flatProfile.identifier);
+        this.debugComment("base", flatProfile.base);
+        this.curlyBlock(["export", "interface", tsName], () => {
+            this.lineSM(`__profileUrl: "${flatProfile.identifier.url}"`);
             this.line();
 
-            if (!isFhirSchemaBased(schema)) return;
-            for (const [fieldName, field] of Object.entries(schema.fields ?? {})) {
-                if (!isNotChoiceDeclarationField(field)) continue;
+            for (const [fieldName, field] of Object.entries(flatProfile.fields ?? {})) {
+                if (isChoiceDeclarationField(field)) continue;
                 this.debugComment(fieldName, field);
 
                 const tsName = tsFieldName(fieldName);
 
                 let tsType: string;
-                if (field.type.kind === "nested") {
-                    tsType = tsResourceName(field.type);
-                } else if (field.enum) {
+                if (field.enum) {
                     tsType = field.enum.map((e) => `'${e}'`).join(" | ");
                 } else if (field.reference && field.reference.length > 0) {
-                    const specializationId = tsIndex.findLastSpecialization(schema.identifier);
-                    const specialization = tsIndex.resolve(specializationId);
+                    const specialization = tsIndex.findLastSpecialization(flatProfile);
                     if (!isSpecializationTypeSchema(specialization))
-                        throw new Error(`Invalid specialization for ${schema.identifier}`);
+                        throw new Error(`Invalid specialization for ${flatProfile.identifier}`);
 
                     const sField = specialization.fields?.[fieldName];
-                    if (sField === undefined || !isNotChoiceDeclarationField(sField))
+                    if (sField === undefined || isChoiceDeclarationField(sField) || sField.reference === undefined)
                         throw new Error(`Invalid field declaration for ${fieldName}`);
 
-                    const sRefs = (sField.reference ?? []).map((e) => e.name);
+                    const sRefs = sField.reference.map((e) => e.name);
                     const references = field.reference
                         .map((ref) => {
-                            const resRef = tsIndex.findLastSpecialization(ref);
+                            const resRef = tsIndex.findLastSpecializationByIdentifier(ref);
                             if (resRef.name !== ref.name) {
                                 return `"${resRef.name}" /*${ref.name}*/`;
                             }
@@ -299,8 +300,12 @@ export class TypeScript extends Writer {
                     } else {
                         tsType = `Reference<${references}>`;
                     }
+                } else if (isNestedIdentifier(field.type)) {
+                    tsType = tsResourceName(field.type);
+                } else if (isPrimitiveIdentifier(field.type)) {
+                    tsType = resolvePrimitiveType(field.type.name);
                 } else {
-                    tsType = primitiveType2tsType[field.type.name] ?? field.type.name;
+                    tsType = field.type.name;
                 }
 
                 this.lineSM(`${tsName}${!field.required ? "?" : ""}: ${tsType}${field.array ? "[]" : ""}`);
@@ -351,7 +356,7 @@ export class TypeScript extends Writer {
             })
             .map(([fieldName]) => fieldName);
 
-        const specialization = tsIndex.resolve(tsIndex.findLastSpecialization(flatProfile.identifier));
+        const specialization = tsIndex.findLastSpecialization(flatProfile);
         if (!isSpecializationTypeSchema(specialization))
             throw new Error(`Specialization not found for ${flatProfile.identifier.url}`);
 

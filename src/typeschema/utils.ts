@@ -90,7 +90,8 @@ export type TypeSchemaIndex = {
     resolve: (id: Identifier) => TypeSchema | undefined;
     resourceChildren: (id: Identifier) => Identifier[];
     hierarchy: (schema: TypeSchema) => TypeSchema[];
-    findLastSpecialization: (id: Identifier) => Identifier;
+    findLastSpecialization: (schema: TypeSchema) => TypeSchema;
+    findLastSpecializationByIdentifier: (id: Identifier) => Identifier;
     flatProfile: (schema: ProfileTypeSchema) => ProfileTypeSchema;
     isWithMetaField: (profile: ProfileTypeSchema) => boolean;
 };
@@ -133,15 +134,18 @@ export const mkTypeSchemaIndex = (schemas: TypeSchema[]): TypeSchemaIndex => {
         return res;
     };
 
-    const findLastSpecialization = (id: Identifier): Identifier => {
-        const schema = resolve(id);
-        if (!schema) return id;
-
+    const findLastSpecialization = (schema: TypeSchema): TypeSchema => {
         const nonConstraintSchema = hierarchy(schema).find((s) => s.identifier.kind !== "profile");
         if (!nonConstraintSchema) {
-            throw new Error(`No non-constraint schema found in hierarchy for ${id.name}`);
+            throw new Error(`No non-constraint schema found in hierarchy for ${schema.identifier.name}`);
         }
-        return nonConstraintSchema.identifier;
+        return nonConstraintSchema;
+    };
+
+    const findLastSpecializationByIdentifier = (id: Identifier): Identifier => {
+        const schema = resolve(id);
+        if (!schema) return id;
+        return findLastSpecialization(schema).identifier;
     };
 
     const flatProfile = (schema: ProfileTypeSchema): ProfileTypeSchema => {
@@ -201,6 +205,7 @@ export const mkTypeSchemaIndex = (schemas: TypeSchema[]): TypeSchemaIndex => {
         resourceChildren,
         hierarchy,
         findLastSpecialization,
+        findLastSpecializationByIdentifier,
         flatProfile,
         isWithMetaField,
     };
