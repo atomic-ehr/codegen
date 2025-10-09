@@ -261,6 +261,21 @@ export class APIBuilder {
         return this;
     }
 
+    private createUniqueFileName(name :string, package_name :string, ending :string){
+        if(!this.options.typeSchemaOutputDir)
+            this.logger.error(`Cannot create unique file name for "${name}".`);
+        else {
+            const basePath = Path.join(this.options.typeSchemaOutputDir, package_name);
+            let res = Path.join(basePath, `${name}.${ending}`);
+            let counter = 1;
+            while(existsSync(res)){
+                res = Path.join(basePath, `${name}-${counter}.${ending}`);
+                counter++;
+            }
+            return res;
+        }
+    }
+
     private async tryWriteTypeSchema(typeSchemas :TypeSchema[]){
         if(!this.options.typeSchemaOutputDir) return;
         try{
@@ -276,7 +291,7 @@ export class APIBuilder {
             for(const ts of typeSchemas){
                 const name = ts.identifier.name.toString();
                 const package_name = camelCase(ts.identifier.package.replaceAll('/','-'));
-                const filePath = Path.join(this.options.typeSchemaOutputDir, package_name,`${name}.typeschema.json`);
+                const filePath = this.createUniqueFileName(name, package_name, "typeschema.json") ?? "";
 
                 await mkdir(Path.dirname(filePath), { recursive: true });
 
