@@ -19,6 +19,9 @@ import { createLogger } from "../utils/codegen-logger";
 import { TypeScriptGenerator } from "./generators/typescript";
 import * as TS2 from "./writer-generator/typescript";
 import type { Writer, WriterOptions } from "./writer-generator/writer";
+import {mkdir} from "node:fs/promises";
+import {existsSync} from "node:fs";
+import {camelCase} from "@root/api/writer-generator/utils.ts";
 
 /**
  * Configuration options for the API builder
@@ -32,6 +35,7 @@ export interface APIBuilderOptions {
     typeSchemaConfig?: TypeSchemaConfig;
     logger?: CodegenLogger;
     manager?: ReturnType<typeof CanonicalManager> | null;
+    typeSchemaOutputDir?: string;
     throwException?: boolean;
 }
 
@@ -50,6 +54,7 @@ export interface GenerationResult {
     errors: string[];
     warnings: string[];
     duration: number;
+    typeSchemaFiles?: string[];
 }
 
 interface Generator {
@@ -113,6 +118,7 @@ export class APIBuilder {
             typeSchemaConfig: options.typeSchemaConfig,
             manager: options.manager || null,
             throwException: options.throwException || false,
+            typeSchemaOutputDir: options.typeSchemaOutputDir || "#NA",
         };
 
         this.typeSchemaConfig = options.typeSchemaConfig;
@@ -251,6 +257,37 @@ export class APIBuilder {
         return this;
     }
 
+    writeTypeSchemas(into :string|null = null){
+        this.options.typeSchemaOutputDir = into ?? Path.join(this.options.outputDir, "TypeSchemas");
+        return this;
+    }
+
+    private async tryWriteTypeSchema(typeSchemas :TypeSchema[]){
+        if(this.options.typeSchemaOutputDir === "#NA") return;
+        try{
+            await mkdir(this.options.typeSchemaOutputDir, { recursive: true });
+            let writtenCount = 0;
+            let skippedCount = 0;
+            for(const ts of typeSchemas){
+                const name = ts.identifier.name.toString();
+                const package_name = camelCase(ts.identifier.package.replaceAll('/','-'));
+                const filePath = Path.join(this.options.typeSchemaOutputDir, package_name,`${name}.typeschema.json`);
+
+                await mkdir(Path.dirname(filePath), { recursive: true });
+
+                if(existsSync(filePath)) skippedCount++;
+                else {
+                    fs.writeFileSync(filePath, JSON.stringify(ts, null, 2));
+                    writtenCount += 1;
+                }
+            }
+            this.logger.info(`Wrote ${writtenCount} TypeSchema files in ${this.options.typeSchemaOutputDir}, skipped ${skippedCount} duplicates`);
+
+        }catch(error){
+            this.logger.error("Failed to write TypeSchema output", error instanceof Error ? error : new Error(String(error)));
+        }
+    }
+
     async generate(): Promise<GenerationResult> {
         const startTime = performance.now();
         const result: GenerationResult = {
@@ -286,6 +323,8 @@ export class APIBuilder {
             const register = await registerFromManager(manager, this.logger);
             const typeSchemas = await generateTypeSchemas(register, this.logger);
 
+            await this.tryWriteTypeSchema(typeSchemas);
+
             this.logger.debug(`Executing ${this.generators.size} generators`);
 
             await this.executeGenerators(result, typeSchemas);
@@ -295,6 +334,7 @@ export class APIBuilder {
             result.success = result.errors.length === 0;
 
             this.logger.debug(`Generation completed: ${result.filesGenerated.length} files`);
+
         } catch (error) {
             this.logger.error("Code generation failed", error instanceof Error ? error : new Error(String(error)));
             result.errors.push(error instanceof Error ? error.message : String(error));
