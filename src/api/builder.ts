@@ -10,6 +10,7 @@ import * as Path from "node:path";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { GeneratedFile } from "@root/api/generators/base/types";
 import { registerFromManager } from "@root/typeschema/register";
+import { mkTypeSchemaIndex } from "@root/typeschema/utils";
 import { generateTypeSchemas, TypeSchemaCache, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";
 import { packageMetaToNpm, type TypeSchema } from "@typeschema/types";
 import type { Config, TypeSchemaConfig } from "../config";
@@ -72,7 +73,8 @@ const writerToGenerator = (writerGen: Writer): Generator => {
     };
     return {
         generate: async (schemas: TypeSchema[]): Promise<GeneratedFile[]> => {
-            writerGen.generate(schemas);
+            const tsIndex = mkTypeSchemaIndex(schemas);
+            writerGen.generate(tsIndex);
             return getGeneratedFiles();
         },
         setOutputDir: (outputDir: string) => (writerGen.opts.outputDir = outputDir),

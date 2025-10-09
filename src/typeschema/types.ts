@@ -92,6 +92,18 @@ export const isSpecializationTypeSchema = (schema: TypeSchema | undefined): sche
     );
 };
 
+export const isComplexTypeTypeSchema = (schema: TypeSchema | undefined): schema is RegularTypeSchema => {
+    return schema?.identifier.kind === "complex-type";
+};
+
+export const isResourceTypeSchema = (schema: TypeSchema | undefined): schema is RegularTypeSchema => {
+    return schema?.identifier.kind === "resource";
+};
+
+export const isLogicalTypeSchema = (schema: TypeSchema | undefined): schema is RegularTypeSchema => {
+    return schema?.identifier.kind === "logical";
+};
+
 export const isProfileTypeSchema = (schema: TypeSchema | undefined): schema is ProfileTypeSchema => {
     return schema?.identifier.kind === "profile";
 };

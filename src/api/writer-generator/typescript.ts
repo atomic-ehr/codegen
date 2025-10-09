@@ -16,14 +16,7 @@ import {
     type RegularField,
     type RegularTypeSchema,
 } from "@root/typeschema/types";
-import {
-    collectComplexTypes,
-    collectProfiles,
-    collectResources,
-    groupByPackages,
-    mkTypeSchemaIndex,
-    type TypeSchemaIndex,
-} from "@root/typeschema/utils";
+import { groupByPackages, type TypeSchemaIndex } from "@root/typeschema/utils";
 
 const primitiveType2tsType: Record<string, string> = {
     boolean: "boolean",
@@ -103,8 +96,6 @@ const normalizeTsName = (n: string): string => {
 export type TypeScriptOptions = {} & WriterOptions;
 
 export class TypeScript extends Writer {
-    tsIndex: TypeSchemaIndex = mkTypeSchemaIndex([]);
-
     tsImportType(tsPackageName: string, ...entities: string[]) {
         this.lineSM(`import type { ${entities.join(", ")} } from "${tsPackageName}"`);
     }
@@ -192,7 +183,7 @@ export class TypeScript extends Writer {
         }
     }
 
-    generateType(schema: RegularTypeSchema) {
+    generateType(tsIndex: TypeSchemaIndex, schema: RegularTypeSchema) {
         var name: string;
         if (schema.identifier.name === "Reference") {
             name = "Reference<T extends string = string>";
@@ -212,7 +203,7 @@ export class TypeScript extends Writer {
 
             if (schema.identifier.kind === "resource") {
                 const possibleResourceTypes: Identifier[] = [schema.identifier];
-                possibleResourceTypes.push(...this.tsIndex.resourceChildren(schema.identifier));
+                possibleResourceTypes.push(...tsIndex.resourceChildren(schema.identifier));
                 this.lineSM(`resourceType: ${possibleResourceTypes.map((e) => `"${e.name}"`).join(" | ")}`);
                 this.line();
             }
@@ -261,15 +252,15 @@ export class TypeScript extends Writer {
         });
     }
 
-    generateNestedTypes(schema: RegularTypeSchema) {
+    generateNestedTypes(tsIndex: TypeSchemaIndex, schema: RegularTypeSchema) {
         if (schema.nested) {
             for (const subtype of schema.nested) {
-                this.generateType(subtype);
+                this.generateType(tsIndex, subtype);
             }
         }
     }
 
-    generateProfileType(schema: ProfileTypeSchema) {
+    generateProfileType(tsIndex: TypeSchemaIndex, schema: ProfileTypeSchema) {
         const name = tsResourceName(schema.identifier);
         this.debugComment("identifier", schema.identifier);
         this.debugComment("base", schema.base);
@@ -290,8 +281,8 @@ export class TypeScript extends Writer {
                 } else if (field.enum) {
                     tsType = field.enum.map((e) => `'${e}'`).join(" | ");
                 } else if (field.reference && field.reference.length > 0) {
-                    const specializationId = this.tsIndex.findLastSpecialization(schema.identifier);
-                    const specialization = this.tsIndex.resolve(specializationId);
+                    const specializationId = tsIndex.findLastSpecialization(schema.identifier);
+                    const specialization = tsIndex.resolve(specializationId);
                     if (!isSpecializationTypeSchema(specialization))
                         throw new Error(`Invalid specialization for ${schema.identifier}`);
 
@@ -302,7 +293,7 @@ export class TypeScript extends Writer {
                     const sRefs = (sField.reference ?? []).map((e) => e.name);
                     const references = field.reference
                         .map((ref) => {
-                            const resRef = this.tsIndex.findLastSpecialization(ref);
+                            const resRef = tsIndex.findLastSpecialization(ref);
                             if (resRef.name !== ref.name) {
                                 return `"${resRef.name}" /*${ref.name}*/`;
                             }
@@ -357,7 +348,7 @@ export class TypeScript extends Writer {
         this.line();
     }
 
-    generateExtractProfile(flatProfile: ProfileTypeSchema) {
+    generateExtractProfile(tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) {
         const tsBaseResourceName = tsResourceName(flatProfile.base);
         const tsProfileName = tsResourceName(flatProfile.identifier);
 
@@ -367,7 +358,7 @@ export class TypeScript extends Writer {
             })
             .map(([fieldName]) => fieldName);
 
-        const specialization = this.tsIndex.resolve(this.tsIndex.findLastSpecialization(flatProfile.identifier));
+        const specialization = tsIndex.resolve(tsIndex.findLastSpecialization(flatProfile.identifier));
         if (!isSpecializationTypeSchema(specialization))
             throw new Error(`Specialization not found for ${flatProfile.identifier.url}`);
 
@@ -436,33 +427,33 @@ export class TypeScript extends Writer {
         );
     }
 
-    generateResourceModule(schema: TypeSchema) {
+    generateResourceModule(tsIndex: TypeSchemaIndex, schema: TypeSchema) {
         this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
             this.generateDisclaimer();
             if (["complex-type", "resource", "logical"].includes(schema.identifier.kind)) {
                 this.generateDependenciesImports(schema);
                 this.generateComplexTypeReexports(schema);
-                this.generateNestedTypes(schema);
-                this.generateType(schema);
+                this.generateNestedTypes(tsIndex, schema);
+                this.generateType(tsIndex, schema);
             } else if (isProfileTypeSchema(schema)) {
-                const flatProfile = this.tsIndex.flatProfile(schema);
+                const flatProfile = tsIndex.flatProfile(schema);
                 this.generateDependenciesImports(flatProfile);
-                this.generateProfileType(flatProfile);
+                this.generateProfileType(tsIndex, flatProfile);
                 this.generateAttachProfile(flatProfile);
-                this.generateExtractProfile(flatProfile);
+                this.generateExtractProfile(tsIndex, flatProfile);
             } else throw new Error(`Profile generation not implemented for kind: ${schema.identifier.kind}`);
         });
     }
 
-    override generate(schemas: TypeSchema[]) {
-        this.tsIndex = mkTypeSchemaIndex(schemas);
+    override generate(tsIndex: TypeSchemaIndex) {
         const typesToGenerate = [
-            ...collectComplexTypes(schemas),
-            ...collectResources(schemas),
-            // ...collectLogicalModels(schemas),
-            ...collectProfiles(schemas)
+            ...tsIndex.collectComplexTypes(),
+            ...tsIndex.collectResources(),
+            // ...tsIndex.collectLogicalModels(),
+            ...tsIndex
+                .collectProfiles()
                 // NOTE: because non Resource don't have `meta` field
-                .filter((p) => this.tsIndex.isWithMetaField(p)),
+                .filter((p) => tsIndex.isWithMetaField(p)),
         ];
         const grouped = groupByPackages(typesToGenerate);
 
@@ -471,7 +462,7 @@ export class TypeScript extends Writer {
                 const tsPackageDir = tsFhirPackageDir(packageName);
                 this.cd(tsPackageDir, () => {
                     for (const schema of packageSchemas) {
-                        this.generateResourceModule(schema);
+                        this.generateResourceModule(tsIndex, schema);
                     }
                     this.generateFhirPackageIndexFile(packageSchemas);
                 });

@@ -2,7 +2,10 @@ import {
     type CanonicalUrl,
     type Field,
     type Identifier,
+    isComplexTypeTypeSchema,
+    isLogicalTypeSchema,
     isProfileTypeSchema,
+    isResourceTypeSchema,
     isSpecializationTypeSchema,
     type ProfileTypeSchema,
     type RegularTypeSchema,
@@ -27,17 +30,6 @@ export const groupByPackages = (typeSchemas: TypeSchema[]) => {
     return grouped;
 };
 
-export const collectComplexTypes = (tss: TypeSchema[]): RegularTypeSchema[] =>
-    tss.filter((t) => t.identifier.kind === "complex-type");
-
-export const collectResources = (tss: TypeSchema[]): RegularTypeSchema[] =>
-    tss.filter((t) => t.identifier.kind === "resource");
-
-export const collectLogicalModels = (tss: TypeSchema[]): RegularTypeSchema[] =>
-    tss.filter((t) => t.identifier.kind === "logical");
-
-export const collectProfiles = (tss: TypeSchema[]) => tss.filter(isProfileTypeSchema);
-
 ///////////////////////////////////////////////////////////
 // Type Schema Relations
 
@@ -47,7 +39,7 @@ interface TypeRelation {
 }
 
 const resourceRelatives = (schemas: TypeSchema[]): TypeRelation[] => {
-    const regularSchemas = collectResources(schemas);
+    const regularSchemas = schemas.filter(isResourceTypeSchema);
     const directPairs: TypeRelation[] = [];
 
     for (const schema of regularSchemas) {
@@ -89,8 +81,12 @@ const resourceRelatives = (schemas: TypeSchema[]): TypeRelation[] => {
 
 type PackageName = string;
 export type TypeSchemaIndex = {
-    schemaIndex: Record<CanonicalUrl, Record<PackageName, TypeSchema>>;
-    relations: TypeRelation[];
+    _schemaIndex: Record<CanonicalUrl, Record<PackageName, TypeSchema>>;
+    _relations: TypeRelation[];
+    collectComplexTypes: () => RegularTypeSchema[];
+    collectResources: () => RegularTypeSchema[];
+    collectLogicalModels: () => RegularTypeSchema[];
+    collectProfiles: () => ProfileTypeSchema[];
     resolve: (id: Identifier) => TypeSchema | undefined;
     resourceChildren: (id: Identifier) => Identifier[];
     hierarchy: (schema: TypeSchema) => TypeSchema[];
@@ -195,8 +191,12 @@ export const mkTypeSchemaIndex = (schemas: TypeSchema[]): TypeSchemaIndex => {
     };
 
     return {
-        schemaIndex: index,
-        relations,
+        _schemaIndex: index,
+        _relations: relations,
+        collectComplexTypes: () => schemas.filter(isComplexTypeTypeSchema),
+        collectResources: () => schemas.filter(isResourceTypeSchema),
+        collectLogicalModels: () => schemas.filter(isLogicalTypeSchema),
+        collectProfiles: () => schemas.filter(isProfileTypeSchema),
         resolve,
         resourceChildren,
         hierarchy,

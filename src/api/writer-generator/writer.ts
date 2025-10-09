@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import * as Path from "node:path";
-import type { TypeSchema } from "@root/typeschema";
+import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 
 export interface WriterOptions {
@@ -61,7 +61,7 @@ class FileSystemWriter {
         // this.logger()?.debug(`< ${str.replace(/\n/g, "\\n")}`);
     }
 
-    generate(_schemas: TypeSchema[]) {
+    generate(_tsIndex: TypeSchemaIndex) {
         throw new Error("Not implemented");
     }
 
