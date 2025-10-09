@@ -35,7 +35,7 @@ export interface APIBuilderOptions {
     typeSchemaConfig?: TypeSchemaConfig;
     logger?: CodegenLogger;
     manager?: ReturnType<typeof CanonicalManager> | null;
-    typeSchemaOutputDir?: string;
+    typeSchemaOutputDir?: string | null;
     throwException?: boolean;
 }
 
@@ -54,7 +54,6 @@ export interface GenerationResult {
     errors: string[];
     warnings: string[];
     duration: number;
-    typeSchemaFiles?: string[];
 }
 
 interface Generator {
@@ -118,7 +117,7 @@ export class APIBuilder {
             typeSchemaConfig: options.typeSchemaConfig,
             manager: options.manager || null,
             throwException: options.throwException || false,
-            typeSchemaOutputDir: options.typeSchemaOutputDir || "#NA",
+            typeSchemaOutputDir: options.typeSchemaOutputDir || null,
         };
 
         this.typeSchemaConfig = options.typeSchemaConfig;
@@ -263,11 +262,17 @@ export class APIBuilder {
     }
 
     private async tryWriteTypeSchema(typeSchemas :TypeSchema[]){
-        if(this.options.typeSchemaOutputDir === "#NA") return;
+        if(!this.options.typeSchemaOutputDir) return;
         try{
-            await mkdir(this.options.typeSchemaOutputDir, { recursive: true });
+            if(this.options.cleanOutput)
+                fs.rmSync(this.options.typeSchemaOutputDir, { recursive: true, force: true });
+            await mkdir(this.options.typeSchemaOutputDir, { recursive: true});
+
             let writtenCount = 0;
             let skippedCount = 0;
+
+            this.logger.info(`Writing TypeSchema files to ${this.options.typeSchemaOutputDir}...`);
+
             for(const ts of typeSchemas){
                 const name = ts.identifier.name.toString();
                 const package_name = camelCase(ts.identifier.package.replaceAll('/','-'));
@@ -276,15 +281,15 @@ export class APIBuilder {
                 await mkdir(Path.dirname(filePath), { recursive: true });
 
                 if(existsSync(filePath)) skippedCount++;
-                else {
-                    fs.writeFileSync(filePath, JSON.stringify(ts, null, 2));
-                    writtenCount += 1;
-                }
+                else writtenCount += 1;
+
+                fs.writeFileSync(filePath, JSON.stringify(ts, null, 2));
             }
-            this.logger.info(`Wrote ${writtenCount} TypeSchema files in ${this.options.typeSchemaOutputDir}, skipped ${skippedCount} duplicates`);
+            this.logger.info(`Created ${writtenCount} new TypeSchema files, overrode ${skippedCount} files`);
 
         }catch(error){
-            this.logger.error("Failed to write TypeSchema output", error instanceof Error ? error : new Error(String(error)));
+            if(this.options.throwException) throw error;
+            else this.logger.error("Failed to write TypeSchema output", error instanceof Error ? error : new Error(String(error)));
         }
     }
 
