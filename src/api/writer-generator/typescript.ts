@@ -7,10 +7,13 @@ import {
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
 import type { Identifier, Name, TypeSchema } from "@root/typeschema";
 import {
+    isChoiceDeclarationField,
     isFhirSchemaBased,
     isNestedIdentifier,
     isNotChoiceDeclarationField,
+    isPrimitiveIdentifier,
     isProfileTypeSchema,
+    isResourceTypeSchema,
     isSpecializationTypeSchema,
     type ProfileTypeSchema,
     type RegularField,
@@ -193,16 +196,14 @@ export class TypeScript extends Writer {
             name = tsResourceName(schema.identifier);
         }
 
-        const parent = canonicalToName(schema.base?.url);
-        const extendsClause = parent && `extends ${parent}`;
+        var extendsClause: string | undefined;
+        if (schema.base) extendsClause = `extends ${canonicalToName(schema.base.url)}`;
 
         this.debugComment(schema.identifier);
-
         this.curlyBlock(["export", "interface", name, extendsClause], () => {
-            if (!schema.fields) return;
-
-            if (schema.identifier.kind === "resource") {
-                const possibleResourceTypes: Identifier[] = [schema.identifier];
+            if (!schema.fields) return; // FIXME: move down
+            if (isResourceTypeSchema(schema)) {
+                const possibleResourceTypes = [schema.identifier];
                 possibleResourceTypes.push(...tsIndex.resourceChildren(schema.identifier));
                 this.lineSM(`resourceType: ${possibleResourceTypes.map((e) => `"${e.name}"`).join(" | ")}`);
                 this.line();
@@ -210,40 +211,32 @@ export class TypeScript extends Writer {
 
             const fields = Object.entries(schema.fields).sort((a, b) => a[0].localeCompare(b[0]));
             for (const [fieldName, field] of fields) {
-                if (!isNotChoiceDeclarationField(field)) continue;
+                if (isChoiceDeclarationField(field)) continue;
+                if (field.type === undefined) continue; // FIXME: should be impossible
 
                 this.debugComment(fieldName, ":", field);
 
                 const tsName = tsFieldName(fieldName);
-                const optionalSymbol = field.required ? "" : "?";
-                const arraySymbol = field.array ? "[]" : "";
 
-                if (field.type === undefined) continue;
-
-                let tsType = field.type.name as string;
-
-                if (field.type.kind === "nested") {
-                    tsType = tsResourceName(field.type);
-                }
-
-                if (field.type.kind === "primitive-type") {
-                    tsType = (primitiveType2tsType[field.type.name] ?? "string") as Name;
-                }
-
-                if (schema.identifier.name === "Reference" && tsName === "reference") {
-                    tsType = "`${T}/${string}`";
-                }
-
-                if (field.reference?.length) {
-                    const references = field.reference.map((ref) => `"${ref.name}"`).join(" | ");
-                    tsType = `Reference<${references}>`;
-                }
-
+                let tsType: string;
                 if (field.enum) {
                     tsType = field.enum.map((e) => `"${e}"`).join(" | ");
+                } else if (schema.identifier.name === "Reference" && tsName === "reference") {
+                    tsType = "`${T}/${string}`";
+                } else if (field.reference && field.reference.length > 0) {
+                    const references = field.reference.map((ref) => `"${ref.name}"`).join(" | ");
+                    tsType = `Reference<${references}>`;
+                } else if (isPrimitiveIdentifier(field.type)) {
+                    tsType = (primitiveType2tsType[field.type.name] ?? "string") as Name;
+                } else if (isNestedIdentifier(field.type)) {
+                    tsType = tsResourceName(field.type);
+                } else {
+                    tsType = field.type.name as string;
                 }
 
-                this.lineSM(`${tsName}${optionalSymbol}:`, `${tsType}${arraySymbol}`);
+                const optionalSymbol = field.required ? "" : "?";
+                const arraySymbol = field.array ? "[]" : "";
+                this.lineSM(`${tsName}${optionalSymbol}: ${tsType}${arraySymbol}`);
 
                 if (["resource", "complex-type"].includes(schema.identifier.kind)) {
                     this.addFieldExtension(fieldName, field);

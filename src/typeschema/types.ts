@@ -63,6 +63,10 @@ export type Identifier =
     | ProfileIdentifier
     | LogicalIdentifier;
 
+export const isPrimitiveIdentifier = (id: Identifier | undefined): id is PrimitiveIdentifier => {
+    return id?.kind === "primitive-type";
+};
+
 export const isNestedIdentifier = (id: Identifier | undefined): id is NestedIdentifier => {
     return id?.kind === "nested";
 };
@@ -259,6 +263,11 @@ export type Field = RegularField | ChoiceFieldDeclaration | ChoiceFieldInstance;
 export const isNotChoiceDeclarationField = (field: Field | undefined): field is RegularField | ChoiceFieldInstance => {
     if (!field) return false;
     return (field as ChoiceFieldDeclaration).choices === undefined;
+};
+
+export const isChoiceDeclarationField = (field: Field | undefined): field is ChoiceFieldDeclaration => {
+    if (!field) return false;
+    return (field as ChoiceFieldDeclaration).choices !== undefined;
 };
 
 export type TypeschemaParserOptions = {
