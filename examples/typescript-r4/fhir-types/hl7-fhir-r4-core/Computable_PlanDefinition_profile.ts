@@ -10,7 +10,7 @@ export interface Computable_PlanDefinition {
     library: string[];
 }
 
-export const attach_Computable_PlanDefinition = (resource: PlanDefinition, profile: Computable_PlanDefinition): PlanDefinition => {
+export const attach_Computable_PlanDefinition_to_PlanDefinition = (resource: PlanDefinition, profile: Computable_PlanDefinition): PlanDefinition => {
     return {
         ...resource,
         meta: {
@@ -20,7 +20,7 @@ export const attach_Computable_PlanDefinition = (resource: PlanDefinition, profi
     }
 }
 
-export const extract_PlanDefinition = (resource: PlanDefinition): Computable_PlanDefinition => {
+export const extract_Computable_PlanDefinition_from_PlanDefinition = (resource: PlanDefinition): Computable_PlanDefinition => {
     if (resource.library === undefined) {
         throw new Error("'library' is required for http://hl7.org/fhir/StructureDefinition/computableplandefinition");
     }

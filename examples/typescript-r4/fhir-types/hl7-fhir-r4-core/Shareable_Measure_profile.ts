@@ -25,7 +25,7 @@ export interface Shareable_Measure {
     jurisdiction?: CodeableConcept[];
 }
 
-export const attach_Shareable_Measure = (resource: Measure, profile: Shareable_Measure): Measure => {
+export const attach_Shareable_Measure_to_Measure = (resource: Measure, profile: Shareable_Measure): Measure => {
     return {
         ...resource,
         meta: {
@@ -46,7 +46,7 @@ export const attach_Shareable_Measure = (resource: Measure, profile: Shareable_M
     }
 }
 
-export const extract_Measure = (resource: Measure): Shareable_Measure => {
+export const extract_Shareable_Measure_from_Measure = (resource: Measure): Shareable_Measure => {
     if (resource.url === undefined) {
         throw new Error("'url' is required for http://hl7.org/fhir/StructureDefinition/shareablemeasure");
     }

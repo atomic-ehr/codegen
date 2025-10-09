@@ -15,7 +15,7 @@ export interface CQL_Library {
     dataRequirement?: DataRequirement[];
 }
 
-export const attach_CQL_Library = (resource: Library, profile: CQL_Library): Library => {
+export const attach_CQL_Library_to_Library = (resource: Library, profile: CQL_Library): Library => {
     return {
         ...resource,
         meta: {
@@ -27,7 +27,7 @@ export const attach_CQL_Library = (resource: Library, profile: CQL_Library): Lib
     }
 }
 
-export const extract_Library = (resource: Library): CQL_Library => {
+export const extract_CQL_Library_from_Library = (resource: Library): CQL_Library => {
     return {
         __profileUrl: 'http://hl7.org/fhir/StructureDefinition/cqllibrary',
         type_: resource.type_,

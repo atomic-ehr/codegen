@@ -18,7 +18,7 @@ export interface Provenance_Relevant_History {
     agent: ProvenanceAgent[];
 }
 
-export const attach_Provenance_Relevant_History = (resource: Provenance, profile: Provenance_Relevant_History): Provenance => {
+export const attach_Provenance_Relevant_History_to_Provenance = (resource: Provenance, profile: Provenance_Relevant_History): Provenance => {
     return {
         ...resource,
         meta: {
@@ -32,7 +32,7 @@ export const attach_Provenance_Relevant_History = (resource: Provenance, profile
     }
 }
 
-export const extract_Provenance = (resource: Provenance): Provenance_Relevant_History => {
+export const extract_Provenance_Relevant_History_from_Provenance = (resource: Provenance): Provenance_Relevant_History => {
     if (resource.activity === undefined) {
         throw new Error("'activity' is required for http://hl7.org/fhir/StructureDefinition/provenance-relevant-history");
     }

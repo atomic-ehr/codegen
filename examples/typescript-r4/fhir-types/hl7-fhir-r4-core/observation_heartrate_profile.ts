@@ -26,7 +26,7 @@ export interface observation_heartrate {
     valueQuantity?: Quantity;
 }
 
-export const attach_observation_heartrate = (resource: Observation, profile: observation_heartrate): Observation => {
+export const attach_observation_heartrate_to_Observation = (resource: Observation, profile: observation_heartrate): Observation => {
     return {
         ...resource,
         meta: {
@@ -46,14 +46,14 @@ export const attach_observation_heartrate = (resource: Observation, profile: obs
     }
 }
 
-export const extract_Observation = (resource: Observation): observation_heartrate => {
+export const extract_observation_heartrate_from_Observation = (resource: Observation): observation_heartrate => {
     if (resource.category === undefined) {
         throw new Error("'category' is required for http://hl7.org/fhir/StructureDefinition/heartrate");
     }
     if (resource.subject === undefined) {
         throw new Error("'subject' is required for http://hl7.org/fhir/StructureDefinition/heartrate");
     }
-    const reference_pred_subject = (ref?: Reference) => {
+    const reference_is_valid_subject = (ref?: Reference) => {
         return !ref
             || ref.reference?.startsWith('Device/')
             || ref.reference?.startsWith('Group/')
@@ -61,7 +61,7 @@ export const extract_Observation = (resource: Observation): observation_heartrat
             || ref.reference?.startsWith('Patient/')
             ;
     }
-    if ( reference_pred_subject(resource.subject) ) {
+    if ( !reference_is_valid_subject(resource.subject) ) {
         throw new Error("'subject' has different references in profile and specialization");
     }
 

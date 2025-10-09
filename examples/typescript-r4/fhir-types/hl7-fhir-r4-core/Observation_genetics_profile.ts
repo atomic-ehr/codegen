@@ -11,7 +11,7 @@ export interface Observation_genetics {
     extension?: Extension[];
 }
 
-export const attach_Observation_genetics = (resource: Observation, profile: Observation_genetics): Observation => {
+export const attach_Observation_genetics_to_Observation = (resource: Observation, profile: Observation_genetics): Observation => {
     return {
         ...resource,
         meta: {
@@ -21,7 +21,7 @@ export const attach_Observation_genetics = (resource: Observation, profile: Obse
     }
 }
 
-export const extract_Observation = (resource: Observation): Observation_genetics => {
+export const extract_Observation_genetics_from_Observation = (resource: Observation): Observation_genetics => {
     return {
         __profileUrl: 'http://hl7.org/fhir/StructureDefinition/observation-genetics',
         extension: resource.extension,

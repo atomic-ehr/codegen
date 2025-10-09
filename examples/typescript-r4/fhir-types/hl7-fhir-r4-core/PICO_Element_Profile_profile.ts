@@ -30,7 +30,7 @@ export interface PICO_Element_Profile {
     characteristic: EvidenceVariableCharacteristic[];
 }
 
-export const attach_PICO_Element_Profile = (resource: EvidenceVariable, profile: PICO_Element_Profile): EvidenceVariable => {
+export const attach_PICO_Element_Profile_to_EvidenceVariable = (resource: EvidenceVariable, profile: PICO_Element_Profile): EvidenceVariable => {
     return {
         ...resource,
         meta: {
@@ -47,7 +47,7 @@ export const attach_PICO_Element_Profile = (resource: EvidenceVariable, profile:
     }
 }
 
-export const extract_EvidenceVariable = (resource: EvidenceVariable): PICO_Element_Profile => {
+export const extract_PICO_Element_Profile_from_EvidenceVariable = (resource: EvidenceVariable): PICO_Element_Profile => {
     return {
         __profileUrl: 'http://hl7.org/fhir/StructureDefinition/picoelement',
         identifier: resource.identifier,

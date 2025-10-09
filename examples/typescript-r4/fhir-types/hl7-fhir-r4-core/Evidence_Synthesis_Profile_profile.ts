@@ -36,7 +36,7 @@ export interface Evidence_Synthesis_Profile {
     outcome: Reference<'EvidenceVariable'>[];
 }
 
-export const attach_Evidence_Synthesis_Profile = (resource: Evidence, profile: Evidence_Synthesis_Profile): Evidence => {
+export const attach_Evidence_Synthesis_Profile_to_Evidence = (resource: Evidence, profile: Evidence_Synthesis_Profile): Evidence => {
     return {
         ...resource,
         meta: {
@@ -67,7 +67,7 @@ export const attach_Evidence_Synthesis_Profile = (resource: Evidence, profile: E
     }
 }
 
-export const extract_Evidence = (resource: Evidence): Evidence_Synthesis_Profile => {
+export const extract_Evidence_Synthesis_Profile_from_Evidence = (resource: Evidence): Evidence_Synthesis_Profile => {
     if (resource.exposureVariant === undefined) {
         throw new Error("'exposureVariant' is required for http://hl7.org/fhir/StructureDefinition/synthesis");
     }

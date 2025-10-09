@@ -13,7 +13,7 @@ export interface DiagnosticReport_Genetics {
     conclusionCode?: CodeableConcept[];
 }
 
-export const attach_DiagnosticReport_Genetics = (resource: DiagnosticReport, profile: DiagnosticReport_Genetics): DiagnosticReport => {
+export const attach_DiagnosticReport_Genetics_to_DiagnosticReport = (resource: DiagnosticReport, profile: DiagnosticReport_Genetics): DiagnosticReport => {
     return {
         ...resource,
         meta: {
@@ -24,7 +24,7 @@ export const attach_DiagnosticReport_Genetics = (resource: DiagnosticReport, pro
     }
 }
 
-export const extract_DiagnosticReport = (resource: DiagnosticReport): DiagnosticReport_Genetics => {
+export const extract_DiagnosticReport_Genetics_from_DiagnosticReport = (resource: DiagnosticReport): DiagnosticReport_Genetics => {
     return {
         __profileUrl: 'http://hl7.org/fhir/StructureDefinition/diagnosticreport-genetics',
         extension: resource.extension,

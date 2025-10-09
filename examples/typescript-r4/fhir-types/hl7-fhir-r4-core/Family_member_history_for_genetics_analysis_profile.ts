@@ -30,7 +30,7 @@ export interface Family_member_history_for_genetics_analysis {
     condition?: FamilyMemberHistoryCondition[];
 }
 
-export const attach_Family_member_history_for_genetics_analysis = (resource: FamilyMemberHistory, profile: Family_member_history_for_genetics_analysis): FamilyMemberHistory => {
+export const attach_Family_member_history_for_genetics_analysis_to_FamilyMemberHistory = (resource: FamilyMemberHistory, profile: Family_member_history_for_genetics_analysis): FamilyMemberHistory => {
     return {
         ...resource,
         meta: {
@@ -54,7 +54,7 @@ export const attach_Family_member_history_for_genetics_analysis = (resource: Fam
     }
 }
 
-export const extract_FamilyMemberHistory = (resource: FamilyMemberHistory): Family_member_history_for_genetics_analysis => {
+export const extract_Family_member_history_for_genetics_analysis_from_FamilyMemberHistory = (resource: FamilyMemberHistory): Family_member_history_for_genetics_analysis => {
     return {
         __profileUrl: 'http://hl7.org/fhir/StructureDefinition/familymemberhistory-genetic',
         extension: resource.extension,

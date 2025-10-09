@@ -25,7 +25,7 @@ export interface Shareable_Library {
     jurisdiction?: CodeableConcept[];
 }
 
-export const attach_Shareable_Library = (resource: Library, profile: Shareable_Library): Library => {
+export const attach_Shareable_Library_to_Library = (resource: Library, profile: Shareable_Library): Library => {
     return {
         ...resource,
         meta: {
@@ -46,7 +46,7 @@ export const attach_Shareable_Library = (resource: Library, profile: Shareable_L
     }
 }
 
-export const extract_Library = (resource: Library): Shareable_Library => {
+export const extract_Shareable_Library_from_Library = (resource: Library): Shareable_Library => {
     if (resource.url === undefined) {
         throw new Error("'url' is required for http://hl7.org/fhir/StructureDefinition/shareablelibrary");
     }

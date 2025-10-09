@@ -11,7 +11,7 @@ export interface DocumentSectionLibrary {
     section?: CompositionSection[];
 }
 
-export const attach_DocumentSectionLibrary = (resource: Composition, profile: DocumentSectionLibrary): Composition => {
+export const attach_DocumentSectionLibrary_to_Composition = (resource: Composition, profile: DocumentSectionLibrary): Composition => {
     return {
         ...resource,
         meta: {
@@ -21,7 +21,7 @@ export const attach_DocumentSectionLibrary = (resource: Composition, profile: Do
     }
 }
 
-export const extract_Composition = (resource: Composition): DocumentSectionLibrary => {
+export const extract_DocumentSectionLibrary_from_Composition = (resource: Composition): DocumentSectionLibrary => {
     return {
         __profileUrl: 'http://hl7.org/fhir/StructureDefinition/example-section-library',
         section: resource.section,

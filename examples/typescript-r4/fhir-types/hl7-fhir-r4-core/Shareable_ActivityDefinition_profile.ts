@@ -25,7 +25,7 @@ export interface Shareable_ActivityDefinition {
     jurisdiction?: CodeableConcept[];
 }
 
-export const attach_Shareable_ActivityDefinition = (resource: ActivityDefinition, profile: Shareable_ActivityDefinition): ActivityDefinition => {
+export const attach_Shareable_ActivityDefinition_to_ActivityDefinition = (resource: ActivityDefinition, profile: Shareable_ActivityDefinition): ActivityDefinition => {
     return {
         ...resource,
         meta: {
@@ -46,7 +46,7 @@ export const attach_Shareable_ActivityDefinition = (resource: ActivityDefinition
     }
 }
 
-export const extract_ActivityDefinition = (resource: ActivityDefinition): Shareable_ActivityDefinition => {
+export const extract_Shareable_ActivityDefinition_from_ActivityDefinition = (resource: ActivityDefinition): Shareable_ActivityDefinition => {
     if (resource.url === undefined) {
         throw new Error("'url' is required for http://hl7.org/fhir/StructureDefinition/shareableactivitydefinition");
     }

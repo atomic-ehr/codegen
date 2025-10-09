@@ -11,7 +11,7 @@ export interface CQF_Questionnaire {
     extension?: Extension[];
 }
 
-export const attach_CQF_Questionnaire = (resource: Questionnaire, profile: CQF_Questionnaire): Questionnaire => {
+export const attach_CQF_Questionnaire_to_Questionnaire = (resource: Questionnaire, profile: CQF_Questionnaire): Questionnaire => {
     return {
         ...resource,
         meta: {
@@ -21,7 +21,7 @@ export const attach_CQF_Questionnaire = (resource: Questionnaire, profile: CQF_Q
     }
 }
 
-export const extract_Questionnaire = (resource: Questionnaire): CQF_Questionnaire => {
+export const extract_CQF_Questionnaire_from_Questionnaire = (resource: Questionnaire): CQF_Questionnaire => {
     return {
         __profileUrl: 'http://hl7.org/fhir/StructureDefinition/cqf-questionnaire',
         extension: resource.extension,

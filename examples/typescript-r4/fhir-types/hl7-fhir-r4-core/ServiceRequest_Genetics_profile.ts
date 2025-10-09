@@ -11,7 +11,7 @@ export interface ServiceRequest_Genetics {
     extension?: Extension[];
 }
 
-export const attach_ServiceRequest_Genetics = (resource: ServiceRequest, profile: ServiceRequest_Genetics): ServiceRequest => {
+export const attach_ServiceRequest_Genetics_to_ServiceRequest = (resource: ServiceRequest, profile: ServiceRequest_Genetics): ServiceRequest => {
     return {
         ...resource,
         meta: {
@@ -21,7 +21,7 @@ export const attach_ServiceRequest_Genetics = (resource: ServiceRequest, profile
     }
 }
 
-export const extract_ServiceRequest = (resource: ServiceRequest): ServiceRequest_Genetics => {
+export const extract_ServiceRequest_Genetics_from_ServiceRequest = (resource: ServiceRequest): ServiceRequest_Genetics => {
     return {
         __profileUrl: 'http://hl7.org/fhir/StructureDefinition/servicerequest-genetics',
         extension: resource.extension,

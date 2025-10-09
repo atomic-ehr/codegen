@@ -26,7 +26,7 @@ export interface observation_bodyweight {
     valueQuantity?: Quantity;
 }
 
-export const attach_observation_bodyweight = (resource: Observation, profile: observation_bodyweight): Observation => {
+export const attach_observation_bodyweight_to_Observation = (resource: Observation, profile: observation_bodyweight): Observation => {
     return {
         ...resource,
         meta: {
@@ -46,14 +46,14 @@ export const attach_observation_bodyweight = (resource: Observation, profile: ob
     }
 }
 
-export const extract_Observation = (resource: Observation): observation_bodyweight => {
+export const extract_observation_bodyweight_from_Observation = (resource: Observation): observation_bodyweight => {
     if (resource.category === undefined) {
         throw new Error("'category' is required for http://hl7.org/fhir/StructureDefinition/bodyweight");
     }
     if (resource.subject === undefined) {
         throw new Error("'subject' is required for http://hl7.org/fhir/StructureDefinition/bodyweight");
     }
-    const reference_pred_subject = (ref?: Reference) => {
+    const reference_is_valid_subject = (ref?: Reference) => {
         return !ref
             || ref.reference?.startsWith('Device/')
             || ref.reference?.startsWith('Group/')
@@ -61,7 +61,7 @@ export const extract_Observation = (resource: Observation): observation_bodyweig
             || ref.reference?.startsWith('Patient/')
             ;
     }
-    if ( reference_pred_subject(resource.subject) ) {
+    if ( !reference_is_valid_subject(resource.subject) ) {
         throw new Error("'subject' has different references in profile and specialization");
     }
 

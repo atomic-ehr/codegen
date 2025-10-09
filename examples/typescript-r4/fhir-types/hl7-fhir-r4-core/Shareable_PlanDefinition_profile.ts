@@ -25,7 +25,7 @@ export interface Shareable_PlanDefinition {
     jurisdiction?: CodeableConcept[];
 }
 
-export const attach_Shareable_PlanDefinition = (resource: PlanDefinition, profile: Shareable_PlanDefinition): PlanDefinition => {
+export const attach_Shareable_PlanDefinition_to_PlanDefinition = (resource: PlanDefinition, profile: Shareable_PlanDefinition): PlanDefinition => {
     return {
         ...resource,
         meta: {
@@ -46,7 +46,7 @@ export const attach_Shareable_PlanDefinition = (resource: PlanDefinition, profil
     }
 }
 
-export const extract_PlanDefinition = (resource: PlanDefinition): Shareable_PlanDefinition => {
+export const extract_Shareable_PlanDefinition_from_PlanDefinition = (resource: PlanDefinition): Shareable_PlanDefinition => {
     if (resource.url === undefined) {
         throw new Error("'url' is required for http://hl7.org/fhir/StructureDefinition/shareableplandefinition");
     }

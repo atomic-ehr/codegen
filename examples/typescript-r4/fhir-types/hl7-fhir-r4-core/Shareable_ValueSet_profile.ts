@@ -16,7 +16,7 @@ export interface Shareable_ValueSet {
     description: string;
 }
 
-export const attach_Shareable_ValueSet = (resource: ValueSet, profile: Shareable_ValueSet): ValueSet => {
+export const attach_Shareable_ValueSet_to_ValueSet = (resource: ValueSet, profile: Shareable_ValueSet): ValueSet => {
     return {
         ...resource,
         meta: {
@@ -32,7 +32,7 @@ export const attach_Shareable_ValueSet = (resource: ValueSet, profile: Shareable
     }
 }
 
-export const extract_ValueSet = (resource: ValueSet): Shareable_ValueSet => {
+export const extract_Shareable_ValueSet_from_ValueSet = (resource: ValueSet): Shareable_ValueSet => {
     if (resource.url === undefined) {
         throw new Error("'url' is required for http://hl7.org/fhir/StructureDefinition/shareablevalueset");
     }

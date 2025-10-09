@@ -20,7 +20,7 @@ export interface Profile_for_Catalog {
     section?: CompositionSection[];
 }
 
-export const attach_Profile_for_Catalog = (resource: Composition, profile: Profile_for_Catalog): Composition => {
+export const attach_Profile_for_Catalog_to_Composition = (resource: Composition, profile: Profile_for_Catalog): Composition => {
     return {
         ...resource,
         meta: {
@@ -35,7 +35,7 @@ export const attach_Profile_for_Catalog = (resource: Composition, profile: Profi
     }
 }
 
-export const extract_Composition = (resource: Composition): Profile_for_Catalog => {
+export const extract_Profile_for_Catalog_from_Composition = (resource: Composition): Profile_for_Catalog => {
     if (resource.category === undefined) {
         throw new Error("'category' is required for http://hl7.org/fhir/StructureDefinition/catalog");
     }

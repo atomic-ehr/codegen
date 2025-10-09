@@ -26,7 +26,7 @@ export interface observation_bmi {
     valueQuantity: Quantity;
 }
 
-export const attach_observation_bmi = (resource: Observation, profile: observation_bmi): Observation => {
+export const attach_observation_bmi_to_Observation = (resource: Observation, profile: observation_bmi): Observation => {
     return {
         ...resource,
         meta: {
@@ -46,14 +46,14 @@ export const attach_observation_bmi = (resource: Observation, profile: observati
     }
 }
 
-export const extract_Observation = (resource: Observation): observation_bmi => {
+export const extract_observation_bmi_from_Observation = (resource: Observation): observation_bmi => {
     if (resource.category === undefined) {
         throw new Error("'category' is required for http://hl7.org/fhir/StructureDefinition/bmi");
     }
     if (resource.subject === undefined) {
         throw new Error("'subject' is required for http://hl7.org/fhir/StructureDefinition/bmi");
     }
-    const reference_pred_subject = (ref?: Reference) => {
+    const reference_is_valid_subject = (ref?: Reference) => {
         return !ref
             || ref.reference?.startsWith('Device/')
             || ref.reference?.startsWith('Group/')
@@ -61,7 +61,7 @@ export const extract_Observation = (resource: Observation): observation_bmi => {
             || ref.reference?.startsWith('Patient/')
             ;
     }
-    if ( reference_pred_subject(resource.subject) ) {
+    if ( !reference_is_valid_subject(resource.subject) ) {
         throw new Error("'subject' has different references in profile and specialization");
     }
 

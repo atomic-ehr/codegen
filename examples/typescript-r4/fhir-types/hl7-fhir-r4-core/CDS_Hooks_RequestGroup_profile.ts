@@ -20,7 +20,7 @@ export interface CDS_Hooks_RequestGroup {
     action?: RequestGroupAction[];
 }
 
-export const attach_CDS_Hooks_RequestGroup = (resource: RequestGroup, profile: CDS_Hooks_RequestGroup): RequestGroup => {
+export const attach_CDS_Hooks_RequestGroup_to_RequestGroup = (resource: RequestGroup, profile: CDS_Hooks_RequestGroup): RequestGroup => {
     return {
         ...resource,
         meta: {
@@ -36,7 +36,7 @@ export const attach_CDS_Hooks_RequestGroup = (resource: RequestGroup, profile: C
     }
 }
 
-export const extract_RequestGroup = (resource: RequestGroup): CDS_Hooks_RequestGroup => {
+export const extract_CDS_Hooks_RequestGroup_from_RequestGroup = (resource: RequestGroup): CDS_Hooks_RequestGroup => {
     if (resource.identifier === undefined) {
         throw new Error("'identifier' is required for http://hl7.org/fhir/StructureDefinition/cdshooksrequestgroup");
     }

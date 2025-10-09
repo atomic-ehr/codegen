@@ -13,7 +13,7 @@ export interface Clinical_Document {
     subject?: Reference<"Resource" /* 'Device' | 'Group' | 'Location' | 'Patient' | 'Practitioner' */ >;
 }
 
-export const attach_Clinical_Document = (resource: Composition, profile: Clinical_Document): Composition => {
+export const attach_Clinical_Document_to_Composition = (resource: Composition, profile: Clinical_Document): Composition => {
     return {
         ...resource,
         meta: {
@@ -24,13 +24,13 @@ export const attach_Clinical_Document = (resource: Composition, profile: Clinica
     }
 }
 
-export const extract_Composition = (resource: Composition): Clinical_Document => {
-    const reference_pred_subject = (ref?: Reference) => {
+export const extract_Clinical_Document_from_Composition = (resource: Composition): Clinical_Document => {
+    const reference_is_valid_subject = (ref?: Reference) => {
         return !ref
             || ref.reference?.startsWith('Resource/')
             ;
     }
-    if ( !resource.subject || reference_pred_subject(resource.subject) ) {
+    if ( !resource.subject || !reference_is_valid_subject(resource.subject) ) {
         throw new Error("'subject' has different references in profile and specialization");
     }
 

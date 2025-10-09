@@ -20,7 +20,7 @@ export interface CDS_Hooks_GuidanceResponse {
     result?: Reference<'CarePlan' | 'RequestGroup'>;
 }
 
-export const attach_CDS_Hooks_GuidanceResponse = (resource: GuidanceResponse, profile: CDS_Hooks_GuidanceResponse): GuidanceResponse => {
+export const attach_CDS_Hooks_GuidanceResponse_to_GuidanceResponse = (resource: GuidanceResponse, profile: CDS_Hooks_GuidanceResponse): GuidanceResponse => {
     return {
         ...resource,
         meta: {
@@ -37,7 +37,7 @@ export const attach_CDS_Hooks_GuidanceResponse = (resource: GuidanceResponse, pr
     }
 }
 
-export const extract_GuidanceResponse = (resource: GuidanceResponse): CDS_Hooks_GuidanceResponse => {
+export const extract_CDS_Hooks_GuidanceResponse_from_GuidanceResponse = (resource: GuidanceResponse): CDS_Hooks_GuidanceResponse => {
     if (resource.requestIdentifier === undefined) {
         throw new Error("'requestIdentifier' is required for http://hl7.org/fhir/StructureDefinition/cdshooksguidanceresponse");
     }

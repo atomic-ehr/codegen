@@ -20,7 +20,7 @@ export interface Shareable_CodeSystem {
     concept: CodeSystemConcept[];
 }
 
-export const attach_Shareable_CodeSystem = (resource: CodeSystem, profile: Shareable_CodeSystem): CodeSystem => {
+export const attach_Shareable_CodeSystem_to_CodeSystem = (resource: CodeSystem, profile: Shareable_CodeSystem): CodeSystem => {
     return {
         ...resource,
         meta: {
@@ -38,7 +38,7 @@ export const attach_Shareable_CodeSystem = (resource: CodeSystem, profile: Share
     }
 }
 
-export const extract_CodeSystem = (resource: CodeSystem): Shareable_CodeSystem => {
+export const extract_Shareable_CodeSystem_from_CodeSystem = (resource: CodeSystem): Shareable_CodeSystem => {
     if (resource.url === undefined) {
         throw new Error("'url' is required for http://hl7.org/fhir/StructureDefinition/shareablecodesystem");
     }

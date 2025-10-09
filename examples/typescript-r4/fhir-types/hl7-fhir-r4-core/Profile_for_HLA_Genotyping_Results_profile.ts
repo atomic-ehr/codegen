@@ -11,7 +11,7 @@ export interface Profile_for_HLA_Genotyping_Results {
     extension?: Extension[];
 }
 
-export const attach_Profile_for_HLA_Genotyping_Results = (resource: DiagnosticReport, profile: Profile_for_HLA_Genotyping_Results): DiagnosticReport => {
+export const attach_Profile_for_HLA_Genotyping_Results_to_DiagnosticReport = (resource: DiagnosticReport, profile: Profile_for_HLA_Genotyping_Results): DiagnosticReport => {
     return {
         ...resource,
         meta: {
@@ -21,7 +21,7 @@ export const attach_Profile_for_HLA_Genotyping_Results = (resource: DiagnosticRe
     }
 }
 
-export const extract_DiagnosticReport = (resource: DiagnosticReport): Profile_for_HLA_Genotyping_Results => {
+export const extract_Profile_for_HLA_Genotyping_Results_from_DiagnosticReport = (resource: DiagnosticReport): Profile_for_HLA_Genotyping_Results => {
     return {
         __profileUrl: 'http://hl7.org/fhir/StructureDefinition/hlaresult',
         extension: resource.extension,

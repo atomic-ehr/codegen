@@ -12,7 +12,7 @@ export interface Actual_Group {
     characteristic?: GroupCharacteristic[];
 }
 
-export const attach_Actual_Group = (resource: Group, profile: Actual_Group): Group => {
+export const attach_Actual_Group_to_Group = (resource: Group, profile: Actual_Group): Group => {
     return {
         ...resource,
         meta: {
@@ -23,7 +23,7 @@ export const attach_Actual_Group = (resource: Group, profile: Actual_Group): Gro
     }
 }
 
-export const extract_Group = (resource: Group): Actual_Group => {
+export const extract_Actual_Group_from_Group = (resource: Group): Actual_Group => {
     return {
         __profileUrl: 'http://hl7.org/fhir/StructureDefinition/actualgroup',
         actual: resource.actual,

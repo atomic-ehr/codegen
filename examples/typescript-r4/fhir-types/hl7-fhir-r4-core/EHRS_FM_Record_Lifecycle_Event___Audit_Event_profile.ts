@@ -24,7 +24,7 @@ export interface EHRS_FM_Record_Lifecycle_Event___Audit_Event {
     entity?: AuditEventEntity[];
 }
 
-export const attach_EHRS_FM_Record_Lifecycle_Event___Audit_Event = (resource: AuditEvent, profile: EHRS_FM_Record_Lifecycle_Event___Audit_Event): AuditEvent => {
+export const attach_EHRS_FM_Record_Lifecycle_Event___Audit_Event_to_AuditEvent = (resource: AuditEvent, profile: EHRS_FM_Record_Lifecycle_Event___Audit_Event): AuditEvent => {
     return {
         ...resource,
         meta: {
@@ -41,7 +41,7 @@ export const attach_EHRS_FM_Record_Lifecycle_Event___Audit_Event = (resource: Au
     }
 }
 
-export const extract_AuditEvent = (resource: AuditEvent): EHRS_FM_Record_Lifecycle_Event___Audit_Event => {
+export const extract_EHRS_FM_Record_Lifecycle_Event___Audit_Event_from_AuditEvent = (resource: AuditEvent): EHRS_FM_Record_Lifecycle_Event___Audit_Event => {
     return {
         __profileUrl: 'http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent',
         type_: resource.type_,

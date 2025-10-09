@@ -22,7 +22,7 @@ export interface EHRS_FM_Record_Lifecycle_Event___Provenance {
     signature?: Signature[];
 }
 
-export const attach_EHRS_FM_Record_Lifecycle_Event___Provenance = (resource: Provenance, profile: EHRS_FM_Record_Lifecycle_Event___Provenance): Provenance => {
+export const attach_EHRS_FM_Record_Lifecycle_Event___Provenance_to_Provenance = (resource: Provenance, profile: EHRS_FM_Record_Lifecycle_Event___Provenance): Provenance => {
     return {
         ...resource,
         meta: {
@@ -39,7 +39,7 @@ export const attach_EHRS_FM_Record_Lifecycle_Event___Provenance = (resource: Pro
     }
 }
 
-export const extract_Provenance = (resource: Provenance): EHRS_FM_Record_Lifecycle_Event___Provenance => {
+export const extract_EHRS_FM_Record_Lifecycle_Event___Provenance_from_Provenance = (resource: Provenance): EHRS_FM_Record_Lifecycle_Event___Provenance => {
     return {
         __profileUrl: 'http://hl7.org/fhir/StructureDefinition/ehrsrle-provenance',
         target: resource.target,

@@ -14,7 +14,7 @@ export interface CDS_Hooks_Service_PlanDefinition {
     action?: PlanDefinitionAction[];
 }
 
-export const attach_CDS_Hooks_Service_PlanDefinition = (resource: PlanDefinition, profile: CDS_Hooks_Service_PlanDefinition): PlanDefinition => {
+export const attach_CDS_Hooks_Service_PlanDefinition_to_PlanDefinition = (resource: PlanDefinition, profile: CDS_Hooks_Service_PlanDefinition): PlanDefinition => {
     return {
         ...resource,
         meta: {
@@ -25,7 +25,7 @@ export const attach_CDS_Hooks_Service_PlanDefinition = (resource: PlanDefinition
     }
 }
 
-export const extract_PlanDefinition = (resource: PlanDefinition): CDS_Hooks_Service_PlanDefinition => {
+export const extract_CDS_Hooks_Service_PlanDefinition_from_PlanDefinition = (resource: PlanDefinition): CDS_Hooks_Service_PlanDefinition => {
     return {
         __profileUrl: 'http://hl7.org/fhir/StructureDefinition/cdshooksserviceplandefinition',
         extension: resource.extension,

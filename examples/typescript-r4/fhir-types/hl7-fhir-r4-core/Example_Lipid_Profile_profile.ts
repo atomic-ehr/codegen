@@ -23,7 +23,7 @@ export interface Example_Lipid_Profile {
     derivedFrom?: Reference<'DocumentReference' | 'ImagingStudy' | 'Media' | 'MolecularSequence' | 'Observation' | 'QuestionnaireResponse'>[];
 }
 
-export const attach_Example_Lipid_Profile = (resource: Observation, profile: Example_Lipid_Profile): Observation => {
+export const attach_Example_Lipid_Profile_to_Observation = (resource: Observation, profile: Example_Lipid_Profile): Observation => {
     return {
         ...resource,
         meta: {
@@ -39,7 +39,7 @@ export const attach_Example_Lipid_Profile = (resource: Observation, profile: Exa
     }
 }
 
-export const extract_Observation = (resource: Observation): Example_Lipid_Profile => {
+export const extract_Example_Lipid_Profile_from_Observation = (resource: Observation): Example_Lipid_Profile => {
     if (resource.referenceRange === undefined) {
         throw new Error("'referenceRange' is required for http://hl7.org/fhir/StructureDefinition/triglyceride");
     }

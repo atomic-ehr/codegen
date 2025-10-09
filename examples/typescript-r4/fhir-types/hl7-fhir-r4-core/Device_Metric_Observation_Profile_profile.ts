@@ -45,7 +45,7 @@ export interface Device_Metric_Observation_Profile {
     derivedFrom?: Reference<'Observation'>[];
 }
 
-export const attach_Device_Metric_Observation_Profile = (resource: Observation, profile: Device_Metric_Observation_Profile): Observation => {
+export const attach_Device_Metric_Observation_Profile_to_Observation = (resource: Observation, profile: Device_Metric_Observation_Profile): Observation => {
     return {
         ...resource,
         meta: {
@@ -80,11 +80,11 @@ export const attach_Device_Metric_Observation_Profile = (resource: Observation, 
     }
 }
 
-export const extract_Observation = (resource: Observation): Device_Metric_Observation_Profile => {
+export const extract_Device_Metric_Observation_Profile_from_Observation = (resource: Observation): Device_Metric_Observation_Profile => {
     if (resource.subject === undefined) {
         throw new Error("'subject' is required for http://hl7.org/fhir/StructureDefinition/devicemetricobservation");
     }
-    const reference_pred_subject = (ref?: Reference) => {
+    const reference_is_valid_subject = (ref?: Reference) => {
         return !ref
             || ref.reference?.startsWith('Device/')
             || ref.reference?.startsWith('Group/')
@@ -92,7 +92,7 @@ export const extract_Observation = (resource: Observation): Device_Metric_Observ
             || ref.reference?.startsWith('Patient/')
             ;
     }
-    if ( reference_pred_subject(resource.subject) ) {
+    if ( !reference_is_valid_subject(resource.subject) ) {
         throw new Error("'subject' has different references in profile and specialization");
     }
 
@@ -102,28 +102,28 @@ export const extract_Observation = (resource: Observation): Device_Metric_Observ
     if (resource.device === undefined) {
         throw new Error("'device' is required for http://hl7.org/fhir/StructureDefinition/devicemetricobservation");
     }
-    const reference_pred_device = (ref?: Reference) => {
+    const reference_is_valid_device = (ref?: Reference) => {
         return !ref
             || ref.reference?.startsWith('Device/')
             || ref.reference?.startsWith('DeviceMetric/')
             ;
     }
-    if ( reference_pred_device(resource.device) ) {
+    if ( !reference_is_valid_device(resource.device) ) {
         throw new Error("'device' has different references in profile and specialization");
     }
 
-    const reference_pred_hasMember = (ref?: Reference) => {
+    const reference_is_valid_hasMember = (ref?: Reference) => {
         return !ref
             || ref.reference?.startsWith('MolecularSequence/')
             || ref.reference?.startsWith('Observation/')
             || ref.reference?.startsWith('QuestionnaireResponse/')
             ;
     }
-    if ( !resource.hasMember || resource.hasMember.every( (ref) => reference_pred_hasMember(ref) ) ) {
+    if ( !resource.hasMember || resource.hasMember.every( (ref) => reference_is_valid_hasMember(ref) ) ) {
         throw new Error("'hasMember' has different references in profile and specialization");
     }
 
-    const reference_pred_derivedFrom = (ref?: Reference) => {
+    const reference_is_valid_derivedFrom = (ref?: Reference) => {
         return !ref
             || ref.reference?.startsWith('DocumentReference/')
             || ref.reference?.startsWith('ImagingStudy/')
@@ -133,7 +133,7 @@ export const extract_Observation = (resource: Observation): Device_Metric_Observ
             || ref.reference?.startsWith('QuestionnaireResponse/')
             ;
     }
-    if ( !resource.derivedFrom || resource.derivedFrom.every( (ref) => reference_pred_derivedFrom(ref) ) ) {
+    if ( !resource.derivedFrom || resource.derivedFrom.every( (ref) => reference_is_valid_derivedFrom(ref) ) ) {
         throw new Error("'derivedFrom' has different references in profile and specialization");
     }
 

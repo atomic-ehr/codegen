@@ -12,7 +12,7 @@ export interface Group_Definition {
     member?: GroupMember[];
 }
 
-export const attach_Group_Definition = (resource: Group, profile: Group_Definition): Group => {
+export const attach_Group_Definition_to_Group = (resource: Group, profile: Group_Definition): Group => {
     return {
         ...resource,
         meta: {
@@ -23,7 +23,7 @@ export const attach_Group_Definition = (resource: Group, profile: Group_Definiti
     }
 }
 
-export const extract_Group = (resource: Group): Group_Definition => {
+export const extract_Group_Definition_from_Group = (resource: Group): Group_Definition => {
     return {
         __profileUrl: 'http://hl7.org/fhir/StructureDefinition/groupdefinition',
         actual: resource.actual,

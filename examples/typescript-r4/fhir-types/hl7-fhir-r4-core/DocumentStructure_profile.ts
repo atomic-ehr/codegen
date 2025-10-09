@@ -11,7 +11,7 @@ export interface DocumentStructure {
     section?: CompositionSection[];
 }
 
-export const attach_DocumentStructure = (resource: Composition, profile: DocumentStructure): Composition => {
+export const attach_DocumentStructure_to_Composition = (resource: Composition, profile: DocumentStructure): Composition => {
     return {
         ...resource,
         meta: {
@@ -21,7 +21,7 @@ export const attach_DocumentStructure = (resource: Composition, profile: Documen
     }
 }
 
-export const extract_Composition = (resource: Composition): DocumentStructure => {
+export const extract_DocumentStructure_from_Composition = (resource: Composition): DocumentStructure => {
     return {
         __profileUrl: 'http://hl7.org/fhir/StructureDefinition/example-composition',
         section: resource.section,
