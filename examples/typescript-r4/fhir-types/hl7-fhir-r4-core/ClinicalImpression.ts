@@ -22,10 +22,13 @@ export interface ClinicalImpressionFinding extends BackboneElement {
     itemCodeableConcept?: CodeableConcept;
     itemReference?: Reference<"Condition" | "Media" | "Observation">;
 }
+
 export interface ClinicalImpressionInvestigation extends BackboneElement {
     code: CodeableConcept;
     item?: Reference<"DiagnosticReport" | "FamilyMemberHistory" | "ImagingStudy" | "Media" | "Observation" | "QuestionnaireResponse" | "RiskAssessment">[];
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ClinicalImpression
 export interface ClinicalImpression extends DomainResource {
     resourceType: "ClinicalImpression";
 

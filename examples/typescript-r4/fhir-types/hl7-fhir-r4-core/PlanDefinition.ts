@@ -38,6 +38,7 @@ export type { TriggerDefinition } from "../hl7-fhir-r4-core/TriggerDefinition";
 export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
 export interface PlanDefinitionAction extends BackboneElement {
+    action?: PlanDefinitionAction[];
     cardinalityBehavior?: "single" | "multiple";
     code?: CodeableConcept[];
     condition?: PlanDefinitionActionCondition[];
@@ -72,24 +73,29 @@ export interface PlanDefinitionAction extends BackboneElement {
     trigger?: TriggerDefinition[];
     type_?: CodeableConcept;
 }
+
 export interface PlanDefinitionActionCondition extends BackboneElement {
     expression?: Expression;
     kind: "applicability" | "start" | "stop";
 }
+
 export interface PlanDefinitionActionDynamicValue extends BackboneElement {
     expression?: Expression;
     path?: string;
 }
+
 export interface PlanDefinitionActionParticipant extends BackboneElement {
     role?: CodeableConcept;
     type_: "patient" | "practitioner" | "related-person" | "device";
 }
+
 export interface PlanDefinitionActionRelatedAction extends BackboneElement {
     actionId: string;
     offsetDuration?: Duration;
     offsetRange?: Range;
     relationship: "before-start" | "before" | "before-end" | "concurrent-with-start" | "concurrent" | "concurrent-with-end" | "after-start" | "after" | "after-end";
 }
+
 export interface PlanDefinitionGoal extends BackboneElement {
     addresses?: CodeableConcept[];
     category?: CodeableConcept;
@@ -99,6 +105,7 @@ export interface PlanDefinitionGoal extends BackboneElement {
     start?: CodeableConcept;
     target?: PlanDefinitionGoalTarget[];
 }
+
 export interface PlanDefinitionGoalTarget extends BackboneElement {
     detailCodeableConcept?: CodeableConcept;
     detailQuantity?: Quantity;
@@ -106,6 +113,8 @@ export interface PlanDefinitionGoalTarget extends BackboneElement {
     due?: Duration;
     measure?: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/PlanDefinition
 export interface PlanDefinition extends DomainResource {
     resourceType: "PlanDefinition";
 

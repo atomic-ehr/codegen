@@ -8,6 +8,7 @@ import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 import type { Measure } from "../hl7-fhir-r4-core/Measure";
 import type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/shareablemeasure
 export interface Shareable_Measure {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/shareablemeasure";
 

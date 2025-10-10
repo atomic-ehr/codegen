@@ -32,6 +32,7 @@ export interface SpecimenCollection extends BackboneElement {
     method?: CodeableConcept;
     quantity?: Quantity;
 }
+
 export interface SpecimenContainer extends BackboneElement {
     additiveCodeableConcept?: CodeableConcept;
     additiveReference?: Reference<"Substance">;
@@ -41,6 +42,7 @@ export interface SpecimenContainer extends BackboneElement {
     specimenQuantity?: Quantity;
     type_?: CodeableConcept;
 }
+
 export interface SpecimenProcessing extends BackboneElement {
     additive?: Reference<"Substance">[];
     description?: string;
@@ -48,6 +50,8 @@ export interface SpecimenProcessing extends BackboneElement {
     timeDateTime?: string;
     timePeriod?: Period;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Specimen
 export interface Specimen extends DomainResource {
     resourceType: "Specimen";
 

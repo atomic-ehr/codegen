@@ -23,18 +23,23 @@ export interface StructureDefinitionContext extends BackboneElement {
     expression: string;
     type_: "fhirpath" | "element" | "extension";
 }
+
 export interface StructureDefinitionDifferential extends BackboneElement {
     element: ElementDefinition[];
 }
+
 export interface StructureDefinitionMapping extends BackboneElement {
     comment?: string;
     identity: string;
     name?: string;
     uri?: string;
 }
+
 export interface StructureDefinitionSnapshot extends BackboneElement {
     element: ElementDefinition[];
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/StructureDefinition
 export interface StructureDefinition extends DomainResource {
     resourceType: "StructureDefinition";
 

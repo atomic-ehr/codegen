@@ -28,11 +28,13 @@ export interface RiskEvidenceSynthesisCertainty extends BackboneElement {
     note?: Annotation[];
     rating?: CodeableConcept[];
 }
+
 export interface RiskEvidenceSynthesisCertaintyCertaintySubcomponent extends BackboneElement {
     note?: Annotation[];
     rating?: CodeableConcept[];
     type_?: CodeableConcept;
 }
+
 export interface RiskEvidenceSynthesisRiskEstimate extends BackboneElement {
     denominatorCount?: number;
     description?: string;
@@ -42,17 +44,21 @@ export interface RiskEvidenceSynthesisRiskEstimate extends BackboneElement {
     unitOfMeasure?: CodeableConcept;
     value?: number;
 }
+
 export interface RiskEvidenceSynthesisRiskEstimatePrecisionEstimate extends BackboneElement {
     from_?: number;
     level?: number;
     to?: number;
     type_?: CodeableConcept;
 }
+
 export interface RiskEvidenceSynthesisSampleSize extends BackboneElement {
     description?: string;
     numberOfParticipants?: number;
     numberOfStudies?: number;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/RiskEvidenceSynthesis
 export interface RiskEvidenceSynthesis extends DomainResource {
     resourceType: "RiskEvidenceSynthesis";
 

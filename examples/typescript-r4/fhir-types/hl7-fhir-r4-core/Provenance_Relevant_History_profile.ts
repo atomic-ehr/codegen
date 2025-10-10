@@ -8,6 +8,7 @@ import type { Provenance } from "../hl7-fhir-r4-core/Provenance";
 import type { ProvenanceAgent } from "../hl7-fhir-r4-core/Provenance";
 import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/provenance-relevant-history
 export interface Provenance_Relevant_History {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/provenance-relevant-history";
 

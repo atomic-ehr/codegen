@@ -5,6 +5,7 @@
 import type { Group } from "../hl7-fhir-r4-core/Group";
 import type { GroupMember } from "../hl7-fhir-r4-core/Group";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/groupdefinition
 export interface Group_Definition {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/groupdefinition";
 

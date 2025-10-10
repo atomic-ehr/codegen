@@ -17,6 +17,7 @@ import type { Timing } from "../hl7-fhir-r4-core/Timing";
 import type { TriggerDefinition } from "../hl7-fhir-r4-core/TriggerDefinition";
 import type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/picoelement
 export interface PICO_Element_Profile {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/picoelement";
 

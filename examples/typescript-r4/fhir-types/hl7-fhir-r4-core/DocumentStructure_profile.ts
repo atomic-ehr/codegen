@@ -5,6 +5,7 @@
 import type { Composition } from "../hl7-fhir-r4-core/Composition";
 import type { CompositionSection } from "../hl7-fhir-r4-core/Composition";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/example-composition
 export interface DocumentStructure {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/example-composition";
 

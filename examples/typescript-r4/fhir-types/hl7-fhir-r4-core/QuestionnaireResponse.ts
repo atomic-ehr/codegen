@@ -20,10 +20,13 @@ export type { Reference } from "../hl7-fhir-r4-core/Reference";
 export interface QuestionnaireResponseItem extends BackboneElement {
     answer?: QuestionnaireResponseItemAnswer[];
     definition?: string;
+    item?: QuestionnaireResponseItem[];
     linkId: string;
     text?: string;
 }
+
 export interface QuestionnaireResponseItemAnswer extends BackboneElement {
+    item?: QuestionnaireResponseItem[];
     valueAttachment?: Attachment;
     valueBoolean?: boolean;
     valueCoding?: Coding;
@@ -37,6 +40,8 @@ export interface QuestionnaireResponseItemAnswer extends BackboneElement {
     valueTime?: string;
     valueUri?: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/QuestionnaireResponse
 export interface QuestionnaireResponse extends DomainResource {
     resourceType: "QuestionnaireResponse";
 

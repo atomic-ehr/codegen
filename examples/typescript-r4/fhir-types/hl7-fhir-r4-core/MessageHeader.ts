@@ -21,11 +21,13 @@ export interface MessageHeaderDestination extends BackboneElement {
     receiver?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
     target?: Reference<"Device">;
 }
+
 export interface MessageHeaderResponse extends BackboneElement {
     code: "ok" | "transient-error" | "fatal-error";
     details?: Reference<"OperationOutcome">;
     identifier: string;
 }
+
 export interface MessageHeaderSource extends BackboneElement {
     contact?: ContactPoint;
     endpoint: string;
@@ -33,6 +35,8 @@ export interface MessageHeaderSource extends BackboneElement {
     software?: string;
     version?: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MessageHeader
 export interface MessageHeader extends DomainResource {
     resourceType: "MessageHeader";
 

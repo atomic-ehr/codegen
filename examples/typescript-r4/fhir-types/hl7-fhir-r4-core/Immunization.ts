@@ -23,10 +23,12 @@ export interface ImmunizationEducation extends BackboneElement {
     publicationDate?: string;
     reference?: string;
 }
+
 export interface ImmunizationPerformer extends BackboneElement {
     actor: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
     function_?: CodeableConcept;
 }
+
 export interface ImmunizationProtocolApplied extends BackboneElement {
     authority?: Reference<"Organization">;
     doseNumberPositiveInt?: number;
@@ -36,11 +38,14 @@ export interface ImmunizationProtocolApplied extends BackboneElement {
     seriesDosesString?: string;
     targetDisease?: CodeableConcept[];
 }
+
 export interface ImmunizationReaction extends BackboneElement {
     date?: string;
     detail?: Reference<"Observation">;
     reported?: boolean;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Immunization
 export interface Immunization extends DomainResource {
     resourceType: "Immunization";
 

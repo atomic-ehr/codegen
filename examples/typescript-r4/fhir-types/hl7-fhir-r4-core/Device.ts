@@ -23,15 +23,18 @@ export interface DeviceDeviceName extends BackboneElement {
     name: string;
     type_: "udi-label-name" | "user-friendly-name" | "patient-reported-name" | "manufacturer-name" | "model-name" | "other";
 }
+
 export interface DeviceProperty extends BackboneElement {
     type_: CodeableConcept;
     valueCode?: CodeableConcept[];
     valueQuantity?: Quantity[];
 }
+
 export interface DeviceSpecialization extends BackboneElement {
     systemType: CodeableConcept;
     version?: string;
 }
+
 export interface DeviceUdiCarrier extends BackboneElement {
     carrierAIDC?: string;
     carrierHRF?: string;
@@ -40,11 +43,14 @@ export interface DeviceUdiCarrier extends BackboneElement {
     issuer?: string;
     jurisdiction?: string;
 }
+
 export interface DeviceVersion extends BackboneElement {
     component?: Identifier;
     type_?: CodeableConcept;
     value: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Device
 export interface Device extends DomainResource {
     resourceType: "Device";
 

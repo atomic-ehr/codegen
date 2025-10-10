@@ -122,6 +122,7 @@ export interface TaskInput extends BackboneElement {
     valueUsageContext?: UsageContext;
     valueUuid?: string;
 }
+
 export interface TaskOutput extends BackboneElement {
     type_: CodeableConcept;
     valueAddress?: Address;
@@ -175,11 +176,14 @@ export interface TaskOutput extends BackboneElement {
     valueUsageContext?: UsageContext;
     valueUuid?: string;
 }
+
 export interface TaskRestriction extends BackboneElement {
     period?: Period;
     recipient?: Reference<"Group" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">[];
     repetitions?: number;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Task
 export interface Task extends DomainResource {
     resourceType: "Task";
 

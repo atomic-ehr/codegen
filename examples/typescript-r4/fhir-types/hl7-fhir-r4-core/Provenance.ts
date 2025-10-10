@@ -21,10 +21,14 @@ export interface ProvenanceAgent extends BackboneElement {
     type_?: CodeableConcept;
     who: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
 }
+
 export interface ProvenanceEntity extends BackboneElement {
+    agent?: ProvenanceAgent[];
     role: "derivation" | "revision" | "quotation" | "source" | "removal";
     what: Reference<"Resource">;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Provenance
 export interface Provenance extends DomainResource {
     resourceType: "Provenance";
 

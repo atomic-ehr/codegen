@@ -28,10 +28,12 @@ export interface AuditEventAgent extends BackboneElement {
     type_?: CodeableConcept;
     who?: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
 }
+
 export interface AuditEventAgentNetwork extends BackboneElement {
     address?: string;
     type_?: "1" | "2" | "3" | "4" | "5";
 }
+
 export interface AuditEventEntity extends BackboneElement {
     description?: string;
     detail?: AuditEventEntityDetail[];
@@ -43,16 +45,20 @@ export interface AuditEventEntity extends BackboneElement {
     type_?: Coding;
     what?: Reference<"Resource">;
 }
+
 export interface AuditEventEntityDetail extends BackboneElement {
     type_: string;
     valueBase64Binary?: string;
     valueString?: string;
 }
+
 export interface AuditEventSource extends BackboneElement {
     observer: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     site?: string;
     type_?: Coding[];
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/AuditEvent
 export interface AuditEvent extends DomainResource {
     resourceType: "AuditEvent";
 

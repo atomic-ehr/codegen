@@ -9,6 +9,7 @@ import type { ObservationComponent } from "../hl7-fhir-r4-core/Observation";
 import type { Period } from "../hl7-fhir-r4-core/Period";
 import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/vitalspanel
 export interface observation_vitalspanel {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/vitalspanel";
 

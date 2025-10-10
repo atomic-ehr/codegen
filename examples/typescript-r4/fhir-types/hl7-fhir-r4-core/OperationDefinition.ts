@@ -17,26 +17,32 @@ export interface OperationDefinitionOverload extends BackboneElement {
     comment?: string;
     parameterName?: string[];
 }
+
 export interface OperationDefinitionParameter extends BackboneElement {
     binding?: OperationDefinitionParameterBinding;
     documentation?: string;
     max: string;
     min: number;
     name: string;
+    part?: OperationDefinitionParameter[];
     referencedFrom?: OperationDefinitionParameterReferencedFrom[];
     searchType?: "number" | "date" | "string" | "token" | "reference" | "composite" | "quantity" | "uri" | "special";
     targetProfile?: string[];
     type_?: string;
     use: "in" | "out";
 }
+
 export interface OperationDefinitionParameterBinding extends BackboneElement {
     strength: "required" | "extensible" | "preferred" | "example";
     valueSet: string;
 }
+
 export interface OperationDefinitionParameterReferencedFrom extends BackboneElement {
     source: string;
     sourceId?: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/OperationDefinition
 export interface OperationDefinition extends DomainResource {
     resourceType: "OperationDefinition";
 

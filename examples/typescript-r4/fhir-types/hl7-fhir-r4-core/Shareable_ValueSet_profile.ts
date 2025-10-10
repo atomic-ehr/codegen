@@ -4,6 +4,7 @@
 
 import type { ValueSet } from "../hl7-fhir-r4-core/ValueSet";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/shareablevalueset
 export interface Shareable_ValueSet {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/shareablevalueset";
 

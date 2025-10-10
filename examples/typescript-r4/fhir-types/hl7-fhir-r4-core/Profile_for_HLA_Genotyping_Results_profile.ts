@@ -5,6 +5,7 @@
 import type { DiagnosticReport } from "../hl7-fhir-r4-core/DiagnosticReport";
 import type { Extension } from "../hl7-fhir-r4-core/Extension";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/hlaresult
 export interface Profile_for_HLA_Genotyping_Results {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/hlaresult";
 

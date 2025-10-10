@@ -8,6 +8,7 @@ import type { Reference } from "../hl7-fhir-r4-core/Reference";
 import type { RequestGroup } from "../hl7-fhir-r4-core/RequestGroup";
 import type { RequestGroupAction } from "../hl7-fhir-r4-core/RequestGroup";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/cdshooksrequestgroup
 export interface CDS_Hooks_RequestGroup {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/cdshooksrequestgroup";
 

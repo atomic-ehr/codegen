@@ -10,6 +10,7 @@ import type { FamilyMemberHistoryCondition } from "../hl7-fhir-r4-core/FamilyMem
 import type { Period } from "../hl7-fhir-r4-core/Period";
 import type { Range } from "../hl7-fhir-r4-core/Range";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/familymemberhistory-genetic
 export interface Family_member_history_for_genetics_analysis {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/familymemberhistory-genetic";
 

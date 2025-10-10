@@ -14,6 +14,7 @@ import type { Ratio } from "../hl7-fhir-r4-core/Ratio";
 import type { Reference } from "../hl7-fhir-r4-core/Reference";
 import type { SampledData } from "../hl7-fhir-r4-core/SampledData";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/devicemetricobservation
 export interface Device_Metric_Observation_Profile {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/devicemetricobservation";
 

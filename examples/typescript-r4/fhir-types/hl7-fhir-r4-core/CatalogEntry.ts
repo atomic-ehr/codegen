@@ -19,6 +19,8 @@ export interface CatalogEntryRelatedEntry extends BackboneElement {
     item: Reference<"CatalogEntry">;
     relationtype: "triggers" | "is-replaced-by";
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CatalogEntry
 export interface CatalogEntry extends DomainResource {
     resourceType: "CatalogEntry";
 

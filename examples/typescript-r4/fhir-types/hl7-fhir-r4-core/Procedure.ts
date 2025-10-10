@@ -25,11 +25,14 @@ export interface ProcedureFocalDevice extends BackboneElement {
     action?: CodeableConcept;
     manipulated: Reference<"Device">;
 }
+
 export interface ProcedurePerformer extends BackboneElement {
     actor: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     function_?: CodeableConcept;
     onBehalfOf?: Reference<"Organization">;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Procedure
 export interface Procedure extends DomainResource {
     resourceType: "Procedure";
 

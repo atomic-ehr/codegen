@@ -254,6 +254,7 @@ export class TypeScript extends Writer {
         if (schema.nested) {
             for (const subtype of schema.nested) {
                 this.generateType(tsIndex, subtype);
+                this.line();
             }
         }
     }
@@ -432,10 +433,12 @@ export class TypeScript extends Writer {
                 this.generateDependenciesImports(schema);
                 this.generateComplexTypeReexports(schema);
                 this.generateNestedTypes(tsIndex, schema);
+                this.comment("CanonicalURL:", schema.identifier.url);
                 this.generateType(tsIndex, schema);
             } else if (isProfileTypeSchema(schema)) {
                 const flatProfile = tsIndex.flatProfile(schema);
                 this.generateDependenciesImports(flatProfile);
+                this.comment("CanonicalURL:", schema.identifier.url);
                 this.generateProfileType(tsIndex, flatProfile);
                 this.generateAttachProfile(flatProfile);
                 this.generateExtractProfile(tsIndex, flatProfile);

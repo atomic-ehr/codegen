@@ -21,12 +21,15 @@ export interface GraphDefinitionLink extends BackboneElement {
     sliceName?: string;
     target?: GraphDefinitionLinkTarget[];
 }
+
 export interface GraphDefinitionLinkTarget extends BackboneElement {
     compartment?: GraphDefinitionLinkTargetCompartment[];
+    link?: GraphDefinitionLink[];
     params?: string;
     profile?: string;
     type_: string;
 }
+
 export interface GraphDefinitionLinkTargetCompartment extends BackboneElement {
     code: "Patient" | "Encounter" | "RelatedPerson" | "Practitioner" | "Device";
     description?: string;
@@ -34,6 +37,8 @@ export interface GraphDefinitionLinkTargetCompartment extends BackboneElement {
     rule: "identical" | "matching" | "different" | "custom";
     use: "condition" | "requirement";
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/GraphDefinition
 export interface GraphDefinition extends DomainResource {
     resourceType: "GraphDefinition";
 

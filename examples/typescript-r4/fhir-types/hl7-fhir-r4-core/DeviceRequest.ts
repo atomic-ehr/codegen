@@ -30,6 +30,8 @@ export interface DeviceRequestParameter extends BackboneElement {
     valueQuantity?: Quantity;
     valueRange?: Range;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DeviceRequest
 export interface DeviceRequest extends DomainResource {
     resourceType: "DeviceRequest";
 

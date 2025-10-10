@@ -33,10 +33,13 @@ export interface VisionPrescriptionLensSpecification extends BackboneElement {
     product: CodeableConcept;
     sphere?: number;
 }
+
 export interface VisionPrescriptionLensSpecificationPrism extends BackboneElement {
     amount: number;
     base: "up" | "down" | "in" | "out";
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/VisionPrescription
 export interface VisionPrescription extends DomainResource {
     resourceType: "VisionPrescription";
 

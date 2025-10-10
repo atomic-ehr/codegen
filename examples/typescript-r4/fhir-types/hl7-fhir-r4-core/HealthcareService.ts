@@ -25,14 +25,18 @@ export interface HealthcareServiceAvailableTime extends BackboneElement {
     availableStartTime?: string;
     daysOfWeek?: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun"[];
 }
+
 export interface HealthcareServiceEligibility extends BackboneElement {
     code?: CodeableConcept;
     comment?: string;
 }
+
 export interface HealthcareServiceNotAvailable extends BackboneElement {
     description: string;
     during?: Period;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/HealthcareService
 export interface HealthcareService extends DomainResource {
     resourceType: "HealthcareService";
 

@@ -37,27 +37,33 @@ export interface ContractContentDefinition extends BackboneElement {
     subType?: CodeableConcept;
     type_: CodeableConcept;
 }
+
 export interface ContractFriendly extends BackboneElement {
     contentAttachment?: Attachment;
     contentReference?: Reference<"Composition" | "DocumentReference" | "QuestionnaireResponse">;
 }
+
 export interface ContractLegal extends BackboneElement {
     contentAttachment?: Attachment;
     contentReference?: Reference<"Composition" | "DocumentReference" | "QuestionnaireResponse">;
 }
+
 export interface ContractRule extends BackboneElement {
     contentAttachment?: Attachment;
     contentReference?: Reference<"DocumentReference">;
 }
+
 export interface ContractSigner extends BackboneElement {
     party: Reference<"Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     signature: Signature[];
     type_: Coding;
 }
+
 export interface ContractTerm extends BackboneElement {
     action?: ContractTermAction[];
     applies?: Period;
     asset?: ContractTermAsset[];
+    group?: ContractTerm[];
     identifier?: Identifier;
     issued?: string;
     offer: ContractTermOffer;
@@ -68,6 +74,7 @@ export interface ContractTerm extends BackboneElement {
     topicReference?: Reference<"Resource">;
     type_?: CodeableConcept;
 }
+
 export interface ContractTermAction extends BackboneElement {
     context?: Reference<"Encounter" | "EpisodeOfCare">;
     contextLinkId?: string[];
@@ -93,11 +100,14 @@ export interface ContractTermAction extends BackboneElement {
     subject?: ContractTermActionSubject[];
     type_: CodeableConcept;
 }
+
 export interface ContractTermActionSubject extends BackboneElement {
     reference: Reference<"Device" | "Group" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">[];
     role?: CodeableConcept;
 }
+
 export interface ContractTermAsset extends BackboneElement {
+    answer?: ContractTermOfferAnswer[];
     condition?: string;
     context?: ContractTermAssetContext[];
     linkId?: string[];
@@ -113,11 +123,13 @@ export interface ContractTermAsset extends BackboneElement {
     usePeriod?: Period[];
     valuedItem?: ContractTermAssetValuedItem[];
 }
+
 export interface ContractTermAssetContext extends BackboneElement {
     code?: CodeableConcept[];
     reference?: Reference<"Resource">;
     text?: string;
 }
+
 export interface ContractTermAssetValuedItem extends BackboneElement {
     effectiveTime?: string;
     entityCodeableConcept?: CodeableConcept;
@@ -135,6 +147,7 @@ export interface ContractTermAssetValuedItem extends BackboneElement {
     securityLabelNumber?: number[];
     unitPrice?: Money;
 }
+
 export interface ContractTermOffer extends BackboneElement {
     answer?: ContractTermOfferAnswer[];
     decision?: CodeableConcept;
@@ -147,6 +160,7 @@ export interface ContractTermOffer extends BackboneElement {
     topic?: Reference<"Resource">;
     type_?: CodeableConcept;
 }
+
 export interface ContractTermOfferAnswer extends BackboneElement {
     valueAttachment?: Attachment;
     valueBoolean?: boolean;
@@ -161,16 +175,20 @@ export interface ContractTermOfferAnswer extends BackboneElement {
     valueTime?: string;
     valueUri?: string;
 }
+
 export interface ContractTermOfferParty extends BackboneElement {
     reference: Reference<"Device" | "Group" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">[];
     role: CodeableConcept;
 }
+
 export interface ContractTermSecurityLabel extends BackboneElement {
     category?: Coding[];
     classification: Coding;
     control?: Coding[];
     number_?: number[];
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Contract
 export interface Contract extends DomainResource {
     resourceType: "Contract";
 

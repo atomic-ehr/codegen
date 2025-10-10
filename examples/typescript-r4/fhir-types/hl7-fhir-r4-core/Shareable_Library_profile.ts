@@ -8,6 +8,7 @@ import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 import type { Library } from "../hl7-fhir-r4-core/Library";
 import type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/shareablelibrary
 export interface Shareable_Library {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/shareablelibrary";
 

@@ -29,6 +29,7 @@ export interface SpecimenDefinitionTypeTested extends BackboneElement {
     retentionTime?: Duration;
     type_?: CodeableConcept;
 }
+
 export interface SpecimenDefinitionTypeTestedContainer extends BackboneElement {
     additive?: SpecimenDefinitionTypeTestedContainerAdditive[];
     cap?: CodeableConcept;
@@ -40,16 +41,20 @@ export interface SpecimenDefinitionTypeTestedContainer extends BackboneElement {
     preparation?: string;
     type_?: CodeableConcept;
 }
+
 export interface SpecimenDefinitionTypeTestedContainerAdditive extends BackboneElement {
     additiveCodeableConcept?: CodeableConcept;
     additiveReference?: Reference<"Substance">;
 }
+
 export interface SpecimenDefinitionTypeTestedHandling extends BackboneElement {
     instruction?: string;
     maxDuration?: Duration;
     temperatureQualifier?: CodeableConcept;
     temperatureRange?: Range;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SpecimenDefinition
 export interface SpecimenDefinition extends DomainResource {
     resourceType: "SpecimenDefinition";
 

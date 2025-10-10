@@ -23,6 +23,7 @@ export interface MedicinalProductPharmaceuticalCharacteristics extends BackboneE
     code: CodeableConcept;
     status?: CodeableConcept;
 }
+
 export interface MedicinalProductPharmaceuticalRouteOfAdministration extends BackboneElement {
     code: CodeableConcept;
     firstDose?: Quantity;
@@ -32,15 +33,19 @@ export interface MedicinalProductPharmaceuticalRouteOfAdministration extends Bac
     maxTreatmentPeriod?: Duration;
     targetSpecies?: MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpecies[];
 }
+
 export interface MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpecies extends BackboneElement {
     code: CodeableConcept;
     withdrawalPeriod?: MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpeciesWithdrawalPeriod[];
 }
+
 export interface MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpeciesWithdrawalPeriod extends BackboneElement {
     supportingInformation?: string;
     tissue: CodeableConcept;
     value: Quantity;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductPharmaceutical
 export interface MedicinalProductPharmaceutical extends DomainResource {
     resourceType: "MedicinalProductPharmaceutical";
 

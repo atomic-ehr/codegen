@@ -11,6 +11,7 @@ import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 import type { Range } from "../hl7-fhir-r4-core/Range";
 import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/triglyceride
 export interface Example_Lipid_Profile {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/triglyceride";
 

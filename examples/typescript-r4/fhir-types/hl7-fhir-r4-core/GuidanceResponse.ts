@@ -15,6 +15,7 @@ export type { DataRequirement } from "../hl7-fhir-r4-core/DataRequirement";
 export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/GuidanceResponse
 export interface GuidanceResponse extends DomainResource {
     resourceType: "GuidanceResponse";
 

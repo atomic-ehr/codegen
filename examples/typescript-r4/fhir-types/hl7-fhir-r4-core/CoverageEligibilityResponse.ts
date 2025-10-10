@@ -20,12 +20,14 @@ export type { Reference } from "../hl7-fhir-r4-core/Reference";
 export interface CoverageEligibilityResponseError extends BackboneElement {
     code: CodeableConcept;
 }
+
 export interface CoverageEligibilityResponseInsurance extends BackboneElement {
     benefitPeriod?: Period;
     coverage: Reference<"Coverage">;
     inforce?: boolean;
     item?: CoverageEligibilityResponseInsuranceItem[];
 }
+
 export interface CoverageEligibilityResponseInsuranceItem extends BackboneElement {
     authorizationRequired?: boolean;
     authorizationSupporting?: CodeableConcept[];
@@ -42,6 +44,7 @@ export interface CoverageEligibilityResponseInsuranceItem extends BackboneElemen
     term?: CodeableConcept;
     unit?: CodeableConcept;
 }
+
 export interface CoverageEligibilityResponseInsuranceItemBenefit extends BackboneElement {
     allowedMoney?: Money;
     allowedString?: string;
@@ -51,6 +54,8 @@ export interface CoverageEligibilityResponseInsuranceItemBenefit extends Backbon
     usedString?: string;
     usedUnsignedInt?: number;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CoverageEligibilityResponse
 export interface CoverageEligibilityResponse extends DomainResource {
     resourceType: "CoverageEligibilityResponse";
 

@@ -21,6 +21,8 @@ export interface DiagnosticReportMedia extends BackboneElement {
     comment?: string;
     link: Reference<"Media">;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DiagnosticReport
 export interface DiagnosticReport extends DomainResource {
     resourceType: "DiagnosticReport";
 

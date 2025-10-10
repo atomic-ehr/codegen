@@ -19,12 +19,15 @@ export interface MedicationBatch extends BackboneElement {
     expirationDate?: string;
     lotNumber?: string;
 }
+
 export interface MedicationIngredient extends BackboneElement {
     isActive?: boolean;
     itemCodeableConcept?: CodeableConcept;
     itemReference?: Reference<"Medication" | "Substance">;
     strength?: Ratio;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Medication
 export interface Medication extends DomainResource {
     resourceType: "Medication";
 

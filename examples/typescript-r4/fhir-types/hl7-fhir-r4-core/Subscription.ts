@@ -15,6 +15,8 @@ export interface SubscriptionChannel extends BackboneElement {
     payload?: string;
     type_: "rest-hook" | "websocket" | "email" | "sms" | "message";
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Subscription
 export interface Subscription extends DomainResource {
     resourceType: "Subscription";
 

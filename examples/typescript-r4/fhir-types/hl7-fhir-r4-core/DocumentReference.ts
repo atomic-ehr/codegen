@@ -23,6 +23,7 @@ export interface DocumentReferenceContent extends BackboneElement {
     attachment: Attachment;
     format?: Coding;
 }
+
 export interface DocumentReferenceContext extends BackboneElement {
     encounter?: Reference<"Encounter" | "EpisodeOfCare">[];
     event?: CodeableConcept[];
@@ -32,10 +33,13 @@ export interface DocumentReferenceContext extends BackboneElement {
     related?: Reference<"Resource">[];
     sourcePatientInfo?: Reference<"Patient">;
 }
+
 export interface DocumentReferenceRelatesTo extends BackboneElement {
     code: "replaces" | "transforms" | "signs" | "appends";
     target: Reference<"DocumentReference">;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DocumentReference
 export interface DocumentReference extends DomainResource {
     resourceType: "DocumentReference";
 

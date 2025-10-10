@@ -23,6 +23,7 @@ export interface ConsentPolicy extends BackboneElement {
     authority?: string;
     uri?: string;
 }
+
 export interface ConsentProvision extends BackboneElement {
     action?: CodeableConcept[];
     actor?: ConsentProvisionActor[];
@@ -31,23 +32,29 @@ export interface ConsentProvision extends BackboneElement {
     data?: ConsentProvisionData[];
     dataPeriod?: Period;
     period?: Period;
+    provision?: ConsentProvision[];
     purpose?: Coding[];
     securityLabel?: Coding[];
     type_?: "deny" | "permit";
 }
+
 export interface ConsentProvisionActor extends BackboneElement {
     reference: Reference<"CareTeam" | "Device" | "Group" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     role: CodeableConcept;
 }
+
 export interface ConsentProvisionData extends BackboneElement {
     meaning: "instance" | "related" | "dependents" | "authoredby";
     reference: Reference<"Resource">;
 }
+
 export interface ConsentVerification extends BackboneElement {
     verificationDate?: string;
     verified: boolean;
     verifiedWith?: Reference<"Patient" | "RelatedPerson">;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Consent
 export interface Consent extends DomainResource {
     resourceType: "Consent";
 

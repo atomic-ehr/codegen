@@ -23,16 +23,20 @@ export interface InvoiceLineItem extends BackboneElement {
     priceComponent?: InvoiceLineItemPriceComponent[];
     sequence?: number;
 }
+
 export interface InvoiceLineItemPriceComponent extends BackboneElement {
     amount?: Money;
     code?: CodeableConcept;
     factor?: number;
     type_: "base" | "surcharge" | "deduction" | "discount" | "tax" | "informational";
 }
+
 export interface InvoiceParticipant extends BackboneElement {
     actor: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     role?: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Invoice
 export interface Invoice extends DomainResource {
     resourceType: "Invoice";
 
@@ -54,5 +58,6 @@ export interface Invoice extends DomainResource {
     subject?: Reference<"Group" | "Patient">;
     totalGross?: Money;
     totalNet?: Money;
+    totalPriceComponent?: InvoiceLineItemPriceComponent[];
     type_?: CodeableConcept;
 }

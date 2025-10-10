@@ -31,20 +31,24 @@ export interface InsurancePlanContact extends BackboneElement {
     purpose?: CodeableConcept;
     telecom?: ContactPoint[];
 }
+
 export interface InsurancePlanCoverage extends BackboneElement {
     benefit: InsurancePlanCoverageBenefit[];
     network?: Reference<"Organization">[];
     type_: CodeableConcept;
 }
+
 export interface InsurancePlanCoverageBenefit extends BackboneElement {
     limit?: InsurancePlanCoverageBenefitLimit[];
     requirement?: string;
     type_: CodeableConcept;
 }
+
 export interface InsurancePlanCoverageBenefitLimit extends BackboneElement {
     code?: CodeableConcept;
     value?: Quantity;
 }
+
 export interface InsurancePlanPlan extends BackboneElement {
     coverageArea?: Reference<"Location">[];
     generalCost?: InsurancePlanPlanGeneralCost[];
@@ -53,26 +57,32 @@ export interface InsurancePlanPlan extends BackboneElement {
     specificCost?: InsurancePlanPlanSpecificCost[];
     type_?: CodeableConcept;
 }
+
 export interface InsurancePlanPlanGeneralCost extends BackboneElement {
     comment?: string;
     cost?: Money;
     groupSize?: number;
     type_?: CodeableConcept;
 }
+
 export interface InsurancePlanPlanSpecificCost extends BackboneElement {
     benefit?: InsurancePlanPlanSpecificCostBenefit[];
     category: CodeableConcept;
 }
+
 export interface InsurancePlanPlanSpecificCostBenefit extends BackboneElement {
     cost?: InsurancePlanPlanSpecificCostBenefitCost[];
     type_: CodeableConcept;
 }
+
 export interface InsurancePlanPlanSpecificCostBenefitCost extends BackboneElement {
     applicability?: CodeableConcept;
     qualifiers?: CodeableConcept[];
     type_: CodeableConcept;
     value?: Quantity;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/InsurancePlan
 export interface InsurancePlan extends DomainResource {
     resourceType: "InsurancePlan";
 

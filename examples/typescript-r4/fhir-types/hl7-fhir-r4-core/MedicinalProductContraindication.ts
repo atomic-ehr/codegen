@@ -18,6 +18,8 @@ export interface MedicinalProductContraindicationOtherTherapy extends BackboneEl
     medicationReference?: Reference<"Medication" | "MedicinalProduct" | "Substance" | "SubstanceSpecification">;
     therapyRelationshipType: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductContraindication
 export interface MedicinalProductContraindication extends DomainResource {
     resourceType: "MedicinalProductContraindication";
 

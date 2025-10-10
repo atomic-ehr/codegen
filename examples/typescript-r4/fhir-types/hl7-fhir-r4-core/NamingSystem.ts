@@ -22,6 +22,8 @@ export interface NamingSystemUniqueId extends BackboneElement {
     type_: "oid" | "uuid" | "uri" | "other";
     value: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/NamingSystem
 export interface NamingSystem extends DomainResource {
     resourceType: "NamingSystem";
 

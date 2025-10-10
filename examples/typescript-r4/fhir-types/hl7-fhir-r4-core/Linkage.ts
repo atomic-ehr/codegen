@@ -13,6 +13,8 @@ export interface LinkageItem extends BackboneElement {
     resource: Reference<"Resource">;
     type_: "source" | "alternate" | "historical";
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Linkage
 export interface Linkage extends DomainResource {
     resourceType: "Linkage";
 

@@ -17,12 +17,15 @@ export interface AdverseEventSuspectEntity extends BackboneElement {
     causality?: AdverseEventSuspectEntityCausality[];
     instance: Reference<"Device" | "Immunization" | "Medication" | "MedicationAdministration" | "MedicationStatement" | "Procedure" | "Substance">;
 }
+
 export interface AdverseEventSuspectEntityCausality extends BackboneElement {
     assessment?: CodeableConcept;
     author?: Reference<"Practitioner" | "PractitionerRole">;
     method?: CodeableConcept;
     productRelatedness?: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/AdverseEvent
 export interface AdverseEvent extends DomainResource {
     resourceType: "AdverseEvent";
 

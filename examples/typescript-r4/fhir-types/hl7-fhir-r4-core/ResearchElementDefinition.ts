@@ -52,6 +52,8 @@ export interface ResearchElementDefinitionCharacteristic extends BackboneElement
     unitOfMeasure?: CodeableConcept;
     usageContext?: UsageContext[];
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ResearchElementDefinition
 export interface ResearchElementDefinition extends DomainResource {
     resourceType: "ResearchElementDefinition";
 

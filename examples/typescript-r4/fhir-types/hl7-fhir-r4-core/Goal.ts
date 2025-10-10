@@ -35,6 +35,8 @@ export interface GoalTarget extends BackboneElement {
     dueDuration?: Duration;
     measure?: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Goal
 export interface Goal extends DomainResource {
     resourceType: "Goal";
 

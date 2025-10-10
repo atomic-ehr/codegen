@@ -6,5 +6,6 @@ import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 
 export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Duration
 export interface Duration extends Quantity {
 }

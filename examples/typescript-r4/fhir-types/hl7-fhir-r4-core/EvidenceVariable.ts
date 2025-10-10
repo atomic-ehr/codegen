@@ -50,6 +50,8 @@ export interface EvidenceVariableCharacteristic extends BackboneElement {
     timeFromStart?: Duration;
     usageContext?: UsageContext[];
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/EvidenceVariable
 export interface EvidenceVariable extends DomainResource {
     resourceType: "EvidenceVariable";
 

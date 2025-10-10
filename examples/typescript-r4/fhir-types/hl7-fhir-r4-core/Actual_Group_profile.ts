@@ -5,6 +5,7 @@
 import type { Group } from "../hl7-fhir-r4-core/Group";
 import type { GroupCharacteristic } from "../hl7-fhir-r4-core/Group";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/actualgroup
 export interface Actual_Group {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/actualgroup";
 

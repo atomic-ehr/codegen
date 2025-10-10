@@ -8,6 +8,7 @@ import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 export type { Element } from "../hl7-fhir-r4-core/Element";
 export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Ratio
 export interface Ratio extends Element {
     denominator?: Quantity;
     numerator?: Quantity;

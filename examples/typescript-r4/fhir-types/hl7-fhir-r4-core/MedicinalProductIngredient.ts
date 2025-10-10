@@ -21,6 +21,7 @@ export interface MedicinalProductIngredientSpecifiedSubstance extends BackboneEl
     group: CodeableConcept;
     strength?: MedicinalProductIngredientSpecifiedSubstanceStrength[];
 }
+
 export interface MedicinalProductIngredientSpecifiedSubstanceStrength extends BackboneElement {
     concentration?: Ratio;
     concentrationLowLimit?: Ratio;
@@ -30,6 +31,7 @@ export interface MedicinalProductIngredientSpecifiedSubstanceStrength extends Ba
     presentationLowLimit?: Ratio;
     referenceStrength?: MedicinalProductIngredientSpecifiedSubstanceStrengthReferenceStrength[];
 }
+
 export interface MedicinalProductIngredientSpecifiedSubstanceStrengthReferenceStrength extends BackboneElement {
     country?: CodeableConcept[];
     measurementPoint?: string;
@@ -37,9 +39,13 @@ export interface MedicinalProductIngredientSpecifiedSubstanceStrengthReferenceSt
     strengthLowLimit?: Ratio;
     substance?: CodeableConcept;
 }
+
 export interface MedicinalProductIngredientSubstance extends BackboneElement {
     code: CodeableConcept;
+    strength?: MedicinalProductIngredientSpecifiedSubstanceStrength[];
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductIngredient
 export interface MedicinalProductIngredient extends DomainResource {
     resourceType: "MedicinalProductIngredient";
 

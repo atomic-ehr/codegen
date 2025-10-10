@@ -23,17 +23,21 @@ export interface SubstanceNucleicAcidSubunit extends BackboneElement {
     sugar?: SubstanceNucleicAcidSubunitSugar[];
     threePrime?: CodeableConcept;
 }
+
 export interface SubstanceNucleicAcidSubunitLinkage extends BackboneElement {
     connectivity?: string;
     identifier?: Identifier;
     name?: string;
     residueSite?: string;
 }
+
 export interface SubstanceNucleicAcidSubunitSugar extends BackboneElement {
     identifier?: Identifier;
     name?: string;
     residueSite?: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstanceNucleicAcid
 export interface SubstanceNucleicAcid extends DomainResource {
     resourceType: "SubstanceNucleicAcid";
 

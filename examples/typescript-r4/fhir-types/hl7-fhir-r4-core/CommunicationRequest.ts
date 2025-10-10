@@ -24,6 +24,8 @@ export interface CommunicationRequestPayload extends BackboneElement {
     contentReference?: Reference<"Resource">;
     contentString?: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CommunicationRequest
 export interface CommunicationRequest extends DomainResource {
     resourceType: "CommunicationRequest";
 

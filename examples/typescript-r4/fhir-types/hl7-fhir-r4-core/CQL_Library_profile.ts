@@ -7,6 +7,7 @@ import type { DataRequirement } from "../hl7-fhir-r4-core/DataRequirement";
 import type { Library } from "../hl7-fhir-r4-core/Library";
 import type { ParameterDefinition } from "../hl7-fhir-r4-core/ParameterDefinition";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/cqllibrary
 export interface CQL_Library {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/cqllibrary";
 

@@ -5,6 +5,7 @@
 import type { Extension } from "../hl7-fhir-r4-core/Extension";
 import type { ServiceRequest } from "../hl7-fhir-r4-core/ServiceRequest";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/servicerequest-genetics
 export interface ServiceRequest_Genetics {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/servicerequest-genetics";
 

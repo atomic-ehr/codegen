@@ -29,10 +29,13 @@ export interface PaymentReconciliationDetail extends BackboneElement {
     submitter?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
     type_: CodeableConcept;
 }
+
 export interface PaymentReconciliationProcessNote extends BackboneElement {
     text?: string;
     type_?: "display" | "print" | "printoper";
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/PaymentReconciliation
 export interface PaymentReconciliation extends DomainResource {
     resourceType: "PaymentReconciliation";
 

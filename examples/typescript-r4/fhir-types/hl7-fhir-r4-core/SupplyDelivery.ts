@@ -24,6 +24,8 @@ export interface SupplyDeliverySuppliedItem extends BackboneElement {
     itemReference?: Reference<"Device" | "Medication" | "Substance">;
     quantity?: Quantity;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SupplyDelivery
 export interface SupplyDelivery extends DomainResource {
     resourceType: "SupplyDelivery";
 

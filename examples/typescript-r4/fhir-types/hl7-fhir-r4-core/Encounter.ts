@@ -23,11 +23,13 @@ export interface EncounterClassHistory extends BackboneElement {
     class_: Coding;
     period: Period;
 }
+
 export interface EncounterDiagnosis extends BackboneElement {
     condition: Reference<"Condition" | "Procedure">;
     rank?: number;
     use?: CodeableConcept;
 }
+
 export interface EncounterHospitalization extends BackboneElement {
     admitSource?: CodeableConcept;
     destination?: Reference<"Location" | "Organization">;
@@ -39,21 +41,26 @@ export interface EncounterHospitalization extends BackboneElement {
     specialArrangement?: CodeableConcept[];
     specialCourtesy?: CodeableConcept[];
 }
+
 export interface EncounterLocation extends BackboneElement {
     location: Reference<"Location">;
     period?: Period;
     physicalType?: CodeableConcept;
     status?: "planned" | "active" | "reserved" | "completed";
 }
+
 export interface EncounterParticipant extends BackboneElement {
     individual?: Reference<"Practitioner" | "PractitionerRole" | "RelatedPerson">;
     period?: Period;
     type_?: CodeableConcept[];
 }
+
 export interface EncounterStatusHistory extends BackboneElement {
     period: Period;
     status: "planned" | "arrived" | "triaged" | "in-progress" | "onleave" | "finished" | "cancelled" | "entered-in-error" | "unknown";
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Encounter
 export interface Encounter extends DomainResource {
     resourceType: "Encounter";
 

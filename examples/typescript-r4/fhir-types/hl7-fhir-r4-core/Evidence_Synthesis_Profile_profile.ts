@@ -9,6 +9,7 @@ import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 import type { Reference } from "../hl7-fhir-r4-core/Reference";
 import type { RelatedArtifact } from "../hl7-fhir-r4-core/RelatedArtifact";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/synthesis
 export interface Evidence_Synthesis_Profile {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/synthesis";
 

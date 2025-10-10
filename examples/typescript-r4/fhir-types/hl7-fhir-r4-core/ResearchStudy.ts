@@ -26,10 +26,13 @@ export interface ResearchStudyArm extends BackboneElement {
     name: string;
     type_?: CodeableConcept;
 }
+
 export interface ResearchStudyObjective extends BackboneElement {
     name?: string;
     type_?: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ResearchStudy
 export interface ResearchStudy extends DomainResource {
     resourceType: "ResearchStudy";
 

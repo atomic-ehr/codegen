@@ -25,12 +25,15 @@ export interface ObservationDefinitionQualifiedInterval extends BackboneElement 
     gestationalAge?: Range;
     range?: Range;
 }
+
 export interface ObservationDefinitionQuantitativeDetails extends BackboneElement {
     conversionFactor?: number;
     customaryUnit?: CodeableConcept;
     decimalPrecision?: number;
     unit?: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ObservationDefinition
 export interface ObservationDefinition extends DomainResource {
     resourceType: "ObservationDefinition";
 

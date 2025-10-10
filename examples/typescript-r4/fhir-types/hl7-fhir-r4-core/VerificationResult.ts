@@ -25,6 +25,7 @@ export interface VerificationResultAttestation extends BackboneElement {
     sourceSignature?: Signature;
     who?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
 }
+
 export interface VerificationResultPrimarySource extends BackboneElement {
     canPushUpdates?: CodeableConcept;
     communicationMethod?: CodeableConcept[];
@@ -34,11 +35,14 @@ export interface VerificationResultPrimarySource extends BackboneElement {
     validationStatus?: CodeableConcept;
     who?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
 }
+
 export interface VerificationResultValidator extends BackboneElement {
     attestationSignature?: Signature;
     identityCertificate?: string;
     organization: Reference<"Organization">;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/VerificationResult
 export interface VerificationResult extends DomainResource {
     resourceType: "VerificationResult";
 

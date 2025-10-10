@@ -19,11 +19,14 @@ export interface DetectedIssueEvidence extends BackboneElement {
     code?: CodeableConcept[];
     detail?: Reference<"Resource">[];
 }
+
 export interface DetectedIssueMitigation extends BackboneElement {
     action: CodeableConcept;
     author?: Reference<"Practitioner" | "PractitionerRole">;
     date?: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DetectedIssue
 export interface DetectedIssue extends DomainResource {
     resourceType: "DetectedIssue";
 

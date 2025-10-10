@@ -75,11 +75,13 @@ export interface ElementDefinitionBase extends Element {
     min: number;
     path: string;
 }
+
 export interface ElementDefinitionBinding extends Element {
     description?: string;
     strength: "required" | "extensible" | "preferred" | "example";
     valueSet?: string;
 }
+
 export interface ElementDefinitionConstraint extends Element {
     expression?: string;
     human: string;
@@ -89,6 +91,7 @@ export interface ElementDefinitionConstraint extends Element {
     source?: string;
     xpath?: string;
 }
+
 export interface ElementDefinitionExample extends Element {
     label: string;
     valueAddress?: Address;
@@ -142,22 +145,26 @@ export interface ElementDefinitionExample extends Element {
     valueUsageContext?: UsageContext;
     valueUuid?: string;
 }
+
 export interface ElementDefinitionMapping extends Element {
     comment?: string;
     identity: string;
     language?: string;
     map: string;
 }
+
 export interface ElementDefinitionSlicing extends Element {
     description?: string;
     discriminator?: ElementDefinitionSlicingDiscriminator[];
     ordered?: boolean;
     rules: "closed" | "open" | "openAtEnd";
 }
+
 export interface ElementDefinitionSlicingDiscriminator extends Element {
     path: string;
     type_: "value" | "exists" | "pattern" | "type" | "profile";
 }
+
 export interface ElementDefinitionType extends Element {
     aggregation?: "contained" | "referenced" | "bundled"[];
     code: string;
@@ -165,6 +172,8 @@ export interface ElementDefinitionType extends Element {
     targetProfile?: string[];
     versioning?: "either" | "independent" | "specific";
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ElementDefinition
 export interface ElementDefinition extends BackboneElement {
     alias?: string[];
     _alias?: Element;

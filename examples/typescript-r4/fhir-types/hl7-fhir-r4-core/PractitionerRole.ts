@@ -23,10 +23,13 @@ export interface PractitionerRoleAvailableTime extends BackboneElement {
     availableStartTime?: string;
     daysOfWeek?: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun"[];
 }
+
 export interface PractitionerRoleNotAvailable extends BackboneElement {
     description: string;
     during?: Period;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/PractitionerRole
 export interface PractitionerRole extends DomainResource {
     resourceType: "PractitionerRole";
 

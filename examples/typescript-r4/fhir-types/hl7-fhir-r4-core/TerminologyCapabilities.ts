@@ -16,11 +16,13 @@ export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 export interface TerminologyCapabilitiesClosure extends BackboneElement {
     translation?: boolean;
 }
+
 export interface TerminologyCapabilitiesCodeSystem extends BackboneElement {
     subsumption?: boolean;
     uri?: string;
     version?: TerminologyCapabilitiesCodeSystemVersion[];
 }
+
 export interface TerminologyCapabilitiesCodeSystemVersion extends BackboneElement {
     code?: string;
     compositional?: boolean;
@@ -29,10 +31,12 @@ export interface TerminologyCapabilitiesCodeSystemVersion extends BackboneElemen
     language?: string[];
     property?: string[];
 }
+
 export interface TerminologyCapabilitiesCodeSystemVersionFilter extends BackboneElement {
     code: string;
     op: string[];
 }
+
 export interface TerminologyCapabilitiesExpansion extends BackboneElement {
     hierarchical?: boolean;
     incomplete?: boolean;
@@ -40,24 +44,31 @@ export interface TerminologyCapabilitiesExpansion extends BackboneElement {
     parameter?: TerminologyCapabilitiesExpansionParameter[];
     textFilter?: string;
 }
+
 export interface TerminologyCapabilitiesExpansionParameter extends BackboneElement {
     documentation?: string;
     name: string;
 }
+
 export interface TerminologyCapabilitiesImplementation extends BackboneElement {
     description: string;
     url?: string;
 }
+
 export interface TerminologyCapabilitiesSoftware extends BackboneElement {
     name: string;
     version?: string;
 }
+
 export interface TerminologyCapabilitiesTranslation extends BackboneElement {
     needsMap: boolean;
 }
+
 export interface TerminologyCapabilitiesValidateCode extends BackboneElement {
     translations: boolean;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities
 export interface TerminologyCapabilities extends DomainResource {
     resourceType: "TerminologyCapabilities";
 

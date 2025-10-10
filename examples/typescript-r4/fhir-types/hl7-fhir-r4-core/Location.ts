@@ -25,11 +25,14 @@ export interface LocationHoursOfOperation extends BackboneElement {
     daysOfWeek?: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun"[];
     openingTime?: string;
 }
+
 export interface LocationPosition extends BackboneElement {
     altitude?: number;
     latitude: number;
     longitude: number;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Location
 export interface Location extends DomainResource {
     resourceType: "Location";
 

@@ -5,6 +5,7 @@
 import type { Extension } from "../hl7-fhir-r4-core/Extension";
 import type { Observation } from "../hl7-fhir-r4-core/Observation";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/observation-genetics
 export interface Observation_genetics {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/observation-genetics";
 

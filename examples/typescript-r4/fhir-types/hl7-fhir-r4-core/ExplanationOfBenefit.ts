@@ -31,7 +31,9 @@ export interface ExplanationOfBenefitAccident extends BackboneElement {
     locationReference?: Reference<"Location">;
     type_?: CodeableConcept;
 }
+
 export interface ExplanationOfBenefitAddItem extends BackboneElement {
+    adjudication?: ExplanationOfBenefitItemAdjudication[];
     bodySite?: CodeableConcept;
     detail?: ExplanationOfBenefitAddItemDetail[];
     detailSequence?: number[];
@@ -53,7 +55,9 @@ export interface ExplanationOfBenefitAddItem extends BackboneElement {
     subSite?: CodeableConcept[];
     unitPrice?: Money;
 }
+
 export interface ExplanationOfBenefitAddItemDetail extends BackboneElement {
+    adjudication?: ExplanationOfBenefitItemAdjudication[];
     factor?: number;
     modifier?: CodeableConcept[];
     net?: Money;
@@ -63,7 +67,9 @@ export interface ExplanationOfBenefitAddItemDetail extends BackboneElement {
     subDetail?: ExplanationOfBenefitAddItemDetailSubDetail[];
     unitPrice?: Money;
 }
+
 export interface ExplanationOfBenefitAddItemDetailSubDetail extends BackboneElement {
+    adjudication?: ExplanationOfBenefitItemAdjudication[];
     factor?: number;
     modifier?: CodeableConcept[];
     net?: Money;
@@ -72,6 +78,7 @@ export interface ExplanationOfBenefitAddItemDetailSubDetail extends BackboneElem
     quantity?: Quantity;
     unitPrice?: Money;
 }
+
 export interface ExplanationOfBenefitBenefitBalance extends BackboneElement {
     category: CodeableConcept;
     description?: string;
@@ -82,6 +89,7 @@ export interface ExplanationOfBenefitBenefitBalance extends BackboneElement {
     term?: CodeableConcept;
     unit?: CodeableConcept;
 }
+
 export interface ExplanationOfBenefitBenefitBalanceFinancial extends BackboneElement {
     allowedMoney?: Money;
     allowedString?: string;
@@ -90,6 +98,7 @@ export interface ExplanationOfBenefitBenefitBalanceFinancial extends BackboneEle
     usedMoney?: Money;
     usedUnsignedInt?: number;
 }
+
 export interface ExplanationOfBenefitCareTeam extends BackboneElement {
     provider: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
     qualification?: CodeableConcept;
@@ -97,6 +106,7 @@ export interface ExplanationOfBenefitCareTeam extends BackboneElement {
     role?: CodeableConcept;
     sequence: number;
 }
+
 export interface ExplanationOfBenefitDiagnosis extends BackboneElement {
     diagnosisCodeableConcept?: CodeableConcept;
     diagnosisReference?: Reference<"Condition">;
@@ -105,11 +115,13 @@ export interface ExplanationOfBenefitDiagnosis extends BackboneElement {
     sequence: number;
     type_?: CodeableConcept[];
 }
+
 export interface ExplanationOfBenefitInsurance extends BackboneElement {
     coverage: Reference<"Coverage">;
     focal: boolean;
     preAuthRef?: string[];
 }
+
 export interface ExplanationOfBenefitItem extends BackboneElement {
     adjudication?: ExplanationOfBenefitItemAdjudication[];
     bodySite?: CodeableConcept;
@@ -138,13 +150,16 @@ export interface ExplanationOfBenefitItem extends BackboneElement {
     udi?: Reference<"Device">[];
     unitPrice?: Money;
 }
+
 export interface ExplanationOfBenefitItemAdjudication extends BackboneElement {
     amount?: Money;
     category: CodeableConcept;
     reason?: CodeableConcept;
     value?: number;
 }
+
 export interface ExplanationOfBenefitItemDetail extends BackboneElement {
+    adjudication?: ExplanationOfBenefitItemAdjudication[];
     category?: CodeableConcept;
     factor?: number;
     modifier?: CodeableConcept[];
@@ -159,7 +174,9 @@ export interface ExplanationOfBenefitItemDetail extends BackboneElement {
     udi?: Reference<"Device">[];
     unitPrice?: Money;
 }
+
 export interface ExplanationOfBenefitItemDetailSubDetail extends BackboneElement {
+    adjudication?: ExplanationOfBenefitItemAdjudication[];
     category?: CodeableConcept;
     factor?: number;
     modifier?: CodeableConcept[];
@@ -173,10 +190,12 @@ export interface ExplanationOfBenefitItemDetailSubDetail extends BackboneElement
     udi?: Reference<"Device">[];
     unitPrice?: Money;
 }
+
 export interface ExplanationOfBenefitPayee extends BackboneElement {
     party?: Reference<"Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     type_?: CodeableConcept;
 }
+
 export interface ExplanationOfBenefitPayment extends BackboneElement {
     adjustment?: Money;
     adjustmentReason?: CodeableConcept;
@@ -185,6 +204,7 @@ export interface ExplanationOfBenefitPayment extends BackboneElement {
     identifier?: Identifier;
     type_?: CodeableConcept;
 }
+
 export interface ExplanationOfBenefitProcedure extends BackboneElement {
     date?: string;
     procedureCodeableConcept?: CodeableConcept;
@@ -193,17 +213,20 @@ export interface ExplanationOfBenefitProcedure extends BackboneElement {
     type_?: CodeableConcept[];
     udi?: Reference<"Device">[];
 }
+
 export interface ExplanationOfBenefitProcessNote extends BackboneElement {
     language?: CodeableConcept;
     number_?: number;
     text?: string;
     type_?: "display" | "print" | "printoper";
 }
+
 export interface ExplanationOfBenefitRelated extends BackboneElement {
     claim?: Reference<"Claim">;
     reference?: Identifier;
     relationship?: CodeableConcept;
 }
+
 export interface ExplanationOfBenefitSupportingInfo extends BackboneElement {
     category: CodeableConcept;
     code?: CodeableConcept;
@@ -217,15 +240,19 @@ export interface ExplanationOfBenefitSupportingInfo extends BackboneElement {
     valueReference?: Reference<"Resource">;
     valueString?: string;
 }
+
 export interface ExplanationOfBenefitTotal extends BackboneElement {
     amount: Money;
     category: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit
 export interface ExplanationOfBenefit extends DomainResource {
     resourceType: "ExplanationOfBenefit";
 
     accident?: ExplanationOfBenefitAccident;
     addItem?: ExplanationOfBenefitAddItem[];
+    adjudication?: ExplanationOfBenefitItemAdjudication[];
     benefitBalance?: ExplanationOfBenefitBenefitBalance[];
     benefitPeriod?: Period;
     billablePeriod?: Period;

@@ -32,6 +32,7 @@ export interface MolecularSequenceQuality extends BackboneElement {
     truthTP?: number;
     type_: "indel" | "snp" | "unknown";
 }
+
 export interface MolecularSequenceQualityRoc extends BackboneElement {
     fMeasure?: number[];
     numFN?: number[];
@@ -41,6 +42,7 @@ export interface MolecularSequenceQualityRoc extends BackboneElement {
     score?: number[];
     sensitivity?: number[];
 }
+
 export interface MolecularSequenceReferenceSeq extends BackboneElement {
     chromosome?: CodeableConcept;
     genomeBuild?: string;
@@ -52,6 +54,7 @@ export interface MolecularSequenceReferenceSeq extends BackboneElement {
     windowEnd?: number;
     windowStart?: number;
 }
+
 export interface MolecularSequenceRepository extends BackboneElement {
     datasetId?: string;
     name?: string;
@@ -60,6 +63,7 @@ export interface MolecularSequenceRepository extends BackboneElement {
     url?: string;
     variantsetId?: string;
 }
+
 export interface MolecularSequenceStructureVariant extends BackboneElement {
     exact?: boolean;
     inner?: MolecularSequenceStructureVariantInner;
@@ -67,14 +71,17 @@ export interface MolecularSequenceStructureVariant extends BackboneElement {
     outer?: MolecularSequenceStructureVariantOuter;
     variantType?: CodeableConcept;
 }
+
 export interface MolecularSequenceStructureVariantInner extends BackboneElement {
     end?: number;
     start?: number;
 }
+
 export interface MolecularSequenceStructureVariantOuter extends BackboneElement {
     end?: number;
     start?: number;
 }
+
 export interface MolecularSequenceVariant extends BackboneElement {
     cigar?: string;
     end?: number;
@@ -83,6 +90,8 @@ export interface MolecularSequenceVariant extends BackboneElement {
     start?: number;
     variantPointer?: Reference<"Observation">;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MolecularSequence
 export interface MolecularSequence extends DomainResource {
     resourceType: "MolecularSequence";
 

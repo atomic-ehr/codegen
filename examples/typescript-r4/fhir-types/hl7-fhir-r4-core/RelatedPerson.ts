@@ -27,6 +27,8 @@ export interface RelatedPersonCommunication extends BackboneElement {
     language: CodeableConcept;
     preferred?: boolean;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/RelatedPerson
 export interface RelatedPerson extends DomainResource {
     resourceType: "RelatedPerson";
 

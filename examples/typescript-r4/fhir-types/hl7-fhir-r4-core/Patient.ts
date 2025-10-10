@@ -27,6 +27,7 @@ export interface PatientCommunication extends BackboneElement {
     language: CodeableConcept;
     preferred?: boolean;
 }
+
 export interface PatientContact extends BackboneElement {
     address?: Address;
     gender?: "male" | "female" | "other" | "unknown";
@@ -36,10 +37,13 @@ export interface PatientContact extends BackboneElement {
     relationship?: CodeableConcept[];
     telecom?: ContactPoint[];
 }
+
 export interface PatientLink extends BackboneElement {
     other: Reference<"Patient" | "RelatedPerson">;
     type_: "replaced-by" | "replaces" | "refer" | "seealso";
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Patient
 export interface Patient extends DomainResource {
     resourceType: "Patient";
 

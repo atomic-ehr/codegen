@@ -10,6 +10,7 @@ export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 export type { Period } from "../hl7-fhir-r4-core/Period";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MarketingStatus
 export interface MarketingStatus extends BackboneElement {
     country: CodeableConcept;
     dateRange: Period;

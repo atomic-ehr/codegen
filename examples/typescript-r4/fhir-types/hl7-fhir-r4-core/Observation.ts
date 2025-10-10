@@ -31,6 +31,7 @@ export interface ObservationComponent extends BackboneElement {
     code: CodeableConcept;
     dataAbsentReason?: CodeableConcept;
     interpretation?: CodeableConcept[];
+    referenceRange?: ObservationReferenceRange[];
     valueBoolean?: boolean;
     valueCodeableConcept?: CodeableConcept;
     valueDateTime?: string;
@@ -43,6 +44,7 @@ export interface ObservationComponent extends BackboneElement {
     valueString?: string;
     valueTime?: string;
 }
+
 export interface ObservationReferenceRange extends BackboneElement {
     age?: Range;
     appliesTo?: CodeableConcept[];
@@ -51,6 +53,8 @@ export interface ObservationReferenceRange extends BackboneElement {
     text?: string;
     type_?: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Observation
 export interface Observation extends DomainResource {
     resourceType: "Observation";
 

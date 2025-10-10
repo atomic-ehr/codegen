@@ -29,6 +29,7 @@ export interface ClaimAccident extends BackboneElement {
     locationReference?: Reference<"Location">;
     type_?: CodeableConcept;
 }
+
 export interface ClaimCareTeam extends BackboneElement {
     provider: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
     qualification?: CodeableConcept;
@@ -36,6 +37,7 @@ export interface ClaimCareTeam extends BackboneElement {
     role?: CodeableConcept;
     sequence: number;
 }
+
 export interface ClaimDiagnosis extends BackboneElement {
     diagnosisCodeableConcept?: CodeableConcept;
     diagnosisReference?: Reference<"Condition">;
@@ -44,6 +46,7 @@ export interface ClaimDiagnosis extends BackboneElement {
     sequence: number;
     type_?: CodeableConcept[];
 }
+
 export interface ClaimInsurance extends BackboneElement {
     businessArrangement?: string;
     claimResponse?: Reference<"ClaimResponse">;
@@ -53,6 +56,7 @@ export interface ClaimInsurance extends BackboneElement {
     preAuthRef?: string[];
     sequence: number;
 }
+
 export interface ClaimItem extends BackboneElement {
     bodySite?: CodeableConcept;
     careTeamSequence?: number[];
@@ -79,6 +83,7 @@ export interface ClaimItem extends BackboneElement {
     udi?: Reference<"Device">[];
     unitPrice?: Money;
 }
+
 export interface ClaimItemDetail extends BackboneElement {
     category?: CodeableConcept;
     factor?: number;
@@ -93,6 +98,7 @@ export interface ClaimItemDetail extends BackboneElement {
     udi?: Reference<"Device">[];
     unitPrice?: Money;
 }
+
 export interface ClaimItemDetailSubDetail extends BackboneElement {
     category?: CodeableConcept;
     factor?: number;
@@ -106,10 +112,12 @@ export interface ClaimItemDetailSubDetail extends BackboneElement {
     udi?: Reference<"Device">[];
     unitPrice?: Money;
 }
+
 export interface ClaimPayee extends BackboneElement {
     party?: Reference<"Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     type_: CodeableConcept;
 }
+
 export interface ClaimProcedure extends BackboneElement {
     date?: string;
     procedureCodeableConcept?: CodeableConcept;
@@ -118,11 +126,13 @@ export interface ClaimProcedure extends BackboneElement {
     type_?: CodeableConcept[];
     udi?: Reference<"Device">[];
 }
+
 export interface ClaimRelated extends BackboneElement {
     claim?: Reference<"Claim">;
     reference?: Identifier;
     relationship?: CodeableConcept;
 }
+
 export interface ClaimSupportingInfo extends BackboneElement {
     category: CodeableConcept;
     code?: CodeableConcept;
@@ -136,6 +146,8 @@ export interface ClaimSupportingInfo extends BackboneElement {
     valueReference?: Reference<"Resource">;
     valueString?: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Claim
 export interface Claim extends DomainResource {
     resourceType: "Claim";
 

@@ -23,6 +23,8 @@ export interface PersonLink extends BackboneElement {
     assurance?: "level1" | "level2" | "level3" | "level4";
     target: Reference<"Patient" | "Person" | "Practitioner" | "RelatedPerson">;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Person
 export interface Person extends DomainResource {
     resourceType: "Person";
 

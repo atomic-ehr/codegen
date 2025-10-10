@@ -27,6 +27,8 @@ export interface ChargeItemPerformer extends BackboneElement {
     actor: Reference<"CareTeam" | "Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     function_?: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ChargeItem
 export interface ChargeItem extends DomainResource {
     resourceType: "ChargeItem";
 

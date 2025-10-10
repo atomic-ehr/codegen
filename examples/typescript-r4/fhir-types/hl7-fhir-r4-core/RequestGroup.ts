@@ -30,6 +30,7 @@ export type { RelatedArtifact } from "../hl7-fhir-r4-core/RelatedArtifact";
 export type { Timing } from "../hl7-fhir-r4-core/Timing";
 
 export interface RequestGroupAction extends BackboneElement {
+    action?: RequestGroupAction[];
     cardinalityBehavior?: "single" | "multiple";
     code?: CodeableConcept[];
     condition?: RequestGroupActionCondition[];
@@ -54,16 +55,20 @@ export interface RequestGroupAction extends BackboneElement {
     title?: string;
     type_?: CodeableConcept;
 }
+
 export interface RequestGroupActionCondition extends BackboneElement {
     expression?: Expression;
     kind: "applicability" | "start" | "stop";
 }
+
 export interface RequestGroupActionRelatedAction extends BackboneElement {
     actionId: string;
     offsetDuration?: Duration;
     offsetRange?: Range;
     relationship: "before-start" | "before" | "before-end" | "concurrent-with-start" | "concurrent" | "concurrent-with-end" | "after-start" | "after" | "after-end";
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/RequestGroup
 export interface RequestGroup extends DomainResource {
     resourceType: "RequestGroup";
 

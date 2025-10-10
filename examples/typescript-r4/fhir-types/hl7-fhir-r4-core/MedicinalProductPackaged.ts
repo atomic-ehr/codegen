@@ -25,6 +25,7 @@ export interface MedicinalProductPackagedBatchIdentifier extends BackboneElement
     immediatePackaging?: Identifier;
     outerPackaging: Identifier;
 }
+
 export interface MedicinalProductPackagedPackageItem extends BackboneElement {
     alternateMaterial?: CodeableConcept[];
     device?: Reference<"DeviceDefinition">[];
@@ -33,11 +34,14 @@ export interface MedicinalProductPackagedPackageItem extends BackboneElement {
     manufacturer?: Reference<"Organization">[];
     material?: CodeableConcept[];
     otherCharacteristics?: CodeableConcept[];
+    packageItem?: MedicinalProductPackagedPackageItem[];
     physicalCharacteristics?: ProdCharacteristic;
     quantity: Quantity;
     shelfLifeStorage?: ProductShelfLife[];
     type_: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductPackaged
 export interface MedicinalProductPackaged extends DomainResource {
     resourceType: "MedicinalProductPackaged";
 

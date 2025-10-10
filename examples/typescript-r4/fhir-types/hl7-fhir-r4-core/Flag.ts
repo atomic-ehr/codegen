@@ -13,6 +13,7 @@ export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 export type { Period } from "../hl7-fhir-r4-core/Period";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Flag
 export interface Flag extends DomainResource {
     resourceType: "Flag";
 

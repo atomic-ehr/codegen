@@ -10,6 +10,7 @@ import type { Period } from "../hl7-fhir-r4-core/Period";
 import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/bp
 export interface observation_bp {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/bp";
 

@@ -4,6 +4,7 @@
 
 import type { PlanDefinition } from "../hl7-fhir-r4-core/PlanDefinition";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/computableplandefinition
 export interface Computable_PlanDefinition {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/computableplandefinition";
 

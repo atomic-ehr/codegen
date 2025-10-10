@@ -22,6 +22,7 @@ export interface DataRequirementCodeFilter extends Element {
     searchParam?: string;
     valueSet?: string;
 }
+
 export interface DataRequirementDateFilter extends Element {
     path?: string;
     searchParam?: string;
@@ -29,10 +30,13 @@ export interface DataRequirementDateFilter extends Element {
     valueDuration?: Duration;
     valuePeriod?: Period;
 }
+
 export interface DataRequirementSort extends Element {
     direction: "ascending" | "descending";
     path: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DataRequirement
 export interface DataRequirement extends Element {
     codeFilter?: Element[];
     dateFilter?: Element[];

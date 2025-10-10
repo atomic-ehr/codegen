@@ -16,35 +16,48 @@ export interface TestReportParticipant extends BackboneElement {
     type_: "test-engine" | "client" | "server";
     uri: string;
 }
+
 export interface TestReportSetup extends BackboneElement {
     action: TestReportSetupAction[];
 }
+
 export interface TestReportSetupAction extends BackboneElement {
     assert?: TestReportSetupActionAssert;
     operation?: TestReportSetupActionOperation;
 }
+
 export interface TestReportSetupActionAssert extends BackboneElement {
     detail?: string;
     message?: string;
     result: "pass" | "skip" | "fail" | "warning" | "error";
 }
+
 export interface TestReportSetupActionOperation extends BackboneElement {
     detail?: string;
     message?: string;
     result: "pass" | "skip" | "fail" | "warning" | "error";
 }
+
 export interface TestReportTeardown extends BackboneElement {
     action: TestReportTeardownAction[];
 }
+
 export interface TestReportTeardownAction extends BackboneElement {
+    operation: TestReportSetupActionOperation;
 }
+
 export interface TestReportTest extends BackboneElement {
     action: TestReportTestAction[];
     description?: string;
     name?: string;
 }
+
 export interface TestReportTestAction extends BackboneElement {
+    assert?: TestReportSetupActionAssert;
+    operation?: TestReportSetupActionOperation;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/TestReport
 export interface TestReport extends DomainResource {
     resourceType: "TestReport";
 

@@ -32,12 +32,14 @@ export interface NutritionOrderEnteralFormula extends BackboneElement {
     maxVolumeToDeliver?: Quantity;
     routeofAdministration?: CodeableConcept;
 }
+
 export interface NutritionOrderEnteralFormulaAdministration extends BackboneElement {
     quantity?: Quantity;
     rateQuantity?: Quantity;
     rateRatio?: Ratio;
     schedule?: Timing;
 }
+
 export interface NutritionOrderOralDiet extends BackboneElement {
     fluidConsistencyType?: CodeableConcept[];
     instruction?: string;
@@ -46,14 +48,17 @@ export interface NutritionOrderOralDiet extends BackboneElement {
     texture?: NutritionOrderOralDietTexture[];
     type_?: CodeableConcept[];
 }
+
 export interface NutritionOrderOralDietNutrient extends BackboneElement {
     amount?: Quantity;
     modifier?: CodeableConcept;
 }
+
 export interface NutritionOrderOralDietTexture extends BackboneElement {
     foodType?: CodeableConcept;
     modifier?: CodeableConcept;
 }
+
 export interface NutritionOrderSupplement extends BackboneElement {
     instruction?: string;
     productName?: string;
@@ -61,6 +66,8 @@ export interface NutritionOrderSupplement extends BackboneElement {
     schedule?: Timing[];
     type_?: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/NutritionOrder
 export interface NutritionOrder extends DomainResource {
     resourceType: "NutritionOrder";
 

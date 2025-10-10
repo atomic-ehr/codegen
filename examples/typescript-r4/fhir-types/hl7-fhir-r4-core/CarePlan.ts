@@ -28,6 +28,7 @@ export interface CarePlanActivity extends BackboneElement {
     progress?: Annotation[];
     reference?: Reference<"Appointment" | "CommunicationRequest" | "DeviceRequest" | "MedicationRequest" | "NutritionOrder" | "RequestGroup" | "ServiceRequest" | "Task" | "VisionPrescription">;
 }
+
 export interface CarePlanActivityDetail extends BackboneElement {
     code?: CodeableConcept;
     dailyAmount?: Quantity;
@@ -50,6 +51,8 @@ export interface CarePlanActivityDetail extends BackboneElement {
     status: "not-started" | "scheduled" | "in-progress" | "on-hold" | "completed" | "cancelled" | "stopped" | "unknown" | "entered-in-error";
     statusReason?: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CarePlan
 export interface CarePlan extends DomainResource {
     resourceType: "CarePlan";
 

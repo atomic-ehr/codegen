@@ -22,6 +22,8 @@ export interface AppointmentParticipant extends BackboneElement {
     status: "accepted" | "declined" | "tentative" | "needs-action";
     type_?: CodeableConcept[];
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Appointment
 export interface Appointment extends DomainResource {
     resourceType: "Appointment";
 

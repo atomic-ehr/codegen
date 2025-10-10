@@ -77,23 +77,28 @@ export interface StructureMapGroup extends BackboneElement {
     rule: StructureMapGroupRule[];
     typeMode: "none" | "types" | "type-and-types";
 }
+
 export interface StructureMapGroupInput extends BackboneElement {
     documentation?: string;
     mode: "source" | "target";
     name: string;
     type_?: string;
 }
+
 export interface StructureMapGroupRule extends BackboneElement {
     dependent?: StructureMapGroupRuleDependent[];
     documentation?: string;
     name: string;
+    rule?: StructureMapGroupRule[];
     source: StructureMapGroupRuleSource[];
     target?: StructureMapGroupRuleTarget[];
 }
+
 export interface StructureMapGroupRuleDependent extends BackboneElement {
     name: string;
     variable: string[];
 }
+
 export interface StructureMapGroupRuleSource extends BackboneElement {
     check?: string;
     condition?: string;
@@ -156,6 +161,7 @@ export interface StructureMapGroupRuleSource extends BackboneElement {
     type_?: string;
     variable?: string;
 }
+
 export interface StructureMapGroupRuleTarget extends BackboneElement {
     context?: string;
     contextType?: "type" | "variable";
@@ -166,6 +172,7 @@ export interface StructureMapGroupRuleTarget extends BackboneElement {
     transform?: "create" | "copy" | "truncate" | "escape" | "cast" | "append" | "translate" | "reference" | "dateOp" | "uuid" | "pointer" | "evaluate" | "cc" | "c" | "qty" | "id" | "cp";
     variable?: string;
 }
+
 export interface StructureMapGroupRuleTargetParameter extends BackboneElement {
     valueBoolean?: boolean;
     valueDecimal?: number;
@@ -173,12 +180,15 @@ export interface StructureMapGroupRuleTargetParameter extends BackboneElement {
     valueInteger?: number;
     valueString?: string;
 }
+
 export interface StructureMapStructure extends BackboneElement {
     alias?: string;
     documentation?: string;
     mode: "source" | "queried" | "target" | "produced";
     url: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/StructureMap
 export interface StructureMap extends DomainResource {
     resourceType: "StructureMap";
 

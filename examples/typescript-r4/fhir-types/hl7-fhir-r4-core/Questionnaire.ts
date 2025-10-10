@@ -33,6 +33,7 @@ export interface QuestionnaireItem extends BackboneElement {
     enableBehavior?: "all" | "any";
     enableWhen?: QuestionnaireItemEnableWhen[];
     initial?: QuestionnaireItemInitial[];
+    item?: QuestionnaireItem[];
     linkId: string;
     maxLength?: number;
     prefix?: string;
@@ -42,6 +43,7 @@ export interface QuestionnaireItem extends BackboneElement {
     text?: string;
     type_: "group" | "display" | "question" | "boolean" | "decimal" | "integer" | "date" | "dateTime" | "time" | "string" | "text" | "url" | "choice" | "open-choice" | "attachment" | "reference" | "quantity";
 }
+
 export interface QuestionnaireItemAnswerOption extends BackboneElement {
     initialSelected?: boolean;
     valueCoding?: Coding;
@@ -51,6 +53,7 @@ export interface QuestionnaireItemAnswerOption extends BackboneElement {
     valueString?: string;
     valueTime?: string;
 }
+
 export interface QuestionnaireItemEnableWhen extends BackboneElement {
     answerBoolean?: boolean;
     answerCoding?: Coding;
@@ -65,6 +68,7 @@ export interface QuestionnaireItemEnableWhen extends BackboneElement {
     operator: "exists" | "=" | "!=" | ">" | "<" | ">=" | "<=";
     question: string;
 }
+
 export interface QuestionnaireItemInitial extends BackboneElement {
     valueAttachment?: Attachment;
     valueBoolean?: boolean;
@@ -79,6 +83,8 @@ export interface QuestionnaireItemInitial extends BackboneElement {
     valueTime?: string;
     valueUri?: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Questionnaire
 export interface Questionnaire extends DomainResource {
     resourceType: "Questionnaire";
 

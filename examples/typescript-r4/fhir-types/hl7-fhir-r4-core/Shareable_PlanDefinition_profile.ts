@@ -8,6 +8,7 @@ import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 import type { PlanDefinition } from "../hl7-fhir-r4-core/PlanDefinition";
 import type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/shareableplandefinition
 export interface Shareable_PlanDefinition {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/shareableplandefinition";
 

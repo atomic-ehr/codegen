@@ -12,6 +12,7 @@ export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ProdCharacteristic
 export interface ProdCharacteristic extends BackboneElement {
     color?: string[];
     _color?: Element;

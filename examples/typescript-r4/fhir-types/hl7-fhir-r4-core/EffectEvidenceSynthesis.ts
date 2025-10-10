@@ -28,11 +28,13 @@ export interface EffectEvidenceSynthesisCertainty extends BackboneElement {
     note?: Annotation[];
     rating?: CodeableConcept[];
 }
+
 export interface EffectEvidenceSynthesisCertaintyCertaintySubcomponent extends BackboneElement {
     note?: Annotation[];
     rating?: CodeableConcept[];
     type_?: CodeableConcept;
 }
+
 export interface EffectEvidenceSynthesisEffectEstimate extends BackboneElement {
     description?: string;
     precisionEstimate?: EffectEvidenceSynthesisEffectEstimatePrecisionEstimate[];
@@ -41,23 +43,28 @@ export interface EffectEvidenceSynthesisEffectEstimate extends BackboneElement {
     value?: number;
     variantState?: CodeableConcept;
 }
+
 export interface EffectEvidenceSynthesisEffectEstimatePrecisionEstimate extends BackboneElement {
     from_?: number;
     level?: number;
     to?: number;
     type_?: CodeableConcept;
 }
+
 export interface EffectEvidenceSynthesisResultsByExposure extends BackboneElement {
     description?: string;
     exposureState?: "exposure" | "exposure-alternative";
     riskEvidenceSynthesis: Reference<"RiskEvidenceSynthesis">;
     variantState?: CodeableConcept;
 }
+
 export interface EffectEvidenceSynthesisSampleSize extends BackboneElement {
     description?: string;
     numberOfParticipants?: number;
     numberOfStudies?: number;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis
 export interface EffectEvidenceSynthesis extends DomainResource {
     resourceType: "EffectEvidenceSynthesis";
 

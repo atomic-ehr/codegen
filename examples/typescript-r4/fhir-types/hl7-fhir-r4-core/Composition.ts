@@ -22,16 +22,19 @@ export interface CompositionAttester extends BackboneElement {
     party?: Reference<"Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     time?: string;
 }
+
 export interface CompositionEvent extends BackboneElement {
     code?: CodeableConcept[];
     detail?: Reference<"Resource">[];
     period?: Period;
 }
+
 export interface CompositionRelatesTo extends BackboneElement {
     code: "replaces" | "transforms" | "signs" | "appends";
     targetIdentifier?: Identifier;
     targetReference?: Reference<"Composition">;
 }
+
 export interface CompositionSection extends BackboneElement {
     author?: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">[];
     code?: CodeableConcept;
@@ -40,9 +43,12 @@ export interface CompositionSection extends BackboneElement {
     focus?: Reference<"Resource">;
     mode?: "working" | "snapshot" | "changes";
     orderedBy?: CodeableConcept;
+    section?: CompositionSection[];
     text?: Narrative;
     title?: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Composition
 export interface Composition extends DomainResource {
     resourceType: "Composition";
 

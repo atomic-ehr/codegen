@@ -21,6 +21,8 @@ export interface ListEntry extends BackboneElement {
     flag?: CodeableConcept;
     item: Reference<"Resource">;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/List
 export interface List extends DomainResource {
     resourceType: "List";
 

@@ -31,6 +31,8 @@ export interface FamilyMemberHistoryCondition extends BackboneElement {
     onsetString?: string;
     outcome?: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/FamilyMemberHistory
 export interface FamilyMemberHistory extends DomainResource {
     resourceType: "FamilyMemberHistory";
 

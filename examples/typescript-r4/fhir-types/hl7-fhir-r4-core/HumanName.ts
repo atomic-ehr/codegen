@@ -8,6 +8,7 @@ import type { Period } from "../hl7-fhir-r4-core/Period";
 export type { Element } from "../hl7-fhir-r4-core/Element";
 export type { Period } from "../hl7-fhir-r4-core/Period";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/HumanName
 export interface HumanName extends Element {
     family?: string;
     _family?: Element;

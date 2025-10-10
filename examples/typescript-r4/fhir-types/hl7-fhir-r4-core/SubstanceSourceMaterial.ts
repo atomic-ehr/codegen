@@ -15,6 +15,7 @@ export interface SubstanceSourceMaterialFractionDescription extends BackboneElem
     fraction?: string;
     materialType?: CodeableConcept;
 }
+
 export interface SubstanceSourceMaterialOrganism extends BackboneElement {
     author?: SubstanceSourceMaterialOrganismAuthor[];
     family?: CodeableConcept;
@@ -25,10 +26,12 @@ export interface SubstanceSourceMaterialOrganism extends BackboneElement {
     organismGeneral?: SubstanceSourceMaterialOrganismOrganismGeneral;
     species?: CodeableConcept;
 }
+
 export interface SubstanceSourceMaterialOrganismAuthor extends BackboneElement {
     authorDescription?: string;
     authorType?: CodeableConcept;
 }
+
 export interface SubstanceSourceMaterialOrganismHybrid extends BackboneElement {
     hybridType?: CodeableConcept;
     maternalOrganismId?: string;
@@ -36,16 +39,20 @@ export interface SubstanceSourceMaterialOrganismHybrid extends BackboneElement {
     paternalOrganismId?: string;
     paternalOrganismName?: string;
 }
+
 export interface SubstanceSourceMaterialOrganismOrganismGeneral extends BackboneElement {
     class_?: CodeableConcept;
     kingdom?: CodeableConcept;
     order?: CodeableConcept;
     phylum?: CodeableConcept;
 }
+
 export interface SubstanceSourceMaterialPartDescription extends BackboneElement {
     part?: CodeableConcept;
     partLocation?: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstanceSourceMaterial
 export interface SubstanceSourceMaterial extends DomainResource {
     resourceType: "SubstanceSourceMaterial";
 

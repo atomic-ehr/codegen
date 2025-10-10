@@ -23,6 +23,8 @@ export interface SubstanceProteinSubunit extends BackboneElement {
     sequenceAttachment?: Attachment;
     subunit?: number;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstanceProtein
 export interface SubstanceProtein extends DomainResource {
     resourceType: "SubstanceProtein";
 

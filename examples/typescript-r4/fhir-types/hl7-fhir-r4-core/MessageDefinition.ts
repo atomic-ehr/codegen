@@ -21,12 +21,15 @@ export interface MessageDefinitionAllowedResponse extends BackboneElement {
     message: string;
     situation?: string;
 }
+
 export interface MessageDefinitionFocus extends BackboneElement {
     code: string;
     max?: string;
     min: number;
     profile?: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MessageDefinition
 export interface MessageDefinition extends DomainResource {
     resourceType: "MessageDefinition";
 

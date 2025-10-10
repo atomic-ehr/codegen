@@ -20,10 +20,13 @@ export interface EpisodeOfCareDiagnosis extends BackboneElement {
     rank?: number;
     role?: CodeableConcept;
 }
+
 export interface EpisodeOfCareStatusHistory extends BackboneElement {
     period: Period;
     status: "planned" | "waitlist" | "active" | "onhold" | "finished" | "cancelled" | "entered-in-error";
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/EpisodeOfCare
 export interface EpisodeOfCare extends DomainResource {
     resourceType: "EpisodeOfCare";
 

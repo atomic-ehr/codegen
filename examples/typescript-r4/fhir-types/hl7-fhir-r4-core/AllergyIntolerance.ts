@@ -30,6 +30,8 @@ export interface AllergyIntoleranceReaction extends BackboneElement {
     severity?: "mild" | "moderate" | "severe";
     substance?: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/AllergyIntolerance
 export interface AllergyIntolerance extends DomainResource {
     resourceType: "AllergyIntolerance";
 

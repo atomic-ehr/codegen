@@ -24,6 +24,7 @@ export interface CoverageEligibilityRequestInsurance extends BackboneElement {
     coverage: Reference<"Coverage">;
     focal?: boolean;
 }
+
 export interface CoverageEligibilityRequestItem extends BackboneElement {
     category?: CodeableConcept;
     detail?: Reference<"Resource">[];
@@ -36,15 +37,19 @@ export interface CoverageEligibilityRequestItem extends BackboneElement {
     supportingInfoSequence?: number[];
     unitPrice?: Money;
 }
+
 export interface CoverageEligibilityRequestItemDiagnosis extends BackboneElement {
     diagnosisCodeableConcept?: CodeableConcept;
     diagnosisReference?: Reference<"Condition">;
 }
+
 export interface CoverageEligibilityRequestSupportingInfo extends BackboneElement {
     appliesToAll?: boolean;
     information: Reference<"Resource">;
     sequence: number;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CoverageEligibilityRequest
 export interface CoverageEligibilityRequest extends DomainResource {
     resourceType: "CoverageEligibilityRequest";
 

@@ -28,6 +28,7 @@ export interface SubstanceSpecificationCode extends BackboneElement {
     status?: CodeableConcept;
     statusDate?: string;
 }
+
 export interface SubstanceSpecificationMoiety extends BackboneElement {
     amountQuantity?: Quantity;
     amountString?: string;
@@ -38,6 +39,7 @@ export interface SubstanceSpecificationMoiety extends BackboneElement {
     role?: CodeableConcept;
     stereochemistry?: CodeableConcept;
 }
+
 export interface SubstanceSpecificationName extends BackboneElement {
     domain?: CodeableConcept[];
     jurisdiction?: CodeableConcept[];
@@ -47,13 +49,17 @@ export interface SubstanceSpecificationName extends BackboneElement {
     preferred?: boolean;
     source?: Reference<"DocumentReference">[];
     status?: CodeableConcept;
+    synonym?: SubstanceSpecificationName[];
+    translation?: SubstanceSpecificationName[];
     type_?: CodeableConcept;
 }
+
 export interface SubstanceSpecificationNameOfficial extends BackboneElement {
     authority?: CodeableConcept;
     date?: string;
     status?: CodeableConcept;
 }
+
 export interface SubstanceSpecificationProperty extends BackboneElement {
     amountQuantity?: Quantity;
     amountString?: string;
@@ -63,6 +69,7 @@ export interface SubstanceSpecificationProperty extends BackboneElement {
     definingSubstanceReference?: Reference<"Substance" | "SubstanceSpecification">;
     parameters?: string;
 }
+
 export interface SubstanceSpecificationRelationship extends BackboneElement {
     amountQuantity?: Quantity;
     amountRange?: Range;
@@ -76,15 +83,18 @@ export interface SubstanceSpecificationRelationship extends BackboneElement {
     substanceCodeableConcept?: CodeableConcept;
     substanceReference?: Reference<"SubstanceSpecification">;
 }
+
 export interface SubstanceSpecificationStructure extends BackboneElement {
     isotope?: SubstanceSpecificationStructureIsotope[];
     molecularFormula?: string;
     molecularFormulaByMoiety?: string;
+    molecularWeight?: SubstanceSpecificationStructureIsotopeMolecularWeight;
     opticalActivity?: CodeableConcept;
     representation?: SubstanceSpecificationStructureRepresentation[];
     source?: Reference<"DocumentReference">[];
     stereochemistry?: CodeableConcept;
 }
+
 export interface SubstanceSpecificationStructureIsotope extends BackboneElement {
     halfLife?: Quantity;
     identifier?: Identifier;
@@ -92,16 +102,20 @@ export interface SubstanceSpecificationStructureIsotope extends BackboneElement 
     name?: CodeableConcept;
     substitution?: CodeableConcept;
 }
+
 export interface SubstanceSpecificationStructureIsotopeMolecularWeight extends BackboneElement {
     amount?: Quantity;
     method?: CodeableConcept;
     type_?: CodeableConcept;
 }
+
 export interface SubstanceSpecificationStructureRepresentation extends BackboneElement {
     attachment?: Attachment;
     representation?: string;
     type_?: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstanceSpecification
 export interface SubstanceSpecification extends DomainResource {
     resourceType: "SubstanceSpecification";
 
@@ -113,6 +127,7 @@ export interface SubstanceSpecification extends DomainResource {
     domain?: CodeableConcept;
     identifier?: Identifier;
     moiety?: SubstanceSpecificationMoiety[];
+    molecularWeight?: SubstanceSpecificationStructureIsotopeMolecularWeight[];
     name?: SubstanceSpecificationName[];
     nucleicAcid?: Reference<"SubstanceNucleicAcid">;
     polymer?: Reference<"SubstancePolymer">;

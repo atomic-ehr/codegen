@@ -29,11 +29,14 @@ export interface GroupCharacteristic extends BackboneElement {
     valueRange?: Range;
     valueReference?: Reference;
 }
+
 export interface GroupMember extends BackboneElement {
     entity: Reference<"Device" | "Group" | "Medication" | "Patient" | "Practitioner" | "PractitionerRole" | "Substance">;
     inactive?: boolean;
     period?: Period;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Group
 export interface Group extends DomainResource {
     resourceType: "Group";
 

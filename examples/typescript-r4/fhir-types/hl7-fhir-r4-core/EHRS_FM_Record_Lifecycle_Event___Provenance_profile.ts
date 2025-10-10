@@ -9,6 +9,7 @@ import type { ProvenanceAgent } from "../hl7-fhir-r4-core/Provenance";
 import type { Reference } from "../hl7-fhir-r4-core/Reference";
 import type { Signature } from "../hl7-fhir-r4-core/Signature";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ehrsrle-provenance
 export interface EHRS_FM_Record_Lifecycle_Event___Provenance {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/ehrsrle-provenance";
 

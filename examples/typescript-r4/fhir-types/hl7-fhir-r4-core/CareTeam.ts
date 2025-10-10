@@ -25,6 +25,8 @@ export interface CareTeamParticipant extends BackboneElement {
     period?: Period;
     role?: CodeableConcept[];
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CareTeam
 export interface CareTeam extends DomainResource {
     resourceType: "CareTeam";
 

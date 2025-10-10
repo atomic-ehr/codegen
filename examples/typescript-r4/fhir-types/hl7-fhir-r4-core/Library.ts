@@ -25,6 +25,7 @@ export type { Reference } from "../hl7-fhir-r4-core/Reference";
 export type { RelatedArtifact } from "../hl7-fhir-r4-core/RelatedArtifact";
 export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Library
 export interface Library extends DomainResource {
     resourceType: "Library";
 

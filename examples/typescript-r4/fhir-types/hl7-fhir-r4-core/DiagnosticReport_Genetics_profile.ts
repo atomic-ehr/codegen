@@ -6,6 +6,7 @@ import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 import type { DiagnosticReport } from "../hl7-fhir-r4-core/DiagnosticReport";
 import type { Extension } from "../hl7-fhir-r4-core/Extension";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/diagnosticreport-genetics
 export interface DiagnosticReport_Genetics {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/diagnosticreport-genetics";
 

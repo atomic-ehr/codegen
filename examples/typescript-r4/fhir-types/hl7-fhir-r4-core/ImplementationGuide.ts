@@ -22,20 +22,25 @@ export interface ImplementationGuideDefinition extends BackboneElement {
     resource: ImplementationGuideDefinitionResource[];
     template?: ImplementationGuideDefinitionTemplate[];
 }
+
 export interface ImplementationGuideDefinitionGrouping extends BackboneElement {
     description?: string;
     name: string;
 }
+
 export interface ImplementationGuideDefinitionPage extends BackboneElement {
     generation: "html" | "markdown" | "xml" | "generated";
     nameReference?: Reference<"Binary">;
     nameUrl?: string;
+    page?: ImplementationGuideDefinitionPage[];
     title: string;
 }
+
 export interface ImplementationGuideDefinitionParameter extends BackboneElement {
     code: "apply" | "path-resource" | "path-pages" | "path-tx-cache" | "expansion-parameter" | "rule-broken-links" | "generate-xml" | "generate-json" | "generate-turtle" | "html-template";
     value: string;
 }
+
 export interface ImplementationGuideDefinitionResource extends BackboneElement {
     description?: string;
     exampleBoolean?: boolean;
@@ -45,20 +50,24 @@ export interface ImplementationGuideDefinitionResource extends BackboneElement {
     name?: string;
     reference: Reference<"Resource">;
 }
+
 export interface ImplementationGuideDefinitionTemplate extends BackboneElement {
     code: string;
     scope?: string;
     source: string;
 }
+
 export interface ImplementationGuideDependsOn extends BackboneElement {
     packageId?: string;
     uri: string;
     version?: string;
 }
+
 export interface ImplementationGuideGlobal extends BackboneElement {
     profile: string;
     type_: string;
 }
+
 export interface ImplementationGuideManifest extends BackboneElement {
     image?: string[];
     other?: string[];
@@ -66,17 +75,21 @@ export interface ImplementationGuideManifest extends BackboneElement {
     rendering?: string;
     resource: ImplementationGuideManifestResource[];
 }
+
 export interface ImplementationGuideManifestPage extends BackboneElement {
     anchor?: string[];
     name: string;
     title?: string;
 }
+
 export interface ImplementationGuideManifestResource extends BackboneElement {
     exampleBoolean?: boolean;
     exampleCanonical?: string;
     reference: Reference<"Resource">;
     relativePath?: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ImplementationGuide
 export interface ImplementationGuide extends DomainResource {
     resourceType: "ImplementationGuide";
 

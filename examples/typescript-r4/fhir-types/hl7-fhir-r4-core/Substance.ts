@@ -22,11 +22,14 @@ export interface SubstanceIngredient extends BackboneElement {
     substanceCodeableConcept?: CodeableConcept;
     substanceReference?: Reference<"Substance">;
 }
+
 export interface SubstanceInstance extends BackboneElement {
     expiry?: string;
     identifier?: Identifier;
     quantity?: Quantity;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Substance
 export interface Substance extends DomainResource {
     resourceType: "Substance";
 

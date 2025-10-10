@@ -23,12 +23,15 @@ export interface MedicationDispensePerformer extends BackboneElement {
     actor: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     function_?: CodeableConcept;
 }
+
 export interface MedicationDispenseSubstitution extends BackboneElement {
     reason?: CodeableConcept[];
     responsibleParty?: Reference<"Practitioner" | "PractitionerRole">[];
     type_?: CodeableConcept;
     wasSubstituted: boolean;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicationDispense
 export interface MedicationDispense extends DomainResource {
     resourceType: "MedicationDispense";
 

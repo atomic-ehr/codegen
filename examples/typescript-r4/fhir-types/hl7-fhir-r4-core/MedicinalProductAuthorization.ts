@@ -22,12 +22,16 @@ export interface MedicinalProductAuthorizationJurisdictionalAuthorization extend
     legalStatusOfSupply?: CodeableConcept;
     validityPeriod?: Period;
 }
+
 export interface MedicinalProductAuthorizationProcedure extends BackboneElement {
+    application?: MedicinalProductAuthorizationProcedure[];
     dateDateTime?: string;
     datePeriod?: Period;
     identifier?: Identifier;
     type_: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductAuthorization
 export interface MedicinalProductAuthorization extends DomainResource {
     resourceType: "MedicinalProductAuthorization";
 

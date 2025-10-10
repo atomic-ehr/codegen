@@ -27,29 +27,36 @@ export interface DeviceDefinitionCapability extends BackboneElement {
     description?: CodeableConcept[];
     type_: CodeableConcept;
 }
+
 export interface DeviceDefinitionDeviceName extends BackboneElement {
     name: string;
     type_: "udi-label-name" | "user-friendly-name" | "patient-reported-name" | "manufacturer-name" | "model-name" | "other";
 }
+
 export interface DeviceDefinitionMaterial extends BackboneElement {
     allergenicIndicator?: boolean;
     alternate?: boolean;
     substance: CodeableConcept;
 }
+
 export interface DeviceDefinitionProperty extends BackboneElement {
     type_: CodeableConcept;
     valueCode?: CodeableConcept[];
     valueQuantity?: Quantity[];
 }
+
 export interface DeviceDefinitionSpecialization extends BackboneElement {
     systemType: string;
     version?: string;
 }
+
 export interface DeviceDefinitionUdiDeviceIdentifier extends BackboneElement {
     deviceIdentifier: string;
     issuer: string;
     jurisdiction: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DeviceDefinition
 export interface DeviceDefinition extends DomainResource {
     resourceType: "DeviceDefinition";
 

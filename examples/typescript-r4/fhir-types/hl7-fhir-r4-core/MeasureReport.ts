@@ -23,30 +23,37 @@ export interface MeasureReportGroup extends BackboneElement {
     population?: MeasureReportGroupPopulation[];
     stratifier?: MeasureReportGroupStratifier[];
 }
+
 export interface MeasureReportGroupPopulation extends BackboneElement {
     code?: CodeableConcept;
     count?: number;
     subjectResults?: Reference<"List">;
 }
+
 export interface MeasureReportGroupStratifier extends BackboneElement {
     code?: CodeableConcept[];
     stratum?: MeasureReportGroupStratifierStratum[];
 }
+
 export interface MeasureReportGroupStratifierStratum extends BackboneElement {
     component?: MeasureReportGroupStratifierStratumComponent[];
     measureScore?: Quantity;
     population?: MeasureReportGroupStratifierStratumPopulation[];
     value?: CodeableConcept;
 }
+
 export interface MeasureReportGroupStratifierStratumComponent extends BackboneElement {
     code: CodeableConcept;
     value: CodeableConcept;
 }
+
 export interface MeasureReportGroupStratifierStratumPopulation extends BackboneElement {
     code?: CodeableConcept;
     count?: number;
     subjectResults?: Reference<"List">;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MeasureReport
 export interface MeasureReport extends DomainResource {
     resourceType: "MeasureReport";
 

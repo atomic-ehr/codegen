@@ -63,7 +63,6 @@ export type { Range } from "../hl7-fhir-r4-core/Range";
 export type { Ratio } from "../hl7-fhir-r4-core/Ratio";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";
 export type { RelatedArtifact } from "../hl7-fhir-r4-core/RelatedArtifact";
-export type { Resource } from "../hl7-fhir-r4-core/Resource";
 export type { SampledData } from "../hl7-fhir-r4-core/SampledData";
 export type { Signature } from "../hl7-fhir-r4-core/Signature";
 export type { Timing } from "../hl7-fhir-r4-core/Timing";
@@ -72,6 +71,7 @@ export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
 export interface ParametersParameter extends BackboneElement {
     name: string;
+    part?: ParametersParameter[];
     resource?: Resource;
     valueAddress?: Address;
     valueAge?: Age;
@@ -124,6 +124,8 @@ export interface ParametersParameter extends BackboneElement {
     valueUsageContext?: UsageContext;
     valueUuid?: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Parameters
 export interface Parameters extends Resource {
     resourceType: "Parameters";
 

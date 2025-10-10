@@ -26,6 +26,8 @@ export interface DosageDoseAndRate extends Element {
     rateRatio?: Ratio;
     type_?: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Dosage
 export interface Dosage extends BackboneElement {
     additionalInstruction?: CodeableConcept[];
     asNeededBoolean?: boolean;

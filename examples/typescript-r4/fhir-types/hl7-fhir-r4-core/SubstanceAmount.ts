@@ -18,6 +18,8 @@ export interface SubstanceAmountReferenceRange extends Element {
     highLimit?: Quantity;
     lowLimit?: Quantity;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstanceAmount
 export interface SubstanceAmount extends BackboneElement {
     amountQuantity?: Quantity;
     amountRange?: Range;

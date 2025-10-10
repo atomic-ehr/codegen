@@ -17,6 +17,8 @@ export interface DocumentManifestRelated extends BackboneElement {
     identifier?: Identifier;
     ref?: Reference<"Resource">;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DocumentManifest
 export interface DocumentManifest extends DomainResource {
     resourceType: "DocumentManifest";
 

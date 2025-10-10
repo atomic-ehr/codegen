@@ -6,6 +6,7 @@ import type { Element } from "../hl7-fhir-r4-core/Element";
 
 export type { Element } from "../hl7-fhir-r4-core/Element";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Attachment
 export interface Attachment extends Element {
     contentType?: string;
     _contentType?: Element;

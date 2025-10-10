@@ -21,6 +21,7 @@ export type { RelatedArtifact } from "../hl7-fhir-r4-core/RelatedArtifact";
 export type { TriggerDefinition } from "../hl7-fhir-r4-core/TriggerDefinition";
 export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/EventDefinition
 export interface EventDefinition extends DomainResource {
     resourceType: "EventDefinition";
 

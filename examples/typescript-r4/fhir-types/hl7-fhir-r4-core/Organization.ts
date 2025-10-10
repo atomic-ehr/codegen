@@ -25,6 +25,8 @@ export interface OrganizationContact extends BackboneElement {
     purpose?: CodeableConcept;
     telecom?: ContactPoint[];
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Organization
 export interface Organization extends DomainResource {
     resourceType: "Organization";
 

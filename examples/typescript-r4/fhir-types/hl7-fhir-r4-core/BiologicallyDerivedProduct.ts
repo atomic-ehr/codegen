@@ -21,11 +21,13 @@ export interface BiologicallyDerivedProductCollection extends BackboneElement {
     collector?: Reference<"Practitioner" | "PractitionerRole">;
     source?: Reference<"Organization" | "Patient">;
 }
+
 export interface BiologicallyDerivedProductManipulation extends BackboneElement {
     description?: string;
     timeDateTime?: string;
     timePeriod?: Period;
 }
+
 export interface BiologicallyDerivedProductProcessing extends BackboneElement {
     additive?: Reference<"Substance">;
     description?: string;
@@ -33,12 +35,15 @@ export interface BiologicallyDerivedProductProcessing extends BackboneElement {
     timeDateTime?: string;
     timePeriod?: Period;
 }
+
 export interface BiologicallyDerivedProductStorage extends BackboneElement {
     description?: string;
     duration?: Period;
     scale?: "farenheit" | "celsius" | "kelvin";
     temperature?: number;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProduct
 export interface BiologicallyDerivedProduct extends DomainResource {
     resourceType: "BiologicallyDerivedProduct";
 

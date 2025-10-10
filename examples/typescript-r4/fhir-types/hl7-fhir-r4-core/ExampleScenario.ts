@@ -21,6 +21,7 @@ export interface ExampleScenarioActor extends BackboneElement {
     name?: string;
     type_: "person" | "entity";
 }
+
 export interface ExampleScenarioInstance extends BackboneElement {
     containedInstance?: ExampleScenarioInstanceContainedInstance[];
     description?: string;
@@ -29,14 +30,17 @@ export interface ExampleScenarioInstance extends BackboneElement {
     resourceType: string;
     version?: ExampleScenarioInstanceVersion[];
 }
+
 export interface ExampleScenarioInstanceContainedInstance extends BackboneElement {
     resourceId: string;
     versionId?: string;
 }
+
 export interface ExampleScenarioInstanceVersion extends BackboneElement {
     description: string;
     versionId: string;
 }
+
 export interface ExampleScenarioProcess extends BackboneElement {
     description?: string;
     postConditions?: string;
@@ -44,15 +48,20 @@ export interface ExampleScenarioProcess extends BackboneElement {
     step?: ExampleScenarioProcessStep[];
     title: string;
 }
+
 export interface ExampleScenarioProcessStep extends BackboneElement {
     alternative?: ExampleScenarioProcessStepAlternative[];
     operation?: ExampleScenarioProcessStepOperation;
     pause?: boolean;
+    process?: ExampleScenarioProcess[];
 }
+
 export interface ExampleScenarioProcessStepAlternative extends BackboneElement {
     description?: string;
+    step?: ExampleScenarioProcessStep[];
     title: string;
 }
+
 export interface ExampleScenarioProcessStepOperation extends BackboneElement {
     description?: string;
     initiator?: string;
@@ -61,8 +70,12 @@ export interface ExampleScenarioProcessStepOperation extends BackboneElement {
     number_: string;
     receiver?: string;
     receiverActive?: boolean;
+    request?: ExampleScenarioInstanceContainedInstance;
+    response?: ExampleScenarioInstanceContainedInstance;
     type_?: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ExampleScenario
 export interface ExampleScenario extends DomainResource {
     resourceType: "ExampleScenario";
 

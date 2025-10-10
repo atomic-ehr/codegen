@@ -19,11 +19,14 @@ export interface AccountCoverage extends BackboneElement {
     coverage: Reference<"Coverage">;
     priority?: number;
 }
+
 export interface AccountGuarantor extends BackboneElement {
     onHold?: boolean;
     party: Reference<"Organization" | "Patient" | "RelatedPerson">;
     period?: Period;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Account
 export interface Account extends DomainResource {
     resourceType: "Account";
 

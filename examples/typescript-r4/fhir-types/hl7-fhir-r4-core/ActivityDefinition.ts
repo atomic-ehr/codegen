@@ -39,10 +39,13 @@ export interface ActivityDefinitionDynamicValue extends BackboneElement {
     expression: Expression;
     path: string;
 }
+
 export interface ActivityDefinitionParticipant extends BackboneElement {
     role?: CodeableConcept;
     type_: "patient" | "practitioner" | "related-person" | "device";
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ActivityDefinition
 export interface ActivityDefinition extends DomainResource {
     resourceType: "ActivityDefinition";
 

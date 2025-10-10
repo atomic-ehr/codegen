@@ -17,18 +17,21 @@ export interface SubstancePolymerMonomerSet extends BackboneElement {
     ratioType?: CodeableConcept;
     startingMaterial?: SubstancePolymerMonomerSetStartingMaterial[];
 }
+
 export interface SubstancePolymerMonomerSetStartingMaterial extends BackboneElement {
     amount?: SubstanceAmount;
     isDefining?: boolean;
     material?: CodeableConcept;
     type_?: CodeableConcept;
 }
+
 export interface SubstancePolymerRepeat extends BackboneElement {
     averageMolecularFormula?: string;
     numberOfUnits?: number;
     repeatUnit?: SubstancePolymerRepeatRepeatUnit[];
     repeatUnitAmountType?: CodeableConcept;
 }
+
 export interface SubstancePolymerRepeatRepeatUnit extends BackboneElement {
     amount?: SubstanceAmount;
     degreeOfPolymerisation?: SubstancePolymerRepeatRepeatUnitDegreeOfPolymerisation[];
@@ -36,15 +39,19 @@ export interface SubstancePolymerRepeatRepeatUnit extends BackboneElement {
     repeatUnit?: string;
     structuralRepresentation?: SubstancePolymerRepeatRepeatUnitStructuralRepresentation[];
 }
+
 export interface SubstancePolymerRepeatRepeatUnitDegreeOfPolymerisation extends BackboneElement {
     amount?: SubstanceAmount;
     degree?: CodeableConcept;
 }
+
 export interface SubstancePolymerRepeatRepeatUnitStructuralRepresentation extends BackboneElement {
     attachment?: Attachment;
     representation?: string;
     type_?: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstancePolymer
 export interface SubstancePolymer extends DomainResource {
     resourceType: "SubstancePolymer";
 

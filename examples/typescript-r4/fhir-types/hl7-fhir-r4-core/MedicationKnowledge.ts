@@ -27,20 +27,24 @@ export interface MedicationKnowledgeAdministrationGuidelines extends BackboneEle
     indicationReference?: Reference<"ObservationDefinition">;
     patientCharacteristics?: MedicationKnowledgeAdministrationGuidelinesPatientCharacteristics[];
 }
+
 export interface MedicationKnowledgeAdministrationGuidelinesDosage extends BackboneElement {
     dosage: Dosage[];
     type_: CodeableConcept;
 }
+
 export interface MedicationKnowledgeAdministrationGuidelinesPatientCharacteristics extends BackboneElement {
     characteristicCodeableConcept?: CodeableConcept;
     characteristicQuantity?: Quantity;
     value?: string[];
 }
+
 export interface MedicationKnowledgeCost extends BackboneElement {
     cost: Money;
     source?: string;
     type_: CodeableConcept;
 }
+
 export interface MedicationKnowledgeDrugCharacteristic extends BackboneElement {
     type_?: CodeableConcept;
     valueBase64Binary?: string;
@@ -48,54 +52,67 @@ export interface MedicationKnowledgeDrugCharacteristic extends BackboneElement {
     valueQuantity?: Quantity;
     valueString?: string;
 }
+
 export interface MedicationKnowledgeIngredient extends BackboneElement {
     isActive?: boolean;
     itemCodeableConcept?: CodeableConcept;
     itemReference?: Reference<"Substance">;
     strength?: Ratio;
 }
+
 export interface MedicationKnowledgeKinetics extends BackboneElement {
     areaUnderCurve?: Quantity[];
     halfLifePeriod?: Duration;
     lethalDose50?: Quantity[];
 }
+
 export interface MedicationKnowledgeMedicineClassification extends BackboneElement {
     classification?: CodeableConcept[];
     type_: CodeableConcept;
 }
+
 export interface MedicationKnowledgeMonitoringProgram extends BackboneElement {
     name?: string;
     type_?: CodeableConcept;
 }
+
 export interface MedicationKnowledgeMonograph extends BackboneElement {
     source?: Reference<"DocumentReference" | "Media">;
     type_?: CodeableConcept;
 }
+
 export interface MedicationKnowledgePackaging extends BackboneElement {
     quantity?: Quantity;
     type_?: CodeableConcept;
 }
+
 export interface MedicationKnowledgeRegulatory extends BackboneElement {
     maxDispense?: MedicationKnowledgeRegulatoryMaxDispense;
     regulatoryAuthority: Reference<"Organization">;
     schedule?: MedicationKnowledgeRegulatorySchedule[];
     substitution?: MedicationKnowledgeRegulatorySubstitution[];
 }
+
 export interface MedicationKnowledgeRegulatoryMaxDispense extends BackboneElement {
     period?: Duration;
     quantity: Quantity;
 }
+
 export interface MedicationKnowledgeRegulatorySchedule extends BackboneElement {
     schedule: CodeableConcept;
 }
+
 export interface MedicationKnowledgeRegulatorySubstitution extends BackboneElement {
     allowed: boolean;
     type_: CodeableConcept;
 }
+
 export interface MedicationKnowledgeRelatedMedicationKnowledge extends BackboneElement {
     reference: Reference<"MedicationKnowledge">[];
     type_: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicationKnowledge
 export interface MedicationKnowledge extends DomainResource {
     resourceType: "MedicationKnowledge";
 

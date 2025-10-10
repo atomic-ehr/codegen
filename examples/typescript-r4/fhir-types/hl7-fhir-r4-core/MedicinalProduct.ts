@@ -25,20 +25,24 @@ export interface MedicinalProductManufacturingBusinessOperation extends Backbone
     operationType?: CodeableConcept;
     regulator?: Reference<"Organization">;
 }
+
 export interface MedicinalProductName extends BackboneElement {
     countryLanguage?: MedicinalProductNameCountryLanguage[];
     namePart?: MedicinalProductNameNamePart[];
     productName: string;
 }
+
 export interface MedicinalProductNameCountryLanguage extends BackboneElement {
     country: CodeableConcept;
     jurisdiction?: CodeableConcept;
     language: CodeableConcept;
 }
+
 export interface MedicinalProductNameNamePart extends BackboneElement {
     part: string;
     type_: Coding;
 }
+
 export interface MedicinalProductSpecialDesignation extends BackboneElement {
     date?: string;
     identifier?: Identifier[];
@@ -49,6 +53,8 @@ export interface MedicinalProductSpecialDesignation extends BackboneElement {
     status?: CodeableConcept;
     type_?: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProduct
 export interface MedicinalProduct extends DomainResource {
     resourceType: "MedicinalProduct";
 

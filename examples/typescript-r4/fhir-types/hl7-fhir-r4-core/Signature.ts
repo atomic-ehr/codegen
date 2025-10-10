@@ -10,6 +10,7 @@ export type { Coding } from "../hl7-fhir-r4-core/Coding";
 export type { Element } from "../hl7-fhir-r4-core/Element";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Signature
 export interface Signature extends Element {
     data?: string;
     _data?: Element;

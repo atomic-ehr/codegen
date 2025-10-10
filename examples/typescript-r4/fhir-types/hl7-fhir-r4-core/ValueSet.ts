@@ -18,10 +18,12 @@ export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
 export interface ValueSetCompose extends BackboneElement {
+    exclude?: ValueSetComposeInclude[];
     inactive?: boolean;
     include: ValueSetComposeInclude[];
     lockedDate?: string;
 }
+
 export interface ValueSetComposeInclude extends BackboneElement {
     concept?: ValueSetComposeIncludeConcept[];
     filter?: ValueSetComposeIncludeFilter[];
@@ -29,21 +31,25 @@ export interface ValueSetComposeInclude extends BackboneElement {
     valueSet?: string[];
     version?: string;
 }
+
 export interface ValueSetComposeIncludeConcept extends BackboneElement {
     code: string;
     designation?: ValueSetComposeIncludeConceptDesignation[];
     display?: string;
 }
+
 export interface ValueSetComposeIncludeConceptDesignation extends BackboneElement {
     language?: string;
     use?: Coding;
     value: string;
 }
+
 export interface ValueSetComposeIncludeFilter extends BackboneElement {
     op: "=" | "is-a" | "descendent-of" | "is-not-a" | "regex" | "in" | "not-in" | "generalizes" | "exists";
     property: string;
     value: string;
 }
+
 export interface ValueSetExpansion extends BackboneElement {
     contains?: ValueSetExpansionContains[];
     identifier?: string;
@@ -52,14 +58,18 @@ export interface ValueSetExpansion extends BackboneElement {
     timestamp: string;
     total?: number;
 }
+
 export interface ValueSetExpansionContains extends BackboneElement {
     abstract_?: boolean;
     code?: string;
+    contains?: ValueSetExpansionContains[];
+    designation?: ValueSetComposeIncludeConceptDesignation[];
     display?: string;
     inactive?: boolean;
     system?: string;
     version?: string;
 }
+
 export interface ValueSetExpansionParameter extends BackboneElement {
     name: string;
     valueBoolean?: boolean;
@@ -70,6 +80,8 @@ export interface ValueSetExpansionParameter extends BackboneElement {
     valueString?: string;
     valueUri?: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ValueSet
 export interface ValueSet extends DomainResource {
     resourceType: "ValueSet";
 

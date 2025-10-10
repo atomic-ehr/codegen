@@ -5,6 +5,7 @@
 import type { Extension } from "../hl7-fhir-r4-core/Extension";
 import type { Questionnaire } from "../hl7-fhir-r4-core/Questionnaire";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/cqf-questionnaire
 export interface CQF_Questionnaire {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire";
 

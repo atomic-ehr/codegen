@@ -29,6 +29,8 @@ export interface PractitionerQualification extends BackboneElement {
     issuer?: Reference<"Organization">;
     period?: Period;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Practitioner
 export interface Practitioner extends DomainResource {
     resourceType: "Practitioner";
 

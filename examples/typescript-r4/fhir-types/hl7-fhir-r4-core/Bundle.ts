@@ -9,16 +9,17 @@ import type { Signature } from "../hl7-fhir-r4-core/Signature";
 
 export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
-export type { Resource } from "../hl7-fhir-r4-core/Resource";
 export type { Signature } from "../hl7-fhir-r4-core/Signature";
 
 export interface BundleEntry extends BackboneElement {
     fullUrl?: string;
+    link?: BundleLink[];
     request?: BundleEntryRequest;
     resource?: Resource;
     response?: BundleEntryResponse;
     search?: BundleEntrySearch;
 }
+
 export interface BundleEntryRequest extends BackboneElement {
     ifMatch?: string;
     ifModifiedSince?: string;
@@ -27,6 +28,7 @@ export interface BundleEntryRequest extends BackboneElement {
     method: "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "PATCH";
     url: string;
 }
+
 export interface BundleEntryResponse extends BackboneElement {
     etag?: string;
     lastModified?: string;
@@ -34,14 +36,18 @@ export interface BundleEntryResponse extends BackboneElement {
     outcome?: Resource;
     status: string;
 }
+
 export interface BundleEntrySearch extends BackboneElement {
     mode?: "match" | "include" | "outcome";
     score?: number;
 }
+
 export interface BundleLink extends BackboneElement {
     relation: string;
     url: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Bundle
 export interface Bundle extends Resource {
     resourceType: "Bundle";
 

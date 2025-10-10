@@ -24,6 +24,7 @@ export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface ClaimResponseAddItem extends BackboneElement {
+    adjudication: ClaimResponseItemAdjudication[];
     bodySite?: CodeableConcept;
     detail?: ClaimResponseAddItemDetail[];
     detailSequence?: number[];
@@ -45,7 +46,9 @@ export interface ClaimResponseAddItem extends BackboneElement {
     subSite?: CodeableConcept[];
     unitPrice?: Money;
 }
+
 export interface ClaimResponseAddItemDetail extends BackboneElement {
+    adjudication: ClaimResponseItemAdjudication[];
     factor?: number;
     modifier?: CodeableConcept[];
     net?: Money;
@@ -55,7 +58,9 @@ export interface ClaimResponseAddItemDetail extends BackboneElement {
     subDetail?: ClaimResponseAddItemDetailSubDetail[];
     unitPrice?: Money;
 }
+
 export interface ClaimResponseAddItemDetailSubDetail extends BackboneElement {
+    adjudication: ClaimResponseItemAdjudication[];
     factor?: number;
     modifier?: CodeableConcept[];
     net?: Money;
@@ -64,12 +69,14 @@ export interface ClaimResponseAddItemDetailSubDetail extends BackboneElement {
     quantity?: Quantity;
     unitPrice?: Money;
 }
+
 export interface ClaimResponseError extends BackboneElement {
     code: CodeableConcept;
     detailSequence?: number;
     itemSequence?: number;
     subDetailSequence?: number;
 }
+
 export interface ClaimResponseInsurance extends BackboneElement {
     businessArrangement?: string;
     claimResponse?: Reference<"ClaimResponse">;
@@ -77,27 +84,34 @@ export interface ClaimResponseInsurance extends BackboneElement {
     focal: boolean;
     sequence: number;
 }
+
 export interface ClaimResponseItem extends BackboneElement {
     adjudication: ClaimResponseItemAdjudication[];
     detail?: ClaimResponseItemDetail[];
     itemSequence: number;
     noteNumber?: number[];
 }
+
 export interface ClaimResponseItemAdjudication extends BackboneElement {
     amount?: Money;
     category: CodeableConcept;
     reason?: CodeableConcept;
     value?: number;
 }
+
 export interface ClaimResponseItemDetail extends BackboneElement {
+    adjudication: ClaimResponseItemAdjudication[];
     detailSequence: number;
     noteNumber?: number[];
     subDetail?: ClaimResponseItemDetailSubDetail[];
 }
+
 export interface ClaimResponseItemDetailSubDetail extends BackboneElement {
+    adjudication?: ClaimResponseItemAdjudication[];
     noteNumber?: number[];
     subDetailSequence: number;
 }
+
 export interface ClaimResponsePayment extends BackboneElement {
     adjustment?: Money;
     adjustmentReason?: CodeableConcept;
@@ -106,20 +120,25 @@ export interface ClaimResponsePayment extends BackboneElement {
     identifier?: Identifier;
     type_: CodeableConcept;
 }
+
 export interface ClaimResponseProcessNote extends BackboneElement {
     language?: CodeableConcept;
     number_?: number;
     text: string;
     type_?: "display" | "print" | "printoper";
 }
+
 export interface ClaimResponseTotal extends BackboneElement {
     amount: Money;
     category: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ClaimResponse
 export interface ClaimResponse extends DomainResource {
     resourceType: "ClaimResponse";
 
     addItem?: ClaimResponseAddItem[];
+    adjudication?: ClaimResponseItemAdjudication[];
     communicationRequest?: Reference<"CommunicationRequest">[];
     created: string;
     _created?: Element;

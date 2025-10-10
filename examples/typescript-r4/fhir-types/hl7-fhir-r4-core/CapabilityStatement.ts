@@ -22,37 +22,46 @@ export interface CapabilityStatementDocument extends BackboneElement {
     mode: "producer" | "consumer";
     profile: string;
 }
+
 export interface CapabilityStatementImplementation extends BackboneElement {
     custodian?: Reference<"Organization">;
     description: string;
     url?: string;
 }
+
 export interface CapabilityStatementMessaging extends BackboneElement {
     documentation?: string;
     endpoint?: CapabilityStatementMessagingEndpoint[];
     reliableCache?: number;
     supportedMessage?: CapabilityStatementMessagingSupportedMessage[];
 }
+
 export interface CapabilityStatementMessagingEndpoint extends BackboneElement {
     address: string;
     protocol: Coding;
 }
+
 export interface CapabilityStatementMessagingSupportedMessage extends BackboneElement {
     definition: string;
     mode: "sender" | "receiver";
 }
+
 export interface CapabilityStatementRest extends BackboneElement {
     compartment?: string[];
     documentation?: string;
     interaction?: CapabilityStatementRestInteraction[];
     mode: "client" | "server";
+    operation?: CapabilityStatementRestResourceOperation[];
     resource?: CapabilityStatementRestResource[];
+    searchParam?: CapabilityStatementRestResourceSearchParam[];
     security?: CapabilityStatementRestSecurity;
 }
+
 export interface CapabilityStatementRestInteraction extends BackboneElement {
     code: "transaction" | "batch" | "search-system" | "history-system";
     documentation?: string;
 }
+
 export interface CapabilityStatementRestResource extends BackboneElement {
     conditionalCreate?: boolean;
     conditionalDelete?: "not-supported" | "single" | "multiple";
@@ -72,31 +81,38 @@ export interface CapabilityStatementRestResource extends BackboneElement {
     updateCreate?: boolean;
     versioning?: "no-version" | "versioned" | "versioned-update";
 }
+
 export interface CapabilityStatementRestResourceInteraction extends BackboneElement {
     code: "read" | "vread" | "update" | "patch" | "delete" | "history-instance" | "history-type" | "create" | "search-type";
     documentation?: string;
 }
+
 export interface CapabilityStatementRestResourceOperation extends BackboneElement {
     definition: string;
     documentation?: string;
     name: string;
 }
+
 export interface CapabilityStatementRestResourceSearchParam extends BackboneElement {
     definition?: string;
     documentation?: string;
     name: string;
     type_: "number" | "date" | "string" | "token" | "reference" | "composite" | "quantity" | "uri" | "special";
 }
+
 export interface CapabilityStatementRestSecurity extends BackboneElement {
     cors?: boolean;
     description?: string;
     service?: CodeableConcept[];
 }
+
 export interface CapabilityStatementSoftware extends BackboneElement {
     name: string;
     releaseDate?: string;
     version?: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CapabilityStatement
 export interface CapabilityStatement extends DomainResource {
     resourceType: "CapabilityStatement";
 

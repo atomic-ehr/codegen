@@ -31,16 +31,20 @@ export interface ImagingStudySeries extends BackboneElement {
     started?: string;
     uid: string;
 }
+
 export interface ImagingStudySeriesInstance extends BackboneElement {
     number_?: number;
     sopClass: Coding;
     title?: string;
     uid: string;
 }
+
 export interface ImagingStudySeriesPerformer extends BackboneElement {
     actor: Reference<"CareTeam" | "Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     function_?: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ImagingStudy
 export interface ImagingStudy extends DomainResource {
     resourceType: "ImagingStudy";
 

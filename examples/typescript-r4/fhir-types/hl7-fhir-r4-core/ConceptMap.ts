@@ -23,30 +23,37 @@ export interface ConceptMapGroup extends BackboneElement {
     targetVersion?: string;
     unmapped?: ConceptMapGroupUnmapped;
 }
+
 export interface ConceptMapGroupElement extends BackboneElement {
     code?: string;
     display?: string;
     target?: ConceptMapGroupElementTarget[];
 }
+
 export interface ConceptMapGroupElementTarget extends BackboneElement {
     code?: string;
     comment?: string;
     dependsOn?: ConceptMapGroupElementTargetDependsOn[];
     display?: string;
     equivalence: "relatedto" | "equivalent" | "equal" | "wider" | "subsumes" | "narrower" | "specializes" | "inexact" | "unmatched" | "disjoint";
+    product?: ConceptMapGroupElementTargetDependsOn[];
 }
+
 export interface ConceptMapGroupElementTargetDependsOn extends BackboneElement {
     display?: string;
     property: string;
     system?: string;
     value: string;
 }
+
 export interface ConceptMapGroupUnmapped extends BackboneElement {
     code?: string;
     display?: string;
     mode: "provided" | "fixed" | "other-map";
     url?: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ConceptMap
 export interface ConceptMap extends DomainResource {
     resourceType: "ConceptMap";
 

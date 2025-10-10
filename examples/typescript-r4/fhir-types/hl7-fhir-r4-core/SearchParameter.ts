@@ -17,6 +17,8 @@ export interface SearchParameterComponent extends BackboneElement {
     definition: string;
     expression: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SearchParameter
 export interface SearchParameter extends DomainResource {
     resourceType: "SearchParameter";
 

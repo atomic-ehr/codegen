@@ -9,6 +9,7 @@ import type { Reference } from "../hl7-fhir-r4-core/Reference";
 export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/EnrollmentResponse
 export interface EnrollmentResponse extends DomainResource {
     resourceType: "EnrollmentResponse";
 

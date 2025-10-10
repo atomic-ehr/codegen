@@ -25,11 +25,14 @@ export interface ConditionEvidence extends BackboneElement {
     code?: CodeableConcept[];
     detail?: Reference<"Resource">[];
 }
+
 export interface ConditionStage extends BackboneElement {
     assessment?: Reference<"ClinicalImpression" | "DiagnosticReport" | "Observation">[];
     summary?: CodeableConcept;
     type_?: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Condition
 export interface Condition extends DomainResource {
     resourceType: "Condition";
 

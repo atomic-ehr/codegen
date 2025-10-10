@@ -29,28 +29,34 @@ export interface MeasureGroup extends BackboneElement {
     population?: MeasureGroupPopulation[];
     stratifier?: MeasureGroupStratifier[];
 }
+
 export interface MeasureGroupPopulation extends BackboneElement {
     code?: CodeableConcept;
     criteria: Expression;
     description?: string;
 }
+
 export interface MeasureGroupStratifier extends BackboneElement {
     code?: CodeableConcept;
     component?: MeasureGroupStratifierComponent[];
     criteria?: Expression;
     description?: string;
 }
+
 export interface MeasureGroupStratifierComponent extends BackboneElement {
     code?: CodeableConcept;
     criteria: Expression;
     description?: string;
 }
+
 export interface MeasureSupplementalData extends BackboneElement {
     code?: CodeableConcept;
     criteria: Expression;
     description?: string;
     usage?: CodeableConcept[];
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Measure
 export interface Measure extends DomainResource {
     resourceType: "Measure";
 

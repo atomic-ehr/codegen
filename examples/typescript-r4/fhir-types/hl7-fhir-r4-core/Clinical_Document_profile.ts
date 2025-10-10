@@ -6,6 +6,7 @@ import type { Composition } from "../hl7-fhir-r4-core/Composition";
 import type { Extension } from "../hl7-fhir-r4-core/Extension";
 import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/clinicaldocument
 export interface Clinical_Document {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/clinicaldocument";
 

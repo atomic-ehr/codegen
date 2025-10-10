@@ -23,15 +23,18 @@ export interface TestScriptDestination extends BackboneElement {
     index: number;
     profile: Coding;
 }
+
 export interface TestScriptFixture extends BackboneElement {
     autocreate: boolean;
     autodelete: boolean;
     resource?: Reference<"Resource">;
 }
+
 export interface TestScriptMetadata extends BackboneElement {
     capability: TestScriptMetadataCapability[];
     link?: TestScriptMetadataLink[];
 }
+
 export interface TestScriptMetadataCapability extends BackboneElement {
     capabilities: string;
     description?: string;
@@ -41,21 +44,26 @@ export interface TestScriptMetadataCapability extends BackboneElement {
     required: boolean;
     validated: boolean;
 }
+
 export interface TestScriptMetadataLink extends BackboneElement {
     description?: string;
     url: string;
 }
+
 export interface TestScriptOrigin extends BackboneElement {
     index: number;
     profile: Coding;
 }
+
 export interface TestScriptSetup extends BackboneElement {
     action: TestScriptSetupAction[];
 }
+
 export interface TestScriptSetupAction extends BackboneElement {
     assert?: TestScriptSetupActionAssert;
     operation?: TestScriptSetupActionOperation;
 }
+
 export interface TestScriptSetupActionAssert extends BackboneElement {
     compareToSourceExpression?: string;
     compareToSourceId?: string;
@@ -80,6 +88,7 @@ export interface TestScriptSetupActionAssert extends BackboneElement {
     value?: string;
     warningOnly: boolean;
 }
+
 export interface TestScriptSetupActionOperation extends BackboneElement {
     accept?: string;
     contentType?: string;
@@ -99,22 +108,31 @@ export interface TestScriptSetupActionOperation extends BackboneElement {
     type_?: Coding;
     url?: string;
 }
+
 export interface TestScriptSetupActionOperationRequestHeader extends BackboneElement {
     field: string;
     value: string;
 }
+
 export interface TestScriptTeardown extends BackboneElement {
     action: TestScriptTeardownAction[];
 }
+
 export interface TestScriptTeardownAction extends BackboneElement {
+    operation: TestScriptSetupActionOperation;
 }
+
 export interface TestScriptTest extends BackboneElement {
     action: TestScriptTestAction[];
     description?: string;
     name?: string;
 }
+
 export interface TestScriptTestAction extends BackboneElement {
+    assert?: TestScriptSetupActionAssert;
+    operation?: TestScriptSetupActionOperation;
 }
+
 export interface TestScriptVariable extends BackboneElement {
     defaultValue?: string;
     description?: string;
@@ -125,6 +143,8 @@ export interface TestScriptVariable extends BackboneElement {
     path?: string;
     sourceId?: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/TestScript
 export interface TestScript extends DomainResource {
     resourceType: "TestScript";
 

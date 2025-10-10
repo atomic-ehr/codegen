@@ -8,6 +8,7 @@ import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
 export type { Element } from "../hl7-fhir-r4-core/Element";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Contributor
 export interface Contributor extends Element {
     contact?: ContactDetail[];
     name: string;

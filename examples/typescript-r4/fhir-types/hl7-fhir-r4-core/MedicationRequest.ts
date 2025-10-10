@@ -32,15 +32,19 @@ export interface MedicationRequestDispenseRequest extends BackboneElement {
     quantity?: Quantity;
     validityPeriod?: Period;
 }
+
 export interface MedicationRequestDispenseRequestInitialFill extends BackboneElement {
     duration?: Duration;
     quantity?: Quantity;
 }
+
 export interface MedicationRequestSubstitution extends BackboneElement {
     allowedBoolean?: boolean;
     allowedCodeableConcept?: CodeableConcept;
     reason?: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicationRequest
 export interface MedicationRequest extends DomainResource {
     resourceType: "MedicationRequest";
 

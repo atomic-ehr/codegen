@@ -20,6 +20,8 @@ export interface MedicinalProductIndicationOtherTherapy extends BackboneElement 
     medicationReference?: Reference<"Medication" | "MedicinalProduct" | "Substance" | "SubstanceSpecification">;
     therapyRelationshipType: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductIndication
 export interface MedicinalProductIndication extends DomainResource {
     resourceType: "MedicinalProductIndication";
 

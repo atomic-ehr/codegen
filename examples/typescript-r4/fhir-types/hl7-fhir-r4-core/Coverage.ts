@@ -24,16 +24,20 @@ export interface CoverageClass extends BackboneElement {
     type_: CodeableConcept;
     value: string;
 }
+
 export interface CoverageCostToBeneficiary extends BackboneElement {
     exception?: CoverageCostToBeneficiaryException[];
     type_?: CodeableConcept;
     valueMoney?: Money;
     valueQuantity?: Quantity;
 }
+
 export interface CoverageCostToBeneficiaryException extends BackboneElement {
     period?: Period;
     type_: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Coverage
 export interface Coverage extends DomainResource {
     resourceType: "Coverage";
 

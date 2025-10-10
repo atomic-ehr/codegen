@@ -23,16 +23,19 @@ export interface SubstanceReferenceInformationClassification extends BackboneEle
     source?: Reference<"DocumentReference">[];
     subtype?: CodeableConcept[];
 }
+
 export interface SubstanceReferenceInformationGene extends BackboneElement {
     gene?: CodeableConcept;
     geneSequenceOrigin?: CodeableConcept;
     source?: Reference<"DocumentReference">[];
 }
+
 export interface SubstanceReferenceInformationGeneElement extends BackboneElement {
     element?: Identifier;
     source?: Reference<"DocumentReference">[];
     type_?: CodeableConcept;
 }
+
 export interface SubstanceReferenceInformationTarget extends BackboneElement {
     amountQuantity?: Quantity;
     amountRange?: Range;
@@ -45,6 +48,8 @@ export interface SubstanceReferenceInformationTarget extends BackboneElement {
     target?: Identifier;
     type_?: CodeableConcept;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstanceReferenceInformation
 export interface SubstanceReferenceInformation extends DomainResource {
     resourceType: "SubstanceReferenceInformation";
 

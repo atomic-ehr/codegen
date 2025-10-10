@@ -29,10 +29,13 @@ export interface ImmunizationRecommendationRecommendation extends BackboneElemen
     targetDisease?: CodeableConcept;
     vaccineCode?: CodeableConcept[];
 }
+
 export interface ImmunizationRecommendationRecommendationDateCriterion extends BackboneElement {
     code: CodeableConcept;
     value: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ImmunizationRecommendation
 export interface ImmunizationRecommendation extends DomainResource {
     resourceType: "ImmunizationRecommendation";
 

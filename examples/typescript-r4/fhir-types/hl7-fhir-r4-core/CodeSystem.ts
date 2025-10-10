@@ -19,16 +19,19 @@ export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
 export interface CodeSystemConcept extends BackboneElement {
     code: string;
+    concept?: CodeSystemConcept[];
     definition?: string;
     designation?: CodeSystemConceptDesignation[];
     display?: string;
     property?: CodeSystemConceptProperty[];
 }
+
 export interface CodeSystemConceptDesignation extends BackboneElement {
     language?: string;
     use?: Coding;
     value: string;
 }
+
 export interface CodeSystemConceptProperty extends BackboneElement {
     code: string;
     valueBoolean?: boolean;
@@ -39,18 +42,22 @@ export interface CodeSystemConceptProperty extends BackboneElement {
     valueInteger?: number;
     valueString?: string;
 }
+
 export interface CodeSystemFilter extends BackboneElement {
     code: string;
     description?: string;
     operator: "=" | "is-a" | "descendent-of" | "is-not-a" | "regex" | "in" | "not-in" | "generalizes" | "exists"[];
     value: string;
 }
+
 export interface CodeSystemProperty extends BackboneElement {
     code: string;
     description?: string;
     type_: "code" | "Coding" | "string" | "integer" | "boolean" | "dateTime" | "decimal";
     uri?: string;
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CodeSystem
 export interface CodeSystem extends DomainResource {
     resourceType: "CodeSystem";
 

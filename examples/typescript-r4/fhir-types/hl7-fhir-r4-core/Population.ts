@@ -10,6 +10,7 @@ export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 export type { Range } from "../hl7-fhir-r4-core/Range";
 
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Population
 export interface Population extends BackboneElement {
     ageCodeableConcept?: CodeableConcept;
     ageRange?: Range;

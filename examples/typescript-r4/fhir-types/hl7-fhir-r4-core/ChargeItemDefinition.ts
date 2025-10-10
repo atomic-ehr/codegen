@@ -26,15 +26,20 @@ export interface ChargeItemDefinitionApplicability extends BackboneElement {
     expression?: string;
     language?: string;
 }
+
 export interface ChargeItemDefinitionPropertyGroup extends BackboneElement {
+    applicability?: ChargeItemDefinitionApplicability[];
     priceComponent?: ChargeItemDefinitionPropertyGroupPriceComponent[];
 }
+
 export interface ChargeItemDefinitionPropertyGroupPriceComponent extends BackboneElement {
     amount?: Money;
     code?: CodeableConcept;
     factor?: number;
     type_: "base" | "surcharge" | "deduction" | "discount" | "tax" | "informational";
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ChargeItemDefinition
 export interface ChargeItemDefinition extends DomainResource {
     resourceType: "ChargeItemDefinition";
 

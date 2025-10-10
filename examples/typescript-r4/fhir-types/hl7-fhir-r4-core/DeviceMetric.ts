@@ -20,6 +20,8 @@ export interface DeviceMetricCalibration extends BackboneElement {
     time?: string;
     type_?: "unspecified" | "offset" | "gain" | "two-point";
 }
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DeviceMetric
 export interface DeviceMetric extends DomainResource {
     resourceType: "DeviceMetric";
 
