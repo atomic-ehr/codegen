@@ -35,7 +35,7 @@ export interface APIBuilderOptions {
     typeSchemaConfig?: TypeSchemaConfig;
     logger?: CodegenLogger;
     manager?: ReturnType<typeof CanonicalManager> | null;
-    typeSchemaOutputDir?: string | null;
+    typeSchemaOutputDir?: string /** if .ndjson -- put in one file, else -- split into separated files*/;
     throwException?: boolean;
 }
 
@@ -86,6 +86,15 @@ const writerToGenerator = (writerGen: Writer): Generator => {
     };
 };
 
+type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+
+type APIBuilderConfig = PartialBy<
+    Required<APIBuilderOptions>,
+    "logger" | "typeSchemaConfig" | "typeSchemaOutputDir"
+> & {
+    cleanOutput: boolean;
+};
+
 /**
  * High-Level API Builder class
  *
@@ -94,10 +103,7 @@ const writerToGenerator = (writerGen: Writer): Generator => {
  */
 export class APIBuilder {
     private schemas: TypeSchema[] = [];
-    private options: Omit<Required<APIBuilderOptions>, "typeSchemaConfig" | "logger"> & {
-        typeSchemaConfig?: TypeSchemaConfig;
-        cleanOutput: boolean;
-    };
+    private options: APIBuilderConfig;
     private generators: Map<string, Generator> = new Map();
     private cache?: TypeSchemaCache;
     private pendingOperations: Promise<void>[] = [];
@@ -117,7 +123,7 @@ export class APIBuilder {
             typeSchemaConfig: options.typeSchemaConfig,
             manager: options.manager || null,
             throwException: options.throwException || false,
-            typeSchemaOutputDir: options.typeSchemaOutputDir || null,
+            typeSchemaOutputDir: options.typeSchemaOutputDir,
         };
 
         this.typeSchemaConfig = options.typeSchemaConfig;
@@ -256,8 +262,8 @@ export class APIBuilder {
         return this;
     }
 
-    writeTypeSchemas(into: string | null = null) {
-        this.options.typeSchemaOutputDir = into ?? Path.join(this.options.outputDir, "TypeSchemas");
+    writeTypeSchemas(target: string) {
+        this.options.typeSchemaOutputDir = target;
         return this;
     }
 
