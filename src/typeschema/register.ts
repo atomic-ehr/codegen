@@ -7,7 +7,7 @@ import { enrichFHIRSchema, packageMetaToFhir } from "@typeschema/types";
 
 export type Register = {
     appendFs(fs: FHIRSchema): void;
-    ensureCanonicalUrl(name: string | Name | CanonicalUrl): CanonicalUrl;
+    ensureSpecializationCanonicalUrl(name: string | Name | CanonicalUrl): CanonicalUrl;
     resolveSd(canonicalUrl: CanonicalUrl): StructureDefinition | undefined;
     resolveFs(canonicalUrl: CanonicalUrl): RichFHIRSchema | undefined;
     resolveFsGenealogy(canonicalUrl: CanonicalUrl): RichFHIRSchema[];
@@ -32,24 +32,25 @@ export const registerFromManager = async (
     }[];
     for (const pkg of packages) {
         const resources = await manager.search({ package: pkg });
-        const index = {} as Record<CanonicalUrl, any>;
+        const perPackageIndex = {} as Record<CanonicalUrl, any>;
         for (const resource of resources) {
             const url = resource.url as CanonicalUrl;
             if (!url) continue;
-            index[url] = resource;
+            if (perPackageIndex[url]) throw new Error(`Duplicate resource URL: ${url}`);
+            perPackageIndex[url] = resource;
+            if (flatRawIndex[url]) throw new Error(`Duplicate resource URL: ${url}`);
             flatRawIndex[url] = resource;
         }
         indexByPackages.push({
             package_meta: pkg,
-            index: index,
+            index: perPackageIndex,
         });
     }
 
     const sdIndex = {} as Record<CanonicalUrl, StructureDefinition>;
     const vsIndex = {} as Record<string, RichValueSet>;
     const fsIndex = {} as Record<CanonicalUrl, RichFHIRSchema>;
-    const nameToCanonical = {} as Record<Name, CanonicalUrl>;
-    let [fsSuccess, fsFailed] = [0, 0];
+    const specNameToCanonical = {} as Record<Name, CanonicalUrl>;
 
     for (const resourcesByPackage of indexByPackages) {
         const packageMeta = resourcesByPackage.package_meta;
@@ -58,16 +59,19 @@ export const registerFromManager = async (
             if (resource.resourceType === "StructureDefinition") {
                 const sd = resource as StructureDefinition;
                 sdIndex[url] = sd;
-                try {
-                    const rfs = enrichFHIRSchema(fhirschema.translate(sd), packageMeta);
-                    fsIndex[rfs.url] = rfs;
-                    nameToCanonical[rfs.name] = rfs.url;
-                    fsSuccess++;
-                } catch (error) {
-                    logger?.warn(
-                        `Failed to convert StructureDefinition ${sd.name || sd.id}: ${error instanceof Error ? error.message : String(error)}`,
-                    );
-                    fsFailed++;
+                const rfs = enrichFHIRSchema(fhirschema.translate(sd), packageMeta);
+                fsIndex[rfs.url] = rfs;
+                if (rfs.derivation === undefined || rfs.derivation === "specialization") {
+                    if (specNameToCanonical[rfs.name]) {
+                        const info = {
+                            old: specNameToCanonical[rfs.name],
+                            oldDerivation: flatRawIndex[specNameToCanonical[rfs.name]!].derivation,
+                            new: rfs.url,
+                            newDerivation: rfs.derivation,
+                        };
+                        throw new Error(`Duplicate name ${rfs.name} ${JSON.stringify(info, undefined, 2)}`);
+                    }
+                    specNameToCanonical[rfs.name] = rfs.url;
                 }
             }
             if (resource.resourceType === "ValueSet") {
@@ -78,7 +82,7 @@ export const registerFromManager = async (
             }
         }
         logger?.success(
-            `FHIR Schema conversion for '${packageMetaToFhir(packageMeta)}' completed: ${fsSuccess} successful, ${fsFailed} failed`,
+            `FHIR Schema conversion for '${packageMetaToFhir(packageMeta)}' completed: ${Object.keys(fsIndex).length} successful`,
         );
     }
 
@@ -94,7 +98,7 @@ export const registerFromManager = async (
         if (fs === undefined) throw new Error(`Failed to resolve FHIR Schema genealogy for '${canonicalUrl}'`);
         const genealogy = [fs];
         while (fs?.base) {
-            fs = fsIndex[fs.base]! || fsIndex[nameToCanonical[fs.base as string as Name]!]!;
+            fs = fsIndex[fs.base] || fsIndex[specNameToCanonical[fs.base as string as Name]!]!;
             genealogy.push(fs);
             if (fs === undefined) throw new Error(`Failed to resolve FHIR Schema genealogy for '${canonicalUrl}'`);
         }
@@ -110,13 +114,13 @@ export const registerFromManager = async (
         appendFs(fs: FHIRSchema) {
             const rfs = enrichFHIRSchema(fs);
             fsIndex[rfs.url] = rfs;
-            nameToCanonical[rfs.name] = rfs.url;
+            specNameToCanonical[rfs.name] = rfs.url;
         },
         resolveFs: (canonicalUrl: CanonicalUrl) => fsIndex[canonicalUrl],
         resolveFsGenealogy: resolveFsGenealogy,
         resolveFsSpecializations: resolveFsSpecializations,
-        ensureCanonicalUrl: (name: string | Name | CanonicalUrl) =>
-            nameToCanonical[name as Name] || (name as CanonicalUrl),
+        ensureSpecializationCanonicalUrl: (name: string | Name | CanonicalUrl) =>
+            specNameToCanonical[name as Name] || (name as CanonicalUrl),
         allSd: () => Object.values(sdIndex),
         resolveSd: (canonicalUrl: CanonicalUrl) => sdIndex[canonicalUrl],
         allFs: () => Object.values(fsIndex),

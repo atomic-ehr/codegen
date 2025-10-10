@@ -270,7 +270,7 @@ function transformFhirSchemaResource(
 
     let base: Identifier | undefined;
     if (fhirSchema.base && fhirSchema.type !== "Element") {
-        const baseFs = register.resolveFs(register.ensureCanonicalUrl(fhirSchema.base));
+        const baseFs = register.resolveFs(register.ensureSpecializationCanonicalUrl(fhirSchema.base));
         if (!baseFs) {
             throw new Error(`Base resource not found '${fhirSchema.base}' for '${fhirSchema.url}'`);
         }

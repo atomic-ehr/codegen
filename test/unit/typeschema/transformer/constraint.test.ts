@@ -105,7 +105,7 @@ describe("TypeSchema Processing constraint generation", async () => {
                     { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/code" },
                     { kind: "resource", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem" },
                     { kind: "nested", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept" },
-                    { kind: "profile", url: "http://hl7.org/fhir/StructureDefinition/rendering-markdown" },
+                    { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/markdown" },
                     { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/string" },
                     { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/uri" },
                     { kind: "binding", url: "urn:fhir:binding:PublicationStatus" },

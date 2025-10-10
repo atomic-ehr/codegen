@@ -53,7 +53,7 @@ const buildReferences = (
 ): Identifier[] | undefined => {
     if (!element.refers) return undefined;
     return element.refers.map((ref) => {
-        const curl = register.ensureCanonicalUrl(ref as Name);
+        const curl = register.ensureSpecializationCanonicalUrl(ref as Name);
         const fs = register.resolveFs(curl)!;
         return mkIdentifier(fs);
     });
@@ -71,7 +71,7 @@ export function buildFieldType(
             .filter((_, i) => i % 2 === 1); // drop `elements` from path
         return mkNestedIdentifier(register, fhirSchema, refPath, logger);
     } else if (element.type) {
-        const url = register.ensureCanonicalUrl(element.type);
+        const url = register.ensureSpecializationCanonicalUrl(element.type);
         const fieldFs = register.resolveFs(url);
         if (!fieldFs) throw new Error(`Could not resolve field '${element.type}'`);
         return mkIdentifier(fieldFs);

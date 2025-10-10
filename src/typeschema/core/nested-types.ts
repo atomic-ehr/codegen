@@ -109,7 +109,7 @@ export function mkNestedTypes(
             package: fhirSchema.package_meta.name,
             version: fhirSchema.package_meta.version,
             name: baseName,
-            url: register.ensureCanonicalUrl(baseName),
+            url: register.ensureSpecializationCanonicalUrl(baseName),
         };
 
         const fields = transformNestedElements(register, fhirSchema, path, element.elements!, logger);

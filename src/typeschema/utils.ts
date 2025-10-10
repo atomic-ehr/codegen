@@ -100,10 +100,15 @@ export const mkTypeSchemaIndex = (schemas: TypeSchema[]): TypeSchemaIndex => {
     const index = {} as Record<CanonicalUrl, Record<PackageName, TypeSchema>>;
     const append = (schema: TypeSchema) => {
         const url = schema.identifier.url;
-        if (!index[url]) {
-            index[url] = {};
+        const pkg = schema.identifier.package;
+        if (!index[url]) index[url] = {};
+
+        if (index[url][schema.identifier.package] && pkg !== "shared") {
+            const r1 = JSON.stringify(schema.identifier, undefined, 2);
+            const r2 = JSON.stringify(index[url][pkg]?.identifier, undefined, 2);
+            throw new Error(`Duplicate schema: ${r1} and ${r2}`);
         }
-        index[url][schema.identifier.package] = schema;
+        index[url][pkg] = schema;
     };
     for (const schema of schemas) {
         append(schema);
