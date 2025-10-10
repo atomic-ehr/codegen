@@ -261,17 +261,22 @@ export class APIBuilder {
         return this;
     }
 
-    private createUniqueFileName(name :string, package_name :string, ending :string){
+    private static removeSpecialSymbols(str: string): string {
+        return str.replace(/[^a-zA-Z0-9]/g, '');
+    }
+
+    private createUniqueFileName(usedNames :Set<string>, name :string, package_name :string, ending :string){
         if(!this.options.typeSchemaOutputDir)
             this.logger.error(`Cannot create unique file name for "${name}".`);
         else {
             const basePath = Path.join(this.options.typeSchemaOutputDir, package_name);
             let res = Path.join(basePath, `${name}.${ending}`);
             let counter = 1;
-            while(existsSync(res)){
+            while(usedNames.has(res)){
                 res = Path.join(basePath, `${name}-${counter}.${ending}`);
                 counter++;
             }
+            usedNames.add(res);
             return res;
         }
     }
@@ -284,23 +289,24 @@ export class APIBuilder {
             await mkdir(this.options.typeSchemaOutputDir, { recursive: true});
 
             let writtenCount = 0;
-            let skippedCount = 0;
+            let overrodeCount = 0;
+            let usedNames = new Set<string>();
 
             this.logger.info(`Writing TypeSchema files to ${this.options.typeSchemaOutputDir}...`);
 
             for(const ts of typeSchemas){
-                const name = ts.identifier.name.toString();
+                const name = APIBuilder.removeSpecialSymbols(ts.identifier.name.toString());
                 const package_name = camelCase(ts.identifier.package.replaceAll('/','-'));
-                const filePath = this.createUniqueFileName(name, package_name, "typeschema.json") ?? "";
+                const filePath = this.createUniqueFileName(usedNames, name, package_name, "typeschema.json") ?? "";
 
                 await mkdir(Path.dirname(filePath), { recursive: true });
 
-                if(existsSync(filePath)) skippedCount++;
+                if(existsSync(filePath)) overrodeCount++;
                 else writtenCount += 1;
 
                 fs.writeFileSync(filePath, JSON.stringify(ts, null, 2));
             }
-            this.logger.info(`Created ${writtenCount} new TypeSchema files, overrode ${skippedCount} files`);
+            this.logger.info(`Created ${writtenCount} new TypeSchema files, overrode ${overrodeCount} files`);
 
         }catch(error){
             if(this.options.throwException) throw error;
