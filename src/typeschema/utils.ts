@@ -189,7 +189,6 @@ export const mkTypeSchemaIndex = (schemas: TypeSchema[]): TypeSchemaIndex => {
         return hierarchy(profile)
             .filter(isSpecializationTypeSchema)
             .some((schema) => {
-                console.log(schema.fields?.meta);
                 return schema.fields?.meta !== undefined;
             });
     };
