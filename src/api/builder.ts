@@ -6,9 +6,12 @@
  */
 
 import * as fs from "node:fs";
+import { existsSync } from "node:fs";
+import { mkdir } from "node:fs/promises";
 import * as Path from "node:path";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { GeneratedFile } from "@root/api/generators/base/types";
+import { camelCase } from "@root/api/writer-generator/utils.ts";
 import { registerFromManager } from "@root/typeschema/register";
 import { mkTypeSchemaIndex } from "@root/typeschema/utils";
 import { generateTypeSchemas, TypeSchemaCache, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";
@@ -19,9 +22,6 @@ import { createLogger } from "../utils/codegen-logger";
 import { TypeScriptGenerator } from "./generators/typescript";
 import * as TS2 from "./writer-generator/typescript";
 import type { Writer, WriterOptions } from "./writer-generator/writer";
-import {mkdir} from "node:fs/promises";
-import {existsSync} from "node:fs";
-import {camelCase} from "@root/api/writer-generator/utils.ts";
 
 /**
  * Configuration options for the API builder
@@ -256,23 +256,22 @@ export class APIBuilder {
         return this;
     }
 
-    writeTypeSchemas(into :string|null = null){
+    writeTypeSchemas(into: string | null = null) {
         this.options.typeSchemaOutputDir = into ?? Path.join(this.options.outputDir, "TypeSchemas");
         return this;
     }
 
     private static removeSpecialSymbols(str: string): string {
-        return str.replace(/[^a-zA-Z0-9]/g, '');
+        return str.replace(/[^a-zA-Z0-9]/g, "");
     }
 
-    private createUniqueFileName(usedNames :Set<string>, name :string, package_name :string, ending :string){
-        if(!this.options.typeSchemaOutputDir)
-            this.logger.error(`Cannot create unique file name for "${name}".`);
+    private createUniqueFileName(usedNames: Set<string>, name: string, package_name: string, ending: string) {
+        if (!this.options.typeSchemaOutputDir) this.logger.error(`Cannot create unique file name for "${name}".`);
         else {
             const basePath = Path.join(this.options.typeSchemaOutputDir, package_name);
             let res = Path.join(basePath, `${name}.${ending}`);
             let counter = 1;
-            while(usedNames.has(res)){
+            while (usedNames.has(res)) {
                 res = Path.join(basePath, `${name}-${counter}.${ending}`);
                 counter++;
             }
@@ -281,36 +280,38 @@ export class APIBuilder {
         }
     }
 
-    private async tryWriteTypeSchema(typeSchemas :TypeSchema[]){
-        if(!this.options.typeSchemaOutputDir) return;
-        try{
-            if(this.options.cleanOutput)
-                fs.rmSync(this.options.typeSchemaOutputDir, { recursive: true, force: true });
-            await mkdir(this.options.typeSchemaOutputDir, { recursive: true});
+    private async tryWriteTypeSchema(typeSchemas: TypeSchema[]) {
+        if (!this.options.typeSchemaOutputDir) return;
+        try {
+            if (this.options.cleanOutput) fs.rmSync(this.options.typeSchemaOutputDir, { recursive: true, force: true });
+            await mkdir(this.options.typeSchemaOutputDir, { recursive: true });
 
             let writtenCount = 0;
             let overrodeCount = 0;
-            let usedNames = new Set<string>();
+            const usedNames = new Set<string>();
 
             this.logger.info(`Writing TypeSchema files to ${this.options.typeSchemaOutputDir}...`);
 
-            for(const ts of typeSchemas){
+            for (const ts of typeSchemas) {
                 const name = APIBuilder.removeSpecialSymbols(ts.identifier.name.toString());
-                const package_name = camelCase(ts.identifier.package.replaceAll('/','-'));
+                const package_name = camelCase(ts.identifier.package.replaceAll("/", "-"));
                 const filePath = this.createUniqueFileName(usedNames, name, package_name, "typeschema.json") ?? "";
 
                 await mkdir(Path.dirname(filePath), { recursive: true });
 
-                if(existsSync(filePath)) overrodeCount++;
+                if (existsSync(filePath)) overrodeCount++;
                 else writtenCount += 1;
 
                 fs.writeFileSync(filePath, JSON.stringify(ts, null, 2));
             }
             this.logger.info(`Created ${writtenCount} new TypeSchema files, overrode ${overrodeCount} files`);
-
-        }catch(error){
-            if(this.options.throwException) throw error;
-            else this.logger.error("Failed to write TypeSchema output", error instanceof Error ? error : new Error(String(error)));
+        } catch (error) {
+            if (this.options.throwException) throw error;
+            else
+                this.logger.error(
+                    "Failed to write TypeSchema output",
+                    error instanceof Error ? error : new Error(String(error)),
+                );
         }
     }
 
@@ -360,7 +361,6 @@ export class APIBuilder {
             result.success = result.errors.length === 0;
 
             this.logger.debug(`Generation completed: ${result.filesGenerated.length} files`);
-
         } catch (error) {
             this.logger.error("Code generation failed", error instanceof Error ? error : new Error(String(error)));
             result.errors.push(error instanceof Error ? error.message : String(error));
