@@ -75,9 +75,14 @@ export function buildFieldType(
         const fieldFs = register.resolveFs(url);
         if (!fieldFs) throw new Error(`Could not resolve field '${element.type}'`);
         return mkIdentifier(fieldFs);
-    } // else throw new Error(`Can't recognize element type '${JSON.stringify(element)}'`);
-    // FIXME: should be impossible?
-    return undefined;
+    } else if (element.choices) {
+        return undefined;
+    } else if (fhirSchema.derivation === "constraint") {
+        return undefined; // FIXME: should be removed
+    } else
+        throw new Error(
+            `Can't recognize element type '${fhirSchema.url}' (${fhirSchema.derivation}): ${JSON.stringify(element, undefined, 2)}`,
+        );
 }
 
 export const mkField = (

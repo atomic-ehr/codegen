@@ -119,6 +119,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 url: "http://example.org/ComplexResource",
                 elements: {
                     contact: {
+                        type: "BackboneElement",
                         elements: {
                             name: { type: "string" },
                             phone: { type: "string" },
@@ -220,9 +221,10 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 kind: "resource",
                 url: "http://example.org/PolymorphicResource",
                 elements: {
-                    value: {
-                        choices: ["valueString", "valueInteger", "valueBoolean"],
-                    },
+                    value: { choices: ["valueString", "valueInteger", "valueBoolean"] },
+                    valueString: { type: "string" },
+                    valueInteger: { type: "integer" },
+                    valueBoolean: { type: "boolean" },
                 },
             };
 
@@ -381,8 +383,10 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 url: "http://example.org/DeeplyNestedResource",
                 elements: {
                     level1: {
+                        type: "BackboneElement",
                         elements: {
                             level2: {
+                                type: "BackboneElement",
                                 elements: {
                                     level3: { type: "string" },
                                 },
