@@ -76,24 +76,13 @@ export function buildFieldType(
         if (refPath.length > 0) {
             return mkNestedIdentifier(register, fhirSchema, refPath, logger);
         }
-    }
-
-    if (element.type) {
-        const kind = element.type.match(/^[a-z]/) ? "primitive-type" : "complex-type";
+    } else if (element.type) {
         const url = register.ensureCanonicalUrl(element.type);
         const fieldFs = register.resolveFs(url);
-        if (!fieldFs) {
-            throw new Error(`Could not resolve field '${element.type}'`);
-        }
-        return {
-            kind: kind,
-            package: fieldFs.package_meta.name,
-            version: fieldFs.package_meta.version,
-            name: element.type as Name,
-            url: url,
-        };
-    }
-
+        if (!fieldFs) throw new Error(`Could not resolve field '${element.type}'`);
+        return mkIdentifier(fieldFs);
+    } // else throw new Error(`Can't recognize element type '${JSON.stringify(element)}'`);
+    // FIXME: should be impossible?
     return undefined;
 }
 
