@@ -86,6 +86,8 @@ const writerToGenerator = (writerGen: Writer): Generator => {
     };
 };
 
+const normalizeFileName = (str: string): string => str.replace(/[^a-zA-Z0-9]/g, "");
+
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 type APIBuilderConfig = PartialBy<
@@ -267,10 +269,6 @@ export class APIBuilder {
         return this;
     }
 
-    private static removeSpecialSymbols(str: string): string {
-        return str.replace(/[^a-zA-Z0-9]/g, "");
-    }
-
     private createUniqueFileName(usedNames: Set<string>, name: string, package_name: string, ending: string) {
         if (!this.options.typeSchemaOutputDir) this.logger.error(`Cannot create unique file name for "${name}".`);
         else {
@@ -299,8 +297,8 @@ export class APIBuilder {
             this.logger.info(`Writing TypeSchema files to ${this.options.typeSchemaOutputDir}...`);
 
             for (const ts of typeSchemas) {
-                const name = APIBuilder.removeSpecialSymbols(ts.identifier.name.toString());
                 const package_name = camelCase(ts.identifier.package.replaceAll("/", "-"));
+                const name = normalizeFileName(ts.identifier.name.toString());
                 const filePath = this.createUniqueFileName(usedNames, name, package_name, "typeschema.json") ?? "";
 
                 await mkdir(Path.dirname(filePath), { recursive: true });
