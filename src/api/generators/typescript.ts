@@ -757,7 +757,7 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
         const optional = required ? "" : "?";
         const arrayType = isArray ? "[]" : "";
 
-        return `${fieldName}${optional}: ${typeString}${arrayType};`;
+        return `${fieldName.replace("-", "_")}${optional}: ${typeString}${arrayType};`;
     }
 
     // ==========================================
