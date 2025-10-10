@@ -3,10 +3,10 @@ import type { CanonicalUrl } from "@root/typeschema";
 import type { RegularTypeSchema } from "@root/typeschema/types";
 import { mkR4Register, registerFsAndMkTs } from "@typeschema-test/utils";
 
-describe("TypeSchema Processing constraint generation", async () => {
+describe("TypeSchema R4 generation", async () => {
     const r4 = await mkR4Register();
 
-    it("Use nested type in profile.", async () => {
+    it("Bundle and elementReference", async () => {
         const profile = r4.resolveFs("http://hl7.org/fhir/StructureDefinition/Bundle" as CanonicalUrl)!;
         const ts = (await registerFsAndMkTs(r4, profile))[0] as RegularTypeSchema;
         expect(ts?.nested).toHaveLength(5);
@@ -29,7 +29,6 @@ describe("TypeSchema Processing constraint generation", async () => {
                 { identifier: { url: "http://hl7.org/fhir/StructureDefinition/Bundle#entry.search" } },
                 { identifier: { url: "http://hl7.org/fhir/StructureDefinition/Bundle#link" } },
             ],
-
             fields: {
                 entry: {
                     array: true,
@@ -44,6 +43,22 @@ describe("TypeSchema Processing constraint generation", async () => {
                     },
                 },
             },
+        });
+    });
+
+    it("markdown", async () => {
+        const md = r4.resolveFs("http://hl7.org/fhir/StructureDefinition/markdown" as CanonicalUrl)!;
+        const ts = (await registerFsAndMkTs(r4, md))[0] as RegularTypeSchema;
+        expect(ts).toMatchObject({
+            identifier: {
+                kind: "primitive-type",
+                name: "markdown",
+                url: "http://hl7.org/fhir/StructureDefinition/markdown",
+            },
+            base: { url: "http://hl7.org/fhir/StructureDefinition/string" },
+            fields: undefined,
+            nested: undefined,
+            dependencies: [{ url: "http://hl7.org/fhir/StructureDefinition/string" }],
         });
     });
 });
