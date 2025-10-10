@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import type { CanonicalUrl } from "@root/typeschema";
+import { type CanonicalUrl, generateTypeSchemas, type Name } from "@root/typeschema";
 import type { RegularTypeSchema } from "@root/typeschema/types";
 import { mkR4Register, registerFsAndMkTs } from "@typeschema-test/utils";
 
@@ -59,6 +59,118 @@ describe("TypeSchema R4 generation", async () => {
             fields: undefined,
             nested: undefined,
             dependencies: [{ url: "http://hl7.org/fhir/StructureDefinition/string" }],
+        });
+    });
+
+    it("Parameter & markdown type", async () => {
+        await generateTypeSchemas(r4);
+        const parameters = r4.resolveFs("http://hl7.org/fhir/StructureDefinition/Parameters" as CanonicalUrl)!;
+        const ts = (await registerFsAndMkTs(r4, parameters))[0] as RegularTypeSchema;
+        expect(ts.dependencies!).toContainEqual({
+            kind: "primitive-type",
+            package: "hl7.fhir.r4.core",
+            version: "4.0.1",
+            name: "markdown" as Name,
+            url: "http://hl7.org/fhir/StructureDefinition/markdown" as CanonicalUrl,
+        });
+        expect(ts).toMatchObject({
+            base: {
+                kind: "resource",
+                name: "Resource",
+                package: "hl7.fhir.r4.core",
+                url: "http://hl7.org/fhir/StructureDefinition/Resource",
+                version: "4.0.1",
+            },
+            identifier: {
+                kind: "resource",
+                name: "Parameters",
+                package: "hl7.fhir.r4.core",
+                url: "http://hl7.org/fhir/StructureDefinition/Parameters",
+                version: "4.0.1",
+            },
+            fields: {
+                parameter: {
+                    type: { kind: "nested", url: "http://hl7.org/fhir/StructureDefinition/Parameters#parameter" },
+                },
+            },
+            nested: [
+                {
+                    base: { kind: "complex-type", url: "http://hl7.org/fhir/StructureDefinition/BackboneElement" },
+                    identifier: { kind: "nested", url: "http://hl7.org/fhir/StructureDefinition/Parameters#parameter" },
+                    fields: {
+                        name: { type: { url: "http://hl7.org/fhir/StructureDefinition/string" } },
+                        part: {
+                            type: {
+                                kind: "nested",
+                                url: "http://hl7.org/fhir/StructureDefinition/Parameters#parameter",
+                            },
+                        },
+                        value: {
+                            choices: [
+                                "valueBase64Binary",
+                                "valueBoolean",
+                                "valueCanonical",
+                                "valueCode",
+                                "valueDate",
+                                "valueDateTime",
+                                "valueDecimal",
+                                "valueId",
+                                "valueInstant",
+                                "valueInteger",
+                                "valueMarkdown",
+                                "valueOid",
+                                "valuePositiveInt",
+                                "valueString",
+                                "valueTime",
+                                "valueUnsignedInt",
+                                "valueUri",
+                                "valueUrl",
+                                "valueUuid",
+                                "valueAddress",
+                                "valueAge",
+                                "valueAnnotation",
+                                "valueAttachment",
+                                "valueCodeableConcept",
+                                "valueCoding",
+                                "valueContactPoint",
+                                "valueCount",
+                                "valueDistance",
+                                "valueDuration",
+                                "valueHumanName",
+                                "valueIdentifier",
+                                "valueMoney",
+                                "valuePeriod",
+                                "valueQuantity",
+                                "valueRange",
+                                "valueRatio",
+                                "valueReference",
+                                "valueSampledData",
+                                "valueSignature",
+                                "valueTiming",
+                                "valueContactDetail",
+                                "valueContributor",
+                                "valueDataRequirement",
+                                "valueExpression",
+                                "valueParameterDefinition",
+                                "valueRelatedArtifact",
+                                "valueTriggerDefinition",
+                                "valueUsageContext",
+                                "valueDosage",
+                                "valueMeta",
+                            ],
+                        },
+                        valueMarkdown: {
+                            type: {
+                                kind: "primitive-type",
+                                name: "markdown",
+                                package: "hl7.fhir.r4.core",
+                                url: "http://hl7.org/fhir/StructureDefinition/markdown",
+                                version: "4.0.1",
+                            },
+                        },
+                    },
+                },
+            ],
         });
     });
 });
