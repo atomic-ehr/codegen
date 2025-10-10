@@ -52,6 +52,25 @@ async function generateUSCoreTypes() {
 }
 
 // ============================================
+// Example 2: Basic + Type Schemas Writing
+// ============================================
+
+async function generateFHIRTypesAndWriteTSs() {
+
+    const builder = new APIBuilder();
+
+    await builder
+        .fromPackage("hl7.fhir.r4.core", "4.0.1")
+        .typescript({
+            generateIndex: true,
+            includeDocuments: true,
+        })
+        .outputTo("./generated/fhir-r4-with-schemas")
+        .writeTypeSchemas()
+        .generate();
+}
+
+// ============================================
 // Example 5: Using Generated Types
 // ============================================
 
@@ -184,6 +203,11 @@ async function main() {
             case "basic":
                 await generateBasicFHIRTypes();
                 break;
+
+            case "basic-with-schemas":
+                await generateFHIRTypesAndWriteTSs();
+                break;
+
             case "us-core":
                 await generateUSCoreTypes();
                 break;
