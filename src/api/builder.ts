@@ -6,8 +6,7 @@
  */
 
 import * as fs from "node:fs";
-import { existsSync } from "node:fs";
-import { mkdir } from "node:fs/promises";
+import * as afs from "node:fs/promises";
 import * as Path from "node:path";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { GeneratedFile } from "@root/api/generators/base/types";
@@ -273,7 +272,7 @@ export class APIBuilder {
         if (!this.options.typeSchemaOutputDir) return;
         try {
             if (this.options.cleanOutput) fs.rmSync(this.options.typeSchemaOutputDir, { recursive: true, force: true });
-            await mkdir(this.options.typeSchemaOutputDir, { recursive: true });
+            await afs.mkdir(this.options.typeSchemaOutputDir, { recursive: true });
 
             let writtenCount = 0;
             let overrideCount = 0;
@@ -295,10 +294,10 @@ export class APIBuilder {
                     fullName = `${baseName}.typeschema.json`;
                 }
 
-                await mkdir(Path.dirname(fullName), { recursive: true });
-                fs.writeFileSync(fullName, JSON.stringify(ts, null, 2));
+                await afs.mkdir(Path.dirname(fullName), { recursive: true });
+                afs.writeFile(fullName, JSON.stringify(ts, null, 2));
 
-                if (existsSync(fullName)) overrideCount++;
+                if (await afs.exists(fullName)) overrideCount++;
                 else writtenCount++;
             }
             this.logger.info(`Created ${writtenCount} new TypeSchema files, overrode ${overrideCount} files`);
