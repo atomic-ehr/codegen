@@ -217,7 +217,6 @@ export class TypeScript extends Writer {
             const fields = Object.entries(schema.fields).sort((a, b) => a[0].localeCompare(b[0]));
             for (const [fieldName, field] of fields) {
                 if (isChoiceDeclarationField(field)) continue;
-                if (field.type === undefined) continue; // FIXME: should be impossible
 
                 this.debugComment(fieldName, ":", field);
 
