@@ -65,17 +65,11 @@ export function buildFieldType(
     element: FHIRSchemaElement,
     logger?: CodegenLogger,
 ): Identifier | undefined {
-    // Handle element reference (for slicing)
     if (element.elementReference) {
         const refPath = element.elementReference
-            .filter((_, i) => i % 2 === 1) // Get odd indices (the actual path parts)
-            .map((p) => p as string)
-            .filter((p) => p !== "elements"); // Remove 'elements' which is just a container
-
-        // Only return nested identifier if we have a non-empty path
-        if (refPath.length > 0) {
-            return mkNestedIdentifier(register, fhirSchema, refPath, logger);
-        }
+            .slice(1) // drop canonicalUrl
+            .filter((_, i) => i % 2 === 1); // drop `elements` from path
+        return mkNestedIdentifier(register, fhirSchema, refPath, logger);
     } else if (element.type) {
         const url = register.ensureCanonicalUrl(element.type);
         const fieldFs = register.resolveFs(url);
