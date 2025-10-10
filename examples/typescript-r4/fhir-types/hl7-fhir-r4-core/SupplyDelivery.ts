@@ -43,5 +43,5 @@ export interface SupplyDelivery extends DomainResource {
     _status?: Element;
     suppliedItem?: SupplyDeliverySuppliedItem;
     supplier?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }

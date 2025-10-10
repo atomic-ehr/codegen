@@ -27,7 +27,7 @@ export interface SpecimenDefinitionTypeTested extends BackboneElement {
     rejectionCriterion?: CodeableConcept[];
     requirement?: string;
     retentionTime?: Duration;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 export interface SpecimenDefinitionTypeTestedContainer extends BackboneElement {
@@ -39,7 +39,7 @@ export interface SpecimenDefinitionTypeTestedContainer extends BackboneElement {
     minimumVolumeQuantity?: Quantity;
     minimumVolumeString?: string;
     preparation?: string;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 export interface SpecimenDefinitionTypeTestedContainerAdditive extends BackboneElement {

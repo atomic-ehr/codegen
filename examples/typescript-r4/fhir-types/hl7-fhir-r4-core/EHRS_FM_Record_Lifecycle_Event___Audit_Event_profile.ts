@@ -15,7 +15,7 @@ import type { Coding } from "../hl7-fhir-r4-core/Coding";
 export interface EHRS_FM_Record_Lifecycle_Event___Audit_Event {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent";
 
-    type_: Coding;
+    type: Coding;
     subtype?: Coding[];
     action?: 'C' | 'R' | 'U' | 'D' | 'E';
     recorded: string;
@@ -31,7 +31,7 @@ export const attach_EHRS_FM_Record_Lifecycle_Event___Audit_Event_to_AuditEvent =
         meta: {
             profile: ['http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent']
         },
-        type_: profile.type_,
+        type: profile.type,
         subtype: profile.subtype,
         action: profile.action,
         recorded: profile.recorded,
@@ -45,7 +45,7 @@ export const attach_EHRS_FM_Record_Lifecycle_Event___Audit_Event_to_AuditEvent =
 export const extract_EHRS_FM_Record_Lifecycle_Event___Audit_Event_from_AuditEvent = (resource: AuditEvent): EHRS_FM_Record_Lifecycle_Event___Audit_Event => {
     return {
         __profileUrl: 'http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent',
-        type_: resource.type_,
+        type: resource.type,
         subtype: resource.subtype,
         action: resource.action,
         recorded: resource.recorded,

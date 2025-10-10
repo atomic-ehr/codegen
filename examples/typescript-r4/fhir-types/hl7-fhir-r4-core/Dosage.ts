@@ -24,7 +24,7 @@ export interface DosageDoseAndRate extends Element {
     rateQuantity?: Quantity;
     rateRange?: Range;
     rateRatio?: Ratio;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/Dosage

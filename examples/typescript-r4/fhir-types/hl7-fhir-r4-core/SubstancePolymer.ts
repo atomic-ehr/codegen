@@ -22,7 +22,7 @@ export interface SubstancePolymerMonomerSetStartingMaterial extends BackboneElem
     amount?: SubstanceAmount;
     isDefining?: boolean;
     material?: CodeableConcept;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 export interface SubstancePolymerRepeat extends BackboneElement {
@@ -48,14 +48,14 @@ export interface SubstancePolymerRepeatRepeatUnitDegreeOfPolymerisation extends 
 export interface SubstancePolymerRepeatRepeatUnitStructuralRepresentation extends BackboneElement {
     attachment?: Attachment;
     representation?: string;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstancePolymer
 export interface SubstancePolymer extends DomainResource {
     resourceType: "SubstancePolymer";
 
-    class_?: CodeableConcept;
+    "class"?: CodeableConcept;
     copolymerConnectivity?: CodeableConcept[];
     geometry?: CodeableConcept;
     modification?: string[];

@@ -105,7 +105,7 @@ export interface TestScriptSetupActionOperation extends BackboneElement {
     responseId?: string;
     sourceId?: string;
     targetId?: string;
-    type_?: Coding;
+    type?: Coding;
     url?: string;
 }
 

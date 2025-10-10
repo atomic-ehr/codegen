@@ -21,11 +21,11 @@ export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface DeviceDeviceName extends BackboneElement {
     name: string;
-    type_: "udi-label-name" | "user-friendly-name" | "patient-reported-name" | "manufacturer-name" | "model-name" | "other";
+    type: "udi-label-name" | "user-friendly-name" | "patient-reported-name" | "manufacturer-name" | "model-name" | "other";
 }
 
 export interface DeviceProperty extends BackboneElement {
-    type_: CodeableConcept;
+    type: CodeableConcept;
     valueCode?: CodeableConcept[];
     valueQuantity?: Quantity[];
 }
@@ -46,7 +46,7 @@ export interface DeviceUdiCarrier extends BackboneElement {
 
 export interface DeviceVersion extends BackboneElement {
     component?: Identifier;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
     value: string;
 }
 
@@ -85,7 +85,7 @@ export interface Device extends DomainResource {
     status?: "active" | "inactive" | "entered-in-error" | "unknown";
     _status?: Element;
     statusReason?: CodeableConcept[];
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
     udiCarrier?: DeviceUdiCarrier[];
     url?: string;
     _url?: Element;

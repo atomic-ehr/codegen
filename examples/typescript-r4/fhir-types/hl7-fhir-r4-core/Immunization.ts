@@ -26,7 +26,7 @@ export interface ImmunizationEducation extends BackboneElement {
 
 export interface ImmunizationPerformer extends BackboneElement {
     actor: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
-    function_?: CodeableConcept;
+    "function"?: CodeableConcept;
 }
 
 export interface ImmunizationProtocolApplied extends BackboneElement {

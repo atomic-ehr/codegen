@@ -20,7 +20,7 @@ export interface AppointmentParticipant extends BackboneElement {
     period?: Period;
     required?: "required" | "optional" | "information-only";
     status: "accepted" | "declined" | "tentative" | "needs-action";
-    type_?: CodeableConcept[];
+    type?: CodeableConcept[];
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/Appointment

@@ -59,6 +59,6 @@ export interface Bundle extends Resource {
     _timestamp?: Element;
     total?: number;
     _total?: Element;
-    type_: "document" | "message" | "transaction" | "transaction-response" | "batch" | "batch-response" | "history" | "searchset" | "collection";
-    _type_?: Element;
+    type: "document" | "message" | "transaction" | "transaction-response" | "batch" | "batch-response" | "history" | "searchset" | "collection";
+    _type?: Element;
 }

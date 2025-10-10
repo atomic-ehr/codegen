@@ -13,7 +13,7 @@ export interface SubscriptionChannel extends BackboneElement {
     endpoint?: string;
     header?: string[];
     payload?: string;
-    type_: "rest-hook" | "websocket" | "email" | "sms" | "message";
+    type: "rest-hook" | "websocket" | "email" | "sms" | "message";
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/Subscription

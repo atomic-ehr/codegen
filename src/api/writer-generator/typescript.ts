@@ -92,13 +92,23 @@ const tsResourceName = (id: Identifier): string => {
     return normalizeTsName(id.name);
 };
 
-const tsFieldName = (n: string): string => normalizeTsName(n);
+// biome-ignore format: too long
+const tsKeywords = new Set([ "class", "function", "return", "if", "for", "while", "const", "let", "var", "import", "export", "interface" ]);
+
+const tsFieldName = (n: string): string => {
+    if (tsKeywords.has(n)) return `"${n}"`;
+    if (n.includes(" ") || n.includes("-")) return `"${n}"`;
+    return n;
+};
 
 const normalizeTsName = (n: string): string => {
-    // biome-ignore format: too long
-    const tsKeywords = new Set(["abstract", "any", "as", "async", "await", "boolean", "bigint", "break", "case", "catch", "class", "const", "constructor", "continue", "debugger", "declare", "default", "delete", "do", "else", "enum", "export", "extends", "extern", "false", "finally", "for", "function", "from", "get", "goto", "if", "implements", "import", "in", "infer", "instanceof", "interface", "keyof", "let", "module", "namespace", "never", "new", "null", "number", "object", "of", "override", "private", "protected", "public", "readonly", "return", "satisfies", "set", "static", "string", "super", "switch", "this", "throw", "true", "try", "type", "typeof", "unknown", "var", "void", "while"]);
     if (tsKeywords.has(n)) n = `${n}_`;
     return n.replace(/[- ]/g, "_");
+};
+
+const tsGet = (object: string, tsFieldName: string) => {
+    if (tsFieldName.startsWith('"')) return `${object}[${tsFieldName}]`;
+    return `${object}.${tsFieldName}`;
 };
 
 export type TypeScriptOptions = {} & WriterOptions;
@@ -187,7 +197,8 @@ export class TypeScript extends Writer {
 
     addFieldExtension(fieldName: string, field: RegularField): void {
         if (field.type.kind === "primitive-type") {
-            this.lineSM(`_${tsFieldName(fieldName)}?: Element`);
+            const extFieldName = tsFieldName(`_${fieldName}`);
+            this.lineSM(`${extFieldName}?: Element`);
         }
     }
 
@@ -338,7 +349,7 @@ export class TypeScript extends Writer {
                         this.line(`profile: ['${flatProfile.identifier.url}']`);
                     }, [","]);
                     profileFields.forEach((fieldName) => {
-                        this.line(`${fieldName}:`, `profile.${fieldName},`);
+                        this.line(`${fieldName}: ${tsGet("profile", fieldName)},`);
                     });
                 });
             },
@@ -375,7 +386,7 @@ export class TypeScript extends Writer {
                     if (!isNotChoiceDeclarationField(pField) || !isNotChoiceDeclarationField(rField)) return;
 
                     if (pField.required && !rField.required) {
-                        this.curlyBlock([`if (resource.${tsField} === undefined)`], () =>
+                        this.curlyBlock([`if (${tsGet("resource", tsField)} === undefined)`], () =>
                             this.lineSM(
                                 `throw new Error("'${tsField}' is required for ${flatProfile.identifier.url}")`,
                             ),
@@ -395,11 +406,11 @@ export class TypeScript extends Writer {
                                 this.line(";");
                             });
                         });
-                        let cond: string = !pField?.required ? `!resource.${tsField} || ` : "";
+                        let cond: string = !pField?.required ? `!${tsGet("resource", tsField)} || ` : "";
                         if (pField.array) {
-                            cond += `resource.${tsField}.every( (ref) => ${predName}(ref) )`;
+                            cond += `${tsGet("resource", tsField)}.every( (ref) => ${predName}(ref) )`;
                         } else {
-                            cond += `!${predName}(resource.${tsField})`;
+                            cond += `!${predName}(${tsGet("resource", tsField)})`;
                         }
                         this.curlyBlock(["if (", cond, ")"], () => {
                             this.lineSM(
@@ -415,9 +426,12 @@ export class TypeScript extends Writer {
                     profileFields.forEach((fieldName) => {
                         const tsField = tsFieldName(fieldName);
                         if (shouldCast[fieldName]) {
-                            this.line(`${tsField}:`, `resource.${tsField} as ${tsProfileName}['${tsField}'],`);
+                            this.line(
+                                `${tsField}:`,
+                                `${tsGet("resource", tsField)} as ${tsProfileName}['${tsField}'],`,
+                            );
                         } else {
-                            this.line(`${tsField}:`, `resource.${tsField},`);
+                            this.line(`${tsField}:`, `${tsGet("resource", tsField)},`);
                         }
                     });
                 });

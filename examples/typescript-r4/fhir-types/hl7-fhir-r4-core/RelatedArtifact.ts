@@ -19,8 +19,8 @@ export interface RelatedArtifact extends Element {
     _label?: Element;
     resource?: string;
     _resource?: Element;
-    type_: "documentation" | "justification" | "citation" | "predecessor" | "successor" | "derived-from" | "depends-on" | "composed-of";
-    _type_?: Element;
+    type: "documentation" | "justification" | "citation" | "predecessor" | "successor" | "derived-from" | "depends-on" | "composed-of";
+    _type?: Element;
     url?: string;
     _url?: Element;
 }

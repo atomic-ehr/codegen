@@ -24,7 +24,7 @@ export interface ImagingStudySeries extends BackboneElement {
     instance?: ImagingStudySeriesInstance[];
     laterality?: Coding;
     modality: Coding;
-    number_?: number;
+    number?: number;
     numberOfInstances?: number;
     performer?: ImagingStudySeriesPerformer[];
     specimen?: Reference<"Specimen">[];
@@ -33,7 +33,7 @@ export interface ImagingStudySeries extends BackboneElement {
 }
 
 export interface ImagingStudySeriesInstance extends BackboneElement {
-    number_?: number;
+    number?: number;
     sopClass: Coding;
     title?: string;
     uid: string;
@@ -41,7 +41,7 @@ export interface ImagingStudySeriesInstance extends BackboneElement {
 
 export interface ImagingStudySeriesPerformer extends BackboneElement {
     actor: Reference<"CareTeam" | "Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    function_?: CodeableConcept;
+    "function"?: CodeableConcept;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/ImagingStudy

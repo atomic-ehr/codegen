@@ -26,6 +26,6 @@ export interface TriggerDefinition extends Element {
     _timingDateTime?: Element;
     timingReference?: Reference<"Schedule">;
     timingTiming?: Timing;
-    type_: "named-event" | "periodic" | "data-changed" | "data-added" | "data-modified" | "data-removed" | "data-accessed" | "data-access-ended";
-    _type_?: Element;
+    type: "named-event" | "periodic" | "data-changed" | "data-added" | "data-modified" | "data-removed" | "data-accessed" | "data-access-ended";
+    _type?: Element;
 }

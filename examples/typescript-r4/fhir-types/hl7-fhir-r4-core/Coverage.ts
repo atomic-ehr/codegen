@@ -21,20 +21,20 @@ export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface CoverageClass extends BackboneElement {
     name?: string;
-    type_: CodeableConcept;
+    type: CodeableConcept;
     value: string;
 }
 
 export interface CoverageCostToBeneficiary extends BackboneElement {
     exception?: CoverageCostToBeneficiaryException[];
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
     valueMoney?: Money;
     valueQuantity?: Quantity;
 }
 
 export interface CoverageCostToBeneficiaryException extends BackboneElement {
     period?: Period;
-    type_: CodeableConcept;
+    type: CodeableConcept;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/Coverage
@@ -42,7 +42,7 @@ export interface Coverage extends DomainResource {
     resourceType: "Coverage";
 
     beneficiary: Reference<"Patient">;
-    class_?: CoverageClass[];
+    "class"?: CoverageClass[];
     contract?: Reference<"Contract">[];
     costToBeneficiary?: CoverageCostToBeneficiary[];
     dependent?: string;
@@ -63,5 +63,5 @@ export interface Coverage extends DomainResource {
     subscriber?: Reference<"Patient" | "RelatedPerson">;
     subscriberId?: string;
     _subscriberId?: Element;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }

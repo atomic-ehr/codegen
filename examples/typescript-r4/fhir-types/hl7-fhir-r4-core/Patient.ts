@@ -40,7 +40,7 @@ export interface PatientContact extends BackboneElement {
 
 export interface PatientLink extends BackboneElement {
     other: Reference<"Patient" | "RelatedPerson">;
-    type_: "replaced-by" | "replaces" | "refer" | "seealso";
+    type: "replaced-by" | "replaces" | "refer" | "seealso";
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/Patient

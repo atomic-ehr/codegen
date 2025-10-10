@@ -28,7 +28,7 @@ export interface InvoiceLineItemPriceComponent extends BackboneElement {
     amount?: Money;
     code?: CodeableConcept;
     factor?: number;
-    type_: "base" | "surcharge" | "deduction" | "discount" | "tax" | "informational";
+    type: "base" | "surcharge" | "deduction" | "discount" | "tax" | "informational";
 }
 
 export interface InvoiceParticipant extends BackboneElement {
@@ -59,5 +59,5 @@ export interface Invoice extends DomainResource {
     totalGross?: Money;
     totalNet?: Money;
     totalPriceComponent?: InvoiceLineItemPriceComponent[];
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }

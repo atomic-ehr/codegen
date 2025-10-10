@@ -68,7 +68,7 @@ export interface Library extends DomainResource {
     title?: string;
     _title?: Element;
     topic?: CodeableConcept[];
-    type_: CodeableConcept;
+    type: CodeableConcept;
     url?: string;
     _url?: Element;
     usage?: string;

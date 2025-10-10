@@ -70,6 +70,6 @@ export interface MeasureReport extends DomainResource {
     status: "complete" | "pending" | "error";
     _status?: Element;
     subject?: Reference<"Device" | "Group" | "Location" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    type_: "individual" | "subject-list" | "summary" | "data-collection";
-    _type_?: Element;
+    type: "individual" | "subject-list" | "summary" | "data-collection";
+    _type?: Element;
 }

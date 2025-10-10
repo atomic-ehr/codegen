@@ -27,7 +27,7 @@ export interface PICO_Element_Profile {
     date?: string;
     description?: string;
     note?: Annotation[];
-    type_?: 'dichotomous' | 'continuous' | 'descriptive';
+    type?: 'dichotomous' | 'continuous' | 'descriptive';
     characteristic: EvidenceVariableCharacteristic[];
 }
 
@@ -43,7 +43,7 @@ export const attach_PICO_Element_Profile_to_EvidenceVariable = (resource: Eviden
         date: profile.date,
         description: profile.description,
         note: profile.note,
-        type_: profile.type_,
+        type: profile.type,
         characteristic: profile.characteristic,
     }
 }
@@ -57,7 +57,7 @@ export const extract_PICO_Element_Profile_from_EvidenceVariable = (resource: Evi
         date: resource.date,
         description: resource.description,
         note: resource.note,
-        type_: resource.type_,
+        type: resource.type,
         characteristic: resource.characteristic,
     }
 }

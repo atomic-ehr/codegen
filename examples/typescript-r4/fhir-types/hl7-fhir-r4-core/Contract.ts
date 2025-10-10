@@ -35,7 +35,7 @@ export interface ContractContentDefinition extends BackboneElement {
     publicationStatus: "amended" | "appended" | "cancelled" | "disputed" | "entered-in-error" | "executable" | "executed" | "negotiable" | "offered" | "policy" | "rejected" | "renewed" | "revoked" | "resolved" | "terminated";
     publisher?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
     subType?: CodeableConcept;
-    type_: CodeableConcept;
+    type: CodeableConcept;
 }
 
 export interface ContractFriendly extends BackboneElement {
@@ -56,7 +56,7 @@ export interface ContractRule extends BackboneElement {
 export interface ContractSigner extends BackboneElement {
     party: Reference<"Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     signature: Signature[];
-    type_: Coding;
+    type: Coding;
 }
 
 export interface ContractTerm extends BackboneElement {
@@ -72,7 +72,7 @@ export interface ContractTerm extends BackboneElement {
     text?: string;
     topicCodeableConcept?: CodeableConcept;
     topicReference?: Reference<"Resource">;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 export interface ContractTermAction extends BackboneElement {
@@ -98,7 +98,7 @@ export interface ContractTermAction extends BackboneElement {
     securityLabelNumber?: number[];
     status: CodeableConcept;
     subject?: ContractTermActionSubject[];
-    type_: CodeableConcept;
+    type: CodeableConcept;
 }
 
 export interface ContractTermActionSubject extends BackboneElement {
@@ -118,7 +118,7 @@ export interface ContractTermAsset extends BackboneElement {
     securityLabelNumber?: number[];
     subtype?: CodeableConcept[];
     text?: string;
-    type_?: CodeableConcept[];
+    type?: CodeableConcept[];
     typeReference?: Reference<"Resource">[];
     usePeriod?: Period[];
     valuedItem?: ContractTermAssetValuedItem[];
@@ -158,7 +158,7 @@ export interface ContractTermOffer extends BackboneElement {
     securityLabelNumber?: number[];
     text?: string;
     topic?: Reference<"Resource">;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 export interface ContractTermOfferAnswer extends BackboneElement {
@@ -185,7 +185,7 @@ export interface ContractTermSecurityLabel extends BackboneElement {
     category?: Coding[];
     classification: Coding;
     control?: Coding[];
-    number_?: number[];
+    number?: number[];
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/Contract
@@ -231,7 +231,7 @@ export interface Contract extends DomainResource {
     _title?: Element;
     topicCodeableConcept?: CodeableConcept;
     topicReference?: Reference<"Resource">;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
     url?: string;
     _url?: Element;
     version?: string;

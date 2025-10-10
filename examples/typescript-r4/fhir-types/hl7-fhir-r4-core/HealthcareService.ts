@@ -69,5 +69,5 @@ export interface HealthcareService extends DomainResource {
     serviceProvisionCode?: CodeableConcept[];
     specialty?: CodeableConcept[];
     telecom?: ContactPoint[];
-    type_?: CodeableConcept[];
+    type?: CodeableConcept[];
 }

@@ -19,7 +19,7 @@ export interface Signature extends Element {
     _sigFormat?: Element;
     targetFormat?: string;
     _targetFormat?: Element;
-    type_: Coding[];
+    type: Coding[];
     when: string;
     _when?: Element;
     who: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;

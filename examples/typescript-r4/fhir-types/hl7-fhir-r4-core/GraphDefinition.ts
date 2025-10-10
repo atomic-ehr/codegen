@@ -27,7 +27,7 @@ export interface GraphDefinitionLinkTarget extends BackboneElement {
     link?: GraphDefinitionLink[];
     params?: string;
     profile?: string;
-    type_: string;
+    type: string;
 }
 
 export interface GraphDefinitionLinkTargetCompartment extends BackboneElement {

@@ -28,7 +28,7 @@ export interface MedicinalProductAuthorizationProcedure extends BackboneElement 
     dateDateTime?: string;
     datePeriod?: Period;
     identifier?: Identifier;
-    type_: CodeableConcept;
+    type: CodeableConcept;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductAuthorization

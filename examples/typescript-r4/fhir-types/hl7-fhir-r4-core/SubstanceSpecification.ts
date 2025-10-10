@@ -51,7 +51,7 @@ export interface SubstanceSpecificationName extends BackboneElement {
     status?: CodeableConcept;
     synonym?: SubstanceSpecificationName[];
     translation?: SubstanceSpecificationName[];
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 export interface SubstanceSpecificationNameOfficial extends BackboneElement {
@@ -106,13 +106,13 @@ export interface SubstanceSpecificationStructureIsotope extends BackboneElement 
 export interface SubstanceSpecificationStructureIsotopeMolecularWeight extends BackboneElement {
     amount?: Quantity;
     method?: CodeableConcept;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 export interface SubstanceSpecificationStructureRepresentation extends BackboneElement {
     attachment?: Attachment;
     representation?: string;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstanceSpecification
@@ -139,5 +139,5 @@ export interface SubstanceSpecification extends DomainResource {
     sourceMaterial?: Reference<"SubstanceSourceMaterial">;
     status?: CodeableConcept;
     structure?: SubstanceSpecificationStructure;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }

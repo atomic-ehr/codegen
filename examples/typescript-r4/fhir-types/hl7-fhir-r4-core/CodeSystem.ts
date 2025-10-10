@@ -53,7 +53,7 @@ export interface CodeSystemFilter extends BackboneElement {
 export interface CodeSystemProperty extends BackboneElement {
     code: string;
     description?: string;
-    type_: "code" | "Coding" | "string" | "integer" | "boolean" | "dateTime" | "decimal";
+    type: "code" | "Coding" | "string" | "integer" | "boolean" | "dateTime" | "decimal";
     uri?: string;
 }
 

@@ -59,8 +59,8 @@ export interface SearchParameter extends DomainResource {
     _status?: Element;
     target?: string[];
     _target?: Element;
-    type_: "number" | "date" | "string" | "token" | "reference" | "composite" | "quantity" | "uri" | "special";
-    _type_?: Element;
+    type: "number" | "date" | "string" | "token" | "reference" | "composite" | "quantity" | "uri" | "special";
+    _type?: Element;
     url: string;
     _url?: Element;
     useContext?: UsageContext[];

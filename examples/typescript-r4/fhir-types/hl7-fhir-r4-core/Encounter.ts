@@ -20,7 +20,7 @@ export type { Period } from "../hl7-fhir-r4-core/Period";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface EncounterClassHistory extends BackboneElement {
-    class_: Coding;
+    "class": Coding;
     period: Period;
 }
 
@@ -52,7 +52,7 @@ export interface EncounterLocation extends BackboneElement {
 export interface EncounterParticipant extends BackboneElement {
     individual?: Reference<"Practitioner" | "PractitionerRole" | "RelatedPerson">;
     period?: Period;
-    type_?: CodeableConcept[];
+    type?: CodeableConcept[];
 }
 
 export interface EncounterStatusHistory extends BackboneElement {
@@ -67,7 +67,7 @@ export interface Encounter extends DomainResource {
     account?: Reference<"Account">[];
     appointment?: Reference<"Appointment">[];
     basedOn?: Reference<"ServiceRequest">[];
-    class_: Coding;
+    "class": Coding;
     classHistory?: EncounterClassHistory[];
     diagnosis?: EncounterDiagnosis[];
     episodeOfCare?: Reference<"EpisodeOfCare">[];
@@ -87,5 +87,5 @@ export interface Encounter extends DomainResource {
     _status?: Element;
     statusHistory?: EncounterStatusHistory[];
     subject?: Reference<"Group" | "Patient">;
-    type_?: CodeableConcept[];
+    type?: CodeableConcept[];
 }

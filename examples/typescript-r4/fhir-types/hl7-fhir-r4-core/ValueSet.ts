@@ -60,7 +60,7 @@ export interface ValueSetExpansion extends BackboneElement {
 }
 
 export interface ValueSetExpansionContains extends BackboneElement {
-    abstract_?: boolean;
+    abstract?: boolean;
     code?: string;
     contains?: ValueSetExpansionContains[];
     designation?: ValueSetComposeIncludeConceptDesignation[];

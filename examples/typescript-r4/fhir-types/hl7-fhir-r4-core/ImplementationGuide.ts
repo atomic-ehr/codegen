@@ -65,7 +65,7 @@ export interface ImplementationGuideDependsOn extends BackboneElement {
 
 export interface ImplementationGuideGlobal extends BackboneElement {
     profile: string;
-    type_: string;
+    type: string;
 }
 
 export interface ImplementationGuideManifest extends BackboneElement {

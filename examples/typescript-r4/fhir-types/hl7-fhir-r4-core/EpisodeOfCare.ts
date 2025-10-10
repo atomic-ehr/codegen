@@ -42,5 +42,5 @@ export interface EpisodeOfCare extends DomainResource {
     _status?: Element;
     statusHistory?: EpisodeOfCareStatusHistory[];
     team?: Reference<"CareTeam">[];
-    type_?: CodeableConcept[];
+    type?: CodeableConcept[];
 }

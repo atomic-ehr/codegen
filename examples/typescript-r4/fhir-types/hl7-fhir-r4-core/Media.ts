@@ -48,7 +48,7 @@ export interface Media extends DomainResource {
     status: "preparation" | "in-progress" | "not-done" | "on-hold" | "stopped" | "completed" | "entered-in-error" | "unknown";
     _status?: Element;
     subject?: Reference<"Device" | "Group" | "Location" | "Patient" | "Practitioner" | "PractitionerRole" | "Specimen">;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
     view?: CodeableConcept;
     width?: number;
     _width?: Element;

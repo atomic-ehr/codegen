@@ -14,7 +14,7 @@ export interface Profile_for_Catalog {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/catalog";
 
     extension?: Extension[];
-    type_: CodeableConcept;
+    type: CodeableConcept;
     category: CodeableConcept[];
     subject?: Reference<"Resource" /* 'Resource' */ >;
     date: string;
@@ -28,7 +28,7 @@ export const attach_Profile_for_Catalog_to_Composition = (resource: Composition,
             profile: ['http://hl7.org/fhir/StructureDefinition/catalog']
         },
         extension: profile.extension,
-        type_: profile.type_,
+        type: profile.type,
         category: profile.category,
         subject: profile.subject,
         date: profile.date,
@@ -43,7 +43,7 @@ export const extract_Profile_for_Catalog_from_Composition = (resource: Compositi
     return {
         __profileUrl: 'http://hl7.org/fhir/StructureDefinition/catalog',
         extension: resource.extension,
-        type_: resource.type_,
+        type: resource.type,
         category: resource.category,
         subject: resource.subject,
         date: resource.date,

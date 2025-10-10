@@ -30,7 +30,7 @@ export interface MedicationKnowledgeAdministrationGuidelines extends BackboneEle
 
 export interface MedicationKnowledgeAdministrationGuidelinesDosage extends BackboneElement {
     dosage: Dosage[];
-    type_: CodeableConcept;
+    type: CodeableConcept;
 }
 
 export interface MedicationKnowledgeAdministrationGuidelinesPatientCharacteristics extends BackboneElement {
@@ -42,11 +42,11 @@ export interface MedicationKnowledgeAdministrationGuidelinesPatientCharacteristi
 export interface MedicationKnowledgeCost extends BackboneElement {
     cost: Money;
     source?: string;
-    type_: CodeableConcept;
+    type: CodeableConcept;
 }
 
 export interface MedicationKnowledgeDrugCharacteristic extends BackboneElement {
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
     valueBase64Binary?: string;
     valueCodeableConcept?: CodeableConcept;
     valueQuantity?: Quantity;
@@ -68,22 +68,22 @@ export interface MedicationKnowledgeKinetics extends BackboneElement {
 
 export interface MedicationKnowledgeMedicineClassification extends BackboneElement {
     classification?: CodeableConcept[];
-    type_: CodeableConcept;
+    type: CodeableConcept;
 }
 
 export interface MedicationKnowledgeMonitoringProgram extends BackboneElement {
     name?: string;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 export interface MedicationKnowledgeMonograph extends BackboneElement {
     source?: Reference<"DocumentReference" | "Media">;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 export interface MedicationKnowledgePackaging extends BackboneElement {
     quantity?: Quantity;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 export interface MedicationKnowledgeRegulatory extends BackboneElement {
@@ -104,12 +104,12 @@ export interface MedicationKnowledgeRegulatorySchedule extends BackboneElement {
 
 export interface MedicationKnowledgeRegulatorySubstitution extends BackboneElement {
     allowed: boolean;
-    type_: CodeableConcept;
+    type: CodeableConcept;
 }
 
 export interface MedicationKnowledgeRelatedMedicationKnowledge extends BackboneElement {
     reference: Reference<"MedicationKnowledge">[];
-    type_: CodeableConcept;
+    type: CodeableConcept;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicationKnowledge

@@ -15,6 +15,6 @@ export interface Reference<T extends string = string> extends Element {
     identifier?: Identifier;
     reference?: `${T}/${string}`;
     _reference?: Element;
-    type_?: string;
-    _type_?: Element;
+    type?: string;
+    _type?: Element;
 }

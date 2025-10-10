@@ -13,7 +13,7 @@ export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface TestReportParticipant extends BackboneElement {
     display?: string;
-    type_: "test-engine" | "client" | "server";
+    type: "test-engine" | "client" | "server";
     uri: string;
 }
 

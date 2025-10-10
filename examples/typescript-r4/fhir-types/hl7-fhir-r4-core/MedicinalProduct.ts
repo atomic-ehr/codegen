@@ -40,7 +40,7 @@ export interface MedicinalProductNameCountryLanguage extends BackboneElement {
 
 export interface MedicinalProductNameNamePart extends BackboneElement {
     part: string;
-    type_: Coding;
+    type: Coding;
 }
 
 export interface MedicinalProductSpecialDesignation extends BackboneElement {
@@ -51,7 +51,7 @@ export interface MedicinalProductSpecialDesignation extends BackboneElement {
     intendedUse?: CodeableConcept;
     species?: CodeableConcept;
     status?: CodeableConcept;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProduct
@@ -78,5 +78,5 @@ export interface MedicinalProduct extends DomainResource {
     specialDesignation?: MedicinalProductSpecialDesignation[];
     specialMeasures?: string[];
     _specialMeasures?: Element;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }

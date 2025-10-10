@@ -33,7 +33,7 @@ export interface SubstanceReferenceInformationGene extends BackboneElement {
 export interface SubstanceReferenceInformationGeneElement extends BackboneElement {
     element?: Identifier;
     source?: Reference<"DocumentReference">[];
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 export interface SubstanceReferenceInformationTarget extends BackboneElement {
@@ -46,7 +46,7 @@ export interface SubstanceReferenceInformationTarget extends BackboneElement {
     organismType?: CodeableConcept;
     source?: Reference<"DocumentReference">[];
     target?: Identifier;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstanceReferenceInformation

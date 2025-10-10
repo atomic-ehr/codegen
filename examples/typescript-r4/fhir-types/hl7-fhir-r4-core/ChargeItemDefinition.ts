@@ -36,7 +36,7 @@ export interface ChargeItemDefinitionPropertyGroupPriceComponent extends Backbon
     amount?: Money;
     code?: CodeableConcept;
     factor?: number;
-    type_: "base" | "surcharge" | "deduction" | "discount" | "tax" | "informational";
+    type: "base" | "surcharge" | "deduction" | "discount" | "tax" | "informational";
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/ChargeItemDefinition

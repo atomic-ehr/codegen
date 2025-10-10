@@ -11,7 +11,7 @@ import type { ParameterDefinition } from "../hl7-fhir-r4-core/ParameterDefinitio
 export interface CQL_Library {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/cqllibrary";
 
-    type_: CodeableConcept;
+    type: CodeableConcept;
     parameter?: ParameterDefinition[];
     dataRequirement?: DataRequirement[];
 }
@@ -22,7 +22,7 @@ export const attach_CQL_Library_to_Library = (resource: Library, profile: CQL_Li
         meta: {
             profile: ['http://hl7.org/fhir/StructureDefinition/cqllibrary']
         },
-        type_: profile.type_,
+        type: profile.type,
         parameter: profile.parameter,
         dataRequirement: profile.dataRequirement,
     }
@@ -31,7 +31,7 @@ export const attach_CQL_Library_to_Library = (resource: Library, profile: CQL_Li
 export const extract_CQL_Library_from_Library = (resource: Library): CQL_Library => {
     return {
         __profileUrl: 'http://hl7.org/fhir/StructureDefinition/cqllibrary',
-        type_: resource.type_,
+        type: resource.type,
         parameter: resource.parameter,
         dataRequirement: resource.dataRequirement,
     }

@@ -42,5 +42,5 @@ export interface Organization extends DomainResource {
     _name?: Element;
     partOf?: Reference<"Organization">;
     telecom?: ContactPoint[];
-    type_?: CodeableConcept[];
+    type?: CodeableConcept[];
 }

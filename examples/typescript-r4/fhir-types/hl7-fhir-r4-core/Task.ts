@@ -70,7 +70,7 @@ export type { TriggerDefinition } from "../hl7-fhir-r4-core/TriggerDefinition";
 export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
 export interface TaskInput extends BackboneElement {
-    type_: CodeableConcept;
+    type: CodeableConcept;
     valueAddress?: Address;
     valueAge?: Age;
     valueAnnotation?: Annotation;
@@ -124,7 +124,7 @@ export interface TaskInput extends BackboneElement {
 }
 
 export interface TaskOutput extends BackboneElement {
-    type_: CodeableConcept;
+    type: CodeableConcept;
     valueAddress?: Address;
     valueAge?: Age;
     valueAnnotation?: Annotation;
@@ -197,7 +197,7 @@ export interface Task extends DomainResource {
     encounter?: Reference<"Encounter">;
     executionPeriod?: Period;
     focus?: Reference<"Resource">;
-    for_?: Reference<"Resource">;
+    "for"?: Reference<"Resource">;
     groupIdentifier?: Identifier;
     identifier?: Identifier[];
     input?: TaskInput[];

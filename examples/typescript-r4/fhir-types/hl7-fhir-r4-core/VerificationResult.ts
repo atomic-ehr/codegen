@@ -30,7 +30,7 @@ export interface VerificationResultPrimarySource extends BackboneElement {
     canPushUpdates?: CodeableConcept;
     communicationMethod?: CodeableConcept[];
     pushTypeAvailable?: CodeableConcept[];
-    type_?: CodeableConcept[];
+    type?: CodeableConcept[];
     validationDate?: string;
     validationStatus?: CodeableConcept;
     who?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;

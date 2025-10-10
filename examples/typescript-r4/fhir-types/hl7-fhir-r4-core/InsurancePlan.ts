@@ -35,13 +35,13 @@ export interface InsurancePlanContact extends BackboneElement {
 export interface InsurancePlanCoverage extends BackboneElement {
     benefit: InsurancePlanCoverageBenefit[];
     network?: Reference<"Organization">[];
-    type_: CodeableConcept;
+    type: CodeableConcept;
 }
 
 export interface InsurancePlanCoverageBenefit extends BackboneElement {
     limit?: InsurancePlanCoverageBenefitLimit[];
     requirement?: string;
-    type_: CodeableConcept;
+    type: CodeableConcept;
 }
 
 export interface InsurancePlanCoverageBenefitLimit extends BackboneElement {
@@ -55,14 +55,14 @@ export interface InsurancePlanPlan extends BackboneElement {
     identifier?: Identifier[];
     network?: Reference<"Organization">[];
     specificCost?: InsurancePlanPlanSpecificCost[];
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 export interface InsurancePlanPlanGeneralCost extends BackboneElement {
     comment?: string;
     cost?: Money;
     groupSize?: number;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 export interface InsurancePlanPlanSpecificCost extends BackboneElement {
@@ -72,13 +72,13 @@ export interface InsurancePlanPlanSpecificCost extends BackboneElement {
 
 export interface InsurancePlanPlanSpecificCostBenefit extends BackboneElement {
     cost?: InsurancePlanPlanSpecificCostBenefitCost[];
-    type_: CodeableConcept;
+    type: CodeableConcept;
 }
 
 export interface InsurancePlanPlanSpecificCostBenefitCost extends BackboneElement {
     applicability?: CodeableConcept;
     qualifiers?: CodeableConcept[];
-    type_: CodeableConcept;
+    type: CodeableConcept;
     value?: Quantity;
 }
 
@@ -102,5 +102,5 @@ export interface InsurancePlan extends DomainResource {
     plan?: InsurancePlanPlan[];
     status?: "draft" | "active" | "retired" | "unknown";
     _status?: Element;
-    type_?: CodeableConcept[];
+    type?: CodeableConcept[];
 }

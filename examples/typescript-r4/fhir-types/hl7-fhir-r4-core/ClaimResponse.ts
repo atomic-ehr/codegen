@@ -118,14 +118,14 @@ export interface ClaimResponsePayment extends BackboneElement {
     amount: Money;
     date?: string;
     identifier?: Identifier;
-    type_: CodeableConcept;
+    type: CodeableConcept;
 }
 
 export interface ClaimResponseProcessNote extends BackboneElement {
     language?: CodeableConcept;
-    number_?: number;
+    number?: number;
     text: string;
-    type_?: "display" | "print" | "printoper";
+    type?: "display" | "print" | "printoper";
 }
 
 export interface ClaimResponseTotal extends BackboneElement {
@@ -167,7 +167,7 @@ export interface ClaimResponse extends DomainResource {
     _status?: Element;
     subType?: CodeableConcept;
     total?: ClaimResponseTotal[];
-    type_: CodeableConcept;
+    type: CodeableConcept;
     use: "claim" | "preauthorization" | "predetermination";
     _use?: Element;
 }

@@ -38,7 +38,7 @@ export interface MedicinalProductPackagedPackageItem extends BackboneElement {
     physicalCharacteristics?: ProdCharacteristic;
     quantity: Quantity;
     shelfLifeStorage?: ProductShelfLife[];
-    type_: CodeableConcept;
+    type: CodeableConcept;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductPackaged

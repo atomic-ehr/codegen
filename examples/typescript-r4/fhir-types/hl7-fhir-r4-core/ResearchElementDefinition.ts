@@ -100,8 +100,8 @@ export interface ResearchElementDefinition extends DomainResource {
     title?: string;
     _title?: Element;
     topic?: CodeableConcept[];
-    type_: "population" | "exposure" | "outcome";
-    _type_?: Element;
+    type: "population" | "exposure" | "outcome";
+    _type?: Element;
     url?: string;
     _url?: Element;
     usage?: string;

@@ -19,7 +19,7 @@ export interface ExampleScenarioActor extends BackboneElement {
     actorId: string;
     description?: string;
     name?: string;
-    type_: "person" | "entity";
+    type: "person" | "entity";
 }
 
 export interface ExampleScenarioInstance extends BackboneElement {
@@ -67,12 +67,12 @@ export interface ExampleScenarioProcessStepOperation extends BackboneElement {
     initiator?: string;
     initiatorActive?: boolean;
     name?: string;
-    number_: string;
+    number: string;
     receiver?: string;
     receiverActive?: boolean;
     request?: ExampleScenarioInstanceContainedInstance;
     response?: ExampleScenarioInstanceContainedInstance;
-    type_?: string;
+    type?: string;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/ExampleScenario

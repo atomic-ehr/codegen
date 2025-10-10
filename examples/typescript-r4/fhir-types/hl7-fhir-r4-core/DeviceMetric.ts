@@ -18,7 +18,7 @@ export type { Timing } from "../hl7-fhir-r4-core/Timing";
 export interface DeviceMetricCalibration extends BackboneElement {
     state?: "not-calibrated" | "calibration-required" | "calibrated" | "unspecified";
     time?: string;
-    type_?: "unspecified" | "offset" | "gain" | "two-point";
+    type?: "unspecified" | "offset" | "gain" | "two-point";
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/DeviceMetric
@@ -36,6 +36,6 @@ export interface DeviceMetric extends DomainResource {
     _operationalStatus?: Element;
     parent?: Reference<"Device">;
     source?: Reference<"Device">;
-    type_: CodeableConcept;
+    type: CodeableConcept;
     unit?: CodeableConcept;
 }

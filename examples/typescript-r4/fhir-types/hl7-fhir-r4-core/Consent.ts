@@ -27,7 +27,7 @@ export interface ConsentPolicy extends BackboneElement {
 export interface ConsentProvision extends BackboneElement {
     action?: CodeableConcept[];
     actor?: ConsentProvisionActor[];
-    class_?: Coding[];
+    "class"?: Coding[];
     code?: CodeableConcept[];
     data?: ConsentProvisionData[];
     dataPeriod?: Period;
@@ -35,7 +35,7 @@ export interface ConsentProvision extends BackboneElement {
     provision?: ConsentProvision[];
     purpose?: Coding[];
     securityLabel?: Coding[];
-    type_?: "deny" | "permit";
+    type?: "deny" | "permit";
 }
 
 export interface ConsentProvisionActor extends BackboneElement {

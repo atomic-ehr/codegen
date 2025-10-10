@@ -21,13 +21,13 @@ export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface MedicationDispensePerformer extends BackboneElement {
     actor: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    function_?: CodeableConcept;
+    "function"?: CodeableConcept;
 }
 
 export interface MedicationDispenseSubstitution extends BackboneElement {
     reason?: CodeableConcept[];
     responsibleParty?: Reference<"Practitioner" | "PractitionerRole">[];
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
     wasSubstituted: boolean;
 }
 
@@ -59,7 +59,7 @@ export interface MedicationDispense extends DomainResource {
     subject?: Reference<"Group" | "Patient">;
     substitution?: MedicationDispenseSubstitution;
     supportingInformation?: Reference<"Resource">[];
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
     whenHandedOver?: string;
     _whenHandedOver?: Element;
     whenPrepared?: string;

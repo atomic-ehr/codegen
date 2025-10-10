@@ -71,7 +71,7 @@ export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
 export interface StructureMapGroup extends BackboneElement {
     documentation?: string;
-    extends_?: string;
+    extends?: string;
     input: StructureMapGroupInput[];
     name: string;
     rule: StructureMapGroupRule[];
@@ -82,7 +82,7 @@ export interface StructureMapGroupInput extends BackboneElement {
     documentation?: string;
     mode: "source" | "target";
     name: string;
-    type_?: string;
+    type?: string;
 }
 
 export interface StructureMapGroupRule extends BackboneElement {
@@ -158,7 +158,7 @@ export interface StructureMapGroupRuleSource extends BackboneElement {
     logMessage?: string;
     max?: string;
     min?: number;
-    type_?: string;
+    type?: string;
     variable?: string;
 }
 
@@ -203,8 +203,8 @@ export interface StructureMap extends DomainResource {
     _experimental?: Element;
     group: StructureMapGroup[];
     identifier?: Identifier[];
-    import_?: string[];
-    _import_?: Element;
+    "import"?: string[];
+    _import?: Element;
     jurisdiction?: CodeableConcept[];
     name: string;
     _name?: Element;

@@ -53,6 +53,6 @@ export interface Group extends DomainResource {
     _name?: Element;
     quantity?: number;
     _quantity?: Element;
-    type_: "person" | "animal" | "practitioner" | "device" | "medication" | "substance";
-    _type_?: Element;
+    type: "person" | "animal" | "practitioner" | "device" | "medication" | "substance";
+    _type?: Element;
 }

@@ -28,7 +28,7 @@ export interface ProcedureFocalDevice extends BackboneElement {
 
 export interface ProcedurePerformer extends BackboneElement {
     actor: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    function_?: CodeableConcept;
+    "function"?: CodeableConcept;
     onBehalfOf?: Reference<"Organization">;
 }
 

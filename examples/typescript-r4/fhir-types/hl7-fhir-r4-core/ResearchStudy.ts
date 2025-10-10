@@ -24,12 +24,12 @@ export type { RelatedArtifact } from "../hl7-fhir-r4-core/RelatedArtifact";
 export interface ResearchStudyArm extends BackboneElement {
     description?: string;
     name: string;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 export interface ResearchStudyObjective extends BackboneElement {
     name?: string;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/ResearchStudy

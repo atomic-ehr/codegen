@@ -25,7 +25,7 @@ export type { Timing } from "../hl7-fhir-r4-core/Timing";
 
 export interface ChargeItemPerformer extends BackboneElement {
     actor: Reference<"CareTeam" | "Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    function_?: CodeableConcept;
+    "function"?: CodeableConcept;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/ChargeItem

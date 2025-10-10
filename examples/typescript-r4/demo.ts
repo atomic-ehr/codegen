@@ -261,7 +261,7 @@ function createBundle(patient: Patient, observation: Observation, bodyweightObs:
     const bundle: Bundle = {
         resourceType: "Bundle",
         id: "bundle-1",
-        type_: "collection",
+        type: "collection",
         entry: [patientEntry, observationEntry, bodyweightEntry],
     };
 

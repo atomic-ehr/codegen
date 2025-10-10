@@ -18,7 +18,7 @@ export interface Identifier extends Element {
     period?: Period;
     system?: string;
     _system?: Element;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
     use?: "usual" | "official" | "temp" | "secondary" | "old";
     _use?: Element;
     value?: string;

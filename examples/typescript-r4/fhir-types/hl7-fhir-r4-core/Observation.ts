@@ -51,7 +51,7 @@ export interface ObservationReferenceRange extends BackboneElement {
     high?: Quantity;
     low?: Quantity;
     text?: string;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/Observation

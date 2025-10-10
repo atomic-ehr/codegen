@@ -53,7 +53,7 @@ export interface RequestGroupAction extends BackboneElement {
     timingRange?: Range;
     timingTiming?: Timing;
     title?: string;
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 export interface RequestGroupActionCondition extends BackboneElement {

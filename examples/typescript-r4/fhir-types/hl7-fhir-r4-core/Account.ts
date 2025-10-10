@@ -43,5 +43,5 @@ export interface Account extends DomainResource {
     status: "active" | "inactive" | "entered-in-error" | "on-hold" | "unknown";
     _status?: Element;
     subject?: Reference<"Device" | "HealthcareService" | "Location" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole">[];
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }

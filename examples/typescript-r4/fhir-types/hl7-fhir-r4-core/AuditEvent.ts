@@ -25,13 +25,13 @@ export interface AuditEventAgent extends BackboneElement {
     purposeOfUse?: CodeableConcept[];
     requestor: boolean;
     role?: CodeableConcept[];
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
     who?: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
 }
 
 export interface AuditEventAgentNetwork extends BackboneElement {
     address?: string;
-    type_?: "1" | "2" | "3" | "4" | "5";
+    type?: "1" | "2" | "3" | "4" | "5";
 }
 
 export interface AuditEventEntity extends BackboneElement {
@@ -42,12 +42,12 @@ export interface AuditEventEntity extends BackboneElement {
     query?: string;
     role?: Coding;
     securityLabel?: Coding[];
-    type_?: Coding;
+    type?: Coding;
     what?: Reference<"Resource">;
 }
 
 export interface AuditEventEntityDetail extends BackboneElement {
-    type_: string;
+    type: string;
     valueBase64Binary?: string;
     valueString?: string;
 }
@@ -55,7 +55,7 @@ export interface AuditEventEntityDetail extends BackboneElement {
 export interface AuditEventSource extends BackboneElement {
     observer: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     site?: string;
-    type_?: Coding[];
+    type?: Coding[];
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/AuditEvent
@@ -76,5 +76,5 @@ export interface AuditEvent extends DomainResource {
     _recorded?: Element;
     source: AuditEventSource;
     subtype?: Coding[];
-    type_: Coding;
+    type: Coding;
 }

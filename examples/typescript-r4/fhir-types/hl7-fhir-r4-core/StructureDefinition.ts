@@ -21,7 +21,7 @@ export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
 export interface StructureDefinitionContext extends BackboneElement {
     expression: string;
-    type_: "fhirpath" | "element" | "extension";
+    type: "fhirpath" | "element" | "extension";
 }
 
 export interface StructureDefinitionDifferential extends BackboneElement {
@@ -43,8 +43,8 @@ export interface StructureDefinitionSnapshot extends BackboneElement {
 export interface StructureDefinition extends DomainResource {
     resourceType: "StructureDefinition";
 
-    abstract_: boolean;
-    _abstract_?: Element;
+    abstract: boolean;
+    _abstract?: Element;
     baseDefinition?: string;
     _baseDefinition?: Element;
     contact?: ContactDetail[];
@@ -81,8 +81,8 @@ export interface StructureDefinition extends DomainResource {
     _status?: Element;
     title?: string;
     _title?: Element;
-    type_: string;
-    _type_?: Element;
+    type: string;
+    _type?: Element;
     url: string;
     _url?: Element;
     useContext?: UsageContext[];

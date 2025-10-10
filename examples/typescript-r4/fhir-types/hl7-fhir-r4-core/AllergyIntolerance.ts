@@ -59,7 +59,7 @@ export interface AllergyIntolerance extends DomainResource {
     recordedDate?: string;
     _recordedDate?: Element;
     recorder?: Reference<"Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    type_?: "allergy" | "intolerance";
-    _type_?: Element;
+    type?: "allergy" | "intolerance";
+    _type?: Element;
     verificationStatus?: CodeableConcept;
 }

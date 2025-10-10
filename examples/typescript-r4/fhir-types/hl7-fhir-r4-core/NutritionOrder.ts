@@ -46,7 +46,7 @@ export interface NutritionOrderOralDiet extends BackboneElement {
     nutrient?: NutritionOrderOralDietNutrient[];
     schedule?: Timing[];
     texture?: NutritionOrderOralDietTexture[];
-    type_?: CodeableConcept[];
+    type?: CodeableConcept[];
 }
 
 export interface NutritionOrderOralDietNutrient extends BackboneElement {
@@ -64,7 +64,7 @@ export interface NutritionOrderSupplement extends BackboneElement {
     productName?: string;
     quantity?: Quantity;
     schedule?: Timing[];
-    type_?: CodeableConcept;
+    type?: CodeableConcept;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/NutritionOrder

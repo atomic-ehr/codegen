@@ -30,7 +30,7 @@ export interface MolecularSequenceQuality extends BackboneElement {
     start?: number;
     truthFN?: number;
     truthTP?: number;
-    type_: "indel" | "snp" | "unknown";
+    type: "indel" | "snp" | "unknown";
 }
 
 export interface MolecularSequenceQualityRoc extends BackboneElement {
@@ -59,7 +59,7 @@ export interface MolecularSequenceRepository extends BackboneElement {
     datasetId?: string;
     name?: string;
     readsetId?: string;
-    type_: "directlink" | "openapi" | "login" | "oauth" | "other";
+    type: "directlink" | "openapi" | "login" | "oauth" | "other";
     url?: string;
     variantsetId?: string;
 }
@@ -112,7 +112,7 @@ export interface MolecularSequence extends DomainResource {
     repository?: MolecularSequenceRepository[];
     specimen?: Reference<"Specimen">;
     structureVariant?: MolecularSequenceStructureVariant[];
-    type_?: "aa" | "dna" | "rna";
-    _type_?: Element;
+    type?: "aa" | "dna" | "rna";
+    _type?: Element;
     variant?: MolecularSequenceVariant[];
 }

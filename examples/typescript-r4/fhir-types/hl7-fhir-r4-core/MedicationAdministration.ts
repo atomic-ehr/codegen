@@ -33,7 +33,7 @@ export interface MedicationAdministrationDosage extends BackboneElement {
 
 export interface MedicationAdministrationPerformer extends BackboneElement {
     actor: Reference<"Device" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    function_?: CodeableConcept;
+    "function"?: CodeableConcept;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicationAdministration
