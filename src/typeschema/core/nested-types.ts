@@ -16,7 +16,7 @@ export function mkNestedIdentifier(
     path: string[],
     logger?: CodegenLogger,
 ): NestedIdentifier {
-    // NOTE: profiles should no redefine types, they should reuse alredy defined in previous specializations
+    // NOTE: profiles should no redefine types, they should reuse already defined in previous specializations
     const nestedTypeOrigins = {} as Record<Name, CanonicalUrl>;
     if (fhirSchema.derivation === "constraint") {
         const specializations = register.resolveFsSpecializations(fhirSchema.url);
