@@ -343,7 +343,7 @@ export class APIBuilder {
                 workingDir: "tmp/fhir",
             });
             await manager.init();
-            const register = await registerFromManager(manager, this.logger);
+            const register = await registerFromManager(manager, { logger: this.logger });
             const typeSchemas = await generateTypeSchemas(register, this.logger);
 
             await this.tryWriteTypeSchema(typeSchemas);

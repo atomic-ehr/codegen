@@ -95,7 +95,7 @@ export class TypeSchemaGenerator {
             this.logger?.debug(`${valueSets.length} ValueSets available for enum extraction`);
         }
 
-        const register = await registerFromManager(this.manager, logger);
+        const register = await registerFromManager(this.manager, { logger: this.logger });
 
         // Process ValueSets separately to add to TypeSchema output
         const valueSetSchemas: TypeSchema[] = [];

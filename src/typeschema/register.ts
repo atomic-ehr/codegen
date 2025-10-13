@@ -20,40 +20,70 @@ export type Register = {
     resolveAny(canonicalUrl: CanonicalUrl): any | undefined;
 } & ReturnType<typeof CanonicalManager>;
 
+// TODO: pass packageNameResolver from APIBuilder. Required to resolve
+// name collision by package priority.
 export const registerFromManager = async (
     manager: ReturnType<typeof CanonicalManager>,
-    logger?: CodegenLogger,
+    conf?: { packageNameResolver?: string[]; logger?: CodegenLogger },
 ): Promise<Register> => {
-    const packages = await manager.packages();
+    const packageNameResolver = conf?.packageNameResolver ?? ["hl7.fhir.r5.core", "hl7.cda.uv.core"];
+    const logger = conf?.logger;
     const flatRawIndex: Record<CanonicalUrl, any> = {};
+    const canonicalToPackages = {} as Record<CanonicalUrl, PackageMeta[]>;
+    const resourceTypes = new Set<string>(["StructureDefinition", "ValueSet", "CodeSystem"]);
+
+    for (const res of await manager.search({})) {
+        const rawUrl = res.url;
+        if (!rawUrl) continue;
+        if (!resourceTypes.has(res.resourceType)) continue;
+        const url = rawUrl as CanonicalUrl;
+
+        const pkg = (await manager.resolveEntry(url)).package;
+        if (!pkg) throw new Error(`Can't resolve package for ${url}`);
+
+        if (!canonicalToPackages[url]) canonicalToPackages[url] = [];
+        canonicalToPackages[url].push(pkg);
+
+        flatRawIndex[url as CanonicalUrl] = res;
+    }
+
+    const collisions = Object.entries(canonicalToPackages)
+        .filter(([_, e]) => e.length > 1)
+        .map(([url, pkgs]) => `${url}: ${pkgs.map((p) => `${p.name}@${p.version}`).join(", ")}`)
+        .join("\n");
+    logger?.warn(`Duplicated canonicals: ${collisions}`);
+
+    const packageToResources: Map<PackageMeta, Record<CanonicalUrl, any>> = new Map();
+    for (const [url, _pkgs] of Object.entries(canonicalToPackages)) {
+        const pkg = (await manager.resolveEntry(url)).package;
+        if (!pkg) throw new Error(`Can't find package for ${url}`);
+        const res = await manager.resolve(url);
+        if (!packageToResources.get(pkg)) {
+            packageToResources.set(pkg, {});
+        }
+        const index = packageToResources.get(pkg);
+        if (!index) throw new Error(`Can't find index for ${pkg.name}@${pkg.version}`);
+        index[url as CanonicalUrl] = res;
+    }
+
     const indexByPackages = [] as {
         package_meta: PackageMeta;
         index: Record<CanonicalUrl, any>;
     }[];
-    for (const pkg of packages) {
-        const resources = await manager.search({ package: pkg });
-        const perPackageIndex = {} as Record<CanonicalUrl, any>;
-        for (const resource of resources) {
-            const url = resource.url as CanonicalUrl;
-            if (!url) continue;
-            if (perPackageIndex[url]) throw new Error(`Duplicate resource URL: ${url}`);
-            perPackageIndex[url] = resource;
-            if (flatRawIndex[url]) throw new Error(`Duplicate resource URL: ${url}`);
-            flatRawIndex[url] = resource;
-        }
+    for (const [pkg, index] of packageToResources.entries()) {
         indexByPackages.push({
             package_meta: pkg,
-            index: perPackageIndex,
+            index: index,
         });
     }
 
     const sdIndex = {} as Record<CanonicalUrl, StructureDefinition>;
     const vsIndex = {} as Record<string, RichValueSet>;
     const fsIndex = {} as Record<CanonicalUrl, RichFHIRSchema>;
-    const specNameToCanonical = {} as Record<Name, CanonicalUrl>;
 
     for (const resourcesByPackage of indexByPackages) {
         const packageMeta = resourcesByPackage.package_meta;
+        logger?.info(`FHIR Schema conversion for '${packageMetaToFhir(packageMeta)}' begins...`);
         for (const [surl, resource] of Object.entries(resourcesByPackage.index)) {
             const url = surl as CanonicalUrl;
             if (resource.resourceType === "StructureDefinition") {
@@ -61,18 +91,6 @@ export const registerFromManager = async (
                 sdIndex[url] = sd;
                 const rfs = enrichFHIRSchema(fhirschema.translate(sd), packageMeta);
                 fsIndex[rfs.url] = rfs;
-                if (rfs.derivation === undefined || rfs.derivation === "specialization") {
-                    if (specNameToCanonical[rfs.name]) {
-                        const info = {
-                            old: specNameToCanonical[rfs.name],
-                            oldDerivation: flatRawIndex[specNameToCanonical[rfs.name]!].derivation,
-                            new: rfs.url,
-                            newDerivation: rfs.derivation,
-                        };
-                        throw new Error(`Duplicate name ${rfs.name} ${JSON.stringify(info, undefined, 2)}`);
-                    }
-                    specNameToCanonical[rfs.name] = rfs.url;
-                }
             }
             if (resource.resourceType === "ValueSet") {
                 if (!resource.package_meta) {
@@ -84,6 +102,31 @@ export const registerFromManager = async (
         logger?.success(
             `FHIR Schema conversion for '${packageMetaToFhir(packageMeta)}' completed: ${Object.keys(fsIndex).length} successful`,
         );
+    }
+
+    const specNameToCanonicals = {} as Record<Name, Record<string, CanonicalUrl>>;
+    for (const rfs of Object.values(fsIndex)) {
+        if (rfs.derivation === "constraint") continue;
+        const name = rfs.name;
+        if (!specNameToCanonicals[name]) specNameToCanonicals[name] = {};
+        specNameToCanonicals[name][rfs.package_meta.name] = rfs.url;
+    }
+    const specNameToCanonical = {} as Record<Name, CanonicalUrl>;
+    for (const [sname, canonicals] of Object.entries(specNameToCanonicals)) {
+        const name = sname as Name;
+        const canonicalValues = Object.values(canonicals);
+        if (canonicalValues.length === 1) {
+            const url = canonicalValues[0]!;
+            specNameToCanonical[name] = url;
+        } else {
+            for (const pname of packageNameResolver) {
+                if (canonicals[pname]) {
+                    specNameToCanonical[name] = canonicals[pname];
+                    break;
+                }
+            }
+            if (specNameToCanonical[name] === undefined) throw new Error(`No canonical URL found for ${name}`);
+        }
     }
 
     const complexTypes = {} as Record<string, RichFHIRSchema>;
@@ -142,7 +185,7 @@ export const registerFromPackageMetas = async (
         workingDir: "tmp/fhir",
     });
     await manager.init();
-    return await registerFromManager(manager, logger);
+    return await registerFromManager(manager, { logger: logger });
 };
 
 export const resolveFsElementGenealogy = (genealogy: RichFHIRSchema[], path: string[]): FHIRSchemaElement[] => {
