@@ -8,10 +8,9 @@
 import * as fs from "node:fs";
 import * as afs from "node:fs/promises";
 import * as Path from "node:path";
-import _ from 'lodash';
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { GeneratedFile } from "@root/api/generators/base/types";
-import { camelCase } from "@root/api/writer-generator/utils.ts";
+import { camelCase, deepEqual } from "@root/api/writer-generator/utils.ts";
 import { registerFromManager } from "@root/typeschema/register";
 import { mkTypeSchemaIndex } from "@root/typeschema/utils";
 import { generateTypeSchemas, TypeSchemaCache, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";
@@ -269,11 +268,12 @@ export class APIBuilder {
         return this;
     }
 
-    private static async doesIdenticalFileExist(path: string, ts: TypeSchema): Promise<boolean> {
-        if(! await afs.exists(path)) return false;
+    private static async isIdenticalTo(path: string, tsJSON: string): Promise<boolean> {
+        if(!await afs.exists(path)) return false;
         const json = await afs.readFile(path);
-        const obj = JSON.parse(json.toString()) as TypeSchema;
-        return _.isEqual(obj, ts);
+        const ts1 = JSON.parse(json.toString()) as TypeSchema;
+        const ts2 = JSON.parse(tsJSON) as TypeSchema;
+        return deepEqual(ts1, ts2);
     }
 
     private async writeTypeSchemasToSeparateFiles(typeSchemas: TypeSchema[], outputDir :string): Promise<void> {
@@ -299,7 +299,7 @@ export class APIBuilder {
                 fullName = `${baseName}.typeschema.json`;
             }
 
-            if(await APIBuilder.doesIdenticalFileExist(fullName, ts)) continue;
+            if(await APIBuilder.isIdenticalTo(fullName, json)) continue;
 
             await afs.mkdir(Path.dirname(fullName), {recursive: true});
             await afs.writeFile(fullName, json);

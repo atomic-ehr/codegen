@@ -76,7 +76,6 @@
     "@inquirer/prompts": "^7.8.1",
     "ajv": "^8.17.1",
     "handlebars": "^4.7.8",
-    "lodash": "^4.17.21",
     "ora": "^8.2.0",
     "picocolors": "^1.1.1",
     "yargs": "^18.0.0"
