@@ -8,6 +8,7 @@
 import * as fs from "node:fs";
 import * as afs from "node:fs/promises";
 import * as Path from "node:path";
+import _ from 'lodash';
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { GeneratedFile } from "@root/api/generators/base/types";
 import { camelCase } from "@root/api/writer-generator/utils.ts";
@@ -268,42 +269,68 @@ export class APIBuilder {
         return this;
     }
 
+    private static async doesIdenticalFileExist(path: string, ts: TypeSchema): Promise<boolean> {
+        if(! await afs.exists(path)) return false;
+        const json = await afs.readFile(path);
+        const obj = JSON.parse(json.toString()) as TypeSchema;
+        return _.isEqual(obj, ts);
+    }
+
+    private async writeTypeSchemasToSeparateFiles(typeSchemas: TypeSchema[], outputDir :string): Promise<void> {
+        if (this.options.cleanOutput) fs.rmSync(outputDir, { recursive: true, force: true });
+        await afs.mkdir(outputDir, { recursive: true });
+
+        const usedNames: Record<string, number> = {};
+
+        this.logger.info(`Writing TypeSchema files to ${outputDir}...`);
+
+        for (const ts of typeSchemas) {
+            const package_name = camelCase(ts.identifier.package.replaceAll("/", "-"));
+            const name = normalizeFileName(ts.identifier.name.toString());
+            const json = JSON.stringify(ts, null, 2);
+
+            const baseName = Path.join(outputDir, package_name, name);
+            let fullName: string;
+            if (usedNames[baseName] !== undefined) {
+                usedNames[baseName]++;
+                fullName = `${baseName}-${usedNames[baseName]}.typeschema.json`;
+            } else {
+                usedNames[baseName] = 0;
+                fullName = `${baseName}.typeschema.json`;
+            }
+
+            if(await APIBuilder.doesIdenticalFileExist(fullName, ts)) continue;
+
+            await afs.mkdir(Path.dirname(fullName), {recursive: true});
+            await afs.writeFile(fullName, json);
+        }
+    }
+
+    private async writeTypeSchemasToSingleFile(typeSchemas: TypeSchema[], outputFile: string): Promise<void> {
+        if (this.options.cleanOutput && fs.existsSync(outputFile)) fs.rmSync(outputFile);
+        await afs.mkdir(Path.dirname(outputFile), { recursive: true });
+
+        this.logger.info(`Writing TypeSchemas to one file ${outputFile}...`);
+
+        for (const ts of typeSchemas) {
+            const json = JSON.stringify(ts, null, 2);
+            await afs.appendFile(outputFile, json + '\n');
+        }
+    }
+
     private async tryWriteTypeSchema(typeSchemas: TypeSchema[]) {
         if (!this.options.typeSchemaOutputDir) return;
         try {
-            if (this.options.cleanOutput) fs.rmSync(this.options.typeSchemaOutputDir, { recursive: true, force: true });
-            await afs.mkdir(this.options.typeSchemaOutputDir, { recursive: true });
+            this.logger.info(`Starting writing TypeSchema files.`);
 
-            let writtenCount = 0;
-            let overrideCount = 0;
-            const usedNames: Record<string, number> = {};
+            if(Path.extname(this.options.typeSchemaOutputDir) === ".ndjson")
+                await this.writeTypeSchemasToSingleFile(typeSchemas, this.options.typeSchemaOutputDir);
+            else
+                await this.writeTypeSchemasToSeparateFiles(typeSchemas, this.options.typeSchemaOutputDir);
 
-            this.logger.info(`Writing TypeSchema files to ${this.options.typeSchemaOutputDir}...`);
-
-            for (const ts of typeSchemas) {
-                const package_name = camelCase(ts.identifier.package.replaceAll("/", "-"));
-                const name = normalizeFileName(ts.identifier.name.toString());
-
-                const baseName = Path.join(this.options.typeSchemaOutputDir, package_name, name);
-                let fullName: string;
-                if (usedNames[baseName] !== undefined) {
-                    usedNames[baseName]++;
-                    fullName = `${baseName}-${usedNames[baseName]}.typeschema.json`;
-                } else {
-                    usedNames[baseName] = 0;
-                    fullName = `${baseName}.typeschema.json`;
-                }
-
-                await afs.mkdir(Path.dirname(fullName), { recursive: true });
-                afs.writeFile(fullName, JSON.stringify(ts, null, 2));
-
-                if (await afs.exists(fullName)) overrideCount++;
-                else writtenCount++;
-            }
-            this.logger.info(`Created ${writtenCount} new TypeSchema files, overrode ${overrideCount} files`);
+            this.logger.info(`Finished writing TypeSchema files.`);
         } catch (error) {
             if (this.options.throwException) throw error;
-
             this.logger.error(
                 "Failed to write TypeSchema output",
                 error instanceof Error ? error : new Error(String(error)),

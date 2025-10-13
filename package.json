@@ -63,6 +63,7 @@
     "@biomejs/biome": "^2.1.4",
     "@types/bun": "^1.2.23",
     "@types/handlebars": "^4.1.0",
+    "@types/lodash": "^4.17.20",
     "@types/node": "^22.17.1",
     "@types/yargs": "^17.0.33",
     "ts-prune": "^0.10.3",
@@ -75,6 +76,7 @@
     "@inquirer/prompts": "^7.8.1",
     "ajv": "^8.17.1",
     "handlebars": "^4.7.8",
+    "lodash": "^4.17.21",
     "ora": "^8.2.0",
     "picocolors": "^1.1.1",
     "yargs": "^18.0.0"
