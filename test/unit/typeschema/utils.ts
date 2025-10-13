@@ -12,6 +12,12 @@ export const mkR4Register = async () =>
         // createLogger({ verbose: true, prefix: "TEST" }),
     );
 
+export const mkCCDARegister = async () =>
+    registerFromPackageMetas(
+        [{ name: "hl7.cda.uv.core", version: "2.0.1-sd" }],
+        // createLogger({ verbose: true, prefix: "TEST" }),
+    );
+
 export const registerFs = (register: Register, fs: PFS) => {
     if (!fs.package_meta) fs.package_meta = { name: "mypackage", version: "0.0.0" };
     const rfs = enrichFHIRSchema(fs as FHIRSchema);

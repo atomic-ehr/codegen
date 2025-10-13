@@ -14,5 +14,9 @@
   {
     "label": "test-ts-r4-example",
     "command": "make test-typescript-r4-example"
+  },
+  {
+    "label": "test-ts-ccda-example",
+    "command": "make test-typescript-ccda-example"
   }
 ]

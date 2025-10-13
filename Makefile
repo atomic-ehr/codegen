@@ -30,3 +30,10 @@ test-typescript-r4-example: typecheck format
 	bun run examples/typescript-r4/generate.ts
 	$(TYPECHECK) --project tsconfig.example-typescript-r4.json
 	cd examples/typescript-r4 && bun run demo.ts > /dev/null
+
+test-typescript-ccda-example: typecheck format
+	$(LINT)
+	$(TEST) test/unit/typeschema/transformer/ccda.test.ts
+	bun run examples/typescript-ccda/generate.ts
+	$(TYPECHECK) --project tsconfig.example-typescript-ccda.json
+	cd examples/typescript-r4 && bun run demo.ts > /dev/null

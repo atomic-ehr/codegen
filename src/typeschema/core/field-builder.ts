@@ -79,10 +79,13 @@ export function buildFieldType(
         return undefined;
     } else if (fhirSchema.derivation === "constraint") {
         return undefined; // FIXME: should be removed
-    } else
-        throw new Error(
+    } else {
+        logger?.error(
             `Can't recognize element type '${fhirSchema.url}' (${fhirSchema.derivation}): ${JSON.stringify(element, undefined, 2)}`,
         );
+        throw new Error(`Unrecognized element type`);
+        // return undefined;
+    }
 }
 
 export const mkField = (
