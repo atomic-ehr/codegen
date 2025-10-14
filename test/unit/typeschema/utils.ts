@@ -1,10 +1,13 @@
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
+import { createLogger } from "@root/utils/codegen-logger";
 import { transformFhirSchema, transformValueSet } from "@typeschema/core/transformer";
 import { type Register, registerFromPackageMetas } from "@typeschema/register";
 import { type CanonicalUrl, enrichFHIRSchema, type RichValueSet, type ValueSet } from "@typeschema/types";
 
 export type PFS = Partial<FHIRSchema>;
 export type PVS = Partial<ValueSet>;
+
+const logger = createLogger({ verbose: true, prefix: "TEST" });
 
 export const mkR4Register = async () =>
     registerFromPackageMetas(
@@ -29,7 +32,7 @@ export const registerFsAndMkTs = async (register: Register, fs: PFS) => {
     registerFs(register, fs);
     const rfs = register.resolveFs(fs.url as CanonicalUrl);
     if (!rfs) throw new Error("Failed to resolve registered FHIR schema");
-    return await transformFhirSchema(register, rfs);
+    return await transformFhirSchema(register, rfs, logger);
 };
 
 export const transformVS = async (register: Register, vs: PVS) => {

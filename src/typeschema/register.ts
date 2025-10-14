@@ -18,6 +18,8 @@ export type Register = {
     resolveVs(canonicalUrl: CanonicalUrl): RichValueSet | undefined;
     complexTypeDict(): Record<string, RichFHIRSchema>;
     resolveAny(canonicalUrl: CanonicalUrl): any | undefined;
+    resolveElementSnapshot(fhirSchema: RichFHIRSchema, path: string[]): FHIRSchemaElement;
+    getAllElementKeys(elems: Record<string, FHIRSchemaElement>): string[];
 } & ReturnType<typeof CanonicalManager>;
 
 // TODO: pass packageNameResolver from APIBuilder. Required to resolve
@@ -152,6 +154,26 @@ export const registerFromManager = async (
         return resolveFsGenealogy(canonicalUrl).filter((fs) => fs.derivation === "specialization");
     };
 
+    const resolveElementSnapshot = (fhirSchema: RichFHIRSchema, path: string[]): FHIRSchemaElement => {
+        const geneology = resolveFsGenealogy(fhirSchema.url);
+        const elemGeneology = resolveFsElementGenealogy(geneology, path);
+        const elemSnapshot = fsElementSnapshot(elemGeneology);
+        return elemSnapshot;
+    };
+
+    const getAllElementKeys = (elems: Record<string, FHIRSchemaElement>): string[] => {
+        const keys: Set<string> = new Set();
+        for (const [key, elem] of Object.entries(elems)) {
+            keys.add(key);
+            for (const choiceKey of elem?.choices || []) {
+                if (!elems[choiceKey]) {
+                    keys.add(choiceKey);
+                }
+            }
+        }
+        return Array.from(keys);
+    };
+
     return {
         ...manager,
         appendFs(fs: FHIRSchema) {
@@ -171,6 +193,8 @@ export const registerFromManager = async (
         resolveVs: (canonicalUrl: CanonicalUrl) => vsIndex[canonicalUrl],
         complexTypeDict: () => complexTypes,
         resolveAny: (canonicalUrl: CanonicalUrl) => flatRawIndex[canonicalUrl],
+        resolveElementSnapshot,
+        getAllElementKeys,
     };
 };
 

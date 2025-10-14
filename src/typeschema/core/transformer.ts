@@ -6,7 +6,7 @@
 
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
-import { fsElementSnapshot, type Register, resolveFsElementGenealogy } from "@typeschema/register";
+import type { Register } from "@typeschema/register";
 import {
     type Field,
     type Identifier,
@@ -32,36 +32,11 @@ export function mkFields(
     logger?: CodegenLogger,
 ): Record<string, Field> | undefined {
     if (!elements) return undefined;
-    const geneology = register.resolveFsGenealogy(fhirSchema.url);
-
-    const elems = {} as Record<
-        string,
-        {
-            elem: FHIRSchemaElement | undefined;
-            elemSnapshot: FHIRSchemaElement;
-            path: string[];
-        }
-    >;
-    for (const [key, elem] of Object.entries(elements)) {
-        const path = [...parentPath, key];
-        const elemGeneology = resolveFsElementGenealogy(geneology, path);
-        const elemSnapshot = fsElementSnapshot(elemGeneology);
-        elems[key] = { elem, elemSnapshot, path };
-    }
-
-    for (const [_key, { elem, elemSnapshot, path }] of Object.entries(elems)) {
-        for (const choiceKey of elem?.choices || []) {
-            if (!elems[choiceKey]) {
-                const path = [...parentPath, choiceKey];
-                const elemGeneology = resolveFsElementGenealogy(geneology, path);
-                const elemSnapshot = fsElementSnapshot(elemGeneology);
-                elems[choiceKey] = { elem: undefined, elemSnapshot, path };
-            }
-        }
-    }
 
     const fields: Record<string, Field> = {};
-    for (const [key, { elem, elemSnapshot, path }] of Object.entries(elems)) {
+    for (const key of register.getAllElementKeys(elements)) {
+        const path = [...parentPath, key];
+        const elemSnapshot = register.resolveElementSnapshot(fhirSchema, path);
         if (isNestedElement(elemSnapshot)) {
             fields[key] = mkNestedField(register, fhirSchema, path, elemSnapshot, logger);
         } else {
