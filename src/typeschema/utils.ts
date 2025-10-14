@@ -1,3 +1,4 @@
+import type { CodegenLogger } from "@root/utils/codegen-logger";
 import {
     type CanonicalUrl,
     type Field,
@@ -89,6 +90,7 @@ export type TypeSchemaIndex = {
     collectProfiles: () => ProfileTypeSchema[];
     resolve: (id: Identifier) => TypeSchema | undefined;
     resourceChildren: (id: Identifier) => Identifier[];
+    tryHierarchy: (schema: TypeSchema) => TypeSchema[] | undefined;
     hierarchy: (schema: TypeSchema) => TypeSchema[];
     findLastSpecialization: (schema: TypeSchema) => TypeSchema;
     findLastSpecializationByIdentifier: (id: Identifier) => Identifier;
@@ -96,7 +98,7 @@ export type TypeSchemaIndex = {
     isWithMetaField: (profile: ProfileTypeSchema) => boolean;
 };
 
-export const mkTypeSchemaIndex = (schemas: TypeSchema[]): TypeSchemaIndex => {
+export const mkTypeSchemaIndex = (schemas: TypeSchema[], logger?: CodegenLogger): TypeSchemaIndex => {
     const index = {} as Record<CanonicalUrl, Record<PackageName, TypeSchema>>;
     const append = (schema: TypeSchema) => {
         const url = schema.identifier.url;
@@ -121,7 +123,7 @@ export const mkTypeSchemaIndex = (schemas: TypeSchema[]): TypeSchemaIndex => {
         return relations.filter((relative) => relative.parent.name === id.name).map((relative) => relative.child);
     };
 
-    const hierarchy = (schema: TypeSchema): TypeSchema[] => {
+    const tryHierarchy = (schema: TypeSchema): TypeSchema[] | undefined => {
         const res: TypeSchema[] = [];
         let cur: TypeSchema | undefined = schema;
         while (cur) {
@@ -130,19 +132,28 @@ export const mkTypeSchemaIndex = (schemas: TypeSchema[]): TypeSchemaIndex => {
             if (base === undefined) break;
             const resolved = resolve(base);
             if (!resolved) {
-                throw new Error(
+                logger?.warn(
                     `Failed to resolve base type: ${(res.map((e) => `${e.identifier.url} (${e.identifier.kind})`)).join(", ")}`,
                 );
+                return undefined;
             }
             cur = resolved;
         }
         return res;
     };
 
+    const hierarchy = (schema: TypeSchema): TypeSchema[] => {
+        const genealogy = tryHierarchy(schema);
+        if (genealogy === undefined) {
+            throw new Error(`Failed to resolve base type: ${schema.identifier.url} (${schema.identifier.kind})`);
+        }
+        return genealogy;
+    };
+
     const findLastSpecialization = (schema: TypeSchema): TypeSchema => {
         const nonConstraintSchema = hierarchy(schema).find((s) => s.identifier.kind !== "profile");
         if (!nonConstraintSchema) {
-            throw new Error(`No non-constraint schema found in hierarchy for ${schema.identifier.name}`);
+            throw new Error(`No non-constraint schema found in hierarchy for: ${schema.identifier.name}`);
         }
         return nonConstraintSchema;
     };
@@ -191,11 +202,11 @@ export const mkTypeSchemaIndex = (schemas: TypeSchema[]): TypeSchemaIndex => {
     };
 
     const isWithMetaField = (profile: ProfileTypeSchema): boolean => {
-        return hierarchy(profile)
-            .filter(isSpecializationTypeSchema)
-            .some((schema) => {
-                return schema.fields?.meta !== undefined;
-            });
+        const genealogy = tryHierarchy(profile);
+        if (!genealogy) return false;
+        return genealogy.filter(isSpecializationTypeSchema).some((schema) => {
+            return schema.fields?.meta !== undefined;
+        });
     };
 
     return {
@@ -207,6 +218,7 @@ export const mkTypeSchemaIndex = (schemas: TypeSchema[]): TypeSchemaIndex => {
         collectProfiles: () => schemas.filter(isProfileTypeSchema),
         resolve,
         resourceChildren,
+        tryHierarchy,
         hierarchy,
         findLastSpecialization,
         findLastSpecializationByIdentifier,
