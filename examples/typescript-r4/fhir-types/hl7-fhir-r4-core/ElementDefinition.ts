@@ -155,7 +155,7 @@ export interface ElementDefinitionMapping extends Element {
 
 export interface ElementDefinitionSlicing extends Element {
     description?: string;
-    discriminator?: ElementDefinitionSlicingDiscriminator[];
+    discriminator?: Element[];
     ordered?: boolean;
     rules: "closed" | "open" | "openAtEnd";
 }

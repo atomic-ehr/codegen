@@ -3,9 +3,13 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 import type { Extension } from "../hl7-fhir-r4-core/Extension";
 import type { PlanDefinition } from "../hl7-fhir-r4-core/PlanDefinition";
 import type { PlanDefinitionAction } from "../hl7-fhir-r4-core/PlanDefinition";
+import type { PlanDefinitionActionCondition } from "../hl7-fhir-r4-core/PlanDefinition";
+import type { PlanDefinitionActionParticipant } from "../hl7-fhir-r4-core/PlanDefinition";
+import type { TriggerDefinition } from "../hl7-fhir-r4-core/TriggerDefinition";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/cdshooksserviceplandefinition
 export interface CDS_Hooks_Service_PlanDefinition {

@@ -10,6 +10,7 @@ import type { AuditEventSource } from "../hl7-fhir-r4-core/AuditEvent";
 import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 import type { Coding } from "../hl7-fhir-r4-core/Coding";
+import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent
 export interface EHRS_FM_Record_Lifecycle_Event___Audit_Event {

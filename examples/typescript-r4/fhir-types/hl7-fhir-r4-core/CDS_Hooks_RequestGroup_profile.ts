@@ -3,10 +3,13 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
+import type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 import type { Reference } from "../hl7-fhir-r4-core/Reference";
+import type { RelatedArtifact } from "../hl7-fhir-r4-core/RelatedArtifact";
 import type { RequestGroup } from "../hl7-fhir-r4-core/RequestGroup";
 import type { RequestGroupAction } from "../hl7-fhir-r4-core/RequestGroup";
+import type { RequestGroupActionCondition } from "../hl7-fhir-r4-core/RequestGroup";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/cdshooksrequestgroup
 export interface CDS_Hooks_RequestGroup {
