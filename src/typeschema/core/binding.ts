@@ -128,7 +128,7 @@ function generateBindingSchema(
     if (!element.binding?.valueSet) return undefined;
 
     const identifier = mkBindingIdentifier(fhirSchema, path, element.binding.bindingName);
-    const fieldType = buildFieldType(register, fhirSchema, element, logger);
+    const fieldType = buildFieldType(register, fhirSchema, path, element, logger);
     const valueSetIdentifier = mkValueSetIdentifierByUrl(register, element.binding.valueSet as CanonicalUrl);
 
     const dependencies: Identifier[] = [];

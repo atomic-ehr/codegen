@@ -62,6 +62,7 @@ const buildReferences = (
 export function buildFieldType(
     register: Register,
     fhirSchema: RichFHIRSchema,
+    path: string[],
     element: FHIRSchemaElement,
     logger?: CodegenLogger,
 ): Identifier | undefined {
@@ -81,7 +82,7 @@ export function buildFieldType(
         return undefined; // FIXME: should be removed
     } else {
         logger?.error(
-            `Can't recognize element type '${fhirSchema.url}' (${fhirSchema.derivation}): ${JSON.stringify(element, undefined, 2)}`,
+            `Can't recognize element type '${fhirSchema.url}' (${fhirSchema.derivation}) at '${path.join(".")}': ${JSON.stringify(element, undefined, 2)}`,
         );
         throw new Error(`Unrecognized element type`);
         // return undefined;
@@ -106,7 +107,7 @@ export const mkField = (
     }
 
     return {
-        type: buildFieldType(register, fhirSchema, element, logger)!,
+        type: buildFieldType(register, fhirSchema, path, element, logger)!,
         required: isRequired(register, fhirSchema, path),
         excluded: isExcluded(register, fhirSchema, path),
 
