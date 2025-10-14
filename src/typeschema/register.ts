@@ -55,15 +55,18 @@ export const registerFromManager = async (
         .join("\n");
     logger?.warn(`Duplicated canonicals: ${collisions}`);
 
-    const packageToResources: Map<PackageMeta, Record<CanonicalUrl, any>> = new Map();
+    const packageToResources: Record<string, Record<CanonicalUrl, any>> = {};
+    const packageToPackageMeta: Record<string, PackageMeta> = {};
     for (const [url, _pkgs] of Object.entries(canonicalToPackages)) {
         const pkg = (await manager.resolveEntry(url)).package;
         if (!pkg) throw new Error(`Can't find package for ${url}`);
+        const pkgId = packageMetaToFhir(pkg);
+        packageToPackageMeta[pkgId] = pkg;
         const res = await manager.resolve(url);
-        if (!packageToResources.get(pkg)) {
-            packageToResources.set(pkg, {});
+        if (!packageToResources[pkgId]) {
+            packageToResources[pkgId] = {};
         }
-        const index = packageToResources.get(pkg);
+        const index = packageToResources[pkgId];
         if (!index) throw new Error(`Can't find index for ${pkg.name}@${pkg.version}`);
         index[url as CanonicalUrl] = res;
     }
@@ -72,9 +75,9 @@ export const registerFromManager = async (
         package_meta: PackageMeta;
         index: Record<CanonicalUrl, any>;
     }[];
-    for (const [pkg, index] of packageToResources.entries()) {
+    for (const [pkgId, index] of Object.entries(packageToResources)) {
         indexByPackages.push({
-            package_meta: pkg,
+            package_meta: packageToPackageMeta[pkgId]!,
             index: index,
         });
     }
@@ -85,6 +88,7 @@ export const registerFromManager = async (
 
     for (const resourcesByPackage of indexByPackages) {
         const packageMeta = resourcesByPackage.package_meta;
+        let counter = 0;
         logger?.info(`FHIR Schema conversion for '${packageMetaToFhir(packageMeta)}' begins...`);
         for (const [surl, resource] of Object.entries(resourcesByPackage.index)) {
             const url = surl as CanonicalUrl;
@@ -92,6 +96,7 @@ export const registerFromManager = async (
                 const sd = resource as StructureDefinition;
                 sdIndex[url] = sd;
                 const rfs = enrichFHIRSchema(fhirschema.translate(sd), packageMeta);
+                counter++;
                 fsIndex[rfs.url] = rfs;
             }
             if (resource.resourceType === "ValueSet") {
@@ -102,7 +107,7 @@ export const registerFromManager = async (
             }
         }
         logger?.success(
-            `FHIR Schema conversion for '${packageMetaToFhir(packageMeta)}' completed: ${Object.keys(fsIndex).length} successful`,
+            `FHIR Schema conversion for '${packageMetaToFhir(packageMeta)}' completed: ${counter} successful`,
         );
     }
 
