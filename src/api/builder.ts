@@ -269,14 +269,14 @@ export class APIBuilder {
     }
 
     private static async isIdenticalTo(path: string, tsJSON: string): Promise<boolean> {
-        if(!await afs.exists(path)) return false;
+        if (!(await afs.exists(path))) return false;
         const json = await afs.readFile(path);
         const ts1 = JSON.parse(json.toString()) as TypeSchema;
         const ts2 = JSON.parse(tsJSON) as TypeSchema;
         return deepEqual(ts1, ts2);
     }
 
-    private async writeTypeSchemasToSeparateFiles(typeSchemas: TypeSchema[], outputDir :string): Promise<void> {
+    private async writeTypeSchemasToSeparateFiles(typeSchemas: TypeSchema[], outputDir: string): Promise<void> {
         if (this.options.cleanOutput) fs.rmSync(outputDir, { recursive: true, force: true });
         await afs.mkdir(outputDir, { recursive: true });
 
@@ -299,9 +299,9 @@ export class APIBuilder {
                 fullName = `${baseName}.typeschema.json`;
             }
 
-            if(await APIBuilder.isIdenticalTo(fullName, json)) continue;
+            if (await APIBuilder.isIdenticalTo(fullName, json)) continue;
 
-            await afs.mkdir(Path.dirname(fullName), {recursive: true});
+            await afs.mkdir(Path.dirname(fullName), { recursive: true });
             await afs.writeFile(fullName, json);
         }
     }
@@ -314,7 +314,7 @@ export class APIBuilder {
 
         for (const ts of typeSchemas) {
             const json = JSON.stringify(ts, null, 2);
-            await afs.appendFile(outputFile, json + '\n');
+            await afs.appendFile(outputFile, json + "\n");
         }
     }
 
@@ -323,10 +323,9 @@ export class APIBuilder {
         try {
             this.logger.info(`Starting writing TypeSchema files.`);
 
-            if(Path.extname(this.options.typeSchemaOutputDir) === ".ndjson")
+            if (Path.extname(this.options.typeSchemaOutputDir) === ".ndjson")
                 await this.writeTypeSchemasToSingleFile(typeSchemas, this.options.typeSchemaOutputDir);
-            else
-                await this.writeTypeSchemasToSeparateFiles(typeSchemas, this.options.typeSchemaOutputDir);
+            else await this.writeTypeSchemasToSeparateFiles(typeSchemas, this.options.typeSchemaOutputDir);
 
             this.logger.info(`Finished writing TypeSchema files.`);
         } catch (error) {
