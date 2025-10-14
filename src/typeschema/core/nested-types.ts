@@ -70,13 +70,14 @@ function transformNestedElements(
 ): Record<string, Field> {
     const fields: Record<string, Field> = {};
 
-    for (const [key, element] of Object.entries(elements)) {
+    for (const [key, _element] of Object.entries(elements)) {
         const path = [...parentPath, key];
+        const elemSnapshot = register.resolveElementSnapshot(fhirSchema, path);
 
-        if (isNestedElement(element)) {
-            fields[key] = mkNestedField(register, fhirSchema, path, element, logger);
+        if (isNestedElement(elemSnapshot)) {
+            fields[key] = mkNestedField(register, fhirSchema, path, elemSnapshot, logger);
         } else {
-            fields[key] = mkField(register, fhirSchema, path, element, logger);
+            fields[key] = mkField(register, fhirSchema, path, elemSnapshot, logger);
         }
     }
 
