@@ -2,9 +2,9 @@
  * Mock implementations for testing
  */
 
-import type { TypeSchema } from "@typeschema/types";
 import { BaseGenerator } from "@root/api/generators/base/BaseGenerator";
 import type { BaseGeneratorOptions, GeneratedFile, TemplateContext } from "@root/api/generators/base/types";
+import type { TypeSchema } from "@typeschema/types";
 
 /**
  * Mock logger that captures all log messages

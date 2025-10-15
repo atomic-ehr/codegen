@@ -74,7 +74,7 @@ export class CodegenLogger {
      */
     error(message: string, error?: Error): void {
         if (this.isSuppressed(LogLevel.ERROR)) return;
-        console.error(this.formatMessage("", message, pc.red));
+        console.error(this.formatMessage("X", message, pc.red));
         if (error && this.options.verbose) {
             console.error(pc.red(`   ${error.message}`));
             if (error.stack) {
