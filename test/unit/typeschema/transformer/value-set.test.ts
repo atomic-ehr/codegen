@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { mkR4Register, type PVS, transformVS } from "@typeschema-test/utils";
+import { mkR4Register, type PVS, r4Package, transformVS } from "@typeschema-test/utils";
 
 describe("Type Schema generator > ValueSet", async () => {
     const r4 = await mkR4Register();
@@ -67,7 +67,7 @@ describe("Type Schema generator > ValueSet", async () => {
         description: "The gender of a person used for administrative purposes.",
     };
     it("Generate adminisrative-gender", async () => {
-        expect(await transformVS(r4, vs)).toMatchObject({
+        expect(await transformVS(r4, r4Package, vs)).toMatchObject({
             identifier: {
                 kind: "value-set",
                 package: "hl7.fhir.r4.core",

@@ -18,7 +18,7 @@ import {
     type TypeSchema,
     type ValueSetTypeSchema,
 } from "@typeschema/types";
-import type { CanonicalUrl, Name } from "../types";
+import type { CanonicalUrl, Name } from "@typeschema/types";
 import { collectBindingSchemas, extractValueSetConceptsByUrl } from "./binding";
 import { isNestedElement, mkField, mkNestedField } from "./field-builder";
 import { mkIdentifier, mkValueSetIdentifierByUrl } from "./identifier";
@@ -114,8 +114,8 @@ export async function transformValueSet(
 ): Promise<ValueSetTypeSchema> {
     if (!valueSet.url) throw new Error("ValueSet URL is required");
 
-    const identifier = mkValueSetIdentifierByUrl(register, valueSet.url);
-    const concept = extractValueSetConceptsByUrl(register, valueSet.url, logger);
+    const identifier = mkValueSetIdentifierByUrl(register, valueSet.package_meta, valueSet.url);
+    const concept = extractValueSetConceptsByUrl(register, valueSet.package_meta, valueSet.url, logger);
     return {
         identifier: identifier,
         description: valueSet.description,
@@ -245,7 +245,10 @@ function transformFhirSchemaResource(
 
     let base: Identifier | undefined;
     if (fhirSchema.base && fhirSchema.type !== "Element") {
-        const baseFs = register.resolveFs(register.ensureSpecializationCanonicalUrl(fhirSchema.base));
+        const baseFs = register.resolveFs(
+            fhirSchema.package_meta,
+            register.ensureSpecializationCanonicalUrl(fhirSchema.package_meta, fhirSchema.base),
+        );
         if (!baseFs) {
             throw new Error(`Base resource not found '${fhirSchema.base}' for '${fhirSchema.url}'`);
         }

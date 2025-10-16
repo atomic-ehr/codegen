@@ -40,7 +40,7 @@ export async function transformProfile(
         const baseName = fhirSchema.base.split("/").pop() || fhirSchema.base;
 
         // Determine base kind - could be another profile or a base resource
-        const baseKind = await determineBaseKind(baseUrl, register);
+        const baseKind = await determineBaseKind(register, fhirSchema, baseUrl);
 
         // For standard FHIR types, use the standard package
         const isStandardFhir = baseUrl.startsWith("http://hl7.org/fhir/");
@@ -103,10 +103,14 @@ export async function transformProfile(
 /**
  * Determine the kind of the base type for a profile
  */
-async function determineBaseKind(baseUrl: string, register: Register): Promise<Identifier["kind"]> {
+async function determineBaseKind(
+    register: Register,
+    fhirSchema: FHIRSchema,
+    baseUrl: string,
+): Promise<Identifier["kind"]> {
     try {
         // Try to resolve the base schema
-        const baseSchema = register.resolveFs(baseUrl as CanonicalUrl);
+        const baseSchema = register.resolveFs(fhirSchema.package_meta, baseUrl as CanonicalUrl);
         if (!baseSchema) return "resource";
 
         if (baseSchema) {

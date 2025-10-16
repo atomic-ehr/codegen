@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { CanonicalUrl } from "@root/typeschema";
-import { mkR4Register, type PFS, registerFsAndMkTs } from "@typeschema-test/utils";
+import { mkR4Register, type PFS, r4Package, registerFsAndMkTs } from "@typeschema-test/utils";
 
 describe("TypeSchema Processing constraint generation", async () => {
     const r4 = await mkR4Register();
@@ -89,7 +89,10 @@ describe("TypeSchema Processing constraint generation", async () => {
     });
 
     it("Use nested type in profile.", async () => {
-        const profile = r4.resolveFs("http://hl7.org/fhir/StructureDefinition/shareablecodesystem" as CanonicalUrl)!;
+        const profile = r4.resolveFs(
+            r4Package,
+            "http://hl7.org/fhir/StructureDefinition/shareablecodesystem" as CanonicalUrl,
+        )!;
         expect(await registerFsAndMkTs(r4, profile)).toMatchObject([
             {
                 base: { kind: "resource", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem" },

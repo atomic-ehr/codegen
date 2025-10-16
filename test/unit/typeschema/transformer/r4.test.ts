@@ -1,13 +1,13 @@
 import { describe, expect, it } from "bun:test";
 import { type CanonicalUrl, generateTypeSchemas, type Name } from "@root/typeschema";
 import type { RegularTypeSchema } from "@root/typeschema/types";
-import { mkR4Register, registerFsAndMkTs } from "@typeschema-test/utils";
+import { mkR4Register, r4Package, registerFsAndMkTs } from "@typeschema-test/utils";
 
 describe("TypeSchema R4 generation", async () => {
     const r4 = await mkR4Register();
 
     it("Bundle and elementReference", async () => {
-        const profile = r4.resolveFs("http://hl7.org/fhir/StructureDefinition/Bundle" as CanonicalUrl)!;
+        const profile = r4.resolveFs(r4Package, "http://hl7.org/fhir/StructureDefinition/Bundle" as CanonicalUrl)!;
         const ts = (await registerFsAndMkTs(r4, profile))[0] as RegularTypeSchema;
         expect(ts?.nested).toHaveLength(5);
         expect(ts).toMatchObject({
@@ -47,7 +47,7 @@ describe("TypeSchema R4 generation", async () => {
     });
 
     it("markdown", async () => {
-        const md = r4.resolveFs("http://hl7.org/fhir/StructureDefinition/markdown" as CanonicalUrl)!;
+        const md = r4.resolveFs(r4Package, "http://hl7.org/fhir/StructureDefinition/markdown" as CanonicalUrl)!;
         const ts = (await registerFsAndMkTs(r4, md))[0] as RegularTypeSchema;
         expect(ts).toMatchObject({
             identifier: {
@@ -64,7 +64,10 @@ describe("TypeSchema R4 generation", async () => {
 
     it("Parameter & markdown type", async () => {
         await generateTypeSchemas(r4);
-        const parameters = r4.resolveFs("http://hl7.org/fhir/StructureDefinition/Parameters" as CanonicalUrl)!;
+        const parameters = r4.resolveFs(
+            r4Package,
+            "http://hl7.org/fhir/StructureDefinition/Parameters" as CanonicalUrl,
+        )!;
         const ts = (await registerFsAndMkTs(r4, parameters))[0] as RegularTypeSchema;
         expect(ts.dependencies!).toContainEqual({
             kind: "primitive-type",

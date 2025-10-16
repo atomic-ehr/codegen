@@ -10,6 +10,7 @@ import type {
     CanonicalUrl,
     Identifier,
     Name,
+    PackageMeta,
     RichFHIRSchema,
     RichValueSet,
     ValueSetIdentifier,
@@ -57,7 +58,11 @@ const getValueSetName = (url: CanonicalUrl): Name => {
     return url as string as Name;
 };
 
-export function mkValueSetIdentifierByUrl(register: Register, fullValueSetUrl: CanonicalUrl): ValueSetIdentifier {
+export function mkValueSetIdentifierByUrl(
+    register: Register,
+    pkg: PackageMeta,
+    fullValueSetUrl: CanonicalUrl,
+): ValueSetIdentifier {
     const valueSetUrl = dropVersionFromUrl(fullValueSetUrl);
     const valueSetNameFallback = getValueSetName(valueSetUrl);
     const valuesSetFallback: RichValueSet = {
@@ -70,7 +75,7 @@ export function mkValueSetIdentifierByUrl(register: Register, fullValueSetUrl: C
         id: fullValueSetUrl,
         url: valueSetUrl,
     };
-    const valueSet: RichValueSet = register.resolveVs(valueSetUrl) || valuesSetFallback;
+    const valueSet: RichValueSet = register.resolveVs(pkg, valueSetUrl) || valuesSetFallback;
     // NOTE: ignore valueSet.name due to human name
     const valueSetName: Name =
         valueSet?.id && !/^[a-zA-Z0-9_-]{20,}$/.test(valueSet.id) ? (valueSet.id as Name) : valueSetNameFallback;
