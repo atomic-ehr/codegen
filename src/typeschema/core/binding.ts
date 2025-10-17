@@ -14,6 +14,7 @@ import type {
     CodeSystemConcept,
     Concept,
     Identifier,
+    PackageMeta,
     RichFHIRSchema,
     RichValueSet,
 } from "@typeschema/types";
@@ -22,11 +23,12 @@ import { dropVersionFromUrl, mkBindingIdentifier, mkValueSetIdentifierByUrl } fr
 
 export function extractValueSetConceptsByUrl(
     register: Register,
+    pkg: PackageMeta,
     valueSetUrl: CanonicalUrl,
     logger?: CodegenLogger,
 ): Concept[] | undefined {
     const cleanUrl = dropVersionFromUrl(valueSetUrl) || valueSetUrl;
-    const valueSet = register.resolveVs(cleanUrl as CanonicalUrl);
+    const valueSet = register.resolveVs(pkg, cleanUrl as CanonicalUrl);
     if (!valueSet) return undefined;
     return extractValueSetConcepts(register, valueSet, logger);
 }
@@ -80,6 +82,7 @@ const MAX_ENUM_LENGTH = 100;
 
 export function buildEnum(
     register: Register,
+    fhirSchema: RichFHIRSchema,
     element: FHIRSchemaElement,
     logger?: CodegenLogger,
 ): string[] | undefined {
@@ -102,7 +105,7 @@ export function buildEnum(
 
     if (!shouldGenerateEnum) return undefined;
 
-    const concepts = extractValueSetConceptsByUrl(register, valueSetUrl);
+    const concepts = extractValueSetConceptsByUrl(register, fhirSchema.package_meta, valueSetUrl);
     if (!concepts || concepts.length === 0) return undefined;
 
     const codes = concepts
@@ -129,7 +132,11 @@ function generateBindingSchema(
 
     const identifier = mkBindingIdentifier(fhirSchema, path, element.binding.bindingName);
     const fieldType = buildFieldType(register, fhirSchema, path, element, logger);
-    const valueSetIdentifier = mkValueSetIdentifierByUrl(register, element.binding.valueSet as CanonicalUrl);
+    const valueSetIdentifier = mkValueSetIdentifierByUrl(
+        register,
+        fhirSchema.package_meta,
+        element.binding.valueSet as CanonicalUrl,
+    );
 
     const dependencies: Identifier[] = [];
     if (fieldType) {
@@ -137,7 +144,7 @@ function generateBindingSchema(
     }
     dependencies.push(valueSetIdentifier);
 
-    const enumValues = buildEnum(register, element, logger);
+    const enumValues = buildEnum(register, fhirSchema, element, logger);
 
     return {
         identifier,

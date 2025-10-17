@@ -19,7 +19,7 @@ export function mkNestedIdentifier(
     // NOTE: profiles should no redefine types, they should reuse already defined in previous specializations
     const nestedTypeOrigins = {} as Record<Name, CanonicalUrl>;
     if (fhirSchema.derivation === "constraint") {
-        const specializations = register.resolveFsSpecializations(fhirSchema.url);
+        const specializations = register.resolveFsSpecializations(fhirSchema.package_meta, fhirSchema.url);
         const nestedTypeGenealogy = specializations
             .map((fs) => mkNestedTypes(register, fs, logger))
             .filter((e) => e !== undefined)
@@ -110,7 +110,7 @@ export function mkNestedTypes(
             package: fhirSchema.package_meta.name,
             version: fhirSchema.package_meta.version,
             name: baseName,
-            url: register.ensureSpecializationCanonicalUrl(baseName),
+            url: register.ensureSpecializationCanonicalUrl(fhirSchema.package_meta, baseName),
         };
 
         const fields = transformNestedElements(register, fhirSchema, path, element.elements!, logger);

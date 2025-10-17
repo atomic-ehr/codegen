@@ -56,7 +56,7 @@ export class TypeSchemaGenerator {
 
         await this.manager.init();
 
-        return registerFromManager(this.manager);
+        return registerFromManager(this.manager, {});
     }
 
     generateFhirSchemas(structureDefinitions: StructureDefinition[]): FHIRSchema[] {

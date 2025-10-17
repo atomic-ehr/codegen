@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import { type CanonicalUrl, enrichFHIRSchema, type Name } from "@root/typeschema/types";
-import { fsElementSnapshot, registerFromPackageMetas, resolveFsElementGenealogy } from "@typeschema/register";
+import { registerFromPackageMetas, fsElementSnapshot, resolveFsElementGenealogy } from "@typeschema/register";
 
 type PFS = Partial<FHIRSchema>;
 
@@ -14,39 +14,40 @@ const resolveFsElementGenealogyT = (pfss: PFS[], path: string[]) => {
 
 describe("Register tests", async () => {
     const r4Package = { name: "hl7.fhir.r4.core", version: "4.0.1" };
-    const r4 = await registerFromPackageMetas([r4Package]);
+    const r4 = await registerFromPackageMetas([r4Package], {});
 
     it("ensureCanonicalUrl", () => {
-        expect(r4.ensureSpecializationCanonicalUrl("Patient" as Name)).toBe(
+        expect(r4.ensureSpecializationCanonicalUrl(r4Package, "Patient" as Name)).toBe(
             "http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl,
         );
     });
 
     describe("Structure definition", () => {
         it("should return all StructureDefinitions", () => {
-            const allSD = r4.allSd();
-            expect(Array.isArray(allSD)).toBe(true);
-            expect(allSD.length).toBe(655);
-
-            const patientSD = r4.resolveSd("http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl)!;
+            const patientSD = r4.resolveSd(
+                r4Package,
+                "http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl,
+            )!;
             expect(patientSD).toBeDefined();
         });
     });
 
     describe("FHIR Schema", () => {
         it("should return all FHIRSchemas", () => {
-            const allFS = r4.allFs();
-            expect(Array.isArray(allFS)).toBe(true);
-            expect(allFS.length).toBe(655);
-
-            const patientFS = r4.resolveFs("http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl)!;
+            const patientFS = r4.resolveFs(
+                r4Package,
+                "http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl,
+            )!;
             expect(patientFS).toBeDefined();
             expect(patientFS.package_meta).toMatchObject(r4Package);
         });
     });
 
     describe("Genealogy", () => {
-        const pat = r4.resolveFsGenealogy("http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl)!;
+        const pat = r4.resolveFsGenealogy(
+            r4Package,
+            "http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl,
+        )!;
 
         expect(pat.map((fs) => fs.url)).toMatchObject([
             "http://hl7.org/fhir/StructureDefinition/Patient",

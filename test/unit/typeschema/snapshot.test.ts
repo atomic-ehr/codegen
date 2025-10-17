@@ -1,25 +1,25 @@
 import { describe, expect, it } from "bun:test";
 import type { PFS, PVS } from "@typeschema-test/utils";
-import { mkR4Register, registerFsAndMkTs, transformVS } from "@typeschema-test/utils";
+import { mkR4Register, r4Package, registerFsAndMkTs, transformVS } from "@typeschema-test/utils";
 
 const r4 = await mkR4Register();
 
 describe("ValueSet to Type Schema (snapshot)", async () => {
     it("administrative-gender", async () => {
         const fs: PVS = await Bun.file("test/assets/value-sets/administrative-gender.json").json();
-        const ts = await transformVS(r4, fs);
+        const ts = await transformVS(r4, r4Package, fs);
         expect(JSON.stringify(ts, null, 2)).toMatchSnapshot();
     });
 
     it("all-languages", async () => {
         const fs: PVS = await Bun.file("test/assets/value-sets/all-languages.json").json();
-        const ts = await transformVS(r4, fs);
+        const ts = await transformVS(r4, r4Package, fs);
         expect(JSON.stringify(ts, null, 2)).toMatchSnapshot();
     });
 
     it("marital-status", async () => {
         const fs: PVS = await Bun.file("test/assets/value-sets/marital-status.json").json();
-        const ts = await transformVS(r4, fs);
+        const ts = await transformVS(r4, r4Package, fs);
         expect(JSON.stringify(ts, null, 2)).toMatchSnapshot();
     });
 });
