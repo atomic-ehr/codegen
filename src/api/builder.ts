@@ -21,7 +21,7 @@ import { createLogger } from "../utils/codegen-logger";
 import { TypeScriptGenerator } from "./generators/typescript";
 import * as TS2 from "./writer-generator/typescript";
 import type { Writer, WriterOptions } from "./writer-generator/writer";
-import {CSharp} from "@root/api/writer-generator/csharp.ts";
+import { CSharp } from "@root/api/writer-generator/csharp.ts";
 
 /**
  * Configuration options for the API builder
@@ -223,15 +223,14 @@ export class APIBuilder {
         return this;
     }
 
-
     csharp(namespace: string, staticSourceDir?: string | undefined): APIBuilder {
         const generator = writerToGenerator(
-            new CSharp(Path.join(this.options.outputDir, "/types"), staticSourceDir ?? undefined, namespace,));
+            new CSharp(Path.join(this.options.outputDir, "/types"), staticSourceDir ?? undefined, namespace),
+        );
         this.generators.set("C#", generator);
         this.logger.debug(`Configured C# generator`);
         return this;
-    };
-
+    }
 
     /**
      * Set a progress callback for monitoring generation

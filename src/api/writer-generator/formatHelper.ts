@@ -1,23 +1,23 @@
-import { camelCase } from './utils';
+import { camelCase } from "./utils";
 
 const ops: Record<string, string> = {
-    '!': 'Not',
-    '<=': 'LessOrEqual',
-    '>=': 'GreaterOrEqual',
-    '<': 'Less',
-    '>': 'Greater',
-    '=': 'Equal',
-    '-': 'Dash',
-    '+': 'Plus',
-    '*': 'Asterisk',
-    '/': 'Slash',
-    '%': 'Percent',
-    '&': 'And',
-    '|': 'Or',
-    '^': 'Xor',
-    '~': 'Tilde',
-    '?': 'Question',
-    '.': 'Dot',
+    "!": "Not",
+    "<=": "LessOrEqual",
+    ">=": "GreaterOrEqual",
+    "<": "Less",
+    ">": "Greater",
+    "=": "Equal",
+    "-": "Dash",
+    "+": "Plus",
+    "*": "Asterisk",
+    "/": "Slash",
+    "%": "Percent",
+    "&": "And",
+    "|": "Or",
+    "^": "Xor",
+    "~": "Tilde",
+    "?": "Question",
+    ".": "Dot",
 };
 
 export function uppercaseFirstLetter(str: string): string {
@@ -26,14 +26,14 @@ export function uppercaseFirstLetter(str: string): string {
 
 export function formatEnumDashHandle(entry: string): string {
     return entry
-        .split('-')
+        .split("-")
         .map((part) => uppercaseFirstLetter(part))
-        .join('-');
+        .join("-");
 }
 
 export function formatEnumEntryOperation(entry: string): string {
     let res: string = entry;
-    for (const op in ops) res = res.replaceAll(op, ops[op] ?? '');
+    for (const op in ops) res = res.replaceAll(op, ops[op] ?? "");
     return res;
 }
 
@@ -54,5 +54,5 @@ export function formatEnumEntry(entry: string): string {
 }
 
 export function formatName(input: string): string {
-    return uppercaseFirstLetter(camelCase(input.replaceAll('.', '-')));
+    return uppercaseFirstLetter(camelCase(input.replaceAll(".", "-")));
 }
