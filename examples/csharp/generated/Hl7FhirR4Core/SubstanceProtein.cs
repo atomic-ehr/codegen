@@ -6,20 +6,20 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class SubstanceProtein : DomainResource {
-    public  string[]? DisulfideLinkage { get; set; }
-    public  int? NumberOfSubunits { get; set; }
-    public  CodeableConcept? SequenceType { get; set; }
-    public  SubstanceProteinSubunit[]? Subunit { get; set; }
+    public string[]? DisulfideLinkage { get; set; }
+    public int? NumberOfSubunits { get; set; }
+    public CodeableConcept? SequenceType { get; set; }
+    public SubstanceProteinSubunit[]? Subunit { get; set; }
 
     public class SubstanceProteinSubunit : BackboneElement {
-        public  string? CTerminalModification { get; set; }
-        public  Identifier? CTerminalModificationId { get; set; }
-        public  int? Length { get; set; }
-        public  string? NTerminalModification { get; set; }
-        public  Identifier? NTerminalModificationId { get; set; }
-        public  string? Sequence { get; set; }
-        public  Attachment? SequenceAttachment { get; set; }
-        public  int? Subunit { get; set; }
+        public string? CTerminalModification { get; set; }
+        public Identifier? CTerminalModificationId { get; set; }
+        public int? Length { get; set; }
+        public string? NTerminalModification { get; set; }
+        public Identifier? NTerminalModificationId { get; set; }
+        public string? Sequence { get; set; }
+        public Attachment? SequenceAttachment { get; set; }
+        public int? Subunit { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

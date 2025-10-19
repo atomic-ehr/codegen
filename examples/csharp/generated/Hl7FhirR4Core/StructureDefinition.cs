@@ -7,32 +7,32 @@ namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class StructureDefinition : DomainResource {
     public required bool Abstract { get; set; }
-    public  string? BaseDefinition { get; set; }
-    public  ContactDetail[]? Contact { get; set; }
-    public  StructureDefinitionContext[]? Context { get; set; }
-    public  string[]? ContextInvariant { get; set; }
-    public  string? Copyright { get; set; }
-    public  string? Date { get; set; }
-    public  TypeDerivationRuleEnum? Derivation { get; set; }
-    public  string? Description { get; set; }
-    public  StructureDefinitionDifferential? Differential { get; set; }
-    public  bool? Experimental { get; set; }
-    public  FhirversionEnum? FhirVersion { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  CodeableConcept[]? Jurisdiction { get; set; }
-    public  Coding[]? Keyword { get; set; }
+    public string? BaseDefinition { get; set; }
+    public ContactDetail[]? Contact { get; set; }
+    public StructureDefinitionContext[]? Context { get; set; }
+    public string[]? ContextInvariant { get; set; }
+    public string? Copyright { get; set; }
+    public string? Date { get; set; }
+    public TypeDerivationRuleEnum? Derivation { get; set; }
+    public string? Description { get; set; }
+    public StructureDefinitionDifferential? Differential { get; set; }
+    public bool? Experimental { get; set; }
+    public FhirversionEnum? FhirVersion { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public CodeableConcept[]? Jurisdiction { get; set; }
+    public Coding[]? Keyword { get; set; }
     public required StructureDefinitionKindEnum Kind { get; set; }
-    public  StructureDefinitionMapping[]? Mapping { get; set; }
+    public StructureDefinitionMapping[]? Mapping { get; set; }
     public required string Name { get; set; }
-    public  string? Publisher { get; set; }
-    public  string? Purpose { get; set; }
-    public  StructureDefinitionSnapshot? Snapshot { get; set; }
+    public string? Publisher { get; set; }
+    public string? Purpose { get; set; }
+    public StructureDefinitionSnapshot? Snapshot { get; set; }
     public required PublicationStatusEnum Status { get; set; }
-    public  string? Title { get; set; }
+    public string? Title { get; set; }
     public required string Type { get; set; }
     public required string Url { get; set; }
-    public  UsageContext[]? UseContext { get; set; }
-    public  string? Version { get; set; }
+    public UsageContext[]? UseContext { get; set; }
+    public string? Version { get; set; }
 
     public class StructureDefinitionContext : BackboneElement {
         public required string Expression { get; set; }
@@ -52,10 +52,10 @@ public class StructureDefinition : DomainResource {
     }
 
     public class StructureDefinitionMapping : BackboneElement {
-        public  string? Comment { get; set; }
+        public string? Comment { get; set; }
         public required string Identity { get; set; }
-        public  string? Name { get; set; }
-        public  string? Uri { get; set; }
+        public string? Name { get; set; }
+        public string? Uri { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

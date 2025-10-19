@@ -6,25 +6,25 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class CareTeam : DomainResource {
-    public  CodeableConcept[]? Category { get; set; }
-    public  ResourceReference? Encounter { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  ResourceReference[]? ManagingOrganization { get; set; }
-    public  string? Name { get; set; }
-    public  Annotation[]? Note { get; set; }
-    public  CareTeamParticipant[]? Participant { get; set; }
-    public  Period? Period { get; set; }
-    public  CodeableConcept[]? ReasonCode { get; set; }
-    public  ResourceReference[]? ReasonReference { get; set; }
-    public  CareTeamStatusEnum? Status { get; set; }
-    public  ResourceReference? Subject { get; set; }
-    public  ContactPoint[]? Telecom { get; set; }
+    public CodeableConcept[]? Category { get; set; }
+    public ResourceReference? Encounter { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public ResourceReference[]? ManagingOrganization { get; set; }
+    public string? Name { get; set; }
+    public Annotation[]? Note { get; set; }
+    public CareTeamParticipant[]? Participant { get; set; }
+    public Period? Period { get; set; }
+    public CodeableConcept[]? ReasonCode { get; set; }
+    public ResourceReference[]? ReasonReference { get; set; }
+    public CareTeamStatusEnum? Status { get; set; }
+    public ResourceReference? Subject { get; set; }
+    public ContactPoint[]? Telecom { get; set; }
 
     public class CareTeamParticipant : BackboneElement {
-        public  ResourceReference? Member { get; set; }
-        public  ResourceReference? OnBehalfOf { get; set; }
-        public  Period? Period { get; set; }
-        public  CodeableConcept[]? Role { get; set; }
+        public ResourceReference? Member { get; set; }
+        public ResourceReference? OnBehalfOf { get; set; }
+        public Period? Period { get; set; }
+        public CodeableConcept[]? Role { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

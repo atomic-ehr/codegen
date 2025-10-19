@@ -6,29 +6,29 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class MedicinalProductAuthorization : DomainResource {
-    public  CodeableConcept[]? Country { get; set; }
-    public  Period? DataExclusivityPeriod { get; set; }
-    public  string? DateOfFirstAuthorization { get; set; }
-    public  ResourceReference? Holder { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  string? InternationalBirthDate { get; set; }
-    public  CodeableConcept[]? Jurisdiction { get; set; }
-    public  MedicinalProductAuthorizationJurisdictionalAuthorization[]? JurisdictionalAuthorization { get; set; }
-    public  CodeableConcept? LegalBasis { get; set; }
-    public  MedicinalProductAuthorizationProcedure? Procedure { get; set; }
-    public  ResourceReference? Regulator { get; set; }
-    public  string? RestoreDate { get; set; }
-    public  CodeableConcept? Status { get; set; }
-    public  string? StatusDate { get; set; }
-    public  ResourceReference? Subject { get; set; }
-    public  Period? ValidityPeriod { get; set; }
+    public CodeableConcept[]? Country { get; set; }
+    public Period? DataExclusivityPeriod { get; set; }
+    public string? DateOfFirstAuthorization { get; set; }
+    public ResourceReference? Holder { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public string? InternationalBirthDate { get; set; }
+    public CodeableConcept[]? Jurisdiction { get; set; }
+    public MedicinalProductAuthorizationJurisdictionalAuthorization[]? JurisdictionalAuthorization { get; set; }
+    public CodeableConcept? LegalBasis { get; set; }
+    public MedicinalProductAuthorizationProcedure? Procedure { get; set; }
+    public ResourceReference? Regulator { get; set; }
+    public string? RestoreDate { get; set; }
+    public CodeableConcept? Status { get; set; }
+    public string? StatusDate { get; set; }
+    public ResourceReference? Subject { get; set; }
+    public Period? ValidityPeriod { get; set; }
 
     public class MedicinalProductAuthorizationJurisdictionalAuthorization : BackboneElement {
-        public  CodeableConcept? Country { get; set; }
-        public  Identifier[]? Identifier { get; set; }
-        public  CodeableConcept[]? Jurisdiction { get; set; }
-        public  CodeableConcept? LegalStatusOfSupply { get; set; }
-        public  Period? ValidityPeriod { get; set; }
+        public CodeableConcept? Country { get; set; }
+        public Identifier[]? Identifier { get; set; }
+        public CodeableConcept[]? Jurisdiction { get; set; }
+        public CodeableConcept? LegalStatusOfSupply { get; set; }
+        public Period? ValidityPeriod { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -36,10 +36,10 @@ public class MedicinalProductAuthorization : DomainResource {
     }
 
     public class MedicinalProductAuthorizationProcedure : BackboneElement {
-        public  MedicinalProductAuthorizationProcedure[]? Application { get; set; }
-        public  string? DateDateTime { get; set; }
-        public  Period? DatePeriod { get; set; }
-        public  Identifier? Identifier { get; set; }
+        public MedicinalProductAuthorizationProcedure[]? Application { get; set; }
+        public string? DateDateTime { get; set; }
+        public Period? DatePeriod { get; set; }
+        public Identifier? Identifier { get; set; }
         public required CodeableConcept Type { get; set; }
 
         public override string ToString() => 

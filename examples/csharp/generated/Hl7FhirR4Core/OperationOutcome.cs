@@ -10,10 +10,10 @@ public class OperationOutcome : DomainResource {
 
     public class OperationOutcomeIssue : BackboneElement {
         public required IssueTypeEnum Code { get; set; }
-        public  CodeableConcept? Details { get; set; }
-        public  string? Diagnostics { get; set; }
-        public  string[]? Expression { get; set; }
-        public  string[]? Location { get; set; }
+        public CodeableConcept? Details { get; set; }
+        public string? Diagnostics { get; set; }
+        public string[]? Expression { get; set; }
+        public string[]? Location { get; set; }
         public required IssueSeverityEnum Severity { get; set; }
 
         public override string ToString() => 

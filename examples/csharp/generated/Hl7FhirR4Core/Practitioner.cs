@@ -6,22 +6,22 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Practitioner : DomainResource {
-    public  bool? Active { get; set; }
-    public  Address[]? Address { get; set; }
-    public  string? BirthDate { get; set; }
-    public  CodeableConcept[]? Communication { get; set; }
-    public  AdministrativeGenderEnum? Gender { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  HumanName[]? Name { get; set; }
-    public  Attachment[]? Photo { get; set; }
-    public  PractitionerQualification[]? Qualification { get; set; }
-    public  ContactPoint[]? Telecom { get; set; }
+    public bool? Active { get; set; }
+    public Address[]? Address { get; set; }
+    public string? BirthDate { get; set; }
+    public CodeableConcept[]? Communication { get; set; }
+    public AdministrativeGenderEnum? Gender { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public HumanName[]? Name { get; set; }
+    public Attachment[]? Photo { get; set; }
+    public PractitionerQualification[]? Qualification { get; set; }
+    public ContactPoint[]? Telecom { get; set; }
 
     public class PractitionerQualification : BackboneElement {
         public required CodeableConcept Code { get; set; }
-        public  Identifier[]? Identifier { get; set; }
-        public  ResourceReference? Issuer { get; set; }
-        public  Period? Period { get; set; }
+        public Identifier[]? Identifier { get; set; }
+        public ResourceReference? Issuer { get; set; }
+        public Period? Period { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

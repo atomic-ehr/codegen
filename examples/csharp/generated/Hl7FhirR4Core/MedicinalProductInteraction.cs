@@ -6,17 +6,17 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class MedicinalProductInteraction : DomainResource {
-    public  string? Description { get; set; }
-    public  CodeableConcept? Effect { get; set; }
-    public  CodeableConcept? Incidence { get; set; }
-    public  MedicinalProductInteractionInteractant[]? Interactant { get; set; }
-    public  CodeableConcept? Management { get; set; }
-    public  ResourceReference[]? Subject { get; set; }
-    public  CodeableConcept? Type { get; set; }
+    public string? Description { get; set; }
+    public CodeableConcept? Effect { get; set; }
+    public CodeableConcept? Incidence { get; set; }
+    public MedicinalProductInteractionInteractant[]? Interactant { get; set; }
+    public CodeableConcept? Management { get; set; }
+    public ResourceReference[]? Subject { get; set; }
+    public CodeableConcept? Type { get; set; }
 
     public class MedicinalProductInteractionInteractant : BackboneElement {
-        public  CodeableConcept? ItemCodeableConcept { get; set; }
-        public  ResourceReference? ItemReference { get; set; }
+        public CodeableConcept? ItemCodeableConcept { get; set; }
+        public ResourceReference? ItemReference { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

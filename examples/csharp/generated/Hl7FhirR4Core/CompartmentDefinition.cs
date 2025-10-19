@@ -7,24 +7,24 @@ namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class CompartmentDefinition : DomainResource {
     public required CompartmentTypeEnum Code { get; set; }
-    public  ContactDetail[]? Contact { get; set; }
-    public  string? Date { get; set; }
-    public  string? Description { get; set; }
-    public  bool? Experimental { get; set; }
+    public ContactDetail[]? Contact { get; set; }
+    public string? Date { get; set; }
+    public string? Description { get; set; }
+    public bool? Experimental { get; set; }
     public required string Name { get; set; }
-    public  string? Publisher { get; set; }
-    public  string? Purpose { get; set; }
-    public  CompartmentDefinitionResource[]? Resource { get; set; }
+    public string? Publisher { get; set; }
+    public string? Purpose { get; set; }
+    public CompartmentDefinitionResource[]? Resource { get; set; }
     public required bool Search { get; set; }
     public required PublicationStatusEnum Status { get; set; }
     public required string Url { get; set; }
-    public  UsageContext[]? UseContext { get; set; }
-    public  string? Version { get; set; }
+    public UsageContext[]? UseContext { get; set; }
+    public string? Version { get; set; }
 
     public class CompartmentDefinitionResource : BackboneElement {
         public required string Code { get; set; }
-        public  string? Documentation { get; set; }
-        public  string[]? Param { get; set; }
+        public string? Documentation { get; set; }
+        public string[]? Param { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

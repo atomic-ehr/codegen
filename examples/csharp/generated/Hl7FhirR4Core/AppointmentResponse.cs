@@ -6,14 +6,14 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class AppointmentResponse : DomainResource {
-    public  ResourceReference? Actor { get; set; }
+    public ResourceReference? Actor { get; set; }
     public required ResourceReference Appointment { get; set; }
-    public  string? Comment { get; set; }
-    public  string? End { get; set; }
-    public  Identifier[]? Identifier { get; set; }
+    public string? Comment { get; set; }
+    public string? End { get; set; }
+    public Identifier[]? Identifier { get; set; }
     public required ParticipantStatusEnum ParticipantStatus { get; set; }
-    public  CodeableConcept[]? ParticipantType { get; set; }
-    public  string? Start { get; set; }
+    public CodeableConcept[]? ParticipantType { get; set; }
+    public string? Start { get; set; }
 
     public override string ToString() => 
         JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

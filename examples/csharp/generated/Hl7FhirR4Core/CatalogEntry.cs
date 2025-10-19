@@ -6,19 +6,19 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class CatalogEntry : DomainResource {
-    public  CodeableConcept[]? AdditionalCharacteristic { get; set; }
-    public  CodeableConcept[]? AdditionalClassification { get; set; }
-    public  Identifier[]? AdditionalIdentifier { get; set; }
-    public  CodeableConcept[]? Classification { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  string? LastUpdated { get; set; }
+    public CodeableConcept[]? AdditionalCharacteristic { get; set; }
+    public CodeableConcept[]? AdditionalClassification { get; set; }
+    public Identifier[]? AdditionalIdentifier { get; set; }
+    public CodeableConcept[]? Classification { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public string? LastUpdated { get; set; }
     public required bool Orderable { get; set; }
     public required ResourceReference ReferencedItem { get; set; }
-    public  CatalogEntryRelatedEntry[]? RelatedEntry { get; set; }
-    public  PublicationStatusEnum? Status { get; set; }
-    public  CodeableConcept? Type { get; set; }
-    public  Period? ValidityPeriod { get; set; }
-    public  string? ValidTo { get; set; }
+    public CatalogEntryRelatedEntry[]? RelatedEntry { get; set; }
+    public PublicationStatusEnum? Status { get; set; }
+    public CodeableConcept? Type { get; set; }
+    public Period? ValidityPeriod { get; set; }
+    public string? ValidTo { get; set; }
 
     public class CatalogEntryRelatedEntry : BackboneElement {
         public required ResourceReference Item { get; set; }

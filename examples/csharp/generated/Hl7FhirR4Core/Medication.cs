@@ -6,18 +6,18 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Medication : DomainResource {
-    public  Ratio? Amount { get; set; }
-    public  MedicationBatch? Batch { get; set; }
-    public  CodeableConcept? Code { get; set; }
-    public  CodeableConcept? Form { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  MedicationIngredient[]? Ingredient { get; set; }
-    public  ResourceReference? Manufacturer { get; set; }
-    public  MedicationStatusEnum? Status { get; set; }
+    public Ratio? Amount { get; set; }
+    public MedicationBatch? Batch { get; set; }
+    public CodeableConcept? Code { get; set; }
+    public CodeableConcept? Form { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public MedicationIngredient[]? Ingredient { get; set; }
+    public ResourceReference? Manufacturer { get; set; }
+    public MedicationStatusEnum? Status { get; set; }
 
     public class MedicationBatch : BackboneElement {
-        public  string? ExpirationDate { get; set; }
-        public  string? LotNumber { get; set; }
+        public string? ExpirationDate { get; set; }
+        public string? LotNumber { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -25,10 +25,10 @@ public class Medication : DomainResource {
     }
 
     public class MedicationIngredient : BackboneElement {
-        public  bool? IsActive { get; set; }
-        public  CodeableConcept? ItemCodeableConcept { get; set; }
-        public  ResourceReference? ItemReference { get; set; }
-        public  Ratio? Strength { get; set; }
+        public bool? IsActive { get; set; }
+        public CodeableConcept? ItemCodeableConcept { get; set; }
+        public ResourceReference? ItemReference { get; set; }
+        public Ratio? Strength { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

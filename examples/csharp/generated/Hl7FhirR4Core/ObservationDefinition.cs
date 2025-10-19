@@ -6,29 +6,29 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class ObservationDefinition : DomainResource {
-    public  ResourceReference? AbnormalCodedValueSet { get; set; }
-    public  CodeableConcept[]? Category { get; set; }
+    public ResourceReference? AbnormalCodedValueSet { get; set; }
+    public CodeableConcept[]? Category { get; set; }
     public required CodeableConcept Code { get; set; }
-    public  ResourceReference? CriticalCodedValueSet { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  CodeableConcept? Method { get; set; }
-    public  bool? MultipleResultsAllowed { get; set; }
-    public  ResourceReference? NormalCodedValueSet { get; set; }
-    public  ObservationDataTypeEnum[]? PermittedDataType { get; set; }
-    public  string? PreferredReportName { get; set; }
-    public  ObservationDefinitionQualifiedInterval[]? QualifiedInterval { get; set; }
-    public  ObservationDefinitionQuantitativeDetails? QuantitativeDetails { get; set; }
-    public  ResourceReference? ValidCodedValueSet { get; set; }
+    public ResourceReference? CriticalCodedValueSet { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public CodeableConcept? Method { get; set; }
+    public bool? MultipleResultsAllowed { get; set; }
+    public ResourceReference? NormalCodedValueSet { get; set; }
+    public ObservationDataTypeEnum[]? PermittedDataType { get; set; }
+    public string? PreferredReportName { get; set; }
+    public ObservationDefinitionQualifiedInterval[]? QualifiedInterval { get; set; }
+    public ObservationDefinitionQuantitativeDetails? QuantitativeDetails { get; set; }
+    public ResourceReference? ValidCodedValueSet { get; set; }
 
     public class ObservationDefinitionQualifiedInterval : BackboneElement {
-        public  Range? Age { get; set; }
-        public  CodeableConcept[]? AppliesTo { get; set; }
-        public  ObservationRangeCategoryEnum? Category { get; set; }
-        public  string? Condition { get; set; }
-        public  CodeableConcept? Context { get; set; }
-        public  AdministrativeGenderEnum? Gender { get; set; }
-        public  Range? GestationalAge { get; set; }
-        public  Range? Range { get; set; }
+        public Range? Age { get; set; }
+        public CodeableConcept[]? AppliesTo { get; set; }
+        public ObservationRangeCategoryEnum? Category { get; set; }
+        public string? Condition { get; set; }
+        public CodeableConcept? Context { get; set; }
+        public AdministrativeGenderEnum? Gender { get; set; }
+        public Range? GestationalAge { get; set; }
+        public Range? Range { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -36,10 +36,10 @@ public class ObservationDefinition : DomainResource {
     }
 
     public class ObservationDefinitionQuantitativeDetails : BackboneElement {
-        public  decimal? ConversionFactor { get; set; }
-        public  CodeableConcept? CustomaryUnit { get; set; }
-        public  int? DecimalPrecision { get; set; }
-        public  CodeableConcept? Unit { get; set; }
+        public decimal? ConversionFactor { get; set; }
+        public CodeableConcept? CustomaryUnit { get; set; }
+        public int? DecimalPrecision { get; set; }
+        public CodeableConcept? Unit { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

@@ -6,12 +6,12 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class ResearchSubject : DomainResource {
-    public  string? ActualArm { get; set; }
-    public  string? AssignedArm { get; set; }
-    public  ResourceReference? Consent { get; set; }
-    public  Identifier[]? Identifier { get; set; }
+    public string? ActualArm { get; set; }
+    public string? AssignedArm { get; set; }
+    public ResourceReference? Consent { get; set; }
+    public Identifier[]? Identifier { get; set; }
     public required ResourceReference Individual { get; set; }
-    public  Period? Period { get; set; }
+    public Period? Period { get; set; }
     public required ResearchSubjectStatusEnum Status { get; set; }
     public required ResourceReference Study { get; set; }
 

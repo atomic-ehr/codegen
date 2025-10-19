@@ -6,24 +6,24 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class MessageHeader : DomainResource {
-    public  ResourceReference? Author { get; set; }
-    public  string? Definition { get; set; }
-    public  MessageHeaderDestination[]? Destination { get; set; }
-    public  ResourceReference? Enterer { get; set; }
-    public  Coding? EventCoding { get; set; }
-    public  string? EventUri { get; set; }
-    public  ResourceReference[]? Focus { get; set; }
-    public  CodeableConcept? Reason { get; set; }
-    public  MessageHeaderResponse? Response { get; set; }
-    public  ResourceReference? Responsible { get; set; }
-    public  ResourceReference? Sender { get; set; }
+    public ResourceReference? Author { get; set; }
+    public string? Definition { get; set; }
+    public MessageHeaderDestination[]? Destination { get; set; }
+    public ResourceReference? Enterer { get; set; }
+    public Coding? EventCoding { get; set; }
+    public string? EventUri { get; set; }
+    public ResourceReference[]? Focus { get; set; }
+    public CodeableConcept? Reason { get; set; }
+    public MessageHeaderResponse? Response { get; set; }
+    public ResourceReference? Responsible { get; set; }
+    public ResourceReference? Sender { get; set; }
     public required MessageHeaderSource Source { get; set; }
 
     public class MessageHeaderDestination : BackboneElement {
         public required string Endpoint { get; set; }
-        public  string? Name { get; set; }
-        public  ResourceReference? Receiver { get; set; }
-        public  ResourceReference? Target { get; set; }
+        public string? Name { get; set; }
+        public ResourceReference? Receiver { get; set; }
+        public ResourceReference? Target { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -32,7 +32,7 @@ public class MessageHeader : DomainResource {
 
     public class MessageHeaderResponse : BackboneElement {
         public required ResponseTypeEnum Code { get; set; }
-        public  ResourceReference? Details { get; set; }
+        public ResourceReference? Details { get; set; }
         public required string Identifier { get; set; }
 
         public override string ToString() => 
@@ -41,11 +41,11 @@ public class MessageHeader : DomainResource {
     }
 
     public class MessageHeaderSource : BackboneElement {
-        public  ContactPoint? Contact { get; set; }
+        public ContactPoint? Contact { get; set; }
         public required string Endpoint { get; set; }
-        public  string? Name { get; set; }
-        public  string? Software { get; set; }
-        public  string? Version { get; set; }
+        public string? Name { get; set; }
+        public string? Software { get; set; }
+        public string? Version { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

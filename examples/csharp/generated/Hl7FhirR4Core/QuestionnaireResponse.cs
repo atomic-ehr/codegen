@@ -6,24 +6,24 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class QuestionnaireResponse : DomainResource {
-    public  ResourceReference? Author { get; set; }
-    public  string? Authored { get; set; }
-    public  ResourceReference[]? BasedOn { get; set; }
-    public  ResourceReference? Encounter { get; set; }
-    public  Identifier? Identifier { get; set; }
-    public  QuestionnaireResponseItem[]? Item { get; set; }
-    public  ResourceReference[]? PartOf { get; set; }
-    public  string? Questionnaire { get; set; }
-    public  ResourceReference? Source { get; set; }
+    public ResourceReference? Author { get; set; }
+    public string? Authored { get; set; }
+    public ResourceReference[]? BasedOn { get; set; }
+    public ResourceReference? Encounter { get; set; }
+    public Identifier? Identifier { get; set; }
+    public QuestionnaireResponseItem[]? Item { get; set; }
+    public ResourceReference[]? PartOf { get; set; }
+    public string? Questionnaire { get; set; }
+    public ResourceReference? Source { get; set; }
     public required QuestionnaireResponseStatusEnum Status { get; set; }
-    public  ResourceReference? Subject { get; set; }
+    public ResourceReference? Subject { get; set; }
 
     public class QuestionnaireResponseItem : BackboneElement {
-        public  QuestionnaireResponseItemAnswer[]? Answer { get; set; }
-        public  string? Definition { get; set; }
-        public  QuestionnaireResponseItem[]? Item { get; set; }
+        public QuestionnaireResponseItemAnswer[]? Answer { get; set; }
+        public string? Definition { get; set; }
+        public QuestionnaireResponseItem[]? Item { get; set; }
         public required string LinkId { get; set; }
-        public  string? Text { get; set; }
+        public string? Text { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -31,19 +31,19 @@ public class QuestionnaireResponse : DomainResource {
     }
 
     public class QuestionnaireResponseItemAnswer : BackboneElement {
-        public  QuestionnaireResponseItem[]? Item { get; set; }
-        public  Attachment? ValueAttachment { get; set; }
-        public  bool? ValueBoolean { get; set; }
-        public  Coding? ValueCoding { get; set; }
-        public  string? ValueDate { get; set; }
-        public  string? ValueDateTime { get; set; }
-        public  decimal? ValueDecimal { get; set; }
-        public  int? ValueInteger { get; set; }
-        public  Quantity? ValueQuantity { get; set; }
-        public  ResourceReference? ValueReference { get; set; }
-        public  string? ValueString { get; set; }
-        public  string? ValueTime { get; set; }
-        public  string? ValueUri { get; set; }
+        public QuestionnaireResponseItem[]? Item { get; set; }
+        public Attachment? ValueAttachment { get; set; }
+        public bool? ValueBoolean { get; set; }
+        public Coding? ValueCoding { get; set; }
+        public string? ValueDate { get; set; }
+        public string? ValueDateTime { get; set; }
+        public decimal? ValueDecimal { get; set; }
+        public int? ValueInteger { get; set; }
+        public Quantity? ValueQuantity { get; set; }
+        public ResourceReference? ValueReference { get; set; }
+        public string? ValueString { get; set; }
+        public string? ValueTime { get; set; }
+        public string? ValueUri { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

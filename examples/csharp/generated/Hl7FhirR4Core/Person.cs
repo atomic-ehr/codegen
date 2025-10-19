@@ -6,19 +6,19 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Person : DomainResource {
-    public  bool? Active { get; set; }
-    public  Address[]? Address { get; set; }
-    public  string? BirthDate { get; set; }
-    public  AdministrativeGenderEnum? Gender { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  PersonLink[]? Link { get; set; }
-    public  ResourceReference? ManagingOrganization { get; set; }
-    public  HumanName[]? Name { get; set; }
-    public  Attachment? Photo { get; set; }
-    public  ContactPoint[]? Telecom { get; set; }
+    public bool? Active { get; set; }
+    public Address[]? Address { get; set; }
+    public string? BirthDate { get; set; }
+    public AdministrativeGenderEnum? Gender { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public PersonLink[]? Link { get; set; }
+    public ResourceReference? ManagingOrganization { get; set; }
+    public HumanName[]? Name { get; set; }
+    public Attachment? Photo { get; set; }
+    public ContactPoint[]? Telecom { get; set; }
 
     public class PersonLink : BackboneElement {
-        public  IdentityAssuranceLevelEnum? Assurance { get; set; }
+        public IdentityAssuranceLevelEnum? Assurance { get; set; }
         public required ResourceReference Target { get; set; }
 
         public override string ToString() => 

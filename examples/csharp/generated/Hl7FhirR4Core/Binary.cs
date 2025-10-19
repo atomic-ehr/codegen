@@ -7,8 +7,8 @@ namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Binary : Resource {
     public required string ContentType { get; set; }
-    public  string? Data { get; set; }
-    public  ResourceReference? SecurityContext { get; set; }
+    public string? Data { get; set; }
+    public ResourceReference? SecurityContext { get; set; }
 
     public override string ToString() => 
         JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

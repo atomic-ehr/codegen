@@ -6,22 +6,22 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Provenance : DomainResource {
-    public  CodeableConcept? Activity { get; set; }
+    public CodeableConcept? Activity { get; set; }
     public required ProvenanceAgent[] Agent { get; set; }
-    public  ProvenanceEntity[]? Entity { get; set; }
-    public  ResourceReference? Location { get; set; }
-    public  string? OccurredDateTime { get; set; }
-    public  Period? OccurredPeriod { get; set; }
-    public  string[]? Policy { get; set; }
-    public  CodeableConcept[]? Reason { get; set; }
+    public ProvenanceEntity[]? Entity { get; set; }
+    public ResourceReference? Location { get; set; }
+    public string? OccurredDateTime { get; set; }
+    public Period? OccurredPeriod { get; set; }
+    public string[]? Policy { get; set; }
+    public CodeableConcept[]? Reason { get; set; }
     public required string Recorded { get; set; }
-    public  Signature[]? Signature { get; set; }
+    public Signature[]? Signature { get; set; }
     public required ResourceReference[] Target { get; set; }
 
     public class ProvenanceAgent : BackboneElement {
-        public  ResourceReference? OnBehalfOf { get; set; }
-        public  CodeableConcept[]? Role { get; set; }
-        public  CodeableConcept? Type { get; set; }
+        public ResourceReference? OnBehalfOf { get; set; }
+        public CodeableConcept[]? Role { get; set; }
+        public CodeableConcept? Type { get; set; }
         public required ResourceReference Who { get; set; }
 
         public override string ToString() => 
@@ -30,7 +30,7 @@ public class Provenance : DomainResource {
     }
 
     public class ProvenanceEntity : BackboneElement {
-        public  ProvenanceAgent[]? Agent { get; set; }
+        public ProvenanceAgent[]? Agent { get; set; }
         public required ProvenanceEntityRoleEnum Role { get; set; }
         public required ResourceReference What { get; set; }
 

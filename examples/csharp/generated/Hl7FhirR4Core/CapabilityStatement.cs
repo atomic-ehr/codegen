@@ -6,35 +6,35 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class CapabilityStatement : DomainResource {
-    public  ContactDetail[]? Contact { get; set; }
-    public  string? Copyright { get; set; }
+    public ContactDetail[]? Contact { get; set; }
+    public string? Copyright { get; set; }
     public required string Date { get; set; }
-    public  string? Description { get; set; }
-    public  CapabilityStatementDocument[]? Document { get; set; }
-    public  bool? Experimental { get; set; }
+    public string? Description { get; set; }
+    public CapabilityStatementDocument[]? Document { get; set; }
+    public bool? Experimental { get; set; }
     public required FhirversionEnum FhirVersion { get; set; }
     public required string[] Format { get; set; }
-    public  CapabilityStatementImplementation? Implementation { get; set; }
-    public  string[]? ImplementationGuide { get; set; }
-    public  string[]? Imports { get; set; }
-    public  string[]? Instantiates { get; set; }
-    public  CodeableConcept[]? Jurisdiction { get; set; }
+    public CapabilityStatementImplementation? Implementation { get; set; }
+    public string[]? ImplementationGuide { get; set; }
+    public string[]? Imports { get; set; }
+    public string[]? Instantiates { get; set; }
+    public CodeableConcept[]? Jurisdiction { get; set; }
     public required CapabilityStatementKindEnum Kind { get; set; }
-    public  CapabilityStatementMessaging[]? Messaging { get; set; }
-    public  string? Name { get; set; }
-    public  string[]? PatchFormat { get; set; }
-    public  string? Publisher { get; set; }
-    public  string? Purpose { get; set; }
-    public  CapabilityStatementRest[]? Rest { get; set; }
-    public  CapabilityStatementSoftware? Software { get; set; }
+    public CapabilityStatementMessaging[]? Messaging { get; set; }
+    public string? Name { get; set; }
+    public string[]? PatchFormat { get; set; }
+    public string? Publisher { get; set; }
+    public string? Purpose { get; set; }
+    public CapabilityStatementRest[]? Rest { get; set; }
+    public CapabilityStatementSoftware? Software { get; set; }
     public required PublicationStatusEnum Status { get; set; }
-    public  string? Title { get; set; }
-    public  string? Url { get; set; }
-    public  UsageContext[]? UseContext { get; set; }
-    public  string? Version { get; set; }
+    public string? Title { get; set; }
+    public string? Url { get; set; }
+    public UsageContext[]? UseContext { get; set; }
+    public string? Version { get; set; }
 
     public class CapabilityStatementDocument : BackboneElement {
-        public  string? Documentation { get; set; }
+        public string? Documentation { get; set; }
         public required DocumentModeEnum Mode { get; set; }
         public required string Profile { get; set; }
 
@@ -44,9 +44,9 @@ public class CapabilityStatement : DomainResource {
     }
 
     public class CapabilityStatementImplementation : BackboneElement {
-        public  ResourceReference? Custodian { get; set; }
+        public ResourceReference? Custodian { get; set; }
         public required string Description { get; set; }
-        public  string? Url { get; set; }
+        public string? Url { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -54,10 +54,10 @@ public class CapabilityStatement : DomainResource {
     }
 
     public class CapabilityStatementMessaging : BackboneElement {
-        public  string? Documentation { get; set; }
-        public  CapabilityStatementMessagingEndpoint[]? Endpoint { get; set; }
-        public  long? ReliableCache { get; set; }
-        public  CapabilityStatementMessagingSupportedMessage[]? SupportedMessage { get; set; }
+        public string? Documentation { get; set; }
+        public CapabilityStatementMessagingEndpoint[]? Endpoint { get; set; }
+        public long? ReliableCache { get; set; }
+        public CapabilityStatementMessagingSupportedMessage[]? SupportedMessage { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -83,14 +83,14 @@ public class CapabilityStatement : DomainResource {
     }
 
     public class CapabilityStatementRest : BackboneElement {
-        public  string[]? Compartment { get; set; }
-        public  string? Documentation { get; set; }
-        public  CapabilityStatementRestInteraction[]? Interaction { get; set; }
+        public string[]? Compartment { get; set; }
+        public string? Documentation { get; set; }
+        public CapabilityStatementRestInteraction[]? Interaction { get; set; }
         public required RestfulCapabilityModeEnum Mode { get; set; }
-        public  CapabilityStatementRestResourceOperation[]? Operation { get; set; }
-        public  CapabilityStatementRestResource[]? Resource { get; set; }
-        public  CapabilityStatementRestResourceSearchParam[]? SearchParam { get; set; }
-        public  CapabilityStatementRestSecurity? Security { get; set; }
+        public CapabilityStatementRestResourceOperation[]? Operation { get; set; }
+        public CapabilityStatementRestResource[]? Resource { get; set; }
+        public CapabilityStatementRestResourceSearchParam[]? SearchParam { get; set; }
+        public CapabilityStatementRestSecurity? Security { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -99,7 +99,7 @@ public class CapabilityStatement : DomainResource {
 
     public class CapabilityStatementRestInteraction : BackboneElement {
         public required SystemRestfulInteractionEnum Code { get; set; }
-        public  string? Documentation { get; set; }
+        public string? Documentation { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -107,23 +107,23 @@ public class CapabilityStatement : DomainResource {
     }
 
     public class CapabilityStatementRestResource : BackboneElement {
-        public  bool? ConditionalCreate { get; set; }
-        public  ConditionalDeleteStatusEnum? ConditionalDelete { get; set; }
-        public  ConditionalReadStatusEnum? ConditionalRead { get; set; }
-        public  bool? ConditionalUpdate { get; set; }
-        public  string? Documentation { get; set; }
-        public  CapabilityStatementRestResourceInteraction[]? Interaction { get; set; }
-        public  CapabilityStatementRestResourceOperation[]? Operation { get; set; }
-        public  string? Profile { get; set; }
-        public  bool? ReadHistory { get; set; }
-        public  ReferenceHandlingPolicyEnum[]? ReferencePolicy { get; set; }
-        public  string[]? SearchInclude { get; set; }
-        public  CapabilityStatementRestResourceSearchParam[]? SearchParam { get; set; }
-        public  string[]? SearchRevInclude { get; set; }
-        public  string[]? SupportedProfile { get; set; }
+        public bool? ConditionalCreate { get; set; }
+        public ConditionalDeleteStatusEnum? ConditionalDelete { get; set; }
+        public ConditionalReadStatusEnum? ConditionalRead { get; set; }
+        public bool? ConditionalUpdate { get; set; }
+        public string? Documentation { get; set; }
+        public CapabilityStatementRestResourceInteraction[]? Interaction { get; set; }
+        public CapabilityStatementRestResourceOperation[]? Operation { get; set; }
+        public string? Profile { get; set; }
+        public bool? ReadHistory { get; set; }
+        public ReferenceHandlingPolicyEnum[]? ReferencePolicy { get; set; }
+        public string[]? SearchInclude { get; set; }
+        public CapabilityStatementRestResourceSearchParam[]? SearchParam { get; set; }
+        public string[]? SearchRevInclude { get; set; }
+        public string[]? SupportedProfile { get; set; }
         public required string Type { get; set; }
-        public  bool? UpdateCreate { get; set; }
-        public  ResourceVersionPolicyEnum? Versioning { get; set; }
+        public bool? UpdateCreate { get; set; }
+        public ResourceVersionPolicyEnum? Versioning { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -132,7 +132,7 @@ public class CapabilityStatement : DomainResource {
 
     public class CapabilityStatementRestResourceInteraction : BackboneElement {
         public required TypeRestfulInteractionEnum Code { get; set; }
-        public  string? Documentation { get; set; }
+        public string? Documentation { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -141,7 +141,7 @@ public class CapabilityStatement : DomainResource {
 
     public class CapabilityStatementRestResourceOperation : BackboneElement {
         public required string Definition { get; set; }
-        public  string? Documentation { get; set; }
+        public string? Documentation { get; set; }
         public required string Name { get; set; }
 
         public override string ToString() => 
@@ -150,8 +150,8 @@ public class CapabilityStatement : DomainResource {
     }
 
     public class CapabilityStatementRestResourceSearchParam : BackboneElement {
-        public  string? Definition { get; set; }
-        public  string? Documentation { get; set; }
+        public string? Definition { get; set; }
+        public string? Documentation { get; set; }
         public required string Name { get; set; }
         public required SearchParamTypeEnum Type { get; set; }
 
@@ -161,9 +161,9 @@ public class CapabilityStatement : DomainResource {
     }
 
     public class CapabilityStatementRestSecurity : BackboneElement {
-        public  bool? Cors { get; set; }
-        public  string? Description { get; set; }
-        public  CodeableConcept[]? Service { get; set; }
+        public bool? Cors { get; set; }
+        public string? Description { get; set; }
+        public CodeableConcept[]? Service { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -172,8 +172,8 @@ public class CapabilityStatement : DomainResource {
 
     public class CapabilityStatementSoftware : BackboneElement {
         public required string Name { get; set; }
-        public  string? ReleaseDate { get; set; }
-        public  string? Version { get; set; }
+        public string? ReleaseDate { get; set; }
+        public string? Version { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

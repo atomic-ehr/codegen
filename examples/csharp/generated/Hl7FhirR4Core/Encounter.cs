@@ -6,29 +6,29 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Encounter : DomainResource {
-    public  ResourceReference[]? Account { get; set; }
-    public  ResourceReference[]? Appointment { get; set; }
-    public  ResourceReference[]? BasedOn { get; set; }
+    public ResourceReference[]? Account { get; set; }
+    public ResourceReference[]? Appointment { get; set; }
+    public ResourceReference[]? BasedOn { get; set; }
     public required Coding Class { get; set; }
-    public  EncounterClassHistory[]? ClassHistory { get; set; }
-    public  EncounterDiagnosis[]? Diagnosis { get; set; }
-    public  ResourceReference[]? EpisodeOfCare { get; set; }
-    public  EncounterHospitalization? Hospitalization { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  Duration? Length { get; set; }
-    public  EncounterLocation[]? Location { get; set; }
-    public  EncounterParticipant[]? Participant { get; set; }
-    public  ResourceReference? PartOf { get; set; }
-    public  Period? Period { get; set; }
-    public  CodeableConcept? Priority { get; set; }
-    public  CodeableConcept[]? ReasonCode { get; set; }
-    public  ResourceReference[]? ReasonReference { get; set; }
-    public  ResourceReference? ServiceProvider { get; set; }
-    public  CodeableConcept? ServiceType { get; set; }
+    public EncounterClassHistory[]? ClassHistory { get; set; }
+    public EncounterDiagnosis[]? Diagnosis { get; set; }
+    public ResourceReference[]? EpisodeOfCare { get; set; }
+    public EncounterHospitalization? Hospitalization { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public Duration? Length { get; set; }
+    public EncounterLocation[]? Location { get; set; }
+    public EncounterParticipant[]? Participant { get; set; }
+    public ResourceReference? PartOf { get; set; }
+    public Period? Period { get; set; }
+    public CodeableConcept? Priority { get; set; }
+    public CodeableConcept[]? ReasonCode { get; set; }
+    public ResourceReference[]? ReasonReference { get; set; }
+    public ResourceReference? ServiceProvider { get; set; }
+    public CodeableConcept? ServiceType { get; set; }
     public required EncounterStatusEnum Status { get; set; }
-    public  EncounterStatusHistory[]? StatusHistory { get; set; }
-    public  ResourceReference? Subject { get; set; }
-    public  CodeableConcept[]? Type { get; set; }
+    public EncounterStatusHistory[]? StatusHistory { get; set; }
+    public ResourceReference? Subject { get; set; }
+    public CodeableConcept[]? Type { get; set; }
 
     public class EncounterClassHistory : BackboneElement {
         public required Coding Class { get; set; }
@@ -41,8 +41,8 @@ public class Encounter : DomainResource {
 
     public class EncounterDiagnosis : BackboneElement {
         public required ResourceReference Condition { get; set; }
-        public  long? Rank { get; set; }
-        public  CodeableConcept? Use { get; set; }
+        public long? Rank { get; set; }
+        public CodeableConcept? Use { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -50,15 +50,15 @@ public class Encounter : DomainResource {
     }
 
     public class EncounterHospitalization : BackboneElement {
-        public  CodeableConcept? AdmitSource { get; set; }
-        public  ResourceReference? Destination { get; set; }
-        public  CodeableConcept[]? DietPreference { get; set; }
-        public  CodeableConcept? DischargeDisposition { get; set; }
-        public  ResourceReference? Origin { get; set; }
-        public  Identifier? PreAdmissionIdentifier { get; set; }
-        public  CodeableConcept? ReAdmission { get; set; }
-        public  CodeableConcept[]? SpecialArrangement { get; set; }
-        public  CodeableConcept[]? SpecialCourtesy { get; set; }
+        public CodeableConcept? AdmitSource { get; set; }
+        public ResourceReference? Destination { get; set; }
+        public CodeableConcept[]? DietPreference { get; set; }
+        public CodeableConcept? DischargeDisposition { get; set; }
+        public ResourceReference? Origin { get; set; }
+        public Identifier? PreAdmissionIdentifier { get; set; }
+        public CodeableConcept? ReAdmission { get; set; }
+        public CodeableConcept[]? SpecialArrangement { get; set; }
+        public CodeableConcept[]? SpecialCourtesy { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -67,9 +67,9 @@ public class Encounter : DomainResource {
 
     public class EncounterLocation : BackboneElement {
         public required ResourceReference Location { get; set; }
-        public  Period? Period { get; set; }
-        public  CodeableConcept? PhysicalType { get; set; }
-        public  EncounterLocationStatusEnum? Status { get; set; }
+        public Period? Period { get; set; }
+        public CodeableConcept? PhysicalType { get; set; }
+        public EncounterLocationStatusEnum? Status { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -77,9 +77,9 @@ public class Encounter : DomainResource {
     }
 
     public class EncounterParticipant : BackboneElement {
-        public  ResourceReference? Individual { get; set; }
-        public  Period? Period { get; set; }
-        public  CodeableConcept[]? Type { get; set; }
+        public ResourceReference? Individual { get; set; }
+        public Period? Period { get; set; }
+        public CodeableConcept[]? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

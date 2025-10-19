@@ -6,30 +6,30 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class AuditEvent : DomainResource {
-    public  AuditEventActionEnum? Action { get; set; }
+    public AuditEventActionEnum? Action { get; set; }
     public required AuditEventAgent[] Agent { get; set; }
-    public  AuditEventEntity[]? Entity { get; set; }
-    public  AuditEventOutcomeEnum? Outcome { get; set; }
-    public  string? OutcomeDesc { get; set; }
-    public  Period? Period { get; set; }
-    public  CodeableConcept[]? PurposeOfEvent { get; set; }
+    public AuditEventEntity[]? Entity { get; set; }
+    public AuditEventOutcomeEnum? Outcome { get; set; }
+    public string? OutcomeDesc { get; set; }
+    public Period? Period { get; set; }
+    public CodeableConcept[]? PurposeOfEvent { get; set; }
     public required string Recorded { get; set; }
     public required AuditEventSource Source { get; set; }
-    public  Coding[]? Subtype { get; set; }
+    public Coding[]? Subtype { get; set; }
     public required Coding Type { get; set; }
 
     public class AuditEventAgent : BackboneElement {
-        public  string? AltId { get; set; }
-        public  ResourceReference? Location { get; set; }
-        public  Coding? Media { get; set; }
-        public  string? Name { get; set; }
-        public  AuditEventAgentNetwork? Network { get; set; }
-        public  string[]? Policy { get; set; }
-        public  CodeableConcept[]? PurposeOfUse { get; set; }
+        public string? AltId { get; set; }
+        public ResourceReference? Location { get; set; }
+        public Coding? Media { get; set; }
+        public string? Name { get; set; }
+        public AuditEventAgentNetwork? Network { get; set; }
+        public string[]? Policy { get; set; }
+        public CodeableConcept[]? PurposeOfUse { get; set; }
         public required bool Requestor { get; set; }
-        public  CodeableConcept[]? Role { get; set; }
-        public  CodeableConcept? Type { get; set; }
-        public  ResourceReference? Who { get; set; }
+        public CodeableConcept[]? Role { get; set; }
+        public CodeableConcept? Type { get; set; }
+        public ResourceReference? Who { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -37,8 +37,8 @@ public class AuditEvent : DomainResource {
     }
 
     public class AuditEventAgentNetwork : BackboneElement {
-        public  string? Address { get; set; }
-        public  AuditEventAgentNetworkTypeEnum? Type { get; set; }
+        public string? Address { get; set; }
+        public AuditEventAgentNetworkTypeEnum? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -46,15 +46,15 @@ public class AuditEvent : DomainResource {
     }
 
     public class AuditEventEntity : BackboneElement {
-        public  string? Description { get; set; }
-        public  AuditEventEntityDetail[]? Detail { get; set; }
-        public  Coding? Lifecycle { get; set; }
-        public  string? Name { get; set; }
-        public  string? Query { get; set; }
-        public  Coding? Role { get; set; }
-        public  Coding[]? SecurityLabel { get; set; }
-        public  Coding? Type { get; set; }
-        public  ResourceReference? What { get; set; }
+        public string? Description { get; set; }
+        public AuditEventEntityDetail[]? Detail { get; set; }
+        public Coding? Lifecycle { get; set; }
+        public string? Name { get; set; }
+        public string? Query { get; set; }
+        public Coding? Role { get; set; }
+        public Coding[]? SecurityLabel { get; set; }
+        public Coding? Type { get; set; }
+        public ResourceReference? What { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -63,8 +63,8 @@ public class AuditEvent : DomainResource {
 
     public class AuditEventEntityDetail : BackboneElement {
         public required string Type { get; set; }
-        public  string? ValueBase64binary { get; set; }
-        public  string? ValueString { get; set; }
+        public string? ValueBase64binary { get; set; }
+        public string? ValueString { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -73,8 +73,8 @@ public class AuditEvent : DomainResource {
 
     public class AuditEventSource : BackboneElement {
         public required ResourceReference Observer { get; set; }
-        public  string? Site { get; set; }
-        public  Coding[]? Type { get; set; }
+        public string? Site { get; set; }
+        public Coding[]? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

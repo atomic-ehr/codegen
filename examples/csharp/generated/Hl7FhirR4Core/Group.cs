@@ -6,26 +6,26 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Group : DomainResource {
-    public  bool? Active { get; set; }
+    public bool? Active { get; set; }
     public required bool Actual { get; set; }
-    public  GroupCharacteristic[]? Characteristic { get; set; }
-    public  CodeableConcept? Code { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  ResourceReference? ManagingEntity { get; set; }
-    public  GroupMember[]? Member { get; set; }
-    public  string? Name { get; set; }
-    public  long? Quantity { get; set; }
+    public GroupCharacteristic[]? Characteristic { get; set; }
+    public CodeableConcept? Code { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public ResourceReference? ManagingEntity { get; set; }
+    public GroupMember[]? Member { get; set; }
+    public string? Name { get; set; }
+    public long? Quantity { get; set; }
     public required GroupTypeEnum Type { get; set; }
 
     public class GroupCharacteristic : BackboneElement {
         public required CodeableConcept Code { get; set; }
         public required bool Exclude { get; set; }
-        public  Period? Period { get; set; }
-        public  bool? ValueBoolean { get; set; }
-        public  CodeableConcept? ValueCodeableConcept { get; set; }
-        public  Quantity? ValueQuantity { get; set; }
-        public  Range? ValueRange { get; set; }
-        public  ResourceReference? ValueReference { get; set; }
+        public Period? Period { get; set; }
+        public bool? ValueBoolean { get; set; }
+        public CodeableConcept? ValueCodeableConcept { get; set; }
+        public Quantity? ValueQuantity { get; set; }
+        public Range? ValueRange { get; set; }
+        public ResourceReference? ValueReference { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -34,8 +34,8 @@ public class Group : DomainResource {
 
     public class GroupMember : BackboneElement {
         public required ResourceReference Entity { get; set; }
-        public  bool? Inactive { get; set; }
-        public  Period? Period { get; set; }
+        public bool? Inactive { get; set; }
+        public Period? Period { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

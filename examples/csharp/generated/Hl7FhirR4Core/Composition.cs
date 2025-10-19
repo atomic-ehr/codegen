@@ -6,26 +6,26 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Composition : DomainResource {
-    public  CompositionAttester[]? Attester { get; set; }
+    public CompositionAttester[]? Attester { get; set; }
     public required ResourceReference[] Author { get; set; }
-    public  CodeableConcept[]? Category { get; set; }
-    public  DocumentConfidentialityEnum? Confidentiality { get; set; }
-    public  ResourceReference? Custodian { get; set; }
+    public CodeableConcept[]? Category { get; set; }
+    public DocumentConfidentialityEnum? Confidentiality { get; set; }
+    public ResourceReference? Custodian { get; set; }
     public required string Date { get; set; }
-    public  ResourceReference? Encounter { get; set; }
-    public  CompositionEvent[]? Event { get; set; }
-    public  Identifier? Identifier { get; set; }
-    public  CompositionRelatesTo[]? RelatesTo { get; set; }
-    public  CompositionSection[]? Section { get; set; }
+    public ResourceReference? Encounter { get; set; }
+    public CompositionEvent[]? Event { get; set; }
+    public Identifier? Identifier { get; set; }
+    public CompositionRelatesTo[]? RelatesTo { get; set; }
+    public CompositionSection[]? Section { get; set; }
     public required CompositionStatusEnum Status { get; set; }
-    public  ResourceReference? Subject { get; set; }
+    public ResourceReference? Subject { get; set; }
     public required string Title { get; set; }
     public required CodeableConcept Type { get; set; }
 
     public class CompositionAttester : BackboneElement {
         public required CompositionAttestationModeEnum Mode { get; set; }
-        public  ResourceReference? Party { get; set; }
-        public  string? Time { get; set; }
+        public ResourceReference? Party { get; set; }
+        public string? Time { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -33,9 +33,9 @@ public class Composition : DomainResource {
     }
 
     public class CompositionEvent : BackboneElement {
-        public  CodeableConcept[]? Code { get; set; }
-        public  ResourceReference[]? Detail { get; set; }
-        public  Period? Period { get; set; }
+        public CodeableConcept[]? Code { get; set; }
+        public ResourceReference[]? Detail { get; set; }
+        public Period? Period { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -44,8 +44,8 @@ public class Composition : DomainResource {
 
     public class CompositionRelatesTo : BackboneElement {
         public required DocumentRelationshipTypeEnum Code { get; set; }
-        public  Identifier? TargetIdentifier { get; set; }
-        public  ResourceReference? TargetReference { get; set; }
+        public Identifier? TargetIdentifier { get; set; }
+        public ResourceReference? TargetReference { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -53,16 +53,16 @@ public class Composition : DomainResource {
     }
 
     public class CompositionSection : BackboneElement {
-        public  ResourceReference[]? Author { get; set; }
-        public  CodeableConcept? Code { get; set; }
-        public  CodeableConcept? EmptyReason { get; set; }
-        public  ResourceReference[]? Entry { get; set; }
-        public  ResourceReference? Focus { get; set; }
-        public  SectionModeEnum? Mode { get; set; }
-        public  CodeableConcept? OrderedBy { get; set; }
-        public  CompositionSection[]? Section { get; set; }
-        public  Narrative? Text { get; set; }
-        public  string? Title { get; set; }
+        public ResourceReference[]? Author { get; set; }
+        public CodeableConcept? Code { get; set; }
+        public CodeableConcept? EmptyReason { get; set; }
+        public ResourceReference[]? Entry { get; set; }
+        public ResourceReference? Focus { get; set; }
+        public SectionModeEnum? Mode { get; set; }
+        public CodeableConcept? OrderedBy { get; set; }
+        public CompositionSection[]? Section { get; set; }
+        public Narrative? Text { get; set; }
+        public string? Title { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

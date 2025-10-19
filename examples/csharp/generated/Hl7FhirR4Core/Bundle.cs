@@ -6,21 +6,21 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Bundle : Resource {
-    public  BundleEntry[]? Entry { get; set; }
-    public  Identifier? Identifier { get; set; }
-    public  BundleLink[]? Link { get; set; }
-    public  Signature? Signature { get; set; }
-    public  string? Timestamp { get; set; }
-    public  long? Total { get; set; }
+    public BundleEntry[]? Entry { get; set; }
+    public Identifier? Identifier { get; set; }
+    public BundleLink[]? Link { get; set; }
+    public Signature? Signature { get; set; }
+    public string? Timestamp { get; set; }
+    public long? Total { get; set; }
     public required BundleTypeEnum Type { get; set; }
 
     public class BundleEntry : BackboneElement {
-        public  string? FullUrl { get; set; }
-        public  BundleLink[]? Link { get; set; }
-        public  BundleEntryRequest? Request { get; set; }
-        public  Resource? Resource { get; set; }
-        public  BundleEntryResponse? Response { get; set; }
-        public  BundleEntrySearch? Search { get; set; }
+        public string? FullUrl { get; set; }
+        public BundleLink[]? Link { get; set; }
+        public BundleEntryRequest? Request { get; set; }
+        public Resource? Resource { get; set; }
+        public BundleEntryResponse? Response { get; set; }
+        public BundleEntrySearch? Search { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -28,10 +28,10 @@ public class Bundle : Resource {
     }
 
     public class BundleEntryRequest : BackboneElement {
-        public  string? IfMatch { get; set; }
-        public  string? IfModifiedSince { get; set; }
-        public  string? IfNoneExist { get; set; }
-        public  string? IfNoneMatch { get; set; }
+        public string? IfMatch { get; set; }
+        public string? IfModifiedSince { get; set; }
+        public string? IfNoneExist { get; set; }
+        public string? IfNoneMatch { get; set; }
         public required HttpverbEnum Method { get; set; }
         public required string Url { get; set; }
 
@@ -41,10 +41,10 @@ public class Bundle : Resource {
     }
 
     public class BundleEntryResponse : BackboneElement {
-        public  string? Etag { get; set; }
-        public  string? LastModified { get; set; }
-        public  string? Location { get; set; }
-        public  Resource? Outcome { get; set; }
+        public string? Etag { get; set; }
+        public string? LastModified { get; set; }
+        public string? Location { get; set; }
+        public Resource? Outcome { get; set; }
         public required string Status { get; set; }
 
         public override string ToString() => 
@@ -53,8 +53,8 @@ public class Bundle : Resource {
     }
 
     public class BundleEntrySearch : BackboneElement {
-        public  SearchEntryModeEnum? Mode { get; set; }
-        public  decimal? Score { get; set; }
+        public SearchEntryModeEnum? Mode { get; set; }
+        public decimal? Score { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

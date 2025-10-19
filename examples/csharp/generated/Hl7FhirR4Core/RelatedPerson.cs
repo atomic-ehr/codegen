@@ -6,22 +6,22 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class RelatedPerson : DomainResource {
-    public  bool? Active { get; set; }
-    public  Address[]? Address { get; set; }
-    public  string? BirthDate { get; set; }
-    public  RelatedPersonCommunication[]? Communication { get; set; }
-    public  AdministrativeGenderEnum? Gender { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  HumanName[]? Name { get; set; }
+    public bool? Active { get; set; }
+    public Address[]? Address { get; set; }
+    public string? BirthDate { get; set; }
+    public RelatedPersonCommunication[]? Communication { get; set; }
+    public AdministrativeGenderEnum? Gender { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public HumanName[]? Name { get; set; }
     public required ResourceReference Patient { get; set; }
-    public  Period? Period { get; set; }
-    public  Attachment[]? Photo { get; set; }
-    public  CodeableConcept[]? Relationship { get; set; }
-    public  ContactPoint[]? Telecom { get; set; }
+    public Period? Period { get; set; }
+    public Attachment[]? Photo { get; set; }
+    public CodeableConcept[]? Relationship { get; set; }
+    public ContactPoint[]? Telecom { get; set; }
 
     public class RelatedPersonCommunication : BackboneElement {
         public required CodeableConcept Language { get; set; }
-        public  bool? Preferred { get; set; }
+        public bool? Preferred { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

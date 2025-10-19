@@ -6,24 +6,24 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class MedicationStatement : DomainResource {
-    public  ResourceReference[]? BasedOn { get; set; }
-    public  CodeableConcept? Category { get; set; }
-    public  ResourceReference? Context { get; set; }
-    public  string? DateAsserted { get; set; }
-    public  ResourceReference[]? DerivedFrom { get; set; }
-    public  Dosage[]? Dosage { get; set; }
-    public  string? EffectiveDateTime { get; set; }
-    public  Period? EffectivePeriod { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  ResourceReference? InformationSource { get; set; }
-    public  CodeableConcept? MedicationCodeableConcept { get; set; }
-    public  ResourceReference? MedicationReference { get; set; }
-    public  Annotation[]? Note { get; set; }
-    public  ResourceReference[]? PartOf { get; set; }
-    public  CodeableConcept[]? ReasonCode { get; set; }
-    public  ResourceReference[]? ReasonReference { get; set; }
+    public ResourceReference[]? BasedOn { get; set; }
+    public CodeableConcept? Category { get; set; }
+    public ResourceReference? Context { get; set; }
+    public string? DateAsserted { get; set; }
+    public ResourceReference[]? DerivedFrom { get; set; }
+    public Dosage[]? Dosage { get; set; }
+    public string? EffectiveDateTime { get; set; }
+    public Period? EffectivePeriod { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public ResourceReference? InformationSource { get; set; }
+    public CodeableConcept? MedicationCodeableConcept { get; set; }
+    public ResourceReference? MedicationReference { get; set; }
+    public Annotation[]? Note { get; set; }
+    public ResourceReference[]? PartOf { get; set; }
+    public CodeableConcept[]? ReasonCode { get; set; }
+    public ResourceReference[]? ReasonReference { get; set; }
     public required MedicationStatementStatusEnum Status { get; set; }
-    public  CodeableConcept[]? StatusReason { get; set; }
+    public CodeableConcept[]? StatusReason { get; set; }
     public required ResourceReference Subject { get; set; }
 
     public override string ToString() => 

@@ -6,21 +6,21 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class SubstanceNucleicAcid : DomainResource {
-    public  string? AreaOfHybridisation { get; set; }
-    public  int? NumberOfSubunits { get; set; }
-    public  CodeableConcept? OligoNucleotideType { get; set; }
-    public  CodeableConcept? SequenceType { get; set; }
-    public  SubstanceNucleicAcidSubunit[]? Subunit { get; set; }
+    public string? AreaOfHybridisation { get; set; }
+    public int? NumberOfSubunits { get; set; }
+    public CodeableConcept? OligoNucleotideType { get; set; }
+    public CodeableConcept? SequenceType { get; set; }
+    public SubstanceNucleicAcidSubunit[]? Subunit { get; set; }
 
     public class SubstanceNucleicAcidSubunit : BackboneElement {
-        public  CodeableConcept? FivePrime { get; set; }
-        public  int? Length { get; set; }
-        public  SubstanceNucleicAcidSubunitLinkage[]? Linkage { get; set; }
-        public  string? Sequence { get; set; }
-        public  Attachment? SequenceAttachment { get; set; }
-        public  int? Subunit { get; set; }
-        public  SubstanceNucleicAcidSubunitSugar[]? Sugar { get; set; }
-        public  CodeableConcept? ThreePrime { get; set; }
+        public CodeableConcept? FivePrime { get; set; }
+        public int? Length { get; set; }
+        public SubstanceNucleicAcidSubunitLinkage[]? Linkage { get; set; }
+        public string? Sequence { get; set; }
+        public Attachment? SequenceAttachment { get; set; }
+        public int? Subunit { get; set; }
+        public SubstanceNucleicAcidSubunitSugar[]? Sugar { get; set; }
+        public CodeableConcept? ThreePrime { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -28,10 +28,10 @@ public class SubstanceNucleicAcid : DomainResource {
     }
 
     public class SubstanceNucleicAcidSubunitLinkage : BackboneElement {
-        public  string? Connectivity { get; set; }
-        public  Identifier? Identifier { get; set; }
-        public  string? Name { get; set; }
-        public  string? ResidueSite { get; set; }
+        public string? Connectivity { get; set; }
+        public Identifier? Identifier { get; set; }
+        public string? Name { get; set; }
+        public string? ResidueSite { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -39,9 +39,9 @@ public class SubstanceNucleicAcid : DomainResource {
     }
 
     public class SubstanceNucleicAcidSubunitSugar : BackboneElement {
-        public  Identifier? Identifier { get; set; }
-        public  string? Name { get; set; }
-        public  string? ResidueSite { get; set; }
+        public Identifier? Identifier { get; set; }
+        public string? Name { get; set; }
+        public string? ResidueSite { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

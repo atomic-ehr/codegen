@@ -6,36 +6,36 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class OperationDefinition : DomainResource {
-    public  bool? AffectsState { get; set; }
-    public  string? Base { get; set; }
+    public bool? AffectsState { get; set; }
+    public string? Base { get; set; }
     public required string Code { get; set; }
-    public  string? Comment { get; set; }
-    public  ContactDetail[]? Contact { get; set; }
-    public  string? Date { get; set; }
-    public  string? Description { get; set; }
-    public  bool? Experimental { get; set; }
-    public  string? InputProfile { get; set; }
+    public string? Comment { get; set; }
+    public ContactDetail[]? Contact { get; set; }
+    public string? Date { get; set; }
+    public string? Description { get; set; }
+    public bool? Experimental { get; set; }
+    public string? InputProfile { get; set; }
     public required bool Instance { get; set; }
-    public  CodeableConcept[]? Jurisdiction { get; set; }
+    public CodeableConcept[]? Jurisdiction { get; set; }
     public required OperationKindEnum Kind { get; set; }
     public required string Name { get; set; }
-    public  string? OutputProfile { get; set; }
-    public  OperationDefinitionOverload[]? Overload { get; set; }
-    public  OperationDefinitionParameter[]? Parameter { get; set; }
-    public  string? Publisher { get; set; }
-    public  string? Purpose { get; set; }
-    public  string[]? Resource { get; set; }
+    public string? OutputProfile { get; set; }
+    public OperationDefinitionOverload[]? Overload { get; set; }
+    public OperationDefinitionParameter[]? Parameter { get; set; }
+    public string? Publisher { get; set; }
+    public string? Purpose { get; set; }
+    public string[]? Resource { get; set; }
     public required PublicationStatusEnum Status { get; set; }
     public required bool System { get; set; }
-    public  string? Title { get; set; }
+    public string? Title { get; set; }
     public required bool Type { get; set; }
-    public  string? Url { get; set; }
-    public  UsageContext[]? UseContext { get; set; }
-    public  string? Version { get; set; }
+    public string? Url { get; set; }
+    public UsageContext[]? UseContext { get; set; }
+    public string? Version { get; set; }
 
     public class OperationDefinitionOverload : BackboneElement {
-        public  string? Comment { get; set; }
-        public  string[]? ParameterName { get; set; }
+        public string? Comment { get; set; }
+        public string[]? ParameterName { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -43,16 +43,16 @@ public class OperationDefinition : DomainResource {
     }
 
     public class OperationDefinitionParameter : BackboneElement {
-        public  OperationDefinitionParameterBinding? Binding { get; set; }
-        public  string? Documentation { get; set; }
+        public OperationDefinitionParameterBinding? Binding { get; set; }
+        public string? Documentation { get; set; }
         public required string Max { get; set; }
         public required int Min { get; set; }
         public required string Name { get; set; }
-        public  OperationDefinitionParameter[]? Part { get; set; }
-        public  OperationDefinitionParameterReferencedFrom[]? ReferencedFrom { get; set; }
-        public  SearchParamTypeEnum? SearchType { get; set; }
-        public  string[]? TargetProfile { get; set; }
-        public  string? Type { get; set; }
+        public OperationDefinitionParameter[]? Part { get; set; }
+        public OperationDefinitionParameterReferencedFrom[]? ReferencedFrom { get; set; }
+        public SearchParamTypeEnum? SearchType { get; set; }
+        public string[]? TargetProfile { get; set; }
+        public string? Type { get; set; }
         public required OperationParameterUseEnum Use { get; set; }
 
         public override string ToString() => 
@@ -71,7 +71,7 @@ public class OperationDefinition : DomainResource {
 
     public class OperationDefinitionParameterReferencedFrom : BackboneElement {
         public required string Source { get; set; }
-        public  string? SourceId { get; set; }
+        public string? SourceId { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

@@ -7,3297 +7,3297 @@ using System.ComponentModel;
 namespace SuperNameSpace.Hl7FhirR4Core;
 public enum AddressTypeEnum {
     [Description("postal")]
-    Postal ,
+    Postal,
     [Description("physical")]
-    Physical ,
+    Physical,
     [Description("both")]
-    Both ,
+    Both,
 }
 
 public enum AddressUseEnum {
     [Description("home")]
-    Home ,
+    Home,
     [Description("work")]
-    Work ,
+    Work,
     [Description("temp")]
-    Temp ,
+    Temp,
     [Description("old")]
-    Old ,
+    Old,
     [Description("billing")]
-    Billing ,
+    Billing,
 }
 
 public enum ContactPointSystemEnum {
     [Description("phone")]
-    Phone ,
+    Phone,
     [Description("fax")]
-    Fax ,
+    Fax,
     [Description("email")]
-    Email ,
+    Email,
     [Description("pager")]
-    Pager ,
+    Pager,
     [Description("url")]
-    Url ,
+    Url,
     [Description("sms")]
-    Sms ,
+    Sms,
     [Description("other")]
-    Other ,
+    Other,
 }
 
 public enum ContactPointUseEnum {
     [Description("home")]
-    Home ,
+    Home,
     [Description("work")]
-    Work ,
+    Work,
     [Description("temp")]
-    Temp ,
+    Temp,
     [Description("old")]
-    Old ,
+    Old,
     [Description("mobile")]
-    Mobile ,
+    Mobile,
 }
 
 public enum ContributorTypeEnum {
     [Description("author")]
-    Author ,
+    Author,
     [Description("editor")]
-    Editor ,
+    Editor,
     [Description("reviewer")]
-    Reviewer ,
+    Reviewer,
     [Description("endorser")]
-    Endorser ,
+    Endorser,
 }
 
 public enum SortDirectionEnum {
     [Description("ascending")]
-    Ascending ,
+    Ascending,
     [Description("descending")]
-    Descending ,
+    Descending,
 }
 
 public enum PropertyRepresentationEnum {
     [Description("xmlAttr")]
-    XmlAttr ,
+    XmlAttr,
     [Description("xmlText")]
-    XmlText ,
+    XmlText,
     [Description("typeAttr")]
-    TypeAttr ,
+    TypeAttr,
     [Description("cdaText")]
-    CdaText ,
+    CdaText,
     [Description("xhtml")]
-    Xhtml ,
+    Xhtml,
 }
 
 public enum BindingStrengthEnum {
     [Description("required")]
-    Required ,
+    Required,
     [Description("extensible")]
-    Extensible ,
+    Extensible,
     [Description("preferred")]
-    Preferred ,
+    Preferred,
     [Description("example")]
-    Example ,
+    Example,
 }
 
 public enum ConstraintSeverityEnum {
     [Description("error")]
-    Error ,
+    Error,
     [Description("warning")]
-    Warning ,
+    Warning,
 }
 
 public enum SlicingRulesEnum {
     [Description("closed")]
-    Closed ,
+    Closed,
     [Description("open")]
-    Open ,
+    Open,
     [Description("openAtEnd")]
-    OpenAtEnd ,
+    OpenAtEnd,
 }
 
 public enum DiscriminatorTypeEnum {
     [Description("value")]
-    Value ,
+    Value,
     [Description("exists")]
-    Exists ,
+    Exists,
     [Description("pattern")]
-    Pattern ,
+    Pattern,
     [Description("type")]
-    Type ,
+    Type,
     [Description("profile")]
-    Profile ,
+    Profile,
 }
 
 public enum AggregationModeEnum {
     [Description("contained")]
-    Contained ,
+    Contained,
     [Description("referenced")]
-    Referenced ,
+    Referenced,
     [Description("bundled")]
-    Bundled ,
+    Bundled,
 }
 
 public enum ReferenceVersionRulesEnum {
     [Description("either")]
-    Either ,
+    Either,
     [Description("independent")]
-    Independent ,
+    Independent,
     [Description("specific")]
-    Specific ,
+    Specific,
 }
 
 public enum NameUseEnum {
     [Description("usual")]
-    Usual ,
+    Usual,
     [Description("official")]
-    Official ,
+    Official,
     [Description("temp")]
-    Temp ,
+    Temp,
     [Description("nickname")]
-    Nickname ,
+    Nickname,
     [Description("anonymous")]
-    Anonymous ,
+    Anonymous,
     [Description("old")]
-    Old ,
+    Old,
     [Description("maiden")]
-    Maiden ,
+    Maiden,
 }
 
 public enum IdentifierUseEnum {
     [Description("usual")]
-    Usual ,
+    Usual,
     [Description("official")]
-    Official ,
+    Official,
     [Description("temp")]
-    Temp ,
+    Temp,
     [Description("secondary")]
-    Secondary ,
+    Secondary,
     [Description("old")]
-    Old ,
+    Old,
 }
 
 public enum NarrativeStatusEnum {
     [Description("generated")]
-    Generated ,
+    Generated,
     [Description("extensions")]
-    Extensions ,
+    Extensions,
     [Description("additional")]
-    Additional ,
+    Additional,
     [Description("empty")]
-    Empty ,
+    Empty,
 }
 
 public enum ParameterUseEnum {
     [Description("in")]
-    In ,
+    In,
     [Description("out")]
-    Out ,
+    Out,
 }
 
 public enum QuantityComparatorEnum {
     [Description("<")]
-    Less ,
+    Less,
     [Description("<=")]
-    LessOrEqual ,
+    LessOrEqual,
     [Description(">=")]
-    GreaterOrEqual ,
+    GreaterOrEqual,
     [Description(">")]
-    Greater ,
+    Greater,
 }
 
 public enum RelatedArtifactTypeEnum {
     [Description("documentation")]
-    Documentation ,
+    Documentation,
     [Description("justification")]
-    Justification ,
+    Justification,
     [Description("citation")]
-    Citation ,
+    Citation,
     [Description("predecessor")]
-    Predecessor ,
+    Predecessor,
     [Description("successor")]
-    Successor ,
+    Successor,
     [Description("derived-from")]
-    DerivedDashFrom ,
+    DerivedDashFrom,
     [Description("depends-on")]
-    DependsDashOn ,
+    DependsDashOn,
     [Description("composed-of")]
-    ComposedDashOf ,
+    ComposedDashOf,
 }
 
 public enum DayOfWeekEnum {
     [Description("mon")]
-    Mon ,
+    Mon,
     [Description("tue")]
-    Tue ,
+    Tue,
     [Description("wed")]
-    Wed ,
+    Wed,
     [Description("thu")]
-    Thu ,
+    Thu,
     [Description("fri")]
-    Fri ,
+    Fri,
     [Description("sat")]
-    Sat ,
+    Sat,
     [Description("sun")]
-    Sun ,
+    Sun,
 }
 
 public enum UnitsOfTimeEnum {
     [Description("s")]
-    S ,
+    S,
     [Description("min")]
-    Min ,
+    Min,
     [Description("h")]
-    H ,
+    H,
     [Description("d")]
-    D ,
+    D,
     [Description("wk")]
-    Wk ,
+    Wk,
     [Description("mo")]
-    Mo ,
+    Mo,
     [Description("a")]
-    A ,
+    A,
 }
 
 public enum EventTimingEnum {
     [Description("MORN")]
-    MORN ,
+    MORN,
     [Description("MORN.early")]
-    MORNDotearly ,
+    MORNDotearly,
     [Description("MORN.late")]
-    MORNDotlate ,
+    MORNDotlate,
     [Description("NOON")]
-    NOON ,
+    NOON,
     [Description("AFT")]
-    AFT ,
+    AFT,
     [Description("AFT.early")]
-    AFTDotearly ,
+    AFTDotearly,
     [Description("AFT.late")]
-    AFTDotlate ,
+    AFTDotlate,
     [Description("EVE")]
-    EVE ,
+    EVE,
     [Description("EVE.early")]
-    EVEDotearly ,
+    EVEDotearly,
     [Description("EVE.late")]
-    EVEDotlate ,
+    EVEDotlate,
     [Description("NIGHT")]
-    NIGHT ,
+    NIGHT,
     [Description("PHS")]
-    PHS ,
+    PHS,
     [Description("HS")]
-    HS ,
+    HS,
     [Description("WAKE")]
-    WAKE ,
+    WAKE,
     [Description("C")]
-    C ,
+    C,
     [Description("CM")]
-    CM ,
+    CM,
     [Description("CD")]
-    CD ,
+    CD,
     [Description("CV")]
-    CV ,
+    CV,
     [Description("AC")]
-    AC ,
+    AC,
     [Description("ACM")]
-    ACM ,
+    ACM,
     [Description("ACD")]
-    ACD ,
+    ACD,
     [Description("ACV")]
-    ACV ,
+    ACV,
     [Description("PC")]
-    PC ,
+    PC,
     [Description("PCM")]
-    PCM ,
+    PCM,
     [Description("PCD")]
-    PCD ,
+    PCD,
     [Description("PCV")]
-    PCV ,
+    PCV,
 }
 
 public enum TriggerTypeEnum {
     [Description("named-event")]
-    NamedDashEvent ,
+    NamedDashEvent,
     [Description("periodic")]
-    Periodic ,
+    Periodic,
     [Description("data-changed")]
-    DataDashChanged ,
+    DataDashChanged,
     [Description("data-added")]
-    DataDashAdded ,
+    DataDashAdded,
     [Description("data-modified")]
-    DataDashModified ,
+    DataDashModified,
     [Description("data-removed")]
-    DataDashRemoved ,
+    DataDashRemoved,
     [Description("data-accessed")]
-    DataDashAccessed ,
+    DataDashAccessed,
     [Description("data-access-ended")]
-    DataDashAccessDashEnded ,
+    DataDashAccessDashEnded,
 }
 
 public enum AccountStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("inactive")]
-    Inactive ,
+    Inactive,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("on-hold")]
-    OnDashHold ,
+    OnDashHold,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum RequestIntentEnum {
     [Description("proposal")]
-    Proposal ,
+    Proposal,
     [Description("plan")]
-    Plan ,
+    Plan,
     [Description("directive")]
-    Directive ,
+    Directive,
     [Description("order")]
-    Order ,
+    Order,
     [Description("original-order")]
-    OriginalDashOrder ,
+    OriginalDashOrder,
     [Description("reflex-order")]
-    ReflexDashOrder ,
+    ReflexDashOrder,
     [Description("filler-order")]
-    FillerDashOrder ,
+    FillerDashOrder,
     [Description("instance-order")]
-    InstanceDashOrder ,
+    InstanceDashOrder,
     [Description("option")]
-    Option ,
+    Option,
 }
 
 public enum ActivityDefinitionKindEnum {
     [Description("Appointment")]
-    Appointment ,
+    Appointment,
     [Description("AppointmentResponse")]
-    AppointmentResponse ,
+    AppointmentResponse,
     [Description("CarePlan")]
-    CarePlan ,
+    CarePlan,
     [Description("Claim")]
-    Claim ,
+    Claim,
     [Description("CommunicationRequest")]
-    CommunicationRequest ,
+    CommunicationRequest,
     [Description("Contract")]
-    Contract ,
+    Contract,
     [Description("DeviceRequest")]
-    DeviceRequest ,
+    DeviceRequest,
     [Description("EnrollmentRequest")]
-    EnrollmentRequest ,
+    EnrollmentRequest,
     [Description("ImmunizationRecommendation")]
-    ImmunizationRecommendation ,
+    ImmunizationRecommendation,
     [Description("MedicationRequest")]
-    MedicationRequest ,
+    MedicationRequest,
     [Description("NutritionOrder")]
-    NutritionOrder ,
+    NutritionOrder,
     [Description("ServiceRequest")]
-    ServiceRequest ,
+    ServiceRequest,
     [Description("SupplyRequest")]
-    SupplyRequest ,
+    SupplyRequest,
     [Description("Task")]
-    Task ,
+    Task,
     [Description("VisionPrescription")]
-    VisionPrescription ,
+    VisionPrescription,
 }
 
 public enum RequestPriorityEnum {
     [Description("routine")]
-    Routine ,
+    Routine,
     [Description("urgent")]
-    Urgent ,
+    Urgent,
     [Description("asap")]
-    Asap ,
+    Asap,
     [Description("stat")]
-    Stat ,
+    Stat,
 }
 
 public enum PublicationStatusEnum {
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("active")]
-    Active ,
+    Active,
     [Description("retired")]
-    Retired ,
+    Retired,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum ActivityParticipantTypeEnum {
     [Description("patient")]
-    Patient ,
+    Patient,
     [Description("practitioner")]
-    Practitioner ,
+    Practitioner,
     [Description("related-person")]
-    RelatedDashPerson ,
+    RelatedDashPerson,
     [Description("device")]
-    Device ,
+    Device,
 }
 
 public enum AdverseEventActualityEnum {
     [Description("actual")]
-    Actual ,
+    Actual,
     [Description("potential")]
-    Potential ,
+    Potential,
 }
 
 public enum AllergyIntoleranceCategoryEnum {
     [Description("food")]
-    Food ,
+    Food,
     [Description("medication")]
-    Medication ,
+    Medication,
     [Description("environment")]
-    Environment ,
+    Environment,
     [Description("biologic")]
-    Biologic ,
+    Biologic,
 }
 
 public enum AllergyIntoleranceCriticalityEnum {
     [Description("low")]
-    Low ,
+    Low,
     [Description("high")]
-    High ,
+    High,
     [Description("unable-to-assess")]
-    UnableDashToDashAssess ,
+    UnableDashToDashAssess,
 }
 
 public enum AllergyIntoleranceTypeEnum {
     [Description("allergy")]
-    Allergy ,
+    Allergy,
     [Description("intolerance")]
-    Intolerance ,
+    Intolerance,
 }
 
 public enum AllergyIntoleranceSeverityEnum {
     [Description("mild")]
-    Mild ,
+    Mild,
     [Description("moderate")]
-    Moderate ,
+    Moderate,
     [Description("severe")]
-    Severe ,
+    Severe,
 }
 
 public enum AppointmentStatusEnum {
     [Description("proposed")]
-    Proposed ,
+    Proposed,
     [Description("pending")]
-    Pending ,
+    Pending,
     [Description("booked")]
-    Booked ,
+    Booked,
     [Description("arrived")]
-    Arrived ,
+    Arrived,
     [Description("fulfilled")]
-    Fulfilled ,
+    Fulfilled,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("noshow")]
-    Noshow ,
+    Noshow,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("checked-in")]
-    CheckedDashIn ,
+    CheckedDashIn,
     [Description("waitlist")]
-    Waitlist ,
+    Waitlist,
 }
 
 public enum ParticipantRequiredEnum {
     [Description("required")]
-    Required ,
+    Required,
     [Description("optional")]
-    Optional ,
+    Optional,
     [Description("information-only")]
-    InformationDashOnly ,
+    InformationDashOnly,
 }
 
 public enum ParticipationStatusEnum {
     [Description("accepted")]
-    Accepted ,
+    Accepted,
     [Description("declined")]
-    Declined ,
+    Declined,
     [Description("tentative")]
-    Tentative ,
+    Tentative,
     [Description("needs-action")]
-    NeedsDashAction ,
+    NeedsDashAction,
 }
 
 public enum ParticipantStatusEnum {
     [Description("accepted")]
-    Accepted ,
+    Accepted,
     [Description("declined")]
-    Declined ,
+    Declined,
     [Description("tentative")]
-    Tentative ,
+    Tentative,
     [Description("needs-action")]
-    NeedsDashAction ,
+    NeedsDashAction,
 }
 
 public enum AuditEventActionEnum {
     [Description("C")]
-    C ,
+    C,
     [Description("R")]
-    R ,
+    R,
     [Description("U")]
-    U ,
+    U,
     [Description("D")]
-    D ,
+    D,
     [Description("E")]
-    E ,
+    E,
 }
 
 public enum AuditEventOutcomeEnum {
     [Description("0")]
-    _0 ,
+    _0,
     [Description("4")]
-    _4 ,
+    _4,
     [Description("8")]
-    _8 ,
+    _8,
     [Description("12")]
-    _12 ,
+    _12,
 }
 
 public enum AuditEventAgentNetworkTypeEnum {
     [Description("1")]
-    _1 ,
+    _1,
     [Description("2")]
-    _2 ,
+    _2,
     [Description("3")]
-    _3 ,
+    _3,
     [Description("4")]
-    _4 ,
+    _4,
     [Description("5")]
-    _5 ,
+    _5,
 }
 
 public enum BiologicallyDerivedProductCategoryEnum {
     [Description("organ")]
-    Organ ,
+    Organ,
     [Description("tissue")]
-    Tissue ,
+    Tissue,
     [Description("fluid")]
-    Fluid ,
+    Fluid,
     [Description("cells")]
-    Cells ,
+    Cells,
     [Description("biologicalAgent")]
-    BiologicalAgent ,
+    BiologicalAgent,
 }
 
 public enum BiologicallyDerivedProductStatusEnum {
     [Description("available")]
-    Available ,
+    Available,
     [Description("unavailable")]
-    Unavailable ,
+    Unavailable,
 }
 
 public enum BiologicallyDerivedProductStorageScaleEnum {
     [Description("farenheit")]
-    Farenheit ,
+    Farenheit,
     [Description("celsius")]
-    Celsius ,
+    Celsius,
     [Description("kelvin")]
-    Kelvin ,
+    Kelvin,
 }
 
 public enum BundleTypeEnum {
     [Description("document")]
-    Document ,
+    Document,
     [Description("message")]
-    Message ,
+    Message,
     [Description("transaction")]
-    Transaction ,
+    Transaction,
     [Description("transaction-response")]
-    TransactionDashResponse ,
+    TransactionDashResponse,
     [Description("batch")]
-    Batch ,
+    Batch,
     [Description("batch-response")]
-    BatchDashResponse ,
+    BatchDashResponse,
     [Description("history")]
-    History ,
+    History,
     [Description("searchset")]
-    Searchset ,
+    Searchset,
     [Description("collection")]
-    Collection ,
+    Collection,
 }
 
 public enum HttpverbEnum {
     [Description("GET")]
-    GET ,
+    GET,
     [Description("HEAD")]
-    HEAD ,
+    HEAD,
     [Description("POST")]
-    POST ,
+    POST,
     [Description("PUT")]
-    PUT ,
+    PUT,
     [Description("DELETE")]
-    DELETE ,
+    DELETE,
     [Description("PATCH")]
-    PATCH ,
+    PATCH,
 }
 
 public enum SearchEntryModeEnum {
     [Description("match")]
-    Match ,
+    Match,
     [Description("include")]
-    Include ,
+    Include,
     [Description("outcome")]
-    Outcome ,
+    Outcome,
 }
 
 public enum FhirversionEnum {
     [Description("0.01")]
-    _0Dot01 ,
+    _0Dot01,
     [Description("0.05")]
-    _0Dot05 ,
+    _0Dot05,
     [Description("0.06")]
-    _0Dot06 ,
+    _0Dot06,
     [Description("0.11")]
-    _0Dot11 ,
+    _0Dot11,
     [Description("0.0.80")]
-    _0Dot0Dot80 ,
+    _0Dot0Dot80,
     [Description("0.0.81")]
-    _0Dot0Dot81 ,
+    _0Dot0Dot81,
     [Description("0.0.82")]
-    _0Dot0Dot82 ,
+    _0Dot0Dot82,
     [Description("0.4.0")]
-    _0Dot4Dot0 ,
+    _0Dot4Dot0,
     [Description("0.5.0")]
-    _0Dot5Dot0 ,
+    _0Dot5Dot0,
     [Description("1.0.0")]
-    _1Dot0Dot0 ,
+    _1Dot0Dot0,
     [Description("1.0.1")]
-    _1Dot0Dot1 ,
+    _1Dot0Dot1,
     [Description("1.0.2")]
-    _1Dot0Dot2 ,
+    _1Dot0Dot2,
     [Description("1.1.0")]
-    _1Dot1Dot0 ,
+    _1Dot1Dot0,
     [Description("1.4.0")]
-    _1Dot4Dot0 ,
+    _1Dot4Dot0,
     [Description("1.6.0")]
-    _1Dot6Dot0 ,
+    _1Dot6Dot0,
     [Description("1.8.0")]
-    _1Dot8Dot0 ,
+    _1Dot8Dot0,
     [Description("3.0.0")]
-    _3Dot0Dot0 ,
+    _3Dot0Dot0,
     [Description("3.0.1")]
-    _3Dot0Dot1 ,
+    _3Dot0Dot1,
     [Description("3.3.0")]
-    _3Dot3Dot0 ,
+    _3Dot3Dot0,
     [Description("3.5.0")]
-    _3Dot5Dot0 ,
+    _3Dot5Dot0,
     [Description("4.0.0")]
-    _4Dot0Dot0 ,
+    _4Dot0Dot0,
     [Description("4.0.1")]
-    _4Dot0Dot1 ,
+    _4Dot0Dot1,
 }
 
 public enum CapabilityStatementKindEnum {
     [Description("instance")]
-    Instance ,
+    Instance,
     [Description("capability")]
-    Capability ,
+    Capability,
     [Description("requirements")]
-    Requirements ,
+    Requirements,
 }
 
 public enum DocumentModeEnum {
     [Description("producer")]
-    Producer ,
+    Producer,
     [Description("consumer")]
-    Consumer ,
+    Consumer,
 }
 
 public enum EventCapabilityModeEnum {
     [Description("sender")]
-    Sender ,
+    Sender,
     [Description("receiver")]
-    Receiver ,
+    Receiver,
 }
 
 public enum RestfulCapabilityModeEnum {
     [Description("client")]
-    Client ,
+    Client,
     [Description("server")]
-    Server ,
+    Server,
 }
 
 public enum SystemRestfulInteractionEnum {
     [Description("transaction")]
-    Transaction ,
+    Transaction,
     [Description("batch")]
-    Batch ,
+    Batch,
     [Description("search-system")]
-    SearchDashSystem ,
+    SearchDashSystem,
     [Description("history-system")]
-    HistoryDashSystem ,
+    HistoryDashSystem,
 }
 
 public enum ConditionalDeleteStatusEnum {
     [Description("not-supported")]
-    NotDashSupported ,
+    NotDashSupported,
     [Description("single")]
-    Single ,
+    Single,
     [Description("multiple")]
-    Multiple ,
+    Multiple,
 }
 
 public enum ConditionalReadStatusEnum {
     [Description("not-supported")]
-    NotDashSupported ,
+    NotDashSupported,
     [Description("modified-since")]
-    ModifiedDashSince ,
+    ModifiedDashSince,
     [Description("not-match")]
-    NotDashMatch ,
+    NotDashMatch,
     [Description("full-support")]
-    FullDashSupport ,
+    FullDashSupport,
 }
 
 public enum ReferenceHandlingPolicyEnum {
     [Description("literal")]
-    Literal ,
+    Literal,
     [Description("logical")]
-    Logical ,
+    Logical,
     [Description("resolves")]
-    Resolves ,
+    Resolves,
     [Description("enforced")]
-    Enforced ,
+    Enforced,
     [Description("local")]
-    Local ,
+    Local,
 }
 
 public enum ResourceVersionPolicyEnum {
     [Description("no-version")]
-    NoDashVersion ,
+    NoDashVersion,
     [Description("versioned")]
-    Versioned ,
+    Versioned,
     [Description("versioned-update")]
-    VersionedDashUpdate ,
+    VersionedDashUpdate,
 }
 
 public enum TypeRestfulInteractionEnum {
     [Description("read")]
-    Read ,
+    Read,
     [Description("vread")]
-    Vread ,
+    Vread,
     [Description("update")]
-    Update ,
+    Update,
     [Description("patch")]
-    Patch ,
+    Patch,
     [Description("delete")]
-    Delete ,
+    Delete,
     [Description("history-instance")]
-    HistoryDashInstance ,
+    HistoryDashInstance,
     [Description("history-type")]
-    HistoryDashType ,
+    HistoryDashType,
     [Description("create")]
-    Create ,
+    Create,
     [Description("search-type")]
-    SearchDashType ,
+    SearchDashType,
 }
 
 public enum SearchParamTypeEnum {
     [Description("number")]
-    Number ,
+    Number,
     [Description("date")]
-    Date ,
+    Date,
     [Description("string")]
-    String ,
+    String,
     [Description("token")]
-    Token ,
+    Token,
     [Description("reference")]
-    Reference ,
+    Reference,
     [Description("composite")]
-    Composite ,
+    Composite,
     [Description("quantity")]
-    Quantity ,
+    Quantity,
     [Description("uri")]
-    Uri ,
+    Uri,
     [Description("special")]
-    Special ,
+    Special,
 }
 
 public enum CarePlanIntentEnum {
     [Description("proposal")]
-    Proposal ,
+    Proposal,
     [Description("plan")]
-    Plan ,
+    Plan,
     [Description("order")]
-    Order ,
+    Order,
     [Description("option")]
-    Option ,
+    Option,
 }
 
 public enum CarePlanStatusEnum {
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("active")]
-    Active ,
+    Active,
     [Description("on-hold")]
-    OnDashHold ,
+    OnDashHold,
     [Description("revoked")]
-    Revoked ,
+    Revoked,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum CarePlanActivityKindEnum {
     [Description("Appointment")]
-    Appointment ,
+    Appointment,
     [Description("CommunicationRequest")]
-    CommunicationRequest ,
+    CommunicationRequest,
     [Description("DeviceRequest")]
-    DeviceRequest ,
+    DeviceRequest,
     [Description("MedicationRequest")]
-    MedicationRequest ,
+    MedicationRequest,
     [Description("NutritionOrder")]
-    NutritionOrder ,
+    NutritionOrder,
     [Description("Task")]
-    Task ,
+    Task,
     [Description("ServiceRequest")]
-    ServiceRequest ,
+    ServiceRequest,
     [Description("VisionPrescription")]
-    VisionPrescription ,
+    VisionPrescription,
 }
 
 public enum CarePlanActivityStatusEnum {
     [Description("not-started")]
-    NotDashStarted ,
+    NotDashStarted,
     [Description("scheduled")]
-    Scheduled ,
+    Scheduled,
     [Description("in-progress")]
-    InDashProgress ,
+    InDashProgress,
     [Description("on-hold")]
-    OnDashHold ,
+    OnDashHold,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("stopped")]
-    Stopped ,
+    Stopped,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum CareTeamStatusEnum {
     [Description("proposed")]
-    Proposed ,
+    Proposed,
     [Description("active")]
-    Active ,
+    Active,
     [Description("suspended")]
-    Suspended ,
+    Suspended,
     [Description("inactive")]
-    Inactive ,
+    Inactive,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum CatalogEntryRelationTypeEnum {
     [Description("triggers")]
-    Triggers ,
+    Triggers,
     [Description("is-replaced-by")]
-    IsDashReplacedDashBy ,
+    IsDashReplacedDashBy,
 }
 
 public enum ChargeItemStatusEnum {
     [Description("planned")]
-    Planned ,
+    Planned,
     [Description("billable")]
-    Billable ,
+    Billable,
     [Description("not-billable")]
-    NotDashBillable ,
+    NotDashBillable,
     [Description("aborted")]
-    Aborted ,
+    Aborted,
     [Description("billed")]
-    Billed ,
+    Billed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum ChargeItemDefinitionPriceComponentTypeEnum {
     [Description("base")]
-    Base ,
+    Base,
     [Description("surcharge")]
-    Surcharge ,
+    Surcharge,
     [Description("deduction")]
-    Deduction ,
+    Deduction,
     [Description("discount")]
-    Discount ,
+    Discount,
     [Description("tax")]
-    Tax ,
+    Tax,
     [Description("informational")]
-    Informational ,
+    Informational,
 }
 
 public enum ClaimStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum UseEnum {
     [Description("claim")]
-    Claim ,
+    Claim,
     [Description("preauthorization")]
-    Preauthorization ,
+    Preauthorization,
     [Description("predetermination")]
-    Predetermination ,
+    Predetermination,
 }
 
 public enum RemittanceOutcomeEnum {
     [Description("queued")]
-    Queued ,
+    Queued,
     [Description("complete")]
-    Complete ,
+    Complete,
     [Description("error")]
-    Error ,
+    Error,
     [Description("partial")]
-    Partial ,
+    Partial,
 }
 
 public enum ClaimResponseStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum NoteTypeEnum {
     [Description("display")]
-    Display ,
+    Display,
     [Description("print")]
-    Print ,
+    Print,
     [Description("printoper")]
-    Printoper ,
+    Printoper,
 }
 
 public enum ClinicalImpressionStatusEnum {
     [Description("in-progress")]
-    InDashProgress ,
+    InDashProgress,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum CodeSystemContentModeEnum {
     [Description("not-present")]
-    NotDashPresent ,
+    NotDashPresent,
     [Description("example")]
-    Example ,
+    Example,
     [Description("fragment")]
-    Fragment ,
+    Fragment,
     [Description("complete")]
-    Complete ,
+    Complete,
     [Description("supplement")]
-    Supplement ,
+    Supplement,
 }
 
 public enum CodeSystemHierarchyMeaningEnum {
     [Description("grouped-by")]
-    GroupedDashBy ,
+    GroupedDashBy,
     [Description("is-a")]
-    IsDashA ,
+    IsDashA,
     [Description("part-of")]
-    PartDashOf ,
+    PartDashOf,
     [Description("classified-with")]
-    ClassifiedDashWith ,
+    ClassifiedDashWith,
 }
 
 public enum FilterOperatorEnum {
     [Description("=")]
-    Equal ,
+    Equal,
     [Description("is-a")]
-    IsDashA ,
+    IsDashA,
     [Description("descendent-of")]
-    DescendentDashOf ,
+    DescendentDashOf,
     [Description("is-not-a")]
-    IsDashNotDashA ,
+    IsDashNotDashA,
     [Description("regex")]
-    Regex ,
+    Regex,
     [Description("in")]
-    In ,
+    In,
     [Description("not-in")]
-    NotDashIn ,
+    NotDashIn,
     [Description("generalizes")]
-    Generalizes ,
+    Generalizes,
     [Description("exists")]
-    Exists ,
+    Exists,
 }
 
 public enum PropertyTypeEnum {
     [Description("code")]
-    Code ,
+    Code,
     [Description("Coding")]
-    Coding ,
+    Coding,
     [Description("string")]
-    String ,
+    String,
     [Description("integer")]
-    Integer ,
+    Integer,
     [Description("boolean")]
-    Boolean ,
+    Boolean,
     [Description("dateTime")]
-    DateTime ,
+    DateTime,
     [Description("decimal")]
-    Decimal ,
+    Decimal,
 }
 
 public enum CommunicationPriorityEnum {
     [Description("routine")]
-    Routine ,
+    Routine,
     [Description("urgent")]
-    Urgent ,
+    Urgent,
     [Description("asap")]
-    Asap ,
+    Asap,
     [Description("stat")]
-    Stat ,
+    Stat,
 }
 
 public enum CommunicationStatusEnum {
     [Description("preparation")]
-    Preparation ,
+    Preparation,
     [Description("in-progress")]
-    InDashProgress ,
+    InDashProgress,
     [Description("not-done")]
-    NotDashDone ,
+    NotDashDone,
     [Description("on-hold")]
-    OnDashHold ,
+    OnDashHold,
     [Description("stopped")]
-    Stopped ,
+    Stopped,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum CommunicationRequestStatusEnum {
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("active")]
-    Active ,
+    Active,
     [Description("on-hold")]
-    OnDashHold ,
+    OnDashHold,
     [Description("revoked")]
-    Revoked ,
+    Revoked,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum CompartmentTypeEnum {
     [Description("Patient")]
-    Patient ,
+    Patient,
     [Description("Encounter")]
-    Encounter ,
+    Encounter,
     [Description("RelatedPerson")]
-    RelatedPerson ,
+    RelatedPerson,
     [Description("Practitioner")]
-    Practitioner ,
+    Practitioner,
     [Description("Device")]
-    Device ,
+    Device,
 }
 
 public enum DocumentConfidentialityEnum {
     [Description("U")]
-    U ,
+    U,
     [Description("L")]
-    L ,
+    L,
     [Description("M")]
-    M ,
+    M,
     [Description("N")]
-    N ,
+    N,
     [Description("R")]
-    R ,
+    R,
     [Description("V")]
-    V ,
+    V,
 }
 
 public enum CompositionStatusEnum {
     [Description("preliminary")]
-    Preliminary ,
+    Preliminary,
     [Description("final")]
-    Final ,
+    Final,
     [Description("amended")]
-    Amended ,
+    Amended,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum CompositionAttestationModeEnum {
     [Description("personal")]
-    Personal ,
+    Personal,
     [Description("professional")]
-    Professional ,
+    Professional,
     [Description("legal")]
-    Legal ,
+    Legal,
     [Description("official")]
-    Official ,
+    Official,
 }
 
 public enum DocumentRelationshipTypeEnum {
     [Description("replaces")]
-    Replaces ,
+    Replaces,
     [Description("transforms")]
-    Transforms ,
+    Transforms,
     [Description("signs")]
-    Signs ,
+    Signs,
     [Description("appends")]
-    Appends ,
+    Appends,
 }
 
 public enum SectionModeEnum {
     [Description("working")]
-    Working ,
+    Working,
     [Description("snapshot")]
-    Snapshot ,
+    Snapshot,
     [Description("changes")]
-    Changes ,
+    Changes,
 }
 
 public enum ConceptMapEquivalenceEnum {
     [Description("relatedto")]
-    Relatedto ,
+    Relatedto,
     [Description("equivalent")]
-    Equivalent ,
+    Equivalent,
     [Description("equal")]
-    Equal ,
+    Equal,
     [Description("wider")]
-    Wider ,
+    Wider,
     [Description("subsumes")]
-    Subsumes ,
+    Subsumes,
     [Description("narrower")]
-    Narrower ,
+    Narrower,
     [Description("specializes")]
-    Specializes ,
+    Specializes,
     [Description("inexact")]
-    Inexact ,
+    Inexact,
     [Description("unmatched")]
-    Unmatched ,
+    Unmatched,
     [Description("disjoint")]
-    Disjoint ,
+    Disjoint,
 }
 
 public enum ConceptMapGroupUnmappedModeEnum {
     [Description("provided")]
-    Provided ,
+    Provided,
     [Description("fixed")]
-    Fixed ,
+    Fixed,
     [Description("other-map")]
-    OtherDashMap ,
+    OtherDashMap,
 }
 
 public enum ConsentStateEnum {
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("proposed")]
-    Proposed ,
+    Proposed,
     [Description("active")]
-    Active ,
+    Active,
     [Description("rejected")]
-    Rejected ,
+    Rejected,
     [Description("inactive")]
-    Inactive ,
+    Inactive,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum ConsentProvisionTypeEnum {
     [Description("deny")]
-    Deny ,
+    Deny,
     [Description("permit")]
-    Permit ,
+    Permit,
 }
 
 public enum ConsentDataMeaningEnum {
     [Description("instance")]
-    Instance ,
+    Instance,
     [Description("related")]
-    Related ,
+    Related,
     [Description("dependents")]
-    Dependents ,
+    Dependents,
     [Description("authoredby")]
-    Authoredby ,
+    Authoredby,
 }
 
 public enum ContractStatusEnum {
     [Description("amended")]
-    Amended ,
+    Amended,
     [Description("appended")]
-    Appended ,
+    Appended,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("disputed")]
-    Disputed ,
+    Disputed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("executable")]
-    Executable ,
+    Executable,
     [Description("executed")]
-    Executed ,
+    Executed,
     [Description("negotiable")]
-    Negotiable ,
+    Negotiable,
     [Description("offered")]
-    Offered ,
+    Offered,
     [Description("policy")]
-    Policy ,
+    Policy,
     [Description("rejected")]
-    Rejected ,
+    Rejected,
     [Description("renewed")]
-    Renewed ,
+    Renewed,
     [Description("revoked")]
-    Revoked ,
+    Revoked,
     [Description("resolved")]
-    Resolved ,
+    Resolved,
     [Description("terminated")]
-    Terminated ,
+    Terminated,
 }
 
 public enum ContractPublicationStatusEnum {
     [Description("amended")]
-    Amended ,
+    Amended,
     [Description("appended")]
-    Appended ,
+    Appended,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("disputed")]
-    Disputed ,
+    Disputed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("executable")]
-    Executable ,
+    Executable,
     [Description("executed")]
-    Executed ,
+    Executed,
     [Description("negotiable")]
-    Negotiable ,
+    Negotiable,
     [Description("offered")]
-    Offered ,
+    Offered,
     [Description("policy")]
-    Policy ,
+    Policy,
     [Description("rejected")]
-    Rejected ,
+    Rejected,
     [Description("renewed")]
-    Renewed ,
+    Renewed,
     [Description("revoked")]
-    Revoked ,
+    Revoked,
     [Description("resolved")]
-    Resolved ,
+    Resolved,
     [Description("terminated")]
-    Terminated ,
+    Terminated,
 }
 
 public enum CoverageStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum EligibilityRequestPurposeEnum {
     [Description("auth-requirements")]
-    AuthDashRequirements ,
+    AuthDashRequirements,
     [Description("benefits")]
-    Benefits ,
+    Benefits,
     [Description("discovery")]
-    Discovery ,
+    Discovery,
     [Description("validation")]
-    Validation ,
+    Validation,
 }
 
 public enum EligibilityRequestStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum EligibilityResponsePurposeEnum {
     [Description("auth-requirements")]
-    AuthDashRequirements ,
+    AuthDashRequirements,
     [Description("benefits")]
-    Benefits ,
+    Benefits,
     [Description("discovery")]
-    Discovery ,
+    Discovery,
     [Description("validation")]
-    Validation ,
+    Validation,
 }
 
 public enum EligibilityResponseStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum DetectedIssueSeverityEnum {
     [Description("high")]
-    High ,
+    High,
     [Description("moderate")]
-    Moderate ,
+    Moderate,
     [Description("low")]
-    Low ,
+    Low,
 }
 
 public enum DetectedIssueStatusEnum {
     [Description("registered")]
-    Registered ,
+    Registered,
     [Description("preliminary")]
-    Preliminary ,
+    Preliminary,
     [Description("final")]
-    Final ,
+    Final,
     [Description("amended")]
-    Amended ,
+    Amended,
     [Description("corrected")]
-    Corrected ,
+    Corrected,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum FhirdeviceStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("inactive")]
-    Inactive ,
+    Inactive,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum DeviceNameTypeEnum {
     [Description("udi-label-name")]
-    UdiDashLabelDashName ,
+    UdiDashLabelDashName,
     [Description("user-friendly-name")]
-    UserDashFriendlyDashName ,
+    UserDashFriendlyDashName,
     [Description("patient-reported-name")]
-    PatientDashReportedDashName ,
+    PatientDashReportedDashName,
     [Description("manufacturer-name")]
-    ManufacturerDashName ,
+    ManufacturerDashName,
     [Description("model-name")]
-    ModelDashName ,
+    ModelDashName,
     [Description("other")]
-    Other ,
+    Other,
 }
 
 public enum UdientryTypeEnum {
     [Description("barcode")]
-    Barcode ,
+    Barcode,
     [Description("rfid")]
-    Rfid ,
+    Rfid,
     [Description("manual")]
-    Manual ,
+    Manual,
     [Description("card")]
-    Card ,
+    Card,
     [Description("self-reported")]
-    SelfDashReported ,
+    SelfDashReported,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum DeviceMetricCategoryEnum {
     [Description("measurement")]
-    Measurement ,
+    Measurement,
     [Description("setting")]
-    Setting ,
+    Setting,
     [Description("calculation")]
-    Calculation ,
+    Calculation,
     [Description("unspecified")]
-    Unspecified ,
+    Unspecified,
 }
 
 public enum DeviceMetricColorEnum {
     [Description("black")]
-    Black ,
+    Black,
     [Description("red")]
-    Red ,
+    Red,
     [Description("green")]
-    Green ,
+    Green,
     [Description("yellow")]
-    Yellow ,
+    Yellow,
     [Description("blue")]
-    Blue ,
+    Blue,
     [Description("magenta")]
-    Magenta ,
+    Magenta,
     [Description("cyan")]
-    Cyan ,
+    Cyan,
     [Description("white")]
-    White ,
+    White,
 }
 
 public enum DeviceMetricOperationalStatusEnum {
     [Description("on")]
-    On ,
+    On,
     [Description("off")]
-    Off ,
+    Off,
     [Description("standby")]
-    Standby ,
+    Standby,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum DeviceMetricCalibrationStateEnum {
     [Description("not-calibrated")]
-    NotDashCalibrated ,
+    NotDashCalibrated,
     [Description("calibration-required")]
-    CalibrationDashRequired ,
+    CalibrationDashRequired,
     [Description("calibrated")]
-    Calibrated ,
+    Calibrated,
     [Description("unspecified")]
-    Unspecified ,
+    Unspecified,
 }
 
 public enum DeviceMetricCalibrationTypeEnum {
     [Description("unspecified")]
-    Unspecified ,
+    Unspecified,
     [Description("offset")]
-    Offset ,
+    Offset,
     [Description("gain")]
-    Gain ,
+    Gain,
     [Description("two-point")]
-    TwoDashPoint ,
+    TwoDashPoint,
 }
 
 public enum DeviceRequestStatusEnum {
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("active")]
-    Active ,
+    Active,
     [Description("on-hold")]
-    OnDashHold ,
+    OnDashHold,
     [Description("revoked")]
-    Revoked ,
+    Revoked,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum DeviceUseStatementStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("intended")]
-    Intended ,
+    Intended,
     [Description("stopped")]
-    Stopped ,
+    Stopped,
     [Description("on-hold")]
-    OnDashHold ,
+    OnDashHold,
 }
 
 public enum DiagnosticReportStatusEnum {
     [Description("registered")]
-    Registered ,
+    Registered,
     [Description("partial")]
-    Partial ,
+    Partial,
     [Description("preliminary")]
-    Preliminary ,
+    Preliminary,
     [Description("final")]
-    Final ,
+    Final,
     [Description("amended")]
-    Amended ,
+    Amended,
     [Description("corrected")]
-    Corrected ,
+    Corrected,
     [Description("appended")]
-    Appended ,
+    Appended,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum DocumentReferenceStatusEnum {
     [Description("current")]
-    Current ,
+    Current,
     [Description("superseded")]
-    Superseded ,
+    Superseded,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum ReferredDocumentStatusEnum {
     [Description("preliminary")]
-    Preliminary ,
+    Preliminary,
     [Description("final")]
-    Final ,
+    Final,
     [Description("amended")]
-    Amended ,
+    Amended,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum ExposureStateEnum {
     [Description("exposure")]
-    Exposure ,
+    Exposure,
     [Description("exposure-alternative")]
-    ExposureDashAlternative ,
+    ExposureDashAlternative,
 }
 
 public enum EncounterStatusEnum {
     [Description("planned")]
-    Planned ,
+    Planned,
     [Description("arrived")]
-    Arrived ,
+    Arrived,
     [Description("triaged")]
-    Triaged ,
+    Triaged,
     [Description("in-progress")]
-    InDashProgress ,
+    InDashProgress,
     [Description("onleave")]
-    Onleave ,
+    Onleave,
     [Description("finished")]
-    Finished ,
+    Finished,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum EncounterLocationStatusEnum {
     [Description("planned")]
-    Planned ,
+    Planned,
     [Description("active")]
-    Active ,
+    Active,
     [Description("reserved")]
-    Reserved ,
+    Reserved,
     [Description("completed")]
-    Completed ,
+    Completed,
 }
 
 public enum EndpointStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("suspended")]
-    Suspended ,
+    Suspended,
     [Description("error")]
-    Error ,
+    Error,
     [Description("off")]
-    Off ,
+    Off,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("test")]
-    Test ,
+    Test,
 }
 
 public enum EnrollmentRequestStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum EnrollmentResponseStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum EpisodeOfCareStatusEnum {
     [Description("planned")]
-    Planned ,
+    Planned,
     [Description("waitlist")]
-    Waitlist ,
+    Waitlist,
     [Description("active")]
-    Active ,
+    Active,
     [Description("onhold")]
-    Onhold ,
+    Onhold,
     [Description("finished")]
-    Finished ,
+    Finished,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum EvidenceVariableTypeEnum {
     [Description("dichotomous")]
-    Dichotomous ,
+    Dichotomous,
     [Description("continuous")]
-    Continuous ,
+    Continuous,
     [Description("descriptive")]
-    Descriptive ,
+    Descriptive,
 }
 
 public enum GroupMeasureEnum {
     [Description("mean")]
-    Mean ,
+    Mean,
     [Description("median")]
-    Median ,
+    Median,
     [Description("mean-of-mean")]
-    MeanDashOfDashMean ,
+    MeanDashOfDashMean,
     [Description("mean-of-median")]
-    MeanDashOfDashMedian ,
+    MeanDashOfDashMedian,
     [Description("median-of-mean")]
-    MedianDashOfDashMean ,
+    MedianDashOfDashMean,
     [Description("median-of-median")]
-    MedianDashOfDashMedian ,
+    MedianDashOfDashMedian,
 }
 
 public enum ExampleScenarioActorTypeEnum {
     [Description("person")]
-    Person ,
+    Person,
     [Description("entity")]
-    Entity ,
+    Entity,
 }
 
 public enum ExplanationOfBenefitStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum FamilyHistoryStatusEnum {
     [Description("partial")]
-    Partial ,
+    Partial,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("health-unknown")]
-    HealthDashUnknown ,
+    HealthDashUnknown,
 }
 
 public enum FlagStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("inactive")]
-    Inactive ,
+    Inactive,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum GoalLifecycleStatusEnum {
     [Description("proposed")]
-    Proposed ,
+    Proposed,
     [Description("planned")]
-    Planned ,
+    Planned,
     [Description("accepted")]
-    Accepted ,
+    Accepted,
     [Description("active")]
-    Active ,
+    Active,
     [Description("on-hold")]
-    OnDashHold ,
+    OnDashHold,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("rejected")]
-    Rejected ,
+    Rejected,
 }
 
 public enum CompartmentCodeEnum {
     [Description("Patient")]
-    Patient ,
+    Patient,
     [Description("Encounter")]
-    Encounter ,
+    Encounter,
     [Description("RelatedPerson")]
-    RelatedPerson ,
+    RelatedPerson,
     [Description("Practitioner")]
-    Practitioner ,
+    Practitioner,
     [Description("Device")]
-    Device ,
+    Device,
 }
 
 public enum GraphCompartmentRuleEnum {
     [Description("identical")]
-    Identical ,
+    Identical,
     [Description("matching")]
-    Matching ,
+    Matching,
     [Description("different")]
-    Different ,
+    Different,
     [Description("custom")]
-    Custom ,
+    Custom,
 }
 
 public enum GraphCompartmentUseEnum {
     [Description("condition")]
-    Condition ,
+    Condition,
     [Description("requirement")]
-    Requirement ,
+    Requirement,
 }
 
 public enum GroupTypeEnum {
     [Description("person")]
-    Person ,
+    Person,
     [Description("animal")]
-    Animal ,
+    Animal,
     [Description("practitioner")]
-    Practitioner ,
+    Practitioner,
     [Description("device")]
-    Device ,
+    Device,
     [Description("medication")]
-    Medication ,
+    Medication,
     [Description("substance")]
-    Substance ,
+    Substance,
 }
 
 public enum GuidanceResponseStatusEnum {
     [Description("success")]
-    Success ,
+    Success,
     [Description("data-requested")]
-    DataDashRequested ,
+    DataDashRequested,
     [Description("data-required")]
-    DataDashRequired ,
+    DataDashRequired,
     [Description("in-progress")]
-    InDashProgress ,
+    InDashProgress,
     [Description("failure")]
-    Failure ,
+    Failure,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum DaysOfWeekEnum {
     [Description("mon")]
-    Mon ,
+    Mon,
     [Description("tue")]
-    Tue ,
+    Tue,
     [Description("wed")]
-    Wed ,
+    Wed,
     [Description("thu")]
-    Thu ,
+    Thu,
     [Description("fri")]
-    Fri ,
+    Fri,
     [Description("sat")]
-    Sat ,
+    Sat,
     [Description("sun")]
-    Sun ,
+    Sun,
 }
 
 public enum ImagingStudyStatusEnum {
     [Description("registered")]
-    Registered ,
+    Registered,
     [Description("available")]
-    Available ,
+    Available,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum ImmunizationStatusEnum {
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("not-done")]
-    NotDashDone ,
+    NotDashDone,
 }
 
 public enum ImmunizationEvaluationStatusEnum {
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum GuidePageGenerationEnum {
     [Description("html")]
-    Html ,
+    Html,
     [Description("markdown")]
-    Markdown ,
+    Markdown,
     [Description("xml")]
-    Xml ,
+    Xml,
     [Description("generated")]
-    Generated ,
+    Generated,
 }
 
 public enum GuideParameterCodeEnum {
     [Description("apply")]
-    Apply ,
+    Apply,
     [Description("path-resource")]
-    PathDashResource ,
+    PathDashResource,
     [Description("path-pages")]
-    PathDashPages ,
+    PathDashPages,
     [Description("path-tx-cache")]
-    PathDashTxDashCache ,
+    PathDashTxDashCache,
     [Description("expansion-parameter")]
-    ExpansionDashParameter ,
+    ExpansionDashParameter,
     [Description("rule-broken-links")]
-    RuleDashBrokenDashLinks ,
+    RuleDashBrokenDashLinks,
     [Description("generate-xml")]
-    GenerateDashXml ,
+    GenerateDashXml,
     [Description("generate-json")]
-    GenerateDashJson ,
+    GenerateDashJson,
     [Description("generate-turtle")]
-    GenerateDashTurtle ,
+    GenerateDashTurtle,
     [Description("html-template")]
-    HtmlDashTemplate ,
+    HtmlDashTemplate,
 }
 
 public enum InvoiceStatusEnum {
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("issued")]
-    Issued ,
+    Issued,
     [Description("balanced")]
-    Balanced ,
+    Balanced,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum InvoicePriceComponentTypeEnum {
     [Description("base")]
-    Base ,
+    Base,
     [Description("surcharge")]
-    Surcharge ,
+    Surcharge,
     [Description("deduction")]
-    Deduction ,
+    Deduction,
     [Description("discount")]
-    Discount ,
+    Discount,
     [Description("tax")]
-    Tax ,
+    Tax,
     [Description("informational")]
-    Informational ,
+    Informational,
 }
 
 public enum LinkageTypeEnum {
     [Description("source")]
-    Source ,
+    Source,
     [Description("alternate")]
-    Alternate ,
+    Alternate,
     [Description("historical")]
-    Historical ,
+    Historical,
 }
 
 public enum ListModeEnum {
     [Description("working")]
-    Working ,
+    Working,
     [Description("snapshot")]
-    Snapshot ,
+    Snapshot,
     [Description("changes")]
-    Changes ,
+    Changes,
 }
 
 public enum ListStatusEnum {
     [Description("current")]
-    Current ,
+    Current,
     [Description("retired")]
-    Retired ,
+    Retired,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum LocationModeEnum {
     [Description("instance")]
-    Instance ,
+    Instance,
     [Description("kind")]
-    Kind ,
+    Kind,
 }
 
 public enum LocationStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("suspended")]
-    Suspended ,
+    Suspended,
     [Description("inactive")]
-    Inactive ,
+    Inactive,
 }
 
 public enum MeasureReportStatusEnum {
     [Description("complete")]
-    Complete ,
+    Complete,
     [Description("pending")]
-    Pending ,
+    Pending,
     [Description("error")]
-    Error ,
+    Error,
 }
 
 public enum MeasureReportTypeEnum {
     [Description("individual")]
-    Individual ,
+    Individual,
     [Description("subject-list")]
-    SubjectDashList ,
+    SubjectDashList,
     [Description("summary")]
-    Summary ,
+    Summary,
     [Description("data-collection")]
-    DataDashCollection ,
+    DataDashCollection,
 }
 
 public enum MediaStatusEnum {
     [Description("preparation")]
-    Preparation ,
+    Preparation,
     [Description("in-progress")]
-    InDashProgress ,
+    InDashProgress,
     [Description("not-done")]
-    NotDashDone ,
+    NotDashDone,
     [Description("on-hold")]
-    OnDashHold ,
+    OnDashHold,
     [Description("stopped")]
-    Stopped ,
+    Stopped,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum MedicationStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("inactive")]
-    Inactive ,
+    Inactive,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum MedicationAdministrationStatusEnum {
     [Description("in-progress")]
-    InDashProgress ,
+    InDashProgress,
     [Description("not-done")]
-    NotDashDone ,
+    NotDashDone,
     [Description("on-hold")]
-    OnDashHold ,
+    OnDashHold,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("stopped")]
-    Stopped ,
+    Stopped,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum MedicationDispenseStatusEnum {
     [Description("preparation")]
-    Preparation ,
+    Preparation,
     [Description("in-progress")]
-    InDashProgress ,
+    InDashProgress,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("on-hold")]
-    OnDashHold ,
+    OnDashHold,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("stopped")]
-    Stopped ,
+    Stopped,
     [Description("declined")]
-    Declined ,
+    Declined,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum MedicationKnowledgeStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("inactive")]
-    Inactive ,
+    Inactive,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum MedicationRequestIntentEnum {
     [Description("proposal")]
-    Proposal ,
+    Proposal,
     [Description("plan")]
-    Plan ,
+    Plan,
     [Description("order")]
-    Order ,
+    Order,
     [Description("original-order")]
-    OriginalDashOrder ,
+    OriginalDashOrder,
     [Description("reflex-order")]
-    ReflexDashOrder ,
+    ReflexDashOrder,
     [Description("filler-order")]
-    FillerDashOrder ,
+    FillerDashOrder,
     [Description("instance-order")]
-    InstanceDashOrder ,
+    InstanceDashOrder,
     [Description("option")]
-    Option ,
+    Option,
 }
 
 public enum MedicationRequestPriorityEnum {
     [Description("routine")]
-    Routine ,
+    Routine,
     [Description("urgent")]
-    Urgent ,
+    Urgent,
     [Description("asap")]
-    Asap ,
+    Asap,
     [Description("stat")]
-    Stat ,
+    Stat,
 }
 
 public enum MedicationRequestStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("on-hold")]
-    OnDashHold ,
+    OnDashHold,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("stopped")]
-    Stopped ,
+    Stopped,
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum MedicationStatementStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("intended")]
-    Intended ,
+    Intended,
     [Description("stopped")]
-    Stopped ,
+    Stopped,
     [Description("on-hold")]
-    OnDashHold ,
+    OnDashHold,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
     [Description("not-taken")]
-    NotDashTaken ,
+    NotDashTaken,
 }
 
 public enum MessageSignificanceCategoryEnum {
     [Description("consequence")]
-    Consequence ,
+    Consequence,
     [Description("currency")]
-    Currency ,
+    Currency,
     [Description("notification")]
-    Notification ,
+    Notification,
 }
 
 public enum MessageheaderResponseRequestEnum {
     [Description("always")]
-    Always ,
+    Always,
     [Description("on-error")]
-    OnDashError ,
+    OnDashError,
     [Description("never")]
-    Never ,
+    Never,
     [Description("on-success")]
-    OnDashSuccess ,
+    OnDashSuccess,
 }
 
 public enum ResponseTypeEnum {
     [Description("ok")]
-    Ok ,
+    Ok,
     [Description("transient-error")]
-    TransientDashError ,
+    TransientDashError,
     [Description("fatal-error")]
-    FatalDashError ,
+    FatalDashError,
 }
 
 public enum SequenceTypeEnum {
     [Description("aa")]
-    Aa ,
+    Aa,
     [Description("dna")]
-    Dna ,
+    Dna,
     [Description("rna")]
-    Rna ,
+    Rna,
 }
 
 public enum QualityTypeEnum {
     [Description("indel")]
-    Indel ,
+    Indel,
     [Description("snp")]
-    Snp ,
+    Snp,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum OrientationTypeEnum {
     [Description("sense")]
-    Sense ,
+    Sense,
     [Description("antisense")]
-    Antisense ,
+    Antisense,
 }
 
 public enum StrandTypeEnum {
     [Description("watson")]
-    Watson ,
+    Watson,
     [Description("crick")]
-    Crick ,
+    Crick,
 }
 
 public enum RepositoryTypeEnum {
     [Description("directlink")]
-    Directlink ,
+    Directlink,
     [Description("openapi")]
-    Openapi ,
+    Openapi,
     [Description("login")]
-    Login ,
+    Login,
     [Description("oauth")]
-    Oauth ,
+    Oauth,
     [Description("other")]
-    Other ,
+    Other,
 }
 
 public enum NamingSystemTypeEnum {
     [Description("codesystem")]
-    Codesystem ,
+    Codesystem,
     [Description("identifier")]
-    Identifier ,
+    Identifier,
     [Description("root")]
-    Root ,
+    Root,
 }
 
 public enum NamingSystemIdentifierTypeEnum {
     [Description("oid")]
-    Oid ,
+    Oid,
     [Description("uuid")]
-    Uuid ,
+    Uuid,
     [Description("uri")]
-    Uri ,
+    Uri,
     [Description("other")]
-    Other ,
+    Other,
 }
 
 public enum NutritiionOrderIntentEnum {
     [Description("proposal")]
-    Proposal ,
+    Proposal,
     [Description("plan")]
-    Plan ,
+    Plan,
     [Description("directive")]
-    Directive ,
+    Directive,
     [Description("order")]
-    Order ,
+    Order,
     [Description("original-order")]
-    OriginalDashOrder ,
+    OriginalDashOrder,
     [Description("reflex-order")]
-    ReflexDashOrder ,
+    ReflexDashOrder,
     [Description("filler-order")]
-    FillerDashOrder ,
+    FillerDashOrder,
     [Description("instance-order")]
-    InstanceDashOrder ,
+    InstanceDashOrder,
     [Description("option")]
-    Option ,
+    Option,
 }
 
 public enum NutritionOrderStatusEnum {
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("active")]
-    Active ,
+    Active,
     [Description("on-hold")]
-    OnDashHold ,
+    OnDashHold,
     [Description("revoked")]
-    Revoked ,
+    Revoked,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum ObservationStatusEnum {
     [Description("registered")]
-    Registered ,
+    Registered,
     [Description("preliminary")]
-    Preliminary ,
+    Preliminary,
     [Description("final")]
-    Final ,
+    Final,
     [Description("amended")]
-    Amended ,
+    Amended,
     [Description("corrected")]
-    Corrected ,
+    Corrected,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum ObservationDataTypeEnum {
     [Description("Quantity")]
-    Quantity ,
+    Quantity,
     [Description("CodeableConcept")]
-    CodeableConcept ,
+    CodeableConcept,
     [Description("string")]
-    String ,
+    String,
     [Description("boolean")]
-    Boolean ,
+    Boolean,
     [Description("integer")]
-    Integer ,
+    Integer,
     [Description("Range")]
-    Range ,
+    Range,
     [Description("Ratio")]
-    Ratio ,
+    Ratio,
     [Description("SampledData")]
-    SampledData ,
+    SampledData,
     [Description("time")]
-    Time ,
+    Time,
     [Description("dateTime")]
-    DateTime ,
+    DateTime,
     [Description("Period")]
-    Period ,
+    Period,
 }
 
 public enum ObservationRangeCategoryEnum {
     [Description("reference")]
-    Reference ,
+    Reference,
     [Description("critical")]
-    Critical ,
+    Critical,
     [Description("absolute")]
-    Absolute ,
+    Absolute,
 }
 
 public enum AdministrativeGenderEnum {
     [Description("male")]
-    Male ,
+    Male,
     [Description("female")]
-    Female ,
+    Female,
     [Description("other")]
-    Other ,
+    Other,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum OperationKindEnum {
     [Description("operation")]
-    Operation ,
+    Operation,
     [Description("query")]
-    Query ,
+    Query,
 }
 
 public enum OperationParameterUseEnum {
     [Description("in")]
-    In ,
+    In,
     [Description("out")]
-    Out ,
+    Out,
 }
 
 public enum IssueTypeEnum {
     [Description("invalid")]
-    Invalid ,
+    Invalid,
     [Description("structure")]
-    Structure ,
+    Structure,
     [Description("required")]
-    Required ,
+    Required,
     [Description("value")]
-    Value ,
+    Value,
     [Description("invariant")]
-    Invariant ,
+    Invariant,
     [Description("security")]
-    Security ,
+    Security,
     [Description("login")]
-    Login ,
+    Login,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
     [Description("expired")]
-    Expired ,
+    Expired,
     [Description("forbidden")]
-    Forbidden ,
+    Forbidden,
     [Description("suppressed")]
-    Suppressed ,
+    Suppressed,
     [Description("processing")]
-    Processing ,
+    Processing,
     [Description("not-supported")]
-    NotDashSupported ,
+    NotDashSupported,
     [Description("duplicate")]
-    Duplicate ,
+    Duplicate,
     [Description("multiple-matches")]
-    MultipleDashMatches ,
+    MultipleDashMatches,
     [Description("not-found")]
-    NotDashFound ,
+    NotDashFound,
     [Description("deleted")]
-    Deleted ,
+    Deleted,
     [Description("too-long")]
-    TooDashLong ,
+    TooDashLong,
     [Description("code-invalid")]
-    CodeDashInvalid ,
+    CodeDashInvalid,
     [Description("extension")]
-    Extension ,
+    Extension,
     [Description("too-costly")]
-    TooDashCostly ,
+    TooDashCostly,
     [Description("business-rule")]
-    BusinessDashRule ,
+    BusinessDashRule,
     [Description("conflict")]
-    Conflict ,
+    Conflict,
     [Description("transient")]
-    Transient ,
+    Transient,
     [Description("lock-error")]
-    LockDashError ,
+    LockDashError,
     [Description("no-store")]
-    NoDashStore ,
+    NoDashStore,
     [Description("exception")]
-    Exception ,
+    Exception,
     [Description("timeout")]
-    Timeout ,
+    Timeout,
     [Description("incomplete")]
-    Incomplete ,
+    Incomplete,
     [Description("throttled")]
-    Throttled ,
+    Throttled,
     [Description("informational")]
-    Informational ,
+    Informational,
 }
 
 public enum IssueSeverityEnum {
     [Description("fatal")]
-    Fatal ,
+    Fatal,
     [Description("error")]
-    Error ,
+    Error,
     [Description("warning")]
-    Warning ,
+    Warning,
     [Description("information")]
-    Information ,
+    Information,
 }
 
 public enum LinkTypeEnum {
     [Description("replaced-by")]
-    ReplacedDashBy ,
+    ReplacedDashBy,
     [Description("replaces")]
-    Replaces ,
+    Replaces,
     [Description("refer")]
-    Refer ,
+    Refer,
     [Description("seealso")]
-    Seealso ,
+    Seealso,
 }
 
 public enum PaymentNoticeStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum PaymentReconciliationStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum IdentityAssuranceLevelEnum {
     [Description("level1")]
-    Level1 ,
+    Level1,
     [Description("level2")]
-    Level2 ,
+    Level2,
     [Description("level3")]
-    Level3 ,
+    Level3,
     [Description("level4")]
-    Level4 ,
+    Level4,
 }
 
 public enum ActionCardinalityBehaviorEnum {
     [Description("single")]
-    Single ,
+    Single,
     [Description("multiple")]
-    Multiple ,
+    Multiple,
 }
 
 public enum ActionGroupingBehaviorEnum {
     [Description("visual-group")]
-    VisualDashGroup ,
+    VisualDashGroup,
     [Description("logical-group")]
-    LogicalDashGroup ,
+    LogicalDashGroup,
     [Description("sentence-group")]
-    SentenceDashGroup ,
+    SentenceDashGroup,
 }
 
 public enum ActionPrecheckBehaviorEnum {
     [Description("yes")]
-    Yes ,
+    Yes,
     [Description("no")]
-    No ,
+    No,
 }
 
 public enum ActionRequiredBehaviorEnum {
     [Description("must")]
-    Must ,
+    Must,
     [Description("could")]
-    Could ,
+    Could,
     [Description("must-unless-documented")]
-    MustDashUnlessDashDocumented ,
+    MustDashUnlessDashDocumented,
 }
 
 public enum ActionSelectionBehaviorEnum {
     [Description("any")]
-    Any ,
+    Any,
     [Description("all")]
-    All ,
+    All,
     [Description("all-or-none")]
-    AllDashOrDashNone ,
+    AllDashOrDashNone,
     [Description("exactly-one")]
-    ExactlyDashOne ,
+    ExactlyDashOne,
     [Description("at-most-one")]
-    AtDashMostDashOne ,
+    AtDashMostDashOne,
     [Description("one-or-more")]
-    OneDashOrDashMore ,
+    OneDashOrDashMore,
 }
 
 public enum ActionConditionKindEnum {
     [Description("applicability")]
-    Applicability ,
+    Applicability,
     [Description("start")]
-    Start ,
+    Start,
     [Description("stop")]
-    Stop ,
+    Stop,
 }
 
 public enum ActionParticipantTypeEnum {
     [Description("patient")]
-    Patient ,
+    Patient,
     [Description("practitioner")]
-    Practitioner ,
+    Practitioner,
     [Description("related-person")]
-    RelatedDashPerson ,
+    RelatedDashPerson,
     [Description("device")]
-    Device ,
+    Device,
 }
 
 public enum ActionRelationshipTypeEnum {
     [Description("before-start")]
-    BeforeDashStart ,
+    BeforeDashStart,
     [Description("before")]
-    Before ,
+    Before,
     [Description("before-end")]
-    BeforeDashEnd ,
+    BeforeDashEnd,
     [Description("concurrent-with-start")]
-    ConcurrentDashWithDashStart ,
+    ConcurrentDashWithDashStart,
     [Description("concurrent")]
-    Concurrent ,
+    Concurrent,
     [Description("concurrent-with-end")]
-    ConcurrentDashWithDashEnd ,
+    ConcurrentDashWithDashEnd,
     [Description("after-start")]
-    AfterDashStart ,
+    AfterDashStart,
     [Description("after")]
-    After ,
+    After,
     [Description("after-end")]
-    AfterDashEnd ,
+    AfterDashEnd,
 }
 
 public enum ProcedureStatusEnum {
     [Description("preparation")]
-    Preparation ,
+    Preparation,
     [Description("in-progress")]
-    InDashProgress ,
+    InDashProgress,
     [Description("not-done")]
-    NotDashDone ,
+    NotDashDone,
     [Description("on-hold")]
-    OnDashHold ,
+    OnDashHold,
     [Description("stopped")]
-    Stopped ,
+    Stopped,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum ProvenanceEntityRoleEnum {
     [Description("derivation")]
-    Derivation ,
+    Derivation,
     [Description("revision")]
-    Revision ,
+    Revision,
     [Description("quotation")]
-    Quotation ,
+    Quotation,
     [Description("source")]
-    Source ,
+    Source,
     [Description("removal")]
-    Removal ,
+    Removal,
 }
 
 public enum EnableWhenBehaviorEnum {
     [Description("all")]
-    All ,
+    All,
     [Description("any")]
-    Any ,
+    Any,
 }
 
 public enum QuestionnaireItemTypeEnum {
     [Description("group")]
-    Group ,
+    Group,
     [Description("display")]
-    Display ,
+    Display,
     [Description("question")]
-    Question ,
+    Question,
     [Description("boolean")]
-    Boolean ,
+    Boolean,
     [Description("decimal")]
-    Decimal ,
+    Decimal,
     [Description("integer")]
-    Integer ,
+    Integer,
     [Description("date")]
-    Date ,
+    Date,
     [Description("dateTime")]
-    DateTime ,
+    DateTime,
     [Description("time")]
-    Time ,
+    Time,
     [Description("string")]
-    String ,
+    String,
     [Description("text")]
-    Text ,
+    Text,
     [Description("url")]
-    Url ,
+    Url,
     [Description("choice")]
-    Choice ,
+    Choice,
     [Description("open-choice")]
-    OpenDashChoice ,
+    OpenDashChoice,
     [Description("attachment")]
-    Attachment ,
+    Attachment,
     [Description("reference")]
-    Reference ,
+    Reference,
     [Description("quantity")]
-    Quantity ,
+    Quantity,
 }
 
 public enum QuestionnaireItemOperatorEnum {
     [Description("exists")]
-    Exists ,
+    Exists,
     [Description("=")]
-    Equal ,
+    Equal,
     [Description("!=")]
-    NotEqual ,
+    NotEqual,
     [Description(">")]
-    Greater ,
+    Greater,
     [Description("<")]
-    Less ,
+    Less,
     [Description(">=")]
-    GreaterOrEqual ,
+    GreaterOrEqual,
     [Description("<=")]
-    LessOrEqual ,
+    LessOrEqual,
 }
 
 public enum QuestionnaireResponseStatusEnum {
     [Description("in-progress")]
-    InDashProgress ,
+    InDashProgress,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("amended")]
-    Amended ,
+    Amended,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("stopped")]
-    Stopped ,
+    Stopped,
 }
 
 public enum RequestStatusEnum {
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("active")]
-    Active ,
+    Active,
     [Description("on-hold")]
-    OnDashHold ,
+    OnDashHold,
     [Description("revoked")]
-    Revoked ,
+    Revoked,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum ResearchElementTypeEnum {
     [Description("population")]
-    Population ,
+    Population,
     [Description("exposure")]
-    Exposure ,
+    Exposure,
     [Description("outcome")]
-    Outcome ,
+    Outcome,
 }
 
 public enum VariableTypeEnum {
     [Description("dichotomous")]
-    Dichotomous ,
+    Dichotomous,
     [Description("continuous")]
-    Continuous ,
+    Continuous,
     [Description("descriptive")]
-    Descriptive ,
+    Descriptive,
 }
 
 public enum ResearchStudyStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("administratively-completed")]
-    AdministrativelyDashCompleted ,
+    AdministrativelyDashCompleted,
     [Description("approved")]
-    Approved ,
+    Approved,
     [Description("closed-to-accrual")]
-    ClosedDashToDashAccrual ,
+    ClosedDashToDashAccrual,
     [Description("closed-to-accrual-and-intervention")]
-    ClosedDashToDashAccrualDashAndDashIntervention ,
+    ClosedDashToDashAccrualDashAndDashIntervention,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("disapproved")]
-    Disapproved ,
+    Disapproved,
     [Description("in-review")]
-    InDashReview ,
+    InDashReview,
     [Description("temporarily-closed-to-accrual")]
-    TemporarilyDashClosedDashToDashAccrual ,
+    TemporarilyDashClosedDashToDashAccrual,
     [Description("temporarily-closed-to-accrual-and-intervention")]
-    TemporarilyDashClosedDashToDashAccrualDashAndDashIntervention ,
+    TemporarilyDashClosedDashToDashAccrualDashAndDashIntervention,
     [Description("withdrawn")]
-    Withdrawn ,
+    Withdrawn,
 }
 
 public enum ResearchSubjectStatusEnum {
     [Description("candidate")]
-    Candidate ,
+    Candidate,
     [Description("eligible")]
-    Eligible ,
+    Eligible,
     [Description("follow-up")]
-    FollowDashUp ,
+    FollowDashUp,
     [Description("ineligible")]
-    Ineligible ,
+    Ineligible,
     [Description("not-registered")]
-    NotDashRegistered ,
+    NotDashRegistered,
     [Description("off-study")]
-    OffDashStudy ,
+    OffDashStudy,
     [Description("on-study")]
-    OnDashStudy ,
+    OnDashStudy,
     [Description("on-study-intervention")]
-    OnDashStudyDashIntervention ,
+    OnDashStudyDashIntervention,
     [Description("on-study-observation")]
-    OnDashStudyDashObservation ,
+    OnDashStudyDashObservation,
     [Description("pending-on-study")]
-    PendingDashOnDashStudy ,
+    PendingDashOnDashStudy,
     [Description("potential-candidate")]
-    PotentialDashCandidate ,
+    PotentialDashCandidate,
     [Description("screening")]
-    Screening ,
+    Screening,
     [Description("withdrawn")]
-    Withdrawn ,
+    Withdrawn,
 }
 
 public enum RiskAssessmentStatusEnum {
     [Description("registered")]
-    Registered ,
+    Registered,
     [Description("preliminary")]
-    Preliminary ,
+    Preliminary,
     [Description("final")]
-    Final ,
+    Final,
     [Description("amended")]
-    Amended ,
+    Amended,
     [Description("corrected")]
-    Corrected ,
+    Corrected,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum SearchComparatorEnum {
     [Description("eq")]
-    Eq ,
+    Eq,
     [Description("ne")]
-    Ne ,
+    Ne,
     [Description("gt")]
-    Gt ,
+    Gt,
     [Description("lt")]
-    Lt ,
+    Lt,
     [Description("ge")]
-    Ge ,
+    Ge,
     [Description("le")]
-    Le ,
+    Le,
     [Description("sa")]
-    Sa ,
+    Sa,
     [Description("eb")]
-    Eb ,
+    Eb,
     [Description("ap")]
-    Ap ,
+    Ap,
 }
 
 public enum SearchModifierCodeEnum {
     [Description("missing")]
-    Missing ,
+    Missing,
     [Description("exact")]
-    Exact ,
+    Exact,
     [Description("contains")]
-    Contains ,
+    Contains,
     [Description("not")]
-    Not ,
+    Not,
     [Description("text")]
-    Text ,
+    Text,
     [Description("in")]
-    In ,
+    In,
     [Description("not-in")]
-    NotDashIn ,
+    NotDashIn,
     [Description("below")]
-    Below ,
+    Below,
     [Description("above")]
-    Above ,
+    Above,
     [Description("type")]
-    Type ,
+    Type,
     [Description("identifier")]
-    Identifier ,
+    Identifier,
     [Description("ofType")]
-    OfType ,
+    OfType,
 }
 
 public enum XpathUsageTypeEnum {
     [Description("normal")]
-    Normal ,
+    Normal,
     [Description("phonetic")]
-    Phonetic ,
+    Phonetic,
     [Description("nearby")]
-    Nearby ,
+    Nearby,
     [Description("distance")]
-    Distance ,
+    Distance,
     [Description("other")]
-    Other ,
+    Other,
 }
 
 public enum ServiceRequestIntentEnum {
     [Description("proposal")]
-    Proposal ,
+    Proposal,
     [Description("plan")]
-    Plan ,
+    Plan,
     [Description("directive")]
-    Directive ,
+    Directive,
     [Description("order")]
-    Order ,
+    Order,
     [Description("original-order")]
-    OriginalDashOrder ,
+    OriginalDashOrder,
     [Description("reflex-order")]
-    ReflexDashOrder ,
+    ReflexDashOrder,
     [Description("filler-order")]
-    FillerDashOrder ,
+    FillerDashOrder,
     [Description("instance-order")]
-    InstanceDashOrder ,
+    InstanceDashOrder,
     [Description("option")]
-    Option ,
+    Option,
 }
 
 public enum ServiceRequestPriorityEnum {
     [Description("routine")]
-    Routine ,
+    Routine,
     [Description("urgent")]
-    Urgent ,
+    Urgent,
     [Description("asap")]
-    Asap ,
+    Asap,
     [Description("stat")]
-    Stat ,
+    Stat,
 }
 
 public enum ServiceRequestStatusEnum {
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("active")]
-    Active ,
+    Active,
     [Description("on-hold")]
-    OnDashHold ,
+    OnDashHold,
     [Description("revoked")]
-    Revoked ,
+    Revoked,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum SlotStatusEnum {
     [Description("busy")]
-    Busy ,
+    Busy,
     [Description("free")]
-    Free ,
+    Free,
     [Description("busy-unavailable")]
-    BusyDashUnavailable ,
+    BusyDashUnavailable,
     [Description("busy-tentative")]
-    BusyDashTentative ,
+    BusyDashTentative,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum SpecimenStatusEnum {
     [Description("available")]
-    Available ,
+    Available,
     [Description("unavailable")]
-    Unavailable ,
+    Unavailable,
     [Description("unsatisfactory")]
-    Unsatisfactory ,
+    Unsatisfactory,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum SpecimenContainedPreferenceEnum {
     [Description("preferred")]
-    Preferred ,
+    Preferred,
     [Description("alternate")]
-    Alternate ,
+    Alternate,
 }
 
 public enum TypeDerivationRuleEnum {
     [Description("specialization")]
-    Specialization ,
+    Specialization,
     [Description("constraint")]
-    Constraint ,
+    Constraint,
 }
 
 public enum StructureDefinitionKindEnum {
     [Description("primitive-type")]
-    PrimitiveDashType ,
+    PrimitiveDashType,
     [Description("complex-type")]
-    ComplexDashType ,
+    ComplexDashType,
     [Description("resource")]
-    Resource ,
+    Resource,
     [Description("logical")]
-    Logical ,
+    Logical,
 }
 
 public enum ExtensionContextTypeEnum {
     [Description("fhirpath")]
-    Fhirpath ,
+    Fhirpath,
     [Description("element")]
-    Element ,
+    Element,
     [Description("extension")]
-    Extension ,
+    Extension,
 }
 
 public enum StructureMapGroupTypeModeEnum {
     [Description("none")]
-    None ,
+    None,
     [Description("types")]
-    Types ,
+    Types,
     [Description("type-and-types")]
-    TypeDashAndDashTypes ,
+    TypeDashAndDashTypes,
 }
 
 public enum StructureMapInputModeEnum {
     [Description("source")]
-    Source ,
+    Source,
     [Description("target")]
-    Target ,
+    Target,
 }
 
 public enum StructureMapSourceListModeEnum {
     [Description("first")]
-    First ,
+    First,
     [Description("not_first")]
-    Not_first ,
+    Not_first,
     [Description("last")]
-    Last ,
+    Last,
     [Description("not_last")]
-    Not_last ,
+    Not_last,
     [Description("only_one")]
-    Only_one ,
+    Only_one,
 }
 
 public enum StructureMapContextTypeEnum {
     [Description("type")]
-    Type ,
+    Type,
     [Description("variable")]
-    Variable ,
+    Variable,
 }
 
 public enum StructureMapTargetListModeEnum {
     [Description("first")]
-    First ,
+    First,
     [Description("share")]
-    Share ,
+    Share,
     [Description("last")]
-    Last ,
+    Last,
     [Description("collate")]
-    Collate ,
+    Collate,
 }
 
 public enum StructureMapTransformEnum {
     [Description("create")]
-    Create ,
+    Create,
     [Description("copy")]
-    Copy ,
+    Copy,
     [Description("truncate")]
-    Truncate ,
+    Truncate,
     [Description("escape")]
-    Escape ,
+    Escape,
     [Description("cast")]
-    Cast ,
+    Cast,
     [Description("append")]
-    Append ,
+    Append,
     [Description("translate")]
-    Translate ,
+    Translate,
     [Description("reference")]
-    Reference ,
+    Reference,
     [Description("dateOp")]
-    DateOp ,
+    DateOp,
     [Description("uuid")]
-    Uuid ,
+    Uuid,
     [Description("pointer")]
-    Pointer ,
+    Pointer,
     [Description("evaluate")]
-    Evaluate ,
+    Evaluate,
     [Description("cc")]
-    Cc ,
+    Cc,
     [Description("c")]
-    C ,
+    C,
     [Description("qty")]
-    Qty ,
+    Qty,
     [Description("id")]
-    Id ,
+    Id,
     [Description("cp")]
-    Cp ,
+    Cp,
 }
 
 public enum StructureMapModelModeEnum {
     [Description("source")]
-    Source ,
+    Source,
     [Description("queried")]
-    Queried ,
+    Queried,
     [Description("target")]
-    Target ,
+    Target,
     [Description("produced")]
-    Produced ,
+    Produced,
 }
 
 public enum SubscriptionStatusEnum {
     [Description("requested")]
-    Requested ,
+    Requested,
     [Description("active")]
-    Active ,
+    Active,
     [Description("error")]
-    Error ,
+    Error,
     [Description("off")]
-    Off ,
+    Off,
 }
 
 public enum SubscriptionChannelTypeEnum {
     [Description("rest-hook")]
-    RestDashHook ,
+    RestDashHook,
     [Description("websocket")]
-    Websocket ,
+    Websocket,
     [Description("email")]
-    Email ,
+    Email,
     [Description("sms")]
-    Sms ,
+    Sms,
     [Description("message")]
-    Message ,
+    Message,
 }
 
 public enum FhirsubstanceStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("inactive")]
-    Inactive ,
+    Inactive,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum SupplyDeliveryStatusEnum {
     [Description("in-progress")]
-    InDashProgress ,
+    InDashProgress,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("abandoned")]
-    Abandoned ,
+    Abandoned,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum SupplyRequestStatusEnum {
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("active")]
-    Active ,
+    Active,
     [Description("suspended")]
-    Suspended ,
+    Suspended,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
     [Description("unknown")]
-    Unknown ,
+    Unknown,
 }
 
 public enum TaskIntentEnum {
     [Description("unknown")]
-    Unknown ,
+    Unknown,
     [Description("proposal")]
-    Proposal ,
+    Proposal,
     [Description("plan")]
-    Plan ,
+    Plan,
     [Description("order")]
-    Order ,
+    Order,
     [Description("original-order")]
-    OriginalDashOrder ,
+    OriginalDashOrder,
     [Description("reflex-order")]
-    ReflexDashOrder ,
+    ReflexDashOrder,
     [Description("filler-order")]
-    FillerDashOrder ,
+    FillerDashOrder,
     [Description("instance-order")]
-    InstanceDashOrder ,
+    InstanceDashOrder,
     [Description("option")]
-    Option ,
+    Option,
 }
 
 public enum TaskPriorityEnum {
     [Description("routine")]
-    Routine ,
+    Routine,
     [Description("urgent")]
-    Urgent ,
+    Urgent,
     [Description("asap")]
-    Asap ,
+    Asap,
     [Description("stat")]
-    Stat ,
+    Stat,
 }
 
 public enum TaskStatusEnum {
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("requested")]
-    Requested ,
+    Requested,
     [Description("received")]
-    Received ,
+    Received,
     [Description("accepted")]
-    Accepted ,
+    Accepted,
     [Description("rejected")]
-    Rejected ,
+    Rejected,
     [Description("ready")]
-    Ready ,
+    Ready,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("in-progress")]
-    InDashProgress ,
+    InDashProgress,
     [Description("on-hold")]
-    OnDashHold ,
+    OnDashHold,
     [Description("failed")]
-    Failed ,
+    Failed,
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum CodeSearchSupportEnum {
     [Description("explicit")]
-    Explicit ,
+    Explicit,
     [Description("all")]
-    All ,
+    All,
 }
 
 public enum TestReportResultEnum {
     [Description("pass")]
-    Pass ,
+    Pass,
     [Description("fail")]
-    Fail ,
+    Fail,
     [Description("pending")]
-    Pending ,
+    Pending,
 }
 
 public enum TestReportStatusEnum {
     [Description("completed")]
-    Completed ,
+    Completed,
     [Description("in-progress")]
-    InDashProgress ,
+    InDashProgress,
     [Description("waiting")]
-    Waiting ,
+    Waiting,
     [Description("stopped")]
-    Stopped ,
+    Stopped,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum TestReportParticipantTypeEnum {
     [Description("test-engine")]
-    TestDashEngine ,
+    TestDashEngine,
     [Description("client")]
-    Client ,
+    Client,
     [Description("server")]
-    Server ,
+    Server,
 }
 
 public enum TestReportActionResultEnum {
     [Description("pass")]
-    Pass ,
+    Pass,
     [Description("skip")]
-    Skip ,
+    Skip,
     [Description("fail")]
-    Fail ,
+    Fail,
     [Description("warning")]
-    Warning ,
+    Warning,
     [Description("error")]
-    Error ,
+    Error,
 }
 
 public enum AssertionDirectionTypeEnum {
     [Description("response")]
-    Response ,
+    Response,
     [Description("request")]
-    Request ,
+    Request,
 }
 
 public enum AssertionOperatorTypeEnum {
     [Description("equals")]
-    Equals ,
+    Equals,
     [Description("notEquals")]
-    NotEquals ,
+    NotEquals,
     [Description("in")]
-    In ,
+    In,
     [Description("notIn")]
-    NotIn ,
+    NotIn,
     [Description("greaterThan")]
-    GreaterThan ,
+    GreaterThan,
     [Description("lessThan")]
-    LessThan ,
+    LessThan,
     [Description("empty")]
-    Empty ,
+    Empty,
     [Description("notEmpty")]
-    NotEmpty ,
+    NotEmpty,
     [Description("contains")]
-    Contains ,
+    Contains,
     [Description("notContains")]
-    NotContains ,
+    NotContains,
     [Description("eval")]
-    Eval ,
+    Eval,
 }
 
 public enum TestScriptRequestMethodCodeEnum {
     [Description("delete")]
-    Delete ,
+    Delete,
     [Description("get")]
-    Get ,
+    Get,
     [Description("options")]
-    Options ,
+    Options,
     [Description("patch")]
-    Patch ,
+    Patch,
     [Description("post")]
-    Post ,
+    Post,
     [Description("put")]
-    Put ,
+    Put,
     [Description("head")]
-    Head ,
+    Head,
 }
 
 public enum AssertionResponseTypesEnum {
     [Description("okay")]
-    Okay ,
+    Okay,
     [Description("created")]
-    Created ,
+    Created,
     [Description("noContent")]
-    NoContent ,
+    NoContent,
     [Description("notModified")]
-    NotModified ,
+    NotModified,
     [Description("bad")]
-    Bad ,
+    Bad,
     [Description("forbidden")]
-    Forbidden ,
+    Forbidden,
     [Description("notFound")]
-    NotFound ,
+    NotFound,
     [Description("methodNotAllowed")]
-    MethodNotAllowed ,
+    MethodNotAllowed,
     [Description("conflict")]
-    Conflict ,
+    Conflict,
     [Description("gone")]
-    Gone ,
+    Gone,
     [Description("preconditionFailed")]
-    PreconditionFailed ,
+    PreconditionFailed,
     [Description("unprocessable")]
-    Unprocessable ,
+    Unprocessable,
 }
 
 public enum StatusEnum {
     [Description("attested")]
-    Attested ,
+    Attested,
     [Description("validated")]
-    Validated ,
+    Validated,
     [Description("in-process")]
-    InDashProcess ,
+    InDashProcess,
     [Description("req-revalid")]
-    ReqDashRevalid ,
+    ReqDashRevalid,
     [Description("val-fail")]
-    ValDashFail ,
+    ValDashFail,
     [Description("reval-fail")]
-    RevalDashFail ,
+    RevalDashFail,
 }
 
 public enum VisionStatusEnum {
     [Description("active")]
-    Active ,
+    Active,
     [Description("cancelled")]
-    Cancelled ,
+    Cancelled,
     [Description("draft")]
-    Draft ,
+    Draft,
     [Description("entered-in-error")]
-    EnteredDashInDashError ,
+    EnteredDashInDashError,
 }
 
 public enum VisionEyesEnum {
     [Description("right")]
-    Right ,
+    Right,
     [Description("left")]
-    Left ,
+    Left,
 }
 
 public enum VisionBaseEnum {
     [Description("up")]
-    Up ,
+    Up,
     [Description("down")]
-    Down ,
+    Down,
     [Description("in")]
-    In ,
+    In,
     [Description("out")]
-    Out ,
+    Out,
 }
 

@@ -6,14 +6,14 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class EnrollmentResponse : DomainResource {
-    public  string? Created { get; set; }
-    public  string? Disposition { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  ResourceReference? Organization { get; set; }
-    public  RemittanceOutcomeEnum? Outcome { get; set; }
-    public  ResourceReference? Request { get; set; }
-    public  ResourceReference? RequestProvider { get; set; }
-    public  EnrollmentResponseStatusEnum? Status { get; set; }
+    public string? Created { get; set; }
+    public string? Disposition { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public ResourceReference? Organization { get; set; }
+    public RemittanceOutcomeEnum? Outcome { get; set; }
+    public ResourceReference? Request { get; set; }
+    public ResourceReference? RequestProvider { get; set; }
+    public EnrollmentResponseStatusEnum? Status { get; set; }
 
     public override string ToString() => 
         JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

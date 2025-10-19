@@ -6,31 +6,31 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class SupplyRequest : DomainResource {
-    public  string? AuthoredOn { get; set; }
-    public  CodeableConcept? Category { get; set; }
-    public  ResourceReference? DeliverFrom { get; set; }
-    public  ResourceReference? DeliverTo { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  CodeableConcept? ItemCodeableConcept { get; set; }
-    public  ResourceReference? ItemReference { get; set; }
-    public  string? OccurrenceDateTime { get; set; }
-    public  Period? OccurrencePeriod { get; set; }
-    public  Timing? OccurrenceTiming { get; set; }
-    public  SupplyRequestParameter[]? Parameter { get; set; }
-    public  RequestPriorityEnum? Priority { get; set; }
+    public string? AuthoredOn { get; set; }
+    public CodeableConcept? Category { get; set; }
+    public ResourceReference? DeliverFrom { get; set; }
+    public ResourceReference? DeliverTo { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public CodeableConcept? ItemCodeableConcept { get; set; }
+    public ResourceReference? ItemReference { get; set; }
+    public string? OccurrenceDateTime { get; set; }
+    public Period? OccurrencePeriod { get; set; }
+    public Timing? OccurrenceTiming { get; set; }
+    public SupplyRequestParameter[]? Parameter { get; set; }
+    public RequestPriorityEnum? Priority { get; set; }
     public required Quantity Quantity { get; set; }
-    public  CodeableConcept[]? ReasonCode { get; set; }
-    public  ResourceReference[]? ReasonReference { get; set; }
-    public  ResourceReference? Requester { get; set; }
-    public  SupplyRequestStatusEnum? Status { get; set; }
-    public  ResourceReference[]? Supplier { get; set; }
+    public CodeableConcept[]? ReasonCode { get; set; }
+    public ResourceReference[]? ReasonReference { get; set; }
+    public ResourceReference? Requester { get; set; }
+    public SupplyRequestStatusEnum? Status { get; set; }
+    public ResourceReference[]? Supplier { get; set; }
 
     public class SupplyRequestParameter : BackboneElement {
-        public  CodeableConcept? Code { get; set; }
-        public  bool? ValueBoolean { get; set; }
-        public  CodeableConcept? ValueCodeableConcept { get; set; }
-        public  Quantity? ValueQuantity { get; set; }
-        public  Range? ValueRange { get; set; }
+        public CodeableConcept? Code { get; set; }
+        public bool? ValueBoolean { get; set; }
+        public CodeableConcept? ValueCodeableConcept { get; set; }
+        public Quantity? ValueQuantity { get; set; }
+        public Range? ValueRange { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

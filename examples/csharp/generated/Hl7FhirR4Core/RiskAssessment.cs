@@ -6,34 +6,34 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class RiskAssessment : DomainResource {
-    public  ResourceReference? BasedOn { get; set; }
-    public  ResourceReference[]? Basis { get; set; }
-    public  CodeableConcept? Code { get; set; }
-    public  ResourceReference? Condition { get; set; }
-    public  ResourceReference? Encounter { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  CodeableConcept? Method { get; set; }
-    public  string? Mitigation { get; set; }
-    public  Annotation[]? Note { get; set; }
-    public  string? OccurrenceDateTime { get; set; }
-    public  Period? OccurrencePeriod { get; set; }
-    public  ResourceReference? Parent { get; set; }
-    public  ResourceReference? Performer { get; set; }
-    public  RiskAssessmentPrediction[]? Prediction { get; set; }
-    public  CodeableConcept[]? ReasonCode { get; set; }
-    public  ResourceReference[]? ReasonReference { get; set; }
+    public ResourceReference? BasedOn { get; set; }
+    public ResourceReference[]? Basis { get; set; }
+    public CodeableConcept? Code { get; set; }
+    public ResourceReference? Condition { get; set; }
+    public ResourceReference? Encounter { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public CodeableConcept? Method { get; set; }
+    public string? Mitigation { get; set; }
+    public Annotation[]? Note { get; set; }
+    public string? OccurrenceDateTime { get; set; }
+    public Period? OccurrencePeriod { get; set; }
+    public ResourceReference? Parent { get; set; }
+    public ResourceReference? Performer { get; set; }
+    public RiskAssessmentPrediction[]? Prediction { get; set; }
+    public CodeableConcept[]? ReasonCode { get; set; }
+    public ResourceReference[]? ReasonReference { get; set; }
     public required RiskAssessmentStatusEnum Status { get; set; }
     public required ResourceReference Subject { get; set; }
 
     public class RiskAssessmentPrediction : BackboneElement {
-        public  CodeableConcept? Outcome { get; set; }
-        public  decimal? ProbabilityDecimal { get; set; }
-        public  Range? ProbabilityRange { get; set; }
-        public  CodeableConcept? QualitativeRisk { get; set; }
-        public  string? Rationale { get; set; }
-        public  decimal? RelativeRisk { get; set; }
-        public  Period? WhenPeriod { get; set; }
-        public  Range? WhenRange { get; set; }
+        public CodeableConcept? Outcome { get; set; }
+        public decimal? ProbabilityDecimal { get; set; }
+        public Range? ProbabilityRange { get; set; }
+        public CodeableConcept? QualitativeRisk { get; set; }
+        public string? Rationale { get; set; }
+        public decimal? RelativeRisk { get; set; }
+        public Period? WhenPeriod { get; set; }
+        public Range? WhenRange { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

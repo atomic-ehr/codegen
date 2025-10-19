@@ -6,35 +6,35 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class AllergyIntolerance : DomainResource {
-    public  ResourceReference? Asserter { get; set; }
-    public  AllergyIntoleranceCategoryEnum[]? Category { get; set; }
-    public  CodeableConcept? ClinicalStatus { get; set; }
-    public  CodeableConcept? Code { get; set; }
-    public  AllergyIntoleranceCriticalityEnum? Criticality { get; set; }
-    public  ResourceReference? Encounter { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  string? LastOccurrence { get; set; }
-    public  Annotation[]? Note { get; set; }
-    public  Age? OnsetAge { get; set; }
-    public  string? OnsetDateTime { get; set; }
-    public  Period? OnsetPeriod { get; set; }
-    public  Range? OnsetRange { get; set; }
-    public  string? OnsetString { get; set; }
+    public ResourceReference? Asserter { get; set; }
+    public AllergyIntoleranceCategoryEnum[]? Category { get; set; }
+    public CodeableConcept? ClinicalStatus { get; set; }
+    public CodeableConcept? Code { get; set; }
+    public AllergyIntoleranceCriticalityEnum? Criticality { get; set; }
+    public ResourceReference? Encounter { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public string? LastOccurrence { get; set; }
+    public Annotation[]? Note { get; set; }
+    public Age? OnsetAge { get; set; }
+    public string? OnsetDateTime { get; set; }
+    public Period? OnsetPeriod { get; set; }
+    public Range? OnsetRange { get; set; }
+    public string? OnsetString { get; set; }
     public required ResourceReference Patient { get; set; }
-    public  AllergyIntoleranceReaction[]? Reaction { get; set; }
-    public  string? RecordedDate { get; set; }
-    public  ResourceReference? Recorder { get; set; }
-    public  AllergyIntoleranceTypeEnum? Type { get; set; }
-    public  CodeableConcept? VerificationStatus { get; set; }
+    public AllergyIntoleranceReaction[]? Reaction { get; set; }
+    public string? RecordedDate { get; set; }
+    public ResourceReference? Recorder { get; set; }
+    public AllergyIntoleranceTypeEnum? Type { get; set; }
+    public CodeableConcept? VerificationStatus { get; set; }
 
     public class AllergyIntoleranceReaction : BackboneElement {
-        public  string? Description { get; set; }
-        public  CodeableConcept? ExposureRoute { get; set; }
+        public string? Description { get; set; }
+        public CodeableConcept? ExposureRoute { get; set; }
         public required CodeableConcept[] Manifestation { get; set; }
-        public  Annotation[]? Note { get; set; }
-        public  string? Onset { get; set; }
-        public  AllergyIntoleranceSeverityEnum? Severity { get; set; }
-        public  CodeableConcept? Substance { get; set; }
+        public Annotation[]? Note { get; set; }
+        public string? Onset { get; set; }
+        public AllergyIntoleranceSeverityEnum? Severity { get; set; }
+        public CodeableConcept? Substance { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

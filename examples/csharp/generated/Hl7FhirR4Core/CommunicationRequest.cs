@@ -6,34 +6,34 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class CommunicationRequest : DomainResource {
-    public  ResourceReference[]? About { get; set; }
-    public  string? AuthoredOn { get; set; }
-    public  ResourceReference[]? BasedOn { get; set; }
-    public  CodeableConcept[]? Category { get; set; }
-    public  bool? DoNotPerform { get; set; }
-    public  ResourceReference? Encounter { get; set; }
-    public  Identifier? GroupIdentifier { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  CodeableConcept[]? Medium { get; set; }
-    public  Annotation[]? Note { get; set; }
-    public  string? OccurrenceDateTime { get; set; }
-    public  Period? OccurrencePeriod { get; set; }
-    public  CommunicationRequestPayload[]? Payload { get; set; }
-    public  CommunicationPriorityEnum? Priority { get; set; }
-    public  CodeableConcept[]? ReasonCode { get; set; }
-    public  ResourceReference[]? ReasonReference { get; set; }
-    public  ResourceReference[]? Recipient { get; set; }
-    public  ResourceReference[]? Replaces { get; set; }
-    public  ResourceReference? Requester { get; set; }
-    public  ResourceReference? Sender { get; set; }
+    public ResourceReference[]? About { get; set; }
+    public string? AuthoredOn { get; set; }
+    public ResourceReference[]? BasedOn { get; set; }
+    public CodeableConcept[]? Category { get; set; }
+    public bool? DoNotPerform { get; set; }
+    public ResourceReference? Encounter { get; set; }
+    public Identifier? GroupIdentifier { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public CodeableConcept[]? Medium { get; set; }
+    public Annotation[]? Note { get; set; }
+    public string? OccurrenceDateTime { get; set; }
+    public Period? OccurrencePeriod { get; set; }
+    public CommunicationRequestPayload[]? Payload { get; set; }
+    public CommunicationPriorityEnum? Priority { get; set; }
+    public CodeableConcept[]? ReasonCode { get; set; }
+    public ResourceReference[]? ReasonReference { get; set; }
+    public ResourceReference[]? Recipient { get; set; }
+    public ResourceReference[]? Replaces { get; set; }
+    public ResourceReference? Requester { get; set; }
+    public ResourceReference? Sender { get; set; }
     public required CommunicationRequestStatusEnum Status { get; set; }
-    public  CodeableConcept? StatusReason { get; set; }
-    public  ResourceReference? Subject { get; set; }
+    public CodeableConcept? StatusReason { get; set; }
+    public ResourceReference? Subject { get; set; }
 
     public class CommunicationRequestPayload : BackboneElement {
-        public  Attachment? ContentAttachment { get; set; }
-        public  ResourceReference? ContentReference { get; set; }
-        public  string? ContentString { get; set; }
+        public Attachment? ContentAttachment { get; set; }
+        public ResourceReference? ContentReference { get; set; }
+        public string? ContentString { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

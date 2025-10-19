@@ -6,24 +6,24 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class List : DomainResource {
-    public  CodeableConcept? Code { get; set; }
-    public  string? Date { get; set; }
-    public  CodeableConcept? EmptyReason { get; set; }
-    public  ResourceReference? Encounter { get; set; }
-    public  ListEntry[]? Entry { get; set; }
-    public  Identifier[]? Identifier { get; set; }
+    public CodeableConcept? Code { get; set; }
+    public string? Date { get; set; }
+    public CodeableConcept? EmptyReason { get; set; }
+    public ResourceReference? Encounter { get; set; }
+    public ListEntry[]? Entry { get; set; }
+    public Identifier[]? Identifier { get; set; }
     public required ListModeEnum Mode { get; set; }
-    public  Annotation[]? Note { get; set; }
-    public  CodeableConcept? OrderedBy { get; set; }
-    public  ResourceReference? Source { get; set; }
+    public Annotation[]? Note { get; set; }
+    public CodeableConcept? OrderedBy { get; set; }
+    public ResourceReference? Source { get; set; }
     public required ListStatusEnum Status { get; set; }
-    public  ResourceReference? Subject { get; set; }
-    public  string? Title { get; set; }
+    public ResourceReference? Subject { get; set; }
+    public string? Title { get; set; }
 
     public class ListEntry : BackboneElement {
-        public  string? Date { get; set; }
-        public  bool? Deleted { get; set; }
-        public  CodeableConcept? Flag { get; set; }
+        public string? Date { get; set; }
+        public bool? Deleted { get; set; }
+        public CodeableConcept? Flag { get; set; }
         public required ResourceReference Item { get; set; }
 
         public override string ToString() => 

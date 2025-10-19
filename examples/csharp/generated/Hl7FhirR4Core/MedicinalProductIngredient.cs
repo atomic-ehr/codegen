@@ -6,18 +6,18 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class MedicinalProductIngredient : DomainResource {
-    public  bool? AllergenicIndicator { get; set; }
-    public  Identifier? Identifier { get; set; }
-    public  ResourceReference[]? Manufacturer { get; set; }
+    public bool? AllergenicIndicator { get; set; }
+    public Identifier? Identifier { get; set; }
+    public ResourceReference[]? Manufacturer { get; set; }
     public required CodeableConcept Role { get; set; }
-    public  MedicinalProductIngredientSpecifiedSubstance[]? SpecifiedSubstance { get; set; }
-    public  MedicinalProductIngredientSubstance? Substance { get; set; }
+    public MedicinalProductIngredientSpecifiedSubstance[]? SpecifiedSubstance { get; set; }
+    public MedicinalProductIngredientSubstance? Substance { get; set; }
 
     public class MedicinalProductIngredientSpecifiedSubstance : BackboneElement {
         public required CodeableConcept Code { get; set; }
-        public  CodeableConcept? Confidentiality { get; set; }
+        public CodeableConcept? Confidentiality { get; set; }
         public required CodeableConcept Group { get; set; }
-        public  MedicinalProductIngredientSpecifiedSubstanceStrength[]? Strength { get; set; }
+        public MedicinalProductIngredientSpecifiedSubstanceStrength[]? Strength { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -25,13 +25,13 @@ public class MedicinalProductIngredient : DomainResource {
     }
 
     public class MedicinalProductIngredientSpecifiedSubstanceStrength : BackboneElement {
-        public  Ratio? Concentration { get; set; }
-        public  Ratio? ConcentrationLowLimit { get; set; }
-        public  CodeableConcept[]? Country { get; set; }
-        public  string? MeasurementPoint { get; set; }
+        public Ratio? Concentration { get; set; }
+        public Ratio? ConcentrationLowLimit { get; set; }
+        public CodeableConcept[]? Country { get; set; }
+        public string? MeasurementPoint { get; set; }
         public required Ratio Presentation { get; set; }
-        public  Ratio? PresentationLowLimit { get; set; }
-        public  MedicinalProductIngredientSpecifiedSubstanceStrengthReferenceStrength[]? ReferenceStrength { get; set; }
+        public Ratio? PresentationLowLimit { get; set; }
+        public MedicinalProductIngredientSpecifiedSubstanceStrengthReferenceStrength[]? ReferenceStrength { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -39,11 +39,11 @@ public class MedicinalProductIngredient : DomainResource {
     }
 
     public class MedicinalProductIngredientSpecifiedSubstanceStrengthReferenceStrength : BackboneElement {
-        public  CodeableConcept[]? Country { get; set; }
-        public  string? MeasurementPoint { get; set; }
+        public CodeableConcept[]? Country { get; set; }
+        public string? MeasurementPoint { get; set; }
         public required Ratio Strength { get; set; }
-        public  Ratio? StrengthLowLimit { get; set; }
-        public  CodeableConcept? Substance { get; set; }
+        public Ratio? StrengthLowLimit { get; set; }
+        public CodeableConcept? Substance { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -52,7 +52,7 @@ public class MedicinalProductIngredient : DomainResource {
 
     public class MedicinalProductIngredientSubstance : BackboneElement {
         public required CodeableConcept Code { get; set; }
-        public  MedicinalProductIngredientSpecifiedSubstanceStrength[]? Strength { get; set; }
+        public MedicinalProductIngredientSpecifiedSubstanceStrength[]? Strength { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

@@ -6,18 +6,18 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class MedicinalProductPackaged : DomainResource {
-    public  MedicinalProductPackagedBatchIdentifier[]? BatchIdentifier { get; set; }
-    public  string? Description { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  CodeableConcept? LegalStatusOfSupply { get; set; }
-    public  ResourceReference[]? Manufacturer { get; set; }
-    public  ResourceReference? MarketingAuthorization { get; set; }
-    public  MarketingStatus[]? MarketingStatus { get; set; }
+    public MedicinalProductPackagedBatchIdentifier[]? BatchIdentifier { get; set; }
+    public string? Description { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public CodeableConcept? LegalStatusOfSupply { get; set; }
+    public ResourceReference[]? Manufacturer { get; set; }
+    public ResourceReference? MarketingAuthorization { get; set; }
+    public MarketingStatus[]? MarketingStatus { get; set; }
     public required MedicinalProductPackagedPackageItem[] PackageItem { get; set; }
-    public  ResourceReference[]? Subject { get; set; }
+    public ResourceReference[]? Subject { get; set; }
 
     public class MedicinalProductPackagedBatchIdentifier : BackboneElement {
-        public  Identifier? ImmediatePackaging { get; set; }
+        public Identifier? ImmediatePackaging { get; set; }
         public required Identifier OuterPackaging { get; set; }
 
         public override string ToString() => 
@@ -26,17 +26,17 @@ public class MedicinalProductPackaged : DomainResource {
     }
 
     public class MedicinalProductPackagedPackageItem : BackboneElement {
-        public  CodeableConcept[]? AlternateMaterial { get; set; }
-        public  ResourceReference[]? Device { get; set; }
-        public  Identifier[]? Identifier { get; set; }
-        public  ResourceReference[]? ManufacturedItem { get; set; }
-        public  ResourceReference[]? Manufacturer { get; set; }
-        public  CodeableConcept[]? Material { get; set; }
-        public  CodeableConcept[]? OtherCharacteristics { get; set; }
-        public  MedicinalProductPackagedPackageItem[]? PackageItem { get; set; }
-        public  ProdCharacteristic? PhysicalCharacteristics { get; set; }
+        public CodeableConcept[]? AlternateMaterial { get; set; }
+        public ResourceReference[]? Device { get; set; }
+        public Identifier[]? Identifier { get; set; }
+        public ResourceReference[]? ManufacturedItem { get; set; }
+        public ResourceReference[]? Manufacturer { get; set; }
+        public CodeableConcept[]? Material { get; set; }
+        public CodeableConcept[]? OtherCharacteristics { get; set; }
+        public MedicinalProductPackagedPackageItem[]? PackageItem { get; set; }
+        public ProdCharacteristic? PhysicalCharacteristics { get; set; }
         public required Quantity Quantity { get; set; }
-        public  ProductShelfLife[]? ShelfLifeStorage { get; set; }
+        public ProductShelfLife[]? ShelfLifeStorage { get; set; }
         public required CodeableConcept Type { get; set; }
 
         public override string ToString() => 

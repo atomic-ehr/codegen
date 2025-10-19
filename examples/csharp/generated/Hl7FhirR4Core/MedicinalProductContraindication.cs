@@ -6,17 +6,17 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class MedicinalProductContraindication : DomainResource {
-    public  CodeableConcept[]? Comorbidity { get; set; }
-    public  CodeableConcept? Disease { get; set; }
-    public  CodeableConcept? DiseaseStatus { get; set; }
-    public  MedicinalProductContraindicationOtherTherapy[]? OtherTherapy { get; set; }
-    public  Population[]? Population { get; set; }
-    public  ResourceReference[]? Subject { get; set; }
-    public  ResourceReference[]? TherapeuticIndication { get; set; }
+    public CodeableConcept[]? Comorbidity { get; set; }
+    public CodeableConcept? Disease { get; set; }
+    public CodeableConcept? DiseaseStatus { get; set; }
+    public MedicinalProductContraindicationOtherTherapy[]? OtherTherapy { get; set; }
+    public Population[]? Population { get; set; }
+    public ResourceReference[]? Subject { get; set; }
+    public ResourceReference[]? TherapeuticIndication { get; set; }
 
     public class MedicinalProductContraindicationOtherTherapy : BackboneElement {
-        public  CodeableConcept? MedicationCodeableConcept { get; set; }
-        public  ResourceReference? MedicationReference { get; set; }
+        public CodeableConcept? MedicationCodeableConcept { get; set; }
+        public ResourceReference? MedicationReference { get; set; }
         public required CodeableConcept TherapyRelationshipType { get; set; }
 
         public override string ToString() => 

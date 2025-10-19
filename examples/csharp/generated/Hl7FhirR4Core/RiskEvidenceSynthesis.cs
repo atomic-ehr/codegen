@@ -6,42 +6,42 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class RiskEvidenceSynthesis : DomainResource {
-    public  string? ApprovalDate { get; set; }
-    public  ContactDetail[]? Author { get; set; }
-    public  RiskEvidenceSynthesisCertainty[]? Certainty { get; set; }
-    public  ContactDetail[]? Contact { get; set; }
-    public  string? Copyright { get; set; }
-    public  string? Date { get; set; }
-    public  string? Description { get; set; }
-    public  ContactDetail[]? Editor { get; set; }
-    public  Period? EffectivePeriod { get; set; }
-    public  ContactDetail[]? Endorser { get; set; }
-    public  ResourceReference? Exposure { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  CodeableConcept[]? Jurisdiction { get; set; }
-    public  string? LastReviewDate { get; set; }
-    public  string? Name { get; set; }
-    public  Annotation[]? Note { get; set; }
+    public string? ApprovalDate { get; set; }
+    public ContactDetail[]? Author { get; set; }
+    public RiskEvidenceSynthesisCertainty[]? Certainty { get; set; }
+    public ContactDetail[]? Contact { get; set; }
+    public string? Copyright { get; set; }
+    public string? Date { get; set; }
+    public string? Description { get; set; }
+    public ContactDetail[]? Editor { get; set; }
+    public Period? EffectivePeriod { get; set; }
+    public ContactDetail[]? Endorser { get; set; }
+    public ResourceReference? Exposure { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public CodeableConcept[]? Jurisdiction { get; set; }
+    public string? LastReviewDate { get; set; }
+    public string? Name { get; set; }
+    public Annotation[]? Note { get; set; }
     public required ResourceReference Outcome { get; set; }
     public required ResourceReference Population { get; set; }
-    public  string? Publisher { get; set; }
-    public  RelatedArtifact[]? RelatedArtifact { get; set; }
-    public  ContactDetail[]? Reviewer { get; set; }
-    public  RiskEvidenceSynthesisRiskEstimate? RiskEstimate { get; set; }
-    public  RiskEvidenceSynthesisSampleSize? SampleSize { get; set; }
+    public string? Publisher { get; set; }
+    public RelatedArtifact[]? RelatedArtifact { get; set; }
+    public ContactDetail[]? Reviewer { get; set; }
+    public RiskEvidenceSynthesisRiskEstimate? RiskEstimate { get; set; }
+    public RiskEvidenceSynthesisSampleSize? SampleSize { get; set; }
     public required PublicationStatusEnum Status { get; set; }
-    public  CodeableConcept? StudyType { get; set; }
-    public  CodeableConcept? SynthesisType { get; set; }
-    public  string? Title { get; set; }
-    public  CodeableConcept[]? Topic { get; set; }
-    public  string? Url { get; set; }
-    public  UsageContext[]? UseContext { get; set; }
-    public  string? Version { get; set; }
+    public CodeableConcept? StudyType { get; set; }
+    public CodeableConcept? SynthesisType { get; set; }
+    public string? Title { get; set; }
+    public CodeableConcept[]? Topic { get; set; }
+    public string? Url { get; set; }
+    public UsageContext[]? UseContext { get; set; }
+    public string? Version { get; set; }
 
     public class RiskEvidenceSynthesisCertainty : BackboneElement {
-        public  RiskEvidenceSynthesisCertaintyCertaintySubcomponent[]? CertaintySubcomponent { get; set; }
-        public  Annotation[]? Note { get; set; }
-        public  CodeableConcept[]? Rating { get; set; }
+        public RiskEvidenceSynthesisCertaintyCertaintySubcomponent[]? CertaintySubcomponent { get; set; }
+        public Annotation[]? Note { get; set; }
+        public CodeableConcept[]? Rating { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -49,9 +49,9 @@ public class RiskEvidenceSynthesis : DomainResource {
     }
 
     public class RiskEvidenceSynthesisCertaintyCertaintySubcomponent : BackboneElement {
-        public  Annotation[]? Note { get; set; }
-        public  CodeableConcept[]? Rating { get; set; }
-        public  CodeableConcept? Type { get; set; }
+        public Annotation[]? Note { get; set; }
+        public CodeableConcept[]? Rating { get; set; }
+        public CodeableConcept? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -59,13 +59,13 @@ public class RiskEvidenceSynthesis : DomainResource {
     }
 
     public class RiskEvidenceSynthesisRiskEstimate : BackboneElement {
-        public  int? DenominatorCount { get; set; }
-        public  string? Description { get; set; }
-        public  int? NumeratorCount { get; set; }
-        public  RiskEvidenceSynthesisRiskEstimatePrecisionEstimate[]? PrecisionEstimate { get; set; }
-        public  CodeableConcept? Type { get; set; }
-        public  CodeableConcept? UnitOfMeasure { get; set; }
-        public  decimal? Value { get; set; }
+        public int? DenominatorCount { get; set; }
+        public string? Description { get; set; }
+        public int? NumeratorCount { get; set; }
+        public RiskEvidenceSynthesisRiskEstimatePrecisionEstimate[]? PrecisionEstimate { get; set; }
+        public CodeableConcept? Type { get; set; }
+        public CodeableConcept? UnitOfMeasure { get; set; }
+        public decimal? Value { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -73,10 +73,10 @@ public class RiskEvidenceSynthesis : DomainResource {
     }
 
     public class RiskEvidenceSynthesisRiskEstimatePrecisionEstimate : BackboneElement {
-        public  decimal? From { get; set; }
-        public  decimal? Level { get; set; }
-        public  decimal? To { get; set; }
-        public  CodeableConcept? Type { get; set; }
+        public decimal? From { get; set; }
+        public decimal? Level { get; set; }
+        public decimal? To { get; set; }
+        public CodeableConcept? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -84,9 +84,9 @@ public class RiskEvidenceSynthesis : DomainResource {
     }
 
     public class RiskEvidenceSynthesisSampleSize : BackboneElement {
-        public  string? Description { get; set; }
-        public  int? NumberOfParticipants { get; set; }
-        public  int? NumberOfStudies { get; set; }
+        public string? Description { get; set; }
+        public int? NumberOfParticipants { get; set; }
+        public int? NumberOfStudies { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

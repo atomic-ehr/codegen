@@ -6,26 +6,26 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class PractitionerRole : DomainResource {
-    public  bool? Active { get; set; }
-    public  string? AvailabilityExceptions { get; set; }
-    public  PractitionerRoleAvailableTime[]? AvailableTime { get; set; }
-    public  CodeableConcept[]? Code { get; set; }
-    public  ResourceReference[]? Endpoint { get; set; }
-    public  ResourceReference[]? HealthcareService { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  ResourceReference[]? Location { get; set; }
-    public  PractitionerRoleNotAvailable[]? NotAvailable { get; set; }
-    public  ResourceReference? Organization { get; set; }
-    public  Period? Period { get; set; }
-    public  ResourceReference? Practitioner { get; set; }
-    public  CodeableConcept[]? Specialty { get; set; }
-    public  ContactPoint[]? Telecom { get; set; }
+    public bool? Active { get; set; }
+    public string? AvailabilityExceptions { get; set; }
+    public PractitionerRoleAvailableTime[]? AvailableTime { get; set; }
+    public CodeableConcept[]? Code { get; set; }
+    public ResourceReference[]? Endpoint { get; set; }
+    public ResourceReference[]? HealthcareService { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public ResourceReference[]? Location { get; set; }
+    public PractitionerRoleNotAvailable[]? NotAvailable { get; set; }
+    public ResourceReference? Organization { get; set; }
+    public Period? Period { get; set; }
+    public ResourceReference? Practitioner { get; set; }
+    public CodeableConcept[]? Specialty { get; set; }
+    public ContactPoint[]? Telecom { get; set; }
 
     public class PractitionerRoleAvailableTime : BackboneElement {
-        public  bool? AllDay { get; set; }
-        public  string? AvailableEndTime { get; set; }
-        public  string? AvailableStartTime { get; set; }
-        public  DaysOfWeekEnum[]? DaysOfWeek { get; set; }
+        public bool? AllDay { get; set; }
+        public string? AvailableEndTime { get; set; }
+        public string? AvailableStartTime { get; set; }
+        public DaysOfWeekEnum[]? DaysOfWeek { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -34,7 +34,7 @@ public class PractitionerRole : DomainResource {
 
     public class PractitionerRoleNotAvailable : BackboneElement {
         public required string Description { get; set; }
-        public  Period? During { get; set; }
+        public Period? During { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

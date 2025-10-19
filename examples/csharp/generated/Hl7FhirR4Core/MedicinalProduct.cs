@@ -6,34 +6,34 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class MedicinalProduct : DomainResource {
-    public  CodeableConcept? AdditionalMonitoringIndicator { get; set; }
-    public  ResourceReference[]? AttachedDocument { get; set; }
-    public  ResourceReference[]? ClinicalTrial { get; set; }
-    public  CodeableConcept? CombinedPharmaceuticalDoseForm { get; set; }
-    public  ResourceReference[]? Contact { get; set; }
-    public  Identifier[]? CrossReference { get; set; }
-    public  Coding? Domain { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  CodeableConcept? LegalStatusOfSupply { get; set; }
-    public  MedicinalProductManufacturingBusinessOperation[]? ManufacturingBusinessOperation { get; set; }
-    public  MarketingStatus[]? MarketingStatus { get; set; }
-    public  ResourceReference[]? MasterFile { get; set; }
+    public CodeableConcept? AdditionalMonitoringIndicator { get; set; }
+    public ResourceReference[]? AttachedDocument { get; set; }
+    public ResourceReference[]? ClinicalTrial { get; set; }
+    public CodeableConcept? CombinedPharmaceuticalDoseForm { get; set; }
+    public ResourceReference[]? Contact { get; set; }
+    public Identifier[]? CrossReference { get; set; }
+    public Coding? Domain { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public CodeableConcept? LegalStatusOfSupply { get; set; }
+    public MedicinalProductManufacturingBusinessOperation[]? ManufacturingBusinessOperation { get; set; }
+    public MarketingStatus[]? MarketingStatus { get; set; }
+    public ResourceReference[]? MasterFile { get; set; }
     public required MedicinalProductName[] Name { get; set; }
-    public  ResourceReference[]? PackagedMedicinalProduct { get; set; }
-    public  CodeableConcept? PaediatricUseIndicator { get; set; }
-    public  ResourceReference[]? PharmaceuticalProduct { get; set; }
-    public  CodeableConcept[]? ProductClassification { get; set; }
-    public  MedicinalProductSpecialDesignation[]? SpecialDesignation { get; set; }
-    public  string[]? SpecialMeasures { get; set; }
-    public  CodeableConcept? Type { get; set; }
+    public ResourceReference[]? PackagedMedicinalProduct { get; set; }
+    public CodeableConcept? PaediatricUseIndicator { get; set; }
+    public ResourceReference[]? PharmaceuticalProduct { get; set; }
+    public CodeableConcept[]? ProductClassification { get; set; }
+    public MedicinalProductSpecialDesignation[]? SpecialDesignation { get; set; }
+    public string[]? SpecialMeasures { get; set; }
+    public CodeableConcept? Type { get; set; }
 
     public class MedicinalProductManufacturingBusinessOperation : BackboneElement {
-        public  Identifier? AuthorisationReferenceNumber { get; set; }
-        public  CodeableConcept? ConfidentialityIndicator { get; set; }
-        public  string? EffectiveDate { get; set; }
-        public  ResourceReference[]? Manufacturer { get; set; }
-        public  CodeableConcept? OperationType { get; set; }
-        public  ResourceReference? Regulator { get; set; }
+        public Identifier? AuthorisationReferenceNumber { get; set; }
+        public CodeableConcept? ConfidentialityIndicator { get; set; }
+        public string? EffectiveDate { get; set; }
+        public ResourceReference[]? Manufacturer { get; set; }
+        public CodeableConcept? OperationType { get; set; }
+        public ResourceReference? Regulator { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -41,8 +41,8 @@ public class MedicinalProduct : DomainResource {
     }
 
     public class MedicinalProductName : BackboneElement {
-        public  MedicinalProductNameCountryLanguage[]? CountryLanguage { get; set; }
-        public  MedicinalProductNameNamePart[]? NamePart { get; set; }
+        public MedicinalProductNameCountryLanguage[]? CountryLanguage { get; set; }
+        public MedicinalProductNameNamePart[]? NamePart { get; set; }
         public required string ProductName { get; set; }
 
         public override string ToString() => 
@@ -52,7 +52,7 @@ public class MedicinalProduct : DomainResource {
 
     public class MedicinalProductNameCountryLanguage : BackboneElement {
         public required CodeableConcept Country { get; set; }
-        public  CodeableConcept? Jurisdiction { get; set; }
+        public CodeableConcept? Jurisdiction { get; set; }
         public required CodeableConcept Language { get; set; }
 
         public override string ToString() => 
@@ -70,14 +70,14 @@ public class MedicinalProduct : DomainResource {
     }
 
     public class MedicinalProductSpecialDesignation : BackboneElement {
-        public  string? Date { get; set; }
-        public  Identifier[]? Identifier { get; set; }
-        public  CodeableConcept? IndicationCodeableConcept { get; set; }
-        public  ResourceReference? IndicationReference { get; set; }
-        public  CodeableConcept? IntendedUse { get; set; }
-        public  CodeableConcept? Species { get; set; }
-        public  CodeableConcept? Status { get; set; }
-        public  CodeableConcept? Type { get; set; }
+        public string? Date { get; set; }
+        public Identifier[]? Identifier { get; set; }
+        public CodeableConcept? IndicationCodeableConcept { get; set; }
+        public ResourceReference? IndicationReference { get; set; }
+        public CodeableConcept? IntendedUse { get; set; }
+        public CodeableConcept? Species { get; set; }
+        public CodeableConcept? Status { get; set; }
+        public CodeableConcept? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

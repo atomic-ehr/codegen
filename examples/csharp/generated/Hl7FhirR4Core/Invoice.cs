@@ -6,28 +6,28 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Invoice : DomainResource {
-    public  ResourceReference? Account { get; set; }
-    public  string? CancelledReason { get; set; }
-    public  string? Date { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  ResourceReference? Issuer { get; set; }
-    public  InvoiceLineItem[]? LineItem { get; set; }
-    public  Annotation[]? Note { get; set; }
-    public  InvoiceParticipant[]? Participant { get; set; }
-    public  string? PaymentTerms { get; set; }
-    public  ResourceReference? Recipient { get; set; }
+    public ResourceReference? Account { get; set; }
+    public string? CancelledReason { get; set; }
+    public string? Date { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public ResourceReference? Issuer { get; set; }
+    public InvoiceLineItem[]? LineItem { get; set; }
+    public Annotation[]? Note { get; set; }
+    public InvoiceParticipant[]? Participant { get; set; }
+    public string? PaymentTerms { get; set; }
+    public ResourceReference? Recipient { get; set; }
     public required InvoiceStatusEnum Status { get; set; }
-    public  ResourceReference? Subject { get; set; }
-    public  Money? TotalGross { get; set; }
-    public  Money? TotalNet { get; set; }
-    public  InvoiceLineItemPriceComponent[]? TotalPriceComponent { get; set; }
-    public  CodeableConcept? Type { get; set; }
+    public ResourceReference? Subject { get; set; }
+    public Money? TotalGross { get; set; }
+    public Money? TotalNet { get; set; }
+    public InvoiceLineItemPriceComponent[]? TotalPriceComponent { get; set; }
+    public CodeableConcept? Type { get; set; }
 
     public class InvoiceLineItem : BackboneElement {
-        public  CodeableConcept? ChargeItemCodeableConcept { get; set; }
-        public  ResourceReference? ChargeItemReference { get; set; }
-        public  InvoiceLineItemPriceComponent[]? PriceComponent { get; set; }
-        public  long? Sequence { get; set; }
+        public CodeableConcept? ChargeItemCodeableConcept { get; set; }
+        public ResourceReference? ChargeItemReference { get; set; }
+        public InvoiceLineItemPriceComponent[]? PriceComponent { get; set; }
+        public long? Sequence { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -35,9 +35,9 @@ public class Invoice : DomainResource {
     }
 
     public class InvoiceLineItemPriceComponent : BackboneElement {
-        public  Money? Amount { get; set; }
-        public  CodeableConcept? Code { get; set; }
-        public  decimal? Factor { get; set; }
+        public Money? Amount { get; set; }
+        public CodeableConcept? Code { get; set; }
+        public decimal? Factor { get; set; }
         public required InvoicePriceComponentTypeEnum Type { get; set; }
 
         public override string ToString() => 
@@ -47,7 +47,7 @@ public class Invoice : DomainResource {
 
     public class InvoiceParticipant : BackboneElement {
         public required ResourceReference Actor { get; set; }
-        public  CodeableConcept? Role { get; set; }
+        public CodeableConcept? Role { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

@@ -6,18 +6,18 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Substance : DomainResource {
-    public  CodeableConcept[]? Category { get; set; }
+    public CodeableConcept[]? Category { get; set; }
     public required CodeableConcept Code { get; set; }
-    public  string? Description { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  SubstanceIngredient[]? Ingredient { get; set; }
-    public  SubstanceInstance[]? Instance { get; set; }
-    public  FhirsubstanceStatusEnum? Status { get; set; }
+    public string? Description { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public SubstanceIngredient[]? Ingredient { get; set; }
+    public SubstanceInstance[]? Instance { get; set; }
+    public FhirsubstanceStatusEnum? Status { get; set; }
 
     public class SubstanceIngredient : BackboneElement {
-        public  Ratio? Quantity { get; set; }
-        public  CodeableConcept? SubstanceCodeableConcept { get; set; }
-        public  ResourceReference? SubstanceReference { get; set; }
+        public Ratio? Quantity { get; set; }
+        public CodeableConcept? SubstanceCodeableConcept { get; set; }
+        public ResourceReference? SubstanceReference { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -25,9 +25,9 @@ public class Substance : DomainResource {
     }
 
     public class SubstanceInstance : BackboneElement {
-        public  string? Expiry { get; set; }
-        public  Identifier? Identifier { get; set; }
-        public  Quantity? Quantity { get; set; }
+        public string? Expiry { get; set; }
+        public Identifier? Identifier { get; set; }
+        public Quantity? Quantity { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

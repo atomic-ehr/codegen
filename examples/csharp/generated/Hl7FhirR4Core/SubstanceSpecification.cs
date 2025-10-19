@@ -6,32 +6,32 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class SubstanceSpecification : DomainResource {
-    public  SubstanceSpecificationCode[]? Code { get; set; }
-    public  string? Comment { get; set; }
-    public  string? Description { get; set; }
-    public  CodeableConcept? Domain { get; set; }
-    public  Identifier? Identifier { get; set; }
-    public  SubstanceSpecificationMoiety[]? Moiety { get; set; }
-    public  SubstanceSpecificationStructureIsotopeMolecularWeight[]? MolecularWeight { get; set; }
-    public  SubstanceSpecificationName[]? Name { get; set; }
-    public  ResourceReference? NucleicAcid { get; set; }
-    public  ResourceReference? Polymer { get; set; }
-    public  SubstanceSpecificationProperty[]? Property { get; set; }
-    public  ResourceReference? Protein { get; set; }
-    public  ResourceReference? ReferenceInformation { get; set; }
-    public  SubstanceSpecificationRelationship[]? Relationship { get; set; }
-    public  ResourceReference[]? Source { get; set; }
-    public  ResourceReference? SourceMaterial { get; set; }
-    public  CodeableConcept? Status { get; set; }
-    public  SubstanceSpecificationStructure? Structure { get; set; }
-    public  CodeableConcept? Type { get; set; }
+    public SubstanceSpecificationCode[]? Code { get; set; }
+    public string? Comment { get; set; }
+    public string? Description { get; set; }
+    public CodeableConcept? Domain { get; set; }
+    public Identifier? Identifier { get; set; }
+    public SubstanceSpecificationMoiety[]? Moiety { get; set; }
+    public SubstanceSpecificationStructureIsotopeMolecularWeight[]? MolecularWeight { get; set; }
+    public SubstanceSpecificationName[]? Name { get; set; }
+    public ResourceReference? NucleicAcid { get; set; }
+    public ResourceReference? Polymer { get; set; }
+    public SubstanceSpecificationProperty[]? Property { get; set; }
+    public ResourceReference? Protein { get; set; }
+    public ResourceReference? ReferenceInformation { get; set; }
+    public SubstanceSpecificationRelationship[]? Relationship { get; set; }
+    public ResourceReference[]? Source { get; set; }
+    public ResourceReference? SourceMaterial { get; set; }
+    public CodeableConcept? Status { get; set; }
+    public SubstanceSpecificationStructure? Structure { get; set; }
+    public CodeableConcept? Type { get; set; }
 
     public class SubstanceSpecificationCode : BackboneElement {
-        public  CodeableConcept? Code { get; set; }
-        public  string? Comment { get; set; }
-        public  ResourceReference[]? Source { get; set; }
-        public  CodeableConcept? Status { get; set; }
-        public  string? StatusDate { get; set; }
+        public CodeableConcept? Code { get; set; }
+        public string? Comment { get; set; }
+        public ResourceReference[]? Source { get; set; }
+        public CodeableConcept? Status { get; set; }
+        public string? StatusDate { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -39,14 +39,14 @@ public class SubstanceSpecification : DomainResource {
     }
 
     public class SubstanceSpecificationMoiety : BackboneElement {
-        public  Quantity? AmountQuantity { get; set; }
-        public  string? AmountString { get; set; }
-        public  Identifier? Identifier { get; set; }
-        public  string? MolecularFormula { get; set; }
-        public  string? Name { get; set; }
-        public  CodeableConcept? OpticalActivity { get; set; }
-        public  CodeableConcept? Role { get; set; }
-        public  CodeableConcept? Stereochemistry { get; set; }
+        public Quantity? AmountQuantity { get; set; }
+        public string? AmountString { get; set; }
+        public Identifier? Identifier { get; set; }
+        public string? MolecularFormula { get; set; }
+        public string? Name { get; set; }
+        public CodeableConcept? OpticalActivity { get; set; }
+        public CodeableConcept? Role { get; set; }
+        public CodeableConcept? Stereochemistry { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -54,17 +54,17 @@ public class SubstanceSpecification : DomainResource {
     }
 
     public class SubstanceSpecificationName : BackboneElement {
-        public  CodeableConcept[]? Domain { get; set; }
-        public  CodeableConcept[]? Jurisdiction { get; set; }
-        public  CodeableConcept[]? Language { get; set; }
+        public CodeableConcept[]? Domain { get; set; }
+        public CodeableConcept[]? Jurisdiction { get; set; }
+        public CodeableConcept[]? Language { get; set; }
         public required string Name { get; set; }
-        public  SubstanceSpecificationNameOfficial[]? Official { get; set; }
-        public  bool? Preferred { get; set; }
-        public  ResourceReference[]? Source { get; set; }
-        public  CodeableConcept? Status { get; set; }
-        public  SubstanceSpecificationName[]? Synonym { get; set; }
-        public  SubstanceSpecificationName[]? Translation { get; set; }
-        public  CodeableConcept? Type { get; set; }
+        public SubstanceSpecificationNameOfficial[]? Official { get; set; }
+        public bool? Preferred { get; set; }
+        public ResourceReference[]? Source { get; set; }
+        public CodeableConcept? Status { get; set; }
+        public SubstanceSpecificationName[]? Synonym { get; set; }
+        public SubstanceSpecificationName[]? Translation { get; set; }
+        public CodeableConcept? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -72,9 +72,9 @@ public class SubstanceSpecification : DomainResource {
     }
 
     public class SubstanceSpecificationNameOfficial : BackboneElement {
-        public  CodeableConcept? Authority { get; set; }
-        public  string? Date { get; set; }
-        public  CodeableConcept? Status { get; set; }
+        public CodeableConcept? Authority { get; set; }
+        public string? Date { get; set; }
+        public CodeableConcept? Status { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -82,13 +82,13 @@ public class SubstanceSpecification : DomainResource {
     }
 
     public class SubstanceSpecificationProperty : BackboneElement {
-        public  Quantity? AmountQuantity { get; set; }
-        public  string? AmountString { get; set; }
-        public  CodeableConcept? Category { get; set; }
-        public  CodeableConcept? Code { get; set; }
-        public  CodeableConcept? DefiningSubstanceCodeableConcept { get; set; }
-        public  ResourceReference? DefiningSubstanceReference { get; set; }
-        public  string? Parameters { get; set; }
+        public Quantity? AmountQuantity { get; set; }
+        public string? AmountString { get; set; }
+        public CodeableConcept? Category { get; set; }
+        public CodeableConcept? Code { get; set; }
+        public CodeableConcept? DefiningSubstanceCodeableConcept { get; set; }
+        public ResourceReference? DefiningSubstanceReference { get; set; }
+        public string? Parameters { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -96,17 +96,17 @@ public class SubstanceSpecification : DomainResource {
     }
 
     public class SubstanceSpecificationRelationship : BackboneElement {
-        public  Quantity? AmountQuantity { get; set; }
-        public  Range? AmountRange { get; set; }
-        public  Ratio? AmountRatio { get; set; }
-        public  Ratio? AmountRatioLowLimit { get; set; }
-        public  string? AmountString { get; set; }
-        public  CodeableConcept? AmountType { get; set; }
-        public  bool? IsDefining { get; set; }
-        public  CodeableConcept? Relationship { get; set; }
-        public  ResourceReference[]? Source { get; set; }
-        public  CodeableConcept? SubstanceCodeableConcept { get; set; }
-        public  ResourceReference? SubstanceReference { get; set; }
+        public Quantity? AmountQuantity { get; set; }
+        public Range? AmountRange { get; set; }
+        public Ratio? AmountRatio { get; set; }
+        public Ratio? AmountRatioLowLimit { get; set; }
+        public string? AmountString { get; set; }
+        public CodeableConcept? AmountType { get; set; }
+        public bool? IsDefining { get; set; }
+        public CodeableConcept? Relationship { get; set; }
+        public ResourceReference[]? Source { get; set; }
+        public CodeableConcept? SubstanceCodeableConcept { get; set; }
+        public ResourceReference? SubstanceReference { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -114,14 +114,14 @@ public class SubstanceSpecification : DomainResource {
     }
 
     public class SubstanceSpecificationStructure : BackboneElement {
-        public  SubstanceSpecificationStructureIsotope[]? Isotope { get; set; }
-        public  string? MolecularFormula { get; set; }
-        public  string? MolecularFormulaByMoiety { get; set; }
-        public  SubstanceSpecificationStructureIsotopeMolecularWeight? MolecularWeight { get; set; }
-        public  CodeableConcept? OpticalActivity { get; set; }
-        public  SubstanceSpecificationStructureRepresentation[]? Representation { get; set; }
-        public  ResourceReference[]? Source { get; set; }
-        public  CodeableConcept? Stereochemistry { get; set; }
+        public SubstanceSpecificationStructureIsotope[]? Isotope { get; set; }
+        public string? MolecularFormula { get; set; }
+        public string? MolecularFormulaByMoiety { get; set; }
+        public SubstanceSpecificationStructureIsotopeMolecularWeight? MolecularWeight { get; set; }
+        public CodeableConcept? OpticalActivity { get; set; }
+        public SubstanceSpecificationStructureRepresentation[]? Representation { get; set; }
+        public ResourceReference[]? Source { get; set; }
+        public CodeableConcept? Stereochemistry { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -129,11 +129,11 @@ public class SubstanceSpecification : DomainResource {
     }
 
     public class SubstanceSpecificationStructureIsotope : BackboneElement {
-        public  Quantity? HalfLife { get; set; }
-        public  Identifier? Identifier { get; set; }
-        public  SubstanceSpecificationStructureIsotopeMolecularWeight? MolecularWeight { get; set; }
-        public  CodeableConcept? Name { get; set; }
-        public  CodeableConcept? Substitution { get; set; }
+        public Quantity? HalfLife { get; set; }
+        public Identifier? Identifier { get; set; }
+        public SubstanceSpecificationStructureIsotopeMolecularWeight? MolecularWeight { get; set; }
+        public CodeableConcept? Name { get; set; }
+        public CodeableConcept? Substitution { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -141,9 +141,9 @@ public class SubstanceSpecification : DomainResource {
     }
 
     public class SubstanceSpecificationStructureIsotopeMolecularWeight : BackboneElement {
-        public  Quantity? Amount { get; set; }
-        public  CodeableConcept? Method { get; set; }
-        public  CodeableConcept? Type { get; set; }
+        public Quantity? Amount { get; set; }
+        public CodeableConcept? Method { get; set; }
+        public CodeableConcept? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -151,9 +151,9 @@ public class SubstanceSpecification : DomainResource {
     }
 
     public class SubstanceSpecificationStructureRepresentation : BackboneElement {
-        public  Attachment? Attachment { get; set; }
-        public  string? Representation { get; set; }
-        public  CodeableConcept? Type { get; set; }
+        public Attachment? Attachment { get; set; }
+        public string? Representation { get; set; }
+        public CodeableConcept? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

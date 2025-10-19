@@ -6,29 +6,29 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Location : DomainResource {
-    public  Address? Address { get; set; }
-    public  string[]? Alias { get; set; }
-    public  string? AvailabilityExceptions { get; set; }
-    public  string? Description { get; set; }
-    public  ResourceReference[]? Endpoint { get; set; }
-    public  LocationHoursOfOperation[]? HoursOfOperation { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  ResourceReference? ManagingOrganization { get; set; }
-    public  LocationModeEnum? Mode { get; set; }
-    public  string? Name { get; set; }
-    public  Coding? OperationalStatus { get; set; }
-    public  ResourceReference? PartOf { get; set; }
-    public  CodeableConcept? PhysicalType { get; set; }
-    public  LocationPosition? Position { get; set; }
-    public  LocationStatusEnum? Status { get; set; }
-    public  ContactPoint[]? Telecom { get; set; }
-    public  CodeableConcept[]? Type { get; set; }
+    public Address? Address { get; set; }
+    public string[]? Alias { get; set; }
+    public string? AvailabilityExceptions { get; set; }
+    public string? Description { get; set; }
+    public ResourceReference[]? Endpoint { get; set; }
+    public LocationHoursOfOperation[]? HoursOfOperation { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public ResourceReference? ManagingOrganization { get; set; }
+    public LocationModeEnum? Mode { get; set; }
+    public string? Name { get; set; }
+    public Coding? OperationalStatus { get; set; }
+    public ResourceReference? PartOf { get; set; }
+    public CodeableConcept? PhysicalType { get; set; }
+    public LocationPosition? Position { get; set; }
+    public LocationStatusEnum? Status { get; set; }
+    public ContactPoint[]? Telecom { get; set; }
+    public CodeableConcept[]? Type { get; set; }
 
     public class LocationHoursOfOperation : BackboneElement {
-        public  bool? AllDay { get; set; }
-        public  string? ClosingTime { get; set; }
-        public  DaysOfWeekEnum[]? DaysOfWeek { get; set; }
-        public  string? OpeningTime { get; set; }
+        public bool? AllDay { get; set; }
+        public string? ClosingTime { get; set; }
+        public DaysOfWeekEnum[]? DaysOfWeek { get; set; }
+        public string? OpeningTime { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -36,7 +36,7 @@ public class Location : DomainResource {
     }
 
     public class LocationPosition : BackboneElement {
-        public  decimal? Altitude { get; set; }
+        public decimal? Altitude { get; set; }
         public required decimal Latitude { get; set; }
         public required decimal Longitude { get; set; }
 

@@ -6,12 +6,12 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Flag : DomainResource {
-    public  ResourceReference? Author { get; set; }
-    public  CodeableConcept[]? Category { get; set; }
+    public ResourceReference? Author { get; set; }
+    public CodeableConcept[]? Category { get; set; }
     public required CodeableConcept Code { get; set; }
-    public  ResourceReference? Encounter { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  Period? Period { get; set; }
+    public ResourceReference? Encounter { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public Period? Period { get; set; }
     public required FlagStatusEnum Status { get; set; }
     public required ResourceReference Subject { get; set; }
 

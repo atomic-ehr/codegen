@@ -6,36 +6,36 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class HealthcareService : DomainResource {
-    public  bool? Active { get; set; }
-    public  bool? AppointmentRequired { get; set; }
-    public  string? AvailabilityExceptions { get; set; }
-    public  HealthcareServiceAvailableTime[]? AvailableTime { get; set; }
-    public  CodeableConcept[]? Category { get; set; }
-    public  CodeableConcept[]? Characteristic { get; set; }
-    public  string? Comment { get; set; }
-    public  CodeableConcept[]? Communication { get; set; }
-    public  ResourceReference[]? CoverageArea { get; set; }
-    public  HealthcareServiceEligibility[]? Eligibility { get; set; }
-    public  ResourceReference[]? Endpoint { get; set; }
-    public  string? ExtraDetails { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  ResourceReference[]? Location { get; set; }
-    public  string? Name { get; set; }
-    public  HealthcareServiceNotAvailable[]? NotAvailable { get; set; }
-    public  Attachment? Photo { get; set; }
-    public  CodeableConcept[]? Program { get; set; }
-    public  ResourceReference? ProvidedBy { get; set; }
-    public  CodeableConcept[]? ReferralMethod { get; set; }
-    public  CodeableConcept[]? ServiceProvisionCode { get; set; }
-    public  CodeableConcept[]? Specialty { get; set; }
-    public  ContactPoint[]? Telecom { get; set; }
-    public  CodeableConcept[]? Type { get; set; }
+    public bool? Active { get; set; }
+    public bool? AppointmentRequired { get; set; }
+    public string? AvailabilityExceptions { get; set; }
+    public HealthcareServiceAvailableTime[]? AvailableTime { get; set; }
+    public CodeableConcept[]? Category { get; set; }
+    public CodeableConcept[]? Characteristic { get; set; }
+    public string? Comment { get; set; }
+    public CodeableConcept[]? Communication { get; set; }
+    public ResourceReference[]? CoverageArea { get; set; }
+    public HealthcareServiceEligibility[]? Eligibility { get; set; }
+    public ResourceReference[]? Endpoint { get; set; }
+    public string? ExtraDetails { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public ResourceReference[]? Location { get; set; }
+    public string? Name { get; set; }
+    public HealthcareServiceNotAvailable[]? NotAvailable { get; set; }
+    public Attachment? Photo { get; set; }
+    public CodeableConcept[]? Program { get; set; }
+    public ResourceReference? ProvidedBy { get; set; }
+    public CodeableConcept[]? ReferralMethod { get; set; }
+    public CodeableConcept[]? ServiceProvisionCode { get; set; }
+    public CodeableConcept[]? Specialty { get; set; }
+    public ContactPoint[]? Telecom { get; set; }
+    public CodeableConcept[]? Type { get; set; }
 
     public class HealthcareServiceAvailableTime : BackboneElement {
-        public  bool? AllDay { get; set; }
-        public  string? AvailableEndTime { get; set; }
-        public  string? AvailableStartTime { get; set; }
-        public  DaysOfWeekEnum[]? DaysOfWeek { get; set; }
+        public bool? AllDay { get; set; }
+        public string? AvailableEndTime { get; set; }
+        public string? AvailableStartTime { get; set; }
+        public DaysOfWeekEnum[]? DaysOfWeek { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -43,8 +43,8 @@ public class HealthcareService : DomainResource {
     }
 
     public class HealthcareServiceEligibility : BackboneElement {
-        public  CodeableConcept? Code { get; set; }
-        public  string? Comment { get; set; }
+        public CodeableConcept? Code { get; set; }
+        public string? Comment { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -53,7 +53,7 @@ public class HealthcareService : DomainResource {
 
     public class HealthcareServiceNotAvailable : BackboneElement {
         public required string Description { get; set; }
-        public  Period? During { get; set; }
+        public Period? During { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

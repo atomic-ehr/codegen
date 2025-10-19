@@ -6,13 +6,13 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class BodyStructure : DomainResource {
-    public  bool? Active { get; set; }
-    public  string? Description { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  Attachment[]? Image { get; set; }
-    public  CodeableConcept? Location { get; set; }
-    public  CodeableConcept[]? LocationQualifier { get; set; }
-    public  CodeableConcept? Morphology { get; set; }
+    public bool? Active { get; set; }
+    public string? Description { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public Attachment[]? Image { get; set; }
+    public CodeableConcept? Location { get; set; }
+    public CodeableConcept[]? LocationQualifier { get; set; }
+    public CodeableConcept? Morphology { get; set; }
     public required ResourceReference Patient { get; set; }
 
     public override string ToString() => 

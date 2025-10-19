@@ -7,17 +7,17 @@ namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Subscription : DomainResource {
     public required SubscriptionChannel Channel { get; set; }
-    public  ContactPoint[]? Contact { get; set; }
+    public ContactPoint[]? Contact { get; set; }
     public required string Criteria { get; set; }
-    public  string? End { get; set; }
-    public  string? Error { get; set; }
+    public string? End { get; set; }
+    public string? Error { get; set; }
     public required string Reason { get; set; }
     public required SubscriptionStatusEnum Status { get; set; }
 
     public class SubscriptionChannel : BackboneElement {
-        public  string? Endpoint { get; set; }
-        public  string[]? Header { get; set; }
-        public  string? Payload { get; set; }
+        public string? Endpoint { get; set; }
+        public string[]? Header { get; set; }
+        public string? Payload { get; set; }
         public required SubscriptionChannelTypeEnum Type { get; set; }
 
         public override string ToString() => 

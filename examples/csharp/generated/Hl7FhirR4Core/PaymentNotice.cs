@@ -8,15 +8,15 @@ namespace SuperNameSpace.Hl7FhirR4Core;
 public class PaymentNotice : DomainResource {
     public required Money Amount { get; set; }
     public required string Created { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  ResourceReference? Payee { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public ResourceReference? Payee { get; set; }
     public required ResourceReference Payment { get; set; }
-    public  string? PaymentDate { get; set; }
-    public  CodeableConcept? PaymentStatus { get; set; }
-    public  ResourceReference? Provider { get; set; }
+    public string? PaymentDate { get; set; }
+    public CodeableConcept? PaymentStatus { get; set; }
+    public ResourceReference? Provider { get; set; }
     public required ResourceReference Recipient { get; set; }
-    public  ResourceReference? Request { get; set; }
-    public  ResourceReference? Response { get; set; }
+    public ResourceReference? Request { get; set; }
+    public ResourceReference? Response { get; set; }
     public required PaymentNoticeStatusEnum Status { get; set; }
 
     public override string ToString() => 

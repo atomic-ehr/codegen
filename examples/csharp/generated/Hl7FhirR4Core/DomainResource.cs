@@ -6,10 +6,10 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class DomainResource : Resource {
-    public  Resource[]? Contained { get; set; }
-    public  Extension[]? Extension { get; set; }
-    public  Extension[]? ModifierExtension { get; set; }
-    public  Narrative? Text { get; set; }
+    public Resource[]? Contained { get; set; }
+    public Extension[]? Extension { get; set; }
+    public Extension[]? ModifierExtension { get; set; }
+    public Narrative? Text { get; set; }
 
     public override string ToString() => 
         JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

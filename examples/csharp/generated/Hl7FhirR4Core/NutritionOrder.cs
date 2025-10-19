@@ -6,34 +6,34 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class NutritionOrder : DomainResource {
-    public  ResourceReference[]? AllergyIntolerance { get; set; }
+    public ResourceReference[]? AllergyIntolerance { get; set; }
     public required string DateTime { get; set; }
-    public  ResourceReference? Encounter { get; set; }
-    public  NutritionOrderEnteralFormula? EnteralFormula { get; set; }
-    public  CodeableConcept[]? ExcludeFoodModifier { get; set; }
-    public  CodeableConcept[]? FoodPreferenceModifier { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  string[]? Instantiates { get; set; }
-    public  string[]? InstantiatesCanonical { get; set; }
-    public  string[]? InstantiatesUri { get; set; }
+    public ResourceReference? Encounter { get; set; }
+    public NutritionOrderEnteralFormula? EnteralFormula { get; set; }
+    public CodeableConcept[]? ExcludeFoodModifier { get; set; }
+    public CodeableConcept[]? FoodPreferenceModifier { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public string[]? Instantiates { get; set; }
+    public string[]? InstantiatesCanonical { get; set; }
+    public string[]? InstantiatesUri { get; set; }
     public required NutritiionOrderIntentEnum Intent { get; set; }
-    public  Annotation[]? Note { get; set; }
-    public  NutritionOrderOralDiet? OralDiet { get; set; }
-    public  ResourceReference? Orderer { get; set; }
+    public Annotation[]? Note { get; set; }
+    public NutritionOrderOralDiet? OralDiet { get; set; }
+    public ResourceReference? Orderer { get; set; }
     public required ResourceReference Patient { get; set; }
     public required NutritionOrderStatusEnum Status { get; set; }
-    public  NutritionOrderSupplement[]? Supplement { get; set; }
+    public NutritionOrderSupplement[]? Supplement { get; set; }
 
     public class NutritionOrderEnteralFormula : BackboneElement {
-        public  string? AdditiveProductName { get; set; }
-        public  CodeableConcept? AdditiveType { get; set; }
-        public  NutritionOrderEnteralFormulaAdministration[]? Administration { get; set; }
-        public  string? AdministrationInstruction { get; set; }
-        public  string? BaseFormulaProductName { get; set; }
-        public  CodeableConcept? BaseFormulaType { get; set; }
-        public  Quantity? CaloricDensity { get; set; }
-        public  Quantity? MaxVolumeToDeliver { get; set; }
-        public  CodeableConcept? RouteofAdministration { get; set; }
+        public string? AdditiveProductName { get; set; }
+        public CodeableConcept? AdditiveType { get; set; }
+        public NutritionOrderEnteralFormulaAdministration[]? Administration { get; set; }
+        public string? AdministrationInstruction { get; set; }
+        public string? BaseFormulaProductName { get; set; }
+        public CodeableConcept? BaseFormulaType { get; set; }
+        public Quantity? CaloricDensity { get; set; }
+        public Quantity? MaxVolumeToDeliver { get; set; }
+        public CodeableConcept? RouteofAdministration { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -41,10 +41,10 @@ public class NutritionOrder : DomainResource {
     }
 
     public class NutritionOrderEnteralFormulaAdministration : BackboneElement {
-        public  Quantity? Quantity { get; set; }
-        public  Quantity? RateQuantity { get; set; }
-        public  Ratio? RateRatio { get; set; }
-        public  Timing? Schedule { get; set; }
+        public Quantity? Quantity { get; set; }
+        public Quantity? RateQuantity { get; set; }
+        public Ratio? RateRatio { get; set; }
+        public Timing? Schedule { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -52,12 +52,12 @@ public class NutritionOrder : DomainResource {
     }
 
     public class NutritionOrderOralDiet : BackboneElement {
-        public  CodeableConcept[]? FluidConsistencyType { get; set; }
-        public  string? Instruction { get; set; }
-        public  NutritionOrderOralDietNutrient[]? Nutrient { get; set; }
-        public  Timing[]? Schedule { get; set; }
-        public  NutritionOrderOralDietTexture[]? Texture { get; set; }
-        public  CodeableConcept[]? Type { get; set; }
+        public CodeableConcept[]? FluidConsistencyType { get; set; }
+        public string? Instruction { get; set; }
+        public NutritionOrderOralDietNutrient[]? Nutrient { get; set; }
+        public Timing[]? Schedule { get; set; }
+        public NutritionOrderOralDietTexture[]? Texture { get; set; }
+        public CodeableConcept[]? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -65,8 +65,8 @@ public class NutritionOrder : DomainResource {
     }
 
     public class NutritionOrderOralDietNutrient : BackboneElement {
-        public  Quantity? Amount { get; set; }
-        public  CodeableConcept? Modifier { get; set; }
+        public Quantity? Amount { get; set; }
+        public CodeableConcept? Modifier { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -74,8 +74,8 @@ public class NutritionOrder : DomainResource {
     }
 
     public class NutritionOrderOralDietTexture : BackboneElement {
-        public  CodeableConcept? FoodType { get; set; }
-        public  CodeableConcept? Modifier { get; set; }
+        public CodeableConcept? FoodType { get; set; }
+        public CodeableConcept? Modifier { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -83,11 +83,11 @@ public class NutritionOrder : DomainResource {
     }
 
     public class NutritionOrderSupplement : BackboneElement {
-        public  string? Instruction { get; set; }
-        public  string? ProductName { get; set; }
-        public  Quantity? Quantity { get; set; }
-        public  Timing[]? Schedule { get; set; }
-        public  CodeableConcept? Type { get; set; }
+        public string? Instruction { get; set; }
+        public string? ProductName { get; set; }
+        public Quantity? Quantity { get; set; }
+        public Timing[]? Schedule { get; set; }
+        public CodeableConcept? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

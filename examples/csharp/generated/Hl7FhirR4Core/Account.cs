@@ -6,21 +6,21 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Account : DomainResource {
-    public  AccountCoverage[]? Coverage { get; set; }
-    public  string? Description { get; set; }
-    public  AccountGuarantor[]? Guarantor { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  string? Name { get; set; }
-    public  ResourceReference? Owner { get; set; }
-    public  ResourceReference? PartOf { get; set; }
-    public  Period? ServicePeriod { get; set; }
+    public AccountCoverage[]? Coverage { get; set; }
+    public string? Description { get; set; }
+    public AccountGuarantor[]? Guarantor { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public string? Name { get; set; }
+    public ResourceReference? Owner { get; set; }
+    public ResourceReference? PartOf { get; set; }
+    public Period? ServicePeriod { get; set; }
     public required AccountStatusEnum Status { get; set; }
-    public  ResourceReference[]? Subject { get; set; }
-    public  CodeableConcept? Type { get; set; }
+    public ResourceReference[]? Subject { get; set; }
+    public CodeableConcept? Type { get; set; }
 
     public class AccountCoverage : BackboneElement {
         public required ResourceReference Coverage { get; set; }
-        public  long? Priority { get; set; }
+        public long? Priority { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -28,9 +28,9 @@ public class Account : DomainResource {
     }
 
     public class AccountGuarantor : BackboneElement {
-        public  bool? OnHold { get; set; }
+        public bool? OnHold { get; set; }
         public required ResourceReference Party { get; set; }
-        public  Period? Period { get; set; }
+        public Period? Period { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

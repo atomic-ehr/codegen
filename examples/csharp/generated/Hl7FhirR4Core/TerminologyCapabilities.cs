@@ -6,33 +6,33 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class TerminologyCapabilities : DomainResource {
-    public  TerminologyCapabilitiesClosure? Closure { get; set; }
-    public  CodeSearchSupportEnum? CodeSearch { get; set; }
-    public  TerminologyCapabilitiesCodeSystem[]? CodeSystem { get; set; }
-    public  ContactDetail[]? Contact { get; set; }
-    public  string? Copyright { get; set; }
+    public TerminologyCapabilitiesClosure? Closure { get; set; }
+    public CodeSearchSupportEnum? CodeSearch { get; set; }
+    public TerminologyCapabilitiesCodeSystem[]? CodeSystem { get; set; }
+    public ContactDetail[]? Contact { get; set; }
+    public string? Copyright { get; set; }
     public required string Date { get; set; }
-    public  string? Description { get; set; }
-    public  TerminologyCapabilitiesExpansion? Expansion { get; set; }
-    public  bool? Experimental { get; set; }
-    public  TerminologyCapabilitiesImplementation? Implementation { get; set; }
-    public  CodeableConcept[]? Jurisdiction { get; set; }
+    public string? Description { get; set; }
+    public TerminologyCapabilitiesExpansion? Expansion { get; set; }
+    public bool? Experimental { get; set; }
+    public TerminologyCapabilitiesImplementation? Implementation { get; set; }
+    public CodeableConcept[]? Jurisdiction { get; set; }
     public required CapabilityStatementKindEnum Kind { get; set; }
-    public  bool? LockedDate { get; set; }
-    public  string? Name { get; set; }
-    public  string? Publisher { get; set; }
-    public  string? Purpose { get; set; }
-    public  TerminologyCapabilitiesSoftware? Software { get; set; }
+    public bool? LockedDate { get; set; }
+    public string? Name { get; set; }
+    public string? Publisher { get; set; }
+    public string? Purpose { get; set; }
+    public TerminologyCapabilitiesSoftware? Software { get; set; }
     public required PublicationStatusEnum Status { get; set; }
-    public  string? Title { get; set; }
-    public  TerminologyCapabilitiesTranslation? Translation { get; set; }
-    public  string? Url { get; set; }
-    public  UsageContext[]? UseContext { get; set; }
-    public  TerminologyCapabilitiesValidateCode? ValidateCode { get; set; }
-    public  string? Version { get; set; }
+    public string? Title { get; set; }
+    public TerminologyCapabilitiesTranslation? Translation { get; set; }
+    public string? Url { get; set; }
+    public UsageContext[]? UseContext { get; set; }
+    public TerminologyCapabilitiesValidateCode? ValidateCode { get; set; }
+    public string? Version { get; set; }
 
     public class TerminologyCapabilitiesClosure : BackboneElement {
-        public  bool? Translation { get; set; }
+        public bool? Translation { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -40,9 +40,9 @@ public class TerminologyCapabilities : DomainResource {
     }
 
     public class TerminologyCapabilitiesCodeSystem : BackboneElement {
-        public  bool? Subsumption { get; set; }
-        public  string? Uri { get; set; }
-        public  TerminologyCapabilitiesCodeSystemVersion[]? Version { get; set; }
+        public bool? Subsumption { get; set; }
+        public string? Uri { get; set; }
+        public TerminologyCapabilitiesCodeSystemVersion[]? Version { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -50,12 +50,12 @@ public class TerminologyCapabilities : DomainResource {
     }
 
     public class TerminologyCapabilitiesCodeSystemVersion : BackboneElement {
-        public  string? Code { get; set; }
-        public  bool? Compositional { get; set; }
-        public  TerminologyCapabilitiesCodeSystemVersionFilter[]? Filter { get; set; }
-        public  bool? IsDefault { get; set; }
-        public  string[]? Language { get; set; }
-        public  string[]? Property { get; set; }
+        public string? Code { get; set; }
+        public bool? Compositional { get; set; }
+        public TerminologyCapabilitiesCodeSystemVersionFilter[]? Filter { get; set; }
+        public bool? IsDefault { get; set; }
+        public string[]? Language { get; set; }
+        public string[]? Property { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -72,11 +72,11 @@ public class TerminologyCapabilities : DomainResource {
     }
 
     public class TerminologyCapabilitiesExpansion : BackboneElement {
-        public  bool? Hierarchical { get; set; }
-        public  bool? Incomplete { get; set; }
-        public  bool? Paging { get; set; }
-        public  TerminologyCapabilitiesExpansionParameter[]? Parameter { get; set; }
-        public  string? TextFilter { get; set; }
+        public bool? Hierarchical { get; set; }
+        public bool? Incomplete { get; set; }
+        public bool? Paging { get; set; }
+        public TerminologyCapabilitiesExpansionParameter[]? Parameter { get; set; }
+        public string? TextFilter { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -84,7 +84,7 @@ public class TerminologyCapabilities : DomainResource {
     }
 
     public class TerminologyCapabilitiesExpansionParameter : BackboneElement {
-        public  string? Documentation { get; set; }
+        public string? Documentation { get; set; }
         public required string Name { get; set; }
 
         public override string ToString() => 
@@ -94,7 +94,7 @@ public class TerminologyCapabilities : DomainResource {
 
     public class TerminologyCapabilitiesImplementation : BackboneElement {
         public required string Description { get; set; }
-        public  string? Url { get; set; }
+        public string? Url { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -103,7 +103,7 @@ public class TerminologyCapabilities : DomainResource {
 
     public class TerminologyCapabilitiesSoftware : BackboneElement {
         public required string Name { get; set; }
-        public  string? Version { get; set; }
+        public string? Version { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

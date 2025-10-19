@@ -6,33 +6,33 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class ImplementationGuide : DomainResource {
-    public  ContactDetail[]? Contact { get; set; }
-    public  string? Copyright { get; set; }
-    public  string? Date { get; set; }
-    public  ImplementationGuideDefinition? Definition { get; set; }
-    public  ImplementationGuideDependsOn[]? DependsOn { get; set; }
-    public  string? Description { get; set; }
-    public  bool? Experimental { get; set; }
+    public ContactDetail[]? Contact { get; set; }
+    public string? Copyright { get; set; }
+    public string? Date { get; set; }
+    public ImplementationGuideDefinition? Definition { get; set; }
+    public ImplementationGuideDependsOn[]? DependsOn { get; set; }
+    public string? Description { get; set; }
+    public bool? Experimental { get; set; }
     public required FhirversionEnum[] FhirVersion { get; set; }
-    public  ImplementationGuideGlobal[]? Global { get; set; }
-    public  CodeableConcept[]? Jurisdiction { get; set; }
-    public  string? License { get; set; }
-    public  ImplementationGuideManifest? Manifest { get; set; }
+    public ImplementationGuideGlobal[]? Global { get; set; }
+    public CodeableConcept[]? Jurisdiction { get; set; }
+    public string? License { get; set; }
+    public ImplementationGuideManifest? Manifest { get; set; }
     public required string Name { get; set; }
     public required string PackageId { get; set; }
-    public  string? Publisher { get; set; }
+    public string? Publisher { get; set; }
     public required PublicationStatusEnum Status { get; set; }
-    public  string? Title { get; set; }
+    public string? Title { get; set; }
     public required string Url { get; set; }
-    public  UsageContext[]? UseContext { get; set; }
-    public  string? Version { get; set; }
+    public UsageContext[]? UseContext { get; set; }
+    public string? Version { get; set; }
 
     public class ImplementationGuideDefinition : BackboneElement {
-        public  ImplementationGuideDefinitionGrouping[]? Grouping { get; set; }
-        public  ImplementationGuideDefinitionPage? Page { get; set; }
-        public  ImplementationGuideDefinitionParameter[]? Parameter { get; set; }
+        public ImplementationGuideDefinitionGrouping[]? Grouping { get; set; }
+        public ImplementationGuideDefinitionPage? Page { get; set; }
+        public ImplementationGuideDefinitionParameter[]? Parameter { get; set; }
         public required ImplementationGuideDefinitionResource[] Resource { get; set; }
-        public  ImplementationGuideDefinitionTemplate[]? Template { get; set; }
+        public ImplementationGuideDefinitionTemplate[]? Template { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -40,7 +40,7 @@ public class ImplementationGuide : DomainResource {
     }
 
     public class ImplementationGuideDefinitionGrouping : BackboneElement {
-        public  string? Description { get; set; }
+        public string? Description { get; set; }
         public required string Name { get; set; }
 
         public override string ToString() => 
@@ -50,9 +50,9 @@ public class ImplementationGuide : DomainResource {
 
     public class ImplementationGuideDefinitionPage : BackboneElement {
         public required GuidePageGenerationEnum Generation { get; set; }
-        public  ResourceReference? NameReference { get; set; }
-        public  string? NameUrl { get; set; }
-        public  ImplementationGuideDefinitionPage[]? Page { get; set; }
+        public ResourceReference? NameReference { get; set; }
+        public string? NameUrl { get; set; }
+        public ImplementationGuideDefinitionPage[]? Page { get; set; }
         public required string Title { get; set; }
 
         public override string ToString() => 
@@ -70,12 +70,12 @@ public class ImplementationGuide : DomainResource {
     }
 
     public class ImplementationGuideDefinitionResource : BackboneElement {
-        public  string? Description { get; set; }
-        public  bool? ExampleBoolean { get; set; }
-        public  string? ExampleCanonical { get; set; }
-        public  FhirversionEnum[]? FhirVersion { get; set; }
-        public  string? GroupingId { get; set; }
-        public  string? Name { get; set; }
+        public string? Description { get; set; }
+        public bool? ExampleBoolean { get; set; }
+        public string? ExampleCanonical { get; set; }
+        public FhirversionEnum[]? FhirVersion { get; set; }
+        public string? GroupingId { get; set; }
+        public string? Name { get; set; }
         public required ResourceReference Reference { get; set; }
 
         public override string ToString() => 
@@ -85,7 +85,7 @@ public class ImplementationGuide : DomainResource {
 
     public class ImplementationGuideDefinitionTemplate : BackboneElement {
         public required string Code { get; set; }
-        public  string? Scope { get; set; }
+        public string? Scope { get; set; }
         public required string Source { get; set; }
 
         public override string ToString() => 
@@ -94,9 +94,9 @@ public class ImplementationGuide : DomainResource {
     }
 
     public class ImplementationGuideDependsOn : BackboneElement {
-        public  string? PackageId { get; set; }
+        public string? PackageId { get; set; }
         public required string Uri { get; set; }
-        public  string? Version { get; set; }
+        public string? Version { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -113,10 +113,10 @@ public class ImplementationGuide : DomainResource {
     }
 
     public class ImplementationGuideManifest : BackboneElement {
-        public  string[]? Image { get; set; }
-        public  string[]? Other { get; set; }
-        public  ImplementationGuideManifestPage[]? Page { get; set; }
-        public  string? Rendering { get; set; }
+        public string[]? Image { get; set; }
+        public string[]? Other { get; set; }
+        public ImplementationGuideManifestPage[]? Page { get; set; }
+        public string? Rendering { get; set; }
         public required ImplementationGuideManifestResource[] Resource { get; set; }
 
         public override string ToString() => 
@@ -125,9 +125,9 @@ public class ImplementationGuide : DomainResource {
     }
 
     public class ImplementationGuideManifestPage : BackboneElement {
-        public  string[]? Anchor { get; set; }
+        public string[]? Anchor { get; set; }
         public required string Name { get; set; }
-        public  string? Title { get; set; }
+        public string? Title { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -135,10 +135,10 @@ public class ImplementationGuide : DomainResource {
     }
 
     public class ImplementationGuideManifestResource : BackboneElement {
-        public  bool? ExampleBoolean { get; set; }
-        public  string? ExampleCanonical { get; set; }
+        public bool? ExampleBoolean { get; set; }
+        public string? ExampleCanonical { get; set; }
         public required ResourceReference Reference { get; set; }
-        public  string? RelativePath { get; set; }
+        public string? RelativePath { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

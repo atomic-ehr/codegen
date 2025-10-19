@@ -6,14 +6,14 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Schedule : DomainResource {
-    public  bool? Active { get; set; }
+    public bool? Active { get; set; }
     public required ResourceReference[] Actor { get; set; }
-    public  string? Comment { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  Period? PlanningHorizon { get; set; }
-    public  CodeableConcept[]? ServiceCategory { get; set; }
-    public  CodeableConcept[]? ServiceType { get; set; }
-    public  CodeableConcept[]? Specialty { get; set; }
+    public string? Comment { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public Period? PlanningHorizon { get; set; }
+    public CodeableConcept[]? ServiceCategory { get; set; }
+    public CodeableConcept[]? ServiceType { get; set; }
+    public CodeableConcept[]? Specialty { get; set; }
 
     public override string ToString() => 
         JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

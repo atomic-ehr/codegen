@@ -7,16 +7,16 @@ namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class MedicinalProductPharmaceutical : DomainResource {
     public required CodeableConcept AdministrableDoseForm { get; set; }
-    public  MedicinalProductPharmaceuticalCharacteristics[]? Characteristics { get; set; }
-    public  ResourceReference[]? Device { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  ResourceReference[]? Ingredient { get; set; }
+    public MedicinalProductPharmaceuticalCharacteristics[]? Characteristics { get; set; }
+    public ResourceReference[]? Device { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public ResourceReference[]? Ingredient { get; set; }
     public required MedicinalProductPharmaceuticalRouteOfAdministration[] RouteOfAdministration { get; set; }
-    public  CodeableConcept? UnitOfPresentation { get; set; }
+    public CodeableConcept? UnitOfPresentation { get; set; }
 
     public class MedicinalProductPharmaceuticalCharacteristics : BackboneElement {
         public required CodeableConcept Code { get; set; }
-        public  CodeableConcept? Status { get; set; }
+        public CodeableConcept? Status { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -25,12 +25,12 @@ public class MedicinalProductPharmaceutical : DomainResource {
 
     public class MedicinalProductPharmaceuticalRouteOfAdministration : BackboneElement {
         public required CodeableConcept Code { get; set; }
-        public  Quantity? FirstDose { get; set; }
-        public  Quantity? MaxDosePerDay { get; set; }
-        public  Ratio? MaxDosePerTreatmentPeriod { get; set; }
-        public  Quantity? MaxSingleDose { get; set; }
-        public  Duration? MaxTreatmentPeriod { get; set; }
-        public  MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpecies[]? TargetSpecies { get; set; }
+        public Quantity? FirstDose { get; set; }
+        public Quantity? MaxDosePerDay { get; set; }
+        public Ratio? MaxDosePerTreatmentPeriod { get; set; }
+        public Quantity? MaxSingleDose { get; set; }
+        public Duration? MaxTreatmentPeriod { get; set; }
+        public MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpecies[]? TargetSpecies { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -39,7 +39,7 @@ public class MedicinalProductPharmaceutical : DomainResource {
 
     public class MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpecies : BackboneElement {
         public required CodeableConcept Code { get; set; }
-        public  MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpeciesWithdrawalPeriod[]? WithdrawalPeriod { get; set; }
+        public MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpeciesWithdrawalPeriod[]? WithdrawalPeriod { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -47,7 +47,7 @@ public class MedicinalProductPharmaceutical : DomainResource {
     }
 
     public class MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpeciesWithdrawalPeriod : BackboneElement {
-        public  string? SupportingInformation { get; set; }
+        public string? SupportingInformation { get; set; }
         public required CodeableConcept Tissue { get; set; }
         public required Quantity Value { get; set; }
 

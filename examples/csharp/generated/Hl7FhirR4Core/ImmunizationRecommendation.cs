@@ -6,27 +6,27 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class ImmunizationRecommendation : DomainResource {
-    public  ResourceReference? Authority { get; set; }
+    public ResourceReference? Authority { get; set; }
     public required string Date { get; set; }
-    public  Identifier[]? Identifier { get; set; }
+    public Identifier[]? Identifier { get; set; }
     public required ResourceReference Patient { get; set; }
     public required ImmunizationRecommendationRecommendation[] Recommendation { get; set; }
 
     public class ImmunizationRecommendationRecommendation : BackboneElement {
-        public  CodeableConcept[]? ContraindicatedVaccineCode { get; set; }
-        public  ImmunizationRecommendationRecommendationDateCriterion[]? DateCriterion { get; set; }
-        public  string? Description { get; set; }
-        public  long? DoseNumberPositiveInt { get; set; }
-        public  string? DoseNumberString { get; set; }
-        public  CodeableConcept[]? ForecastReason { get; set; }
+        public CodeableConcept[]? ContraindicatedVaccineCode { get; set; }
+        public ImmunizationRecommendationRecommendationDateCriterion[]? DateCriterion { get; set; }
+        public string? Description { get; set; }
+        public long? DoseNumberPositiveInt { get; set; }
+        public string? DoseNumberString { get; set; }
+        public CodeableConcept[]? ForecastReason { get; set; }
         public required CodeableConcept ForecastStatus { get; set; }
-        public  string? Series { get; set; }
-        public  long? SeriesDosesPositiveInt { get; set; }
-        public  string? SeriesDosesString { get; set; }
-        public  ResourceReference[]? SupportingImmunization { get; set; }
-        public  ResourceReference[]? SupportingPatientInformation { get; set; }
-        public  CodeableConcept? TargetDisease { get; set; }
-        public  CodeableConcept[]? VaccineCode { get; set; }
+        public string? Series { get; set; }
+        public long? SeriesDosesPositiveInt { get; set; }
+        public string? SeriesDosesString { get; set; }
+        public ResourceReference[]? SupportingImmunization { get; set; }
+        public ResourceReference[]? SupportingPatientInformation { get; set; }
+        public CodeableConcept? TargetDisease { get; set; }
+        public CodeableConcept[]? VaccineCode { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

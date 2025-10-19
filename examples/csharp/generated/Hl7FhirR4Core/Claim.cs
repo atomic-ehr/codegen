@@ -6,39 +6,39 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Claim : DomainResource {
-    public  ClaimAccident? Accident { get; set; }
-    public  Period? BillablePeriod { get; set; }
-    public  ClaimCareTeam[]? CareTeam { get; set; }
+    public ClaimAccident? Accident { get; set; }
+    public Period? BillablePeriod { get; set; }
+    public ClaimCareTeam[]? CareTeam { get; set; }
     public required string Created { get; set; }
-    public  ClaimDiagnosis[]? Diagnosis { get; set; }
-    public  ResourceReference? Enterer { get; set; }
-    public  ResourceReference? Facility { get; set; }
-    public  CodeableConcept? FundsReserve { get; set; }
-    public  Identifier[]? Identifier { get; set; }
+    public ClaimDiagnosis[]? Diagnosis { get; set; }
+    public ResourceReference? Enterer { get; set; }
+    public ResourceReference? Facility { get; set; }
+    public CodeableConcept? FundsReserve { get; set; }
+    public Identifier[]? Identifier { get; set; }
     public required ClaimInsurance[] Insurance { get; set; }
-    public  ResourceReference? Insurer { get; set; }
-    public  ClaimItem[]? Item { get; set; }
-    public  ResourceReference? OriginalPrescription { get; set; }
+    public ResourceReference? Insurer { get; set; }
+    public ClaimItem[]? Item { get; set; }
+    public ResourceReference? OriginalPrescription { get; set; }
     public required ResourceReference Patient { get; set; }
-    public  ClaimPayee? Payee { get; set; }
-    public  ResourceReference? Prescription { get; set; }
+    public ClaimPayee? Payee { get; set; }
+    public ResourceReference? Prescription { get; set; }
     public required CodeableConcept Priority { get; set; }
-    public  ClaimProcedure[]? Procedure { get; set; }
+    public ClaimProcedure[]? Procedure { get; set; }
     public required ResourceReference Provider { get; set; }
-    public  ResourceReference? Referral { get; set; }
-    public  ClaimRelated[]? Related { get; set; }
+    public ResourceReference? Referral { get; set; }
+    public ClaimRelated[]? Related { get; set; }
     public required ClaimStatusEnum Status { get; set; }
-    public  CodeableConcept? SubType { get; set; }
-    public  ClaimSupportingInfo[]? SupportingInfo { get; set; }
-    public  Money? Total { get; set; }
+    public CodeableConcept? SubType { get; set; }
+    public ClaimSupportingInfo[]? SupportingInfo { get; set; }
+    public Money? Total { get; set; }
     public required CodeableConcept Type { get; set; }
     public required UseEnum Use { get; set; }
 
     public class ClaimAccident : BackboneElement {
         public required string Date { get; set; }
-        public  Address? LocationAddress { get; set; }
-        public  ResourceReference? LocationReference { get; set; }
-        public  CodeableConcept? Type { get; set; }
+        public Address? LocationAddress { get; set; }
+        public ResourceReference? LocationReference { get; set; }
+        public CodeableConcept? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -47,9 +47,9 @@ public class Claim : DomainResource {
 
     public class ClaimCareTeam : BackboneElement {
         public required ResourceReference Provider { get; set; }
-        public  CodeableConcept? Qualification { get; set; }
-        public  bool? Responsible { get; set; }
-        public  CodeableConcept? Role { get; set; }
+        public CodeableConcept? Qualification { get; set; }
+        public bool? Responsible { get; set; }
+        public CodeableConcept? Role { get; set; }
         public required long Sequence { get; set; }
 
         public override string ToString() => 
@@ -58,12 +58,12 @@ public class Claim : DomainResource {
     }
 
     public class ClaimDiagnosis : BackboneElement {
-        public  CodeableConcept? DiagnosisCodeableConcept { get; set; }
-        public  ResourceReference? DiagnosisReference { get; set; }
-        public  CodeableConcept? OnAdmission { get; set; }
-        public  CodeableConcept? PackageCode { get; set; }
+        public CodeableConcept? DiagnosisCodeableConcept { get; set; }
+        public ResourceReference? DiagnosisReference { get; set; }
+        public CodeableConcept? OnAdmission { get; set; }
+        public CodeableConcept? PackageCode { get; set; }
         public required long Sequence { get; set; }
-        public  CodeableConcept[]? Type { get; set; }
+        public CodeableConcept[]? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -71,12 +71,12 @@ public class Claim : DomainResource {
     }
 
     public class ClaimInsurance : BackboneElement {
-        public  string? BusinessArrangement { get; set; }
-        public  ResourceReference? ClaimResponse { get; set; }
+        public string? BusinessArrangement { get; set; }
+        public ResourceReference? ClaimResponse { get; set; }
         public required ResourceReference Coverage { get; set; }
         public required bool Focal { get; set; }
-        public  Identifier? Identifier { get; set; }
-        public  string[]? PreAuthRef { get; set; }
+        public Identifier? Identifier { get; set; }
+        public string[]? PreAuthRef { get; set; }
         public required long Sequence { get; set; }
 
         public override string ToString() => 
@@ -85,30 +85,30 @@ public class Claim : DomainResource {
     }
 
     public class ClaimItem : BackboneElement {
-        public  CodeableConcept? BodySite { get; set; }
-        public  long[]? CareTeamSequence { get; set; }
-        public  CodeableConcept? Category { get; set; }
-        public  ClaimItemDetail[]? Detail { get; set; }
-        public  long[]? DiagnosisSequence { get; set; }
-        public  ResourceReference[]? Encounter { get; set; }
-        public  decimal? Factor { get; set; }
-        public  long[]? InformationSequence { get; set; }
-        public  Address? LocationAddress { get; set; }
-        public  CodeableConcept? LocationCodeableConcept { get; set; }
-        public  ResourceReference? LocationReference { get; set; }
-        public  CodeableConcept[]? Modifier { get; set; }
-        public  Money? Net { get; set; }
-        public  long[]? ProcedureSequence { get; set; }
+        public CodeableConcept? BodySite { get; set; }
+        public long[]? CareTeamSequence { get; set; }
+        public CodeableConcept? Category { get; set; }
+        public ClaimItemDetail[]? Detail { get; set; }
+        public long[]? DiagnosisSequence { get; set; }
+        public ResourceReference[]? Encounter { get; set; }
+        public decimal? Factor { get; set; }
+        public long[]? InformationSequence { get; set; }
+        public Address? LocationAddress { get; set; }
+        public CodeableConcept? LocationCodeableConcept { get; set; }
+        public ResourceReference? LocationReference { get; set; }
+        public CodeableConcept[]? Modifier { get; set; }
+        public Money? Net { get; set; }
+        public long[]? ProcedureSequence { get; set; }
         public required CodeableConcept ProductOrService { get; set; }
-        public  CodeableConcept[]? ProgramCode { get; set; }
-        public  Quantity? Quantity { get; set; }
-        public  CodeableConcept? Revenue { get; set; }
+        public CodeableConcept[]? ProgramCode { get; set; }
+        public Quantity? Quantity { get; set; }
+        public CodeableConcept? Revenue { get; set; }
         public required long Sequence { get; set; }
-        public  string? ServicedDate { get; set; }
-        public  Period? ServicedPeriod { get; set; }
-        public  CodeableConcept[]? SubSite { get; set; }
-        public  ResourceReference[]? Udi { get; set; }
-        public  Money? UnitPrice { get; set; }
+        public string? ServicedDate { get; set; }
+        public Period? ServicedPeriod { get; set; }
+        public CodeableConcept[]? SubSite { get; set; }
+        public ResourceReference[]? Udi { get; set; }
+        public Money? UnitPrice { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -116,18 +116,18 @@ public class Claim : DomainResource {
     }
 
     public class ClaimItemDetail : BackboneElement {
-        public  CodeableConcept? Category { get; set; }
-        public  decimal? Factor { get; set; }
-        public  CodeableConcept[]? Modifier { get; set; }
-        public  Money? Net { get; set; }
+        public CodeableConcept? Category { get; set; }
+        public decimal? Factor { get; set; }
+        public CodeableConcept[]? Modifier { get; set; }
+        public Money? Net { get; set; }
         public required CodeableConcept ProductOrService { get; set; }
-        public  CodeableConcept[]? ProgramCode { get; set; }
-        public  Quantity? Quantity { get; set; }
-        public  CodeableConcept? Revenue { get; set; }
+        public CodeableConcept[]? ProgramCode { get; set; }
+        public Quantity? Quantity { get; set; }
+        public CodeableConcept? Revenue { get; set; }
         public required long Sequence { get; set; }
-        public  ClaimItemDetailSubDetail[]? SubDetail { get; set; }
-        public  ResourceReference[]? Udi { get; set; }
-        public  Money? UnitPrice { get; set; }
+        public ClaimItemDetailSubDetail[]? SubDetail { get; set; }
+        public ResourceReference[]? Udi { get; set; }
+        public Money? UnitPrice { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -135,17 +135,17 @@ public class Claim : DomainResource {
     }
 
     public class ClaimItemDetailSubDetail : BackboneElement {
-        public  CodeableConcept? Category { get; set; }
-        public  decimal? Factor { get; set; }
-        public  CodeableConcept[]? Modifier { get; set; }
-        public  Money? Net { get; set; }
+        public CodeableConcept? Category { get; set; }
+        public decimal? Factor { get; set; }
+        public CodeableConcept[]? Modifier { get; set; }
+        public Money? Net { get; set; }
         public required CodeableConcept ProductOrService { get; set; }
-        public  CodeableConcept[]? ProgramCode { get; set; }
-        public  Quantity? Quantity { get; set; }
-        public  CodeableConcept? Revenue { get; set; }
+        public CodeableConcept[]? ProgramCode { get; set; }
+        public Quantity? Quantity { get; set; }
+        public CodeableConcept? Revenue { get; set; }
         public required long Sequence { get; set; }
-        public  ResourceReference[]? Udi { get; set; }
-        public  Money? UnitPrice { get; set; }
+        public ResourceReference[]? Udi { get; set; }
+        public Money? UnitPrice { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -153,7 +153,7 @@ public class Claim : DomainResource {
     }
 
     public class ClaimPayee : BackboneElement {
-        public  ResourceReference? Party { get; set; }
+        public ResourceReference? Party { get; set; }
         public required CodeableConcept Type { get; set; }
 
         public override string ToString() => 
@@ -162,12 +162,12 @@ public class Claim : DomainResource {
     }
 
     public class ClaimProcedure : BackboneElement {
-        public  string? Date { get; set; }
-        public  CodeableConcept? ProcedureCodeableConcept { get; set; }
-        public  ResourceReference? ProcedureReference { get; set; }
+        public string? Date { get; set; }
+        public CodeableConcept? ProcedureCodeableConcept { get; set; }
+        public ResourceReference? ProcedureReference { get; set; }
         public required long Sequence { get; set; }
-        public  CodeableConcept[]? Type { get; set; }
-        public  ResourceReference[]? Udi { get; set; }
+        public CodeableConcept[]? Type { get; set; }
+        public ResourceReference[]? Udi { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -175,9 +175,9 @@ public class Claim : DomainResource {
     }
 
     public class ClaimRelated : BackboneElement {
-        public  ResourceReference? Claim { get; set; }
-        public  Identifier? Reference { get; set; }
-        public  CodeableConcept? Relationship { get; set; }
+        public ResourceReference? Claim { get; set; }
+        public Identifier? Reference { get; set; }
+        public CodeableConcept? Relationship { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -186,16 +186,16 @@ public class Claim : DomainResource {
 
     public class ClaimSupportingInfo : BackboneElement {
         public required CodeableConcept Category { get; set; }
-        public  CodeableConcept? Code { get; set; }
-        public  CodeableConcept? Reason { get; set; }
+        public CodeableConcept? Code { get; set; }
+        public CodeableConcept? Reason { get; set; }
         public required long Sequence { get; set; }
-        public  string? TimingDate { get; set; }
-        public  Period? TimingPeriod { get; set; }
-        public  Attachment? ValueAttachment { get; set; }
-        public  bool? ValueBoolean { get; set; }
-        public  Quantity? ValueQuantity { get; set; }
-        public  ResourceReference? ValueReference { get; set; }
-        public  string? ValueString { get; set; }
+        public string? TimingDate { get; set; }
+        public Period? TimingPeriod { get; set; }
+        public Attachment? ValueAttachment { get; set; }
+        public bool? ValueBoolean { get; set; }
+        public Quantity? ValueQuantity { get; set; }
+        public ResourceReference? ValueReference { get; set; }
+        public string? ValueString { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

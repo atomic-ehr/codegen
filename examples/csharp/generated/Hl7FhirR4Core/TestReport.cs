@@ -6,21 +6,21 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class TestReport : DomainResource {
-    public  Identifier? Identifier { get; set; }
-    public  string? Issued { get; set; }
-    public  string? Name { get; set; }
-    public  TestReportParticipant[]? Participant { get; set; }
+    public Identifier? Identifier { get; set; }
+    public string? Issued { get; set; }
+    public string? Name { get; set; }
+    public TestReportParticipant[]? Participant { get; set; }
     public required TestReportResultEnum Result { get; set; }
-    public  decimal? Score { get; set; }
-    public  TestReportSetup? Setup { get; set; }
+    public decimal? Score { get; set; }
+    public TestReportSetup? Setup { get; set; }
     public required TestReportStatusEnum Status { get; set; }
-    public  TestReportTeardown? Teardown { get; set; }
-    public  TestReportTest[]? Test { get; set; }
-    public  string? Tester { get; set; }
+    public TestReportTeardown? Teardown { get; set; }
+    public TestReportTest[]? Test { get; set; }
+    public string? Tester { get; set; }
     public required ResourceReference TestScript { get; set; }
 
     public class TestReportParticipant : BackboneElement {
-        public  string? Display { get; set; }
+        public string? Display { get; set; }
         public required TestReportParticipantTypeEnum Type { get; set; }
         public required string Uri { get; set; }
 
@@ -38,8 +38,8 @@ public class TestReport : DomainResource {
     }
 
     public class TestReportSetupAction : BackboneElement {
-        public  TestReportSetupActionAssert? Assert { get; set; }
-        public  TestReportSetupActionOperation? Operation { get; set; }
+        public TestReportSetupActionAssert? Assert { get; set; }
+        public TestReportSetupActionOperation? Operation { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -47,8 +47,8 @@ public class TestReport : DomainResource {
     }
 
     public class TestReportSetupActionAssert : BackboneElement {
-        public  string? Detail { get; set; }
-        public  string? Message { get; set; }
+        public string? Detail { get; set; }
+        public string? Message { get; set; }
         public required TestReportActionResultEnum Result { get; set; }
 
         public override string ToString() => 
@@ -57,8 +57,8 @@ public class TestReport : DomainResource {
     }
 
     public class TestReportSetupActionOperation : BackboneElement {
-        public  string? Detail { get; set; }
-        public  string? Message { get; set; }
+        public string? Detail { get; set; }
+        public string? Message { get; set; }
         public required TestReportActionResultEnum Result { get; set; }
 
         public override string ToString() => 
@@ -84,8 +84,8 @@ public class TestReport : DomainResource {
 
     public class TestReportTest : BackboneElement {
         public required TestReportTestAction[] Action { get; set; }
-        public  string? Description { get; set; }
-        public  string? Name { get; set; }
+        public string? Description { get; set; }
+        public string? Name { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -93,8 +93,8 @@ public class TestReport : DomainResource {
     }
 
     public class TestReportTestAction : BackboneElement {
-        public  TestReportSetupActionAssert? Assert { get; set; }
-        public  TestReportSetupActionOperation? Operation { get; set; }
+        public TestReportSetupActionAssert? Assert { get; set; }
+        public TestReportSetupActionOperation? Operation { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

@@ -6,23 +6,23 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class EpisodeOfCare : DomainResource {
-    public  ResourceReference[]? Account { get; set; }
-    public  ResourceReference? CareManager { get; set; }
-    public  EpisodeOfCareDiagnosis[]? Diagnosis { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  ResourceReference? ManagingOrganization { get; set; }
+    public ResourceReference[]? Account { get; set; }
+    public ResourceReference? CareManager { get; set; }
+    public EpisodeOfCareDiagnosis[]? Diagnosis { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public ResourceReference? ManagingOrganization { get; set; }
     public required ResourceReference Patient { get; set; }
-    public  Period? Period { get; set; }
-    public  ResourceReference[]? ReferralRequest { get; set; }
+    public Period? Period { get; set; }
+    public ResourceReference[]? ReferralRequest { get; set; }
     public required EpisodeOfCareStatusEnum Status { get; set; }
-    public  EpisodeOfCareStatusHistory[]? StatusHistory { get; set; }
-    public  ResourceReference[]? Team { get; set; }
-    public  CodeableConcept[]? Type { get; set; }
+    public EpisodeOfCareStatusHistory[]? StatusHistory { get; set; }
+    public ResourceReference[]? Team { get; set; }
+    public CodeableConcept[]? Type { get; set; }
 
     public class EpisodeOfCareDiagnosis : BackboneElement {
         public required ResourceReference Condition { get; set; }
-        public  long? Rank { get; set; }
-        public  CodeableConcept? Role { get; set; }
+        public long? Rank { get; set; }
+        public CodeableConcept? Role { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

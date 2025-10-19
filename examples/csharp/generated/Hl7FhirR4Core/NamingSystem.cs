@@ -6,24 +6,24 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class NamingSystem : DomainResource {
-    public  ContactDetail[]? Contact { get; set; }
+    public ContactDetail[]? Contact { get; set; }
     public required string Date { get; set; }
-    public  string? Description { get; set; }
-    public  CodeableConcept[]? Jurisdiction { get; set; }
+    public string? Description { get; set; }
+    public CodeableConcept[]? Jurisdiction { get; set; }
     public required NamingSystemTypeEnum Kind { get; set; }
     public required string Name { get; set; }
-    public  string? Publisher { get; set; }
-    public  string? Responsible { get; set; }
+    public string? Publisher { get; set; }
+    public string? Responsible { get; set; }
     public required PublicationStatusEnum Status { get; set; }
-    public  CodeableConcept? Type { get; set; }
+    public CodeableConcept? Type { get; set; }
     public required NamingSystemUniqueId[] UniqueId { get; set; }
-    public  string? Usage { get; set; }
-    public  UsageContext[]? UseContext { get; set; }
+    public string? Usage { get; set; }
+    public UsageContext[]? UseContext { get; set; }
 
     public class NamingSystemUniqueId : BackboneElement {
-        public  string? Comment { get; set; }
-        public  Period? Period { get; set; }
-        public  bool? Preferred { get; set; }
+        public string? Comment { get; set; }
+        public Period? Period { get; set; }
+        public bool? Preferred { get; set; }
         public required NamingSystemIdentifierTypeEnum Type { get; set; }
         public required string Value { get; set; }
 

@@ -6,23 +6,23 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class DetectedIssue : DomainResource {
-    public  ResourceReference? Author { get; set; }
-    public  CodeableConcept? Code { get; set; }
-    public  string? Detail { get; set; }
-    public  DetectedIssueEvidence[]? Evidence { get; set; }
-    public  string? IdentifiedDateTime { get; set; }
-    public  Period? IdentifiedPeriod { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  ResourceReference[]? Implicated { get; set; }
-    public  DetectedIssueMitigation[]? Mitigation { get; set; }
-    public  ResourceReference? Patient { get; set; }
-    public  string? Reference { get; set; }
-    public  DetectedIssueSeverityEnum? Severity { get; set; }
+    public ResourceReference? Author { get; set; }
+    public CodeableConcept? Code { get; set; }
+    public string? Detail { get; set; }
+    public DetectedIssueEvidence[]? Evidence { get; set; }
+    public string? IdentifiedDateTime { get; set; }
+    public Period? IdentifiedPeriod { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public ResourceReference[]? Implicated { get; set; }
+    public DetectedIssueMitigation[]? Mitigation { get; set; }
+    public ResourceReference? Patient { get; set; }
+    public string? Reference { get; set; }
+    public DetectedIssueSeverityEnum? Severity { get; set; }
     public required DetectedIssueStatusEnum Status { get; set; }
 
     public class DetectedIssueEvidence : BackboneElement {
-        public  CodeableConcept[]? Code { get; set; }
-        public  ResourceReference[]? Detail { get; set; }
+        public CodeableConcept[]? Code { get; set; }
+        public ResourceReference[]? Detail { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -31,8 +31,8 @@ public class DetectedIssue : DomainResource {
 
     public class DetectedIssueMitigation : BackboneElement {
         public required CodeableConcept Action { get; set; }
-        public  ResourceReference? Author { get; set; }
-        public  string? Date { get; set; }
+        public ResourceReference? Author { get; set; }
+        public string? Date { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

@@ -6,21 +6,21 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class DeviceMetric : DomainResource {
-    public  DeviceMetricCalibration[]? Calibration { get; set; }
+    public DeviceMetricCalibration[]? Calibration { get; set; }
     public required DeviceMetricCategoryEnum Category { get; set; }
-    public  DeviceMetricColorEnum? Color { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  Timing? MeasurementPeriod { get; set; }
-    public  DeviceMetricOperationalStatusEnum? OperationalStatus { get; set; }
-    public  ResourceReference? Parent { get; set; }
-    public  ResourceReference? Source { get; set; }
+    public DeviceMetricColorEnum? Color { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public Timing? MeasurementPeriod { get; set; }
+    public DeviceMetricOperationalStatusEnum? OperationalStatus { get; set; }
+    public ResourceReference? Parent { get; set; }
+    public ResourceReference? Source { get; set; }
     public required CodeableConcept Type { get; set; }
-    public  CodeableConcept? Unit { get; set; }
+    public CodeableConcept? Unit { get; set; }
 
     public class DeviceMetricCalibration : BackboneElement {
-        public  DeviceMetricCalibrationStateEnum? State { get; set; }
-        public  string? Time { get; set; }
-        public  DeviceMetricCalibrationTypeEnum? Type { get; set; }
+        public DeviceMetricCalibrationStateEnum? State { get; set; }
+        public string? Time { get; set; }
+        public DeviceMetricCalibrationTypeEnum? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

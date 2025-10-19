@@ -6,26 +6,26 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class InsurancePlan : DomainResource {
-    public  ResourceReference? AdministeredBy { get; set; }
-    public  string[]? Alias { get; set; }
-    public  InsurancePlanContact[]? Contact { get; set; }
-    public  InsurancePlanCoverage[]? Coverage { get; set; }
-    public  ResourceReference[]? CoverageArea { get; set; }
-    public  ResourceReference[]? Endpoint { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  string? Name { get; set; }
-    public  ResourceReference[]? Network { get; set; }
-    public  ResourceReference? OwnedBy { get; set; }
-    public  Period? Period { get; set; }
-    public  InsurancePlanPlan[]? Plan { get; set; }
-    public  PublicationStatusEnum? Status { get; set; }
-    public  CodeableConcept[]? Type { get; set; }
+    public ResourceReference? AdministeredBy { get; set; }
+    public string[]? Alias { get; set; }
+    public InsurancePlanContact[]? Contact { get; set; }
+    public InsurancePlanCoverage[]? Coverage { get; set; }
+    public ResourceReference[]? CoverageArea { get; set; }
+    public ResourceReference[]? Endpoint { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public string? Name { get; set; }
+    public ResourceReference[]? Network { get; set; }
+    public ResourceReference? OwnedBy { get; set; }
+    public Period? Period { get; set; }
+    public InsurancePlanPlan[]? Plan { get; set; }
+    public PublicationStatusEnum? Status { get; set; }
+    public CodeableConcept[]? Type { get; set; }
 
     public class InsurancePlanContact : BackboneElement {
-        public  Address? Address { get; set; }
-        public  HumanName? Name { get; set; }
-        public  CodeableConcept? Purpose { get; set; }
-        public  ContactPoint[]? Telecom { get; set; }
+        public Address? Address { get; set; }
+        public HumanName? Name { get; set; }
+        public CodeableConcept? Purpose { get; set; }
+        public ContactPoint[]? Telecom { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -34,7 +34,7 @@ public class InsurancePlan : DomainResource {
 
     public class InsurancePlanCoverage : BackboneElement {
         public required InsurancePlanCoverageBenefit[] Benefit { get; set; }
-        public  ResourceReference[]? Network { get; set; }
+        public ResourceReference[]? Network { get; set; }
         public required CodeableConcept Type { get; set; }
 
         public override string ToString() => 
@@ -43,8 +43,8 @@ public class InsurancePlan : DomainResource {
     }
 
     public class InsurancePlanCoverageBenefit : BackboneElement {
-        public  InsurancePlanCoverageBenefitLimit[]? Limit { get; set; }
-        public  string? Requirement { get; set; }
+        public InsurancePlanCoverageBenefitLimit[]? Limit { get; set; }
+        public string? Requirement { get; set; }
         public required CodeableConcept Type { get; set; }
 
         public override string ToString() => 
@@ -53,8 +53,8 @@ public class InsurancePlan : DomainResource {
     }
 
     public class InsurancePlanCoverageBenefitLimit : BackboneElement {
-        public  CodeableConcept? Code { get; set; }
-        public  Quantity? Value { get; set; }
+        public CodeableConcept? Code { get; set; }
+        public Quantity? Value { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -62,12 +62,12 @@ public class InsurancePlan : DomainResource {
     }
 
     public class InsurancePlanPlan : BackboneElement {
-        public  ResourceReference[]? CoverageArea { get; set; }
-        public  InsurancePlanPlanGeneralCost[]? GeneralCost { get; set; }
-        public  Identifier[]? Identifier { get; set; }
-        public  ResourceReference[]? Network { get; set; }
-        public  InsurancePlanPlanSpecificCost[]? SpecificCost { get; set; }
-        public  CodeableConcept? Type { get; set; }
+        public ResourceReference[]? CoverageArea { get; set; }
+        public InsurancePlanPlanGeneralCost[]? GeneralCost { get; set; }
+        public Identifier[]? Identifier { get; set; }
+        public ResourceReference[]? Network { get; set; }
+        public InsurancePlanPlanSpecificCost[]? SpecificCost { get; set; }
+        public CodeableConcept? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -75,10 +75,10 @@ public class InsurancePlan : DomainResource {
     }
 
     public class InsurancePlanPlanGeneralCost : BackboneElement {
-        public  string? Comment { get; set; }
-        public  Money? Cost { get; set; }
-        public  long? GroupSize { get; set; }
-        public  CodeableConcept? Type { get; set; }
+        public string? Comment { get; set; }
+        public Money? Cost { get; set; }
+        public long? GroupSize { get; set; }
+        public CodeableConcept? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -86,7 +86,7 @@ public class InsurancePlan : DomainResource {
     }
 
     public class InsurancePlanPlanSpecificCost : BackboneElement {
-        public  InsurancePlanPlanSpecificCostBenefit[]? Benefit { get; set; }
+        public InsurancePlanPlanSpecificCostBenefit[]? Benefit { get; set; }
         public required CodeableConcept Category { get; set; }
 
         public override string ToString() => 
@@ -95,7 +95,7 @@ public class InsurancePlan : DomainResource {
     }
 
     public class InsurancePlanPlanSpecificCostBenefit : BackboneElement {
-        public  InsurancePlanPlanSpecificCostBenefitCost[]? Cost { get; set; }
+        public InsurancePlanPlanSpecificCostBenefitCost[]? Cost { get; set; }
         public required CodeableConcept Type { get; set; }
 
         public override string ToString() => 
@@ -104,10 +104,10 @@ public class InsurancePlan : DomainResource {
     }
 
     public class InsurancePlanPlanSpecificCostBenefitCost : BackboneElement {
-        public  CodeableConcept? Applicability { get; set; }
-        public  CodeableConcept[]? Qualifiers { get; set; }
+        public CodeableConcept? Applicability { get; set; }
+        public CodeableConcept[]? Qualifiers { get; set; }
         public required CodeableConcept Type { get; set; }
-        public  Quantity? Value { get; set; }
+        public Quantity? Value { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

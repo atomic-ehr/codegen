@@ -6,23 +6,23 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class MeasureReport : DomainResource {
-    public  string? Date { get; set; }
-    public  ResourceReference[]? EvaluatedResource { get; set; }
-    public  MeasureReportGroup[]? Group { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  CodeableConcept? ImprovementNotation { get; set; }
+    public string? Date { get; set; }
+    public ResourceReference[]? EvaluatedResource { get; set; }
+    public MeasureReportGroup[]? Group { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public CodeableConcept? ImprovementNotation { get; set; }
     public required string Measure { get; set; }
     public required Period Period { get; set; }
-    public  ResourceReference? Reporter { get; set; }
+    public ResourceReference? Reporter { get; set; }
     public required MeasureReportStatusEnum Status { get; set; }
-    public  ResourceReference? Subject { get; set; }
+    public ResourceReference? Subject { get; set; }
     public required MeasureReportTypeEnum Type { get; set; }
 
     public class MeasureReportGroup : BackboneElement {
-        public  CodeableConcept? Code { get; set; }
-        public  Quantity? MeasureScore { get; set; }
-        public  MeasureReportGroupPopulation[]? Population { get; set; }
-        public  MeasureReportGroupStratifier[]? Stratifier { get; set; }
+        public CodeableConcept? Code { get; set; }
+        public Quantity? MeasureScore { get; set; }
+        public MeasureReportGroupPopulation[]? Population { get; set; }
+        public MeasureReportGroupStratifier[]? Stratifier { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -30,9 +30,9 @@ public class MeasureReport : DomainResource {
     }
 
     public class MeasureReportGroupPopulation : BackboneElement {
-        public  CodeableConcept? Code { get; set; }
-        public  int? Count { get; set; }
-        public  ResourceReference? SubjectResults { get; set; }
+        public CodeableConcept? Code { get; set; }
+        public int? Count { get; set; }
+        public ResourceReference? SubjectResults { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -40,8 +40,8 @@ public class MeasureReport : DomainResource {
     }
 
     public class MeasureReportGroupStratifier : BackboneElement {
-        public  CodeableConcept[]? Code { get; set; }
-        public  MeasureReportGroupStratifierStratum[]? Stratum { get; set; }
+        public CodeableConcept[]? Code { get; set; }
+        public MeasureReportGroupStratifierStratum[]? Stratum { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -49,10 +49,10 @@ public class MeasureReport : DomainResource {
     }
 
     public class MeasureReportGroupStratifierStratum : BackboneElement {
-        public  MeasureReportGroupStratifierStratumComponent[]? Component { get; set; }
-        public  Quantity? MeasureScore { get; set; }
-        public  MeasureReportGroupStratifierStratumPopulation[]? Population { get; set; }
-        public  CodeableConcept? Value { get; set; }
+        public MeasureReportGroupStratifierStratumComponent[]? Component { get; set; }
+        public Quantity? MeasureScore { get; set; }
+        public MeasureReportGroupStratifierStratumPopulation[]? Population { get; set; }
+        public CodeableConcept? Value { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -69,9 +69,9 @@ public class MeasureReport : DomainResource {
     }
 
     public class MeasureReportGroupStratifierStratumPopulation : BackboneElement {
-        public  CodeableConcept? Code { get; set; }
-        public  int? Count { get; set; }
-        public  ResourceReference? SubjectResults { get; set; }
+        public CodeableConcept? Code { get; set; }
+        public int? Count { get; set; }
+        public ResourceReference? SubjectResults { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

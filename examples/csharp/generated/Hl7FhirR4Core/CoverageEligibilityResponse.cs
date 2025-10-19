@@ -7,20 +7,20 @@ namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class CoverageEligibilityResponse : DomainResource {
     public required string Created { get; set; }
-    public  string? Disposition { get; set; }
-    public  CoverageEligibilityResponseError[]? Error { get; set; }
-    public  CodeableConcept? Form { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  CoverageEligibilityResponseInsurance[]? Insurance { get; set; }
+    public string? Disposition { get; set; }
+    public CoverageEligibilityResponseError[]? Error { get; set; }
+    public CodeableConcept? Form { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public CoverageEligibilityResponseInsurance[]? Insurance { get; set; }
     public required ResourceReference Insurer { get; set; }
     public required RemittanceOutcomeEnum Outcome { get; set; }
     public required ResourceReference Patient { get; set; }
-    public  string? PreAuthRef { get; set; }
+    public string? PreAuthRef { get; set; }
     public required EligibilityResponsePurposeEnum[] Purpose { get; set; }
     public required ResourceReference Request { get; set; }
-    public  ResourceReference? Requestor { get; set; }
-    public  string? ServicedDate { get; set; }
-    public  Period? ServicedPeriod { get; set; }
+    public ResourceReference? Requestor { get; set; }
+    public string? ServicedDate { get; set; }
+    public Period? ServicedPeriod { get; set; }
     public required EligibilityResponseStatusEnum Status { get; set; }
 
     public class CoverageEligibilityResponseError : BackboneElement {
@@ -32,10 +32,10 @@ public class CoverageEligibilityResponse : DomainResource {
     }
 
     public class CoverageEligibilityResponseInsurance : BackboneElement {
-        public  Period? BenefitPeriod { get; set; }
+        public Period? BenefitPeriod { get; set; }
         public required ResourceReference Coverage { get; set; }
-        public  bool? Inforce { get; set; }
-        public  CoverageEligibilityResponseInsuranceItem[]? Item { get; set; }
+        public bool? Inforce { get; set; }
+        public CoverageEligibilityResponseInsuranceItem[]? Item { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -43,20 +43,20 @@ public class CoverageEligibilityResponse : DomainResource {
     }
 
     public class CoverageEligibilityResponseInsuranceItem : BackboneElement {
-        public  bool? AuthorizationRequired { get; set; }
-        public  CodeableConcept[]? AuthorizationSupporting { get; set; }
-        public  string? AuthorizationUrl { get; set; }
-        public  CoverageEligibilityResponseInsuranceItemBenefit[]? Benefit { get; set; }
-        public  CodeableConcept? Category { get; set; }
-        public  string? Description { get; set; }
-        public  bool? Excluded { get; set; }
-        public  CodeableConcept[]? Modifier { get; set; }
-        public  string? Name { get; set; }
-        public  CodeableConcept? Network { get; set; }
-        public  CodeableConcept? ProductOrService { get; set; }
-        public  ResourceReference? Provider { get; set; }
-        public  CodeableConcept? Term { get; set; }
-        public  CodeableConcept? Unit { get; set; }
+        public bool? AuthorizationRequired { get; set; }
+        public CodeableConcept[]? AuthorizationSupporting { get; set; }
+        public string? AuthorizationUrl { get; set; }
+        public CoverageEligibilityResponseInsuranceItemBenefit[]? Benefit { get; set; }
+        public CodeableConcept? Category { get; set; }
+        public string? Description { get; set; }
+        public bool? Excluded { get; set; }
+        public CodeableConcept[]? Modifier { get; set; }
+        public string? Name { get; set; }
+        public CodeableConcept? Network { get; set; }
+        public CodeableConcept? ProductOrService { get; set; }
+        public ResourceReference? Provider { get; set; }
+        public CodeableConcept? Term { get; set; }
+        public CodeableConcept? Unit { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -64,13 +64,13 @@ public class CoverageEligibilityResponse : DomainResource {
     }
 
     public class CoverageEligibilityResponseInsuranceItemBenefit : BackboneElement {
-        public  Money? AllowedMoney { get; set; }
-        public  string? AllowedString { get; set; }
-        public  long? AllowedUnsignedInt { get; set; }
+        public Money? AllowedMoney { get; set; }
+        public string? AllowedString { get; set; }
+        public long? AllowedUnsignedInt { get; set; }
         public required CodeableConcept Type { get; set; }
-        public  Money? UsedMoney { get; set; }
-        public  string? UsedString { get; set; }
-        public  long? UsedUnsignedInt { get; set; }
+        public Money? UsedMoney { get; set; }
+        public string? UsedString { get; set; }
+        public long? UsedUnsignedInt { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

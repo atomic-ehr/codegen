@@ -6,34 +6,34 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class ConceptMap : DomainResource {
-    public  ContactDetail[]? Contact { get; set; }
-    public  string? Copyright { get; set; }
-    public  string? Date { get; set; }
-    public  string? Description { get; set; }
-    public  bool? Experimental { get; set; }
-    public  ConceptMapGroup[]? Group { get; set; }
-    public  Identifier? Identifier { get; set; }
-    public  CodeableConcept[]? Jurisdiction { get; set; }
-    public  string? Name { get; set; }
-    public  string? Publisher { get; set; }
-    public  string? Purpose { get; set; }
-    public  string? SourceCanonical { get; set; }
-    public  string? SourceUri { get; set; }
+    public ContactDetail[]? Contact { get; set; }
+    public string? Copyright { get; set; }
+    public string? Date { get; set; }
+    public string? Description { get; set; }
+    public bool? Experimental { get; set; }
+    public ConceptMapGroup[]? Group { get; set; }
+    public Identifier? Identifier { get; set; }
+    public CodeableConcept[]? Jurisdiction { get; set; }
+    public string? Name { get; set; }
+    public string? Publisher { get; set; }
+    public string? Purpose { get; set; }
+    public string? SourceCanonical { get; set; }
+    public string? SourceUri { get; set; }
     public required PublicationStatusEnum Status { get; set; }
-    public  string? TargetCanonical { get; set; }
-    public  string? TargetUri { get; set; }
-    public  string? Title { get; set; }
-    public  string? Url { get; set; }
-    public  UsageContext[]? UseContext { get; set; }
-    public  string? Version { get; set; }
+    public string? TargetCanonical { get; set; }
+    public string? TargetUri { get; set; }
+    public string? Title { get; set; }
+    public string? Url { get; set; }
+    public UsageContext[]? UseContext { get; set; }
+    public string? Version { get; set; }
 
     public class ConceptMapGroup : BackboneElement {
         public required ConceptMapGroupElement[] Element { get; set; }
-        public  string? Source { get; set; }
-        public  string? SourceVersion { get; set; }
-        public  string? Target { get; set; }
-        public  string? TargetVersion { get; set; }
-        public  ConceptMapGroupUnmapped? Unmapped { get; set; }
+        public string? Source { get; set; }
+        public string? SourceVersion { get; set; }
+        public string? Target { get; set; }
+        public string? TargetVersion { get; set; }
+        public ConceptMapGroupUnmapped? Unmapped { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -41,9 +41,9 @@ public class ConceptMap : DomainResource {
     }
 
     public class ConceptMapGroupElement : BackboneElement {
-        public  string? Code { get; set; }
-        public  string? Display { get; set; }
-        public  ConceptMapGroupElementTarget[]? Target { get; set; }
+        public string? Code { get; set; }
+        public string? Display { get; set; }
+        public ConceptMapGroupElementTarget[]? Target { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -51,12 +51,12 @@ public class ConceptMap : DomainResource {
     }
 
     public class ConceptMapGroupElementTarget : BackboneElement {
-        public  string? Code { get; set; }
-        public  string? Comment { get; set; }
-        public  ConceptMapGroupElementTargetDependsOn[]? DependsOn { get; set; }
-        public  string? Display { get; set; }
+        public string? Code { get; set; }
+        public string? Comment { get; set; }
+        public ConceptMapGroupElementTargetDependsOn[]? DependsOn { get; set; }
+        public string? Display { get; set; }
         public required ConceptMapEquivalenceEnum Equivalence { get; set; }
-        public  ConceptMapGroupElementTargetDependsOn[]? Product { get; set; }
+        public ConceptMapGroupElementTargetDependsOn[]? Product { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -64,9 +64,9 @@ public class ConceptMap : DomainResource {
     }
 
     public class ConceptMapGroupElementTargetDependsOn : BackboneElement {
-        public  string? Display { get; set; }
+        public string? Display { get; set; }
         public required string Property { get; set; }
-        public  string? System { get; set; }
+        public string? System { get; set; }
         public required string Value { get; set; }
 
         public override string ToString() => 
@@ -75,10 +75,10 @@ public class ConceptMap : DomainResource {
     }
 
     public class ConceptMapGroupUnmapped : BackboneElement {
-        public  string? Code { get; set; }
-        public  string? Display { get; set; }
+        public string? Code { get; set; }
+        public string? Display { get; set; }
         public required ConceptMapGroupUnmappedModeEnum Mode { get; set; }
-        public  string? Url { get; set; }
+        public string? Url { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

@@ -6,16 +6,16 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class SubstancePolymer : DomainResource {
-    public  CodeableConcept? Class { get; set; }
-    public  CodeableConcept[]? CopolymerConnectivity { get; set; }
-    public  CodeableConcept? Geometry { get; set; }
-    public  string[]? Modification { get; set; }
-    public  SubstancePolymerMonomerSet[]? MonomerSet { get; set; }
-    public  SubstancePolymerRepeat[]? Repeat { get; set; }
+    public CodeableConcept? Class { get; set; }
+    public CodeableConcept[]? CopolymerConnectivity { get; set; }
+    public CodeableConcept? Geometry { get; set; }
+    public string[]? Modification { get; set; }
+    public SubstancePolymerMonomerSet[]? MonomerSet { get; set; }
+    public SubstancePolymerRepeat[]? Repeat { get; set; }
 
     public class SubstancePolymerMonomerSet : BackboneElement {
-        public  CodeableConcept? RatioType { get; set; }
-        public  SubstancePolymerMonomerSetStartingMaterial[]? StartingMaterial { get; set; }
+        public CodeableConcept? RatioType { get; set; }
+        public SubstancePolymerMonomerSetStartingMaterial[]? StartingMaterial { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -23,10 +23,10 @@ public class SubstancePolymer : DomainResource {
     }
 
     public class SubstancePolymerMonomerSetStartingMaterial : BackboneElement {
-        public  SubstanceAmount? Amount { get; set; }
-        public  bool? IsDefining { get; set; }
-        public  CodeableConcept? Material { get; set; }
-        public  CodeableConcept? Type { get; set; }
+        public SubstanceAmount? Amount { get; set; }
+        public bool? IsDefining { get; set; }
+        public CodeableConcept? Material { get; set; }
+        public CodeableConcept? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -34,10 +34,10 @@ public class SubstancePolymer : DomainResource {
     }
 
     public class SubstancePolymerRepeat : BackboneElement {
-        public  string? AverageMolecularFormula { get; set; }
-        public  int? NumberOfUnits { get; set; }
-        public  SubstancePolymerRepeatRepeatUnit[]? RepeatUnit { get; set; }
-        public  CodeableConcept? RepeatUnitAmountType { get; set; }
+        public string? AverageMolecularFormula { get; set; }
+        public int? NumberOfUnits { get; set; }
+        public SubstancePolymerRepeatRepeatUnit[]? RepeatUnit { get; set; }
+        public CodeableConcept? RepeatUnitAmountType { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -45,11 +45,11 @@ public class SubstancePolymer : DomainResource {
     }
 
     public class SubstancePolymerRepeatRepeatUnit : BackboneElement {
-        public  SubstanceAmount? Amount { get; set; }
-        public  SubstancePolymerRepeatRepeatUnitDegreeOfPolymerisation[]? DegreeOfPolymerisation { get; set; }
-        public  CodeableConcept? OrientationOfPolymerisation { get; set; }
-        public  string? RepeatUnit { get; set; }
-        public  SubstancePolymerRepeatRepeatUnitStructuralRepresentation[]? StructuralRepresentation { get; set; }
+        public SubstanceAmount? Amount { get; set; }
+        public SubstancePolymerRepeatRepeatUnitDegreeOfPolymerisation[]? DegreeOfPolymerisation { get; set; }
+        public CodeableConcept? OrientationOfPolymerisation { get; set; }
+        public string? RepeatUnit { get; set; }
+        public SubstancePolymerRepeatRepeatUnitStructuralRepresentation[]? StructuralRepresentation { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -57,8 +57,8 @@ public class SubstancePolymer : DomainResource {
     }
 
     public class SubstancePolymerRepeatRepeatUnitDegreeOfPolymerisation : BackboneElement {
-        public  SubstanceAmount? Amount { get; set; }
-        public  CodeableConcept? Degree { get; set; }
+        public SubstanceAmount? Amount { get; set; }
+        public CodeableConcept? Degree { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -66,9 +66,9 @@ public class SubstancePolymer : DomainResource {
     }
 
     public class SubstancePolymerRepeatRepeatUnitStructuralRepresentation : BackboneElement {
-        public  Attachment? Attachment { get; set; }
-        public  string? Representation { get; set; }
-        public  CodeableConcept? Type { get; set; }
+        public Attachment? Attachment { get; set; }
+        public string? Representation { get; set; }
+        public CodeableConcept? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

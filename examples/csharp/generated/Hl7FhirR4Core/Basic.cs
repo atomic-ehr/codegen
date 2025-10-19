@@ -6,11 +6,11 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Basic : DomainResource {
-    public  ResourceReference? Author { get; set; }
+    public ResourceReference? Author { get; set; }
     public required CodeableConcept Code { get; set; }
-    public  string? Created { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  ResourceReference? Subject { get; set; }
+    public string? Created { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public ResourceReference? Subject { get; set; }
 
     public override string ToString() => 
         JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

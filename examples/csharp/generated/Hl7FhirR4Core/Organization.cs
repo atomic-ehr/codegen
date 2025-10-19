@@ -6,22 +6,22 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Organization : DomainResource {
-    public  bool? Active { get; set; }
-    public  Address[]? Address { get; set; }
-    public  string[]? Alias { get; set; }
-    public  OrganizationContact[]? Contact { get; set; }
-    public  ResourceReference[]? Endpoint { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  string? Name { get; set; }
-    public  ResourceReference? PartOf { get; set; }
-    public  ContactPoint[]? Telecom { get; set; }
-    public  CodeableConcept[]? Type { get; set; }
+    public bool? Active { get; set; }
+    public Address[]? Address { get; set; }
+    public string[]? Alias { get; set; }
+    public OrganizationContact[]? Contact { get; set; }
+    public ResourceReference[]? Endpoint { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public string? Name { get; set; }
+    public ResourceReference? PartOf { get; set; }
+    public ContactPoint[]? Telecom { get; set; }
+    public CodeableConcept[]? Type { get; set; }
 
     public class OrganizationContact : BackboneElement {
-        public  Address? Address { get; set; }
-        public  HumanName? Name { get; set; }
-        public  CodeableConcept? Purpose { get; set; }
-        public  ContactPoint[]? Telecom { get; set; }
+        public Address? Address { get; set; }
+        public HumanName? Name { get; set; }
+        public CodeableConcept? Purpose { get; set; }
+        public ContactPoint[]? Telecom { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

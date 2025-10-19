@@ -6,55 +6,55 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class ExplanationOfBenefit : DomainResource {
-    public  ExplanationOfBenefitAccident? Accident { get; set; }
-    public  ExplanationOfBenefitAddItem[]? AddItem { get; set; }
-    public  ExplanationOfBenefitItemAdjudication[]? Adjudication { get; set; }
-    public  ExplanationOfBenefitBenefitBalance[]? BenefitBalance { get; set; }
-    public  Period? BenefitPeriod { get; set; }
-    public  Period? BillablePeriod { get; set; }
-    public  ExplanationOfBenefitCareTeam[]? CareTeam { get; set; }
-    public  ResourceReference? Claim { get; set; }
-    public  ResourceReference? ClaimResponse { get; set; }
+    public ExplanationOfBenefitAccident? Accident { get; set; }
+    public ExplanationOfBenefitAddItem[]? AddItem { get; set; }
+    public ExplanationOfBenefitItemAdjudication[]? Adjudication { get; set; }
+    public ExplanationOfBenefitBenefitBalance[]? BenefitBalance { get; set; }
+    public Period? BenefitPeriod { get; set; }
+    public Period? BillablePeriod { get; set; }
+    public ExplanationOfBenefitCareTeam[]? CareTeam { get; set; }
+    public ResourceReference? Claim { get; set; }
+    public ResourceReference? ClaimResponse { get; set; }
     public required string Created { get; set; }
-    public  ExplanationOfBenefitDiagnosis[]? Diagnosis { get; set; }
-    public  string? Disposition { get; set; }
-    public  ResourceReference? Enterer { get; set; }
-    public  ResourceReference? Facility { get; set; }
-    public  Attachment? Form { get; set; }
-    public  CodeableConcept? FormCode { get; set; }
-    public  CodeableConcept? FundsReserve { get; set; }
-    public  CodeableConcept? FundsReserveRequested { get; set; }
-    public  Identifier[]? Identifier { get; set; }
+    public ExplanationOfBenefitDiagnosis[]? Diagnosis { get; set; }
+    public string? Disposition { get; set; }
+    public ResourceReference? Enterer { get; set; }
+    public ResourceReference? Facility { get; set; }
+    public Attachment? Form { get; set; }
+    public CodeableConcept? FormCode { get; set; }
+    public CodeableConcept? FundsReserve { get; set; }
+    public CodeableConcept? FundsReserveRequested { get; set; }
+    public Identifier[]? Identifier { get; set; }
     public required ExplanationOfBenefitInsurance[] Insurance { get; set; }
     public required ResourceReference Insurer { get; set; }
-    public  ExplanationOfBenefitItem[]? Item { get; set; }
-    public  ResourceReference? OriginalPrescription { get; set; }
+    public ExplanationOfBenefitItem[]? Item { get; set; }
+    public ResourceReference? OriginalPrescription { get; set; }
     public required RemittanceOutcomeEnum Outcome { get; set; }
     public required ResourceReference Patient { get; set; }
-    public  ExplanationOfBenefitPayee? Payee { get; set; }
-    public  ExplanationOfBenefitPayment? Payment { get; set; }
-    public  string[]? PreAuthRef { get; set; }
-    public  Period[]? PreAuthRefPeriod { get; set; }
-    public  long? Precedence { get; set; }
-    public  ResourceReference? Prescription { get; set; }
-    public  CodeableConcept? Priority { get; set; }
-    public  ExplanationOfBenefitProcedure[]? Procedure { get; set; }
-    public  ExplanationOfBenefitProcessNote[]? ProcessNote { get; set; }
+    public ExplanationOfBenefitPayee? Payee { get; set; }
+    public ExplanationOfBenefitPayment? Payment { get; set; }
+    public string[]? PreAuthRef { get; set; }
+    public Period[]? PreAuthRefPeriod { get; set; }
+    public long? Precedence { get; set; }
+    public ResourceReference? Prescription { get; set; }
+    public CodeableConcept? Priority { get; set; }
+    public ExplanationOfBenefitProcedure[]? Procedure { get; set; }
+    public ExplanationOfBenefitProcessNote[]? ProcessNote { get; set; }
     public required ResourceReference Provider { get; set; }
-    public  ResourceReference? Referral { get; set; }
-    public  ExplanationOfBenefitRelated[]? Related { get; set; }
+    public ResourceReference? Referral { get; set; }
+    public ExplanationOfBenefitRelated[]? Related { get; set; }
     public required ExplanationOfBenefitStatusEnum Status { get; set; }
-    public  CodeableConcept? SubType { get; set; }
-    public  ExplanationOfBenefitSupportingInfo[]? SupportingInfo { get; set; }
-    public  ExplanationOfBenefitTotal[]? Total { get; set; }
+    public CodeableConcept? SubType { get; set; }
+    public ExplanationOfBenefitSupportingInfo[]? SupportingInfo { get; set; }
+    public ExplanationOfBenefitTotal[]? Total { get; set; }
     public required CodeableConcept Type { get; set; }
     public required UseEnum Use { get; set; }
 
     public class ExplanationOfBenefitAccident : BackboneElement {
-        public  string? Date { get; set; }
-        public  Address? LocationAddress { get; set; }
-        public  ResourceReference? LocationReference { get; set; }
-        public  CodeableConcept? Type { get; set; }
+        public string? Date { get; set; }
+        public Address? LocationAddress { get; set; }
+        public ResourceReference? LocationReference { get; set; }
+        public CodeableConcept? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -62,27 +62,27 @@ public class ExplanationOfBenefit : DomainResource {
     }
 
     public class ExplanationOfBenefitAddItem : BackboneElement {
-        public  ExplanationOfBenefitItemAdjudication[]? Adjudication { get; set; }
-        public  CodeableConcept? BodySite { get; set; }
-        public  ExplanationOfBenefitAddItemDetail[]? Detail { get; set; }
-        public  long[]? DetailSequence { get; set; }
-        public  decimal? Factor { get; set; }
-        public  long[]? ItemSequence { get; set; }
-        public  Address? LocationAddress { get; set; }
-        public  CodeableConcept? LocationCodeableConcept { get; set; }
-        public  ResourceReference? LocationReference { get; set; }
-        public  CodeableConcept[]? Modifier { get; set; }
-        public  Money? Net { get; set; }
-        public  long[]? NoteNumber { get; set; }
+        public ExplanationOfBenefitItemAdjudication[]? Adjudication { get; set; }
+        public CodeableConcept? BodySite { get; set; }
+        public ExplanationOfBenefitAddItemDetail[]? Detail { get; set; }
+        public long[]? DetailSequence { get; set; }
+        public decimal? Factor { get; set; }
+        public long[]? ItemSequence { get; set; }
+        public Address? LocationAddress { get; set; }
+        public CodeableConcept? LocationCodeableConcept { get; set; }
+        public ResourceReference? LocationReference { get; set; }
+        public CodeableConcept[]? Modifier { get; set; }
+        public Money? Net { get; set; }
+        public long[]? NoteNumber { get; set; }
         public required CodeableConcept ProductOrService { get; set; }
-        public  CodeableConcept[]? ProgramCode { get; set; }
-        public  ResourceReference[]? Provider { get; set; }
-        public  Quantity? Quantity { get; set; }
-        public  string? ServicedDate { get; set; }
-        public  Period? ServicedPeriod { get; set; }
-        public  long[]? SubDetailSequence { get; set; }
-        public  CodeableConcept[]? SubSite { get; set; }
-        public  Money? UnitPrice { get; set; }
+        public CodeableConcept[]? ProgramCode { get; set; }
+        public ResourceReference[]? Provider { get; set; }
+        public Quantity? Quantity { get; set; }
+        public string? ServicedDate { get; set; }
+        public Period? ServicedPeriod { get; set; }
+        public long[]? SubDetailSequence { get; set; }
+        public CodeableConcept[]? SubSite { get; set; }
+        public Money? UnitPrice { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -90,15 +90,15 @@ public class ExplanationOfBenefit : DomainResource {
     }
 
     public class ExplanationOfBenefitAddItemDetail : BackboneElement {
-        public  ExplanationOfBenefitItemAdjudication[]? Adjudication { get; set; }
-        public  decimal? Factor { get; set; }
-        public  CodeableConcept[]? Modifier { get; set; }
-        public  Money? Net { get; set; }
-        public  long[]? NoteNumber { get; set; }
+        public ExplanationOfBenefitItemAdjudication[]? Adjudication { get; set; }
+        public decimal? Factor { get; set; }
+        public CodeableConcept[]? Modifier { get; set; }
+        public Money? Net { get; set; }
+        public long[]? NoteNumber { get; set; }
         public required CodeableConcept ProductOrService { get; set; }
-        public  Quantity? Quantity { get; set; }
-        public  ExplanationOfBenefitAddItemDetailSubDetail[]? SubDetail { get; set; }
-        public  Money? UnitPrice { get; set; }
+        public Quantity? Quantity { get; set; }
+        public ExplanationOfBenefitAddItemDetailSubDetail[]? SubDetail { get; set; }
+        public Money? UnitPrice { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -106,14 +106,14 @@ public class ExplanationOfBenefit : DomainResource {
     }
 
     public class ExplanationOfBenefitAddItemDetailSubDetail : BackboneElement {
-        public  ExplanationOfBenefitItemAdjudication[]? Adjudication { get; set; }
-        public  decimal? Factor { get; set; }
-        public  CodeableConcept[]? Modifier { get; set; }
-        public  Money? Net { get; set; }
-        public  long[]? NoteNumber { get; set; }
+        public ExplanationOfBenefitItemAdjudication[]? Adjudication { get; set; }
+        public decimal? Factor { get; set; }
+        public CodeableConcept[]? Modifier { get; set; }
+        public Money? Net { get; set; }
+        public long[]? NoteNumber { get; set; }
         public required CodeableConcept ProductOrService { get; set; }
-        public  Quantity? Quantity { get; set; }
-        public  Money? UnitPrice { get; set; }
+        public Quantity? Quantity { get; set; }
+        public Money? UnitPrice { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -122,13 +122,13 @@ public class ExplanationOfBenefit : DomainResource {
 
     public class ExplanationOfBenefitBenefitBalance : BackboneElement {
         public required CodeableConcept Category { get; set; }
-        public  string? Description { get; set; }
-        public  bool? Excluded { get; set; }
-        public  ExplanationOfBenefitBenefitBalanceFinancial[]? Financial { get; set; }
-        public  string? Name { get; set; }
-        public  CodeableConcept? Network { get; set; }
-        public  CodeableConcept? Term { get; set; }
-        public  CodeableConcept? Unit { get; set; }
+        public string? Description { get; set; }
+        public bool? Excluded { get; set; }
+        public ExplanationOfBenefitBenefitBalanceFinancial[]? Financial { get; set; }
+        public string? Name { get; set; }
+        public CodeableConcept? Network { get; set; }
+        public CodeableConcept? Term { get; set; }
+        public CodeableConcept? Unit { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -136,12 +136,12 @@ public class ExplanationOfBenefit : DomainResource {
     }
 
     public class ExplanationOfBenefitBenefitBalanceFinancial : BackboneElement {
-        public  Money? AllowedMoney { get; set; }
-        public  string? AllowedString { get; set; }
-        public  long? AllowedUnsignedInt { get; set; }
+        public Money? AllowedMoney { get; set; }
+        public string? AllowedString { get; set; }
+        public long? AllowedUnsignedInt { get; set; }
         public required CodeableConcept Type { get; set; }
-        public  Money? UsedMoney { get; set; }
-        public  long? UsedUnsignedInt { get; set; }
+        public Money? UsedMoney { get; set; }
+        public long? UsedUnsignedInt { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -150,9 +150,9 @@ public class ExplanationOfBenefit : DomainResource {
 
     public class ExplanationOfBenefitCareTeam : BackboneElement {
         public required ResourceReference Provider { get; set; }
-        public  CodeableConcept? Qualification { get; set; }
-        public  bool? Responsible { get; set; }
-        public  CodeableConcept? Role { get; set; }
+        public CodeableConcept? Qualification { get; set; }
+        public bool? Responsible { get; set; }
+        public CodeableConcept? Role { get; set; }
         public required long Sequence { get; set; }
 
         public override string ToString() => 
@@ -161,12 +161,12 @@ public class ExplanationOfBenefit : DomainResource {
     }
 
     public class ExplanationOfBenefitDiagnosis : BackboneElement {
-        public  CodeableConcept? DiagnosisCodeableConcept { get; set; }
-        public  ResourceReference? DiagnosisReference { get; set; }
-        public  CodeableConcept? OnAdmission { get; set; }
-        public  CodeableConcept? PackageCode { get; set; }
+        public CodeableConcept? DiagnosisCodeableConcept { get; set; }
+        public ResourceReference? DiagnosisReference { get; set; }
+        public CodeableConcept? OnAdmission { get; set; }
+        public CodeableConcept? PackageCode { get; set; }
         public required long Sequence { get; set; }
-        public  CodeableConcept[]? Type { get; set; }
+        public CodeableConcept[]? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -176,7 +176,7 @@ public class ExplanationOfBenefit : DomainResource {
     public class ExplanationOfBenefitInsurance : BackboneElement {
         public required ResourceReference Coverage { get; set; }
         public required bool Focal { get; set; }
-        public  string[]? PreAuthRef { get; set; }
+        public string[]? PreAuthRef { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -184,32 +184,32 @@ public class ExplanationOfBenefit : DomainResource {
     }
 
     public class ExplanationOfBenefitItem : BackboneElement {
-        public  ExplanationOfBenefitItemAdjudication[]? Adjudication { get; set; }
-        public  CodeableConcept? BodySite { get; set; }
-        public  long[]? CareTeamSequence { get; set; }
-        public  CodeableConcept? Category { get; set; }
-        public  ExplanationOfBenefitItemDetail[]? Detail { get; set; }
-        public  long[]? DiagnosisSequence { get; set; }
-        public  ResourceReference[]? Encounter { get; set; }
-        public  decimal? Factor { get; set; }
-        public  long[]? InformationSequence { get; set; }
-        public  Address? LocationAddress { get; set; }
-        public  CodeableConcept? LocationCodeableConcept { get; set; }
-        public  ResourceReference? LocationReference { get; set; }
-        public  CodeableConcept[]? Modifier { get; set; }
-        public  Money? Net { get; set; }
-        public  long[]? NoteNumber { get; set; }
-        public  long[]? ProcedureSequence { get; set; }
+        public ExplanationOfBenefitItemAdjudication[]? Adjudication { get; set; }
+        public CodeableConcept? BodySite { get; set; }
+        public long[]? CareTeamSequence { get; set; }
+        public CodeableConcept? Category { get; set; }
+        public ExplanationOfBenefitItemDetail[]? Detail { get; set; }
+        public long[]? DiagnosisSequence { get; set; }
+        public ResourceReference[]? Encounter { get; set; }
+        public decimal? Factor { get; set; }
+        public long[]? InformationSequence { get; set; }
+        public Address? LocationAddress { get; set; }
+        public CodeableConcept? LocationCodeableConcept { get; set; }
+        public ResourceReference? LocationReference { get; set; }
+        public CodeableConcept[]? Modifier { get; set; }
+        public Money? Net { get; set; }
+        public long[]? NoteNumber { get; set; }
+        public long[]? ProcedureSequence { get; set; }
         public required CodeableConcept ProductOrService { get; set; }
-        public  CodeableConcept[]? ProgramCode { get; set; }
-        public  Quantity? Quantity { get; set; }
-        public  CodeableConcept? Revenue { get; set; }
+        public CodeableConcept[]? ProgramCode { get; set; }
+        public Quantity? Quantity { get; set; }
+        public CodeableConcept? Revenue { get; set; }
         public required long Sequence { get; set; }
-        public  string? ServicedDate { get; set; }
-        public  Period? ServicedPeriod { get; set; }
-        public  CodeableConcept[]? SubSite { get; set; }
-        public  ResourceReference[]? Udi { get; set; }
-        public  Money? UnitPrice { get; set; }
+        public string? ServicedDate { get; set; }
+        public Period? ServicedPeriod { get; set; }
+        public CodeableConcept[]? SubSite { get; set; }
+        public ResourceReference[]? Udi { get; set; }
+        public Money? UnitPrice { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -217,10 +217,10 @@ public class ExplanationOfBenefit : DomainResource {
     }
 
     public class ExplanationOfBenefitItemAdjudication : BackboneElement {
-        public  Money? Amount { get; set; }
+        public Money? Amount { get; set; }
         public required CodeableConcept Category { get; set; }
-        public  CodeableConcept? Reason { get; set; }
-        public  decimal? Value { get; set; }
+        public CodeableConcept? Reason { get; set; }
+        public decimal? Value { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -228,20 +228,20 @@ public class ExplanationOfBenefit : DomainResource {
     }
 
     public class ExplanationOfBenefitItemDetail : BackboneElement {
-        public  ExplanationOfBenefitItemAdjudication[]? Adjudication { get; set; }
-        public  CodeableConcept? Category { get; set; }
-        public  decimal? Factor { get; set; }
-        public  CodeableConcept[]? Modifier { get; set; }
-        public  Money? Net { get; set; }
-        public  long[]? NoteNumber { get; set; }
+        public ExplanationOfBenefitItemAdjudication[]? Adjudication { get; set; }
+        public CodeableConcept? Category { get; set; }
+        public decimal? Factor { get; set; }
+        public CodeableConcept[]? Modifier { get; set; }
+        public Money? Net { get; set; }
+        public long[]? NoteNumber { get; set; }
         public required CodeableConcept ProductOrService { get; set; }
-        public  CodeableConcept[]? ProgramCode { get; set; }
-        public  Quantity? Quantity { get; set; }
-        public  CodeableConcept? Revenue { get; set; }
+        public CodeableConcept[]? ProgramCode { get; set; }
+        public Quantity? Quantity { get; set; }
+        public CodeableConcept? Revenue { get; set; }
         public required long Sequence { get; set; }
-        public  ExplanationOfBenefitItemDetailSubDetail[]? SubDetail { get; set; }
-        public  ResourceReference[]? Udi { get; set; }
-        public  Money? UnitPrice { get; set; }
+        public ExplanationOfBenefitItemDetailSubDetail[]? SubDetail { get; set; }
+        public ResourceReference[]? Udi { get; set; }
+        public Money? UnitPrice { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -249,19 +249,19 @@ public class ExplanationOfBenefit : DomainResource {
     }
 
     public class ExplanationOfBenefitItemDetailSubDetail : BackboneElement {
-        public  ExplanationOfBenefitItemAdjudication[]? Adjudication { get; set; }
-        public  CodeableConcept? Category { get; set; }
-        public  decimal? Factor { get; set; }
-        public  CodeableConcept[]? Modifier { get; set; }
-        public  Money? Net { get; set; }
-        public  long[]? NoteNumber { get; set; }
+        public ExplanationOfBenefitItemAdjudication[]? Adjudication { get; set; }
+        public CodeableConcept? Category { get; set; }
+        public decimal? Factor { get; set; }
+        public CodeableConcept[]? Modifier { get; set; }
+        public Money? Net { get; set; }
+        public long[]? NoteNumber { get; set; }
         public required CodeableConcept ProductOrService { get; set; }
-        public  CodeableConcept[]? ProgramCode { get; set; }
-        public  Quantity? Quantity { get; set; }
-        public  CodeableConcept? Revenue { get; set; }
+        public CodeableConcept[]? ProgramCode { get; set; }
+        public Quantity? Quantity { get; set; }
+        public CodeableConcept? Revenue { get; set; }
         public required long Sequence { get; set; }
-        public  ResourceReference[]? Udi { get; set; }
-        public  Money? UnitPrice { get; set; }
+        public ResourceReference[]? Udi { get; set; }
+        public Money? UnitPrice { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -269,8 +269,8 @@ public class ExplanationOfBenefit : DomainResource {
     }
 
     public class ExplanationOfBenefitPayee : BackboneElement {
-        public  ResourceReference? Party { get; set; }
-        public  CodeableConcept? Type { get; set; }
+        public ResourceReference? Party { get; set; }
+        public CodeableConcept? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -278,12 +278,12 @@ public class ExplanationOfBenefit : DomainResource {
     }
 
     public class ExplanationOfBenefitPayment : BackboneElement {
-        public  Money? Adjustment { get; set; }
-        public  CodeableConcept? AdjustmentReason { get; set; }
-        public  Money? Amount { get; set; }
-        public  string? Date { get; set; }
-        public  Identifier? Identifier { get; set; }
-        public  CodeableConcept? Type { get; set; }
+        public Money? Adjustment { get; set; }
+        public CodeableConcept? AdjustmentReason { get; set; }
+        public Money? Amount { get; set; }
+        public string? Date { get; set; }
+        public Identifier? Identifier { get; set; }
+        public CodeableConcept? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -291,12 +291,12 @@ public class ExplanationOfBenefit : DomainResource {
     }
 
     public class ExplanationOfBenefitProcedure : BackboneElement {
-        public  string? Date { get; set; }
-        public  CodeableConcept? ProcedureCodeableConcept { get; set; }
-        public  ResourceReference? ProcedureReference { get; set; }
+        public string? Date { get; set; }
+        public CodeableConcept? ProcedureCodeableConcept { get; set; }
+        public ResourceReference? ProcedureReference { get; set; }
         public required long Sequence { get; set; }
-        public  CodeableConcept[]? Type { get; set; }
-        public  ResourceReference[]? Udi { get; set; }
+        public CodeableConcept[]? Type { get; set; }
+        public ResourceReference[]? Udi { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -304,10 +304,10 @@ public class ExplanationOfBenefit : DomainResource {
     }
 
     public class ExplanationOfBenefitProcessNote : BackboneElement {
-        public  CodeableConcept? Language { get; set; }
-        public  long? Number { get; set; }
-        public  string? Text { get; set; }
-        public  NoteTypeEnum? Type { get; set; }
+        public CodeableConcept? Language { get; set; }
+        public long? Number { get; set; }
+        public string? Text { get; set; }
+        public NoteTypeEnum? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -315,9 +315,9 @@ public class ExplanationOfBenefit : DomainResource {
     }
 
     public class ExplanationOfBenefitRelated : BackboneElement {
-        public  ResourceReference? Claim { get; set; }
-        public  Identifier? Reference { get; set; }
-        public  CodeableConcept? Relationship { get; set; }
+        public ResourceReference? Claim { get; set; }
+        public Identifier? Reference { get; set; }
+        public CodeableConcept? Relationship { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -326,16 +326,16 @@ public class ExplanationOfBenefit : DomainResource {
 
     public class ExplanationOfBenefitSupportingInfo : BackboneElement {
         public required CodeableConcept Category { get; set; }
-        public  CodeableConcept? Code { get; set; }
-        public  Coding? Reason { get; set; }
+        public CodeableConcept? Code { get; set; }
+        public Coding? Reason { get; set; }
         public required long Sequence { get; set; }
-        public  string? TimingDate { get; set; }
-        public  Period? TimingPeriod { get; set; }
-        public  Attachment? ValueAttachment { get; set; }
-        public  bool? ValueBoolean { get; set; }
-        public  Quantity? ValueQuantity { get; set; }
-        public  ResourceReference? ValueReference { get; set; }
-        public  string? ValueString { get; set; }
+        public string? TimingDate { get; set; }
+        public Period? TimingPeriod { get; set; }
+        public Attachment? ValueAttachment { get; set; }
+        public bool? ValueBoolean { get; set; }
+        public Quantity? ValueQuantity { get; set; }
+        public ResourceReference? ValueReference { get; set; }
+        public string? ValueString { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

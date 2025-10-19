@@ -7,31 +7,31 @@ namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class SearchParameter : DomainResource {
     public required string[] Base { get; set; }
-    public  string[]? Chain { get; set; }
+    public string[]? Chain { get; set; }
     public required string Code { get; set; }
-    public  SearchComparatorEnum[]? Comparator { get; set; }
-    public  SearchParameterComponent[]? Component { get; set; }
-    public  ContactDetail[]? Contact { get; set; }
-    public  string? Date { get; set; }
-    public  string? DerivedFrom { get; set; }
+    public SearchComparatorEnum[]? Comparator { get; set; }
+    public SearchParameterComponent[]? Component { get; set; }
+    public ContactDetail[]? Contact { get; set; }
+    public string? Date { get; set; }
+    public string? DerivedFrom { get; set; }
     public required string Description { get; set; }
-    public  bool? Experimental { get; set; }
-    public  string? Expression { get; set; }
-    public  CodeableConcept[]? Jurisdiction { get; set; }
-    public  SearchModifierCodeEnum[]? Modifier { get; set; }
-    public  bool? MultipleAnd { get; set; }
-    public  bool? MultipleOr { get; set; }
+    public bool? Experimental { get; set; }
+    public string? Expression { get; set; }
+    public CodeableConcept[]? Jurisdiction { get; set; }
+    public SearchModifierCodeEnum[]? Modifier { get; set; }
+    public bool? MultipleAnd { get; set; }
+    public bool? MultipleOr { get; set; }
     public required string Name { get; set; }
-    public  string? Publisher { get; set; }
-    public  string? Purpose { get; set; }
+    public string? Publisher { get; set; }
+    public string? Purpose { get; set; }
     public required PublicationStatusEnum Status { get; set; }
-    public  string[]? Target { get; set; }
+    public string[]? Target { get; set; }
     public required SearchParamTypeEnum Type { get; set; }
     public required string Url { get; set; }
-    public  UsageContext[]? UseContext { get; set; }
-    public  string? Version { get; set; }
-    public  string? Xpath { get; set; }
-    public  XpathUsageTypeEnum? XpathUsage { get; set; }
+    public UsageContext[]? UseContext { get; set; }
+    public string? Version { get; set; }
+    public string? Xpath { get; set; }
+    public XpathUsageTypeEnum? XpathUsage { get; set; }
 
     public class SearchParameterComponent : BackboneElement {
         public required string Definition { get; set; }

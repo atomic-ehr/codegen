@@ -6,10 +6,10 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Resource {
-    public  string? Id { get; set; }
-    public  string? ImplicitRules { get; set; }
-    public  string? Language { get; set; }
-    public  Meta? Meta { get; set; }
+    public string? Id { get; set; }
+    public string? ImplicitRules { get; set; }
+    public string? Language { get; set; }
+    public Meta? Meta { get; set; }
 
     public override string ToString() => 
         JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

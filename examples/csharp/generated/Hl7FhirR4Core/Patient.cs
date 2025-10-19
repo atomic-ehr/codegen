@@ -6,28 +6,28 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Patient : DomainResource {
-    public  bool? Active { get; set; }
-    public  Address[]? Address { get; set; }
-    public  string? BirthDate { get; set; }
-    public  PatientCommunication[]? Communication { get; set; }
-    public  PatientContact[]? Contact { get; set; }
-    public  bool? DeceasedBoolean { get; set; }
-    public  string? DeceasedDateTime { get; set; }
-    public  AdministrativeGenderEnum? Gender { get; set; }
-    public  ResourceReference[]? GeneralPractitioner { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  PatientLink[]? Link { get; set; }
-    public  ResourceReference? ManagingOrganization { get; set; }
-    public  CodeableConcept? MaritalStatus { get; set; }
-    public  bool? MultipleBirthBoolean { get; set; }
-    public  int? MultipleBirthInteger { get; set; }
-    public  HumanName[]? Name { get; set; }
-    public  Attachment[]? Photo { get; set; }
-    public  ContactPoint[]? Telecom { get; set; }
+    public bool? Active { get; set; }
+    public Address[]? Address { get; set; }
+    public string? BirthDate { get; set; }
+    public PatientCommunication[]? Communication { get; set; }
+    public PatientContact[]? Contact { get; set; }
+    public bool? DeceasedBoolean { get; set; }
+    public string? DeceasedDateTime { get; set; }
+    public AdministrativeGenderEnum? Gender { get; set; }
+    public ResourceReference[]? GeneralPractitioner { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public PatientLink[]? Link { get; set; }
+    public ResourceReference? ManagingOrganization { get; set; }
+    public CodeableConcept? MaritalStatus { get; set; }
+    public bool? MultipleBirthBoolean { get; set; }
+    public int? MultipleBirthInteger { get; set; }
+    public HumanName[]? Name { get; set; }
+    public Attachment[]? Photo { get; set; }
+    public ContactPoint[]? Telecom { get; set; }
 
     public class PatientCommunication : BackboneElement {
         public required CodeableConcept Language { get; set; }
-        public  bool? Preferred { get; set; }
+        public bool? Preferred { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -35,13 +35,13 @@ public class Patient : DomainResource {
     }
 
     public class PatientContact : BackboneElement {
-        public  Address? Address { get; set; }
-        public  AdministrativeGenderEnum? Gender { get; set; }
-        public  HumanName? Name { get; set; }
-        public  ResourceReference? Organization { get; set; }
-        public  Period? Period { get; set; }
-        public  CodeableConcept[]? Relationship { get; set; }
-        public  ContactPoint[]? Telecom { get; set; }
+        public Address? Address { get; set; }
+        public AdministrativeGenderEnum? Gender { get; set; }
+        public HumanName? Name { get; set; }
+        public ResourceReference? Organization { get; set; }
+        public Period? Period { get; set; }
+        public CodeableConcept[]? Relationship { get; set; }
+        public ContactPoint[]? Telecom { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

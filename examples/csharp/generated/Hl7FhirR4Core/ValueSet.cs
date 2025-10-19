@@ -6,30 +6,30 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class ValueSet : DomainResource {
-    public  ValueSetCompose? Compose { get; set; }
-    public  ContactDetail[]? Contact { get; set; }
-    public  string? Copyright { get; set; }
-    public  string? Date { get; set; }
-    public  string? Description { get; set; }
-    public  ValueSetExpansion? Expansion { get; set; }
-    public  bool? Experimental { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  bool? Immutable { get; set; }
-    public  CodeableConcept[]? Jurisdiction { get; set; }
-    public  string? Name { get; set; }
-    public  string? Publisher { get; set; }
-    public  string? Purpose { get; set; }
+    public ValueSetCompose? Compose { get; set; }
+    public ContactDetail[]? Contact { get; set; }
+    public string? Copyright { get; set; }
+    public string? Date { get; set; }
+    public string? Description { get; set; }
+    public ValueSetExpansion? Expansion { get; set; }
+    public bool? Experimental { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public bool? Immutable { get; set; }
+    public CodeableConcept[]? Jurisdiction { get; set; }
+    public string? Name { get; set; }
+    public string? Publisher { get; set; }
+    public string? Purpose { get; set; }
     public required PublicationStatusEnum Status { get; set; }
-    public  string? Title { get; set; }
-    public  string? Url { get; set; }
-    public  UsageContext[]? UseContext { get; set; }
-    public  string? Version { get; set; }
+    public string? Title { get; set; }
+    public string? Url { get; set; }
+    public UsageContext[]? UseContext { get; set; }
+    public string? Version { get; set; }
 
     public class ValueSetCompose : BackboneElement {
-        public  ValueSetComposeInclude[]? Exclude { get; set; }
-        public  bool? Inactive { get; set; }
+        public ValueSetComposeInclude[]? Exclude { get; set; }
+        public bool? Inactive { get; set; }
         public required ValueSetComposeInclude[] Include { get; set; }
-        public  string? LockedDate { get; set; }
+        public string? LockedDate { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -37,11 +37,11 @@ public class ValueSet : DomainResource {
     }
 
     public class ValueSetComposeInclude : BackboneElement {
-        public  ValueSetComposeIncludeConcept[]? Concept { get; set; }
-        public  ValueSetComposeIncludeFilter[]? Filter { get; set; }
-        public  string? System { get; set; }
-        public  string[]? ValueSet { get; set; }
-        public  string? Version { get; set; }
+        public ValueSetComposeIncludeConcept[]? Concept { get; set; }
+        public ValueSetComposeIncludeFilter[]? Filter { get; set; }
+        public string? System { get; set; }
+        public string[]? ValueSet { get; set; }
+        public string? Version { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -50,8 +50,8 @@ public class ValueSet : DomainResource {
 
     public class ValueSetComposeIncludeConcept : BackboneElement {
         public required string Code { get; set; }
-        public  ValueSetComposeIncludeConceptDesignation[]? Designation { get; set; }
-        public  string? Display { get; set; }
+        public ValueSetComposeIncludeConceptDesignation[]? Designation { get; set; }
+        public string? Display { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -59,8 +59,8 @@ public class ValueSet : DomainResource {
     }
 
     public class ValueSetComposeIncludeConceptDesignation : BackboneElement {
-        public  string? Language { get; set; }
-        public  Coding? Use { get; set; }
+        public string? Language { get; set; }
+        public Coding? Use { get; set; }
         public required string Value { get; set; }
 
         public override string ToString() => 
@@ -79,12 +79,12 @@ public class ValueSet : DomainResource {
     }
 
     public class ValueSetExpansion : BackboneElement {
-        public  ValueSetExpansionContains[]? Contains { get; set; }
-        public  string? Identifier { get; set; }
-        public  int? Offset { get; set; }
-        public  ValueSetExpansionParameter[]? Parameter { get; set; }
+        public ValueSetExpansionContains[]? Contains { get; set; }
+        public string? Identifier { get; set; }
+        public int? Offset { get; set; }
+        public ValueSetExpansionParameter[]? Parameter { get; set; }
         public required string Timestamp { get; set; }
-        public  int? Total { get; set; }
+        public int? Total { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -92,14 +92,14 @@ public class ValueSet : DomainResource {
     }
 
     public class ValueSetExpansionContains : BackboneElement {
-        public  bool? Abstract { get; set; }
-        public  string? Code { get; set; }
-        public  ValueSetExpansionContains[]? Contains { get; set; }
-        public  ValueSetComposeIncludeConceptDesignation[]? Designation { get; set; }
-        public  string? Display { get; set; }
-        public  bool? Inactive { get; set; }
-        public  string? System { get; set; }
-        public  string? Version { get; set; }
+        public bool? Abstract { get; set; }
+        public string? Code { get; set; }
+        public ValueSetExpansionContains[]? Contains { get; set; }
+        public ValueSetComposeIncludeConceptDesignation[]? Designation { get; set; }
+        public string? Display { get; set; }
+        public bool? Inactive { get; set; }
+        public string? System { get; set; }
+        public string? Version { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -108,13 +108,13 @@ public class ValueSet : DomainResource {
 
     public class ValueSetExpansionParameter : BackboneElement {
         public required string Name { get; set; }
-        public  bool? ValueBoolean { get; set; }
-        public  string? ValueCode { get; set; }
-        public  string? ValueDateTime { get; set; }
-        public  decimal? ValueDecimal { get; set; }
-        public  int? ValueInteger { get; set; }
-        public  string? ValueString { get; set; }
-        public  string? ValueUri { get; set; }
+        public bool? ValueBoolean { get; set; }
+        public string? ValueCode { get; set; }
+        public string? ValueDateTime { get; set; }
+        public decimal? ValueDecimal { get; set; }
+        public int? ValueInteger { get; set; }
+        public string? ValueString { get; set; }
+        public string? ValueUri { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

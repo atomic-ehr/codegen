@@ -7,25 +7,25 @@ namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Coverage : DomainResource {
     public required ResourceReference Beneficiary { get; set; }
-    public  CoverageClass[]? Class { get; set; }
-    public  ResourceReference[]? Contract { get; set; }
-    public  CoverageCostToBeneficiary[]? CostToBeneficiary { get; set; }
-    public  string? Dependent { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  string? Network { get; set; }
-    public  long? Order { get; set; }
+    public CoverageClass[]? Class { get; set; }
+    public ResourceReference[]? Contract { get; set; }
+    public CoverageCostToBeneficiary[]? CostToBeneficiary { get; set; }
+    public string? Dependent { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public string? Network { get; set; }
+    public long? Order { get; set; }
     public required ResourceReference[] Payor { get; set; }
-    public  Period? Period { get; set; }
-    public  ResourceReference? PolicyHolder { get; set; }
-    public  CodeableConcept? Relationship { get; set; }
+    public Period? Period { get; set; }
+    public ResourceReference? PolicyHolder { get; set; }
+    public CodeableConcept? Relationship { get; set; }
     public required CoverageStatusEnum Status { get; set; }
-    public  bool? Subrogation { get; set; }
-    public  ResourceReference? Subscriber { get; set; }
-    public  string? SubscriberId { get; set; }
-    public  CodeableConcept? Type { get; set; }
+    public bool? Subrogation { get; set; }
+    public ResourceReference? Subscriber { get; set; }
+    public string? SubscriberId { get; set; }
+    public CodeableConcept? Type { get; set; }
 
     public class CoverageClass : BackboneElement {
-        public  string? Name { get; set; }
+        public string? Name { get; set; }
         public required CodeableConcept Type { get; set; }
         public required string Value { get; set; }
 
@@ -35,10 +35,10 @@ public class Coverage : DomainResource {
     }
 
     public class CoverageCostToBeneficiary : BackboneElement {
-        public  CoverageCostToBeneficiaryException[]? Exception { get; set; }
-        public  CodeableConcept? Type { get; set; }
-        public  Money? ValueMoney { get; set; }
-        public  Quantity? ValueQuantity { get; set; }
+        public CoverageCostToBeneficiaryException[]? Exception { get; set; }
+        public CodeableConcept? Type { get; set; }
+        public Money? ValueMoney { get; set; }
+        public Quantity? ValueQuantity { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -46,7 +46,7 @@ public class Coverage : DomainResource {
     }
 
     public class CoverageCostToBeneficiaryException : BackboneElement {
-        public  Period? Period { get; set; }
+        public Period? Period { get; set; }
         public required CodeableConcept Type { get; set; }
 
         public override string ToString() => 

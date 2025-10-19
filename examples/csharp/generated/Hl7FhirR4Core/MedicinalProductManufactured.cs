@@ -6,13 +6,13 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class MedicinalProductManufactured : DomainResource {
-    public  ResourceReference[]? Ingredient { get; set; }
+    public ResourceReference[]? Ingredient { get; set; }
     public required CodeableConcept ManufacturedDoseForm { get; set; }
-    public  ResourceReference[]? Manufacturer { get; set; }
-    public  CodeableConcept[]? OtherCharacteristics { get; set; }
-    public  ProdCharacteristic? PhysicalCharacteristics { get; set; }
+    public ResourceReference[]? Manufacturer { get; set; }
+    public CodeableConcept[]? OtherCharacteristics { get; set; }
+    public ProdCharacteristic? PhysicalCharacteristics { get; set; }
     public required Quantity Quantity { get; set; }
-    public  CodeableConcept? UnitOfPresentation { get; set; }
+    public CodeableConcept? UnitOfPresentation { get; set; }
 
     public override string ToString() => 
         JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

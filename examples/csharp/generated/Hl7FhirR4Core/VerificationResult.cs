@@ -6,30 +6,30 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class VerificationResult : DomainResource {
-    public  VerificationResultAttestation? Attestation { get; set; }
-    public  CodeableConcept? FailureAction { get; set; }
-    public  Timing? Frequency { get; set; }
-    public  string? LastPerformed { get; set; }
-    public  CodeableConcept? Need { get; set; }
-    public  string? NextScheduled { get; set; }
-    public  VerificationResultPrimarySource[]? PrimarySource { get; set; }
+    public VerificationResultAttestation? Attestation { get; set; }
+    public CodeableConcept? FailureAction { get; set; }
+    public Timing? Frequency { get; set; }
+    public string? LastPerformed { get; set; }
+    public CodeableConcept? Need { get; set; }
+    public string? NextScheduled { get; set; }
+    public VerificationResultPrimarySource[]? PrimarySource { get; set; }
     public required StatusEnum Status { get; set; }
-    public  string? StatusDate { get; set; }
-    public  ResourceReference[]? Target { get; set; }
-    public  string[]? TargetLocation { get; set; }
-    public  CodeableConcept[]? ValidationProcess { get; set; }
-    public  CodeableConcept? ValidationType { get; set; }
-    public  VerificationResultValidator[]? Validator { get; set; }
+    public string? StatusDate { get; set; }
+    public ResourceReference[]? Target { get; set; }
+    public string[]? TargetLocation { get; set; }
+    public CodeableConcept[]? ValidationProcess { get; set; }
+    public CodeableConcept? ValidationType { get; set; }
+    public VerificationResultValidator[]? Validator { get; set; }
 
     public class VerificationResultAttestation : BackboneElement {
-        public  CodeableConcept? CommunicationMethod { get; set; }
-        public  string? Date { get; set; }
-        public  ResourceReference? OnBehalfOf { get; set; }
-        public  string? ProxyIdentityCertificate { get; set; }
-        public  Signature? ProxySignature { get; set; }
-        public  string? SourceIdentityCertificate { get; set; }
-        public  Signature? SourceSignature { get; set; }
-        public  ResourceReference? Who { get; set; }
+        public CodeableConcept? CommunicationMethod { get; set; }
+        public string? Date { get; set; }
+        public ResourceReference? OnBehalfOf { get; set; }
+        public string? ProxyIdentityCertificate { get; set; }
+        public Signature? ProxySignature { get; set; }
+        public string? SourceIdentityCertificate { get; set; }
+        public Signature? SourceSignature { get; set; }
+        public ResourceReference? Who { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -37,13 +37,13 @@ public class VerificationResult : DomainResource {
     }
 
     public class VerificationResultPrimarySource : BackboneElement {
-        public  CodeableConcept? CanPushUpdates { get; set; }
-        public  CodeableConcept[]? CommunicationMethod { get; set; }
-        public  CodeableConcept[]? PushTypeAvailable { get; set; }
-        public  CodeableConcept[]? Type { get; set; }
-        public  string? ValidationDate { get; set; }
-        public  CodeableConcept? ValidationStatus { get; set; }
-        public  ResourceReference? Who { get; set; }
+        public CodeableConcept? CanPushUpdates { get; set; }
+        public CodeableConcept[]? CommunicationMethod { get; set; }
+        public CodeableConcept[]? PushTypeAvailable { get; set; }
+        public CodeableConcept[]? Type { get; set; }
+        public string? ValidationDate { get; set; }
+        public CodeableConcept? ValidationStatus { get; set; }
+        public ResourceReference? Who { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -51,8 +51,8 @@ public class VerificationResult : DomainResource {
     }
 
     public class VerificationResultValidator : BackboneElement {
-        public  Signature? AttestationSignature { get; set; }
-        public  string? IdentityCertificate { get; set; }
+        public Signature? AttestationSignature { get; set; }
+        public string? IdentityCertificate { get; set; }
         public required ResourceReference Organization { get; set; }
 
         public override string ToString() => 

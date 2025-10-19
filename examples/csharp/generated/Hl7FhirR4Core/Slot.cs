@@ -6,15 +6,15 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Slot : DomainResource {
-    public  CodeableConcept? AppointmentType { get; set; }
-    public  string? Comment { get; set; }
+    public CodeableConcept? AppointmentType { get; set; }
+    public string? Comment { get; set; }
     public required string End { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  bool? Overbooked { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public bool? Overbooked { get; set; }
     public required ResourceReference Schedule { get; set; }
-    public  CodeableConcept[]? ServiceCategory { get; set; }
-    public  CodeableConcept[]? ServiceType { get; set; }
-    public  CodeableConcept[]? Specialty { get; set; }
+    public CodeableConcept[]? ServiceCategory { get; set; }
+    public CodeableConcept[]? ServiceType { get; set; }
+    public CodeableConcept[]? Specialty { get; set; }
     public required string Start { get; set; }
     public required SlotStatusEnum Status { get; set; }
 

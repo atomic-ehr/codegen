@@ -6,18 +6,18 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class OrganizationAffiliation : DomainResource {
-    public  bool? Active { get; set; }
-    public  CodeableConcept[]? Code { get; set; }
-    public  ResourceReference[]? Endpoint { get; set; }
-    public  ResourceReference[]? HealthcareService { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  ResourceReference[]? Location { get; set; }
-    public  ResourceReference[]? Network { get; set; }
-    public  ResourceReference? Organization { get; set; }
-    public  ResourceReference? ParticipatingOrganization { get; set; }
-    public  Period? Period { get; set; }
-    public  CodeableConcept[]? Specialty { get; set; }
-    public  ContactPoint[]? Telecom { get; set; }
+    public bool? Active { get; set; }
+    public CodeableConcept[]? Code { get; set; }
+    public ResourceReference[]? Endpoint { get; set; }
+    public ResourceReference[]? HealthcareService { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public ResourceReference[]? Location { get; set; }
+    public ResourceReference[]? Network { get; set; }
+    public ResourceReference? Organization { get; set; }
+    public ResourceReference? ParticipatingOrganization { get; set; }
+    public Period? Period { get; set; }
+    public CodeableConcept[]? Specialty { get; set; }
+    public ContactPoint[]? Telecom { get; set; }
 
     public override string ToString() => 
         JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

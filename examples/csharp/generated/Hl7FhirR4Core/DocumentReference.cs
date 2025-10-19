@@ -6,26 +6,26 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class DocumentReference : DomainResource {
-    public  ResourceReference? Authenticator { get; set; }
-    public  ResourceReference[]? Author { get; set; }
-    public  CodeableConcept[]? Category { get; set; }
+    public ResourceReference? Authenticator { get; set; }
+    public ResourceReference[]? Author { get; set; }
+    public CodeableConcept[]? Category { get; set; }
     public required DocumentReferenceContent[] Content { get; set; }
-    public  DocumentReferenceContext? Context { get; set; }
-    public  ResourceReference? Custodian { get; set; }
-    public  string? Date { get; set; }
-    public  string? Description { get; set; }
-    public  ReferredDocumentStatusEnum? DocStatus { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  Identifier? MasterIdentifier { get; set; }
-    public  DocumentReferenceRelatesTo[]? RelatesTo { get; set; }
-    public  CodeableConcept[]? SecurityLabel { get; set; }
+    public DocumentReferenceContext? Context { get; set; }
+    public ResourceReference? Custodian { get; set; }
+    public string? Date { get; set; }
+    public string? Description { get; set; }
+    public ReferredDocumentStatusEnum? DocStatus { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public Identifier? MasterIdentifier { get; set; }
+    public DocumentReferenceRelatesTo[]? RelatesTo { get; set; }
+    public CodeableConcept[]? SecurityLabel { get; set; }
     public required DocumentReferenceStatusEnum Status { get; set; }
-    public  ResourceReference? Subject { get; set; }
-    public  CodeableConcept? Type { get; set; }
+    public ResourceReference? Subject { get; set; }
+    public CodeableConcept? Type { get; set; }
 
     public class DocumentReferenceContent : BackboneElement {
         public required Attachment Attachment { get; set; }
-        public  Coding? Format { get; set; }
+        public Coding? Format { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -33,13 +33,13 @@ public class DocumentReference : DomainResource {
     }
 
     public class DocumentReferenceContext : BackboneElement {
-        public  ResourceReference[]? Encounter { get; set; }
-        public  CodeableConcept[]? Event { get; set; }
-        public  CodeableConcept? FacilityType { get; set; }
-        public  Period? Period { get; set; }
-        public  CodeableConcept? PracticeSetting { get; set; }
-        public  ResourceReference[]? Related { get; set; }
-        public  ResourceReference? SourcePatientInfo { get; set; }
+        public ResourceReference[]? Encounter { get; set; }
+        public CodeableConcept[]? Event { get; set; }
+        public CodeableConcept? FacilityType { get; set; }
+        public Period? Period { get; set; }
+        public CodeableConcept? PracticeSetting { get; set; }
+        public ResourceReference[]? Related { get; set; }
+        public ResourceReference? SourcePatientInfo { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

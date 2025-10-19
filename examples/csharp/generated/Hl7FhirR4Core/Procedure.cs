@@ -6,41 +6,41 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Procedure : DomainResource {
-    public  ResourceReference? Asserter { get; set; }
-    public  ResourceReference[]? BasedOn { get; set; }
-    public  CodeableConcept[]? BodySite { get; set; }
-    public  CodeableConcept? Category { get; set; }
-    public  CodeableConcept? Code { get; set; }
-    public  CodeableConcept[]? Complication { get; set; }
-    public  ResourceReference[]? ComplicationDetail { get; set; }
-    public  ResourceReference? Encounter { get; set; }
-    public  ProcedureFocalDevice[]? FocalDevice { get; set; }
-    public  CodeableConcept[]? FollowUp { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  string[]? InstantiatesCanonical { get; set; }
-    public  string[]? InstantiatesUri { get; set; }
-    public  ResourceReference? Location { get; set; }
-    public  Annotation[]? Note { get; set; }
-    public  CodeableConcept? Outcome { get; set; }
-    public  ResourceReference[]? PartOf { get; set; }
-    public  Age? PerformedAge { get; set; }
-    public  string? PerformedDateTime { get; set; }
-    public  Period? PerformedPeriod { get; set; }
-    public  Range? PerformedRange { get; set; }
-    public  string? PerformedString { get; set; }
-    public  ProcedurePerformer[]? Performer { get; set; }
-    public  CodeableConcept[]? ReasonCode { get; set; }
-    public  ResourceReference[]? ReasonReference { get; set; }
-    public  ResourceReference? Recorder { get; set; }
-    public  ResourceReference[]? Report { get; set; }
+    public ResourceReference? Asserter { get; set; }
+    public ResourceReference[]? BasedOn { get; set; }
+    public CodeableConcept[]? BodySite { get; set; }
+    public CodeableConcept? Category { get; set; }
+    public CodeableConcept? Code { get; set; }
+    public CodeableConcept[]? Complication { get; set; }
+    public ResourceReference[]? ComplicationDetail { get; set; }
+    public ResourceReference? Encounter { get; set; }
+    public ProcedureFocalDevice[]? FocalDevice { get; set; }
+    public CodeableConcept[]? FollowUp { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public string[]? InstantiatesCanonical { get; set; }
+    public string[]? InstantiatesUri { get; set; }
+    public ResourceReference? Location { get; set; }
+    public Annotation[]? Note { get; set; }
+    public CodeableConcept? Outcome { get; set; }
+    public ResourceReference[]? PartOf { get; set; }
+    public Age? PerformedAge { get; set; }
+    public string? PerformedDateTime { get; set; }
+    public Period? PerformedPeriod { get; set; }
+    public Range? PerformedRange { get; set; }
+    public string? PerformedString { get; set; }
+    public ProcedurePerformer[]? Performer { get; set; }
+    public CodeableConcept[]? ReasonCode { get; set; }
+    public ResourceReference[]? ReasonReference { get; set; }
+    public ResourceReference? Recorder { get; set; }
+    public ResourceReference[]? Report { get; set; }
     public required ProcedureStatusEnum Status { get; set; }
-    public  CodeableConcept? StatusReason { get; set; }
+    public CodeableConcept? StatusReason { get; set; }
     public required ResourceReference Subject { get; set; }
-    public  CodeableConcept[]? UsedCode { get; set; }
-    public  ResourceReference[]? UsedReference { get; set; }
+    public CodeableConcept[]? UsedCode { get; set; }
+    public ResourceReference[]? UsedReference { get; set; }
 
     public class ProcedureFocalDevice : BackboneElement {
-        public  CodeableConcept? Action { get; set; }
+        public CodeableConcept? Action { get; set; }
         public required ResourceReference Manipulated { get; set; }
 
         public override string ToString() => 
@@ -50,8 +50,8 @@ public class Procedure : DomainResource {
 
     public class ProcedurePerformer : BackboneElement {
         public required ResourceReference Actor { get; set; }
-        public  CodeableConcept? Function { get; set; }
-        public  ResourceReference? OnBehalfOf { get; set; }
+        public CodeableConcept? Function { get; set; }
+        public ResourceReference? OnBehalfOf { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

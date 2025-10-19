@@ -7,23 +7,23 @@ namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class Consent : DomainResource {
     public required CodeableConcept[] Category { get; set; }
-    public  string? DateTime { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  ResourceReference[]? Organization { get; set; }
-    public  ResourceReference? Patient { get; set; }
-    public  ResourceReference[]? Performer { get; set; }
-    public  ConsentPolicy[]? Policy { get; set; }
-    public  CodeableConcept? PolicyRule { get; set; }
-    public  ConsentProvision? Provision { get; set; }
+    public string? DateTime { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public ResourceReference[]? Organization { get; set; }
+    public ResourceReference? Patient { get; set; }
+    public ResourceReference[]? Performer { get; set; }
+    public ConsentPolicy[]? Policy { get; set; }
+    public CodeableConcept? PolicyRule { get; set; }
+    public ConsentProvision? Provision { get; set; }
     public required CodeableConcept Scope { get; set; }
-    public  Attachment? SourceAttachment { get; set; }
-    public  ResourceReference? SourceReference { get; set; }
+    public Attachment? SourceAttachment { get; set; }
+    public ResourceReference? SourceReference { get; set; }
     public required ConsentStateEnum Status { get; set; }
-    public  ConsentVerification[]? Verification { get; set; }
+    public ConsentVerification[]? Verification { get; set; }
 
     public class ConsentPolicy : BackboneElement {
-        public  string? Authority { get; set; }
-        public  string? Uri { get; set; }
+        public string? Authority { get; set; }
+        public string? Uri { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -31,17 +31,17 @@ public class Consent : DomainResource {
     }
 
     public class ConsentProvision : BackboneElement {
-        public  CodeableConcept[]? Action { get; set; }
-        public  ConsentProvisionActor[]? Actor { get; set; }
-        public  Coding[]? Class { get; set; }
-        public  CodeableConcept[]? Code { get; set; }
-        public  ConsentProvisionData[]? Data { get; set; }
-        public  Period? DataPeriod { get; set; }
-        public  Period? Period { get; set; }
-        public  ConsentProvision[]? Provision { get; set; }
-        public  Coding[]? Purpose { get; set; }
-        public  Coding[]? SecurityLabel { get; set; }
-        public  ConsentProvisionTypeEnum? Type { get; set; }
+        public CodeableConcept[]? Action { get; set; }
+        public ConsentProvisionActor[]? Actor { get; set; }
+        public Coding[]? Class { get; set; }
+        public CodeableConcept[]? Code { get; set; }
+        public ConsentProvisionData[]? Data { get; set; }
+        public Period? DataPeriod { get; set; }
+        public Period? Period { get; set; }
+        public ConsentProvision[]? Provision { get; set; }
+        public Coding[]? Purpose { get; set; }
+        public Coding[]? SecurityLabel { get; set; }
+        public ConsentProvisionTypeEnum? Type { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -67,9 +67,9 @@ public class Consent : DomainResource {
     }
 
     public class ConsentVerification : BackboneElement {
-        public  string? VerificationDate { get; set; }
+        public string? VerificationDate { get; set; }
         public required bool Verified { get; set; }
-        public  ResourceReference? VerifiedWith { get; set; }
+        public ResourceReference? VerifiedWith { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

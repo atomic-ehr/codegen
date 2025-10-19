@@ -6,32 +6,32 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class DeviceDefinition : DomainResource {
-    public  DeviceDefinitionCapability[]? Capability { get; set; }
-    public  ContactPoint[]? Contact { get; set; }
-    public  DeviceDefinitionDeviceName[]? DeviceName { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  CodeableConcept[]? LanguageCode { get; set; }
-    public  ResourceReference? ManufacturerReference { get; set; }
-    public  string? ManufacturerString { get; set; }
-    public  DeviceDefinitionMaterial[]? Material { get; set; }
-    public  string? ModelNumber { get; set; }
-    public  Annotation[]? Note { get; set; }
-    public  string? OnlineInformation { get; set; }
-    public  ResourceReference? Owner { get; set; }
-    public  ResourceReference? ParentDevice { get; set; }
-    public  ProdCharacteristic? PhysicalCharacteristics { get; set; }
-    public  DeviceDefinitionProperty[]? Property { get; set; }
-    public  Quantity? Quantity { get; set; }
-    public  CodeableConcept[]? Safety { get; set; }
-    public  ProductShelfLife[]? ShelfLifeStorage { get; set; }
-    public  DeviceDefinitionSpecialization[]? Specialization { get; set; }
-    public  CodeableConcept? Type { get; set; }
-    public  DeviceDefinitionUdiDeviceIdentifier[]? UdiDeviceIdentifier { get; set; }
-    public  string? Url { get; set; }
-    public  string[]? Version { get; set; }
+    public DeviceDefinitionCapability[]? Capability { get; set; }
+    public ContactPoint[]? Contact { get; set; }
+    public DeviceDefinitionDeviceName[]? DeviceName { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public CodeableConcept[]? LanguageCode { get; set; }
+    public ResourceReference? ManufacturerReference { get; set; }
+    public string? ManufacturerString { get; set; }
+    public DeviceDefinitionMaterial[]? Material { get; set; }
+    public string? ModelNumber { get; set; }
+    public Annotation[]? Note { get; set; }
+    public string? OnlineInformation { get; set; }
+    public ResourceReference? Owner { get; set; }
+    public ResourceReference? ParentDevice { get; set; }
+    public ProdCharacteristic? PhysicalCharacteristics { get; set; }
+    public DeviceDefinitionProperty[]? Property { get; set; }
+    public Quantity? Quantity { get; set; }
+    public CodeableConcept[]? Safety { get; set; }
+    public ProductShelfLife[]? ShelfLifeStorage { get; set; }
+    public DeviceDefinitionSpecialization[]? Specialization { get; set; }
+    public CodeableConcept? Type { get; set; }
+    public DeviceDefinitionUdiDeviceIdentifier[]? UdiDeviceIdentifier { get; set; }
+    public string? Url { get; set; }
+    public string[]? Version { get; set; }
 
     public class DeviceDefinitionCapability : BackboneElement {
-        public  CodeableConcept[]? Description { get; set; }
+        public CodeableConcept[]? Description { get; set; }
         public required CodeableConcept Type { get; set; }
 
         public override string ToString() => 
@@ -49,8 +49,8 @@ public class DeviceDefinition : DomainResource {
     }
 
     public class DeviceDefinitionMaterial : BackboneElement {
-        public  bool? AllergenicIndicator { get; set; }
-        public  bool? Alternate { get; set; }
+        public bool? AllergenicIndicator { get; set; }
+        public bool? Alternate { get; set; }
         public required CodeableConcept Substance { get; set; }
 
         public override string ToString() => 
@@ -60,8 +60,8 @@ public class DeviceDefinition : DomainResource {
 
     public class DeviceDefinitionProperty : BackboneElement {
         public required CodeableConcept Type { get; set; }
-        public  CodeableConcept[]? ValueCode { get; set; }
-        public  Quantity[]? ValueQuantity { get; set; }
+        public CodeableConcept[]? ValueCode { get; set; }
+        public Quantity[]? ValueQuantity { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -70,7 +70,7 @@ public class DeviceDefinition : DomainResource {
 
     public class DeviceDefinitionSpecialization : BackboneElement {
         public required string SystemType { get; set; }
-        public  string? Version { get; set; }
+        public string? Version { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

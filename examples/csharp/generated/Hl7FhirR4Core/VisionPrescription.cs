@@ -8,28 +8,28 @@ namespace SuperNameSpace.Hl7FhirR4Core;
 public class VisionPrescription : DomainResource {
     public required string Created { get; set; }
     public required string DateWritten { get; set; }
-    public  ResourceReference? Encounter { get; set; }
-    public  Identifier[]? Identifier { get; set; }
+    public ResourceReference? Encounter { get; set; }
+    public Identifier[]? Identifier { get; set; }
     public required VisionPrescriptionLensSpecification[] LensSpecification { get; set; }
     public required ResourceReference Patient { get; set; }
     public required ResourceReference Prescriber { get; set; }
     public required VisionStatusEnum Status { get; set; }
 
     public class VisionPrescriptionLensSpecification : BackboneElement {
-        public  decimal? Add { get; set; }
-        public  int? Axis { get; set; }
-        public  decimal? BackCurve { get; set; }
-        public  string? Brand { get; set; }
-        public  string? Color { get; set; }
-        public  decimal? Cylinder { get; set; }
-        public  decimal? Diameter { get; set; }
-        public  Quantity? Duration { get; set; }
+        public decimal? Add { get; set; }
+        public int? Axis { get; set; }
+        public decimal? BackCurve { get; set; }
+        public string? Brand { get; set; }
+        public string? Color { get; set; }
+        public decimal? Cylinder { get; set; }
+        public decimal? Diameter { get; set; }
+        public Quantity? Duration { get; set; }
         public required VisionEyesEnum Eye { get; set; }
-        public  Annotation[]? Note { get; set; }
-        public  decimal? Power { get; set; }
-        public  VisionPrescriptionLensSpecificationPrism[]? Prism { get; set; }
+        public Annotation[]? Note { get; set; }
+        public decimal? Power { get; set; }
+        public VisionPrescriptionLensSpecificationPrism[]? Prism { get; set; }
         public required CodeableConcept Product { get; set; }
-        public  decimal? Sphere { get; set; }
+        public decimal? Sphere { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);

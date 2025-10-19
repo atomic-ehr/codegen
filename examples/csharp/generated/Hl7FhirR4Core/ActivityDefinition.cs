@@ -6,59 +6,59 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class ActivityDefinition : DomainResource {
-    public  string? ApprovalDate { get; set; }
-    public  ContactDetail[]? Author { get; set; }
-    public  CodeableConcept[]? BodySite { get; set; }
-    public  CodeableConcept? Code { get; set; }
-    public  ContactDetail[]? Contact { get; set; }
-    public  string? Copyright { get; set; }
-    public  string? Date { get; set; }
-    public  string? Description { get; set; }
-    public  bool? DoNotPerform { get; set; }
-    public  Dosage[]? Dosage { get; set; }
-    public  ActivityDefinitionDynamicValue[]? DynamicValue { get; set; }
-    public  ContactDetail[]? Editor { get; set; }
-    public  Period? EffectivePeriod { get; set; }
-    public  ContactDetail[]? Endorser { get; set; }
-    public  bool? Experimental { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  RequestIntentEnum? Intent { get; set; }
-    public  CodeableConcept[]? Jurisdiction { get; set; }
-    public  ActivityDefinitionKindEnum? Kind { get; set; }
-    public  string? LastReviewDate { get; set; }
-    public  string[]? Library { get; set; }
-    public  ResourceReference? Location { get; set; }
-    public  string? Name { get; set; }
-    public  ResourceReference[]? ObservationRequirement { get; set; }
-    public  ResourceReference[]? ObservationResultRequirement { get; set; }
-    public  ActivityDefinitionParticipant[]? Participant { get; set; }
-    public  RequestPriorityEnum? Priority { get; set; }
-    public  CodeableConcept? ProductCodeableConcept { get; set; }
-    public  ResourceReference? ProductReference { get; set; }
-    public  string? Profile { get; set; }
-    public  string? Publisher { get; set; }
-    public  string? Purpose { get; set; }
-    public  Quantity? Quantity { get; set; }
-    public  RelatedArtifact[]? RelatedArtifact { get; set; }
-    public  ContactDetail[]? Reviewer { get; set; }
-    public  ResourceReference[]? SpecimenRequirement { get; set; }
+    public string? ApprovalDate { get; set; }
+    public ContactDetail[]? Author { get; set; }
+    public CodeableConcept[]? BodySite { get; set; }
+    public CodeableConcept? Code { get; set; }
+    public ContactDetail[]? Contact { get; set; }
+    public string? Copyright { get; set; }
+    public string? Date { get; set; }
+    public string? Description { get; set; }
+    public bool? DoNotPerform { get; set; }
+    public Dosage[]? Dosage { get; set; }
+    public ActivityDefinitionDynamicValue[]? DynamicValue { get; set; }
+    public ContactDetail[]? Editor { get; set; }
+    public Period? EffectivePeriod { get; set; }
+    public ContactDetail[]? Endorser { get; set; }
+    public bool? Experimental { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public RequestIntentEnum? Intent { get; set; }
+    public CodeableConcept[]? Jurisdiction { get; set; }
+    public ActivityDefinitionKindEnum? Kind { get; set; }
+    public string? LastReviewDate { get; set; }
+    public string[]? Library { get; set; }
+    public ResourceReference? Location { get; set; }
+    public string? Name { get; set; }
+    public ResourceReference[]? ObservationRequirement { get; set; }
+    public ResourceReference[]? ObservationResultRequirement { get; set; }
+    public ActivityDefinitionParticipant[]? Participant { get; set; }
+    public RequestPriorityEnum? Priority { get; set; }
+    public CodeableConcept? ProductCodeableConcept { get; set; }
+    public ResourceReference? ProductReference { get; set; }
+    public string? Profile { get; set; }
+    public string? Publisher { get; set; }
+    public string? Purpose { get; set; }
+    public Quantity? Quantity { get; set; }
+    public RelatedArtifact[]? RelatedArtifact { get; set; }
+    public ContactDetail[]? Reviewer { get; set; }
+    public ResourceReference[]? SpecimenRequirement { get; set; }
     public required PublicationStatusEnum Status { get; set; }
-    public  CodeableConcept? SubjectCodeableConcept { get; set; }
-    public  ResourceReference? SubjectReference { get; set; }
-    public  string? Subtitle { get; set; }
-    public  Age? TimingAge { get; set; }
-    public  string? TimingDateTime { get; set; }
-    public  Duration? TimingDuration { get; set; }
-    public  Period? TimingPeriod { get; set; }
-    public  Range? TimingRange { get; set; }
-    public  Timing? TimingTiming { get; set; }
-    public  string? Title { get; set; }
-    public  CodeableConcept[]? Topic { get; set; }
-    public  string? Transform { get; set; }
-    public  string? Url { get; set; }
-    public  string? Usage { get; set; }
-    public  UsageContext[]? UseContext { get; set; }
-    public  string? Version { get; set; }
+    public CodeableConcept? SubjectCodeableConcept { get; set; }
+    public ResourceReference? SubjectReference { get; set; }
+    public string? Subtitle { get; set; }
+    public Age? TimingAge { get; set; }
+    public string? TimingDateTime { get; set; }
+    public Duration? TimingDuration { get; set; }
+    public Period? TimingPeriod { get; set; }
+    public Range? TimingRange { get; set; }
+    public Timing? TimingTiming { get; set; }
+    public string? Title { get; set; }
+    public CodeableConcept[]? Topic { get; set; }
+    public string? Transform { get; set; }
+    public string? Url { get; set; }
+    public string? Usage { get; set; }
+    public UsageContext[]? UseContext { get; set; }
+    public string? Version { get; set; }
 
     public class ActivityDefinitionDynamicValue : BackboneElement {
         public required ResourceExpression Expression { get; set; }
@@ -70,7 +70,7 @@ public class ActivityDefinition : DomainResource {
     }
 
     public class ActivityDefinitionParticipant : BackboneElement {
-        public  CodeableConcept? Role { get; set; }
+        public CodeableConcept? Role { get; set; }
         public required ActivityParticipantTypeEnum Type { get; set; }
 
         public override string ToString() => 

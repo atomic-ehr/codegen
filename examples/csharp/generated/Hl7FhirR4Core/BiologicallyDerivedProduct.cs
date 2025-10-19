@@ -6,23 +6,23 @@
 namespace SuperNameSpace.Hl7FhirR4Core;
 
 public class BiologicallyDerivedProduct : DomainResource {
-    public  BiologicallyDerivedProductCollection? Collection { get; set; }
-    public  Identifier[]? Identifier { get; set; }
-    public  BiologicallyDerivedProductManipulation? Manipulation { get; set; }
-    public  ResourceReference[]? Parent { get; set; }
-    public  BiologicallyDerivedProductProcessing[]? Processing { get; set; }
-    public  BiologicallyDerivedProductCategoryEnum? ProductCategory { get; set; }
-    public  CodeableConcept? ProductCode { get; set; }
-    public  int? Quantity { get; set; }
-    public  ResourceReference[]? Request { get; set; }
-    public  BiologicallyDerivedProductStatusEnum? Status { get; set; }
-    public  BiologicallyDerivedProductStorage[]? Storage { get; set; }
+    public BiologicallyDerivedProductCollection? Collection { get; set; }
+    public Identifier[]? Identifier { get; set; }
+    public BiologicallyDerivedProductManipulation? Manipulation { get; set; }
+    public ResourceReference[]? Parent { get; set; }
+    public BiologicallyDerivedProductProcessing[]? Processing { get; set; }
+    public BiologicallyDerivedProductCategoryEnum? ProductCategory { get; set; }
+    public CodeableConcept? ProductCode { get; set; }
+    public int? Quantity { get; set; }
+    public ResourceReference[]? Request { get; set; }
+    public BiologicallyDerivedProductStatusEnum? Status { get; set; }
+    public BiologicallyDerivedProductStorage[]? Storage { get; set; }
 
     public class BiologicallyDerivedProductCollection : BackboneElement {
-        public  string? CollectedDateTime { get; set; }
-        public  Period? CollectedPeriod { get; set; }
-        public  ResourceReference? Collector { get; set; }
-        public  ResourceReference? Source { get; set; }
+        public string? CollectedDateTime { get; set; }
+        public Period? CollectedPeriod { get; set; }
+        public ResourceReference? Collector { get; set; }
+        public ResourceReference? Source { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -30,9 +30,9 @@ public class BiologicallyDerivedProduct : DomainResource {
     }
 
     public class BiologicallyDerivedProductManipulation : BackboneElement {
-        public  string? Description { get; set; }
-        public  string? TimeDateTime { get; set; }
-        public  Period? TimePeriod { get; set; }
+        public string? Description { get; set; }
+        public string? TimeDateTime { get; set; }
+        public Period? TimePeriod { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -40,11 +40,11 @@ public class BiologicallyDerivedProduct : DomainResource {
     }
 
     public class BiologicallyDerivedProductProcessing : BackboneElement {
-        public  ResourceReference? Additive { get; set; }
-        public  string? Description { get; set; }
-        public  CodeableConcept? Procedure { get; set; }
-        public  string? TimeDateTime { get; set; }
-        public  Period? TimePeriod { get; set; }
+        public ResourceReference? Additive { get; set; }
+        public string? Description { get; set; }
+        public CodeableConcept? Procedure { get; set; }
+        public string? TimeDateTime { get; set; }
+        public Period? TimePeriod { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
@@ -52,10 +52,10 @@ public class BiologicallyDerivedProduct : DomainResource {
     }
 
     public class BiologicallyDerivedProductStorage : BackboneElement {
-        public  string? Description { get; set; }
-        public  Period? Duration { get; set; }
-        public  BiologicallyDerivedProductStorageScaleEnum? Scale { get; set; }
-        public  decimal? Temperature { get; set; }
+        public string? Description { get; set; }
+        public Period? Duration { get; set; }
+        public BiologicallyDerivedProductStorageScaleEnum? Scale { get; set; }
+        public decimal? Temperature { get; set; }
 
         public override string ToString() => 
             JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
