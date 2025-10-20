@@ -224,18 +224,18 @@ export class APIBuilder {
     }
 
     csharp(namespace: string, staticSourceDir?: string | undefined): APIBuilder {
-    const generator = writerToGenerator(
-        new CSharp({
-            outputDir: Path.join(this.options.outputDir, "/types"),
-            staticSourceDir: staticSourceDir ?? undefined,
-            namespace: namespace,
-            logger: undefined
-        }),
-    );
-    this.generators.set("C#", generator);
-    this.logger.debug(`Configured C# generator`);
-    return this;
-}
+        const generator = writerToGenerator(
+            new CSharp({
+                outputDir: Path.join(this.options.outputDir, "/types"),
+                staticSourceDir: staticSourceDir ?? undefined,
+                namespace: namespace,
+                logger: undefined,
+            }),
+        );
+        this.generators.set("C#", generator);
+        this.logger.debug(`Configured C# generator`);
+        return this;
+    }
 
     /**
      * Set a progress callback for monitoring generation
