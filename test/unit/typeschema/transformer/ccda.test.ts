@@ -3,10 +3,13 @@ import type { CanonicalUrl } from "@root/typeschema";
 import type { RegularTypeSchema } from "@root/typeschema/types";
 import { ccdaPackage, mkCCDARegister, registerFsAndMkTs } from "@typeschema-test/utils";
 
-const skipMe = true;
+const skipMe = false;
 
 describe("TypeSchema R4 generation", async () => {
     const ccda = await mkCCDARegister();
+
+    // console.log(222222, ccda.resolver["hl7.cda.uv.core#2.0.1-sd"]);
+    console.log(333333, Object.keys(ccda.resolver["hl7.cda.uv.core#2.0.1-sd"]?.canonicalResolution!));
 
     it.skipIf(skipMe)("http://hl7.org/cda/stds/core/StructureDefinition/ON", async () => {
         const resource = ccda.resolveFs(

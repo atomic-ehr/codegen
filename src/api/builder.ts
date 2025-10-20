@@ -14,7 +14,7 @@ import { camelCase, deepEqual } from "@root/api/writer-generator/utils.ts";
 import { registerFromManager } from "@root/typeschema/register";
 import { mkTypeSchemaIndex } from "@root/typeschema/utils";
 import { generateTypeSchemas, TypeSchemaCache, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";
-import { packageMetaToNpm, type TypeSchema } from "@typeschema/types";
+import { fhirToPackageMeta, packageMetaToNpm, type TypeSchema } from "@typeschema/types";
 import type { Config, TypeSchemaConfig } from "../config";
 import type { CodegenLogger } from "../utils/codegen-logger";
 import { createLogger } from "../utils/codegen-logger";
@@ -314,7 +314,7 @@ export class APIBuilder {
 
         for (const ts of typeSchemas) {
             const json = JSON.stringify(ts, null, 2);
-            await afs.appendFile(outputFile, json + "\n");
+            await afs.appendFile(outputFile, `${json}\n`);
         }
     }
 
@@ -369,7 +369,10 @@ export class APIBuilder {
                 workingDir: "tmp/fhir",
             });
             await manager.init();
-            const register = await registerFromManager(manager, { logger: this.logger });
+            const register = await registerFromManager(manager, {
+                logger: this.logger,
+                focusedPackages: this.packages.map(fhirToPackageMeta),
+            });
             const typeSchemas = await generateTypeSchemas(register, this.logger);
 
             await this.tryWriteTypeSchema(typeSchemas);

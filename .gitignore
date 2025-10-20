@@ -41,3 +41,5 @@ test-output
 /types/
 /generated
 .typeschema-cache
+
+examples/ccda/fhir-types
