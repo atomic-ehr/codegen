@@ -15,7 +15,13 @@ import type { Register } from "@typeschema/register";
 import { registerFromManager } from "@typeschema/register";
 import { TypeSchemaCache } from "./cache";
 import { transformFhirSchema, transformValueSet } from "./core/transformer";
-import type { PackageMeta, RichValueSet, TypeSchema, TypeschemaGeneratorOptions } from "./types";
+import {
+    packageMetaToFhir,
+    type PackageMeta,
+    type RichValueSet,
+    type TypeSchema,
+    type TypeschemaGeneratorOptions,
+} from "./types";
 
 /**
  * TypeSchema Generator class
@@ -51,12 +57,12 @@ export class TypeSchemaGenerator {
     }
 
     async registerFromPackageMetas(packageMetas: PackageMeta[]): Promise<Register> {
-        const packageNames = packageMetas.map((meta) => `${meta.name}${meta.version}`);
+        const packageNames = packageMetas.map(packageMetaToFhir);
         this.logger?.step(`Loading FHIR packages: ${packageNames.join(", ")}`);
 
         await this.manager.init();
 
-        return registerFromManager(this.manager, {});
+        return registerFromManager(this.manager, { focusedPackages: packageMetas });
     }
 
     generateFhirSchemas(structureDefinitions: StructureDefinition[]): FHIRSchema[] {

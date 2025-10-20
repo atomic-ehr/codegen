@@ -44,3 +44,7 @@ test-output
 
 examples/csharp/bin
 examples/csharp/obj
+
+examples/typescript-ccda/fhir-types
+examples/typescript-ccda/tree.yaml
+examples/typescript-ccda/type-schemas

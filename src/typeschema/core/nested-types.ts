@@ -105,12 +105,15 @@ export function mkNestedTypes(
         } else {
             baseName = element.type as Name;
         }
+        const baseUrl = register.ensureSpecializationCanonicalUrl(fhirSchema.package_meta, baseName);
+        const baseFs = register.resolveFs(fhirSchema.package_meta, baseUrl);
+        if (!baseFs) throw new Error(`Could not resolve base type ${baseName}`);
         const base: Identifier = {
             kind: "complex-type",
-            package: fhirSchema.package_meta.name,
-            version: fhirSchema.package_meta.version,
+            package: baseFs.package_meta.name,
+            version: baseFs.package_meta.version,
             name: baseName,
-            url: register.ensureSpecializationCanonicalUrl(fhirSchema.package_meta, baseName),
+            url: baseUrl,
         };
 
         const fields = transformNestedElements(register, fhirSchema, path, element.elements!, logger);

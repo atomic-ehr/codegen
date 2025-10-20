@@ -1,4 +1,6 @@
 import type { CodegenLogger } from "@root/utils/codegen-logger";
+import * as YAML from "yaml";
+import * as afs from "node:fs/promises";
 import {
     type CanonicalUrl,
     type Field,
@@ -17,16 +19,20 @@ import {
 // TypeSchema processing
 
 export const groupByPackages = (typeSchemas: TypeSchema[]) => {
-    const grouped = {} as Record<string, TypeSchema[]>;
+    const grouped = {} as Record<PackageName, TypeSchema[]>;
     for (const ts of typeSchemas) {
-        const packageName = ts.identifier.package;
-        if (!grouped[packageName]) {
-            grouped[packageName] = [];
-        }
-        grouped[packageName].push(ts);
+        const pkgName = ts.identifier.package;
+        if (!grouped[pkgName]) grouped[pkgName] = [];
+        grouped[pkgName].push(ts);
     }
-    for (const [_packageName, typeSchemas] of Object.entries(grouped)) {
-        typeSchemas.sort((a, b) => a.identifier.name.localeCompare(b.identifier.name));
+    for (const [packageName, typeSchemas] of Object.entries(grouped)) {
+        const dict: Record<string, TypeSchema> = {};
+        for (const ts of typeSchemas) {
+            dict[JSON.stringify(ts.identifier)] = ts;
+        }
+        const tmp = Object.values(dict);
+        tmp.sort((a, b) => a.identifier.name.localeCompare(b.identifier.name));
+        grouped[packageName] = tmp;
     }
     return grouped;
 };
@@ -96,6 +102,7 @@ export type TypeSchemaIndex = {
     findLastSpecializationByIdentifier: (id: Identifier) => Identifier;
     flatProfile: (schema: ProfileTypeSchema) => ProfileTypeSchema;
     isWithMetaField: (profile: ProfileTypeSchema) => boolean;
+    exportTree: (filename: string) => Promise<void>;
 };
 
 export const mkTypeSchemaIndex = (schemas: TypeSchema[], logger?: CodegenLogger): TypeSchemaIndex => {
@@ -108,7 +115,8 @@ export const mkTypeSchemaIndex = (schemas: TypeSchema[], logger?: CodegenLogger)
         if (index[url][schema.identifier.package] && pkg !== "shared") {
             const r1 = JSON.stringify(schema.identifier, undefined, 2);
             const r2 = JSON.stringify(index[url][pkg]?.identifier, undefined, 2);
-            throw new Error(`Duplicate schema: ${r1} and ${r2}`);
+            if (r1 !== r2) throw new Error(`Duplicate schema: ${r1} and ${r2}`);
+            return;
         }
         index[url][pkg] = schema;
     };
@@ -133,7 +141,7 @@ export const mkTypeSchemaIndex = (schemas: TypeSchema[], logger?: CodegenLogger)
             const resolved = resolve(base);
             if (!resolved) {
                 logger?.warn(
-                    `Failed to resolve base type: ${(res.map((e) => `${e.identifier.url} (${e.identifier.kind})`)).join(", ")}`,
+                    `Failed to resolve base type: ${res.map((e) => `${e.identifier.url} (${e.identifier.kind})`).join(", ")}`,
                 );
                 return undefined;
             }
@@ -179,7 +187,10 @@ export const mkTypeSchemaIndex = (schemas: TypeSchema[], logger?: CodegenLogger)
 
             for (const [fieldName, fieldConstraints] of Object.entries(schema.fields)) {
                 if (mergedFields[fieldName]) {
-                    mergedFields[fieldName] = { ...mergedFields[fieldName], ...fieldConstraints };
+                    mergedFields[fieldName] = {
+                        ...mergedFields[fieldName],
+                        ...fieldConstraints,
+                    };
                 } else {
                     mergedFields[fieldName] = { ...fieldConstraints };
                 }
@@ -209,6 +220,27 @@ export const mkTypeSchemaIndex = (schemas: TypeSchema[], logger?: CodegenLogger)
         });
     };
 
+    const exportTree = async (filename: string) => {
+        const tree: Record<PackageName, { complexTypes: any; resources: any; profiles: any }> = {};
+        for (const [pkgId, shemas] of Object.entries(groupByPackages(schemas))) {
+            tree[pkgId] = { complexTypes: {}, resources: {}, profiles: {} };
+            for (const schema of shemas) {
+                const _desc = schema.identifier;
+                if (isResourceTypeSchema(schema)) {
+                    tree[pkgId].resources[schema.identifier.url] = {};
+                }
+                if (isProfileTypeSchema(schema)) {
+                    tree[pkgId].profiles[schema.identifier.url] = {};
+                }
+                if (isComplexTypeTypeSchema(schema)) {
+                    tree[pkgId].complexTypes[schema.identifier.url] = {};
+                }
+            }
+        }
+        const raw = filename.endsWith(".yaml") ? YAML.stringify(tree) : JSON.stringify(tree, undefined, 2);
+        await afs.writeFile(filename, raw);
+    };
+
     return {
         _schemaIndex: index,
         _relations: relations,
@@ -224,5 +256,6 @@ export const mkTypeSchemaIndex = (schemas: TypeSchema[], logger?: CodegenLogger)
         findLastSpecializationByIdentifier,
         flatProfile,
         isWithMetaField,
+        exportTree,
     };
 };

@@ -23,6 +23,14 @@ export const mkR4Register = async () =>
         // logger: createLogger({ verbose: true, prefix: "TEST" })
     });
 
+export const r5Package = { name: "hl7.fhir.r5.core", version: "5.0.0" };
+
+export const mkR5Register = async () =>
+    registerFromPackageMetas([r5Package], {
+        fallbackPackageForNameResolution: r5Package,
+        // logger: createLogger({ verbose: true, prefix: "TEST" })
+    });
+
 export const ccdaPackage = { name: "hl7.cda.uv.core", version: "2.0.1-sd" };
 
 export const mkCCDARegister = async () =>
@@ -33,7 +41,7 @@ export const mkCCDARegister = async () =>
 export const registerFs = (register: Register, fs: PFS) => {
     if (!fs.package_meta) fs.package_meta = { name: "mypackage", version: "0.0.0" };
     const rfs = enrichFHIRSchema(fs as FHIRSchema);
-    register.unsafeAppendFs(rfs);
+    register.testAppendFs(rfs);
     return rfs;
 };
 

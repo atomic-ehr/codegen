@@ -11,9 +11,9 @@ import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 import type { Range } from "../hl7-fhir-r4-core/Range";
 import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/triglyceride
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ldlcholesterol
 export interface Example_Lipid_Profile {
-    __profileUrl: "http://hl7.org/fhir/StructureDefinition/triglyceride";
+    __profileUrl: "http://hl7.org/fhir/StructureDefinition/ldlcholesterol";
 
     code: CodeableConcept;
     valueQuantity?: Quantity;
@@ -28,7 +28,7 @@ export const attach_Example_Lipid_Profile_to_Observation = (resource: Observatio
     return {
         ...resource,
         meta: {
-            profile: ['http://hl7.org/fhir/StructureDefinition/triglyceride']
+            profile: ['http://hl7.org/fhir/StructureDefinition/ldlcholesterol']
         },
         code: profile.code,
         valueQuantity: profile.valueQuantity,
@@ -42,10 +42,10 @@ export const attach_Example_Lipid_Profile_to_Observation = (resource: Observatio
 
 export const extract_Example_Lipid_Profile_from_Observation = (resource: Observation): Example_Lipid_Profile => {
     if (resource.referenceRange === undefined) {
-        throw new Error("'referenceRange' is required for http://hl7.org/fhir/StructureDefinition/triglyceride");
+        throw new Error("'referenceRange' is required for http://hl7.org/fhir/StructureDefinition/ldlcholesterol");
     }
     return {
-        __profileUrl: 'http://hl7.org/fhir/StructureDefinition/triglyceride',
+        __profileUrl: 'http://hl7.org/fhir/StructureDefinition/ldlcholesterol',
         code: resource.code,
         valueQuantity: resource.valueQuantity,
         interpretation: resource.interpretation,
