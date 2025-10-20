@@ -32,7 +32,7 @@ public class VerificationResult : DomainResource {
         public ResourceReference? Who { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -46,7 +46,7 @@ public class VerificationResult : DomainResource {
         public ResourceReference? Who { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -56,13 +56,13 @@ public class VerificationResult : DomainResource {
         public required ResourceReference Organization { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
 
     public override string ToString() => 
-        JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+        JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
 }
 

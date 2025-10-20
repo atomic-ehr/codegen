@@ -16,7 +16,7 @@ public class AppointmentResponse : DomainResource {
     public string? Start { get; set; }
 
     public override string ToString() => 
-        JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+        JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
 }
 

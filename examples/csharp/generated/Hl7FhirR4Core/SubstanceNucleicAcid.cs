@@ -23,7 +23,7 @@ public class SubstanceNucleicAcid : DomainResource {
         public CodeableConcept? ThreePrime { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -34,7 +34,7 @@ public class SubstanceNucleicAcid : DomainResource {
         public string? ResidueSite { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -44,13 +44,13 @@ public class SubstanceNucleicAcid : DomainResource {
         public string? ResidueSite { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
 
     public override string ToString() => 
-        JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+        JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
 }
 

@@ -29,7 +29,7 @@ public class ImmunizationRecommendation : DomainResource {
         public CodeableConcept[]? VaccineCode { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -38,13 +38,13 @@ public class ImmunizationRecommendation : DomainResource {
         public required string Value { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
 
     public override string ToString() => 
-        JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+        JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
 }
 

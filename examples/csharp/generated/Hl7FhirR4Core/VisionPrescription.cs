@@ -32,7 +32,7 @@ public class VisionPrescription : DomainResource {
         public decimal? Sphere { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -41,13 +41,13 @@ public class VisionPrescription : DomainResource {
         public required VisionBaseEnum Base { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
 
     public override string ToString() => 
-        JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+        JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
 }
 

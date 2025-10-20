@@ -21,7 +21,7 @@ public class MedicinalProductPackaged : DomainResource {
         public required Identifier OuterPackaging { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -40,13 +40,13 @@ public class MedicinalProductPackaged : DomainResource {
         public required CodeableConcept Type { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
 
     public override string ToString() => 
-        JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+        JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
 }
 

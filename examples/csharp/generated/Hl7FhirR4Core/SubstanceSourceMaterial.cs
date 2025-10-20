@@ -25,7 +25,7 @@ public class SubstanceSourceMaterial : DomainResource {
         public CodeableConcept? MaterialType { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -40,7 +40,7 @@ public class SubstanceSourceMaterial : DomainResource {
         public CodeableConcept? Species { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -49,7 +49,7 @@ public class SubstanceSourceMaterial : DomainResource {
         public CodeableConcept? AuthorType { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -61,7 +61,7 @@ public class SubstanceSourceMaterial : DomainResource {
         public string? PaternalOrganismName { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -72,7 +72,7 @@ public class SubstanceSourceMaterial : DomainResource {
         public CodeableConcept? Phylum { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -81,13 +81,13 @@ public class SubstanceSourceMaterial : DomainResource {
         public CodeableConcept? PartLocation { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
 
     public override string ToString() => 
-        JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+        JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
 }
 

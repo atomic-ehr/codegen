@@ -36,7 +36,7 @@ public class MedicationKnowledge : DomainResource {
         public MedicationKnowledgeAdministrationGuidelinesPatientCharacteristics[]? PatientCharacteristics { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -45,7 +45,7 @@ public class MedicationKnowledge : DomainResource {
         public required CodeableConcept Type { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -55,7 +55,7 @@ public class MedicationKnowledge : DomainResource {
         public string[]? Value { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -65,7 +65,7 @@ public class MedicationKnowledge : DomainResource {
         public required CodeableConcept Type { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -77,7 +77,7 @@ public class MedicationKnowledge : DomainResource {
         public string? ValueString { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -88,7 +88,7 @@ public class MedicationKnowledge : DomainResource {
         public Ratio? Strength { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -98,7 +98,7 @@ public class MedicationKnowledge : DomainResource {
         public Quantity[]? LethalDose50 { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -107,7 +107,7 @@ public class MedicationKnowledge : DomainResource {
         public required CodeableConcept Type { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -116,7 +116,7 @@ public class MedicationKnowledge : DomainResource {
         public CodeableConcept? Type { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -125,7 +125,7 @@ public class MedicationKnowledge : DomainResource {
         public CodeableConcept? Type { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -134,7 +134,7 @@ public class MedicationKnowledge : DomainResource {
         public CodeableConcept? Type { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -145,7 +145,7 @@ public class MedicationKnowledge : DomainResource {
         public MedicationKnowledgeRegulatorySubstitution[]? Substitution { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -154,7 +154,7 @@ public class MedicationKnowledge : DomainResource {
         public required Quantity Quantity { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -162,7 +162,7 @@ public class MedicationKnowledge : DomainResource {
         public required CodeableConcept Schedule { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -171,7 +171,7 @@ public class MedicationKnowledge : DomainResource {
         public required CodeableConcept Type { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -180,13 +180,13 @@ public class MedicationKnowledge : DomainResource {
         public required CodeableConcept Type { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
 
     public override string ToString() => 
-        JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+        JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
 }
 

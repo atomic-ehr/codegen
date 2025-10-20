@@ -12,7 +12,7 @@ public class DomainResource : Resource {
     public Narrative? Text { get; set; }
 
     public override string ToString() => 
-        JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+        JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
 }
 

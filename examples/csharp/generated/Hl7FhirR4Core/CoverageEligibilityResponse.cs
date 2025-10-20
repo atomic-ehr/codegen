@@ -27,7 +27,7 @@ public class CoverageEligibilityResponse : DomainResource {
         public required CodeableConcept Code { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -38,7 +38,7 @@ public class CoverageEligibilityResponse : DomainResource {
         public CoverageEligibilityResponseInsuranceItem[]? Item { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -59,7 +59,7 @@ public class CoverageEligibilityResponse : DomainResource {
         public CodeableConcept? Unit { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -73,13 +73,13 @@ public class CoverageEligibilityResponse : DomainResource {
         public long? UsedUnsignedInt { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
 
     public override string ToString() => 
-        JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+        JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
 }
 

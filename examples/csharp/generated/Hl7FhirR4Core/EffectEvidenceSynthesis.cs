@@ -46,7 +46,7 @@ public class EffectEvidenceSynthesis : DomainResource {
         public CodeableConcept[]? Rating { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -56,7 +56,7 @@ public class EffectEvidenceSynthesis : DomainResource {
         public CodeableConcept? Type { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -69,7 +69,7 @@ public class EffectEvidenceSynthesis : DomainResource {
         public CodeableConcept? VariantState { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -80,7 +80,7 @@ public class EffectEvidenceSynthesis : DomainResource {
         public CodeableConcept? Type { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -91,7 +91,7 @@ public class EffectEvidenceSynthesis : DomainResource {
         public CodeableConcept? VariantState { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -101,13 +101,13 @@ public class EffectEvidenceSynthesis : DomainResource {
         public int? NumberOfStudies { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
 
     public override string ToString() => 
-        JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+        JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
 }
 

@@ -27,7 +27,7 @@ public class MedicationStatement : DomainResource {
     public required ResourceReference Subject { get; set; }
 
     public override string ToString() => 
-        JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+        JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
 }
 

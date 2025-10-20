@@ -56,7 +56,7 @@ public class Client
 
     public async Task<(Bundle<T>? result, string? error)> Search<T>(string? queryString) where T : Resource
     {
-        UriBuilder resourcePath = new(this.Url) { Path = Config.ResourceMap[typeof(T)] };
+        UriBuilder resourcePath = new(this.Url) { Path = Helper.ResourceMap[typeof(T)] };
 
         if (queryString is not null)
         {
@@ -74,7 +74,7 @@ public class Client
 
             var content = await response.Content.ReadAsStringAsync();
 
-            Bundle<T>? parsedContent = JsonSerializer.Deserialize<Bundle<T>>(content, Config.JsonSerializerOptions);
+            Bundle<T>? parsedContent = JsonSerializer.Deserialize<Bundle<T>>(content, Helper.JsonSerializerOptions);
 
             return (parsedContent, default);
         }
@@ -86,7 +86,7 @@ public class Client
 
     public async Task<(T? result, string? error)> Read<T>(string id) where T : Resource
     {
-        UriBuilder resourcePath = new(this.Url) { Path = Config.ResourceMap[typeof(T)] };
+        UriBuilder resourcePath = new(this.Url) { Path = Helper.ResourceMap[typeof(T)] };
 
         var httpClient = this.HttpClient;
 
@@ -101,7 +101,7 @@ public class Client
 
             var content = await response.Content.ReadAsStringAsync();
 
-            T? parsedContent = JsonSerializer.Deserialize<T>(content, Config.JsonSerializerOptions);
+            T? parsedContent = JsonSerializer.Deserialize<T>(content, Helper.JsonSerializerOptions);
 
             return (parsedContent, default);
         }
@@ -114,9 +114,9 @@ public class Client
 
     public async Task<(T? result, string? error)> Create<T>(T data) where T : Resource
     {
-        UriBuilder resourcePath = new(this.Url) { Path = Config.ResourceMap[typeof(T)] };
+        UriBuilder resourcePath = new(this.Url) { Path = Helper.ResourceMap[typeof(T)] };
 
-        string jsonBody = JsonSerializer.Serialize<T>(data, Config.JsonSerializerOptions);
+        string jsonBody = JsonSerializer.Serialize<T>(data, Helper.JsonSerializerOptions);
 
         HttpContent requestData = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
@@ -131,7 +131,7 @@ public class Client
 
             var content = await response.Content.ReadAsStringAsync();
 
-            T? parsedContent = JsonSerializer.Deserialize<T>(content, Config.JsonSerializerOptions);
+            T? parsedContent = JsonSerializer.Deserialize<T>(content, Helper.JsonSerializerOptions);
 
             return (parsedContent, default);
         }
@@ -144,7 +144,7 @@ public class Client
 
     public async Task<(T? result, string? error)> Delete<T>(string id) where T : Resource
     {
-        UriBuilder resourcePath = new(this.Url) { Path = Config.ResourceMap[typeof(T)] };
+        UriBuilder resourcePath = new(this.Url) { Path = Helper.ResourceMap[typeof(T)] };
 
         var httpClient = this.HttpClient;
 
@@ -164,7 +164,7 @@ public class Client
 
             var content = await response.Content.ReadAsStringAsync();
 
-            T? parsedContent = JsonSerializer.Deserialize<T>(content, Config.JsonSerializerOptions);
+            T? parsedContent = JsonSerializer.Deserialize<T>(content, Helper.JsonSerializerOptions);
 
             return (parsedContent, default);
         }
@@ -177,9 +177,9 @@ public class Client
 
     public async Task<(T? result, string? error)> Update<T>(T resource) where T : Resource
     {
-        UriBuilder resourcePath = new(this.Url) { Path = Config.ResourceMap[typeof(T)] };
+        UriBuilder resourcePath = new(this.Url) { Path = Helper.ResourceMap[typeof(T)] };
 
-        string jsonBody = JsonSerializer.Serialize<T>(resource, Config.JsonSerializerOptions);
+        string jsonBody = JsonSerializer.Serialize<T>(resource, Helper.JsonSerializerOptions);
 
         HttpContent requestData = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
@@ -196,7 +196,7 @@ public class Client
 
             var content = await response.Content.ReadAsStringAsync();
 
-            T? parsedContent = JsonSerializer.Deserialize<T>(content, Config.JsonSerializerOptions);
+            T? parsedContent = JsonSerializer.Deserialize<T>(content, Helper.JsonSerializerOptions);
 
             return (parsedContent, default);
         }

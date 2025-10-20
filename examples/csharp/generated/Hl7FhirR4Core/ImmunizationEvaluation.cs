@@ -23,7 +23,7 @@ public class ImmunizationEvaluation : DomainResource {
     public required CodeableConcept TargetDisease { get; set; }
 
     public override string ToString() => 
-        JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+        JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
 }
 

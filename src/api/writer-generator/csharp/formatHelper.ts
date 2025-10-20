@@ -1,4 +1,4 @@
-import { camelCase } from "./utils";
+import { camelCase, uppercaseFirstLetter } from "../utils.ts";
 
 const ops: Record<string, string> = {
     "!": "Not",
@@ -19,10 +19,6 @@ const ops: Record<string, string> = {
     "?": "Question",
     ".": "Dot",
 };
-
-export function uppercaseFirstLetter(str: string): string {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-}
 
 export function formatEnumDashHandle(entry: string): string {
     return entry

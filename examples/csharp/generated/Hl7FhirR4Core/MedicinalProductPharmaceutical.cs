@@ -19,7 +19,7 @@ public class MedicinalProductPharmaceutical : DomainResource {
         public CodeableConcept? Status { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -33,7 +33,7 @@ public class MedicinalProductPharmaceutical : DomainResource {
         public MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpecies[]? TargetSpecies { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -42,7 +42,7 @@ public class MedicinalProductPharmaceutical : DomainResource {
         public MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpeciesWithdrawalPeriod[]? WithdrawalPeriod { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
@@ -52,13 +52,13 @@ public class MedicinalProductPharmaceutical : DomainResource {
         public required Quantity Value { get; set; }
 
         public override string ToString() => 
-            JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+            JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
     }
 
 
     public override string ToString() => 
-        JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+        JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
 }
 

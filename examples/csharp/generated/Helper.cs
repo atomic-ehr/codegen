@@ -5,7 +5,7 @@ public class LowercaseNamingPolicy : JsonNamingPolicy
     public override string ConvertName(string name) => name.ToLower();
 }
 
-public class Config
+public class Helper
 {
     public static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {

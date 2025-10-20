@@ -4,10 +4,8 @@
 
 
 namespace SuperNameSpace;
-public static class ResourceDictionary
-{
-    public static readonly Dictionary<Type, string> Map = new()
-    {
+public static class ResourceDictionary {
+    public static readonly Dictionary<Type, string> Map = new() {
         { typeof(Hl7FhirR4Core.Account), "Account" },
         { typeof(Hl7FhirR4Core.ActivityDefinition), "ActivityDefinition" },
         { typeof(Hl7FhirR4Core.AdverseEvent), "AdverseEvent" },
@@ -161,5 +159,6 @@ public static class ResourceDictionary
         { typeof(Hl7FhirR4Core.ValueSet), "ValueSet" },
         { typeof(Hl7FhirR4Core.VerificationResult), "VerificationResult" },
         { typeof(Hl7FhirR4Core.VisionPrescription), "VisionPrescription" },
-    };
+    }
+    ;
 }

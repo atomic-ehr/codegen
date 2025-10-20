@@ -8,7 +8,7 @@ namespace SuperNameSpace.Hl7FhirR4Core;
 public class FiveWs {
 
     public override string ToString() => 
-        JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+        JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
 }
 

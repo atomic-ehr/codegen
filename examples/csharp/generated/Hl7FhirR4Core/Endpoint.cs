@@ -19,7 +19,7 @@ public class Endpoint : DomainResource {
     public required EndpointStatusEnum Status { get; set; }
 
     public override string ToString() => 
-        JsonSerializer.Serialize(this, Config.JsonSerializerOptions);
+        JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);
 
 }
 

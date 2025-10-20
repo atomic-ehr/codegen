@@ -1,10 +1,10 @@
-import { pascalCase, uppercaseFirstLetter, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils";
-import { Writer } from "@root/api/writer-generator/writer";
+import { pascalCase, uppercaseFirstLetter, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils.ts";
+import { Writer } from "@root/api/writer-generator/writer.ts";
 import type { Field, Identifier, RegularField } from "@root/typeschema";
-import { type ChoiceFieldInstance, isChoiceDeclarationField, type RegularTypeSchema } from "@root/typeschema/types";
-import type { TypeSchemaIndex } from "@root/typeschema/utils";
-import { formatEnumEntry, formatName } from "./formatHelper";
-import { CodegenLogger } from "@root/utils/codegen-logger.ts";
+import { type ChoiceFieldInstance, isChoiceDeclarationField, type RegularTypeSchema } from "@typeschema/types.ts";
+import type { TypeSchemaIndex } from "@typeschema/utils.ts";
+import { formatEnumEntry, formatName } from "./formatHelper.ts";
+import type { CodegenLogger } from "@root/utils/codegen-logger.ts";
 import fs from "node:fs";
 import Path from "node:path";
 
@@ -34,21 +34,24 @@ const PRIMITIVE_TYPE_MAP: Record<string, string> = {
 
 const RESERVED_TYPE_NAMES = ["Reference", "Expression"];
 
-const createLogger = () =>
-    new CodegenLogger({
-        prefix: "C#",
-        timestamp: true,
-        verbose: true,
-        suppressLoggingLevel: [],
-    });
+const getFieldModifiers = (field: Field) => {
+    return field.required ? ["required"] : [];
+};
+
+const formatClassName = (schema: RegularTypeSchema) => {
+    const name = prefixReservedTypeName(getResourceName(schema.identifier));
+    return uppercaseFirstLetter(name);
+};
+
+const formatBaseClass = (schema: RegularTypeSchema) => {
+    return schema.base ? `: ${schema.base.name}` : "";
+};
 
 const canonicalToName = (canonical: string | undefined, dropFragment = true): string | undefined => {
     if (!canonical) return undefined;
     let localName = canonical.split("/").pop();
     if (!localName) return undefined;
-    if (dropFragment && localName.includes("#")) {
-        localName = localName.split("#")[0];
-    }
+    if (dropFragment && localName.includes("#")) localName = localName.split("#")[0];
     if (!localName) return undefined;
     if (/^\d/.test(localName)) {
         localName = `number_${localName}`;
@@ -76,7 +79,7 @@ const prefixReservedTypeName = (name: string): string => (isReservedTypeName(nam
 interface CSharpGeneratorOptions {
     outputDir: string;
     staticSourceDir?: string;
-    namespace: string;
+    targetNamespace: string;
     logger?: CodegenLogger;
 }
 
@@ -89,7 +92,7 @@ interface EnumRegistry {
 export class CSharp extends Writer {
     private readonly enums: EnumRegistry = {};
     private readonly staticSourceDir?: string;
-    private readonly namespace: string;
+    private readonly targetNamespace: string;
 
     constructor(options: CSharpGeneratorOptions) {
         super({
@@ -97,15 +100,15 @@ export class CSharp extends Writer {
             tabSize: 4,
             withDebugComment: false,
             commentLinePrefix: "//",
-            logger: options.logger ?? createLogger(),
+            logger: options.logger,
         });
         this.staticSourceDir = options.staticSourceDir;
-        this.namespace = options.namespace;
+        this.targetNamespace = options.targetNamespace;
     }
 
-    override generate(csharpIndex: TypeSchemaIndex): void {
-        const complexTypes = csharpIndex.collectComplexTypes();
-        const resources = csharpIndex.collectResources();
+    override generate(typeSchemaIndex: TypeSchemaIndex): void {
+        const complexTypes = typeSchemaIndex.collectComplexTypes();
+        const resources = typeSchemaIndex.collectResources();
         const packages = Array.from(new Set(resources.map((r) => formatName(r.identifier.package))));
 
         this.generateAllFiles(complexTypes, resources, packages);
@@ -122,11 +125,12 @@ export class CSharp extends Writer {
         this.generateResources(resources);
         this.generateEnumFiles(packages);
         this.generateResourceDictionaries(resources, packages);
+        this.generateHelperFile();
     }
 
     private generateType(schema: RegularTypeSchema, packageName: string): void {
-        const className = this.formatClassName(schema);
-        const baseClass = this.formatBaseClass(schema);
+        const className = formatClassName(schema);
+        const baseClass = formatBaseClass(schema);
 
         this.curlyBlock(["public", "class", className, baseClass], () => {
             this.generateFields(schema, packageName);
@@ -169,7 +173,7 @@ export class CSharp extends Writer {
 
     private buildFieldDeclaration(fieldName: string, field: Field, packageName: string): string[] {
         const fieldType = this.determineFieldType(fieldName, field, packageName);
-        const modifiers = this.getFieldModifiers(field);
+        const modifiers = getFieldModifiers(field);
         const propertyName = pascalCase(fieldName);
         const accessors = "{ get; set; }";
 
@@ -220,22 +224,9 @@ export class CSharp extends Writer {
         return enumTypeName;
     }
 
-    private getFieldModifiers(field: Field): string[] {
-        return field.required ? ["required"] : [];
-    }
-
-    private formatClassName(schema: RegularTypeSchema): string {
-        const name = prefixReservedTypeName(getResourceName(schema.identifier));
-        return uppercaseFirstLetter(name);
-    }
-
-    private formatBaseClass(schema: RegularTypeSchema): string {
-        return schema.base ? `: ${schema.base.name}` : "";
-    }
-
     private includeHelperMethods(): void {
         this.line("public override string ToString() => ");
-        this.line("    JsonSerializer.Serialize(this, Config.JsonSerializerOptions);");
+        this.line("    JsonSerializer.Serialize(this, Helper.JsonSerializerOptions);");
         this.line();
     }
 
@@ -253,8 +244,8 @@ export class CSharp extends Writer {
             "CSharpSDK",
             "System.Text.Json",
             "System.Text.Json.Serialization",
-            this.namespace,
-            ...packages.map((pkg) => `${this.namespace}.${pkg}`),
+            this.targetNamespace,
+            ...packages.map((pkg) => `${this.targetNamespace}.${pkg}`),
         ];
 
         for (const using of globalUsings) this.lineSM("global", "using", using);
@@ -265,7 +256,7 @@ export class CSharp extends Writer {
             this.cat("base.cs", () => {
                 this.generateDisclaimer();
                 this.line();
-                this.lineSM("namespace", this.namespace);
+                this.lineSM("namespace", this.targetNamespace);
 
                 for (const schema of complexTypes) {
                     const packageName = formatName(schema.identifier.package);
@@ -286,7 +277,7 @@ export class CSharp extends Writer {
             this.cat(`${schema.identifier.name}.cs`, () => {
                 this.generateDisclaimer();
                 this.line();
-                this.lineSM("namespace", `${this.namespace}.${packageName}`);
+                this.lineSM("namespace", `${this.targetNamespace}.${packageName}`);
                 this.line();
                 this.generateType(schema, packageName);
             });
@@ -314,7 +305,7 @@ export class CSharp extends Writer {
     private generateEnumFileContent(packageName: string, enums: Record<string, string[]>): void {
         this.lineSM("using", "System.ComponentModel");
         this.line();
-        this.lineSM(`namespace ${this.namespace}.${packageName}`);
+        this.lineSM(`namespace ${this.targetNamespace}.${packageName}`);
 
         for (const [enumName, values] of Object.entries(enums)) {
             this.generateEnum(enumName, values);
@@ -341,7 +332,7 @@ export class CSharp extends Writer {
                 this.cat(`${packageName}ResourceDictionary.cs`, () => {
                     this.generateDisclaimer();
                     this.line();
-                    this.lineSM(`namespace ${this.namespace}`);
+                    this.lineSM(`namespace ${this.targetNamespace}`);
                     this.generateResourceDictionaryClass(packageName, packageResources);
                 });
             }
@@ -349,23 +340,26 @@ export class CSharp extends Writer {
     }
 
     private generateResourceDictionaryClass(packageName: string, resources: RegularTypeSchema[]): void {
-        this.line(`public static class ResourceDictionary`);
-        this.line("{");
-        this.line("    public static readonly Dictionary<Type, string> Map = new()");
-        this.line("    {");
-
-        for (const schema of resources) {
-            const typeName = schema.identifier.name;
-            this.line(`        { typeof(${packageName}.${typeName}), "${typeName}" },`);
-        }
-
-        this.line("    };");
-        this.line("}");
+        this.curlyBlock(["public", "static", "class", "ResourceDictionary"], () => {
+            this.curlyBlock(["public static readonly Dictionary<Type, string> Map = new()"], () => {
+                for (const schema of resources) {
+                    const typeName = schema.identifier.name;
+                    this.line(`{ typeof(${packageName}.${typeName}), "${typeName}" },`);
+                }
+            });
+            this.lineSM();
+        });
     }
 
     private copyStaticFiles(): void {
         if (!this.staticSourceDir) return;
         const sourcePath = Path.resolve(this.staticSourceDir);
         fs.cpSync(sourcePath, this.opts.outputDir, { recursive: true });
+    }
+
+    private generateHelperFile(): void {
+        const sourceFile = "src/api/writer-generator/csharp/Helper.cs";
+        const destFile = Path.join(this.opts.outputDir, "Helper.cs");
+        fs.copyFileSync(sourceFile, destFile);
     }
 }

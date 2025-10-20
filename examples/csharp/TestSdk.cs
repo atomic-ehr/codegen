@@ -351,7 +351,7 @@ namespace csharp
                 Console.WriteLine(json);
 
                 var deserializedPatient =
-                    JsonSerializer.Deserialize<Patient>(json, Config.JsonSerializerOptions)!;
+                    JsonSerializer.Deserialize<Patient>(json, Helper.JsonSerializerOptions)!;
 
                 Console.WriteLine("\n Deserialization successful!");
                 Console.WriteLine(
@@ -388,7 +388,7 @@ namespace csharp
             var patientType = typeof(Patient);
             Console.WriteLine($"Testing resource mapping for type: {patientType.Name}");
             
-            var hasMapping = Config.ResourceMap.TryGetValue(patientType, out var resourceName);
+            var hasMapping = Helper.ResourceMap.TryGetValue(patientType, out var resourceName);
 
             Console.WriteLine(" Resource mapping result:");
             Console.WriteLine($"   Has mapping: {hasMapping}");
