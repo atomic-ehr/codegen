@@ -37,3 +37,7 @@ test-typescript-ccda-example: typecheck format
 	bun run examples/typescript-ccda/generate.ts
 	$(TYPECHECK) --project tsconfig.example-typescript-ccda.json
 	cd examples/typescript-r4 && bun run demo.ts > /dev/null
+
+test-csharp-sdk: typecheck format
+	$(LINT)
+	bun run examples/csharp/generate.ts
