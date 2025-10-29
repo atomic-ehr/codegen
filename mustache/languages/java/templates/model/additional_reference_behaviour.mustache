@@ -1,0 +1,23 @@
+public final Optional<ResourceName> findReferencedResourceName() {
+    if(this.type != null){
+        final String path = this.type.getPath();
+        return ResourceName.find(path);
+    }
+    if(this.reference != null && this.reference.contains("/")){
+        final String name = this.reference.substring(0,this.reference.lastIndexOf("/"));
+        return ResourceName.find(name);
+    }
+    return Optional.empty();
+}
+public final Optional<String> findReferencedId(){
+    if(this.reference == null || !this.reference.contains("/")){
+        return Optional.empty();
+    }
+    return Optional.of(this.reference.substring(this.reference.lastIndexOf("/")+1));
+}
+public final Optional<UUID> findReferencedUuid(){
+    if(this.reference == null || !this.reference.contains("/")){
+        return Optional.empty();
+    }
+    return Optional.of(this.reference.substring(this.reference.lastIndexOf("/")+1)).map(UUID::fromString);
+}

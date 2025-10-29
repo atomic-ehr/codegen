@@ -1,0 +1,77 @@
+package de.solutio.fhir.models;
+
+import jakarta.annotation.Nullable;
+import java.time.OffsetDateTime;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
+
+public enum Utils {
+  ;
+
+  public static boolean equals(@Nullable Object a, @Nullable Object b) {
+      return Objects.equals(a, b);
+  }
+
+  public static boolean equals(@Nullable List<OffsetDateTime> a, @Nullable List<OffsetDateTime> b) {
+    if (a == b) {
+      return true;
+    }
+    if (a == null || b == null) {
+      return false;
+    }
+    if (a.size() != b.size()) {
+      return false;
+    }
+    for (int i = 0; i < a.size(); i++) {
+      if (!Utils.equals(a.get(i), b.get(i))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public static boolean equals(@Nullable OffsetDateTime a, @Nullable OffsetDateTime b) {
+    return (a == b) || (a != null && b != null && a.isEqual(b));
+  }
+
+  public static ToStringHelper toStringHelper(Class<?> clazz) {
+    requireNonNull(clazz);
+    return new ToStringHelper(clazz.getSimpleName());
+  }
+  public static ToStringHelper toStringHelper(Object object) {
+    requireNonNull(object);
+    return Utils.toStringHelper(object.getClass());
+  }
+
+  public static final class ToStringHelper {
+    private record Value(String name, Object value) {
+        public Value{
+            requireNonNull(name);
+        }
+    }
+    private final String name;
+    private final List<Value> values;
+
+    private ToStringHelper(String name) {
+        this.name = requireNonNull(name);
+        this.values = new LinkedList<>();
+    }
+
+    public ToStringHelper add(String name, @Nullable Object value) {
+        this.values.add(new Value(name, value));
+        return this;
+    }
+    public String toString() {
+        return this.name + '{' +
+            this.values.stream()
+                .filter(value -> value.value() != null)
+                .map(value -> value.name() + '=' + value.value())
+                .collect(Collectors.joining(", ")) +
+        '}';
+    }
+  }
+}

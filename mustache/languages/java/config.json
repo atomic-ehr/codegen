@@ -1,0 +1,183 @@
+{
+  "debug": "OFF",
+  "hooks": {
+    "afterGenerate": [
+      {"cmd": "mvn","args": ["spotless:apply","--batch-mode", "--no-transfer-progress"]},
+      {"cmd": "mvn","args": ["clean","test", "--batch-mode","--no-transfer-progress"]}
+    ]
+  },
+  "renderings": {
+    "utility": [
+      {
+        "source":"model/utils/utils.mustache",
+        "path": "model/src/main/java/de/solutio/fhir/models/",
+        "fileNameFormat":"Utils.java",
+        "properties": {
+          "package": "de.solutio.fhir.models"
+        }
+      },
+      {
+        "source":"model/utils/resource_names.mustache",
+        "path": "model/src/main/java/de/solutio/fhir/models",
+        "fileNameFormat":"ResourceName.java",
+        "properties": {
+          "package": "de.solutio.fhir.models",
+          "resourcePackage": "de.solutio.fhir.models.resources"
+        }
+      },
+      {
+        "source":"model/utils/primitive.mustache",
+        "path": "model/src/main/java/de/solutio/fhir/models",
+        "fileNameFormat":"Primitive.java",
+        "properties": {
+          "package": "de.solutio.fhir.models",
+          "complexTypePackage": "de.solutio.fhir.models.complex_types"
+        }
+      }
+    ],
+    "resource": [
+      {
+        "source":"model/resource_or_complex_type.mustache",
+        "path": "model/src/main/java/de/solutio/fhir/models/resources",
+        "fileNameFormat":"%s.java",
+        "properties": {
+          "package": "de.solutio.fhir.models.resources",
+          "complexTypePackage": "de.solutio.fhir.models.complex_types",
+          "resourcePackage": "de.solutio.fhir.models.resources",
+          "additional_imports": [
+            "de.solutio.fhir.models.Primitive",
+            "de.solutio.fhir.models.ResourceName",
+            "de.solutio.fhir.models.Utils"
+          ],
+          "features": {
+            "hash_code_equals": true,
+            "builder": true,
+            "to_string": true
+          }
+        }
+      }
+    ],
+    "complexType": [
+      {
+        "source":"model/resource_or_complex_type.mustache",
+        "path": "model/src/main/java/de/solutio/fhir/models/complex_types",
+        "fileNameFormat":"%s.java",
+        "properties": {
+          "package": "de.solutio.fhir.models.complex_types",
+          "complexTypePackage": "de.solutio.fhir.models.complex_types",
+          "resourcePackage": "de.solutio.fhir.models.resources",
+          "additional_imports": [
+            "de.solutio.fhir.models.Primitive",
+            "de.solutio.fhir.models.ResourceName",
+            "de.solutio.fhir.models.Utils"
+          ],
+          "features": {
+            "hash_code_equals": true,
+            "builder": true,
+            "to_string": true
+          }
+        }
+      }
+    ]
+  },
+  "nameTransformations": {
+    "common": [
+      {"pattern": "^(?<number>\\d+)(?<rest>.*)$", "format": "_$<number>$<rest>"}
+    ],
+    "enumValue": [
+      {"pattern": "^<=$", "format": "LESS_OR_EQUAL"},
+      {"pattern": "^>=$", "format": "GREATER_OR_EQUAL"},
+      {"pattern": "^<$",  "format": "LESS"},
+      {"pattern": "^=$",  "format": "EQUAL"},
+      {"pattern": "^>$",  "format": "GREATER"}
+    ],
+    "type": [
+      {"pattern": "^(?<name>.*)$", "format": "$<name>DTO"}
+    ],
+    "field": [
+      {"pattern": "^addItem$", "format": "addedItem"},
+      {"pattern": "^for$", "format": "forReference"}
+    ]
+  },
+  "keywords": [
+    "abstract",
+    "assert",
+    "boolean",
+    "break",
+    "byte",
+    "case",
+    "catch",
+    "char",
+    "class",
+    "const",
+    "continue",
+    "default",
+    "do",
+    "double",
+    "else",
+    "enum",
+    "extends",
+    "final",
+    "finally",
+    "float",
+    "for",
+    "goto",
+    "if",
+    "implements",
+    "import",
+    "instanceof",
+    "int",
+    "interface",
+    "long",
+    "native",
+    "new",
+    "package",
+    "private",
+    "protected",
+    "public",
+    "return",
+    "short",
+    "static",
+    "strictfp",
+    "super",
+    "switch",
+    "synchronized",
+    "this",
+    "throw",
+    "throws",
+    "transient",
+    "try",
+    "void",
+    "volatile",
+    "while",
+    "true",
+    "false",
+    "null"
+  ],
+  "typeMap":{
+    "boolean": "Boolean",
+    "instant": "OffsetDateTime",
+    "time": "LocalTime",
+    "date": "String",
+    "dateTime": "OffsetDateTime",
+
+    "decimal": "BigDecimal",
+    "integer": "Integer",
+    "unsignedInt": "Long",
+    "positiveInt": "Long",
+    "integer64": "Long",
+    "base64Binary": "String",
+
+    "uri": "URI",
+    "url": "URI",
+    "canonical": "String",
+    "oid": "String",
+    "uuid": "UUID",
+
+    "string": "String",
+    "code": "String",
+    "markdown": "String",
+    "id": "String",
+    "xhtml": "String"
+  }
+}

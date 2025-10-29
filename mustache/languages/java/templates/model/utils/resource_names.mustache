@@ -1,0 +1,49 @@
+package {{{properties.package}}};
+
+import static java.util.Objects.requireNonNull;
+import jakarta.annotation.Generated;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.net.URI;
+
+{{#model.resources}}
+    import {{{properties.resourcePackage}}}.{{{saveName}}};
+{{/model.resources}}
+
+@Generated(value="{{{meta.generator}}}", date="{{{meta.timestamp}}}")
+{{#model}}
+public enum ResourceName{
+    {{#resources}}
+        {{#lambda.upperCase}}{{#lambda.snakeCase}}{{saveName}}{{/lambda.snakeCase}}{{/lambda.upperCase}}("{{{name}}}"){
+            public Class<{{{saveName}}}> resourceClass() {
+                return {{{saveName}}}.class;
+            }
+        }{{^-last}},{{/-last}}
+    {{/resources}};
+
+    private static final Map<String, ResourceName> BY_NAME = Arrays.stream(values()).collect(Collectors.toMap(ResourceName::typeName, Function.identity()));
+
+    public static Optional<ResourceName> find(String name) {
+        requireNonNull(name);
+        return Optional.ofNullable(BY_NAME.get(name));
+    }
+
+    private final String typeName;
+    private final URI uri;
+    ResourceName(String typeName) {
+        this.typeName = requireNonNull(typeName);
+        this.uri = URI.create(typeName);
+    }
+    public URI uri() {
+        return uri;
+    }
+
+    public String typeName() {
+        return typeName;
+    }
+    public abstract Class<? extends {{#lambda.saveTypeName}}Resource{{/lambda.saveTypeName}}> resourceClass();
+}
+{{/model}}

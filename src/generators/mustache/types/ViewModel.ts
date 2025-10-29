@@ -1,0 +1,1 @@
+export type ViewModel = Record<string, unknown>;
