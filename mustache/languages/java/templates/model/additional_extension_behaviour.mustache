@@ -1,0 +1,14 @@
+public final Optional<{{#lambda.saveTypeName}}Extension{{/lambda.saveTypeName}}> findFirstExtensionByURL(URI url){
+    requireNonNull(url);
+    if(this.{{#lambda.saveFieldName}}extension{{/lambda.saveFieldName}} == null){
+        return Optional.empty();
+    }
+    return this.{{#lambda.saveFieldName}}extension{{/lambda.saveFieldName}}.stream().filter(e -> e.{{#lambda.saveFieldName}}url{{/lambda.saveFieldName}}().equals(url)).findFirst();
+}
+public final List<{{#lambda.saveTypeName}}Extension{{/lambda.saveTypeName}}> findExtensionsByURL(URI url){
+    requireNonNull(url);
+    if(this.{{#lambda.saveFieldName}}extension{{/lambda.saveFieldName}} == null){
+        return List.of();
+    }
+    return this.{{#lambda.saveFieldName}}extension{{/lambda.saveFieldName}}.stream().filter(e -> e.{{#lambda.saveFieldName}}url{{/lambda.saveFieldName}}().equals(url)).toList();
+}

@@ -1,0 +1,10 @@
+{{^isArray}}
+    public {{^isRequired}}Optional<{{/isRequired}}LocalDateTime{{^isRequired}}>{{/isRequired}} {{#lambda.saveFieldName}}{{#lambda.camelCase}}{{{saveName}}}{{/lambda.camelCase}}AsLocalDateTime{{/lambda.saveFieldName}}() {
+        return {{^isRequired}}Optional.ofNullable({{/isRequired}}this.{{{saveName}}}{{^isRequired}}).map(odt->odt{{/isRequired}}.atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime(){{^isRequired}}){{/isRequired}};
+    }
+{{/isArray}}
+{{#isArray}}
+    public {{^isRequired}}Optional<{{/isRequired}}List<LocalDateTime>{{^isRequired}}>{{/isRequired}} {{#lambda.saveFieldName}}{{#lambda.camelCase}}{{{saveName}}}{{/lambda.camelCase}}AsLocalDateTime{{/lambda.saveFieldName}}() {
+        return {{^isRequired}}Optional.ofNullable({{/isRequired}}this.{{{saveName}}}{{^isRequired}}).map(odts->odts{{/isRequired}}.stream().map(odt->odt.atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()).toList(){{^isRequired}}){{/isRequired}};
+    }
+{{/isArray}}
