@@ -1,0 +1,5 @@
+{{#isRequired}}@NotNull {{/isRequired}}{{^isRequired}}@Nullable {{/isRequired}}
+{{^isArray}}{{#min}}@Min({{{min}}}){{/min}}{{#max}}@Max({{{max}}}){{/max}}{{/isArray}}
+{{#isArray}}{{#isSizeConstrained}}@Size({{#min}}{{#max}}min={{{min}}},max={{{max}}}{{/max}}{{/min}}{{#min}}{{^max}}min={{{min}}}{{/max}}{{/min}}{{^min}}{{#max}}max={{{max}}}{{/max}}{{/min}}){{/isSizeConstrained}}{{/isArray}}
+{{#isPrimitive.isDateTime}}@JsonFormat(shape = JsonFormat.Shape.STRING){{/isPrimitive.isDateTime}}{{#isPrimitive.isInstant}}@JsonFormat(shape = JsonFormat.Shape.STRING){{/isPrimitive.isInstant}}
+@JsonProperty("{{{name}}}") {{#isArray}}List<{{/isArray}}{{#isResource}}@Valid {{/isResource}}{{#isComplexType}}@Valid {{/isComplexType}}{{{typeName}}}{{#isArray}}>{{/isArray}}
