@@ -31,6 +31,7 @@ jobs:
 
       - name: Test csharp-sdk
         run: |
+          export AIDBOX_LICENSE_ID="${{ secrets.AIDBOX_LICENSE_ID }}"
           make test-csharp-sdk
 
       - name: Repository contains actual csharp-sdk version
