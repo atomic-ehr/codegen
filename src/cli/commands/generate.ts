@@ -170,7 +170,7 @@ export const generateCommand: CommandModule<Record<string, unknown>, GenerateArg
 };
 
 /**
- * Helper function to find config file in the given directory
+ * PythonHelper function to find config file in the given directory
  */
 async function findConfigFile(startDir: string): Promise<string | null> {
     for (const fileName of CONFIG_FILE_NAMES) {

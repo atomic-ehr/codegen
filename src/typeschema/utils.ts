@@ -39,7 +39,7 @@ interface TypeRelation {
     child: Identifier;
 }
 
-const resourceRelatives = (schemas: TypeSchema[]): TypeRelation[] => {
+export const resourceRelatives = (schemas: TypeSchema[]): TypeRelation[] => {
     const regularSchemas = schemas.filter(isResourceTypeSchema);
     const directPairs: TypeRelation[] = [];
 

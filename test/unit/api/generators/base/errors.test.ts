@@ -16,7 +16,7 @@ import {
 import type { FileContext } from "@root/api/generators/base/types";
 import type { TypeSchema } from "@typeschema/index";
 
-// Helper function to create mock schemas
+// PythonHelper function to create mock schemas
 function createMockSchema(overrides: Partial<TypeSchema> = {}): TypeSchema {
     return {
         identifier: {

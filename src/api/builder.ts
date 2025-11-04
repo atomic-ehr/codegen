@@ -21,6 +21,7 @@ import { createLogger } from "../utils/codegen-logger";
 import { TypeScriptGenerator } from "./generators/typescript";
 import * as TS2 from "./writer-generator/typescript";
 import type { Writer, WriterOptions } from "./writer-generator/writer";
+import { Python } from "@root/api/writer-generator/python/python.ts";
 
 /**
  * Configuration options for the API builder
@@ -219,6 +220,20 @@ export class APIBuilder {
         const generator = writerToGenerator(new TS2.TypeScript(effectiveOpts));
         this.generators.set("typescript2", generator);
         this.logger.debug(`Configured TypeScript2 generator (${JSON.stringify(effectiveOpts, undefined, 2)})`);
+        return this;
+    }
+
+    python() {
+        const writerOpts = {
+            outputDir: Path.join(this.options.outputDir),
+            tabSize: 4,
+            withDebugComment: false,
+            commentLinePrefix: "#",
+        };
+        const effectiveOpts = { logger: this.logger, ...writerOpts };
+        const generator = writerToGenerator(new Python(effectiveOpts));
+        this.generators.set("python", generator);
+        this.logger.debug(`Configured python generator (${JSON.stringify(effectiveOpts, undefined, 2)})`);
         return this;
     }
 

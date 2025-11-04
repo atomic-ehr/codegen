@@ -263,7 +263,7 @@ export function assertArrayStructure<T>(
     }
 }
 
-// Helper functions
+// PythonHelper functions
 function normalizeWhitespace(content: string): string {
     return content
         .replace(/\s+/g, " ")

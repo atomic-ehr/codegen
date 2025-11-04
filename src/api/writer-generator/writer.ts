@@ -39,7 +39,7 @@ class FileSystemWriter {
 
     cat(fn: string, gen: () => void) {
         if (this.currentFileDescriptor) throw new Error("Can't open file in file");
-        if (fn.includes("/")) throw new Error(`Change file path separatly: ${fn}`);
+        if (fn.includes("/")) throw new Error(`Change file path separately: ${fn}`);
 
         const fullFn = `${this.currentDir}/${fn}`;
         try {
