@@ -1,12 +1,12 @@
+import fs from "node:fs";
+import Path from "node:path";
 import { pascalCase, uppercaseFirstLetter, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils.ts";
 import { Writer } from "@root/api/writer-generator/writer.ts";
 import type { Field, Identifier, RegularField } from "@root/typeschema";
+import type { CodegenLogger } from "@root/utils/codegen-logger.ts";
 import { type ChoiceFieldInstance, isChoiceDeclarationField, type RegularTypeSchema } from "@typeschema/types.ts";
 import type { TypeSchemaIndex } from "@typeschema/utils.ts";
 import { formatEnumEntry, formatName } from "./formatHelper.ts";
-import type { CodegenLogger } from "@root/utils/codegen-logger.ts";
-import fs from "node:fs";
-import Path from "node:path";
 
 const PRIMITIVE_TYPE_MAP: Record<string, string> = {
     boolean: "bool",

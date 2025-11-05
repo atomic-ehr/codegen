@@ -10,18 +10,17 @@ import * as afs from "node:fs/promises";
 import * as Path from "node:path";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { GeneratedFile } from "@root/api/generators/base/types";
+import { CSharp } from "@root/api/writer-generator/csharp/csharp.ts";
 import { camelCase } from "@root/api/writer-generator/utils.ts";
 import { registerFromManager } from "@root/typeschema/register";
 import { mkTypeSchemaIndex } from "@root/typeschema/utils";
 import { generateTypeSchemas, TypeSchemaCache, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";
 import { packageMetaToNpm, type TypeSchema } from "@typeschema/types";
 import type { Config, TypeSchemaConfig } from "../config";
-import { CodegenLogger } from "../utils/codegen-logger";
-import { createLogger } from "../utils/codegen-logger";
+import { CodegenLogger, createLogger } from "../utils/codegen-logger";
 import { TypeScriptGenerator } from "./generators/typescript";
 import * as TS2 from "./writer-generator/typescript";
 import type { Writer, WriterOptions } from "./writer-generator/writer";
-import { CSharp } from "@root/api/writer-generator/csharp/csharp.ts";
 
 /**
  * Configuration options for the API builder

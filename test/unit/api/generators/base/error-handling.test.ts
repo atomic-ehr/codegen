@@ -9,8 +9,8 @@ import {
     EnhancedTemplateError,
 } from "@root/api/generators/base/enhanced-errors";
 import { ErrorHandler, GeneratorErrorBoundary } from "@root/api/generators/base/error-handler";
-import { createMockSchema } from "../../../../helpers/schema-helpers";
 import { MockLogger } from "../../../../helpers/mock-generators";
+import { createMockSchema } from "../../../../helpers/schema-helpers";
 
 describe("Enhanced Error Handling", () => {
     describe("EnhancedSchemaValidationError", () => {
