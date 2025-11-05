@@ -7,7 +7,7 @@
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
-import type { BindingIdentifier, Field, Identifier, Name, PackageMeta, RegularField, RichFHIRSchema } from "../types";
+import type { BindingIdentifier, Field, Identifier, Name, RegularField, RichFHIRSchema } from "../types";
 import { buildEnum } from "./binding";
 import { mkBindingIdentifier, mkIdentifier } from "./identifier";
 import { mkNestedIdentifier } from "./nested-types";
@@ -16,7 +16,7 @@ function isRequired(register: Register, fhirSchema: RichFHIRSchema, path: string
     const fieldName = path[path.length - 1]!;
     const parentPath = path.slice(0, -1);
 
-    const requires = register.resolveFsGenealogy(fhirSchema.url).flatMap((fs) => {
+    const requires = register.resolveFsGenealogy(fhirSchema.package_meta, fhirSchema.url).flatMap((fs) => {
         if (parentPath.length === 0) return fs.required || [];
         if (!fs.elements) return [];
         let elem: RichFHIRSchema | FHIRSchemaElement | undefined = fs;
@@ -33,7 +33,7 @@ function isExcluded(register: Register, fhirSchema: RichFHIRSchema, path: string
     if (!fieldName) throw new Error(`Internal error: fieldName is missing for path ${path.join("/")}`);
     const parentPath = path.slice(0, -1);
 
-    const requires = register.resolveFsGenealogy(fhirSchema.url).flatMap((fs) => {
+    const requires = register.resolveFsGenealogy(fhirSchema.package_meta, fhirSchema.url).flatMap((fs) => {
         if (parentPath.length === 0) return fs.excluded || [];
         if (!fs.elements) return [];
         let elem: RichFHIRSchema | FHIRSchemaElement | undefined = fs;
@@ -47,14 +47,14 @@ function isExcluded(register: Register, fhirSchema: RichFHIRSchema, path: string
 }
 
 const buildReferences = (
-    element: FHIRSchemaElement,
     register: Register,
-    _packageInfo?: PackageMeta,
+    fhirSchema: RichFHIRSchema,
+    element: FHIRSchemaElement,
 ): Identifier[] | undefined => {
     if (!element.refers) return undefined;
     return element.refers.map((ref) => {
-        const curl = register.ensureSpecializationCanonicalUrl(ref as Name);
-        const fs = register.resolveFs(curl)!;
+        const curl = register.ensureSpecializationCanonicalUrl(fhirSchema.package_meta, ref as Name);
+        const fs = register.resolveFs(fhirSchema.package_meta, curl)!;
         return mkIdentifier(fs);
     });
 };
@@ -72,9 +72,9 @@ export function buildFieldType(
             .filter((_, i) => i % 2 === 1); // drop `elements` from path
         return mkNestedIdentifier(register, fhirSchema, refPath, logger);
     } else if (element.type) {
-        const url = register.ensureSpecializationCanonicalUrl(element.type);
-        const fieldFs = register.resolveFs(url);
-        if (!fieldFs) throw new Error(`Could not resolve field '${element.type}'`);
+        const url = register.ensureSpecializationCanonicalUrl(fhirSchema.package_meta, element.type);
+        const fieldFs = register.resolveFs(fhirSchema.package_meta, url);
+        if (!fieldFs) throw new Error(`Could not resolve field type: '${element.type}'`);
         return mkIdentifier(fieldFs);
     } else if (element.choices) {
         return undefined;
@@ -102,7 +102,7 @@ export const mkField = (
         binding = mkBindingIdentifier(fhirSchema, path, element.binding.bindingName);
 
         if (element.binding.strength === "required" && element.type === "code") {
-            enumValues = buildEnum(register, element, logger);
+            enumValues = buildEnum(register, fhirSchema, element, logger);
         }
     }
 
@@ -111,7 +111,7 @@ export const mkField = (
         required: isRequired(register, fhirSchema, path),
         excluded: isExcluded(register, fhirSchema, path),
 
-        reference: buildReferences(element, register, fhirSchema.package_meta),
+        reference: buildReferences(register, fhirSchema, element),
 
         array: element.array || false,
         min: element.min,

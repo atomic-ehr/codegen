@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import type { CanonicalUrl } from "@root/typeschema";
 import type { RegularTypeSchema } from "@root/typeschema/types";
-import { mkCCDARegister, registerFsAndMkTs } from "@typeschema-test/utils";
+import { ccdaPackage, mkCCDARegister, registerFsAndMkTs } from "@typeschema-test/utils";
 
 const skipMe = true;
 
@@ -9,7 +9,10 @@ describe("TypeSchema R4 generation", async () => {
     const ccda = await mkCCDARegister();
 
     it.skipIf(skipMe)("http://hl7.org/cda/stds/core/StructureDefinition/ON", async () => {
-        const resource = ccda.resolveFs("http://hl7.org/cda/stds/core/StructureDefinition/ON" as CanonicalUrl)!;
+        const resource = ccda.resolveFs(
+            ccdaPackage,
+            "http://hl7.org/cda/stds/core/StructureDefinition/ON" as CanonicalUrl,
+        )!;
         const ts = (await registerFsAndMkTs(ccda, resource))[0] as RegularTypeSchema;
         expect(ts).toMatchObject({
             identifier: {
@@ -120,9 +123,23 @@ describe("TypeSchema R4 generation", async () => {
     });
 
     it.skipIf(skipMe)("http://hl7.org/cda/stds/core/StructureDefinition/ON", async () => {
-        const resource = ccda.resolveFs("http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent" as CanonicalUrl)!;
+        console.log(
+            JSON.stringify(
+                ccda.resolveFsGenealogy(
+                    ccdaPackage,
+                    "http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent" as any,
+                ),
+                undefined,
+                2,
+            ),
+        );
+        const resource = ccda.resolveFs(
+            ccdaPackage,
+            "http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent" as CanonicalUrl,
+        )!;
         const ts = (await registerFsAndMkTs(ccda, resource))[0] as RegularTypeSchema;
         console.log(JSON.stringify(ts, null, 2));
+        // NOTE: problem: canonical manager recomend us to use R5, but we failing on R4 AuditEvent.
         expect(ts).toMatchObject({
             identifier: {
                 kind: "profile",

@@ -25,6 +25,7 @@ export type RichFHIRSchema = Omit<FS.FHIRSchema, "package_meta" | "base" | "name
 };
 
 export const enrichFHIRSchema = (schema: FS.FHIRSchema, packageMeta?: PackageMeta): RichFHIRSchema => {
+    // FIXME: required params
     if (!packageMeta) {
         packageMeta = { name: "undefined", version: "undefined" };
     }
@@ -280,8 +281,13 @@ export type TypeschemaParserOptions = {
 // ValueSet
 ///////////////////////////////////////////////////////////
 
+export const isValueSet = (res: any): res is ValueSet => {
+    return res.resourceType === "ValueSet";
+};
+
 export type ValueSet = {
     resourceType: "ValueSet";
+    package_meta?: PackageMeta;
     id: string;
     name?: string;
     url?: string;
@@ -311,7 +317,13 @@ type ValueSetCompose = {
     }[];
 };
 
+export const isCodeSystem = (res: any): res is CodeSystem => {
+    return res.resourceType === "CodeSystem";
+};
+
 export type CodeSystem = {
+    resourceType: "CodeSystem";
+    url: CanonicalUrl;
     concept: CodeSystemConcept[];
 };
 
@@ -323,8 +335,19 @@ export type CodeSystemConcept = {
 
 export type RichValueSet = Omit<ValueSet, "name" | "url"> & {
     package_meta: PackageMeta;
-    name?: Name;
-    url?: CanonicalUrl;
+    name: Name;
+    url: CanonicalUrl;
+};
+
+export const enrichValueSet = (vs: ValueSet, packageMeta: PackageMeta): RichValueSet => {
+    if (!vs.url) throw new Error("ValueSet must have a URL");
+    if (!vs.name) throw new Error("ValueSet must have a name");
+    return {
+        ...vs,
+        package_meta: vs.package_meta || packageMeta,
+        name: vs.name as Name,
+        url: vs.url as CanonicalUrl,
+    };
 };
 
 ///////////////////////////////////////////////////////////

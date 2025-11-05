@@ -1,166 +1,230 @@
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
-import type { FHIRSchema, FHIRSchemaElement, StructureDefinition } from "@atomic-ehr/fhirschema";
+import {
+    isStructureDefinition,
+    type FHIRSchema,
+    type FHIRSchemaElement,
+    type StructureDefinition,
+} from "@atomic-ehr/fhirschema";
 import * as fhirschema from "@atomic-ehr/fhirschema";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
-import type { CanonicalUrl, Name, PackageMeta, RichFHIRSchema, RichValueSet } from "@typeschema/types";
-import { enrichFHIRSchema, packageMetaToFhir } from "@typeschema/types";
+import * as afs from "node:fs/promises";
+import * as Path from "node:path";
+import type {
+    CanonicalUrl,
+    CodeSystem,
+    Name,
+    PackageMeta,
+    RichFHIRSchema,
+    RichValueSet,
+    ValueSet,
+} from "@typeschema/types";
+import { enrichFHIRSchema, enrichValueSet, isCodeSystem, isValueSet, packageMetaToFhir } from "@typeschema/types";
 
 export type Register = {
-    appendFs(fs: FHIRSchema): void;
-    ensureSpecializationCanonicalUrl(name: string | Name | CanonicalUrl): CanonicalUrl;
-    resolveSd(canonicalUrl: CanonicalUrl): StructureDefinition | undefined;
-    resolveFs(canonicalUrl: CanonicalUrl): RichFHIRSchema | undefined;
-    resolveFsGenealogy(canonicalUrl: CanonicalUrl): RichFHIRSchema[];
-    resolveFsSpecializations(canonicalUrl: CanonicalUrl): RichFHIRSchema[];
-    allSd(): StructureDefinition[];
+    unsafeAppendFs(fs: FHIRSchema): void;
+    ensureSpecializationCanonicalUrl(pkg: PackageMeta, name: string | Name | CanonicalUrl): CanonicalUrl;
+    resolveSd(pkg: PackageMeta, canonicalUrl: CanonicalUrl): StructureDefinition | undefined;
+    resolveFs(pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichFHIRSchema | undefined;
+    resolveFsGenealogy(pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichFHIRSchema[];
+    resolveFsSpecializations(pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichFHIRSchema[];
     allFs(): RichFHIRSchema[];
     allVs(): RichValueSet[];
-    resolveVs(canonicalUrl: CanonicalUrl): RichValueSet | undefined;
-    complexTypeDict(): Record<string, RichFHIRSchema>;
+    resolveVs(_pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichValueSet | undefined;
     resolveAny(canonicalUrl: CanonicalUrl): any | undefined;
     resolveElementSnapshot(fhirSchema: RichFHIRSchema, path: string[]): FHIRSchemaElement;
     getAllElementKeys(elems: Record<string, FHIRSchemaElement>): string[];
 } & ReturnType<typeof CanonicalManager>;
 
-// TODO: pass packageNameResolver from APIBuilder. Required to resolve
-// name collision by package priority.
-export const registerFromManager = async (
-    manager: ReturnType<typeof CanonicalManager>,
-    conf?: { packageNameResolver?: string[]; logger?: CodegenLogger },
-): Promise<Register> => {
-    const packageNameResolver = conf?.packageNameResolver ?? ["hl7.fhir.r5.core", "hl7.cda.uv.core"];
-    const logger = conf?.logger;
-    const flatRawIndex: Record<CanonicalUrl, any> = {};
-    const canonicalToPackages = {} as Record<CanonicalUrl, PackageMeta[]>;
-    const resourceTypes = new Set<string>(["StructureDefinition", "ValueSet", "CodeSystem"]);
+const readPackageJSON = async (workDir: string, packageMeta: PackageMeta) => {
+    const packageJSONFileName = Path.join(workDir, "node_modules", packageMeta.name, "package.json");
+    const packageJSON = JSON.parse(await afs.readFile(packageJSONFileName, "utf8"));
+    return packageJSON;
+};
 
-    for (const res of await manager.search({})) {
-        const rawUrl = res.url;
-        if (!rawUrl) continue;
-        if (!resourceTypes.has(res.resourceType)) continue;
-        const url = rawUrl as CanonicalUrl;
-
-        const pkg = (await manager.resolveEntry(url)).package;
-        if (!pkg) throw new Error(`Can't resolve package for ${url}`);
-
-        if (!canonicalToPackages[url]) canonicalToPackages[url] = [];
-        canonicalToPackages[url].push(pkg);
-
-        flatRawIndex[url as CanonicalUrl] = res;
-    }
-
-    const collisions = Object.entries(canonicalToPackages)
-        .filter(([_, e]) => e.length > 1)
-        .map(([url, pkgs]) => `${url}: ${pkgs.map((p) => `${p.name}@${p.version}`).join(", ")}`)
-        .join("\n");
-    logger?.warn(`Duplicated canonicals: ${collisions}`);
-
-    const packageToResources: Record<string, Record<CanonicalUrl, any>> = {};
-    const packageToPackageMeta: Record<string, PackageMeta> = {};
-    for (const [url, _pkgs] of Object.entries(canonicalToPackages)) {
-        const pkg = (await manager.resolveEntry(url)).package;
-        if (!pkg) throw new Error(`Can't find package for ${url}`);
-        const pkgId = packageMetaToFhir(pkg);
-        packageToPackageMeta[pkgId] = pkg;
-        const res = await manager.resolve(url);
-        if (!packageToResources[pkgId]) {
-            packageToResources[pkgId] = {};
-        }
-        const index = packageToResources[pkgId];
-        if (!index) throw new Error(`Can't find index for ${pkg.name}@${pkg.version}`);
-        index[url as CanonicalUrl] = res;
-    }
-
-    const indexByPackages = [] as {
-        package_meta: PackageMeta;
-        index: Record<CanonicalUrl, any>;
-    }[];
-    for (const [pkgId, index] of Object.entries(packageToResources)) {
-        indexByPackages.push({
-            package_meta: packageToPackageMeta[pkgId]!,
-            index: index,
+const readPackageDependencies = async (workDir: string, packageMeta: PackageMeta) => {
+    const packageJSON = await readPackageJSON(workDir, packageMeta);
+    const dependencies = packageJSON.dependencies;
+    if (dependencies !== undefined) {
+        return Object.entries(dependencies).map(([name, version]): PackageMeta => {
+            return { name: name as string, version: version as string };
         });
     }
+    return [];
+};
 
-    const sdIndex = {} as Record<CanonicalUrl, StructureDefinition>;
-    const vsIndex = {} as Record<string, RichValueSet>;
-    const fsIndex = {} as Record<CanonicalUrl, RichFHIRSchema>;
+type PkgId = string;
+type FocusedResource = StructureDefinition | ValueSet | CodeSystem;
 
-    for (const resourcesByPackage of indexByPackages) {
-        const packageMeta = resourcesByPackage.package_meta;
-        let counter = 0;
-        logger?.info(`FHIR Schema conversion for '${packageMetaToFhir(packageMeta)}' begins...`);
-        for (const [surl, resource] of Object.entries(resourcesByPackage.index)) {
-            const url = surl as CanonicalUrl;
-            if (resource.resourceType === "StructureDefinition") {
-                const sd = resource as StructureDefinition;
-                sdIndex[url] = sd;
-                const rfs = enrichFHIRSchema(fhirschema.translate(sd), packageMeta);
-                counter++;
-                fsIndex[rfs.url] = rfs;
-            }
-            if (resource.resourceType === "ValueSet") {
-                if (!resource.package_meta) {
-                    resource.package_meta = packageMeta;
+type CanonicalResolution = {
+    deep: number;
+    packageMeta: PackageMeta;
+    resource: FocusedResource;
+};
+
+type PackageIndex = {
+    pkg: PackageMeta;
+    canonicalResolution: Record<CanonicalUrl, CanonicalResolution[]>;
+    nameResolution: Record<Name, CanonicalUrl>;
+    fhirSchemas: Record<CanonicalUrl, RichFHIRSchema>;
+    valueSets: Record<CanonicalUrl, RichValueSet>;
+};
+
+type PackageAwareResolver = Record<PkgId, PackageIndex>;
+
+const mkEmptyPkgIndex = (pkg: PackageMeta): PackageIndex => {
+    return { pkg, nameResolution: {}, canonicalResolution: {}, fhirSchemas: {}, valueSets: {} };
+};
+
+const mkPackageAwareResolver = async (
+    manager: ReturnType<typeof CanonicalManager>,
+    pkg: PackageMeta,
+    deep: number = 0,
+    _logger?: CodegenLogger,
+): Promise<PackageAwareResolver> => {
+    const options: PackageAwareResolver = {};
+
+    const deps = await readPackageDependencies("tmp/fhir", pkg);
+    for (const dep of deps) {
+        const depOptions = mkPackageAwareResolver(manager, dep, deep, _logger);
+        Object.assign(options, depOptions);
+    }
+
+    const pkgId = packageMetaToFhir(pkg);
+    if (!options[pkgId]) options[pkgId] = mkEmptyPkgIndex(pkg);
+    for (const resource of await manager.search({ package: pkg })) {
+        const rawUrl = resource.url;
+        if (!rawUrl) continue;
+        if (!(isStructureDefinition(resource) || isValueSet(resource) || isCodeSystem(resource))) continue;
+
+        const url = rawUrl as CanonicalUrl;
+        if (!options[pkgId].canonicalResolution[url]) {
+            options[pkgId].canonicalResolution[url] = [];
+            for (const [depPkgId, { canonicalResolution }] of Object.entries(options)) {
+                if (pkgId === depPkgId) continue;
+                if (!canonicalResolution[url]) continue;
+                for (const deepRes of canonicalResolution[url]) {
+                    options[pkgId].canonicalResolution[url].push({
+                        deep: deepRes.deep + 1,
+                        resource: deepRes.resource,
+                        packageMeta: deepRes.packageMeta,
+                    });
                 }
-                vsIndex[resource.url!] = resource as RichValueSet;
             }
         }
-        logger?.success(
-            `FHIR Schema conversion for '${packageMetaToFhir(packageMeta)}' completed: ${counter} successful`,
+        options[pkgId].canonicalResolution[url].push({ deep, packageMeta: pkg, resource });
+        options[pkgId].canonicalResolution[url].sort((a, b) => a.deep - b.deep);
+
+        const name = resource.name as Name | undefined;
+        if (
+            name &&
+            isStructureDefinition(resource) &&
+            (resource.derivation === "specialization" || resource.derivation === undefined)
+        ) {
+            if (!options[pkgId].nameResolution[name]) {
+                options[pkgId].nameResolution[name] = resource.url as CanonicalUrl;
+            } else {
+                throw new Error(`Duplicate name ${name} in package ${pkgId}`);
+            }
+        }
+    }
+    return options;
+};
+
+const packageAwareResolveName = (resolver: PackageAwareResolver, pkg: PackageMeta, name: Name) => {
+    const pkgId = packageMetaToFhir(pkg);
+    if (!resolver[pkgId]) throw new Error(`Package ${pkgId} not found`);
+    const resource = resolver[pkgId].nameResolution[name];
+    return resource;
+};
+
+const packageAgnosticResolveCanonical = (resolver: PackageAwareResolver, url: CanonicalUrl, logger?: CodegenLogger) => {
+    const options = Object.values(resolver).flatMap((pkg) => pkg.canonicalResolution[url]);
+    if (!options) throw new Error(`No canonical resolution found for ${url} in any package`);
+    if (options.length > 1)
+        logger?.dry_warn(
+            `Multiple canonical resolutions found for ${url} in: ${JSON.stringify(options, undefined, 2)}`,
         );
+    return options[0]?.resource;
+};
+
+export type RegisterConfig = {
+    logger?: CodegenLogger;
+    fallbackPackageForNameResolution?: PackageMeta;
+};
+
+export const registerFromManager = async (
+    manager: ReturnType<typeof CanonicalManager>,
+    { logger, fallbackPackageForNameResolution }: RegisterConfig,
+): Promise<Register> => {
+    const packages = await manager.packages();
+    const resolver: PackageAwareResolver = {};
+    for (const pkg of packages) {
+        Object.assign(resolver, await mkPackageAwareResolver(manager, pkg));
     }
 
-    const specNameToCanonicals = {} as Record<Name, Record<string, CanonicalUrl>>;
-    for (const rfs of Object.values(fsIndex)) {
-        if (rfs.derivation === "constraint") continue;
-        const name = rfs.name;
-        if (!specNameToCanonicals[name]) specNameToCanonicals[name] = {};
-        specNameToCanonicals[name][rfs.package_meta.name] = rfs.url;
-    }
-    const specNameToCanonical = {} as Record<Name, CanonicalUrl>;
-    for (const [sname, canonicals] of Object.entries(specNameToCanonicals)) {
-        const name = sname as Name;
-        const canonicalValues = Object.values(canonicals);
-        if (canonicalValues.length === 1) {
-            const url = canonicalValues[0]!;
-            specNameToCanonical[name] = url;
-        } else {
-            for (const pname of packageNameResolver) {
-                if (canonicals[pname]) {
-                    specNameToCanonical[name] = canonicals[pname];
-                    break;
-                }
+    for (const { pkg, canonicalResolution } of Object.values(resolver)) {
+        const pkgId = packageMetaToFhir(pkg);
+        if (!resolver[pkgId]) throw new Error(`Package ${pkgId} not found`);
+        let counter = 0;
+        logger?.info(`FHIR Schema conversion for '${packageMetaToFhir(pkg)}' begins...`);
+        for (const [_url, options] of Object.entries(canonicalResolution)) {
+            const resource = options[0]?.resource;
+            if (!resource) throw new Error(`Resource not found`);
+            if (isStructureDefinition(resource)) {
+                const rfs = enrichFHIRSchema(fhirschema.translate(resource), pkg);
+                counter++;
+                resolver[pkgId].fhirSchemas[rfs.url] = rfs;
             }
-            if (specNameToCanonical[name] === undefined) throw new Error(`No canonical URL found for ${name}`);
+            if (isValueSet(resource)) {
+                const rvs = enrichValueSet(resource, pkg);
+                resolver[pkgId].valueSets[rvs.url] = rvs;
+            }
         }
+        logger?.success(`FHIR Schema conversion for '${packageMetaToFhir(pkg)}' completed: ${counter} successful`);
     }
 
-    const complexTypes = {} as Record<string, RichFHIRSchema>;
-    for (const fs of Object.values(fsIndex)) {
-        if (fs.kind === "complex-type") {
-            complexTypes[fs.url] = fs;
-        }
-    }
+    const resolveFs = (pkg: PackageMeta, canonicalUrl: CanonicalUrl) => {
+        return (
+            resolver[packageMetaToFhir(pkg)]?.fhirSchemas[canonicalUrl] ||
+            (fallbackPackageForNameResolution &&
+                resolver[packageMetaToFhir(fallbackPackageForNameResolution)]?.fhirSchemas[canonicalUrl])
+        );
+    };
 
-    const resolveFsGenealogy = (canonicalUrl: CanonicalUrl) => {
-        let fs = fsIndex[canonicalUrl]!;
+    const resolveVs = (pkg: PackageMeta, canonicalUrl: CanonicalUrl) => {
+        return (
+            resolver[packageMetaToFhir(pkg)]?.valueSets[canonicalUrl] ||
+            (fallbackPackageForNameResolution &&
+                resolver[packageMetaToFhir(fallbackPackageForNameResolution)]?.valueSets[canonicalUrl])
+        );
+    };
+
+    const ensureSpecializationCanonicalUrl = (pkg: PackageMeta, name: string | Name | CanonicalUrl) =>
+        packageAwareResolveName(resolver, pkg, name as Name) ||
+        (fallbackPackageForNameResolution &&
+            packageAwareResolveName(resolver, fallbackPackageForNameResolution, name as Name)) ||
+        (name as CanonicalUrl);
+
+    const resolveFsGenealogy = (pkg: PackageMeta, canonicalUrl: CanonicalUrl) => {
+        let fs = resolveFs(pkg, canonicalUrl);
         if (fs === undefined) throw new Error(`Failed to resolve FHIR Schema genealogy for '${canonicalUrl}'`);
         const genealogy = [fs];
         while (fs?.base) {
-            fs = fsIndex[fs.base] || fsIndex[specNameToCanonical[fs.base as string as Name]!]!;
-            genealogy.push(fs);
+            fs =
+                resolveFs(fs.package_meta, fs.base) ||
+                resolveFs(fs.package_meta, ensureSpecializationCanonicalUrl(fs.package_meta, fs.base));
             if (fs === undefined) throw new Error(`Failed to resolve FHIR Schema genealogy for '${canonicalUrl}'`);
+            genealogy.push(fs);
         }
         return genealogy;
     };
 
-    const resolveFsSpecializations = (canonicalUrl: CanonicalUrl): RichFHIRSchema[] => {
-        return resolveFsGenealogy(canonicalUrl).filter((fs) => fs.derivation === "specialization");
+    const resolveFsSpecializations = (pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichFHIRSchema[] => {
+        return resolveFsGenealogy(pkg, canonicalUrl).filter((fs) => fs.derivation === "specialization");
     };
 
     const resolveElementSnapshot = (fhirSchema: RichFHIRSchema, path: string[]): FHIRSchemaElement => {
-        const geneology = resolveFsGenealogy(fhirSchema.url);
+        const geneology = resolveFsGenealogy(fhirSchema.package_meta, fhirSchema.url);
         const elemGeneology = resolveFsElementGenealogy(geneology, path);
         const elemSnapshot = fsElementSnapshot(elemGeneology);
         return elemSnapshot;
@@ -181,23 +245,26 @@ export const registerFromManager = async (
 
     return {
         ...manager,
-        appendFs(fs: FHIRSchema) {
+        unsafeAppendFs(fs: FHIRSchema) {
             const rfs = enrichFHIRSchema(fs);
-            fsIndex[rfs.url] = rfs;
-            specNameToCanonical[rfs.name] = rfs.url;
+            const pkgId = packageMetaToFhir(rfs.package_meta);
+            if (!resolver[pkgId]) resolver[pkgId] = mkEmptyPkgIndex(rfs.package_meta);
+            resolver[pkgId].nameResolution[rfs.name] = rfs.url;
+            resolver[pkgId].fhirSchemas[rfs.url] = rfs;
         },
-        resolveFs: (canonicalUrl: CanonicalUrl) => fsIndex[canonicalUrl],
+        resolveFs,
         resolveFsGenealogy: resolveFsGenealogy,
         resolveFsSpecializations: resolveFsSpecializations,
-        ensureSpecializationCanonicalUrl: (name: string | Name | CanonicalUrl) =>
-            specNameToCanonical[name as Name] || (name as CanonicalUrl),
-        allSd: () => Object.values(sdIndex),
-        resolveSd: (canonicalUrl: CanonicalUrl) => sdIndex[canonicalUrl],
-        allFs: () => Object.values(fsIndex),
-        allVs: () => Object.values(vsIndex),
-        resolveVs: (canonicalUrl: CanonicalUrl) => vsIndex[canonicalUrl],
-        complexTypeDict: () => complexTypes,
-        resolveAny: (canonicalUrl: CanonicalUrl) => flatRawIndex[canonicalUrl],
+        ensureSpecializationCanonicalUrl,
+        resolveSd: (_pkg: PackageMeta, canonicalUrl: CanonicalUrl) => {
+            const res = packageAgnosticResolveCanonical(resolver, canonicalUrl, logger);
+            if (isStructureDefinition(res)) return res;
+            return undefined;
+        },
+        allFs: () => Object.values(resolver).flatMap((pkgIndex) => Object.values(pkgIndex.fhirSchemas)),
+        allVs: () => Object.values(resolver).flatMap((pkgIndex) => Object.values(pkgIndex.valueSets)),
+        resolveVs,
+        resolveAny: (canonicalUrl: CanonicalUrl) => packageAgnosticResolveCanonical(resolver, canonicalUrl, logger),
         resolveElementSnapshot,
         getAllElementKeys,
     };
@@ -205,16 +272,16 @@ export const registerFromManager = async (
 
 export const registerFromPackageMetas = async (
     packageMetas: PackageMeta[],
-    logger?: CodegenLogger,
+    conf: RegisterConfig,
 ): Promise<Register> => {
     const packageNames = packageMetas.map((meta) => `${meta.name}@${meta.version}`);
-    logger?.step(`Loading FHIR packages: ${packageNames.join(", ")}`);
+    conf?.logger?.step(`Loading FHIR packages: ${packageNames.join(", ")}`);
     const manager = CanonicalManager({
         packages: packageNames,
         workingDir: "tmp/fhir",
     });
     await manager.init();
-    return await registerFromManager(manager, { logger: logger });
+    return await registerFromManager(manager, conf);
 };
 
 export const resolveFsElementGenealogy = (genealogy: RichFHIRSchema[], path: string[]): FHIRSchemaElement[] => {
@@ -233,8 +300,8 @@ export const resolveFsElementGenealogy = (genealogy: RichFHIRSchema[], path: str
 };
 
 export function fsElementSnapshot(genealogy: FHIRSchemaElement[]): FHIRSchemaElement {
-    // FIXME: nested elements will break it
-    const snapshot = genealogy.reverse().reduce((snapshot, elem) => ({ ...snapshot, ...elem }), {});
+    const revGenealogy = genealogy.reverse();
+    const snapshot = Object.assign({}, ...revGenealogy);
     // NOTE: to avoid regeneration nested types
     snapshot.elements = undefined;
     return snapshot;
