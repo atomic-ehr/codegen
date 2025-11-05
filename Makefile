@@ -28,16 +28,17 @@ test-codegen: typecheck format
 	$(TEST)
 
 prepare-aidbox-runme:
-	docker compose -f example/docker-compose.yaml up --wait \
 	@if [ ! -f "example/docker-compose.yaml" ]; then \
-		echo "Download docker-compose.yaml to run Aidbox and set BOX_ROOT_CLIENT_SECRET to <SECRET>" ; \
-		if [ -n "$(AIDBOX_LICENSE_ID)" ]; then \
-			curl -s https://aidbox.app/runme/l/$(AIDBOX_LICENSE_ID) | sed 's/BOX_ROOT_CLIENT_SECRET: .*/BOX_ROOT_CLIENT_SECRET: <SECRET>/' > example/docker-compose.yaml; \
-		else \
-			curl -s https://aidbox.app/runme/fscg | sed 's/BOX_ROOT_CLIENT_SECRET: .*/BOX_ROOT_CLIENT_SECRET: <SECRET>/' > example/docker-compose.yaml; \
-			echo "WARN: Open http://localhost:8080 and add Aidbox license"; \
-		fi \
+    echo "Download docker-compose.yaml to run Aidbox and set BOX_ROOT_CLIENT_SECRET to <SECRET>"; \
+    if [ -n "***" ]; then \
+        curl -s https://aidbox.app/runme/l/*** | sed 's/BOX_ROOT_CLIENT_SECRET: .*/BOX_ROOT_CLIENT_SECRET: <SECRET>/' > examples/docker-compose.yaml; \
+    else \
+      	curl -s https://aidbox.app/runme/fscg | sed 's/BOX_ROOT_CLIENT_SECRET: .*/BOX_ROOT_CLIENT_SECRET: <SECRET>/' > examples/docker-compose.yaml; \
+        echo "WARN: Open http://localhost:8080 and add Aidbox license"; \
+    	fi; \
 	fi
+	@docker compose -f examples/docker-compose.yaml up --wait
+
 
 test-typescript-r4-example: typecheck format
 	$(LINT)
