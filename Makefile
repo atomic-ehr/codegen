@@ -57,4 +57,6 @@ test-csharp-sdk: typecheck format prepare-aidbox-runme
 	$(LINT)
 	$(TYPECHECK) --project tsconfig.example-csharp.json
 	bun run examples/csharp/generate.ts
-	cd examples/csharp && dotnet restore && dotnet build & dotnet test
+	cd examples/csharp && dotnet restore
+	cd examples/csharp && dotnet build
+	cd examples/csharp && dotnet test
