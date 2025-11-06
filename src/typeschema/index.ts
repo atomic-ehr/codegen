@@ -19,7 +19,7 @@ import { packageMetaToFhir, type TypeSchema } from "./types";
 export { TypeSchemaCache } from "./cache";
 export { TypeSchemaGenerator } from "./generator";
 export { TypeSchemaParser } from "./parser";
-export type { CanonicalUrl, Field, Identifier, Name, RegularField, TypeSchema } from "./types";
+export type { Identifier, TypeSchema } from "./types";
 
 const codeableReferenceInR4 = "Use CodeableReference which is not provided by FHIR R4.";
 const availabilityInR4 = "Use Availability which is not provided by FHIR R4.";

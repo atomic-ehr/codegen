@@ -249,9 +249,9 @@ export abstract class BaseGenerator<
 
     /**
      * Generate and return content without writing files (useful for testing)
-     * @param input - Array of TypeSchema documents
+     * @param schemas - Array of TypeSchema documents
      */
-    public async build(input: GeneratorInput): Promise<TResult> {
+    public async build(schemas: TypeSchema[]): Promise<TResult> {
         // Temporarily disable file writing by mocking the writeFile method
         const originalWriteFile = this.fileManager.writeFile;
         const mockWriteResults = new Map<string, { path: string; size: number; writeTime: number }>();
@@ -267,7 +267,7 @@ export abstract class BaseGenerator<
         };
 
         try {
-            const result = await this.generate(input);
+            const result = await this.generate({ schemas, index: null as any });
 
             // Update file paths to reflect what would have been written
             result.forEach((file) => {

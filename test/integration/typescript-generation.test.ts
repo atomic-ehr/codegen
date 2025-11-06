@@ -109,7 +109,7 @@ describe("TypeScript Generation Integration", () => {
             // Use actual file generation instead of build()
             const schemas = createMockSchemas(["Patient", "Observation"]);
 
-            const results = await generator.generate(schemas);
+            const results = await generator.generate({ schemas });
 
             // Verify files were written to filesystem
             await assertFileSystemState(testFs, [
@@ -132,8 +132,8 @@ describe("TypeScript Generation Integration", () => {
             const schemas = createMockSchemas(["Patient"]);
 
             // Generate files twice to test overwrite behavior
-            await generator.generate(schemas);
-            const results = await generator.generate(schemas);
+            await generator.generate({ schemas });
+            const results = await generator.generate({ schemas });
 
             expect(results).toHaveLength(1);
             expect(await testFs.fileExists("Patient.test")).toBe(true);
@@ -142,7 +142,7 @@ describe("TypeScript Generation Integration", () => {
         test("creates proper directory structure", async () => {
             const schemas = createMockSchemas(["Patient"]);
 
-            await generator.generate(schemas);
+            await generator.generate({ schemas });
 
             const fileList = await testFs.listFiles();
             expect(fileList).toContain("Patient.test");

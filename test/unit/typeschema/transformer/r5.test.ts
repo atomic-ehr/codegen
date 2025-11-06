@@ -1,6 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import type { CanonicalUrl } from "@root/typeschema";
-import type { RegularTypeSchema } from "@root/typeschema/types";
+import type { CanonicalUrl, RegularTypeSchema } from "@root/typeschema/types";
 import { mkR5Register, r5Package, registerFsAndMkTs } from "@typeschema-test/utils";
 
 describe("TypeSchema R5 generation", async () => {

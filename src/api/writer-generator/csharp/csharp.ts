@@ -2,7 +2,7 @@ import fs from "node:fs";
 import Path from "node:path";
 import { pascalCase, uppercaseFirstLetter, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils.ts";
 import { Writer } from "@root/api/writer-generator/writer.ts";
-import type { Field, Identifier, RegularField } from "@root/typeschema";
+import type { Field, Identifier, RegularField } from "@typeschema/types";
 import type { CodegenLogger } from "@root/utils/codegen-logger.ts";
 import { type ChoiceFieldInstance, isChoiceDeclarationField, type RegularTypeSchema } from "@typeschema/types.ts";
 import type { TypeSchemaIndex } from "@typeschema/utils.ts";

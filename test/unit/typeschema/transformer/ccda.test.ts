@@ -1,6 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import type { CanonicalUrl } from "@root/typeschema";
-import type { RegularTypeSchema } from "@root/typeschema/types";
+import type { CanonicalUrl, RegularTypeSchema } from "@root/typeschema/types";
 import { ccdaPackage, mkCCDARegister, registerFsAndMkTs } from "@typeschema-test/utils";
 
 const skipMe = false;

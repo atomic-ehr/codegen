@@ -65,7 +65,7 @@ export interface GenerationResult {
 interface Generator {
     generate: (input: GeneratorInput) => Promise<GeneratedFile[]>;
     setOutputDir: (outputDir: string) => void;
-    build: (input: GeneratorInput) => Promise<GeneratedFile[]>;
+    build: (schemas: TypeSchema[]) => Promise<GeneratedFile[]>;
 }
 
 const writerToGenerator = (writerGen: Writer): Generator => {
@@ -87,7 +87,7 @@ const writerToGenerator = (writerGen: Writer): Generator => {
             return getGeneratedFiles();
         },
         setOutputDir: (outputDir: string) => (writerGen.opts.outputDir = outputDir),
-        build: async (_input: GeneratorInput) => getGeneratedFiles(),
+        build: async (_input: unknown) => getGeneratedFiles(),
     };
 };
 
@@ -445,8 +445,7 @@ export class APIBuilder {
 
         for (const [type, generator] of this.generators.entries()) {
             if (generator.build) {
-                const tsIndex = mkTypeSchemaIndex(this.schemas);
-                results[type] = await generator.build({ schemas: this.schemas, index: tsIndex });
+                results[type] = await generator.build(this.schemas);
             }
         }
 
