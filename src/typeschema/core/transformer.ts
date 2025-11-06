@@ -7,6 +7,7 @@
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import type { Register } from "@typeschema/register";
+import type { CanonicalUrl, Name } from "@typeschema/types";
 import {
     type Field,
     type Identifier,
@@ -18,7 +19,6 @@ import {
     type TypeSchema,
     type ValueSetTypeSchema,
 } from "@typeschema/types";
-import type { CanonicalUrl, Name } from "@typeschema/types";
 import { collectBindingSchemas, extractValueSetConceptsByUrl } from "./binding";
 import { isNestedElement, mkField, mkNestedField } from "./field-builder";
 import { mkIdentifier, mkValueSetIdentifierByUrl } from "./identifier";

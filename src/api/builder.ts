@@ -10,6 +10,7 @@ import * as afs from "node:fs/promises";
 import * as Path from "node:path";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { GeneratedFile } from "@root/api/generators/base/types";
+import { Python } from "@root/api/writer-generator/python/python.ts";
 import { camelCase, deepEqual } from "@root/api/writer-generator/utils.ts";
 import { registerFromManager } from "@root/typeschema/register";
 import { mkTypeSchemaIndex } from "@root/typeschema/utils";
@@ -21,7 +22,6 @@ import { createLogger } from "../utils/codegen-logger";
 import { TypeScriptGenerator } from "./generators/typescript";
 import * as TS2 from "./writer-generator/typescript";
 import type { Writer, WriterOptions } from "./writer-generator/writer";
-import { Python } from "@root/api/writer-generator/python/python.ts";
 
 /**
  * Configuration options for the API builder

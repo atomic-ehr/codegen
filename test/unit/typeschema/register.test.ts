@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import { type CanonicalUrl, enrichFHIRSchema, type Name } from "@root/typeschema/types";
-import { registerFromPackageMetas, fsElementSnapshot, resolveFsElementGenealogy } from "@typeschema/register";
+import { fsElementSnapshot, registerFromPackageMetas, resolveFsElementGenealogy } from "@typeschema/register";
 
 type PFS = Partial<FHIRSchema>;
 

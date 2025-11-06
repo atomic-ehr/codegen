@@ -1,44 +1,72 @@
-import * as Path from 'node:path';
-import {
-    pascalCase,
-    snakeCase, uppercaseFirstLetterOfEach,
-} from "@root/api/writer-generator/utils";
-import {groupByPackages, type TypeSchemaIndex} from "@root/typeschema/utils";
-import { PythonHelper } from './PythonHelper.ts';
-import fs from 'node:fs';
-import {Writer, type WriterOptions} from "@root/api/writer-generator/writer.ts";
-import type {Field, Identifier, RegularTypeSchema} from "@typeschema/types.ts";
+import fs from "node:fs";
+import * as Path from "node:path";
+import { pascalCase, snakeCase, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils";
+import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
+import { groupByPackages, type TypeSchemaIndex } from "@root/typeschema/utils";
+import type { Field, Identifier, RegularTypeSchema } from "@typeschema/types.ts";
+import { PythonHelper } from "./PythonHelper.ts";
 
 const PRIMITIVE_TYPE_MAP: Record<string, string> = {
-    boolean: 'bool',
-    instant: 'str',
-    time: 'str',
-    date: 'str',
-    dateTime: 'str',
-    decimal: 'float',
-    integer: 'int',
-    unsignedInt: 'int',
-    positiveInt: 'PositiveInt',
-    integer64: 'int',
-    base64Binary: 'str',
-    uri: 'str',
-    url: 'str',
-    canonical: 'str',
-    oid: 'str',
-    uuid: 'str',
-    string: 'str',
-    code: 'str',
-    markdown: 'str',
-    id: 'str',
-    xhtml: 'str',
+    boolean: "bool",
+    instant: "str",
+    time: "str",
+    date: "str",
+    dateTime: "str",
+    decimal: "float",
+    integer: "int",
+    unsignedInt: "int",
+    positiveInt: "PositiveInt",
+    integer64: "int",
+    base64Binary: "str",
+    uri: "str",
+    url: "str",
+    canonical: "str",
+    oid: "str",
+    uuid: "str",
+    string: "str",
+    code: "str",
+    markdown: "str",
+    id: "str",
+    xhtml: "str",
 };
 
 const PYTHON_KEYWORDS = new Set([
-    'False', 'None', 'True', 'and', 'as', 'assert', 'async', 'await',
-    'break', 'class', 'continue', 'def', 'del', 'elif', 'else', 'except',
-    'finally', 'for', 'from', 'global', 'if', 'import', 'in', 'is',
-    'lambda', 'nonlocal', 'not', 'or', 'pass', 'raise', 'return',
-    'try', 'while', 'with', 'yield', 'List',
+    "False",
+    "None",
+    "True",
+    "and",
+    "as",
+    "assert",
+    "async",
+    "await",
+    "break",
+    "class",
+    "continue",
+    "def",
+    "del",
+    "elif",
+    "else",
+    "except",
+    "finally",
+    "for",
+    "from",
+    "global",
+    "if",
+    "import",
+    "in",
+    "is",
+    "lambda",
+    "nonlocal",
+    "not",
+    "or",
+    "pass",
+    "raise",
+    "return",
+    "try",
+    "while",
+    "with",
+    "yield",
+    "List",
 ]);
 
 const MAX_IMPORT_LINE_LENGTH = 100;
@@ -63,7 +91,7 @@ const fixReservedWords = (name: string): string => {
 };
 
 const injectSuperClasses = (name: string): string[] => {
-    return (name === 'Resource' || name === 'Element') ? ['BaseModel'] : [];
+    return name === "Resource" || name === "Element" ? ["BaseModel"] : [];
 };
 
 const canonicalToName = (canonical: string | undefined, dropFragment = true) => {
@@ -95,12 +123,12 @@ const deriveResourceName = (id: Identifier): string => {
 type TypeSchemaPackageGroups = {
     groupedResources: Record<string, RegularTypeSchema[]>;
     groupedComplexTypes: Record<string, RegularTypeSchema[]>;
-}
+};
 
 export class Python extends Writer {
     private readonly allowExtraFields: boolean;
     private readonly helper: PythonHelper;
-    private readonly rootPackage: string = 'generated'; // TODO: make configurable
+    private readonly rootPackage: string = "generated"; // TODO: make configurable
     private readonly staticDir: string | undefined;
 
     constructor(options: PythonGeneratorOptions) {
@@ -112,26 +140,26 @@ export class Python extends Writer {
         this.staticDir = options.staticDir || undefined;
     }
 
-    override generate(tsIndex :TypeSchemaIndex): void {
-        const groups :TypeSchemaPackageGroups = {
+    override generate(tsIndex: TypeSchemaIndex): void {
+        const groups: TypeSchemaPackageGroups = {
             groupedComplexTypes: groupByPackages(tsIndex.collectComplexTypes()),
             groupedResources: groupByPackages(tsIndex.collectResources()),
-        }
+        };
         this.generateRootPackages(groups);
         this.generateSDKPackages(groups);
     }
 
-    private generateRootPackages(groups :TypeSchemaPackageGroups): void {
-        this.generateRootInitFile(groups)
+    private generateRootPackages(groups: TypeSchemaPackageGroups): void {
+        this.generateRootInitFile(groups);
         this.copyStaticFiles();
     }
 
-    private generateSDKPackages(groups :TypeSchemaPackageGroups): void {
+    private generateSDKPackages(groups: TypeSchemaPackageGroups): void {
         this.generateComplexTypesPackages(groups.groupedComplexTypes);
         this.generateResourcePackages(groups);
     }
 
-    private generateComplexTypesPackages(groupedComplexTypes :Record<string, RegularTypeSchema[]>): void {
+    private generateComplexTypesPackages(groupedComplexTypes: Record<string, RegularTypeSchema[]>): void {
         for (const [packageName, packageComplexTypes] of Object.entries(groupedComplexTypes)) {
             this.cd(`/${snakeCase(packageName)}`, () => {
                 this.generateBasePy(packageComplexTypes);
@@ -139,13 +167,13 @@ export class Python extends Writer {
         }
     }
 
-    private generateResourcePackages(groups :TypeSchemaPackageGroups): void {
+    private generateResourcePackages(groups: TypeSchemaPackageGroups): void {
         for (const [packageName, packageResources] of Object.entries(groups.groupedResources)) {
             this.cd(`/${snakeCase(packageName)}`, () => {
                 this.generateResourcePackageContent(
                     packageName,
                     packageResources,
-                    groups.groupedComplexTypes[packageName] || []
+                    groups.groupedComplexTypes[packageName] || [],
                 );
             });
         }
@@ -154,7 +182,7 @@ export class Python extends Writer {
     private generateResourcePackageContent(
         packageName: string,
         packageResources: RegularTypeSchema[],
-        packageComplexTypes: RegularTypeSchema[]
+        packageComplexTypes: RegularTypeSchema[],
     ): void {
         const pyPackageName = this.pyFhirPackageByName(packageName);
 
@@ -166,26 +194,25 @@ export class Python extends Writer {
         }
     }
 
-    private generateRootInitFile(groups :TypeSchemaPackageGroups): void {
-        this.cd('/', () => {
-            this.cat('__init__.py', () => {
+    private generateRootInitFile(groups: TypeSchemaPackageGroups): void {
+        this.cd("/", () => {
+            this.cat("__init__.py", () => {
                 this.generateDisclaimer();
-                const pydanticModels :string[] = this.collectAndImportAllModels(groups);
+                const pydanticModels: string[] = this.collectAndImportAllModels(groups);
                 this.generateModelRebuilds(pydanticModels);
             });
         });
     }
 
-    private collectAndImportAllModels(groups :TypeSchemaPackageGroups): string[] {
+    private collectAndImportAllModels(groups: TypeSchemaPackageGroups): string[] {
         const models: string[] = [];
 
-        for(const packageName of Object.keys(groups.groupedResources)) {
+        for (const packageName of Object.keys(groups.groupedResources)) {
             const fullPyPackageName = this.pyFhirPackageByName(packageName);
             models.push(...this.importComplexTypes(fullPyPackageName, groups.groupedComplexTypes[packageName]));
             models.push(...this.importResources(fullPyPackageName, false, groups.groupedResources[packageName]));
         }
         this.line();
-
 
         return models;
     }
@@ -197,7 +224,7 @@ export class Python extends Writer {
     }
 
     private generateBasePy(packageComplexTypes: RegularTypeSchema[]): void {
-        this.cat('base.py', () => {
+        this.cat("base.py", () => {
             this.generateDisclaimer();
             this.generateDefaultImports();
             this.line();
@@ -217,9 +244,9 @@ export class Python extends Writer {
     private generateResourcePackageInit(
         fullPyPackageName: string,
         packageResources: RegularTypeSchema[],
-        packageComplexTypes?: RegularTypeSchema[]
+        packageComplexTypes?: RegularTypeSchema[],
     ): void {
-        this.cat('__init__.py', () => {
+        this.cat("__init__.py", () => {
             this.generateDisclaimer();
             this.importComplexTypes(fullPyPackageName, packageComplexTypes);
             const allResourceNames = this.importResources(fullPyPackageName, true, packageResources);
@@ -228,13 +255,10 @@ export class Python extends Writer {
         });
     }
 
-    private importComplexTypes(
-        fullPyPackageName: string,
-        packageComplexTypes?: RegularTypeSchema[]
-    ): string[] {
+    private importComplexTypes(fullPyPackageName: string, packageComplexTypes?: RegularTypeSchema[]): string[] {
         if (!packageComplexTypes || packageComplexTypes.length === 0) return [];
 
-        const baseTypes = packageComplexTypes.map(t => t.identifier.name).sort();
+        const baseTypes = packageComplexTypes.map((t) => t.identifier.name).sort();
         this.pyImportFrom(`${fullPyPackageName}.base`, ...baseTypes);
         this.line();
 
@@ -244,14 +268,14 @@ export class Python extends Writer {
     private importResources(
         fullPyPackageName: string,
         importEmptyResources: boolean,
-        packageResources?: RegularTypeSchema[]
+        packageResources?: RegularTypeSchema[],
     ): string[] {
         if (!packageResources || packageResources.length === 0) return [];
         const allResourceNames: string[] = [];
 
         for (const resource of packageResources) {
             const names = this.importOneResource(resource, fullPyPackageName, packageResources);
-            if(!importEmptyResources && !resource.fields) continue;
+            if (!importEmptyResources && !resource.fields) continue;
             allResourceNames.push(...names);
         }
 
@@ -261,7 +285,7 @@ export class Python extends Writer {
     private importOneResource(
         resource: RegularTypeSchema,
         fullPyPackageName: string,
-        packageResources: RegularTypeSchema[]
+        packageResources: RegularTypeSchema[],
     ): string[] {
         const moduleName = `${fullPyPackageName}.${snakeCase(resource.identifier.name)}`;
         const importNames = this.collectResourceImportNames(resource);
@@ -290,16 +314,19 @@ export class Python extends Writer {
     }
 
     private shouldImportResourceFamily(resource: RegularTypeSchema, packageResources: RegularTypeSchema[]): boolean {
-        return resource.identifier.kind === 'resource' && this.helper.childrenOf(resource.identifier, packageResources).length > 0;
+        return (
+            resource.identifier.kind === "resource" &&
+            this.helper.childrenOf(resource.identifier, packageResources).length > 0
+        );
     }
 
     private generateExportsDeclaration(
         packageComplexTypes: RegularTypeSchema[] | undefined,
-        allResourceNames: string[]
+        allResourceNames: string[],
     ): void {
-        this.squareBlock(['__all__', '='], () => {
+        this.squareBlock(["__all__", "="], () => {
             const allExports = [
-                ...(packageComplexTypes || []).map(t => t.identifier.name),
+                ...(packageComplexTypes || []).map((t) => t.identifier.name),
                 ...allResourceNames,
             ].sort();
 
@@ -326,65 +353,58 @@ export class Python extends Writer {
         const className = deriveResourceName(schema.identifier);
         const superClasses = this.getSuperClasses(schema);
 
-        this.line(`class ${className}(${superClasses.join(', ')}):`);
+        this.line(`class ${className}(${superClasses.join(", ")}):`);
         this.indentBlock(() => {
             this.generateClassBody(schema);
         });
         this.line();
     }
 
-
     private getSuperClasses(schema: RegularTypeSchema): string[] {
-        return [
-            ...(schema.base ? [schema.base.name] : []),
-            ...injectSuperClasses(schema.identifier.name),
-        ];
+        return [...(schema.base ? [schema.base.name] : []), ...injectSuperClasses(schema.identifier.name)];
     }
 
     private generateClassBody(schema: RegularTypeSchema): void {
         this.generateModelConfig();
 
         if (!schema.fields) {
-            this.line('pass');
+            this.line("pass");
             return;
         }
 
-        if (schema.identifier.kind === 'resource') {
+        if (schema.identifier.kind === "resource") {
             this.generateResourceTypeField(schema);
         }
 
         this.generateFields(schema);
 
-        if (schema.identifier.kind === 'resource') {
+        if (schema.identifier.kind === "resource") {
             this.generateResourceMethods(schema);
         }
     }
 
     private generateModelConfig(): void {
-        const extraMode = this.allowExtraFields ? 'allow' : 'forbid';
-        this.line(
-            `model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="${extraMode}")`
-        );
+        const extraMode = this.allowExtraFields ? "allow" : "forbid";
+        this.line(`model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="${extraMode}")`);
     }
 
     private generateResourceTypeField(schema: RegularTypeSchema): void {
-        this.line('resource_type: str = Field(');
+        this.line("resource_type: str = Field(");
         this.indentBlock(() => {
             this.line(`default='${schema.identifier.name}',`);
             this.line(`alias='resourceType',`);
             this.line(`serialization_alias='resourceType',`);
-            this.line('frozen=True,');
+            this.line("frozen=True,");
             this.line(`pattern='${schema.identifier.name}'`);
         });
-        this.line(')');
+        this.line(")");
     }
 
     private generateFields(schema: RegularTypeSchema): void {
-        const sortedFields = Object.entries(schema.fields!)
-            .sort(([a], [b]) => a.localeCompare(b));
+        const sortedFields = Object.entries(schema.fields!).sort(([a], [b]) => a.localeCompare(b));
 
         for (const [fieldName, field] of sortedFields) {
-            if ('choices' in field && field.choices) continue;
+            if ("choices" in field && field.choices) continue;
 
             const fieldInfo = this.buildFieldInfo(fieldName, field);
             this.line(`${fieldInfo.name}: ${fieldInfo.type}${fieldInfo.defaultValue}`);
@@ -407,7 +427,7 @@ export class Python extends Writer {
         let fieldType = field ? this.getBaseFieldType(field) : "";
 
         if ("enum" in field && field.enum) {
-            fieldType = this.wrapLiteral(field.enum.map((e: string) => `"${e}"`).join(', '));
+            fieldType = this.wrapLiteral(field.enum.map((e: string) => `"${e}"`).join(", "));
         }
 
         if (field.array) {
@@ -422,11 +442,12 @@ export class Python extends Writer {
     }
 
     private getBaseFieldType(field: Field): string {
-        if ("type" in field && field.type.kind === 'resource') return `${field.type.name}Family`;
+        if ("type" in field && field.type.kind === "resource") return `${field.type.name}Family`;
 
-        if ("type" in field && field.type.kind === 'nested') return deriveResourceName(field.type);
+        if ("type" in field && field.type.kind === "nested") return deriveResourceName(field.type);
 
-        if ("type" in field && field.type.kind === 'primitive-type') return PRIMITIVE_TYPE_MAP[field.type.name] ?? 'str';
+        if ("type" in field && field.type.kind === "primitive-type")
+            return PRIMITIVE_TYPE_MAP[field.type.name] ?? "str";
 
         return "type" in field ? field.type.name : "";
     }
@@ -442,15 +463,15 @@ export class Python extends Writer {
     }
 
     private generateResourceMethods(schema: RegularTypeSchema): void {
-        const className = schema.identifier.name.toString(); // todo: possibly change
+        const className = schema.identifier.name.toString();
 
         this.line();
-        this.line('def to_json(self, indent: int | None = None) -> str:');
-        this.line('    return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)');
+        this.line("def to_json(self, indent: int | None = None) -> str:");
+        this.line("    return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)");
         this.line();
-        this.line('@classmethod');
+        this.line("@classmethod");
         this.line(`def from_json(cls, json: str) -> ${className}:`);
-        this.line('    return cls.model_validate_json(json)');
+        this.line("    return cls.model_validate_json(json)");
     }
 
     generateNestedTypes(schema: RegularTypeSchema): void {
@@ -462,11 +483,10 @@ export class Python extends Writer {
         }
     }
 
-
     private generateDefaultImports(): void {
-        this.pyImportFrom('__future__', 'annotations');
-        this.pyImportFrom('pydantic', 'BaseModel', 'ConfigDict', 'Field', 'PositiveInt');
-        this.pyImportFrom('typing', 'List as PyList', 'Literal');
+        this.pyImportFrom("__future__", "annotations");
+        this.pyImportFrom("pydantic", "BaseModel", "ConfigDict", "Field", "PositiveInt");
+        this.pyImportFrom("typing", "List as PyList", "Literal");
     }
 
     private generateDependenciesImports(schema: RegularTypeSchema): void {
@@ -477,7 +497,7 @@ export class Python extends Writer {
     }
 
     private importComplexTypeDependencies(dependencies: Identifier[]): void {
-        const complexTypeDeps = dependencies.filter(dep => dep.kind === 'complex-type');
+        const complexTypeDeps = dependencies.filter((dep) => dep.kind === "complex-type");
         const depsByPackage = this.groupDependenciesByPackage(complexTypeDeps);
 
         for (const [pyPackage, names] of Object.entries(depsByPackage)) {
@@ -486,7 +506,7 @@ export class Python extends Writer {
     }
 
     private importResourceDependencies(dependencies: Identifier[]): void {
-        const resourceDeps = dependencies.filter(dep => dep.kind === 'resource');
+        const resourceDeps = dependencies.filter((dep) => dep.kind === "resource");
 
         for (const dep of resourceDeps) {
             this.pyImportType(dep);
@@ -512,7 +532,7 @@ export class Python extends Writer {
     }
 
     pyImportFrom(pyPackage: string, ...entities: string[]): void {
-        const oneLine = `from ${pyPackage} import ${entities.join(', ')}`;
+        const oneLine = `from ${pyPackage} import ${entities.join(", ")}`;
 
         if (this.shouldUseSingleLineImport(oneLine, entities)) {
             this.line(oneLine);
@@ -534,22 +554,22 @@ export class Python extends Writer {
                 this.line(line);
             }
         });
-        this.line(')');
+        this.line(")");
     }
 
     private buildImportLine(remaining: string[]): string {
-        let line = '';
+        let line = "";
 
         while (remaining.length > 0 && line.length < MAX_IMPORT_LINE_LENGTH) {
             const entity = remaining.shift()!;
             if (line.length > 0) {
-                line += ', ';
+                line += ", ";
             }
             line += entity;
         }
 
         if (remaining.length > 0) {
-            line += ', \\';
+            line += ", \\";
         }
 
         return line;
@@ -572,9 +592,9 @@ export class Python extends Writer {
     private buildResourceFamiliesFile(
         packages: string[],
         families: Record<string, string[]>,
-        exportList: string[]
+        exportList: string[],
     ): void {
-        this.cat('resource_families.py', () => {
+        this.cat("resource_families.py", () => {
             this.generateDisclaimer();
             this.includeResourceFamilyValidator();
             this.line();
@@ -584,16 +604,13 @@ export class Python extends Writer {
     }
 
     private includeResourceFamilyValidator(): void {
-        const path = "src/api/writer-generator/python/resource_family_validator.py"
-        const content = fs.readFileSync(path, 'utf-8');
+        const path = "src/api/writer-generator/python/resource_family_validator.py";
+        const content = fs.readFileSync(path, "utf-8");
         this.line(content);
     }
 
-    private generateFamilyDefinitions(
-        packages: string[],
-        families: Record<string, string[]>
-    ): void {
-        this.line(`packages = [${packages.map(p => `'${p}'`).join(', ')}]`);
+    private generateFamilyDefinitions(packages: string[], families: Record<string, string[]>): void {
+        this.line(`packages = [${packages.map((p) => `'${p}'`).join(", ")}]`);
         this.line();
 
         for (const [familyName, resources] of Object.entries(families)) {
@@ -604,28 +621,24 @@ export class Python extends Writer {
     private generateFamilyDefinition(familyName: string, resources: string[]): void {
         const listName = `${familyName}_resources`;
 
-        this.line(`${listName} = [${resources.map(r => `'${r}'`).join(', ')}]`);
+        this.line(`${listName} = [${resources.map((r) => `'${r}'`).join(", ")}]`);
         this.line();
 
         this.line(`def validate_and_downcast_${familyName}(v: Any) -> Any:`);
         this.line(`   return validate_and_downcast(v, packages, ${listName})`);
         this.line();
 
-        this.line(
-            `type ${familyName} = Annotated[Any, BeforeValidator(validate_and_downcast_${familyName})]`
-        );
+        this.line(`type ${familyName} = Annotated[Any, BeforeValidator(validate_and_downcast_${familyName})]`);
         this.line();
     }
 
     private generateFamilyExports(exportList: string[]): void {
-        this.line(`__all__ = [${exportList.map(e => `'${e}'`).join(', ')}]`);
+        this.line(`__all__ = [${exportList.map((e) => `'${e}'`).join(", ")}]`);
     }
 
     private buildPyPackageName(packageName: string): string {
-        const parts = packageName
-            ? [snakeCase(packageName)]
-            : [''];
-        return parts.join('.');
+        const parts = packageName ? [snakeCase(packageName)] : [""];
+        return parts.join(".");
     }
 
     private pyFhirPackage(identifier: Identifier): string {
@@ -633,17 +646,16 @@ export class Python extends Writer {
     }
 
     private pyFhirPackageByName(name: string): string {
-        return [this.rootPackage, this.buildPyPackageName(name)].join('.');
+        return [this.rootPackage, this.buildPyPackageName(name)].join(".");
     }
 
-
     private pyPackage(identifier: Identifier): string {
-        if (identifier.kind === 'complex-type') {
+        if (identifier.kind === "complex-type") {
             return `${this.pyFhirPackage(identifier)}.base`;
         }
 
-        if (identifier.kind === 'resource') {
-            return [this.pyFhirPackage(identifier), snakeCase(identifier.name)].join('.');
+        if (identifier.kind === "resource") {
+            return [this.pyFhirPackage(identifier), snakeCase(identifier.name)].join(".");
         }
 
         return this.pyFhirPackage(identifier);

@@ -1,26 +1,5 @@
-import type {Identifier} from '@root/typeschema';
-import type { Python } from './python';
-import type {RegularTypeSchema} from "@typeschema/types.ts";
-import {resourceRelatives} from "@typeschema/utils.ts";
-
-export type TypeRefType =
-    | 'resource'
-    | 'nested'
-    | 'constraint'
-    | 'logical'
-    | 'complex-type'
-    | 'primitive-type'
-    | 'valueset'
-    | 'choice'
-    | 'unknown';
-
-export interface TypeRef {
-    name: string;
-    package: string;
-    kind: TypeRefType;
-    version: string;
-    url: string;
-}
+import type { Identifier } from "@root/typeschema";
+import type { RegularTypeSchema } from "@typeschema/types.ts";
 
 export class PythonHelper {
     private resourceHierarchy: { parent: Identifier; child: Identifier }[] | null = [];
@@ -39,7 +18,7 @@ export class PythonHelper {
         return pairs;
     }
 
-    childrenOf(schemaRef: Identifier, resources :RegularTypeSchema[]): Identifier[] {
+    childrenOf(schemaRef: Identifier, resources: RegularTypeSchema[]): Identifier[] {
         if (!this.resourceHierarchy) {
             this.resourceHierarchy = this.evaluateResourceHierarchy(resources);
         }
@@ -53,7 +32,7 @@ export class PythonHelper {
     getPackages(packageResources: RegularTypeSchema[], rootPackage: string): string[] {
         const packages: string[] = [];
         for (const resource of packageResources) {
-            const resource_name: string = `${rootPackage}.${resource.identifier.package.replaceAll('.', '_')}`;
+            const resource_name: string = `${rootPackage}.${resource.identifier.package.replaceAll(".", "_")}`;
             if (!packages.includes(resource_name)) packages.push(resource_name);
         }
         return packages;
@@ -79,7 +58,7 @@ export class PythonHelper {
         return sorted
             .map((name) => schemas.find((schema) => schema.identifier.name === name))
             .filter(Boolean) as RegularTypeSchema[];
-    };
+    }
 
     buildDependencyGraph(schemas: RegularTypeSchema[]): Record<string, string[]> {
         const nameToMap: Record<string, RegularTypeSchema> = {};
@@ -99,9 +78,9 @@ export class PythonHelper {
             }
         }
         return graph;
-    };
+    }
 
-    topologicalSort (graph: Record<string, string[]>): string[] {
+    topologicalSort(graph: Record<string, string[]>): string[] {
         const sorted: string[] = [];
         const visited: Record<string, boolean> = {};
         const temp: Record<string, boolean> = {};
