@@ -218,7 +218,12 @@ export class TypeScript extends Writer {
             if (isResourceTypeSchema(schema)) {
                 const possibleResourceTypes = [schema.identifier];
                 possibleResourceTypes.push(...tsIndex.resourceChildren(schema.identifier));
-                this.lineSM(`resourceType: ${possibleResourceTypes.map((e) => `"${e.name}"`).join(" | ")}`);
+                this.lineSM(
+                    `resourceType: ${possibleResourceTypes
+                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .map((e) => `"${e.name}"`)
+                        .join(" | ")}`,
+                );
                 this.line();
             }
 

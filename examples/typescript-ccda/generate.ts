@@ -10,7 +10,7 @@ if (require.main === module) {
         .verbose()
         .throwException()
         .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
-        .typescript2({ withDebugComment: true, writeTypeTree: "./examples/typescript-ccda/tree.yaml" })
+        .typescript2({ withDebugComment: false, writeTypeTree: "./examples/typescript-ccda/tree.yaml" })
         .outputTo("./examples/typescript-ccda/fhir-types")
         .writeTypeSchemas("./examples/typescript-ccda/type-schemas")
         .cleanOutput(true);
