@@ -15,7 +15,10 @@ Steps to reproduce the behavior:
 1. Environment setup
 2. Minimal code snippet that demonstrates the bug
 3. Command or method call used to run the code
-3. Observed result vs expected result
+4. Observed result vs expected result
+
+**Expected result**
+A clear and concise description of what you expected to happen.
 
 **Additional context**
 Add any other context about the problem here.
