@@ -1,12 +1,14 @@
 import {
     kebabCase,
     pascalCase,
+    typeSchemaInfo,
     uppercaseFirstLetter,
     uppercaseFirstLetterOfEach,
 } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
-import type { Identifier, TypeSchema } from "@root/typeschema";
+import type { CanonicalUrl, Identifier, TypeSchema } from "@root/typeschema";
 import {
+    extractNameFromCanonical,
     isChoiceDeclarationField,
     isNestedIdentifier,
     isNotChoiceDeclarationField,
@@ -68,15 +70,8 @@ const tsModuleFileName = (id: Identifier): string => {
 
 const canonicalToName = (canonical: string | undefined, dropFragment = true) => {
     if (!canonical) return undefined;
-    let localName = canonical.split("/").pop();
+    const localName = extractNameFromCanonical(canonical as CanonicalUrl, dropFragment);
     if (!localName) return undefined;
-    if (dropFragment && localName.includes("#")) {
-        localName = localName.split("#")[0];
-    }
-    if (!localName) return undefined;
-    if (/^\d/.test(localName)) {
-        localName = `number_${localName}`;
-    }
     return normalizeTsName(localName);
 };
 
@@ -149,11 +144,13 @@ export class TypeScript extends Writer {
                     imports.push({
                         tsPackage: `../${kebabCase(dep.package)}/${pascalCase(dep.name)}`,
                         name: uppercaseFirstLetter(dep.name),
+                        dep: dep,
                     });
                 } else if (isNestedIdentifier(dep)) {
                     imports.push({
                         tsPackage: `../${kebabCase(dep.package)}/${pascalCase(canonicalToName(dep.url) ?? "")}`,
                         name: tsResourceName(dep),
+                        dep: dep,
                     });
                 } else {
                     skipped.push(dep);
@@ -161,6 +158,7 @@ export class TypeScript extends Writer {
             }
             imports.sort((a, b) => a.name.localeCompare(b.name));
             for (const dep of imports) {
+                this.debugComment(dep.dep);
                 this.tsImportType(dep.tsPackage, dep.name);
             }
             for (const dep of skipped) {
@@ -220,7 +218,12 @@ export class TypeScript extends Writer {
             if (isResourceTypeSchema(schema)) {
                 const possibleResourceTypes = [schema.identifier];
                 possibleResourceTypes.push(...tsIndex.resourceChildren(schema.identifier));
-                this.lineSM(`resourceType: ${possibleResourceTypes.map((e) => `"${e.name}"`).join(" | ")}`);
+                this.lineSM(
+                    `resourceType: ${possibleResourceTypes
+                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .map((e) => `"${e.name}"`)
+                        .join(" | ")}`,
+                );
                 this.line();
             }
 
@@ -270,6 +273,7 @@ export class TypeScript extends Writer {
     }
 
     generateProfileType(tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) {
+        this.debugComment("flatProfile", flatProfile);
         const tsName = tsResourceName(flatProfile.identifier);
         this.debugComment("identifier", flatProfile.identifier);
         this.debugComment("base", flatProfile.base);
@@ -315,6 +319,8 @@ export class TypeScript extends Writer {
                     tsType = tsResourceName(field.type);
                 } else if (isPrimitiveIdentifier(field.type)) {
                     tsType = resolvePrimitiveType(field.type.name);
+                } else if (field.type === undefined) {
+                    throw new Error(`Undefined type for '${fieldName}' field at ${typeSchemaInfo(flatProfile)}`);
                 } else {
                     tsType = field.type.name;
                 }

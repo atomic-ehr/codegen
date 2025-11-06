@@ -42,7 +42,7 @@
       "type": "Reference",
       "scalar": true,
       "refers": [
-        "TutorNotificationTemplate"
+        "http://example.com/aidbox-sms-tutor/TutorNotificationTemplate"
       ]
     },
     "message": {

@@ -7,7 +7,7 @@ TEST = bun test
 
 .PHONY: all typecheck test-typeschema test-register test-codegen test-typescript-r4-example
 
-all: test-codegen test-typescript-r4-example
+all: test-codegen test-typescript-r4-example test-typescript-ccda-example
 
 typecheck:
 	$(TYPECHECK)
@@ -50,8 +50,8 @@ test-typescript-ccda-example: typecheck format
 	$(LINT)
 	$(TEST) test/unit/typeschema/transformer/ccda.test.ts
 	bun run examples/typescript-ccda/generate.ts
-	$(TYPECHECK) --project tsconfig.example-typescript-ccda.json
-	cd examples/typescript-r4 && bun run demo.ts > /dev/null
+	$(TYPECHECK) --project tsconfig.example-ccda.json
+	# cd examples/typescript-r4 && bun run demo.ts > /dev/null
 
 test-csharp-sdk: typecheck format prepare-aidbox-runme
 	$(LINT)

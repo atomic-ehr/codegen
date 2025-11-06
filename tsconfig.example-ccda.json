@@ -1,4 +1,4 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["./examples/ccda"]
+  "include": ["./examples/typescript-ccda"]
 }
