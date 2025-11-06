@@ -7,7 +7,13 @@ TEST = bun test
 
 .PHONY: all typecheck test-typeschema test-register test-codegen test-typescript-r4-example
 
-all: test-codegen test-typescript-r4-example test-typescript-ccda-example
+all: test-codegen test-typescript-r4-example test-typescript-ccda-example lint-unsafe
+
+lint:
+	$(LINT)
+
+lint-unsafe:
+	bunx biome lint --write --unsafe
 
 typecheck:
 	$(TYPECHECK)
@@ -15,16 +21,13 @@ typecheck:
 format:
 	$(FORMAT)
 
-test-typeschema: typecheck format
-	$(LINT)
+test-typeschema: typecheck format lint
 	$(TEST) typeschema
 
-test-register: typecheck format
-	$(LINT)
+test-register: typecheck format lint
 	$(TEST) register
 
-test-codegen: typecheck format
-	$(LINT)
+test-codegen: typecheck format lint
 	$(TEST)
 
 prepare-aidbox-runme:
@@ -40,21 +43,18 @@ prepare-aidbox-runme:
 	@docker compose -f examples/docker-compose.yaml up --wait
 
 
-test-typescript-r4-example: typecheck format
-	$(LINT)
+test-typescript-r4-example: typecheck format lint
 	bun run examples/typescript-r4/generate.ts
 	$(TYPECHECK) --project tsconfig.example-typescript-r4.json
 	cd examples/typescript-r4 && bun run demo.ts > /dev/null
 
-test-typescript-ccda-example: typecheck format
-	$(LINT)
+test-typescript-ccda-example: typecheck format lint
 	$(TEST) test/unit/typeschema/transformer/ccda.test.ts
 	bun run examples/typescript-ccda/generate.ts
 	$(TYPECHECK) --project tsconfig.example-ccda.json
 	# cd examples/typescript-r4 && bun run demo.ts > /dev/null
 
-test-csharp-sdk: typecheck format prepare-aidbox-runme
-	$(LINT)
+test-csharp-sdk: typecheck format prepare-aidbox-runme lint
 	$(TYPECHECK) --project tsconfig.example-csharp.json
 	bun run examples/csharp/generate.ts
 	cd examples/csharp && dotnet restore

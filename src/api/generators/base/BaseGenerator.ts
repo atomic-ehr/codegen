@@ -22,6 +22,9 @@ import type {
     TemplateEngine,
     TypeMapper,
 } from "./types";
+import type { TypeSchemaIndex } from "@root/typeschema/utils";
+
+export type GeneratorInput = { schemas: TypeSchema[]; index: TypeSchemaIndex };
 
 /**
  * Abstract base generator class with comprehensive functionality
@@ -207,7 +210,7 @@ export abstract class BaseGenerator<
      * This is the main method that orchestrates the entire generation process
      * @param schemas - Array of TypeSchema documents
      */
-    public async generate(schemas: TypeSchema[]): Promise<TResult> {
+    public async generate({ schemas }: GeneratorInput): Promise<TResult> {
         return this.errorBoundary.withErrorBoundary(
             async () => {
                 this.generationStartTime = performance.now();
@@ -246,9 +249,9 @@ export abstract class BaseGenerator<
 
     /**
      * Generate and return content without writing files (useful for testing)
-     * @param schemas - Array of TypeSchema documents
+     * @param input - Array of TypeSchema documents
      */
-    public async build(schemas: TypeSchema[]): Promise<TResult> {
+    public async build(input: GeneratorInput): Promise<TResult> {
         // Temporarily disable file writing by mocking the writeFile method
         const originalWriteFile = this.fileManager.writeFile;
         const mockWriteResults = new Map<string, { path: string; size: number; writeTime: number }>();
@@ -264,7 +267,7 @@ export abstract class BaseGenerator<
         };
 
         try {
-            const result = await this.generate(schemas);
+            const result = await this.generate(input);
 
             // Update file paths to reflect what would have been written
             result.forEach((file) => {

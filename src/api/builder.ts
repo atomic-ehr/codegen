@@ -26,6 +26,7 @@ import { CodegenLogger, createLogger } from "../utils/codegen-logger";
 import { TypeScriptGenerator } from "./generators/typescript";
 import * as TS2 from "./writer-generator/typescript";
 import type { Writer, WriterOptions } from "./writer-generator/writer";
+import type { GeneratorInput } from "./generators/base/BaseGenerator";
 
 /**
  * Configuration options for the API builder
@@ -33,10 +34,10 @@ import type { Writer, WriterOptions } from "./writer-generator/writer";
 export interface APIBuilderOptions {
     outputDir?: string;
     verbose?: boolean;
-    overwrite?: boolean;
-    cache?: boolean;
+    overwrite?: boolean; // FIXME: remove
+    cache?: boolean; // FIXME: remove
     cleanOutput?: boolean;
-    typeSchemaConfig?: TypeSchemaConfig;
+    typeSchemaConfig?: TypeSchemaConfig; // FIXME: remove
     logger?: CodegenLogger;
     manager?: ReturnType<typeof CanonicalManager> | null;
     typeSchemaOutputDir?: string /** if .ndjson -- put in one file, else -- split into separated files*/;
@@ -62,9 +63,9 @@ export interface GenerationResult {
 }
 
 interface Generator {
-    generate: (schemas: TypeSchema[]) => Promise<GeneratedFile[]>;
+    generate: (input: GeneratorInput) => Promise<GeneratedFile[]>;
     setOutputDir: (outputDir: string) => void;
-    build: (schemas: TypeSchema[]) => Promise<GeneratedFile[]>;
+    build: (input: GeneratorInput) => Promise<GeneratedFile[]>;
 }
 
 const writerToGenerator = (writerGen: Writer): Generator => {
@@ -81,16 +82,12 @@ const writerToGenerator = (writerGen: Writer): Generator => {
         });
     };
     return {
-        generate: async (schemas: TypeSchema[]): Promise<GeneratedFile[]> => {
-            const tsIndex = mkTypeSchemaIndex(schemas);
-            if (writerGen.opts.writeTypeTree) {
-                await tsIndex.exportTree(writerGen.opts.writeTypeTree);
-            }
+        generate: async ({ index: tsIndex }: GeneratorInput): Promise<GeneratedFile[]> => {
             writerGen.generate(tsIndex);
             return getGeneratedFiles();
         },
         setOutputDir: (outputDir: string) => (writerGen.opts.outputDir = outputDir),
-        build: async (_schemas: TypeSchema[]) => getGeneratedFiles(),
+        build: async (_input: GeneratorInput) => getGeneratedFiles(),
     };
 };
 
@@ -161,9 +158,6 @@ export class APIBuilder {
         return this;
     }
 
-    /**
-     * Load TypeSchema from files
-     */
     fromFiles(...filePaths: string[]): APIBuilder {
         this.logger.debug(`Loading from ${filePaths.length} TypeSchema files`);
         const operation = this.loadFromFiles(filePaths);
@@ -171,9 +165,6 @@ export class APIBuilder {
         return this;
     }
 
-    /**
-     * Load TypeSchema from TypeSchema objects
-     */
     fromSchemas(schemas: TypeSchema[]): APIBuilder {
         this.logger.debug(`Adding ${schemas.length} TypeSchemas to generation`);
         this.schemas = [...this.schemas, ...schemas];
@@ -416,12 +407,16 @@ export class APIBuilder {
                 logger: this.logger,
                 focusedPackages: this.packages.map(npmToPackageMeta),
             });
+
             const typeSchemas = await generateTypeSchemas(register, this.logger);
             await this.tryWriteTypeSchema(typeSchemas);
 
+            const tsIndex = mkTypeSchemaIndex(typeSchemas);
+            if (this.options.exportTypeTree) await tsIndex.exportTree(this.options.exportTypeTree);
+
             this.logger.debug(`Executing ${this.generators.size} generators`);
 
-            await this.executeGenerators(result, typeSchemas);
+            await this.executeGenerators(result, { schemas: typeSchemas, index: tsIndex });
 
             this.logger.info("Generation completed successfully");
 
@@ -450,7 +445,8 @@ export class APIBuilder {
 
         for (const [type, generator] of this.generators.entries()) {
             if (generator.build) {
-                results[type] = await generator.build(this.schemas);
+                const tsIndex = mkTypeSchemaIndex(this.schemas);
+                results[type] = await generator.build({ schemas: this.schemas, index: tsIndex });
             }
         }
 
@@ -505,12 +501,12 @@ export class APIBuilder {
         }
     }
 
-    private async executeGenerators(result: GenerationResult, typeSchemas: TypeSchema[]): Promise<void> {
+    private async executeGenerators(result: GenerationResult, input: GeneratorInput): Promise<void> {
         for (const [type, generator] of this.generators.entries()) {
             this.logger.info(`Generating ${type}...`);
 
             try {
-                const files = await generator.generate(typeSchemas);
+                const files = await generator.generate(input);
                 result.filesGenerated.push(...files.map((f: GeneratedFile) => f.path || f.filename));
                 this.logger.info(`Generating ${type} finished successfully`);
             } catch (error) {
