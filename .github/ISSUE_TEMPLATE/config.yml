@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: 🗣️ Chat
-    url: https://discord.com/channels/1390650823855439903/1435981804925489172
+    url: https://discord.gg/rumCG3dwgF
     about: Our Discord server is active and is used for real-time discussions including contribution collaboration, questions, and more!
   - name: 💬 Discussion
     url: https://github.com/atomic-ehr/codegen/discussions/new
