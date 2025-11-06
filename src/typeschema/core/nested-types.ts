@@ -105,7 +105,7 @@ export function mkNestedTypes(
         } else {
             baseName = element.type as Name;
         }
-        const baseUrl = register.ensureSpecializationCanonicalUrl(fhirSchema.package_meta, baseName);
+        const baseUrl = register.ensureSpecializationCanonicalUrl(baseName);
         const baseFs = register.resolveFs(fhirSchema.package_meta, baseUrl);
         if (!baseFs) throw new Error(`Could not resolve base type ${baseName}`);
         const base: Identifier = {

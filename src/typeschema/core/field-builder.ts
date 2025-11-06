@@ -54,7 +54,7 @@ const buildReferences = (
 ): Identifier[] | undefined => {
     if (!element.refers) return undefined;
     return element.refers.map((ref) => {
-        const curl = register.ensureSpecializationCanonicalUrl(fhirSchema.package_meta, ref as Name);
+        const curl = register.ensureSpecializationCanonicalUrl(ref as Name);
         const fs = register.resolveFs(fhirSchema.package_meta, curl);
         if (!fs) throw new Error(`Failed to resolve fs for ${curl}`);
         return mkIdentifier(fs);
@@ -74,7 +74,7 @@ export function buildFieldType(
             .filter((_, i) => i % 2 === 1); // drop `elements` from path
         return mkNestedIdentifier(register, fhirSchema, refPath, logger);
     } else if (element.type) {
-        const url = register.ensureSpecializationCanonicalUrl(fhirSchema.package_meta, element.type);
+        const url = register.ensureSpecializationCanonicalUrl(element.type);
         const fieldFs = register.resolveFs(fhirSchema.package_meta, url);
         if (!fieldFs)
             throw new Error(

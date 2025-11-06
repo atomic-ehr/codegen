@@ -147,7 +147,7 @@ function transformFhirSchemaResource(
     if (fhirSchema.base && fhirSchema.type !== "Element") {
         const baseFs = register.resolveFs(
             fhirSchema.package_meta,
-            register.ensureSpecializationCanonicalUrl(fhirSchema.package_meta, fhirSchema.base),
+            register.ensureSpecializationCanonicalUrl(fhirSchema.base),
         );
         if (!baseFs) {
             throw new Error(

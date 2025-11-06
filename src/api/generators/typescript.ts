@@ -5,6 +5,8 @@
  * Built using the BaseGenerator architecture with TypeMapper, TemplateEngine, and FileManager.
  */
 
+// DEPRICATED, USE: src/api/writer-generator/typescript.ts
+
 import type { BindingTypeSchema, TypeSchema } from "@typeschema/types";
 import { isBindingSchema } from "@typeschema/types";
 import { BaseGenerator } from "./base/BaseGenerator";

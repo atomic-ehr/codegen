@@ -17,7 +17,7 @@ describe("Register tests", async () => {
     const r4 = await registerFromPackageMetas([r4Package], {});
 
     it("ensureCanonicalUrl", () => {
-        expect(r4.ensureSpecializationCanonicalUrl(r4Package, "Patient" as Name)).toBe(
+        expect(r4.ensureSpecializationCanonicalUrl("Patient" as Name)).toBe(
             "http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl,
         );
     });

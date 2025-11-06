@@ -29,7 +29,7 @@ import {
 
 export type Register = {
     testAppendFs(fs: FHIRSchema): void;
-    ensureSpecializationCanonicalUrl(pkg: PackageMeta, name: string | Name | CanonicalUrl): CanonicalUrl;
+    ensureSpecializationCanonicalUrl(name: string | Name | CanonicalUrl): CanonicalUrl;
     resolveSd(pkg: PackageMeta, canonicalUrl: CanonicalUrl): StructureDefinition | undefined;
     resolveFs(pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichFHIRSchema | undefined;
     resolveFsGenealogy(pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichFHIRSchema[];
@@ -73,8 +73,6 @@ type CanonicalResolution<T> = {
 type PackageIndex = {
     pkg: PackageMeta;
     canonicalResolution: Record<CanonicalUrl, CanonicalResolution<FocusedResource>[]>;
-    nameResolution: Record<Name, CanonicalResolution<StructureDefinition>[]>;
-    nameResolutionToCanonical: Record<Name, CanonicalUrl>;
     fhirSchemas: Record<CanonicalUrl, RichFHIRSchema>;
     valueSets: Record<CanonicalUrl, RichValueSet>;
 };
@@ -84,8 +82,6 @@ type PackageAwareResolver = Record<PkgId, PackageIndex>;
 const mkEmptyPkgIndex = (pkg: PackageMeta): PackageIndex => {
     return {
         pkg,
-        nameResolutionToCanonical: {},
-        nameResolution: {},
         canonicalResolution: {},
         fhirSchemas: {},
         valueSets: {},
@@ -126,56 +122,8 @@ const mkPackageAwareResolver = async (
         resolutionOptions.sort((a, b) => a.deep - b.deep);
     }
 
-    // FIXME: hardcoded
-    const propagateNameFrom = new Set<string>([{ name: "hl7.fhir.r4.core", version: "4.0.1" }].map(packageMetaToFhir));
-
-    for (const [_url, resolutions] of Object.entries(index.canonicalResolution)) {
-        let primary: CanonicalResolution<FocusedResource> | undefined;
-        if (resolutions[0]?.deep === 0) {
-            primary = resolutions[0];
-        } else {
-            for (const resolve of resolutions) {
-                if (propagateNameFrom.has(resolve.pkgId)) {
-                    primary = resolve;
-                    break;
-                }
-            }
-        }
-        if (primary === undefined) continue;
-        const resource = primary.resource;
-        if (!isStructureDefinition(resource)) continue;
-        const name = resource.name as Name | undefined;
-        if (name && (resource.derivation === "specialization" || resource.derivation === undefined)) {
-            index.nameResolution[name] = [...((index.nameResolution[name] || []) as any), primary];
-            if (!index.nameResolutionToCanonical[name]) {
-                index.nameResolutionToCanonical[name] = resource.url as CanonicalUrl;
-            } else {
-                logger?.dry_warn(
-                    `Duplicate name ${name} in package ${pkgId}: ${JSON.stringify(
-                        index.nameResolution[name]?.map((e) => {
-                            return { ...e, resource: undefined };
-                        }),
-                        undefined,
-                        2,
-                    )}`,
-                );
-            }
-        }
-    }
-    for (const [name, resolutions] of Object.entries(index.nameResolution)) {
-        resolutions.sort((a, b) => a.deep - b.deep);
-        index.nameResolutionToCanonical[name as Name] = resolutions[0]?.resource.url as CanonicalUrl;
-    }
-
     acc[pkgId] = index;
     return index;
-};
-
-const packageAwareResolveName = (resolver: PackageAwareResolver, pkg: PackageMeta, name: Name) => {
-    const pkgId = packageMetaToFhir(pkg);
-    if (!resolver[pkgId]) throw new Error(`Package ${pkgId} not found`);
-    const resource = resolver[pkgId].nameResolutionToCanonical[name];
-    return resource;
 };
 
 const packageAgnosticResolveCanonical = (
@@ -198,6 +146,7 @@ const packageAgnosticResolveCanonical = (
 
 export type RegisterConfig = {
     logger?: CodegenLogger;
+    // FIXME: remove fallback
     fallbackPackageForNameResolution?: PackageMeta;
     focusedPackages?: PackageMeta[];
 };
@@ -251,11 +200,8 @@ export const registerFromManager = async (
         );
     };
 
-    const ensureSpecializationCanonicalUrl = (_pkg: PackageMeta, name: string | Name | CanonicalUrl) =>
-        // packageAwareResolveName(resolver, pkg, name as Name) ||
+    const ensureSpecializationCanonicalUrl = (name: string | Name | CanonicalUrl) =>
         (name.match(/^[a-zA-Z0-9]+$/) && (`http://hl7.org/fhir/StructureDefinition/${name}` as CanonicalUrl)) ||
-        (fallbackPackageForNameResolution &&
-            packageAwareResolveName(resolver, fallbackPackageForNameResolution, name as Name)) ||
         (name as CanonicalUrl);
 
     const resolveFsGenealogy = (pkg: PackageMeta, canonicalUrl: CanonicalUrl) => {
@@ -264,7 +210,7 @@ export const registerFromManager = async (
         const genealogy = [fs];
         while (fs?.base) {
             const pkg = fs.package_meta;
-            const baseUrl = ensureSpecializationCanonicalUrl(pkg, fs.base);
+            const baseUrl = ensureSpecializationCanonicalUrl(fs.base);
             fs = resolveFs(pkg, baseUrl);
             if (fs === undefined)
                 throw new Error(
@@ -305,7 +251,6 @@ export const registerFromManager = async (
             const rfs = enrichFHIRSchema(fs);
             const pkgId = packageMetaToFhir(rfs.package_meta);
             if (!resolver[pkgId]) resolver[pkgId] = mkEmptyPkgIndex(rfs.package_meta);
-            resolver[pkgId].nameResolutionToCanonical[rfs.name] = rfs.url;
             resolver[pkgId].fhirSchemas[rfs.url] = rfs;
         },
         resolveFs,
