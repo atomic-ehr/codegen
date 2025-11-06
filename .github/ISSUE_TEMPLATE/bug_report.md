@@ -12,10 +12,9 @@ A clear and concise description of what the bug is.
 
 **To Reproduce**
 Steps to reproduce the behavior:
-1. Environment setup
-2. Minimal code snippet that demonstrates the bug
-3. Command or method call used to run the code
-4. Observed result vs expected result
+1. Codegen version
+2. Generation script or cli command
+3. Minimal code snippet that demonstrates the issue
 
 **Expected result**
 A clear and concise description of what you expected to happen.
