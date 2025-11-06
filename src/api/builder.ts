@@ -11,7 +11,6 @@ import * as Path from "node:path";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { GeneratedFile } from "@root/api/generators/base/types";
 import { CSharp } from "@root/api/writer-generator/csharp/csharp.ts";
-import { camelCase, deepEqual } from "@root/api/writer-generator/utils.ts";
 import { registerFromManager } from "@root/typeschema/register";
 import { mkTypeSchemaIndex } from "@root/typeschema/utils";
 import { generateTypeSchemas, TypeSchemaCache, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";

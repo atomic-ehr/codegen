@@ -1,14 +1,14 @@
-import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
-import {
-    isStructureDefinition,
-    type FHIRSchema,
-    type FHIRSchemaElement,
-    type StructureDefinition,
-} from "@atomic-ehr/fhirschema";
-import * as fhirschema from "@atomic-ehr/fhirschema";
-import type { CodegenLogger } from "@root/utils/codegen-logger";
 import * as afs from "node:fs/promises";
 import * as Path from "node:path";
+import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
+import * as fhirschema from "@atomic-ehr/fhirschema";
+import {
+    type FHIRSchema,
+    type FHIRSchemaElement,
+    isStructureDefinition,
+    type StructureDefinition,
+} from "@atomic-ehr/fhirschema";
+import type { CodegenLogger } from "@root/utils/codegen-logger";
 import type {
     CanonicalUrl,
     CodeSystem,

@@ -16,8 +16,8 @@ import { registerFromManager } from "@typeschema/register";
 import { TypeSchemaCache } from "./cache";
 import { transformFhirSchema, transformValueSet } from "./core/transformer";
 import {
-    packageMetaToFhir,
     type PackageMeta,
+    packageMetaToFhir,
     type RichValueSet,
     type TypeSchema,
     type TypeschemaGeneratorOptions,

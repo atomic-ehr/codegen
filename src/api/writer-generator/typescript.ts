@@ -8,13 +8,13 @@ import {
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
 import type { CanonicalUrl, Identifier, TypeSchema } from "@root/typeschema";
 import {
+    extractNameFromCanonical,
     isChoiceDeclarationField,
     isNestedIdentifier,
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
     isProfileTypeSchema,
     isResourceTypeSchema,
-    extractNameFromCanonical,
     isSpecializationTypeSchema,
     type ProfileTypeSchema,
     type RegularField,

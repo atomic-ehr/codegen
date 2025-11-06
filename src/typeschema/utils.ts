@@ -1,6 +1,6 @@
+import * as afs from "node:fs/promises";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import * as YAML from "yaml";
-import * as afs from "node:fs/promises";
 import {
     type CanonicalUrl,
     type Field,
