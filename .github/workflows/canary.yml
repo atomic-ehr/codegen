@@ -8,7 +8,9 @@ jobs:
   canary-release:
     runs-on: ubuntu-latest
     if: ${{ !contains(github.event.head_commit.message, '[skip release]') }}
-
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -44,16 +46,18 @@ jobs:
       - name: Update package.json version
         run: |
           bun --bun -e "
-          const pkg = require('./package.json');
-          pkg.version = '${{ steps.version.outputs.canary_version }}';
-          require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+            const pkg = require('./package.json');
+            pkg.version = '${{ steps.version.outputs.canary_version }}';
+            require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2));
           "
 
-      - name: Setup NPM authentication
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Update npm
+        run: npm install -g npm@latest
 
       - name: Publish canary release
-        run: |
-          npm publish --tag canary --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --tag canary --access public
