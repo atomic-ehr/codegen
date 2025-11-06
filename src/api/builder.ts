@@ -10,14 +10,14 @@ import * as afs from "node:fs/promises";
 import * as Path from "node:path";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { GeneratedFile } from "@root/api/generators/base/types";
+import { CSharp } from "@root/api/writer-generator/csharp/csharp.ts";
 import { camelCase, deepEqual } from "@root/api/writer-generator/utils.ts";
 import { registerFromManager } from "@root/typeschema/register";
 import { mkTypeSchemaIndex } from "@root/typeschema/utils";
 import { generateTypeSchemas, TypeSchemaCache, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";
 import { packageMetaToNpm, type TypeSchema } from "@typeschema/types";
 import type { Config, TypeSchemaConfig } from "../config";
-import type { CodegenLogger } from "../utils/codegen-logger";
-import { createLogger } from "../utils/codegen-logger";
+import { CodegenLogger, createLogger } from "../utils/codegen-logger";
 import { TypeScriptGenerator } from "./generators/typescript";
 import * as TS2 from "./writer-generator/typescript";
 import type { Writer, WriterOptions } from "./writer-generator/writer";
@@ -219,6 +219,25 @@ export class APIBuilder {
         const generator = writerToGenerator(new TS2.TypeScript(effectiveOpts));
         this.generators.set("typescript2", generator);
         this.logger.debug(`Configured TypeScript2 generator (${JSON.stringify(effectiveOpts, undefined, 2)})`);
+        return this;
+    }
+
+    csharp(namespace: string, staticSourceDir?: string | undefined): APIBuilder {
+        const generator = writerToGenerator(
+            new CSharp({
+                outputDir: Path.join(this.options.outputDir, "/types"),
+                staticSourceDir: staticSourceDir ?? undefined,
+                targetNamespace: namespace,
+                logger: new CodegenLogger({
+                    prefix: "C#",
+                    timestamp: true,
+                    verbose: true,
+                    suppressLoggingLevel: [],
+                }),
+            }),
+        );
+        this.generators.set("C#", generator);
+        this.logger.debug(`Configured C# generator`);
         return this;
     }
 
