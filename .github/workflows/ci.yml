@@ -4,10 +4,6 @@ on:
   push:
   pull_request:
 
-permissions:
-  id-token: write # Required for OIDC
-  contents: read
-
 jobs:
   test:
     runs-on: ubuntu-latest
