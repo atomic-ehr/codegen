@@ -397,7 +397,7 @@ export async function transformFHIRSchema(
 
 ## Getting Help
 
-- **Discord**: Join our [Discord server](https://discord.gg/atomic-ehr)
+- **Discord**: Join our [Discord server](https://discord.com/channels/1390650823855439903/1435981804925489172)
 - **Issues**: Check [existing issues](https://github.com/atomic-ehr/codegen/issues)
 - **Discussions**: Start a [discussion](https://github.com/atomic-ehr/codegen/discussions)
 
@@ -418,38 +418,15 @@ Contributors are recognized in:
 - Release notes
 - The project's AUTHORS file
 
-## Roadmap Contributions
-
-We welcome contributions toward our [roadmap](ROADMAP.md) goals:
-
-### Current Priorities (Help Needed!)
-
-1. **Profile & Extension Support** - Current Focus
-   - US Core profile implementation refinement
-   - Complex constraint handling
-   - Extension inheritance and composition
-
-2. **Multi-language Support** - Future
-   - Python generator implementation
-   - Rust generator implementation  
-   - Generator plugin architecture
-
-3. **Enhanced TypeScript Features** - Future
-   - Validation function generation
-   - Builder pattern generation
-   - Runtime type guards
-
-### How to Contribute to Roadmap Items
-
-1. **Check roadmap issues** labeled with `roadmap` and `help wanted`
-2. **Comment on the issue** to express interest and discuss approach
-3. **Create a proposal** for significant features following our architecture
-4. **Start with tests** - write tests first for new functionality
-5. **Implement incrementally** - break large features into smaller PRs
-
 ### Roadmap Discussion
 
 - Comment on [roadmap issues](https://github.com/atomic-ehr/codegen/labels/roadmap)
 - Suggest new features via [GitHub Discussions](https://github.com/atomic-ehr/codegen/discussions)
+- 
+
+### Maintainers team
+
+- [Aleksandr Penskoi @ryukzak](https://github.com/ryukzak)
+- [Gena Razmakhnin @GenaRazmakhnin](https://github.com/GenaRazmakhnin)
 
 Thank you for contributing to Atomic FHIR Codegen! 🎉
