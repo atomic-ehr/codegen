@@ -11,7 +11,7 @@ from generated.hl7_fhir_r4_core.bundle import Bundle
 FHIR_SERVER_URL = "http://localhost:8080/fhir"
 USERNAME = "root"
 PASSWORD = (
-    "mNZq6yJaRi"#"<SECRET>"  # get actual value from docker-compose.yaml: BOX_ROOT_CLIENT_SECRET
+    "<SECRET>"  # get actual value from docker-compose.yaml: BOX_ROOT_CLIENT_SECRET
 )
 
 
