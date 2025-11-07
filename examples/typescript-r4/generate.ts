@@ -11,7 +11,6 @@ if (require.main === module) {
         .throwException()
         .fromPackage("hl7.fhir.r4.core", "4.0.1")
         .typescript({ withDebugComment: false })
-        .writeTypeTree("index.json")
         // .writeTypeSchemas("examples/r4-type-schema")
         .outputTo("./examples/typescript-r4/fhir-types")
         .cleanOutput(true);

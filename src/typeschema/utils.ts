@@ -221,20 +221,21 @@ export const mkTypeSchemaIndex = (schemas: TypeSchema[], logger?: CodegenLogger)
     };
 
     const exportTree = async (filename: string) => {
-        const tree: Record<PackageName, { complexTypes: any; resources: any; profiles: any }> = {};
+        const tree: Record<PackageName, Record<Identifier["kind"], any>> = {};
         for (const [pkgId, shemas] of Object.entries(groupByPackages(schemas))) {
-            tree[pkgId] = { complexTypes: {}, resources: {}, profiles: {} };
+            tree[pkgId] = {
+                "primitive-type": {},
+                "complex-type": {},
+                resource: {},
+                "value-set": {},
+                nested: {},
+                binding: {},
+                profile: {},
+                logical: {},
+            };
             for (const schema of shemas) {
                 const _desc = schema.identifier;
-                if (isResourceTypeSchema(schema)) {
-                    tree[pkgId].resources[schema.identifier.url] = {};
-                }
-                if (isProfileTypeSchema(schema)) {
-                    tree[pkgId].profiles[schema.identifier.url] = {};
-                }
-                if (isComplexTypeTypeSchema(schema)) {
-                    tree[pkgId].complexTypes[schema.identifier.url] = {};
-                }
+                tree[pkgId][schema.identifier.kind][schema.identifier.url] = {};
             }
         }
         const raw = filename.endsWith(".yaml") ? YAML.stringify(tree) : JSON.stringify(tree, undefined, 2);
