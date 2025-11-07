@@ -23,7 +23,7 @@ import {
 } from "@typeschema/types";
 import type { Config, TypeSchemaConfig } from "../config";
 import { CodegenLogger, createLogger } from "../utils/codegen-logger";
-import { TypeScriptGenerator } from "./generators/typescript";
+import { TypeScriptGenerator as TypeScriptGeneratorDepricated } from "./generators/typescript";
 import * as TS2 from "./writer-generator/typescript";
 import type { Writer, WriterOptions } from "./writer-generator/writer";
 import type { GeneratorInput } from "./generators/base/BaseGenerator";
@@ -171,7 +171,7 @@ export class APIBuilder {
         return this;
     }
 
-    typescript(
+    typescriptDepricated(
         options: {
             moduleFormat?: "esm" | "cjs";
             generateIndex?: boolean;
@@ -189,7 +189,7 @@ export class APIBuilder {
         // Hardcode types subfolder
         const typesOutputDir = `${this.options.outputDir}/types`;
 
-        const generator = new TypeScriptGenerator({
+        const generator = new TypeScriptGeneratorDepricated({
             outputDir: typesOutputDir,
             moduleFormat: options.moduleFormat || "esm",
             generateIndex: options.generateIndex ?? true,
@@ -213,7 +213,7 @@ export class APIBuilder {
         return this;
     }
 
-    typescript2(opts: Partial<WriterOptions>) {
+    typescript(opts: Partial<WriterOptions>) {
         const writerOpts = {
             outputDir: Path.join(this.options.outputDir, "/types"),
             tabSize: 4,
@@ -552,7 +552,7 @@ export function createAPIFromConfig(config: Config): APIBuilder {
 
     // Configure TypeScript generator if specified
     if (config.typescript) {
-        builder.typescript(config.typescript);
+        builder.typescriptDepricated(config.typescript);
     }
 
     return builder;
@@ -575,7 +575,7 @@ export async function generateTypesFromPackage(
         verbose: options.verbose,
     })
         .fromPackage(packageName, options.version)
-        .typescript()
+        .typescriptDepricated()
         .generate();
 }
 
@@ -595,6 +595,6 @@ export async function generateTypesFromFiles(
         verbose: options.verbose,
     })
         .fromFiles(...inputFiles)
-        .typescript()
+        .typescriptDepricated()
         .generate();
 }

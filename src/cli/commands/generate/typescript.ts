@@ -55,7 +55,7 @@ export async function generateTypeScript(config: Config, inputPath?: string): Pr
     }
 
     // Configure TypeScript generation with options from config
-    builder.typescript(config.typescript || {});
+    builder.typescriptDepricated(config.typescript || {});
 
     // Add progress callback if verbose
     if (config.verbose) {

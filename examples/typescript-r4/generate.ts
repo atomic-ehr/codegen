@@ -10,7 +10,7 @@ if (require.main === module) {
         .verbose()
         .throwException()
         .fromPackage("hl7.fhir.r4.core", "4.0.1")
-        .typescript2({ withDebugComment: false })
+        .typescript({ withDebugComment: false })
         .writeTypeTree("index.json")
         // .writeTypeSchemas("examples/r4-type-schema")
         .outputTo("./examples/typescript-r4/fhir-types")
