@@ -5,8 +5,8 @@ A powerful, extensible code generation toolkit for FHIR (Fast Healthcare Interop
 ## Features
 
 - 🚀 **High-Performance** - Built with Bun runtime for blazing-fast generation
-- 🔧 **Extensible Architecture** - Three-stage pipeline (Parse → Transform → Generate)
-- 📦 **Multi-Package Support** - Generate from FHIR R4 core packages (profiles in development)
+- 🔧 **Extensible Architecture** - Three-stage pipeline (Resolve Canonicals → Transform to Type Schema → Generate)
+- 📦 **Multi-Package Support** - Generate from a list of FHIR packages (profiles in development)
 - 🎯 **Type-Safe** - Generates fully typed interfaces with proper inheritance
 - 🔄 **Intermediate Format** - TypeSchema format enables multi-language support
 - 🛠️ **Developer Friendly** - Fluent API, CLI, and configuration file support
@@ -26,7 +26,27 @@ yarn add @atomic-ehr/codegen
 
 ## Quick Start
 
-### 1. Using the CLI
+### 1. Using the Fluent API (Primary)
+
+```typescript
+import { APIBuilder } from '@atomic-ehr/codegen';
+
+const builder = new APIBuilder()
+    .fromPackage("hl7.fhir.r4.core", "4.0.1")
+    .typescript({})
+    .outputTo("./examples/typescript-r4/fhir-types");
+
+const report = await builder.generate();
+console.log(report);
+```
+
+Run the script by:
+
+- `npm exec tsx scripts/generate-types.ts`
+- `pnpm exec tsx scripts/generate-types.ts`
+- `bun run scripts/generate-types.ts`
+
+### 2. Using the CLI (Draft)
 
 ```bash
 # Generate using configuration file
@@ -39,37 +59,7 @@ bunx atomic-codegen generate --verbose
 bunx atomic-codegen typeschema generate hl7.fhir.r4.core@4.0.1 -o schemas.ndjson
 ```
 
-### 2. Using the Fluent API
-
-```typescript
-import { APIBuilder } from '@atomic-ehr/codegen';
-
-// Create builder instance
-const builder = new APIBuilder();
-
-// Generate FHIR R4 TypeScript types
-await builder
-  .fromPackage('hl7.fhir.r4.core', '4.0.1')
-  .typescript({
-    outputDir: './generated/types',
-    generateIndex: true,
-    includeExtensions: false,
-  })
-  .generate();
-
-// Generate with additional configuration
-await builder
-  .fromPackage('hl7.fhir.r4.core', '4.0.1')
-  .typescript({
-    outputDir: './generated/fhir',
-    generateIndex: true,
-    includeDocuments: true,
-    namingConvention: 'PascalCase'
-  })
-  .generate();
-```
-
-### 3. Using Configuration File
+### 3. Using Configuration File (Draft)
 
 Create `atomic-codegen.config.ts`:
 
@@ -105,19 +95,24 @@ bunx atomic-codegen generate
 
 ## Architecture
 
-The toolkit uses a three-stage architecture:
+The toolkit uses a three-stage architecture (details: [link](https://www.health-samurai.io/articles/type-schema-a-pragmatic-approach-to-build-fhir-sdk)):
 
 ```
-FHIR Package → TypeSchema Parser → TypeSchema Format → Code Generators → Output
+Resolve Canonicals → Transform to Type Schema → Generate
 ```
 
-1. **Input Layer** - Parses FHIR packages and profiles into TypeSchema format
-2. **Intermediate Format** - TypeSchema provides a universal representation
+1. **Input Layer** - Parses FHIR packages and profiles, resolves canonicals and transforms them into TypeSchema format
+2. **Intermediate Format** - TypeSchema provides a universal representation for FHIR data entities
 3. **Output Generators** - Generate code for TypeScript, Python, and other languages
 
 ## Usage Examples
 
-### Generate Types for a Custom Profile
+Actual examples of type generation and usage can be found here: [examples/typescript-r4](examples/typescript-r4):
+
+- `demo.ts` - a simple script which creates resources and demonstrates how to work with profiles.
+- `generate.ts` - script to generate types.
+
+### Generate Types for a Custom Profile (Draft)
 
 ```typescript
 import { APIBuilder } from '@atomic-ehr/codegen';
@@ -135,7 +130,7 @@ await builder
   .generate();
 ```
 
-### Generate with Custom Templates
+### Generate with Custom Templates (Draft)
 
 ```typescript
 import { APIBuilder } from '@atomic-ehr/codegen';
@@ -154,7 +149,7 @@ await builder
   .generate();
 ```
 
-### Generate Multiple Output Formats
+### Generate Multiple Output Formats (Draft)
 
 ```typescript
 import { APIBuilder } from '@atomic-ehr/codegen';
@@ -179,52 +174,7 @@ await builder
   .generate();
 ```
 
-### Working with Generated Types
-
-```typescript
-// Import generated types
-import { Patient, Observation, Bundle } from './generated/types';
-
-// Use with type safety
-const patient: Patient = {
-  resourceType: 'Patient',
-  id: '123',
-  name: [{
-    given: ['John'],
-    family: 'Doe'
-  }],
-  birthDate: '1990-01-01'
-};
-
-// Type-safe resource references
-const observation: Observation = {
-  resourceType: 'Observation',
-  status: 'final',
-  code: {
-    coding: [{
-      system: 'http://loinc.org',
-      code: '85354-9',
-      display: 'Blood pressure'
-    }]
-  },
-  subject: {
-    reference: 'Patient/123',
-    type: 'Patient' // Type-checked!
-  }
-};
-
-// Work with bundles
-const bundle: Bundle = {
-  resourceType: 'Bundle',
-  type: 'collection',
-  entry: [
-    { resource: patient },
-    { resource: observation }
-  ]
-};
-```
-
-## CLI Commands
+## CLI Commands (Draft)
 
 ```bash
 # Generate code using configuration file
@@ -241,7 +191,7 @@ atomic-codegen --help                      # Show help
 atomic-codegen --debug generate            # Debug mode
 ```
 
-## Configuration Options
+## Configuration Options (Draft)
 
 ### Global Configuration Options
 
@@ -268,6 +218,7 @@ atomic-codegen --debug generate            # Debug mode
 | `valueSetStrengths` | `string[]` | `['required']` | Which binding strengths to generate |
 | `includeValueSetHelpers` | `boolean` | `false` | Include validation helper functions |
 | `valueSetDirectory` | `string` | `'valuesets'` | Output directory for value set files |
+
 ## Value Set Generation
 
 Generate strongly-typed TypeScript enums from FHIR value sets for enhanced type safety:
@@ -285,48 +236,6 @@ export default defineConfig({
 });
 ```
 
-### Generated Structure
-
-```
-generated/
-├── types/
-│   ├── Patient.ts           # Uses value set types
-│   └── Address.ts           # Uses value set types  
-└── valuesets/
-    ├── AdministrativeGender.ts
-    ├── AddressUse.ts
-    └── index.ts             # Re-exports all value sets
-```
-
-### Type-Safe Usage
-
-```typescript
-// Import generated types
-import { Patient } from './generated/types/Patient.js';
-import { AdministrativeGender } from './generated/valuesets/index.js';
-
-// Type-safe patient creation
-const patient: Patient = {
-  resourceType: 'Patient',
-  gender: 'male', // Type-safe! Only valid values accepted
-  // gender: 'invalid', // ❌ Compile error
-};
-```
-
-### Runtime Validation
-
-```typescript
-import { isValidAdministrativeGender } from './generated/valuesets/AdministrativeGender.js';
-
-function validateGender(input: string) {
-  if (isValidAdministrativeGender(input)) {
-    // input is now typed as AdministrativeGender
-    return input;
-  }
-  throw new Error(`Invalid gender: ${input}`);
-}
-```
-
 ### Value Set Configuration Options
 
 - **generateValueSets**: Enable value set generation
@@ -335,71 +244,6 @@ function validateGender(input: string) {
 - **valueSetDirectory**: Customize output directory name
 
 For comprehensive usage examples and migration guides, see [Value Set Documentation](docs/features/value-set-generation.md).
-## Advanced Features
-
-### Custom Type Mappings
-
-```typescript
-const builder = new APIBuilder();
-
-await builder
-  .fromPackage('hl7.fhir.r4.core', '4.0.1')
-  .withTypeMappings({
-    'date': 'Date',           // Map FHIR date to JS Date
-    'instant': 'Date',        // Map FHIR instant to JS Date
-    'decimal': 'BigNumber'    // Use BigNumber for decimals
-  })
-  .typescript({ outputDir: './generated' })
-  .generate();
-```
-
-### Selective Generation
-
-```typescript
-const builder = new APIBuilder();
-
-// Generate only specific resources
-await builder
-  .fromPackage('hl7.fhir.r4.core', '4.0.1')
-  .filter({
-    resources: ['Patient', 'Observation', 'Encounter'],
-    excludeExtensions: true,
-    excludeProfiles: true
-  })
-  .typescript({ outputDir: './generated' })
-  .generate();
-```
-
-### Plugin System
-
-```typescript
-import { APIBuilder, Plugin } from '@atomic-ehr/codegen';
-
-// Create custom plugin
-const validatorPlugin: Plugin = {
-  name: 'validator-plugin',
-  transform: (schema) => {
-    // Add validation metadata
-    return {
-      ...schema,
-      validation: generateValidationRules(schema)
-    };
-  },
-  generate: (schema, options) => {
-    // Generate validator functions
-    return generateValidators(schema, options);
-  }
-};
-
-// Use plugin
-const builder = new APIBuilder();
-
-await builder
-  .fromPackage('hl7.fhir.r4.core', '4.0.1')
-  .use(validatorPlugin)
-  .typescript({ outputDir: './generated' })
-  .generate();
-```
 
 ## Development
 
@@ -423,21 +267,6 @@ bun test
 
 # Build
 bun run build
-```
-
-### Project Structure
-
-```
-atomic-codegen/
-├── src/
-│   ├── api/              # High-level API
-│   ├── cli/              # CLI implementation
-│   ├── typeschema/       # TypeSchema parser/transformer
-│   ├── generators/       # Code generators
-│   └── config.ts         # Configuration system
-├── test/                 # Test suites
-├── examples/             # Usage examples
-└── docs/                 # Documentation
 ```
 
 ## Contributing
