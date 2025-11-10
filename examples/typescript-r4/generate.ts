@@ -13,7 +13,7 @@ if (require.main === module) {
         .typescript({ withDebugComment: false })
         // .writeTypeSchemas("examples/r4-type-schema")
         .outputTo("./examples/typescript-r4/fhir-types")
-        .writeTypeTree("./examples/typescript-r4/full-tree.yaml")
+        .writeTypeTree("./examples/typescript-r4/type-tree.yaml")
         // .treeShake({
         //     "hl7.fhir.r4.core": {
         //         "http://hl7.org/fhir/StructureDefinition/Bundle": {},

@@ -294,7 +294,7 @@ export class APIBuilder {
         return this;
     }
 
-    treeShakeBy(tree: TreeShake) {
+    treeShake(tree: TreeShake) {
         this.options.treeShake = tree;
         return this;
     }

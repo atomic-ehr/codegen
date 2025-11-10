@@ -9,7 +9,9 @@ describe("TypeSchema R5 generation", async () => {
         const fs = r5.resolveFs(
             r5Package,
             "http://hl7.org/fhir/StructureDefinition/shareablecodesystem" as CanonicalUrl,
-        )!;
+        );
+        expect(fs).toBeDefined();
+        if (!fs) throw new Error("fs is undefined");
         const ts = (await registerFsAndMkTs(r5, fs))[0] as RegularTypeSchema;
 
         expect(ts).toMatchObject({
