@@ -450,7 +450,6 @@ export class TypeScript extends Writer {
     generateResourceModule(tsIndex: TypeSchemaIndex, schema: TypeSchema) {
         this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
             this.generateDisclaimer();
-            this.comment("@ts-ignore-error TS6133");
             if (["complex-type", "resource", "logical"].includes(schema.identifier.kind)) {
                 this.generateDependenciesImports(schema);
                 this.generateComplexTypeReexports(schema);
