@@ -128,6 +128,10 @@ export const isResourceTypeSchema = (schema: TypeSchema | undefined): schema is 
     return schema?.identifier.kind === "resource";
 };
 
+export const isPrimitiveTypeSchema = (schema: TypeSchema | undefined): schema is PrimitiveTypeSchema => {
+    return schema?.identifier.kind === "primitive-type";
+};
+
 export const isLogicalTypeSchema = (schema: TypeSchema | undefined): schema is RegularTypeSchema => {
     return schema?.identifier.kind === "logical";
 };
@@ -138,6 +142,10 @@ export const isProfileTypeSchema = (schema: TypeSchema | undefined): schema is P
 
 export function isBindingSchema(schema: TypeSchema | undefined): schema is BindingTypeSchema {
     return schema?.identifier.kind === "binding";
+}
+
+export function isValueSetTypeSchema(schema: TypeSchema | undefined): schema is ValueSetTypeSchema {
+    return schema?.identifier.kind === "value-set";
 }
 
 interface PrimitiveTypeSchema {

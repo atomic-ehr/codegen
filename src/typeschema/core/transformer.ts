@@ -106,7 +106,7 @@ export async function transformValueSet(
     };
 }
 
-function extractDependencies(
+export function extractDependencies(
     identifier: Identifier,
     base: Identifier | undefined,
     fields: Record<string, Field> | undefined,
