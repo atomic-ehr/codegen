@@ -73,7 +73,9 @@ describe("TypeSchema R5 generation", async () => {
     });
 
     it("Extension", async () => {
-        const fs = r5.resolveFs(r5Package, "http://hl7.org/fhir/StructureDefinition/Extension" as CanonicalUrl)!;
+        const fs = r5.resolveFs(r5Package, "http://hl7.org/fhir/StructureDefinition/Extension" as CanonicalUrl);
+        expect(fs).toBeDefined();
+        if (!fs) throw new Error("Failed to resolve fs");
         const ts = (await registerFsAndMkTs(r5, fs))[0] as RegularTypeSchema;
         expect(ts).toMatchObject({
             identifier: {

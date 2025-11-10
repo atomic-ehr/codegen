@@ -107,6 +107,101 @@ type APIBuilderConfig = PartialBy<
     cleanOutput: boolean;
 };
 
+const cleanup = async (opts: APIBuilderConfig, logger: CodegenLogger): Promise<void> => {
+    logger.info(`Cleaning outputs...`);
+    try {
+        logger.info(`Clean ${opts.outputDir}`);
+        fs.rmSync(opts.outputDir, { recursive: true, force: true });
+        if (opts.typeSchemaOutputDir) {
+            logger.info(`Clean ${opts.typeSchemaOutputDir}`);
+            fs.rmSync(opts.typeSchemaOutputDir, {
+                recursive: true,
+                force: true,
+            });
+        }
+        if (opts.exportTypeTree) {
+            logger.info(`Clean ${opts.exportTypeTree}`);
+            fs.rmSync(opts.exportTypeTree, {
+                recursive: true,
+                force: true,
+            });
+        }
+    } catch (error) {
+        logger.warn(`Error cleaning output directory: ${error instanceof Error ? error.message : String(error)}`);
+    }
+};
+
+const writeTypeSchemasToSeparateFiles = async (
+    typeSchemas: TypeSchema[],
+    outputDir: string,
+    logger: CodegenLogger,
+): Promise<void> => {
+    await afs.mkdir(outputDir, { recursive: true });
+    logger.info(`Writing TypeSchema files to ${outputDir}/...`);
+
+    const files: Record<string, string[]> = {};
+    for (const ts of typeSchemas) {
+        const pkg = {
+            name: ts.identifier.package,
+            version: ts.identifier.version,
+        };
+        const pkgPath = normalizeFileName(packageMetaToFhir(pkg));
+        const name = normalizeFileName(`${ts.identifier.name}(${extractNameFromCanonical(ts.identifier.url)})`);
+        const json = JSON.stringify(ts, null, 2);
+        const baseName = Path.join(outputDir, pkgPath, name);
+        if (!files[baseName]) files[baseName] = [];
+        if (!files[baseName]?.some((e) => e === json)) {
+            files[baseName].push(json);
+        }
+    }
+
+    for (const [baseName, jsons] of Object.entries(files)) {
+        await Promise.all(
+            jsons.map(async (json, index) => {
+                let fullName: string;
+                if (index === 0) {
+                    fullName = `${baseName}.typeschema.json`;
+                } else {
+                    fullName = `${baseName}-${index}.typeschema.json`;
+                }
+                await afs.mkdir(Path.dirname(fullName), { recursive: true });
+                await afs.writeFile(fullName, json);
+            }),
+        );
+    }
+};
+
+const writeTypeSchemasToSingleFile = async (
+    typeSchemas: TypeSchema[],
+    outputFile: string,
+    logger: CodegenLogger,
+): Promise<void> => {
+    logger.info(`Writing TypeSchema files to: ${outputFile}`);
+    await afs.mkdir(Path.dirname(outputFile), { recursive: true });
+
+    logger.info(`Writing TypeSchemas to one file ${outputFile}...`);
+
+    for (const ts of typeSchemas) {
+        const json = JSON.stringify(ts, null, 2);
+        await afs.appendFile(outputFile, `${json}\n`);
+    }
+};
+
+const tryWriteTypeSchema = async (typeSchemas: TypeSchema[], opts: APIBuilderConfig, logger: CodegenLogger) => {
+    if (!opts.typeSchemaOutputDir) return;
+    try {
+        if (Path.extname(opts.typeSchemaOutputDir) === ".ndjson") {
+            await writeTypeSchemasToSingleFile(typeSchemas, opts.typeSchemaOutputDir, logger);
+        } else {
+            await writeTypeSchemasToSeparateFiles(typeSchemas, opts.typeSchemaOutputDir, logger);
+        }
+        logger.info(`Writing TypeSchema - DONE`);
+    } catch (error) {
+        logger.error("Failed to write TypeSchema output", error instanceof Error ? error : new Error(String(error)));
+        if (opts.throwException) throw error;
+    }
+};
+
 /**
  * High-Level API Builder class
  *
@@ -156,7 +251,8 @@ export class APIBuilder {
     }
 
     fromPackage(packageName: string, version?: string): APIBuilder {
-        this.packages.push(packageMetaToNpm({ name: packageName, version: version || "latest" }));
+        const pkg = packageMetaToNpm({ name: packageName, version: version || "latest" });
+        this.packages.push(pkg);
         return this;
     }
 
@@ -304,100 +400,6 @@ export class APIBuilder {
         return this;
     }
 
-    private async writeTypeSchemasToSeparateFiles(typeSchemas: TypeSchema[], outputDir: string): Promise<void> {
-        await afs.mkdir(outputDir, { recursive: true });
-
-        this.logger.info(`Writing TypeSchema files to ${outputDir}/...`);
-
-        const files: Record<string, string[]> = {};
-        for (const ts of typeSchemas) {
-            const pkg = {
-                name: ts.identifier.package,
-                version: ts.identifier.version,
-            };
-            const pkgPath = normalizeFileName(packageMetaToFhir(pkg));
-            const name = normalizeFileName(`${ts.identifier.name}(${extractNameFromCanonical(ts.identifier.url)})`);
-            const json = JSON.stringify(ts, null, 2);
-            const baseName = Path.join(outputDir, pkgPath, name);
-            if (!files[baseName]) files[baseName] = [];
-            if (!files[baseName]?.some((e) => e === json)) {
-                files[baseName].push(json);
-            }
-        }
-
-        for (const [baseName, jsons] of Object.entries(files)) {
-            await Promise.all(
-                jsons.map(async (json, index) => {
-                    let fullName: string;
-                    if (index === 0) {
-                        fullName = `${baseName}.typeschema.json`;
-                    } else {
-                        fullName = `${baseName}-${index}.typeschema.json`;
-                    }
-                    await afs.mkdir(Path.dirname(fullName), { recursive: true });
-                    await afs.writeFile(fullName, json);
-                }),
-            );
-        }
-    }
-
-    private async writeTypeSchemasToSingleFile(typeSchemas: TypeSchema[], outputFile: string): Promise<void> {
-        this.logger.info(`Writing TypeSchema files to: ${outputFile}`);
-        if (this.options.cleanOutput && fs.existsSync(outputFile)) fs.rmSync(outputFile);
-        await afs.mkdir(Path.dirname(outputFile), { recursive: true });
-
-        this.logger.info(`Writing TypeSchemas to one file ${outputFile}...`);
-
-        for (const ts of typeSchemas) {
-            const json = JSON.stringify(ts, null, 2);
-            await afs.appendFile(outputFile, `${json}\n`);
-        }
-    }
-
-    private async tryWriteTypeSchema(typeSchemas: TypeSchema[]) {
-        if (!this.options.typeSchemaOutputDir) return;
-        try {
-            if (Path.extname(this.options.typeSchemaOutputDir) === ".ndjson") {
-                await this.writeTypeSchemasToSingleFile(typeSchemas, this.options.typeSchemaOutputDir);
-            } else {
-                await this.writeTypeSchemasToSeparateFiles(typeSchemas, this.options.typeSchemaOutputDir);
-            }
-            this.logger.info(`Writing TypeSchema - DONE`);
-        } catch (error) {
-            this.logger.error(
-                "Failed to write TypeSchema output",
-                error instanceof Error ? error : new Error(String(error)),
-            );
-            if (this.options.throwException) throw error;
-        }
-    }
-
-    async cleanup() {
-        this.logger.info(`Cleaning outputs...`);
-        try {
-            this.logger.info(`Clean ${this.options.outputDir}`);
-            fs.rmSync(this.options.outputDir, { recursive: true, force: true });
-            if (this.options.typeSchemaOutputDir) {
-                this.logger.info(`Clean ${this.options.typeSchemaOutputDir}`);
-                fs.rmSync(this.options.typeSchemaOutputDir, {
-                    recursive: true,
-                    force: true,
-                });
-            }
-            if (this.options.exportTypeTree) {
-                this.logger.info(`Clean ${this.options.exportTypeTree}`);
-                fs.rmSync(this.options.exportTypeTree, {
-                    recursive: true,
-                    force: true,
-                });
-            }
-        } catch (error) {
-            this.logger.warn(
-                `Error cleaning output directory: ${error instanceof Error ? error.message : String(error)}`,
-            );
-        }
-    }
-
     async generate(): Promise<GenerationResult> {
         const startTime = performance.now();
         const result: GenerationResult = {
@@ -411,7 +413,7 @@ export class APIBuilder {
 
         this.logger.debug(`Starting generation with ${this.generators.size} generators`);
         try {
-            if (this.options.cleanOutput) this.cleanup();
+            if (this.options.cleanOutput) cleanup(this.options, this.logger);
 
             this.logger.info("Initialize Canonical Manager");
             const manager = CanonicalManager({
@@ -425,7 +427,7 @@ export class APIBuilder {
             });
 
             const typeSchemas = await generateTypeSchemas(register, this.logger);
-            await this.tryWriteTypeSchema(typeSchemas);
+            await tryWriteTypeSchema(typeSchemas, this.options, this.logger);
 
             let tsIndex = mkTypeSchemaIndex(typeSchemas, this.logger);
             if (this.options.treeShake) tsIndex = treeShake(tsIndex, this.options.treeShake, this.logger);
@@ -541,13 +543,6 @@ export class APIBuilder {
 }
 
 /**
- * Create a new API builder instance
- */
-export function createAPI(options?: APIBuilderOptions): APIBuilder {
-    return new APIBuilder(options);
-}
-
-/**
  * Create an API builder instance from a configuration object
  */
 export function createAPIFromConfig(config: Config): APIBuilder {
@@ -578,45 +573,4 @@ export function createAPIFromConfig(config: Config): APIBuilder {
     }
 
     return builder;
-}
-
-/**
- * Convenience function for quick TypeScript generation from a package
- */
-export async function generateTypesFromPackage(
-    packageName: string,
-    outputDir: string,
-    options: {
-        version?: string;
-        verbose?: boolean;
-        validate?: boolean;
-    } = {},
-): Promise<GenerationResult> {
-    return createAPI({
-        outputDir,
-        verbose: options.verbose,
-    })
-        .fromPackage(packageName, options.version)
-        .typescriptDepricated()
-        .generate();
-}
-
-/**
- * Convenience function for quick TypeScript generation from files
- */
-export async function generateTypesFromFiles(
-    inputFiles: string[],
-    outputDir: string,
-    options: {
-        verbose?: boolean;
-        validate?: boolean;
-    } = {},
-): Promise<GenerationResult> {
-    return createAPI({
-        outputDir,
-        verbose: options.verbose,
-    })
-        .fromFiles(...inputFiles)
-        .typescriptDepricated()
-        .generate();
 }

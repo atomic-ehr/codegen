@@ -1680,11 +1680,11 @@ hl7.fhir.r4.core:
     http://hl7.org/fhir/StructureDefinition/event-eventHistory: {}
     http://hl7.org/fhir/StructureDefinition/synthesis: {}
     http://hl7.org/fhir/StructureDefinition/timing-exact: {}
-    http://hl7.org/fhir/StructureDefinition/triglyceride: {}
-    http://hl7.org/fhir/StructureDefinition/lipidprofile: {}
-    http://hl7.org/fhir/StructureDefinition/hdlcholesterol: {}
     http://hl7.org/fhir/StructureDefinition/cholesterol: {}
+    http://hl7.org/fhir/StructureDefinition/hdlcholesterol: {}
     http://hl7.org/fhir/StructureDefinition/ldlcholesterol: {}
+    http://hl7.org/fhir/StructureDefinition/lipidprofile: {}
+    http://hl7.org/fhir/StructureDefinition/triglyceride: {}
     http://hl7.org/fhir/StructureDefinition/valueset-expand-group: {}
     http://hl7.org/fhir/StructureDefinition/valueset-expand-rules: {}
     http://hl7.org/fhir/StructureDefinition/valueset-expansionSource: {}

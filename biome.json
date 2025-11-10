@@ -7,7 +7,14 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["src/**/*.ts", "test/**/*.ts", "atomic-codegen.config.js", "biome.json", "examples/*/*.ts"]
+    "includes": [
+      "src/**/*.ts",
+      "test/**/*.ts",
+      "atomic-codegen.config.js",
+      "biome.json",
+      "examples/*/*.ts",
+      ".zed/*.json"
+    ]
   },
   "formatter": {
     "enabled": true,
