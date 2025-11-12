@@ -70,7 +70,7 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@atomic-ehr/fhir-canonical-manager": "0.0.11-canary.355d62d.20250926143544",
+    "@atomic-ehr/fhir-canonical-manager": "^0.0.14",
     "@atomic-ehr/fhirschema": "^0.0.2",
     "@inquirer/prompts": "^7.8.1",
     "ajv": "^8.17.1",

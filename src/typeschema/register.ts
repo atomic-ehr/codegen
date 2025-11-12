@@ -1,4 +1,3 @@
-
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import * as fhirschema from "@atomic-ehr/fhirschema";
 import {
