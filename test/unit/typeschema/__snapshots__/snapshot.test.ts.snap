@@ -507,8 +507,8 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with nested type 1`
         },
         "base": {
           "kind": "complex-type",
-          "package": "mypackage",
-          "version": "0.0.0",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
           "name": "BackboneElement",
           "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
         },
@@ -532,8 +532,8 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with nested type 1`
     "dependencies": [
       {
         "kind": "complex-type",
-        "package": "mypackage",
-        "version": "0.0.0",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
         "name": "BackboneElement",
         "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
       },
@@ -598,8 +598,8 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with nested type 2 
         },
         "base": {
           "kind": "complex-type",
-          "package": "mypackage",
-          "version": "0.0.0",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
           "name": "BackboneElement",
           "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
         },
@@ -628,8 +628,8 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with nested type 2 
         },
         "base": {
           "kind": "complex-type",
-          "package": "mypackage",
-          "version": "0.0.0",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
           "name": "BackboneElement",
           "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
         },
@@ -653,8 +653,8 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with nested type 2 
     "dependencies": [
       {
         "kind": "complex-type",
-        "package": "mypackage",
-        "version": "0.0.0",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
         "name": "BackboneElement",
         "url": "http://hl7.org/fhir/StructureDefinition/BackboneElement"
       },

@@ -14,6 +14,7 @@ import {
     isNestedIdentifier,
     isProfileIdentifier,
     type NestedType,
+    packageMetaToFhir,
     type RichFHIRSchema,
     type RichValueSet,
     type TypeSchema,
@@ -62,24 +63,6 @@ function extractFieldDependencies(fields: Record<string, Field>): Identifier[] {
     return deps;
 }
 
-function deduplicateDependencies(deps: Identifier[]): Identifier[] {
-    const seen = new Set<string>();
-    const unique: Identifier[] = [];
-
-    for (const dep of deps) {
-        const key = dep.url;
-        if (!seen.has(key)) {
-            seen.add(key);
-            unique.push(dep);
-        }
-    }
-
-    // Sort by name for consistent output (matching Clojure implementation)
-    unique.sort((a, b) => a.name.localeCompare(b.name));
-
-    return unique;
-}
-
 /**
  * Check if a FHIR schema represents an extension
  */
@@ -124,89 +107,7 @@ export async function transformValueSet(
     };
 }
 
-/**
- * Transform an Extension FHIRSchema to TypeSchema with extension metadata
- */
-async function transformExtension(
-    fhirSchema: RichFHIRSchema,
-    register: Register,
-    logger?: CodegenLogger,
-): Promise<any | null> {
-    try {
-        const identifier = mkIdentifier(fhirSchema);
-
-        // Build base identifier if present
-        let base: Identifier | undefined;
-        if (fhirSchema.base && fhirSchema.base !== "Extension") {
-            const baseUrl = fhirSchema.base.includes("/")
-                ? fhirSchema.base
-                : `http://hl7.org/fhir/StructureDefinition/${fhirSchema.base}`;
-            const baseName = fhirSchema.base.split("/").pop() || fhirSchema.base;
-
-            base = {
-                kind: "complex-type",
-                package: "hl7.fhir.r4.core",
-                version: "4.0.1",
-                name: baseName as Name,
-                url: baseUrl as CanonicalUrl,
-            };
-        } else {
-            // Default to Extension base
-            base = {
-                kind: "complex-type",
-                package: "hl7.fhir.r4.core",
-                version: "4.0.1",
-                name: "Extension" as Name,
-                url: "http://hl7.org/fhir/StructureDefinition/Extension" as CanonicalUrl,
-            };
-        }
-
-        const extensionSchema: any = {
-            identifier,
-            base,
-            description: fhirSchema.description,
-            dependencies: [],
-            metadata: {
-                isExtension: true, // Mark as extension for file organization
-            },
-        };
-
-        // Add base to dependencies
-        if (base) {
-            extensionSchema.dependencies.push(base);
-        }
-
-        // Transform elements into fields if present
-        if (fhirSchema.elements) {
-            const fields = mkFields(register, fhirSchema, [], fhirSchema.elements, logger);
-
-            if (fields && Object.keys(fields).length > 0) {
-                extensionSchema.fields = fields;
-                extensionSchema.dependencies.push(...extractFieldDependencies(fields));
-            }
-        }
-
-        // Build nested types
-        const nestedTypes = mkNestedTypes(register, fhirSchema, logger);
-        if (nestedTypes && nestedTypes.length > 0) {
-            extensionSchema.nested = nestedTypes;
-            extensionSchema.dependencies.push(...extractNestedDependencies(nestedTypes));
-        }
-
-        // Deduplicate and sort dependencies
-        extensionSchema.dependencies = deduplicateDependencies(extensionSchema.dependencies);
-
-        // Remove self-reference from dependencies
-        extensionSchema.dependencies = extensionSchema.dependencies.filter((dep: any) => dep.url !== identifier.url);
-
-        return extensionSchema;
-    } catch (error) {
-        console.warn(`Failed to transform extension ${fhirSchema.name}: ${error}`);
-        return null;
-    }
-}
-
-function extractDependencies(
+export function extractDependencies(
     identifier: Identifier,
     base: Identifier | undefined,
     fields: Record<string, Field> | undefined,
@@ -247,14 +148,15 @@ function transformFhirSchemaResource(
     if (fhirSchema.base && fhirSchema.type !== "Element") {
         const baseFs = register.resolveFs(
             fhirSchema.package_meta,
-            register.ensureSpecializationCanonicalUrl(fhirSchema.package_meta, fhirSchema.base),
+            register.ensureSpecializationCanonicalUrl(fhirSchema.base),
         );
         if (!baseFs) {
-            throw new Error(`Base resource not found '${fhirSchema.base}' for '${fhirSchema.url}'`);
+            throw new Error(
+                `Base resource not found '${fhirSchema.base}' for <${fhirSchema.url}> from ${packageMetaToFhir(fhirSchema.package_meta)}`,
+            );
         }
         base = mkIdentifier(baseFs);
     }
-
     const fields = mkFields(register, fhirSchema, [], fhirSchema.elements, logger);
     const nested = mkNestedTypes(register, fhirSchema, logger);
     const dependencies = extractDependencies(identifier, base, fields, nested);
@@ -278,16 +180,13 @@ export async function transformFhirSchema(
     fhirSchema: RichFHIRSchema,
     logger?: CodegenLogger,
 ): Promise<TypeSchema[]> {
-    const results: TypeSchema[] = [];
-    const identifier = mkIdentifier(fhirSchema);
-
-    if (isExtensionSchema(fhirSchema, identifier)) {
-        const extensionSchema = await transformExtension(fhirSchema, register, logger);
-        if (extensionSchema) {
-            results.push(extensionSchema);
-        }
-        return results;
+    const schemas = transformFhirSchemaResource(register, fhirSchema, logger);
+    if (isExtensionSchema(fhirSchema, mkIdentifier(fhirSchema))) {
+        const schema = schemas[0];
+        if (!schema) throw new Error(`Expected schema to be defined`);
+        (schema as any).metadata = {
+            isExtension: true, // Mark as extension for file organization
+        };
     }
-
-    return transformFhirSchemaResource(register, fhirSchema, logger);
+    return schemas;
 }

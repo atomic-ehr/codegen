@@ -29,10 +29,7 @@ export type {
 // Export main API builder and utilities
 export {
     APIBuilder,
-    createAPI,
     createAPIFromConfig,
-    generateTypesFromFiles,
-    generateTypesFromPackage,
 } from "./builder";
 export type { GeneratedFile } from "./generators/base/index";
 export type { TypeScriptGeneratorOptions } from "./generators/typescript";

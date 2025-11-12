@@ -7,27 +7,6 @@
 import { APIBuilder } from "../../../api/index";
 import type { Config } from "../../../config";
 import { createLogger } from "../../utils/log";
-import type { CLIArgv } from "../index";
-
-interface TypeScriptGenerateArgs extends CLIArgv {
-    input?: string;
-    output?: string;
-    "include-comments"?: boolean;
-    "include-validation"?: boolean;
-    "namespace-style"?: "nested" | "flat";
-    "file-naming"?: "camelCase" | "kebab-case" | "snake_case" | "PascalCase";
-    format?: boolean;
-    "file-header"?: string;
-    overwrite?: boolean;
-    // TypeScript-specific options
-    strict?: boolean;
-    target?: "ES5" | "ES6" | "ES2015" | "ES2017" | "ES2018" | "ES2019" | "ES2020" | "ES2021" | "ES2022";
-    module?: "CommonJS" | "ES6" | "ES2015" | "ES2020" | "ES2022" | "ESNext";
-    declaration?: boolean;
-    "base-types-module"?: string;
-    "use-enums"?: boolean;
-    "prefer-interfaces"?: boolean;
-}
 
 /**
  * Generate TypeScript types from TypeSchema using the high-level API
@@ -55,7 +34,7 @@ export async function generateTypeScript(config: Config, inputPath?: string): Pr
     }
 
     // Configure TypeScript generation with options from config
-    builder.typescript(config.typescript || {});
+    builder.typescriptDepricated(config.typescript || {});
 
     // Add progress callback if verbose
     if (config.verbose) {

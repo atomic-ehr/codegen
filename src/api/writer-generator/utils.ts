@@ -1,3 +1,5 @@
+import type { TypeSchema } from "@root/typeschema";
+
 export const words = (s: string) => {
     return s.split(/(?<=[a-z])(?=[A-Z])|[-_.\s]/).filter(Boolean);
 };
@@ -61,3 +63,7 @@ export function deepEqual<T>(obj1: T, obj2: T): boolean {
 
     return keys1.every((key) => keys2.includes(key) && deepEqual(obj1[key], obj2[key]));
 }
+
+export const typeSchemaInfo = (schema: TypeSchema): string => {
+    return `<${schema.identifier.url}> from ${schema.identifier.package}#${schema.identifier.version}`;
+};

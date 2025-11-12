@@ -7,6 +7,7 @@
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
+import { packageMetaToFhir } from "@typeschema/types";
 import type { BindingIdentifier, Field, Identifier, Name, RegularField, RichFHIRSchema } from "../types";
 import { buildEnum } from "./binding";
 import { mkBindingIdentifier, mkIdentifier } from "./identifier";
@@ -53,8 +54,9 @@ const buildReferences = (
 ): Identifier[] | undefined => {
     if (!element.refers) return undefined;
     return element.refers.map((ref) => {
-        const curl = register.ensureSpecializationCanonicalUrl(fhirSchema.package_meta, ref as Name);
-        const fs = register.resolveFs(fhirSchema.package_meta, curl)!;
+        const curl = register.ensureSpecializationCanonicalUrl(ref as Name);
+        const fs = register.resolveFs(fhirSchema.package_meta, curl);
+        if (!fs) throw new Error(`Failed to resolve fs for ${curl}`);
         return mkIdentifier(fs);
     });
 };
@@ -72,9 +74,13 @@ export function buildFieldType(
             .filter((_, i) => i % 2 === 1); // drop `elements` from path
         return mkNestedIdentifier(register, fhirSchema, refPath, logger);
     } else if (element.type) {
-        const url = register.ensureSpecializationCanonicalUrl(fhirSchema.package_meta, element.type);
+        const url = register.ensureSpecializationCanonicalUrl(element.type);
         const fieldFs = register.resolveFs(fhirSchema.package_meta, url);
-        if (!fieldFs) throw new Error(`Could not resolve field type: '${element.type}'`);
+        if (!fieldFs)
+            throw new Error(
+                `Could not resolve field type: '${element.type}' (from '${fhirSchema.url}' in '${packageMetaToFhir(fhirSchema.package_meta)}')`,
+            );
+
         return mkIdentifier(fieldFs);
     } else if (element.choices) {
         return undefined;
@@ -85,7 +91,6 @@ export function buildFieldType(
             `Can't recognize element type '${fhirSchema.url}' (${fhirSchema.derivation}) at '${path.join(".")}': ${JSON.stringify(element, undefined, 2)}`,
         );
         throw new Error(`Unrecognized element type`);
-        // return undefined;
     }
 }
 
@@ -106,8 +111,11 @@ export const mkField = (
         }
     }
 
+    const fieldType = buildFieldType(register, fhirSchema, path, element, logger);
+    // TODO: should be an exception
+    if (!fieldType) logger?.warn(`Field type not found for ${path.join(".")}`);
     return {
-        type: buildFieldType(register, fhirSchema, path, element, logger)!,
+        type: fieldType!,
         required: isRequired(register, fhirSchema, path),
         excluded: isExcluded(register, fhirSchema, path),
 
@@ -149,8 +157,9 @@ export function mkNestedField(
     element: FHIRSchemaElement,
     logger?: CodegenLogger,
 ): RegularField {
+    const nestedIdentifier = mkNestedIdentifier(register, fhirSchema, path, logger);
     return {
-        type: mkNestedIdentifier(register, fhirSchema, path, logger),
+        type: nestedIdentifier,
         array: element.array || false,
         required: isRequired(register, fhirSchema, path),
         excluded: isExcluded(register, fhirSchema, path),

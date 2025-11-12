@@ -9,13 +9,36 @@ import type * as FS from "@atomic-ehr/fhirschema";
 export type Name = string & { readonly __brand: unique symbol };
 export type CanonicalUrl = string & { readonly __brand: unique symbol };
 
+export const extractNameFromCanonical = (canonical: CanonicalUrl, dropFragment = true) => {
+    let localName = canonical.split("/").pop();
+    if (!localName) return undefined;
+    if (dropFragment && localName.includes("#")) {
+        localName = localName.split("#")[0];
+    }
+    if (!localName) return undefined;
+    if (/^\d/.test(localName)) {
+        localName = `number_${localName}`;
+    }
+    return localName;
+};
+
 export interface PackageMeta {
     name: string;
     version: string;
 }
 
 export const packageMetaToFhir = (packageMeta: PackageMeta) => `${packageMeta.name}#${packageMeta.version}`;
+export const npmToPackageMeta = (fhir: string) => {
+    const [name, version] = fhir.split("@");
+    if (!name) throw new Error(`Invalid FHIR package meta: ${fhir}`);
+    return { name, version: version ?? "latest" };
+};
 export const packageMetaToNpm = (packageMeta: PackageMeta) => `${packageMeta.name}@${packageMeta.version}`;
+export const fhirToPackageMeta = (fhir: string) => {
+    const [name, version] = fhir.split("#");
+    if (!name) throw new Error(`Invalid FHIR package meta: ${fhir}`);
+    return { name, version: version ?? "latest" };
+};
 
 export type RichFHIRSchema = Omit<FS.FHIRSchema, "package_meta" | "base" | "name" | "url"> & {
     package_meta: PackageMeta;
@@ -105,6 +128,10 @@ export const isResourceTypeSchema = (schema: TypeSchema | undefined): schema is 
     return schema?.identifier.kind === "resource";
 };
 
+export const isPrimitiveTypeSchema = (schema: TypeSchema | undefined): schema is PrimitiveTypeSchema => {
+    return schema?.identifier.kind === "primitive-type";
+};
+
 export const isLogicalTypeSchema = (schema: TypeSchema | undefined): schema is RegularTypeSchema => {
     return schema?.identifier.kind === "logical";
 };
@@ -115,6 +142,10 @@ export const isProfileTypeSchema = (schema: TypeSchema | undefined): schema is P
 
 export function isBindingSchema(schema: TypeSchema | undefined): schema is BindingTypeSchema {
     return schema?.identifier.kind === "binding";
+}
+
+export function isValueSetTypeSchema(schema: TypeSchema | undefined): schema is ValueSetTypeSchema {
+    return schema?.identifier.kind === "value-set";
 }
 
 interface PrimitiveTypeSchema {
@@ -282,7 +313,7 @@ export type TypeschemaParserOptions = {
 ///////////////////////////////////////////////////////////
 
 export const isValueSet = (res: any): res is ValueSet => {
-    return res.resourceType === "ValueSet";
+    return res?.resourceType === "ValueSet";
 };
 
 export type ValueSet = {
@@ -318,7 +349,7 @@ type ValueSetCompose = {
 };
 
 export const isCodeSystem = (res: any): res is CodeSystem => {
-    return res.resourceType === "CodeSystem";
+    return res?.resourceType === "CodeSystem";
 };
 
 export type CodeSystem = {

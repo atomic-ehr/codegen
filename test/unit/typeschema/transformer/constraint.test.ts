@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import type { CanonicalUrl } from "@root/typeschema";
+import type { CanonicalUrl } from "@typeschema/types";
 import { mkR4Register, type PFS, r4Package, registerFsAndMkTs } from "@typeschema-test/utils";
 
 describe("TypeSchema Processing constraint generation", async () => {

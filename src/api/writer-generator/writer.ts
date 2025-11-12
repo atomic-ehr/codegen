@@ -8,6 +8,7 @@ export interface WriterOptions {
     tabSize: number;
     withDebugComment?: boolean;
     commentLinePrefix: string;
+    writeTypeTree?: string;
     logger?: CodegenLogger;
 }
 
@@ -27,6 +28,7 @@ class FileSystemWriter {
     }
 
     cd(path: string, gen: () => void) {
+        const prev = this.currentDir;
         this.currentDir = path.startsWith("/")
             ? Path.join(this.opts.outputDir, path)
             : Path.join(this.currentDir, path);
@@ -35,6 +37,7 @@ class FileSystemWriter {
         }
         this.logger()?.debug(`cd '${this.currentDir}'`);
         gen();
+        this.currentDir = prev;
     }
 
     cat(fn: string, gen: () => void) {
@@ -49,6 +52,8 @@ class FileSystemWriter {
             gen();
         } finally {
             if (this.currentFileDescriptor) {
+                // Force flush all buffered data to disk before closing
+                fs.fsyncSync(this.currentFileDescriptor);
                 fs.closeSync(this.currentFileDescriptor);
             }
             this.currentFileDescriptor = undefined;
@@ -58,7 +63,6 @@ class FileSystemWriter {
     write(str: string) {
         if (!this.currentFileDescriptor) throw new Error("No file opened");
         fs.writeSync(this.currentFileDescriptor, str);
-        // this.logger()?.debug(`< ${str.replace(/\n/g, "\\n")}`);
     }
 
     generate(_tsIndex: TypeSchemaIndex) {

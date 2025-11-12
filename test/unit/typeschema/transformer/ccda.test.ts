@@ -1,12 +1,67 @@
 import { describe, expect, it } from "bun:test";
-import type { CanonicalUrl } from "@root/typeschema";
-import type { RegularTypeSchema } from "@root/typeschema/types";
+import type { CanonicalUrl, RegularTypeSchema } from "@root/typeschema/types";
 import { ccdaPackage, mkCCDARegister, registerFsAndMkTs } from "@typeschema-test/utils";
 
-const skipMe = true;
+const skipMe = false;
 
-describe("TypeSchema R4 generation", async () => {
+describe("TypeSchema CCDA generation", async () => {
     const ccda = await mkCCDARegister();
+
+    it.skipIf(skipMe)("http://hl7.org/fhir/StructureDefinition/workflow-protectiveFactor", async () => {
+        const resource = ccda.resolveFs(
+            ccdaPackage,
+            "http://hl7.org/fhir/StructureDefinition/workflow-protectiveFactor" as CanonicalUrl,
+        )!;
+        const ts = (await registerFsAndMkTs(ccda, resource))[0] as RegularTypeSchema;
+        expect(ts).toMatchObject({
+            identifier: {
+                kind: "profile",
+                package: "hl7.fhir.uv.extensions.r5",
+                version: "5.1.0",
+                name: "ProtectiveFactor",
+                url: "http://hl7.org/fhir/StructureDefinition/workflow-protectiveFactor",
+            },
+            base: {
+                kind: "complex-type",
+                package: "hl7.fhir.r5.core",
+                version: "5.0.0",
+                name: "Extension",
+                url: "http://hl7.org/fhir/StructureDefinition/Extension",
+            },
+            fields: {
+                extension: {
+                    type: {
+                        kind: "complex-type",
+                        package: "hl7.fhir.r5.core",
+                        version: "5.0.0",
+                        name: "Extension",
+                        url: "http://hl7.org/fhir/StructureDefinition/Extension",
+                    },
+                },
+                url: {
+                    type: {
+                        kind: "primitive-type",
+                        package: "hl7.fhir.r5.core",
+                        version: "5.0.0",
+                        name: "uri",
+                        url: "http://hl7.org/fhir/StructureDefinition/uri",
+                    },
+                },
+                value: {
+                    choices: ["valueCodeableReference"],
+                },
+                valueCodeableReference: {
+                    type: {
+                        kind: "complex-type",
+                        package: "hl7.fhir.r5.core",
+                        version: "5.0.0",
+                        name: "CodeableReference",
+                        url: "http://hl7.org/fhir/StructureDefinition/CodeableReference",
+                    },
+                },
+            },
+        });
+    });
 
     it.skipIf(skipMe)("http://hl7.org/cda/stds/core/StructureDefinition/ON", async () => {
         const resource = ccda.resolveFs(
@@ -54,8 +109,8 @@ describe("TypeSchema R4 generation", async () => {
                     },
                     base: {
                         kind: "complex-type",
-                        package: "hl7.cda.uv.core",
-                        version: "2.0.1-sd",
+                        package: "hl7.fhir.r5.core",
+                        version: "5.0.0",
                         name: "BackboneElement",
                         url: "http://hl7.org/fhir/StructureDefinition/BackboneElement",
                     },
@@ -122,23 +177,13 @@ describe("TypeSchema R4 generation", async () => {
         });
     });
 
-    it.skipIf(skipMe)("http://hl7.org/cda/stds/core/StructureDefinition/ON", async () => {
-        console.log(
-            JSON.stringify(
-                ccda.resolveFsGenealogy(
-                    ccdaPackage,
-                    "http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent" as any,
-                ),
-                undefined,
-                2,
-            ),
-        );
+    it.skipIf(skipMe)("http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent", async () => {
         const resource = ccda.resolveFs(
             ccdaPackage,
             "http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent" as CanonicalUrl,
         )!;
         const ts = (await registerFsAndMkTs(ccda, resource))[0] as RegularTypeSchema;
-        console.log(JSON.stringify(ts, null, 2));
+        // console.log(JSON.stringify(ts, null, 2));
         // NOTE: problem: canonical manager recomend us to use R5, but we failing on R4 AuditEvent.
         expect(ts).toMatchObject({
             identifier: {
@@ -148,7 +193,27 @@ describe("TypeSchema R4 generation", async () => {
                 name: "EHRS FM Record Lifecycle Event - Audit Event",
                 url: "http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent",
             },
-            fields: { type: { type: "foo" } },
+            fields: {
+                type: {
+                    array: false,
+                    binding: {
+                        kind: "binding",
+                        name: "AuditEventType",
+                        package: "shared",
+                        url: "urn:fhir:binding:AuditEventType",
+                        version: "1.0.0",
+                    },
+                    excluded: false,
+                    required: true,
+                    type: {
+                        kind: "complex-type",
+                        name: "Coding",
+                        package: "hl7.fhir.r4.core",
+                        url: "http://hl7.org/fhir/StructureDefinition/Coding",
+                        version: "4.0.1",
+                    },
+                },
+            },
         });
     });
 });

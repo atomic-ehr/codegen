@@ -10,12 +10,13 @@ if (require.main === module) {
         .verbose()
         .throwException()
         .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
-        .typescript2({ withDebugComment: false })
-        .outputTo("./examples/ccda/fhir-types")
+        .typescript({ withDebugComment: false })
+        .outputTo("./examples/typescript-ccda/fhir-types")
+        .writeTypeSchemas("./examples/typescript-ccda/type-schemas")
+        .writeTypeTree("./examples/typescript-ccda/tree.yaml")
         .cleanOutput(true);
 
     const report = await builder.generate();
-
     console.log(report);
 
     if (report.success) {

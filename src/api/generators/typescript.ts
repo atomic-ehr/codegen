@@ -5,9 +5,11 @@
  * Built using the BaseGenerator architecture with TypeMapper, TemplateEngine, and FileManager.
  */
 
+// DEPRICATED, USE: src/api/writer-generator/typescript.ts
+
 import type { BindingTypeSchema, TypeSchema } from "@typeschema/types";
 import { isBindingSchema } from "@typeschema/types";
-import { BaseGenerator } from "./base/BaseGenerator";
+import { BaseGenerator, type GeneratorInput } from "./base/BaseGenerator";
 import { TypeScriptTypeMapper, type TypeScriptTypeMapperOptions } from "./base/TypeScriptTypeMapper";
 import type { BaseGeneratorOptions, GeneratedFile, TemplateContext, TypeMapper } from "./base/types";
 
@@ -824,11 +826,11 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
     /**
      * Override generate to clean directory first
      */
-    public override async generate(schemas: TypeSchema[]): Promise<GeneratedFile[]> {
+    public override async generate(input: GeneratorInput): Promise<GeneratedFile[]> {
         await this.fileManager.cleanDirectory();
 
         this.logger.debug("Cleaned output directory before generation");
-        return super.generate(schemas);
+        return super.generate(input);
     }
 
     /**

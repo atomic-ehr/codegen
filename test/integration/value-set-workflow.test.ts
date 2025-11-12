@@ -71,7 +71,7 @@ describe("Value Set Integration Workflow", () => {
             },
         ];
 
-        const results = await generator.generate(schemas);
+        const results = await generator.generate({ schemas } as any);
 
         // The main files (Patient.ts) should be generated
         expect(results.length).toBeGreaterThan(0);
@@ -104,7 +104,7 @@ describe("Value Set Integration Workflow", () => {
             valueset: { url: "http://test.com/valueset" },
         };
 
-        const _results = await generator.generate([schema]);
+        const _results = await generator.generate({ schemas: [schema] } as any);
 
         // Value sets are processed but not returned in the results array
         // Check that the value set was collected and can generate correct content
@@ -124,7 +124,7 @@ describe("Value Set Integration Workflow", () => {
     });
 
     test("should handle empty schema list gracefully", async () => {
-        const results = await generator.generate([]);
+        const results = await generator.generate({ schemas: [] });
 
         // Should still generate some files but no value sets
         const valueSetFiles = results.filter((r) => r.filename.startsWith("valuesets/"));
