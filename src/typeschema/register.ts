@@ -1,5 +1,4 @@
-import * as afs from "node:fs/promises";
-import * as Path from "node:path";
+
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import * as fhirschema from "@atomic-ehr/fhirschema";
 import {
@@ -43,14 +42,8 @@ export type Register = {
     resolver: PackageAwareResolver;
 } & ReturnType<typeof CanonicalManager>;
 
-const readPackageJSON = async (workDir: string, packageMeta: PackageMeta) => {
-    const packageJSONFileName = Path.join(workDir, "node_modules", packageMeta.name, "package.json");
-    const packageJSON = JSON.parse(await afs.readFile(packageJSONFileName, "utf8"));
-    return packageJSON;
-};
-
-const readPackageDependencies = async (workDir: string, packageMeta: PackageMeta) => {
-    const packageJSON = await readPackageJSON(workDir, packageMeta);
+const readPackageDependencies = async (manager: ReturnType<typeof CanonicalManager>, packageMeta: PackageMeta) => {
+    const packageJSON = (await manager.packageJson(packageMeta.name)) as any;
     const dependencies = packageJSON.dependencies;
     if (dependencies !== undefined) {
         return Object.entries(dependencies).map(([name, version]): PackageMeta => {
@@ -109,8 +102,7 @@ const mkPackageAwareResolver = async (
         index.canonicalResolution[url] = [{ deep, pkg: pkg, pkgId, resource }];
     }
 
-    // FIXME: hardcoded path
-    const deps = await readPackageDependencies("tmp/fhir", pkg);
+    const deps = await readPackageDependencies(manager, pkg);
     for (const depPkg of deps) {
         const { canonicalResolution } = await mkPackageAwareResolver(manager, depPkg, deep + 1, acc, logger);
         for (const [surl, resolutions] of Object.entries(canonicalResolution)) {
