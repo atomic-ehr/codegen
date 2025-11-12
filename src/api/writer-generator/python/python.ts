@@ -74,6 +74,7 @@ const MAX_IMPORT_LINE_LENGTH = 100;
 export interface PythonGeneratorOptions extends WriterOptions {
     allowExtraFields?: boolean;
     staticDir?: string;
+    packageName?: string;
 }
 
 interface ImportGroup {
@@ -128,7 +129,7 @@ type TypeSchemaPackageGroups = {
 export class Python extends Writer {
     private readonly allowExtraFields: boolean;
     private readonly helper: PythonHelper;
-    private readonly rootPackage: string = "generated"; // TODO: make configurable
+    private readonly rootPackage: string;
     private readonly staticDir: string | undefined;
 
     constructor(options: PythonGeneratorOptions) {
@@ -138,6 +139,7 @@ export class Python extends Writer {
         this.allowExtraFields = options.allowExtraFields || false;
         this.helper = new PythonHelper();
         this.staticDir = options.staticDir || undefined;
+        this.rootPackage = options.packageName || "generated";
     }
 
     override generate(tsIndex: TypeSchemaIndex): void {

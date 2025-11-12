@@ -7,7 +7,9 @@ import {
 } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
 import {
+    type CanonicalUrl,
     extractNameFromCanonical,
+    type Identifier,
     isChoiceDeclarationField,
     isNestedIdentifier,
     isNotChoiceDeclarationField,
@@ -18,8 +20,6 @@ import {
     type ProfileTypeSchema,
     type RegularField,
     type RegularTypeSchema,
-    type CanonicalUrl,
-    type Identifier,
     type TypeSchema,
 } from "@root/typeschema/types";
 import { groupByPackages, type TypeSchemaIndex } from "@root/typeschema/utils";

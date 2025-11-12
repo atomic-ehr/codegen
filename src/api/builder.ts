@@ -10,11 +10,10 @@ import * as afs from "node:fs/promises";
 import * as Path from "node:path";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { GeneratedFile } from "@root/api/generators/base/types";
-import { Python } from "@root/api/writer-generator/python/python.ts";
-import { camelCase, deepEqual } from "@root/api/writer-generator/utils.ts";
 import { CSharp } from "@root/api/writer-generator/csharp/csharp.ts";
+import { Python } from "@root/api/writer-generator/python/python.ts";
 import { registerFromManager } from "@root/typeschema/register";
-import { mkTypeSchemaIndex, treeShake, type TreeShake } from "@root/typeschema/utils";
+import { mkTypeSchemaIndex, type TreeShake, treeShake } from "@root/typeschema/utils";
 import { generateTypeSchemas, TypeSchemaCache, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";
 import {
     extractNameFromCanonical,
@@ -25,10 +24,10 @@ import {
 } from "@typeschema/types";
 import type { Config, TypeSchemaConfig } from "../config";
 import { CodegenLogger, createLogger } from "../utils/codegen-logger";
+import type { GeneratorInput } from "./generators/base/BaseGenerator";
 import { TypeScriptGenerator as TypeScriptGeneratorDepricated } from "./generators/typescript";
 import * as TS2 from "./writer-generator/typescript";
 import type { Writer, WriterOptions } from "./writer-generator/writer";
-import type { GeneratorInput } from "./generators/base/BaseGenerator";
 
 /**
  * Configuration options for the API builder
@@ -327,19 +326,25 @@ export class APIBuilder {
         return this;
     }
 
-    python() {
+    python(staticSourceDir?: string | undefined, packageName?: string | undefined): APIBuilder {
         const writerOpts = {
             outputDir: Path.join(this.options.outputDir),
             tabSize: 4,
             withDebugComment: false,
             commentLinePrefix: "#",
         };
-        const effectiveOpts = { logger: this.logger, ...writerOpts };
+        const effectiveOpts = {
+            logger: this.logger,
+            staticDir: staticSourceDir ?? undefined,
+            packageName: packageName ?? undefined,
+            ...writerOpts,
+        };
         const generator = writerToGenerator(new Python(effectiveOpts));
         this.generators.set("python", generator);
         this.logger.debug(`Configured python generator (${JSON.stringify(effectiveOpts, undefined, 2)})`);
+        return this;
     }
-    
+
     csharp(namespace: string, staticSourceDir?: string | undefined): APIBuilder {
         const generator = writerToGenerator(
             new CSharp({

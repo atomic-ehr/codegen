@@ -7,7 +7,6 @@
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import type { Register } from "@typeschema/register";
-import type { CanonicalUrl, Name } from "@typeschema/types";
 import {
     type Field,
     type Identifier,
