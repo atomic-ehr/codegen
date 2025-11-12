@@ -25,9 +25,6 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: HACK to fetch correct canonical manager cache
-        run: bun test test/unit/typeschema/transformer/ccda.test.ts
-
       - name: Run tests
         run: bun run test:ci
 
