@@ -320,8 +320,8 @@ export class APIBuilder {
         };
         const effectiveOpts = { logger: this.logger, ...writerOpts, ...opts };
         const generator = writerToGenerator(new TS2.TypeScript(effectiveOpts));
-        this.generators.set("typescript2", generator);
-        this.logger.debug(`Configured TypeScript2 generator (${JSON.stringify(effectiveOpts, undefined, 2)})`);
+        this.generators.set("typescript", generator);
+        this.logger.debug(`Configured TypeScript generator (${JSON.stringify(effectiveOpts, undefined, 2)})`);
         return this;
     }
 
