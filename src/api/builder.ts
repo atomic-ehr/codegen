@@ -418,7 +418,7 @@ export class APIBuilder {
             this.logger.info("Initialize Canonical Manager");
             const manager = CanonicalManager({
                 packages: this.packages,
-                workingDir: "tmp/fhir",
+                workingDir: ".codegen-cache/canonical-manager-cache",
             });
             await manager.init();
             const register = await registerFromManager(manager, {
