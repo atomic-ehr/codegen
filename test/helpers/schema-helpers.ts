@@ -1,5 +1,5 @@
 /**
- * Helper functions for creating test schemas
+ * PythonHelper functions for creating test schemas
  */
 
 import type { TypeSchema } from "@typeschema/index";

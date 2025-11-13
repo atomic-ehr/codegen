@@ -60,3 +60,21 @@ test-csharp-sdk: typecheck format prepare-aidbox-runme lint
 	cd examples/csharp && dotnet restore
 	cd examples/csharp && dotnet build
 	cd examples/csharp && dotnet test
+
+PYTHON=python3
+PYTHON_SDK_EXAMPLE=./examples/python
+
+test-python-sdk: typecheck format prepare-aidbox-runme lint
+	$(TYPECHECK) --project tsconfig.example-python.json
+	bun run examples/python/generate.ts
+
+	@if [ ! -d "$(PYTHON_SDK_EXAMPLE)/venv" ]; then \
+		cd $(PYTHON_SDK_EXAMPLE) && \
+		$(PYTHON) -m venv venv && \
+		. venv/bin/activate && \
+		pip install -r generated/requirements.txt; \
+	fi
+
+	cd $(PYTHON_SDK_EXAMPLE) && \
+		. venv/bin/activate && \
+		python -m pytest test_sdk.py -v
