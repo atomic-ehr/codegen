@@ -316,6 +316,7 @@ export class APIBuilder {
             tabSize: 4,
             withDebugComment: false,
             commentLinePrefix: "//",
+            generateProfile: true,
             exportTypeTree: this.options.exportTypeTree,
         };
         const effectiveOpts = { logger: this.logger, ...writerOpts, ...opts };

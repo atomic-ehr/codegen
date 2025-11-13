@@ -8,6 +8,7 @@ export interface WriterOptions {
     tabSize: number;
     withDebugComment?: boolean;
     commentLinePrefix: string;
+    generateProfile?: boolean;
     logger?: CodegenLogger;
 }
 
