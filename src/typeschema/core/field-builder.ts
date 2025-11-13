@@ -113,7 +113,8 @@ export const mkField = (
 
     const fieldType = buildFieldType(register, fhirSchema, path, element, logger);
     // TODO: should be an exception
-    if (!fieldType) logger?.warn(`Field type not found for ${path.join(".")}`);
+    if (!fieldType)
+        logger?.warn(`Field type not found for '${fhirSchema.url}#${path.join(".")}' (${fhirSchema.derivation})`);
     return {
         type: fieldType!,
         required: isRequired(register, fhirSchema, path),

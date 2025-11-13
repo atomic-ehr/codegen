@@ -28,14 +28,14 @@ export interface PackageMeta {
 }
 
 export const packageMetaToFhir = (packageMeta: PackageMeta) => `${packageMeta.name}#${packageMeta.version}`;
-export const npmToPackageMeta = (fhir: string) => {
-    const [name, version] = fhir.split("@");
-    if (!name) throw new Error(`Invalid FHIR package meta: ${fhir}`);
-    return { name, version: version ?? "latest" };
-};
 export const packageMetaToNpm = (packageMeta: PackageMeta) => `${packageMeta.name}@${packageMeta.version}`;
 export const fhirToPackageMeta = (fhir: string) => {
     const [name, version] = fhir.split("#");
+    if (!name) throw new Error(`Invalid FHIR package meta: ${fhir}`);
+    return { name, version: version ?? "latest" };
+};
+export const npmToPackageMeta = (fhir: string) => {
+    const [name, version] = fhir.split("@");
     if (!name) throw new Error(`Invalid FHIR package meta: ${fhir}`);
     return { name, version: version ?? "latest" };
 };
