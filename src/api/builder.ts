@@ -14,13 +14,7 @@ import { CSharp } from "@root/api/writer-generator/csharp/csharp.ts";
 import { registerFromManager } from "@root/typeschema/register";
 import { mkTypeSchemaIndex, treeShake, type TreeShake } from "@root/typeschema/utils";
 import { generateTypeSchemas, TypeSchemaCache, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";
-import {
-    extractNameFromCanonical,
-    npmToPackageMeta,
-    packageMetaToFhir,
-    packageMetaToNpm,
-    type TypeSchema,
-} from "@typeschema/types";
+import { extractNameFromCanonical, packageMetaToFhir, packageMetaToNpm, type TypeSchema } from "@typeschema/types";
 import type { Config, TypeSchemaConfig } from "../config";
 import { CodegenLogger, createLogger } from "../utils/codegen-logger";
 import { TypeScriptGenerator as TypeScriptGeneratorDepricated } from "./generators/typescript";
@@ -256,6 +250,11 @@ export class APIBuilder {
         return this;
     }
 
+    fromPackageRef(packageRef: string): APIBuilder {
+        this.packages.push(packageRef);
+        return this;
+    }
+
     fromFiles(...filePaths: string[]): APIBuilder {
         this.logger.debug(`Loading from ${filePaths.length} TypeSchema files`);
         const operation = this.loadFromFiles(filePaths);
@@ -421,10 +420,11 @@ export class APIBuilder {
                 packages: this.packages,
                 workingDir: ".codegen-cache/canonical-manager-cache",
             });
-            await manager.init();
+            const ref2meta = await manager.init();
+            const packageMetas = Object.values(ref2meta);
             const register = await registerFromManager(manager, {
                 logger: this.logger,
-                focusedPackages: this.packages.map(npmToPackageMeta),
+                focusedPackages: packageMetas,
             });
 
             const typeSchemas = await generateTypeSchemas(register, this.logger);
