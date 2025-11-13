@@ -8,7 +8,6 @@ export interface WriterOptions {
     tabSize: number;
     withDebugComment?: boolean;
     commentLinePrefix: string;
-    writeTypeTree?: string;
     logger?: CodegenLogger;
 }
 
