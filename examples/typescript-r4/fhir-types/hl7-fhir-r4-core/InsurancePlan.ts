@@ -100,7 +100,7 @@ export interface InsurancePlan extends DomainResource {
     ownedBy?: Reference<"Organization">;
     period?: Period;
     plan?: InsurancePlanPlan[];
-    status?: "draft" | "active" | "retired" | "unknown";
+    status?: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     type?: CodeableConcept[];
 }

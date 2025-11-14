@@ -21,7 +21,7 @@ export interface CompartmentDefinitionResource extends BackboneElement {
 export interface CompartmentDefinition extends DomainResource {
     resourceType: "CompartmentDefinition";
 
-    code: "Patient" | "Encounter" | "RelatedPerson" | "Practitioner" | "Device";
+    code: ("Patient" | "Encounter" | "RelatedPerson" | "Practitioner" | "Device");
     _code?: Element;
     contact?: ContactDetail[];
     date?: string;
@@ -39,7 +39,7 @@ export interface CompartmentDefinition extends DomainResource {
     resource?: CompartmentDefinitionResource[];
     search: boolean;
     _search?: Element;
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     url: string;
     _url?: Element;

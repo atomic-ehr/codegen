@@ -10,12 +10,12 @@ export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 
 export interface OperationOutcomeIssue extends BackboneElement {
-    code: "invalid" | "structure" | "required" | "value" | "invariant" | "security" | "login" | "unknown" | "expired" | "forbidden" | "suppressed" | "processing" | "not-supported" | "duplicate" | "multiple-matches" | "not-found" | "deleted" | "too-long" | "code-invalid" | "extension" | "too-costly" | "business-rule" | "conflict" | "transient" | "lock-error" | "no-store" | "exception" | "timeout" | "incomplete" | "throttled" | "informational";
+    code: ("invalid" | "structure" | "required" | "value" | "invariant" | "security" | "login" | "unknown" | "expired" | "forbidden" | "suppressed" | "processing" | "not-supported" | "duplicate" | "multiple-matches" | "not-found" | "deleted" | "too-long" | "code-invalid" | "extension" | "too-costly" | "business-rule" | "conflict" | "transient" | "lock-error" | "no-store" | "exception" | "timeout" | "incomplete" | "throttled" | "informational");
     details?: CodeableConcept;
     diagnostics?: string;
     expression?: string[];
     location?: string[];
-    severity: "fatal" | "error" | "warning" | "information";
+    severity: ("fatal" | "error" | "warning" | "information");
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/OperationOutcome

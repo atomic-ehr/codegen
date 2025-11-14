@@ -25,7 +25,7 @@ export interface BundleEntryRequest extends BackboneElement {
     ifModifiedSince?: string;
     ifNoneExist?: string;
     ifNoneMatch?: string;
-    method: "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "PATCH";
+    method: ("GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "PATCH");
     url: string;
 }
 
@@ -38,7 +38,7 @@ export interface BundleEntryResponse extends BackboneElement {
 }
 
 export interface BundleEntrySearch extends BackboneElement {
-    mode?: "match" | "include" | "outcome";
+    mode?: ("match" | "include" | "outcome");
     score?: number;
 }
 
@@ -59,6 +59,6 @@ export interface Bundle extends Resource {
     _timestamp?: Element;
     total?: number;
     _total?: Element;
-    type: "document" | "message" | "transaction" | "transaction-response" | "batch" | "batch-response" | "history" | "searchset" | "collection";
+    type: ("document" | "message" | "transaction" | "transaction-response" | "batch" | "batch-response" | "history" | "searchset" | "collection");
     _type?: Element;
 }

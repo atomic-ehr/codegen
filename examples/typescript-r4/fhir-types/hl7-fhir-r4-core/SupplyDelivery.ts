@@ -39,7 +39,7 @@ export interface SupplyDelivery extends DomainResource {
     partOf?: Reference<"Contract" | "SupplyDelivery">[];
     patient?: Reference<"Patient">;
     receiver?: Reference<"Practitioner" | "PractitionerRole">[];
-    status?: "in-progress" | "completed" | "abandoned" | "entered-in-error";
+    status?: ("in-progress" | "completed" | "abandoned" | "entered-in-error");
     _status?: Element;
     suppliedItem?: SupplyDeliverySuppliedItem;
     supplier?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;

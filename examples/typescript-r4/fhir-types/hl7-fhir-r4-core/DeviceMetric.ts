@@ -16,9 +16,9 @@ export type { Reference } from "../hl7-fhir-r4-core/Reference";
 export type { Timing } from "../hl7-fhir-r4-core/Timing";
 
 export interface DeviceMetricCalibration extends BackboneElement {
-    state?: "not-calibrated" | "calibration-required" | "calibrated" | "unspecified";
+    state?: ("not-calibrated" | "calibration-required" | "calibrated" | "unspecified");
     time?: string;
-    type?: "unspecified" | "offset" | "gain" | "two-point";
+    type?: ("unspecified" | "offset" | "gain" | "two-point");
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/DeviceMetric
@@ -26,13 +26,13 @@ export interface DeviceMetric extends DomainResource {
     resourceType: "DeviceMetric";
 
     calibration?: DeviceMetricCalibration[];
-    category: "measurement" | "setting" | "calculation" | "unspecified";
+    category: ("measurement" | "setting" | "calculation" | "unspecified");
     _category?: Element;
-    color?: "black" | "red" | "green" | "yellow" | "blue" | "magenta" | "cyan" | "white";
+    color?: ("black" | "red" | "green" | "yellow" | "blue" | "magenta" | "cyan" | "white");
     _color?: Element;
     identifier?: Identifier[];
     measurementPeriod?: Timing;
-    operationalStatus?: "on" | "off" | "standby" | "entered-in-error";
+    operationalStatus?: ("on" | "off" | "standby" | "entered-in-error");
     _operationalStatus?: Element;
     parent?: Reference<"Device">;
     source?: Reference<"Device">;

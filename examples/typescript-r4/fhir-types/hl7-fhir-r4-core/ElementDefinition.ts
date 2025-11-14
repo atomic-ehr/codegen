@@ -78,7 +78,7 @@ export interface ElementDefinitionBase extends Element {
 
 export interface ElementDefinitionBinding extends Element {
     description?: string;
-    strength: "required" | "extensible" | "preferred" | "example";
+    strength: ("required" | "extensible" | "preferred" | "example");
     valueSet?: string;
 }
 
@@ -87,7 +87,7 @@ export interface ElementDefinitionConstraint extends Element {
     human: string;
     key: string;
     requirements?: string;
-    severity: "error" | "warning";
+    severity: ("error" | "warning");
     source?: string;
     xpath?: string;
 }
@@ -157,20 +157,20 @@ export interface ElementDefinitionSlicing extends Element {
     description?: string;
     discriminator?: Element[];
     ordered?: boolean;
-    rules: "closed" | "open" | "openAtEnd";
+    rules: ("closed" | "open" | "openAtEnd");
 }
 
 export interface ElementDefinitionSlicingDiscriminator extends Element {
     path: string;
-    type: "value" | "exists" | "pattern" | "type" | "profile";
+    type: ("value" | "exists" | "pattern" | "type" | "profile");
 }
 
 export interface ElementDefinitionType extends Element {
-    aggregation?: "contained" | "referenced" | "bundled"[];
+    aggregation?: ("contained" | "referenced" | "bundled")[];
     code: string;
     profile?: string[];
     targetProfile?: string[];
-    versioning?: "either" | "independent" | "specific";
+    versioning?: ("either" | "independent" | "specific");
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/ElementDefinition
@@ -454,7 +454,7 @@ export interface ElementDefinition extends BackboneElement {
     patternUsageContext?: UsageContext;
     patternUuid?: string;
     _patternUuid?: Element;
-    representation?: "xmlAttr" | "xmlText" | "typeAttr" | "cdaText" | "xhtml"[];
+    representation?: ("xmlAttr" | "xmlText" | "typeAttr" | "cdaText" | "xhtml")[];
     _representation?: Element;
     requirements?: string;
     _requirements?: Element;

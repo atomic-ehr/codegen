@@ -28,7 +28,7 @@ export interface SearchParameter extends DomainResource {
     _chain?: Element;
     code: string;
     _code?: Element;
-    comparator?: "eq" | "ne" | "gt" | "lt" | "ge" | "le" | "sa" | "eb" | "ap"[];
+    comparator?: ("eq" | "ne" | "gt" | "lt" | "ge" | "le" | "sa" | "eb" | "ap")[];
     _comparator?: Element;
     component?: SearchParameterComponent[];
     contact?: ContactDetail[];
@@ -43,7 +43,7 @@ export interface SearchParameter extends DomainResource {
     expression?: string;
     _expression?: Element;
     jurisdiction?: CodeableConcept[];
-    modifier?: "missing" | "exact" | "contains" | "not" | "text" | "in" | "not-in" | "below" | "above" | "type" | "identifier" | "ofType"[];
+    modifier?: ("missing" | "exact" | "contains" | "not" | "text" | "in" | "not-in" | "below" | "above" | "type" | "identifier" | "ofType")[];
     _modifier?: Element;
     multipleAnd?: boolean;
     _multipleAnd?: Element;
@@ -55,11 +55,11 @@ export interface SearchParameter extends DomainResource {
     _publisher?: Element;
     purpose?: string;
     _purpose?: Element;
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     target?: string[];
     _target?: Element;
-    type: "number" | "date" | "string" | "token" | "reference" | "composite" | "quantity" | "uri" | "special";
+    type: ("number" | "date" | "string" | "token" | "reference" | "composite" | "quantity" | "uri" | "special");
     _type?: Element;
     url: string;
     _url?: Element;
@@ -68,6 +68,6 @@ export interface SearchParameter extends DomainResource {
     _version?: Element;
     xpath?: string;
     _xpath?: Element;
-    xpathUsage?: "normal" | "phonetic" | "nearby" | "distance" | "other";
+    xpathUsage?: ("normal" | "phonetic" | "nearby" | "distance" | "other");
     _xpathUsage?: Element;
 }

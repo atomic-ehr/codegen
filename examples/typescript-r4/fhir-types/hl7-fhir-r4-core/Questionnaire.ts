@@ -30,7 +30,7 @@ export interface QuestionnaireItem extends BackboneElement {
     answerValueSet?: string;
     code?: Coding[];
     definition?: string;
-    enableBehavior?: "all" | "any";
+    enableBehavior?: ("all" | "any");
     enableWhen?: QuestionnaireItemEnableWhen[];
     initial?: QuestionnaireItemInitial[];
     item?: QuestionnaireItem[];
@@ -41,7 +41,7 @@ export interface QuestionnaireItem extends BackboneElement {
     repeats?: boolean;
     required?: boolean;
     text?: string;
-    type: "group" | "display" | "question" | "boolean" | "decimal" | "integer" | "date" | "dateTime" | "time" | "string" | "text" | "url" | "choice" | "open-choice" | "attachment" | "reference" | "quantity";
+    type: ("group" | "display" | "question" | "boolean" | "decimal" | "integer" | "date" | "dateTime" | "time" | "string" | "text" | "url" | "choice" | "open-choice" | "attachment" | "reference" | "quantity");
 }
 
 export interface QuestionnaireItemAnswerOption extends BackboneElement {
@@ -65,7 +65,7 @@ export interface QuestionnaireItemEnableWhen extends BackboneElement {
     answerReference?: Reference<"Resource">;
     answerString?: string;
     answerTime?: string;
-    operator: "exists" | "=" | "!=" | ">" | "<" | ">=" | "<=";
+    operator: ("exists" | "=" | "!=" | ">" | "<" | ">=" | "<=");
     question: string;
 }
 
@@ -114,7 +114,7 @@ export interface Questionnaire extends DomainResource {
     _publisher?: Element;
     purpose?: string;
     _purpose?: Element;
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     subjectType?: string[];
     _subjectType?: Element;

@@ -29,7 +29,7 @@ export interface ImplementationGuideDefinitionGrouping extends BackboneElement {
 }
 
 export interface ImplementationGuideDefinitionPage extends BackboneElement {
-    generation: "html" | "markdown" | "xml" | "generated";
+    generation: ("html" | "markdown" | "xml" | "generated");
     nameReference?: Reference<"Binary">;
     nameUrl?: string;
     page?: ImplementationGuideDefinitionPage[];
@@ -37,7 +37,7 @@ export interface ImplementationGuideDefinitionPage extends BackboneElement {
 }
 
 export interface ImplementationGuideDefinitionParameter extends BackboneElement {
-    code: "apply" | "path-resource" | "path-pages" | "path-tx-cache" | "expansion-parameter" | "rule-broken-links" | "generate-xml" | "generate-json" | "generate-turtle" | "html-template";
+    code: ("apply" | "path-resource" | "path-pages" | "path-tx-cache" | "expansion-parameter" | "rule-broken-links" | "generate-xml" | "generate-json" | "generate-turtle" | "html-template");
     value: string;
 }
 
@@ -45,7 +45,7 @@ export interface ImplementationGuideDefinitionResource extends BackboneElement {
     description?: string;
     exampleBoolean?: boolean;
     exampleCanonical?: string;
-    fhirVersion?: "0.01" | "0.05" | "0.06" | "0.11" | "0.0.80" | "0.0.81" | "0.0.82" | "0.4.0" | "0.5.0" | "1.0.0" | "1.0.1" | "1.0.2" | "1.1.0" | "1.4.0" | "1.6.0" | "1.8.0" | "3.0.0" | "3.0.1" | "3.3.0" | "3.5.0" | "4.0.0" | "4.0.1"[];
+    fhirVersion?: ("0.01" | "0.05" | "0.06" | "0.11" | "0.0.80" | "0.0.81" | "0.0.82" | "0.4.0" | "0.5.0" | "1.0.0" | "1.0.1" | "1.0.2" | "1.1.0" | "1.4.0" | "1.6.0" | "1.8.0" | "3.0.0" | "3.0.1" | "3.3.0" | "3.5.0" | "4.0.0" | "4.0.1")[];
     groupingId?: string;
     name?: string;
     reference: Reference<"Resource">;
@@ -104,7 +104,7 @@ export interface ImplementationGuide extends DomainResource {
     _description?: Element;
     experimental?: boolean;
     _experimental?: Element;
-    fhirVersion: "0.01" | "0.05" | "0.06" | "0.11" | "0.0.80" | "0.0.81" | "0.0.82" | "0.4.0" | "0.5.0" | "1.0.0" | "1.0.1" | "1.0.2" | "1.1.0" | "1.4.0" | "1.6.0" | "1.8.0" | "3.0.0" | "3.0.1" | "3.3.0" | "3.5.0" | "4.0.0" | "4.0.1"[];
+    fhirVersion: ("0.01" | "0.05" | "0.06" | "0.11" | "0.0.80" | "0.0.81" | "0.0.82" | "0.4.0" | "0.5.0" | "1.0.0" | "1.0.1" | "1.0.2" | "1.1.0" | "1.4.0" | "1.6.0" | "1.8.0" | "3.0.0" | "3.0.1" | "3.3.0" | "3.5.0" | "4.0.0" | "4.0.1")[];
     _fhirVersion?: Element;
     global?: ImplementationGuideGlobal[];
     jurisdiction?: CodeableConcept[];
@@ -117,7 +117,7 @@ export interface ImplementationGuide extends DomainResource {
     _packageId?: Element;
     publisher?: string;
     _publisher?: Element;
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     title?: string;
     _title?: Element;

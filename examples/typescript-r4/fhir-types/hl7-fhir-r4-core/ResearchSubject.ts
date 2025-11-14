@@ -23,7 +23,7 @@ export interface ResearchSubject extends DomainResource {
     identifier?: Identifier[];
     individual: Reference<"Patient">;
     period?: Period;
-    status: "candidate" | "eligible" | "follow-up" | "ineligible" | "not-registered" | "off-study" | "on-study" | "on-study-intervention" | "on-study-observation" | "pending-on-study" | "potential-candidate" | "screening" | "withdrawn";
+    status: ("candidate" | "eligible" | "follow-up" | "ineligible" | "not-registered" | "off-study" | "on-study" | "on-study-intervention" | "on-study-observation" | "pending-on-study" | "potential-candidate" | "screening" | "withdrawn");
     _status?: Element;
     study: Reference<"ResearchStudy">;
 }

@@ -206,7 +206,7 @@ export interface Task extends DomainResource {
     instantiatesUri?: string;
     _instantiatesUri?: Element;
     insurance?: Reference<"ClaimResponse" | "Coverage">[];
-    intent: "unknown" | "proposal" | "plan" | "order" | "original-order" | "reflex-order" | "filler-order" | "instance-order" | "option";
+    intent: ("unknown" | "proposal" | "plan" | "order" | "original-order" | "reflex-order" | "filler-order" | "instance-order" | "option");
     _intent?: Element;
     lastModified?: string;
     _lastModified?: Element;
@@ -216,14 +216,14 @@ export interface Task extends DomainResource {
     owner?: Reference<"CareTeam" | "Device" | "HealthcareService" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     partOf?: Reference<"Task">[];
     performerType?: CodeableConcept[];
-    priority?: "routine" | "urgent" | "asap" | "stat";
+    priority?: ("routine" | "urgent" | "asap" | "stat");
     _priority?: Element;
     reasonCode?: CodeableConcept;
     reasonReference?: Reference<"Resource">;
     relevantHistory?: Reference<"Provenance">[];
     requester?: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     restriction?: TaskRestriction;
-    status: "draft" | "requested" | "received" | "accepted" | "rejected" | "ready" | "cancelled" | "in-progress" | "on-hold" | "failed" | "completed" | "entered-in-error";
+    status: ("draft" | "requested" | "received" | "accepted" | "rejected" | "ready" | "cancelled" | "in-progress" | "on-hold" | "failed" | "completed" | "entered-in-error");
     _status?: Element;
     statusReason?: CodeableConcept;
 }

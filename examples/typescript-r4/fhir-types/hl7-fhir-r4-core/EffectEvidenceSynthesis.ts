@@ -53,7 +53,7 @@ export interface EffectEvidenceSynthesisEffectEstimatePrecisionEstimate extends 
 
 export interface EffectEvidenceSynthesisResultsByExposure extends BackboneElement {
     description?: string;
-    exposureState?: "exposure" | "exposure-alternative";
+    exposureState?: ("exposure" | "exposure-alternative");
     riskEvidenceSynthesis: Reference<"RiskEvidenceSynthesis">;
     variantState?: CodeableConcept;
 }
@@ -100,7 +100,7 @@ export interface EffectEvidenceSynthesis extends DomainResource {
     resultsByExposure?: EffectEvidenceSynthesisResultsByExposure[];
     reviewer?: ContactDetail[];
     sampleSize?: EffectEvidenceSynthesisSampleSize;
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     studyType?: CodeableConcept;
     synthesisType?: CodeableConcept;

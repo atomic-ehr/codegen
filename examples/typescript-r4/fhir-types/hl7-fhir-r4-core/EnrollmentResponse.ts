@@ -19,10 +19,10 @@ export interface EnrollmentResponse extends DomainResource {
     _disposition?: Element;
     identifier?: Identifier[];
     organization?: Reference<"Organization">;
-    outcome?: "queued" | "complete" | "error" | "partial";
+    outcome?: ("queued" | "complete" | "error" | "partial");
     _outcome?: Element;
     request?: Reference<"EnrollmentRequest">;
     requestProvider?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
-    status?: "active" | "cancelled" | "draft" | "entered-in-error";
+    status?: ("active" | "cancelled" | "draft" | "entered-in-error");
     _status?: Element;
 }

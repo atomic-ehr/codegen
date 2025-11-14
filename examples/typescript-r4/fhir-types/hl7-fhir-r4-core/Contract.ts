@@ -32,7 +32,7 @@ export type { Timing } from "../hl7-fhir-r4-core/Timing";
 export interface ContractContentDefinition extends BackboneElement {
     copyright?: string;
     publicationDate?: string;
-    publicationStatus: "amended" | "appended" | "cancelled" | "disputed" | "entered-in-error" | "executable" | "executed" | "negotiable" | "offered" | "policy" | "rejected" | "renewed" | "revoked" | "resolved" | "terminated";
+    publicationStatus: ("amended" | "appended" | "cancelled" | "disputed" | "entered-in-error" | "executable" | "executed" | "negotiable" | "offered" | "policy" | "rejected" | "renewed" | "revoked" | "resolved" | "terminated");
     publisher?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
     subType?: CodeableConcept;
     type: CodeableConcept;
@@ -219,7 +219,7 @@ export interface Contract extends DomainResource {
     scope?: CodeableConcept;
     signer?: ContractSigner[];
     site?: Reference<"Location">[];
-    status?: "amended" | "appended" | "cancelled" | "disputed" | "entered-in-error" | "executable" | "executed" | "negotiable" | "offered" | "policy" | "rejected" | "renewed" | "revoked" | "resolved" | "terminated";
+    status?: ("amended" | "appended" | "cancelled" | "disputed" | "entered-in-error" | "executable" | "executed" | "negotiable" | "offered" | "policy" | "rejected" | "renewed" | "revoked" | "resolved" | "terminated");
     _status?: Element;
     subject?: Reference<"Resource">[];
     subtitle?: string;

@@ -30,7 +30,7 @@ export interface MolecularSequenceQuality extends BackboneElement {
     start?: number;
     truthFN?: number;
     truthTP?: number;
-    type: "indel" | "snp" | "unknown";
+    type: ("indel" | "snp" | "unknown");
 }
 
 export interface MolecularSequenceQualityRoc extends BackboneElement {
@@ -46,11 +46,11 @@ export interface MolecularSequenceQualityRoc extends BackboneElement {
 export interface MolecularSequenceReferenceSeq extends BackboneElement {
     chromosome?: CodeableConcept;
     genomeBuild?: string;
-    orientation?: "sense" | "antisense";
+    orientation?: ("sense" | "antisense");
     referenceSeqId?: CodeableConcept;
     referenceSeqPointer?: Reference<"MolecularSequence">;
     referenceSeqString?: string;
-    strand?: "watson" | "crick";
+    strand?: ("watson" | "crick");
     windowEnd?: number;
     windowStart?: number;
 }
@@ -59,7 +59,7 @@ export interface MolecularSequenceRepository extends BackboneElement {
     datasetId?: string;
     name?: string;
     readsetId?: string;
-    type: "directlink" | "openapi" | "login" | "oauth" | "other";
+    type: ("directlink" | "openapi" | "login" | "oauth" | "other");
     url?: string;
     variantsetId?: string;
 }
@@ -112,7 +112,7 @@ export interface MolecularSequence extends DomainResource {
     repository?: MolecularSequenceRepository[];
     specimen?: Reference<"Specimen">;
     structureVariant?: MolecularSequenceStructureVariant[];
-    type?: "aa" | "dna" | "rna";
+    type?: ("aa" | "dna" | "rna");
     _type?: Element;
     variant?: MolecularSequenceVariant[];
 }

@@ -173,12 +173,12 @@ export interface Claim extends DomainResource {
     provider: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
     referral?: Reference<"ServiceRequest">;
     related?: ClaimRelated[];
-    status: "active" | "cancelled" | "draft" | "entered-in-error";
+    status: ("active" | "cancelled" | "draft" | "entered-in-error");
     _status?: Element;
     subType?: CodeableConcept;
     supportingInfo?: ClaimSupportingInfo[];
     total?: Money;
     type: CodeableConcept;
-    use: "claim" | "preauthorization" | "predetermination";
+    use: ("claim" | "preauthorization" | "predetermination");
     _use?: Element;
 }

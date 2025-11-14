@@ -75,12 +75,12 @@ export interface StructureMapGroup extends BackboneElement {
     input: StructureMapGroupInput[];
     name: string;
     rule: StructureMapGroupRule[];
-    typeMode: "none" | "types" | "type-and-types";
+    typeMode: ("none" | "types" | "type-and-types");
 }
 
 export interface StructureMapGroupInput extends BackboneElement {
     documentation?: string;
-    mode: "source" | "target";
+    mode: ("source" | "target");
     name: string;
     type?: string;
 }
@@ -154,7 +154,7 @@ export interface StructureMapGroupRuleSource extends BackboneElement {
     defaultValueUsageContext?: UsageContext;
     defaultValueUuid?: string;
     element?: string;
-    listMode?: "first" | "not_first" | "last" | "not_last" | "only_one";
+    listMode?: ("first" | "not_first" | "last" | "not_last" | "only_one");
     logMessage?: string;
     max?: string;
     min?: number;
@@ -164,12 +164,12 @@ export interface StructureMapGroupRuleSource extends BackboneElement {
 
 export interface StructureMapGroupRuleTarget extends BackboneElement {
     context?: string;
-    contextType?: "type" | "variable";
+    contextType?: ("type" | "variable");
     element?: string;
-    listMode?: "first" | "share" | "last" | "collate"[];
+    listMode?: ("first" | "share" | "last" | "collate")[];
     listRuleId?: string;
     parameter?: StructureMapGroupRuleTargetParameter[];
-    transform?: "create" | "copy" | "truncate" | "escape" | "cast" | "append" | "translate" | "reference" | "dateOp" | "uuid" | "pointer" | "evaluate" | "cc" | "c" | "qty" | "id" | "cp";
+    transform?: ("create" | "copy" | "truncate" | "escape" | "cast" | "append" | "translate" | "reference" | "dateOp" | "uuid" | "pointer" | "evaluate" | "cc" | "c" | "qty" | "id" | "cp");
     variable?: string;
 }
 
@@ -184,7 +184,7 @@ export interface StructureMapGroupRuleTargetParameter extends BackboneElement {
 export interface StructureMapStructure extends BackboneElement {
     alias?: string;
     documentation?: string;
-    mode: "source" | "queried" | "target" | "produced";
+    mode: ("source" | "queried" | "target" | "produced");
     url: string;
 }
 
@@ -212,7 +212,7 @@ export interface StructureMap extends DomainResource {
     _publisher?: Element;
     purpose?: string;
     _purpose?: Element;
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     structure?: StructureMapStructure[];
     title?: string;

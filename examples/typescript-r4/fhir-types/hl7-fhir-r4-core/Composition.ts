@@ -18,7 +18,7 @@ export type { Period } from "../hl7-fhir-r4-core/Period";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface CompositionAttester extends BackboneElement {
-    mode: "personal" | "professional" | "legal" | "official";
+    mode: ("personal" | "professional" | "legal" | "official");
     party?: Reference<"Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     time?: string;
 }
@@ -30,7 +30,7 @@ export interface CompositionEvent extends BackboneElement {
 }
 
 export interface CompositionRelatesTo extends BackboneElement {
-    code: "replaces" | "transforms" | "signs" | "appends";
+    code: ("replaces" | "transforms" | "signs" | "appends");
     targetIdentifier?: Identifier;
     targetReference?: Reference<"Composition">;
 }
@@ -41,7 +41,7 @@ export interface CompositionSection extends BackboneElement {
     emptyReason?: CodeableConcept;
     entry?: Reference<"Resource">[];
     focus?: Reference<"Resource">;
-    mode?: "working" | "snapshot" | "changes";
+    mode?: ("working" | "snapshot" | "changes");
     orderedBy?: CodeableConcept;
     section?: CompositionSection[];
     text?: Narrative;
@@ -55,7 +55,7 @@ export interface Composition extends DomainResource {
     attester?: CompositionAttester[];
     author: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">[];
     category?: CodeableConcept[];
-    confidentiality?: "U" | "L" | "M" | "N" | "R" | "V";
+    confidentiality?: ("U" | "L" | "M" | "N" | "R" | "V");
     _confidentiality?: Element;
     custodian?: Reference<"Organization">;
     date: string;
@@ -65,7 +65,7 @@ export interface Composition extends DomainResource {
     identifier?: Identifier;
     relatesTo?: CompositionRelatesTo[];
     section?: CompositionSection[];
-    status: "preliminary" | "final" | "amended" | "entered-in-error";
+    status: ("preliminary" | "final" | "amended" | "entered-in-error");
     _status?: Element;
     subject?: Reference<"Resource">;
     title: string;

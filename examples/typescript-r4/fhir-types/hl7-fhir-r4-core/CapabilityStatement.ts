@@ -19,7 +19,7 @@ export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
 export interface CapabilityStatementDocument extends BackboneElement {
     documentation?: string;
-    mode: "producer" | "consumer";
+    mode: ("producer" | "consumer");
     profile: string;
 }
 
@@ -43,14 +43,14 @@ export interface CapabilityStatementMessagingEndpoint extends BackboneElement {
 
 export interface CapabilityStatementMessagingSupportedMessage extends BackboneElement {
     definition: string;
-    mode: "sender" | "receiver";
+    mode: ("sender" | "receiver");
 }
 
 export interface CapabilityStatementRest extends BackboneElement {
     compartment?: string[];
     documentation?: string;
     interaction?: CapabilityStatementRestInteraction[];
-    mode: "client" | "server";
+    mode: ("client" | "server");
     operation?: CapabilityStatementRestResourceOperation[];
     resource?: CapabilityStatementRestResource[];
     searchParam?: CapabilityStatementRestResourceSearchParam[];
@@ -58,32 +58,32 @@ export interface CapabilityStatementRest extends BackboneElement {
 }
 
 export interface CapabilityStatementRestInteraction extends BackboneElement {
-    code: "transaction" | "batch" | "search-system" | "history-system";
+    code: ("transaction" | "batch" | "search-system" | "history-system");
     documentation?: string;
 }
 
 export interface CapabilityStatementRestResource extends BackboneElement {
     conditionalCreate?: boolean;
-    conditionalDelete?: "not-supported" | "single" | "multiple";
-    conditionalRead?: "not-supported" | "modified-since" | "not-match" | "full-support";
+    conditionalDelete?: ("not-supported" | "single" | "multiple");
+    conditionalRead?: ("not-supported" | "modified-since" | "not-match" | "full-support");
     conditionalUpdate?: boolean;
     documentation?: string;
     interaction?: CapabilityStatementRestResourceInteraction[];
     operation?: CapabilityStatementRestResourceOperation[];
     profile?: string;
     readHistory?: boolean;
-    referencePolicy?: "literal" | "logical" | "resolves" | "enforced" | "local"[];
+    referencePolicy?: ("literal" | "logical" | "resolves" | "enforced" | "local")[];
     searchInclude?: string[];
     searchParam?: CapabilityStatementRestResourceSearchParam[];
     searchRevInclude?: string[];
     supportedProfile?: string[];
     type: string;
     updateCreate?: boolean;
-    versioning?: "no-version" | "versioned" | "versioned-update";
+    versioning?: ("no-version" | "versioned" | "versioned-update");
 }
 
 export interface CapabilityStatementRestResourceInteraction extends BackboneElement {
-    code: "read" | "vread" | "update" | "patch" | "delete" | "history-instance" | "history-type" | "create" | "search-type";
+    code: ("read" | "vread" | "update" | "patch" | "delete" | "history-instance" | "history-type" | "create" | "search-type");
     documentation?: string;
 }
 
@@ -97,7 +97,7 @@ export interface CapabilityStatementRestResourceSearchParam extends BackboneElem
     definition?: string;
     documentation?: string;
     name: string;
-    type: "number" | "date" | "string" | "token" | "reference" | "composite" | "quantity" | "uri" | "special";
+    type: ("number" | "date" | "string" | "token" | "reference" | "composite" | "quantity" | "uri" | "special");
 }
 
 export interface CapabilityStatementRestSecurity extends BackboneElement {
@@ -126,7 +126,7 @@ export interface CapabilityStatement extends DomainResource {
     document?: CapabilityStatementDocument[];
     experimental?: boolean;
     _experimental?: Element;
-    fhirVersion: "0.01" | "0.05" | "0.06" | "0.11" | "0.0.80" | "0.0.81" | "0.0.82" | "0.4.0" | "0.5.0" | "1.0.0" | "1.0.1" | "1.0.2" | "1.1.0" | "1.4.0" | "1.6.0" | "1.8.0" | "3.0.0" | "3.0.1" | "3.3.0" | "3.5.0" | "4.0.0" | "4.0.1";
+    fhirVersion: ("0.01" | "0.05" | "0.06" | "0.11" | "0.0.80" | "0.0.81" | "0.0.82" | "0.4.0" | "0.5.0" | "1.0.0" | "1.0.1" | "1.0.2" | "1.1.0" | "1.4.0" | "1.6.0" | "1.8.0" | "3.0.0" | "3.0.1" | "3.3.0" | "3.5.0" | "4.0.0" | "4.0.1");
     _fhirVersion?: Element;
     format: string[];
     _format?: Element;
@@ -138,7 +138,7 @@ export interface CapabilityStatement extends DomainResource {
     instantiates?: string[];
     _instantiates?: Element;
     jurisdiction?: CodeableConcept[];
-    kind: "instance" | "capability" | "requirements";
+    kind: ("instance" | "capability" | "requirements");
     _kind?: Element;
     messaging?: CapabilityStatementMessaging[];
     name?: string;
@@ -151,7 +151,7 @@ export interface CapabilityStatement extends DomainResource {
     _purpose?: Element;
     rest?: CapabilityStatementRest[];
     software?: CapabilityStatementSoftware;
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     title?: string;
     _title?: Element;

@@ -52,7 +52,7 @@ export interface ClinicalImpression extends DomainResource {
     prognosisReference?: Reference<"RiskAssessment">[];
     protocol?: string[];
     _protocol?: Element;
-    status: "in-progress" | "completed" | "entered-in-error";
+    status: ("in-progress" | "completed" | "entered-in-error");
     _status?: Element;
     statusReason?: CodeableConcept;
     subject: Reference<"Group" | "Patient">;

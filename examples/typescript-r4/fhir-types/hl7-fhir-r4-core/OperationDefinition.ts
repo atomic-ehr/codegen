@@ -26,14 +26,14 @@ export interface OperationDefinitionParameter extends BackboneElement {
     name: string;
     part?: OperationDefinitionParameter[];
     referencedFrom?: OperationDefinitionParameterReferencedFrom[];
-    searchType?: "number" | "date" | "string" | "token" | "reference" | "composite" | "quantity" | "uri" | "special";
+    searchType?: ("number" | "date" | "string" | "token" | "reference" | "composite" | "quantity" | "uri" | "special");
     targetProfile?: string[];
     type?: string;
-    use: "in" | "out";
+    use: ("in" | "out");
 }
 
 export interface OperationDefinitionParameterBinding extends BackboneElement {
-    strength: "required" | "extensible" | "preferred" | "example";
+    strength: ("required" | "extensible" | "preferred" | "example");
     valueSet: string;
 }
 
@@ -66,7 +66,7 @@ export interface OperationDefinition extends DomainResource {
     instance: boolean;
     _instance?: Element;
     jurisdiction?: CodeableConcept[];
-    kind: "operation" | "query";
+    kind: ("operation" | "query");
     _kind?: Element;
     name: string;
     _name?: Element;
@@ -80,7 +80,7 @@ export interface OperationDefinition extends DomainResource {
     _purpose?: Element;
     resource?: string[];
     _resource?: Element;
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     system: boolean;
     _system?: Element;

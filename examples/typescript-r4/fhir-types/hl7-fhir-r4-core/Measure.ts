@@ -107,7 +107,7 @@ export interface Measure extends DomainResource {
     riskAdjustment?: string;
     _riskAdjustment?: Element;
     scoring?: CodeableConcept;
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     subjectCodeableConcept?: CodeableConcept;
     subjectReference?: Reference<"Group">;

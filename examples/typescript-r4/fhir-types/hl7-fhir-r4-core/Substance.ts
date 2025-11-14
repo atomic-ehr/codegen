@@ -40,6 +40,6 @@ export interface Substance extends DomainResource {
     identifier?: Identifier[];
     ingredient?: SubstanceIngredient[];
     instance?: SubstanceInstance[];
-    status?: "active" | "inactive" | "entered-in-error";
+    status?: ("active" | "inactive" | "entered-in-error");
     _status?: Element;
 }

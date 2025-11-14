@@ -137,7 +137,7 @@ export interface MedicationKnowledge extends DomainResource {
     productType?: CodeableConcept[];
     regulatory?: MedicationKnowledgeRegulatory[];
     relatedMedicationKnowledge?: MedicationKnowledgeRelatedMedicationKnowledge[];
-    status?: "active" | "inactive" | "entered-in-error";
+    status?: ("active" | "inactive" | "entered-in-error");
     _status?: Element;
     synonym?: string[];
     _synonym?: Element;

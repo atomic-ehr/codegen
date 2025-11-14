@@ -23,7 +23,7 @@ export interface Flag extends DomainResource {
     encounter?: Reference<"Encounter">;
     identifier?: Identifier[];
     period?: Period;
-    status: "active" | "inactive" | "entered-in-error";
+    status: ("active" | "inactive" | "entered-in-error");
     _status?: Element;
     subject: Reference<"Group" | "Location" | "Medication" | "Organization" | "Patient" | "PlanDefinition" | "Practitioner" | "Procedure">;
 }

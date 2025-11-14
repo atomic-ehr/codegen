@@ -35,7 +35,7 @@ export interface ImmunizationEvaluation extends DomainResource {
     _seriesDosesPositiveInt?: Element;
     seriesDosesString?: string;
     _seriesDosesString?: Element;
-    status: "completed" | "entered-in-error";
+    status: ("completed" | "entered-in-error");
     _status?: Element;
     targetDisease: CodeableConcept;
 }

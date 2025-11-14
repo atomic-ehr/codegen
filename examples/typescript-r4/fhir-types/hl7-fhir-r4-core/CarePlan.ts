@@ -37,7 +37,7 @@ export interface CarePlanActivityDetail extends BackboneElement {
     goal?: Reference<"Goal">[];
     instantiatesCanonical?: string[];
     instantiatesUri?: string[];
-    kind?: "Appointment" | "CommunicationRequest" | "DeviceRequest" | "MedicationRequest" | "NutritionOrder" | "Task" | "ServiceRequest" | "VisionPrescription";
+    kind?: ("Appointment" | "CommunicationRequest" | "DeviceRequest" | "MedicationRequest" | "NutritionOrder" | "Task" | "ServiceRequest" | "VisionPrescription");
     location?: Reference<"Location">;
     performer?: Reference<"CareTeam" | "Device" | "HealthcareService" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">[];
     productCodeableConcept?: CodeableConcept;
@@ -48,7 +48,7 @@ export interface CarePlanActivityDetail extends BackboneElement {
     scheduledPeriod?: Period;
     scheduledString?: string;
     scheduledTiming?: Timing;
-    status: "not-started" | "scheduled" | "in-progress" | "on-hold" | "completed" | "cancelled" | "stopped" | "unknown" | "entered-in-error";
+    status: ("not-started" | "scheduled" | "in-progress" | "on-hold" | "completed" | "cancelled" | "stopped" | "unknown" | "entered-in-error");
     statusReason?: CodeableConcept;
 }
 
@@ -74,13 +74,13 @@ export interface CarePlan extends DomainResource {
     _instantiatesCanonical?: Element;
     instantiatesUri?: string[];
     _instantiatesUri?: Element;
-    intent: "proposal" | "plan" | "order" | "option";
+    intent: ("proposal" | "plan" | "order" | "option");
     _intent?: Element;
     note?: Annotation[];
     partOf?: Reference<"CarePlan">[];
     period?: Period;
     replaces?: Reference<"CarePlan">[];
-    status: "draft" | "active" | "on-hold" | "revoked" | "completed" | "entered-in-error" | "unknown";
+    status: ("draft" | "active" | "on-hold" | "revoked" | "completed" | "entered-in-error" | "unknown");
     _status?: Element;
     subject: Reference<"Group" | "Patient">;
     supportingInfo?: Reference<"Resource">[];

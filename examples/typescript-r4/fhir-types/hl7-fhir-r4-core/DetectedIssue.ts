@@ -44,8 +44,8 @@ export interface DetectedIssue extends DomainResource {
     patient?: Reference<"Patient">;
     reference?: string;
     _reference?: Element;
-    severity?: "high" | "moderate" | "low";
+    severity?: ("high" | "moderate" | "low");
     _severity?: Element;
-    status: "registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown";
+    status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
     _status?: Element;
 }

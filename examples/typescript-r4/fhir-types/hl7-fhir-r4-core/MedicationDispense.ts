@@ -52,7 +52,7 @@ export interface MedicationDispense extends DomainResource {
     performer?: MedicationDispensePerformer[];
     quantity?: Quantity;
     receiver?: Reference<"Patient" | "Practitioner">[];
-    status: "preparation" | "in-progress" | "cancelled" | "on-hold" | "completed" | "entered-in-error" | "stopped" | "declined" | "unknown";
+    status: ("preparation" | "in-progress" | "cancelled" | "on-hold" | "completed" | "entered-in-error" | "stopped" | "declined" | "unknown");
     _status?: Element;
     statusReasonCodeableConcept?: CodeableConcept;
     statusReasonReference?: Reference<"DetectedIssue">;

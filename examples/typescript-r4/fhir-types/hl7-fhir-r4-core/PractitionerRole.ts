@@ -21,7 +21,7 @@ export interface PractitionerRoleAvailableTime extends BackboneElement {
     allDay?: boolean;
     availableEndTime?: string;
     availableStartTime?: string;
-    daysOfWeek?: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun"[];
+    daysOfWeek?: ("mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun")[];
 }
 
 export interface PractitionerRoleNotAvailable extends BackboneElement {

@@ -30,6 +30,6 @@ export interface PaymentNotice extends DomainResource {
     recipient: Reference<"Organization">;
     request?: Reference<"Resource">;
     response?: Reference<"Resource">;
-    status: "active" | "cancelled" | "draft" | "entered-in-error";
+    status: ("active" | "cancelled" | "draft" | "entered-in-error");
     _status?: Element;
 }

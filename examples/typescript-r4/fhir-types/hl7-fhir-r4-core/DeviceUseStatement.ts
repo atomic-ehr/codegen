@@ -32,7 +32,7 @@ export interface DeviceUseStatement extends DomainResource {
     recordedOn?: string;
     _recordedOn?: Element;
     source?: Reference<"Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    status: "active" | "completed" | "entered-in-error" | "intended" | "stopped" | "on-hold";
+    status: ("active" | "completed" | "entered-in-error" | "intended" | "stopped" | "on-hold");
     _status?: Element;
     subject: Reference<"Group" | "Patient">;
     timingDateTime?: string;

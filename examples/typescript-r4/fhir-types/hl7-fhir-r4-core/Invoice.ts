@@ -28,7 +28,7 @@ export interface InvoiceLineItemPriceComponent extends BackboneElement {
     amount?: Money;
     code?: CodeableConcept;
     factor?: number;
-    type: "base" | "surcharge" | "deduction" | "discount" | "tax" | "informational";
+    type: ("base" | "surcharge" | "deduction" | "discount" | "tax" | "informational");
 }
 
 export interface InvoiceParticipant extends BackboneElement {
@@ -53,7 +53,7 @@ export interface Invoice extends DomainResource {
     paymentTerms?: string;
     _paymentTerms?: Element;
     recipient?: Reference<"Organization" | "Patient" | "RelatedPerson">;
-    status: "draft" | "issued" | "balanced" | "cancelled" | "entered-in-error";
+    status: ("draft" | "issued" | "balanced" | "cancelled" | "entered-in-error");
     _status?: Element;
     subject?: Reference<"Group" | "Patient">;
     totalGross?: Money;

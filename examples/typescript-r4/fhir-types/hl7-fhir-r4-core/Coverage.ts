@@ -56,7 +56,7 @@ export interface Coverage extends DomainResource {
     period?: Period;
     policyHolder?: Reference<"Organization" | "Patient" | "RelatedPerson">;
     relationship?: CodeableConcept;
-    status: "active" | "cancelled" | "draft" | "entered-in-error";
+    status: ("active" | "cancelled" | "draft" | "entered-in-error");
     _status?: Element;
     subrogation?: boolean;
     _subrogation?: Element;

@@ -33,12 +33,12 @@ export interface List extends DomainResource {
     encounter?: Reference<"Encounter">;
     entry?: ListEntry[];
     identifier?: Identifier[];
-    mode: "working" | "snapshot" | "changes";
+    mode: ("working" | "snapshot" | "changes");
     _mode?: Element;
     note?: Annotation[];
     orderedBy?: CodeableConcept;
     source?: Reference<"Device" | "Patient" | "Practitioner" | "PractitionerRole">;
-    status: "current" | "retired" | "entered-in-error";
+    status: ("current" | "retired" | "entered-in-error");
     _status?: Element;
     subject?: Reference<"Device" | "Group" | "Location" | "Patient">;
     title?: string;

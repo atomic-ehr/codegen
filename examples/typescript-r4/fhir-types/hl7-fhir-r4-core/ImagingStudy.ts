@@ -70,7 +70,7 @@ export interface ImagingStudy extends DomainResource {
     series?: ImagingStudySeries[];
     started?: string;
     _started?: Element;
-    status: "registered" | "available" | "cancelled" | "entered-in-error" | "unknown";
+    status: ("registered" | "available" | "cancelled" | "entered-in-error" | "unknown");
     _status?: Element;
     subject: Reference<"Device" | "Group" | "Patient">;
 }

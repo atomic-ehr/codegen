@@ -218,7 +218,7 @@ export interface ExplanationOfBenefitProcessNote extends BackboneElement {
     language?: CodeableConcept;
     number?: number;
     text?: string;
-    type?: "display" | "print" | "printoper";
+    type?: ("display" | "print" | "printoper");
 }
 
 export interface ExplanationOfBenefitRelated extends BackboneElement {
@@ -275,7 +275,7 @@ export interface ExplanationOfBenefit extends DomainResource {
     insurer: Reference<"Organization">;
     item?: ExplanationOfBenefitItem[];
     originalPrescription?: Reference<"MedicationRequest">;
-    outcome: "queued" | "complete" | "error" | "partial";
+    outcome: ("queued" | "complete" | "error" | "partial");
     _outcome?: Element;
     patient: Reference<"Patient">;
     payee?: ExplanationOfBenefitPayee;
@@ -292,12 +292,12 @@ export interface ExplanationOfBenefit extends DomainResource {
     provider: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
     referral?: Reference<"ServiceRequest">;
     related?: ExplanationOfBenefitRelated[];
-    status: "active" | "cancelled" | "draft" | "entered-in-error";
+    status: ("active" | "cancelled" | "draft" | "entered-in-error");
     _status?: Element;
     subType?: CodeableConcept;
     supportingInfo?: ExplanationOfBenefitSupportingInfo[];
     total?: ExplanationOfBenefitTotal[];
     type: CodeableConcept;
-    use: "claim" | "preauthorization" | "predetermination";
+    use: ("claim" | "preauthorization" | "predetermination");
     _use?: Element;
 }

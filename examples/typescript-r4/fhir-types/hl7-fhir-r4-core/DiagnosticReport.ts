@@ -46,7 +46,7 @@ export interface DiagnosticReport extends DomainResource {
     result?: Reference<"Observation">[];
     resultsInterpreter?: Reference<"CareTeam" | "Organization" | "Practitioner" | "PractitionerRole">[];
     specimen?: Reference<"Specimen">[];
-    status: "registered" | "partial" | "preliminary" | "final" | "amended" | "corrected" | "appended" | "cancelled" | "entered-in-error" | "unknown";
+    status: ("registered" | "partial" | "preliminary" | "final" | "amended" | "corrected" | "appended" | "cancelled" | "entered-in-error" | "unknown");
     _status?: Element;
     subject?: Reference<"Device" | "Group" | "Location" | "Patient">;
 }

@@ -48,7 +48,7 @@ export interface DeviceRequest extends DomainResource {
     instantiatesUri?: string[];
     _instantiatesUri?: Element;
     insurance?: Reference<"ClaimResponse" | "Coverage">[];
-    intent: "proposal" | "plan" | "directive" | "order" | "original-order" | "reflex-order" | "filler-order" | "instance-order" | "option";
+    intent: ("proposal" | "plan" | "directive" | "order" | "original-order" | "reflex-order" | "filler-order" | "instance-order" | "option");
     _intent?: Element;
     note?: Annotation[];
     occurrenceDateTime?: string;
@@ -58,14 +58,14 @@ export interface DeviceRequest extends DomainResource {
     parameter?: DeviceRequestParameter[];
     performer?: Reference<"CareTeam" | "Device" | "HealthcareService" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     performerType?: CodeableConcept;
-    priority?: "routine" | "urgent" | "asap" | "stat";
+    priority?: ("routine" | "urgent" | "asap" | "stat");
     _priority?: Element;
     priorRequest?: Reference<"Resource">[];
     reasonCode?: CodeableConcept[];
     reasonReference?: Reference<"Condition" | "DiagnosticReport" | "DocumentReference" | "Observation">[];
     relevantHistory?: Reference<"Provenance">[];
     requester?: Reference<"Device" | "Organization" | "Practitioner" | "PractitionerRole">;
-    status?: "draft" | "active" | "on-hold" | "revoked" | "completed" | "entered-in-error" | "unknown";
+    status?: ("draft" | "active" | "on-hold" | "revoked" | "completed" | "entered-in-error" | "unknown");
     _status?: Element;
     subject: Reference<"Device" | "Group" | "Location" | "Patient">;
     supportingInfo?: Reference<"Resource">[];

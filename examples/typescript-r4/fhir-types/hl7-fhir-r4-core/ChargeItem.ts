@@ -64,7 +64,7 @@ export interface ChargeItem extends DomainResource {
     reason?: CodeableConcept[];
     requestingOrganization?: Reference<"Organization">;
     service?: Reference<"DiagnosticReport" | "ImagingStudy" | "Immunization" | "MedicationAdministration" | "MedicationDispense" | "Observation" | "Procedure" | "SupplyDelivery">[];
-    status: "planned" | "billable" | "not-billable" | "aborted" | "billed" | "entered-in-error" | "unknown";
+    status: ("planned" | "billable" | "not-billable" | "aborted" | "billed" | "entered-in-error" | "unknown");
     _status?: Element;
     subject: Reference<"Group" | "Patient">;
     supportingInformation?: Reference<"Resource">[];

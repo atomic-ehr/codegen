@@ -42,7 +42,7 @@ export interface ActivityDefinitionDynamicValue extends BackboneElement {
 
 export interface ActivityDefinitionParticipant extends BackboneElement {
     role?: CodeableConcept;
-    type: "patient" | "practitioner" | "related-person" | "device";
+    type: ("patient" | "practitioner" | "related-person" | "device");
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/ActivityDefinition
@@ -71,10 +71,10 @@ export interface ActivityDefinition extends DomainResource {
     experimental?: boolean;
     _experimental?: Element;
     identifier?: Identifier[];
-    intent?: "proposal" | "plan" | "directive" | "order" | "original-order" | "reflex-order" | "filler-order" | "instance-order" | "option";
+    intent?: ("proposal" | "plan" | "directive" | "order" | "original-order" | "reflex-order" | "filler-order" | "instance-order" | "option");
     _intent?: Element;
     jurisdiction?: CodeableConcept[];
-    kind?: "Appointment" | "AppointmentResponse" | "CarePlan" | "Claim" | "CommunicationRequest" | "Contract" | "DeviceRequest" | "EnrollmentRequest" | "ImmunizationRecommendation" | "MedicationRequest" | "NutritionOrder" | "ServiceRequest" | "SupplyRequest" | "Task" | "VisionPrescription";
+    kind?: ("Appointment" | "AppointmentResponse" | "CarePlan" | "Claim" | "CommunicationRequest" | "Contract" | "DeviceRequest" | "EnrollmentRequest" | "ImmunizationRecommendation" | "MedicationRequest" | "NutritionOrder" | "ServiceRequest" | "SupplyRequest" | "Task" | "VisionPrescription");
     _kind?: Element;
     lastReviewDate?: string;
     _lastReviewDate?: Element;
@@ -86,7 +86,7 @@ export interface ActivityDefinition extends DomainResource {
     observationRequirement?: Reference<"ObservationDefinition">[];
     observationResultRequirement?: Reference<"ObservationDefinition">[];
     participant?: ActivityDefinitionParticipant[];
-    priority?: "routine" | "urgent" | "asap" | "stat";
+    priority?: ("routine" | "urgent" | "asap" | "stat");
     _priority?: Element;
     productCodeableConcept?: CodeableConcept;
     productReference?: Reference<"Medication" | "Substance">;
@@ -100,7 +100,7 @@ export interface ActivityDefinition extends DomainResource {
     relatedArtifact?: RelatedArtifact[];
     reviewer?: ContactDetail[];
     specimenRequirement?: Reference<"SpecimenDefinition">[];
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     subjectCodeableConcept?: CodeableConcept;
     subjectReference?: Reference<"Group">;

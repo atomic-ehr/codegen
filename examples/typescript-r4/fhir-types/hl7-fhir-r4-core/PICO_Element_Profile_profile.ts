@@ -27,7 +27,7 @@ export interface PICO_Element_Profile {
     date?: string;
     description?: string;
     note?: Annotation[];
-    type?: ('dichotomous' | 'continuous' | 'descriptive');
+    type?: ("dichotomous" | "continuous" | "descriptive");
     characteristic: EvidenceVariableCharacteristic[];
 }
 

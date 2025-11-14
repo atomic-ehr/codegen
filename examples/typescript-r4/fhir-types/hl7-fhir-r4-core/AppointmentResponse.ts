@@ -22,7 +22,7 @@ export interface AppointmentResponse extends DomainResource {
     end?: string;
     _end?: Element;
     identifier?: Identifier[];
-    participantStatus: "accepted" | "declined" | "tentative" | "needs-action";
+    participantStatus: ("accepted" | "declined" | "tentative" | "needs-action");
     _participantStatus?: Element;
     participantType?: CodeableConcept[];
     start?: string;

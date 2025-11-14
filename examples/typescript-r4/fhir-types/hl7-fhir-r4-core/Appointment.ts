@@ -18,8 +18,8 @@ export type { Reference } from "../hl7-fhir-r4-core/Reference";
 export interface AppointmentParticipant extends BackboneElement {
     actor?: Reference<"Device" | "HealthcareService" | "Location" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     period?: Period;
-    required?: "required" | "optional" | "information-only";
-    status: "accepted" | "declined" | "tentative" | "needs-action";
+    required?: ("required" | "optional" | "information-only");
+    status: ("accepted" | "declined" | "tentative" | "needs-action");
     type?: CodeableConcept[];
 }
 
@@ -55,7 +55,7 @@ export interface Appointment extends DomainResource {
     specialty?: CodeableConcept[];
     start?: string;
     _start?: Element;
-    status: "proposed" | "pending" | "booked" | "arrived" | "fulfilled" | "cancelled" | "noshow" | "entered-in-error" | "checked-in" | "waitlist";
+    status: ("proposed" | "pending" | "booked" | "arrived" | "fulfilled" | "cancelled" | "noshow" | "entered-in-error" | "checked-in" | "waitlist");
     _status?: Element;
     supportingInformation?: Reference<"Resource">[];
 }

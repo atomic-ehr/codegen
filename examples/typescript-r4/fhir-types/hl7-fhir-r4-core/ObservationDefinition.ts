@@ -18,10 +18,10 @@ export type { Reference } from "../hl7-fhir-r4-core/Reference";
 export interface ObservationDefinitionQualifiedInterval extends BackboneElement {
     age?: Range;
     appliesTo?: CodeableConcept[];
-    category?: "reference" | "critical" | "absolute";
+    category?: ("reference" | "critical" | "absolute");
     condition?: string;
     context?: CodeableConcept;
-    gender?: "male" | "female" | "other" | "unknown";
+    gender?: ("male" | "female" | "other" | "unknown");
     gestationalAge?: Range;
     range?: Range;
 }
@@ -46,7 +46,7 @@ export interface ObservationDefinition extends DomainResource {
     multipleResultsAllowed?: boolean;
     _multipleResultsAllowed?: Element;
     normalCodedValueSet?: Reference<"ValueSet">;
-    permittedDataType?: "Quantity" | "CodeableConcept" | "string" | "boolean" | "integer" | "Range" | "Ratio" | "SampledData" | "time" | "dateTime" | "Period"[];
+    permittedDataType?: ("Quantity" | "CodeableConcept" | "string" | "boolean" | "integer" | "Range" | "Ratio" | "SampledData" | "time" | "dateTime" | "Period")[];
     _permittedDataType?: Element;
     preferredReportName?: string;
     _preferredReportName?: Element;

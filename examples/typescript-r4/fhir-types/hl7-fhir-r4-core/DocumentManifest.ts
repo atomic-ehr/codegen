@@ -34,7 +34,7 @@ export interface DocumentManifest extends DomainResource {
     related?: DocumentManifestRelated[];
     source?: string;
     _source?: Element;
-    status: "current" | "superseded" | "entered-in-error";
+    status: ("current" | "superseded" | "entered-in-error");
     _status?: Element;
     subject?: Reference<"Device" | "Group" | "Patient" | "Practitioner">;
     type?: CodeableConcept;

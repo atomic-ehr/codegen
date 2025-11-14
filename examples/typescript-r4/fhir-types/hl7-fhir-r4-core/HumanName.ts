@@ -21,6 +21,6 @@ export interface HumanName extends Element {
     _suffix?: Element;
     text?: string;
     _text?: Element;
-    use?: "usual" | "official" | "temp" | "nickname" | "anonymous" | "old" | "maiden";
+    use?: ("usual" | "official" | "temp" | "nickname" | "anonymous" | "old" | "maiden");
     _use?: Element;
 }

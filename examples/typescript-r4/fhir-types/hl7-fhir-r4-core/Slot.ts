@@ -29,6 +29,6 @@ export interface Slot extends DomainResource {
     specialty?: CodeableConcept[];
     start: string;
     _start?: Element;
-    status: "busy" | "free" | "busy-unavailable" | "busy-tentative" | "entered-in-error";
+    status: ("busy" | "free" | "busy-unavailable" | "busy-tentative" | "entered-in-error");
     _status?: Element;
 }

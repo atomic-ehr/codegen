@@ -45,7 +45,7 @@ export interface ValueSetComposeIncludeConceptDesignation extends BackboneElemen
 }
 
 export interface ValueSetComposeIncludeFilter extends BackboneElement {
-    op: "=" | "is-a" | "descendent-of" | "is-not-a" | "regex" | "in" | "not-in" | "generalizes" | "exists";
+    op: ("=" | "is-a" | "descendent-of" | "is-not-a" | "regex" | "in" | "not-in" | "generalizes" | "exists");
     property: string;
     value: string;
 }
@@ -106,7 +106,7 @@ export interface ValueSet extends DomainResource {
     _publisher?: Element;
     purpose?: string;
     _purpose?: Element;
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     title?: string;
     _title?: Element;

@@ -67,7 +67,7 @@ export interface Procedure extends DomainResource {
     reasonReference?: Reference<"Condition" | "DiagnosticReport" | "DocumentReference" | "Observation" | "Procedure">[];
     recorder?: Reference<"Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     report?: Reference<"Composition" | "DiagnosticReport" | "DocumentReference">[];
-    status: "preparation" | "in-progress" | "not-done" | "on-hold" | "stopped" | "completed" | "entered-in-error" | "unknown";
+    status: ("preparation" | "in-progress" | "not-done" | "on-hold" | "stopped" | "completed" | "entered-in-error" | "unknown");
     _status?: Element;
     statusReason?: CodeableConcept;
     subject: Reference<"Group" | "Patient">;

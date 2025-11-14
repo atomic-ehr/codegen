@@ -13,7 +13,7 @@ export interface SubscriptionChannel extends BackboneElement {
     endpoint?: string;
     header?: string[];
     payload?: string;
-    type: "rest-hook" | "websocket" | "email" | "sms" | "message";
+    type: ("rest-hook" | "websocket" | "email" | "sms" | "message");
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/Subscription
@@ -30,6 +30,6 @@ export interface Subscription extends DomainResource {
     _error?: Element;
     reason: string;
     _reason?: Element;
-    status: "requested" | "active" | "error" | "off";
+    status: ("requested" | "active" | "error" | "off");
     _status?: Element;
 }

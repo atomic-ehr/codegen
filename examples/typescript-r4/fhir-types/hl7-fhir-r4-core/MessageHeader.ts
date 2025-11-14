@@ -23,7 +23,7 @@ export interface MessageHeaderDestination extends BackboneElement {
 }
 
 export interface MessageHeaderResponse extends BackboneElement {
-    code: "ok" | "transient-error" | "fatal-error";
+    code: ("ok" | "transient-error" | "fatal-error");
     details?: Reference<"OperationOutcome">;
     identifier: string;
 }

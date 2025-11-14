@@ -41,7 +41,7 @@ export interface CareTeam extends DomainResource {
     period?: Period;
     reasonCode?: CodeableConcept[];
     reasonReference?: Reference<"Condition">[];
-    status?: "proposed" | "active" | "suspended" | "inactive" | "entered-in-error";
+    status?: ("proposed" | "active" | "suspended" | "inactive" | "entered-in-error");
     _status?: Element;
     subject?: Reference<"Group" | "Patient">;
     telecom?: ContactPoint[];

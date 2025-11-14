@@ -35,6 +35,6 @@ export interface Endpoint extends DomainResource {
     _payloadMimeType?: Element;
     payloadType: CodeableConcept[];
     period?: Period;
-    status: "active" | "suspended" | "error" | "off" | "entered-in-error" | "test";
+    status: ("active" | "suspended" | "error" | "off" | "entered-in-error" | "test");
     _status?: Element;
 }

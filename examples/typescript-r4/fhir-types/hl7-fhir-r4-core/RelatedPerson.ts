@@ -38,7 +38,7 @@ export interface RelatedPerson extends DomainResource {
     birthDate?: string;
     _birthDate?: Element;
     communication?: RelatedPersonCommunication[];
-    gender?: "male" | "female" | "other" | "unknown";
+    gender?: ("male" | "female" | "other" | "unknown");
     _gender?: Element;
     identifier?: Identifier[];
     name?: HumanName[];

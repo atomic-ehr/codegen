@@ -81,7 +81,7 @@ export interface Immunization extends DomainResource {
     reportOrigin?: CodeableConcept;
     route?: CodeableConcept;
     site?: CodeableConcept;
-    status: "completed" | "entered-in-error" | "not-done";
+    status: ("completed" | "entered-in-error" | "not-done");
     _status?: Element;
     statusReason?: CodeableConcept;
     subpotentReason?: CodeableConcept[];

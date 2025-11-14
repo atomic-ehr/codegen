@@ -27,7 +27,7 @@ export interface MetadataResource extends DomainResource {
     _name?: Element;
     publisher?: string;
     _publisher?: Element;
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     title?: string;
     _title?: Element;

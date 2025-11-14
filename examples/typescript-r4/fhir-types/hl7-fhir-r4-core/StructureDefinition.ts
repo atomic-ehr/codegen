@@ -21,7 +21,7 @@ export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
 export interface StructureDefinitionContext extends BackboneElement {
     expression: string;
-    type: "fhirpath" | "element" | "extension";
+    type: ("fhirpath" | "element" | "extension");
 }
 
 export interface StructureDefinitionDifferential extends BackboneElement {
@@ -55,19 +55,19 @@ export interface StructureDefinition extends DomainResource {
     _copyright?: Element;
     date?: string;
     _date?: Element;
-    derivation?: "specialization" | "constraint";
+    derivation?: ("specialization" | "constraint");
     _derivation?: Element;
     description?: string;
     _description?: Element;
     differential?: StructureDefinitionDifferential;
     experimental?: boolean;
     _experimental?: Element;
-    fhirVersion?: "0.01" | "0.05" | "0.06" | "0.11" | "0.0.80" | "0.0.81" | "0.0.82" | "0.4.0" | "0.5.0" | "1.0.0" | "1.0.1" | "1.0.2" | "1.1.0" | "1.4.0" | "1.6.0" | "1.8.0" | "3.0.0" | "3.0.1" | "3.3.0" | "3.5.0" | "4.0.0" | "4.0.1";
+    fhirVersion?: ("0.01" | "0.05" | "0.06" | "0.11" | "0.0.80" | "0.0.81" | "0.0.82" | "0.4.0" | "0.5.0" | "1.0.0" | "1.0.1" | "1.0.2" | "1.1.0" | "1.4.0" | "1.6.0" | "1.8.0" | "3.0.0" | "3.0.1" | "3.3.0" | "3.5.0" | "4.0.0" | "4.0.1");
     _fhirVersion?: Element;
     identifier?: Identifier[];
     jurisdiction?: CodeableConcept[];
     keyword?: Coding[];
-    kind: "primitive-type" | "complex-type" | "resource" | "logical";
+    kind: ("primitive-type" | "complex-type" | "resource" | "logical");
     _kind?: Element;
     mapping?: StructureDefinitionMapping[];
     name: string;
@@ -77,7 +77,7 @@ export interface StructureDefinition extends DomainResource {
     purpose?: string;
     _purpose?: Element;
     snapshot?: StructureDefinitionSnapshot;
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     title?: string;
     _title?: Element;

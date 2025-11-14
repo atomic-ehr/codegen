@@ -22,18 +22,18 @@ export interface TimingRepeat extends Element {
     boundsRange?: Range;
     count?: number;
     countMax?: number;
-    dayOfWeek?: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun"[];
+    dayOfWeek?: ("mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun")[];
     duration?: number;
     durationMax?: number;
-    durationUnit?: "s" | "min" | "h" | "d" | "wk" | "mo" | "a";
+    durationUnit?: ("s" | "min" | "h" | "d" | "wk" | "mo" | "a");
     frequency?: number;
     frequencyMax?: number;
     offset?: number;
     period?: number;
     periodMax?: number;
-    periodUnit?: "s" | "min" | "h" | "d" | "wk" | "mo" | "a";
+    periodUnit?: ("s" | "min" | "h" | "d" | "wk" | "mo" | "a");
     timeOfDay?: string[];
-    when?: "MORN" | "MORN.early" | "MORN.late" | "NOON" | "AFT" | "AFT.early" | "AFT.late" | "EVE" | "EVE.early" | "EVE.late" | "NIGHT" | "PHS" | "HS" | "WAKE" | "C" | "CM" | "CD" | "CV" | "AC" | "ACM" | "ACD" | "ACV" | "PC" | "PCM" | "PCD" | "PCV"[];
+    when?: ("MORN" | "MORN.early" | "MORN.late" | "NOON" | "AFT" | "AFT.early" | "AFT.late" | "EVE" | "EVE.early" | "EVE.late" | "NIGHT" | "PHS" | "HS" | "WAKE" | "C" | "CM" | "CD" | "CV" | "AC" | "ACM" | "ACD" | "ACV" | "PC" | "PCM" | "PCD" | "PCV")[];
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/Timing

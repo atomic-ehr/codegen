@@ -17,7 +17,7 @@ export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface CatalogEntryRelatedEntry extends BackboneElement {
     item: Reference<"CatalogEntry">;
-    relationtype: "triggers" | "is-replaced-by";
+    relationtype: ("triggers" | "is-replaced-by");
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/CatalogEntry
@@ -35,7 +35,7 @@ export interface CatalogEntry extends DomainResource {
     _orderable?: Element;
     referencedItem: Reference<"ActivityDefinition" | "Binary" | "Device" | "HealthcareService" | "Medication" | "ObservationDefinition" | "Organization" | "PlanDefinition" | "Practitioner" | "PractitionerRole" | "SpecimenDefinition">;
     relatedEntry?: CatalogEntryRelatedEntry[];
-    status?: "draft" | "active" | "retired" | "unknown";
+    status?: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     type?: CodeableConcept;
     validityPeriod?: Period;

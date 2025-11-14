@@ -52,7 +52,7 @@ export interface EventDefinition extends DomainResource {
     _purpose?: Element;
     relatedArtifact?: RelatedArtifact[];
     reviewer?: ContactDetail[];
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     subjectCodeableConcept?: CodeableConcept;
     subjectReference?: Reference<"Group">;

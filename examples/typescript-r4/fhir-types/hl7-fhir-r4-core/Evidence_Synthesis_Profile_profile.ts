@@ -19,7 +19,7 @@ export interface Evidence_Synthesis_Profile {
     title?: string;
     shortTitle?: string;
     subtitle?: string;
-    status: ('draft' | 'active' | 'retired' | 'unknown');
+    status: ("draft" | "active" | "retired" | "unknown");
     date?: string;
     publisher?: string;
     contact?: ContactDetail[];

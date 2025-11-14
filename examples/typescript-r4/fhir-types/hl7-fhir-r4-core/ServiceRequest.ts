@@ -45,7 +45,7 @@ export interface ServiceRequest extends DomainResource {
     instantiatesUri?: string[];
     _instantiatesUri?: Element;
     insurance?: Reference<"ClaimResponse" | "Coverage">[];
-    intent: "proposal" | "plan" | "directive" | "order" | "original-order" | "reflex-order" | "filler-order" | "instance-order" | "option";
+    intent: ("proposal" | "plan" | "directive" | "order" | "original-order" | "reflex-order" | "filler-order" | "instance-order" | "option");
     _intent?: Element;
     locationCode?: CodeableConcept[];
     locationReference?: Reference<"Location">[];
@@ -59,7 +59,7 @@ export interface ServiceRequest extends DomainResource {
     _patientInstruction?: Element;
     performer?: Reference<"CareTeam" | "Device" | "HealthcareService" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">[];
     performerType?: CodeableConcept;
-    priority?: "routine" | "urgent" | "asap" | "stat";
+    priority?: ("routine" | "urgent" | "asap" | "stat");
     _priority?: Element;
     quantityQuantity?: Quantity;
     quantityRange?: Range;
@@ -71,7 +71,7 @@ export interface ServiceRequest extends DomainResource {
     requester?: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     requisition?: Identifier;
     specimen?: Reference<"Specimen">[];
-    status: "draft" | "active" | "on-hold" | "revoked" | "completed" | "entered-in-error" | "unknown";
+    status: ("draft" | "active" | "on-hold" | "revoked" | "completed" | "entered-in-error" | "unknown");
     _status?: Element;
     subject: Reference<"Device" | "Group" | "Location" | "Patient">;
     supportingInfo?: Reference<"Resource">[];

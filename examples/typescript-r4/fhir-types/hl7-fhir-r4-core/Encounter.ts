@@ -46,7 +46,7 @@ export interface EncounterLocation extends BackboneElement {
     location: Reference<"Location">;
     period?: Period;
     physicalType?: CodeableConcept;
-    status?: "planned" | "active" | "reserved" | "completed";
+    status?: ("planned" | "active" | "reserved" | "completed");
 }
 
 export interface EncounterParticipant extends BackboneElement {
@@ -57,7 +57,7 @@ export interface EncounterParticipant extends BackboneElement {
 
 export interface EncounterStatusHistory extends BackboneElement {
     period: Period;
-    status: "planned" | "arrived" | "triaged" | "in-progress" | "onleave" | "finished" | "cancelled" | "entered-in-error" | "unknown";
+    status: ("planned" | "arrived" | "triaged" | "in-progress" | "onleave" | "finished" | "cancelled" | "entered-in-error" | "unknown");
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/Encounter
@@ -83,7 +83,7 @@ export interface Encounter extends DomainResource {
     reasonReference?: Reference<"Condition" | "ImmunizationRecommendation" | "Observation" | "Procedure">[];
     serviceProvider?: Reference<"Organization">;
     serviceType?: CodeableConcept;
-    status: "planned" | "arrived" | "triaged" | "in-progress" | "onleave" | "finished" | "cancelled" | "entered-in-error" | "unknown";
+    status: ("planned" | "arrived" | "triaged" | "in-progress" | "onleave" | "finished" | "cancelled" | "entered-in-error" | "unknown");
     _status?: Element;
     statusHistory?: EncounterStatusHistory[];
     subject?: Reference<"Group" | "Patient">;

@@ -40,7 +40,7 @@ export interface Practitioner extends DomainResource {
     birthDate?: string;
     _birthDate?: Element;
     communication?: CodeableConcept[];
-    gender?: "male" | "female" | "other" | "unknown";
+    gender?: ("male" | "female" | "other" | "unknown");
     _gender?: Element;
     identifier?: Identifier[];
     name?: HumanName[];

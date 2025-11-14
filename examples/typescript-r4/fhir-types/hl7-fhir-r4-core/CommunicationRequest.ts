@@ -45,7 +45,7 @@ export interface CommunicationRequest extends DomainResource {
     _occurrenceDateTime?: Element;
     occurrencePeriod?: Period;
     payload?: CommunicationRequestPayload[];
-    priority?: "routine" | "urgent" | "asap" | "stat";
+    priority?: ("routine" | "urgent" | "asap" | "stat");
     _priority?: Element;
     reasonCode?: CodeableConcept[];
     reasonReference?: Reference<"Condition" | "DiagnosticReport" | "DocumentReference" | "Observation">[];
@@ -53,7 +53,7 @@ export interface CommunicationRequest extends DomainResource {
     replaces?: Reference<"CommunicationRequest">[];
     requester?: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     sender?: Reference<"Device" | "HealthcareService" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    status: "draft" | "active" | "on-hold" | "revoked" | "completed" | "entered-in-error" | "unknown";
+    status: ("draft" | "active" | "on-hold" | "revoked" | "completed" | "entered-in-error" | "unknown");
     _status?: Element;
     statusReason?: CodeableConcept;
     subject?: Reference<"Group" | "Patient">;

@@ -73,7 +73,7 @@ export interface TerminologyCapabilities extends DomainResource {
     resourceType: "TerminologyCapabilities";
 
     closure?: TerminologyCapabilitiesClosure;
-    codeSearch?: "explicit" | "all";
+    codeSearch?: ("explicit" | "all");
     _codeSearch?: Element;
     codeSystem?: TerminologyCapabilitiesCodeSystem[];
     contact?: ContactDetail[];
@@ -88,7 +88,7 @@ export interface TerminologyCapabilities extends DomainResource {
     _experimental?: Element;
     implementation?: TerminologyCapabilitiesImplementation;
     jurisdiction?: CodeableConcept[];
-    kind: "instance" | "capability" | "requirements";
+    kind: ("instance" | "capability" | "requirements");
     _kind?: Element;
     lockedDate?: boolean;
     _lockedDate?: Element;
@@ -99,7 +99,7 @@ export interface TerminologyCapabilities extends DomainResource {
     purpose?: string;
     _purpose?: Element;
     software?: TerminologyCapabilitiesSoftware;
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     title?: string;
     _title?: Element;

@@ -52,7 +52,7 @@ export interface RiskAssessment extends DomainResource {
     prediction?: RiskAssessmentPrediction[];
     reasonCode?: CodeableConcept[];
     reasonReference?: Reference<"Condition" | "DiagnosticReport" | "DocumentReference" | "Observation">[];
-    status: "registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown";
+    status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
     _status?: Element;
     subject: Reference<"Group" | "Patient">;
 }

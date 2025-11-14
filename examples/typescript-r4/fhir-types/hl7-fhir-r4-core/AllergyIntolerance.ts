@@ -27,7 +27,7 @@ export interface AllergyIntoleranceReaction extends BackboneElement {
     manifestation: CodeableConcept[];
     note?: Annotation[];
     onset?: string;
-    severity?: "mild" | "moderate" | "severe";
+    severity?: ("mild" | "moderate" | "severe");
     substance?: CodeableConcept;
 }
 
@@ -36,11 +36,11 @@ export interface AllergyIntolerance extends DomainResource {
     resourceType: "AllergyIntolerance";
 
     asserter?: Reference<"Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    category?: "food" | "medication" | "environment" | "biologic"[];
+    category?: ("food" | "medication" | "environment" | "biologic")[];
     _category?: Element;
     clinicalStatus?: CodeableConcept;
     code?: CodeableConcept;
-    criticality?: "low" | "high" | "unable-to-assess";
+    criticality?: ("low" | "high" | "unable-to-assess");
     _criticality?: Element;
     encounter?: Reference<"Encounter">;
     identifier?: Identifier[];
@@ -59,7 +59,7 @@ export interface AllergyIntolerance extends DomainResource {
     recordedDate?: string;
     _recordedDate?: Element;
     recorder?: Reference<"Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    type?: "allergy" | "intolerance";
+    type?: ("allergy" | "intolerance");
     _type?: Element;
     verificationStatus?: CodeableConcept;
 }

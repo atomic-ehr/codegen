@@ -125,7 +125,7 @@ export interface ClaimResponseProcessNote extends BackboneElement {
     language?: CodeableConcept;
     number?: number;
     text: string;
-    type?: "display" | "print" | "printoper";
+    type?: ("display" | "print" | "printoper");
 }
 
 export interface ClaimResponseTotal extends BackboneElement {
@@ -152,7 +152,7 @@ export interface ClaimResponse extends DomainResource {
     insurance?: ClaimResponseInsurance[];
     insurer: Reference<"Organization">;
     item?: ClaimResponseItem[];
-    outcome: "queued" | "complete" | "error" | "partial";
+    outcome: ("queued" | "complete" | "error" | "partial");
     _outcome?: Element;
     patient: Reference<"Patient">;
     payeeType?: CodeableConcept;
@@ -163,11 +163,11 @@ export interface ClaimResponse extends DomainResource {
     processNote?: ClaimResponseProcessNote[];
     request?: Reference<"Claim">;
     requestor?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
-    status: "active" | "cancelled" | "draft" | "entered-in-error";
+    status: ("active" | "cancelled" | "draft" | "entered-in-error");
     _status?: Element;
     subType?: CodeableConcept;
     total?: ClaimResponseTotal[];
     type: CodeableConcept;
-    use: "claim" | "preauthorization" | "predetermination";
+    use: ("claim" | "preauthorization" | "predetermination");
     _use?: Element;
 }

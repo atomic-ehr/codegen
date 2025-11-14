@@ -35,7 +35,7 @@ export interface ConsentProvision extends BackboneElement {
     provision?: ConsentProvision[];
     purpose?: Coding[];
     securityLabel?: Coding[];
-    type?: "deny" | "permit";
+    type?: ("deny" | "permit");
 }
 
 export interface ConsentProvisionActor extends BackboneElement {
@@ -44,7 +44,7 @@ export interface ConsentProvisionActor extends BackboneElement {
 }
 
 export interface ConsentProvisionData extends BackboneElement {
-    meaning: "instance" | "related" | "dependents" | "authoredby";
+    meaning: ("instance" | "related" | "dependents" | "authoredby");
     reference: Reference<"Resource">;
 }
 
@@ -71,7 +71,7 @@ export interface Consent extends DomainResource {
     scope: CodeableConcept;
     sourceAttachment?: Attachment;
     sourceReference?: Reference<"Consent" | "Contract" | "DocumentReference" | "QuestionnaireResponse">;
-    status: "draft" | "proposed" | "active" | "rejected" | "inactive" | "entered-in-error";
+    status: ("draft" | "proposed" | "active" | "rejected" | "inactive" | "entered-in-error");
     _status?: Element;
     verification?: ConsentVerification[];
 }

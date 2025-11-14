@@ -59,7 +59,7 @@ export interface MedicationAdministration extends DomainResource {
     reasonCode?: CodeableConcept[];
     reasonReference?: Reference<"Condition" | "DiagnosticReport" | "Observation">[];
     request?: Reference<"MedicationRequest">;
-    status: "in-progress" | "not-done" | "on-hold" | "completed" | "entered-in-error" | "stopped" | "unknown";
+    status: ("in-progress" | "not-done" | "on-hold" | "completed" | "entered-in-error" | "stopped" | "unknown");
     _status?: Element;
     statusReason?: CodeableConcept[];
     subject: Reference<"Group" | "Patient">;

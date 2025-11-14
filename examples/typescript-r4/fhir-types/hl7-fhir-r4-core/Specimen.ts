@@ -66,7 +66,7 @@ export interface Specimen extends DomainResource {
     receivedTime?: string;
     _receivedTime?: Element;
     request?: Reference<"ServiceRequest">[];
-    status?: "available" | "unavailable" | "unsatisfactory" | "entered-in-error";
+    status?: ("available" | "unavailable" | "unsatisfactory" | "entered-in-error");
     _status?: Element;
     subject?: Reference<"Device" | "Group" | "Location" | "Patient" | "Substance">;
     type?: CodeableConcept;

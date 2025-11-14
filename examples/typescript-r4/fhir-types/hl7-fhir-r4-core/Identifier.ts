@@ -19,7 +19,7 @@ export interface Identifier extends Element {
     system?: string;
     _system?: Element;
     type?: CodeableConcept;
-    use?: "usual" | "official" | "temp" | "secondary" | "old";
+    use?: ("usual" | "official" | "temp" | "secondary" | "old");
     _use?: Element;
     value?: string;
     _value?: Element;

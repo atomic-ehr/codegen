@@ -24,7 +24,7 @@ export interface ProvenanceAgent extends BackboneElement {
 
 export interface ProvenanceEntity extends BackboneElement {
     agent?: ProvenanceAgent[];
-    role: "derivation" | "revision" | "quotation" | "source" | "removal";
+    role: ("derivation" | "revision" | "quotation" | "source" | "removal");
     what: Reference<"Resource">;
 }
 

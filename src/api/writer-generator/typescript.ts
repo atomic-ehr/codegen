@@ -108,6 +108,10 @@ const tsGet = (object: string, tsFieldName: string) => {
     return `${object}.${tsFieldName}`;
 };
 
+const tsEnumType = (enumValues: string[]) => {
+    return `(${enumValues.map((e) => `"${e}"`).join(" | ")})`;
+};
+
 export type TypeScriptOptions = {} & WriterOptions;
 
 export class TypeScript extends Writer {
@@ -248,7 +252,7 @@ export class TypeScript extends Writer {
 
                 let tsType: string;
                 if (field.enum) {
-                    tsType = field.enum.map((e) => `"${e}"`).join(" | ");
+                    tsType = tsEnumType(field.enum);
                 } else if (schema.identifier.name === "Reference" && tsName === "reference") {
                     tsType = "`${T}/${string}`";
                 } else if (field.reference && field.reference.length > 0) {
@@ -299,7 +303,7 @@ export class TypeScript extends Writer {
 
                 let tsType: string;
                 if (field.enum) {
-                    tsType = `(${field.enum.map((e) => `'${e}'`).join(" | ")})`;
+                    tsType = tsEnumType(field.enum);
                 } else if (field.reference && field.reference.length > 0) {
                     const specialization = tsIndex.findLastSpecialization(flatProfile);
                     if (!isSpecializationTypeSchema(specialization))

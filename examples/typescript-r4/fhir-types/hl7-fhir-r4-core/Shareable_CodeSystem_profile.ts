@@ -13,7 +13,7 @@ export interface Shareable_CodeSystem {
     url: string;
     version: string;
     name: string;
-    status: ('draft' | 'active' | 'retired' | 'unknown');
+    status: ("draft" | "active" | "retired" | "unknown");
     experimental: boolean;
     publisher: string;
     description: string;

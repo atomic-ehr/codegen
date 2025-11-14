@@ -36,7 +36,7 @@ export interface MessageDefinition extends DomainResource {
     allowedResponse?: MessageDefinitionAllowedResponse[];
     base?: string;
     _base?: Element;
-    category?: "consequence" | "currency" | "notification";
+    category?: ("consequence" | "currency" | "notification");
     _category?: Element;
     contact?: ContactDetail[];
     copyright?: string;
@@ -65,9 +65,9 @@ export interface MessageDefinition extends DomainResource {
     _purpose?: Element;
     replaces?: string[];
     _replaces?: Element;
-    responseRequired?: "always" | "on-error" | "never" | "on-success";
+    responseRequired?: ("always" | "on-error" | "never" | "on-success");
     _responseRequired?: Element;
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     title?: string;
     _title?: Element;

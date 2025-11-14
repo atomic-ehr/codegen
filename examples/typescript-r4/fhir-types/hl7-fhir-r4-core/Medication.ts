@@ -38,6 +38,6 @@ export interface Medication extends DomainResource {
     identifier?: Identifier[];
     ingredient?: MedicationIngredient[];
     manufacturer?: Reference<"Organization">;
-    status?: "active" | "inactive" | "entered-in-error";
+    status?: ("active" | "inactive" | "entered-in-error");
     _status?: Element;
 }

@@ -39,7 +39,7 @@ export interface BiologicallyDerivedProductProcessing extends BackboneElement {
 export interface BiologicallyDerivedProductStorage extends BackboneElement {
     description?: string;
     duration?: Period;
-    scale?: "farenheit" | "celsius" | "kelvin";
+    scale?: ("farenheit" | "celsius" | "kelvin");
     temperature?: number;
 }
 
@@ -52,13 +52,13 @@ export interface BiologicallyDerivedProduct extends DomainResource {
     manipulation?: BiologicallyDerivedProductManipulation;
     parent?: Reference<"BiologicallyDerivedProduct">[];
     processing?: BiologicallyDerivedProductProcessing[];
-    productCategory?: "organ" | "tissue" | "fluid" | "cells" | "biologicalAgent";
+    productCategory?: ("organ" | "tissue" | "fluid" | "cells" | "biologicalAgent");
     _productCategory?: Element;
     productCode?: CodeableConcept;
     quantity?: number;
     _quantity?: Element;
     request?: Reference<"ServiceRequest">[];
-    status?: "available" | "unavailable";
+    status?: ("available" | "unavailable");
     _status?: Element;
     storage?: BiologicallyDerivedProductStorage[];
 }

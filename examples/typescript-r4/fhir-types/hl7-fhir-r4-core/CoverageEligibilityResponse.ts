@@ -68,18 +68,18 @@ export interface CoverageEligibilityResponse extends DomainResource {
     identifier?: Identifier[];
     insurance?: CoverageEligibilityResponseInsurance[];
     insurer: Reference<"Organization">;
-    outcome: "queued" | "complete" | "error" | "partial";
+    outcome: ("queued" | "complete" | "error" | "partial");
     _outcome?: Element;
     patient: Reference<"Patient">;
     preAuthRef?: string;
     _preAuthRef?: Element;
-    purpose: "auth-requirements" | "benefits" | "discovery" | "validation"[];
+    purpose: ("auth-requirements" | "benefits" | "discovery" | "validation")[];
     _purpose?: Element;
     request: Reference<"CoverageEligibilityRequest">;
     requestor?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
     servicedDate?: string;
     _servicedDate?: Element;
     servicedPeriod?: Period;
-    status: "active" | "cancelled" | "draft" | "entered-in-error";
+    status: ("active" | "cancelled" | "draft" | "entered-in-error");
     _status?: Element;
 }

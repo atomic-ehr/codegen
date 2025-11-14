@@ -42,7 +42,7 @@ export interface EvidenceVariableCharacteristic extends BackboneElement {
     definitionTriggerDefinition?: TriggerDefinition;
     description?: string;
     exclude?: boolean;
-    groupMeasure?: "mean" | "median" | "mean-of-mean" | "mean-of-median" | "median-of-mean" | "median-of-median";
+    groupMeasure?: ("mean" | "median" | "mean-of-mean" | "mean-of-median" | "median-of-mean" | "median-of-median");
     participantEffectiveDateTime?: string;
     participantEffectiveDuration?: Duration;
     participantEffectivePeriod?: Period;
@@ -82,14 +82,14 @@ export interface EvidenceVariable extends DomainResource {
     reviewer?: ContactDetail[];
     shortTitle?: string;
     _shortTitle?: Element;
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     subtitle?: string;
     _subtitle?: Element;
     title?: string;
     _title?: Element;
     topic?: CodeableConcept[];
-    type?: "dichotomous" | "continuous" | "descriptive";
+    type?: ("dichotomous" | "continuous" | "descriptive");
     _type?: Element;
     url?: string;
     _url?: Element;

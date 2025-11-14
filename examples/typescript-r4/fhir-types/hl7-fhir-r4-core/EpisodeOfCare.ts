@@ -23,7 +23,7 @@ export interface EpisodeOfCareDiagnosis extends BackboneElement {
 
 export interface EpisodeOfCareStatusHistory extends BackboneElement {
     period: Period;
-    status: "planned" | "waitlist" | "active" | "onhold" | "finished" | "cancelled" | "entered-in-error";
+    status: ("planned" | "waitlist" | "active" | "onhold" | "finished" | "cancelled" | "entered-in-error");
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/EpisodeOfCare
@@ -38,7 +38,7 @@ export interface EpisodeOfCare extends DomainResource {
     patient: Reference<"Patient">;
     period?: Period;
     referralRequest?: Reference<"ServiceRequest">[];
-    status: "planned" | "waitlist" | "active" | "onhold" | "finished" | "cancelled" | "entered-in-error";
+    status: ("planned" | "waitlist" | "active" | "onhold" | "finished" | "cancelled" | "entered-in-error");
     _status?: Element;
     statusHistory?: EpisodeOfCareStatusHistory[];
     team?: Reference<"CareTeam">[];

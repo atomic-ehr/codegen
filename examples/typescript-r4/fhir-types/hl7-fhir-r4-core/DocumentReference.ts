@@ -35,7 +35,7 @@ export interface DocumentReferenceContext extends BackboneElement {
 }
 
 export interface DocumentReferenceRelatesTo extends BackboneElement {
-    code: "replaces" | "transforms" | "signs" | "appends";
+    code: ("replaces" | "transforms" | "signs" | "appends");
     target: Reference<"DocumentReference">;
 }
 
@@ -53,13 +53,13 @@ export interface DocumentReference extends DomainResource {
     _date?: Element;
     description?: string;
     _description?: Element;
-    docStatus?: "preliminary" | "final" | "amended" | "entered-in-error";
+    docStatus?: ("preliminary" | "final" | "amended" | "entered-in-error");
     _docStatus?: Element;
     identifier?: Identifier[];
     masterIdentifier?: Identifier;
     relatesTo?: DocumentReferenceRelatesTo[];
     securityLabel?: CodeableConcept[];
-    status: "current" | "superseded" | "entered-in-error";
+    status: ("current" | "superseded" | "entered-in-error");
     _status?: Element;
     subject?: Reference<"Device" | "Group" | "Patient" | "Practitioner">;
     type?: CodeableConcept;

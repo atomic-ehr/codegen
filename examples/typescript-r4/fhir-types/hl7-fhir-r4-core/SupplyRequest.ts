@@ -46,13 +46,13 @@ export interface SupplyRequest extends DomainResource {
     occurrencePeriod?: Period;
     occurrenceTiming?: Timing;
     parameter?: SupplyRequestParameter[];
-    priority?: "routine" | "urgent" | "asap" | "stat";
+    priority?: ("routine" | "urgent" | "asap" | "stat");
     _priority?: Element;
     quantity: Quantity;
     reasonCode?: CodeableConcept[];
     reasonReference?: Reference<"Condition" | "DiagnosticReport" | "DocumentReference" | "Observation">[];
     requester?: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    status?: "draft" | "active" | "suspended" | "cancelled" | "completed" | "entered-in-error" | "unknown";
+    status?: ("draft" | "active" | "suspended" | "cancelled" | "completed" | "entered-in-error" | "unknown");
     _status?: Element;
     supplier?: Reference<"HealthcareService" | "Organization">[];
 }

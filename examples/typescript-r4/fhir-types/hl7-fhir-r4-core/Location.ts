@@ -22,7 +22,7 @@ export type { Reference } from "../hl7-fhir-r4-core/Reference";
 export interface LocationHoursOfOperation extends BackboneElement {
     allDay?: boolean;
     closingTime?: string;
-    daysOfWeek?: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun"[];
+    daysOfWeek?: ("mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun")[];
     openingTime?: string;
 }
 
@@ -47,7 +47,7 @@ export interface Location extends DomainResource {
     hoursOfOperation?: LocationHoursOfOperation[];
     identifier?: Identifier[];
     managingOrganization?: Reference<"Organization">;
-    mode?: "instance" | "kind";
+    mode?: ("instance" | "kind");
     _mode?: Element;
     name?: string;
     _name?: Element;
@@ -55,7 +55,7 @@ export interface Location extends DomainResource {
     partOf?: Reference<"Location">;
     physicalType?: CodeableConcept;
     position?: LocationPosition;
-    status?: "active" | "suspended" | "inactive";
+    status?: ("active" | "suspended" | "inactive");
     _status?: Element;
     telecom?: ContactPoint[];
     type?: CodeableConcept[];

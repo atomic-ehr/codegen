@@ -64,12 +64,12 @@ export interface CoverageEligibilityRequest extends DomainResource {
     patient: Reference<"Patient">;
     priority?: CodeableConcept;
     provider?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
-    purpose: "auth-requirements" | "benefits" | "discovery" | "validation"[];
+    purpose: ("auth-requirements" | "benefits" | "discovery" | "validation")[];
     _purpose?: Element;
     servicedDate?: string;
     _servicedDate?: Element;
     servicedPeriod?: Period;
-    status: "active" | "cancelled" | "draft" | "entered-in-error";
+    status: ("active" | "cancelled" | "draft" | "entered-in-error");
     _status?: Element;
     supportingInfo?: CoverageEligibilityRequestSupportingInfo[];
 }

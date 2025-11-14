@@ -30,7 +30,7 @@ export interface PatientCommunication extends BackboneElement {
 
 export interface PatientContact extends BackboneElement {
     address?: Address;
-    gender?: "male" | "female" | "other" | "unknown";
+    gender?: ("male" | "female" | "other" | "unknown");
     name?: HumanName;
     organization?: Reference<"Organization">;
     period?: Period;
@@ -40,7 +40,7 @@ export interface PatientContact extends BackboneElement {
 
 export interface PatientLink extends BackboneElement {
     other: Reference<"Patient" | "RelatedPerson">;
-    type: "replaced-by" | "replaces" | "refer" | "seealso";
+    type: ("replaced-by" | "replaces" | "refer" | "seealso");
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/Patient
@@ -58,7 +58,7 @@ export interface Patient extends DomainResource {
     _deceasedBoolean?: Element;
     deceasedDateTime?: string;
     _deceasedDateTime?: Element;
-    gender?: "male" | "female" | "other" | "unknown";
+    gender?: ("male" | "female" | "other" | "unknown");
     _gender?: Element;
     generalPractitioner?: Reference<"Organization" | "Practitioner" | "PractitionerRole">[];
     identifier?: Identifier[];

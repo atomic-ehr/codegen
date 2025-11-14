@@ -32,7 +32,7 @@ export interface PaymentReconciliationDetail extends BackboneElement {
 
 export interface PaymentReconciliationProcessNote extends BackboneElement {
     text?: string;
-    type?: "display" | "print" | "printoper";
+    type?: ("display" | "print" | "printoper");
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/PaymentReconciliation
@@ -46,7 +46,7 @@ export interface PaymentReconciliation extends DomainResource {
     _disposition?: Element;
     formCode?: CodeableConcept;
     identifier?: Identifier[];
-    outcome?: "queued" | "complete" | "error" | "partial";
+    outcome?: ("queued" | "complete" | "error" | "partial");
     _outcome?: Element;
     paymentAmount: Money;
     paymentDate: string;
@@ -57,6 +57,6 @@ export interface PaymentReconciliation extends DomainResource {
     processNote?: PaymentReconciliationProcessNote[];
     request?: Reference<"Task">;
     requestor?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
-    status: "active" | "cancelled" | "draft" | "entered-in-error";
+    status: ("active" | "cancelled" | "draft" | "entered-in-error");
     _status?: Element;
 }

@@ -26,7 +26,7 @@ export interface VisionPrescriptionLensSpecification extends BackboneElement {
     cylinder?: number;
     diameter?: number;
     duration?: Quantity;
-    eye: "right" | "left";
+    eye: ("right" | "left");
     note?: Annotation[];
     power?: number;
     prism?: VisionPrescriptionLensSpecificationPrism[];
@@ -36,7 +36,7 @@ export interface VisionPrescriptionLensSpecification extends BackboneElement {
 
 export interface VisionPrescriptionLensSpecificationPrism extends BackboneElement {
     amount: number;
-    base: "up" | "down" | "in" | "out";
+    base: ("up" | "down" | "in" | "out");
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/VisionPrescription
@@ -52,6 +52,6 @@ export interface VisionPrescription extends DomainResource {
     lensSpecification: VisionPrescriptionLensSpecification[];
     patient: Reference<"Patient">;
     prescriber: Reference<"Practitioner" | "PractitionerRole">;
-    status: "active" | "cancelled" | "draft" | "entered-in-error";
+    status: ("active" | "cancelled" | "draft" | "entered-in-error");
     _status?: Element;
 }

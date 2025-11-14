@@ -20,6 +20,6 @@ export interface EnrollmentRequest extends DomainResource {
     identifier?: Identifier[];
     insurer?: Reference<"Organization">;
     provider?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
-    status?: "active" | "cancelled" | "draft" | "entered-in-error";
+    status?: ("active" | "cancelled" | "draft" | "entered-in-error");
     _status?: Element;
 }

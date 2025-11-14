@@ -72,6 +72,6 @@ export interface FamilyMemberHistory extends DomainResource {
     reasonReference?: Reference<"AllergyIntolerance" | "Condition" | "DiagnosticReport" | "DocumentReference" | "Observation" | "QuestionnaireResponse">[];
     relationship: CodeableConcept;
     sex?: CodeableConcept;
-    status: "partial" | "completed" | "entered-in-error" | "health-unknown";
+    status: ("partial" | "completed" | "entered-in-error" | "health-unknown");
     _status?: Element;
 }

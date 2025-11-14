@@ -32,7 +32,7 @@ export interface DataRequirementDateFilter extends Element {
 }
 
 export interface DataRequirementSort extends Element {
-    direction: "ascending" | "descending";
+    direction: ("ascending" | "descending");
     path: string;
 }
 

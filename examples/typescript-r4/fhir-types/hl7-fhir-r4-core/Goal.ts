@@ -46,7 +46,7 @@ export interface Goal extends DomainResource {
     description: CodeableConcept;
     expressedBy?: Reference<"Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     identifier?: Identifier[];
-    lifecycleStatus: "proposed" | "planned" | "accepted" | "active" | "on-hold" | "completed" | "cancelled" | "entered-in-error" | "rejected";
+    lifecycleStatus: ("proposed" | "planned" | "accepted" | "active" | "on-hold" | "completed" | "cancelled" | "entered-in-error" | "rejected");
     _lifecycleStatus?: Element;
     note?: Annotation[];
     outcomeCode?: CodeableConcept[];

@@ -92,7 +92,7 @@ export interface RiskEvidenceSynthesis extends DomainResource {
     reviewer?: ContactDetail[];
     riskEstimate?: RiskEvidenceSynthesisRiskEstimate;
     sampleSize?: RiskEvidenceSynthesisSampleSize;
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     studyType?: CodeableConcept;
     synthesisType?: CodeableConcept;

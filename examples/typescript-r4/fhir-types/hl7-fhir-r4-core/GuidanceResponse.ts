@@ -37,7 +37,7 @@ export interface GuidanceResponse extends DomainResource {
     reasonReference?: Reference<"Condition" | "DiagnosticReport" | "DocumentReference" | "Observation">[];
     requestIdentifier?: Identifier;
     result?: Reference<"CarePlan" | "RequestGroup">;
-    status: "success" | "data-requested" | "data-required" | "in-progress" | "failure" | "entered-in-error";
+    status: ("success" | "data-requested" | "data-required" | "in-progress" | "failure" | "entered-in-error");
     _status?: Element;
     subject?: Reference<"Group" | "Patient">;
 }

@@ -31,7 +31,7 @@ export interface AuditEventAgent extends BackboneElement {
 
 export interface AuditEventAgentNetwork extends BackboneElement {
     address?: string;
-    type?: "1" | "2" | "3" | "4" | "5";
+    type?: ("1" | "2" | "3" | "4" | "5");
 }
 
 export interface AuditEventEntity extends BackboneElement {
@@ -62,11 +62,11 @@ export interface AuditEventSource extends BackboneElement {
 export interface AuditEvent extends DomainResource {
     resourceType: "AuditEvent";
 
-    action?: "C" | "R" | "U" | "D" | "E";
+    action?: ("C" | "R" | "U" | "D" | "E");
     _action?: Element;
     agent: AuditEventAgent[];
     entity?: AuditEventEntity[];
-    outcome?: "0" | "4" | "8" | "12";
+    outcome?: ("0" | "4" | "8" | "12");
     _outcome?: Element;
     outcomeDesc?: string;
     _outcomeDesc?: Element;

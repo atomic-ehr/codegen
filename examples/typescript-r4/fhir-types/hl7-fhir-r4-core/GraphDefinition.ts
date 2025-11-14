@@ -31,11 +31,11 @@ export interface GraphDefinitionLinkTarget extends BackboneElement {
 }
 
 export interface GraphDefinitionLinkTargetCompartment extends BackboneElement {
-    code: "Patient" | "Encounter" | "RelatedPerson" | "Practitioner" | "Device";
+    code: ("Patient" | "Encounter" | "RelatedPerson" | "Practitioner" | "Device");
     description?: string;
     expression?: string;
-    rule: "identical" | "matching" | "different" | "custom";
-    use: "condition" | "requirement";
+    rule: ("identical" | "matching" | "different" | "custom");
+    use: ("condition" | "requirement");
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/GraphDefinition
@@ -61,7 +61,7 @@ export interface GraphDefinition extends DomainResource {
     _purpose?: Element;
     start: string;
     _start?: Element;
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     url?: string;
     _url?: Element;

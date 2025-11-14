@@ -85,7 +85,7 @@ export interface Observation extends DomainResource {
     performer?: Reference<"CareTeam" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">[];
     referenceRange?: ObservationReferenceRange[];
     specimen?: Reference<"Specimen">;
-    status: "registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown";
+    status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
     _status?: Element;
     subject?: Reference<"Device" | "Group" | "Location" | "Patient">;
     valueBoolean?: boolean;

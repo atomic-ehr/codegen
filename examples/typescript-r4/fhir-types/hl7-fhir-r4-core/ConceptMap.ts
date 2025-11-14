@@ -35,7 +35,7 @@ export interface ConceptMapGroupElementTarget extends BackboneElement {
     comment?: string;
     dependsOn?: ConceptMapGroupElementTargetDependsOn[];
     display?: string;
-    equivalence: "relatedto" | "equivalent" | "equal" | "wider" | "subsumes" | "narrower" | "specializes" | "inexact" | "unmatched" | "disjoint";
+    equivalence: ("relatedto" | "equivalent" | "equal" | "wider" | "subsumes" | "narrower" | "specializes" | "inexact" | "unmatched" | "disjoint");
     product?: ConceptMapGroupElementTargetDependsOn[];
 }
 
@@ -49,7 +49,7 @@ export interface ConceptMapGroupElementTargetDependsOn extends BackboneElement {
 export interface ConceptMapGroupUnmapped extends BackboneElement {
     code?: string;
     display?: string;
-    mode: "provided" | "fixed" | "other-map";
+    mode: ("provided" | "fixed" | "other-map");
     url?: string;
 }
 
@@ -79,7 +79,7 @@ export interface ConceptMap extends DomainResource {
     _sourceCanonical?: Element;
     sourceUri?: string;
     _sourceUri?: Element;
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     targetCanonical?: string;
     _targetCanonical?: Element;

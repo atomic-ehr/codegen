@@ -21,7 +21,7 @@ export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface DeviceDeviceName extends BackboneElement {
     name: string;
-    type: "udi-label-name" | "user-friendly-name" | "patient-reported-name" | "manufacturer-name" | "model-name" | "other";
+    type: ("udi-label-name" | "user-friendly-name" | "patient-reported-name" | "manufacturer-name" | "model-name" | "other");
 }
 
 export interface DeviceProperty extends BackboneElement {
@@ -39,7 +39,7 @@ export interface DeviceUdiCarrier extends BackboneElement {
     carrierAIDC?: string;
     carrierHRF?: string;
     deviceIdentifier?: string;
-    entryType?: "barcode" | "rfid" | "manual" | "card" | "self-reported" | "unknown";
+    entryType?: ("barcode" | "rfid" | "manual" | "card" | "self-reported" | "unknown");
     issuer?: string;
     jurisdiction?: string;
 }
@@ -82,7 +82,7 @@ export interface Device extends DomainResource {
     serialNumber?: string;
     _serialNumber?: Element;
     specialization?: DeviceSpecialization[];
-    status?: "active" | "inactive" | "entered-in-error" | "unknown";
+    status?: ("active" | "inactive" | "entered-in-error" | "unknown");
     _status?: Element;
     statusReason?: CodeableConcept[];
     type?: CodeableConcept;

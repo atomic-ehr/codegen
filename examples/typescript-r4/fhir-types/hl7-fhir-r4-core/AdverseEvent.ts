@@ -29,7 +29,7 @@ export interface AdverseEventSuspectEntityCausality extends BackboneElement {
 export interface AdverseEvent extends DomainResource {
     resourceType: "AdverseEvent";
 
-    actuality: "actual" | "potential";
+    actuality: ("actual" | "potential");
     _actuality?: Element;
     category?: CodeableConcept[];
     contributor?: Reference<"Device" | "Practitioner" | "PractitionerRole">[];

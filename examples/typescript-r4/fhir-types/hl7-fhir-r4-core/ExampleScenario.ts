@@ -19,7 +19,7 @@ export interface ExampleScenarioActor extends BackboneElement {
     actorId: string;
     description?: string;
     name?: string;
-    type: "person" | "entity";
+    type: ("person" | "entity");
 }
 
 export interface ExampleScenarioInstance extends BackboneElement {
@@ -97,7 +97,7 @@ export interface ExampleScenario extends DomainResource {
     _publisher?: Element;
     purpose?: string;
     _purpose?: Element;
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     url?: string;
     _url?: Element;

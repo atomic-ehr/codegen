@@ -56,7 +56,7 @@ export interface QuestionnaireResponse extends DomainResource {
     questionnaire?: string;
     _questionnaire?: Element;
     source?: Reference<"Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    status: "in-progress" | "completed" | "amended" | "entered-in-error" | "stopped";
+    status: ("in-progress" | "completed" | "amended" | "entered-in-error" | "stopped");
     _status?: Element;
     subject?: Reference<"Resource">;
 }

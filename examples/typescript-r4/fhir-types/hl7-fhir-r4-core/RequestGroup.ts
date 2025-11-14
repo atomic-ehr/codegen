@@ -31,20 +31,20 @@ export type { Timing } from "../hl7-fhir-r4-core/Timing";
 
 export interface RequestGroupAction extends BackboneElement {
     action?: RequestGroupAction[];
-    cardinalityBehavior?: "single" | "multiple";
+    cardinalityBehavior?: ("single" | "multiple");
     code?: CodeableConcept[];
     condition?: RequestGroupActionCondition[];
     description?: string;
     documentation?: RelatedArtifact[];
-    groupingBehavior?: "visual-group" | "logical-group" | "sentence-group";
+    groupingBehavior?: ("visual-group" | "logical-group" | "sentence-group");
     participant?: Reference<"Device" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">[];
-    precheckBehavior?: "yes" | "no";
+    precheckBehavior?: ("yes" | "no");
     prefix?: string;
-    priority?: "routine" | "urgent" | "asap" | "stat";
+    priority?: ("routine" | "urgent" | "asap" | "stat");
     relatedAction?: RequestGroupActionRelatedAction[];
-    requiredBehavior?: "must" | "could" | "must-unless-documented";
+    requiredBehavior?: ("must" | "could" | "must-unless-documented");
     resource?: Reference<"Resource">;
-    selectionBehavior?: "any" | "all" | "all-or-none" | "exactly-one" | "at-most-one" | "one-or-more";
+    selectionBehavior?: ("any" | "all" | "all-or-none" | "exactly-one" | "at-most-one" | "one-or-more");
     textEquivalent?: string;
     timingAge?: Age;
     timingDateTime?: string;
@@ -58,14 +58,14 @@ export interface RequestGroupAction extends BackboneElement {
 
 export interface RequestGroupActionCondition extends BackboneElement {
     expression?: Expression;
-    kind: "applicability" | "start" | "stop";
+    kind: ("applicability" | "start" | "stop");
 }
 
 export interface RequestGroupActionRelatedAction extends BackboneElement {
     actionId: string;
     offsetDuration?: Duration;
     offsetRange?: Range;
-    relationship: "before-start" | "before" | "before-end" | "concurrent-with-start" | "concurrent" | "concurrent-with-end" | "after-start" | "after" | "after-end";
+    relationship: ("before-start" | "before" | "before-end" | "concurrent-with-start" | "concurrent" | "concurrent-with-end" | "after-start" | "after" | "after-end");
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/RequestGroup
@@ -85,15 +85,15 @@ export interface RequestGroup extends DomainResource {
     _instantiatesCanonical?: Element;
     instantiatesUri?: string[];
     _instantiatesUri?: Element;
-    intent: "proposal" | "plan" | "directive" | "order" | "original-order" | "reflex-order" | "filler-order" | "instance-order" | "option";
+    intent: ("proposal" | "plan" | "directive" | "order" | "original-order" | "reflex-order" | "filler-order" | "instance-order" | "option");
     _intent?: Element;
     note?: Annotation[];
-    priority?: "routine" | "urgent" | "asap" | "stat";
+    priority?: ("routine" | "urgent" | "asap" | "stat");
     _priority?: Element;
     reasonCode?: CodeableConcept[];
     reasonReference?: Reference<"Condition" | "DiagnosticReport" | "DocumentReference" | "Observation">[];
     replaces?: Reference<"Resource">[];
-    status: "draft" | "active" | "on-hold" | "revoked" | "completed" | "entered-in-error" | "unknown";
+    status: ("draft" | "active" | "on-hold" | "revoked" | "completed" | "entered-in-error" | "unknown");
     _status?: Element;
     subject?: Reference<"Group" | "Patient">;
 }

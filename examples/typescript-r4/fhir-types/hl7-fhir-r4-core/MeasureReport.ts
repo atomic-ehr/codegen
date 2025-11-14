@@ -67,9 +67,9 @@ export interface MeasureReport extends DomainResource {
     _measure?: Element;
     period: Period;
     reporter?: Reference<"Location" | "Organization" | "Practitioner" | "PractitionerRole">;
-    status: "complete" | "pending" | "error";
+    status: ("complete" | "pending" | "error");
     _status?: Element;
     subject?: Reference<"Device" | "Group" | "Location" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    type: "individual" | "subject-list" | "summary" | "data-collection";
+    type: ("individual" | "subject-list" | "summary" | "data-collection");
     _type?: Element;
 }

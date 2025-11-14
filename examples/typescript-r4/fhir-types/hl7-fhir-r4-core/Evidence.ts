@@ -54,7 +54,7 @@ export interface Evidence extends DomainResource {
     reviewer?: ContactDetail[];
     shortTitle?: string;
     _shortTitle?: Element;
-    status: "draft" | "active" | "retired" | "unknown";
+    status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     subtitle?: string;
     _subtitle?: Element;

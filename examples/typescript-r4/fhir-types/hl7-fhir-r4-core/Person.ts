@@ -20,7 +20,7 @@ export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface PersonLink extends BackboneElement {
-    assurance?: "level1" | "level2" | "level3" | "level4";
+    assurance?: ("level1" | "level2" | "level3" | "level4");
     target: Reference<"Patient" | "Person" | "Practitioner" | "RelatedPerson">;
 }
 
@@ -33,7 +33,7 @@ export interface Person extends DomainResource {
     address?: Address[];
     birthDate?: string;
     _birthDate?: Element;
-    gender?: "male" | "female" | "other" | "unknown";
+    gender?: ("male" | "female" | "other" | "unknown");
     _gender?: Element;
     identifier?: Identifier[];
     link?: PersonLink[];
