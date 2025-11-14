@@ -19,6 +19,7 @@ import {
     type TypeSchema,
 } from "./types";
 import { extractDependencies } from "./core/transformer";
+import * as Path from "node:path";
 
 ///////////////////////////////////////////////////////////
 // TypeSchema processing
@@ -313,6 +314,7 @@ export const mkTypeSchemaIndex = (schemas: TypeSchema[], logger?: CodegenLogger)
             }
         }
         const raw = filename.endsWith(".yaml") ? YAML.stringify(tree) : JSON.stringify(tree, undefined, 2);
+        await afs.mkdir(Path.dirname(filename), { recursive: true });
         await afs.writeFile(filename, raw);
     };
 
