@@ -1,4 +1,4 @@
-import {FilterType} from "@fscg/generators/mustache/types/FilterType";
+import type { FilterType } from "@mustache/types/FilterType";
 
 export type Rendering = {
     source: string;
@@ -6,4 +6,4 @@ export type Rendering = {
     path: string;
     filter?: FilterType;
     properties?: Record<string, any>;
-}
+};

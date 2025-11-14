@@ -1,13 +1,12 @@
-import {ClassField} from "@fscg/typeschema";
-import {PrimitiveType} from "@fscg/generators/mustache/types/PrimitiveType";
-import {IsPrefixed} from "@fscg/generators/mustache/UtilityTypes";
-import {TypeViewModel} from "@fscg/generators/mustache/types/TypeViewModel";
-import {NamedViewModel} from "@fscg/generators/mustache/types/NamedViewModel";
+import type { Field } from "@typeschema/types";
+import type { PrimitiveType } from "@mustache/types/PrimitiveType";
+import type { IsPrefixed } from "@mustache/UtilityTypes";
+import type { NamedViewModel } from "@mustache/types/NamedViewModel";
 
 export type FieldViewModel = {
     owner: NamedViewModel;
 
-    schema: ClassField;
+    schema: Field;
     name: string;
     saveName: string;
 
@@ -24,8 +23,8 @@ export type FieldViewModel = {
     isPrimitive: Record<IsPrefixed<PrimitiveType>, boolean> | false;
     isComplexType: Record<IsPrefixed<string>, boolean> | false;
     isResource: Record<IsPrefixed<string>, boolean> | false;
-    
+
     isCode: boolean;
     isIdentifier: boolean;
     isReference: boolean;
-}
+};

@@ -22,7 +22,7 @@ export const PRIMITIVE_TYPES = [
     "code",
     "markdown",
     "id",
-    "xhtml"
+    "xhtml",
 ] as const;
 
 export type PrimitiveType = (typeof PRIMITIVE_TYPES)[number];

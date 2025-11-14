@@ -1,6 +1,5 @@
-import {FieldViewModel} from "@fscg/generators/mustache/types/FieldViewModel";
-import {TypeViewModel} from "@fscg/generators/mustache/types/TypeViewModel";
-
+import type { FieldViewModel } from "@mustache/types/FieldViewModel";
+import type { TypeViewModel } from "@mustache/types/TypeViewModel";
 
 export type ResolvedTypeViewModel = TypeViewModel & {
     allFields: FieldViewModel[];
@@ -11,4 +10,4 @@ export type ResolvedTypeViewModel = TypeViewModel & {
     hasChildren: boolean;
     hasParents: boolean;
     hasInheritedFields: boolean;
-}
+};
