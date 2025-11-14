@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { PFS } from "@typeschema-test/utils";
-import { mkR4Register, registerFsAndMkTs } from "@typeschema-test/utils";
+import { mkR4Register, mkR5Register, registerFsAndMkTs } from "@typeschema-test/utils";
 
 describe("TypeSchema: Nested types", async () => {
     const r4 = await mkR4Register();
@@ -102,5 +102,77 @@ describe("TypeSchema: Nested types", async () => {
                 },
             ]);
         });
+    });
+});
+
+const viewDefinitionSD = {
+    name: "ViewDefinition",
+    url: "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition",
+    version: "2.1.0-pre",
+    kind: "logical",
+    derivation: "specialization",
+    base: "http://hl7.org/fhir/StructureDefinition/CanonicalResource",
+    class: "logical",
+    elements: {
+        select: {
+            type: "BackboneElement",
+            array: true,
+            min: 1,
+            elements: {
+                select: {
+                    short: "Nested select relative to a parent expression.",
+                    elementReference: [
+                        "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition",
+                        "elements",
+                        "select",
+                    ],
+                    array: true,
+                },
+                unionAll: {
+                    short: "Creates a union of all rows in the given selection structures.",
+                    elementReference: [
+                        "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition",
+                        "elements",
+                        "select",
+                    ],
+                    array: true,
+                },
+            },
+        },
+    },
+    package_meta: {
+        name: "org.sql-on-fhir.ig",
+        version: "2.1.0-pre",
+    },
+} as PFS;
+
+describe("TypeSchema: Nested types", async () => {
+    const r5 = await mkR5Register();
+    it("Check recursive nested types", async () => {
+        const tss = await registerFsAndMkTs(r5, viewDefinitionSD);
+        expect(tss).toMatchObject([
+            {
+                nested: [
+                    {
+                        fields: {
+                            select: {
+                                type: {
+                                    kind: "nested",
+                                    package: "org.sql-on-fhir.ig",
+                                    version: "2.1.0-pre",
+                                    name: "select",
+                                    url: "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition#select",
+                                },
+                                required: false,
+                                excluded: false,
+                                array: true,
+                            },
+                        },
+                    },
+                ],
+            },
+        ]);
+        // expect(tss).toMatchObject([
+        // ]);
     });
 });

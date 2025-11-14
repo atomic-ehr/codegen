@@ -71,7 +71,7 @@
   },
   "dependencies": {
     "@atomic-ehr/fhir-canonical-manager": "^0.0.15",
-    "@atomic-ehr/fhirschema": "^0.0.3",
+    "@atomic-ehr/fhirschema": "^0.0.5",
     "@inquirer/prompts": "^7.8.1",
     "ajv": "^8.17.1",
     "handlebars": "^4.7.8",
