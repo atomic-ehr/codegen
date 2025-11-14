@@ -17,7 +17,7 @@ export interface CDS_Hooks_RequestGroup {
 
     identifier: Identifier[];
     instantiatesUri: string[];
-    priority?: 'routine' | 'urgent' | 'asap' | 'stat';
+    priority?: ('routine' | 'urgent' | 'asap' | 'stat');
     subject?: Reference<'Group' | 'Patient'>;
     authoredOn?: string;
     author?: Reference<'Device' | 'Practitioner' | 'PractitionerRole'>;

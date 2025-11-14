@@ -19,7 +19,7 @@ export interface Device_Metric_Observation_Profile {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/devicemetricobservation";
 
     identifier?: Identifier[];
-    status: 'registered' | 'preliminary' | 'final' | 'amended' | 'corrected' | 'cancelled' | 'entered-in-error' | 'unknown';
+    status: ('registered' | 'preliminary' | 'final' | 'amended' | 'corrected' | 'cancelled' | 'entered-in-error' | 'unknown');
     code: CodeableConcept;
     subject: Reference<'Device' | 'Patient'>;
     encounter?: Reference<'Encounter'>;

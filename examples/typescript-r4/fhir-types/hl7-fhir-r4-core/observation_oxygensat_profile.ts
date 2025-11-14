@@ -14,7 +14,7 @@ import type { Reference } from "../hl7-fhir-r4-core/Reference";
 export interface observation_oxygensat {
     __profileUrl: "http://hl7.org/fhir/StructureDefinition/oxygensat";
 
-    status: 'registered' | 'preliminary' | 'final' | 'amended' | 'corrected' | 'cancelled' | 'entered-in-error' | 'unknown';
+    status: ('registered' | 'preliminary' | 'final' | 'amended' | 'corrected' | 'cancelled' | 'entered-in-error' | 'unknown');
     category: CodeableConcept[];
     code: CodeableConcept;
     subject: Reference<'Patient'>;

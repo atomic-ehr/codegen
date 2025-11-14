@@ -18,7 +18,7 @@ export interface EHRS_FM_Record_Lifecycle_Event___Audit_Event {
 
     type: Coding;
     subtype?: Coding[];
-    action?: 'C' | 'R' | 'U' | 'D' | 'E';
+    action?: ('C' | 'R' | 'U' | 'D' | 'E');
     recorded: string;
     purposeOfEvent?: CodeableConcept[];
     agent: AuditEventAgent[];

@@ -11,7 +11,7 @@ export interface Shareable_ValueSet {
     url: string;
     version: string;
     name: string;
-    status: 'draft' | 'active' | 'retired' | 'unknown';
+    status: ('draft' | 'active' | 'retired' | 'unknown');
     experimental: boolean;
     publisher: string;
     description: string;

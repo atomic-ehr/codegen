@@ -291,7 +291,7 @@ export class TypeScript extends Writer {
 
                 let tsType: string;
                 if (field.enum) {
-                    tsType = field.enum.map((e) => `'${e}'`).join(" | ");
+                    tsType = `(${field.enum.map((e) => `'${e}'`).join(" | ")})`;
                 } else if (field.reference && field.reference.length > 0) {
                     const specialization = tsIndex.findLastSpecialization(flatProfile);
                     if (!isSpecializationTypeSchema(specialization))
