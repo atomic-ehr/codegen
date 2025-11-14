@@ -39,15 +39,16 @@ jobs:
         run: |
           COMMIT_SHA=$(git rev-parse --short HEAD)
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          CANARY_VERSION="0.0.1-canary.${TIMESTAMP}.${COMMIT_SHA}"
-          echo "canary_version=${CANARY_VERSION}" >> $GITHUB_OUTPUT
-          echo "Generated canary version: ${CANARY_VERSION}"
+          CANARY_VERSION_SUFFIX="-canary.${TIMESTAMP}.${COMMIT_SHA}"
+          echo "canary_version_suffix=${CANARY_VERSION_SUFFIX}" >> $GITHUB_OUTPUT
+          echo "Generated canary version suffix: ${CANARY_VERSION_SUFFIX}"
 
       - name: Update package.json version
         run: |
           bun --bun -e "
             const pkg = require('./package.json');
-            pkg.version = '${{ steps.version.outputs.canary_version }}';
+            pkg.version = pkg.version + '${{ steps.version.outputs.canary_version_suffix }}';
+            console.log('Canary version:', pkg.version);
             require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2));
           "
 
