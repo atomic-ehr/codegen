@@ -24,7 +24,7 @@ import {
 import type { Config, TypeSchemaConfig } from "../config";
 import { CodegenLogger, createLogger } from "../utils/codegen-logger";
 import { TypeScriptGenerator as TypeScriptGeneratorDepricated } from "./generators/typescript";
-import * as TS2 from "./writer-generator/typescript";
+import * as TS2 from "./writer-generator/typescript/index";
 import type { Writer, WriterOptions } from "./writer-generator/writer";
 import type { GeneratorInput } from "./generators/base/BaseGenerator";
 
