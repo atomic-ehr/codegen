@@ -118,11 +118,17 @@ export class TypeScript extends Writer {
     generateFhirPackageIndexFile(schemas: TypeSchema[]) {
         this.cat("index.ts", () => {
             let exports = schemas
-                .map((schema) => ({
-                    identifier: schema.identifier,
-                    tsPackageName: tsModuleName(schema.identifier),
-                    resourceName: tsResourceName(schema.identifier),
-                }))
+                .flatMap((schema) => [
+                    {
+                        identifier: schema.identifier,
+                        tsPackageName: tsModuleName(schema.identifier),
+                        resourceName: tsResourceName(schema.identifier),
+                        nestedTypes:
+                            isResourceTypeSchema(schema) && schema.nested
+                                ? schema.nested.map((n) => tsResourceName(n.identifier))
+                                : [],
+                    },
+                ])
                 .sort((a, b) => a.resourceName.localeCompare(b.resourceName));
 
             // FIXME: actually, duplication may means internal error...
@@ -132,7 +138,9 @@ export class TypeScript extends Writer {
 
             for (const exp of exports) {
                 this.debugComment(exp.identifier);
-                this.lineSM(`export type { ${exp.resourceName} } from "./${exp.tsPackageName}"`);
+                this.lineSM(
+                    `export type { ${[exp.resourceName, ...exp.nestedTypes].join(", ")} } from "./${exp.tsPackageName}"`,
+                );
             }
         });
     }
