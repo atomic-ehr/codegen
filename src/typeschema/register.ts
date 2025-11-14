@@ -98,7 +98,7 @@ const mkPackageAwareResolver = async (
         if (!(isStructureDefinition(resource) || isValueSet(resource) || isCodeSystem(resource))) continue;
         const url = rawUrl as CanonicalUrl;
         if (index.canonicalResolution[url]) logger?.dry_warn(`Duplicate canonical URL: ${url} at ${pkgId}.`);
-        index.canonicalResolution[url] = [{ deep, pkg: pkg, pkgId, resource }];
+        index.canonicalResolution[url] = [{ deep, pkg: pkg, pkgId, resource: resource as FocusedResource }];
     }
 
     const deps = await readPackageDependencies(manager, pkg);
@@ -163,7 +163,10 @@ export const registerFromManager = async (
             const resource = resolition.resource;
             const resourcePkg = resolition.pkg;
             if (isStructureDefinition(resource)) {
-                const rfs = enrichFHIRSchema(fhirschema.translate(resource), resourcePkg);
+                const rfs = enrichFHIRSchema(
+                    fhirschema.translate(resource as StructureDefinition) as FHIRSchema,
+                    resourcePkg,
+                );
                 counter++;
                 resolver[pkgId].fhirSchemas[rfs.url] = rfs;
             }
@@ -250,7 +253,7 @@ export const registerFromManager = async (
         ensureSpecializationCanonicalUrl,
         resolveSd: (_pkg: PackageMeta, canonicalUrl: CanonicalUrl) => {
             const res = packageAgnosticResolveCanonical(resolver, canonicalUrl, logger);
-            if (isStructureDefinition(res)) return res;
+            if (isStructureDefinition(res)) return res as StructureDefinition;
             return undefined;
         },
         allFs: () => Object.values(resolver).flatMap((pkgIndex) => Object.values(pkgIndex.fhirSchemas)),

@@ -77,7 +77,7 @@ export class TypeSchemaGenerator {
 
         for (const sd of filteredStructureDefinitions) {
             try {
-                const fhirSchema = fhirschema.translate(sd as StructureDefinition);
+                const fhirSchema = fhirschema.translate(sd as StructureDefinition) as FHIRSchema;
                 fhirSchemas.push(fhirSchema);
                 convertedCount++;
 

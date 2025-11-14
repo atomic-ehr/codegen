@@ -4,7 +4,6 @@
  * Functions for creating TypeSchema identifiers from FHIRSchema entities
  */
 
-import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import type {
     BindingIdentifier,
     CanonicalUrl,
@@ -89,7 +88,11 @@ export function mkValueSetIdentifierByUrl(
     };
 }
 
-export function mkBindingIdentifier(fhirSchema: FHIRSchema, path: string[], bindingName?: string): BindingIdentifier {
+export function mkBindingIdentifier(
+    fhirSchema: RichFHIRSchema,
+    path: string[],
+    bindingName?: string,
+): BindingIdentifier {
     const pathStr = path.join(".");
     // NOTE: if SD specify `bindingName`, the definition should be shared between all
     // packages. So we put it in the dedicated shared package.
