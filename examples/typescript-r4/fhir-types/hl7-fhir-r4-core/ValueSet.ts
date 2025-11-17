@@ -116,3 +116,6 @@ export interface ValueSet extends DomainResource {
     version?: string;
     _version?: Element;
 }
+export const isValueSet = (resource: any): resource is ValueSet => {
+    return resource && resource.resourceType === "ValueSet";
+}

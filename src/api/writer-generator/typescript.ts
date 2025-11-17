@@ -281,6 +281,14 @@ export class TypeScript extends Writer {
         });
     }
 
+    generateResourceTypePredicate(schema: RegularTypeSchema) {
+        if (!isResourceTypeSchema(schema)) return;
+        const name = tsResourceName(schema.identifier);
+        this.curlyBlock(["export", "const", `is${name}`, "=", `(resource: any): resource is ${name}`, "=>"], () => {
+            this.lineSM(`return resource && resource.resourceType === "${schema.identifier.name}"`);
+        });
+    }
+
     generateNestedTypes(tsIndex: TypeSchemaIndex, schema: RegularTypeSchema) {
         if (schema.nested) {
             for (const subtype of schema.nested) {
@@ -472,6 +480,7 @@ export class TypeScript extends Writer {
                 this.generateNestedTypes(tsIndex, schema);
                 this.comment("CanonicalURL:", schema.identifier.url);
                 this.generateType(tsIndex, schema);
+                this.generateResourceTypePredicate(schema);
             } else if (isProfileTypeSchema(schema)) {
                 const flatProfile = tsIndex.flatProfile(schema);
                 this.generateDependenciesImports(flatProfile);

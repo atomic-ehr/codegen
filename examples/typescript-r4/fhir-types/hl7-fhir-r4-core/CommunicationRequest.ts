@@ -58,3 +58,6 @@ export interface CommunicationRequest extends DomainResource {
     statusReason?: CodeableConcept;
     subject?: Reference<"Group" | "Patient">;
 }
+export const isCommunicationRequest = (resource: any): resource is CommunicationRequest => {
+    return resource && resource.resourceType === "CommunicationRequest";
+}

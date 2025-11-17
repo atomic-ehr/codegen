@@ -77,3 +77,6 @@ export interface ResearchDefinition extends DomainResource {
     version?: string;
     _version?: Element;
 }
+export const isResearchDefinition = (resource: any): resource is ResearchDefinition => {
+    return resource && resource.resourceType === "ResearchDefinition";
+}

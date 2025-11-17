@@ -7,3 +7,6 @@ export interface FiveWs {
     resourceType: "FiveWs";
 
 }
+export const isFiveWs = (resource: any): resource is FiveWs => {
+    return resource && resource.resourceType === "FiveWs";
+}

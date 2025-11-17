@@ -47,3 +47,6 @@ export interface CompartmentDefinition extends DomainResource {
     version?: string;
     _version?: Element;
 }
+export const isCompartmentDefinition = (resource: any): resource is CompartmentDefinition => {
+    return resource && resource.resourceType === "CompartmentDefinition";
+}

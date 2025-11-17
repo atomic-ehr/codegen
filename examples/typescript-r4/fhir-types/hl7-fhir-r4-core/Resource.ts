@@ -18,3 +18,6 @@ export interface Resource {
     _language?: Element;
     meta?: Meta;
 }
+export const isResource = (resource: any): resource is Resource => {
+    return resource && resource.resourceType === "Resource";
+}

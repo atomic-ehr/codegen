@@ -42,3 +42,6 @@ export interface Person extends DomainResource {
     photo?: Attachment;
     telecom?: ContactPoint[];
 }
+export const isPerson = (resource: any): resource is Person => {
+    return resource && resource.resourceType === "Person";
+}

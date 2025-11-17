@@ -54,3 +54,6 @@ export interface AdverseEvent extends DomainResource {
     subjectMedicalHistory?: Reference<"AllergyIntolerance" | "Condition" | "DocumentReference" | "FamilyMemberHistory" | "Immunization" | "Media" | "Observation" | "Procedure">[];
     suspectEntity?: AdverseEventSuspectEntity[];
 }
+export const isAdverseEvent = (resource: any): resource is AdverseEvent => {
+    return resource && resource.resourceType === "AdverseEvent";
+}

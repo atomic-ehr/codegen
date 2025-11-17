@@ -47,3 +47,6 @@ export interface Provenance extends DomainResource {
     signature?: Signature[];
     target: Reference<"Resource">[];
 }
+export const isProvenance = (resource: any): resource is Provenance => {
+    return resource && resource.resourceType === "Provenance";
+}

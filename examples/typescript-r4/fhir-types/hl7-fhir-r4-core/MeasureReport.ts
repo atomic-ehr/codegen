@@ -73,3 +73,6 @@ export interface MeasureReport extends DomainResource {
     type: ("individual" | "subject-list" | "summary" | "data-collection");
     _type?: Element;
 }
+export const isMeasureReport = (resource: any): resource is MeasureReport => {
+    return resource && resource.resourceType === "MeasureReport";
+}

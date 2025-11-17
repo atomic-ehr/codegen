@@ -95,3 +95,6 @@ export interface NutritionOrder extends DomainResource {
     _status?: Element;
     supplement?: NutritionOrderSupplement[];
 }
+export const isNutritionOrder = (resource: any): resource is NutritionOrder => {
+    return resource && resource.resourceType === "NutritionOrder";
+}

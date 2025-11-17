@@ -65,3 +65,6 @@ export interface MedicationDispense extends DomainResource {
     whenPrepared?: string;
     _whenPrepared?: Element;
 }
+export const isMedicationDispense = (resource: any): resource is MedicationDispense => {
+    return resource && resource.resourceType === "MedicationDispense";
+}

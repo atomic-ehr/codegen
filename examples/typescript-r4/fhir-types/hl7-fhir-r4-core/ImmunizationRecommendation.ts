@@ -46,3 +46,6 @@ export interface ImmunizationRecommendation extends DomainResource {
     patient: Reference<"Patient">;
     recommendation: ImmunizationRecommendationRecommendation[];
 }
+export const isImmunizationRecommendation = (resource: any): resource is ImmunizationRecommendation => {
+    return resource && resource.resourceType === "ImmunizationRecommendation";
+}

@@ -41,3 +41,6 @@ export interface GuidanceResponse extends DomainResource {
     _status?: Element;
     subject?: Reference<"Group" | "Patient">;
 }
+export const isGuidanceResponse = (resource: any): resource is GuidanceResponse => {
+    return resource && resource.resourceType === "GuidanceResponse";
+}

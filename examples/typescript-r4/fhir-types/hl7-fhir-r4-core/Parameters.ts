@@ -131,3 +131,6 @@ export interface Parameters extends Resource {
 
     parameter?: ParametersParameter[];
 }
+export const isParameters = (resource: any): resource is Parameters => {
+    return resource && resource.resourceType === "Parameters";
+}

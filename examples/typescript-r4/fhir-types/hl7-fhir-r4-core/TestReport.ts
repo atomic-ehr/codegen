@@ -80,3 +80,6 @@ export interface TestReport extends DomainResource {
     _tester?: Element;
     testScript: Reference<"TestScript">;
 }
+export const isTestReport = (resource: any): resource is TestReport => {
+    return resource && resource.resourceType === "TestReport";
+}

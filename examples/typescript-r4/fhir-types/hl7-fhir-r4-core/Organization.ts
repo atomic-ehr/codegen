@@ -44,3 +44,6 @@ export interface Organization extends DomainResource {
     telecom?: ContactPoint[];
     type?: CodeableConcept[];
 }
+export const isOrganization = (resource: any): resource is Organization => {
+    return resource && resource.resourceType === "Organization";
+}

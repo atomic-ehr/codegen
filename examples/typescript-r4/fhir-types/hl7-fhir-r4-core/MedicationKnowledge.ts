@@ -142,3 +142,6 @@ export interface MedicationKnowledge extends DomainResource {
     synonym?: string[];
     _synonym?: Element;
 }
+export const isMedicationKnowledge = (resource: any): resource is MedicationKnowledge => {
+    return resource && resource.resourceType === "MedicationKnowledge";
+}

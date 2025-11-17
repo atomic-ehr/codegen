@@ -89,3 +89,6 @@ export interface DeviceDefinition extends DomainResource {
     version?: string[];
     _version?: Element;
 }
+export const isDeviceDefinition = (resource: any): resource is DeviceDefinition => {
+    return resource && resource.resourceType === "DeviceDefinition";
+}

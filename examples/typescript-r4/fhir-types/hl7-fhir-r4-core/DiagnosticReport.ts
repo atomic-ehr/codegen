@@ -50,3 +50,6 @@ export interface DiagnosticReport extends DomainResource {
     _status?: Element;
     subject?: Reference<"Device" | "Group" | "Location" | "Patient">;
 }
+export const isDiagnosticReport = (resource: any): resource is DiagnosticReport => {
+    return resource && resource.resourceType === "DiagnosticReport";
+}

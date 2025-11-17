@@ -62,3 +62,6 @@ export interface BiologicallyDerivedProduct extends DomainResource {
     _status?: Element;
     storage?: BiologicallyDerivedProductStorage[];
 }
+export const isBiologicallyDerivedProduct = (resource: any): resource is BiologicallyDerivedProduct => {
+    return resource && resource.resourceType === "BiologicallyDerivedProduct";
+}

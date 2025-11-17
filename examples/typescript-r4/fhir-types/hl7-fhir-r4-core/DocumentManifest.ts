@@ -39,3 +39,6 @@ export interface DocumentManifest extends DomainResource {
     subject?: Reference<"Device" | "Group" | "Patient" | "Practitioner">;
     type?: CodeableConcept;
 }
+export const isDocumentManifest = (resource: any): resource is DocumentManifest => {
+    return resource && resource.resourceType === "DocumentManifest";
+}

@@ -46,3 +46,6 @@ export interface CareTeam extends DomainResource {
     subject?: Reference<"Group" | "Patient">;
     telecom?: ContactPoint[];
 }
+export const isCareTeam = (resource: any): resource is CareTeam => {
+    return resource && resource.resourceType === "CareTeam";
+}

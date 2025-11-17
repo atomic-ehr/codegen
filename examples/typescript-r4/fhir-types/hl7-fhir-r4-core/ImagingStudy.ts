@@ -74,3 +74,6 @@ export interface ImagingStudy extends DomainResource {
     _status?: Element;
     subject: Reference<"Device" | "Group" | "Patient">;
 }
+export const isImagingStudy = (resource: any): resource is ImagingStudy => {
+    return resource && resource.resourceType === "ImagingStudy";
+}

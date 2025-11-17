@@ -56,3 +56,6 @@ export interface Group extends DomainResource {
     type: ("person" | "animal" | "practitioner" | "device" | "medication" | "substance");
     _type?: Element;
 }
+export const isGroup = (resource: any): resource is Group => {
+    return resource && resource.resourceType === "Group";
+}

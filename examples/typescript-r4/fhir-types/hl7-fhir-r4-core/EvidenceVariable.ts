@@ -97,3 +97,6 @@ export interface EvidenceVariable extends DomainResource {
     version?: string;
     _version?: Element;
 }
+export const isEvidenceVariable = (resource: any): resource is EvidenceVariable => {
+    return resource && resource.resourceType === "EvidenceVariable";
+}

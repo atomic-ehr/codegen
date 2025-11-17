@@ -73,3 +73,6 @@ export interface Patient extends DomainResource {
     photo?: Attachment[];
     telecom?: ContactPoint[];
 }
+export const isPatient = (resource: any): resource is Patient => {
+    return resource && resource.resourceType === "Patient";
+}

@@ -7,3 +7,6 @@ export interface Event {
     resourceType: "Event";
 
 }
+export const isEvent = (resource: any): resource is Event => {
+    return resource && resource.resourceType === "Event";
+}

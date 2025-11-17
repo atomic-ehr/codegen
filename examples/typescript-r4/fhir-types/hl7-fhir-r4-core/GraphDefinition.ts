@@ -69,3 +69,6 @@ export interface GraphDefinition extends DomainResource {
     version?: string;
     _version?: Element;
 }
+export const isGraphDefinition = (resource: any): resource is GraphDefinition => {
+    return resource && resource.resourceType === "GraphDefinition";
+}

@@ -44,3 +44,6 @@ export interface EpisodeOfCare extends DomainResource {
     team?: Reference<"CareTeam">[];
     type?: CodeableConcept[];
 }
+export const isEpisodeOfCare = (resource: any): resource is EpisodeOfCare => {
+    return resource && resource.resourceType === "EpisodeOfCare";
+}

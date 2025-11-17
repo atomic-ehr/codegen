@@ -18,3 +18,6 @@ export interface DomainResource extends Resource {
     modifierExtension?: Extension[];
     text?: Narrative;
 }
+export const isDomainResource = (resource: any): resource is DomainResource => {
+    return resource && resource.resourceType === "DomainResource";
+}

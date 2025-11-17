@@ -67,3 +67,6 @@ export interface Condition extends DomainResource {
     subject: Reference<"Group" | "Patient">;
     verificationStatus?: CodeableConcept;
 }
+export const isCondition = (resource: any): resource is Condition => {
+    return resource && resource.resourceType === "Condition";
+}

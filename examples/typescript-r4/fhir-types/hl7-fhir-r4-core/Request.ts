@@ -7,3 +7,6 @@ export interface Request {
     resourceType: "Request";
 
 }
+export const isRequest = (resource: any): resource is Request => {
+    return resource && resource.resourceType === "Request";
+}

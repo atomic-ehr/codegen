@@ -43,3 +43,6 @@ export interface Substance extends DomainResource {
     status?: ("active" | "inactive" | "entered-in-error");
     _status?: Element;
 }
+export const isSubstance = (resource: any): resource is Substance => {
+    return resource && resource.resourceType === "Substance";
+}

@@ -45,3 +45,6 @@ export interface SupplyDelivery extends DomainResource {
     supplier?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
     type?: CodeableConcept;
 }
+export const isSupplyDelivery = (resource: any): resource is SupplyDelivery => {
+    return resource && resource.resourceType === "SupplyDelivery";
+}

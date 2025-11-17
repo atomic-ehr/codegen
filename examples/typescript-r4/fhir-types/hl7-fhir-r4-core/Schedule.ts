@@ -28,3 +28,6 @@ export interface Schedule extends DomainResource {
     serviceType?: CodeableConcept[];
     specialty?: CodeableConcept[];
 }
+export const isSchedule = (resource: any): resource is Schedule => {
+    return resource && resource.resourceType === "Schedule";
+}

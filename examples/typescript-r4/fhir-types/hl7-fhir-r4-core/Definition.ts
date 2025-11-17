@@ -7,3 +7,6 @@ export interface Definition {
     resourceType: "Definition";
 
 }
+export const isDefinition = (resource: any): resource is Definition => {
+    return resource && resource.resourceType === "Definition";
+}

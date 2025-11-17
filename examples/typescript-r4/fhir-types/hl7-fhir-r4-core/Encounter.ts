@@ -89,3 +89,6 @@ export interface Encounter extends DomainResource {
     subject?: Reference<"Group" | "Patient">;
     type?: CodeableConcept[];
 }
+export const isEncounter = (resource: any): resource is Encounter => {
+    return resource && resource.resourceType === "Encounter";
+}

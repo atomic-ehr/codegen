@@ -33,3 +33,6 @@ export interface PaymentNotice extends DomainResource {
     status: ("active" | "cancelled" | "draft" | "entered-in-error");
     _status?: Element;
 }
+export const isPaymentNotice = (resource: any): resource is PaymentNotice => {
+    return resource && resource.resourceType === "PaymentNotice";
+}

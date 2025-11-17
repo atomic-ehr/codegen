@@ -44,3 +44,6 @@ export interface MedicationStatement extends DomainResource {
     statusReason?: CodeableConcept[];
     subject: Reference<"Group" | "Patient">;
 }
+export const isMedicationStatement = (resource: any): resource is MedicationStatement => {
+    return resource && resource.resourceType === "MedicationStatement";
+}

@@ -60,3 +60,6 @@ export interface PaymentReconciliation extends DomainResource {
     status: ("active" | "cancelled" | "draft" | "entered-in-error");
     _status?: Element;
 }
+export const isPaymentReconciliation = (resource: any): resource is PaymentReconciliation => {
+    return resource && resource.resourceType === "PaymentReconciliation";
+}

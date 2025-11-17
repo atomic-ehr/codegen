@@ -227,3 +227,6 @@ export interface Task extends DomainResource {
     _status?: Element;
     statusReason?: CodeableConcept;
 }
+export const isTask = (resource: any): resource is Task => {
+    return resource && resource.resourceType === "Task";
+}

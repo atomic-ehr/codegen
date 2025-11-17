@@ -301,3 +301,6 @@ export interface ExplanationOfBenefit extends DomainResource {
     use: ("claim" | "preauthorization" | "predetermination");
     _use?: Element;
 }
+export const isExplanationOfBenefit = (resource: any): resource is ExplanationOfBenefit => {
+    return resource && resource.resourceType === "ExplanationOfBenefit";
+}

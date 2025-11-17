@@ -57,3 +57,6 @@ export interface MedicinalProductPharmaceutical extends DomainResource {
     routeOfAdministration: MedicinalProductPharmaceuticalRouteOfAdministration[];
     unitOfPresentation?: CodeableConcept;
 }
+export const isMedicinalProductPharmaceutical = (resource: any): resource is MedicinalProductPharmaceutical => {
+    return resource && resource.resourceType === "MedicinalProductPharmaceutical";
+}

@@ -66,3 +66,6 @@ export interface VerificationResult extends DomainResource {
     validationType?: CodeableConcept;
     validator?: VerificationResultValidator[];
 }
+export const isVerificationResult = (resource: any): resource is VerificationResult => {
+    return resource && resource.resourceType === "VerificationResult";
+}

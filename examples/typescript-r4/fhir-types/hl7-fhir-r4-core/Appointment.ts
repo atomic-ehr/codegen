@@ -59,3 +59,6 @@ export interface Appointment extends DomainResource {
     _status?: Element;
     supportingInformation?: Reference<"Resource">[];
 }
+export const isAppointment = (resource: any): resource is Appointment => {
+    return resource && resource.resourceType === "Appointment";
+}

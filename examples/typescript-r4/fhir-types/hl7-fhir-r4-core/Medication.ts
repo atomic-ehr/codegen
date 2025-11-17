@@ -41,3 +41,6 @@ export interface Medication extends DomainResource {
     status?: ("active" | "inactive" | "entered-in-error");
     _status?: Element;
 }
+export const isMedication = (resource: any): resource is Medication => {
+    return resource && resource.resourceType === "Medication";
+}

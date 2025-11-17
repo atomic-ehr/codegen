@@ -78,3 +78,6 @@ export interface AuditEvent extends DomainResource {
     subtype?: Coding[];
     type: Coding;
 }
+export const isAuditEvent = (resource: any): resource is AuditEvent => {
+    return resource && resource.resourceType === "AuditEvent";
+}

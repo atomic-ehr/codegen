@@ -56,3 +56,6 @@ export interface RiskAssessment extends DomainResource {
     _status?: Element;
     subject: Reference<"Group" | "Patient">;
 }
+export const isRiskAssessment = (resource: any): resource is RiskAssessment => {
+    return resource && resource.resourceType === "RiskAssessment";
+}

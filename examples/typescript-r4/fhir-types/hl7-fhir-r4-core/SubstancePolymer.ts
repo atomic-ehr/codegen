@@ -63,3 +63,6 @@ export interface SubstancePolymer extends DomainResource {
     monomerSet?: SubstancePolymerMonomerSet[];
     repeat?: SubstancePolymerRepeat[];
 }
+export const isSubstancePolymer = (resource: any): resource is SubstancePolymer => {
+    return resource && resource.resourceType === "SubstancePolymer";
+}

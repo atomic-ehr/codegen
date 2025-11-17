@@ -167,3 +167,6 @@ export interface PlanDefinition extends DomainResource {
     version?: string;
     _version?: Element;
 }
+export const isPlanDefinition = (resource: any): resource is PlanDefinition => {
+    return resource && resource.resourceType === "PlanDefinition";
+}

@@ -50,3 +50,6 @@ export interface PractitionerRole extends DomainResource {
     specialty?: CodeableConcept[];
     telecom?: ContactPoint[];
 }
+export const isPractitionerRole = (resource: any): resource is PractitionerRole => {
+    return resource && resource.resourceType === "PractitionerRole";
+}

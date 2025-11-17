@@ -71,3 +71,6 @@ export interface HealthcareService extends DomainResource {
     telecom?: ContactPoint[];
     type?: CodeableConcept[];
 }
+export const isHealthcareService = (resource: any): resource is HealthcareService => {
+    return resource && resource.resourceType === "HealthcareService";
+}

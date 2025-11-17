@@ -48,3 +48,6 @@ export interface RelatedPerson extends DomainResource {
     relationship?: CodeableConcept[];
     telecom?: ContactPoint[];
 }
+export const isRelatedPerson = (resource: any): resource is RelatedPerson => {
+    return resource && resource.resourceType === "RelatedPerson";
+}

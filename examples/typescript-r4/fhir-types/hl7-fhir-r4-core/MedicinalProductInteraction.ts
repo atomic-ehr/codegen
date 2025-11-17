@@ -29,3 +29,6 @@ export interface MedicinalProductInteraction extends DomainResource {
     subject?: Reference<"Medication" | "MedicinalProduct" | "Substance">[];
     type?: CodeableConcept;
 }
+export const isMedicinalProductInteraction = (resource: any): resource is MedicinalProductInteraction => {
+    return resource && resource.resourceType === "MedicinalProductInteraction";
+}

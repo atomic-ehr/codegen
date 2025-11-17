@@ -40,3 +40,6 @@ export interface DeviceUseStatement extends DomainResource {
     timingPeriod?: Period;
     timingTiming?: Timing;
 }
+export const isDeviceUseStatement = (resource: any): resource is DeviceUseStatement => {
+    return resource && resource.resourceType === "DeviceUseStatement";
+}

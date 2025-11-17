@@ -126,3 +126,6 @@ export interface ActivityDefinition extends DomainResource {
     version?: string;
     _version?: Element;
 }
+export const isActivityDefinition = (resource: any): resource is ActivityDefinition => {
+    return resource && resource.resourceType === "ActivityDefinition";
+}

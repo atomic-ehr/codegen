@@ -77,3 +77,6 @@ export interface MessageDefinition extends DomainResource {
     version?: string;
     _version?: Element;
 }
+export const isMessageDefinition = (resource: any): resource is MessageDefinition => {
+    return resource && resource.resourceType === "MessageDefinition";
+}

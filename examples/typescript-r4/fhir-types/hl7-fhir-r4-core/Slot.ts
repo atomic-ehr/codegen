@@ -32,3 +32,6 @@ export interface Slot extends DomainResource {
     status: ("busy" | "free" | "busy-unavailable" | "busy-tentative" | "entered-in-error");
     _status?: Element;
 }
+export const isSlot = (resource: any): resource is Slot => {
+    return resource && resource.resourceType === "Slot";
+}

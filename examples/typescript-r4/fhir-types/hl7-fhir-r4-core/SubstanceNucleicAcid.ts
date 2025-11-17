@@ -49,3 +49,6 @@ export interface SubstanceNucleicAcid extends DomainResource {
     sequenceType?: CodeableConcept;
     subunit?: SubstanceNucleicAcidSubunit[];
 }
+export const isSubstanceNucleicAcid = (resource: any): resource is SubstanceNucleicAcid => {
+    return resource && resource.resourceType === "SubstanceNucleicAcid";
+}

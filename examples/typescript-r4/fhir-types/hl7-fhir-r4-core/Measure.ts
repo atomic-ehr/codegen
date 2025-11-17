@@ -126,3 +126,6 @@ export interface Measure extends DomainResource {
     version?: string;
     _version?: Element;
 }
+export const isMeasure = (resource: any): resource is Measure => {
+    return resource && resource.resourceType === "Measure";
+}

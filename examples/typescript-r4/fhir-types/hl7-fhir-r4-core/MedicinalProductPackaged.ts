@@ -56,3 +56,6 @@ export interface MedicinalProductPackaged extends DomainResource {
     packageItem: MedicinalProductPackagedPackageItem[];
     subject?: Reference<"MedicinalProduct">[];
 }
+export const isMedicinalProductPackaged = (resource: any): resource is MedicinalProductPackaged => {
+    return resource && resource.resourceType === "MedicinalProductPackaged";
+}

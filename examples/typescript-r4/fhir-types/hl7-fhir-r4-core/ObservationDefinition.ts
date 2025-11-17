@@ -54,3 +54,6 @@ export interface ObservationDefinition extends DomainResource {
     quantitativeDetails?: ObservationDefinitionQuantitativeDetails;
     validCodedValueSet?: Reference<"ValueSet">;
 }
+export const isObservationDefinition = (resource: any): resource is ObservationDefinition => {
+    return resource && resource.resourceType === "ObservationDefinition";
+}

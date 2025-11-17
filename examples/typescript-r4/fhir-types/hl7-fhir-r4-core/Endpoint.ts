@@ -38,3 +38,6 @@ export interface Endpoint extends DomainResource {
     status: ("active" | "suspended" | "error" | "off" | "entered-in-error" | "test");
     _status?: Element;
 }
+export const isEndpoint = (resource: any): resource is Endpoint => {
+    return resource && resource.resourceType === "Endpoint";
+}

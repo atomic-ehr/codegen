@@ -71,3 +71,6 @@ export interface Specimen extends DomainResource {
     subject?: Reference<"Device" | "Group" | "Location" | "Patient" | "Substance">;
     type?: CodeableConcept;
 }
+export const isSpecimen = (resource: any): resource is Specimen => {
+    return resource && resource.resourceType === "Specimen";
+}

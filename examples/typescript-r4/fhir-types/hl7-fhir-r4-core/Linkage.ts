@@ -23,3 +23,6 @@ export interface Linkage extends DomainResource {
     author?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
     item: LinkageItem[];
 }
+export const isLinkage = (resource: any): resource is Linkage => {
+    return resource && resource.resourceType === "Linkage";
+}

@@ -184,3 +184,6 @@ export interface TestScript extends DomainResource {
     version?: string;
     _version?: Element;
 }
+export const isTestScript = (resource: any): resource is TestScript => {
+    return resource && resource.resourceType === "TestScript";
+}
