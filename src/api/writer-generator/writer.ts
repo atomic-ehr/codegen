@@ -3,22 +3,24 @@ import * as Path from "node:path";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 
-export interface WriterOptions {
+export type WriterOptions = {
     outputDir: string;
     tabSize: number;
     withDebugComment?: boolean;
     commentLinePrefix: string;
     generateProfile?: boolean;
     logger?: CodegenLogger;
-}
+};
 
-class FileSystemWriter {
-    opts: WriterOptions;
+export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+
+class FileSystemWriter<T extends WriterOptions = WriterOptions> {
+    opts: T;
     currentDir: string;
     currentFileDescriptor?: number;
     writtenFilesSet: Set<string> = new Set();
 
-    constructor(opts: WriterOptions) {
+    constructor(opts: T) {
         this.opts = opts;
         this.currentDir = opts.outputDir;
     }
@@ -74,7 +76,7 @@ class FileSystemWriter {
     }
 }
 
-export class Writer extends FileSystemWriter {
+export class Writer<T extends WriterOptions = WriterOptions> extends FileSystemWriter<T> {
     currentIndent: number = 0;
 
     private indent() {
