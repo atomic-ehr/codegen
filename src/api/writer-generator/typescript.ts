@@ -144,8 +144,10 @@ export class TypeScript extends Writer {
             for (const exp of exports) {
                 this.debugComment(exp.identifier);
                 this.lineSM(
-                    `export type { ${[exp.resourceName, ...exp.nestedTypes, ...exp.helpers].join(", ")} } from "./${exp.tsPackageName}"`,
+                    `export type { ${[exp.resourceName, ...exp.nestedTypes].join(", ")} } from "./${exp.tsPackageName}"`,
                 );
+                if (exp.helpers.length > 0)
+                    this.lineSM(`export { ${exp.helpers.join(", ")} } from "./${exp.tsPackageName}"`);
             }
         });
     }
