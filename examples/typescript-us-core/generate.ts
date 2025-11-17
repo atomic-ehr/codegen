@@ -2,13 +2,14 @@
 // bun run examples/typescript-us-core/generate.ts
 
 import { APIBuilder } from "../../src/api/builder";
+import { LogLevel } from "../../src/utils/codegen-logger";
 
 if (require.main === module) {
     console.log("📦 Generating FHIR R4 Core Types...");
 
     const builder = new APIBuilder()
-        .verbose()
         .throwException()
+        .logLevel(LogLevel.INFO)
         .fromPackage("hl7.fhir.us.core", "6.1.0")
         .typescript({ withDebugComment: false, withProfiles: true })
         .outputTo("./examples/typescript-us-core/fhir-types")

@@ -24,10 +24,7 @@ function isChoiceFieldInstance(field: Field): field is ChoiceFieldInstance {
 /**
  * Check if profile field adds constraints compared to base resource
  */
-function fieldAddsConstraints(
-    profileField: Field,
-    baseField: Field | undefined,
-): boolean {
+function fieldAddsConstraints(profileField: Field, baseField: Field | undefined): boolean {
     if (!baseField) return true; // New field added by profile
     if (isChoiceDeclarationField(profileField) || isChoiceDeclarationField(baseField)) return false;
 

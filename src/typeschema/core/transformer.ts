@@ -221,38 +221,38 @@ function extractExtensions(fhirSchema: RichFHIRSchema, logger?: CodegenLogger): 
 
     const extensions: ProfileExtension[] = [];
 
-    // Extensions are elements with path containing "extension:" or "modifierExtension:"
+    // Look for extension elements with slicing
     for (const [path, element] of Object.entries(fhirSchema.elements)) {
-        if (path.includes("extension:") || path.includes("modifierExtension:")) {
-            // Extract extension slice name
-            const sliceName = path.split(":")[1];
-            if (!sliceName) continue;
+        // Check if this is an extension or modifierExtension element with slices
+        if (
+            (path === "extension" ||
+                path === "modifierExtension" ||
+                path.endsWith(".extension") ||
+                path.endsWith(".modifierExtension")) &&
+            element.slicing?.slices
+        ) {
+            // Extract each slice as an extension
+            for (const [sliceName, slice] of Object.entries(element.slicing.slices)) {
+                // Slice contains {match, schema} - we need the schema part
+                const sliceSchema = (slice as any).schema;
+                if (!sliceSchema) continue;
 
-            // Get extension URL from type profile
-            let extensionUrl: string | string[] | undefined;
-            if (element.type) {
-                const types = Array.isArray(element.type) ? element.type : [element.type];
-                for (const t of types) {
-                    const typeObj = typeof t === "string" ? { code: t } : t;
-                    if (typeObj.code === "Extension" && typeObj.profile) {
-                        extensionUrl = typeObj.profile;
-                        break;
-                    }
+                // Get extension URL from slice schema
+                const extensionUrl = sliceSchema.url;
+
+                if (!extensionUrl) {
+                    logger?.warn(`Cannot determine URL for extension slice '${sliceName}' in ${fhirSchema.url}`);
+                    continue;
                 }
-            }
 
-            if (!extensionUrl) {
-                logger?.warn(`Cannot determine URL for extension ${sliceName} in ${fhirSchema.url}`);
-                continue;
+                extensions.push({
+                    path: sliceName,
+                    profile: extensionUrl,
+                    min: sliceSchema.min,
+                    max: sliceSchema.max !== undefined ? String(sliceSchema.max) : undefined,
+                    mustSupport: sliceSchema.mustSupport,
+                });
             }
-
-            extensions.push({
-                path: sliceName,
-                profile: extensionUrl,
-                min: element.min,
-                max: element.max !== undefined ? String(element.max) : undefined,
-                mustSupport: element.mustSupport,
-            });
         }
     }
 
@@ -298,9 +298,31 @@ function transformProfile(register: Register, fhirSchema: RichFHIRSchema, logger
 
     // Debug extension extraction for us-core-patient
     if (logger && fhirSchema.url?.includes("us-core-patient")) {
-        const extPaths = Object.keys(fhirSchema.elements || {}).filter(p => p.toLowerCase().includes("extension"));
+        const extPaths = Object.keys(fhirSchema.elements || {}).filter((p) => p.toLowerCase().includes("extension"));
         logger.debug(`  [DEBUG] Extension-related paths in elements: ${extPaths.slice(0, 10).join(", ")}`);
         logger.debug(`  [DEBUG] Total extension paths: ${extPaths.length}`);
+
+        // Check the extension element structure
+        const extElement = fhirSchema.elements?.extension;
+        if (extElement) {
+            logger.debug(`  [DEBUG] extension element has slicing: ${extElement.slicing ? "YES" : "NO"}`);
+            logger.debug(`  [DEBUG] extension element type: ${JSON.stringify(extElement.type).substring(0, 100)}`);
+            if (extElement.slicing && extElement.slicing.slices) {
+                logger.debug(`  [DEBUG] slicing discriminator: ${JSON.stringify(extElement.slicing.discriminator)}`);
+                logger.debug(
+                    `  [DEBUG] slicing slices: ${JSON.stringify(Object.keys(extElement.slicing.slices || {}))}`,
+                );
+
+                // Log first slice structure
+                const firstSliceKey = Object.keys(extElement.slicing.slices)[0];
+                if (firstSliceKey) {
+                    const firstSlice = extElement.slicing.slices[firstSliceKey];
+                    logger.debug(
+                        `  [DEBUG] First slice (${firstSliceKey}): ${JSON.stringify(firstSlice).substring(0, 200)}`,
+                    );
+                }
+            }
+        }
     }
 
     // Build nested types
