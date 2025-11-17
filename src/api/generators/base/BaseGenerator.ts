@@ -6,6 +6,7 @@
  * specific logic for type mapping, content generation, and validation.
  */
 
+import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { TypeSchema } from "@typeschema/types";
 import type { CodegenLogger } from "../../../utils/codegen-logger";
 import { createLogger } from "../../../utils/codegen-logger";
@@ -22,7 +23,6 @@ import type {
     TemplateEngine,
     TypeMapper,
 } from "./types";
-import type { TypeSchemaIndex } from "@root/typeschema/utils";
 
 export type GeneratorInput = { schemas: TypeSchema[]; index: TypeSchemaIndex };
 

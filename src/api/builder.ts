@@ -12,15 +12,15 @@ import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { GeneratedFile } from "@root/api/generators/base/types";
 import { CSharp } from "@root/api/writer-generator/csharp/csharp.ts";
 import { registerFromManager } from "@root/typeschema/register";
-import { mkTypeSchemaIndex, treeShake, type TreeShake } from "@root/typeschema/utils";
+import { mkTypeSchemaIndex, type TreeShake, treeShake } from "@root/typeschema/utils";
 import { generateTypeSchemas, TypeSchemaCache, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";
 import { extractNameFromCanonical, packageMetaToFhir, packageMetaToNpm, type TypeSchema } from "@typeschema/types";
 import type { Config, TypeSchemaConfig } from "../config";
 import { CodegenLogger, createLogger } from "../utils/codegen-logger";
+import type { GeneratorInput } from "./generators/base/BaseGenerator";
 import { TypeScriptGenerator as TypeScriptGeneratorDepricated } from "./generators/typescript";
 import * as TS2 from "./writer-generator/typescript";
 import type { Writer, WriterOptions } from "./writer-generator/writer";
-import type { GeneratorInput } from "./generators/base/BaseGenerator";
 
 /**
  * Configuration options for the API builder

@@ -1,6 +1,8 @@
 import * as afs from "node:fs/promises";
+import * as Path from "node:path";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import * as YAML from "yaml";
+import { extractDependencies } from "./core/transformer";
 import {
     type CanonicalUrl,
     type Field,
@@ -18,8 +20,6 @@ import {
     type RegularTypeSchema,
     type TypeSchema,
 } from "./types";
-import { extractDependencies } from "./core/transformer";
-import * as Path from "node:path";
 
 ///////////////////////////////////////////////////////////
 // TypeSchema processing
