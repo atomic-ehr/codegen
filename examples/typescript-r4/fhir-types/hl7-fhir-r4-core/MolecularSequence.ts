@@ -117,5 +117,5 @@ export interface MolecularSequence extends DomainResource {
     variant?: MolecularSequenceVariant[];
 }
 export const isMolecularSequence = (resource: any): resource is MolecularSequence => {
-    return resource && resource.resourceType === "MolecularSequence";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "MolecularSequence";
 }

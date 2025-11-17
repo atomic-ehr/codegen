@@ -59,5 +59,5 @@ export interface CommunicationRequest extends DomainResource {
     subject?: Reference<"Group" | "Patient">;
 }
 export const isCommunicationRequest = (resource: any): resource is CommunicationRequest => {
-    return resource && resource.resourceType === "CommunicationRequest";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "CommunicationRequest";
 }

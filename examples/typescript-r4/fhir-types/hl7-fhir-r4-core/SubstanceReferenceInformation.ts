@@ -61,5 +61,5 @@ export interface SubstanceReferenceInformation extends DomainResource {
     target?: SubstanceReferenceInformationTarget[];
 }
 export const isSubstanceReferenceInformation = (resource: any): resource is SubstanceReferenceInformation => {
-    return resource && resource.resourceType === "SubstanceReferenceInformation";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "SubstanceReferenceInformation";
 }

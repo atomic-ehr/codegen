@@ -34,5 +34,5 @@ export interface PaymentNotice extends DomainResource {
     _status?: Element;
 }
 export const isPaymentNotice = (resource: any): resource is PaymentNotice => {
-    return resource && resource.resourceType === "PaymentNotice";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "PaymentNotice";
 }

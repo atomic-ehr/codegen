@@ -74,5 +74,5 @@ export interface MeasureReport extends DomainResource {
     _type?: Element;
 }
 export const isMeasureReport = (resource: any): resource is MeasureReport => {
-    return resource && resource.resourceType === "MeasureReport";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "MeasureReport";
 }

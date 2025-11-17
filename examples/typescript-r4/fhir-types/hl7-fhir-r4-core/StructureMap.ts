@@ -224,5 +224,5 @@ export interface StructureMap extends DomainResource {
     _version?: Element;
 }
 export const isStructureMap = (resource: any): resource is StructureMap => {
-    return resource && resource.resourceType === "StructureMap";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "StructureMap";
 }

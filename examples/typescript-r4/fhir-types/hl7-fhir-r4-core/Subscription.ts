@@ -34,5 +34,5 @@ export interface Subscription extends DomainResource {
     _status?: Element;
 }
 export const isSubscription = (resource: any): resource is Subscription => {
-    return resource && resource.resourceType === "Subscription";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Subscription";
 }

@@ -19,5 +19,5 @@ export interface DomainResource extends Resource {
     text?: Narrative;
 }
 export const isDomainResource = (resource: any): resource is DomainResource => {
-    return resource && resource.resourceType === "DomainResource";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "DomainResource";
 }

@@ -49,5 +49,5 @@ export interface Practitioner extends DomainResource {
     telecom?: ContactPoint[];
 }
 export const isPractitioner = (resource: any): resource is Practitioner => {
-    return resource && resource.resourceType === "Practitioner";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Practitioner";
 }

@@ -24,5 +24,5 @@ export interface Linkage extends DomainResource {
     item: LinkageItem[];
 }
 export const isLinkage = (resource: any): resource is Linkage => {
-    return resource && resource.resourceType === "Linkage";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Linkage";
 }

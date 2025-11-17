@@ -40,5 +40,5 @@ export interface ImmunizationEvaluation extends DomainResource {
     targetDisease: CodeableConcept;
 }
 export const isImmunizationEvaluation = (resource: any): resource is ImmunizationEvaluation => {
-    return resource && resource.resourceType === "ImmunizationEvaluation";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "ImmunizationEvaluation";
 }

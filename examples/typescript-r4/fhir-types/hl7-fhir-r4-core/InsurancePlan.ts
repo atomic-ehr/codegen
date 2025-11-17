@@ -105,5 +105,5 @@ export interface InsurancePlan extends DomainResource {
     type?: CodeableConcept[];
 }
 export const isInsurancePlan = (resource: any): resource is InsurancePlan => {
-    return resource && resource.resourceType === "InsurancePlan";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "InsurancePlan";
 }

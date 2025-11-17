@@ -57,5 +57,5 @@ export interface Group extends DomainResource {
     _type?: Element;
 }
 export const isGroup = (resource: any): resource is Group => {
-    return resource && resource.resourceType === "Group";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Group";
 }

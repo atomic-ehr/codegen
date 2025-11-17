@@ -42,5 +42,5 @@ export interface Medication extends DomainResource {
     _status?: Element;
 }
 export const isMedication = (resource: any): resource is Medication => {
-    return resource && resource.resourceType === "Medication";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Medication";
 }

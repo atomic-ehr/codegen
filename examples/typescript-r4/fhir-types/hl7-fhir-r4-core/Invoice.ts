@@ -62,5 +62,5 @@ export interface Invoice extends DomainResource {
     type?: CodeableConcept;
 }
 export const isInvoice = (resource: any): resource is Invoice => {
-    return resource && resource.resourceType === "Invoice";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Invoice";
 }

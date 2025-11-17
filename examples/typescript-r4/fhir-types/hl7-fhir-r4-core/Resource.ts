@@ -19,5 +19,5 @@ export interface Resource {
     meta?: Meta;
 }
 export const isResource = (resource: any): resource is Resource => {
-    return resource && resource.resourceType === "Resource";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Resource";
 }

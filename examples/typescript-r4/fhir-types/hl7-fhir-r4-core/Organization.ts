@@ -45,5 +45,5 @@ export interface Organization extends DomainResource {
     type?: CodeableConcept[];
 }
 export const isOrganization = (resource: any): resource is Organization => {
-    return resource && resource.resourceType === "Organization";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Organization";
 }

@@ -46,5 +46,5 @@ export interface Account extends DomainResource {
     type?: CodeableConcept;
 }
 export const isAccount = (resource: any): resource is Account => {
-    return resource && resource.resourceType === "Account";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Account";
 }

@@ -143,5 +143,5 @@ export interface MedicationKnowledge extends DomainResource {
     _synonym?: Element;
 }
 export const isMedicationKnowledge = (resource: any): resource is MedicationKnowledge => {
-    return resource && resource.resourceType === "MedicationKnowledge";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "MedicationKnowledge";
 }

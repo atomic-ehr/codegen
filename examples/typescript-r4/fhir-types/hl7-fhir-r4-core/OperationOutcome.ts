@@ -25,5 +25,5 @@ export interface OperationOutcome extends DomainResource {
     issue: OperationOutcomeIssue[];
 }
 export const isOperationOutcome = (resource: any): resource is OperationOutcome => {
-    return resource && resource.resourceType === "OperationOutcome";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "OperationOutcome";
 }

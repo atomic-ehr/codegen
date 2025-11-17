@@ -22,5 +22,5 @@ export interface MedicinalProductUndesirableEffect extends DomainResource {
     symptomConditionEffect?: CodeableConcept;
 }
 export const isMedicinalProductUndesirableEffect = (resource: any): resource is MedicinalProductUndesirableEffect => {
-    return resource && resource.resourceType === "MedicinalProductUndesirableEffect";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "MedicinalProductUndesirableEffect";
 }

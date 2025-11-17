@@ -67,5 +67,5 @@ export interface VerificationResult extends DomainResource {
     validator?: VerificationResultValidator[];
 }
 export const isVerificationResult = (resource: any): resource is VerificationResult => {
-    return resource && resource.resourceType === "VerificationResult";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "VerificationResult";
 }

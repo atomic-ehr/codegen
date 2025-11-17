@@ -58,5 +58,5 @@ export interface MedicinalProductIngredient extends DomainResource {
     substance?: MedicinalProductIngredientSubstance;
 }
 export const isMedicinalProductIngredient = (resource: any): resource is MedicinalProductIngredient => {
-    return resource && resource.resourceType === "MedicinalProductIngredient";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "MedicinalProductIngredient";
 }

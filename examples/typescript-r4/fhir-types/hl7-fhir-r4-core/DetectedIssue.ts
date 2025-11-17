@@ -50,5 +50,5 @@ export interface DetectedIssue extends DomainResource {
     _status?: Element;
 }
 export const isDetectedIssue = (resource: any): resource is DetectedIssue => {
-    return resource && resource.resourceType === "DetectedIssue";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "DetectedIssue";
 }

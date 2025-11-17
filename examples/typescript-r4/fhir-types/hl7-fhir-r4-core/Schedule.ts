@@ -29,5 +29,5 @@ export interface Schedule extends DomainResource {
     specialty?: CodeableConcept[];
 }
 export const isSchedule = (resource: any): resource is Schedule => {
-    return resource && resource.resourceType === "Schedule";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Schedule";
 }

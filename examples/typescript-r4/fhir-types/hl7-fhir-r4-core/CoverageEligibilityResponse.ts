@@ -84,5 +84,5 @@ export interface CoverageEligibilityResponse extends DomainResource {
     _status?: Element;
 }
 export const isCoverageEligibilityResponse = (resource: any): resource is CoverageEligibilityResponse => {
-    return resource && resource.resourceType === "CoverageEligibilityResponse";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "CoverageEligibilityResponse";
 }

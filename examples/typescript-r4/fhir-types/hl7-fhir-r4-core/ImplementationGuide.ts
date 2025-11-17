@@ -128,5 +128,5 @@ export interface ImplementationGuide extends DomainResource {
     _version?: Element;
 }
 export const isImplementationGuide = (resource: any): resource is ImplementationGuide => {
-    return resource && resource.resourceType === "ImplementationGuide";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "ImplementationGuide";
 }

@@ -108,5 +108,5 @@ export interface ExampleScenario extends DomainResource {
     _workflow?: Element;
 }
 export const isExampleScenario = (resource: any): resource is ExampleScenario => {
-    return resource && resource.resourceType === "ExampleScenario";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "ExampleScenario";
 }

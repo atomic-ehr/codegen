@@ -90,5 +90,5 @@ export interface Encounter extends DomainResource {
     type?: CodeableConcept[];
 }
 export const isEncounter = (resource: any): resource is Encounter => {
-    return resource && resource.resourceType === "Encounter";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Encounter";
 }

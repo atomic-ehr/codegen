@@ -8,5 +8,5 @@ export interface Definition {
 
 }
 export const isDefinition = (resource: any): resource is Definition => {
-    return resource && resource.resourceType === "Definition";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Definition";
 }

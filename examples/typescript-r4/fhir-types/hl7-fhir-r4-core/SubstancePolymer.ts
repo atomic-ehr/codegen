@@ -64,5 +64,5 @@ export interface SubstancePolymer extends DomainResource {
     repeat?: SubstancePolymerRepeat[];
 }
 export const isSubstancePolymer = (resource: any): resource is SubstancePolymer => {
-    return resource && resource.resourceType === "SubstancePolymer";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "SubstancePolymer";
 }

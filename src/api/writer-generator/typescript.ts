@@ -288,7 +288,9 @@ export class TypeScript extends Writer {
         if (!isResourceTypeSchema(schema)) return;
         const name = tsResourceName(schema.identifier);
         this.curlyBlock(["export", "const", `is${name}`, "=", `(resource: any): resource is ${name}`, "=>"], () => {
-            this.lineSM(`return resource && resource.resourceType === "${schema.identifier.name}"`);
+            this.lineSM(
+                `return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "${schema.identifier.name}"`,
+            );
         });
     }
 

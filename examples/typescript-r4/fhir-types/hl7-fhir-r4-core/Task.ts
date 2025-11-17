@@ -228,5 +228,5 @@ export interface Task extends DomainResource {
     statusReason?: CodeableConcept;
 }
 export const isTask = (resource: any): resource is Task => {
-    return resource && resource.resourceType === "Task";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Task";
 }

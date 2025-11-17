@@ -47,5 +47,5 @@ export interface CareTeam extends DomainResource {
     telecom?: ContactPoint[];
 }
 export const isCareTeam = (resource: any): resource is CareTeam => {
-    return resource && resource.resourceType === "CareTeam";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "CareTeam";
 }

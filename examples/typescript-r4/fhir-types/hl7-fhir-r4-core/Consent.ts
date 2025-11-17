@@ -76,5 +76,5 @@ export interface Consent extends DomainResource {
     verification?: ConsentVerification[];
 }
 export const isConsent = (resource: any): resource is Consent => {
-    return resource && resource.resourceType === "Consent";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Consent";
 }

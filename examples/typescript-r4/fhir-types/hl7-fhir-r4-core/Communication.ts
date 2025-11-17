@@ -58,5 +58,5 @@ export interface Communication extends DomainResource {
     topic?: CodeableConcept;
 }
 export const isCommunication = (resource: any): resource is Communication => {
-    return resource && resource.resourceType === "Communication";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Communication";
 }

@@ -50,5 +50,5 @@ export interface SubstanceNucleicAcid extends DomainResource {
     subunit?: SubstanceNucleicAcidSubunit[];
 }
 export const isSubstanceNucleicAcid = (resource: any): resource is SubstanceNucleicAcid => {
-    return resource && resource.resourceType === "SubstanceNucleicAcid";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "SubstanceNucleicAcid";
 }

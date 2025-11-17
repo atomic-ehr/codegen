@@ -8,5 +8,5 @@ export interface Request {
 
 }
 export const isRequest = (resource: any): resource is Request => {
-    return resource && resource.resourceType === "Request";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Request";
 }

@@ -33,5 +33,5 @@ export interface Slot extends DomainResource {
     _status?: Element;
 }
 export const isSlot = (resource: any): resource is Slot => {
-    return resource && resource.resourceType === "Slot";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Slot";
 }

@@ -45,5 +45,5 @@ export interface List extends DomainResource {
     _title?: Element;
 }
 export const isList = (resource: any): resource is List => {
-    return resource && resource.resourceType === "List";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "List";
 }

@@ -50,5 +50,5 @@ export interface NamingSystem extends DomainResource {
     useContext?: UsageContext[];
 }
 export const isNamingSystem = (resource: any): resource is NamingSystem => {
-    return resource && resource.resourceType === "NamingSystem";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "NamingSystem";
 }

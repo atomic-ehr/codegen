@@ -61,5 +61,5 @@ export interface Location extends DomainResource {
     type?: CodeableConcept[];
 }
 export const isLocation = (resource: any): resource is Location => {
-    return resource && resource.resourceType === "Location";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Location";
 }

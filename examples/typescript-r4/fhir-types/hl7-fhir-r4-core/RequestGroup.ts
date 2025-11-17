@@ -98,5 +98,5 @@ export interface RequestGroup extends DomainResource {
     subject?: Reference<"Group" | "Patient">;
 }
 export const isRequestGroup = (resource: any): resource is RequestGroup => {
-    return resource && resource.resourceType === "RequestGroup";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "RequestGroup";
 }

@@ -46,5 +46,5 @@ export interface SupplyDelivery extends DomainResource {
     type?: CodeableConcept;
 }
 export const isSupplyDelivery = (resource: any): resource is SupplyDelivery => {
-    return resource && resource.resourceType === "SupplyDelivery";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "SupplyDelivery";
 }

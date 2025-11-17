@@ -68,5 +68,5 @@ export interface Condition extends DomainResource {
     verificationStatus?: CodeableConcept;
 }
 export const isCondition = (resource: any): resource is Condition => {
-    return resource && resource.resourceType === "Condition";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Condition";
 }

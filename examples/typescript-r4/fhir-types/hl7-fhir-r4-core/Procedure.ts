@@ -75,5 +75,5 @@ export interface Procedure extends DomainResource {
     usedReference?: Reference<"Device" | "Medication" | "Substance">[];
 }
 export const isProcedure = (resource: any): resource is Procedure => {
-    return resource && resource.resourceType === "Procedure";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Procedure";
 }

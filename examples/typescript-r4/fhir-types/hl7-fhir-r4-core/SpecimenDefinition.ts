@@ -67,5 +67,5 @@ export interface SpecimenDefinition extends DomainResource {
     typeTested?: SpecimenDefinitionTypeTested[];
 }
 export const isSpecimenDefinition = (resource: any): resource is SpecimenDefinition => {
-    return resource && resource.resourceType === "SpecimenDefinition";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "SpecimenDefinition";
 }

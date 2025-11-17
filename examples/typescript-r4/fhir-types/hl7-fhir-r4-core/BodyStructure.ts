@@ -29,5 +29,5 @@ export interface BodyStructure extends DomainResource {
     patient: Reference<"Patient">;
 }
 export const isBodyStructure = (resource: any): resource is BodyStructure => {
-    return resource && resource.resourceType === "BodyStructure";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "BodyStructure";
 }

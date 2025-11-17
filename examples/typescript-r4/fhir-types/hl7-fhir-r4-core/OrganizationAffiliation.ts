@@ -34,5 +34,5 @@ export interface OrganizationAffiliation extends DomainResource {
     telecom?: ContactPoint[];
 }
 export const isOrganizationAffiliation = (resource: any): resource is OrganizationAffiliation => {
-    return resource && resource.resourceType === "OrganizationAffiliation";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "OrganizationAffiliation";
 }

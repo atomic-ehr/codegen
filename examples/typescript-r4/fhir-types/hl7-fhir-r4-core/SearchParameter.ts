@@ -72,5 +72,5 @@ export interface SearchParameter extends DomainResource {
     _xpathUsage?: Element;
 }
 export const isSearchParameter = (resource: any): resource is SearchParameter => {
-    return resource && resource.resourceType === "SearchParameter";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "SearchParameter";
 }

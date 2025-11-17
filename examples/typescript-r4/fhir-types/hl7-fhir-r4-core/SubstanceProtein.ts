@@ -36,5 +36,5 @@ export interface SubstanceProtein extends DomainResource {
     subunit?: SubstanceProteinSubunit[];
 }
 export const isSubstanceProtein = (resource: any): resource is SubstanceProtein => {
-    return resource && resource.resourceType === "SubstanceProtein";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "SubstanceProtein";
 }

@@ -61,5 +61,5 @@ export interface QuestionnaireResponse extends DomainResource {
     subject?: Reference<"Resource">;
 }
 export const isQuestionnaireResponse = (resource: any): resource is QuestionnaireResponse => {
-    return resource && resource.resourceType === "QuestionnaireResponse";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "QuestionnaireResponse";
 }

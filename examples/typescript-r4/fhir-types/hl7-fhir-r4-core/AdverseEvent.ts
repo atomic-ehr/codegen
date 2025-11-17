@@ -55,5 +55,5 @@ export interface AdverseEvent extends DomainResource {
     suspectEntity?: AdverseEventSuspectEntity[];
 }
 export const isAdverseEvent = (resource: any): resource is AdverseEvent => {
-    return resource && resource.resourceType === "AdverseEvent";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "AdverseEvent";
 }

@@ -88,5 +88,5 @@ export interface CarePlan extends DomainResource {
     _title?: Element;
 }
 export const isCarePlan = (resource: any): resource is CarePlan => {
-    return resource && resource.resourceType === "CarePlan";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "CarePlan";
 }

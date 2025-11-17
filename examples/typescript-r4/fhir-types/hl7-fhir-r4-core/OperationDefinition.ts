@@ -95,5 +95,5 @@ export interface OperationDefinition extends DomainResource {
     _version?: Element;
 }
 export const isOperationDefinition = (resource: any): resource is OperationDefinition => {
-    return resource && resource.resourceType === "OperationDefinition";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "OperationDefinition";
 }

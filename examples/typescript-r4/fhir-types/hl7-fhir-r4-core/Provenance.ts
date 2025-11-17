@@ -48,5 +48,5 @@ export interface Provenance extends DomainResource {
     target: Reference<"Resource">[];
 }
 export const isProvenance = (resource: any): resource is Provenance => {
-    return resource && resource.resourceType === "Provenance";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Provenance";
 }

@@ -106,5 +106,5 @@ export interface RiskEvidenceSynthesis extends DomainResource {
     _version?: Element;
 }
 export const isRiskEvidenceSynthesis = (resource: any): resource is RiskEvidenceSynthesis => {
-    return resource && resource.resourceType === "RiskEvidenceSynthesis";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "RiskEvidenceSynthesis";
 }

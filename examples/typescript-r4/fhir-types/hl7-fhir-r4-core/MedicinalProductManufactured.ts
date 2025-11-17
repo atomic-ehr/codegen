@@ -26,5 +26,5 @@ export interface MedicinalProductManufactured extends DomainResource {
     unitOfPresentation?: CodeableConcept;
 }
 export const isMedicinalProductManufactured = (resource: any): resource is MedicinalProductManufactured => {
-    return resource && resource.resourceType === "MedicinalProductManufactured";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "MedicinalProductManufactured";
 }

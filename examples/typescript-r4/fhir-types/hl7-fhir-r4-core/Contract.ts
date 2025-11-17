@@ -238,5 +238,5 @@ export interface Contract extends DomainResource {
     _version?: Element;
 }
 export const isContract = (resource: any): resource is Contract => {
-    return resource && resource.resourceType === "Contract";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Contract";
 }

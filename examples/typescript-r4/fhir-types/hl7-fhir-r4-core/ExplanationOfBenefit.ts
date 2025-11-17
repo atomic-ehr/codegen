@@ -302,5 +302,5 @@ export interface ExplanationOfBenefit extends DomainResource {
     _use?: Element;
 }
 export const isExplanationOfBenefit = (resource: any): resource is ExplanationOfBenefit => {
-    return resource && resource.resourceType === "ExplanationOfBenefit";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "ExplanationOfBenefit";
 }

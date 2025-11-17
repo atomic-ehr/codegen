@@ -172,5 +172,5 @@ export interface ClaimResponse extends DomainResource {
     _use?: Element;
 }
 export const isClaimResponse = (resource: any): resource is ClaimResponse => {
-    return resource && resource.resourceType === "ClaimResponse";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "ClaimResponse";
 }

@@ -74,5 +74,5 @@ export interface CoverageEligibilityRequest extends DomainResource {
     supportingInfo?: CoverageEligibilityRequestSupportingInfo[];
 }
 export const isCoverageEligibilityRequest = (resource: any): resource is CoverageEligibilityRequest => {
-    return resource && resource.resourceType === "CoverageEligibilityRequest";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "CoverageEligibilityRequest";
 }

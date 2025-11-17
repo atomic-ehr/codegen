@@ -106,5 +106,5 @@ export interface Observation extends DomainResource {
     _valueTime?: Element;
 }
 export const isObservation = (resource: any): resource is Observation => {
-    return resource && resource.resourceType === "Observation";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Observation";
 }

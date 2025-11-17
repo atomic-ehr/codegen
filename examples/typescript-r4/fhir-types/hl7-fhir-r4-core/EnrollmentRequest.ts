@@ -24,5 +24,5 @@ export interface EnrollmentRequest extends DomainResource {
     _status?: Element;
 }
 export const isEnrollmentRequest = (resource: any): resource is EnrollmentRequest => {
-    return resource && resource.resourceType === "EnrollmentRequest";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "EnrollmentRequest";
 }

@@ -61,5 +61,5 @@ export interface ClinicalImpression extends DomainResource {
     supportingInfo?: Reference<"Resource">[];
 }
 export const isClinicalImpression = (resource: any): resource is ClinicalImpression => {
-    return resource && resource.resourceType === "ClinicalImpression";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "ClinicalImpression";
 }

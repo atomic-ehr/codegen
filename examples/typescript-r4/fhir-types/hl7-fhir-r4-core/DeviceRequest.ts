@@ -71,5 +71,5 @@ export interface DeviceRequest extends DomainResource {
     supportingInfo?: Reference<"Resource">[];
 }
 export const isDeviceRequest = (resource: any): resource is DeviceRequest => {
-    return resource && resource.resourceType === "DeviceRequest";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "DeviceRequest";
 }

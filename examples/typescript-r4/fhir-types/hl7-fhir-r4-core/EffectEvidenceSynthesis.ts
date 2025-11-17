@@ -114,5 +114,5 @@ export interface EffectEvidenceSynthesis extends DomainResource {
     _version?: Element;
 }
 export const isEffectEvidenceSynthesis = (resource: any): resource is EffectEvidenceSynthesis => {
-    return resource && resource.resourceType === "EffectEvidenceSynthesis";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "EffectEvidenceSynthesis";
 }

@@ -57,5 +57,5 @@ export interface SupplyRequest extends DomainResource {
     supplier?: Reference<"HealthcareService" | "Organization">[];
 }
 export const isSupplyRequest = (resource: any): resource is SupplyRequest => {
-    return resource && resource.resourceType === "SupplyRequest";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "SupplyRequest";
 }

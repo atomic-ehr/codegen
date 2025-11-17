@@ -39,5 +39,5 @@ export interface Endpoint extends DomainResource {
     _status?: Element;
 }
 export const isEndpoint = (resource: any): resource is Endpoint => {
-    return resource && resource.resourceType === "Endpoint";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Endpoint";
 }

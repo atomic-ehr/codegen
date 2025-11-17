@@ -61,5 +61,5 @@ export interface PaymentReconciliation extends DomainResource {
     _status?: Element;
 }
 export const isPaymentReconciliation = (resource: any): resource is PaymentReconciliation => {
-    return resource && resource.resourceType === "PaymentReconciliation";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "PaymentReconciliation";
 }

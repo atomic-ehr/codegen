@@ -65,5 +65,5 @@ export interface ResearchStudy extends DomainResource {
     _title?: Element;
 }
 export const isResearchStudy = (resource: any): resource is ResearchStudy => {
-    return resource && resource.resourceType === "ResearchStudy";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "ResearchStudy";
 }

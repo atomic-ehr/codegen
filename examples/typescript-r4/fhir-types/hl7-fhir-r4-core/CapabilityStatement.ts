@@ -162,5 +162,5 @@ export interface CapabilityStatement extends DomainResource {
     _version?: Element;
 }
 export const isCapabilityStatement = (resource: any): resource is CapabilityStatement => {
-    return resource && resource.resourceType === "CapabilityStatement";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "CapabilityStatement";
 }

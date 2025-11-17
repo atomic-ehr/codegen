@@ -72,5 +72,5 @@ export interface Specimen extends DomainResource {
     type?: CodeableConcept;
 }
 export const isSpecimen = (resource: any): resource is Specimen => {
-    return resource && resource.resourceType === "Specimen";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Specimen";
 }

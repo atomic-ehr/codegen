@@ -94,5 +94,5 @@ export interface ConceptMap extends DomainResource {
     _version?: Element;
 }
 export const isConceptMap = (resource: any): resource is ConceptMap => {
-    return resource && resource.resourceType === "ConceptMap";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "ConceptMap";
 }

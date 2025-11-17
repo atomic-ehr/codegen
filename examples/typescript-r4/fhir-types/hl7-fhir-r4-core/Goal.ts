@@ -63,5 +63,5 @@ export interface Goal extends DomainResource {
     target?: GoalTarget[];
 }
 export const isGoal = (resource: any): resource is Goal => {
-    return resource && resource.resourceType === "Goal";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Goal";
 }

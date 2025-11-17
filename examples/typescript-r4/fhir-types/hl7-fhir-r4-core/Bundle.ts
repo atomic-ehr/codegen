@@ -63,5 +63,5 @@ export interface Bundle extends Resource {
     _type?: Element;
 }
 export const isBundle = (resource: any): resource is Bundle => {
-    return resource && resource.resourceType === "Bundle";
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Bundle";
 }
