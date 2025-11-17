@@ -62,6 +62,6 @@ export interface Goal extends DomainResource {
     subject: Reference<"Group" | "Organization" | "Patient">;
     target?: GoalTarget[];
 }
-export const isGoal = (resource: any): resource is Goal => {
+export const isGoal = (resource: unknown): resource is Goal => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Goal";
 }

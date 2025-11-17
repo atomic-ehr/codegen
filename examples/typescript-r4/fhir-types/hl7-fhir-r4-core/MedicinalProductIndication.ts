@@ -35,6 +35,6 @@ export interface MedicinalProductIndication extends DomainResource {
     subject?: Reference<"Medication" | "MedicinalProduct">[];
     undesirableEffect?: Reference<"MedicinalProductUndesirableEffect">[];
 }
-export const isMedicinalProductIndication = (resource: any): resource is MedicinalProductIndication => {
+export const isMedicinalProductIndication = (resource: unknown): resource is MedicinalProductIndication => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "MedicinalProductIndication";
 }

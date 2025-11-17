@@ -27,6 +27,6 @@ export interface Flag extends DomainResource {
     _status?: Element;
     subject: Reference<"Group" | "Location" | "Medication" | "Organization" | "Patient" | "PlanDefinition" | "Practitioner" | "Procedure">;
 }
-export const isFlag = (resource: any): resource is Flag => {
+export const isFlag = (resource: unknown): resource is Flag => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Flag";
 }

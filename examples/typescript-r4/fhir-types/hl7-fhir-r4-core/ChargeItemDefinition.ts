@@ -81,6 +81,6 @@ export interface ChargeItemDefinition extends DomainResource {
     version?: string;
     _version?: Element;
 }
-export const isChargeItemDefinition = (resource: any): resource is ChargeItemDefinition => {
+export const isChargeItemDefinition = (resource: unknown): resource is ChargeItemDefinition => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "ChargeItemDefinition";
 }

@@ -55,6 +55,6 @@ export interface VisionPrescription extends DomainResource {
     status: ("active" | "cancelled" | "draft" | "entered-in-error");
     _status?: Element;
 }
-export const isVisionPrescription = (resource: any): resource is VisionPrescription => {
+export const isVisionPrescription = (resource: unknown): resource is VisionPrescription => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "VisionPrescription";
 }

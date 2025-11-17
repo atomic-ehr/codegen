@@ -72,6 +72,6 @@ export interface Composition extends DomainResource {
     _title?: Element;
     type: CodeableConcept;
 }
-export const isComposition = (resource: any): resource is Composition => {
+export const isComposition = (resource: unknown): resource is Composition => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Composition";
 }

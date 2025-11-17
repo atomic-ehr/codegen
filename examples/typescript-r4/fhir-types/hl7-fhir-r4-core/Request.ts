@@ -7,6 +7,6 @@ export interface Request {
     resourceType: "Request";
 
 }
-export const isRequest = (resource: any): resource is Request => {
+export const isRequest = (resource: unknown): resource is Request => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Request";
 }

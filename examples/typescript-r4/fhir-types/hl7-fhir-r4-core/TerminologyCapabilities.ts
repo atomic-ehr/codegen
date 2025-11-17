@@ -111,6 +111,6 @@ export interface TerminologyCapabilities extends DomainResource {
     version?: string;
     _version?: Element;
 }
-export const isTerminologyCapabilities = (resource: any): resource is TerminologyCapabilities => {
+export const isTerminologyCapabilities = (resource: unknown): resource is TerminologyCapabilities => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "TerminologyCapabilities";
 }

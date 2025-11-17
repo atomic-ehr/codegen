@@ -56,6 +56,6 @@ export interface MedicinalProductAuthorization extends DomainResource {
     subject?: Reference<"MedicinalProduct" | "MedicinalProductPackaged">;
     validityPeriod?: Period;
 }
-export const isMedicinalProductAuthorization = (resource: any): resource is MedicinalProductAuthorization => {
+export const isMedicinalProductAuthorization = (resource: unknown): resource is MedicinalProductAuthorization => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "MedicinalProductAuthorization";
 }

@@ -70,6 +70,6 @@ export interface EventDefinition extends DomainResource {
     version?: string;
     _version?: Element;
 }
-export const isEventDefinition = (resource: any): resource is EventDefinition => {
+export const isEventDefinition = (resource: unknown): resource is EventDefinition => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "EventDefinition";
 }

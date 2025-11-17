@@ -287,7 +287,7 @@ export class TypeScript extends Writer {
     generateResourceTypePredicate(schema: RegularTypeSchema) {
         if (!isResourceTypeSchema(schema)) return;
         const name = tsResourceName(schema.identifier);
-        this.curlyBlock(["export", "const", `is${name}`, "=", `(resource: any): resource is ${name}`, "=>"], () => {
+        this.curlyBlock(["export", "const", `is${name}`, "=", `(resource: unknown): resource is ${name}`, "=>"], () => {
             this.lineSM(
                 `return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "${schema.identifier.name}"`,
             );

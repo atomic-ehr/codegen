@@ -80,6 +80,6 @@ export interface MedicinalProduct extends DomainResource {
     _specialMeasures?: Element;
     type?: CodeableConcept;
 }
-export const isMedicinalProduct = (resource: any): resource is MedicinalProduct => {
+export const isMedicinalProduct = (resource: unknown): resource is MedicinalProduct => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "MedicinalProduct";
 }

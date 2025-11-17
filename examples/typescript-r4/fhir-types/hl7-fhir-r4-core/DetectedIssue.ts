@@ -49,6 +49,6 @@ export interface DetectedIssue extends DomainResource {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
     _status?: Element;
 }
-export const isDetectedIssue = (resource: any): resource is DetectedIssue => {
+export const isDetectedIssue = (resource: unknown): resource is DetectedIssue => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "DetectedIssue";
 }

@@ -35,6 +35,6 @@ export interface SubstanceProtein extends DomainResource {
     sequenceType?: CodeableConcept;
     subunit?: SubstanceProteinSubunit[];
 }
-export const isSubstanceProtein = (resource: any): resource is SubstanceProtein => {
+export const isSubstanceProtein = (resource: unknown): resource is SubstanceProtein => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "SubstanceProtein";
 }

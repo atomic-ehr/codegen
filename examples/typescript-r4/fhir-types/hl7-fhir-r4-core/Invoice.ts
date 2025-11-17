@@ -61,6 +61,6 @@ export interface Invoice extends DomainResource {
     totalPriceComponent?: InvoiceLineItemPriceComponent[];
     type?: CodeableConcept;
 }
-export const isInvoice = (resource: any): resource is Invoice => {
+export const isInvoice = (resource: unknown): resource is Invoice => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Invoice";
 }

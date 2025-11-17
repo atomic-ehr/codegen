@@ -18,6 +18,6 @@ export interface Resource {
     _language?: Element;
     meta?: Meta;
 }
-export const isResource = (resource: any): resource is Resource => {
+export const isResource = (resource: unknown): resource is Resource => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Resource";
 }

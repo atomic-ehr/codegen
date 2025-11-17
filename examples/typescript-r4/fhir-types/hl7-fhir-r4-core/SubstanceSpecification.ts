@@ -141,6 +141,6 @@ export interface SubstanceSpecification extends DomainResource {
     structure?: SubstanceSpecificationStructure;
     type?: CodeableConcept;
 }
-export const isSubstanceSpecification = (resource: any): resource is SubstanceSpecification => {
+export const isSubstanceSpecification = (resource: unknown): resource is SubstanceSpecification => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "SubstanceSpecification";
 }

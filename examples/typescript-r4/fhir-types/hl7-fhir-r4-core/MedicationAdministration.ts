@@ -65,6 +65,6 @@ export interface MedicationAdministration extends DomainResource {
     subject: Reference<"Group" | "Patient">;
     supportingInformation?: Reference<"Resource">[];
 }
-export const isMedicationAdministration = (resource: any): resource is MedicationAdministration => {
+export const isMedicationAdministration = (resource: unknown): resource is MedicationAdministration => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "MedicationAdministration";
 }

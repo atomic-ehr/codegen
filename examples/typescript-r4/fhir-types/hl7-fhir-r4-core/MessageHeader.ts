@@ -55,6 +55,6 @@ export interface MessageHeader extends DomainResource {
     sender?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
     source: MessageHeaderSource;
 }
-export const isMessageHeader = (resource: any): resource is MessageHeader => {
+export const isMessageHeader = (resource: unknown): resource is MessageHeader => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "MessageHeader";
 }

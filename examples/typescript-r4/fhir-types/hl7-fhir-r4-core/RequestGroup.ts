@@ -97,6 +97,6 @@ export interface RequestGroup extends DomainResource {
     _status?: Element;
     subject?: Reference<"Group" | "Patient">;
 }
-export const isRequestGroup = (resource: any): resource is RequestGroup => {
+export const isRequestGroup = (resource: unknown): resource is RequestGroup => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "RequestGroup";
 }

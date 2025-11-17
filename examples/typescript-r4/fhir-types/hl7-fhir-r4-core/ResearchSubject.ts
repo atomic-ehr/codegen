@@ -27,6 +27,6 @@ export interface ResearchSubject extends DomainResource {
     _status?: Element;
     study: Reference<"ResearchStudy">;
 }
-export const isResearchSubject = (resource: any): resource is ResearchSubject => {
+export const isResearchSubject = (resource: unknown): resource is ResearchSubject => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "ResearchSubject";
 }

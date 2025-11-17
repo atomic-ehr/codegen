@@ -42,6 +42,6 @@ export interface CatalogEntry extends DomainResource {
     validTo?: string;
     _validTo?: Element;
 }
-export const isCatalogEntry = (resource: any): resource is CatalogEntry => {
+export const isCatalogEntry = (resource: unknown): resource is CatalogEntry => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "CatalogEntry";
 }

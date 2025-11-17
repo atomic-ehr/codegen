@@ -62,6 +62,6 @@ export interface Bundle extends Resource {
     type: ("document" | "message" | "transaction" | "transaction-response" | "batch" | "batch-response" | "history" | "searchset" | "collection");
     _type?: Element;
 }
-export const isBundle = (resource: any): resource is Bundle => {
+export const isBundle = (resource: unknown): resource is Bundle => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Bundle";
 }

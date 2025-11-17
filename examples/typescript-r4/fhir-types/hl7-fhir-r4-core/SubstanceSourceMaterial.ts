@@ -73,6 +73,6 @@ export interface SubstanceSourceMaterial extends DomainResource {
     sourceMaterialState?: CodeableConcept;
     sourceMaterialType?: CodeableConcept;
 }
-export const isSubstanceSourceMaterial = (resource: any): resource is SubstanceSourceMaterial => {
+export const isSubstanceSourceMaterial = (resource: unknown): resource is SubstanceSourceMaterial => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "SubstanceSourceMaterial";
 }

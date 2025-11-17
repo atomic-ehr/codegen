@@ -74,6 +74,6 @@ export interface Procedure extends DomainResource {
     usedCode?: CodeableConcept[];
     usedReference?: Reference<"Device" | "Medication" | "Substance">[];
 }
-export const isProcedure = (resource: any): resource is Procedure => {
+export const isProcedure = (resource: unknown): resource is Procedure => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Procedure";
 }

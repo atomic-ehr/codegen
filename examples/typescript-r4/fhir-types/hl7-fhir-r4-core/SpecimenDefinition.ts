@@ -66,6 +66,6 @@ export interface SpecimenDefinition extends DomainResource {
     typeCollected?: CodeableConcept;
     typeTested?: SpecimenDefinitionTypeTested[];
 }
-export const isSpecimenDefinition = (resource: any): resource is SpecimenDefinition => {
+export const isSpecimenDefinition = (resource: unknown): resource is SpecimenDefinition => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "SpecimenDefinition";
 }

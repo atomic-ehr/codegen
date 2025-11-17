@@ -7,6 +7,6 @@ export interface Event {
     resourceType: "Event";
 
 }
-export const isEvent = (resource: any): resource is Event => {
+export const isEvent = (resource: unknown): resource is Event => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Event";
 }

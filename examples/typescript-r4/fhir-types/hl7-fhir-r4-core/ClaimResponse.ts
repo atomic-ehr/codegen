@@ -171,6 +171,6 @@ export interface ClaimResponse extends DomainResource {
     use: ("claim" | "preauthorization" | "predetermination");
     _use?: Element;
 }
-export const isClaimResponse = (resource: any): resource is ClaimResponse => {
+export const isClaimResponse = (resource: unknown): resource is ClaimResponse => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "ClaimResponse";
 }

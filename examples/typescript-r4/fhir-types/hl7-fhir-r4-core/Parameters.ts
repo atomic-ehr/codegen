@@ -131,6 +131,6 @@ export interface Parameters extends Resource {
 
     parameter?: ParametersParameter[];
 }
-export const isParameters = (resource: any): resource is Parameters => {
+export const isParameters = (resource: unknown): resource is Parameters => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Parameters";
 }

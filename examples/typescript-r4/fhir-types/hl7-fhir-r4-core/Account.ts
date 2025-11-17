@@ -45,6 +45,6 @@ export interface Account extends DomainResource {
     subject?: Reference<"Device" | "HealthcareService" | "Location" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole">[];
     type?: CodeableConcept;
 }
-export const isAccount = (resource: any): resource is Account => {
+export const isAccount = (resource: unknown): resource is Account => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Account";
 }

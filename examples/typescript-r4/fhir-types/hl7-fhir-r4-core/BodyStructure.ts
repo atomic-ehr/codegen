@@ -28,6 +28,6 @@ export interface BodyStructure extends DomainResource {
     morphology?: CodeableConcept;
     patient: Reference<"Patient">;
 }
-export const isBodyStructure = (resource: any): resource is BodyStructure => {
+export const isBodyStructure = (resource: unknown): resource is BodyStructure => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "BodyStructure";
 }

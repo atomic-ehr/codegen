@@ -60,6 +60,6 @@ export interface SubstanceReferenceInformation extends DomainResource {
     geneElement?: SubstanceReferenceInformationGeneElement[];
     target?: SubstanceReferenceInformationTarget[];
 }
-export const isSubstanceReferenceInformation = (resource: any): resource is SubstanceReferenceInformation => {
+export const isSubstanceReferenceInformation = (resource: unknown): resource is SubstanceReferenceInformation => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "SubstanceReferenceInformation";
 }

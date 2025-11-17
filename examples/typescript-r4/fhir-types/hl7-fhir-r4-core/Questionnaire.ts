@@ -126,6 +126,6 @@ export interface Questionnaire extends DomainResource {
     version?: string;
     _version?: Element;
 }
-export const isQuestionnaire = (resource: any): resource is Questionnaire => {
+export const isQuestionnaire = (resource: unknown): resource is Questionnaire => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Questionnaire";
 }

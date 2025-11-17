@@ -76,6 +76,6 @@ export interface ServiceRequest extends DomainResource {
     subject: Reference<"Device" | "Group" | "Location" | "Patient">;
     supportingInfo?: Reference<"Resource">[];
 }
-export const isServiceRequest = (resource: any): resource is ServiceRequest => {
+export const isServiceRequest = (resource: unknown): resource is ServiceRequest => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "ServiceRequest";
 }

@@ -23,6 +23,6 @@ export interface EnrollmentRequest extends DomainResource {
     status?: ("active" | "cancelled" | "draft" | "entered-in-error");
     _status?: Element;
 }
-export const isEnrollmentRequest = (resource: any): resource is EnrollmentRequest => {
+export const isEnrollmentRequest = (resource: unknown): resource is EnrollmentRequest => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "EnrollmentRequest";
 }

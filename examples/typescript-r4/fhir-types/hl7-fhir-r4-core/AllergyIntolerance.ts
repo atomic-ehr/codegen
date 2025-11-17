@@ -63,6 +63,6 @@ export interface AllergyIntolerance extends DomainResource {
     _type?: Element;
     verificationStatus?: CodeableConcept;
 }
-export const isAllergyIntolerance = (resource: any): resource is AllergyIntolerance => {
+export const isAllergyIntolerance = (resource: unknown): resource is AllergyIntolerance => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "AllergyIntolerance";
 }

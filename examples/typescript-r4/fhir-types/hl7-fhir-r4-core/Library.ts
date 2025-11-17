@@ -77,6 +77,6 @@ export interface Library extends DomainResource {
     version?: string;
     _version?: Element;
 }
-export const isLibrary = (resource: any): resource is Library => {
+export const isLibrary = (resource: unknown): resource is Library => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Library";
 }

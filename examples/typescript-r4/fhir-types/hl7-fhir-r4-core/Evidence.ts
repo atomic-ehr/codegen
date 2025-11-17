@@ -67,6 +67,6 @@ export interface Evidence extends DomainResource {
     version?: string;
     _version?: Element;
 }
-export const isEvidence = (resource: any): resource is Evidence => {
+export const isEvidence = (resource: unknown): resource is Evidence => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Evidence";
 }

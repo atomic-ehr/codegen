@@ -73,6 +73,6 @@ export interface Patient extends DomainResource {
     photo?: Attachment[];
     telecom?: ContactPoint[];
 }
-export const isPatient = (resource: any): resource is Patient => {
+export const isPatient = (resource: unknown): resource is Patient => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Patient";
 }

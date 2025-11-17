@@ -60,6 +60,6 @@ export interface ClinicalImpression extends DomainResource {
     _summary?: Element;
     supportingInfo?: Reference<"Resource">[];
 }
-export const isClinicalImpression = (resource: any): resource is ClinicalImpression => {
+export const isClinicalImpression = (resource: unknown): resource is ClinicalImpression => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "ClinicalImpression";
 }

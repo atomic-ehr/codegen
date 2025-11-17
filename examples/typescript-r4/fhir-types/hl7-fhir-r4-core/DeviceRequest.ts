@@ -70,6 +70,6 @@ export interface DeviceRequest extends DomainResource {
     subject: Reference<"Device" | "Group" | "Location" | "Patient">;
     supportingInfo?: Reference<"Resource">[];
 }
-export const isDeviceRequest = (resource: any): resource is DeviceRequest => {
+export const isDeviceRequest = (resource: unknown): resource is DeviceRequest => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "DeviceRequest";
 }

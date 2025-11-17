@@ -22,6 +22,6 @@ export interface Basic extends DomainResource {
     identifier?: Identifier[];
     subject?: Reference<"Resource">;
 }
-export const isBasic = (resource: any): resource is Basic => {
+export const isBasic = (resource: unknown): resource is Basic => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Basic";
 }

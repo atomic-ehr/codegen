@@ -60,6 +60,6 @@ export interface Location extends DomainResource {
     telecom?: ContactPoint[];
     type?: CodeableConcept[];
 }
-export const isLocation = (resource: any): resource is Location => {
+export const isLocation = (resource: unknown): resource is Location => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Location";
 }

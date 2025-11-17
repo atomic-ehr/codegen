@@ -17,6 +17,6 @@ export interface Binary extends Resource {
     _data?: Element;
     securityContext?: Reference<"Resource">;
 }
-export const isBinary = (resource: any): resource is Binary => {
+export const isBinary = (resource: unknown): resource is Binary => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Binary";
 }

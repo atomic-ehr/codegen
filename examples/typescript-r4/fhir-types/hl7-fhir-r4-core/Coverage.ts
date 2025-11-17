@@ -65,6 +65,6 @@ export interface Coverage extends DomainResource {
     _subscriberId?: Element;
     type?: CodeableConcept;
 }
-export const isCoverage = (resource: any): resource is Coverage => {
+export const isCoverage = (resource: unknown): resource is Coverage => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Coverage";
 }

@@ -28,6 +28,6 @@ export interface AppointmentResponse extends DomainResource {
     start?: string;
     _start?: Element;
 }
-export const isAppointmentResponse = (resource: any): resource is AppointmentResponse => {
+export const isAppointmentResponse = (resource: unknown): resource is AppointmentResponse => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "AppointmentResponse";
 }

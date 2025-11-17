@@ -69,6 +69,6 @@ export interface ChargeItem extends DomainResource {
     subject: Reference<"Group" | "Patient">;
     supportingInformation?: Reference<"Resource">[];
 }
-export const isChargeItem = (resource: any): resource is ChargeItem => {
+export const isChargeItem = (resource: unknown): resource is ChargeItem => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "ChargeItem";
 }

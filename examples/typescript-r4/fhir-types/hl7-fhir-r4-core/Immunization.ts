@@ -87,6 +87,6 @@ export interface Immunization extends DomainResource {
     subpotentReason?: CodeableConcept[];
     vaccineCode: CodeableConcept;
 }
-export const isImmunization = (resource: any): resource is Immunization => {
+export const isImmunization = (resource: unknown): resource is Immunization => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Immunization";
 }

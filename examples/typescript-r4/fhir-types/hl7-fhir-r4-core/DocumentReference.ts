@@ -64,6 +64,6 @@ export interface DocumentReference extends DomainResource {
     subject?: Reference<"Device" | "Group" | "Patient" | "Practitioner">;
     type?: CodeableConcept;
 }
-export const isDocumentReference = (resource: any): resource is DocumentReference => {
+export const isDocumentReference = (resource: unknown): resource is DocumentReference => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "DocumentReference";
 }

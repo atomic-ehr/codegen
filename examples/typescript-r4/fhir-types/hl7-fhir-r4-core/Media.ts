@@ -53,6 +53,6 @@ export interface Media extends DomainResource {
     width?: number;
     _width?: Element;
 }
-export const isMedia = (resource: any): resource is Media => {
+export const isMedia = (resource: unknown): resource is Media => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Media";
 }

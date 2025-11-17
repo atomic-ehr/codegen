@@ -83,6 +83,6 @@ export interface CoverageEligibilityResponse extends DomainResource {
     status: ("active" | "cancelled" | "draft" | "entered-in-error");
     _status?: Element;
 }
-export const isCoverageEligibilityResponse = (resource: any): resource is CoverageEligibilityResponse => {
+export const isCoverageEligibilityResponse = (resource: unknown): resource is CoverageEligibilityResponse => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "CoverageEligibilityResponse";
 }

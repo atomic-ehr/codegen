@@ -39,6 +39,6 @@ export interface DeviceMetric extends DomainResource {
     type: CodeableConcept;
     unit?: CodeableConcept;
 }
-export const isDeviceMetric = (resource: any): resource is DeviceMetric => {
+export const isDeviceMetric = (resource: unknown): resource is DeviceMetric => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "DeviceMetric";
 }

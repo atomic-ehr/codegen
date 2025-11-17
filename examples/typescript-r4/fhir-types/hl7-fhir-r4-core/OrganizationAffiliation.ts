@@ -33,6 +33,6 @@ export interface OrganizationAffiliation extends DomainResource {
     specialty?: CodeableConcept[];
     telecom?: ContactPoint[];
 }
-export const isOrganizationAffiliation = (resource: any): resource is OrganizationAffiliation => {
+export const isOrganizationAffiliation = (resource: unknown): resource is OrganizationAffiliation => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "OrganizationAffiliation";
 }

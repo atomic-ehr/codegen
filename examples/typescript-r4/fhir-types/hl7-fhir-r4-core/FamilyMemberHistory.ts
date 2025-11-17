@@ -75,6 +75,6 @@ export interface FamilyMemberHistory extends DomainResource {
     status: ("partial" | "completed" | "entered-in-error" | "health-unknown");
     _status?: Element;
 }
-export const isFamilyMemberHistory = (resource: any): resource is FamilyMemberHistory => {
+export const isFamilyMemberHistory = (resource: unknown): resource is FamilyMemberHistory => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "FamilyMemberHistory";
 }

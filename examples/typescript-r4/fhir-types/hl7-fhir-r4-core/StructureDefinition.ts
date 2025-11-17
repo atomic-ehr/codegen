@@ -89,6 +89,6 @@ export interface StructureDefinition extends DomainResource {
     version?: string;
     _version?: Element;
 }
-export const isStructureDefinition = (resource: any): resource is StructureDefinition => {
+export const isStructureDefinition = (resource: unknown): resource is StructureDefinition => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "StructureDefinition";
 }

@@ -107,6 +107,6 @@ export interface CodeSystem extends DomainResource {
     versionNeeded?: boolean;
     _versionNeeded?: Element;
 }
-export const isCodeSystem = (resource: any): resource is CodeSystem => {
+export const isCodeSystem = (resource: unknown): resource is CodeSystem => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "CodeSystem";
 }

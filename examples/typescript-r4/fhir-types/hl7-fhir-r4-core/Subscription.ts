@@ -33,6 +33,6 @@ export interface Subscription extends DomainResource {
     status: ("requested" | "active" | "error" | "off");
     _status?: Element;
 }
-export const isSubscription = (resource: any): resource is Subscription => {
+export const isSubscription = (resource: unknown): resource is Subscription => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Subscription";
 }
