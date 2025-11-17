@@ -1,31 +1,13 @@
-import { pascalCase, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
-import type {
-	Identifier,
-	ProfileTypeSchema,
-	RegularTypeSchema,
-	TypeSchema,
-} from "@root/typeschema/types";
+import type { ProfileTypeSchema, RegularTypeSchema, TypeSchema } from "@root/typeschema/types";
 import { isProfileTypeSchema } from "@root/typeschema/types";
 import { groupByPackages, type TypeSchemaIndex } from "@root/typeschema/utils";
-import {
-	generateComplexTypeReexports,
-	generateDependenciesImports,
-} from "./imports";
-import {
-	generateAttachProfile,
-	generateExtractProfile,
-	generateProfileType,
-} from "./profile";
+import { generateComplexTypeReexports, generateDependenciesImports } from "./imports";
 import { generateProfileAdapter } from "./profile-adapter";
 import { generateProfileFactory } from "./profile-factory";
 import { generateNestedTypes, generateType } from "./resource";
-import {
-	tsFhirPackageDir,
-	tsModuleFileName,
-	tsModuleName,
-	tsResourceName,
-} from "./utils";
+import { tsFhirPackageDir, tsModuleFileName, tsModuleName, tsResourceName } from "./utils";
+import { generateValidationHelpers } from "./validation-helpers";
 
 export type TypeScriptOptions = WriterOptions;
 
@@ -34,128 +16,136 @@ export type TypeScriptOptions = WriterOptions;
  * Extends Writer base class for file system operations
  */
 export class TypeScript extends Writer {
-	/**
-	 * Generate package index file (exports all types)
-	 */
-	generateFhirPackageIndexFile(schemas: TypeSchema[]): void {
-		this.cat("index.ts", () => {
-			let exports = schemas
-				.map((schema) => ({
-					identifier: schema.identifier,
-					tsPackageName: tsModuleName(schema.identifier),
-					resourceName: tsResourceName(schema.identifier),
-				}))
-				.sort((a, b) => a.resourceName.localeCompare(b.resourceName));
+    /**
+     * Generate package index file (exports all types)
+     */
+    generateFhirPackageIndexFile(schemas: TypeSchema[]): void {
+        this.cat("index.ts", () => {
+            let exports = schemas
+                .map((schema) => ({
+                    identifier: schema.identifier,
+                    tsPackageName: tsModuleName(schema.identifier),
+                    resourceName: tsResourceName(schema.identifier),
+                }))
+                .sort((a, b) => a.resourceName.localeCompare(b.resourceName));
 
-			// FIXME: actually, duplication may mean internal error...
-			exports = Array.from(
-				new Map(
-					exports.map((exp) => [exp.resourceName.toLowerCase(), exp]),
-				).values(),
-			).sort((a, b) => a.resourceName.localeCompare(b.resourceName));
+            // FIXME: actually, duplication may mean internal error...
+            exports = Array.from(new Map(exports.map((exp) => [exp.resourceName.toLowerCase(), exp])).values()).sort(
+                (a, b) => a.resourceName.localeCompare(b.resourceName),
+            );
 
-			for (const exp of exports) {
-				this.debugComment(exp.identifier);
-				this.lineSM(
-					`export type { ${exp.resourceName} } from "./${exp.tsPackageName}"`,
-				);
-			}
-		});
-	}
+            for (const exp of exports) {
+                this.debugComment(exp.identifier);
+                this.lineSM(`export type { ${exp.resourceName} } from "./${exp.tsPackageName}"`);
+            }
+        });
+    }
 
-	/**
-	 * Generate a single resource/profile module file
-	 */
-	generateResourceModule(tsIndex: TypeSchemaIndex, schema: TypeSchema): void {
-		this.cat(tsModuleFileName(schema.identifier), () => {
-			this.generateDisclaimer();
+    /**
+     * Generate a single resource/profile module file
+     */
+    generateResourceModule(tsIndex: TypeSchemaIndex, schema: TypeSchema): void {
+        const fileName = tsModuleFileName(schema.identifier);
 
-			if (["complex-type", "resource", "logical"].includes(schema.identifier.kind)) {
-				this.generateResourceFile(tsIndex, schema as RegularTypeSchema);
-			} else if (isProfileTypeSchema(schema)) {
-				this.generateProfileFile(tsIndex, schema);
-			} else {
-				throw new Error(
-					`Profile generation not implemented for kind: ${schema.identifier.kind}`,
-				);
-			}
-		});
-	}
+        // If it's a profile, generate it in a 'profiles' subfolder
+        if (isProfileTypeSchema(schema)) {
+            this.cd("profiles", () => {
+                this.cat(fileName, () => {
+                    this.generateDisclaimer();
+                    this.generateProfileFile(tsIndex, schema);
+                });
+            });
+        } else {
+            this.cat(fileName, () => {
+                this.generateDisclaimer();
 
-	/**
-	 * Generate resource/complex type file
-	 */
-	private generateResourceFile(
-		tsIndex: TypeSchemaIndex,
-		schema: RegularTypeSchema,
-	): void {
-		// Generate imports
-		generateDependenciesImports(this, schema);
+                if (["complex-type", "resource", "logical"].includes(schema.identifier.kind)) {
+                    this.generateResourceFile(tsIndex, schema as RegularTypeSchema);
+                } else {
+                    throw new Error(`Profile generation not implemented for kind: ${schema.identifier.kind}`);
+                }
+            });
+        }
+    }
 
-		// Re-export complex types
-		generateComplexTypeReexports(this, schema);
+    /**
+     * Generate resource/complex type file
+     */
+    private generateResourceFile(tsIndex: TypeSchemaIndex, schema: RegularTypeSchema): void {
+        // Generate imports
+        generateDependenciesImports(this, schema);
 
-		// Generate nested types
-		generateNestedTypes(this, tsIndex, schema);
+        // Re-export complex types
+        generateComplexTypeReexports(this, schema);
 
-		// Add canonical URL comment
-		this.comment("CanonicalURL:", schema.identifier.url);
+        // Generate nested types
+        generateNestedTypes(this, tsIndex, schema);
 
-		// Generate main interface
-		generateType(this, tsIndex, schema);
-	}
+        // Add canonical URL comment
+        this.comment("CanonicalURL:", schema.identifier.url);
 
-	/**
-	 * Generate profile file using adapter pattern
-	 */
-	private generateProfileFile(
-		tsIndex: TypeSchemaIndex,
-		schema: ProfileTypeSchema,
-	): void {
-		// Generate imports for base resource and dependencies
-		generateDependenciesImports(this, schema);
+        // Generate main interface
+        generateType(this, tsIndex, schema);
+    }
 
-		// Add canonical URL comment
-		this.comment("CanonicalURL:", schema.identifier.url || "");
-		this.line();
+    /**
+     * Generate profile file using adapter pattern
+     */
+    private generateProfileFile(tsIndex: TypeSchemaIndex, schema: ProfileTypeSchema): void {
+        // Generate imports for base resource and dependencies
+        generateDependenciesImports(this, schema);
 
-		// Generate adapter class
-		generateProfileAdapter(this, tsIndex, schema);
-		this.line();
+        // Add canonical URL comment
+        this.comment("CanonicalURL:", schema.identifier.url || "");
+        this.line();
 
-		// Generate factory function
-		generateProfileFactory(this, schema);
-	}
+        // Generate runtime validation helpers
+        generateValidationHelpers(this);
+        this.line();
 
-	/**
-	 * Main generation entry point
-	 */
-	override generate(tsIndex: TypeSchemaIndex): void {
-		// Collect all types to generate
-		const typesToGenerate = [
-			...tsIndex.collectComplexTypes(),
-			...tsIndex.collectResources(),
-			// ...tsIndex.collectLogicalModels(),
-			...tsIndex
-				.collectProfiles()
-				// NOTE: because non Resource don't have `meta` field
-				.filter((p) => tsIndex.isWithMetaField(p)),
-		];
+        // Generate adapter class
+        generateProfileAdapter(this, tsIndex, schema);
+        this.line();
 
-		// Group by package
-		const grouped = groupByPackages(typesToGenerate);
+        // Generate factory function
+        generateProfileFactory(this, schema);
+    }
 
-		// Generate files
-		this.cd("/", () => {
-			for (const [packageName, packageSchemas] of Object.entries(grouped)) {
-				const tsPackageDir = tsFhirPackageDir(packageName);
-				this.cd(tsPackageDir, () => {
-					for (const schema of packageSchemas) {
-						this.generateResourceModule(tsIndex, schema);
-					}
-					this.generateFhirPackageIndexFile(packageSchemas);
-				});
-			}
-		});
-	}
+    /**
+     * Main generation entry point
+     */
+    override generate(tsIndex: TypeSchemaIndex): void {
+        // Collect all types to generate
+        const typesToGenerate = [
+            ...tsIndex.collectComplexTypes(),
+            ...tsIndex.collectResources(),
+            // ...tsIndex.collectLogicalModels(),
+        ];
+
+        // Only add profiles if withProfiles option is enabled
+        if (this.opts.withProfiles) {
+            typesToGenerate.push(
+                ...tsIndex
+                    .collectProfiles()
+                    // NOTE: because non Resource don't have `meta` field
+                    .filter((p) => tsIndex.isWithMetaField(p)),
+            );
+        }
+
+        // Group by package
+        const grouped = groupByPackages(typesToGenerate);
+
+        // Generate files
+        this.cd("/", () => {
+            for (const [packageName, packageSchemas] of Object.entries(grouped)) {
+                const tsPackageDir = tsFhirPackageDir(packageName);
+                this.cd(tsPackageDir, () => {
+                    for (const schema of packageSchemas) {
+                        this.generateResourceModule(tsIndex, schema);
+                    }
+                    this.generateFhirPackageIndexFile(packageSchemas);
+                });
+            }
+        });
+    }
 }

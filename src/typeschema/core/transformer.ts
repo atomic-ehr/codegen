@@ -13,10 +13,10 @@ import {
     isNestedIdentifier,
     isProfileIdentifier,
     type NestedType,
-    packageMetaToFhir,
     type ProfileConstraint,
     type ProfileExtension,
     type ProfileTypeSchema,
+    packageMetaToFhir,
     type RichFHIRSchema,
     type RichValueSet,
     type TypeSchema,
@@ -216,10 +216,7 @@ function extractConstraints(
 /**
  * Extract extension declarations from profile
  */
-function extractExtensions(
-    fhirSchema: RichFHIRSchema,
-    logger?: CodegenLogger,
-): ProfileExtension[] | undefined {
+function extractExtensions(fhirSchema: RichFHIRSchema, logger?: CodegenLogger): ProfileExtension[] | undefined {
     if (!fhirSchema.elements) return undefined;
 
     const extensions: ProfileExtension[] = [];
@@ -245,9 +242,7 @@ function extractExtensions(
             }
 
             if (!extensionUrl) {
-                logger?.warn(
-                    `Cannot determine URL for extension ${sliceName} in ${fhirSchema.url}`,
-                );
+                logger?.warn(`Cannot determine URL for extension ${sliceName} in ${fhirSchema.url}`);
                 continue;
             }
 
@@ -267,26 +262,17 @@ function extractExtensions(
 /**
  * Transform a profile (constraint derivation) to ProfileTypeSchema
  */
-function transformProfile(
-    register: Register,
-    fhirSchema: RichFHIRSchema,
-    logger?: CodegenLogger,
-): ProfileTypeSchema {
+function transformProfile(register: Register, fhirSchema: RichFHIRSchema, logger?: CodegenLogger): ProfileTypeSchema {
     const identifier = mkIdentifier(fhirSchema);
 
     if (!isProfileIdentifier(identifier)) {
-        throw new Error(
-            `Expected profile identifier for ${fhirSchema.url}, got kind: ${identifier.kind}`,
-        );
+        throw new Error(`Expected profile identifier for ${fhirSchema.url}, got kind: ${identifier.kind}`);
     }
 
     logger?.debug(`Transforming profile: ${identifier.name}`);
 
     // Get genealogy: [profile, ...parent profiles, base resource]
-    const genealogy = register.resolveFsGenealogy(
-        fhirSchema.package_meta,
-        fhirSchema.url,
-    );
+    const genealogy = register.resolveFsGenealogy(fhirSchema.package_meta, fhirSchema.url);
 
     if (genealogy.length === 0) {
         throw new Error(`Cannot resolve genealogy for profile ${fhirSchema.url}`);
@@ -309,6 +295,13 @@ function transformProfile(
 
     // Extract extensions
     const extensions = extractExtensions(fhirSchema, logger);
+
+    // Debug extension extraction for us-core-patient
+    if (logger && fhirSchema.url?.includes("us-core-patient")) {
+        const extPaths = Object.keys(fhirSchema.elements || {}).filter(p => p.toLowerCase().includes("extension"));
+        logger.debug(`  [DEBUG] Extension-related paths in elements: ${extPaths.slice(0, 10).join(", ")}`);
+        logger.debug(`  [DEBUG] Total extension paths: ${extPaths.length}`);
+    }
 
     // Build nested types
     const nested = mkNestedTypes(register, fhirSchema, logger);

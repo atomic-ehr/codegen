@@ -14,7 +14,7 @@ export default defineConfig({
     typescript: {
         includeDocuments: true,
         namingConvention: "PascalCase",
-        includeProfiles: false,
+        includeProfiles: true,
         includeExtensions: false,
         generateIndex: true,
         strictMode: true,

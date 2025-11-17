@@ -140,7 +140,7 @@ export const generateCommand: CommandModule<Record<string, unknown>, GenerateArg
             const result = await builder.generate();
 
             if (result.success) {
-                success(`Generated ${result.filesGenerated.length} files in ${result.duration.toFixed(2)}ms`);
+                success(`Generated ${result.filesGenerated.length} files in ${result.durationFormatted}`);
                 logger.dim(`Output directory: ${result.outputDir}`);
 
                 if (result.warnings.length > 0) {
