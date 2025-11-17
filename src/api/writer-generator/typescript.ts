@@ -228,6 +228,10 @@ export class TypeScript extends Writer {
         if (schema.base) extendsClause = `extends ${canonicalToName(schema.base.url)}`;
 
         this.debugComment(schema.identifier);
+        if (!schema.fields && !extendsClause && !isResourceTypeSchema(schema)) {
+            this.lineSM(`export type ${name} = object`);
+            return;
+        }
         this.curlyBlock(["export", "interface", name, extendsClause], () => {
             if (isResourceTypeSchema(schema)) {
                 const possibleResourceTypes = [schema.identifier];
