@@ -131,6 +131,7 @@ export class TypeScript extends Writer {
                             isResourceTypeSchema(schema) && schema.nested
                                 ? schema.nested.map((n) => tsResourceName(n.identifier))
                                 : [],
+                        helpers: isResourceTypeSchema(schema) ? [`is${tsResourceName(schema.identifier)}`] : [],
                     },
                 ])
                 .sort((a, b) => a.resourceName.localeCompare(b.resourceName));
@@ -143,7 +144,7 @@ export class TypeScript extends Writer {
             for (const exp of exports) {
                 this.debugComment(exp.identifier);
                 this.lineSM(
-                    `export type { ${[exp.resourceName, ...exp.nestedTypes].join(", ")} } from "./${exp.tsPackageName}"`,
+                    `export type { ${[exp.resourceName, ...exp.nestedTypes, ...exp.helpers].join(", ")} } from "./${exp.tsPackageName}"`,
                 );
             }
         });
