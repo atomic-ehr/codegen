@@ -497,7 +497,7 @@ export class TypeScript extends Writer {
         });
     }
 
-    override generate(tsIndex: TypeSchemaIndex) {
+    override async generate(tsIndex: TypeSchemaIndex) {
         const typesToGenerate = [
             ...tsIndex.collectComplexTypes(),
             ...tsIndex.collectResources(),

@@ -99,7 +99,7 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
         });
     }
 
-    override generate(typeSchemaIndex: TypeSchemaIndex): void {
+    override async generate(typeSchemaIndex: TypeSchemaIndex): Promise<void> {
         const complexTypes = typeSchemaIndex.collectComplexTypes();
         const resources = typeSchemaIndex.collectResources();
         const packages = Array.from(new Set(resources.map((r) => formatName(r.identifier.package))));

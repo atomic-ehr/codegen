@@ -67,7 +67,7 @@ class FileSystemWriter<T extends WriterOptions = WriterOptions> {
         fs.writeSync(this.currentFileDescriptor, str);
     }
 
-    generate(_tsIndex: TypeSchemaIndex) {
+    async generate(_tsIndex: TypeSchemaIndex) {
         throw new Error("Not implemented");
     }
 
