@@ -96,7 +96,6 @@ hl7.fhir.r4.core:
     http://hl7.org/fhir/StructureDefinition/Coverage: {}
     http://hl7.org/fhir/StructureDefinition/CoverageEligibilityRequest: {}
     http://hl7.org/fhir/StructureDefinition/CoverageEligibilityResponse: {}
-    http://hl7.org/fhir/StructureDefinition/Definition: {}
     http://hl7.org/fhir/StructureDefinition/DetectedIssue: {}
     http://hl7.org/fhir/StructureDefinition/Device: {}
     http://hl7.org/fhir/StructureDefinition/DeviceDefinition: {}
@@ -113,14 +112,12 @@ hl7.fhir.r4.core:
     http://hl7.org/fhir/StructureDefinition/EnrollmentRequest: {}
     http://hl7.org/fhir/StructureDefinition/EnrollmentResponse: {}
     http://hl7.org/fhir/StructureDefinition/EpisodeOfCare: {}
-    http://hl7.org/fhir/StructureDefinition/Event: {}
     http://hl7.org/fhir/StructureDefinition/EventDefinition: {}
     http://hl7.org/fhir/StructureDefinition/Evidence: {}
     http://hl7.org/fhir/StructureDefinition/EvidenceVariable: {}
     http://hl7.org/fhir/StructureDefinition/ExampleScenario: {}
     http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit: {}
     http://hl7.org/fhir/StructureDefinition/FamilyMemberHistory: {}
-    http://hl7.org/fhir/StructureDefinition/FiveWs: {}
     http://hl7.org/fhir/StructureDefinition/Flag: {}
     http://hl7.org/fhir/StructureDefinition/Goal: {}
     http://hl7.org/fhir/StructureDefinition/GraphDefinition: {}
@@ -159,7 +156,6 @@ hl7.fhir.r4.core:
     http://hl7.org/fhir/StructureDefinition/MedicinalProductUndesirableEffect: {}
     http://hl7.org/fhir/StructureDefinition/MessageDefinition: {}
     http://hl7.org/fhir/StructureDefinition/MessageHeader: {}
-    http://hl7.org/fhir/StructureDefinition/MetadataResource: {}
     http://hl7.org/fhir/StructureDefinition/MolecularSequence: {}
     http://hl7.org/fhir/StructureDefinition/NamingSystem: {}
     http://hl7.org/fhir/StructureDefinition/NutritionOrder: {}
@@ -182,7 +178,6 @@ hl7.fhir.r4.core:
     http://hl7.org/fhir/StructureDefinition/Questionnaire: {}
     http://hl7.org/fhir/StructureDefinition/QuestionnaireResponse: {}
     http://hl7.org/fhir/StructureDefinition/RelatedPerson: {}
-    http://hl7.org/fhir/StructureDefinition/Request: {}
     http://hl7.org/fhir/StructureDefinition/RequestGroup: {}
     http://hl7.org/fhir/StructureDefinition/ResearchDefinition: {}
     http://hl7.org/fhir/StructureDefinition/ResearchElementDefinition: {}
@@ -1977,7 +1972,12 @@ hl7.fhir.r4.core:
     http://hl7.org/fhir/StructureDefinition/valueset-workflowStatus: {}
     http://hl7.org/fhir/StructureDefinition/rendering-xhtml: {}
     http://hl7.org/fhir/StructureDefinition/structuredefinition-xml-no-order: {}
-  logical: {}
+  logical:
+    http://hl7.org/fhir/StructureDefinition/Definition: {}
+    http://hl7.org/fhir/StructureDefinition/Event: {}
+    http://hl7.org/fhir/StructureDefinition/FiveWs: {}
+    http://hl7.org/fhir/StructureDefinition/MetadataResource: {}
+    http://hl7.org/fhir/StructureDefinition/Request: {}
 shared:
   primitive-type: {}
   complex-type: {}

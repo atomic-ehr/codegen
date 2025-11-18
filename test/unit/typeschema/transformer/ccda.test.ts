@@ -71,14 +71,14 @@ describe("TypeSchema CCDA generation", async () => {
         const ts = (await registerFsAndMkTs(ccda, resource))[0] as RegularTypeSchema;
         expect(ts).toMatchObject({
             identifier: {
-                kind: "resource",
+                kind: "logical",
                 package: "hl7.cda.uv.core",
                 version: "2.0.1-sd",
                 name: "ON",
                 url: "http://hl7.org/cda/stds/core/StructureDefinition/ON",
             },
             base: {
-                kind: "resource",
+                kind: "logical",
                 package: "hl7.cda.uv.core",
                 version: "2.0.1-sd",
                 name: "EN",
@@ -117,7 +117,7 @@ describe("TypeSchema CCDA generation", async () => {
                     fields: {
                         family: {
                             type: {
-                                kind: "resource",
+                                kind: "logical",
                                 package: "hl7.cda.uv.core",
                                 version: "2.0.1-sd",
                                 name: "ENXP",
@@ -129,7 +129,7 @@ describe("TypeSchema CCDA generation", async () => {
                         },
                         given: {
                             type: {
-                                kind: "resource",
+                                kind: "logical",
                                 package: "hl7.cda.uv.core",
                                 version: "2.0.1-sd",
                                 name: "ENXP",
@@ -146,14 +146,14 @@ describe("TypeSchema CCDA generation", async () => {
                 'A name for an organization. A sequence of name parts. Examples for organization name values are "Health Level Seven, Inc.", "Hospital", etc. An organization name may be as simple as a character string or may consist of several person name parts, such as, "Health Level 7", "Inc.". ON differs from EN because certain person related name parts are not possible.',
             dependencies: [
                 {
-                    kind: "resource",
+                    kind: "logical",
                     package: "hl7.cda.uv.core",
                     version: "2.0.1-sd",
                     name: "EN",
                     url: "http://hl7.org/cda/stds/core/StructureDefinition/EN",
                 },
                 {
-                    kind: "resource",
+                    kind: "logical",
                     package: "hl7.cda.uv.core",
                     version: "2.0.1-sd",
                     name: "ENXP",
@@ -161,8 +161,8 @@ describe("TypeSchema CCDA generation", async () => {
                 },
                 {
                     kind: "complex-type",
-                    package: "hl7.cda.uv.core",
-                    version: "2.0.1-sd",
+                    package: "hl7.fhir.r5.core",
+                    version: "5.0.0",
                     name: "BackboneElement",
                     url: "http://hl7.org/fhir/StructureDefinition/BackboneElement",
                 },
