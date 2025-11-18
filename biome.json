@@ -12,6 +12,7 @@
       "test/**/*.ts",
       "atomic-codegen.config.js",
       "biome.json",
+      "package.json",
       "examples/*/*.ts",
       ".zed/*.json"
     ]
