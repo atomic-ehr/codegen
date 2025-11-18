@@ -31,6 +31,7 @@ function determineKind(fhirSchema: RichFHIRSchema): Identifier["kind"] {
     if (fhirSchema.kind === "primitive-type") return "primitive-type";
     if (fhirSchema.kind === "complex-type") return "complex-type";
     if (fhirSchema.kind === "resource") return "resource";
+    if (fhirSchema.kind === "logical") return "logical";
     return "resource";
 }
 
