@@ -78,7 +78,7 @@ const writerToGenerator = (writerGen: Writer): Generator => {
     };
     return {
         generate: async ({ index: tsIndex }: GeneratorInput): Promise<GeneratedFile[]> => {
-            writerGen.generate(tsIndex);
+            await writerGen.generate(tsIndex);
             return getGeneratedFiles();
         },
         setOutputDir: (outputDir: string) => (writerGen.opts.outputDir = outputDir),
