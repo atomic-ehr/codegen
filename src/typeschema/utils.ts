@@ -119,7 +119,7 @@ interface TypeRelation {
 }
 
 const resourceRelatives = (schemas: TypeSchema[]): TypeRelation[] => {
-    const regularSchemas = schemas.filter(isResourceTypeSchema);
+    const regularSchemas = schemas.filter((e) => isResourceTypeSchema(e) || isLogicalTypeSchema(e));
     const directPairs: TypeRelation[] = [];
 
     for (const schema of regularSchemas) {

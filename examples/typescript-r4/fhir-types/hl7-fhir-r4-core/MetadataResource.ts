@@ -13,6 +13,8 @@ export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/MetadataResource
 export interface MetadataResource extends DomainResource {
+    resourceType: "MetadataResource";
+
     contact?: ContactDetail[];
     date?: string;
     description?: string;

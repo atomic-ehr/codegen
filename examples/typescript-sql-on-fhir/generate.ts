@@ -6,7 +6,7 @@ const builder = new APIBuilder()
     .typescript({ withDebugComment: false, generateProfile: false })
     .fromPackageRef("https://build.fhir.org/ig/FHIR/sql-on-fhir-v2//package.tgz")
     .outputTo("./examples/typescript-sql-on-fhir/fhir-types")
-    // .writeTypeTree("./src/fhir-types/tree.yaml")
+    .writeTypeTree("./examples/typescript-sql-on-fhir/tree.yaml")
     .treeShake({
         // "hl7.fhir.r5.core": {"http://hl7.org/fhir/StructureDefinition/Meta": {}},
         "org.sql-on-fhir.ig": {

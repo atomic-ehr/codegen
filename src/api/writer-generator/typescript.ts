@@ -248,7 +248,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             return;
         }
         this.curlyBlock(["export", "interface", name, extendsClause], () => {
-            if (isResourceTypeSchema(schema)) {
+            if (isResourceTypeSchema(schema) || isLogicalTypeSchema(schema)) {
                 const possibleResourceTypes = [schema.identifier];
                 possibleResourceTypes.push(...tsIndex.resourceChildren(schema.identifier));
                 const openSetSuffix =
