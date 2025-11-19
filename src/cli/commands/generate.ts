@@ -10,7 +10,7 @@ import { resolve } from "node:path";
 import type { CommandModule } from "yargs";
 import { APIBuilder } from "../../api/index";
 import { CONFIG_FILE_NAMES, loadConfig } from "../../config";
-import { createLogger, error, step, success, warn } from "../utils/log";
+import { createLogger, error, step, success, warn } from "@root/utils/codegen-logger";
 import type { CLIArgv } from "./index";
 
 interface GenerateArgs extends CLIArgv {

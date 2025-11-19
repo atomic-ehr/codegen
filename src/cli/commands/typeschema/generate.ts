@@ -9,7 +9,7 @@ import { dirname } from "node:path";
 import { TypeSchemaGenerator } from "@typeschema/generator";
 import type { CommandModule } from "yargs";
 import { loadConfig } from "../../../config";
-import { complete, createLogger, list } from "../../utils/log";
+import { complete, createLogger, list } from "@root/utils/codegen-logger";
 
 interface GenerateTypeschemaArgs {
     packages: string[];

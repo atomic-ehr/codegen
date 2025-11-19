@@ -8,7 +8,7 @@
 
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { configure, error, header } from "../utils/log";
+import { configure, error, header } from "@root/utils/codegen-logger";
 import { generateCommand } from "./generate";
 import { typeschemaCommand } from "./typeschema";
 

@@ -16,7 +16,6 @@ import type { Register } from "./register";
 import { packageMetaToFhir, type TypeSchema } from "./types";
 
 // Re-export core dependencies
-export { TypeSchemaCache } from "./cache";
 export { TypeSchemaGenerator } from "./generator";
 export { TypeSchemaParser } from "./parser";
 export type { Identifier, TypeSchema } from "./types";

@@ -5,7 +5,7 @@
  */
 
 import type { CommandModule } from "yargs";
-import { error, info, list } from "../utils/log";
+import { error, info, list } from "@root/utils/codegen-logger";
 import { generateTypeschemaCommand } from "./typeschema/generate";
 
 /**

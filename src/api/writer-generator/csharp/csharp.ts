@@ -75,7 +75,7 @@ const isReservedTypeName = (name: string): boolean => RESERVED_TYPE_NAMES.includ
 
 const prefixReservedTypeName = (name: string): string => (isReservedTypeName(name) ? `Resource${name}` : name);
 
-type CSharpGeneratorOptions = WriterOptions & {
+export type CSharpGeneratorOptions = WriterOptions & {
     outputDir: string;
     staticSourceDir?: string;
     targetNamespace: string;

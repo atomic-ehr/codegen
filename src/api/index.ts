@@ -7,65 +7,8 @@
  * @packageDocumentation
  */
 
-// Re-export core utilities
-export {
-    TypeSchemaCache,
-    TypeSchemaGenerator,
-    TypeSchemaParser,
-} from "@typeschema/index";
-// Re-export core TypeSchema types for convenience
-export type {
-    Field as TypeSchemaField,
-    Identifier as TypeSchemaIdentifier,
-    PackageMeta as PackageInfo,
-    TypeSchema,
-} from "@typeschema/types";
-// Export types and interfaces
-export type {
-    APIBuilderOptions,
-    GenerationResult,
-    ProgressCallback,
-} from "./builder";
-// Export main API builder and utilities
-export {
-    APIBuilder,
-    createAPIFromConfig,
-} from "./builder";
-export type { GeneratedFile } from "./generators/base/index";
+export type { APIBuilderOptions } from "./builder";
+export type { TypeScriptOptions } from "./writer-generator/typescript";
+export type { CSharpGeneratorOptions } from "./writer-generator/csharp/csharp";
 
-/**
- * Quick start examples:
- *
- * @example
- * Generate TypeScript types from a FHIR package:
- * ```typescript
- * import { createAPI } from '@atomic-codegen/api';
- *
- * const result = await createAPI()
- *   .fromPackage('hl7.fhir.r4.core')
- *   .typescript()
- *   .generate();
- * ```
- *
- * @example
- * Generate TypeScript types from TypeSchema files:
- * ```typescript
- * import { createAPI } from '@atomic-codegen/api';
- *
- * const result = await createAPI()
- *   .fromFiles('./schemas/*.ndjson')
- *   .typescript()
- *   .generate();
- * ```
- *
- * @example
- * Build in-memory without writing files:
- * ```typescript
- * import { createAPI } from '@atomic-codegen/api';
- *
- * const results = await createAPI()
- *   .fromPackage('hl7.fhir.r4.core')
- *   .typescript()
- *   .build();
- * ```
- */
+export { APIBuilder } from "./builder";
