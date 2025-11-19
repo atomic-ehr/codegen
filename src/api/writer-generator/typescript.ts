@@ -11,6 +11,7 @@ import {
     extractNameFromCanonical,
     type Identifier,
     isChoiceDeclarationField,
+    isLogicalTypeSchema,
     isNestedIdentifier,
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
@@ -135,10 +136,14 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                         tsPackageName: tsModuleName(schema.identifier),
                         resourceName: tsResourceName(schema.identifier),
                         nestedTypes:
-                            isResourceTypeSchema(schema) && schema.nested
+                            (isResourceTypeSchema(schema) && schema.nested) ||
+                            (isLogicalTypeSchema(schema) && schema.nested)
                                 ? schema.nested.map((n) => tsResourceName(n.identifier))
                                 : [],
-                        helpers: isResourceTypeSchema(schema) ? [`is${tsResourceName(schema.identifier)}`] : [],
+                        helpers:
+                            isResourceTypeSchema(schema) || isLogicalTypeSchema(schema)
+                                ? [`is${tsResourceName(schema.identifier)}`]
+                                : [],
                     },
                 ])
                 .sort((a, b) => a.resourceName.localeCompare(b.resourceName));
@@ -294,7 +299,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
     }
 
     generateResourceTypePredicate(schema: RegularTypeSchema) {
-        if (!isResourceTypeSchema(schema)) return;
+        if (!isResourceTypeSchema(schema) && !isLogicalTypeSchema(schema)) return;
         const name = tsResourceName(schema.identifier);
         this.curlyBlock(["export", "const", `is${name}`, "=", `(resource: unknown): resource is ${name}`, "=>"], () => {
             this.lineSM(
@@ -511,7 +516,6 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             ...tsIndex.collectComplexTypes(),
             ...tsIndex.collectResources(),
             ...tsIndex.collectLogicalModels(),
-            // ...tsIndex.collectLogicalModels(),
             ...(this.opts.generateProfile
                 ? tsIndex
                       .collectProfiles()

@@ -7,7 +7,7 @@ TEST = bun test
 
 .PHONY: all typecheck test-typeschema test-register test-codegen test-typescript-r4-example
 
-all: test-codegen test-typescript-r4-example test-typescript-ccda-example lint-unsafe
+all: test-codegen test-typescript-r4-example test-typescript-ccda-example test-typescript-sql-on-fhir-example lint-unsafe
 
 lint:
 	$(LINT)
@@ -50,6 +50,7 @@ test-typescript-r4-example: typecheck format lint
 
 test-typescript-sql-on-fhir-example: typecheck format lint
 	bun run examples/typescript-sql-on-fhir/generate.ts
+	$(TYPECHECK) --project examples/typescript-sql-on-fhir/tsconfig.json
 
 test-typescript-ccda-example: typecheck format lint
 	$(TEST) test/unit/typeschema/transformer/ccda.test.ts

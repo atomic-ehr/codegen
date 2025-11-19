@@ -4,3 +4,6 @@
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/Event
 export type Event = object;
+export const isEvent = (resource: unknown): resource is Event => {
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Event";
+}

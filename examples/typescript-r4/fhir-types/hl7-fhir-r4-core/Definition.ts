@@ -4,3 +4,6 @@
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/Definition
 export type Definition = object;
+export const isDefinition = (resource: unknown): resource is Definition => {
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Definition";
+}

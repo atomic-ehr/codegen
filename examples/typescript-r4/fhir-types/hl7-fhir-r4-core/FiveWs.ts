@@ -4,3 +4,6 @@
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/FiveWs
 export type FiveWs = object;
+export const isFiveWs = (resource: unknown): resource is FiveWs => {
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "FiveWs";
+}

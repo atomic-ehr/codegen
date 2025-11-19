@@ -4,3 +4,6 @@
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/Request
 export type Request = object;
+export const isRequest = (resource: unknown): resource is Request => {
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Request";
+}

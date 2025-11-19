@@ -26,3 +26,6 @@ export interface MetadataResource extends DomainResource {
     useContext?: UsageContext[];
     version?: string;
 }
+export const isMetadataResource = (resource: unknown): resource is MetadataResource => {
+    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "MetadataResource";
+}
