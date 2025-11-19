@@ -1,5 +1,10 @@
 # Atomic FHIR Codegen
 
+[![npm canary](https://img.shields.io/npm/v/@atomic-ehr/codegen/canary.svg?label=canary)](https://www.npmjs.com/package/@atomic-ehr/codegen/v/canary)
+[![npm version](https://badge.fury.io/js/%40atomic-ehr%2Fcodegen.svg)](https://badge.fury.io/js/%40atomic-ehr%2Fcodegen)
+[![CI](https://github.com/atomic-ehr/codegen/actions/workflows/ci.yml/badge.svg)](https://github.com/atomic-ehr/codegen/actions/workflows/ci.yml)
+[![SDK Tests](https://github.com/atomic-ehr/codegen/actions/workflows/sdk-tests.yml/badge.svg)](https://github.com/atomic-ehr/codegen/actions/workflows/sdk-tests.yml)
+
 A powerful, extensible code generation toolkit for FHIR (Fast Healthcare Interoperability Resources) that transforms FHIR specifications into strongly-typed code for multiple programming languages.
 
 ## Features
