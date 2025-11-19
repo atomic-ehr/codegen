@@ -30,10 +30,26 @@ export function mkNestedIdentifier(
     }
     const nestedName = path.join(".") as Name;
     const url = nestedTypeOrigins[nestedName] ?? (`${fhirSchema.url}#${nestedName}` as CanonicalUrl);
+
+    // Determine the correct package: if this nested type originates from a parent resource,
+    // use that resource's package, not the current profile's package
+    let packageName = fhirSchema.package_meta.name;
+    let packageVersion = fhirSchema.package_meta.version;
+
+    if (nestedTypeOrigins[nestedName]) {
+        // This nested type is from a parent resource - resolve its package
+        const baseUrl = url.split("#")[0] as CanonicalUrl;
+        const baseSchema = register.resolveFs(fhirSchema.package_meta, baseUrl);
+        if (baseSchema) {
+            packageName = baseSchema.package_meta.name;
+            packageVersion = baseSchema.package_meta.version;
+        }
+    }
+
     return {
         kind: "nested",
-        package: fhirSchema.package_meta.name,
-        version: fhirSchema.package_meta.version,
+        package: packageName,
+        version: packageVersion,
         name: nestedName,
         url: url,
     };

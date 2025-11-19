@@ -61,12 +61,20 @@ export function generateProfileAdapter(writer: Writer, tsIndex: TypeSchemaIndex,
         generateResourceGetter(writer, baseResourceName);
         writer.line();
 
+        // toJSON method for serialization
+        generateToJSON(writer, baseResourceName);
+        writer.line();
+
         // Enhanced field accessors with validation (Task 5)
         generateEnhancedFieldAccessors(writer, tsIndex, profile);
 
         // Extension accessors (Task 6)
         generateExtensionAccessors(writer, profile);
     });
+
+    // Generate type predicate for profile
+    writer.line();
+    generateProfileTypePredicate(writer, profile, baseResourceName);
 }
 
 /**
@@ -94,8 +102,19 @@ function generateConstructor(writer: Writer, className: string, baseResourceName
  * Generate resource getter (access to underlying resource)
  */
 function generateResourceGetter(writer: Writer, baseResourceName: string): void {
-    writer.comment("Access to underlying FHIR resource");
-    writer.curlyBlock(["get resource():", baseResourceName], () => {
+    writer.comment("Access to underlying FHIR resource (readonly)");
+    writer.comment("Use profile accessors to modify fields with validation");
+    writer.curlyBlock(["get resource():", "Readonly<" + baseResourceName + ">"], () => {
+        writer.lineSM("return this._resource");
+    });
+}
+
+/**
+ * Generate toJSON method for proper JSON serialization
+ */
+function generateToJSON(writer: Writer, baseResourceName: string): void {
+    writer.comment("Return the underlying resource for JSON serialization");
+    writer.curlyBlock(["toJSON():", baseResourceName], () => {
         writer.lineSM("return this._resource");
     });
 }
@@ -137,4 +156,18 @@ function generateExtensionAccessors(writer: Writer, profile: ProfileTypeSchema):
         writer.line();
         generateExtensionAccessor(writer, extension);
     }
+}
+
+/**
+ * Generate type predicate function for profile type checking
+ */
+function generateProfileTypePredicate(writer: Writer, profile: ProfileTypeSchema, baseResourceName: string): void {
+    const className = tsResourceName(profile.identifier);
+    const resourceTypeName = profile.base.name;
+
+    writer.curlyBlock(["export", "function", `is${className}(resource: any): resource is ${className}`], () => {
+        writer.lineSM(
+            `return resource?.resourceType === "${resourceTypeName}" && (resource.meta?.profile?.includes(${className}.profileUrl) ?? false)`,
+        );
+    });
 }

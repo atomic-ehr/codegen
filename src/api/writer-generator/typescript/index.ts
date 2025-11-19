@@ -7,7 +7,6 @@ import { generateProfileAdapter } from "./profile-adapter";
 import { generateProfileFactory } from "./profile-factory";
 import { generateNestedTypes, generateType } from "./resource";
 import { tsFhirPackageDir, tsModuleFileName, tsModuleName, tsResourceName } from "./utils";
-import { generateValidationHelpers } from "./validation-helpers";
 
 export type TypeScriptOptions = WriterOptions;
 
@@ -97,10 +96,6 @@ export class TypeScript extends Writer {
 
         // Add canonical URL comment
         this.comment("CanonicalURL:", schema.identifier.url || "");
-        this.line();
-
-        // Generate runtime validation helpers
-        generateValidationHelpers(this);
         this.line();
 
         // Generate adapter class

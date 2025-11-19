@@ -278,8 +278,9 @@ function transformProfile(register: Register, fhirSchema: RichFHIRSchema, logger
         throw new Error(`Cannot resolve genealogy for profile ${fhirSchema.url}`);
     }
 
-    // Last in genealogy is the base resource
-    const baseResourceSchema = genealogy[genealogy.length - 1];
+    // Find the first resource (derivation === "specialization") in the genealogy
+    // Profiles have derivation === "constraint", resources have derivation === "specialization"
+    const baseResourceSchema = genealogy.find((schema) => schema.derivation === "specialization");
     if (!baseResourceSchema) {
         throw new Error(`Base resource not found for profile ${fhirSchema.url}`);
     }

@@ -1,10 +1,12 @@
 /**
  * Extension Accessor Generation
  *
- * Generates getter/setter accessors for FHIR extensions in profile adapters.
+ * Generates TypeScript property accessors for FHIR extensions in profile adapters.
+ * Dedicated methods for each extension with internal URL handling.
+ *
  * Two patterns:
- * 1. Singleton (max=1): get/set Extension | undefined
- * 2. Collection (max=*): get Extension[], add/remove methods
+ * 1. Singleton (max=1): get/set properties returning Extension | undefined
+ * 2. Collection (max=*): get property returning Extension[], add/remove methods
  */
 
 import type { Writer } from "@root/api/writer-generator/writer";
@@ -67,27 +69,23 @@ function generateSingletonExtensionAccessor(writer: Writer, extension: ProfileEx
 }
 
 /**
- * Generate getter function for singleton extension
+ * Generate property getter for singleton extension
  */
 function generateSingletonGetter(writer: Writer, fieldName: string, url: string): void {
-    const methodName = tsFieldName(fieldName).startsWith('"')
-        ? `"get${fieldName.charAt(0).toUpperCase()}${fieldName.slice(1)}"`
-        : `get${capitalize(fieldName)}`;
+    const propName = tsFieldName(fieldName);
 
-    writer.curlyBlock([methodName + "():", "Extension | undefined"], () => {
+    writer.curlyBlock(["get " + propName + "():", "Extension | undefined"], () => {
         writer.lineSM("return this._resource.extension?.find(ext => ext.url === '" + url + "')");
     });
 }
 
 /**
- * Generate setter function for singleton extension
+ * Generate property setter for singleton extension
  */
 function generateSingletonSetter(writer: Writer, fieldName: string, url: string, required: boolean): void {
-    const methodName = tsFieldName(fieldName).startsWith('"')
-        ? `"set${fieldName.charAt(0).toUpperCase()}${fieldName.slice(1)}"`
-        : `set${capitalize(fieldName)}`;
+    const propName = tsFieldName(fieldName);
 
-    writer.curlyBlock([methodName + "(value:", "Extension | undefined):", "void"], () => {
+    writer.curlyBlock(["set " + propName + "(value:", "Extension | undefined)"], () => {
         // Validate if required
         if (required) {
             writer.curlyBlock(["if (value === undefined)"], () => {
@@ -150,14 +148,12 @@ function generateCollectionExtensionAccessor(writer: Writer, extension: ProfileE
 }
 
 /**
- * Generate getter function for collection extension
+ * Generate property getter for collection extension
  */
 function generateCollectionGetter(writer: Writer, fieldName: string, url: string): void {
-    const methodName = tsFieldName(fieldName).startsWith('"')
-        ? `"get${fieldName.charAt(0).toUpperCase()}${fieldName.slice(1)}"`
-        : `get${capitalize(fieldName)}`;
+    const propName = tsFieldName(fieldName);
 
-    writer.curlyBlock([methodName + "():", "Extension[]"], () => {
+    writer.curlyBlock(["get " + propName + "():", "Extension[]"], () => {
         writer.lineSM("return this._resource.extension?.filter(ext => ext.url === '" + url + "') ?? []");
     });
 }
@@ -167,11 +163,12 @@ function generateCollectionGetter(writer: Writer, fieldName: string, url: string
  */
 function generateCollectionAdd(writer: Writer, fieldName: string, url: string, max: string | undefined): void {
     const methodName = "add" + capitalize(fieldName);
+    const propName = tsFieldName(fieldName);
 
     writer.curlyBlock([methodName, "(extension: Extension): void"], () => {
         // Check max cardinality if specified
         if (max && max !== "*") {
-            writer.curlyBlock(["if (this." + fieldName + ".length >= " + max + ")"], () => {
+            writer.curlyBlock(["if (this." + propName + ".length >= " + max + ")"], () => {
                 writer.lineSM('throw new Error("Extension ' + fieldName + " allows at most " + max + ' instances")');
             });
             writer.line();

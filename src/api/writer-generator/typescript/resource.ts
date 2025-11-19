@@ -53,6 +53,12 @@ export function generateType(writer: Writer, tsIndex: TypeSchemaIndex, schema: R
             generateField(writer, tsIndex, schema, fieldName, field);
         }
     });
+
+    // Generate type predicate for resources
+    if (isResourceTypeSchema(schema)) {
+        writer.line();
+        generateResourceTypePredicate(writer, schema);
+    }
 }
 
 /**
@@ -118,4 +124,18 @@ export function generateNestedTypes(writer: Writer, tsIndex: TypeSchemaIndex, sc
         generateType(writer, tsIndex, nested);
         writer.line();
     }
+}
+
+/**
+ * Generate type predicate function for resource type checking
+ */
+export function generateResourceTypePredicate(writer: Writer, schema: RegularTypeSchema): void {
+    if (!isResourceTypeSchema(schema)) return;
+
+    const name = tsResourceName(schema.identifier);
+    const resourceTypeName = schema.identifier.name;
+
+    writer.curlyBlock(["export", "function", `is${name}(resource: any): resource is ${name}`], () => {
+        writer.lineSM(`return resource?.resourceType === "${resourceTypeName}"`);
+    });
 }
