@@ -61,6 +61,10 @@ test-typescript-ccda-example: typecheck format lint
 	bun run examples/typescript-ccda/generate.ts
 	$(TYPECHECK) --project examples/typescript-ccda/tsconfig.json
 
+test-mustache-java-r4-example: typecheck format lint
+	bun run examples/mustache-java-r4/mustache-java-r4-gen.ts
+	$(TYPECHECK) --project tsconfig.examples-mustache-java-r4.json
+
 test-csharp-sdk: typecheck format prepare-aidbox-runme lint
 	$(TYPECHECK) --project examples/csharp/tsconfig.json
 	bun run examples/csharp/generate.ts

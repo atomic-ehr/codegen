@@ -31,7 +31,7 @@ import {
 } from "@typeschema/types";
 import type { TypeSchemaConfig } from "../config";
 import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript";
-import type { FileBuffer, FileSystemWriter, WriterOptions } from "./writer-generator/writer";
+import type { FileSystemWriter, FileSystemWriterOptions, WriterOptions } from "./writer-generator/writer";
 
 /**
  * Configuration options for the API builder
@@ -342,6 +342,29 @@ export class APIBuilder {
         this.logger.debug(`Configured python generator`);
         return this;
     }
+
+    mustache(templatePath: string, userOpts: Partial<FileSystemWriterOptions & FileBasedMustacheGeneratorOptions>) {
+        const defaultWriterOpts: FileSystemWriterOptions = {
+            logger: this.logger,
+            outputDir: this.options.outputDir,
+        };
+        const defaultMustacheOpts: Partial<FileBasedMustacheGeneratorOptions> = {
+            meta: {
+                timestamp: new Date().toISOString(),
+                generator: "atomic-codegen",
+            },
+        };
+        const opts = {
+            ...defaultWriterOpts,
+            ...defaultMustacheOpts,
+            ...userOpts,
+        };
+        const generator = Mustache.createGenerator(templatePath, opts);
+        this.generators.set(`mustache[${templatePath}]`, generator);
+        this.logger.debug(`Configured TypeScript generator (${JSON.stringify(opts, undefined, 2)})`);
+        return this;
+    }
+
 
     csharp(userOptions: Partial<CSharpGeneratorOptions>): APIBuilder {
         const defaultWriterOpts: WriterOptions = {
