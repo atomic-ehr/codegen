@@ -1,10 +1,9 @@
-import {NameGenerator} from "@fscg/generators/mustache/generator/NameGenerator";
-import {LambdaMixin} from "@fscg/generators/mustache/types/LambdaMixin";
-import {camelCase, kebabCase, pascalCase, snakeCase} from "@fscg/utils/code";
-
+import type { NameGenerator } from "@mustache/generator/NameGenerator";
+import type { LambdaMixin } from "@mustache/types";
+import { camelCase, kebabCase, pascalCase, snakeCase } from "@root/api/writer-generator/utils";
 
 export class LambdaMixinProvider {
-    private readonly lambda: LambdaMixin['lambda'];
+    private readonly lambda: LambdaMixin["lambda"];
     constructor(private readonly nameGenerator: NameGenerator) {
         this.lambda = {
             saveTypeName: () => (text, render) => this.nameGenerator.generateType(render(text)),
@@ -17,10 +16,10 @@ export class LambdaMixinProvider {
             kebabCase: () => (text, render) => kebabCase(render(text)),
             lowerCase: () => (text, render) => render(text).toLowerCase(),
             upperCase: () => (text, render) => render(text).toUpperCase(),
-        }
+        };
     }
 
-    public apply<T extends Record<string, unknown>> (target: T): T & LambdaMixin {
+    public apply<T extends Record<string, unknown>>(target: T): T & LambdaMixin {
         return {
             ...target,
             lambda: this.lambda,
