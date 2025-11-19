@@ -8,7 +8,6 @@
  */
 
 export type { APIBuilderOptions } from "./builder";
-export type { TypeScriptOptions } from "./writer-generator/typescript";
-export type { CSharpGeneratorOptions } from "./writer-generator/csharp/csharp";
-
 export { APIBuilder } from "./builder";
+export type { CSharpGeneratorOptions } from "./writer-generator/csharp/csharp";
+export type { TypeScriptOptions } from "./writer-generator/typescript";

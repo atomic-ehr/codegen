@@ -11,7 +11,7 @@ import * as Path from "node:path";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import { CSharp } from "@root/api/writer-generator/csharp/csharp";
 import { registerFromManager } from "@root/typeschema/register";
-import { mkTypeSchemaIndex, type TreeShake, treeShake, type TypeSchemaIndex } from "@root/typeschema/utils";
+import { mkTypeSchemaIndex, type TreeShake, type TypeSchemaIndex, treeShake } from "@root/typeschema/utils";
 import { generateTypeSchemas, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";
 import { extractNameFromCanonical, packageMetaToFhir, packageMetaToNpm, type TypeSchema } from "@typeschema/types";
 import type { TypeSchemaConfig } from "../config";

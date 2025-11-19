@@ -2,7 +2,7 @@ AIDBOX_LICENSE_ID ?=
 
 TYPECHECK = bunx tsc --noEmit
 FORMAT = bunx biome format --write
-LINT = bunx biome lint --diagnostic-level=error --write --unsafe
+LINT = bunx biome check --diagnostic-level=error --write --unsafe
 TEST = bun test
 
 .PHONY: all typecheck test-typeschema test-register test-codegen test-typescript-r4-example
