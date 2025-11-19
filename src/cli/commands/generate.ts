@@ -119,13 +119,6 @@ export const generateCommand: CommandModule<Record<string, unknown>, GenerateArg
 
             // Configure generators from config
             if (config.typescript) {
-                if (verbose) {
-                    logger.info("Configuring TypeScript generation from config");
-                    logger.debug(`Module format: ${config.typescript.moduleFormat || "esm"}`);
-                    logger.debug(`Generate index: ${config.typescript.generateIndex ?? true}`);
-                    logger.debug(`Include docs: ${config.typescript.includeDocuments ?? false}`);
-                    logger.debug(`Naming convention: ${config.typescript.namingConvention || "PascalCase"}`);
-                }
                 throw new Error("Not Implemented");
             }
 

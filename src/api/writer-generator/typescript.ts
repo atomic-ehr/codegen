@@ -275,6 +275,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 if (field.enum) {
                     tsType = tsEnumType(field.enum);
                 } else if (schema.identifier.name === "Reference" && tsName === "reference") {
+                    // biome-ignore lint: that is exactly string what we want
                     tsType = "`${T}/${string}`";
                 } else if (field.reference && field.reference.length > 0) {
                     const references = field.reference.map((ref) => `"${ref.name}"`).join(" | ");

@@ -276,14 +276,15 @@ function runDemo() {
     const patient = createPatient();
     console.log("✓ Created patient:", patient.id);
 
-    const observation = createObservation(patient.id!);
+    if (!patient.id) throw new Error("Failed to create patient");
+    const observation = createObservation(patient.id);
     console.log("✓ Created glucose observation:", observation.id);
 
     console.log(`\n${"=".repeat(60)}`);
     console.log("Bodyweight profile attach/extract demo:");
     console.log("=".repeat(60));
 
-    const bodyweightObs = createBodyWeightObservation(patient.id!);
+    const bodyweightObs = createBodyWeightObservation(patient.id);
     console.log("✓ Created body weight observation with profile:", bodyweightObs.id);
 
     const bundle = createBundle(patient, observation, bodyweightObs);

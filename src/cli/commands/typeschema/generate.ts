@@ -126,7 +126,8 @@ export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, G
             // Use the output format determined earlier
 
             // Ensure output directory exists
-            const outputPath = argv.output!;
+            const outputPath = argv.output;
+            if (!outputPath) throw new Error("Output format not specified");
             await mkdir(dirname(outputPath), { recursive: true });
 
             // Format and write the schemas

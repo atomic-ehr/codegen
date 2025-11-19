@@ -731,7 +731,8 @@ export class ConfigLoader {
             }
 
             // Merge with defaults
-            return this.mergeWithDefaults(validation.config!);
+            if (!validation.config) throw new Error("Invalid configuration");
+            return this.mergeWithDefaults(validation.config);
         } catch (error) {
             if (error instanceof Error) {
                 throw new Error(`Failed to load config from ${filePath}: ${error.message}`);

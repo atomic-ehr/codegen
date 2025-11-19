@@ -11,7 +11,10 @@ describe("TypeSchema CCDA generation", async () => {
         const resource = ccda.resolveFs(
             ccdaPackage,
             "http://hl7.org/fhir/StructureDefinition/workflow-protectiveFactor" as CanonicalUrl,
-        )!;
+        );
+        if (!resource) {
+            throw new Error("workflow-protectiveFactor not found");
+        }
         const ts = (await registerFsAndMkTs(ccda, resource))[0] as RegularTypeSchema;
         expect(ts).toMatchObject({
             identifier: {
@@ -67,7 +70,10 @@ describe("TypeSchema CCDA generation", async () => {
         const resource = ccda.resolveFs(
             ccdaPackage,
             "http://hl7.org/cda/stds/core/StructureDefinition/ON" as CanonicalUrl,
-        )!;
+        );
+        if (!resource) {
+            throw new Error("ON StructureDefinition not found");
+        }
         const ts = (await registerFsAndMkTs(ccda, resource))[0] as RegularTypeSchema;
         expect(ts).toMatchObject({
             identifier: {
@@ -181,7 +187,10 @@ describe("TypeSchema CCDA generation", async () => {
         const resource = ccda.resolveFs(
             ccdaPackage,
             "http://hl7.org/fhir/StructureDefinition/ehrsrle-auditevent" as CanonicalUrl,
-        )!;
+        );
+        if (!resource) {
+            throw new Error("ehrsrle-auditevent not found");
+        }
         const ts = (await registerFsAndMkTs(ccda, resource))[0] as RegularTypeSchema;
         // console.log(JSON.stringify(ts, null, 2));
         // NOTE: problem: canonical manager recomend us to use R5, but we failing on R4 AuditEvent.

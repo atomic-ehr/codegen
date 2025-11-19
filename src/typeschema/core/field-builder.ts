@@ -14,7 +14,8 @@ import { mkBindingIdentifier, mkIdentifier } from "./identifier";
 import { mkNestedIdentifier } from "./nested-types";
 
 function isRequired(register: Register, fhirSchema: RichFHIRSchema, path: string[]): boolean {
-    const fieldName = path[path.length - 1]!;
+    const fieldName = path[path.length - 1];
+    if (!fieldName) throw new Error(`Internal error: fieldName is missing for path ${path.join("/")}`);
     const parentPath = path.slice(0, -1);
 
     const requires = register.resolveFsGenealogy(fhirSchema.package_meta, fhirSchema.url).flatMap((fs) => {
@@ -116,7 +117,7 @@ export const mkField = (
     if (!fieldType)
         logger?.warn(`Field type not found for '${fhirSchema.url}#${path.join(".")}' (${fhirSchema.derivation})`);
     return {
-        type: fieldType!,
+        type: fieldType as Identifier,
         required: isRequired(register, fhirSchema, path),
         excluded: isExcluded(register, fhirSchema, path),
 

@@ -36,7 +36,7 @@ export class CodegenLogger {
         };
     }
 
-    private static consoleLevelsMap: Record<LogLevel, Function> = {
+    private static consoleLevelsMap: Record<LogLevel, (...data: any[]) => void> = {
         [LogLevel.INFO]: console.log,
         [LogLevel.WARN]: console.warn,
         [LogLevel.ERROR]: console.error,
