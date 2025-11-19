@@ -14,14 +14,8 @@
     "**/*.d.ts"
   ],
   "ignoreDependencies": [
-    "@types/bun",
-    "@types/node",
-    "typescript",
-    "tsup"
   ],
   "ignoreBinaries": [
-    "bunx",
-    "tsc"
   ],
   "ignoreExportsUsedInFile": true,
   "rules": {
