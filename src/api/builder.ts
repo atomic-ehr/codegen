@@ -12,13 +12,11 @@ import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { GeneratedFile } from "@root/api/generators/base/types";
 import { CSharp } from "@root/api/writer-generator/csharp/csharp";
 import { registerFromManager } from "@root/typeschema/register";
-import { mkTypeSchemaIndex, type TreeShake, treeShake } from "@root/typeschema/utils";
+import { mkTypeSchemaIndex, type TreeShake, treeShake, type TypeSchemaIndex } from "@root/typeschema/utils";
 import { generateTypeSchemas, TypeSchemaCache, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";
 import { extractNameFromCanonical, packageMetaToFhir, packageMetaToNpm, type TypeSchema } from "@typeschema/types";
 import type { Config, TypeSchemaConfig } from "../config";
 import { CodegenLogger, createLogger } from "../utils/codegen-logger";
-import type { GeneratorInput } from "./generators/base/BaseGenerator";
-import { TypeScriptGenerator as TypeScriptGeneratorDepricated } from "./generators/typescript";
 import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript";
 import type { Writer, WriterOptions } from "./writer-generator/writer";
 
@@ -56,6 +54,8 @@ export interface GenerationResult {
     warnings: string[];
     duration: number;
 }
+
+export type GeneratorInput = { schemas: TypeSchema[]; index: TypeSchemaIndex };
 
 interface Generator {
     generate: (input: GeneratorInput) => Promise<GeneratedFile[]>;
@@ -265,47 +265,6 @@ export class APIBuilder {
     fromSchemas(schemas: TypeSchema[]): APIBuilder {
         this.logger.debug(`Adding ${schemas.length} TypeSchemas to generation`);
         this.schemas = [...this.schemas, ...schemas];
-        return this;
-    }
-
-    typescriptDepricated(
-        options: {
-            moduleFormat?: "esm" | "cjs";
-            generateIndex?: boolean;
-            includeDocuments?: boolean;
-            namingConvention?: "PascalCase" | "camelCase";
-            includeExtensions?: boolean;
-            includeProfiles?: boolean;
-            generateValueSets?: boolean;
-            includeValueSetHelpers?: boolean;
-            valueSetStrengths?: ("required" | "preferred" | "extensible" | "example")[];
-            valueSetMode?: "all" | "required-only" | "custom";
-            valueSetDirectory?: string;
-        } = {},
-    ): APIBuilder {
-        const typesOutputDir = `${this.options.outputDir}/types`;
-
-        const generator = new TypeScriptGeneratorDepricated({
-            outputDir: typesOutputDir,
-            moduleFormat: options.moduleFormat || "esm",
-            generateIndex: options.generateIndex ?? true,
-            includeDocuments: options.includeDocuments ?? true,
-            namingConvention: options.namingConvention || "PascalCase",
-            includeExtensions: options.includeExtensions ?? false,
-            includeProfiles: options.includeProfiles ?? false,
-            generateValueSets: options.generateValueSets ?? false,
-            includeValueSetHelpers: options.includeValueSetHelpers ?? false,
-            valueSetStrengths: options.valueSetStrengths ?? ["required"],
-            logger: this.logger.child("TS"),
-            valueSetMode: options.valueSetMode ?? "required-only",
-            valueSetDirectory: options.valueSetDirectory ?? "valuesets",
-            verbose: this.options.verbose,
-            validate: true, // Enable validation for debugging
-            overwrite: this.options.overwrite,
-        });
-
-        this.generators.set("typescript", generator);
-        this.logger.debug(`Configured TypeScript generator (${options.moduleFormat || "esm"})`);
         return this;
     }
 
@@ -577,7 +536,7 @@ export function createAPIFromConfig(config: Config): APIBuilder {
 
     // Configure TypeScript generator if specified
     if (config.typescript) {
-        builder.typescriptDepricated(config.typescript);
+        throw new Error("Not Implemented");
     }
 
     return builder;

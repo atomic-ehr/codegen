@@ -10,14 +10,6 @@
 // Core Base Generator System
 // ==========================================
 
-// Main base generator class
-export { BaseGenerator } from "./BaseGenerator";
-export { PythonTypeMapper } from "./PythonTypeMapper";
-export type { TypeMapperOptions } from "./TypeMapper";
-// Type system and mapping
-export { TypeMapper } from "./TypeMapper";
-export type { TypeScriptTypeMapperOptions } from "./TypeScriptTypeMapper";
-export { TypeScriptTypeMapper } from "./TypeScriptTypeMapper";
 export type {
     ConfigValidationResult,
     GeneratorCapabilities,
@@ -30,21 +22,6 @@ export type {
 // ==========================================
 
 export type { BaseGeneratorOptions, FileBuilderOptions } from "./types";
-
-// ==========================================
-// File Management System
-// ==========================================
-
-export type { DirectoryBuilderConfig } from "./builders/DirectoryBuilder";
-export { DirectoryBuilder } from "./builders/DirectoryBuilder";
-export type { FileBuilderConfig } from "./builders/FileBuilder";
-// Fluent builders
-export { FileBuilder } from "./builders/FileBuilder";
-export type { IndexBuilderConfig } from "./builders/IndexBuilder";
-export { IndexBuilder } from "./builders/IndexBuilder";
-export type { FileManagerOptions, WriteFileResult } from "./FileManager";
-// Core file management
-export { FileManager } from "./FileManager";
 
 // ==========================================
 // Error Handling System
@@ -266,7 +243,6 @@ export const DEFAULT_FILE_BUILDER_OPTIONS: Partial<import("./types").FileBuilder
  * @deprecated Use BaseGenerator instead
  * Provided for backwards compatibility only
  */
-export { BaseGenerator as Generator } from "./BaseGenerator";
 /**
  * @deprecated Use GeneratorError instead
  * Provided for backwards compatibility only

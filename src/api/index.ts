@@ -32,9 +32,6 @@ export {
     createAPIFromConfig,
 } from "./builder";
 export type { GeneratedFile } from "./generators/base/index";
-export type { TypeScriptGeneratorOptions } from "./generators/typescript";
-// Export generator classes for advanced usage
-export { TypeScriptGenerator } from "./generators/typescript";
 
 /**
  * Quick start examples:

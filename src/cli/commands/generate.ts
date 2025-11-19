@@ -126,7 +126,7 @@ export const generateCommand: CommandModule<Record<string, unknown>, GenerateArg
                     logger.debug(`Include docs: ${config.typescript.includeDocuments ?? false}`);
                     logger.debug(`Naming convention: ${config.typescript.namingConvention || "PascalCase"}`);
                 }
-                builder.typescriptDepricated(config.typescript);
+                throw new Error("Not Implemented");
             }
 
             // Check that at least one generator is configured
