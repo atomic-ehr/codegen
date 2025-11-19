@@ -116,7 +116,7 @@ export function mkNestedTypes(
             url: baseUrl,
         };
 
-        const fields = transformNestedElements(register, fhirSchema, path, element.elements!, logger);
+        const fields = transformNestedElements(register, fhirSchema, path, element.elements ?? {}, logger);
 
         const nestedType: NestedType = {
             identifier,

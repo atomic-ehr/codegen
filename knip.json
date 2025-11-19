@@ -1,0 +1,43 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "src/api/index.ts"
+  ],
+  "project": [
+    "src/**/*.ts",
+    "test/**/*.ts"
+  ],
+  "ignore": [
+    "dist/**",
+    "generated/**",
+    ".typeschema-cache/**",
+    "**/*.d.ts"
+  ],
+  "ignoreDependencies": [
+  ],
+  "ignoreBinaries": [
+  ],
+  "ignoreExportsUsedInFile": true,
+  "rules": {
+    "files": "warn",
+    "dependencies": "warn",
+    "devDependencies": "warn",
+    "unlisted": "error",
+    "binaries": "warn",
+    "unresolved": "error",
+    "exports": "warn",
+    "types": "warn",
+    "nsExports": "warn",
+    "nsTypes": "warn",
+    "enumMembers": "warn",
+    "classMembers": "warn",
+    "duplicates": "error"
+  },
+  "compilers": {
+    "css": "css",
+    "js": "tsx",
+    "json": "json",
+    "svg": "tsx",
+    "ts": "tsx"
+  }
+}

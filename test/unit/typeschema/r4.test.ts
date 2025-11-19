@@ -7,7 +7,10 @@ describe("TypeSchema R4 generation", async () => {
     const r4 = await mkR4Register();
 
     it("Bundle and elementReference", async () => {
-        const profile = r4.resolveFs(r4Package, "http://hl7.org/fhir/StructureDefinition/Bundle" as CanonicalUrl)!;
+        const profile = r4.resolveFs(r4Package, "http://hl7.org/fhir/StructureDefinition/Bundle" as CanonicalUrl);
+        if (!profile) {
+            throw new Error("Bundle profile not found");
+        }
         const ts = (await registerFsAndMkTs(r4, profile))[0] as RegularTypeSchema;
         expect(ts?.nested).toHaveLength(5);
         expect(ts).toMatchObject({
@@ -47,7 +50,10 @@ describe("TypeSchema R4 generation", async () => {
     });
 
     it("markdown", async () => {
-        const md = r4.resolveFs(r4Package, "http://hl7.org/fhir/StructureDefinition/markdown" as CanonicalUrl)!;
+        const md = r4.resolveFs(r4Package, "http://hl7.org/fhir/StructureDefinition/markdown" as CanonicalUrl);
+        if (!md) {
+            throw new Error("markdown type not found");
+        }
         const ts = (await registerFsAndMkTs(r4, md))[0] as RegularTypeSchema;
         expect(ts).toMatchObject({
             identifier: {
@@ -67,9 +73,13 @@ describe("TypeSchema R4 generation", async () => {
         const parameters = r4.resolveFs(
             r4Package,
             "http://hl7.org/fhir/StructureDefinition/Parameters" as CanonicalUrl,
-        )!;
+        );
+        if (!parameters) {
+            throw new Error("Parameters resource not found");
+        }
         const ts = (await registerFsAndMkTs(r4, parameters))[0] as RegularTypeSchema;
-        expect(ts.dependencies!).toContainEqual({
+        expect(ts.dependencies).toBeDefined();
+        expect(ts.dependencies).toContainEqual({
             kind: "primitive-type",
             package: "hl7.fhir.r4.core",
             version: "4.0.1",

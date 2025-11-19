@@ -36,7 +36,7 @@ export class CodegenLogger {
         };
     }
 
-    private static consoleLevelsMap: Record<LogLevel, Function> = {
+    private static consoleLevelsMap: Record<LogLevel, (...data: any[]) => void> = {
         [LogLevel.INFO]: console.log,
         [LogLevel.WARN]: console.warn,
         [LogLevel.ERROR]: console.error,
@@ -183,7 +183,7 @@ export function info(message: string): void {
     defaultLogger.info(message);
 }
 
-export function debug(message: string): void {
+function _debug(message: string): void {
     defaultLogger.debug(message);
 }
 
@@ -191,11 +191,11 @@ export function step(message: string): void {
     defaultLogger.step(message);
 }
 
-export function progress(message: string): void {
+function _progress(message: string): void {
     defaultLogger.progress(message);
 }
 
-export function plain(message: string, color?: (str: string) => string): void {
+function _plain(message: string, color?: (str: string) => string): void {
     defaultLogger.plain(message, color);
 }
 
@@ -232,7 +232,7 @@ export function header(title: string): void {
 /**
  * Show a section break
  */
-export function section(title: string): void {
+function _section(title: string): void {
     console.log();
     console.log(pc.bold(title));
 }
@@ -266,7 +266,7 @@ export function list(items: string[], bullet = "•"): void {
 /**
  * Show key-value pairs
  */
-export function table(data: Record<string, string | number>): void {
+function _table(data: Record<string, string | number>): void {
     const maxKeyLength = Math.max(...Object.keys(data).map((k) => k.length));
     Object.entries(data).forEach(([key, value]) => {
         const paddedKey = key.padEnd(maxKeyLength);

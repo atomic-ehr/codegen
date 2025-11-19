@@ -92,7 +92,10 @@ describe("TypeSchema Processing constraint generation", async () => {
         const profile = r4.resolveFs(
             r4Package,
             "http://hl7.org/fhir/StructureDefinition/shareablecodesystem" as CanonicalUrl,
-        )!;
+        );
+        if (!profile) {
+            throw new Error("shareablecodesystem profile not found");
+        }
         expect(await registerFsAndMkTs(r4, profile)).toMatchObject([
             {
                 base: { kind: "resource", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem" },

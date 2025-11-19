@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import Path from "node:path";
 import { pascalCase, uppercaseFirstLetter, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils.ts";
-import { Writer, type PartialBy, type WriterOptions } from "@root/api/writer-generator/writer.ts";
+import { type PartialBy, Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
 import type { Field, Identifier, RegularField } from "@typeschema/types";
 import { type ChoiceFieldInstance, isChoiceDeclarationField, type RegularTypeSchema } from "@typeschema/types.ts";
 import type { TypeSchemaIndex } from "@typeschema/utils.ts";
@@ -75,7 +75,7 @@ const isReservedTypeName = (name: string): boolean => RESERVED_TYPE_NAMES.includ
 
 const prefixReservedTypeName = (name: string): string => (isReservedTypeName(name) ? `Resource${name}` : name);
 
-type CSharpGeneratorOptions = WriterOptions & {
+export type CSharpGeneratorOptions = WriterOptions & {
     outputDir: string;
     staticSourceDir?: string;
     targetNamespace: string;

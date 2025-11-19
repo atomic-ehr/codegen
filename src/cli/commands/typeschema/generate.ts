@@ -6,10 +6,10 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
+import { complete, createLogger, list } from "@root/utils/codegen-logger";
 import { TypeSchemaGenerator } from "@typeschema/generator";
 import type { CommandModule } from "yargs";
 import { loadConfig } from "../../../config";
-import { complete, createLogger, list } from "../../utils/log";
 
 interface GenerateTypeschemaArgs {
     packages: string[];
@@ -126,7 +126,8 @@ export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, G
             // Use the output format determined earlier
 
             // Ensure output directory exists
-            const outputPath = argv.output!;
+            const outputPath = argv.output;
+            if (!outputPath) throw new Error("Output format not specified");
             await mkdir(dirname(outputPath), { recursive: true });
 
             // Format and write the schemas

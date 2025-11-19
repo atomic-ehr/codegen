@@ -9,16 +9,13 @@ import * as fs from "node:fs";
 import * as afs from "node:fs/promises";
 import * as Path from "node:path";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
-import type { GeneratedFile } from "@root/api/generators/base/types";
 import { CSharp } from "@root/api/writer-generator/csharp/csharp";
 import { registerFromManager } from "@root/typeschema/register";
-import { mkTypeSchemaIndex, type TreeShake, treeShake } from "@root/typeschema/utils";
-import { generateTypeSchemas, TypeSchemaCache, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";
+import { mkTypeSchemaIndex, type TreeShake, type TypeSchemaIndex, treeShake } from "@root/typeschema/utils";
+import { generateTypeSchemas, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";
 import { extractNameFromCanonical, packageMetaToFhir, packageMetaToNpm, type TypeSchema } from "@typeschema/types";
-import type { Config, TypeSchemaConfig } from "../config";
+import type { TypeSchemaConfig } from "../config";
 import { CodegenLogger, createLogger } from "../utils/codegen-logger";
-import type { GeneratorInput } from "./generators/base/BaseGenerator";
-import { TypeScriptGenerator as TypeScriptGeneratorDepricated } from "./generators/typescript";
 import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript";
 import type { Writer, WriterOptions } from "./writer-generator/writer";
 
@@ -57,6 +54,14 @@ export interface GenerationResult {
     duration: number;
 }
 
+export interface GeneratedFile {
+    path: string;
+    filename: string;
+    timestamp: Date;
+}
+
+export type GeneratorInput = { schemas: TypeSchema[]; index: TypeSchemaIndex };
+
 interface Generator {
     generate: (input: GeneratorInput) => Promise<GeneratedFile[]>;
     setOutputDir: (outputDir: string) => void;
@@ -65,13 +70,10 @@ interface Generator {
 
 const writerToGenerator = (writerGen: Writer): Generator => {
     const getGeneratedFiles = () => {
-        return writerGen.writtenFiles().map((fn: string) => {
+        return writerGen.writtenFiles().map((fn: string): GeneratedFile => {
             return {
                 path: Path.normalize(Path.join(writerGen.opts.outputDir, fn)),
                 filename: fn.replace(/^.*[\\/]/, ""),
-                content: "",
-                exports: [],
-                size: 0,
                 timestamp: new Date(),
             };
         });
@@ -206,7 +208,6 @@ export class APIBuilder {
     private schemas: TypeSchema[] = [];
     private options: APIBuilderConfig;
     private generators: Map<string, Generator> = new Map();
-    private cache?: TypeSchemaCache;
     private pendingOperations: Promise<void>[] = [];
     private typeSchemaGenerator?: TypeSchemaGenerator;
     private logger: CodegenLogger;
@@ -238,10 +239,6 @@ export class APIBuilder {
                 verbose: this.options.verbose,
                 prefix: "API",
             });
-
-        if (this.options.cache) {
-            this.cache = new TypeSchemaCache(this.typeSchemaConfig);
-        }
     }
 
     fromPackage(packageName: string, version?: string): APIBuilder {
@@ -265,47 +262,6 @@ export class APIBuilder {
     fromSchemas(schemas: TypeSchema[]): APIBuilder {
         this.logger.debug(`Adding ${schemas.length} TypeSchemas to generation`);
         this.schemas = [...this.schemas, ...schemas];
-        return this;
-    }
-
-    typescriptDepricated(
-        options: {
-            moduleFormat?: "esm" | "cjs";
-            generateIndex?: boolean;
-            includeDocuments?: boolean;
-            namingConvention?: "PascalCase" | "camelCase";
-            includeExtensions?: boolean;
-            includeProfiles?: boolean;
-            generateValueSets?: boolean;
-            includeValueSetHelpers?: boolean;
-            valueSetStrengths?: ("required" | "preferred" | "extensible" | "example")[];
-            valueSetMode?: "all" | "required-only" | "custom";
-            valueSetDirectory?: string;
-        } = {},
-    ): APIBuilder {
-        const typesOutputDir = `${this.options.outputDir}/types`;
-
-        const generator = new TypeScriptGeneratorDepricated({
-            outputDir: typesOutputDir,
-            moduleFormat: options.moduleFormat || "esm",
-            generateIndex: options.generateIndex ?? true,
-            includeDocuments: options.includeDocuments ?? true,
-            namingConvention: options.namingConvention || "PascalCase",
-            includeExtensions: options.includeExtensions ?? false,
-            includeProfiles: options.includeProfiles ?? false,
-            generateValueSets: options.generateValueSets ?? false,
-            includeValueSetHelpers: options.includeValueSetHelpers ?? false,
-            valueSetStrengths: options.valueSetStrengths ?? ["required"],
-            logger: this.logger.child("TS"),
-            valueSetMode: options.valueSetMode ?? "required-only",
-            valueSetDirectory: options.valueSetDirectory ?? "valuesets",
-            verbose: this.options.verbose,
-            validate: true, // Enable validation for debugging
-            overwrite: this.options.overwrite,
-        });
-
-        this.generators.set("typescript", generator);
-        this.logger.debug(`Configured TypeScript generator (${options.moduleFormat || "esm"})`);
         return this;
     }
 
@@ -510,14 +466,11 @@ export class APIBuilder {
 
     private async loadFromFiles(filePaths: string[]): Promise<void> {
         if (!this.typeSchemaGenerator) {
-            this.typeSchemaGenerator = new TypeSchemaGenerator(
-                {
-                    verbose: this.options.verbose,
-                    logger: this.logger.child("Schema"),
-                    treeshake: this.typeSchemaConfig?.treeshake,
-                },
-                this.typeSchemaConfig,
-            );
+            this.typeSchemaGenerator = new TypeSchemaGenerator({
+                verbose: this.options.verbose,
+                logger: this.logger.child("Schema"),
+                treeshake: this.typeSchemaConfig?.treeshake,
+            });
         }
 
         const parser = new TypeSchemaParser({
@@ -526,10 +479,6 @@ export class APIBuilder {
 
         const schemas = await parser.parseFromFiles(filePaths);
         this.schemas = [...this.schemas, ...schemas];
-
-        if (this.cache) {
-            this.cache.setMany(schemas);
-        }
     }
 
     private async executeGenerators(result: GenerationResult, input: GeneratorInput): Promise<void> {
@@ -548,37 +497,4 @@ export class APIBuilder {
             }
         }
     }
-}
-
-/**
- * Create an API builder instance from a configuration object
- */
-export function createAPIFromConfig(config: Config): APIBuilder {
-    const builder = new APIBuilder({
-        outputDir: config.outputDir,
-        verbose: config.verbose,
-        overwrite: config.overwrite,
-        cache: config.cache,
-        cleanOutput: config.cleanOutput,
-        typeSchemaConfig: config.typeSchema,
-    });
-
-    // Add packages if specified
-    if (config.packages && config.packages.length > 0) {
-        for (const pkg of config.packages) {
-            builder.fromPackage(pkg);
-        }
-    }
-
-    // Add files if specified
-    if (config.files && config.files.length > 0) {
-        builder.fromFiles(...config.files);
-    }
-
-    // Configure TypeScript generator if specified
-    if (config.typescript) {
-        builder.typescriptDepricated(config.typescript);
-    }
-
-    return builder;
 }

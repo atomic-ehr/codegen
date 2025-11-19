@@ -4,8 +4,8 @@
  * Commands for validating and managing TypeSchema files
  */
 
+import { error, info, list } from "@root/utils/codegen-logger";
 import type { CommandModule } from "yargs";
-import { error, info, list } from "../utils/log";
 import { generateTypeschemaCommand } from "./typeschema/generate";
 
 /**

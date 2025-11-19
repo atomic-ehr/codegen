@@ -344,7 +344,7 @@ type ValueSetCompose = {
     include: {
         concept?: Concept[];
         system?: string;
-        filter?: {}[];
+        filter?: unknown[];
     }[];
 };
 

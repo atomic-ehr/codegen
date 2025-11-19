@@ -7,10 +7,10 @@
 
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
+import { createLogger, error, step, success, warn } from "@root/utils/codegen-logger";
 import type { CommandModule } from "yargs";
 import { APIBuilder } from "../../api/index";
 import { CONFIG_FILE_NAMES, loadConfig } from "../../config";
-import { createLogger, error, step, success, warn } from "../utils/log";
 import type { CLIArgv } from "./index";
 
 interface GenerateArgs extends CLIArgv {
@@ -119,14 +119,7 @@ export const generateCommand: CommandModule<Record<string, unknown>, GenerateArg
 
             // Configure generators from config
             if (config.typescript) {
-                if (verbose) {
-                    logger.info("Configuring TypeScript generation from config");
-                    logger.debug(`Module format: ${config.typescript.moduleFormat || "esm"}`);
-                    logger.debug(`Generate index: ${config.typescript.generateIndex ?? true}`);
-                    logger.debug(`Include docs: ${config.typescript.includeDocuments ?? false}`);
-                    logger.debug(`Naming convention: ${config.typescript.namingConvention || "PascalCase"}`);
-                }
-                builder.typescriptDepricated(config.typescript);
+                throw new Error("Not Implemented");
             }
 
             // Check that at least one generator is configured

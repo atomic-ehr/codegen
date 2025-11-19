@@ -6,9 +6,9 @@
  * Modern CLI with subcommands for typeschema and code generation
  */
 
+import { configure, error, header } from "@root/utils/codegen-logger";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { configure, error, header } from "../utils/log";
 import { generateCommand } from "./generate";
 import { typeschemaCommand } from "./typeschema";
 

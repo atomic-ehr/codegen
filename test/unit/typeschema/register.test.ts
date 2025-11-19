@@ -27,7 +27,10 @@ describe("Register tests", async () => {
             const patientSD = r4.resolveSd(
                 r4Package,
                 "http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl,
-            )!;
+            );
+            if (!patientSD) {
+                throw new Error("Patient StructureDefinition not found");
+            }
             expect(patientSD).toBeDefined();
         });
     });
@@ -37,17 +40,20 @@ describe("Register tests", async () => {
             const patientFS = r4.resolveFs(
                 r4Package,
                 "http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl,
-            )!;
+            );
+            if (!patientFS) {
+                throw new Error("Patient FHIRSchema not found");
+            }
             expect(patientFS).toBeDefined();
             expect(patientFS.package_meta).toMatchObject(r4Package);
         });
     });
 
     describe("Genealogy", () => {
-        const pat = r4.resolveFsGenealogy(
-            r4Package,
-            "http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl,
-        )!;
+        const pat = r4.resolveFsGenealogy(r4Package, "http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl);
+        if (!pat) {
+            throw new Error("Patient genealogy not found");
+        }
 
         expect(pat.map((fs) => fs.url)).toMatchObject([
             "http://hl7.org/fhir/StructureDefinition/Patient",
