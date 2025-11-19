@@ -48,6 +48,9 @@ test-typescript-r4-example: typecheck format lint
 	$(TYPECHECK) --project tsconfig.example-typescript-r4.json
 	cd examples/typescript-r4 && bun run demo.ts > /dev/null
 
+test-typescript-sql-on-fhir-example: typecheck format lint
+	bun run examples/typescript-sql-on-fhir/generate.ts
+
 test-typescript-ccda-example: typecheck format lint
 	$(TEST) test/unit/typeschema/transformer/ccda.test.ts
 	bun run examples/typescript-ccda/generate.ts

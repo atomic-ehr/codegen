@@ -510,6 +510,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         const typesToGenerate = [
             ...tsIndex.collectComplexTypes(),
             ...tsIndex.collectResources(),
+            ...tsIndex.collectLogicalModels(),
             // ...tsIndex.collectLogicalModels(),
             ...(this.opts.generateProfile
                 ? tsIndex
