@@ -10,7 +10,11 @@ if (require.main === module) {
         .verbose()
         .throwException()
         .fromPackage("hl7.fhir.r4.core", "4.0.1")
-        .typescript({ withDebugComment: false, generateProfile: true })
+        .typescript({
+            withDebugComment: false,
+            generateProfile: true,
+            openResourceTypeSet: false,
+        })
         // .typescript({ withDebugComment: false, generateProfile: false })
         // .fromPackageRef("https://build.fhir.org/ig/FHIR/sql-on-fhir-v2//package.tgz")
         // .writeTypeSchemas("examples/r4-type-schema")

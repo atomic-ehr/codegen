@@ -112,9 +112,16 @@ const tsEnumType = (enumValues: string[]) => {
     return `(${enumValues.map((e) => `"${e}"`).join(" | ")})`;
 };
 
-export type TypeScriptOptions = {} & WriterOptions;
+export type TypeScriptOptions = {
+    /** openResourceTypeSet -- for resource families (Resource, DomainResource) use open set for resourceType field.
+     *
+     * - when openResourceTypeSet is false: `type Resource = { resourceType: "Resource" | "DomainResource" | "Patient" }`
+     * - when openResourceTypeSet is true: `type Resource = { resourceType: "Resource" | "DomainResource" | "Patient" | string }`
+     */
+    openResourceTypeSet: boolean;
+} & WriterOptions;
 
-export class TypeScript extends Writer {
+export class TypeScript extends Writer<TypeScriptOptions> {
     tsImportType(tsPackageName: string, ...entities: string[]) {
         this.lineSM(`import type { ${entities.join(", ")} } from "${tsPackageName}"`);
     }
@@ -239,11 +246,13 @@ export class TypeScript extends Writer {
             if (isResourceTypeSchema(schema)) {
                 const possibleResourceTypes = [schema.identifier];
                 possibleResourceTypes.push(...tsIndex.resourceChildren(schema.identifier));
+                const openSetSuffix =
+                    this.opts.openResourceTypeSet && possibleResourceTypes.length > 1 ? " | string" : "";
                 this.lineSM(
                     `resourceType: ${possibleResourceTypes
                         .sort((a, b) => a.name.localeCompare(b.name))
                         .map((e) => `"${e.name}"`)
-                        .join(" | ")}`,
+                        .join(" | ")}${openSetSuffix}`,
                 );
                 this.line();
             }

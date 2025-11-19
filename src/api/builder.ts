@@ -10,7 +10,7 @@ import * as afs from "node:fs/promises";
 import * as Path from "node:path";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { GeneratedFile } from "@root/api/generators/base/types";
-import { CSharp } from "@root/api/writer-generator/csharp/csharp.ts";
+import { CSharp } from "@root/api/writer-generator/csharp/csharp";
 import { registerFromManager } from "@root/typeschema/register";
 import { mkTypeSchemaIndex, type TreeShake, treeShake } from "@root/typeschema/utils";
 import { generateTypeSchemas, TypeSchemaCache, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";
@@ -19,7 +19,7 @@ import type { Config, TypeSchemaConfig } from "../config";
 import { CodegenLogger, createLogger } from "../utils/codegen-logger";
 import type { GeneratorInput } from "./generators/base/BaseGenerator";
 import { TypeScriptGenerator as TypeScriptGeneratorDepricated } from "./generators/typescript";
-import * as TS2 from "./writer-generator/typescript";
+import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript";
 import type { Writer, WriterOptions } from "./writer-generator/writer";
 
 /**
@@ -309,19 +309,26 @@ export class APIBuilder {
         return this;
     }
 
-    typescript(opts: Partial<WriterOptions>) {
-        const writerOpts = {
+    typescript(userOpts: Partial<TypeScriptOptions>) {
+        const defaultWriterOpts: WriterOptions = {
+            logger: this.logger,
             outputDir: Path.join(this.options.outputDir, "/types"),
             tabSize: 4,
             withDebugComment: false,
             commentLinePrefix: "//",
             generateProfile: true,
-            exportTypeTree: this.options.exportTypeTree,
         };
-        const effectiveOpts = { logger: this.logger, ...writerOpts, ...opts };
-        const generator = writerToGenerator(new TS2.TypeScript(effectiveOpts));
+        const defaultTsOpts: TypeScriptOptions = {
+            ...defaultWriterOpts,
+            openResourceTypeSet: false,
+        };
+        const opts: TypeScriptOptions = {
+            ...defaultTsOpts,
+            ...Object.fromEntries(Object.entries(userOpts).filter(([_, v]) => v !== undefined)),
+        };
+        const generator = writerToGenerator(new TypeScript(opts));
         this.generators.set("typescript", generator);
-        this.logger.debug(`Configured TypeScript generator (${JSON.stringify(effectiveOpts, undefined, 2)})`);
+        this.logger.debug(`Configured TypeScript generator (${JSON.stringify(opts, undefined, 2)})`);
         return this;
     }
 
