@@ -8,7 +8,14 @@ import { generateProfileFactory } from "./profile-factory";
 import { generateNestedTypes, generateType } from "./resource";
 import { tsFhirPackageDir, tsModuleFileName, tsModuleName, tsResourceName } from "./utils";
 
-export type TypeScriptOptions = WriterOptions;
+export type TypeScriptOptions = {
+    /** openResourceTypeSet -- for resource families (Resource, DomainResource) use open set for resourceType field.
+     *
+     * - when openResourceTypeSet is false: `type Resource = { resourceType: "Resource" | "DomainResource" | "Patient" }`
+     * - when openResourceTypeSet is true: `type Resource = { resourceType: "Resource" | "DomainResource" | "Patient" | string }`
+     */
+    openResourceTypeSet?: boolean;
+} & WriterOptions;
 
 /**
  * TypeScript code generator
@@ -21,11 +28,29 @@ export class TypeScript extends Writer {
     generateFhirPackageIndexFile(schemas: TypeSchema[]): void {
         this.cat("index.ts", () => {
             let exports = schemas
-                .map((schema) => ({
-                    identifier: schema.identifier,
-                    tsPackageName: tsModuleName(schema.identifier),
-                    resourceName: tsResourceName(schema.identifier),
-                }))
+                .flatMap((schema) => {
+                    // Determine if this schema has nested types
+                    const nestedTypes: string[] = [];
+                    if ("nested" in schema && schema.nested) {
+                        nestedTypes.push(...schema.nested.map((n) => tsResourceName(n.identifier)));
+                    }
+
+                    // Determine if this schema has helpers (type predicates)
+                    const helpers: string[] = [];
+                    if (schema.identifier.kind === "resource" || schema.identifier.kind === "logical") {
+                        helpers.push(`is${tsResourceName(schema.identifier)}`);
+                    }
+
+                    return [
+                        {
+                            identifier: schema.identifier,
+                            tsPackageName: tsModuleName(schema.identifier),
+                            resourceName: tsResourceName(schema.identifier),
+                            nestedTypes,
+                            helpers,
+                        },
+                    ];
+                })
                 .sort((a, b) => a.resourceName.localeCompare(b.resourceName));
 
             // FIXME: actually, duplication may mean internal error...
@@ -35,7 +60,15 @@ export class TypeScript extends Writer {
 
             for (const exp of exports) {
                 this.debugComment(exp.identifier);
-                this.lineSM(`export type { ${exp.resourceName} } from "./${exp.tsPackageName}"`);
+
+                // Export types (main type + nested types)
+                const allTypes = [exp.resourceName, ...exp.nestedTypes];
+                this.lineSM(`export type { ${allTypes.join(", ")} } from "./${exp.tsPackageName}"`);
+
+                // Export helpers (type predicates)
+                if (exp.helpers.length > 0) {
+                    this.lineSM(`export { ${exp.helpers.join(", ")} } from "./${exp.tsPackageName}"`);
+                }
             }
         });
     }
@@ -61,7 +94,7 @@ export class TypeScript extends Writer {
                 if (["complex-type", "resource", "logical"].includes(schema.identifier.kind)) {
                     this.generateResourceFile(tsIndex, schema as RegularTypeSchema);
                 } else {
-                    throw new Error(`Profile generation not implemented for kind: ${schema.identifier.kind}`);
+                    throw new Error(`Generation not implemented for kind: ${schema.identifier.kind}`);
                 }
             });
         }
@@ -114,11 +147,11 @@ export class TypeScript extends Writer {
         const typesToGenerate = [
             ...tsIndex.collectComplexTypes(),
             ...tsIndex.collectResources(),
-            // ...tsIndex.collectLogicalModels(),
+            ...tsIndex.collectLogicalModels(),
         ];
 
-        // Only add profiles if withProfiles option is enabled
-        if (this.opts.withProfiles) {
+        // Only add profiles if generateProfile option is enabled
+        if (this.opts.generateProfile) {
             typesToGenerate.push(
                 ...tsIndex
                     .collectProfiles()

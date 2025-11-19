@@ -2,6 +2,7 @@ import type { Writer } from "@root/api/writer-generator/writer";
 import type { RegularField, RegularTypeSchema } from "@root/typeschema/types";
 import {
     isChoiceDeclarationField,
+    isLogicalTypeSchema,
     isNestedIdentifier,
     isPrimitiveIdentifier,
     isResourceTypeSchema,
@@ -29,15 +30,20 @@ export function generateType(writer: Writer, tsIndex: TypeSchemaIndex, schema: R
 
     writer.debugComment(schema.identifier);
     writer.curlyBlock(["export", "interface", name, extendsClause], () => {
-        // Add resourceType for resources
-        if (isResourceTypeSchema(schema)) {
+        // Add resourceType for resources and logical models
+        if (isResourceTypeSchema(schema) || isLogicalTypeSchema(schema)) {
             const possibleResourceTypes = [schema.identifier];
             possibleResourceTypes.push(...tsIndex.resourceChildren(schema.identifier));
+
+            // Check if we should add string as open type set
+            const openSetSuffix =
+                writer.opts.openResourceTypeSet && possibleResourceTypes.length > 1 ? " | string" : "";
+
             writer.lineSM(
                 `resourceType: ${possibleResourceTypes
                     .sort((a, b) => a.name.localeCompare(b.name))
                     .map((e) => `"${e.name}"`)
-                    .join(" | ")}`,
+                    .join(" | ")}${openSetSuffix}`,
             );
             writer.line();
         }
@@ -54,8 +60,8 @@ export function generateType(writer: Writer, tsIndex: TypeSchemaIndex, schema: R
         }
     });
 
-    // Generate type predicate for resources
-    if (isResourceTypeSchema(schema)) {
+    // Generate type predicate for resources and logical models
+    if (isResourceTypeSchema(schema) || isLogicalTypeSchema(schema)) {
         writer.line();
         generateResourceTypePredicate(writer, schema);
     }
@@ -66,7 +72,7 @@ export function generateType(writer: Writer, tsIndex: TypeSchemaIndex, schema: R
  */
 function generateField(
     writer: Writer,
-    tsIndex: TypeSchemaIndex,
+    _tsIndex: TypeSchemaIndex,
     schema: RegularTypeSchema,
     fieldName: string,
     field: RegularField,
@@ -105,7 +111,7 @@ function generateField(
 /**
  * Add field extension metadata (for primitive type extensions)
  */
-export function addFieldExtension(writer: Writer, fieldName: string, field: RegularField): void {
+function addFieldExtension(writer: Writer, fieldName: string, field: RegularField): void {
     if (field.type.kind === "primitive-type") {
         const extFieldName = tsFieldName(`_${fieldName}`);
         writer.lineSM(`${extFieldName}?: Element`);
@@ -129,8 +135,8 @@ export function generateNestedTypes(writer: Writer, tsIndex: TypeSchemaIndex, sc
 /**
  * Generate type predicate function for resource type checking
  */
-export function generateResourceTypePredicate(writer: Writer, schema: RegularTypeSchema): void {
-    if (!isResourceTypeSchema(schema)) return;
+function generateResourceTypePredicate(writer: Writer, schema: RegularTypeSchema): void {
+    if (!isResourceTypeSchema(schema) && !isLogicalTypeSchema(schema)) return;
 
     const name = tsResourceName(schema.identifier);
     const resourceTypeName = schema.identifier.name;

@@ -308,7 +308,7 @@ function transformProfile(register: Register, fhirSchema: RichFHIRSchema, logger
         if (extElement) {
             logger.debug(`  [DEBUG] extension element has slicing: ${extElement.slicing ? "YES" : "NO"}`);
             logger.debug(`  [DEBUG] extension element type: ${JSON.stringify(extElement.type).substring(0, 100)}`);
-            if (extElement.slicing && extElement.slicing.slices) {
+            if (extElement.slicing?.slices) {
                 logger.debug(`  [DEBUG] slicing discriminator: ${JSON.stringify(extElement.slicing.discriminator)}`);
                 logger.debug(
                     `  [DEBUG] slicing slices: ${JSON.stringify(Object.keys(extElement.slicing.slices || {}))}`,

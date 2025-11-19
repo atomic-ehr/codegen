@@ -11,7 +11,7 @@ if (require.main === module) {
         .throwException()
         .logLevel(LogLevel.INFO)
         .fromPackage("hl7.fhir.us.core", "6.1.0")
-        .typescript({ withDebugComment: false, withProfiles: true })
+        .typescript({ withDebugComment: false, generateProfile: true })
         .outputTo("./examples/typescript-us-core/fhir-types")
         .writeTypeTree("./examples/typescript-us-core/type-tree.yaml")
         .cleanOutput(true);

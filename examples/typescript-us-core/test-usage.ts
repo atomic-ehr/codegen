@@ -3,24 +3,26 @@
  */
 
 import type { Patient } from "./fhir-types/hl7-fhir-r4-core/Patient";
-import { USCorePatientProfile } from "./fhir-types/hl7-fhir-us-core/profiles/USCorePatientProfile";
-import { createUSCorePatientProfile } from "./fhir-types/hl7-fhir-us-core/profiles/USCorePatientProfile";
+import {
+    createUSCorePatientProfile,
+    USCorePatientProfile,
+} from "./fhir-types/hl7-fhir-us-core/profiles/USCorePatientProfile";
 
 // Test 1: Create a profile from an existing patient resource
 const patientResource: Patient = {
-	resourceType: "Patient",
-	id: "example",
-	meta: {
-		profile: ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"],
-	},
-	name: [
-		{
-			family: "Smith",
-			given: ["John"],
-		},
-	],
-	gender: "male",
-	birthDate: "1990-01-01",
+    resourceType: "Patient",
+    id: "example",
+    meta: {
+        profile: ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"],
+    },
+    name: [
+        {
+            family: "Smith",
+            given: ["John"],
+        },
+    ],
+    gender: "male",
+    birthDate: "1990-01-01",
 };
 
 const profile = new USCorePatientProfile(patientResource);
@@ -36,8 +38,8 @@ console.log("Birth date:", profile.resource.birthDate); // ✅ Read access
 
 // Test 4: Use array helpers for constrained array fields (new feature!)
 profile.addIdentifier({
-	system: "http://example.org/mrn",
-	value: "12345",
+    system: "http://example.org/mrn",
+    value: "12345",
 }); // ✅ Add to constrained field
 
 console.log("Identifiers:", profile.identifier.length);
@@ -48,24 +50,24 @@ console.log("Removed identifiers:", removed);
 
 // Test 5: Use extension accessors (new feature!)
 profile.birthsex = {
-	url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex",
-	valueCode: "M",
+    url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex",
+    valueCode: "M",
 }; // ✅ Property setter for extension
 
 console.log("Birth sex:", profile.birthsex?.valueCode); // ✅ Property getter for extension
 
 // Test 5: Collection extension
 profile.addGenderIdentity({
-	url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-genderIdentity",
-	valueCodeableConcept: {
-		coding: [
-			{
-				system: "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
-				code: "ASKU",
-				display: "asked but unknown",
-			},
-		],
-	},
+    url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-genderIdentity",
+    valueCodeableConcept: {
+        coding: [
+            {
+                system: "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
+                code: "ASKU",
+                display: "asked but unknown",
+            },
+        ],
+    },
 }); // ✅ Add to collection extension
 
 console.log("Gender identity extensions:", profile.genderIdentity.length);

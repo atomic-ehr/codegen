@@ -1,9 +1,4 @@
-import {
-    kebabCase,
-    pascalCase,
-    uppercaseFirstLetter,
-    uppercaseFirstLetterOfEach,
-} from "@root/api/writer-generator/utils";
+import { kebabCase, pascalCase, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils";
 import type { CanonicalUrl, Identifier } from "@root/typeschema/types";
 import { extractNameFromCanonical } from "@root/typeschema/types";
 

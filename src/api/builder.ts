@@ -15,7 +15,7 @@ import { mkTypeSchemaIndex, type TreeShake, type TypeSchemaIndex, treeShake } fr
 import { generateTypeSchemas, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";
 import { extractNameFromCanonical, packageMetaToFhir, packageMetaToNpm, type TypeSchema } from "@typeschema/types";
 import type { TypeSchemaConfig } from "../config";
-import { CodegenLogger, createLogger } from "../utils/codegen-logger";
+import { type CodegenLogger, createLogger, type LogLevel } from "../utils/codegen-logger";
 import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript";
 import type { Writer, WriterOptions } from "./writer-generator/writer";
 
@@ -294,12 +294,7 @@ export class APIBuilder {
                 outputDir: Path.join(this.options.outputDir, "/types"),
                 staticSourceDir: staticSourceDir ?? undefined,
                 targetNamespace: namespace,
-                logger: new CodegenLogger({
-                    prefix: "C#",
-                    timestamp: true,
-                    verbose: true,
-                    suppressLoggingLevel: [],
-                }),
+                logger: this.logger.child("C#"),
             }),
         );
         this.generators.set("C#", generator);
@@ -335,6 +330,11 @@ export class APIBuilder {
     verbose(enabled = true): APIBuilder {
         this.options.verbose = enabled;
         this.logger?.configure({ verbose: enabled });
+        return this;
+    }
+
+    logLevel(level: LogLevel): APIBuilder {
+        this.logger?.configure({ logLevel: level });
         return this;
     }
 
