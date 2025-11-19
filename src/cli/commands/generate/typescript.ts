@@ -51,7 +51,9 @@ export async function generateTypeScript(config: Config, inputPath?: string): Pr
         log.success(`Generated ${result.filesGenerated.length} TypeScript files in ${result.duration.toFixed(2)}ms`);
         if (result.warnings.length > 0) {
             log.warn(`${result.warnings.length} warnings found`);
-            result.warnings.forEach((warning) => log.dim(`  ${warning}`));
+            result.warnings.forEach((warning) => {
+                log.dim(`  ${warning}`);
+            });
         }
     } else {
         log.error(`TypeScript generation failed: ${result.errors.join(", ")}`);

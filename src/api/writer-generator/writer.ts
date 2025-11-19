@@ -134,7 +134,9 @@ export class Writer<T extends WriterOptions = WriterOptions> extends FileSystemW
     }
 
     generateDisclaimer() {
-        this.disclaimer().forEach((e) => this.comment(e));
+        this.disclaimer().forEach((e) => {
+            this.comment(e);
+        });
         this.line();
     }
 

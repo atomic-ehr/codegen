@@ -426,7 +426,9 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
         if ("fields" in schema && schema.fields) {
             for (const [, field] of Object.entries(schema.fields)) {
                 const importDeps = this.collectFieldImports(field);
-                importDeps.forEach((imp) => imports.add(imp));
+                importDeps.forEach((imp) => {
+                    imports.add(imp);
+                });
             }
         }
 
@@ -739,7 +741,9 @@ export class TypeScriptGenerator extends BaseGenerator<TypeScriptGeneratorOption
                 } else if (typeString === "Reference" && field.reference && Array.isArray(field.reference)) {
                     const referenceTypes = this.extractReferenceTypes(field.reference);
                     if (referenceTypes.length > 0) {
-                        referenceTypes.forEach((type) => this.resourceTypes.add(type));
+                        referenceTypes.forEach((type) => {
+                            this.resourceTypes.add(type);
+                        });
 
                         const unionType = referenceTypes.map((type) => `'${type}'`).join(" | ");
                         typeString = `Reference<${unionType}>`;
