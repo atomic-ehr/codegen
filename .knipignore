@@ -1,0 +1,5 @@
+# Test helpers are intentionally exported for use across test files
+test/helpers/**
+
+# Keep all exported types - they might be used by TypeScript consumers
+**/*.d.ts
