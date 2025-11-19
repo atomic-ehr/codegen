@@ -14,6 +14,9 @@ import {
     isProfileIdentifier,
     type NestedType,
     packageMetaToFhir,
+    type ProfileConstraint,
+    type ProfileExtension,
+    type ProfileTypeSchema,
     type RichFHIRSchema,
     type RichValueSet,
     type TypeSchema,
@@ -60,6 +63,13 @@ function extractFieldDependencies(fields: Record<string, Field>): Identifier[] {
     }
 
     return deps;
+}
+
+/**
+ * Check if FHIRSchema represents a profile (constraint derivation)
+ */
+function isProfileSchema(fhirSchema: FHIRSchema): boolean {
+    return fhirSchema.derivation === "constraint";
 }
 
 /**
@@ -136,6 +146,194 @@ export function extractDependencies(
     return result.length > 0 ? result : undefined;
 }
 
+/**
+ * Extract constraint metadata from FHIRSchema elements
+ */
+function extractConstraints(
+    fhirSchema: RichFHIRSchema,
+    fields: Record<string, Field> | undefined,
+): Record<string, ProfileConstraint> | undefined {
+    if (!fhirSchema.elements || !fields) return undefined;
+
+    const constraints: Record<string, ProfileConstraint> = {};
+
+    for (const [path, element] of Object.entries(fhirSchema.elements)) {
+        const constraint: ProfileConstraint = {};
+
+        // Cardinality
+        if (element.min !== undefined) {
+            constraint.min = element.min;
+        }
+        if (element.max !== undefined) {
+            constraint.max = String(element.max);
+        }
+
+        // MustSupport
+        if (element.mustSupport) {
+            constraint.mustSupport = true;
+        }
+
+        // Pattern values
+        if (element.pattern) {
+            constraint.patternValue = element.pattern;
+        }
+
+        // Binding constraints
+        if (element.binding) {
+            constraint.binding = {
+                strength: element.binding.strength as any,
+                valueSet: element.binding.valueSet || "",
+            };
+        }
+
+        // Type constraints (narrowing)
+        if (element.type && Array.isArray(element.type)) {
+            constraint.types = element.type.map((t: any) => ({
+                code: t.code || t,
+                profile: t.profile,
+                targetProfile: t.targetProfile,
+            }));
+        }
+
+        // Slicing information
+        if (element.slicing) {
+            constraint.slicing = {
+                discriminator: element.slicing.discriminator || [],
+                rules: element.slicing.rules || "",
+                ordered: element.slicing.ordered,
+            };
+        }
+
+        // Only add if constraint has any properties
+        if (Object.keys(constraint).length > 0) {
+            constraints[path] = constraint;
+        }
+    }
+
+    return Object.keys(constraints).length > 0 ? constraints : undefined;
+}
+
+/**
+ * Extract extension declarations from profile
+ */
+function extractExtensions(
+    fhirSchema: RichFHIRSchema,
+    logger?: CodegenLogger,
+): ProfileExtension[] | undefined {
+    if (!fhirSchema.elements) return undefined;
+
+    const extensions: ProfileExtension[] = [];
+
+    // Extensions are elements with path containing "extension:" or "modifierExtension:"
+    for (const [path, element] of Object.entries(fhirSchema.elements)) {
+        if (path.includes("extension:") || path.includes("modifierExtension:")) {
+            // Extract extension slice name
+            const sliceName = path.split(":")[1];
+            if (!sliceName) continue;
+
+            // Get extension URL from type profile
+            let extensionUrl: string | string[] | undefined;
+            if (element.type) {
+                const types = Array.isArray(element.type) ? element.type : [element.type];
+                for (const t of types) {
+                    const typeObj = typeof t === "string" ? { code: t } : t;
+                    if (typeObj.code === "Extension" && typeObj.profile) {
+                        extensionUrl = typeObj.profile;
+                        break;
+                    }
+                }
+            }
+
+            if (!extensionUrl) {
+                logger?.warn(
+                    `Cannot determine URL for extension ${sliceName} in ${fhirSchema.url}`,
+                );
+                continue;
+            }
+
+            extensions.push({
+                path: sliceName,
+                profile: extensionUrl,
+                min: element.min,
+                max: element.max !== undefined ? String(element.max) : undefined,
+                mustSupport: element.mustSupport,
+            });
+        }
+    }
+
+    return extensions.length > 0 ? extensions : undefined;
+}
+
+/**
+ * Transform a profile (constraint derivation) to ProfileTypeSchema
+ */
+function transformProfile(
+    register: Register,
+    fhirSchema: RichFHIRSchema,
+    logger?: CodegenLogger,
+): ProfileTypeSchema {
+    const identifier = mkIdentifier(fhirSchema);
+
+    if (!isProfileIdentifier(identifier)) {
+        throw new Error(
+            `Expected profile identifier for ${fhirSchema.url}, got kind: ${identifier.kind}`,
+        );
+    }
+
+    logger?.debug(`Transforming profile: ${identifier.name}`);
+
+    // Get genealogy: [profile, ...parent profiles, base resource]
+    const genealogy = register.resolveFsGenealogy(
+        fhirSchema.package_meta,
+        fhirSchema.url,
+    );
+
+    if (genealogy.length === 0) {
+        throw new Error(`Cannot resolve genealogy for profile ${fhirSchema.url}`);
+    }
+
+    // Last in genealogy is the base resource
+    const baseResourceSchema = genealogy[genealogy.length - 1];
+    if (!baseResourceSchema) {
+        throw new Error(`Base resource not found for profile ${fhirSchema.url}`);
+    }
+    const baseIdentifier = mkIdentifier(baseResourceSchema);
+
+    logger?.debug(`  Base resource: ${baseIdentifier.name}`);
+
+    // Build constrained fields (Task 2 makes this work)
+    const fields = mkFields(register, fhirSchema, [], fhirSchema.elements, logger);
+
+    // Extract constraints
+    const constraints = extractConstraints(fhirSchema, fields);
+
+    // Extract extensions
+    const extensions = extractExtensions(fhirSchema, logger);
+
+    // Build nested types
+    const nested = mkNestedTypes(register, fhirSchema, logger);
+
+    // Collect dependencies
+    const dependencies = extractDependencies(identifier, baseIdentifier, fields, nested);
+
+    const profileSchema: ProfileTypeSchema = {
+        identifier,
+        base: baseIdentifier,
+        description: fhirSchema.description,
+        fields,
+        constraints,
+        extensions,
+        nested,
+        dependencies,
+    };
+
+    logger?.debug(`  Fields: ${Object.keys(fields || {}).length}`);
+    logger?.debug(`  Constraints: ${Object.keys(constraints || {}).length}`);
+    logger?.debug(`  Extensions: ${extensions?.length ?? 0}`);
+
+    return profileSchema;
+}
+
 function transformFhirSchemaResource(
     register: Register,
     fhirSchema: RichFHIRSchema,
@@ -179,7 +377,16 @@ export async function transformFhirSchema(
     fhirSchema: RichFHIRSchema,
     logger?: CodegenLogger,
 ): Promise<TypeSchema[]> {
+    // Check if this is a profile (constraint derivation)
+    if (isProfileSchema(fhirSchema)) {
+        logger?.debug(`Detected profile schema: ${fhirSchema.url}`);
+        const profileSchema = transformProfile(register, fhirSchema, logger);
+        return [profileSchema];
+    }
+
+    // Regular resource or complex type transformation
     const schemas = transformFhirSchemaResource(register, fhirSchema, logger);
+
     if (isExtensionSchema(fhirSchema, mkIdentifier(fhirSchema))) {
         const schema = schemas[0];
         if (!schema) throw new Error(`Expected schema to be defined`);

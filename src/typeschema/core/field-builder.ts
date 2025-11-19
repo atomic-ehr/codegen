@@ -85,13 +85,16 @@ export function buildFieldType(
         return mkIdentifier(fieldFs);
     } else if (element.choices) {
         return undefined;
-    } else if (fhirSchema.derivation === "constraint") {
-        return undefined; // FIXME: should be removed
     } else {
-        logger?.error(
-            `Can't recognize element type '${fhirSchema.url}' (${fhirSchema.derivation}) at '${path.join(".")}': ${JSON.stringify(element, undefined, 2)}`,
+        // For profiles (constraint derivation), if we reach here it means
+        // the element doesn't have an explicit type, choices, or elementReference.
+        // This is expected for constrained elements that inherit their type from base.
+        // The Register.resolveElementSnapshot() already applies constraints,
+        // so we let the caller handle this case (may return undefined for choice declarations).
+        logger?.warn(
+            `Element without explicit type at '${fhirSchema.url}' (${fhirSchema.derivation}) path '${path.join(".")}'. This may be a choice declaration or constrained element.`,
         );
-        throw new Error(`Unrecognized element type`);
+        return undefined;
     }
 }
 
