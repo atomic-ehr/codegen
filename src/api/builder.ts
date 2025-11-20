@@ -12,7 +12,7 @@ import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import { CSharp } from "@root/api/writer-generator/csharp/csharp";
 import { registerFromManager } from "@root/typeschema/register";
 import { mkTypeSchemaIndex, type TreeShake, type TypeSchemaIndex, treeShake } from "@root/typeschema/utils";
-import { generateTypeSchemas, TypeSchemaGenerator, TypeSchemaParser } from "@typeschema/index";
+import { generateTypeSchemas } from "@typeschema/index";
 import { extractNameFromCanonical, packageMetaToFhir, packageMetaToNpm, type TypeSchema } from "@typeschema/types";
 import type { TypeSchemaConfig } from "../config";
 import { CodegenLogger, createLogger } from "../utils/codegen-logger";
@@ -208,8 +208,6 @@ export class APIBuilder {
     private schemas: TypeSchema[] = [];
     private options: APIBuilderConfig;
     private generators: Map<string, Generator> = new Map();
-    private pendingOperations: Promise<void>[] = [];
-    private typeSchemaGenerator?: TypeSchemaGenerator;
     private logger: CodegenLogger;
     private packages: string[] = [];
     progressCallback: any;
@@ -249,13 +247,6 @@ export class APIBuilder {
 
     fromPackageRef(packageRef: string): APIBuilder {
         this.packages.push(packageRef);
-        return this;
-    }
-
-    fromFiles(...filePaths: string[]): APIBuilder {
-        this.logger.debug(`Loading from ${filePaths.length} TypeSchema files`);
-        const operation = this.loadFromFiles(filePaths);
-        this.pendingOperations.push(operation);
         return this;
     }
 
@@ -462,23 +453,6 @@ export class APIBuilder {
      */
     getGenerators(): string[] {
         return Array.from(this.generators.keys());
-    }
-
-    private async loadFromFiles(filePaths: string[]): Promise<void> {
-        if (!this.typeSchemaGenerator) {
-            this.typeSchemaGenerator = new TypeSchemaGenerator({
-                verbose: this.options.verbose,
-                logger: this.logger.child("Schema"),
-                treeshake: this.typeSchemaConfig?.treeshake,
-            });
-        }
-
-        const parser = new TypeSchemaParser({
-            format: "auto",
-        });
-
-        const schemas = await parser.parseFromFiles(filePaths);
-        this.schemas = [...this.schemas, ...schemas];
     }
 
     private async executeGenerators(result: GenerationResult, input: GeneratorInput): Promise<void> {

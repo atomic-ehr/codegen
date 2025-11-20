@@ -17,7 +17,6 @@ import { packageMetaToFhir, type TypeSchema } from "./types";
 
 // Re-export core dependencies
 export { TypeSchemaGenerator } from "./generator";
-export { TypeSchemaParser } from "./parser";
 export type { Identifier, TypeSchema } from "./types";
 
 const codeableReferenceInR4 = "Use CodeableReference which is not provided by FHIR R4.";

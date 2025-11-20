@@ -108,9 +108,7 @@ export const generateCommand: CommandModule<Record<string, unknown>, GenerateArg
                 }
             } else if (config.files && config.files.length > 0) {
                 logger.info(`Loading files from config: ${config.files.join(", ")}`);
-                for (const file of config.files) {
-                    builder.fromFiles(file);
-                }
+                throw new Error("Not Implemented");
             } else {
                 throw new Error(
                     "No data source specified in config. Please configure 'packages' or 'files' in your config file.",
