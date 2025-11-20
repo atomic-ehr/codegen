@@ -1,6 +1,5 @@
 import { ListElementInformationMixinProvider } from "@mustache/generator/ListElementInformationMixinProvider";
 import type { NameGenerator } from "@mustache/generator/NameGenerator";
-import type { SchemaLoaderFacade } from "@mustache/generator/SchemaLoaderFacade";
 import type {
     EnumViewModel,
     FieldViewModel,
@@ -12,7 +11,15 @@ import type {
 } from "@mustache/types";
 import { PRIMITIVE_TYPES } from "@mustache/types";
 import type { IsPrefixed } from "@mustache/UtilityTypes";
-import type { Field, Identifier, NestedType, TypeSchema } from "@typeschema/types";
+import type { TypeSchemaIndex } from "@root/typeschema/utils";
+import {
+    type Field,
+    type Identifier,
+    isComplexTypeIdentifier,
+    isResourceIdentifier,
+    type NestedType,
+    type TypeSchema,
+} from "@typeschema/types";
 
 export type ViewModelCache = {
     resourcesByUri: Record<string, TypeViewModel>;
@@ -23,7 +30,7 @@ export class ViewModelFactory {
     private arrayMixinProvider: ListElementInformationMixinProvider = new ListElementInformationMixinProvider();
 
     constructor(
-        private readonly loader: SchemaLoaderFacade,
+        private readonly tsIndex: TypeSchemaIndex,
         private readonly nameGenerator: NameGenerator,
     ) {}
 
@@ -85,7 +92,7 @@ export class ViewModelFactory {
     }
 
     private _createForComplexType(typeRef: Identifier, cache: ViewModelCache, nestedIn?: TypeSchema): TypeViewModel {
-        const type = this.loader.getComplexType(typeRef);
+        const type = this.tsIndex.resolve(typeRef);
         if (!type) {
             throw new Error(`ComplexType ${typeRef.name} not found`);
         }
@@ -98,7 +105,7 @@ export class ViewModelFactory {
     }
 
     private _createForResource(typeRef: Identifier, cache: ViewModelCache, nestedIn?: TypeSchema): TypeViewModel {
-        const type = this.loader.getResource(typeRef);
+        const type = this.tsIndex.resolve(typeRef);
         if (!type) {
             throw new Error(`Resource ${typeRef.name} not found`);
         }
@@ -111,14 +118,16 @@ export class ViewModelFactory {
     }
 
     private _createChildrenFor(typeRef: Identifier, cache: ViewModelCache, nestedIn?: TypeSchema): TypeViewModel[] {
-        if (typeRef.kind === "complex-type") {
-            return this.loader
-                .getChildComplexTypes(typeRef)
+        if (isComplexTypeIdentifier(typeRef)) {
+            return this.tsIndex
+                .resourceChildren(typeRef)
+                .filter(isComplexTypeIdentifier)
                 .map((childRef: Identifier) => this._createFor(childRef, cache, nestedIn));
         }
-        if (typeRef.kind === "resource") {
-            return this.loader
-                .getChildResources(typeRef)
+        if (isResourceIdentifier(typeRef)) {
+            return this.tsIndex
+                .resourceChildren(typeRef)
+                .filter(isResourceIdentifier)
                 .map((childRef: Identifier) => this._createFor(childRef, cache, nestedIn));
         }
         return [];
@@ -129,7 +138,7 @@ export class ViewModelFactory {
         let parentRef: Identifier | undefined = "base" in base ? base.base : undefined;
         while (parentRef) {
             parents.push(this._createFor(parentRef, cache, undefined));
-            const parent = this.loader.get(parentRef);
+            const parent = this.tsIndex.resolve(parentRef);
             parentRef = parent && "base" in parent ? parent.base : undefined;
         }
         return parents;
@@ -256,8 +265,9 @@ export class ViewModelFactory {
             return false;
         }
         return Object.fromEntries(
-            this.loader
-                .getResources()
+            this.tsIndex
+                .collectResources()
+                .map((e) => e.identifier)
                 .map((resourceRef: Identifier) => [
                     `is${resourceRef.name.charAt(0).toUpperCase() + resourceRef.name.slice(1)}`,
                     resourceRef.url === typeRef.url,
@@ -269,8 +279,9 @@ export class ViewModelFactory {
             return false;
         }
         return Object.fromEntries(
-            this.loader
-                .getComplexTypes()
+            this.tsIndex
+                .collectComplexTypes()
+                .map((e) => e.identifier)
                 .map((complexTypeRef: Identifier) => [
                     `is${complexTypeRef.name.charAt(0).toUpperCase() + complexTypeRef.name.slice(1)}`,
                     complexTypeRef.url === typeRef.url,
@@ -318,14 +329,20 @@ export class ViewModelFactory {
 
     private _createForRoot(): Pick<RootViewModel<unknown>, "resources" | "complexTypes"> {
         return this.arrayMixinProvider.apply({
-            complexTypes: this.loader.getComplexTypes().map((typeRef: Identifier) => ({
-                name: typeRef.name,
-                saveName: this.nameGenerator.generateType(typeRef),
-            })),
-            resources: this.loader.getResources().map((typeRef: Identifier) => ({
-                name: typeRef.name,
-                saveName: this.nameGenerator.generateType(typeRef),
-            })),
+            complexTypes: this.tsIndex
+                .collectComplexTypes()
+                .map((e) => e.identifier)
+                .map((typeRef: Identifier) => ({
+                    name: typeRef.name,
+                    saveName: this.nameGenerator.generateType(typeRef),
+                })),
+            resources: this.tsIndex
+                .collectResources()
+                .map((e) => e.identifier)
+                .map((typeRef: Identifier) => ({
+                    name: typeRef.name,
+                    saveName: this.nameGenerator.generateType(typeRef),
+                })),
         });
     }
 }

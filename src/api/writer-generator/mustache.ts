@@ -9,13 +9,12 @@ import {
     NameGenerator,
     type NameTransformation,
 } from "@mustache/generator/NameGenerator";
-import { SchemaLoaderFacade } from "@mustache/generator/SchemaLoaderFacade";
 import { TemplateFileCache } from "@mustache/generator/TemplateFileCache";
 import type { ViewModelCache } from "@mustache/generator/ViewModelFactory";
 import { ViewModelFactory } from "@mustache/generator/ViewModelFactory";
 import type {
-    FilterType,
     HookType,
+    MustacheFilter,
     NamedViewModel,
     PrimitiveType,
     Rendering,
@@ -25,6 +24,7 @@ import type {
 } from "@mustache/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
+import type { Identifier } from "@typeschema/types";
 import { default as Mustache } from "mustache";
 import { FileSystemWriter, type FileSystemWriterOptions } from "./writer";
 
@@ -37,10 +37,7 @@ export type FileBasedMustacheGeneratorOptions = {
     };
     keywords: string[];
     typeMap: Partial<Record<PrimitiveType, string>>;
-    filters: {
-        resource?: FilterType;
-        complexType?: FilterType;
-    };
+    filters: MustacheFilter;
     meta: {
         timestamp?: string;
         generator?: string;
@@ -128,6 +125,27 @@ function runCommand(cmd: string, args: string[] = [], options = {}) {
     });
 }
 
+const checkFilter = (type: Identifier, filters: MustacheFilter): boolean => {
+    if (type.kind !== "complex-type" && type.kind !== "resource") {
+        return true;
+    }
+    if (!filters[type.kind as "resource" | "complexType"]) {
+        return true;
+    }
+    const whitelist = filters[type.kind as "resource" | "complexType"]?.whitelist ?? [];
+    const blacklist = filters[type.kind as "resource" | "complexType"]?.blacklist ?? [];
+    if (!whitelist.length && !blacklist.length) {
+        return true;
+    }
+    if (blacklist.find((pattern: any) => type.name.match(pattern as any))) {
+        return false;
+    }
+    if (whitelist.find((pattern: any) => type.name.match(pattern as any))) {
+        return true;
+    }
+    return whitelist.length === 0;
+};
+
 export class MustacheGenerator extends FileSystemWriter<MustacheGeneratorOptions> {
     private readonly templateFileCache: TemplateFileCache;
     private readonly nameGenerator: NameGenerator;
@@ -148,19 +166,24 @@ export class MustacheGenerator extends FileSystemWriter<MustacheGeneratorOptions
     }
 
     override async generate(tsIndex: TypeSchemaIndex) {
-        const schemaLoaderFacade = new SchemaLoaderFacade(tsIndex, this.opts.filters);
-        const modelFactory = new ViewModelFactory(schemaLoaderFacade, this.nameGenerator);
+        const modelFactory = new ViewModelFactory(tsIndex, this.nameGenerator);
         const cache: ViewModelCache = {
             resourcesByUri: {},
             complexTypesByUri: {},
         };
-        schemaLoaderFacade
-            .getComplexTypes()
+        tsIndex
+            .collectComplexTypes()
+            .map((i) => i.identifier)
+            .filter((i) => checkFilter(i, this.opts.filters))
+            .sort((a, b) => a.url.localeCompare(b.url))
             .map((typeRef) => modelFactory.createComplexType(typeRef, cache))
             .forEach(this._renderComplexType.bind(this));
 
-        schemaLoaderFacade
-            .getResources()
+        tsIndex
+            .collectResources()
+            .map((i) => i.identifier)
+            .filter((i) => checkFilter(i, this.opts.filters))
+            .sort((a, b) => a.url.localeCompare(b.url))
             .map((typeRef) => modelFactory.createResource(typeRef, cache))
             .forEach(this._renderResource.bind(this));
 
