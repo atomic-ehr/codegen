@@ -8,7 +8,6 @@ const builder = new APIBuilder()
     .outputTo("./examples/typescript-sql-on-fhir/fhir-types")
     .writeTypeTree("./examples/typescript-sql-on-fhir/tree.yaml")
     .treeShake({
-        // "hl7.fhir.r5.core": {"http://hl7.org/fhir/StructureDefinition/Meta": {}},
         "org.sql-on-fhir.ig": {
             "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition": {},
         },

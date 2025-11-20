@@ -309,7 +309,6 @@ export const mkTypeSchemaIndex = (schemas: TypeSchema[], logger?: CodegenLogger)
                 logical: {},
             };
             for (const schema of shemas) {
-                const _desc = schema.identifier;
                 tree[pkgId][schema.identifier.kind][schema.identifier.url] = {};
             }
         }
