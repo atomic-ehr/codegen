@@ -3,18 +3,21 @@ import * as Path from "node:path";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 
-export type WriterOptions = {
+export type FileSystemWriterOptions = {
     outputDir: string;
+    logger?: CodegenLogger;
+};
+
+export type WriterOptions = FileSystemWriterOptions & {
     tabSize: number;
     withDebugComment?: boolean;
     commentLinePrefix: string;
     generateProfile?: boolean;
-    logger?: CodegenLogger;
 };
 
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
-class FileSystemWriter<T extends WriterOptions = WriterOptions> {
+export class FileSystemWriter<T extends FileSystemWriterOptions = FileSystemWriterOptions> {
     opts: T;
     currentDir: string;
     currentFileDescriptor?: number;

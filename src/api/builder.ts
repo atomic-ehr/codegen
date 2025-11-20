@@ -17,7 +17,7 @@ import { extractNameFromCanonical, packageMetaToFhir, packageMetaToNpm, type Typ
 import type { TypeSchemaConfig } from "../config";
 import { CodegenLogger, createLogger } from "../utils/codegen-logger";
 import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript";
-import type { Writer, WriterOptions } from "./writer-generator/writer";
+import type { FileSystemWriter, WriterOptions } from "./writer-generator/writer";
 
 /**
  * Configuration options for the API builder
@@ -68,7 +68,7 @@ interface Generator {
     build: (schemas: TypeSchema[]) => Promise<GeneratedFile[]>;
 }
 
-const writerToGenerator = (writerGen: Writer): Generator => {
+const writerToGenerator = (writerGen: FileSystemWriter): Generator => {
     const getGeneratedFiles = () => {
         return writerGen.writtenFiles().map((fn: string): GeneratedFile => {
             return {
