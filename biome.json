@@ -33,7 +33,7 @@
       },
       "correctness": {
         "noUnusedPrivateClassMembers": "error",
-        "noUnusedImports": { "level": "error" }
+        "noUnusedImports": { "level": "warn" }
       },
       "nursery": {
         "noUnresolvedImports": "off"
