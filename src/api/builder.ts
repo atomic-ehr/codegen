@@ -20,7 +20,7 @@ import { CodegenLogger, createLogger } from "../utils/codegen-logger";
 import type { FileBasedMustacheGeneratorOptions } from "./writer-generator/mustache";
 import * as Mustache from "./writer-generator/mustache";
 import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript";
-import type { FileSystemWriter, FileSystemWriterOptions, WriterOptions } from "./writer-generator/writer";
+import type { FileBuffer, FileSystemWriter, FileSystemWriterOptions, WriterOptions } from "./writer-generator/writer";
 
 /**
  * Configuration options for the API builder

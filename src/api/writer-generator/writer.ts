@@ -19,7 +19,7 @@ export type WriterOptions = FileSystemWriterOptions & {
 type FileBufferInternal = { relPath: string; absPath: string; tokens: string[] };
 export type FileBuffer = { relPath: string; absPath: string; content: string };
 
-export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileSystemWriterOptions> {
+export class FileSystemWriter<T extends FileSystemWriterOptions = FileSystemWriterOptions> {
     opts: T;
     currentDir?: string;
     currentFile?: { relPath: string; descriptor: number };
