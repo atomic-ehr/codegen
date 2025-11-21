@@ -19,13 +19,17 @@ export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileSystemWriterOptions> {
     opts: T;
-    currentDir: string;
+    currentDir?: string;
     currentFileDescriptor?: number;
     writtenFilesSet: Set<string> = new Set();
 
     constructor(opts: T) {
         this.opts = opts;
-        this.currentDir = opts.outputDir;
+    }
+
+    setOutputDir(path: string) {
+        if (this.currentDir) throw new Error("Can't change output dir while writing");
+        this.opts.outputDir = path;
     }
 
     logger(): CodegenLogger | undefined {
@@ -36,7 +40,7 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
         const prev = this.currentDir;
         this.currentDir = path.startsWith("/")
             ? Path.join(this.opts.outputDir, path)
-            : Path.join(this.currentDir, path);
+            : Path.join(this.currentDir ?? this.opts.outputDir, path);
         if (!fs.existsSync(this.currentDir)) {
             fs.mkdirSync(this.currentDir, { recursive: true });
         }
@@ -52,7 +56,7 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
         const fullFn = `${this.currentDir}/${fn}`;
         try {
             this.currentFileDescriptor = fs.openSync(fullFn, "w");
-            this.writtenFilesSet.add(fn);
+            this.writtenFilesSet.add(Path.resolve(Path.normalize(fullFn)));
             this.logger()?.debug(`cat > '${fullFn}'`);
             gen();
         } finally {
