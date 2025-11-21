@@ -5,6 +5,7 @@ import type { CodegenLogger } from "@root/utils/codegen-logger";
 
 export type FileSystemWriterOptions = {
     outputDir: string;
+    inMemoryOnly?: boolean;
     logger?: CodegenLogger;
 };
 
@@ -15,13 +16,14 @@ export type WriterOptions = FileSystemWriterOptions & {
     generateProfile?: boolean;
 };
 
-export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+type FileBufferInternal = { relPath: string; absPath: string; tokens: string[] };
+export type FileBuffer = { relPath: string; absPath: string; content: string };
 
 export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileSystemWriterOptions> {
     opts: T;
     currentDir?: string;
-    currentFileDescriptor?: number;
-    writtenFilesSet: Set<string> = new Set();
+    currentFile?: { relPath: string; descriptor: number };
+    writtenFilesBuffer: Record<string, FileBufferInternal> = {};
 
     constructor(opts: T) {
         this.opts = opts;
@@ -36,48 +38,76 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
         return this.opts.logger;
     }
 
+    onDiskMkDir(path: string) {
+        if (this.opts.inMemoryOnly) return;
+        if (!fs.existsSync(path)) {
+            fs.mkdirSync(path, { recursive: true });
+        }
+    }
+
+    onDiskOpenFile(relPath: string): number {
+        if (this.opts.inMemoryOnly) return -1;
+        return fs.openSync(relPath, "w");
+    }
+
+    onDiskCloseFile(descriptor: number) {
+        if (this.opts.inMemoryOnly) return;
+        fs.fsyncSync(descriptor);
+        fs.closeSync(descriptor);
+    }
+
+    onDiskWrite(descriptor: number, token: string) {
+        if (this.opts.inMemoryOnly) return;
+        fs.writeSync(descriptor, token);
+    }
+
     cd(path: string, gen: () => void) {
         const prev = this.currentDir;
         this.currentDir = path.startsWith("/")
             ? Path.join(this.opts.outputDir, path)
             : Path.join(this.currentDir ?? this.opts.outputDir, path);
-        if (!fs.existsSync(this.currentDir)) {
-            fs.mkdirSync(this.currentDir, { recursive: true });
-        }
+        this.onDiskMkDir(this.currentDir);
         this.logger()?.debug(`cd '${this.currentDir}'`);
         gen();
         this.currentDir = prev;
     }
 
     cat(fn: string, gen: () => void) {
-        if (this.currentFileDescriptor) throw new Error("Can't open file in file");
+        if (this.currentFile) throw new Error("Can't open file when another file is open");
         if (fn.includes("/")) throw new Error(`Change file path separatly: ${fn}`);
 
-        const fullFn = `${this.currentDir}/${fn}`;
+        const relPath = Path.normalize(`${this.currentDir}/${fn}`);
         try {
-            this.currentFileDescriptor = fs.openSync(fullFn, "w");
-            this.writtenFilesSet.add(Path.resolve(Path.normalize(fullFn)));
-            this.logger()?.debug(`cat > '${fullFn}'`);
+            const descriptor = this.onDiskOpenFile(relPath);
+
+            this.logger()?.debug(`cat > '${relPath}'`);
+            this.currentFile = { descriptor, relPath };
+            this.writtenFilesBuffer[this.currentFile.relPath] = { relPath, absPath: Path.resolve(relPath), tokens: [] };
+
             gen();
         } finally {
-            if (this.currentFileDescriptor) {
-                // Force flush all buffered data to disk before closing
-                fs.fsyncSync(this.currentFileDescriptor);
-                fs.closeSync(this.currentFileDescriptor);
-            }
-            this.currentFileDescriptor = undefined;
+            if (this.currentFile) this.onDiskCloseFile(this.currentFile.descriptor);
+            this.currentFile = undefined;
         }
     }
 
     write(str: string) {
-        if (!this.currentFileDescriptor) throw new Error("No file opened");
-        fs.writeSync(this.currentFileDescriptor, str);
+        if (!this.currentFile) throw new Error("No file opened");
+        this.onDiskWrite(this.currentFile.descriptor, str);
+
+        const buf = this.writtenFilesBuffer[this.currentFile.relPath];
+        if (!buf) throw new Error("No buffer found");
+        buf.tokens.push(str);
     }
 
     abstract generate(_tsIndex: TypeSchemaIndex): Promise<void>;
 
-    writtenFiles(): string[] {
-        return Array.from(this.writtenFilesSet);
+    writtenFiles(): FileBuffer[] {
+        return Object.values(this.writtenFilesBuffer)
+            .map(({ relPath, absPath, tokens }) => {
+                return { relPath, absPath, content: tokens.join() };
+            })
+            .sort((a, b) => a.relPath.localeCompare(b.relPath));
     }
 }
 

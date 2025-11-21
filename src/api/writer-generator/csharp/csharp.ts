@@ -1,7 +1,8 @@
 import fs from "node:fs";
 import Path from "node:path";
+import type { PartialBy } from "@root/api/builder.js";
 import { pascalCase, uppercaseFirstLetter, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils.ts";
-import { type PartialBy, Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
+import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
 import type { Field, Identifier, RegularField } from "@typeschema/types";
 import { type ChoiceFieldInstance, isChoiceDeclarationField, type RegularTypeSchema } from "@typeschema/types.ts";
 import type { TypeSchemaIndex } from "@typeschema/utils.ts";

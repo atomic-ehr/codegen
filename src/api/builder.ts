@@ -17,7 +17,7 @@ import { extractNameFromCanonical, packageMetaToFhir, packageMetaToNpm, type Typ
 import type { TypeSchemaConfig } from "../config";
 import { CodegenLogger, createLogger } from "../utils/codegen-logger";
 import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript";
-import type { FileSystemWriter, WriterOptions } from "./writer-generator/writer";
+import type { FileBuffer, FileSystemWriter, WriterOptions } from "./writer-generator/writer";
 
 /**
  * Configuration options for the API builder
@@ -66,7 +66,7 @@ const normalizeFileName = (str: string): string => {
     return res;
 };
 
-type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 type APIBuilderConfig = PartialBy<
     Required<APIBuilderOptions>,
@@ -409,8 +409,8 @@ export class APIBuilder {
 
             try {
                 await generator.generate(tsIndex);
-                const files: string[] = generator.writtenFiles();
-                result.filesGenerated.push(...files);
+                const fileBuffer: FileBuffer[] = generator.writtenFiles();
+                result.filesGenerated.push(...fileBuffer.map((e) => e.absPath));
                 this.logger.info(`Generating ${type} finished successfully`);
             } catch (error) {
                 result.errors.push(
