@@ -45,7 +45,7 @@ prepare-aidbox-runme:
 
 test-typescript-r4-example: typecheck format lint
 	bun run examples/typescript-r4/generate.ts
-	$(TYPECHECK) --project tsconfig.example-typescript-r4.json
+	$(TYPECHECK) --project examples/typescript-r4/tsconfig.json
 	cd examples/typescript-r4 && bun run demo.ts > /dev/null
 
 test-typescript-sql-on-fhir-example: typecheck format lint
@@ -55,11 +55,10 @@ test-typescript-sql-on-fhir-example: typecheck format lint
 test-typescript-ccda-example: typecheck format lint
 	$(TEST) test/unit/typeschema/transformer/ccda.test.ts
 	bun run examples/typescript-ccda/generate.ts
-	$(TYPECHECK) --project tsconfig.example-ccda.json
-	# cd examples/typescript-r4 && bun run demo.ts > /dev/null
+	$(TYPECHECK) --project examples/typescript-ccda/tsconfig.json
 
 test-csharp-sdk: typecheck format prepare-aidbox-runme lint
-	$(TYPECHECK) --project tsconfig.example-csharp.json
+	$(TYPECHECK) --project examples/csharp/tsconfig.json
 	bun run examples/csharp/generate.ts
 	cd examples/csharp && dotnet restore
 	cd examples/csharp && dotnet build
