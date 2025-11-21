@@ -12,6 +12,7 @@ import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import { CSharp } from "@root/api/writer-generator/csharp/csharp";
 import { registerFromManager } from "@root/typeschema/register";
 import { mkTypeSchemaIndex, type TreeShake, type TypeSchemaIndex, treeShake } from "@root/typeschema/utils";
+import type { PartialBy } from "@root/utils/types";
 import { generateTypeSchemas } from "@typeschema/index";
 import { extractNameFromCanonical, packageMetaToFhir, packageMetaToNpm, type TypeSchema } from "@typeschema/types";
 import type { TypeSchemaConfig } from "../config";
@@ -67,8 +68,6 @@ const normalizeFileName = (str: string): string => {
     if (res.length === 0) return "unknown";
     return res;
 };
-
-export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 type APIBuilderConfig = PartialBy<
     Required<APIBuilderOptions>,
