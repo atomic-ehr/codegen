@@ -18,6 +18,7 @@ export interface LogOptions {
     prefix?: string;
     timestamp?: boolean;
     verbose?: boolean;
+    logLevel?: LogLevel;
     suppressLoggingLevel?: LogLevel[] | "all";
 }
 
@@ -27,6 +28,7 @@ export interface LogOptions {
 export class CodegenLogger {
     private options: LogOptions;
     private dryWarnSet: Set<string> = new Set();
+    private effectiveLogLevel: LogLevel;
 
     constructor(options: LogOptions = {}) {
         this.options = {
@@ -34,15 +36,34 @@ export class CodegenLogger {
             verbose: false,
             ...options,
         };
+
+        // Calculate effectivFrom our e log level
+        // Priority: explicit logLevel > verbose flag > default INFO
+        if (this.options.logLevel !== undefined) {
+            this.effectiveLogLevel = this.options.logLevel;
+        } else if (this.options.verbose) {
+            this.effectiveLogLevel = LogLevel.DEBUG;
+        } else {
+            this.effectiveLogLevel = LogLevel.INFO;
+        }
     }
 
-    private static consoleLevelsMap: Record<LogLevel, (...data: any[]) => void> = {
-        [LogLevel.INFO]: console.log,
-        [LogLevel.WARN]: console.warn,
-        [LogLevel.ERROR]: console.error,
-        [LogLevel.DEBUG]: console.log,
-        [LogLevel.SILENT]: () => {},
-    };
+    private static getConsoleMethod(level: LogLevel): (...data: any[]) => void {
+        switch (level) {
+            case LogLevel.INFO:
+                return console.log;
+            case LogLevel.WARN:
+                return console.warn;
+            case LogLevel.ERROR:
+                return console.error;
+            case LogLevel.DEBUG:
+                return console.log;
+            case LogLevel.SILENT:
+                return () => {};
+            default:
+                return console.log;
+        }
+    }
 
     private formatMessage(level: string, message: string, color: (str: string) => string): string {
         const timestamp = this.options.timestamp ? `${pc.gray(new Date().toLocaleTimeString())} ` : "";
@@ -56,9 +77,17 @@ export class CodegenLogger {
         );
     }
 
+    private shouldLog(level: LogLevel): boolean {
+        // Check if suppressed first
+        if (this.isSuppressed(level)) return false;
+
+        // Check against effective log level
+        return level >= this.effectiveLogLevel;
+    }
+
     private tryWriteToConsole(level: LogLevel, formattedMessage: string): void {
-        if (this.isSuppressed(level)) return;
-        const logFn = CodegenLogger.consoleLevelsMap[level] || console.log;
+        if (!this.shouldLog(level)) return;
+        const logFn = CodegenLogger.getConsoleMethod(level);
         logFn(formattedMessage);
     }
 
@@ -73,7 +102,7 @@ export class CodegenLogger {
      * Error message with X mark
      */
     error(message: string, error?: Error): void {
-        if (this.isSuppressed(LogLevel.ERROR)) return;
+        if (!this.shouldLog(LogLevel.ERROR)) return;
         console.error(this.formatMessage("X", message, pc.red));
         if (error && this.options.verbose) {
             console.error(pc.red(`   ${error.message}`));
@@ -105,12 +134,10 @@ export class CodegenLogger {
     }
 
     /**
-     * Debug message (only shows in verbose mode)
+     * Debug message (only shows when log level is DEBUG)
      */
     debug(message: string): void {
-        if (this.options.verbose) {
-            this.tryWriteToConsole(LogLevel.DEBUG, this.formatMessage("🐛", message, pc.magenta));
-        }
+        this.tryWriteToConsole(LogLevel.DEBUG, this.formatMessage("🐛", message, pc.magenta));
     }
 
     /**
@@ -147,10 +174,13 @@ export class CodegenLogger {
      * Create a child logger with a prefix
      */
     child(prefix: string): CodegenLogger {
-        return new CodegenLogger({
+        const child = new CodegenLogger({
             ...this.options,
             prefix: this.options.prefix ? `${this.options.prefix}:${prefix}` : prefix,
         });
+        // Ensure child inherits the effective log level
+        child.effectiveLogLevel = this.effectiveLogLevel;
+        return child;
     }
 
     /**
@@ -158,6 +188,13 @@ export class CodegenLogger {
      */
     configure(options: Partial<LogOptions>): void {
         this.options = { ...this.options, ...options };
+
+        // Recalculate effective log level
+        if (options.logLevel !== undefined) {
+            this.effectiveLogLevel = options.logLevel;
+        } else if (options.verbose !== undefined) {
+            this.effectiveLogLevel = options.verbose ? LogLevel.DEBUG : LogLevel.INFO;
+        }
     }
 }
 

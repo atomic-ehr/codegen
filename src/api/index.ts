@@ -7,6 +7,7 @@
  * @packageDocumentation
  */
 
+export { LogLevel } from "../utils/codegen-logger";
 export type { APIBuilderOptions } from "./builder";
 export { APIBuilder } from "./builder";
 export type { CSharpGeneratorOptions } from "./writer-generator/csharp/csharp";

@@ -250,13 +250,10 @@ export const DEFAULT_CONFIG: Required<Config> = {
  */
 export const CONFIG_FILE_NAMES = [
     "atomic-codegen.config.ts",
-    "atomic-codegen.config",
+    "atomic-codegen.config.js",
+    "atomic-codegen.config.mjs",
     "atomic-codegen.config.json",
-    ".atomic-codegenrc",
     "atomic-codegen.json",
-    ".atomic-codegen.json",
-    "codegen.config.json",
-    "codegen.json",
 ];
 
 /**
@@ -712,7 +709,12 @@ export class ConfigLoader {
         try {
             let config: unknown;
 
-            if (filePath.endsWith(".ts") || filePath.endsWith("")) {
+            if (
+                filePath.endsWith(".ts") ||
+                filePath.endsWith(".js") ||
+                filePath.endsWith(".mjs") ||
+                filePath.endsWith("atomic-codegen.config")
+            ) {
                 // Use dynamic import for TypeScript/JavaScript files
                 const absolutePath = resolve(filePath);
                 const importResult = await import(absolutePath);
