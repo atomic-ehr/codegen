@@ -7,9 +7,9 @@ if (require.main === module) {
         .verbose()
         .throwException()
         .fromPackage("hl7.fhir.r4.core", "4.0.1")
-        .mustache("./mustache/languages/java", { debug: "COMPACT" })
-        .outputTo("./examples/mustache-java-r4/test-project")
-        .writeTypeTree("./examples/mustache-java-r4/type-tree.yaml")
+        .mustache("./examples/mustache/java", { debug: "COMPACT" })
+        .outputTo("./examples/mustache/mustache-java-r4-output")
+        .writeTypeTree("./examples/mustache/mustache-java-r4-output/type-tree.yaml")
         .cleanOutput(true);
 
     const report = await builder.generate();

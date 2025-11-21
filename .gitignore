@@ -53,5 +53,4 @@ examples/typescript-ccda/type-schemas
 examples/typescript-sql-on-fhir/fhir-types
 examples/typescript-sql-on-fhir/tree.yaml
 
-examples/mustache-java-r4/type-tree.yaml
-examples/mustache-java-r4/test-project
+examples/mustache/mustache-java-r4-output
