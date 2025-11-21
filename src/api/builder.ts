@@ -12,12 +12,15 @@ import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import { CSharp } from "@root/api/writer-generator/csharp/csharp";
 import { registerFromManager } from "@root/typeschema/register";
 import { mkTypeSchemaIndex, type TreeShake, type TypeSchemaIndex, treeShake } from "@root/typeschema/utils";
+import type { PartialBy } from "@root/utils/types";
 import { generateTypeSchemas } from "@typeschema/index";
 import { extractNameFromCanonical, packageMetaToFhir, packageMetaToNpm, type TypeSchema } from "@typeschema/types";
 import type { TypeSchemaConfig } from "../config";
 import { CodegenLogger, createLogger } from "../utils/codegen-logger";
+import type { FileBasedMustacheGeneratorOptions } from "./writer-generator/mustache";
+import * as Mustache from "./writer-generator/mustache";
 import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript";
-import type { FileBuffer, FileSystemWriter, WriterOptions } from "./writer-generator/writer";
+import type { FileBuffer, FileSystemWriter, FileSystemWriterOptions, WriterOptions } from "./writer-generator/writer";
 
 /**
  * Configuration options for the API builder
@@ -65,8 +68,6 @@ const normalizeFileName = (str: string): string => {
     if (res.length === 0) return "unknown";
     return res;
 };
-
-export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 type APIBuilderConfig = PartialBy<
     Required<APIBuilderOptions>,
@@ -247,6 +248,28 @@ export class APIBuilder {
         };
         const generator = new TypeScript(opts);
         this.generators.set("typescript", generator);
+        this.logger.debug(`Configured TypeScript generator (${JSON.stringify(opts, undefined, 2)})`);
+        return this;
+    }
+
+    mustache(templatePath: string, userOpts: Partial<FileSystemWriterOptions & FileBasedMustacheGeneratorOptions>) {
+        const defaultWriterOpts: FileSystemWriterOptions = {
+            logger: this.logger,
+            outputDir: this.options.outputDir,
+        };
+        const defaultMustacheOpts: Partial<FileBasedMustacheGeneratorOptions> = {
+            meta: {
+                timestamp: new Date().toISOString(),
+                generator: "atomic-codegen",
+            },
+        };
+        const opts = {
+            ...defaultWriterOpts,
+            ...defaultMustacheOpts,
+            ...userOpts,
+        };
+        const generator = Mustache.createGenerator(templatePath, opts);
+        this.generators.set(`mustache[${templatePath}]`, generator);
         this.logger.debug(`Configured TypeScript generator (${JSON.stringify(opts, undefined, 2)})`);
         return this;
     }

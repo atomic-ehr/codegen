@@ -1,0 +1,37 @@
+public enum {{{saveName}}} {
+{{#values}}
+    {{#lambda.upperCase}}{{{saveName}}}{{/lambda.upperCase}}("{{{name}}}"){{^-last}},{{/-last}}
+{{/values}};
+
+    private static final Map<String, {{{saveName}}}> BY_VALUE;
+    static {
+        final Map<String, {{{saveName}}}> builder = new HashMap<>();
+        for ({{{saveName}}} c: {{{saveName}}}.values()) {
+            builder.put(c.value, c);
+        }
+        BY_VALUE = Collections.unmodifiableMap(builder);
+    }
+    @JsonCreator
+    public static {{{saveName}}} fromValue(String value) {
+        requireNonNull(value);
+        if({{{saveName}}}.BY_VALUE.containsKey(value)) {
+            return BY_VALUE.get(value);
+        }
+        throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+
+    private final String value;
+    {{{saveName}}}(String value) {
+        this.value = requireNonNull(value);
+    }
+
+    @JsonValue
+    public String getValue() {
+        return value;
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
+}

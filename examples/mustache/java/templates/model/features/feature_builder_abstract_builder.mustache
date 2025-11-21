@@ -1,0 +1,116 @@
+
+
+protected static abstract class Abstract{{{saveName}}}Builder<T extends {{{saveName}}}, B extends Abstract{{{saveName}}}Builder<T,B>> {{#hasParents}}extends Abstract{{{parents.0.saveName}}}Builder<T,B>{{/hasParents}}{
+
+    {{#fields}}
+        private @Nullable {{>primitive_wrapped_plain_type}} {{{saveName}}} = null;
+    {{/fields}}
+
+    protected Abstract{{{saveName}}}Builder() {
+    }
+
+    {{#isComplexType.isReference}}
+        {{>model/features/feature_builder_abstract_builder_additional_resource_behaviour}}
+    {{/isComplexType.isReference}}
+
+    {{#fields}}
+        {{#isArray}}
+            private {{>primitive_wrapped_plain_type}} {{{saveName}}}(){
+                if(this.{{{saveName}}} == null) {
+                    this.{{{saveName}}} = new ArrayList<>();
+                }
+                return this.{{{saveName}}};
+            }
+            private void clear{{#lambda.saveFieldName}}{{#lambda.pascalCase}}{{{saveName}}}{{/lambda.pascalCase}}{{/lambda.saveFieldName}}(){
+                if(this.{{{saveName}}} != null) {
+                    this.{{{saveName}}}.clear();
+                }
+            }
+            {{#isPrimitive}}
+                public final B {{{saveName}}}(@Nullable {{{typeName}}} {{{saveName}}}) {
+                    return this.{{{saveName}}}({{{saveName}}}, null);
+                }
+                public final B {{{saveName}}}(@Nullable {{{typeName}}} {{{saveName}}}, @Nullable {{#lambda.saveTypeName}}Element{{/lambda.saveTypeName}} {{{saveName}}}Element) {
+                    return this.{{{saveName}}}({{{saveName}}} != null ? List.of({{{saveName}}}) : null, {{{saveName}}}Element != null ? List.of({{{saveName}}}Element) : null);
+                }
+                public final B {{{saveName}}}(@Nullable {{>plain_type}} {{{saveName}}}, @Nullable List<{{#lambda.saveTypeName}}Element{{/lambda.saveTypeName}}> {{{saveName}}}Element) {
+                    this.clear{{#lambda.saveFieldName}}{{#lambda.pascalCase}}{{{saveName}}}{{/lambda.pascalCase}}{{/lambda.saveFieldName}}();
+                    return this.add{{#lambda.saveFieldName}}{{#lambda.pascalCase}}{{{saveName}}}{{/lambda.pascalCase}}{{/lambda.saveFieldName}}({{{saveName}}}, {{{saveName}}}Element);
+                }
+                public final B add{{#lambda.saveFieldName}}{{#lambda.pascalCase}}{{{saveName}}}{{/lambda.pascalCase}}{{/lambda.saveFieldName}}(@Nullable {{{typeName}}} {{{saveName}}}) {
+                    return this.add{{#lambda.saveFieldName}}{{#lambda.pascalCase}}{{{saveName}}}{{/lambda.pascalCase}}{{/lambda.saveFieldName}}({{{saveName}}}, null);
+                }
+                public final B add{{#lambda.saveFieldName}}{{#lambda.pascalCase}}{{{saveName}}}{{/lambda.pascalCase}}{{/lambda.saveFieldName}}(@Nullable {{{typeName}}} {{{saveName}}}, @Nullable {{#lambda.saveTypeName}}Element{{/lambda.saveTypeName}} {{{saveName}}}Element) {
+                    return this.add{{#lambda.saveFieldName}}{{#lambda.pascalCase}}{{{saveName}}}{{/lambda.pascalCase}}{{/lambda.saveFieldName}}({{{saveName}}} != null ? List.of({{{saveName}}}) : null, {{{saveName}}}Element != null ? List.of({{{saveName}}}Element) : null);
+                }
+                public final B add{{#lambda.saveFieldName}}{{#lambda.pascalCase}}{{{saveName}}}{{/lambda.pascalCase}}{{/lambda.saveFieldName}}(@Nullable {{>plain_type}} {{{saveName}}}, @Nullable List<{{#lambda.saveTypeName}}Element{{/lambda.saveTypeName}}> {{{saveName}}}Element) {
+                    if({{{saveName}}} != null && {{{saveName}}}Element != null && {{{saveName}}}.size() != {{{saveName}}}Element.size()) {
+                        throw new IllegalArgumentException("Size of {{{saveName}}}("+{{{saveName}}}.size()+") and {{{saveName}}}Element("+{{{saveName}}}Element.size()+") must be equal");
+                    }else if({{{saveName}}}Element != null){
+                        throw new IllegalArgumentException("{{{saveName}}} must not be null to set {{{saveName}}}Element");
+                    }
+                    if ({{{saveName}}} != null) {
+                        this.{{{saveName}}}().addAll(IntStream.range(0, {{{saveName}}}.size())
+                            .mapToObj(i -> Primitive.nullable({{{saveName}}}.get(i), {{{saveName}}}Element.get(i)))
+                            .toList()
+                        );
+                    }
+                    return this.self();
+                }
+                {{#isDateTime}}
+                    {{>model/features/feature_builder_local_date_time}}
+                {{/isDateTime}}
+                {{#isInstant}}
+                    {{>model/features/feature_builder_local_date_time}}
+                {{/isInstant}}
+            {{/isPrimitive}}
+            {{^isPrimitive}}
+                public final B {{{saveName}}}(@Nullable {{{typeName}}} {{{saveName}}}) {
+                    return this.{{{saveName}}}({{{saveName}}} != null ? List.of({{{saveName}}}) : null);
+                }
+                public final B {{{saveName}}}(@Nullable {{>plain_type}} {{{saveName}}}) {
+                    this.clear{{#lambda.saveFieldName}}{{#lambda.pascalCase}}{{{saveName}}}{{/lambda.pascalCase}}{{/lambda.saveFieldName}}();
+                    return this.add{{#lambda.saveFieldName}}{{#lambda.pascalCase}}{{{saveName}}}{{/lambda.pascalCase}}{{/lambda.saveFieldName}}({{{saveName}}});
+                }
+                public final B add{{#lambda.saveFieldName}}{{#lambda.pascalCase}}{{{saveName}}}{{/lambda.pascalCase}}{{/lambda.saveFieldName}}(@Nullable {{{typeName}}} {{{saveName}}}) {
+                    return this.add{{#lambda.saveFieldName}}{{#lambda.pascalCase}}{{{saveName}}}{{/lambda.pascalCase}}{{/lambda.saveFieldName}}({{{saveName}}} != null ? List.of({{{saveName}}}) : null);
+                }
+                public final B add{{#lambda.saveFieldName}}{{#lambda.pascalCase}}{{{saveName}}}{{/lambda.pascalCase}}{{/lambda.saveFieldName}}(@Nullable {{>plain_type}} {{{saveName}}}) {
+                    if ({{{saveName}}} != null) {
+                        this.{{{saveName}}}().addAll({{{saveName}}});
+                    }
+                    return this.self();
+                }
+            {{/isPrimitive}}
+        {{/isArray}}
+        {{^isArray}}
+            {{#isPrimitive}}
+                public final B {{{saveName}}}(@Nullable {{>plain_type}} {{{saveName}}}) {
+                    return this.{{{saveName}}}({{{saveName}}}, null);
+                }
+                public final B _{{{saveName}}}(@Nullable {{#lambda.saveTypeName}}Element{{/lambda.saveTypeName}} {{{saveName}}}Element) {
+                    requireNonNull(this.{{{saveName}}}, "{{{saveName}}} must not be null to set {{{saveName}}}Element");
+                    return this.{{{saveName}}}(this.{{{saveName}}}.value(), {{{saveName}}}Element);
+                }
+                public final B {{{saveName}}}(@Nullable {{>plain_type}} {{{saveName}}}, @Nullable {{#lambda.saveTypeName}}Element{{/lambda.saveTypeName}} {{{saveName}}}Element) {
+                    this.{{{saveName}}} = {{{saveName}}} != null ? Primitive.nonNullable({{{saveName}}}, {{{saveName}}}Element) : null;
+                    return this.self();
+                }
+                {{#isDateTime}}
+                    {{>model/features/feature_builder_local_date_time}}
+                {{/isDateTime}}
+                {{#isInstant}}
+                    {{>model/features/feature_builder_local_date_time}}
+                {{/isInstant}}
+            {{/isPrimitive}}
+            {{^isPrimitive}}
+                public final B {{{saveName}}}(@Nullable {{>plain_type}} {{{saveName}}}) {
+                    this.{{{saveName}}} = {{{saveName}}};
+                    return this.self();
+                }
+            {{/isPrimitive}}
+        {{/isArray}}
+    {{/fields}}
+
+    protected abstract B self();
+}
