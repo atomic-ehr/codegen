@@ -16,6 +16,12 @@ A powerful, extensible code generation toolkit for FHIR (Fast Healthcare Interop
 - 🔄 **Intermediate Format** - TypeSchema format enables multi-language support
 - 🛠️ **Developer Friendly** - Fluent API, CLI, and configuration file support
 
+## Versions
+
+- `canary` channel - Latest development version from `main` branch
+- `latest` channel - Latest stable version (currently in developer preview)
+- all versions: [NPM: @atomic-ehr/codegen](https://www.npmjs.com/package/@atomic-ehr/codegen?activeTab=versions)
+
 ## Installation
 
 ```bash
@@ -45,7 +51,7 @@ const report = await builder.generate();
 console.log(report);
 ```
 
-Run the script by:
+Run the script with:
 
 - `npm exec tsx scripts/generate-types.ts`
 - `pnpm exec tsx scripts/generate-types.ts`
@@ -106,7 +112,7 @@ The toolkit uses a three-stage architecture (details: [link](https://www.health-
 Resolve Canonicals → Transform to Type Schema → Generate
 ```
 
-1. **Input Layer** - Parses FHIR packages and profiles, resolves canonicals and transforms them into TypeSchema format
+1. **Input Layer** - Parses FHIR packages and profiles, resolves canonicals, and transforms them into TypeSchema format
 2. **Intermediate Format** - TypeSchema provides a universal representation for FHIR data entities
 3. **Output Generators** - Generate code for TypeScript, Python, and other languages
 
@@ -114,8 +120,8 @@ Resolve Canonicals → Transform to Type Schema → Generate
 
 Actual examples of type generation and usage can be found here: [examples/typescript-r4](examples/typescript-r4):
 
-- `demo.ts` - a simple script which creates resources and demonstrates how to work with profiles.
-- `generate.ts` - script to generate types.
+- `demo.ts` - a simple script that creates resources and demonstrates how to work with profiles
+- `generate.ts` - script to generate types
 
 ### Generate Types for a Custom Profile (Draft)
 
