@@ -1,4 +1,4 @@
-import type { IsPrefixed } from "@mustache/UtilityTypes";
+import type { IsPrefixed } from "@root/utils/types";
 import type { Field, NestedType, TypeSchema } from "@typeschema/types";
 
 export type DebugMixin = {

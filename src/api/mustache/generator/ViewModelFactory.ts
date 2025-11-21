@@ -10,8 +10,8 @@ import type {
     ViewModel,
 } from "@mustache/types";
 import { PRIMITIVE_TYPES } from "@mustache/types";
-import type { IsPrefixed } from "@mustache/UtilityTypes";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
+import type { IsPrefixed } from "@root/utils/types";
 import {
     type Field,
     type Identifier,

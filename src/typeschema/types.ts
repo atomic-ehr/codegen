@@ -114,10 +114,6 @@ export const isNestedIdentifier = (id: Identifier | undefined): id is NestedIden
     return id?.kind === "nested";
 };
 
-export const isComplexTypeIdentifier = (id: Identifier | undefined): id is ComplexTypeIdentifier => {
-    return id?.kind === "complex-type";
-};
-
 export const isProfileIdentifier = (id: Identifier | undefined): id is ProfileIdentifier => {
     return id?.kind === "profile";
 };
