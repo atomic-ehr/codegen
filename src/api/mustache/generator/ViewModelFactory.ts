@@ -32,6 +32,7 @@ export class ViewModelFactory {
     constructor(
         private readonly tsIndex: TypeSchemaIndex,
         private readonly nameGenerator: NameGenerator,
+        private readonly filterPred: (id: Identifier) => boolean,
     ) {}
 
     public createUtility(): RootViewModel<ViewModel> {
@@ -122,12 +123,14 @@ export class ViewModelFactory {
             return this.tsIndex
                 .resourceChildren(typeRef)
                 .filter(isComplexTypeIdentifier)
+                .filter(this.filterPred)
                 .map((childRef: Identifier) => this._createFor(childRef, cache, nestedIn));
         }
         if (isResourceIdentifier(typeRef)) {
             return this.tsIndex
                 .resourceChildren(typeRef)
                 .filter(isResourceIdentifier)
+                .filter(this.filterPred)
                 .map((childRef: Identifier) => this._createFor(childRef, cache, nestedIn));
         }
         return [];
