@@ -17,7 +17,7 @@ export type WriterOptions = FileSystemWriterOptions & {
 
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
-export class FileSystemWriter<T extends FileSystemWriterOptions = FileSystemWriterOptions> {
+export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileSystemWriterOptions> {
     opts: T;
     currentDir: string;
     currentFileDescriptor?: number;
@@ -70,16 +70,14 @@ export class FileSystemWriter<T extends FileSystemWriterOptions = FileSystemWrit
         fs.writeSync(this.currentFileDescriptor, str);
     }
 
-    async generate(_tsIndex: TypeSchemaIndex) {
-        throw new Error("Not implemented");
-    }
+    abstract generate(_tsIndex: TypeSchemaIndex): Promise<void>;
 
     writtenFiles(): string[] {
         return Array.from(this.writtenFilesSet);
     }
 }
 
-export class Writer<T extends WriterOptions = WriterOptions> extends FileSystemWriter<T> {
+export abstract class Writer<T extends WriterOptions = WriterOptions> extends FileSystemWriter<T> {
     currentIndent: number = 0;
 
     private indent() {
