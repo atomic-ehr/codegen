@@ -7,7 +7,6 @@ if (require.main === module) {
     console.log("📦 Generating FHIR R4 Core Types...");
 
     const builder = new APIBuilder()
-        .verbose()
         .throwException()
         .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
         .typescript({ withDebugComment: false })

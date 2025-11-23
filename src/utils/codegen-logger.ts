@@ -17,8 +17,9 @@ export enum LogLevel {
 export interface LogOptions {
     prefix?: string;
     timestamp?: boolean;
-    verbose?: boolean;
     suppressLoggingLevel?: LogLevel[] | "all";
+    /** Minimum log level to display. Messages below this level are suppressed. Default: INFO */
+    level?: LogLevel;
 }
 
 /**
@@ -31,9 +32,17 @@ export class CodegenLogger {
     constructor(options: LogOptions = {}) {
         this.options = {
             timestamp: false,
-            verbose: false,
+            level: LogLevel.INFO,
             ...options,
         };
+    }
+
+    /**
+     * Check if a message at the given level should be logged
+     */
+    private shouldLog(messageLevel: LogLevel): boolean {
+        const currentLevel = this.options.level ?? LogLevel.INFO;
+        return messageLevel >= currentLevel;
     }
 
     private static consoleLevelsMap: Record<LogLevel, (...data: any[]) => void> = {
@@ -58,6 +67,7 @@ export class CodegenLogger {
 
     private tryWriteToConsole(level: LogLevel, formattedMessage: string): void {
         if (this.isSuppressed(level)) return;
+        if (!this.shouldLog(level)) return;
         const logFn = CodegenLogger.consoleLevelsMap[level] || console.log;
         logFn(formattedMessage);
     }
@@ -74,8 +84,11 @@ export class CodegenLogger {
      */
     error(message: string, error?: Error): void {
         if (this.isSuppressed(LogLevel.ERROR)) return;
+        if (!this.shouldLog(LogLevel.ERROR)) return;
         console.error(this.formatMessage("X", message, pc.red));
-        if (error && this.options.verbose) {
+        // Show error details if verbose or log level is DEBUG
+        const showDetails = this.options.level === LogLevel.DEBUG;
+        if (error && showDetails) {
             console.error(pc.red(`   ${error.message}`));
             if (error.stack) {
                 console.error(pc.gray(error.stack));
@@ -105,10 +118,11 @@ export class CodegenLogger {
     }
 
     /**
-     * Debug message (only shows in verbose mode)
+     * Debug message (only shows when log level is DEBUG or verbose is true)
      */
     debug(message: string): void {
-        if (this.options.verbose) {
+        // Debug shows if verbose is true OR log level allows DEBUG
+        if (this.shouldLog(LogLevel.DEBUG)) {
             this.tryWriteToConsole(LogLevel.DEBUG, this.formatMessage("🐛", message, pc.magenta));
         }
     }
@@ -158,6 +172,14 @@ export class CodegenLogger {
      */
     configure(options: Partial<LogOptions>): void {
         this.options = { ...this.options, ...options };
+    }
+
+    getLevel(): LogLevel {
+        return this.options.level ?? LogLevel.INFO;
+    }
+
+    setLevel(level: LogLevel): void {
+        this.options.level = level;
     }
 }
 

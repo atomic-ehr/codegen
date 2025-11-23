@@ -1,7 +1,6 @@
 import { APIBuilder } from "../../src/api/builder";
 
 const builder = new APIBuilder()
-    .verbose()
     .throwException()
     .typescript({ withDebugComment: false, generateProfile: false })
     .fromPackageRef("https://build.fhir.org/ig/FHIR/sql-on-fhir-v2//package.tgz")

@@ -6,7 +6,7 @@
  * Modern CLI with subcommands for typeschema and code generation
  */
 
-import { configure, error, header } from "@root/utils/codegen-logger";
+import { configure, error, header, LogLevel } from "@root/utils/codegen-logger";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { generateCommand } from "./generate";
@@ -19,16 +19,44 @@ export interface CLIArgv {
     config?: string;
     verbose?: boolean;
     debug?: boolean;
+    logLevel?: "debug" | "info" | "warn" | "error" | "silent";
+}
+
+/**
+ * Map string log level to LogLevel enum
+ */
+function parseLogLevel(level: string | undefined): LogLevel | undefined {
+    if (!level) return undefined;
+    const levelMap: Record<string, LogLevel> = {
+        debug: LogLevel.DEBUG,
+        info: LogLevel.INFO,
+        warn: LogLevel.WARN,
+        error: LogLevel.ERROR,
+        silent: LogLevel.SILENT,
+    };
+    return levelMap[level.toLowerCase()];
 }
 
 /**
  * Middleware to setup logging
  */
 async function setupLoggingMiddleware(argv: any) {
+    // Determine log level: explicit --log-level takes precedence over --verbose/--debug
+    let level = parseLogLevel(argv.logLevel);
+
+    // If no explicit log level, use --verbose or --debug as shortcuts
+    if (level === undefined) {
+        if (argv.debug || argv.verbose) {
+            level = LogLevel.DEBUG;
+        } else {
+            level = LogLevel.INFO;
+        }
+    }
+
     // Configure the CliLogger with user preferences
     configure({
-        verbose: argv.verbose || argv.debug,
         timestamp: argv.debug,
+        level,
     });
 }
 
@@ -54,6 +82,13 @@ export function createCLI() {
             type: "boolean",
             description: "Enable debug output with detailed logging",
             default: false,
+            global: true,
+        })
+        .option("log-level", {
+            alias: "l",
+            type: "string",
+            choices: ["debug", "info", "warn", "error", "silent"] as const,
+            description: "Set the log level (default: info)",
             global: true,
         })
         .option("config", {

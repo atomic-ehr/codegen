@@ -384,7 +384,6 @@ export const enrichValueSet = (vs: ValueSet, packageMeta: PackageMeta): RichValu
 ///////////////////////////////////////////////////////////
 
 export interface TypeschemaGeneratorOptions {
-    verbose?: boolean;
     logger?: import("../utils/codegen-logger").CodegenLogger;
     treeshake?: string[];
     manager?: ReturnType<typeof CanonicalManager> | null;
