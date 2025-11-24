@@ -9,15 +9,22 @@ import * as fs from "node:fs";
 import * as afs from "node:fs/promises";
 import * as Path from "node:path";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
-import { CSharp } from "@root/api/writer-generator/csharp/csharp";
+import { CSharp } from "@root/api/writer-generator/csharp/csharp.ts";
+import { Python } from "@root/api/writer-generator/python/python.ts";
 import { registerFromManager } from "@root/typeschema/register";
-import { mkTypeSchemaIndex, type TreeShake, type TypeSchemaIndex, treeShake } from "@root/typeschema/utils";
-import { generateTypeSchemas } from "@typeschema/index";
-import { extractNameFromCanonical, packageMetaToFhir, packageMetaToNpm, type TypeSchema } from "@typeschema/types";
 import type { TypeSchemaConfig } from "../config";
+import { mkTypeSchemaIndex, type TreeShake, treeShake, type TypeSchemaIndex } from "@root/typeschema/utils";
+import {
+    extractNameFromCanonical,
+    npmToPackageMeta,
+    packageMetaToFhir,
+    packageMetaToNpm,
+    type TypeSchema,
+} from "@typeschema/types";
 import { CodegenLogger, createLogger } from "../utils/codegen-logger";
 import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript";
 import type { FileBuffer, FileSystemWriter, WriterOptions } from "./writer-generator/writer";
+import { generateTypeSchemas } from "@root/typeschema";
 
 /**
  * Configuration options for the API builder
@@ -248,6 +255,25 @@ export class APIBuilder {
         const generator = new TypeScript(opts);
         this.generators.set("typescript", generator);
         this.logger.debug(`Configured TypeScript generator (${JSON.stringify(opts, undefined, 2)})`);
+        return this;
+    }
+
+    python(staticSourceDir?: string | undefined, packageName?: string | undefined): APIBuilder {
+        const generator = new Python({
+            staticDir: staticSourceDir ?? undefined,
+            packageName: packageName ?? undefined,
+            fieldFormat: "SnakeCase",
+            outputDir: Path.join(this.options.outputDir),
+            tabSize: 4,
+            withDebugComment: false,
+            commentLinePrefix: "#",
+            logger: createLogger({
+                verbose: this.options.verbose,
+                prefix: "PY",
+            }),
+        });
+        this.generators.set("python", generator);
+        this.logger.debug(`Configured python generator`);
         return this;
     }
 
