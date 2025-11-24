@@ -337,6 +337,7 @@ export class APIBuilder {
             logger: this.logger,
             staticDir: staticSourceDir ?? undefined,
             packageName: packageName ?? undefined,
+            fieldFormat: "SnakeCase",
             ...writerOpts,
         };
         const generator = writerToGenerator(new Python(effectiveOpts));

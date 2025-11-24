@@ -1,6 +1,13 @@
 import fs from "node:fs";
 import * as Path from "node:path";
-import { pascalCase, snakeCase, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils";
+import {
+    camelCase,
+    capitalCase,
+    kebabCase,
+    pascalCase,
+    snakeCase,
+    uppercaseFirstLetterOfEach,
+} from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
 import { groupByPackages, type TypeSchemaIndex } from "@root/typeschema/utils";
 import type { Field, Identifier, RegularTypeSchema } from "@typeschema/types.ts";
@@ -28,6 +35,14 @@ const PRIMITIVE_TYPE_MAP: Record<string, string> = {
     markdown: "str",
     id: "str",
     xhtml: "str",
+};
+
+const AVAILABLE_STRING_FORMATS: Record<string, (str: string) => string> = {
+    SnakeCase: snakeCase,
+    PascalCase: pascalCase,
+    CamelCase: camelCase,
+    CapitalCase: capitalCase,
+    KebabCase: kebabCase,
 };
 
 const PYTHON_KEYWORDS = new Set([
@@ -75,6 +90,7 @@ export interface PythonGeneratorOptions extends WriterOptions {
     allowExtraFields?: boolean;
     staticDir?: string;
     packageName?: string;
+    fieldFormat?: string;
 }
 
 interface ImportGroup {
@@ -118,7 +134,7 @@ const deriveResourceName = (id: Identifier): string => {
         const name = uppercaseFirstLetterOfEach((fragment ?? "").split(".")).join("");
         return pascalCase([resourceName, name].join(""));
     }
-    return pascalCase(id.name); // todo: possibly change
+    return pascalCase(id.name);
 };
 
 type TypeSchemaPackageGroups = {
@@ -131,6 +147,7 @@ export class Python extends Writer {
     private readonly helper: PythonHelper;
     private readonly rootPackage: string;
     private readonly staticDir: string | undefined;
+    private readonly nameFormatFunction: (name: string) => string;
 
     constructor(options: PythonGeneratorOptions) {
         super({
@@ -140,6 +157,7 @@ export class Python extends Writer {
         this.helper = new PythonHelper();
         this.staticDir = options.staticDir || undefined;
         this.rootPackage = options.packageName || "generated";
+        this.nameFormatFunction = this.getFieldFormatFunction(options.fieldFormat);
     }
 
     override generate(tsIndex: TypeSchemaIndex): void {
@@ -414,7 +432,7 @@ export class Python extends Writer {
     }
 
     private buildFieldInfo(fieldName: string, field: Field): FieldInfo {
-        const pyFieldName = fixReservedWords(snakeCase(fieldName));
+        const pyFieldName = fixReservedWords(this.nameFormatFunction(fieldName));
         const fieldType = this.determineFieldType(field);
         const defaultValue = this.getFieldDefaultValue(field, fieldName);
 
@@ -678,5 +696,16 @@ export class Python extends Writer {
     copyStaticFiles(): void {
         if (!this.staticDir) return;
         fs.cpSync(Path.resolve(this.staticDir), this.opts.outputDir, { recursive: true });
+    }
+
+    getFieldFormatFunction(format: string | undefined): (name: string) => string {
+        if (!format) {
+            this.logger()?.warn(`No field format specified. Defaulting to SnakeCase.`);
+            return snakeCase;
+        } else if (!AVAILABLE_STRING_FORMATS[format]) {
+            this.logger()?.warn(`Unknown field format '${format}'. Defaulting to SnakeCase.`);
+            this.logger()?.warn(`Supported formats: ${Object.keys(AVAILABLE_STRING_FORMATS).join(", ")}`);
+            return snakeCase;
+        } else return AVAILABLE_STRING_FORMATS[format];
     }
 }
