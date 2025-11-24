@@ -13,7 +13,7 @@ import { CSharp } from "@root/api/writer-generator/csharp/csharp.ts";
 import { Python } from "@root/api/writer-generator/python/python.ts";
 import { registerFromManager } from "@root/typeschema/register";
 import type { TypeSchemaConfig } from "../config";
-import {mkTypeSchemaIndex, type TreeShake, treeShake, type TypeSchemaIndex} from "@root/typeschema/utils";
+import { mkTypeSchemaIndex, type TreeShake, treeShake, type TypeSchemaIndex } from "@root/typeschema/utils";
 import {
     extractNameFromCanonical,
     npmToPackageMeta,
@@ -24,7 +24,7 @@ import {
 import { CodegenLogger, createLogger } from "../utils/codegen-logger";
 import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript";
 import type { FileBuffer, FileSystemWriter, WriterOptions } from "./writer-generator/writer";
-import {generateTypeSchemas} from "@root/typeschema";
+import { generateTypeSchemas } from "@root/typeschema";
 
 /**
  * Configuration options for the API builder
