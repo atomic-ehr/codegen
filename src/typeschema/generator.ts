@@ -30,16 +30,16 @@ import {
 export class TypeSchemaGenerator {
     private manager: ReturnType<typeof CanonicalManager>;
 
+    // biome-ignore lint/correctness/noUnusedPrivateClassMembers: currently its okay
     private options: TypeschemaGeneratorOptions;
     private logger?: CodegenLogger;
 
     constructor(options: TypeschemaGeneratorOptions = {}) {
-        this.options = { verbose: false, ...options };
+        this.options = { ...options };
         this.manager = options.manager || CanonicalManager({ packages: [], workingDir: "tmp/fhir" });
         this.logger =
             options.logger ||
             createLogger({
-                verbose: this.options.verbose,
                 prefix: "TypeSchema",
             });
     }

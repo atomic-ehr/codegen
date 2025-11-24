@@ -67,7 +67,6 @@ export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, G
     },
     handler: async (argv) => {
         const logger = createLogger({
-            verbose: argv.verbose,
             prefix: "TypeSchema",
         });
 
@@ -103,7 +102,6 @@ export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, G
 
             // Create TypeSchema generator
             const generator = new TypeSchemaGenerator({
-                verbose: argv.verbose,
                 treeshake: treeshakeOptions,
             });
 
