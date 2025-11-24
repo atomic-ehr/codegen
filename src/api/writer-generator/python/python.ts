@@ -160,7 +160,7 @@ export class Python extends Writer {
         this.nameFormatFunction = this.getFieldFormatFunction(options.fieldFormat);
     }
 
-    override generate(tsIndex: TypeSchemaIndex): void {
+    override async generate(tsIndex: TypeSchemaIndex): Promise<void> {
         const groups: TypeSchemaPackageGroups = {
             groupedComplexTypes: groupByPackages(tsIndex.collectComplexTypes()),
             groupedResources: groupByPackages(tsIndex.collectResources()),
