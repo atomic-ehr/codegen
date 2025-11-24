@@ -1,0 +1,67 @@
+package {{{properties.package}}};
+
+import static java.util.Objects.requireNonNull;
+
+import jakarta.annotation.Generated;
+import jakarta.annotation.Nullable;
+import jakarta.annotation.Generated;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import jakarta.validation.Valid;
+
+{{#properties.additional_imports}}
+import {{{.}}};
+{{/properties.additional_imports}}
+
+{{#model.isResource}}
+    import {{{properties.complexTypePackage}}}.{{#lambda.saveTypeName}}Reference{{/lambda.saveTypeName}};
+{{/model.isResource}}
+import {{{properties.complexTypePackage}}}.{{#lambda.saveTypeName}}Element{{/lambda.saveTypeName}};
+
+{{#model.dependencies}}
+    {{#complexTypes}}
+        import {{{properties.complexTypePackage}}}.{{{saveName}}};
+    {{/complexTypes}}
+
+    {{#resources}}
+        import {{{properties.resourcePackage}}}.{{{saveName}}};
+    {{/resources}}
+{{/model.dependencies}}
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+
+import java.net.URI;
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.UUID;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.stream.IntStream;
+
+@Generated(value="{{{meta.generator}}}", date="{{{meta.timestamp}}}")
+{{#model}}
+{{#isResource.isResource}}
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "resourceType")
+{{/isResource.isResource}}
+{{>model/inner_resource_or_complex_type}}
+{{/model}}

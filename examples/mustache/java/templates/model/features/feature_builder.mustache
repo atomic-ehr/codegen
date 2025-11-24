@@ -1,0 +1,61 @@
+public static {{{saveName}}}Builder {{#lambda.camelCase}}{{{saveName}}}{{/lambda.camelCase}}Builder() {
+    return new {{{saveName}}}Builder();
+}
+
+{{>model/features/feature_builder_abstract_builder.mustache}}
+{{>model/features/feature_builder_builder.mustache}}
+
+private {{{saveName}}}({{{saveName}}}Builder builder) {
+    this((Abstract{{{saveName}}}Builder<?,?>)requireNonNull(builder));
+}
+
+protected {{{saveName}}}(Abstract{{{saveName}}}Builder<?,?> builder) {
+    {{#parents.0}}super(requireNonNull(builder));{{/parents.0}}
+    {{#fields}}
+        {{#isRequired}}requireNonNull(builder.{{{saveName}}}, "missing '{{{saveName}}}'");{{/isRequired}}
+    {{/fields}}
+    {{#fields}}
+        {{#isArray}}
+            {{#isPrimitive}}
+                this.{{{saveName}}} = {{^isRequired}}builder.{{{saveName}}} != null ? {{/isRequired}}builder.{{{saveName}}}.stream().map(Primitive::value).toList(){{^isRequired}} : null{{/isRequired}};
+                this._{{{saveName}}} = {{^isRequired}}builder.{{{saveName}}} != null ? {{/isRequired}}builder.{{{saveName}}}.stream().map(Primitive::element).toList(){{^isRequired}} : null{{/isRequired}};
+            {{/isPrimitive}}
+            {{^isPrimitive}}
+                this.{{{saveName}}} = {{^isRequired}}builder.{{{saveName}}} != null ? {{/isRequired}}List.copyOf(builder.{{{saveName}}}){{^isRequired}} : null{{/isRequired}};
+            {{/isPrimitive}}
+        {{/isArray}}
+        {{^isArray}}
+            {{#isPrimitive}}
+                this.{{{saveName}}} = {{^isRequired}}builder.{{{saveName}}} != null ? {{/isRequired}}requireNonNull(builder.{{{saveName}}}.value()){{^isRequired}} : null{{/isRequired}};
+                this._{{{saveName}}} = {{^isRequired}}builder.{{{saveName}}} != null ? {{/isRequired}} builder.{{{saveName}}}.element(){{^isRequired}} : null{{/isRequired}};
+            {{/isPrimitive}}
+            {{^isPrimitive}}
+                this.{{{saveName}}} = builder.{{{saveName}}};
+            {{/isPrimitive}}
+        {{/isArray}}
+    {{/fields}}
+}
+protected <B extends Abstract{{{saveName}}}Builder<?,B>> B applyToBuilder(B builder) {
+    requireNonNull(builder);
+    {{#hasParents}}super.applyToBuilder(builder);{{/hasParents}}
+    {{#hasFields}}
+        builder
+        {{#fields}}
+                .{{{saveName}}}(this.{{{saveName}}}{{#isPrimitive}},this._{{{saveName}}}{{/isPrimitive}})
+        {{/fields}};
+    {{/hasFields}}
+    return builder;
+}
+{{#hasChildren}}
+    protected Abstract{{{saveName}}}Builder<?,?> toBuilder() {
+        return this.to{{{saveName}}}Builder();
+    }
+    public final {{{saveName}}}Builder to{{{saveName}}}Builder() {
+        return this.applyToBuilder({{{saveName}}}.{{#lambda.camelCase}}{{{saveName}}}{{/lambda.camelCase}}Builder());
+    }
+{{/hasChildren}}
+{{^hasChildren}}
+    public final {{{saveName}}}Builder toBuilder() {
+        return this.applyToBuilder({{{saveName}}}.{{#lambda.camelCase}}{{{saveName}}}{{/lambda.camelCase}}Builder());
+    }
+{{/hasChildren}}

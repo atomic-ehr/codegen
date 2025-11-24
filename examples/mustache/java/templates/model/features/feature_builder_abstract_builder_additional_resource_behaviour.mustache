@@ -1,0 +1,13 @@
+public final B reference(ResourceName resourceName, UUID id){
+    requireNonNull(resourceName, "resourceName must not be null");
+    requireNonNull(id, "id must not be null");
+    return this.reference(resourceName, id.toString());
+}
+public final B reference(ResourceName resourceName, String id){
+    requireNonNull(resourceName, "resourceName must not be null");
+    requireNonNull(id, "id must not be null");
+    if(id.isBlank()){
+        throw new IllegalArgumentException("id must not be blank");
+    }
+    return this.reference(resourceName.typeName()+"/"+id.trim().strip()).type(resourceName.uri());
+}
