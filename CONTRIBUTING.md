@@ -270,7 +270,7 @@ export function mainFunction() {
   // Implementation
 }
 
-// 5. Helper functions
+// 5. PythonHelper functions
 function helperFunction() {
   // Implementation
 }
