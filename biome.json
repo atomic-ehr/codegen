@@ -10,6 +10,7 @@
     "includes": [
       "src/**/*.ts",
       "test/**/*.ts",
+      "scripts/**/*.ts",
       "atomic-codegen.config.js",
       "biome.json",
       "package.json",
