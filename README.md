@@ -14,7 +14,7 @@ A powerful, extensible code generation toolkit for FHIR (Fast Healthcare Interop
 - 📦 **Multi-Package Support** - Generate from a list of FHIR packages (profiles in development)
 - 🎯 **Type-Safe** - Generates fully typed interfaces with proper inheritance
 - 🔄 **Intermediate Format** - TypeSchema format enables multi-language support
-- 🛠️ **Developer Friendly** - Fluent API, CLI, and configuration file support
+- 🛠️  **Developer Friendly** - Fluent API, CLI, and configuration file support
 
 ## Versions
 
@@ -364,4 +364,4 @@ See our detailed [**ROADMAP.md**](ROADMAP.md) for the complete development plan.
 
 ---
 
-Built with ❤️ by the Atomic Healthcare team
+Built with ❤️  by the Atomic Healthcare team
