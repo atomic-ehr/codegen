@@ -3,11 +3,17 @@ import { APIBuilder } from "../../src";
 if (require.main === module) {
     console.log("📦 Generating FHIR R4 Core Types...");
 
+    const opts = {
+        allowExtraFields: false,
+        staticDir: "./src/api/writer-generator/python/static-files",
+        fieldFormat: "SnakeCase",
+    };
+
     const builder = new APIBuilder()
         .verbose()
         .throwException()
         .fromPackage("hl7.fhir.r4.core", "4.0.1")
-        .python("./src/api/writer-generator/python/static-files")
+        .python(opts)
         .outputTo("./examples/python/generated")
         .cleanOutput(true);
 

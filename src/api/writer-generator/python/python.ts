@@ -11,7 +11,7 @@ import {
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
 import { groupByPackages, type TypeSchemaIndex } from "@root/typeschema/utils";
 import type { Field, Identifier, RegularTypeSchema } from "@typeschema/types.ts";
-import { PythonHelper } from "./PythonHelper.ts";
+import { pythonUtils } from "./utils.ts";
 
 const PRIMITIVE_TYPE_MAP: Record<string, string> = {
     boolean: "bool",
@@ -144,7 +144,7 @@ type TypeSchemaPackageGroups = {
 
 export class Python extends Writer {
     private readonly allowExtraFields: boolean;
-    private readonly helper: PythonHelper;
+    private readonly helper: pythonUtils;
     private readonly rootPackage: string;
     private readonly staticDir: string | undefined;
     private readonly nameFormatFunction: (name: string) => string;
@@ -154,7 +154,7 @@ export class Python extends Writer {
             ...options,
         });
         this.allowExtraFields = options.allowExtraFields || false;
-        this.helper = new PythonHelper();
+        this.helper = new pythonUtils();
         this.staticDir = options.staticDir || undefined;
         this.rootPackage = options.packageName || "generated";
         this.nameFormatFunction = this.getFieldFormatFunction(options.fieldFormat);
@@ -447,15 +447,16 @@ export class Python extends Writer {
         let fieldType = field ? this.getBaseFieldType(field) : "";
 
         if ("enum" in field && field.enum) {
-            fieldType = this.wrapLiteral(field.enum.map((e: string) => `"${e}"`).join(", "));
+            const s: string = field.enum.map((e: string) => `"${e}"`).join(", ");
+            fieldType = `Literal[${s}]`;
         }
 
         if (field.array) {
-            fieldType = this.wrapList(fieldType);
+            fieldType = `PyList[${fieldType}]`;
         }
 
         if (!field.required) {
-            fieldType = this.wrapOptional(fieldType);
+            fieldType = `${fieldType} | None`;
         }
 
         return fieldType;
@@ -570,29 +571,11 @@ export class Python extends Writer {
         this.indentBlock(() => {
             const remaining = [...entities];
             while (remaining.length > 0) {
-                const line = this.buildImportLine(remaining);
+                const line = this.buildImportLine(remaining, MAX_IMPORT_LINE_LENGTH);
                 this.line(line);
             }
         });
         this.line(")");
-    }
-
-    private buildImportLine(remaining: string[]): string {
-        let line = "";
-
-        while (remaining.length > 0 && line.length < MAX_IMPORT_LINE_LENGTH) {
-            const entity = remaining.shift()!;
-            if (line.length > 0) {
-                line += ", ";
-            }
-            line += entity;
-        }
-
-        if (remaining.length > 0) {
-            line += ", \\";
-        }
-
-        return line;
     }
 
     private pyImportType(identifier: Identifier): void {
@@ -673,24 +656,10 @@ export class Python extends Writer {
         if (identifier.kind === "complex-type") {
             return `${this.pyFhirPackage(identifier)}.base`;
         }
-
         if (identifier.kind === "resource") {
             return [this.pyFhirPackage(identifier), snakeCase(identifier.name)].join(".");
         }
-
         return this.pyFhirPackage(identifier);
-    }
-
-    wrapOptional(s: string): string {
-        return `${s} | None`;
-    }
-
-    wrapList(s: string): string {
-        return `PyList[${s}]`;
-    }
-
-    wrapLiteral(s: string): string {
-        return `Literal[${s}]`;
     }
 
     copyStaticFiles(): void {

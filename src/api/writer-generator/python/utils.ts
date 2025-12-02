@@ -1,7 +1,7 @@
 import type { Identifier } from "@root/typeschema";
 import type { RegularTypeSchema } from "@typeschema/types.ts";
 
-export class PythonHelper {
+export class pythonUtils {
     private resourceHierarchy: { parent: Identifier; child: Identifier }[] | null = [];
 
     constructor() {
@@ -22,11 +22,11 @@ export class PythonHelper {
         if (!this.resourceHierarchy) {
             this.resourceHierarchy = this.evaluateResourceHierarchy(resources);
         }
-        const childrens = this.resourceHierarchy
+        const children = this.resourceHierarchy
             .filter((pair) => pair.parent.name === schemaRef.name)
             .map((pair) => pair.child);
-        const subChildrens = childrens.flatMap((child) => this.childrenOf(child, resources));
-        return [...[...childrens].map((child) => child), ...subChildrens];
+        const subChildren = children.flatMap((child) => this.childrenOf(child, resources));
+        return [...[...children].map((child) => child), ...subChildren];
     }
 
     getPackages(packageResources: RegularTypeSchema[], rootPackage: string): string[] {

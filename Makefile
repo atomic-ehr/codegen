@@ -68,7 +68,7 @@ PYTHON=python3
 PYTHON_SDK_EXAMPLE=./examples/python
 
 test-python-sdk: typecheck format prepare-aidbox-runme lint
-	$(TYPECHECK) --project tsconfig.example-python.json
+	$(TYPECHECK) --project examples/python/tsconfig.json
 	bun run examples/python/generate.ts
 
 	@if [ ! -d "$(PYTHON_SDK_EXAMPLE)/venv" ]; then \
@@ -78,6 +78,11 @@ test-python-sdk: typecheck format prepare-aidbox-runme lint
 		pip install -r generated/requirements.txt; \
 	fi
 
+	# Run mypy in strict mode
 	cd $(PYTHON_SDK_EXAMPLE) && \
+		. venv/bin/activate && \
+		mypy --strict .
+
+	cd $(PYTHON_SDK_EXAMPLE)/generated && \
 		. venv/bin/activate && \
 		python -m pytest test_sdk.py -v
