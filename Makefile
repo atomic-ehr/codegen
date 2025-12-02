@@ -79,9 +79,9 @@ test-python-sdk: typecheck format prepare-aidbox-runme lint
 	fi
 
 	# Run mypy in strict mode
-	cd $(PYTHON_SDK_EXAMPLE)/generated && \
+	cd $(PYTHON_SDK_EXAMPLE) && \
 		. venv/bin/activate && \
-		mypy --strict .
+		mypy --strict generated
 
 	cd $(PYTHON_SDK_EXAMPLE) && \
 		. venv/bin/activate && \
