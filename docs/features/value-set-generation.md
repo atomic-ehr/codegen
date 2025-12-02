@@ -71,7 +71,7 @@ const patient: Patient = {
 // patient.gender = 'invalid'; // Error: Type '"invalid"' is not assignable
 ```
 
-### With PythonHelper Functions
+### With Helper Functions
 ```typescript
 import { isValidAdministrativeGender } from './generated/valuesets/AdministrativeGender.js';
 

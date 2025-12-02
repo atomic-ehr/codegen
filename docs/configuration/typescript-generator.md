@@ -130,11 +130,11 @@ export default defineConfig({
 
 - **Build Time**: Value set generation adds minimal overhead to build time
 - **Output Size**: Generated files are small and compress well
-- **Runtime Impact**: PythonHelper functions are lightweight and optional
+- **Runtime Impact**: Helper functions are lightweight and optional
 - **Tree Shaking**: Import only the value sets you need
 
 ## Security Considerations
 
 - Value set directory path cannot contain `..` path segments
 - Generated files use proper TypeScript const assertions
-- PythonHelper functions include type guards for runtime safety
+- Helper functions include type guards for runtime safety
