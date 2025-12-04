@@ -9,24 +9,6 @@ describe("Type Schema generator > ValueSet", async () => {
         immutable: true,
         id: "administrative-gender",
         name: "AdministrativeGender",
-        extension: [
-            {
-                url: "http://hl7.org/fhir/StructureDefinition/structuredefinition-wg",
-                valueCode: "pa",
-            },
-            {
-                url: "http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status",
-                valueCode: "normative",
-            },
-            {
-                url: "http://hl7.org/fhir/StructureDefinition/structuredefinition-fmm",
-                valueInteger: 5,
-            },
-            {
-                url: "http://hl7.org/fhir/StructureDefinition/structuredefinition-normative-version",
-                valueCode: "4.0.0",
-            },
-        ],
         status: "active",
         identifier: [
             {

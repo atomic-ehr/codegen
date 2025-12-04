@@ -6,10 +6,10 @@ import {
     isStructureDefinition,
     type StructureDefinition,
 } from "@atomic-ehr/fhirschema";
-import { type CodeSystem, isCodeSystem } from "@root/fhir-types/hl7-fhir-r4-core";
+import { type CodeSystem, isCodeSystem, isValueSet, type ValueSet } from "@root/fhir-types/hl7-fhir-r4-core";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
-import type { CanonicalUrl, Name, PackageMeta, RichFHIRSchema, RichValueSet, ValueSet } from "@typeschema/types";
-import { enrichFHIRSchema, enrichValueSet, isValueSet, packageMetaToFhir, packageMetaToNpm } from "@typeschema/types";
+import type { CanonicalUrl, Name, PackageMeta, RichFHIRSchema, RichValueSet } from "@typeschema/types";
+import { enrichFHIRSchema, enrichValueSet, packageMetaToFhir, packageMetaToNpm } from "@typeschema/types";
 
 export type Register = {
     testAppendFs(fs: FHIRSchema): void;

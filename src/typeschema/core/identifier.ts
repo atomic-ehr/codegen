@@ -74,6 +74,7 @@ export function mkValueSetIdentifierByUrl(
         name: valueSetNameFallback,
         id: fullValueSetUrl,
         url: valueSetUrl,
+        status: "active",
     };
     const valueSet: RichValueSet = register.resolveVs(pkg, valueSetUrl) || valuesSetFallback;
     // NOTE: ignore valueSet.name due to human name
