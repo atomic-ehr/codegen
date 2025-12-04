@@ -18,6 +18,7 @@ import {
     isProfileTypeSchema,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
+    type Name,
     type ProfileTypeSchema,
     type RegularTypeSchema,
     type TypeSchema,
@@ -68,6 +69,10 @@ const tsModuleName = (id: Identifier): string => {
 
 const tsModuleFileName = (id: Identifier): string => {
     return `${tsModuleName(id)}.ts`;
+};
+
+const tsModulePath = (id: Identifier): string => {
+    return `${tsFhirPackageDir(id.package)}/${tsModuleName(id)}`;
 };
 
 const canonicalToName = (canonical: string | undefined, dropFragment = true) => {
@@ -171,13 +176,15 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             for (const dep of schema.dependencies) {
                 if (["complex-type", "resource", "logical"].includes(dep.kind)) {
                     imports.push({
-                        tsPackage: `../${kebabCase(dep.package)}/${pascalCase(dep.name)}`,
+                        tsPackage: `../${tsModulePath(dep)}`,
                         name: uppercaseFirstLetter(dep.name),
                         dep: dep,
                     });
                 } else if (isNestedIdentifier(dep)) {
+                    const ndep = { ...dep };
+                    ndep.name = canonicalToName(dep.url) as Name;
                     imports.push({
-                        tsPackage: `../${kebabCase(dep.package)}/${pascalCase(canonicalToName(dep.url) ?? "")}`,
+                        tsPackage: `../${tsModulePath(ndep)}`,
                         name: tsResourceName(dep),
                         dep: dep,
                     });
@@ -194,16 +201,17 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 this.debugComment("skip:", dep);
             }
             this.line();
-            // // NOTE: for primitive type extensions
-            // const element = this.loader.complexTypes().find((e) => e.identifier.name === "Element");
-            // if (
-            //     element &&
-            //     deps.find((e) => e.name === "Element") === undefined &&
-            //     // FIXME: don't import if fields and nested fields don't have primitive types
-            //     schema.identifier.name !== "Element"
-            // ) {
-            //     this.tsImport(`../${kebabCase(element.identifier.package)}/Element`, "Element");
-            // }
+            if (
+                this.withPrimitiveTypeExtension(schema) &&
+                schema.identifier.name !== "Element" &&
+                schema.dependencies.find((e) => e.name === "Element") === undefined
+            ) {
+                const elementUrl = "http://hl7.org/fhir/StructureDefinition/Element" as CanonicalUrl;
+                const element = tsIndex.resolveByUrl(schema.identifier.package, elementUrl);
+                if (!element) throw new Error(`'${elementUrl}' not found for ${schema.identifier.package}.`);
+
+                this.tsImportType(`../${tsModulePath(element.identifier)}`, "Element");
+            }
         }
     }
 
