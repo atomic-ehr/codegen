@@ -1,14 +1,9 @@
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
+import type { ValueSet } from "@root/fhir-types/hl7-fhir-r4-core";
 import { createLogger } from "@root/utils/codegen-logger";
 import { transformFhirSchema, transformValueSet } from "@typeschema/core/transformer";
 import { type Register, registerFromPackageMetas } from "@typeschema/register";
-import {
-    type CanonicalUrl,
-    enrichFHIRSchema,
-    enrichValueSet,
-    type PackageMeta,
-    type ValueSet,
-} from "@typeschema/types";
+import { type CanonicalUrl, enrichFHIRSchema, enrichValueSet, type PackageMeta } from "@typeschema/types";
 
 export type PFS = Partial<FHIRSchema>;
 export type PVS = Partial<ValueSet>;

@@ -9,6 +9,9 @@ TEST = bun test
 
 all: test-codegen test-typescript-r4-example test-typescript-ccda-example test-typescript-sql-on-fhir-example lint-unsafe
 
+generate-types:
+	bun run scripts/generate-types.ts
+
 lint:
 	$(LINT)
 

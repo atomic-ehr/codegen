@@ -4,14 +4,14 @@
  * Functions for processing value set bindings and generating enums
  */
 
+import assert from "node:assert";
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
+import type { CodeSystem, CodeSystemConcept } from "@root/fhir-types/hl7-fhir-r4-core";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import type { Register } from "@typeschema/register";
 import type {
     BindingTypeSchema,
     CanonicalUrl,
-    CodeSystem,
-    CodeSystemConcept,
     Concept,
     Identifier,
     PackageMeta,
@@ -38,7 +38,18 @@ function extractValueSetConcepts(
     valueSet: RichValueSet,
     _logger?: CodegenLogger,
 ): Concept[] | undefined {
-    if (valueSet.expansion?.contains) return valueSet.expansion.contains;
+    if (valueSet.expansion?.contains) {
+        return valueSet.expansion.contains
+            .filter((item) => item.code !== undefined)
+            .map((item) => {
+                assert(item.code);
+                return {
+                    code: item.code,
+                    display: item.display,
+                    system: item.system,
+                };
+            });
+    }
 
     const concepts = [] as Concept[];
     if (valueSet.compose?.include) {

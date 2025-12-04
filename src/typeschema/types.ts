@@ -5,6 +5,7 @@
 
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type * as FS from "@atomic-ehr/fhirschema";
+import type { ValueSet, ValueSetCompose } from "@root/fhir-types/hl7-fhir-r4-core";
 
 export type Name = string & { readonly __brand: unique symbol };
 export type CanonicalUrl = string & { readonly __brand: unique symbol };
@@ -322,58 +323,6 @@ export type TypeschemaParserOptions = {
 // ValueSet
 ///////////////////////////////////////////////////////////
 
-export const isValueSet = (res: any): res is ValueSet => {
-    return res?.resourceType === "ValueSet";
-};
-
-export type ValueSet = {
-    resourceType: "ValueSet";
-    package_meta?: PackageMeta;
-    id: string;
-    name?: string;
-    url?: string;
-    description?: string;
-    compose?: ValueSetCompose;
-    expansion?: {
-        contains: Concept[];
-    };
-    experimental?: boolean;
-    immutable?: boolean;
-    extension?: any[];
-    status?: string;
-    identifier?: any[];
-    title?: string;
-    publisher?: string;
-    version?: string;
-    meta?: any;
-    date?: string;
-    contact?: any;
-};
-
-type ValueSetCompose = {
-    include: {
-        concept?: Concept[];
-        system?: string;
-        filter?: unknown[];
-    }[];
-};
-
-export const isCodeSystem = (res: any): res is CodeSystem => {
-    return res?.resourceType === "CodeSystem";
-};
-
-export type CodeSystem = {
-    resourceType: "CodeSystem";
-    url: CanonicalUrl;
-    concept: CodeSystemConcept[];
-};
-
-export type CodeSystemConcept = {
-    concept: CodeSystemConcept[];
-    code: string;
-    display: string;
-};
-
 export type RichValueSet = Omit<ValueSet, "name" | "url"> & {
     package_meta: PackageMeta;
     name: Name;
@@ -385,7 +334,7 @@ export const enrichValueSet = (vs: ValueSet, packageMeta: PackageMeta): RichValu
     if (!vs.name) throw new Error("ValueSet must have a name");
     return {
         ...vs,
-        package_meta: vs.package_meta || packageMeta,
+        package_meta: (vs as RichValueSet).package_meta || packageMeta,
         name: vs.name as Name,
         url: vs.url as CanonicalUrl,
     };
