@@ -5,13 +5,12 @@
  */
 
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
+import type { CodeSystem, CodeSystemConcept } from "@root/fhir-types/hl7-fhir-r4-core";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import type { Register } from "@typeschema/register";
 import type {
     BindingTypeSchema,
     CanonicalUrl,
-    CodeSystem,
-    CodeSystemConcept,
     Concept,
     Identifier,
     PackageMeta,

@@ -9,6 +9,7 @@
     "ignoreUnknown": false,
     "includes": [
       "src/**/*.ts",
+      "!src/fhir-types/**/*.ts",
       "test/**/*.ts",
       "scripts/**/*.ts",
       "atomic-codegen.config.js",

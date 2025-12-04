@@ -358,22 +358,6 @@ type ValueSetCompose = {
     }[];
 };
 
-export const isCodeSystem = (res: any): res is CodeSystem => {
-    return res?.resourceType === "CodeSystem";
-};
-
-export type CodeSystem = {
-    resourceType: "CodeSystem";
-    url: CanonicalUrl;
-    concept: CodeSystemConcept[];
-};
-
-export type CodeSystemConcept = {
-    concept: CodeSystemConcept[];
-    code: string;
-    display: string;
-};
-
 export type RichValueSet = Omit<ValueSet, "name" | "url"> & {
     package_meta: PackageMeta;
     name: Name;
