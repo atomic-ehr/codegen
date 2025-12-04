@@ -7,6 +7,7 @@ import type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
 import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
 import type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
+import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 export type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
 export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";

@@ -4,6 +4,7 @@
 
 import type { Meta } from "../hl7-fhir-r4-core/Meta";
 
+import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { Meta } from "../hl7-fhir-r4-core/Meta";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/Resource

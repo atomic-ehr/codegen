@@ -9,6 +9,7 @@ import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
 import type { Period } from "../hl7-fhir-r4-core/Period";
 import type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
+import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 export type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";

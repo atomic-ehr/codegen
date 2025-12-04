@@ -18,6 +18,7 @@ import type { Timing } from "../hl7-fhir-r4-core/Timing";
 import type { TriggerDefinition } from "../hl7-fhir-r4-core/TriggerDefinition";
 import type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
+import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { Annotation } from "../hl7-fhir-r4-core/Annotation";
 export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";

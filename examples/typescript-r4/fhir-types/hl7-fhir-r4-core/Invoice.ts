@@ -10,6 +10,7 @@ import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 import type { Money } from "../hl7-fhir-r4-core/Money";
 import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
+import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { Annotation } from "../hl7-fhir-r4-core/Annotation";
 export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";

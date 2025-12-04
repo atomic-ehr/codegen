@@ -9,6 +9,7 @@ import type { Reference } from "../hl7-fhir-r4-core/Reference";
 import type { Signature } from "../hl7-fhir-r4-core/Signature";
 import type { Timing } from "../hl7-fhir-r4-core/Timing";
 
+import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";

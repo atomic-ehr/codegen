@@ -11,6 +11,7 @@ import type { HumanName } from "../hl7-fhir-r4-core/HumanName";
 import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
+import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { Address } from "../hl7-fhir-r4-core/Address";
 export type { Attachment } from "../hl7-fhir-r4-core/Attachment";
 export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";

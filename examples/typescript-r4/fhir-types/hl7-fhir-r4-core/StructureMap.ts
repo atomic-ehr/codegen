@@ -36,6 +36,7 @@ import type { Timing } from "../hl7-fhir-r4-core/Timing";
 import type { TriggerDefinition } from "../hl7-fhir-r4-core/TriggerDefinition";
 import type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
+import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { Address } from "../hl7-fhir-r4-core/Address";
 export type { Age } from "../hl7-fhir-r4-core/Age";
 export type { Annotation } from "../hl7-fhir-r4-core/Annotation";

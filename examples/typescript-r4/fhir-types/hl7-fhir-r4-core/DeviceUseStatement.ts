@@ -10,6 +10,7 @@ import type { Period } from "../hl7-fhir-r4-core/Period";
 import type { Reference } from "../hl7-fhir-r4-core/Reference";
 import type { Timing } from "../hl7-fhir-r4-core/Timing";
 
+import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { Annotation } from "../hl7-fhir-r4-core/Annotation";
 export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
