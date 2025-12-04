@@ -6,6 +6,7 @@ import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
 import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
+import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";
 

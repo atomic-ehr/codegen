@@ -11,6 +11,7 @@ import {
     extractNameFromCanonical,
     type Identifier,
     isChoiceDeclarationField,
+    isComplexTypeIdentifier,
     isLogicalTypeSchema,
     isNestedIdentifier,
     isNotChoiceDeclarationField,
@@ -18,8 +19,8 @@ import {
     isProfileTypeSchema,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
+    type Name,
     type ProfileTypeSchema,
-    type RegularField,
     type RegularTypeSchema,
     type TypeSchema,
 } from "@root/typeschema/types";
@@ -71,6 +72,10 @@ const tsModuleFileName = (id: Identifier): string => {
     return `${tsModuleName(id)}.ts`;
 };
 
+const tsModulePath = (id: Identifier): string => {
+    return `${tsFhirPackageDir(id.package)}/${tsModuleName(id)}`;
+};
+
 const canonicalToName = (canonical: string | undefined, dropFragment = true) => {
     if (!canonical) return undefined;
     const localName = extractNameFromCanonical(canonical as CanonicalUrl, dropFragment);
@@ -120,6 +125,7 @@ export type TypeScriptOptions = {
      * - when openResourceTypeSet is true: `type Resource = { resourceType: "Resource" | "DomainResource" | "Patient" | string }`
      */
     openResourceTypeSet: boolean;
+    primitiveTypeExtension: boolean;
 } & WriterOptions;
 
 export class TypeScript extends Writer<TypeScriptOptions> {
@@ -164,20 +170,22 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         });
     }
 
-    generateDependenciesImports(schema: RegularTypeSchema) {
+    generateDependenciesImports(tsIndex: TypeSchemaIndex, schema: RegularTypeSchema) {
         if (schema.dependencies) {
             const imports = [];
             const skipped = [];
             for (const dep of schema.dependencies) {
                 if (["complex-type", "resource", "logical"].includes(dep.kind)) {
                     imports.push({
-                        tsPackage: `../${kebabCase(dep.package)}/${pascalCase(dep.name)}`,
+                        tsPackage: `../${tsModulePath(dep)}`,
                         name: uppercaseFirstLetter(dep.name),
                         dep: dep,
                     });
                 } else if (isNestedIdentifier(dep)) {
+                    const ndep = { ...dep };
+                    ndep.name = canonicalToName(dep.url) as Name;
                     imports.push({
-                        tsPackage: `../${kebabCase(dep.package)}/${pascalCase(canonicalToName(dep.url) ?? "")}`,
+                        tsPackage: `../${tsModulePath(ndep)}`,
                         name: tsResourceName(dep),
                         dep: dep,
                     });
@@ -194,26 +202,25 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 this.debugComment("skip:", dep);
             }
             this.line();
-            // // NOTE: for primitive type extensions
-            // const element = this.loader.complexTypes().find((e) => e.identifier.name === "Element");
-            // if (
-            //     element &&
-            //     deps.find((e) => e.name === "Element") === undefined &&
-            //     // FIXME: don't import if fields and nested fields don't have primitive types
-            //     schema.identifier.name !== "Element"
-            // ) {
-            //     this.tsImport(`../${kebabCase(element.identifier.package)}/Element`, "Element");
-            // }
+            if (
+                this.withPrimitiveTypeExtension(schema) &&
+                schema.identifier.name !== "Element" &&
+                schema.dependencies.find((e) => e.name === "Element") === undefined
+            ) {
+                const elementUrl = "http://hl7.org/fhir/StructureDefinition/Element" as CanonicalUrl;
+                const element = tsIndex.resolveByUrl(schema.identifier.package, elementUrl);
+                if (!element) throw new Error(`'${elementUrl}' not found for ${schema.identifier.package}.`);
+
+                this.tsImportType(`../${tsModulePath(element.identifier)}`, "Element");
+            }
         }
     }
 
     generateComplexTypeReexports(schema: RegularTypeSchema) {
-        const complexTypeDeps = schema.dependencies
-            ?.filter((dep) => ["complex-type"].includes(dep.kind))
-            .map((dep) => ({
-                tsPackage: `../${kebabCase(dep.package)}/${pascalCase(dep.name)}`,
-                name: uppercaseFirstLetter(dep.name),
-            }));
+        const complexTypeDeps = schema.dependencies?.filter(isComplexTypeIdentifier).map((dep) => ({
+            tsPackage: `../${tsModulePath(dep)}`,
+            name: uppercaseFirstLetter(dep.name),
+        }));
         if (complexTypeDeps && complexTypeDeps.length > 0) {
             for (const dep of complexTypeDeps) {
                 this.lineSM(`export type { ${dep.name} } from "${dep.tsPackage}"`);
@@ -222,11 +229,9 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         }
     }
 
-    addFieldExtension(fieldName: string, field: RegularField): void {
-        if (field.type.kind === "primitive-type") {
-            const extFieldName = tsFieldName(`_${fieldName}`);
-            this.lineSM(`${extFieldName}?: Element`);
-        }
+    addFieldExtension(fieldName: string): void {
+        const extFieldName = tsFieldName(`_${fieldName}`);
+        this.lineSM(`${extFieldName}?: Element`);
     }
 
     generateType(tsIndex: TypeSchemaIndex, schema: RegularTypeSchema) {
@@ -292,11 +297,23 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 const arraySymbol = field.array ? "[]" : "";
                 this.lineSM(`${tsName}${optionalSymbol}: ${tsType}${arraySymbol}`);
 
-                if (["resource", "complex-type"].includes(schema.identifier.kind)) {
-                    this.addFieldExtension(fieldName, field);
+                if (this.withPrimitiveTypeExtension(schema)) {
+                    if (isPrimitiveIdentifier(field.type)) {
+                        this.addFieldExtension(fieldName);
+                    }
                 }
             }
         });
+    }
+
+    withPrimitiveTypeExtension(schema: TypeSchema): boolean {
+        if (!this.opts.primitiveTypeExtension) return false;
+        if (!isSpecializationTypeSchema(schema)) return false;
+        for (const field of Object.values(schema.fields ?? {})) {
+            if (isChoiceDeclarationField(field)) continue;
+            if (isPrimitiveIdentifier(field.type)) return true;
+        }
+        return false;
     }
 
     generateResourceTypePredicate(schema: RegularTypeSchema) {
@@ -495,7 +512,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
             this.generateDisclaimer();
             if (["complex-type", "resource", "logical"].includes(schema.identifier.kind)) {
-                this.generateDependenciesImports(schema);
+                this.generateDependenciesImports(tsIndex, schema);
                 this.generateComplexTypeReexports(schema);
                 this.generateNestedTypes(tsIndex, schema);
                 this.comment("CanonicalURL:", schema.identifier.url);
@@ -503,7 +520,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 this.generateResourceTypePredicate(schema);
             } else if (isProfileTypeSchema(schema)) {
                 const flatProfile = tsIndex.flatProfile(schema);
-                this.generateDependenciesImports(flatProfile);
+                this.generateDependenciesImports(tsIndex, flatProfile);
                 this.comment("CanonicalURL:", schema.identifier.url);
                 this.generateProfileType(tsIndex, flatProfile);
                 this.generateAttachProfile(flatProfile);

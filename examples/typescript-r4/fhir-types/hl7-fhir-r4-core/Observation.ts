@@ -15,6 +15,7 @@ import type { Reference } from "../hl7-fhir-r4-core/Reference";
 import type { SampledData } from "../hl7-fhir-r4-core/SampledData";
 import type { Timing } from "../hl7-fhir-r4-core/Timing";
 
+import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { Annotation } from "../hl7-fhir-r4-core/Annotation";
 export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";

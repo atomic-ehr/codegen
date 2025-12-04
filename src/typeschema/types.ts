@@ -27,6 +27,12 @@ export interface PackageMeta {
     version: string;
 }
 
+export const packageMeta = (schema: TypeSchema): PackageMeta => {
+    return {
+        name: schema.identifier.name,
+        version: schema.identifier.version,
+    };
+};
 export const packageMetaToFhir = (packageMeta: PackageMeta) => `${packageMeta.name}#${packageMeta.version}`;
 export const packageMetaToNpm = (packageMeta: PackageMeta) => `${packageMeta.name}@${packageMeta.version}`;
 export const fhirToPackageMeta = (fhir: string) => {
@@ -93,6 +99,10 @@ export const isPrimitiveIdentifier = (id: Identifier | undefined): id is Primiti
 
 export const isNestedIdentifier = (id: Identifier | undefined): id is NestedIdentifier => {
     return id?.kind === "nested";
+};
+
+export const isComplexTypeIdentifier = (id: Identifier | undefined): id is ComplexTypeIdentifier => {
+    return id?.kind === "complex-type";
 };
 
 export const isProfileIdentifier = (id: Identifier | undefined): id is ProfileIdentifier => {

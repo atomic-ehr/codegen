@@ -14,6 +14,7 @@ import type { Period } from "../hl7-fhir-r4-core/Period";
 import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
+import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { Address } from "../hl7-fhir-r4-core/Address";
 export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";

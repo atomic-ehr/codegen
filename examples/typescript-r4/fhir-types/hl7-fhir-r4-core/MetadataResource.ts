@@ -7,6 +7,7 @@ import type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
 import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
 import type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
+import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 export type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
 export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
@@ -17,16 +18,25 @@ export interface MetadataResource extends DomainResource {
 
     contact?: ContactDetail[];
     date?: string;
+    _date?: Element;
     description?: string;
+    _description?: Element;
     experimental?: boolean;
+    _experimental?: Element;
     jurisdiction?: CodeableConcept[];
     name?: string;
+    _name?: Element;
     publisher?: string;
+    _publisher?: Element;
     status: ("draft" | "active" | "retired" | "unknown");
+    _status?: Element;
     title?: string;
+    _title?: Element;
     url?: string;
+    _url?: Element;
     useContext?: UsageContext[];
     version?: string;
+    _version?: Element;
 }
 export const isMetadataResource = (resource: unknown): resource is MetadataResource => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "MetadataResource";

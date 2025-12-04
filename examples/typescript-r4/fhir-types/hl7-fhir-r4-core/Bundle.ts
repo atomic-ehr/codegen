@@ -7,6 +7,7 @@ import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 import type { Resource } from "../hl7-fhir-r4-core/Resource";
 import type { Signature } from "../hl7-fhir-r4-core/Signature";
 
+import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 export type { Signature } from "../hl7-fhir-r4-core/Signature";

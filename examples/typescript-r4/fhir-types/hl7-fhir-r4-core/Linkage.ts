@@ -6,6 +6,7 @@ import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
 import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
+import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";
 

@@ -8,6 +8,7 @@ import type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 import type { Period } from "../hl7-fhir-r4-core/Period";
 import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
+import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 export type { Period } from "../hl7-fhir-r4-core/Period";

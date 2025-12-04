@@ -240,6 +240,7 @@ export class APIBuilder {
         const defaultTsOpts: TypeScriptOptions = {
             ...defaultWriterOpts,
             openResourceTypeSet: false,
+            primitiveTypeExtension: true,
         };
         const opts: TypeScriptOptions = {
             ...defaultTsOpts,
@@ -352,8 +353,12 @@ export class APIBuilder {
             const typeSchemas = await generateTypeSchemas(register, this.logger);
             await tryWriteTypeSchema(typeSchemas, this.options, this.logger);
 
-            let tsIndex = mkTypeSchemaIndex(typeSchemas, this.logger);
-            if (this.options.treeShake) tsIndex = treeShake(tsIndex, this.options.treeShake, this.logger);
+            const tsIndexOpts = {
+                resolutionTree: register.resolutionTree(),
+                logger: this.logger,
+            };
+            let tsIndex = mkTypeSchemaIndex(typeSchemas, tsIndexOpts);
+            if (this.options.treeShake) tsIndex = treeShake(tsIndex, this.options.treeShake, tsIndexOpts);
 
             if (this.options.exportTypeTree) await tsIndex.exportTree(this.options.exportTypeTree);
 

@@ -12,6 +12,7 @@ import type { Period } from "../hl7-fhir-r4-core/Period";
 import type { Range } from "../hl7-fhir-r4-core/Range";
 import type { Reference } from "../hl7-fhir-r4-core/Reference";
 
+import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { Age } from "../hl7-fhir-r4-core/Age";
 export type { Annotation } from "../hl7-fhir-r4-core/Annotation";
 export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";

@@ -6,6 +6,7 @@ import type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 import type { ContactPoint } from "../hl7-fhir-r4-core/ContactPoint";
 import type { DomainResource } from "../hl7-fhir-r4-core/DomainResource";
 
+import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 export type { ContactPoint } from "../hl7-fhir-r4-core/ContactPoint";
 

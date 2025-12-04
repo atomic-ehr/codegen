@@ -56,7 +56,7 @@ describe("TypeSchema Index", () => {
                 },
                 base: aSchema.identifier,
             };
-            const index = mkTypeSchemaIndex([aSchema, bSchema]);
+            const index = mkTypeSchemaIndex([aSchema, bSchema], {});
 
             const result = index.hierarchy(bSchema);
             expect(result).toEqual([bSchema, aSchema]);
@@ -73,7 +73,7 @@ describe("TypeSchema Index", () => {
                 },
             };
 
-            const index = mkTypeSchemaIndex([aSchema]);
+            const index = mkTypeSchemaIndex([aSchema], {});
             const result = index.hierarchy(aSchema);
 
             expect(result).toEqual([aSchema]);
@@ -91,7 +91,7 @@ describe("TypeSchema Index", () => {
                 // No base provided
             };
 
-            const index = mkTypeSchemaIndex([bSchema]);
+            const index = mkTypeSchemaIndex([bSchema], {});
             const result = index.hierarchy(bSchema);
 
             expect(result).toEqual([bSchema]);
@@ -130,7 +130,7 @@ describe("TypeSchema Index", () => {
                 base: bSchema.identifier,
             };
 
-            const index = mkTypeSchemaIndex([aSchema, bSchema, cSchema]);
+            const index = mkTypeSchemaIndex([aSchema, bSchema, cSchema], {});
             const result = index.hierarchy(cSchema);
 
             expect(result).toEqual([cSchema, bSchema, aSchema]);
@@ -154,7 +154,7 @@ describe("TypeSchema Index", () => {
                 },
             };
 
-            const index = mkTypeSchemaIndex([bSchema]);
+            const index = mkTypeSchemaIndex([bSchema], {});
 
             expect(() => index.hierarchy(bSchema)).toThrow(
                 "Failed to resolve base type: http://example.org/StructureDefinition/B (profile)",
@@ -183,7 +183,7 @@ describe("TypeSchema Index", () => {
                 base: aSchema.identifier,
             };
 
-            const index = mkTypeSchemaIndex([aSchema, bSchema]);
+            const index = mkTypeSchemaIndex([aSchema, bSchema], {});
             const result = index.hierarchy(bSchema);
 
             expect(result).toEqual([bSchema, aSchema]);
@@ -220,7 +220,7 @@ describe("TypeSchema Index", () => {
                 },
             };
 
-            const index = mkTypeSchemaIndex([baseSchema, constraintSchema]);
+            const index = mkTypeSchemaIndex([baseSchema, constraintSchema], {});
             const result = index.flatProfile(constraintSchema);
 
             expect(result.identifier).toEqual(constraintSchema.identifier);
@@ -288,7 +288,7 @@ describe("TypeSchema Index", () => {
                 },
             };
 
-            const index = mkTypeSchemaIndex([baseSchema, constraintSchemaA, constraintSchemaB]);
+            const index = mkTypeSchemaIndex([baseSchema, constraintSchemaA, constraintSchemaB], {});
             const result = index.flatProfile(constraintSchemaB) as ProfileTypeSchema;
 
             expect(result.identifier).toEqual(constraintSchemaB.identifier);
@@ -356,7 +356,7 @@ describe("TypeSchema Index", () => {
                 },
             };
 
-            const index = mkTypeSchemaIndex([baseSchema, constraintSchemaA, constraintSchemaB]);
+            const index = mkTypeSchemaIndex([baseSchema, constraintSchemaA, constraintSchemaB], {});
             const result = index.flatProfile(constraintSchemaB);
 
             // Check specific properties rather than exact equality
@@ -412,7 +412,7 @@ describe("TypeSchema Index", () => {
                 base: constraintSchemaA.identifier,
             };
 
-            const index = mkTypeSchemaIndex([baseSchema, constraintSchemaA, constraintSchemaB]);
+            const index = mkTypeSchemaIndex([baseSchema, constraintSchemaA, constraintSchemaB], {});
             const result = index.flatProfile(constraintSchemaB);
 
             // Check specific properties rather than exact equality
@@ -432,7 +432,7 @@ describe("TypeSchema Index", () => {
                 },
             } as ProfileTypeSchema;
 
-            const index = mkTypeSchemaIndex([constraintSchema]);
+            const index = mkTypeSchemaIndex([constraintSchema], {});
 
             expect(() => index.flatProfile(constraintSchema)).toThrow(
                 "No non-constraint schema found in hierarchy for Constraint",
@@ -475,7 +475,7 @@ describe("TypeSchema Index", () => {
                 },
             };
 
-            const index = mkTypeSchemaIndex([baseSchema, constraintSchema]);
+            const index = mkTypeSchemaIndex([baseSchema, constraintSchema], {});
             const result = index.flatProfile(constraintSchema);
 
             expect(result.identifier).toEqual(constraintSchema.identifier);

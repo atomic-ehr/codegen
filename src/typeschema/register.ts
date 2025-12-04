@@ -39,6 +39,7 @@ export type Register = {
     resolveElementSnapshot(fhirSchema: RichFHIRSchema, path: string[]): FHIRSchemaElement;
     getAllElementKeys(elems: Record<string, FHIRSchemaElement>): string[];
     resolver: PackageAwareResolver;
+    resolutionTree: () => ResolutionTree;
 } & ReturnType<typeof CanonicalManager>;
 
 const readPackageDependencies = async (manager: ReturnType<typeof CanonicalManager>, packageMeta: PackageMeta) => {
@@ -52,7 +53,9 @@ const readPackageDependencies = async (manager: ReturnType<typeof CanonicalManag
     return [];
 };
 
+// FIXME: Tiding: PackageName, PkgId, PkgName
 type PkgId = string;
+type PkgName = string;
 type FocusedResource = StructureDefinition | ValueSet | CodeSystem;
 
 type CanonicalResolution<T> = {
@@ -70,6 +73,7 @@ type PackageIndex = {
 };
 
 type PackageAwareResolver = Record<PkgId, PackageIndex>;
+export type ResolutionTree = Record<PkgName, Record<CanonicalUrl, { deep: number; pkg: PackageMeta }[]>>;
 
 const mkEmptyPkgIndex = (pkg: PackageMeta): PackageIndex => {
     return {
@@ -263,6 +267,21 @@ export const registerFromManager = async (
         resolveElementSnapshot,
         getAllElementKeys,
         resolver,
+        resolutionTree: () => {
+            const res: ResolutionTree = {};
+            for (const [_pkgId, pkgIndex] of Object.entries(resolver)) {
+                const pkgName = pkgIndex.pkg.name;
+                res[pkgName] = {};
+                for (const [surl, resolutions] of Object.entries(pkgIndex.canonicalResolution)) {
+                    const url = surl as CanonicalUrl;
+                    res[pkgName][url] = [];
+                    for (const resolution of resolutions) {
+                        res[pkgName][url].push({ deep: resolution.deep, pkg: resolution.pkg });
+                    }
+                }
+            }
+            return res;
+        },
     };
 };
 
