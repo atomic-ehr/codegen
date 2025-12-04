@@ -240,6 +240,7 @@ export class APIBuilder {
         const defaultTsOpts: TypeScriptOptions = {
             ...defaultWriterOpts,
             openResourceTypeSet: false,
+            primitiveTypeExtension: true,
         };
         const opts: TypeScriptOptions = {
             ...defaultTsOpts,

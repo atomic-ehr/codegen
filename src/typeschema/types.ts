@@ -27,6 +27,12 @@ export interface PackageMeta {
     version: string;
 }
 
+export const packageMeta = (schema: TypeSchema): PackageMeta => {
+    return {
+        name: schema.identifier.name,
+        version: schema.identifier.version,
+    };
+};
 export const packageMetaToFhir = (packageMeta: PackageMeta) => `${packageMeta.name}#${packageMeta.version}`;
 export const packageMetaToNpm = (packageMeta: PackageMeta) => `${packageMeta.name}@${packageMeta.version}`;
 export const fhirToPackageMeta = (fhir: string) => {

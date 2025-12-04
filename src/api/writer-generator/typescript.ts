@@ -119,6 +119,7 @@ export type TypeScriptOptions = {
      * - when openResourceTypeSet is true: `type Resource = { resourceType: "Resource" | "DomainResource" | "Patient" | string }`
      */
     openResourceTypeSet: boolean;
+    primitiveTypeExtension: boolean;
 } & WriterOptions;
 
 export class TypeScript extends Writer<TypeScriptOptions> {
@@ -163,7 +164,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         });
     }
 
-    generateDependenciesImports(schema: RegularTypeSchema) {
+    generateDependenciesImports(tsIndex: TypeSchemaIndex, schema: RegularTypeSchema) {
         if (schema.dependencies) {
             const imports = [];
             const skipped = [];
@@ -299,6 +300,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
     }
 
     withPrimitiveTypeExtension(schema: TypeSchema): boolean {
+        if (!this.opts.primitiveTypeExtension) return false;
         if (!isSpecializationTypeSchema(schema)) return false;
         for (const field of Object.values(schema.fields ?? {})) {
             if (isChoiceDeclarationField(field)) continue;
@@ -503,7 +505,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
             this.generateDisclaimer();
             if (["complex-type", "resource", "logical"].includes(schema.identifier.kind)) {
-                this.generateDependenciesImports(schema);
+                this.generateDependenciesImports(tsIndex, schema);
                 this.generateComplexTypeReexports(schema);
                 this.generateNestedTypes(tsIndex, schema);
                 this.comment("CanonicalURL:", schema.identifier.url);
@@ -511,7 +513,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 this.generateResourceTypePredicate(schema);
             } else if (isProfileTypeSchema(schema)) {
                 const flatProfile = tsIndex.flatProfile(schema);
-                this.generateDependenciesImports(flatProfile);
+                this.generateDependenciesImports(tsIndex, flatProfile);
                 this.comment("CanonicalURL:", schema.identifier.url);
                 this.generateProfileType(tsIndex, flatProfile);
                 this.generateAttachProfile(flatProfile);
