@@ -11,6 +11,7 @@ import {
     extractNameFromCanonical,
     type Identifier,
     isChoiceDeclarationField,
+    isComplexTypeIdentifier,
     isLogicalTypeSchema,
     isNestedIdentifier,
     isNotChoiceDeclarationField,
@@ -216,12 +217,10 @@ export class TypeScript extends Writer<TypeScriptOptions> {
     }
 
     generateComplexTypeReexports(schema: RegularTypeSchema) {
-        const complexTypeDeps = schema.dependencies
-            ?.filter((dep) => ["complex-type"].includes(dep.kind))
-            .map((dep) => ({
-                tsPackage: `../${kebabCase(dep.package)}/${pascalCase(dep.name)}`,
-                name: uppercaseFirstLetter(dep.name),
-            }));
+        const complexTypeDeps = schema.dependencies?.filter(isComplexTypeIdentifier).map((dep) => ({
+            tsPackage: `../${tsModulePath(dep)}`,
+            name: uppercaseFirstLetter(dep.name),
+        }));
         if (complexTypeDeps && complexTypeDeps.length > 0) {
             for (const dep of complexTypeDeps) {
                 this.lineSM(`export type { ${dep.name} } from "${dep.tsPackage}"`);
