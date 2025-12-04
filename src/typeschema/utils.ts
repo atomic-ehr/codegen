@@ -3,6 +3,7 @@ import * as Path from "node:path";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import * as YAML from "yaml";
 import { extractDependencies } from "./core/transformer";
+import type { ResolutionTree } from "./register";
 import {
     type CanonicalUrl,
     type Field,
@@ -67,7 +68,11 @@ export const treeShakeTypeSchema = (
     return schema;
 };
 
-export const treeShake = (tsIndex: TypeSchemaIndex, treeShake: TreeShake, logger?: CodegenLogger): TypeSchemaIndex => {
+export const treeShake = (
+    tsIndex: TypeSchemaIndex,
+    treeShake: TreeShake,
+    { resolutionTree, logger }: { resolutionTree?: ResolutionTree; logger?: CodegenLogger },
+): TypeSchemaIndex => {
     const focusedSchemas: TypeSchema[] = [];
     for (const [pkgId, requires] of Object.entries(treeShake)) {
         for (const [url, rule] of Object.entries(requires)) {
@@ -107,7 +112,7 @@ export const treeShake = (tsIndex: TypeSchemaIndex, treeShake: TreeShake, logger
     };
 
     const shaked = collectDeps(focusedSchemas, {});
-    return mkTypeSchemaIndex(shaked, logger);
+    return mkTypeSchemaIndex(shaked, { resolutionTree, logger });
 };
 
 ///////////////////////////////////////////////////////////
@@ -179,7 +184,10 @@ export type TypeSchemaIndex = {
     exportTree: (filename: string) => Promise<void>;
 };
 
-export const mkTypeSchemaIndex = (schemas: TypeSchema[], logger?: CodegenLogger): TypeSchemaIndex => {
+export const mkTypeSchemaIndex = (
+    schemas: TypeSchema[],
+    { resolutionTree, logger }: { resolutionTree?: ResolutionTree; logger?: CodegenLogger },
+): TypeSchemaIndex => {
     const index = {} as Record<CanonicalUrl, Record<PackageName, TypeSchema>>;
     const append = (schema: TypeSchema) => {
         const url = schema.identifier.url;
@@ -200,7 +208,15 @@ export const mkTypeSchemaIndex = (schemas: TypeSchema[], logger?: CodegenLogger)
     const relations = resourceRelatives(schemas);
 
     const resolve = (id: Identifier) => index[id.url]?.[id.package];
-    const resolveByUrl = (pkgName: PackageName, url: CanonicalUrl) => index[url]?.[pkgName];
+    const resolveByUrl = (pkgName: PackageName, url: CanonicalUrl) => {
+        if (resolutionTree) {
+            const resolution = resolutionTree[pkgName]?.[url]?.[0];
+            if (resolution) {
+                return index[url]?.[resolution.pkg.name];
+            }
+        }
+        return index[url]?.[pkgName];
+    };
 
     const resourceChildren = (id: Identifier): Identifier[] => {
         return relations.filter((relative) => relative.parent.name === id.name).map((relative) => relative.child);
