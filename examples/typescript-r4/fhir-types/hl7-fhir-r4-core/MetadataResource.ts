@@ -17,16 +17,25 @@ export interface MetadataResource extends DomainResource {
 
     contact?: ContactDetail[];
     date?: string;
+    _date?: Element;
     description?: string;
+    _description?: Element;
     experimental?: boolean;
+    _experimental?: Element;
     jurisdiction?: CodeableConcept[];
     name?: string;
+    _name?: Element;
     publisher?: string;
+    _publisher?: Element;
     status: ("draft" | "active" | "retired" | "unknown");
+    _status?: Element;
     title?: string;
+    _title?: Element;
     url?: string;
+    _url?: Element;
     useContext?: UsageContext[];
     version?: string;
+    _version?: Element;
 }
 export const isMetadataResource = (resource: unknown): resource is MetadataResource => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "MetadataResource";

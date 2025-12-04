@@ -19,7 +19,6 @@ import {
     isResourceTypeSchema,
     isSpecializationTypeSchema,
     type ProfileTypeSchema,
-    type RegularField,
     type RegularTypeSchema,
     type TypeSchema,
 } from "@root/typeschema/types";
@@ -222,11 +221,9 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         }
     }
 
-    addFieldExtension(fieldName: string, field: RegularField): void {
-        if (field.type.kind === "primitive-type") {
-            const extFieldName = tsFieldName(`_${fieldName}`);
-            this.lineSM(`${extFieldName}?: Element`);
-        }
+    addFieldExtension(fieldName: string): void {
+        const extFieldName = tsFieldName(`_${fieldName}`);
+        this.lineSM(`${extFieldName}?: Element`);
     }
 
     generateType(tsIndex: TypeSchemaIndex, schema: RegularTypeSchema) {
@@ -292,11 +289,22 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 const arraySymbol = field.array ? "[]" : "";
                 this.lineSM(`${tsName}${optionalSymbol}: ${tsType}${arraySymbol}`);
 
-                if (["resource", "complex-type"].includes(schema.identifier.kind)) {
-                    this.addFieldExtension(fieldName, field);
+                if (this.withPrimitiveTypeExtension(schema)) {
+                    if (isPrimitiveIdentifier(field.type)) {
+                        this.addFieldExtension(fieldName);
+                    }
                 }
             }
         });
+    }
+
+    withPrimitiveTypeExtension(schema: TypeSchema): boolean {
+        if (!isSpecializationTypeSchema(schema)) return false;
+        for (const field of Object.values(schema.fields ?? {})) {
+            if (isChoiceDeclarationField(field)) continue;
+            if (isPrimitiveIdentifier(field.type)) return true;
+        }
+        return false;
     }
 
     generateResourceTypePredicate(schema: RegularTypeSchema) {
