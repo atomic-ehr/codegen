@@ -196,4 +196,24 @@ export abstract class Writer<T extends WriterOptions = WriterOptions> extends Fi
         this.deindent();
         this.line(`]${endTokens?.filter(Boolean).join(" ") ?? ""}`);
     }
+
+    // FIXME: python specific
+    buildImportLine(remaining: string[], maxImportLineLength: number): string {
+        let line = "";
+
+        while (remaining.length > 0 && line.length < maxImportLineLength) {
+            const entity = remaining.shift()!;
+            if (line.length > 0) {
+                line += ", ";
+            }
+            line += entity;
+        }
+
+        if (remaining.length > 0) {
+            line += ", \\";
+        }
+
+        return line;
+    }
+
 }
