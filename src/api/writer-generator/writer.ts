@@ -197,6 +197,7 @@ export abstract class Writer<T extends WriterOptions = WriterOptions> extends Fi
         this.line(`]${endTokens?.filter(Boolean).join(" ") ?? ""}`);
     }
 
+    // FIXME: python specific
     buildImportLine(remaining: string[], maxImportLineLength: number): string {
         let line = "";
 

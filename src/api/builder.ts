@@ -264,6 +264,7 @@ export class APIBuilder {
 
         const defaultPyOpts: PythonGeneratorOptions = {
             ...defaultWriterOpts,
+            // FIXME: change name
             packageName: "generated",
         };
 
