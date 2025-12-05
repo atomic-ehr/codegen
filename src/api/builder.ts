@@ -14,13 +14,7 @@ import { Python, type PythonGeneratorOptions } from "@root/api/writer-generator/
 import { generateTypeSchemas } from "@root/typeschema";
 import { registerFromManager } from "@root/typeschema/register";
 import { mkTypeSchemaIndex, type TreeShake, type TypeSchemaIndex, treeShake } from "@root/typeschema/utils";
-import {
-    extractNameFromCanonical,
-    npmToPackageMeta,
-    packageMetaToFhir,
-    packageMetaToNpm,
-    type TypeSchema,
-} from "@typeschema/types";
+import { extractNameFromCanonical, packageMetaToFhir, packageMetaToNpm, type TypeSchema } from "@typeschema/types";
 import type { TypeSchemaConfig } from "../config";
 import { CodegenLogger, createLogger, type LogLevel } from "../utils/codegen-logger";
 import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript";
