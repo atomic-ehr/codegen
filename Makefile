@@ -4,6 +4,7 @@ TYPECHECK = bunx tsc --noEmit
 FORMAT = bunx biome format --write
 LINT = bunx biome check --write
 TEST = bun test
+VERSION = $(shell cat package.json | grep version | sed -E 's/ *"version": "//' | sed -E 's/",.*//')
 
 .PHONY: all typecheck test-typeschema test-register test-codegen test-typescript-r4-example
 
@@ -66,3 +67,8 @@ test-csharp-sdk: typecheck format prepare-aidbox-runme lint
 	cd examples/csharp && dotnet restore
 	cd examples/csharp && dotnet build
 	cd examples/csharp && dotnet test
+
+release:
+	echo Push tag for $(VERSION)
+	git tag -a v$(VERSION) -m "Release $(VERSION)"
+	git push origin v$(VERSION)
