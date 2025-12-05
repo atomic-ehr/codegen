@@ -201,7 +201,8 @@ export abstract class Writer<T extends WriterOptions = WriterOptions> extends Fi
         let line = "";
 
         while (remaining.length > 0 && line.length < maxImportLineLength) {
-            const entity = remaining.shift()!;
+            const entity = remaining.shift();
+            if (!entity) throw new Error("Unexpected empty entity");
             if (line.length > 0) {
                 line += ", ";
             }
@@ -214,5 +215,4 @@ export abstract class Writer<T extends WriterOptions = WriterOptions> extends Fi
 
         return line;
     }
-
 }
