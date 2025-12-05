@@ -106,3 +106,13 @@ jobs:
 
       - name: Publish release
         run: npm publish --tag latest --access public
+
+      - name: Create Github Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref }}
+          name: ${{ github.ref_name }}
+          draft: true
+          prerelease: false
+          generate_release_notes: true
+          token: ${{ secrets.RELEASE_GITHUB_TOKEN }}
