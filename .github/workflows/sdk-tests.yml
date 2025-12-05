@@ -36,14 +36,14 @@ jobs:
 
       - name: Repository contains actual csharp-sdk version
         run: |
-          diff_result=$(git diff --exit-code --name-only example/csharp/aidbox || true)
+          diff_result=$(git diff --exit-code --name-only examples/csharp/generated || true)
 
           if [ -z "$diff_result" ]; then
             echo "✅ Generated SDK is identical to the one stored in repository."
           else
             echo "❌ Generated SDK differs from the one stored in repository."
             echo "Differences:"
-            git diff example/csharp/aidbox
+            git diff examples/csharp/generated
             exit 1
           fi
 
