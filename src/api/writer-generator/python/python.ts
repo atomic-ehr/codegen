@@ -421,7 +421,7 @@ export class Python extends Writer {
     }
 
     private generateFields(schema: RegularTypeSchema): void {
-        const sortedFields = Object.entries(schema.fields!).sort(([a], [b]) => a.localeCompare(b));
+        const sortedFields = Object.entries(schema.fields ?? []).sort(([a], [b]) => a.localeCompare(b));
 
         for (const [fieldName, field] of sortedFields) {
             if ("choices" in field && field.choices) continue;
