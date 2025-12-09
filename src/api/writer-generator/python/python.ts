@@ -11,7 +11,7 @@ import {
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
 import { groupByPackages, type TypeSchemaIndex } from "@root/typeschema/utils";
 import type { Field, Identifier, RegularTypeSchema } from "@typeschema/types.ts";
-import { pythonUtils } from "./utils.ts";
+import { PythonUtils } from "./utils.ts";
 
 const PRIMITIVE_TYPE_MAP: Record<string, string> = {
     boolean: "bool",
@@ -37,7 +37,9 @@ const PRIMITIVE_TYPE_MAP: Record<string, string> = {
     xhtml: "str",
 };
 
-const AVAILABLE_STRING_FORMATS: Record<string, (str: string) => string> = {
+type StringFormatKey = "SnakeCase" | "PascalCase" | "CamelCase" | "CapitalCase" | "KebabCase";
+
+const AVAILABLE_STRING_FORMATS: Record<StringFormatKey, (str: string) => string> = {
     SnakeCase: snakeCase,
     PascalCase: pascalCase,
     CamelCase: camelCase,
@@ -89,8 +91,8 @@ const MAX_IMPORT_LINE_LENGTH = 100;
 export interface PythonGeneratorOptions extends WriterOptions {
     allowExtraFields?: boolean;
     staticDir?: string;
-    packageName?: string;
-    fieldFormat?: string;
+    rootPackageName: string; /// e.g. <rootPackageName>.hl7_fhir_r4_core.Patient.
+    fieldFormat: StringFormatKey;
 }
 
 interface ImportGroup {
@@ -142,21 +144,17 @@ type TypeSchemaPackageGroups = {
     groupedComplexTypes: Record<string, RegularTypeSchema[]>;
 };
 
-export class Python extends Writer {
-    private readonly allowExtraFields: boolean;
-    private readonly helper: pythonUtils;
-    private readonly rootPackage: string;
+export class Python extends Writer<PythonGeneratorOptions> {
     private readonly staticDir: string | undefined;
+    private readonly helper: PythonUtils;
     private readonly nameFormatFunction: (name: string) => string;
 
     constructor(options: PythonGeneratorOptions) {
         super({
             ...options,
         });
-        this.allowExtraFields = options.allowExtraFields || false;
-        this.helper = new pythonUtils();
+        this.helper = new PythonUtils();
         this.staticDir = options.staticDir || undefined;
-        this.rootPackage = options.packageName || "generated";
         this.nameFormatFunction = this.getFieldFormatFunction(options.fieldFormat);
     }
 
@@ -404,7 +402,7 @@ export class Python extends Writer {
     }
 
     private generateModelConfig(): void {
-        const extraMode = this.allowExtraFields ? "allow" : "forbid";
+        const extraMode = this.opts.allowExtraFields ? "allow" : "forbid";
         this.line(`model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="${extraMode}")`);
     }
 
@@ -583,7 +581,7 @@ export class Python extends Writer {
     }
 
     private generateResourceFamilies(packageResources: RegularTypeSchema[]): void {
-        const packages = this.helper.getPackages(packageResources, this.rootPackage);
+        const packages = this.helper.getPackages(packageResources, this.opts.rootPackageName);
         const families = this.helper.getFamilies(packageResources);
         const exportList = Object.keys(families);
 
@@ -649,7 +647,7 @@ export class Python extends Writer {
     }
 
     private pyFhirPackageByName(name: string): string {
-        return [this.rootPackage, this.buildPyPackageName(name)].join(".");
+        return [this.opts.rootPackageName, this.buildPyPackageName(name)].join(".");
     }
 
     private pyPackage(identifier: Identifier): string {
@@ -667,14 +665,12 @@ export class Python extends Writer {
         fs.cpSync(Path.resolve(this.staticDir), this.opts.outputDir, { recursive: true });
     }
 
-    getFieldFormatFunction(format: string | undefined): (name: string) => string {
-        if (!format) {
-            this.logger()?.warn(`No field format specified. Defaulting to SnakeCase.`);
-            return snakeCase;
-        } else if (!AVAILABLE_STRING_FORMATS[format]) {
+    getFieldFormatFunction(format: StringFormatKey): (name: string) => string {
+        if (!AVAILABLE_STRING_FORMATS[format]) {
             this.logger()?.warn(`Unknown field format '${format}'. Defaulting to SnakeCase.`);
             this.logger()?.warn(`Supported formats: ${Object.keys(AVAILABLE_STRING_FORMATS).join(", ")}`);
             return snakeCase;
-        } else return AVAILABLE_STRING_FORMATS[format];
+        }
+        return AVAILABLE_STRING_FORMATS[format];
     }
 }

@@ -1,7 +1,7 @@
 import type { Identifier } from "@root/typeschema";
 import type { RegularTypeSchema } from "@typeschema/types.ts";
 
-export class pythonUtils {
+export class PythonUtils {
     private resourceHierarchy: { parent: Identifier; child: Identifier }[] | null = [];
 
     constructor() {

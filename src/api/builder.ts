@@ -289,8 +289,8 @@ export class APIBuilder {
 
         const defaultPyOpts: PythonGeneratorOptions = {
             ...defaultWriterOpts,
-            // FIXME: change name
-            packageName: "generated",
+            rootPackageName: "generated",
+            fieldFormat: "SnakeCase",
         };
 
         const opts: PythonGeneratorOptions = {
