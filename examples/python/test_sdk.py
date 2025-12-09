@@ -1,12 +1,11 @@
-import pytest
 from typing import Iterator
 
+import pytest
+from client import Auth, AuthCredentials, Client
+from fhir_types.hl7_fhir_r4_core import HumanName
+from fhir_types.hl7_fhir_r4_core.bundle import Bundle
+from fhir_types.hl7_fhir_r4_core.patient import Patient
 from pydantic import ValidationError
-
-from generated.hl7_fhir_r4_core.patient import Patient
-from generated.hl7_fhir_r4_core import HumanName
-from client import Client, Auth, AuthCredentials
-from generated.hl7_fhir_r4_core.bundle import Bundle
 
 FHIR_SERVER_URL = "http://localhost:8080/fhir"
 USERNAME = "root"
