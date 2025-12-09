@@ -289,7 +289,7 @@ export class APIBuilder {
 
         const defaultPyOpts: PythonGeneratorOptions = {
             ...defaultWriterOpts,
-            rootPackageName: "generated",
+            rootPackageName: "fhir_types",
             fieldFormat: "SnakeCase",
         };
 

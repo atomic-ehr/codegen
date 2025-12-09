@@ -68,7 +68,7 @@ test-csharp-sdk: typecheck format prepare-aidbox-runme lint
 	cd examples/csharp && dotnet build
 	cd examples/csharp && dotnet test
 
-PYTHON=python3
+PYTHON=python3.13
 PYTHON_SDK_EXAMPLE=./examples/python
 
 test-python-sdk: typecheck format prepare-aidbox-runme lint
@@ -79,13 +79,13 @@ test-python-sdk: typecheck format prepare-aidbox-runme lint
 		cd $(PYTHON_SDK_EXAMPLE) && \
 		$(PYTHON) -m venv venv && \
 		. venv/bin/activate && \
-		pip install -r generated/requirements.txt; \
+		pip install -r fhir_types/requirements.txt; \
 	fi
 
 	# Run mypy in strict mode
 	cd $(PYTHON_SDK_EXAMPLE) && \
 		. venv/bin/activate && \
-		mypy --strict generated
+		mypy --strict .
 
 	cd $(PYTHON_SDK_EXAMPLE) && \
 		. venv/bin/activate && \

@@ -1,10 +1,10 @@
 import base64
 import json
-from typing import TypeVar, Type, Dict, Any
-import requests
-from pydantic import BaseModel
-from generated.hl7_fhir_r4_core import DomainResource, Bundle
+from typing import Any, Dict, Type, TypeVar
 
+import requests
+from fhir_types.hl7_fhir_r4_core import Bundle, DomainResource
+from pydantic import BaseModel
 
 T = TypeVar("T", bound=DomainResource)
 
