@@ -1,0 +1,20 @@
+protected Utils.ToStringHelper toStringHelper(){
+    return {{#hasParents}}super.toStringHelper(){{/hasParents}}{{^hasParents}}Utils.toStringHelper(this){{/hasParents}}
+        {{#fields}}
+            .add("{{saveName}}", this.{{saveName}})
+            {{#isPrimitive}}
+                .add("_{{saveName}}", this._{{saveName}})
+            {{/isPrimitive}}
+        {{/fields}};
+}
+
+{{#isResource.isResource}}
+    public final String toString(){
+        return this.toStringHelper().toString();
+    }
+{{/isResource.isResource}}
+{{#isComplexType.isElement}}
+    public final String toString(){
+        return this.toStringHelper().toString();
+    }
+{{/isComplexType.isElement}}

@@ -1,0 +1,79 @@
+{{#isResource}}
+@JsonTypeName("{{{name}}}")
+{{#children.0}}
+@JsonSubTypes({
+{{#children}}
+    @JsonSubTypes.Type(value = {{{saveName}}}.class){{^-last}},{{/-last}}
+{{/children}}
+})
+{{/children.0}}{{/isResource}}
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE, getterVisibility = JsonAutoDetect.Visibility.NONE, isGetterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.NONE, scalarConstructorVisibility = JsonAutoDetect.Visibility.NONE)
+public {{#isNested}}static{{/isNested}} class {{{saveName}}} {{#parents.0}}extends {{{parents.0.saveName}}}{{/parents.0}}{
+    {{#isResource}}
+    public static final ResourceName NAME = ResourceName.{{#lambda.upperCase}}{{#lambda.snakeCase}}{{saveName}}{{/lambda.snakeCase}}{{/lambda.upperCase}};
+    {{/isResource}}
+
+    {{#nestedComplexTypes}}
+        {{>model/inner_resource_or_complex_type}}
+    {{/nestedComplexTypes}}
+
+    {{#nestedEnums}}
+        {{>model/inner_enum}}
+    {{/nestedEnums}}
+
+    {{#fields}}
+        private final {{>annotated_type}} {{{saveName}}};
+        {{#isPrimitive}}
+            private final @Nullable @JsonProperty("_{{{name}}}") {{#isArray}}List<{{/isArray}}{{#lambda.saveTypeName}}Element{{/lambda.saveTypeName}}{{#isArray}}>{{/isArray}} _{{{saveName}}};
+        {{/isPrimitive}}
+    {{/fields}}
+
+    protected {{{saveName}}}(){
+        {{#fields}}
+            this.{{{saveName}}} = null;
+            {{#isPrimitive}}
+                this._{{{saveName}}} = null;
+            {{/isPrimitive}}
+        {{/fields}}
+    }
+    {{#isResource}}
+    public ResourceName resourceName() {
+        return {{{saveName}}}.NAME;
+    }
+    public {{#lambda.saveTypeName}}Reference{{/lambda.saveTypeName}} toReference() {
+        return {{#lambda.saveTypeName}}Reference{{/lambda.saveTypeName}}.{{#lambda.camelCase}}{{#lambda.saveTypeName}}Reference{{/lambda.saveTypeName}}{{/lambda.camelCase}}Builder()
+            .reference(this.resourceName(), this.{{#lambda.saveFieldName}}id{{/lambda.saveFieldName}}().orElseThrow(() -> new IllegalStateException("missing id")))
+            .build();
+    }
+    {{/isResource}}
+
+    {{#isResource.isDomainResource}}
+        {{>model/additional_extension_behaviour}}
+    {{/isResource.isDomainResource}}
+    {{#isComplexType.isElement}}
+        {{>model/additional_extension_behaviour}}
+    {{/isComplexType.isElement}}
+    {{#isComplexType.isCodeableConcept}}
+        {{>model/additional_codeable_concept_behaviour}}
+    {{/isComplexType.isCodeableConcept}}
+    {{#isComplexType.isReference}}
+        {{>model/additional_reference_behaviour}}
+    {{/isComplexType.isReference}}
+
+    {{#fields}}
+        {{>model/field_getter}}
+    {{/fields}}
+
+    {{#properties.features.builder}}
+        {{>model/features/feature_builder}}
+    {{/properties.features.builder}}
+
+    {{#properties.features.hash_code_equals}}
+        {{>model/features/feature_hashcode_equals}}
+    {{/properties.features.hash_code_equals}}
+
+    {{#properties.features.to_string}}
+        {{>model/features/feature_to_string}}
+    {{/properties.features.to_string}}
+}

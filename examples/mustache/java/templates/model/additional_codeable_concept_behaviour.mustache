@@ -1,0 +1,14 @@
+public final Optional<{{#lambda.saveTypeName}}Coding{{/lambda.saveTypeName}}> findFirstCodingBySystem(URI url){
+    requireNonNull(url);
+    if(this.{{#lambda.saveFieldName}}coding{{/lambda.saveFieldName}} == null){
+        return Optional.empty();
+    }
+    return this.{{#lambda.saveFieldName}}coding{{/lambda.saveFieldName}}.stream().filter(e -> e.{{#lambda.saveFieldName}}system{{/lambda.saveFieldName}}().map(url::equals).orElse(false)).findFirst();
+}
+public final List<{{#lambda.saveTypeName}}Coding{{/lambda.saveTypeName}}> findCodingsBySystem(URI url){
+    requireNonNull(url);
+    if(this.{{#lambda.saveFieldName}}coding{{/lambda.saveFieldName}} == null){
+        return List.of();
+    }
+    return this.{{#lambda.saveFieldName}}coding{{/lambda.saveFieldName}}.stream().filter(e -> e.{{#lambda.saveFieldName}}system{{/lambda.saveFieldName}}().map(url::equals).orElse(false)).toList();
+}
