@@ -283,6 +283,24 @@ export class Python extends Writer<PythonGeneratorOptions> {
         return baseTypes;
     }
 
+    private buildImportLine(remaining: string[], maxImportLineLength: number): string {
+        let line = "";
+        while (remaining.length > 0 && line.length < maxImportLineLength) {
+            const entity = remaining.shift();
+            if (!entity) throw new Error("Unexpected empty entity");
+            if (line.length > 0) {
+                line += ", ";
+            }
+            line += entity;
+        }
+
+        if (remaining.length > 0) {
+            line += ", \\";
+        }
+
+        return line;
+    }
+
     private importResources(
         fullPyPackageName: string,
         importEmptyResources: boolean,
