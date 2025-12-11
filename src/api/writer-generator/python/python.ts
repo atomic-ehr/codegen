@@ -1,3 +1,4 @@
+import assert from "node:assert";
 import fs from "node:fs";
 import * as Path from "node:path";
 import {
@@ -9,9 +10,8 @@ import {
     uppercaseFirstLetterOfEach,
 } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
-import { groupByPackages, type TypeSchemaIndex } from "@root/typeschema/utils";
+import { groupByPackages, sortAsDeclarationSequence, type TypeSchemaIndex } from "@root/typeschema/utils";
 import type { Field, Identifier, RegularTypeSchema } from "@typeschema/types.ts";
-import { PythonUtils } from "./utils.ts";
 
 const PRIMITIVE_TYPE_MAP: Record<string, string> = {
     boolean: "bool",
@@ -146,19 +146,19 @@ type TypeSchemaPackageGroups = {
 
 export class Python extends Writer<PythonGeneratorOptions> {
     private readonly staticDir: string | undefined;
-    private readonly helper: PythonUtils;
     private readonly nameFormatFunction: (name: string) => string;
+    private tsIndex: TypeSchemaIndex | undefined;
 
     constructor(options: PythonGeneratorOptions) {
         super({
             ...options,
         });
-        this.helper = new PythonUtils();
         this.staticDir = options.staticDir || undefined;
         this.nameFormatFunction = this.getFieldFormatFunction(options.fieldFormat);
     }
 
     override async generate(tsIndex: TypeSchemaIndex): Promise<void> {
+        this.tsIndex = tsIndex;
         const groups: TypeSchemaPackageGroups = {
             groupedComplexTypes: groupByPackages(tsIndex.collectComplexTypes()),
             groupedResources: groupByPackages(tsIndex.collectResources()),
@@ -252,7 +252,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private generateComplexTypes(complexTypes: RegularTypeSchema[]): void {
-        for (const schema of this.helper.sortSchemasByDeps(complexTypes)) {
+        for (const schema of sortAsDeclarationSequence(complexTypes)) {
             this.generateNestedTypes(schema);
             this.line();
             this.generateType(schema);
@@ -310,7 +310,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         const allResourceNames: string[] = [];
 
         for (const resource of packageResources) {
-            const names = this.importOneResource(resource, fullPyPackageName, packageResources);
+            const names = this.importOneResource(resource, fullPyPackageName);
             if (!importEmptyResources && !resource.fields) continue;
             allResourceNames.push(...names);
         }
@@ -318,11 +318,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         return allResourceNames;
     }
 
-    private importOneResource(
-        resource: RegularTypeSchema,
-        fullPyPackageName: string,
-        packageResources: RegularTypeSchema[],
-    ): string[] {
+    private importOneResource(resource: RegularTypeSchema, fullPyPackageName: string): string[] {
         const moduleName = `${fullPyPackageName}.${snakeCase(resource.identifier.name)}`;
         const importNames = this.collectResourceImportNames(resource);
 
@@ -330,7 +326,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
 
         const names = [...importNames];
 
-        if (this.shouldImportResourceFamily(resource, packageResources)) {
+        if (this.shouldImportResourceFamily(resource)) {
             const familyName = `${resource.identifier.name}Family`;
             this.pyImportFrom(`${fullPyPackageName}.resource_families`, familyName);
         }
@@ -349,11 +345,9 @@ export class Python extends Writer<PythonGeneratorOptions> {
         return names;
     }
 
-    private shouldImportResourceFamily(resource: RegularTypeSchema, packageResources: RegularTypeSchema[]): boolean {
-        return (
-            resource.identifier.kind === "resource" &&
-            this.helper.childrenOf(resource.identifier, packageResources).length > 0
-        );
+    private shouldImportResourceFamily(resource: RegularTypeSchema): boolean {
+        assert(this.tsIndex !== undefined);
+        return resource.identifier.kind === "resource" && this.tsIndex.resourceChildren(resource.identifier).length > 0;
     }
 
     private generateExportsDeclaration(
@@ -599,8 +593,19 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private generateResourceFamilies(packageResources: RegularTypeSchema[]): void {
-        const packages = this.helper.getPackages(packageResources, this.opts.rootPackageName);
-        const families = this.helper.getFamilies(packageResources);
+        assert(this.tsIndex !== undefined);
+        const packages = //this.helper.getPackages(packageResources, this.opts.rootPackageName);
+            Object.keys(groupByPackages(packageResources)).map(
+                (pkgName) => `${this.opts.rootPackageName}.${pkgName.replaceAll(".", "_")}`,
+            );
+        const families: Record<string, string[]> = {};
+        for (const resource of this.tsIndex.collectResources()) {
+            const children: string[] = this.tsIndex.resourceChildren(resource.identifier).map((c) => c.name);
+            if (children.length > 0) {
+                const familyName = `${resource.identifier.name}Family`;
+                families[familyName] = children;
+            }
+        }
         const exportList = Object.keys(families);
 
         if (exportList.length === 0) return;
