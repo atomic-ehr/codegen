@@ -68,6 +68,29 @@ test-csharp-sdk: typecheck format prepare-aidbox-runme lint
 	cd examples/csharp && dotnet build
 	cd examples/csharp && dotnet test
 
+PYTHON=python3.13
+PYTHON_SDK_EXAMPLE=./examples/python
+
+test-python-sdk: typecheck format prepare-aidbox-runme lint
+	$(TYPECHECK) --project examples/python/tsconfig.json
+	bun run examples/python/generate.ts
+
+	@if [ ! -d "$(PYTHON_SDK_EXAMPLE)/venv" ]; then \
+		cd $(PYTHON_SDK_EXAMPLE) && \
+		$(PYTHON) -m venv venv && \
+		. venv/bin/activate && \
+		pip install -r fhir_types/requirements.txt; \
+	fi
+
+	# Run mypy in strict mode
+	cd $(PYTHON_SDK_EXAMPLE) && \
+		. venv/bin/activate && \
+		mypy --strict .
+
+	cd $(PYTHON_SDK_EXAMPLE) && \
+		. venv/bin/activate && \
+		python -m pytest test_sdk.py -v
+
 release:
 	echo Push tag for $(VERSION)
 	git tag -a v$(VERSION) -m "Release $(VERSION)"
