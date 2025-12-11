@@ -73,7 +73,6 @@ export const generateCommand: CommandModule<Record<string, unknown>, GenerateArg
 
         // Create logger for CLI command
         const logger = createLogger({
-            verbose,
             prefix: "Generate",
         });
 
@@ -90,7 +89,6 @@ export const generateCommand: CommandModule<Record<string, unknown>, GenerateArg
             // Create API builder with config options
             const builder = new APIBuilder({
                 outputDir: config.outputDir || "./generated",
-                verbose,
                 overwrite: config.overwrite ?? true,
                 cache: config.cache ?? true,
                 typeSchemaConfig: config.typeSchema,

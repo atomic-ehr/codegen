@@ -15,7 +15,7 @@ import { mkTypeSchemaIndex, type TreeShake, type TypeSchemaIndex, treeShake } fr
 import { generateTypeSchemas } from "@typeschema/index";
 import { extractNameFromCanonical, packageMetaToFhir, packageMetaToNpm, type TypeSchema } from "@typeschema/types";
 import type { TypeSchemaConfig } from "../config";
-import { CodegenLogger, createLogger } from "../utils/codegen-logger";
+import { CodegenLogger, createLogger, type LogLevel } from "../utils/codegen-logger";
 import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript";
 import type { FileBuffer, FileSystemWriter, WriterOptions } from "./writer-generator/writer";
 
@@ -24,7 +24,6 @@ import type { FileBuffer, FileSystemWriter, WriterOptions } from "./writer-gener
  */
 export interface APIBuilderOptions {
     outputDir?: string;
-    verbose?: boolean;
     overwrite?: boolean; // FIXME: remove
     cache?: boolean; // FIXME: remove
     cleanOutput?: boolean;
@@ -35,6 +34,8 @@ export interface APIBuilderOptions {
     throwException?: boolean;
     exportTypeTree?: string;
     treeShake?: TreeShake;
+    /** Log level for the logger. Default: INFO */
+    logLevel?: LogLevel;
 }
 
 /**
@@ -70,7 +71,7 @@ export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 type APIBuilderConfig = PartialBy<
     Required<APIBuilderOptions>,
-    "logger" | "typeSchemaConfig" | "typeSchemaOutputDir" | "exportTypeTree" | "treeShake"
+    "logger" | "typeSchemaConfig" | "typeSchemaOutputDir" | "exportTypeTree" | "treeShake" | "logLevel"
 > & {
     cleanOutput: boolean;
 };
@@ -188,7 +189,6 @@ export class APIBuilder {
     constructor(options: APIBuilderOptions = {}) {
         this.options = {
             outputDir: options.outputDir || "./generated",
-            verbose: options.verbose ?? false,
             overwrite: options.overwrite ?? true,
             cache: options.cache ?? true,
             cleanOutput: options.cleanOutput ?? true,
@@ -206,8 +206,8 @@ export class APIBuilder {
         this.logger =
             options.logger ||
             createLogger({
-                verbose: this.options.verbose,
                 prefix: "API",
+                level: options.logLevel,
             });
     }
 
@@ -260,7 +260,6 @@ export class APIBuilder {
             logger: new CodegenLogger({
                 prefix: "C#",
                 timestamp: true,
-                verbose: true,
                 suppressLoggingLevel: [],
             }),
         });
@@ -292,9 +291,8 @@ export class APIBuilder {
         return this;
     }
 
-    verbose(enabled = true): APIBuilder {
-        this.options.verbose = enabled;
-        this.logger?.configure({ verbose: enabled });
+    setLogLevel(level: LogLevel): APIBuilder {
+        this.logger?.setLevel(level);
         return this;
     }
 

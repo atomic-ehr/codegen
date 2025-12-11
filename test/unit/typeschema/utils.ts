@@ -8,7 +8,7 @@ import { type CanonicalUrl, enrichFHIRSchema, enrichValueSet, type PackageMeta }
 export type PFS = Partial<FHIRSchema>;
 export type PVS = Partial<ValueSet>;
 
-const logger = createLogger({ verbose: true, prefix: "TEST" });
+const logger = createLogger({ prefix: "TEST" });
 
 export const r4Package = { name: "hl7.fhir.r4.core", version: "4.0.1" };
 
