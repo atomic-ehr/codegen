@@ -115,6 +115,62 @@ export const treeShake = (
     return mkTypeSchemaIndex(shaked, { resolutionTree, logger });
 };
 
+const buildDependencyGraph = (schemas: RegularTypeSchema[]): Record<string, string[]> => {
+    const nameToMap: Record<string, RegularTypeSchema> = {};
+    for (const schema of schemas) {
+        nameToMap[schema.identifier.name] = schema;
+    }
+
+    const graph: Record<string, string[]> = {};
+    for (const schema of schemas) {
+        const name = schema.identifier.name;
+        const base = schema.base?.name;
+        if (!graph[name]) {
+            graph[name] = [];
+        }
+        if (base && nameToMap[base]) {
+            graph[name].push(base);
+        }
+    }
+    return graph;
+};
+
+const topologicalSort = (graph: Record<string, string[]>): string[] => {
+    const sorted: string[] = [];
+    const visited: Record<string, boolean> = {};
+    const temp: Record<string, boolean> = {};
+
+    const visit = (node: string) => {
+        if (temp[node]) {
+            throw new Error(`Graph has cycles ${node}`);
+        }
+        if (!visited[node]) {
+            temp[node] = true;
+            for (const neighbor of graph[node] ?? []) {
+                visit(neighbor);
+            }
+            temp[node] = false;
+            visited[node] = true;
+            sorted.push(node);
+        }
+    };
+
+    for (const node in graph) {
+        if (!visited[node]) {
+            visit(node);
+        }
+    }
+    return sorted;
+};
+
+export const sortAsDeclarationSequence = (schemas: RegularTypeSchema[]): RegularTypeSchema[] => {
+    const graph = buildDependencyGraph(schemas);
+    const sorted = topologicalSort(graph);
+    return sorted
+        .map((name) => schemas.find((schema) => schema.identifier.name === name))
+        .filter(Boolean) as RegularTypeSchema[];
+};
+
 ///////////////////////////////////////////////////////////
 // Type Schema Relations
 
