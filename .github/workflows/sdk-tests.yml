@@ -1,4 +1,6 @@
 name: Test SDKs
+permissions:
+  contents: read
 
 on:
   push:
