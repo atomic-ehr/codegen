@@ -1,6 +1,7 @@
 import assert from "node:assert";
 import fs from "node:fs";
 import * as Path from "node:path";
+import { fileURLToPath } from "node:url";
 import {
     camelCase,
     capitalCase,
@@ -139,21 +140,26 @@ const deriveResourceName = (id: Identifier): string => {
     return pascalCase(id.name);
 };
 
+const resolvePyAssets = (fn: string) => {
+    const __dirname = Path.dirname(fileURLToPath(import.meta.url));
+    if (__filename.endsWith("dist/index.js")) {
+        return Path.resolve(__dirname, "..", "assets", "api", "writer-generator", "python", fn);
+    } else {
+        return Path.resolve(__dirname, "../../..", "assets", "api", "writer-generator", "python", fn);
+    }
+};
+
 type TypeSchemaPackageGroups = {
     groupedResources: Record<string, RegularTypeSchema[]>;
     groupedComplexTypes: Record<string, RegularTypeSchema[]>;
 };
 
 export class Python extends Writer<PythonGeneratorOptions> {
-    private readonly staticDir: string | undefined;
     private readonly nameFormatFunction: (name: string) => string;
     private tsIndex: TypeSchemaIndex | undefined;
 
     constructor(options: PythonGeneratorOptions) {
-        super({
-            ...options,
-        });
-        this.staticDir = options.staticDir || undefined;
+        super(options);
         this.nameFormatFunction = this.getFieldFormatFunction(options.fieldFormat);
     }
 
@@ -169,7 +175,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
 
     private generateRootPackages(groups: TypeSchemaPackageGroups): void {
         this.generateRootInitFile(groups);
-        this.copyStaticFiles();
+        fs.cpSync(resolvePyAssets("requirements.txt"), Path.resolve(this.opts.outputDir, "requirements.txt"));
     }
 
     private generateSDKPackages(groups: TypeSchemaPackageGroups): void {
@@ -628,8 +634,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private includeResourceFamilyValidator(): void {
-        const path = "src/api/writer-generator/python/resource_family_validator.py";
-        const content = fs.readFileSync(path, "utf-8");
+        const content = fs.readFileSync(resolvePyAssets("resource_family_validator.py"), "utf-8");
         this.line(content);
     }
 
@@ -681,11 +686,6 @@ export class Python extends Writer<PythonGeneratorOptions> {
             return [this.pyFhirPackage(identifier), snakeCase(identifier.name)].join(".");
         }
         return this.pyFhirPackage(identifier);
-    }
-
-    copyStaticFiles(): void {
-        if (!this.staticDir) return;
-        fs.cpSync(Path.resolve(this.staticDir), this.opts.outputDir, { recursive: true });
     }
 
     getFieldFormatFunction(format: StringFormatKey): (name: string) => string {

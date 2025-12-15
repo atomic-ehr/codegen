@@ -10,7 +10,7 @@ import * as afs from "node:fs/promises";
 import * as Path from "node:path";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import { CSharp } from "@root/api/writer-generator/csharp/csharp.ts";
-import { Python, type PythonGeneratorOptions } from "@root/api/writer-generator/python/python.ts";
+import { Python, type PythonGeneratorOptions } from "@root/api/writer-generator/python";
 import { generateTypeSchemas } from "@root/typeschema";
 import { registerFromManager } from "@root/typeschema/register";
 import { mkTypeSchemaIndex, type TreeShake, type TypeSchemaIndex, treeShake } from "@root/typeschema/utils";
