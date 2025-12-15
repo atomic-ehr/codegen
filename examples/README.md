@@ -10,6 +10,7 @@ This directory contains examples demonstrating the current capabilities and futu
   - Basic FHIR R4 core type generation
   - TypeScript generation with configuration
   - Type-safe resource creation examples
+- **`local-package-folder/generate.ts`** - Registers an existing on-disk FHIR package (folder) and runs the generators without publishing the package to npm
 
 ### 🔮 Preview Examples
 

@@ -122,24 +122,46 @@ Actual examples of type generation and usage can be found here: [examples/typesc
 
 - `demo.ts` - a simple script that creates resources and demonstrates how to work with profiles
 - `generate.ts` - script to generate types
+- [`examples/local-structure-package.ts`](examples/local-structure-package.ts) - demonstrates loading local profiles, installing dependencies, and tree shaking the output
+- [`examples/local-package-folder/generate.ts`](examples/local-package-folder/generate.ts) - demonstrates pointing the builder at an existing FHIR package folder without publishing it
 
-### Generate Types for a Custom Profile (Draft)
+### Load Local StructureDefinitions, Local Packages & TGZ Archives
+
+Use the new `localPackage` helper to point the builder at an on-disk FHIR package folder (for example, an unpublished implementation guide). If you only have loose StructureDefinition JSON files, group them under a folder and pass it to `localStructureDefinitions`. Canonical Manager handles copying, indexing, and dependency installation in both scenarios, so the API builder only needs to describe where the files live and what upstream packages they depend on.
 
 ```typescript
-import { APIBuilder } from '@atomic-ehr/codegen';
+import { APIBuilder } from "@atomic-ehr/codegen";
 
 const builder = new APIBuilder();
 
-// Load custom profile
 await builder
-  .fromProfile('./profiles/my-patient-profile.json')
-  .withBaseProfile('http://hl7.org/fhir/StructureDefinition/Patient')
-  .typescript({
-    outputDir: './generated/profiles',
-    includeValidators: true,
+  .localPackage({
+    package: { name: "example.folder.structures", version: "0.0.1" },
+    path: "./packages/example-ig/package",
+    dependencies: [{ name: "hl7.fhir.r4.core", version: "4.0.1" }],
   })
+  .localStructureDefinitions({
+    package: { name: "example.local.structures", version: "0.0.1" },
+    path: "./custom-profiles",
+    dependencies: [{ name: "hl7.fhir.r4.core", version: "4.0.1" }],
+  })
+  .localTgzPackage("./packages/my-custom-ig.tgz")
+  .typescript({ generateIndex: true })
+  .treeShake({
+    "example.local.structures#0.0.1": {
+      "http://example.org/fhir/StructureDefinition/ExampleNotebook": {},
+    },
+    "hl7.fhir.r4.core#4.0.1": {
+      "http://hl7.org/fhir/StructureDefinition/Patient": {},
+    },
+  })
+  .outputTo("./generated/local-profiles")
   .generate();
 ```
+
+The example above points Canonical Manager at `./custom-profiles`, installs the HL7 R4 core dependency automatically, and then limits generation to the custom `ExampleNotebook` logical model plus the standard R4 `Patient` resource via tree shaking. The `localTgzPackage` helper registers `.tgz` artifacts that Canonical Manager already knows how to unpack.
+
+`localPackage` is ideal when you already have an extracted Implementation Guide on disk (for example, after running `fhirpack` or `npm pack`). The helper copies that folder into Canonical Manager's cache, synthesizes an index if necessary, and makes the package available to the rest of the pipeline without publishing it anywhere.
 
 ### Generate with Custom Templates (Draft)
 

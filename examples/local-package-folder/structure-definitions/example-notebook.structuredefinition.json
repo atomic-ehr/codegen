@@ -1,0 +1,175 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "example-notebook",
+  "url": "http://example.org/fhir/StructureDefinition/ExampleNotebook",
+  "version": "0.0.1",
+  "name": "ExampleNotebook",
+  "title": "Example Notebook Logical Model",
+  "status": "draft",
+  "date": "2024-01-01",
+  "publisher": "Atomic Example Studio",
+  "description": "Logical resource showcasing a simple notebook record with fields used in examples.",
+  "fhirVersion": "4.0.1",
+  "kind": "logical",
+  "abstract": false,
+  "type": "ExampleNotebook",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
+  "derivation": "specialization",
+  "snapshot": {
+    "element": [
+      {
+        "id": "ExampleNotebook",
+        "path": "ExampleNotebook",
+        "short": "Example logical notebook resource",
+        "definition": "A lightweight notebook entry capturing author, title, and content.",
+        "min": 0,
+        "max": "*",
+        "type": [
+          {
+            "code": "DomainResource"
+          }
+        ]
+      },
+      {
+        "id": "ExampleNotebook.identifier",
+        "path": "ExampleNotebook.identifier",
+        "min": 1,
+        "max": "1",
+        "short": "Unique identifier for the notebook entry",
+        "type": [
+          {
+            "code": "Identifier"
+          }
+        ]
+      },
+      {
+        "id": "ExampleNotebook.title",
+        "path": "ExampleNotebook.title",
+        "min": 1,
+        "max": "1",
+        "short": "Human readable title",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      },
+      {
+        "id": "ExampleNotebook.author",
+        "path": "ExampleNotebook.author",
+        "min": 1,
+        "max": "1",
+        "short": "Reference to the author of the notebook entry",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "http://hl7.org/fhir/StructureDefinition/Practitioner",
+              "http://hl7.org/fhir/StructureDefinition/Patient"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ExampleNotebook.content",
+        "path": "ExampleNotebook.content",
+        "min": 1,
+        "max": "1",
+        "short": "Markdown content of the notebook entry",
+        "type": [
+          {
+            "code": "markdown"
+          }
+        ]
+      },
+      {
+        "id": "ExampleNotebook.tag",
+        "path": "ExampleNotebook.tag",
+        "min": 0,
+        "max": "*",
+        "short": "User defined tags",
+        "type": [
+          {
+            "code": "Coding"
+          }
+        ]
+      }
+    ]
+  },
+  "differential": {
+    "element": [
+      {
+        "id": "ExampleNotebook",
+        "path": "ExampleNotebook",
+        "short": "Example logical notebook resource",
+        "definition": "A lightweight notebook entry capturing author, title, and content.",
+        "min": 0,
+        "max": "*"
+      },
+      {
+        "id": "ExampleNotebook.identifier",
+        "path": "ExampleNotebook.identifier",
+        "min": 1,
+        "max": "1",
+        "short": "Unique identifier for the notebook entry",
+        "type": [
+          {
+            "code": "Identifier"
+          }
+        ]
+      },
+      {
+        "id": "ExampleNotebook.title",
+        "path": "ExampleNotebook.title",
+        "min": 1,
+        "max": "1",
+        "short": "Human readable title",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      },
+      {
+        "id": "ExampleNotebook.author",
+        "path": "ExampleNotebook.author",
+        "min": 1,
+        "max": "1",
+        "short": "Reference to the author",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "http://hl7.org/fhir/StructureDefinition/Practitioner",
+              "http://hl7.org/fhir/StructureDefinition/Patient"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ExampleNotebook.content",
+        "path": "ExampleNotebook.content",
+        "min": 1,
+        "max": "1",
+        "short": "Markdown content of the notebook entry",
+        "type": [
+          {
+            "code": "markdown"
+          }
+        ]
+      },
+      {
+        "id": "ExampleNotebook.tag",
+        "path": "ExampleNotebook.tag",
+        "min": 0,
+        "max": "*",
+        "short": "User defined tags",
+        "type": [
+          {
+            "code": "Coding"
+          }
+        ]
+      }
+    ]
+  }
+}
