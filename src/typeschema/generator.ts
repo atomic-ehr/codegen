@@ -36,7 +36,13 @@ export class TypeSchemaGenerator {
 
     constructor(options: TypeschemaGeneratorOptions = {}) {
         this.options = { ...options };
-        this.manager = options.manager || CanonicalManager({ packages: [], workingDir: "tmp/fhir" });
+        this.manager =
+            options.manager ||
+            CanonicalManager({
+                packages: [],
+                workingDir: "tmp/fhir",
+                registry: options.registry || undefined,
+            });
         this.logger =
             options.logger ||
             createLogger({

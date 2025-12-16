@@ -29,14 +29,14 @@ export type Register = {
 } & ReturnType<typeof CanonicalManager>;
 
 const readPackageDependencies = async (manager: ReturnType<typeof CanonicalManager>, packageMeta: PackageMeta) => {
-    const packageJSON = (await manager.packageJson(packageMeta.name)) as any;
-    const dependencies = packageJSON.dependencies;
-    if (dependencies !== undefined) {
+		const packageJSON = (await manager.packageJson(packageMeta.name)) as any;
+		const dependencies = packageJSON.dependencies;
+		if (dependencies !== undefined) {
         return Object.entries(dependencies).map(([name, version]): PackageMeta => {
-            return { name: name as string, version: version as string };
-        });
-    }
-    return [];
+					return { name: name as string, version: version as string };
+				});
+		}
+		return [];
 };
 
 // FIXME: Tiding: PackageName, PkgId, PkgName
@@ -130,6 +130,8 @@ export type RegisterConfig = {
     // FIXME: remove fallback
     fallbackPackageForNameResolution?: PackageMeta;
     focusedPackages?: PackageMeta[];
+    /** Custom FHIR package registry URL */
+    registry?: string;
 };
 
 export const registerFromManager = async (
@@ -280,6 +282,7 @@ export const registerFromPackageMetas = async (
     const manager = CanonicalManager({
         packages: packageNames,
         workingDir: "tmp/fhir",
+        registry: conf.registry || undefined,
     });
     await manager.init();
     return await registerFromManager(manager, {

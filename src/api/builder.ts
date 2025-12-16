@@ -36,6 +36,8 @@ export interface APIBuilderOptions {
     treeShake?: TreeShake;
     /** Log level for the logger. Default: INFO */
     logLevel?: LogLevel;
+    /** Custom FHIR package registry URL (default: https://fs.get-ig.org/pkgs/) */
+    registry?: string;
 }
 
 /**
@@ -71,7 +73,7 @@ export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 type APIBuilderConfig = PartialBy<
     Required<APIBuilderOptions>,
-    "logger" | "typeSchemaConfig" | "typeSchemaOutputDir" | "exportTypeTree" | "treeShake" | "logLevel"
+    "logger" | "typeSchemaConfig" | "typeSchemaOutputDir" | "exportTypeTree" | "treeShake" | "logLevel" | "registry"
 > & {
     cleanOutput: boolean;
 };
@@ -198,6 +200,7 @@ export class APIBuilder {
             typeSchemaOutputDir: options.typeSchemaOutputDir,
             exportTypeTree: options.exportTypeTree,
             treeShake: options.treeShake,
+            registry: options.registry,
         };
 
         this.typeSchemaConfig = options.typeSchemaConfig;
@@ -219,6 +222,15 @@ export class APIBuilder {
 
     fromPackageRef(packageRef: string): APIBuilder {
         this.packages.push(packageRef);
+        return this;
+    }
+
+    /**
+     * Set a custom FHIR package registry URL
+     * @param url The registry URL (default: https://fs.get-ig.org/pkgs/)
+     */
+    registry(url: string): APIBuilder {
+        this.options.registry = url;
         return this;
     }
 
@@ -340,6 +352,7 @@ export class APIBuilder {
             const manager = CanonicalManager({
                 packages: this.packages,
                 workingDir: ".codegen-cache/canonical-manager-cache",
+                registry: this.options.registry || undefined,
             });
             const ref2meta = await manager.init();
             const packageMetas = Object.values(ref2meta);
