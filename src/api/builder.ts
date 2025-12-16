@@ -417,7 +417,6 @@ export class APIBuilder {
 
             this.logger.debug(`Generation completed: ${result.filesGenerated.length} files`);
         } catch (error) {
-            console.log(error);
             this.logger.error("Code generation failed", error instanceof Error ? error : new Error(String(error)));
             result.errors.push(error instanceof Error ? error.message : String(error));
             if (this.options.throwException) throw error;
