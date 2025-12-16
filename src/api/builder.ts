@@ -14,10 +14,9 @@ import { Python, type PythonGeneratorOptions } from "@root/api/writer-generator/
 import { generateTypeSchemas } from "@root/typeschema";
 import { registerFromManager } from "@root/typeschema/register";
 import { mkTypeSchemaIndex, type TreeShake, type TypeSchemaIndex, treeShake } from "@root/typeschema/utils";
-import { generateTypeSchemas } from "@typeschema/index";
 import {
     extractNameFromCanonical,
-    type PackageMeta,    npmToPackageMeta,
+    type PackageMeta,
     packageMetaToFhir,
     packageMetaToNpm,
     type TypeSchema,
@@ -290,7 +289,7 @@ export class APIBuilder {
         const defaultPyOpts: PythonGeneratorOptions = {
             ...defaultWriterOpts,
             rootPackageName: "fhir_types",
-            fieldFormat: "SnakeCase",
+            fieldFormat: "snake_case",
         };
 
         const opts: PythonGeneratorOptions = {

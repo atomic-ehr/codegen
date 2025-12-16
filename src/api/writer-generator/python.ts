@@ -2,14 +2,7 @@ import assert from "node:assert";
 import fs from "node:fs";
 import * as Path from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-    camelCase,
-    capitalCase,
-    kebabCase,
-    pascalCase,
-    snakeCase,
-    uppercaseFirstLetterOfEach,
-} from "@root/api/writer-generator/utils";
+import { camelCase, pascalCase, snakeCase, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
 import { groupByPackages, sortAsDeclarationSequence, type TypeSchemaIndex } from "@root/typeschema/utils";
 import type { Field, Identifier, RegularTypeSchema } from "@typeschema/types.ts";
@@ -38,14 +31,12 @@ const PRIMITIVE_TYPE_MAP: Record<string, string> = {
     xhtml: "str",
 };
 
-type StringFormatKey = "SnakeCase" | "PascalCase" | "CamelCase" | "CapitalCase" | "KebabCase";
+type StringFormatKey = "snake_case" | "PascalCase" | "camelCase";
 
 const AVAILABLE_STRING_FORMATS: Record<StringFormatKey, (str: string) => string> = {
-    SnakeCase: snakeCase,
+    snake_case: snakeCase,
     PascalCase: pascalCase,
-    CamelCase: camelCase,
-    CapitalCase: capitalCase,
-    KebabCase: kebabCase,
+    camelCase: camelCase,
 };
 
 const PYTHON_KEYWORDS = new Set([
@@ -425,7 +416,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private generateResourceTypeField(schema: RegularTypeSchema): void {
-        this.line("resource_type: str = Field(");
+        this.line(`${this.nameFormatFunction("resourceType")}: str = Field(`);
         this.indentBlock(() => {
             this.line(`default='${schema.identifier.name}',`);
             this.line(`alias='resourceType',`);
