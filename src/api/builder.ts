@@ -13,7 +13,13 @@ import { CSharp } from "@root/api/writer-generator/csharp/csharp";
 import { registerFromManager } from "@root/typeschema/register";
 import { mkTypeSchemaIndex, type TreeShake, type TypeSchemaIndex, treeShake } from "@root/typeschema/utils";
 import { generateTypeSchemas } from "@typeschema/index";
-import { extractNameFromCanonical, packageMetaToFhir, packageMetaToNpm, type TypeSchema } from "@typeschema/types";
+import {
+    extractNameFromCanonical,
+    type PackageMeta,
+    packageMetaToFhir,
+    packageMetaToNpm,
+    type TypeSchema,
+} from "@typeschema/types";
 import type { TypeSchemaConfig } from "../config";
 import { CodegenLogger, createLogger, type LogLevel } from "../utils/codegen-logger";
 import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript";
@@ -60,6 +66,12 @@ export interface GeneratedFile {
 }
 
 export type GeneratorInput = { schemas: TypeSchema[]; index: TypeSchemaIndex };
+
+export interface LocalStructureDefinitionConfig {
+    package: PackageMeta;
+    path: string;
+    dependencies?: PackageMeta[];
+}
 
 const normalizeFileName = (str: string): string => {
     const res = str.replace(/[^a-zA-Z0-9\-_.@#()]/g, "");
@@ -183,6 +195,8 @@ export class APIBuilder {
     private generators: Map<string, FileSystemWriter> = new Map();
     private logger: CodegenLogger;
     private packages: string[] = [];
+    private localStructurePackages: LocalStructureDefinitionConfig[] = [];
+    private localTgzArchives: string[] = [];
     progressCallback: any;
     private typeSchemaConfig?: TypeSchemaConfig;
 
@@ -219,6 +233,16 @@ export class APIBuilder {
 
     fromPackageRef(packageRef: string): APIBuilder {
         this.packages.push(packageRef);
+        return this;
+    }
+
+    localStructureDefinitions(config: LocalStructureDefinitionConfig): APIBuilder {
+        this.localStructurePackages.push(config);
+        return this;
+    }
+
+    localTgzPackage(archivePath: string): APIBuilder {
+        this.localTgzArchives.push(Path.resolve(archivePath));
         return this;
     }
 
@@ -337,11 +361,34 @@ export class APIBuilder {
             if (this.options.cleanOutput) cleanup(this.options, this.logger);
 
             this.logger.info("Initialize Canonical Manager");
-            const manager = CanonicalManager({
-                packages: this.packages,
-                workingDir: ".codegen-cache/canonical-manager-cache",
-            });
+            const manager =
+                this.options.manager ||
+                CanonicalManager({
+                    packages: this.packages,
+                    workingDir: ".codegen-cache/canonical-manager-cache",
+                });
+
+            if (this.localStructurePackages.length > 0) {
+                for (const config of this.localStructurePackages) {
+                    this.logger.info(
+                        `Registering local StructureDefinitions for ${config.package.name}@${config.package.version}`,
+                    );
+                    await manager.addLocalPackage({
+                        name: config.package.name,
+                        version: config.package.version,
+                        path: config.path,
+                        dependencies: config.dependencies?.map((dep) => packageMetaToNpm(dep)),
+                    });
+                }
+            }
+
+            for (const archivePath of this.localTgzArchives) {
+                this.logger.info(`Registering local tgz package: ${archivePath}`);
+                await manager.addTgzPackage({ archivePath });
+            }
+
             const ref2meta = await manager.init();
+
             const packageMetas = Object.values(ref2meta);
             const register = await registerFromManager(manager, {
                 logger: this.logger,
@@ -389,6 +436,9 @@ export class APIBuilder {
         this.schemas = [];
         this.generators.clear();
         this.progressCallback = undefined;
+        this.packages = [];
+        this.localStructurePackages = [];
+        this.localTgzArchives = [];
         return this;
     }
 
