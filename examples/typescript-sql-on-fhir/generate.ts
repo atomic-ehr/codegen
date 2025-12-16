@@ -3,7 +3,7 @@ import { APIBuilder } from "../../src/api/builder";
 const builder = new APIBuilder()
     .throwException()
     .typescript({ withDebugComment: false, generateProfile: false })
-    .fromPackageRef("https://build.fhir.org/ig/FHIR/sql-on-fhir-v2//package.tgz")
+    .fromPackageRef("https://build.fhir.org/ig/FHIR/sql-on-fhir-v2/package.tgz")
     .outputTo("./examples/typescript-sql-on-fhir/fhir-types")
     .writeTypeTree("./examples/typescript-sql-on-fhir/tree.yaml")
     .treeShake({
