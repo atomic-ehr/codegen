@@ -1,26 +1,48 @@
-# Atomic FHIR Codegen
+# Atomic EHR Codegen
 
 [![npm canary](https://img.shields.io/npm/v/@atomic-ehr/codegen/canary.svg?label=canary)](https://www.npmjs.com/package/@atomic-ehr/codegen/v/canary)
 [![npm version](https://badge.fury.io/js/%40atomic-ehr%2Fcodegen.svg)](https://badge.fury.io/js/%40atomic-ehr%2Fcodegen)
 [![CI](https://github.com/atomic-ehr/codegen/actions/workflows/ci.yml/badge.svg)](https://github.com/atomic-ehr/codegen/actions/workflows/ci.yml)
 [![SDK Tests](https://github.com/atomic-ehr/codegen/actions/workflows/sdk-tests.yml/badge.svg)](https://github.com/atomic-ehr/codegen/actions/workflows/sdk-tests.yml)
 
-A powerful, extensible code generation toolkit for FHIR (Fast Healthcare Interoperability Resources) that transforms FHIR specifications into strongly-typed code for multiple programming languages.
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
+**Table of Contents**
+
+- [Atomic EHR Codegen](#atomic-ehr-codegen)
+  - [Features](#features)
+  - [Versions & Release Cycle](#versions--release-cycle)
+  - [Installation](#installation)
+  - [Quick Start](#quick-start)
+    - [Usage Examples](#usage-examples)
+  - [Architecture](#architecture)
+    - [Input - FHIR packages & resolves canonicals](#input---fhir-packages--resolves-canonicals)
+      - [Load Local StructureDefinitions & TGZ Archives](#load-local-structuredefinitions--tgz-archives)
+    - [Intermediate - Type Schema](#intermediate---type-schema)
+      - [Tree Shaking](#tree-shaking)
+    - [Generation](#generation)
+  - [Roadmap](#roadmap)
+  - [Support](#support)
+
+<!-- markdown-toc end -->
+
+A powerful, extensible code generation toolkit for FHIR ([Fast Healthcare Interoperability Resources](https://www.hl7.org/fhir/)) that transforms FHIR specifications into strongly-typed code for multiple programming languages.
 
 ## Features
 
 - 🚀 **High-Performance** - Built with Bun runtime for blazing-fast generation
-- 🔧 **Extensible Architecture** - Three-stage pipeline (Resolve Canonicals → Transform to Type Schema → Generate)
-- 📦 **Multi-Package Support** - Generate from a list of FHIR packages (profiles in development)
+- 🔧 **Extensible Architecture** - Three-stage pipeline:
+    - FHIR package management & canonical resolution
+    - Optimized intermediate FHIR data entities representation via Type Schema
+    - Generation for different programming languages
+- 📦 **Multi-Package Support** - Generate from a list of FHIR packages
 - 🎯 **Type-Safe** - Generates fully typed interfaces with proper inheritance
-- 🔄 **Intermediate Format** - TypeSchema format enables multi-language support
-- 🛠️  **Developer Friendly** - Fluent API, CLI, and configuration file support
+- 🛠️ **Developer Friendly** - Fluent API
 
-## Versions
+## Versions & Release Cycle
 
 - `canary` channel - Latest development version from `main` branch
-- `latest` channel - Latest stable version (currently in developer preview)
-- all versions: [NPM: @atomic-ehr/codegen](https://www.npmjs.com/package/@atomic-ehr/codegen?activeTab=versions)
+- `latest` channel - Latest stable version, changelog: [Releases](https://github.com/atomic-ehr/codegen/releases)
+- All versions: [NPM: @atomic-ehr/codegen](https://www.npmjs.com/package/@atomic-ehr/codegen?activeTab=versions)
 
 ## Installation
 
@@ -37,334 +59,152 @@ yarn add @atomic-ehr/codegen
 
 ## Quick Start
 
-### 1. Using the Fluent API (Primary)
+1. Write SDK generation script (`generate-types.ts`):
 
-```typescript
-import { APIBuilder } from '@atomic-ehr/codegen';
+    ```typescript
+    import { APIBuilder } from '@atomic-ehr/codegen';
 
-const builder = new APIBuilder()
-    .fromPackage("hl7.fhir.r4.core", "4.0.1")
-    .typescript({})
-    .outputTo("./examples/typescript-r4/fhir-types");
+    const builder = new APIBuilder()
+        .fromPackage("hl7.fhir.r4.core", "4.0.1")
+        .typescript({})
+        .outputTo("./examples/typescript-r4/fhir-types");
 
-const report = await builder.generate();
-console.log(report);
-```
+    const report = await builder.generate();
+    console.log(report);
+    ```
 
-Run the script with:
+2. Run the script with:
 
-- `npm exec tsx scripts/generate-types.ts`
-- `pnpm exec tsx scripts/generate-types.ts`
-- `bun run scripts/generate-types.ts`
+    - `npm exec tsx generate-types.ts`
+    - `bun run generate-types.ts`
+    - `pnpm exec tsx generate-types.ts`
 
-### 2. Using the CLI (Draft)
+### Usage Examples
 
-```bash
-# Generate using configuration file
-bunx atomic-codegen generate
+See the [examples/](examples/) directory for working demonstrations:
 
-# Generate with verbose output
-bunx atomic-codegen generate --verbose
+- **[typescript-r4/](examples/typescript-r4/)** - FHIR R4 type generation with resource creation demo and profile usage
+- **[typescript-ccda/](examples/typescript-ccda/)** - C-CDA on FHIR type generation  
+- **[typescript-sql-on-fhir/](examples/typescript-sql-on-fhir/)** - SQL on FHIR ViewDefinition with tree shaking
+- **[python/](examples/python/)** - Python/Pydantic model generation with configurable field formats
+- **[csharp/](examples/csharp/)** - C# class generation with namespace configuration
+- **[local-package-folder/](examples/local-package-folder/)** - Loading unpublished local FHIR packages
 
-# Generate TypeSchemas from FHIR package
-bunx atomic-codegen typeschema generate hl7.fhir.r4.core@4.0.1 -o schemas.ndjson
-```
-
-### 3. Using Configuration File (Draft)
-
-Create `atomic-codegen.config.ts`:
-
-```typescript
-import { defineConfig } from "@atomic-ehr/codegen";
-
-export default defineConfig({
-  outputDir: "./generated",
-  overwrite: true,
-  validate: true,
-  cache: true,
-  packages: ["hl7.fhir.r4.core@4.0.1"],
-  typescript: {
-    includeDocuments: true,
-    namingConvention: "PascalCase",
-    includeProfiles: false,
-    includeExtensions: false,
-    generateIndex: true,
-    strictMode: true,
-    generateValueSets: true,
-    includeValueSetHelpers: true,
-    valueSetStrengths: ["required", "preferred"],
-    valueSetMode: "custom"
-  }
-});
-```
-
-Then run:
-
-```bash
-bunx atomic-codegen generate
-```
+For detailed documentation, see [examples/README.md](examples/README.md).
 
 ## Architecture
 
 The toolkit uses a three-stage architecture (details: [link](https://www.health-samurai.io/articles/type-schema-a-pragmatic-approach-to-build-fhir-sdk)):
 
+1. **Input** - FHIR packages & resolves canonicals
+2. **Intermediate representation** - TypeSchema provides a universal representation for FHIR data entities and processing utilities
+3. **Generation** - Generate code for TypeScript, Python, etc.
+
+The `APIBuilder` provides a fluent interface for configuring and generating code:
+
+```typescript
+const builder = new APIBuilder()
+
+    // Input sources (choose one or combine)
+    .fromPackage("hl7.fhir.r4.core", "4.0.1") // NPM registry package
+    .fromPackageRef("https://...package.tgz")  // Remote TGZ file
+    .localStructureDefinitions({ ... })        // Loose JSON files
+
+    // Type Schema processing
+    .treeShake({ ... })                        // Include only specified types
+
+    // Code generator (choose one)
+    .typescript({                              // TypeScript generator
+        generateProfile?: boolean,
+        withDebugComment?: boolean,
+        openResourceTypeSet?: boolean,
+    })
+    .python({                                   // Python generator
+        allowExtraFields?: boolean,
+        fieldFormat?: "snake_case" | "camelCase",
+        staticDir?: string,
+    })
+    .csharp("NameSpace", "staticFilesPath")   // C# generator
+
+    // Output configuration
+    .outputTo("./generated/types")             // Output directory
+    .cleanOutput(true)                         // Clean before generation
+
+    // Optional: Optimization & debugging
+    .throwException()                          // Throw on errors (optional)
+    .writeTypeSchemas("./schemas")             // Export TypeSchema files
+    .writeTypeTree("./tree.yaml")              // Export dependency tree
+
+    // Execute generation
+    .generate();                                // Returns GenerationReport
 ```
-Resolve Canonicals → Transform to Type Schema → Generate
-```
 
-1. **Input Layer** - Parses FHIR packages and profiles, resolves canonicals, and transforms them into TypeSchema format
-2. **Intermediate Format** - TypeSchema provides a universal representation for FHIR data entities
-3. **Output Generators** - Generate code for TypeScript, Python, and other languages
+Each method returns the builder instance, allowing method chaining. The `generate()` method executes the pipeline and returns a report with success status and generated file details.
 
-## Usage Examples
+### Input - FHIR packages & resolves canonicals
 
-Actual examples of type generation and usage can be found here: [examples/typescript-r4](examples/typescript-r4):
+The input stage leverages [Canonical Manager](https://github.com/atomic-ehr/canonical-manager) to handle FHIR package management and dependency resolution. It processes FHIR packages from multiple sources (registry, local files, TGZ archives) and resolves all canonical URLs to their concrete definitions, ensuring all references between resources are properly linked before transformation.
 
-- `demo.ts` - a simple script that creates resources and demonstrates how to work with profiles
-- `generate.ts` - script to generate types
-- [`examples/local-structure-package.ts`](examples/local-structure-package.ts) - demonstrates loading local profiles, installing dependencies, and tree shaking the output
-- [`examples/local-package-folder/generate.ts`](examples/local-package-folder/generate.ts) - demonstrates pointing the builder at an existing FHIR package folder without publishing it
+The [`Register`](src/typeschema/register.ts) component wraps Canonical Manager specifically for codegen purposes, providing:
 
-### Load Local StructureDefinitions, Local Packages & TGZ Archives
+- **Multi-package indexing** for fast canonical URL lookups across package boundaries
+- **Package-aware resolution** with automatic dependency tree traversal
+- **FHIR-to-TypeSchema conversion** using the `@atomic-ehr/fhirschema` translator
+- **Element snapshot generation** that merges inherited properties from base resources
+
+#### Load Local StructureDefinitions & TGZ Archives
 
 Use the new `localPackage` helper to point the builder at an on-disk FHIR package folder (for example, an unpublished implementation guide). If you only have loose StructureDefinition JSON files, group them under a folder and pass it to `localStructureDefinitions`. Canonical Manager handles copying, indexing, and dependency installation in both scenarios, so the API builder only needs to describe where the files live and what upstream packages they depend on.
 
 ```typescript
-import { APIBuilder } from "@atomic-ehr/codegen";
-
-const builder = new APIBuilder();
-
-await builder
-  .localPackage({
-    package: { name: "example.folder.structures", version: "0.0.1" },
-    path: "./packages/example-ig/package",
-    dependencies: [{ name: "hl7.fhir.r4.core", version: "4.0.1" }],
-  })
-  .localStructureDefinitions({
+.localStructureDefinitions({
     package: { name: "example.local.structures", version: "0.0.1" },
     path: "./custom-profiles",
     dependencies: [{ name: "hl7.fhir.r4.core", version: "4.0.1" }],
-  })
-  .localTgzPackage("./packages/my-custom-ig.tgz")
-  .typescript({ generateIndex: true })
-  .treeShake({
-    "example.local.structures#0.0.1": {
-      "http://example.org/fhir/StructureDefinition/ExampleNotebook": {},
-    },
-    "hl7.fhir.r4.core#4.0.1": {
-      "http://hl7.org/fhir/StructureDefinition/Patient": {},
-    },
-  })
-  .outputTo("./generated/local-profiles")
-  .generate();
+})
+.localTgzPackage("./packages/my-custom-ig.tgz")
 ```
 
 The example above points Canonical Manager at `./custom-profiles`, installs the HL7 R4 core dependency automatically, and then limits generation to the custom `ExampleNotebook` logical model plus the standard R4 `Patient` resource via tree shaking. The `localTgzPackage` helper registers `.tgz` artifacts that Canonical Manager already knows how to unpack.
 
-`localPackage` is ideal when you already have an extracted Implementation Guide on disk (for example, after running `fhirpack` or `npm pack`). The helper copies that folder into Canonical Manager's cache, synthesizes an index if necessary, and makes the package available to the rest of the pipeline without publishing it anywhere.
+### Intermediate - Type Schema
 
-### Generate with Custom Templates (Draft)
+Type Schema serves as a universal intermediate representation that bridges FHIR's complex hierarchical structure with programming language constructs. It transforms FHIR StructureDefinitions into a flattened, code-generation-friendly format that:
 
-```typescript
-import { APIBuilder } from '@atomic-ehr/codegen';
+- **Unifies** all FHIR elements (Resources, Types, ValueSets) into a consistent structure
+- **Flattens** nested paths for direct field access without complex traversal
+- **Enriches** definitions with resolved references, value set expansions, and type dependencies
+- **Simplifies** FHIR concepts like choice types and extensions for easier code generation
 
-const builder = new APIBuilder();
+This approach enables generating idiomatic code for any programming language while preserving FHIR semantics and constraints. Learn more: [Type Schema specification](https://www.health-samurai.io/articles/type-schema-a-pragmatic-approach-to-build-fhir-sdk).
 
-await builder
-  .fromPackage('hl7.fhir.r4.core', '4.0.1')
-  .withTemplate('./templates/custom-interface.hbs')
-  .typescript({
-    outputDir: './generated',
-    customHelpers: {
-      upperCase: (str) => str.toUpperCase()
-    }
-  })
-  .generate();
-```
+#### Tree Shaking
 
-### Generate Multiple Output Formats (Draft)
+Tree shaking optimizes the generated output by including only the resources you explicitly need and their dependencies. Instead of generating types for an entire FHIR package (which can contain hundreds of resources), you can specify exactly which resources to include:
 
 ```typescript
-import { APIBuilder } from '@atomic-ehr/codegen';
-
-const builder = new APIBuilder();
-
-// Parse once, generate multiple formats
-const schemas = await builder
-  .fromPackage('hl7.fhir.r4.core', '4.0.1')
-  .parse();
-
-// Generate TypeScript
-await builder
-  .fromSchemas(schemas)
-  .typescript({ outputDir: './ts-types' })
-  .generate();
-
-// Generate Python (coming soon)
-await builder
-  .fromSchemas(schemas)
-  .python({ outputDir: './py-types' })
-  .generate();
+.treeShake({
+  "hl7.fhir.r4.core#4.0.1": {
+    "http://hl7.org/fhir/StructureDefinition/Patient": {},
+    "http://hl7.org/fhir/StructureDefinition/Observation": {},
+  }
+})
 ```
 
-## CLI Commands (Draft)
+This feature automatically resolves and includes all dependencies (referenced types, base resources, nested types) while excluding unused resources, significantly reducing the size of generated code and improving compilation times.
 
-```bash
-# Generate code using configuration file
-atomic-codegen generate                    # Uses atomic-codegen.config.ts
-atomic-codegen generate --verbose          # With detailed output
-atomic-codegen generate --config custom.ts # Custom config file
+### Generation
 
-# TypeSchema operations
-atomic-codegen typeschema generate hl7.fhir.r4.core@4.0.1 -o schemas.ndjson
-atomic-codegen typeschema validate schemas.ndjson
+The generation stage uses a `WriterGenerator` system that transforms Type Schema into target language code. The architecture consists of:
 
-# Help and debugging
-atomic-codegen --help                      # Show help
-atomic-codegen --debug generate            # Debug mode
-```
+- **Base Writer** (`Writer`): Handles file I/O, indentation, and code formatting primitives
+- **Language Writers** (e.g., `TypeScript`): Implement language-specific generation logic
 
-## Configuration Options (Draft)
+Writers provide high-level abstractions for common code patterns (blocks, imports, type definitions) while maintaining full control over output formatting. Each language writer traverses the Type Schema index and generates corresponding types, interfaces, or classes following that language's idioms and best practices.
 
-### Global Configuration Options
+- [Type Schema: Python SDK for FHIR](https://www.health-samurai.io/articles/type-schema-python-sdk-for-fhir)
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `outputDir` | `string` | `./generated` | Base output directory for all generated files |
-| `overwrite` | `boolean` | `false` | Overwrite existing files without prompting |
-| `validate` | `boolean` | `true` | Validate generated TypeSchema before processing |
-| `cache` | `boolean` | `true` | Enable caching for improved performance |
-| `packages` | `string[]` | `[]` | FHIR packages to process (e.g., `"hl7.fhir.r4.core@4.0.1"`) |
-
-### TypeScript Generator Options
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `outputDir` | `string` | `./generated` | Output directory for generated files |
-| `moduleFormat` | `'esm' \| 'cjs'` | `'esm'` | Module format |
-| `generateIndex` | `boolean` | `true` | Generate index file with exports |
-| `includeDocuments` | `boolean` | `true` | Include JSDoc documentation |
-| `namingConvention` | `'PascalCase' \| 'camelCase'` | `'PascalCase'` | Type naming convention |
-| `includeExtensions` | `boolean` | `false` | Include FHIR extensions |
-| `includeProfiles` | `boolean` | `false` | Include FHIR profiles |
-| `generateValueSets` | `boolean` | `false` | Generate strongly-typed value sets from FHIR bindings |
-| `valueSetStrengths` | `string[]` | `['required']` | Which binding strengths to generate |
-| `includeValueSetHelpers` | `boolean` | `false` | Include validation helper functions |
-| `valueSetDirectory` | `string` | `'valuesets'` | Output directory for value set files |
-
-## Value Set Generation
-
-Generate strongly-typed TypeScript enums from FHIR value sets for enhanced type safety:
-
-```typescript
-// Configuration
-export default defineConfig({
-  generators: {
-    typescript: {
-      generateValueSets: true,
-      valueSetStrengths: ['required', 'preferred'],
-      includeValueSetHelpers: true,
-    },
-  },
-});
-```
-
-### Value Set Configuration Options
-
-- **generateValueSets**: Enable value set generation
-- **valueSetStrengths**: Control which binding strengths generate types (`'required'`, `'preferred'`, `'extensible'`, `'example'`)
-- **includeValueSetHelpers**: Include runtime validation functions
-- **valueSetDirectory**: Customize output directory name
-
-For comprehensive usage examples and migration guides, see [Value Set Documentation](docs/features/value-set-generation.md).
-
-## Development
-
-### Prerequisites
-
-- [Bun](https://bun.sh) runtime (v1.0+)
-- Node.js 18+ (for compatibility)
-
-### Setup
-
-```bash
-# Clone repository
-git clone https://github.com/your-org/atomic-codegen
-cd atomic-codegen
-
-# Install dependencies
-bun install
-
-# Run tests
-bun test
-
-# Build
-bun run build
-```
-
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-## License
-
-MIT © Atomic Healthcare
-
-## Support
-
-- 📖 [Documentation](https://docs.atomic-ehr.com/codegen)
-- 🐛 [Issue Tracker](https://github.com/atomic-ehr/codegen/issues)
-
-## Next Steps: REST Client & Advanced Features
-
-We're expanding beyond type generation to create a complete FHIR development toolkit:
-
-### 🔄 REST Client Generation (Q2 2024)
-```typescript
-// Generate type-safe FHIR clients
-await builder
-  .fromPackage('hl7.fhir.r4.core', '4.0.1')
-  .restClient({
-    clientName: 'MyFHIRClient',
-    baseUrl: 'https://api.example.com/fhir',
-    authType: 'oauth2'
-  })
-  .generate();
-
-// Use generated client
-const client = new MyFHIRClient();
-const patient = await client.Patient.read('123');
-const bundle = await client.Patient.search({ name: 'Smith' });
-```
-
-### 🔍 Smart Chained Search (Q3 2024)
-```typescript
-// Intelligent search builders
-const results = await client.Patient
-  .search()
-  .name().contains('Smith')
-  .birthdate().greaterThan('2000-01-01')
-  .address().city().equals('Boston')
-  .include('Patient:organization')
-  .sort('birthdate', 'desc')
-  .execute();
-```
-
-### ⚡ Operation Generation (Q4 2024)
-```typescript
-// Type-safe FHIR operations
-const result = await client.Patient
-  .operation('$match')
-  .withParameters({
-    resource: patient,
-    onlyCertainMatches: true
-  })
-  .execute();
-```
-
-See our detailed [**ROADMAP.md**](ROADMAP.md) for the complete development plan.
-
-## Current Roadmap
+## Roadmap
 
 - [x] TypeScript generation
 - [x] FHIR R4 core package support
@@ -373,17 +213,44 @@ See our detailed [**ROADMAP.md**](ROADMAP.md) for the complete development plan.
 - [x] **Value Set Generation** - Strongly-typed enums from FHIR bindings
 - [~] **Profile & Extension Support** - Basic parsing (US Core in development)
 - [ ] **Complete Multi-Package Support** - Custom packages and dependencies
-- [ ] **REST Client Generation** - Fetch-based FHIR clients
 - [ ] **Smart Chained Search** - Intelligent search builders
+
+    ```typescript
+    // Intelligent search builders
+    const results = await client.Patient
+        .search()
+        .name().contains('Smith')
+        .birthdate().greaterThan('2000-01-01')
+        .address().city().equals('Boston')
+        .include('Patient:organization')
+        .sort('birthdate', 'desc')
+        .execute();
+    ```
+
 - [ ] **Operation Generation** - Type-safe FHIR operations
+
+    ```typescript
+    // Type-safe FHIR operations
+    const result = await client.Patient
+        .operation('$match')
+        .withParameters({
+            resource: patient,
+            onlyCertainMatches: true
+        })
+        .execute();
+    ```
+
 - [ ] **Python generation**
 - [ ] **Rust generation**
 - [ ] **GraphQL schema generation**
 - [ ] **OpenAPI specification generation**
 - [ ] **Validation functions**
 - [ ] **Mock data generation**
-- [ ] **FHIR R5 support**
+
+## Support
+
+- 🐛 [Issue Tracker](https://github.com/atomic-ehr/codegen/issues)
 
 ---
 
-Built with ❤️  by the Atomic Healthcare team
+Built with ❤️ by the Atomic Healthcare team

@@ -40,8 +40,8 @@ We are committed to providing a welcoming and inclusive environment. Please be r
 
 ```bash
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/atomic-codegen.git
-cd atomic-codegen
+git clone git@github.com:<YOUR_USERNAME>/codegen.git
+cd codegen
 
 # Install dependencies using Bun
 bun install
@@ -130,10 +130,10 @@ describe("YourFeature", () => {
   it("should do something specific", async () => {
     // Arrange
     const input = createTestInput();
-    
+
     // Act
     const result = await yourFunction(input);
-    
+
     // Assert
     expect(result).toBeDefined();
     expect(result.property).toBe(expectedValue);
@@ -322,7 +322,7 @@ export interface GeneratorOptions {
 
 export class LanguageGenerator {
   constructor(private options: GeneratorOptions) {}
-  
+
   async generate(schemas: TypeSchema[]): Promise<void> {
     // Implementation
   }
@@ -357,14 +357,14 @@ generateLanguage(options: LanguageGeneratorOptions): this {
 
 ### Code Documentation
 
-```typescript
+````typescript
 /**
  * Transforms a FHIR schema to TypeSchema format.
- * 
+ *
  * @param fhirSchema - The input FHIR schema
  * @param options - Transformation options
  * @returns The transformed TypeSchema
- * 
+ *
  * @example
  * ```typescript
  * const typeSchema = await transformFHIRSchema(fhirSchema, {
@@ -378,7 +378,7 @@ export async function transformFHIRSchema(
 ): Promise<TypeSchema> {
   // Implementation
 }
-```
+````
 
 ### Updating Documentation
 
@@ -406,10 +406,10 @@ export async function transformFHIRSchema(
 Maintainers follow this process:
 
 1. Update version in `package.json`
-2. Update `CHANGELOG.md`
-3. Create git tag: `git tag v1.2.3`
-4. Push tag: `git push --tags`
-5. GitHub Actions handles the release
+2. Create git tag: `git tag v1.2.3`
+3. Push tag: `git push --tags`
+4. GitHub Actions handles the release: create [NPM package](https://www.npmjs.com/package/@atomic-ehr/codegen?activeTab=versions), create [GitHub Release Draft](https://github.com/atomic-ehr/codegen/releases).
+5. Review GitHub Release draft and publish it.
 
 ## Recognition
 
@@ -422,7 +422,6 @@ Contributors are recognized in:
 
 - Comment on [roadmap issues](https://github.com/atomic-ehr/codegen/labels/roadmap)
 - Suggest new features via [GitHub Discussions](https://github.com/atomic-ehr/codegen/discussions)
-- 
 
 ### Maintainers team
 
