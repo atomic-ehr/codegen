@@ -9,10 +9,11 @@ import * as fs from "node:fs";
 import * as afs from "node:fs/promises";
 import * as Path from "node:path";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
-import { CSharp } from "@root/api/writer-generator/csharp/csharp";
+import { CSharp } from "@root/api/writer-generator/csharp/csharp.ts";
+import { Python, type PythonGeneratorOptions } from "@root/api/writer-generator/python";
+import { generateTypeSchemas } from "@root/typeschema";
 import { registerFromManager } from "@root/typeschema/register";
 import { mkTypeSchemaIndex, type TreeShake, type TypeSchemaIndex, treeShake } from "@root/typeschema/utils";
-import { generateTypeSchemas } from "@typeschema/index";
 import {
     extractNameFromCanonical,
     type PackageMeta,
@@ -285,6 +286,32 @@ export class APIBuilder {
         const generator = new TypeScript(opts);
         this.generators.set("typescript", generator);
         this.logger.debug(`Configured TypeScript generator (${JSON.stringify(opts, undefined, 2)})`);
+        return this;
+    }
+
+    python(userOptions: Partial<PythonGeneratorOptions>): APIBuilder {
+        const defaultWriterOpts: WriterOptions = {
+            logger: this.logger,
+            outputDir: this.options.outputDir,
+            tabSize: 4,
+            withDebugComment: false,
+            commentLinePrefix: "#",
+        };
+
+        const defaultPyOpts: PythonGeneratorOptions = {
+            ...defaultWriterOpts,
+            rootPackageName: "fhir_types",
+            fieldFormat: "snake_case",
+        };
+
+        const opts: PythonGeneratorOptions = {
+            ...defaultPyOpts,
+            ...Object.fromEntries(Object.entries(userOptions).filter(([_, v]) => v !== undefined)),
+        };
+
+        const generator = new Python(opts);
+        this.generators.set("python", generator);
+        this.logger.debug(`Configured python generator`);
         return this;
     }
 

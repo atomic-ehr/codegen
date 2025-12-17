@@ -1,4 +1,6 @@
 name: Test SDKs
+permissions:
+  contents: read
 
 on:
   push:
@@ -107,3 +109,44 @@ jobs:
 
       - name: Run tests
         run: make test-typescript-ccda-example
+
+  test-python-sdk-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        bun-version: [latest]
+        python-version: ["3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ matrix.bun-version }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Test Python SDK
+        run: |
+          export AIDBOX_LICENSE_ID="${{ secrets.AIDBOX_LICENSE_ID }}"
+          make test-python-sdk
+
+      - name: Repository contains actual python-sdk version
+        run: |
+          diff_result=$(git diff --exit-code --name-only examples/python/generated || true)
+
+          if [ -z "$diff_result" ]; then
+            echo "✅ Generated SDK is identical to the one stored in repository."
+          else
+            echo "❌ Generated SDK differs from the one stored in repository."
+            echo "Differences:"
+            git diff examples/python/generated
+            exit 1
+          fi

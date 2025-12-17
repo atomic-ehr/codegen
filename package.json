@@ -25,7 +25,8 @@
   },
   "preferGlobal": true,
   "files": [
-    "dist"
+    "dist",
+    "assets"
   ],
   "scripts": {
     "test": "bun test",
