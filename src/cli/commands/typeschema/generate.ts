@@ -18,6 +18,7 @@ interface GenerateTypeschemaArgs {
     verbose?: boolean;
     treeshake?: string[];
     singleFile?: boolean;
+    registry?: string;
 }
 
 /**
@@ -64,6 +65,11 @@ export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, G
             default: false,
             describe: "Enable verbose output",
         },
+        registry: {
+            alias: "r",
+            type: "string",
+            describe: "Custom FHIR package registry URL (default: https://fs.get-ig.org/pkgs/)",
+        },
     },
     handler: async (argv) => {
         const logger = createLogger({
@@ -98,11 +104,18 @@ export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, G
                 logger.info("Single file output enabled (NDJSON format)");
             }
 
+            // Merge registry options: CLI args take precedence over config file
+            const registryOption = argv.registry || config.registry;
+            if (registryOption) {
+                logger.info(`Using custom registry: ${registryOption}`);
+            }
+
             const startTime = Date.now();
 
             // Create TypeSchema generator
             const generator = new TypeSchemaGenerator({
                 treeshake: treeshakeOptions,
+                registry: registryOption,
             });
 
             // Generate schemas from all packages

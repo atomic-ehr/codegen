@@ -140,6 +140,10 @@ export interface Config {
     packages?: string[];
     files?: string[];
 
+    // Package registry
+    /** Custom FHIR package registry URL (default: https://fs.get-ig.org/pkgs/) */
+    registry?: string;
+
     // Schema validation
     $schema?: string;
 }
@@ -154,6 +158,7 @@ export const DEFAULT_CONFIG: Required<Config> = {
     validate: true,
     cache: true,
     cleanOutput: true,
+    registry: "",
     typescript: {
         moduleFormat: "esm",
         generateIndex: true,

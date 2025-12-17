@@ -346,4 +346,6 @@ export interface TypeschemaGeneratorOptions {
     logger?: import("../utils/codegen-logger").CodegenLogger;
     treeshake?: string[];
     manager?: ReturnType<typeof CanonicalManager> | null;
+    /** Custom FHIR package registry URL */
+    registry?: string;
 }
