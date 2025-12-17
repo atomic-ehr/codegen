@@ -44,7 +44,7 @@ export const groupByPackages = (typeSchemas: TypeSchema[]) => {
     return grouped;
 };
 
-export type TypeSchemaShakeRule = { ignoreFields?: string[] };
+export type TypeSchemaShakeRule = { ignoreFields?: string[]; selectFields?: string[] };
 
 export type TreeShake = Record<string, Record<string, TypeSchemaShakeRule>>;
 
@@ -56,10 +56,24 @@ export const treeShakeTypeSchema = (
     schema = structuredClone(schema);
     if (isPrimitiveTypeSchema(schema) || isValueSetTypeSchema(schema) || isBindingSchema(schema)) return schema;
 
-    for (const fieldName of rule.ignoreFields ?? []) {
-        if (schema.fields && !schema.fields[fieldName]) throw new Error(`Field ${fieldName} not found`);
-        if (schema.fields) {
-            delete schema.fields[fieldName];
+    if (rule.selectFields) {
+        if (rule.ignoreFields) throw new Error("Cannot use both ignoreFields and selectFields in the same rule");
+
+        const selectedFields: Record<string, Field> = {};
+        for (const fieldName of rule.selectFields) {
+            if (!schema.fields || !schema.fields[fieldName]) throw new Error(`Field ${fieldName} not found`);
+            selectedFields[fieldName] = schema.fields[fieldName];
+        }
+        schema.fields = selectedFields;
+    }
+
+    if (rule.ignoreFields) {
+        if (rule.selectFields) throw new Error("Cannot use both ignoreFields and selectFields in the same rule");
+        for (const fieldName of rule.ignoreFields) {
+            if (schema.fields && !schema.fields[fieldName]) throw new Error(`Field ${fieldName} not found`);
+            if (schema.fields) {
+                delete schema.fields[fieldName];
+            }
         }
     }
 
