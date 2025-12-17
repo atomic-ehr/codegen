@@ -12,11 +12,13 @@ import {
     isComplexTypeTypeSchema,
     isLogicalTypeSchema,
     isNestedIdentifier,
+    isNotChoiceDeclarationField,
     isPrimitiveTypeSchema,
     isProfileTypeSchema,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
     isValueSetTypeSchema,
+    type NestedType,
     type ProfileTypeSchema,
     type RegularTypeSchema,
     type TypeSchema,
@@ -77,8 +79,16 @@ export const treeShakeTypeSchema = (
         }
     }
 
-    schema.dependencies = extractDependencies(schema.identifier, schema.base, schema.fields, schema.nested);
+    if (schema.nested) {
+        const usedTypes = new Set<CanonicalUrl>(
+            Object.values(schema.fields ?? {})
+                .filter(isNotChoiceDeclarationField)
+                .map((f) => f.type.url),
+        );
+        schema.nested = schema.nested.filter((n) => usedTypes.has(n.identifier.url));
+    }
 
+    schema.dependencies = extractDependencies(schema.identifier, schema.base, schema.fields, schema.nested);
     return schema;
 };
 
