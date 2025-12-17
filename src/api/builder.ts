@@ -13,7 +13,8 @@ import { CSharp } from "@root/api/writer-generator/csharp/csharp.ts";
 import { Python, type PythonGeneratorOptions } from "@root/api/writer-generator/python";
 import { generateTypeSchemas } from "@root/typeschema";
 import { registerFromManager } from "@root/typeschema/register";
-import { mkTypeSchemaIndex, type TreeShake, type TypeSchemaIndex, treeShake } from "@root/typeschema/utils";
+import { type TreeShake, treeShake } from "@root/typeschema/tree-shake";
+import { mkTypeSchemaIndex, type TypeSchemaIndex } from "@root/typeschema/utils";
 import {
     extractNameFromCanonical,
     type PackageMeta,

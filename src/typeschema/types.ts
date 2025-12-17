@@ -313,6 +313,11 @@ export const isChoiceDeclarationField = (field: Field | undefined): field is Cho
     return (field as ChoiceFieldDeclaration).choices !== undefined;
 };
 
+export const isChoiceInstanceField = (field: Field | undefined): field is ChoiceFieldInstance => {
+    if (!field) return false;
+    return (field as ChoiceFieldInstance).choiceOf !== undefined;
+};
+
 export type TypeschemaParserOptions = {
     format?: "auto" | "ndjson" | "json";
     validate?: boolean;
