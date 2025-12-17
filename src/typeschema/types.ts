@@ -345,7 +345,7 @@ export const enrichValueSet = (vs: ValueSet, packageMeta: PackageMeta): RichValu
 export interface TypeschemaGeneratorOptions {
     logger?: import("../utils/codegen-logger").CodegenLogger;
     treeshake?: string[];
-    manager?: ReturnType<typeof CanonicalManager> | null;
+    manager: ReturnType<typeof CanonicalManager>;
     /** Custom FHIR package registry URL */
     registry?: string;
 }

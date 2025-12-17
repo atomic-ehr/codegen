@@ -238,7 +238,7 @@ export class APIBuilder {
         this.packages.push(packageRef);
         return this;
     }
-  
+
     /**
      * Set a custom FHIR package registry URL
      * @param url The registry URL (default: https://fs.get-ig.org/pkgs/)

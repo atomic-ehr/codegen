@@ -5,7 +5,7 @@
  * Provides high-level API for converting FHIR Structure Definitions to TypeSchema format.
  */
 
-import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
+import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type { FHIRSchema, StructureDefinition } from "@atomic-ehr/fhirschema";
 import * as fhirschema from "@atomic-ehr/fhirschema";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
@@ -34,15 +34,9 @@ export class TypeSchemaGenerator {
     private options: TypeschemaGeneratorOptions;
     private logger?: CodegenLogger;
 
-    constructor(options: TypeschemaGeneratorOptions = {}) {
+    constructor(options: TypeschemaGeneratorOptions) {
         this.options = { ...options };
-        this.manager =
-            options.manager ||
-            CanonicalManager({
-                packages: [],
-                workingDir: "tmp/fhir",
-                registry: options.registry || undefined,
-            });
+        this.manager = options.manager;
         this.logger =
             options.logger ||
             createLogger({

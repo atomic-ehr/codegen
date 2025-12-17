@@ -6,6 +6,7 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
+import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import { complete, createLogger, list } from "@root/utils/codegen-logger";
 import { TypeSchemaGenerator } from "@typeschema/generator";
 import type { CommandModule } from "yargs";
@@ -116,6 +117,11 @@ export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, G
             const generator = new TypeSchemaGenerator({
                 treeshake: treeshakeOptions,
                 registry: registryOption,
+                manager: CanonicalManager({
+                    packages: [],
+                    workingDir: ".codegen-cache/canonical-manager-cache",
+                    registry: registryOption,
+                }),
             });
 
             // Generate schemas from all packages
