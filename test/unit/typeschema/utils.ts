@@ -40,6 +40,12 @@ export const registerFs = (register: Register, fs: PFS) => {
     return rfs;
 };
 
+export const resolveTs = async (register: Register, pkgMeta: PackageMeta, url: string | CanonicalUrl) => {
+    const rfs = register.resolveFs(pkgMeta, url as CanonicalUrl);
+    if (!rfs) throw new Error("Failed to resolve registered FHIR schema");
+    return await transformFhirSchema(register, rfs, logger);
+};
+
 export const registerFsAndMkTs = async (register: Register, fs: PFS) => {
     registerFs(register, fs);
     if (!fs.package_meta) throw new Error("Package metadata is missing");

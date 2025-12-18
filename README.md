@@ -84,7 +84,7 @@ yarn add @atomic-ehr/codegen
 See the [examples/](examples/) directory for working demonstrations:
 
 - **[typescript-r4/](examples/typescript-r4/)** - FHIR R4 type generation with resource creation demo and profile usage
-- **[typescript-ccda/](examples/typescript-ccda/)** - C-CDA on FHIR type generation  
+- **[typescript-ccda/](examples/typescript-ccda/)** - C-CDA on FHIR type generation
 - **[typescript-sql-on-fhir/](examples/typescript-sql-on-fhir/)** - SQL on FHIR ViewDefinition with tree shaking
 - **[python/](examples/python/)** - Python/Pydantic model generation with configurable field formats
 - **[csharp/](examples/csharp/)** - C# class generation with namespace configuration
@@ -192,6 +192,32 @@ Tree shaking optimizes the generated output by including only the resources you 
 ```
 
 This feature automatically resolves and includes all dependencies (referenced types, base resources, nested types) while excluding unused resources, significantly reducing the size of generated code and improving compilation times.
+
+##### Field-Level Tree Shaking
+
+Beyond resource-level filtering, tree shaking supports fine-grained field selection using `selectFields` (whitelist) or `ignoreFields` (blacklist):
+
+```typescript
+.treeShake({
+  "hl7.fhir.r4.core#4.0.1": {
+    "http://hl7.org/fhir/StructureDefinition/Patient": {
+      selectFields: ["id", "name", "birthDate", "gender"]
+    },
+    "http://hl7.org/fhir/StructureDefinition/Observation": {
+      ignoreFields: ["performer", "note"]
+    }
+  }
+})
+```
+
+**Configuration Rules:**
+- `selectFields`: Only includes the specified fields (whitelist approach)
+- `ignoreFields`: Removes specified fields, keeps everything else (blacklist approach)
+- These options are **mutually exclusive** - you cannot use both in the same rule
+
+**Polymorphic Field Handling:**
+
+FHIR choice types (like `multipleBirth[x]` which can be boolean or integer) are handled intelligently. Selecting/ignoring the base field affects all variants, while targeting specific variants only affects those types.
 
 ### Generation
 

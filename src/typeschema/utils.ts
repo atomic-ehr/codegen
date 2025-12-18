@@ -2,21 +2,16 @@ import * as afs from "node:fs/promises";
 import * as Path from "node:path";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import * as YAML from "yaml";
-import { extractDependencies } from "./core/transformer";
 import type { ResolutionTree } from "./register";
 import {
     type CanonicalUrl,
     type Field,
     type Identifier,
-    isBindingSchema,
     isComplexTypeTypeSchema,
     isLogicalTypeSchema,
-    isNestedIdentifier,
-    isPrimitiveTypeSchema,
     isProfileTypeSchema,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
-    isValueSetTypeSchema,
     type ProfileTypeSchema,
     type RegularTypeSchema,
     type TypeSchema,
@@ -42,77 +37,6 @@ export const groupByPackages = (typeSchemas: TypeSchema[]) => {
         grouped[packageName] = tmp;
     }
     return grouped;
-};
-
-export type TypeSchemaShakeRule = { ignoreFields?: string[] };
-
-export type TreeShake = Record<string, Record<string, TypeSchemaShakeRule>>;
-
-export const treeShakeTypeSchema = (
-    schema: TypeSchema,
-    rule: TypeSchemaShakeRule,
-    _logger?: CodegenLogger,
-): TypeSchema => {
-    schema = structuredClone(schema);
-    if (isPrimitiveTypeSchema(schema) || isValueSetTypeSchema(schema) || isBindingSchema(schema)) return schema;
-
-    for (const fieldName of rule.ignoreFields ?? []) {
-        if (schema.fields && !schema.fields[fieldName]) throw new Error(`Field ${fieldName} not found`);
-        if (schema.fields) {
-            delete schema.fields[fieldName];
-        }
-    }
-
-    schema.dependencies = extractDependencies(schema.identifier, schema.base, schema.fields, schema.nested);
-
-    return schema;
-};
-
-export const treeShake = (
-    tsIndex: TypeSchemaIndex,
-    treeShake: TreeShake,
-    { resolutionTree, logger }: { resolutionTree?: ResolutionTree; logger?: CodegenLogger },
-): TypeSchemaIndex => {
-    const focusedSchemas: TypeSchema[] = [];
-    for (const [pkgId, requires] of Object.entries(treeShake)) {
-        for (const [url, rule] of Object.entries(requires)) {
-            const schema = tsIndex.resolveByUrl(pkgId, url as CanonicalUrl);
-            if (!schema) throw new Error(`Schema not found for ${pkgId} ${url}`);
-            const shaked = treeShakeTypeSchema(schema, rule);
-            focusedSchemas.push(shaked);
-        }
-    }
-    const collectDeps = (schemas: TypeSchema[], acc: Record<string, TypeSchema>): TypeSchema[] => {
-        if (schemas.length === 0) return Object.values(acc);
-        for (const schema of schemas) {
-            acc[JSON.stringify(schema.identifier)] = schema;
-        }
-
-        const newSchemas: TypeSchema[] = [];
-
-        for (const schema of schemas) {
-            if (isSpecializationTypeSchema(schema)) {
-                if (!schema.dependencies) continue;
-                schema.dependencies.forEach((dep) => {
-                    const depSchema = tsIndex.resolve(dep);
-                    if (!depSchema) throw new Error(`Schema not found for ${dep}`);
-                    const id = JSON.stringify(depSchema.identifier);
-                    if (!acc[id]) newSchemas.push(depSchema);
-                });
-                if (schema.nested) {
-                    for (const nest of schema.nested) {
-                        if (isNestedIdentifier(nest.identifier)) continue;
-                        const id = JSON.stringify(nest.identifier);
-                        if (!acc[id]) newSchemas.push(nest);
-                    }
-                }
-            }
-        }
-        return collectDeps(newSchemas, acc);
-    };
-
-    const shaked = collectDeps(focusedSchemas, {});
-    return mkTypeSchemaIndex(shaked, { resolutionTree, logger });
 };
 
 const buildDependencyGraph = (schemas: RegularTypeSchema[]): Record<string, string[]> => {
