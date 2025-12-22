@@ -236,11 +236,15 @@ export class ViewModelFactory {
             schema.dependencies
                 .filter((dependency) => dependency.kind === "complex-type")
                 .map((dependency) => ({ name: dependency.name, saveName: this.nameGenerator.generateType(dependency) }))
-                .forEach((dependency) => dependencies.complexTypes.push(dependency));
+                .forEach((dependency) => {
+                    dependencies.complexTypes.push(dependency);
+                });
             schema.dependencies
                 .filter((dependency) => dependency.kind === "resource")
                 .map((dependency) => ({ name: dependency.name, saveName: this.nameGenerator.generateType(dependency) }))
-                .forEach((dependency) => dependencies.resources.push(dependency));
+                .forEach((dependency) => {
+                    dependencies.resources.push(dependency);
+                });
         }
         if ("nested" in schema && schema.nested) {
             schema.nested
@@ -251,13 +255,17 @@ export class ViewModelFactory {
                             (complexType) =>
                                 !dependencies.complexTypes.some((dependency) => dependency.name === complexType.name),
                         )
-                        .forEach((complexType) => dependencies.complexTypes.push(complexType));
+                        .forEach((complexType) => {
+                            dependencies.complexTypes.push(complexType);
+                        });
                     d.resources
                         .filter(
                             (resource) =>
                                 !dependencies.resources.some((dependency) => dependency.name === resource.name),
                         )
-                        .forEach((resource) => dependencies.resources.push(resource));
+                        .forEach((resource) => {
+                            dependencies.resources.push(resource);
+                        });
                 });
         }
         return dependencies;
@@ -305,7 +313,9 @@ export class ViewModelFactory {
         if ("nested" in schema && schema.nested) {
             schema.nested
                 .map((nested) => this._createForNestedType(nested, cache, schema))
-                .forEach((n) => nested.push(n));
+                .forEach((n) => {
+                    nested.push(n);
+                });
         }
         return nested;
     }

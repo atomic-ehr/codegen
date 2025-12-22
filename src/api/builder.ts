@@ -14,9 +14,14 @@ import { Python, type PythonGeneratorOptions } from "@root/api/writer-generator/
 import { generateTypeSchemas } from "@root/typeschema";
 import { registerFromManager } from "@root/typeschema/register";
 import { type TreeShake, treeShake } from "@root/typeschema/tree-shake";
-import { mkTypeSchemaIndex, mkTypeSchemaIndex, type TreeShake, type TypeSchemaIndex, type TypeSchemaIndex, treeShake } from "@root/typeschema/utils";
-import type { PartialBy } from "@root/utils/types";
-import { generateTypeSchemas } from "@typeschema/index";
+import {
+    extractNameFromCanonical,
+    type PackageMeta,
+    packageMetaToFhir,
+    packageMetaToNpm,
+    type TypeSchema,
+} from "@root/typeschema/types";
+import { mkTypeSchemaIndex, type TypeSchemaIndex } from "@root/typeschema/utils";
 import {
     type CodegenLogger,
     createLogger,
@@ -24,14 +29,10 @@ import {
     type LogLevelString,
     parseLogLevel,
 } from "@root/utils/codegen-logger";
-import {
-    extractNameFromCanonical,
-    type PackageMeta,
-    packageMetaToFhir,packageMetaToFhir, 
-    packageMetaToNpm,packageMetaToNpm, 
-    type TypeSchema,type TypeSchema 
-} from "@typeschema/types";
+import type { PartialBy } from "@root/utils/types";
 import type { TypeSchemaConfig } from "../config";
+import type { FileBasedMustacheGeneratorOptions } from "./writer-generator/mustache";
+import * as Mustache from "./writer-generator/mustache";
 import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript";
 import type { FileBuffer, FileSystemWriter, FileSystemWriterOptions, WriterOptions } from "./writer-generator/writer";
 
