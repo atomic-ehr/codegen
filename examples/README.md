@@ -29,6 +29,7 @@ This directory contains working examples demonstrating the capabilities of Atomi
 - **[csharp/](csharp/)** - C# class generation
   - `generate.ts` - Generates C# classes with custom namespace
   - Includes static files for base functionality
+  - Includes integration tests with Aidbox FHIR server
 
 ### Local Package Support
 
@@ -57,3 +58,18 @@ To run the TypeScript R4 demo after generation:
 ```bash
 bun run examples/typescript-r4/demo.ts
 ```
+
+## Prerequisites for C# Example
+
+The C# example includes integration tests with Aidbox FHIR server. To run the tests:
+
+```bash
+# Start Aidbox server
+docker compose up
+
+# In another terminal, run the C# tests
+cd examples/csharp
+dotnet test
+```
+
+See [examples/csharp/README.md](csharp/README.md) for detailed setup instructions.

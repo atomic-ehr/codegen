@@ -112,14 +112,7 @@ bun test --coverage
 
 ### Test Structure
 
-```
-test/
-├── unit/             # Unit tests
-│   ├── typeschema/   # TypeSchema tests
-│   └── api/          # API tests
-├── integration/      # Integration tests
-└── e2e/             # End-to-end tests
-```
+Tests are organized by functionality and should follow the structure of the `src/` directory.
 
 ### Writing Tests
 
@@ -307,44 +300,6 @@ export { helperFunction };
 - **Extensibility**: Design for plugin support
 
 ## Adding New Features
-
-### Adding a New Generator
-
-1. Create generator file: `src/generators/[language].ts`
-
-```typescript
-import type { TypeSchema } from "../typeschema/types";
-
-export interface GeneratorOptions {
-  outputDir: string;
-  // Add language-specific options
-}
-
-export class LanguageGenerator {
-  constructor(private options: GeneratorOptions) {}
-
-  async generate(schemas: TypeSchema[]): Promise<void> {
-    // Implementation
-  }
-}
-```
-
-2. Add to API builder: `src/api/builder.ts`
-
-```typescript
-generateLanguage(options: LanguageGeneratorOptions): this {
-  this.operations.push({
-    type: 'generate',
-    generator: 'language',
-    options
-  });
-  return this;
-}
-```
-
-3. Add CLI command: `src/cli/commands/generate/[language].ts`
-
-4. Add tests: `test/unit/generators/[language].test.ts`
 
 ### Adding a New FHIR Package
 

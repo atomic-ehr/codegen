@@ -266,7 +266,8 @@ Writers provide high-level abstractions for common code patterns (blocks, import
         .execute();
     ```
 
-- [ ] **Python generation**
+- [x] **Python generation**
+- [x] **C# generation**
 - [ ] **Rust generation**
 - [ ] **GraphQL schema generation**
 - [ ] **OpenAPI specification generation**
