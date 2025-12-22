@@ -79,7 +79,7 @@ const prefixReservedTypeName = (name: string): string => (isReservedTypeName(nam
 export type CSharpGeneratorOptions = WriterOptions & {
     outputDir: string;
     staticSourceDir?: string;
-    targetNamespace: string;
+    rootNamespace: string;
 };
 
 interface EnumRegistry {
@@ -238,8 +238,8 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
             "CSharpSDK",
             "System.Text.Json",
             "System.Text.Json.Serialization",
-            this.opts.targetNamespace,
-            ...packages.map((pkg) => `${this.opts.targetNamespace}.${pkg}`),
+            this.opts.rootNamespace,
+            ...packages.map((pkg) => `${this.opts.rootNamespace}.${pkg}`),
         ];
 
         for (const using of globalUsings) this.lineSM("global", "using", using);
@@ -250,7 +250,7 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
             this.cat("base.cs", () => {
                 this.generateDisclaimer();
                 this.line();
-                this.lineSM("namespace", this.opts.targetNamespace);
+                this.lineSM("namespace", this.opts.rootNamespace);
 
                 for (const schema of complexTypes) {
                     const packageName = formatName(schema.identifier.package);
@@ -271,7 +271,7 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
             this.cat(`${schema.identifier.name}.cs`, () => {
                 this.generateDisclaimer();
                 this.line();
-                this.lineSM("namespace", `${this.opts.targetNamespace}.${packageName}`);
+                this.lineSM("namespace", `${this.opts.rootNamespace}.${packageName}`);
                 this.line();
                 this.generateType(schema, packageName);
             });
@@ -299,7 +299,7 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
     private generateEnumFileContent(packageName: string, enums: Record<string, string[]>): void {
         this.lineSM("using", "System.ComponentModel");
         this.line();
-        this.lineSM(`namespace ${this.opts.targetNamespace}.${packageName}`);
+        this.lineSM(`namespace ${this.opts.rootNamespace}.${packageName}`);
 
         for (const [enumName, values] of Object.entries(enums)) {
             this.generateEnum(enumName, values);
@@ -326,7 +326,7 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
                 this.cat(`${packageName}ResourceDictionary.cs`, () => {
                     this.generateDisclaimer();
                     this.line();
-                    this.lineSM(`namespace ${this.opts.targetNamespace}`);
+                    this.lineSM(`namespace ${this.opts.rootNamespace}`);
                     this.generateResourceDictionaryClass(packageName, packageResources);
                 });
             }
@@ -352,6 +352,8 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
     }
 
     private generateHelperFile(): void {
+        // FIXME: should be part of generated files
+        if (this.opts.inMemoryOnly) return;
         const sourceFile = "src/api/writer-generator/csharp/Helper.cs";
         const destFile = Path.join(this.opts.outputDir, "Helper.cs");
         fs.copyFileSync(sourceFile, destFile);
