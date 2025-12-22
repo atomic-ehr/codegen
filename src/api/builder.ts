@@ -16,6 +16,13 @@ import { registerFromManager } from "@root/typeschema/register";
 import { type TreeShake, treeShake } from "@root/typeschema/tree-shake";
 import { mkTypeSchemaIndex, type TypeSchemaIndex } from "@root/typeschema/utils";
 import {
+    CodegenLogger,
+    createLogger,
+    type LogLevel,
+    type LogLevelString,
+    parseLogLevel,
+} from "@root/utils/codegen-logger";
+import {
     extractNameFromCanonical,
     type PackageMeta,
     packageMetaToFhir,
@@ -23,7 +30,6 @@ import {
     type TypeSchema,
 } from "@typeschema/types";
 import type { TypeSchemaConfig } from "../config";
-import { CodegenLogger, createLogger, type LogLevel } from "../utils/codegen-logger";
 import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript";
 import type { FileBuffer, FileSystemWriter, WriterOptions } from "./writer-generator/writer";
 
@@ -355,8 +361,8 @@ export class APIBuilder {
         return this;
     }
 
-    setLogLevel(level: LogLevel): APIBuilder {
-        this.logger?.setLevel(level);
+    setLogLevel(level: LogLevel | LogLevelString): APIBuilder {
+        this.logger?.setLevel(typeof level === "string" ? parseLogLevel(level) : level);
         return this;
     }
 

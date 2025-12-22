@@ -14,6 +14,25 @@ export enum LogLevel {
     SILENT = 4,
 }
 
+export type LogLevelString = keyof typeof LogLevel;
+
+export const parseLogLevel = (level: LogLevelString): LogLevel => {
+    switch (level.toUpperCase()) {
+        case "DEBUG":
+            return LogLevel.DEBUG;
+        case "INFO":
+            return LogLevel.INFO;
+        case "WARN":
+            return LogLevel.WARN;
+        case "ERROR":
+            return LogLevel.ERROR;
+        case "SILENT":
+            return LogLevel.SILENT;
+        default:
+            throw new Error(`Invalid log level: ${level}`);
+    }
+};
+
 export interface LogOptions {
     prefix?: string;
     timestamp?: boolean;
