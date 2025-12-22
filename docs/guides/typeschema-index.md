@@ -29,7 +29,7 @@ The `TypeSchemaIndex` is a comprehensive data structure containing all transform
 
 ## Overview
 
-TypeSchemaIndex is created during the TypeSchema generation phase and serves as the input to all code generators (Writer implementations, etc.). It organizes all FHIR schemas by canonical URL and package name, enabling efficient lookups and traversals of complex type relationships.
+TypeSchemaIndex is created during the TypeSchema generation phase and serves as the input to all code generators (Writer implementations, Mustache templates, etc.). It organizes all FHIR schemas by canonical URL and package name, enabling efficient lookups and traversals of complex type relationships.
 
 Why TypeSchemaIndex Matters
 
@@ -201,4 +201,5 @@ const sorted = sortAsDeclarationSequence(byPackage["hl7.fhir.r4.core"]);
 - **TypeSchemaIndex & Helper Utilities Implementation**: `src/typeschema/utils.ts`
 - **TypeSchema Type Definition**: `src/typeschema/types.ts`
 - **Writer Generator Guide**: [writer-generator.md](./writer-generator.md)
+- **Mustache Generator Guide**: [mustache-generator.md](./mustache-generator.md)
 - **FHIR Specification**: [https://www.hl7.org/fhir/](https://www.hl7.org/fhir/)
