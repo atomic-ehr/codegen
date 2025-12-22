@@ -9,7 +9,7 @@ if (require.main === module) {
         .python({
             allowExtraFields: false,
             staticDir: "./src/api/writer-generator/python/static-files",
-            fieldFormat: "camelCase",
+            fieldFormat: "snake_case",
         })
         .outputTo("./examples/python/fhir_types")
         .cleanOutput(true);
