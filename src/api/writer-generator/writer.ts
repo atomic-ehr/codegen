@@ -82,7 +82,11 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
 
             this.logger()?.debug(`cat > '${relPath}'`);
             this.currentFile = { descriptor, relPath };
-            this.writtenFilesBuffer[this.currentFile.relPath] = { relPath, absPath: Path.resolve(relPath), tokens: [] };
+            this.writtenFilesBuffer[this.currentFile.relPath] = {
+                relPath,
+                absPath: Path.resolve(relPath),
+                tokens: [],
+            };
 
             gen();
         } finally {
@@ -105,7 +109,7 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
     writtenFiles(): FileBuffer[] {
         return Object.values(this.writtenFilesBuffer)
             .map(({ relPath, absPath, tokens }) => {
-                return { relPath, absPath, content: tokens.join() };
+                return { relPath, absPath, content: tokens.join("") };
             })
             .sort((a, b) => a.relPath.localeCompare(b.relPath));
     }

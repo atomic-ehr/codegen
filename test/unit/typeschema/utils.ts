@@ -18,6 +18,8 @@ export const mkR4Register = async () =>
         // logger: createLogger({ verbose: true, prefix: "TEST" })
     });
 
+export const r4Manager = await mkR4Register();
+
 export const r5Package = { name: "hl7.fhir.r5.core", version: "5.0.0" };
 
 export const mkR5Register = async () =>

@@ -65,7 +65,7 @@ export type ProgressCallback = (phase: string, current: number, total: number, m
 export interface GenerationResult {
     success: boolean;
     outputDir: string;
-    filesGenerated: string[];
+    filesGenerated: Record<string, string>;
     errors: string[];
     warnings: string[];
     duration: number;
@@ -405,7 +405,7 @@ export class APIBuilder {
         const result: GenerationResult = {
             success: false,
             outputDir: this.options.outputDir,
-            filesGenerated: [],
+            filesGenerated: {},
             errors: [],
             warnings: [],
             duration: 0,
@@ -519,7 +519,9 @@ export class APIBuilder {
             try {
                 await generator.generate(tsIndex);
                 const fileBuffer: FileBuffer[] = generator.writtenFiles();
-                result.filesGenerated.push(...fileBuffer.map((e) => e.absPath));
+                fileBuffer.forEach((buf) => {
+                    result.filesGenerated[buf.relPath] = buf.content;
+                });
                 this.logger.info(`Generating ${type} finished successfully`);
             } catch (error) {
                 result.errors.push(
