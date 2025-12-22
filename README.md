@@ -221,14 +221,22 @@ FHIR choice types (like `multipleBirth[x]` which can be boolean or integer) are 
 
 ### Generation
 
-The generation stage uses a `WriterGenerator` system that transforms Type Schema into target language code. The architecture consists of:
+The generation stage transforms Type Schema into target language code using two complementary approaches:
 
-- **Base Writer** (`Writer`): Handles file I/O, indentation, and code formatting primitives
-- **Language Writers** (e.g., `TypeScript`): Implement language-specific generation logic
+#### 1. Writer-Based Generation (Programmatic)
 
-Writers provide high-level abstractions for common code patterns (blocks, imports, type definitions) while maintaining full control over output formatting. Each language writer traverses the Type Schema index and generates corresponding types, interfaces, or classes following that language's idioms and best practices.
+For languages with built-in support (TypeScript, Python, C#), extend the `Writer` class to implement language-specific generators:
 
-- [Type Schema: Python SDK for FHIR](https://www.health-samurai.io/articles/type-schema-python-sdk-for-fhir)
+- **FileSystemWriter**: Base class providing file I/O, directory management, and buffer handling (both disk and in-memory modes)
+- **Writer**: Extends FileSystemWriter with code formatting utilities (indentation, blocks, comments, line management)
+- **Language Writers** (`TypeScript`, `Python`[^py], `CSharp`): Implement language-specific generation logic by traversing TypeSchema index and generating corresponding types, interfaces, or classes
+
+[^py]: For details on [Type Schema: Python SDK for FHIR](https://www.health-samurai.io/articles/type-schema-python-sdk-for-fhir)
+
+Each language writer maintains full control over output formatting while leveraging high-level abstractions for common code patterns. Writers follow language idioms and best practices, with optimized output for production use.
+
+**When to use**: Full control needed, complex generation logic, performance-critical, language has a dedicated writer, production-grade output
+**Guide**: [docs/guides/writer-generator.md](docs/guides/writer-generator.md)
 
 ## Roadmap
 
