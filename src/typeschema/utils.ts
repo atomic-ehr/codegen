@@ -13,6 +13,7 @@ import {
     isProfileTypeSchema,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
+    type ProfileExtension,
     type ProfileTypeSchema,
     type RegularTypeSchema,
     type TypeSchema,
@@ -306,12 +307,22 @@ export const mkTypeSchemaIndex = (
         }
 
         const dependencies = Object.values(deps);
+        const extensionMap = new Map<string, ProfileExtension>();
+        for (const anySchema of constraintSchemas.slice().reverse()) {
+            const extensions = (anySchema as ProfileTypeSchema).extensions ?? [];
+            for (const ext of extensions) {
+                const key = `${ext.path}|${ext.name}|${ext.url ?? ""}`;
+                extensionMap.set(key, ext);
+            }
+        }
+        const mergedExtensions = Array.from(extensionMap.values());
 
         return {
             ...schema,
             base: nonConstraintSchema.identifier,
             fields: mergedFields,
             dependencies: dependencies,
+            ...(mergedExtensions.length > 0 ? { extensions: mergedExtensions } : {}),
         };
     };
 
