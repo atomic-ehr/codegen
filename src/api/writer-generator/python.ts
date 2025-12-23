@@ -150,7 +150,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     private tsIndex: TypeSchemaIndex | undefined;
 
     constructor(options: PythonGeneratorOptions) {
-        super(options);
+        super({ ...options, resolveAssets: options.resolveAssets ?? resolvePyAssets });
         this.nameFormatFunction = this.getFieldFormatFunction(options.fieldFormat);
     }
 
@@ -166,7 +166,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
 
     private generateRootPackages(groups: TypeSchemaPackageGroups): void {
         this.generateRootInitFile(groups);
-        fs.cpSync(resolvePyAssets("requirements.txt"), Path.resolve(this.opts.outputDir, "requirements.txt"));
+        this.cp(resolvePyAssets("requirements.txt"), "requirements.txt");
     }
 
     private generateSDKPackages(groups: TypeSchemaPackageGroups): void {

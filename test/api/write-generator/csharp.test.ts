@@ -8,9 +8,14 @@ describe("C# Writer Generator", async () => {
         .csharp({
             inMemoryOnly: true,
         })
+        .throwException()
         .generate();
-    expect(Object.keys(result.filesGenerated).length).toEqual(152);
+    expect(Object.keys(result.filesGenerated).length).toEqual(154);
     it("generates Patient resource in inMemoryOnly mode with snapshot", async () => {
         expect(result.filesGenerated["generated/types/Hl7FhirR4Core/Patient.cs"]).toMatchSnapshot();
+    });
+    it("static files", async () => {
+        expect(result.filesGenerated["generated/types/Client.cs"]).toMatchSnapshot();
+        expect(result.filesGenerated["generated/types/Helper.cs"]).toMatchSnapshot();
     });
 });

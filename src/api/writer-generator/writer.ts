@@ -7,6 +7,7 @@ export type FileSystemWriterOptions = {
     outputDir: string;
     inMemoryOnly?: boolean;
     logger?: CodegenLogger;
+    resolveAssets?: (fn: string) => string;
 };
 
 export type WriterOptions = FileSystemWriterOptions & {
@@ -102,6 +103,19 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
         const buf = this.writtenFilesBuffer[this.currentFile.relPath];
         if (!buf) throw new Error("No buffer found");
         buf.tokens.push(str);
+    }
+
+    cp(source: string, destination: string) {
+        if (!this.opts.resolveAssets) throw new Error("resolveAssets is not defined");
+        source = Path.resolve(this.opts.resolveAssets(source));
+        destination = Path.normalize(`${this.currentDir ?? this.opts.outputDir}/${destination}`);
+        const content = fs.readFileSync(source, "utf8");
+        this.writtenFilesBuffer[destination] = {
+            relPath: destination,
+            absPath: Path.resolve(destination),
+            tokens: [content],
+        };
+        fs.cpSync(source, destination);
     }
 
     abstract generate(_tsIndex: TypeSchemaIndex): Promise<void>;

@@ -9,8 +9,11 @@ describe("Python Writer Generator", async () => {
             inMemoryOnly: true,
         })
         .generate();
-    expect(Object.keys(result.filesGenerated).length).toEqual(152);
+    expect(Object.keys(result.filesGenerated).length).toEqual(153);
     it("generates Patient resource in inMemoryOnly mode with snapshot", async () => {
         expect(result.filesGenerated["generated/hl7_fhir_r4_core/patient.py"]).toMatchSnapshot();
+    });
+    it("static files", async () => {
+        expect(result.filesGenerated["generated/requirements.txt"]).toMatchSnapshot();
     });
 });

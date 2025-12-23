@@ -107,6 +107,7 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
             tabSize: 4,
             withDebugComment: false,
             commentLinePrefix: "//",
+            resolveAssets: options.resolveAssets ?? resolveCSharpAssets,
             ...options,
         });
     }
@@ -357,9 +358,8 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
     }
 
     private copyStaticFiles(): void {
-        if (this.opts.inMemoryOnly) return;
-        const sourceDir = resolveCSharpAssets("");
-        fs.cpSync(sourceDir, this.opts.outputDir, { recursive: true });
+        this.cp("Client.cs", "Client.cs");
+        this.cp("Helper.cs", "Helper.cs");
     }
 
     private generateHelperFile(): void {
