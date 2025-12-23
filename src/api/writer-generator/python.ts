@@ -102,7 +102,7 @@ const fixReservedWords = (name: string): string => {
 };
 
 const injectSuperClasses = (name: string): string[] => {
-    return name === "Resource" || name === "Element" ? ["BaseModel"] : [];
+    return name === "Resource" ? ["FHIRBase"] : name === "Element" ? ["BaseModel"] : [];
 };
 
 const canonicalToName = (canonical: string | undefined, dropFragment = true) => {
@@ -175,8 +175,10 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private generateComplexTypesPackages(groupedComplexTypes: Record<string, RegularTypeSchema[]>): void {
-        for (const [packageName, packageComplexTypes] of Object.entries(groupedComplexTypes)) {
-            this.cd(`/${snakeCase(packageName)}`, () => {
+        for (let [packageName, packageComplexTypes] of Object.entries(groupedComplexTypes)) {
+            packageName = snakeCase(packageName);
+            fs.cpSync(resolvePyAssets("FHIRBase.py"), Path.resolve(this.opts.outputDir, packageName, "FHIRBase.py"));
+            this.cd(`/${packageName}`, () => {
                 this.generateBasePy(packageComplexTypes);
             });
         }
@@ -367,6 +369,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         this.cat(`${snakeCase(schema.identifier.name)}.py`, () => {
             this.generateDisclaimer();
             this.generateDefaultImports();
+            this.generateFHIRBaseImport(schema.identifier.package);
             this.line();
             this.generateDependenciesImports(schema);
             this.line();
@@ -376,7 +379,11 @@ export class Python extends Writer<PythonGeneratorOptions> {
         });
     }
 
-    generateType(schema: RegularTypeSchema): void {
+    private generateFHIRBaseImport(packageName: string): void {
+        this.pyImportFrom(`${this.pyFhirPackageByName(packageName)}.FHIRBase`, "FHIRBase");
+    }
+
+    private generateType(schema: RegularTypeSchema): void {
         const className = deriveResourceName(schema.identifier);
         const superClasses = this.getSuperClasses(schema);
 
@@ -502,7 +509,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         this.line("    return cls.model_validate_json(json)");
     }
 
-    generateNestedTypes(schema: RegularTypeSchema): void {
+    private generateNestedTypes(schema: RegularTypeSchema): void {
         if (!schema.nested) return;
 
         this.line();
@@ -559,7 +566,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         return grouped;
     }
 
-    pyImportFrom(pyPackage: string, ...entities: string[]): void {
+    private pyImportFrom(pyPackage: string, ...entities: string[]): void {
         const oneLine = `from ${pyPackage} import ${entities.join(", ")}`;
 
         if (this.shouldUseSingleLineImport(oneLine, entities)) {

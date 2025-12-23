@@ -1,5 +1,6 @@
 requests>=2.32.0,<3.0.0
 pytest>=8.3.0,<9.0.0
 pydantic>=2.11.0,<3.0.0
+fhirpy>=2.2.0
 mypy>=1.9.0,<2.0.0
 types-requests>=2.32.0,<3.0.0
