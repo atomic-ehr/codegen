@@ -41,14 +41,13 @@ async def main():
     )
 
     patient = Patient(
-        name=[HumanName(given=["Bob"], family="Cool")],
+        name=[HumanName(given=["Bob"], family="Cool2")],
         gender="female",
         birthDate="1980-01-01",
     )
 
-    patient_resource_type, patient_fields = get_resource_components(patient)
+    created_patient = await client.create(patient)
 
-    created_patient = await client.resource(patient_resource_type, **patient_fields).save()
     print(f"Created patient: {created_patient.id}")
     print(json.dumps(created_patient.serialize(), indent=2))
 
