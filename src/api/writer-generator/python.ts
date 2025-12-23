@@ -102,7 +102,9 @@ const fixReservedWords = (name: string): string => {
 };
 
 const injectSuperClasses = (name: string): string[] => {
-    return name === "Resource" ? ["FHIRBase"] : name === "Element" ? ["BaseModel"] : [];
+    if (name === "Resource") return ["FHIRBase"];
+    if (name === "Element") return ["BaseModel"];
+    return [];
 };
 
 const canonicalToName = (canonical: string | undefined, dropFragment = true) => {
