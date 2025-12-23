@@ -4,7 +4,7 @@
 
 using System.ComponentModel;
 
-namespace SuperNameSpace.Hl7FhirR4Core;
+namespace FhirTypes.Hl7FhirR4Core;
 public enum AddressTypeEnum {
     [Description("postal")]
     Postal,

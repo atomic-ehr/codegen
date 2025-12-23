@@ -3,7 +3,7 @@
 // Any manual changes made to this file may be overwritten.
 
 
-namespace SuperNameSpace;
+namespace FhirTypes;
 public class Address : Element {
     public string? City { get; set; }
     public string? Country { get; set; }

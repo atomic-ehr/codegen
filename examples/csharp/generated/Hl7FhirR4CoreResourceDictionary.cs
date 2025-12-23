@@ -3,7 +3,7 @@
 // Any manual changes made to this file may be overwritten.
 
 
-namespace SuperNameSpace;
+namespace FhirTypes;
 public static class ResourceDictionary {
     public static readonly Dictionary<Type, string> Map = new() {
         { typeof(Hl7FhirR4Core.Account), "Account" },
