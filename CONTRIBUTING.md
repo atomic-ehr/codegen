@@ -150,6 +150,72 @@ bun test --coverage
 bun test --watch
 ```
 
+### Writing Tests for Code Generators
+
+Tests for language-specific code generators validate that the writers produce correct output. These tests use the `APIBuilder` with `inMemoryOnly` mode to avoid file I/O.
+
+#### Test File Organization
+
+Generator tests are located in `test/api/write-generator/`:
+
+- `typescript.test.ts` - TypeScript interface generation
+- `python.test.ts` - Python/Pydantic model generation
+- `csharp.test.ts` - C# class generation
+- etc.
+
+#### Basic Generator Test Pattern
+
+```typescript
+import { describe, expect, it } from "bun:test";
+import { APIBuilder } from "@root/api/builder";
+import { r4Manager } from "@typeschema-test/utils";
+
+describe("TypeScript Writer Generator", async () => {
+    const result = await new APIBuilder({ manager: r4Manager })
+        .setLogLevel("SILENT")
+        .typescript({
+            inMemoryOnly: true,
+        })
+        .generate();
+
+    // Validate generated file count
+    expect(Object.keys(result.filesGenerated).length).toEqual(236);
+
+    it("generates Patient resource with snapshot", async () => {
+        // Validate generated file content: <https://bun.com/docs/guides/test/snapshot>
+        expect(result.filesGenerated["generated/types/hl7-fhir-r4-core/Patient.ts"])
+            .toMatchSnapshot();
+    });
+});
+```
+
+#### Snapshot Testing Workflow
+
+Snapshots are stored in `test/api/write-generator/__snapshots__/` and capture the exact generated output.
+
+Update snapshots after intentional changes:
+```bash
+bun test -- --update-snapshots
+```
+
+Use snapshots to:
+- Validate complete generated file structure
+- Detect unintended code generation changes
+- Review formatting consistency
+- Ensure compatibility across updates
+
+**Important:** Review snapshot diffs carefully before committing to ensure changes are intentional.
+
+#### Generator Test Best Practices
+
+1. **Isolate per language:** Each language generator should have independent tests
+2. **Combine assertions:** Use file count checks plus content validation
+3. **Test edge cases:** Include inheritance, choice types, nested structures
+4. **Verify paths:** Confirm generated file paths follow language conventions
+5. **Review diffs:** Always review snapshot changes in PRs
+6. **Document intent:** Add comments for non-obvious test scenarios
+7. **Use inMemoryOnly:** Always use in-memory mode to avoid file I/O in tests
+
 ## Submitting Changes
 
 ### 1. Commit Guidelines
