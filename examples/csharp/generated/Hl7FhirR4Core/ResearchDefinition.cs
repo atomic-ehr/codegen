@@ -3,7 +3,7 @@
 // Any manual changes made to this file may be overwritten.
 
 
-namespace SuperNameSpace.Hl7FhirR4Core;
+namespace FhirTypes.Hl7FhirR4Core;
 
 public class ResearchDefinition : DomainResource {
     public string? ApprovalDate { get; set; }

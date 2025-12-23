@@ -5,5 +5,5 @@
 global using CSharpSDK;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
-global using SuperNameSpace;
-global using SuperNameSpace.Hl7FhirR4Core;
+global using FhirTypes;
+global using FhirTypes.Hl7FhirR4Core;

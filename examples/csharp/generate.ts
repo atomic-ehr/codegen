@@ -6,7 +6,9 @@ if (require.main === module) {
     const builder = new APIBuilder()
         .throwException()
         .fromPackage("hl7.fhir.r4.core", "4.0.1")
-        .csharp("SuperNameSpace", "src/api/writer-generator/csharp/staticFiles")
+        .csharp({
+            rootNamespace: "FhirTypes",
+        })
         .outputTo("./examples/csharp/generated")
         .cleanOutput(true);
 

@@ -9,14 +9,14 @@ import * as fs from "node:fs";
 import * as afs from "node:fs/promises";
 import * as Path from "node:path";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
-import { CSharp } from "@root/api/writer-generator/csharp/csharp.ts";
+import { CSharp, type CSharpGeneratorOptions } from "@root/api/writer-generator/csharp/csharp.ts";
 import { Python, type PythonGeneratorOptions } from "@root/api/writer-generator/python";
 import { generateTypeSchemas } from "@root/typeschema";
 import { registerFromManager } from "@root/typeschema/register";
 import { type TreeShake, treeShake } from "@root/typeschema/tree-shake";
 import { mkTypeSchemaIndex, type TypeSchemaIndex } from "@root/typeschema/utils";
 import {
-    CodegenLogger,
+    type CodegenLogger,
     createLogger,
     type LogLevel,
     type LogLevelString,
@@ -322,18 +322,27 @@ export class APIBuilder {
         return this;
     }
 
-    csharp(namespace: string, staticSourceDir?: string | undefined): APIBuilder {
-        const generator = new CSharp({
+    csharp(userOptions: Partial<CSharpGeneratorOptions>): APIBuilder {
+        const defaultWriterOpts: WriterOptions = {
+            logger: this.logger,
             outputDir: Path.join(this.options.outputDir, "/types"),
-            staticSourceDir: staticSourceDir ?? undefined,
-            targetNamespace: namespace,
-            logger: new CodegenLogger({
-                prefix: "C#",
-                timestamp: true,
-                suppressLoggingLevel: [],
-            }),
-        });
-        this.generators.set("C#", generator);
+            tabSize: 4,
+            withDebugComment: false,
+            commentLinePrefix: "//",
+        };
+
+        const defaultCSharpOpts: CSharpGeneratorOptions = {
+            ...defaultWriterOpts,
+            rootNamespace: "Fhir.Types",
+        };
+
+        const opts: CSharpGeneratorOptions = {
+            ...defaultCSharpOpts,
+            ...Object.fromEntries(Object.entries(userOptions).filter(([_, v]) => v !== undefined)),
+        };
+
+        const generator = new CSharp(opts);
+        this.generators.set("csharp", generator);
         this.logger.debug(`Configured C# generator`);
         return this;
     }

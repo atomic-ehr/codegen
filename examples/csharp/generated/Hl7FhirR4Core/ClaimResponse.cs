@@ -3,7 +3,7 @@
 // Any manual changes made to this file may be overwritten.
 
 
-namespace SuperNameSpace.Hl7FhirR4Core;
+namespace FhirTypes.Hl7FhirR4Core;
 
 public class ClaimResponse : DomainResource {
     public ClaimResponseAddItem[]? AddItem { get; set; }
