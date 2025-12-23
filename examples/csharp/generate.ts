@@ -7,8 +7,7 @@ if (require.main === module) {
         .throwException()
         .fromPackage("hl7.fhir.r4.core", "4.0.1")
         .csharp({
-            rootNamespace: "SuperNameSpace",
-            staticSourceDir: "src/api/writer-generator/csharp/staticFiles",
+            rootNamespace: "FhirTypes",
         })
         .outputTo("./examples/csharp/generated")
         .cleanOutput(true);

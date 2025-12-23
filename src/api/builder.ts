@@ -16,7 +16,7 @@ import { registerFromManager } from "@root/typeschema/register";
 import { type TreeShake, treeShake } from "@root/typeschema/tree-shake";
 import { mkTypeSchemaIndex, type TypeSchemaIndex } from "@root/typeschema/utils";
 import {
-    CodegenLogger,
+    type CodegenLogger,
     createLogger,
     type LogLevel,
     type LogLevelString,

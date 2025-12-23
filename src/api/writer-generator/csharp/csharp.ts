@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import Path from "node:path";
+import { fileURLToPath } from "node:url";
 import type { PartialBy } from "@root/api/builder.js";
 import { pascalCase, uppercaseFirstLetter, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils.ts";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
@@ -7,6 +8,16 @@ import type { Field, Identifier, RegularField } from "@typeschema/types";
 import { type ChoiceFieldInstance, isChoiceDeclarationField, type RegularTypeSchema } from "@typeschema/types.ts";
 import type { TypeSchemaIndex } from "@typeschema/utils.ts";
 import { formatEnumEntry, formatName } from "./formatHelper.ts";
+
+const resolveCSharpAssets = (fn: string) => {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = Path.dirname(__filename);
+    if (__filename.endsWith("dist/index.js")) {
+        return Path.resolve(__dirname, "..", "assets", "api", "writer-generator", "csharp", fn);
+    } else {
+        return Path.resolve(__dirname, "../../../..", "assets", "api", "writer-generator", "csharp", fn);
+    }
+};
 
 const PRIMITIVE_TYPE_MAP: Record<string, string> = {
     boolean: "bool",
@@ -346,15 +357,14 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
     }
 
     private copyStaticFiles(): void {
-        if (!this.opts.staticSourceDir) return;
-        const sourcePath = Path.resolve(this.opts.staticSourceDir);
-        fs.cpSync(sourcePath, this.opts.outputDir, { recursive: true });
+        if (this.opts.inMemoryOnly) return;
+        const sourceDir = resolveCSharpAssets("");
+        fs.cpSync(sourceDir, this.opts.outputDir, { recursive: true });
     }
 
     private generateHelperFile(): void {
-        // FIXME: should be part of generated files
         if (this.opts.inMemoryOnly) return;
-        const sourceFile = "src/api/writer-generator/csharp/Helper.cs";
+        const sourceFile = resolveCSharpAssets("Helper.cs");
         const destFile = Path.join(this.opts.outputDir, "Helper.cs");
         fs.copyFileSync(sourceFile, destFile);
     }
