@@ -72,11 +72,16 @@ export const prettyReport = (report: GenerationReport): string => {
     const { success, filesGenerated, errors, warnings, duration } = report;
     const errorsStr = errors.length > 0 ? `Errors: ${errors.join(", ")}` : undefined;
     const warningsStr = warnings.length > 0 ? `Warnings: ${warnings.join(", ")}` : undefined;
+    let allLoc = 0;
     const files = Object.entries(filesGenerated)
-        .map(([path, content]) => `  - ${path} (${content.split("\n").length} loc)`)
+        .map(([path, content]) => {
+            const loc = content.split("\n").length;
+            allLoc += loc;
+            return `  - ${path} (${loc} loc)`;
+        })
         .join("\n");
     return [
-        "Generated files:",
+        `Generated files (${Math.round(allLoc / 1000)} kloc):`,
         files,
         errorsStr,
         warningsStr,
