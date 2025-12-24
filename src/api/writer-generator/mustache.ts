@@ -45,6 +45,7 @@ export type FileBasedMustacheGeneratorOptions = {
     hooks: {
         afterGenerate?: HookType[];
     };
+    shouldRunHooks: boolean;
     nameTransformations: DistinctNameConfigurationType<NameTransformation[]>;
     unsaveCharacterPattern: string | RegExp;
 };
@@ -95,6 +96,7 @@ export const createGenerator = (
             resource: [],
             complexType: [],
         },
+        shouldRunHooks: true,
         typeMap: {},
     };
     const actualFileOpts = loadMustacheGeneratorConfig(templatePath);
@@ -193,7 +195,9 @@ export class MustacheGenerator extends FileSystemWriter<MustacheGeneratorOptions
         this._renderUtility(modelFactory.createUtility());
         this.copyStaticFiles();
 
-        await this._runHooks(this.opts.hooks.afterGenerate);
+        if (this.opts.shouldRunHooks) {
+            await this._runHooks(this.opts.hooks.afterGenerate);
+        }
         return;
     }
 
@@ -270,7 +274,7 @@ export class MustacheGenerator extends FileSystemWriter<MustacheGeneratorOptions
         let view: View<T> = this.lambdaMixinProvider.apply({
             meta: {
                 timestamp: this.opts.meta.timestamp ?? new Date().toISOString(),
-                generator: this.opts.meta.generator ?? "FHIR-Schema Mustache Generator",
+                generator: this.opts.meta.generator ?? "@atomic-ehr/codegen mustache generator",
             },
             model: model,
             properties: rendering.properties ?? {},
