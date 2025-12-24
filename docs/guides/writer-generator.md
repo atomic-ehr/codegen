@@ -1,17 +1,34 @@
 # Creating Custom Writers for Code Generation
 
-This guide explains how to build your own code generator for a new programming language or framework by extending the `Writer` class in Atomic EHR Codegen.
+This guide explains how to build your own code generator for a new programming language by inheritance from `Writer` class in Atomic EHR Codegen.
 
----
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
+**Table of Contents**
 
-## Table of Contents
+- [Creating Custom Writers for Code Generation](#creating-custom-writers-for-code-generation)
+  - [Architecture Overview](#architecture-overview)
+    - [`FileSystemWriter`](#filesystemwriter)
+    - [`Writer extends FileSystemWriter`](#writer-extends-filesystemwriter)
+  - [`FileSystemWriter` Class](#filesystemwriter-class)
+    - [Usage Examples](#usage-examples)
+      - [Directory Structure Organization](#directory-structure-organization)
+      - [Multiple Files Per Type](#multiple-files-per-type)
+  - [`Writer` Class](#writer-class)
+    - [Code Writing Methods](#code-writing-methods)
+    - [Disclaimer & Metadata](#disclaimer--metadata)
+    - [Usage Examples](#usage-examples-1)
+      - [Indentation Handling](#indentation-handling)
+      - [Curly Blocks](#curly-blocks)
+      - [Square Blocks](#square-blocks)
+      - [Comments and Documentation](#comments-and-documentation)
+  - [Implementation Pattern](#implementation-pattern)
+    - [Step 1: Extend the Writer Class](#step-1-extend-the-writer-class)
+    - [Step 2: Implement the `generate` Method](#step-2-implement-the-generate-method)
+    - [Step 3: Implement Type Generation](#step-3-implement-type-generation)
+  - [Next Steps](#next-steps)
+  - [Resources](#resources)
 
-- [Architecture Overview](#architecture-overview)
-- [Writer Class Fundamentals](#writer-class-fundamentals)
-- [Understanding TypeSchemaIndex](#understanding-typeschemaindex)
-- [Implementation Pattern](#implementation-pattern)
-- [File & Directory Management](#file--directory-management)
-- [Code Generation Methods](#code-generation-methods)
+<!-- markdown-toc end -->
 
 ---
 
@@ -19,55 +36,54 @@ This guide explains how to build your own code generator for a new programming l
 
 The code generation pipeline consists of three stages:
 
-```
-FHIR Packages
+```text
+Register extends CanonicalManager (FHIR Package retrieval and FHIR Schema generation)
     ↓
-TypeSchema (Universal Format)
-    ↓
-Writer (Language-Specific)
-    ↓
+TypeSchemaIndex (Type Schema generation and management)
+    ↓             ---------------------+
+Writer (Actual code generation)        |<-- Language specific part
+    ↓             ---------------------+
 Generated Code
 ```
 
-The `Writer` class handles the output stage, transforming TypeSchema data into language-specific code. There are two main base classes:
+For comprehensive documentation on `TypeSchemaIndex` structure, utilities, and usage, see the [TypeSchemaIndex Guide](./typeschema-index.md).
 
-### FileSystemWriter
+There are two main base classes:
+
+### `FileSystemWriter`
 
 Base class handling file I/O and directory management.
 
 - Creates and manages output files and directories
 - Supports both in-memory and on-disk writing
 - Provides buffer management for generated content
+- Copy static assets
 
-### Writer
-Extends `FileSystemWriter` with code generation utilities.
+### `Writer extends FileSystemWriter`
+
+Base class for source code generation.
+
 - Handles indentation and formatting
 - Provides methods for common code patterns (blocks, comments, lines)
 - Supports language-specific code constructs
 
 ---
 
-## Writer Class Fundamentals
+## `FileSystemWriter` Class
 
-### Constructor & Options
-
-Every writer needs options to configure behavior:
+The `FileSystemWriter` class handles file I/O and directory management. It requires configuration through options:
 
 ```typescript
-export type WriterOptions = {
+export type FileSystemWriterOptions = {
     outputDir: string;                    // Where to write files
-    tabSize: number;                      // Indentation size (spaces)
-    commentLinePrefix: string;            // Comment syntax (e.g., "//", "#")
-    withDebugComment?: boolean;           // Include debug info in output
-    generateProfile?: boolean;            // Generate profile-related types
     inMemoryOnly?: boolean;               // Don't write to disk (for testing)
     logger?: CodegenLogger;               // Optional logging
+    resolveAssets?: (fn: string) => string; // Asset resolution function
 };
 ```
 
-### Core Methods
+Core Methods:
 
-#### File Management
 ```typescript
 cd(path: string, gen: () => void)
   Creates a subdirectory and executes generation code within it
@@ -80,9 +96,82 @@ cat(filename: string, gen: () => void)
 write(str: string)
   Writes a string to the currently open file
   Example: this.write("class Patient {")
+
+cp(source: string, destination: string)
+  Copies a static asset file to the output directory
+  Uses resolveAssets option to locate source files
+  Example: this.cp("styles.css", "public/styles.css")
+
+writtenFiles(): FileBuffer[]
+  Returns all generated files with content
 ```
 
-#### Code Writing Methods
+### Usage Examples
+
+#### Directory Structure Organization
+
+Use `cd()` to organize generated code into nested directories:
+
+```typescript
+this.cd("src/main/java", () => {
+    this.cd("com/example/fhir", () => {
+        this.cat("Patient.java", () => {
+            this.line("public class Patient {");
+            this.line("}");
+        });
+    });
+});
+```
+
+Results in output structure:
+```
+output/
+  src/
+    main/
+      java/
+        com/
+          example/
+            fhir/
+              Patient.java
+```
+
+#### Multiple Files Per Type
+
+Generate multiple related files for a single type:
+
+```typescript
+private generateType(schema: TypeSchema): void {
+    this.cat(`I${schema.name}.java`, () => {
+        this.generateInterface(schema);
+    });
+
+    this.cat(`${schema.name}.java`, () => {
+        this.generateClass(schema);
+    });
+
+    this.cat(`${schema.name}Builder.java`, () => {
+        this.generateBuilder(schema);
+    });
+}
+```
+
+---
+
+## `Writer` Class
+
+The `Writer` class extends `FileSystemWriter` and adds code generation capabilities. It requires additional formatting options:
+
+```typescript
+export type WriterOptions = FileSystemWriterOptions & {
+    tabSize: number;                      // Indentation size (spaces)
+    withDebugComment?: boolean;           // Include debug info in output
+    commentLinePrefix: string;            // Comment syntax (e.g., "//", "#")
+    generateProfile?: boolean;            // Generate profile-related types
+};
+```
+
+### Code Writing Methods
+
 ```typescript
 line(...tokens: string[])
   Writes an indented line with automatic newline
@@ -109,146 +198,99 @@ squareBlock(tokens, gencontent, endTokens?)
   Example: this.squareBlock(["List<Patient>"], () => { /* items */ })
 ```
 
-#### Metadata
+### Disclaimer & Metadata
+
 ```typescript
-disclaimer()
-  Returns warning text about autogenerated code
+disclaimer(): string[]
+  Returns an array of disclaimer text lines about autogenerated code
 
 generateDisclaimer()
-  Writes the disclaimer comment to current file
-
-writtenFiles(): FileBuffer[]
-  Returns all generated files with content
+  Writes the disclaimer comment to the current file
+  Example: this.generateDisclaimer()
 ```
 
----
+### Usage Examples
 
-## Understanding TypeSchemaIndex
+#### Indentation Handling
 
-Before implementing a writer, you need to understand the input your `generate()` method receives: a `TypeSchemaIndex`.
-
-### What is TypeSchemaIndex?
-
-The `TypeSchemaIndex` is a structured collection containing all transformed FHIR definitions in TypeSchema format. It serves as the complete data model for code generation.
+The `Writer` class automatically tracks indentation level:
 
 ```typescript
-interface TypeSchemaIndex {
-    index: Record<string, TypeSchema>;  // Map of all schemas by identifier
+this.line("public class Patient {");          // No indent
+this.indentBlock(() => {
+    this.line("private String name;");        // 1 level indent
+    this.indentBlock(() => {
+        this.line("return name;");            // 2 levels indent
+    });
+});
+this.line("}");                               // No indent
+```
+
+Output:
+```java
+public class Patient {
+    private String name;
+        return name;
 }
 ```
 
-### Structure
+#### Curly Blocks
+
+Generate `{ ... }` blocks with automatic indentation and formatting:
 
 ```typescript
-// Example TypeSchemaIndex content
-const tsIndex: TypeSchemaIndex = {
-    index: {
-        "hl7.fhir.r4.core#4.0.1|Patient": {
-            id: { /* identifier */ },
-            name: "Patient",
-            description: "Demographics and other administrative information...",
-            fields: [
-                { name: "id", type: "string", required: true, array: false },
-                { name: "identifier", type: "Identifier", required: false, array: true },
-                { name: "active", type: "boolean", required: false, array: false },
-                { name: "name", type: "HumanName", required: false, array: true },
-            ],
-            dependencies: [
-                { kind: "complex", name: "Identifier", package: "hl7.fhir.r4.core" },
-                { kind: "complex", name: "HumanName", package: "hl7.fhir.r4.core" },
-            ],
-            base: "Resource",
-        },
-        "hl7.fhir.r4.core#4.0.1|Observation": {
-            // Another type definition...
-        },
-        // ... hundreds more types
-    }
-};
+this.curlyBlock(["public void process()"], () => {
+    this.line("System.out.println(\"Processing\");");
+});
 ```
 
-### Key Properties
-
-- **index**: A key-value map where:
-  - **Key**: Fully qualified identifier (format: `package#version|name`)
-  - **Value**: `TypeSchema` object containing the type definition
-
-- **TypeSchema object contains**:
-  - `id`: Unique identifier with package and version info
-  - `name`: Type name (e.g., "Patient", "Observation")
-  - `description`: Human-readable documentation
-  - `fields`: Array of field/property definitions
-  - `dependencies`: References to other types this type depends on
-  - `base`: Parent type name (for inheritance)
-
-### Accessing Data
-
-```typescript
-// Get a specific schema by identifier
-const patientSchema = tsIndex.index["hl7.fhir.r4.core#4.0.1|Patient"];
-
-// Get all values (all schemas)
-const allSchemas = Object.values(tsIndex.index);
-
-// Get all keys (all identifiers)
-const allIds = Object.keys(tsIndex.index);
-
-// Iterate through all types
-for (const [id, schema] of Object.entries(tsIndex.index)) {
-    console.log(`Processing ${schema.name} from ${id}`);
+Output:
+```java
+public void process() {
+    System.out.println("Processing");
 }
 ```
 
-### Helper Functions
+#### Square Blocks
 
-Atomic EHR Codegen provides utilities for common TypeSchemaIndex operations:
-
-```typescript
-import { groupByPackages, sortAsDeclarationSequence } from "@root/typeschema/utils";
-
-// Group all schemas by package
-const byPackage = groupByPackages(tsIndex.index);
-// Returns: Record<string, TypeSchema[]> - organized by package
-
-// Sort schemas in dependency order (ensures base types come first)
-const sorted = sortAsDeclarationSequence(tsIndex.index);
-// Returns: TypeSchema[] - topologically sorted by dependencies
-```
-
-### Typical Processing Pattern
+Generate `[ ... ]` blocks for arrays and collections:
 
 ```typescript
-async generate(tsIndex: TypeSchemaIndex): Promise<void> {
-    // Option 1: Process all types
-    for (const schema of Object.values(tsIndex.index)) {
-        this.generateType(schema);
-    }
-
-    // Option 2: Group by package first (recommended)
-    const packages = groupByPackages(tsIndex.index);
-    for (const [pkgName, schemas] of Object.entries(packages)) {
-        this.cd(packageToDir(pkgName), () => {
-            for (const schema of schemas) {
-                this.generateType(schema);
-            }
-        });
-    }
-
-    // Option 3: Sort by dependencies (for languages needing declaration order)
-    const sorted = sortAsDeclarationSequence(tsIndex.index);
-    for (const schema of sorted) {
-        this.generateType(schema);
-    }
-}
+this.squareBlock(["List<String> names = new ArrayList"], () => {
+    this.line('"John",');
+    this.line('"Jane",');
+    this.line('"Bob"');
+});
 ```
 
-### Why TypeSchemaIndex Matters
+Output:
+```java
+List<String> names = new ArrayList [
+    "John",
+    "Jane",
+    "Bob"
+]
+```
 
-- **Complete Data**: Contains ALL types from the FHIR package
-- **Already Transformed**: Types converted from FHIR StructureDefinition to TypeSchema
-- **Dependencies Resolved**: References between types already established
-- **Organized**: Can group by package, sort by dependencies, or iterate directly
-- **Read-Only**: Frozen snapshot; writes go through Writer methods only
+#### Comments and Documentation
+
+Generate single-line and multi-line comments:
+
+```typescript
+this.comment("This is a comment");
+
+this.comment("This is a longer comment that spans multiple lines");
+
+// Debug comments (only if withDebugComment: true)
+this.debugComment("Type info:", schema);
+```
+
+Output:
+```java
+// This is a comment
+// This is a longer comment that spans multiple lines
+// Type info: { ... }
+```
 
 ---
 
@@ -283,22 +325,30 @@ export class MyLanguageWriter extends Writer<MyLanguageOptions> {
 
 ### Step 2: Implement the `generate` Method
 
-The `generate` method receives a `TypeSchemaIndex` as input (see section above for details). This contains all the TypeSchema definitions you need to process:
+The `generate` method receives a `TypeSchemaIndex` as input. Use collection methods to retrieve data, group by package, then generate:
 
 ```typescript
+import { groupByPackages, sortAsDeclarationSequence } from "@root/typeschema/utils";
+
 async generate(tsIndex: TypeSchemaIndex): Promise<void> {
     // 1. Write disclaimer
     this.cat("_generated.txt", () => {
         this.generateDisclaimer();
     });
 
-    // 2. Group schemas by package (optional)
-    const packages = groupByPackages(tsIndex.index);
+    // 2. Collect resources (or use collectComplexTypes(), collectLogicalModels(), etc.)
+    const resources = tsIndex.collectResources();
 
-    // 3. Generate files for each package
-    for (const [pkgName, schemas] of Object.entries(packages)) {
-        this.cd(packageToDir(pkgName), () => {
-            for (const schema of schemas) {
+    // 3. Group by package
+    const byPackage = groupByPackages(resources);
+
+    // 4. Generate files for each package
+    for (const [pkgName, schemas] of Object.entries(byPackage)) {
+        this.cd(this.packageToDir(pkgName), () => {
+            // Sort by dependencies for proper declaration order
+            const sorted = sortAsDeclarationSequence(schemas);
+
+            for (const schema of sorted) {
                 this.generateType(schema);
             }
         });
@@ -338,156 +388,6 @@ private generateType(schema: TypeSchema): void {
 
 ---
 
-## File & Directory Management
-
-### Directory Structure
-
-Use `cd()` to organize generated code into directories:
-
-```typescript
-this.cd("src/main/java", () => {
-    this.cd("com/example/fhir", () => {
-        this.cat("Patient.java", () => {
-            this.line("public class Patient {");
-            // ...
-            this.line("}");
-        });
-    });
-});
-```
-
-Results in structure:
-```
-output/
-  src/
-    main/
-      java/
-        com/
-          example/
-            fhir/
-              Patient.java
-```
-
-### Multiple Files Per Type
-
-For complex types, generate multiple related files:
-
-```typescript
-private generateType(schema: TypeSchema): void {
-    // Main interface
-    this.cat(`I${schema.name}.java`, () => {
-        this.generateInterface(schema);
-    });
-
-    // Implementation
-    this.cat(`${schema.name}.java`, () => {
-        this.generateClass(schema);
-    });
-
-    // Builder pattern
-    this.cat(`${schema.name}Builder.java`, () => {
-        this.generateBuilder(schema);
-    });
-}
-```
-
-### In-Memory Only Mode
-
-For testing without disk I/O:
-
-```typescript
-const testWriter = new MyLanguageWriter({
-    outputDir: "/tmp/test",
-    inMemoryOnly: true,  // No files written to disk
-    tabSize: 4,
-    commentLinePrefix: "//",
-});
-
-const files = testWriter.writtenFiles();
-console.log(files[0].content);
-```
-
----
-
-## Code Generation Methods
-
-### Indentation Handling
-
-The `Writer` class automatically tracks indentation:
-
-```typescript
-this.line("public class Patient {");          // No indent
-this.indentBlock(() => {
-    this.line("private String name;");        // 4 spaces
-    this.indentBlock(() => {
-        this.line("return name;");            // 8 spaces
-    });
-});
-this.line("}");                               // No indent
-```
-
-Output:
-```java
-public class Patient {
-    private String name;
-        return name;
-}
-```
-
-### Block Generation
-
-#### Curly Blocks (Classes, Methods, Control Flow)
-
-```typescript
-this.curlyBlock(["public void process()"], () => {
-    this.line("System.out.println(\"Processing\");");
-});
-```
-
-Output:
-```java
-public void process() {
-    System.out.println("Processing");
-}
-```
-
-#### Square Blocks (Arrays, Collections)
-
-```typescript
-this.squareBlock(["List<String> names = new ArrayList"], () => {
-    this.line('"John",');
-    this.line('"Jane",');
-    this.line('"Bob"');
-});
-```
-
-Output:
-```java
-List<String> names = new ArrayList [
-    "John",
-    "Jane",
-    "Bob"
-]
-```
-
-### Comments & Documentation
-
-```typescript
-// Single line comment
-this.comment("This is a comment");
-
-// Multi-line comment (automatic line breaking)
-this.comment("This is a longer comment that might span multiple lines and will be split automatically");
-
-// Debug comments (only if withDebugComment: true)
-this.debugComment("Type info:", schema);
-
-// Disclaimer
-this.generateDisclaimer();
-```
-
----
-
 ## Next Steps
 
 1. **Read the Source**: Review TypeScript and Python writers for more patterns
@@ -497,6 +397,7 @@ this.generateDisclaimer();
 2. **Test Your Writer**: Write unit and integration tests
    - Use in-memory mode for unit tests
    - Test with real FHIR packages for integration tests
+   - See [test examples](../../test/api/write-generator)
 
 3. **Integrate with APIBuilder**: Add your writer as a chainable method
 
@@ -506,8 +407,8 @@ this.generateDisclaimer();
 
 ## Resources
 
+- **TypeSchemaIndex Guide**: [typeschema-index.md](./typeschema-index.md) - Comprehensive reference for input data
 - **Writer Class**: `src/api/writer-generator/writer.ts`
 - **TypeSchema Definition**: `src/typeschema/types.ts`
 - **Existing Writers**: `src/api/writer-generator/`
 - **APIBuilder**: `src/api/builder.ts`
-- **Tests**: `test/unit/api/`
