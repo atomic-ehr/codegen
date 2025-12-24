@@ -62,7 +62,7 @@ yarn add @atomic-ehr/codegen
 1. Write SDK generation script (`generate-types.ts`):
 
     ```typescript
-    import { APIBuilder } from '@atomic-ehr/codegen';
+    import { APIBuilder, prettyReport } from '@atomic-ehr/codegen';
 
     const builder = new APIBuilder()
         .fromPackage("hl7.fhir.r4.core", "4.0.1")
@@ -70,7 +70,7 @@ yarn add @atomic-ehr/codegen
         .outputTo("./examples/typescript-r4/fhir-types");
 
     const report = await builder.generate();
-    console.log(report);
+    console.log(prettyReport(report));
     ```
 
 2. Run the script with:

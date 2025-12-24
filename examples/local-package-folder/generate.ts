@@ -1,6 +1,6 @@
 import * as Path from "node:path";
 import { fileURLToPath } from "node:url";
-import { APIBuilder, LogLevel } from "../../src/api";
+import { APIBuilder, LogLevel, prettyReport } from "../../src/api";
 
 const __dirname = Path.dirname(fileURLToPath(import.meta.url));
 
@@ -9,7 +9,7 @@ async function generateFromLocalPackageFolder() {
         logLevel: LogLevel.INFO,
     });
 
-    await builder
+    const report = await builder
         .localStructureDefinitions({
             package: { name: "example.folder.structures", version: "0.0.1" },
             path: Path.join(__dirname, "structure-definitions"),
@@ -23,6 +23,9 @@ async function generateFromLocalPackageFolder() {
         })
         .outputTo("./examples/local-package-folder")
         .generate();
+
+    console.log(prettyReport(report));
+    if (!report.success) process.exit(1);
 }
 
 generateFromLocalPackageFolder().catch((error) => {
