@@ -14,7 +14,6 @@ import type { ViewModelCache } from "@mustache/generator/ViewModelFactory";
 import { ViewModelFactory } from "@mustache/generator/ViewModelFactory";
 import type {
     HookType,
-    MustacheFilter,
     NamedViewModel,
     PrimitiveType,
     Rendering,
@@ -24,7 +23,6 @@ import type {
 } from "@mustache/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
-import type { Identifier } from "@typeschema/types";
 import { default as Mustache } from "mustache";
 import { FileSystemWriter, type FileSystemWriterOptions } from "./writer";
 
@@ -37,7 +35,6 @@ export type FileBasedMustacheGeneratorOptions = {
     };
     keywords: string[];
     typeMap: Partial<Record<PrimitiveType, string>>;
-    filters: MustacheFilter;
     meta: {
         timestamp?: string;
         generator?: string;
@@ -82,7 +79,6 @@ export const createGenerator = (
         debug: "OFF",
         hooks: {},
         meta: {},
-        filters: {},
         keywords: [],
         unsaveCharacterPattern: /[^a-zA-Z0-9]/g,
         nameTransformations: {
@@ -127,29 +123,6 @@ function runCommand(cmd: string, args: string[] = [], options = {}) {
     });
 }
 
-const mkFilterPredicate = (filters: MustacheFilter) => {
-    return (type: Identifier) => {
-        if (type.kind !== "complex-type" && type.kind !== "resource") {
-            return true;
-        }
-        if (!filters[type.kind as "resource" | "complexType"]) {
-            return true;
-        }
-        const whitelist = filters[type.kind as "resource" | "complexType"]?.whitelist ?? [];
-        const blacklist = filters[type.kind as "resource" | "complexType"]?.blacklist ?? [];
-        if (!whitelist.length && !blacklist.length) {
-            return true;
-        }
-        if (blacklist.find((pattern: any) => type.name.match(pattern as any))) {
-            return false;
-        }
-        if (whitelist.find((pattern: any) => type.name.match(pattern as any))) {
-            return true;
-        }
-        return whitelist.length === 0;
-    };
-};
-
 export class MustacheGenerator extends FileSystemWriter<MustacheGeneratorOptions> {
     private readonly templateFileCache: TemplateFileCache;
     private readonly nameGenerator: NameGenerator;
@@ -170,8 +143,7 @@ export class MustacheGenerator extends FileSystemWriter<MustacheGeneratorOptions
     }
 
     override async generate(tsIndex: TypeSchemaIndex) {
-        const filterPred = mkFilterPredicate(this.opts.filters);
-        const modelFactory = new ViewModelFactory(tsIndex, this.nameGenerator, filterPred);
+        const modelFactory = new ViewModelFactory(tsIndex, this.nameGenerator, () => true);
         const cache: ViewModelCache = {
             resourcesByUri: {},
             complexTypesByUri: {},
@@ -179,7 +151,6 @@ export class MustacheGenerator extends FileSystemWriter<MustacheGeneratorOptions
         tsIndex
             .collectComplexTypes()
             .map((i) => i.identifier)
-            .filter((i) => filterPred(i))
             .sort((a, b) => a.url.localeCompare(b.url))
             .map((typeRef) => modelFactory.createComplexType(typeRef, cache))
             .forEach(this._renderComplexType.bind(this));
@@ -187,7 +158,6 @@ export class MustacheGenerator extends FileSystemWriter<MustacheGeneratorOptions
         tsIndex
             .collectResources()
             .map((i) => i.identifier)
-            .filter((i) => filterPred(i))
             .sort((a, b) => a.url.localeCompare(b.url))
             .map((typeRef) => modelFactory.createResource(typeRef, cache))
             .forEach(this._renderResource.bind(this));

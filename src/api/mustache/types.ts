@@ -40,11 +40,6 @@ export type FieldViewModel = {
     isReference: boolean;
 };
 
-export type MustacheFilter = {
-    resource?: FilterType;
-    complexType?: FilterType;
-};
-
 export type FilterType = {
     whitelist?: (string | RegExp)[];
     blacklist?: (string | RegExp)[];
