@@ -10,6 +10,7 @@ describe("C# Writer Generator", async () => {
         })
         .throwException()
         .generate();
+    expect(result.success).toBeTrue();
     expect(Object.keys(result.filesGenerated).length).toEqual(154);
     it("generates Patient resource in inMemoryOnly mode with snapshot", async () => {
         expect(result.filesGenerated["generated/types/Hl7FhirR4Core/Patient.cs"]).toMatchSnapshot();
