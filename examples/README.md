@@ -33,6 +33,7 @@ This directory contains working examples demonstrating the capabilities of Atomi
   - Configurable field formats (`snake_case` or `camelCase`)
   - Automatic validation and serialization with Pydantic
   - Virtual environment setup instructions
+  - Client implementation example: [examples/python/client.py](examples/python/client.py).
 
 ### C# Generation
 

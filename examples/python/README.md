@@ -11,6 +11,7 @@ This example demonstrates how to generate Python/Pydantic models from the FHIR R
 - Configurable field naming conventions (snake_case or camelCase)
 - Integration with Python type checking and IDE support
 - Virtual environment setup
+- FHIR server client example
 
 ## Setup
 
