@@ -19,13 +19,23 @@
       - [Load Local StructureDefinitions & TGZ Archives](#load-local-structuredefinitions--tgz-archives)
     - [Intermediate - Type Schema](#intermediate---type-schema)
       - [Tree Shaking](#tree-shaking)
+        - [Field-Level Tree Shaking](#field-level-tree-shaking)
     - [Generation](#generation)
+      - [1. Writer-Based Generation (Programmatic)](#1-writer-based-generation-programmatic)
   - [Roadmap](#roadmap)
   - [Support](#support)
+- [Footnotes](#footnotes)
 
 <!-- markdown-toc end -->
 
 A powerful, extensible code generation toolkit for FHIR ([Fast Healthcare Interoperability Resources](https://www.hl7.org/fhir/)) that transforms FHIR specifications into strongly-typed code for multiple programming languages.
+
+Guides:
+
+- **[Writer Generator Guide](docs/guides/writer-generator.md)** - Build custom code generators with the Writer base class
+- **[TypeSchemaIndex Guide](docs/guides/typeschema-index.md)** - Type Schema structure and utilities
+- **[Testing Generators Guide](docs/guides/testing-generators.md)** - Unit tests, snapshot testing, and best practices
+- **[Contributing Guide](CONTRIBUTING.md)** - Development setup and workflow
 
 ## Features
 
@@ -236,7 +246,6 @@ For languages with built-in support (TypeScript, Python, C#), extend the `Writer
 Each language writer maintains full control over output formatting while leveraging high-level abstractions for common code patterns. Writers follow language idioms and best practices, with optimized output for production use.
 
 **When to use**: Full control needed, complex generation logic, performance-critical, language has a dedicated writer, production-grade output
-**Guide**: [docs/guides/writer-generator.md](docs/guides/writer-generator.md)
 
 ## Roadmap
 
