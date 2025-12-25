@@ -4,21 +4,31 @@
 
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { DiagnosticReport } from "../../hl7-fhir-r4-core/DiagnosticReport";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab
+export interface USCoreDiagnosticReportProfileLaboratoryReporting extends DiagnosticReport {
+    category: CodeableConcept[];
+    subject: Reference<'Device' | 'Group' | "Location" /*USCoreLocationProfile*/ | "Patient" /*USCorePatientProfile*/>;
+}
+
 export type USCoreDiagnosticReportProfileLaboratoryReporting_Category_LaboratorySliceSliceInput = Omit<CodeableConcept, "coding">;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class USCoreDiagnosticReportProfileLaboratoryReportingProfile {
     private resource: DiagnosticReport
 
-    constructor (resource?: DiagnosticReport) {
-        this.resource = resource ?? ({ resourceType: "DiagnosticReport" } as DiagnosticReport)
+    constructor (resource: DiagnosticReport) {
+        this.resource = resource
     }
 
     toResource () : DiagnosticReport {
         return this.resource
+    }
+
+    toProfile () : USCoreDiagnosticReportProfileLaboratoryReporting {
+        return this.resource as USCoreDiagnosticReportProfileLaboratoryReporting
     }
 
     public setLaboratorySlice (input: USCoreDiagnosticReportProfileLaboratoryReporting_Category_LaboratorySliceSliceInput): this {
@@ -44,6 +54,18 @@ export class USCoreDiagnosticReportProfileLaboratoryReportingProfile {
             }
         }
         return this
+    }
+
+    public getLaboratorySlice(raw: true): CodeableConcept | undefined
+    public getLaboratorySlice(raw?: false): USCoreDiagnosticReportProfileLaboratoryReporting_Category_LaboratorySliceSliceInput | undefined
+    public getLaboratorySlice (raw?: boolean): CodeableConcept | USCoreDiagnosticReportProfileLaboratoryReporting_Category_LaboratorySliceSliceInput | undefined {
+        const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0074","code":"LAB"}]} as Record<string, unknown>
+        const list = this.resource.category
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as USCoreDiagnosticReportProfileLaboratoryReporting_Category_LaboratorySliceSliceInput
     }
 
 }

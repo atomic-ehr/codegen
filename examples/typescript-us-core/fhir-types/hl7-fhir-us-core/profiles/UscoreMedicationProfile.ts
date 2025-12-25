@@ -2,18 +2,27 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Medication } from "../../hl7-fhir-r4-core/Medication";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication
+export interface USCoreMedicationProfile extends Medication {
+    code: CodeableConcept;
+}
+
 export class USCoreMedicationProfileProfile {
     private resource: Medication
 
-    constructor (resource?: Medication) {
-        this.resource = resource ?? ({ resourceType: "Medication" } as Medication)
+    constructor (resource: Medication) {
+        this.resource = resource
     }
 
     toResource () : Medication {
         return this.resource
+    }
+
+    toProfile () : USCoreMedicationProfile {
+        return this.resource as USCoreMedicationProfile
     }
 
 }

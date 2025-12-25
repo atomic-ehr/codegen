@@ -8,8 +8,8 @@ import type { PlanDefinition } from "../../hl7-fhir-r4-core/PlanDefinition";
 export class CDS_Hooks_Service_PlanDefinitionProfile {
     private resource: PlanDefinition
 
-    constructor (resource?: PlanDefinition) {
-        this.resource = resource ?? ({ resourceType: "PlanDefinition" } as PlanDefinition)
+    constructor (resource: PlanDefinition) {
+        this.resource = resource
     }
 
     toResource () : PlanDefinition {
@@ -31,6 +31,15 @@ export class CDS_Hooks_Service_PlanDefinitionProfile {
             }
         }
         return this
+    }
+
+    public getCdsHooksEndpoint(raw: true): Extension | undefined
+    public getCdsHooksEndpoint(raw?: false): string | undefined
+    public getCdsHooksEndpoint (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-cdsHooksEndpoint")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueUri
     }
 
 }

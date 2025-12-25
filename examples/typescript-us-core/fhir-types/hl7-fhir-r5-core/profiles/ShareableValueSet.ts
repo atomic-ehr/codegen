@@ -6,15 +6,27 @@ import type { Extension } from "../../hl7-fhir-r5-core/Extension";
 import type { ValueSet } from "../../hl7-fhir-r5-core/ValueSet";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/shareablevalueset
+export interface ShareableValueSet extends ValueSet {
+    url: string;
+    version: string;
+    title: string;
+    experimental: boolean;
+    description: string;
+}
+
 export class ShareableValueSetProfile {
     private resource: ValueSet
 
-    constructor (resource?: ValueSet) {
-        this.resource = resource ?? ({ resourceType: "ValueSet" } as ValueSet)
+    constructor (resource: ValueSet) {
+        this.resource = resource
     }
 
     toResource () : ValueSet {
         return this.resource
+    }
+
+    toProfile () : ShareableValueSet {
+        return this.resource as ShareableValueSet
     }
 
     public setKnowledgeRepresentationLevel (value: Omit<Extension, "url">): this {
@@ -49,6 +61,14 @@ export class ShareableValueSetProfile {
             }
         }
         return this
+    }
+
+    public getKnowledgeRepresentationLevel (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeRepresentationLevel")
+    }
+
+    public getAuthoritativeSource (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-authoritativeSource")
     }
 
 }

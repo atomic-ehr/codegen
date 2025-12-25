@@ -4,21 +4,32 @@
 
 import type { CodeableConcept } from "../../hl7-fhir-r5-core/CodeableConcept";
 import type { Observation } from "../../hl7-fhir-r5-core/Observation";
+import type { Reference } from "../../hl7-fhir-r5-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/headcircum
+export interface Observationheadcircum extends Observation {
+    category: CodeableConcept[];
+    subject: Reference<"Patient">;
+    derivedFrom?: Reference<"DocumentReference" | "ImagingStudy" | "MolecularSequence" | "QuestionnaireResponse" | "Observation">[];
+}
+
 export type Observationheadcircum_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class ObservationheadcircumProfile {
     private resource: Observation
 
-    constructor (resource?: Observation) {
-        this.resource = resource ?? ({ resourceType: "Observation" } as Observation)
+    constructor (resource: Observation) {
+        this.resource = resource
     }
 
     toResource () : Observation {
         return this.resource
+    }
+
+    toProfile () : Observationheadcircum {
+        return this.resource as Observationheadcircum
     }
 
     public setVscat (input: Observationheadcircum_Category_VSCatSliceInput): this {
@@ -44,6 +55,18 @@ export class ObservationheadcircumProfile {
             }
         }
         return this
+    }
+
+    public getVscat(raw: true): CodeableConcept | undefined
+    public getVscat(raw?: false): Observationheadcircum_Category_VSCatSliceInput | undefined
+    public getVscat (raw?: boolean): CodeableConcept | Observationheadcircum_Category_VSCatSliceInput | undefined {
+        const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
+        const list = this.resource.category
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as Observationheadcircum_Category_VSCatSliceInput
     }
 
 }

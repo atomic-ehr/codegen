@@ -2,18 +2,29 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Device } from "../../hl7-fhir-r4-core/Device";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-implantable-device
+export interface USCoreImplantableDeviceProfile extends Device {
+    type: CodeableConcept;
+    patient: Reference<"Patient" /*USCorePatientProfile*/>;
+}
+
 export class USCoreImplantableDeviceProfileProfile {
     private resource: Device
 
-    constructor (resource?: Device) {
-        this.resource = resource ?? ({ resourceType: "Device" } as Device)
+    constructor (resource: Device) {
+        this.resource = resource
     }
 
     toResource () : Device {
         return this.resource
+    }
+
+    toProfile () : USCoreImplantableDeviceProfile {
+        return this.resource as USCoreImplantableDeviceProfile
     }
 
 }

@@ -6,19 +6,27 @@ import type { ContactPoint } from "../../hl7-fhir-r4-core/ContactPoint";
 import type { Endpoint } from "../../hl7-fhir-r4-core/Endpoint";
 
 // CanonicalURL: http://hl7.org/fhir/smart-app-launch/StructureDefinition/user-access-endpoint
+export interface UserAccessEndpoint extends Endpoint {
+    contact: ContactPoint[];
+}
+
 export type UserAccessEndpoint_Contact_Configuration_urlSliceInput = Omit<ContactPoint, "system"> & Required<Pick<ContactPoint, "value">>;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class UserAccessEndpointProfile {
     private resource: Endpoint
 
-    constructor (resource?: Endpoint) {
-        this.resource = resource ?? ({ resourceType: "Endpoint" } as Endpoint)
+    constructor (resource: Endpoint) {
+        this.resource = resource
     }
 
     toResource () : Endpoint {
         return this.resource
+    }
+
+    toProfile () : UserAccessEndpoint {
+        return this.resource as UserAccessEndpoint
     }
 
     public setFhirVersion (value: string): this {
@@ -61,6 +69,27 @@ export class UserAccessEndpointProfile {
             }
         }
         return this
+    }
+
+    public getFhirVersion(raw: true): Extension | undefined
+    public getFhirVersion(raw?: false): string | undefined
+    public getFhirVersion (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/endpoint-fhir-version")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueCode
+    }
+
+    public getConfigurationUrl(raw: true): ContactPoint | undefined
+    public getConfigurationUrl(raw?: false): UserAccessEndpoint_Contact_Configuration_urlSliceInput | undefined
+    public getConfigurationUrl (raw?: boolean): ContactPoint | UserAccessEndpoint_Contact_Configuration_urlSliceInput | undefined {
+        const match = {"system":"url"} as Record<string, unknown>
+        const list = this.resource.contact
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["system"]) as UserAccessEndpoint_Contact_Configuration_urlSliceInput
     }
 
 }

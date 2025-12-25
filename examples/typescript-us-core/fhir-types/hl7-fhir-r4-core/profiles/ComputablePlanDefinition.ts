@@ -5,15 +5,23 @@
 import type { PlanDefinition } from "../../hl7-fhir-r4-core/PlanDefinition";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/computableplandefinition
+export interface Computable_PlanDefinition extends PlanDefinition {
+    library: string[];
+}
+
 export class Computable_PlanDefinitionProfile {
     private resource: PlanDefinition
 
-    constructor (resource?: PlanDefinition) {
-        this.resource = resource ?? ({ resourceType: "PlanDefinition" } as PlanDefinition)
+    constructor (resource: PlanDefinition) {
+        this.resource = resource
     }
 
     toResource () : PlanDefinition {
         return this.resource
+    }
+
+    toProfile () : Computable_PlanDefinition {
+        return this.resource as Computable_PlanDefinition
     }
 
 }

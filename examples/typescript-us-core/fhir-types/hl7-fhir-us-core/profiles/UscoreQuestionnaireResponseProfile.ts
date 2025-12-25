@@ -5,20 +5,31 @@
 import type { Attachment } from "../../hl7-fhir-r4-core/Attachment";
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { QuestionnaireResponse } from "../../hl7-fhir-r4-core/QuestionnaireResponse";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import type { Signature } from "../../hl7-fhir-r4-core/Signature";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse
+export interface USCoreQuestionnaireResponseProfile extends QuestionnaireResponse {
+    questionnaire: string;
+    subject: Reference<"Resource" /* 'Resource' | "Patient" /*USCorePatientProfile*/ */ >;
+    authored: string;
+}
+
 import { getOrCreateObjectAtPath } from "../../profile-helpers";
 
 export class USCoreQuestionnaireResponseProfileProfile {
     private resource: QuestionnaireResponse
 
-    constructor (resource?: QuestionnaireResponse) {
-        this.resource = resource ?? ({ resourceType: "QuestionnaireResponse" } as QuestionnaireResponse)
+    constructor (resource: QuestionnaireResponse) {
+        this.resource = resource
     }
 
     toResource () : QuestionnaireResponse {
         return this.resource
+    }
+
+    toProfile () : USCoreQuestionnaireResponseProfile {
+        return this.resource as USCoreQuestionnaireResponseProfile
     }
 
     public setSignature (value: Signature): this {
@@ -167,6 +178,84 @@ export class USCoreQuestionnaireResponseProfileProfile {
             }
         }
         return this
+    }
+
+    public getSignature(raw: true): Extension | undefined
+    public getSignature(raw?: false): Signature | undefined
+    public getSignature (raw?: boolean): Extension | Signature | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaireresponse-signature")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueSignature
+    }
+
+    public getCompletionMode(raw: true): Extension | undefined
+    public getCompletionMode(raw?: false): CodeableConcept | undefined
+    public getCompletionMode (raw?: boolean): Extension | CodeableConcept | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaireresponse-completionMode")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueCodeableConcept
+    }
+
+    public getQuestionnaireDisplay(raw: true): Extension | undefined
+    public getQuestionnaireDisplay(raw?: false): string | undefined
+    public getQuestionnaireDisplay (raw?: boolean): Extension | string | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["questionnaire"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/display")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueString
+    }
+
+    public getItemMedia(raw: true): Extension | undefined
+    public getItemMedia(raw?: false): Attachment | undefined
+    public getItemMedia (raw?: boolean): Extension | Attachment | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemMedia")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueAttachment
+    }
+
+    public getItemSignature(raw: true): Extension | undefined
+    public getItemSignature(raw?: false): Signature | undefined
+    public getItemSignature (raw?: boolean): Extension | Signature | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaireresponse-signature")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueSignature
+    }
+
+    public getItemAnswerMedia(raw: true): Extension | undefined
+    public getItemAnswerMedia(raw?: false): Attachment | undefined
+    public getItemAnswerMedia (raw?: boolean): Extension | Attachment | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","answer"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemAnswerMedia")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueAttachment
+    }
+
+    public getOrdinalValue(raw: true): Extension | undefined
+    public getOrdinalValue(raw?: false): number | undefined
+    public getOrdinalValue (raw?: boolean): Extension | number | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","answer"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/ordinalValue")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueDecimal
+    }
+
+    public getUrl(raw: true): Extension | undefined
+    public getUrl(raw?: false): string | undefined
+    public getUrl (raw?: boolean): Extension | string | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["questionnaire"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-extension-questionnaire-uri")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueUri
     }
 
 }

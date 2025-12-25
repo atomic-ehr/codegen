@@ -3,17 +3,32 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { CodeSystem } from "../../hl7-fhir-r4-examples/CodeSystem";
+import type { CodeSystemConcept } from "../../hl7-fhir-r4-examples/CodeSystem";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/shareablecodesystem
+export interface Shareable_CodeSystem extends CodeSystem {
+    url: string;
+    version: string;
+    name: string;
+    experimental: boolean;
+    publisher: string;
+    description: string;
+    concept: CodeSystemConcept[];
+}
+
 export class Shareable_CodeSystemProfile {
     private resource: CodeSystem
 
-    constructor (resource?: CodeSystem) {
-        this.resource = resource ?? ({ resourceType: "CodeSystem" } as CodeSystem)
+    constructor (resource: CodeSystem) {
+        this.resource = resource
     }
 
     toResource () : CodeSystem {
         return this.resource
+    }
+
+    toProfile () : Shareable_CodeSystem {
+        return this.resource as Shareable_CodeSystem
     }
 
 }

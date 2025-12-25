@@ -5,15 +5,28 @@
 import type { Library } from "../../hl7-fhir-r4-core/Library";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/shareablelibrary
+export interface Shareable_Library extends Library {
+    url: string;
+    version: string;
+    name: string;
+    experimental: boolean;
+    publisher: string;
+    description: string;
+}
+
 export class Shareable_LibraryProfile {
     private resource: Library
 
-    constructor (resource?: Library) {
-        this.resource = resource ?? ({ resourceType: "Library" } as Library)
+    constructor (resource: Library) {
+        this.resource = resource
     }
 
     toResource () : Library {
         return this.resource
+    }
+
+    toProfile () : Shareable_Library {
+        return this.resource as Shareable_Library
     }
 
 }

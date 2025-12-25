@@ -8,8 +8,8 @@ import type { Questionnaire } from "../../hl7-fhir-r4-core/Questionnaire";
 export class CQF_QuestionnaireProfile {
     private resource: Questionnaire
 
-    constructor (resource?: Questionnaire) {
-        this.resource = resource ?? ({ resourceType: "Questionnaire" } as Questionnaire)
+    constructor (resource: Questionnaire) {
+        this.resource = resource
     }
 
     toResource () : Questionnaire {
@@ -31,6 +31,15 @@ export class CQF_QuestionnaireProfile {
             }
         }
         return this
+    }
+
+    public getLibrary(raw: true): Extension | undefined
+    public getLibrary(raw?: false): string | undefined
+    public getLibrary (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-library")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueCanonical
     }
 
 }

@@ -19,11 +19,13 @@ export type DiagnosticReport_Genetics_ReferencesInput = {
     type?: CodeableConcept;
 }
 
+import { extractComplexExtension } from "../../profile-helpers";
+
 export class DiagnosticReport_GeneticsProfile {
     private resource: DiagnosticReport
 
-    constructor (resource?: DiagnosticReport) {
-        this.resource = resource ?? ({ resourceType: "DiagnosticReport" } as DiagnosticReport)
+    constructor (resource: DiagnosticReport) {
+        this.resource = resource
     }
 
     toResource () : DiagnosticReport {
@@ -115,6 +117,44 @@ export class DiagnosticReport_GeneticsProfile {
             }
         }
         return this
+    }
+
+    public getAssessedCondition(raw: true): Extension | undefined
+    public getAssessedCondition(raw?: false): Reference | undefined
+    public getAssessedCondition (raw?: boolean): Extension | Reference | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsAssessedCondition")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueReference
+    }
+
+    public getFamilyMemberHistory(raw: true): Extension | undefined
+    public getFamilyMemberHistory(raw?: false): Reference | undefined
+    public getFamilyMemberHistory (raw?: boolean): Extension | Reference | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsFamilyMemberHistory")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueReference
+    }
+
+    public getAnalysis(raw: true): Extension | undefined
+    public getAnalysis(raw?: false): DiagnosticReport_Genetics_AnalysisInput | undefined
+    public getAnalysis (raw?: boolean): Extension | DiagnosticReport_Genetics_AnalysisInput | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsAnalysis")
+        if (!ext) return undefined
+        if (raw) return ext
+        const config = [{ name: "type", valueField: "valueCodeableConcept", isArray: false }, { name: "interpretation", valueField: "valueCodeableConcept", isArray: false }]
+        return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as DiagnosticReport_Genetics_AnalysisInput
+    }
+
+    public getReferences(raw: true): Extension | undefined
+    public getReferences(raw?: false): DiagnosticReport_Genetics_ReferencesInput | undefined
+    public getReferences (raw?: boolean): Extension | DiagnosticReport_Genetics_ReferencesInput | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsReferences")
+        if (!ext) return undefined
+        if (raw) return ext
+        const config = [{ name: "description", valueField: "valueString", isArray: false }, { name: "reference", valueField: "valueUri", isArray: true }, { name: "type", valueField: "valueCodeableConcept", isArray: false }]
+        return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as DiagnosticReport_Genetics_ReferencesInput
     }
 
 }

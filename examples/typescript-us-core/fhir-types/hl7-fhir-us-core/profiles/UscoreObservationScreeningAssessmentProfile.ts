@@ -4,21 +4,31 @@
 
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Observation } from "../../hl7-fhir-r4-core/Observation";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment
+export interface USCoreObservationScreeningAssessmentProfile extends Observation {
+    category: CodeableConcept[];
+    subject: Reference<'Device' | 'Group' | "Location" /*USCoreLocationProfile*/ | "Patient" /*USCorePatientProfile*/>;
+}
+
 export type USCoreObservationScreeningAssessmentProfile_Category_SurveySliceInput = Omit<CodeableConcept, "coding">;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class USCoreObservationScreeningAssessmentProfileProfile {
     private resource: Observation
 
-    constructor (resource?: Observation) {
-        this.resource = resource ?? ({ resourceType: "Observation" } as Observation)
+    constructor (resource: Observation) {
+        this.resource = resource
     }
 
     toResource () : Observation {
         return this.resource
+    }
+
+    toProfile () : USCoreObservationScreeningAssessmentProfile {
+        return this.resource as USCoreObservationScreeningAssessmentProfile
     }
 
     public setSurvey (input: USCoreObservationScreeningAssessmentProfile_Category_SurveySliceInput): this {
@@ -44,6 +54,18 @@ export class USCoreObservationScreeningAssessmentProfileProfile {
             }
         }
         return this
+    }
+
+    public getSurvey(raw: true): CodeableConcept | undefined
+    public getSurvey(raw?: false): USCoreObservationScreeningAssessmentProfile_Category_SurveySliceInput | undefined
+    public getSurvey (raw?: boolean): CodeableConcept | USCoreObservationScreeningAssessmentProfile_Category_SurveySliceInput | undefined {
+        const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"survey"}]} as Record<string, unknown>
+        const list = this.resource.category
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as USCoreObservationScreeningAssessmentProfile_Category_SurveySliceInput
     }
 
 }

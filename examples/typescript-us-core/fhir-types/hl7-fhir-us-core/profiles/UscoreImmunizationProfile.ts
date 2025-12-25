@@ -8,8 +8,8 @@ import type { Immunization } from "../../hl7-fhir-r4-core/Immunization";
 export class USCoreImmunizationProfileProfile {
     private resource: Immunization
 
-    constructor (resource?: Immunization) {
-        this.resource = resource ?? ({ resourceType: "Immunization" } as Immunization)
+    constructor (resource: Immunization) {
+        this.resource = resource
     }
 
     toResource () : Immunization {

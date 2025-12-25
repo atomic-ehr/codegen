@@ -2,23 +2,32 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Provenance } from "../../hl7-fhir-r4-core/Provenance";
 import type { ProvenanceAgent } from "../../hl7-fhir-r4-core/Provenance";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/provenance-relevant-history
+export interface Provenance_Relevant_History extends Provenance {
+    activity: CodeableConcept;
+}
+
 export type Provenance_Relevant_History_Agent_AuthorSliceInput = Omit<ProvenanceAgent, "type"> & Required<Pick<ProvenanceAgent, "who">>;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class Provenance_Relevant_HistoryProfile {
     private resource: Provenance
 
-    constructor (resource?: Provenance) {
-        this.resource = resource ?? ({ resourceType: "Provenance" } as Provenance)
+    constructor (resource: Provenance) {
+        this.resource = resource
     }
 
     toResource () : Provenance {
         return this.resource
+    }
+
+    toProfile () : Provenance_Relevant_History {
+        return this.resource as Provenance_Relevant_History
     }
 
     public setAuthor (input: Provenance_Relevant_History_Agent_AuthorSliceInput): this {
@@ -44,6 +53,18 @@ export class Provenance_Relevant_HistoryProfile {
             }
         }
         return this
+    }
+
+    public getAuthor(raw: true): ProvenanceAgent | undefined
+    public getAuthor(raw?: false): Provenance_Relevant_History_Agent_AuthorSliceInput | undefined
+    public getAuthor (raw?: boolean): ProvenanceAgent | Provenance_Relevant_History_Agent_AuthorSliceInput | undefined {
+        const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v3-ParticipationType","code":"AUT"}]}} as Record<string, unknown>
+        const list = this.resource.agent
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as Provenance_Relevant_History_Agent_AuthorSliceInput
     }
 
 }

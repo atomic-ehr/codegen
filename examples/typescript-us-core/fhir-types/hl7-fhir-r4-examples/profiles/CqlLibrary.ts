@@ -8,8 +8,8 @@ import type { Library } from "../../hl7-fhir-r4-examples/Library";
 export class CQL_LibraryProfile {
     private resource: Library
 
-    constructor (resource?: Library) {
-        this.resource = resource ?? ({ resourceType: "Library" } as Library)
+    constructor (resource: Library) {
+        this.resource = resource
     }
 
     toResource () : Library {

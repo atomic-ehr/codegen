@@ -3,17 +3,26 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { AllergyIntolerance } from "../../hl7-fhir-r4-core/AllergyIntolerance";
+import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance
+export interface USCoreAllergyIntolerance extends AllergyIntolerance {
+    code: CodeableConcept;
+}
+
 export class USCoreAllergyIntoleranceProfile {
     private resource: AllergyIntolerance
 
-    constructor (resource?: AllergyIntolerance) {
-        this.resource = resource ?? ({ resourceType: "AllergyIntolerance" } as AllergyIntolerance)
+    constructor (resource: AllergyIntolerance) {
+        this.resource = resource
     }
 
     toResource () : AllergyIntolerance {
         return this.resource
+    }
+
+    toProfile () : USCoreAllergyIntolerance {
+        return this.resource as USCoreAllergyIntolerance
     }
 
 }

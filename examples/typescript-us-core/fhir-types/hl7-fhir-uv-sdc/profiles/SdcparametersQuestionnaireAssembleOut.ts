@@ -9,13 +9,13 @@ import type { ParametersParameter } from "../../hl7-fhir-r4-core/Parameters";
 export type SDCParametersQuestionnaireAssembleOut_Parameter_Return_SliceInput = Omit<ParametersParameter, "name">;
 export type SDCParametersQuestionnaireAssembleOut_Parameter_PartSliceInput = Omit<ParametersParameter, "name">;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class SDCParametersQuestionnaireAssembleOutProfile {
     private resource: Parameters
 
-    constructor (resource?: Parameters) {
-        this.resource = resource ?? ({ resourceType: "Parameters" } as Parameters)
+    constructor (resource: Parameters) {
+        this.resource = resource
     }
 
     toResource () : Parameters {
@@ -70,6 +70,30 @@ export class SDCParametersQuestionnaireAssembleOutProfile {
             }
         }
         return this
+    }
+
+    public getReturn(raw: true): ParametersParameter | undefined
+    public getReturn(raw?: false): SDCParametersQuestionnaireAssembleOut_Parameter_Return_SliceInput | undefined
+    public getReturn (raw?: boolean): ParametersParameter | SDCParametersQuestionnaireAssembleOut_Parameter_Return_SliceInput | undefined {
+        const match = {"name":"return"} as Record<string, unknown>
+        const list = this.resource.parameter
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["name"]) as SDCParametersQuestionnaireAssembleOut_Parameter_Return_SliceInput
+    }
+
+    public getPart(raw: true): ParametersParameter | undefined
+    public getPart(raw?: false): SDCParametersQuestionnaireAssembleOut_Parameter_PartSliceInput | undefined
+    public getPart (raw?: boolean): ParametersParameter | SDCParametersQuestionnaireAssembleOut_Parameter_PartSliceInput | undefined {
+        const match = {"name":"outcome"} as Record<string, unknown>
+        const list = this.resource.parameter
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["name"]) as SDCParametersQuestionnaireAssembleOut_Parameter_PartSliceInput
     }
 
 }

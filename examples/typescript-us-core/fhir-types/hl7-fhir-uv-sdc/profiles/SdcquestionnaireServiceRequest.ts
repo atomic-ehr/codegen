@@ -2,18 +2,29 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import type { ServiceRequest } from "../../hl7-fhir-r4-core/ServiceRequest";
 
 // CanonicalURL: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-servicerequest
+export interface SDCQuestionnaireServiceRequest extends ServiceRequest {
+    code: CodeableConcept;
+    requester: Reference<'Device' | 'Organization' | 'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
+}
+
 export class SDCQuestionnaireServiceRequestProfile {
     private resource: ServiceRequest
 
-    constructor (resource?: ServiceRequest) {
-        this.resource = resource ?? ({ resourceType: "ServiceRequest" } as ServiceRequest)
+    constructor (resource: ServiceRequest) {
+        this.resource = resource
     }
 
     toResource () : ServiceRequest {
         return this.resource
+    }
+
+    toProfile () : SDCQuestionnaireServiceRequest {
+        return this.resource as SDCQuestionnaireServiceRequest
     }
 
     public setQuestionnaire (value: string): this {
@@ -31,6 +42,15 @@ export class SDCQuestionnaireServiceRequestProfile {
             }
         }
         return this
+    }
+
+    public getQuestionnaire(raw: true): Extension | undefined
+    public getQuestionnaire(raw?: false): string | undefined
+    public getQuestionnaire (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-servicerequest-questionnaire")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueCanonical
     }
 
 }

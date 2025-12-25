@@ -3,17 +3,28 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { QuestionnaireResponse } from "../../hl7-fhir-r4-core/QuestionnaireResponse";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt
+export interface SDCQuestionnaireResponseAdapt extends QuestionnaireResponse {
+    questionnaire: string;
+    subject: Reference<"Resource" /* 'Patient' */ >;
+    authored: string;
+}
+
 export class SDCQuestionnaireResponseAdaptProfile {
     private resource: QuestionnaireResponse
 
-    constructor (resource?: QuestionnaireResponse) {
-        this.resource = resource ?? ({ resourceType: "QuestionnaireResponse" } as QuestionnaireResponse)
+    constructor (resource: QuestionnaireResponse) {
+        this.resource = resource
     }
 
     toResource () : QuestionnaireResponse {
         return this.resource
+    }
+
+    toProfile () : SDCQuestionnaireResponseAdapt {
+        return this.resource as SDCQuestionnaireResponseAdapt
     }
 
 }

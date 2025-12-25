@@ -3,17 +3,27 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { Evidence } from "../../hl7-fhir-r4-core/Evidence";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/synthesis
+export interface Evidence_Synthesis_Profile extends Evidence {
+    exposureVariant: Reference<'EvidenceVariable'>[];
+    outcome: Reference<'EvidenceVariable'>[];
+}
+
 export class Evidence_Synthesis_ProfileProfile {
     private resource: Evidence
 
-    constructor (resource?: Evidence) {
-        this.resource = resource ?? ({ resourceType: "Evidence" } as Evidence)
+    constructor (resource: Evidence) {
+        this.resource = resource
     }
 
     toResource () : Evidence {
         return this.resource
+    }
+
+    toProfile () : Evidence_Synthesis_Profile {
+        return this.resource as Evidence_Synthesis_Profile
     }
 
 }

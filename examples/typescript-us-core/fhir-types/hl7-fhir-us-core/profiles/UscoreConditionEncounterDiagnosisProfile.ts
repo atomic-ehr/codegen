@@ -6,19 +6,28 @@ import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Condition } from "../../hl7-fhir-r4-core/Condition";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis
+export interface USCoreConditionEncounterDiagnosisProfile extends Condition {
+    category: CodeableConcept[];
+    code: CodeableConcept;
+}
+
 export type USCoreConditionEncounterDiagnosisProfile_Category_Us_coreSliceInput = Omit<CodeableConcept, "coding">;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class USCoreConditionEncounterDiagnosisProfileProfile {
     private resource: Condition
 
-    constructor (resource?: Condition) {
-        this.resource = resource ?? ({ resourceType: "Condition" } as Condition)
+    constructor (resource: Condition) {
+        this.resource = resource
     }
 
     toResource () : Condition {
         return this.resource
+    }
+
+    toProfile () : USCoreConditionEncounterDiagnosisProfile {
+        return this.resource as USCoreConditionEncounterDiagnosisProfile
     }
 
     public setUsCore (input: USCoreConditionEncounterDiagnosisProfile_Category_Us_coreSliceInput): this {
@@ -44,6 +53,18 @@ export class USCoreConditionEncounterDiagnosisProfileProfile {
             }
         }
         return this
+    }
+
+    public getUsCore(raw: true): CodeableConcept | undefined
+    public getUsCore(raw?: false): USCoreConditionEncounterDiagnosisProfile_Category_Us_coreSliceInput | undefined
+    public getUsCore (raw?: boolean): CodeableConcept | USCoreConditionEncounterDiagnosisProfile_Category_Us_coreSliceInput | undefined {
+        const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/condition-category","code":"encounter-diagnosis"}]} as Record<string, unknown>
+        const list = this.resource.category
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as USCoreConditionEncounterDiagnosisProfile_Category_Us_coreSliceInput
     }
 
 }

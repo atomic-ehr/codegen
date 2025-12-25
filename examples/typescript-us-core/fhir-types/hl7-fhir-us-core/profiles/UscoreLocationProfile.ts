@@ -5,15 +5,23 @@
 import type { Location } from "../../hl7-fhir-r4-core/Location";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-location
+export interface USCoreLocationProfile extends Location {
+    name: string;
+}
+
 export class USCoreLocationProfileProfile {
     private resource: Location
 
-    constructor (resource?: Location) {
-        this.resource = resource ?? ({ resourceType: "Location" } as Location)
+    constructor (resource: Location) {
+        this.resource = resource
     }
 
     toResource () : Location {
         return this.resource
+    }
+
+    toProfile () : USCoreLocationProfile {
+        return this.resource as USCoreLocationProfile
     }
 
 }

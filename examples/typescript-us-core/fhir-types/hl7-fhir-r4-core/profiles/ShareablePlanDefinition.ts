@@ -5,15 +5,28 @@
 import type { PlanDefinition } from "../../hl7-fhir-r4-core/PlanDefinition";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/shareableplandefinition
+export interface Shareable_PlanDefinition extends PlanDefinition {
+    url: string;
+    version: string;
+    name: string;
+    experimental: boolean;
+    publisher: string;
+    description: string;
+}
+
 export class Shareable_PlanDefinitionProfile {
     private resource: PlanDefinition
 
-    constructor (resource?: PlanDefinition) {
-        this.resource = resource ?? ({ resourceType: "PlanDefinition" } as PlanDefinition)
+    constructor (resource: PlanDefinition) {
+        this.resource = resource
     }
 
     toResource () : PlanDefinition {
         return this.resource
+    }
+
+    toProfile () : Shareable_PlanDefinition {
+        return this.resource as Shareable_PlanDefinition
     }
 
 }

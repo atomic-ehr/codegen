@@ -6,19 +6,27 @@ import type { CarePlan } from "../../hl7-fhir-r4-core/CarePlan";
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-careplan
+export interface USCoreCarePlanProfile extends CarePlan {
+    category: CodeableConcept[];
+}
+
 export type USCoreCarePlanProfile_Category_AssessPlanSliceInput = Omit<CodeableConcept, "coding">;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class USCoreCarePlanProfileProfile {
     private resource: CarePlan
 
-    constructor (resource?: CarePlan) {
-        this.resource = resource ?? ({ resourceType: "CarePlan" } as CarePlan)
+    constructor (resource: CarePlan) {
+        this.resource = resource
     }
 
     toResource () : CarePlan {
         return this.resource
+    }
+
+    toProfile () : USCoreCarePlanProfile {
+        return this.resource as USCoreCarePlanProfile
     }
 
     public setAssessPlan (input: USCoreCarePlanProfile_Category_AssessPlanSliceInput): this {
@@ -44,6 +52,18 @@ export class USCoreCarePlanProfileProfile {
             }
         }
         return this
+    }
+
+    public getAssessPlan(raw: true): CodeableConcept | undefined
+    public getAssessPlan(raw?: false): USCoreCarePlanProfile_Category_AssessPlanSliceInput | undefined
+    public getAssessPlan (raw?: boolean): CodeableConcept | USCoreCarePlanProfile_Category_AssessPlanSliceInput | undefined {
+        const match = {"coding":[{"system":"http://hl7.org/fhir/us/core/CodeSystem/careplan-category","code":"assess-plan"}]} as Record<string, unknown>
+        const list = this.resource.category
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as USCoreCarePlanProfile_Category_AssessPlanSliceInput
     }
 
 }

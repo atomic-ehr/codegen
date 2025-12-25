@@ -8,8 +8,8 @@ import type { Group } from "../../hl7-fhir-r5-core/Group";
 export class ActualGroupProfile {
     private resource: Group
 
-    constructor (resource?: Group) {
-        this.resource = resource ?? ({ resourceType: "Group" } as Group)
+    constructor (resource: Group) {
+        this.resource = resource
     }
 
     toResource () : Group {

@@ -8,23 +8,31 @@ import type { Questionnaire } from "../../hl7-fhir-r4-core/Questionnaire";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-pop-smap
+export interface SDCQuestionnairePopulateStructureMap extends Questionnaire {
+    url: string;
+}
+
 export type SDCQuestionnairePopulateStructureMap_LaunchContextInput = {
     name: Coding;
     type: code[];
     description?: string;
 }
 
-import { getOrCreateObjectAtPath } from "../../profile-helpers";
+import { getOrCreateObjectAtPath, extractComplexExtension } from "../../profile-helpers";
 
 export class SDCQuestionnairePopulateStructureMapProfile {
     private resource: Questionnaire
 
-    constructor (resource?: Questionnaire) {
-        this.resource = resource ?? ({ resourceType: "Questionnaire" } as Questionnaire)
+    constructor (resource: Questionnaire) {
+        this.resource = resource
     }
 
     toResource () : Questionnaire {
         return this.resource
+    }
+
+    toProfile () : SDCQuestionnairePopulateStructureMap {
+        return this.resource as SDCQuestionnairePopulateStructureMap
     }
 
     public setExtensionDesignNote (value: string): this {
@@ -227,6 +235,100 @@ export class SDCQuestionnairePopulateStructureMapProfile {
             }
         }
         return this
+    }
+
+    public getDesignNote(raw: true): Extension | undefined
+    public getDesignNote(raw?: false): string | undefined
+    public getDesignNote (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/designNote")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueMarkdown
+    }
+
+    public getTerminologyServer(raw: true): Extension | undefined
+    public getTerminologyServer(raw?: false): string | undefined
+    public getTerminologyServer (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueUrl
+    }
+
+    public getPerformerType(raw: true): Extension | undefined
+    public getPerformerType(raw?: false): string | undefined
+    public getPerformerType (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-performerType")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueCode
+    }
+
+    public getAssembleExpectation(raw: true): Extension | undefined
+    public getAssembleExpectation(raw?: false): string | undefined
+    public getAssembleExpectation (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-assemble-expectation")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueCode
+    }
+
+    public getLaunchContext(raw: true): Extension | undefined
+    public getLaunchContext(raw?: false): SDCQuestionnairePopulateStructureMap_LaunchContextInput | undefined
+    public getLaunchContext (raw?: boolean): Extension | SDCQuestionnairePopulateStructureMap_LaunchContextInput | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext")
+        if (!ext) return undefined
+        if (raw) return ext
+        const config = [{ name: "name", valueField: "valueCoding", isArray: false }, { name: "type", valueField: "valueCode", isArray: true }, { name: "description", valueField: "valueString", isArray: false }]
+        return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as SDCQuestionnairePopulateStructureMap_LaunchContextInput
+    }
+
+    public getSourceQueries(raw: true): Extension | undefined
+    public getSourceQueries(raw?: false): Reference | undefined
+    public getSourceQueries (raw?: boolean): Extension | Reference | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-sourceQueries")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueReference
+    }
+
+    public getSourceStructureMap(raw: true): Extension | undefined
+    public getSourceStructureMap(raw?: false): string | undefined
+    public getSourceStructureMap (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-sourceStructureMap")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueCanonical
+    }
+
+    public getUnit(raw: true): Extension | undefined
+    public getUnit(raw?: false): Coding | undefined
+    public getUnit (raw?: boolean): Extension | Coding | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-unit")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueCoding
+    }
+
+    public getItemHidden(raw: true): Extension | undefined
+    public getItemHidden(raw?: false): boolean | undefined
+    public getItemHidden (raw?: boolean): Extension | boolean | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueBoolean
+    }
+
+    public getIsSubject(raw: true): Extension | undefined
+    public getIsSubject(raw?: false): boolean | undefined
+    public getIsSubject (raw?: boolean): Extension | boolean | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-isSubject")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueBoolean
     }
 
 }

@@ -8,13 +8,13 @@ import type { ParametersParameter } from "../../hl7-fhir-r4-core/Parameters";
 // CanonicalURL: http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-out
 export type SDCParametersQuestionnaireNextQuestionnaireOut_Parameter_OutSliceInput = Omit<ParametersParameter, "name">;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class SDCParametersQuestionnaireNextQuestionnaireOutProfile {
     private resource: Parameters
 
-    constructor (resource?: Parameters) {
-        this.resource = resource ?? ({ resourceType: "Parameters" } as Parameters)
+    constructor (resource: Parameters) {
+        this.resource = resource
     }
 
     toResource () : Parameters {
@@ -44,6 +44,18 @@ export class SDCParametersQuestionnaireNextQuestionnaireOutProfile {
             }
         }
         return this
+    }
+
+    public getOut(raw: true): ParametersParameter | undefined
+    public getOut(raw?: false): SDCParametersQuestionnaireNextQuestionnaireOut_Parameter_OutSliceInput | undefined
+    public getOut (raw?: boolean): ParametersParameter | SDCParametersQuestionnaireNextQuestionnaireOut_Parameter_OutSliceInput | undefined {
+        const match = {"name":"out"} as Record<string, unknown>
+        const list = this.resource.parameter
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["name"]) as SDCParametersQuestionnaireNextQuestionnaireOut_Parameter_OutSliceInput
     }
 
 }

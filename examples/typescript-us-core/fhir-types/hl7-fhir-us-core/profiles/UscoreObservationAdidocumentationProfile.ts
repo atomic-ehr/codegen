@@ -7,19 +7,27 @@ import type { Observation } from "../../hl7-fhir-r4-core/Observation";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-adi-documentation
+export interface USCoreObservationADIDocumentationProfile extends Observation {
+    subject: Reference<"Patient">;
+}
+
 export type USCoreObservationADIDocumentationProfile_Category_Us_coreSliceInput = Omit<CodeableConcept, "coding">;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class USCoreObservationADIDocumentationProfileProfile {
     private resource: Observation
 
-    constructor (resource?: Observation) {
-        this.resource = resource ?? ({ resourceType: "Observation" } as Observation)
+    constructor (resource: Observation) {
+        this.resource = resource
     }
 
     toResource () : Observation {
         return this.resource
+    }
+
+    toProfile () : USCoreObservationADIDocumentationProfile {
+        return this.resource as USCoreObservationADIDocumentationProfile
     }
 
     public setSupportingInfo (value: Reference): this {
@@ -62,6 +70,27 @@ export class USCoreObservationADIDocumentationProfileProfile {
             }
         }
         return this
+    }
+
+    public getSupportingInfo(raw: true): Extension | undefined
+    public getSupportingInfo(raw?: false): Reference | undefined
+    public getSupportingInfo (raw?: boolean): Extension | Reference | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/workflow-supportingInfo")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueReference
+    }
+
+    public getUsCore(raw: true): CodeableConcept | undefined
+    public getUsCore(raw?: false): USCoreObservationADIDocumentationProfile_Category_Us_coreSliceInput | undefined
+    public getUsCore (raw?: boolean): CodeableConcept | USCoreObservationADIDocumentationProfile_Category_Us_coreSliceInput | undefined {
+        const match = {"coding":[{"system":"http://hl7.org/fhir/us/core/CodeSystem/us-core-category","code":"observation-adi-documentation"}]} as Record<string, unknown>
+        const list = this.resource.category
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as USCoreObservationADIDocumentationProfile_Category_Us_coreSliceInput
     }
 
 }

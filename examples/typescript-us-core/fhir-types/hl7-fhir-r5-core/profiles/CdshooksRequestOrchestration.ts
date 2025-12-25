@@ -2,18 +2,28 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { Identifier } from "../../hl7-fhir-r5-core/Identifier";
 import type { RequestOrchestration } from "../../hl7-fhir-r5-core/RequestOrchestration";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/cdshooksrequestorchestration
+export interface CDSHooksRequestOrchestration extends RequestOrchestration {
+    identifier: Identifier[];
+    instantiatesUri: string[];
+}
+
 export class CDSHooksRequestOrchestrationProfile {
     private resource: RequestOrchestration
 
-    constructor (resource?: RequestOrchestration) {
-        this.resource = resource ?? ({ resourceType: "RequestOrchestration" } as RequestOrchestration)
+    constructor (resource: RequestOrchestration) {
+        this.resource = resource
     }
 
     toResource () : RequestOrchestration {
         return this.resource
+    }
+
+    toProfile () : CDSHooksRequestOrchestration {
+        return this.resource as CDSHooksRequestOrchestration
     }
 
 }

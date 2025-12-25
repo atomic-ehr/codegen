@@ -4,17 +4,28 @@
 
 import type { Extension } from "../../hl7-fhir-r5-core/Extension";
 import type { GuidanceResponse } from "../../hl7-fhir-r5-core/GuidanceResponse";
+import type { Identifier } from "../../hl7-fhir-r5-core/Identifier";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/cdshooksguidanceresponse
+export interface CDSHooksGuidanceResponse extends GuidanceResponse {
+    requestIdentifier: Identifier;
+    identifier: Identifier[];
+    moduleUri: string;
+}
+
 export class CDSHooksGuidanceResponseProfile {
     private resource: GuidanceResponse
 
-    constructor (resource?: GuidanceResponse) {
-        this.resource = resource ?? ({ resourceType: "GuidanceResponse" } as GuidanceResponse)
+    constructor (resource: GuidanceResponse) {
+        this.resource = resource
     }
 
     toResource () : GuidanceResponse {
         return this.resource
+    }
+
+    toProfile () : CDSHooksGuidanceResponse {
+        return this.resource as CDSHooksGuidanceResponse
     }
 
     public setCdsHooksEndpoint (value: Omit<Extension, "url">): this {
@@ -32,6 +43,10 @@ export class CDSHooksGuidanceResponseProfile {
             }
         }
         return this
+    }
+
+    public getCdsHooksEndpoint (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-cdsHooksEndpoint")
     }
 
 }

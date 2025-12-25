@@ -5,15 +5,28 @@
 import type { Measure } from "../../hl7-fhir-r4-core/Measure";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/shareablemeasure
+export interface Shareable_Measure extends Measure {
+    url: string;
+    version: string;
+    name: string;
+    experimental: boolean;
+    publisher: string;
+    description: string;
+}
+
 export class Shareable_MeasureProfile {
     private resource: Measure
 
-    constructor (resource?: Measure) {
-        this.resource = resource ?? ({ resourceType: "Measure" } as Measure)
+    constructor (resource: Measure) {
+        this.resource = resource
     }
 
     toResource () : Measure {
         return this.resource
+    }
+
+    toProfile () : Shareable_Measure {
+        return this.resource as Shareable_Measure
     }
 
 }

@@ -13,11 +13,13 @@ export type USCoreMedicationRequestProfile_MedicationAdherenceInput = {
     informationSource?: CodeableConcept[];
 }
 
+import { extractComplexExtension } from "../../profile-helpers";
+
 export class USCoreMedicationRequestProfileProfile {
     private resource: MedicationRequest
 
-    constructor (resource?: MedicationRequest) {
-        this.resource = resource ?? ({ resourceType: "MedicationRequest" } as MedicationRequest)
+    constructor (resource: MedicationRequest) {
+        this.resource = resource
     }
 
     toResource () : MedicationRequest {
@@ -51,6 +53,16 @@ export class USCoreMedicationRequestProfileProfile {
             }
         }
         return this
+    }
+
+    public getMedicationAdherence(raw: true): Extension | undefined
+    public getMedicationAdherence(raw?: false): USCoreMedicationRequestProfile_MedicationAdherenceInput | undefined
+    public getMedicationAdherence (raw?: boolean): Extension | USCoreMedicationRequestProfile_MedicationAdherenceInput | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication-adherence")
+        if (!ext) return undefined
+        if (raw) return ext
+        const config = [{ name: "medicationAdherence", valueField: "valueCodeableConcept", isArray: false }, { name: "dateAsserted", valueField: "valueDateTime", isArray: false }, { name: "informationSource", valueField: "valueCodeableConcept", isArray: true }]
+        return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as USCoreMedicationRequestProfile_MedicationAdherenceInput
     }
 
 }

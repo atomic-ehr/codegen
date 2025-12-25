@@ -9,6 +9,10 @@ import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
 import type { Questionnaire } from "../../hl7-fhir-r4-core/Questionnaire";
 
 // CanonicalURL: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-pop-exp
+export interface SDCQuestionnairePopulateExpression extends Questionnaire {
+    url: string;
+}
+
 export type SDCQuestionnairePopulateExpression_LaunchContextInput = {
     name: Coding;
     type: code[];
@@ -27,17 +31,21 @@ export type SDCQuestionnairePopulateExpression_ChoiceColumnInput = {
     forDisplay?: boolean;
 }
 
-import { getOrCreateObjectAtPath } from "../../profile-helpers";
+import { getOrCreateObjectAtPath, extractComplexExtension } from "../../profile-helpers";
 
 export class SDCQuestionnairePopulateExpressionProfile {
     private resource: Questionnaire
 
-    constructor (resource?: Questionnaire) {
-        this.resource = resource ?? ({ resourceType: "Questionnaire" } as Questionnaire)
+    constructor (resource: Questionnaire) {
+        this.resource = resource
     }
 
     toResource () : Questionnaire {
         return this.resource
+    }
+
+    toProfile () : SDCQuestionnairePopulateExpression {
+        return this.resource as SDCQuestionnairePopulateExpression
     }
 
     public setExtensionDesignNote (value: string): this {
@@ -379,6 +387,161 @@ export class SDCQuestionnairePopulateExpressionProfile {
             }
         }
         return this
+    }
+
+    public getDesignNote(raw: true): Extension | undefined
+    public getDesignNote(raw?: false): string | undefined
+    public getDesignNote (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/designNote")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueMarkdown
+    }
+
+    public getTerminologyServer(raw: true): Extension | undefined
+    public getTerminologyServer(raw?: false): string | undefined
+    public getTerminologyServer (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueUrl
+    }
+
+    public getPerformerType(raw: true): Extension | undefined
+    public getPerformerType(raw?: false): string | undefined
+    public getPerformerType (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-performerType")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueCode
+    }
+
+    public getAssembleExpectation(raw: true): Extension | undefined
+    public getAssembleExpectation(raw?: false): string | undefined
+    public getAssembleExpectation (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-assemble-expectation")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueCode
+    }
+
+    public getLibrary(raw: true): Extension | undefined
+    public getLibrary(raw?: false): string | undefined
+    public getLibrary (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-library")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueCanonical
+    }
+
+    public getLaunchContext(raw: true): Extension | undefined
+    public getLaunchContext(raw?: false): SDCQuestionnairePopulateExpression_LaunchContextInput | undefined
+    public getLaunchContext (raw?: boolean): Extension | SDCQuestionnairePopulateExpression_LaunchContextInput | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext")
+        if (!ext) return undefined
+        if (raw) return ext
+        const config = [{ name: "name", valueField: "valueCoding", isArray: false }, { name: "type", valueField: "valueCode", isArray: true }, { name: "description", valueField: "valueString", isArray: false }]
+        return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as SDCQuestionnairePopulateExpression_LaunchContextInput
+    }
+
+    public getItemPopulationContext(raw: true): Extension | undefined
+    public getItemPopulationContext(raw?: false): Expression | undefined
+    public getItemPopulationContext (raw?: boolean): Extension | Expression | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemPopulationContext")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueExpression
+    }
+
+    public getVariable(raw: true): Extension | undefined
+    public getVariable(raw?: false): Expression | undefined
+    public getVariable (raw?: boolean): Extension | Expression | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/variable")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueExpression
+    }
+
+    public getUnit(raw: true): Extension | undefined
+    public getUnit(raw?: false): Coding | undefined
+    public getUnit (raw?: boolean): Extension | Coding | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-unit")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueCoding
+    }
+
+    public getItemVariable(raw: true): Extension | undefined
+    public getItemVariable(raw?: false): Expression | undefined
+    public getItemVariable (raw?: boolean): Extension | Expression | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/variable")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueExpression
+    }
+
+    public getInitialExpression(raw: true): Extension | undefined
+    public getInitialExpression(raw?: false): Expression | undefined
+    public getInitialExpression (raw?: boolean): Extension | Expression | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueExpression
+    }
+
+    public getCandidateExpression(raw: true): Extension | undefined
+    public getCandidateExpression(raw?: false): Expression | undefined
+    public getCandidateExpression (raw?: boolean): Extension | Expression | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-candidateExpression")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueExpression
+    }
+
+    public getContextExpression(raw: true): Extension | undefined
+    public getContextExpression(raw?: false): SDCQuestionnairePopulateExpression_ContextExpressionInput | undefined
+    public getContextExpression (raw?: boolean): Extension | SDCQuestionnairePopulateExpression_ContextExpressionInput | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-contextExpression")
+        if (!ext) return undefined
+        if (raw) return ext
+        const config = [{ name: "label", valueField: "valueString", isArray: false }, { name: "expression", valueField: "valueExpression", isArray: false }]
+        return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as SDCQuestionnairePopulateExpression_ContextExpressionInput
+    }
+
+    public getItemHidden(raw: true): Extension | undefined
+    public getItemHidden(raw?: false): boolean | undefined
+    public getItemHidden (raw?: boolean): Extension | boolean | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueBoolean
+    }
+
+    public getChoiceColumn(raw: true): Extension | undefined
+    public getChoiceColumn(raw?: false): SDCQuestionnairePopulateExpression_ChoiceColumnInput | undefined
+    public getChoiceColumn (raw?: boolean): Extension | SDCQuestionnairePopulateExpression_ChoiceColumnInput | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-choiceColumn")
+        if (!ext) return undefined
+        if (raw) return ext
+        const config = [{ name: "path", valueField: "valueString", isArray: false }, { name: "label", valueField: "valueString", isArray: false }, { name: "width", valueField: "valueQuantity", isArray: false }, { name: "forDisplay", valueField: "valueBoolean", isArray: false }]
+        return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as SDCQuestionnairePopulateExpression_ChoiceColumnInput
+    }
+
+    public getIsSubject(raw: true): Extension | undefined
+    public getIsSubject(raw?: false): boolean | undefined
+    public getIsSubject (raw?: boolean): Extension | boolean | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-isSubject")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueBoolean
     }
 
 }

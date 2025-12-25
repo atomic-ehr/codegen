@@ -4,21 +4,33 @@
 
 import type { CodeableConcept } from "../../hl7-fhir-r5-core/CodeableConcept";
 import type { Observation } from "../../hl7-fhir-r5-core/Observation";
+import type { Reference } from "../../hl7-fhir-r5-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/vitalspanel
+export interface Observationvitalspanel extends Observation {
+    category: CodeableConcept[];
+    subject: Reference<"Patient">;
+    hasMember: Reference<'MolecularSequence' | 'QuestionnaireResponse' | "Observation" /*Observationvitalsigns*/>[];
+    derivedFrom?: Reference<"DocumentReference" | "ImagingStudy" | "MolecularSequence" | "QuestionnaireResponse" | "Observation">[];
+}
+
 export type Observationvitalspanel_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class ObservationvitalspanelProfile {
     private resource: Observation
 
-    constructor (resource?: Observation) {
-        this.resource = resource ?? ({ resourceType: "Observation" } as Observation)
+    constructor (resource: Observation) {
+        this.resource = resource
     }
 
     toResource () : Observation {
         return this.resource
+    }
+
+    toProfile () : Observationvitalspanel {
+        return this.resource as Observationvitalspanel
     }
 
     public setVscat (input: Observationvitalspanel_Category_VSCatSliceInput): this {
@@ -44,6 +56,18 @@ export class ObservationvitalspanelProfile {
             }
         }
         return this
+    }
+
+    public getVscat(raw: true): CodeableConcept | undefined
+    public getVscat(raw?: false): Observationvitalspanel_Category_VSCatSliceInput | undefined
+    public getVscat (raw?: boolean): CodeableConcept | Observationvitalspanel_Category_VSCatSliceInput | undefined {
+        const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
+        const list = this.resource.category
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as Observationvitalspanel_Category_VSCatSliceInput
     }
 
 }

@@ -9,8 +9,8 @@ import type { PlanDefinition } from "../../hl7-fhir-r5-core/PlanDefinition";
 export class CDSHooksServicePlanDefinitionProfile {
     private resource: PlanDefinition
 
-    constructor (resource?: PlanDefinition) {
-        this.resource = resource ?? ({ resourceType: "PlanDefinition" } as PlanDefinition)
+    constructor (resource: PlanDefinition) {
+        this.resource = resource
     }
 
     toResource () : PlanDefinition {
@@ -32,6 +32,10 @@ export class CDSHooksServicePlanDefinitionProfile {
             }
         }
         return this
+    }
+
+    public getCdsHooksEndpoint (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-cdsHooksEndpoint")
     }
 
 }

@@ -3,17 +3,26 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { Group } from "../../hl7-fhir-r5-core/Group";
+import type { GroupCharacteristic } from "../../hl7-fhir-r5-core/Group";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/groupdefinition
+export interface GroupDefinition extends Group {
+    characteristic: GroupCharacteristic[];
+}
+
 export class GroupDefinitionProfile {
     private resource: Group
 
-    constructor (resource?: Group) {
-        this.resource = resource ?? ({ resourceType: "Group" } as Group)
+    constructor (resource: Group) {
+        this.resource = resource
     }
 
     toResource () : Group {
         return this.resource
+    }
+
+    toProfile () : GroupDefinition {
+        return this.resource as GroupDefinition
     }
 
 }

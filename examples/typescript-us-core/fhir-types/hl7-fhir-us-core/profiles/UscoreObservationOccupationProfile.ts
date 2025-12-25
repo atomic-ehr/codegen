@@ -5,22 +5,32 @@
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Observation } from "../../hl7-fhir-r4-core/Observation";
 import type { ObservationComponent } from "../../hl7-fhir-r4-core/Observation";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-occupation
+export interface USCoreObservationOccupationProfile extends Observation {
+    subject: Reference<"Patient">;
+    valueCodeableConcept: CodeableConcept;
+}
+
 export type USCoreObservationOccupationProfile_Category_SocialhistorySliceInput = Omit<CodeableConcept, "coding">;
 export type USCoreObservationOccupationProfile_Component_IndustrySliceInput = Omit<ObservationComponent, "code"> & Required<Pick<ObservationComponent, "valueCodeableConcept">>;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class USCoreObservationOccupationProfileProfile {
     private resource: Observation
 
-    constructor (resource?: Observation) {
-        this.resource = resource ?? ({ resourceType: "Observation" } as Observation)
+    constructor (resource: Observation) {
+        this.resource = resource
     }
 
     toResource () : Observation {
         return this.resource
+    }
+
+    toProfile () : USCoreObservationOccupationProfile {
+        return this.resource as USCoreObservationOccupationProfile
     }
 
     public setSocialhistory (input: USCoreObservationOccupationProfile_Category_SocialhistorySliceInput): this {
@@ -71,6 +81,30 @@ export class USCoreObservationOccupationProfileProfile {
             }
         }
         return this
+    }
+
+    public getSocialhistory(raw: true): CodeableConcept | undefined
+    public getSocialhistory(raw?: false): USCoreObservationOccupationProfile_Category_SocialhistorySliceInput | undefined
+    public getSocialhistory (raw?: boolean): CodeableConcept | USCoreObservationOccupationProfile_Category_SocialhistorySliceInput | undefined {
+        const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"social-history"}]} as Record<string, unknown>
+        const list = this.resource.category
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as USCoreObservationOccupationProfile_Category_SocialhistorySliceInput
+    }
+
+    public getIndustry(raw: true): ObservationComponent | undefined
+    public getIndustry(raw?: false): USCoreObservationOccupationProfile_Component_IndustrySliceInput | undefined
+    public getIndustry (raw?: boolean): ObservationComponent | USCoreObservationOccupationProfile_Component_IndustrySliceInput | undefined {
+        const match = {"code":{"coding":[{"system":"http://loinc.org","code":"86188-0"}]}} as Record<string, unknown>
+        const list = this.resource.component
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["code"]) as USCoreObservationOccupationProfile_Component_IndustrySliceInput
     }
 
 }

@@ -72,3 +72,26 @@ export const matchesValue = (value: unknown, match: unknown): boolean => {
 export const matchesSlice = (value: unknown, match: Record<string, unknown>): boolean => {
     return matchesValue(value, match)
 }
+
+export const extractComplexExtension = (extension: { extension?: Array<{ url?: string; [key: string]: unknown }> } | undefined, config: Array<{ name: string; valueField: string; isArray: boolean }>): Record<string, unknown> | undefined => {
+    if (!extension?.extension) return undefined
+    const result: Record<string, unknown> = {}
+    for (const { name, valueField, isArray } of config) {
+        const subExts = extension.extension.filter(e => e.url === name)
+        if (isArray) {
+            result[name] = subExts.map(e => (e as Record<string, unknown>)[valueField])
+        }
+        else if (subExts[0]) {
+            result[name] = (subExts[0] as Record<string, unknown>)[valueField]
+        }
+    }
+    return result
+}
+
+export const extractSliceSimplified = <T extends Record<string, unknown>>(slice: T, matchKeys: string[]): Partial<T> => {
+    const result = { ...slice } as Record<string, unknown>
+    for (const key of matchKeys) {
+        delete result[key]
+    }
+    return result as Partial<T>
+}

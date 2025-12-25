@@ -6,15 +6,28 @@ import type { ActivityDefinition } from "../../hl7-fhir-r5-core/ActivityDefiniti
 import type { Extension } from "../../hl7-fhir-r5-core/Extension";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/publishableactivitydefinition
+export interface PublishableActivityDefinition extends ActivityDefinition {
+    url: string;
+    version: string;
+    title: string;
+    experimental: boolean;
+    description: string;
+    date: string;
+}
+
 export class PublishableActivityDefinitionProfile {
     private resource: ActivityDefinition
 
-    constructor (resource?: ActivityDefinition) {
-        this.resource = resource ?? ({ resourceType: "ActivityDefinition" } as ActivityDefinition)
+    constructor (resource: ActivityDefinition) {
+        this.resource = resource
     }
 
     toResource () : ActivityDefinition {
         return this.resource
+    }
+
+    toProfile () : PublishableActivityDefinition {
+        return this.resource as PublishableActivityDefinition
     }
 
     public setKnowledgeCapability (value: Omit<Extension, "url">): this {
@@ -66,6 +79,18 @@ export class PublishableActivityDefinitionProfile {
             }
         }
         return this
+    }
+
+    public getKnowledgeCapability (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeCapability")
+    }
+
+    public getKnowledgeRepresentationLevel (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeRepresentationLevel")
+    }
+
+    public getArtifactComment (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-artifactComment")
     }
 
 }

@@ -5,23 +5,33 @@
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Observation } from "../../hl7-fhir-r4-core/Observation";
 import type { ObservationComponent } from "../../hl7-fhir-r4-core/Observation";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-average-blood-pressure
+export interface USCoreAverageBloodPressureProfile extends Observation {
+    category: CodeableConcept[];
+    subject: Reference<"Patient">;
+}
+
 export type USCoreAverageBloodPressureProfile_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
 export type USCoreAverageBloodPressureProfile_Component_SystolicSliceInput = Omit<ObservationComponent, "code">;
 export type USCoreAverageBloodPressureProfile_Component_DiastolicSliceInput = Omit<ObservationComponent, "code">;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class USCoreAverageBloodPressureProfileProfile {
     private resource: Observation
 
-    constructor (resource?: Observation) {
-        this.resource = resource ?? ({ resourceType: "Observation" } as Observation)
+    constructor (resource: Observation) {
+        this.resource = resource
     }
 
     toResource () : Observation {
         return this.resource
+    }
+
+    toProfile () : USCoreAverageBloodPressureProfile {
+        return this.resource as USCoreAverageBloodPressureProfile
     }
 
     public setVscat (input: USCoreAverageBloodPressureProfile_Category_VSCatSliceInput): this {
@@ -97,6 +107,42 @@ export class USCoreAverageBloodPressureProfileProfile {
             }
         }
         return this
+    }
+
+    public getVscat(raw: true): CodeableConcept | undefined
+    public getVscat(raw?: false): USCoreAverageBloodPressureProfile_Category_VSCatSliceInput | undefined
+    public getVscat (raw?: boolean): CodeableConcept | USCoreAverageBloodPressureProfile_Category_VSCatSliceInput | undefined {
+        const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
+        const list = this.resource.category
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as USCoreAverageBloodPressureProfile_Category_VSCatSliceInput
+    }
+
+    public getSystolic(raw: true): ObservationComponent | undefined
+    public getSystolic(raw?: false): USCoreAverageBloodPressureProfile_Component_SystolicSliceInput | undefined
+    public getSystolic (raw?: boolean): ObservationComponent | USCoreAverageBloodPressureProfile_Component_SystolicSliceInput | undefined {
+        const match = {"code":{"coding":[{"system":"http://loinc.org","code":"96608-5"}]}} as Record<string, unknown>
+        const list = this.resource.component
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["code"]) as USCoreAverageBloodPressureProfile_Component_SystolicSliceInput
+    }
+
+    public getDiastolic(raw: true): ObservationComponent | undefined
+    public getDiastolic(raw?: false): USCoreAverageBloodPressureProfile_Component_DiastolicSliceInput | undefined
+    public getDiastolic (raw?: boolean): ObservationComponent | USCoreAverageBloodPressureProfile_Component_DiastolicSliceInput | undefined {
+        const match = {"code":{"coding":[{"system":"http://loinc.org","code":"96609-3"}]}} as Record<string, unknown>
+        const list = this.resource.component
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["code"]) as USCoreAverageBloodPressureProfile_Component_DiastolicSliceInput
     }
 
 }

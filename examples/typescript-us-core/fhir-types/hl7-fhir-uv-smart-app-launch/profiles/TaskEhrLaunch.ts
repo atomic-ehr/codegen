@@ -2,24 +2,34 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Task } from "../../hl7-fhir-r4-core/Task";
 import type { TaskInput } from "../../hl7-fhir-r4-core/Task";
 
 // CanonicalURL: http://hl7.org/fhir/smart-app-launch/StructureDefinition/task-ehr-launch
+export interface TaskEhrLaunch extends Task {
+    code: CodeableConcept;
+    input: TaskInput[];
+}
+
 export type TaskEhrLaunch_Input_LaunchurlSliceInput = Omit<TaskInput, "type">;
 export type TaskEhrLaunch_Input_LaunchcontextSliceInput = Omit<TaskInput, "type">;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class TaskEhrLaunchProfile {
     private resource: Task
 
-    constructor (resource?: Task) {
-        this.resource = resource ?? ({ resourceType: "Task" } as Task)
+    constructor (resource: Task) {
+        this.resource = resource
     }
 
     toResource () : Task {
         return this.resource
+    }
+
+    toProfile () : TaskEhrLaunch {
+        return this.resource as TaskEhrLaunch
     }
 
     public setLaunchurl (input: TaskEhrLaunch_Input_LaunchurlSliceInput): this {
@@ -70,6 +80,30 @@ export class TaskEhrLaunchProfile {
             }
         }
         return this
+    }
+
+    public getLaunchurl(raw: true): TaskInput | undefined
+    public getLaunchurl(raw?: false): TaskEhrLaunch_Input_LaunchurlSliceInput | undefined
+    public getLaunchurl (raw?: boolean): TaskInput | TaskEhrLaunch_Input_LaunchurlSliceInput | undefined {
+        const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes","code":"smartonfhir-application"}]}} as Record<string, unknown>
+        const list = this.resource.input
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as TaskEhrLaunch_Input_LaunchurlSliceInput
+    }
+
+    public getLaunchcontext(raw: true): TaskInput | undefined
+    public getLaunchcontext(raw?: false): TaskEhrLaunch_Input_LaunchcontextSliceInput | undefined
+    public getLaunchcontext (raw?: boolean): TaskInput | TaskEhrLaunch_Input_LaunchcontextSliceInput | undefined {
+        const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes","code":"smartonfhir-appcontext"}]}} as Record<string, unknown>
+        const list = this.resource.input
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as TaskEhrLaunch_Input_LaunchcontextSliceInput
     }
 
 }

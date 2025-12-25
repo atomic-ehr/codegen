@@ -2,18 +2,29 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Observation } from "../../hl7-fhir-r4-core/Observation";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation
+export interface USCoreSimpleObservationProfile extends Observation {
+    category: CodeableConcept[];
+    subject: Reference<'Device' | 'Group' | "Location" /*USCoreLocationProfile*/ | "Patient" /*USCorePatientProfile*/>;
+}
+
 export class USCoreSimpleObservationProfileProfile {
     private resource: Observation
 
-    constructor (resource?: Observation) {
-        this.resource = resource ?? ({ resourceType: "Observation" } as Observation)
+    constructor (resource: Observation) {
+        this.resource = resource
     }
 
     toResource () : Observation {
         return this.resource
+    }
+
+    toProfile () : USCoreSimpleObservationProfile {
+        return this.resource as USCoreSimpleObservationProfile
     }
 
 }

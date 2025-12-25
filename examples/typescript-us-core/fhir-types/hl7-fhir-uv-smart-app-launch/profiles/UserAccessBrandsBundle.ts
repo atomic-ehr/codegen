@@ -8,8 +8,8 @@ import type { Bundle } from "../../hl7-fhir-r4-core/Bundle";
 export class UserAccessBrandsBundleProfile {
     private resource: Bundle
 
-    constructor (resource?: Bundle) {
-        this.resource = resource ?? ({ resourceType: "Bundle" } as Bundle)
+    constructor (resource: Bundle) {
+        this.resource = resource
     }
 
     toResource () : Bundle {

@@ -8,8 +8,8 @@ import type { Goal } from "../../hl7-fhir-r4-core/Goal";
 export class USCoreGoalProfileProfile {
     private resource: Goal
 
-    constructor (resource?: Goal) {
-        this.resource = resource ?? ({ resourceType: "Goal" } as Goal)
+    constructor (resource: Goal) {
+        this.resource = resource
     }
 
     toResource () : Goal {

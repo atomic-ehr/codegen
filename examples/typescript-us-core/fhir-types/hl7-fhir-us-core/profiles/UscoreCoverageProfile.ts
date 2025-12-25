@@ -2,26 +2,35 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Coverage } from "../../hl7-fhir-r4-core/Coverage";
 import type { CoverageClass } from "../../hl7-fhir-r4-core/Coverage";
 import type { Identifier } from "../../hl7-fhir-r4-core/Identifier";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-coverage
+export interface USCoreCoverageProfile extends Coverage {
+    relationship: CodeableConcept;
+}
+
 export type USCoreCoverageProfile_Identifier_MemberidSliceInput = Omit<Identifier, "type">;
 export type USCoreCoverageProfile_Class__GroupSliceInput = Omit<CoverageClass, "type">;
 export type USCoreCoverageProfile_Class__PlanSliceInput = Omit<CoverageClass, "type">;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class USCoreCoverageProfileProfile {
     private resource: Coverage
 
-    constructor (resource?: Coverage) {
-        this.resource = resource ?? ({ resourceType: "Coverage" } as Coverage)
+    constructor (resource: Coverage) {
+        this.resource = resource
     }
 
     toResource () : Coverage {
         return this.resource
+    }
+
+    toProfile () : USCoreCoverageProfile {
+        return this.resource as USCoreCoverageProfile
     }
 
     public setMemberid (input: USCoreCoverageProfile_Identifier_MemberidSliceInput): this {
@@ -97,6 +106,42 @@ export class USCoreCoverageProfileProfile {
             }
         }
         return this
+    }
+
+    public getMemberid(raw: true): Identifier | undefined
+    public getMemberid(raw?: false): USCoreCoverageProfile_Identifier_MemberidSliceInput | undefined
+    public getMemberid (raw?: boolean): Identifier | USCoreCoverageProfile_Identifier_MemberidSliceInput | undefined {
+        const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"MB"}]}} as Record<string, unknown>
+        const list = this.resource.identifier
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as USCoreCoverageProfile_Identifier_MemberidSliceInput
+    }
+
+    public getGroup(raw: true): CoverageClass | undefined
+    public getGroup(raw?: false): USCoreCoverageProfile_Class__GroupSliceInput | undefined
+    public getGroup (raw?: boolean): CoverageClass | USCoreCoverageProfile_Class__GroupSliceInput | undefined {
+        const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/coverage-class","code":"group"}]}} as Record<string, unknown>
+        const list = this.resource["class"]
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as USCoreCoverageProfile_Class__GroupSliceInput
+    }
+
+    public getPlan(raw: true): CoverageClass | undefined
+    public getPlan(raw?: false): USCoreCoverageProfile_Class__PlanSliceInput | undefined
+    public getPlan (raw?: boolean): CoverageClass | USCoreCoverageProfile_Class__PlanSliceInput | undefined {
+        const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/coverage-class","code":"plan"}]}} as Record<string, unknown>
+        const list = this.resource["class"]
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as USCoreCoverageProfile_Class__PlanSliceInput
     }
 
 }

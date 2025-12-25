@@ -2,18 +2,28 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { Identifier } from "../../hl7-fhir-r4-examples/Identifier";
 import type { RequestGroup } from "../../hl7-fhir-r4-examples/RequestGroup";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/cdshooksrequestgroup
+export interface CDS_Hooks_RequestGroup extends RequestGroup {
+    identifier: Identifier[];
+    instantiatesUri: string[];
+}
+
 export class CDS_Hooks_RequestGroupProfile {
     private resource: RequestGroup
 
-    constructor (resource?: RequestGroup) {
-        this.resource = resource ?? ({ resourceType: "RequestGroup" } as RequestGroup)
+    constructor (resource: RequestGroup) {
+        this.resource = resource
     }
 
     toResource () : RequestGroup {
         return this.resource
+    }
+
+    toProfile () : CDS_Hooks_RequestGroup {
+        return this.resource as CDS_Hooks_RequestGroup
     }
 
 }

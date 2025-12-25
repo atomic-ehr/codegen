@@ -9,8 +9,8 @@ import type { FamilyMemberHistory } from "../../hl7-fhir-r5-core/FamilyMemberHis
 export class FamilyMemberHistoryForGeneticsAnalysisProfile {
     private resource: FamilyMemberHistory
 
-    constructor (resource?: FamilyMemberHistory) {
-        this.resource = resource ?? ({ resourceType: "FamilyMemberHistory" } as FamilyMemberHistory)
+    constructor (resource: FamilyMemberHistory) {
+        this.resource = resource
     }
 
     toResource () : FamilyMemberHistory {
@@ -66,6 +66,18 @@ export class FamilyMemberHistoryForGeneticsAnalysisProfile {
             }
         }
         return this
+    }
+
+    public getParent (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/family-member-history-genetics-parent")
+    }
+
+    public getSibling (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/family-member-history-genetics-sibling")
+    }
+
+    public getObservations (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/family-member-history-genetics-observation")
     }
 
 }

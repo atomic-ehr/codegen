@@ -6,17 +6,30 @@ import type { Extension } from "../../hl7-fhir-r5-core/Extension";
 import type { ValueSet } from "../../hl7-fhir-r5-core/ValueSet";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/publishablevalueset
+export interface PublishableValueSet extends ValueSet {
+    url: string;
+    version: string;
+    title: string;
+    experimental: boolean;
+    description: string;
+    date: string;
+}
+
 import { getOrCreateObjectAtPath } from "../../profile-helpers";
 
 export class PublishableValueSetProfile {
     private resource: ValueSet
 
-    constructor (resource?: ValueSet) {
-        this.resource = resource ?? ({ resourceType: "ValueSet" } as ValueSet)
+    constructor (resource: ValueSet) {
+        this.resource = resource
     }
 
     toResource () : ValueSet {
         return this.resource
+    }
+
+    toProfile () : PublishableValueSet {
+        return this.resource as PublishableValueSet
     }
 
     public setKnowledgeRepresentationLevel (value: Omit<Extension, "url">): this {
@@ -140,6 +153,36 @@ export class PublishableValueSetProfile {
             }
         }
         return this
+    }
+
+    public getKnowledgeRepresentationLevel (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeRepresentationLevel")
+    }
+
+    public getAuthoritativeSource (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-authoritativeSource")
+    }
+
+    public getTrustedExpansion (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-trusted-expansion")
+    }
+
+    public getOtherTitle (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-otherTitle")
+    }
+
+    public getSourceReference (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-sourceReference")
+    }
+
+    public getComposeCreatedBy (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose"])
+        return (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-compose-createdBy")
+    }
+
+    public getComposeCreationDate (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose"])
+        return (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-compose-createdBy")
     }
 
 }

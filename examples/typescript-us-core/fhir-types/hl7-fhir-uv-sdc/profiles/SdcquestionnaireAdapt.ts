@@ -6,17 +6,26 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Questionnaire } from "../../hl7-fhir-r4-core/Questionnaire";
 
 // CanonicalURL: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-adapt
+export interface SDCQuestionnaireAdapt extends Questionnaire {
+    title: string;
+    derivedFrom: string[];
+}
+
 import { getOrCreateObjectAtPath } from "../../profile-helpers";
 
 export class SDCQuestionnaireAdaptProfile {
     private resource: Questionnaire
 
-    constructor (resource?: Questionnaire) {
-        this.resource = resource ?? ({ resourceType: "Questionnaire" } as Questionnaire)
+    constructor (resource: Questionnaire) {
+        this.resource = resource
     }
 
     toResource () : Questionnaire {
         return this.resource
+    }
+
+    toProfile () : SDCQuestionnaireAdapt {
+        return this.resource as SDCQuestionnaireAdapt
     }
 
     public setQuestionnaireAdaptive (value: Omit<Extension, "url">): this {
@@ -53,6 +62,20 @@ export class SDCQuestionnaireAdaptProfile {
             }
         }
         return this
+    }
+
+    public getQuestionnaireAdaptive (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive")
+    }
+
+    public getHidden(raw: true): Extension | undefined
+    public getHidden(raw?: false): boolean | undefined
+    public getHidden (raw?: boolean): Extension | boolean | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueBoolean
     }
 
 }

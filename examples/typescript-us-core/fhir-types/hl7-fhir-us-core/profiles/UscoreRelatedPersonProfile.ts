@@ -5,15 +5,23 @@
 import type { RelatedPerson } from "../../hl7-fhir-r4-core/RelatedPerson";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson
+export interface USCoreRelatedPersonProfile extends RelatedPerson {
+    active: boolean;
+}
+
 export class USCoreRelatedPersonProfileProfile {
     private resource: RelatedPerson
 
-    constructor (resource?: RelatedPerson) {
-        this.resource = resource ?? ({ resourceType: "RelatedPerson" } as RelatedPerson)
+    constructor (resource: RelatedPerson) {
+        this.resource = resource
     }
 
     toResource () : RelatedPerson {
         return this.resource
+    }
+
+    toProfile () : USCoreRelatedPersonProfile {
+        return this.resource as USCoreRelatedPersonProfile
     }
 
 }

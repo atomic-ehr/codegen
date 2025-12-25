@@ -2,18 +2,28 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Condition } from "../../hl7-fhir-r4-core/Condition";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns
+export interface USCoreConditionProblemsHealthConcernsProfile extends Condition {
+    category: CodeableConcept[];
+    code: CodeableConcept;
+}
+
 export class USCoreConditionProblemsHealthConcernsProfileProfile {
     private resource: Condition
 
-    constructor (resource?: Condition) {
-        this.resource = resource ?? ({ resourceType: "Condition" } as Condition)
+    constructor (resource: Condition) {
+        this.resource = resource
     }
 
     toResource () : Condition {
         return this.resource
+    }
+
+    toProfile () : USCoreConditionProblemsHealthConcernsProfile {
+        return this.resource as USCoreConditionProblemsHealthConcernsProfile
     }
 
     public setAssertedDate (value: string): this {
@@ -31,6 +41,15 @@ export class USCoreConditionProblemsHealthConcernsProfileProfile {
             }
         }
         return this
+    }
+
+    public getAssertedDate(raw: true): Extension | undefined
+    public getAssertedDate(raw?: false): string | undefined
+    public getAssertedDate (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/condition-assertedDate")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueDateTime
     }
 
 }
