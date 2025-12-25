@@ -5,6 +5,7 @@
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Coding } from "../../hl7-fhir-r4-core/Coding";
 import type { Encounter } from "../../hl7-fhir-r4-core/Encounter";
+import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter

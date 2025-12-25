@@ -3,6 +3,7 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
+import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Observation } from "../../hl7-fhir-r4-core/Observation";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 

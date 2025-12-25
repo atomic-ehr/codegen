@@ -35,8 +35,8 @@ export class SDCQuestionnaireAdaptProfile {
     }
 
     public setHidden (value: boolean): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden", valueBoolean: value })
         return this
     }
@@ -53,7 +53,7 @@ export class SDCQuestionnaireAdaptProfile {
     }
 
     public resetHidden (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden")
@@ -71,7 +71,7 @@ export class SDCQuestionnaireAdaptProfile {
     public getHidden(raw: true): Extension | undefined
     public getHidden(raw?: false): boolean | undefined
     public getHidden (raw?: boolean): Extension | boolean | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden")
         if (!ext) return undefined
         if (raw) return ext

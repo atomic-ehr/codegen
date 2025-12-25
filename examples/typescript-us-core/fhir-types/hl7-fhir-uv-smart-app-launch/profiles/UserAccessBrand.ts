@@ -15,19 +15,19 @@ export interface UserAccessBrand extends Organization {
 }
 
 export type UserAccessBrand_BrandInput = {
-    brandLogo?: url[];
+    brandLogo?: string[];
     brandLogoLicenseType?: Coding[];
-    brandLogoLicense?: url[];
-    brandBundle?: url[];
+    brandLogoLicense?: string[];
+    brandBundle?: string[];
 }
 
 export type UserAccessBrand_PortalInput = {
     portalName?: string;
-    portalDescription?: markdown;
-    portalUrl?: url;
-    portalLogo?: url[];
+    portalDescription?: string;
+    portalUrl?: string;
+    portalLogo?: string[];
     portalLogoLicenseType?: Coding[];
-    portalLogoLicense?: url[];
+    portalLogoLicense?: string[];
     portalEndpoint?: Reference[];
 }
 

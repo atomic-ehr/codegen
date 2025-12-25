@@ -4,6 +4,7 @@
 
 import type { Coding } from "../../hl7-fhir-r4-core/Coding";
 import type { Duration } from "../../hl7-fhir-r4-core/Duration";
+import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Questionnaire } from "../../hl7-fhir-r4-core/Questionnaire";
 
 // CanonicalURL: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-pop-obsn
@@ -53,36 +54,36 @@ export class SDCQuestionnairePopulateObservationProfile {
     }
 
     public setExtensionItemDesignNote (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/designNote", valueMarkdown: value })
         return this
     }
 
     public setExtensionItemTerminologyServer (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer", valueUrl: value })
         return this
     }
 
     public setObservationLinkPeriod (value: Duration): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod", valueDuration: value })
         return this
     }
 
     public setUnit (value: Coding): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/questionnaire-unit", valueCoding: value })
         return this
     }
 
     public setIsSubject (value: boolean): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-isSubject", valueBoolean: value })
         return this
     }
@@ -132,7 +133,7 @@ export class SDCQuestionnairePopulateObservationProfile {
     }
 
     public resetObservationLinkPeriod (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod")
@@ -144,7 +145,7 @@ export class SDCQuestionnairePopulateObservationProfile {
     }
 
     public resetUnit (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-unit")
@@ -156,7 +157,7 @@ export class SDCQuestionnairePopulateObservationProfile {
     }
 
     public resetIsSubject (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-isSubject")
@@ -206,7 +207,7 @@ export class SDCQuestionnairePopulateObservationProfile {
     public getObservationLinkPeriod(raw: true): Extension | undefined
     public getObservationLinkPeriod(raw?: false): Duration | undefined
     public getObservationLinkPeriod (raw?: boolean): Extension | Duration | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod")
         if (!ext) return undefined
         if (raw) return ext
@@ -216,7 +217,7 @@ export class SDCQuestionnairePopulateObservationProfile {
     public getUnit(raw: true): Extension | undefined
     public getUnit(raw?: false): Coding | undefined
     public getUnit (raw?: boolean): Extension | Coding | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-unit")
         if (!ext) return undefined
         if (raw) return ext
@@ -226,7 +227,7 @@ export class SDCQuestionnairePopulateObservationProfile {
     public getIsSubject(raw: true): Extension | undefined
     public getIsSubject(raw?: false): boolean | undefined
     public getIsSubject (raw?: boolean): Extension | boolean | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-isSubject")
         if (!ext) return undefined
         if (raw) return ext

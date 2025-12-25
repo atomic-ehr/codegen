@@ -2,6 +2,7 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { ValueSet } from "../../hl7-fhir-r4-core/ValueSet";
 
 // CanonicalURL: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-valueset
@@ -33,92 +34,92 @@ export class SDCValueSetProfile {
     }
 
     public setConceptLabel (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose","include","concept"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose","include","concept"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/valueset-label", valueString: value })
         return this
     }
 
     public setExtensionComposeIncludeConceptConceptConceptOrder (value: number): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose","include","concept"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose","include","concept"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/valueset-conceptOrder", valueInteger: value })
         return this
     }
 
     public setCodeDisplayRenderingStyle (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose","include","concept","display"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose","include","concept","display"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/rendering-style", valueString: value })
         return this
     }
 
     public setCodeDisplayXhtml (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose","include","concept","display"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose","include","concept","display"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/rendering-xhtml", valueString: value })
         return this
     }
 
     public setDesignationRenderingStyle (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose","include","concept","designation"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose","include","concept","designation"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/rendering-style", valueString: value })
         return this
     }
 
     public setDesignationXhtml (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose","include","concept","designation"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose","include","concept","designation"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/rendering-xhtml", valueString: value })
         return this
     }
 
     public setExpansionSource (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["expansion"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["expansion"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/valueset-expansionSource", valueUri: value })
         return this
     }
 
     public setExpansionLabel (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["expansion","contains"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["expansion","contains"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/valueset-label", valueString: value })
         return this
     }
 
     public setExtensionExpansionContainsConceptConceptOrder (value: number): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["expansion","contains"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["expansion","contains"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/valueset-conceptOrder", valueInteger: value })
         return this
     }
 
     public setExpansionDisplayRenderingStyle (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["expansion","contains","display"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["expansion","contains","display"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/rendering-style", valueString: value })
         return this
     }
 
     public setExpansionDisplayXhtml (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["expansion","contains","display"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["expansion","contains","display"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/rendering-xhtml", valueString: value })
         return this
     }
 
     public setExpansionDesignationRenderingStyle (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["expansion","contains","designation","value"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["expansion","contains","designation","value"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/rendering-style", valueString: value })
         return this
     }
 
     public setExpansionDesignationXhtml (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["expansion","contains","designation","value"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["expansion","contains","designation","value"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/rendering-xhtml", valueString: value })
         return this
     }
@@ -135,7 +136,7 @@ export class SDCValueSetProfile {
     }
 
     public resetConceptLabel (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose","include","concept"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose","include","concept"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-label")
@@ -147,7 +148,7 @@ export class SDCValueSetProfile {
     }
 
     public resetConceptConceptOrder (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose","include","concept"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose","include","concept"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-conceptOrder")
@@ -159,7 +160,7 @@ export class SDCValueSetProfile {
     }
 
     public resetCodeDisplayRenderingStyle (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose","include","concept","display"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose","include","concept","display"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
@@ -171,7 +172,7 @@ export class SDCValueSetProfile {
     }
 
     public resetCodeDisplayXhtml (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose","include","concept","display"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose","include","concept","display"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
@@ -183,7 +184,7 @@ export class SDCValueSetProfile {
     }
 
     public resetDesignationRenderingStyle (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose","include","concept","designation"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose","include","concept","designation"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
@@ -195,7 +196,7 @@ export class SDCValueSetProfile {
     }
 
     public resetDesignationXhtml (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose","include","concept","designation"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose","include","concept","designation"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
@@ -207,7 +208,7 @@ export class SDCValueSetProfile {
     }
 
     public resetExpansionSource (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["expansion"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["expansion"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-expansionSource")
@@ -219,7 +220,7 @@ export class SDCValueSetProfile {
     }
 
     public resetExpansionLabel (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["expansion","contains"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["expansion","contains"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-label")
@@ -231,7 +232,7 @@ export class SDCValueSetProfile {
     }
 
     public resetExpansionDisplayRenderingStyle (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["expansion","contains","display"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["expansion","contains","display"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
@@ -243,7 +244,7 @@ export class SDCValueSetProfile {
     }
 
     public resetExpansionDisplayXhtml (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["expansion","contains","display"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["expansion","contains","display"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
@@ -255,7 +256,7 @@ export class SDCValueSetProfile {
     }
 
     public resetExpansionDesignationRenderingStyle (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["expansion","contains","designation","value"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["expansion","contains","designation","value"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
@@ -267,7 +268,7 @@ export class SDCValueSetProfile {
     }
 
     public resetExpansionDesignationXhtml (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["expansion","contains","designation","value"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["expansion","contains","designation","value"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
@@ -290,7 +291,7 @@ export class SDCValueSetProfile {
     public getConceptLabel(raw: true): Extension | undefined
     public getConceptLabel(raw?: false): string | undefined
     public getConceptLabel (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose","include","concept"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose","include","concept"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-label")
         if (!ext) return undefined
         if (raw) return ext
@@ -300,7 +301,7 @@ export class SDCValueSetProfile {
     public getConceptConceptOrder(raw: true): Extension | undefined
     public getConceptConceptOrder(raw?: false): number | undefined
     public getConceptConceptOrder (raw?: boolean): Extension | number | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose","include","concept"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose","include","concept"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-conceptOrder")
         if (!ext) return undefined
         if (raw) return ext
@@ -310,7 +311,7 @@ export class SDCValueSetProfile {
     public getCodeDisplayRenderingStyle(raw: true): Extension | undefined
     public getCodeDisplayRenderingStyle(raw?: false): string | undefined
     public getCodeDisplayRenderingStyle (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose","include","concept","display"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose","include","concept","display"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
         if (!ext) return undefined
         if (raw) return ext
@@ -320,7 +321,7 @@ export class SDCValueSetProfile {
     public getCodeDisplayXhtml(raw: true): Extension | undefined
     public getCodeDisplayXhtml(raw?: false): string | undefined
     public getCodeDisplayXhtml (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose","include","concept","display"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose","include","concept","display"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
         if (!ext) return undefined
         if (raw) return ext
@@ -330,7 +331,7 @@ export class SDCValueSetProfile {
     public getDesignationRenderingStyle(raw: true): Extension | undefined
     public getDesignationRenderingStyle(raw?: false): string | undefined
     public getDesignationRenderingStyle (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose","include","concept","designation"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose","include","concept","designation"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
         if (!ext) return undefined
         if (raw) return ext
@@ -340,7 +341,7 @@ export class SDCValueSetProfile {
     public getDesignationXhtml(raw: true): Extension | undefined
     public getDesignationXhtml(raw?: false): string | undefined
     public getDesignationXhtml (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose","include","concept","designation"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose","include","concept","designation"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
         if (!ext) return undefined
         if (raw) return ext
@@ -350,7 +351,7 @@ export class SDCValueSetProfile {
     public getExpansionSource(raw: true): Extension | undefined
     public getExpansionSource(raw?: false): string | undefined
     public getExpansionSource (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["expansion"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["expansion"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-expansionSource")
         if (!ext) return undefined
         if (raw) return ext
@@ -360,7 +361,7 @@ export class SDCValueSetProfile {
     public getExpansionLabel(raw: true): Extension | undefined
     public getExpansionLabel(raw?: false): string | undefined
     public getExpansionLabel (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["expansion","contains"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["expansion","contains"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-label")
         if (!ext) return undefined
         if (raw) return ext
@@ -370,7 +371,7 @@ export class SDCValueSetProfile {
     public getExpansionDisplayRenderingStyle(raw: true): Extension | undefined
     public getExpansionDisplayRenderingStyle(raw?: false): string | undefined
     public getExpansionDisplayRenderingStyle (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["expansion","contains","display"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["expansion","contains","display"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
         if (!ext) return undefined
         if (raw) return ext
@@ -380,7 +381,7 @@ export class SDCValueSetProfile {
     public getExpansionDisplayXhtml(raw: true): Extension | undefined
     public getExpansionDisplayXhtml(raw?: false): string | undefined
     public getExpansionDisplayXhtml (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["expansion","contains","display"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["expansion","contains","display"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
         if (!ext) return undefined
         if (raw) return ext
@@ -390,7 +391,7 @@ export class SDCValueSetProfile {
     public getExpansionDesignationRenderingStyle(raw: true): Extension | undefined
     public getExpansionDesignationRenderingStyle(raw?: false): string | undefined
     public getExpansionDesignationRenderingStyle (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["expansion","contains","designation","value"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["expansion","contains","designation","value"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
         if (!ext) return undefined
         if (raw) return ext
@@ -400,7 +401,7 @@ export class SDCValueSetProfile {
     public getExpansionDesignationXhtml(raw: true): Extension | undefined
     public getExpansionDesignationXhtml(raw?: false): string | undefined
     public getExpansionDesignationXhtml (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["expansion","contains","designation","value"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["expansion","contains","designation","value"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
         if (!ext) return undefined
         if (raw) return ext

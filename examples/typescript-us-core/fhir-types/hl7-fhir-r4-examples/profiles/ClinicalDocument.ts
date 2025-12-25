@@ -3,6 +3,7 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { Composition } from "../../hl7-fhir-r4-examples/Composition";
+import type { Extension } from "../../hl7-fhir-r4-examples/Extension";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/clinicaldocument
 export class Clinical_DocumentProfile {

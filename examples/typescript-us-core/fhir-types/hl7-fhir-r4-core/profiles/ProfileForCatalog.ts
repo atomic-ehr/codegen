@@ -4,6 +4,7 @@
 
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Composition } from "../../hl7-fhir-r4-core/Composition";
+import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/catalog
 export interface Profile_for_Catalog extends Composition {

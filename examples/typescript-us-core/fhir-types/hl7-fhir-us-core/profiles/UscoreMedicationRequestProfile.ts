@@ -9,7 +9,7 @@ import type { MedicationRequest } from "../../hl7-fhir-r4-core/MedicationRequest
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest
 export type USCoreMedicationRequestProfile_MedicationAdherenceInput = {
     medicationAdherence: CodeableConcept;
-    dateAsserted: dateTime;
+    dateAsserted: string;
     informationSource?: CodeableConcept[];
 }
 

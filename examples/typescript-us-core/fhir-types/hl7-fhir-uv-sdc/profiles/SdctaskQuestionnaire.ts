@@ -15,9 +15,9 @@ export interface SDCTaskQuestionnaire extends Task {
     requester: Reference<'Device' | 'Organization' | 'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
 }
 
-export type SDCTaskQuestionnaire_Input_QuestionnaireSliceInput = Omit<TaskInput, "type"> & Required<Pick<TaskInput, "value">>;
-export type SDCTaskQuestionnaire_Input_ResponseEndpointSliceInput = Omit<TaskInput, "type"> & Required<Pick<TaskInput, "value">>;
-export type SDCTaskQuestionnaire_Output_ResponseSliceInput = Omit<TaskOutput, "type"> & Required<Pick<TaskOutput, "value">>;
+export type SDCTaskQuestionnaire_Input_QuestionnaireSliceInput = Omit<TaskInput, "type">;
+export type SDCTaskQuestionnaire_Input_ResponseEndpointSliceInput = Omit<TaskInput, "type">;
+export type SDCTaskQuestionnaire_Output_ResponseSliceInput = Omit<TaskOutput, "type">;
 
 import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 

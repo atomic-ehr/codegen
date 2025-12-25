@@ -63,15 +63,15 @@ export class PublishableValueSetProfile {
     }
 
     public setComposeCreatedBy (value: Omit<Extension, "url">): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/valueset-compose-createdBy", ...value })
         return this
     }
 
     public setComposeCreationDate (value: Omit<Extension, "url">): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/valueset-compose-createdBy", ...value })
         return this
     }
@@ -132,7 +132,7 @@ export class PublishableValueSetProfile {
     }
 
     public resetComposeCreatedBy (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-compose-createdBy")
@@ -144,7 +144,7 @@ export class PublishableValueSetProfile {
     }
 
     public resetComposeCreationDate (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-compose-createdBy")
@@ -176,12 +176,12 @@ export class PublishableValueSetProfile {
     }
 
     public getComposeCreatedBy (): Extension | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose"])
         return (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-compose-createdBy")
     }
 
     public getComposeCreationDate (): Extension | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["compose"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["compose"])
         return (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-compose-createdBy")
     }
 

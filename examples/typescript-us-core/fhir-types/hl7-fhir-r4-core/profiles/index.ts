@@ -14,10 +14,6 @@ export { EHRS_FM_Record_Lifecycle_Event___Audit_EventProfile } from "./EhrsFmRec
 export { EHRS_FM_Record_Lifecycle_Event___ProvenanceProfile } from "./EhrsFmRecordLifecycleEventProvenance";
 export { Evidence_Synthesis_ProfileProfile } from "./EvidenceSynthesisProfile";
 export { Example_Lipid_ProfileProfile } from "./ExampleLipidProfile";
-export { Example_Lipid_ProfileProfile } from "./ExampleLipidProfile";
-export { Example_Lipid_ProfileProfile } from "./ExampleLipidProfile";
-export { Example_Lipid_ProfileProfile } from "./ExampleLipidProfile";
-export { Example_Lipid_ProfileProfile } from "./ExampleLipidProfile";
 export { Family_member_history_for_genetics_analysisProfile } from "./FamilyMemberHistoryForGeneticsAnalysis";
 export { Group_DefinitionProfile } from "./GroupDefinition";
 export { Observation_bmiProfile } from "./ObservationBmi";

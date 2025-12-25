@@ -4,6 +4,7 @@
 
 import type { Attachment } from "../../hl7-fhir-r4-core/Attachment";
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
+import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { QuestionnaireResponse } from "../../hl7-fhir-r4-core/QuestionnaireResponse";
 import type { Signature } from "../../hl7-fhir-r4-core/Signature";
 
@@ -43,36 +44,36 @@ export class SDCQuestionnaireResponseProfile {
     }
 
     public setQuestionnaireDisplay (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["questionnaire"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["questionnaire"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/display", valueString: value })
         return this
     }
 
     public setItemMedia (value: Attachment): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemMedia", valueAttachment: value })
         return this
     }
 
     public setItemSignature (value: Signature): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/questionnaireresponse-signature", valueSignature: value })
         return this
     }
 
     public setItemAnswerMedia (value: Attachment): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","answer"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answer"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemAnswerMedia", valueAttachment: value })
         return this
     }
 
     public setOrdinalValue (value: number): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","answer"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answer"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/ordinalValue", valueDecimal: value })
         return this
     }
@@ -100,7 +101,7 @@ export class SDCQuestionnaireResponseProfile {
     }
 
     public resetQuestionnaireDisplay (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["questionnaire"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["questionnaire"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/display")
@@ -112,7 +113,7 @@ export class SDCQuestionnaireResponseProfile {
     }
 
     public resetItemMedia (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemMedia")
@@ -124,7 +125,7 @@ export class SDCQuestionnaireResponseProfile {
     }
 
     public resetItemSignature (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaireresponse-signature")
@@ -136,7 +137,7 @@ export class SDCQuestionnaireResponseProfile {
     }
 
     public resetItemAnswerMedia (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","answer"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answer"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemAnswerMedia")
@@ -148,7 +149,7 @@ export class SDCQuestionnaireResponseProfile {
     }
 
     public resetOrdinalValue (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","answer"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answer"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/ordinalValue")
@@ -180,7 +181,7 @@ export class SDCQuestionnaireResponseProfile {
     public getQuestionnaireDisplay(raw: true): Extension | undefined
     public getQuestionnaireDisplay(raw?: false): string | undefined
     public getQuestionnaireDisplay (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["questionnaire"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["questionnaire"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/display")
         if (!ext) return undefined
         if (raw) return ext
@@ -190,7 +191,7 @@ export class SDCQuestionnaireResponseProfile {
     public getItemMedia(raw: true): Extension | undefined
     public getItemMedia(raw?: false): Attachment | undefined
     public getItemMedia (raw?: boolean): Extension | Attachment | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemMedia")
         if (!ext) return undefined
         if (raw) return ext
@@ -200,7 +201,7 @@ export class SDCQuestionnaireResponseProfile {
     public getItemSignature(raw: true): Extension | undefined
     public getItemSignature(raw?: false): Signature | undefined
     public getItemSignature (raw?: boolean): Extension | Signature | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaireresponse-signature")
         if (!ext) return undefined
         if (raw) return ext
@@ -210,7 +211,7 @@ export class SDCQuestionnaireResponseProfile {
     public getItemAnswerMedia(raw: true): Extension | undefined
     public getItemAnswerMedia(raw?: false): Attachment | undefined
     public getItemAnswerMedia (raw?: boolean): Extension | Attachment | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","answer"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answer"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemAnswerMedia")
         if (!ext) return undefined
         if (raw) return ext
@@ -220,7 +221,7 @@ export class SDCQuestionnaireResponseProfile {
     public getOrdinalValue(raw: true): Extension | undefined
     public getOrdinalValue(raw?: false): number | undefined
     public getOrdinalValue (raw?: boolean): Extension | number | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","answer"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answer"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/ordinalValue")
         if (!ext) return undefined
         if (raw) return ext

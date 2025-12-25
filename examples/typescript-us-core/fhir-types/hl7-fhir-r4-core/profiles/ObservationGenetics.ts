@@ -22,17 +22,17 @@ export type Observation_genetics_AminoAcidChangeInput = {
 export type Observation_genetics_AlleleInput = {
     Name?: CodeableConcept;
     State?: CodeableConcept;
-    Frequency?: decimal;
+    Frequency?: number;
 }
 
 export type Observation_genetics_AncestryInput = {
     Name: CodeableConcept;
-    Percentage?: decimal;
+    Percentage?: number;
     Source?: CodeableConcept;
 }
 
 export type Observation_genetics_PhaseSetInput = {
-    Id?: uri;
+    Id?: string;
     MolecularSequence: Reference[];
 }
 

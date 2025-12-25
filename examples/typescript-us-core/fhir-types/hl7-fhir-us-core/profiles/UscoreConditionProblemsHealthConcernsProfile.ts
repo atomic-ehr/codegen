@@ -4,6 +4,7 @@
 
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Condition } from "../../hl7-fhir-r4-core/Condition";
+import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns
 export interface USCoreConditionProblemsHealthConcernsProfile extends Condition {
