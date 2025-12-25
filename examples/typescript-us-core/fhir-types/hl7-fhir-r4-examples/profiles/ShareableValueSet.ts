@@ -5,15 +5,28 @@
 import type { ValueSet } from "../../hl7-fhir-r4-examples/ValueSet";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/shareablevalueset
+export interface Shareable_ValueSet extends ValueSet {
+    url: string;
+    version: string;
+    name: string;
+    experimental: boolean;
+    publisher: string;
+    description: string;
+}
+
 export class Shareable_ValueSetProfile {
     private resource: ValueSet
 
-    constructor (resource?: ValueSet) {
-        this.resource = resource ?? ({ resourceType: "ValueSet" } as ValueSet)
+    constructor (resource: ValueSet) {
+        this.resource = resource
     }
 
     toResource () : ValueSet {
         return this.resource
+    }
+
+    toProfile () : Shareable_ValueSet {
+        return this.resource as Shareable_ValueSet
     }
 
 }

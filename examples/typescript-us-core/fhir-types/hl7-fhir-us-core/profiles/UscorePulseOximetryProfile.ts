@@ -5,23 +5,33 @@
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Observation } from "../../hl7-fhir-r4-core/Observation";
 import type { ObservationComponent } from "../../hl7-fhir-r4-core/Observation";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-pulse-oximetry
+export interface USCorePulseOximetryProfile extends Observation {
+    category: CodeableConcept[];
+    subject: Reference<"Patient">;
+}
+
 export type USCorePulseOximetryProfile_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
 export type USCorePulseOximetryProfile_Component_FlowRateSliceInput = Omit<ObservationComponent, "code">;
 export type USCorePulseOximetryProfile_Component_ConcentrationSliceInput = Omit<ObservationComponent, "code">;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class USCorePulseOximetryProfileProfile {
     private resource: Observation
 
-    constructor (resource?: Observation) {
-        this.resource = resource ?? ({ resourceType: "Observation" } as Observation)
+    constructor (resource: Observation) {
+        this.resource = resource
     }
 
     toResource () : Observation {
         return this.resource
+    }
+
+    toProfile () : USCorePulseOximetryProfile {
+        return this.resource as USCorePulseOximetryProfile
     }
 
     public setVscat (input: USCorePulseOximetryProfile_Category_VSCatSliceInput): this {
@@ -97,6 +107,42 @@ export class USCorePulseOximetryProfileProfile {
             }
         }
         return this
+    }
+
+    public getVscat(raw: true): CodeableConcept | undefined
+    public getVscat(raw?: false): USCorePulseOximetryProfile_Category_VSCatSliceInput | undefined
+    public getVscat (raw?: boolean): CodeableConcept | USCorePulseOximetryProfile_Category_VSCatSliceInput | undefined {
+        const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
+        const list = this.resource.category
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as USCorePulseOximetryProfile_Category_VSCatSliceInput
+    }
+
+    public getFlowRate(raw: true): ObservationComponent | undefined
+    public getFlowRate(raw?: false): USCorePulseOximetryProfile_Component_FlowRateSliceInput | undefined
+    public getFlowRate (raw?: boolean): ObservationComponent | USCorePulseOximetryProfile_Component_FlowRateSliceInput | undefined {
+        const match = {"code":{"coding":[{"system":"http://loinc.org","code":"3151-8"}]}} as Record<string, unknown>
+        const list = this.resource.component
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["code"]) as USCorePulseOximetryProfile_Component_FlowRateSliceInput
+    }
+
+    public getConcentration(raw: true): ObservationComponent | undefined
+    public getConcentration(raw?: false): USCorePulseOximetryProfile_Component_ConcentrationSliceInput | undefined
+    public getConcentration (raw?: boolean): ObservationComponent | USCorePulseOximetryProfile_Component_ConcentrationSliceInput | undefined {
+        const match = {"code":{"coding":[{"system":"http://loinc.org","code":"3150-0"}]}} as Record<string, unknown>
+        const list = this.resource.component
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["code"]) as USCorePulseOximetryProfile_Component_ConcentrationSliceInput
     }
 
 }

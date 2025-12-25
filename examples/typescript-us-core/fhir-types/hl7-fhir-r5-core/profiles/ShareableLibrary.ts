@@ -6,15 +6,26 @@ import type { Extension } from "../../hl7-fhir-r5-core/Extension";
 import type { Library } from "../../hl7-fhir-r5-core/Library";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/shareablelibrary
+export interface ShareableLibrary extends Library {
+    url: string;
+    version: string;
+    title: string;
+    description: string;
+}
+
 export class ShareableLibraryProfile {
     private resource: Library
 
-    constructor (resource?: Library) {
-        this.resource = resource ?? ({ resourceType: "Library" } as Library)
+    constructor (resource: Library) {
+        this.resource = resource
     }
 
     toResource () : Library {
         return this.resource
+    }
+
+    toProfile () : ShareableLibrary {
+        return this.resource as ShareableLibrary
     }
 
     public setKnowledgeCapability (value: Omit<Extension, "url">): this {
@@ -66,6 +77,18 @@ export class ShareableLibraryProfile {
             }
         }
         return this
+    }
+
+    public getKnowledgeCapability (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeCapability")
+    }
+
+    public getKnowledgeRepresentationLevel (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeRepresentationLevel")
+    }
+
+    public getArtifactComment (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-artifactComment")
     }
 
 }

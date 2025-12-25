@@ -8,21 +8,32 @@ import type { Library } from "../../hl7-fhir-r5-core/Library";
 import type { RelatedArtifact } from "../../hl7-fhir-r5-core/RelatedArtifact";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/elmlibrary
+export interface ELMLibrary extends Library {
+    url: string;
+    version: string;
+    title: string;
+    description: string;
+}
+
 export type ELMLibrary_RelatedArtifact_DependencySliceInput = Omit<RelatedArtifact, "type"> & Required<Pick<RelatedArtifact, "resource">>;
 export type ELMLibrary_Content_ElmXmlContentSliceInput = Omit<Attachment, "contentType"> & Required<Pick<Attachment, "data">>;
 export type ELMLibrary_Content_ElmJsonContentSliceInput = Omit<Attachment, "contentType"> & Required<Pick<Attachment, "data">>;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class ELMLibraryProfile {
     private resource: Library
 
-    constructor (resource?: Library) {
-        this.resource = resource ?? ({ resourceType: "Library" } as Library)
+    constructor (resource: Library) {
+        this.resource = resource
     }
 
     toResource () : Library {
         return this.resource
+    }
+
+    toProfile () : ELMLibrary {
+        return this.resource as ELMLibrary
     }
 
     public setKnowledgeCapability (value: Omit<Extension, "url">): this {
@@ -166,6 +177,58 @@ export class ELMLibraryProfile {
             }
         }
         return this
+    }
+
+    public getKnowledgeCapability (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeCapability")
+    }
+
+    public getKnowledgeRepresentationLevel (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeRepresentationLevel")
+    }
+
+    public getArtifactComment (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-artifactComment")
+    }
+
+    public getDirectReferenceCode (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-directReferenceCode")
+    }
+
+    public getDependency(raw: true): RelatedArtifact | undefined
+    public getDependency(raw?: false): ELMLibrary_RelatedArtifact_DependencySliceInput | undefined
+    public getDependency (raw?: boolean): RelatedArtifact | ELMLibrary_RelatedArtifact_DependencySliceInput | undefined {
+        const match = {"type":"depends-on"} as Record<string, unknown>
+        const list = this.resource.relatedArtifact
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as ELMLibrary_RelatedArtifact_DependencySliceInput
+    }
+
+    public getElmXmlContent(raw: true): Attachment | undefined
+    public getElmXmlContent(raw?: false): ELMLibrary_Content_ElmXmlContentSliceInput | undefined
+    public getElmXmlContent (raw?: boolean): Attachment | ELMLibrary_Content_ElmXmlContentSliceInput | undefined {
+        const match = {"contentType":"application/elm+xml"} as Record<string, unknown>
+        const list = this.resource.content
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["contentType"]) as ELMLibrary_Content_ElmXmlContentSliceInput
+    }
+
+    public getElmJsonContent(raw: true): Attachment | undefined
+    public getElmJsonContent(raw?: false): ELMLibrary_Content_ElmJsonContentSliceInput | undefined
+    public getElmJsonContent (raw?: boolean): Attachment | ELMLibrary_Content_ElmJsonContentSliceInput | undefined {
+        const match = {"contentType":"application/elm+json"} as Record<string, unknown>
+        const list = this.resource.content
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["contentType"]) as ELMLibrary_Content_ElmJsonContentSliceInput
     }
 
 }

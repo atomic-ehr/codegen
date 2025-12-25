@@ -3,17 +3,29 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { Bundle } from "../../hl7-fhir-r5-core/Bundle";
+import type { BundleEntry } from "../../hl7-fhir-r5-core/Bundle";
+import type { Identifier } from "../../hl7-fhir-r5-core/Identifier";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/document-bundle
+export interface DocumentBundle extends Bundle {
+    identifier: Identifier;
+    timestamp: string;
+    entry: BundleEntry[];
+}
+
 export class DocumentBundleProfile {
     private resource: Bundle
 
-    constructor (resource?: Bundle) {
-        this.resource = resource ?? ({ resourceType: "Bundle" } as Bundle)
+    constructor (resource: Bundle) {
+        this.resource = resource
     }
 
     toResource () : Bundle {
         return this.resource
+    }
+
+    toProfile () : DocumentBundle {
+        return this.resource as DocumentBundle
     }
 
 }

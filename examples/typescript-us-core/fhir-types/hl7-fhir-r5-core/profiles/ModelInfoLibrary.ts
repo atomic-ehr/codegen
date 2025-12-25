@@ -7,20 +7,31 @@ import type { Extension } from "../../hl7-fhir-r5-core/Extension";
 import type { Library } from "../../hl7-fhir-r5-core/Library";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/modelinfolibrary
+export interface ModelInfoLibrary extends Library {
+    url: string;
+    version: string;
+    title: string;
+    description: string;
+}
+
 export type ModelInfoLibrary_Content_ModelInfoXmlContentSliceInput = Omit<Attachment, "contentType"> & Required<Pick<Attachment, "data">>;
 export type ModelInfoLibrary_Content_ModelInfoJsonContentSliceInput = Omit<Attachment, "contentType"> & Required<Pick<Attachment, "data">>;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class ModelInfoLibraryProfile {
     private resource: Library
 
-    constructor (resource?: Library) {
-        this.resource = resource ?? ({ resourceType: "Library" } as Library)
+    constructor (resource: Library) {
+        this.resource = resource
     }
 
     toResource () : Library {
         return this.resource
+    }
+
+    toProfile () : ModelInfoLibrary {
+        return this.resource as ModelInfoLibrary
     }
 
     public setKnowledgeCapability (value: Omit<Extension, "url">): this {
@@ -122,6 +133,42 @@ export class ModelInfoLibraryProfile {
             }
         }
         return this
+    }
+
+    public getKnowledgeCapability (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeCapability")
+    }
+
+    public getKnowledgeRepresentationLevel (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeRepresentationLevel")
+    }
+
+    public getArtifactComment (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-artifactComment")
+    }
+
+    public getModelInfoXmlContent(raw: true): Attachment | undefined
+    public getModelInfoXmlContent(raw?: false): ModelInfoLibrary_Content_ModelInfoXmlContentSliceInput | undefined
+    public getModelInfoXmlContent (raw?: boolean): Attachment | ModelInfoLibrary_Content_ModelInfoXmlContentSliceInput | undefined {
+        const match = {"contentType":"application/xml"} as Record<string, unknown>
+        const list = this.resource.content
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["contentType"]) as ModelInfoLibrary_Content_ModelInfoXmlContentSliceInput
+    }
+
+    public getModelInfoJsonContent(raw: true): Attachment | undefined
+    public getModelInfoJsonContent(raw?: false): ModelInfoLibrary_Content_ModelInfoJsonContentSliceInput | undefined
+    public getModelInfoJsonContent (raw?: boolean): Attachment | ModelInfoLibrary_Content_ModelInfoJsonContentSliceInput | undefined {
+        const match = {"contentType":"application/json"} as Record<string, unknown>
+        const list = this.resource.content
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["contentType"]) as ModelInfoLibrary_Content_ModelInfoJsonContentSliceInput
     }
 
 }

@@ -2,18 +2,30 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { DocumentReference } from "../../hl7-fhir-r4-core/DocumentReference";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference
+export interface USCoreDocumentReferenceProfile extends DocumentReference {
+    type: CodeableConcept;
+    category: CodeableConcept[];
+    subject: Reference<'Device' | 'Group' | 'Practitioner' | "Patient" /*USCorePatientProfile*/>;
+}
+
 export class USCoreDocumentReferenceProfileProfile {
     private resource: DocumentReference
 
-    constructor (resource?: DocumentReference) {
-        this.resource = resource ?? ({ resourceType: "DocumentReference" } as DocumentReference)
+    constructor (resource: DocumentReference) {
+        this.resource = resource
     }
 
     toResource () : DocumentReference {
         return this.resource
+    }
+
+    toProfile () : USCoreDocumentReferenceProfile {
+        return this.resource as USCoreDocumentReferenceProfile
     }
 
 }

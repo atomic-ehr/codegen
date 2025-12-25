@@ -10,13 +10,13 @@ export type SDCLibrary_Content_CqlContentSliceInput = Omit<Attachment, "contentT
 export type SDCLibrary_Content_FhirpathContentSliceInput = Omit<Attachment, "contentType"> & Required<Pick<Attachment, "data">>;
 export type SDCLibrary_Content_QueryContentSliceInput = Omit<Attachment, "contentType"> & Required<Pick<Attachment, "data">>;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class SDCLibraryProfile {
     private resource: Library
 
-    constructor (resource?: Library) {
-        this.resource = resource ?? ({ resourceType: "Library" } as Library)
+    constructor (resource: Library) {
+        this.resource = resource
     }
 
     toResource () : Library {
@@ -96,6 +96,42 @@ export class SDCLibraryProfile {
             }
         }
         return this
+    }
+
+    public getCqlContent(raw: true): Attachment | undefined
+    public getCqlContent(raw?: false): SDCLibrary_Content_CqlContentSliceInput | undefined
+    public getCqlContent (raw?: boolean): Attachment | SDCLibrary_Content_CqlContentSliceInput | undefined {
+        const match = {"contentType":"text/cql"} as Record<string, unknown>
+        const list = this.resource.content
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["contentType"]) as SDCLibrary_Content_CqlContentSliceInput
+    }
+
+    public getFhirpathContent(raw: true): Attachment | undefined
+    public getFhirpathContent(raw?: false): SDCLibrary_Content_FhirpathContentSliceInput | undefined
+    public getFhirpathContent (raw?: boolean): Attachment | SDCLibrary_Content_FhirpathContentSliceInput | undefined {
+        const match = {"contentType":"text/fhirpath"} as Record<string, unknown>
+        const list = this.resource.content
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["contentType"]) as SDCLibrary_Content_FhirpathContentSliceInput
+    }
+
+    public getQueryContent(raw: true): Attachment | undefined
+    public getQueryContent(raw?: false): SDCLibrary_Content_QueryContentSliceInput | undefined
+    public getQueryContent (raw?: boolean): Attachment | SDCLibrary_Content_QueryContentSliceInput | undefined {
+        const match = {"contentType":"application/x-fhir-query"} as Record<string, unknown>
+        const list = this.resource.content
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["contentType"]) as SDCLibrary_Content_QueryContentSliceInput
     }
 
 }

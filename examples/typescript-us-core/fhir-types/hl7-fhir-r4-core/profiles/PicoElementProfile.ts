@@ -8,8 +8,8 @@ import type { EvidenceVariable } from "../../hl7-fhir-r4-core/EvidenceVariable";
 export class PICO_Element_ProfileProfile {
     private resource: EvidenceVariable
 
-    constructor (resource?: EvidenceVariable) {
-        this.resource = resource ?? ({ resourceType: "EvidenceVariable" } as EvidenceVariable)
+    constructor (resource: EvidenceVariable) {
+        this.resource = resource
     }
 
     toResource () : EvidenceVariable {

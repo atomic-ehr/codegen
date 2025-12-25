@@ -6,15 +6,27 @@ import type { Extension } from "../../hl7-fhir-r5-core/Extension";
 import type { ValueSet } from "../../hl7-fhir-r5-core/ValueSet";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/computablevalueset
+export interface ComputableValueSet extends ValueSet {
+    url: string;
+    version: string;
+    title: string;
+    experimental: boolean;
+    description: string;
+}
+
 export class ComputableValueSetProfile {
     private resource: ValueSet
 
-    constructor (resource?: ValueSet) {
-        this.resource = resource ?? ({ resourceType: "ValueSet" } as ValueSet)
+    constructor (resource: ValueSet) {
+        this.resource = resource
     }
 
     toResource () : ValueSet {
         return this.resource
+    }
+
+    toProfile () : ComputableValueSet {
+        return this.resource as ComputableValueSet
     }
 
     public setKnowledgeRepresentationLevel (value: Omit<Extension, "url">): this {
@@ -100,6 +112,26 @@ export class ComputableValueSetProfile {
             }
         }
         return this
+    }
+
+    public getKnowledgeRepresentationLevel (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeRepresentationLevel")
+    }
+
+    public getAuthoritativeSource (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-authoritativeSource")
+    }
+
+    public getRulesText (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-rules-text")
+    }
+
+    public getExpression (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-expression")
+    }
+
+    public getSupplement (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/valueset-supplement")
     }
 
 }

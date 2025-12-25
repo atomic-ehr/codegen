@@ -8,13 +8,13 @@ import type { ParametersParameter } from "../../hl7-fhir-r4-core/Parameters";
 // CanonicalURL: http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-process-response-in
 export type SDCParametersQuestionnaireProcessResponseIn_Parameter_InSliceInput = Omit<ParametersParameter, "name">;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class SDCParametersQuestionnaireProcessResponseInProfile {
     private resource: Parameters
 
-    constructor (resource?: Parameters) {
-        this.resource = resource ?? ({ resourceType: "Parameters" } as Parameters)
+    constructor (resource: Parameters) {
+        this.resource = resource
     }
 
     toResource () : Parameters {
@@ -44,6 +44,18 @@ export class SDCParametersQuestionnaireProcessResponseInProfile {
             }
         }
         return this
+    }
+
+    public getIn(raw: true): ParametersParameter | undefined
+    public getIn(raw?: false): SDCParametersQuestionnaireProcessResponseIn_Parameter_InSliceInput | undefined
+    public getIn (raw?: boolean): ParametersParameter | SDCParametersQuestionnaireProcessResponseIn_Parameter_InSliceInput | undefined {
+        const match = {"name":"in"} as Record<string, unknown>
+        const list = this.resource.parameter
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["name"]) as SDCParametersQuestionnaireProcessResponseIn_Parameter_InSliceInput
     }
 
 }

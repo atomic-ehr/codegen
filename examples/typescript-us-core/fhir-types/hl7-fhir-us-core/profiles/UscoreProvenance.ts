@@ -9,13 +9,13 @@ import type { ProvenanceAgent } from "../../hl7-fhir-r4-core/Provenance";
 export type USCoreProvenance_Agent_ProvenanceAuthorSliceInput = Omit<ProvenanceAgent, "type">;
 export type USCoreProvenance_Agent_ProvenanceTransmitterSliceInput = Omit<ProvenanceAgent, "type">;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class USCoreProvenanceProfile {
     private resource: Provenance
 
-    constructor (resource?: Provenance) {
-        this.resource = resource ?? ({ resourceType: "Provenance" } as Provenance)
+    constructor (resource: Provenance) {
+        this.resource = resource
     }
 
     toResource () : Provenance {
@@ -70,6 +70,30 @@ export class USCoreProvenanceProfile {
             }
         }
         return this
+    }
+
+    public getProvenanceAuthor(raw: true): ProvenanceAgent | undefined
+    public getProvenanceAuthor(raw?: false): USCoreProvenance_Agent_ProvenanceAuthorSliceInput | undefined
+    public getProvenanceAuthor (raw?: boolean): ProvenanceAgent | USCoreProvenance_Agent_ProvenanceAuthorSliceInput | undefined {
+        const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/provenance-participant-type","code":"author"}]}} as Record<string, unknown>
+        const list = this.resource.agent
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as USCoreProvenance_Agent_ProvenanceAuthorSliceInput
+    }
+
+    public getProvenanceTransmitter(raw: true): ProvenanceAgent | undefined
+    public getProvenanceTransmitter(raw?: false): USCoreProvenance_Agent_ProvenanceTransmitterSliceInput | undefined
+    public getProvenanceTransmitter (raw?: boolean): ProvenanceAgent | USCoreProvenance_Agent_ProvenanceTransmitterSliceInput | undefined {
+        const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/us/core/CodeSystem/us-core-provenance-participant-type","code":"transmitter"}]}} as Record<string, unknown>
+        const list = this.resource.agent
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as USCoreProvenance_Agent_ProvenanceTransmitterSliceInput
     }
 
 }

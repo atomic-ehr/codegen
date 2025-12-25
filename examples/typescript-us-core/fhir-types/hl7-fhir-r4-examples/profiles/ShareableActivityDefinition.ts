@@ -5,15 +5,28 @@
 import type { ActivityDefinition } from "../../hl7-fhir-r4-examples/ActivityDefinition";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/shareableactivitydefinition
+export interface Shareable_ActivityDefinition extends ActivityDefinition {
+    url: string;
+    version: string;
+    name: string;
+    experimental: boolean;
+    publisher: string;
+    description: string;
+}
+
 export class Shareable_ActivityDefinitionProfile {
     private resource: ActivityDefinition
 
-    constructor (resource?: ActivityDefinition) {
-        this.resource = resource ?? ({ resourceType: "ActivityDefinition" } as ActivityDefinition)
+    constructor (resource: ActivityDefinition) {
+        this.resource = resource
     }
 
     toResource () : ActivityDefinition {
         return this.resource
+    }
+
+    toProfile () : Shareable_ActivityDefinition {
+        return this.resource as Shareable_ActivityDefinition
     }
 
 }

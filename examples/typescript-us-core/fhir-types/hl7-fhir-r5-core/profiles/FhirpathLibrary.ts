@@ -8,20 +8,31 @@ import type { Library } from "../../hl7-fhir-r5-core/Library";
 import type { RelatedArtifact } from "../../hl7-fhir-r5-core/RelatedArtifact";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/fhirpathlibrary
+export interface FHIRPathLibrary extends Library {
+    url: string;
+    version: string;
+    title: string;
+    description: string;
+}
+
 export type FHIRPathLibrary_RelatedArtifact_DependencySliceInput = Omit<RelatedArtifact, "type"> & Required<Pick<RelatedArtifact, "resource">>;
 export type FHIRPathLibrary_Content_FhirPathContentSliceInput = Omit<Attachment, "contentType"> & Required<Pick<Attachment, "data" | "id">>;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class FHIRPathLibraryProfile {
     private resource: Library
 
-    constructor (resource?: Library) {
-        this.resource = resource ?? ({ resourceType: "Library" } as Library)
+    constructor (resource: Library) {
+        this.resource = resource
     }
 
     toResource () : Library {
         return this.resource
+    }
+
+    toProfile () : FHIRPathLibrary {
+        return this.resource as FHIRPathLibrary
     }
 
     public setKnowledgeCapability (value: Omit<Extension, "url">): this {
@@ -140,6 +151,46 @@ export class FHIRPathLibraryProfile {
             }
         }
         return this
+    }
+
+    public getKnowledgeCapability (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeCapability")
+    }
+
+    public getKnowledgeRepresentationLevel (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeRepresentationLevel")
+    }
+
+    public getArtifactComment (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-artifactComment")
+    }
+
+    public getDirectReferenceCode (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-directReferenceCode")
+    }
+
+    public getDependency(raw: true): RelatedArtifact | undefined
+    public getDependency(raw?: false): FHIRPathLibrary_RelatedArtifact_DependencySliceInput | undefined
+    public getDependency (raw?: boolean): RelatedArtifact | FHIRPathLibrary_RelatedArtifact_DependencySliceInput | undefined {
+        const match = {"type":"depends-on"} as Record<string, unknown>
+        const list = this.resource.relatedArtifact
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as FHIRPathLibrary_RelatedArtifact_DependencySliceInput
+    }
+
+    public getFhirPathContent(raw: true): Attachment | undefined
+    public getFhirPathContent(raw?: false): FHIRPathLibrary_Content_FhirPathContentSliceInput | undefined
+    public getFhirPathContent (raw?: boolean): Attachment | FHIRPathLibrary_Content_FhirPathContentSliceInput | undefined {
+        const match = {"contentType":"text/fhirpath"} as Record<string, unknown>
+        const list = this.resource.content
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["contentType"]) as FHIRPathLibrary_Content_FhirPathContentSliceInput
     }
 
 }

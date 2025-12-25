@@ -2,26 +2,38 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import type { Task } from "../../hl7-fhir-r4-core/Task";
 import type { TaskInput } from "../../hl7-fhir-r4-core/Task";
 import type { TaskOutput } from "../../hl7-fhir-r4-core/Task";
 
 // CanonicalURL: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-task
+export interface SDCTaskQuestionnaire extends Task {
+    code: CodeableConcept;
+    authoredOn: string;
+    requester: Reference<'Device' | 'Organization' | 'Patient' | 'Practitioner' | 'PractitionerRole' | 'RelatedPerson'>;
+}
+
 export type SDCTaskQuestionnaire_Input_QuestionnaireSliceInput = Omit<TaskInput, "type"> & Required<Pick<TaskInput, "value">>;
 export type SDCTaskQuestionnaire_Input_ResponseEndpointSliceInput = Omit<TaskInput, "type"> & Required<Pick<TaskInput, "value">>;
 export type SDCTaskQuestionnaire_Output_ResponseSliceInput = Omit<TaskOutput, "type"> & Required<Pick<TaskOutput, "value">>;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class SDCTaskQuestionnaireProfile {
     private resource: Task
 
-    constructor (resource?: Task) {
-        this.resource = resource ?? ({ resourceType: "Task" } as Task)
+    constructor (resource: Task) {
+        this.resource = resource
     }
 
     toResource () : Task {
         return this.resource
+    }
+
+    toProfile () : SDCTaskQuestionnaire {
+        return this.resource as SDCTaskQuestionnaire
     }
 
     public setQuestionnaire (input: SDCTaskQuestionnaire_Input_QuestionnaireSliceInput): this {
@@ -97,6 +109,42 @@ export class SDCTaskQuestionnaireProfile {
             }
         }
         return this
+    }
+
+    public getQuestionnaire(raw: true): TaskInput | undefined
+    public getQuestionnaire(raw?: false): SDCTaskQuestionnaire_Input_QuestionnaireSliceInput | undefined
+    public getQuestionnaire (raw?: boolean): TaskInput | SDCTaskQuestionnaire_Input_QuestionnaireSliceInput | undefined {
+        const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/uv/sdc/CodeSystem/temp","code":"questionnaire"}]}} as Record<string, unknown>
+        const list = this.resource.input
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as SDCTaskQuestionnaire_Input_QuestionnaireSliceInput
+    }
+
+    public getResponseEndpoint(raw: true): TaskInput | undefined
+    public getResponseEndpoint(raw?: false): SDCTaskQuestionnaire_Input_ResponseEndpointSliceInput | undefined
+    public getResponseEndpoint (raw?: boolean): TaskInput | SDCTaskQuestionnaire_Input_ResponseEndpointSliceInput | undefined {
+        const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/uv/sdc/CodeSystem/temp","code":"response-endpoint"}]}} as Record<string, unknown>
+        const list = this.resource.input
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as SDCTaskQuestionnaire_Input_ResponseEndpointSliceInput
+    }
+
+    public getResponse(raw: true): TaskOutput | undefined
+    public getResponse(raw?: false): SDCTaskQuestionnaire_Output_ResponseSliceInput | undefined
+    public getResponse (raw?: boolean): TaskOutput | SDCTaskQuestionnaire_Output_ResponseSliceInput | undefined {
+        const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/uv/sdc/CodeSystem/temp","code":"questionnaire-response"}]}} as Record<string, unknown>
+        const list = this.resource.output
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as SDCTaskQuestionnaire_Output_ResponseSliceInput
     }
 
 }

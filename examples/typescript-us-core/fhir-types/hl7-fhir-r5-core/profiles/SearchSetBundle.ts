@@ -8,13 +8,13 @@ import type { BundleEntry } from "../../hl7-fhir-r5-core/Bundle";
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/search-set-bundle
 export type SearchSetBundle_Entry_OperationOutcomeSliceInput = Omit<BundleEntry, "search"> & Required<Pick<BundleEntry, "fullUrl" | "resource">>;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class SearchSetBundleProfile {
     private resource: Bundle
 
-    constructor (resource?: Bundle) {
-        this.resource = resource ?? ({ resourceType: "Bundle" } as Bundle)
+    constructor (resource: Bundle) {
+        this.resource = resource
     }
 
     toResource () : Bundle {
@@ -44,6 +44,18 @@ export class SearchSetBundleProfile {
             }
         }
         return this
+    }
+
+    public getOperationOutcome(raw: true): BundleEntry | undefined
+    public getOperationOutcome(raw?: false): SearchSetBundle_Entry_OperationOutcomeSliceInput | undefined
+    public getOperationOutcome (raw?: boolean): BundleEntry | SearchSetBundle_Entry_OperationOutcomeSliceInput | undefined {
+        const match = {"search":{"mode":"outcome"}} as Record<string, unknown>
+        const list = this.resource.entry
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["search"]) as SearchSetBundle_Entry_OperationOutcomeSliceInput
     }
 
 }

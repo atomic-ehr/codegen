@@ -6,15 +6,26 @@ import type { Extension } from "../../hl7-fhir-r5-core/Extension";
 import type { NamingSystem } from "../../hl7-fhir-r5-core/NamingSystem";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/shareablenamingsystem
+export interface ShareableNamingSystem extends NamingSystem {
+    url: string;
+    version: string;
+    title: string;
+    description: string;
+}
+
 export class ShareableNamingSystemProfile {
     private resource: NamingSystem
 
-    constructor (resource?: NamingSystem) {
-        this.resource = resource ?? ({ resourceType: "NamingSystem" } as NamingSystem)
+    constructor (resource: NamingSystem) {
+        this.resource = resource
     }
 
     toResource () : NamingSystem {
         return this.resource
+    }
+
+    toProfile () : ShareableNamingSystem {
+        return this.resource as ShareableNamingSystem
     }
 
     public setKnowledgeRepresentationLevel (value: Omit<Extension, "url">): this {
@@ -32,6 +43,10 @@ export class ShareableNamingSystemProfile {
             }
         }
         return this
+    }
+
+    public getKnowledgeRepresentationLevel (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeRepresentationLevel")
     }
 
 }

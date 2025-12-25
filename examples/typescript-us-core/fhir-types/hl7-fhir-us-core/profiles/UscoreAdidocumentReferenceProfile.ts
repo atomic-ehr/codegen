@@ -2,18 +2,30 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { DocumentReference } from "../../hl7-fhir-r4-core/DocumentReference";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-adi-documentreference
+export interface USCoreADIDocumentReferenceProfile extends DocumentReference {
+    type: CodeableConcept;
+    category: CodeableConcept[];
+    subject: Reference<'Device' | 'Group' | 'Practitioner' | "Patient" /*USCorePatientProfile*/>;
+}
+
 export class USCoreADIDocumentReferenceProfileProfile {
     private resource: DocumentReference
 
-    constructor (resource?: DocumentReference) {
-        this.resource = resource ?? ({ resourceType: "DocumentReference" } as DocumentReference)
+    constructor (resource: DocumentReference) {
+        this.resource = resource
     }
 
     toResource () : DocumentReference {
         return this.resource
+    }
+
+    toProfile () : USCoreADIDocumentReferenceProfile {
+        return this.resource as USCoreADIDocumentReferenceProfile
     }
 
     public setAuthenticationTime (value: string): this {
@@ -31,6 +43,15 @@ export class USCoreADIDocumentReferenceProfileProfile {
             }
         }
         return this
+    }
+
+    public getAuthenticationTime(raw: true): Extension | undefined
+    public getAuthenticationTime(raw?: false): string | undefined
+    public getAuthenticationTime (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-authentication-time")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueDateTime
     }
 
 }

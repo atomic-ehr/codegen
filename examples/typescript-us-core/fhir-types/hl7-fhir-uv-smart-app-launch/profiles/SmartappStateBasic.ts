@@ -8,8 +8,8 @@ import type { Basic } from "../../hl7-fhir-r4-core/Basic";
 export class SMARTAppStateBasicProfile {
     private resource: Basic
 
-    constructor (resource?: Basic) {
-        this.resource = resource ?? ({ resourceType: "Basic" } as Basic)
+    constructor (resource: Basic) {
+        this.resource = resource
     }
 
     toResource () : Basic {

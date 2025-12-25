@@ -2,18 +2,27 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Composition } from "../../hl7-fhir-r4-core/Composition";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/catalog
+export interface Profile_for_Catalog extends Composition {
+    category: CodeableConcept[];
+}
+
 export class Profile_for_CatalogProfile {
     private resource: Composition
 
-    constructor (resource?: Composition) {
-        this.resource = resource ?? ({ resourceType: "Composition" } as Composition)
+    constructor (resource: Composition) {
+        this.resource = resource
     }
 
     toResource () : Composition {
         return this.resource
+    }
+
+    toProfile () : Profile_for_Catalog {
+        return this.resource as Profile_for_Catalog
     }
 
     public setValidityPeriod (value: string): this {
@@ -31,6 +40,15 @@ export class Profile_for_CatalogProfile {
             }
         }
         return this
+    }
+
+    public getValidityPeriod(raw: true): Extension | undefined
+    public getValidityPeriod(raw?: false): string | undefined
+    public getValidityPeriod (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqm-ValidityPeriod")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueDateTime
     }
 
 }

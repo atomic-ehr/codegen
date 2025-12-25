@@ -5,15 +5,27 @@
 import type { TestScript } from "../../hl7-fhir-r5-core/TestScript";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/shareabletestscript
+export interface ShareableTestScript extends TestScript {
+    url: string;
+    version: string;
+    experimental: boolean;
+    publisher: string;
+    description: string;
+}
+
 export class ShareableTestScriptProfile {
     private resource: TestScript
 
-    constructor (resource?: TestScript) {
-        this.resource = resource ?? ({ resourceType: "TestScript" } as TestScript)
+    constructor (resource: TestScript) {
+        this.resource = resource
     }
 
     toResource () : TestScript {
         return this.resource
+    }
+
+    toProfile () : ShareableTestScript {
+        return this.resource as ShareableTestScript
     }
 
 }

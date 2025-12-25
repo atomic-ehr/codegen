@@ -8,8 +8,8 @@ import type { Composition } from "../../hl7-fhir-r4-core/Composition";
 export class Clinical_DocumentProfile {
     private resource: Composition
 
-    constructor (resource?: Composition) {
-        this.resource = resource ?? ({ resourceType: "Composition" } as Composition)
+    constructor (resource: Composition) {
+        this.resource = resource
     }
 
     toResource () : Composition {
@@ -31,6 +31,15 @@ export class Clinical_DocumentProfile {
             }
         }
         return this
+    }
+
+    public getVersionNumber(raw: true): Extension | undefined
+    public getVersionNumber(raw?: false): string | undefined
+    public getVersionNumber (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/composition-clinicaldocument-versionNumber")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueString
     }
 
 }

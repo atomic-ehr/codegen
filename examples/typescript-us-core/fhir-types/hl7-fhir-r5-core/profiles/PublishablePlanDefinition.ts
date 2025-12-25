@@ -6,15 +6,27 @@ import type { Extension } from "../../hl7-fhir-r5-core/Extension";
 import type { PlanDefinition } from "../../hl7-fhir-r5-core/PlanDefinition";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/publishableplandefinition
+export interface PublishablePlanDefinition extends PlanDefinition {
+    url: string;
+    version: string;
+    title: string;
+    description: string;
+    date: string;
+}
+
 export class PublishablePlanDefinitionProfile {
     private resource: PlanDefinition
 
-    constructor (resource?: PlanDefinition) {
-        this.resource = resource ?? ({ resourceType: "PlanDefinition" } as PlanDefinition)
+    constructor (resource: PlanDefinition) {
+        this.resource = resource
     }
 
     toResource () : PlanDefinition {
         return this.resource
+    }
+
+    toProfile () : PublishablePlanDefinition {
+        return this.resource as PublishablePlanDefinition
     }
 
     public setKnowledgeCapability (value: Omit<Extension, "url">): this {
@@ -66,6 +78,18 @@ export class PublishablePlanDefinitionProfile {
             }
         }
         return this
+    }
+
+    public getKnowledgeCapability (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeCapability")
+    }
+
+    public getKnowledgeRepresentationLevel (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeRepresentationLevel")
+    }
+
+    public getArtifactComment (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-artifactComment")
     }
 
 }

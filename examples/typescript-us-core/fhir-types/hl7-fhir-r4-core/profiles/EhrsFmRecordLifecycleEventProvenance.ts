@@ -8,8 +8,8 @@ import type { Provenance } from "../../hl7-fhir-r4-core/Provenance";
 export class EHRS_FM_Record_Lifecycle_Event___ProvenanceProfile {
     private resource: Provenance
 
-    constructor (resource?: Provenance) {
-        this.resource = resource ?? ({ resourceType: "Provenance" } as Provenance)
+    constructor (resource: Provenance) {
+        this.resource = resource
     }
 
     toResource () : Provenance {

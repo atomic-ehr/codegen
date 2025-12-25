@@ -3,17 +3,28 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { GuidanceResponse } from "../../hl7-fhir-r4-examples/GuidanceResponse";
+import type { Identifier } from "../../hl7-fhir-r4-examples/Identifier";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/cdshooksguidanceresponse
+export interface CDS_Hooks_GuidanceResponse extends GuidanceResponse {
+    requestIdentifier: Identifier;
+    identifier: Identifier[];
+    moduleUri: string;
+}
+
 export class CDS_Hooks_GuidanceResponseProfile {
     private resource: GuidanceResponse
 
-    constructor (resource?: GuidanceResponse) {
-        this.resource = resource ?? ({ resourceType: "GuidanceResponse" } as GuidanceResponse)
+    constructor (resource: GuidanceResponse) {
+        this.resource = resource
     }
 
     toResource () : GuidanceResponse {
         return this.resource
+    }
+
+    toProfile () : CDS_Hooks_GuidanceResponse {
+        return this.resource as CDS_Hooks_GuidanceResponse
     }
 
     public setCdsHooksEndpoint (value: string): this {
@@ -31,6 +42,15 @@ export class CDS_Hooks_GuidanceResponseProfile {
             }
         }
         return this
+    }
+
+    public getCdsHooksEndpoint(raw: true): Extension | undefined
+    public getCdsHooksEndpoint(raw?: false): string | undefined
+    public getCdsHooksEndpoint (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-cdsHooksEndpoint")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueUri
     }
 
 }

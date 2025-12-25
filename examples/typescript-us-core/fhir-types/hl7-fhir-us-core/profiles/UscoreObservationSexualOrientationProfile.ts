@@ -3,17 +3,26 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { Observation } from "../../hl7-fhir-r4-core/Observation";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-sexual-orientation
+export interface USCoreObservationSexualOrientationProfile extends Observation {
+    subject: Reference<"Patient">;
+}
+
 export class USCoreObservationSexualOrientationProfileProfile {
     private resource: Observation
 
-    constructor (resource?: Observation) {
-        this.resource = resource ?? ({ resourceType: "Observation" } as Observation)
+    constructor (resource: Observation) {
+        this.resource = resource
     }
 
     toResource () : Observation {
         return this.resource
+    }
+
+    toProfile () : USCoreObservationSexualOrientationProfile {
+        return this.resource as USCoreObservationSexualOrientationProfile
     }
 
 }

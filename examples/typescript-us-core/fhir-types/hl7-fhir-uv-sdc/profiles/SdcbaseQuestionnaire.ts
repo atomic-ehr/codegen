@@ -5,17 +5,25 @@
 import type { Questionnaire } from "../../hl7-fhir-r4-core/Questionnaire";
 
 // CanonicalURL: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire
+export interface SDCBaseQuestionnaire extends Questionnaire {
+    url: string;
+}
+
 import { getOrCreateObjectAtPath } from "../../profile-helpers";
 
 export class SDCBaseQuestionnaireProfile {
     private resource: Questionnaire
 
-    constructor (resource?: Questionnaire) {
-        this.resource = resource ?? ({ resourceType: "Questionnaire" } as Questionnaire)
+    constructor (resource: Questionnaire) {
+        this.resource = resource
     }
 
     toResource () : Questionnaire {
         return this.resource
+    }
+
+    toProfile () : SDCBaseQuestionnaire {
+        return this.resource as SDCBaseQuestionnaire
     }
 
     public setExtensionDesignNote (value: string): this {
@@ -98,6 +106,42 @@ export class SDCBaseQuestionnaireProfile {
             }
         }
         return this
+    }
+
+    public getDesignNote(raw: true): Extension | undefined
+    public getDesignNote(raw?: false): string | undefined
+    public getDesignNote (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/designNote")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueMarkdown
+    }
+
+    public getTerminologyServer(raw: true): Extension | undefined
+    public getTerminologyServer(raw?: false): string | undefined
+    public getTerminologyServer (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueUrl
+    }
+
+    public getPerformerType(raw: true): Extension | undefined
+    public getPerformerType(raw?: false): string | undefined
+    public getPerformerType (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-performerType")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueCode
+    }
+
+    public getAssembleExpectation(raw: true): Extension | undefined
+    public getAssembleExpectation(raw?: false): string | undefined
+    public getAssembleExpectation (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-assemble-expectation")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueCode
     }
 
 }

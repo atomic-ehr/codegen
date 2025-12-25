@@ -8,8 +8,8 @@ import type { Composition } from "../../hl7-fhir-r5-core/Composition";
 export class ClinicalDocumentProfile {
     private resource: Composition
 
-    constructor (resource?: Composition) {
-        this.resource = resource ?? ({ resourceType: "Composition" } as Composition)
+    constructor (resource: Composition) {
+        this.resource = resource
     }
 
     toResource () : Composition {

@@ -2,19 +2,30 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Coding } from "../../hl7-fhir-r4-core/Coding";
 import type { Encounter } from "../../hl7-fhir-r4-core/Encounter";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter
+export interface USCoreEncounterProfile extends Encounter {
+    type: CodeableConcept[];
+    subject: Reference<'Group' | "Patient" /*USCorePatientProfile*/>;
+}
+
 export class USCoreEncounterProfileProfile {
     private resource: Encounter
 
-    constructor (resource?: Encounter) {
-        this.resource = resource ?? ({ resourceType: "Encounter" } as Encounter)
+    constructor (resource: Encounter) {
+        this.resource = resource
     }
 
     toResource () : Encounter {
         return this.resource
+    }
+
+    toProfile () : USCoreEncounterProfile {
+        return this.resource as USCoreEncounterProfile
     }
 
     public setInterpreterRequired (value: Coding): this {
@@ -32,6 +43,15 @@ export class USCoreEncounterProfileProfile {
             }
         }
         return this
+    }
+
+    public getInterpreterRequired(raw: true): Extension | undefined
+    public getInterpreterRequired(raw?: false): Coding | undefined
+    public getInterpreterRequired (raw?: boolean): Extension | Coding | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueCoding
     }
 
 }

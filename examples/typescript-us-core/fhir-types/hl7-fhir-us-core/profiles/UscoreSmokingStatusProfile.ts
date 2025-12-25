@@ -4,21 +4,31 @@
 
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Observation } from "../../hl7-fhir-r4-core/Observation";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-smokingstatus
+export interface USCoreSmokingStatusProfile extends Observation {
+    category: CodeableConcept[];
+    subject: Reference<"Patient">;
+}
+
 export type USCoreSmokingStatusProfile_Category_SocialHistorySliceInput = Omit<CodeableConcept, "coding">;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class USCoreSmokingStatusProfileProfile {
     private resource: Observation
 
-    constructor (resource?: Observation) {
-        this.resource = resource ?? ({ resourceType: "Observation" } as Observation)
+    constructor (resource: Observation) {
+        this.resource = resource
     }
 
     toResource () : Observation {
         return this.resource
+    }
+
+    toProfile () : USCoreSmokingStatusProfile {
+        return this.resource as USCoreSmokingStatusProfile
     }
 
     public setSocialHistory (input: USCoreSmokingStatusProfile_Category_SocialHistorySliceInput): this {
@@ -44,6 +54,18 @@ export class USCoreSmokingStatusProfileProfile {
             }
         }
         return this
+    }
+
+    public getSocialHistory(raw: true): CodeableConcept | undefined
+    public getSocialHistory(raw?: false): USCoreSmokingStatusProfile_Category_SocialHistorySliceInput | undefined
+    public getSocialHistory (raw?: boolean): CodeableConcept | USCoreSmokingStatusProfile_Category_SocialHistorySliceInput | undefined {
+        const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"social-history"}]} as Record<string, unknown>
+        const list = this.resource.category
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as USCoreSmokingStatusProfile_Category_SocialHistorySliceInput
     }
 
 }

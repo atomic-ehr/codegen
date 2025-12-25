@@ -3,17 +3,28 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { CareTeam } from "../../hl7-fhir-r4-core/CareTeam";
+import type { CareTeamParticipant } from "../../hl7-fhir-r4-core/CareTeam";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-careteam
+export interface USCoreCareTeam extends CareTeam {
+    subject: Reference<'Group' | "Patient" /*USCorePatientProfile*/>;
+    participant: CareTeamParticipant[];
+}
+
 export class USCoreCareTeamProfile {
     private resource: CareTeam
 
-    constructor (resource?: CareTeam) {
-        this.resource = resource ?? ({ resourceType: "CareTeam" } as CareTeam)
+    constructor (resource: CareTeam) {
+        this.resource = resource
     }
 
     toResource () : CareTeam {
         return this.resource
+    }
+
+    toProfile () : USCoreCareTeam {
+        return this.resource as USCoreCareTeam
     }
 
 }

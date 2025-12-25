@@ -6,15 +6,27 @@ import type { ConceptMap } from "../../hl7-fhir-r5-core/ConceptMap";
 import type { Extension } from "../../hl7-fhir-r5-core/Extension";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/shareableconceptmap
+export interface ShareableConceptMap extends ConceptMap {
+    url: string;
+    version: string;
+    title: string;
+    experimental: boolean;
+    description: string;
+}
+
 export class ShareableConceptMapProfile {
     private resource: ConceptMap
 
-    constructor (resource?: ConceptMap) {
-        this.resource = resource ?? ({ resourceType: "ConceptMap" } as ConceptMap)
+    constructor (resource: ConceptMap) {
+        this.resource = resource
     }
 
     toResource () : ConceptMap {
         return this.resource
+    }
+
+    toProfile () : ShareableConceptMap {
+        return this.resource as ShareableConceptMap
     }
 
     public setKnowledgeRepresentationLevel (value: Omit<Extension, "url">): this {
@@ -32,6 +44,10 @@ export class ShareableConceptMapProfile {
             }
         }
         return this
+    }
+
+    public getKnowledgeRepresentationLevel (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeRepresentationLevel")
     }
 
 }

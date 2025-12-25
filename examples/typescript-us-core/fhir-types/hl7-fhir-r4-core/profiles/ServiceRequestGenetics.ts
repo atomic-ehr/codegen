@@ -15,11 +15,13 @@ export type ServiceRequest_Genetics_ItemInput = {
     status?: code;
 }
 
+import { extractComplexExtension } from "../../profile-helpers";
+
 export class ServiceRequest_GeneticsProfile {
     private resource: ServiceRequest
 
-    constructor (resource?: ServiceRequest) {
-        this.resource = resource ?? ({ resourceType: "ServiceRequest" } as ServiceRequest)
+    constructor (resource: ServiceRequest) {
+        this.resource = resource
     }
 
     toResource () : ServiceRequest {
@@ -54,6 +56,16 @@ export class ServiceRequest_GeneticsProfile {
             }
         }
         return this
+    }
+
+    public getItem(raw: true): Extension | undefined
+    public getItem(raw?: false): ServiceRequest_Genetics_ItemInput | undefined
+    public getItem (raw?: boolean): Extension | ServiceRequest_Genetics_ItemInput | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/servicerequest-geneticsItem")
+        if (!ext) return undefined
+        if (raw) return ext
+        const config = [{ name: "code", valueField: "valueCodeableConcept", isArray: false }, { name: "geneticsObservation", valueField: "valueReference", isArray: false }, { name: "specimen", valueField: "valueReference", isArray: false }, { name: "status", valueField: "valueCode", isArray: false }]
+        return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as ServiceRequest_Genetics_ItemInput
     }
 
 }

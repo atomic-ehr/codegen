@@ -10,6 +10,10 @@ import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
 import type { Questionnaire } from "../../hl7-fhir-r4-core/Questionnaire";
 
 // CanonicalURL: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-render
+export interface SDCQuestionnaireRender extends Questionnaire {
+    url: string;
+}
+
 export type SDCQuestionnaireRender_ChoiceColumnInput = {
     path: string;
     label?: string;
@@ -17,17 +21,21 @@ export type SDCQuestionnaireRender_ChoiceColumnInput = {
     forDisplay?: boolean;
 }
 
-import { getOrCreateObjectAtPath } from "../../profile-helpers";
+import { getOrCreateObjectAtPath, extractComplexExtension } from "../../profile-helpers";
 
 export class SDCQuestionnaireRenderProfile {
     private resource: Questionnaire
 
-    constructor (resource?: Questionnaire) {
-        this.resource = resource ?? ({ resourceType: "Questionnaire" } as Questionnaire)
+    constructor (resource: Questionnaire) {
+        this.resource = resource
     }
 
     toResource () : Questionnaire {
         return this.resource
+    }
+
+    toProfile () : SDCQuestionnaireRender {
+        return this.resource as SDCQuestionnaireRender
     }
 
     public setExtensionDesignNote (value: string): this {
@@ -596,6 +604,292 @@ export class SDCQuestionnaireRenderProfile {
             }
         }
         return this
+    }
+
+    public getDesignNote(raw: true): Extension | undefined
+    public getDesignNote(raw?: false): string | undefined
+    public getDesignNote (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/designNote")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueMarkdown
+    }
+
+    public getTerminologyServer(raw: true): Extension | undefined
+    public getTerminologyServer(raw?: false): string | undefined
+    public getTerminologyServer (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueUrl
+    }
+
+    public getPerformerType(raw: true): Extension | undefined
+    public getPerformerType(raw?: false): string | undefined
+    public getPerformerType (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-performerType")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueCode
+    }
+
+    public getAssembleExpectation(raw: true): Extension | undefined
+    public getAssembleExpectation(raw?: false): string | undefined
+    public getAssembleExpectation (raw?: boolean): Extension | string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-assemble-expectation")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueCode
+    }
+
+    public getStyleSensitive(raw: true): Extension | undefined
+    public getStyleSensitive(raw?: false): boolean | undefined
+    public getStyleSensitive (raw?: boolean): Extension | boolean | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-styleSensitive")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueBoolean
+    }
+
+    public getTitleRenderingStyle(raw: true): Extension | undefined
+    public getTitleRenderingStyle(raw?: false): string | undefined
+    public getTitleRenderingStyle (raw?: boolean): Extension | string | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["title"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueString
+    }
+
+    public getTitleXhtml(raw: true): Extension | undefined
+    public getTitleXhtml(raw?: false): string | undefined
+    public getTitleXhtml (raw?: boolean): Extension | string | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["title"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueString
+    }
+
+    public getItemMedia(raw: true): Extension | undefined
+    public getItemMedia(raw?: false): Attachment | undefined
+    public getItemMedia (raw?: boolean): Extension | Attachment | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemMedia")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueAttachment
+    }
+
+    public getItemOptionalDisplay(raw: true): Extension | undefined
+    public getItemOptionalDisplay(raw?: false): boolean | undefined
+    public getItemOptionalDisplay (raw?: boolean): Extension | boolean | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-optionalDisplay")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueBoolean
+    }
+
+    public getItemShortText(raw: true): Extension | undefined
+    public getItemShortText(raw?: false): string | undefined
+    public getItemShortText (raw?: boolean): Extension | string | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-shortText")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueString
+    }
+
+    public getItemHidden(raw: true): Extension | undefined
+    public getItemHidden(raw?: false): boolean | undefined
+    public getItemHidden (raw?: boolean): Extension | boolean | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueBoolean
+    }
+
+    public getOpenLabel(raw: true): Extension | undefined
+    public getOpenLabel(raw?: false): string | undefined
+    public getOpenLabel (raw?: boolean): Extension | string | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-openLabel")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueString
+    }
+
+    public getItemControl(raw: true): Extension | undefined
+    public getItemControl(raw?: false): CodeableConcept | undefined
+    public getItemControl (raw?: boolean): Extension | CodeableConcept | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueCodeableConcept
+    }
+
+    public getChoiceOrientation(raw: true): Extension | undefined
+    public getChoiceOrientation(raw?: false): string | undefined
+    public getChoiceOrientation (raw?: boolean): Extension | string | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-choiceOrientation")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueCode
+    }
+
+    public getDisplayCategory(raw: true): Extension | undefined
+    public getDisplayCategory(raw?: false): CodeableConcept | undefined
+    public getDisplayCategory (raw?: boolean): Extension | CodeableConcept | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-displayCategory")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueCodeableConcept
+    }
+
+    public getSupportLink(raw: true): Extension | undefined
+    public getSupportLink(raw?: false): string | undefined
+    public getSupportLink (raw?: boolean): Extension | string | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-supportLink")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueUri
+    }
+
+    public getChoiceColumn(raw: true): Extension | undefined
+    public getChoiceColumn(raw?: false): SDCQuestionnaireRender_ChoiceColumnInput | undefined
+    public getChoiceColumn (raw?: boolean): Extension | SDCQuestionnaireRender_ChoiceColumnInput | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-choiceColumn")
+        if (!ext) return undefined
+        if (raw) return ext
+        const config = [{ name: "path", valueField: "valueString", isArray: false }, { name: "label", valueField: "valueString", isArray: false }, { name: "width", valueField: "valueQuantity", isArray: false }, { name: "forDisplay", valueField: "valueBoolean", isArray: false }]
+        return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as SDCQuestionnaireRender_ChoiceColumnInput
+    }
+
+    public getWidth(raw: true): Extension | undefined
+    public getWidth(raw?: false): Quantity | undefined
+    public getWidth (raw?: boolean): Extension | Quantity | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-width")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueQuantity
+    }
+
+    public getSliderStepValue(raw: true): Extension | undefined
+    public getSliderStepValue(raw?: false): number | undefined
+    public getSliderStepValue (raw?: boolean): Extension | number | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-sliderStepValue")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueInteger
+    }
+
+    public getEntryFormat(raw: true): Extension | undefined
+    public getEntryFormat(raw?: false): string | undefined
+    public getEntryFormat (raw?: boolean): Extension | string | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/entryFormat")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueString
+    }
+
+    public getCollapsible(raw: true): Extension | undefined
+    public getCollapsible(raw?: false): string | undefined
+    public getCollapsible (raw?: boolean): Extension | string | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-collapsible")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueCode
+    }
+
+    public getItemLabelRenderingStyle(raw: true): Extension | undefined
+    public getItemLabelRenderingStyle(raw?: false): string | undefined
+    public getItemLabelRenderingStyle (raw?: boolean): Extension | string | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","prefix"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueString
+    }
+
+    public getItemLabelXhtml(raw: true): Extension | undefined
+    public getItemLabelXhtml(raw?: false): string | undefined
+    public getItemLabelXhtml (raw?: boolean): Extension | string | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","prefix"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueString
+    }
+
+    public getGroupTextRenderingStyle(raw: true): Extension | undefined
+    public getGroupTextRenderingStyle(raw?: false): string | undefined
+    public getGroupTextRenderingStyle (raw?: boolean): Extension | string | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","text"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueString
+    }
+
+    public getGroupTextXhtml(raw: true): Extension | undefined
+    public getGroupTextXhtml(raw?: false): string | undefined
+    public getGroupTextXhtml (raw?: boolean): Extension | string | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","text"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueString
+    }
+
+    public getExpression(raw: true): Extension | undefined
+    public getExpression(raw?: false): Expression | undefined
+    public getExpression (raw?: boolean): Extension | Expression | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","text"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-expression")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueExpression
+    }
+
+    public getItemAnswerMedia(raw: true): Extension | undefined
+    public getItemAnswerMedia(raw?: false): Attachment | undefined
+    public getItemAnswerMedia (raw?: boolean): Extension | Attachment | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","answerOption"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemAnswerMedia")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueAttachment
+    }
+
+    public getOptionDisplayRenderingStyle(raw: true): Extension | undefined
+    public getOptionDisplayRenderingStyle(raw?: false): string | undefined
+    public getOptionDisplayRenderingStyle (raw?: boolean): Extension | string | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","answerOption","value[x]","display"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueString
+    }
+
+    public getOptionDisplayXhtml(raw: true): Extension | undefined
+    public getOptionDisplayXhtml(raw?: false): string | undefined
+    public getOptionDisplayXhtml (raw?: boolean): Extension | string | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","answerOption","value[x]","display"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
+        if (!ext) return undefined
+        if (raw) return ext
+        return ext.valueString
     }
 
 }

@@ -3,17 +3,26 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { MedicationDispense } from "../../hl7-fhir-r4-core/MedicationDispense";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationdispense
+export interface USCoreMedicationDispenseProfile extends MedicationDispense {
+    subject: Reference<'Group' | "Patient" /*USCorePatientProfile*/>;
+}
+
 export class USCoreMedicationDispenseProfileProfile {
     private resource: MedicationDispense
 
-    constructor (resource?: MedicationDispense) {
-        this.resource = resource ?? ({ resourceType: "MedicationDispense" } as MedicationDispense)
+    constructor (resource: MedicationDispense) {
+        this.resource = resource
     }
 
     toResource () : MedicationDispense {
         return this.resource
+    }
+
+    toProfile () : USCoreMedicationDispenseProfile {
+        return this.resource as USCoreMedicationDispenseProfile
     }
 
 }

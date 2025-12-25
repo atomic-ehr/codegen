@@ -7,19 +7,30 @@ import type { Library } from "../../hl7-fhir-r5-core/Library";
 import type { RelatedArtifact } from "../../hl7-fhir-r5-core/RelatedArtifact";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/moduledefinitionlibrary
+export interface ModuleDefinitionLibrary extends Library {
+    url: string;
+    version: string;
+    title: string;
+    description: string;
+}
+
 export type ModuleDefinitionLibrary_RelatedArtifact_DependencySliceInput = Omit<RelatedArtifact, "type"> & Required<Pick<RelatedArtifact, "resource">>;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class ModuleDefinitionLibraryProfile {
     private resource: Library
 
-    constructor (resource?: Library) {
-        this.resource = resource ?? ({ resourceType: "Library" } as Library)
+    constructor (resource: Library) {
+        this.resource = resource
     }
 
     toResource () : Library {
         return this.resource
+    }
+
+    toProfile () : ModuleDefinitionLibrary {
+        return this.resource as ModuleDefinitionLibrary
     }
 
     public setKnowledgeCapability (value: Omit<Extension, "url">): this {
@@ -147,6 +158,42 @@ export class ModuleDefinitionLibraryProfile {
             }
         }
         return this
+    }
+
+    public getKnowledgeCapability (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeCapability")
+    }
+
+    public getKnowledgeRepresentationLevel (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeRepresentationLevel")
+    }
+
+    public getArtifactComment (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-artifactComment")
+    }
+
+    public getInputParameters (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-inputParameters")
+    }
+
+    public getDirectReferenceCode (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-directReferenceCode")
+    }
+
+    public getLogicDefinition (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-logicDefinition")
+    }
+
+    public getDependency(raw: true): RelatedArtifact | undefined
+    public getDependency(raw?: false): ModuleDefinitionLibrary_RelatedArtifact_DependencySliceInput | undefined
+    public getDependency (raw?: boolean): RelatedArtifact | ModuleDefinitionLibrary_RelatedArtifact_DependencySliceInput | undefined {
+        const match = {"type":"depends-on"} as Record<string, unknown>
+        const list = this.resource.relatedArtifact
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as ModuleDefinitionLibrary_RelatedArtifact_DependencySliceInput
     }
 
 }

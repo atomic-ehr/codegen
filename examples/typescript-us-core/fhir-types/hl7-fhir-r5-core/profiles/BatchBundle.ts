@@ -13,13 +13,13 @@ export type BatchBundle_Entry_DeleteSliceInput = Omit<BundleEntry, "request"> & 
 export type BatchBundle_Entry_PatchSliceInput = Omit<BundleEntry, "request"> & Required<Pick<BundleEntry, "fullUrl" | "resource">>;
 export type BatchBundle_Entry_HeadSliceInput = Omit<BundleEntry, "request"> & Required<Pick<BundleEntry, "fullUrl">>;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class BatchBundleProfile {
     private resource: Bundle
 
-    constructor (resource?: Bundle) {
-        this.resource = resource ?? ({ resourceType: "Bundle" } as Bundle)
+    constructor (resource: Bundle) {
+        this.resource = resource
     }
 
     toResource () : Bundle {
@@ -174,6 +174,78 @@ export class BatchBundleProfile {
             }
         }
         return this
+    }
+
+    public getPut(raw: true): BundleEntry | undefined
+    public getPut(raw?: false): BatchBundle_Entry_PutSliceInput | undefined
+    public getPut (raw?: boolean): BundleEntry | BatchBundle_Entry_PutSliceInput | undefined {
+        const match = {"request":{"method":"PUT"}} as Record<string, unknown>
+        const list = this.resource.entry
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["request"]) as BatchBundle_Entry_PutSliceInput
+    }
+
+    public getPost(raw: true): BundleEntry | undefined
+    public getPost(raw?: false): BatchBundle_Entry_PostSliceInput | undefined
+    public getPost (raw?: boolean): BundleEntry | BatchBundle_Entry_PostSliceInput | undefined {
+        const match = {"request":{"method":"POST"}} as Record<string, unknown>
+        const list = this.resource.entry
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["request"]) as BatchBundle_Entry_PostSliceInput
+    }
+
+    public getGet(raw: true): BundleEntry | undefined
+    public getGet(raw?: false): BatchBundle_Entry_GetSliceInput | undefined
+    public getGet (raw?: boolean): BundleEntry | BatchBundle_Entry_GetSliceInput | undefined {
+        const match = {"request":{"method":"GET"}} as Record<string, unknown>
+        const list = this.resource.entry
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["request"]) as BatchBundle_Entry_GetSliceInput
+    }
+
+    public getDelete(raw: true): BundleEntry | undefined
+    public getDelete(raw?: false): BatchBundle_Entry_DeleteSliceInput | undefined
+    public getDelete (raw?: boolean): BundleEntry | BatchBundle_Entry_DeleteSliceInput | undefined {
+        const match = {"request":{"method":"DELETE"}} as Record<string, unknown>
+        const list = this.resource.entry
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["request"]) as BatchBundle_Entry_DeleteSliceInput
+    }
+
+    public getPatch(raw: true): BundleEntry | undefined
+    public getPatch(raw?: false): BatchBundle_Entry_PatchSliceInput | undefined
+    public getPatch (raw?: boolean): BundleEntry | BatchBundle_Entry_PatchSliceInput | undefined {
+        const match = {"request":{"method":"PATCH"}} as Record<string, unknown>
+        const list = this.resource.entry
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["request"]) as BatchBundle_Entry_PatchSliceInput
+    }
+
+    public getHead(raw: true): BundleEntry | undefined
+    public getHead(raw?: false): BatchBundle_Entry_HeadSliceInput | undefined
+    public getHead (raw?: boolean): BundleEntry | BatchBundle_Entry_HeadSliceInput | undefined {
+        const match = {"request":{"method":"HEAD"}} as Record<string, unknown>
+        const list = this.resource.entry
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["request"]) as BatchBundle_Entry_HeadSliceInput
     }
 
 }

@@ -2,23 +2,33 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { HumanName } from "../../hl7-fhir-r4-core/HumanName";
 import type { Identifier } from "../../hl7-fhir-r4-core/Identifier";
 import type { Practitioner } from "../../hl7-fhir-r4-core/Practitioner";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner
+export interface USCorePractitionerProfile extends Practitioner {
+    identifier: Identifier[];
+    name: HumanName[];
+}
+
 export type USCorePractitionerProfile_Identifier_NPISliceInput = Omit<Identifier, "system">;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class USCorePractitionerProfileProfile {
     private resource: Practitioner
 
-    constructor (resource?: Practitioner) {
-        this.resource = resource ?? ({ resourceType: "Practitioner" } as Practitioner)
+    constructor (resource: Practitioner) {
+        this.resource = resource
     }
 
     toResource () : Practitioner {
         return this.resource
+    }
+
+    toProfile () : USCorePractitionerProfile {
+        return this.resource as USCorePractitionerProfile
     }
 
     public setNpi (input: USCorePractitionerProfile_Identifier_NPISliceInput): this {
@@ -44,6 +54,18 @@ export class USCorePractitionerProfileProfile {
             }
         }
         return this
+    }
+
+    public getNpi(raw: true): Identifier | undefined
+    public getNpi(raw?: false): USCorePractitionerProfile_Identifier_NPISliceInput | undefined
+    public getNpi (raw?: boolean): Identifier | USCorePractitionerProfile_Identifier_NPISliceInput | undefined {
+        const match = {"system":"http://hl7.org/fhir/sid/us-npi"} as Record<string, unknown>
+        const list = this.resource.identifier
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["system"]) as USCorePractitionerProfile_Identifier_NPISliceInput
     }
 
 }

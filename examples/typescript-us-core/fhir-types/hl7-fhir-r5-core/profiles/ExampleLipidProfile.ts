@@ -3,17 +3,26 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { Observation } from "../../hl7-fhir-r5-core/Observation";
+import type { ObservationReferenceRange } from "../../hl7-fhir-r5-core/Observation";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/ldlcholesterol
+export interface ExampleLipidProfile extends Observation {
+    referenceRange: ObservationReferenceRange[];
+}
+
 export class ExampleLipidProfileProfile {
     private resource: Observation
 
-    constructor (resource?: Observation) {
-        this.resource = resource ?? ({ resourceType: "Observation" } as Observation)
+    constructor (resource: Observation) {
+        this.resource = resource
     }
 
     toResource () : Observation {
         return this.resource
+    }
+
+    toProfile () : ExampleLipidProfile {
+        return this.resource as ExampleLipidProfile
     }
 
 }

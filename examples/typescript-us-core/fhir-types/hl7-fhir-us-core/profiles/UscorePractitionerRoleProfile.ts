@@ -8,8 +8,8 @@ import type { PractitionerRole } from "../../hl7-fhir-r4-core/PractitionerRole";
 export class USCorePractitionerRoleProfileProfile {
     private resource: PractitionerRole
 
-    constructor (resource?: PractitionerRole) {
-        this.resource = resource ?? ({ resourceType: "PractitionerRole" } as PractitionerRole)
+    constructor (resource: PractitionerRole) {
+        this.resource = resource
     }
 
     toResource () : PractitionerRole {

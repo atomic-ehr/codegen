@@ -721,16 +721,72 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                     this.line("return matchesValue(value, match)");
                 },
             );
+            this.line();
+            // extractComplexExtension - extract sub-extension values from complex extension
+            this.curlyBlock(
+                [
+                    "export const",
+                    "extractComplexExtension",
+                    "=",
+                    "(extension: { extension?: Array<{ url?: string; [key: string]: unknown }> } | undefined, config: Array<{ name: string; valueField: string; isArray: boolean }>): Record<string, unknown> | undefined",
+                    "=>",
+                ],
+                () => {
+                    this.line("if (!extension?.extension) return undefined");
+                    this.line("const result: Record<string, unknown> = {}");
+                    this.curlyBlock(["for (const", "{ name, valueField, isArray }", "of", "config)"], () => {
+                        this.line("const subExts = extension.extension.filter(e => e.url === name)");
+                        this.curlyBlock(["if", "(isArray)"], () => {
+                            this.line(
+                                "result[name] = subExts.map(e => (e as Record<string, unknown>)[valueField])",
+                            );
+                        });
+                        this.curlyBlock(["else if", "(subExts[0])"], () => {
+                            this.line("result[name] = (subExts[0] as Record<string, unknown>)[valueField]");
+                        });
+                    });
+                    this.line("return result");
+                },
+            );
+            this.line();
+            // extractSliceSimplified - remove match keys from slice (reverse of applySliceMatch)
+            this.curlyBlock(
+                [
+                    "export const",
+                    "extractSliceSimplified",
+                    "=",
+                    "<T extends Record<string, unknown>>(slice: T, matchKeys: string[]): Partial<T>",
+                    "=>",
+                ],
+                () => {
+                    this.line("const result = { ...slice } as Record<string, unknown>");
+                    this.curlyBlock(["for (const", "key", "of", "matchKeys)"], () => {
+                        this.line("delete result[key]");
+                    });
+                    this.line("return result as Partial<T>");
+                },
+            );
         });
     }
 
-    private generateProfileHelpersImport(needsGetOrCreateObjectAtPath: boolean, needsSliceHelpers: boolean) {
+    private generateProfileHelpersImport(options: {
+        needsGetOrCreateObjectAtPath: boolean;
+        needsSliceHelpers: boolean;
+        needsExtensionExtraction: boolean;
+        needsSliceExtraction: boolean;
+    }) {
         const imports: string[] = [];
-        if (needsSliceHelpers) {
+        if (options.needsSliceHelpers) {
             imports.push("applySliceMatch", "matchesSlice");
         }
-        if (needsGetOrCreateObjectAtPath) {
+        if (options.needsGetOrCreateObjectAtPath) {
             imports.push("getOrCreateObjectAtPath");
+        }
+        if (options.needsExtensionExtraction) {
+            imports.push("extractComplexExtension");
+        }
+        if (options.needsSliceExtraction) {
+            imports.push("extractSliceSimplified");
         }
         if (imports.length > 0) {
             this.lineSM(`import { ${imports.join(", ")} } from "../../profile-helpers"`);
@@ -827,6 +883,33 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             }
         }
 
+        // Add Reference type if used in override interface
+        const referenceUrl = "http://hl7.org/fhir/StructureDefinition/Reference" as CanonicalUrl;
+        const referenceSchema = tsIndex.resolveByUrl(flatProfile.identifier.package, referenceUrl);
+
+        // Collect types from fields that will be in the override interface
+        const specialization = tsIndex.findLastSpecialization(flatProfile);
+        if (isSpecializationTypeSchema(specialization)) {
+            for (const [fieldName, pField] of Object.entries(flatProfile.fields ?? {})) {
+                if (!isNotChoiceDeclarationField(pField)) continue;
+                const sField = specialization.fields?.[fieldName];
+                if (!sField || isChoiceDeclarationField(sField)) continue;
+
+                // Check for Reference narrowing - needs Reference type
+                if (pField.reference && sField.reference && pField.reference.length < sField.reference.length) {
+                    if (referenceSchema) {
+                        addType(referenceSchema.identifier);
+                    }
+                }
+                // Check for cardinality change - needs field's type
+                else if (pField.required && !sField.required) {
+                    if (pField.type) {
+                        addType(pField.type);
+                    }
+                }
+            }
+        }
+
         // Generate imports sorted by name
         const sortedImports = Array.from(usedTypes.values()).sort((a, b) => a.tsName.localeCompare(b.tsName));
 
@@ -908,25 +991,41 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             return targetPath.length > 0;
         });
         const needsGetOrCreateObjectAtPath = extensionsWithNestedPath.length > 0;
+        const needsExtensionExtraction = complexExtensions.length > 0;
+        const needsSliceExtraction = sliceDefs.length > 0;
 
-        if (needsSliceHelpers || needsGetOrCreateObjectAtPath) {
-            this.generateProfileHelpersImport(needsGetOrCreateObjectAtPath, needsSliceHelpers);
+        if (needsSliceHelpers || needsGetOrCreateObjectAtPath || needsExtensionExtraction || needsSliceExtraction) {
+            this.generateProfileHelpersImport({
+                needsGetOrCreateObjectAtPath,
+                needsSliceHelpers,
+                needsExtensionExtraction,
+                needsSliceExtraction,
+            });
             this.line();
         }
+
+        // Check if we have an override interface (narrowed types)
+        const hasOverrideInterface = this.detectFieldOverrides(tsIndex, flatProfile).size > 0;
 
         this.curlyBlock(["export", "class", tsProfileClassName], () => {
             this.line(`private resource: ${tsBaseResourceName}`);
             this.line();
-            this.curlyBlock(["constructor", `(resource?: ${tsBaseResourceName})`], () => {
-                this.line(
-                    `this.resource = resource ?? ({ resourceType: "${flatProfile.base.name}" } as ${tsBaseResourceName})`,
-                );
+            this.curlyBlock(["constructor", `(resource: ${tsBaseResourceName})`], () => {
+                this.line("this.resource = resource");
             });
             this.line();
+            // toResource() returns base type (e.g., Patient)
             this.curlyBlock(["toResource", "()", `: ${tsBaseResourceName}`], () => {
                 this.line("return this.resource");
             });
             this.line();
+            // toProfile() returns casted profile type if override interface exists
+            if (hasOverrideInterface) {
+                this.curlyBlock(["toProfile", "()", `: ${tsProfileName}`], () => {
+                    this.line(`return this.resource as ${tsProfileName}`);
+                });
+                this.line();
+            }
 
             const extensionMethods = extensions
                 .filter((ext) => ext.url)
@@ -1119,6 +1218,203 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 });
                 this.line();
             }
+
+            // Generate extension getters
+            const generatedGetMethods = new Set<string>();
+
+            for (const ext of extensions) {
+                if (!ext.url) continue;
+                const getMethodName = `get${uppercaseFirstLetter(this.safeCamelCase(ext.name))}`;
+                if (generatedGetMethods.has(getMethodName)) continue;
+                generatedGetMethods.add(getMethodName);
+                const valueTypes = ext.valueTypes ?? [];
+                const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");
+
+                if (ext.isComplex && ext.subExtensions) {
+                    const inputTypeName = this.tsExtensionInputTypeName(tsProfileName, ext.name);
+                    // Generate overloaded signatures
+                    this.line(`public ${getMethodName}(raw: true): Extension | undefined`);
+                    this.line(`public ${getMethodName}(raw?: false): ${inputTypeName} | undefined`);
+                    this.curlyBlock(
+                        ["public", getMethodName, `(raw?: boolean): Extension | ${inputTypeName} | undefined`],
+                        () => {
+                            if (targetPath.length === 0) {
+                                this.line(`const ext = this.resource.extension?.find(e => e.url === "${ext.url}")`);
+                            } else {
+                                this.line(
+                                    `const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
+                                );
+                                this.line(
+                                    `const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "${ext.url}")`,
+                                );
+                            }
+                            this.line("if (!ext) return undefined");
+                            this.line("if (raw) return ext");
+                            // Build extraction config
+                            const configItems = (ext.subExtensions ?? []).map((sub) => {
+                                const valueField = sub.valueType
+                                    ? `value${uppercaseFirstLetter(sub.valueType.name)}`
+                                    : "value";
+                                const isArray = sub.max === "*";
+                                return `{ name: "${sub.url}", valueField: "${valueField}", isArray: ${isArray} }`;
+                            });
+                            this.line(`const config = [${configItems.join(", ")}]`);
+                            this.line(
+                                `return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as ${inputTypeName}`,
+                            );
+                        },
+                    );
+                } else if (valueTypes.length === 1 && valueTypes[0]) {
+                    const firstValueType = valueTypes[0];
+                    const valueType = tsTypeFromIdentifier(firstValueType);
+                    const valueField = `value${uppercaseFirstLetter(firstValueType.name)}`;
+                    // Generate overloaded signatures
+                    this.line(`public ${getMethodName}(raw: true): Extension | undefined`);
+                    this.line(`public ${getMethodName}(raw?: false): ${valueType} | undefined`);
+                    this.curlyBlock(
+                        ["public", getMethodName, `(raw?: boolean): Extension | ${valueType} | undefined`],
+                        () => {
+                            if (targetPath.length === 0) {
+                                this.line(`const ext = this.resource.extension?.find(e => e.url === "${ext.url}")`);
+                            } else {
+                                this.line(
+                                    `const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
+                                );
+                                this.line(
+                                    `const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "${ext.url}")`,
+                                );
+                            }
+                            this.line("if (!ext) return undefined");
+                            this.line("if (raw) return ext");
+                            this.line(`return ext.${valueField}`);
+                        },
+                    );
+                } else {
+                    // Generic extension getter - returns Extension directly
+                    this.curlyBlock(["public", getMethodName, "(): Extension | undefined"], () => {
+                        if (targetPath.length === 0) {
+                            this.line(`return this.resource.extension?.find(e => e.url === "${ext.url}")`);
+                        } else {
+                            this.line(
+                                `const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
+                            );
+                            this.line(
+                                `return (target.extension as Extension[] | undefined)?.find(e => e.url === "${ext.url}")`,
+                            );
+                        }
+                    });
+                }
+                this.line();
+            }
+
+            // Generate slice getters
+            for (const sliceDef of sliceDefs) {
+                const getMethodName = `get${uppercaseFirstLetter(this.safeCamelCase(sliceDef.sliceName))}`;
+                if (generatedGetMethods.has(getMethodName)) continue;
+                generatedGetMethods.add(getMethodName);
+                const typeName = this.tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+                const matchLiteral = JSON.stringify(sliceDef.match);
+                const matchKeys = JSON.stringify(Object.keys(sliceDef.match));
+                const tsField = tsFieldName(sliceDef.fieldName);
+                const fieldAccess = tsGet("this.resource", tsField);
+                const baseType = sliceDef.baseType;
+                // Generate overloaded signatures
+                this.line(`public ${getMethodName}(raw: true): ${baseType} | undefined`);
+                this.line(`public ${getMethodName}(raw?: false): ${typeName} | undefined`);
+                this.curlyBlock(
+                    ["public", getMethodName, `(raw?: boolean): ${baseType} | ${typeName} | undefined`],
+                    () => {
+                        this.line(`const match = ${matchLiteral} as Record<string, unknown>`);
+                        if (sliceDef.array) {
+                            this.line(`const list = ${fieldAccess}`);
+                            this.line("if (!list) return undefined");
+                            this.line("const item = list.find((item) => matchesSlice(item, match))");
+                            this.line("if (!item) return undefined");
+                            this.line("if (raw) return item");
+                            this.line(
+                                `return extractSliceSimplified(item as unknown as Record<string, unknown>, ${matchKeys}) as ${typeName}`,
+                            );
+                        } else {
+                            this.line(`const item = ${fieldAccess}`);
+                            this.line("if (!item || !matchesSlice(item, match)) return undefined");
+                            this.line("if (raw) return item");
+                            this.line(
+                                `return extractSliceSimplified(item as unknown as Record<string, unknown>, ${matchKeys}) as ${typeName}`,
+                            );
+                        }
+                    },
+                );
+                this.line();
+            }
+        });
+        this.line();
+    }
+
+    /**
+     * Detects fields where the profile changes cardinality or narrows Reference types
+     * compared to the base resource type.
+     */
+    private detectFieldOverrides(
+        tsIndex: TypeSchemaIndex,
+        flatProfile: ProfileTypeSchema,
+    ): Map<string, { profileType: string; required: boolean; array: boolean }> {
+        const overrides = new Map<string, { profileType: string; required: boolean; array: boolean }>();
+        const specialization = tsIndex.findLastSpecialization(flatProfile);
+        if (!isSpecializationTypeSchema(specialization)) return overrides;
+
+        for (const [fieldName, pField] of Object.entries(flatProfile.fields ?? {})) {
+            if (!isNotChoiceDeclarationField(pField)) continue;
+            const sField = specialization.fields?.[fieldName];
+            if (!sField || isChoiceDeclarationField(sField)) continue;
+
+            // Check for Reference narrowing
+            if (pField.reference && sField.reference && pField.reference.length < sField.reference.length) {
+                const references = pField.reference
+                    .map((ref) => {
+                        const resRef = tsIndex.findLastSpecializationByIdentifier(ref);
+                        if (resRef.name !== ref.name) {
+                            return `"${resRef.name}"`;
+                        }
+                        return `"${ref.name}"`;
+                    })
+                    .join(" | ");
+                overrides.set(fieldName, {
+                    profileType: `Reference<${references}>`,
+                    required: pField.required ?? false,
+                    array: pField.array ?? false,
+                });
+            }
+            // Check for cardinality change (optional -> required)
+            else if (pField.required && !sField.required) {
+                const tsType = this.tsTypeForProfileField(tsIndex, flatProfile, fieldName, pField);
+                overrides.set(fieldName, {
+                    profileType: tsType,
+                    required: true,
+                    array: pField.array ?? false,
+                });
+            }
+        }
+        return overrides;
+    }
+
+    /**
+     * Generates an override interface for profiles that narrow cardinality or Reference types.
+     * Example: export interface USCorePatient extends Patient { subject: Reference<"Patient"> }
+     */
+    generateProfileOverrideInterface(tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) {
+        const overrides = this.detectFieldOverrides(tsIndex, flatProfile);
+        if (overrides.size === 0) return;
+
+        const tsProfileName = tsResourceName(flatProfile.identifier);
+        const tsBaseResourceName = tsResourceName(flatProfile.base);
+
+        this.curlyBlock(["export", "interface", tsProfileName, "extends", tsBaseResourceName], () => {
+            for (const [fieldName, override] of overrides) {
+                const tsField = tsFieldName(fieldName);
+                const optionalSymbol = override.required ? "" : "?";
+                const arraySymbol = override.array ? "[]" : "";
+                this.lineSM(`${tsField}${optionalSymbol}: ${override.profileType}${arraySymbol}`);
+            }
         });
         this.line();
     }
@@ -1137,6 +1433,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 const flatProfile = tsIndex.flatProfile(schema);
                 this.generateProfileImports(tsIndex, flatProfile);
                 this.comment("CanonicalURL:", schema.identifier.url);
+                this.generateProfileOverrideInterface(tsIndex, flatProfile);
                 this.generateProfileClass(tsIndex, flatProfile);
             } else throw new Error(`Profile generation not implemented for kind: ${schema.identifier.kind}`);
         };

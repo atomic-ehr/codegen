@@ -8,8 +8,8 @@ import type { ArtifactAssessment } from "../../hl7-fhir-r5-core/ArtifactAssessme
 export class EBMRecommendationProfile {
     private resource: ArtifactAssessment
 
-    constructor (resource?: ArtifactAssessment) {
-        this.resource = resource ?? ({ resourceType: "ArtifactAssessment" } as ArtifactAssessment)
+    constructor (resource: ArtifactAssessment) {
+        this.resource = resource
     }
 
     toResource () : ArtifactAssessment {

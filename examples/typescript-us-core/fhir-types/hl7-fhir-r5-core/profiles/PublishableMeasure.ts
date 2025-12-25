@@ -6,15 +6,27 @@ import type { Extension } from "../../hl7-fhir-r5-core/Extension";
 import type { Measure } from "../../hl7-fhir-r5-core/Measure";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/publishablemeasure
+export interface PublishableMeasure extends Measure {
+    url: string;
+    version: string;
+    title: string;
+    description: string;
+    date: string;
+}
+
 export class PublishableMeasureProfile {
     private resource: Measure
 
-    constructor (resource?: Measure) {
-        this.resource = resource ?? ({ resourceType: "Measure" } as Measure)
+    constructor (resource: Measure) {
+        this.resource = resource
     }
 
     toResource () : Measure {
         return this.resource
+    }
+
+    toProfile () : PublishableMeasure {
+        return this.resource as PublishableMeasure
     }
 
     public setKnowledgeCapability (value: Omit<Extension, "url">): this {
@@ -66,6 +78,18 @@ export class PublishableMeasureProfile {
             }
         }
         return this
+    }
+
+    public getKnowledgeCapability (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeCapability")
+    }
+
+    public getKnowledgeRepresentationLevel (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeRepresentationLevel")
+    }
+
+    public getArtifactComment (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-artifactComment")
     }
 
 }

@@ -3,17 +3,26 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { Bundle } from "../../hl7-fhir-r5-core/Bundle";
+import type { BundleEntry } from "../../hl7-fhir-r5-core/Bundle";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/subscription-notification-bundle
+export interface SubscriptionNotificationBundle extends Bundle {
+    entry: BundleEntry[];
+}
+
 export class SubscriptionNotificationBundleProfile {
     private resource: Bundle
 
-    constructor (resource?: Bundle) {
-        this.resource = resource ?? ({ resourceType: "Bundle" } as Bundle)
+    constructor (resource: Bundle) {
+        this.resource = resource
     }
 
     toResource () : Bundle {
         return this.resource
+    }
+
+    toProfile () : SubscriptionNotificationBundle {
+        return this.resource as SubscriptionNotificationBundle
     }
 
 }

@@ -4,21 +4,32 @@
 
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Observation } from "../../hl7-fhir-r4-core/Observation";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-pregnancyintent
+export interface USCoreObservationPregnancyIntentProfile extends Observation {
+    subject: Reference<"Patient">;
+    effectiveDateTime: string;
+    valueCodeableConcept: CodeableConcept;
+}
+
 export type USCoreObservationPregnancyIntentProfile_Category_SocialHistorySliceInput = Omit<CodeableConcept, "coding">;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class USCoreObservationPregnancyIntentProfileProfile {
     private resource: Observation
 
-    constructor (resource?: Observation) {
-        this.resource = resource ?? ({ resourceType: "Observation" } as Observation)
+    constructor (resource: Observation) {
+        this.resource = resource
     }
 
     toResource () : Observation {
         return this.resource
+    }
+
+    toProfile () : USCoreObservationPregnancyIntentProfile {
+        return this.resource as USCoreObservationPregnancyIntentProfile
     }
 
     public setSocialHistory (input: USCoreObservationPregnancyIntentProfile_Category_SocialHistorySliceInput): this {
@@ -44,6 +55,18 @@ export class USCoreObservationPregnancyIntentProfileProfile {
             }
         }
         return this
+    }
+
+    public getSocialHistory(raw: true): CodeableConcept | undefined
+    public getSocialHistory(raw?: false): USCoreObservationPregnancyIntentProfile_Category_SocialHistorySliceInput | undefined
+    public getSocialHistory (raw?: boolean): CodeableConcept | USCoreObservationPregnancyIntentProfile_Category_SocialHistorySliceInput | undefined {
+        const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"social-history"}]} as Record<string, unknown>
+        const list = this.resource.category
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as USCoreObservationPregnancyIntentProfile_Category_SocialHistorySliceInput
     }
 
 }

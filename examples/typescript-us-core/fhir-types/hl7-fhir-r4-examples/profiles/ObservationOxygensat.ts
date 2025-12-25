@@ -4,21 +4,31 @@
 
 import type { CodeableConcept } from "../../hl7-fhir-r4-examples/CodeableConcept";
 import type { Observation } from "../../hl7-fhir-r4-examples/Observation";
+import type { Reference } from "../../hl7-fhir-r4-examples/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/oxygensat
+export interface observation_oxygensat extends Observation {
+    category: CodeableConcept[];
+    subject: Reference<"Patient">;
+}
+
 export type Observation_oxygensat_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
 
-import { applySliceMatch, matchesSlice } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export class Observation_oxygensatProfile {
     private resource: Observation
 
-    constructor (resource?: Observation) {
-        this.resource = resource ?? ({ resourceType: "Observation" } as Observation)
+    constructor (resource: Observation) {
+        this.resource = resource
     }
 
     toResource () : Observation {
         return this.resource
+    }
+
+    toProfile () : observation_oxygensat {
+        return this.resource as observation_oxygensat
     }
 
     public setVscat (input: Observation_oxygensat_Category_VSCatSliceInput): this {
@@ -44,6 +54,18 @@ export class Observation_oxygensatProfile {
             }
         }
         return this
+    }
+
+    public getVscat(raw: true): CodeableConcept | undefined
+    public getVscat(raw?: false): Observation_oxygensat_Category_VSCatSliceInput | undefined
+    public getVscat (raw?: boolean): CodeableConcept | Observation_oxygensat_Category_VSCatSliceInput | undefined {
+        const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
+        const list = this.resource.category
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        if (!item) return undefined
+        if (raw) return item
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as Observation_oxygensat_Category_VSCatSliceInput
     }
 
 }

@@ -3,17 +3,31 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { Observation } from "../../hl7-fhir-r5-core/Observation";
+import type { Reference } from "../../hl7-fhir-r5-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/devicemetricobservation
+export interface DeviceMetricObservationProfile extends Observation {
+    subject: Reference<"Device" | "Patient">;
+    effectiveDateTime: string;
+    specimen?: Reference<"Specimen">;
+    device: Reference<"DeviceMetric">;
+    hasMember?: Reference<"Observation">[];
+    derivedFrom?: Reference<"Observation">[];
+}
+
 export class DeviceMetricObservationProfileProfile {
     private resource: Observation
 
-    constructor (resource?: Observation) {
-        this.resource = resource ?? ({ resourceType: "Observation" } as Observation)
+    constructor (resource: Observation) {
+        this.resource = resource
     }
 
     toResource () : Observation {
         return this.resource
+    }
+
+    toProfile () : DeviceMetricObservationProfile {
+        return this.resource as DeviceMetricObservationProfile
     }
 
 }

@@ -8,8 +8,8 @@ import type { AuditEvent } from "../../hl7-fhir-r4-core/AuditEvent";
 export class EHRS_FM_Record_Lifecycle_Event___Audit_EventProfile {
     private resource: AuditEvent
 
-    constructor (resource?: AuditEvent) {
-        this.resource = resource ?? ({ resourceType: "AuditEvent" } as AuditEvent)
+    constructor (resource: AuditEvent) {
+        this.resource = resource
     }
 
     toResource () : AuditEvent {
