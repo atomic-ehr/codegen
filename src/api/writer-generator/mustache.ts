@@ -28,23 +28,23 @@ import { FileSystemWriter, type FileSystemWriterOptions } from "./writer";
 
 export type FileBasedMustacheGeneratorOptions = {
     debug: "OFF" | "FORMATTED" | "COMPACT";
+    meta: {
+        timestamp?: string;
+        generator?: string;
+    };
     renderings: {
         utility: Rendering[];
         resource: Rendering[];
         complexType: Rendering[];
     };
     keywords: string[];
-    typeMap: Partial<Record<PrimitiveType, string>>;
-    meta: {
-        timestamp?: string;
-        generator?: string;
-    };
+    primitiveTypeMap: Partial<Record<PrimitiveType, string>>;
+    nameTransformations: DistinctNameConfigurationType<NameTransformation[]>;
+    unsaveCharacterPattern: string | RegExp;
+    shouldRunHooks: boolean;
     hooks: {
         afterGenerate?: HookType[];
     };
-    shouldRunHooks: boolean;
-    nameTransformations: DistinctNameConfigurationType<NameTransformation[]>;
-    unsaveCharacterPattern: string | RegExp;
 };
 
 export type MustacheGeneratorOptions = FileSystemWriterOptions &
@@ -93,7 +93,7 @@ export const createGenerator = (
             complexType: [],
         },
         shouldRunHooks: true,
-        typeMap: {},
+        primitiveTypeMap: {},
     };
     const actualFileOpts = loadMustacheGeneratorConfig(templatePath);
 
@@ -133,7 +133,7 @@ export class MustacheGenerator extends FileSystemWriter<MustacheGeneratorOptions
         super(opts);
         this.nameGenerator = new NameGenerator(
             new Set<string>(opts.keywords),
-            opts.typeMap,
+            opts.primitiveTypeMap,
             opts.nameTransformations,
             opts.unsaveCharacterPattern,
         );

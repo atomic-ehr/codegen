@@ -154,7 +154,7 @@
     "false",
     "null"
   ],
-  "typeMap":{
+  "primitiveTypeMap":{
     "boolean": "Boolean",
     "instant": "OffsetDateTime",
     "time": "LocalTime",

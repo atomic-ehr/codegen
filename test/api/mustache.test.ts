@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { APIBuilder, prettyReport } from "@root/api/builder";
+import { APIBuilder } from "@root/api/builder";
 import { r4Manager } from "@typeschema-test/utils";
 
 describe("Mustache Template Based Generation", async () => {
