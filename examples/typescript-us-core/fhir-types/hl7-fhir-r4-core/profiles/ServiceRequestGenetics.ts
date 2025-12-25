@@ -12,7 +12,7 @@ export type ServiceRequest_Genetics_ItemInput = {
     code: CodeableConcept;
     geneticsObservation?: Reference;
     specimen?: Reference;
-    status?: code;
+    status?: string;
 }
 
 import { extractComplexExtension } from "../../profile-helpers";

@@ -2,6 +2,7 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { Extension } from "../../hl7-fhir-r4-examples/Extension";
 import type { PlanDefinition } from "../../hl7-fhir-r4-examples/PlanDefinition";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/cdshooksserviceplandefinition

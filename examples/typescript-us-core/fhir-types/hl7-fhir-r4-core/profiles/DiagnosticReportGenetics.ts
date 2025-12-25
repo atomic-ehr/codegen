@@ -15,7 +15,7 @@ export type DiagnosticReport_Genetics_AnalysisInput = {
 
 export type DiagnosticReport_Genetics_ReferencesInput = {
     description?: string;
-    reference?: uri[];
+    reference?: string[];
     type?: CodeableConcept;
 }
 

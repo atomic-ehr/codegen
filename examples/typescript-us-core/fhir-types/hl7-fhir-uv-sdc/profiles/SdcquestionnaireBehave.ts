@@ -15,9 +15,9 @@ export interface SDCQuestionnaireBehave extends Questionnaire {
 }
 
 export type SDCQuestionnaireBehave_ConstraintInput = {
-    key: id;
+    key: string;
     requirements?: string;
-    severity: code;
+    severity: string;
     expression: string;
     human: string;
     location?: string[];
@@ -25,7 +25,7 @@ export type SDCQuestionnaireBehave_ConstraintInput = {
 
 export type SDCQuestionnaireBehave_LaunchContextInput = {
     name: Coding;
-    type: code[];
+    type: string[];
     description?: string;
 }
 
@@ -35,9 +35,9 @@ export type SDCQuestionnaireBehave_AnswerOptionsToggleExpressionInput = {
 }
 
 export type SDCQuestionnaireBehave_ItemConstraintInput = {
-    key: id;
+    key: string;
     requirements?: string;
-    severity: code;
+    severity: string;
     expression: string;
     human: string;
     location?: string[];
@@ -85,15 +85,15 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public setExtensionItemDesignNote (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/designNote", valueMarkdown: value })
         return this
     }
 
     public setExtensionItemTerminologyServer (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer", valueUrl: value })
         return this
     }
@@ -174,99 +174,99 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public setAnswerExpression (value: Expression): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerExpression", valueExpression: value })
         return this
     }
 
     public setUsageMode (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/questionnaire-usageMode", valueCode: value })
         return this
     }
 
     public setItemSignatureRequired (value: CodeableConcept): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/questionnaire-signatureRequired", valueCodeableConcept: value })
         return this
     }
 
     public setItemMinOccurs (value: number): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/questionnaire-minOccurs", valueInteger: value })
         return this
     }
 
     public setItemMaxOccurs (value: number): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/questionnaire-maxOccurs", valueInteger: value })
         return this
     }
 
     public setMinLength (value: number): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/minLength", valueInteger: value })
         return this
     }
 
     public setRegex (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/regex", valueString: value })
         return this
     }
 
     public setMinValue (value: Omit<Extension, "url">): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/minValue", ...value })
         return this
     }
 
     public setMaxValue (value: Omit<Extension, "url">): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/maxValue", ...value })
         return this
     }
 
     public setMinQuantity (value: Quantity): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-minQuantity", valueQuantity: value })
         return this
     }
 
     public setMaxQuantity (value: Quantity): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-maxQuantity", valueQuantity: value })
         return this
     }
 
     public setMaxDecimalPlaces (value: number): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/maxDecimalPlaces", valueInteger: value })
         return this
     }
 
     public setMimeType (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/mimeType", valueCode: value })
         return this
     }
 
     public setMaxSize (value: number): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/maxSize", valueDecimal: value })
         return this
     }
@@ -275,70 +275,70 @@ export class SDCQuestionnaireBehaveProfile {
         const subExtensions: Extension[] = []
         if (input.option) {
             for (const item of input.option) {
-                subExtensions.push({ url: "option", value: item })
+                subExtensions.push({ url: "option", value: item } as Extension)
             }
         }
         if (input.expression !== undefined) {
             subExtensions.push({ url: "expression", valueExpression: input.expression })
         }
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerOptionsToggleExpression", extension: subExtensions })
         return this
     }
 
     public setUnitOption (value: Coding): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", valueCoding: value })
         return this
     }
 
     public setUnitValueSet (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/questionnaire-unitValueSet", valueCanonical: value })
         return this
     }
 
     public setUnitOpen (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-unitOpen", valueCode: value })
         return this
     }
 
     public setUnitSupplementalSystem (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-unitSupplementalSystem", valueCanonical: value })
         return this
     }
 
     public setAllowedResource (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/questionnaire-referenceResource", valueCode: value })
         return this
     }
 
     public setAllowedProfile (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/questionnaire-referenceProfile", valueCanonical: value })
         return this
     }
 
     public setCandidateExpression (value: Expression): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-candidateExpression", valueExpression: value })
         return this
     }
 
     public setLookupQuestionnaire (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-lookupQuestionnaire", valueCanonical: value })
         return this
     }
@@ -365,71 +365,71 @@ export class SDCQuestionnaireBehaveProfile {
                 subExtensions.push({ url: "location", valueString: item })
             }
         }
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/questionnaire-constraint", extension: subExtensions })
         return this
     }
 
     public setInitialExpression (value: Expression): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression", valueExpression: value })
         return this
     }
 
     public setCalculatedExpression (value: Expression): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression", valueExpression: value })
         return this
     }
 
     public setEnableWhenExpression (value: Expression): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression", valueExpression: value })
         return this
     }
 
     public setRequiredExpression (value: Expression): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","required","value"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","required","value"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/cqf-expression", valueExpression: value })
         return this
     }
 
     public setRepeatsExpression (value: Expression): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","repeats","value"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","repeats","value"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/cqf-expression", valueExpression: value })
         return this
     }
 
     public setReadOnlyExpression (value: Expression): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","readOnly","value"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","readOnly","value"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/cqf-expression", valueExpression: value })
         return this
     }
 
     public setAnswerValueSetExpression (value: Expression): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","answerValueSet","value"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answerValueSet","value"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/cqf-expression", valueExpression: value })
         return this
     }
 
     public setOptionExclusive (value: boolean): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","answerOption"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answerOption"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/questionnaire-optionExclusive", valueBoolean: value })
         return this
     }
 
     public setOrdinalValue (value: number): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","answerOption"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answerOption"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/ordinalValue", valueDecimal: value })
         return this
     }
@@ -556,7 +556,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetAnswerExpression (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerExpression")
@@ -568,7 +568,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetUsageMode (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-usageMode")
@@ -580,7 +580,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetItemSignatureRequired (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-signatureRequired")
@@ -592,7 +592,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetItemMinOccurs (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-minOccurs")
@@ -604,7 +604,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetItemMaxOccurs (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-maxOccurs")
@@ -616,7 +616,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetMinLength (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/minLength")
@@ -628,7 +628,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetRegex (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/regex")
@@ -640,7 +640,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetMinValue (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/minValue")
@@ -652,7 +652,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetMaxValue (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/maxValue")
@@ -664,7 +664,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetMinQuantity (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-minQuantity")
@@ -676,7 +676,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetMaxQuantity (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-maxQuantity")
@@ -688,7 +688,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetMaxDecimalPlaces (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/maxDecimalPlaces")
@@ -700,7 +700,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetMimeType (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/mimeType")
@@ -712,7 +712,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetMaxSize (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/maxSize")
@@ -724,7 +724,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetAnswerOptionsToggleExpression (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerOptionsToggleExpression")
@@ -736,7 +736,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetUnitOption (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption")
@@ -748,7 +748,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetUnitValueSet (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-unitValueSet")
@@ -760,7 +760,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetUnitOpen (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-unitOpen")
@@ -772,7 +772,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetUnitSupplementalSystem (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-unitSupplementalSystem")
@@ -784,7 +784,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetAllowedResource (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-referenceResource")
@@ -796,7 +796,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetAllowedProfile (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-referenceProfile")
@@ -808,7 +808,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetCandidateExpression (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-candidateExpression")
@@ -820,7 +820,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetLookupQuestionnaire (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-lookupQuestionnaire")
@@ -832,7 +832,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetItemConstraint (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-constraint")
@@ -844,7 +844,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetInitialExpression (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression")
@@ -856,7 +856,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetCalculatedExpression (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression")
@@ -868,7 +868,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetEnableWhenExpression (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression")
@@ -880,7 +880,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetRequiredExpression (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","required","value"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","required","value"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-expression")
@@ -892,7 +892,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetRepeatsExpression (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","repeats","value"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","repeats","value"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-expression")
@@ -904,7 +904,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetReadOnlyExpression (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","readOnly","value"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","readOnly","value"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-expression")
@@ -916,7 +916,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetAnswerValueSetExpression (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","answerValueSet","value"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answerValueSet","value"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-expression")
@@ -928,7 +928,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetOptionExclusive (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","answerOption"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answerOption"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-optionExclusive")
@@ -940,7 +940,7 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public resetOrdinalValue (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","answerOption"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answerOption"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/ordinalValue")
@@ -1055,7 +1055,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getAnswerExpression(raw: true): Extension | undefined
     public getAnswerExpression(raw?: false): Expression | undefined
     public getAnswerExpression (raw?: boolean): Extension | Expression | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerExpression")
         if (!ext) return undefined
         if (raw) return ext
@@ -1065,7 +1065,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getUsageMode(raw: true): Extension | undefined
     public getUsageMode(raw?: false): string | undefined
     public getUsageMode (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-usageMode")
         if (!ext) return undefined
         if (raw) return ext
@@ -1075,7 +1075,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getItemSignatureRequired(raw: true): Extension | undefined
     public getItemSignatureRequired(raw?: false): CodeableConcept | undefined
     public getItemSignatureRequired (raw?: boolean): Extension | CodeableConcept | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-signatureRequired")
         if (!ext) return undefined
         if (raw) return ext
@@ -1085,7 +1085,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getItemMinOccurs(raw: true): Extension | undefined
     public getItemMinOccurs(raw?: false): number | undefined
     public getItemMinOccurs (raw?: boolean): Extension | number | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-minOccurs")
         if (!ext) return undefined
         if (raw) return ext
@@ -1095,7 +1095,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getItemMaxOccurs(raw: true): Extension | undefined
     public getItemMaxOccurs(raw?: false): number | undefined
     public getItemMaxOccurs (raw?: boolean): Extension | number | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-maxOccurs")
         if (!ext) return undefined
         if (raw) return ext
@@ -1105,7 +1105,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getMinLength(raw: true): Extension | undefined
     public getMinLength(raw?: false): number | undefined
     public getMinLength (raw?: boolean): Extension | number | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/minLength")
         if (!ext) return undefined
         if (raw) return ext
@@ -1115,7 +1115,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getRegex(raw: true): Extension | undefined
     public getRegex(raw?: false): string | undefined
     public getRegex (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/regex")
         if (!ext) return undefined
         if (raw) return ext
@@ -1123,19 +1123,19 @@ export class SDCQuestionnaireBehaveProfile {
     }
 
     public getMinValue (): Extension | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         return (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/minValue")
     }
 
     public getMaxValue (): Extension | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         return (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/maxValue")
     }
 
     public getMinQuantity(raw: true): Extension | undefined
     public getMinQuantity(raw?: false): Quantity | undefined
     public getMinQuantity (raw?: boolean): Extension | Quantity | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-minQuantity")
         if (!ext) return undefined
         if (raw) return ext
@@ -1145,7 +1145,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getMaxQuantity(raw: true): Extension | undefined
     public getMaxQuantity(raw?: false): Quantity | undefined
     public getMaxQuantity (raw?: boolean): Extension | Quantity | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-maxQuantity")
         if (!ext) return undefined
         if (raw) return ext
@@ -1155,7 +1155,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getMaxDecimalPlaces(raw: true): Extension | undefined
     public getMaxDecimalPlaces(raw?: false): number | undefined
     public getMaxDecimalPlaces (raw?: boolean): Extension | number | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/maxDecimalPlaces")
         if (!ext) return undefined
         if (raw) return ext
@@ -1165,7 +1165,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getMimeType(raw: true): Extension | undefined
     public getMimeType(raw?: false): string | undefined
     public getMimeType (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/mimeType")
         if (!ext) return undefined
         if (raw) return ext
@@ -1175,7 +1175,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getMaxSize(raw: true): Extension | undefined
     public getMaxSize(raw?: false): number | undefined
     public getMaxSize (raw?: boolean): Extension | number | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/maxSize")
         if (!ext) return undefined
         if (raw) return ext
@@ -1185,7 +1185,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getAnswerOptionsToggleExpression(raw: true): Extension | undefined
     public getAnswerOptionsToggleExpression(raw?: false): SDCQuestionnaireBehave_AnswerOptionsToggleExpressionInput | undefined
     public getAnswerOptionsToggleExpression (raw?: boolean): Extension | SDCQuestionnaireBehave_AnswerOptionsToggleExpressionInput | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerOptionsToggleExpression")
         if (!ext) return undefined
         if (raw) return ext
@@ -1196,7 +1196,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getUnitOption(raw: true): Extension | undefined
     public getUnitOption(raw?: false): Coding | undefined
     public getUnitOption (raw?: boolean): Extension | Coding | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption")
         if (!ext) return undefined
         if (raw) return ext
@@ -1206,7 +1206,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getUnitValueSet(raw: true): Extension | undefined
     public getUnitValueSet(raw?: false): string | undefined
     public getUnitValueSet (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-unitValueSet")
         if (!ext) return undefined
         if (raw) return ext
@@ -1216,7 +1216,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getUnitOpen(raw: true): Extension | undefined
     public getUnitOpen(raw?: false): string | undefined
     public getUnitOpen (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-unitOpen")
         if (!ext) return undefined
         if (raw) return ext
@@ -1226,7 +1226,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getUnitSupplementalSystem(raw: true): Extension | undefined
     public getUnitSupplementalSystem(raw?: false): string | undefined
     public getUnitSupplementalSystem (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-unitSupplementalSystem")
         if (!ext) return undefined
         if (raw) return ext
@@ -1236,7 +1236,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getAllowedResource(raw: true): Extension | undefined
     public getAllowedResource(raw?: false): string | undefined
     public getAllowedResource (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-referenceResource")
         if (!ext) return undefined
         if (raw) return ext
@@ -1246,7 +1246,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getAllowedProfile(raw: true): Extension | undefined
     public getAllowedProfile(raw?: false): string | undefined
     public getAllowedProfile (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-referenceProfile")
         if (!ext) return undefined
         if (raw) return ext
@@ -1256,7 +1256,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getCandidateExpression(raw: true): Extension | undefined
     public getCandidateExpression(raw?: false): Expression | undefined
     public getCandidateExpression (raw?: boolean): Extension | Expression | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-candidateExpression")
         if (!ext) return undefined
         if (raw) return ext
@@ -1266,7 +1266,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getLookupQuestionnaire(raw: true): Extension | undefined
     public getLookupQuestionnaire(raw?: false): string | undefined
     public getLookupQuestionnaire (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-lookupQuestionnaire")
         if (!ext) return undefined
         if (raw) return ext
@@ -1276,7 +1276,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getItemConstraint(raw: true): Extension | undefined
     public getItemConstraint(raw?: false): SDCQuestionnaireBehave_ItemConstraintInput | undefined
     public getItemConstraint (raw?: boolean): Extension | SDCQuestionnaireBehave_ItemConstraintInput | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-constraint")
         if (!ext) return undefined
         if (raw) return ext
@@ -1287,7 +1287,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getInitialExpression(raw: true): Extension | undefined
     public getInitialExpression(raw?: false): Expression | undefined
     public getInitialExpression (raw?: boolean): Extension | Expression | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression")
         if (!ext) return undefined
         if (raw) return ext
@@ -1297,7 +1297,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getCalculatedExpression(raw: true): Extension | undefined
     public getCalculatedExpression(raw?: false): Expression | undefined
     public getCalculatedExpression (raw?: boolean): Extension | Expression | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression")
         if (!ext) return undefined
         if (raw) return ext
@@ -1307,7 +1307,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getEnableWhenExpression(raw: true): Extension | undefined
     public getEnableWhenExpression(raw?: false): Expression | undefined
     public getEnableWhenExpression (raw?: boolean): Extension | Expression | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression")
         if (!ext) return undefined
         if (raw) return ext
@@ -1317,7 +1317,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getRequiredExpression(raw: true): Extension | undefined
     public getRequiredExpression(raw?: false): Expression | undefined
     public getRequiredExpression (raw?: boolean): Extension | Expression | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","required","value"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","required","value"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-expression")
         if (!ext) return undefined
         if (raw) return ext
@@ -1327,7 +1327,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getRepeatsExpression(raw: true): Extension | undefined
     public getRepeatsExpression(raw?: false): Expression | undefined
     public getRepeatsExpression (raw?: boolean): Extension | Expression | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","repeats","value"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","repeats","value"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-expression")
         if (!ext) return undefined
         if (raw) return ext
@@ -1337,7 +1337,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getReadOnlyExpression(raw: true): Extension | undefined
     public getReadOnlyExpression(raw?: false): Expression | undefined
     public getReadOnlyExpression (raw?: boolean): Extension | Expression | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","readOnly","value"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","readOnly","value"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-expression")
         if (!ext) return undefined
         if (raw) return ext
@@ -1347,7 +1347,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getAnswerValueSetExpression(raw: true): Extension | undefined
     public getAnswerValueSetExpression(raw?: false): Expression | undefined
     public getAnswerValueSetExpression (raw?: boolean): Extension | Expression | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","answerValueSet","value"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answerValueSet","value"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-expression")
         if (!ext) return undefined
         if (raw) return ext
@@ -1357,7 +1357,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getOptionExclusive(raw: true): Extension | undefined
     public getOptionExclusive(raw?: false): boolean | undefined
     public getOptionExclusive (raw?: boolean): Extension | boolean | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","answerOption"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answerOption"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-optionExclusive")
         if (!ext) return undefined
         if (raw) return ext
@@ -1367,7 +1367,7 @@ export class SDCQuestionnaireBehaveProfile {
     public getOrdinalValue(raw: true): Extension | undefined
     public getOrdinalValue(raw?: false): number | undefined
     public getOrdinalValue (raw?: boolean): Extension | number | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item","answerOption"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answerOption"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/ordinalValue")
         if (!ext) return undefined
         if (raw) return ext

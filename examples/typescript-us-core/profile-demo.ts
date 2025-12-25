@@ -18,8 +18,8 @@ import { USCorePatientProfileProfile } from "./fhir-types/hl7-fhir-us-core/profi
 function createPatientExample(): Patient {
     console.log("=== Example 1: US Core Patient Profile ===\n");
 
-    // Create a new patient profile builder
-    const patientProfile = new USCorePatientProfileProfile();
+    // Create a new patient profile builder with a base Patient resource
+    const patientProfile = new USCorePatientProfileProfile({ resourceType: "Patient" });
 
     // Use fluent API with FLAT object structure - no nested extensions!
     patientProfile
@@ -80,8 +80,8 @@ function createPatientExample(): Patient {
 function createBloodPressureExample(): Observation {
     console.log("=== Example 2: US Core Blood Pressure Profile ===\n");
 
-    // Create a blood pressure profile builder
-    const bpProfile = new USCoreBloodPressureProfileProfile();
+    // Create a blood pressure profile builder with a base Observation resource
+    const bpProfile = new USCoreBloodPressureProfileProfile({ resourceType: "Observation" } as Observation);
 
     // Use fluent API to set slices - discriminator values are auto-applied
     bpProfile
@@ -175,7 +175,7 @@ function resetExtensionExample(): Patient {
     console.log("=== Example 4: Resetting Extensions ===\n");
 
     // Create patient with extensions
-    const patientProfile = new USCorePatientProfileProfile();
+    const patientProfile = new USCorePatientProfileProfile({ resourceType: "Patient" });
     patientProfile
         .setSex({
             system: "http://hl7.org/fhir/us/core/CodeSystem/birthsex",

@@ -125,6 +125,9 @@ const tsEnumType = (enumValues: string[]) => {
 const tsTypeFromIdentifier = (id: Identifier): string => {
     if (isNestedIdentifier(id)) return tsResourceName(id);
     if (isPrimitiveIdentifier(id)) return resolvePrimitiveType(id.name);
+    // Fallback: check if id.name is a known primitive type even if kind isn't set
+    const primitiveType = primitiveType2tsType[id.name];
+    if (primitiveType !== undefined) return primitiveType;
     return id.name;
 };
 
@@ -191,12 +194,16 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         if (profiles.length === 0) return;
         this.cd("profiles", () => {
             this.cat("index.ts", () => {
-                const exports = profiles
-                    .filter(isProfileTypeSchema)
-                    .map((schema) => this.tsProfileClassName(tsResourceName(schema.identifier)))
-                    .sort((a, b) => a.localeCompare(b));
-                if (exports.length === 0) return;
-                for (const profile of profiles) {
+                // Deduplicate by class name to avoid duplicate exports
+                const seen = new Set<string>();
+                const uniqueProfiles = profiles.filter((profile) => {
+                    const className = this.tsProfileClassName(tsResourceName(profile.identifier));
+                    if (seen.has(className)) return false;
+                    seen.add(className);
+                    return true;
+                });
+                if (uniqueProfiles.length === 0) return;
+                for (const profile of uniqueProfiles) {
                     const className = this.tsProfileClassName(tsResourceName(profile.identifier));
                     this.lineSM(`export { ${className} } from "./${tsModuleName(profile.identifier)}"`);
                 }
@@ -453,7 +460,9 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 .join(" | ");
             if (sRefs.length === 1 && sRefs[0] === "Resource" && references !== '"Resource"') {
                 // FIXME: should be generilized to type families
-                return `Reference<"Resource" /* ${references} */ >`;
+                // Strip inner comments to avoid nested /* */ which is invalid
+                const cleanRefs = references.replace(/\/\*[^*]*\*\//g, "").trim();
+                return `Reference<"Resource" /* ${cleanRefs} */ >`;
             }
             return `Reference<${references}>`;
         }
@@ -863,6 +872,8 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 }
             } else if (ext.valueTypes && ext.valueTypes.length === 1) {
                 // Simple extensions with single value type
+                // Also need Extension type for getter overloads
+                needsExtensionType = true;
                 const valueType = ext.valueTypes[0];
                 if (valueType) {
                     addType(valueType);
@@ -963,13 +974,43 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             this.line();
         }
 
+        // Known polymorphic field base names in FHIR (value[x], effective[x], etc.)
+        // These don't exist as direct properties on TypeScript types
+        const polymorphicBaseNames = new Set([
+            "value",
+            "effective",
+            "onset",
+            "abatement",
+            "occurrence",
+            "timing",
+            "deceased",
+            "born",
+            "age",
+            "medication",
+            "performed",
+            "serviced",
+            "collected",
+            "item",
+            "subject",
+            "bounds",
+            "amount",
+            "content",
+            "product",
+            "rate",
+            "dose",
+            "asNeeded",
+        ]);
+
         if (sliceDefs.length > 0) {
             for (const sliceDef of sliceDefs) {
                 const typeName = this.tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
                 const matchFields = Object.keys(sliceDef.match);
                 const allExcluded = [...new Set([...sliceDef.excluded, ...matchFields])];
                 const excludedNames = allExcluded.map((name) => JSON.stringify(name));
-                const filteredRequired = sliceDef.required.filter((name) => !matchFields.includes(name));
+                // Filter out polymorphic base names that don't exist as direct TS properties
+                const filteredRequired = sliceDef.required.filter(
+                    (name) => !matchFields.includes(name) && !polymorphicBaseNames.has(name),
+                );
                 const requiredNames = filteredRequired.map((name) => JSON.stringify(name));
                 let typeExpr = sliceDef.baseType;
                 if (excludedNames.length > 0) {
@@ -1067,16 +1108,21 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                             const valueField = sub.valueType
                                 ? `value${uppercaseFirstLetter(sub.valueType.name)}`
                                 : "value";
+                            // When value type is unknown, cast to Extension to avoid TS error
+                            const needsCast = !sub.valueType;
+                            const pushSuffix = needsCast ? " as Extension" : "";
                             if (sub.max === "*") {
                                 this.curlyBlock(["if", `(input.${sub.name})`], () => {
                                     this.curlyBlock(["for", `(const item of input.${sub.name})`], () => {
-                                        this.line(`subExtensions.push({ url: "${sub.url}", ${valueField}: item })`);
+                                        this.line(
+                                            `subExtensions.push({ url: "${sub.url}", ${valueField}: item }${pushSuffix})`,
+                                        );
                                     });
                                 });
                             } else {
                                 this.curlyBlock(["if", `(input.${sub.name} !== undefined)`], () => {
                                     this.line(
-                                        `subExtensions.push({ url: "${sub.url}", ${valueField}: input.${sub.name} })`,
+                                        `subExtensions.push({ url: "${sub.url}", ${valueField}: input.${sub.name} }${pushSuffix})`,
                                     );
                                 });
                             }
@@ -1086,9 +1132,9 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                             this.line(`list.push({ url: "${ext.url}", extension: subExtensions })`);
                         } else {
                             this.line(
-                                `const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
+                                `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
                             );
-                            this.line("if (!Array.isArray(target.extension)) target.extension = []");
+                            this.line("if (!Array.isArray(target.extension)) target.extension = [] as Extension[]");
                             this.line(
                                 `(target.extension as Extension[]).push({ url: "${ext.url}", extension: subExtensions })`,
                             );
@@ -1105,11 +1151,11 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                             this.line(`list.push({ url: "${ext.url}", ${valueField}: value })`);
                         } else {
                             this.line(
-                                `const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ${JSON.stringify(
+                                `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(
                                     targetPath,
                                 )})`,
                             );
-                            this.line("if (!Array.isArray(target.extension)) target.extension = []");
+                            this.line("if (!Array.isArray(target.extension)) target.extension = [] as Extension[]");
                             this.line(
                                 `(target.extension as Extension[]).push({ url: "${ext.url}", ${valueField}: value })`,
                             );
@@ -1123,11 +1169,11 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                             this.line(`list.push({ url: "${ext.url}", ...value })`);
                         } else {
                             this.line(
-                                `const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ${JSON.stringify(
+                                `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(
                                     targetPath,
                                 )})`,
                             );
-                            this.line("if (!Array.isArray(target.extension)) target.extension = []");
+                            this.line("if (!Array.isArray(target.extension)) target.extension = [] as Extension[]");
                             this.line(`(target.extension as Extension[]).push({ url: "${ext.url}", ...value })`);
                         }
                         this.line("return this");
@@ -1182,7 +1228,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                         this.line("const list = this.resource.extension");
                     } else {
                         this.line(
-                            `const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
+                            `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
                         );
                         this.line("const list = target.extension as Extension[] | undefined");
                     }
@@ -1241,7 +1287,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                                 this.line(`const ext = this.resource.extension?.find(e => e.url === "${ext.url}")`);
                             } else {
                                 this.line(
-                                    `const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
+                                    `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
                                 );
                                 this.line(
                                     `const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "${ext.url}")`,
@@ -1277,7 +1323,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                                 this.line(`const ext = this.resource.extension?.find(e => e.url === "${ext.url}")`);
                             } else {
                                 this.line(
-                                    `const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
+                                    `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
                                 );
                                 this.line(
                                     `const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "${ext.url}")`,
@@ -1295,7 +1341,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                             this.line(`return this.resource.extension?.find(e => e.url === "${ext.url}")`);
                         } else {
                             this.line(
-                                `const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
+                                `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
                             );
                             this.line(
                                 `return (target.extension as Extension[] | undefined)?.find(e => e.url === "${ext.url}")`,

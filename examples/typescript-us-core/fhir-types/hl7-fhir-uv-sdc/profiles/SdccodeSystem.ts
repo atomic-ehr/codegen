@@ -3,6 +3,7 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { CodeSystem } from "../../hl7-fhir-r4-core/CodeSystem";
+import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 // CanonicalURL: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-codesystem
 export interface SDCCodeSystem extends CodeSystem {
@@ -33,29 +34,29 @@ export class SDCCodeSystemProfile {
     }
 
     public setExtensionConceptDisplayConceptDisplayLabelRenderingStyle (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["concept","display"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["concept","display"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/rendering-style", valueString: value })
         return this
     }
 
     public setExtensionConceptDisplayConceptDisplayLabelXhtml (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["concept","display"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["concept","display"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/rendering-xhtml", valueString: value })
         return this
     }
 
     public setExtensionConceptDesignationValueConceptDisplayLabelRenderingStyle (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["concept","designation","value"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["concept","designation","value"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/rendering-style", valueString: value })
         return this
     }
 
     public setExtensionConceptDesignationValueConceptDisplayLabelXhtml (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["concept","designation","value"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["concept","designation","value"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/rendering-xhtml", valueString: value })
         return this
     }
@@ -72,7 +73,7 @@ export class SDCCodeSystemProfile {
     }
 
     public resetConceptDisplayLabelRenderingStyle (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["concept","display"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["concept","display"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
@@ -84,7 +85,7 @@ export class SDCCodeSystemProfile {
     }
 
     public resetConceptDisplayLabelXhtml (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["concept","display"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["concept","display"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
@@ -107,7 +108,7 @@ export class SDCCodeSystemProfile {
     public getConceptDisplayLabelRenderingStyle(raw: true): Extension | undefined
     public getConceptDisplayLabelRenderingStyle(raw?: false): string | undefined
     public getConceptDisplayLabelRenderingStyle (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["concept","display"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["concept","display"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
         if (!ext) return undefined
         if (raw) return ext
@@ -117,7 +118,7 @@ export class SDCCodeSystemProfile {
     public getConceptDisplayLabelXhtml(raw: true): Extension | undefined
     public getConceptDisplayLabelXhtml(raw?: false): string | undefined
     public getConceptDisplayLabelXhtml (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["concept","display"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["concept","display"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
         if (!ext) return undefined
         if (raw) return ext

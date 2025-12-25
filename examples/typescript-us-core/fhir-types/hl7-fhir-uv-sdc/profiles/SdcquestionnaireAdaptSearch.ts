@@ -54,15 +54,15 @@ export class SDCQuestionnaireAdaptSearchProfile {
     }
 
     public setExtensionItemDesignNote (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/designNote", valueMarkdown: value })
         return this
     }
 
     public setExtensionItemTerminologyServer (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer", valueUrl: value })
         return this
     }

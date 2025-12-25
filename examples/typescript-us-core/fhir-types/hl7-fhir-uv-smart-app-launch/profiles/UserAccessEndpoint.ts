@@ -4,13 +4,14 @@
 
 import type { ContactPoint } from "../../hl7-fhir-r4-core/ContactPoint";
 import type { Endpoint } from "../../hl7-fhir-r4-core/Endpoint";
+import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 // CanonicalURL: http://hl7.org/fhir/smart-app-launch/StructureDefinition/user-access-endpoint
 export interface UserAccessEndpoint extends Endpoint {
     contact: ContactPoint[];
 }
 
-export type UserAccessEndpoint_Contact_Configuration_urlSliceInput = Omit<ContactPoint, "system"> & Required<Pick<ContactPoint, "value">>;
+export type UserAccessEndpoint_Contact_Configuration_urlSliceInput = Omit<ContactPoint, "system">;
 
 import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 

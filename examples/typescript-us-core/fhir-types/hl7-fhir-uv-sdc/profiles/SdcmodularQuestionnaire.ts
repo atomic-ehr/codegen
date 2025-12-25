@@ -2,6 +2,7 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Questionnaire } from "../../hl7-fhir-r4-core/Questionnaire";
 
 // CanonicalURL: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-modular
@@ -51,15 +52,15 @@ export class SDCModularQuestionnaireProfile {
     }
 
     public setExtensionItemDesignNote (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/StructureDefinition/designNote", valueMarkdown: value })
         return this
     }
 
     public setExtensionItemTerminologyServer (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer", valueUrl: value })
         return this
     }
@@ -71,8 +72,8 @@ export class SDCModularQuestionnaireProfile {
     }
 
     public setSubQuestionnaire (value: string): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
-        if (!Array.isArray(target.extension)) target.extension = []
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        if (!Array.isArray(target.extension)) target.extension = [] as Extension[]
         (target.extension as Extension[]).push({ url: "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-subQuestionnaire", valueCanonical: value })
         return this
     }
@@ -133,7 +134,7 @@ export class SDCModularQuestionnaireProfile {
     }
 
     public resetSubQuestionnaire (): this {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const list = target.extension as Extension[] | undefined
         if (list) {
             const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-subQuestionnaire")
@@ -192,7 +193,7 @@ export class SDCModularQuestionnaireProfile {
     public getSubQuestionnaire(raw: true): Extension | undefined
     public getSubQuestionnaire(raw?: false): string | undefined
     public getSubQuestionnaire (raw?: boolean): Extension | string | undefined {
-        const target = getOrCreateObjectAtPath(this.resource as Record<string, unknown>, ["item"])
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-subQuestionnaire")
         if (!ext) return undefined
         if (raw) return ext

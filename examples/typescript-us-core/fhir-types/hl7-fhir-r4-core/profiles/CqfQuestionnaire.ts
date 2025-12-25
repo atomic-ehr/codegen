@@ -2,6 +2,7 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Questionnaire } from "../../hl7-fhir-r4-core/Questionnaire";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/cqf-questionnaire
