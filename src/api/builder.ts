@@ -59,17 +59,38 @@ export interface APIBuilderOptions {
  */
 export type ProgressCallback = (phase: string, current: number, total: number, message?: string) => void;
 
-/**
- * Generation result information
- */
-export interface GenerationResult {
+export type GenerationReport = {
     success: boolean;
     outputDir: string;
     filesGenerated: Record<string, string>;
     errors: string[];
     warnings: string[];
     duration: number;
-}
+};
+
+export const prettyReport = (report: GenerationReport): string => {
+    const { success, filesGenerated, errors, warnings, duration } = report;
+    const errorsStr = errors.length > 0 ? `Errors: ${errors.join(", ")}` : undefined;
+    const warningsStr = warnings.length > 0 ? `Warnings: ${warnings.join(", ")}` : undefined;
+    let allLoc = 0;
+    const files = Object.entries(filesGenerated)
+        .map(([path, content]) => {
+            const loc = content.split("\n").length;
+            allLoc += loc;
+            return `  - ${path} (${loc} loc)`;
+        })
+        .join("\n");
+    return [
+        `Generated files (${Math.round(allLoc / 1000)} kloc):`,
+        files,
+        errorsStr,
+        warningsStr,
+        `Duration: ${Math.round(duration)}ms`,
+        `Status: ${success ? "🟩 Success" : "🟥 Failure"}`,
+    ]
+        .filter((e) => e)
+        .join("\n");
+};
 
 export interface GeneratedFile {
     fullFileName: string;
@@ -400,9 +421,9 @@ export class APIBuilder {
         return this;
     }
 
-    async generate(): Promise<GenerationResult> {
+    async generate(): Promise<GenerationReport> {
         const startTime = performance.now();
-        const result: GenerationResult = {
+        const result: GenerationReport = {
             success: false,
             outputDir: this.options.outputDir,
             filesGenerated: {},
@@ -512,7 +533,7 @@ export class APIBuilder {
         return Array.from(this.generators.keys());
     }
 
-    private async executeGenerators(result: GenerationResult, tsIndex: TypeSchemaIndex): Promise<void> {
+    private async executeGenerators(result: GenerationReport, tsIndex: TypeSchemaIndex): Promise<void> {
         for (const [type, generator] of this.generators.entries()) {
             this.logger.info(`Generating ${type}...`);
 

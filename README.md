@@ -19,13 +19,23 @@
       - [Load Local StructureDefinitions & TGZ Archives](#load-local-structuredefinitions--tgz-archives)
     - [Intermediate - Type Schema](#intermediate---type-schema)
       - [Tree Shaking](#tree-shaking)
+        - [Field-Level Tree Shaking](#field-level-tree-shaking)
     - [Generation](#generation)
+      - [1. Writer-Based Generation (Programmatic)](#1-writer-based-generation-programmatic)
   - [Roadmap](#roadmap)
   - [Support](#support)
+- [Footnotes](#footnotes)
 
 <!-- markdown-toc end -->
 
 A powerful, extensible code generation toolkit for FHIR ([Fast Healthcare Interoperability Resources](https://www.hl7.org/fhir/)) that transforms FHIR specifications into strongly-typed code for multiple programming languages.
+
+Guides:
+
+- **[Writer Generator Guide](docs/guides/writer-generator.md)** - Build custom code generators with the Writer base class
+- **[TypeSchemaIndex Guide](docs/guides/typeschema-index.md)** - Type Schema structure and utilities
+- **[Testing Generators Guide](docs/guides/testing-generators.md)** - Unit tests, snapshot testing, and best practices
+- **[Contributing Guide](CONTRIBUTING.md)** - Development setup and workflow
 
 ## Features
 
@@ -62,7 +72,7 @@ yarn add @atomic-ehr/codegen
 1. Write SDK generation script (`generate-types.ts`):
 
     ```typescript
-    import { APIBuilder } from '@atomic-ehr/codegen';
+    import { APIBuilder, prettyReport } from '@atomic-ehr/codegen';
 
     const builder = new APIBuilder()
         .fromPackage("hl7.fhir.r4.core", "4.0.1")
@@ -70,7 +80,7 @@ yarn add @atomic-ehr/codegen
         .outputTo("./examples/typescript-r4/fhir-types");
 
     const report = await builder.generate();
-    console.log(report);
+    console.log(prettyReport(report));
     ```
 
 2. Run the script with:
@@ -221,14 +231,21 @@ FHIR choice types (like `multipleBirth[x]` which can be boolean or integer) are 
 
 ### Generation
 
-The generation stage uses a `WriterGenerator` system that transforms Type Schema into target language code. The architecture consists of:
+The generation stage transforms Type Schema into target language code using two complementary approaches:
 
-- **Base Writer** (`Writer`): Handles file I/O, indentation, and code formatting primitives
-- **Language Writers** (e.g., `TypeScript`): Implement language-specific generation logic
+#### 1. Writer-Based Generation (Programmatic)
 
-Writers provide high-level abstractions for common code patterns (blocks, imports, type definitions) while maintaining full control over output formatting. Each language writer traverses the Type Schema index and generates corresponding types, interfaces, or classes following that language's idioms and best practices.
+For languages with built-in support (TypeScript, Python, C#), extend the `Writer` class to implement language-specific generators:
 
-- [Type Schema: Python SDK for FHIR](https://www.health-samurai.io/articles/type-schema-python-sdk-for-fhir)
+- **FileSystemWriter**: Base class providing file I/O, directory management, and buffer handling (both disk and in-memory modes)
+- **Writer**: Extends FileSystemWriter with code formatting utilities (indentation, blocks, comments, line management)
+- **Language Writers** (`TypeScript`, `Python`[^py], `CSharp`): Implement language-specific generation logic by traversing TypeSchema index and generating corresponding types, interfaces, or classes
+
+[^py]: For details on [Type Schema: Python SDK for FHIR](https://www.health-samurai.io/articles/type-schema-python-sdk-for-fhir)
+
+Each language writer maintains full control over output formatting while leveraging high-level abstractions for common code patterns. Writers follow language idioms and best practices, with optimized output for production use.
+
+**When to use**: Full control needed, complex generation logic, performance-critical, language has a dedicated writer, production-grade output
 
 ## Roadmap
 
@@ -266,7 +283,8 @@ Writers provide high-level abstractions for common code patterns (blocks, import
         .execute();
     ```
 
-- [ ] **Python generation**
+- [x] **Python generation**
+- [x] **C# generation**
 - [ ] **Rust generation**
 - [ ] **GraphQL schema generation**
 - [ ] **OpenAPI specification generation**
