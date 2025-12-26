@@ -5,9 +5,9 @@ from typing import TypeVar, Dict, Any
 from pydantic import BaseModel
 from fhirpy import AsyncFHIRClient
 
-from fhir_types.hl7_fhir_r4_core import HumanName
-from fhir_types.hl7_fhir_r4_core.patient import Patient
-from fhir_types.hl7_fhir_r4_core.organization import Organization
+from fhir_types_with_FhirBaseModel.hl7_fhir_r4_core import HumanName
+from fhir_types_with_FhirBaseModel.hl7_fhir_r4_core.patient import Patient
+from fhir_types_with_FhirBaseModel.hl7_fhir_r4_core.organization import Organization
 
 T = TypeVar('T', bound=BaseModel)
 

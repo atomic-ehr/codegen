@@ -71,10 +71,15 @@ test-csharp-sdk: typecheck format prepare-aidbox-runme lint
 PYTHON=python3.13
 PYTHON_SDK_EXAMPLE=./examples/python
 
-test-python-sdk: typecheck format prepare-aidbox-runme lint
+generate-python-sdk:
 	$(TYPECHECK) --project examples/python/tsconfig.json
 	bun run examples/python/generate.ts
 
+generate-python-sdk-fhirpy:
+	$(TYPECHECK) --project examples/python/tsconfig.json
+	bun run examples/python/fhirpy_generate.ts
+
+test-python-sdk: typecheck format prepare-aidbox-runme lint generate-python-sdk
 	@if [ ! -d "$(PYTHON_SDK_EXAMPLE)/venv" ]; then \
 		cd $(PYTHON_SDK_EXAMPLE) && \
 		$(PYTHON) -m venv venv && \
