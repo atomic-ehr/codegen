@@ -38,7 +38,6 @@ export interface TypeScriptGeneratorConfig {
 
     // Profile generation options
     profileOptions?: {
-        generateKind?: "interface" | "type" | "both";
         includeConstraints?: boolean;
         includeDocumentation?: boolean;
         strictMode?: boolean;
@@ -180,7 +179,6 @@ export const DEFAULT_CONFIG: Required<Config> = {
 
         // Profile generation defaults
         profileOptions: {
-            generateKind: "interface",
             includeConstraints: true,
             includeDocumentation: true,
             strictMode: false,
@@ -576,17 +574,6 @@ export class ConfigValidator {
         }
 
         const cfg = config as Record<string, unknown>;
-
-        // Validate generateKind
-        if (cfg.generateKind !== undefined) {
-            if (!["interface", "type", "both"].includes(cfg.generateKind as string)) {
-                errors.push({
-                    path: "typescript.profileOptions.generateKind",
-                    message: 'generateKind must be "interface", "type", or "both"',
-                    value: cfg.generateKind,
-                });
-            }
-        }
 
         // Validate subfolder
         if (cfg.subfolder !== undefined && typeof cfg.subfolder !== "string") {

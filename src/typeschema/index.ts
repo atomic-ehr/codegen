@@ -31,9 +31,19 @@ const skipMe: Record<string, Record<string, string>> = {
         "http://hl7.org/fhir/StructureDefinition/workflow-protectiveFactor": codeableReferenceInR4,
         "http://hl7.org/fhir/StructureDefinition/workflow-reason": codeableReferenceInR4,
     },
+    "hl7.fhir.uv.extensions.r4#5.2.0": {
+        "http://hl7.org/fhir/StructureDefinition/extended-contact-availability": availabilityInR4,
+        "http://hl7.org/fhir/StructureDefinition/immunization-procedure": codeableReferenceInR4,
+        "http://hl7.org/fhir/StructureDefinition/specimen-additive": codeableReferenceInR4,
+        "http://hl7.org/fhir/StructureDefinition/workflow-barrier": codeableReferenceInR4,
+        "http://hl7.org/fhir/StructureDefinition/workflow-protectiveFactor": codeableReferenceInR4,
+        "http://hl7.org/fhir/StructureDefinition/workflow-reason": codeableReferenceInR4,
+    },
     "hl7.fhir.r5.core#5.0.0": {
         "http://hl7.org/fhir/StructureDefinition/shareablecodesystem":
             "FIXME: CodeSystem.concept.concept defined by ElementReference. FHIR Schema generator output broken value in it, so we just skip it for now.",
+        "http://hl7.org/fhir/StructureDefinition/publishablecodesystem":
+            "Uses R5-only base types not available in R4 generation.",
     },
 };
 
