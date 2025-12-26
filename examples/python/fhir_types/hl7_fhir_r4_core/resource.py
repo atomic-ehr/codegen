@@ -5,12 +5,11 @@
 from __future__ import annotations
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt
 from typing import List as PyList, Literal
-from fhir_types.hl7_fhir_r4_core.FHIRBase import FHIRBase
 
 from fhir_types.hl7_fhir_r4_core.base import Meta
 
 
-class Resource(FHIRBase):
+class Resource(BaseModel):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     resource_type: str = Field(
         default='Resource',
