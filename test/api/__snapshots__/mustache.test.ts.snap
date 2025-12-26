@@ -1,0 +1,1418 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`Mustache Template Based Generation Patient resource 1`] = `
+"package de.solutio.fhir.models.resources;
+
+import static java.util.Objects.requireNonNull;
+
+import jakarta.annotation.Generated;
+import jakarta.annotation.Nullable;
+import jakarta.annotation.Generated;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import jakarta.validation.Valid;
+
+import de.solutio.fhir.models.Primitive;
+import de.solutio.fhir.models.ResourceName;
+import de.solutio.fhir.models.Utils;
+
+    import de.solutio.fhir.models.complex_types.ReferenceDTO;
+import de.solutio.fhir.models.complex_types.ElementDTO;
+
+        import de.solutio.fhir.models.complex_types.AddressDTO;
+        import de.solutio.fhir.models.complex_types.AttachmentDTO;
+        import de.solutio.fhir.models.complex_types.BackboneElementDTO;
+        import de.solutio.fhir.models.complex_types.CodeableConceptDTO;
+        import de.solutio.fhir.models.complex_types.ContactPointDTO;
+        import de.solutio.fhir.models.complex_types.HumanNameDTO;
+        import de.solutio.fhir.models.complex_types.IdentifierDTO;
+        import de.solutio.fhir.models.complex_types.PeriodDTO;
+        import de.solutio.fhir.models.complex_types.ReferenceDTO;
+
+        import de.solutio.fhir.models.resources.DomainResourceDTO;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+
+import java.net.URI;
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.UUID;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.stream.IntStream;
+
+@Generated(value="@atomic-ehr/codegen mustache generator", date="2025-12-24T00:00:00.000Z")
+@JsonTypeName("Patient")
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE, getterVisibility = JsonAutoDetect.Visibility.NONE, isGetterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.NONE, scalarConstructorVisibility = JsonAutoDetect.Visibility.NONE)
+public  class PatientDTO extends DomainResourceDTO{
+    public static final ResourceName NAME = ResourceName.PATIENT_DTO;
+
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE, getterVisibility = JsonAutoDetect.Visibility.NONE, isGetterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.NONE, scalarConstructorVisibility = JsonAutoDetect.Visibility.NONE)
+        public static class PatientCommunicationDTO extends BackboneElementDTO{
+
+
+
+                private final @NotNull 
+                              
+                              
+                              
+                              @JsonProperty("language") @Valid CodeableConceptDTO language;
+                private final @Nullable 
+                              
+                              
+                              
+                              @JsonProperty("preferred") Boolean preferred;
+                    private final @Nullable @JsonProperty("_preferred") ElementDTO _preferred;
+
+            protected PatientCommunicationDTO(){
+                    this.language = null;
+                    this.preferred = null;
+                        this._preferred = null;
+            }
+
+
+                public CodeableConceptDTO language() {
+                    return this.language;
+                }
+                public Optional<Boolean> preferred() {
+                    return Optional.ofNullable(this.preferred);
+                }
+                    public Optional<ElementDTO> _preferred() {
+                        return Optional.ofNullable(this._preferred);
+                    }
+
+                public static PatientCommunicationDTOBuilder patientCommunicationDtoBuilder() {
+                    return new PatientCommunicationDTOBuilder();
+                }
+
+
+
+                protected static abstract class AbstractPatientCommunicationDTOBuilder<T extends PatientCommunicationDTO, B extends AbstractPatientCommunicationDTOBuilder<T,B>> extends AbstractBackboneElementDTOBuilder<T,B>{
+
+                        private @Nullable CodeableConceptDTO language = null;
+                        private @Nullable Primitive<Boolean> preferred = null;
+
+                    protected AbstractPatientCommunicationDTOBuilder() {
+                    }
+
+
+                                public final B language(@Nullable CodeableConceptDTO language) {
+                                    this.language = language;
+                                    return this.self();
+                                }
+                                public final B preferred(@Nullable Boolean preferred) {
+                                    return this.preferred(preferred, null);
+                                }
+                                public final B _preferred(@Nullable ElementDTO preferredElement) {
+                                    requireNonNull(this.preferred, "preferred must not be null to set preferredElement");
+                                    return this.preferred(this.preferred.value(), preferredElement);
+                                }
+                                public final B preferred(@Nullable Boolean preferred, @Nullable ElementDTO preferredElement) {
+                                    this.preferred = preferred != null ? Primitive.nonNullable(preferred, preferredElement) : null;
+                                    return this.self();
+                                }
+
+                    protected abstract B self();
+                }                public static final class PatientCommunicationDTOBuilder extends AbstractPatientCommunicationDTOBuilder<PatientCommunicationDTO,PatientCommunicationDTOBuilder>{
+                    private PatientCommunicationDTOBuilder(){
+                    }
+                    protected PatientCommunicationDTOBuilder self(){
+                        return this;
+                    }
+                    public PatientCommunicationDTO build(){
+                        return new PatientCommunicationDTO(this);
+                    }
+                }
+                private PatientCommunicationDTO(PatientCommunicationDTOBuilder builder) {
+                    this((AbstractPatientCommunicationDTOBuilder<?,?>)requireNonNull(builder));
+                }
+
+                protected PatientCommunicationDTO(AbstractPatientCommunicationDTOBuilder<?,?> builder) {
+                    super(requireNonNull(builder));
+                        requireNonNull(builder.language, "missing 'language'");
+                        
+                                this.language = builder.language;
+                                this.preferred = builder.preferred != null ? requireNonNull(builder.preferred.value()) : null;
+                                this._preferred = builder.preferred != null ?  builder.preferred.element() : null;
+                }
+                protected <B extends AbstractPatientCommunicationDTOBuilder<?,B>> B applyToBuilder(B builder) {
+                    requireNonNull(builder);
+                    super.applyToBuilder(builder);
+                        builder
+                                .language(this.language)
+                                                        .preferred(this.preferred,this._preferred)
+                        ;
+                    return builder;
+                }
+                    public final PatientCommunicationDTOBuilder toBuilder() {
+                        return this.applyToBuilder(PatientCommunicationDTO.patientCommunicationDtoBuilder());
+                    }
+
+                public int hashCode() {
+                    return Objects.hash(super.hashCode(),this.language, this.preferred);
+                }
+                public boolean equals(Object obj) {
+                    if (this == obj) {
+                        return true;
+                    } else if (obj == null) {
+                        return false;
+                        }else if(!super.equals(obj)) {
+                            return false;
+                    } else if (!(obj instanceof PatientCommunicationDTO)) {
+                        return false;
+                    }
+                        final PatientCommunicationDTO other = (PatientCommunicationDTO) obj;
+                        return Utils.equals(this.language, other.language) && Utils.equals(this.preferred, other.preferred);
+                }
+                protected Utils.ToStringHelper toStringHelper(){
+                    return super.toStringHelper()
+                            .add("language", this.language)
+                                                    .add("preferred", this.preferred)
+                                .add("_preferred", this._preferred)
+                        ;
+                }
+
+        }        @JsonInclude(JsonInclude.Include.NON_NULL)
+        @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE, getterVisibility = JsonAutoDetect.Visibility.NONE, isGetterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.NONE, scalarConstructorVisibility = JsonAutoDetect.Visibility.NONE)
+        public static class PatientContactDTO extends BackboneElementDTO{
+
+
+                public enum AdministrativeGenderDTO {
+                    MALE("male"),
+                                    FEMALE("female"),
+                                    OTHER("other"),
+                                    UNKNOWN("unknown")
+                ;
+
+                    private static final Map<String, AdministrativeGenderDTO> BY_VALUE;
+                    static {
+                        final Map<String, AdministrativeGenderDTO> builder = new HashMap<>();
+                        for (AdministrativeGenderDTO c: AdministrativeGenderDTO.values()) {
+                            builder.put(c.value, c);
+                        }
+                        BY_VALUE = Collections.unmodifiableMap(builder);
+                    }
+                    @JsonCreator
+                    public static AdministrativeGenderDTO fromValue(String value) {
+                        requireNonNull(value);
+                        if(AdministrativeGenderDTO.BY_VALUE.containsKey(value)) {
+                            return BY_VALUE.get(value);
+                        }
+                        throw new IllegalArgumentException("Unexpected value '" + value + "'");
+                    }
+
+                    private final String value;
+                    AdministrativeGenderDTO(String value) {
+                        this.value = requireNonNull(value);
+                    }
+
+                    @JsonValue
+                    public String getValue() {
+                        return value;
+                    }
+
+                    @Override
+                    public String toString() {
+                        return String.valueOf(value);
+                    }
+                }
+                private final @Nullable 
+                              
+                              
+                              
+                              @JsonProperty("address") @Valid AddressDTO address;
+                private final @Nullable 
+                              
+                              
+                              
+                              @JsonProperty("gender") AdministrativeGenderDTO gender;
+                    private final @Nullable @JsonProperty("_gender") ElementDTO _gender;
+                private final @Nullable 
+                              
+                              
+                              
+                              @JsonProperty("name") @Valid HumanNameDTO name;
+                private final @Nullable 
+                              
+                              
+                              
+                              @JsonProperty("organization") @Valid ReferenceDTO organization;
+                private final @Nullable 
+                              
+                              
+                              
+                              @JsonProperty("period") @Valid PeriodDTO period;
+                private final @Nullable 
+                              
+                              
+                              
+                              @JsonProperty("relationship") List<@Valid CodeableConceptDTO> relationship;
+                private final @Nullable 
+                              
+                              
+                              
+                              @JsonProperty("telecom") List<@Valid ContactPointDTO> telecom;
+
+            protected PatientContactDTO(){
+                    this.address = null;
+                    this.gender = null;
+                        this._gender = null;
+                    this.name = null;
+                    this.organization = null;
+                    this.period = null;
+                    this.relationship = null;
+                    this.telecom = null;
+            }
+
+
+                public Optional<AddressDTO> address() {
+                    return Optional.ofNullable(this.address);
+                }
+                public Optional<AdministrativeGenderDTO> gender() {
+                    return Optional.ofNullable(this.gender);
+                }
+                    public Optional<ElementDTO> _gender() {
+                        return Optional.ofNullable(this._gender);
+                    }
+                public Optional<HumanNameDTO> name() {
+                    return Optional.ofNullable(this.name);
+                }
+                public Optional<ReferenceDTO> organization() {
+                    return Optional.ofNullable(this.organization);
+                }
+                public Optional<PeriodDTO> period() {
+                    return Optional.ofNullable(this.period);
+                }
+                public Optional<List<CodeableConceptDTO>> relationship() {
+                    return Optional.ofNullable(this.relationship);
+                }
+                public Optional<List<ContactPointDTO>> telecom() {
+                    return Optional.ofNullable(this.telecom);
+                }
+
+                public static PatientContactDTOBuilder patientContactDtoBuilder() {
+                    return new PatientContactDTOBuilder();
+                }
+
+
+
+                protected static abstract class AbstractPatientContactDTOBuilder<T extends PatientContactDTO, B extends AbstractPatientContactDTOBuilder<T,B>> extends AbstractBackboneElementDTOBuilder<T,B>{
+
+                        private @Nullable AddressDTO address = null;
+                        private @Nullable Primitive<AdministrativeGenderDTO> gender = null;
+                        private @Nullable HumanNameDTO name = null;
+                        private @Nullable ReferenceDTO organization = null;
+                        private @Nullable PeriodDTO period = null;
+                        private @Nullable List<CodeableConceptDTO> relationship = null;
+                        private @Nullable List<ContactPointDTO> telecom = null;
+
+                    protected AbstractPatientContactDTOBuilder() {
+                    }
+
+
+                                public final B address(@Nullable AddressDTO address) {
+                                    this.address = address;
+                                    return this.self();
+                                }
+                                public final B gender(@Nullable AdministrativeGenderDTO gender) {
+                                    return this.gender(gender, null);
+                                }
+                                public final B _gender(@Nullable ElementDTO genderElement) {
+                                    requireNonNull(this.gender, "gender must not be null to set genderElement");
+                                    return this.gender(this.gender.value(), genderElement);
+                                }
+                                public final B gender(@Nullable AdministrativeGenderDTO gender, @Nullable ElementDTO genderElement) {
+                                    this.gender = gender != null ? Primitive.nonNullable(gender, genderElement) : null;
+                                    return this.self();
+                                }
+                                public final B name(@Nullable HumanNameDTO name) {
+                                    this.name = name;
+                                    return this.self();
+                                }
+                                public final B organization(@Nullable ReferenceDTO organization) {
+                                    this.organization = organization;
+                                    return this.self();
+                                }
+                                public final B period(@Nullable PeriodDTO period) {
+                                    this.period = period;
+                                    return this.self();
+                                }
+                            private List<CodeableConceptDTO> relationship(){
+                                if(this.relationship == null) {
+                                    this.relationship = new ArrayList<>();
+                                }
+                                return this.relationship;
+                            }
+                            private void clearRelationship(){
+                                if(this.relationship != null) {
+                                    this.relationship.clear();
+                                }
+                            }
+                                public final B relationship(@Nullable CodeableConceptDTO relationship) {
+                                    return this.relationship(relationship != null ? List.of(relationship) : null);
+                                }
+                                public final B relationship(@Nullable List<CodeableConceptDTO> relationship) {
+                                    this.clearRelationship();
+                                    return this.addRelationship(relationship);
+                                }
+                                public final B addRelationship(@Nullable CodeableConceptDTO relationship) {
+                                    return this.addRelationship(relationship != null ? List.of(relationship) : null);
+                                }
+                                public final B addRelationship(@Nullable List<CodeableConceptDTO> relationship) {
+                                    if (relationship != null) {
+                                        this.relationship().addAll(relationship);
+                                    }
+                                    return this.self();
+                                }
+                            private List<ContactPointDTO> telecom(){
+                                if(this.telecom == null) {
+                                    this.telecom = new ArrayList<>();
+                                }
+                                return this.telecom;
+                            }
+                            private void clearTelecom(){
+                                if(this.telecom != null) {
+                                    this.telecom.clear();
+                                }
+                            }
+                                public final B telecom(@Nullable ContactPointDTO telecom) {
+                                    return this.telecom(telecom != null ? List.of(telecom) : null);
+                                }
+                                public final B telecom(@Nullable List<ContactPointDTO> telecom) {
+                                    this.clearTelecom();
+                                    return this.addTelecom(telecom);
+                                }
+                                public final B addTelecom(@Nullable ContactPointDTO telecom) {
+                                    return this.addTelecom(telecom != null ? List.of(telecom) : null);
+                                }
+                                public final B addTelecom(@Nullable List<ContactPointDTO> telecom) {
+                                    if (telecom != null) {
+                                        this.telecom().addAll(telecom);
+                                    }
+                                    return this.self();
+                                }
+
+                    protected abstract B self();
+                }                public static final class PatientContactDTOBuilder extends AbstractPatientContactDTOBuilder<PatientContactDTO,PatientContactDTOBuilder>{
+                    private PatientContactDTOBuilder(){
+                    }
+                    protected PatientContactDTOBuilder self(){
+                        return this;
+                    }
+                    public PatientContactDTO build(){
+                        return new PatientContactDTO(this);
+                    }
+                }
+                private PatientContactDTO(PatientContactDTOBuilder builder) {
+                    this((AbstractPatientContactDTOBuilder<?,?>)requireNonNull(builder));
+                }
+
+                protected PatientContactDTO(AbstractPatientContactDTOBuilder<?,?> builder) {
+                    super(requireNonNull(builder));
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                                this.address = builder.address;
+                                this.gender = builder.gender != null ? requireNonNull(builder.gender.value()) : null;
+                                this._gender = builder.gender != null ?  builder.gender.element() : null;
+                                this.name = builder.name;
+                                this.organization = builder.organization;
+                                this.period = builder.period;
+                                this.relationship = builder.relationship != null ? List.copyOf(builder.relationship) : null;
+                                this.telecom = builder.telecom != null ? List.copyOf(builder.telecom) : null;
+                }
+                protected <B extends AbstractPatientContactDTOBuilder<?,B>> B applyToBuilder(B builder) {
+                    requireNonNull(builder);
+                    super.applyToBuilder(builder);
+                        builder
+                                .address(this.address)
+                                                        .gender(this.gender,this._gender)
+                                                        .name(this.name)
+                                                        .organization(this.organization)
+                                                        .period(this.period)
+                                                        .relationship(this.relationship)
+                                                        .telecom(this.telecom)
+                        ;
+                    return builder;
+                }
+                    public final PatientContactDTOBuilder toBuilder() {
+                        return this.applyToBuilder(PatientContactDTO.patientContactDtoBuilder());
+                    }
+
+                public int hashCode() {
+                    return Objects.hash(super.hashCode(),this.address, this.gender, this.name, this.organization, this.period, this.relationship, this.telecom);
+                }
+                public boolean equals(Object obj) {
+                    if (this == obj) {
+                        return true;
+                    } else if (obj == null) {
+                        return false;
+                        }else if(!super.equals(obj)) {
+                            return false;
+                    } else if (!(obj instanceof PatientContactDTO)) {
+                        return false;
+                    }
+                        final PatientContactDTO other = (PatientContactDTO) obj;
+                        return Utils.equals(this.address, other.address) && Utils.equals(this.gender, other.gender) && Utils.equals(this.name, other.name) && Utils.equals(this.organization, other.organization) && Utils.equals(this.period, other.period) && Utils.equals(this.relationship, other.relationship) && Utils.equals(this.telecom, other.telecom);
+                }
+                protected Utils.ToStringHelper toStringHelper(){
+                    return super.toStringHelper()
+                            .add("address", this.address)
+                                                    .add("gender", this.gender)
+                                .add("_gender", this._gender)
+                                                    .add("name", this.name)
+                                                    .add("organization", this.organization)
+                                                    .add("period", this.period)
+                                                    .add("relationship", this.relationship)
+                                                    .add("telecom", this.telecom)
+                        ;
+                }
+
+        }        @JsonInclude(JsonInclude.Include.NON_NULL)
+        @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE, getterVisibility = JsonAutoDetect.Visibility.NONE, isGetterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.NONE, scalarConstructorVisibility = JsonAutoDetect.Visibility.NONE)
+        public static class PatientLinkDTO extends BackboneElementDTO{
+
+
+                public enum LinkTypeDTO {
+                    REPLACED_BY("replaced-by"),
+                                    REPLACES("replaces"),
+                                    REFER("refer"),
+                                    SEEALSO("seealso")
+                ;
+
+                    private static final Map<String, LinkTypeDTO> BY_VALUE;
+                    static {
+                        final Map<String, LinkTypeDTO> builder = new HashMap<>();
+                        for (LinkTypeDTO c: LinkTypeDTO.values()) {
+                            builder.put(c.value, c);
+                        }
+                        BY_VALUE = Collections.unmodifiableMap(builder);
+                    }
+                    @JsonCreator
+                    public static LinkTypeDTO fromValue(String value) {
+                        requireNonNull(value);
+                        if(LinkTypeDTO.BY_VALUE.containsKey(value)) {
+                            return BY_VALUE.get(value);
+                        }
+                        throw new IllegalArgumentException("Unexpected value '" + value + "'");
+                    }
+
+                    private final String value;
+                    LinkTypeDTO(String value) {
+                        this.value = requireNonNull(value);
+                    }
+
+                    @JsonValue
+                    public String getValue() {
+                        return value;
+                    }
+
+                    @Override
+                    public String toString() {
+                        return String.valueOf(value);
+                    }
+                }
+                private final @NotNull 
+                              
+                              
+                              
+                              @JsonProperty("other") @Valid ReferenceDTO other;
+                private final @NotNull 
+                              
+                              
+                              
+                              @JsonProperty("type") LinkTypeDTO type;
+                    private final @Nullable @JsonProperty("_type") ElementDTO _type;
+
+            protected PatientLinkDTO(){
+                    this.other = null;
+                    this.type = null;
+                        this._type = null;
+            }
+
+
+                public ReferenceDTO other() {
+                    return this.other;
+                }
+                public LinkTypeDTO type() {
+                    return this.type;
+                }
+                    public Optional<ElementDTO> _type() {
+                        return Optional.ofNullable(this._type);
+                    }
+
+                public static PatientLinkDTOBuilder patientLinkDtoBuilder() {
+                    return new PatientLinkDTOBuilder();
+                }
+
+
+
+                protected static abstract class AbstractPatientLinkDTOBuilder<T extends PatientLinkDTO, B extends AbstractPatientLinkDTOBuilder<T,B>> extends AbstractBackboneElementDTOBuilder<T,B>{
+
+                        private @Nullable ReferenceDTO other = null;
+                        private @Nullable Primitive<LinkTypeDTO> type = null;
+
+                    protected AbstractPatientLinkDTOBuilder() {
+                    }
+
+
+                                public final B other(@Nullable ReferenceDTO other) {
+                                    this.other = other;
+                                    return this.self();
+                                }
+                                public final B type(@Nullable LinkTypeDTO type) {
+                                    return this.type(type, null);
+                                }
+                                public final B _type(@Nullable ElementDTO typeElement) {
+                                    requireNonNull(this.type, "type must not be null to set typeElement");
+                                    return this.type(this.type.value(), typeElement);
+                                }
+                                public final B type(@Nullable LinkTypeDTO type, @Nullable ElementDTO typeElement) {
+                                    this.type = type != null ? Primitive.nonNullable(type, typeElement) : null;
+                                    return this.self();
+                                }
+
+                    protected abstract B self();
+                }                public static final class PatientLinkDTOBuilder extends AbstractPatientLinkDTOBuilder<PatientLinkDTO,PatientLinkDTOBuilder>{
+                    private PatientLinkDTOBuilder(){
+                    }
+                    protected PatientLinkDTOBuilder self(){
+                        return this;
+                    }
+                    public PatientLinkDTO build(){
+                        return new PatientLinkDTO(this);
+                    }
+                }
+                private PatientLinkDTO(PatientLinkDTOBuilder builder) {
+                    this((AbstractPatientLinkDTOBuilder<?,?>)requireNonNull(builder));
+                }
+
+                protected PatientLinkDTO(AbstractPatientLinkDTOBuilder<?,?> builder) {
+                    super(requireNonNull(builder));
+                        requireNonNull(builder.other, "missing 'other'");
+                        requireNonNull(builder.type, "missing 'type'");
+                                this.other = builder.other;
+                                this.type = requireNonNull(builder.type.value());
+                                this._type =  builder.type.element();
+                }
+                protected <B extends AbstractPatientLinkDTOBuilder<?,B>> B applyToBuilder(B builder) {
+                    requireNonNull(builder);
+                    super.applyToBuilder(builder);
+                        builder
+                                .other(this.other)
+                                                        .type(this.type,this._type)
+                        ;
+                    return builder;
+                }
+                    public final PatientLinkDTOBuilder toBuilder() {
+                        return this.applyToBuilder(PatientLinkDTO.patientLinkDtoBuilder());
+                    }
+
+                public int hashCode() {
+                    return Objects.hash(super.hashCode(),this.other, this.type);
+                }
+                public boolean equals(Object obj) {
+                    if (this == obj) {
+                        return true;
+                    } else if (obj == null) {
+                        return false;
+                        }else if(!super.equals(obj)) {
+                            return false;
+                    } else if (!(obj instanceof PatientLinkDTO)) {
+                        return false;
+                    }
+                        final PatientLinkDTO other = (PatientLinkDTO) obj;
+                        return Utils.equals(this.other, other.other) && Utils.equals(this.type, other.type);
+                }
+                protected Utils.ToStringHelper toStringHelper(){
+                    return super.toStringHelper()
+                            .add("other", this.other)
+                                                    .add("type", this.type)
+                                .add("_type", this._type)
+                        ;
+                }
+
+        }
+        public enum AdministrativeGenderDTO {
+            MALE("male"),
+                    FEMALE("female"),
+                    OTHER("other"),
+                    UNKNOWN("unknown")
+        ;
+
+            private static final Map<String, AdministrativeGenderDTO> BY_VALUE;
+            static {
+                final Map<String, AdministrativeGenderDTO> builder = new HashMap<>();
+                for (AdministrativeGenderDTO c: AdministrativeGenderDTO.values()) {
+                    builder.put(c.value, c);
+                }
+                BY_VALUE = Collections.unmodifiableMap(builder);
+            }
+            @JsonCreator
+            public static AdministrativeGenderDTO fromValue(String value) {
+                requireNonNull(value);
+                if(AdministrativeGenderDTO.BY_VALUE.containsKey(value)) {
+                    return BY_VALUE.get(value);
+                }
+                throw new IllegalArgumentException("Unexpected value '" + value + "'");
+            }
+
+            private final String value;
+            AdministrativeGenderDTO(String value) {
+                this.value = requireNonNull(value);
+            }
+
+            @JsonValue
+            public String getValue() {
+                return value;
+            }
+
+            @Override
+            public String toString() {
+                return String.valueOf(value);
+            }
+        }
+        private final @Nullable 
+                      
+                      
+                      
+                      @JsonProperty("active") Boolean active;
+            private final @Nullable @JsonProperty("_active") ElementDTO _active;
+        private final @Nullable 
+                      
+                      
+                      
+                      @JsonProperty("address") List<@Valid AddressDTO> address;
+        private final @Nullable 
+                      
+                      
+                      
+                      @JsonProperty("birthDate") String birthDate;
+            private final @Nullable @JsonProperty("_birthDate") ElementDTO _birthDate;
+        private final @Nullable 
+                      
+                      
+                      
+                      @JsonProperty("communication") List<@Valid PatientCommunicationDTO> communication;
+        private final @Nullable 
+                      
+                      
+                      
+                      @JsonProperty("contact") List<@Valid PatientContactDTO> contact;
+        private final @Nullable 
+                      
+                      
+                      
+                      @JsonProperty("deceasedBoolean") Boolean deceasedBoolean;
+            private final @Nullable @JsonProperty("_deceasedBoolean") ElementDTO _deceasedBoolean;
+        private final @Nullable 
+                      
+                      
+                      @JsonFormat(shape = JsonFormat.Shape.STRING)
+                      @JsonProperty("deceasedDateTime") OffsetDateTime deceasedDateTime;
+            private final @Nullable @JsonProperty("_deceasedDateTime") ElementDTO _deceasedDateTime;
+        private final @Nullable 
+                      
+                      
+                      
+                      @JsonProperty("gender") AdministrativeGenderDTO gender;
+            private final @Nullable @JsonProperty("_gender") ElementDTO _gender;
+        private final @Nullable 
+                      
+                      
+                      
+                      @JsonProperty("generalPractitioner") List<@Valid ReferenceDTO> generalPractitioner;
+        private final @Nullable 
+                      
+                      
+                      
+                      @JsonProperty("identifier") List<@Valid IdentifierDTO> identifier;
+        private final @Nullable 
+                      
+                      
+                      
+                      @JsonProperty("link") List<@Valid PatientLinkDTO> link;
+        private final @Nullable 
+                      
+                      
+                      
+                      @JsonProperty("managingOrganization") @Valid ReferenceDTO managingOrganization;
+        private final @Nullable 
+                      
+                      
+                      
+                      @JsonProperty("maritalStatus") @Valid CodeableConceptDTO maritalStatus;
+        private final @Nullable 
+                      
+                      
+                      
+                      @JsonProperty("multipleBirthBoolean") Boolean multipleBirthBoolean;
+            private final @Nullable @JsonProperty("_multipleBirthBoolean") ElementDTO _multipleBirthBoolean;
+        private final @Nullable 
+                      
+                      
+                      
+                      @JsonProperty("multipleBirthInteger") Integer multipleBirthInteger;
+            private final @Nullable @JsonProperty("_multipleBirthInteger") ElementDTO _multipleBirthInteger;
+        private final @Nullable 
+                      
+                      
+                      
+                      @JsonProperty("name") List<@Valid HumanNameDTO> name;
+        private final @Nullable 
+                      
+                      
+                      
+                      @JsonProperty("photo") List<@Valid AttachmentDTO> photo;
+        private final @Nullable 
+                      
+                      
+                      
+                      @JsonProperty("telecom") List<@Valid ContactPointDTO> telecom;
+
+    protected PatientDTO(){
+            this.active = null;
+                this._active = null;
+            this.address = null;
+            this.birthDate = null;
+                this._birthDate = null;
+            this.communication = null;
+            this.contact = null;
+            this.deceasedBoolean = null;
+                this._deceasedBoolean = null;
+            this.deceasedDateTime = null;
+                this._deceasedDateTime = null;
+            this.gender = null;
+                this._gender = null;
+            this.generalPractitioner = null;
+            this.identifier = null;
+            this.link = null;
+            this.managingOrganization = null;
+            this.maritalStatus = null;
+            this.multipleBirthBoolean = null;
+                this._multipleBirthBoolean = null;
+            this.multipleBirthInteger = null;
+                this._multipleBirthInteger = null;
+            this.name = null;
+            this.photo = null;
+            this.telecom = null;
+    }
+    public ResourceName resourceName() {
+        return PatientDTO.NAME;
+    }
+    public ReferenceDTO toReference() {
+        return ReferenceDTO.referenceDtoBuilder()
+            .reference(this.resourceName(), this.id().orElseThrow(() -> new IllegalStateException("missing id")))
+            .build();
+    }
+
+
+        public Optional<Boolean> active() {
+            return Optional.ofNullable(this.active);
+        }
+            public Optional<ElementDTO> _active() {
+                return Optional.ofNullable(this._active);
+            }
+        public Optional<List<AddressDTO>> address() {
+            return Optional.ofNullable(this.address);
+        }
+        public Optional<String> birthDate() {
+            return Optional.ofNullable(this.birthDate);
+        }
+            public Optional<ElementDTO> _birthDate() {
+                return Optional.ofNullable(this._birthDate);
+            }
+        public Optional<List<PatientCommunicationDTO>> communication() {
+            return Optional.ofNullable(this.communication);
+        }
+        public Optional<List<PatientContactDTO>> contact() {
+            return Optional.ofNullable(this.contact);
+        }
+        public Optional<Boolean> deceasedBoolean() {
+            return Optional.ofNullable(this.deceasedBoolean);
+        }
+            public Optional<ElementDTO> _deceasedBoolean() {
+                return Optional.ofNullable(this._deceasedBoolean);
+            }
+        public Optional<OffsetDateTime> deceasedDateTime() {
+            return Optional.ofNullable(this.deceasedDateTime);
+        }
+            public Optional<ElementDTO> _deceasedDateTime() {
+                return Optional.ofNullable(this._deceasedDateTime);
+            }
+                    public Optional<LocalDateTime> deceasedDateTimeAsLocalDateTime() {
+                        return Optional.ofNullable(this.deceasedDateTime).map(odt->odt.atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime());
+                    }
+        public Optional<AdministrativeGenderDTO> gender() {
+            return Optional.ofNullable(this.gender);
+        }
+            public Optional<ElementDTO> _gender() {
+                return Optional.ofNullable(this._gender);
+            }
+        public Optional<List<ReferenceDTO>> generalPractitioner() {
+            return Optional.ofNullable(this.generalPractitioner);
+        }
+        public Optional<List<IdentifierDTO>> identifier() {
+            return Optional.ofNullable(this.identifier);
+        }
+        public Optional<List<PatientLinkDTO>> link() {
+            return Optional.ofNullable(this.link);
+        }
+        public Optional<ReferenceDTO> managingOrganization() {
+            return Optional.ofNullable(this.managingOrganization);
+        }
+        public Optional<CodeableConceptDTO> maritalStatus() {
+            return Optional.ofNullable(this.maritalStatus);
+        }
+        public Optional<Boolean> multipleBirthBoolean() {
+            return Optional.ofNullable(this.multipleBirthBoolean);
+        }
+            public Optional<ElementDTO> _multipleBirthBoolean() {
+                return Optional.ofNullable(this._multipleBirthBoolean);
+            }
+        public Optional<Integer> multipleBirthInteger() {
+            return Optional.ofNullable(this.multipleBirthInteger);
+        }
+            public Optional<ElementDTO> _multipleBirthInteger() {
+                return Optional.ofNullable(this._multipleBirthInteger);
+            }
+        public Optional<List<HumanNameDTO>> name() {
+            return Optional.ofNullable(this.name);
+        }
+        public Optional<List<AttachmentDTO>> photo() {
+            return Optional.ofNullable(this.photo);
+        }
+        public Optional<List<ContactPointDTO>> telecom() {
+            return Optional.ofNullable(this.telecom);
+        }
+
+        public static PatientDTOBuilder patientDtoBuilder() {
+            return new PatientDTOBuilder();
+        }
+
+
+
+        protected static abstract class AbstractPatientDTOBuilder<T extends PatientDTO, B extends AbstractPatientDTOBuilder<T,B>> extends AbstractDomainResourceDTOBuilder<T,B>{
+
+                private @Nullable Primitive<Boolean> active = null;
+                private @Nullable List<AddressDTO> address = null;
+                private @Nullable Primitive<String> birthDate = null;
+                private @Nullable List<PatientCommunicationDTO> communication = null;
+                private @Nullable List<PatientContactDTO> contact = null;
+                private @Nullable Primitive<Boolean> deceasedBoolean = null;
+                private @Nullable Primitive<OffsetDateTime> deceasedDateTime = null;
+                private @Nullable Primitive<AdministrativeGenderDTO> gender = null;
+                private @Nullable List<ReferenceDTO> generalPractitioner = null;
+                private @Nullable List<IdentifierDTO> identifier = null;
+                private @Nullable List<PatientLinkDTO> link = null;
+                private @Nullable ReferenceDTO managingOrganization = null;
+                private @Nullable CodeableConceptDTO maritalStatus = null;
+                private @Nullable Primitive<Boolean> multipleBirthBoolean = null;
+                private @Nullable Primitive<Integer> multipleBirthInteger = null;
+                private @Nullable List<HumanNameDTO> name = null;
+                private @Nullable List<AttachmentDTO> photo = null;
+                private @Nullable List<ContactPointDTO> telecom = null;
+
+            protected AbstractPatientDTOBuilder() {
+            }
+
+
+                        public final B active(@Nullable Boolean active) {
+                            return this.active(active, null);
+                        }
+                        public final B _active(@Nullable ElementDTO activeElement) {
+                            requireNonNull(this.active, "active must not be null to set activeElement");
+                            return this.active(this.active.value(), activeElement);
+                        }
+                        public final B active(@Nullable Boolean active, @Nullable ElementDTO activeElement) {
+                            this.active = active != null ? Primitive.nonNullable(active, activeElement) : null;
+                            return this.self();
+                        }
+                    private List<AddressDTO> address(){
+                        if(this.address == null) {
+                            this.address = new ArrayList<>();
+                        }
+                        return this.address;
+                    }
+                    private void clearAddress(){
+                        if(this.address != null) {
+                            this.address.clear();
+                        }
+                    }
+                        public final B address(@Nullable AddressDTO address) {
+                            return this.address(address != null ? List.of(address) : null);
+                        }
+                        public final B address(@Nullable List<AddressDTO> address) {
+                            this.clearAddress();
+                            return this.addAddress(address);
+                        }
+                        public final B addAddress(@Nullable AddressDTO address) {
+                            return this.addAddress(address != null ? List.of(address) : null);
+                        }
+                        public final B addAddress(@Nullable List<AddressDTO> address) {
+                            if (address != null) {
+                                this.address().addAll(address);
+                            }
+                            return this.self();
+                        }
+                        public final B birthDate(@Nullable String birthDate) {
+                            return this.birthDate(birthDate, null);
+                        }
+                        public final B _birthDate(@Nullable ElementDTO birthDateElement) {
+                            requireNonNull(this.birthDate, "birthDate must not be null to set birthDateElement");
+                            return this.birthDate(this.birthDate.value(), birthDateElement);
+                        }
+                        public final B birthDate(@Nullable String birthDate, @Nullable ElementDTO birthDateElement) {
+                            this.birthDate = birthDate != null ? Primitive.nonNullable(birthDate, birthDateElement) : null;
+                            return this.self();
+                        }
+                    private List<PatientCommunicationDTO> communication(){
+                        if(this.communication == null) {
+                            this.communication = new ArrayList<>();
+                        }
+                        return this.communication;
+                    }
+                    private void clearCommunication(){
+                        if(this.communication != null) {
+                            this.communication.clear();
+                        }
+                    }
+                        public final B communication(@Nullable PatientCommunicationDTO communication) {
+                            return this.communication(communication != null ? List.of(communication) : null);
+                        }
+                        public final B communication(@Nullable List<PatientCommunicationDTO> communication) {
+                            this.clearCommunication();
+                            return this.addCommunication(communication);
+                        }
+                        public final B addCommunication(@Nullable PatientCommunicationDTO communication) {
+                            return this.addCommunication(communication != null ? List.of(communication) : null);
+                        }
+                        public final B addCommunication(@Nullable List<PatientCommunicationDTO> communication) {
+                            if (communication != null) {
+                                this.communication().addAll(communication);
+                            }
+                            return this.self();
+                        }
+                    private List<PatientContactDTO> contact(){
+                        if(this.contact == null) {
+                            this.contact = new ArrayList<>();
+                        }
+                        return this.contact;
+                    }
+                    private void clearContact(){
+                        if(this.contact != null) {
+                            this.contact.clear();
+                        }
+                    }
+                        public final B contact(@Nullable PatientContactDTO contact) {
+                            return this.contact(contact != null ? List.of(contact) : null);
+                        }
+                        public final B contact(@Nullable List<PatientContactDTO> contact) {
+                            this.clearContact();
+                            return this.addContact(contact);
+                        }
+                        public final B addContact(@Nullable PatientContactDTO contact) {
+                            return this.addContact(contact != null ? List.of(contact) : null);
+                        }
+                        public final B addContact(@Nullable List<PatientContactDTO> contact) {
+                            if (contact != null) {
+                                this.contact().addAll(contact);
+                            }
+                            return this.self();
+                        }
+                        public final B deceasedBoolean(@Nullable Boolean deceasedBoolean) {
+                            return this.deceasedBoolean(deceasedBoolean, null);
+                        }
+                        public final B _deceasedBoolean(@Nullable ElementDTO deceasedBooleanElement) {
+                            requireNonNull(this.deceasedBoolean, "deceasedBoolean must not be null to set deceasedBooleanElement");
+                            return this.deceasedBoolean(this.deceasedBoolean.value(), deceasedBooleanElement);
+                        }
+                        public final B deceasedBoolean(@Nullable Boolean deceasedBoolean, @Nullable ElementDTO deceasedBooleanElement) {
+                            this.deceasedBoolean = deceasedBoolean != null ? Primitive.nonNullable(deceasedBoolean, deceasedBooleanElement) : null;
+                            return this.self();
+                        }
+                        public final B deceasedDateTime(@Nullable OffsetDateTime deceasedDateTime) {
+                            return this.deceasedDateTime(deceasedDateTime, null);
+                        }
+                        public final B _deceasedDateTime(@Nullable ElementDTO deceasedDateTimeElement) {
+                            requireNonNull(this.deceasedDateTime, "deceasedDateTime must not be null to set deceasedDateTimeElement");
+                            return this.deceasedDateTime(this.deceasedDateTime.value(), deceasedDateTimeElement);
+                        }
+                        public final B deceasedDateTime(@Nullable OffsetDateTime deceasedDateTime, @Nullable ElementDTO deceasedDateTimeElement) {
+                            this.deceasedDateTime = deceasedDateTime != null ? Primitive.nonNullable(deceasedDateTime, deceasedDateTimeElement) : null;
+                            return this.self();
+                        }
+                            public final B deceasedDateTime(@Nullable LocalDateTime deceasedDateTime) {
+                                return this.deceasedDateTime(deceasedDateTime, null);
+                            }
+                                public final B deceasedDateTime(@Nullable LocalDateTime deceasedDateTime, @Nullable ElementDTO deceasedDateTimeElement) {
+                                    return this.deceasedDateTime(deceasedDateTime != null ? deceasedDateTime.atZone(ZoneId.systemDefault()).toOffsetDateTime() : null, deceasedDateTimeElement);
+                                }
+                        public final B gender(@Nullable AdministrativeGenderDTO gender) {
+                            return this.gender(gender, null);
+                        }
+                        public final B _gender(@Nullable ElementDTO genderElement) {
+                            requireNonNull(this.gender, "gender must not be null to set genderElement");
+                            return this.gender(this.gender.value(), genderElement);
+                        }
+                        public final B gender(@Nullable AdministrativeGenderDTO gender, @Nullable ElementDTO genderElement) {
+                            this.gender = gender != null ? Primitive.nonNullable(gender, genderElement) : null;
+                            return this.self();
+                        }
+                    private List<ReferenceDTO> generalPractitioner(){
+                        if(this.generalPractitioner == null) {
+                            this.generalPractitioner = new ArrayList<>();
+                        }
+                        return this.generalPractitioner;
+                    }
+                    private void clearGeneralPractitioner(){
+                        if(this.generalPractitioner != null) {
+                            this.generalPractitioner.clear();
+                        }
+                    }
+                        public final B generalPractitioner(@Nullable ReferenceDTO generalPractitioner) {
+                            return this.generalPractitioner(generalPractitioner != null ? List.of(generalPractitioner) : null);
+                        }
+                        public final B generalPractitioner(@Nullable List<ReferenceDTO> generalPractitioner) {
+                            this.clearGeneralPractitioner();
+                            return this.addGeneralPractitioner(generalPractitioner);
+                        }
+                        public final B addGeneralPractitioner(@Nullable ReferenceDTO generalPractitioner) {
+                            return this.addGeneralPractitioner(generalPractitioner != null ? List.of(generalPractitioner) : null);
+                        }
+                        public final B addGeneralPractitioner(@Nullable List<ReferenceDTO> generalPractitioner) {
+                            if (generalPractitioner != null) {
+                                this.generalPractitioner().addAll(generalPractitioner);
+                            }
+                            return this.self();
+                        }
+                    private List<IdentifierDTO> identifier(){
+                        if(this.identifier == null) {
+                            this.identifier = new ArrayList<>();
+                        }
+                        return this.identifier;
+                    }
+                    private void clearIdentifier(){
+                        if(this.identifier != null) {
+                            this.identifier.clear();
+                        }
+                    }
+                        public final B identifier(@Nullable IdentifierDTO identifier) {
+                            return this.identifier(identifier != null ? List.of(identifier) : null);
+                        }
+                        public final B identifier(@Nullable List<IdentifierDTO> identifier) {
+                            this.clearIdentifier();
+                            return this.addIdentifier(identifier);
+                        }
+                        public final B addIdentifier(@Nullable IdentifierDTO identifier) {
+                            return this.addIdentifier(identifier != null ? List.of(identifier) : null);
+                        }
+                        public final B addIdentifier(@Nullable List<IdentifierDTO> identifier) {
+                            if (identifier != null) {
+                                this.identifier().addAll(identifier);
+                            }
+                            return this.self();
+                        }
+                    private List<PatientLinkDTO> link(){
+                        if(this.link == null) {
+                            this.link = new ArrayList<>();
+                        }
+                        return this.link;
+                    }
+                    private void clearLink(){
+                        if(this.link != null) {
+                            this.link.clear();
+                        }
+                    }
+                        public final B link(@Nullable PatientLinkDTO link) {
+                            return this.link(link != null ? List.of(link) : null);
+                        }
+                        public final B link(@Nullable List<PatientLinkDTO> link) {
+                            this.clearLink();
+                            return this.addLink(link);
+                        }
+                        public final B addLink(@Nullable PatientLinkDTO link) {
+                            return this.addLink(link != null ? List.of(link) : null);
+                        }
+                        public final B addLink(@Nullable List<PatientLinkDTO> link) {
+                            if (link != null) {
+                                this.link().addAll(link);
+                            }
+                            return this.self();
+                        }
+                        public final B managingOrganization(@Nullable ReferenceDTO managingOrganization) {
+                            this.managingOrganization = managingOrganization;
+                            return this.self();
+                        }
+                        public final B maritalStatus(@Nullable CodeableConceptDTO maritalStatus) {
+                            this.maritalStatus = maritalStatus;
+                            return this.self();
+                        }
+                        public final B multipleBirthBoolean(@Nullable Boolean multipleBirthBoolean) {
+                            return this.multipleBirthBoolean(multipleBirthBoolean, null);
+                        }
+                        public final B _multipleBirthBoolean(@Nullable ElementDTO multipleBirthBooleanElement) {
+                            requireNonNull(this.multipleBirthBoolean, "multipleBirthBoolean must not be null to set multipleBirthBooleanElement");
+                            return this.multipleBirthBoolean(this.multipleBirthBoolean.value(), multipleBirthBooleanElement);
+                        }
+                        public final B multipleBirthBoolean(@Nullable Boolean multipleBirthBoolean, @Nullable ElementDTO multipleBirthBooleanElement) {
+                            this.multipleBirthBoolean = multipleBirthBoolean != null ? Primitive.nonNullable(multipleBirthBoolean, multipleBirthBooleanElement) : null;
+                            return this.self();
+                        }
+                        public final B multipleBirthInteger(@Nullable Integer multipleBirthInteger) {
+                            return this.multipleBirthInteger(multipleBirthInteger, null);
+                        }
+                        public final B _multipleBirthInteger(@Nullable ElementDTO multipleBirthIntegerElement) {
+                            requireNonNull(this.multipleBirthInteger, "multipleBirthInteger must not be null to set multipleBirthIntegerElement");
+                            return this.multipleBirthInteger(this.multipleBirthInteger.value(), multipleBirthIntegerElement);
+                        }
+                        public final B multipleBirthInteger(@Nullable Integer multipleBirthInteger, @Nullable ElementDTO multipleBirthIntegerElement) {
+                            this.multipleBirthInteger = multipleBirthInteger != null ? Primitive.nonNullable(multipleBirthInteger, multipleBirthIntegerElement) : null;
+                            return this.self();
+                        }
+                    private List<HumanNameDTO> name(){
+                        if(this.name == null) {
+                            this.name = new ArrayList<>();
+                        }
+                        return this.name;
+                    }
+                    private void clearName(){
+                        if(this.name != null) {
+                            this.name.clear();
+                        }
+                    }
+                        public final B name(@Nullable HumanNameDTO name) {
+                            return this.name(name != null ? List.of(name) : null);
+                        }
+                        public final B name(@Nullable List<HumanNameDTO> name) {
+                            this.clearName();
+                            return this.addName(name);
+                        }
+                        public final B addName(@Nullable HumanNameDTO name) {
+                            return this.addName(name != null ? List.of(name) : null);
+                        }
+                        public final B addName(@Nullable List<HumanNameDTO> name) {
+                            if (name != null) {
+                                this.name().addAll(name);
+                            }
+                            return this.self();
+                        }
+                    private List<AttachmentDTO> photo(){
+                        if(this.photo == null) {
+                            this.photo = new ArrayList<>();
+                        }
+                        return this.photo;
+                    }
+                    private void clearPhoto(){
+                        if(this.photo != null) {
+                            this.photo.clear();
+                        }
+                    }
+                        public final B photo(@Nullable AttachmentDTO photo) {
+                            return this.photo(photo != null ? List.of(photo) : null);
+                        }
+                        public final B photo(@Nullable List<AttachmentDTO> photo) {
+                            this.clearPhoto();
+                            return this.addPhoto(photo);
+                        }
+                        public final B addPhoto(@Nullable AttachmentDTO photo) {
+                            return this.addPhoto(photo != null ? List.of(photo) : null);
+                        }
+                        public final B addPhoto(@Nullable List<AttachmentDTO> photo) {
+                            if (photo != null) {
+                                this.photo().addAll(photo);
+                            }
+                            return this.self();
+                        }
+                    private List<ContactPointDTO> telecom(){
+                        if(this.telecom == null) {
+                            this.telecom = new ArrayList<>();
+                        }
+                        return this.telecom;
+                    }
+                    private void clearTelecom(){
+                        if(this.telecom != null) {
+                            this.telecom.clear();
+                        }
+                    }
+                        public final B telecom(@Nullable ContactPointDTO telecom) {
+                            return this.telecom(telecom != null ? List.of(telecom) : null);
+                        }
+                        public final B telecom(@Nullable List<ContactPointDTO> telecom) {
+                            this.clearTelecom();
+                            return this.addTelecom(telecom);
+                        }
+                        public final B addTelecom(@Nullable ContactPointDTO telecom) {
+                            return this.addTelecom(telecom != null ? List.of(telecom) : null);
+                        }
+                        public final B addTelecom(@Nullable List<ContactPointDTO> telecom) {
+                            if (telecom != null) {
+                                this.telecom().addAll(telecom);
+                            }
+                            return this.self();
+                        }
+
+            protected abstract B self();
+        }        public static final class PatientDTOBuilder extends AbstractPatientDTOBuilder<PatientDTO,PatientDTOBuilder>{
+            private PatientDTOBuilder(){
+            }
+            protected PatientDTOBuilder self(){
+                return this;
+            }
+            public PatientDTO build(){
+                return new PatientDTO(this);
+            }
+        }
+        private PatientDTO(PatientDTOBuilder builder) {
+            this((AbstractPatientDTOBuilder<?,?>)requireNonNull(builder));
+        }
+
+        protected PatientDTO(AbstractPatientDTOBuilder<?,?> builder) {
+            super(requireNonNull(builder));
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                        this.active = builder.active != null ? requireNonNull(builder.active.value()) : null;
+                        this._active = builder.active != null ?  builder.active.element() : null;
+                        this.address = builder.address != null ? List.copyOf(builder.address) : null;
+                        this.birthDate = builder.birthDate != null ? requireNonNull(builder.birthDate.value()) : null;
+                        this._birthDate = builder.birthDate != null ?  builder.birthDate.element() : null;
+                        this.communication = builder.communication != null ? List.copyOf(builder.communication) : null;
+                        this.contact = builder.contact != null ? List.copyOf(builder.contact) : null;
+                        this.deceasedBoolean = builder.deceasedBoolean != null ? requireNonNull(builder.deceasedBoolean.value()) : null;
+                        this._deceasedBoolean = builder.deceasedBoolean != null ?  builder.deceasedBoolean.element() : null;
+                        this.deceasedDateTime = builder.deceasedDateTime != null ? requireNonNull(builder.deceasedDateTime.value()) : null;
+                        this._deceasedDateTime = builder.deceasedDateTime != null ?  builder.deceasedDateTime.element() : null;
+                        this.gender = builder.gender != null ? requireNonNull(builder.gender.value()) : null;
+                        this._gender = builder.gender != null ?  builder.gender.element() : null;
+                        this.generalPractitioner = builder.generalPractitioner != null ? List.copyOf(builder.generalPractitioner) : null;
+                        this.identifier = builder.identifier != null ? List.copyOf(builder.identifier) : null;
+                        this.link = builder.link != null ? List.copyOf(builder.link) : null;
+                        this.managingOrganization = builder.managingOrganization;
+                        this.maritalStatus = builder.maritalStatus;
+                        this.multipleBirthBoolean = builder.multipleBirthBoolean != null ? requireNonNull(builder.multipleBirthBoolean.value()) : null;
+                        this._multipleBirthBoolean = builder.multipleBirthBoolean != null ?  builder.multipleBirthBoolean.element() : null;
+                        this.multipleBirthInteger = builder.multipleBirthInteger != null ? requireNonNull(builder.multipleBirthInteger.value()) : null;
+                        this._multipleBirthInteger = builder.multipleBirthInteger != null ?  builder.multipleBirthInteger.element() : null;
+                        this.name = builder.name != null ? List.copyOf(builder.name) : null;
+                        this.photo = builder.photo != null ? List.copyOf(builder.photo) : null;
+                        this.telecom = builder.telecom != null ? List.copyOf(builder.telecom) : null;
+        }
+        protected <B extends AbstractPatientDTOBuilder<?,B>> B applyToBuilder(B builder) {
+            requireNonNull(builder);
+            super.applyToBuilder(builder);
+                builder
+                        .active(this.active,this._active)
+                                        .address(this.address)
+                                        .birthDate(this.birthDate,this._birthDate)
+                                        .communication(this.communication)
+                                        .contact(this.contact)
+                                        .deceasedBoolean(this.deceasedBoolean,this._deceasedBoolean)
+                                        .deceasedDateTime(this.deceasedDateTime,this._deceasedDateTime)
+                                        .gender(this.gender,this._gender)
+                                        .generalPractitioner(this.generalPractitioner)
+                                        .identifier(this.identifier)
+                                        .link(this.link)
+                                        .managingOrganization(this.managingOrganization)
+                                        .maritalStatus(this.maritalStatus)
+                                        .multipleBirthBoolean(this.multipleBirthBoolean,this._multipleBirthBoolean)
+                                        .multipleBirthInteger(this.multipleBirthInteger,this._multipleBirthInteger)
+                                        .name(this.name)
+                                        .photo(this.photo)
+                                        .telecom(this.telecom)
+                ;
+            return builder;
+        }
+            public final PatientDTOBuilder toBuilder() {
+                return this.applyToBuilder(PatientDTO.patientDtoBuilder());
+            }
+
+        public int hashCode() {
+            return Objects.hash(super.hashCode(),this.active, this.address, this.birthDate, this.communication, this.contact, this.deceasedBoolean, this.deceasedDateTime, this.gender, this.generalPractitioner, this.identifier, this.link, this.managingOrganization, this.maritalStatus, this.multipleBirthBoolean, this.multipleBirthInteger, this.name, this.photo, this.telecom);
+        }
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            } else if (obj == null) {
+                return false;
+                }else if(!super.equals(obj)) {
+                    return false;
+            } else if (!(obj instanceof PatientDTO)) {
+                return false;
+            }
+                final PatientDTO other = (PatientDTO) obj;
+                return Utils.equals(this.active, other.active) && Utils.equals(this.address, other.address) && Utils.equals(this.birthDate, other.birthDate) && Utils.equals(this.communication, other.communication) && Utils.equals(this.contact, other.contact) && Utils.equals(this.deceasedBoolean, other.deceasedBoolean) && Utils.equals(this.deceasedDateTime, other.deceasedDateTime) && Utils.equals(this.gender, other.gender) && Utils.equals(this.generalPractitioner, other.generalPractitioner) && Utils.equals(this.identifier, other.identifier) && Utils.equals(this.link, other.link) && Utils.equals(this.managingOrganization, other.managingOrganization) && Utils.equals(this.maritalStatus, other.maritalStatus) && Utils.equals(this.multipleBirthBoolean, other.multipleBirthBoolean) && Utils.equals(this.multipleBirthInteger, other.multipleBirthInteger) && Utils.equals(this.name, other.name) && Utils.equals(this.photo, other.photo) && Utils.equals(this.telecom, other.telecom);
+        }
+        protected Utils.ToStringHelper toStringHelper(){
+            return super.toStringHelper()
+                    .add("active", this.active)
+                        .add("_active", this._active)
+                                    .add("address", this.address)
+                                    .add("birthDate", this.birthDate)
+                        .add("_birthDate", this._birthDate)
+                                    .add("communication", this.communication)
+                                    .add("contact", this.contact)
+                                    .add("deceasedBoolean", this.deceasedBoolean)
+                        .add("_deceasedBoolean", this._deceasedBoolean)
+                                    .add("deceasedDateTime", this.deceasedDateTime)
+                        .add("_deceasedDateTime", this._deceasedDateTime)
+                                    .add("gender", this.gender)
+                        .add("_gender", this._gender)
+                                    .add("generalPractitioner", this.generalPractitioner)
+                                    .add("identifier", this.identifier)
+                                    .add("link", this.link)
+                                    .add("managingOrganization", this.managingOrganization)
+                                    .add("maritalStatus", this.maritalStatus)
+                                    .add("multipleBirthBoolean", this.multipleBirthBoolean)
+                        .add("_multipleBirthBoolean", this._multipleBirthBoolean)
+                                    .add("multipleBirthInteger", this.multipleBirthInteger)
+                        .add("_multipleBirthInteger", this._multipleBirthInteger)
+                                    .add("name", this.name)
+                                    .add("photo", this.photo)
+                                    .add("telecom", this.telecom)
+                ;
+        }
+
+}"
+`;

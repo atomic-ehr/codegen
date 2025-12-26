@@ -94,16 +94,24 @@ export type Identifier =
     | ProfileIdentifier
     | LogicalIdentifier;
 
+export const isResourceIdentifier = (id: Identifier | undefined): id is ResourceIdentifier => {
+    return id?.kind === "resource";
+};
+
+export const isLogicalIdentifier = (id: Identifier | undefined): id is LogicalIdentifier => {
+    return id?.kind === "logical";
+};
+
+export const isComplexTypeIdentifier = (id: Identifier | undefined): id is ComplexTypeIdentifier => {
+    return id?.kind === "complex-type";
+};
+
 export const isPrimitiveIdentifier = (id: Identifier | undefined): id is PrimitiveIdentifier => {
     return id?.kind === "primitive-type";
 };
 
 export const isNestedIdentifier = (id: Identifier | undefined): id is NestedIdentifier => {
     return id?.kind === "nested";
-};
-
-export const isComplexTypeIdentifier = (id: Identifier | undefined): id is ComplexTypeIdentifier => {
-    return id?.kind === "complex-type";
 };
 
 export const isProfileIdentifier = (id: Identifier | undefined): id is ProfileIdentifier => {

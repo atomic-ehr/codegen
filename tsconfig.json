@@ -26,7 +26,8 @@
     "paths": {
       "@root/*": ["./src/*"],
       "@typeschema/*": ["./src/typeschema/*"],
-      "@typeschema-test/*": ["./test/unit/typeschema/*"]
+      "@typeschema-test/*": ["./test/unit/typeschema/*"],
+      "@mustache/*": ["./src/api/mustache/*"],
     }
   },
   "include": ["./src", "./test"],

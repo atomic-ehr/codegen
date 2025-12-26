@@ -1,0 +1,23 @@
+public int hashCode() {
+    return Objects.hash({{#hasParents}}super.hashCode(){{#hasFields}},{{/hasFields}}{{/hasParents}}{{#fields}}this.{{{saveName}}}{{^-last}}, {{/-last}}{{/fields}});
+}
+public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    } else if (obj == null) {
+        return false;
+    {{#hasParents}}
+        }else if(!super.equals(obj)) {
+            return false;
+    {{/hasParents}}
+    } else if (!(obj instanceof {{{saveName}}})) {
+        return false;
+    }
+    {{#hasFields}}
+        final {{{saveName}}} other = ({{{saveName}}}) obj;
+        return {{#fields}}Utils.equals(this.{{{saveName}}}, other.{{{saveName}}}){{^-last}} && {{/-last}}{{/fields}};
+    {{/hasFields}}
+    {{^hasFields}}
+        return true;
+    {{/hasFields}}
+}

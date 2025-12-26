@@ -22,6 +22,7 @@
         - [Field-Level Tree Shaking](#field-level-tree-shaking)
     - [Generation](#generation)
       - [1. Writer-Based Generation (Programmatic)](#1-writer-based-generation-programmatic)
+      - [2. Mustache Template-Based Generation (Declarative)](#2-mustache-template-based-generation-declarative)
   - [Roadmap](#roadmap)
   - [Support](#support)
 - [Footnotes](#footnotes)
@@ -33,6 +34,7 @@ A powerful, extensible code generation toolkit for FHIR ([Fast Healthcare Intero
 Guides:
 
 - **[Writer Generator Guide](docs/guides/writer-generator.md)** - Build custom code generators with the Writer base class
+- **[Mustache Generator Guide](docs/guides/mustache-generator.md)** - Template-based code generation for any language
 - **[TypeSchemaIndex Guide](docs/guides/typeschema-index.md)** - Type Schema structure and utilities
 - **[Testing Generators Guide](docs/guides/testing-generators.md)** - Unit tests, snapshot testing, and best practices
 - **[Contributing Guide](CONTRIBUTING.md)** - Development setup and workflow
@@ -98,6 +100,7 @@ See the [examples/](examples/) directory for working demonstrations:
 - **[typescript-sql-on-fhir/](examples/typescript-sql-on-fhir/)** - SQL on FHIR ViewDefinition with tree shaking
 - **[python/](examples/python/)** - Python/Pydantic model generation with configurable field formats
 - **[csharp/](examples/csharp/)** - C# class generation with namespace configuration
+- **[mustache/](examples/mustache/)** - Java generation with Mustache templates and post-generation hooks
 - **[local-package-folder/](examples/local-package-folder/)** - Loading unpublished local FHIR packages
 
 For detailed documentation, see [examples/README.md](examples/README.md).
@@ -246,6 +249,20 @@ For languages with built-in support (TypeScript, Python, C#), extend the `Writer
 Each language writer maintains full control over output formatting while leveraging high-level abstractions for common code patterns. Writers follow language idioms and best practices, with optimized output for production use.
 
 **When to use**: Full control needed, complex generation logic, performance-critical, language has a dedicated writer, production-grade output
+
+#### 2. Mustache Template-Based Generation (Declarative)
+
+For custom languages or formats, use Mustache templates to define code generation rules without programming:
+
+- **Template Files**: Declarative Mustache templates that describe output structure
+- **Configuration**: JSON config file controlling type filtering, naming, and post-generation hooks
+- **ViewModels**: Type Schema automatically transformed into template-friendly data structures
+
+Templates enable flexible code generation for any language or format (Go, Rust, GraphQL, documentation, configs) by describing the output format rather than implementing generation logic.
+
+**When to use**: Custom language support, quick prototyping, template-driven customization, non-code output
+
+---
 
 ## Roadmap
 
