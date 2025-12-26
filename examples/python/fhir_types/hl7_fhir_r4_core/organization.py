@@ -5,6 +5,7 @@
 from __future__ import annotations
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt
 from typing import List as PyList, Literal
+from fhir_types.hl7_fhir_r4_core.FHIRBase import FHIRBase
 
 from fhir_types.hl7_fhir_r4_core.base import (\
     Address, BackboneElement, CodeableConcept, ContactPoint, HumanName, Identifier, Reference
