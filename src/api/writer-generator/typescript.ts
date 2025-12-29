@@ -6,6 +6,7 @@ import {
     uppercaseFirstLetterOfEach,
 } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
+import { packageTreeShakeReadme, rootTreeShakeReadme } from "@root/typeschema/tree-shake";
 import {
     type CanonicalUrl,
     extractNameFromCanonical,
@@ -542,8 +543,15 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 : []),
         ];
         const grouped = groupByPackages(typesToGenerate);
+        const treeShakeReport = tsIndex.treeShakeReport();
 
         this.cd("/", () => {
+            if (treeShakeReport) {
+                this.cat("README.md", () => {
+                    this.write(rootTreeShakeReadme(treeShakeReport));
+                });
+            }
+
             for (const [packageName, packageSchemas] of Object.entries(grouped)) {
                 const tsPackageDir = tsFhirPackageDir(packageName);
                 this.cd(tsPackageDir, () => {
@@ -551,6 +559,11 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                         this.generateResourceModule(tsIndex, schema);
                     }
                     this.generateFhirPackageIndexFile(packageSchemas);
+                    if (treeShakeReport) {
+                        this.cat("README.md", () => {
+                            this.write(packageTreeShakeReadme(treeShakeReport, packageName));
+                        });
+                    }
                 });
             }
         });

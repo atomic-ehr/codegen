@@ -17,11 +17,81 @@ import {
     type RegularTypeSchema,
     type TypeSchema,
 } from "./types";
-import { mkTypeSchemaIndex, type TypeSchemaIndex } from "./utils";
+import { mkTypeSchemaIndex, type PackageName, type TypeSchemaIndex } from "./utils";
 
 export type TreeShake = Record<string, Record<string, TreeShakeRule>>;
 
 export type TreeShakeRule = { ignoreFields?: string[]; selectFields?: string[] };
+
+export interface TreeShakeReport {
+    skippedPackages: PackageName[];
+    packages: Record<
+        PackageName,
+        {
+            skippedCanonicals: CanonicalUrl[];
+            canonicals: Record<
+                CanonicalUrl,
+                {
+                    skippedFields: string[];
+                }
+            >;
+        }
+    >;
+}
+
+const ensureTreeShakeReport = (indexOrReport: TypeSchemaIndex | TreeShakeReport): TreeShakeReport => {
+    if ("treeShakeReport" in indexOrReport && typeof indexOrReport.treeShakeReport === "function") {
+        const report = indexOrReport.treeShakeReport();
+        assert(report);
+        return report;
+    } else {
+        return indexOrReport as TreeShakeReport;
+    }
+};
+
+export const rootTreeShakeReadme = (report: TypeSchemaIndex | TreeShakeReport) => {
+    report = ensureTreeShakeReport(report);
+    const lines = ["# Tree Shake Report", ""];
+    if (report.skippedPackages.length === 0) lines.push("All packages are included.");
+    else lines.push("Skipped packages:", "");
+    for (const pkgName of report.skippedPackages) {
+        lines.push(`- ${pkgName}`);
+    }
+    lines.push("");
+    return lines.join("\n");
+};
+
+export const packageTreeShakeReadme = (report: TypeSchemaIndex | TreeShakeReport, pkgName: PackageName) => {
+    report = ensureTreeShakeReport(report);
+    const lines = [`# Package: ${pkgName}`, ""];
+    assert(report.packages[pkgName]);
+    lines.push("## Canonical Fields Changes", "");
+    if (Object.keys(report.packages[pkgName].canonicals).length === 0) {
+        lines.push("All canonicals translated as is.", "");
+    } else {
+        for (const [canonicalUrl, { skippedFields }] of Object.entries(report.packages[pkgName].canonicals)) {
+            lines.push(`- <${canonicalUrl}>`);
+            if (skippedFields.length === 0) {
+                lines.push("    - All fields translated as is.", "");
+            } else {
+                lines.push(`    - Skipped fields: ${skippedFields.map((f) => `\`${f}\``).join(", ")}`);
+                lines.push("");
+            }
+        }
+        lines.push("");
+    }
+    lines.push("## Skipped Canonicals", "");
+    if (report.packages[pkgName].skippedCanonicals.length === 0) {
+        lines.push("No skipped canonicals");
+    } else {
+        lines.push("Skipped canonicals:", "");
+        for (const canonicalUrl of report.packages[pkgName].skippedCanonicals) {
+            lines.push(`- <${canonicalUrl}>`);
+        }
+        lines.push("");
+    }
+    return lines.join("\n");
+};
 
 const mutableSelectFields = (schema: RegularTypeSchema, selectFields: string[]) => {
     const selectedFields: Record<string, Field> = {};
@@ -80,6 +150,45 @@ const mutableIgnoreFields = (schema: RegularTypeSchema, ignoreFields: string[]) 
 
             delete schema.fields[fieldName];
         }
+    }
+};
+
+const mutableFillReport = (report: TreeShakeReport, tsIndex: TypeSchemaIndex, shakedIndex: TypeSchemaIndex) => {
+    const packages = Object.keys(tsIndex.schemasByPackage);
+    const shakedPackages = Object.keys(shakedIndex.schemasByPackage);
+    const skippedPackages = packages.filter((pkg) => !shakedPackages.includes(pkg));
+    report.skippedPackages = skippedPackages;
+
+    for (const [pkgName, shakedSchemas] of Object.entries(shakedIndex.schemasByPackage)) {
+        if (skippedPackages.includes(pkgName)) continue;
+        const tsSchemas = tsIndex.schemasByPackage[pkgName];
+        assert(tsSchemas);
+        report.packages[pkgName] = {
+            skippedCanonicals: tsSchemas
+                .filter((schema) => !shakedSchemas.includes(schema))
+                .map((schema) => schema.identifier.url)
+                .sort(),
+            canonicals: Object.fromEntries(
+                shakedSchemas
+                    .map((shakedSchema) => {
+                        const schema = tsIndex.resolve(shakedSchema.identifier);
+                        assert(schema);
+                        if (!isSpecializationTypeSchema(schema)) return undefined;
+                        assert(isSpecializationTypeSchema(shakedSchema));
+                        if (!schema.fields) return undefined;
+                        if (!shakedSchema.fields) {
+                            return [shakedSchema.identifier.url, Object.keys(schema.fields)];
+                        }
+                        const shakedFieldNames = Object.keys(shakedSchema.fields);
+                        const skippedFields = Object.keys(schema.fields)
+                            .filter((field) => !shakedFieldNames.includes(field))
+                            .sort();
+                        if (skippedFields.length === 0) return undefined;
+                        return [shakedSchema.identifier.url, { skippedFields }] as const;
+                    })
+                    .filter((e): e is readonly [CanonicalUrl, { skippedFields: string[] }] => e !== undefined),
+            ),
+        };
     }
 };
 
@@ -168,5 +277,9 @@ export const treeShake = (
     };
 
     const shaked = collectDeps(focusedSchemas, {});
-    return mkTypeSchemaIndex(shaked, { resolutionTree, logger });
+
+    const report: TreeShakeReport = { skippedPackages: [], packages: {} };
+    const shakedIndex = mkTypeSchemaIndex(shaked, { resolutionTree, logger, treeShakeReport: report });
+    mutableFillReport(report, tsIndex, shakedIndex);
+    return shakedIndex;
 };

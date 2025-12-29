@@ -1,8 +1,63 @@
 import { describe, expect, it } from "bun:test";
 import assert from "node:assert";
-import { treeShakeTypeSchema } from "@root/typeschema/tree-shake";
+import { registerFromPackageMetas } from "@root/typeschema/register";
+import {
+    packageTreeShakeReadme,
+    rootTreeShakeReadme,
+    treeShake,
+    treeShakeTypeSchema,
+} from "@root/typeschema/tree-shake";
 import type { CanonicalUrl, RegularTypeSchema } from "@root/typeschema/types";
-import { mkR4Register, r4Package, resolveTs } from "@typeschema-test/utils";
+import { mkIndex, mkR4Register, r4Manager, r4Package, r5Package, resolveTs } from "@typeschema-test/utils";
+
+describe("treeShake specific TypeSchema", async () => {
+    const manager = await registerFromPackageMetas([r4Package, r5Package], {
+        fallbackPackageForNameResolution: r4Package,
+    });
+    const tsIndex = await mkIndex(manager);
+    it("tree shake report should be empty without treeshaking", () => {
+        expect(tsIndex.treeShakeReport()).toBeUndefined();
+    });
+    describe("Only Bundle & Operation Outcome without extensions", () => {
+        const shaked = treeShake(
+            tsIndex,
+            {
+                "hl7.fhir.r4.core": {
+                    "http://hl7.org/fhir/StructureDefinition/Bundle": {},
+                    "http://hl7.org/fhir/StructureDefinition/OperationOutcome": {},
+                    "http://hl7.org/fhir/StructureDefinition/DomainResource": {
+                        ignoreFields: ["extension", "modifierExtension"],
+                    },
+                    "http://hl7.org/fhir/StructureDefinition/BackboneElement": {
+                        ignoreFields: ["modifierExtension"],
+                    },
+                    "http://hl7.org/fhir/StructureDefinition/Element": {
+                        ignoreFields: ["extension"],
+                    },
+                },
+            },
+            r4Manager.resolutionTree(),
+        );
+
+        const report = shaked.treeShakeReport();
+        assert(report);
+
+        it("check treeshake report", () => {
+            expect(report).toBeDefined();
+            expect(report.skippedPackages).toMatchObject(["hl7.fhir.r5.core"]);
+            expect(report.packages).toMatchSnapshot();
+        });
+        it("root tree shake readme", () => {
+            expect(rootTreeShakeReadme(report)).toMatchSnapshot();
+        });
+        it("package tree shake readme", () => {
+            expect(packageTreeShakeReadme(report, "hl7.fhir.r4.core")).toMatchSnapshot();
+        });
+        it("check actually generated tree", () => {
+            expect(shaked.entityTree()).toMatchSnapshot();
+        });
+    });
+});
 
 describe("treeShake specific TypeSchema", async () => {
     const r4 = await mkR4Register();
