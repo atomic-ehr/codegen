@@ -9,6 +9,7 @@ if (require.main === module) {
     const builder = new APIBuilder()
         .throwException()
         .fromPackage("hl7.fhir.us.core", "8.0.1")
+        .treeShake({})
         .typescript({
             withDebugComment: false,
             generateProfile: true,
