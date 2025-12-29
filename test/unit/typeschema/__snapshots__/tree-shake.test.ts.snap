@@ -2944,6 +2944,20 @@ Skipped packages:
 exports[`treeShake specific TypeSchema Only Bundle & Operation Outcome without extensions package tree shake readme 1`] = `
 "# Package: hl7.fhir.r4.core
 
+## Canonical Fields Changes
+
+- <http://hl7.org/fhir/StructureDefinition/BackboneElement>
+    - Skipped fields: \`modifierExtension\`
+
+- <http://hl7.org/fhir/StructureDefinition/DomainResource>
+    - Skipped fields: \`extension\`, \`modifierExtension\`
+
+- <http://hl7.org/fhir/StructureDefinition/Element>
+    - Skipped fields: \`extension\`
+
+
+## Skipped Canonicals
+
 Skipped canonicals:
 
 - <http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities>

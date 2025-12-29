@@ -52,7 +52,7 @@ const ensureTreeShakeReport = (indexOrReport: TypeSchemaIndex | TreeShakeReport)
 export const rootTreeShakeReadme = (report: TypeSchemaIndex | TreeShakeReport) => {
     report = ensureTreeShakeReport(report);
     const lines = ["# Tree Shake Report", ""];
-    if (report.skippedPackages.length === 0) lines.push("All packages are included");
+    if (report.skippedPackages.length === 0) lines.push("All packages are included.");
     else lines.push("Skipped packages:", "");
     for (const pkgName of report.skippedPackages) {
         lines.push(`- ${pkgName}`);
@@ -65,6 +65,22 @@ export const packageTreeShakeReadme = (report: TypeSchemaIndex | TreeShakeReport
     report = ensureTreeShakeReport(report);
     const lines = [`# Package: ${pkgName}`, ""];
     assert(report.packages[pkgName]);
+    lines.push("## Canonical Fields Changes", "");
+    if (Object.keys(report.packages[pkgName].canonicals).length === 0) {
+        lines.push("All canonicals translated as is.", "");
+    } else {
+        for (const [canonicalUrl, { skippedFields }] of Object.entries(report.packages[pkgName].canonicals)) {
+            lines.push(`- <${canonicalUrl}>`);
+            if (skippedFields.length === 0) {
+                lines.push("    - All fields translated as is.", "");
+            } else {
+                lines.push(`    - Skipped fields: ${skippedFields.map((f) => `\`${f}\``).join(", ")}`);
+                lines.push("");
+            }
+        }
+        lines.push("");
+    }
+    lines.push("## Skipped Canonicals", "");
     if (report.packages[pkgName].skippedCanonicals.length === 0) {
         lines.push("No skipped canonicals");
     } else {
