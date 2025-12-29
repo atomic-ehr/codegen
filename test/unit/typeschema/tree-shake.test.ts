@@ -1,7 +1,12 @@
 import { describe, expect, it } from "bun:test";
 import assert from "node:assert";
 import { registerFromPackageMetas } from "@root/typeschema/register";
-import { treeShake, treeShakeTypeSchema } from "@root/typeschema/tree-shake";
+import {
+    packageTreeShakeReadme,
+    rootTreeShakeReadme,
+    treeShake,
+    treeShakeTypeSchema,
+} from "@root/typeschema/tree-shake";
 import type { CanonicalUrl, RegularTypeSchema } from "@root/typeschema/types";
 import { mkIndex, mkR4Register, r4Manager, r4Package, r5Package, resolveTs } from "@typeschema-test/utils";
 
@@ -42,6 +47,11 @@ describe("treeShake specific TypeSchema", async () => {
             expect(report.skippedPackages).toMatchObject(["hl7.fhir.r5.core"]);
             expect(report.packages).toMatchSnapshot();
         });
+        it("root tree shake readme", () => {
+            expect(rootTreeShakeReadme(report)).toMatchSnapshot();
+        });
+        it("package tree shake readme", () => {
+            expect(packageTreeShakeReadme(report, "hl7.fhir.r4.core")).toMatchSnapshot();
         });
         it("check actually generated tree", () => {
             expect(shaked.entityTree()).toMatchSnapshot();

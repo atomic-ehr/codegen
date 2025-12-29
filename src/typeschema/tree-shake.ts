@@ -39,6 +39,44 @@ export interface TreeShakeReport {
     >;
 }
 
+const ensureTreeShakeReport = (indexOrReport: TypeSchemaIndex | TreeShakeReport): TreeShakeReport => {
+    if ("treeShakeReport" in indexOrReport && typeof indexOrReport.treeShakeReport === "function") {
+        const report = indexOrReport.treeShakeReport();
+        assert(report);
+        return report;
+    } else {
+        return indexOrReport as TreeShakeReport;
+    }
+};
+
+export const rootTreeShakeReadme = (report: TypeSchemaIndex | TreeShakeReport) => {
+    report = ensureTreeShakeReport(report);
+    const lines = ["# Tree Shake Report", ""];
+    if (report.skippedPackages.length === 0) lines.push("All packages are included");
+    else lines.push("Skipped packages:", "");
+    for (const pkgName of report.skippedPackages) {
+        lines.push(`- ${pkgName}`);
+    }
+    lines.push("");
+    return lines.join("\n");
+};
+
+export const packageTreeShakeReadme = (report: TypeSchemaIndex | TreeShakeReport, pkgName: PackageName) => {
+    report = ensureTreeShakeReport(report);
+    const lines = [`# Package: ${pkgName}`, ""];
+    assert(report.packages[pkgName]);
+    if (report.packages[pkgName].skippedCanonicals.length === 0) {
+        lines.push("No skipped canonicals");
+    } else {
+        lines.push("Skipped canonicals:", "");
+        for (const canonicalUrl of report.packages[pkgName].skippedCanonicals) {
+            lines.push(`- <${canonicalUrl}>`);
+        }
+        lines.push("");
+    }
+    return lines.join("\n");
+};
+
 const mutableSelectFields = (schema: RegularTypeSchema, selectFields: string[]) => {
     const selectedFields: Record<string, Field> = {};
 

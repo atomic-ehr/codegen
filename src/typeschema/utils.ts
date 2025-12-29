@@ -151,6 +151,7 @@ export type PackageName = string;
 export type TypeSchemaIndex = {
     _schemaIndex: Record<CanonicalUrl, Record<PackageName, TypeSchema>>;
     _relations: TypeRelation[];
+    schemas: TypeSchema[];
     schemasByPackage: Record<PackageName, TypeSchema[]>;
     collectComplexTypes: () => RegularTypeSchema[];
     collectResources: () => RegularTypeSchema[];
@@ -337,6 +338,7 @@ export const mkTypeSchemaIndex = (
     return {
         _schemaIndex: index,
         _relations: relations,
+        schemas,
         schemasByPackage: groupByPackages(schemas),
         collectComplexTypes: () => schemas.filter(isComplexTypeTypeSchema),
         collectResources: () => schemas.filter(isResourceTypeSchema),
