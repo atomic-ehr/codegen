@@ -496,7 +496,6 @@ export class APIBuilder {
             });
 
             const typeSchemas = await generateTypeSchemas(register, this.logger);
-            await tryWriteTypeSchema(typeSchemas, this.options, this.logger);
 
             const tsIndexOpts = {
                 resolutionTree: register.resolutionTree(),
@@ -504,6 +503,7 @@ export class APIBuilder {
             };
             let tsIndex = mkTypeSchemaIndex(typeSchemas, tsIndexOpts);
             if (this.options.treeShake) tsIndex = treeShake(tsIndex, this.options.treeShake, tsIndexOpts);
+            await tryWriteTypeSchema(tsIndex.schemas, this.options, this.logger);
 
             if (this.options.exportTypeTree) await tsIndex.exportTree(this.options.exportTypeTree);
 
