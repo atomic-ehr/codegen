@@ -1,6 +1,8 @@
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import type { ValueSet } from "@root/fhir-types/hl7-fhir-r4-core";
-import { createLogger } from "@root/utils/codegen-logger";
+import { generateTypeSchemas } from "@root/typeschema";
+import { mkTypeSchemaIndex } from "@root/typeschema/utils";
+import { type CodegenLogger, createLogger } from "@root/utils/codegen-logger";
 import { transformFhirSchema, transformValueSet } from "@typeschema/core/transformer";
 import { type Register, registerFromPackageMetas } from "@typeschema/register";
 import { type CanonicalUrl, enrichFHIRSchema, enrichValueSet, type PackageMeta } from "@typeschema/types";
@@ -9,6 +11,12 @@ export type PFS = Partial<FHIRSchema>;
 export type PVS = Partial<ValueSet>;
 
 const logger = createLogger({ prefix: "TEST" });
+
+export const mkIndex = async (register: Register, logger?: CodegenLogger) =>
+    mkTypeSchemaIndex(await generateTypeSchemas(register, logger), {
+        resolutionTree: register.resolutionTree(),
+        logger,
+    });
 
 export const r4Package = { name: "hl7.fhir.r4.core", version: "4.0.1" };
 
