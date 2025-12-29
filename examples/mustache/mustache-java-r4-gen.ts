@@ -7,9 +7,9 @@ if (require.main === module) {
         .setLogLevel("DEBUG")
         .throwException()
         .fromPackage("hl7.fhir.r4.core", "4.0.1")
-        .mustache("./examples/mustache/java", { debug: "COMPACT" })
         .outputTo("./examples/mustache/mustache-java-r4-output")
-        .writeTypeTree("./examples/mustache/mustache-java-r4-output/type-tree.yaml")
+        .mustache("./examples/mustache/java", { debug: "COMPACT" })
+        .introspection({ typeTree: "type-tree.yaml" })
         .cleanOutput(true);
 
     const report = await builder.generate();

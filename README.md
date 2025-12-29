@@ -143,10 +143,12 @@ const builder = new APIBuilder()
     .outputTo("./generated/types")             // Output directory
     .cleanOutput(true)                         // Clean before generation
 
-    // Optional: Optimization & debugging
+    // Optional: Introspection & debugging
     .throwException()                          // Throw on errors (optional)
-    .writeTypeSchemas("./schemas")             // Export TypeSchema files
-    .writeTypeTree("./tree.yaml")              // Export dependency tree
+    .introspection({ 
+        typeSchemas: "./schemas", 
+        typeTree: "./tree.yaml" 
+    })
 
     // Execute generation
     .generate();                                // Returns GenerationReport

@@ -16,9 +16,11 @@ if (require.main === module) {
         })
         // .typescript({ withDebugComment: false, generateProfile: false })
         // .fromPackageRef("https://build.fhir.org/ig/FHIR/sql-on-fhir-v2//package.tgz")
-        .writeTypeSchemas("examples/typescript-r4/type-schemas")
+        .introspection({
+            typeSchemas: "examples/typescript-r4/type-schemas",
+            typeTree: "./examples/typescript-r4/type-tree.yaml",
+        })
         .outputTo("./examples/typescript-r4/fhir-types")
-        .writeTypeTree("./examples/typescript-r4/type-tree.yaml")
         .treeShake({
             "hl7.fhir.r4.core": {
                 "http://hl7.org/fhir/StructureDefinition/Bundle": {},
