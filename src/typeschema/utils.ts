@@ -185,26 +185,41 @@ export const mkTypeSchemaIndex = (
         treeShakeReport?: TreeShakeReport;
     },
 ): TypeSchemaIndex => {
-    const index = {} as Record<CanonicalUrl, Record<PackageName, TypeSchema>>;
+    const index: Record<CanonicalUrl, Record<PackageName, TypeSchema>> = {};
+    const nestedIndex: Record<CanonicalUrl, Record<PackageName, TypeSchema>> = {};
     const append = (schema: TypeSchema) => {
         const url = schema.identifier.url;
         const pkg = schema.identifier.package;
         if (!index[url]) index[url] = {};
 
-        if (index[url][schema.identifier.package] && pkg !== "shared") {
+        if (index[url][pkg] && pkg !== "shared") {
             const r1 = JSON.stringify(schema.identifier, undefined, 2);
             const r2 = JSON.stringify(index[url][pkg]?.identifier, undefined, 2);
             if (r1 !== r2) throw new Error(`Duplicate schema: ${r1} and ${r2}`);
             return;
         }
         index[url][pkg] = schema;
+
+        if (isSpecializationTypeSchema(schema) || isProfileTypeSchema(schema)) {
+            if (schema.nested) {
+                schema.nested.forEach((nschema) => {
+                    const nurl = nschema.identifier.url;
+                    const npkg = nschema.identifier.package;
+                    nestedIndex[nurl] ??= {};
+                    nestedIndex[nurl][npkg] = nschema;
+                });
+            }
+        }
     };
     for (const schema of schemas) {
         append(schema);
     }
     const relations = resourceRelatives(schemas);
 
-    const resolve = (id: Identifier) => index[id.url]?.[id.package];
+    const resolve = (id: Identifier) => {
+        if (id.kind === "nested") return nestedIndex[id.url]?.[id.package];
+        return index[id.url]?.[id.package];
+    };
     const resolveByUrl = (pkgName: PackageName, url: CanonicalUrl) => {
         if (resolutionTree) {
             const resolution = resolutionTree[pkgName]?.[url]?.[0];

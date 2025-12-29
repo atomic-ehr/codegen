@@ -16,24 +16,27 @@ if (require.main === module) {
         })
         // .typescript({ withDebugComment: false, generateProfile: false })
         // .fromPackageRef("https://build.fhir.org/ig/FHIR/sql-on-fhir-v2//package.tgz")
-        // .writeTypeSchemas("examples/r4-type-schema")
+        .writeTypeSchemas("examples/typescript-r4/type-schemas")
         .outputTo("./examples/typescript-r4/fhir-types")
         .writeTypeTree("./examples/typescript-r4/type-tree.yaml")
-        // .treeShake({
-        //     "hl7.fhir.r4.core": {
-        //         "http://hl7.org/fhir/StructureDefinition/Bundle": {},
-        //         "http://hl7.org/fhir/StructureDefinition/OperationOutcome": {},
-        //         "http://hl7.org/fhir/StructureDefinition/DomainResource": {
-        //             ignoreFields: ["extension", "modifierExtension"],
-        //         },
-        //         "http://hl7.org/fhir/StructureDefinition/BackboneElement": {
-        //             ignoreFields: ["modifierExtension"],
-        //         },
-        //         "http://hl7.org/fhir/StructureDefinition/Element": {
-        //             ignoreFields: ["extension"],
-        //         },
-        //     },
-        // })
+        .treeShake({
+            "hl7.fhir.r4.core": {
+                "http://hl7.org/fhir/StructureDefinition/Bundle": {},
+                "http://hl7.org/fhir/StructureDefinition/OperationOutcome": {},
+                "http://hl7.org/fhir/StructureDefinition/DomainResource": {
+                    ignoreFields: ["extension", "modifierExtension"],
+                },
+                "http://hl7.org/fhir/StructureDefinition/BackboneElement": {
+                    ignoreFields: ["modifierExtension"],
+                },
+                "http://hl7.org/fhir/StructureDefinition/Element": {
+                    ignoreFields: ["extension"],
+                },
+                "http://hl7.org/fhir/StructureDefinition/Patient": {},
+                "http://hl7.org/fhir/StructureDefinition/Observation": {},
+                "http://hl7.org/fhir/StructureDefinition/bodyweight": {},
+            },
+        })
         .cleanOutput(true);
 
     const report = await builder.generate();
