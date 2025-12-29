@@ -67,6 +67,16 @@ describe("TypeSchema: Nested types", async () => {
     });
 
     describe("Choice type translation", () => {
+        const B: PFS = {
+            base: "uri::A",
+            url: "uri::B",
+            name: "B",
+            required: ["foo"],
+            elements: {
+                foo: { min: 1 },
+                bar: { type: "code" },
+            },
+        };
         const C: PFS = {
             base: "uri::B",
             url: "uri::C",
@@ -78,6 +88,8 @@ describe("TypeSchema: Nested types", async () => {
             },
         };
         it("Check optional choice fields", async () => {
+            // Register B first since C depends on it
+            await registerFsAndMkTs(r4, B);
             expect(await registerFsAndMkTs(r4, C)).toMatchObject([
                 {
                     identifier: { url: "uri::C" },

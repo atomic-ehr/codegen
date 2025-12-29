@@ -30,10 +30,13 @@ export function mkNestedIdentifier(
     }
     const nestedName = path.join(".") as Name;
     const url = nestedTypeOrigins[nestedName] ?? (`${fhirSchema.url}#${nestedName}` as CanonicalUrl);
+    const baseUrl = url.split("#")[0] as CanonicalUrl;
+    const baseFs = register.resolveFs(fhirSchema.package_meta, baseUrl);
+    const packageMeta = baseFs?.package_meta ?? fhirSchema.package_meta;
     return {
         kind: "nested",
-        package: fhirSchema.package_meta.name,
-        version: fhirSchema.package_meta.version,
+        package: packageMeta.name,
+        version: packageMeta.version,
         name: nestedName,
         url: url,
     };

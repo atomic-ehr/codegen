@@ -8,7 +8,16 @@ import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import { packageMetaToFhir } from "@typeschema/types";
-import type { BindingIdentifier, Field, Identifier, Name, RegularField, RichFHIRSchema } from "../types";
+import type {
+    BindingIdentifier,
+    Field,
+    FieldSlice,
+    FieldSlicing,
+    Identifier,
+    Name,
+    RegularField,
+    RichFHIRSchema,
+} from "../types";
 import { buildEnum } from "./binding";
 import { mkBindingIdentifier, mkIdentifier } from "./identifier";
 import { mkNestedIdentifier } from "./nested-types";
@@ -60,6 +69,55 @@ const buildReferences = (
         if (!fs) throw new Error(`Failed to resolve fs for ${curl}`);
         return mkIdentifier(fs);
     });
+};
+
+const extractSliceFieldNames = (schema: FHIRSchemaElement): Pick<FieldSlice, "required" | "excluded"> => {
+    const required = new Set<string>();
+    const excluded = new Set<string>();
+
+    if (schema.required) {
+        for (const name of schema.required) required.add(name);
+    }
+    if (schema.excluded) {
+        for (const name of schema.excluded) excluded.add(name);
+    }
+    if (schema.elements) {
+        for (const [name, element] of Object.entries(schema.elements)) {
+            if (element.min !== undefined && element.min > 0) {
+                required.add(name);
+            }
+        }
+    }
+
+    return {
+        required: required.size > 0 ? Array.from(required) : undefined,
+        excluded: excluded.size > 0 ? Array.from(excluded) : undefined,
+    };
+};
+
+const buildSlicing = (element: FHIRSchemaElement): FieldSlicing | undefined => {
+    const slicing = element.slicing;
+    if (!slicing) return undefined;
+
+    const slices: Record<string, FieldSlice> = {};
+    for (const [name, slice] of Object.entries(slicing.slices ?? {})) {
+        if (!slice) continue;
+        const { required, excluded } = slice.schema ? extractSliceFieldNames(slice.schema) : {};
+        slices[name] = {
+            min: slice.min,
+            max: slice.max,
+            match: slice.match as Record<string, unknown> | undefined,
+            required,
+            excluded,
+        };
+    }
+
+    return {
+        discriminator: slicing.discriminator,
+        rules: slicing.rules,
+        ordered: slicing.ordered,
+        slices: Object.keys(slices).length > 0 ? slices : undefined,
+    };
 };
 
 export function buildFieldType(
@@ -126,6 +184,7 @@ export const mkField = (
         array: element.array || false,
         min: element.min,
         max: element.max,
+        slicing: buildSlicing(element),
 
         choices: element.choices,
         choiceOf: element.choiceOf,
@@ -165,5 +224,6 @@ export function mkNestedField(
         array: element.array || false,
         required: isRequired(register, fhirSchema, path),
         excluded: isExcluded(register, fhirSchema, path),
+        slicing: buildSlicing(element),
     };
 }
