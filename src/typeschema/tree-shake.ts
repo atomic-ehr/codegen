@@ -11,6 +11,7 @@ import {
     isNestedIdentifier,
     isNotChoiceDeclarationField,
     isPrimitiveTypeSchema,
+    isProfileTypeSchema,
     isSpecializationTypeSchema,
     isValueSetTypeSchema,
     type NestedType,
@@ -253,7 +254,7 @@ export const treeShake = (
         const newSchemas: TypeSchema[] = [];
 
         for (const schema of schemas) {
-            if (isSpecializationTypeSchema(schema)) {
+            if (isSpecializationTypeSchema(schema) || isProfileTypeSchema(schema)) {
                 if (!schema.dependencies) continue;
                 schema.dependencies.forEach((dep) => {
                     const depSchema = tsIndex.resolve(dep);
