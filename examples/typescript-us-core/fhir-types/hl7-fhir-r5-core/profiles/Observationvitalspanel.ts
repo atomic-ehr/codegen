@@ -33,9 +33,9 @@ export class ObservationvitalspanelProfile {
         return this.resource as Observationvitalspanel
     }
 
-    public setVscat (input: Observationvitalspanel_Category_VSCatSliceInput): this {
+    public setVscat (input?: Observationvitalspanel_Category_VSCatSliceInput): this {
         const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as CodeableConcept
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as CodeableConcept
         const list = (this.resource.category ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -46,28 +46,21 @@ export class ObservationvitalspanelProfile {
         return this
     }
 
-    public resetVscat (): this {
-        const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
-        const list = this.resource.category
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getVscat(raw: true): CodeableConcept | undefined
-    public getVscat(raw?: false): Observationvitalspanel_Category_VSCatSliceInput | undefined
-    public getVscat (raw?: boolean): CodeableConcept | Observationvitalspanel_Category_VSCatSliceInput | undefined {
+    public getVscat (): Observationvitalspanel_Category_VSCatSliceInput | undefined {
         const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
         const list = this.resource.category
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as Observationvitalspanel_Category_VSCatSliceInput
+    }
+
+    public getVscatRaw (): CodeableConcept | undefined {
+        const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
+        const list = this.resource.category
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

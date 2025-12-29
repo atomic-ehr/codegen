@@ -18,11 +18,11 @@ import {
     isNestedIdentifier,
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
+    isProfileIdentifier,
     isProfileTypeSchema,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
     type Name,
-    type ProfileExtension,
     type ProfileTypeSchema,
     type RegularTypeSchema,
     type TypeSchema,
@@ -75,7 +75,7 @@ const tsModuleFileName = (id: Identifier): string => {
 };
 
 const tsModulePath = (id: Identifier): string => {
-    if (id.kind === "profile") {
+    if (isProfileIdentifier(id)) {
         return `${tsFhirPackageDir(id.package)}/profiles/${tsModuleName(id)}`;
     }
     return `${tsFhirPackageDir(id.package)}/${tsModuleName(id)}`;
@@ -132,6 +132,50 @@ const tsTypeFromIdentifier = (id: Identifier): string => {
     return id.name;
 };
 
+const tsProfileClassName = (profileName: string): string => {
+    return `${uppercaseFirstLetter(profileName)}Profile`;
+};
+
+const tsSliceInputTypeName = (profileName: string, fieldName: string, sliceName: string): string => {
+    return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(fieldName))}_${uppercaseFirstLetter(normalizeTsName(sliceName))}SliceInput`;
+};
+
+const tsExtensionInputTypeName = (profileName: string, extensionName: string): string => {
+    return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(extensionName))}Input`;
+};
+
+const safeCamelCase = (name: string): string => {
+    if (!name) return "";
+    return camelCase(name);
+};
+
+const tsSliceMethodName = (sliceName: string): string => {
+    const normalized = safeCamelCase(sliceName);
+    return `set${uppercaseFirstLetter(normalized || "Slice")}`;
+};
+
+const tsExtensionMethodName = (name: string): string => {
+    const normalized = safeCamelCase(name);
+    return `set${uppercaseFirstLetter(normalized || "Extension")}`;
+};
+
+const tsExtensionMethodFallback = (name: string, path?: string): string => {
+    const rawPath =
+        path
+            ?.split(".")
+            .filter((p) => p && p !== "extension")
+            .join("_") ?? "";
+    const pathPart = rawPath ? uppercaseFirstLetter(safeCamelCase(rawPath)) : "";
+    const normalized = safeCamelCase(name);
+    return `setExtension${pathPart}${uppercaseFirstLetter(normalized || "Extension")}`;
+};
+
+const tsSliceMethodFallback = (fieldName: string, sliceName: string): string => {
+    const fieldPart = uppercaseFirstLetter(safeCamelCase(fieldName) || "Field");
+    const slicePart = uppercaseFirstLetter(safeCamelCase(sliceName) || "Slice");
+    return `setSlice${fieldPart}${slicePart}`;
+};
+
 export type TypeScriptOptions = {
     /** openResourceTypeSet -- for resource families (Resource, DomainResource) use open set for resourceType field.
      *
@@ -147,50 +191,6 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         this.lineSM(`import type { ${entities.join(", ")} } from "${tsPackageName}"`);
     }
 
-    private tsProfileClassName(profileName: string): string {
-        return `${uppercaseFirstLetter(profileName)}Profile`;
-    }
-
-    private tsSliceInputTypeName(profileName: string, fieldName: string, sliceName: string): string {
-        return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(fieldName))}_${uppercaseFirstLetter(normalizeTsName(sliceName))}SliceInput`;
-    }
-
-    private tsExtensionInputTypeName(profileName: string, extensionName: string): string {
-        return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(extensionName))}Input`;
-    }
-
-    private safeCamelCase(name: string): string {
-        if (!name) return "";
-        return camelCase(name);
-    }
-
-    private tsSliceMethodName(sliceName: string): string {
-        const normalized = this.safeCamelCase(sliceName);
-        return `set${uppercaseFirstLetter(normalized || "Slice")}`;
-    }
-
-    private tsExtensionMethodName(name: string): string {
-        const normalized = this.safeCamelCase(name);
-        return `set${uppercaseFirstLetter(normalized || "Extension")}`;
-    }
-
-    private tsExtensionMethodFallback(name: string, path?: string): string {
-        const rawPath =
-            path
-                ?.split(".")
-                .filter((p) => p && p !== "extension")
-                .join("_") ?? "";
-        const pathPart = rawPath ? uppercaseFirstLetter(this.safeCamelCase(rawPath)) : "";
-        const normalized = this.safeCamelCase(name);
-        return `setExtension${pathPart}${uppercaseFirstLetter(normalized || "Extension")}`;
-    }
-
-    private tsSliceMethodFallback(fieldName: string, sliceName: string): string {
-        const fieldPart = uppercaseFirstLetter(this.safeCamelCase(fieldName) || "Field");
-        const slicePart = uppercaseFirstLetter(this.safeCamelCase(sliceName) || "Slice");
-        return `setSlice${fieldPart}${slicePart}`;
-    }
-
     private generateProfileIndexFile(profiles: TypeSchema[]) {
         if (profiles.length === 0) return;
         this.cd("profiles", () => {
@@ -198,14 +198,14 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 // Deduplicate by class name to avoid duplicate exports
                 const seen = new Set<string>();
                 const uniqueProfiles = profiles.filter((profile) => {
-                    const className = this.tsProfileClassName(tsResourceName(profile.identifier));
+                    const className = tsProfileClassName(tsResourceName(profile.identifier));
                     if (seen.has(className)) return false;
                     seen.add(className);
                     return true;
                 });
                 if (uniqueProfiles.length === 0) return;
                 for (const profile of uniqueProfiles) {
-                    const className = this.tsProfileClassName(tsResourceName(profile.identifier));
+                    const className = tsProfileClassName(tsResourceName(profile.identifier));
                     this.lineSM(`export { ${className} } from "./${tsModuleName(profile.identifier)}"`);
                 }
             });
@@ -620,7 +620,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             this.curlyBlock(
                 ["export const", "isRecord", "=", "(value: unknown): value is Record<string, unknown>", "=>"],
                 () => {
-                    this.line('return value !== null && typeof value === "object" && !Array.isArray(value)');
+                    this.lineSM('return value !== null && typeof value === "object" && !Array.isArray(value)');
                 },
             );
             this.line();
@@ -633,23 +633,23 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                     "=>",
                 ],
                 () => {
-                    this.line("let current: Record<string, unknown> = root");
+                    this.lineSM("let current: Record<string, unknown> = root");
                     this.curlyBlock(["for (const", "segment", "of", "path)"], () => {
                         this.curlyBlock(["if", "(Array.isArray(current[segment]))"], () => {
-                            this.line("const list = current[segment] as unknown[]");
+                            this.lineSM("const list = current[segment] as unknown[]");
                             this.curlyBlock(["if", "(list.length === 0)"], () => {
-                                this.line("list.push({})");
+                                this.lineSM("list.push({})");
                             });
-                            this.line("current = list[0] as Record<string, unknown>");
+                            this.lineSM("current = list[0] as Record<string, unknown>");
                         });
                         this.curlyBlock(["else"], () => {
                             this.curlyBlock(["if", "(!isRecord(current[segment]))"], () => {
-                                this.line("current[segment] = {}");
+                                this.lineSM("current[segment] = {}");
                             });
-                            this.line("current = current[segment] as Record<string, unknown>");
+                            this.lineSM("current = current[segment] as Record<string, unknown>");
                         });
                     });
-                    this.line("return current");
+                    this.lineSM("return current");
                 },
             );
             this.line();
@@ -663,16 +663,22 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 ],
                 () => {
                     this.curlyBlock(["for (const", "[key, matchValue]", "of", "Object.entries(match))"], () => {
+                        this.curlyBlock(
+                            ["if", '(key === "__proto__" || key === "constructor" || key === "prototype")'],
+                            () => {
+                                this.lineSM("continue");
+                            },
+                        );
                         this.curlyBlock(["if", "(isRecord(matchValue))"], () => {
                             this.curlyBlock(["if", "(isRecord(target[key]))"], () => {
-                                this.line("mergeMatch(target[key] as Record<string, unknown>, matchValue)");
+                                this.lineSM("mergeMatch(target[key] as Record<string, unknown>, matchValue)");
                             });
                             this.curlyBlock(["else"], () => {
-                                this.line("target[key] = { ...matchValue }");
+                                this.lineSM("target[key] = { ...matchValue }");
                             });
                         });
                         this.curlyBlock(["else"], () => {
-                            this.line("target[key] = matchValue");
+                            this.lineSM("target[key] = matchValue");
                         });
                     });
                 },
@@ -687,9 +693,9 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                     "=>",
                 ],
                 () => {
-                    this.line("const result = { ...input } as Record<string, unknown>");
-                    this.line("mergeMatch(result, match)");
-                    this.line("return result as T");
+                    this.lineSM("const result = { ...input } as Record<string, unknown>");
+                    this.lineSM("mergeMatch(result, match)");
+                    this.lineSM("return result as T");
                 },
             );
             this.line();
@@ -697,24 +703,24 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 ["export const", "matchesValue", "=", "(value: unknown, match: unknown): boolean", "=>"],
                 () => {
                     this.curlyBlock(["if", "(Array.isArray(match))"], () => {
-                        this.curlyBlock(["if", "(!Array.isArray(value))"], () => this.line("return false"));
-                        this.line(
+                        this.curlyBlock(["if", "(!Array.isArray(value))"], () => this.lineSM("return false"));
+                        this.lineSM(
                             "return match.every((matchItem) => value.some((item) => matchesValue(item, matchItem)))",
                         );
                     });
                     this.curlyBlock(["if", "(isRecord(match))"], () => {
-                        this.curlyBlock(["if", "(!isRecord(value))"], () => this.line("return false"));
+                        this.curlyBlock(["if", "(!isRecord(value))"], () => this.lineSM("return false"));
                         this.curlyBlock(["for (const", "[key, matchValue]", "of", "Object.entries(match))"], () => {
                             this.curlyBlock(
                                 ["if", "(!matchesValue((value as Record<string, unknown>)[key], matchValue))"],
                                 () => {
-                                    this.line("return false");
+                                    this.lineSM("return false");
                                 },
                             );
                         });
-                        this.line("return true");
+                        this.lineSM("return true");
                     });
-                    this.line("return value === match");
+                    this.lineSM("return value === match");
                 },
             );
             this.line();
@@ -727,7 +733,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                     "=>",
                 ],
                 () => {
-                    this.line("return matchesValue(value, match)");
+                    this.lineSM("return matchesValue(value, match)");
                 },
             );
             this.line();
@@ -741,20 +747,18 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                     "=>",
                 ],
                 () => {
-                    this.line("if (!extension?.extension) return undefined");
-                    this.line("const result: Record<string, unknown> = {}");
+                    this.lineSM("if (!extension?.extension) return undefined");
+                    this.lineSM("const result: Record<string, unknown> = {}");
                     this.curlyBlock(["for (const", "{ name, valueField, isArray }", "of", "config)"], () => {
-                        this.line("const subExts = extension.extension.filter(e => e.url === name)");
+                        this.lineSM("const subExts = extension.extension.filter(e => e.url === name)");
                         this.curlyBlock(["if", "(isArray)"], () => {
-                            this.line(
-                                "result[name] = subExts.map(e => (e as Record<string, unknown>)[valueField])",
-                            );
+                            this.lineSM("result[name] = subExts.map(e => (e as Record<string, unknown>)[valueField])");
                         });
                         this.curlyBlock(["else if", "(subExts[0])"], () => {
-                            this.line("result[name] = (subExts[0] as Record<string, unknown>)[valueField]");
+                            this.lineSM("result[name] = (subExts[0] as Record<string, unknown>)[valueField]");
                         });
                     });
-                    this.line("return result");
+                    this.lineSM("return result");
                 },
             );
             this.line();
@@ -768,11 +772,11 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                     "=>",
                 ],
                 () => {
-                    this.line("const result = { ...slice } as Record<string, unknown>");
+                    this.lineSM("const result = { ...slice } as Record<string, unknown>");
                     this.curlyBlock(["for (const", "key", "of", "matchKeys)"], () => {
-                        this.line("delete result[key]");
+                        this.lineSM("delete result[key]");
                     });
-                    this.line("return result as Partial<T>");
+                    this.lineSM("return result as Partial<T>");
                 },
             );
         });
@@ -936,44 +940,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
     generateProfileClass(tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) {
         const tsBaseResourceName = tsResourceName(flatProfile.base);
         const tsProfileName = tsResourceName(flatProfile.identifier);
-        const tsProfileClassName = this.tsProfileClassName(tsProfileName);
-
-        const sliceDefs = Object.entries(flatProfile.fields ?? {})
-            .filter(([_fieldName, field]) => isNotChoiceDeclarationField(field) && field.slicing?.slices)
-            .flatMap(([fieldName, field]) => {
-                if (!isNotChoiceDeclarationField(field) || !field.slicing?.slices || !field.type) return [];
-                const baseType = tsTypeFromIdentifier(field.type);
-                return Object.entries(field.slicing.slices)
-                    .filter(([_sliceName, slice]) => {
-                        const match = slice.match ?? {};
-                        return Object.keys(match).length > 0;
-                    })
-                    .map(([sliceName, slice]) => ({
-                        fieldName,
-                        baseType,
-                        sliceName,
-                        match: slice.match ?? {},
-                        required: slice.required ?? [],
-                        excluded: slice.excluded ?? [],
-                        array: Boolean(field.array),
-                    }));
-            });
-
-        const extensions = flatProfile.extensions ?? [];
-        const complexExtensions = extensions.filter((ext) => ext.isComplex && ext.subExtensions);
-
-        for (const ext of complexExtensions) {
-            const typeName = this.tsExtensionInputTypeName(tsProfileName, ext.name);
-            this.curlyBlock(["export", "type", typeName, "="], () => {
-                for (const sub of ext.subExtensions ?? []) {
-                    const tsType = sub.valueType ? tsTypeFromIdentifier(sub.valueType) : "unknown";
-                    const isArray = sub.max === "*";
-                    const isRequired = sub.min !== undefined && sub.min > 0;
-                    this.lineSM(`${sub.name}${isRequired ? "" : "?"}: ${tsType}${isArray ? "[]" : ""}`);
-                }
-            });
-            this.line();
-        }
+        const profileClassName = tsProfileClassName(tsProfileName);
 
         // Known polymorphic field base names in FHIR (value[x], effective[x], etc.)
         // These don't exist as direct properties on TypeScript types
@@ -1002,9 +969,56 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             "asNeeded",
         ]);
 
+        const sliceDefs = Object.entries(flatProfile.fields ?? {})
+            .filter(([_fieldName, field]) => isNotChoiceDeclarationField(field) && field.slicing?.slices)
+            .flatMap(([fieldName, field]) => {
+                if (!isNotChoiceDeclarationField(field) || !field.slicing?.slices || !field.type) return [];
+                const baseType = tsTypeFromIdentifier(field.type);
+                return Object.entries(field.slicing.slices)
+                    .filter(([_sliceName, slice]) => {
+                        const match = slice.match ?? {};
+                        return Object.keys(match).length > 0;
+                    })
+                    .map(([sliceName, slice]) => {
+                        const matchFields = Object.keys(slice.match ?? {});
+                        const required = slice.required ?? [];
+                        // Filter out fields that are in match or polymorphic base names
+                        const filteredRequired = required.filter(
+                            (name) => !matchFields.includes(name) && !polymorphicBaseNames.has(name),
+                        );
+                        return {
+                            fieldName,
+                            baseType,
+                            sliceName,
+                            match: slice.match ?? {},
+                            required,
+                            excluded: slice.excluded ?? [],
+                            array: Boolean(field.array),
+                            // Input is optional when there are no required fields after filtering
+                            inputOptional: filteredRequired.length === 0,
+                        };
+                    });
+            });
+
+        const extensions = flatProfile.extensions ?? [];
+        const complexExtensions = extensions.filter((ext) => ext.isComplex && ext.subExtensions);
+
+        for (const ext of complexExtensions) {
+            const typeName = tsExtensionInputTypeName(tsProfileName, ext.name);
+            this.curlyBlock(["export", "type", typeName, "="], () => {
+                for (const sub of ext.subExtensions ?? []) {
+                    const tsType = sub.valueType ? tsTypeFromIdentifier(sub.valueType) : "unknown";
+                    const isArray = sub.max === "*";
+                    const isRequired = sub.min !== undefined && sub.min > 0;
+                    this.lineSM(`${sub.name}${isRequired ? "" : "?"}: ${tsType}${isArray ? "[]" : ""}`);
+                }
+            });
+            this.line();
+        }
+
         if (sliceDefs.length > 0) {
             for (const sliceDef of sliceDefs) {
-                const typeName = this.tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+                const typeName = tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
                 const matchFields = Object.keys(sliceDef.match);
                 const allExcluded = [...new Set([...sliceDef.excluded, ...matchFields])];
                 const excludedNames = allExcluded.map((name) => JSON.stringify(name));
@@ -1048,7 +1062,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         // Check if we have an override interface (narrowed types)
         const hasOverrideInterface = this.detectFieldOverrides(tsIndex, flatProfile).size > 0;
 
-        this.curlyBlock(["export", "class", tsProfileClassName], () => {
+        this.curlyBlock(["export", "class", profileClassName], () => {
             this.line(`private resource: ${tsBaseResourceName}`);
             this.line();
             this.curlyBlock(["constructor", `(resource: ${tsBaseResourceName})`], () => {
@@ -1072,10 +1086,10 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 .filter((ext) => ext.url)
                 .map((ext) => ({
                     ext,
-                    baseName: this.tsExtensionMethodName(ext.name),
-                    fallbackName: this.tsExtensionMethodFallback(ext.name, ext.path),
+                    baseName: tsExtensionMethodName(ext.name),
+                    fallbackName: tsExtensionMethodFallback(ext.name, ext.path),
                 }));
-            const sliceMethodBases = sliceDefs.map((slice) => this.tsSliceMethodName(slice.sliceName));
+            const sliceMethodBases = sliceDefs.map((slice) => tsSliceMethodName(slice.sliceName));
             const methodCounts = new Map<string, number>();
             for (const name of [...sliceMethodBases, ...extensionMethods.map((m) => m.baseName)]) {
                 methodCounts.set(name, (methodCounts.get(name) ?? 0) + 1);
@@ -1088,21 +1102,21 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             );
             const sliceMethodNames = new Map(
                 sliceDefs.map((slice) => {
-                    const baseName = this.tsSliceMethodName(slice.sliceName);
+                    const baseName = tsSliceMethodName(slice.sliceName);
                     const needsFallback = (methodCounts.get(baseName) ?? 0) > 1;
-                    const fallback = this.tsSliceMethodFallback(slice.fieldName, slice.sliceName);
+                    const fallback = tsSliceMethodFallback(slice.fieldName, slice.sliceName);
                     return [slice, needsFallback ? fallback : baseName];
                 }),
             );
 
             for (const ext of extensions) {
                 if (!ext.url) continue;
-                const methodName = extensionMethodNames.get(ext) ?? this.tsExtensionMethodFallback(ext.name, ext.path);
+                const methodName = extensionMethodNames.get(ext) ?? tsExtensionMethodFallback(ext.name, ext.path);
                 const valueTypes = ext.valueTypes ?? [];
                 const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");
 
                 if (ext.isComplex && ext.subExtensions) {
-                    const inputTypeName = this.tsExtensionInputTypeName(tsProfileName, ext.name);
+                    const inputTypeName = tsExtensionInputTypeName(tsProfileName, ext.name);
                     this.curlyBlock(["public", methodName, `(input: ${inputTypeName}): this`], () => {
                         this.line("const subExtensions: Extension[] = []");
                         for (const sub of ext.subExtensions ?? []) {
@@ -1185,17 +1199,22 @@ export class TypeScript extends Writer<TypeScriptOptions> {
 
             for (const sliceDef of sliceDefs) {
                 const methodName =
-                    sliceMethodNames.get(sliceDef) ??
-                    this.tsSliceMethodFallback(sliceDef.fieldName, sliceDef.sliceName);
-                const typeName = this.tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+                    sliceMethodNames.get(sliceDef) ?? tsSliceMethodFallback(sliceDef.fieldName, sliceDef.sliceName);
+                const typeName = tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
                 const matchLiteral = JSON.stringify(sliceDef.match);
                 const tsField = tsFieldName(sliceDef.fieldName);
                 const fieldAccess = tsGet("this.resource", tsField);
-                this.curlyBlock(["public", methodName, `(input: ${typeName}): this`], () => {
+                // Make input optional when there are no required fields (input can be empty object)
+                const paramSignature = sliceDef.inputOptional
+                    ? `(input?: ${typeName}): this`
+                    : `(input: ${typeName}): this`;
+                this.curlyBlock(["public", methodName, paramSignature], () => {
                     this.line(`const match = ${matchLiteral} as Record<string, unknown>`);
-                    this.line(
-                        `const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as ${sliceDef.baseType}`,
-                    );
+                    // Use empty object as default when input is optional
+                    const inputExpr = sliceDef.inputOptional
+                        ? "(input ?? {}) as Record<string, unknown>"
+                        : "input as Record<string, unknown>";
+                    this.line(`const value = applySliceMatch(${inputExpr}, match) as unknown as ${sliceDef.baseType}`);
                     if (sliceDef.array) {
                         this.line(`const list = (${fieldAccess} ??= [])`);
                         this.line("const index = list.findIndex((item) => matchesSlice(item, match))");
@@ -1216,127 +1235,77 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 this.line();
             }
 
-            const generatedResetMethods = new Set<string>();
-
-            for (const ext of extensions) {
-                if (!ext.url) continue;
-                const resetMethodName = `reset${uppercaseFirstLetter(this.safeCamelCase(ext.name))}`;
-                if (generatedResetMethods.has(resetMethodName)) continue;
-                generatedResetMethods.add(resetMethodName);
-                const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");
-                this.curlyBlock(["public", resetMethodName, "(): this"], () => {
-                    if (targetPath.length === 0) {
-                        this.line("const list = this.resource.extension");
-                    } else {
-                        this.line(
-                            `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
-                        );
-                        this.line("const list = target.extension as Extension[] | undefined");
-                    }
-                    this.curlyBlock(["if", "(list)"], () => {
-                        this.line(`const index = list.findIndex((e) => e.url === "${ext.url}")`);
-                        this.curlyBlock(["if", "(index !== -1)"], () => {
-                            this.line("list.splice(index, 1)");
-                        });
-                    });
-                    this.line("return this");
-                });
-                this.line();
-            }
-
-            for (const sliceDef of sliceDefs) {
-                const resetMethodName = `reset${uppercaseFirstLetter(this.safeCamelCase(sliceDef.sliceName))}`;
-                if (generatedResetMethods.has(resetMethodName)) continue;
-                generatedResetMethods.add(resetMethodName);
-                const matchLiteral = JSON.stringify(sliceDef.match);
-                const tsField = tsFieldName(sliceDef.fieldName);
-                const fieldAccess = tsGet("this.resource", tsField);
-                this.curlyBlock(["public", resetMethodName, "(): this"], () => {
-                    this.line(`const match = ${matchLiteral} as Record<string, unknown>`);
-                    this.line(`const list = ${fieldAccess}`);
-                    this.curlyBlock(["if", "(list)"], () => {
-                        this.line("const index = list.findIndex((item) => matchesSlice(item, match))");
-                        this.curlyBlock(["if", "(index !== -1)"], () => {
-                            this.line("list.splice(index, 1)");
-                        });
-                    });
-                    this.line("return this");
-                });
-                this.line();
-            }
-
-            // Generate extension getters
+            // Generate extension getters - two methods per extension:
+            // 1. get{Name}() - returns flat API (simplified)
+            // 2. get{Name}Extension() - returns raw FHIR Extension
             const generatedGetMethods = new Set<string>();
 
             for (const ext of extensions) {
                 if (!ext.url) continue;
-                const getMethodName = `get${uppercaseFirstLetter(this.safeCamelCase(ext.name))}`;
+                const baseName = uppercaseFirstLetter(safeCamelCase(ext.name));
+                const getMethodName = `get${baseName}`;
+                const getExtensionMethodName = `get${baseName}Extension`;
                 if (generatedGetMethods.has(getMethodName)) continue;
                 generatedGetMethods.add(getMethodName);
                 const valueTypes = ext.valueTypes ?? [];
                 const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");
 
+                // Helper to generate the extension lookup code
+                const generateExtLookup = () => {
+                    if (targetPath.length === 0) {
+                        this.line(`const ext = this.resource.extension?.find(e => e.url === "${ext.url}")`);
+                    } else {
+                        this.line(
+                            `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
+                        );
+                        this.line(
+                            `const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "${ext.url}")`,
+                        );
+                    }
+                };
+
                 if (ext.isComplex && ext.subExtensions) {
-                    const inputTypeName = this.tsExtensionInputTypeName(tsProfileName, ext.name);
-                    // Generate overloaded signatures
-                    this.line(`public ${getMethodName}(raw: true): Extension | undefined`);
-                    this.line(`public ${getMethodName}(raw?: false): ${inputTypeName} | undefined`);
-                    this.curlyBlock(
-                        ["public", getMethodName, `(raw?: boolean): Extension | ${inputTypeName} | undefined`],
-                        () => {
-                            if (targetPath.length === 0) {
-                                this.line(`const ext = this.resource.extension?.find(e => e.url === "${ext.url}")`);
-                            } else {
-                                this.line(
-                                    `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
-                                );
-                                this.line(
-                                    `const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "${ext.url}")`,
-                                );
-                            }
-                            this.line("if (!ext) return undefined");
-                            this.line("if (raw) return ext");
-                            // Build extraction config
-                            const configItems = (ext.subExtensions ?? []).map((sub) => {
-                                const valueField = sub.valueType
-                                    ? `value${uppercaseFirstLetter(sub.valueType.name)}`
-                                    : "value";
-                                const isArray = sub.max === "*";
-                                return `{ name: "${sub.url}", valueField: "${valueField}", isArray: ${isArray} }`;
-                            });
-                            this.line(`const config = [${configItems.join(", ")}]`);
-                            this.line(
-                                `return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as ${inputTypeName}`,
-                            );
-                        },
-                    );
+                    const inputTypeName = tsExtensionInputTypeName(tsProfileName, ext.name);
+                    // Flat API getter
+                    this.curlyBlock(["public", getMethodName, `(): ${inputTypeName} | undefined`], () => {
+                        generateExtLookup();
+                        this.line("if (!ext) return undefined");
+                        // Build extraction config
+                        const configItems = (ext.subExtensions ?? []).map((sub) => {
+                            const valueField = sub.valueType
+                                ? `value${uppercaseFirstLetter(sub.valueType.name)}`
+                                : "value";
+                            const isArray = sub.max === "*";
+                            return `{ name: "${sub.url}", valueField: "${valueField}", isArray: ${isArray} }`;
+                        });
+                        this.line(`const config = [${configItems.join(", ")}]`);
+                        this.line(
+                            `return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as ${inputTypeName}`,
+                        );
+                    });
+                    this.line();
+                    // Raw Extension getter
+                    this.curlyBlock(["public", getExtensionMethodName, "(): Extension | undefined"], () => {
+                        generateExtLookup();
+                        this.line("return ext");
+                    });
                 } else if (valueTypes.length === 1 && valueTypes[0]) {
                     const firstValueType = valueTypes[0];
                     const valueType = tsTypeFromIdentifier(firstValueType);
                     const valueField = `value${uppercaseFirstLetter(firstValueType.name)}`;
-                    // Generate overloaded signatures
-                    this.line(`public ${getMethodName}(raw: true): Extension | undefined`);
-                    this.line(`public ${getMethodName}(raw?: false): ${valueType} | undefined`);
-                    this.curlyBlock(
-                        ["public", getMethodName, `(raw?: boolean): Extension | ${valueType} | undefined`],
-                        () => {
-                            if (targetPath.length === 0) {
-                                this.line(`const ext = this.resource.extension?.find(e => e.url === "${ext.url}")`);
-                            } else {
-                                this.line(
-                                    `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
-                                );
-                                this.line(
-                                    `const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "${ext.url}")`,
-                                );
-                            }
-                            this.line("if (!ext) return undefined");
-                            this.line("if (raw) return ext");
-                            this.line(`return ext.${valueField}`);
-                        },
-                    );
+                    // Flat API getter
+                    this.curlyBlock(["public", getMethodName, `(): ${valueType} | undefined`], () => {
+                        generateExtLookup();
+                        this.line(`return ext?.${valueField}`);
+                    });
+                    this.line();
+                    // Raw Extension getter
+                    this.curlyBlock(["public", getExtensionMethodName, "(): Extension | undefined"], () => {
+                        generateExtLookup();
+                        this.line("return ext");
+                    });
                 } else {
-                    // Generic extension getter - returns Extension directly
+                    // Generic extension - only raw getter makes sense
                     this.curlyBlock(["public", getMethodName, "(): Extension | undefined"], () => {
                         if (targetPath.length === 0) {
                             this.line(`return this.resource.extension?.find(e => e.url === "${ext.url}")`);
@@ -1353,43 +1322,56 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 this.line();
             }
 
-            // Generate slice getters
+            // Generate slice getters - two methods per slice:
+            // 1. get{SliceName}() - returns simplified (without discriminator fields)
+            // 2. get{SliceName}Raw() - returns full FHIR type with all fields
             for (const sliceDef of sliceDefs) {
-                const getMethodName = `get${uppercaseFirstLetter(this.safeCamelCase(sliceDef.sliceName))}`;
+                const baseName = uppercaseFirstLetter(safeCamelCase(sliceDef.sliceName));
+                const getMethodName = `get${baseName}`;
+                const getRawMethodName = `get${baseName}Raw`;
                 if (generatedGetMethods.has(getMethodName)) continue;
                 generatedGetMethods.add(getMethodName);
-                const typeName = this.tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+                const typeName = tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
                 const matchLiteral = JSON.stringify(sliceDef.match);
                 const matchKeys = JSON.stringify(Object.keys(sliceDef.match));
                 const tsField = tsFieldName(sliceDef.fieldName);
                 const fieldAccess = tsGet("this.resource", tsField);
                 const baseType = sliceDef.baseType;
-                // Generate overloaded signatures
-                this.line(`public ${getMethodName}(raw: true): ${baseType} | undefined`);
-                this.line(`public ${getMethodName}(raw?: false): ${typeName} | undefined`);
-                this.curlyBlock(
-                    ["public", getMethodName, `(raw?: boolean): ${baseType} | ${typeName} | undefined`],
-                    () => {
-                        this.line(`const match = ${matchLiteral} as Record<string, unknown>`);
-                        if (sliceDef.array) {
-                            this.line(`const list = ${fieldAccess}`);
-                            this.line("if (!list) return undefined");
-                            this.line("const item = list.find((item) => matchesSlice(item, match))");
-                            this.line("if (!item) return undefined");
-                            this.line("if (raw) return item");
-                            this.line(
-                                `return extractSliceSimplified(item as unknown as Record<string, unknown>, ${matchKeys}) as ${typeName}`,
-                            );
-                        } else {
-                            this.line(`const item = ${fieldAccess}`);
-                            this.line("if (!item || !matchesSlice(item, match)) return undefined");
-                            this.line("if (raw) return item");
-                            this.line(
-                                `return extractSliceSimplified(item as unknown as Record<string, unknown>, ${matchKeys}) as ${typeName}`,
-                            );
-                        }
-                    },
-                );
+
+                // Helper to find the slice item
+                const generateSliceLookup = () => {
+                    this.line(`const match = ${matchLiteral} as Record<string, unknown>`);
+                    if (sliceDef.array) {
+                        this.line(`const list = ${fieldAccess}`);
+                        this.line("if (!list) return undefined");
+                        this.line("const item = list.find((item) => matchesSlice(item, match))");
+                    } else {
+                        this.line(`const item = ${fieldAccess}`);
+                        this.line("if (!item || !matchesSlice(item, match)) return undefined");
+                    }
+                };
+
+                // Flat API getter (simplified)
+                this.curlyBlock(["public", getMethodName, `(): ${typeName} | undefined`], () => {
+                    generateSliceLookup();
+                    if (sliceDef.array) {
+                        this.line("if (!item) return undefined");
+                    }
+                    this.line(
+                        `return extractSliceSimplified(item as unknown as Record<string, unknown>, ${matchKeys}) as ${typeName}`,
+                    );
+                });
+                this.line();
+
+                // Raw getter (full FHIR type)
+                this.curlyBlock(["public", getRawMethodName, `(): ${baseType} | undefined`], () => {
+                    generateSliceLookup();
+                    if (sliceDef.array) {
+                        this.line("return item");
+                    } else {
+                        this.line("return item");
+                    }
+                });
                 this.line();
             }
         });
@@ -1466,30 +1448,29 @@ export class TypeScript extends Writer<TypeScriptOptions> {
     }
 
     generateResourceModule(tsIndex: TypeSchemaIndex, schema: TypeSchema) {
-        const generateModule = () => {
-            this.generateDisclaimer();
-            if (["complex-type", "resource", "logical"].includes(schema.identifier.kind)) {
+        if (isProfileTypeSchema(schema)) {
+            this.cd("profiles", () => {
+                this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
+                    this.generateDisclaimer();
+                    const flatProfile = tsIndex.flatProfile(schema);
+                    this.generateProfileImports(tsIndex, flatProfile);
+                    this.comment("CanonicalURL:", schema.identifier.url);
+                    this.generateProfileOverrideInterface(tsIndex, flatProfile);
+                    this.generateProfileClass(tsIndex, flatProfile);
+                });
+            });
+        } else if (["complex-type", "resource", "logical"].includes(schema.identifier.kind)) {
+            this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
+                this.generateDisclaimer();
                 this.generateDependenciesImports(tsIndex, schema);
                 this.generateComplexTypeReexports(schema);
                 this.generateNestedTypes(tsIndex, schema);
                 this.comment("CanonicalURL:", schema.identifier.url);
                 this.generateType(tsIndex, schema);
                 this.generateResourceTypePredicate(schema);
-            } else if (isProfileTypeSchema(schema)) {
-                const flatProfile = tsIndex.flatProfile(schema);
-                this.generateProfileImports(tsIndex, flatProfile);
-                this.comment("CanonicalURL:", schema.identifier.url);
-                this.generateProfileOverrideInterface(tsIndex, flatProfile);
-                this.generateProfileClass(tsIndex, flatProfile);
-            } else throw new Error(`Profile generation not implemented for kind: ${schema.identifier.kind}`);
-        };
-
-        if (isProfileTypeSchema(schema)) {
-            this.cd("profiles", () => {
-                this.cat(`${tsModuleFileName(schema.identifier)}`, generateModule);
             });
         } else {
-            this.cat(`${tsModuleFileName(schema.identifier)}`, generateModule);
+            throw new Error(`Profile generation not implemented for kind: ${schema.identifier.kind}`);
         }
     }
 
@@ -1515,24 +1496,25 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 this.cat("README.md", () => {
                     this.write(rootTreeShakeReadme(treeShakeReport));
                 });
-            if (hasProfiles) {
-                this.generateProfileHelpersModule();
-            }
+                if (hasProfiles) {
+                    this.generateProfileHelpersModule();
+                }
 
-            for (const [packageName, packageSchemas] of Object.entries(grouped)) {
-                const tsPackageDir = tsFhirPackageDir(packageName);
-                this.cd(tsPackageDir, () => {
-                    for (const schema of packageSchemas) {
-                        this.generateResourceModule(tsIndex, schema);
-                    }
-                    this.generateProfileIndexFile(packageSchemas.filter(isProfileTypeSchema));
-                    this.generateFhirPackageIndexFile(packageSchemas);
-                    if (treeShakeReport) {
-                        this.cat("README.md", () => {
-                            this.write(packageTreeShakeReadme(treeShakeReport, packageName));
-                        });
-                    }
-                });
+                for (const [packageName, packageSchemas] of Object.entries(grouped)) {
+                    const tsPackageDir = tsFhirPackageDir(packageName);
+                    this.cd(tsPackageDir, () => {
+                        for (const schema of packageSchemas) {
+                            this.generateResourceModule(tsIndex, schema);
+                        }
+                        this.generateProfileIndexFile(packageSchemas.filter(isProfileTypeSchema));
+                        this.generateFhirPackageIndexFile(packageSchemas);
+                        if (treeShakeReport) {
+                            this.cat("README.md", () => {
+                                this.write(packageTreeShakeReadme(treeShakeReport, packageName));
+                            });
+                        }
+                    });
+                }
             }
         });
     }

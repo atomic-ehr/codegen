@@ -104,148 +104,106 @@ export class TransactionBundleProfile {
         return this
     }
 
-    public resetPut (): this {
-        const match = {"request":{"method":"PUT"}} as Record<string, unknown>
-        const list = this.resource.entry
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetPost (): this {
-        const match = {"request":{"method":"POST"}} as Record<string, unknown>
-        const list = this.resource.entry
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetGet (): this {
-        const match = {"request":{"method":"GET"}} as Record<string, unknown>
-        const list = this.resource.entry
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetDelete (): this {
-        const match = {"request":{"method":"DELETE"}} as Record<string, unknown>
-        const list = this.resource.entry
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetPatch (): this {
-        const match = {"request":{"method":"PATCH"}} as Record<string, unknown>
-        const list = this.resource.entry
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetHead (): this {
-        const match = {"request":{"method":"HEAD"}} as Record<string, unknown>
-        const list = this.resource.entry
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getPut(raw: true): BundleEntry | undefined
-    public getPut(raw?: false): TransactionBundle_Entry_PutSliceInput | undefined
-    public getPut (raw?: boolean): BundleEntry | TransactionBundle_Entry_PutSliceInput | undefined {
+    public getPut (): TransactionBundle_Entry_PutSliceInput | undefined {
         const match = {"request":{"method":"PUT"}} as Record<string, unknown>
         const list = this.resource.entry
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["request"]) as TransactionBundle_Entry_PutSliceInput
     }
 
-    public getPost(raw: true): BundleEntry | undefined
-    public getPost(raw?: false): TransactionBundle_Entry_PostSliceInput | undefined
-    public getPost (raw?: boolean): BundleEntry | TransactionBundle_Entry_PostSliceInput | undefined {
+    public getPutRaw (): BundleEntry | undefined {
+        const match = {"request":{"method":"PUT"}} as Record<string, unknown>
+        const list = this.resource.entry
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getPost (): TransactionBundle_Entry_PostSliceInput | undefined {
         const match = {"request":{"method":"POST"}} as Record<string, unknown>
         const list = this.resource.entry
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["request"]) as TransactionBundle_Entry_PostSliceInput
     }
 
-    public getGet(raw: true): BundleEntry | undefined
-    public getGet(raw?: false): TransactionBundle_Entry_GetSliceInput | undefined
-    public getGet (raw?: boolean): BundleEntry | TransactionBundle_Entry_GetSliceInput | undefined {
+    public getPostRaw (): BundleEntry | undefined {
+        const match = {"request":{"method":"POST"}} as Record<string, unknown>
+        const list = this.resource.entry
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getGet (): TransactionBundle_Entry_GetSliceInput | undefined {
         const match = {"request":{"method":"GET"}} as Record<string, unknown>
         const list = this.resource.entry
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["request"]) as TransactionBundle_Entry_GetSliceInput
     }
 
-    public getDelete(raw: true): BundleEntry | undefined
-    public getDelete(raw?: false): TransactionBundle_Entry_DeleteSliceInput | undefined
-    public getDelete (raw?: boolean): BundleEntry | TransactionBundle_Entry_DeleteSliceInput | undefined {
+    public getGetRaw (): BundleEntry | undefined {
+        const match = {"request":{"method":"GET"}} as Record<string, unknown>
+        const list = this.resource.entry
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getDelete (): TransactionBundle_Entry_DeleteSliceInput | undefined {
         const match = {"request":{"method":"DELETE"}} as Record<string, unknown>
         const list = this.resource.entry
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["request"]) as TransactionBundle_Entry_DeleteSliceInput
     }
 
-    public getPatch(raw: true): BundleEntry | undefined
-    public getPatch(raw?: false): TransactionBundle_Entry_PatchSliceInput | undefined
-    public getPatch (raw?: boolean): BundleEntry | TransactionBundle_Entry_PatchSliceInput | undefined {
+    public getDeleteRaw (): BundleEntry | undefined {
+        const match = {"request":{"method":"DELETE"}} as Record<string, unknown>
+        const list = this.resource.entry
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getPatch (): TransactionBundle_Entry_PatchSliceInput | undefined {
         const match = {"request":{"method":"PATCH"}} as Record<string, unknown>
         const list = this.resource.entry
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["request"]) as TransactionBundle_Entry_PatchSliceInput
     }
 
-    public getHead(raw: true): BundleEntry | undefined
-    public getHead(raw?: false): TransactionBundle_Entry_HeadSliceInput | undefined
-    public getHead (raw?: boolean): BundleEntry | TransactionBundle_Entry_HeadSliceInput | undefined {
+    public getPatchRaw (): BundleEntry | undefined {
+        const match = {"request":{"method":"PATCH"}} as Record<string, unknown>
+        const list = this.resource.entry
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getHead (): TransactionBundle_Entry_HeadSliceInput | undefined {
         const match = {"request":{"method":"HEAD"}} as Record<string, unknown>
         const list = this.resource.entry
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["request"]) as TransactionBundle_Entry_HeadSliceInput
+    }
+
+    public getHeadRaw (): BundleEntry | undefined {
+        const match = {"request":{"method":"HEAD"}} as Record<string, unknown>
+        const list = this.resource.entry
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

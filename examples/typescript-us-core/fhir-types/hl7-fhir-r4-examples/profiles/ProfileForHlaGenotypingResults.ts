@@ -72,86 +72,48 @@ export class Profile_for_HLA_Genotyping_ResultsProfile {
         return this
     }
 
-    public resetAlleleDatabase (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/hla-genotyping-results-allele-database")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetGlstring (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/hla-genotyping-results-glstring")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetHaploid (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/hla-genotyping-results-haploid")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetMethod (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/hla-genotyping-results-method")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getAlleleDatabase(raw: true): Extension | undefined
-    public getAlleleDatabase(raw?: false): CodeableConcept | undefined
-    public getAlleleDatabase (raw?: boolean): Extension | CodeableConcept | undefined {
+    public getAlleleDatabase (): CodeableConcept | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/hla-genotyping-results-allele-database")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueCodeableConcept
+        return ext?.valueCodeableConcept
     }
 
-    public getGlstring(raw: true): Extension | undefined
-    public getGlstring(raw?: false): Profile_for_HLA_Genotyping_Results_GlstringInput | undefined
-    public getGlstring (raw?: boolean): Extension | Profile_for_HLA_Genotyping_Results_GlstringInput | undefined {
+    public getAlleleDatabaseExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/hla-genotyping-results-allele-database")
+        return ext
+    }
+
+    public getGlstring (): Profile_for_HLA_Genotyping_Results_GlstringInput | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/hla-genotyping-results-glstring")
         if (!ext) return undefined
-        if (raw) return ext
         const config = [{ name: "url", valueField: "valueUri", isArray: false }, { name: "text", valueField: "valueString", isArray: false }]
         return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as Profile_for_HLA_Genotyping_Results_GlstringInput
     }
 
-    public getHaploid(raw: true): Extension | undefined
-    public getHaploid(raw?: false): Profile_for_HLA_Genotyping_Results_HaploidInput | undefined
-    public getHaploid (raw?: boolean): Extension | Profile_for_HLA_Genotyping_Results_HaploidInput | undefined {
+    public getGlstringExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/hla-genotyping-results-glstring")
+        return ext
+    }
+
+    public getHaploid (): Profile_for_HLA_Genotyping_Results_HaploidInput | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/hla-genotyping-results-haploid")
         if (!ext) return undefined
-        if (raw) return ext
         const config = [{ name: "locus", valueField: "valueCodeableConcept", isArray: false }, { name: "type", valueField: "valueCodeableConcept", isArray: false }, { name: "method", valueField: "valueCodeableConcept", isArray: false }]
         return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as Profile_for_HLA_Genotyping_Results_HaploidInput
     }
 
-    public getMethod(raw: true): Extension | undefined
-    public getMethod(raw?: false): CodeableConcept | undefined
-    public getMethod (raw?: boolean): Extension | CodeableConcept | undefined {
+    public getHaploidExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/hla-genotyping-results-haploid")
+        return ext
+    }
+
+    public getMethod (): CodeableConcept | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/hla-genotyping-results-method")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueCodeableConcept
+        return ext?.valueCodeableConcept
+    }
+
+    public getMethodExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/hla-genotyping-results-method")
+        return ext
     }
 
 }

@@ -62,76 +62,55 @@ export class DocumentSectionLibraryProfile {
         return this
     }
 
-    public resetProcedure (): this {
-        const match = {"code":{"coding":[{"code":"29554-3","display":"Procedure Narrative","system":"http://loinc.org"}]}} as Record<string, unknown>
-        const list = this.resource.section
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetMedications (): this {
-        const match = {"code":{"coding":[{"code":"29549-3","display":"Medication administered Narrative","system":"http://loinc.org"}]}} as Record<string, unknown>
-        const list = this.resource.section
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetPlan (): this {
-        const match = {"code":{"coding":[{"code":"18776-5","display":"Plan of treatment (narrative)","system":"http://loinc.org"}]}} as Record<string, unknown>
-        const list = this.resource.section
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getProcedure(raw: true): CompositionSection | undefined
-    public getProcedure(raw?: false): DocumentSectionLibrary_Section_ProcedureSliceInput | undefined
-    public getProcedure (raw?: boolean): CompositionSection | DocumentSectionLibrary_Section_ProcedureSliceInput | undefined {
+    public getProcedure (): DocumentSectionLibrary_Section_ProcedureSliceInput | undefined {
         const match = {"code":{"coding":[{"code":"29554-3","display":"Procedure Narrative","system":"http://loinc.org"}]}} as Record<string, unknown>
         const list = this.resource.section
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["code"]) as DocumentSectionLibrary_Section_ProcedureSliceInput
     }
 
-    public getMedications(raw: true): CompositionSection | undefined
-    public getMedications(raw?: false): DocumentSectionLibrary_Section_MedicationsSliceInput | undefined
-    public getMedications (raw?: boolean): CompositionSection | DocumentSectionLibrary_Section_MedicationsSliceInput | undefined {
+    public getProcedureRaw (): CompositionSection | undefined {
+        const match = {"code":{"coding":[{"code":"29554-3","display":"Procedure Narrative","system":"http://loinc.org"}]}} as Record<string, unknown>
+        const list = this.resource.section
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getMedications (): DocumentSectionLibrary_Section_MedicationsSliceInput | undefined {
         const match = {"code":{"coding":[{"code":"29549-3","display":"Medication administered Narrative","system":"http://loinc.org"}]}} as Record<string, unknown>
         const list = this.resource.section
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["code"]) as DocumentSectionLibrary_Section_MedicationsSliceInput
     }
 
-    public getPlan(raw: true): CompositionSection | undefined
-    public getPlan(raw?: false): DocumentSectionLibrary_Section_PlanSliceInput | undefined
-    public getPlan (raw?: boolean): CompositionSection | DocumentSectionLibrary_Section_PlanSliceInput | undefined {
+    public getMedicationsRaw (): CompositionSection | undefined {
+        const match = {"code":{"coding":[{"code":"29549-3","display":"Medication administered Narrative","system":"http://loinc.org"}]}} as Record<string, unknown>
+        const list = this.resource.section
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getPlan (): DocumentSectionLibrary_Section_PlanSliceInput | undefined {
         const match = {"code":{"coding":[{"code":"18776-5","display":"Plan of treatment (narrative)","system":"http://loinc.org"}]}} as Record<string, unknown>
         const list = this.resource.section
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["code"]) as DocumentSectionLibrary_Section_PlanSliceInput
+    }
+
+    public getPlanRaw (): CompositionSection | undefined {
+        const match = {"code":{"coding":[{"code":"18776-5","display":"Plan of treatment (narrative)","system":"http://loinc.org"}]}} as Record<string, unknown>
+        const list = this.resource.section
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

@@ -41,41 +41,20 @@ export class SDCQuestionnaireAdaptProfile {
         return this
     }
 
-    public resetQuestionnaireAdaptive (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetHidden (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
     public getQuestionnaireAdaptive (): Extension | undefined {
         return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive")
     }
 
-    public getHidden(raw: true): Extension | undefined
-    public getHidden(raw?: false): boolean | undefined
-    public getHidden (raw?: boolean): Extension | boolean | undefined {
+    public getHidden (): boolean | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueBoolean
+        return ext?.valueBoolean
+    }
+
+    public getHiddenExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden")
+        return ext
     }
 
 }

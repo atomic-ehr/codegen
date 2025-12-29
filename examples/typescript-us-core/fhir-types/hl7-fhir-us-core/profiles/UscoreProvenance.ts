@@ -22,9 +22,9 @@ export class USCoreProvenanceProfile {
         return this.resource
     }
 
-    public setProvenanceAuthor (input: USCoreProvenance_Agent_ProvenanceAuthorSliceInput): this {
+    public setProvenanceAuthor (input?: USCoreProvenance_Agent_ProvenanceAuthorSliceInput): this {
         const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/provenance-participant-type","code":"author"}]}} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as ProvenanceAgent
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as ProvenanceAgent
         const list = (this.resource.agent ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -35,9 +35,9 @@ export class USCoreProvenanceProfile {
         return this
     }
 
-    public setProvenanceTransmitter (input: USCoreProvenance_Agent_ProvenanceTransmitterSliceInput): this {
+    public setProvenanceTransmitter (input?: USCoreProvenance_Agent_ProvenanceTransmitterSliceInput): this {
         const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/us/core/CodeSystem/us-core-provenance-participant-type","code":"transmitter"}]}} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as ProvenanceAgent
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as ProvenanceAgent
         const list = (this.resource.agent ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -48,52 +48,38 @@ export class USCoreProvenanceProfile {
         return this
     }
 
-    public resetProvenanceAuthor (): this {
-        const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/provenance-participant-type","code":"author"}]}} as Record<string, unknown>
-        const list = this.resource.agent
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetProvenanceTransmitter (): this {
-        const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/us/core/CodeSystem/us-core-provenance-participant-type","code":"transmitter"}]}} as Record<string, unknown>
-        const list = this.resource.agent
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getProvenanceAuthor(raw: true): ProvenanceAgent | undefined
-    public getProvenanceAuthor(raw?: false): USCoreProvenance_Agent_ProvenanceAuthorSliceInput | undefined
-    public getProvenanceAuthor (raw?: boolean): ProvenanceAgent | USCoreProvenance_Agent_ProvenanceAuthorSliceInput | undefined {
+    public getProvenanceAuthor (): USCoreProvenance_Agent_ProvenanceAuthorSliceInput | undefined {
         const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/provenance-participant-type","code":"author"}]}} as Record<string, unknown>
         const list = this.resource.agent
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as USCoreProvenance_Agent_ProvenanceAuthorSliceInput
     }
 
-    public getProvenanceTransmitter(raw: true): ProvenanceAgent | undefined
-    public getProvenanceTransmitter(raw?: false): USCoreProvenance_Agent_ProvenanceTransmitterSliceInput | undefined
-    public getProvenanceTransmitter (raw?: boolean): ProvenanceAgent | USCoreProvenance_Agent_ProvenanceTransmitterSliceInput | undefined {
+    public getProvenanceAuthorRaw (): ProvenanceAgent | undefined {
+        const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/provenance-participant-type","code":"author"}]}} as Record<string, unknown>
+        const list = this.resource.agent
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getProvenanceTransmitter (): USCoreProvenance_Agent_ProvenanceTransmitterSliceInput | undefined {
         const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/us/core/CodeSystem/us-core-provenance-participant-type","code":"transmitter"}]}} as Record<string, unknown>
         const list = this.resource.agent
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as USCoreProvenance_Agent_ProvenanceTransmitterSliceInput
+    }
+
+    public getProvenanceTransmitterRaw (): ProvenanceAgent | undefined {
+        const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/us/core/CodeSystem/us-core-provenance-participant-type","code":"transmitter"}]}} as Record<string, unknown>
+        const list = this.resource.agent
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

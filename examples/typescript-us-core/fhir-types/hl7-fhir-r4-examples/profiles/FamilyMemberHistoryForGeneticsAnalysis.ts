@@ -63,66 +63,38 @@ export class Family_member_history_for_genetics_analysisProfile {
         return this
     }
 
-    public resetParent (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/family-member-history-genetics-parent")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetSibling (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/family-member-history-genetics-sibling")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetObservation (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/family-member-history-genetics-observation")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getParent(raw: true): Extension | undefined
-    public getParent(raw?: false): Family_member_history_for_genetics_analysis_ParentInput | undefined
-    public getParent (raw?: boolean): Extension | Family_member_history_for_genetics_analysis_ParentInput | undefined {
+    public getParent (): Family_member_history_for_genetics_analysis_ParentInput | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/family-member-history-genetics-parent")
         if (!ext) return undefined
-        if (raw) return ext
         const config = [{ name: "type", valueField: "valueCodeableConcept", isArray: false }, { name: "reference", valueField: "valueReference", isArray: false }]
         return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as Family_member_history_for_genetics_analysis_ParentInput
     }
 
-    public getSibling(raw: true): Extension | undefined
-    public getSibling(raw?: false): Family_member_history_for_genetics_analysis_SiblingInput | undefined
-    public getSibling (raw?: boolean): Extension | Family_member_history_for_genetics_analysis_SiblingInput | undefined {
+    public getParentExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/family-member-history-genetics-parent")
+        return ext
+    }
+
+    public getSibling (): Family_member_history_for_genetics_analysis_SiblingInput | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/family-member-history-genetics-sibling")
         if (!ext) return undefined
-        if (raw) return ext
         const config = [{ name: "type", valueField: "valueCodeableConcept", isArray: false }, { name: "reference", valueField: "valueReference", isArray: false }]
         return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as Family_member_history_for_genetics_analysis_SiblingInput
     }
 
-    public getObservation(raw: true): Extension | undefined
-    public getObservation(raw?: false): Reference | undefined
-    public getObservation (raw?: boolean): Extension | Reference | undefined {
+    public getSiblingExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/family-member-history-genetics-sibling")
+        return ext
+    }
+
+    public getObservation (): Reference | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/family-member-history-genetics-observation")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueReference
+        return ext?.valueReference
+    }
+
+    public getObservationExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/family-member-history-genetics-observation")
+        return ext
     }
 
 }

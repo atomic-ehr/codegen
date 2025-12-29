@@ -36,9 +36,9 @@ export class UserAccessEndpointProfile {
         return this
     }
 
-    public setConfigurationUrl (input: UserAccessEndpoint_Contact_Configuration_urlSliceInput): this {
+    public setConfigurationUrl (input?: UserAccessEndpoint_Contact_Configuration_urlSliceInput): this {
         const match = {"system":"url"} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as ContactPoint
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as ContactPoint
         const list = (this.resource.contact ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -49,48 +49,31 @@ export class UserAccessEndpointProfile {
         return this
     }
 
-    public resetFhirVersion (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/endpoint-fhir-version")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetConfigurationUrl (): this {
-        const match = {"system":"url"} as Record<string, unknown>
-        const list = this.resource.contact
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getFhirVersion(raw: true): Extension | undefined
-    public getFhirVersion(raw?: false): string | undefined
-    public getFhirVersion (raw?: boolean): Extension | string | undefined {
+    public getFhirVersion (): string | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/endpoint-fhir-version")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueCode
+        return ext?.valueCode
     }
 
-    public getConfigurationUrl(raw: true): ContactPoint | undefined
-    public getConfigurationUrl(raw?: false): UserAccessEndpoint_Contact_Configuration_urlSliceInput | undefined
-    public getConfigurationUrl (raw?: boolean): ContactPoint | UserAccessEndpoint_Contact_Configuration_urlSliceInput | undefined {
+    public getFhirVersionExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/endpoint-fhir-version")
+        return ext
+    }
+
+    public getConfigurationUrl (): UserAccessEndpoint_Contact_Configuration_urlSliceInput | undefined {
         const match = {"system":"url"} as Record<string, unknown>
         const list = this.resource.contact
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["system"]) as UserAccessEndpoint_Contact_Configuration_urlSliceInput
+    }
+
+    public getConfigurationUrlRaw (): ContactPoint | undefined {
+        const match = {"system":"url"} as Record<string, unknown>
+        const list = this.resource.contact
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

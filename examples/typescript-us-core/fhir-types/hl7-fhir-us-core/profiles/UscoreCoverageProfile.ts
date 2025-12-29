@@ -33,9 +33,9 @@ export class USCoreCoverageProfileProfile {
         return this.resource as USCoreCoverageProfile
     }
 
-    public setMemberid (input: USCoreCoverageProfile_Identifier_MemberidSliceInput): this {
+    public setMemberid (input?: USCoreCoverageProfile_Identifier_MemberidSliceInput): this {
         const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"MB"}]}} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as Identifier
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as Identifier
         const list = (this.resource.identifier ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -46,9 +46,9 @@ export class USCoreCoverageProfileProfile {
         return this
     }
 
-    public setGroup (input: USCoreCoverageProfile_Class__GroupSliceInput): this {
+    public setGroup (input?: USCoreCoverageProfile_Class__GroupSliceInput): this {
         const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/coverage-class","code":"group"}]}} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as CoverageClass
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as CoverageClass
         const list = (this.resource["class"] ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -59,9 +59,9 @@ export class USCoreCoverageProfileProfile {
         return this
     }
 
-    public setPlan (input: USCoreCoverageProfile_Class__PlanSliceInput): this {
+    public setPlan (input?: USCoreCoverageProfile_Class__PlanSliceInput): this {
         const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/coverage-class","code":"plan"}]}} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as CoverageClass
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as CoverageClass
         const list = (this.resource["class"] ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -72,76 +72,55 @@ export class USCoreCoverageProfileProfile {
         return this
     }
 
-    public resetMemberid (): this {
-        const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"MB"}]}} as Record<string, unknown>
-        const list = this.resource.identifier
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetGroup (): this {
-        const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/coverage-class","code":"group"}]}} as Record<string, unknown>
-        const list = this.resource["class"]
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetPlan (): this {
-        const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/coverage-class","code":"plan"}]}} as Record<string, unknown>
-        const list = this.resource["class"]
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getMemberid(raw: true): Identifier | undefined
-    public getMemberid(raw?: false): USCoreCoverageProfile_Identifier_MemberidSliceInput | undefined
-    public getMemberid (raw?: boolean): Identifier | USCoreCoverageProfile_Identifier_MemberidSliceInput | undefined {
+    public getMemberid (): USCoreCoverageProfile_Identifier_MemberidSliceInput | undefined {
         const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"MB"}]}} as Record<string, unknown>
         const list = this.resource.identifier
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as USCoreCoverageProfile_Identifier_MemberidSliceInput
     }
 
-    public getGroup(raw: true): CoverageClass | undefined
-    public getGroup(raw?: false): USCoreCoverageProfile_Class__GroupSliceInput | undefined
-    public getGroup (raw?: boolean): CoverageClass | USCoreCoverageProfile_Class__GroupSliceInput | undefined {
+    public getMemberidRaw (): Identifier | undefined {
+        const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"MB"}]}} as Record<string, unknown>
+        const list = this.resource.identifier
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getGroup (): USCoreCoverageProfile_Class__GroupSliceInput | undefined {
         const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/coverage-class","code":"group"}]}} as Record<string, unknown>
         const list = this.resource["class"]
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as USCoreCoverageProfile_Class__GroupSliceInput
     }
 
-    public getPlan(raw: true): CoverageClass | undefined
-    public getPlan(raw?: false): USCoreCoverageProfile_Class__PlanSliceInput | undefined
-    public getPlan (raw?: boolean): CoverageClass | USCoreCoverageProfile_Class__PlanSliceInput | undefined {
+    public getGroupRaw (): CoverageClass | undefined {
+        const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/coverage-class","code":"group"}]}} as Record<string, unknown>
+        const list = this.resource["class"]
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getPlan (): USCoreCoverageProfile_Class__PlanSliceInput | undefined {
         const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/coverage-class","code":"plan"}]}} as Record<string, unknown>
         const list = this.resource["class"]
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as USCoreCoverageProfile_Class__PlanSliceInput
+    }
+
+    public getPlanRaw (): CoverageClass | undefined {
+        const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/coverage-class","code":"plan"}]}} as Record<string, unknown>
+        const list = this.resource["class"]
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

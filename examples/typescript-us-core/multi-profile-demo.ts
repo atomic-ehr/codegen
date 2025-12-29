@@ -3,14 +3,16 @@
  *
  * This example shows:
  * 1. Creating observations with Body Weight and Body Height profiles
- * 2. Using setters to apply profile-defined slices
- * 3. Using getters to read back slice values (both raw and simplified)
+ * 2. Using setters to apply profile-defined slices (no input needed for constant slices)
+ * 3. Using getters to read values:
+ *    - getVscat() - returns flat API (simplified, without discriminator)
+ *    - getVscatRaw() - returns full FHIR type (with discriminator)
  * 4. The override interface for type-safe cardinality constraints
  */
 
 import type { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
-import { USCoreBodyWeightProfileProfile } from "./fhir-types/hl7-fhir-us-core/profiles/UscoreBodyWeightProfile";
 import { USCoreBodyHeightProfileProfile } from "./fhir-types/hl7-fhir-us-core/profiles/UscoreBodyHeightProfile";
+import { USCoreBodyWeightProfileProfile } from "./fhir-types/hl7-fhir-us-core/profiles/UscoreBodyWeightProfile";
 
 // Helper to create a base Observation resource
 const createBaseObservation = (): Observation => ({
@@ -25,7 +27,8 @@ function createBodyWeightObservation(): Observation {
     const profile = new USCoreBodyWeightProfileProfile(resource);
 
     // Set the vital-signs category slice (auto-applies discriminator)
-    profile.setVscat({});
+    // No input needed when all fields are part of the discriminator
+    profile.setVscat();
 
     // Set additional required fields
     resource.code = {
@@ -49,7 +52,7 @@ function createBodyHeightObservation(): Observation {
     const profile = new USCoreBodyHeightProfileProfile(resource);
 
     // Set the vital-signs category slice
-    profile.setVscat({});
+    profile.setVscat();
 
     // Set additional required fields
     resource.code = {
@@ -71,14 +74,14 @@ function createBodyHeightObservation(): Observation {
 function demonstrateGetters() {
     const resource = createBaseObservation();
     const profile = new USCoreBodyWeightProfileProfile(resource);
-    profile.setVscat({});
+    profile.setVscat();
 
-    // Get simplified value (without discriminator)
+    // Get simplified value (without discriminator) - flat API
     const simplified = profile.getVscat();
     console.log("Simplified slice:", simplified);
 
-    // Get raw value (with discriminator)
-    const raw = profile.getVscat(true);
+    // Get raw value (with discriminator) - full FHIR type
+    const raw = profile.getVscatRaw();
     console.log("Raw slice:", raw);
 
     // The raw value includes the coding discriminator
@@ -93,26 +96,11 @@ function demonstrateTypeNarrowing() {
 
     const resource = createBaseObservation();
     const profile = new USCoreBodyWeightProfileProfile(resource);
-    profile.setVscat({});
+    profile.setVscat();
 
     // TypeScript knows this is an Observation
     // The override interface ensures type safety for constrained fields
     console.log("Resource type:", profile.toResource().resourceType);
-}
-
-// Example 5: Wrapping existing resource
-function wrapExistingResource(existing: Observation) {
-    // Wrap an existing Observation with the profile
-    const profile = new USCoreBodyWeightProfileProfile(existing);
-
-    // Check if vital-signs category already exists
-    const vscat = profile.getVscat();
-    if (!vscat) {
-        // Add it if missing
-        profile.setVscat({});
-    }
-
-    return profile.toResource();
 }
 
 // Run examples

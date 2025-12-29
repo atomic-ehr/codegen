@@ -263,633 +263,344 @@ export class SDCQuestionnaireRenderProfile {
         return this
     }
 
-    public resetDesignNote (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/designNote")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetTerminologyServer (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetPerformerType (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-performerType")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetAssembleExpectation (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-assemble-expectation")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetStyleSensitive (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-styleSensitive")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetTitleRenderingStyle (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["title"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetTitleXhtml (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["title"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetItemMedia (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemMedia")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetItemOptionalDisplay (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-optionalDisplay")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetItemShortText (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-shortText")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetItemHidden (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetOpenLabel (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-openLabel")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetItemControl (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetChoiceOrientation (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-choiceOrientation")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetDisplayCategory (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-displayCategory")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetSupportLink (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-supportLink")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetChoiceColumn (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-choiceColumn")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetWidth (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-width")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetSliderStepValue (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-sliderStepValue")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetEntryFormat (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/entryFormat")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetCollapsible (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-collapsible")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetItemLabelRenderingStyle (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","prefix"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetItemLabelXhtml (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","prefix"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetGroupTextRenderingStyle (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","text"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetGroupTextXhtml (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","text"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetExpression (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","text"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-expression")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetItemAnswerMedia (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answerOption"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemAnswerMedia")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetOptionDisplayRenderingStyle (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answerOption","value[x]","display"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetOptionDisplayXhtml (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answerOption","value[x]","display"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getDesignNote(raw: true): Extension | undefined
-    public getDesignNote(raw?: false): string | undefined
-    public getDesignNote (raw?: boolean): Extension | string | undefined {
+    public getDesignNote (): string | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/designNote")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueMarkdown
+        return ext?.valueMarkdown
     }
 
-    public getTerminologyServer(raw: true): Extension | undefined
-    public getTerminologyServer(raw?: false): string | undefined
-    public getTerminologyServer (raw?: boolean): Extension | string | undefined {
+    public getDesignNoteExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/designNote")
+        return ext
+    }
+
+    public getTerminologyServer (): string | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueUrl
+        return ext?.valueUrl
     }
 
-    public getPerformerType(raw: true): Extension | undefined
-    public getPerformerType(raw?: false): string | undefined
-    public getPerformerType (raw?: boolean): Extension | string | undefined {
+    public getTerminologyServerExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer")
+        return ext
+    }
+
+    public getPerformerType (): string | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-performerType")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueCode
+        return ext?.valueCode
     }
 
-    public getAssembleExpectation(raw: true): Extension | undefined
-    public getAssembleExpectation(raw?: false): string | undefined
-    public getAssembleExpectation (raw?: boolean): Extension | string | undefined {
+    public getPerformerTypeExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-performerType")
+        return ext
+    }
+
+    public getAssembleExpectation (): string | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-assemble-expectation")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueCode
+        return ext?.valueCode
     }
 
-    public getStyleSensitive(raw: true): Extension | undefined
-    public getStyleSensitive(raw?: false): boolean | undefined
-    public getStyleSensitive (raw?: boolean): Extension | boolean | undefined {
+    public getAssembleExpectationExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-assemble-expectation")
+        return ext
+    }
+
+    public getStyleSensitive (): boolean | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-styleSensitive")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueBoolean
+        return ext?.valueBoolean
     }
 
-    public getTitleRenderingStyle(raw: true): Extension | undefined
-    public getTitleRenderingStyle(raw?: false): string | undefined
-    public getTitleRenderingStyle (raw?: boolean): Extension | string | undefined {
+    public getStyleSensitiveExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-styleSensitive")
+        return ext
+    }
+
+    public getTitleRenderingStyle (): string | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["title"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueString
+        return ext?.valueString
     }
 
-    public getTitleXhtml(raw: true): Extension | undefined
-    public getTitleXhtml(raw?: false): string | undefined
-    public getTitleXhtml (raw?: boolean): Extension | string | undefined {
+    public getTitleRenderingStyleExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["title"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
+        return ext
+    }
+
+    public getTitleXhtml (): string | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["title"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueString
+        return ext?.valueString
     }
 
-    public getItemMedia(raw: true): Extension | undefined
-    public getItemMedia(raw?: false): Attachment | undefined
-    public getItemMedia (raw?: boolean): Extension | Attachment | undefined {
+    public getTitleXhtmlExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["title"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
+        return ext
+    }
+
+    public getItemMedia (): Attachment | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemMedia")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueAttachment
+        return ext?.valueAttachment
     }
 
-    public getItemOptionalDisplay(raw: true): Extension | undefined
-    public getItemOptionalDisplay(raw?: false): boolean | undefined
-    public getItemOptionalDisplay (raw?: boolean): Extension | boolean | undefined {
+    public getItemMediaExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemMedia")
+        return ext
+    }
+
+    public getItemOptionalDisplay (): boolean | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-optionalDisplay")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueBoolean
+        return ext?.valueBoolean
     }
 
-    public getItemShortText(raw: true): Extension | undefined
-    public getItemShortText(raw?: false): string | undefined
-    public getItemShortText (raw?: boolean): Extension | string | undefined {
+    public getItemOptionalDisplayExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-optionalDisplay")
+        return ext
+    }
+
+    public getItemShortText (): string | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-shortText")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueString
+        return ext?.valueString
     }
 
-    public getItemHidden(raw: true): Extension | undefined
-    public getItemHidden(raw?: false): boolean | undefined
-    public getItemHidden (raw?: boolean): Extension | boolean | undefined {
+    public getItemShortTextExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-shortText")
+        return ext
+    }
+
+    public getItemHidden (): boolean | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueBoolean
+        return ext?.valueBoolean
     }
 
-    public getOpenLabel(raw: true): Extension | undefined
-    public getOpenLabel(raw?: false): string | undefined
-    public getOpenLabel (raw?: boolean): Extension | string | undefined {
+    public getItemHiddenExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden")
+        return ext
+    }
+
+    public getOpenLabel (): string | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-openLabel")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueString
+        return ext?.valueString
     }
 
-    public getItemControl(raw: true): Extension | undefined
-    public getItemControl(raw?: false): CodeableConcept | undefined
-    public getItemControl (raw?: boolean): Extension | CodeableConcept | undefined {
+    public getOpenLabelExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-openLabel")
+        return ext
+    }
+
+    public getItemControl (): CodeableConcept | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueCodeableConcept
+        return ext?.valueCodeableConcept
     }
 
-    public getChoiceOrientation(raw: true): Extension | undefined
-    public getChoiceOrientation(raw?: false): string | undefined
-    public getChoiceOrientation (raw?: boolean): Extension | string | undefined {
+    public getItemControlExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl")
+        return ext
+    }
+
+    public getChoiceOrientation (): string | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-choiceOrientation")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueCode
+        return ext?.valueCode
     }
 
-    public getDisplayCategory(raw: true): Extension | undefined
-    public getDisplayCategory(raw?: false): CodeableConcept | undefined
-    public getDisplayCategory (raw?: boolean): Extension | CodeableConcept | undefined {
+    public getChoiceOrientationExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-choiceOrientation")
+        return ext
+    }
+
+    public getDisplayCategory (): CodeableConcept | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-displayCategory")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueCodeableConcept
+        return ext?.valueCodeableConcept
     }
 
-    public getSupportLink(raw: true): Extension | undefined
-    public getSupportLink(raw?: false): string | undefined
-    public getSupportLink (raw?: boolean): Extension | string | undefined {
+    public getDisplayCategoryExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-displayCategory")
+        return ext
+    }
+
+    public getSupportLink (): string | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-supportLink")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueUri
+        return ext?.valueUri
     }
 
-    public getChoiceColumn(raw: true): Extension | undefined
-    public getChoiceColumn(raw?: false): SDCQuestionnaireRender_ChoiceColumnInput | undefined
-    public getChoiceColumn (raw?: boolean): Extension | SDCQuestionnaireRender_ChoiceColumnInput | undefined {
+    public getSupportLinkExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-supportLink")
+        return ext
+    }
+
+    public getChoiceColumn (): SDCQuestionnaireRender_ChoiceColumnInput | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-choiceColumn")
         if (!ext) return undefined
-        if (raw) return ext
         const config = [{ name: "path", valueField: "valueString", isArray: false }, { name: "label", valueField: "valueString", isArray: false }, { name: "width", valueField: "valueQuantity", isArray: false }, { name: "forDisplay", valueField: "valueBoolean", isArray: false }]
         return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as SDCQuestionnaireRender_ChoiceColumnInput
     }
 
-    public getWidth(raw: true): Extension | undefined
-    public getWidth(raw?: false): Quantity | undefined
-    public getWidth (raw?: boolean): Extension | Quantity | undefined {
+    public getChoiceColumnExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-choiceColumn")
+        return ext
+    }
+
+    public getWidth (): Quantity | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-width")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueQuantity
+        return ext?.valueQuantity
     }
 
-    public getSliderStepValue(raw: true): Extension | undefined
-    public getSliderStepValue(raw?: false): number | undefined
-    public getSliderStepValue (raw?: boolean): Extension | number | undefined {
+    public getWidthExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-width")
+        return ext
+    }
+
+    public getSliderStepValue (): number | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-sliderStepValue")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueInteger
+        return ext?.valueInteger
     }
 
-    public getEntryFormat(raw: true): Extension | undefined
-    public getEntryFormat(raw?: false): string | undefined
-    public getEntryFormat (raw?: boolean): Extension | string | undefined {
+    public getSliderStepValueExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-sliderStepValue")
+        return ext
+    }
+
+    public getEntryFormat (): string | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/entryFormat")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueString
+        return ext?.valueString
     }
 
-    public getCollapsible(raw: true): Extension | undefined
-    public getCollapsible(raw?: false): string | undefined
-    public getCollapsible (raw?: boolean): Extension | string | undefined {
+    public getEntryFormatExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/entryFormat")
+        return ext
+    }
+
+    public getCollapsible (): string | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-collapsible")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueCode
+        return ext?.valueCode
     }
 
-    public getItemLabelRenderingStyle(raw: true): Extension | undefined
-    public getItemLabelRenderingStyle(raw?: false): string | undefined
-    public getItemLabelRenderingStyle (raw?: boolean): Extension | string | undefined {
+    public getCollapsibleExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-collapsible")
+        return ext
+    }
+
+    public getItemLabelRenderingStyle (): string | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","prefix"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueString
+        return ext?.valueString
     }
 
-    public getItemLabelXhtml(raw: true): Extension | undefined
-    public getItemLabelXhtml(raw?: false): string | undefined
-    public getItemLabelXhtml (raw?: boolean): Extension | string | undefined {
+    public getItemLabelRenderingStyleExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","prefix"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
+        return ext
+    }
+
+    public getItemLabelXhtml (): string | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","prefix"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueString
+        return ext?.valueString
     }
 
-    public getGroupTextRenderingStyle(raw: true): Extension | undefined
-    public getGroupTextRenderingStyle(raw?: false): string | undefined
-    public getGroupTextRenderingStyle (raw?: boolean): Extension | string | undefined {
+    public getItemLabelXhtmlExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","prefix"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
+        return ext
+    }
+
+    public getGroupTextRenderingStyle (): string | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","text"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueString
+        return ext?.valueString
     }
 
-    public getGroupTextXhtml(raw: true): Extension | undefined
-    public getGroupTextXhtml(raw?: false): string | undefined
-    public getGroupTextXhtml (raw?: boolean): Extension | string | undefined {
+    public getGroupTextRenderingStyleExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","text"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
+        return ext
+    }
+
+    public getGroupTextXhtml (): string | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","text"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueString
+        return ext?.valueString
     }
 
-    public getExpression(raw: true): Extension | undefined
-    public getExpression(raw?: false): Expression | undefined
-    public getExpression (raw?: boolean): Extension | Expression | undefined {
+    public getGroupTextXhtmlExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","text"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
+        return ext
+    }
+
+    public getExpression (): Expression | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","text"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-expression")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueExpression
+        return ext?.valueExpression
     }
 
-    public getItemAnswerMedia(raw: true): Extension | undefined
-    public getItemAnswerMedia(raw?: false): Attachment | undefined
-    public getItemAnswerMedia (raw?: boolean): Extension | Attachment | undefined {
+    public getExpressionExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","text"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-expression")
+        return ext
+    }
+
+    public getItemAnswerMedia (): Attachment | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answerOption"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemAnswerMedia")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueAttachment
+        return ext?.valueAttachment
     }
 
-    public getOptionDisplayRenderingStyle(raw: true): Extension | undefined
-    public getOptionDisplayRenderingStyle(raw?: false): string | undefined
-    public getOptionDisplayRenderingStyle (raw?: boolean): Extension | string | undefined {
+    public getItemAnswerMediaExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answerOption"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemAnswerMedia")
+        return ext
+    }
+
+    public getOptionDisplayRenderingStyle (): string | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answerOption","value[x]","display"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueString
+        return ext?.valueString
     }
 
-    public getOptionDisplayXhtml(raw: true): Extension | undefined
-    public getOptionDisplayXhtml(raw?: false): string | undefined
-    public getOptionDisplayXhtml (raw?: boolean): Extension | string | undefined {
+    public getOptionDisplayRenderingStyleExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answerOption","value[x]","display"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
+        return ext
+    }
+
+    public getOptionDisplayXhtml (): string | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answerOption","value[x]","display"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueString
+        return ext?.valueString
+    }
+
+    public getOptionDisplayXhtmlExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item","answerOption","value[x]","display"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
+        return ext
     }
 
 }

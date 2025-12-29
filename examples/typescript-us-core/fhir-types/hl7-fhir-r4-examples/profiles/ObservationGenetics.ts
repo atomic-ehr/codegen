@@ -155,209 +155,114 @@ export class Observation_geneticsProfile {
         return this
     }
 
-    public resetGene (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsGene")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetDnaregionName (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsDNARegionName")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetCopyNumberEvent (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsCopyNumberEvent")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetGenomicSourceClass (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsGenomicSourceClass")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetInterpretation (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsInterpretation")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetVariant (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsVariant")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetAminoAcidChange (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsAminoAcidChange")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetAllele (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsAllele")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetAncestry (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsAncestry")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetPhaseSet (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsPhaseSet")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getGene(raw: true): Extension | undefined
-    public getGene(raw?: false): CodeableConcept | undefined
-    public getGene (raw?: boolean): Extension | CodeableConcept | undefined {
+    public getGene (): CodeableConcept | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsGene")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueCodeableConcept
+        return ext?.valueCodeableConcept
     }
 
-    public getDnaregionName(raw: true): Extension | undefined
-    public getDnaregionName(raw?: false): string | undefined
-    public getDnaregionName (raw?: boolean): Extension | string | undefined {
+    public getGeneExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsGene")
+        return ext
+    }
+
+    public getDnaregionName (): string | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsDNARegionName")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueString
+        return ext?.valueString
     }
 
-    public getCopyNumberEvent(raw: true): Extension | undefined
-    public getCopyNumberEvent(raw?: false): CodeableConcept | undefined
-    public getCopyNumberEvent (raw?: boolean): Extension | CodeableConcept | undefined {
+    public getDnaregionNameExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsDNARegionName")
+        return ext
+    }
+
+    public getCopyNumberEvent (): CodeableConcept | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsCopyNumberEvent")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueCodeableConcept
+        return ext?.valueCodeableConcept
     }
 
-    public getGenomicSourceClass(raw: true): Extension | undefined
-    public getGenomicSourceClass(raw?: false): CodeableConcept | undefined
-    public getGenomicSourceClass (raw?: boolean): Extension | CodeableConcept | undefined {
+    public getCopyNumberEventExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsCopyNumberEvent")
+        return ext
+    }
+
+    public getGenomicSourceClass (): CodeableConcept | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsGenomicSourceClass")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueCodeableConcept
+        return ext?.valueCodeableConcept
     }
 
-    public getInterpretation(raw: true): Extension | undefined
-    public getInterpretation(raw?: false): Reference | undefined
-    public getInterpretation (raw?: boolean): Extension | Reference | undefined {
+    public getGenomicSourceClassExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsGenomicSourceClass")
+        return ext
+    }
+
+    public getInterpretation (): Reference | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsInterpretation")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueReference
+        return ext?.valueReference
     }
 
-    public getVariant(raw: true): Extension | undefined
-    public getVariant(raw?: false): Observation_genetics_VariantInput | undefined
-    public getVariant (raw?: boolean): Extension | Observation_genetics_VariantInput | undefined {
+    public getInterpretationExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsInterpretation")
+        return ext
+    }
+
+    public getVariant (): Observation_genetics_VariantInput | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsVariant")
         if (!ext) return undefined
-        if (raw) return ext
         const config = [{ name: "Name", valueField: "valueCodeableConcept", isArray: false }, { name: "Id", valueField: "valueCodeableConcept", isArray: false }, { name: "Type", valueField: "valueCodeableConcept", isArray: false }]
         return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as Observation_genetics_VariantInput
     }
 
-    public getAminoAcidChange(raw: true): Extension | undefined
-    public getAminoAcidChange(raw?: false): Observation_genetics_AminoAcidChangeInput | undefined
-    public getAminoAcidChange (raw?: boolean): Extension | Observation_genetics_AminoAcidChangeInput | undefined {
+    public getVariantExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsVariant")
+        return ext
+    }
+
+    public getAminoAcidChange (): Observation_genetics_AminoAcidChangeInput | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsAminoAcidChange")
         if (!ext) return undefined
-        if (raw) return ext
         const config = [{ name: "Name", valueField: "valueCodeableConcept", isArray: false }, { name: "Type", valueField: "valueCodeableConcept", isArray: false }]
         return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as Observation_genetics_AminoAcidChangeInput
     }
 
-    public getAllele(raw: true): Extension | undefined
-    public getAllele(raw?: false): Observation_genetics_AlleleInput | undefined
-    public getAllele (raw?: boolean): Extension | Observation_genetics_AlleleInput | undefined {
+    public getAminoAcidChangeExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsAminoAcidChange")
+        return ext
+    }
+
+    public getAllele (): Observation_genetics_AlleleInput | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsAllele")
         if (!ext) return undefined
-        if (raw) return ext
         const config = [{ name: "Name", valueField: "valueCodeableConcept", isArray: false }, { name: "State", valueField: "valueCodeableConcept", isArray: false }, { name: "Frequency", valueField: "valueDecimal", isArray: false }]
         return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as Observation_genetics_AlleleInput
     }
 
-    public getAncestry(raw: true): Extension | undefined
-    public getAncestry(raw?: false): Observation_genetics_AncestryInput | undefined
-    public getAncestry (raw?: boolean): Extension | Observation_genetics_AncestryInput | undefined {
+    public getAlleleExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsAllele")
+        return ext
+    }
+
+    public getAncestry (): Observation_genetics_AncestryInput | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsAncestry")
         if (!ext) return undefined
-        if (raw) return ext
         const config = [{ name: "Name", valueField: "valueCodeableConcept", isArray: false }, { name: "Percentage", valueField: "valueDecimal", isArray: false }, { name: "Source", valueField: "valueCodeableConcept", isArray: false }]
         return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as Observation_genetics_AncestryInput
     }
 
-    public getPhaseSet(raw: true): Extension | undefined
-    public getPhaseSet(raw?: false): Observation_genetics_PhaseSetInput | undefined
-    public getPhaseSet (raw?: boolean): Extension | Observation_genetics_PhaseSetInput | undefined {
+    public getAncestryExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsAncestry")
+        return ext
+    }
+
+    public getPhaseSet (): Observation_genetics_PhaseSetInput | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsPhaseSet")
         if (!ext) return undefined
-        if (raw) return ext
         const config = [{ name: "Id", valueField: "valueUri", isArray: false }, { name: "MolecularSequence", valueField: "valueReference", isArray: true }]
         return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as Observation_genetics_PhaseSetInput
+    }
+
+    public getPhaseSetExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/observation-geneticsPhaseSet")
+        return ext
     }
 
 }

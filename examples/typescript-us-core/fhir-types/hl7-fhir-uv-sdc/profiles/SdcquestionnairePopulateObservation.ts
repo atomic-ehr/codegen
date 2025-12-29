@@ -88,150 +88,80 @@ export class SDCQuestionnairePopulateObservationProfile {
         return this
     }
 
-    public resetDesignNote (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/designNote")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetTerminologyServer (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetPerformerType (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-performerType")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetAssembleExpectation (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-assemble-expectation")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetObservationLinkPeriod (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetUnit (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-unit")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetIsSubject (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-isSubject")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getDesignNote(raw: true): Extension | undefined
-    public getDesignNote(raw?: false): string | undefined
-    public getDesignNote (raw?: boolean): Extension | string | undefined {
+    public getDesignNote (): string | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/designNote")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueMarkdown
+        return ext?.valueMarkdown
     }
 
-    public getTerminologyServer(raw: true): Extension | undefined
-    public getTerminologyServer(raw?: false): string | undefined
-    public getTerminologyServer (raw?: boolean): Extension | string | undefined {
+    public getDesignNoteExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/designNote")
+        return ext
+    }
+
+    public getTerminologyServer (): string | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueUrl
+        return ext?.valueUrl
     }
 
-    public getPerformerType(raw: true): Extension | undefined
-    public getPerformerType(raw?: false): string | undefined
-    public getPerformerType (raw?: boolean): Extension | string | undefined {
+    public getTerminologyServerExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer")
+        return ext
+    }
+
+    public getPerformerType (): string | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-performerType")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueCode
+        return ext?.valueCode
     }
 
-    public getAssembleExpectation(raw: true): Extension | undefined
-    public getAssembleExpectation(raw?: false): string | undefined
-    public getAssembleExpectation (raw?: boolean): Extension | string | undefined {
+    public getPerformerTypeExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-performerType")
+        return ext
+    }
+
+    public getAssembleExpectation (): string | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-assemble-expectation")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueCode
+        return ext?.valueCode
     }
 
-    public getObservationLinkPeriod(raw: true): Extension | undefined
-    public getObservationLinkPeriod(raw?: false): Duration | undefined
-    public getObservationLinkPeriod (raw?: boolean): Extension | Duration | undefined {
+    public getAssembleExpectationExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-assemble-expectation")
+        return ext
+    }
+
+    public getObservationLinkPeriod (): Duration | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueDuration
+        return ext?.valueDuration
     }
 
-    public getUnit(raw: true): Extension | undefined
-    public getUnit(raw?: false): Coding | undefined
-    public getUnit (raw?: boolean): Extension | Coding | undefined {
+    public getObservationLinkPeriodExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod")
+        return ext
+    }
+
+    public getUnit (): Coding | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-unit")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueCoding
+        return ext?.valueCoding
     }
 
-    public getIsSubject(raw: true): Extension | undefined
-    public getIsSubject(raw?: false): boolean | undefined
-    public getIsSubject (raw?: boolean): Extension | boolean | undefined {
+    public getUnitExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/questionnaire-unit")
+        return ext
+    }
+
+    public getIsSubject (): boolean | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-isSubject")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueBoolean
+        return ext?.valueBoolean
+    }
+
+    public getIsSubjectExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["item"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-isSubject")
+        return ext
     }
 
 }

@@ -85,74 +85,6 @@ export class CQLLibraryProfile {
         return this
     }
 
-    public resetKnowledgeCapability (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeCapability")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetKnowledgeRepresentationLevel (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeRepresentationLevel")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetArtifactComment (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-artifactComment")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetDirectReferenceCode (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-directReferenceCode")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetDependency (): this {
-        const match = {"type":"depends-on"} as Record<string, unknown>
-        const list = this.resource.relatedArtifact
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetCqlContent (): this {
-        const match = {"contentType":"text/cql"} as Record<string, unknown>
-        const list = this.resource.content
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
     public getKnowledgeCapability (): Extension | undefined {
         return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeCapability")
     }
@@ -169,28 +101,38 @@ export class CQLLibraryProfile {
         return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-directReferenceCode")
     }
 
-    public getDependency(raw: true): RelatedArtifact | undefined
-    public getDependency(raw?: false): CQLLibrary_RelatedArtifact_DependencySliceInput | undefined
-    public getDependency (raw?: boolean): RelatedArtifact | CQLLibrary_RelatedArtifact_DependencySliceInput | undefined {
+    public getDependency (): CQLLibrary_RelatedArtifact_DependencySliceInput | undefined {
         const match = {"type":"depends-on"} as Record<string, unknown>
         const list = this.resource.relatedArtifact
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as CQLLibrary_RelatedArtifact_DependencySliceInput
     }
 
-    public getCqlContent(raw: true): Attachment | undefined
-    public getCqlContent(raw?: false): CQLLibrary_Content_CqlContentSliceInput | undefined
-    public getCqlContent (raw?: boolean): Attachment | CQLLibrary_Content_CqlContentSliceInput | undefined {
+    public getDependencyRaw (): RelatedArtifact | undefined {
+        const match = {"type":"depends-on"} as Record<string, unknown>
+        const list = this.resource.relatedArtifact
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getCqlContent (): CQLLibrary_Content_CqlContentSliceInput | undefined {
         const match = {"contentType":"text/cql"} as Record<string, unknown>
         const list = this.resource.content
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["contentType"]) as CQLLibrary_Content_CqlContentSliceInput
+    }
+
+    public getCqlContentRaw (): Attachment | undefined {
+        const match = {"contentType":"text/cql"} as Record<string, unknown>
+        const list = this.resource.content
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

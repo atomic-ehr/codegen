@@ -33,9 +33,9 @@ export class USCoreObservationOccupationProfileProfile {
         return this.resource as USCoreObservationOccupationProfile
     }
 
-    public setSocialhistory (input: USCoreObservationOccupationProfile_Category_SocialhistorySliceInput): this {
+    public setSocialhistory (input?: USCoreObservationOccupationProfile_Category_SocialhistorySliceInput): this {
         const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"social-history"}]} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as CodeableConcept
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as CodeableConcept
         const list = (this.resource.category ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -59,52 +59,38 @@ export class USCoreObservationOccupationProfileProfile {
         return this
     }
 
-    public resetSocialhistory (): this {
-        const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"social-history"}]} as Record<string, unknown>
-        const list = this.resource.category
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetIndustry (): this {
-        const match = {"code":{"coding":[{"system":"http://loinc.org","code":"86188-0"}]}} as Record<string, unknown>
-        const list = this.resource.component
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getSocialhistory(raw: true): CodeableConcept | undefined
-    public getSocialhistory(raw?: false): USCoreObservationOccupationProfile_Category_SocialhistorySliceInput | undefined
-    public getSocialhistory (raw?: boolean): CodeableConcept | USCoreObservationOccupationProfile_Category_SocialhistorySliceInput | undefined {
+    public getSocialhistory (): USCoreObservationOccupationProfile_Category_SocialhistorySliceInput | undefined {
         const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"social-history"}]} as Record<string, unknown>
         const list = this.resource.category
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as USCoreObservationOccupationProfile_Category_SocialhistorySliceInput
     }
 
-    public getIndustry(raw: true): ObservationComponent | undefined
-    public getIndustry(raw?: false): USCoreObservationOccupationProfile_Component_IndustrySliceInput | undefined
-    public getIndustry (raw?: boolean): ObservationComponent | USCoreObservationOccupationProfile_Component_IndustrySliceInput | undefined {
+    public getSocialhistoryRaw (): CodeableConcept | undefined {
+        const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"social-history"}]} as Record<string, unknown>
+        const list = this.resource.category
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getIndustry (): USCoreObservationOccupationProfile_Component_IndustrySliceInput | undefined {
         const match = {"code":{"coding":[{"system":"http://loinc.org","code":"86188-0"}]}} as Record<string, unknown>
         const list = this.resource.component
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["code"]) as USCoreObservationOccupationProfile_Component_IndustrySliceInput
+    }
+
+    public getIndustryRaw (): ObservationComponent | undefined {
+        const match = {"code":{"coding":[{"system":"http://loinc.org","code":"86188-0"}]}} as Record<string, unknown>
+        const list = this.resource.component
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

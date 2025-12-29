@@ -32,24 +32,14 @@ export class Profile_for_CatalogProfile {
         return this
     }
 
-    public resetValidityPeriod (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqm-ValidityPeriod")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
+    public getValidityPeriod (): string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqm-ValidityPeriod")
+        return ext?.valueDateTime
     }
 
-    public getValidityPeriod(raw: true): Extension | undefined
-    public getValidityPeriod(raw?: false): string | undefined
-    public getValidityPeriod (raw?: boolean): Extension | string | undefined {
+    public getValidityPeriodExtension (): Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqm-ValidityPeriod")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueDateTime
+        return ext
     }
 
 }

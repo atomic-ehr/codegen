@@ -44,25 +44,16 @@ export class USCoreMedicationRequestProfileProfile {
         return this
     }
 
-    public resetMedicationAdherence (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication-adherence")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getMedicationAdherence(raw: true): Extension | undefined
-    public getMedicationAdherence(raw?: false): USCoreMedicationRequestProfile_MedicationAdherenceInput | undefined
-    public getMedicationAdherence (raw?: boolean): Extension | USCoreMedicationRequestProfile_MedicationAdherenceInput | undefined {
+    public getMedicationAdherence (): USCoreMedicationRequestProfile_MedicationAdherenceInput | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication-adherence")
         if (!ext) return undefined
-        if (raw) return ext
         const config = [{ name: "medicationAdherence", valueField: "valueCodeableConcept", isArray: false }, { name: "dateAsserted", valueField: "valueDateTime", isArray: false }, { name: "informationSource", valueField: "valueCodeableConcept", isArray: true }]
         return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as USCoreMedicationRequestProfile_MedicationAdherenceInput
+    }
+
+    public getMedicationAdherenceExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication-adherence")
+        return ext
     }
 
 }

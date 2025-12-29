@@ -35,24 +35,14 @@ export class USCoreADIDocumentReferenceProfileProfile {
         return this
     }
 
-    public resetAuthenticationTime (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-authentication-time")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
+    public getAuthenticationTime (): string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-authentication-time")
+        return ext?.valueDateTime
     }
 
-    public getAuthenticationTime(raw: true): Extension | undefined
-    public getAuthenticationTime(raw?: false): string | undefined
-    public getAuthenticationTime (raw?: boolean): Extension | string | undefined {
+    public getAuthenticationTimeExtension (): Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-authentication-time")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueDateTime
+        return ext
     }
 
 }

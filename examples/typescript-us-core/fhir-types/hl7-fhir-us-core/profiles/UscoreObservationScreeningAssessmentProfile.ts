@@ -31,9 +31,9 @@ export class USCoreObservationScreeningAssessmentProfileProfile {
         return this.resource as USCoreObservationScreeningAssessmentProfile
     }
 
-    public setSurvey (input: USCoreObservationScreeningAssessmentProfile_Category_SurveySliceInput): this {
+    public setSurvey (input?: USCoreObservationScreeningAssessmentProfile_Category_SurveySliceInput): this {
         const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"survey"}]} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as CodeableConcept
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as CodeableConcept
         const list = (this.resource.category ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -44,28 +44,21 @@ export class USCoreObservationScreeningAssessmentProfileProfile {
         return this
     }
 
-    public resetSurvey (): this {
-        const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"survey"}]} as Record<string, unknown>
-        const list = this.resource.category
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getSurvey(raw: true): CodeableConcept | undefined
-    public getSurvey(raw?: false): USCoreObservationScreeningAssessmentProfile_Category_SurveySliceInput | undefined
-    public getSurvey (raw?: boolean): CodeableConcept | USCoreObservationScreeningAssessmentProfile_Category_SurveySliceInput | undefined {
+    public getSurvey (): USCoreObservationScreeningAssessmentProfile_Category_SurveySliceInput | undefined {
         const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"survey"}]} as Record<string, unknown>
         const list = this.resource.category
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as USCoreObservationScreeningAssessmentProfile_Category_SurveySliceInput
+    }
+
+    public getSurveyRaw (): CodeableConcept | undefined {
+        const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"survey"}]} as Record<string, unknown>
+        const list = this.resource.category
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

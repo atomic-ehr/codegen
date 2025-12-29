@@ -43,28 +43,21 @@ export class ProvenanceRelevantHistoryProfile {
         return this
     }
 
-    public resetAuthor (): this {
-        const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v3-ParticipationType","code":"AUT"}]}} as Record<string, unknown>
-        const list = this.resource.agent
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getAuthor(raw: true): ProvenanceAgent | undefined
-    public getAuthor(raw?: false): ProvenanceRelevantHistory_Agent_AuthorSliceInput | undefined
-    public getAuthor (raw?: boolean): ProvenanceAgent | ProvenanceRelevantHistory_Agent_AuthorSliceInput | undefined {
+    public getAuthor (): ProvenanceRelevantHistory_Agent_AuthorSliceInput | undefined {
         const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v3-ParticipationType","code":"AUT"}]}} as Record<string, unknown>
         const list = this.resource.agent
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as ProvenanceRelevantHistory_Agent_AuthorSliceInput
+    }
+
+    public getAuthorRaw (): ProvenanceAgent | undefined {
+        const match = {"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v3-ParticipationType","code":"AUT"}]}} as Record<string, unknown>
+        const list = this.resource.agent
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

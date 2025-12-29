@@ -85,74 +85,6 @@ export class FHIRPathLibraryProfile {
         return this
     }
 
-    public resetKnowledgeCapability (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeCapability")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetKnowledgeRepresentationLevel (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeRepresentationLevel")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetArtifactComment (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-artifactComment")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetDirectReferenceCode (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-directReferenceCode")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetDependency (): this {
-        const match = {"type":"depends-on"} as Record<string, unknown>
-        const list = this.resource.relatedArtifact
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetFhirPathContent (): this {
-        const match = {"contentType":"text/fhirpath"} as Record<string, unknown>
-        const list = this.resource.content
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
     public getKnowledgeCapability (): Extension | undefined {
         return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeCapability")
     }
@@ -169,28 +101,38 @@ export class FHIRPathLibraryProfile {
         return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-directReferenceCode")
     }
 
-    public getDependency(raw: true): RelatedArtifact | undefined
-    public getDependency(raw?: false): FHIRPathLibrary_RelatedArtifact_DependencySliceInput | undefined
-    public getDependency (raw?: boolean): RelatedArtifact | FHIRPathLibrary_RelatedArtifact_DependencySliceInput | undefined {
+    public getDependency (): FHIRPathLibrary_RelatedArtifact_DependencySliceInput | undefined {
         const match = {"type":"depends-on"} as Record<string, unknown>
         const list = this.resource.relatedArtifact
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as FHIRPathLibrary_RelatedArtifact_DependencySliceInput
     }
 
-    public getFhirPathContent(raw: true): Attachment | undefined
-    public getFhirPathContent(raw?: false): FHIRPathLibrary_Content_FhirPathContentSliceInput | undefined
-    public getFhirPathContent (raw?: boolean): Attachment | FHIRPathLibrary_Content_FhirPathContentSliceInput | undefined {
+    public getDependencyRaw (): RelatedArtifact | undefined {
+        const match = {"type":"depends-on"} as Record<string, unknown>
+        const list = this.resource.relatedArtifact
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getFhirPathContent (): FHIRPathLibrary_Content_FhirPathContentSliceInput | undefined {
         const match = {"contentType":"text/fhirpath"} as Record<string, unknown>
         const list = this.resource.content
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["contentType"]) as FHIRPathLibrary_Content_FhirPathContentSliceInput
+    }
+
+    public getFhirPathContentRaw (): Attachment | undefined {
+        const match = {"contentType":"text/fhirpath"} as Record<string, unknown>
+        const list = this.resource.content
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

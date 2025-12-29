@@ -322,7 +322,7 @@ export const mkTypeSchemaIndex = (
             base: nonConstraintSchema.identifier,
             fields: mergedFields,
             dependencies: dependencies,
-            ...(mergedExtensions.length > 0 ? { extensions: mergedExtensions } : {}),
+            extensions: mergedExtensions.length > 0 ? mergedExtensions : undefined,
         };
     };
 

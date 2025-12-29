@@ -71,8 +71,7 @@ const buildReferences = (
     });
 };
 
-const extractSliceFieldNames = (schema?: FHIRSchemaElement): Pick<FieldSlice, "required" | "excluded"> => {
-    if (!schema) return {};
+const extractSliceFieldNames = (schema: FHIRSchemaElement): Pick<FieldSlice, "required" | "excluded"> => {
     const required = new Set<string>();
     const excluded = new Set<string>();
 
@@ -103,7 +102,7 @@ const buildSlicing = (element: FHIRSchemaElement): FieldSlicing | undefined => {
     const slices: Record<string, FieldSlice> = {};
     for (const [name, slice] of Object.entries(slicing.slices ?? {})) {
         if (!slice) continue;
-        const { required, excluded } = extractSliceFieldNames(slice.schema);
+        const { required, excluded } = slice.schema ? extractSliceFieldNames(slice.schema) : {};
         slices[name] = {
             min: slice.min,
             max: slice.max,

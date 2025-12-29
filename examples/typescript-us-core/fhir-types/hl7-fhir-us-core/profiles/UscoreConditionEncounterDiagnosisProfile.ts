@@ -30,9 +30,9 @@ export class USCoreConditionEncounterDiagnosisProfileProfile {
         return this.resource as USCoreConditionEncounterDiagnosisProfile
     }
 
-    public setUsCore (input: USCoreConditionEncounterDiagnosisProfile_Category_Us_coreSliceInput): this {
+    public setUsCore (input?: USCoreConditionEncounterDiagnosisProfile_Category_Us_coreSliceInput): this {
         const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/condition-category","code":"encounter-diagnosis"}]} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as CodeableConcept
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as CodeableConcept
         const list = (this.resource.category ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -43,28 +43,21 @@ export class USCoreConditionEncounterDiagnosisProfileProfile {
         return this
     }
 
-    public resetUsCore (): this {
-        const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/condition-category","code":"encounter-diagnosis"}]} as Record<string, unknown>
-        const list = this.resource.category
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getUsCore(raw: true): CodeableConcept | undefined
-    public getUsCore(raw?: false): USCoreConditionEncounterDiagnosisProfile_Category_Us_coreSliceInput | undefined
-    public getUsCore (raw?: boolean): CodeableConcept | USCoreConditionEncounterDiagnosisProfile_Category_Us_coreSliceInput | undefined {
+    public getUsCore (): USCoreConditionEncounterDiagnosisProfile_Category_Us_coreSliceInput | undefined {
         const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/condition-category","code":"encounter-diagnosis"}]} as Record<string, unknown>
         const list = this.resource.category
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as USCoreConditionEncounterDiagnosisProfile_Category_Us_coreSliceInput
+    }
+
+    public getUsCoreRaw (): CodeableConcept | undefined {
+        const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/condition-category","code":"encounter-diagnosis"}]} as Record<string, unknown>
+        const list = this.resource.category
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

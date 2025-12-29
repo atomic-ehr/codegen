@@ -34,28 +34,21 @@ export class SearchSetBundleProfile {
         return this
     }
 
-    public resetOperationOutcome (): this {
-        const match = {"search":{"mode":"outcome"}} as Record<string, unknown>
-        const list = this.resource.entry
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getOperationOutcome(raw: true): BundleEntry | undefined
-    public getOperationOutcome(raw?: false): SearchSetBundle_Entry_OperationOutcomeSliceInput | undefined
-    public getOperationOutcome (raw?: boolean): BundleEntry | SearchSetBundle_Entry_OperationOutcomeSliceInput | undefined {
+    public getOperationOutcome (): SearchSetBundle_Entry_OperationOutcomeSliceInput | undefined {
         const match = {"search":{"mode":"outcome"}} as Record<string, unknown>
         const list = this.resource.entry
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["search"]) as SearchSetBundle_Entry_OperationOutcomeSliceInput
+    }
+
+    public getOperationOutcomeRaw (): BundleEntry | undefined {
+        const match = {"search":{"mode":"outcome"}} as Record<string, unknown>
+        const list = this.resource.entry
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

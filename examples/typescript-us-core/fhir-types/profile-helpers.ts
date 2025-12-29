@@ -3,95 +3,98 @@
 // Any manual changes made to this file may be overwritten.
 
 export const isRecord = (value: unknown): value is Record<string, unknown> => {
-    return value !== null && typeof value === "object" && !Array.isArray(value)
+    return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
 export const getOrCreateObjectAtPath = (root: Record<string, unknown>, path: string[]): Record<string, unknown> => {
-    let current: Record<string, unknown> = root
+    let current: Record<string, unknown> = root;
     for (const segment of path) {
         if (Array.isArray(current[segment])) {
-            const list = current[segment] as unknown[]
+            const list = current[segment] as unknown[];
             if (list.length === 0) {
-                list.push({})
+                list.push({});
             }
-            current = list[0] as Record<string, unknown>
+            current = list[0] as Record<string, unknown>;
         }
         else {
             if (!isRecord(current[segment])) {
-                current[segment] = {}
+                current[segment] = {};
             }
-            current = current[segment] as Record<string, unknown>
+            current = current[segment] as Record<string, unknown>;
         }
     }
-    return current
+    return current;
 }
 
 export const mergeMatch = (target: Record<string, unknown>, match: Record<string, unknown>): void => {
     for (const [key, matchValue] of Object.entries(match)) {
+        if (key === "__proto__" || key === "constructor" || key === "prototype") {
+            continue;
+        }
         if (isRecord(matchValue)) {
             if (isRecord(target[key])) {
-                mergeMatch(target[key] as Record<string, unknown>, matchValue)
+                mergeMatch(target[key] as Record<string, unknown>, matchValue);
             }
             else {
-                target[key] = { ...matchValue }
+                target[key] = { ...matchValue };
             }
         }
         else {
-            target[key] = matchValue
+            target[key] = matchValue;
         }
     }
 }
 
 export const applySliceMatch = <T extends Record<string, unknown>>(input: T, match: Record<string, unknown>): T => {
-    const result = { ...input } as Record<string, unknown>
-    mergeMatch(result, match)
-    return result as T
+    const result = { ...input } as Record<string, unknown>;
+    mergeMatch(result, match);
+    return result as T;
 }
 
 export const matchesValue = (value: unknown, match: unknown): boolean => {
     if (Array.isArray(match)) {
         if (!Array.isArray(value)) {
-            return false
+            return false;
         }
-        return match.every((matchItem) => value.some((item) => matchesValue(item, matchItem)))
+        return match.every((matchItem) => value.some((item) => matchesValue(item, matchItem)));
     }
     if (isRecord(match)) {
         if (!isRecord(value)) {
-            return false
+            return false;
         }
         for (const [key, matchValue] of Object.entries(match)) {
             if (!matchesValue((value as Record<string, unknown>)[key], matchValue)) {
-                return false
+                return false;
             }
         }
-        return true
+        return true;
     }
-    return value === match
+    return value === match;
 }
 
 export const matchesSlice = (value: unknown, match: Record<string, unknown>): boolean => {
-    return matchesValue(value, match)
+    return matchesValue(value, match);
 }
 
 export const extractComplexExtension = (extension: { extension?: Array<{ url?: string; [key: string]: unknown }> } | undefined, config: Array<{ name: string; valueField: string; isArray: boolean }>): Record<string, unknown> | undefined => {
-    if (!extension?.extension) return undefined
-    const result: Record<string, unknown> = {}
+    if (!extension?.extension) return undefined;
+    const result: Record<string, unknown> = {};
     for (const { name, valueField, isArray } of config) {
-        const subExts = extension.extension.filter(e => e.url === name)
+        const subExts = extension.extension.filter(e => e.url === name);
         if (isArray) {
-            result[name] = subExts.map(e => (e as Record<string, unknown>)[valueField])
+            result[name] = subExts.map(e => (e as Record<string, unknown>)[valueField]);
         }
         else if (subExts[0]) {
-            result[name] = (subExts[0] as Record<string, unknown>)[valueField]
+            result[name] = (subExts[0] as Record<string, unknown>)[valueField];
         }
     }
-    return result
+    return result;
 }
 
 export const extractSliceSimplified = <T extends Record<string, unknown>>(slice: T, matchKeys: string[]): Partial<T> => {
-    const result = { ...slice } as Record<string, unknown>
+    const result = { ...slice } as Record<string, unknown>;
     for (const key of matchKeys) {
-        delete result[key]
+        delete result[key];
     }
-    return result as Partial<T>
+    return result as Partial<T>;
 }

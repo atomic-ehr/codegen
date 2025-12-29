@@ -61,68 +61,38 @@ export class SDCCodeSystemProfile {
         return this
     }
 
-    public resetStyleSensitive (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-styleSensitive")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetConceptDisplayLabelRenderingStyle (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["concept","display"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetConceptDisplayLabelXhtml (): this {
-        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["concept","display"])
-        const list = target.extension as Extension[] | undefined
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getStyleSensitive(raw: true): Extension | undefined
-    public getStyleSensitive(raw?: false): boolean | undefined
-    public getStyleSensitive (raw?: boolean): Extension | boolean | undefined {
+    public getStyleSensitive (): boolean | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-styleSensitive")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueBoolean
+        return ext?.valueBoolean
     }
 
-    public getConceptDisplayLabelRenderingStyle(raw: true): Extension | undefined
-    public getConceptDisplayLabelRenderingStyle(raw?: false): string | undefined
-    public getConceptDisplayLabelRenderingStyle (raw?: boolean): Extension | string | undefined {
+    public getStyleSensitiveExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-styleSensitive")
+        return ext
+    }
+
+    public getConceptDisplayLabelRenderingStyle (): string | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["concept","display"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueString
+        return ext?.valueString
     }
 
-    public getConceptDisplayLabelXhtml(raw: true): Extension | undefined
-    public getConceptDisplayLabelXhtml(raw?: false): string | undefined
-    public getConceptDisplayLabelXhtml (raw?: boolean): Extension | string | undefined {
+    public getConceptDisplayLabelRenderingStyleExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["concept","display"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-style")
+        return ext
+    }
+
+    public getConceptDisplayLabelXhtml (): string | undefined {
         const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["concept","display"])
         const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueString
+        return ext?.valueString
+    }
+
+    public getConceptDisplayLabelXhtmlExtension (): Extension | undefined {
+        const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ["concept","display"])
+        const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/rendering-xhtml")
+        return ext
     }
 
 }

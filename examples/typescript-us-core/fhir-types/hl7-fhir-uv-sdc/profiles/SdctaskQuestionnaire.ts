@@ -36,9 +36,9 @@ export class SDCTaskQuestionnaireProfile {
         return this.resource as SDCTaskQuestionnaire
     }
 
-    public setQuestionnaire (input: SDCTaskQuestionnaire_Input_QuestionnaireSliceInput): this {
+    public setQuestionnaire (input?: SDCTaskQuestionnaire_Input_QuestionnaireSliceInput): this {
         const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/uv/sdc/CodeSystem/temp","code":"questionnaire"}]}} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as TaskInput
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as TaskInput
         const list = (this.resource.input ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -49,9 +49,9 @@ export class SDCTaskQuestionnaireProfile {
         return this
     }
 
-    public setResponseEndpoint (input: SDCTaskQuestionnaire_Input_ResponseEndpointSliceInput): this {
+    public setResponseEndpoint (input?: SDCTaskQuestionnaire_Input_ResponseEndpointSliceInput): this {
         const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/uv/sdc/CodeSystem/temp","code":"response-endpoint"}]}} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as TaskInput
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as TaskInput
         const list = (this.resource.input ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -62,9 +62,9 @@ export class SDCTaskQuestionnaireProfile {
         return this
     }
 
-    public setResponse (input: SDCTaskQuestionnaire_Output_ResponseSliceInput): this {
+    public setResponse (input?: SDCTaskQuestionnaire_Output_ResponseSliceInput): this {
         const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/uv/sdc/CodeSystem/temp","code":"questionnaire-response"}]}} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as TaskOutput
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as TaskOutput
         const list = (this.resource.output ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -75,76 +75,55 @@ export class SDCTaskQuestionnaireProfile {
         return this
     }
 
-    public resetQuestionnaire (): this {
-        const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/uv/sdc/CodeSystem/temp","code":"questionnaire"}]}} as Record<string, unknown>
-        const list = this.resource.input
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetResponseEndpoint (): this {
-        const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/uv/sdc/CodeSystem/temp","code":"response-endpoint"}]}} as Record<string, unknown>
-        const list = this.resource.input
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetResponse (): this {
-        const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/uv/sdc/CodeSystem/temp","code":"questionnaire-response"}]}} as Record<string, unknown>
-        const list = this.resource.output
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getQuestionnaire(raw: true): TaskInput | undefined
-    public getQuestionnaire(raw?: false): SDCTaskQuestionnaire_Input_QuestionnaireSliceInput | undefined
-    public getQuestionnaire (raw?: boolean): TaskInput | SDCTaskQuestionnaire_Input_QuestionnaireSliceInput | undefined {
+    public getQuestionnaire (): SDCTaskQuestionnaire_Input_QuestionnaireSliceInput | undefined {
         const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/uv/sdc/CodeSystem/temp","code":"questionnaire"}]}} as Record<string, unknown>
         const list = this.resource.input
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as SDCTaskQuestionnaire_Input_QuestionnaireSliceInput
     }
 
-    public getResponseEndpoint(raw: true): TaskInput | undefined
-    public getResponseEndpoint(raw?: false): SDCTaskQuestionnaire_Input_ResponseEndpointSliceInput | undefined
-    public getResponseEndpoint (raw?: boolean): TaskInput | SDCTaskQuestionnaire_Input_ResponseEndpointSliceInput | undefined {
+    public getQuestionnaireRaw (): TaskInput | undefined {
+        const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/uv/sdc/CodeSystem/temp","code":"questionnaire"}]}} as Record<string, unknown>
+        const list = this.resource.input
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getResponseEndpoint (): SDCTaskQuestionnaire_Input_ResponseEndpointSliceInput | undefined {
         const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/uv/sdc/CodeSystem/temp","code":"response-endpoint"}]}} as Record<string, unknown>
         const list = this.resource.input
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as SDCTaskQuestionnaire_Input_ResponseEndpointSliceInput
     }
 
-    public getResponse(raw: true): TaskOutput | undefined
-    public getResponse(raw?: false): SDCTaskQuestionnaire_Output_ResponseSliceInput | undefined
-    public getResponse (raw?: boolean): TaskOutput | SDCTaskQuestionnaire_Output_ResponseSliceInput | undefined {
+    public getResponseEndpointRaw (): TaskInput | undefined {
+        const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/uv/sdc/CodeSystem/temp","code":"response-endpoint"}]}} as Record<string, unknown>
+        const list = this.resource.input
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getResponse (): SDCTaskQuestionnaire_Output_ResponseSliceInput | undefined {
         const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/uv/sdc/CodeSystem/temp","code":"questionnaire-response"}]}} as Record<string, unknown>
         const list = this.resource.output
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as SDCTaskQuestionnaire_Output_ResponseSliceInput
+    }
+
+    public getResponseRaw (): TaskOutput | undefined {
+        const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/uv/sdc/CodeSystem/temp","code":"questionnaire-response"}]}} as Record<string, unknown>
+        const list = this.resource.output
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

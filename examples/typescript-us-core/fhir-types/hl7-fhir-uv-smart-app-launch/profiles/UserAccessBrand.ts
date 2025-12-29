@@ -111,46 +111,28 @@ export class UserAccessBrandProfile {
         return this
     }
 
-    public resetBrand (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/organization-brand")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetPortal (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/organization-portal")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getBrand(raw: true): Extension | undefined
-    public getBrand(raw?: false): UserAccessBrand_BrandInput | undefined
-    public getBrand (raw?: boolean): Extension | UserAccessBrand_BrandInput | undefined {
+    public getBrand (): UserAccessBrand_BrandInput | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/organization-brand")
         if (!ext) return undefined
-        if (raw) return ext
         const config = [{ name: "brandLogo", valueField: "valueUrl", isArray: true }, { name: "brandLogoLicenseType", valueField: "valueCoding", isArray: true }, { name: "brandLogoLicense", valueField: "valueUrl", isArray: true }, { name: "brandBundle", valueField: "valueUrl", isArray: true }]
         return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as UserAccessBrand_BrandInput
     }
 
-    public getPortal(raw: true): Extension | undefined
-    public getPortal(raw?: false): UserAccessBrand_PortalInput | undefined
-    public getPortal (raw?: boolean): Extension | UserAccessBrand_PortalInput | undefined {
+    public getBrandExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/organization-brand")
+        return ext
+    }
+
+    public getPortal (): UserAccessBrand_PortalInput | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/organization-portal")
         if (!ext) return undefined
-        if (raw) return ext
         const config = [{ name: "portalName", valueField: "valueString", isArray: false }, { name: "portalDescription", valueField: "valueMarkdown", isArray: false }, { name: "portalUrl", valueField: "valueUrl", isArray: false }, { name: "portalLogo", valueField: "valueUrl", isArray: true }, { name: "portalLogoLicenseType", valueField: "valueCoding", isArray: true }, { name: "portalLogoLicense", valueField: "valueUrl", isArray: true }, { name: "portalEndpoint", valueField: "valueReference", isArray: true }]
         return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as UserAccessBrand_PortalInput
+    }
+
+    public getPortalExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/organization-portal")
+        return ext
     }
 
 }

@@ -35,24 +35,14 @@ export class USCoreEncounterProfileProfile {
         return this
     }
 
-    public resetInterpreterRequired (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
+    public getInterpreterRequired (): Coding | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed")
+        return ext?.valueCoding
     }
 
-    public getInterpreterRequired(raw: true): Extension | undefined
-    public getInterpreterRequired(raw?: false): Coding | undefined
-    public getInterpreterRequired (raw?: boolean): Extension | Coding | undefined {
+    public getInterpreterRequiredExtension (): Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueCoding
+        return ext
     }
 
 }

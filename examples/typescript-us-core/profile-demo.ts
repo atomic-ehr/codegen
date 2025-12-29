@@ -85,9 +85,7 @@ function createBloodPressureExample(): Observation {
 
     // Use fluent API to set slices - discriminator values are auto-applied
     bpProfile
-        .setVscat({
-            // The coding for vital-signs is auto-applied by the profile
-        })
+        .setVscat()
         .setSystolic({
             // The code for systolic (8480-6) is auto-applied by the profile
             valueQuantity: {
@@ -189,9 +187,6 @@ function resetExtensionExample(): Patient {
         });
 
     console.log("Before reset - extensions count:", patientProfile.toResource().extension?.length);
-
-    // Reset interpreter required extension
-    patientProfile.resetInterpreterRequired();
 
     console.log("After resetInterpreterRequired - extensions count:", patientProfile.toResource().extension?.length);
 

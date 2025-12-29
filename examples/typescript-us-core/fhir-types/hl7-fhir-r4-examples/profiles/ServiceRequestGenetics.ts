@@ -47,25 +47,16 @@ export class ServiceRequest_GeneticsProfile {
         return this
     }
 
-    public resetItem (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/servicerequest-geneticsItem")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getItem(raw: true): Extension | undefined
-    public getItem(raw?: false): ServiceRequest_Genetics_ItemInput | undefined
-    public getItem (raw?: boolean): Extension | ServiceRequest_Genetics_ItemInput | undefined {
+    public getItem (): ServiceRequest_Genetics_ItemInput | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/servicerequest-geneticsItem")
         if (!ext) return undefined
-        if (raw) return ext
         const config = [{ name: "code", valueField: "valueCodeableConcept", isArray: false }, { name: "geneticsObservation", valueField: "valueReference", isArray: false }, { name: "specimen", valueField: "valueReference", isArray: false }, { name: "status", valueField: "valueCode", isArray: false }]
         return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as ServiceRequest_Genetics_ItemInput
+    }
+
+    public getItemExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/servicerequest-geneticsItem")
+        return ext
     }
 
 }

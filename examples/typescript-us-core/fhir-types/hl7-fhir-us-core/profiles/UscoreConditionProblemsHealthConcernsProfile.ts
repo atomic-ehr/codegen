@@ -33,24 +33,14 @@ export class USCoreConditionProblemsHealthConcernsProfileProfile {
         return this
     }
 
-    public resetAssertedDate (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/condition-assertedDate")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
+    public getAssertedDate (): string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/condition-assertedDate")
+        return ext?.valueDateTime
     }
 
-    public getAssertedDate(raw: true): Extension | undefined
-    public getAssertedDate(raw?: false): string | undefined
-    public getAssertedDate (raw?: boolean): Extension | string | undefined {
+    public getAssertedDateExtension (): Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/condition-assertedDate")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueDateTime
+        return ext
     }
 
 }

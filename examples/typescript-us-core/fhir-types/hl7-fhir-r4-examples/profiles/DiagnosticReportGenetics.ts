@@ -75,86 +75,48 @@ export class DiagnosticReport_GeneticsProfile {
         return this
     }
 
-    public resetAssessedCondition (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsAssessedCondition")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetFamilyMemberHistory (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsFamilyMemberHistory")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetAnalysis (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsAnalysis")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetReferences (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsReferences")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getAssessedCondition(raw: true): Extension | undefined
-    public getAssessedCondition(raw?: false): Reference | undefined
-    public getAssessedCondition (raw?: boolean): Extension | Reference | undefined {
+    public getAssessedCondition (): Reference | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsAssessedCondition")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueReference
+        return ext?.valueReference
     }
 
-    public getFamilyMemberHistory(raw: true): Extension | undefined
-    public getFamilyMemberHistory(raw?: false): Reference | undefined
-    public getFamilyMemberHistory (raw?: boolean): Extension | Reference | undefined {
+    public getAssessedConditionExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsAssessedCondition")
+        return ext
+    }
+
+    public getFamilyMemberHistory (): Reference | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsFamilyMemberHistory")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueReference
+        return ext?.valueReference
     }
 
-    public getAnalysis(raw: true): Extension | undefined
-    public getAnalysis(raw?: false): DiagnosticReport_Genetics_AnalysisInput | undefined
-    public getAnalysis (raw?: boolean): Extension | DiagnosticReport_Genetics_AnalysisInput | undefined {
+    public getFamilyMemberHistoryExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsFamilyMemberHistory")
+        return ext
+    }
+
+    public getAnalysis (): DiagnosticReport_Genetics_AnalysisInput | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsAnalysis")
         if (!ext) return undefined
-        if (raw) return ext
         const config = [{ name: "type", valueField: "valueCodeableConcept", isArray: false }, { name: "interpretation", valueField: "valueCodeableConcept", isArray: false }]
         return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as DiagnosticReport_Genetics_AnalysisInput
     }
 
-    public getReferences(raw: true): Extension | undefined
-    public getReferences(raw?: false): DiagnosticReport_Genetics_ReferencesInput | undefined
-    public getReferences (raw?: boolean): Extension | DiagnosticReport_Genetics_ReferencesInput | undefined {
+    public getAnalysisExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsAnalysis")
+        return ext
+    }
+
+    public getReferences (): DiagnosticReport_Genetics_ReferencesInput | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsReferences")
         if (!ext) return undefined
-        if (raw) return ext
         const config = [{ name: "description", valueField: "valueString", isArray: false }, { name: "reference", valueField: "valueUri", isArray: true }, { name: "type", valueField: "valueCodeableConcept", isArray: false }]
         return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as DiagnosticReport_Genetics_ReferencesInput
+    }
+
+    public getReferencesExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsReferences")
+        return ext
     }
 
 }

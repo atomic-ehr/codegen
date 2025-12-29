@@ -29,9 +29,9 @@ export class USCoreCarePlanProfileProfile {
         return this.resource as USCoreCarePlanProfile
     }
 
-    public setAssessPlan (input: USCoreCarePlanProfile_Category_AssessPlanSliceInput): this {
+    public setAssessPlan (input?: USCoreCarePlanProfile_Category_AssessPlanSliceInput): this {
         const match = {"coding":[{"system":"http://hl7.org/fhir/us/core/CodeSystem/careplan-category","code":"assess-plan"}]} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as CodeableConcept
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as CodeableConcept
         const list = (this.resource.category ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -42,28 +42,21 @@ export class USCoreCarePlanProfileProfile {
         return this
     }
 
-    public resetAssessPlan (): this {
-        const match = {"coding":[{"system":"http://hl7.org/fhir/us/core/CodeSystem/careplan-category","code":"assess-plan"}]} as Record<string, unknown>
-        const list = this.resource.category
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getAssessPlan(raw: true): CodeableConcept | undefined
-    public getAssessPlan(raw?: false): USCoreCarePlanProfile_Category_AssessPlanSliceInput | undefined
-    public getAssessPlan (raw?: boolean): CodeableConcept | USCoreCarePlanProfile_Category_AssessPlanSliceInput | undefined {
+    public getAssessPlan (): USCoreCarePlanProfile_Category_AssessPlanSliceInput | undefined {
         const match = {"coding":[{"system":"http://hl7.org/fhir/us/core/CodeSystem/careplan-category","code":"assess-plan"}]} as Record<string, unknown>
         const list = this.resource.category
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as USCoreCarePlanProfile_Category_AssessPlanSliceInput
+    }
+
+    public getAssessPlanRaw (): CodeableConcept | undefined {
+        const match = {"coding":[{"system":"http://hl7.org/fhir/us/core/CodeSystem/careplan-category","code":"assess-plan"}]} as Record<string, unknown>
+        const list = this.resource.category
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

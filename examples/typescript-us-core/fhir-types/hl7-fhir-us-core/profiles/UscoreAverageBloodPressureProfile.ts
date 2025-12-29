@@ -34,9 +34,9 @@ export class USCoreAverageBloodPressureProfileProfile {
         return this.resource as USCoreAverageBloodPressureProfile
     }
 
-    public setVscat (input: USCoreAverageBloodPressureProfile_Category_VSCatSliceInput): this {
+    public setVscat (input?: USCoreAverageBloodPressureProfile_Category_VSCatSliceInput): this {
         const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as CodeableConcept
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as CodeableConcept
         const list = (this.resource.category ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -47,9 +47,9 @@ export class USCoreAverageBloodPressureProfileProfile {
         return this
     }
 
-    public setSystolic (input: USCoreAverageBloodPressureProfile_Component_SystolicSliceInput): this {
+    public setSystolic (input?: USCoreAverageBloodPressureProfile_Component_SystolicSliceInput): this {
         const match = {"code":{"coding":[{"system":"http://loinc.org","code":"96608-5"}]}} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as ObservationComponent
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as ObservationComponent
         const list = (this.resource.component ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -60,9 +60,9 @@ export class USCoreAverageBloodPressureProfileProfile {
         return this
     }
 
-    public setDiastolic (input: USCoreAverageBloodPressureProfile_Component_DiastolicSliceInput): this {
+    public setDiastolic (input?: USCoreAverageBloodPressureProfile_Component_DiastolicSliceInput): this {
         const match = {"code":{"coding":[{"system":"http://loinc.org","code":"96609-3"}]}} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as ObservationComponent
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as ObservationComponent
         const list = (this.resource.component ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -73,76 +73,55 @@ export class USCoreAverageBloodPressureProfileProfile {
         return this
     }
 
-    public resetVscat (): this {
-        const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
-        const list = this.resource.category
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetSystolic (): this {
-        const match = {"code":{"coding":[{"system":"http://loinc.org","code":"96608-5"}]}} as Record<string, unknown>
-        const list = this.resource.component
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetDiastolic (): this {
-        const match = {"code":{"coding":[{"system":"http://loinc.org","code":"96609-3"}]}} as Record<string, unknown>
-        const list = this.resource.component
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getVscat(raw: true): CodeableConcept | undefined
-    public getVscat(raw?: false): USCoreAverageBloodPressureProfile_Category_VSCatSliceInput | undefined
-    public getVscat (raw?: boolean): CodeableConcept | USCoreAverageBloodPressureProfile_Category_VSCatSliceInput | undefined {
+    public getVscat (): USCoreAverageBloodPressureProfile_Category_VSCatSliceInput | undefined {
         const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
         const list = this.resource.category
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as USCoreAverageBloodPressureProfile_Category_VSCatSliceInput
     }
 
-    public getSystolic(raw: true): ObservationComponent | undefined
-    public getSystolic(raw?: false): USCoreAverageBloodPressureProfile_Component_SystolicSliceInput | undefined
-    public getSystolic (raw?: boolean): ObservationComponent | USCoreAverageBloodPressureProfile_Component_SystolicSliceInput | undefined {
+    public getVscatRaw (): CodeableConcept | undefined {
+        const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
+        const list = this.resource.category
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getSystolic (): USCoreAverageBloodPressureProfile_Component_SystolicSliceInput | undefined {
         const match = {"code":{"coding":[{"system":"http://loinc.org","code":"96608-5"}]}} as Record<string, unknown>
         const list = this.resource.component
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["code"]) as USCoreAverageBloodPressureProfile_Component_SystolicSliceInput
     }
 
-    public getDiastolic(raw: true): ObservationComponent | undefined
-    public getDiastolic(raw?: false): USCoreAverageBloodPressureProfile_Component_DiastolicSliceInput | undefined
-    public getDiastolic (raw?: boolean): ObservationComponent | USCoreAverageBloodPressureProfile_Component_DiastolicSliceInput | undefined {
+    public getSystolicRaw (): ObservationComponent | undefined {
+        const match = {"code":{"coding":[{"system":"http://loinc.org","code":"96608-5"}]}} as Record<string, unknown>
+        const list = this.resource.component
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getDiastolic (): USCoreAverageBloodPressureProfile_Component_DiastolicSliceInput | undefined {
         const match = {"code":{"coding":[{"system":"http://loinc.org","code":"96609-3"}]}} as Record<string, unknown>
         const list = this.resource.component
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["code"]) as USCoreAverageBloodPressureProfile_Component_DiastolicSliceInput
+    }
+
+    public getDiastolicRaw (): ObservationComponent | undefined {
+        const match = {"code":{"coding":[{"system":"http://loinc.org","code":"96609-3"}]}} as Record<string, unknown>
+        const list = this.resource.component
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

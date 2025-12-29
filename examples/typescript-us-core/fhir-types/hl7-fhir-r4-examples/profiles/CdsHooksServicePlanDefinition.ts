@@ -23,24 +23,14 @@ export class CDS_Hooks_Service_PlanDefinitionProfile {
         return this
     }
 
-    public resetCdsHooksEndpoint (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-cdsHooksEndpoint")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
+    public getCdsHooksEndpoint (): string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-cdsHooksEndpoint")
+        return ext?.valueUri
     }
 
-    public getCdsHooksEndpoint(raw: true): Extension | undefined
-    public getCdsHooksEndpoint(raw?: false): string | undefined
-    public getCdsHooksEndpoint (raw?: boolean): Extension | string | undefined {
+    public getCdsHooksEndpointExtension (): Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-cdsHooksEndpoint")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueUri
+        return ext
     }
 
 }

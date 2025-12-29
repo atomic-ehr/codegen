@@ -70,62 +70,6 @@ export class LogicLibraryProfile {
         return this
     }
 
-    public resetKnowledgeCapability (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeCapability")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetKnowledgeRepresentationLevel (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeRepresentationLevel")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetArtifactComment (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-artifactComment")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetDirectReferenceCode (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-directReferenceCode")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetDependency (): this {
-        const match = {"type":"depends-on"} as Record<string, unknown>
-        const list = this.resource.relatedArtifact
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
     public getKnowledgeCapability (): Extension | undefined {
         return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeCapability")
     }
@@ -142,16 +86,21 @@ export class LogicLibraryProfile {
         return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-directReferenceCode")
     }
 
-    public getDependency(raw: true): RelatedArtifact | undefined
-    public getDependency(raw?: false): LogicLibrary_RelatedArtifact_DependencySliceInput | undefined
-    public getDependency (raw?: boolean): RelatedArtifact | LogicLibrary_RelatedArtifact_DependencySliceInput | undefined {
+    public getDependency (): LogicLibrary_RelatedArtifact_DependencySliceInput | undefined {
         const match = {"type":"depends-on"} as Record<string, unknown>
         const list = this.resource.relatedArtifact
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as LogicLibrary_RelatedArtifact_DependencySliceInput
+    }
+
+    public getDependencyRaw (): RelatedArtifact | undefined {
+        const match = {"type":"depends-on"} as Record<string, unknown>
+        const list = this.resource.relatedArtifact
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

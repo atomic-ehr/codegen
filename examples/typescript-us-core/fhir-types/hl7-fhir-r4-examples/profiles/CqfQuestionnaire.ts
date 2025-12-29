@@ -23,24 +23,14 @@ export class CQF_QuestionnaireProfile {
         return this
     }
 
-    public resetLibrary (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-library")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
+    public getLibrary (): string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-library")
+        return ext?.valueCanonical
     }
 
-    public getLibrary(raw: true): Extension | undefined
-    public getLibrary(raw?: false): string | undefined
-    public getLibrary (raw?: boolean): Extension | string | undefined {
+    public getLibraryExtension (): Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-library")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueCanonical
+        return ext
     }
 
 }

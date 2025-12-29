@@ -21,9 +21,9 @@ export class SDCParametersQuestionnaireNextQuestionnaireOutProfile {
         return this.resource
     }
 
-    public setOut (input: SDCParametersQuestionnaireNextQuestionnaireOut_Parameter_OutSliceInput): this {
+    public setOut (input?: SDCParametersQuestionnaireNextQuestionnaireOut_Parameter_OutSliceInput): this {
         const match = {"name":"out"} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as ParametersParameter
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as ParametersParameter
         const list = (this.resource.parameter ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -34,28 +34,21 @@ export class SDCParametersQuestionnaireNextQuestionnaireOutProfile {
         return this
     }
 
-    public resetOut (): this {
-        const match = {"name":"out"} as Record<string, unknown>
-        const list = this.resource.parameter
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getOut(raw: true): ParametersParameter | undefined
-    public getOut(raw?: false): SDCParametersQuestionnaireNextQuestionnaireOut_Parameter_OutSliceInput | undefined
-    public getOut (raw?: boolean): ParametersParameter | SDCParametersQuestionnaireNextQuestionnaireOut_Parameter_OutSliceInput | undefined {
+    public getOut (): SDCParametersQuestionnaireNextQuestionnaireOut_Parameter_OutSliceInput | undefined {
         const match = {"name":"out"} as Record<string, unknown>
         const list = this.resource.parameter
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["name"]) as SDCParametersQuestionnaireNextQuestionnaireOut_Parameter_OutSliceInput
+    }
+
+    public getOutRaw (): ParametersParameter | undefined {
+        const match = {"name":"out"} as Record<string, unknown>
+        const list = this.resource.parameter
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

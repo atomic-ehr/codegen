@@ -32,17 +32,6 @@ export class ProfileForCatalogProfile {
         return this
     }
 
-    public resetValidityPeriod (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqm-ValidityPeriod")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
     public getValidityPeriod (): Extension | undefined {
         return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqm-ValidityPeriod")
     }

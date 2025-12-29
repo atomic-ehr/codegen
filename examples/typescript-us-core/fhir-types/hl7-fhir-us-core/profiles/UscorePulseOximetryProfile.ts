@@ -34,9 +34,9 @@ export class USCorePulseOximetryProfileProfile {
         return this.resource as USCorePulseOximetryProfile
     }
 
-    public setVscat (input: USCorePulseOximetryProfile_Category_VSCatSliceInput): this {
+    public setVscat (input?: USCorePulseOximetryProfile_Category_VSCatSliceInput): this {
         const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as CodeableConcept
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as CodeableConcept
         const list = (this.resource.category ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -47,9 +47,9 @@ export class USCorePulseOximetryProfileProfile {
         return this
     }
 
-    public setFlowRate (input: USCorePulseOximetryProfile_Component_FlowRateSliceInput): this {
+    public setFlowRate (input?: USCorePulseOximetryProfile_Component_FlowRateSliceInput): this {
         const match = {"code":{"coding":[{"system":"http://loinc.org","code":"3151-8"}]}} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as ObservationComponent
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as ObservationComponent
         const list = (this.resource.component ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -60,9 +60,9 @@ export class USCorePulseOximetryProfileProfile {
         return this
     }
 
-    public setConcentration (input: USCorePulseOximetryProfile_Component_ConcentrationSliceInput): this {
+    public setConcentration (input?: USCorePulseOximetryProfile_Component_ConcentrationSliceInput): this {
         const match = {"code":{"coding":[{"system":"http://loinc.org","code":"3150-0"}]}} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as ObservationComponent
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as ObservationComponent
         const list = (this.resource.component ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -73,76 +73,55 @@ export class USCorePulseOximetryProfileProfile {
         return this
     }
 
-    public resetVscat (): this {
-        const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
-        const list = this.resource.category
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetFlowRate (): this {
-        const match = {"code":{"coding":[{"system":"http://loinc.org","code":"3151-8"}]}} as Record<string, unknown>
-        const list = this.resource.component
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetConcentration (): this {
-        const match = {"code":{"coding":[{"system":"http://loinc.org","code":"3150-0"}]}} as Record<string, unknown>
-        const list = this.resource.component
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getVscat(raw: true): CodeableConcept | undefined
-    public getVscat(raw?: false): USCorePulseOximetryProfile_Category_VSCatSliceInput | undefined
-    public getVscat (raw?: boolean): CodeableConcept | USCorePulseOximetryProfile_Category_VSCatSliceInput | undefined {
+    public getVscat (): USCorePulseOximetryProfile_Category_VSCatSliceInput | undefined {
         const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
         const list = this.resource.category
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as USCorePulseOximetryProfile_Category_VSCatSliceInput
     }
 
-    public getFlowRate(raw: true): ObservationComponent | undefined
-    public getFlowRate(raw?: false): USCorePulseOximetryProfile_Component_FlowRateSliceInput | undefined
-    public getFlowRate (raw?: boolean): ObservationComponent | USCorePulseOximetryProfile_Component_FlowRateSliceInput | undefined {
+    public getVscatRaw (): CodeableConcept | undefined {
+        const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
+        const list = this.resource.category
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getFlowRate (): USCorePulseOximetryProfile_Component_FlowRateSliceInput | undefined {
         const match = {"code":{"coding":[{"system":"http://loinc.org","code":"3151-8"}]}} as Record<string, unknown>
         const list = this.resource.component
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["code"]) as USCorePulseOximetryProfile_Component_FlowRateSliceInput
     }
 
-    public getConcentration(raw: true): ObservationComponent | undefined
-    public getConcentration(raw?: false): USCorePulseOximetryProfile_Component_ConcentrationSliceInput | undefined
-    public getConcentration (raw?: boolean): ObservationComponent | USCorePulseOximetryProfile_Component_ConcentrationSliceInput | undefined {
+    public getFlowRateRaw (): ObservationComponent | undefined {
+        const match = {"code":{"coding":[{"system":"http://loinc.org","code":"3151-8"}]}} as Record<string, unknown>
+        const list = this.resource.component
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getConcentration (): USCorePulseOximetryProfile_Component_ConcentrationSliceInput | undefined {
         const match = {"code":{"coding":[{"system":"http://loinc.org","code":"3150-0"}]}} as Record<string, unknown>
         const list = this.resource.component
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["code"]) as USCorePulseOximetryProfile_Component_ConcentrationSliceInput
+    }
+
+    public getConcentrationRaw (): ObservationComponent | undefined {
+        const match = {"code":{"coding":[{"system":"http://loinc.org","code":"3150-0"}]}} as Record<string, unknown>
+        const list = this.resource.component
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

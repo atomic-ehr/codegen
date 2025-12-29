@@ -31,9 +31,9 @@ export class USCorePractitionerProfileProfile {
         return this.resource as USCorePractitionerProfile
     }
 
-    public setNpi (input: USCorePractitionerProfile_Identifier_NPISliceInput): this {
+    public setNpi (input?: USCorePractitionerProfile_Identifier_NPISliceInput): this {
         const match = {"system":"http://hl7.org/fhir/sid/us-npi"} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as Identifier
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as Identifier
         const list = (this.resource.identifier ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -44,28 +44,21 @@ export class USCorePractitionerProfileProfile {
         return this
     }
 
-    public resetNpi (): this {
-        const match = {"system":"http://hl7.org/fhir/sid/us-npi"} as Record<string, unknown>
-        const list = this.resource.identifier
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getNpi(raw: true): Identifier | undefined
-    public getNpi(raw?: false): USCorePractitionerProfile_Identifier_NPISliceInput | undefined
-    public getNpi (raw?: boolean): Identifier | USCorePractitionerProfile_Identifier_NPISliceInput | undefined {
+    public getNpi (): USCorePractitionerProfile_Identifier_NPISliceInput | undefined {
         const match = {"system":"http://hl7.org/fhir/sid/us-npi"} as Record<string, unknown>
         const list = this.resource.identifier
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["system"]) as USCorePractitionerProfile_Identifier_NPISliceInput
+    }
+
+    public getNpiRaw (): Identifier | undefined {
+        const match = {"system":"http://hl7.org/fhir/sid/us-npi"} as Record<string, unknown>
+        const list = this.resource.identifier
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

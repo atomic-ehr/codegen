@@ -21,9 +21,9 @@ export class SDCParametersQuestionnaireResponseExtractInProfile {
         return this.resource
     }
 
-    public setIn (input: SDCParametersQuestionnaireResponseExtractIn_Parameter_InSliceInput): this {
+    public setIn (input?: SDCParametersQuestionnaireResponseExtractIn_Parameter_InSliceInput): this {
         const match = {"name":"in"} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as ParametersParameter
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as ParametersParameter
         const list = (this.resource.parameter ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -34,28 +34,21 @@ export class SDCParametersQuestionnaireResponseExtractInProfile {
         return this
     }
 
-    public resetIn (): this {
-        const match = {"name":"in"} as Record<string, unknown>
-        const list = this.resource.parameter
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getIn(raw: true): ParametersParameter | undefined
-    public getIn(raw?: false): SDCParametersQuestionnaireResponseExtractIn_Parameter_InSliceInput | undefined
-    public getIn (raw?: boolean): ParametersParameter | SDCParametersQuestionnaireResponseExtractIn_Parameter_InSliceInput | undefined {
+    public getIn (): SDCParametersQuestionnaireResponseExtractIn_Parameter_InSliceInput | undefined {
         const match = {"name":"in"} as Record<string, unknown>
         const list = this.resource.parameter
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["name"]) as SDCParametersQuestionnaireResponseExtractIn_Parameter_InSliceInput
+    }
+
+    public getInRaw (): ParametersParameter | undefined {
+        const match = {"name":"in"} as Record<string, unknown>
+        const list = this.resource.parameter
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

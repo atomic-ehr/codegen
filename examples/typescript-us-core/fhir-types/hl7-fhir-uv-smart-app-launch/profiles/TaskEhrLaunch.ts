@@ -32,9 +32,9 @@ export class TaskEhrLaunchProfile {
         return this.resource as TaskEhrLaunch
     }
 
-    public setLaunchurl (input: TaskEhrLaunch_Input_LaunchurlSliceInput): this {
+    public setLaunchurl (input?: TaskEhrLaunch_Input_LaunchurlSliceInput): this {
         const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes","code":"smartonfhir-application"}]}} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as TaskInput
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as TaskInput
         const list = (this.resource.input ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -45,9 +45,9 @@ export class TaskEhrLaunchProfile {
         return this
     }
 
-    public setLaunchcontext (input: TaskEhrLaunch_Input_LaunchcontextSliceInput): this {
+    public setLaunchcontext (input?: TaskEhrLaunch_Input_LaunchcontextSliceInput): this {
         const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes","code":"smartonfhir-appcontext"}]}} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as TaskInput
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as TaskInput
         const list = (this.resource.input ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -58,52 +58,38 @@ export class TaskEhrLaunchProfile {
         return this
     }
 
-    public resetLaunchurl (): this {
-        const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes","code":"smartonfhir-application"}]}} as Record<string, unknown>
-        const list = this.resource.input
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetLaunchcontext (): this {
-        const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes","code":"smartonfhir-appcontext"}]}} as Record<string, unknown>
-        const list = this.resource.input
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getLaunchurl(raw: true): TaskInput | undefined
-    public getLaunchurl(raw?: false): TaskEhrLaunch_Input_LaunchurlSliceInput | undefined
-    public getLaunchurl (raw?: boolean): TaskInput | TaskEhrLaunch_Input_LaunchurlSliceInput | undefined {
+    public getLaunchurl (): TaskEhrLaunch_Input_LaunchurlSliceInput | undefined {
         const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes","code":"smartonfhir-application"}]}} as Record<string, unknown>
         const list = this.resource.input
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as TaskEhrLaunch_Input_LaunchurlSliceInput
     }
 
-    public getLaunchcontext(raw: true): TaskInput | undefined
-    public getLaunchcontext(raw?: false): TaskEhrLaunch_Input_LaunchcontextSliceInput | undefined
-    public getLaunchcontext (raw?: boolean): TaskInput | TaskEhrLaunch_Input_LaunchcontextSliceInput | undefined {
+    public getLaunchurlRaw (): TaskInput | undefined {
+        const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes","code":"smartonfhir-application"}]}} as Record<string, unknown>
+        const list = this.resource.input
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getLaunchcontext (): TaskEhrLaunch_Input_LaunchcontextSliceInput | undefined {
         const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes","code":"smartonfhir-appcontext"}]}} as Record<string, unknown>
         const list = this.resource.input
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["type"]) as TaskEhrLaunch_Input_LaunchcontextSliceInput
+    }
+
+    public getLaunchcontextRaw (): TaskInput | undefined {
+        const match = {"type":{"coding":[{"system":"http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes","code":"smartonfhir-appcontext"}]}} as Record<string, unknown>
+        const list = this.resource.input
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

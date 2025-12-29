@@ -23,24 +23,14 @@ export class Clinical_DocumentProfile {
         return this
     }
 
-    public resetVersionNumber (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/composition-clinicaldocument-versionNumber")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
+    public getVersionNumber (): string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/composition-clinicaldocument-versionNumber")
+        return ext?.valueString
     }
 
-    public getVersionNumber(raw: true): Extension | undefined
-    public getVersionNumber(raw?: false): string | undefined
-    public getVersionNumber (raw?: boolean): Extension | string | undefined {
+    public getVersionNumberExtension (): Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/composition-clinicaldocument-versionNumber")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueString
+        return ext
     }
 
 }

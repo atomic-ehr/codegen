@@ -34,24 +34,14 @@ export class SDCQuestionnaireServiceRequestProfile {
         return this
     }
 
-    public resetQuestionnaire (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-servicerequest-questionnaire")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
+    public getQuestionnaire (): string | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-servicerequest-questionnaire")
+        return ext?.valueCanonical
     }
 
-    public getQuestionnaire(raw: true): Extension | undefined
-    public getQuestionnaire(raw?: false): string | undefined
-    public getQuestionnaire (raw?: boolean): Extension | string | undefined {
+    public getQuestionnaireExtension (): Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-servicerequest-questionnaire")
-        if (!ext) return undefined
-        if (raw) return ext
-        return ext.valueCanonical
+        return ext
     }
 
 }

@@ -32,9 +32,9 @@ export class USCoreOrganizationProfileProfile {
         return this.resource as USCoreOrganizationProfile
     }
 
-    public setNpi (input: USCoreOrganizationProfile_Identifier_NPISliceInput): this {
+    public setNpi (input?: USCoreOrganizationProfile_Identifier_NPISliceInput): this {
         const match = {"system":"http://hl7.org/fhir/sid/us-npi"} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as Identifier
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as Identifier
         const list = (this.resource.identifier ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -45,9 +45,9 @@ export class USCoreOrganizationProfileProfile {
         return this
     }
 
-    public setClia (input: USCoreOrganizationProfile_Identifier_CLIASliceInput): this {
+    public setClia (input?: USCoreOrganizationProfile_Identifier_CLIASliceInput): this {
         const match = {"system":"urn:oid:2.16.840.1.113883.4.7"} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as Identifier
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as Identifier
         const list = (this.resource.identifier ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -58,9 +58,9 @@ export class USCoreOrganizationProfileProfile {
         return this
     }
 
-    public setNaic (input: USCoreOrganizationProfile_Identifier_NAICSliceInput): this {
+    public setNaic (input?: USCoreOrganizationProfile_Identifier_NAICSliceInput): this {
         const match = {"system":"urn:oid:2.16.840.1.113883.6.300"} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as Identifier
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as Identifier
         const list = (this.resource.identifier ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -71,76 +71,55 @@ export class USCoreOrganizationProfileProfile {
         return this
     }
 
-    public resetNpi (): this {
-        const match = {"system":"http://hl7.org/fhir/sid/us-npi"} as Record<string, unknown>
-        const list = this.resource.identifier
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetClia (): this {
-        const match = {"system":"urn:oid:2.16.840.1.113883.4.7"} as Record<string, unknown>
-        const list = this.resource.identifier
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetNaic (): this {
-        const match = {"system":"urn:oid:2.16.840.1.113883.6.300"} as Record<string, unknown>
-        const list = this.resource.identifier
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getNpi(raw: true): Identifier | undefined
-    public getNpi(raw?: false): USCoreOrganizationProfile_Identifier_NPISliceInput | undefined
-    public getNpi (raw?: boolean): Identifier | USCoreOrganizationProfile_Identifier_NPISliceInput | undefined {
+    public getNpi (): USCoreOrganizationProfile_Identifier_NPISliceInput | undefined {
         const match = {"system":"http://hl7.org/fhir/sid/us-npi"} as Record<string, unknown>
         const list = this.resource.identifier
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["system"]) as USCoreOrganizationProfile_Identifier_NPISliceInput
     }
 
-    public getClia(raw: true): Identifier | undefined
-    public getClia(raw?: false): USCoreOrganizationProfile_Identifier_CLIASliceInput | undefined
-    public getClia (raw?: boolean): Identifier | USCoreOrganizationProfile_Identifier_CLIASliceInput | undefined {
+    public getNpiRaw (): Identifier | undefined {
+        const match = {"system":"http://hl7.org/fhir/sid/us-npi"} as Record<string, unknown>
+        const list = this.resource.identifier
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getClia (): USCoreOrganizationProfile_Identifier_CLIASliceInput | undefined {
         const match = {"system":"urn:oid:2.16.840.1.113883.4.7"} as Record<string, unknown>
         const list = this.resource.identifier
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["system"]) as USCoreOrganizationProfile_Identifier_CLIASliceInput
     }
 
-    public getNaic(raw: true): Identifier | undefined
-    public getNaic(raw?: false): USCoreOrganizationProfile_Identifier_NAICSliceInput | undefined
-    public getNaic (raw?: boolean): Identifier | USCoreOrganizationProfile_Identifier_NAICSliceInput | undefined {
+    public getCliaRaw (): Identifier | undefined {
+        const match = {"system":"urn:oid:2.16.840.1.113883.4.7"} as Record<string, unknown>
+        const list = this.resource.identifier
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getNaic (): USCoreOrganizationProfile_Identifier_NAICSliceInput | undefined {
         const match = {"system":"urn:oid:2.16.840.1.113883.6.300"} as Record<string, unknown>
         const list = this.resource.identifier
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["system"]) as USCoreOrganizationProfile_Identifier_NAICSliceInput
+    }
+
+    public getNaicRaw (): Identifier | undefined {
+        const match = {"system":"urn:oid:2.16.840.1.113883.6.300"} as Record<string, unknown>
+        const list = this.resource.identifier
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

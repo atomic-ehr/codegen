@@ -32,9 +32,9 @@ export class USCoreObservationPregnancyIntentProfileProfile {
         return this.resource as USCoreObservationPregnancyIntentProfile
     }
 
-    public setSocialHistory (input: USCoreObservationPregnancyIntentProfile_Category_SocialHistorySliceInput): this {
+    public setSocialHistory (input?: USCoreObservationPregnancyIntentProfile_Category_SocialHistorySliceInput): this {
         const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"social-history"}]} as Record<string, unknown>
-        const value = applySliceMatch(input as Record<string, unknown>, match) as unknown as CodeableConcept
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as CodeableConcept
         const list = (this.resource.category ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -45,28 +45,21 @@ export class USCoreObservationPregnancyIntentProfileProfile {
         return this
     }
 
-    public resetSocialHistory (): this {
-        const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"social-history"}]} as Record<string, unknown>
-        const list = this.resource.category
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public getSocialHistory(raw: true): CodeableConcept | undefined
-    public getSocialHistory(raw?: false): USCoreObservationPregnancyIntentProfile_Category_SocialHistorySliceInput | undefined
-    public getSocialHistory (raw?: boolean): CodeableConcept | USCoreObservationPregnancyIntentProfile_Category_SocialHistorySliceInput | undefined {
+    public getSocialHistory (): USCoreObservationPregnancyIntentProfile_Category_SocialHistorySliceInput | undefined {
         const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"social-history"}]} as Record<string, unknown>
         const list = this.resource.category
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as USCoreObservationPregnancyIntentProfile_Category_SocialHistorySliceInput
+    }
+
+    public getSocialHistoryRaw (): CodeableConcept | undefined {
+        const match = {"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"social-history"}]} as Record<string, unknown>
+        const list = this.resource.category
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

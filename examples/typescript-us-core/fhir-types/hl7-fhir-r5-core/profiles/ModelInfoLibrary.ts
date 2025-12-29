@@ -78,63 +78,6 @@ export class ModelInfoLibraryProfile {
         return this
     }
 
-    public resetKnowledgeCapability (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeCapability")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetKnowledgeRepresentationLevel (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeRepresentationLevel")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetArtifactComment (): this {
-        const list = this.resource.extension
-        if (list) {
-            const index = list.findIndex((e) => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-artifactComment")
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetModelInfoXmlContent (): this {
-        const match = {"contentType":"application/xml"} as Record<string, unknown>
-        const list = this.resource.content
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
-    public resetModelInfoJsonContent (): this {
-        const match = {"contentType":"application/json"} as Record<string, unknown>
-        const list = this.resource.content
-        if (list) {
-            const index = list.findIndex((item) => matchesSlice(item, match))
-            if (index !== -1) {
-                list.splice(index, 1)
-            }
-        }
-        return this
-    }
-
     public getKnowledgeCapability (): Extension | undefined {
         return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeCapability")
     }
@@ -147,28 +90,38 @@ export class ModelInfoLibraryProfile {
         return this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-artifactComment")
     }
 
-    public getModelInfoXmlContent(raw: true): Attachment | undefined
-    public getModelInfoXmlContent(raw?: false): ModelInfoLibrary_Content_ModelInfoXmlContentSliceInput | undefined
-    public getModelInfoXmlContent (raw?: boolean): Attachment | ModelInfoLibrary_Content_ModelInfoXmlContentSliceInput | undefined {
+    public getModelInfoXmlContent (): ModelInfoLibrary_Content_ModelInfoXmlContentSliceInput | undefined {
         const match = {"contentType":"application/xml"} as Record<string, unknown>
         const list = this.resource.content
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["contentType"]) as ModelInfoLibrary_Content_ModelInfoXmlContentSliceInput
     }
 
-    public getModelInfoJsonContent(raw: true): Attachment | undefined
-    public getModelInfoJsonContent(raw?: false): ModelInfoLibrary_Content_ModelInfoJsonContentSliceInput | undefined
-    public getModelInfoJsonContent (raw?: boolean): Attachment | ModelInfoLibrary_Content_ModelInfoJsonContentSliceInput | undefined {
+    public getModelInfoXmlContentRaw (): Attachment | undefined {
+        const match = {"contentType":"application/xml"} as Record<string, unknown>
+        const list = this.resource.content
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
+    }
+
+    public getModelInfoJsonContent (): ModelInfoLibrary_Content_ModelInfoJsonContentSliceInput | undefined {
         const match = {"contentType":"application/json"} as Record<string, unknown>
         const list = this.resource.content
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        if (raw) return item
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["contentType"]) as ModelInfoLibrary_Content_ModelInfoJsonContentSliceInput
+    }
+
+    public getModelInfoJsonContentRaw (): Attachment | undefined {
+        const match = {"contentType":"application/json"} as Record<string, unknown>
+        const list = this.resource.content
+        if (!list) return undefined
+        const item = list.find((item) => matchesSlice(item, match))
+        return item
     }
 
 }

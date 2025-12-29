@@ -43,9 +43,9 @@ Guides:
 
 - 🚀 **High-Performance** - Built with Bun runtime for blazing-fast generation
 - 🔧 **Extensible Architecture** - Three-stage pipeline:
-    - FHIR package management & canonical resolution
-    - Optimized intermediate FHIR data entities representation via Type Schema
-    - Generation for different programming languages
+  - FHIR package management & canonical resolution
+  - Optimized intermediate FHIR data entities representation via Type Schema
+  - Generation for different programming languages
 - 📦 **Multi-Package Support** - Generate from a list of FHIR packages
 - 🎯 **Type-Safe** - Generates fully typed interfaces with proper inheritance
 - 🛠️ **Developer Friendly** - Fluent API
@@ -226,6 +226,7 @@ Beyond resource-level filtering, tree shaking supports fine-grained field select
 ```
 
 **Configuration Rules:**
+
 - `selectFields`: Only includes the specified fields (whitelist approach)
 - `ignoreFields`: Removes specified fields, keeps everything else (blacklist approach)
 - These options are **mutually exclusive** - you cannot use both in the same rule
@@ -266,6 +267,66 @@ Templates enable flexible code generation for any language or format (Go, Rust, 
 
 ---
 
+### Profile Classes
+
+When generating TypeScript with `generateProfile: true`, the generator creates profile wrapper classes that provide a fluent API for working with FHIR profiles (US Core, etc.). These classes handle complex profile constraints like slicing and extensions automatically.
+
+```typescript
+import { Patient } from "./fhir-types/hl7-fhir-r4-core/Patient";
+import { USCorePatientProfileProfile } from "./fhir-types/hl7-fhir-us-core/profiles/UscorePatientProfile";
+
+// Wrap a FHIR resource with a profile class
+const resource: Patient = { resourceType: "Patient" };
+const profile = new USCorePatientProfileProfile(resource);
+
+// Set extensions using flat API - complex extensions are simplified
+profile.setRace({
+    ombCategory: { system: "urn:oid:2.16.840.1.113883.6.238", code: "2106-3", display: "White" },
+    text: "White",
+});
+
+// Set simple extensions directly
+profile.setSex({ system: "http://hl7.org/fhir/administrative-gender", code: "male" });
+
+// Get extension values - flat API returns simplified object
+const race = profile.getRace();
+console.log(race?.ombCategory?.display); // "White"
+
+// Get raw FHIR Extension when needed
+const raceExtension = profile.getRaceExtension();
+console.log(raceExtension?.url); // "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
+
+// Get the underlying resource
+const patientResource = profile.toResource();
+```
+
+**Slicing Support:**
+
+Profile classes also handle FHIR slicing, automatically applying discriminator values:
+
+```typescript
+import { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
+import { USCoreBloodPressureProfileProfile } from "./fhir-types/hl7-fhir-us-core/profiles/UscoreBloodPressureProfile";
+
+const obs: Observation = { resourceType: "Observation", status: "final", code: {} };
+const bp = new USCoreBloodPressureProfileProfile(obs);
+
+// Set slices - discriminator is applied automatically
+// No input needed when all fields are part of the discriminator
+bp.setSystolic({ valueQuantity: { value: 120, unit: "mmHg" } });
+bp.setDiastolic({ valueQuantity: { value: 80, unit: "mmHg" } });
+
+// Get simplified slice (without discriminator fields)
+const systolic = bp.getSystolic();
+console.log(systolic?.valueQuantity?.value); // 120
+
+// Get raw slice (includes discriminator)
+const systolicRaw = bp.getSystolicRaw();
+console.log(systolicRaw?.code?.coding?.[0]?.code); // "8480-6" (LOINC code for systolic BP)
+```
+
+See [examples/typescript-us-core/](examples/typescript-us-core/) for complete profile usage examples.
+
 ## Roadmap
 
 - [x] TypeScript generation
@@ -273,7 +334,7 @@ Templates enable flexible code generation for any language or format (Go, Rust, 
 - [x] Configuration file support
 - [x] Comprehensive test suite (72+ tests)
 - [x] **Value Set Generation** - Strongly-typed enums from FHIR bindings
-- [~] **Profile & Extension Support** - Basic parsing (US Core in development)
+- [x] **Profile & Extension Support** - Basic parsing (US Core in development)
 - [ ] **Complete Multi-Package Support** - Custom packages and dependencies
 - [ ] **Smart Chained Search** - Intelligent search builders
 
