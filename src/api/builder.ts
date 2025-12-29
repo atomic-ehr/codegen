@@ -224,7 +224,7 @@ const tryWriteTypeSchema = async (typeSchemas: TypeSchema[], opts: APIBuilderCon
 export class APIBuilder {
     private schemas: TypeSchema[] = [];
     private options: APIBuilderConfig;
-    private generators: Map<string, FileSystemWriter> = new Map();
+    private generators: { name: string; writer: FileSystemWriter }[] = [];
     private logger: CodegenLogger;
     private packages: string[] = [];
     private localStructurePackages: LocalStructureDefinitionConfig[] = [];
@@ -313,7 +313,7 @@ export class APIBuilder {
             ...Object.fromEntries(Object.entries(userOpts).filter(([_, v]) => v !== undefined)),
         };
         const generator = new TypeScript(opts);
-        this.generators.set("typescript", generator);
+        this.generators.push({ name: "typescript", writer: generator });
         this.logger.debug(`Configured TypeScript generator (${JSON.stringify(opts, undefined, 2)})`);
         return this;
     }
@@ -339,7 +339,7 @@ export class APIBuilder {
         };
 
         const generator = new Python(opts);
-        this.generators.set("python", generator);
+        this.generators.push({ name: "python", writer: generator });
         this.logger.debug(`Configured python generator`);
         return this;
     }
@@ -361,7 +361,7 @@ export class APIBuilder {
             ...userOpts,
         };
         const generator = Mustache.createGenerator(templatePath, opts);
-        this.generators.set(`mustache[${templatePath}]`, generator);
+        this.generators.push({ name: `mustache[${templatePath}]`, writer: generator });
         this.logger.debug(`Configured TypeScript generator (${JSON.stringify(opts, undefined, 2)})`);
         return this;
     }
@@ -386,7 +386,7 @@ export class APIBuilder {
         };
 
         const generator = new CSharp(opts);
-        this.generators.set("csharp", generator);
+        this.generators.push({ name: "csharp", writer: generator });
         this.logger.debug(`Configured C# generator`);
         return this;
     }
@@ -407,8 +407,8 @@ export class APIBuilder {
         this.options.outputDir = directory;
 
         // Update all configured generators
-        for (const generator of this.generators.values()) {
-            generator.setOutputDir(directory);
+        for (const gen of this.generators) {
+            gen.writer.setOutputDir(directory);
         }
 
         return this;
@@ -455,7 +455,7 @@ export class APIBuilder {
             duration: 0,
         };
 
-        this.logger.debug(`Starting generation with ${this.generators.size} generators`);
+        this.logger.debug(`Starting generation with ${this.generators.length} generators`);
         try {
             if (this.options.cleanOutput) cleanup(this.options, this.logger);
 
@@ -507,7 +507,7 @@ export class APIBuilder {
 
             if (this.options.exportTypeTree) await tsIndex.exportTree(this.options.exportTypeTree);
 
-            this.logger.debug(`Executing ${this.generators.size} generators`);
+            this.logger.debug(`Executing ${this.generators.length} generators`);
 
             await this.executeGenerators(result, tsIndex);
 
@@ -534,7 +534,7 @@ export class APIBuilder {
      */
     reset(): APIBuilder {
         this.schemas = [];
-        this.generators.clear();
+        this.generators = [];
         this.progressCallback = undefined;
         this.packages = [];
         this.localStructurePackages = [];
@@ -553,23 +553,23 @@ export class APIBuilder {
      * Get configured generators (for inspection)
      */
     getGenerators(): string[] {
-        return Array.from(this.generators.keys());
+        return this.generators.map((g) => g.name);
     }
 
     private async executeGenerators(result: GenerationReport, tsIndex: TypeSchemaIndex): Promise<void> {
-        for (const [type, generator] of this.generators.entries()) {
-            this.logger.info(`Generating ${type}...`);
+        for (const gen of this.generators) {
+            this.logger.info(`Generating ${gen.name}...`);
 
             try {
-                await generator.generate(tsIndex);
-                const fileBuffer: FileBuffer[] = generator.writtenFiles();
+                await gen.writer.generate(tsIndex);
+                const fileBuffer: FileBuffer[] = gen.writer.writtenFiles();
                 fileBuffer.forEach((buf) => {
                     result.filesGenerated[buf.relPath] = buf.content;
                 });
-                this.logger.info(`Generating ${type} finished successfully`);
+                this.logger.info(`Generating ${gen.name} finished successfully`);
             } catch (error) {
                 result.errors.push(
-                    `${type} generator failed: ${error instanceof Error ? error.message : String(error)}`,
+                    `${gen.name} generator failed: ${error instanceof Error ? error.message : String(error)}`,
                 );
                 if (this.options.throwException) throw error;
             }
