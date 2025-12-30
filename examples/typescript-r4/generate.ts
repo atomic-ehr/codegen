@@ -14,11 +14,9 @@ if (require.main === module) {
             generateProfile: true,
             openResourceTypeSet: false,
         })
-        // .typescript({ withDebugComment: false, generateProfile: false })
-        // .fromPackageRef("https://build.fhir.org/ig/FHIR/sql-on-fhir-v2//package.tgz")
         .introspection({
-            typeSchemas: "examples/typescript-r4/type-schemas",
-            typeTree: "./examples/typescript-r4/type-tree.yaml",
+            typeSchemas: "type-schemas",
+            typeTree: "type-tree.yaml",
         })
         .outputTo("./examples/typescript-r4/fhir-types")
         .treeShake({

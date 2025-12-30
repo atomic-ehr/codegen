@@ -12,8 +12,8 @@ if (require.main === module) {
         .typescript({ withDebugComment: false })
         .outputTo("./examples/typescript-ccda/fhir-types")
         .introspection({
-            typeSchemas: "./examples/typescript-ccda/type-schemas",
-            typeTree: "./examples/typescript-ccda/tree.yaml",
+            typeSchemas: "type-schemas",
+            typeTree: "type-tree.yaml",
         })
         .cleanOutput(true);
 
