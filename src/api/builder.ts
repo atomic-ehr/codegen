@@ -22,7 +22,6 @@ import {
     type LogLevelString,
     parseLogLevel,
 } from "@root/utils/codegen-logger";
-import type { PartialBy } from "@root/utils/types";
 import { IntrospectionWriter, type IntrospectionWriterOptions } from "./writer-generator/introspection";
 import type { FileBasedMustacheGeneratorOptions } from "./writer-generator/mustache";
 import * as Mustache from "./writer-generator/mustache";
@@ -33,16 +32,14 @@ import type { FileBuffer, FileSystemWriter, FileSystemWriterOptions, WriterOptio
  * Configuration options for the API builder
  */
 export interface APIBuilderOptions {
-    outputDir?: string;
-    cleanOutput?: boolean;
-    logger?: CodegenLogger;
-    manager?: ReturnType<typeof CanonicalManager> | null;
-    throwException?: boolean;
-    treeShake?: TreeShake;
+    outputDir: string;
+    cleanOutput: boolean;
+    throwException: boolean;
+    treeShake: TreeShake | undefined;
     /** Log level for the logger. Default: INFO */
-    logLevel?: LogLevel;
+    logLevel: LogLevel;
     /** Custom FHIR package registry URL (default: https://fs.get-ig.org/pkgs/) */
-    registry?: string;
+    registry: string | undefined;
 }
 
 /**
@@ -101,11 +98,7 @@ const _normalizeFileName = (str: string): string => {
     return res;
 };
 
-type APIBuilderConfig = PartialBy<Required<APIBuilderOptions>, "logger" | "treeShake" | "logLevel" | "registry"> & {
-    cleanOutput: boolean;
-};
-
-const cleanup = async (opts: APIBuilderConfig, logger: CodegenLogger): Promise<void> => {
+const cleanup = async (opts: APIBuilderOptions, logger: CodegenLogger): Promise<void> => {
     logger.info(`Cleaning outputs...`);
     try {
         logger.info(`Clean ${opts.outputDir}`);
@@ -123,40 +116,56 @@ const cleanup = async (opts: APIBuilderConfig, logger: CodegenLogger): Promise<v
  */
 export class APIBuilder {
     private schemas: TypeSchema[] = [];
-    private options: APIBuilderConfig;
+    private options: APIBuilderOptions;
     private generators: { name: string; writer: FileSystemWriter }[] = [];
     private logger: CodegenLogger;
+    private manager: ReturnType<typeof CanonicalManager>;
     private packages: string[] = [];
     private localStructurePackages: LocalStructureDefinitionConfig[] = [];
     private localTgzArchives: string[] = [];
     progressCallback: any;
 
-    constructor(options: APIBuilderOptions = {}) {
-        this.options = {
-            outputDir: options.outputDir || "./generated",
-            cleanOutput: options.cleanOutput ?? true,
-            manager: options.manager || null,
-            throwException: options.throwException || false,
-            treeShake: options.treeShake,
-            registry: options.registry,
+    constructor(
+        userOpts: Partial<APIBuilderOptions> & {
+            manager?: ReturnType<typeof CanonicalManager>;
+            logger?: CodegenLogger;
+        } = {},
+    ) {
+        const defaultOpts: APIBuilderOptions = {
+            outputDir: "./generated",
+            cleanOutput: true,
+            throwException: false,
+            treeShake: undefined,
+            registry: undefined,
+            logLevel: parseLogLevel("INFO"),
+        };
+        const opts: APIBuilderOptions = {
+            ...defaultOpts,
+            ...Object.fromEntries(
+                Object.entries(userOpts).filter(([k, v]) => v !== undefined && k !== "manager" && k !== "logger"),
+            ),
         };
 
-        // Use provided logger or create a default one
-        this.logger =
-            options.logger ||
-            createLogger({
-                prefix: "API",
-                level: options.logLevel,
+        this.manager =
+            userOpts.manager ??
+            CanonicalManager({
+                packages: this.packages,
+                workingDir: ".codegen-cache/canonical-manager-cache",
+                registry: userOpts.registry,
             });
+        this.logger = userOpts.logger ?? createLogger({ prefix: "API", level: opts.logLevel });
+        this.options = opts;
     }
 
     fromPackage(packageName: string, version?: string): APIBuilder {
         const pkg = packageMetaToNpm({ name: packageName, version: version || "latest" });
+        this.manager.addPackages(pkg);
         this.packages.push(pkg);
         return this;
     }
 
     fromPackageRef(packageRef: string): APIBuilder {
+        this.manager.addPackages(packageRef);
         this.packages.push(packageRef);
         return this;
     }
@@ -374,20 +383,13 @@ export class APIBuilder {
             if (this.options.cleanOutput) cleanup(this.options, this.logger);
 
             this.logger.info("Initialize Canonical Manager");
-            const manager =
-                this.options.manager ||
-                CanonicalManager({
-                    packages: this.packages,
-                    workingDir: ".codegen-cache/canonical-manager-cache",
-                    registry: this.options.registry || undefined,
-                });
 
             if (this.localStructurePackages.length > 0) {
                 for (const config of this.localStructurePackages) {
                     this.logger.info(
                         `Registering local StructureDefinitions for ${config.package.name}@${config.package.version}`,
                     );
-                    await manager.addLocalPackage({
+                    await this.manager.addLocalPackage({
                         name: config.package.name,
                         version: config.package.version,
                         path: config.path,
@@ -398,13 +400,13 @@ export class APIBuilder {
 
             for (const archivePath of this.localTgzArchives) {
                 this.logger.info(`Registering local tgz package: ${archivePath}`);
-                await manager.addTgzPackage({ archivePath });
+                await this.manager.addTgzPackage({ archivePath });
             }
 
-            const ref2meta = await manager.init();
+            const ref2meta = await this.manager.init();
 
             const packageMetas = Object.values(ref2meta);
-            const register = await registerFromManager(manager, {
+            const register = await registerFromManager(this.manager, {
                 logger: this.logger,
                 focusedPackages: packageMetas,
             });
