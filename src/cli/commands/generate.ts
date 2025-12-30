@@ -120,14 +120,6 @@ export const generateCommand: CommandModule<Record<string, unknown>, GenerateArg
                 throw new Error("No generators configured. Please enable 'typescript' in your config file.");
             }
 
-            // Add progress callback if verbose
-            if (verbose) {
-                builder.onProgress((phase, current, total, message) => {
-                    const progress = Math.round((current / total) * 100);
-                    logger.progress(`[${phase}] ${progress}% - ${message || "Processing..."}`);
-                });
-            }
-
             // Execute generation
             logger.step("Executing generation...");
             const result = await builder.generate();

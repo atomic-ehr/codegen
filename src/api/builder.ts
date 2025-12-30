@@ -92,11 +92,6 @@ export interface LocalStructureDefinitionConfig {
     dependencies?: PackageMeta[];
 }
 
-const _normalizeFileName = (str: string): string => {
-    const res = str.replace(/[^a-zA-Z0-9\-_.@#()]/g, "");
-    if (res.length === 0) return "unknown";
-    return res;
-};
 
 const cleanup = async (opts: APIBuilderOptions, logger: CodegenLogger): Promise<void> => {
     logger.info(`Cleaning outputs...`);
@@ -123,7 +118,6 @@ export class APIBuilder {
     private packages: string[] = [];
     private localStructurePackages: LocalStructureDefinitionConfig[] = [];
     private localTgzArchives: string[] = [];
-    progressCallback: any;
 
     constructor(
         userOpts: Partial<APIBuilderOptions> & {
@@ -310,14 +304,6 @@ export class APIBuilder {
     }
 
     /**
-     * Set a progress callback for monitoring generation
-     */
-    onProgress(callback: ProgressCallback): APIBuilder {
-        this.progressCallback = callback;
-        return this;
-    }
-
-    /**
      * Set the output directory for all generators
      */
     outputTo(directory: string): APIBuilder {
@@ -448,7 +434,6 @@ export class APIBuilder {
     reset(): APIBuilder {
         this.schemas = [];
         this.generators = [];
-        this.progressCallback = undefined;
         this.packages = [];
         this.localStructurePackages = [];
         this.localTgzArchives = [];
