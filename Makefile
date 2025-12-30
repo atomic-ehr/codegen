@@ -8,7 +8,7 @@ VERSION = $(shell cat package.json | grep version | sed -E 's/ *"version": "//' 
 
 .PHONY: all typecheck test-typeschema test-register test-codegen test-typescript-r4-example
 
-all: test-codegen test-typescript-r4-example test-typescript-ccda-example test-typescript-sql-on-fhir-example lint-unsafe
+all: test-codegen test-typescript-r4-example test-typescript-ccda-example test-typescript-sql-on-fhir-example lint-unsafe test-all-example-generation
 
 generate-types:
 	bun run scripts/generate-types.ts

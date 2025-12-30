@@ -7,7 +7,7 @@
 
 import * as fs from "node:fs";
 import * as Path from "node:path";
-import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
+import { CanonicalManager, type LocalPackageConfig, type TgzPackageConfig } from "@atomic-ehr/fhir-canonical-manager";
 import { CSharp, type CSharpGeneratorOptions } from "@root/api/writer-generator/csharp/csharp";
 import { Python, type PythonGeneratorOptions } from "@root/api/writer-generator/python";
 import { generateTypeSchemas } from "@root/typeschema";
@@ -109,14 +109,15 @@ const cleanup = async (opts: APIBuilderOptions, logger: CodegenLogger): Promise<
  * from FHIR packages or TypeSchema documents.
  */
 export class APIBuilder {
-    private schemas: TypeSchema[] = [];
     private options: APIBuilderOptions;
-    private generators: { name: string; writer: FileSystemWriter }[] = [];
-    private logger: CodegenLogger;
     private manager: ReturnType<typeof CanonicalManager>;
-    private packages: string[] = [];
-    private localStructurePackages: LocalStructureDefinitionConfig[] = [];
-    private localTgzArchives: string[] = [];
+    private managerInput: {
+        npmPackages: string[];
+        localSDs: LocalPackageConfig[];
+        localTgzPackages: TgzPackageConfig[];
+    };
+    private logger: CodegenLogger;
+    private generators: { name: string; writer: FileSystemWriter }[] = [];
 
     constructor(
         userOpts: Partial<APIBuilderOptions> & {
@@ -139,10 +140,15 @@ export class APIBuilder {
             ),
         };
 
+        this.managerInput = {
+            npmPackages: [],
+            localSDs: [],
+            localTgzPackages: [],
+        };
         this.manager =
             userOpts.manager ??
             CanonicalManager({
-                packages: this.packages,
+                packages: [],
                 workingDir: ".codegen-cache/canonical-manager-cache",
                 registry: userOpts.registry,
             });
@@ -152,14 +158,12 @@ export class APIBuilder {
 
     fromPackage(packageName: string, version?: string): APIBuilder {
         const pkg = packageMetaToNpm({ name: packageName, version: version || "latest" });
-        this.manager.addPackages(pkg);
-        this.packages.push(pkg);
+        this.managerInput.npmPackages.push(pkg);
         return this;
     }
 
     fromPackageRef(packageRef: string): APIBuilder {
-        this.manager.addPackages(packageRef);
-        this.packages.push(packageRef);
+        this.managerInput.npmPackages.push(packageRef);
         return this;
     }
 
@@ -173,18 +177,19 @@ export class APIBuilder {
     }
 
     localStructureDefinitions(config: LocalStructureDefinitionConfig): APIBuilder {
-        this.localStructurePackages.push(config);
+        this.logger.info(`Registering local StructureDefinitions for ${config.package.name}@${config.package.version}`);
+        this.managerInput.localSDs.push({
+            name: config.package.name,
+            version: config.package.version,
+            path: config.path,
+            dependencies: config.dependencies?.map((dep) => packageMetaToNpm(dep)),
+        });
         return this;
     }
 
     localTgzPackage(archivePath: string): APIBuilder {
-        this.localTgzArchives.push(Path.resolve(archivePath));
-        return this;
-    }
-
-    fromSchemas(schemas: TypeSchema[]): APIBuilder {
-        this.logger.debug(`Adding ${schemas.length} TypeSchemas to generation`);
-        this.schemas = [...this.schemas, ...schemas];
+        this.logger.info(`Registering local tgz package: ${archivePath}`);
+        this.managerInput.localTgzPackages.push({ archivePath: Path.resolve(archivePath) });
         return this;
     }
 
@@ -368,26 +373,18 @@ export class APIBuilder {
             if (this.options.cleanOutput) cleanup(this.options, this.logger);
 
             this.logger.info("Initialize Canonical Manager");
-
-            if (this.localStructurePackages.length > 0) {
-                for (const config of this.localStructurePackages) {
-                    this.logger.info(
-                        `Registering local StructureDefinitions for ${config.package.name}@${config.package.version}`,
-                    );
-                    await this.manager.addLocalPackage({
-                        name: config.package.name,
-                        version: config.package.version,
-                        path: config.path,
-                        dependencies: config.dependencies?.map((dep) => packageMetaToNpm(dep)),
-                    });
-                }
+            // Add all packages before initialization
+            if (this.managerInput.npmPackages.length > 0) {
+                await this.manager.addPackages(...this.managerInput.npmPackages.sort());
             }
-
-            for (const archivePath of this.localTgzArchives) {
-                this.logger.info(`Registering local tgz package: ${archivePath}`);
-                await this.manager.addTgzPackage({ archivePath });
+            // Add local packages and archives
+            for (const config of this.managerInput.localSDs) {
+                await this.manager.addLocalPackage(config);
             }
-
+            for (const tgzArchive of this.managerInput.localTgzPackages) {
+                await this.manager.addTgzPackage(tgzArchive);
+            }
+            // Initialize after all packages are registered
             const ref2meta = await this.manager.init();
 
             const packageMetas = Object.values(ref2meta);
@@ -431,19 +428,8 @@ export class APIBuilder {
      * Clear all configuration and start fresh
      */
     reset(): APIBuilder {
-        this.schemas = [];
         this.generators = [];
-        this.packages = [];
-        this.localStructurePackages = [];
-        this.localTgzArchives = [];
         return this;
-    }
-
-    /**
-     * Get loaded schemas (for inspection)
-     */
-    getSchemas(): TypeSchema[] {
-        return [...this.schemas];
     }
 
     /**

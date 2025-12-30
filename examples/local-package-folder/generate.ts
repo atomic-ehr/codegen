@@ -16,6 +16,7 @@ async function generateFromLocalPackageFolder() {
             dependencies: [{ name: "hl7.fhir.r4.core", version: "4.0.1" }],
         })
         .typescript({})
+        .throwException(true)
         .treeShake({
             "example.folder.structures": {
                 "http://example.org/fhir/StructureDefinition/ExampleNotebook": {},
