@@ -16,12 +16,13 @@ async function generateFromLocalPackageFolder() {
             dependencies: [{ name: "hl7.fhir.r4.core", version: "4.0.1" }],
         })
         .typescript({})
+        .throwException(true)
         .treeShake({
             "example.folder.structures": {
                 "http://example.org/fhir/StructureDefinition/ExampleNotebook": {},
             },
         })
-        .outputTo("./examples/local-package-folder")
+        .outputTo("./examples/local-package-folder/fhir-types")
         .generate();
 
     console.log(prettyReport(report));

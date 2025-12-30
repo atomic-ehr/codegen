@@ -89,9 +89,6 @@ export const generateCommand: CommandModule<Record<string, unknown>, GenerateArg
             // Create API builder with config options
             const builder = new APIBuilder({
                 outputDir: config.outputDir || "./generated",
-                overwrite: config.overwrite ?? true,
-                cache: config.cache ?? true,
-                typeSchemaConfig: config.typeSchema,
                 logger,
             });
 
@@ -121,14 +118,6 @@ export const generateCommand: CommandModule<Record<string, unknown>, GenerateArg
             // Check that at least one generator is configured
             if (!config.typescript) {
                 throw new Error("No generators configured. Please enable 'typescript' in your config file.");
-            }
-
-            // Add progress callback if verbose
-            if (verbose) {
-                builder.onProgress((phase, current, total, message) => {
-                    const progress = Math.round((current / total) * 100);
-                    logger.progress(`[${phase}] ${progress}% - ${message || "Processing..."}`);
-                });
             }
 
             // Execute generation

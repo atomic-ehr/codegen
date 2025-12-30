@@ -7,7 +7,7 @@
 
 import * as fs from "node:fs";
 import * as Path from "node:path";
-import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
+import { CanonicalManager, type LocalPackageConfig, type TgzPackageConfig } from "@atomic-ehr/fhir-canonical-manager";
 import { CSharp, type CSharpGeneratorOptions } from "@root/api/writer-generator/csharp/csharp";
 import { Python, type PythonGeneratorOptions } from "@root/api/writer-generator/python";
 import { generateTypeSchemas } from "@root/typeschema";
@@ -22,8 +22,6 @@ import {
     type LogLevelString,
     parseLogLevel,
 } from "@root/utils/codegen-logger";
-import type { PartialBy } from "@root/utils/types";
-import type { TypeSchemaConfig } from "../config";
 import { IntrospectionWriter, type IntrospectionWriterOptions } from "./writer-generator/introspection";
 import type { FileBasedMustacheGeneratorOptions } from "./writer-generator/mustache";
 import * as Mustache from "./writer-generator/mustache";
@@ -34,19 +32,14 @@ import type { FileBuffer, FileSystemWriter, FileSystemWriterOptions, WriterOptio
  * Configuration options for the API builder
  */
 export interface APIBuilderOptions {
-    outputDir?: string;
-    overwrite?: boolean; // FIXME: remove
-    cache?: boolean; // FIXME: remove
-    cleanOutput?: boolean;
-    typeSchemaConfig?: TypeSchemaConfig; // FIXME: remove
-    logger?: CodegenLogger;
-    manager?: ReturnType<typeof CanonicalManager> | null;
-    throwException?: boolean;
-    treeShake?: TreeShake;
+    outputDir: string;
+    cleanOutput: boolean;
+    throwException: boolean;
+    treeShake: TreeShake | undefined;
     /** Log level for the logger. Default: INFO */
-    logLevel?: LogLevel;
+    logLevel: LogLevel;
     /** Custom FHIR package registry URL (default: https://fs.get-ig.org/pkgs/) */
-    registry?: string;
+    registry: string | undefined;
 }
 
 /**
@@ -99,20 +92,7 @@ export interface LocalStructureDefinitionConfig {
     dependencies?: PackageMeta[];
 }
 
-const _normalizeFileName = (str: string): string => {
-    const res = str.replace(/[^a-zA-Z0-9\-_.@#()]/g, "");
-    if (res.length === 0) return "unknown";
-    return res;
-};
-
-type APIBuilderConfig = PartialBy<
-    Required<APIBuilderOptions>,
-    "logger" | "typeSchemaConfig" | "treeShake" | "logLevel" | "registry"
-> & {
-    cleanOutput: boolean;
-};
-
-const cleanup = async (opts: APIBuilderConfig, logger: CodegenLogger): Promise<void> => {
+const cleanup = async (opts: APIBuilderOptions, logger: CodegenLogger): Promise<void> => {
     logger.info(`Cleaning outputs...`);
     try {
         logger.info(`Clean ${opts.outputDir}`);
@@ -129,48 +109,61 @@ const cleanup = async (opts: APIBuilderConfig, logger: CodegenLogger): Promise<v
  * from FHIR packages or TypeSchema documents.
  */
 export class APIBuilder {
-    private schemas: TypeSchema[] = [];
-    private options: APIBuilderConfig;
-    private generators: { name: string; writer: FileSystemWriter }[] = [];
+    private options: APIBuilderOptions;
+    private manager: ReturnType<typeof CanonicalManager>;
+    private managerInput: {
+        npmPackages: string[];
+        localSDs: LocalPackageConfig[];
+        localTgzPackages: TgzPackageConfig[];
+    };
     private logger: CodegenLogger;
-    private packages: string[] = [];
-    private localStructurePackages: LocalStructureDefinitionConfig[] = [];
-    private localTgzArchives: string[] = [];
-    progressCallback: any;
-    private typeSchemaConfig?: TypeSchemaConfig;
+    private generators: { name: string; writer: FileSystemWriter }[] = [];
 
-    constructor(options: APIBuilderOptions = {}) {
-        this.options = {
-            outputDir: options.outputDir || "./generated",
-            overwrite: options.overwrite ?? true,
-            cache: options.cache ?? true,
-            cleanOutput: options.cleanOutput ?? true,
-            typeSchemaConfig: options.typeSchemaConfig,
-            manager: options.manager || null,
-            throwException: options.throwException || false,
-            treeShake: options.treeShake,
-            registry: options.registry,
+    constructor(
+        userOpts: Partial<APIBuilderOptions> & {
+            manager?: ReturnType<typeof CanonicalManager>;
+            logger?: CodegenLogger;
+        } = {},
+    ) {
+        const defaultOpts: APIBuilderOptions = {
+            outputDir: "./generated",
+            cleanOutput: true,
+            throwException: false,
+            treeShake: undefined,
+            registry: undefined,
+            logLevel: parseLogLevel("INFO"),
+        };
+        const opts: APIBuilderOptions = {
+            ...defaultOpts,
+            ...Object.fromEntries(
+                Object.entries(userOpts).filter(([k, v]) => v !== undefined && k !== "manager" && k !== "logger"),
+            ),
         };
 
-        this.typeSchemaConfig = options.typeSchemaConfig;
-
-        // Use provided logger or create a default one
-        this.logger =
-            options.logger ||
-            createLogger({
-                prefix: "API",
-                level: options.logLevel,
+        this.managerInput = {
+            npmPackages: [],
+            localSDs: [],
+            localTgzPackages: [],
+        };
+        this.manager =
+            userOpts.manager ??
+            CanonicalManager({
+                packages: [],
+                workingDir: ".codegen-cache/canonical-manager-cache",
+                registry: userOpts.registry,
             });
+        this.logger = userOpts.logger ?? createLogger({ prefix: "API", level: opts.logLevel });
+        this.options = opts;
     }
 
     fromPackage(packageName: string, version?: string): APIBuilder {
         const pkg = packageMetaToNpm({ name: packageName, version: version || "latest" });
-        this.packages.push(pkg);
+        this.managerInput.npmPackages.push(pkg);
         return this;
     }
 
     fromPackageRef(packageRef: string): APIBuilder {
-        this.packages.push(packageRef);
+        this.managerInput.npmPackages.push(packageRef);
         return this;
     }
 
@@ -184,18 +177,19 @@ export class APIBuilder {
     }
 
     localStructureDefinitions(config: LocalStructureDefinitionConfig): APIBuilder {
-        this.localStructurePackages.push(config);
+        this.logger.info(`Registering local StructureDefinitions for ${config.package.name}@${config.package.version}`);
+        this.managerInput.localSDs.push({
+            name: config.package.name,
+            version: config.package.version,
+            path: config.path,
+            dependencies: config.dependencies?.map((dep) => packageMetaToNpm(dep)),
+        });
         return this;
     }
 
     localTgzPackage(archivePath: string): APIBuilder {
-        this.localTgzArchives.push(Path.resolve(archivePath));
-        return this;
-    }
-
-    fromSchemas(schemas: TypeSchema[]): APIBuilder {
-        this.logger.debug(`Adding ${schemas.length} TypeSchemas to generation`);
-        this.schemas = [...this.schemas, ...schemas];
+        this.logger.info(`Registering local tgz package: ${archivePath}`);
+        this.managerInput.localTgzPackages.push({ archivePath: Path.resolve(archivePath) });
         return this;
     }
 
@@ -314,14 +308,6 @@ export class APIBuilder {
     }
 
     /**
-     * Set a progress callback for monitoring generation
-     */
-    onProgress(callback: ProgressCallback): APIBuilder {
-        this.progressCallback = callback;
-        return this;
-    }
-
-    /**
      * Set the output directory for all generators
      */
     outputTo(directory: string): APIBuilder {
@@ -387,37 +373,22 @@ export class APIBuilder {
             if (this.options.cleanOutput) cleanup(this.options, this.logger);
 
             this.logger.info("Initialize Canonical Manager");
-            const manager =
-                this.options.manager ||
-                CanonicalManager({
-                    packages: this.packages,
-                    workingDir: ".codegen-cache/canonical-manager-cache",
-                    registry: this.options.registry || undefined,
-                });
-
-            if (this.localStructurePackages.length > 0) {
-                for (const config of this.localStructurePackages) {
-                    this.logger.info(
-                        `Registering local StructureDefinitions for ${config.package.name}@${config.package.version}`,
-                    );
-                    await manager.addLocalPackage({
-                        name: config.package.name,
-                        version: config.package.version,
-                        path: config.path,
-                        dependencies: config.dependencies?.map((dep) => packageMetaToNpm(dep)),
-                    });
-                }
+            // Add all packages before initialization
+            if (this.managerInput.npmPackages.length > 0) {
+                await this.manager.addPackages(...this.managerInput.npmPackages.sort());
             }
-
-            for (const archivePath of this.localTgzArchives) {
-                this.logger.info(`Registering local tgz package: ${archivePath}`);
-                await manager.addTgzPackage({ archivePath });
+            // Add local packages and archives
+            for (const config of this.managerInput.localSDs) {
+                await this.manager.addLocalPackage(config);
             }
-
-            const ref2meta = await manager.init();
+            for (const tgzArchive of this.managerInput.localTgzPackages) {
+                await this.manager.addTgzPackage(tgzArchive);
+            }
+            // Initialize after all packages are registered
+            const ref2meta = await this.manager.init();
 
             const packageMetas = Object.values(ref2meta);
-            const register = await registerFromManager(manager, {
+            const register = await registerFromManager(this.manager, {
                 logger: this.logger,
                 focusedPackages: packageMetas,
             });
@@ -457,20 +428,8 @@ export class APIBuilder {
      * Clear all configuration and start fresh
      */
     reset(): APIBuilder {
-        this.schemas = [];
         this.generators = [];
-        this.progressCallback = undefined;
-        this.packages = [];
-        this.localStructurePackages = [];
-        this.localTgzArchives = [];
         return this;
-    }
-
-    /**
-     * Get loaded schemas (for inspection)
-     */
-    getSchemas(): TypeSchema[] {
-        return [...this.schemas];
     }
 
     /**
