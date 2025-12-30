@@ -92,7 +92,6 @@ export interface LocalStructureDefinitionConfig {
     dependencies?: PackageMeta[];
 }
 
-
 const cleanup = async (opts: APIBuilderOptions, logger: CodegenLogger): Promise<void> => {
     logger.info(`Cleaning outputs...`);
     try {

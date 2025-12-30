@@ -21,7 +21,7 @@ async function generateFromLocalPackageFolder() {
                 "http://example.org/fhir/StructureDefinition/ExampleNotebook": {},
             },
         })
-        .outputTo("./examples/local-package-folder")
+        .outputTo("./examples/local-package-folder/fhir-types")
         .generate();
 
     console.log(prettyReport(report));
