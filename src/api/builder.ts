@@ -23,7 +23,6 @@ import {
     parseLogLevel,
 } from "@root/utils/codegen-logger";
 import type { PartialBy } from "@root/utils/types";
-import type { TypeSchemaConfig } from "../config";
 import { IntrospectionWriter, type IntrospectionWriterOptions } from "./writer-generator/introspection";
 import type { FileBasedMustacheGeneratorOptions } from "./writer-generator/mustache";
 import * as Mustache from "./writer-generator/mustache";
@@ -35,10 +34,7 @@ import type { FileBuffer, FileSystemWriter, FileSystemWriterOptions, WriterOptio
  */
 export interface APIBuilderOptions {
     outputDir?: string;
-    overwrite?: boolean; // FIXME: remove
-    cache?: boolean; // FIXME: remove
     cleanOutput?: boolean;
-    typeSchemaConfig?: TypeSchemaConfig; // FIXME: remove
     logger?: CodegenLogger;
     manager?: ReturnType<typeof CanonicalManager> | null;
     throwException?: boolean;
@@ -105,10 +101,7 @@ const _normalizeFileName = (str: string): string => {
     return res;
 };
 
-type APIBuilderConfig = PartialBy<
-    Required<APIBuilderOptions>,
-    "logger" | "typeSchemaConfig" | "treeShake" | "logLevel" | "registry"
-> & {
+type APIBuilderConfig = PartialBy<Required<APIBuilderOptions>, "logger" | "treeShake" | "logLevel" | "registry"> & {
     cleanOutput: boolean;
 };
 
@@ -137,22 +130,16 @@ export class APIBuilder {
     private localStructurePackages: LocalStructureDefinitionConfig[] = [];
     private localTgzArchives: string[] = [];
     progressCallback: any;
-    private typeSchemaConfig?: TypeSchemaConfig;
 
     constructor(options: APIBuilderOptions = {}) {
         this.options = {
             outputDir: options.outputDir || "./generated",
-            overwrite: options.overwrite ?? true,
-            cache: options.cache ?? true,
             cleanOutput: options.cleanOutput ?? true,
-            typeSchemaConfig: options.typeSchemaConfig,
             manager: options.manager || null,
             throwException: options.throwException || false,
             treeShake: options.treeShake,
             registry: options.registry,
         };
-
-        this.typeSchemaConfig = options.typeSchemaConfig;
 
         // Use provided logger or create a default one
         this.logger =

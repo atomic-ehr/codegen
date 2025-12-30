@@ -89,9 +89,6 @@ export const generateCommand: CommandModule<Record<string, unknown>, GenerateArg
             // Create API builder with config options
             const builder = new APIBuilder({
                 outputDir: config.outputDir || "./generated",
-                overwrite: config.overwrite ?? true,
-                cache: config.cache ?? true,
-                typeSchemaConfig: config.typeSchema,
                 logger,
             });
 
