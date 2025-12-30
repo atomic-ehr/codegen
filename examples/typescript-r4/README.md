@@ -159,4 +159,4 @@ Set `withDebugComment: true` to include generation metadata useful for understan
 
 ### Export TypeSchema for Inspection
 
-Add `.writeTypeSchemas("./debug")` to review NDJSON files and understand transformation.
+Add `.introspection({ typeSchemas: "./debug" })` to review NDJSON files and understand transformation.

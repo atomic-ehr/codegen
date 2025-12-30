@@ -6,21 +6,14 @@
  */
 
 import * as fs from "node:fs";
-import * as afs from "node:fs/promises";
 import * as Path from "node:path";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
-import { CSharp, type CSharpGeneratorOptions } from "@root/api/writer-generator/csharp/csharp.ts";
+import { CSharp, type CSharpGeneratorOptions } from "@root/api/writer-generator/csharp/csharp";
 import { Python, type PythonGeneratorOptions } from "@root/api/writer-generator/python";
 import { generateTypeSchemas } from "@root/typeschema";
 import { registerFromManager } from "@root/typeschema/register";
 import { type TreeShake, treeShake } from "@root/typeschema/tree-shake";
-import {
-    extractNameFromCanonical,
-    type PackageMeta,
-    packageMetaToFhir,
-    packageMetaToNpm,
-    type TypeSchema,
-} from "@root/typeschema/types";
+import { type PackageMeta, packageMetaToNpm, type TypeSchema } from "@root/typeschema/types";
 import { mkTypeSchemaIndex, type TypeSchemaIndex } from "@root/typeschema/utils";
 import {
     type CodegenLogger,
@@ -31,6 +24,7 @@ import {
 } from "@root/utils/codegen-logger";
 import type { PartialBy } from "@root/utils/types";
 import type { TypeSchemaConfig } from "../config";
+import { IntrospectionWriter, type IntrospectionWriterOptions } from "./writer-generator/introspection";
 import type { FileBasedMustacheGeneratorOptions } from "./writer-generator/mustache";
 import * as Mustache from "./writer-generator/mustache";
 import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript";
@@ -47,9 +41,7 @@ export interface APIBuilderOptions {
     typeSchemaConfig?: TypeSchemaConfig; // FIXME: remove
     logger?: CodegenLogger;
     manager?: ReturnType<typeof CanonicalManager> | null;
-    typeSchemaOutputDir?: string /** if .ndjson -- put in one file, else -- split into separated files*/;
     throwException?: boolean;
-    exportTypeTree?: string;
     treeShake?: TreeShake;
     /** Log level for the logger. Default: INFO */
     logLevel?: LogLevel;
@@ -107,7 +99,7 @@ export interface LocalStructureDefinitionConfig {
     dependencies?: PackageMeta[];
 }
 
-const normalizeFileName = (str: string): string => {
+const _normalizeFileName = (str: string): string => {
     const res = str.replace(/[^a-zA-Z0-9\-_.@#()]/g, "");
     if (res.length === 0) return "unknown";
     return res;
@@ -115,7 +107,7 @@ const normalizeFileName = (str: string): string => {
 
 type APIBuilderConfig = PartialBy<
     Required<APIBuilderOptions>,
-    "logger" | "typeSchemaConfig" | "typeSchemaOutputDir" | "exportTypeTree" | "treeShake" | "logLevel" | "registry"
+    "logger" | "typeSchemaConfig" | "treeShake" | "logLevel" | "registry"
 > & {
     cleanOutput: boolean;
 };
@@ -125,93 +117,8 @@ const cleanup = async (opts: APIBuilderConfig, logger: CodegenLogger): Promise<v
     try {
         logger.info(`Clean ${opts.outputDir}`);
         fs.rmSync(opts.outputDir, { recursive: true, force: true });
-        if (opts.typeSchemaOutputDir) {
-            logger.info(`Clean ${opts.typeSchemaOutputDir}`);
-            fs.rmSync(opts.typeSchemaOutputDir, {
-                recursive: true,
-                force: true,
-            });
-        }
-        if (opts.exportTypeTree) {
-            logger.info(`Clean ${opts.exportTypeTree}`);
-            fs.rmSync(opts.exportTypeTree, {
-                recursive: true,
-                force: true,
-            });
-        }
     } catch (error) {
         logger.warn(`Error cleaning output directory: ${error instanceof Error ? error.message : String(error)}`);
-    }
-};
-
-const writeTypeSchemasToSeparateFiles = async (
-    typeSchemas: TypeSchema[],
-    outputDir: string,
-    logger: CodegenLogger,
-): Promise<void> => {
-    await afs.mkdir(outputDir, { recursive: true });
-    logger.info(`Writing TypeSchema files to ${outputDir}/...`);
-
-    const files: Record<string, string[]> = {};
-    for (const ts of typeSchemas) {
-        const pkg = {
-            name: ts.identifier.package,
-            version: ts.identifier.version,
-        };
-        const pkgPath = normalizeFileName(packageMetaToFhir(pkg));
-        const name = normalizeFileName(`${ts.identifier.name}(${extractNameFromCanonical(ts.identifier.url)})`);
-        const json = JSON.stringify(ts, null, 2);
-        const baseName = Path.join(outputDir, pkgPath, name);
-        if (!files[baseName]) files[baseName] = [];
-        if (!files[baseName]?.some((e) => e === json)) {
-            files[baseName].push(json);
-        }
-    }
-
-    for (const [baseName, jsons] of Object.entries(files)) {
-        await Promise.all(
-            jsons.map(async (json, index) => {
-                let fullName: string;
-                if (index === 0) {
-                    fullName = `${baseName}.typeschema.json`;
-                } else {
-                    fullName = `${baseName}-${index}.typeschema.json`;
-                }
-                await afs.mkdir(Path.dirname(fullName), { recursive: true });
-                await afs.writeFile(fullName, json);
-            }),
-        );
-    }
-};
-
-const writeTypeSchemasToSingleFile = async (
-    typeSchemas: TypeSchema[],
-    outputFile: string,
-    logger: CodegenLogger,
-): Promise<void> => {
-    logger.info(`Writing TypeSchema files to: ${outputFile}`);
-    await afs.mkdir(Path.dirname(outputFile), { recursive: true });
-
-    logger.info(`Writing TypeSchemas to one file ${outputFile}...`);
-
-    for (const ts of typeSchemas) {
-        const json = JSON.stringify(ts, null, 2);
-        await afs.appendFile(outputFile, `${json}\n`);
-    }
-};
-
-const tryWriteTypeSchema = async (typeSchemas: TypeSchema[], opts: APIBuilderConfig, logger: CodegenLogger) => {
-    if (!opts.typeSchemaOutputDir) return;
-    try {
-        if (Path.extname(opts.typeSchemaOutputDir) === ".ndjson") {
-            await writeTypeSchemasToSingleFile(typeSchemas, opts.typeSchemaOutputDir, logger);
-        } else {
-            await writeTypeSchemasToSeparateFiles(typeSchemas, opts.typeSchemaOutputDir, logger);
-        }
-        logger.info(`Writing TypeSchema - DONE`);
-    } catch (error) {
-        logger.error("Failed to write TypeSchema output", error instanceof Error ? error : new Error(String(error)));
-        if (opts.throwException) throw error;
     }
 };
 
@@ -224,7 +131,7 @@ const tryWriteTypeSchema = async (typeSchemas: TypeSchema[], opts: APIBuilderCon
 export class APIBuilder {
     private schemas: TypeSchema[] = [];
     private options: APIBuilderConfig;
-    private generators: Map<string, FileSystemWriter> = new Map();
+    private generators: { name: string; writer: FileSystemWriter }[] = [];
     private logger: CodegenLogger;
     private packages: string[] = [];
     private localStructurePackages: LocalStructureDefinitionConfig[] = [];
@@ -241,8 +148,6 @@ export class APIBuilder {
             typeSchemaConfig: options.typeSchemaConfig,
             manager: options.manager || null,
             throwException: options.throwException || false,
-            typeSchemaOutputDir: options.typeSchemaOutputDir,
-            exportTypeTree: options.exportTypeTree,
             treeShake: options.treeShake,
             registry: options.registry,
         };
@@ -294,6 +199,23 @@ export class APIBuilder {
         return this;
     }
 
+    introspection(userOpts?: Partial<IntrospectionWriterOptions>): APIBuilder {
+        const defaultWriterOpts: FileSystemWriterOptions = {
+            logger: this.logger,
+            outputDir: this.options.outputDir,
+            inMemoryOnly: false,
+        };
+        const opts: IntrospectionWriterOptions = {
+            ...defaultWriterOpts,
+            ...Object.fromEntries(Object.entries(userOpts ?? {}).filter(([_, v]) => v !== undefined)),
+        };
+
+        const writer = new IntrospectionWriter(opts);
+        this.generators.push({ name: "introspection", writer });
+        this.logger.debug(`Configured introspection generator (${JSON.stringify(opts, undefined, 2)})`);
+        return this;
+    }
+
     typescript(userOpts: Partial<TypeScriptOptions>) {
         const defaultWriterOpts: WriterOptions = {
             logger: this.logger,
@@ -313,7 +235,7 @@ export class APIBuilder {
             ...Object.fromEntries(Object.entries(userOpts).filter(([_, v]) => v !== undefined)),
         };
         const generator = new TypeScript(opts);
-        this.generators.set("typescript", generator);
+        this.generators.push({ name: "typescript", writer: generator });
         this.logger.debug(`Configured TypeScript generator (${JSON.stringify(opts, undefined, 2)})`);
         return this;
     }
@@ -339,7 +261,7 @@ export class APIBuilder {
         };
 
         const generator = new Python(opts);
-        this.generators.set("python", generator);
+        this.generators.push({ name: "python", writer: generator });
         this.logger.debug(`Configured python generator`);
         return this;
     }
@@ -361,7 +283,7 @@ export class APIBuilder {
             ...userOpts,
         };
         const generator = Mustache.createGenerator(templatePath, opts);
-        this.generators.set(`mustache[${templatePath}]`, generator);
+        this.generators.push({ name: `mustache[${templatePath}]`, writer: generator });
         this.logger.debug(`Configured TypeScript generator (${JSON.stringify(opts, undefined, 2)})`);
         return this;
     }
@@ -386,7 +308,7 @@ export class APIBuilder {
         };
 
         const generator = new CSharp(opts);
-        this.generators.set("csharp", generator);
+        this.generators.push({ name: "csharp", writer: generator });
         this.logger.debug(`Configured C# generator`);
         return this;
     }
@@ -407,8 +329,8 @@ export class APIBuilder {
         this.options.outputDir = directory;
 
         // Update all configured generators
-        for (const generator of this.generators.values()) {
-            generator.setOutputDir(directory);
+        for (const gen of this.generators) {
+            gen.writer.setOutputDir(directory);
         }
 
         return this;
@@ -429,9 +351,11 @@ export class APIBuilder {
         return this;
     }
 
+    /**
+     * @deprecated Use `.introspection({ typeTree: "path/to/file" })` instead
+     */
     writeTypeTree(filename: string) {
-        this.options.exportTypeTree = filename;
-        return this;
+        return this.introspection({ typeTree: filename });
     }
 
     treeShake(tree: TreeShake) {
@@ -439,8 +363,11 @@ export class APIBuilder {
         return this;
     }
 
+    /**
+     * @deprecated Use introspection({ typeSchemas: "path/to/file" }) method directly instead
+     */
     writeTypeSchemas(target: string) {
-        this.options.typeSchemaOutputDir = target;
+        this.introspection({ typeSchemas: target });
         return this;
     }
 
@@ -455,7 +382,7 @@ export class APIBuilder {
             duration: 0,
         };
 
-        this.logger.debug(`Starting generation with ${this.generators.size} generators`);
+        this.logger.debug(`Starting generation with ${this.generators.length} generators`);
         try {
             if (this.options.cleanOutput) cleanup(this.options, this.logger);
 
@@ -503,11 +430,8 @@ export class APIBuilder {
             };
             let tsIndex = mkTypeSchemaIndex(typeSchemas, tsIndexOpts);
             if (this.options.treeShake) tsIndex = treeShake(tsIndex, this.options.treeShake, tsIndexOpts);
-            await tryWriteTypeSchema(tsIndex.schemas, this.options, this.logger);
 
-            if (this.options.exportTypeTree) await tsIndex.exportTree(this.options.exportTypeTree);
-
-            this.logger.debug(`Executing ${this.generators.size} generators`);
+            this.logger.debug(`Executing ${this.generators.length} generators`);
 
             await this.executeGenerators(result, tsIndex);
 
@@ -534,7 +458,7 @@ export class APIBuilder {
      */
     reset(): APIBuilder {
         this.schemas = [];
-        this.generators.clear();
+        this.generators = [];
         this.progressCallback = undefined;
         this.packages = [];
         this.localStructurePackages = [];
@@ -553,23 +477,23 @@ export class APIBuilder {
      * Get configured generators (for inspection)
      */
     getGenerators(): string[] {
-        return Array.from(this.generators.keys());
+        return this.generators.map((g) => g.name);
     }
 
     private async executeGenerators(result: GenerationReport, tsIndex: TypeSchemaIndex): Promise<void> {
-        for (const [type, generator] of this.generators.entries()) {
-            this.logger.info(`Generating ${type}...`);
+        for (const gen of this.generators) {
+            this.logger.info(`Generating ${gen.name}...`);
 
             try {
-                await generator.generate(tsIndex);
-                const fileBuffer: FileBuffer[] = generator.writtenFiles();
+                await gen.writer.generate(tsIndex);
+                const fileBuffer: FileBuffer[] = gen.writer.writtenFiles();
                 fileBuffer.forEach((buf) => {
                     result.filesGenerated[buf.relPath] = buf.content;
                 });
-                this.logger.info(`Generating ${type} finished successfully`);
+                this.logger.info(`Generating ${gen.name} finished successfully`);
             } catch (error) {
                 result.errors.push(
-                    `${type} generator failed: ${error instanceof Error ? error.message : String(error)}`,
+                    `${gen.name} generator failed: ${error instanceof Error ? error.message : String(error)}`,
                 );
                 if (this.options.throwException) throw error;
             }

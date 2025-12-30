@@ -38,6 +38,7 @@ This is a FHIR code generation toolkit with a **three-stage pipeline**:
 ### 2. High-Level API (`src/api/`)
 - **APIBuilder** (`builder.ts`): Fluent interface for chaining operations
 - **Generators** (`writer-generator/`): Language-specific code generators
+  - `introspection.ts`: Generates introspection data like TypeSchema
   - `typescript.ts`: Generates TypeScript interfaces and types
   - `python.ts`: Generates Python/Pydantic models
   - `csharp.ts`: Generates C# classes
@@ -118,17 +119,20 @@ The `APIBuilder` class (`src/api/builder.ts`) provides the fluent API for the th
 // Input stage - Choose one or combine:
 .fromPackage("hl7.fhir.r4.core", "4.0.1")           // NPM registry
 .fromPackageRef("https://example.com/package.tgz")  // Remote TGZ
-.localStructureDefinitions({...})                    // Local files
-.fromSchemas(array)                                   // TypeSchema objects
+.localStructureDefinitions({...})                   // Local files
+.fromSchemas(array)                                 // TypeSchema objects
 
-// Processing stage - Optional:
+// Processing & introspection stage - Optional:
 .treeShake({...})                                     // Filter types
-.writeTypeSchemas("./schemas")                        // Debug output
+.introspection({                                      // Debug output (optional)
+    typeSchemas: "./schemas",                         // Type Schemas path/.ndjson
+    typeTree: "./tree.json"                           // Type Tree
+})
 
 // Output stage - Choose one:
 .typescript({...})                                    // TypeScript
 .python({...})                                        // Python
-.csharp("Namespace", "./path")                       // C#
+.csharp("Namespace", "./path")                        // C#
 
 // Finalize:
 .outputTo("./output")                                 // Output directory
@@ -168,7 +172,7 @@ Located in `src/api/writer-generator/`:
 4. Document in design docs if it's a major feature
 
 ### Debugging TypeSchema Generation
-1. Use `builder.writeTypeSchemas("./debug-schemas")` to inspect intermediate output
+1. Use `builder.introspection({ typeSchemas: "./debug-schemas" })` to inspect intermediate output
 2. Check `src/typeschema/types.ts` for TypeSchema structure
 3. Review `src/typeschema/core/transformer.ts` for transformation logic
 4. Enable verbose logging with `builder.setLogLevel("DEBUG")`
@@ -195,6 +199,7 @@ Located in `src/api/writer-generator/`:
 - `src/typeschema/generator.ts` - TypeSchema generation orchestration
 
 ### Generators
+- `src/api/writer-generator/introspection.ts` - TypeSchema introspection generation
 - `src/api/writer-generator/typescript.ts` - TypeScript code generation
 - `src/api/writer-generator/python.ts` - Python/Pydantic generation
 - `src/api/writer-generator/csharp.ts` - C# generation
