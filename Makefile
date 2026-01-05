@@ -70,6 +70,8 @@ test-csharp-sdk: typecheck format prepare-aidbox-runme lint
 
 PYTHON=python3.13
 PYTHON_SDK_EXAMPLE=./examples/python
+PYTHON_GENERAL_EXAMPLE_DIR_NAME = fhir_types
+PYTHON_FHIRPY_EXAMPLE_DIR_NAME = fhir_types_with_FhirBaseModel
 
 generate-python-sdk:
 	$(TYPECHECK) --project examples/python/tsconfig.json
@@ -79,7 +81,7 @@ generate-python-sdk-fhirpy:
 	$(TYPECHECK) --project examples/python/tsconfig.json
 	bun run examples/python/fhirpy_generate.ts
 
-test-python-sdk: typecheck format prepare-aidbox-runme lint generate-python-sdk
+python-test-setup:
 	@if [ ! -d "$(PYTHON_SDK_EXAMPLE)/venv" ]; then \
 		cd $(PYTHON_SDK_EXAMPLE) && \
 		$(PYTHON) -m venv venv && \
@@ -87,14 +89,21 @@ test-python-sdk: typecheck format prepare-aidbox-runme lint generate-python-sdk
 		pip install -r fhir_types/requirements.txt; \
 	fi
 
-	# Run mypy in strict mode
+test-python-sdk: typecheck format prepare-aidbox-runme lint generate-python-sdk python-test-setup
+    # Run mypy in strict mode
 	cd $(PYTHON_SDK_EXAMPLE) && \
-		. venv/bin/activate && \
-		mypy --strict .
+         . venv/bin/activate && \
+         mypy --strict $(PYTHON_GENERAL_EXAMPLE_DIR_NAME)
 
 	cd $(PYTHON_SDK_EXAMPLE) && \
-		. venv/bin/activate && \
-		python -m pytest test_sdk.py -v
+         . venv/bin/activate && \
+         python -m pytest test_sdk.py -v
+
+test-python-fhirpy-sdk: typecheck format prepare-aidbox-runme lint generate-python-sdk-fhirpy python-test-setup
+    # Run mypy in strict mode
+	cd $(PYTHON_SDK_EXAMPLE) && \
+       . venv/bin/activate && \
+       mypy --strict $(PYTHON_FHIRPY_EXAMPLE_DIR_NAME)
 
 release:
 	echo Push tag for $(VERSION)
