@@ -18,6 +18,11 @@ TOKEN = base64.b64encode(f"{USERNAME}:{PASSWORD}".encode()).decode()
 
 
 def get_resource_components(model: T):
+    """
+    Extracts the FHIR resource type and the serialized resource body
+    from a Pydantic FHIR model.
+    """
+
     resource_dict = model.model_dump(
         mode='json',
         by_alias=True,
@@ -33,7 +38,12 @@ def get_resource_components(model: T):
 
     return resource_type, resource_dict
 
+
 async def main():
+    """
+    Demonstrates usage of fhirpy AsyncFHIRClient to create and fetch FHIR resources.
+    Both Client and Resource APIs are showcased.
+    """
 
     client = AsyncFHIRClient(
         FHIR_SERVER_URL,
@@ -46,6 +56,7 @@ async def main():
         birthDate="1980-01-01",
     )
 
+    # Create the Patient using fhirpy's client API
     created_patient = await client.create(patient)
 
     print(f"Created patient: {created_patient.id}")
@@ -56,7 +67,12 @@ async def main():
         active=True
     )
 
-    organization_resource = await client.resource("Organization", **organization.model_dump(exclude_none=True)).save()
+    # Save the Organization using fhirpy's resource API
+    organization_resource = await client.resource(
+        "Organization",
+        **organization.model_dump(exclude_none=True)
+    ).save()
+
     print(f"Created organization: {organization_resource.id}")
 
     patients = await client.resources("Patient").fetch()
