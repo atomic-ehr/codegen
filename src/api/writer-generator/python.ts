@@ -165,7 +165,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     private generateRootPackages(groups: TypeSchemaPackageGroups): void {
         this.generateRootInitFile(groups);
         if (this.forFhirpyClient)
-            fs.cpSync(resolvePyAssets("fhir_base_model.py"), Path.resolve(this.opts.outputDir, "fhir_base_model.py"));
+            fs.cpSync(resolvePyAssets("fhirpy_base_model.py"), Path.resolve(this.opts.outputDir, "fhirpy_base_model.py"));
         fs.cpSync(resolvePyAssets("requirements.txt"), Path.resolve(this.opts.outputDir, "requirements.txt"));
     }
 
@@ -393,7 +393,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private getSuperClasses(schema: RegularTypeSchema): string[] {
-        return [...(schema.base ? [schema.base.name] : []), ...this.injectSuperClasses(schema.identifier.name)];
+        return [...(schema.base ? [schema.base.name] : []), ...this.injectSuperClasses(schema.identifier.url)];
     }
 
     private generateClassBody(schema: RegularTypeSchema): void {
@@ -693,9 +693,10 @@ export class Python extends Writer<PythonGeneratorOptions> {
         return AVAILABLE_STRING_FORMATS[format];
     }
 
-    private injectSuperClasses(name: string): string[] {
-        if (name === "Resource") return this.forFhirpyClient ? ["FhirBaseModel"] : ["BaseModel"];
-        if (name === "Element") return ["BaseModel"];
+    private injectSuperClasses(url: string): string[] {
+        const name = canonicalToName(url);
+        if (name === "resource") return this.forFhirpyClient ? ["FhirBaseModel"] : ["BaseModel"];
+        if (name === "element") return ["BaseModel"];
         return [];
     }
 }

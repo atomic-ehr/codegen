@@ -7,7 +7,7 @@ class ResourceProtocol(Protocol):
     id: Union[str, None]
 
 
-class FhirBaseModel(BaseModel):
+class FhirpyBaseModel(BaseModel):
     """
     This class satisfies ResourceProtocol
     """
