@@ -165,7 +165,10 @@ export class Python extends Writer<PythonGeneratorOptions> {
     private generateRootPackages(groups: TypeSchemaPackageGroups): void {
         this.generateRootInitFile(groups);
         if (this.forFhirpyClient)
-            fs.cpSync(resolvePyAssets("fhirpy_base_model.py"), Path.resolve(this.opts.outputDir, "fhirpy_base_model.py"));
+            fs.cpSync(
+                resolvePyAssets("fhirpy_base_model.py"),
+                Path.resolve(this.opts.outputDir, "fhirpy_base_model.py"),
+            );
         fs.cpSync(resolvePyAssets("requirements.txt"), Path.resolve(this.opts.outputDir, "requirements.txt"));
     }
 
