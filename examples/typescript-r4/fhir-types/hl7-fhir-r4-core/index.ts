@@ -1,3 +1,4 @@
+export * from "./profiles";
 export type { Address } from "./Address";
 export type { Annotation } from "./Annotation";
 export type { Attachment } from "./Attachment";
@@ -17,8 +18,6 @@ export type { Meta } from "./Meta";
 export type { Narrative } from "./Narrative";
 export type { Observation, ObservationComponent, ObservationReferenceRange } from "./Observation";
 export { isObservation } from "./Observation";
-export type { observation_bodyweight } from "./observation_bodyweight_profile";
-export type { observation_vitalsigns } from "./observation_vitalsigns_profile";
 export type { OperationOutcome, OperationOutcomeIssue } from "./OperationOutcome";
 export { isOperationOutcome } from "./OperationOutcome";
 export type { Patient, PatientCommunication, PatientContact, PatientLink } from "./Patient";
