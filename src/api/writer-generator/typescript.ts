@@ -1496,25 +1496,25 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 this.cat("README.md", () => {
                     this.write(rootTreeShakeReadme(treeShakeReport));
                 });
-                if (hasProfiles) {
-                    this.generateProfileHelpersModule();
-                }
+            }
+            if (hasProfiles) {
+                this.generateProfileHelpersModule();
+            }
 
-                for (const [packageName, packageSchemas] of Object.entries(grouped)) {
-                    const tsPackageDir = tsFhirPackageDir(packageName);
-                    this.cd(tsPackageDir, () => {
-                        for (const schema of packageSchemas) {
-                            this.generateResourceModule(tsIndex, schema);
-                        }
-                        this.generateProfileIndexFile(packageSchemas.filter(isProfileTypeSchema));
-                        this.generateFhirPackageIndexFile(packageSchemas);
-                        if (treeShakeReport) {
-                            this.cat("README.md", () => {
-                                this.write(packageTreeShakeReadme(treeShakeReport, packageName));
-                            });
-                        }
-                    });
-                }
+            for (const [packageName, packageSchemas] of Object.entries(grouped)) {
+                const tsPackageDir = tsFhirPackageDir(packageName);
+                this.cd(tsPackageDir, () => {
+                    for (const schema of packageSchemas) {
+                        this.generateResourceModule(tsIndex, schema);
+                    }
+                    this.generateProfileIndexFile(packageSchemas.filter(isProfileTypeSchema));
+                    this.generateFhirPackageIndexFile(packageSchemas);
+                    if (treeShakeReport) {
+                        this.cat("README.md", () => {
+                            this.write(packageTreeShakeReadme(treeShakeReport, packageName));
+                        });
+                    }
+                });
             }
         });
     }
