@@ -11,6 +11,17 @@ if (require.main === module) {
             staticDir: "./src/api/writer-generator/python/static-files",
             fieldFormat: "snake_case",
         })
+        // .treeShake({
+        //     "hl7.fhir.r4.core": {
+        //         "http://hl7.org/fhir/StructureDefinition/Patient": {},
+        //         "http://hl7.org/fhir/StructureDefinition/DomainResource": {
+        //             ignoreFields: ["extension", "modifierExtension"],
+        //         },
+        //         "http://hl7.org/fhir/StructureDefinition/Element": {
+        //             ignoreFields: ["extension"],
+        //         },
+        //     },
+        // })
         .outputTo("./examples/python/fhir_types")
         .cleanOutput(true);
 

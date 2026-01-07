@@ -1,5 +1,6 @@
 import * as fs from "node:fs";
 import * as Path from "node:path";
+import { packageTreeShakeReadme, rootTreeShakeReadme, type TreeShakeReport } from "@root/typeschema/tree-shake";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 
@@ -119,6 +120,27 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
     }
 
     abstract generate(_tsIndex: TypeSchemaIndex): Promise<void>;
+
+    generateRootTreeShakeReadme(report: TreeShakeReport): void {
+        this.cd("/", () => {
+            this.cat("README.md", () => {
+                this.write(rootTreeShakeReadme(report));
+            });
+        });
+    }
+
+    generatePackageTreeShakeReadme(
+        report: TreeShakeReport,
+        packageName: string,
+        dirPath: string = "/",
+        fileName: string = "README.md",
+    ): void {
+        this.cd(dirPath, () => {
+            this.cat(fileName, () => {
+                this.write(packageTreeShakeReadme(report, packageName));
+            });
+        });
+    }
 
     writtenFiles(): FileBuffer[] {
         return Object.values(this.writtenFilesBuffer)
