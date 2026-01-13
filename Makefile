@@ -103,6 +103,10 @@ test-python-sdk: typecheck format prepare-aidbox-runme lint
 		. venv/bin/activate && \
 		python -m pytest test_sdk.py -v
 
+py-run:
+	$(TYPECHECK) --project examples/python/tsconfig.json
+	bun run examples/python/generate.ts
+
 release:
 	echo Push tag for $(VERSION)
 	git tag -a v$(VERSION) -m "Release $(VERSION)"
