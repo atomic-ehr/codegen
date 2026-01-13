@@ -1,0 +1,14 @@
+public {{^isRequired}}Optional<{{/isRequired}}{{>plain_type}}{{^isRequired}}>{{/isRequired}} {{#lambda.saveFieldName}}{{#lambda.camelCase}}{{{saveName}}}{{/lambda.camelCase}}{{/lambda.saveFieldName}}() {
+    return {{^isRequired}}Optional.ofNullable({{/isRequired}}this.{{{saveName}}}{{^isRequired}}){{/isRequired}};
+}
+{{#isPrimitive}}
+    public Optional<{{#isArray}}List<{{/isArray}}{{#lambda.saveTypeName}}Element{{/lambda.saveTypeName}}>{{#isArray}}>{{/isArray}} _{{#lambda.saveFieldName}}{{#lambda.camelCase}}{{{saveName}}}{{/lambda.camelCase}}{{/lambda.saveFieldName}}() {
+        return Optional.ofNullable(this._{{{saveName}}});
+    }
+    {{#isDateTime}}
+        {{>model/field_getter_local_date_time}}
+    {{/isDateTime}}
+    {{#isInstant}}
+        {{>model/field_getter_local_date_time}}
+    {{/isInstant}}
+{{/isPrimitive}}

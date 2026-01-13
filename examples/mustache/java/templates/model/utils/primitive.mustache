@@ -1,0 +1,40 @@
+package {{{properties.package}}};
+
+import static java.util.Objects.requireNonNull;
+
+import {{{properties.complexTypePackage}}}.{{#lambda.saveTypeName}}Element{{/lambda.saveTypeName}};
+import jakarta.annotation.Nullable;
+
+public record Primitive<T> (
+    @Nullable T value,
+    @Nullable {{#lambda.saveTypeName}}Element{{/lambda.saveTypeName}} element,
+    boolean isNullable
+){
+    public static <V> Primitive<V> nullable(@Nullable V value){
+        return new Primitive<>(value, null, true);
+    }
+    public static <V> Primitive<V> nullable(@Nullable V value, {{#lambda.saveTypeName}}Element{{/lambda.saveTypeName}} element){
+        return new Primitive<>(value, element, true);
+    }
+    public static <V> Primitive<V> nonNullable(V value, {{#lambda.saveTypeName}}Element{{/lambda.saveTypeName}} element){
+        requireNonNull(value);
+        return new Primitive<>(value, element, false);
+    }
+    public static <V> Primitive<V> nonNullable(V value){
+        requireNonNull(value);
+        return new Primitive<>(value, null, false);
+    }
+
+    public Primitive{
+        if(!isNullable && value == null){
+            throw new NullPointerException("missing 'value'");
+        }
+    }
+
+    public Primitive<T> withElement( {{#lambda.saveTypeName}}Element{{/lambda.saveTypeName}} element){
+        return new Primitive<T>(this.value, element, this.isNullable);
+    }
+    public Primitive<T> withValue(T value){
+        return new Primitive<T>(value, this.element, this.isNullable);
+    }
+}

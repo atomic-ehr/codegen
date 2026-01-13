@@ -94,16 +94,24 @@ export type Identifier =
     | ProfileIdentifier
     | LogicalIdentifier;
 
+export const isResourceIdentifier = (id: Identifier | undefined): id is ResourceIdentifier => {
+    return id?.kind === "resource";
+};
+
+export const isLogicalIdentifier = (id: Identifier | undefined): id is LogicalIdentifier => {
+    return id?.kind === "logical";
+};
+
+export const isComplexTypeIdentifier = (id: Identifier | undefined): id is ComplexTypeIdentifier => {
+    return id?.kind === "complex-type";
+};
+
 export const isPrimitiveIdentifier = (id: Identifier | undefined): id is PrimitiveIdentifier => {
     return id?.kind === "primitive-type";
 };
 
 export const isNestedIdentifier = (id: Identifier | undefined): id is NestedIdentifier => {
     return id?.kind === "nested";
-};
-
-export const isComplexTypeIdentifier = (id: Identifier | undefined): id is ComplexTypeIdentifier => {
-    return id?.kind === "complex-type";
 };
 
 export const isProfileIdentifier = (id: Identifier | undefined): id is ProfileIdentifier => {
@@ -207,12 +215,39 @@ export interface ProfileConstraint {
     };
 }
 
+export interface FieldSlicing {
+    discriminator?: Array<{ type?: string; path: string }>;
+    rules?: string;
+    ordered?: boolean;
+    slices?: Record<string, FieldSlice>;
+}
+
+export interface FieldSlice {
+    min?: number;
+    max?: number;
+    match?: Record<string, unknown>;
+    required?: string[];
+    excluded?: string[];
+}
+
+export interface ExtensionSubField {
+    name: string;
+    url: string;
+    valueType?: Identifier;
+    min?: number;
+    max?: string;
+}
+
 export interface ProfileExtension {
+    name: string;
     path: string;
-    profile: string | string[];
+    url?: string;
     min?: number;
     max?: string;
     mustSupport?: boolean;
+    valueTypes?: Identifier[];
+    subExtensions?: ExtensionSubField[];
+    isComplex?: boolean;
 }
 
 export interface ValidationRule {
@@ -254,6 +289,7 @@ export interface RegularField {
     enum?: string[];
     min?: number;
     max?: number;
+    slicing?: FieldSlicing;
 }
 
 export interface ChoiceFieldDeclaration {
@@ -276,6 +312,7 @@ export interface ChoiceFieldInstance {
     enum?: string[];
     min?: number;
     max?: number;
+    slicing?: FieldSlicing;
 }
 
 export type Concept = {

@@ -1,7 +1,7 @@
 // Run this script using Bun CLI with:
 // bun run scripts/generate-fhir-types.ts
 
-import { APIBuilder } from "../../src/api/builder";
+import { APIBuilder, prettyReport } from "../../src/api/builder";
 
 if (require.main === module) {
     console.log("📦 Generating FHIR R4 Core Types...");
@@ -11,17 +11,14 @@ if (require.main === module) {
         .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
         .typescript({ withDebugComment: false })
         .outputTo("./examples/typescript-ccda/fhir-types")
-        .writeTypeSchemas("./examples/typescript-ccda/type-schemas")
-        .writeTypeTree("./examples/typescript-ccda/tree.yaml")
+        .introspection({
+            typeSchemas: "type-schemas",
+            typeTree: "type-tree.yaml",
+        })
         .cleanOutput(true);
 
     const report = await builder.generate();
-    console.log(report);
+    console.log(prettyReport(report));
 
-    if (report.success) {
-        console.log("✅ FHIR R4 types generated successfully!");
-    } else {
-        console.error("❌ FHIR R4 types generation failed.");
-        process.exit(1);
-    }
+    if (!report.success) process.exit(1);
 }

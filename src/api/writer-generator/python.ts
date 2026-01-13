@@ -147,7 +147,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     private readonly forFhirpyClient: boolean;
 
     constructor(options: PythonGeneratorOptions) {
-        super(options);
+        super({ ...options, resolveAssets: options.resolveAssets ?? resolvePyAssets });
         this.nameFormatFunction = this.getFieldFormatFunction(options.fieldFormat);
         this.forFhirpyClient = options.fhirpyClient ?? false;
     }

@@ -1,0 +1,13 @@
+public final B {{{saveName}}}(@Nullable LocalDateTime {{{saveName}}}) {
+    return this.{{{saveName}}}({{{saveName}}}, null);
+}
+{{#isArray}}
+    public final B {{{saveName}}}(@Nullable LocalDateTime {{{saveName}}}, @Nullable {{#lambda.saveTypeName}}Element{{/lambda.saveTypeName}} {{{saveName}}}Element) {
+        return this.{{{saveName}}}({{{saveName}}} != null ? List.of({{{saveName}}}.atZone(ZoneId.systemDefault()).toOffsetDateTime()) : null, {{{saveName}}}Element != null ? List.of({{{saveName}}}Element) : null);
+    }
+{{/isArray}}
+{{^isArray}}
+    public final B {{{saveName}}}(@Nullable LocalDateTime {{{saveName}}}, @Nullable {{#lambda.saveTypeName}}Element{{/lambda.saveTypeName}} {{{saveName}}}Element) {
+        return this.{{{saveName}}}({{{saveName}}} != null ? {{{saveName}}}.atZone(ZoneId.systemDefault()).toOffsetDateTime() : null, {{{saveName}}}Element);
+    }
+{{/isArray}}

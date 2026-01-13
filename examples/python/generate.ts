@@ -1,4 +1,4 @@
-import { APIBuilder } from "../../src";
+import { APIBuilder, prettyReport } from "../../src";
 
 if (require.main === module) {
     console.log("📦 Generating FHIR R4 Core Types...");
@@ -16,12 +16,9 @@ if (require.main === module) {
 
     const report = await builder.generate();
 
-    console.log(report);
+    console.log(prettyReport(report));
 
-    if (report.success) {
-        console.log("✅ FHIR R4 types generated successfully!");
-    } else {
-        console.error("❌ FHIR R4 types generation failed.");
+    if (!report.success) {
         process.exit(1);
     }
 }

@@ -19,21 +19,33 @@
       - [Load Local StructureDefinitions & TGZ Archives](#load-local-structuredefinitions--tgz-archives)
     - [Intermediate - Type Schema](#intermediate---type-schema)
       - [Tree Shaking](#tree-shaking)
+        - [Field-Level Tree Shaking](#field-level-tree-shaking)
     - [Generation](#generation)
+      - [1. Writer-Based Generation (Programmatic)](#1-writer-based-generation-programmatic)
+      - [2. Mustache Template-Based Generation (Declarative)](#2-mustache-template-based-generation-declarative)
   - [Roadmap](#roadmap)
   - [Support](#support)
+- [Footnotes](#footnotes)
 
 <!-- markdown-toc end -->
 
 A powerful, extensible code generation toolkit for FHIR ([Fast Healthcare Interoperability Resources](https://www.hl7.org/fhir/)) that transforms FHIR specifications into strongly-typed code for multiple programming languages.
 
+Guides:
+
+- **[Writer Generator Guide](docs/guides/writer-generator.md)** - Build custom code generators with the Writer base class
+- **[Mustache Generator Guide](docs/guides/mustache-generator.md)** - Template-based code generation for any language
+- **[TypeSchemaIndex Guide](docs/guides/typeschema-index.md)** - Type Schema structure and utilities
+- **[Testing Generators Guide](docs/guides/testing-generators.md)** - Unit tests, snapshot testing, and best practices
+- **[Contributing Guide](CONTRIBUTING.md)** - Development setup and workflow
+
 ## Features
 
 - 🚀 **High-Performance** - Built with Bun runtime for blazing-fast generation
 - 🔧 **Extensible Architecture** - Three-stage pipeline:
-    - FHIR package management & canonical resolution
-    - Optimized intermediate FHIR data entities representation via Type Schema
-    - Generation for different programming languages
+  - FHIR package management & canonical resolution
+  - Optimized intermediate FHIR data entities representation via Type Schema
+  - Generation for different programming languages
 - 📦 **Multi-Package Support** - Generate from a list of FHIR packages
 - 🎯 **Type-Safe** - Generates fully typed interfaces with proper inheritance
 - 🛠️ **Developer Friendly** - Fluent API
@@ -62,7 +74,7 @@ yarn add @atomic-ehr/codegen
 1. Write SDK generation script (`generate-types.ts`):
 
     ```typescript
-    import { APIBuilder } from '@atomic-ehr/codegen';
+    import { APIBuilder, prettyReport } from '@atomic-ehr/codegen';
 
     const builder = new APIBuilder()
         .fromPackage("hl7.fhir.r4.core", "4.0.1")
@@ -70,7 +82,7 @@ yarn add @atomic-ehr/codegen
         .outputTo("./examples/typescript-r4/fhir-types");
 
     const report = await builder.generate();
-    console.log(report);
+    console.log(prettyReport(report));
     ```
 
 2. Run the script with:
@@ -88,6 +100,7 @@ See the [examples/](examples/) directory for working demonstrations:
 - **[typescript-sql-on-fhir/](examples/typescript-sql-on-fhir/)** - SQL on FHIR ViewDefinition with tree shaking
 - **[python/](examples/python/)** - Python/Pydantic model generation with configurable field formats
 - **[csharp/](examples/csharp/)** - C# class generation with namespace configuration
+- **[mustache/](examples/mustache/)** - Java generation with Mustache templates and post-generation hooks
 - **[local-package-folder/](examples/local-package-folder/)** - Loading unpublished local FHIR packages
 
 For detailed documentation, see [examples/README.md](examples/README.md).
@@ -130,10 +143,12 @@ const builder = new APIBuilder()
     .outputTo("./generated/types")             // Output directory
     .cleanOutput(true)                         // Clean before generation
 
-    // Optional: Optimization & debugging
+    // Optional: Introspection & debugging
     .throwException()                          // Throw on errors (optional)
-    .writeTypeSchemas("./schemas")             // Export TypeSchema files
-    .writeTypeTree("./tree.yaml")              // Export dependency tree
+    .introspection({ 
+        typeSchemas: "./schemas", 
+        typeTree: "./tree.yaml" 
+    })
 
     // Execute generation
     .generate();                                // Returns GenerationReport
@@ -211,6 +226,7 @@ Beyond resource-level filtering, tree shaking supports fine-grained field select
 ```
 
 **Configuration Rules:**
+
 - `selectFields`: Only includes the specified fields (whitelist approach)
 - `ignoreFields`: Removes specified fields, keeps everything else (blacklist approach)
 - These options are **mutually exclusive** - you cannot use both in the same rule
@@ -221,14 +237,95 @@ FHIR choice types (like `multipleBirth[x]` which can be boolean or integer) are 
 
 ### Generation
 
-The generation stage uses a `WriterGenerator` system that transforms Type Schema into target language code. The architecture consists of:
+The generation stage transforms Type Schema into target language code using two complementary approaches:
 
-- **Base Writer** (`Writer`): Handles file I/O, indentation, and code formatting primitives
-- **Language Writers** (e.g., `TypeScript`): Implement language-specific generation logic
+#### 1. Writer-Based Generation (Programmatic)
 
-Writers provide high-level abstractions for common code patterns (blocks, imports, type definitions) while maintaining full control over output formatting. Each language writer traverses the Type Schema index and generates corresponding types, interfaces, or classes following that language's idioms and best practices.
+For languages with built-in support (TypeScript, Python, C#), extend the `Writer` class to implement language-specific generators:
 
-- [Type Schema: Python SDK for FHIR](https://www.health-samurai.io/articles/type-schema-python-sdk-for-fhir)
+- **FileSystemWriter**: Base class providing file I/O, directory management, and buffer handling (both disk and in-memory modes)
+- **Writer**: Extends FileSystemWriter with code formatting utilities (indentation, blocks, comments, line management)
+- **Language Writers** (`TypeScript`, `Python`[^py], `CSharp`): Implement language-specific generation logic by traversing TypeSchema index and generating corresponding types, interfaces, or classes
+
+[^py]: For details on [Type Schema: Python SDK for FHIR](https://www.health-samurai.io/articles/type-schema-python-sdk-for-fhir)
+
+Each language writer maintains full control over output formatting while leveraging high-level abstractions for common code patterns. Writers follow language idioms and best practices, with optimized output for production use.
+
+**When to use**: Full control needed, complex generation logic, performance-critical, language has a dedicated writer, production-grade output
+
+#### 2. Mustache Template-Based Generation (Declarative)
+
+For custom languages or formats, use Mustache templates to define code generation rules without programming:
+
+- **Template Files**: Declarative Mustache templates that describe output structure
+- **Configuration**: JSON config file controlling type filtering, naming, and post-generation hooks
+- **ViewModels**: Type Schema automatically transformed into template-friendly data structures
+
+Templates enable flexible code generation for any language or format (Go, Rust, GraphQL, documentation, configs) by describing the output format rather than implementing generation logic.
+
+**When to use**: Custom language support, quick prototyping, template-driven customization, non-code output
+
+---
+
+### Profile Classes
+
+When generating TypeScript with `generateProfile: true`, the generator creates profile wrapper classes that provide a fluent API for working with FHIR profiles (US Core, etc.). These classes handle complex profile constraints like slicing and extensions automatically.
+
+```typescript
+import { Patient } from "./fhir-types/hl7-fhir-r4-core/Patient";
+import { USCorePatientProfileProfile } from "./fhir-types/hl7-fhir-us-core/profiles/UscorePatientProfile";
+
+// Wrap a FHIR resource with a profile class
+const resource: Patient = { resourceType: "Patient" };
+const profile = new USCorePatientProfileProfile(resource);
+
+// Set extensions using flat API - complex extensions are simplified
+profile.setRace({
+    ombCategory: { system: "urn:oid:2.16.840.1.113883.6.238", code: "2106-3", display: "White" },
+    text: "White",
+});
+
+// Set simple extensions directly
+profile.setSex({ system: "http://hl7.org/fhir/administrative-gender", code: "male" });
+
+// Get extension values - flat API returns simplified object
+const race = profile.getRace();
+console.log(race?.ombCategory?.display); // "White"
+
+// Get raw FHIR Extension when needed
+const raceExtension = profile.getRaceExtension();
+console.log(raceExtension?.url); // "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
+
+// Get the underlying resource
+const patientResource = profile.toResource();
+```
+
+**Slicing Support:**
+
+Profile classes also handle FHIR slicing, automatically applying discriminator values:
+
+```typescript
+import { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
+import { USCoreBloodPressureProfileProfile } from "./fhir-types/hl7-fhir-us-core/profiles/UscoreBloodPressureProfile";
+
+const obs: Observation = { resourceType: "Observation", status: "final", code: {} };
+const bp = new USCoreBloodPressureProfileProfile(obs);
+
+// Set slices - discriminator is applied automatically
+// No input needed when all fields are part of the discriminator
+bp.setSystolic({ valueQuantity: { value: 120, unit: "mmHg" } });
+bp.setDiastolic({ valueQuantity: { value: 80, unit: "mmHg" } });
+
+// Get simplified slice (without discriminator fields)
+const systolic = bp.getSystolic();
+console.log(systolic?.valueQuantity?.value); // 120
+
+// Get raw slice (includes discriminator)
+const systolicRaw = bp.getSystolicRaw();
+console.log(systolicRaw?.code?.coding?.[0]?.code); // "8480-6" (LOINC code for systolic BP)
+```
+
+See [examples/typescript-us-core/](examples/typescript-us-core/) for complete profile usage examples.
 
 ## Roadmap
 
@@ -237,7 +334,7 @@ Writers provide high-level abstractions for common code patterns (blocks, import
 - [x] Configuration file support
 - [x] Comprehensive test suite (72+ tests)
 - [x] **Value Set Generation** - Strongly-typed enums from FHIR bindings
-- [~] **Profile & Extension Support** - Basic parsing (US Core in development)
+- [x] **Profile & Extension Support** - Basic parsing (US Core in development)
 - [ ] **Complete Multi-Package Support** - Custom packages and dependencies
 - [ ] **Smart Chained Search** - Intelligent search builders
 
@@ -266,7 +363,8 @@ Writers provide high-level abstractions for common code patterns (blocks, import
         .execute();
     ```
 
-- [ ] **Python generation**
+- [x] **Python generation**
+- [x] **C# generation**
 - [ ] **Rust generation**
 - [ ] **GraphQL schema generation**
 - [ ] **OpenAPI specification generation**
