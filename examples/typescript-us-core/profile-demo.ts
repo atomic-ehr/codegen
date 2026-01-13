@@ -204,7 +204,7 @@ function resetExtensionExample(): Patient {
 console.log("FHIR Profile Usage Demo\n");
 console.log("This demo shows how to use generated profile classes to work with");
 console.log("FHIR profiles in a type-safe manner.\n");
-console.log("=".repeat(70) + "\n");
+console.log(`${"=".repeat(70)}\n`);
 
 createPatientExample();
 createBloodPressureExample();
