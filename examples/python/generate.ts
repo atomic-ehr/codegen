@@ -14,7 +14,7 @@ if (require.main === module) {
         .treeShake({
             "hl7.fhir.r4.core": {
                 "http://hl7.org/fhir/StructureDefinition/Patient": {
-                    selectFields:["name", "gender", "birthDate"],
+                    selectFields: ["name", "gender", "birthDate"],
                 },
                 "http://hl7.org/fhir/StructureDefinition/Bundle": {},
                 "http://hl7.org/fhir/StructureDefinition/DomainResource": {},
