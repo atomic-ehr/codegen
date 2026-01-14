@@ -107,3 +107,8 @@ release:
 	echo Push tag for $(VERSION)
 	git tag -a v$(VERSION) -m "Release $(VERSION)"
 	git push origin v$(VERSION)
+
+
+run-python-sdk:
+	$(TYPECHECK) --project examples/python/tsconfig.json
+	bun run examples/python/generate.ts
