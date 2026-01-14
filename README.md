@@ -145,9 +145,11 @@ const builder = new APIBuilder()
 
     // Optional: Introspection & debugging
     .throwException()                          // Throw on errors (optional)
-    .introspection({ 
-        typeSchemas: "./schemas", 
-        typeTree: "./tree.yaml" 
+    .introspection({
+        typeSchemas: "./schemas",              // Export TypeSchemas
+        typeTree: "./tree.yaml",               // Export type tree
+        fhirSchemas: "./fhir-schemas",         // Export FHIR schemas
+        structureDefinitions: "./sd"           // Export StructureDefinitions
     })
 
     // Execute generation

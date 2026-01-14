@@ -17,6 +17,8 @@ if (require.main === module) {
         .introspection({
             typeSchemas: "type-schemas",
             typeTree: "type-tree.yaml",
+            fhirSchemas: "fhir-schemas",
+            structureDefinitions: "structure-definitions",
         })
         .outputTo("./examples/typescript-r4/fhir-types")
         .treeShake({

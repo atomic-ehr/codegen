@@ -18,6 +18,7 @@ export type Register = {
     resolveFs(pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichFHIRSchema | undefined;
     resolveFsGenealogy(pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichFHIRSchema[];
     resolveFsSpecializations(pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichFHIRSchema[];
+    allSd(): StructureDefinition[];
     allFs(): RichFHIRSchema[];
     allVs(): RichValueSet[];
     resolveVs(_pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichValueSet | undefined;
@@ -248,6 +249,23 @@ export const registerFromManager = async (
             if (isStructureDefinition(res)) return res as StructureDefinition;
             return undefined;
         },
+        allSd: () =>
+            Object.values(resolver)
+                .flatMap((pkgIndex) =>
+                    Object.values(pkgIndex.canonicalResolution).flatMap((resolutions) =>
+                        resolutions.map((r) => {
+                            let sd = r.resource as StructureDefinition;
+                            if (!sd.package_name) {
+                                sd = structuredClone(sd);
+                                sd.package_name = pkgIndex.pkg.name;
+                                sd.package_version = pkgIndex.pkg.version;
+                            }
+                            return sd;
+                        }),
+                    ),
+                )
+                .filter((r): r is StructureDefinition => isStructureDefinition(r))
+                .sort((sd1, sd2) => sd1.url.localeCompare(sd2.url)),
         allFs: () => Object.values(resolver).flatMap((pkgIndex) => Object.values(pkgIndex.fhirSchemas)),
         allVs: () => Object.values(resolver).flatMap((pkgIndex) => Object.values(pkgIndex.valueSets)),
         resolveVs,
