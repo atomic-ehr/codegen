@@ -49,3 +49,64 @@ jobs:
 
       - name: Run security audit
         run: bun audit
+
+  codegen-smoke-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        package-manager: [bun, npm, pnpm]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        if: matrix.package-manager == 'bun'
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Setup Node.js
+        if: matrix.package-manager != 'bun'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup pnpm
+        if: matrix.package-manager == 'pnpm'
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
+      - name: Install dependencies (bun)
+        if: matrix.package-manager == 'bun'
+        run: bun install
+
+      - name: Install dependencies (npm)
+        if: matrix.package-manager == 'npm'
+        run: npm install
+
+      - name: Install dependencies (pnpm)
+        if: matrix.package-manager == 'pnpm'
+        run: pnpm install
+
+      - name: Run codegen for FHIR R4
+        run: |
+          if [ "${{ matrix.package-manager }}" == "bun" ]; then
+            bun run examples/python/generate.ts
+          elif [ "${{ matrix.package-manager }}" == "npm" ]; then
+            npx tsx examples/python/generate.ts
+          else
+            pnpm dlx tsx examples/python/generate.ts
+          fi
+
+      - name: Verify output exists
+        run: |
+          if [ -d examples/python/fhir_types ]; then
+            echo "Output directory generated successfully"
+            ls -la examples/python/fhir_types
+          else
+            echo "Output directory not found"
+            exit 1
+          fi
