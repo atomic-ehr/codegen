@@ -46,6 +46,10 @@ const structureDefinitionToJson = (sd: StructureDefinition, pretty: boolean): { 
     const name = normalizeFileName(`${sd.name}(${extractNameFromCanonical(sd.url as CanonicalUrl)})`);
     const baseName = Path.join(pkgPath, name);
 
+    // HACK: for some reason ID may change between CI and local install
+    sd = structuredClone(sd);
+    sd.id = undefined;
+
     return {
         filename: baseName,
         content: JSON.stringify(sd, null, pretty ? 2 : undefined),
