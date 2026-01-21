@@ -396,7 +396,7 @@ export class APIBuilder {
             const typeSchemas = await generateTypeSchemas(register, this.logger);
 
             const tsIndexOpts = {
-                resolutionTree: register.resolutionTree(),
+                register,
                 logger: this.logger,
             };
             let tsIndex = mkTypeSchemaIndex(typeSchemas, tsIndexOpts);

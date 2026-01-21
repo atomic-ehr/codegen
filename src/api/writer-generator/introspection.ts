@@ -1,5 +1,7 @@
 import * as Path from "node:path";
-import { extractNameFromCanonical, type TypeSchema } from "@root/typeschema/types";
+import type { StructureDefinition } from "@atomic-ehr/fhirschema";
+import type { RichFHIRSchema } from "@root/typeschema/types";
+import { type CanonicalUrl, extractNameFromCanonical, type TypeSchema } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import YAML from "yaml";
 import { FileSystemWriter, type FileSystemWriterOptions } from "./writer";
@@ -7,12 +9,51 @@ import { FileSystemWriter, type FileSystemWriterOptions } from "./writer";
 export interface IntrospectionWriterOptions extends FileSystemWriterOptions {
     typeSchemas?: string /** if .ndjson -- put in one file, else -- split into separated files*/;
     typeTree?: string /** .json or .yaml file */;
+    fhirSchemas?: string /** if .ndjson -- put in one file, else -- split into separated files*/;
+    structureDefinitions?: string /** if .ndjson -- put in one file, else -- split into separated files*/;
 }
 
 const normalizeFileName = (str: string): string => {
     const res = str.replace(/[^a-zA-Z0-9\-_.@#()]/g, "");
     if (res.length === 0) return "unknown";
     return res;
+};
+
+const typeSchemaToJson = (ts: TypeSchema, pretty: boolean): { filename: string; content: string } => {
+    const pkgPath = normalizeFileName(ts.identifier.package);
+    const name = normalizeFileName(`${ts.identifier.name}(${extractNameFromCanonical(ts.identifier.url)})`);
+    const baseName = Path.join(pkgPath, name);
+
+    return {
+        filename: baseName,
+        content: JSON.stringify(ts, null, pretty ? 2 : undefined),
+    };
+};
+
+const fhirSchemaToJson = (fs: RichFHIRSchema, pretty: boolean): { filename: string; content: string } => {
+    const pkgPath = normalizeFileName(fs.package_meta.name);
+    const name = normalizeFileName(`${fs.name}(${extractNameFromCanonical(fs.url)})`);
+    const baseName = Path.join(pkgPath, name);
+
+    return {
+        filename: baseName,
+        content: JSON.stringify(fs, null, pretty ? 2 : undefined),
+    };
+};
+
+const structureDefinitionToJson = (sd: StructureDefinition, pretty: boolean): { filename: string; content: string } => {
+    const pkgPath = normalizeFileName(sd.package_name ?? "unknown");
+    const name = normalizeFileName(`${sd.name}(${extractNameFromCanonical(sd.url as CanonicalUrl)})`);
+    const baseName = Path.join(pkgPath, name);
+
+    // HACK: for some reason ID may change between CI and local install
+    sd = structuredClone(sd);
+    sd.id = undefined;
+
+    return {
+        filename: baseName,
+        content: JSON.stringify(sd, null, pretty ? 2 : undefined),
+    };
 };
 
 export class IntrospectionWriter extends FileSystemWriter<IntrospectionWriterOptions> {
@@ -24,9 +65,12 @@ export class IntrospectionWriter extends FileSystemWriter<IntrospectionWriterOpt
             this.logger()?.debug(`IntrospectionWriter: Generating ${typeSchemas.length} schemas to ${outputPath}`);
 
             if (Path.extname(outputPath) === ".ndjson") {
-                this.writeToSingleFile(typeSchemas, outputPath);
+                this.writeNdjson(typeSchemas, outputPath, typeSchemaToJson);
             } else {
-                this.writeToSeparateFiles(typeSchemas, outputPath);
+                this.writeJsonFiles(
+                    typeSchemas.map((ts) => typeSchemaToJson(ts, true)),
+                    outputPath,
+                );
             }
 
             this.logger()?.info(`Introspection generation completed: ${typeSchemas.length} schemas written`);
@@ -36,67 +80,74 @@ export class IntrospectionWriter extends FileSystemWriter<IntrospectionWriterOpt
             await this.writeTypeTree(tsIndex);
             this.logger()?.info(`IntrospectionWriter: Type tree exported to ${this.opts.typeTree}`);
         }
+
+        if (this.opts.fhirSchemas && tsIndex.register) {
+            const outputPath = this.opts.fhirSchemas;
+            const fhirSchemas = tsIndex.register.allFs();
+
+            this.logger()?.debug(`IntrospectionWriter: Generating ${fhirSchemas.length} FHIR schemas to ${outputPath}`);
+
+            if (Path.extname(outputPath) === ".ndjson") {
+                this.writeNdjson(fhirSchemas, outputPath, fhirSchemaToJson);
+            } else {
+                this.writeJsonFiles(
+                    fhirSchemas.map((fs) => fhirSchemaToJson(fs, true)),
+                    outputPath,
+                );
+            }
+
+            this.logger()?.info(`FHIR schema generation completed: ${fhirSchemas.length} schemas written`);
+        }
+
+        if (this.opts.structureDefinitions && tsIndex.register) {
+            const outputPath = this.opts.structureDefinitions;
+            const structureDefinitions = tsIndex.register.allSd();
+
+            this.logger()?.debug(
+                `IntrospectionWriter: Generating ${structureDefinitions.length} StructureDefinitions to ${outputPath}`,
+            );
+
+            if (Path.extname(outputPath) === ".ndjson") {
+                this.writeNdjson(structureDefinitions, outputPath, structureDefinitionToJson);
+            } else {
+                this.writeJsonFiles(
+                    structureDefinitions.map((sd) => structureDefinitionToJson(sd, true)),
+                    outputPath,
+                );
+            }
+
+            this.logger()?.info(
+                `StructureDefinition generation completed: ${structureDefinitions.length} schemas written`,
+            );
+        }
     }
 
-    private async writeToSingleFile(typeSchemas: TypeSchema[], outputFile: string): Promise<void> {
-        this.logger()?.info(`Writing introspection data to single file: ${outputFile}`);
-
-        const dir = Path.dirname(outputFile);
-        const file = Path.basename(outputFile);
-
-        this.cd(dir, () => {
-            this.cat(file, () => {
-                for (const ts of typeSchemas) {
-                    const json = JSON.stringify(ts);
-                    this.write(`${json}\n`);
+    private async writeNdjson<T>(
+        items: T[],
+        outputFile: string,
+        toJson: (item: T, pretty: boolean) => { filename: string; content: string },
+    ): Promise<void> {
+        this.cd(Path.dirname(outputFile), () => {
+            this.cat(Path.basename(outputFile), () => {
+                for (const item of items) {
+                    const { content } = toJson(item, false);
+                    this.write(`${content}\n`);
                 }
             });
         });
-
-        this.logger()?.info(`Single file output: ${typeSchemas.length} introspection entries written to ${outputFile}`);
     }
 
-    private async writeToSeparateFiles(typeSchemas: TypeSchema[], outputDir: string): Promise<void> {
-        this.logger()?.info(`Writing introspection data to separate files in ${outputDir}`);
-
-        // Group introspection data by package and name
-        const files: Record<string, TypeSchema[]> = {};
-
-        for (const ts of typeSchemas) {
-            const pkgPath = normalizeFileName(ts.identifier.package);
-            const name = normalizeFileName(`${ts.identifier.name}(${extractNameFromCanonical(ts.identifier.url)})`);
-            const baseName = Path.join(pkgPath, name);
-
-            if (!files[baseName]) {
-                files[baseName] = [];
-            }
-
-            if (!files[baseName].some((e) => JSON.stringify(e) === JSON.stringify(ts))) {
-                files[baseName].push(ts);
-            }
-        }
-
+    private async writeJsonFiles(items: { filename: string; content: string }[], outputDir: string): Promise<void> {
         this.cd(outputDir, () => {
-            for (const [baseName, schemas] of Object.entries(files)) {
-                schemas.forEach((schema, index) => {
-                    const fileName =
-                        index === 0 ? `${baseName}.introspection.json` : `${baseName}-${index}.introspection.json`;
-                    const dir = Path.dirname(fileName);
-                    const file = Path.basename(fileName);
-
-                    this.cd(dir, () => {
-                        this.cat(file, () => {
-                            const json = JSON.stringify(schema, null, 2);
-                            this.write(json);
-                        });
+            for (const { filename, content } of items) {
+                const fileName = `${filename}.json`;
+                this.cd(Path.dirname(fileName), () => {
+                    this.cat(Path.basename(fileName), () => {
+                        this.write(content);
                     });
                 });
             }
         });
-
-        this.logger()?.info(
-            `Separate files output: ${typeSchemas.length} introspection entries written to ${outputDir} in ${Object.keys(files).length} groups`,
-        );
     }
 
     private async writeTypeTree(tsIndex: TypeSchemaIndex): Promise<void> {

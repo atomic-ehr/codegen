@@ -14,7 +14,7 @@ const logger = createLogger({ prefix: "TEST" });
 
 export const mkIndex = async (register: Register, logger?: CodegenLogger) =>
     mkTypeSchemaIndex(await generateTypeSchemas(register, logger), {
-        resolutionTree: register.resolutionTree(),
+        register,
         logger,
     });
 

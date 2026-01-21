@@ -280,7 +280,7 @@ export const treeShake = (
     const shaked = collectDeps(focusedSchemas, {});
 
     const report: TreeShakeReport = { skippedPackages: [], packages: {} };
-    const shakedIndex = mkTypeSchemaIndex(shaked, { resolutionTree, logger, treeShakeReport: report });
+    const shakedIndex = mkTypeSchemaIndex(shaked, { register: tsIndex.register, logger, treeShakeReport: report });
     mutableFillReport(report, tsIndex, shakedIndex);
     return shakedIndex;
 };

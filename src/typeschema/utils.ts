@@ -3,7 +3,7 @@ import * as Path from "node:path";
 import type { TreeShakeReport } from "@root/typeschema/tree-shake";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import * as YAML from "yaml";
-import type { ResolutionTree } from "./register";
+import type { Register } from "./register";
 import {
     type CanonicalUrl,
     type Field,
@@ -154,6 +154,7 @@ export type TypeSchemaIndex = {
     _relations: TypeRelation[];
     schemas: TypeSchema[];
     schemasByPackage: Record<PackageName, TypeSchema[]>;
+    register?: Register;
     collectComplexTypes: () => RegularTypeSchema[];
     collectResources: () => RegularTypeSchema[];
     collectLogicalModels: () => RegularTypeSchema[];
@@ -177,11 +178,11 @@ type EntityTree = Record<PackageName, Record<Identifier["kind"], Record<Canonica
 export const mkTypeSchemaIndex = (
     schemas: TypeSchema[],
     {
-        resolutionTree,
+        register,
         logger,
         treeShakeReport,
     }: {
-        resolutionTree?: ResolutionTree;
+        register?: Register;
         logger?: CodegenLogger;
         treeShakeReport?: TreeShakeReport;
     },
@@ -222,7 +223,8 @@ export const mkTypeSchemaIndex = (
         return index[id.url]?.[id.package];
     };
     const resolveByUrl = (pkgName: PackageName, url: CanonicalUrl) => {
-        if (resolutionTree) {
+        if (register) {
+            const resolutionTree = register.resolutionTree();
             const resolution = resolutionTree[pkgName]?.[url]?.[0];
             if (resolution) {
                 return index[url]?.[resolution.pkg.name];
@@ -366,6 +368,7 @@ export const mkTypeSchemaIndex = (
         _relations: relations,
         schemas,
         schemasByPackage: groupByPackages(schemas),
+        register,
         collectComplexTypes: () => schemas.filter(isComplexTypeTypeSchema),
         collectResources: () => schemas.filter(isResourceTypeSchema),
         collectLogicalModels: () => schemas.filter(isLogicalTypeSchema),
