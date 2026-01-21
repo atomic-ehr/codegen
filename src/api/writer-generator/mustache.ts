@@ -21,7 +21,7 @@ import type {
     View,
     ViewModel,
 } from "@mustache/types";
-import type { TypeSchemaIndex } from "@root/typeschema/utils";
+import { groupByPackages, type TypeSchemaIndex } from "@root/typeschema/utils";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import { default as Mustache } from "mustache";
 import { FileSystemWriter, type FileSystemWriterOptions } from "./writer";
@@ -164,11 +164,28 @@ export class MustacheGenerator extends FileSystemWriter<MustacheGeneratorOptions
 
         this._renderUtility(modelFactory.createUtility());
         this.copyStaticFiles();
+        this._renderTreeShakeReadmes(tsIndex);
 
         if (this.opts.shouldRunHooks) {
             await this._runHooks(this.opts.hooks.afterGenerate);
         }
         return;
+    }
+
+    // Tree-shake README generation (AI generated)
+    private _renderTreeShakeReadmes(tsIndex: TypeSchemaIndex): void {
+        const treeShakeReport = tsIndex.treeShakeReport();
+        if (!treeShakeReport) return;
+
+        // Generate root-level README
+        this.generateRootTreeShakeReadme(treeShakeReport);
+
+        // Generate per-package READMEs
+        const resources = tsIndex.collectResources();
+        const groupedResources = groupByPackages(resources);
+        for (const packageName of Object.keys(groupedResources)) {
+            this.generatePackageTreeShakeReadme(treeShakeReport, packageName, "/", `README-${packageName}.md`);
+        }
     }
 
     copyStaticFiles() {
