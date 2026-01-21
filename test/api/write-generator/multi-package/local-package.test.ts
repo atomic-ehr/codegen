@@ -1,5 +1,5 @@
-import * as Path from "node:path";
 import { describe, expect, it } from "bun:test";
+import * as Path from "node:path";
 import { APIBuilder } from "@root/api/builder";
 
 const LOCAL_PACKAGE_PATH = Path.join(__dirname, "../../../assets/local-package/structure-definitions");
