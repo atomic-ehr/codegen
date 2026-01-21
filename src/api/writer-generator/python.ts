@@ -132,7 +132,8 @@ const deriveResourceName = (id: Identifier): string => {
 };
 
 const resolvePyAssets = (fn: string) => {
-    const __dirname = Path.dirname(fileURLToPath(import.meta.url));
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = Path.dirname(__filename);
     if (__filename.endsWith("dist/index.js")) {
         return Path.resolve(__dirname, "..", "assets", "api", "writer-generator", "python", fn);
     } else {
