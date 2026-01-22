@@ -23,15 +23,7 @@ const codeableReferenceInR4 = "Use CodeableReference which is not provided by FH
 const availabilityInR4 = "Use Availability which is not provided by FHIR R4.";
 
 const skipMe: Record<string, Record<string, string>> = {
-    "hl7.fhir.uv.extensions.r4#1.0.0": {
-        "http://hl7.org/fhir/StructureDefinition/extended-contact-availability": availabilityInR4,
-        "http://hl7.org/fhir/StructureDefinition/immunization-procedure": codeableReferenceInR4,
-        "http://hl7.org/fhir/StructureDefinition/specimen-additive": codeableReferenceInR4,
-        "http://hl7.org/fhir/StructureDefinition/workflow-barrier": codeableReferenceInR4,
-        "http://hl7.org/fhir/StructureDefinition/workflow-protectiveFactor": codeableReferenceInR4,
-        "http://hl7.org/fhir/StructureDefinition/workflow-reason": codeableReferenceInR4,
-    },
-    "hl7.fhir.uv.extensions.r4#5.2.0": {
+    "hl7.fhir.uv.extensions.r4": {
         "http://hl7.org/fhir/StructureDefinition/extended-contact-availability": availabilityInR4,
         "http://hl7.org/fhir/StructureDefinition/immunization-procedure": codeableReferenceInR4,
         "http://hl7.org/fhir/StructureDefinition/specimen-additive": codeableReferenceInR4,
@@ -51,7 +43,7 @@ export const generateTypeSchemas = async (register: Register, logger?: CodegenLo
     const fhirSchemas = [] as TypeSchema[];
     for (const fhirSchema of register.allFs()) {
         const pkgId = packageMetaToFhir(fhirSchema.package_meta);
-        if (skipMe[pkgId]?.[fhirSchema.url]) {
+        if (skipMe[pkgId]?.[fhirSchema.url] || skipMe[fhirSchema.package_meta.name]?.[fhirSchema.url]) {
             logger?.dry_warn(`Skip ${fhirSchema.url} from ${pkgId}. Reason: ${skipMe[pkgId]?.[fhirSchema.url]}`);
             continue;
         }
