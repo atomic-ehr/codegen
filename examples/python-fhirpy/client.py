@@ -1,13 +1,13 @@
 import asyncio
 import base64
 import json
-from typing import TypeVar, Dict, Any
+from typing import TypeVar, Dict, Any, Tuple
 from pydantic import BaseModel
 from fhirpy import AsyncFHIRClient
 
-from fhir_types_with_FhirBaseModel.hl7_fhir_r4_core import HumanName
-from fhir_types_with_FhirBaseModel.hl7_fhir_r4_core.patient import Patient
-from fhir_types_with_FhirBaseModel.hl7_fhir_r4_core.organization import Organization
+from fhir_types.hl7_fhir_r4_core import HumanName
+from fhir_types.hl7_fhir_r4_core.patient import Patient
+from fhir_types.hl7_fhir_r4_core.organization import Organization
 
 T = TypeVar('T', bound=BaseModel)
 
@@ -17,13 +17,13 @@ PASSWORD = "<SECRET>"
 TOKEN = base64.b64encode(f"{USERNAME}:{PASSWORD}".encode()).decode()
 
 
-def get_resource_components(model: T):
+def get_resource_components(model: T) -> Tuple[str, Dict[str, Any]]:
     """
     Extracts the FHIR resource type and the serialized resource body
     from a Pydantic FHIR model.
     """
 
-    resource_dict = model.model_dump(
+    resource_dict: Dict[str, Any] = model.model_dump(
         mode='json',
         by_alias=True,
         exclude_none=True
@@ -39,7 +39,7 @@ def get_resource_components(model: T):
     return resource_type, resource_dict
 
 
-async def main():
+async def main() -> None:
     """
     Demonstrates usage of fhirpy AsyncFHIRClient to create and fetch FHIR resources.
     Both Client and Resource APIs are showcased.
@@ -53,7 +53,7 @@ async def main():
     patient = Patient(
         name=[HumanName(given=["Bob"], family="Cool2")],
         gender="female",
-        birthDate="1980-01-01",
+        birth_date="1980-01-01",
     )
 
     # Create the Patient using fhirpy's client API
@@ -77,7 +77,7 @@ async def main():
 
     patients = await client.resources("Patient").fetch()
     for pat in patients:
-        print(f"Found: {pat.get('name', [{}])[0].get('family', 'N/A')}")
+        print(f"Found: {pat.get('name', [{}])[0].get('family', 'N/A')}")  # type: ignore[no-untyped-call]
 
 
 if __name__ == "__main__":

@@ -381,7 +381,8 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private generateFhirBaseModelImport(): void {
-        if (this.forFhirpyClient) this.pyImportFrom(`${this.opts.rootPackageName}.fhir_base_model`, "FhirBaseModel");
+        if (this.forFhirpyClient)
+            this.pyImportFrom(`${this.opts.rootPackageName}.fhirpy_base_model`, "FhirpyBaseModel");
     }
 
     private generateType(schema: RegularTypeSchema): void {
@@ -698,7 +699,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
 
     private injectSuperClasses(url: string): string[] {
         const name = canonicalToName(url);
-        if (name === "resource") return this.forFhirpyClient ? ["FhirBaseModel"] : ["BaseModel"];
+        if (name === "resource") return this.forFhirpyClient ? ["FhirpyBaseModel"] : ["BaseModel"];
         if (name === "element") return ["BaseModel"];
         return [];
     }
