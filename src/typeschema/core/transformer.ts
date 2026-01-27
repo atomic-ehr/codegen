@@ -5,6 +5,7 @@
  */
 
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
+import { shouldSkipCanonical } from "@root/typeschema/skip-hack";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import type { Register } from "@typeschema/register";
 import {
@@ -40,6 +41,13 @@ export function mkFields(
     for (const key of register.getAllElementKeys(elements)) {
         const path = [...parentPath, key];
         const elemSnapshot = register.resolveElementSnapshot(fhirSchema, path);
+        const fcurl = elemSnapshot.type ? register.ensureSpecializationCanonicalUrl(elemSnapshot.type) : undefined;
+        if (fcurl && shouldSkipCanonical(fhirSchema.package_meta, fcurl).shouldSkip) {
+            logger?.warn(
+                `Skipping field ${path} for ${fcurl} due to skip hack ${shouldSkipCanonical(fhirSchema.package_meta, fcurl).reason}`,
+            );
+            continue;
+        }
         if (isNestedElement(elemSnapshot)) {
             fields[key] = mkNestedField(register, fhirSchema, path, elemSnapshot, logger);
         } else {
