@@ -9,7 +9,7 @@ if (require.main === module) {
     const builder = new APIBuilder()
         .throwException()
         .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
-        .typescript({ withDebugComment: false })
+        .typescript({ withDebugComment: false, resourceTypeFieldForLogicalResource: false })
         .outputTo("./examples/typescript-ccda/fhir-types")
         .introspection({
             typeSchemas: "type-schemas",

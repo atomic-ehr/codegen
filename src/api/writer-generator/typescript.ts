@@ -184,6 +184,7 @@ export type TypeScriptOptions = {
      */
     openResourceTypeSet: boolean;
     primitiveTypeExtension: boolean;
+    resourceTypeFieldForLogicalResource: boolean;
 } & WriterOptions;
 
 export class TypeScript extends Writer<TypeScriptOptions> {
@@ -346,7 +347,10 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             return;
         }
         this.curlyBlock(["export", "interface", name, extendsClause], () => {
-            if (isResourceTypeSchema(schema)) {
+            if (
+                isResourceTypeSchema(schema) ||
+                (this.opts.resourceTypeFieldForLogicalResource && isLogicalTypeSchema(schema))
+            ) {
                 const possibleResourceTypes = [schema.identifier];
                 possibleResourceTypes.push(...tsIndex.resourceChildren(schema.identifier));
                 const openSetSuffix =
