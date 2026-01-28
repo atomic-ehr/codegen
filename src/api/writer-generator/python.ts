@@ -82,9 +82,9 @@ const MAX_IMPORT_LINE_LENGTH = 100;
 
 export interface PythonGeneratorOptions extends WriterOptions {
     allowExtraFields?: boolean;
-    staticDir?: string;
     rootPackageName: string; /// e.g. <rootPackageName>.hl7_fhir_r4_core.Patient.
     fieldFormat: StringFormatKey;
+    fhirpyClient?: boolean;
 }
 
 interface ImportGroup {
@@ -99,10 +99,6 @@ interface FieldInfo {
 
 const fixReservedWords = (name: string): string => {
     return PYTHON_KEYWORDS.has(name) ? `${name}_` : name;
-};
-
-const injectSuperClasses = (name: string): string[] => {
-    return name === "Resource" || name === "Element" ? ["BaseModel"] : [];
 };
 
 const canonicalToName = (canonical: string | undefined, dropFragment = true) => {
@@ -149,10 +145,12 @@ type TypeSchemaPackageGroups = {
 export class Python extends Writer<PythonGeneratorOptions> {
     private readonly nameFormatFunction: (name: string) => string;
     private tsIndex: TypeSchemaIndex | undefined;
+    private readonly forFhirpyClient: boolean;
 
     constructor(options: PythonGeneratorOptions) {
         super({ ...options, resolveAssets: options.resolveAssets ?? resolvePyAssets });
         this.nameFormatFunction = this.getFieldFormatFunction(options.fieldFormat);
+        this.forFhirpyClient = options.fhirpyClient ?? false;
     }
 
     override async generate(tsIndex: TypeSchemaIndex): Promise<void> {
@@ -167,7 +165,12 @@ export class Python extends Writer<PythonGeneratorOptions> {
 
     private generateRootPackages(groups: TypeSchemaPackageGroups): void {
         this.generateRootInitFile(groups);
-        this.cp(resolvePyAssets("requirements.txt"), "requirements.txt");
+        if (this.forFhirpyClient)
+            this.copyAssets(
+                resolvePyAssets("fhirpy_base_model.py"),
+                Path.resolve(this.opts.outputDir, "fhirpy_base_model.py"),
+            );
+        this.copyAssets(resolvePyAssets("requirements.txt"), Path.resolve(this.opts.outputDir, "requirements.txt"));
     }
 
     private generateSDKPackages(groups: TypeSchemaPackageGroups): void {
@@ -368,6 +371,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         this.cat(`${snakeCase(schema.identifier.name)}.py`, () => {
             this.generateDisclaimer();
             this.generateDefaultImports();
+            this.generateFhirBaseModelImport();
             this.line();
             this.generateDependenciesImports(schema);
             this.line();
@@ -377,7 +381,12 @@ export class Python extends Writer<PythonGeneratorOptions> {
         });
     }
 
-    generateType(schema: RegularTypeSchema): void {
+    private generateFhirBaseModelImport(): void {
+        if (this.forFhirpyClient)
+            this.pyImportFrom(`${this.opts.rootPackageName}.fhirpy_base_model`, "FhirpyBaseModel");
+    }
+
+    private generateType(schema: RegularTypeSchema): void {
         const className = deriveResourceName(schema.identifier);
         const superClasses = this.getSuperClasses(schema);
 
@@ -389,7 +398,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private getSuperClasses(schema: RegularTypeSchema): string[] {
-        return [...(schema.base ? [schema.base.name] : []), ...injectSuperClasses(schema.identifier.name)];
+        return [...(schema.base ? [schema.base.name] : []), ...this.injectSuperClasses(schema.identifier.url)];
     }
 
     private generateClassBody(schema: RegularTypeSchema): void {
@@ -503,7 +512,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         this.line("    return cls.model_validate_json(json)");
     }
 
-    generateNestedTypes(schema: RegularTypeSchema): void {
+    private generateNestedTypes(schema: RegularTypeSchema): void {
         if (!schema.nested) return;
 
         this.line();
@@ -560,7 +569,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         return grouped;
     }
 
-    pyImportFrom(pyPackage: string, ...entities: string[]): void {
+    private pyImportFrom(pyPackage: string, ...entities: string[]): void {
         const oneLine = `from ${pyPackage} import ${entities.join(", ")}`;
 
         if (this.shouldUseSingleLineImport(oneLine, entities)) {
@@ -680,12 +689,19 @@ export class Python extends Writer<PythonGeneratorOptions> {
         return this.pyFhirPackage(identifier);
     }
 
-    getFieldFormatFunction(format: StringFormatKey): (name: string) => string {
+    private getFieldFormatFunction(format: StringFormatKey): (name: string) => string {
         if (!AVAILABLE_STRING_FORMATS[format]) {
             this.logger()?.warn(`Unknown field format '${format}'. Defaulting to SnakeCase.`);
             this.logger()?.warn(`Supported formats: ${Object.keys(AVAILABLE_STRING_FORMATS).join(", ")}`);
             return snakeCase;
         }
         return AVAILABLE_STRING_FORMATS[format];
+    }
+
+    private injectSuperClasses(url: string): string[] {
+        const name = canonicalToName(url);
+        if (name === "resource") return this.forFhirpyClient ? ["FhirpyBaseModel"] : ["BaseModel"];
+        if (name === "element") return ["BaseModel"];
+        return [];
     }
 }

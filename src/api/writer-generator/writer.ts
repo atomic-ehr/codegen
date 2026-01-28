@@ -105,6 +105,16 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
         buf.tokens.push(str);
     }
 
+    copyAssets(source: string, destination: string) {
+        const content = fs.readFileSync(source, "utf8");
+        this.writtenFilesBuffer[destination] = {
+            relPath: destination,
+            absPath: Path.resolve(destination),
+            tokens: [content],
+        };
+        fs.cpSync(source, destination);
+    }
+
     cp(source: string, destination: string) {
         if (!this.opts.resolveAssets) throw new Error("resolveAssets is not defined");
         source = Path.resolve(this.opts.resolveAssets(source));

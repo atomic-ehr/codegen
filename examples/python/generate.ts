@@ -7,7 +7,7 @@ const builder = new APIBuilder()
     .fromPackage("hl7.fhir.r4.core", "4.0.1")
     .python({
         allowExtraFields: false,
-        staticDir: "./src/api/writer-generator/python/static-files",
+        fhirpyClient: false,
         fieldFormat: "snake_case",
     })
     .outputTo("./examples/python/fhir_types")

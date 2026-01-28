@@ -11,7 +11,9 @@ This example demonstrates how to generate Python/Pydantic models from the FHIR R
 - Configurable field naming conventions (snake_case or camelCase)
 - Integration with Python type checking and IDE support
 - Virtual environment setup
-- FHIR server client example
+- Simple FHIR server client example using `requests`
+
+For an example using the `fhirpy` async client library, see [python-fhirpy/](../python-fhirpy/).
 
 ## Setup
 
@@ -32,7 +34,7 @@ venv\Scripts\activate
 2. Install Python dependencies:
 
 ```bash
-pip install -r requirements.txt
+pip install -r fhir_types/requirements.txt
 ```
 
 3. Check Python version:
@@ -109,36 +111,6 @@ except ValidationError as e:
     print(f"Validation error: {e}")
 ```
 
-### Working with Observations
-
-```python
-from fhir_types import Observation
-from datetime import datetime
-
-observation = Observation(
-    resource_type="Observation",
-    id="obs-1",
-    status="final",
-    code={
-        "coding": [{
-            "system": "http://loinc.org",
-            "code": "39156-5",
-            "display": "BMI"
-        }]
-    },
-    subject={"reference": "Patient/patient-1"},
-    effective_date_time=datetime.now(),
-    value={
-        "quantity": {
-            "value": 25.5,
-            "unit": "kg/m2"
-        }
-    }
-)
-
-print(observation.code.coding[0].display)
-```
-
 ### Serialization and Deserialization
 
 ```python
@@ -176,72 +148,12 @@ Generated Pydantic models provide:
 
 ## Running Tests
 
-Create tests to verify generated types:
-
 ```bash
-pytest tests/ -v
-```
-
-### Example Test
-
-```python
-from fhir_types import Patient, Observation
-from pydantic import ValidationError
-import pytest
-
-def test_patient_creation():
-    patient = Patient(
-        resource_type="Patient",
-        id="patient-1",
-        name=[{"family": "Smith", "given": ["John"]}]
-    )
-    assert patient.id == "patient-1"
-    assert patient.name[0].family == "Smith"
-
-def test_patient_validation():
-    with pytest.raises(ValidationError):
-        Patient(
-            resource_type="InvalidType",
-            id="patient-1"
-        )
-
-def test_field_format():
-    patient = Patient(
-        resource_type="Patient",
-        birth_date="1980-01-15"  # snake_case format
-    )
-    assert patient.birth_date is not None
-```
-
-## Customization
-
-### Different Field Format
-
-Regenerate with camelCase:
-
-```typescript
-.python({
-  fieldFormat: "camelCase"
-})
-```
-
-### Lenient Validation
-
-Allow extra fields:
-
-```typescript
-.python({
-  allowExtraFields: true
-})
-```
-
-### Custom Output Directory
-
-```typescript
-.outputTo("./my_fhir_types")
+pytest test_sdk.py -v
 ```
 
 ## Next Steps
 
+- See [python-fhirpy/](../python-fhirpy/) for fhirpy async client example
 - See [examples/](../) overview for other language examples
 - Check [../../CLAUDE.md](../../CLAUDE.md) for architecture details

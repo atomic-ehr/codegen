@@ -51,6 +51,7 @@ test-all-example-generation:
 	bun run examples/local-package-folder/generate.ts
 	bun run examples/mustache/mustache-java-r4-gen.ts
 	bun run examples/python/generate.ts
+	bun run examples/python-fhirpy/generate.ts
 	bun run examples/typescript-ccda/generate.ts
 	bun run examples/typescript-r4/generate.ts
 	bun run examples/typescript-sql-on-fhir/generate.ts
@@ -81,27 +82,49 @@ test-csharp-sdk: typecheck format prepare-aidbox-runme lint
 	cd examples/csharp && dotnet test
 
 PYTHON=python3.13
-PYTHON_SDK_EXAMPLE=./examples/python
+PYTHON_EXAMPLE=./examples/python
+PYTHON_FHIRPY_EXAMPLE=./examples/python-fhirpy
 
-test-python-sdk: typecheck format prepare-aidbox-runme lint
+generate-python-sdk:
 	$(TYPECHECK) --project examples/python/tsconfig.json
 	bun run examples/python/generate.ts
 
-	@if [ ! -d "$(PYTHON_SDK_EXAMPLE)/venv" ]; then \
-		cd $(PYTHON_SDK_EXAMPLE) && \
+generate-python-sdk-fhirpy:
+	$(TYPECHECK) --project examples/python-fhirpy/tsconfig.json
+	bun run examples/python-fhirpy/generate.ts
+
+python-test-setup:
+	@if [ ! -d "$(PYTHON_EXAMPLE)/venv" ]; then \
+		cd $(PYTHON_EXAMPLE) && \
 		$(PYTHON) -m venv venv && \
 		. venv/bin/activate && \
 		pip install -r fhir_types/requirements.txt; \
 	fi
 
-	# Run mypy in strict mode
-	cd $(PYTHON_SDK_EXAMPLE) && \
+python-fhirpy-test-setup:
+	@if [ ! -d "$(PYTHON_FHIRPY_EXAMPLE)/venv" ]; then \
+		cd $(PYTHON_FHIRPY_EXAMPLE) && \
+		$(PYTHON) -m venv venv && \
 		. venv/bin/activate && \
-		mypy --strict .
+		pip install -r fhir_types/requirements.txt && \
+		pip install fhirpy; \
+	fi
 
-	cd $(PYTHON_SDK_EXAMPLE) && \
-		. venv/bin/activate && \
-		python -m pytest test_sdk.py -v
+test-python-sdk: typecheck format prepare-aidbox-runme lint generate-python-sdk python-test-setup
+    # Run mypy in strict mode
+	cd $(PYTHON_EXAMPLE) && \
+         . venv/bin/activate && \
+         mypy --strict .
+
+	cd $(PYTHON_EXAMPLE) && \
+         . venv/bin/activate && \
+         python -m pytest test_sdk.py -v
+
+test-python-fhirpy-sdk: typecheck format prepare-aidbox-runme lint generate-python-sdk-fhirpy python-fhirpy-test-setup
+    # Run mypy in strict mode
+	cd $(PYTHON_FHIRPY_EXAMPLE) && \
+       . venv/bin/activate && \
+       mypy --strict .
 
 release:
 	echo Push tag for $(VERSION)

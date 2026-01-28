@@ -98,7 +98,8 @@ See the [examples/](examples/) directory for working demonstrations:
 - **[typescript-r4/](examples/typescript-r4/)** - FHIR R4 type generation with resource creation demo and profile usage
 - **[typescript-ccda/](examples/typescript-ccda/)** - C-CDA on FHIR type generation
 - **[typescript-sql-on-fhir/](examples/typescript-sql-on-fhir/)** - SQL on FHIR ViewDefinition with tree shaking
-- **[python/](examples/python/)** - Python/Pydantic model generation with configurable field formats
+- **[python/](examples/python/)** - Python/Pydantic model generation with simple requests-based client
+- **[python-fhirpy/](examples/python-fhirpy/)** - Python/Pydantic model generation with fhirpy async client
 - **[csharp/](examples/csharp/)** - C# class generation with namespace configuration
 - **[mustache/](examples/mustache/)** - Java generation with Mustache templates and post-generation hooks
 - **[local-package-folder/](examples/local-package-folder/)** - Loading unpublished local FHIR packages
