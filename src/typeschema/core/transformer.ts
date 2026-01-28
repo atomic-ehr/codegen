@@ -246,7 +246,7 @@ function extractSubExtensions(
     }
 
     // Check for slices in extension.slicing.slices (new format)
-    const extensionElement = extensionSchema.elements["extension"] as any;
+    const extensionElement = extensionSchema.elements.extension as any;
     const slices = extensionElement?.slicing?.slices;
     if (slices && typeof slices === "object") {
         for (const [sliceName, sliceData] of Object.entries(slices)) {
