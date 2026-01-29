@@ -21,11 +21,16 @@ This directory contains working examples demonstrating the capabilities of Atomi
 
 ### Multi-Language Generation
 
-- **[python/](python/)** - Python/Pydantic model generation
+- **[python/](python/)** - Python/Pydantic model generation with simple requests-based client
   - `generate.ts` - Generates Python models with configurable field formats
   - Supports `snake_case` or `camelCase` field naming
   - Configurable extra field validation
-  - Client implementation example: [examples/python/client.py](examples/python/client.py).
+  - Client implementation example: [python/client.py](python/client.py)
+
+- **[python-fhirpy/](python-fhirpy/)** - Python/Pydantic models with fhirpy async client
+  - `generate.ts` - Generates Python models with fhirpy integration
+  - Uses `fhirpyClient: true` for async FHIR client support
+  - Client implementation example: [python-fhirpy/client.py](python-fhirpy/client.py)
 
 
 - **[csharp/](csharp/)** - C# class generation
