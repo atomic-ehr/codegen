@@ -2,7 +2,6 @@
 // bun run scripts/generate-fhir-types.ts
 
 import { registerFromPackageMetas } from "@root/typeschema/register";
-import type { CanonicalUrl } from "@root/typeschema/types";
 import { APIBuilder, prettyReport } from "../../src/api/builder";
 
 if (require.main === module) {
@@ -15,11 +14,11 @@ if (require.main === module) {
         .allSd()
         .filter(
             (sd) =>
-                (sd as any).extension?.find(
-                    (ext: any) => ext.url === "http://hl7.org/fhir/tools/StructureDefinition/type-profile-style",
+                sd.extension?.find(
+                    (ext) => ext.url === "http://hl7.org/fhir/tools/StructureDefinition/type-profile-style",
                 )?.valueUri === "cda",
         )
-        .map((sd) => sd.url as CanonicalUrl);
+        .map((sd) => sd.url);
 
     const builder = new APIBuilder({ manager: registry })
         .throwException()

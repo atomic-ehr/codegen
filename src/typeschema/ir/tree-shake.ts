@@ -234,7 +234,7 @@ export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _lo
 export const treeShake = (
     tsIndex: TypeSchemaIndex,
     treeShake: TreeShake,
-    { resolutionTree, logger }: { resolutionTree?: ResolutionTree; logger?: CodegenLogger },
+    { logger }: { logger?: CodegenLogger },
 ): TypeSchemaIndex => {
     const focusedSchemas: TypeSchema[] = [];
     for (const [pkgId, requires] of Object.entries(treeShake)) {
