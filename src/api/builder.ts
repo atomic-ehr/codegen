@@ -11,8 +11,9 @@ import { CanonicalManager, type LocalPackageConfig, type TgzPackageConfig } from
 import { CSharp, type CSharpGeneratorOptions } from "@root/api/writer-generator/csharp/csharp";
 import { Python, type PythonGeneratorOptions } from "@root/api/writer-generator/python";
 import { generateTypeSchemas } from "@root/typeschema";
+import { type LogicalPromotion, promoteLogical } from "@root/typeschema/ir/logic-promotion";
+import { type TreeShake, treeShake } from "@root/typeschema/ir/tree-shake";
 import { registerFromManager } from "@root/typeschema/register";
-import { type TreeShake, treeShake } from "@root/typeschema/tree-shake";
 import { type PackageMeta, packageMetaToNpm, type TypeSchema } from "@root/typeschema/types";
 import { mkTypeSchemaIndex, type TypeSchemaIndex } from "@root/typeschema/utils";
 import {
@@ -36,6 +37,8 @@ export interface APIBuilderOptions {
     cleanOutput: boolean;
     throwException: boolean;
     treeShake: TreeShake | undefined;
+    logicalPromotion: LogicalPromotion | undefined;
+
     /** Log level for the logger. Default: INFO */
     logLevel: LogLevel;
     /** Custom FHIR package registry URL (default: https://fs.get-ig.org/pkgs/) */
@@ -130,6 +133,7 @@ export class APIBuilder {
             cleanOutput: true,
             throwException: false,
             treeShake: undefined,
+            logicalPromotion: undefined,
             registry: undefined,
             logLevel: parseLogLevel("INFO"),
         };
@@ -223,6 +227,7 @@ export class APIBuilder {
             ...defaultWriterOpts,
             openResourceTypeSet: false,
             primitiveTypeExtension: true,
+            resourceTypeFieldForLogicalResource: true,
         };
         const opts: TypeScriptOptions = {
             ...defaultTsOpts,
@@ -349,6 +354,11 @@ export class APIBuilder {
         return this;
     }
 
+    promoteLogicToResource(promotion: LogicalPromotion) {
+        this.options.logicalPromotion = promotion;
+        return this;
+    }
+
     /**
      * @deprecated Use introspection({ typeSchemas: "path/to/file" }) method directly instead
      */
@@ -396,11 +406,13 @@ export class APIBuilder {
             const typeSchemas = await generateTypeSchemas(register, this.logger);
 
             const tsIndexOpts = {
-                resolutionTree: register.resolutionTree(),
+                register,
                 logger: this.logger,
             };
             let tsIndex = mkTypeSchemaIndex(typeSchemas, tsIndexOpts);
             if (this.options.treeShake) tsIndex = treeShake(tsIndex, this.options.treeShake, tsIndexOpts);
+            if (this.options.logicalPromotion)
+                tsIndex = promoteLogical(tsIndex, this.options.logicalPromotion, tsIndexOpts);
 
             this.logger.debug(`Executing ${this.generators.length} generators`);
 

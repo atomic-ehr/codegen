@@ -1,5 +1,129 @@
 // Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
+exports[`ValueSet to Type Schema (snapshot) administrative-gender 1`] = `
+"{
+  "identifier": {
+    "kind": "value-set",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "AdministrativeGender",
+    "url": "http://hl7.org/fhir/ValueSet/administrative-gender"
+  },
+  "description": "The gender of a person used for administrative purposes.",
+  "concept": [
+    {
+      "system": "http://hl7.org/fhir/administrative-gender",
+      "code": "male",
+      "display": "Male"
+    },
+    {
+      "system": "http://hl7.org/fhir/administrative-gender",
+      "code": "female",
+      "display": "Female"
+    },
+    {
+      "system": "http://hl7.org/fhir/administrative-gender",
+      "code": "other",
+      "display": "Other"
+    },
+    {
+      "system": "http://hl7.org/fhir/administrative-gender",
+      "code": "unknown",
+      "display": "Unknown"
+    }
+  ]
+}"
+`;
+
+exports[`ValueSet to Type Schema (snapshot) all-languages 1`] = `
+"{
+  "identifier": {
+    "kind": "value-set",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "AllLanguages",
+    "url": "http://hl7.org/fhir/ValueSet/all-languages"
+  },
+  "description": "This value set includes all possible codes from BCP-47 (http://tools.ietf.org/html/bcp47)",
+  "compose": {
+    "include": [
+      {
+        "system": "urn:ietf:bcp:47"
+      }
+    ]
+  }
+}"
+`;
+
+exports[`ValueSet to Type Schema (snapshot) marital-status 1`] = `
+"{
+  "identifier": {
+    "kind": "value-set",
+    "package": "hl7.fhir.r4.core",
+    "version": "4.0.1",
+    "name": "MaritalStatus",
+    "url": "http://hl7.org/fhir/ValueSet/marital-status"
+  },
+  "description": "This value set defines the set of codes that can be used to indicate the marital status of a person.",
+  "concept": [
+    {
+      "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+      "code": "A",
+      "display": "Annulled"
+    },
+    {
+      "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+      "code": "D",
+      "display": "Divorced"
+    },
+    {
+      "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+      "code": "I",
+      "display": "Interlocutory"
+    },
+    {
+      "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+      "code": "L",
+      "display": "Legally Separated"
+    },
+    {
+      "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+      "code": "M",
+      "display": "Married"
+    },
+    {
+      "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+      "code": "P",
+      "display": "Polygamous"
+    },
+    {
+      "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+      "code": "S",
+      "display": "Never Married"
+    },
+    {
+      "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+      "code": "T",
+      "display": "Domestic partner"
+    },
+    {
+      "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+      "code": "U",
+      "display": "unmarried"
+    },
+    {
+      "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+      "code": "W",
+      "display": "Widowed"
+    },
+    {
+      "system": "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
+      "code": "UNK"
+    }
+  ]
+}"
+`;
+
 exports[`FHIR Schema to Type Schema (snapshot) with cardinality 1`] = `
 "[
   {
@@ -827,130 +951,6 @@ exports[`FHIR Schema to Type Schema (snapshot) Real world examples string primit
     ]
   }
 ]"
-`;
-
-exports[`ValueSet to Type Schema (snapshot) administrative-gender 1`] = `
-"{
-  "identifier": {
-    "kind": "value-set",
-    "package": "hl7.fhir.r4.core",
-    "version": "4.0.1",
-    "name": "AdministrativeGender",
-    "url": "http://hl7.org/fhir/ValueSet/administrative-gender"
-  },
-  "description": "The gender of a person used for administrative purposes.",
-  "concept": [
-    {
-      "system": "http://hl7.org/fhir/administrative-gender",
-      "code": "male",
-      "display": "Male"
-    },
-    {
-      "system": "http://hl7.org/fhir/administrative-gender",
-      "code": "female",
-      "display": "Female"
-    },
-    {
-      "system": "http://hl7.org/fhir/administrative-gender",
-      "code": "other",
-      "display": "Other"
-    },
-    {
-      "system": "http://hl7.org/fhir/administrative-gender",
-      "code": "unknown",
-      "display": "Unknown"
-    }
-  ]
-}"
-`;
-
-exports[`ValueSet to Type Schema (snapshot) all-languages 1`] = `
-"{
-  "identifier": {
-    "kind": "value-set",
-    "package": "hl7.fhir.r4.core",
-    "version": "4.0.1",
-    "name": "AllLanguages",
-    "url": "http://hl7.org/fhir/ValueSet/all-languages"
-  },
-  "description": "This value set includes all possible codes from BCP-47 (http://tools.ietf.org/html/bcp47)",
-  "compose": {
-    "include": [
-      {
-        "system": "urn:ietf:bcp:47"
-      }
-    ]
-  }
-}"
-`;
-
-exports[`ValueSet to Type Schema (snapshot) marital-status 1`] = `
-"{
-  "identifier": {
-    "kind": "value-set",
-    "package": "hl7.fhir.r4.core",
-    "version": "4.0.1",
-    "name": "MaritalStatus",
-    "url": "http://hl7.org/fhir/ValueSet/marital-status"
-  },
-  "description": "This value set defines the set of codes that can be used to indicate the marital status of a person.",
-  "concept": [
-    {
-      "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
-      "code": "A",
-      "display": "Annulled"
-    },
-    {
-      "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
-      "code": "D",
-      "display": "Divorced"
-    },
-    {
-      "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
-      "code": "I",
-      "display": "Interlocutory"
-    },
-    {
-      "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
-      "code": "L",
-      "display": "Legally Separated"
-    },
-    {
-      "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
-      "code": "M",
-      "display": "Married"
-    },
-    {
-      "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
-      "code": "P",
-      "display": "Polygamous"
-    },
-    {
-      "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
-      "code": "S",
-      "display": "Never Married"
-    },
-    {
-      "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
-      "code": "T",
-      "display": "Domestic partner"
-    },
-    {
-      "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
-      "code": "U",
-      "display": "unmarried"
-    },
-    {
-      "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
-      "code": "W",
-      "display": "Widowed"
-    },
-    {
-      "system": "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
-      "code": "UNK"
-    }
-  ]
-}"
 `;
 
 exports[`FHIR Schema to Type Schema (snapshot) Custom resource TutorNotificationTemplate 1`] = `

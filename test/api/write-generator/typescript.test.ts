@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { APIBuilder } from "@root/api/builder";
-import { r4Manager } from "@typeschema-test/utils";
+import type { CanonicalUrl } from "@root/typeschema/types";
+import { ccdaManager, r4Manager } from "@typeschema-test/utils";
 
 describe("TypeScript Writer Generator", async () => {
     const result = await new APIBuilder({ manager: r4Manager })
@@ -10,7 +11,7 @@ describe("TypeScript Writer Generator", async () => {
         })
         .generate();
     expect(result.success).toBeTrue();
-    expect(Object.keys(result.filesGenerated).length).toEqual(236);
+    expect(Object.keys(result.filesGenerated).length).toEqual(238);
     it("generates Patient resource in inMemoryOnly mode with snapshot", async () => {
         expect(result.filesGenerated["generated/types/hl7-fhir-r4-core/Patient.ts"]).toMatchSnapshot();
     });
@@ -48,5 +49,25 @@ describe("TypeScript Writer Generator with Tree Shaking", async () => {
     it("generates package-level README.md with tree shake report", () => {
         expect(result.filesGenerated["generated/types/hl7-fhir-r4-core/README.md"]).toBeDefined();
         expect(result.filesGenerated["generated/types/hl7-fhir-r4-core/README.md"]).toMatchSnapshot();
+    });
+});
+
+describe("TypeScript CDA with Logical Model Promotion to Resource", async () => {
+    const result = await new APIBuilder({ manager: ccdaManager })
+        .setLogLevel("SILENT")
+        .promoteLogicToResource({
+            "hl7.cda.uv.core": ["http://hl7.org/cda/stds/core/StructureDefinition/Material" as CanonicalUrl],
+        })
+        .typescript({
+            inMemoryOnly: true,
+            resourceTypeFieldForLogicalResource: false,
+        })
+        .generate();
+    expect(result.success).toBeTrue();
+    it("without resourceType", async () => {
+        expect(result.filesGenerated["generated/types/hl7-cda-uv-core/Cv.ts"]).toMatchSnapshot();
+    });
+    it("with resourceType", async () => {
+        expect(result.filesGenerated["generated/types/hl7-cda-uv-core/Material.ts"]).toMatchSnapshot();
     });
 });
