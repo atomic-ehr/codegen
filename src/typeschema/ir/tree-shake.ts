@@ -1,7 +1,6 @@
 import assert from "node:assert";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import { extractDependencies } from "../core/transformer";
-import type { ResolutionTree } from "../register";
 import {
     type CanonicalUrl,
     type Field,
@@ -15,19 +14,20 @@ import {
     isSpecializationTypeSchema,
     isValueSetTypeSchema,
     type NestedType,
+    type PkgName,
     type RegularTypeSchema,
     type TypeSchema,
 } from "../types";
-import { mkTypeSchemaIndex, type PackageName, type TypeSchemaIndex } from "../utils";
+import { mkTypeSchemaIndex, type TypeSchemaIndex } from "../utils";
 
 export type TreeShake = Record<string, Record<string, TreeShakeRule>>;
 
 export type TreeShakeRule = { ignoreFields?: string[]; selectFields?: string[] };
 
 export interface TreeShakeReport {
-    skippedPackages: PackageName[];
+    skippedPackages: PkgName[];
     packages: Record<
-        PackageName,
+        PkgName,
         {
             skippedCanonicals: CanonicalUrl[];
             canonicals: Record<
@@ -62,7 +62,7 @@ export const rootTreeShakeReadme = (report: TypeSchemaIndex | TreeShakeReport) =
     return lines.join("\n");
 };
 
-export const packageTreeShakeReadme = (report: TypeSchemaIndex | TreeShakeReport, pkgName: PackageName) => {
+export const packageTreeShakeReadme = (report: TypeSchemaIndex | TreeShakeReport, pkgName: PkgName) => {
     report = ensureTreeShakeReport(report);
     const lines = [`# Package: ${pkgName}`, ""];
     assert(report.packages[pkgName]);

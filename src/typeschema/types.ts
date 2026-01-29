@@ -80,8 +80,8 @@ export const enrichFHIRSchema = (schema: FS.FHIRSchema, packageMeta?: PackageMet
 type IdentifierBase = {
     name: Name;
     url: CanonicalUrl;
-    package: string;
-    version: string;
+    package: PkgName;
+    version: PkgVersion;
 };
 
 type PrimitiveIdentifier = { kind: "primitive-type" } & IdentifierBase;

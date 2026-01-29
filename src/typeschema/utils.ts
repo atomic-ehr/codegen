@@ -13,6 +13,7 @@ import {
     isProfileTypeSchema,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
+    type PkgName,
     type ProfileExtension,
     type ProfileTypeSchema,
     type RegularTypeSchema,
@@ -22,8 +23,8 @@ import {
 ///////////////////////////////////////////////////////////
 // TypeSchema processing
 
-export const groupByPackages = (typeSchemas: TypeSchema[]): Record<PackageName, TypeSchema[]> => {
-    const grouped = {} as Record<PackageName, TypeSchema[]>;
+export const groupByPackages = (typeSchemas: TypeSchema[]): Record<PkgName, TypeSchema[]> => {
+    const grouped = {} as Record<PkgName, TypeSchema[]>;
     for (const ts of typeSchemas) {
         const pkgName = ts.identifier.package;
         if (!grouped[pkgName]) grouped[pkgName] = [];
@@ -148,19 +149,18 @@ const resourceRelatives = (schemas: TypeSchema[]): TypeRelation[] => {
 ///////////////////////////////////////////////////////////
 // Type Schema Index
 
-export type PackageName = string;
 export type TypeSchemaIndex = {
-    _schemaIndex: Record<CanonicalUrl, Record<PackageName, TypeSchema>>;
+    _schemaIndex: Record<CanonicalUrl, Record<PkgName, TypeSchema>>;
     _relations: TypeRelation[];
     schemas: TypeSchema[];
-    schemasByPackage: Record<PackageName, TypeSchema[]>;
+    schemasByPackage: Record<PkgName, TypeSchema[]>;
     register?: Register;
     collectComplexTypes: () => RegularTypeSchema[];
     collectResources: () => RegularTypeSchema[];
     collectLogicalModels: () => RegularTypeSchema[];
     collectProfiles: () => ProfileTypeSchema[];
     resolve: (id: Identifier) => TypeSchema | undefined;
-    resolveByUrl: (pkgName: PackageName, url: CanonicalUrl) => TypeSchema | undefined;
+    resolveByUrl: (pkgName: PkgName, url: CanonicalUrl) => TypeSchema | undefined;
     resourceChildren: (id: Identifier) => Identifier[];
     tryHierarchy: (schema: TypeSchema) => TypeSchema[] | undefined;
     hierarchy: (schema: TypeSchema) => TypeSchema[];
@@ -173,7 +173,7 @@ export type TypeSchemaIndex = {
     treeShakeReport: () => TreeShakeReport | undefined;
 };
 
-type EntityTree = Record<PackageName, Record<Identifier["kind"], Record<CanonicalUrl, object>>>;
+type EntityTree = Record<PkgName, Record<Identifier["kind"], Record<CanonicalUrl, object>>>;
 
 export const mkTypeSchemaIndex = (
     schemas: TypeSchema[],
@@ -187,8 +187,8 @@ export const mkTypeSchemaIndex = (
         treeShakeReport?: TreeShakeReport;
     },
 ): TypeSchemaIndex => {
-    const index: Record<CanonicalUrl, Record<PackageName, TypeSchema>> = {};
-    const nestedIndex: Record<CanonicalUrl, Record<PackageName, TypeSchema>> = {};
+    const index: Record<CanonicalUrl, Record<PkgName, TypeSchema>> = {};
+    const nestedIndex: Record<CanonicalUrl, Record<PkgName, TypeSchema>> = {};
     const append = (schema: TypeSchema) => {
         const url = schema.identifier.url;
         const pkg = schema.identifier.package;
@@ -222,7 +222,7 @@ export const mkTypeSchemaIndex = (
         if (id.kind === "nested") return nestedIndex[id.url]?.[id.package];
         return index[id.url]?.[id.package];
     };
-    const resolveByUrl = (pkgName: PackageName, url: CanonicalUrl) => {
+    const resolveByUrl = (pkgName: PkgName, url: CanonicalUrl) => {
         if (register) {
             const resolutionTree = register.resolutionTree();
             const resolution = resolutionTree[pkgName]?.[url]?.[0];
