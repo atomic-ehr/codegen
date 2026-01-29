@@ -23,9 +23,12 @@ export const extractNameFromCanonical = (canonical: CanonicalUrl, dropFragment =
     return localName;
 };
 
+export type PkgName = string;
+export type PkgVersion = string;
+
 export interface PackageMeta {
-    name: string;
-    version: string;
+    name: PkgName;
+    version: PkgVersion;
 }
 
 export const packageMeta = (schema: TypeSchema): PackageMeta => {
