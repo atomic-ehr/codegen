@@ -1,7 +1,7 @@
 import assert from "node:assert";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
-import { extractDependencies } from "./core/transformer";
-import type { ResolutionTree } from "./register";
+import { extractDependencies } from "../core/transformer";
+import type { ResolutionTree } from "../register";
 import {
     type CanonicalUrl,
     type Field,
@@ -17,8 +17,8 @@ import {
     type NestedType,
     type RegularTypeSchema,
     type TypeSchema,
-} from "./types";
-import { mkTypeSchemaIndex, type PackageName, type TypeSchemaIndex } from "./utils";
+} from "../types";
+import { mkTypeSchemaIndex, type PackageName, type TypeSchemaIndex } from "../utils";
 
 export type TreeShake = Record<string, Record<string, TreeShakeRule>>;
 

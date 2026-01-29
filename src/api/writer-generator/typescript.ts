@@ -7,7 +7,7 @@ import {
     uppercaseFirstLetterOfEach,
 } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
-import { packageTreeShakeReadme, rootTreeShakeReadme } from "@root/typeschema/tree-shake";
+import { packageTreeShakeReadme, rootTreeShakeReadme } from "@root/typeschema/ir/tree-shake";
 import {
     type CanonicalUrl,
     extractNameFromCanonical,

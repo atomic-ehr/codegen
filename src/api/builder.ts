@@ -11,8 +11,8 @@ import { CanonicalManager, type LocalPackageConfig, type TgzPackageConfig } from
 import { CSharp, type CSharpGeneratorOptions } from "@root/api/writer-generator/csharp/csharp";
 import { Python, type PythonGeneratorOptions } from "@root/api/writer-generator/python";
 import { generateTypeSchemas } from "@root/typeschema";
+import { type TreeShake, treeShake } from "@root/typeschema/ir/tree-shake";
 import { registerFromManager } from "@root/typeschema/register";
-import { type TreeShake, treeShake } from "@root/typeschema/tree-shake";
 import { type PackageMeta, packageMetaToNpm, type TypeSchema } from "@root/typeschema/types";
 import { mkTypeSchemaIndex, type TypeSchemaIndex } from "@root/typeschema/utils";
 import {
