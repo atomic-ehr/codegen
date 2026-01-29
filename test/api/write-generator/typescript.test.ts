@@ -25,7 +25,6 @@ describe("TypeScript CDA with Logical Model Promotion to Resource", async () => 
         })
         .typescript({
             inMemoryOnly: true,
-            resourceTypeFieldForLogicalResource: false,
         })
         .generate();
     expect(result.success).toBeTrue();

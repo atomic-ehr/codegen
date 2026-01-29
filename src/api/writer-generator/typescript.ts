@@ -184,7 +184,6 @@ export type TypeScriptOptions = {
      */
     openResourceTypeSet: boolean;
     primitiveTypeExtension: boolean;
-    resourceTypeFieldForLogicalResource: boolean;
 } & WriterOptions;
 
 export class TypeScript extends Writer<TypeScriptOptions> {
@@ -232,8 +231,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                                   ? schema.nested.map((n) => tsResourceName(n.identifier))
                                   : []),
                           ];
-                    const valueExports =
-                        isResourceTypeSchema(schema) || this.isLogicalLikeResource(schema) ? [`is${resourceName}`] : [];
+                    const valueExports = isResourceTypeSchema(schema) ? [`is${resourceName}`] : [];
 
                     return [
                         {
@@ -347,7 +345,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             return;
         }
         this.curlyBlock(["export", "interface", name, extendsClause], () => {
-            if (isResourceTypeSchema(schema) || this.isLogicalLikeResource(schema)) {
+            if (isResourceTypeSchema(schema)) {
                 const possibleResourceTypes = [schema.identifier];
                 possibleResourceTypes.push(...tsIndex.resourceChildren(schema.identifier));
                 const openSetSuffix =
@@ -410,12 +408,8 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         return false;
     }
 
-    isLogicalLikeResource(schema: RegularTypeSchema) {
-        return this.opts.resourceTypeFieldForLogicalResource && isLogicalTypeSchema(schema);
-    }
-
     generateResourceTypePredicate(schema: RegularTypeSchema) {
-        if (!isResourceTypeSchema(schema) && !this.isLogicalLikeResource(schema)) return;
+        if (!isResourceTypeSchema(schema)) return;
         const name = tsResourceName(schema.identifier);
         this.curlyBlock(["export", "const", `is${name}`, "=", `(resource: unknown): resource is ${name}`, "=>"], () => {
             this.lineSM(

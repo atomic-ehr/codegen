@@ -227,7 +227,6 @@ export class APIBuilder {
             ...defaultWriterOpts,
             openResourceTypeSet: false,
             primitiveTypeExtension: true,
-            resourceTypeFieldForLogicalResource: true,
         };
         const opts: TypeScriptOptions = {
             ...defaultTsOpts,
