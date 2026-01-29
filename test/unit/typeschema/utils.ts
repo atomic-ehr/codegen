@@ -43,6 +43,8 @@ export const mkCCDARegister = async () =>
         // logger: createLogger({ verbose: true, prefix: "TEST" })
     });
 
+export const ccdaManager = await mkCCDARegister();
+
 export const registerFs = (register: Register, fs: PFS) => {
     if (!fs.package_meta) fs.package_meta = { name: "mypackage", version: "0.0.0" };
     const rfs = enrichFHIRSchema(fs as FHIRSchema);

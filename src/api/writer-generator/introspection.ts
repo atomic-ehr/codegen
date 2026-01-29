@@ -1,6 +1,5 @@
 import * as Path from "node:path";
-import type { StructureDefinition } from "@atomic-ehr/fhirschema";
-import type { RichFHIRSchema } from "@root/typeschema/types";
+import type { RichFHIRSchema, RichStructureDefinition } from "@root/typeschema/types";
 import { type CanonicalUrl, extractNameFromCanonical, type TypeSchema } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import YAML from "yaml";
@@ -41,7 +40,10 @@ const fhirSchemaToJson = (fs: RichFHIRSchema, pretty: boolean): { filename: stri
     };
 };
 
-const structureDefinitionToJson = (sd: StructureDefinition, pretty: boolean): { filename: string; content: string } => {
+const structureDefinitionToJson = (
+    sd: RichStructureDefinition,
+    pretty: boolean,
+): { filename: string; content: string } => {
     const pkgPath = normalizeFileName(sd.package_name ?? "unknown");
     const name = normalizeFileName(`${sd.name}(${extractNameFromCanonical(sd.url as CanonicalUrl)})`);
     const baseName = Path.join(pkgPath, name);

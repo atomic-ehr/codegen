@@ -8,7 +8,14 @@ import {
 } from "@atomic-ehr/fhirschema";
 import { type CodeSystem, isCodeSystem, isValueSet, type ValueSet } from "@root/fhir-types/hl7-fhir-r4-core";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
-import type { CanonicalUrl, Name, PackageMeta, RichFHIRSchema, RichValueSet } from "@typeschema/types";
+import type {
+    CanonicalUrl,
+    Name,
+    PackageMeta,
+    RichFHIRSchema,
+    RichStructureDefinition,
+    RichValueSet,
+} from "@typeschema/types";
 import { enrichFHIRSchema, enrichValueSet, packageMetaToFhir, packageMetaToNpm } from "@typeschema/types";
 
 export type Register = {
@@ -18,7 +25,7 @@ export type Register = {
     resolveFs(pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichFHIRSchema | undefined;
     resolveFsGenealogy(pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichFHIRSchema[];
     resolveFsSpecializations(pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichFHIRSchema[];
-    allSd(): StructureDefinition[];
+    allSd(): RichStructureDefinition[];
     allFs(): RichFHIRSchema[];
     allVs(): RichValueSet[];
     resolveVs(_pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichValueSet | undefined;
@@ -156,10 +163,8 @@ export const registerFromManager = async (
             const resource = resolition.resource;
             const resourcePkg = resolition.pkg;
             if (isStructureDefinition(resource)) {
-                const rfs = enrichFHIRSchema(
-                    fhirschema.translate(resource as StructureDefinition) as FHIRSchema,
-                    resourcePkg,
-                );
+                const fs = fhirschema.translate(resource as StructureDefinition) as FHIRSchema;
+                const rfs = enrichFHIRSchema(fs, resourcePkg);
                 counter++;
                 resolver[pkgId].fhirSchemas[rfs.url] = rfs;
             }
@@ -254,7 +259,7 @@ export const registerFromManager = async (
                 .flatMap((pkgIndex) =>
                     Object.values(pkgIndex.canonicalResolution).flatMap((resolutions) =>
                         resolutions.map((r) => {
-                            let sd = r.resource as StructureDefinition;
+                            let sd = r.resource as RichStructureDefinition;
                             if (!sd.package_name) {
                                 sd = structuredClone(sd);
                                 sd.package_name = pkgIndex.pkg.name;
@@ -264,7 +269,7 @@ export const registerFromManager = async (
                         }),
                     ),
                 )
-                .filter((r): r is StructureDefinition => isStructureDefinition(r))
+                .filter((r): r is RichStructureDefinition => isStructureDefinition(r))
                 .sort((sd1, sd2) => sd1.url.localeCompare(sd2.url)),
         allFs: () => Object.values(resolver).flatMap((pkgIndex) => Object.values(pkgIndex.fhirSchemas)),
         allVs: () => Object.values(resolver).flatMap((pkgIndex) => Object.values(pkgIndex.valueSets)),

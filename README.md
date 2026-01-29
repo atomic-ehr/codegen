@@ -238,6 +238,22 @@ Beyond resource-level filtering, tree shaking supports fine-grained field select
 
 FHIR choice types (like `multipleBirth[x]` which can be boolean or integer) are handled intelligently. Selecting/ignoring the base field affects all variants, while targeting specific variants only affects those types.
 
+##### Logical Promotion
+
+Some implementation guides expose logical models (logical-kind StructureDefinitions) that are intended to be used like resources in generated SDKs. The code generator supports promoting selected logical models to behave as resources during generation.
+
+Use the programmatic API via `APIBuilder`:
+
+```typescript
+const builder = new APIBuilder({})
+  .fromPackage("my.custom.pkg", "4.0.1")
+  .promoteLogicToResource({
+    "my.custom.pkg": [
+      "http://example.org/StructureDefinition/MyLogicalModel"
+    ]
+  })
+```
+
 ### Generation
 
 The generation stage transforms Type Schema into target language code using two complementary approaches:
