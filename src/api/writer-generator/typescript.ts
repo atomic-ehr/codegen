@@ -233,7 +233,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                                   : []),
                           ];
                     const valueExports =
-                        isResourceTypeSchema(schema) || isLogicalTypeSchema(schema) ? [`is${resourceName}`] : [];
+                        isResourceTypeSchema(schema) || this.isLogicalLikeResource(schema) ? [`is${resourceName}`] : [];
 
                     return [
                         {
@@ -347,10 +347,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             return;
         }
         this.curlyBlock(["export", "interface", name, extendsClause], () => {
-            if (
-                isResourceTypeSchema(schema) ||
-                (this.opts.resourceTypeFieldForLogicalResource && isLogicalTypeSchema(schema))
-            ) {
+            if (isResourceTypeSchema(schema) || this.isLogicalLikeResource(schema)) {
                 const possibleResourceTypes = [schema.identifier];
                 possibleResourceTypes.push(...tsIndex.resourceChildren(schema.identifier));
                 const openSetSuffix =
@@ -413,8 +410,12 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         return false;
     }
 
+    isLogicalLikeResource(schema: RegularTypeSchema) {
+        return this.opts.resourceTypeFieldForLogicalResource && isLogicalTypeSchema(schema);
+    }
+
     generateResourceTypePredicate(schema: RegularTypeSchema) {
-        if (!isResourceTypeSchema(schema) && !isLogicalTypeSchema(schema)) return;
+        if (!isResourceTypeSchema(schema) && !this.isLogicalLikeResource(schema)) return;
         const name = tsResourceName(schema.identifier);
         this.curlyBlock(["export", "const", `is${name}`, "=", `(resource: unknown): resource is ${name}`, "=>"], () => {
             this.lineSM(
