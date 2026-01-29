@@ -3,12 +3,13 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { Element } from "../hl7-fhir-r4-core/Element";
-import type { Extension } from "../hl7-fhir-r4-core/Extension";
+import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 
 export type { Element } from "../hl7-fhir-r4-core/Element";
-export type { Extension } from "../hl7-fhir-r4-core/Extension";
+export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/BackboneElement
-export interface BackboneElement extends Element {
-    modifierExtension?: Extension[];
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Ratio
+export interface Ratio extends Element {
+    denominator?: Quantity;
+    numerator?: Quantity;
 }
