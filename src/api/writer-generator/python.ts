@@ -159,12 +159,21 @@ export class Python extends Writer<PythonGeneratorOptions> {
             groupedComplexTypes: groupByPackages(tsIndex.collectComplexTypes()),
             groupedResources: groupByPackages(tsIndex.collectResources()),
         };
-        this.generateRootPackages(groups);
-        this.generateSDKPackages(groups);
+        const treeShakeReport = tsIndex.treeShakeReport();
+        this.generateRootPackages(groups, treeShakeReport);
+        this.generateSDKPackages(groups, treeShakeReport);
     }
 
-    private generateRootPackages(groups: TypeSchemaPackageGroups): void {
+    private generateRootPackages(
+        groups: TypeSchemaPackageGroups,
+        treeShakeReport: ReturnType<TypeSchemaIndex["treeShakeReport"]>,
+    ): void {
         this.generateRootInitFile(groups);
+          // fixme
+        this.cp(resolvePyAssets("requirements.txt"), "requirements.txt");
+        if (treeShakeReport) {
+            this.generateRootTreeShakeReadme(treeShakeReport);
+        }
         if (this.forFhirpyClient)
             this.copyAssets(
                 resolvePyAssets("fhirpy_base_model.py"),
@@ -173,9 +182,12 @@ export class Python extends Writer<PythonGeneratorOptions> {
         this.copyAssets(resolvePyAssets("requirements.txt"), Path.resolve(this.opts.outputDir, "requirements.txt"));
     }
 
-    private generateSDKPackages(groups: TypeSchemaPackageGroups): void {
+    private generateSDKPackages(
+        groups: TypeSchemaPackageGroups,
+        treeShakeReport: ReturnType<TypeSchemaIndex["treeShakeReport"]>,
+    ): void {
         this.generateComplexTypesPackages(groups.groupedComplexTypes);
-        this.generateResourcePackages(groups);
+        this.generateResourcePackages(groups, treeShakeReport);
     }
 
     private generateComplexTypesPackages(groupedComplexTypes: Record<string, RegularTypeSchema[]>): void {
@@ -186,7 +198,10 @@ export class Python extends Writer<PythonGeneratorOptions> {
         }
     }
 
-    private generateResourcePackages(groups: TypeSchemaPackageGroups): void {
+    private generateResourcePackages(
+        groups: TypeSchemaPackageGroups,
+        treeShakeReport: ReturnType<TypeSchemaIndex["treeShakeReport"]>,
+    ): void {
         for (const [packageName, packageResources] of Object.entries(groups.groupedResources)) {
             this.cd(`/${snakeCase(packageName)}`, () => {
                 this.generateResourcePackageContent(
@@ -194,6 +209,9 @@ export class Python extends Writer<PythonGeneratorOptions> {
                     packageResources,
                     groups.groupedComplexTypes[packageName] || [],
                 );
+                if (treeShakeReport) {
+                    this.generatePackageTreeShakeReadme(treeShakeReport, packageName, ".");
+                }
             });
         }
     }
