@@ -14,7 +14,7 @@ const logger = createLogger({ prefix: "TEST" });
 
 export const mkIndex = async (register: Register, logger?: CodegenLogger) =>
     mkTypeSchemaIndex(await generateTypeSchemas(register, logger), {
-        resolutionTree: register.resolutionTree(),
+        register,
         logger,
     });
 
@@ -42,6 +42,8 @@ export const mkCCDARegister = async () =>
     registerFromPackageMetas([ccdaPackage], {
         // logger: createLogger({ verbose: true, prefix: "TEST" })
     });
+
+export const ccdaManager = await mkCCDARegister();
 
 export const registerFs = (register: Register, fs: PFS) => {
     if (!fs.package_meta) fs.package_meta = { name: "mypackage", version: "0.0.0" };

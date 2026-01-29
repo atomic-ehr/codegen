@@ -98,7 +98,8 @@ See the [examples/](examples/) directory for working demonstrations:
 - **[typescript-r4/](examples/typescript-r4/)** - FHIR R4 type generation with resource creation demo and profile usage
 - **[typescript-ccda/](examples/typescript-ccda/)** - C-CDA on FHIR type generation
 - **[typescript-sql-on-fhir/](examples/typescript-sql-on-fhir/)** - SQL on FHIR ViewDefinition with tree shaking
-- **[python/](examples/python/)** - Python/Pydantic model generation with configurable field formats
+- **[python/](examples/python/)** - Python/Pydantic model generation with simple requests-based client
+- **[python-fhirpy/](examples/python-fhirpy/)** - Python/Pydantic model generation with fhirpy async client
 - **[csharp/](examples/csharp/)** - C# class generation with namespace configuration
 - **[mustache/](examples/mustache/)** - Java generation with Mustache templates and post-generation hooks
 - **[local-package-folder/](examples/local-package-folder/)** - Loading unpublished local FHIR packages
@@ -145,9 +146,11 @@ const builder = new APIBuilder()
 
     // Optional: Introspection & debugging
     .throwException()                          // Throw on errors (optional)
-    .introspection({ 
-        typeSchemas: "./schemas", 
-        typeTree: "./tree.yaml" 
+    .introspection({
+        typeSchemas: "./schemas",              // Export TypeSchemas
+        typeTree: "./tree.yaml",               // Export type tree
+        fhirSchemas: "./fhir-schemas",         // Export FHIR schemas
+        structureDefinitions: "./sd"           // Export StructureDefinitions
     })
 
     // Execute generation
@@ -234,6 +237,22 @@ Beyond resource-level filtering, tree shaking supports fine-grained field select
 **Polymorphic Field Handling:**
 
 FHIR choice types (like `multipleBirth[x]` which can be boolean or integer) are handled intelligently. Selecting/ignoring the base field affects all variants, while targeting specific variants only affects those types.
+
+##### Logical Promotion
+
+Some implementation guides expose logical models (logical-kind StructureDefinitions) that are intended to be used like resources in generated SDKs. The code generator supports promoting selected logical models to behave as resources during generation.
+
+Use the programmatic API via `APIBuilder`:
+
+```typescript
+const builder = new APIBuilder({})
+  .fromPackage("my.custom.pkg", "4.0.1")
+  .promoteLogicToResource({
+    "my.custom.pkg": [
+      "http://example.org/StructureDefinition/MyLogicalModel"
+    ]
+  })
+```
 
 ### Generation
 

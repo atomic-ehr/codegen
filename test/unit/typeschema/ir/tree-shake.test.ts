@@ -1,12 +1,12 @@
 import { describe, expect, it } from "bun:test";
 import assert from "node:assert";
-import { registerFromPackageMetas } from "@root/typeschema/register";
 import {
     packageTreeShakeReadme,
     rootTreeShakeReadme,
     treeShake,
     treeShakeTypeSchema,
-} from "@root/typeschema/tree-shake";
+} from "@root/typeschema/ir/tree-shake";
+import { registerFromPackageMetas } from "@root/typeschema/register";
 import type { CanonicalUrl, RegularTypeSchema } from "@root/typeschema/types";
 import { mkIndex, mkR4Register, r4Manager, r4Package, r5Package, resolveTs } from "@typeschema-test/utils";
 
