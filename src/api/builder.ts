@@ -5,6 +5,7 @@
  * This builder pattern allows users to configure generation in a declarative way.
  */
 
+import assert from "node:assert";
 import * as fs from "node:fs";
 import * as Path from "node:path";
 import { CanonicalManager, type LocalPackageConfig, type TgzPackageConfig } from "@atomic-ehr/fhir-canonical-manager";
@@ -13,7 +14,7 @@ import { Python, type PythonGeneratorOptions } from "@root/api/writer-generator/
 import { generateTypeSchemas } from "@root/typeschema";
 import { promoteLogical } from "@root/typeschema/ir/logic-promotion";
 import { treeShake } from "@root/typeschema/ir/tree-shake";
-import type { LogicalPromotion, TreeShake } from "@root/typeschema/ir/types";
+import type { IrConf, LogicalPromotionConf, TreeShakeConf } from "@root/typeschema/ir/types";
 import { registerFromManager } from "@root/typeschema/register";
 import { type PackageMeta, packageMetaToNpm, type TypeSchema } from "@root/typeschema/types";
 import { mkTypeSchemaIndex, type TypeSchemaIndex } from "@root/typeschema/utils";
@@ -25,6 +26,7 @@ import {
     parseLogLevel,
 } from "@root/utils/codegen-logger";
 import { IntrospectionWriter, type IntrospectionWriterOptions } from "./writer-generator/introspection";
+import { IrReportWriterWriter, type IrReportWriterWriterOptions } from "./writer-generator/ir-report";
 import type { FileBasedMustacheGeneratorOptions } from "./writer-generator/mustache";
 import * as Mustache from "./writer-generator/mustache";
 import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript";
@@ -37,8 +39,8 @@ export interface APIBuilderOptions {
     outputDir: string;
     cleanOutput: boolean;
     throwException: boolean;
-    treeShake: TreeShake | undefined;
-    logicalPromotion: LogicalPromotion | undefined;
+    treeShake: TreeShakeConf | undefined;
+    promoteLogical: LogicalPromotionConf | undefined;
 
     /** Log level for the logger. Default: INFO */
     logLevel: LogLevel;
@@ -140,7 +142,7 @@ export class APIBuilder {
             cleanOutput: true,
             throwException: false,
             treeShake: undefined,
-            logicalPromotion: undefined,
+            promoteLogical: undefined,
             registry: undefined,
             logLevel: parseLogLevel("INFO"),
         };
@@ -348,28 +350,34 @@ export class APIBuilder {
         return this;
     }
 
-    /**
-     * @deprecated Use `.introspection({ typeTree: "path/to/file" })` instead
-     */
-    writeTypeTree(filename: string) {
-        return this.introspection({ typeTree: filename });
-    }
-
-    treeShake(tree: TreeShake) {
-        this.options.treeShake = tree;
+    typeSchema(cfg: IrConf) {
+        if (cfg.treeShake) {
+            assert(this.options.treeShake === undefined, "treeShake option is already set");
+            this.options.treeShake = cfg.treeShake;
+        }
+        if (cfg.promoteLogical) {
+            assert(this.options.promoteLogical === undefined, "promoteLogical option is already set");
+            this.options.promoteLogical = cfg.promoteLogical;
+        }
+        this.irReport({});
         return this;
     }
 
-    promoteLogicToResource(promotion: LogicalPromotion) {
-        this.options.logicalPromotion = promotion;
-        return this;
-    }
+    irReport(userOpts: Partial<IrReportWriterWriterOptions>) {
+        const defaultWriterOpts: FileSystemWriterOptions = {
+            logger: this.logger,
+            outputDir: this.options.outputDir,
+            inMemoryOnly: false,
+        };
+        const opts: IrReportWriterWriterOptions = {
+            ...defaultWriterOpts,
+            rootReadmeFileName: "README.md",
+            ...Object.fromEntries(Object.entries(userOpts ?? {}).filter(([_, v]) => v !== undefined)),
+        };
 
-    /**
-     * @deprecated Use introspection({ typeSchemas: "path/to/file" }) method directly instead
-     */
-    writeTypeSchemas(target: string) {
-        this.introspection({ typeSchemas: target });
+        const writer = new IrReportWriterWriter(opts);
+        this.generators.push({ name: "ir-report", writer });
+        this.logger.debug(`Configured ir-report generator (${JSON.stringify(opts, undefined, 2)})`);
         return this;
     }
 
@@ -417,7 +425,7 @@ export class APIBuilder {
             };
             let tsIndex = mkTypeSchemaIndex(typeSchemas, tsIndexOpts);
             if (this.options.treeShake) tsIndex = treeShake(tsIndex, this.options.treeShake);
-            if (this.options.logicalPromotion) tsIndex = promoteLogical(tsIndex, this.options.logicalPromotion);
+            if (this.options.promoteLogical) tsIndex = promoteLogical(tsIndex, this.options.promoteLogical);
 
             this.logger.debug(`Executing ${this.generators.length} generators`);
 

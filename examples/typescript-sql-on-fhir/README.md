@@ -43,9 +43,11 @@ Edit `generate.ts` to customize:
 The example uses tree shaking to include only ViewDefinition and it's dependencies:
 
 ```typescript
-.treeShake({
-  "org.sql-on-fhir.ig": {
-    "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition": {},
+.typeSchema({
+  treeShake: {
+    "org.sql-on-fhir.ig": {
+      "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition": {},
+    },
   },
 })
 ```

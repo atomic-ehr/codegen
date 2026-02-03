@@ -29,17 +29,19 @@ describe("IntrospectionWriter - Fhir Schema Output", async () => {
 describe("IntrospectionWriter - TypeSchema output", async () => {
     const result = await new APIBuilder({ manager: r4Manager })
         .setLogLevel("SILENT")
-        .treeShake({
-            "hl7.fhir.r4.core": {
-                "http://hl7.org/fhir/StructureDefinition/OperationOutcome": {},
-                "http://hl7.org/fhir/StructureDefinition/DomainResource": {
-                    ignoreFields: ["extension", "modifierExtension"],
-                },
-                "http://hl7.org/fhir/StructureDefinition/BackboneElement": {
-                    ignoreFields: ["modifierExtension"],
-                },
-                "http://hl7.org/fhir/StructureDefinition/Element": {
-                    ignoreFields: ["extension"],
+        .typeSchema({
+            treeShake: {
+                "hl7.fhir.r4.core": {
+                    "http://hl7.org/fhir/StructureDefinition/OperationOutcome": {},
+                    "http://hl7.org/fhir/StructureDefinition/DomainResource": {
+                        ignoreFields: ["extension", "modifierExtension"],
+                    },
+                    "http://hl7.org/fhir/StructureDefinition/BackboneElement": {
+                        ignoreFields: ["modifierExtension"],
+                    },
+                    "http://hl7.org/fhir/StructureDefinition/Element": {
+                        ignoreFields: ["extension"],
+                    },
                 },
             },
         })
@@ -49,7 +51,7 @@ describe("IntrospectionWriter - TypeSchema output", async () => {
 
     expect(result.success).toBeTrue();
 
-    expect(Object.keys(result.filesGenerated).length).toEqual(25);
+    expect(Object.keys(result.filesGenerated).length).toEqual(26);
     it("Generated file list", () => {
         expect(Object.keys(result.filesGenerated)).toMatchSnapshot();
     });
@@ -67,14 +69,16 @@ describe("IntrospectionWriter - TypeSchema output", async () => {
 describe("IntrospectionWriter - typeTree", async () => {
     const result = await new APIBuilder({ manager: r4Manager })
         .setLogLevel("SILENT")
-        .treeShake({
-            "hl7.fhir.r4.core": {
-                "http://hl7.org/fhir/StructureDefinition/Patient": {},
-                "http://hl7.org/fhir/StructureDefinition/DomainResource": {
-                    ignoreFields: ["extension", "modifierExtension"],
-                },
-                "http://hl7.org/fhir/StructureDefinition/Element": {
-                    ignoreFields: ["extension"],
+        .typeSchema({
+            treeShake: {
+                "hl7.fhir.r4.core": {
+                    "http://hl7.org/fhir/StructureDefinition/Patient": {},
+                    "http://hl7.org/fhir/StructureDefinition/DomainResource": {
+                        ignoreFields: ["extension", "modifierExtension"],
+                    },
+                    "http://hl7.org/fhir/StructureDefinition/Element": {
+                        ignoreFields: ["extension"],
+                    },
                 },
             },
         })
@@ -91,17 +95,19 @@ describe("IntrospectionWriter - typeTree", async () => {
 describe("IntrospectionWriter - StructureDefinition output", async () => {
     const result = await new APIBuilder({ manager: r4Manager })
         .setLogLevel("SILENT")
-        .treeShake({
-            "hl7.fhir.r4.core": {
-                "http://hl7.org/fhir/StructureDefinition/OperationOutcome": {},
-                "http://hl7.org/fhir/StructureDefinition/DomainResource": {
-                    ignoreFields: ["extension", "modifierExtension"],
-                },
-                "http://hl7.org/fhir/StructureDefinition/BackboneElement": {
-                    ignoreFields: ["modifierExtension"],
-                },
-                "http://hl7.org/fhir/StructureDefinition/Element": {
-                    ignoreFields: ["extension"],
+        .typeSchema({
+            treeShake: {
+                "hl7.fhir.r4.core": {
+                    "http://hl7.org/fhir/StructureDefinition/OperationOutcome": {},
+                    "http://hl7.org/fhir/StructureDefinition/DomainResource": {
+                        ignoreFields: ["extension", "modifierExtension"],
+                    },
+                    "http://hl7.org/fhir/StructureDefinition/BackboneElement": {
+                        ignoreFields: ["modifierExtension"],
+                    },
+                    "http://hl7.org/fhir/StructureDefinition/Element": {
+                        ignoreFields: ["extension"],
+                    },
                 },
             },
         })

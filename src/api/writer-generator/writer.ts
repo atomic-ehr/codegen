@@ -75,6 +75,7 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
     }
 
     cat(fn: string, gen: () => void) {
+        if (!this.currentDir) throw new Error("Should be in a directory (`cd`)");
         if (this.currentFile) throw new Error("Can't open file when another file is open");
         if (fn.includes("/")) throw new Error(`Change file path separatly: ${fn}`);
 

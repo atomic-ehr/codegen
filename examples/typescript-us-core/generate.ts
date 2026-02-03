@@ -15,7 +15,7 @@ if (require.main === module) {
             openResourceTypeSet: false,
         })
         .outputTo("./examples/typescript-us-core/fhir-types")
-        .writeTypeTree("./examples/typescript-us-core/type-tree.yaml")
+        .introspection({ typeTree: "./examples/typescript-us-core/type-tree.yaml" })
         .cleanOutput(true);
 
     const report = await builder.generate();

@@ -11,9 +11,9 @@ import {
     type PkgName,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
-import type { LogicalPromotion } from "./types";
+import type { LogicalPromotionConf } from "./types";
 
-export const promoteLogical = (tsIndex: TypeSchemaIndex, promotes: LogicalPromotion): TypeSchemaIndex => {
+export const promoteLogical = (tsIndex: TypeSchemaIndex, promotes: LogicalPromotionConf): TypeSchemaIndex => {
     const promoteSets: Record<PkgName, Set<CanonicalUrl>> = Object.fromEntries(
         Object.entries(promotes).map(([pkg, urls]) => [pkg, new Set(urls)]),
     );
@@ -59,5 +59,12 @@ export const promoteLogical = (tsIndex: TypeSchemaIndex, promotes: LogicalPromot
         }
         return cloned;
     });
-    return tsIndex.replaceSchemas(schemas);
+
+    const promotedIndex = tsIndex.replaceSchemas(schemas);
+    promotedIndex.irReport().logicalPromotion = {
+        packages: Object.fromEntries(
+            Object.entries(promotes).map(([pkgName, urls]) => [pkgName, { promotedCanonicals: [...urls].sort() }]),
+        ),
+    };
+    return promotedIndex;
 };

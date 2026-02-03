@@ -19,7 +19,7 @@ import {
     type TypeSchema,
 } from "../types";
 import type { TypeSchemaIndex } from "../utils";
-import type { IrReport, TreeShake, TreeShakeReport, TreeShakeRule } from "./types";
+import type { IrReport, TreeShakeConf, TreeShakeReport, TreeShakeRule } from "./types";
 
 const ensureIrReport = (indexOrReport: TypeSchemaIndex | IrReport): IrReport => {
     if ("irReport" in indexOrReport && typeof indexOrReport.irReport === "function") {
@@ -212,7 +212,7 @@ export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _lo
     return schema;
 };
 
-export const treeShake = (tsIndex: TypeSchemaIndex, treeShake: TreeShake): TypeSchemaIndex => {
+export const treeShake = (tsIndex: TypeSchemaIndex, treeShake: TreeShakeConf): TypeSchemaIndex => {
     const focusedSchemas: TypeSchema[] = [];
     for (const [pkgId, requires] of Object.entries(treeShake)) {
         for (const [url, rule] of Object.entries(requires)) {

@@ -22,7 +22,7 @@ if (require.main === module) {
 
     const builder = new APIBuilder({ manager: registry })
         .throwException()
-        .promoteLogicToResource({ "hl7.cda.uv.core": cdaResources })
+        .typeSchema({ promoteLogical: { "hl7.cda.uv.core": cdaResources } })
         .typescript({ withDebugComment: false })
         .outputTo("./examples/typescript-ccda/fhir-types")
         .introspection({
