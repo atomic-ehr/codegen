@@ -16,7 +16,7 @@ describe("treeShake specific TypeSchema", async () => {
     });
     const tsIndex = await mkIndex(manager);
     it("tree shake report should be empty without treeshaking", () => {
-        expect(tsIndex.treeShakeReport()).toBeUndefined();
+        expect(tsIndex.report()).toBeUndefined();
     });
     describe("Only Bundle & Operation Outcome without extensions", () => {
         const shaked = treeShake(
@@ -39,13 +39,13 @@ describe("treeShake specific TypeSchema", async () => {
             r4Manager.resolutionTree(),
         );
 
-        const report = shaked.treeShakeReport();
+        const report = shaked.report();
         assert(report);
 
         it("check treeshake report", () => {
             expect(report).toBeDefined();
-            expect(report.skippedPackages).toMatchObject(["hl7.fhir.r5.core"]);
-            expect(report.packages).toMatchSnapshot();
+            expect(report.treeShake.skippedPackages).toMatchObject(["hl7.fhir.r5.core"]);
+            expect(report.treeShake.packages).toMatchSnapshot();
         });
         it("root tree shake readme", () => {
             expect(rootTreeShakeReadme(report)).toMatchSnapshot();

@@ -2,7 +2,7 @@ import * as afs from "node:fs/promises";
 import * as Path from "node:path";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import * as YAML from "yaml";
-import type { TreeShakeReport } from "./ir/types";
+import type { IRReport } from "./ir/types";
 import type { Register } from "./register";
 import {
     type CanonicalUrl,
@@ -185,7 +185,7 @@ export type TypeSchemaIndex = {
     isWithMetaField: (profile: ProfileTypeSchema) => boolean;
     entityTree: () => EntityTree;
     exportTree: (filename: string) => Promise<void>;
-    treeShakeReport: () => TreeShakeReport | undefined;
+    report: () => IRReport | undefined;
 };
 
 type EntityTree = Record<PkgName, Record<Identifier["kind"], Record<CanonicalUrl, object>>>;
@@ -195,11 +195,11 @@ export const mkTypeSchemaIndex = (
     {
         register,
         logger,
-        treeShakeReport,
+        report,
     }: {
         register?: Register;
         logger?: CodegenLogger;
-        treeShakeReport?: TreeShakeReport;
+        report?: IRReport;
     },
 ): TypeSchemaIndex => {
     const index: Record<CanonicalUrl, Record<PkgName, TypeSchema>> = {};
@@ -399,6 +399,6 @@ export const mkTypeSchemaIndex = (
         isWithMetaField,
         entityTree,
         exportTree,
-        treeShakeReport: () => treeShakeReport,
+        report: () => report,
     };
 };

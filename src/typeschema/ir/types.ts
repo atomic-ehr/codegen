@@ -6,7 +6,11 @@ export type TreeShake = Record<string, Record<string, TreeShakeRule>>;
 
 export type TreeShakeRule = { ignoreFields?: string[]; selectFields?: string[] };
 
-export interface TreeShakeReport {
+export type IRReport = {
+    treeShake: TreeShakeReport;
+};
+
+export type TreeShakeReport = {
     skippedPackages: PkgName[];
     packages: Record<
         PkgName,
@@ -20,4 +24,4 @@ export interface TreeShakeReport {
             >;
         }
     >;
-}
+};

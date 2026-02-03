@@ -19,55 +19,55 @@ import {
     type TypeSchema,
 } from "../types";
 import { mkTypeSchemaIndex, type TypeSchemaIndex } from "../utils";
-import type { TreeShake, TreeShakeReport, TreeShakeRule } from "./types";
+import type { IRReport, TreeShake, TreeShakeReport, TreeShakeRule } from "./types";
 
-const ensureTreeShakeReport = (indexOrReport: TypeSchemaIndex | TreeShakeReport): TreeShakeReport => {
-    if ("treeShakeReport" in indexOrReport && typeof indexOrReport.treeShakeReport === "function") {
-        const report = indexOrReport.treeShakeReport();
+const ensureIRReport = (indexOrReport: TypeSchemaIndex | IRReport): IRReport => {
+    if ("report" in indexOrReport && typeof indexOrReport.report === "function") {
+        const report = indexOrReport.report();
         assert(report);
         return report;
     } else {
-        return indexOrReport as TreeShakeReport;
+        return indexOrReport as IRReport;
     }
 };
 
-export const rootTreeShakeReadme = (report: TypeSchemaIndex | TreeShakeReport) => {
-    report = ensureTreeShakeReport(report);
+export const rootTreeShakeReadme = (report: TypeSchemaIndex | IRReport) => {
+    const { treeShake: treeShakeReport } = ensureIRReport(report);
     const lines = ["# Tree Shake Report", ""];
-    if (report.skippedPackages.length === 0) lines.push("All packages are included.");
+    if (treeShakeReport.skippedPackages.length === 0) lines.push("All packages are included.");
     else lines.push("Skipped packages:", "");
-    for (const pkgName of report.skippedPackages) {
+    for (const pkgName of treeShakeReport.skippedPackages) {
         lines.push(`- ${pkgName}`);
     }
     lines.push("");
     return lines.join("\n");
 };
 
-export const packageTreeShakeReadme = (report: TypeSchemaIndex | TreeShakeReport, pkgName: PkgName) => {
-    report = ensureTreeShakeReport(report);
+export const packageTreeShakeReadme = (report: TypeSchemaIndex | IRReport, pkgName: PkgName) => {
+    const { treeShake: treeShakeReport } = ensureIRReport(report);
     const lines = [`# Package: ${pkgName}`, ""];
-    assert(report.packages[pkgName]);
+    assert(treeShakeReport.packages[pkgName]);
     lines.push("## Canonical Fields Changes", "");
-    if (Object.keys(report.packages[pkgName].canonicals).length === 0) {
+    if (Object.keys(treeShakeReport.packages[pkgName].canonicals).length === 0) {
         lines.push("All canonicals translated as is.", "");
     } else {
-        for (const [canonicalUrl, { skippedFields }] of Object.entries(report.packages[pkgName].canonicals)) {
+        for (const [canonicalUrl, { skippedFields }] of Object.entries(treeShakeReport.packages[pkgName].canonicals)) {
             lines.push(`- <${canonicalUrl}>`);
             if (skippedFields.length === 0) {
                 lines.push("    - All fields translated as is.", "");
             } else {
-                lines.push(`    - Skipped fields: ${skippedFields.map((f) => `\`${f}\``).join(", ")}`);
+                lines.push(`    - Skipped fields: ${skippedFields.map((f: string) => `\`${f}\``).join(", ")}`);
                 lines.push("");
             }
         }
         lines.push("");
     }
     lines.push("## Skipped Canonicals", "");
-    if (report.packages[pkgName].skippedCanonicals.length === 0) {
+    if (treeShakeReport.packages[pkgName].skippedCanonicals.length === 0) {
         lines.push("No skipped canonicals");
     } else {
         lines.push("Skipped canonicals:", "");
-        for (const canonicalUrl of report.packages[pkgName].skippedCanonicals) {
+        for (const canonicalUrl of treeShakeReport.packages[pkgName].skippedCanonicals) {
             lines.push(`- <${canonicalUrl}>`);
         }
         lines.push("");
@@ -260,8 +260,9 @@ export const treeShake = (
 
     const shaked = collectDeps(focusedSchemas, {});
 
-    const report: TreeShakeReport = { skippedPackages: [], packages: {} };
-    const shakedIndex = mkTypeSchemaIndex(shaked, { register: tsIndex.register, logger, treeShakeReport: report });
-    mutableFillReport(report, tsIndex, shakedIndex);
+    const treeShakeReport: TreeShakeReport = { skippedPackages: [], packages: {} };
+    const irReport: IRReport = { treeShake: treeShakeReport };
+    const shakedIndex = mkTypeSchemaIndex(shaked, { register: tsIndex.register, logger, report: irReport });
+    mutableFillReport(treeShakeReport, tsIndex, shakedIndex);
     return shakedIndex;
 };
