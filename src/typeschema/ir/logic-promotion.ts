@@ -10,15 +10,10 @@ import {
     type NestedType,
     type PkgName,
 } from "@root/typeschema/types";
-import { mkTypeSchemaIndex, type TypeSchemaIndex } from "@root/typeschema/utils";
-import type { CodegenLogger } from "@root/utils/codegen-logger";
+import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { LogicalPromotion } from "./types";
 
-export const promoteLogical = (
-    tsIndex: TypeSchemaIndex,
-    promotes: LogicalPromotion,
-    { logger }: { logger?: CodegenLogger },
-): TypeSchemaIndex => {
+export const promoteLogical = (tsIndex: TypeSchemaIndex, promotes: LogicalPromotion): TypeSchemaIndex => {
     const promoteSets: Record<PkgName, Set<CanonicalUrl>> = Object.fromEntries(
         Object.entries(promotes).map(([pkg, urls]) => [pkg, new Set(urls)]),
     );
@@ -64,6 +59,5 @@ export const promoteLogical = (
         }
         return cloned;
     });
-    const shakedIndex = mkTypeSchemaIndex(schemas, { register: tsIndex.register, logger });
-    return shakedIndex;
+    return tsIndex.replaceSchemas(schemas);
 };

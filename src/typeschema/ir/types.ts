@@ -6,8 +6,8 @@ export type TreeShake = Record<string, Record<string, TreeShakeRule>>;
 
 export type TreeShakeRule = { ignoreFields?: string[]; selectFields?: string[] };
 
-export type IRReport = {
-    treeShake: TreeShakeReport;
+export type IrReport = {
+    treeShake?: TreeShakeReport;
 };
 
 export type TreeShakeReport = {

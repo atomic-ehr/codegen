@@ -416,9 +416,8 @@ export class APIBuilder {
                 logger: this.logger,
             };
             let tsIndex = mkTypeSchemaIndex(typeSchemas, tsIndexOpts);
-            if (this.options.treeShake) tsIndex = treeShake(tsIndex, this.options.treeShake, tsIndexOpts);
-            if (this.options.logicalPromotion)
-                tsIndex = promoteLogical(tsIndex, this.options.logicalPromotion, tsIndexOpts);
+            if (this.options.treeShake) tsIndex = treeShake(tsIndex, this.options.treeShake);
+            if (this.options.logicalPromotion) tsIndex = promoteLogical(tsIndex, this.options.logicalPromotion);
 
             this.logger.debug(`Executing ${this.generators.length} generators`);
 

@@ -1496,12 +1496,12 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 : []),
         ];
         const grouped = groupByPackages(typesToGenerate);
-        const irReport = tsIndex.report();
+        const irReport = tsIndex.irReport();
 
         const hasProfiles = this.opts.generateProfile && typesToGenerate.some(isProfileTypeSchema);
 
         this.cd("/", () => {
-            if (irReport) {
+            if (irReport?.treeShake) {
                 this.cat("README.md", () => {
                     this.write(rootTreeShakeReadme(irReport));
                 });
@@ -1518,7 +1518,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                     }
                     this.generateProfileIndexFile(packageSchemas.filter(isProfileTypeSchema));
                     this.generateFhirPackageIndexFile(packageSchemas);
-                    if (irReport) {
+                    if (irReport?.treeShake) {
                         this.cat("README.md", () => {
                             this.write(packageTreeShakeReadme(irReport, packageName));
                         });

@@ -2,7 +2,7 @@ import * as afs from "node:fs/promises";
 import * as Path from "node:path";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import * as YAML from "yaml";
-import type { IRReport } from "./ir/types";
+import type { IrReport } from "./ir/types";
 import type { Register } from "./register";
 import {
     type CanonicalUrl,
@@ -185,7 +185,8 @@ export type TypeSchemaIndex = {
     isWithMetaField: (profile: ProfileTypeSchema) => boolean;
     entityTree: () => EntityTree;
     exportTree: (filename: string) => Promise<void>;
-    report: () => IRReport | undefined;
+    irReport: () => IrReport;
+    replaceSchemas: (schemas: TypeSchema[]) => TypeSchemaIndex;
 };
 
 type EntityTree = Record<PkgName, Record<Identifier["kind"], Record<CanonicalUrl, object>>>;
@@ -195,11 +196,11 @@ export const mkTypeSchemaIndex = (
     {
         register,
         logger,
-        report,
+        irReport = {},
     }: {
         register?: Register;
         logger?: CodegenLogger;
-        report?: IRReport;
+        irReport?: IrReport;
     },
 ): TypeSchemaIndex => {
     const index: Record<CanonicalUrl, Record<PkgName, TypeSchema>> = {};
@@ -399,6 +400,7 @@ export const mkTypeSchemaIndex = (
         isWithMetaField,
         entityTree,
         exportTree,
-        report: () => report,
+        irReport: () => irReport,
+        replaceSchemas: (newSchemas) => mkTypeSchemaIndex(newSchemas, { register, logger, irReport: { ...irReport } }),
     };
 };
