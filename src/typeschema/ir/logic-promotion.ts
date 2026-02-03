@@ -12,8 +12,7 @@ import {
 } from "@root/typeschema/types";
 import { mkTypeSchemaIndex, type TypeSchemaIndex } from "@root/typeschema/utils";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
-
-export type LogicalPromotion = Record<PkgName, CanonicalUrl[]>;
+import type { LogicalPromotion } from "./types";
 
 export const promoteLogical = (
     tsIndex: TypeSchemaIndex,

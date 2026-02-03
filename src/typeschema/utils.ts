@@ -1,8 +1,8 @@
 import * as afs from "node:fs/promises";
 import * as Path from "node:path";
-import type { TreeShakeReport } from "@root/typeschema/ir/tree-shake";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import * as YAML from "yaml";
+import type { TreeShakeReport } from "./ir/types";
 import type { Register } from "./register";
 import {
     type CanonicalUrl,

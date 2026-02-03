@@ -19,26 +19,7 @@ import {
     type TypeSchema,
 } from "../types";
 import { mkTypeSchemaIndex, type TypeSchemaIndex } from "../utils";
-
-export type TreeShake = Record<string, Record<string, TreeShakeRule>>;
-
-export type TreeShakeRule = { ignoreFields?: string[]; selectFields?: string[] };
-
-export interface TreeShakeReport {
-    skippedPackages: PkgName[];
-    packages: Record<
-        PkgName,
-        {
-            skippedCanonicals: CanonicalUrl[];
-            canonicals: Record<
-                CanonicalUrl,
-                {
-                    skippedFields: string[];
-                }
-            >;
-        }
-    >;
-}
+import type { TreeShake, TreeShakeReport, TreeShakeRule } from "./types";
 
 const ensureTreeShakeReport = (indexOrReport: TypeSchemaIndex | TreeShakeReport): TreeShakeReport => {
     if ("treeShakeReport" in indexOrReport && typeof indexOrReport.treeShakeReport === "function") {

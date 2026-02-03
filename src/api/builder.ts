@@ -11,8 +11,9 @@ import { CanonicalManager, type LocalPackageConfig, type TgzPackageConfig } from
 import { CSharp, type CSharpGeneratorOptions } from "@root/api/writer-generator/csharp/csharp";
 import { Python, type PythonGeneratorOptions } from "@root/api/writer-generator/python";
 import { generateTypeSchemas } from "@root/typeschema";
-import { type LogicalPromotion, promoteLogical } from "@root/typeschema/ir/logic-promotion";
-import { type TreeShake, treeShake } from "@root/typeschema/ir/tree-shake";
+import { promoteLogical } from "@root/typeschema/ir/logic-promotion";
+import { treeShake } from "@root/typeschema/ir/tree-shake";
+import type { LogicalPromotion, TreeShake } from "@root/typeschema/ir/types";
 import { registerFromManager } from "@root/typeschema/register";
 import { type PackageMeta, packageMetaToNpm, type TypeSchema } from "@root/typeschema/types";
 import { mkTypeSchemaIndex, type TypeSchemaIndex } from "@root/typeschema/utils";
