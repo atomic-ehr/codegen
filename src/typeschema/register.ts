@@ -1,3 +1,4 @@
+
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import * as fhirschema from "@atomic-ehr/fhirschema";
 import {
@@ -192,9 +193,14 @@ export const registerFromManager = async (
         );
     };
 
-    const ensureSpecializationCanonicalUrl = (name: string | Name | CanonicalUrl) =>
-        (name.match(/^[a-zA-Z0-9]+$/) && (`http://hl7.org/fhir/StructureDefinition/${name}` as CanonicalUrl)) ||
-        (name as CanonicalUrl);
+    const ensureSpecializationCanonicalUrl = (name: string | Name | CanonicalUrl): CanonicalUrl => {
+        // Strip version suffix from canonical URL (e.g., "Extension|4.0.1" -> "Extension")
+        if (name.includes("|")) name = name.split("|")[0] as CanonicalUrl;
+        if (name.match(/^[a-zA-Z0-9]+$/)) {
+            return `http://hl7.org/fhir/StructureDefinition/${name}` as CanonicalUrl;
+        }
+        return name as CanonicalUrl;
+    };
 
     const resolveFsGenealogy = (pkg: PackageMeta, canonicalUrl: CanonicalUrl) => {
         let fs = resolveFs(pkg, canonicalUrl);
