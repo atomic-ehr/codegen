@@ -69,6 +69,7 @@ test-typescript-ccda-example: typecheck format lint
 	$(TEST) test/unit/typeschema/transformer/ccda.test.ts
 	bun run examples/typescript-ccda/generate.ts
 	$(TYPECHECK) --project examples/typescript-ccda/tsconfig.json
+	$(TEST) --project examples/typescript-ccda/tsconfig.json demo.test.ts
 
 test-mustache-java-r4-example: typecheck format lint
 	bun run examples/mustache/mustache-java-r4-gen.ts
