@@ -117,6 +117,9 @@ describe("TypeSchema Processing constraint generation", async () => {
                     { kind: "binding", url: "urn:fhir:binding:PublicationStatus" },
                 ],
             },
+            {
+                identifier: { kind: "binding", url: "urn:fhir:binding:PublicationStatus" },
+            },
         ]);
     });
 });
