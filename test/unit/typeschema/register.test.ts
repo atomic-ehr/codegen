@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
-import { type CanonicalUrl, enrichFHIRSchema, type Name } from "@root/typeschema/types";
+import { type CanonicalUrl, enrichFHIRSchema, type Name, } from "@root/typeschema/types";
 import { fsElementSnapshot, registerFromPackageMetas, resolveFsElementGenealogy } from "@typeschema/register";
 
 type PFS = Partial<FHIRSchema>;
@@ -28,9 +28,6 @@ describe("Register tests", async () => {
                 r4Package,
                 "http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl,
             );
-            if (!patientSD) {
-                throw new Error("Patient StructureDefinition not found");
-            }
             expect(patientSD).toBeDefined();
         });
     });

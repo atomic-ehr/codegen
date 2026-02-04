@@ -1,4 +1,3 @@
-
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import * as fhirschema from "@atomic-ehr/fhirschema";
 import {
@@ -257,8 +256,8 @@ export const registerFromManager = async (
         resolveFsGenealogy: resolveFsGenealogy,
         resolveFsSpecializations: resolveFsSpecializations,
         ensureSpecializationCanonicalUrl,
-        resolveSd: (_pkg: PackageMeta, canonicalUrl: CanonicalUrl) => {
-            const res = packageAgnosticResolveCanonical(resolver, canonicalUrl, logger);
+        resolveSd: (pkg: PackageMeta, canonicalUrl: CanonicalUrl) => {
+            const res = resolver[packageMetaToFhir(pkg)]?.canonicalResolution[canonicalUrl]?.[0]?.resource;
             if (isStructureDefinition(res)) return res as StructureDefinition;
             return undefined;
         },
