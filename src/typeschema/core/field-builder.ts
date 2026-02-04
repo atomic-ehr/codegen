@@ -137,9 +137,8 @@ export function buildFieldType(
         const fieldFs = register.resolveFs(fhirSchema.package_meta, url);
         if (!fieldFs)
             throw new Error(
-                `Could not resolve field type: '${element.type}' (from '${fhirSchema.url}' in '${packageMetaToFhir(fhirSchema.package_meta)}')`,
+                `Could not resolve field type: <${fhirSchema.url}>.${path.join(".")}: <${element.type}> (pkg: '${packageMetaToFhir(fhirSchema.package_meta)}'))`,
             );
-
         return mkIdentifier(fieldFs);
     } else if (element.choices) {
         return undefined;
@@ -147,7 +146,7 @@ export function buildFieldType(
         return undefined; // FIXME: should be removed
     } else {
         logger?.error(
-            `Can't recognize element type '${fhirSchema.url}' (${fhirSchema.derivation}) at '${path.join(".")}': ${JSON.stringify(element, undefined, 2)}`,
+            `Can't recognize element type: <${fhirSchema.url}>.${path.join(".")} (pkg: '${packageMetaToFhir(fhirSchema.package_meta)}'): ${JSON.stringify(element, undefined, 2)}`,
         );
         throw new Error(`Unrecognized element type`);
     }
