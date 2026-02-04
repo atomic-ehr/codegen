@@ -4,7 +4,7 @@ import type { CanonicalUrl } from "@root/typeschema/types";
 import { ccdaManager, r4Manager } from "@typeschema-test/utils";
 
 describe("TypeScript Writer Generator", async () => {
-    const result = await new APIBuilder({ manager: r4Manager })
+    const result = await new APIBuilder({ register: r4Manager })
         .setLogLevel("SILENT")
         .typescript({
             inMemoryOnly: true,
@@ -18,7 +18,7 @@ describe("TypeScript Writer Generator", async () => {
 });
 
 describe("TypeScript CDA with Logical Model Promotion to Resource", async () => {
-    const result = await new APIBuilder({ manager: ccdaManager })
+    const result = await new APIBuilder({ register: ccdaManager })
         .setLogLevel("SILENT")
         .typeSchema({
             promoteLogical: {

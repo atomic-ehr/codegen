@@ -3,7 +3,7 @@ import { APIBuilder } from "@root/api/builder";
 import { r4Manager } from "@typeschema-test/utils";
 
 describe("IntrospectionWriter - Fhir Schema Output", async () => {
-    const result = await new APIBuilder({ manager: r4Manager })
+    const result = await new APIBuilder({ register: r4Manager })
         .setLogLevel("SILENT")
         .introspection({ fhirSchemas: "introspection" })
         .introspection({ fhirSchemas: "introspection.ndjson" })
@@ -27,7 +27,7 @@ describe("IntrospectionWriter - Fhir Schema Output", async () => {
 });
 
 describe("IntrospectionWriter - TypeSchema output", async () => {
-    const result = await new APIBuilder({ manager: r4Manager })
+    const result = await new APIBuilder({ register: r4Manager })
         .setLogLevel("SILENT")
         .typeSchema({
             treeShake: {
@@ -67,7 +67,7 @@ describe("IntrospectionWriter - TypeSchema output", async () => {
 });
 
 describe("IntrospectionWriter - typeTree", async () => {
-    const result = await new APIBuilder({ manager: r4Manager })
+    const result = await new APIBuilder({ register: r4Manager })
         .setLogLevel("SILENT")
         .typeSchema({
             treeShake: {
@@ -93,7 +93,7 @@ describe("IntrospectionWriter - typeTree", async () => {
 });
 
 describe("IntrospectionWriter - StructureDefinition output", async () => {
-    const result = await new APIBuilder({ manager: r4Manager })
+    const result = await new APIBuilder({ register: r4Manager })
         .setLogLevel("SILENT")
         .typeSchema({
             treeShake: {

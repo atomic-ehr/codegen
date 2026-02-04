@@ -3,7 +3,7 @@ import { APIBuilder } from "@root/api/builder";
 import { r4Manager } from "@typeschema-test/utils";
 
 describe("C# Writer Generator", async () => {
-    const result = await new APIBuilder({ manager: r4Manager })
+    const result = await new APIBuilder({ register: r4Manager })
         .setLogLevel("SILENT")
         .csharp({
             inMemoryOnly: true,

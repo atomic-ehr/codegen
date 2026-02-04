@@ -34,7 +34,7 @@ export type Register = {
     getAllElementKeys(elems: Record<string, FHIRSchemaElement>): string[];
     resolver: PackageAwareResolver;
     resolutionTree: () => ResolutionTree;
-} & ReturnType<typeof CanonicalManager>;
+};
 
 const readPackageDependencies = async (manager: ReturnType<typeof CanonicalManager>, packageMeta: PackageMeta) => {
     const packageJSON = (await manager.packageJson(packageMeta.name)) as any;
@@ -240,7 +240,6 @@ export const registerFromManager = async (
     let cachedResolutionTree: ResolutionTree | undefined;
 
     return {
-        ...manager,
         testAppendFs(fs: FHIRSchema) {
             const rfs = enrichFHIRSchema(fs);
             const pkgId = packageMetaToFhir(rfs.package_meta);
