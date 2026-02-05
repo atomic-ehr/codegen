@@ -173,7 +173,7 @@ export interface ElementDefinitionType extends Element {
     versioning?: ("either" | "independent" | "specific");
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ElementDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ElementDefinition (pkg: hl7.fhir.r4.core#4.0.1)
 export interface ElementDefinition extends BackboneElement {
     alias?: string[];
     base?: Element;

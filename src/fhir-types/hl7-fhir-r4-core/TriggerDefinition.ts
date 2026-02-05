@@ -14,7 +14,7 @@ export type { Expression } from "../hl7-fhir-r4-core/Expression";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";
 export type { Timing } from "../hl7-fhir-r4-core/Timing";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/TriggerDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/TriggerDefinition (pkg: hl7.fhir.r4.core#4.0.1)
 export interface TriggerDefinition extends Element {
     condition?: Expression;
     data?: DataRequirement[];

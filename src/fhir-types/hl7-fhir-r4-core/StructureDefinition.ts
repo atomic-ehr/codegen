@@ -39,7 +39,7 @@ export interface StructureDefinitionSnapshot extends BackboneElement {
     element: ElementDefinition[];
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/StructureDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/StructureDefinition (pkg: hl7.fhir.r4.core#4.0.1)
 export interface StructureDefinition extends DomainResource {
     resourceType: "StructureDefinition";
 

@@ -9,7 +9,7 @@ import type { Resource } from "../hl7-fhir-r4-core/Resource";
 export type { Extension } from "../hl7-fhir-r4-core/Extension";
 export type { Narrative } from "../hl7-fhir-r4-core/Narrative";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DomainResource
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DomainResource (pkg: hl7.fhir.r4.core#4.0.1)
 export interface DomainResource extends Resource {
     resourceType: "CodeSystem" | "DomainResource" | "StructureDefinition" | "ValueSet";
 

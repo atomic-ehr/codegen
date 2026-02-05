@@ -57,7 +57,7 @@ export interface CodeSystemProperty extends BackboneElement {
     uri?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CodeSystem
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CodeSystem (pkg: hl7.fhir.r4.core#4.0.1)
 export interface CodeSystem extends DomainResource {
     resourceType: "CodeSystem";
 

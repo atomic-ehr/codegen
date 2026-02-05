@@ -8,7 +8,7 @@ import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { Coding } from "../hl7-fhir-r4-core/Coding";
 export type { Element } from "../hl7-fhir-r4-core/Element";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Meta
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Meta (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Meta extends Element {
     lastUpdated?: string;
     profile?: string[];

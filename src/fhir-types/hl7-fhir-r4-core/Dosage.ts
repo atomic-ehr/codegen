@@ -27,7 +27,7 @@ export interface DosageDoseAndRate extends Element {
     type?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Dosage
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Dosage (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Dosage extends BackboneElement {
     additionalInstruction?: CodeableConcept[];
     asNeededBoolean?: boolean;

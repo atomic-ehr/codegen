@@ -6,7 +6,7 @@ import type { Element } from "../hl7-fhir-r4-core/Element";
 
 export type { Element } from "../hl7-fhir-r4-core/Element";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Money
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Money (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Money extends Element {
     currency?: string;
     value?: number;

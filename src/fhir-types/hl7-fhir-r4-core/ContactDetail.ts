@@ -8,7 +8,7 @@ import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { ContactPoint } from "../hl7-fhir-r4-core/ContactPoint";
 export type { Element } from "../hl7-fhir-r4-core/Element";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ContactDetail
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ContactDetail (pkg: hl7.fhir.r4.core#4.0.1)
 export interface ContactDetail extends Element {
     name?: string;
     telecom?: ContactPoint[];

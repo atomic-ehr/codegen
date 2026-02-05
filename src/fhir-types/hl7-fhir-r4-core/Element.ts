@@ -6,7 +6,7 @@ import type { Extension } from "../hl7-fhir-r4-core/Extension";
 
 export type { Extension } from "../hl7-fhir-r4-core/Extension";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Element
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Element (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Element {
     extension?: Extension[];
     id?: string;

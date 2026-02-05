@@ -81,7 +81,7 @@ export interface ValueSetExpansionParameter extends BackboneElement {
     valueUri?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ValueSet
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ValueSet (pkg: hl7.fhir.r4.core#4.0.1)
 export interface ValueSet extends DomainResource {
     resourceType: "ValueSet";
 

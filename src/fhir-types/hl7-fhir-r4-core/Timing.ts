@@ -36,7 +36,7 @@ export interface TimingRepeat extends Element {
     when?: ("MORN" | "MORN.early" | "MORN.late" | "NOON" | "AFT" | "AFT.early" | "AFT.late" | "EVE" | "EVE.early" | "EVE.late" | "NIGHT" | "PHS" | "HS" | "WAKE" | "C" | "CM" | "CD" | "CV" | "AC" | "ACM" | "ACD" | "ACV" | "PC" | "PCM" | "PCD" | "PCV")[];
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Timing
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Timing (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Timing extends BackboneElement {
     code?: CodeableConcept;
     event?: string[];

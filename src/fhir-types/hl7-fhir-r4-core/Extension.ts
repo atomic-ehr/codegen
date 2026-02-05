@@ -6,8 +6,9 @@ import type { Element } from "../hl7-fhir-r4-core/Element";
 
 export type { Element } from "../hl7-fhir-r4-core/Element";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Extension
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Extension (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Extension extends Element {
     url: string;
+    valueCode?: string;
     valueUri?: string;
 }
