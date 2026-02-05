@@ -68,7 +68,9 @@ const tsFhirPackageDir = (name: string): string => {
 };
 
 const tsModuleName = (id: Identifier): string => {
-    return pascalCase(id.name);
+    // Normalize name exactly like tsResourceName to ensure consistency
+    // File name must match class name (with "Profile" suffix)
+    return uppercaseFirstLetter(normalizeTsName(id.name));
 };
 
 const tsModuleFileName = (id: Identifier): string => {
@@ -147,7 +149,9 @@ const tsExtensionInputTypeName = (profileName: string, extensionName: string): s
 
 const safeCamelCase = (name: string): string => {
     if (!name) return "";
-    return camelCase(name);
+    // Remove [x] suffix and normalize special characters before camelCase
+    const normalized = name.replace(/\[x\]/g, "").replace(/:/g, "_");
+    return camelCase(normalized);
 };
 
 const tsSliceMethodName = (sliceName: string): string => {
@@ -938,7 +942,8 @@ export class TypeScript extends Writer<TypeScriptOptions> {
     }
 
     generateProfileClass(tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) {
-        const tsBaseResourceName = tsResourceName(flatProfile.base);
+        // Use tsTypeFromIdentifier to properly resolve primitive types to TS types
+        const tsBaseResourceName = tsTypeFromIdentifier(flatProfile.base);
         const tsProfileName = tsResourceName(flatProfile.identifier);
         const profileClassName = tsProfileClassName(tsProfileName);
 
