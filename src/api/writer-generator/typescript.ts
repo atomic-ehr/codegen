@@ -1487,12 +1487,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             ...tsIndex.collectComplexTypes(),
             ...tsIndex.collectResources(),
             ...tsIndex.collectLogicalModels(),
-            ...(this.opts.generateProfile
-                ? tsIndex
-                      .collectProfiles()
-                      // NOTE: because non Resource don't have `meta` field
-                      .filter((p) => tsIndex.isWithMetaField(p))
-                : []),
+            ...(this.opts.generateProfile ? tsIndex.collectProfiles() : []),
         ];
         const grouped = groupByPackages(typesToGenerate);
 
