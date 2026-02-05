@@ -237,6 +237,8 @@ export const registerFromManager = async (
         return Array.from(keys);
     };
 
+    let cachedResolutionTree: ResolutionTree | undefined;
+
     return {
         ...manager,
         testAppendFs(fs: FHIRSchema) {
@@ -244,6 +246,7 @@ export const registerFromManager = async (
             const pkgId = packageMetaToFhir(rfs.package_meta);
             if (!resolver[pkgId]) resolver[pkgId] = mkEmptyPkgIndex(rfs.package_meta);
             resolver[pkgId].fhirSchemas[rfs.url] = rfs;
+            cachedResolutionTree = undefined;
         },
         resolveFs,
         resolveFsGenealogy: resolveFsGenealogy,
@@ -281,6 +284,7 @@ export const registerFromManager = async (
         getAllElementKeys,
         resolver,
         resolutionTree: () => {
+            if (cachedResolutionTree) return cachedResolutionTree;
             const res: ResolutionTree = {};
             for (const [_pkgId, pkgIndex] of Object.entries(resolver)) {
                 const pkgName = pkgIndex.pkg.name;
@@ -293,6 +297,7 @@ export const registerFromManager = async (
                     }
                 }
             }
+            cachedResolutionTree = res;
             return res;
         },
     };
