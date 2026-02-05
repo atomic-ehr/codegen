@@ -59,6 +59,12 @@ export type GenerationReport = {
     duration: number;
 };
 
+function countLinesByMatches(text: string): number {
+    if (text === "") return 0;
+    const m = text.match(/\r\n|\r|\n/g);
+    return m ? m.length + 1 : 1;
+}
+
 export const prettyReport = (report: GenerationReport): string => {
     const { success, filesGenerated, errors, warnings, duration } = report;
     const errorsStr = errors.length > 0 ? `Errors: ${errors.join(", ")}` : undefined;
@@ -66,7 +72,7 @@ export const prettyReport = (report: GenerationReport): string => {
     let allLoc = 0;
     const files = Object.entries(filesGenerated)
         .map(([path, content]) => {
-            const loc = content.split("\n").length;
+            const loc = countLinesByMatches(content);
             allLoc += loc;
             return `  - ${path} (${loc} loc)`;
         })
@@ -455,7 +461,7 @@ export class APIBuilder {
             this.logger.info(`Generating ${gen.name}...`);
 
             try {
-                await gen.writer.generate(tsIndex);
+                await gen.writer.generateAsync(tsIndex);
                 const fileBuffer: FileBuffer[] = gen.writer.writtenFiles();
                 fileBuffer.forEach((buf) => {
                     result.filesGenerated[buf.relPath] = buf.content;
