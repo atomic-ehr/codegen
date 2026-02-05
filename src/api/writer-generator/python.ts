@@ -651,7 +651,12 @@ export class Python extends Writer<PythonGeneratorOptions> {
     private generateFamilyDefinition(familyName: string, resources: string[]): void {
         const listName = `${familyName}_resources`;
 
-        this.line(`${listName} = [${resources.map((r) => `'${r}'`).join(", ")}]`);
+        this.line(
+            `${listName} = [${resources
+                .map((r) => `'${r}'`)
+                .sort()
+                .join(", ")}]`,
+        );
         this.line();
 
         this.line(`def validate_and_downcast_${familyName}(v: Any) -> Any:`);
