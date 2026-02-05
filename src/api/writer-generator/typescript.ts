@@ -112,7 +112,7 @@ const tsFieldName = (n: string): string => {
 
 const normalizeTsName = (n: string): string => {
     if (tsKeywords.has(n)) n = `${n}_`;
-    return n.replace(/[- ]/g, "_");
+    return n.replace(/\[x\]/g, "_x_").replace(/[- :]/g, "_");
 };
 
 const tsGet = (object: string, tsFieldName: string) => {
