@@ -110,34 +110,49 @@ const resourceRelatives = (schemas: TypeSchema[]): TypeRelation[] => {
     const regularSchemas = schemas.filter(
         (e) => isResourceTypeSchema(e) || isLogicalTypeSchema(e) || isComplexTypeTypeSchema(e),
     );
+
     const directPairs: TypeRelation[] = [];
+    const childrenByParent = new Map<string, Identifier[]>();
 
     for (const schema of regularSchemas) {
         if (schema.base) {
             directPairs.push({ parent: schema.base, child: schema.identifier });
+            const parentName = schema.base.name;
+            let children = childrenByParent.get(parentName);
+            if (!children) {
+                children = [];
+                childrenByParent.set(parentName, children);
+            }
+            children.push(schema.identifier);
         }
     }
 
-    const allPairs: TypeRelation[] = [...directPairs];
-    const findTransitiveRelatives = (parentRef: Identifier): Identifier[] => {
-        const directChildren = directPairs
-            .filter((pair) => pair.parent.name === parentRef.name)
-            .map((pair) => pair.child);
+    const transitiveCache = new Map<string, Identifier[]>();
+    const getTransitiveChildren = (parentName: string): Identifier[] => {
+        const cached = transitiveCache.get(parentName);
+        if (cached) return cached;
 
-        const transitiveChildren: Identifier[] = [];
+        const directChildren = childrenByParent.get(parentName) ?? [];
+        const result: Identifier[] = [...directChildren];
         for (const child of directChildren) {
-            transitiveChildren.push(...findTransitiveRelatives(child));
+            result.push(...getTransitiveChildren(child.name));
         }
-
-        return [...directChildren, ...transitiveChildren];
+        transitiveCache.set(parentName, result);
+        return result;
     };
 
+    const seen = new Set<string>();
+    const allPairs: TypeRelation[] = [];
+
     for (const pair of directPairs) {
-        const transitiveChildren = findTransitiveRelatives(pair.child);
-        for (const transitiveChild of transitiveChildren) {
-            if (
-                !directPairs.some((dp) => dp.parent.name === pair.parent.name && dp.child.name === transitiveChild.name)
-            ) {
+        const key = `${pair.parent.name}|${pair.child.name}`;
+        seen.add(key);
+        allPairs.push(pair);
+
+        for (const transitiveChild of getTransitiveChildren(pair.child.name)) {
+            const transitiveKey = `${pair.parent.name}|${transitiveChild.name}`;
+            if (!seen.has(transitiveKey)) {
+                seen.add(transitiveKey);
                 allPairs.push({ parent: pair.parent, child: transitiveChild });
             }
         }
