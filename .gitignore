@@ -42,3 +42,4 @@ test-output
 /types/
 /generated
 .typeschema-cache
+*.cpuprofile
