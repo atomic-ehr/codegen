@@ -68,8 +68,11 @@ const tsFhirPackageDir = (name: string): string => {
 };
 
 const tsModuleName = (id: Identifier): string => {
-    // Normalize name exactly like tsResourceName to ensure consistency
-    // File name must match class name (with "Profile" suffix)
+    // NOTE: Why not pascal case?
+    // In hl7-fhir-uv-xver-r5-r4 we have:
+    // - http://hl7.org/fhir/5.0/StructureDefinition/extension-Subscription.topic (subscription_topic)
+    // - http://hl7.org/fhir/5.0/StructureDefinition/extension-SubscriptionTopic (SubscriptionTopic)
+    // And they should not clash the names.
     return uppercaseFirstLetter(normalizeTsName(id.name));
 };
 
@@ -135,8 +138,8 @@ const tsTypeFromIdentifier = (id: Identifier): string => {
     return id.name;
 };
 
-const tsProfileClassName = (profileName: string): string => {
-    return `${uppercaseFirstLetter(profileName)}Profile`;
+const tsProfileClassName = (id: Identifier): string => {
+    return `${uppercaseFirstLetter(normalizeTsName(id.name))}Profile`;
 };
 
 const tsSliceInputTypeName = (profileName: string, fieldName: string, sliceName: string): string => {
@@ -203,14 +206,14 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 // Deduplicate by class name to avoid duplicate exports
                 const seen = new Set<string>();
                 const uniqueProfiles = profiles.filter((profile) => {
-                    const className = tsProfileClassName(tsResourceName(profile.identifier));
+                    const className = tsProfileClassName(profile.identifier);
                     if (seen.has(className)) return false;
                     seen.add(className);
                     return true;
                 });
                 if (uniqueProfiles.length === 0) return;
                 for (const profile of uniqueProfiles) {
-                    const className = tsProfileClassName(tsResourceName(profile.identifier));
+                    const className = tsProfileClassName(profile.identifier);
                     this.lineSM(`export { ${className} } from "./${tsModuleName(profile.identifier)}"`);
                 }
             });
@@ -942,10 +945,9 @@ export class TypeScript extends Writer<TypeScriptOptions> {
     }
 
     generateProfileClass(tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) {
-        // Use tsTypeFromIdentifier to properly resolve primitive types to TS types
         const tsBaseResourceName = tsTypeFromIdentifier(flatProfile.base);
         const tsProfileName = tsResourceName(flatProfile.identifier);
-        const profileClassName = tsProfileClassName(tsProfileName);
+        const profileClassName = tsProfileClassName(flatProfile.identifier);
 
         // Known polymorphic field base names in FHIR (value[x], effective[x], etc.)
         // These don't exist as direct properties on TypeScript types

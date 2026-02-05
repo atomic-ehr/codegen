@@ -17,7 +17,7 @@ import type { Address, ContactPoint, HumanName, Identifier, Patient } from "./fh
 import {
     Observation_bodyweightProfile,
     type observation_bodyweight,
-} from "./fhir-types/hl7-fhir-r4-core/profiles/ObservationBodyweight";
+} from "./fhir-types/hl7-fhir-r4-core/profiles/Observation_bodyweight";
 import type { Quantity } from "./fhir-types/hl7-fhir-r4-core/Quantity";
 import type { Reference } from "./fhir-types/hl7-fhir-r4-core/Reference";
 

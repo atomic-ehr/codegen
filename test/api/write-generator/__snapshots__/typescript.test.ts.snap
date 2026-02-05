@@ -88,8 +88,8 @@ exports[`TypeScript CDA with Logical Model Promotion to Resource without resourc
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
-import type { CD } from "../hl7-cda-uv-core/Cd";
-import type { CE } from "../hl7-cda-uv-core/Ce";
+import type { CD } from "../hl7-cda-uv-core/CD";
+import type { CE } from "../hl7-cda-uv-core/CE";
 
 // CanonicalURL: http://hl7.org/cda/stds/core/StructureDefinition/CV (pkg: hl7.cda.uv.core#2.0.1-sd)
 export interface CV extends CE {
@@ -103,10 +103,10 @@ exports[`TypeScript CDA with Logical Model Promotion to Resource with resourceTy
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
-import type { CE } from "../hl7-cda-uv-core/Ce";
-import type { EN } from "../hl7-cda-uv-core/En";
+import type { CE } from "../hl7-cda-uv-core/CE";
+import type { EN } from "../hl7-cda-uv-core/EN";
 import type { InfrastructureRoot } from "../hl7-cda-uv-core/InfrastructureRoot";
-import type { ST } from "../hl7-cda-uv-core/St";
+import type { ST } from "../hl7-cda-uv-core/ST";
 
 import type { Element } from "../hl7-fhir-r5-core/Element";
 // CanonicalURL: http://hl7.org/cda/stds/core/StructureDefinition/Material (pkg: hl7.cda.uv.core#2.0.1-sd)
