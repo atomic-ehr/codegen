@@ -15,7 +15,7 @@ import { generateTypeSchemas } from "@root/typeschema";
 import { promoteLogical } from "@root/typeschema/ir/logic-promotion";
 import { treeShake } from "@root/typeschema/ir/tree-shake";
 import type { IrConf, LogicalPromotionConf, TreeShakeConf } from "@root/typeschema/ir/types";
-import { registerFromManager } from "@root/typeschema/register";
+import { type Register, registerFromManager } from "@root/typeschema/register";
 import { type PackageMeta, packageMetaToNpm } from "@root/typeschema/types";
 import { mkTypeSchemaIndex, type TypeSchemaIndex } from "@root/typeschema/utils";
 import {
@@ -112,6 +112,7 @@ const cleanup = async (opts: APIBuilderOptions, logger: CodegenLogger): Promise<
 export class APIBuilder {
     private options: APIBuilderOptions;
     private manager: ReturnType<typeof CanonicalManager>;
+    private prebuiltRegister: Register | undefined;
     private managerInput: {
         npmPackages: string[];
         localSDs: LocalPackageConfig[];
@@ -123,6 +124,7 @@ export class APIBuilder {
     constructor(
         userOpts: Partial<APIBuilderOptions> & {
             manager?: ReturnType<typeof CanonicalManager>;
+            register?: Register;
             logger?: CodegenLogger;
         } = {},
     ) {
@@ -138,15 +140,22 @@ export class APIBuilder {
         const opts: APIBuilderOptions = {
             ...defaultOpts,
             ...Object.fromEntries(
-                Object.entries(userOpts).filter(([k, v]) => v !== undefined && k !== "manager" && k !== "logger"),
+                Object.entries(userOpts).filter(
+                    ([k, v]) => v !== undefined && k !== "manager" && k !== "register" && k !== "logger",
+                ),
             ),
         };
+
+        if (userOpts.manager && userOpts.register) {
+            throw new Error("Cannot provide both 'manager' and 'register' options. Use one or the other.");
+        }
 
         this.managerInput = {
             npmPackages: [],
             localSDs: [],
             localTgzPackages: [],
         };
+        this.prebuiltRegister = userOpts.register;
         this.manager =
             userOpts.manager ??
             CanonicalManager({
@@ -385,26 +394,32 @@ export class APIBuilder {
         try {
             if (this.options.cleanOutput) cleanup(this.options, this.logger);
 
-            this.logger.info("Initialize Canonical Manager");
-            // Add all packages before initialization
-            if (this.managerInput.npmPackages.length > 0) {
-                await this.manager.addPackages(...this.managerInput.npmPackages.sort());
-            }
-            // Add local packages and archives
-            for (const config of this.managerInput.localSDs) {
-                await this.manager.addLocalPackage(config);
-            }
-            for (const tgzArchive of this.managerInput.localTgzPackages) {
-                await this.manager.addTgzPackage(tgzArchive);
-            }
-            // Initialize after all packages are registered
-            const ref2meta = await this.manager.init();
+            let register: Register;
+            if (this.prebuiltRegister) {
+                this.logger.info("Using prebuilt register");
+                register = this.prebuiltRegister;
+            } else {
+                this.logger.info("Initialize Canonical Manager");
+                // Add all packages before initialization
+                if (this.managerInput.npmPackages.length > 0) {
+                    await this.manager.addPackages(...this.managerInput.npmPackages.sort());
+                }
+                // Add local packages and archives
+                for (const config of this.managerInput.localSDs) {
+                    await this.manager.addLocalPackage(config);
+                }
+                for (const tgzArchive of this.managerInput.localTgzPackages) {
+                    await this.manager.addTgzPackage(tgzArchive);
+                }
+                // Initialize after all packages are registered
+                const ref2meta = await this.manager.init();
 
-            const packageMetas = Object.values(ref2meta);
-            const register = await registerFromManager(this.manager, {
-                logger: this.logger,
-                focusedPackages: packageMetas,
-            });
+                const packageMetas = Object.values(ref2meta);
+                register = await registerFromManager(this.manager, {
+                    logger: this.logger,
+                    focusedPackages: packageMetas,
+                });
+            }
 
             const typeSchemas = await generateTypeSchemas(register, this.logger);
 

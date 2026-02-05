@@ -3,7 +3,7 @@ import { APIBuilder } from "@root/api/builder";
 import { r4Manager } from "@typeschema-test/utils";
 
 describe("Python Writer Generator", async () => {
-    const result = await new APIBuilder({ manager: r4Manager })
+    const result = await new APIBuilder({ register: r4Manager })
         .setLogLevel("SILENT")
         .python({
             inMemoryOnly: true,

@@ -3,7 +3,7 @@ import { APIBuilder } from "@root/api/builder";
 import { r4Manager } from "@typeschema-test/utils";
 
 describe("Mustache Template Based Generation", async () => {
-    const report = await new APIBuilder({ manager: r4Manager })
+    const report = await new APIBuilder({ register: r4Manager })
         .setLogLevel("SILENT")
         .mustache("./examples/mustache/java", {
             debug: "COMPACT",

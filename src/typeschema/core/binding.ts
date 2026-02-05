@@ -180,12 +180,13 @@ export function collectBindingSchemas(
         for (const [key, element] of Object.entries(elements)) {
             const path = [...parentPath, key];
             const pathKey = path.join(".");
+            const elemSnapshot = register.resolveElementSnapshot(fhirSchema, path);
 
             if (processedPaths.has(pathKey)) continue;
             processedPaths.add(pathKey);
 
-            if (element.binding) {
-                const binding = generateBindingSchema(register, fhirSchema, path, element, logger);
+            if (elemSnapshot.binding) {
+                const binding = generateBindingSchema(register, fhirSchema, path, elemSnapshot, logger);
                 if (binding) {
                     bindings.push(binding);
                 }

@@ -20,7 +20,7 @@ if (require.main === module) {
         )
         .map((sd) => sd.url);
 
-    const builder = new APIBuilder({ manager: registry })
+    const builder = new APIBuilder({ register: registry })
         .throwException()
         .typeSchema({ promoteLogical: { "hl7.cda.uv.core": cdaResources } })
         .typescript({ withDebugComment: false })

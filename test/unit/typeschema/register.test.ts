@@ -28,9 +28,6 @@ describe("Register tests", async () => {
                 r4Package,
                 "http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl,
             );
-            if (!patientSD) {
-                throw new Error("Patient StructureDefinition not found");
-            }
             expect(patientSD).toBeDefined();
         });
     });

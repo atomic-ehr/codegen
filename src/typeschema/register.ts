@@ -26,6 +26,7 @@ export type Register = {
     resolveFsGenealogy(pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichFHIRSchema[];
     resolveFsSpecializations(pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichFHIRSchema[];
     allSd(): RichStructureDefinition[];
+    patchSd(fn: (pkg: PackageMeta, sd: StructureDefinition) => StructureDefinition): void;
     allFs(): RichFHIRSchema[];
     allVs(): RichValueSet[];
     resolveVs(_pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichValueSet | undefined;
@@ -34,7 +35,7 @@ export type Register = {
     getAllElementKeys(elems: Record<string, FHIRSchemaElement>): string[];
     resolver: PackageAwareResolver;
     resolutionTree: () => ResolutionTree;
-} & ReturnType<typeof CanonicalManager>;
+};
 
 const readPackageDependencies = async (manager: ReturnType<typeof CanonicalManager>, packageMeta: PackageMeta) => {
     const packageJSON = (await manager.packageJson(packageMeta.name)) as any;
@@ -115,6 +116,32 @@ const mkPackageAwareResolver = async (
     return index;
 };
 
+const enrichResolver = (resolver: PackageAwareResolver, logger?: CodegenLogger) => {
+    for (const { pkg, canonicalResolution } of Object.values(resolver)) {
+        const pkgId = packageMetaToFhir(pkg);
+        if (!resolver[pkgId]) throw new Error(`Package ${pkgId} not found`);
+        let counter = 0;
+        logger?.info(`FHIR Schema conversion for '${packageMetaToFhir(pkg)}' begins...`);
+        for (const [_url, options] of Object.entries(canonicalResolution)) {
+            const resolition = options[0];
+            if (!resolition) throw new Error(`Resource not found`);
+            const resource = resolition.resource;
+            const resourcePkg = resolition.pkg;
+            if (isStructureDefinition(resource)) {
+                const fs = fhirschema.translate(resource as StructureDefinition) as FHIRSchema;
+                const rfs = enrichFHIRSchema(fs, resourcePkg);
+                counter++;
+                resolver[pkgId].fhirSchemas[rfs.url] = rfs;
+            }
+            if (isValueSet(resource)) {
+                const rvs = enrichValueSet(resource, resourcePkg);
+                resolver[pkgId].valueSets[rvs.url] = rvs;
+            }
+        }
+        logger?.info(`FHIR Schema conversion for '${packageMetaToFhir(pkg)}' completed: ${counter} successful`);
+    }
+};
+
 const packageAgnosticResolveCanonical = (
     resolver: PackageAwareResolver,
     url: CanonicalUrl,
@@ -151,30 +178,7 @@ export const registerFromManager = async (
     for (const pkg of packages) {
         await mkPackageAwareResolver(manager, pkg, 0, resolver, logger);
     }
-
-    for (const { pkg, canonicalResolution } of Object.values(resolver)) {
-        const pkgId = packageMetaToFhir(pkg);
-        if (!resolver[pkgId]) throw new Error(`Package ${pkgId} not found`);
-        let counter = 0;
-        logger?.info(`FHIR Schema conversion for '${packageMetaToFhir(pkg)}' begins...`);
-        for (const [_url, options] of Object.entries(canonicalResolution)) {
-            const resolition = options[0];
-            if (!resolition) throw new Error(`Resource not found`);
-            const resource = resolition.resource;
-            const resourcePkg = resolition.pkg;
-            if (isStructureDefinition(resource)) {
-                const fs = fhirschema.translate(resource as StructureDefinition) as FHIRSchema;
-                const rfs = enrichFHIRSchema(fs, resourcePkg);
-                counter++;
-                resolver[pkgId].fhirSchemas[rfs.url] = rfs;
-            }
-            if (isValueSet(resource)) {
-                const rvs = enrichValueSet(resource, resourcePkg);
-                resolver[pkgId].valueSets[rvs.url] = rvs;
-            }
-        }
-        logger?.info(`FHIR Schema conversion for '${packageMetaToFhir(pkg)}' completed: ${counter} successful`);
-    }
+    enrichResolver(resolver);
 
     const resolveFs = (pkg: PackageMeta, canonicalUrl: CanonicalUrl) => {
         return (
@@ -192,9 +196,14 @@ export const registerFromManager = async (
         );
     };
 
-    const ensureSpecializationCanonicalUrl = (name: string | Name | CanonicalUrl) =>
-        (name.match(/^[a-zA-Z0-9]+$/) && (`http://hl7.org/fhir/StructureDefinition/${name}` as CanonicalUrl)) ||
-        (name as CanonicalUrl);
+    const ensureSpecializationCanonicalUrl = (name: string | Name | CanonicalUrl): CanonicalUrl => {
+        // Strip version suffix from canonical URL (e.g., "Extension|4.0.1" -> "Extension")
+        if (name.includes("|")) name = name.split("|")[0] as CanonicalUrl;
+        if (name.match(/^[a-zA-Z0-9]+$/)) {
+            return `http://hl7.org/fhir/StructureDefinition/${name}` as CanonicalUrl;
+        }
+        return name as CanonicalUrl;
+    };
 
     const resolveFsGenealogy = (pkg: PackageMeta, canonicalUrl: CanonicalUrl) => {
         let fs = resolveFs(pkg, canonicalUrl);
@@ -240,7 +249,6 @@ export const registerFromManager = async (
     let cachedResolutionTree: ResolutionTree | undefined;
 
     return {
-        ...manager,
         testAppendFs(fs: FHIRSchema) {
             const rfs = enrichFHIRSchema(fs);
             const pkgId = packageMetaToFhir(rfs.package_meta);
@@ -252,8 +260,8 @@ export const registerFromManager = async (
         resolveFsGenealogy: resolveFsGenealogy,
         resolveFsSpecializations: resolveFsSpecializations,
         ensureSpecializationCanonicalUrl,
-        resolveSd: (_pkg: PackageMeta, canonicalUrl: CanonicalUrl) => {
-            const res = packageAgnosticResolveCanonical(resolver, canonicalUrl, logger);
+        resolveSd: (pkg: PackageMeta, canonicalUrl: CanonicalUrl) => {
+            const res = resolver[packageMetaToFhir(pkg)]?.canonicalResolution[canonicalUrl]?.[0]?.resource;
             if (isStructureDefinition(res)) return res as StructureDefinition;
             return undefined;
         },
@@ -276,6 +284,23 @@ export const registerFromManager = async (
                 )
                 .filter((r): r is RichStructureDefinition => isStructureDefinition(r))
                 .sort((sd1, sd2) => sd1.url.localeCompare(sd2.url)),
+        patchSd: (fn: (pkg: PackageMeta, sd: StructureDefinition) => StructureDefinition) => {
+            Object.values(resolver).flatMap((pkgIndex) =>
+                Object.values(pkgIndex.canonicalResolution).forEach((resolutions) => {
+                    resolutions.forEach((e) => {
+                        if (isStructureDefinition(e.resource)) {
+                            const sd = e.resource as StructureDefinition;
+                            const newSd = fn(pkgIndex.pkg, sd);
+                            if (sd.url !== newSd.url)
+                                throw new Error(`Patch update StructureDefinition URL: ${sd.url} !== ${newSd.url}`);
+                            e.resource = newSd;
+                        }
+                    });
+                }),
+            );
+            enrichResolver(resolver);
+            cachedResolutionTree = undefined;
+        },
         allFs: () => Object.values(resolver).flatMap((pkgIndex) => Object.values(pkgIndex.fhirSchemas)),
         allVs: () => Object.values(resolver).flatMap((pkgIndex) => Object.values(pkgIndex.valueSets)),
         resolveVs,
