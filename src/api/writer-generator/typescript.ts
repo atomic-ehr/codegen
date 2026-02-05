@@ -24,6 +24,8 @@ import {
     isSpecializationTypeSchema,
     type Name,
     type ProfileTypeSchema,
+    packageMeta,
+    packageMetaToFhir,
     type RegularTypeSchema,
     type TypeSchema,
 } from "@root/typeschema/types";
@@ -1453,7 +1455,11 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                     this.generateDisclaimer();
                     const flatProfile = tsIndex.flatProfile(schema);
                     this.generateProfileImports(tsIndex, flatProfile);
-                    this.comment("CanonicalURL:", schema.identifier.url);
+                    this.comment(
+                        "CanonicalURL:",
+                        schema.identifier.url,
+                        `(pkg: ${packageMetaToFhir(packageMeta(schema))})`,
+                    );
                     this.generateProfileOverrideInterface(tsIndex, flatProfile);
                     this.generateProfileClass(tsIndex, flatProfile);
                 });
@@ -1464,7 +1470,11 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 this.generateDependenciesImports(tsIndex, schema);
                 this.generateComplexTypeReexports(schema);
                 this.generateNestedTypes(tsIndex, schema);
-                this.comment("CanonicalURL:", schema.identifier.url);
+                this.comment(
+                    "CanonicalURL:",
+                    schema.identifier.url,
+                    `(pkg: ${packageMetaToFhir(packageMeta(schema))})`,
+                );
                 this.generateType(tsIndex, schema);
                 this.generateResourceTypePredicate(schema);
             });

@@ -47,7 +47,7 @@ export interface PatientLink extends BackboneElement {
     type: ("replaced-by" | "replaces" | "refer" | "seealso");
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Patient
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Patient (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Patient extends DomainResource {
     resourceType: "Patient";
 
@@ -91,7 +91,7 @@ exports[`TypeScript CDA with Logical Model Promotion to Resource without resourc
 import type { CD } from "../hl7-cda-uv-core/Cd";
 import type { CE } from "../hl7-cda-uv-core/Ce";
 
-// CanonicalURL: http://hl7.org/cda/stds/core/StructureDefinition/CV
+// CanonicalURL: http://hl7.org/cda/stds/core/StructureDefinition/CV (pkg: hl7.cda.uv.core#2.0.1-sd)
 export interface CV extends CE {
     translation?: CD[];
 }
@@ -109,7 +109,7 @@ import type { InfrastructureRoot } from "../hl7-cda-uv-core/InfrastructureRoot";
 import type { ST } from "../hl7-cda-uv-core/St";
 
 import type { Element } from "../hl7-fhir-r5-core/Element";
-// CanonicalURL: http://hl7.org/cda/stds/core/StructureDefinition/Material
+// CanonicalURL: http://hl7.org/cda/stds/core/StructureDefinition/Material (pkg: hl7.cda.uv.core#2.0.1-sd)
 export interface Material extends InfrastructureRoot {
     resourceType: "Material";
 

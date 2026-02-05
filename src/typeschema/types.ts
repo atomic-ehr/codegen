@@ -33,7 +33,7 @@ export interface PackageMeta {
 
 export const packageMeta = (schema: TypeSchema): PackageMeta => {
     return {
-        name: schema.identifier.name,
+        name: schema.identifier.package,
         version: schema.identifier.version,
     };
 };
