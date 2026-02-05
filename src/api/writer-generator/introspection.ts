@@ -18,49 +18,51 @@ const normalizeFileName = (str: string): string => {
     return res;
 };
 
-const typeSchemaToJson = (ts: TypeSchema, pretty: boolean): { filename: string; content: string } => {
+const typeSchemaToJson = (ts: TypeSchema, pretty: boolean): { filename: string; genContent: () => string } => {
     const pkgPath = normalizeFileName(ts.identifier.package);
     const name = normalizeFileName(`${ts.identifier.name}(${extractNameFromCanonical(ts.identifier.url)})`);
     const baseName = Path.join(pkgPath, name);
 
     return {
         filename: baseName,
-        content: JSON.stringify(ts, null, pretty ? 2 : undefined),
+        genContent: () => JSON.stringify(ts, null, pretty ? 2 : undefined),
     };
 };
 
-const fhirSchemaToJson = (fs: RichFHIRSchema, pretty: boolean): { filename: string; content: string } => {
+const fhirSchemaToJson = (fs: RichFHIRSchema, pretty: boolean): { filename: string; genContent: () => string } => {
     const pkgPath = normalizeFileName(fs.package_meta.name);
     const name = normalizeFileName(`${fs.name}(${extractNameFromCanonical(fs.url)})`);
     const baseName = Path.join(pkgPath, name);
 
     return {
         filename: baseName,
-        content: JSON.stringify(fs, null, pretty ? 2 : undefined),
+        genContent: () => JSON.stringify(fs, null, pretty ? 2 : undefined),
     };
 };
 
 const structureDefinitionToJson = (
     sd: RichStructureDefinition,
     pretty: boolean,
-): { filename: string; content: string } => {
+): { filename: string; genContent: () => string } => {
     const pkgPath = normalizeFileName(sd.package_name ?? "unknown");
     const name = normalizeFileName(`${sd.name}(${extractNameFromCanonical(sd.url as CanonicalUrl)})`);
     const baseName = Path.join(pkgPath, name);
 
-    // HACK: for some reason ID may change between CI and local install
-    sd = structuredClone(sd);
-    sd.id = undefined;
-
     return {
         filename: baseName,
-        content: JSON.stringify(sd, null, pretty ? 2 : undefined),
+        // HACK: for some reason ID may change between CI and local install
+        genContent: () => JSON.stringify({ ...sd, id: undefined }, null, pretty ? 2 : undefined),
     };
 };
 
 export class IntrospectionWriter extends FileSystemWriter<IntrospectionWriterOptions> {
     async generate(tsIndex: TypeSchemaIndex): Promise<void> {
         this.logger()?.info(`IntrospectionWriter: Begin`);
+        if (this.opts.typeTree) {
+            await this.writeTypeTree(tsIndex);
+            this.logger()?.info(`IntrospectionWriter: Type tree written to ${this.opts.typeTree}`);
+        }
+
         if (this.opts.typeSchemas) {
             const outputPath = this.opts.typeSchemas;
             const typeSchemas = tsIndex.schemas;
@@ -75,11 +77,6 @@ export class IntrospectionWriter extends FileSystemWriter<IntrospectionWriterOpt
             this.logger()?.info(
                 `IntrospectionWriter: ${typeSchemas.length} TypeSchema written to ${this.opts.typeSchemas}`,
             );
-        }
-
-        if (this.opts.typeTree) {
-            await this.writeTypeTree(tsIndex);
-            this.logger()?.info(`IntrospectionWriter: Type tree written to ${this.opts.typeTree}`);
         }
 
         if (this.opts.fhirSchemas && tsIndex.register) {
@@ -120,25 +117,28 @@ export class IntrospectionWriter extends FileSystemWriter<IntrospectionWriterOpt
     private async writeNdjson<T>(
         items: T[],
         outputFile: string,
-        toJson: (item: T, pretty: boolean) => { filename: string; content: string },
+        toJson: (item: T, pretty: boolean) => { filename: string; genContent: () => string },
     ): Promise<void> {
         this.cd(Path.dirname(outputFile), () => {
             this.cat(Path.basename(outputFile), () => {
                 for (const item of items) {
-                    const { content } = toJson(item, false);
-                    this.write(`${content}\n`);
+                    const { genContent } = toJson(item, false);
+                    this.write(`${genContent()}\n`);
                 }
             });
         });
     }
 
-    private async writeJsonFiles(items: { filename: string; content: string }[], outputDir: string): Promise<void> {
+    private async writeJsonFiles(
+        items: { filename: string; genContent: () => string }[],
+        outputDir: string,
+    ): Promise<void> {
         this.cd(outputDir, () => {
-            for (const { filename, content } of items) {
+            for (const { filename, genContent } of items) {
                 const fileName = `${filename}.json`;
                 this.cd(Path.dirname(fileName), () => {
                     this.cat(Path.basename(fileName), () => {
-                        this.write(content);
+                        this.write(genContent());
                     });
                 });
             }
