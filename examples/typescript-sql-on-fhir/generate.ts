@@ -6,9 +6,11 @@ const builder = new APIBuilder()
     .fromPackageRef("https://build.fhir.org/ig/FHIR/sql-on-fhir-v2/package.tgz")
     .outputTo("./examples/typescript-sql-on-fhir/fhir-types")
     .introspection({ typeTree: "tree.yaml" })
-    .treeShake({
-        "org.sql-on-fhir.ig": {
-            "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition": {},
+    .typeSchema({
+        treeShake: {
+            "org.sql-on-fhir.ig": {
+                "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition": {},
+            },
         },
     })
     .cleanOutput(true);

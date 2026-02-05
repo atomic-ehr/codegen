@@ -8,7 +8,7 @@ import {
 } from "@root/typeschema/ir/tree-shake";
 import { registerFromPackageMetas } from "@root/typeschema/register";
 import type { CanonicalUrl, RegularTypeSchema } from "@root/typeschema/types";
-import { mkIndex, mkR4Register, r4Manager, r4Package, r5Package, resolveTs } from "@typeschema-test/utils";
+import { mkIndex, mkR4Register, r4Package, r5Package, resolveTs } from "@typeschema-test/utils";
 
 describe("treeShake specific TypeSchema", async () => {
     const manager = await registerFromPackageMetas([r4Package, r5Package], {
@@ -16,36 +16,32 @@ describe("treeShake specific TypeSchema", async () => {
     });
     const tsIndex = await mkIndex(manager);
     it("tree shake report should be empty without treeshaking", () => {
-        expect(tsIndex.treeShakeReport()).toBeUndefined();
+        expect(tsIndex.irReport()).toEqual({});
     });
     describe("Only Bundle & Operation Outcome without extensions", () => {
-        const shaked = treeShake(
-            tsIndex,
-            {
-                "hl7.fhir.r4.core": {
-                    "http://hl7.org/fhir/StructureDefinition/Bundle": {},
-                    "http://hl7.org/fhir/StructureDefinition/OperationOutcome": {},
-                    "http://hl7.org/fhir/StructureDefinition/DomainResource": {
-                        ignoreFields: ["extension", "modifierExtension"],
-                    },
-                    "http://hl7.org/fhir/StructureDefinition/BackboneElement": {
-                        ignoreFields: ["modifierExtension"],
-                    },
-                    "http://hl7.org/fhir/StructureDefinition/Element": {
-                        ignoreFields: ["extension"],
-                    },
+        const shaked = treeShake(tsIndex, {
+            "hl7.fhir.r4.core": {
+                "http://hl7.org/fhir/StructureDefinition/Bundle": {},
+                "http://hl7.org/fhir/StructureDefinition/OperationOutcome": {},
+                "http://hl7.org/fhir/StructureDefinition/DomainResource": {
+                    ignoreFields: ["extension", "modifierExtension"],
+                },
+                "http://hl7.org/fhir/StructureDefinition/BackboneElement": {
+                    ignoreFields: ["modifierExtension"],
+                },
+                "http://hl7.org/fhir/StructureDefinition/Element": {
+                    ignoreFields: ["extension"],
                 },
             },
-            r4Manager.resolutionTree(),
-        );
+        });
 
-        const report = shaked.treeShakeReport();
-        assert(report);
+        const report = shaked.irReport();
 
         it("check treeshake report", () => {
             expect(report).toBeDefined();
-            expect(report.skippedPackages).toMatchObject(["hl7.fhir.r5.core"]);
-            expect(report.packages).toMatchSnapshot();
+            assert(report.treeShake);
+            expect(report.treeShake.skippedPackages).toMatchObject(["hl7.fhir.r5.core"]);
+            expect(report.treeShake.packages).toMatchSnapshot();
         });
         it("root tree shake readme", () => {
             expect(rootTreeShakeReadme(report)).toMatchSnapshot();

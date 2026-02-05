@@ -18,75 +18,56 @@ import {
     type RegularTypeSchema,
     type TypeSchema,
 } from "../types";
-import { mkTypeSchemaIndex, type TypeSchemaIndex } from "../utils";
+import type { TypeSchemaIndex } from "../utils";
+import type { IrReport, TreeShakeConf, TreeShakeReport, TreeShakeRule } from "./types";
 
-export type TreeShake = Record<string, Record<string, TreeShakeRule>>;
-
-export type TreeShakeRule = { ignoreFields?: string[]; selectFields?: string[] };
-
-export interface TreeShakeReport {
-    skippedPackages: PkgName[];
-    packages: Record<
-        PkgName,
-        {
-            skippedCanonicals: CanonicalUrl[];
-            canonicals: Record<
-                CanonicalUrl,
-                {
-                    skippedFields: string[];
-                }
-            >;
-        }
-    >;
-}
-
-const ensureTreeShakeReport = (indexOrReport: TypeSchemaIndex | TreeShakeReport): TreeShakeReport => {
-    if ("treeShakeReport" in indexOrReport && typeof indexOrReport.treeShakeReport === "function") {
-        const report = indexOrReport.treeShakeReport();
-        assert(report);
-        return report;
+const ensureIrReport = (indexOrReport: TypeSchemaIndex | IrReport): IrReport => {
+    if ("irReport" in indexOrReport && typeof indexOrReport.irReport === "function") {
+        return indexOrReport.irReport();
     } else {
-        return indexOrReport as TreeShakeReport;
+        return indexOrReport as IrReport;
     }
 };
 
-export const rootTreeShakeReadme = (report: TypeSchemaIndex | TreeShakeReport) => {
-    report = ensureTreeShakeReport(report);
+export const rootTreeShakeReadme = (report: TypeSchemaIndex | IrReport) => {
+    const { treeShake: treeShakeReport } = ensureIrReport(report);
+    assert(treeShakeReport);
     const lines = ["# Tree Shake Report", ""];
-    if (report.skippedPackages.length === 0) lines.push("All packages are included.");
+    if (treeShakeReport.skippedPackages.length === 0) lines.push("All packages are included.");
     else lines.push("Skipped packages:", "");
-    for (const pkgName of report.skippedPackages) {
+    for (const pkgName of treeShakeReport.skippedPackages) {
         lines.push(`- ${pkgName}`);
     }
     lines.push("");
     return lines.join("\n");
 };
 
-export const packageTreeShakeReadme = (report: TypeSchemaIndex | TreeShakeReport, pkgName: PkgName) => {
-    report = ensureTreeShakeReport(report);
+export const packageTreeShakeReadme = (report: TypeSchemaIndex | IrReport, pkgName: PkgName) => {
+    const { treeShake: treeShakeReport } = ensureIrReport(report);
+    assert(treeShakeReport);
     const lines = [`# Package: ${pkgName}`, ""];
-    assert(report.packages[pkgName]);
+    assert(treeShakeReport.packages[pkgName]);
     lines.push("## Canonical Fields Changes", "");
-    if (Object.keys(report.packages[pkgName].canonicals).length === 0) {
+    if (Object.keys(treeShakeReport.packages[pkgName].canonicals).length === 0) {
         lines.push("All canonicals translated as is.", "");
     } else {
-        for (const [canonicalUrl, { skippedFields }] of Object.entries(report.packages[pkgName].canonicals)) {
+        for (const [canonicalUrl, { skippedFields }] of Object.entries(treeShakeReport.packages[pkgName].canonicals)) {
             lines.push(`- <${canonicalUrl}>`);
             if (skippedFields.length === 0) {
                 lines.push("    - All fields translated as is.", "");
             } else {
-                lines.push(`    - Skipped fields: ${skippedFields.map((f) => `\`${f}\``).join(", ")}`);
+                lines.push(`    - Skipped fields: ${skippedFields.map((f: string) => `\`${f}\``).join(", ")}`);
                 lines.push("");
             }
         }
         lines.push("");
     }
     lines.push("## Skipped Canonicals", "");
-    if (report.packages[pkgName].skippedCanonicals.length === 0) {
+    if (treeShakeReport.packages[pkgName].skippedCanonicals.length === 0) {
         lines.push("No skipped canonicals");
     } else {
         lines.push("Skipped canonicals:", "");
-        for (const canonicalUrl of report.packages[pkgName].skippedCanonicals) {
+        for (const canonicalUrl of treeShakeReport.packages[pkgName].skippedCanonicals) {
             lines.push(`- <${canonicalUrl}>`);
         }
         lines.push("");
@@ -231,11 +212,7 @@ export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _lo
     return schema;
 };
 
-export const treeShake = (
-    tsIndex: TypeSchemaIndex,
-    treeShake: TreeShake,
-    { logger }: { logger?: CodegenLogger },
-): TypeSchemaIndex => {
+export const treeShake = (tsIndex: TypeSchemaIndex, treeShake: TreeShakeConf): TypeSchemaIndex => {
     const focusedSchemas: TypeSchema[] = [];
     for (const [pkgId, requires] of Object.entries(treeShake)) {
         for (const [url, rule] of Object.entries(requires)) {
@@ -279,8 +256,10 @@ export const treeShake = (
 
     const shaked = collectDeps(focusedSchemas, {});
 
-    const report: TreeShakeReport = { skippedPackages: [], packages: {} };
-    const shakedIndex = mkTypeSchemaIndex(shaked, { register: tsIndex.register, logger, treeShakeReport: report });
-    mutableFillReport(report, tsIndex, shakedIndex);
+    const shakedIndex = tsIndex.replaceSchemas(shaked);
+    const treeShakeReport: TreeShakeReport = { skippedPackages: [], packages: {} };
+    const irReport = shakedIndex.irReport();
+    irReport.treeShake = treeShakeReport;
+    mutableFillReport(treeShakeReport, tsIndex, shakedIndex);
     return shakedIndex;
 };

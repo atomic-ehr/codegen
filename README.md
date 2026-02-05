@@ -79,7 +79,8 @@ yarn add @atomic-ehr/codegen
     const builder = new APIBuilder()
         .fromPackage("hl7.fhir.r4.core", "4.0.1")
         .typescript({})
-        .outputTo("./examples/typescript-r4/fhir-types");
+        .outputTo("./examples/typescript-r4/fhir-types")
+        .introspection({ typeTree: "./type-tree.yaml" });
 
     const report = await builder.generate();
     console.log(prettyReport(report));
@@ -121,11 +122,14 @@ const builder = new APIBuilder()
 
     // Input sources (choose one or combine)
     .fromPackage("hl7.fhir.r4.core", "4.0.1") // NPM registry package
-    .fromPackageRef("https://...package.tgz")  // Remote TGZ file
-    .localStructureDefinitions({ ... })        // Loose JSON files
+    .fromPackageRef("https://...package.tgz") // Remote TGZ file
+    .localStructureDefinitions({ ... })       // Loose JSON files
 
     // Type Schema processing
-    .treeShake({ ... })                        // Include only specified types
+    .typeSchema({
+        treeShake: { ... },        // Include only specified types
+        promoteLogical: { ... },   // Process logical models as resources
+    })
 
     // Code generator (choose one)
     .typescript({                              // TypeScript generator
@@ -201,11 +205,13 @@ This approach enables generating idiomatic code for any programming language whi
 Tree shaking optimizes the generated output by including only the resources you explicitly need and their dependencies. Instead of generating types for an entire FHIR package (which can contain hundreds of resources), you can specify exactly which resources to include:
 
 ```typescript
-.treeShake({
-  "hl7.fhir.r4.core#4.0.1": {
-    "http://hl7.org/fhir/StructureDefinition/Patient": {},
-    "http://hl7.org/fhir/StructureDefinition/Observation": {},
-  }
+.typeSchema({
+    treeShake: {
+        "hl7.fhir.r4.core#4.0.1": {
+            "http://hl7.org/fhir/StructureDefinition/Patient": {},
+            "http://hl7.org/fhir/StructureDefinition/Observation": {}
+        }
+    }
 })
 ```
 
@@ -216,15 +222,17 @@ This feature automatically resolves and includes all dependencies (referenced ty
 Beyond resource-level filtering, tree shaking supports fine-grained field selection using `selectFields` (whitelist) or `ignoreFields` (blacklist):
 
 ```typescript
-.treeShake({
-  "hl7.fhir.r4.core#4.0.1": {
-    "http://hl7.org/fhir/StructureDefinition/Patient": {
-      selectFields: ["id", "name", "birthDate", "gender"]
-    },
-    "http://hl7.org/fhir/StructureDefinition/Observation": {
-      ignoreFields: ["performer", "note"]
+.typeSchema({
+    treeShake: {
+        "hl7.fhir.r4.core#4.0.1": {
+            "http://hl7.org/fhir/StructureDefinition/Patient": {
+                selectFields: ["id", "name", "birthDate", "gender"]
+            },
+            "http://hl7.org/fhir/StructureDefinition/Observation": {
+                ignoreFields: ["performer", "note"]
+            }
+        }
     }
-  }
 })
 ```
 
@@ -247,10 +255,12 @@ Use the programmatic API via `APIBuilder`:
 ```typescript
 const builder = new APIBuilder({})
   .fromPackage("my.custom.pkg", "4.0.1")
-  .promoteLogicToResource({
-    "my.custom.pkg": [
-      "http://example.org/StructureDefinition/MyLogicalModel"
-    ]
+  .typeSchema({
+    promoteLogical: {
+      "my.custom.pkg": [
+        "http://example.org/StructureDefinition/MyLogicalModel"
+      ]
+    }
   })
 ```
 

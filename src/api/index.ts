@@ -7,6 +7,7 @@
  * @packageDocumentation
  */
 
+export type { IrConf, LogicalPromotionConf, TreeShakeConf } from "../typeschema/ir/types";
 export { LogLevel } from "../utils/codegen-logger";
 export type { APIBuilderOptions, LocalStructureDefinitionConfig } from "./builder";
 export { APIBuilder, prettyReport } from "./builder";

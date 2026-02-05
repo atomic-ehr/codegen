@@ -123,7 +123,10 @@ The `APIBuilder` class (`src/api/builder.ts`) provides the fluent API for the th
 .fromSchemas(array)                                 // TypeSchema objects
 
 // Processing & introspection stage - Optional:
-.treeShake({...})                                     // Filter types
+.typeSchema({                                         // IR transformations
+    treeShake: {...},                                 // Filter types
+    promoteLogical: {...},                            // Promote logical models
+})
 .introspection({                                      // Debug output (optional)
     typeSchemas: "./schemas",                         // Type Schemas path/.ndjson
     typeTree: "./tree.json"                           // Type Tree
@@ -184,7 +187,7 @@ Located in `src/api/writer-generator/`:
 4. Use `bun test --watch` for development
 
 ### Working with Tree Shaking
-- Configured via `builder.treeShake({...})`
+- Configured via `builder.typeSchema({ treeShake: {...} })`
 - Specify which resources and fields to include
 - Automatically resolves dependencies
 - Reference format: `"hl7.fhir.r4.core#4.0.1"`

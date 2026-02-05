@@ -10,7 +10,6 @@ import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import { complete, createLogger, list } from "@root/utils/codegen-logger";
 import { TypeSchemaGenerator } from "@typeschema/generator";
 import type { CommandModule } from "yargs";
-import { loadConfig } from "../../../config";
 
 interface GenerateTypeschemaArgs {
     packages: string[];
@@ -78,49 +77,37 @@ export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, G
         });
 
         try {
-            // Load configuration from file
-            const config = await loadConfig(process.cwd());
-
             logger.step("Generating TypeSchema from FHIR packages");
             logger.info(`Packages: ${argv.packages.join(", ")}`);
             logger.info(`Output: ${argv.output}`);
-            // Merge singleFile options: CLI args take precedence over config file
-            const singleFileOption =
-                argv.singleFile !== undefined ? argv.singleFile : (config.typeSchema?.singleFile ?? false);
 
-            const outputFormat = singleFileOption ? "ndjson" : argv.format;
+            const outputFormat = argv.singleFile ? "ndjson" : argv.format;
             logger.debug(
-                `Format: ${outputFormat}${singleFileOption && argv.format === "json" ? " (forced from json due to singleFile)" : ""}`,
+                `Format: ${outputFormat}${argv.singleFile && argv.format === "json" ? " (forced from json due to singleFile)" : ""}`,
             );
 
-            // Merge treeshake options: CLI args take precedence over config file
-            const treeshakeOptions =
-                argv.treeshake && argv.treeshake.length > 0 ? argv.treeshake : config.typeSchema?.treeshake;
-
-            if (treeshakeOptions && treeshakeOptions.length > 0) {
-                logger.info(`Treeshaking enabled for ResourceTypes: ${treeshakeOptions.join(", ")}`);
+            if (argv.treeshake && argv.treeshake.length > 0) {
+                logger.info(`Treeshaking enabled for ResourceTypes: ${argv.treeshake.join(", ")}`);
             }
 
-            if (singleFileOption) {
+            if (argv.singleFile) {
                 logger.info("Single file output enabled (NDJSON format)");
             }
 
-            // Merge registry options: CLI args take precedence over config file
-            const registryOption = argv.registry || config.registry;
-            if (registryOption) {
-                logger.info(`Using custom registry: ${registryOption}`);
+            if (argv.registry) {
+                logger.info(`Using custom registry: ${argv.registry}`);
             }
 
             const startTime = Date.now();
 
             // Create TypeSchema generator
             const generator = new TypeSchemaGenerator({
-                treeshake: treeshakeOptions,
-                registry: registryOption,
+                treeshake: argv.treeshake,
+                registry: argv.registry,
                 manager: CanonicalManager({
                     packages: [],
                     workingDir: ".codegen-cache/canonical-manager-cache",
-                    registry: registryOption,
+                    registry: argv.registry,
                 }),
             });
 

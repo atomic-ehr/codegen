@@ -20,8 +20,10 @@ describe("TypeScript Writer Generator", async () => {
 describe("TypeScript CDA with Logical Model Promotion to Resource", async () => {
     const result = await new APIBuilder({ manager: ccdaManager })
         .setLogLevel("SILENT")
-        .promoteLogicToResource({
-            "hl7.cda.uv.core": ["http://hl7.org/cda/stds/core/StructureDefinition/Material" as CanonicalUrl],
+        .typeSchema({
+            promoteLogical: {
+                "hl7.cda.uv.core": ["http://hl7.org/cda/stds/core/StructureDefinition/Material" as CanonicalUrl],
+            },
         })
         .typescript({
             inMemoryOnly: true,

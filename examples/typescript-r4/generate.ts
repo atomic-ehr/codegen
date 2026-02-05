@@ -14,6 +14,26 @@ if (require.main === module) {
             generateProfile: true,
             openResourceTypeSet: false,
         })
+        .typeSchema({
+            treeShake: {
+                "hl7.fhir.r4.core": {
+                    "http://hl7.org/fhir/StructureDefinition/Bundle": {},
+                    "http://hl7.org/fhir/StructureDefinition/OperationOutcome": {},
+                    "http://hl7.org/fhir/StructureDefinition/DomainResource": {
+                        ignoreFields: ["extension", "modifierExtension"],
+                    },
+                    "http://hl7.org/fhir/StructureDefinition/BackboneElement": {
+                        ignoreFields: ["modifierExtension"],
+                    },
+                    "http://hl7.org/fhir/StructureDefinition/Element": {
+                        ignoreFields: ["extension"],
+                    },
+                    "http://hl7.org/fhir/StructureDefinition/Patient": {},
+                    "http://hl7.org/fhir/StructureDefinition/Observation": {},
+                    "http://hl7.org/fhir/StructureDefinition/bodyweight": {},
+                },
+            },
+        })
         .introspection({
             typeSchemas: "type-schemas",
             typeTree: "type-tree.yaml",
@@ -21,24 +41,6 @@ if (require.main === module) {
             structureDefinitions: "structure-definitions",
         })
         .outputTo("./examples/typescript-r4/fhir-types")
-        .treeShake({
-            "hl7.fhir.r4.core": {
-                "http://hl7.org/fhir/StructureDefinition/Bundle": {},
-                "http://hl7.org/fhir/StructureDefinition/OperationOutcome": {},
-                "http://hl7.org/fhir/StructureDefinition/DomainResource": {
-                    ignoreFields: ["extension", "modifierExtension"],
-                },
-                "http://hl7.org/fhir/StructureDefinition/BackboneElement": {
-                    ignoreFields: ["modifierExtension"],
-                },
-                "http://hl7.org/fhir/StructureDefinition/Element": {
-                    ignoreFields: ["extension"],
-                },
-                "http://hl7.org/fhir/StructureDefinition/Patient": {},
-                "http://hl7.org/fhir/StructureDefinition/Observation": {},
-                "http://hl7.org/fhir/StructureDefinition/bodyweight": {},
-            },
-        })
         .cleanOutput(true);
 
     const report = await builder.generate();

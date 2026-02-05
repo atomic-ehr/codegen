@@ -81,6 +81,3 @@
 
 // Export new high-level API (primary)
 export * from "./api/index";
-
-// Export new config system
-export * from "./config";

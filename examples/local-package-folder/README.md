@@ -102,10 +102,12 @@ bun run examples/local-package-folder/generate.ts
 To include only specific resources:
 
 ```typescript
-.treeShake({
-    "example.folder.structures": {
-        "http://example.org/fhir/StructureDefinition/ExampleNotebook": {},
-        "http://example.org/fhir/StructureDefinition/OtherResource": {},
+.typeSchema({
+    treeShake: {
+        "example.folder.structures": {
+            "http://example.org/fhir/StructureDefinition/ExampleNotebook": {},
+            "http://example.org/fhir/StructureDefinition/OtherResource": {},
+        }
     }
 })
 ```
@@ -115,10 +117,12 @@ To include only specific resources:
 To include only specific fields:
 
 ```typescript
-.treeShake({
-    "example.folder.structures": {
-        "http://example.org/fhir/StructureDefinition/ExampleNotebook": {
-            selectFields: ["id", "title", "content"]
+.typeSchema({
+    treeShake: {
+        "example.folder.structures": {
+            "http://example.org/fhir/StructureDefinition/ExampleNotebook": {
+                selectFields: ["id", "title", "content"]
+            }
         }
     }
 })

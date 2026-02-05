@@ -17,9 +17,11 @@ async function generateFromLocalPackageFolder() {
         })
         .typescript({})
         .throwException(true)
-        .treeShake({
-            "example.folder.structures": {
-                "http://example.org/fhir/StructureDefinition/ExampleNotebook": {},
+        .typeSchema({
+            treeShake: {
+                "example.folder.structures": {
+                    "http://example.org/fhir/StructureDefinition/ExampleNotebook": {},
+                },
             },
         })
         .outputTo("./examples/local-package-folder/fhir-types")
