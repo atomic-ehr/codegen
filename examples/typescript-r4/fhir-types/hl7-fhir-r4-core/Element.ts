@@ -3,7 +3,7 @@
 // Any manual changes made to this file may be overwritten.
 
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Element
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Element (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Element {
     id?: string;
     _id?: Element;

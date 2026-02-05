@@ -6,7 +6,7 @@ import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Observation } from "../../hl7-fhir-r4-core/Observation";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/vitalsigns
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/vitalsigns (pkg: hl7.fhir.r4.core#4.0.1)
 export interface observation_vitalsigns extends Observation {
     category: CodeableConcept[];
     subject: Reference<"Patient">;

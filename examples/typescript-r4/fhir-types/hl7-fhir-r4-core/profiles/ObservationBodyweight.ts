@@ -6,7 +6,7 @@ import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Observation } from "../../hl7-fhir-r4-core/Observation";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/bodyweight
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/bodyweight (pkg: hl7.fhir.r4.core#4.0.1)
 export interface observation_bodyweight extends Observation {
     category: CodeableConcept[];
     subject: Reference<"Patient">;

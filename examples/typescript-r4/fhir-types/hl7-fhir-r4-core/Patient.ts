@@ -44,7 +44,7 @@ export interface PatientLink extends BackboneElement {
     type: ("replaced-by" | "replaces" | "refer" | "seealso");
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Patient
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Patient (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Patient extends DomainResource {
     resourceType: "Patient";
 

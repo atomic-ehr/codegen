@@ -8,7 +8,7 @@ import type { Period } from "../hl7-fhir-r4-core/Period";
 export type { Element } from "../hl7-fhir-r4-core/Element";
 export type { Period } from "../hl7-fhir-r4-core/Period";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Address
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Address (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Address extends Element {
     city?: string;
     _city?: Element;

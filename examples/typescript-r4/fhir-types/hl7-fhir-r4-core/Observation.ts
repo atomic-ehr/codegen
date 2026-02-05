@@ -55,7 +55,7 @@ export interface ObservationReferenceRange extends BackboneElement {
     type?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Observation
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Observation (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Observation extends DomainResource {
     resourceType: "Observation";
 

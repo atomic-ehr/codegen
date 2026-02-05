@@ -18,7 +18,7 @@ export interface OperationOutcomeIssue extends BackboneElement {
     severity: ("fatal" | "error" | "warning" | "information");
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/OperationOutcome
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/OperationOutcome (pkg: hl7.fhir.r4.core#4.0.1)
 export interface OperationOutcome extends DomainResource {
     resourceType: "OperationOutcome";
 
