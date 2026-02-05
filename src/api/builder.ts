@@ -16,7 +16,7 @@ import { promoteLogical } from "@root/typeschema/ir/logic-promotion";
 import { treeShake } from "@root/typeschema/ir/tree-shake";
 import type { IrConf, LogicalPromotionConf, TreeShakeConf } from "@root/typeschema/ir/types";
 import { registerFromManager } from "@root/typeschema/register";
-import { type PackageMeta, packageMetaToNpm, type TypeSchema } from "@root/typeschema/types";
+import { type PackageMeta, packageMetaToNpm } from "@root/typeschema/types";
 import { mkTypeSchemaIndex, type TypeSchemaIndex } from "@root/typeschema/utils";
 import {
     type CodegenLogger,
@@ -47,11 +47,6 @@ export interface APIBuilderOptions {
     /** Custom FHIR package registry URL (default: https://fs.get-ig.org/pkgs/) */
     registry: string | undefined;
 }
-
-/**
- * Progress callback for long-running operations
- */
-export type ProgressCallback = (phase: string, current: number, total: number, message?: string) => void;
 
 export type GenerationReport = {
     success: boolean;
@@ -91,12 +86,6 @@ export const prettyReport = (report: GenerationReport): string => {
         .filter((e) => e)
         .join("\n");
 };
-
-export interface GeneratedFile {
-    fullFileName: string;
-}
-
-export type GeneratorInput = { schemas: TypeSchema[]; index: TypeSchemaIndex };
 
 export interface LocalStructureDefinitionConfig {
     package: PackageMeta;

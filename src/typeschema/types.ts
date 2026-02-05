@@ -134,12 +134,6 @@ export type TypeSchema =
     | BindingTypeSchema
     | ProfileTypeSchema;
 
-export const isFhirSchemaBased = (
-    schema: TypeSchema | undefined,
-): schema is RegularTypeSchema | PrimitiveTypeSchema | BindingTypeSchema | ProfileTypeSchema => {
-    return schema?.identifier.kind !== "value-set";
-};
-
 export const isSpecializationTypeSchema = (schema: TypeSchema | undefined): schema is RegularTypeSchema => {
     return (
         schema?.identifier.kind === "resource" ||
@@ -362,12 +356,6 @@ export const isChoiceDeclarationField = (field: Field | undefined): field is Cho
 export const isChoiceInstanceField = (field: Field | undefined): field is ChoiceFieldInstance => {
     if (!field) return false;
     return (field as ChoiceFieldInstance).choiceOf !== undefined;
-};
-
-export type TypeschemaParserOptions = {
-    format?: "auto" | "ndjson" | "json";
-    validate?: boolean;
-    strict?: boolean;
 };
 
 ///////////////////////////////////////////////////////////
