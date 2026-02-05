@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { APIBuilder } from "@root/api/builder";
+import type { CanonicalUrl } from "@root/typeschema/types";
 
 /**
  * Tests for SQL-on-FHIR package.
@@ -12,6 +13,12 @@ describe("SQL-on-FHIR", async () => {
         "org.sql-on-fhir.ig": {
             "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition": {},
         },
+    };
+
+    const promoteLogicalConfig = {
+        "org.sql-on-fhir.ig": [
+            "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition" as CanonicalUrl,
+        ],
     };
 
     describe("TypeScript Generation", async () => {
@@ -52,7 +59,7 @@ describe("SQL-on-FHIR", async () => {
         const result = await new APIBuilder()
             .setLogLevel("SILENT")
             .fromPackageRef(packageUrl)
-            .typeSchema({ treeShake: treeShakeConfig })
+            .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
             .python({ inMemoryOnly: true })
             .generate();
 
@@ -60,8 +67,11 @@ describe("SQL-on-FHIR", async () => {
             expect(result.success).toBeTrue();
         });
 
-        // Python generator does not support logical models (ViewDefinition is kind: "logical")
-        it.todo("should generate ViewDefinition type", () => {});
+        it("should generate ViewDefinition type (promoted logical)", () => {
+            const viewDef = result.filesGenerated["generated/org_sql_on_fhir_ig/view_definition.py"];
+            expect(viewDef).toBeDefined();
+            expect(viewDef).toMatchSnapshot();
+        });
 
         it("should generate R5 dependency package", () => {
             // Python generator creates R5 base types for dependencies
@@ -80,7 +90,7 @@ describe("SQL-on-FHIR", async () => {
         const result = await new APIBuilder()
             .setLogLevel("SILENT")
             .fromPackageRef(packageUrl)
-            .typeSchema({ treeShake: treeShakeConfig })
+            .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
             .csharp({ inMemoryOnly: true })
             .generate();
 
@@ -88,8 +98,11 @@ describe("SQL-on-FHIR", async () => {
             expect(result.success).toBeTrue();
         });
 
-        // C# generator does not support logical models (ViewDefinition is kind: "logical")
-        it.todo("should generate ViewDefinition type", () => {});
+        it("should generate ViewDefinition type (promoted logical)", () => {
+            const viewDef = result.filesGenerated["generated/types/OrgSqlOnFhirIg/ViewDefinition.cs"];
+            expect(viewDef).toBeDefined();
+            expect(viewDef).toMatchSnapshot();
+        });
 
         it("should generate R5 dependency namespace", () => {
             // C# generator creates R5 types for dependencies

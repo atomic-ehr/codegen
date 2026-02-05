@@ -53,7 +53,7 @@ export const promoteLogical = (tsIndex: TypeSchemaIndex, promotes: LogicalPromot
                 return {
                     ...n,
                     base: replace(n.base),
-                    nested: replaceInFields(n.fields),
+                    fields: replaceInFields(n.fields),
                 };
             });
         }
