@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { APIBuilder } from "@root/api/builder";
+import type { CanonicalUrl } from "@root/typeschema/types";
 
 /**
  * Tests for CCDA package generation.
@@ -10,6 +11,12 @@ describe("CCDA", async () => {
         "hl7.cda.uv.core": {
             "http://hl7.org/cda/stds/core/StructureDefinition/ClinicalDocument": {},
         },
+    };
+
+    const promoteLogicalConfig = {
+        "hl7.cda.uv.core": [
+            "http://hl7.org/cda/stds/core/StructureDefinition/ClinicalDocument" as CanonicalUrl,
+        ],
     };
 
     describe("TypeScript Generation", async () => {
@@ -43,7 +50,7 @@ describe("CCDA", async () => {
         const result = await new APIBuilder()
             .setLogLevel("SILENT")
             .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
-            .typeSchema({ treeShake: treeShakeConfig })
+            .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
             .python({ inMemoryOnly: true })
             .generate();
 
@@ -51,8 +58,11 @@ describe("CCDA", async () => {
             expect(result.success).toBeTrue();
         });
 
-        // Python generator does not support logical models (ClinicalDocument is kind: "logical")
-        it.todo("should generate ClinicalDocument type", () => {});
+        it("should generate ClinicalDocument type (promoted logical)", () => {
+            const clinicalDoc = result.filesGenerated["generated/hl7_cda_uv_core/clinical_document.py"];
+            expect(clinicalDoc).toBeDefined();
+            expect(clinicalDoc).toMatchSnapshot();
+        });
 
         it("should generate base package structure", () => {
             expect(result.filesGenerated["generated/__init__.py"]).toBeDefined();
@@ -64,7 +74,7 @@ describe("CCDA", async () => {
         const result = await new APIBuilder()
             .setLogLevel("SILENT")
             .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
-            .typeSchema({ treeShake: treeShakeConfig })
+            .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
             .csharp({ inMemoryOnly: true })
             .generate();
 
@@ -72,8 +82,11 @@ describe("CCDA", async () => {
             expect(result.success).toBeTrue();
         });
 
-        // C# generator does not support logical models (ClinicalDocument is kind: "logical")
-        it.todo("should generate ClinicalDocument type", () => {});
+        it("should generate ClinicalDocument type (promoted logical)", () => {
+            const clinicalDoc = result.filesGenerated["generated/types/Hl7CdaUvCore/ClinicalDocument.cs"];
+            expect(clinicalDoc).toBeDefined();
+            expect(clinicalDoc).toMatchSnapshot();
+        });
 
         it("should generate base helper files", () => {
             expect(result.filesGenerated["generated/types/base.cs"]).toBeDefined();

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import * as Path from "node:path";
 import { APIBuilder } from "@root/api/builder";
+import type { CanonicalUrl } from "@root/typeschema/types";
 
 const LOCAL_PACKAGE_PATH = Path.join(__dirname, "../../../assets/local-package/structure-definitions");
 
@@ -18,6 +19,15 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
         "example.folder.structures": {
             "http://example.org/fhir/StructureDefinition/ExampleNotebook": {},
         },
+        "hl7.fhir.r4.core": {
+            "http://hl7.org/fhir/StructureDefinition/Patient": {},
+        },
+    };
+
+    const promoteLogicalConfig = {
+        "example.folder.structures": [
+            "http://example.org/fhir/StructureDefinition/ExampleNotebook" as CanonicalUrl,
+        ],
     };
 
     describe("TypeScript Generation", async () => {
@@ -56,7 +66,7 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
         const result = await new APIBuilder()
             .setLogLevel("SILENT")
             .localStructureDefinitions(localPackageConfig)
-            .typeSchema({ treeShake: treeShakeConfig })
+            .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
             .python({ inMemoryOnly: true })
             .generate();
 
@@ -64,8 +74,11 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
             expect(result.success).toBeTrue();
         });
 
-        // Python generator does not support logical models (ExampleNotebook is kind: "logical")
-        it.todo("should generate ExampleNotebook type", () => {});
+        it("should generate ExampleNotebook type (promoted logical)", () => {
+            const notebook = result.filesGenerated["generated/example_folder_structures/example_notebook.py"];
+            expect(notebook).toBeDefined();
+            expect(notebook).toMatchSnapshot();
+        });
 
         it("should generate R4 dependency types", () => {
             // Python generator resolves R4 dependencies from tree-shaking
@@ -78,13 +91,19 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
             expect(domainResource).toBeDefined();
             expect(domainResource).toMatchSnapshot();
         });
+
+        it("should generate Patient resource", () => {
+            const patient = result.filesGenerated["generated/hl7_fhir_r4_core/patient.py"];
+            expect(patient).toBeDefined();
+            expect(patient).toMatchSnapshot();
+        });
     });
 
     describe("C# Generation", async () => {
         const result = await new APIBuilder()
             .setLogLevel("SILENT")
             .localStructureDefinitions(localPackageConfig)
-            .typeSchema({ treeShake: treeShakeConfig })
+            .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
             .csharp({ inMemoryOnly: true })
             .generate();
 
@@ -92,8 +111,11 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
             expect(result.success).toBeTrue();
         });
 
-        // C# generator does not support logical models (ExampleNotebook is kind: "logical")
-        it.todo("should generate ExampleNotebook type", () => {});
+        it("should generate ExampleNotebook type (promoted logical)", () => {
+            const notebook = result.filesGenerated["generated/types/ExampleFolderStructures/ExampleNotebook.cs"];
+            expect(notebook).toBeDefined();
+            expect(notebook).toMatchSnapshot();
+        });
 
         it("should generate R4 dependency types", () => {
             // C# generator resolves R4 dependencies from tree-shaking
@@ -105,6 +127,18 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
             const domainResource = result.filesGenerated["generated/types/Hl7FhirR4Core/DomainResource.cs"];
             expect(domainResource).toBeDefined();
             expect(domainResource).toMatchSnapshot();
+        });
+
+        it("should generate Resource base class", () => {
+            const resource = result.filesGenerated["generated/types/Hl7FhirR4Core/Resource.cs"];
+            expect(resource).toBeDefined();
+            expect(resource).toMatchSnapshot();
+        });
+
+        it("should generate Patient resource", () => {
+            const patient = result.filesGenerated["generated/types/Hl7FhirR4Core/Patient.cs"];
+            expect(patient).toBeDefined();
+            expect(patient).toMatchSnapshot();
         });
     });
 });
