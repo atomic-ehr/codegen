@@ -59,7 +59,7 @@ export type GenerationReport = {
 
 function countLinesByMatches(text: string): number {
     if (text === "") return 0;
-    const m = text.match(/\r\n|\r|\n/g);
+    const m = text.match(/\n/g);
     return m ? m.length + 1 : 1;
 }
 
