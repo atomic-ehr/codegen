@@ -9,14 +9,12 @@
 import { configure, error, header, LogLevel } from "@root/utils/codegen-logger";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { generateCommand } from "./generate";
 import { typeschemaCommand } from "./typeschema";
 
 /**
  * CLI arguments interface
  */
 export interface CLIArgv {
-    config?: string;
     verbose?: boolean;
     debug?: boolean;
     logLevel?: "debug" | "info" | "warn" | "error" | "silent";
@@ -69,7 +67,6 @@ export function createCLI() {
         .usage("$0 <command> [options]")
         .middleware(setupLoggingMiddleware)
         .command(typeschemaCommand)
-        .command(generateCommand)
         .option("verbose", {
             alias: "v",
             type: "boolean",
@@ -91,12 +88,6 @@ export function createCLI() {
             description: "Set the log level (default: info)",
             global: true,
         })
-        .option("config", {
-            alias: "c",
-            type: "string",
-            description: "Path to configuration file (.atomic-codegen.json by default)",
-            global: true,
-        })
         .demandCommand(0) // Allow 0 commands so we can handle it ourselves
         .middleware((argv) => {
             // Check if no command was provided (only the script name in argv._)
@@ -105,20 +96,15 @@ export function createCLI() {
                 header("Welcome to Atomic Codegen!");
                 console.log("Available commands:");
                 console.log("  typeschema   Generate, validate and merge TypeSchema files");
-                console.log("  generate     Generate code based on configuration file");
                 console.log("\nUse 'atomic-codegen <command> --help' for more information about a command.");
                 console.log("\nQuick examples:");
                 console.log("  atomic-codegen typeschema generate hl7.fhir.r4.core@4.0.1 -o schemas.ndjson");
-                console.log("  atomic-codegen generate  # Uses atomic-codegen.config.ts");
                 console.log("\nUse 'atomic-codegen --help' to see all options.");
                 process.exit(0);
             }
         })
         .help()
         .version("0.1.0")
-        .example("$0 generate", "Generate code using atomic-codegen.config.ts")
-        .example("$0 generate --verbose", "Generate with detailed progress output")
-        .example("$0 --config custom-config.ts generate", "Use custom configuration file")
         .example(
             "$0 typeschema generate hl7.fhir.r4.core@4.0.1 -o schemas.ndjson",
             "Generate TypeSchemas from FHIR package",
