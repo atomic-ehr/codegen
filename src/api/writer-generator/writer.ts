@@ -1,4 +1,5 @@
 import * as fs from "node:fs";
+import * as fsPromises from "node:fs/promises";
 import * as Path from "node:path";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
@@ -136,6 +137,32 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
                 return { relPath, absPath, content: tokens.join("") };
             })
             .sort((a, b) => a.relPath.localeCompare(b.relPath));
+    }
+
+    async flushAsync(): Promise<void> {
+        const files = this.writtenFiles();
+        const dirs = new Set<string>();
+
+        for (const file of files) {
+            dirs.add(Path.dirname(file.absPath));
+        }
+
+        await Promise.all(Array.from(dirs).map((dir) => fsPromises.mkdir(dir, { recursive: true })));
+
+        await Promise.all(files.map((file) => fsPromises.writeFile(file.absPath, file.content)));
+    }
+
+    async generateAsync(tsIndex: TypeSchemaIndex): Promise<void> {
+        const originalInMemoryOnly = this.opts.inMemoryOnly;
+        this.opts.inMemoryOnly = true;
+
+        try {
+            await this.generate(tsIndex);
+        } finally {
+            this.opts.inMemoryOnly = originalInMemoryOnly;
+        }
+
+        await this.flushAsync();
     }
 }
 

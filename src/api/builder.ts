@@ -461,7 +461,7 @@ export class APIBuilder {
             this.logger.info(`Generating ${gen.name}...`);
 
             try {
-                await gen.writer.generate(tsIndex);
+                await gen.writer.generateAsync(tsIndex);
                 const fileBuffer: FileBuffer[] = gen.writer.writtenFiles();
                 fileBuffer.forEach((buf) => {
                     result.filesGenerated[buf.relPath] = buf.content;
