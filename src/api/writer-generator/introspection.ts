@@ -60,12 +60,10 @@ const structureDefinitionToJson = (
 
 export class IntrospectionWriter extends FileSystemWriter<IntrospectionWriterOptions> {
     async generate(tsIndex: TypeSchemaIndex): Promise<void> {
+        this.logger()?.info(`IntrospectionWriter: Begin`);
         if (this.opts.typeSchemas) {
             const outputPath = this.opts.typeSchemas;
             const typeSchemas = tsIndex.schemas;
-
-            this.logger()?.debug(`IntrospectionWriter: Generating ${typeSchemas.length} schemas to ${outputPath}`);
-
             if (Path.extname(outputPath) === ".ndjson") {
                 this.writeNdjson(typeSchemas, outputPath, typeSchemaToJson);
             } else {
@@ -74,20 +72,19 @@ export class IntrospectionWriter extends FileSystemWriter<IntrospectionWriterOpt
                     outputPath,
                 );
             }
-
-            this.logger()?.info(`Introspection generation completed: ${typeSchemas.length} schemas written`);
+            this.logger()?.info(
+                `IntrospectionWriter: ${typeSchemas.length} TypeSchema written to ${this.opts.typeSchemas}`,
+            );
         }
 
         if (this.opts.typeTree) {
             await this.writeTypeTree(tsIndex);
-            this.logger()?.info(`IntrospectionWriter: Type tree exported to ${this.opts.typeTree}`);
+            this.logger()?.info(`IntrospectionWriter: Type tree written to ${this.opts.typeTree}`);
         }
 
         if (this.opts.fhirSchemas && tsIndex.register) {
             const outputPath = this.opts.fhirSchemas;
             const fhirSchemas = tsIndex.register.allFs();
-
-            this.logger()?.debug(`IntrospectionWriter: Generating ${fhirSchemas.length} FHIR schemas to ${outputPath}`);
 
             if (Path.extname(outputPath) === ".ndjson") {
                 this.writeNdjson(fhirSchemas, outputPath, fhirSchemaToJson);
@@ -98,16 +95,12 @@ export class IntrospectionWriter extends FileSystemWriter<IntrospectionWriterOpt
                 );
             }
 
-            this.logger()?.info(`FHIR schema generation completed: ${fhirSchemas.length} schemas written`);
+            this.logger()?.info(`IntrospectionWriter: ${fhirSchemas.length} FHIR schema written to ${outputPath}`);
         }
 
         if (this.opts.structureDefinitions && tsIndex.register) {
             const outputPath = this.opts.structureDefinitions;
             const structureDefinitions = tsIndex.register.allSd();
-
-            this.logger()?.debug(
-                `IntrospectionWriter: Generating ${structureDefinitions.length} StructureDefinitions to ${outputPath}`,
-            );
 
             if (Path.extname(outputPath) === ".ndjson") {
                 this.writeNdjson(structureDefinitions, outputPath, structureDefinitionToJson);
@@ -119,7 +112,7 @@ export class IntrospectionWriter extends FileSystemWriter<IntrospectionWriterOpt
             }
 
             this.logger()?.info(
-                `StructureDefinition generation completed: ${structureDefinitions.length} schemas written`,
+                `IntrospectionWriter: ${structureDefinitions.length} StructureDefinitions written to ${outputPath}`,
             );
         }
     }
