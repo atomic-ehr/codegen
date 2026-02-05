@@ -18,7 +18,7 @@ describe("SQL-on-FHIR", async () => {
         const result = await new APIBuilder()
             .setLogLevel("SILENT")
             .fromPackageRef(packageUrl)
-            .treeShake(treeShakeConfig)
+            .typeSchema({ treeShake: treeShakeConfig })
             .typescript({ inMemoryOnly: true })
             .generate();
 
@@ -52,7 +52,7 @@ describe("SQL-on-FHIR", async () => {
         const result = await new APIBuilder()
             .setLogLevel("SILENT")
             .fromPackageRef(packageUrl)
-            .treeShake(treeShakeConfig)
+            .typeSchema({ treeShake: treeShakeConfig })
             .python({ inMemoryOnly: true })
             .generate();
 
@@ -80,7 +80,7 @@ describe("SQL-on-FHIR", async () => {
         const result = await new APIBuilder()
             .setLogLevel("SILENT")
             .fromPackageRef(packageUrl)
-            .treeShake(treeShakeConfig)
+            .typeSchema({ treeShake: treeShakeConfig })
             .csharp({ inMemoryOnly: true })
             .generate();
 
