@@ -16,7 +16,7 @@ describe("CCDA", async () => {
         const result = await new APIBuilder()
             .setLogLevel("SILENT")
             .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
-            .treeShake(treeShakeConfig)
+            .typeSchema({ treeShake: treeShakeConfig })
             .typescript({ inMemoryOnly: true })
             .generate();
 
@@ -35,7 +35,7 @@ describe("CCDA", async () => {
             const cdaFiles = files.filter((f) => f.includes("hl7-cda-uv-core"));
             expect(cdaFiles.length).toBeGreaterThan(0);
 
-            expect(files.some((f) => f.includes("/Ad.ts") || f.includes("/Cd.ts"))).toBeTrue();
+            expect(files.some((f) => f.includes("/AD.ts") || f.includes("/CD.ts"))).toBeTrue();
         });
     });
 
@@ -43,7 +43,7 @@ describe("CCDA", async () => {
         const result = await new APIBuilder()
             .setLogLevel("SILENT")
             .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
-            .treeShake(treeShakeConfig)
+            .typeSchema({ treeShake: treeShakeConfig })
             .python({ inMemoryOnly: true })
             .generate();
 
@@ -64,7 +64,7 @@ describe("CCDA", async () => {
         const result = await new APIBuilder()
             .setLogLevel("SILENT")
             .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
-            .treeShake(treeShakeConfig)
+            .typeSchema({ treeShake: treeShakeConfig })
             .csharp({ inMemoryOnly: true })
             .generate();
 
