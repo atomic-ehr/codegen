@@ -128,7 +128,7 @@ const builder = new APIBuilder()
     // Type Schema processing
     .typeSchema({
         treeShake: { ... },        // Include only specified types
-        logicalPromotion: { ... }, // Process logical models as resources
+        promoteLogical: { ... },   // Process logical models as resources
     })
 
     // Code generator (choose one)
@@ -256,7 +256,7 @@ Use the programmatic API via `APIBuilder`:
 const builder = new APIBuilder({})
   .fromPackage("my.custom.pkg", "4.0.1")
   .typeSchema({
-    logicalPromotion: {
+    promoteLogical: {
       "my.custom.pkg": [
         "http://example.org/StructureDefinition/MyLogicalModel"
       ]

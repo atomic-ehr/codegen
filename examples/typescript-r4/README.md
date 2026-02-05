@@ -145,10 +145,12 @@ typescript-r4/
 Uncomment the `treeShake` section in `generate.ts`:
 
 ```typescript
-.treeShake({
-  "hl7.fhir.r4.core#4.0.1": {
-    "http://hl7.org/fhir/StructureDefinition/Patient": {},
-    "http://hl7.org/fhir/StructureDefinition/Observation": {},
+.typeSchema({
+  treeShake: {
+    "hl7.fhir.r4.core#4.0.1": {
+      "http://hl7.org/fhir/StructureDefinition/Patient": {},
+      "http://hl7.org/fhir/StructureDefinition/Observation": {},
+    }
   }
 })
 ```
