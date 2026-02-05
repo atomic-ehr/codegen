@@ -50,7 +50,7 @@ export const promoteLogical = (
     const schemas = tsIndex.schemas.map((schema) => {
         if (isPrimitiveTypeSchema(schema) || isValueSetTypeSchema(schema)) return schema;
 
-        const cloned = structuredClone(schema);
+        const cloned = JSON.parse(JSON.stringify(schema));
         cloned.identifier = replace(cloned.identifier);
         cloned.dependencies = cloned.dependencies?.map(replace);
         if (isSpecializationTypeSchema(cloned) || isProfileTypeSchema(cloned)) {

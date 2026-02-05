@@ -259,11 +259,13 @@ export const registerFromManager = async (
                 .flatMap((pkgIndex) =>
                     Object.values(pkgIndex.canonicalResolution).flatMap((resolutions) =>
                         resolutions.map((r) => {
-                            let sd = r.resource as RichStructureDefinition;
+                            const sd = r.resource as RichStructureDefinition;
                             if (!sd.package_name) {
-                                sd = structuredClone(sd);
-                                sd.package_name = pkgIndex.pkg.name;
-                                sd.package_version = pkgIndex.pkg.version;
+                                return {
+                                    ...sd,
+                                    package_name: pkgIndex.pkg.name,
+                                    package_version: pkgIndex.pkg.version,
+                                };
                             }
                             return sd;
                         }),
