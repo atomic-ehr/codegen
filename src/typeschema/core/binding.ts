@@ -141,7 +141,7 @@ function generateBindingSchema(
 ): BindingTypeSchema | undefined {
     if (!element.binding?.valueSet) return undefined;
 
-    const identifier = mkBindingIdentifier(fhirSchema, path, element.binding.bindingName);
+    const identifier = mkBindingIdentifier(fhirSchema, path, element);
     const fieldType = buildFieldType(register, fhirSchema, path, element, logger);
     const valueSetIdentifier = mkValueSetIdentifierByUrl(
         register,

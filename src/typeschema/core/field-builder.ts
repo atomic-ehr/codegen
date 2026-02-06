@@ -162,7 +162,7 @@ export const mkField = (
     let binding: BindingIdentifier | undefined;
     let enumValues: string[] | undefined;
     if (element.binding) {
-        binding = mkBindingIdentifier(fhirSchema, path, element.binding.bindingName);
+        binding = mkBindingIdentifier(fhirSchema, path, element);
 
         if (element.binding.strength === "required" && element.type === "code") {
             enumValues = buildEnum(register, fhirSchema, element, logger);
