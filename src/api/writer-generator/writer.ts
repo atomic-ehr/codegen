@@ -80,6 +80,12 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
         if (fn.includes("/")) throw new Error(`Change file path separatly: ${fn}`);
 
         const relPath = Path.normalize(`${this.currentDir}/${fn}`);
+
+        if (this.writtenFilesBuffer[relPath]) {
+            this.logger()?.warn(`File will be rewritten '${relPath}'`);
+            this.logger()?.debug(`File content: ${this.writtenFilesBuffer[relPath].tokens.join("")}`);
+        }
+
         try {
             const descriptor = this.onDiskOpenFile(relPath);
 
