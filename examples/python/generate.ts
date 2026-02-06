@@ -10,6 +10,24 @@ const builder = new APIBuilder()
         fhirpyClient: false,
         fieldFormat: "snake_case",
     })
+    .typeSchema({
+        treeShake: {
+            "hl7.fhir.r4.core": {
+                "http://hl7.org/fhir/StructureDefinition/Bundle": {},
+                "http://hl7.org/fhir/StructureDefinition/OperationOutcome": {},
+                "http://hl7.org/fhir/StructureDefinition/DomainResource": {
+                    ignoreFields: ["extension", "modifierExtension"],
+                },
+                "http://hl7.org/fhir/StructureDefinition/BackboneElement": {
+                    ignoreFields: ["modifierExtension"],
+                },
+                "http://hl7.org/fhir/StructureDefinition/Element": {},
+                "http://hl7.org/fhir/StructureDefinition/Patient": {},
+                "http://hl7.org/fhir/StructureDefinition/Observation": {},
+                "http://hl7.org/fhir/StructureDefinition/bodyweight": {},
+            },
+        },
+    })
     .outputTo("./examples/python/fhir_types")
     .cleanOutput(true);
 

@@ -179,7 +179,7 @@ def test_wrong_fields() -> None:
         "fullUrl" : "https://example.com/base/MedicationRequest/3123",
         "resource" : {
           "resourceType" : "Patient",
-          "id" : "3123"
+          "id" : "3123",
           "very_wrong_field" : "WRONG"
         },
         "search" : {

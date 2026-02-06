@@ -6,7 +6,7 @@ from __future__ import annotations
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt
 from typing import List as PyList, Literal
 
-from fhir_types.hl7_fhir_r4_core.base import Extension, Narrative
+from fhir_types.hl7_fhir_r4_core.base import Narrative
 from fhir_types.hl7_fhir_r4_core.resource import Resource
 from fhir_types.hl7_fhir_r4_core.resource_families import ResourceFamily
 
@@ -21,8 +21,6 @@ class DomainResource(Resource):
         pattern='DomainResource'
     )
     contained: PyList[ResourceFamily] | None = Field(None, alias="contained", serialization_alias="contained")
-    extension: PyList[Extension] | None = Field(None, alias="extension", serialization_alias="extension")
-    modifier_extension: PyList[Extension] | None = Field(None, alias="modifierExtension", serialization_alias="modifierExtension")
     text: Narrative | None = Field(None, alias="text", serialization_alias="text")
 
     def to_json(self, indent: int | None = None) -> str:
