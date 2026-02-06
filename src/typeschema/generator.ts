@@ -27,6 +27,7 @@ import {
  * Main class for generating TypeSchema documents from FHIR packages.
  * Leverages fhrischema for FHIR parsing and canonical manager for dependency resolution.
  */
+// TODO: dead code, remove it
 export class TypeSchemaGenerator {
     private manager: ReturnType<typeof CanonicalManager>;
 

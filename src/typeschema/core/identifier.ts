@@ -91,6 +91,7 @@ export function mkValueSetIdentifierByUrl(
     };
 }
 
+// TODO: Provide setting for `shared` package name. If string -- use it (default: `shared`), if set to undefined -- package where defined.
 export function mkBindingIdentifier(
     fhirSchema: RichFHIRSchema,
     path: string[],
@@ -101,7 +102,6 @@ export function mkBindingIdentifier(
     const pathStr = path.join(".");
     // NOTE: if SD specify `bindingName`, the definition should be shared between all
     // packages. So we put it in the dedicated shared package.
-    // TODO: provide setting for `shared` package name.
     const [pkg, name, url] = bindingName
         ? [
               { name: "shared", version: "1.0.0" },

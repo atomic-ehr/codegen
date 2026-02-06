@@ -33,6 +33,7 @@ export interface GenerateTypeSchemasResult {
     collisions: TypeSchemaCollisions;
 }
 
+// TODO: refactor
 export const generateTypeSchemas = async (
     register: Register,
     logger?: CodegenLogger,
