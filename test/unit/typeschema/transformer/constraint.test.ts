@@ -114,11 +114,11 @@ describe("TypeSchema Processing constraint generation", async () => {
                     { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/markdown" },
                     { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/string" },
                     { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/uri" },
-                    { kind: "binding", url: "urn:fhir:binding:PublicationStatus" },
+                    { kind: "binding", url: "urn:fhir:binding:PublicationStatus_on_code" },
                 ],
             },
             {
-                identifier: { kind: "binding", url: "urn:fhir:binding:PublicationStatus" },
+                identifier: { kind: "binding", url: "urn:fhir:binding:PublicationStatus_on_code" },
             },
         ]);
     });

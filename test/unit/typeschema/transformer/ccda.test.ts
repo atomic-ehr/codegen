@@ -209,7 +209,7 @@ describe("TypeSchema CCDA generation", async () => {
                         kind: "binding",
                         name: "AuditEventType",
                         package: "shared",
-                        url: "urn:fhir:binding:AuditEventType",
+                        url: "urn:fhir:binding:AuditEventType_on_Coding",
                         version: "1.0.0",
                     },
                     excluded: false,

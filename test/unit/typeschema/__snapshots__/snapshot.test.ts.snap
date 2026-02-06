@@ -317,7 +317,7 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with code 1`] = `
           "package": "shared",
           "version": "1.0.0",
           "name": "AdministrativeGender",
-          "url": "urn:fhir:binding:AdministrativeGender"
+          "url": "urn:fhir:binding:AdministrativeGender_on_code"
         },
         "enum": [
           "male",
@@ -348,7 +348,7 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with code 1`] = `
         "package": "shared",
         "version": "1.0.0",
         "name": "AdministrativeGender",
-        "url": "urn:fhir:binding:AdministrativeGender"
+        "url": "urn:fhir:binding:AdministrativeGender_on_code"
       }
     ]
   },
@@ -358,7 +358,7 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with code 1`] = `
       "package": "shared",
       "version": "1.0.0",
       "name": "AdministrativeGender",
-      "url": "urn:fhir:binding:AdministrativeGender"
+      "url": "urn:fhir:binding:AdministrativeGender_on_code"
     },
     "type": {
       "kind": "primitive-type",
@@ -435,7 +435,7 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with codable concep
           "package": "shared",
           "version": "1.0.0",
           "name": "MaritalStatus",
-          "url": "urn:fhir:binding:MaritalStatus"
+          "url": "urn:fhir:binding:MaritalStatus_on_CodeableConcept"
         }
       }
     },
@@ -460,7 +460,7 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with codable concep
         "package": "shared",
         "version": "1.0.0",
         "name": "MaritalStatus",
-        "url": "urn:fhir:binding:MaritalStatus"
+        "url": "urn:fhir:binding:MaritalStatus_on_CodeableConcept"
       }
     ]
   },
@@ -470,7 +470,7 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with codable concep
       "package": "shared",
       "version": "1.0.0",
       "name": "MaritalStatus",
-      "url": "urn:fhir:binding:MaritalStatus"
+      "url": "urn:fhir:binding:MaritalStatus_on_CodeableConcept"
     },
     "type": {
       "kind": "complex-type",
