@@ -3,6 +3,7 @@
  * FHIR Schema designed to simplify SDK resource classes/types generation.
  */
 
+import { createHash } from "node:crypto";
 import type { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import type * as FS from "@atomic-ehr/fhirschema";
 import type { StructureDefinition, ValueSet, ValueSetCompose } from "@root/fhir-types/hl7-fhir-r4-core";
@@ -48,6 +49,11 @@ export const npmToPackageMeta = (fhir: string) => {
     const [name, version] = fhir.split("@");
     if (!name) throw new Error(`Invalid FHIR package meta: ${fhir}`);
     return { name, version: version ?? "latest" };
+};
+
+export const hashSchema = (schema: TypeSchema): string => {
+    const json = JSON.stringify(schema);
+    return createHash("sha256").update(json).digest("hex").slice(0, 16);
 };
 
 export type RichStructureDefinition = Omit<StructureDefinition, "url"> & {

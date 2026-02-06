@@ -55,6 +55,7 @@ describe("TypeScript R4 Example (with generateProfile)", async () => {
     const { logger, warnings } = createCapturingLogger();
 
     const result = await new APIBuilder({ register: r4Manager, logger })
+        .setLogLevel("SILENT")
         .typescript({
             inMemoryOnly: true,
             withDebugComment: false,

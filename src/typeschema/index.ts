@@ -10,18 +10,12 @@
  * - Validating TypeSchema documents
  */
 
-import { createHash } from "node:crypto";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import { transformFhirSchema, transformValueSet } from "./core/transformer";
 import type { TypeSchemaCollisions } from "./ir/types";
 import type { Register } from "./register";
 import { shouldSkipCanonical } from "./skip-hack";
-import { packageMetaToFhir, type TypeSchema } from "./types";
-
-const hashSchema = (schema: TypeSchema): string => {
-    const json = JSON.stringify(schema);
-    return createHash("sha256").update(json).digest("hex").slice(0, 16);
-};
+import { hashSchema, packageMetaToFhir, type TypeSchema } from "./types";
 
 // Re-export core dependencies
 export { TypeSchemaGenerator } from "./generator";

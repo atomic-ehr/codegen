@@ -65,7 +65,7 @@ test-typescript-sql-on-fhir-example: typecheck format lint
 	bun run examples/typescript-sql-on-fhir/generate.ts
 	$(TYPECHECK) --project examples/typescript-sql-on-fhir/tsconfig.json
 
-test-typescript-ccda-example: typecheck format lint
+test-typescript-ccda-example: typecheck
 	$(TEST) test/unit/typeschema/transformer/ccda.test.ts
 	bun run examples/typescript-ccda/generate.ts
 	$(TYPECHECK) --project examples/typescript-ccda/tsconfig.json
