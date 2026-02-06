@@ -51,7 +51,7 @@ describe("IntrospectionWriter - TypeSchema output", async () => {
 
     expect(result.success).toBeTrue();
 
-    expect(Object.keys(result.filesGenerated).length).toEqual(26);
+    expect(Object.keys(result.filesGenerated).length).toEqual(46);
     it("Generated file list", () => {
         expect(Object.keys(result.filesGenerated)).toMatchSnapshot();
     });

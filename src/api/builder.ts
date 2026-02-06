@@ -421,11 +421,12 @@ export class APIBuilder {
                 });
             }
 
-            const typeSchemas = await generateTypeSchemas(register, this.logger);
+            const { schemas: typeSchemas, collisions } = await generateTypeSchemas(register, this.logger);
 
             const tsIndexOpts = {
                 register,
                 logger: this.logger,
+                irReport: Object.keys(collisions).length > 0 ? { collisions } : {},
             };
             let tsIndex = mkTypeSchemaIndex(typeSchemas, tsIndexOpts);
             if (this.options.treeShake) tsIndex = treeShake(tsIndex, this.options.treeShake);

@@ -12,11 +12,10 @@ export type PVS = Partial<ValueSet>;
 
 const logger = createLogger({ prefix: "TEST" });
 
-export const mkIndex = async (register: Register, logger?: CodegenLogger) =>
-    mkTypeSchemaIndex(await generateTypeSchemas(register, logger), {
-        register,
-        logger,
-    });
+export const mkIndex = async (register: Register, logger?: CodegenLogger) => {
+    const { schemas } = await generateTypeSchemas(register, logger);
+    return mkTypeSchemaIndex(schemas, { register, logger });
+};
 
 export const r4Package = { name: "hl7.fhir.r4.core", version: "4.0.1" };
 

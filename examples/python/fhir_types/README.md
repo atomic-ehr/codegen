@@ -2538,3 +2538,22 @@ Skipped fields:
 - `urn:fhir:binding:validation-process`
 - `urn:fhir:binding:validation-status`
 - `urn:fhir:binding:validation-type`
+
+## Schema Collisions
+
+The following canonicals have multiple schema versions with different content.
+To inspect collision versions, export TypeSchemas using `.introspection({ typeSchemas: 'path' })`
+and check `{pkg}-collisions/{name}/1.json, 2.json, ...` files.
+
+### `shared`
+
+- `urn:fhir:binding:BodySite` (2 versions)
+- `urn:fhir:binding:CommunicationReason` (2 versions)
+- `urn:fhir:binding:Language` (2 versions)
+- `urn:fhir:binding:MissingReason` (2 versions)
+- `urn:fhir:binding:ObservationCategory` (2 versions)
+- `urn:fhir:binding:ObservationRangeMeaning` (2 versions)
+- `urn:fhir:binding:PaymentType` (2 versions)
+- `urn:fhir:binding:ProcessPriority` (2 versions)
+- `urn:fhir:binding:SecurityLabels` (2 versions)
+- `urn:fhir:binding:TargetDisease` (2 versions)
