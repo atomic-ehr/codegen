@@ -17,7 +17,6 @@ import {
     isNestedIdentifier,
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
-    isProfileIdentifier,
     isProfileTypeSchema,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
@@ -76,14 +75,25 @@ const tsModuleName = (id: Identifier): string => {
     return uppercaseFirstLetter(normalizeTsName(id.name));
 };
 
+const tsProfileModuleName = (tsIndex: TypeSchemaIndex, schema: ProfileTypeSchema): string => {
+    const resourceSchema = tsIndex.findLastSpecialization(schema);
+    const resourceName = uppercaseFirstLetter(normalizeTsName(resourceSchema.identifier.name));
+    const profileName = extractNameFromCanonical(schema.identifier.url);
+    if (profileName) {
+        return `${resourceName}_${normalizeTsName(profileName)}`;
+    }
+    return `${resourceName}_${normalizeTsName(schema.identifier.name)}`;
+};
+
 const tsModuleFileName = (id: Identifier): string => {
     return `${tsModuleName(id)}.ts`;
 };
 
+const tsProfileModuleFileName = (tsIndex: TypeSchemaIndex, schema: ProfileTypeSchema): string => {
+    return `${tsProfileModuleName(tsIndex, schema)}.ts`;
+};
+
 const tsModulePath = (id: Identifier): string => {
-    if (isProfileIdentifier(id)) {
-        return `${tsFhirPackageDir(id.package)}/profiles/${tsModuleName(id)}`;
-    }
     return `${tsFhirPackageDir(id.package)}/${tsModuleName(id)}`;
 };
 
@@ -97,9 +107,10 @@ const canonicalToName = (canonical: string | undefined, dropFragment = true) => 
 const tsResourceName = (id: Identifier): string => {
     if (id.kind === "nested") {
         const url = id.url;
-        const path = canonicalToName(url, false);
-        if (!path) return "";
-        const [resourceName, fragment] = path.split("#");
+        // Extract name from URL without normalizing dots (needed for fragment splitting)
+        const localName = extractNameFromCanonical(url as CanonicalUrl, false);
+        if (!localName) return "";
+        const [resourceName, fragment] = localName.split("#");
         const name = uppercaseFirstLetterOfEach((fragment ?? "").split(".")).join("");
         return normalizeTsName([resourceName, name].join(""));
     }
@@ -117,7 +128,7 @@ const tsFieldName = (n: string): string => {
 
 const normalizeTsName = (n: string): string => {
     if (tsKeywords.has(n)) n = `${n}_`;
-    return n.replace(/\[x\]/g, "_x_").replace(/[- :]/g, "_");
+    return n.replace(/\[x\]/g, "_x_").replace(/[- :.]/g, "_");
 };
 
 const tsGet = (object: string, tsFieldName: string) => {
@@ -138,8 +149,14 @@ const tsTypeFromIdentifier = (id: Identifier): string => {
     return id.name;
 };
 
-const tsProfileClassName = (id: Identifier): string => {
-    return `${uppercaseFirstLetter(normalizeTsName(id.name))}Profile`;
+const tsProfileClassName = (tsIndex: TypeSchemaIndex, schema: ProfileTypeSchema): string => {
+    const resourceSchema = tsIndex.findLastSpecialization(schema);
+    const resourceName = uppercaseFirstLetter(normalizeTsName(resourceSchema.identifier.name));
+    const profileName = extractNameFromCanonical(schema.identifier.url);
+    if (profileName) {
+        return `${resourceName}_${normalizeTsName(profileName)}Profile`;
+    }
+    return `${resourceName}_${normalizeTsName(schema.identifier.name)}Profile`;
 };
 
 const tsSliceInputTypeName = (profileName: string, fieldName: string, sliceName: string): string => {
@@ -199,22 +216,22 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         this.lineSM(`import type { ${entities.join(", ")} } from "${tsPackageName}"`);
     }
 
-    private generateProfileIndexFile(profiles: TypeSchema[]) {
+    private generateProfileIndexFile(tsIndex: TypeSchemaIndex, profiles: ProfileTypeSchema[]) {
         if (profiles.length === 0) return;
         this.cd("profiles", () => {
             this.cat("index.ts", () => {
-                // Deduplicate by class name to avoid duplicate exports
+                // Deduplicate by module name to avoid duplicate exports
                 const seen = new Set<string>();
                 const uniqueProfiles = profiles.filter((profile) => {
-                    const className = tsProfileClassName(profile.identifier);
-                    if (seen.has(className)) return false;
-                    seen.add(className);
+                    const moduleName = tsProfileModuleName(tsIndex, profile);
+                    if (seen.has(moduleName)) return false;
+                    seen.add(moduleName);
                     return true;
                 });
                 if (uniqueProfiles.length === 0) return;
                 for (const profile of uniqueProfiles) {
-                    const className = tsProfileClassName(profile.identifier);
-                    this.lineSM(`export { ${className} } from "./${tsModuleName(profile.identifier)}"`);
+                    const className = tsProfileClassName(tsIndex, profile);
+                    this.lineSM(`export { ${className} } from "./${tsProfileModuleName(tsIndex, profile)}"`);
                 }
             });
         });
@@ -947,7 +964,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
     generateProfileClass(tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) {
         const tsBaseResourceName = tsTypeFromIdentifier(flatProfile.base);
         const tsProfileName = tsResourceName(flatProfile.identifier);
-        const profileClassName = tsProfileClassName(flatProfile.identifier);
+        const profileClassName = tsProfileClassName(tsIndex, flatProfile);
 
         // Known polymorphic field base names in FHIR (value[x], effective[x], etc.)
         // These don't exist as direct properties on TypeScript types
@@ -1457,7 +1474,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
     generateResourceModule(tsIndex: TypeSchemaIndex, schema: TypeSchema) {
         if (isProfileTypeSchema(schema)) {
             this.cd("profiles", () => {
-                this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
+                this.cat(`${tsProfileModuleFileName(tsIndex, schema)}`, () => {
                     this.generateDisclaimer();
                     const flatProfile = tsIndex.flatProfile(schema);
                     this.generateProfileImports(tsIndex, flatProfile);
@@ -1511,7 +1528,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                     for (const schema of packageSchemas) {
                         this.generateResourceModule(tsIndex, schema);
                     }
-                    this.generateProfileIndexFile(packageSchemas.filter(isProfileTypeSchema));
+                    this.generateProfileIndexFile(tsIndex, packageSchemas.filter(isProfileTypeSchema));
                     this.generateFhirPackageIndexFile(packageSchemas);
                 });
             }
