@@ -14,7 +14,7 @@ public class Condition : DomainResource {
     public ResourceReference? Asserter { get; set; }
     public CodeableConcept[]? BodySite { get; set; }
     public CodeableConcept[]? Category { get; set; }
-    public CodeableConcept? ClinicalStatus { get; set; }
+    public ConditionClinicalStatusEnum? ClinicalStatus { get; set; }
     public CodeableConcept? Code { get; set; }
     public ResourceReference? Encounter { get; set; }
     public ConditionEvidence[]? Evidence { get; set; }
@@ -30,7 +30,7 @@ public class Condition : DomainResource {
     public CodeableConcept? Severity { get; set; }
     public ConditionStage[]? Stage { get; set; }
     public required ResourceReference Subject { get; set; }
-    public CodeableConcept? VerificationStatus { get; set; }
+    public ConditionVerificationStatusEnum? VerificationStatus { get; set; }
 
     public class ConditionEvidence : BackboneElement {
         public CodeableConcept[]? Code { get; set; }

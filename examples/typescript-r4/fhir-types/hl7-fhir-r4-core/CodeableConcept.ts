@@ -9,8 +9,8 @@ export type { Coding } from "../hl7-fhir-r4-core/Coding";
 export type { Element } from "../hl7-fhir-r4-core/Element";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/CodeableConcept (pkg: hl7.fhir.r4.core#4.0.1)
-export interface CodeableConcept extends Element {
-    coding?: Coding[];
+export interface CodeableConcept<T extends string = string> extends Element {
+    coding?: Coding<T>[];
     text?: string;
     _text?: Element;
 }

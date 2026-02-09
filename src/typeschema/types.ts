@@ -295,7 +295,7 @@ export interface RegularField {
     excluded?: boolean;
     array?: boolean;
     binding?: BindingIdentifier;
-    enum?: string[];
+    enum?: EnumDefinition;
     min?: number;
     max?: number;
     slicing?: FieldSlicing;
@@ -318,7 +318,7 @@ export interface ChoiceFieldInstance {
     array?: boolean;
     reference?: Identifier[];
     binding?: BindingIdentifier;
-    enum?: string[];
+    enum?: EnumDefinition;
     min?: number;
     max?: number;
     slicing?: FieldSlicing;
@@ -328,6 +328,11 @@ export type Concept = {
     code: string;
     display?: string;
     system?: string;
+};
+
+export type EnumDefinition = {
+    values: string[];
+    isOpen: boolean;
 };
 
 export interface ValueSetTypeSchema {
@@ -342,7 +347,7 @@ export interface BindingTypeSchema {
     description?: string;
     type?: Identifier;
     strength?: string;
-    enum?: string[];
+    enum?: EnumDefinition;
     valueset?: ValueSetIdentifier;
     dependencies?: Identifier[];
 }

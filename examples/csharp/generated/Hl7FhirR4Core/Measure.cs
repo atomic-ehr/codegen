@@ -23,7 +23,7 @@ public class Measure : DomainResource {
     public MeasureGroup[]? Group { get; set; }
     public string? Guidance { get; set; }
     public Identifier[]? Identifier { get; set; }
-    public CodeableConcept? ImprovementNotation { get; set; }
+    public MeasureImprovementNotationEnum? ImprovementNotation { get; set; }
     public CodeableConcept[]? Jurisdiction { get; set; }
     public string? LastReviewDate { get; set; }
     public string[]? Library { get; set; }

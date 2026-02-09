@@ -463,8 +463,8 @@ export class Python extends Writer<PythonGeneratorOptions> {
     private determineFieldType(field: Field): string {
         let fieldType = field ? this.getBaseFieldType(field) : "";
 
-        if ("enum" in field && field.enum) {
-            const s: string = field.enum.map((e: string) => `"${e}"`).join(", ");
+        if ("enum" in field && field.enum && !field.enum.isOpen) {
+            const s: string = field.enum.values.map((e: string) => `"${e}"`).join(", ");
             fieldType = `Literal[${s}]`;
         }
 

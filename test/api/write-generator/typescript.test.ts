@@ -28,6 +28,16 @@ describe("TypeScript Writer Generator", async () => {
     it("generates Patient resource in inMemoryOnly mode with snapshot", async () => {
         expect(result.filesGenerated["generated/types/hl7-fhir-r4-core/Patient.ts"]).toMatchSnapshot();
     });
+    it("generates Coding with generic parameter", async () => {
+        const codingTs = result.filesGenerated["generated/types/hl7-fhir-r4-core/Coding.ts"];
+        expect(codingTs).toContain("export interface Coding<T extends string = string>");
+        expect(codingTs).toContain("code?: T");
+    });
+    it("generates CodeableConcept with generic parameter", async () => {
+        const ccTs = result.filesGenerated["generated/types/hl7-fhir-r4-core/CodeableConcept.ts"];
+        expect(ccTs).toContain("export interface CodeableConcept<T extends string = string>");
+        expect(ccTs).toContain("coding?: Coding<T>[]");
+    });
 });
 
 describe("TypeScript CDA with Logical Model Promotion to Resource", async () => {

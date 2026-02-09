@@ -15,13 +15,13 @@ public class AdverseEvent : DomainResource {
     public CodeableConcept? Event { get; set; }
     public Identifier? Identifier { get; set; }
     public ResourceReference? Location { get; set; }
-    public CodeableConcept? Outcome { get; set; }
+    public AdverseEventOutcomeEnum? Outcome { get; set; }
     public string? RecordedDate { get; set; }
     public ResourceReference? Recorder { get; set; }
     public ResourceReference[]? ReferenceDocument { get; set; }
     public ResourceReference[]? ResultingCondition { get; set; }
     public CodeableConcept? Seriousness { get; set; }
-    public CodeableConcept? Severity { get; set; }
+    public AdverseEventSeverityEnum? Severity { get; set; }
     public ResourceReference[]? Study { get; set; }
     public required ResourceReference Subject { get; set; }
     public ResourceReference[]? SubjectMedicalHistory { get; set; }

@@ -18,7 +18,7 @@ public class SupplyDelivery : DomainResource {
     public SupplyDeliveryStatusEnum? Status { get; set; }
     public SupplyDeliverySuppliedItem? SuppliedItem { get; set; }
     public ResourceReference? Supplier { get; set; }
-    public CodeableConcept? Type { get; set; }
+    public SupplyDeliveryTypeEnum? Type { get; set; }
 
     public class SupplyDeliverySuppliedItem : BackboneElement {
         public CodeableConcept? ItemCodeableConcept { get; set; }

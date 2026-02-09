@@ -38,7 +38,7 @@ export interface TimingRepeat extends Element {
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/Timing (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Timing extends BackboneElement {
-    code?: CodeableConcept;
+    code?: CodeableConcept<("BID" | "TID" | "QID" | "AM" | "PM" | "QD" | "QOD" | "Q1H" | "Q2H" | "Q3H" | "Q4H" | "Q6H" | "Q8H" | "BED" | "WK" | "MO" | string)>;
     event?: string[];
     _event?: Element;
     repeat?: Element;

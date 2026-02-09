@@ -9,7 +9,9 @@ import {
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
 import {
     type CanonicalUrl,
+    type EnumDefinition,
     extractNameFromCanonical,
+    type Field,
     type Identifier,
     isChoiceDeclarationField,
     isComplexTypeIdentifier,
@@ -136,8 +138,9 @@ const tsGet = (object: string, tsFieldName: string) => {
     return `${object}.${tsFieldName}`;
 };
 
-const tsEnumType = (enumValues: string[]) => {
-    return `(${enumValues.map((e) => `"${e}"`).join(" | ")})`;
+const tsEnumType = (enumDef: EnumDefinition) => {
+    const values = enumDef.values.map((e) => `"${e}"`).join(" | ");
+    return enumDef.isOpen ? `(${values} | string)` : `(${values})`;
 };
 
 const tsTypeFromIdentifier = (id: Identifier): string => {
@@ -360,8 +363,10 @@ export class TypeScript extends Writer<TypeScriptOptions> {
 
     generateType(tsIndex: TypeSchemaIndex, schema: RegularTypeSchema) {
         let name: string;
-        if (schema.identifier.name === "Reference") {
-            name = "Reference<T extends string = string>";
+        // Generic types: Reference, Coding, CodeableConcept
+        const genericTypes = ["Reference", "Coding", "CodeableConcept"];
+        if (genericTypes.includes(schema.identifier.name)) {
+            name = `${schema.identifier.name}<T extends string = string>`;
         } else if (schema.identifier.kind === "nested") {
             name = tsResourceName(schema.identifier);
         } else {
@@ -393,19 +398,39 @@ export class TypeScript extends Writer<TypeScriptOptions> {
 
             if (!schema.fields) return;
             const fields = Object.entries(schema.fields).sort((a, b) => a[0].localeCompare(b[0]));
+
+            const rewriteFieldTypeDefs: Record<string, Record<string, (field: Field) => string>> = {
+                Coding: {
+                    code: (_field: Field) => "T",
+                },
+                Reference: {
+                    // biome-ignore lint: that is exactly string what we want
+                    reference: (_field: Field) => "`${T}/${string}`",
+                },
+                CodeableConcept: {
+                    coding: (_field: Field) => "Coding<T>",
+                },
+            };
+
             for (const [fieldName, field] of fields) {
                 if (isChoiceDeclarationField(field)) continue;
 
                 this.debugComment(fieldName, ":", field);
 
                 const tsName = tsFieldName(fieldName);
+                const rewriteFieldType = rewriteFieldTypeDefs[schema.identifier.name]?.[tsName];
 
                 let tsType: string;
-                if (field.enum) {
-                    tsType = tsEnumType(field.enum);
-                } else if (schema.identifier.name === "Reference" && tsName === "reference") {
-                    // biome-ignore lint: that is exactly string what we want
-                    tsType = "`${T}/${string}`";
+                if (rewriteFieldType) {
+                    tsType = rewriteFieldType(field);
+                } else if (field.enum) {
+                    if (field.type.name === "Coding") {
+                        tsType = `Coding<${tsEnumType(field.enum)}>`;
+                    } else if (field.type.name === "CodeableConcept") {
+                        tsType = `CodeableConcept<${tsEnumType(field.enum)}>`;
+                    } else {
+                        tsType = tsEnumType(field.enum);
+                    }
                 } else if (field.reference && field.reference.length > 0) {
                     const references = field.reference.map((ref) => `"${ref.name}"`).join(" | ");
                     tsType = `Reference<${references}>`;
@@ -468,10 +493,17 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         if (!isNotChoiceDeclarationField(field)) {
             throw new Error(`Choice declaration fields not supported for '${fieldName}'`);
         }
+
+        let tsType: string;
         if (field.enum) {
-            return tsEnumType(field.enum);
-        }
-        if (field.reference && field.reference.length > 0) {
+            if (field.type?.name === "Coding") {
+                tsType = `Coding<${tsEnumType(field.enum)}>`;
+            } else if (field.type?.name === "CodeableConcept") {
+                tsType = `CodeableConcept<${tsEnumType(field.enum)}>`;
+            } else {
+                tsType = tsEnumType(field.enum);
+            }
+        } else if (field.reference && field.reference.length > 0) {
             const specialization = tsIndex.findLastSpecialization(flatProfile);
             if (!isSpecializationTypeSchema(specialization))
                 throw new Error(`Invalid specialization for ${flatProfile.identifier}`);
@@ -494,20 +526,21 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 // FIXME: should be generilized to type families
                 // Strip inner comments to avoid nested /* */ which is invalid
                 const cleanRefs = references.replace(/\/\*[^*]*\*\//g, "").trim();
-                return `Reference<"Resource" /* ${cleanRefs} */ >`;
+                tsType = `Reference<"Resource" /* ${cleanRefs} */ >`;
+            } else {
+                tsType = `Reference<${references}>`;
             }
-            return `Reference<${references}>`;
-        }
-        if (isNestedIdentifier(field.type)) {
-            return tsResourceName(field.type);
-        }
-        if (isPrimitiveIdentifier(field.type)) {
-            return resolvePrimitiveType(field.type.name);
-        }
-        if (field.type === undefined) {
+        } else if (isPrimitiveIdentifier(field.type)) {
+            tsType = resolvePrimitiveType(field.type.name);
+        } else if (isNestedIdentifier(field.type)) {
+            tsType = tsResourceName(field.type);
+        } else if (field.type === undefined) {
             throw new Error(`Undefined type for '${fieldName}' field at ${typeSchemaInfo(flatProfile)}`);
+        } else {
+            tsType = field.type.name;
         }
-        return field.type.name;
+
+        return tsType;
     }
 
     generateProfileType(tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) {

@@ -10,7 +10,7 @@ public class MeasureReport : DomainResource {
     public ResourceReference[]? EvaluatedResource { get; set; }
     public MeasureReportGroup[]? Group { get; set; }
     public Identifier[]? Identifier { get; set; }
-    public CodeableConcept? ImprovementNotation { get; set; }
+    public MeasureImprovementNotationEnum? ImprovementNotation { get; set; }
     public required string Measure { get; set; }
     public required Period Period { get; set; }
     public ResourceReference? Reporter { get; set; }

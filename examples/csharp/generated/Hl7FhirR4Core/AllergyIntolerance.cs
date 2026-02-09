@@ -8,7 +8,7 @@ namespace FhirTypes.Hl7FhirR4Core;
 public class AllergyIntolerance : DomainResource {
     public ResourceReference? Asserter { get; set; }
     public AllergyIntoleranceCategoryEnum[]? Category { get; set; }
-    public CodeableConcept? ClinicalStatus { get; set; }
+    public AllergyIntoleranceClinicalStatusEnum? ClinicalStatus { get; set; }
     public CodeableConcept? Code { get; set; }
     public AllergyIntoleranceCriticalityEnum? Criticality { get; set; }
     public ResourceReference? Encounter { get; set; }
@@ -25,7 +25,7 @@ public class AllergyIntolerance : DomainResource {
     public string? RecordedDate { get; set; }
     public ResourceReference? Recorder { get; set; }
     public AllergyIntoleranceTypeEnum? Type { get; set; }
-    public CodeableConcept? VerificationStatus { get; set; }
+    public AllergyIntoleranceVerificationStatusEnum? VerificationStatus { get; set; }
 
     public class AllergyIntoleranceReaction : BackboneElement {
         public string? Description { get; set; }

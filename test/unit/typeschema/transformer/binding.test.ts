@@ -51,7 +51,7 @@ describe("Type Schema generator > Binding", async () => {
                             package: "shared",
                             url: "urn:fhir:binding:AdministrativeGender_on_code",
                         },
-                        enum: ["male", "female", "other", "unknown"],
+                        enum: { values: ["male", "female", "other", "unknown"], isOpen: false },
                         type: { package: "hl7.fhir.r4.core", url: "http://hl7.org/fhir/StructureDefinition/code" },
                     },
                 },
@@ -79,7 +79,7 @@ describe("Type Schema generator > Binding", async () => {
                         version: "4.0.1",
                     },
                 ],
-                enum: ["male", "female", "other", "unknown"],
+                enum: { values: ["male", "female", "other", "unknown"], isOpen: false },
 
                 strength: "required",
                 type: {
