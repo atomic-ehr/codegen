@@ -230,7 +230,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             let exports = schemas
                 .flatMap((schema) => {
                     const resourceName = tsResourceName(schema.identifier);
-                    let typeExports: any = [];
+                    let typeExports: string[] = [];
                     if (isProfileTypeSchema(schema)) {
                         const overrides = this.detectFieldOverrides(tsIndex, schema);
                         if (overrides.size > 0) typeExports = [resourceName];
