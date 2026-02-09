@@ -199,22 +199,29 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         this.lineSM(`import type { ${entities.join(", ")} } from "${tsPackageName}"`);
     }
 
-    private generateProfileIndexFile(profiles: TypeSchema[]) {
-        if (profiles.length === 0) return;
+    private generateProfileIndexFile(tsIndex: TypeSchemaIndex, initialProfiles: ProfileTypeSchema[]) {
+        if (initialProfiles.length === 0) return;
         this.cd("profiles", () => {
             this.cat("index.ts", () => {
-                // Deduplicate by class name to avoid duplicate exports
-                const seen = new Set<string>();
-                const uniqueProfiles = profiles.filter((profile) => {
+                const profiles: [Identifier, string, string | undefined][] = initialProfiles.map((profile) => {
                     const className = tsProfileClassName(profile.identifier);
-                    if (seen.has(className)) return false;
-                    seen.add(className);
-                    return true;
+                    const resourceName = tsResourceName(profile.identifier);
+                    const overrides = this.detectFieldOverrides(tsIndex, profile);
+                    let typeExport;
+                    if (overrides.size > 0) typeExport = resourceName;
+                    return [profile.identifier, className, typeExport];
                 });
-                if (uniqueProfiles.length === 0) return;
-                for (const profile of uniqueProfiles) {
-                    const className = tsProfileClassName(profile.identifier);
-                    this.lineSM(`export { ${className} } from "./${tsModuleName(profile.identifier)}"`);
+                if (profiles.length === 0) return;
+                const uniqueExports: Set<string> = new Set();
+                for (const [identifier, className, typeName] of profiles) {
+                    uniqueExports.add(`export { ${className} } from "./${tsModuleName(identifier as Identifier)}"`);
+                    if (typeName)
+                        uniqueExports.add(
+                            `export type { ${typeName} } from "./${tsModuleName(identifier as Identifier)}"`,
+                        );
+                }
+                for (const exp of [...uniqueExports].sort()) {
+                    this.lineSM(exp);
                 }
             });
         });
@@ -1518,7 +1525,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                     for (const schema of packageSchemas) {
                         this.generateResourceModule(tsIndex, schema);
                     }
-                    this.generateProfileIndexFile(packageSchemas.filter(isProfileTypeSchema));
+                    this.generateProfileIndexFile(tsIndex, packageSchemas.filter(isProfileTypeSchema));
                     this.generateFhirPackageIndexFile(tsIndex, packageSchemas);
                 });
             }
