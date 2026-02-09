@@ -220,7 +220,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         });
     }
 
-    generateFhirPackageIndexFile(schemas: TypeSchema[]) {
+    generateFhirPackageIndexFile(tsIndex: TypeSchemaIndex, schemas: TypeSchema[]) {
         this.cat("index.ts", () => {
             const profiles = schemas.filter(isProfileTypeSchema);
             if (profiles.length > 0) {
@@ -230,20 +230,25 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             let exports = schemas
                 .flatMap((schema) => {
                     const resourceName = tsResourceName(schema.identifier);
-                    const typeExports = isProfileTypeSchema(schema)
-                        ? []
-                        : [
+                    let typeExports: any = [];
+                    if (isProfileTypeSchema(schema)) {
+                        const overrides = this.detectFieldOverrides(tsIndex, schema);
+                        if (overrides.size > 0) typeExports = [resourceName];
+                    } else {
+                        typeExports = [
                               resourceName,
                               ...((isResourceTypeSchema(schema) && schema.nested) ||
                               (isLogicalTypeSchema(schema) && schema.nested)
                                   ? schema.nested.map((n) => tsResourceName(n.identifier))
                                   : []),
                           ];
+                    }
                     const valueExports = isResourceTypeSchema(schema) ? [`is${resourceName}`] : [];
 
                     return [
                         {
                             identifier: schema.identifier,
+                            isProfile: isProfileTypeSchema(schema),
                             tsPackageName: tsModuleName(schema.identifier),
                             resourceName,
                             typeExports,
@@ -261,7 +266,9 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             for (const exp of exports) {
                 this.debugComment(exp.identifier);
                 if (exp.typeExports.length > 0) {
-                    this.lineSM(`export type { ${exp.typeExports.join(", ")} } from "./${exp.tsPackageName}"`);
+                    this.lineSM(
+                        `export type { ${exp.typeExports.join(", ")} } from "./${exp.isProfile ? "profiles/" : ""}${exp.tsPackageName}"`,
+                    );
                 }
                 if (exp.valueExports.length > 0) {
                     this.lineSM(`export { ${exp.valueExports.join(", ")} } from "./${exp.tsPackageName}"`);
@@ -1512,7 +1519,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                         this.generateResourceModule(tsIndex, schema);
                     }
                     this.generateProfileIndexFile(packageSchemas.filter(isProfileTypeSchema));
-                    this.generateFhirPackageIndexFile(packageSchemas);
+                    this.generateFhirPackageIndexFile(tsIndex, packageSchemas);
                 });
             }
         });
