@@ -18,6 +18,7 @@ export type { Meta } from "./Meta";
 export type { Narrative } from "./Narrative";
 export type { Observation, ObservationComponent, ObservationReferenceRange } from "./Observation";
 export { isObservation } from "./Observation";
+export type { observation_vitalsigns } from "./profiles/Observation_vitalsigns";
 export type { OperationOutcome, OperationOutcomeIssue } from "./OperationOutcome";
 export { isOperationOutcome } from "./OperationOutcome";
 export type { Patient, PatientCommunication, PatientContact, PatientLink } from "./Patient";
