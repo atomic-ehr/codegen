@@ -19,6 +19,12 @@ This directory contains working examples demonstrating the capabilities of Atomi
   - `generate.ts` - Generates types from remote TGZ package
   - Demonstrates tree shaking to include only specific resources
 
+- **[typescript-us-core/](typescript-us-core/)** - US Core profile generation with profile classes
+  - `generate.ts` - Generates TypeScript types for US Core 8.0.1 with profile classes
+  - `profile-demo.ts` - Demonstrates profile class fluent API for extensions and slices
+  - Shows type-safe handling of race, ethnicity, birth sex extensions
+  - Demonstrates blood pressure observation slicing
+
 ### Multi-Language Generation
 
 - **[python/](python/)** - Python/Pydantic model generation with simple requests-based client

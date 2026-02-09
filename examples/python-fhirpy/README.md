@@ -11,7 +11,7 @@ This example demonstrates how to use generated Python/Pydantic models with the `
 - Automatic validation and serialization
 - Async/await patterns for FHIR operations
 
-For a simpler example using `requests`, see [python-simple/](../python-simple/).
+For a simpler example using `requests`, see [python/](../python/).
 
 ## Setup
 

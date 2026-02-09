@@ -40,7 +40,7 @@ Edit `generate.ts` to customize:
 
 ### Tree Shaking Configuration
 
-The example uses tree shaking to include only ViewDefinition and it's dependencies:
+The example uses tree shaking to include only ViewDefinition and its dependencies:
 
 ```typescript
 .typeSchema({
