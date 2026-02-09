@@ -345,7 +345,6 @@ export interface ValueSetTypeSchema {
 export interface BindingTypeSchema {
     identifier: BindingIdentifier;
     description?: string;
-    type?: Identifier;
     strength?: string;
     enum?: EnumDefinition;
     valueset?: ValueSetIdentifier;

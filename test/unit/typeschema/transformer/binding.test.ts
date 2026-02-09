@@ -82,13 +82,6 @@ describe("Type Schema generator > Binding", async () => {
                 enum: { values: ["male", "female", "other", "unknown"], isOpen: false },
 
                 strength: "required",
-                type: {
-                    kind: "primitive-type",
-                    name: "code",
-                    package: "hl7.fhir.r4.core",
-                    url: "http://hl7.org/fhir/StructureDefinition/code",
-                    version: "4.0.1",
-                },
                 valueset: {
                     kind: "value-set",
                     name: "AdministrativeGender",

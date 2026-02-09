@@ -363,13 +363,6 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with code 1`] = `
       "name": "AdministrativeGender",
       "url": "urn:fhir:binding:AdministrativeGender_on_code"
     },
-    "type": {
-      "kind": "primitive-type",
-      "package": "hl7.fhir.r4.core",
-      "version": "4.0.1",
-      "name": "code",
-      "url": "http://hl7.org/fhir/StructureDefinition/code"
-    },
     "valueset": {
       "kind": "value-set",
       "package": "hl7.fhir.r4.core",
@@ -493,13 +486,6 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with codable concep
       "version": "1.0.0",
       "name": "MaritalStatus",
       "url": "urn:fhir:binding:MaritalStatus_on_CodeableConcept"
-    },
-    "type": {
-      "kind": "complex-type",
-      "package": "hl7.fhir.r4.core",
-      "version": "4.0.1",
-      "name": "CodeableConcept",
-      "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
     },
     "valueset": {
       "kind": "value-set",
@@ -1247,13 +1233,6 @@ exports[`FHIR Schema to Type Schema (snapshot) Custom resource TutorNotification
       "name": "TutorNotification.status_binding",
       "url": "http://example.com/aidbox-sms-tutor/TutorNotification#status_binding"
     },
-    "type": {
-      "kind": "primitive-type",
-      "package": "mypackage",
-      "version": "0.0.0",
-      "name": "string",
-      "url": "http://hl7.org/fhir/StructureDefinition/string"
-    },
     "valueset": {
       "kind": "value-set",
       "package": "hl7.fhir.r4.core",
@@ -1303,13 +1282,6 @@ exports[`FHIR Schema to Type Schema (snapshot) Custom resource TutorNotification
       "version": "0.0.0",
       "name": "TutorNotification.type_binding",
       "url": "http://example.com/aidbox-sms-tutor/TutorNotification#type_binding"
-    },
-    "type": {
-      "kind": "primitive-type",
-      "package": "mypackage",
-      "version": "0.0.0",
-      "name": "string",
-      "url": "http://hl7.org/fhir/StructureDefinition/string"
     },
     "valueset": {
       "kind": "value-set",

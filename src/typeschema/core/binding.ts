@@ -170,7 +170,6 @@ function generateBindingSchema(
 
     return {
         identifier,
-        type: fieldType,
         valueset: valueSetIdentifier,
         strength: element.binding.strength,
         enum: enumResult,
