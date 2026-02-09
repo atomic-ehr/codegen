@@ -236,12 +236,12 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                         if (overrides.size > 0) typeExports = [resourceName];
                     } else {
                         typeExports = [
-                              resourceName,
-                              ...((isResourceTypeSchema(schema) && schema.nested) ||
-                              (isLogicalTypeSchema(schema) && schema.nested)
-                                  ? schema.nested.map((n) => tsResourceName(n.identifier))
-                                  : []),
-                          ];
+                            resourceName,
+                            ...((isResourceTypeSchema(schema) && schema.nested) ||
+                            (isLogicalTypeSchema(schema) && schema.nested)
+                                ? schema.nested.map((n) => tsResourceName(n.identifier))
+                                : []),
+                        ];
                     }
                     const valueExports = isResourceTypeSchema(schema) ? [`is${resourceName}`] : [];
 
