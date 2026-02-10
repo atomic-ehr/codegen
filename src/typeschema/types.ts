@@ -69,11 +69,7 @@ export type RichFHIRSchema = Omit<FS.FHIRSchema, "package_meta" | "base" | "name
     base: CanonicalUrl;
 };
 
-export const enrichFHIRSchema = (schema: FS.FHIRSchema, packageMeta?: PackageMeta): RichFHIRSchema => {
-    // FIXME: required params
-    if (!packageMeta) {
-        packageMeta = { name: "undefined", version: "undefined" };
-    }
+export const enrichFHIRSchema = (schema: FS.FHIRSchema, packageMeta: PackageMeta): RichFHIRSchema => {
     return {
         ...schema,
         package_meta: schema.package_meta || packageMeta,

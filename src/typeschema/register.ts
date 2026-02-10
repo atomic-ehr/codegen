@@ -249,8 +249,7 @@ export const registerFromManager = async (
     let cachedResolutionTree: ResolutionTree | undefined;
 
     return {
-        testAppendFs(fs: FHIRSchema) {
-            const rfs = enrichFHIRSchema(fs);
+        testAppendFs(rfs: RichFHIRSchema) {
             const pkgId = packageMetaToFhir(rfs.package_meta);
             if (!resolver[pkgId]) resolver[pkgId] = mkEmptyPkgIndex(rfs.package_meta);
             resolver[pkgId].fhirSchemas[rfs.url] = rfs;

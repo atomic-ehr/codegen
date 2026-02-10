@@ -45,8 +45,8 @@ export const mkCCDARegister = async () =>
 export const ccdaManager = await mkCCDARegister();
 
 export const registerFs = (register: Register, fs: PFS) => {
-    if (!fs.package_meta) fs.package_meta = { name: "mypackage", version: "0.0.0" };
-    const rfs = enrichFHIRSchema(fs as FHIRSchema);
+    const pkg = fs.package_meta ?? { name: "mypackage", version: "0.0.0" };
+    const rfs = enrichFHIRSchema(fs as FHIRSchema, pkg);
     register.testAppendFs(rfs);
     return rfs;
 };
@@ -58,10 +58,7 @@ export const resolveTs = async (register: Register, pkgMeta: PackageMeta, url: s
 };
 
 export const registerFsAndMkTs = async (register: Register, fs: PFS) => {
-    registerFs(register, fs);
-    if (!fs.package_meta) throw new Error("Package metadata is missing");
-    const rfs = register.resolveFs(fs.package_meta, fs.url as CanonicalUrl);
-    if (!rfs) throw new Error("Failed to resolve registered FHIR schema");
+    const rfs = registerFs(register, fs);
     return await transformFhirSchema(register, rfs, logger);
 };
 
