@@ -217,25 +217,19 @@ function extractExtensionValueTypes(
     return Array.from(uniq.values());
 }
 
-function extractSubExtensions(
+const extractLegacySubExtensions = (
     register: Register,
-    fhirSchema: RichFHIRSchema,
-    extensionUrl: CanonicalUrl,
+    extensionSchema: RichFHIRSchema,
     logger?: CodegenLogger,
-): ExtensionSubField[] | undefined {
-    const extensionSchema = register.resolveFs(fhirSchema.package_meta, extensionUrl);
-    if (!extensionSchema?.elements) return undefined;
-
+): ExtensionSubField[] => {
     const subExtensions: ExtensionSubField[] = [];
+    if (!extensionSchema.elements) return subExtensions;
 
-    // Check for extension:sliceName pattern in elements (legacy format)
     for (const [key, element] of Object.entries(extensionSchema.elements)) {
         if (!key.startsWith("extension:")) continue;
 
         const sliceName = key.split(":")[1];
         if (!sliceName) continue;
-
-        const sliceUrl = element.url ?? sliceName;
 
         let valueType: Identifier | undefined;
         for (const [elemKey, elemValue] of Object.entries(element.elements ?? {})) {
@@ -246,54 +240,69 @@ function extractSubExtensions(
 
         subExtensions.push({
             name: sliceName,
-            url: sliceUrl,
+            url: element.url ?? sliceName,
             valueType,
             min: element.min,
             max: element.max !== undefined ? String(element.max) : undefined,
         });
     }
+    return subExtensions;
+};
 
-    // Check for slices in extension.slicing.slices (new format)
-    const extensionElement = extensionSchema.elements.extension as any;
+const extractSlicingSubExtensions = (extensionSchema: RichFHIRSchema): ExtensionSubField[] => {
+    const subExtensions: ExtensionSubField[] = [];
+    const extensionElement = extensionSchema.elements?.extension as any;
     const slices = extensionElement?.slicing?.slices;
-    if (slices && typeof slices === "object") {
-        for (const [sliceName, sliceData] of Object.entries(slices)) {
-            const slice = sliceData as any;
-            const schema = slice.schema;
-            if (!schema) continue;
+    if (!slices || typeof slices !== "object") return subExtensions;
 
-            const sliceUrl = slice.match?.url ?? sliceName;
+    for (const [sliceName, sliceData] of Object.entries(slices)) {
+        const slice = sliceData as any;
+        const schema = slice.schema;
+        if (!schema) continue;
 
-            let valueType: Identifier | undefined;
-            const schemaElements = schema.elements ?? {};
-            for (const [elemKey, elemValue] of Object.entries(schemaElements)) {
-                const elem = elemValue as any;
-                if (elem.choiceOf !== "value" && !elemKey.startsWith("value")) continue;
-                if (elem.type) {
-                    valueType = {
-                        kind: "complex-type" as const,
-                        package: extensionSchema.package_meta.name,
-                        version: extensionSchema.package_meta.version,
-                        name: elem.type as any,
-                        url: `http://hl7.org/fhir/StructureDefinition/${elem.type}` as CanonicalUrl,
-                    };
-                    break;
-                }
+        let valueType: Identifier | undefined;
+        for (const [elemKey, elemValue] of Object.entries(schema.elements ?? {})) {
+            const elem = elemValue as any;
+            if (elem.choiceOf !== "value" && !elemKey.startsWith("value")) continue;
+            if (elem.type) {
+                valueType = {
+                    kind: "complex-type" as const,
+                    package: extensionSchema.package_meta.name,
+                    version: extensionSchema.package_meta.version,
+                    name: elem.type as any,
+                    url: `http://hl7.org/fhir/StructureDefinition/${elem.type}` as CanonicalUrl,
+                };
+                break;
             }
-
-            subExtensions.push({
-                name: sliceName,
-                url: sliceUrl,
-                valueType,
-                min: schema._required ? 1 : (schema.min ?? 0),
-                // biome-ignore lint/style/noNestedTernary : okay here
-                max: schema.max !== undefined ? String(schema.max) : schema.array ? "*" : "1",
-            });
         }
+
+        subExtensions.push({
+            name: sliceName,
+            url: slice.match?.url ?? sliceName,
+            valueType,
+            min: schema._required ? 1 : (schema.min ?? 0),
+            // biome-ignore lint/style/noNestedTernary : okay here
+            max: schema.max !== undefined ? String(schema.max) : schema.array ? "*" : "1",
+        });
     }
+    return subExtensions;
+};
+
+const extractSubExtensions = (
+    register: Register,
+    fhirSchema: RichFHIRSchema,
+    extensionUrl: CanonicalUrl,
+    logger?: CodegenLogger,
+): ExtensionSubField[] | undefined => {
+    const extensionSchema = register.resolveFs(fhirSchema.package_meta, extensionUrl);
+    if (!extensionSchema?.elements) return undefined;
+
+    const legacySubs = extractLegacySubExtensions(register, extensionSchema, logger);
+    const slicingSubs = extractSlicingSubExtensions(extensionSchema);
+    const subExtensions = [...legacySubs, ...slicingSubs];
 
     return subExtensions.length > 0 ? subExtensions : undefined;
-}
+};
 
 function extractProfileExtensions(
     register: Register,
