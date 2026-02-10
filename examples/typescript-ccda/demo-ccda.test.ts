@@ -3,7 +3,6 @@ import type * as CCDA from "./fhir-types/hl7-cda-us-ccda";
 import { MedicationActivityProfile } from "./fhir-types/hl7-cda-us-ccda";
 import type * as CDA from "./fhir-types/hl7-cda-uv-core";
 import type * as FHIR from "./fhir-types/hl7-fhir-r4-core";
-import type { MedicationStatement } from "./fhir-types/hl7-fhir-r4-examples";
 
 function medicationStatementToMedicationActivity(stat: FHIR.MedicationStatement): MedicationActivityProfile {
     const base: CDA.SubstanceAdministration = {
