@@ -152,9 +152,7 @@ const tsTypeFromIdentifier = (id: Identifier): string => {
     return id.name;
 };
 
-const tsProfileClassName = (tsIndex: TypeSchemaIndex, schema: ProfileTypeSchema): string => {
-    const resourceSchema = tsIndex.findLastSpecialization(schema);
-    const resourceName = uppercaseFirstLetter(normalizeTsName(resourceSchema.identifier.name));
+const tsProfileClassName = (schema: ProfileTypeSchema): string => {
     const profileName = extractNameFromCanonical(schema.identifier.url);
     if (profileName) {
         return `${normalizeTsName(profileName)}Profile`;
@@ -224,7 +222,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         this.cd("profiles", () => {
             this.cat("index.ts", () => {
                 const profiles: [ProfileTypeSchema, string, string | undefined][] = initialProfiles.map((profile) => {
-                    const className = tsProfileClassName(tsIndex, profile);
+                    const className = tsProfileClassName(profile);
                     const resourceName = tsResourceName(profile.identifier);
                     const overrides = this.detectFieldOverrides(tsIndex, profile);
                     let typeExport;
@@ -978,7 +976,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
     generateProfileClass(tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) {
         const tsBaseResourceName = tsTypeFromIdentifier(flatProfile.base);
         const tsProfileName = tsResourceName(flatProfile.identifier);
-        const profileClassName = tsProfileClassName(tsIndex, flatProfile);
+        const profileClassName = tsProfileClassName(flatProfile);
 
         // Known polymorphic field base names in FHIR (value[x], effective[x], etc.)
         // These don't exist as direct properties on TypeScript types
