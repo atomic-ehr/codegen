@@ -19,7 +19,6 @@ import type { CanonicalUrl, PkgName } from "./types";
 import { hashSchema, packageMetaToFhir, type TypeSchema } from "./types";
 
 // Re-export core dependencies
-export { TypeSchemaGenerator } from "./generator";
 export { shouldSkipCanonical, skipList } from "./skip-hack";
 export type { Identifier, TypeSchema } from "./types";
 

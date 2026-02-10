@@ -6,9 +6,10 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
-import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import { complete, createLogger, list } from "@root/utils/codegen-logger";
-import { TypeSchemaGenerator } from "@typeschema/generator";
+import { generateTypeSchemas } from "@typeschema/index";
+import { registerFromPackageMetas } from "@typeschema/register";
+import type { PackageMeta } from "@typeschema/types";
 import type { CommandModule } from "yargs";
 
 interface GenerateTypeschemaArgs {
@@ -100,28 +101,29 @@ export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, G
 
             const startTime = Date.now();
 
-            // Create TypeSchema generator
-            const generator = new TypeSchemaGenerator({
-                treeshake: argv.treeshake,
-                registry: argv.registry,
-                manager: CanonicalManager({
-                    packages: [],
-                    workingDir: ".codegen-cache/canonical-manager-cache",
-                    registry: argv.registry,
-                }),
+            // Parse package specs into PackageMeta objects
+            const packageMetas: PackageMeta[] = argv.packages.map((packageSpec) => {
+                if (packageSpec.includes("@")) {
+                    const atIndex = packageSpec.lastIndexOf("@");
+                    return {
+                        name: packageSpec.slice(0, atIndex),
+                        version: packageSpec.slice(atIndex + 1) || "latest",
+                    };
+                }
+                return { name: packageSpec, version: "latest" };
             });
 
-            // Generate schemas from all packages
-            const allSchemas: any[] = [];
+            logger.progress(`Processing packages: ${packageMetas.map((p) => `${p.name}@${p.version}`).join(", ")}`);
 
-            for (const packageSpec of argv.packages) {
-                const [name, version] = packageSpec.includes("@") ? packageSpec.split("@") : [packageSpec, undefined];
+            // Create register from packages
+            const register = await registerFromPackageMetas(packageMetas, {
+                logger,
+                registry: argv.registry,
+                focusedPackages: packageMetas,
+            });
 
-                logger.progress(`Processing package: ${name}${version ? `@${version}` : ""}`);
-
-                const schemas = await generator.generateFromPackage(name, version, logger);
-                allSchemas.push(...schemas);
-            }
+            // Generate TypeSchemas
+            const { schemas: allSchemas } = await generateTypeSchemas(register, logger);
 
             if (allSchemas.length === 0) {
                 throw new Error("No schemas were generated from the specified packages");

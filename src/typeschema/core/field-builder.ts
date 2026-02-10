@@ -204,6 +204,9 @@ export function isNestedElement(element: FHIRSchemaElement): boolean {
     // In bodyweight we have valueQuantity with additional constaraints on it's elements
     // So we need to build nested type from Quantity for here, but don't do that right now.
     const elementsWithoutType =
+        // FIXME: understand and make a decision.
+        // Problem example: http://hl7.org/cda/stds/core/StructureDefinition/SubstanceAdministration -> consumable
+        // Don't generate nested type for that field, but defetly expect it.
         element.type === undefined &&
         element.choiceOf === undefined &&
         element.elements !== undefined &&
