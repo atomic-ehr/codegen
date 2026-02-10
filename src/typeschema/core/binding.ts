@@ -13,12 +13,11 @@ import type {
     BindingTypeSchema,
     CanonicalUrl,
     Concept,
-    Identifier,
+    EnumDefinition,
     PackageMeta,
     RichFHIRSchema,
     RichValueSet,
 } from "@typeschema/types";
-import { buildFieldType } from "./field-builder";
 import { dropVersionFromUrl, mkBindingIdentifier, mkValueSetIdentifierByUrl } from "./identifier";
 
 export function extractValueSetConceptsByUrl(
@@ -91,29 +90,37 @@ function extractValueSetConcepts(
 
 const MAX_ENUM_LENGTH = 100;
 
+// eld-11: Types that can have bindings
+export const BINDABLE_TYPES = new Set([
+    "code",
+    "Coding",
+    "CodeableConcept",
+    "CodeableReference",
+    "Quantity",
+    "string",
+    "uri",
+    "Duration",
+]);
+
 export function buildEnum(
     register: Register,
     fhirSchema: RichFHIRSchema,
     element: FHIRSchemaElement,
     logger?: CodegenLogger,
-): string[] | undefined {
+): EnumDefinition | undefined {
     if (!element.binding) return undefined;
 
     const strength = element.binding.strength;
     const valueSetUrl = element.binding.valueSet as CanonicalUrl;
     if (!valueSetUrl) return undefined;
 
-    // Enhanced support for more binding strengths and types
-    // Generate enum for:
-    // 1. Required bindings (always)
-    // 2. Extensible bindings on code types (for better type safety)
-    // 3. Preferred bindings on code types (for common usage patterns)
-    // 4. Extensible bindings on Coding types (broader coverage)
-    const shouldGenerateEnum =
-        strength === "required" ||
-        (strength === "extensible" && (element.type === "code" || element.type === "Coding")) ||
-        (strength === "preferred" && (element.type === "code" || element.type === "Coding"));
+    if (!BINDABLE_TYPES.has(element.type ?? "")) {
+        logger?.dry_warn(`eld-11: Binding on non-bindable type '${element.type}' (valueSet: ${valueSetUrl})`);
+        return undefined;
+    }
 
+    // Generate enum for required/extensible/preferred bindings
+    const shouldGenerateEnum = strength === "required" || strength === "extensible" || strength === "preferred";
     if (!shouldGenerateEnum) return undefined;
 
     const concepts = extractValueSetConceptsByUrl(register, fhirSchema.package_meta, valueSetUrl);
@@ -129,7 +136,9 @@ export function buildEnum(
         );
         return undefined;
     }
-    return codes.length > 0 ? codes : undefined;
+    if (codes.length === 0) return undefined;
+
+    return { isOpen: strength !== "required", values: codes };
 }
 
 function generateBindingSchema(
@@ -141,29 +150,21 @@ function generateBindingSchema(
 ): BindingTypeSchema | undefined {
     if (!element.binding?.valueSet) return undefined;
 
-    const identifier = mkBindingIdentifier(fhirSchema, path, element.binding.bindingName);
-    const fieldType = buildFieldType(register, fhirSchema, path, element, logger);
+    const identifier = mkBindingIdentifier(fhirSchema, path, element);
     const valueSetIdentifier = mkValueSetIdentifierByUrl(
         register,
         fhirSchema.package_meta,
         element.binding.valueSet as CanonicalUrl,
     );
 
-    const dependencies: Identifier[] = [];
-    if (fieldType) {
-        dependencies.push(fieldType);
-    }
-    dependencies.push(valueSetIdentifier);
-
-    const enumValues = buildEnum(register, fhirSchema, element, logger);
+    const enumResult = buildEnum(register, fhirSchema, element, logger);
 
     return {
         identifier,
-        type: fieldType,
         valueset: valueSetIdentifier,
         strength: element.binding.strength,
-        enum: enumValues,
-        dependencies,
+        enum: enumResult,
+        dependencies: [valueSetIdentifier],
     };
 }
 

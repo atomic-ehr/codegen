@@ -5066,12 +5066,15 @@ exports[`treeShake specific TypeSchema Original Patient 1`] = `
         "name": "AdministrativeGender",
         "url": "urn:fhir:binding:AdministrativeGender"
       },
-      "enum": [
-        "male",
-        "female",
-        "other",
-        "unknown"
-      ]
+      "enum": {
+        "isOpen": false,
+        "values": [
+          "male",
+          "female",
+          "other",
+          "unknown"
+        ]
+      }
     },
     "birthDate": {
       "type": {
@@ -5149,6 +5152,22 @@ exports[`treeShake specific TypeSchema Original Patient 1`] = `
         "version": "1.0.0",
         "name": "MaritalStatus",
         "url": "urn:fhir:binding:MaritalStatus"
+      },
+      "enum": {
+        "isOpen": true,
+        "values": [
+          "A",
+          "D",
+          "I",
+          "L",
+          "M",
+          "P",
+          "S",
+          "T",
+          "U",
+          "W",
+          "UNK"
+        ]
       }
     },
     "multipleBirth": {
@@ -5325,6 +5344,67 @@ exports[`treeShake specific TypeSchema Original Patient 1`] = `
             "version": "1.0.0",
             "name": "Language",
             "url": "urn:fhir:binding:Language"
+          },
+          "enum": {
+            "isOpen": true,
+            "values": [
+              "ar",
+              "bn",
+              "cs",
+              "da",
+              "de",
+              "de-AT",
+              "de-CH",
+              "de-DE",
+              "el",
+              "en",
+              "en-AU",
+              "en-CA",
+              "en-GB",
+              "en-IN",
+              "en-NZ",
+              "en-SG",
+              "en-US",
+              "es",
+              "es-AR",
+              "es-ES",
+              "es-UY",
+              "fi",
+              "fr",
+              "fr-BE",
+              "fr-CH",
+              "fr-FR",
+              "fy",
+              "fy-NL",
+              "hi",
+              "hr",
+              "it",
+              "it-CH",
+              "it-IT",
+              "ja",
+              "ko",
+              "nl",
+              "nl-BE",
+              "nl-NL",
+              "no",
+              "no-NO",
+              "pa",
+              "pl",
+              "pt",
+              "pt-BR",
+              "ru",
+              "ru-RU",
+              "sr",
+              "sr-RS",
+              "sv",
+              "sv-SE",
+              "te",
+              "zh",
+              "zh-CN",
+              "zh-HK",
+              "zh-SG",
+              "zh-TW"
+            ]
           }
         },
         "preferred": {
@@ -5430,12 +5510,15 @@ exports[`treeShake specific TypeSchema Original Patient 1`] = `
             "name": "AdministrativeGender",
             "url": "urn:fhir:binding:AdministrativeGender"
           },
-          "enum": [
-            "male",
-            "female",
-            "other",
-            "unknown"
-          ]
+          "enum": {
+            "isOpen": false,
+            "values": [
+              "male",
+              "female",
+              "other",
+              "unknown"
+            ]
+          }
         },
         "organization": {
           "type": {
@@ -5534,12 +5617,15 @@ exports[`treeShake specific TypeSchema Original Patient 1`] = `
             "name": "LinkType",
             "url": "urn:fhir:binding:LinkType"
           },
-          "enum": [
-            "replaced-by",
-            "replaces",
-            "refer",
-            "seealso"
-          ]
+          "enum": {
+            "isOpen": false,
+            "values": [
+              "replaced-by",
+              "replaces",
+              "refer",
+              "seealso"
+            ]
+          }
         }
       }
     }
@@ -5831,6 +5917,22 @@ exports[`treeShake specific TypeSchema ignoreFields regular field 1`] = `
         "version": "1.0.0",
         "name": "MaritalStatus",
         "url": "urn:fhir:binding:MaritalStatus"
+      },
+      "enum": {
+        "isOpen": true,
+        "values": [
+          "A",
+          "D",
+          "I",
+          "L",
+          "M",
+          "P",
+          "S",
+          "T",
+          "U",
+          "W",
+          "UNK"
+        ]
       }
     },
     "multipleBirth": {
@@ -6007,6 +6109,67 @@ exports[`treeShake specific TypeSchema ignoreFields regular field 1`] = `
             "version": "1.0.0",
             "name": "Language",
             "url": "urn:fhir:binding:Language"
+          },
+          "enum": {
+            "isOpen": true,
+            "values": [
+              "ar",
+              "bn",
+              "cs",
+              "da",
+              "de",
+              "de-AT",
+              "de-CH",
+              "de-DE",
+              "el",
+              "en",
+              "en-AU",
+              "en-CA",
+              "en-GB",
+              "en-IN",
+              "en-NZ",
+              "en-SG",
+              "en-US",
+              "es",
+              "es-AR",
+              "es-ES",
+              "es-UY",
+              "fi",
+              "fr",
+              "fr-BE",
+              "fr-CH",
+              "fr-FR",
+              "fy",
+              "fy-NL",
+              "hi",
+              "hr",
+              "it",
+              "it-CH",
+              "it-IT",
+              "ja",
+              "ko",
+              "nl",
+              "nl-BE",
+              "nl-NL",
+              "no",
+              "no-NO",
+              "pa",
+              "pl",
+              "pt",
+              "pt-BR",
+              "ru",
+              "ru-RU",
+              "sr",
+              "sr-RS",
+              "sv",
+              "sv-SE",
+              "te",
+              "zh",
+              "zh-CN",
+              "zh-HK",
+              "zh-SG",
+              "zh-TW"
+            ]
           }
         },
         "preferred": {
@@ -6112,12 +6275,15 @@ exports[`treeShake specific TypeSchema ignoreFields regular field 1`] = `
             "name": "AdministrativeGender",
             "url": "urn:fhir:binding:AdministrativeGender"
           },
-          "enum": [
-            "male",
-            "female",
-            "other",
-            "unknown"
-          ]
+          "enum": {
+            "isOpen": false,
+            "values": [
+              "male",
+              "female",
+              "other",
+              "unknown"
+            ]
+          }
         },
         "organization": {
           "type": {
@@ -6216,12 +6382,15 @@ exports[`treeShake specific TypeSchema ignoreFields regular field 1`] = `
             "name": "LinkType",
             "url": "urn:fhir:binding:LinkType"
           },
-          "enum": [
-            "replaced-by",
-            "replaces",
-            "refer",
-            "seealso"
-          ]
+          "enum": {
+            "isOpen": false,
+            "values": [
+              "replaced-by",
+              "replaces",
+              "refer",
+              "seealso"
+            ]
+          }
         }
       }
     }
@@ -6407,12 +6576,15 @@ exports[`treeShake specific TypeSchema selectFields regular field 1`] = `
         "name": "AdministrativeGender",
         "url": "urn:fhir:binding:AdministrativeGender"
       },
-      "enum": [
-        "male",
-        "female",
-        "other",
-        "unknown"
-      ]
+      "enum": {
+        "isOpen": false,
+        "values": [
+          "male",
+          "female",
+          "other",
+          "unknown"
+        ]
+      }
     }
   },
   "nested": [],
@@ -6478,12 +6650,15 @@ exports[`treeShake specific TypeSchema selectFields multiple regular fields 1`] 
         "name": "AdministrativeGender",
         "url": "urn:fhir:binding:AdministrativeGender"
       },
-      "enum": [
-        "male",
-        "female",
-        "other",
-        "unknown"
-      ]
+      "enum": {
+        "isOpen": false,
+        "values": [
+          "male",
+          "female",
+          "other",
+          "unknown"
+        ]
+      }
     },
     "birthDate": {
       "type": {

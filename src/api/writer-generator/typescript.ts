@@ -9,7 +9,9 @@ import {
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
 import {
     type CanonicalUrl,
+    type EnumDefinition,
     extractNameFromCanonical,
+    type Field,
     type Identifier,
     isChoiceDeclarationField,
     isComplexTypeIdentifier,
@@ -17,7 +19,6 @@ import {
     isNestedIdentifier,
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
-    isProfileIdentifier,
     isProfileTypeSchema,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
@@ -76,14 +77,25 @@ const tsModuleName = (id: Identifier): string => {
     return uppercaseFirstLetter(normalizeTsName(id.name));
 };
 
+const tsProfileModuleName = (tsIndex: TypeSchemaIndex, schema: ProfileTypeSchema): string => {
+    const resourceSchema = tsIndex.findLastSpecialization(schema);
+    const resourceName = uppercaseFirstLetter(normalizeTsName(resourceSchema.identifier.name));
+    const profileName = extractNameFromCanonical(schema.identifier.url);
+    if (profileName) {
+        return `${resourceName}_${normalizeTsName(profileName)}`;
+    }
+    return `${resourceName}_${normalizeTsName(schema.identifier.name)}`;
+};
+
 const tsModuleFileName = (id: Identifier): string => {
     return `${tsModuleName(id)}.ts`;
 };
 
+const tsProfileModuleFileName = (tsIndex: TypeSchemaIndex, schema: ProfileTypeSchema): string => {
+    return `${tsProfileModuleName(tsIndex, schema)}.ts`;
+};
+
 const tsModulePath = (id: Identifier): string => {
-    if (isProfileIdentifier(id)) {
-        return `${tsFhirPackageDir(id.package)}/profiles/${tsModuleName(id)}`;
-    }
     return `${tsFhirPackageDir(id.package)}/${tsModuleName(id)}`;
 };
 
@@ -97,9 +109,10 @@ const canonicalToName = (canonical: string | undefined, dropFragment = true) => 
 const tsResourceName = (id: Identifier): string => {
     if (id.kind === "nested") {
         const url = id.url;
-        const path = canonicalToName(url, false);
-        if (!path) return "";
-        const [resourceName, fragment] = path.split("#");
+        // Extract name from URL without normalizing dots (needed for fragment splitting)
+        const localName = extractNameFromCanonical(url as CanonicalUrl, false);
+        if (!localName) return "";
+        const [resourceName, fragment] = localName.split("#");
         const name = uppercaseFirstLetterOfEach((fragment ?? "").split(".")).join("");
         return normalizeTsName([resourceName, name].join(""));
     }
@@ -117,7 +130,7 @@ const tsFieldName = (n: string): string => {
 
 const normalizeTsName = (n: string): string => {
     if (tsKeywords.has(n)) n = `${n}_`;
-    return n.replace(/\[x\]/g, "_x_").replace(/[- :]/g, "_");
+    return n.replace(/\[x\]/g, "_x_").replace(/[- :.]/g, "_");
 };
 
 const tsGet = (object: string, tsFieldName: string) => {
@@ -125,8 +138,9 @@ const tsGet = (object: string, tsFieldName: string) => {
     return `${object}.${tsFieldName}`;
 };
 
-const tsEnumType = (enumValues: string[]) => {
-    return `(${enumValues.map((e) => `"${e}"`).join(" | ")})`;
+const tsEnumType = (enumDef: EnumDefinition) => {
+    const values = enumDef.values.map((e) => `"${e}"`).join(" | ");
+    return enumDef.isOpen ? `(${values} | string)` : `(${values})`;
 };
 
 const tsTypeFromIdentifier = (id: Identifier): string => {
@@ -138,8 +152,14 @@ const tsTypeFromIdentifier = (id: Identifier): string => {
     return id.name;
 };
 
-const tsProfileClassName = (id: Identifier): string => {
-    return `${uppercaseFirstLetter(normalizeTsName(id.name))}Profile`;
+const tsProfileClassName = (tsIndex: TypeSchemaIndex, schema: ProfileTypeSchema): string => {
+    const resourceSchema = tsIndex.findLastSpecialization(schema);
+    const resourceName = uppercaseFirstLetter(normalizeTsName(resourceSchema.identifier.name));
+    const profileName = extractNameFromCanonical(schema.identifier.url);
+    if (profileName) {
+        return `${resourceName}_${normalizeTsName(profileName)}Profile`;
+    }
+    return `${resourceName}_${normalizeTsName(schema.identifier.name)}Profile`;
 };
 
 const tsSliceInputTypeName = (profileName: string, fieldName: string, sliceName: string): string => {
@@ -203,24 +223,28 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         if (initialProfiles.length === 0) return;
         this.cd("profiles", () => {
             this.cat("index.ts", () => {
-                const profiles: [Identifier, string, string | undefined][] = initialProfiles.map((profile) => {
-                    const className = tsProfileClassName(profile.identifier);
+                const profiles: [ProfileTypeSchema, string, string | undefined][] = initialProfiles.map((profile) => {
+                    const className = tsProfileClassName(tsIndex, profile);
                     const resourceName = tsResourceName(profile.identifier);
                     const overrides = this.detectFieldOverrides(tsIndex, profile);
                     let typeExport;
                     if (overrides.size > 0) typeExport = resourceName;
-                    return [profile.identifier, className, typeExport];
+                    return [profile, className, typeExport];
                 });
                 if (profiles.length === 0) return;
-                const uniqueExports: Set<string> = new Set();
-                for (const [identifier, className, typeName] of profiles) {
-                    uniqueExports.add(`export { ${className} } from "./${tsModuleName(identifier as Identifier)}"`);
-                    if (typeName)
-                        uniqueExports.add(
-                            `export type { ${typeName} } from "./${tsModuleName(identifier as Identifier)}"`,
-                        );
+                const classExports: Map<string, string> = new Map();
+                const typeExports: Map<string, string> = new Map();
+                for (const [profile, className, typeName] of profiles) {
+                    const moduleName = tsProfileModuleName(tsIndex, profile);
+                    if (!classExports.has(className)) {
+                        classExports.set(className, `export { ${className} } from "./${moduleName}"`);
+                    }
+                    if (typeName && !typeExports.has(typeName)) {
+                        typeExports.set(typeName, `export type { ${typeName} } from "./${moduleName}"`);
+                    }
                 }
-                for (const exp of [...uniqueExports].sort()) {
+                const allExports = [...classExports.values(), ...typeExports.values()].sort();
+                for (const exp of allExports) {
                     this.lineSM(exp);
                 }
             });
@@ -343,8 +367,10 @@ export class TypeScript extends Writer<TypeScriptOptions> {
 
     generateType(tsIndex: TypeSchemaIndex, schema: RegularTypeSchema) {
         let name: string;
-        if (schema.identifier.name === "Reference") {
-            name = "Reference<T extends string = string>";
+        // Generic types: Reference, Coding, CodeableConcept
+        const genericTypes = ["Reference", "Coding", "CodeableConcept"];
+        if (genericTypes.includes(schema.identifier.name)) {
+            name = `${schema.identifier.name}<T extends string = string>`;
         } else if (schema.identifier.kind === "nested") {
             name = tsResourceName(schema.identifier);
         } else {
@@ -376,19 +402,39 @@ export class TypeScript extends Writer<TypeScriptOptions> {
 
             if (!schema.fields) return;
             const fields = Object.entries(schema.fields).sort((a, b) => a[0].localeCompare(b[0]));
+
+            const rewriteFieldTypeDefs: Record<string, Record<string, (field: Field) => string>> = {
+                Coding: {
+                    code: (_field: Field) => "T",
+                },
+                Reference: {
+                    // biome-ignore lint: that is exactly string what we want
+                    reference: (_field: Field) => "`${T}/${string}`",
+                },
+                CodeableConcept: {
+                    coding: (_field: Field) => "Coding<T>",
+                },
+            };
+
             for (const [fieldName, field] of fields) {
                 if (isChoiceDeclarationField(field)) continue;
 
                 this.debugComment(fieldName, ":", field);
 
                 const tsName = tsFieldName(fieldName);
+                const rewriteFieldType = rewriteFieldTypeDefs[schema.identifier.name]?.[tsName];
 
                 let tsType: string;
-                if (field.enum) {
-                    tsType = tsEnumType(field.enum);
-                } else if (schema.identifier.name === "Reference" && tsName === "reference") {
-                    // biome-ignore lint: that is exactly string what we want
-                    tsType = "`${T}/${string}`";
+                if (rewriteFieldType) {
+                    tsType = rewriteFieldType(field);
+                } else if (field.enum) {
+                    if (field.type.name === "Coding") {
+                        tsType = `Coding<${tsEnumType(field.enum)}>`;
+                    } else if (field.type.name === "CodeableConcept") {
+                        tsType = `CodeableConcept<${tsEnumType(field.enum)}>`;
+                    } else {
+                        tsType = tsEnumType(field.enum);
+                    }
                 } else if (field.reference && field.reference.length > 0) {
                     const references = field.reference.map((ref) => `"${ref.name}"`).join(" | ");
                     tsType = `Reference<${references}>`;
@@ -451,10 +497,17 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         if (!isNotChoiceDeclarationField(field)) {
             throw new Error(`Choice declaration fields not supported for '${fieldName}'`);
         }
+
+        let tsType: string;
         if (field.enum) {
-            return tsEnumType(field.enum);
-        }
-        if (field.reference && field.reference.length > 0) {
+            if (field.type?.name === "Coding") {
+                tsType = `Coding<${tsEnumType(field.enum)}>`;
+            } else if (field.type?.name === "CodeableConcept") {
+                tsType = `CodeableConcept<${tsEnumType(field.enum)}>`;
+            } else {
+                tsType = tsEnumType(field.enum);
+            }
+        } else if (field.reference && field.reference.length > 0) {
             const specialization = tsIndex.findLastSpecialization(flatProfile);
             if (!isSpecializationTypeSchema(specialization))
                 throw new Error(`Invalid specialization for ${flatProfile.identifier}`);
@@ -477,20 +530,21 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 // FIXME: should be generilized to type families
                 // Strip inner comments to avoid nested /* */ which is invalid
                 const cleanRefs = references.replace(/\/\*[^*]*\*\//g, "").trim();
-                return `Reference<"Resource" /* ${cleanRefs} */ >`;
+                tsType = `Reference<"Resource" /* ${cleanRefs} */ >`;
+            } else {
+                tsType = `Reference<${references}>`;
             }
-            return `Reference<${references}>`;
-        }
-        if (isNestedIdentifier(field.type)) {
-            return tsResourceName(field.type);
-        }
-        if (isPrimitiveIdentifier(field.type)) {
-            return resolvePrimitiveType(field.type.name);
-        }
-        if (field.type === undefined) {
+        } else if (isPrimitiveIdentifier(field.type)) {
+            tsType = resolvePrimitiveType(field.type.name);
+        } else if (isNestedIdentifier(field.type)) {
+            tsType = tsResourceName(field.type);
+        } else if (field.type === undefined) {
             throw new Error(`Undefined type for '${fieldName}' field at ${typeSchemaInfo(flatProfile)}`);
+        } else {
+            tsType = field.type.name;
         }
-        return field.type.name;
+
+        return tsType;
     }
 
     generateProfileType(tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) {
@@ -954,7 +1008,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
     generateProfileClass(tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) {
         const tsBaseResourceName = tsTypeFromIdentifier(flatProfile.base);
         const tsProfileName = tsResourceName(flatProfile.identifier);
-        const profileClassName = tsProfileClassName(flatProfile.identifier);
+        const profileClassName = tsProfileClassName(tsIndex, flatProfile);
 
         // Known polymorphic field base names in FHIR (value[x], effective[x], etc.)
         // These don't exist as direct properties on TypeScript types
@@ -1464,7 +1518,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
     generateResourceModule(tsIndex: TypeSchemaIndex, schema: TypeSchema) {
         if (isProfileTypeSchema(schema)) {
             this.cd("profiles", () => {
-                this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
+                this.cat(`${tsProfileModuleFileName(tsIndex, schema)}`, () => {
                     this.generateDisclaimer();
                     const flatProfile = tsIndex.flatProfile(schema);
                     this.generateProfileImports(tsIndex, flatProfile);

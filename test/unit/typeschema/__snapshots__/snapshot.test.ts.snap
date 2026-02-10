@@ -319,12 +319,15 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with code 1`] = `
           "name": "AdministrativeGender",
           "url": "urn:fhir:binding:AdministrativeGender"
         },
-        "enum": [
-          "male",
-          "female",
-          "other",
-          "unknown"
-        ]
+        "enum": {
+          "isOpen": false,
+          "values": [
+            "male",
+            "female",
+            "other",
+            "unknown"
+          ]
+        }
       }
     },
     "description": "description",
@@ -360,13 +363,6 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with code 1`] = `
       "name": "AdministrativeGender",
       "url": "urn:fhir:binding:AdministrativeGender"
     },
-    "type": {
-      "kind": "primitive-type",
-      "package": "hl7.fhir.r4.core",
-      "version": "4.0.1",
-      "name": "code",
-      "url": "http://hl7.org/fhir/StructureDefinition/code"
-    },
     "valueset": {
       "kind": "value-set",
       "package": "hl7.fhir.r4.core",
@@ -375,20 +371,16 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with code 1`] = `
       "url": "http://hl7.org/fhir/ValueSet/administrative-gender"
     },
     "strength": "required",
-    "enum": [
-      "male",
-      "female",
-      "other",
-      "unknown"
-    ],
+    "enum": {
+      "isOpen": false,
+      "values": [
+        "male",
+        "female",
+        "other",
+        "unknown"
+      ]
+    },
     "dependencies": [
-      {
-        "kind": "primitive-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "code",
-        "url": "http://hl7.org/fhir/StructureDefinition/code"
-      },
       {
         "kind": "value-set",
         "package": "hl7.fhir.r4.core",
@@ -436,6 +428,22 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with codable concep
           "version": "1.0.0",
           "name": "MaritalStatus",
           "url": "urn:fhir:binding:MaritalStatus"
+        },
+        "enum": {
+          "isOpen": true,
+          "values": [
+            "A",
+            "D",
+            "I",
+            "L",
+            "M",
+            "P",
+            "S",
+            "T",
+            "U",
+            "W",
+            "UNK"
+          ]
         }
       }
     },
@@ -472,13 +480,6 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with codable concep
       "name": "MaritalStatus",
       "url": "urn:fhir:binding:MaritalStatus"
     },
-    "type": {
-      "kind": "complex-type",
-      "package": "hl7.fhir.r4.core",
-      "version": "4.0.1",
-      "name": "CodeableConcept",
-      "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
-    },
     "valueset": {
       "kind": "value-set",
       "package": "hl7.fhir.r4.core",
@@ -487,14 +488,23 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with codable concep
       "url": "http://hl7.org/fhir/ValueSet/marital-status"
     },
     "strength": "extensible",
+    "enum": {
+      "isOpen": true,
+      "values": [
+        "A",
+        "D",
+        "I",
+        "L",
+        "M",
+        "P",
+        "S",
+        "T",
+        "U",
+        "W",
+        "UNK"
+      ]
+    },
     "dependencies": [
-      {
-        "kind": "complex-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "CodeableConcept",
-        "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
-      },
       {
         "kind": "value-set",
         "package": "hl7.fhir.r4.core",
@@ -1039,6 +1049,18 @@ exports[`FHIR Schema to Type Schema (snapshot) Custom resource TutorNotification
           "version": "0.0.0",
           "name": "TutorNotification.type_binding",
           "url": "http://example.com/aidbox-sms-tutor/TutorNotification#type_binding"
+        },
+        "enum": {
+          "isOpen": false,
+          "values": [
+            "phone",
+            "fax",
+            "email",
+            "pager",
+            "url",
+            "sms",
+            "other"
+          ]
         }
       },
       "status": {
@@ -1058,6 +1080,23 @@ exports[`FHIR Schema to Type Schema (snapshot) Custom resource TutorNotification
           "version": "0.0.0",
           "name": "TutorNotification.status_binding",
           "url": "http://example.com/aidbox-sms-tutor/TutorNotification#status_binding"
+        },
+        "enum": {
+          "isOpen": false,
+          "values": [
+            "draft",
+            "requested",
+            "received",
+            "accepted",
+            "rejected",
+            "ready",
+            "cancelled",
+            "in-progress",
+            "on-hold",
+            "failed",
+            "completed",
+            "entered-in-error"
+          ]
         }
       },
       "template": {
@@ -1180,13 +1219,6 @@ exports[`FHIR Schema to Type Schema (snapshot) Custom resource TutorNotification
       "name": "TutorNotification.status_binding",
       "url": "http://example.com/aidbox-sms-tutor/TutorNotification#status_binding"
     },
-    "type": {
-      "kind": "primitive-type",
-      "package": "mypackage",
-      "version": "0.0.0",
-      "name": "string",
-      "url": "http://hl7.org/fhir/StructureDefinition/string"
-    },
     "valueset": {
       "kind": "value-set",
       "package": "hl7.fhir.r4.core",
@@ -1195,28 +1227,24 @@ exports[`FHIR Schema to Type Schema (snapshot) Custom resource TutorNotification
       "url": "http://hl7.org/fhir/ValueSet/task-status"
     },
     "strength": "required",
-    "enum": [
-      "draft",
-      "requested",
-      "received",
-      "accepted",
-      "rejected",
-      "ready",
-      "cancelled",
-      "in-progress",
-      "on-hold",
-      "failed",
-      "completed",
-      "entered-in-error"
-    ],
+    "enum": {
+      "isOpen": false,
+      "values": [
+        "draft",
+        "requested",
+        "received",
+        "accepted",
+        "rejected",
+        "ready",
+        "cancelled",
+        "in-progress",
+        "on-hold",
+        "failed",
+        "completed",
+        "entered-in-error"
+      ]
+    },
     "dependencies": [
-      {
-        "kind": "primitive-type",
-        "package": "mypackage",
-        "version": "0.0.0",
-        "name": "string",
-        "url": "http://hl7.org/fhir/StructureDefinition/string"
-      },
       {
         "kind": "value-set",
         "package": "hl7.fhir.r4.core",
@@ -1234,13 +1262,6 @@ exports[`FHIR Schema to Type Schema (snapshot) Custom resource TutorNotification
       "name": "TutorNotification.type_binding",
       "url": "http://example.com/aidbox-sms-tutor/TutorNotification#type_binding"
     },
-    "type": {
-      "kind": "primitive-type",
-      "package": "mypackage",
-      "version": "0.0.0",
-      "name": "string",
-      "url": "http://hl7.org/fhir/StructureDefinition/string"
-    },
     "valueset": {
       "kind": "value-set",
       "package": "hl7.fhir.r4.core",
@@ -1249,23 +1270,19 @@ exports[`FHIR Schema to Type Schema (snapshot) Custom resource TutorNotification
       "url": "http://hl7.org/fhir/ValueSet/contact-point-system"
     },
     "strength": "required",
-    "enum": [
-      "phone",
-      "fax",
-      "email",
-      "pager",
-      "url",
-      "sms",
-      "other"
-    ],
+    "enum": {
+      "isOpen": false,
+      "values": [
+        "phone",
+        "fax",
+        "email",
+        "pager",
+        "url",
+        "sms",
+        "other"
+      ]
+    },
     "dependencies": [
-      {
-        "kind": "primitive-type",
-        "package": "mypackage",
-        "version": "0.0.0",
-        "name": "string",
-        "url": "http://hl7.org/fhir/StructureDefinition/string"
-      },
       {
         "kind": "value-set",
         "package": "hl7.fhir.r4.core",

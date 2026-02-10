@@ -104,7 +104,7 @@ public class InsurancePlan : DomainResource {
     }
 
     public class InsurancePlanPlanSpecificCostBenefitCost : BackboneElement {
-        public CodeableConcept? Applicability { get; set; }
+        public BenefitCostApplicabilityEnum? Applicability { get; set; }
         public CodeableConcept[]? Qualifiers { get; set; }
         public required CodeableConcept Type { get; set; }
         public Quantity? Value { get; set; }

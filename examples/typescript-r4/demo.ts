@@ -134,6 +134,10 @@ function createObservation(patientId: string): Observation {
         issued: "2023-03-15T10:15:00Z",
         valueQuantity: glucoseValue,
         referenceRange: [referenceRange],
+        // CodeableConcept with binding (ValueSet: data-absent-reason)
+        dataAbsentReason: {
+            coding: [{ system: "http://terminology.hl7.org/CodeSystem/data-absent-reason", code: "not-performed" }],
+        },
     };
 
     return observation;

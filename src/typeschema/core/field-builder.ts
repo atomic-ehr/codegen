@@ -10,6 +10,7 @@ import type { CodegenLogger } from "@root/utils/codegen-logger";
 import { packageMetaToFhir } from "@typeschema/types";
 import type {
     BindingIdentifier,
+    EnumDefinition,
     Field,
     FieldSlice,
     FieldSlicing,
@@ -18,7 +19,7 @@ import type {
     RegularField,
     RichFHIRSchema,
 } from "../types";
-import { buildEnum } from "./binding";
+import { BINDABLE_TYPES, buildEnum } from "./binding";
 import { mkBindingIdentifier, mkIdentifier } from "./identifier";
 import { mkNestedIdentifier } from "./nested-types";
 
@@ -160,12 +161,12 @@ export const mkField = (
     logger?: CodegenLogger,
 ): Field => {
     let binding: BindingIdentifier | undefined;
-    let enumValues: string[] | undefined;
+    let enumResult: EnumDefinition | undefined;
     if (element.binding) {
-        binding = mkBindingIdentifier(fhirSchema, path, element.binding.bindingName);
+        binding = mkBindingIdentifier(fhirSchema, path, element);
 
-        if (element.binding.strength === "required" && element.type === "code") {
-            enumValues = buildEnum(register, fhirSchema, element, logger);
+        if (BINDABLE_TYPES.has(element.type ?? "")) {
+            enumResult = buildEnum(register, fhirSchema, element, logger);
         }
     }
 
@@ -189,7 +190,7 @@ export const mkField = (
         choiceOf: element.choiceOf,
 
         binding: binding,
-        enum: enumValues,
+        enum: enumResult,
     };
 };
 

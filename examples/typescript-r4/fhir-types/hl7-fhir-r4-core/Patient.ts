@@ -25,7 +25,7 @@ export type { Period } from "../hl7-fhir-r4-core/Period";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface PatientCommunication extends BackboneElement {
-    language: CodeableConcept;
+    language: CodeableConcept<("ar" | "bn" | "cs" | "da" | "de" | "de-AT" | "de-CH" | "de-DE" | "el" | "en" | "en-AU" | "en-CA" | "en-GB" | "en-IN" | "en-NZ" | "en-SG" | "en-US" | "es" | "es-AR" | "es-ES" | "es-UY" | "fi" | "fr" | "fr-BE" | "fr-CH" | "fr-FR" | "fy" | "fy-NL" | "hi" | "hr" | "it" | "it-CH" | "it-IT" | "ja" | "ko" | "nl" | "nl-BE" | "nl-NL" | "no" | "no-NO" | "pa" | "pl" | "pt" | "pt-BR" | "ru" | "ru-RU" | "sr" | "sr-RS" | "sv" | "sv-SE" | "te" | "zh" | "zh-CN" | "zh-HK" | "zh-SG" | "zh-TW" | string)>;
     preferred?: boolean;
 }
 
@@ -65,7 +65,7 @@ export interface Patient extends DomainResource {
     identifier?: Identifier[];
     link?: PatientLink[];
     managingOrganization?: Reference<"Organization">;
-    maritalStatus?: CodeableConcept;
+    maritalStatus?: CodeableConcept<("A" | "D" | "I" | "L" | "M" | "P" | "S" | "T" | "U" | "W" | "UNK" | string)>;
     multipleBirthBoolean?: boolean;
     _multipleBirthBoolean?: Element;
     multipleBirthInteger?: number;

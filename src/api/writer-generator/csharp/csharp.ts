@@ -189,7 +189,7 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
     private determineFieldType(fieldName: string, field: Field, packageName: string): string {
         let typeName = this.getBaseTypeName(field);
 
-        if ("enum" in field && field.enum) {
+        if ("enum" in field && field.enum && !field.enum.isOpen) {
             typeName = this.registerAndGetEnumType(fieldName, field, packageName);
         }
 
@@ -225,7 +225,7 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
         const enumTypeName = `${enumName}Enum`;
 
         if (!this.enums[packageName]) this.enums[packageName] = {};
-        if (field.enum) this.enums[packageName][enumTypeName] = field.enum;
+        if (field.enum) this.enums[packageName][enumTypeName] = field.enum.values;
 
         return enumTypeName;
     }

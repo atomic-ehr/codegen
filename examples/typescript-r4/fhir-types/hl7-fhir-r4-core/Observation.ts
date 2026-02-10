@@ -30,8 +30,8 @@ export type { Timing } from "../hl7-fhir-r4-core/Timing";
 
 export interface ObservationComponent extends BackboneElement {
     code: CodeableConcept;
-    dataAbsentReason?: CodeableConcept;
-    interpretation?: CodeableConcept[];
+    dataAbsentReason?: CodeableConcept<("unknown" | "asked-unknown" | "temp-unknown" | "not-asked" | "asked-declined" | "masked" | "not-applicable" | "unsupported" | "as-text" | "error" | "not-a-number" | "negative-infinity" | "positive-infinity" | "not-performed" | "not-permitted" | string)>;
+    interpretation?: CodeableConcept<("_GeneticObservationInterpretation" | "CAR" | "Carrier" | "_ObservationInterpretationChange" | "B" | "D" | "U" | "W" | "_ObservationInterpretationExceptions" | "<" | ">" | "AC" | "IE" | "QCF" | "TOX" | "_ObservationInterpretationNormality" | "A" | "AA" | "HH" | "LL" | "H" | "H>" | "HU" | "L" | "L<" | "LU" | "N" | "_ObservationInterpretationSusceptibility" | "I" | "MS" | "NCL" | "NS" | "R" | "SYN-R" | "S" | "SDD" | "SYN-S" | "VS" | "EX" | "HX" | "LX" | "HM" | "ObservationInterpretationDetection" | "IND" | "E" | "NEG" | "ND" | "POS" | "DET" | "ObservationInterpretationExpectation" | "EXP" | "UNE" | "OBX" | "ReactivityObservationInterpretation" | "NR" | "RR" | "WR" | string)>[];
     referenceRange?: ObservationReferenceRange[];
     valueBoolean?: boolean;
     valueCodeableConcept?: CodeableConcept;
@@ -52,7 +52,7 @@ export interface ObservationReferenceRange extends BackboneElement {
     high?: Quantity;
     low?: Quantity;
     text?: string;
-    type?: CodeableConcept;
+    type?: CodeableConcept<("type" | "normal" | "recommended" | "treatment" | "therapeutic" | "pre" | "post" | "endocrine" | "pre-puberty" | "follicular" | "midcycle" | "luteal" | "postmenopausal" | string)>;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/Observation (pkg: hl7.fhir.r4.core#4.0.1)
@@ -61,10 +61,10 @@ export interface Observation extends DomainResource {
 
     basedOn?: Reference<"CarePlan" | "DeviceRequest" | "ImmunizationRecommendation" | "MedicationRequest" | "NutritionOrder" | "ServiceRequest">[];
     bodySite?: CodeableConcept;
-    category?: CodeableConcept[];
+    category?: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
     code: CodeableConcept;
     component?: ObservationComponent[];
-    dataAbsentReason?: CodeableConcept;
+    dataAbsentReason?: CodeableConcept<("unknown" | "asked-unknown" | "temp-unknown" | "not-asked" | "asked-declined" | "masked" | "not-applicable" | "unsupported" | "as-text" | "error" | "not-a-number" | "negative-infinity" | "positive-infinity" | "not-performed" | "not-permitted" | string)>;
     derivedFrom?: Reference<"DocumentReference" | "ImagingStudy" | "Media" | "MolecularSequence" | "Observation" | "QuestionnaireResponse">[];
     device?: Reference<"Device" | "DeviceMetric">;
     effectiveDateTime?: string;
@@ -77,7 +77,7 @@ export interface Observation extends DomainResource {
     focus?: Reference<"Resource">[];
     hasMember?: Reference<"MolecularSequence" | "Observation" | "QuestionnaireResponse">[];
     identifier?: Identifier[];
-    interpretation?: CodeableConcept[];
+    interpretation?: CodeableConcept<("_GeneticObservationInterpretation" | "CAR" | "Carrier" | "_ObservationInterpretationChange" | "B" | "D" | "U" | "W" | "_ObservationInterpretationExceptions" | "<" | ">" | "AC" | "IE" | "QCF" | "TOX" | "_ObservationInterpretationNormality" | "A" | "AA" | "HH" | "LL" | "H" | "H>" | "HU" | "L" | "L<" | "LU" | "N" | "_ObservationInterpretationSusceptibility" | "I" | "MS" | "NCL" | "NS" | "R" | "SYN-R" | "S" | "SDD" | "SYN-S" | "VS" | "EX" | "HX" | "LX" | "HM" | "ObservationInterpretationDetection" | "IND" | "E" | "NEG" | "ND" | "POS" | "DET" | "ObservationInterpretationExpectation" | "EXP" | "UNE" | "OBX" | "ReactivityObservationInterpretation" | "NR" | "RR" | "WR" | string)>[];
     issued?: string;
     _issued?: Element;
     method?: CodeableConcept;

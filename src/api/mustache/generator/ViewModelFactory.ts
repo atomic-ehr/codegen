@@ -13,11 +13,14 @@ import { PRIMITIVE_TYPES } from "@mustache/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { IsPrefixed } from "@root/utils/types";
 import {
+    type ChoiceFieldInstance,
     type Field,
     type Identifier,
     isComplexTypeIdentifier,
+    isNotChoiceDeclarationField,
     isResourceIdentifier,
     type NestedType,
+    type RegularField,
     type TypeSchema,
 } from "@typeschema/types";
 
@@ -196,32 +199,33 @@ export class ViewModelFactory {
             hasNestedComplexTypes: nestedComplexTypes.length > 0,
             hasNestedEnums: nestedEnums.length > 0,
             fields: fields
-                .filter(([_fieldName, fieldSchema]) => !!(fieldSchema as any).type)
+                .filter((entry): entry is [string, RegularField | ChoiceFieldInstance] =>
+                    isNotChoiceDeclarationField(entry[1]),
+                )
                 .sort((a, b) => a[0].localeCompare(b[0]))
-                .map(([fieldName, fieldSchema]) => {
+                .map(([fieldName, field]) => {
                     return {
                         owner: name,
-                        schema: fieldSchema,
+                        schema: field,
                         name: fieldName,
                         saveName: this.nameGenerator.generateField(fieldName),
-                        typeName: this.nameGenerator.generateFieldType(fieldSchema as Field),
+                        typeName: this.nameGenerator.generateFieldType(field),
 
-                        isArray: (fieldSchema as any).array,
-                        isRequired: (fieldSchema as any).required,
-                        isEnum: !!(fieldSchema as any).enum,
+                        isArray: field.array ?? false,
+                        isRequired: field.required ?? false,
+                        isEnum: !!field.enum && !field.enum.isOpen,
 
-                        isSizeConstrained:
-                            (fieldSchema as any).min !== undefined || (fieldSchema as any).max !== undefined,
-                        min: (fieldSchema as any).min,
-                        max: (fieldSchema as any).max,
+                        isSizeConstrained: field.min !== undefined || field.max !== undefined,
+                        min: field.min,
+                        max: field.max,
 
-                        isResource: this._createIsResource((fieldSchema as any).type),
-                        isComplexType: this._createIsComplexType((fieldSchema as any).type),
-                        isPrimitive: this._createIsPrimitiveType((fieldSchema as any).type),
+                        isResource: this._createIsResource(field.type),
+                        isComplexType: this._createIsComplexType(field.type),
+                        isPrimitive: this._createIsPrimitiveType(field.type),
 
-                        isCode: (fieldSchema as any).type?.name === "code",
-                        isIdentifier: (fieldSchema as any).type?.name === "Identifier",
-                        isReference: (fieldSchema as any).type?.name === "Reference",
+                        isCode: field.type?.name === "code",
+                        isIdentifier: field.type?.name === "Identifier",
+                        isReference: field.type?.name === "Reference",
                     };
                 }),
         };
@@ -322,11 +326,11 @@ export class ViewModelFactory {
     private _collectNestedEnums(fields: [string, Field][]): EnumViewModel[] {
         const nestedEnumValues: Record<string, Set<string>> = {};
         fields.forEach(([fieldName, fieldSchema]) => {
-            if ("enum" in fieldSchema && fieldSchema.enum) {
+            if ("enum" in fieldSchema && fieldSchema.enum && !fieldSchema.enum.isOpen) {
                 const name = ("binding" in fieldSchema && fieldSchema.binding?.name) ?? fieldName;
                 if (typeof name === "string") {
                     nestedEnumValues[name] = nestedEnumValues[name] ?? new Set<string>();
-                    fieldSchema.enum?.forEach(nestedEnumValues[name].add.bind(nestedEnumValues[name]));
+                    fieldSchema.enum.values.forEach(nestedEnumValues[name].add.bind(nestedEnumValues[name]));
                 }
             }
         });

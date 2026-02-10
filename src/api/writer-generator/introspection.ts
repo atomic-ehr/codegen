@@ -1,3 +1,4 @@
+import assert from "node:assert";
 import * as Path from "node:path";
 import type { RichFHIRSchema, RichStructureDefinition } from "@root/typeschema/types";
 import { type CanonicalUrl, extractNameFromCanonical, type TypeSchema } from "@root/typeschema/types";
@@ -64,24 +65,64 @@ export class IntrospectionWriter extends FileSystemWriter<IntrospectionWriterOpt
         }
 
         if (this.opts.typeSchemas) {
-            const outputPath = this.opts.typeSchemas;
-            const typeSchemas = tsIndex.schemas;
-            if (Path.extname(outputPath) === ".ndjson") {
-                this.writeNdjson(typeSchemas, outputPath, typeSchemaToJson);
+            if (Path.extname(this.opts.typeSchemas) === ".ndjson") {
+                this.writeNdjson(tsIndex.schemas, this.opts.typeSchemas, typeSchemaToJson);
             } else {
-                this.writeJsonFiles(
-                    typeSchemas.map((ts) => typeSchemaToJson(ts, true)),
-                    outputPath,
-                );
+                const items = tsIndex.schemas.map((ts) => typeSchemaToJson(ts, true));
+                const seenFilenames = new Set<string>();
+                const dedupedItems = items.filter((item) => {
+                    if (seenFilenames.has(item.filename)) return false;
+                    seenFilenames.add(item.filename);
+                    return true;
+                });
+
+                this.cd(this.opts.typeSchemas, () => {
+                    for (const { filename, genContent } of dedupedItems) {
+                        const fileName = `${filename}.json`;
+                        this.cd(Path.dirname(fileName), () => {
+                            this.cat(Path.basename(fileName), () => {
+                                this.write(genContent());
+                            });
+                        });
+                    }
+
+                    for (const [pkg, canonicals] of Object.entries(tsIndex.irReport().collisions ?? {})) {
+                        this.cd(`${normalizeFileName(pkg)}`, () => {
+                            for (const [canonical, entries] of Object.entries(canonicals)) {
+                                if (entries.length <= 1) continue;
+                                const firstEntry = entries[0];
+                                assert(firstEntry);
+                                const name = normalizeFileName(
+                                    `${firstEntry.typeSchema.identifier.name}(${extractNameFromCanonical(canonical as CanonicalUrl)})`,
+                                );
+                                this.cd(Path.join("collisions", name), () => {
+                                    for (let i = 0; i < entries.length; i++) {
+                                        const entry = entries[i];
+                                        this.cat(`${i + 1}.json`, () => {
+                                            this.write(JSON.stringify(entry, null, 2));
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
             }
             this.logger()?.info(
-                `IntrospectionWriter: ${typeSchemas.length} TypeSchema written to ${this.opts.typeSchemas}`,
+                `IntrospectionWriter: ${tsIndex.schemas.length} TypeSchema written to ${this.opts.typeSchemas}`,
             );
         }
 
         if (this.opts.fhirSchemas && tsIndex.register) {
             const outputPath = this.opts.fhirSchemas;
-            const fhirSchemas = tsIndex.register.allFs();
+            const allFs = tsIndex.register.allFs();
+            // Deduplicate FHIR schemas by URL (same schema can appear from different packages)
+            const seenUrls = new Set<string>();
+            const fhirSchemas = allFs.filter((fs) => {
+                if (seenUrls.has(fs.url)) return false;
+                seenUrls.add(fs.url);
+                return true;
+            });
 
             if (Path.extname(outputPath) === ".ndjson") {
                 this.writeNdjson(fhirSchemas, outputPath, fhirSchemaToJson);
@@ -97,7 +138,14 @@ export class IntrospectionWriter extends FileSystemWriter<IntrospectionWriterOpt
 
         if (this.opts.structureDefinitions && tsIndex.register) {
             const outputPath = this.opts.structureDefinitions;
-            const structureDefinitions = tsIndex.register.allSd();
+            const allSd = tsIndex.register.allSd();
+            // Deduplicate SDs by URL (same SD can appear multiple times from different packages)
+            const seenUrls = new Set<string>();
+            const structureDefinitions = allSd.filter((sd) => {
+                if (seenUrls.has(sd.url)) return false;
+                seenUrls.add(sd.url);
+                return true;
+            });
 
             if (Path.extname(outputPath) === ".ndjson") {
                 this.writeNdjson(structureDefinitions, outputPath, structureDefinitionToJson);

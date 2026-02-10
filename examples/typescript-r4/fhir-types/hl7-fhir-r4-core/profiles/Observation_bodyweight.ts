@@ -8,7 +8,7 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/bodyweight (pkg: hl7.fhir.r4.core#4.0.1)
 export interface observation_bodyweight extends Observation {
-    category: CodeableConcept[];
+    category: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
     subject: Reference<"Patient">;
 }
 

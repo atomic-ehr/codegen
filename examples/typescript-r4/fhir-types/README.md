@@ -2574,3 +2574,30 @@ Skipped fields:
 - `urn:fhir:binding:validation-process`
 - `urn:fhir:binding:validation-status`
 - `urn:fhir:binding:validation-type`
+
+## Schema Collisions
+
+The following canonicals have multiple schema versions with different content.
+To inspect collision versions, export TypeSchemas using `.introspection({ typeSchemas: 'path' })`
+and check `<pkg>/collisions/<name>/1.json, 2.json, ...` files.
+
+### `shared`
+
+- `urn:fhir:binding:CommunicationReason` (2 versions)
+  - Version 1: Communication (hl7.fhir.r4.core#4.0.1)
+  - Version 2: CommunicationRequest (hl7.fhir.r4.core#4.0.1)
+- `urn:fhir:binding:ObservationCategory` (2 versions)
+  - Version 1: Observation (hl7.fhir.r4.core#4.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1)
+  - Version 2: ObservationDefinition (hl7.fhir.r4.core#4.0.1)
+- `urn:fhir:binding:ObservationRangeMeaning` (2 versions)
+  - Version 1: cholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1)
+  - Version 2: ObservationDefinition (hl7.fhir.r4.core#4.0.1)
+- `urn:fhir:binding:PaymentType` (2 versions)
+  - Version 1: ClaimResponse (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1)
+  - Version 2: PaymentReconciliation (hl7.fhir.r4.core#4.0.1)
+- `urn:fhir:binding:ProcessPriority` (2 versions)
+  - Version 1: Claim (hl7.fhir.r4.core#4.0.1), CoverageEligibilityRequest (hl7.fhir.r4.core#4.0.1)
+  - Version 2: ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1)
+- `urn:fhir:binding:TargetDisease` (2 versions)
+  - Version 1: Immunization (hl7.fhir.r4.core#4.0.1)
+  - Version 2: ImmunizationRecommendation (hl7.fhir.r4.core#4.0.1)

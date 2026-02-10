@@ -439,6 +439,30 @@ public enum AdverseEventActualityEnum {
     Potential,
 }
 
+public enum AdverseEventOutcomeEnum {
+    [Description("resolved")]
+    Resolved,
+    [Description("recovering")]
+    Recovering,
+    [Description("ongoing")]
+    Ongoing,
+    [Description("resolvedWithSequelae")]
+    ResolvedWithSequelae,
+    [Description("fatal")]
+    Fatal,
+    [Description("unknown")]
+    Unknown,
+}
+
+public enum AdverseEventSeverityEnum {
+    [Description("mild")]
+    Mild,
+    [Description("moderate")]
+    Moderate,
+    [Description("severe")]
+    Severe,
+}
+
 public enum AllergyIntoleranceCategoryEnum {
     [Description("food")]
     Food,
@@ -448,6 +472,15 @@ public enum AllergyIntoleranceCategoryEnum {
     Environment,
     [Description("biologic")]
     Biologic,
+}
+
+public enum AllergyIntoleranceClinicalStatusEnum {
+    [Description("active")]
+    Active,
+    [Description("inactive")]
+    Inactive,
+    [Description("resolved")]
+    Resolved,
 }
 
 public enum AllergyIntoleranceCriticalityEnum {
@@ -464,6 +497,17 @@ public enum AllergyIntoleranceTypeEnum {
     Allergy,
     [Description("intolerance")]
     Intolerance,
+}
+
+public enum AllergyIntoleranceVerificationStatusEnum {
+    [Description("unconfirmed")]
+    Unconfirmed,
+    [Description("confirmed")]
+    Confirmed,
+    [Description("refuted")]
+    Refuted,
+    [Description("entered-in-error")]
+    EnteredDashInDashError,
 }
 
 public enum AllergyIntoleranceSeverityEnum {
@@ -1203,6 +1247,36 @@ public enum ConceptMapGroupUnmappedModeEnum {
     OtherDashMap,
 }
 
+public enum ConditionClinicalStatusEnum {
+    [Description("active")]
+    Active,
+    [Description("recurrence")]
+    Recurrence,
+    [Description("relapse")]
+    Relapse,
+    [Description("inactive")]
+    Inactive,
+    [Description("remission")]
+    Remission,
+    [Description("resolved")]
+    Resolved,
+}
+
+public enum ConditionVerificationStatusEnum {
+    [Description("unconfirmed")]
+    Unconfirmed,
+    [Description("provisional")]
+    Provisional,
+    [Description("differential")]
+    Differential,
+    [Description("confirmed")]
+    Confirmed,
+    [Description("refuted")]
+    Refuted,
+    [Description("entered-in-error")]
+    EnteredDashInDashError,
+}
+
 public enum ConsentStateEnum {
     [Description("draft")]
     Draft,
@@ -1881,6 +1955,15 @@ public enum GuideParameterCodeEnum {
     HtmlDashTemplate,
 }
 
+public enum BenefitCostApplicabilityEnum {
+    [Description("in-network")]
+    InDashNetwork,
+    [Description("out-of-network")]
+    OutDashOfDashNetwork,
+    [Description("other")]
+    Other,
+}
+
 public enum InvoiceStatusEnum {
     [Description("draft")]
     Draft,
@@ -1950,6 +2033,13 @@ public enum LocationStatusEnum {
     Suspended,
     [Description("inactive")]
     Inactive,
+}
+
+public enum MeasureImprovementNotationEnum {
+    [Description("increase")]
+    Increase,
+    [Description("decrease")]
+    Decrease,
 }
 
 public enum MeasureReportStatusEnum {
@@ -3052,6 +3142,13 @@ public enum SupplyDeliveryStatusEnum {
     Abandoned,
     [Description("entered-in-error")]
     EnteredDashInDashError,
+}
+
+public enum SupplyDeliveryTypeEnum {
+    [Description("medication")]
+    Medication,
+    [Description("device")]
+    Device,
 }
 
 public enum SupplyRequestStatusEnum {
