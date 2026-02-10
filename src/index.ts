@@ -81,3 +81,4 @@
 
 // Export new high-level API (primary)
 export * from "./api/index";
+export { registerFromPackageMetas } from "./typeschema/register";
