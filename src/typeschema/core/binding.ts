@@ -115,7 +115,7 @@ export function buildEnum(
     if (!valueSetUrl) return undefined;
 
     if (!BINDABLE_TYPES.has(element.type ?? "")) {
-        logger?.dry_warn(`eld-11: Binding on non-bindable type '${element.type}' (valueSet: ${valueSetUrl})`);
+        logger?.dryWarn(`eld-11: Binding on non-bindable type '${element.type}' (valueSet: ${valueSetUrl})`);
         return undefined;
     }
 
@@ -131,7 +131,7 @@ export function buildEnum(
         .filter((code) => code && typeof code === "string" && code.trim().length > 0);
 
     if (codes.length > MAX_ENUM_LENGTH) {
-        logger?.dry_warn(
+        logger?.dryWarn(
             `Value set ${valueSetUrl} has ${codes.length} which is more than ${MAX_ENUM_LENGTH} codes, which may cause issues with code generation.`,
         );
         return undefined;

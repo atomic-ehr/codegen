@@ -152,9 +152,7 @@ const tsTypeFromIdentifier = (id: Identifier): string => {
     return id.name;
 };
 
-const tsProfileClassName = (tsIndex: TypeSchemaIndex, schema: ProfileTypeSchema): string => {
-    const resourceSchema = tsIndex.findLastSpecialization(schema);
-    const resourceName = uppercaseFirstLetter(normalizeTsName(resourceSchema.identifier.name));
+const tsProfileClassName = (schema: ProfileTypeSchema): string => {
     const profileName = extractNameFromCanonical(schema.identifier.url);
     if (profileName) {
         return `${normalizeTsName(profileName)}Profile`;
@@ -224,7 +222,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         this.cd("profiles", () => {
             this.cat("index.ts", () => {
                 const profiles: [ProfileTypeSchema, string, string | undefined][] = initialProfiles.map((profile) => {
-                    const className = tsProfileClassName(tsIndex, profile);
+                    const className = tsProfileClassName(profile);
                     const resourceName = tsResourceName(profile.identifier);
                     const overrides = this.detectFieldOverrides(tsIndex, profile);
                     let typeExport;
@@ -874,141 +872,111 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         }
     }
 
+    private collectTypesFromSlices(flatProfile: ProfileTypeSchema, addType: (typeId: Identifier) => void) {
+        for (const field of Object.values(flatProfile.fields ?? {})) {
+            if (!isNotChoiceDeclarationField(field) || !field.slicing?.slices || !field.type) continue;
+            for (const slice of Object.values(field.slicing.slices)) {
+                if (Object.keys(slice.match ?? {}).length > 0) {
+                    addType(field.type);
+                }
+            }
+        }
+    }
+
+    private collectTypesFromExtensions(
+        tsIndex: TypeSchemaIndex,
+        flatProfile: ProfileTypeSchema,
+        addType: (typeId: Identifier) => void,
+    ): boolean {
+        let needsExtensionType = false;
+
+        for (const ext of flatProfile.extensions ?? []) {
+            if (ext.isComplex && ext.subExtensions) {
+                needsExtensionType = true;
+                for (const sub of ext.subExtensions) {
+                    if (!sub.valueType) continue;
+                    const resolvedType = tsIndex.resolveByUrl(
+                        flatProfile.identifier.package,
+                        sub.valueType.url as CanonicalUrl,
+                    );
+                    addType(resolvedType?.identifier ?? sub.valueType);
+                }
+            } else if (ext.valueTypes && ext.valueTypes.length === 1) {
+                needsExtensionType = true;
+                if (ext.valueTypes[0]) addType(ext.valueTypes[0]);
+            } else {
+                needsExtensionType = true;
+            }
+        }
+
+        return needsExtensionType;
+    }
+
+    private collectTypesFromFieldOverrides(
+        tsIndex: TypeSchemaIndex,
+        flatProfile: ProfileTypeSchema,
+        addType: (typeId: Identifier) => void,
+    ) {
+        const referenceUrl = "http://hl7.org/fhir/StructureDefinition/Reference" as CanonicalUrl;
+        const referenceSchema = tsIndex.resolveByUrl(flatProfile.identifier.package, referenceUrl);
+        const specialization = tsIndex.findLastSpecialization(flatProfile);
+
+        if (!isSpecializationTypeSchema(specialization)) return;
+
+        for (const [fieldName, pField] of Object.entries(flatProfile.fields ?? {})) {
+            if (!isNotChoiceDeclarationField(pField)) continue;
+            const sField = specialization.fields?.[fieldName];
+            if (!sField || isChoiceDeclarationField(sField)) continue;
+
+            if (pField.reference && sField.reference && pField.reference.length < sField.reference.length) {
+                if (referenceSchema) addType(referenceSchema.identifier);
+            } else if (pField.required && !sField.required && pField.type) {
+                addType(pField.type);
+            }
+        }
+    }
+
     private generateProfileImports(tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) {
         const usedTypes = new Map<string, { importPath: string; tsName: string }>();
 
-        // Helper to get the module path for a type, handling nested types
         const getModulePath = (typeId: Identifier): string => {
             if (isNestedIdentifier(typeId)) {
-                // For nested types, extract the parent resource name from the URL
-                const url = typeId.url;
-                const path = canonicalToName(url, true); // true to drop fragment
-                if (path) {
-                    return `../../${tsFhirPackageDir(typeId.package)}/${pascalCase(path)}`;
-                }
+                const path = canonicalToName(typeId.url, true);
+                if (path) return `../../${tsFhirPackageDir(typeId.package)}/${pascalCase(path)}`;
             }
             return `../../${tsModulePath(typeId)}`;
         };
 
-        // Helper to add a type if not primitive and not already added
         const addType = (typeId: Identifier) => {
-            // Skip primitive types - they use TypeScript native types
             if (typeId.kind === "primitive-type") return;
-
             const tsName = tsResourceName(typeId);
             if (!usedTypes.has(tsName)) {
-                usedTypes.set(tsName, {
-                    importPath: getModulePath(typeId),
-                    tsName,
-                });
+                usedTypes.set(tsName, { importPath: getModulePath(typeId), tsName });
             }
         };
 
-        // Always import the base resource type
         addType(flatProfile.base);
+        this.collectTypesFromSlices(flatProfile, addType);
+        const needsExtensionType = this.collectTypesFromExtensions(tsIndex, flatProfile, addType);
+        this.collectTypesFromFieldOverrides(tsIndex, flatProfile, addType);
 
-        // Collect types from slice definitions
-        const fields = flatProfile.fields ?? {};
-        for (const [_fieldName, field] of Object.entries(fields)) {
-            if (!isNotChoiceDeclarationField(field) || !field.slicing?.slices || !field.type) continue;
-
-            for (const [_sliceName, slice] of Object.entries(field.slicing.slices)) {
-                const match = slice.match ?? {};
-                if (Object.keys(match).length === 0) continue;
-
-                // Add the type for slices (handles both regular and nested types)
-                addType(field.type);
-            }
-        }
-
-        // Collect types from extensions
-        const extensions = flatProfile.extensions ?? [];
-        let needsExtensionType = false;
-
-        for (const ext of extensions) {
-            if (ext.isComplex && ext.subExtensions) {
-                // Complex extensions need Extension type and sub-extension value types
-                needsExtensionType = true;
-                for (const sub of ext.subExtensions) {
-                    if (sub.valueType) {
-                        // Resolve the type properly from the FHIR schema index
-                        const resolvedType = tsIndex.resolveByUrl(
-                            flatProfile.identifier.package,
-                            sub.valueType.url as CanonicalUrl,
-                        );
-                        if (resolvedType) {
-                            addType(resolvedType.identifier);
-                        } else {
-                            addType(sub.valueType);
-                        }
-                    }
-                }
-            } else if (ext.valueTypes && ext.valueTypes.length === 1) {
-                // Simple extensions with single value type
-                // Also need Extension type for getter overloads
-                needsExtensionType = true;
-                const valueType = ext.valueTypes[0];
-                if (valueType) {
-                    addType(valueType);
-                }
-            } else {
-                // Generic extensions need Extension type
-                needsExtensionType = true;
-            }
-        }
-
-        // Add Extension type if needed
         if (needsExtensionType) {
             const extensionUrl = "http://hl7.org/fhir/StructureDefinition/Extension" as CanonicalUrl;
             const extensionSchema = tsIndex.resolveByUrl(flatProfile.identifier.package, extensionUrl);
-            if (extensionSchema) {
-                addType(extensionSchema.identifier);
-            }
+            if (extensionSchema) addType(extensionSchema.identifier);
         }
 
-        // Add Reference type if used in override interface
-        const referenceUrl = "http://hl7.org/fhir/StructureDefinition/Reference" as CanonicalUrl;
-        const referenceSchema = tsIndex.resolveByUrl(flatProfile.identifier.package, referenceUrl);
-
-        // Collect types from fields that will be in the override interface
-        const specialization = tsIndex.findLastSpecialization(flatProfile);
-        if (isSpecializationTypeSchema(specialization)) {
-            for (const [fieldName, pField] of Object.entries(flatProfile.fields ?? {})) {
-                if (!isNotChoiceDeclarationField(pField)) continue;
-                const sField = specialization.fields?.[fieldName];
-                if (!sField || isChoiceDeclarationField(sField)) continue;
-
-                // Check for Reference narrowing - needs Reference type
-                if (pField.reference && sField.reference && pField.reference.length < sField.reference.length) {
-                    if (referenceSchema) {
-                        addType(referenceSchema.identifier);
-                    }
-                }
-                // Check for cardinality change - needs field's type
-                else if (pField.required && !sField.required) {
-                    if (pField.type) {
-                        addType(pField.type);
-                    }
-                }
-            }
-        }
-
-        // Generate imports sorted by name
         const sortedImports = Array.from(usedTypes.values()).sort((a, b) => a.tsName.localeCompare(b.tsName));
-
         for (const { importPath, tsName } of sortedImports) {
             this.tsImportType(importPath, tsName);
         }
-
-        if (sortedImports.length > 0) {
-            this.line();
-        }
+        if (sortedImports.length > 0) this.line();
     }
 
     generateProfileClass(tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) {
         const tsBaseResourceName = tsTypeFromIdentifier(flatProfile.base);
         const tsProfileName = tsResourceName(flatProfile.identifier);
-        const profileClassName = tsProfileClassName(tsIndex, flatProfile);
+        const profileClassName = tsProfileClassName(flatProfile);
 
         // Known polymorphic field base names in FHIR (value[x], effective[x], etc.)
         // These don't exist as direct properties on TypeScript types

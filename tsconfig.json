@@ -6,7 +6,6 @@
     "target": "ESNext",
     "module": "Preserve",
     "moduleDetection": "force",
-    "jsx": "react-jsx",
     "allowJs": true,
     // Bundler mode
     "moduleResolution": "bundler",
@@ -27,26 +26,8 @@
       "@root/*": ["./src/*"],
       "@typeschema/*": ["./src/typeschema/*"],
       "@typeschema-test/*": ["./test/unit/typeschema/*"],
-      "@mustache/*": ["./src/api/mustache/*"],
+      "@mustache/*": ["./src/api/mustache/*"]
     }
   },
-  "include": ["./src", "./test"],
-  "exclude": [
-    "./test/helpers/schema-helpers.ts",
-    "./test/integration/typescript-generation.test.ts",
-    "./test/integration/value-set-workflow.test.ts",
-    "./test/performance/generation-speed.test.ts",
-    "./test/unit/api/generators/base/BaseGenerator.test.ts",
-    "./test/unit/api/generators/base/BaseGenerator.test.ts",
-    "./test/unit/api/generators/base/TypeMapper.test.ts",
-    "./test/unit/api/generators/base/error-handling.test.ts",
-    "./test/unit/api/generators/base/error-handling.test.ts",
-    "./test/unit/api/generators/base/errors.test.ts",
-    "./test/unit/api/generators/runtime-validation.test.ts",
-    "./test/unit/api/generators/typescript.test.ts",
-    "./test/unit/api/generators/value-set-functionality.test.ts",
-    "./test/unit/api/generators/value-set-generation.test.ts",
-    "./test/unit/api/generators/value-set-snapshots.test.ts",
-    "./test/unit/typeschema/transformer.test.ts"
-  ]
+  "include": ["./src", "./test"]
 }

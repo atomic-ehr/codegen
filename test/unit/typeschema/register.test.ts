@@ -5,9 +5,11 @@ import { fsElementSnapshot, registerFromPackageMetas, resolveFsElementGenealogy 
 
 type PFS = Partial<FHIRSchema>;
 
+const testPkg = { name: "test", version: "0.0.0" };
+
 const resolveFsElementGenealogyT = (pfss: PFS[], path: string[]) => {
     return resolveFsElementGenealogy(
-        pfss.map((pfs) => enrichFHIRSchema(pfs as FHIRSchema)),
+        pfss.map((pfs) => enrichFHIRSchema(pfs as FHIRSchema, pfs.package_meta ?? testPkg)),
         path,
     );
 };

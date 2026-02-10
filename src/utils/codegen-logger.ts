@@ -122,7 +122,7 @@ export class CodegenLogger {
         this.tryWriteToConsole(LogLevel.WARN, this.formatMessage("!", message, pc.yellow));
     }
 
-    dry_warn(message: string): void {
+    dryWarn(message: string): void {
         if (!this.dryWarnSet.has(message)) {
             this.warn(message);
             this.dryWarnSet.add(message);
