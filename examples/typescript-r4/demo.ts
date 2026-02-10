@@ -15,7 +15,7 @@ import type { Coding } from "./fhir-types/hl7-fhir-r4-core/Coding";
 import type { Observation, ObservationReferenceRange } from "./fhir-types/hl7-fhir-r4-core/Observation";
 import type { Address, ContactPoint, HumanName, Identifier, Patient } from "./fhir-types/hl7-fhir-r4-core/Patient";
 import {
-    Observation_bodyweightProfile,
+    bodyweightProfile,
     type observation_bodyweight,
 } from "./fhir-types/hl7-fhir-r4-core/profiles/Observation_bodyweight";
 import type { Quantity } from "./fhir-types/hl7-fhir-r4-core/Quantity";
@@ -174,7 +174,7 @@ function createBodyWeightObservation(patientId: string): Observation {
     console.log("Base observation:", JSON.stringify(baseObservation, null, 2));
 
     // Use the Profile class to add profile-specific slices
-    const profile = new Observation_bodyweightProfile(baseObservation).setVscat({ text: "Vital Signs" }); // Add VSCat slice with vital-signs coding
+    const profile = new bodyweightProfile(baseObservation).setVscat({ text: "Vital Signs" }); // Add VSCat slice with vital-signs coding
 
     // Get the resource back (as base Observation type)
     const bodyweightObservation = profile.toResource();

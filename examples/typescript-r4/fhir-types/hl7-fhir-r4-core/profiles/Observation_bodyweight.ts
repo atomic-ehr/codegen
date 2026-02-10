@@ -16,7 +16,7 @@ export type Observation_bodyweight_Category_VSCatSliceInput = Omit<CodeableConce
 
 import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
-export class Observation_bodyweightProfile {
+export class bodyweightProfile {
     private resource: Observation
 
     constructor (resource: Observation) {

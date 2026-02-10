@@ -157,9 +157,9 @@ const tsProfileClassName = (tsIndex: TypeSchemaIndex, schema: ProfileTypeSchema)
     const resourceName = uppercaseFirstLetter(normalizeTsName(resourceSchema.identifier.name));
     const profileName = extractNameFromCanonical(schema.identifier.url);
     if (profileName) {
-        return `${resourceName}_${normalizeTsName(profileName)}Profile`;
+        return `${normalizeTsName(profileName)}Profile`;
     }
-    return `${resourceName}_${normalizeTsName(schema.identifier.name)}Profile`;
+    return `${normalizeTsName(schema.identifier.name)}Profile`;
 };
 
 const tsSliceInputTypeName = (profileName: string, fieldName: string, sliceName: string): string => {

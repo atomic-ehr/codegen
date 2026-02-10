@@ -16,7 +16,7 @@ export type Observation_vitalsigns_Category_VSCatSliceInput = Omit<CodeableConce
 
 import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
-export class Observation_vitalsignsProfile {
+export class vitalsignsProfile {
     private resource: Observation
 
     constructor (resource: Observation) {

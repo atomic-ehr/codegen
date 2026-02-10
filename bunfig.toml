@@ -1,7 +1,7 @@
 # Bun Configuration
 [test]
 # Test files patterns
-testPathIgnorePatterns = ["node_modules", "dist", ".typeschema-cache"]
+root = "./test"
 
 # Test environment
 env = { NODE_ENV = "test" }
