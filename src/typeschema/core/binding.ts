@@ -153,18 +153,11 @@ function generateBindingSchema(
     if (!element.binding?.valueSet) return undefined;
 
     const identifier = mkBindingIdentifier(fhirSchema, path, element);
-    const fieldType = buildFieldType(register, fhirSchema, path, element, logger);
     const valueSetIdentifier = mkValueSetIdentifierByUrl(
         register,
         fhirSchema.package_meta,
         element.binding.valueSet as CanonicalUrl,
     );
-
-    const dependencies: Identifier[] = [];
-    if (fieldType) {
-        dependencies.push(fieldType);
-    }
-    dependencies.push(valueSetIdentifier);
 
     const enumResult = buildEnum(register, fhirSchema, element, logger);
 
@@ -173,7 +166,7 @@ function generateBindingSchema(
         valueset: valueSetIdentifier,
         strength: element.binding.strength,
         enum: enumResult,
-        dependencies,
+        dependencies: [valueSetIdentifier],
     };
 }
 

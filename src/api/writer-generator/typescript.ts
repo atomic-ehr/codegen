@@ -223,24 +223,28 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         if (initialProfiles.length === 0) return;
         this.cd("profiles", () => {
             this.cat("index.ts", () => {
-                const profiles: [Identifier, string, string | undefined][] = initialProfiles.map((profile) => {
-                    const className = tsProfileClassName(profile.identifier);
+                const profiles: [ProfileTypeSchema, string, string | undefined][] = initialProfiles.map((profile) => {
+                    const className = tsProfileClassName(tsIndex, profile);
                     const resourceName = tsResourceName(profile.identifier);
                     const overrides = this.detectFieldOverrides(tsIndex, profile);
                     let typeExport;
                     if (overrides.size > 0) typeExport = resourceName;
-                    return [profile.identifier, className, typeExport];
+                    return [profile, className, typeExport];
                 });
                 if (profiles.length === 0) return;
-                const uniqueExports: Set<string> = new Set();
-                for (const [identifier, className, typeName] of profiles) {
-                    uniqueExports.add(`export { ${className} } from "./${tsProfileModuleName(identifier as Identifier)}"`);
-                    if (typeName)
-                        uniqueExports.add(
-                            `export type { ${typeName} } from "./${tsProfileModuleName(identifier as Identifier)}"`,
-                        );
+                const classExports: Map<string, string> = new Map();
+                const typeExports: Map<string, string> = new Map();
+                for (const [profile, className, typeName] of profiles) {
+                    const moduleName = tsProfileModuleName(tsIndex, profile);
+                    if (!classExports.has(className)) {
+                        classExports.set(className, `export { ${className} } from "./${moduleName}"`);
+                    }
+                    if (typeName && !typeExports.has(typeName)) {
+                        typeExports.set(typeName, `export type { ${typeName} } from "./${moduleName}"`);
+                    }
                 }
-                for (const exp of [...uniqueExports].sort()) {
+                const allExports = [...classExports.values(), ...typeExports.values()].sort();
+                for (const exp of allExports) {
                     this.lineSM(exp);
                 }
             });

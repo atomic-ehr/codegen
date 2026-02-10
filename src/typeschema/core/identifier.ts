@@ -103,11 +103,7 @@ export function mkBindingIdentifier(
     // packages. So we put it in the dedicated shared package.
     // TODO: provide setting for `shared` package name.
     const [pkg, name, url] = bindingName
-        ? [
-              { name: "shared", version: "1.0.0" },
-              bindingName,
-              `urn:fhir:binding:${bindingName}${baseType ? `_on_${baseType}` : ""}`,
-          ]
+        ? [{ name: "shared", version: "1.0.0" }, bindingName, `urn:fhir:binding:${bindingName}`]
         : [fhirSchema.package_meta, `${fhirSchema.name}.${pathStr}_binding`, `${fhirSchema.url}#${pathStr}_binding`];
     return {
         kind: "binding",

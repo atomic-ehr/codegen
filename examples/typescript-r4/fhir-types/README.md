@@ -1962,621 +1962,618 @@ Skipped fields:
 
 ### Skipped Canonicals
 
-- `urn:fhir:binding:AccidentType_on_CodeableConcept`
-- `urn:fhir:binding:AccountStatus_on_code`
-- `urn:fhir:binding:AccountType_on_CodeableConcept`
-- `urn:fhir:binding:ActionCardinalityBehavior_on_code`
-- `urn:fhir:binding:ActionConditionKind_on_code`
-- `urn:fhir:binding:ActionGroupingBehavior_on_code`
-- `urn:fhir:binding:ActionParticipantRole_on_CodeableConcept`
-- `urn:fhir:binding:ActionParticipantType_on_code`
-- `urn:fhir:binding:ActionPrecheckBehavior_on_code`
-- `urn:fhir:binding:ActionRelationshipType_on_code`
-- `urn:fhir:binding:ActionRequiredBehavior_on_code`
-- `urn:fhir:binding:ActionSelectionBehavior_on_code`
-- `urn:fhir:binding:ActionType_on_CodeableConcept`
-- `urn:fhir:binding:ActivityDefinitionKind_on_code`
-- `urn:fhir:binding:ActivityDefinitionType_on_CodeableConcept`
-- `urn:fhir:binding:ActivityParticipantRole_on_CodeableConcept`
-- `urn:fhir:binding:ActivityParticipantType_on_code`
-- `urn:fhir:binding:AdditionalInstruction_on_CodeableConcept`
-- `urn:fhir:binding:AdjudicationError_on_CodeableConcept`
-- `urn:fhir:binding:AdjudicationReason_on_CodeableConcept`
-- `urn:fhir:binding:Adjudication_on_CodeableConcept`
-- `urn:fhir:binding:AdjunctDiagnosis_on_CodeableConcept`
-- `urn:fhir:binding:AdmitSource_on_CodeableConcept`
-- `urn:fhir:binding:AdverseEventActuality_on_code`
-- `urn:fhir:binding:AdverseEventCategory_on_CodeableConcept`
-- `urn:fhir:binding:AdverseEventCausalityAssessment_on_CodeableConcept`
-- `urn:fhir:binding:AdverseEventCausalityMethod_on_CodeableConcept`
-- `urn:fhir:binding:AdverseEventOutcome_on_CodeableConcept`
-- `urn:fhir:binding:AdverseEventSeriousness_on_CodeableConcept`
-- `urn:fhir:binding:AdverseEventSeverity_on_CodeableConcept`
-- `urn:fhir:binding:AdverseEventType_on_CodeableConcept`
-- `urn:fhir:binding:AggregationMode_on_code`
-- `urn:fhir:binding:AllergyIntoleranceCategory_on_code`
-- `urn:fhir:binding:AllergyIntoleranceClinicalStatus_on_CodeableConcept`
-- `urn:fhir:binding:AllergyIntoleranceCode_on_CodeableConcept`
-- `urn:fhir:binding:AllergyIntoleranceCriticality_on_code`
-- `urn:fhir:binding:AllergyIntoleranceSeverity_on_code`
-- `urn:fhir:binding:AllergyIntoleranceType_on_code`
-- `urn:fhir:binding:AllergyIntoleranceVerificationStatus_on_CodeableConcept`
-- `urn:fhir:binding:AppointmentStatus_on_code`
-- `urn:fhir:binding:ApptReason_on_CodeableConcept`
-- `urn:fhir:binding:Arrangements_on_CodeableConcept`
-- `urn:fhir:binding:AssertionDirectionType_on_code`
-- `urn:fhir:binding:AssertionOperatorType_on_code`
-- `urn:fhir:binding:AssertionResponseTypes_on_code`
-- `urn:fhir:binding:AssetAvailabilityType_on_CodeableConcept`
-- `urn:fhir:binding:AuditAgentRole_on_CodeableConcept`
-- `urn:fhir:binding:AuditAgentType_on_CodeableConcept`
-- `urn:fhir:binding:AuditEventAction_on_code`
-- `urn:fhir:binding:AuditEventAgentNetworkType_on_code`
-- `urn:fhir:binding:AuditEventEntityLifecycle_on_Coding`
-- `urn:fhir:binding:AuditEventEntityRole_on_Coding`
-- `urn:fhir:binding:AuditEventEntityType_on_Coding`
-- `urn:fhir:binding:AuditEventOutcome_on_code`
-- `urn:fhir:binding:AuditEventSourceType_on_Coding`
-- `urn:fhir:binding:AuditEventSubType_on_Coding`
-- `urn:fhir:binding:AuditEventType_on_Coding`
-- `urn:fhir:binding:AuditPurposeOfUse_on_CodeableConcept`
-- `urn:fhir:binding:AuthSupporting_on_CodeableConcept`
-- `urn:fhir:binding:BasicResourceType_on_CodeableConcept`
-- `urn:fhir:binding:BenefitCategory_on_CodeableConcept`
-- `urn:fhir:binding:BenefitCostApplicability_on_CodeableConcept`
-- `urn:fhir:binding:BenefitNetwork_on_CodeableConcept`
-- `urn:fhir:binding:BenefitTerm_on_CodeableConcept`
-- `urn:fhir:binding:BenefitType_on_CodeableConcept`
-- `urn:fhir:binding:BenefitUnit_on_CodeableConcept`
-- `urn:fhir:binding:BindingStrength_on_code`
-- `urn:fhir:binding:BiologicallyDerivedProductCategory_on_code`
-- `urn:fhir:binding:BiologicallyDerivedProductProcedure_on_CodeableConcept`
-- `urn:fhir:binding:BiologicallyDerivedProductStatus_on_code`
-- `urn:fhir:binding:BiologicallyDerivedProductStorageScale_on_code`
-- `urn:fhir:binding:BodyLengthUnits_on_code`
-- `urn:fhir:binding:BodySite_on_Coding`
-- `urn:fhir:binding:BodyStructureCode_on_CodeableConcept`
-- `urn:fhir:binding:BodyStructureQualifier_on_CodeableConcept`
-- `urn:fhir:binding:BodyTempUnits_on_code`
-- `urn:fhir:binding:BodyWeightUnits_on_code`
-- `urn:fhir:binding:CapabilityStatementKind_on_code`
-- `urn:fhir:binding:CarePlanActivityKind_on_code`
-- `urn:fhir:binding:CarePlanActivityOutcome_on_CodeableConcept`
-- `urn:fhir:binding:CarePlanActivityReason_on_CodeableConcept`
-- `urn:fhir:binding:CarePlanActivityStatus_on_code`
-- `urn:fhir:binding:CarePlanActivityType_on_CodeableConcept`
-- `urn:fhir:binding:CarePlanCategory_on_CodeableConcept`
-- `urn:fhir:binding:CarePlanIntent_on_code`
-- `urn:fhir:binding:CarePlanStatus_on_code`
-- `urn:fhir:binding:CareTeamCategory_on_CodeableConcept`
-- `urn:fhir:binding:CareTeamParticipantRole_on_CodeableConcept`
-- `urn:fhir:binding:CareTeamReason_on_CodeableConcept`
-- `urn:fhir:binding:CareTeamRole_on_CodeableConcept`
-- `urn:fhir:binding:CareTeamStatus_on_code`
-- `urn:fhir:binding:CatalogEntryRelationType_on_code`
-- `urn:fhir:binding:CatalogType_on_CodeableConcept`
-- `urn:fhir:binding:CertaintySubcomponentRating_on_CodeableConcept`
-- `urn:fhir:binding:CertaintySubcomponentType_on_CodeableConcept`
-- `urn:fhir:binding:ChargeItemCode_on_CodeableConcept`
-- `urn:fhir:binding:ChargeItemDefinitionCode_on_CodeableConcept`
-- `urn:fhir:binding:ChargeItemDefinitionPriceComponentType_on_code`
-- `urn:fhir:binding:ChargeItemPerformerFunction_on_CodeableConcept`
-- `urn:fhir:binding:ChargeItemReason_on_CodeableConcept`
-- `urn:fhir:binding:ChargeItemStatus_on_code`
-- `urn:fhir:binding:ClaimResponseStatus_on_code`
-- `urn:fhir:binding:ClaimStatus_on_code`
-- `urn:fhir:binding:ClaimSubType_on_CodeableConcept`
-- `urn:fhir:binding:ClaimType_on_CodeableConcept`
-- `urn:fhir:binding:ClinicalImpressionPrognosis_on_CodeableConcept`
-- `urn:fhir:binding:ClinicalImpressionStatus_on_code`
-- `urn:fhir:binding:CodeSearchSupport_on_code`
-- `urn:fhir:binding:CodeSystemContentMode_on_code`
-- `urn:fhir:binding:CodeSystemHierarchyMeaning_on_code`
-- `urn:fhir:binding:CollectedSpecimenType_on_CodeableConcept`
-- `urn:fhir:binding:CommunicationCategory_on_CodeableConcept`
-- `urn:fhir:binding:CommunicationMedium_on_CodeableConcept`
-- `urn:fhir:binding:CommunicationNotDoneReason_on_CodeableConcept`
-- `urn:fhir:binding:CommunicationPriority_on_code`
-- `urn:fhir:binding:CommunicationReason_on_CodeableConcept`
-- `urn:fhir:binding:CommunicationRequestStatus_on_code`
-- `urn:fhir:binding:CommunicationStatus_on_code`
-- `urn:fhir:binding:CommunicationTopic_on_CodeableConcept`
-- `urn:fhir:binding:CompartmentCode_on_code`
-- `urn:fhir:binding:CompartmentType_on_code`
-- `urn:fhir:binding:CompositeMeasureScoring_on_CodeableConcept`
-- `urn:fhir:binding:CompositionAttestationMode_on_code`
-- `urn:fhir:binding:CompositionSectionType_on_CodeableConcept`
-- `urn:fhir:binding:CompositionStatus_on_code`
-- `urn:fhir:binding:ConceptDesignationUse_on_Coding`
-- `urn:fhir:binding:ConceptMapEquivalence_on_code`
-- `urn:fhir:binding:ConceptMapGroupUnmappedMode_on_code`
-- `urn:fhir:binding:ConditionCategory_on_CodeableConcept`
-- `urn:fhir:binding:ConditionClinicalStatus_on_CodeableConcept`
-- `urn:fhir:binding:ConditionCode_on_CodeableConcept`
-- `urn:fhir:binding:ConditionKind_on_CodeableConcept`
-- `urn:fhir:binding:ConditionOutcome_on_CodeableConcept`
-- `urn:fhir:binding:ConditionSeverity_on_CodeableConcept`
-- `urn:fhir:binding:ConditionStageType_on_CodeableConcept`
-- `urn:fhir:binding:ConditionStage_on_CodeableConcept`
-- `urn:fhir:binding:ConditionVerificationStatus_on_CodeableConcept`
-- `urn:fhir:binding:ConditionalDeleteStatus_on_code`
-- `urn:fhir:binding:ConditionalReadStatus_on_code`
-- `urn:fhir:binding:ConsentAction_on_CodeableConcept`
-- `urn:fhir:binding:ConsentActorRole_on_CodeableConcept`
-- `urn:fhir:binding:ConsentCategory_on_CodeableConcept`
-- `urn:fhir:binding:ConsentContentClass_on_Coding`
-- `urn:fhir:binding:ConsentContentCode_on_CodeableConcept`
-- `urn:fhir:binding:ConsentDataMeaning_on_code`
-- `urn:fhir:binding:ConsentPolicyRule_on_CodeableConcept`
-- `urn:fhir:binding:ConsentProvisionType_on_code`
-- `urn:fhir:binding:ConsentScope_on_CodeableConcept`
-- `urn:fhir:binding:ConsentState_on_code`
-- `urn:fhir:binding:ConstraintSeverity_on_code`
-- `urn:fhir:binding:ContactPartyType_on_CodeableConcept`
-- `urn:fhir:binding:ContainerCap_on_CodeableConcept`
-- `urn:fhir:binding:ContainerMaterial_on_CodeableConcept`
-- `urn:fhir:binding:ContainerType_on_CodeableConcept`
-- `urn:fhir:binding:ContractActionPerformerRole_on_CodeableConcept`
-- `urn:fhir:binding:ContractActionPerformerType_on_CodeableConcept`
-- `urn:fhir:binding:ContractActionReason_on_CodeableConcept`
-- `urn:fhir:binding:ContractActionStatus_on_CodeableConcept`
-- `urn:fhir:binding:ContractAction_on_CodeableConcept`
-- `urn:fhir:binding:ContractActorRole_on_CodeableConcept`
-- `urn:fhir:binding:ContractAssetContext_on_CodeableConcept`
-- `urn:fhir:binding:ContractAssetScope_on_CodeableConcept`
-- `urn:fhir:binding:ContractAssetSubtype_on_CodeableConcept`
-- `urn:fhir:binding:ContractAssetType_on_CodeableConcept`
-- `urn:fhir:binding:ContractContentDerivative_on_CodeableConcept`
-- `urn:fhir:binding:ContractDecisionMode_on_CodeableConcept`
-- `urn:fhir:binding:ContractDecisionType_on_CodeableConcept`
-- `urn:fhir:binding:ContractDefinitionSubtype_on_CodeableConcept`
-- `urn:fhir:binding:ContractDefinitionType_on_CodeableConcept`
-- `urn:fhir:binding:ContractExpiration_on_CodeableConcept`
-- `urn:fhir:binding:ContractLegalState_on_CodeableConcept`
-- `urn:fhir:binding:ContractPartyRole_on_CodeableConcept`
-- `urn:fhir:binding:ContractPublicationStatus_on_code`
-- `urn:fhir:binding:ContractScope_on_CodeableConcept`
-- `urn:fhir:binding:ContractSecurityCategory_on_Coding`
-- `urn:fhir:binding:ContractSecurityClassification_on_Coding`
-- `urn:fhir:binding:ContractSecurityControl_on_Coding`
-- `urn:fhir:binding:ContractSignerType_on_Coding`
-- `urn:fhir:binding:ContractStatus_on_code`
-- `urn:fhir:binding:ContractSubtype_on_CodeableConcept`
-- `urn:fhir:binding:ContractTermSubType_on_CodeableConcept`
-- `urn:fhir:binding:ContractTermType_on_CodeableConcept`
-- `urn:fhir:binding:ContractType_on_CodeableConcept`
-- `urn:fhir:binding:ContributorType_on_code`
-- `urn:fhir:binding:CopayTypes_on_CodeableConcept`
-- `urn:fhir:binding:Courtesies_on_CodeableConcept`
-- `urn:fhir:binding:CoverageClass_on_CodeableConcept`
-- `urn:fhir:binding:CoverageFinancialException_on_CodeableConcept`
-- `urn:fhir:binding:CoverageStatus_on_code`
-- `urn:fhir:binding:CoverageType_on_CodeableConcept`
-- `urn:fhir:binding:CurrencyCode_on_code`
-- `urn:fhir:binding:DICOMMediaType_on_Coding`
-- `urn:fhir:binding:DaysOfWeek_on_code`
-- `urn:fhir:binding:DefinitionTopic_on_CodeableConcept`
-- `urn:fhir:binding:DetectedIssueCategory_on_CodeableConcept`
-- `urn:fhir:binding:DetectedIssueEvidenceCode_on_CodeableConcept`
-- `urn:fhir:binding:DetectedIssueMitigationAction_on_CodeableConcept`
-- `urn:fhir:binding:DetectedIssueSeverity_on_code`
-- `urn:fhir:binding:DetectedIssueStatus_on_code`
-- `urn:fhir:binding:DeviceActionKind_on_CodeableConcept`
-- `urn:fhir:binding:DeviceKind_on_CodeableConcept`
-- `urn:fhir:binding:DeviceMetricCalibrationState_on_code`
-- `urn:fhir:binding:DeviceMetricCalibrationType_on_code`
-- `urn:fhir:binding:DeviceMetricCategory_on_code`
-- `urn:fhir:binding:DeviceMetricColor_on_code`
-- `urn:fhir:binding:DeviceMetricOperationalStatus_on_code`
-- `urn:fhir:binding:DeviceNameType_on_code`
-- `urn:fhir:binding:DeviceRequestParticipantRole_on_CodeableConcept`
-- `urn:fhir:binding:DeviceRequestReason_on_CodeableConcept`
-- `urn:fhir:binding:DeviceRequestStatus_on_code`
-- `urn:fhir:binding:DeviceType_on_CodeableConcept`
-- `urn:fhir:binding:DeviceUseStatementStatus_on_code`
-- `urn:fhir:binding:DiagnosisOnAdmission_on_CodeableConcept`
-- `urn:fhir:binding:DiagnosisRelatedGroup_on_CodeableConcept`
-- `urn:fhir:binding:DiagnosisRole_on_CodeableConcept`
-- `urn:fhir:binding:DiagnosisType_on_CodeableConcept`
-- `urn:fhir:binding:DiagnosticReportCodes_on_CodeableConcept`
-- `urn:fhir:binding:DiagnosticReportStatus_on_code`
-- `urn:fhir:binding:DiagnosticServiceSection_on_CodeableConcept`
-- `urn:fhir:binding:DischargeDisp_on_CodeableConcept`
-- `urn:fhir:binding:DiscriminatorType_on_code`
-- `urn:fhir:binding:DocumentC80Class_on_CodeableConcept`
-- `urn:fhir:binding:DocumentC80FacilityType_on_CodeableConcept`
-- `urn:fhir:binding:DocumentC80PracticeSetting_on_CodeableConcept`
-- `urn:fhir:binding:DocumentC80Type_on_CodeableConcept`
-- `urn:fhir:binding:DocumentCategory_on_CodeableConcept`
-- `urn:fhir:binding:DocumentConfidentiality_on_code`
-- `urn:fhir:binding:DocumentEventType_on_CodeableConcept`
-- `urn:fhir:binding:DocumentFormat_on_Coding`
-- `urn:fhir:binding:DocumentMode_on_code`
-- `urn:fhir:binding:DocumentReferenceStatus_on_code`
-- `urn:fhir:binding:DocumentRelationshipType_on_code`
-- `urn:fhir:binding:DocumentType_on_CodeableConcept`
-- `urn:fhir:binding:DoseAndRateType_on_CodeableConcept`
-- `urn:fhir:binding:EffectEstimateType_on_CodeableConcept`
-- `urn:fhir:binding:ElementDefinitionCode_on_Coding`
-- `urn:fhir:binding:EligibilityRequestPurpose_on_code`
-- `urn:fhir:binding:EligibilityRequestStatus_on_code`
-- `urn:fhir:binding:EligibilityResponsePurpose_on_code`
-- `urn:fhir:binding:EligibilityResponseStatus_on_code`
-- `urn:fhir:binding:EnableWhenBehavior_on_code`
-- `urn:fhir:binding:EncounterClass_on_Coding`
-- `urn:fhir:binding:EncounterLocationStatus_on_code`
-- `urn:fhir:binding:EncounterReason_on_CodeableConcept`
-- `urn:fhir:binding:EncounterServiceType_on_CodeableConcept`
-- `urn:fhir:binding:EncounterStatus_on_code`
-- `urn:fhir:binding:EncounterType_on_CodeableConcept`
-- `urn:fhir:binding:EndpointStatus_on_code`
-- `urn:fhir:binding:EnrollmentRequestStatus_on_code`
-- `urn:fhir:binding:EnrollmentResponseStatus_on_code`
-- `urn:fhir:binding:EnteralFormulaAdditiveType_on_CodeableConcept`
-- `urn:fhir:binding:EnteralFormulaType_on_CodeableConcept`
-- `urn:fhir:binding:EnteralRouteOfAdministration_on_CodeableConcept`
-- `urn:fhir:binding:EpisodeOfCareStatus_on_code`
-- `urn:fhir:binding:EpisodeOfCareType_on_CodeableConcept`
-- `urn:fhir:binding:EvaluationDoseStatusReason_on_CodeableConcept`
-- `urn:fhir:binding:EvaluationDoseStatus_on_CodeableConcept`
-- `urn:fhir:binding:EvaluationTargetDisease_on_CodeableConcept`
-- `urn:fhir:binding:EventCapabilityMode_on_code`
-- `urn:fhir:binding:EventPerformerFunction_on_CodeableConcept`
-- `urn:fhir:binding:EventReason_on_CodeableConcept`
-- `urn:fhir:binding:EvidenceVariableType_on_code`
-- `urn:fhir:binding:EvidenceVariantState_on_CodeableConcept`
-- `urn:fhir:binding:ExampleScenarioActorType_on_code`
-- `urn:fhir:binding:ExplanationOfBenefitStatus_on_code`
-- `urn:fhir:binding:ExposureState_on_code`
-- `urn:fhir:binding:ExpressionLanguage_on_code`
-- `urn:fhir:binding:ExtensionContextType_on_code`
-- `urn:fhir:binding:FHIRAllTypes_on_code`
-- `urn:fhir:binding:FHIRDefinedTypeExt_on_uri`
-- `urn:fhir:binding:FHIRDefinedType_on_code`
-- `urn:fhir:binding:FHIRDeviceStatusReason_on_CodeableConcept`
-- `urn:fhir:binding:FHIRDeviceStatus_on_code`
-- `urn:fhir:binding:FHIRResourceType_on_code`
-- `urn:fhir:binding:FHIRSubstanceStatus_on_code`
-- `urn:fhir:binding:FHIRVersion_on_code`
-- `urn:fhir:binding:FamilialRelationship_on_CodeableConcept`
-- `urn:fhir:binding:FamilyHistoryAbsentReason_on_CodeableConcept`
-- `urn:fhir:binding:FamilyHistoryReason_on_CodeableConcept`
-- `urn:fhir:binding:FamilyHistoryStatus_on_code`
-- `urn:fhir:binding:FilterOperator_on_code`
-- `urn:fhir:binding:FlagCategory_on_CodeableConcept`
-- `urn:fhir:binding:FlagCode_on_CodeableConcept`
-- `urn:fhir:binding:FlagStatus_on_code`
-- `urn:fhir:binding:FluidConsistencyType_on_CodeableConcept`
-- `urn:fhir:binding:FoodType_on_CodeableConcept`
-- `urn:fhir:binding:Forms_on_CodeableConcept`
-- `urn:fhir:binding:FundingSource_on_CodeableConcept`
-- `urn:fhir:binding:FundsReserve_on_CodeableConcept`
-- `urn:fhir:binding:GoalAchievementStatus_on_CodeableConcept`
-- `urn:fhir:binding:GoalAddresses_on_CodeableConcept`
-- `urn:fhir:binding:GoalCategory_on_CodeableConcept`
-- `urn:fhir:binding:GoalDescription_on_CodeableConcept`
-- `urn:fhir:binding:GoalLifecycleStatus_on_code`
-- `urn:fhir:binding:GoalOutcome_on_CodeableConcept`
-- `urn:fhir:binding:GoalPriority_on_CodeableConcept`
-- `urn:fhir:binding:GoalStartEvent_on_CodeableConcept`
-- `urn:fhir:binding:GoalTargetMeasure_on_CodeableConcept`
-- `urn:fhir:binding:GraphCompartmentRule_on_code`
-- `urn:fhir:binding:GraphCompartmentUse_on_code`
-- `urn:fhir:binding:GroupMeasure_on_code`
-- `urn:fhir:binding:GroupType_on_code`
-- `urn:fhir:binding:GuidanceResponseStatus_on_code`
-- `urn:fhir:binding:GuidePageGeneration_on_code`
-- `urn:fhir:binding:GuideParameterCode_on_code`
-- `urn:fhir:binding:HandlingConditionSet_on_CodeableConcept`
-- `urn:fhir:binding:IdentityAssuranceLevel_on_code`
-- `urn:fhir:binding:ImagingModality_on_Coding`
-- `urn:fhir:binding:ImagingProcedureCode_on_CodeableConcept`
-- `urn:fhir:binding:ImagingReason_on_CodeableConcept`
-- `urn:fhir:binding:ImagingStudyStatus_on_code`
-- `urn:fhir:binding:ImmunizationEvaluationStatus_on_code`
-- `urn:fhir:binding:ImmunizationFunction_on_CodeableConcept`
-- `urn:fhir:binding:ImmunizationReason_on_CodeableConcept`
-- `urn:fhir:binding:ImmunizationRecommendationDateCriterion_on_CodeableConcept`
-- `urn:fhir:binding:ImmunizationRecommendationReason_on_CodeableConcept`
-- `urn:fhir:binding:ImmunizationRecommendationStatus_on_CodeableConcept`
-- `urn:fhir:binding:ImmunizationReportOrigin_on_CodeableConcept`
-- `urn:fhir:binding:ImmunizationRoute_on_CodeableConcept`
-- `urn:fhir:binding:ImmunizationSite_on_CodeableConcept`
-- `urn:fhir:binding:ImmunizationStatusReason_on_CodeableConcept`
-- `urn:fhir:binding:ImmunizationStatus_on_code`
-- `urn:fhir:binding:InformationCategory_on_CodeableConcept`
-- `urn:fhir:binding:InformationCode_on_CodeableConcept`
-- `urn:fhir:binding:InsurancePlanType_on_CodeableConcept`
-- `urn:fhir:binding:IntendedSpecimenType_on_CodeableConcept`
-- `urn:fhir:binding:InvestigationGroupType_on_CodeableConcept`
-- `urn:fhir:binding:InvoicePriceComponentType_on_code`
-- `urn:fhir:binding:InvoiceStatus_on_code`
-- `urn:fhir:binding:Jurisdiction_on_CodeableConcept`
-- `urn:fhir:binding:LDLCodes_on_CodeableConcept`
-- `urn:fhir:binding:LOINC LL379-9 answerlist_on_CodeableConcept`
-- `urn:fhir:binding:Laterality_on_Coding`
-- `urn:fhir:binding:LibraryType_on_CodeableConcept`
-- `urn:fhir:binding:LinkageType_on_code`
-- `urn:fhir:binding:ListEmptyReason_on_CodeableConcept`
-- `urn:fhir:binding:ListItemFlag_on_CodeableConcept`
-- `urn:fhir:binding:ListMode_on_code`
-- `urn:fhir:binding:ListOrder_on_CodeableConcept`
-- `urn:fhir:binding:ListPurpose_on_CodeableConcept`
-- `urn:fhir:binding:ListStatus_on_code`
-- `urn:fhir:binding:LocationMode_on_code`
-- `urn:fhir:binding:LocationStatus_on_code`
-- `urn:fhir:binding:LocationType_on_CodeableConcept`
-- `urn:fhir:binding:ManifestationOrSymptom_on_CodeableConcept`
-- `urn:fhir:binding:Manifestation_on_CodeableConcept`
-- `urn:fhir:binding:MeasureDataUsage_on_CodeableConcept`
-- `urn:fhir:binding:MeasureImprovementNotation_on_CodeableConcept`
-- `urn:fhir:binding:MeasurePopulationType_on_CodeableConcept`
-- `urn:fhir:binding:MeasurePopulation_on_CodeableConcept`
-- `urn:fhir:binding:MeasureReportStatus_on_code`
-- `urn:fhir:binding:MeasureReportType_on_code`
-- `urn:fhir:binding:MeasureScoring_on_CodeableConcept`
-- `urn:fhir:binding:MeasureType_on_CodeableConcept`
-- `urn:fhir:binding:MediaModality_on_CodeableConcept`
-- `urn:fhir:binding:MediaReason_on_CodeableConcept`
-- `urn:fhir:binding:MediaStatus_on_code`
-- `urn:fhir:binding:MediaType_on_CodeableConcept`
-- `urn:fhir:binding:MediaView_on_CodeableConcept`
-- `urn:fhir:binding:MedicationAdministrationCategory_on_CodeableConcept`
-- `urn:fhir:binding:MedicationAdministrationMethod_on_CodeableConcept`
-- `urn:fhir:binding:MedicationAdministrationNegationReason_on_CodeableConcept`
-- `urn:fhir:binding:MedicationAdministrationPerformerFunction_on_CodeableConcept`
-- `urn:fhir:binding:MedicationAdministrationReason_on_CodeableConcept`
-- `urn:fhir:binding:MedicationAdministrationSite_on_CodeableConcept`
-- `urn:fhir:binding:MedicationAdministrationStatus_on_code`
-- `urn:fhir:binding:MedicationCharacteristic_on_CodeableConcept`
-- `urn:fhir:binding:MedicationDispenseCategory_on_CodeableConcept`
-- `urn:fhir:binding:MedicationDispensePerformerFunction_on_CodeableConcept`
-- `urn:fhir:binding:MedicationDispenseStatus_on_code`
-- `urn:fhir:binding:MedicationDispenseType_on_CodeableConcept`
-- `urn:fhir:binding:MedicationForm_on_CodeableConcept`
-- `urn:fhir:binding:MedicationFormalRepresentation_on_CodeableConcept`
-- `urn:fhir:binding:MedicationIntendedSubstitutionReason_on_CodeableConcept`
-- `urn:fhir:binding:MedicationIntendedSubstitutionType_on_CodeableConcept`
-- `urn:fhir:binding:MedicationKnowledgeStatus_on_code`
-- `urn:fhir:binding:MedicationPackageType_on_CodeableConcept`
-- `urn:fhir:binding:MedicationReason_on_CodeableConcept`
-- `urn:fhir:binding:MedicationRequestCategory_on_CodeableConcept`
-- `urn:fhir:binding:MedicationRequestCourseOfTherapy_on_CodeableConcept`
-- `urn:fhir:binding:MedicationRequestIntent_on_code`
-- `urn:fhir:binding:MedicationRequestPerformerType_on_CodeableConcept`
-- `urn:fhir:binding:MedicationRequestPriority_on_code`
-- `urn:fhir:binding:MedicationRequestReason_on_CodeableConcept`
-- `urn:fhir:binding:MedicationRequestStatusReason_on_CodeableConcept`
-- `urn:fhir:binding:MedicationRequestStatus_on_code`
-- `urn:fhir:binding:MedicationRoute_on_CodeableConcept`
-- `urn:fhir:binding:MedicationStatementCategory_on_CodeableConcept`
-- `urn:fhir:binding:MedicationStatementStatusReason_on_CodeableConcept`
-- `urn:fhir:binding:MedicationStatementStatus_on_code`
-- `urn:fhir:binding:MedicationStatus_on_code`
-- `urn:fhir:binding:MessageSignificanceCategory_on_code`
-- `urn:fhir:binding:MessageTransport_on_Coding`
-- `urn:fhir:binding:MetricType_on_CodeableConcept`
-- `urn:fhir:binding:MetricUnit_on_CodeableConcept`
-- `urn:fhir:binding:MissingReason_on_CodeableConcept`
-- `urn:fhir:binding:MissingReason_on_Coding`
-- `urn:fhir:binding:Modifiers_on_CodeableConcept`
-- `urn:fhir:binding:NamingSystemIdentifierType_on_code`
-- `urn:fhir:binding:NamingSystemType_on_code`
-- `urn:fhir:binding:NoteType_on_code`
-- `urn:fhir:binding:NutrientModifier_on_CodeableConcept`
-- `urn:fhir:binding:NutritiionOrderIntent_on_code`
-- `urn:fhir:binding:NutritionOrderStatus_on_code`
-- `urn:fhir:binding:ObservationDataType_on_code`
-- `urn:fhir:binding:ObservationRangeAppliesTo_on_CodeableConcept`
-- `urn:fhir:binding:ObservationRangeCategory_on_code`
-- `urn:fhir:binding:ObservationUnit_on_CodeableConcept`
-- `urn:fhir:binding:OperationKind_on_code`
-- `urn:fhir:binding:OperationParameterUse_on_code`
-- `urn:fhir:binding:OperationalStatus_on_Coding`
-- `urn:fhir:binding:OralDiet_on_CodeableConcept`
-- `urn:fhir:binding:OralSites_on_CodeableConcept`
-- `urn:fhir:binding:OrderDetail_on_CodeableConcept`
-- `urn:fhir:binding:OrganizationAffiliation_on_CodeableConcept`
-- `urn:fhir:binding:OrganizationSpecialty_on_CodeableConcept`
-- `urn:fhir:binding:OrganizationType_on_CodeableConcept`
-- `urn:fhir:binding:ParameterUse_on_code`
-- `urn:fhir:binding:ParticipantRequired_on_code`
-- `urn:fhir:binding:ParticipantStatus_on_code`
-- `urn:fhir:binding:ParticipantType_on_CodeableConcept`
-- `urn:fhir:binding:ParticipationStatus_on_code`
-- `urn:fhir:binding:PatientDiet_on_CodeableConcept`
-- `urn:fhir:binding:PatientRelationshipType_on_CodeableConcept`
-- `urn:fhir:binding:PayeeType_on_CodeableConcept`
-- `urn:fhir:binding:PayloadType_on_CodeableConcept`
-- `urn:fhir:binding:PaymentAdjustmentReason_on_CodeableConcept`
-- `urn:fhir:binding:PaymentNoticeStatus_on_code`
-- `urn:fhir:binding:PaymentReconciliationStatus_on_code`
-- `urn:fhir:binding:PaymentStatus_on_CodeableConcept`
-- `urn:fhir:binding:PaymentType_on_CodeableConcept`
-- `urn:fhir:binding:PhysicalType_on_CodeableConcept`
-- `urn:fhir:binding:PlanDefinitionType_on_CodeableConcept`
-- `urn:fhir:binding:PractitionerRole_on_CodeableConcept`
-- `urn:fhir:binding:PractitionerSpecialty_on_CodeableConcept`
-- `urn:fhir:binding:PrecisionEstimateType_on_CodeableConcept`
-- `urn:fhir:binding:PreparePatient_on_CodeableConcept`
-- `urn:fhir:binding:Priority_on_CodeableConcept`
-- `urn:fhir:binding:ProcedureCategory_on_CodeableConcept`
-- `urn:fhir:binding:ProcedureCode_on_CodeableConcept`
-- `urn:fhir:binding:ProcedureComplication_on_CodeableConcept`
-- `urn:fhir:binding:ProcedureFollowUp_on_CodeableConcept`
-- `urn:fhir:binding:ProcedureNegationReason_on_CodeableConcept`
-- `urn:fhir:binding:ProcedureOutcome_on_CodeableConcept`
-- `urn:fhir:binding:ProcedurePerformerRole_on_CodeableConcept`
-- `urn:fhir:binding:ProcedureReason_on_CodeableConcept`
-- `urn:fhir:binding:ProcedureStatus_on_code`
-- `urn:fhir:binding:ProcedureType_on_CodeableConcept`
-- `urn:fhir:binding:ProcedureUsed_on_CodeableConcept`
-- `urn:fhir:binding:ProcessPriority_on_CodeableConcept`
-- `urn:fhir:binding:ProgramCode_on_CodeableConcept`
-- `urn:fhir:binding:ProgramEligibility_on_CodeableConcept`
-- `urn:fhir:binding:Program_on_CodeableConcept`
-- `urn:fhir:binding:PropertyRepresentation_on_code`
-- `urn:fhir:binding:PropertyType_on_code`
-- `urn:fhir:binding:ProvenanceActivity_on_CodeableConcept`
-- `urn:fhir:binding:ProvenanceAgentRole_on_CodeableConcept`
-- `urn:fhir:binding:ProvenanceAgentType_on_CodeableConcept`
-- `urn:fhir:binding:ProvenanceEntityRole_on_code`
-- `urn:fhir:binding:ProvenanceHistoryAgentType_on_CodeableConcept`
-- `urn:fhir:binding:ProvenanceHistoryRecordActivity_on_CodeableConcept`
-- `urn:fhir:binding:ProvenanceReason_on_CodeableConcept`
-- `urn:fhir:binding:ProviderQualification_on_CodeableConcept`
-- `urn:fhir:binding:PublicationStatus_on_code`
-- `urn:fhir:binding:PurposeOfUse_on_Coding`
-- `urn:fhir:binding:Qualification_on_CodeableConcept`
-- `urn:fhir:binding:QualityOfEvidenceRating_on_CodeableConcept`
-- `urn:fhir:binding:QuestionnaireConcept_on_Coding`
-- `urn:fhir:binding:QuestionnaireItemOperator_on_code`
-- `urn:fhir:binding:QuestionnaireItemType_on_code`
-- `urn:fhir:binding:QuestionnaireResponseStatus_on_code`
-- `urn:fhir:binding:ReAdmissionType_on_CodeableConcept`
-- `urn:fhir:binding:ReferenceHandlingPolicy_on_code`
-- `urn:fhir:binding:ReferenceVersionRules_on_code`
-- `urn:fhir:binding:ReferralMethod_on_CodeableConcept`
-- `urn:fhir:binding:ReferredDocumentStatus_on_code`
-- `urn:fhir:binding:RejectionCriterion_on_CodeableConcept`
-- `urn:fhir:binding:RelatedArtifactType_on_code`
-- `urn:fhir:binding:RelatedClaimRelationship_on_CodeableConcept`
-- `urn:fhir:binding:Relationship_on_CodeableConcept`
-- `urn:fhir:binding:RemittanceOutcome_on_code`
-- `urn:fhir:binding:RequestIntent_on_code`
-- `urn:fhir:binding:RequestPriority_on_code`
-- `urn:fhir:binding:RequestStatus_on_code`
-- `urn:fhir:binding:ResearchElementType_on_code`
-- `urn:fhir:binding:ResearchStudyObjectiveType_on_CodeableConcept`
-- `urn:fhir:binding:ResearchStudyPhase_on_CodeableConcept`
-- `urn:fhir:binding:ResearchStudyPrimaryPurposeType_on_CodeableConcept`
-- `urn:fhir:binding:ResearchStudyReasonStopped_on_CodeableConcept`
-- `urn:fhir:binding:ResearchStudyStatus_on_code`
-- `urn:fhir:binding:ResearchSubjectStatus_on_code`
-- `urn:fhir:binding:ResourceType_on_code`
-- `urn:fhir:binding:ResourceVersionPolicy_on_code`
-- `urn:fhir:binding:ResponseType_on_code`
-- `urn:fhir:binding:RestfulCapabilityMode_on_code`
-- `urn:fhir:binding:RestfulSecurityService_on_CodeableConcept`
-- `urn:fhir:binding:RevenueCenter_on_CodeableConcept`
-- `urn:fhir:binding:RiskAssessmentProbability_on_CodeableConcept`
-- `urn:fhir:binding:RiskAssessmentStatus_on_code`
-- `urn:fhir:binding:RiskEstimateType_on_CodeableConcept`
-- `urn:fhir:binding:RouteOfAdministration_on_CodeableConcept`
-- `urn:fhir:binding:SPDXLicense_on_code`
-- `urn:fhir:binding:Safety_on_CodeableConcept`
-- `urn:fhir:binding:SearchComparator_on_code`
-- `urn:fhir:binding:SearchModifierCode_on_code`
-- `urn:fhir:binding:SearchParamType_on_code`
-- `urn:fhir:binding:SectionEmptyReason_on_CodeableConcept`
-- `urn:fhir:binding:SectionEntryOrder_on_CodeableConcept`
-- `urn:fhir:binding:SectionMode_on_code`
-- `urn:fhir:binding:SecurityLabels_on_CodeableConcept`
-- `urn:fhir:binding:ServiceProduct_on_CodeableConcept`
-- `urn:fhir:binding:ServiceProvisionConditions_on_CodeableConcept`
-- `urn:fhir:binding:ServiceRequestCategory_on_CodeableConcept`
-- `urn:fhir:binding:ServiceRequestCode_on_CodeableConcept`
-- `urn:fhir:binding:ServiceRequestIntent_on_code`
-- `urn:fhir:binding:ServiceRequestLocation_on_CodeableConcept`
-- `urn:fhir:binding:ServiceRequestParticipantRole_on_CodeableConcept`
-- `urn:fhir:binding:ServiceRequestPriority_on_code`
-- `urn:fhir:binding:ServiceRequestReason_on_CodeableConcept`
-- `urn:fhir:binding:ServiceRequestStatus_on_code`
-- `urn:fhir:binding:Sex_on_CodeableConcept`
-- `urn:fhir:binding:SlicingRules_on_code`
-- `urn:fhir:binding:SlotStatus_on_code`
-- `urn:fhir:binding:SortDirection_on_code`
-- `urn:fhir:binding:SpecimenCollectionMethod_on_CodeableConcept`
-- `urn:fhir:binding:SpecimenCollection_on_CodeableConcept`
-- `urn:fhir:binding:SpecimenCondition_on_CodeableConcept`
-- `urn:fhir:binding:SpecimenContainedPreference_on_code`
-- `urn:fhir:binding:SpecimenContainerType_on_CodeableConcept`
-- `urn:fhir:binding:SpecimenProcessingProcedure_on_CodeableConcept`
-- `urn:fhir:binding:SpecimenStatus_on_code`
-- `urn:fhir:binding:SpecimenType_on_CodeableConcept`
-- `urn:fhir:binding:StructureDefinitionKeyword_on_Coding`
-- `urn:fhir:binding:StructureDefinitionKind_on_code`
-- `urn:fhir:binding:StructureMapContextType_on_code`
-- `urn:fhir:binding:StructureMapGroupTypeMode_on_code`
-- `urn:fhir:binding:StructureMapInputMode_on_code`
-- `urn:fhir:binding:StructureMapModelMode_on_code`
-- `urn:fhir:binding:StructureMapSourceListMode_on_code`
-- `urn:fhir:binding:StructureMapTargetListMode_on_code`
-- `urn:fhir:binding:StructureMapTransform_on_code`
-- `urn:fhir:binding:StudyType_on_CodeableConcept`
-- `urn:fhir:binding:SubpotentReason_on_CodeableConcept`
-- `urn:fhir:binding:SubscriptionChannelType_on_code`
-- `urn:fhir:binding:SubscriptionStatus_on_code`
-- `urn:fhir:binding:SubstanceCategory_on_CodeableConcept`
-- `urn:fhir:binding:SubstanceCode_on_CodeableConcept`
-- `urn:fhir:binding:SupplementType_on_CodeableConcept`
-- `urn:fhir:binding:SupplyDeliveryStatus_on_code`
-- `urn:fhir:binding:SupplyDeliveryType_on_CodeableConcept`
-- `urn:fhir:binding:SupplyRequestKind_on_CodeableConcept`
-- `urn:fhir:binding:SupplyRequestReason_on_CodeableConcept`
-- `urn:fhir:binding:SupplyRequestStatus_on_code`
-- `urn:fhir:binding:Surface_on_CodeableConcept`
-- `urn:fhir:binding:SynthesisType_on_CodeableConcept`
-- `urn:fhir:binding:SystemRestfulInteraction_on_code`
-- `urn:fhir:binding:TargetDisease_on_CodeableConcept`
-- `urn:fhir:binding:TaskCode_on_CodeableConcept`
-- `urn:fhir:binding:TaskIntent_on_code`
-- `urn:fhir:binding:TaskPerformerType_on_CodeableConcept`
-- `urn:fhir:binding:TaskPriority_on_code`
-- `urn:fhir:binding:TaskStatus_on_code`
-- `urn:fhir:binding:TestReportActionResult_on_code`
-- `urn:fhir:binding:TestReportParticipantType_on_code`
-- `urn:fhir:binding:TestReportResult_on_code`
-- `urn:fhir:binding:TestReportStatus_on_code`
-- `urn:fhir:binding:TestScriptOperationCode_on_Coding`
-- `urn:fhir:binding:TestScriptProfileDestinationType_on_Coding`
-- `urn:fhir:binding:TestScriptProfileOriginType_on_Coding`
-- `urn:fhir:binding:TestScriptRequestMethodCode_on_code`
-- `urn:fhir:binding:TextureModifiedFoodType_on_CodeableConcept`
-- `urn:fhir:binding:TextureModifier_on_CodeableConcept`
-- `urn:fhir:binding:TriggerType_on_code`
-- `urn:fhir:binding:TypeDerivationRule_on_code`
-- `urn:fhir:binding:TypeRestfulInteraction_on_code`
-- `urn:fhir:binding:UCUMUnits_on_CodeableConcept`
-- `urn:fhir:binding:UDIEntryType_on_code`
-- `urn:fhir:binding:UsageContextType_on_Coding`
-- `urn:fhir:binding:Use_on_code`
-- `urn:fhir:binding:VaccineCode_on_CodeableConcept`
-- `urn:fhir:binding:VariableType_on_code`
-- `urn:fhir:binding:VisionBase_on_code`
-- `urn:fhir:binding:VisionEyes_on_code`
-- `urn:fhir:binding:VisionProduct_on_CodeableConcept`
-- `urn:fhir:binding:VisionStatus_on_code`
-- `urn:fhir:binding:XPathUsageType_on_code`
-- `urn:fhir:binding:appointment-type_on_CodeableConcept`
-- `urn:fhir:binding:can-push-updates_on_CodeableConcept`
-- `urn:fhir:binding:cancelation-reason_on_CodeableConcept`
-- `urn:fhir:binding:chromosome-human_on_CodeableConcept`
-- `urn:fhir:binding:communication-method_on_CodeableConcept`
-- `urn:fhir:binding:endpoint-contype_on_Coding`
-- `urn:fhir:binding:failure-action_on_CodeableConcept`
-- `urn:fhir:binding:messageheader-response-request_on_code`
-- `urn:fhir:binding:need_on_CodeableConcept`
-- `urn:fhir:binding:orientationType_on_code`
-- `urn:fhir:binding:primary-source-type_on_CodeableConcept`
-- `urn:fhir:binding:push-type-available_on_CodeableConcept`
-- `urn:fhir:binding:qualityMethod_on_CodeableConcept`
-- `urn:fhir:binding:qualityStandardSequence_on_CodeableConcept`
-- `urn:fhir:binding:qualityType_on_code`
-- `urn:fhir:binding:repositoryType_on_code`
-- `urn:fhir:binding:sequenceReference_on_CodeableConcept`
-- `urn:fhir:binding:sequenceType_on_code`
-- `urn:fhir:binding:service-category_on_CodeableConcept`
-- `urn:fhir:binding:service-specialty_on_CodeableConcept`
-- `urn:fhir:binding:service-type_on_CodeableConcept`
-- `urn:fhir:binding:sopClass_on_Coding`
-- `urn:fhir:binding:specialty_on_CodeableConcept`
-- `urn:fhir:binding:status_on_code`
-- `urn:fhir:binding:strandType_on_code`
-- `urn:fhir:binding:v3Act_on_CodeableConcept`
-- `urn:fhir:binding:validation-process_on_CodeableConcept`
-- `urn:fhir:binding:validation-status_on_CodeableConcept`
-- `urn:fhir:binding:validation-type_on_CodeableConcept`
+- `urn:fhir:binding:AccidentType`
+- `urn:fhir:binding:AccountStatus`
+- `urn:fhir:binding:AccountType`
+- `urn:fhir:binding:ActionCardinalityBehavior`
+- `urn:fhir:binding:ActionConditionKind`
+- `urn:fhir:binding:ActionGroupingBehavior`
+- `urn:fhir:binding:ActionParticipantRole`
+- `urn:fhir:binding:ActionParticipantType`
+- `urn:fhir:binding:ActionPrecheckBehavior`
+- `urn:fhir:binding:ActionRelationshipType`
+- `urn:fhir:binding:ActionRequiredBehavior`
+- `urn:fhir:binding:ActionSelectionBehavior`
+- `urn:fhir:binding:ActionType`
+- `urn:fhir:binding:ActivityDefinitionKind`
+- `urn:fhir:binding:ActivityDefinitionType`
+- `urn:fhir:binding:ActivityParticipantRole`
+- `urn:fhir:binding:ActivityParticipantType`
+- `urn:fhir:binding:AdditionalInstruction`
+- `urn:fhir:binding:Adjudication`
+- `urn:fhir:binding:AdjudicationError`
+- `urn:fhir:binding:AdjudicationReason`
+- `urn:fhir:binding:AdjunctDiagnosis`
+- `urn:fhir:binding:AdmitSource`
+- `urn:fhir:binding:AdverseEventActuality`
+- `urn:fhir:binding:AdverseEventCategory`
+- `urn:fhir:binding:AdverseEventCausalityAssessment`
+- `urn:fhir:binding:AdverseEventCausalityMethod`
+- `urn:fhir:binding:AdverseEventOutcome`
+- `urn:fhir:binding:AdverseEventSeriousness`
+- `urn:fhir:binding:AdverseEventSeverity`
+- `urn:fhir:binding:AdverseEventType`
+- `urn:fhir:binding:AggregationMode`
+- `urn:fhir:binding:AllergyIntoleranceCategory`
+- `urn:fhir:binding:AllergyIntoleranceClinicalStatus`
+- `urn:fhir:binding:AllergyIntoleranceCode`
+- `urn:fhir:binding:AllergyIntoleranceCriticality`
+- `urn:fhir:binding:AllergyIntoleranceSeverity`
+- `urn:fhir:binding:AllergyIntoleranceType`
+- `urn:fhir:binding:AllergyIntoleranceVerificationStatus`
+- `urn:fhir:binding:AppointmentStatus`
+- `urn:fhir:binding:ApptReason`
+- `urn:fhir:binding:Arrangements`
+- `urn:fhir:binding:AssertionDirectionType`
+- `urn:fhir:binding:AssertionOperatorType`
+- `urn:fhir:binding:AssertionResponseTypes`
+- `urn:fhir:binding:AssetAvailabilityType`
+- `urn:fhir:binding:AuditAgentRole`
+- `urn:fhir:binding:AuditAgentType`
+- `urn:fhir:binding:AuditEventAction`
+- `urn:fhir:binding:AuditEventAgentNetworkType`
+- `urn:fhir:binding:AuditEventEntityLifecycle`
+- `urn:fhir:binding:AuditEventEntityRole`
+- `urn:fhir:binding:AuditEventEntityType`
+- `urn:fhir:binding:AuditEventOutcome`
+- `urn:fhir:binding:AuditEventSourceType`
+- `urn:fhir:binding:AuditEventSubType`
+- `urn:fhir:binding:AuditEventType`
+- `urn:fhir:binding:AuditPurposeOfUse`
+- `urn:fhir:binding:AuthSupporting`
+- `urn:fhir:binding:BasicResourceType`
+- `urn:fhir:binding:BenefitCategory`
+- `urn:fhir:binding:BenefitCostApplicability`
+- `urn:fhir:binding:BenefitNetwork`
+- `urn:fhir:binding:BenefitTerm`
+- `urn:fhir:binding:BenefitType`
+- `urn:fhir:binding:BenefitUnit`
+- `urn:fhir:binding:BindingStrength`
+- `urn:fhir:binding:BiologicallyDerivedProductCategory`
+- `urn:fhir:binding:BiologicallyDerivedProductProcedure`
+- `urn:fhir:binding:BiologicallyDerivedProductStatus`
+- `urn:fhir:binding:BiologicallyDerivedProductStorageScale`
+- `urn:fhir:binding:BodyLengthUnits`
+- `urn:fhir:binding:BodyStructureCode`
+- `urn:fhir:binding:BodyStructureQualifier`
+- `urn:fhir:binding:BodyTempUnits`
+- `urn:fhir:binding:BodyWeightUnits`
+- `urn:fhir:binding:CapabilityStatementKind`
+- `urn:fhir:binding:CarePlanActivityKind`
+- `urn:fhir:binding:CarePlanActivityOutcome`
+- `urn:fhir:binding:CarePlanActivityReason`
+- `urn:fhir:binding:CarePlanActivityStatus`
+- `urn:fhir:binding:CarePlanActivityType`
+- `urn:fhir:binding:CarePlanCategory`
+- `urn:fhir:binding:CarePlanIntent`
+- `urn:fhir:binding:CarePlanStatus`
+- `urn:fhir:binding:CareTeamCategory`
+- `urn:fhir:binding:CareTeamParticipantRole`
+- `urn:fhir:binding:CareTeamReason`
+- `urn:fhir:binding:CareTeamRole`
+- `urn:fhir:binding:CareTeamStatus`
+- `urn:fhir:binding:CatalogEntryRelationType`
+- `urn:fhir:binding:CatalogType`
+- `urn:fhir:binding:CertaintySubcomponentRating`
+- `urn:fhir:binding:CertaintySubcomponentType`
+- `urn:fhir:binding:ChargeItemCode`
+- `urn:fhir:binding:ChargeItemDefinitionCode`
+- `urn:fhir:binding:ChargeItemDefinitionPriceComponentType`
+- `urn:fhir:binding:ChargeItemPerformerFunction`
+- `urn:fhir:binding:ChargeItemReason`
+- `urn:fhir:binding:ChargeItemStatus`
+- `urn:fhir:binding:ClaimResponseStatus`
+- `urn:fhir:binding:ClaimStatus`
+- `urn:fhir:binding:ClaimSubType`
+- `urn:fhir:binding:ClaimType`
+- `urn:fhir:binding:ClinicalImpressionPrognosis`
+- `urn:fhir:binding:ClinicalImpressionStatus`
+- `urn:fhir:binding:CodeSearchSupport`
+- `urn:fhir:binding:CodeSystemContentMode`
+- `urn:fhir:binding:CodeSystemHierarchyMeaning`
+- `urn:fhir:binding:CollectedSpecimenType`
+- `urn:fhir:binding:CommunicationCategory`
+- `urn:fhir:binding:CommunicationMedium`
+- `urn:fhir:binding:CommunicationNotDoneReason`
+- `urn:fhir:binding:CommunicationPriority`
+- `urn:fhir:binding:CommunicationReason`
+- `urn:fhir:binding:CommunicationRequestStatus`
+- `urn:fhir:binding:CommunicationStatus`
+- `urn:fhir:binding:CommunicationTopic`
+- `urn:fhir:binding:CompartmentCode`
+- `urn:fhir:binding:CompartmentType`
+- `urn:fhir:binding:CompositeMeasureScoring`
+- `urn:fhir:binding:CompositionAttestationMode`
+- `urn:fhir:binding:CompositionSectionType`
+- `urn:fhir:binding:CompositionStatus`
+- `urn:fhir:binding:ConceptDesignationUse`
+- `urn:fhir:binding:ConceptMapEquivalence`
+- `urn:fhir:binding:ConceptMapGroupUnmappedMode`
+- `urn:fhir:binding:ConditionCategory`
+- `urn:fhir:binding:ConditionClinicalStatus`
+- `urn:fhir:binding:ConditionCode`
+- `urn:fhir:binding:ConditionKind`
+- `urn:fhir:binding:ConditionOutcome`
+- `urn:fhir:binding:ConditionSeverity`
+- `urn:fhir:binding:ConditionStage`
+- `urn:fhir:binding:ConditionStageType`
+- `urn:fhir:binding:ConditionVerificationStatus`
+- `urn:fhir:binding:ConditionalDeleteStatus`
+- `urn:fhir:binding:ConditionalReadStatus`
+- `urn:fhir:binding:ConsentAction`
+- `urn:fhir:binding:ConsentActorRole`
+- `urn:fhir:binding:ConsentCategory`
+- `urn:fhir:binding:ConsentContentClass`
+- `urn:fhir:binding:ConsentContentCode`
+- `urn:fhir:binding:ConsentDataMeaning`
+- `urn:fhir:binding:ConsentPolicyRule`
+- `urn:fhir:binding:ConsentProvisionType`
+- `urn:fhir:binding:ConsentScope`
+- `urn:fhir:binding:ConsentState`
+- `urn:fhir:binding:ConstraintSeverity`
+- `urn:fhir:binding:ContactPartyType`
+- `urn:fhir:binding:ContainerCap`
+- `urn:fhir:binding:ContainerMaterial`
+- `urn:fhir:binding:ContainerType`
+- `urn:fhir:binding:ContractAction`
+- `urn:fhir:binding:ContractActionPerformerRole`
+- `urn:fhir:binding:ContractActionPerformerType`
+- `urn:fhir:binding:ContractActionReason`
+- `urn:fhir:binding:ContractActionStatus`
+- `urn:fhir:binding:ContractActorRole`
+- `urn:fhir:binding:ContractAssetContext`
+- `urn:fhir:binding:ContractAssetScope`
+- `urn:fhir:binding:ContractAssetSubtype`
+- `urn:fhir:binding:ContractAssetType`
+- `urn:fhir:binding:ContractContentDerivative`
+- `urn:fhir:binding:ContractDecisionMode`
+- `urn:fhir:binding:ContractDecisionType`
+- `urn:fhir:binding:ContractDefinitionSubtype`
+- `urn:fhir:binding:ContractDefinitionType`
+- `urn:fhir:binding:ContractExpiration`
+- `urn:fhir:binding:ContractLegalState`
+- `urn:fhir:binding:ContractPartyRole`
+- `urn:fhir:binding:ContractPublicationStatus`
+- `urn:fhir:binding:ContractScope`
+- `urn:fhir:binding:ContractSecurityCategory`
+- `urn:fhir:binding:ContractSecurityClassification`
+- `urn:fhir:binding:ContractSecurityControl`
+- `urn:fhir:binding:ContractSignerType`
+- `urn:fhir:binding:ContractStatus`
+- `urn:fhir:binding:ContractSubtype`
+- `urn:fhir:binding:ContractTermSubType`
+- `urn:fhir:binding:ContractTermType`
+- `urn:fhir:binding:ContractType`
+- `urn:fhir:binding:ContributorType`
+- `urn:fhir:binding:CopayTypes`
+- `urn:fhir:binding:Courtesies`
+- `urn:fhir:binding:CoverageClass`
+- `urn:fhir:binding:CoverageFinancialException`
+- `urn:fhir:binding:CoverageStatus`
+- `urn:fhir:binding:CoverageType`
+- `urn:fhir:binding:CurrencyCode`
+- `urn:fhir:binding:DICOMMediaType`
+- `urn:fhir:binding:DaysOfWeek`
+- `urn:fhir:binding:DefinitionTopic`
+- `urn:fhir:binding:DetectedIssueCategory`
+- `urn:fhir:binding:DetectedIssueEvidenceCode`
+- `urn:fhir:binding:DetectedIssueMitigationAction`
+- `urn:fhir:binding:DetectedIssueSeverity`
+- `urn:fhir:binding:DetectedIssueStatus`
+- `urn:fhir:binding:DeviceActionKind`
+- `urn:fhir:binding:DeviceKind`
+- `urn:fhir:binding:DeviceMetricCalibrationState`
+- `urn:fhir:binding:DeviceMetricCalibrationType`
+- `urn:fhir:binding:DeviceMetricCategory`
+- `urn:fhir:binding:DeviceMetricColor`
+- `urn:fhir:binding:DeviceMetricOperationalStatus`
+- `urn:fhir:binding:DeviceNameType`
+- `urn:fhir:binding:DeviceRequestParticipantRole`
+- `urn:fhir:binding:DeviceRequestReason`
+- `urn:fhir:binding:DeviceRequestStatus`
+- `urn:fhir:binding:DeviceType`
+- `urn:fhir:binding:DeviceUseStatementStatus`
+- `urn:fhir:binding:DiagnosisOnAdmission`
+- `urn:fhir:binding:DiagnosisRelatedGroup`
+- `urn:fhir:binding:DiagnosisRole`
+- `urn:fhir:binding:DiagnosisType`
+- `urn:fhir:binding:DiagnosticReportCodes`
+- `urn:fhir:binding:DiagnosticReportStatus`
+- `urn:fhir:binding:DiagnosticServiceSection`
+- `urn:fhir:binding:DischargeDisp`
+- `urn:fhir:binding:DiscriminatorType`
+- `urn:fhir:binding:DocumentC80Class`
+- `urn:fhir:binding:DocumentC80FacilityType`
+- `urn:fhir:binding:DocumentC80PracticeSetting`
+- `urn:fhir:binding:DocumentC80Type`
+- `urn:fhir:binding:DocumentCategory`
+- `urn:fhir:binding:DocumentConfidentiality`
+- `urn:fhir:binding:DocumentEventType`
+- `urn:fhir:binding:DocumentFormat`
+- `urn:fhir:binding:DocumentMode`
+- `urn:fhir:binding:DocumentReferenceStatus`
+- `urn:fhir:binding:DocumentRelationshipType`
+- `urn:fhir:binding:DocumentType`
+- `urn:fhir:binding:DoseAndRateType`
+- `urn:fhir:binding:EffectEstimateType`
+- `urn:fhir:binding:ElementDefinitionCode`
+- `urn:fhir:binding:EligibilityRequestPurpose`
+- `urn:fhir:binding:EligibilityRequestStatus`
+- `urn:fhir:binding:EligibilityResponsePurpose`
+- `urn:fhir:binding:EligibilityResponseStatus`
+- `urn:fhir:binding:EnableWhenBehavior`
+- `urn:fhir:binding:EncounterClass`
+- `urn:fhir:binding:EncounterLocationStatus`
+- `urn:fhir:binding:EncounterReason`
+- `urn:fhir:binding:EncounterServiceType`
+- `urn:fhir:binding:EncounterStatus`
+- `urn:fhir:binding:EncounterType`
+- `urn:fhir:binding:EndpointStatus`
+- `urn:fhir:binding:EnrollmentRequestStatus`
+- `urn:fhir:binding:EnrollmentResponseStatus`
+- `urn:fhir:binding:EnteralFormulaAdditiveType`
+- `urn:fhir:binding:EnteralFormulaType`
+- `urn:fhir:binding:EnteralRouteOfAdministration`
+- `urn:fhir:binding:EpisodeOfCareStatus`
+- `urn:fhir:binding:EpisodeOfCareType`
+- `urn:fhir:binding:EvaluationDoseStatus`
+- `urn:fhir:binding:EvaluationDoseStatusReason`
+- `urn:fhir:binding:EvaluationTargetDisease`
+- `urn:fhir:binding:EventCapabilityMode`
+- `urn:fhir:binding:EventPerformerFunction`
+- `urn:fhir:binding:EventReason`
+- `urn:fhir:binding:EvidenceVariableType`
+- `urn:fhir:binding:EvidenceVariantState`
+- `urn:fhir:binding:ExampleScenarioActorType`
+- `urn:fhir:binding:ExplanationOfBenefitStatus`
+- `urn:fhir:binding:ExposureState`
+- `urn:fhir:binding:ExpressionLanguage`
+- `urn:fhir:binding:ExtensionContextType`
+- `urn:fhir:binding:FHIRAllTypes`
+- `urn:fhir:binding:FHIRDefinedType`
+- `urn:fhir:binding:FHIRDefinedTypeExt`
+- `urn:fhir:binding:FHIRDeviceStatus`
+- `urn:fhir:binding:FHIRDeviceStatusReason`
+- `urn:fhir:binding:FHIRResourceType`
+- `urn:fhir:binding:FHIRSubstanceStatus`
+- `urn:fhir:binding:FHIRVersion`
+- `urn:fhir:binding:FamilialRelationship`
+- `urn:fhir:binding:FamilyHistoryAbsentReason`
+- `urn:fhir:binding:FamilyHistoryReason`
+- `urn:fhir:binding:FamilyHistoryStatus`
+- `urn:fhir:binding:FilterOperator`
+- `urn:fhir:binding:FlagCategory`
+- `urn:fhir:binding:FlagCode`
+- `urn:fhir:binding:FlagStatus`
+- `urn:fhir:binding:FluidConsistencyType`
+- `urn:fhir:binding:FoodType`
+- `urn:fhir:binding:Forms`
+- `urn:fhir:binding:FundingSource`
+- `urn:fhir:binding:FundsReserve`
+- `urn:fhir:binding:GoalAchievementStatus`
+- `urn:fhir:binding:GoalAddresses`
+- `urn:fhir:binding:GoalCategory`
+- `urn:fhir:binding:GoalDescription`
+- `urn:fhir:binding:GoalLifecycleStatus`
+- `urn:fhir:binding:GoalOutcome`
+- `urn:fhir:binding:GoalPriority`
+- `urn:fhir:binding:GoalStartEvent`
+- `urn:fhir:binding:GoalTargetMeasure`
+- `urn:fhir:binding:GraphCompartmentRule`
+- `urn:fhir:binding:GraphCompartmentUse`
+- `urn:fhir:binding:GroupMeasure`
+- `urn:fhir:binding:GroupType`
+- `urn:fhir:binding:GuidanceResponseStatus`
+- `urn:fhir:binding:GuidePageGeneration`
+- `urn:fhir:binding:GuideParameterCode`
+- `urn:fhir:binding:HandlingConditionSet`
+- `urn:fhir:binding:IdentityAssuranceLevel`
+- `urn:fhir:binding:ImagingModality`
+- `urn:fhir:binding:ImagingProcedureCode`
+- `urn:fhir:binding:ImagingReason`
+- `urn:fhir:binding:ImagingStudyStatus`
+- `urn:fhir:binding:ImmunizationEvaluationStatus`
+- `urn:fhir:binding:ImmunizationFunction`
+- `urn:fhir:binding:ImmunizationReason`
+- `urn:fhir:binding:ImmunizationRecommendationDateCriterion`
+- `urn:fhir:binding:ImmunizationRecommendationReason`
+- `urn:fhir:binding:ImmunizationRecommendationStatus`
+- `urn:fhir:binding:ImmunizationReportOrigin`
+- `urn:fhir:binding:ImmunizationRoute`
+- `urn:fhir:binding:ImmunizationSite`
+- `urn:fhir:binding:ImmunizationStatus`
+- `urn:fhir:binding:ImmunizationStatusReason`
+- `urn:fhir:binding:InformationCategory`
+- `urn:fhir:binding:InformationCode`
+- `urn:fhir:binding:InsurancePlanType`
+- `urn:fhir:binding:IntendedSpecimenType`
+- `urn:fhir:binding:InvestigationGroupType`
+- `urn:fhir:binding:InvoicePriceComponentType`
+- `urn:fhir:binding:InvoiceStatus`
+- `urn:fhir:binding:Jurisdiction`
+- `urn:fhir:binding:LDLCodes`
+- `urn:fhir:binding:LOINC LL379-9 answerlist`
+- `urn:fhir:binding:Laterality`
+- `urn:fhir:binding:LibraryType`
+- `urn:fhir:binding:LinkageType`
+- `urn:fhir:binding:ListEmptyReason`
+- `urn:fhir:binding:ListItemFlag`
+- `urn:fhir:binding:ListMode`
+- `urn:fhir:binding:ListOrder`
+- `urn:fhir:binding:ListPurpose`
+- `urn:fhir:binding:ListStatus`
+- `urn:fhir:binding:LocationMode`
+- `urn:fhir:binding:LocationStatus`
+- `urn:fhir:binding:LocationType`
+- `urn:fhir:binding:Manifestation`
+- `urn:fhir:binding:ManifestationOrSymptom`
+- `urn:fhir:binding:MeasureDataUsage`
+- `urn:fhir:binding:MeasureImprovementNotation`
+- `urn:fhir:binding:MeasurePopulation`
+- `urn:fhir:binding:MeasurePopulationType`
+- `urn:fhir:binding:MeasureReportStatus`
+- `urn:fhir:binding:MeasureReportType`
+- `urn:fhir:binding:MeasureScoring`
+- `urn:fhir:binding:MeasureType`
+- `urn:fhir:binding:MediaModality`
+- `urn:fhir:binding:MediaReason`
+- `urn:fhir:binding:MediaStatus`
+- `urn:fhir:binding:MediaType`
+- `urn:fhir:binding:MediaView`
+- `urn:fhir:binding:MedicationAdministrationCategory`
+- `urn:fhir:binding:MedicationAdministrationMethod`
+- `urn:fhir:binding:MedicationAdministrationNegationReason`
+- `urn:fhir:binding:MedicationAdministrationPerformerFunction`
+- `urn:fhir:binding:MedicationAdministrationReason`
+- `urn:fhir:binding:MedicationAdministrationSite`
+- `urn:fhir:binding:MedicationAdministrationStatus`
+- `urn:fhir:binding:MedicationCharacteristic`
+- `urn:fhir:binding:MedicationDispenseCategory`
+- `urn:fhir:binding:MedicationDispensePerformerFunction`
+- `urn:fhir:binding:MedicationDispenseStatus`
+- `urn:fhir:binding:MedicationDispenseType`
+- `urn:fhir:binding:MedicationForm`
+- `urn:fhir:binding:MedicationFormalRepresentation`
+- `urn:fhir:binding:MedicationIntendedSubstitutionReason`
+- `urn:fhir:binding:MedicationIntendedSubstitutionType`
+- `urn:fhir:binding:MedicationKnowledgeStatus`
+- `urn:fhir:binding:MedicationPackageType`
+- `urn:fhir:binding:MedicationReason`
+- `urn:fhir:binding:MedicationRequestCategory`
+- `urn:fhir:binding:MedicationRequestCourseOfTherapy`
+- `urn:fhir:binding:MedicationRequestIntent`
+- `urn:fhir:binding:MedicationRequestPerformerType`
+- `urn:fhir:binding:MedicationRequestPriority`
+- `urn:fhir:binding:MedicationRequestReason`
+- `urn:fhir:binding:MedicationRequestStatus`
+- `urn:fhir:binding:MedicationRequestStatusReason`
+- `urn:fhir:binding:MedicationRoute`
+- `urn:fhir:binding:MedicationStatementCategory`
+- `urn:fhir:binding:MedicationStatementStatus`
+- `urn:fhir:binding:MedicationStatementStatusReason`
+- `urn:fhir:binding:MedicationStatus`
+- `urn:fhir:binding:MessageSignificanceCategory`
+- `urn:fhir:binding:MessageTransport`
+- `urn:fhir:binding:MetricType`
+- `urn:fhir:binding:MetricUnit`
+- `urn:fhir:binding:MissingReason`
+- `urn:fhir:binding:Modifiers`
+- `urn:fhir:binding:NamingSystemIdentifierType`
+- `urn:fhir:binding:NamingSystemType`
+- `urn:fhir:binding:NoteType`
+- `urn:fhir:binding:NutrientModifier`
+- `urn:fhir:binding:NutritiionOrderIntent`
+- `urn:fhir:binding:NutritionOrderStatus`
+- `urn:fhir:binding:ObservationDataType`
+- `urn:fhir:binding:ObservationRangeAppliesTo`
+- `urn:fhir:binding:ObservationRangeCategory`
+- `urn:fhir:binding:ObservationUnit`
+- `urn:fhir:binding:OperationKind`
+- `urn:fhir:binding:OperationParameterUse`
+- `urn:fhir:binding:OperationalStatus`
+- `urn:fhir:binding:OralDiet`
+- `urn:fhir:binding:OralSites`
+- `urn:fhir:binding:OrderDetail`
+- `urn:fhir:binding:OrganizationAffiliation`
+- `urn:fhir:binding:OrganizationSpecialty`
+- `urn:fhir:binding:OrganizationType`
+- `urn:fhir:binding:ParameterUse`
+- `urn:fhir:binding:ParticipantRequired`
+- `urn:fhir:binding:ParticipantStatus`
+- `urn:fhir:binding:ParticipantType`
+- `urn:fhir:binding:ParticipationStatus`
+- `urn:fhir:binding:PatientDiet`
+- `urn:fhir:binding:PatientRelationshipType`
+- `urn:fhir:binding:PayeeType`
+- `urn:fhir:binding:PayloadType`
+- `urn:fhir:binding:PaymentAdjustmentReason`
+- `urn:fhir:binding:PaymentNoticeStatus`
+- `urn:fhir:binding:PaymentReconciliationStatus`
+- `urn:fhir:binding:PaymentStatus`
+- `urn:fhir:binding:PaymentType`
+- `urn:fhir:binding:PhysicalType`
+- `urn:fhir:binding:PlanDefinitionType`
+- `urn:fhir:binding:PractitionerRole`
+- `urn:fhir:binding:PractitionerSpecialty`
+- `urn:fhir:binding:PrecisionEstimateType`
+- `urn:fhir:binding:PreparePatient`
+- `urn:fhir:binding:Priority`
+- `urn:fhir:binding:ProcedureCategory`
+- `urn:fhir:binding:ProcedureCode`
+- `urn:fhir:binding:ProcedureComplication`
+- `urn:fhir:binding:ProcedureFollowUp`
+- `urn:fhir:binding:ProcedureNegationReason`
+- `urn:fhir:binding:ProcedureOutcome`
+- `urn:fhir:binding:ProcedurePerformerRole`
+- `urn:fhir:binding:ProcedureReason`
+- `urn:fhir:binding:ProcedureStatus`
+- `urn:fhir:binding:ProcedureType`
+- `urn:fhir:binding:ProcedureUsed`
+- `urn:fhir:binding:ProcessPriority`
+- `urn:fhir:binding:Program`
+- `urn:fhir:binding:ProgramCode`
+- `urn:fhir:binding:ProgramEligibility`
+- `urn:fhir:binding:PropertyRepresentation`
+- `urn:fhir:binding:PropertyType`
+- `urn:fhir:binding:ProvenanceActivity`
+- `urn:fhir:binding:ProvenanceAgentRole`
+- `urn:fhir:binding:ProvenanceAgentType`
+- `urn:fhir:binding:ProvenanceEntityRole`
+- `urn:fhir:binding:ProvenanceHistoryAgentType`
+- `urn:fhir:binding:ProvenanceHistoryRecordActivity`
+- `urn:fhir:binding:ProvenanceReason`
+- `urn:fhir:binding:ProviderQualification`
+- `urn:fhir:binding:PublicationStatus`
+- `urn:fhir:binding:PurposeOfUse`
+- `urn:fhir:binding:Qualification`
+- `urn:fhir:binding:QualityOfEvidenceRating`
+- `urn:fhir:binding:QuestionnaireConcept`
+- `urn:fhir:binding:QuestionnaireItemOperator`
+- `urn:fhir:binding:QuestionnaireItemType`
+- `urn:fhir:binding:QuestionnaireResponseStatus`
+- `urn:fhir:binding:ReAdmissionType`
+- `urn:fhir:binding:ReferenceHandlingPolicy`
+- `urn:fhir:binding:ReferenceVersionRules`
+- `urn:fhir:binding:ReferralMethod`
+- `urn:fhir:binding:ReferredDocumentStatus`
+- `urn:fhir:binding:RejectionCriterion`
+- `urn:fhir:binding:RelatedArtifactType`
+- `urn:fhir:binding:RelatedClaimRelationship`
+- `urn:fhir:binding:Relationship`
+- `urn:fhir:binding:RemittanceOutcome`
+- `urn:fhir:binding:RequestIntent`
+- `urn:fhir:binding:RequestPriority`
+- `urn:fhir:binding:RequestStatus`
+- `urn:fhir:binding:ResearchElementType`
+- `urn:fhir:binding:ResearchStudyObjectiveType`
+- `urn:fhir:binding:ResearchStudyPhase`
+- `urn:fhir:binding:ResearchStudyPrimaryPurposeType`
+- `urn:fhir:binding:ResearchStudyReasonStopped`
+- `urn:fhir:binding:ResearchStudyStatus`
+- `urn:fhir:binding:ResearchSubjectStatus`
+- `urn:fhir:binding:ResourceType`
+- `urn:fhir:binding:ResourceVersionPolicy`
+- `urn:fhir:binding:ResponseType`
+- `urn:fhir:binding:RestfulCapabilityMode`
+- `urn:fhir:binding:RestfulSecurityService`
+- `urn:fhir:binding:RevenueCenter`
+- `urn:fhir:binding:RiskAssessmentProbability`
+- `urn:fhir:binding:RiskAssessmentStatus`
+- `urn:fhir:binding:RiskEstimateType`
+- `urn:fhir:binding:RouteOfAdministration`
+- `urn:fhir:binding:SPDXLicense`
+- `urn:fhir:binding:Safety`
+- `urn:fhir:binding:SearchComparator`
+- `urn:fhir:binding:SearchModifierCode`
+- `urn:fhir:binding:SearchParamType`
+- `urn:fhir:binding:SectionEmptyReason`
+- `urn:fhir:binding:SectionEntryOrder`
+- `urn:fhir:binding:SectionMode`
+- `urn:fhir:binding:ServiceProduct`
+- `urn:fhir:binding:ServiceProvisionConditions`
+- `urn:fhir:binding:ServiceRequestCategory`
+- `urn:fhir:binding:ServiceRequestCode`
+- `urn:fhir:binding:ServiceRequestIntent`
+- `urn:fhir:binding:ServiceRequestLocation`
+- `urn:fhir:binding:ServiceRequestParticipantRole`
+- `urn:fhir:binding:ServiceRequestPriority`
+- `urn:fhir:binding:ServiceRequestReason`
+- `urn:fhir:binding:ServiceRequestStatus`
+- `urn:fhir:binding:Sex`
+- `urn:fhir:binding:SlicingRules`
+- `urn:fhir:binding:SlotStatus`
+- `urn:fhir:binding:SortDirection`
+- `urn:fhir:binding:SpecimenCollection`
+- `urn:fhir:binding:SpecimenCollectionMethod`
+- `urn:fhir:binding:SpecimenCondition`
+- `urn:fhir:binding:SpecimenContainedPreference`
+- `urn:fhir:binding:SpecimenContainerType`
+- `urn:fhir:binding:SpecimenProcessingProcedure`
+- `urn:fhir:binding:SpecimenStatus`
+- `urn:fhir:binding:SpecimenType`
+- `urn:fhir:binding:StructureDefinitionKeyword`
+- `urn:fhir:binding:StructureDefinitionKind`
+- `urn:fhir:binding:StructureMapContextType`
+- `urn:fhir:binding:StructureMapGroupTypeMode`
+- `urn:fhir:binding:StructureMapInputMode`
+- `urn:fhir:binding:StructureMapModelMode`
+- `urn:fhir:binding:StructureMapSourceListMode`
+- `urn:fhir:binding:StructureMapTargetListMode`
+- `urn:fhir:binding:StructureMapTransform`
+- `urn:fhir:binding:StudyType`
+- `urn:fhir:binding:SubpotentReason`
+- `urn:fhir:binding:SubscriptionChannelType`
+- `urn:fhir:binding:SubscriptionStatus`
+- `urn:fhir:binding:SubstanceCategory`
+- `urn:fhir:binding:SubstanceCode`
+- `urn:fhir:binding:SupplementType`
+- `urn:fhir:binding:SupplyDeliveryStatus`
+- `urn:fhir:binding:SupplyDeliveryType`
+- `urn:fhir:binding:SupplyRequestKind`
+- `urn:fhir:binding:SupplyRequestReason`
+- `urn:fhir:binding:SupplyRequestStatus`
+- `urn:fhir:binding:Surface`
+- `urn:fhir:binding:SynthesisType`
+- `urn:fhir:binding:SystemRestfulInteraction`
+- `urn:fhir:binding:TargetDisease`
+- `urn:fhir:binding:TaskCode`
+- `urn:fhir:binding:TaskIntent`
+- `urn:fhir:binding:TaskPerformerType`
+- `urn:fhir:binding:TaskPriority`
+- `urn:fhir:binding:TaskStatus`
+- `urn:fhir:binding:TestReportActionResult`
+- `urn:fhir:binding:TestReportParticipantType`
+- `urn:fhir:binding:TestReportResult`
+- `urn:fhir:binding:TestReportStatus`
+- `urn:fhir:binding:TestScriptOperationCode`
+- `urn:fhir:binding:TestScriptProfileDestinationType`
+- `urn:fhir:binding:TestScriptProfileOriginType`
+- `urn:fhir:binding:TestScriptRequestMethodCode`
+- `urn:fhir:binding:TextureModifiedFoodType`
+- `urn:fhir:binding:TextureModifier`
+- `urn:fhir:binding:TriggerType`
+- `urn:fhir:binding:TypeDerivationRule`
+- `urn:fhir:binding:TypeRestfulInteraction`
+- `urn:fhir:binding:UCUMUnits`
+- `urn:fhir:binding:UDIEntryType`
+- `urn:fhir:binding:UsageContextType`
+- `urn:fhir:binding:Use`
+- `urn:fhir:binding:VaccineCode`
+- `urn:fhir:binding:VariableType`
+- `urn:fhir:binding:VisionBase`
+- `urn:fhir:binding:VisionEyes`
+- `urn:fhir:binding:VisionProduct`
+- `urn:fhir:binding:VisionStatus`
+- `urn:fhir:binding:XPathUsageType`
+- `urn:fhir:binding:appointment-type`
+- `urn:fhir:binding:can-push-updates`
+- `urn:fhir:binding:cancelation-reason`
+- `urn:fhir:binding:chromosome-human`
+- `urn:fhir:binding:communication-method`
+- `urn:fhir:binding:endpoint-contype`
+- `urn:fhir:binding:failure-action`
+- `urn:fhir:binding:messageheader-response-request`
+- `urn:fhir:binding:need`
+- `urn:fhir:binding:orientationType`
+- `urn:fhir:binding:primary-source-type`
+- `urn:fhir:binding:push-type-available`
+- `urn:fhir:binding:qualityMethod`
+- `urn:fhir:binding:qualityStandardSequence`
+- `urn:fhir:binding:qualityType`
+- `urn:fhir:binding:repositoryType`
+- `urn:fhir:binding:sequenceReference`
+- `urn:fhir:binding:sequenceType`
+- `urn:fhir:binding:service-category`
+- `urn:fhir:binding:service-specialty`
+- `urn:fhir:binding:service-type`
+- `urn:fhir:binding:sopClass`
+- `urn:fhir:binding:specialty`
+- `urn:fhir:binding:status`
+- `urn:fhir:binding:strandType`
+- `urn:fhir:binding:v3Act`
+- `urn:fhir:binding:validation-process`
+- `urn:fhir:binding:validation-status`
+- `urn:fhir:binding:validation-type`
 
 ## Schema Collisions
 
@@ -2586,9 +2583,142 @@ and check `{pkg}-collisions/{name}/1.json, 2.json, ...` files.
 
 ### `shared`
 
-- `urn:fhir:binding:CommunicationReason_on_CodeableConcept` (2 versions)
-- `urn:fhir:binding:ObservationCategory_on_CodeableConcept` (2 versions)
-- `urn:fhir:binding:ObservationRangeMeaning_on_CodeableConcept` (2 versions)
-- `urn:fhir:binding:PaymentType_on_CodeableConcept` (2 versions)
-- `urn:fhir:binding:ProcessPriority_on_CodeableConcept` (2 versions)
-- `urn:fhir:binding:TargetDisease_on_CodeableConcept` (2 versions)
+- `urn:fhir:binding:AccidentType` (2 versions)
+- `urn:fhir:binding:ActionCardinalityBehavior` (2 versions)
+- `urn:fhir:binding:ActionConditionKind` (2 versions)
+- `urn:fhir:binding:ActionGroupingBehavior` (2 versions)
+- `urn:fhir:binding:ActionPrecheckBehavior` (2 versions)
+- `urn:fhir:binding:ActionRelationshipType` (2 versions)
+- `urn:fhir:binding:ActionRequiredBehavior` (2 versions)
+- `urn:fhir:binding:ActionSelectionBehavior` (4 versions)
+- `urn:fhir:binding:ActionType` (4 versions)
+- `urn:fhir:binding:Adjudication` (2 versions)
+- `urn:fhir:binding:AdjudicationError` (2 versions)
+- `urn:fhir:binding:AdjudicationReason` (2 versions)
+- `urn:fhir:binding:AdjunctDiagnosis` (3 versions)
+- `urn:fhir:binding:AdministrativeGender` (5 versions)
+- `urn:fhir:binding:AggregationMode` (2 versions)
+- `urn:fhir:binding:appointment-type` (2 versions)
+- `urn:fhir:binding:AuditAgentRole` (2 versions)
+- `urn:fhir:binding:AuditEventAction` (2 versions)
+- `urn:fhir:binding:AuditEventAgentNetworkType` (2 versions)
+- `urn:fhir:binding:AuditEventEntityLifecycle` (2 versions)
+- `urn:fhir:binding:AuditEventEntityRole` (2 versions)
+- `urn:fhir:binding:AuditEventEntityType` (2 versions)
+- `urn:fhir:binding:AuditEventSourceType` (2 versions)
+- `urn:fhir:binding:AuditEventSubType` (2 versions)
+- `urn:fhir:binding:AuditEventType` (2 versions)
+- `urn:fhir:binding:AuditPurposeOfUse` (2 versions)
+- `urn:fhir:binding:BenefitCategory` (4 versions)
+- `urn:fhir:binding:BenefitNetwork` (2 versions)
+- `urn:fhir:binding:BenefitTerm` (2 versions)
+- `urn:fhir:binding:BenefitType` (2 versions)
+- `urn:fhir:binding:BenefitUnit` (2 versions)
+- `urn:fhir:binding:BindingStrength` (2 versions)
+- `urn:fhir:binding:BodyLengthUnits` (2 versions)
+- `urn:fhir:binding:BodySite` (12 versions)
+- `urn:fhir:binding:CapabilityStatementKind` (2 versions)
+- `urn:fhir:binding:CareTeamRole` (2 versions)
+- `urn:fhir:binding:CertaintySubcomponentRating` (2 versions)
+- `urn:fhir:binding:CertaintySubcomponentType` (2 versions)
+- `urn:fhir:binding:ClaimSubType` (3 versions)
+- `urn:fhir:binding:ClaimType` (3 versions)
+- `urn:fhir:binding:CommunicationCategory` (2 versions)
+- `urn:fhir:binding:CommunicationMedium` (2 versions)
+- `urn:fhir:binding:CommunicationPriority` (2 versions)
+- `urn:fhir:binding:CommunicationReason` (2 versions)
+- `urn:fhir:binding:ConceptDesignationUse` (2 versions)
+- `urn:fhir:binding:ConditionCode` (2 versions)
+- `urn:fhir:binding:ConditionKind` (2 versions)
+- `urn:fhir:binding:ConsentContentClass` (2 versions)
+- `urn:fhir:binding:ContactPartyType` (2 versions)
+- `urn:fhir:binding:DaysOfWeek` (3 versions)
+- `urn:fhir:binding:DefinitionTopic` (11 versions)
+- `urn:fhir:binding:DeviceNameType` (2 versions)
+- `urn:fhir:binding:DiagnosisOnAdmission` (2 versions)
+- `urn:fhir:binding:DiagnosisRelatedGroup` (2 versions)
+- `urn:fhir:binding:DiagnosisRole` (2 versions)
+- `urn:fhir:binding:DiagnosisType` (2 versions)
+- `urn:fhir:binding:DiagnosticReportCodes` (2 versions)
+- `urn:fhir:binding:DocumentEventType` (2 versions)
+- `urn:fhir:binding:DocumentReferenceStatus` (2 versions)
+- `urn:fhir:binding:DocumentRelationshipType` (2 versions)
+- `urn:fhir:binding:DocumentType` (2 versions)
+- `urn:fhir:binding:EvidenceVariableType` (2 versions)
+- `urn:fhir:binding:FamilialRelationship` (2 versions)
+- `urn:fhir:binding:FHIRAllTypes` (3 versions)
+- `urn:fhir:binding:FHIRDefinedTypeExt` (2 versions)
+- `urn:fhir:binding:FHIRVersion` (3 versions)
+- `urn:fhir:binding:FilterOperator` (2 versions)
+- `urn:fhir:binding:Forms` (4 versions)
+- `urn:fhir:binding:FundsReserve` (3 versions)
+- `urn:fhir:binding:GoalCategory` (2 versions)
+- `urn:fhir:binding:GoalDescription` (2 versions)
+- `urn:fhir:binding:GoalPriority` (2 versions)
+- `urn:fhir:binding:GoalTargetMeasure` (2 versions)
+- `urn:fhir:binding:GroupMeasure` (3 versions)
+- `urn:fhir:binding:IdentifierType` (2 versions)
+- `urn:fhir:binding:InformationCategory` (2 versions)
+- `urn:fhir:binding:InformationCode` (2 versions)
+- `urn:fhir:binding:Jurisdiction` (34 versions)
+- `urn:fhir:binding:Language` (10 versions)
+- `urn:fhir:binding:LibraryType` (2 versions)
+- `urn:fhir:binding:MeasureImprovementNotation` (2 versions)
+- `urn:fhir:binding:MedicationAdministrationMethod` (2 versions)
+- `urn:fhir:binding:MedicationAdministrationSite` (2 versions)
+- `urn:fhir:binding:MedicationForm` (2 versions)
+- `urn:fhir:binding:MedicationFormalRepresentation` (2 versions)
+- `urn:fhir:binding:MedicationIntendedSubstitutionReason` (2 versions)
+- `urn:fhir:binding:MimeType` (8 versions)
+- `urn:fhir:binding:MissingReason` (2 versions)
+- `urn:fhir:binding:Modifiers` (5 versions)
+- `urn:fhir:binding:NoteType` (3 versions)
+- `urn:fhir:binding:ObservationCategory` (3 versions)
+- `urn:fhir:binding:ObservationCode` (6 versions)
+- `urn:fhir:binding:ObservationInterpretation` (6 versions)
+- `urn:fhir:binding:ObservationMethod` (3 versions)
+- `urn:fhir:binding:ObservationRangeMeaning` (6 versions)
+- `urn:fhir:binding:ObservationRangeType` (5 versions)
+- `urn:fhir:binding:ObservationStatus` (2 versions)
+- `urn:fhir:binding:ObservationValueAbsentReason` (3 versions)
+- `urn:fhir:binding:OralSites` (3 versions)
+- `urn:fhir:binding:ParticipantType` (3 versions)
+- `urn:fhir:binding:PatientDiet` (2 versions)
+- `urn:fhir:binding:PayeeType` (3 versions)
+- `urn:fhir:binding:PaymentAdjustmentReason` (2 versions)
+- `urn:fhir:binding:PaymentType` (3 versions)
+- `urn:fhir:binding:PhysicalType` (2 versions)
+- `urn:fhir:binding:PrecisionEstimateType` (2 versions)
+- `urn:fhir:binding:ProcedureType` (2 versions)
+- `urn:fhir:binding:ProcessPriority` (3 versions)
+- `urn:fhir:binding:ProgramCode` (3 versions)
+- `urn:fhir:binding:PropertyRepresentation` (2 versions)
+- `urn:fhir:binding:ProvenanceActivity` (2 versions)
+- `urn:fhir:binding:ProvenanceReason` (3 versions)
+- `urn:fhir:binding:ProviderQualification` (2 versions)
+- `urn:fhir:binding:PublicationStatus` (35 versions)
+- `urn:fhir:binding:QualityOfEvidenceRating` (2 versions)
+- `urn:fhir:binding:QuantityComparator` (2 versions)
+- `urn:fhir:binding:RelatedClaimRelationship` (2 versions)
+- `urn:fhir:binding:RemittanceOutcome` (5 versions)
+- `urn:fhir:binding:RequestIntent` (3 versions)
+- `urn:fhir:binding:RequestPriority` (7 versions)
+- `urn:fhir:binding:ResourceType` (8 versions)
+- `urn:fhir:binding:RevenueCenter` (2 versions)
+- `urn:fhir:binding:RouteOfAdministration` (3 versions)
+- `urn:fhir:binding:SearchParamType` (3 versions)
+- `urn:fhir:binding:SecurityLabels` (5 versions)
+- `urn:fhir:binding:service-category` (4 versions)
+- `urn:fhir:binding:service-type` (4 versions)
+- `urn:fhir:binding:ServiceProduct` (5 versions)
+- `urn:fhir:binding:Sex` (2 versions)
+- `urn:fhir:binding:specialty` (3 versions)
+- `urn:fhir:binding:StudyType` (2 versions)
+- `urn:fhir:binding:SubstanceCode` (2 versions)
+- `urn:fhir:binding:Surface` (3 versions)
+- `urn:fhir:binding:SynthesisType` (2 versions)
+- `urn:fhir:binding:TargetDisease` (2 versions)
+- `urn:fhir:binding:UCUMUnits` (3 versions)
+- `urn:fhir:binding:Use` (3 versions)
+- `urn:fhir:binding:VaccineCode` (2 versions)
+- `urn:fhir:binding:VitalSigns` (11 versions)
