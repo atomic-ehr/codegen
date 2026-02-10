@@ -1,5 +1,4 @@
 import { describe, expect, it } from "bun:test";
-import type * as CCDA from "./fhir-types/hl7-cda-us-ccda";
 import { MedicationActivityProfile } from "./fhir-types/hl7-cda-us-ccda";
 import type * as CDA from "./fhir-types/hl7-cda-uv-core";
 import type * as FHIR from "./fhir-types/hl7-fhir-r4-core";

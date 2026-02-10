@@ -96,7 +96,7 @@ const mkPackageAwareResolver = async (
         if (!rawUrl) continue;
         if (!(isStructureDefinition(resource) || isValueSet(resource) || isCodeSystem(resource))) continue;
         const url = rawUrl as CanonicalUrl;
-        if (index.canonicalResolution[url]) logger?.dry_warn(`Duplicate canonical URL: ${url} at ${pkgId}.`);
+        if (index.canonicalResolution[url]) logger?.dryWarn(`Duplicate canonical URL: ${url} at ${pkgId}.`);
         index.canonicalResolution[url] = [{ deep, pkg: pkg, pkgId, resource: resource as FocusedResource }];
     }
 

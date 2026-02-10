@@ -62,7 +62,7 @@ const deduplicateSchemas = (
         if (sorted.length > 1) {
             const pkg = best.typeSchema.identifier.package;
             const url = best.typeSchema.identifier.url;
-            logger?.dry_warn(`'${url}' from '${pkg}'' has ${sorted.length} versions`);
+            logger?.dryWarn(`'${url}' from '${pkg}'' has ${sorted.length} versions`);
             collisions[pkg] ??= {};
             collisions[pkg][url] = sorted.flatMap((v) =>
                 v.sources.map((s) => ({
@@ -88,7 +88,7 @@ export const generateTypeSchemas = async (
 
         const skipCheck = shouldSkipCanonical(fhirSchema.package_meta, fhirSchema.url);
         if (skipCheck.shouldSkip) {
-            logger?.dry_warn(`Skip ${fhirSchema.url} from ${pkgId}. Reason: ${skipCheck.reason}`);
+            logger?.dryWarn(`Skip ${fhirSchema.url} from ${pkgId}. Reason: ${skipCheck.reason}`);
             continue;
         }
 
