@@ -97,7 +97,6 @@ export function mkBindingIdentifier(
     element: FHIRSchemaElement,
 ): BindingIdentifier {
     const bindingName = element.binding?.bindingName;
-    const baseType = element.type;
     const pathStr = path.join(".");
     // NOTE: if SD specify `bindingName`, the definition should be shared between all
     // packages. So we put it in the dedicated shared package.

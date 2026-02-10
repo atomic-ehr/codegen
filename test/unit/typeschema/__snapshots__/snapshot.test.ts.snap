@@ -317,7 +317,7 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with code 1`] = `
           "package": "shared",
           "version": "1.0.0",
           "name": "AdministrativeGender",
-          "url": "urn:fhir:binding:AdministrativeGender_on_code"
+          "url": "urn:fhir:binding:AdministrativeGender"
         },
         "enum": {
           "isOpen": false,
@@ -351,7 +351,7 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with code 1`] = `
         "package": "shared",
         "version": "1.0.0",
         "name": "AdministrativeGender",
-        "url": "urn:fhir:binding:AdministrativeGender_on_code"
+        "url": "urn:fhir:binding:AdministrativeGender"
       }
     ]
   },
@@ -361,7 +361,7 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with code 1`] = `
       "package": "shared",
       "version": "1.0.0",
       "name": "AdministrativeGender",
-      "url": "urn:fhir:binding:AdministrativeGender_on_code"
+      "url": "urn:fhir:binding:AdministrativeGender"
     },
     "valueset": {
       "kind": "value-set",
@@ -381,13 +381,6 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with code 1`] = `
       ]
     },
     "dependencies": [
-      {
-        "kind": "primitive-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "code",
-        "url": "http://hl7.org/fhir/StructureDefinition/code"
-      },
       {
         "kind": "value-set",
         "package": "hl7.fhir.r4.core",
@@ -434,7 +427,7 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with codable concep
           "package": "shared",
           "version": "1.0.0",
           "name": "MaritalStatus",
-          "url": "urn:fhir:binding:MaritalStatus_on_CodeableConcept"
+          "url": "urn:fhir:binding:MaritalStatus"
         },
         "enum": {
           "isOpen": true,
@@ -475,7 +468,7 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with codable concep
         "package": "shared",
         "version": "1.0.0",
         "name": "MaritalStatus",
-        "url": "urn:fhir:binding:MaritalStatus_on_CodeableConcept"
+        "url": "urn:fhir:binding:MaritalStatus"
       }
     ]
   },
@@ -485,7 +478,7 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with codable concep
       "package": "shared",
       "version": "1.0.0",
       "name": "MaritalStatus",
-      "url": "urn:fhir:binding:MaritalStatus_on_CodeableConcept"
+      "url": "urn:fhir:binding:MaritalStatus"
     },
     "valueset": {
       "kind": "value-set",
@@ -512,13 +505,6 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with codable concep
       ]
     },
     "dependencies": [
-      {
-        "kind": "complex-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "CodeableConcept",
-        "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept"
-      },
       {
         "kind": "value-set",
         "package": "hl7.fhir.r4.core",
@@ -1260,13 +1246,6 @@ exports[`FHIR Schema to Type Schema (snapshot) Custom resource TutorNotification
     },
     "dependencies": [
       {
-        "kind": "primitive-type",
-        "package": "mypackage",
-        "version": "0.0.0",
-        "name": "string",
-        "url": "http://hl7.org/fhir/StructureDefinition/string"
-      },
-      {
         "kind": "value-set",
         "package": "hl7.fhir.r4.core",
         "version": "4.0.1",
@@ -1304,13 +1283,6 @@ exports[`FHIR Schema to Type Schema (snapshot) Custom resource TutorNotification
       ]
     },
     "dependencies": [
-      {
-        "kind": "primitive-type",
-        "package": "mypackage",
-        "version": "0.0.0",
-        "name": "string",
-        "url": "http://hl7.org/fhir/StructureDefinition/string"
-      },
       {
         "kind": "value-set",
         "package": "hl7.fhir.r4.core",

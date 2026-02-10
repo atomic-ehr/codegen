@@ -40,7 +40,7 @@ describe("Type Schema generator > Binding", async () => {
                         kind: "binding",
                         name: "AdministrativeGender",
                         package: "shared",
-                        url: "urn:fhir:binding:AdministrativeGender_on_code",
+                        url: "urn:fhir:binding:AdministrativeGender",
                     },
                 ],
                 fields: {
@@ -49,7 +49,7 @@ describe("Type Schema generator > Binding", async () => {
                             kind: "binding",
                             name: "AdministrativeGender",
                             package: "shared",
-                            url: "urn:fhir:binding:AdministrativeGender_on_code",
+                            url: "urn:fhir:binding:AdministrativeGender",
                         },
                         enum: { values: ["male", "female", "other", "unknown"], isOpen: false },
                         type: { package: "hl7.fhir.r4.core", url: "http://hl7.org/fhir/StructureDefinition/code" },
@@ -61,16 +61,9 @@ describe("Type Schema generator > Binding", async () => {
                     kind: "binding",
                     name: "AdministrativeGender",
                     package: "shared",
-                    url: "urn:fhir:binding:AdministrativeGender_on_code",
+                    url: "urn:fhir:binding:AdministrativeGender",
                 },
                 dependencies: [
-                    {
-                        kind: "primitive-type",
-                        name: "code",
-                        package: "hl7.fhir.r4.core",
-                        url: "http://hl7.org/fhir/StructureDefinition/code",
-                        version: "4.0.1",
-                    },
                     {
                         kind: "value-set",
                         name: "AdministrativeGender",

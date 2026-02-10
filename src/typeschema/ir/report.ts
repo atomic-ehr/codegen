@@ -1,4 +1,5 @@
-import type { PkgName } from "@root/typeschema/types";
+import type { CanonicalUrl, PkgName } from "@root/typeschema/types";
+import { extractNameFromCanonical } from "@root/typeschema/types";
 import type { IrReport } from "./types";
 
 export const generateIrReportReadme = (report: IrReport): string => {
@@ -72,7 +73,7 @@ export const generateIrReportReadme = (report: IrReport): string => {
         lines.push("## Schema Collisions", "");
         lines.push("The following canonicals have multiple schema versions with different content.");
         lines.push("To inspect collision versions, export TypeSchemas using `.introspection({ typeSchemas: 'path' })`");
-        lines.push("and check `{pkg}-collisions/{name}/1.json, 2.json, ...` files.", "");
+        lines.push("and check `<pkg>/collisions/<name>/1.json, 2.json, ...` files.", "");
 
         const collisionPackages = Object.keys(report.collisions).sort();
         for (const pkgName of collisionPackages) {
@@ -86,8 +87,27 @@ export const generateIrReportReadme = (report: IrReport): string => {
 
             if (sortedEntries.length > 0) {
                 lines.push(`### \`${pkgName}\``, "");
-                for (const [canonical, versions] of sortedEntries) {
-                    lines.push(`- \`${canonical}\` (${versions.length} versions)`);
+                for (const [canonical, entries] of sortedEntries) {
+                    const uniqueSchemas = new Map<string, typeof entries>();
+                    for (const entry of entries) {
+                        const key = JSON.stringify(entry.typeSchema);
+                        if (!uniqueSchemas.has(key)) uniqueSchemas.set(key, []);
+                        uniqueSchemas.get(key)?.push(entry);
+                    }
+                    lines.push(`- \`${canonical}\` (${uniqueSchemas.size} versions)`);
+                    // Sort by popularity (number of sources) descending
+                    const sortedVersions = [...uniqueSchemas.values()].sort((a, b) => b.length - a.length);
+                    let version = 1;
+                    for (const schemaEntries of sortedVersions) {
+                        const sourceList = schemaEntries
+                            .map((e) => {
+                                const name =
+                                    extractNameFromCanonical(e.sourceCanonical as CanonicalUrl) ?? e.sourceCanonical;
+                                return `${name} (${e.sourcePackage})`;
+                            })
+                            .join(", ");
+                        lines.push(`  - Version ${version++}: ${sourceList}`);
+                    }
                 }
                 lines.push("");
             }

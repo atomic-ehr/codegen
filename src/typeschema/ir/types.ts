@@ -1,6 +1,16 @@
 import type { CanonicalUrl, PkgName, TypeSchema } from "../types";
 
-export type TypeSchemaCollisions = Record<PkgName, Record<CanonicalUrl, TypeSchema[]>>;
+export type TypeSchemaCollisions = Record<
+    PkgName,
+    Record<
+        CanonicalUrl,
+        {
+            typeSchema: TypeSchema;
+            sourcePackage: PkgName;
+            sourceCanonical: CanonicalUrl;
+        }[]
+    >
+>;
 
 export type IrConf = {
     treeShake?: TreeShakeConf;

@@ -14,12 +14,10 @@ import type {
     CanonicalUrl,
     Concept,
     EnumDefinition,
-    Identifier,
     PackageMeta,
     RichFHIRSchema,
     RichValueSet,
 } from "@typeschema/types";
-import { buildFieldType } from "./field-builder";
 import { dropVersionFromUrl, mkBindingIdentifier, mkValueSetIdentifierByUrl } from "./identifier";
 
 export function extractValueSetConceptsByUrl(

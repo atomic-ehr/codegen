@@ -88,18 +88,18 @@ export class IntrospectionWriter extends FileSystemWriter<IntrospectionWriterOpt
 
                     for (const [pkg, canonicals] of Object.entries(tsIndex.irReport().collisions ?? {})) {
                         this.cd(`${normalizeFileName(pkg)}`, () => {
-                            for (const [canonical, versions] of Object.entries(canonicals)) {
-                                if (versions.length <= 1) continue;
-                                const firstVersion = versions[0];
-                                assert(firstVersion);
+                            for (const [canonical, entries] of Object.entries(canonicals)) {
+                                if (entries.length <= 1) continue;
+                                const firstEntry = entries[0];
+                                assert(firstEntry);
                                 const name = normalizeFileName(
-                                    `${firstVersion.identifier.name}(${extractNameFromCanonical(canonical as CanonicalUrl)})`,
+                                    `${firstEntry.typeSchema.identifier.name}(${extractNameFromCanonical(canonical as CanonicalUrl)})`,
                                 );
                                 this.cd(Path.join("collisions", name), () => {
-                                    for (let i = 0; i < versions.length; i++) {
-                                        const version = versions[i];
+                                    for (let i = 0; i < entries.length; i++) {
+                                        const entry = entries[i];
                                         this.cat(`${i + 1}.json`, () => {
-                                            this.write(JSON.stringify(version, null, 2));
+                                            this.write(JSON.stringify(entry, null, 2));
                                         });
                                     }
                                 });
