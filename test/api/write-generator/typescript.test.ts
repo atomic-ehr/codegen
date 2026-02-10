@@ -55,6 +55,8 @@ describe("TypeScript CDA with Logical Model Promotion to Resource", async () => 
     expect(result.success).toBeTrue();
     it("without resourceType", async () => {
         expect(result.filesGenerated["generated/types/hl7-cda-uv-core/CV.ts"]).toMatchSnapshot();
+        expect(result.filesGenerated["generated/types/hl7-cda-uv-core/index.ts"]).toMatchSnapshot();
+        expect(result.filesGenerated["generated/types/hl7-cda-uv-core/profile/index.ts"]).toMatchSnapshot();
     });
     it("with resourceType", async () => {
         expect(result.filesGenerated["generated/types/hl7-cda-uv-core/Material.ts"]).toMatchSnapshot();
