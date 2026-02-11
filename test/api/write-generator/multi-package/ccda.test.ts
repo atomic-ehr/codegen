@@ -14,9 +14,7 @@ describe("CCDA", async () => {
     };
 
     const promoteLogicalConfig = {
-        "hl7.cda.uv.core": [
-            "http://hl7.org/cda/stds/core/StructureDefinition/ClinicalDocument" as CanonicalUrl,
-        ],
+        "hl7.cda.uv.core": ["http://hl7.org/cda/stds/core/StructureDefinition/ClinicalDocument" as CanonicalUrl],
     };
 
     describe("TypeScript Generation", async () => {
@@ -40,7 +38,7 @@ describe("CCDA", async () => {
         it("should generate CDA-specific types", () => {
             const files = Object.keys(result.filesGenerated);
             const cdaFiles = files.filter((f) => f.includes("hl7-cda-uv-core"));
-            expect(cdaFiles.length).toBeGreaterThan(0);
+            expect(cdaFiles.length).toBe(78);
 
             expect(files.some((f) => f.includes("/AD.ts") || f.includes("/CD.ts"))).toBeTrue();
         });
