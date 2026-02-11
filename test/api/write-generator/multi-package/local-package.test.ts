@@ -25,9 +25,7 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
     };
 
     const promoteLogicalConfig = {
-        "example.folder.structures": [
-            "http://example.org/fhir/StructureDefinition/ExampleNotebook" as CanonicalUrl,
-        ],
+        "example.folder.structures": ["http://example.org/fhir/StructureDefinition/ExampleNotebook" as CanonicalUrl],
     };
 
     describe("TypeScript Generation", async () => {
