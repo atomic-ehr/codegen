@@ -114,6 +114,7 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
     }
 
     copyAssets(source: string, destination: string) {
+        destination = Path.normalize(`${this.currentDir ?? this.opts.outputDir}/${destination}`);
         const content = fs.readFileSync(source, "utf8");
         this.writtenFilesBuffer[destination] = {
             relPath: destination,
