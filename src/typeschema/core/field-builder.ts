@@ -146,10 +146,12 @@ export function buildFieldType(
     } else if (fhirSchema.derivation === "constraint") {
         return undefined; // FIXME: should be removed
     } else {
-        logger?.error(
-            `Can't recognize element type: <${fhirSchema.url}>.${path.join(".")} (pkg: '${packageMetaToFhir(fhirSchema.package_meta)}'): ${JSON.stringify(element, undefined, 2)}`,
+        // Some packages (e.g., simplifier.core.r4.*) have incomplete element definitions
+        // Log a warning but continue processing instead of throwing
+        logger?.dryWarn(
+            `Can't recognize element type: <${fhirSchema.url}>.${path.join(".")} (pkg: '${packageMetaToFhir(fhirSchema.package_meta)}'): missing type info`,
         );
-        throw new Error(`Unrecognized element type`);
+        return undefined;
     }
 }
 

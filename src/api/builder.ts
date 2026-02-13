@@ -46,6 +46,8 @@ export interface APIBuilderOptions {
     logLevel: LogLevel;
     /** Custom FHIR package registry URL (default: https://fs.get-ig.org/pkgs/) */
     registry: string | undefined;
+    /** Drop the canonical manager cache */
+    dropCanonicalManagerCache: boolean;
 }
 
 export type GenerationReport = {
@@ -136,6 +138,7 @@ export class APIBuilder {
             promoteLogical: undefined,
             registry: undefined,
             logLevel: parseLogLevel("INFO"),
+            dropCanonicalManagerCache: false,
         };
         const opts: APIBuilderOptions = {
             ...defaultOpts,
@@ -162,6 +165,7 @@ export class APIBuilder {
                 packages: [],
                 workingDir: ".codegen-cache/canonical-manager-cache",
                 registry: userOpts.registry,
+                dropCache: userOpts.dropCanonicalManagerCache,
             });
         this.logger = userOpts.logger ?? createLogger({ prefix: "API", level: opts.logLevel });
         this.options = opts;
@@ -175,15 +179,6 @@ export class APIBuilder {
 
     fromPackageRef(packageRef: string): APIBuilder {
         this.managerInput.npmPackages.push(packageRef);
-        return this;
-    }
-
-    /**
-     * Set a custom FHIR package registry URL
-     * @param url The registry URL (default: https://fs.get-ig.org/pkgs/)
-     */
-    registry(url: string): APIBuilder {
-        this.options.registry = url;
         return this;
     }
 
