@@ -182,26 +182,44 @@ export const registerFromManager = async (
     enrichResolver(resolver);
 
     const resolveFs = (pkg: PackageMeta, canonicalUrl: CanonicalUrl) => {
-        // Try to resolve from the specified package first
-        const direct = resolver[packageMetaToFhir(pkg)]?.fhirSchemas[canonicalUrl];
-        if (direct) return direct;
-
-        // Fallback: search across all packages in the resolver
-        for (const pkgIndex of Object.values(resolver)) {
-            const fs = pkgIndex.fhirSchemas[canonicalUrl];
+        const pkgIndex = resolver[packageMetaToFhir(pkg)];
+        if (pkgIndex) {
+            // Use canonicalResolution which is sorted by depth (closest first)
+            const resolution = pkgIndex.canonicalResolution[canonicalUrl]?.[0];
+            if (resolution) {
+                return resolver[resolution.pkgId]?.fhirSchemas[canonicalUrl];
+            }
+        }
+        // Fallback for packages not in resolver: search by package name in fhirSchemas
+        for (const idx of Object.values(resolver)) {
+            const fs = idx.fhirSchemas[canonicalUrl];
+            if (fs && fs.package_meta.name === pkg.name) return fs;
+        }
+        // Last resort: return any match
+        for (const idx of Object.values(resolver)) {
+            const fs = idx.fhirSchemas[canonicalUrl];
             if (fs) return fs;
         }
         return undefined;
     };
 
     const resolveVs = (pkg: PackageMeta, canonicalUrl: CanonicalUrl) => {
-        // Try to resolve from the specified package first
-        const direct = resolver[packageMetaToFhir(pkg)]?.valueSets[canonicalUrl];
-        if (direct) return direct;
-
-        // Fallback: search across all packages in the resolver
-        for (const pkgIndex of Object.values(resolver)) {
-            const vs = pkgIndex.valueSets[canonicalUrl];
+        const pkgIndex = resolver[packageMetaToFhir(pkg)];
+        if (pkgIndex) {
+            // Use canonicalResolution which is sorted by depth (closest first)
+            const resolution = pkgIndex.canonicalResolution[canonicalUrl]?.[0];
+            if (resolution) {
+                return resolver[resolution.pkgId]?.valueSets[canonicalUrl];
+            }
+        }
+        // Fallback for packages not in resolver: search by package name in valueSets
+        for (const idx of Object.values(resolver)) {
+            const vs = idx.valueSets[canonicalUrl];
+            if (vs && vs.package_meta.name === pkg.name) return vs;
+        }
+        // Last resort: return any match
+        for (const idx of Object.values(resolver)) {
+            const vs = idx.valueSets[canonicalUrl];
             if (vs) return vs;
         }
         return undefined;

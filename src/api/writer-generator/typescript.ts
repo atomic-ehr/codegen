@@ -895,7 +895,13 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 }
             } else if (ext.valueTypes && ext.valueTypes.length === 1) {
                 needsExtensionType = true;
-                if (ext.valueTypes[0]) addType(ext.valueTypes[0]);
+                if (ext.valueTypes[0]) {
+                    const resolvedType = tsIndex.resolveByUrl(
+                        flatProfile.identifier.package,
+                        ext.valueTypes[0].url as CanonicalUrl,
+                    );
+                    addType(resolvedType?.identifier ?? ext.valueTypes[0]);
+                }
             } else {
                 needsExtensionType = true;
             }
