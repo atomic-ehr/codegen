@@ -27,7 +27,9 @@ export type Register = {
     resolveFsSpecializations(pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichFHIRSchema[];
     allSd(): RichStructureDefinition[];
     patchSd(fn: (pkg: PackageMeta, sd: StructureDefinition) => StructureDefinition): void;
+    /** Returns all FHIRSchemas from all packages in the resolver */
     allFs(): RichFHIRSchema[];
+    /** Returns all ValueSets from all packages in the resolver */
     allVs(): RichValueSet[];
     resolveVs(_pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichValueSet | undefined;
     resolveAny(canonicalUrl: CanonicalUrl): any | undefined;
@@ -39,6 +41,7 @@ export type Register = {
 
 const readPackageDependencies = async (manager: ReturnType<typeof CanonicalManager>, packageMeta: PackageMeta) => {
     const packageJSON = (await manager.packageJson(packageMeta.name)) as any;
+    if (!packageJSON) return [];
     const dependencies = packageJSON.dependencies;
     if (dependencies !== undefined) {
         return Object.entries(dependencies).map(([name, version]): PackageMeta => {
@@ -162,8 +165,6 @@ const packageAgnosticResolveCanonical = (
 
 export type RegisterConfig = {
     logger?: CodegenLogger;
-    // FIXME: remove fallback
-    fallbackPackageForNameResolution?: PackageMeta;
     focusedPackages?: PackageMeta[];
     /** Custom FHIR package registry URL */
     registry?: string;
@@ -171,7 +172,7 @@ export type RegisterConfig = {
 
 export const registerFromManager = async (
     manager: ReturnType<typeof CanonicalManager>,
-    { logger, fallbackPackageForNameResolution, focusedPackages }: RegisterConfig,
+    { logger, focusedPackages }: RegisterConfig,
 ): Promise<Register> => {
     const packages = focusedPackages ?? (await manager.packages());
     const resolver: PackageAwareResolver = {};
@@ -181,19 +182,29 @@ export const registerFromManager = async (
     enrichResolver(resolver);
 
     const resolveFs = (pkg: PackageMeta, canonicalUrl: CanonicalUrl) => {
-        return (
-            resolver[packageMetaToFhir(pkg)]?.fhirSchemas[canonicalUrl] ||
-            (fallbackPackageForNameResolution &&
-                resolver[packageMetaToFhir(fallbackPackageForNameResolution)]?.fhirSchemas[canonicalUrl])
-        );
+        // Try to resolve from the specified package first
+        const direct = resolver[packageMetaToFhir(pkg)]?.fhirSchemas[canonicalUrl];
+        if (direct) return direct;
+
+        // Fallback: search across all packages in the resolver
+        for (const pkgIndex of Object.values(resolver)) {
+            const fs = pkgIndex.fhirSchemas[canonicalUrl];
+            if (fs) return fs;
+        }
+        return undefined;
     };
 
     const resolveVs = (pkg: PackageMeta, canonicalUrl: CanonicalUrl) => {
-        return (
-            resolver[packageMetaToFhir(pkg)]?.valueSets[canonicalUrl] ||
-            (fallbackPackageForNameResolution &&
-                resolver[packageMetaToFhir(fallbackPackageForNameResolution)]?.valueSets[canonicalUrl])
-        );
+        // Try to resolve from the specified package first
+        const direct = resolver[packageMetaToFhir(pkg)]?.valueSets[canonicalUrl];
+        if (direct) return direct;
+
+        // Fallback: search across all packages in the resolver
+        for (const pkgIndex of Object.values(resolver)) {
+            const vs = pkgIndex.valueSets[canonicalUrl];
+            if (vs) return vs;
+        }
+        return undefined;
     };
 
     const ensureSpecializationCanonicalUrl = (name: string | Name | CanonicalUrl): CanonicalUrl => {

@@ -11,9 +11,7 @@ import type { CanonicalUrl, RegularTypeSchema } from "@root/typeschema/types";
 import { mkIndex, mkR4Register, r4Package, r5Package, resolveTs } from "@typeschema-test/utils";
 
 describe("treeShake specific TypeSchema", async () => {
-    const manager = await registerFromPackageMetas([r4Package, r5Package], {
-        fallbackPackageForNameResolution: r4Package,
-    });
+    const manager = await registerFromPackageMetas([r4Package, r5Package], {});
     const tsIndex = await mkIndex(manager);
     it("tree shake report should be empty without treeshaking", () => {
         expect(tsIndex.irReport()).toEqual({});

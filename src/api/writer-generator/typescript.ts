@@ -1511,6 +1511,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
     }
 
     override async generate(tsIndex: TypeSchemaIndex) {
+        // Only generate code for schemas from focused packages
         const typesToGenerate = [
             ...tsIndex.collectComplexTypes(),
             ...tsIndex.collectResources(),

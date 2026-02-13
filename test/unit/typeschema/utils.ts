@@ -21,7 +21,6 @@ export const r4Package = { name: "hl7.fhir.r4.core", version: "4.0.1" };
 
 export const mkR4Register = async () =>
     registerFromPackageMetas([r4Package], {
-        fallbackPackageForNameResolution: r4Package,
         // logger: createLogger({ verbose: true, prefix: "TEST" })
     });
 
@@ -31,7 +30,6 @@ export const r5Package = { name: "hl7.fhir.r5.core", version: "5.0.0" };
 
 export const mkR5Register = async () =>
     registerFromPackageMetas([r5Package], {
-        fallbackPackageForNameResolution: r5Package,
         // logger: createLogger({ verbose: true, prefix: "TEST" })
     });
 
