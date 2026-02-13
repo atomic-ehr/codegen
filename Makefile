@@ -46,7 +46,7 @@ prepare-aidbox-runme:
 	fi
 	@docker compose -f examples/docker-compose.yaml up --wait
 
-test-all-example-generation:
+test-all-example-generation: test-other-example-generation
 	bun run examples/csharp/generate.ts
 	bun run examples/local-package-folder/generate.ts
 	bun run examples/mustache/mustache-java-r4-gen.ts
@@ -55,6 +55,10 @@ test-all-example-generation:
 	bun run examples/typescript-ccda/generate.ts
 	bun run examples/typescript-r4/generate.ts
 	bun run examples/typescript-sql-on-fhir/generate.ts
+
+test-other-example-generation:
+	bun run examples/nodge-r4.ts
+	$(TYPECHECK) --project examples/tmp/tsconfig.json
 
 test-typescript-r4-example: typecheck format lint
 	bun run examples/typescript-r4/generate.ts
