@@ -9,9 +9,9 @@ import {
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
 import {
     type CanonicalUrl,
+    type ChoiceFieldInstance,
     type EnumDefinition,
     extractNameFromCanonical,
-    type Field,
     type Identifier,
     isChoiceDeclarationField,
     isComplexTypeIdentifier,
@@ -26,6 +26,7 @@ import {
     type ProfileTypeSchema,
     packageMeta,
     packageMetaToFhir,
+    type RegularField,
     type RegularTypeSchema,
     type TypeSchema,
 } from "@root/typeschema/types";
@@ -141,6 +142,31 @@ const tsGet = (object: string, tsFieldName: string) => {
 const tsEnumType = (enumDef: EnumDefinition) => {
     const values = enumDef.values.map((e) => `"${e}"`).join(" | ");
     return enumDef.isOpen ? `(${values} | string)` : `(${values})`;
+};
+
+const rewriteFieldTypeDefs: Record<string, Record<string, () => string>> = {
+    Coding: { code: () => "T" },
+    // biome-ignore lint: that is exactly string what we want
+    Reference: { reference: () => "`${T}/${string}`" },
+    CodeableConcept: { coding: () => "Coding<T>" },
+};
+
+const resolveFieldTsType = (schemaName: string, tsName: string, field: RegularField | ChoiceFieldInstance): string => {
+    const rewriteFieldType = rewriteFieldTypeDefs[schemaName]?.[tsName];
+    if (rewriteFieldType) return rewriteFieldType();
+
+    if (field.enum) {
+        if (field.type.name === "Coding") return `Coding<${tsEnumType(field.enum)}>`;
+        if (field.type.name === "CodeableConcept") return `CodeableConcept<${tsEnumType(field.enum)}>`;
+        return tsEnumType(field.enum);
+    }
+    if (field.reference && field.reference.length > 0) {
+        const references = field.reference.map((ref) => `"${ref.name}"`).join(" | ");
+        return `Reference<${references}>`;
+    }
+    if (isPrimitiveIdentifier(field.type)) return resolvePrimitiveType(field.type.name);
+    if (isNestedIdentifier(field.type)) return tsResourceName(field.type);
+    return field.type.name as string;
 };
 
 const tsTypeFromIdentifier = (id: Identifier): string => {
@@ -401,49 +427,15 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             if (!schema.fields) return;
             const fields = Object.entries(schema.fields).sort((a, b) => a[0].localeCompare(b[0]));
 
-            const rewriteFieldTypeDefs: Record<string, Record<string, (field: Field) => string>> = {
-                Coding: {
-                    code: (_field: Field) => "T",
-                },
-                Reference: {
-                    // biome-ignore lint: that is exactly string what we want
-                    reference: (_field: Field) => "`${T}/${string}`",
-                },
-                CodeableConcept: {
-                    coding: (_field: Field) => "Coding<T>",
-                },
-            };
-
             for (const [fieldName, field] of fields) {
                 if (isChoiceDeclarationField(field)) continue;
+                // Skip fields without type info (can happen with incomplete StructureDefinitions)
+                if (!field.type) continue;
 
                 this.debugComment(fieldName, ":", field);
 
                 const tsName = tsFieldName(fieldName);
-                const rewriteFieldType = rewriteFieldTypeDefs[schema.identifier.name]?.[tsName];
-
-                let tsType: string;
-                if (rewriteFieldType) {
-                    tsType = rewriteFieldType(field);
-                } else if (field.enum) {
-                    if (field.type.name === "Coding") {
-                        tsType = `Coding<${tsEnumType(field.enum)}>`;
-                    } else if (field.type.name === "CodeableConcept") {
-                        tsType = `CodeableConcept<${tsEnumType(field.enum)}>`;
-                    } else {
-                        tsType = tsEnumType(field.enum);
-                    }
-                } else if (field.reference && field.reference.length > 0) {
-                    const references = field.reference.map((ref) => `"${ref.name}"`).join(" | ");
-                    tsType = `Reference<${references}>`;
-                } else if (isPrimitiveIdentifier(field.type)) {
-                    tsType = resolvePrimitiveType(field.type.name);
-                } else if (isNestedIdentifier(field.type)) {
-                    tsType = tsResourceName(field.type);
-                } else {
-                    tsType = field.type.name as string;
-                }
-
+                const tsType = resolveFieldTsType(schema.identifier.name, tsName, field);
                 const optionalSymbol = field.required ? "" : "?";
                 const arraySymbol = field.array ? "[]" : "";
                 this.lineSM(`${tsName}${optionalSymbol}: ${tsType}${arraySymbol}`);
