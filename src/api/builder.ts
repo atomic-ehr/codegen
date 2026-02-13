@@ -159,7 +159,6 @@ export class APIBuilder {
             localTgzPackages: [],
         };
         this.prebuiltRegister = userOpts.register;
-        console.log(1111111, userOpts.registry);
         this.manager =
             userOpts.manager ??
             CanonicalManager({
@@ -180,15 +179,6 @@ export class APIBuilder {
 
     fromPackageRef(packageRef: string): APIBuilder {
         this.managerInput.npmPackages.push(packageRef);
-        return this;
-    }
-
-    /**
-     * Set a custom FHIR package registry URL
-     * @param url The registry URL (default: https://fs.get-ig.org/pkgs/)
-     */
-    registry(url: string): APIBuilder {
-        this.options.registry = url;
         return this;
     }
 
