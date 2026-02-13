@@ -65,7 +65,7 @@
   },
   "homepage": "https://github.com/atomic-ehr/codegen#readme",
   "dependencies": {
-    "@atomic-ehr/fhir-canonical-manager": "^0.0.19",
+    "@atomic-ehr/fhir-canonical-manager": "^0.0.20",
     "@atomic-ehr/fhirschema": "^0.0.5",
     "mustache": "^4.2.0",
     "picocolors": "^1.1.1",
