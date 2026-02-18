@@ -22,7 +22,7 @@ import type {
     ViewModel,
 } from "@mustache/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
-import type { CodegenLogger } from "@root/utils/codegen-logger";
+import type { Logger } from "@root/utils/logger";
 import { default as Mustache } from "mustache";
 import { FileSystemWriter, type FileSystemWriterOptions } from "./writer";
 
@@ -57,7 +57,7 @@ export type MustacheGeneratorOptions = FileSystemWriterOptions &
 
 export function loadMustacheGeneratorConfig(
     templatePath: string,
-    logger?: CodegenLogger,
+    logger?: Logger,
 ): Partial<FileBasedMustacheGeneratorOptions> {
     const filePath = Path.resolve(templatePath, "config.json");
     try {

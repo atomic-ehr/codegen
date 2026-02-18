@@ -6,7 +6,8 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
-import { complete, createLogger, list } from "@root/utils/codegen-logger";
+import { complete, list } from "@root/utils/codegen-logger";
+import { makeLogger } from "@root/utils/logger";
 import { generateTypeSchemas } from "@typeschema/index";
 import { registerFromPackageMetas } from "@typeschema/register";
 import type { PackageMeta } from "@typeschema/types";
@@ -73,12 +74,12 @@ export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, G
         },
     },
     handler: async (argv) => {
-        const logger = createLogger({
+        const logger = makeLogger({
             prefix: "TypeSchema",
         });
 
         try {
-            logger.step("Generating TypeSchema from FHIR packages");
+            logger.info("Generating TypeSchema from FHIR packages");
             logger.info(`Packages: ${argv.packages.join(", ")}`);
             logger.info(`Output: ${argv.output}`);
 
@@ -113,7 +114,7 @@ export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, G
                 return { name: packageSpec, version: "latest" };
             });
 
-            logger.progress(`Processing packages: ${packageMetas.map((p) => `${p.name}@${p.version}`).join(", ")}`);
+            logger.info(`Processing packages: ${packageMetas.map((p) => `${p.name}@${p.version}`).join(", ")}`);
 
             // Create register from packages
             const register = await registerFromPackageMetas(packageMetas, {
@@ -149,7 +150,7 @@ export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, G
 
             const duration = Date.now() - startTime;
             complete(`Generated ${allSchemas.length} TypeSchema definitions`, duration, { schemas: allSchemas.length });
-            logger.dim(`Output: ${outputPath}`);
+            logger.info(`Output: ${outputPath}`);
 
             if (argv.verbose) {
                 logger.debug("Generated schemas:");
@@ -160,7 +161,7 @@ export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, G
                 list(schemaNames);
             }
         } catch (error) {
-            logger.error("Failed to generate TypeSchema", error instanceof Error ? error : new Error(String(error)));
+            logger.error(`Failed to generate TypeSchema: ${error instanceof Error ? error.message : String(error)}`);
             process.exit(1);
         }
     },
