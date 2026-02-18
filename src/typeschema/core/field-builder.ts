@@ -6,7 +6,7 @@
 
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
-import type { CodegenLogger } from "@root/utils/codegen-logger";
+import type { Logger } from "@root/utils/logger";
 import { packageMetaToFhir } from "@typeschema/types";
 import type {
     BindingIdentifier,
@@ -126,7 +126,7 @@ export function buildFieldType(
     fhirSchema: RichFHIRSchema,
     path: string[],
     element: FHIRSchemaElement,
-    logger?: CodegenLogger,
+    logger?: Logger,
 ): Identifier | undefined {
     if (element.elementReference) {
         const refPath = element.elementReference
@@ -149,6 +149,7 @@ export function buildFieldType(
         // Some packages (e.g., simplifier.core.r4.*) have incomplete element definitions
         // Log a warning but continue processing instead of throwing
         logger?.dryWarn(
+            "FIELD_TYPE_NOT_FOUND",
             `Can't recognize element type: <${fhirSchema.url}>.${path.join(".")} (pkg: '${packageMetaToFhir(fhirSchema.package_meta)}'): missing type info`,
         );
         return undefined;
@@ -160,7 +161,7 @@ export const mkField = (
     fhirSchema: RichFHIRSchema,
     path: string[],
     element: FHIRSchemaElement,
-    logger?: CodegenLogger,
+    logger?: Logger,
 ): Field => {
     let binding: BindingIdentifier | undefined;
     let enumResult: EnumDefinition | undefined;
@@ -175,7 +176,10 @@ export const mkField = (
     const fieldType = buildFieldType(register, fhirSchema, path, element, logger);
     // TODO: should be an exception
     if (!fieldType)
-        logger?.dryWarn(`Field type not found for '${fhirSchema.url}#${path.join(".")}' (${fhirSchema.derivation})`);
+        logger?.dryWarn(
+            "FIELD_TYPE_NOT_FOUND",
+            `Field type not found for '${fhirSchema.url}#${path.join(".")}' (${fhirSchema.derivation})`,
+        );
     return {
         type: fieldType as Identifier,
         required: isRequired(register, fhirSchema, path),
@@ -221,7 +225,7 @@ export function mkNestedField(
     fhirSchema: RichFHIRSchema,
     path: string[],
     element: FHIRSchemaElement,
-    logger?: CodegenLogger,
+    logger?: Logger,
 ): RegularField {
     const nestedIdentifier = mkNestedIdentifier(register, fhirSchema, path, logger);
     return {

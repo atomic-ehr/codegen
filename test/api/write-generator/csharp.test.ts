@@ -4,7 +4,7 @@ import { r4Manager } from "@typeschema-test/utils";
 
 describe("C# Writer Generator", async () => {
     const result = await new APIBuilder({ register: r4Manager })
-        .setLogLevel("SILENT")
+        .setLogLevel("error")
         .csharp({
             inMemoryOnly: true,
         })

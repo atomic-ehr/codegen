@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import type { CodegenLogger } from "@root/utils/codegen-logger";
+import type { Logger } from "@root/utils/logger";
 import { extractDependencies } from "../core/transformer";
 import {
     type CanonicalUrl,
@@ -174,7 +174,7 @@ const mutableFillReport = (report: TreeShakeReport, tsIndex: TypeSchemaIndex, sh
     }
 };
 
-export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _logger?: CodegenLogger): TypeSchema => {
+export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _logger?: Logger): TypeSchema => {
     schema = JSON.parse(JSON.stringify(schema));
     if (isPrimitiveTypeSchema(schema) || isValueSetTypeSchema(schema) || isBindingSchema(schema)) return schema;
 
