@@ -13,12 +13,12 @@ export interface HumanName extends Element {
     family?: string;
     _family?: Element;
     given?: string[];
-    _given?: Element;
+    _given?: (Element | null)[];
     period?: Period;
     prefix?: string[];
-    _prefix?: Element;
+    _prefix?: (Element | null)[];
     suffix?: string[];
-    _suffix?: Element;
+    _suffix?: (Element | null)[];
     text?: string;
     _text?: Element;
     use?: ("usual" | "official" | "temp" | "nickname" | "anonymous" | "old" | "maiden");
