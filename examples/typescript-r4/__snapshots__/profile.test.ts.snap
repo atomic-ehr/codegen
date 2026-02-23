@@ -1,0 +1,38 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`Body weight observation with Profile class 1`] = `
+{
+  "category": [
+    {
+      "coding": {
+        "code": "vital-signs",
+        "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+      },
+      "text": "Vital Signs",
+    },
+  ],
+  "code": {
+    "coding": [
+      {
+        "code": "29463-7",
+        "display": "Body weight",
+        "system": "http://loinc.org",
+      },
+    ],
+  },
+  "effectiveDateTime": "2023-03-15T09:30:00Z",
+  "id": "bodyweight-obs-1",
+  "resourceType": "Observation",
+  "status": "final",
+  "subject": {
+    "display": "John Smith",
+    "reference": "Patient/pt-1",
+  },
+  "valueQuantity": {
+    "code": "kg",
+    "system": "http://unitsofmeasure.org",
+    "unit": "kg",
+    "value": 75.5,
+  },
+}
+`;

@@ -1,18 +1,13 @@
 /**
  * FHIR R4 Resource Creation Tests
  *
- * Tests for:
- * 1. Patient resource creation
- * 2. Observation resource creation
- * 3. Body weight observation using Profile class API
- * 4. Bundle creation
+ * Tests for basic resource creation: Patient, Observation, Bundle.
  */
 
 import { expect, test } from "bun:test";
 import type { Bundle, BundleEntry } from "./fhir-types/hl7-fhir-r4-core/Bundle";
 import type { Observation, ObservationReferenceRange } from "./fhir-types/hl7-fhir-r4-core/Observation";
 import type { Address, ContactPoint, HumanName, Identifier, Patient } from "./fhir-types/hl7-fhir-r4-core/Patient";
-import { bodyweightProfile } from "./fhir-types/hl7-fhir-r4-core/profiles/Observation_bodyweight";
 
 function createPatient(): Patient {
     const identifier: Identifier = {
@@ -93,33 +88,15 @@ function createObservation(patientId: string): Observation {
     };
 }
 
-function createBodyWeightObservation(patientId: string): Observation {
-    const baseObservation: Observation = {
-        resourceType: "Observation",
-        id: "bodyweight-obs-1",
-        status: "final",
-        code: {
-            coding: [{ code: "29463-7", system: "http://loinc.org", display: "Body weight" }],
-        },
-        subject: { reference: `Patient/${patientId}`, display: "John Smith" },
-        effectiveDateTime: "2023-03-15T09:30:00Z",
-        valueQuantity: { value: 75.5, unit: "kg", system: "http://unitsofmeasure.org", code: "kg" },
-    };
-
-    const profile = new bodyweightProfile(baseObservation).setVscat({ text: "Vital Signs" });
-    return profile.toResource();
-}
-
-function createBundle(patient: Patient, observation: Observation, bodyweightObs: Observation): Bundle {
+function createBundle(patient: Patient, observation: Observation): Bundle {
     const patientEntry: BundleEntry = { fullUrl: `urn:uuid:${patient.id}`, resource: patient };
     const observationEntry: BundleEntry = { fullUrl: `urn:uuid:${observation.id}`, resource: observation };
-    const bodyweightEntry: BundleEntry = { fullUrl: `urn:uuid:${bodyweightObs.id}`, resource: bodyweightObs };
 
     return {
         resourceType: "Bundle",
         id: "bundle-1",
         type: "collection",
-        entry: [patientEntry, observationEntry, bodyweightEntry],
+        entry: [patientEntry, observationEntry],
     };
 }
 
@@ -133,32 +110,11 @@ test("Observation resource", () => {
     expect(observation).toMatchSnapshot();
 });
 
-test("Body weight observation with Profile class", () => {
-    const bodyweight = createBodyWeightObservation("pt-1");
-
-    expect(bodyweight.status).toBe("final");
-    expect(bodyweight.code?.coding?.[0]?.code).toBe("29463-7");
-    expect(bodyweight.valueQuantity?.value).toBe(75.5);
-
-    // Check vital-signs category was added by profile
-    const hasVitalSigns = bodyweight.category?.some((cat) => {
-        const coding = cat.coding as unknown;
-        if (Array.isArray(coding)) {
-            return coding.some((c) => c.code === "vital-signs");
-        }
-        return (coding as { code?: string })?.code === "vital-signs";
-    });
-    expect(hasVitalSigns).toBe(true);
-
-    expect(bodyweight).toMatchSnapshot();
-});
-
-test("Bundle with all resources", () => {
+test("Bundle with resources", () => {
     const patient = createPatient();
     const observation = createObservation(patient.id!);
-    const bodyweight = createBodyWeightObservation(patient.id!);
-    const bundle = createBundle(patient, observation, bodyweight);
+    const bundle = createBundle(patient, observation);
 
-    expect(bundle.entry).toHaveLength(3);
+    expect(bundle.entry).toHaveLength(2);
     expect(bundle).toMatchSnapshot();
 });
