@@ -384,9 +384,10 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         }
     }
 
-    addFieldExtension(fieldName: string): void {
+    addFieldExtension(fieldName: string, isArray: boolean): void {
         const extFieldName = tsFieldName(`_${fieldName}`);
-        this.lineSM(`${extFieldName}?: Element`);
+        const typeExpr = isArray ? "(Element | null)[]" : "Element";
+        this.lineSM(`${extFieldName}?: ${typeExpr}`);
     }
 
     generateType(tsIndex: TypeSchemaIndex, schema: RegularTypeSchema) {
@@ -442,7 +443,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
 
                 if (this.withPrimitiveTypeExtension(schema)) {
                     if (isPrimitiveIdentifier(field.type)) {
-                        this.addFieldExtension(fieldName);
+                        this.addFieldExtension(fieldName, field.array ?? false);
                     }
                 }
             }
