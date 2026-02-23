@@ -4,7 +4,7 @@
  * Core transformation logic for converting FHIRSchema to TypeSchema format
  */
 
-import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
+import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import { shouldSkipCanonical } from "@root/typeschema/skip-hack";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import type { Register } from "@typeschema/register";
@@ -71,33 +71,6 @@ function extractFieldDependencies(fields: Record<string, Field>): Identifier[] {
     }
 
     return deps;
-}
-
-/**
- * Check if a FHIR schema represents an extension
- */
-function isExtensionSchema(fhirSchema: FHIRSchema, _identifier: Identifier): boolean {
-    // Check if this is based on Extension
-    if (fhirSchema.base === "Extension" || fhirSchema.base === "http://hl7.org/fhir/StructureDefinition/Extension") {
-        return true;
-    }
-
-    // Check if the URL indicates this is an extension
-    if (fhirSchema.url?.includes("/extension/") || fhirSchema.url?.includes("-extension")) {
-        return true;
-    }
-
-    // Check if the name indicates this is an extension
-    if (fhirSchema.name?.toLowerCase().includes("extension")) {
-        return true;
-    }
-
-    // Check if the type is Extension
-    if (fhirSchema.type === "Extension") {
-        return true;
-    }
-
-    return false;
 }
 
 export async function transformValueSet(
@@ -362,13 +335,5 @@ export async function transformFhirSchema(
     fhirSchema: RichFHIRSchema,
     logger?: CodegenLogger,
 ): Promise<TypeSchema[]> {
-    const schemas = transformFhirSchemaResource(register, fhirSchema, logger);
-    if (isExtensionSchema(fhirSchema, mkIdentifier(fhirSchema))) {
-        const schema = schemas[0];
-        if (!schema) throw new Error(`Expected schema to be defined`);
-        (schema as any).metadata = {
-            isExtension: true, // Mark as extension for file organization
-        };
-    }
-    return schemas;
+    return transformFhirSchemaResource(register, fhirSchema, logger);
 }
