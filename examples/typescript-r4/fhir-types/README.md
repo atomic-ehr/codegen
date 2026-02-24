@@ -2,27 +2,6 @@
 
 ## Package: `hl7.fhir.r4.core`
 
-### Modified Canonicals
-
-#### `http://hl7.org/fhir/StructureDefinition/BackboneElement`
-
-Skipped fields:
-
-- `modifierExtension`
-
-#### `http://hl7.org/fhir/StructureDefinition/DomainResource`
-
-Skipped fields:
-
-- `extension`
-- `modifierExtension`
-
-#### `http://hl7.org/fhir/StructureDefinition/Element`
-
-Skipped fields:
-
-- `extension`
-
 ### Skipped Canonicals
 
 - `http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities`
@@ -34,7 +13,6 @@ Skipped fields:
 - `http://hl7.org/fhir/StructureDefinition/Account`
 - `http://hl7.org/fhir/StructureDefinition/ActivityDefinition`
 - `http://hl7.org/fhir/StructureDefinition/AdverseEvent`
-- `http://hl7.org/fhir/StructureDefinition/Age`
 - `http://hl7.org/fhir/StructureDefinition/AllergyIntolerance`
 - `http://hl7.org/fhir/StructureDefinition/Appointment`
 - `http://hl7.org/fhir/StructureDefinition/AppointmentResponse`
@@ -62,14 +40,10 @@ Skipped fields:
 - `http://hl7.org/fhir/StructureDefinition/ConceptMap`
 - `http://hl7.org/fhir/StructureDefinition/Condition`
 - `http://hl7.org/fhir/StructureDefinition/Consent`
-- `http://hl7.org/fhir/StructureDefinition/ContactDetail`
 - `http://hl7.org/fhir/StructureDefinition/Contract`
-- `http://hl7.org/fhir/StructureDefinition/Contributor`
-- `http://hl7.org/fhir/StructureDefinition/Count`
 - `http://hl7.org/fhir/StructureDefinition/Coverage`
 - `http://hl7.org/fhir/StructureDefinition/CoverageEligibilityRequest`
 - `http://hl7.org/fhir/StructureDefinition/CoverageEligibilityResponse`
-- `http://hl7.org/fhir/StructureDefinition/DataRequirement`
 - `http://hl7.org/fhir/StructureDefinition/Definition`
 - `http://hl7.org/fhir/StructureDefinition/DetectedIssue`
 - `http://hl7.org/fhir/StructureDefinition/Device`
@@ -82,11 +56,9 @@ Skipped fields:
 - `http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsAssessedCondition`
 - `http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsFamilyMemberHistory`
 - `http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsReferences`
-- `http://hl7.org/fhir/StructureDefinition/Distance`
 - `http://hl7.org/fhir/StructureDefinition/DocumentManifest`
 - `http://hl7.org/fhir/StructureDefinition/DocumentReference`
 - `http://hl7.org/fhir/StructureDefinition/DomainResource`
-- `http://hl7.org/fhir/StructureDefinition/Dosage`
 - `http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis`
 - `http://hl7.org/fhir/StructureDefinition/Element`
 - `http://hl7.org/fhir/StructureDefinition/ElementDefinition`
@@ -101,8 +73,6 @@ Skipped fields:
 - `http://hl7.org/fhir/StructureDefinition/EvidenceVariable`
 - `http://hl7.org/fhir/StructureDefinition/ExampleScenario`
 - `http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit`
-- `http://hl7.org/fhir/StructureDefinition/Expression`
-- `http://hl7.org/fhir/StructureDefinition/Extension`
 - `http://hl7.org/fhir/StructureDefinition/FamilyMemberHistory`
 - `http://hl7.org/fhir/StructureDefinition/FiveWs`
 - `http://hl7.org/fhir/StructureDefinition/Flag`
@@ -146,7 +116,6 @@ Skipped fields:
 - `http://hl7.org/fhir/StructureDefinition/MessageHeader`
 - `http://hl7.org/fhir/StructureDefinition/MetadataResource`
 - `http://hl7.org/fhir/StructureDefinition/MolecularSequence`
-- `http://hl7.org/fhir/StructureDefinition/Money`
 - `http://hl7.org/fhir/StructureDefinition/MoneyQuantity`
 - `http://hl7.org/fhir/StructureDefinition/NamingSystem`
 - `http://hl7.org/fhir/StructureDefinition/NutritionOrder`
@@ -156,7 +125,6 @@ Skipped fields:
 - `http://hl7.org/fhir/StructureDefinition/OperationOutcome`
 - `http://hl7.org/fhir/StructureDefinition/Organization`
 - `http://hl7.org/fhir/StructureDefinition/OrganizationAffiliation`
-- `http://hl7.org/fhir/StructureDefinition/ParameterDefinition`
 - `http://hl7.org/fhir/StructureDefinition/Parameters`
 - `http://hl7.org/fhir/StructureDefinition/Patient`
 - `http://hl7.org/fhir/StructureDefinition/PaymentNotice`
@@ -172,7 +140,6 @@ Skipped fields:
 - `http://hl7.org/fhir/StructureDefinition/Provenance`
 - `http://hl7.org/fhir/StructureDefinition/Questionnaire`
 - `http://hl7.org/fhir/StructureDefinition/QuestionnaireResponse`
-- `http://hl7.org/fhir/StructureDefinition/RelatedArtifact`
 - `http://hl7.org/fhir/StructureDefinition/RelatedPerson`
 - `http://hl7.org/fhir/StructureDefinition/Request`
 - `http://hl7.org/fhir/StructureDefinition/RequestGroup`
@@ -206,8 +173,6 @@ Skipped fields:
 - `http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities`
 - `http://hl7.org/fhir/StructureDefinition/TestReport`
 - `http://hl7.org/fhir/StructureDefinition/TestScript`
-- `http://hl7.org/fhir/StructureDefinition/TriggerDefinition`
-- `http://hl7.org/fhir/StructureDefinition/UsageContext`
 - `http://hl7.org/fhir/StructureDefinition/ValueSet`
 - `http://hl7.org/fhir/StructureDefinition/VerificationResult`
 - `http://hl7.org/fhir/StructureDefinition/VisionPrescription`
@@ -454,7 +419,6 @@ Skipped fields:
 - `http://hl7.org/fhir/StructureDefinition/observation-sequelTo`
 - `http://hl7.org/fhir/StructureDefinition/observation-specimenCode`
 - `http://hl7.org/fhir/StructureDefinition/observation-timeOffset`
-- `http://hl7.org/fhir/StructureDefinition/oid`
 - `http://hl7.org/fhir/StructureDefinition/openEHR-administration`
 - `http://hl7.org/fhir/StructureDefinition/openEHR-careplan`
 - `http://hl7.org/fhir/StructureDefinition/openEHR-exposureDate`
@@ -595,7 +559,6 @@ Skipped fields:
 - `http://hl7.org/fhir/StructureDefinition/tz-code`
 - `http://hl7.org/fhir/StructureDefinition/tz-offset`
 - `http://hl7.org/fhir/StructureDefinition/usagecontext-group`
-- `http://hl7.org/fhir/StructureDefinition/uuid`
 - `http://hl7.org/fhir/StructureDefinition/valueset-activityStatusDate`
 - `http://hl7.org/fhir/StructureDefinition/valueset-author`
 - `http://hl7.org/fhir/StructureDefinition/valueset-authoritativeSource`
@@ -1979,7 +1942,6 @@ Skipped fields:
 - `urn:fhir:binding:ActivityDefinitionType`
 - `urn:fhir:binding:ActivityParticipantRole`
 - `urn:fhir:binding:ActivityParticipantType`
-- `urn:fhir:binding:AdditionalInstruction`
 - `urn:fhir:binding:Adjudication`
 - `urn:fhir:binding:AdjudicationError`
 - `urn:fhir:binding:AdjudicationReason`
@@ -2144,14 +2106,12 @@ Skipped fields:
 - `urn:fhir:binding:ContractTermSubType`
 - `urn:fhir:binding:ContractTermType`
 - `urn:fhir:binding:ContractType`
-- `urn:fhir:binding:ContributorType`
 - `urn:fhir:binding:CopayTypes`
 - `urn:fhir:binding:Courtesies`
 - `urn:fhir:binding:CoverageClass`
 - `urn:fhir:binding:CoverageFinancialException`
 - `urn:fhir:binding:CoverageStatus`
 - `urn:fhir:binding:CoverageType`
-- `urn:fhir:binding:CurrencyCode`
 - `urn:fhir:binding:DICOMMediaType`
 - `urn:fhir:binding:DaysOfWeek`
 - `urn:fhir:binding:DefinitionTopic`
@@ -2194,7 +2154,6 @@ Skipped fields:
 - `urn:fhir:binding:DocumentReferenceStatus`
 - `urn:fhir:binding:DocumentRelationshipType`
 - `urn:fhir:binding:DocumentType`
-- `urn:fhir:binding:DoseAndRateType`
 - `urn:fhir:binding:EffectEstimateType`
 - `urn:fhir:binding:ElementDefinitionCode`
 - `urn:fhir:binding:EligibilityRequestPurpose`
@@ -2227,9 +2186,7 @@ Skipped fields:
 - `urn:fhir:binding:ExampleScenarioActorType`
 - `urn:fhir:binding:ExplanationOfBenefitStatus`
 - `urn:fhir:binding:ExposureState`
-- `urn:fhir:binding:ExpressionLanguage`
 - `urn:fhir:binding:ExtensionContextType`
-- `urn:fhir:binding:FHIRAllTypes`
 - `urn:fhir:binding:FHIRDefinedType`
 - `urn:fhir:binding:FHIRDefinedTypeExt`
 - `urn:fhir:binding:FHIRDeviceStatus`
@@ -2321,11 +2278,9 @@ Skipped fields:
 - `urn:fhir:binding:MediaType`
 - `urn:fhir:binding:MediaView`
 - `urn:fhir:binding:MedicationAdministrationCategory`
-- `urn:fhir:binding:MedicationAdministrationMethod`
 - `urn:fhir:binding:MedicationAdministrationNegationReason`
 - `urn:fhir:binding:MedicationAdministrationPerformerFunction`
 - `urn:fhir:binding:MedicationAdministrationReason`
-- `urn:fhir:binding:MedicationAdministrationSite`
 - `urn:fhir:binding:MedicationAdministrationStatus`
 - `urn:fhir:binding:MedicationCharacteristic`
 - `urn:fhir:binding:MedicationDispenseCategory`
@@ -2377,7 +2332,6 @@ Skipped fields:
 - `urn:fhir:binding:OrganizationAffiliation`
 - `urn:fhir:binding:OrganizationSpecialty`
 - `urn:fhir:binding:OrganizationType`
-- `urn:fhir:binding:ParameterUse`
 - `urn:fhir:binding:ParticipantRequired`
 - `urn:fhir:binding:ParticipantStatus`
 - `urn:fhir:binding:ParticipantType`
@@ -2437,7 +2391,6 @@ Skipped fields:
 - `urn:fhir:binding:ReferralMethod`
 - `urn:fhir:binding:ReferredDocumentStatus`
 - `urn:fhir:binding:RejectionCriterion`
-- `urn:fhir:binding:RelatedArtifactType`
 - `urn:fhir:binding:RelatedClaimRelationship`
 - `urn:fhir:binding:Relationship`
 - `urn:fhir:binding:RemittanceOutcome`
@@ -2460,7 +2413,6 @@ Skipped fields:
 - `urn:fhir:binding:RiskAssessmentProbability`
 - `urn:fhir:binding:RiskAssessmentStatus`
 - `urn:fhir:binding:RiskEstimateType`
-- `urn:fhir:binding:RouteOfAdministration`
 - `urn:fhir:binding:SPDXLicense`
 - `urn:fhir:binding:Safety`
 - `urn:fhir:binding:SearchComparator`
@@ -2482,7 +2434,6 @@ Skipped fields:
 - `urn:fhir:binding:Sex`
 - `urn:fhir:binding:SlicingRules`
 - `urn:fhir:binding:SlotStatus`
-- `urn:fhir:binding:SortDirection`
 - `urn:fhir:binding:SpecimenCollection`
 - `urn:fhir:binding:SpecimenCollectionMethod`
 - `urn:fhir:binding:SpecimenCondition`
@@ -2531,12 +2482,10 @@ Skipped fields:
 - `urn:fhir:binding:TestScriptRequestMethodCode`
 - `urn:fhir:binding:TextureModifiedFoodType`
 - `urn:fhir:binding:TextureModifier`
-- `urn:fhir:binding:TriggerType`
 - `urn:fhir:binding:TypeDerivationRule`
 - `urn:fhir:binding:TypeRestfulInteraction`
 - `urn:fhir:binding:UCUMUnits`
 - `urn:fhir:binding:UDIEntryType`
-- `urn:fhir:binding:UsageContextType`
 - `urn:fhir:binding:Use`
 - `urn:fhir:binding:VaccineCode`
 - `urn:fhir:binding:VariableType`

@@ -13,7 +13,7 @@ export interface Meta extends Element {
     lastUpdated?: string;
     _lastUpdated?: Element;
     profile?: string[];
-    _profile?: Element;
+    _profile?: (Element | null)[];
     security?: Coding[];
     source?: string;
     _source?: Element;

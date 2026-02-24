@@ -40,6 +40,6 @@ export interface TimingRepeat extends Element {
 export interface Timing extends BackboneElement {
     code?: CodeableConcept<("BID" | "TID" | "QID" | "AM" | "PM" | "QD" | "QOD" | "Q1H" | "Q2H" | "Q3H" | "Q4H" | "Q6H" | "Q8H" | "BED" | "WK" | "MO" | string)>;
     event?: string[];
-    _event?: Element;
+    _event?: (Element | null)[];
     repeat?: Element;
 }

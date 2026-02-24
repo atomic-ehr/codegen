@@ -17,7 +17,7 @@ export interface Address extends Element {
     district?: string;
     _district?: Element;
     line?: string[];
-    _line?: Element;
+    _line?: (Element | null)[];
     period?: Period;
     postalCode?: string;
     _postalCode?: Element;

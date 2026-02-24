@@ -1,25 +1,40 @@
 # TypeScript R4 Example
 
-Complete FHIR R4 type generation with resource creation, profile usage, and bundle composition.
+Complete FHIR R4 type generation with resource creation, profile usage, extensions, and bundle composition.
 
 ## Overview
 
-This example demonstrates how to use the Atomic EHR Codegen toolkit to generate TypeScript interfaces for the entire FHIR R4 core specification. It includes:
+This example demonstrates how to use the Atomic EHR Codegen toolkit to generate TypeScript interfaces for the FHIR R4 core specification. It includes:
 
-- Full FHIR R4 resource type definitions
-- Profile support with type-safe extensions
+- FHIR R4 resource type definitions
+- Profile support with type-safe slices
+- Extension support with proper typing for array primitives
 - Bundle composition utilities
-- Real-world usage patterns
 
-## Configuration Options
+## Quick Start
+
+```bash
+# Generate types
+bun run examples/typescript-r4/generate.ts
+
+# Run tests
+bun test ./examples/typescript-r4/
+```
+
+## Tests
+
+- **resource.test.ts** - Tests for Patient, Observation, Profile class API, and Bundle creation
+- **extension.test.ts** - Tests for FHIR extensions (resource-level, primitive, complex type, array elements)
+
+## Configuration
 
 Edit `generate.ts` to customize generation:
 
 ```typescript
 .typescript({
   withDebugComment: false,      // Include generation metadata comments
-  generateProfile: true,         // Generate profile-specific types
-  openResourceTypeSet: false     // Allow open resource type definitions
+  generateProfile: true,        // Generate profile-specific types
+  openResourceTypeSet: false    // Allow open resource type definitions
 })
 ```
 
@@ -28,126 +43,118 @@ Edit `generate.ts` to customize generation:
 ### Import and Use Resources
 
 ```typescript
-import { Patient, Observation } from './fhir-types/index.js';
+import type { Patient, Observation } from './fhir-types/hl7-fhir-r4-core';
 
 const patient: Patient = {
   resourceType: 'Patient',
   id: 'patient-1',
-  name: [
-    {
-      use: 'official',
-      family: 'Smith',
-      given: ['John']
-    }
-  ],
+  name: [{ use: 'official', family: 'Smith', given: ['John'] }],
   birthDate: '1980-01-15',
   gender: 'male'
 };
+```
 
-const observation: Observation = {
-  resourceType: 'Observation',
-  id: 'obs-1',
-  status: 'final',
-  code: {
-    coding: [
-      {
-        system: 'http://loinc.org',
-        code: '39156-5',
-        display: 'BMI'
-      }
-    ]
+### Working with Extensions
+
+```typescript
+import type { Patient } from './fhir-types/hl7-fhir-r4-core/Patient';
+import type { HumanName } from './fhir-types/hl7-fhir-r4-core/HumanName';
+
+const name: HumanName = {
+  family: 'van Beethoven',
+  given: ['Ludwig', 'Maria'],
+  // Extension on primitive element
+  _family: {
+    extension: [{
+      url: 'http://hl7.org/fhir/StructureDefinition/humanname-own-prefix',
+      valueString: 'van'
+    }]
   },
-  subject: {
-    reference: 'Patient/patient-1'
-  },
-  value: {
-    quantity: {
-      value: 25.5,
-      unit: 'kg/m2'
-    }
-  }
+  // Array element extensions with null handling
+  _given: [
+    { extension: [{ url: 'http://example.org/name-source', valueCode: 'birth-certificate' }] },
+    null  // No extension for second element
+  ]
+};
+
+const patient: Patient = {
+  resourceType: 'Patient',
+  id: 'ext-demo',
+  // Resource-level extension
+  extension: [{
+    url: 'http://hl7.org/fhir/StructureDefinition/patient-birthPlace',
+    valueAddress: { city: 'Springfield', country: 'US' }
+  }],
+  name: [name]
 };
 ```
 
 ### Working with Profiles
 
 ```typescript
-import { USCorePatient } from './fhir-types/profiles/index.js';
+import type { Observation } from './fhir-types/hl7-fhir-r4-core/Observation';
+import { bodyweightProfile } from './fhir-types/hl7-fhir-r4-core/profiles/Observation_bodyweight';
 
-const usPatient: USCorePatient = {
-  resourceType: 'Patient',
-  // US Core requires certain extensions and fields
-  ...
+const baseObservation: Observation = {
+  resourceType: 'Observation',
+  status: 'final',
+  code: { coding: [{ code: '29463-7', system: 'http://loinc.org' }] },
+  valueQuantity: { value: 75.5, unit: 'kg' }
 };
+
+// Use profile class to add required slices
+const profile = new bodyweightProfile(baseObservation)
+  .setVscat({ text: 'Vital Signs' });
+
+const observation = profile.toResource();
 ```
 
 ### Bundle Operations
 
 ```typescript
-import { Bundle } from './fhir-types/index.js';
+import type { Bundle } from './fhir-types/hl7-fhir-r4-core/Bundle';
 
 const bundle: Bundle = {
   resourceType: 'Bundle',
-  type: 'transaction',
+  type: 'collection',
   entry: [
-    {
-      resource: patient,
-      request: {
-        method: 'POST',
-        url: 'Patient'
-      }
-    },
-    {
-      resource: observation,
-      request: {
-        method: 'POST',
-        url: 'Observation'
-      }
-    }
+    { fullUrl: 'urn:uuid:pt-1', resource: patient },
+    { fullUrl: 'urn:uuid:obs-1', resource: observation }
   ]
 };
 ```
-
-## Running the Demo
-
-After generating types, run the included demo:
-
-```bash
-bun run examples/typescript-r4/demo.ts
-```
-
-This demonstrates:
-- Resource creation
-- Profile usage (bodyweight profile)
-- Bundle composition
-- Type safety validation
 
 ## File Structure
 
 ```
 typescript-r4/
-├── README.md                    # This file
-├── generate.ts                  # Type generation script
-├── demo.ts                      # Usage demonstration
-├── fhir-types/                  # Generated types (created after generation)
-│   ├── index.ts                 # Main exports
-│   ├── resources/               # FHIR resources
-│   ├── types/                   # Complex types (HumanName, Address, etc.)
-│   ├── enums/                   # Value set enums
-│   └── profiles/                # Profile-specific types
-└── type-tree.yaml              # Dependency tree (debug output)
+├── README.md                # This file
+├── generate.ts              # Type generation script
+├── resource.test.ts         # Resource and profile tests
+├── extension.test.ts        # Extension tests
+├── __snapshots__/           # Test snapshots
+├── tsconfig.json            # TypeScript configuration
+└── fhir-types/              # Generated types
+    ├── hl7-fhir-r4-core/
+    │   ├── index.ts         # Package exports
+    │   ├── Patient.ts       # Resource types
+    │   ├── Element.ts       # Base types with extension support
+    │   ├── Extension.ts     # Extension type with all value[x] variants
+    │   └── profiles/        # Profile classes
+    ├── type-schemas/        # TypeSchema JSON (debug)
+    └── type-tree.yaml       # Dependency tree (debug)
 ```
 
 ## Customization
 
-### Include Only Specific Resources
+### Tree Shaking
 
-Uncomment the `treeShake` section in `generate.ts`:
+Include only specific resources by configuring `treeShake`:
 
 ```typescript
 .typeSchema({
   treeShake: {
-    "hl7.fhir.r4.core#4.0.1": {
+    "hl7.fhir.r4.core": {
       "http://hl7.org/fhir/StructureDefinition/Patient": {},
       "http://hl7.org/fhir/StructureDefinition/Observation": {},
     }
@@ -155,10 +162,13 @@ Uncomment the `treeShake` section in `generate.ts`:
 })
 ```
 
-### Enable Debug Comments
+### Introspection Output
 
-Set `withDebugComment: true` to include generation metadata useful for understanding generated code structure.
+Add introspection to inspect generated schemas:
 
-### Export TypeSchema for Inspection
-
-Add `.introspection({ typeSchemas: "./debug" })` to review NDJSON files and understand transformation.
+```typescript
+.introspection({
+  typeSchemas: "type-schemas",
+  typeTree: "type-tree.yaml"
+})
+```

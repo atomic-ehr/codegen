@@ -11,35 +11,51 @@ hl7.fhir.r4.core:
     http://hl7.org/fhir/StructureDefinition/instant: {}
     http://hl7.org/fhir/StructureDefinition/integer: {}
     http://hl7.org/fhir/StructureDefinition/markdown: {}
+    http://hl7.org/fhir/StructureDefinition/oid: {}
     http://hl7.org/fhir/StructureDefinition/positiveInt: {}
     http://hl7.org/fhir/StructureDefinition/string: {}
     http://hl7.org/fhir/StructureDefinition/time: {}
     http://hl7.org/fhir/StructureDefinition/unsignedInt: {}
     http://hl7.org/fhir/StructureDefinition/uri: {}
     http://hl7.org/fhir/StructureDefinition/url: {}
+    http://hl7.org/fhir/StructureDefinition/uuid: {}
     http://hl7.org/fhir/StructureDefinition/xhtml: {}
   complex-type:
     http://hl7.org/fhir/StructureDefinition/Address: {}
+    http://hl7.org/fhir/StructureDefinition/Age: {}
     http://hl7.org/fhir/StructureDefinition/Annotation: {}
     http://hl7.org/fhir/StructureDefinition/Attachment: {}
     http://hl7.org/fhir/StructureDefinition/BackboneElement: {}
     http://hl7.org/fhir/StructureDefinition/CodeableConcept: {}
     http://hl7.org/fhir/StructureDefinition/Coding: {}
+    http://hl7.org/fhir/StructureDefinition/ContactDetail: {}
     http://hl7.org/fhir/StructureDefinition/ContactPoint: {}
+    http://hl7.org/fhir/StructureDefinition/Contributor: {}
+    http://hl7.org/fhir/StructureDefinition/Count: {}
+    http://hl7.org/fhir/StructureDefinition/DataRequirement: {}
+    http://hl7.org/fhir/StructureDefinition/Distance: {}
+    http://hl7.org/fhir/StructureDefinition/Dosage: {}
     http://hl7.org/fhir/StructureDefinition/Duration: {}
     http://hl7.org/fhir/StructureDefinition/Element: {}
+    http://hl7.org/fhir/StructureDefinition/Expression: {}
+    http://hl7.org/fhir/StructureDefinition/Extension: {}
     http://hl7.org/fhir/StructureDefinition/HumanName: {}
     http://hl7.org/fhir/StructureDefinition/Identifier: {}
     http://hl7.org/fhir/StructureDefinition/Meta: {}
+    http://hl7.org/fhir/StructureDefinition/Money: {}
     http://hl7.org/fhir/StructureDefinition/Narrative: {}
+    http://hl7.org/fhir/StructureDefinition/ParameterDefinition: {}
     http://hl7.org/fhir/StructureDefinition/Period: {}
     http://hl7.org/fhir/StructureDefinition/Quantity: {}
     http://hl7.org/fhir/StructureDefinition/Range: {}
     http://hl7.org/fhir/StructureDefinition/Ratio: {}
     http://hl7.org/fhir/StructureDefinition/Reference: {}
+    http://hl7.org/fhir/StructureDefinition/RelatedArtifact: {}
     http://hl7.org/fhir/StructureDefinition/SampledData: {}
     http://hl7.org/fhir/StructureDefinition/Signature: {}
     http://hl7.org/fhir/StructureDefinition/Timing: {}
+    http://hl7.org/fhir/StructureDefinition/TriggerDefinition: {}
+    http://hl7.org/fhir/StructureDefinition/UsageContext: {}
   resource:
     http://hl7.org/fhir/StructureDefinition/Bundle: {}
     http://hl7.org/fhir/StructureDefinition/DomainResource: {}
@@ -62,6 +78,7 @@ shared:
   value-set: {}
   nested: {}
   binding:
+    urn:fhir:binding:AdditionalInstruction: {}
     urn:fhir:binding:AddressType: {}
     urn:fhir:binding:AddressUse: {}
     urn:fhir:binding:AdministrativeGender: {}
@@ -70,8 +87,13 @@ shared:
     urn:fhir:binding:ContactPointSystem: {}
     urn:fhir:binding:ContactPointUse: {}
     urn:fhir:binding:ContactRelationship: {}
+    urn:fhir:binding:ContributorType: {}
+    urn:fhir:binding:CurrencyCode: {}
     urn:fhir:binding:DayOfWeek: {}
+    urn:fhir:binding:DoseAndRateType: {}
     urn:fhir:binding:EventTiming: {}
+    urn:fhir:binding:ExpressionLanguage: {}
+    urn:fhir:binding:FHIRAllTypes: {}
     urn:fhir:binding:FHIRResourceTypeExt: {}
     urn:fhir:binding:HTTPVerb: {}
     urn:fhir:binding:IdentifierType: {}
@@ -82,6 +104,8 @@ shared:
     urn:fhir:binding:Language: {}
     urn:fhir:binding:LinkType: {}
     urn:fhir:binding:MaritalStatus: {}
+    urn:fhir:binding:MedicationAdministrationMethod: {}
+    urn:fhir:binding:MedicationAdministrationSite: {}
     urn:fhir:binding:MimeType: {}
     urn:fhir:binding:NameUse: {}
     urn:fhir:binding:NarrativeStatus: {}
@@ -93,14 +117,20 @@ shared:
     urn:fhir:binding:ObservationRangeType: {}
     urn:fhir:binding:ObservationStatus: {}
     urn:fhir:binding:ObservationValueAbsentReason: {}
+    urn:fhir:binding:ParameterUse: {}
     urn:fhir:binding:QuantityComparator: {}
+    urn:fhir:binding:RelatedArtifactType: {}
+    urn:fhir:binding:RouteOfAdministration: {}
     urn:fhir:binding:SearchEntryMode: {}
     urn:fhir:binding:SecurityLabels: {}
     urn:fhir:binding:SignatureType: {}
+    urn:fhir:binding:SortDirection: {}
     urn:fhir:binding:Status: {}
     urn:fhir:binding:Tags: {}
     urn:fhir:binding:TimingAbbreviation: {}
+    urn:fhir:binding:TriggerType: {}
     urn:fhir:binding:UnitsOfTime: {}
+    urn:fhir:binding:UsageContextType: {}
     urn:fhir:binding:VitalSigns: {}
   profile: {}
   logical: {}

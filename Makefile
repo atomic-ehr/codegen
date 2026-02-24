@@ -63,7 +63,7 @@ test-other-example-generation:
 test-typescript-r4-example: typecheck format lint
 	bun run examples/typescript-r4/generate.ts
 	$(TYPECHECK) --project examples/typescript-r4/tsconfig.json
-	cd examples/typescript-r4 && bun run demo.ts > /dev/null
+	$(TEST) ./examples/typescript-r4/
 
 test-typescript-sql-on-fhir-example: typecheck format lint
 	bun run examples/typescript-sql-on-fhir/generate.ts
