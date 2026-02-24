@@ -8,7 +8,7 @@ if (require.main === module) {
         .fromPackage("hl7.fhir.r4.core", "4.0.1")
         .python({
             allowExtraFields: false,
-            fieldFormat: "snake_case",
+            fieldFormat: "camelCase",
             fhirpyClient: true,
         })
         .outputTo("./examples/python-fhirpy/fhir_types")
