@@ -37,9 +37,6 @@
         "noUnusedPrivateClassMembers": "error",
         "noUnusedImports": { "level": "warn" }
       },
-      "nursery": {
-        "noUnresolvedImports": "off"
-      },
       "complexity": {
         "noExcessiveCognitiveComplexity": {
           "level": "warn",
