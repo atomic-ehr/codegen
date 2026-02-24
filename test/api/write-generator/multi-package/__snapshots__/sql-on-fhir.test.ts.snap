@@ -66,11 +66,11 @@ export interface ViewDefinitionWhere extends BackboneElement {
 export interface ViewDefinition extends CanonicalResource {
     constant?: ViewDefinitionConstant[];
     fhirVersion?: ("0.01" | "0.05" | "0.06" | "0.11" | "0.0" | "0.0.80" | "0.0.81" | "0.0.82" | "0.4" | "0.4.0" | "0.5" | "0.5.0" | "1.0" | "1.0.0" | "1.0.1" | "1.0.2" | "1.1" | "1.1.0" | "1.4" | "1.4.0" | "1.6" | "1.6.0" | "1.8" | "1.8.0" | "3.0" | "3.0.0" | "3.0.1" | "3.0.2" | "3.3" | "3.3.0" | "3.5" | "3.5.0" | "4.0" | "4.0.0" | "4.0.1" | "4.1" | "4.1.0" | "4.2" | "4.2.0" | "4.3" | "4.3.0" | "4.3.0-cibuild" | "4.3.0-snapshot1" | "4.4" | "4.4.0" | "4.5" | "4.5.0" | "4.6" | "4.6.0" | "5.0" | "5.0.0" | "5.0.0-cibuild" | "5.0.0-snapshot1" | "5.0.0-snapshot2" | "5.0.0-ballot" | "5.0.0-snapshot3" | "5.0.0-draft-final")[];
-    _fhirVersion?: Element;
+    _fhirVersion?: (Element | null)[];
     name?: string;
     _name?: Element;
     profile?: string[];
-    _profile?: Element;
+    _profile?: (Element | null)[];
     resource: string;
     _resource?: Element;
     select: ViewDefinitionSelect[];
