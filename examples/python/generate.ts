@@ -1,9 +1,9 @@
 import { APIBuilder, prettyReport } from "../../src";
-import { makeLogger } from "../../src/utils/logger";
+import { type Logger, makeLogger } from "../../src/utils/logger";
 
 console.log("📦 Generating FHIR R4 Core Types...");
 
-const logger = makeLogger({
+const logger: Logger = makeLogger({
     prefix: "API",
     suppressTags: ["FIELD_TYPE_NOT_FOUND", "LARGE_VALUESET"],
 });
