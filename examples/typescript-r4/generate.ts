@@ -25,6 +25,9 @@ if (require.main === module) {
                     "http://hl7.org/fhir/StructureDefinition/Patient": {},
                     "http://hl7.org/fhir/StructureDefinition/Observation": {},
                     "http://hl7.org/fhir/StructureDefinition/bodyweight": {},
+                    // Extensions
+                    // "http://hl7.org/fhir/StructureDefinition/patient-birthPlace": {},
+                    // "http://hl7.org/fhir/StructureDefinition/patient-nationality": {},
                 },
             },
         })
