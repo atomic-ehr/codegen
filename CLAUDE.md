@@ -77,6 +77,12 @@ FHIR Package → TypeSchema Generator → TypeSchema Format → Code Generators 
 - Build target: Node.js with Bun bundler
 - Biome for linting/formatting (tabs, double quotes)
 
+### Coding Style
+- Use arrow function syntax for new functions: `const foo = (): ReturnType => { ... }`
+- Avoid `function foo() { ... }` declarations in new code
+- Avoid re-exports inside project
+- Avoid `interface Foo { ... }` declarations in new code, prefer type syntax if it is possible
+
 ### Testing Strategy
 - Uses Bun's built-in test runner
 - Unit tests for core functionality (transformers, builders)
