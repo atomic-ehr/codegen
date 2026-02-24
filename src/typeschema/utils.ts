@@ -1,6 +1,6 @@
 import * as afs from "node:fs/promises";
 import * as Path from "node:path";
-import type { CodegenLogger } from "@root/utils/codegen-logger";
+import type { Logger } from "@root/utils/logger";
 import * as YAML from "yaml";
 import type { IrReport } from "./ir/types";
 import type { Register } from "./register";
@@ -199,7 +199,7 @@ export const mkTypeSchemaIndex = (
         irReport = {},
     }: {
         register?: Register;
-        logger?: CodegenLogger;
+        logger?: Logger;
         irReport?: IrReport;
     },
 ): TypeSchemaIndex => {
@@ -263,6 +263,7 @@ export const mkTypeSchemaIndex = (
             const resolved = resolve(base);
             if (!resolved) {
                 logger?.warn(
+                    "RESOLVE_BASE",
                     `Failed to resolve base type: ${res.map((e) => `${e.identifier.url} (${e.identifier.kind})`).join(", ")}`,
                 );
                 return undefined;
