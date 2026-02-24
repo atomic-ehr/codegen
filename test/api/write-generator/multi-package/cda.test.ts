@@ -3,10 +3,10 @@ import { APIBuilder } from "@root/api/builder";
 import type { CanonicalUrl } from "@root/typeschema/types";
 
 /**
- * Tests for CCDA package generation.
+ * Tests for CDA package generation.
  * Package: hl7.cda.uv.core@2.0.1-sd
  */
-describe("CCDA", async () => {
+describe("CDA", async () => {
     const treeShakeConfig = {
         "hl7.cda.uv.core": {
             "http://hl7.org/cda/stds/core/StructureDefinition/ClinicalDocument": {},
