@@ -146,11 +146,13 @@ export class Python extends Writer<PythonGeneratorOptions> {
     private readonly nameFormatFunction: (name: string) => string;
     private tsIndex: TypeSchemaIndex | undefined;
     private readonly forFhirpyClient: boolean;
+    private readonly fieldFormat: StringFormatKey;
 
     constructor(options: PythonGeneratorOptions) {
         super({ ...options, resolveAssets: options.resolveAssets ?? resolvePyAssets });
         this.nameFormatFunction = this.getFieldFormatFunction(options.fieldFormat);
         this.forFhirpyClient = options.fhirpyClient ?? false;
+        this.fieldFormat = options.fieldFormat;
     }
 
     override async generate(tsIndex: TypeSchemaIndex): Promise<void> {
@@ -165,7 +167,13 @@ export class Python extends Writer<PythonGeneratorOptions> {
 
     private generateRootPackages(groups: TypeSchemaPackageGroups): void {
         this.generateRootInitFile(groups);
-        if (this.forFhirpyClient) this.copyAssets(resolvePyAssets("fhirpy_base_model.py"), "fhirpy_base_model.py");
+        if (this.forFhirpyClient) {
+            if (this.fieldFormat === "camelCase") {
+                this.copyAssets(resolvePyAssets("fhirpy_base_model_camel_case.py"), "fhirpy_base_model.py");
+            } else {
+                this.copyAssets(resolvePyAssets("fhirpy_base_model.py"), "fhirpy_base_model.py");
+            }
+        }
         this.copyAssets(resolvePyAssets("requirements.txt"), "requirements.txt");
     }
 
@@ -422,12 +430,21 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private generateResourceTypeField(schema: RegularTypeSchema): void {
-        this.line(`${this.nameFormatFunction("resourceType")}: str = Field(`);
+        const hasChildren = this.tsIndex.resourceChildren(schema.identifier).length > 0;
+
+        if (hasChildren) {
+            this.line(`${this.nameFormatFunction("resourceType")}: str = Field(`);
+        } else {
+            this.line(`${this.nameFormatFunction("resourceType")}: Literal["${schema.identifier.name}"] = Field(`);
+        }
         this.indentBlock(() => {
             this.line(`default='${schema.identifier.name}',`);
             this.line(`alias='resourceType',`);
             this.line(`serialization_alias='resourceType',`);
-            this.line("frozen=True,");
+            if (!this.forFhirpyClient) {
+                // fhirpy client resource protocol expects the resourceType field not to be frozen
+                this.line("frozen=True,");
+            }
             this.line(`pattern='${schema.identifier.name}'`);
         });
         this.line(")");
