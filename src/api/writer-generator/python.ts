@@ -435,7 +435,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         if (hasChildren) {
             this.line(`${this.nameFormatFunction("resourceType")}: str = Field(`);
         } else {
-            this.line(`${this.nameFormatFunction("resourceType")}: Literal["${schema.identifier.name}"] = Field(`);
+            this.line(`${this.nameFormatFunction("resourceType")}: Literal['${schema.identifier.name}'] = Field(`);
         }
         this.indentBlock(() => {
             this.line(`default='${schema.identifier.name}',`);
