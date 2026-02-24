@@ -44,7 +44,7 @@ from fhir_types.hl7_fhir_r4_core.resource_families import DomainResourceFamily
 
 class ExampleNotebook(DomainResource):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    resource_type: str = Field(
+    resource_type: Literal['ExampleNotebook'] = Field(
         default='ExampleNotebook',
         alias='resourceType',
         serialization_alias='resourceType',
@@ -144,7 +144,7 @@ class PatientLink(BackboneElement):
 
 class Patient(DomainResource):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    resource_type: str = Field(
+    resource_type: Literal['Patient'] = Field(
         default='Patient',
         alias='resourceType',
         serialization_alias='resourceType',
