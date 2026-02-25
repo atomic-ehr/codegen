@@ -5,23 +5,23 @@
 import type { Address } from "../../hl7-fhir-r4-core/Address";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
-export type patient_birthPlaceProfileParams = {
+export type birthPlaceProfileParams = {
     valueAddress: Address;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/patient-birthPlace (pkg: hl7.fhir.r4.core#4.0.1)
-export class patient_birthPlaceProfile {
+export class birthPlaceProfile {
     private resource: Extension
 
     constructor (resource: Extension) {
         this.resource = resource
     }
 
-    static from (resource: Extension) : patient_birthPlaceProfile {
-        return new patient_birthPlaceProfile(resource)
+    static from (resource: Extension) : birthPlaceProfile {
+        return new birthPlaceProfile(resource)
     }
 
-    static createResource (args: patient_birthPlaceProfileParams) : Extension {
+    static createResource (args: birthPlaceProfileParams) : Extension {
         const resource: Extension = {
             url: "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
             valueAddress: args.valueAddress,
@@ -29,8 +29,8 @@ export class patient_birthPlaceProfile {
         return resource
     }
 
-    static create (args: patient_birthPlaceProfileParams) : patient_birthPlaceProfile {
-        return patient_birthPlaceProfile.from(patient_birthPlaceProfile.createResource(args))
+    static create (args: birthPlaceProfileParams) : birthPlaceProfile {
+        return birthPlaceProfile.from(birthPlaceProfile.createResource(args))
     }
 
     toResource () : Extension {

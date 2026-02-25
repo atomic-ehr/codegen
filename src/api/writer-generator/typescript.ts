@@ -83,10 +83,6 @@ const tsModuleName = (id: Identifier): string => {
 const tsProfileModuleName = (tsIndex: TypeSchemaIndex, schema: ProfileTypeSchema): string => {
     const resourceSchema = tsIndex.findLastSpecialization(schema);
     const resourceName = uppercaseFirstLetter(normalizeTsName(resourceSchema.identifier.name));
-    const profileName = extractNameFromCanonical(schema.identifier.url);
-    if (profileName) {
-        return `${resourceName}_${normalizeTsName(profileName)}`;
-    }
     return `${resourceName}_${normalizeTsName(schema.identifier.name)}`;
 };
 
@@ -181,10 +177,6 @@ const tsTypeFromIdentifier = (id: Identifier): string => {
 };
 
 const tsProfileClassName = (schema: ProfileTypeSchema): string => {
-    const profileName = extractNameFromCanonical(schema.identifier.url);
-    if (profileName) {
-        return `${normalizeTsName(profileName)}Profile`;
-    }
     return `${normalizeTsName(schema.identifier.name)}Profile`;
 };
 

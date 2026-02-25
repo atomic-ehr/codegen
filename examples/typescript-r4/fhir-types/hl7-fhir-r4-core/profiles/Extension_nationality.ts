@@ -7,15 +7,15 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Period } from "../../hl7-fhir-r4-core/Period";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/patient-nationality (pkg: hl7.fhir.r4.core#4.0.1)
-export class patient_nationalityProfile {
+export class nationalityProfile {
     private resource: Extension
 
     constructor (resource: Extension) {
         this.resource = resource
     }
 
-    static from (resource: Extension) : patient_nationalityProfile {
-        return new patient_nationalityProfile(resource)
+    static from (resource: Extension) : nationalityProfile {
+        return new nationalityProfile(resource)
     }
 
     static createResource () : Extension {
@@ -25,8 +25,8 @@ export class patient_nationalityProfile {
         return resource
     }
 
-    static create () : patient_nationalityProfile {
-        return patient_nationalityProfile.from(patient_nationalityProfile.createResource())
+    static create () : nationalityProfile {
+        return nationalityProfile.from(nationalityProfile.createResource())
     }
 
     toResource () : Extension {

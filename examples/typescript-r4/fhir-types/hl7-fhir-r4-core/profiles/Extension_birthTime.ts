@@ -4,23 +4,23 @@
 
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
-export type patient_birthTimeProfileParams = {
+export type birthTimeProfileParams = {
     valueDateTime: string;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/patient-birthTime (pkg: hl7.fhir.r4.core#4.0.1)
-export class patient_birthTimeProfile {
+export class birthTimeProfile {
     private resource: Extension
 
     constructor (resource: Extension) {
         this.resource = resource
     }
 
-    static from (resource: Extension) : patient_birthTimeProfile {
-        return new patient_birthTimeProfile(resource)
+    static from (resource: Extension) : birthTimeProfile {
+        return new birthTimeProfile(resource)
     }
 
-    static createResource (args: patient_birthTimeProfileParams) : Extension {
+    static createResource (args: birthTimeProfileParams) : Extension {
         const resource: Extension = {
             url: "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
             valueDateTime: args.valueDateTime,
@@ -28,8 +28,8 @@ export class patient_birthTimeProfile {
         return resource
     }
 
-    static create (args: patient_birthTimeProfileParams) : patient_birthTimeProfile {
-        return patient_birthTimeProfile.from(patient_birthTimeProfile.createResource(args))
+    static create (args: birthTimeProfileParams) : birthTimeProfile {
+        return birthTimeProfile.from(birthTimeProfile.createResource(args))
     }
 
     toResource () : Extension {

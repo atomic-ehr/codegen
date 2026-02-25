@@ -6,35 +6,35 @@ import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Observation } from "../../hl7-fhir-r4-core/Observation";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
-export interface observation_bodyweight extends Observation {
+export interface observation_vitalsigns extends Observation {
     category: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
     subject: Reference<"Patient">;
 }
 
-export type Observation_bodyweight_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
+export type Observation_vitalsigns_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
 
 import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
-export type bodyweightProfileParams = {
+export type observation_vitalsignsProfileParams = {
     status: string;
     category: CodeableConcept[];
     code: CodeableConcept;
     subject: Reference;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/bodyweight (pkg: hl7.fhir.r4.core#4.0.1)
-export class bodyweightProfile {
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/vitalsigns (pkg: hl7.fhir.r4.core#4.0.1)
+export class observation_vitalsignsProfile {
     private resource: Observation
 
     constructor (resource: Observation) {
         this.resource = resource
     }
 
-    static from (resource: Observation) : bodyweightProfile {
-        return new bodyweightProfile(resource)
+    static from (resource: Observation) : observation_vitalsignsProfile {
+        return new observation_vitalsignsProfile(resource)
     }
 
-    static createResource (args: bodyweightProfileParams) : Observation {
+    static createResource (args: observation_vitalsignsProfileParams) : Observation {
         const resource: Observation = {
             resourceType: "Observation",
             status: args.status,
@@ -45,8 +45,8 @@ export class bodyweightProfile {
         return resource
     }
 
-    static create (args: bodyweightProfileParams) : bodyweightProfile {
-        return bodyweightProfile.from(bodyweightProfile.createResource(args))
+    static create (args: observation_vitalsignsProfileParams) : observation_vitalsignsProfile {
+        return observation_vitalsignsProfile.from(observation_vitalsignsProfile.createResource(args))
     }
 
     toResource () : Observation {
@@ -89,11 +89,11 @@ export class bodyweightProfile {
         return this
     }
 
-    toProfile () : observation_bodyweight {
-        return this.resource as observation_bodyweight
+    toProfile () : observation_vitalsigns {
+        return this.resource as observation_vitalsigns
     }
 
-    public setVscat (input?: Observation_bodyweight_Category_VSCatSliceInput): this {
+    public setVscat (input?: Observation_vitalsigns_Category_VSCatSliceInput): this {
         const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
         const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as CodeableConcept
         const list = (this.resource.category ??= [])
@@ -106,13 +106,13 @@ export class bodyweightProfile {
         return this
     }
 
-    public getVscat (): Observation_bodyweight_Category_VSCatSliceInput | undefined {
+    public getVscat (): Observation_vitalsigns_Category_VSCatSliceInput | undefined {
         const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
         const list = this.resource.category
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as Observation_bodyweight_Category_VSCatSliceInput
+        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as Observation_vitalsigns_Category_VSCatSliceInput
     }
 
     public getVscatRaw (): CodeableConcept | undefined {

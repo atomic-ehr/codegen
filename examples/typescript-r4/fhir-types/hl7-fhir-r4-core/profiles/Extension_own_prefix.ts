@@ -4,23 +4,23 @@
 
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
-export type humanname_own_prefixProfileParams = {
+export type own_prefixProfileParams = {
     valueString: string;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/humanname-own-prefix (pkg: hl7.fhir.r4.core#4.0.1)
-export class humanname_own_prefixProfile {
+export class own_prefixProfile {
     private resource: Extension
 
     constructor (resource: Extension) {
         this.resource = resource
     }
 
-    static from (resource: Extension) : humanname_own_prefixProfile {
-        return new humanname_own_prefixProfile(resource)
+    static from (resource: Extension) : own_prefixProfile {
+        return new own_prefixProfile(resource)
     }
 
-    static createResource (args: humanname_own_prefixProfileParams) : Extension {
+    static createResource (args: own_prefixProfileParams) : Extension {
         const resource: Extension = {
             url: "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
             valueString: args.valueString,
@@ -28,8 +28,8 @@ export class humanname_own_prefixProfile {
         return resource
     }
 
-    static create (args: humanname_own_prefixProfileParams) : humanname_own_prefixProfile {
-        return humanname_own_prefixProfile.from(humanname_own_prefixProfile.createResource(args))
+    static create (args: own_prefixProfileParams) : own_prefixProfile {
+        return own_prefixProfile.from(own_prefixProfile.createResource(args))
     }
 
     toResource () : Extension {
