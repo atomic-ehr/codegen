@@ -36,5 +36,14 @@ export class patient_birthTimeProfile {
         return this.resource
     }
 
+    getValueDateTime () : string | undefined {
+        return this.resource.valueDateTime
+    }
+
+    setValueDateTime (value: string) : this {
+        this.resource.valueDateTime = value
+        return this
+    }
+
 }
 

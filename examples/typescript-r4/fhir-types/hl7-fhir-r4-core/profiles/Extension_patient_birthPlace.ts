@@ -37,5 +37,14 @@ export class patient_birthPlaceProfile {
         return this.resource
     }
 
+    getValueAddress () : Address | undefined {
+        return this.resource.valueAddress
+    }
+
+    setValueAddress (value: Address) : this {
+        this.resource.valueAddress = value
+        return this
+    }
+
 }
 

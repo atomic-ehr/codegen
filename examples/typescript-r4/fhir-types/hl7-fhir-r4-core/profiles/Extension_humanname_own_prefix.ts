@@ -36,5 +36,14 @@ export class humanname_own_prefixProfile {
         return this.resource
     }
 
+    getValueString () : string | undefined {
+        return this.resource.valueString
+    }
+
+    setValueString (value: string) : this {
+        this.resource.valueString = value
+        return this
+    }
+
 }
 

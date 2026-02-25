@@ -53,6 +53,42 @@ export class vitalsignsProfile {
         return this.resource
     }
 
+    getStatus () : string | undefined {
+        return this.resource.status
+    }
+
+    setStatus (value: string) : this {
+        this.resource.status = value
+        return this
+    }
+
+    getCategory () : CodeableConcept[] | undefined {
+        return this.resource.category
+    }
+
+    setCategory (value: CodeableConcept[]) : this {
+        this.resource.category = value
+        return this
+    }
+
+    getCode () : CodeableConcept | undefined {
+        return this.resource.code
+    }
+
+    setCode (value: CodeableConcept) : this {
+        this.resource.code = value
+        return this
+    }
+
+    getSubject () : Reference | undefined {
+        return this.resource.subject
+    }
+
+    setSubject (value: Reference) : this {
+        this.resource.subject = value
+        return this
+    }
+
     toProfile () : observation_vitalsigns {
         return this.resource as observation_vitalsigns
     }

@@ -2,7 +2,9 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
+import type { Period } from "../../hl7-fhir-r4-core/Period";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/patient-nationality (pkg: hl7.fhir.r4.core#4.0.1)
 export class patient_nationalityProfile {
@@ -29,6 +31,38 @@ export class patient_nationalityProfile {
 
     toResource () : Extension {
         return this.resource
+    }
+
+    public setCode (value: CodeableConcept): this {
+        const list = (this.resource.extension ??= [])
+        list.push({ url: "code", valueCodeableConcept: value })
+        return this
+    }
+
+    public setPeriod (value: Period): this {
+        const list = (this.resource.extension ??= [])
+        list.push({ url: "period", valuePeriod: value })
+        return this
+    }
+
+    public getCode (): CodeableConcept | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "code")
+        return ext?.valueCodeableConcept
+    }
+
+    public getCodeExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "code")
+        return ext
+    }
+
+    public getPeriod (): Period | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "period")
+        return ext?.valuePeriod
+    }
+
+    public getPeriodExtension (): Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "period")
+        return ext
     }
 
 }

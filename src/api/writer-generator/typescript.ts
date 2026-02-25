@@ -1199,6 +1199,19 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 this.line("return this.resource");
             });
             this.line();
+            // Getter and setter methods for required profile fields
+            for (const p of factoryInfo.params) {
+                const methodSuffix = uppercaseFirstLetter(p.name);
+                this.curlyBlock([`get${methodSuffix}`, "()", `: ${p.tsType} | undefined`], () => {
+                    this.line(`return this.resource.${p.name}`);
+                });
+                this.line();
+                this.curlyBlock([`set${methodSuffix}`, `(value: ${p.tsType})`, ": this"], () => {
+                    this.line(`this.resource.${p.name} = value`);
+                    this.line("return this");
+                });
+                this.line();
+            }
             // toProfile() returns casted profile type if override interface exists
             if (hasOverrideInterface) {
                 this.curlyBlock(["toProfile", "()", `: ${tsProfileName}`], () => {
