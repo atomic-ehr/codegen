@@ -10,6 +10,7 @@ import type { CodegenLogger } from "@root/utils/codegen-logger";
 import type { Register } from "@typeschema/register";
 import {
     type CanonicalUrl,
+    concatIdentifiers,
     type ExtensionSubField,
     type Field,
     type Identifier,
@@ -23,6 +24,7 @@ import {
     type TypeSchema,
     type ValueSetTypeSchema,
 } from "@typeschema/types";
+
 import { collectBindingSchemas, extractValueSetConceptsByUrl } from "./binding";
 import { buildFieldType, isNestedElement, mkField, mkNestedField } from "./field-builder";
 import { mkIdentifier, mkValueSetIdentifierByUrl } from "./identifier";
@@ -101,23 +103,16 @@ export function extractDependencies(
     if (fields) deps.push(...extractFieldDependencies(fields));
     if (nestedTypes) deps.push(...extractNestedDependencies(nestedTypes));
 
-    const uniqDeps: Record<string, Identifier> = {};
-    for (const dep of deps) {
-        if (dep.url === identifier.url) continue;
-        uniqDeps[dep.url] = dep;
-    }
-
     const localNestedTypeUrls = new Set(nestedTypes?.map((nt) => nt.identifier.url));
 
-    const result = Object.values(uniqDeps)
-        .filter((e) => {
-            if (isProfileIdentifier(identifier)) return true;
-            if (!isNestedIdentifier(e)) return true;
-            return !localNestedTypeUrls.has(e.url);
-        })
-        .sort((a, b) => a.url.localeCompare(b.url));
+    const filtered = deps.filter((dep) => {
+        if (dep.url === identifier.url) return false;
+        if (isProfileIdentifier(identifier)) return true;
+        if (!isNestedIdentifier(dep)) return true;
+        return !localNestedTypeUrls.has(dep.url);
+    });
 
-    return result.length > 0 ? result : undefined;
+    return concatIdentifiers(filtered);
 }
 
 function transformFhirSchemaResource(
@@ -133,26 +128,20 @@ function transformFhirSchemaResource(
             fhirSchema.package_meta,
             register.ensureSpecializationCanonicalUrl(fhirSchema.base),
         );
-        if (!baseFs) {
+        if (!baseFs)
             throw new Error(
                 `Base resource not found '${fhirSchema.base}' for <${fhirSchema.url}> from ${packageMetaToFhir(fhirSchema.package_meta)}`,
             );
-        }
         base = mkIdentifier(baseFs);
     }
+
     const fields = mkFields(register, fhirSchema, [], fhirSchema.elements, logger);
     const nested = mkNestedTypes(register, fhirSchema, logger);
+
     const extensions =
         fhirSchema.derivation === "constraint" ? extractProfileExtensions(register, fhirSchema, logger) : undefined;
-    const dependencies = extractDependencies(identifier, base, fields, nested);
     const extensionDeps = extensions?.flatMap((ext) => ext.valueTypes ?? []) ?? [];
-    const mergedDeps = (() => {
-        if (!dependencies && extensionDeps.length === 0) return dependencies;
-        const depMap: Record<string, Identifier> = {};
-        for (const dep of dependencies ?? []) depMap[dep.url] = dep;
-        for (const dep of extensionDeps) depMap[dep.url] = dep;
-        return Object.values(depMap);
-    })();
+    const dependencies = extractDependencies(identifier, base, fields, nested);
 
     const typeSchema: TypeSchema = {
         identifier,
@@ -160,12 +149,11 @@ function transformFhirSchemaResource(
         fields,
         nested,
         description: fhirSchema.description,
-        dependencies: mergedDeps,
-        ...(extensions && extensions.length > 0 ? { extensions } : {}),
+        dependencies: concatIdentifiers(dependencies, extensionDeps),
+        extensions,
     };
 
     const bindingSchemas = collectBindingSchemas(register, fhirSchema, logger);
-
     return [typeSchema, ...bindingSchemas];
 }
 
@@ -185,9 +173,7 @@ function extractExtensionValueTypes(
         if (fieldType) valueTypes.push(fieldType);
     }
 
-    if (valueTypes.length === 0) return undefined;
-    const uniq = new Map(valueTypes.map((type) => [type.url, type]));
-    return Array.from(uniq.values());
+    return concatIdentifiers(valueTypes);
 }
 
 const extractLegacySubExtensions = (
@@ -281,7 +267,7 @@ function extractProfileExtensions(
     register: Register,
     fhirSchema: RichFHIRSchema,
     logger?: CodegenLogger,
-): ProfileExtension[] {
+): ProfileExtension[] | undefined {
     const extensions: ProfileExtension[] = [];
 
     const addExtensionEntry = (path: string[], name: string, schema: FHIRSchemaElement) => {
@@ -327,7 +313,7 @@ function extractProfileExtensions(
         }
     }
 
-    return extensions;
+    return extensions.length === 0 ? undefined : extensions;
 }
 
 export async function transformFhirSchema(

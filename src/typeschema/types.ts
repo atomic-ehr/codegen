@@ -129,6 +129,15 @@ export const isProfileIdentifier = (id: Identifier | undefined): id is ProfileId
     return id?.kind === "profile";
 };
 
+export const concatIdentifiers = (...sources: (Identifier[] | undefined)[]): Identifier[] | undefined => {
+    const entries = sources
+        .filter((s): s is Identifier[] => s !== undefined)
+        .flatMap((s) => s.map((id): [string, Identifier] => [id.url, id]));
+    if (entries.length === 0) return undefined;
+    const deduped = Object.values(Object.fromEntries(entries) as Record<string, Identifier>);
+    return deduped.sort((a, b) => a.url.localeCompare(b.url));
+};
+
 export type TypeSchema =
     | RegularTypeSchema
     | PrimitiveTypeSchema
