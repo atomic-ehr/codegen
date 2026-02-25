@@ -190,34 +190,9 @@ export interface ProfileTypeSchema {
     base: Identifier;
     description?: string;
     fields?: Record<string, Field>;
-    constraints?: Record<string, ProfileConstraint>;
     extensions?: ProfileExtension[];
-    validation?: ValidationRule[];
     dependencies?: Identifier[];
-    metadata?: ProfileMetadata;
     nested?: NestedType[];
-}
-
-export interface ProfileConstraint {
-    min?: number;
-    max?: string;
-    mustSupport?: boolean;
-    fixedValue?: any;
-    patternValue?: any;
-    binding?: {
-        strength: "required" | "extensible" | "preferred" | "example";
-        valueSet: string;
-    };
-    types?: Array<{
-        code: string;
-        profile?: string[];
-        targetProfile?: string[];
-    }>;
-    slicing?: {
-        discriminator: any[];
-        rules: string;
-        ordered?: boolean;
-    };
 }
 
 export interface FieldSlicing {
@@ -253,25 +228,6 @@ export interface ProfileExtension {
     valueTypes?: Identifier[];
     subExtensions?: ExtensionSubField[];
     isComplex?: boolean;
-}
-
-export interface ValidationRule {
-    path: string;
-    key: string;
-    severity: "error" | "warning" | "information";
-    human: string;
-    expression?: string;
-}
-
-export interface ProfileMetadata {
-    publisher?: string;
-    contact?: any[];
-    copyright?: string;
-    purpose?: string;
-    experimental?: boolean;
-    date?: string;
-    jurisdiction?: any[];
-    package?: string;
 }
 
 export interface RegularTypeSchema {
