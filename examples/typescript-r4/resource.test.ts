@@ -5,6 +5,7 @@
  */
 
 import { expect, test } from "bun:test";
+import assert from "node:assert";
 import type { Bundle, BundleEntry } from "./fhir-types/hl7-fhir-r4-core/Bundle";
 import type { Observation, ObservationReferenceRange } from "./fhir-types/hl7-fhir-r4-core/Observation";
 import type { Address, ContactPoint, HumanName, Identifier, Patient } from "./fhir-types/hl7-fhir-r4-core/Patient";
@@ -112,7 +113,8 @@ test("Observation resource", () => {
 
 test("Bundle with resources", () => {
     const patient = createPatient();
-    const observation = createObservation(patient.id!);
+    assert(patient.id);
+    const observation = createObservation(patient.id);
     const bundle = createBundle(patient, observation);
 
     expect(bundle.entry).toHaveLength(2);
