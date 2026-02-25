@@ -6,7 +6,7 @@
       "name": "@atomic-ehr/codegen",
       "dependencies": {
         "@atomic-ehr/fhir-canonical-manager": "^0.0.20",
-        "@atomic-ehr/fhirschema": "^0.0.5",
+        "@atomic-ehr/fhirschema": "0.0.8",
         "mustache": "^4.2.0",
         "picocolors": "^1.1.1",
         "tinyglobby": "^0.2.15",
@@ -31,7 +31,7 @@
   "packages": {
     "@atomic-ehr/fhir-canonical-manager": ["@atomic-ehr/fhir-canonical-manager@0.0.20", "", { "peerDependencies": { "typescript": "^5" }, "bin": { "fcm": "dist/cli/index.js" } }, "sha512-fDvHAkY8KWh7qPg/zKWelnixkE7sWkXMoESzx4YC1ndMiX9Hd9bWXVV9SycEL2NbarU0rMchlKDCo/LkvecsnQ=="],
 
-    "@atomic-ehr/fhirschema": ["@atomic-ehr/fhirschema@0.0.5", "", { "peerDependencies": { "typescript": "^5" } }, "sha512-B/8ScNnnQUIR6d3FsIuGGvanOyE2j7W3mAubVmpPE2I/tho+meEBRrGgs5E+AY4jDz9mviTdOta08RpIhH2kew=="],
+    "@atomic-ehr/fhirschema": ["@atomic-ehr/fhirschema@0.0.8", "", { "peerDependencies": { "typescript": "^5" } }, "sha512-RB3ZlFHYYfP4ZaOA0YStGaxrm3T1MzpJLPAzAxW/7u2yfdmQz160e3mGYVv0mglHKtGhZ0fuuk2qqhDwUiGncg=="],
 
     "@biomejs/biome": ["@biomejs/biome@2.4.4", "", { "optionalDependencies": { "@biomejs/cli-darwin-arm64": "2.4.4", "@biomejs/cli-darwin-x64": "2.4.4", "@biomejs/cli-linux-arm64": "2.4.4", "@biomejs/cli-linux-arm64-musl": "2.4.4", "@biomejs/cli-linux-x64": "2.4.4", "@biomejs/cli-linux-x64-musl": "2.4.4", "@biomejs/cli-win32-arm64": "2.4.4", "@biomejs/cli-win32-x64": "2.4.4" }, "bin": { "biome": "bin/biome" } }, "sha512-tigwWS5KfJf0cABVd52NVaXyAVv4qpUXOWJ1rxFL8xF1RVoeS2q/LK+FHgYoKMclJCuRoCWAPy1IXaN9/mS61Q=="],
 
