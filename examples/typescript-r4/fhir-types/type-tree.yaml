@@ -68,8 +68,12 @@ hl7.fhir.r4.core:
     http://hl7.org/fhir/StructureDefinition/Observation#component: {}
   binding: {}
   profile:
+    http://hl7.org/fhir/StructureDefinition/patient-birthPlace: {}
+    http://hl7.org/fhir/StructureDefinition/patient-birthTime: {}
+    http://hl7.org/fhir/StructureDefinition/patient-nationality: {}
     http://hl7.org/fhir/StructureDefinition/bodyweight: {}
     http://hl7.org/fhir/StructureDefinition/vitalsigns: {}
+    http://hl7.org/fhir/StructureDefinition/humanname-own-prefix: {}
   logical: {}
 shared:
   primitive-type: {}

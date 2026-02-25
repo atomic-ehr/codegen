@@ -14,12 +14,14 @@ import {
     extractNameFromCanonical,
     type Identifier,
     isChoiceDeclarationField,
+    isChoiceInstanceField,
     isComplexTypeIdentifier,
     isLogicalTypeSchema,
     isNestedIdentifier,
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
     isProfileTypeSchema,
+    isResourceIdentifier,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
     type Name,
@@ -184,6 +186,51 @@ const tsProfileClassName = (schema: ProfileTypeSchema): string => {
         return `${normalizeTsName(profileName)}Profile`;
     }
     return `${normalizeTsName(schema.identifier.name)}Profile`;
+};
+
+type ProfileFactoryInfo = {
+    autoFields: { name: string; value: string }[];
+    params: { name: string; tsType: string; typeId: Identifier }[];
+};
+
+const collectProfileFactoryInfo = (flatProfile: ProfileTypeSchema): ProfileFactoryInfo => {
+    const autoFields: ProfileFactoryInfo["autoFields"] = [];
+    const params: ProfileFactoryInfo["params"] = [];
+    const fields = flatProfile.fields ?? {};
+
+    if (isResourceIdentifier(flatProfile.base)) {
+        autoFields.push({ name: "resourceType", value: JSON.stringify(flatProfile.base.name) });
+    }
+
+    for (const [name, field] of Object.entries(fields)) {
+        if (isChoiceInstanceField(field)) continue;
+        if (field.excluded) continue;
+
+        // Required choice declaration with a single choice — promote that choice to a param
+        if (isChoiceDeclarationField(field)) {
+            if (field.required && field.choices.length === 1) {
+                const choiceName = field.choices[0]!;
+                const choiceField = fields[choiceName];
+                if (choiceField && isChoiceInstanceField(choiceField)) {
+                    const tsType = tsTypeFromIdentifier(choiceField.type) + (choiceField.array ? "[]" : "");
+                    params.push({ name: choiceName, tsType, typeId: choiceField.type });
+                }
+            }
+            continue;
+        }
+
+        if (field.patternValue) {
+            autoFields.push({ name, value: JSON.stringify(field.patternValue.value) });
+            continue;
+        }
+
+        if (field.required) {
+            const tsType = tsTypeFromIdentifier(field.type) + (field.array ? "[]" : "");
+            params.push({ name, tsType, typeId: field.type });
+        }
+    }
+
+    return { autoFields, params };
 };
 
 const tsSliceInputTypeName = (profileName: string, fieldName: string, sliceName: string): string => {
@@ -959,6 +1006,9 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         const needsExtensionType = this.collectTypesFromExtensions(tsIndex, flatProfile, addType);
         this.collectTypesFromFieldOverrides(tsIndex, flatProfile, addType);
 
+        const factoryInfo = collectProfileFactoryInfo(flatProfile);
+        for (const param of factoryInfo.params) addType(param.typeId);
+
         if (needsExtensionType) {
             const extensionUrl = "http://hl7.org/fhir/StructureDefinition/Extension" as CanonicalUrl;
             const extensionSchema = tsIndex.resolveByUrl(flatProfile.identifier.package, extensionUrl);
@@ -972,7 +1022,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         if (sortedImports.length > 0) this.line();
     }
 
-    generateProfileClass(tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) {
+    generateProfileClass(tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema, schema?: TypeSchema) {
         const tsBaseResourceName = tsTypeFromIdentifier(flatProfile.base);
         const tsProfileName = tsResourceName(flatProfile.identifier);
         const profileClassName = tsProfileClassName(flatProfile);
@@ -1096,12 +1146,52 @@ export class TypeScript extends Writer<TypeScriptOptions> {
 
         // Check if we have an override interface (narrowed types)
         const hasOverrideInterface = this.detectFieldOverrides(tsIndex, flatProfile).size > 0;
+        const factoryInfo = collectProfileFactoryInfo(flatProfile);
 
+        const hasParams = factoryInfo.params.length > 0;
+        const createArgsTypeName = `${profileClassName}Params`;
+        const paramSignature = hasParams ? `args: ${createArgsTypeName}` : "";
+        const allFields = [
+            ...factoryInfo.autoFields.map((f) => ({ name: f.name, value: f.value })),
+            ...factoryInfo.params.map((p) => ({ name: p.name, value: `args.${p.name}` })),
+        ];
+
+        if (hasParams) {
+            this.curlyBlock(["export", "type", createArgsTypeName, "="], () => {
+                for (const p of factoryInfo.params) {
+                    this.lineSM(`${p.name}: ${p.tsType}`);
+                }
+            });
+            this.line();
+        }
+
+        if (schema) {
+            this.comment("CanonicalURL:", schema.identifier.url, `(pkg: ${packageMetaToFhir(packageMeta(schema))})`);
+        }
         this.curlyBlock(["export", "class", profileClassName], () => {
             this.line(`private resource: ${tsBaseResourceName}`);
             this.line();
             this.curlyBlock(["constructor", `(resource: ${tsBaseResourceName})`], () => {
                 this.line("this.resource = resource");
+            });
+            this.line();
+            this.curlyBlock(["static", "from", `(resource: ${tsBaseResourceName})`, `: ${profileClassName}`], () => {
+                this.line(`return new ${profileClassName}(resource)`);
+            });
+            this.line();
+            this.curlyBlock(["static", "createResource", `(${paramSignature})`, `: ${tsBaseResourceName}`], () => {
+                this.curlyBlock([`const resource: ${tsBaseResourceName} =`], () => {
+                    for (const f of allFields) {
+                        this.line(`${f.name}: ${f.value},`);
+                    }
+                }, [` as ${tsBaseResourceName}`]);
+                this.line("return resource");
+            });
+            this.line();
+            this.curlyBlock(["static", "create", `(${paramSignature})`, `: ${profileClassName}`], () => {
+                this.line(
+                    `return ${profileClassName}.from(${profileClassName}.createResource(${hasParams ? "args" : ""}))`,
+                );
             });
             this.line();
             // toResource() returns base type (e.g., Patient)
@@ -1489,13 +1579,8 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                     this.generateDisclaimer();
                     const flatProfile = tsIndex.flatProfile(schema);
                     this.generateProfileImports(tsIndex, flatProfile);
-                    this.comment(
-                        "CanonicalURL:",
-                        schema.identifier.url,
-                        `(pkg: ${packageMetaToFhir(packageMeta(schema))})`,
-                    );
                     this.generateProfileOverrideInterface(tsIndex, flatProfile);
-                    this.generateProfileClass(tsIndex, flatProfile);
+                    this.generateProfileClass(tsIndex, flatProfile, schema);
                 });
             });
         } else if (["complex-type", "resource", "logical"].includes(schema.identifier.kind)) {

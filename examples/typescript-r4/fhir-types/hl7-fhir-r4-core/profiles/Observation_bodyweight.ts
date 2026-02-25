@@ -6,7 +6,6 @@ import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Observation } from "../../hl7-fhir-r4-core/Observation";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/bodyweight (pkg: hl7.fhir.r4.core#4.0.1)
 export interface observation_bodyweight extends Observation {
     category: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
     subject: Reference<"Patient">;
@@ -16,11 +15,38 @@ export type Observation_bodyweight_Category_VSCatSliceInput = Omit<CodeableConce
 
 import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
+export type bodyweightProfileParams = {
+    status: string;
+    category: CodeableConcept[];
+    code: CodeableConcept;
+    subject: Reference;
+}
+
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/bodyweight (pkg: hl7.fhir.r4.core#4.0.1)
 export class bodyweightProfile {
     private resource: Observation
 
     constructor (resource: Observation) {
         this.resource = resource
+    }
+
+    static from (resource: Observation) : bodyweightProfile {
+        return new bodyweightProfile(resource)
+    }
+
+    static createResource (args: bodyweightProfileParams) : Observation {
+        const resource: Observation = {
+            resourceType: "Observation",
+            status: args.status,
+            category: args.category,
+            code: args.code,
+            subject: args.subject,
+        } as Observation
+        return resource
+    }
+
+    static create (args: bodyweightProfileParams) : bodyweightProfile {
+        return bodyweightProfile.from(bodyweightProfile.createResource(args))
     }
 
     toResource () : Observation {
