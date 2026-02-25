@@ -430,6 +430,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private generateResourceTypeField(schema: RegularTypeSchema): void {
+        assert(this.tsIndex !== undefined);
         const hasChildren = this.tsIndex.resourceChildren(schema.identifier).length > 0;
 
         if (hasChildren) {
