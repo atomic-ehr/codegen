@@ -128,7 +128,7 @@ function transformFhirSchemaResource(
     const identifier = mkIdentifier(fhirSchema);
 
     let base: Identifier | undefined;
-    if (fhirSchema.base && fhirSchema.type !== "Element") {
+    if (fhirSchema.base) {
         const baseFs = register.resolveFs(
             fhirSchema.package_meta,
             register.ensureSpecializationCanonicalUrl(fhirSchema.base),
