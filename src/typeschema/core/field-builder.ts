@@ -16,6 +16,7 @@ import type {
     FieldSlicing,
     Identifier,
     Name,
+    PatternValue,
     RegularField,
     RichFHIRSchema,
 } from "../types";
@@ -176,6 +177,14 @@ export const mkField = (
     // TODO: should be an exception
     if (!fieldType)
         logger?.dryWarn(`Field type not found for '${fhirSchema.url}#${path.join(".")}' (${fhirSchema.derivation})`);
+
+    let patternValue: PatternValue | undefined;
+    if (element.pattern) {
+        patternValue = { kind: "pattern", type: element.pattern.type, value: element.pattern.value };
+    } else if (element.fixed) {
+        patternValue = { kind: "fixed", type: element.fixed.type, value: element.fixed.value };
+    }
+
     return {
         type: fieldType as Identifier,
         required: isRequired(register, fhirSchema, path),
@@ -193,6 +202,7 @@ export const mkField = (
 
         binding: binding,
         enum: enumResult,
+        patternValue,
     };
 };
 
