@@ -82,7 +82,7 @@ from typing import List as PyList, Literal
 
 class ClinicalDocument(ANY):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    resource_type: str = Field(
+    resource_type: Literal['ClinicalDocument'] = Field(
         default='ClinicalDocument',
         alias='resourceType',
         serialization_alias='resourceType',
@@ -262,7 +262,7 @@ from typing import List as PyList, Literal
 
 class ClinicalDocument(ANY):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    resource_type: str = Field(
+    resource_type: Literal['ClinicalDocument'] = Field(
         default='ClinicalDocument',
         alias='resourceType',
         serialization_alias='resourceType',

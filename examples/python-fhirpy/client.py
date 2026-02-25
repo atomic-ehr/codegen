@@ -1,42 +1,17 @@
 import asyncio
 import base64
 import json
-from typing import TypeVar, Dict, Any, Tuple
-from pydantic import BaseModel
 from fhirpy import AsyncFHIRClient
 
 from fhir_types.hl7_fhir_r4_core import HumanName
 from fhir_types.hl7_fhir_r4_core.patient import Patient
 from fhir_types.hl7_fhir_r4_core.organization import Organization
 
-T = TypeVar('T', bound=BaseModel)
 
 FHIR_SERVER_URL = "http://localhost:8080/fhir"
 USERNAME = "root"
-PASSWORD = "<SECRET>"
+PASSWORD = "secret"
 TOKEN = base64.b64encode(f"{USERNAME}:{PASSWORD}".encode()).decode()
-
-
-def get_resource_components(model: T) -> Tuple[str, Dict[str, Any]]:
-    """
-    Extracts the FHIR resource type and the serialized resource body
-    from a Pydantic FHIR model.
-    """
-
-    resource_dict: Dict[str, Any] = model.model_dump(
-        mode='json',
-        by_alias=True,
-        exclude_none=True
-    )
-
-    resource_type = resource_dict.pop('resourceType', None)
-    if not resource_type and hasattr(model, 'resource_type'):
-        resource_type = model.resource_type
-
-    if not resource_type:
-        raise ValueError("Cannot determine resource type from model")
-
-    return resource_type, resource_dict
 
 
 async def main() -> None:
@@ -48,36 +23,32 @@ async def main() -> None:
     client = AsyncFHIRClient(
         FHIR_SERVER_URL,
         authorization=f"Basic {TOKEN}",
+        dump_resource=lambda x: x.model_dump(exclude_none=True),
     )
 
     patient = Patient(
         name=[HumanName(given=["Bob"], family="Cool2")],
         gender="female",
-        birth_date="1980-01-01",
+        birthDate="1980-01-01",
     )
 
     # Create the Patient using fhirpy's client API
     created_patient = await client.create(patient)
 
     print(f"Created patient: {created_patient.id}")
-    print(json.dumps(created_patient.serialize(), indent=2))
+    print(json.dumps(created_patient.model_dump(exclude_none=True), indent=2))
 
     organization = Organization(
         name="Beda Software",
         active=True
     )
+    created_organization = await client.create(organization)
 
-    # Save the Organization using fhirpy's resource API
-    organization_resource = await client.resource(
-        "Organization",
-        **organization.model_dump(exclude_none=True)
-    ).save()
+    print(f"Created organization: {created_organization.id}")
 
-    print(f"Created organization: {organization_resource.id}")
-
-    patients = await client.resources("Patient").fetch()
+    patients = await client.resources(Patient).fetch()
     for pat in patients:
-        print(f"Found: {pat.get('name', [{}])[0].get('family', 'N/A')}")  # type: ignore[no-untyped-call]
+        print(f"Found: {pat.name[0].family}")
 
 
 if __name__ == "__main__":
