@@ -53,7 +53,7 @@ jobs:
       - name: Run security audit
         run: bun audit
 
-  codegen-smoke-test:
+  package-managers:
     runs-on: ubuntu-latest
 
     strategy:
