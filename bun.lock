@@ -6,7 +6,7 @@
       "name": "@atomic-ehr/codegen",
       "dependencies": {
         "@atomic-ehr/fhir-canonical-manager": "^0.0.20",
-        "@atomic-ehr/fhirschema": "0.0.8",
+        "@atomic-ehr/fhirschema": "^0.0.8",
         "mustache": "^4.2.0",
         "picocolors": "^1.1.1",
         "tinyglobby": "^0.2.15",

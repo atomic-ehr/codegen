@@ -246,13 +246,16 @@ export const mkTypeSchemaIndex = (
                 return index[url]?.[resolution.pkg.name];
             }
         }
-        const directResult = index[url]?.[pkgName];
-        if (directResult) return directResult;
+        if (index[url]?.[pkgName]) return index[url]?.[pkgName];
+        logger?.dryWarn(`Type '${url}' not found in '${pkgName}'`);
+
         // Fallback: search across all packages when type exists elsewhere
-        const urlEntry = index[url];
-        if (urlEntry) {
-            const firstPkg = Object.keys(urlEntry)[0];
-            if (firstPkg) return urlEntry[firstPkg];
+        if (index[url]) {
+            const anyPkg = Object.keys(index[url])[0];
+            if (anyPkg) {
+                logger?.dryWarn(`Type '${url}' fallback to package ${anyPkg}`);
+                return index[url]?.[anyPkg];
+            }
         }
         return undefined;
     };
