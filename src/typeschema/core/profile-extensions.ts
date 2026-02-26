@@ -162,7 +162,7 @@ export const extractProfileExtensions = (
             }
         }
 
-        const isComplex = subExtensions !== undefined && subExtensions.length > 0;
+        const isComplex = subExtensions && subExtensions.length > 0;
         extensions.push({
             name,
             path: [...path, "extension"].join("."),

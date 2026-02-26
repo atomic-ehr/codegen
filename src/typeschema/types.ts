@@ -24,7 +24,7 @@ export const extractNameFromCanonical = (canonical: CanonicalUrl, dropFragment =
     return localName;
 };
 
-export type PatternValue = {
+export type ValueConstraint = {
     kind: "pattern" | "fixed";
     type: string;
     value: FS.FHIRValue;
@@ -266,7 +266,7 @@ export interface RegularField {
     min?: number;
     max?: number;
     slicing?: FieldSlicing;
-    patternValue?: PatternValue;
+    valueConstraint?: ValueConstraint;
 }
 
 export interface ChoiceFieldDeclaration {
@@ -290,7 +290,7 @@ export interface ChoiceFieldInstance {
     min?: number;
     max?: number;
     slicing?: FieldSlicing;
-    patternValue?: PatternValue;
+    valueConstraint?: ValueConstraint;
 }
 
 export type Concept = {

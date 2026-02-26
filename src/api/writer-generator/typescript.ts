@@ -214,8 +214,8 @@ const collectProfileFactoryInfo = (flatProfile: ProfileTypeSchema): ProfileFacto
             continue;
         }
 
-        if (field.patternValue) {
-            const value = JSON.stringify(field.patternValue.value);
+        if (field.valueConstraint) {
+            const value = JSON.stringify(field.valueConstraint.value);
             autoFields.push({ name, value: field.array ? `[${value}]` : value });
             continue;
         }
