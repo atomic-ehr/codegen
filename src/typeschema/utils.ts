@@ -330,25 +330,25 @@ export const mkTypeSchemaIndex = (
             }
         }
 
-        const deps: { [url: string]: Identifier } = {};
-        for (const e of constraintSchemas.flatMap((e) => (e as RegularTypeSchema).dependencies ?? [])) {
-            deps[e.url] = e;
-        }
+        const dependencies = Object.values(
+            Object.fromEntries(
+                constraintSchemas
+                    .flatMap((s) => (s as RegularTypeSchema).dependencies ?? [])
+                    .map((dep) => [dep.url, dep]),
+            ),
+        );
 
-        const dependencies = Object.values(deps);
-        const extensionMap = new Map<string, ProfileExtension>();
-        for (const anySchema of constraintSchemas.slice().reverse()) {
-            const extensions = (anySchema as ProfileTypeSchema).extensions ?? [];
-            for (const ext of extensions) {
-                const key = `${ext.path}|${ext.name}`;
-                const existing = extensionMap.get(key);
-                // Prefer entries with a full canonical URL over short names
-                if (!existing || ext.url?.includes("/")) {
-                    extensionMap.set(key, ext);
-                }
-            }
-        }
-        const mergedExtensions = Array.from(extensionMap.values());
+        const mergedExtensions = Object.values(
+            [...constraintSchemas.filter(isProfileTypeSchema)]
+                .reverse()
+                .flatMap((s) => s.extensions ?? [])
+                .reduce<Record<string, ProfileExtension>>((acc, ext) => {
+                    const key = `${ext.path}|${ext.name}`;
+                    // Prefer entries with a full canonical URL over short names
+                    if (!acc[key] || ext.url?.includes("/")) acc[key] = ext;
+                    return acc;
+                }, {}),
+        );
 
         return {
             ...schema,
