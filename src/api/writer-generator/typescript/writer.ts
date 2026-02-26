@@ -18,23 +18,23 @@ import {
 } from "@root/typeschema/types";
 import { groupByPackages, type TypeSchemaIndex } from "@root/typeschema/utils";
 import {
-    generateProfileClass,
-    generateProfileHelpersModule,
-    generateProfileImports,
-    generateProfileIndexFile,
-    generateProfileOverrideInterface,
-    tsProfileModuleFileName,
-} from "./profile";
-import {
     canonicalToName,
-    resolveFieldTsType,
     tsFhirPackageDir,
     tsFieldName,
     tsModuleFileName,
     tsModuleName,
     tsModulePath,
+    tsProfileModuleFileName,
     tsResourceName,
-} from "./utils";
+} from "./name";
+import {
+    generateProfileClass,
+    generateProfileHelpersModule,
+    generateProfileImports,
+    generateProfileIndexFile,
+    generateProfileOverrideInterface,
+} from "./profile";
+import { resolveFieldTsType } from "./utils";
 
 export type TypeScriptOptions = {
     /** openResourceTypeSet -- for resource families (Resource, DomainResource) use open set for resourceType field.

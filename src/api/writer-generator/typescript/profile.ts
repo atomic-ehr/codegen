@@ -18,33 +18,22 @@ import {
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import {
     canonicalToName,
-    normalizeTsName,
-    resolveFieldTsType,
-    resolvePrimitiveType,
     safeCamelCase,
-    tsEnumType,
+    tsExtensionInputTypeName,
+    tsExtensionMethodFallback,
+    tsExtensionMethodName,
     tsFhirPackageDir,
     tsFieldName,
-    tsGet,
     tsModulePath,
+    tsProfileClassName,
+    tsProfileModuleName,
     tsResourceName,
-    tsTypeFromIdentifier,
-} from "./utils";
+    tsSliceInputTypeName,
+    tsSliceMethodFallback,
+    tsSliceMethodName,
+} from "./name";
+import { resolveFieldTsType, resolvePrimitiveType, tsEnumType, tsGet, tsTypeFromIdentifier } from "./utils";
 import type { TypeScript } from "./writer";
-
-export const tsProfileModuleName = (tsIndex: TypeSchemaIndex, schema: ProfileTypeSchema): string => {
-    const resourceSchema = tsIndex.findLastSpecialization(schema);
-    const resourceName = uppercaseFirstLetter(normalizeTsName(resourceSchema.identifier.name));
-    return `${resourceName}_${normalizeTsName(schema.identifier.name)}`;
-};
-
-export const tsProfileModuleFileName = (tsIndex: TypeSchemaIndex, schema: ProfileTypeSchema): string => {
-    return `${tsProfileModuleName(tsIndex, schema)}.ts`;
-};
-
-export const tsProfileClassName = (schema: ProfileTypeSchema): string => {
-    return `${normalizeTsName(schema.identifier.name)}Profile`;
-};
 
 export type ProfileFactoryInfo = {
     autoFields: { name: string; value: string }[];
@@ -92,41 +81,6 @@ export const collectProfileFactoryInfo = (flatProfile: ProfileTypeSchema): Profi
     }
 
     return { autoFields, params };
-};
-
-export const tsSliceInputTypeName = (profileName: string, fieldName: string, sliceName: string): string => {
-    return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(fieldName))}_${uppercaseFirstLetter(normalizeTsName(sliceName))}SliceInput`;
-};
-
-export const tsExtensionInputTypeName = (profileName: string, extensionName: string): string => {
-    return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(extensionName))}Input`;
-};
-
-export const tsSliceMethodName = (sliceName: string): string => {
-    const normalized = safeCamelCase(sliceName);
-    return `set${uppercaseFirstLetter(normalized || "Slice")}`;
-};
-
-export const tsExtensionMethodName = (name: string): string => {
-    const normalized = safeCamelCase(name);
-    return `set${uppercaseFirstLetter(normalized || "Extension")}`;
-};
-
-export const tsExtensionMethodFallback = (name: string, path?: string): string => {
-    const rawPath =
-        path
-            ?.split(".")
-            .filter((p) => p && p !== "extension")
-            .join("_") ?? "";
-    const pathPart = rawPath ? uppercaseFirstLetter(safeCamelCase(rawPath)) : "";
-    const normalized = safeCamelCase(name);
-    return `setExtension${pathPart}${uppercaseFirstLetter(normalized || "Extension")}`;
-};
-
-export const tsSliceMethodFallback = (fieldName: string, sliceName: string): string => {
-    const fieldPart = uppercaseFirstLetter(safeCamelCase(fieldName) || "Field");
-    const slicePart = uppercaseFirstLetter(safeCamelCase(sliceName) || "Slice");
-    return `setSlice${fieldPart}${slicePart}`;
 };
 
 export const generateProfileIndexFile = (
