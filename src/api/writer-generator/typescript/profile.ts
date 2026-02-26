@@ -20,16 +20,16 @@ import {
     canonicalToName,
     safeCamelCase,
     tsExtensionInputTypeName,
-    tsExtensionMethodFallback,
     tsExtensionMethodName,
     tsFhirPackageDir,
     tsFieldName,
     tsModulePath,
     tsProfileClassName,
     tsProfileModuleName,
+    tsQualifiedExtensionMethodName,
+    tsQualifiedSliceMethodName,
     tsResourceName,
     tsSliceInputTypeName,
-    tsSliceMethodFallback,
     tsSliceMethodName,
 } from "./name";
 import { resolveFieldTsType, resolvePrimitiveType, tsEnumType, tsGet, tsTypeFromIdentifier } from "./utils";
@@ -690,7 +690,7 @@ export const generateProfileClass = (
             .map((ext) => ({
                 ext,
                 baseName: tsExtensionMethodName(ext.name),
-                fallbackName: tsExtensionMethodFallback(ext.name, ext.path),
+                fallbackName: tsQualifiedExtensionMethodName(ext.name, ext.path),
             }));
         const sliceMethodBases = sliceDefs.map((slice) => tsSliceMethodName(slice.sliceName));
         const methodCounts = new Map<string, number>();
@@ -707,7 +707,7 @@ export const generateProfileClass = (
             sliceDefs.map((slice) => {
                 const baseName = tsSliceMethodName(slice.sliceName);
                 const needsFallback = (methodCounts.get(baseName) ?? 0) > 1;
-                const fallback = tsSliceMethodFallback(slice.fieldName, slice.sliceName);
+                const fallback = tsQualifiedSliceMethodName(slice.fieldName, slice.sliceName);
                 return [slice, needsFallback ? fallback : baseName];
             }),
         );
@@ -716,7 +716,7 @@ export const generateProfileClass = (
 
         for (const sliceDef of sliceDefs) {
             const methodName =
-                sliceMethodNames.get(sliceDef) ?? tsSliceMethodFallback(sliceDef.fieldName, sliceDef.sliceName);
+                sliceMethodNames.get(sliceDef) ?? tsQualifiedSliceMethodName(sliceDef.fieldName, sliceDef.sliceName);
             const typeName = tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
             const matchLiteral = JSON.stringify(sliceDef.match);
             const tsField = tsFieldName(sliceDef.fieldName);
@@ -903,7 +903,7 @@ const generateExtensionSetterMethods = (
 ) => {
     for (const ext of extensions) {
         if (!ext.url) continue;
-        const methodName = extensionMethodNames.get(ext) ?? tsExtensionMethodFallback(ext.name, ext.path);
+        const methodName = extensionMethodNames.get(ext) ?? tsQualifiedExtensionMethodName(ext.name, ext.path);
         const valueTypes = ext.valueTypes ?? [];
         const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");
 

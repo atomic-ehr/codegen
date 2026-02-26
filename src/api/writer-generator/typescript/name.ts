@@ -106,7 +106,7 @@ export const tsExtensionMethodName = (name: string): string => {
     return `set${uppercaseFirstLetter(normalized || "Extension")}`;
 };
 
-export const tsExtensionMethodFallback = (name: string, path?: string): string => {
+export const tsQualifiedExtensionMethodName = (name: string, path?: string): string => {
     const rawPath =
         path
             ?.split(".")
@@ -117,7 +117,7 @@ export const tsExtensionMethodFallback = (name: string, path?: string): string =
     return `setExtension${pathPart}${uppercaseFirstLetter(normalized || "Extension")}`;
 };
 
-export const tsSliceMethodFallback = (fieldName: string, sliceName: string): string => {
+export const tsQualifiedSliceMethodName = (fieldName: string, sliceName: string): string => {
     const fieldPart = uppercaseFirstLetter(safeCamelCase(fieldName) || "Field");
     const slicePart = uppercaseFirstLetter(safeCamelCase(sliceName) || "Slice");
     return `setSlice${fieldPart}${slicePart}`;
