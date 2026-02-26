@@ -20,14 +20,14 @@ const normalizeTsName = (n: string): string => {
     return n.replace(/\[x\]/g, "_x_").replace(/[- :.]/g, "_");
 };
 
-export const safeCamelCase = (name: string): string => {
+export const tsCamelCase = (name: string): string => {
     if (!name) return "";
     // Remove [x] suffix and normalize special characters before camelCase
     const normalized = name.replace(/\[x\]/g, "").replace(/:/g, "_");
     return camelCase(normalized);
 };
 
-export const tsFhirPackageDir = (name: string): string => {
+export const tsPackageDir = (name: string): string => {
     return kebabCase(name);
 };
 
@@ -45,10 +45,10 @@ export const tsModuleFileName = (id: Identifier): string => {
 };
 
 export const tsModulePath = (id: Identifier): string => {
-    return `${tsFhirPackageDir(id.package)}/${tsModuleName(id)}`;
+    return `${tsPackageDir(id.package)}/${tsModuleName(id)}`;
 };
 
-export const canonicalToName = (canonical: string | undefined, dropFragment = true) => {
+export const tsNameFromCanonical = (canonical: string | undefined, dropFragment = true) => {
     if (!canonical) return undefined;
     const localName = extractNameFromCanonical(canonical as CanonicalUrl, dropFragment);
     if (!localName) return undefined;
@@ -97,12 +97,12 @@ export const tsExtensionInputTypeName = (profileName: string, extensionName: str
 };
 
 export const tsSliceMethodName = (sliceName: string): string => {
-    const normalized = safeCamelCase(sliceName);
+    const normalized = tsCamelCase(sliceName);
     return `set${uppercaseFirstLetter(normalized || "Slice")}`;
 };
 
 export const tsExtensionMethodName = (name: string): string => {
-    const normalized = safeCamelCase(name);
+    const normalized = tsCamelCase(name);
     return `set${uppercaseFirstLetter(normalized || "Extension")}`;
 };
 
@@ -112,13 +112,13 @@ export const tsQualifiedExtensionMethodName = (name: string, path?: string): str
             ?.split(".")
             .filter((p) => p && p !== "extension")
             .join("_") ?? "";
-    const pathPart = rawPath ? uppercaseFirstLetter(safeCamelCase(rawPath)) : "";
-    const normalized = safeCamelCase(name);
+    const pathPart = rawPath ? uppercaseFirstLetter(tsCamelCase(rawPath)) : "";
+    const normalized = tsCamelCase(name);
     return `setExtension${pathPart}${uppercaseFirstLetter(normalized || "Extension")}`;
 };
 
 export const tsQualifiedSliceMethodName = (fieldName: string, sliceName: string): string => {
-    const fieldPart = uppercaseFirstLetter(safeCamelCase(fieldName) || "Field");
-    const slicePart = uppercaseFirstLetter(safeCamelCase(sliceName) || "Slice");
+    const fieldPart = uppercaseFirstLetter(tsCamelCase(fieldName) || "Field");
+    const slicePart = uppercaseFirstLetter(tsCamelCase(sliceName) || "Slice");
     return `setSlice${fieldPart}${slicePart}`;
 };

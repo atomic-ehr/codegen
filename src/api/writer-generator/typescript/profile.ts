@@ -17,13 +17,13 @@ import {
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import {
-    canonicalToName,
-    safeCamelCase,
+    tsCamelCase,
     tsExtensionInputTypeName,
     tsExtensionMethodName,
-    tsFhirPackageDir,
     tsFieldName,
     tsModulePath,
+    tsNameFromCanonical,
+    tsPackageDir,
     tsProfileClassName,
     tsProfileModuleName,
     tsQualifiedExtensionMethodName,
@@ -447,8 +447,8 @@ export const generateProfileImports = (
 
     const getModulePath = (typeId: Identifier): string => {
         if (isNestedIdentifier(typeId)) {
-            const path = canonicalToName(typeId.url, true);
-            if (path) return `../../${tsFhirPackageDir(typeId.package)}/${pascalCase(path)}`;
+            const path = tsNameFromCanonical(typeId.url, true);
+            if (path) return `../../${tsPackageDir(typeId.package)}/${pascalCase(path)}`;
         }
         return `../../${tsModulePath(typeId)}`;
     };
@@ -759,7 +759,7 @@ export const generateProfileClass = (
 
         for (const ext of extensions) {
             if (!ext.url) continue;
-            const baseName = uppercaseFirstLetter(safeCamelCase(ext.name));
+            const baseName = uppercaseFirstLetter(tsCamelCase(ext.name));
             const getMethodName = `get${baseName}`;
             const getExtensionMethodName = `get${baseName}Extension`;
             if (generatedGetMethods.has(getMethodName)) continue;
@@ -843,7 +843,7 @@ export const generateProfileClass = (
         // 1. get{SliceName}() - returns simplified (without discriminator fields)
         // 2. get{SliceName}Raw() - returns full FHIR type with all fields
         for (const sliceDef of sliceDefs) {
-            const baseName = uppercaseFirstLetter(safeCamelCase(sliceDef.sliceName));
+            const baseName = uppercaseFirstLetter(tsCamelCase(sliceDef.sliceName));
             const getMethodName = `get${baseName}`;
             const getRawMethodName = `get${baseName}Raw`;
             if (generatedGetMethods.has(getMethodName)) continue;

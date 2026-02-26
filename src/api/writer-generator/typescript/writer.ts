@@ -18,12 +18,12 @@ import {
 } from "@root/typeschema/types";
 import { groupByPackages, type TypeSchemaIndex } from "@root/typeschema/utils";
 import {
-    canonicalToName,
-    tsFhirPackageDir,
     tsFieldName,
     tsModuleFileName,
     tsModuleName,
     tsModulePath,
+    tsNameFromCanonical,
+    tsPackageDir,
     tsProfileModuleFileName,
     tsResourceName,
 } from "./name";
@@ -114,7 +114,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                     });
                 } else if (isNestedIdentifier(dep)) {
                     const ndep = { ...dep };
-                    ndep.name = canonicalToName(dep.url) as Name;
+                    ndep.name = tsNameFromCanonical(dep.url) as Name;
                     imports.push({
                         tsPackage: `${importPrefix}${tsModulePath(ndep)}`,
                         name: tsResourceName(dep),
@@ -179,7 +179,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         }
 
         let extendsClause: string | undefined;
-        if (schema.base) extendsClause = `extends ${canonicalToName(schema.base.url)}`;
+        if (schema.base) extendsClause = `extends ${tsNameFromCanonical(schema.base.url)}`;
 
         this.debugComment(schema.identifier);
         if (!schema.fields && !extendsClause && !isResourceTypeSchema(schema)) {
@@ -303,8 +303,8 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             }
 
             for (const [packageName, packageSchemas] of Object.entries(grouped)) {
-                const tsPackageDir = tsFhirPackageDir(packageName);
-                this.cd(tsPackageDir, () => {
+                const packageDir = tsPackageDir(packageName);
+                this.cd(packageDir, () => {
                     for (const schema of packageSchemas) {
                         this.generateResourceModule(tsIndex, schema);
                     }
