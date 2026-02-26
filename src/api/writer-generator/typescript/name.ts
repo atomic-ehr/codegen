@@ -13,9 +13,9 @@ import {
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 
 // biome-ignore format: too long
-export const tsKeywords = new Set([ "class", "function", "return", "if", "for", "while", "const", "let", "var", "import", "export", "interface" ]);
+const tsKeywords = new Set([ "class", "function", "return", "if", "for", "while", "const", "let", "var", "import", "export", "interface" ]);
 
-export const normalizeTsName = (n: string): string => {
+const normalizeTsName = (n: string): string => {
     if (tsKeywords.has(n)) n = `${n}_`;
     return n.replace(/\[x\]/g, "_x_").replace(/[- :.]/g, "_");
 };

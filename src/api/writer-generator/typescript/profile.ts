@@ -35,12 +35,12 @@ import {
 import { resolveFieldTsType, resolvePrimitiveType, tsEnumType, tsGet, tsTypeFromIdentifier } from "./utils";
 import type { TypeScript } from "./writer";
 
-export type ProfileFactoryInfo = {
+type ProfileFactoryInfo = {
     autoFields: { name: string; value: string }[];
     params: { name: string; tsType: string; typeId: Identifier }[];
 };
 
-export const collectProfileFactoryInfo = (flatProfile: ProfileTypeSchema): ProfileFactoryInfo => {
+const collectProfileFactoryInfo = (flatProfile: ProfileTypeSchema): ProfileFactoryInfo => {
     const autoFields: ProfileFactoryInfo["autoFields"] = [];
     const params: ProfileFactoryInfo["params"] = [];
     const fields = flatProfile.fields ?? {};
@@ -177,140 +177,6 @@ const tsTypeForProfileField = (
     }
 
     return tsType;
-};
-
-export const generateProfileType = (writer: TypeScript, tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) => {
-    writer.debugComment("flatProfile", flatProfile);
-    const tsName = tsResourceName(flatProfile.identifier);
-    writer.debugComment("identifier", flatProfile.identifier);
-    writer.debugComment("base", flatProfile.base);
-    writer.curlyBlock(["export", "interface", tsName], () => {
-        writer.lineSM(`__profileUrl: "${flatProfile.identifier.url}"`);
-        writer.line();
-
-        for (const [fieldName, field] of Object.entries(flatProfile.fields ?? {})) {
-            if (isChoiceDeclarationField(field)) continue;
-            writer.debugComment(fieldName, field);
-
-            const tsName = tsFieldName(fieldName);
-            const tsType = tsTypeForProfileField(writer, tsIndex, flatProfile, fieldName, field);
-            writer.lineSM(`${tsName}${!field.required ? "?" : ""}: ${tsType}${field.array ? "[]" : ""}`);
-        }
-    });
-
-    writer.line();
-};
-
-export const generateAttachProfile = (writer: TypeScript, flatProfile: ProfileTypeSchema) => {
-    const tsBaseResourceName = tsResourceName(flatProfile.base);
-    const tsProfileName = tsResourceName(flatProfile.identifier);
-    const profileFields = Object.entries(flatProfile.fields || {})
-        .filter(([_fieldName, field]) => {
-            return field && isNotChoiceDeclarationField(field) && field.type !== undefined;
-        })
-        .map(([fieldName]) => tsFieldName(fieldName));
-
-    writer.curlyBlock(
-        [
-            `export const attach_${tsProfileName}_to_${tsBaseResourceName} =`,
-            `(resource: ${tsBaseResourceName}, profile: ${tsProfileName}): ${tsBaseResourceName}`,
-            "=>",
-        ],
-        () => {
-            writer.curlyBlock(["return"], () => {
-                writer.line("...resource,");
-                // FIXME: don't rewrite all profiles
-                writer.curlyBlock(["meta:"], () => {
-                    writer.line(`profile: ['${flatProfile.identifier.url}']`);
-                }, [","]);
-                profileFields.forEach((fieldName) => {
-                    writer.line(`${fieldName}: ${tsGet("profile", fieldName)},`);
-                });
-            });
-        },
-    );
-    writer.line();
-};
-
-export const generateExtractProfile = (
-    writer: TypeScript,
-    tsIndex: TypeSchemaIndex,
-    flatProfile: ProfileTypeSchema,
-) => {
-    const tsBaseResourceName = tsResourceName(flatProfile.base);
-    const tsProfileName = tsResourceName(flatProfile.identifier);
-
-    const profileFields = Object.entries(flatProfile.fields || {})
-        .filter(([_fieldName, field]) => {
-            return isNotChoiceDeclarationField(field) && field.type !== undefined;
-        })
-        .map(([fieldName]) => fieldName);
-
-    const specialization = tsIndex.findLastSpecialization(flatProfile);
-    if (!isSpecializationTypeSchema(specialization))
-        throw new Error(`Specialization not found for ${flatProfile.identifier.url}`);
-
-    const shouldCast: Record<string, boolean> = {};
-    writer.curlyBlock(
-        [
-            `export const extract_${tsProfileName}_from_${tsBaseResourceName} =`,
-            `(resource: ${tsBaseResourceName}): ${tsProfileName}`,
-            "=>",
-        ],
-        () => {
-            profileFields.forEach((fieldName) => {
-                const tsField = tsFieldName(fieldName);
-                const pField = flatProfile.fields?.[fieldName];
-                const rField = specialization.fields?.[fieldName];
-                if (!isNotChoiceDeclarationField(pField) || !isNotChoiceDeclarationField(rField)) return;
-
-                if (pField.required && !rField.required) {
-                    writer.curlyBlock([`if (${tsGet("resource", tsField)} === undefined)`], () =>
-                        writer.lineSM(`throw new Error("'${tsField}' is required for ${flatProfile.identifier.url}")`),
-                    );
-                }
-
-                const pRefs = pField?.reference?.map((ref) => ref.name);
-                const rRefs = rField?.reference?.map((ref) => ref.name);
-                if (pRefs && rRefs && pRefs.length !== rRefs.length) {
-                    const predName = `reference_is_valid_${tsField}`;
-                    writer.curlyBlock(["const", predName, "=", "(ref?: Reference)", "=>"], () => {
-                        writer.line("return !ref");
-                        writer.indentBlock(() => {
-                            rRefs.forEach((ref) => {
-                                writer.line(`|| ref.reference?.startsWith('${ref}/')`);
-                            });
-                            writer.line(";");
-                        });
-                    });
-                    let cond: string = !pField?.required ? `!${tsGet("resource", tsField)} || ` : "";
-                    if (pField.array) {
-                        cond += `${tsGet("resource", tsField)}.every( (ref) => ${predName}(ref) )`;
-                    } else {
-                        cond += `!${predName}(${tsGet("resource", tsField)})`;
-                    }
-                    writer.curlyBlock(["if (", cond, ")"], () => {
-                        writer.lineSM(
-                            `throw new Error("'${fieldName}' has different references in profile and specialization")`,
-                        );
-                    });
-                    writer.line();
-                    shouldCast[fieldName] = true;
-                }
-            });
-            writer.curlyBlock(["return"], () => {
-                writer.line(`__profileUrl: '${flatProfile.identifier.url}',`);
-                profileFields.forEach((fieldName) => {
-                    const tsField = tsFieldName(fieldName);
-                    if (shouldCast[fieldName]) {
-                        writer.line(`${tsField}:`, `${tsGet("resource", tsField)} as ${tsProfileName}['${tsField}'],`);
-                    } else {
-                        writer.line(`${tsField}:`, `${tsGet("resource", tsField)},`);
-                    }
-                });
-            });
-        },
-    );
 };
 
 export const generateProfileHelpersModule = (writer: TypeScript) => {
@@ -1122,7 +988,7 @@ const generateExtensionSetterMethods = (
     }
 };
 
-export const detectFieldOverrides = (
+const detectFieldOverrides = (
     writer: TypeScript,
     tsIndex: TypeSchemaIndex,
     flatProfile: ProfileTypeSchema,

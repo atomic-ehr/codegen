@@ -8,7 +8,7 @@ import {
 } from "@root/typeschema/types";
 import { tsResourceName } from "./name";
 
-export const primitiveType2tsType: Record<string, string> = {
+const primitiveType2tsType: Record<string, string> = {
     boolean: "boolean",
     instant: "string",
     time: "string",
@@ -51,7 +51,7 @@ export const tsEnumType = (enumDef: EnumDefinition) => {
     return enumDef.isOpen ? `(${values} | string)` : `(${values})`;
 };
 
-export const rewriteFieldTypeDefs: Record<string, Record<string, () => string>> = {
+const rewriteFieldTypeDefs: Record<string, Record<string, () => string>> = {
     Coding: { code: () => "T" },
     // biome-ignore lint: that is exactly string what we want
     Reference: { reference: () => "`${T}/${string}`" },
