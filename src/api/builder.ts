@@ -29,7 +29,7 @@ import { IntrospectionWriter, type IntrospectionWriterOptions } from "./writer-g
 import { IrReportWriterWriter, type IrReportWriterWriterOptions } from "./writer-generator/ir-report";
 import type { FileBasedMustacheGeneratorOptions } from "./writer-generator/mustache";
 import * as Mustache from "./writer-generator/mustache";
-import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript";
+import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript/writer";
 import type { FileBuffer, FileSystemWriter, FileSystemWriterOptions, WriterOptions } from "./writer-generator/writer";
 
 /**
