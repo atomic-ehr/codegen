@@ -18,6 +18,7 @@ import type {
     Name,
     RegularField,
     RichFHIRSchema,
+    ValueConstraint,
 } from "../types";
 import { BINDABLE_TYPES, buildEnum } from "./binding";
 import { mkBindingIdentifier, mkIdentifier } from "./identifier";
@@ -176,6 +177,14 @@ export const mkField = (
     // TODO: should be an exception
     if (!fieldType)
         logger?.dryWarn(`Field type not found for '${fhirSchema.url}#${path.join(".")}' (${fhirSchema.derivation})`);
+
+    let valueConstraint: ValueConstraint | undefined;
+    if (element.pattern) {
+        valueConstraint = { kind: "pattern", type: element.pattern.type, value: element.pattern.value };
+    } else if (element.fixed) {
+        valueConstraint = { kind: "fixed", type: element.fixed.type, value: element.fixed.value };
+    }
+
     return {
         type: fieldType as Identifier,
         required: isRequired(register, fhirSchema, path),
@@ -193,6 +202,7 @@ export const mkField = (
 
         binding: binding,
         enum: enumResult,
+        valueConstraint,
     };
 };
 

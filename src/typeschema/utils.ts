@@ -246,7 +246,18 @@ export const mkTypeSchemaIndex = (
                 return index[url]?.[resolution.pkg.name];
             }
         }
-        return index[url]?.[pkgName];
+        if (index[url]?.[pkgName]) return index[url]?.[pkgName];
+        logger?.dryWarn(`Type '${url}' not found in '${pkgName}'`);
+
+        // Fallback: search across all packages when type exists elsewhere
+        if (index[url]) {
+            const anyPkg = Object.keys(index[url])[0];
+            if (anyPkg) {
+                logger?.dryWarn(`Type '${url}' fallback to package ${anyPkg}`);
+                return index[url]?.[anyPkg];
+            }
+        }
+        return undefined;
     };
 
     const resourceChildren = (id: Identifier): Identifier[] => {
@@ -319,21 +330,25 @@ export const mkTypeSchemaIndex = (
             }
         }
 
-        const deps: { [url: string]: Identifier } = {};
-        for (const e of constraintSchemas.flatMap((e) => (e as RegularTypeSchema).dependencies ?? [])) {
-            deps[e.url] = e;
-        }
+        const dependencies = Object.values(
+            Object.fromEntries(
+                constraintSchemas
+                    .flatMap((s) => (s as RegularTypeSchema).dependencies ?? [])
+                    .map((dep) => [dep.url, dep]),
+            ),
+        );
 
-        const dependencies = Object.values(deps);
-        const extensionMap = new Map<string, ProfileExtension>();
-        for (const anySchema of constraintSchemas.slice().reverse()) {
-            const extensions = (anySchema as ProfileTypeSchema).extensions ?? [];
-            for (const ext of extensions) {
-                const key = `${ext.path}|${ext.name}|${ext.url ?? ""}`;
-                extensionMap.set(key, ext);
-            }
-        }
-        const mergedExtensions = Array.from(extensionMap.values());
+        const mergedExtensions = Object.values(
+            [...constraintSchemas.filter(isProfileTypeSchema)]
+                .reverse()
+                .flatMap((s) => s.extensions ?? [])
+                .reduce<Record<string, ProfileExtension>>((acc, ext) => {
+                    const key = `${ext.path}|${ext.name}`;
+                    // Prefer entries with a full canonical URL over short names
+                    if (!acc[key] || ext.url?.includes("/")) acc[key] = ext;
+                    return acc;
+                }, {}),
+        );
 
         return {
             ...schema,

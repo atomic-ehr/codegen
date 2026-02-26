@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 # Development
 bun install                    # Install dependencies
-bun test                      # Run all tests 
+bun test                      # Run all tests
 bun test --watch              # Run tests in watch mode
 bun test --coverage           # Run tests with coverage
 bun run typecheck             # Type check the codebase
@@ -21,6 +21,19 @@ bun run cli                   # Run CLI in development mode
 bun run cli typeschema generate hl7.fhir.r4.core@4.0.1 -o schemas.ndjson
 bun run cli generate typescript -i schemas.ndjson -o ./types
 ```
+
+## Verification
+
+After any code change, run at minimum:
+```bash
+bun run typecheck && bun run lint && bun test
+```
+
+For full verification including example generation and cross-project type checking:
+```bash
+make all
+```
+This runs: tests, lint with auto-fix, and all example generation pipelines (TypeScript R4, CCDA, SQL-on-FHIR, C#, Python, Mustache).
 
 ## Architecture Overview
 
@@ -68,6 +81,13 @@ FHIR Package → TypeSchema Generator → TypeSchema Format → Code Generators 
 - **Tests**: Located in `test/unit/` with mirrors to `src/` structure
 - **Generated code**: Output goes to `generated/` directory
 - **Utilities**: Common functions in `src/utils.ts` and `src/typeschema/utils.ts`
+
+## General Principles
+
+- Bias toward action: start making changes directly. Do not write plan files, explore the entire codebase, or use Task sub-agents unless explicitly asked.
+- Keep changes minimal and focused. Do not over-engineer (no extra abstractions, generics, or variants beyond what was requested). When in doubt, do the simplest thing that works.
+- Only modify files and directories that were explicitly mentioned or are directly required by the change. Do not refactor surrounding code.
+- When asked to review or explain code, explain first before proposing fixes. Do not jump to making changes unless explicitly asked to fix something.
 
 ## Development Guidelines
 

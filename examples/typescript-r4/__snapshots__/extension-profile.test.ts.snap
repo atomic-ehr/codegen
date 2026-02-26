@@ -1,0 +1,41 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`Patient with extensions built from profiles 1`] = `
+{
+  "_birthDate": {
+    "extension": [
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
+        "valueDateTime": "1770-12-17T12:00:00+01:00",
+      },
+    ],
+  },
+  "birthDate": "1770-12-17",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
+      "valueAddress": {
+        "city": "Bonn",
+        "country": "DE",
+      },
+    },
+  ],
+  "name": [
+    {
+      "_family": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
+            "valueString": "van",
+          },
+        ],
+      },
+      "family": "van Beethoven",
+      "given": [
+        "Ludwig",
+      ],
+    },
+  ],
+  "resourceType": "Patient",
+}
+`;

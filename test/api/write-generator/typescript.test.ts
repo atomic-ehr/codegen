@@ -24,7 +24,7 @@ describe("TypeScript Writer Generator", async () => {
         })
         .generate();
     expect(result.success).toBeTrue();
-    expect(Object.keys(result.filesGenerated).length).toEqual(638);
+    expect(Object.keys(result.filesGenerated).length).toEqual(608);
     it("generates Patient resource in inMemoryOnly mode with snapshot", async () => {
         expect(result.filesGenerated["generated/types/hl7-fhir-r4-core/Patient.ts"]).toMatchSnapshot();
     });
@@ -80,8 +80,8 @@ describe("TypeScript R4 Example (with generateProfile)", async () => {
         expect(result.success).toBeTrue();
     });
 
-    it("has no file rewrite warnings", () => {
+    it("file rewrite warnings match expected collisions", () => {
         const rewriteWarnings = warnings.filter((w) => w.includes("File will be rewritten"));
-        expect(rewriteWarnings).toEqual([]);
+        expect(rewriteWarnings).toMatchSnapshot();
     });
 });

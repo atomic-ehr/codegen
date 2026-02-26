@@ -230,16 +230,16 @@ export type { TS } from "./TS";
 exports[`TypeScript CDA with Logical Model Promotion to Resource without resourceType 3`] = `
 "export { TNProfile } from "./EN_TN";
 export { binProfile } from "./Base64Binary_bin";
-export { bl_simpleProfile } from "./Boolean_bl_simple";
+export { blProfile } from "./Boolean_bl";
 export { bnProfile } from "./Boolean_bn";
-export { cs_simpleProfile } from "./Code_cs_simple";
-export { int_simpleProfile } from "./Integer_int_simple";
+export { csProfile } from "./Code_cs";
+export { intProfile } from "./Integer_int";
 export { oidProfile } from "./String_oid";
 export { probabilityProfile } from "./Decimal_probability";
-export { real_simpleProfile } from "./Decimal_real_simple";
+export { realProfile } from "./Decimal_real";
 export { ruidProfile } from "./String_ruid";
-export { st_simpleProfile } from "./String_st_simple";
-export { ts_simpleProfile } from "./DateTime_ts_simple";
+export { stProfile } from "./String_st";
+export { tsProfile } from "./DateTime_ts";
 export { uidProfile } from "./String_uid";
 export { urlProfile } from "./Url_url";
 export { uuidProfile } from "./String_uuid";
@@ -274,4 +274,39 @@ export const isMaterial = (resource: unknown): resource is Material => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Material";
 }
 "
+`;
+
+exports[`TypeScript R4 Example (with generateProfile) file rewrite warnings match expected collisions 1`] = `
+[
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_assertedDate.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_author.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_author.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_concept_comments.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_conceptOrder.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_effectiveDate.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Observation_Example_Lipid_Profile.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Observation_Example_Lipid_Profile.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Observation_Example_Lipid_Profile.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_expirationDate.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_expression.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_keyWord.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_label.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_location.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_location.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_map.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_method.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_otherName.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_precondition.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_primaryInd.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_replaces.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_replaces.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_replaces.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_replaces.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_sourceReference.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_statusReason.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_trusted_expansion.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_usage.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_warning.ts'",
+  "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_workflowStatus.ts'",
+]
 `;

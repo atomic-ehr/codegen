@@ -6,7 +6,7 @@
 
 import { expect, test } from "bun:test";
 import type { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
-import { bodyweightProfile } from "./fhir-types/hl7-fhir-r4-core/profiles/Observation_bodyweight";
+import { observation_bodyweightProfile as bodyweightProfile } from "./fhir-types/hl7-fhir-r4-core/profiles/Observation_observation_bodyweight";
 
 function createBodyWeightObservation(): Observation {
     const baseObservation: Observation = {

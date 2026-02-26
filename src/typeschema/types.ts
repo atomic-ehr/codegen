@@ -24,6 +24,12 @@ export const extractNameFromCanonical = (canonical: CanonicalUrl, dropFragment =
     return localName;
 };
 
+export type ValueConstraint = {
+    kind: "pattern" | "fixed";
+    type: string;
+    value: FS.FHIRValue;
+};
+
 export type PkgName = string;
 export type PkgVersion = string;
 
@@ -260,6 +266,7 @@ export interface RegularField {
     min?: number;
     max?: number;
     slicing?: FieldSlicing;
+    valueConstraint?: ValueConstraint;
 }
 
 export interface ChoiceFieldDeclaration {
@@ -283,6 +290,7 @@ export interface ChoiceFieldInstance {
     min?: number;
     max?: number;
     slicing?: FieldSlicing;
+    valueConstraint?: ValueConstraint;
 }
 
 export type Concept = {
