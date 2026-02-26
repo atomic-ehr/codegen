@@ -24,7 +24,7 @@ export class birthTimeProfile {
         const resource: Extension = {
             url: "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
             valueDateTime: args.valueDateTime,
-        } as Extension
+        } as unknown as Extension
         return resource
     }
 
@@ -37,11 +37,11 @@ export class birthTimeProfile {
     }
 
     getValueDateTime () : string | undefined {
-        return this.resource.valueDateTime
+        return this.resource.valueDateTime as string | undefined
     }
 
     setValueDateTime (value: string) : this {
-        this.resource.valueDateTime = value
+        (this.resource as any).valueDateTime = value
         return this
     }
 

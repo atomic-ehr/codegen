@@ -24,7 +24,7 @@ export class own_prefixProfile {
         const resource: Extension = {
             url: "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
             valueString: args.valueString,
-        } as Extension
+        } as unknown as Extension
         return resource
     }
 
@@ -37,11 +37,11 @@ export class own_prefixProfile {
     }
 
     getValueString () : string | undefined {
-        return this.resource.valueString
+        return this.resource.valueString as string | undefined
     }
 
     setValueString (value: string) : this {
-        this.resource.valueString = value
+        (this.resource as any).valueString = value
         return this
     }
 

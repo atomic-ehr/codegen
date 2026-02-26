@@ -6,11 +6,11 @@
 
 import { expect, test } from "bun:test";
 import type { HumanName } from "./fhir-types/hl7-fhir-r4-core/HumanName";
-import type { Patient, } from "./fhir-types/hl7-fhir-r4-core/Patient";
-import { own_prefixProfile } from "./fhir-types/hl7-fhir-r4-core/profiles/Extension_own_prefix";
+import type { Patient } from "./fhir-types/hl7-fhir-r4-core/Patient";
 import { birthPlaceProfile } from "./fhir-types/hl7-fhir-r4-core/profiles/Extension_birthPlace";
 import { birthTimeProfile } from "./fhir-types/hl7-fhir-r4-core/profiles/Extension_birthTime";
 import { nationalityProfile } from "./fhir-types/hl7-fhir-r4-core/profiles/Extension_nationality";
+import { own_prefixProfile } from "./fhir-types/hl7-fhir-r4-core/profiles/Extension_own_prefix";
 
 test("Patient with extensions built from profiles", () => {
     const name: HumanName = {

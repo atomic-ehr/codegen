@@ -21,7 +21,7 @@ export class nationalityProfile {
     static createResource () : Extension {
         const resource: Extension = {
             url: "http://hl7.org/fhir/StructureDefinition/patient-nationality",
-        } as Extension
+        } as unknown as Extension
         return resource
     }
 
@@ -35,19 +35,19 @@ export class nationalityProfile {
 
     public setCode (value: CodeableConcept): this {
         const list = (this.resource.extension ??= [])
-        list.push({ url: "code", valueCodeableConcept: value })
+        list.push({ url: "code", valueCodeableConcept: value } as Extension)
         return this
     }
 
     public setPeriod (value: Period): this {
         const list = (this.resource.extension ??= [])
-        list.push({ url: "period", valuePeriod: value })
+        list.push({ url: "period", valuePeriod: value } as Extension)
         return this
     }
 
     public getCode (): CodeableConcept | undefined {
         const ext = this.resource.extension?.find(e => e.url === "code")
-        return ext?.valueCodeableConcept
+        return (ext as Record<string, unknown> | undefined)?.valueCodeableConcept as CodeableConcept | undefined
     }
 
     public getCodeExtension (): Extension | undefined {
@@ -57,7 +57,7 @@ export class nationalityProfile {
 
     public getPeriod (): Period | undefined {
         const ext = this.resource.extension?.find(e => e.url === "period")
-        return ext?.valuePeriod
+        return (ext as Record<string, unknown> | undefined)?.valuePeriod as Period | undefined
     }
 
     public getPeriodExtension (): Extension | undefined {

@@ -16,10 +16,10 @@ export type Observation_vitalsigns_Category_VSCatSliceInput = Omit<CodeableConce
 import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
 
 export type observation_vitalsignsProfileParams = {
-    status: string;
-    category: CodeableConcept[];
-    code: CodeableConcept;
-    subject: Reference;
+    status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
+    category: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
+    code: CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)>;
+    subject: Reference<"Patient">;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/vitalsigns (pkg: hl7.fhir.r4.core#4.0.1)
@@ -41,7 +41,7 @@ export class observation_vitalsignsProfile {
             category: args.category,
             code: args.code,
             subject: args.subject,
-        } as Observation
+        } as unknown as Observation
         return resource
     }
 
@@ -53,39 +53,39 @@ export class observation_vitalsignsProfile {
         return this.resource
     }
 
-    getStatus () : string | undefined {
-        return this.resource.status
+    getStatus () : ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined {
+        return this.resource.status as ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined
     }
 
-    setStatus (value: string) : this {
-        this.resource.status = value
+    setStatus (value: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown")) : this {
+        (this.resource as any).status = value
         return this
     }
 
-    getCategory () : CodeableConcept[] | undefined {
-        return this.resource.category
+    getCategory () : CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined {
+        return this.resource.category as CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined
     }
 
-    setCategory (value: CodeableConcept[]) : this {
-        this.resource.category = value
+    setCategory (value: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[]) : this {
+        (this.resource as any).category = value
         return this
     }
 
-    getCode () : CodeableConcept | undefined {
-        return this.resource.code
+    getCode () : CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined {
+        return this.resource.code as CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined
     }
 
-    setCode (value: CodeableConcept) : this {
-        this.resource.code = value
+    setCode (value: CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)>) : this {
+        (this.resource as any).code = value
         return this
     }
 
-    getSubject () : Reference | undefined {
-        return this.resource.subject
+    getSubject () : Reference<"Patient"> | undefined {
+        return this.resource.subject as Reference<"Patient"> | undefined
     }
 
-    setSubject (value: Reference) : this {
-        this.resource.subject = value
+    setSubject (value: Reference<"Patient">) : this {
+        (this.resource as any).subject = value
         return this
     }
 

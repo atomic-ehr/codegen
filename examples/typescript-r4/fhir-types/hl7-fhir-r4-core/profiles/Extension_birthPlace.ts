@@ -25,7 +25,7 @@ export class birthPlaceProfile {
         const resource: Extension = {
             url: "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
             valueAddress: args.valueAddress,
-        } as Extension
+        } as unknown as Extension
         return resource
     }
 
@@ -38,11 +38,11 @@ export class birthPlaceProfile {
     }
 
     getValueAddress () : Address | undefined {
-        return this.resource.valueAddress
+        return this.resource.valueAddress as Address | undefined
     }
 
     setValueAddress (value: Address) : this {
-        this.resource.valueAddress = value
+        (this.resource as any).valueAddress = value
         return this
     }
 
