@@ -16,6 +16,7 @@ import {
     type Identifier,
     isNestedIdentifier,
     isProfileIdentifier,
+    type Name,
     type NestedType,
     type ProfileExtension,
     packageMetaToFhir,
@@ -273,7 +274,7 @@ function extractProfileExtensions(
     const addExtensionEntry = (path: string[], name: string, schema: FHIRSchemaElement) => {
         let url = schema.url as CanonicalUrl | undefined;
         let valueTypes = url ? extractExtensionValueTypes(register, fhirSchema, url, logger) : undefined;
-        let subExtensions = url ? extractSubExtensions(register, fhirSchema, url, logger) : undefined;
+        const subExtensions = url ? extractSubExtensions(register, fhirSchema, url, logger) : undefined;
 
         // For extension profiles, sub-extension entries may lack a url.
         // Fall back to slicing data to extract the url and value type.
@@ -281,7 +282,7 @@ function extractProfileExtensions(
             const sliceSchema = (fhirSchema.elements?.extension as any)?.slicing?.slices?.[name]?.schema;
             if (sliceSchema) {
                 url = (sliceSchema.elements?.url?.fixed?.value ?? name) as CanonicalUrl;
-                for (const [elemKey, elemValue] of Object.entries(sliceSchema.elements ?? {})) {
+                for (const [_elemKey, elemValue] of Object.entries(sliceSchema.elements ?? {})) {
                     const elem = elemValue as { choiceOf?: string; type?: string };
                     if (elem.choiceOf === "value" && elem.type) {
                         valueTypes = [
