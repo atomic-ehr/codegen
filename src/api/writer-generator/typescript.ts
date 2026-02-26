@@ -25,6 +25,7 @@ import {
     isResourceTypeSchema,
     isSpecializationTypeSchema,
     type Name,
+    type ProfileExtension,
     type ProfileTypeSchema,
     packageMeta,
     packageMetaToFhir,
@@ -201,23 +202,26 @@ const collectProfileFactoryInfo = (flatProfile: ProfileTypeSchema): ProfileFacto
         // Required choice declaration with a single choice — promote that choice to a param
         if (isChoiceDeclarationField(field)) {
             if (field.required && field.choices.length === 1) {
-                const choiceName = field.choices[0]!;
-                const choiceField = fields[choiceName];
-                if (choiceField && isChoiceInstanceField(choiceField)) {
-                    const tsType = tsTypeFromIdentifier(choiceField.type) + (choiceField.array ? "[]" : "");
-                    params.push({ name: choiceName, tsType, typeId: choiceField.type });
+                const choiceName = field.choices[0];
+                if (choiceName) {
+                    const choiceField = fields[choiceName];
+                    if (choiceField && isChoiceInstanceField(choiceField)) {
+                        const tsType = tsTypeFromIdentifier(choiceField.type) + (choiceField.array ? "[]" : "");
+                        params.push({ name: choiceName, tsType, typeId: choiceField.type });
+                    }
                 }
             }
             continue;
         }
 
         if (field.patternValue) {
-            autoFields.push({ name, value: JSON.stringify(field.patternValue.value) });
+            const value = JSON.stringify(field.patternValue.value);
+            autoFields.push({ name, value: field.array ? `[${value}]` : value });
             continue;
         }
 
         if (field.required) {
-            const tsType = tsTypeFromIdentifier(field.type) + (field.array ? "[]" : "");
+            const tsType = resolveFieldTsType("", "", field) + (field.array ? "[]" : "");
             params.push({ name, tsType, typeId: field.type });
         }
     }
@@ -1176,7 +1180,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                     for (const f of allFields) {
                         this.line(`${f.name}: ${f.value},`);
                     }
-                }, [` as ${tsBaseResourceName}`]);
+                }, [` as unknown as ${tsBaseResourceName}`]);
                 this.line("return resource");
             });
             this.line();
@@ -1195,11 +1199,11 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             for (const p of factoryInfo.params) {
                 const methodSuffix = uppercaseFirstLetter(p.name);
                 this.curlyBlock([`get${methodSuffix}`, "()", `: ${p.tsType} | undefined`], () => {
-                    this.line(`return this.resource.${p.name}`);
+                    this.line(`return this.resource.${p.name} as ${p.tsType} | undefined`);
                 });
                 this.line();
                 this.curlyBlock([`set${methodSuffix}`, `(value: ${p.tsType})`, ": this"], () => {
-                    this.line(`this.resource.${p.name} = value`);
+                    this.line(`(this.resource as any).${p.name} = value`);
                     this.line("return this");
                 });
                 this.line();
@@ -1239,93 +1243,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 }),
             );
 
-            for (const ext of extensions) {
-                if (!ext.url) continue;
-                const methodName = extensionMethodNames.get(ext) ?? tsExtensionMethodFallback(ext.name, ext.path);
-                const valueTypes = ext.valueTypes ?? [];
-                const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");
-
-                if (ext.isComplex && ext.subExtensions) {
-                    const inputTypeName = tsExtensionInputTypeName(tsProfileName, ext.name);
-                    this.curlyBlock(["public", methodName, `(input: ${inputTypeName}): this`], () => {
-                        this.line("const subExtensions: Extension[] = []");
-                        for (const sub of ext.subExtensions ?? []) {
-                            const valueField = sub.valueType
-                                ? `value${uppercaseFirstLetter(sub.valueType.name)}`
-                                : "value";
-                            // When value type is unknown, cast to Extension to avoid TS error
-                            const needsCast = !sub.valueType;
-                            const pushSuffix = needsCast ? " as Extension" : "";
-                            if (sub.max === "*") {
-                                this.curlyBlock(["if", `(input.${sub.name})`], () => {
-                                    this.curlyBlock(["for", `(const item of input.${sub.name})`], () => {
-                                        this.line(
-                                            `subExtensions.push({ url: "${sub.url}", ${valueField}: item }${pushSuffix})`,
-                                        );
-                                    });
-                                });
-                            } else {
-                                this.curlyBlock(["if", `(input.${sub.name} !== undefined)`], () => {
-                                    this.line(
-                                        `subExtensions.push({ url: "${sub.url}", ${valueField}: input.${sub.name} }${pushSuffix})`,
-                                    );
-                                });
-                            }
-                        }
-                        if (targetPath.length === 0) {
-                            this.line("const list = (this.resource.extension ??= [])");
-                            this.line(`list.push({ url: "${ext.url}", extension: subExtensions })`);
-                        } else {
-                            this.line(
-                                `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
-                            );
-                            this.line("if (!Array.isArray(target.extension)) target.extension = [] as Extension[]");
-                            this.line(
-                                `(target.extension as Extension[]).push({ url: "${ext.url}", extension: subExtensions })`,
-                            );
-                        }
-                        this.line("return this");
-                    });
-                } else if (valueTypes.length === 1 && valueTypes[0]) {
-                    const firstValueType = valueTypes[0];
-                    const valueType = tsTypeFromIdentifier(firstValueType);
-                    const valueField = `value${uppercaseFirstLetter(firstValueType.name)}`;
-                    this.curlyBlock(["public", methodName, `(value: ${valueType}): this`], () => {
-                        if (targetPath.length === 0) {
-                            this.line("const list = (this.resource.extension ??= [])");
-                            this.line(`list.push({ url: "${ext.url}", ${valueField}: value })`);
-                        } else {
-                            this.line(
-                                `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(
-                                    targetPath,
-                                )})`,
-                            );
-                            this.line("if (!Array.isArray(target.extension)) target.extension = [] as Extension[]");
-                            this.line(
-                                `(target.extension as Extension[]).push({ url: "${ext.url}", ${valueField}: value })`,
-                            );
-                        }
-                        this.line("return this");
-                    });
-                } else {
-                    this.curlyBlock(["public", methodName, `(value: Omit<Extension, "url">): this`], () => {
-                        if (targetPath.length === 0) {
-                            this.line("const list = (this.resource.extension ??= [])");
-                            this.line(`list.push({ url: "${ext.url}", ...value })`);
-                        } else {
-                            this.line(
-                                `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(
-                                    targetPath,
-                                )})`,
-                            );
-                            this.line("if (!Array.isArray(target.extension)) target.extension = [] as Extension[]");
-                            this.line(`(target.extension as Extension[]).push({ url: "${ext.url}", ...value })`);
-                        }
-                        this.line("return this");
-                    });
-                }
-                this.line();
-            }
+            this.generateExtensionSetterMethods(extensions, extensionMethodNames, tsProfileName);
 
             for (const sliceDef of sliceDefs) {
                 const methodName =
@@ -1423,10 +1341,12 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                     const firstValueType = valueTypes[0];
                     const valueType = tsTypeFromIdentifier(firstValueType);
                     const valueField = `value${uppercaseFirstLetter(firstValueType.name)}`;
-                    // Flat API getter
+                    // Flat API getter (cast needed: value field may not exist on Extension in this FHIR version)
                     this.curlyBlock(["public", getMethodName, `(): ${valueType} | undefined`], () => {
                         generateExtLookup();
-                        this.line(`return ext?.${valueField}`);
+                        this.line(
+                            `return (ext as Record<string, unknown> | undefined)?.${valueField} as ${valueType} | undefined`,
+                        );
                     });
                     this.line();
                     // Raw Extension getter
@@ -1506,6 +1426,98 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             }
         });
         this.line();
+    }
+
+    private generateExtensionSetterMethods(
+        extensions: ProfileExtension[],
+        extensionMethodNames: Map<ProfileExtension, string>,
+        tsProfileName: string,
+    ) {
+        for (const ext of extensions) {
+            if (!ext.url) continue;
+            const methodName = extensionMethodNames.get(ext) ?? tsExtensionMethodFallback(ext.name, ext.path);
+            const valueTypes = ext.valueTypes ?? [];
+            const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");
+
+            if (ext.isComplex && ext.subExtensions) {
+                const inputTypeName = tsExtensionInputTypeName(tsProfileName, ext.name);
+                this.curlyBlock(["public", methodName, `(input: ${inputTypeName}): this`], () => {
+                    this.line("const subExtensions: Extension[] = []");
+                    for (const sub of ext.subExtensions ?? []) {
+                        const valueField = sub.valueType ? `value${uppercaseFirstLetter(sub.valueType.name)}` : "value";
+                        // When value type is unknown, cast to Extension to avoid TS error
+                        const needsCast = !sub.valueType;
+                        const pushSuffix = needsCast ? " as Extension" : "";
+                        if (sub.max === "*") {
+                            this.curlyBlock(["if", `(input.${sub.name})`], () => {
+                                this.curlyBlock(["for", `(const item of input.${sub.name})`], () => {
+                                    this.line(
+                                        `subExtensions.push({ url: "${sub.url}", ${valueField}: item }${pushSuffix})`,
+                                    );
+                                });
+                            });
+                        } else {
+                            this.curlyBlock(["if", `(input.${sub.name} !== undefined)`], () => {
+                                this.line(
+                                    `subExtensions.push({ url: "${sub.url}", ${valueField}: input.${sub.name} }${pushSuffix})`,
+                                );
+                            });
+                        }
+                    }
+                    if (targetPath.length === 0) {
+                        this.line("const list = (this.resource.extension ??= [])");
+                        this.line(`list.push({ url: "${ext.url}", extension: subExtensions })`);
+                    } else {
+                        this.line(
+                            `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
+                        );
+                        this.line("if (!Array.isArray(target.extension)) target.extension = [] as Extension[]");
+                        this.line(
+                            `(target.extension as Extension[]).push({ url: "${ext.url}", extension: subExtensions })`,
+                        );
+                    }
+                    this.line("return this");
+                });
+            } else if (valueTypes.length === 1 && valueTypes[0]) {
+                const firstValueType = valueTypes[0];
+                const valueType = tsTypeFromIdentifier(firstValueType);
+                const valueField = `value${uppercaseFirstLetter(firstValueType.name)}`;
+                this.curlyBlock(["public", methodName, `(value: ${valueType}): this`], () => {
+                    // Cast needed: value field may not exist on Extension in this FHIR version
+                    const extLiteral = `{ url: "${ext.url}", ${valueField}: value } as Extension`;
+                    if (targetPath.length === 0) {
+                        this.line("const list = (this.resource.extension ??= [])");
+                        this.line(`list.push(${extLiteral})`);
+                    } else {
+                        this.line(
+                            `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(
+                                targetPath,
+                            )})`,
+                        );
+                        this.line("if (!Array.isArray(target.extension)) target.extension = [] as Extension[]");
+                        this.line(`(target.extension as Extension[]).push(${extLiteral})`);
+                    }
+                    this.line("return this");
+                });
+            } else {
+                this.curlyBlock(["public", methodName, `(value: Omit<Extension, "url">): this`], () => {
+                    if (targetPath.length === 0) {
+                        this.line("const list = (this.resource.extension ??= [])");
+                        this.line(`list.push({ url: "${ext.url}", ...value })`);
+                    } else {
+                        this.line(
+                            `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(
+                                targetPath,
+                            )})`,
+                        );
+                        this.line("if (!Array.isArray(target.extension)) target.extension = [] as Extension[]");
+                        this.line(`(target.extension as Extension[]).push({ url: "${ext.url}", ...value })`);
+                    }
+                    this.line("return this");
+                });
+            }
+            this.line();
+        }
     }
 
     /**
