@@ -246,7 +246,15 @@ export const mkTypeSchemaIndex = (
                 return index[url]?.[resolution.pkg.name];
             }
         }
-        return index[url]?.[pkgName];
+        const directResult = index[url]?.[pkgName];
+        if (directResult) return directResult;
+        // Fallback: search across all packages when type exists elsewhere
+        const urlEntry = index[url];
+        if (urlEntry) {
+            const firstPkg = Object.keys(urlEntry)[0];
+            if (firstPkg) return urlEntry[firstPkg];
+        }
+        return undefined;
     };
 
     const resourceChildren = (id: Identifier): Identifier[] => {
@@ -329,8 +337,12 @@ export const mkTypeSchemaIndex = (
         for (const anySchema of constraintSchemas.slice().reverse()) {
             const extensions = (anySchema as ProfileTypeSchema).extensions ?? [];
             for (const ext of extensions) {
-                const key = `${ext.path}|${ext.name}|${ext.url ?? ""}`;
-                extensionMap.set(key, ext);
+                const key = `${ext.path}|${ext.name}`;
+                const existing = extensionMap.get(key);
+                // Prefer entries with a full canonical URL over short names
+                if (!existing || ext.url?.includes("/")) {
+                    extensionMap.set(key, ext);
+                }
             }
         }
         const mergedExtensions = Array.from(extensionMap.values());
