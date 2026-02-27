@@ -84,17 +84,17 @@ const collectProfileFactoryInfo = (flatProfile: ProfileTypeSchema): ProfileFacto
 };
 
 export const generateProfileIndexFile = (
-    writer: TypeScript,
+    w: TypeScript,
     tsIndex: TypeSchemaIndex,
     initialProfiles: ProfileTypeSchema[],
 ) => {
     if (initialProfiles.length === 0) return;
-    writer.cd("profiles", () => {
-        writer.cat("index.ts", () => {
+    w.cd("profiles", () => {
+        w.cat("index.ts", () => {
             const profiles: [ProfileTypeSchema, string, string | undefined][] = initialProfiles.map((profile) => {
                 const className = tsProfileClassName(profile);
                 const resourceName = tsResourceName(profile.identifier);
-                const overrides = detectFieldOverrides(writer, tsIndex, profile);
+                const overrides = detectFieldOverrides(w, tsIndex, profile);
                 let typeExport;
                 if (overrides.size > 0) typeExport = resourceName;
                 return [profile, className, typeExport];
@@ -113,14 +113,14 @@ export const generateProfileIndexFile = (
             }
             const allExports = [...classExports.values(), ...typeExports.values()].sort();
             for (const exp of allExports) {
-                writer.lineSM(exp);
+                w.lineSM(exp);
             }
         });
     });
 };
 
 const tsTypeForProfileField = (
-    _writer: TypeScript,
+    _w: TypeScript,
     tsIndex: TypeSchemaIndex,
     flatProfile: ProfileTypeSchema,
     fieldName: string,
@@ -179,17 +179,17 @@ const tsTypeForProfileField = (
     return tsType;
 };
 
-export const generateProfileHelpersModule = (writer: TypeScript) => {
-    writer.cat("profile-helpers.ts", () => {
-        writer.generateDisclaimer();
-        writer.curlyBlock(
+export const generateProfileHelpersModule = (w: TypeScript) => {
+    w.cat("profile-helpers.ts", () => {
+        w.generateDisclaimer();
+        w.curlyBlock(
             ["export const", "isRecord", "=", "(value: unknown): value is Record<string, unknown>", "=>"],
             () => {
-                writer.lineSM('return value !== null && typeof value === "object" && !Array.isArray(value)');
+                w.lineSM('return value !== null && typeof value === "object" && !Array.isArray(value)');
             },
         );
-        writer.line();
-        writer.curlyBlock(
+        w.line();
+        w.curlyBlock(
             [
                 "export const",
                 "getOrCreateObjectAtPath",
@@ -198,27 +198,27 @@ export const generateProfileHelpersModule = (writer: TypeScript) => {
                 "=>",
             ],
             () => {
-                writer.lineSM("let current: Record<string, unknown> = root");
-                writer.curlyBlock(["for (const", "segment", "of", "path)"], () => {
-                    writer.curlyBlock(["if", "(Array.isArray(current[segment]))"], () => {
-                        writer.lineSM("const list = current[segment] as unknown[]");
-                        writer.curlyBlock(["if", "(list.length === 0)"], () => {
-                            writer.lineSM("list.push({})");
+                w.lineSM("let current: Record<string, unknown> = root");
+                w.curlyBlock(["for (const", "segment", "of", "path)"], () => {
+                    w.curlyBlock(["if", "(Array.isArray(current[segment]))"], () => {
+                        w.lineSM("const list = current[segment] as unknown[]");
+                        w.curlyBlock(["if", "(list.length === 0)"], () => {
+                            w.lineSM("list.push({})");
                         });
-                        writer.lineSM("current = list[0] as Record<string, unknown>");
+                        w.lineSM("current = list[0] as Record<string, unknown>");
                     });
-                    writer.curlyBlock(["else"], () => {
-                        writer.curlyBlock(["if", "(!isRecord(current[segment]))"], () => {
-                            writer.lineSM("current[segment] = {}");
+                    w.curlyBlock(["else"], () => {
+                        w.curlyBlock(["if", "(!isRecord(current[segment]))"], () => {
+                            w.lineSM("current[segment] = {}");
                         });
-                        writer.lineSM("current = current[segment] as Record<string, unknown>");
+                        w.lineSM("current = current[segment] as Record<string, unknown>");
                     });
                 });
-                writer.lineSM("return current");
+                w.lineSM("return current");
             },
         );
-        writer.line();
-        writer.curlyBlock(
+        w.line();
+        w.curlyBlock(
             [
                 "export const",
                 "mergeMatch",
@@ -227,29 +227,29 @@ export const generateProfileHelpersModule = (writer: TypeScript) => {
                 "=>",
             ],
             () => {
-                writer.curlyBlock(["for (const", "[key, matchValue]", "of", "Object.entries(match))"], () => {
-                    writer.curlyBlock(
+                w.curlyBlock(["for (const", "[key, matchValue]", "of", "Object.entries(match))"], () => {
+                    w.curlyBlock(
                         ["if", '(key === "__proto__" || key === "constructor" || key === "prototype")'],
                         () => {
-                            writer.lineSM("continue");
+                            w.lineSM("continue");
                         },
                     );
-                    writer.curlyBlock(["if", "(isRecord(matchValue))"], () => {
-                        writer.curlyBlock(["if", "(isRecord(target[key]))"], () => {
-                            writer.lineSM("mergeMatch(target[key] as Record<string, unknown>, matchValue)");
+                    w.curlyBlock(["if", "(isRecord(matchValue))"], () => {
+                        w.curlyBlock(["if", "(isRecord(target[key]))"], () => {
+                            w.lineSM("mergeMatch(target[key] as Record<string, unknown>, matchValue)");
                         });
-                        writer.curlyBlock(["else"], () => {
-                            writer.lineSM("target[key] = { ...matchValue }");
+                        w.curlyBlock(["else"], () => {
+                            w.lineSM("target[key] = { ...matchValue }");
                         });
                     });
-                    writer.curlyBlock(["else"], () => {
-                        writer.lineSM("target[key] = matchValue");
+                    w.curlyBlock(["else"], () => {
+                        w.lineSM("target[key] = matchValue");
                     });
                 });
             },
         );
-        writer.line();
-        writer.curlyBlock(
+        w.line();
+        w.curlyBlock(
             [
                 "export const",
                 "applySliceMatch",
@@ -258,46 +258,38 @@ export const generateProfileHelpersModule = (writer: TypeScript) => {
                 "=>",
             ],
             () => {
-                writer.lineSM("const result = { ...input } as Record<string, unknown>");
-                writer.lineSM("mergeMatch(result, match)");
-                writer.lineSM("return result as T");
+                w.lineSM("const result = { ...input } as Record<string, unknown>");
+                w.lineSM("mergeMatch(result, match)");
+                w.lineSM("return result as T");
             },
         );
-        writer.line();
-        writer.curlyBlock(
-            ["export const", "matchesValue", "=", "(value: unknown, match: unknown): boolean", "=>"],
-            () => {
-                writer.curlyBlock(["if", "(Array.isArray(match))"], () => {
-                    writer.curlyBlock(["if", "(!Array.isArray(value))"], () => writer.lineSM("return false"));
-                    writer.lineSM(
-                        "return match.every((matchItem) => value.some((item) => matchesValue(item, matchItem)))",
-                    );
-                });
-                writer.curlyBlock(["if", "(isRecord(match))"], () => {
-                    writer.curlyBlock(["if", "(!isRecord(value))"], () => writer.lineSM("return false"));
-                    writer.curlyBlock(["for (const", "[key, matchValue]", "of", "Object.entries(match))"], () => {
-                        writer.curlyBlock(
-                            ["if", "(!matchesValue((value as Record<string, unknown>)[key], matchValue))"],
-                            () => {
-                                writer.lineSM("return false");
-                            },
-                        );
+        w.line();
+        w.curlyBlock(["export const", "matchesValue", "=", "(value: unknown, match: unknown): boolean", "=>"], () => {
+            w.curlyBlock(["if", "(Array.isArray(match))"], () => {
+                w.curlyBlock(["if", "(!Array.isArray(value))"], () => w.lineSM("return false"));
+                w.lineSM("return match.every((matchItem) => value.some((item) => matchesValue(item, matchItem)))");
+            });
+            w.curlyBlock(["if", "(isRecord(match))"], () => {
+                w.curlyBlock(["if", "(!isRecord(value))"], () => w.lineSM("return false"));
+                w.curlyBlock(["for (const", "[key, matchValue]", "of", "Object.entries(match))"], () => {
+                    w.curlyBlock(["if", "(!matchesValue((value as Record<string, unknown>)[key], matchValue))"], () => {
+                        w.lineSM("return false");
                     });
-                    writer.lineSM("return true");
                 });
-                writer.lineSM("return value === match");
-            },
-        );
-        writer.line();
-        writer.curlyBlock(
+                w.lineSM("return true");
+            });
+            w.lineSM("return value === match");
+        });
+        w.line();
+        w.curlyBlock(
             ["export const", "matchesSlice", "=", "(value: unknown, match: Record<string, unknown>): boolean", "=>"],
             () => {
-                writer.lineSM("return matchesValue(value, match)");
+                w.lineSM("return matchesValue(value, match)");
             },
         );
-        writer.line();
+        w.line();
         // extractComplexExtension - extract sub-extension values from complex extension
-        writer.curlyBlock(
+        w.curlyBlock(
             [
                 "export const",
                 "extractComplexExtension",
@@ -306,23 +298,23 @@ export const generateProfileHelpersModule = (writer: TypeScript) => {
                 "=>",
             ],
             () => {
-                writer.lineSM("if (!extension?.extension) return undefined");
-                writer.lineSM("const result: Record<string, unknown> = {}");
-                writer.curlyBlock(["for (const", "{ name, valueField, isArray }", "of", "config)"], () => {
-                    writer.lineSM("const subExts = extension.extension.filter(e => e.url === name)");
-                    writer.curlyBlock(["if", "(isArray)"], () => {
-                        writer.lineSM("result[name] = subExts.map(e => (e as Record<string, unknown>)[valueField])");
+                w.lineSM("if (!extension?.extension) return undefined");
+                w.lineSM("const result: Record<string, unknown> = {}");
+                w.curlyBlock(["for (const", "{ name, valueField, isArray }", "of", "config)"], () => {
+                    w.lineSM("const subExts = extension.extension.filter(e => e.url === name)");
+                    w.curlyBlock(["if", "(isArray)"], () => {
+                        w.lineSM("result[name] = subExts.map(e => (e as Record<string, unknown>)[valueField])");
                     });
-                    writer.curlyBlock(["else if", "(subExts[0])"], () => {
-                        writer.lineSM("result[name] = (subExts[0] as Record<string, unknown>)[valueField]");
+                    w.curlyBlock(["else if", "(subExts[0])"], () => {
+                        w.lineSM("result[name] = (subExts[0] as Record<string, unknown>)[valueField]");
                     });
                 });
-                writer.lineSM("return result");
+                w.lineSM("return result");
             },
         );
-        writer.line();
+        w.line();
         // extractSliceSimplified - remove match keys from slice (reverse of applySliceMatch)
-        writer.curlyBlock(
+        w.curlyBlock(
             [
                 "export const",
                 "extractSliceSimplified",
@@ -331,18 +323,18 @@ export const generateProfileHelpersModule = (writer: TypeScript) => {
                 "=>",
             ],
             () => {
-                writer.lineSM("const result = { ...slice } as Record<string, unknown>");
-                writer.curlyBlock(["for (const", "key", "of", "matchKeys)"], () => {
-                    writer.lineSM("delete result[key]");
+                w.lineSM("const result = { ...slice } as Record<string, unknown>");
+                w.curlyBlock(["for (const", "key", "of", "matchKeys)"], () => {
+                    w.lineSM("delete result[key]");
                 });
-                writer.lineSM("return result as Partial<T>");
+                w.lineSM("return result as Partial<T>");
             },
         );
     });
 };
 
 const generateProfileHelpersImport = (
-    writer: TypeScript,
+    w: TypeScript,
     options: {
         needsGetOrCreateObjectAtPath: boolean;
         needsSliceHelpers: boolean;
@@ -364,7 +356,7 @@ const generateProfileHelpersImport = (
         imports.push("extractSliceSimplified");
     }
     if (imports.length > 0) {
-        writer.lineSM(`import { ${imports.join(", ")} } from "../../profile-helpers"`);
+        w.lineSM(`import { ${imports.join(", ")} } from "../../profile-helpers"`);
     }
 };
 
@@ -438,11 +430,7 @@ const collectTypesFromFieldOverrides = (
     }
 };
 
-export const generateProfileImports = (
-    writer: TypeScript,
-    tsIndex: TypeSchemaIndex,
-    flatProfile: ProfileTypeSchema,
-) => {
+export const generateProfileImports = (w: TypeScript, tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) => {
     const usedTypes = new Map<string, { importPath: string; tsName: string }>();
 
     const getModulePath = (typeId: Identifier): string => {
@@ -477,13 +465,13 @@ export const generateProfileImports = (
 
     const sortedImports = Array.from(usedTypes.values()).sort((a, b) => a.tsName.localeCompare(b.tsName));
     for (const { importPath, tsName } of sortedImports) {
-        writer.tsImportType(importPath, tsName);
+        w.tsImportType(importPath, tsName);
     }
-    if (sortedImports.length > 0) writer.line();
+    if (sortedImports.length > 0) w.line();
 };
 
 export const generateProfileClass = (
-    writer: TypeScript,
+    w: TypeScript,
     tsIndex: TypeSchemaIndex,
     flatProfile: ProfileTypeSchema,
     schema?: TypeSchema,
@@ -555,15 +543,15 @@ export const generateProfileClass = (
 
     for (const ext of complexExtensions) {
         const typeName = tsExtensionInputTypeName(tsProfileName, ext.name);
-        writer.curlyBlock(["export", "type", typeName, "="], () => {
+        w.curlyBlock(["export", "type", typeName, "="], () => {
             for (const sub of ext.subExtensions ?? []) {
                 const tsType = sub.valueType ? tsTypeFromIdentifier(sub.valueType) : "unknown";
                 const isArray = sub.max === "*";
                 const isRequired = sub.min !== undefined && sub.min > 0;
-                writer.lineSM(`${sub.name}${isRequired ? "" : "?"}: ${tsType}${isArray ? "[]" : ""}`);
+                w.lineSM(`${sub.name}${isRequired ? "" : "?"}: ${tsType}${isArray ? "[]" : ""}`);
             }
         });
-        writer.line();
+        w.line();
     }
 
     if (sliceDefs.length > 0) {
@@ -584,9 +572,9 @@ export const generateProfileClass = (
             if (requiredNames.length > 0) {
                 typeExpr = `${typeExpr} & Required<Pick<${sliceDef.baseType}, ${requiredNames.join(" | ")}>>`;
             }
-            writer.lineSM(`export type ${typeName} = ${typeExpr}`);
+            w.lineSM(`export type ${typeName} = ${typeExpr}`);
         }
-        writer.line();
+        w.line();
     }
 
     // Determine which helpers are actually needed
@@ -600,17 +588,17 @@ export const generateProfileClass = (
     const needsSliceExtraction = sliceDefs.length > 0;
 
     if (needsSliceHelpers || needsGetOrCreateObjectAtPath || needsExtensionExtraction || needsSliceExtraction) {
-        generateProfileHelpersImport(writer, {
+        generateProfileHelpersImport(w, {
             needsGetOrCreateObjectAtPath,
             needsSliceHelpers,
             needsExtensionExtraction,
             needsSliceExtraction,
         });
-        writer.line();
+        w.line();
     }
 
     // Check if we have an override interface (narrowed types)
-    const hasOverrideInterface = detectFieldOverrides(writer, tsIndex, flatProfile).size > 0;
+    const hasOverrideInterface = detectFieldOverrides(w, tsIndex, flatProfile).size > 0;
     const factoryInfo = collectProfileFactoryInfo(flatProfile);
 
     const hasParams = factoryInfo.params.length > 0;
@@ -622,67 +610,65 @@ export const generateProfileClass = (
     ];
 
     if (hasParams) {
-        writer.curlyBlock(["export", "type", createArgsTypeName, "="], () => {
+        w.curlyBlock(["export", "type", createArgsTypeName, "="], () => {
             for (const p of factoryInfo.params) {
-                writer.lineSM(`${p.name}: ${p.tsType}`);
+                w.lineSM(`${p.name}: ${p.tsType}`);
             }
         });
-        writer.line();
+        w.line();
     }
 
     if (schema) {
-        writer.comment("CanonicalURL:", schema.identifier.url, `(pkg: ${packageMetaToFhir(packageMeta(schema))})`);
+        w.comment("CanonicalURL:", schema.identifier.url, `(pkg: ${packageMetaToFhir(packageMeta(schema))})`);
     }
-    writer.curlyBlock(["export", "class", profileClassName], () => {
-        writer.line(`private resource: ${tsBaseResourceName}`);
-        writer.line();
-        writer.curlyBlock(["constructor", `(resource: ${tsBaseResourceName})`], () => {
-            writer.line("this.resource = resource");
+    w.curlyBlock(["export", "class", profileClassName], () => {
+        w.line(`private resource: ${tsBaseResourceName}`);
+        w.line();
+        w.curlyBlock(["constructor", `(resource: ${tsBaseResourceName})`], () => {
+            w.line("this.resource = resource");
         });
-        writer.line();
-        writer.curlyBlock(["static", "from", `(resource: ${tsBaseResourceName})`, `: ${profileClassName}`], () => {
-            writer.line(`return new ${profileClassName}(resource)`);
+        w.line();
+        w.curlyBlock(["static", "from", `(resource: ${tsBaseResourceName})`, `: ${profileClassName}`], () => {
+            w.line(`return new ${profileClassName}(resource)`);
         });
-        writer.line();
-        writer.curlyBlock(["static", "createResource", `(${paramSignature})`, `: ${tsBaseResourceName}`], () => {
-            writer.curlyBlock([`const resource: ${tsBaseResourceName} =`], () => {
+        w.line();
+        w.curlyBlock(["static", "createResource", `(${paramSignature})`, `: ${tsBaseResourceName}`], () => {
+            w.curlyBlock([`const resource: ${tsBaseResourceName} =`], () => {
                 for (const f of allFields) {
-                    writer.line(`${f.name}: ${f.value},`);
+                    w.line(`${f.name}: ${f.value},`);
                 }
             }, [` as unknown as ${tsBaseResourceName}`]);
-            writer.line("return resource");
+            w.line("return resource");
         });
-        writer.line();
-        writer.curlyBlock(["static", "create", `(${paramSignature})`, `: ${profileClassName}`], () => {
-            writer.line(
-                `return ${profileClassName}.from(${profileClassName}.createResource(${hasParams ? "args" : ""}))`,
-            );
+        w.line();
+        w.curlyBlock(["static", "create", `(${paramSignature})`, `: ${profileClassName}`], () => {
+            w.line(`return ${profileClassName}.from(${profileClassName}.createResource(${hasParams ? "args" : ""}))`);
         });
-        writer.line();
+        w.line();
         // toResource() returns base type (e.g., Patient)
-        writer.curlyBlock(["toResource", "()", `: ${tsBaseResourceName}`], () => {
-            writer.line("return this.resource");
+        w.curlyBlock(["toResource", "()", `: ${tsBaseResourceName}`], () => {
+            w.line("return this.resource");
         });
-        writer.line();
+        w.line();
         // Getter and setter methods for required profile fields
         for (const p of factoryInfo.params) {
             const methodSuffix = uppercaseFirstLetter(p.name);
-            writer.curlyBlock([`get${methodSuffix}`, "()", `: ${p.tsType} | undefined`], () => {
-                writer.line(`return this.resource.${p.name} as ${p.tsType} | undefined`);
+            w.curlyBlock([`get${methodSuffix}`, "()", `: ${p.tsType} | undefined`], () => {
+                w.line(`return this.resource.${p.name} as ${p.tsType} | undefined`);
             });
-            writer.line();
-            writer.curlyBlock([`set${methodSuffix}`, `(value: ${p.tsType})`, ": this"], () => {
-                writer.line(`(this.resource as any).${p.name} = value`);
-                writer.line("return this");
+            w.line();
+            w.curlyBlock([`set${methodSuffix}`, `(value: ${p.tsType})`, ": this"], () => {
+                w.line(`(this.resource as any).${p.name} = value`);
+                w.line("return this");
             });
-            writer.line();
+            w.line();
         }
         // toProfile() returns casted profile type if override interface exists
         if (hasOverrideInterface) {
-            writer.curlyBlock(["toProfile", "()", `: ${tsProfileName}`], () => {
-                writer.line(`return this.resource as ${tsProfileName}`);
+            w.curlyBlock(["toProfile", "()", `: ${tsProfileName}`], () => {
+                w.line(`return this.resource as ${tsProfileName}`);
             });
-            writer.line();
+            w.line();
         }
 
         const extensionMethods = extensions
@@ -712,7 +698,7 @@ export const generateProfileClass = (
             }),
         );
 
-        generateExtensionSetterMethods(writer, extensions, extensionMethodNames, tsProfileName);
+        generateExtensionSetterMethods(w, extensions, extensionMethodNames, tsProfileName);
 
         for (const sliceDef of sliceDefs) {
             const methodName =
@@ -725,31 +711,31 @@ export const generateProfileClass = (
             const paramSignature = sliceDef.inputOptional
                 ? `(input?: ${typeName}): this`
                 : `(input: ${typeName}): this`;
-            writer.curlyBlock(["public", methodName, paramSignature], () => {
-                writer.line(`const match = ${matchLiteral} as Record<string, unknown>`);
+            w.curlyBlock(["public", methodName, paramSignature], () => {
+                w.line(`const match = ${matchLiteral} as Record<string, unknown>`);
                 // Use empty object as default when input is optional
                 const inputExpr = sliceDef.inputOptional
                     ? "(input ?? {}) as Record<string, unknown>"
                     : "input as Record<string, unknown>";
-                writer.line(`const value = applySliceMatch(${inputExpr}, match) as unknown as ${sliceDef.baseType}`);
+                w.line(`const value = applySliceMatch(${inputExpr}, match) as unknown as ${sliceDef.baseType}`);
                 if (sliceDef.array) {
-                    writer.line(`const list = (${fieldAccess} ??= [])`);
-                    writer.line("const index = list.findIndex((item) => matchesSlice(item, match))");
-                    writer.line("if (index === -1) {");
-                    writer.indentBlock(() => {
-                        writer.line("list.push(value)");
+                    w.line(`const list = (${fieldAccess} ??= [])`);
+                    w.line("const index = list.findIndex((item) => matchesSlice(item, match))");
+                    w.line("if (index === -1) {");
+                    w.indentBlock(() => {
+                        w.line("list.push(value)");
                     });
-                    writer.line("} else {");
-                    writer.indentBlock(() => {
-                        writer.line("list[index] = value");
+                    w.line("} else {");
+                    w.indentBlock(() => {
+                        w.line("list[index] = value");
                     });
-                    writer.line("}");
+                    w.line("}");
                 } else {
-                    writer.line(`${fieldAccess} = value`);
+                    w.line(`${fieldAccess} = value`);
                 }
-                writer.line("return this");
+                w.line("return this");
             });
-            writer.line();
+            w.line();
         }
 
         // Generate extension getters - two methods per extension:
@@ -770,12 +756,12 @@ export const generateProfileClass = (
             // Helper to generate the extension lookup code
             const generateExtLookup = () => {
                 if (targetPath.length === 0) {
-                    writer.line(`const ext = this.resource.extension?.find(e => e.url === "${ext.url}")`);
+                    w.line(`const ext = this.resource.extension?.find(e => e.url === "${ext.url}")`);
                 } else {
-                    writer.line(
+                    w.line(
                         `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
                     );
-                    writer.line(
+                    w.line(
                         `const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "${ext.url}")`,
                     );
                 }
@@ -784,59 +770,59 @@ export const generateProfileClass = (
             if (ext.isComplex && ext.subExtensions) {
                 const inputTypeName = tsExtensionInputTypeName(tsProfileName, ext.name);
                 // Flat API getter
-                writer.curlyBlock(["public", getMethodName, `(): ${inputTypeName} | undefined`], () => {
+                w.curlyBlock(["public", getMethodName, `(): ${inputTypeName} | undefined`], () => {
                     generateExtLookup();
-                    writer.line("if (!ext) return undefined");
+                    w.line("if (!ext) return undefined");
                     // Build extraction config
                     const configItems = (ext.subExtensions ?? []).map((sub) => {
                         const valueField = sub.valueType ? `value${uppercaseFirstLetter(sub.valueType.name)}` : "value";
                         const isArray = sub.max === "*";
                         return `{ name: "${sub.url}", valueField: "${valueField}", isArray: ${isArray} }`;
                     });
-                    writer.line(`const config = [${configItems.join(", ")}]`);
-                    writer.line(
+                    w.line(`const config = [${configItems.join(", ")}]`);
+                    w.line(
                         `return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as ${inputTypeName}`,
                     );
                 });
-                writer.line();
+                w.line();
                 // Raw Extension getter
-                writer.curlyBlock(["public", getExtensionMethodName, "(): Extension | undefined"], () => {
+                w.curlyBlock(["public", getExtensionMethodName, "(): Extension | undefined"], () => {
                     generateExtLookup();
-                    writer.line("return ext");
+                    w.line("return ext");
                 });
             } else if (valueTypes.length === 1 && valueTypes[0]) {
                 const firstValueType = valueTypes[0];
                 const valueType = tsTypeFromIdentifier(firstValueType);
                 const valueField = `value${uppercaseFirstLetter(firstValueType.name)}`;
                 // Flat API getter (cast needed: value field may not exist on Extension in this FHIR version)
-                writer.curlyBlock(["public", getMethodName, `(): ${valueType} | undefined`], () => {
+                w.curlyBlock(["public", getMethodName, `(): ${valueType} | undefined`], () => {
                     generateExtLookup();
-                    writer.line(
+                    w.line(
                         `return (ext as Record<string, unknown> | undefined)?.${valueField} as ${valueType} | undefined`,
                     );
                 });
-                writer.line();
+                w.line();
                 // Raw Extension getter
-                writer.curlyBlock(["public", getExtensionMethodName, "(): Extension | undefined"], () => {
+                w.curlyBlock(["public", getExtensionMethodName, "(): Extension | undefined"], () => {
                     generateExtLookup();
-                    writer.line("return ext");
+                    w.line("return ext");
                 });
             } else {
                 // Generic extension - only raw getter makes sense
-                writer.curlyBlock(["public", getMethodName, "(): Extension | undefined"], () => {
+                w.curlyBlock(["public", getMethodName, "(): Extension | undefined"], () => {
                     if (targetPath.length === 0) {
-                        writer.line(`return this.resource.extension?.find(e => e.url === "${ext.url}")`);
+                        w.line(`return this.resource.extension?.find(e => e.url === "${ext.url}")`);
                     } else {
-                        writer.line(
+                        w.line(
                             `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
                         );
-                        writer.line(
+                        w.line(
                             `return (target.extension as Extension[] | undefined)?.find(e => e.url === "${ext.url}")`,
                         );
                     }
                 });
             }
-            writer.line();
+            w.line();
         }
 
         // Generate slice getters - two methods per slice:
@@ -857,46 +843,46 @@ export const generateProfileClass = (
 
             // Helper to find the slice item
             const generateSliceLookup = () => {
-                writer.line(`const match = ${matchLiteral} as Record<string, unknown>`);
+                w.line(`const match = ${matchLiteral} as Record<string, unknown>`);
                 if (sliceDef.array) {
-                    writer.line(`const list = ${fieldAccess}`);
-                    writer.line("if (!list) return undefined");
-                    writer.line("const item = list.find((item) => matchesSlice(item, match))");
+                    w.line(`const list = ${fieldAccess}`);
+                    w.line("if (!list) return undefined");
+                    w.line("const item = list.find((item) => matchesSlice(item, match))");
                 } else {
-                    writer.line(`const item = ${fieldAccess}`);
-                    writer.line("if (!item || !matchesSlice(item, match)) return undefined");
+                    w.line(`const item = ${fieldAccess}`);
+                    w.line("if (!item || !matchesSlice(item, match)) return undefined");
                 }
             };
 
             // Flat API getter (simplified)
-            writer.curlyBlock(["public", getMethodName, `(): ${typeName} | undefined`], () => {
+            w.curlyBlock(["public", getMethodName, `(): ${typeName} | undefined`], () => {
                 generateSliceLookup();
                 if (sliceDef.array) {
-                    writer.line("if (!item) return undefined");
+                    w.line("if (!item) return undefined");
                 }
-                writer.line(
+                w.line(
                     `return extractSliceSimplified(item as unknown as Record<string, unknown>, ${matchKeys}) as ${typeName}`,
                 );
             });
-            writer.line();
+            w.line();
 
             // Raw getter (full FHIR type)
-            writer.curlyBlock(["public", getRawMethodName, `(): ${baseType} | undefined`], () => {
+            w.curlyBlock(["public", getRawMethodName, `(): ${baseType} | undefined`], () => {
                 generateSliceLookup();
                 if (sliceDef.array) {
-                    writer.line("return item");
+                    w.line("return item");
                 } else {
-                    writer.line("return item");
+                    w.line("return item");
                 }
             });
-            writer.line();
+            w.line();
         }
     });
-    writer.line();
+    w.line();
 };
 
 const generateExtensionSetterMethods = (
-    writer: TypeScript,
+    w: TypeScript,
     extensions: ProfileExtension[],
     extensionMethodNames: Map<ProfileExtension, string>,
     tsProfileName: string,
@@ -909,87 +895,83 @@ const generateExtensionSetterMethods = (
 
         if (ext.isComplex && ext.subExtensions) {
             const inputTypeName = tsExtensionInputTypeName(tsProfileName, ext.name);
-            writer.curlyBlock(["public", methodName, `(input: ${inputTypeName}): this`], () => {
-                writer.line("const subExtensions: Extension[] = []");
+            w.curlyBlock(["public", methodName, `(input: ${inputTypeName}): this`], () => {
+                w.line("const subExtensions: Extension[] = []");
                 for (const sub of ext.subExtensions ?? []) {
                     const valueField = sub.valueType ? `value${uppercaseFirstLetter(sub.valueType.name)}` : "value";
                     // When value type is unknown, cast to Extension to avoid TS error
                     const needsCast = !sub.valueType;
                     const pushSuffix = needsCast ? " as Extension" : "";
                     if (sub.max === "*") {
-                        writer.curlyBlock(["if", `(input.${sub.name})`], () => {
-                            writer.curlyBlock(["for", `(const item of input.${sub.name})`], () => {
-                                writer.line(
-                                    `subExtensions.push({ url: "${sub.url}", ${valueField}: item }${pushSuffix})`,
-                                );
+                        w.curlyBlock(["if", `(input.${sub.name})`], () => {
+                            w.curlyBlock(["for", `(const item of input.${sub.name})`], () => {
+                                w.line(`subExtensions.push({ url: "${sub.url}", ${valueField}: item }${pushSuffix})`);
                             });
                         });
                     } else {
-                        writer.curlyBlock(["if", `(input.${sub.name} !== undefined)`], () => {
-                            writer.line(
+                        w.curlyBlock(["if", `(input.${sub.name} !== undefined)`], () => {
+                            w.line(
                                 `subExtensions.push({ url: "${sub.url}", ${valueField}: input.${sub.name} }${pushSuffix})`,
                             );
                         });
                     }
                 }
                 if (targetPath.length === 0) {
-                    writer.line("const list = (this.resource.extension ??= [])");
-                    writer.line(`list.push({ url: "${ext.url}", extension: subExtensions })`);
+                    w.line("const list = (this.resource.extension ??= [])");
+                    w.line(`list.push({ url: "${ext.url}", extension: subExtensions })`);
                 } else {
-                    writer.line(
+                    w.line(
                         `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
                     );
-                    writer.line("if (!Array.isArray(target.extension)) target.extension = [] as Extension[]");
-                    writer.line(
-                        `(target.extension as Extension[]).push({ url: "${ext.url}", extension: subExtensions })`,
-                    );
+                    w.line("if (!Array.isArray(target.extension)) target.extension = [] as Extension[]");
+                    w.line(`(target.extension as Extension[]).push({ url: "${ext.url}", extension: subExtensions })`);
                 }
-                writer.line("return this");
+                w.line("return this");
             });
         } else if (valueTypes.length === 1 && valueTypes[0]) {
             const firstValueType = valueTypes[0];
             const valueType = tsTypeFromIdentifier(firstValueType);
             const valueField = `value${uppercaseFirstLetter(firstValueType.name)}`;
-            writer.curlyBlock(["public", methodName, `(value: ${valueType}): this`], () => {
+            w.curlyBlock(["public", methodName, `(value: ${valueType}): this`], () => {
                 // Cast needed: value field may not exist on Extension in this FHIR version
                 const extLiteral = `{ url: "${ext.url}", ${valueField}: value } as Extension`;
                 if (targetPath.length === 0) {
-                    writer.line("const list = (this.resource.extension ??= [])");
-                    writer.line(`list.push(${extLiteral})`);
+                    w.line("const list = (this.resource.extension ??= [])");
+                    w.line(`list.push(${extLiteral})`);
                 } else {
-                    writer.line(
+                    w.line(
                         `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(
                             targetPath,
                         )})`,
                     );
-                    writer.line("if (!Array.isArray(target.extension)) target.extension = [] as Extension[]");
-                    writer.line(`(target.extension as Extension[]).push(${extLiteral})`);
+                    w.line("if (!Array.isArray(target.extension)) target.extension = [] as Extension[]");
+                    w.line(`(target.extension as Extension[]).push(${extLiteral})`);
                 }
-                writer.line("return this");
+                w.line("return this");
             });
         } else {
-            writer.curlyBlock(["public", methodName, `(value: Omit<Extension, "url">): this`], () => {
+            w.curlyBlock(["public", methodName, `(value: Omit<Extension, "url">): this`], () => {
                 if (targetPath.length === 0) {
-                    writer.line("const list = (this.resource.extension ??= [])");
-                    writer.line(`list.push({ url: "${ext.url}", ...value })`);
+                    w.line("const list = (this.resource.extension ??= [])");
+                    w.line(`list.push({ url: "${ext.url}", ...value })`);
                 } else {
-                    writer.line(
+                    w.line(
                         `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(
                             targetPath,
                         )})`,
                     );
-                    writer.line("if (!Array.isArray(target.extension)) target.extension = [] as Extension[]");
-                    writer.line(`(target.extension as Extension[]).push({ url: "${ext.url}", ...value })`);
+                    w.line("if (!Array.isArray(target.extension)) target.extension = [] as Extension[]");
+                    w.line(`(target.extension as Extension[]).push({ url: "${ext.url}", ...value })`);
                 }
-                writer.line("return this");
+                w.line("return this");
             });
         }
-        writer.line();
+        w.line();
     }
 };
 
 const detectFieldOverrides = (
-    writer: TypeScript,
+    w: TypeScript,
     tsIndex: TypeSchemaIndex,
     flatProfile: ProfileTypeSchema,
 ): Map<string, { profileType: string; required: boolean; array: boolean }> => {
@@ -1021,7 +1003,7 @@ const detectFieldOverrides = (
         }
         // Check for cardinality change (optional -> required)
         else if (pField.required && !sField.required) {
-            const tsType = tsTypeForProfileField(writer, tsIndex, flatProfile, fieldName, pField);
+            const tsType = tsTypeForProfileField(w, tsIndex, flatProfile, fieldName, pField);
             overrides.set(fieldName, {
                 profileType: tsType,
                 required: true,
@@ -1033,23 +1015,23 @@ const detectFieldOverrides = (
 };
 
 export const generateProfileOverrideInterface = (
-    writer: TypeScript,
+    w: TypeScript,
     tsIndex: TypeSchemaIndex,
     flatProfile: ProfileTypeSchema,
 ) => {
-    const overrides = detectFieldOverrides(writer, tsIndex, flatProfile);
+    const overrides = detectFieldOverrides(w, tsIndex, flatProfile);
     if (overrides.size === 0) return;
 
     const tsProfileName = tsResourceName(flatProfile.identifier);
     const tsBaseResourceName = tsResourceName(flatProfile.base);
 
-    writer.curlyBlock(["export", "interface", tsProfileName, "extends", tsBaseResourceName], () => {
+    w.curlyBlock(["export", "interface", tsProfileName, "extends", tsBaseResourceName], () => {
         for (const [fieldName, override] of overrides) {
             const tsField = tsFieldName(fieldName);
             const optionalSymbol = override.required ? "" : "?";
             const arraySymbol = override.array ? "[]" : "";
-            writer.lineSM(`${tsField}${optionalSymbol}: ${override.profileType}${arraySymbol}`);
+            w.lineSM(`${tsField}${optionalSymbol}: ${override.profileType}${arraySymbol}`);
         }
     });
-    writer.line();
+    w.line();
 };
