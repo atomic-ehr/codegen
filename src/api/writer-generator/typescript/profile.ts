@@ -678,7 +678,7 @@ export const generateProfileClass = (
             });
             w.line();
             w.curlyBlock([`set${methodSuffix}`, `(value: ${p.tsType})`, ": this"], () => {
-                w.line(`(this.resource as any).${p.name} = value`);
+                w.line(`Object.assign(this.resource, { ${p.name}: value })`);
                 w.line("return this");
             });
             w.line();
@@ -692,7 +692,7 @@ export const generateProfileClass = (
             });
             w.line();
             w.curlyBlock([`set${methodSuffix}`, `(value: ${a.tsType})`, ": this"], () => {
-                w.line(`${tsGet("(this.resource as any)", fieldAccess)} = value`);
+                w.line(`Object.assign(this.resource, { ${fieldAccess}: value })`);
                 w.line("return this");
             });
             w.line();
