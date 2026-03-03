@@ -9,12 +9,10 @@ class ResourceProtocol(Protocol):
 
 
 class ResourceTypeDescriptor:
-    def __get__(self, instance: Optional[BaseModel], owner: Type[BaseModel]) -> str:
+    def __get__(self, instance: Optional[BaseModel], owner: Type[BaseModel]) -> Any:
         field = owner.model_fields.get("resource_type")
-        if field is None:
-            raise ValueError("resource_type field not found")
-        if field.default is None:
-            raise ValueError("resource_type field default value is not set")
+        if field is None or field.default is None:
+            return self
         return str(field.default)
 
 
