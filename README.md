@@ -50,6 +50,15 @@ Guides:
 - 🎯 **Type-Safe** - Generates fully typed interfaces with proper inheritance
 - 🛠️ **Developer Friendly** - Fluent API
 
+| Feature | TypeSchema | TypeScript | Python | C# | Mustache |
+|---|---|---|---|---|---|
+| Tree Shaking | yes | 〃 | 〃 | 〃 | 〃 |
+| Logical Model Promotion | yes | 〃 | 〃 | 〃 | 〃 |
+| Resources & Complex Types | yes | yes | yes | yes | template |
+| Value Set Bindings | yes | inline | inline | enum | template |
+| Profiles | yes | yes | no | no | no |
+| Slicing | yes | yes | no | no | no |
+
 ## Versions & Release Cycle
 
 - `canary` channel - Latest development version from `main` branch
