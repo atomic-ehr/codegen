@@ -41,7 +41,7 @@ export class birthTimeProfile {
     }
 
     setValueDateTime (value: string) : this {
-        (this.resource as any).valueDateTime = value
+        Object.assign(this.resource, { valueDateTime: value })
         return this
     }
 

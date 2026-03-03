@@ -59,7 +59,7 @@ export class observation_vitalsignsProfile {
     }
 
     setStatus (value: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown")) : this {
-        (this.resource as any).status = value
+        Object.assign(this.resource, { status: value })
         return this
     }
 
@@ -68,7 +68,7 @@ export class observation_vitalsignsProfile {
     }
 
     setCategory (value: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[]) : this {
-        (this.resource as any).category = value
+        Object.assign(this.resource, { category: value })
         return this
     }
 
@@ -77,7 +77,7 @@ export class observation_vitalsignsProfile {
     }
 
     setCode (value: CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)>) : this {
-        (this.resource as any).code = value
+        Object.assign(this.resource, { code: value })
         return this
     }
 
@@ -86,7 +86,7 @@ export class observation_vitalsignsProfile {
     }
 
     setSubject (value: Reference<"Patient">) : this {
-        (this.resource as any).subject = value
+        Object.assign(this.resource, { subject: value })
         return this
     }
 
@@ -95,7 +95,7 @@ export class observation_vitalsignsProfile {
     }
 
     setEffectiveDateTime (value: string) : this {
-        (this.resource as any).effectiveDateTime = value
+        Object.assign(this.resource, { effectiveDateTime: value })
         return this
     }
 
@@ -104,7 +104,7 @@ export class observation_vitalsignsProfile {
     }
 
     setEffectivePeriod (value: Period) : this {
-        (this.resource as any).effectivePeriod = value
+        Object.assign(this.resource, { effectivePeriod: value })
         return this
     }
 
