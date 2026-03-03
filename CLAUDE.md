@@ -95,7 +95,7 @@ FHIR Package → TypeSchema Generator → TypeSchema Format → Code Generators 
 - Uses strict TypeScript with latest ESNext features
 - Module format: ESM with `"type": "module"` in package.json
 - Build target: Node.js with Bun bundler
-- Biome for linting/formatting (tabs, double quotes)
+- Biome for linting/formatting (spaces, double quotes)
 
 ### Coding Style
 - Use arrow function syntax for new functions: `const foo = (): ReturnType => { ... }`
