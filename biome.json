@@ -16,6 +16,7 @@
       "biome.json",
       "package.json",
       "examples/*/*.ts",
+      "examples/*.ts",
       ".zed/*.json"
     ]
   },
