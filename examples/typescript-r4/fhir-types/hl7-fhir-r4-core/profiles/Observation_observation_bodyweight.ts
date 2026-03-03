@@ -4,6 +4,8 @@
 
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Observation } from "../../hl7-fhir-r4-core/Observation";
+import type { Period } from "../../hl7-fhir-r4-core/Period";
+import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 export interface observation_bodyweight extends Observation {
@@ -86,6 +88,33 @@ export class observation_bodyweightProfile {
 
     setSubject (value: Reference<"Patient">) : this {
         (this.resource as any).subject = value
+        return this
+    }
+
+    getEffectiveDateTime () : string | undefined {
+        return this.resource.effectiveDateTime as string | undefined
+    }
+
+    setEffectiveDateTime (value: string) : this {
+        (this.resource as any).effectiveDateTime = value
+        return this
+    }
+
+    getEffectivePeriod () : Period | undefined {
+        return this.resource.effectivePeriod as Period | undefined
+    }
+
+    setEffectivePeriod (value: Period) : this {
+        (this.resource as any).effectivePeriod = value
+        return this
+    }
+
+    getValueQuantity () : Quantity | undefined {
+        return this.resource.valueQuantity as Quantity | undefined
+    }
+
+    setValueQuantity (value: Quantity) : this {
+        (this.resource as any).valueQuantity = value
         return this
     }
 
