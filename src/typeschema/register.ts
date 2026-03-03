@@ -26,7 +26,6 @@ export type Register = {
     resolveFsGenealogy(pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichFHIRSchema[];
     resolveFsSpecializations(pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichFHIRSchema[];
     allSd(): RichStructureDefinition[];
-    patchSd(fn: (pkg: PackageMeta, sd: StructureDefinition) => StructureDefinition): void;
     /** Returns all FHIRSchemas from all packages in the resolver */
     allFs(): RichFHIRSchema[];
     /** Returns all ValueSets from all packages in the resolver */
@@ -312,23 +311,6 @@ export const registerFromManager = async (
                 )
                 .filter((r): r is RichStructureDefinition => isStructureDefinition(r))
                 .sort((sd1, sd2) => sd1.url.localeCompare(sd2.url)),
-        patchSd: (fn: (pkg: PackageMeta, sd: StructureDefinition) => StructureDefinition) => {
-            Object.values(resolver).flatMap((pkgIndex) =>
-                Object.values(pkgIndex.canonicalResolution).forEach((resolutions) => {
-                    resolutions.forEach((e) => {
-                        if (isStructureDefinition(e.resource)) {
-                            const sd = e.resource as StructureDefinition;
-                            const newSd = fn(pkgIndex.pkg, sd);
-                            if (sd.url !== newSd.url)
-                                throw new Error(`Patch update StructureDefinition URL: ${sd.url} !== ${newSd.url}`);
-                            e.resource = newSd;
-                        }
-                    });
-                }),
-            );
-            enrichResolver(resolver);
-            cachedResolutionTree = undefined;
-        },
         allFs: () => Object.values(resolver).flatMap((pkgIndex) => Object.values(pkgIndex.fhirSchemas)),
         allVs: () => Object.values(resolver).flatMap((pkgIndex) => Object.values(pkgIndex.valueSets)),
         resolveVs,

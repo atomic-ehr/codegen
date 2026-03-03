@@ -8,7 +8,12 @@
 import assert from "node:assert";
 import * as fs from "node:fs";
 import * as Path from "node:path";
-import { CanonicalManager, type LocalPackageConfig, type TgzPackageConfig } from "@atomic-ehr/fhir-canonical-manager";
+import {
+    CanonicalManager,
+    type LocalPackageConfig,
+    type PreprocessContext,
+    type TgzPackageConfig,
+} from "@atomic-ehr/fhir-canonical-manager";
 import { CSharp, type CSharpGeneratorOptions } from "@root/api/writer-generator/csharp/csharp";
 import { Python, type PythonGeneratorOptions } from "@root/api/writer-generator/python";
 import { generateTypeSchemas } from "@root/typeschema";
@@ -127,6 +132,7 @@ export class APIBuilder {
         userOpts: Partial<APIBuilderOptions> & {
             manager?: ReturnType<typeof CanonicalManager>;
             register?: Register;
+            preprocessPackage?: (context: PreprocessContext) => PreprocessContext;
             logger?: CodegenLogger;
         } = {},
     ) {
@@ -144,7 +150,12 @@ export class APIBuilder {
             ...defaultOpts,
             ...Object.fromEntries(
                 Object.entries(userOpts).filter(
-                    ([k, v]) => v !== undefined && k !== "manager" && k !== "register" && k !== "logger",
+                    ([k, v]) =>
+                        v !== undefined &&
+                        k !== "manager" &&
+                        k !== "register" &&
+                        k !== "preprocessPackage" &&
+                        k !== "logger",
                 ),
             ),
         };
@@ -166,6 +177,7 @@ export class APIBuilder {
                 workingDir: ".codegen-cache/canonical-manager-cache",
                 registry: userOpts.registry,
                 dropCache: userOpts.dropCanonicalManagerCache,
+                preprocessPackage: userOpts.preprocessPackage,
             });
         this.logger = userOpts.logger ?? createLogger({ prefix: "API", level: opts.logLevel });
         this.options = opts;
