@@ -37,7 +37,7 @@ export const tsModuleName = (id: Identifier): string => {
     // - http://hl7.org/fhir/5.0/StructureDefinition/extension-Subscription.topic (subscription_topic)
     // - http://hl7.org/fhir/5.0/StructureDefinition/extension-SubscriptionTopic (SubscriptionTopic)
     // And they should not clash the names.
-    return uppercaseFirstLetter(normalizeTsName(id.name));
+    return uppercaseFirstLetter(tsResourceName(id));
 };
 
 export const tsModuleFileName = (id: Identifier): string => {
@@ -65,7 +65,10 @@ export const tsResourceName = (id: Identifier): string => {
         const name = uppercaseFirstLetterOfEach((fragment ?? "").split(".")).join("");
         return normalizeTsName([resourceName, name].join(""));
     }
-    return normalizeTsName(id.name);
+    const name = id.name.includes("/")
+        ? (extractNameFromCanonical(id.name as unknown as CanonicalUrl) ?? id.name)
+        : id.name;
+    return normalizeTsName(name);
 };
 
 export const tsFieldName = (n: string): string => {
