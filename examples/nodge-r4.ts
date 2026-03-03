@@ -1,7 +1,7 @@
 // Run this script using Bun CLI with:
 // bun run scripts/generate-fhir-types.ts
 
-import { CanonicalManager, type PreprocessPackageContext } from "@atomic-ehr/fhir-canonical-manager";
+import type { PreprocessContext } from "@atomic-ehr/fhir-canonical-manager";
 import { APIBuilder, prettyReport } from "../src/api/builder";
 
 // Fix known package name typos (in-memory transformation)
@@ -21,8 +21,9 @@ const needsCoreDependency = (name: string): boolean => {
     );
 };
 
-const preprocessPackage = ({ packageJson }: PreprocessPackageContext): PreprocessPackageContext => {
-    let json = packageJson;
+const preprocessPackage = (ctx: PreprocessContext): PreprocessContext => {
+    if (ctx.kind !== "package") return ctx;
+    let json = ctx.packageJson;
     const name = json.name as string;
 
     // Fix package name typos
@@ -44,25 +45,20 @@ const preprocessPackage = ({ packageJson }: PreprocessPackageContext): Preproces
         }
     }
 
-    return { packageJson: json };
+    return { kind: "package", packageJson: json };
 };
 
 if (require.main === module) {
     console.log("📦 Generating FHIR R4 Core Types...");
 
-    const manager = CanonicalManager({
-        packages: [
-            "hl7.fhir.r4.core@4.0.1",
-            "ehelse.fhir.no.grunndata@2.3.5",
-            "hl7.fhir.no.basis@2.2.2",
-            "sfm.030322@2.0.1",
-        ],
-        workingDir: ".codegen-cache/canonical-manager-cache",
-        registry: "https://packages.simplifier.net",
+    const builder = new APIBuilder({
         preprocessPackage,
-    });
-
-    const builder = new APIBuilder({ manager })
+        registry: "https://packages.simplifier.net",
+    })
+        .fromPackage("hl7.fhir.r4.core", "4.0.1")
+        .fromPackage("ehelse.fhir.no.grunndata", "2.3.5")
+        .fromPackage("hl7.fhir.no.basis", "2.2.2")
+        .fromPackage("sfm.030322", "2.0.1")
         .throwException()
         .typescript({
             withDebugComment: false,
