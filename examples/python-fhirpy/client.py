@@ -15,10 +15,6 @@ TOKEN = base64.b64encode(f"{USERNAME}:{PASSWORD}".encode()).decode()
 
 
 async def main() -> None:
-    """
-    Demonstrates usage of fhirpy AsyncFHIRClient with generated FHIR types.
-    Shows create, search, fetch, and update operations.
-    """
 
     client = AsyncFHIRClient(
         FHIR_SERVER_URL,
