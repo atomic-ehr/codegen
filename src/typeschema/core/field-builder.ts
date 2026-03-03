@@ -133,7 +133,7 @@ export function buildFieldType(
         const refPath = element.elementReference
             .slice(1) // drop canonicalUrl
             .filter((_, i) => i % 2 === 1); // drop `elements` from path
-        return mkNestedIdentifier(register, fhirSchema, refPath, logger);
+        return mkNestedIdentifier(register, fhirSchema, refPath);
     } else if (element.type) {
         const url = register.ensureSpecializationCanonicalUrl(element.type);
         const fieldFs = register.resolveFs(fhirSchema.package_meta, url);
@@ -206,34 +206,13 @@ export const mkField = (
     };
 };
 
-export function isNestedElement(element: FHIRSchemaElement): boolean {
-    const isBackbone = element.type === "BackboneElement";
-    const isElement =
-        element.type === "Element" && element.elements !== undefined && Object.keys(element.elements).length > 0;
-
-    // TODO: Observation <- vitalsigns <- bodyweight
-    // In Observation we have value[x] with choices
-    // In bodyweight we have valueQuantity with additional constaraints on it's elements
-    // So we need to build nested type from Quantity for here, but don't do that right now.
-    const elementsWithoutType =
-        // FIXME: understand and make a decision.
-        // Problem example: http://hl7.org/cda/stds/core/StructureDefinition/SubstanceAdministration -> consumable
-        // Don't generate nested type for that field, but defetly expect it.
-        element.type === undefined &&
-        element.choiceOf === undefined &&
-        element.elements !== undefined &&
-        Object.keys(element.elements).length > 0;
-    return isBackbone || isElement || elementsWithoutType;
-}
-
 export function mkNestedField(
     register: Register,
     fhirSchema: RichFHIRSchema,
     path: string[],
     element: FHIRSchemaElement,
-    logger?: CodegenLogger,
 ): RegularField {
-    const nestedIdentifier = mkNestedIdentifier(register, fhirSchema, path, logger);
+    const nestedIdentifier = mkNestedIdentifier(register, fhirSchema, path);
     return {
         type: nestedIdentifier,
         array: element.array || false,

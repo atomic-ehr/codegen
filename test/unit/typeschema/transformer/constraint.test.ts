@@ -88,6 +88,61 @@ describe("TypeSchema Processing constraint generation", async () => {
         ]);
     });
 
+    const D: PFS = {
+        url: "uri::D",
+        derivation: "specialization",
+        name: "d",
+        elements: {
+            foo: {
+                type: "BackboneElement",
+                elements: {
+                    bar: { type: "string" },
+                    baz: { type: "integer" },
+                    qux: { type: "boolean" },
+                },
+            },
+        },
+    };
+    const E: PFS = {
+        base: "uri::D",
+        url: "uri::E",
+        name: "e",
+        derivation: "constraint",
+        elements: {
+            foo: {
+                elements: {
+                    bar: { min: 1 },
+                },
+            },
+        },
+    };
+    it("Constraint profile nested type includes all inherited sub-elements", async () => {
+        await registerFsAndMkTs(r4, D);
+        expect(await registerFsAndMkTs(r4, E)).toMatchObject([
+            {
+                identifier: { kind: "profile", name: "e", url: "uri::E" },
+                base: { kind: "resource", name: "d", url: "uri::D" },
+                fields: {
+                    foo: { type: { kind: "nested", name: "foo", url: "uri::D#foo" } },
+                },
+                nested: [
+                    {
+                        identifier: { kind: "nested", name: "foo", url: "uri::D#foo" },
+                        base: { url: "http://hl7.org/fhir/StructureDefinition/BackboneElement" },
+                        fields: {
+                            bar: {
+                                type: { url: "http://hl7.org/fhir/StructureDefinition/string" },
+                                min: 1,
+                            },
+                            baz: { type: { url: "http://hl7.org/fhir/StructureDefinition/integer" } },
+                            qux: { type: { url: "http://hl7.org/fhir/StructureDefinition/boolean" } },
+                        },
+                    },
+                ],
+            },
+        ]);
+    });
+
     it("Use nested type in profile.", async () => {
         const profile = r4.resolveFs(
             r4Package,
@@ -111,6 +166,11 @@ describe("TypeSchema Processing constraint generation", async () => {
                     { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/code" },
                     { kind: "resource", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem" },
                     { kind: "nested", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept" },
+                    {
+                        kind: "nested",
+                        url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept.designation",
+                    },
+                    { kind: "nested", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept.property" },
                     { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/markdown" },
                     { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/string" },
                     { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/uri" },

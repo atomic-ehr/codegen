@@ -23,9 +23,9 @@ import {
 } from "@typeschema/types";
 
 import { collectBindingSchemas, extractValueSetConceptsByUrl } from "./binding";
-import { isNestedElement, mkField, mkNestedField } from "./field-builder";
+import { mkField, mkNestedField } from "./field-builder";
 import { mkIdentifier, mkValueSetIdentifierByUrl } from "./identifier";
-import { extractNestedDependencies, mkNestedTypes } from "./nested-types";
+import { extractNestedDependencies, isNestedElement, mkNestedTypes } from "./nested-types";
 import { extractProfileExtensions } from "./profile-extensions";
 
 export function mkFields(
@@ -48,8 +48,8 @@ export function mkFields(
             );
             continue;
         }
-        if (isNestedElement(elemSnapshot)) {
-            fields[key] = mkNestedField(register, fhirSchema, path, elemSnapshot, logger);
+        if (isNestedElement(register, fhirSchema, path, elemSnapshot, elements[key])) {
+            fields[key] = mkNestedField(register, fhirSchema, path, elemSnapshot);
         } else {
             fields[key] = mkField(register, fhirSchema, path, elemSnapshot, logger);
         }

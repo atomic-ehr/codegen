@@ -5,27 +5,78 @@
  */
 
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import type { Register } from "@root/typeschema/register";
+import { mergeFsElementProps, type Register, resolveFsElementGenealogy } from "@root/typeschema/register";
 import type { CodegenLogger } from "@root/utils/codegen-logger";
 import type { CanonicalUrl, Field, Identifier, Name, NestedIdentifier, NestedType, RichFHIRSchema } from "../types";
-import { isNestedElement, mkField, mkNestedField } from "./field-builder";
+import { mkField, mkNestedField } from "./field-builder";
 
-export function mkNestedIdentifier(
+/**
+ * Check whether the specialization chain defines structural sub-elements at `path`.
+ * "Structural" means the sub-elements define new fields, not just constrain
+ * fields of the element's own type. For example:
+ * - EN.item (type Base) has sub-elements family/given that Base doesn't define → structural
+ * - typeId (type II) has sub-elements root/extension that II itself defines → constraining
+ * - bodyweight.code (type CodeableConcept) has coding only in the constraint → not in specializations
+ */
+const hasStructuralElements = (register: Register, fhirSchema: RichFHIRSchema, path: string[]): boolean => {
+    const specializations = register.resolveFsSpecializations(fhirSchema.package_meta, fhirSchema.url);
+    const elemGens = resolveFsElementGenealogy(specializations, path);
+    const elemType = mergeFsElementProps(elemGens).type;
+
+    let typeKeys: Set<string> | undefined;
+    if (elemType) {
+        const typeUrl = register.ensureSpecializationCanonicalUrl(elemType);
+        const typeGenealogy = register.resolveFsGenealogy(fhirSchema.package_meta, typeUrl);
+        const keys = typeGenealogy.flatMap((fs) => Object.keys(fs.elements ?? {}));
+        if (keys.length > 0) typeKeys = new Set(keys);
+    }
+
+    for (const elem of elemGens) {
+        if (!elem.elements || Object.keys(elem.elements).length === 0) continue;
+        if (typeKeys && !Object.keys(elem.elements).some((k) => !typeKeys.has(k))) continue;
+        return true;
+    }
+    return false;
+};
+
+/**
+ * Check if an element is structurally nested, using both the snapshot
+ * (for BackboneElement detection) and specialization-chain element analysis.
+ */
+export const isNestedElement = (
     register: Register,
     fhirSchema: RichFHIRSchema,
     path: string[],
-    logger?: CodegenLogger,
-): NestedIdentifier {
-    // NOTE: profiles should no redefine types, they should reuse already defined in previous specializations
+    snapshot: FHIRSchemaElement,
+    raw?: FHIRSchemaElement,
+): boolean => {
+    if (snapshot.type === "BackboneElement") return true;
+    if (!raw?.elements || raw.choiceOf !== undefined) return false;
+    return hasStructuralElements(register, fhirSchema, path);
+};
+
+const collectNestedPaths = (fs: RichFHIRSchema): Set<string> => {
+    if (!fs.elements) return new Set();
+    return new Set(
+        collectNestedElements(fs, [], fs.elements)
+            .filter(([_, el]) => el.elements && Object.keys(el.elements).length > 0)
+            .map(([path]) => path.join(".")),
+    );
+};
+
+export function mkNestedIdentifier(register: Register, fhirSchema: RichFHIRSchema, path: string[]): NestedIdentifier {
+    // Resolve nested type origins from the genealogy so inherited nested types
+    // (e.g. PN.item from EN) resolve to the defining type's nested type (EN#item).
     const nestedTypeOrigins = {} as Record<Name, CanonicalUrl>;
-    if (fhirSchema.derivation === "constraint") {
-        const specializations = register.resolveFsSpecializations(fhirSchema.package_meta, fhirSchema.url);
-        const nestedTypeGenealogy = specializations
-            .map((fs) => mkNestedTypes(register, fs, logger))
-            .filter((e) => e !== undefined)
-            .flat();
-        for (const nt of nestedTypeGenealogy.reverse()) {
-            nestedTypeOrigins[nt.identifier.name] = nt.identifier.url;
+    const genealogy =
+        fhirSchema.derivation === "constraint"
+            ? register.resolveFsSpecializations(fhirSchema.package_meta, fhirSchema.url)
+            : register.resolveFsGenealogy(fhirSchema.package_meta, fhirSchema.url);
+    // Walk base-first so most-derived wins
+    for (const fs of [...genealogy].reverse()) {
+        const paths = collectNestedPaths(fs);
+        for (const p of paths) {
+            nestedTypeOrigins[p as Name] = `${fs.url}#${p}` as CanonicalUrl;
         }
     }
     const nestedName = path.join(".") as Name;
@@ -51,14 +102,8 @@ function collectNestedElements(
 
     for (const [key, element] of Object.entries(elements)) {
         const path = [...parentPath, key];
-
-        if (isNestedElement(element)) {
-            nested.push([path, element]);
-        }
-
-        if (element.elements) {
-            nested.push(...collectNestedElements(fhirSchema, path, element.elements));
-        }
+        if (element.elements && element.choiceOf === undefined) nested.push([path, element]);
+        if (element.elements) nested.push(...collectNestedElements(fhirSchema, path, element.elements));
     }
 
     return nested;
@@ -73,12 +118,25 @@ function transformNestedElements(
 ): Record<string, Field> {
     const fields: Record<string, Field> = {};
 
-    for (const [key, _element] of Object.entries(elements)) {
+    // Collect all sub-element keys from the genealogy chain, not just the current type.
+    // This ensures constraint profiles include inherited sub-elements from base types.
+    const genealogy = register.resolveFsGenealogy(fhirSchema.package_meta, fhirSchema.url);
+    const elemGenealogy = resolveFsElementGenealogy(genealogy, parentPath);
+    const allKeys = new Set<string>();
+    for (const elem of elemGenealogy) {
+        if (elem.elements) {
+            for (const k of Object.keys(elem.elements)) {
+                allKeys.add(k);
+            }
+        }
+    }
+
+    for (const key of allKeys) {
         const path = [...parentPath, key];
         const elemSnapshot = register.resolveElementSnapshot(fhirSchema, path);
 
-        if (isNestedElement(elemSnapshot)) {
-            fields[key] = mkNestedField(register, fhirSchema, path, elemSnapshot, logger);
+        if (isNestedElement(register, fhirSchema, path, elemSnapshot, elements[key])) {
+            fields[key] = mkNestedField(register, fhirSchema, path, elemSnapshot);
         } else {
             fields[key] = mkField(register, fhirSchema, path, elemSnapshot, logger);
         }
@@ -94,13 +152,21 @@ export function mkNestedTypes(
 ): NestedType[] | undefined {
     if (!fhirSchema.elements) return undefined;
 
-    const nested = collectNestedElements(fhirSchema, [], fhirSchema.elements).filter(
-        ([_, element]) => element.elements && Object.keys(element.elements).length > 0,
-    );
+    const nested = collectNestedElements(fhirSchema, [], fhirSchema.elements).filter(([path, element]) => {
+        if (!element.elements || Object.keys(element.elements).length === 0) return false;
+        // Verify the specialization chain also defines sub-elements for this path.
+        // This filters out false positives from constraint profiles that add sub-elements
+        // for constraining (e.g. bodyweight constraining code.coding — the base
+        // Observation.code has no sub-elements, so it's not a nested type).
+        if (element.type !== "BackboneElement") {
+            return hasStructuralElements(register, fhirSchema, path);
+        }
+        return true;
+    });
 
     const nestedTypes = [] as NestedType[];
     for (const [path, element] of nested) {
-        const identifier = mkNestedIdentifier(register, fhirSchema, path, logger);
+        const identifier = mkNestedIdentifier(register, fhirSchema, path);
 
         let baseName: Name;
         if (element.type === "BackboneElement" || !element.type) {

@@ -258,7 +258,7 @@ export const registerFromManager = async (
     const resolveElementSnapshot = (fhirSchema: RichFHIRSchema, path: string[]): FHIRSchemaElement => {
         const geneology = resolveFsGenealogy(fhirSchema.package_meta, fhirSchema.url);
         const elemGeneology = resolveFsElementGenealogy(geneology, path);
-        const elemSnapshot = fsElementSnapshot(elemGeneology);
+        const elemSnapshot = mergeFsElementProps(elemGeneology);
         return elemSnapshot;
     };
 
@@ -389,10 +389,14 @@ export const resolveFsElementGenealogy = (genealogy: RichFHIRSchema[], path: str
         .filter((elem) => elem !== undefined);
 };
 
-export function fsElementSnapshot(genealogy: FHIRSchemaElement[]): FHIRSchemaElement {
+/**
+ * Merge scalar properties of an element across its genealogy chain.
+ * Sub-elements are intentionally stripped — use resolveFsElementGenealogy
+ * to access nested structure properly.
+ */
+export function mergeFsElementProps(genealogy: FHIRSchemaElement[]): FHIRSchemaElement {
     const revGenealogy = genealogy.reverse();
     const snapshot = Object.assign({}, ...revGenealogy);
-    // NOTE: to avoid regeneration nested types
     snapshot.elements = undefined;
     return snapshot;
 }
