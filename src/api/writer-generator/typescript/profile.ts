@@ -38,20 +38,37 @@ import type { TypeScript } from "./writer";
 type ProfileFactoryInfo = {
     autoFields: { name: string; value: string }[];
     params: { name: string; tsType: string; typeId: Identifier }[];
+    accessors: { name: string; tsType: string; typeId: Identifier }[];
+};
+
+const collectChoiceAccessors = (
+    flatProfile: ProfileTypeSchema,
+    promotedChoices: Set<string>,
+): ProfileFactoryInfo["accessors"] => {
+    const accessors: ProfileFactoryInfo["accessors"] = [];
+    for (const [name, field] of Object.entries(flatProfile.fields ?? {})) {
+        if (field.excluded) continue;
+        if (!isChoiceInstanceField(field)) continue;
+        if (promotedChoices.has(name)) continue;
+        const tsType = tsTypeFromIdentifier(field.type) + (field.array ? "[]" : "");
+        accessors.push({ name, tsType, typeId: field.type });
+    }
+    return accessors;
 };
 
 const collectProfileFactoryInfo = (flatProfile: ProfileTypeSchema): ProfileFactoryInfo => {
     const autoFields: ProfileFactoryInfo["autoFields"] = [];
     const params: ProfileFactoryInfo["params"] = [];
     const fields = flatProfile.fields ?? {};
+    const promotedChoices = new Set<string>();
 
     if (isResourceIdentifier(flatProfile.base)) {
         autoFields.push({ name: "resourceType", value: JSON.stringify(flatProfile.base.name) });
     }
 
     for (const [name, field] of Object.entries(fields)) {
-        if (isChoiceInstanceField(field)) continue;
         if (field.excluded) continue;
+        if (isChoiceInstanceField(field)) continue;
 
         // Required choice declaration with a single choice — promote that choice to a param
         if (isChoiceDeclarationField(field)) {
@@ -62,6 +79,7 @@ const collectProfileFactoryInfo = (flatProfile: ProfileTypeSchema): ProfileFacto
                     if (choiceField && isChoiceInstanceField(choiceField)) {
                         const tsType = tsTypeFromIdentifier(choiceField.type) + (choiceField.array ? "[]" : "");
                         params.push({ name: choiceName, tsType, typeId: choiceField.type });
+                        promotedChoices.add(choiceName);
                     }
                 }
             }
@@ -80,7 +98,8 @@ const collectProfileFactoryInfo = (flatProfile: ProfileTypeSchema): ProfileFacto
         }
     }
 
-    return { autoFields, params };
+    const accessors = collectChoiceAccessors(flatProfile, promotedChoices);
+    return { autoFields, params, accessors };
 };
 
 export const generateProfileIndexFile = (
@@ -456,6 +475,7 @@ export const generateProfileImports = (w: TypeScript, tsIndex: TypeSchemaIndex, 
 
     const factoryInfo = collectProfileFactoryInfo(flatProfile);
     for (const param of factoryInfo.params) addType(param.typeId);
+    for (const accessor of factoryInfo.accessors) addType(accessor.typeId);
 
     if (needsExtensionType) {
         const extensionUrl = "http://hl7.org/fhir/StructureDefinition/Extension" as CanonicalUrl;
@@ -659,6 +679,20 @@ export const generateProfileClass = (
             w.line();
             w.curlyBlock([`set${methodSuffix}`, `(value: ${p.tsType})`, ": this"], () => {
                 w.line(`(this.resource as any).${p.name} = value`);
+                w.line("return this");
+            });
+            w.line();
+        }
+        // Getter and setter methods for choice instance fields
+        for (const a of factoryInfo.accessors) {
+            const methodSuffix = uppercaseFirstLetter(tsCamelCase(a.name));
+            const fieldAccess = tsFieldName(a.name);
+            w.curlyBlock([`get${methodSuffix}`, "()", `: ${a.tsType} | undefined`], () => {
+                w.line(`return ${tsGet("this.resource", fieldAccess)} as ${a.tsType} | undefined`);
+            });
+            w.line();
+            w.curlyBlock([`set${methodSuffix}`, `(value: ${a.tsType})`, ": this"], () => {
+                w.line(`${tsGet("(this.resource as any)", fieldAccess)} = value`);
                 w.line("return this");
             });
             w.line();
