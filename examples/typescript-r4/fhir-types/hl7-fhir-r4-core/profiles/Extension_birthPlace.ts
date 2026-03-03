@@ -42,7 +42,7 @@ export class birthPlaceProfile {
     }
 
     setValueAddress (value: Address) : this {
-        (this.resource as any).valueAddress = value
+        Object.assign(this.resource, { valueAddress: value })
         return this
     }
 

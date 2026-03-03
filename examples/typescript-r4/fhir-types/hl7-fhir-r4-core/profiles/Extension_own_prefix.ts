@@ -41,7 +41,7 @@ export class own_prefixProfile {
     }
 
     setValueString (value: string) : this {
-        (this.resource as any).valueString = value
+        Object.assign(this.resource, { valueString: value })
         return this
     }
 
