@@ -1,4 +1,3 @@
-import { uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
 import {
     type CanonicalUrl,
@@ -109,7 +108,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 if (["complex-type", "resource", "logical"].includes(dep.kind)) {
                     imports.push({
                         tsPackage: `${importPrefix}${tsModulePath(dep)}`,
-                        name: uppercaseFirstLetter(dep.name),
+                        name: tsResourceName(dep),
                         dep: dep,
                     });
                 } else if (isNestedIdentifier(dep)) {
@@ -148,13 +147,11 @@ export class TypeScript extends Writer<TypeScriptOptions> {
     }
 
     generateComplexTypeReexports(schema: RegularTypeSchema) {
-        const complexTypeDeps = schema.dependencies?.filter(isComplexTypeIdentifier).map((dep) => ({
-            tsPackage: `../${tsModulePath(dep)}`,
-            name: uppercaseFirstLetter(dep.name),
-        }));
+        const complexTypeDeps = schema.dependencies?.filter(isComplexTypeIdentifier);
         if (complexTypeDeps && complexTypeDeps.length > 0) {
             for (const dep of complexTypeDeps) {
-                this.lineSM(`export type { ${dep.name} } from "${dep.tsPackage}"`);
+                this.debugComment(dep);
+                this.lineSM(`export type { ${tsResourceName(dep)} } from "${`../${tsModulePath(dep)}`}"`);
             }
             this.line();
         }

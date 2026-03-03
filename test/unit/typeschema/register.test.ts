@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import { type CanonicalUrl, enrichFHIRSchema, type Name } from "@root/typeschema/types";
-import { fsElementSnapshot, registerFromPackageMetas, resolveFsElementGenealogy } from "@typeschema/register";
+import { mergeFsElementProps, registerFromPackageMetas, resolveFsElementGenealogy } from "@typeschema/register";
 
 type PFS = Partial<FHIRSchema>;
 
@@ -98,7 +98,7 @@ describe("Register tests", async () => {
             { min: 1 },
             { array: true, type: "string" },
         ]);
-        expect(fsElementSnapshot(resolveFsElementGenealogyT(flatGenealogy, ["foo"]))).toMatchObject({
+        expect(mergeFsElementProps(resolveFsElementGenealogyT(flatGenealogy, ["foo"]))).toMatchObject({
             array: true,
             min: 1,
             type: "string",
@@ -108,7 +108,7 @@ describe("Register tests", async () => {
             { min: 12 },
             { array: true, min: 0, type: "code" },
         ]);
-        expect(fsElementSnapshot(resolveFsElementGenealogyT(flatGenealogy, ["bar"]))).toMatchObject({
+        expect(mergeFsElementProps(resolveFsElementGenealogyT(flatGenealogy, ["bar"]))).toMatchObject({
             array: true,
             min: 12,
             type: "code",
@@ -135,7 +135,7 @@ describe("Register tests", async () => {
             { elements: { bar: { min: 1, type: "string" } } },
             { elements: { bar: { array: true, type: "string" } }, type: "string" },
         ]);
-        expect(fsElementSnapshot(resolveFsElementGenealogyT(deepGenealogy, ["foo"]))).toMatchObject({
+        expect(mergeFsElementProps(resolveFsElementGenealogyT(deepGenealogy, ["foo"]))).toMatchObject({
             type: "string",
         });
 
@@ -143,7 +143,7 @@ describe("Register tests", async () => {
             { min: 1, type: "string" },
             { array: true, type: "string" },
         ]);
-        expect(fsElementSnapshot(resolveFsElementGenealogyT(deepGenealogy, ["foo", "bar"]))).toMatchObject({
+        expect(mergeFsElementProps(resolveFsElementGenealogyT(deepGenealogy, ["foo", "bar"]))).toMatchObject({
             array: true,
             min: 1,
             type: "string",

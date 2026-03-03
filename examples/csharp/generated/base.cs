@@ -122,12 +122,12 @@ public class Count : Quantity {
 }
 
 public class DataRequirement : Element {
-    public Element[]? CodeFilter { get; set; }
-    public Element[]? DateFilter { get; set; }
+    public DataRequirementCodeFilter[]? CodeFilter { get; set; }
+    public DataRequirementDateFilter[]? DateFilter { get; set; }
     public long? Limit { get; set; }
     public string[]? MustSupport { get; set; }
     public string[]? Profile { get; set; }
-    public Element[]? Sort { get; set; }
+    public DataRequirementSort[]? Sort { get; set; }
     public CodeableConcept? SubjectCodeableConcept { get; set; }
     public ResourceReference? SubjectReference { get; set; }
     public required string Type { get; set; }
@@ -181,7 +181,7 @@ public class Dosage : BackboneElement {
     public CodeableConcept[]? AdditionalInstruction { get; set; }
     public bool? AsNeededBoolean { get; set; }
     public CodeableConcept? AsNeededCodeableConcept { get; set; }
-    public Element[]? DoseAndRate { get; set; }
+    public DosageDoseAndRate[]? DoseAndRate { get; set; }
     public Quantity? MaxDosePerAdministration { get; set; }
     public Quantity? MaxDosePerLifetime { get; set; }
     public Ratio? MaxDosePerPeriod { get; set; }
@@ -230,12 +230,12 @@ public class Element {
 
 public class ElementDefinition : BackboneElement {
     public string[]? Alias { get; set; }
-    public Element? Base { get; set; }
-    public Element? Binding { get; set; }
+    public ElementDefinitionBase? Base { get; set; }
+    public ElementDefinitionBinding? Binding { get; set; }
     public Coding[]? Code { get; set; }
     public string? Comment { get; set; }
     public string[]? Condition { get; set; }
-    public Element[]? Constraint { get; set; }
+    public ElementDefinitionConstraint[]? Constraint { get; set; }
     public string? ContentReference { get; set; }
     public Address? DefaultValueAddress { get; set; }
     public Age? DefaultValueAge { get; set; }
@@ -288,7 +288,7 @@ public class ElementDefinition : BackboneElement {
     public UsageContext? DefaultValueUsageContext { get; set; }
     public string? DefaultValueUuid { get; set; }
     public string? Definition { get; set; }
-    public Element[]? Example { get; set; }
+    public ElementDefinitionExample[]? Example { get; set; }
     public Address? FixedAddress { get; set; }
     public Age? FixedAge { get; set; }
     public Annotation? FixedAnnotation { get; set; }
@@ -343,7 +343,7 @@ public class ElementDefinition : BackboneElement {
     public string? IsModifierReason { get; set; }
     public bool? IsSummary { get; set; }
     public string? Label { get; set; }
-    public Element[]? Mapping { get; set; }
+    public ElementDefinitionMapping[]? Mapping { get; set; }
     public string? Max { get; set; }
     public int? MaxLength { get; set; }
     public string? MaxValueDate { get; set; }
@@ -424,8 +424,8 @@ public class ElementDefinition : BackboneElement {
     public string? Short { get; set; }
     public bool? SliceIsConstraining { get; set; }
     public string? SliceName { get; set; }
-    public Element? Slicing { get; set; }
-    public Element[]? Type { get; set; }
+    public ElementDefinitionSlicing? Slicing { get; set; }
+    public ElementDefinitionType[]? Type { get; set; }
 
     public class ElementDefinitionBase : Element {
         public required string Max { get; set; }
@@ -532,7 +532,7 @@ public class ElementDefinition : BackboneElement {
 
     public class ElementDefinitionSlicing : Element {
         public string? Description { get; set; }
-        public Element[]? Discriminator { get; set; }
+        public ElementDefinitionSlicingDiscriminator[]? Discriminator { get; set; }
         public bool? Ordered { get; set; }
         public required SlicingRulesEnum Rules { get; set; }
 
@@ -861,7 +861,7 @@ public class SubstanceAmount : BackboneElement {
     public string? AmountString { get; set; }
     public string? AmountText { get; set; }
     public CodeableConcept? AmountType { get; set; }
-    public Element? ReferenceRange { get; set; }
+    public SubstanceAmountReferenceRange? ReferenceRange { get; set; }
 
     public class SubstanceAmountReferenceRange : Element {
         public Quantity? HighLimit { get; set; }
@@ -881,7 +881,7 @@ public class SubstanceAmount : BackboneElement {
 public class Timing : BackboneElement {
     public CodeableConcept? Code { get; set; }
     public string[]? Event { get; set; }
-    public Element? Repeat { get; set; }
+    public TimingRepeat? Repeat { get; set; }
 
     public class TimingRepeat : Element {
         public Duration? BoundsDuration { get; set; }

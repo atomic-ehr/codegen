@@ -1,8 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
-import type { CodegenLogger } from "@root/utils/codegen-logger";
-import { isNestedElement, mkField, mkNestedField } from "@typeschema/core/field-builder";
+import { mkField, mkNestedField } from "@typeschema/core/field-builder";
 import type { ChoiceFieldDeclaration, Name, PackageMeta, RegularField } from "@typeschema/types";
 import { mkR4Register, type PFS, registerFs } from "@typeschema-test/utils";
 
@@ -11,15 +10,9 @@ const registerAndMkField = (register: Register, fhirSchema: PFS, path: string[],
     return mkField(register, rfs, path, element);
 };
 
-const registerAndMkNestedField = (
-    register: Register,
-    fhirSchema: PFS,
-    path: string[],
-    element: FHIRSchemaElement,
-    logger?: CodegenLogger,
-) => {
+const registerAndMkNestedField = (register: Register, fhirSchema: PFS, path: string[], element: FHIRSchemaElement) => {
     const rfs = registerFs(register, fhirSchema);
-    return mkNestedField(register, rfs, path, element, logger);
+    return mkNestedField(register, rfs, path, element);
 };
 
 describe("Field Builder Core Logic", async () => {
@@ -29,39 +22,6 @@ describe("Field Builder Core Logic", async () => {
         name: "test.package",
         version: "1.0.0",
     };
-
-    describe("isNestedElement", () => {
-        it("should identify nested elements with sub-elements", () => {
-            const element: FHIRSchemaElement = {
-                elements: {
-                    subField1: { type: "string" },
-                    subField2: { type: "integer" },
-                },
-            };
-
-            expect(isNestedElement(element)).toBe(true);
-        });
-
-        it("should not identify simple elements as nested", () => {
-            const element: FHIRSchemaElement = {
-                type: "string",
-            };
-
-            expect(isNestedElement(element)).toBe(false);
-        });
-
-        it("should not identify elements with only type as nested", () => {
-            const element: FHIRSchemaElement = {
-                type: "CodeableConcept",
-                binding: {
-                    strength: "required",
-                    valueSet: "http://example.org/ValueSet/test",
-                },
-            };
-
-            expect(isNestedElement(element)).toBe(false);
-        });
-    });
 
     describe("buildField", () => {
         it("should build field for primitive type", async () => {

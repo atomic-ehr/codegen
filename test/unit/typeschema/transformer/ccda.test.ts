@@ -93,11 +93,11 @@ describe("TypeSchema CCDA generation", async () => {
             fields: {
                 item: {
                     type: {
-                        kind: "complex-type",
-                        package: "hl7.fhir.r5.core",
-                        version: "5.0.0",
-                        name: "Base",
-                        url: "http://hl7.org/fhir/StructureDefinition/Base",
+                        kind: "nested",
+                        package: "hl7.cda.uv.core",
+                        version: "2.0.1-sd",
+                        name: "item",
+                        url: "http://hl7.org/cda/stds/core/StructureDefinition/ON#item",
                     },
                     required: false,
                     excluded: false,
@@ -121,29 +121,28 @@ describe("TypeSchema CCDA generation", async () => {
                         url: "http://hl7.org/fhir/StructureDefinition/BackboneElement",
                     },
                     fields: {
+                        delimiter: {
+                            type: { url: "http://hl7.org/cda/stds/core/StructureDefinition/ENXP" },
+                            array: true,
+                        },
                         family: {
-                            type: {
-                                kind: "logical",
-                                package: "hl7.cda.uv.core",
-                                version: "2.0.1-sd",
-                                name: "ENXP",
-                                url: "http://hl7.org/cda/stds/core/StructureDefinition/ENXP",
-                            },
-                            required: false,
-                            excluded: false,
+                            type: { url: "http://hl7.org/cda/stds/core/StructureDefinition/ENXP" },
                             array: true,
                         },
                         given: {
-                            type: {
-                                kind: "logical",
-                                package: "hl7.cda.uv.core",
-                                version: "2.0.1-sd",
-                                name: "ENXP",
-                                url: "http://hl7.org/cda/stds/core/StructureDefinition/ENXP",
-                            },
-                            required: false,
-                            excluded: false,
+                            type: { url: "http://hl7.org/cda/stds/core/StructureDefinition/ENXP" },
                             array: true,
+                        },
+                        prefix: {
+                            type: { url: "http://hl7.org/cda/stds/core/StructureDefinition/ENXP" },
+                            array: true,
+                        },
+                        suffix: {
+                            type: { url: "http://hl7.org/cda/stds/core/StructureDefinition/ENXP" },
+                            array: true,
+                        },
+                        xmlText: {
+                            type: { url: "http://hl7.org/fhir/StructureDefinition/string" },
                         },
                     },
                 },
@@ -151,34 +150,10 @@ describe("TypeSchema CCDA generation", async () => {
             description:
                 'A name for an organization. A sequence of name parts. Examples for organization name values are "Health Level Seven, Inc.", "Hospital", etc. An organization name may be as simple as a character string or may consist of several person name parts, such as, "Health Level 7", "Inc.". ON differs from EN because certain person related name parts are not possible.',
             dependencies: [
-                {
-                    kind: "logical",
-                    package: "hl7.cda.uv.core",
-                    version: "2.0.1-sd",
-                    name: "EN",
-                    url: "http://hl7.org/cda/stds/core/StructureDefinition/EN",
-                },
-                {
-                    kind: "logical",
-                    package: "hl7.cda.uv.core",
-                    version: "2.0.1-sd",
-                    name: "ENXP",
-                    url: "http://hl7.org/cda/stds/core/StructureDefinition/ENXP",
-                },
-                {
-                    kind: "complex-type",
-                    package: "hl7.fhir.r5.core",
-                    version: "5.0.0",
-                    name: "BackboneElement",
-                    url: "http://hl7.org/fhir/StructureDefinition/BackboneElement",
-                },
-                {
-                    kind: "complex-type",
-                    package: "hl7.fhir.r5.core",
-                    version: "5.0.0",
-                    name: "Base",
-                    url: "http://hl7.org/fhir/StructureDefinition/Base",
-                },
+                { kind: "complex-type", url: "http://hl7.org/fhir/StructureDefinition/BackboneElement" },
+                { kind: "logical", url: "http://hl7.org/cda/stds/core/StructureDefinition/EN" },
+                { kind: "logical", url: "http://hl7.org/cda/stds/core/StructureDefinition/ENXP" },
+                { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/string" },
             ],
         });
     });

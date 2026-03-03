@@ -130,12 +130,12 @@ class DataRequirementSort(Element):
 
 class DataRequirement(Element):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    code_filter: PyList[Element] | None = Field(None, alias="codeFilter", serialization_alias="codeFilter")
-    date_filter: PyList[Element] | None = Field(None, alias="dateFilter", serialization_alias="dateFilter")
+    code_filter: PyList[DataRequirementCodeFilter] | None = Field(None, alias="codeFilter", serialization_alias="codeFilter")
+    date_filter: PyList[DataRequirementDateFilter] | None = Field(None, alias="dateFilter", serialization_alias="dateFilter")
     limit: PositiveInt | None = Field(None, alias="limit", serialization_alias="limit")
     must_support: PyList[str] | None = Field(None, alias="mustSupport", serialization_alias="mustSupport")
     profile: PyList[str] | None = Field(None, alias="profile", serialization_alias="profile")
-    sort: PyList[Element] | None = Field(None, alias="sort", serialization_alias="sort")
+    sort: PyList[DataRequirementSort] | None = Field(None, alias="sort", serialization_alias="sort")
     subject_codeable_concept: CodeableConcept | None = Field(None, alias="subjectCodeableConcept", serialization_alias="subjectCodeableConcept")
     subject_reference: Reference | None = Field(None, alias="subjectReference", serialization_alias="subjectReference")
     type: str = Field(alias="type", serialization_alias="type")
@@ -161,7 +161,7 @@ class Dosage(BackboneElement):
     additional_instruction: PyList[CodeableConcept] | None = Field(None, alias="additionalInstruction", serialization_alias="additionalInstruction")
     as_needed_boolean: bool | None = Field(None, alias="asNeededBoolean", serialization_alias="asNeededBoolean")
     as_needed_codeable_concept: CodeableConcept | None = Field(None, alias="asNeededCodeableConcept", serialization_alias="asNeededCodeableConcept")
-    dose_and_rate: PyList[Element] | None = Field(None, alias="doseAndRate", serialization_alias="doseAndRate")
+    dose_and_rate: PyList[DosageDoseAndRate] | None = Field(None, alias="doseAndRate", serialization_alias="doseAndRate")
     max_dose_per_administration: Quantity | None = Field(None, alias="maxDosePerAdministration", serialization_alias="maxDosePerAdministration")
     max_dose_per_lifetime: Quantity | None = Field(None, alias="maxDosePerLifetime", serialization_alias="maxDosePerLifetime")
     max_dose_per_period: Ratio | None = Field(None, alias="maxDosePerPeriod", serialization_alias="maxDosePerPeriod")
@@ -381,7 +381,7 @@ class Timing(BackboneElement):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     code: CodeableConcept | None = Field(None, alias="code", serialization_alias="code")
     event: PyList[str] | None = Field(None, alias="event", serialization_alias="event")
-    repeat: Element | None = Field(None, alias="repeat", serialization_alias="repeat")
+    repeat: TimingRepeat | None = Field(None, alias="repeat", serialization_alias="repeat")
 
 
 class TriggerDefinition(Element):
