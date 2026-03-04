@@ -15,14 +15,16 @@ export interface observation_bp extends Observation {
 }
 
 export type Observation_bp_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
-export type Observation_bp_Component_SystolicBPSliceInput = Omit<ObservationComponent, "code">;
-export type Observation_bp_Component_DiastolicBPSliceInput = Omit<ObservationComponent, "code">;
+export type Observation_bp_Component_SystolicBPSliceInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
+export type Observation_bp_Component_DiastolicBPSliceInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 
-import { applySliceMatch, matchesSlice, extractSliceSimplified, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified, wrapSliceChoice, flattenSliceChoice, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
 
 export type observation_bpProfileParams = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
     subject: Reference<"Patient">;
+    category?: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
+    component?: ObservationComponent[];
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/bp (pkg: hl7.fhir.r4.core#4.0.1)
@@ -44,11 +46,18 @@ export class observation_bpProfile {
     }
 
     static createResource (args: observation_bpProfileParams) : Observation {
+        const categoryDefaults = [{"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}] as unknown[]
+        const categoryWithDefaults = [...(args.category ?? [])] as unknown[]
+        if (!categoryWithDefaults.some(item => matchesSlice(item, {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>))) categoryWithDefaults.push(categoryDefaults[0]!)
+        const componentDefaults = [{"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}},{"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}}] as unknown[]
+        const componentWithDefaults = [...(args.component ?? [])] as unknown[]
+        if (!componentWithDefaults.some(item => matchesSlice(item, {"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}} as Record<string, unknown>))) componentWithDefaults.push(componentDefaults[0]!)
+        if (!componentWithDefaults.some(item => matchesSlice(item, {"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}} as Record<string, unknown>))) componentWithDefaults.push(componentDefaults[1]!)
         const resource: Observation = {
             resourceType: "Observation",
-            category: [{"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}],
             code: {"coding":[{"code":"85354-9","system":"http://loinc.org"}]},
-            component: [{"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}},{"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}}],
+            category: categoryWithDefaults,
+            component: componentWithDefaults,
             status: args.status,
             subject: args.subject,
             meta: { profile: ["http://hl7.org/fhir/StructureDefinition/bp"] },
@@ -155,7 +164,7 @@ export class observation_bpProfile {
 
     public setSystolicBP (input?: Observation_bp_Component_SystolicBPSliceInput): this {
         const match = {"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}} as Record<string, unknown>
-        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as ObservationComponent
+        const value = applySliceMatch(wrapSliceChoice((input ?? {}) as Record<string, unknown>, "valueQuantity"), match) as unknown as ObservationComponent
         const list = (this.resource.component ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -168,7 +177,7 @@ export class observation_bpProfile {
 
     public setDiastolicBP (input?: Observation_bp_Component_DiastolicBPSliceInput): this {
         const match = {"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}} as Record<string, unknown>
-        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as ObservationComponent
+        const value = applySliceMatch(wrapSliceChoice((input ?? {}) as Record<string, unknown>, "valueQuantity"), match) as unknown as ObservationComponent
         const list = (this.resource.component ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -202,7 +211,7 @@ export class observation_bpProfile {
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["code"]) as Observation_bp_Component_SystolicBPSliceInput
+        return flattenSliceChoice(item as unknown as Record<string, unknown>, ["code"], "valueQuantity") as Observation_bp_Component_SystolicBPSliceInput
     }
 
     public getSystolicBPRaw (): ObservationComponent | undefined {
@@ -219,7 +228,7 @@ export class observation_bpProfile {
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["code"]) as Observation_bp_Component_DiastolicBPSliceInput
+        return flattenSliceChoice(item as unknown as Record<string, unknown>, ["code"], "valueQuantity") as Observation_bp_Component_DiastolicBPSliceInput
     }
 
     public getDiastolicBPRaw (): ObservationComponent | undefined {
