@@ -1,67 +1,49 @@
-# FHIR Profiles in TypeScript: Quick Start
+# TypeScript Profile Classes in Atomic EHR Codegen
 
-*~1 min read*
+We've added FHIR profile support to the TypeScript generator in [Atomic EHR Codegen](https://github.com/atomic-ehr/codegen). Profiles generate as wrapper classes with typed accessors, automatic slice handling, and runtime validation -- all on top of plain FHIR JSON.
 
-Atomic EHR Codegen generates profile wrapper classes that let you work with FHIR profiles without memorizing canonical URLs, discriminator values, or extension structures.
-
-## Setup
+## Quick look
 
 ```typescript
-new APIBuilder()
-    .fromPackage("hl7.fhir.r4.core", "4.0.1")
-    .typescript({ generateProfile: true })
-    .typeSchema({
-        treeShake: {
-            "hl7.fhir.r4.core": {
-                "http://hl7.org/fhir/StructureDefinition/Observation": {},
-                "http://hl7.org/fhir/StructureDefinition/bodyweight": {},
-                "http://hl7.org/fhir/StructureDefinition/patient-birthPlace": {},
-            }
-        }
-    })
-    .outputTo("./fhir-types")
-    .generate();
-```
+import { observation_bpProfile } from "./profiles/Observation_observation_bp";
 
-## Resource Profiles
-
-Profile classes wrap a plain FHIR resource and expose typed getters, setters, and slice accessors:
-
-```typescript
-import type { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
-import { observation_bodyweightProfile } from "./fhir-types/hl7-fhir-r4-core/profiles/Observation_observation_bodyweight";
-
-// Create from scratch
-const profile = observation_bodyweightProfile.create({
+const bp = observation_bpProfile.create({
     status: "final",
-    code: { coding: [{ code: "29463-7", system: "http://loinc.org" }] },
     category: [],
     subject: { reference: "Patient/pt-1" },
 });
 
-// Slice setter — discriminator values are applied automatically
-profile.setVscat({ text: "Vital Signs" });
+// Slice setters -- discriminator values (LOINC codes) applied automatically
+bp.setVscat({ text: "Vital Signs" })
+    .setSystolicBp({ valueQuantity: { value: 120, unit: "mmHg" } })
+    .setDiastolicBp({ valueQuantity: { value: 80, unit: "mmHg" } })
+    .setEffectiveDateTime("2024-06-15");
 
-// Get the underlying Observation
-const obs: Observation = profile.toResource();
+// Validate against profile constraints
+bp.validate(); // [] -- valid
+
+// Get plain FHIR JSON
+const obs = bp.toResource();
+// {
+//     resourceType: "Observation",
+//     meta: { profile: ["http://hl7.org/fhir/StructureDefinition/bp"] },
+//     status: "final",
+//     code: { coding: [{ code: "85354-9", system: "http://loinc.org" }] },
+//     category: [{ text: "Vital Signs", coding: { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" } }],
+//     subject: { reference: "Patient/pt-1" },
+//     effectiveDateTime: "2024-06-15",
+//     component: [
+//         { code: { coding: { code: "8480-6", system: "http://loinc.org" } }, valueQuantity: { value: 120, unit: "mmHg" } },
+//         { code: { coding: { code: "8462-4", system: "http://loinc.org" } }, valueQuantity: { value: 80, unit: "mmHg" } },
+//     ],
+// }
 ```
 
-## Extension Profiles
+Supports resource profiles, simple/complex extension profiles, slice accessors, choice types, and `validate()` checking required fields, fixed values, slice cardinality, enum bindings, and reference types.
 
-Extension profile classes handle canonical URLs and value types for you:
+## Looking for feedback
 
-```typescript
-import { birthPlaceProfile } from "./fhir-types/hl7-fhir-r4-core/profiles/Extension_birthPlace";
+This is an early iteration. We'd appreciate hearing about profiles that don't generate correctly, API patterns that feel awkward, or validation gaps.
 
-const ext = birthPlaceProfile.createResource({
-    valueAddress: { city: "Boston", country: "US" },
-});
-// ext.url is already "http://hl7.org/fhir/StructureDefinition/patient-birthPlace"
-
-const patient: Patient = {
-    resourceType: "Patient",
-    extension: [ext],
-};
-```
-
-That's it. Profiles add a typed convenience layer on top of plain FHIR resources -- minimal runtime overhead, no special serialization.
+GitHub: https://github.com/atomic-ehr/codegen
+NPM: `@atomic-ehr/codegen`

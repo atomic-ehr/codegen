@@ -320,12 +320,45 @@ A few choices worth understanding:
 
 **Adaptor, not subclass.** Profile classes wrap the resource rather than extending it. This means you always work with plain `Observation` objects for serialization, and the profile is just a typed view. This follows the same pattern as HAPI FHIR.
 
-**No validation.** Profile classes don't enforce constraints at runtime. `from()` happily wraps any `Observation`, even one that doesn't conform to the bodyweight profile. This is intentional -- validation is a separate concern.
+**Validation is opt-in.** `from()` wraps any `Observation` without checking conformance -- this keeps wrapping cheap. Call `validate()` explicitly when you need to check constraints (see below).
 
 **Mutable reference.** The profile operates directly on the resource you give it. There's no cloning. This keeps memory usage low and avoids confusion about which copy is "real".
 
 **Independent profile classes.** Even when profiles form an inheritance chain (bodyweight -> vitalsigns -> Observation), each profile class wraps `Observation` directly. There's no class inheritance between `observation_bodyweightProfile` and `observation_vitalsignsProfile`.
 
+## Runtime Validation
+
+Profile classes generate a `validate()` method that checks the wrapped resource against profile constraints. It returns an array of error strings -- empty means valid:
+
+```typescript
+const bp = observation_bpProfile.create({
+    status: "final",
+    category: [],
+    subject: { reference: "Patient/pt-1" },
+});
+
+bp.validate();
+// [
+//     "observation-bp.category: slice 'VSCat' requires at least 1 item(s), found 0",
+//     "effective: at least one of effectiveDateTime, effectivePeriod is required",
+//     "observation-bp.component: slice 'SystolicBP' requires at least 1 item(s), found 0",
+//     "observation-bp.component: slice 'DiastolicBP' requires at least 1 item(s), found 0",
+// ]
+```
+
+Fill in the required slices and choice fields, and validation passes:
+
+```typescript
+bp.setVscat({ text: "Vital Signs" })
+    .setEffectiveDateTime("2024-06-15")
+    .setSystolicBp({ valueQuantity: { value: 120, unit: "mmHg" } })
+    .setDiastolicBp({ valueQuantity: { value: 80, unit: "mmHg" } });
+
+bp.validate(); // [] — valid
+```
+
+The method checks required fields, excluded fields, fixed/pattern values, slice cardinality, closed enum bindings, reference types, and choice type requirements.
+
 ## What's Next
 
-Profile support is currently TypeScript-only. The design patterns (adaptor, slice lens, extension accessors) are language-independent and could be applied to Python and C# generators in the future. See the [design docs](../design/profiles.md) for the architectural decisions behind this implementation.
+Profile support is currently TypeScript-only. The design patterns (adaptor, slice lens, extension accessors, validation) are language-independent and could be applied to Python and C# generators in the future. See the [design docs](../design/profiles.md) for the architectural decisions behind this implementation.

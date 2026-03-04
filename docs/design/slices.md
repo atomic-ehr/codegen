@@ -102,6 +102,17 @@ Slice operations depend on `profile-helpers.ts`:
 - Fluent API with method chaining
 - Three accessor variants (set, get simplified, get raw) cover different use cases
 
+### Slice Cardinality Validation
+
+Profile classes with slices also generate `validate()` checks for slice cardinality. When a profile requires a minimum number of matching slice elements (e.g., blood pressure requires exactly 1 SystolicBP and 1 DiastolicBP component), `validate()` counts elements matching the discriminator and reports violations:
+
+```typescript
+const bp = observation_bpProfile.create({ status: "final", category: [], subject: { reference: "Patient/pt-1" } });
+bp.validate();
+// ["observation-bp.component: slice 'SystolicBP' requires at least 1 item(s), found 0",
+//  "observation-bp.component: slice 'DiastolicBP' requires at least 1 item(s), found 0"]
+```
+
 ### Limitations
 
 - No compile-time enforcement of slice constraints

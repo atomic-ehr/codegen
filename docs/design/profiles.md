@@ -251,6 +251,12 @@ Profile classes depend on a generated `profile-helpers.ts` module that provides:
 - `extractSliceSimplified(slice, matchKeys)` — strips discriminator keys from a slice for the simplified input type
 - `mergeMatch(target, match)` — deep-merges match values into target
 - `extractComplexExtension(extension, config)` — extracts typed values from nested extension elements
+- `validateRequired(r, field, path)` — checks that a required field is present
+- `validateExcluded(r, field, path)` — checks that a forbidden field is absent
+- `validateFixedValue(r, field, expected, path)` — checks that a field matches a fixed/pattern value
+- `validateSliceCardinality(items, match, sliceName, min, max, path)` — checks min/max counts for a named slice
+- `validateEnum(value, allowed, field, path)` — checks that a value is within a required value set (supports primitives, Coding, CodeableConcept)
+- `validateReference(value, allowed, field, path)` — checks that a reference targets an allowed resource type
 
 ## Configuration
 
@@ -270,8 +276,38 @@ new APIBuilder()
     })
 ```
 
+## Runtime Validation
+
+Profile classes generate a `validate(): string[]` method that checks the wrapped resource against the profile's constraints. An empty array means the resource conforms; each string describes one violation.
+
+Checks performed:
+- **Required fields** — fields that the profile marks as mandatory (min >= 1)
+- **Excluded fields** — fields that the profile forbids (max = 0)
+- **Fixed/pattern values** — fields constrained to specific values (e.g., `code.coding` must contain a specific LOINC code)
+- **Slice cardinality** — minimum and maximum counts for named slices
+- **Closed enum bindings** — values restricted to a required value set
+- **Reference types** — reference targets restricted to specific resource types
+- **Choice type requirements** — at least one variant must be present when the choice group is required
+
+```typescript
+const bp = observation_bpProfile.create({
+    status: "final",
+    category: [],
+    subject: { reference: "Patient/pt-1" },
+});
+
+const errors = bp.validate();
+// [
+//     "observation-bp.category: slice 'VSCat' requires at least 1 item(s), found 0",
+//     "effective: at least one of effectiveDateTime, effectivePeriod is required",
+//     "observation-bp.component: slice 'SystolicBP' requires at least 1 item(s), found 0",
+//     "observation-bp.component: slice 'DiastolicBP' requires at least 1 item(s), found 0",
+// ]
+```
+
+Validation helpers are emitted into `profile-helpers.ts` alongside the existing slice helpers.
+
 ## Future Work
 
 - **Profile inheritance**: currently each profile class is independent. A future enhancement could allow `bodyweightProfile` to compose or extend `vitalsignsProfile`.
-- **Validation**: profile classes do not validate constraints at runtime — they are a convenience API, not a validator.
 - **Choice type narrowing**: profiles that remove choice type variants (e.g., vitalsigns removes `effectiveTiming` and `effectiveInstant`) are represented in the interface but not enforced by the profile class.
