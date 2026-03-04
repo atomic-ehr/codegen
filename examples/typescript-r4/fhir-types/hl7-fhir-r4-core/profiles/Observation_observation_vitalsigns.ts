@@ -31,6 +31,10 @@ export class observation_vitalsignsProfile {
 
     constructor (resource: Observation) {
         this.resource = resource
+        const r = resource as unknown as Record<string, unknown>
+        const meta = (r.meta ??= {}) as Record<string, unknown>
+        const profiles = (meta.profile ??= []) as string[]
+        if (!profiles.includes("http://hl7.org/fhir/StructureDefinition/vitalsigns")) profiles.push("http://hl7.org/fhir/StructureDefinition/vitalsigns")
     }
 
     static from (resource: Observation) : observation_vitalsignsProfile {
@@ -44,6 +48,7 @@ export class observation_vitalsignsProfile {
             category: args.category,
             code: args.code,
             subject: args.subject,
+            meta: { profile: ["http://hl7.org/fhir/StructureDefinition/vitalsigns"] },
         } as unknown as Observation
         return resource
     }

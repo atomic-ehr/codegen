@@ -64,6 +64,13 @@ describe("bodyweight profile creation", () => {
         expect(fromCreate).toEqual(fromCreateResource);
         expect(fromCreate).toEqual(fromFrom);
     });
+
+    test("all three methods set meta.profile", () => {
+        const expected = ["http://hl7.org/fhir/StructureDefinition/bodyweight"];
+        expect(fromCreate.meta?.profile).toEqual(expected);
+        expect(fromCreateResource.meta?.profile).toEqual(expected);
+        expect(fromFrom.meta?.profile).toEqual(expected);
+    });
 });
 
 describe("bodyweight profile getters and setters", () => {

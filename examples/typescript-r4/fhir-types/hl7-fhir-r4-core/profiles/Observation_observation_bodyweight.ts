@@ -32,6 +32,10 @@ export class observation_bodyweightProfile {
 
     constructor (resource: Observation) {
         this.resource = resource
+        const r = resource as unknown as Record<string, unknown>
+        const meta = (r.meta ??= {}) as Record<string, unknown>
+        const profiles = (meta.profile ??= []) as string[]
+        if (!profiles.includes("http://hl7.org/fhir/StructureDefinition/bodyweight")) profiles.push("http://hl7.org/fhir/StructureDefinition/bodyweight")
     }
 
     static from (resource: Observation) : observation_bodyweightProfile {
@@ -45,6 +49,7 @@ export class observation_bodyweightProfile {
             category: args.category,
             code: args.code,
             subject: args.subject,
+            meta: { profile: ["http://hl7.org/fhir/StructureDefinition/bodyweight"] },
         } as unknown as Observation
         return resource
     }
