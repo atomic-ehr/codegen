@@ -75,6 +75,14 @@ const tryPromoteChoice = (
     promotedChoices.add(choiceName);
 };
 
+const collectRequiredSliceMatches = (field: RegularField): Record<string, unknown>[] | undefined => {
+    if (!field.array || !field.slicing?.slices) return undefined;
+    const matches = Object.values(field.slicing.slices)
+        .filter((s) => s.min !== undefined && s.min >= 1 && s.match && Object.keys(s.match).length > 0)
+        .map((s) => s.match as Record<string, unknown>);
+    return matches.length > 0 ? matches : undefined;
+};
+
 const collectProfileFactoryInfo = (flatProfile: ProfileTypeSchema): ProfileFactoryInfo => {
     const autoFields: ProfileFactoryInfo["autoFields"] = [];
     const params: ProfileFactoryInfo["params"] = [];
@@ -103,6 +111,19 @@ const collectProfileFactoryInfo = (flatProfile: ProfileTypeSchema): ProfileFacto
                 autoAccessors.push({ name, tsType, typeId: field.type });
             }
             continue;
+        }
+
+        if (isNotChoiceDeclarationField(field)) {
+            const requiredMatches = collectRequiredSliceMatches(field);
+            if (requiredMatches) {
+                const value = `[${requiredMatches.map((m) => JSON.stringify(m)).join(",")}]`;
+                autoFields.push({ name, value });
+                if (field.type) {
+                    const tsType = resolveFieldTsType("", "", field) + (field.array ? "[]" : "");
+                    autoAccessors.push({ name, tsType, typeId: field.type });
+                }
+                continue;
+            }
         }
 
         if (field.required) {
