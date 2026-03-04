@@ -3,20 +3,17 @@
  */
 
 import { describe, expect, test } from "bun:test";
-import type { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
 import { observation_bpProfile as bpProfile } from "./fhir-types/hl7-fhir-r4-core/profiles/Observation_observation_bp";
 
 const createBp = () =>
     bpProfile.create({
         status: "final",
-        category: [],
         subject: { reference: "Patient/pt-1" },
     });
 
 describe("blood pressure profile", () => {
     const profile = bpProfile.create({
         status: "final",
-        category: [],
         subject: { reference: "Patient/pt-1" },
     });
 
@@ -32,20 +29,21 @@ describe("blood pressure profile", () => {
         expect(obs.meta?.profile).toEqual(["http://hl7.org/fhir/StructureDefinition/bp"]);
     });
 
-    test("freshly created profile is not yet valid (missing slices/effective)", () => {
+    test("freshly created profile is not yet valid (missing effective)", () => {
         const errors = profile.validate();
-        expect(errors).toEqual([
-            "observation-bp.category: slice 'VSCat' requires at least 1 item(s), found 0",
-            "effective: at least one of effectiveDateTime, effectivePeriod is required",
-            "observation-bp.component: slice 'SystolicBP' requires at least 1 item(s), found 0",
-            "observation-bp.component: slice 'DiastolicBP' requires at least 1 item(s), found 0",
-        ]);
+        expect(errors).toEqual(["effective: at least one of effectiveDateTime, effectivePeriod is required"]);
+    });
+
+    test("create() auto-populates component with systolic/diastolic stubs", () => {
+        const fresh = createBp();
+        const obs = fresh.toResource();
+        expect(obs.component).toHaveLength(2);
+        // stubs contain only discriminator match values
+        expect(fresh.getSystolicBpRaw()).toBeDefined();
+        expect(fresh.getDiastolicBpRaw()).toBeDefined();
     });
 
     test("setSystolicBp / getSystolicBp / getSystolicBpRaw", () => {
-        expect(profile.getSystolicBp()).toBeUndefined();
-        expect(profile.getSystolicBpRaw()).toBeUndefined();
-
         profile.setSystolicBp({
             valueQuantity: { value: 120, unit: "mmHg", system: "http://unitsofmeasure.org", code: "mm[Hg]" },
         });
@@ -75,8 +73,9 @@ describe("blood pressure profile", () => {
         });
     });
 
-    test("both systolic and diastolic populate the component array", () => {
+    test("both systolic and diastolic are in the component array", () => {
         const obs = profile.toResource();
+        // auto-populated stubs + set values = still 2 items (set replaces stubs)
         expect(obs.component).toHaveLength(2);
 
         const systolicCode = profile.getSystolicBpRaw()!.code as Record<string, unknown>;
