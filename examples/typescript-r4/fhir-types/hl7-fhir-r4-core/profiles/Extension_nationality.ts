@@ -8,6 +8,8 @@ import type { Period } from "../../hl7-fhir-r4-core/Period";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/patient-nationality (pkg: hl7.fhir.r4.core#4.0.1)
 export class nationalityProfile {
+    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/patient-nationality"
+
     private resource: Extension
 
     constructor (resource: Extension) {

@@ -11,6 +11,8 @@ export type birthPlaceProfileParams = {
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/patient-birthPlace (pkg: hl7.fhir.r4.core#4.0.1)
 export class birthPlaceProfile {
+    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/patient-birthPlace"
+
     private resource: Extension
 
     constructor (resource: Extension) {

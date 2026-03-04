@@ -211,6 +211,12 @@ describe("bodyweight profile choice type accessors", () => {
     });
 });
 
+describe("bodyweight profile static metadata", () => {
+    test("canonicalUrl is exposed as a static property", () => {
+        expect(bodyweightProfile.canonicalUrl).toBe("http://hl7.org/fhir/StructureDefinition/bodyweight");
+    });
+});
+
 describe("bodyweight profile mutability", () => {
     test("profile mutates the underlying resource", () => {
         const obs = bodyweightProfile.createResource({

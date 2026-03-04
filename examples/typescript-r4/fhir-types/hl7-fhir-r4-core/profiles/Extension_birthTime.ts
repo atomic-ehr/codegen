@@ -10,6 +10,8 @@ export type birthTimeProfileParams = {
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/patient-birthTime (pkg: hl7.fhir.r4.core#4.0.1)
 export class birthTimeProfile {
+    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/patient-birthTime"
+
     private resource: Extension
 
     constructor (resource: Extension) {

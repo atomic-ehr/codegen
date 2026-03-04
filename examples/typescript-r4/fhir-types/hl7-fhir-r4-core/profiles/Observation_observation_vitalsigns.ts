@@ -25,6 +25,8 @@ export type observation_vitalsignsProfileParams = {
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/vitalsigns (pkg: hl7.fhir.r4.core#4.0.1)
 export class observation_vitalsignsProfile {
+    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/vitalsigns"
+
     private resource: Observation
 
     constructor (resource: Observation) {
