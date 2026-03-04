@@ -10,6 +10,8 @@ export type own_prefixProfileParams = {
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/humanname-own-prefix (pkg: hl7.fhir.r4.core#4.0.1)
 export class own_prefixProfile {
+    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix"
+
     private resource: Extension
 
     constructor (resource: Extension) {

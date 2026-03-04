@@ -638,10 +638,16 @@ export const generateProfileClass = (
         w.line();
     }
 
+    const canonicalUrl = schema?.identifier.url;
+
     if (schema) {
         w.comment("CanonicalURL:", schema.identifier.url, `(pkg: ${packageMetaToFhir(packageMeta(schema))})`);
     }
     w.curlyBlock(["export", "class", profileClassName], () => {
+        if (canonicalUrl) {
+            w.line(`static readonly canonicalUrl = ${JSON.stringify(canonicalUrl)}`);
+            w.line();
+        }
         w.line(`private resource: ${tsBaseResourceName}`);
         w.line();
         w.curlyBlock(["constructor", `(resource: ${tsBaseResourceName})`], () => {
