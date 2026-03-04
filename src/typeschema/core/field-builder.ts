@@ -97,6 +97,97 @@ const extractSliceFieldNames = (schema: FHIRSchemaElement): Pick<FieldSlice, "re
     };
 };
 
+const isEmptyMatch = (match: unknown): boolean => {
+    if (!match) return true;
+    if (typeof match === "object" && Object.keys(match as object).length === 0) return true;
+    return false;
+};
+
+const setNestedValue = (obj: Record<string, unknown>, path: string[], value: unknown): void => {
+    let current = obj;
+    for (let i = 0; i < path.length - 1; i++) {
+        const key = path[i] as string;
+        if (!current[key] || typeof current[key] !== "object") {
+            current[key] = {};
+        }
+        current = current[key] as Record<string, unknown>;
+    }
+    const lastKey = path[path.length - 1] as string;
+    current[lastKey] = value;
+};
+
+/** Navigate a remaining path through a match object to extract a leaf value */
+const navigateMatch = (match: Record<string, unknown>, remainingPath: string[]): unknown => {
+    let value: unknown = match;
+    for (const seg of remainingPath) {
+        if (value && typeof value === "object" && !Array.isArray(value)) {
+            value = (value as Record<string, unknown>)[seg];
+        } else {
+            return undefined;
+        }
+    }
+    return value;
+};
+
+const collectDiscriminatorValue = (
+    schema: FHIRSchemaElement,
+    segments: string[],
+    index: number,
+    result: Record<string, unknown>,
+): void => {
+    if (index >= segments.length || !schema.elements) return;
+
+    const segment = segments[index] as string;
+    const element = schema.elements[segment];
+    if (!element) return;
+
+    // Leaf: element has a fixed value
+    if (index === segments.length - 1 && element.fixed?.value !== undefined) {
+        setNestedValue(result, segments, element.fixed.value);
+        return;
+    }
+
+    // Element has slicing with sub-slices — collect match values from required slices
+    if (element.slicing?.slices) {
+        const remainingSegments = segments.slice(index + 1);
+        for (const subSlice of Object.values(element.slicing.slices)) {
+            if (!subSlice.min || subSlice.min < 1 || !subSlice.match || typeof subSlice.match !== "object") continue;
+            const match = subSlice.match as Record<string, unknown>;
+            if (Object.keys(match).length === 0) continue;
+
+            if (remainingSegments.length > 0) {
+                const value = navigateMatch(match, remainingSegments);
+                if (value !== undefined) setNestedValue(result, segments, value);
+            } else {
+                setNestedValue(result, segments.slice(0, index + 1), match);
+            }
+        }
+        return;
+    }
+
+    // Continue navigating deeper
+    collectDiscriminatorValue(element, segments, index + 1, result);
+};
+
+/**
+ * Computes match values by navigating the slice's schema elements along discriminator paths.
+ * Used when a slice has an empty match but the discriminator values are nested deeper
+ * (e.g., component slices in BP where the discriminator crosses a nested slicing boundary).
+ */
+const computeMatchFromSchema = (
+    discriminators: Array<{ path: string }>,
+    schema: FHIRSchemaElement | undefined,
+): Record<string, unknown> | undefined => {
+    if (!schema?.elements || !discriminators || discriminators.length === 0) return undefined;
+
+    const result: Record<string, unknown> = {};
+    for (const disc of discriminators) {
+        const segments = disc.path.split(".");
+        collectDiscriminatorValue(schema, segments, 0, result);
+    }
+    return Object.keys(result).length > 0 ? result : undefined;
+};
+
 const buildSlicing = (element: FHIRSchemaElement): FieldSlicing | undefined => {
     const slicing = element.slicing;
     if (!slicing) return undefined;
@@ -108,7 +199,9 @@ const buildSlicing = (element: FHIRSchemaElement): FieldSlicing | undefined => {
         slices[name] = {
             min: slice.min,
             max: slice.max,
-            match: slice.match as Record<string, unknown> | undefined,
+            match: isEmptyMatch(slice.match)
+                ? computeMatchFromSchema(slicing.discriminator ?? [], slice.schema)
+                : (slice.match as Record<string, unknown> | undefined),
             required,
             excluded,
         };
@@ -162,6 +255,7 @@ export const mkField = (
     path: string[],
     element: FHIRSchemaElement,
     logger?: CodegenLogger,
+    rawElement?: FHIRSchemaElement,
 ): Field => {
     let binding: BindingIdentifier | undefined;
     let enumResult: EnumDefinition | undefined;
@@ -183,6 +277,34 @@ export const mkField = (
         valueConstraint = { kind: "pattern", type: element.pattern.type, value: element.pattern.value };
     } else if (element.fixed) {
         valueConstraint = { kind: "fixed", type: element.fixed.type, value: element.fixed.value };
+    }
+
+    // Auto-populate valueConstraint for CodeableConcept fields with fixed coding slices.
+    // Uses rawElement because the resolved element snapshot has sub-elements stripped.
+    const elemForCodingCheck = rawElement ?? element;
+    if (!valueConstraint && elemForCodingCheck.elements?.coding?.slicing?.slices) {
+        const codingSlices = elemForCodingCheck.elements.coding.slicing.slices;
+        const allSliceValues = Object.values(codingSlices);
+        const allRequired =
+            allSliceValues.length > 0 &&
+            allSliceValues.every(
+                (s) =>
+                    s.min !== undefined &&
+                    s.min >= 1 &&
+                    s.match &&
+                    typeof s.match === "object" &&
+                    Object.keys(s.match as object).length > 0,
+            );
+        if (allRequired) {
+            const codingValues = allSliceValues.map((s) => s.match as import("@atomic-ehr/fhirschema").FHIRValue);
+            valueConstraint = {
+                kind: "fixed",
+                type: "CodeableConcept",
+                value: {
+                    coding: codingValues.length === 1 ? [codingValues[0]] : codingValues,
+                } as unknown as import("@atomic-ehr/fhirschema").FHIRValue,
+            };
+        }
     }
 
     return {
