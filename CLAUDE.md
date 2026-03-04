@@ -89,6 +89,12 @@ FHIR Package → TypeSchema Generator → TypeSchema Format → Code Generators 
 - Only modify files and directories that were explicitly mentioned or are directly required by the change. Do not refactor surrounding code.
 - When asked to review or explain code, explain first before proposing fixes. Do not jump to making changes unless explicitly asked to fix something.
 
+## Commit Guidelines
+
+- Split commits logically by concern. Always separate example/generated file updates from source code changes.
+- If a change is a direct fix for a specific previous commit, place it immediately after that commit with a `fix:` prefix in the message.
+- Typical commit order: source changes → test changes → regenerated examples. Example updates should be the last commit in the branch.
+
 ## Development Guidelines
 
 ### TypeScript Configuration
