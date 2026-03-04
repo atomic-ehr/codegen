@@ -23,7 +23,6 @@
     - [Generation](#generation)
       - [1. Writer-Based Generation (Programmatic)](#1-writer-based-generation-programmatic)
       - [2. Mustache Template-Based Generation (Declarative)](#2-mustache-template-based-generation-declarative)
-  - [Roadmap](#roadmap)
   - [Support](#support)
 - [Footnotes](#footnotes)
 
@@ -41,14 +40,32 @@ Guides:
 
 ## Features
 
-- 🚀 **High-Performance** - Built with Bun runtime for blazing-fast generation
-- 🔧 **Extensible Architecture** - Three-stage pipeline:
-  - FHIR package management & canonical resolution
-  - Optimized intermediate FHIR data entities representation via Type Schema
-  - Generation for different programming languages
-- 📦 **Multi-Package Support** - Generate from a list of FHIR packages
-- 🎯 **Type-Safe** - Generates fully typed interfaces with proper inheritance
-- 🛠️ **Developer Friendly** - Fluent API
+- [x] **Multi-Package Support** — Load packages from the [FHIR registry](examples/typescript-r4/), [remote TGZ files](examples/typescript-sql-on-fhir/), or a [local folder with custom StructureDefinitions](examples/local-package-folder/)
+  - Tested with hl7.fhir.r4.core, US Core, C-CDA, SQL on FHIR, etc.
+- [x] **Resources & Complex Types** — Generates typed definitions with proper inheritance
+- [x] **Value Set Bindings** — Strongly-typed enums from FHIR terminology bindings
+- [x] **Profiles & Extensions** — Factory methods with auto-populated fixed values and required slices ([R4 profiles](examples/typescript-r4/profile-bp.test.ts), [US Core](examples/typescript-us-core/))
+  - Extensions — flat typed accessors (e.g. `setRace()` on US Core Patient), [standalone extension profiles](examples/typescript-r4/extension-profile.test.ts)
+  - Slicing — typed get/set accessors with discriminator matching
+  - Validation — runtime `validate()` for required fields, fixed values, slice cardinality, enums, references
+- [x] **Extensible Architecture** — Three-stage pipeline: FHIR packages → [TypeSchema](https://www.health-samurai.io/articles/type-schema-a-pragmatic-approach-to-build-fhir-sdk) IR → code generation
+  - TypeSchema is a universal intermediate representation — add a new language by writing only the final generation stage
+  - Built-in generators: TypeScript, Python/Pydantic, C#, and Mustache templates
+- [x] **TypeSchema Transformations**:
+  - [x] Tree Shaking — include only the resources and fields you need; automatically resolves dependencies
+  - [x] Logical Model Promotion — promote FHIR logical models (e.g. CDA ClinicalDocument) to first-class resources
+  - [ ] Renaming — custom naming conventions for generated types, fields, packages, etc.
+- [ ] **Search Builders** — type-safe FHIR search query construction
+- [ ] **Operation Generation** — type-safe FHIR operation calls
+
+| Feature | TypeSchema | TypeScript | Python | C# | Mustache |
+|---|---|---|---|---|---|
+| Resources & Complex Types | yes | yes | yes | yes | template |
+| Value Set Bindings | yes | inline | inline | enum | template |
+| Profiles & Extensions | yes | yes | no | no | no |
+| Tree Shaking | yes | 〃 | 〃 | 〃 | 〃 |
+| Logical Model Promotion | yes | 〃 | 〃 | 〃 | 〃 |
+
 
 ## Versions & Release Cycle
 
@@ -298,107 +315,61 @@ Templates enable flexible code generation for any language or format (Go, Rust, 
 
 ### Profile Classes
 
-When generating TypeScript with `generateProfile: true`, the generator creates profile wrapper classes that provide a fluent API for working with FHIR profiles (US Core, etc.). These classes handle complex profile constraints like slicing and extensions automatically.
+When generating TypeScript with `generateProfile: true`, the generator creates profile wrapper classes that provide a fluent API for working with FHIR profiles. These classes handle complex profile constraints like slicing and extensions automatically.
 
 ```typescript
-import { Patient } from "./fhir-types/hl7-fhir-r4-core/Patient";
-import { USCorePatientProfileProfile } from "./fhir-types/hl7-fhir-us-core/profiles/UscorePatientProfile";
+import { observation_bpProfile as bpProfile } from "./profiles/Observation_observation_bp";
 
-// Wrap a FHIR resource with a profile class
-const resource: Patient = { resourceType: "Patient" };
-const profile = new USCorePatientProfileProfile(resource);
-
-// Set extensions using flat API - complex extensions are simplified
-profile.setRace({
-    ombCategory: { system: "urn:oid:2.16.840.1.113883.6.238", code: "2106-3", display: "White" },
-    text: "White",
+// create() auto-sets fixed values (code, meta.profile) and required slice stubs
+const bp = bpProfile.create({
+    status: "final",
+    subject: { reference: "Patient/pt-1" },
 });
 
-// Set simple extensions directly
-profile.setSex({ system: "http://hl7.org/fhir/administrative-gender", code: "male" });
+// Slice setters — discriminator values (LOINC codes) applied automatically
+// Single-variant choice types (value[x] → valueQuantity) are flattened:
+bp.setVSCat({ text: "Vital Signs" })
+    .setSystolicBP({ value: 120, unit: "mmHg" })
+    .setDiastolicBP({ value: 80, unit: "mmHg" })
+    .setEffectiveDateTime("2024-06-15");
 
-// Get extension values - flat API returns simplified object
-const race = profile.getRace();
-console.log(race?.ombCategory?.display); // "White"
+bp.validate(); // [] — valid
 
-// Get raw FHIR Extension when needed
-const raceExtension = profile.getRaceExtension();
-console.log(raceExtension?.url); // "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
-
-// Get the underlying resource
-const patientResource = profile.toResource();
+// Get plain FHIR JSON — ready for API calls, storage, etc.
+const obs = bp.toResource();
+// obs.component[0].valueQuantity.value === 120
+// obs.component[0].code.coding[0].code === "8480-6"
 ```
 
-**Slicing Support:**
-
-Profile classes also handle FHIR slicing, automatically applying discriminator values:
+**Slicing & Choice Type Flattening:**
 
 ```typescript
-import { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
-import { USCoreBloodPressureProfileProfile } from "./fhir-types/hl7-fhir-us-core/profiles/UscoreBloodPressureProfile";
+// Simplified getter — discriminator stripped, choice type flattened
+bp.getSystolicBP();    // { value: 120, unit: "mmHg" }
 
-const obs: Observation = { resourceType: "Observation", status: "final", code: {} };
-const bp = new USCoreBloodPressureProfileProfile(obs);
-
-// Set slices - discriminator is applied automatically
-// No input needed when all fields are part of the discriminator
-bp.setSystolic({ valueQuantity: { value: 120, unit: "mmHg" } });
-bp.setDiastolic({ valueQuantity: { value: 80, unit: "mmHg" } });
-
-// Get simplified slice (without discriminator fields)
-const systolic = bp.getSystolic();
-console.log(systolic?.valueQuantity?.value); // 120
-
-// Get raw slice (includes discriminator)
-const systolicRaw = bp.getSystolicRaw();
-console.log(systolicRaw?.code?.coding?.[0]?.code); // "8480-6" (LOINC code for systolic BP)
+// Raw getter — full FHIR element including discriminator values
+bp.getSystolicBPRaw(); // { code: { coding: [...] }, valueQuantity: { value: 120, ... } }
 ```
 
-See [examples/typescript-us-core/](examples/typescript-us-core/) for complete profile usage examples.
+**Wrapping Existing Resources:**
 
-## Roadmap
+```typescript
+// Wrap any resource to read slices
+const bp2 = bpProfile.from(existingObservation);
+bp2.getSystolicBP();       // { value: 120, unit: "mmHg" }
+bp2.getVSCat();            // { text: "Vital Signs" }
+bp2.getEffectiveDateTime(); // "2024-06-15"
+```
 
-- [x] TypeScript generation
-- [x] FHIR R4 core package support
-- [x] Configuration file support
-- [x] Comprehensive test suite (72+ tests)
-- [x] **Value Set Generation** - Strongly-typed enums from FHIR bindings
-- [x] **Profile & Extension Support** - Basic parsing (US Core in development)
-- [ ] **Complete Multi-Package Support** - Custom packages and dependencies
-- [ ] **Smart Chained Search** - Intelligent search builders
+**Validation:**
 
-    ```typescript
-    // Intelligent search builders
-    const results = await client.Patient
-        .search()
-        .name().contains('Smith')
-        .birthdate().greaterThan('2000-01-01')
-        .address().city().equals('Boston')
-        .include('Patient:organization')
-        .sort('birthdate', 'desc')
-        .execute();
-    ```
+```typescript
+const errors = bp.validate();
+// [] — empty means valid
+// ["effective: at least one of effectiveDateTime, effectivePeriod is required"]
+```
 
-- [ ] **Operation Generation** - Type-safe FHIR operations
-
-    ```typescript
-    // Type-safe FHIR operations
-    const result = await client.Patient
-        .operation('$match')
-        .withParameters({
-            resource: patient,
-            onlyCertainMatches: true
-        })
-        .execute();
-    ```
-
-- [x] **Python generation**
-- [x] **C# generation**
-- [ ] **Rust generation**
-- [ ] **GraphQL schema generation**
-- [ ] **OpenAPI specification generation**
-- [ ] **Validation functions**
-- [ ] **Mock data generation**
+See [examples/typescript-r4/](examples/typescript-r4/) for R4 profile tests and [examples/typescript-us-core/](examples/typescript-us-core/) for US Core profile examples.
 
 ## Support
 
