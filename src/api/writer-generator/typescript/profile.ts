@@ -652,6 +652,14 @@ export const generateProfileClass = (
         w.line();
         w.curlyBlock(["constructor", `(resource: ${tsBaseResourceName})`], () => {
             w.line("this.resource = resource");
+            if (canonicalUrl && isResourceIdentifier(flatProfile.base)) {
+                w.line(`const r = resource as unknown as Record<string, unknown>`);
+                w.line(`const meta = (r.meta ??= {}) as Record<string, unknown>`);
+                w.line(`const profiles = (meta.profile ??= []) as string[]`);
+                w.line(
+                    `if (!profiles.includes(${JSON.stringify(canonicalUrl)})) profiles.push(${JSON.stringify(canonicalUrl)})`,
+                );
+            }
         });
         w.line();
         w.curlyBlock(["static", "from", `(resource: ${tsBaseResourceName})`, `: ${profileClassName}`], () => {
@@ -662,6 +670,9 @@ export const generateProfileClass = (
             w.curlyBlock([`const resource: ${tsBaseResourceName} =`], () => {
                 for (const f of allFields) {
                     w.line(`${f.name}: ${f.value},`);
+                }
+                if (canonicalUrl && isResourceIdentifier(flatProfile.base)) {
+                    w.line(`meta: { profile: [${JSON.stringify(canonicalUrl)}] },`);
                 }
             }, [` as unknown as ${tsBaseResourceName}`]);
             w.line("return resource");
