@@ -1,6 +1,8 @@
 # FHIR Slices Representation
 
-Working issue: [#24](https://github.com/fhir-schema/fhir-schema-codegen/issues/24)
+Status: Implemented (TypeScript, Lens level). See `examples/typescript-r4/` for working examples.
+
+Working issue: [#24](https://github.com/atomic-ehr/codegen/issues/24)
 
 ## Slicing
 
@@ -11,101 +13,150 @@ Slicing is an approach to work with arrays in FHIR. It allows defining a `view` 
   - `systolic` slice for systolic blood pressure
   - `diastolic` slice for diastolic blood pressure
 
-Let's describe several levels of slice support in SDK:
+## Levels of Slice Support
 
 1. **No support**. We don't provide any slice-specific behavior in SDK, so users should work with `Observation.component` manually. Validation is external.
-2. **Lens**. We provide functions to get/set values in specific slices. It is a generic `Observation.component`, but with some predefined values and guards.
-3. **Refine**. We provide types to represent slice elements (and maybe hide `non_sliced` access).
+2. **Lens** (implemented). We provide getter/setter methods in profile classes to find/insert elements in arrays by discriminator matching.
+3. **Refine** (not implemented). We provide dedicated types for slice elements.
 
-Because the first item is not a focus point, let's examine in detail only the second and third items. I'll present them as corner options, so we have a lot of tradeoffs between them.
+## Lens (Current Implementation)
 
-Common part with `Observation` (from Python SDK, cropped):
+The Lens approach generates getter/setter methods on the profile class. Each slice method knows its discriminator values and uses them to find or insert the correct element in the array.
 
-```python
-class ObservationComponent(BackboneElement): pass
+### How it works
 
-class Observation(DomainResource):
-    component: PyList[ObservationComponent] | None = Field(None, alias="component", serialization_alias="component")
+For the bodyweight profile's `VSCat` slice on `category[]`:
+
+```typescript
+export type Observation_bodyweight_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
+
+export class observation_bodyweightProfile {
+    // ...
+
+    // Setter: finds existing slice by discriminator or appends
+    setVSCat(input?: Observation_bodyweight_Category_VSCatSliceInput): this {
+        const match = {
+            "coding": {
+                "code": "vital-signs",
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category"
+            }
+        } as Record<string, unknown>
+        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match)
+        const list = (this.resource.category ??= [])
+        const index = list.findIndex((item) => matchesSlice(item, match))
+        if (index === -1) {
+            list.push(value)
+        } else {
+            list[index] = value
+        }
+        return this
+    }
+
+    // Getter: returns simplified view (discriminator fields stripped)
+    getVSCat(): Observation_bodyweight_Category_VSCatSliceInput | undefined {
+        const match = { ... }
+        const item = list.find((item) => matchesSlice(item, match))
+        return extractSliceSimplified(item, ["coding"])
+    }
+
+    // Raw getter: returns the full element including discriminator fields
+    getVSCatRaw(): CodeableConcept | undefined { ... }
+}
 ```
 
-### Lens
+### Slice input types
 
-```python
-class UsCoreBloodPressure(Observation):
-    @property
-    def systolic(self) -> ObservationComponent: pass
-    @systolic.setter
-    def set_systolic(self, value: ObservationComponent) -> None: pass
+The input type for a slice setter uses `Omit<>` to remove discriminator fields. This way the user provides only the non-fixed parts and the discriminator values are applied automatically:
 
-    @property
-    def diastolic(self) -> ObservationComponent: pass
-    @diastolic.setter
-    def set_diastolic(self, value: ObservationComponent) -> None: pass
+```typescript
+// User provides text, coding is applied automatically
+profile.setVSCat({ text: "Vital Signs" })
+
+// Discriminator values are merged in:
+// { text: "Vital Signs", coding: [{ code: "vital-signs", system: "..." }] }
 ```
 
-Types of properties:
+### Three accessor methods per slice
 
-- zero or one element
-- one or more elements
-- zero or more elements
+Each slice generates three methods:
 
-Underlying data representation is equal to `Observation`.
+| Method | Returns | Description |
+|---|---|---|
+| `setXxx(input)` | `this` | Find-or-insert element by discriminator match. Merges discriminator values into input. |
+| `getXxx()` | simplified type or `undefined` | Find element by discriminator match. Returns view with discriminator fields stripped. |
+| `getXxxRaw()` | full type or `undefined` | Find element by discriminator match. Returns the full element as-is. |
 
-```python
-observation = UsCoreBloodPressure(
-    code=CodeableConcept(coding=[{"system": "http://loinc.org", "code": "85354-9"}]),
-    status="final",
-    component=[
-        ObservationComponent(
-            code=CodeableConcept(coding=[{"system": "http://loinc.org", "code": "8480-6"}]),
-            value_quantity=Quantity(value=120, unit="mmHg", system="http://unitsofmeasure.org", code="mm[Hg]"),
-        ),
-        ObservationComponent(
-            code=CodeableConcept(coding=[{"system": "http://loinc.org", "code": "8462-4"}]),
-            value_quantity=Quantity(value=80, unit="mmHg", system="http://unitsofmeasure.org", code="mm[Hg]"),
-        ),
-    ],
-)
+### Runtime helpers
 
-bloodPressure2 = UsCoreBloodPressure()
-bloodPressure2.systolic = ObservationComponent(
-    # code will be set automatically
-    valueQuantity=Quantity(value=120, unit="mmHg")
-)
-bloodPressure2.diastolic = ObservationComponent(
-    # code will be set automatically
-    valueQuantity=Quantity(value=80, unit="mmHg"))
+Slice operations depend on `profile-helpers.ts`:
+
+- `matchesSlice(value, match)` — deep-compares an element against discriminator values. Supports nested objects and arrays (e.g., matching a coding within a CodeableConcept).
+- `applySliceMatch(input, match)` — deep-merges discriminator values into user input to produce the complete element.
+- `extractSliceSimplified(slice, matchKeys)` — strips top-level discriminator keys from a slice element to produce the simplified view.
+
+### Advantages
+
+- Non-invasive: the underlying array remains a standard FHIR array
+- Users don't need to know discriminator values
+- Find-or-insert semantics prevent duplicate slice entries
+- Fluent API with method chaining
+- Three accessor variants (set, get simplified, get raw) cover different use cases
+
+### Slice Cardinality Validation
+
+Profile classes with slices also generate `validate()` checks for slice cardinality. When a profile requires a minimum number of matching slice elements (e.g., blood pressure requires exactly 1 SystolicBP and 1 DiastolicBP component), `validate()` counts elements matching the discriminator and reports violations:
+
+```typescript
+const bp = observation_bpProfile.create({ status: "final", subject: { reference: "Patient/pt-1" } });
+bp.validate();
+// ["effective: at least one of effectiveDateTime, effectivePeriod is required"]
+// Required slices (VSCat, SystolicBP, DiastolicBP) are auto-populated by create()
 ```
 
-Advantages:
+### Limitations
 
-- Not invasive implementation
-- Doesn't need a lot of types
+- No compile-time enforcement of slice constraints
+- No dedicated types for slice elements (see Refine below)
+- Array ordering is not enforced by the setter
+- Only `value`/`pattern` discriminator types are supported; `type`, `profile`, and `exists` discriminators are not yet implemented
 
-Disadvantages:
+## Refine (Not Implemented)
 
-- Looks very unsafe from type perspective
-- Builder pattern or broken visible state, requires knowledge on internal representation, very limited validation
+The Refine approach would generate dedicated types for each slice element, providing stronger compile-time guarantees:
 
-### Refine
+```typescript
+// Hypothetical — not yet implemented
+type BloodPressureSystolic = ObservationComponent & {
+    code: CodeableConcept;  // fixed to systolic LOINC code
+    valueQuantity: Quantity;
+}
 
-```python
-class UsCoreBloodPressure_Slice_Distolic(ObservationComponent):
-    @classmethod
-    def from_observation(cls, observation: Observation) -> UsCoreBloodPressure_Slice_Distolic: pass
-    def to_observation(self) -> ObservationComponent: pass
-
-class UsCoreBloodPressureSistollicSlice(ObservationComponent):
-    @classmethod
-    def from_observation(cls, observation: Observation) -> UsCoreBloodPressureSistollicSlice: pass
-    def to_observation(self) -> ObservationComponent: pass
-
-class UsCoreBloodPressure(Observation):
-    def get_systolic(self) -> UsCoreBloodPressure_Slice_Distolic | None: pass
-    def set_systolic(self, value: UsCoreBloodPressure_Slice_Distolic) -> None: pass
-    def get_diastolic(self) -> UsCoreBloodPressureSistollicSlice | None: pass
-    def set_diastolic(self, value: UsCoreBloodPressureSistollicSlice) -> None: pass
+class USCoreBloodPressureProfile {
+    getSystolic(): BloodPressureSystolic | undefined { ... }
+    setSystolic(value: Omit<BloodPressureSystolic, "code">): this { ... }
+    getDiastolic(): BloodPressureDiastolic | undefined { ... }
+    setDiastolic(value: Omit<BloodPressureDiastolic, "code">): this { ... }
+}
 ```
+
+### Tradeoffs vs Lens
+
+| | Lens (current) | Refine (future) |
+|---|---|---|
+| Compile-time safety | Weak — input is `Omit<BaseType, discriminatorKeys>` | Strong — dedicated types per slice |
+| Type count | Low — reuses base types | High — one type per slice |
+| Implementation complexity | Low | High |
+| Runtime behavior | Same | Same |
+
+## Discriminator Support
+
+| Discriminator type | Status | Notes |
+|---|---|---|
+| `value` | Supported | Fixed value matching (most common) |
+| `pattern` | Supported | Pattern matching on element |
+| `type` | Not supported | Discriminate by element type |
+| `profile` | Not supported | Discriminate by profile URL |
+| `exists` | Not supported | Discriminate by field presence |
 
 ## Run-Elements
 

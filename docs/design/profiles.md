@@ -1,6 +1,8 @@
-# Basic FHIR Profiles Representation
+# FHIR Profiles Representation
 
-Scope: This document covers only the basic representation of the relationship between profiles and resources. Profile specific constraints are not represented in this document.
+Status: Implemented (TypeScript). See `examples/typescript-r4/` for working examples.
+
+This document covers the representation of FHIR profiles in generated code: resource profiles, extension profiles, and their relationship to base resources.
 
 ## Profile Example
 
@@ -56,7 +58,7 @@ Problem: resource (`Observation`) and profile (`bodyweight`) can be related to e
     - **Disadvantage**:
         - inconsistencies between resource and profile can be resolved only at runtime (e.g. forbidden fields)
         - switching between multiple profiles.
-2. `link`: profile is linked to resource where profile is an adaptor to resource file.
+2. `link`: profile is linked to resource where profile is an adaptor to resource.
     - **Advantage**:
         - fully independent interfaces and separation of concern,
     - **Disadvantage**:
@@ -64,7 +66,7 @@ Problem: resource (`Observation`) and profile (`bodyweight`) can be related to e
             - don't need to partly implement resource API in profile type (use only mentioned in profile things)
         - data inconsistencies (edit profile then resource and break profile).
 
-<!-- HAPI use link -->
+**Decision: `link` (adaptor pattern).** The profile class wraps a mutable reference to the base resource. This follows the same approach as HAPI FHIR. The profile class provides typed getters/setters and slice accessors, while the underlying data remains a plain resource object.
 
 ### Interactions between inheritance profiles
 
@@ -73,116 +75,235 @@ Problem: if we have several levels of profiles on top of the resource how they s
 - the same arguments as for *Interaction between the resource and profiles* are applicable.
 - plus polymorphism between profiles.
 
+**Current state:** each profile in the inheritance chain generates an independent profile class. `observation_bodyweightProfile` and `observation_vitalsignsProfile` are both generated, each wrapping `Observation` directly. There is no inheritance between the two profile classes.
+
 ### JSON -> object conversion and Profile
 
 Arbitrary JSON can be converted to:
 
 1. Resource type, independently from the profiles.
-1. Profile type.
-    - Multiple profiles.
-    - `*void` in `GET /Observation/1234`
+1. Profile type via `ProfileClass.from(resource)`.
+
+```typescript
+// Parse as resource
+const obs: Observation = JSON.parse(json)
+
+// Wrap with profile
+const bodyweight = observation_bodyweightProfile.from(obs)
+bodyweight.getVSCat() // access slice
+bodyweight.toResource() // back to Observation (same object)
+```
 
 ### Mutable/Immutable Representation
 
-In both cases of *Interaction between the resource and profiles* we need to cast object types/classes between different profiles/resource.
-
-- It can't be represented as a single type because different profiles can overlap each other in a bad way.
-
-## Type Schema Representation
-
-Type Schema representation for profiles. Profiles should have separated `kind = constraint`.
-
-How to represent profile entities:
-
-1. `difference`:
-    - more Type Schema consistency: resource representation more oriented on inheritance.
-    - during codegen we need to traverse the inheritance tree to find the correct profile element.
-1. `snapshot`:
-    - better approach for `link` and code generation (one pass through);
-    - worse for `subtypes`;
-    - Type Schema consistency: resource representation more oriented on inheritance.
-
-Current solution: to collect all profile elements we need to traverse the inheritance tree and collect first find description.
-
-## Snippets
-
-```python
-class ObservationComponent(Observation): pass
-
-class Observation(DomainResource): pass
-class UsCoreBloodPressure(Observation): pass
-
-# Create Observation
-obs1 = Observation(...)
-pressure1 = obs1.attachProfile(UsCoreBloodPressure)
-pressure1 = obs1.profile.UsCoreBloodPressure
-
-# Create UsCoreBloodPressure directly
-pressure2 = UsCoreBloodPressure(...)
-pressure2.diastolic = Quantity(...)
-obs2 = pressure2.resource
-```
-
-### (`effective`) `Observation` -> `vitalsigns` -> `bodyweight`
+The profile class holds a mutable reference to the underlying resource. Mutations through the profile are visible on the resource and vice versa:
 
 ```typescript
-export interface Observation extends DomainResource {
-    // "effective" : {
-    //   "excluded" : false,
-    //   "choices" : [ "effectiveDateTime", "effectivePeriod", "effectiveTiming", "effectiveInstant" ],
-    //   "array" : false,
-    //   "required" : false
-    // },
-    // "effectiveDateTime" : {
-    //   "excluded" : false,
-    //   "type" : {
-    //     "kind" : "primitive-type",
-    //     "package" : "hl7.fhir.r4.core",
-    //     "version" : "4.0.1",
-    //     "name" : "dateTime",
-    //     "url" : "http://hl7.org/fhir/StructureDefinition/dateTime"
-    //   },
-    //   "array" : false,
-    //   "choiceOf" : "effective",
-    //   "required" : false
-    // },
-    // ...
-    effectiveDateTime?: string;
-    effectiveInstant?: string;
-    effectivePeriod?: Period;
-    effectiveTiming?: Timing;
-}
+const obs: Observation = { resourceType: "Observation", status: "preliminary", ... }
+const profile = observation_bodyweightProfile.from(obs)
+profile.setStatus("final")
+obs.status // "final" — same object
+```
 
-export interface ObservationVital extends Profile {
-    // Difference:
-    // 1. `effectiveTiming`, `effectiveInstant` removed
-    // 2. `effective` should be required fields
-    //
-    // "effective" : {
-    //   "excluded" : false,
-    //   "choices" : [ "effectiveDateTime", "effectivePeriod" ],
-    //   "array" : false,
-    //   "required" : true
-    // },
-    // "effectiveDateTime" : {
-    //   "excluded" : false,
-    //   "type" : {
-    //     "kind" : "primitive-type",
-    //     "package" : "hl7.fhir.r4.core",
-    //     "version" : "4.0.1",
-    //     "name" : "dateTime",
-    //     "url" : "http://hl7.org/fhir/StructureDefinition/dateTime"
-    //   },
-    //   "array" : false,
-    //   "choiceOf" : "effective",
-    //   "required" : false
-    // },
-    effectiveDateTime?: string;
-    effectivePeriod?: Period;
-}
+## Profile Types
 
-export interface Observation_bodyweight extends DomainResource {
-    effectiveDateTime?: string;
-    effectivePeriod?: Period;
+### Resource Profiles
+
+Resource profiles constrain a base resource (e.g., `bodyweight` constrains `Observation`). The generator produces:
+
+1. **Narrowed interface** — `extends` the base resource, tightens optional fields to required, narrows bindings:
+
+```typescript
+export interface observation_bodyweight extends Observation {
+    category: CodeableConcept<(... | string)>[];  // required (was optional)
+    subject: Reference<"Patient">;                 // required, narrowed to Patient
 }
 ```
+
+2. **Profile class** — wraps the resource with typed getters/setters and slice accessors:
+
+```typescript
+export class observation_bodyweightProfile {
+    private resource: Observation
+
+    constructor(resource: Observation) { ... }
+    static from(resource: Observation): observation_bodyweightProfile { ... }
+    static createResource(args: observation_bodyweightProfileParams): Observation { ... }
+    static create(args: observation_bodyweightProfileParams): observation_bodyweightProfile { ... }
+
+    // Typed getters/setters for constrained fields
+    getStatus(): (...) | undefined { ... }
+    setStatus(value: ...): this { ... }
+
+    // Slice accessors (see slices.md)
+    setVSCat(input?: Observation_bodyweight_Category_VSCatSliceInput): this { ... }
+    getVSCat(): Observation_bodyweight_Category_VSCatSliceInput | undefined { ... }
+    getVSCatRaw(): CodeableConcept | undefined { ... }
+
+    // Conversion
+    toResource(): Observation { ... }
+    toProfile(): observation_bodyweight { ... }
+}
+```
+
+3. **Params type** — lists fields for the `createResource`/`create` factory methods. Array fields with required slices are optional -- stubs are auto-merged:
+
+```typescript
+export type observation_bodyweightProfileParams = {
+    status: (...);
+    code: CodeableConcept<(...)>;
+    subject: Reference<"Patient">;
+    category?: CodeableConcept<(...)>[];  // optional -- required slice stubs auto-merged
+}
+```
+
+### Extension Profiles
+
+Extension profiles constrain the `Extension` type. They come in two forms:
+
+#### Simple extensions (single value)
+
+A simple extension carries one `value[x]` field (e.g., `patient-birthPlace` carries `valueAddress`):
+
+```typescript
+export type birthPlaceProfileParams = {
+    valueAddress: Address;
+}
+
+export class birthPlaceProfile {
+    private resource: Extension
+
+    static createResource(args: birthPlaceProfileParams): Extension {
+        return {
+            url: "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
+            valueAddress: args.valueAddress,
+        } as unknown as Extension
+    }
+
+    static create(args: birthPlaceProfileParams): birthPlaceProfile { ... }
+    static from(resource: Extension): birthPlaceProfile { ... }
+
+    getValueAddress(): Address | undefined { ... }
+    setValueAddress(value: Address): this { ... }
+
+    toResource(): Extension { ... }
+}
+```
+
+Usage:
+
+```typescript
+const patient: Patient = {
+    resourceType: "Patient",
+    extension: [
+        birthPlaceProfile.createResource({ valueAddress: { city: "Boston", country: "US" } }),
+    ],
+}
+```
+
+#### Complex extensions (sub-extensions)
+
+A complex extension has nested extension elements instead of a single value (e.g., `patient-nationality` has `code` and `period` sub-extensions):
+
+```typescript
+export class nationalityProfile {
+    private resource: Extension
+
+    static createResource(): Extension {
+        return {
+            url: "http://hl7.org/fhir/StructureDefinition/patient-nationality",
+        } as unknown as Extension
+    }
+
+    // Sub-extension accessors
+    setCode(value: CodeableConcept): this { ... }
+    setPeriod(value: Period): this { ... }
+    getCode(): CodeableConcept | undefined { ... }
+    getCodeExtension(): Extension | undefined { ... }  // raw access
+    getPeriod(): Period | undefined { ... }
+    getPeriodExtension(): Extension | undefined { ... }
+
+    toResource(): Extension { ... }
+}
+```
+
+Usage:
+
+```typescript
+const profile = nationalityProfile.create()
+    .setCode({ coding: [{ system: "urn:iso:std:iso:3166", code: "US" }] })
+    .setPeriod({ start: "2000-01-01" })
+const ext: Extension = profile.toResource()
+```
+
+## TypeSchema Representation
+
+Profiles use `kind = "constraint"` in TypeSchema.
+
+Current approach: to collect all profile elements we traverse the inheritance tree and collect the first-found description for each field (snapshot-like). This supports the `link` approach where each profile class has a complete view of its constrained fields.
+
+## Runtime Helpers
+
+Profile classes depend on a generated `profile-helpers.ts` module that provides:
+
+- `applySliceMatch(input, match)` — merges discriminator values into a slice element
+- `matchesSlice(value, match)` — checks if an element matches a slice discriminator
+- `extractSliceSimplified(slice, matchKeys)` — strips discriminator keys from a slice for the simplified input type
+- `wrapSliceChoice(input, choiceVariant)` — wraps flat input fields under a single choice variant key (for setter)
+- `flattenSliceChoice(slice, matchKeys, choiceVariant)` — strips discriminator keys and flattens a single choice variant into parent (for getter)
+- `mergeMatch(target, match)` — deep-merges match values into target
+- `extractComplexExtension(extension, config)` — extracts typed values from nested extension elements
+- `validateRequired(r, field, path)` — checks that a required field is present
+- `validateExcluded(r, field, path)` — checks that a forbidden field is absent
+- `validateFixedValue(r, field, expected, path)` — checks that a field matches a fixed/pattern value
+- `validateSliceCardinality(items, match, sliceName, min, max, path)` — checks min/max counts for a named slice
+- `validateEnum(value, allowed, field, path)` — checks that a value is within a required value set (supports primitives, Coding, CodeableConcept)
+- `validateReference(value, allowed, field, path)` — checks that a reference targets an allowed resource type
+
+## Configuration
+
+Profiles are enabled in the TypeScript generator via:
+
+```typescript
+new APIBuilder()
+    .typescript({ generateProfile: true })
+    .typeSchema({
+        treeShake: {
+            "hl7.fhir.r4.core": {
+                // Profiles specified by canonical URL
+                "http://hl7.org/fhir/StructureDefinition/bodyweight": {},
+                "http://hl7.org/fhir/StructureDefinition/patient-birthPlace": {},
+            }
+        }
+    })
+```
+
+## Runtime Validation
+
+Profile classes generate a `validate(): string[]` method that checks the wrapped resource against the profile's constraints. An empty array means the resource conforms; each string describes one violation.
+
+Checks performed:
+- **Required fields** — fields that the profile marks as mandatory (min >= 1)
+- **Excluded fields** — fields that the profile forbids (max = 0)
+- **Fixed/pattern values** — fields constrained to specific values (e.g., `code.coding` must contain a specific LOINC code)
+- **Slice cardinality** — minimum and maximum counts for named slices
+- **Closed enum bindings** — values restricted to a required value set
+- **Reference types** — reference targets restricted to specific resource types
+- **Choice type requirements** — at least one variant must be present when the choice group is required
+
+```typescript
+const bp = observation_bpProfile.create({
+    status: "final",
+    subject: { reference: "Patient/pt-1" },
+});
+
+const errors = bp.validate();
+// ["effective: at least one of effectiveDateTime, effectivePeriod is required"]
+// Required slices (VSCat, SystolicBP, DiastolicBP) are auto-populated by create()
+```
+
+Validation helpers are emitted into `profile-helpers.ts` alongside the existing slice helpers.
+
+## Future Work
+
+- **Profile inheritance**: currently each profile class is independent. A future enhancement could allow `bodyweightProfile` to compose or extend `vitalsignsProfile`.

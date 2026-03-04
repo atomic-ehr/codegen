@@ -11,7 +11,7 @@ describe("Multi-Profile Pattern", () => {
     describe("Body Weight Profile", () => {
         it("creates valid body weight observation", () => {
             const profile = new usWeightProfile(createObservation());
-            profile.setVscat({});
+            profile.setVSCat({});
 
             const resource = profile.toResource();
             expect(resource.resourceType).toBe("Observation");
@@ -21,9 +21,9 @@ describe("Multi-Profile Pattern", () => {
 
         it("has getters for slices", () => {
             const profile = new usWeightProfile(createObservation());
-            profile.setVscat({});
+            profile.setVSCat({});
 
-            const vscat = profile.getVscat();
+            const vscat = profile.getVSCat();
             expect(vscat).toBeDefined();
         });
     });
@@ -31,7 +31,7 @@ describe("Multi-Profile Pattern", () => {
     describe("Body Height Profile", () => {
         it("creates valid body height observation", () => {
             const profile = new usHeightProfile(createObservation());
-            profile.setVscat({});
+            profile.setVSCat({});
 
             const resource = profile.toResource();
             expect(resource.resourceType).toBe("Observation");
@@ -41,9 +41,9 @@ describe("Multi-Profile Pattern", () => {
 
         it("has getters for slices", () => {
             const profile = new usHeightProfile(createObservation());
-            profile.setVscat({});
+            profile.setVSCat({});
 
-            const vscat = profile.getVscat();
+            const vscat = profile.getVSCat();
             expect(vscat).toBeDefined();
         });
     });
@@ -59,7 +59,7 @@ describe("Multi-Profile Pattern", () => {
 
             // Wrap with body weight profile
             const weightProfile = new usWeightProfile(baseObservation);
-            weightProfile.setVscat({});
+            weightProfile.setVSCat({});
 
             const resource = weightProfile.toResource();
             expect(resource.status).toBe("final");
@@ -70,14 +70,14 @@ describe("Multi-Profile Pattern", () => {
         it("creates separate weight and height observations", () => {
             // Create weight observation
             const weightProfile = new usWeightProfile(createObservation());
-            weightProfile.setVscat({});
+            weightProfile.setVSCat({});
             const weightObs = weightProfile.toResource();
             weightObs.code = { coding: [{ system: "http://loinc.org", code: "29463-7", display: "Body Weight" }] };
             weightObs.valueQuantity = { value: 70, unit: "kg", system: "http://unitsofmeasure.org", code: "kg" };
 
             // Create height observation
             const heightProfile = new usHeightProfile(createObservation());
-            heightProfile.setVscat({});
+            heightProfile.setVSCat({});
             const heightObs = heightProfile.toResource();
             heightObs.code = { coding: [{ system: "http://loinc.org", code: "8302-2", display: "Body Height" }] };
             heightObs.valueQuantity = { value: 175, unit: "cm", system: "http://unitsofmeasure.org", code: "cm" };

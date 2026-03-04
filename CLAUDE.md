@@ -267,13 +267,6 @@ Located in `src/api/writer-generator/`:
 4. Use `build()` instead of `generate()` for testing
 5. Run `bun run quality` before committing (combines typecheck, lint, test:unit)
 
-## Roadmap Context
-
-This toolkit focuses on type generation and code generation:
-- **Current**: TypeScript, Python, C# interface/class generation from FHIR R4
-- **In Progress**: R5 support, profile/extension enhancements
-- **Planned**: Rust, GraphQL, OpenAPI, validation functions, mock data generation
-
 ## Useful External Resources
 
 - [FHIR Specification](https://www.hl7.org/fhir/)

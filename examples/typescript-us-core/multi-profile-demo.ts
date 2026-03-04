@@ -5,8 +5,8 @@
  * 1. Creating observations with Body Weight and Body Height profiles
  * 2. Using setters to apply profile-defined slices (no input needed for constant slices)
  * 3. Using getters to read values:
- *    - getVscat() - returns flat API (simplified, without discriminator)
- *    - getVscatRaw() - returns full FHIR type (with discriminator)
+ *    - getVSCat() - returns flat API (simplified, without discriminator)
+ *    - getVSCatRaw() - returns full FHIR type (with discriminator)
  * 4. The override interface for type-safe cardinality constraints
  */
 
@@ -30,7 +30,7 @@ function createBodyWeightObservation(): Observation {
 
     // Set the vital-signs category slice (auto-applies discriminator)
     // No input needed when all fields are part of the discriminator
-    profile.setVscat();
+    profile.setVSCat();
 
     // Set additional required fields
     resource.code = {
@@ -54,7 +54,7 @@ function createBodyHeightObservation(): Observation {
     const profile = new usHeightProfile(resource);
 
     // Set the vital-signs category slice
-    profile.setVscat();
+    profile.setVSCat();
 
     // Set additional required fields
     resource.code = {
@@ -76,14 +76,14 @@ function createBodyHeightObservation(): Observation {
 function demonstrateGetters() {
     const resource = createBaseObservation();
     const profile = new usWeightProfile(resource);
-    profile.setVscat();
+    profile.setVSCat();
 
     // Get simplified value (without discriminator) - flat API
-    const simplified = profile.getVscat();
+    const simplified = profile.getVSCat();
     console.log("Simplified slice:", simplified);
 
     // Get raw value (with discriminator) - full FHIR type
-    const raw = profile.getVscatRaw();
+    const raw = profile.getVSCatRaw();
     console.log("Raw slice:", raw);
 
     // The raw value includes the coding discriminator
@@ -98,7 +98,7 @@ function demonstrateTypeNarrowing() {
 
     const resource = createBaseObservation();
     const profile = new usWeightProfile(resource);
-    profile.setVscat();
+    profile.setVSCat();
 
     // TypeScript knows this is an Observation
     // The override interface ensures type safety for constrained fields
