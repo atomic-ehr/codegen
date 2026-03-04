@@ -14,7 +14,7 @@ export interface observation_vitalsigns extends Observation {
 
 export type Observation_vitalsigns_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
 
-import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
 
 export type observation_vitalsignsProfileParams = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
@@ -147,6 +147,24 @@ export class observation_vitalsignsProfile {
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         return item
+    }
+
+    validate () : string[] {
+        const errors: string[] = []
+        const r = this.resource as unknown as Record<string, unknown>
+        { const e = validateRequired(r, "status", "observation-vitalsigns"); if (e) errors.push(e) }
+        { const e = validateEnum(r["status"], ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"], "status", "observation-vitalsigns"); if (e) errors.push(e) }
+        { const e = validateRequired(r, "category", "observation-vitalsigns"); if (e) errors.push(e) }
+        errors.push(...validateSliceCardinality(r["category"] as unknown[] | undefined, {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1, "observation-vitalsigns.category"))
+        { const e = validateRequired(r, "code", "observation-vitalsigns"); if (e) errors.push(e) }
+        { const e = validateRequired(r, "subject", "observation-vitalsigns"); if (e) errors.push(e) }
+        { const e = validateReference(r["subject"], ["Patient"], "subject", "observation-vitalsigns"); if (e) errors.push(e) }
+        if (!(r["effectiveDateTime"] !== undefined || r["effectivePeriod"] !== undefined)) {
+            errors.push("effective: at least one of effectiveDateTime, effectivePeriod is required")
+        }
+        { const e = validateReference(r["hasMember"], ["MolecularSequence","QuestionnaireResponse","observation-vitalsigns"], "hasMember", "observation-vitalsigns"); if (e) errors.push(e) }
+        { const e = validateReference(r["derivedFrom"], ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","observation-vitalsigns"], "derivedFrom", "observation-vitalsigns"); if (e) errors.push(e) }
+        return errors
     }
 
 }

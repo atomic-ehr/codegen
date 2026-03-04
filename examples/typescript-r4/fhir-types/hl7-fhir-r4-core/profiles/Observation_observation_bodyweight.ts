@@ -15,12 +15,11 @@ export interface observation_bodyweight extends Observation {
 
 export type Observation_bodyweight_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
 
-import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
 
 export type observation_bodyweightProfileParams = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
     category: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
-    code: CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)>;
     subject: Reference<"Patient">;
 }
 
@@ -45,9 +44,9 @@ export class observation_bodyweightProfile {
     static createResource (args: observation_bodyweightProfileParams) : Observation {
         const resource: Observation = {
             resourceType: "Observation",
+            code: {"coding":[{"code":"29463-7","system":"http://loinc.org"}]},
             status: args.status,
             category: args.category,
-            code: args.code,
             subject: args.subject,
             meta: { profile: ["http://hl7.org/fhir/StructureDefinition/bodyweight"] },
         } as unknown as Observation
@@ -80,21 +79,21 @@ export class observation_bodyweightProfile {
         return this
     }
 
-    getCode () : CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined {
-        return this.resource.code as CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined
-    }
-
-    setCode (value: CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)>) : this {
-        Object.assign(this.resource, { code: value })
-        return this
-    }
-
     getSubject () : Reference<"Patient"> | undefined {
         return this.resource.subject as Reference<"Patient"> | undefined
     }
 
     setSubject (value: Reference<"Patient">) : this {
         Object.assign(this.resource, { subject: value })
+        return this
+    }
+
+    getCode () : CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined {
+        return this.resource.code as CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined
+    }
+
+    setCode (value: CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)>) : this {
+        Object.assign(this.resource, { code: value })
         return this
     }
 
@@ -157,6 +156,25 @@ export class observation_bodyweightProfile {
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         return item
+    }
+
+    validate () : string[] {
+        const errors: string[] = []
+        const r = this.resource as unknown as Record<string, unknown>
+        { const e = validateRequired(r, "status", "observation-bodyweight"); if (e) errors.push(e) }
+        { const e = validateEnum(r["status"], ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"], "status", "observation-bodyweight"); if (e) errors.push(e) }
+        { const e = validateRequired(r, "category", "observation-bodyweight"); if (e) errors.push(e) }
+        errors.push(...validateSliceCardinality(r["category"] as unknown[] | undefined, {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1, "observation-bodyweight.category"))
+        { const e = validateRequired(r, "code", "observation-bodyweight"); if (e) errors.push(e) }
+        { const e = validateFixedValue(r, "code", {"coding":[{"code":"29463-7","system":"http://loinc.org"}]}, "observation-bodyweight"); if (e) errors.push(e) }
+        { const e = validateRequired(r, "subject", "observation-bodyweight"); if (e) errors.push(e) }
+        { const e = validateReference(r["subject"], ["Patient"], "subject", "observation-bodyweight"); if (e) errors.push(e) }
+        if (!(r["effectiveDateTime"] !== undefined || r["effectivePeriod"] !== undefined)) {
+            errors.push("effective: at least one of effectiveDateTime, effectivePeriod is required")
+        }
+        { const e = validateReference(r["hasMember"], ["MolecularSequence","QuestionnaireResponse","observation-vitalsigns"], "hasMember", "observation-bodyweight"); if (e) errors.push(e) }
+        { const e = validateReference(r["derivedFrom"], ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","observation-vitalsigns"], "derivedFrom", "observation-bodyweight"); if (e) errors.push(e) }
+        return errors
     }
 
 }
