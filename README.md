@@ -54,7 +54,7 @@ Guides:
 - [x] **TypeSchema Transformations**:
   - [x] Tree Shaking — include only the resources and fields you need; automatically resolves dependencies
   - [x] Logical Model Promotion — promote FHIR logical models (e.g. CDA ClinicalDocument) to first-class resources
-  - [ ] Renaming — custom naming conventions for generated types and fields
+  - [ ] Renaming — custom naming conventions for generated types, fields, packages, etc.
 - [ ] **Search Builders** — type-safe FHIR search query construction
 - [ ] **Operation Generation** — type-safe FHIR operation calls
 
