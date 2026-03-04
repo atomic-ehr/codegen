@@ -73,7 +73,7 @@ const buildReferences = (
     });
 };
 
-const extractSliceFieldNames = (schema: FHIRSchemaElement): Pick<FieldSlice, "required" | "excluded"> => {
+const extractSliceFieldNames = (schema: FHIRSchemaElement): Pick<FieldSlice, "required" | "excluded" | "elements"> => {
     const required = new Set<string>();
     const excluded = new Set<string>();
 
@@ -91,9 +91,12 @@ const extractSliceFieldNames = (schema: FHIRSchemaElement): Pick<FieldSlice, "re
         }
     }
 
+    const elements = schema.elements ? Object.keys(schema.elements) : undefined;
+
     return {
         required: required.size > 0 ? Array.from(required) : undefined,
         excluded: excluded.size > 0 ? Array.from(excluded) : undefined,
+        elements: elements && elements.length > 0 ? elements : undefined,
     };
 };
 
@@ -195,7 +198,7 @@ const buildSlicing = (element: FHIRSchemaElement): FieldSlicing | undefined => {
     const slices: Record<string, FieldSlice> = {};
     for (const [name, slice] of Object.entries(slicing.slices ?? {})) {
         if (!slice) continue;
-        const { required, excluded } = slice.schema ? extractSliceFieldNames(slice.schema) : {};
+        const { required, excluded, elements } = slice.schema ? extractSliceFieldNames(slice.schema) : {};
         slices[name] = {
             min: slice.min,
             max: slice.max,
@@ -204,6 +207,7 @@ const buildSlicing = (element: FHIRSchemaElement): FieldSlicing | undefined => {
                 : (slice.match as Record<string, unknown> | undefined),
             required,
             excluded,
+            elements,
         };
     }
 

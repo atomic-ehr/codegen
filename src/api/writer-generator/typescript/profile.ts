@@ -385,6 +385,44 @@ export const generateProfileHelpersModule = (w: TypeScript) => {
             },
         );
         w.line();
+        // wrapSliceChoice - wrap flat input under the single choice variant key for setter
+        w.curlyBlock(
+            [
+                "export const",
+                "wrapSliceChoice",
+                "=",
+                "(input: Record<string, unknown>, choiceVariant: string): Record<string, unknown>",
+                "=>",
+            ],
+            () => {
+                w.lineSM("if (Object.keys(input).length === 0) return input");
+                w.lineSM("return { [choiceVariant]: input }");
+            },
+        );
+        w.line();
+        // flattenSliceChoice - strip match keys and flatten choice variant into parent for getter
+        w.curlyBlock(
+            [
+                "export const",
+                "flattenSliceChoice",
+                "=",
+                "(slice: Record<string, unknown>, matchKeys: string[], choiceVariant: string): Record<string, unknown>",
+                "=>",
+            ],
+            () => {
+                w.lineSM("const result = { ...slice } as Record<string, unknown>");
+                w.curlyBlock(["for (const", "key", "of", "matchKeys)"], () => {
+                    w.lineSM("delete result[key]");
+                });
+                w.lineSM("const variantValue = result[choiceVariant]");
+                w.lineSM("delete result[choiceVariant]");
+                w.curlyBlock(["if", "(isRecord(variantValue))"], () => {
+                    w.lineSM("Object.assign(result, variantValue)");
+                });
+                w.lineSM("return result");
+            },
+        );
+        w.line();
         // --- Validation helpers ---
         w.curlyBlock(
             [
@@ -520,6 +558,7 @@ const generateProfileHelpersImport = (
         needsSliceHelpers: boolean;
         needsExtensionExtraction: boolean;
         needsSliceExtraction: boolean;
+        needsSliceChoiceHelpers: boolean;
         needsValidation: boolean;
     },
 ) => {
@@ -536,6 +575,9 @@ const generateProfileHelpersImport = (
     if (options.needsSliceExtraction) {
         imports.push("extractSliceSimplified");
     }
+    if (options.needsSliceChoiceHelpers) {
+        imports.push("wrapSliceChoice", "flattenSliceChoice");
+    }
     if (options.needsValidation) {
         imports.push(
             "validateRequired",
@@ -551,12 +593,19 @@ const generateProfileHelpersImport = (
     }
 };
 
-const collectTypesFromSlices = (flatProfile: ProfileTypeSchema, addType: (typeId: Identifier) => void) => {
+const collectTypesFromSlices = (
+    tsIndex: TypeSchemaIndex,
+    flatProfile: ProfileTypeSchema,
+    addType: (typeId: Identifier) => void,
+) => {
     for (const field of Object.values(flatProfile.fields ?? {})) {
         if (!isNotChoiceDeclarationField(field) || !field.slicing?.slices || !field.type) continue;
         for (const slice of Object.values(field.slicing.slices)) {
             if (Object.keys(slice.match ?? {}).length > 0) {
                 addType(field.type);
+                // Also add constrained choice variant types for flattened API
+                const cc = detectConstrainedChoice(tsIndex, flatProfile, field.type, slice.elements);
+                if (cc) addType(cc.variantTypeId);
             }
         }
     }
@@ -641,7 +690,7 @@ export const generateProfileImports = (w: TypeScript, tsIndex: TypeSchemaIndex, 
     };
 
     addType(flatProfile.base);
-    collectTypesFromSlices(flatProfile, addType);
+    collectTypesFromSlices(tsIndex, flatProfile, addType);
     const needsExtensionType = collectTypesFromExtensions(tsIndex, flatProfile, addType);
     collectTypesFromFieldOverrides(tsIndex, flatProfile, addType);
 
@@ -675,6 +724,52 @@ const collectExtSliceMethodSuffixes = (
         if (ext.url) suffixes.add(uppercaseFirstLetter(tsCamelCase(ext.name)));
     }
     return suffixes;
+};
+
+type ConstrainedChoice = {
+    choiceBase: string;
+    variant: string;
+    variantType: string;
+    variantTypeId: Identifier;
+    allChoiceNames: string[];
+};
+
+/**
+ * Detect if a slice constrains a polymorphic field to exactly one variant.
+ * E.g., BP systolic slice constrains value[x] (11 variants) to only valueQuantity.
+ */
+const detectConstrainedChoice = (
+    tsIndex: TypeSchemaIndex,
+    flatProfile: ProfileTypeSchema,
+    sliceBaseTypeId: Identifier,
+    sliceElements: string[] | undefined,
+): ConstrainedChoice | undefined => {
+    if (!sliceElements) return undefined;
+
+    // Resolve the base type's TypeSchema to find choice declarations
+    const baseSchema = tsIndex.resolveByUrl(flatProfile.identifier.package, sliceBaseTypeId.url as CanonicalUrl);
+    if (!baseSchema || !("fields" in baseSchema) || !baseSchema.fields) return undefined;
+
+    for (const [fieldName, field] of Object.entries(baseSchema.fields)) {
+        if (!isChoiceDeclarationField(field)) continue;
+
+        // Find which choice instances are in the slice elements
+        const matchingVariants = field.choices.filter((c) => sliceElements.includes(c));
+        if (matchingVariants.length !== 1) continue;
+
+        const variantName = matchingVariants[0] as string;
+        const variantField = baseSchema.fields[variantName];
+        if (!variantField || !isChoiceInstanceField(variantField)) continue;
+
+        return {
+            choiceBase: fieldName,
+            variant: variantName,
+            variantType: tsTypeFromIdentifier(variantField.type),
+            variantTypeId: variantField.type,
+            allChoiceNames: field.choices,
+        };
+    }
+    return undefined;
 };
 
 export const generateProfileClass = (
@@ -731,6 +826,7 @@ export const generateProfileClass = (
                     const filteredRequired = required.filter(
                         (name) => !matchFields.includes(name) && !polymorphicBaseNames.has(name),
                     );
+                    const constrainedChoice = detectConstrainedChoice(tsIndex, flatProfile, field.type, slice.elements);
                     return {
                         fieldName,
                         baseType,
@@ -741,6 +837,7 @@ export const generateProfileClass = (
                         array: Boolean(field.array),
                         // Input is optional when there are no required fields after filtering
                         inputOptional: filteredRequired.length === 0,
+                        constrainedChoice,
                     };
                 });
         });
@@ -766,6 +863,14 @@ export const generateProfileClass = (
             const typeName = tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
             const matchFields = Object.keys(sliceDef.match);
             const allExcluded = [...new Set([...sliceDef.excluded, ...matchFields])];
+            // When a choice is constrained to a single variant, also omit the choice base + all instances
+            if (sliceDef.constrainedChoice) {
+                const cc = sliceDef.constrainedChoice;
+                allExcluded.push(cc.choiceBase);
+                for (const name of cc.allChoiceNames) {
+                    if (!allExcluded.includes(name)) allExcluded.push(name);
+                }
+            }
             const excludedNames = allExcluded.map((name) => JSON.stringify(name));
             // Filter out polymorphic base names that don't exist as direct TS properties
             const filteredRequired = sliceDef.required.filter(
@@ -778,6 +883,10 @@ export const generateProfileClass = (
             }
             if (requiredNames.length > 0) {
                 typeExpr = `${typeExpr} & Required<Pick<${sliceDef.baseType}, ${requiredNames.join(" | ")}>>`;
+            }
+            // Intersect with the single variant's type for flattened API
+            if (sliceDef.constrainedChoice) {
+                typeExpr = `${typeExpr} & ${sliceDef.constrainedChoice.variantType}`;
             }
             w.lineSM(`export type ${typeName} = ${typeExpr}`);
         }
@@ -793,6 +902,7 @@ export const generateProfileClass = (
     const needsGetOrCreateObjectAtPath = extensionsWithNestedPath.length > 0;
     const needsExtensionExtraction = complexExtensions.length > 0;
     const needsSliceExtraction = sliceDefs.length > 0;
+    const needsSliceChoiceHelpers = sliceDefs.some((s) => s.constrainedChoice);
 
     const needsValidation = Object.keys(flatProfile.fields ?? {}).length > 0;
 
@@ -801,6 +911,7 @@ export const generateProfileClass = (
         needsGetOrCreateObjectAtPath ||
         needsExtensionExtraction ||
         needsSliceExtraction ||
+        needsSliceChoiceHelpers ||
         needsValidation
     ) {
         generateProfileHelpersImport(w, {
@@ -808,6 +919,7 @@ export const generateProfileClass = (
             needsSliceHelpers,
             needsExtensionExtraction,
             needsSliceExtraction,
+            needsSliceChoiceHelpers,
             needsValidation,
         });
         w.line();
@@ -968,7 +1080,14 @@ export const generateProfileClass = (
                 const inputExpr = sliceDef.inputOptional
                     ? "(input ?? {}) as Record<string, unknown>"
                     : "input as Record<string, unknown>";
-                w.line(`const value = applySliceMatch(${inputExpr}, match) as unknown as ${sliceDef.baseType}`);
+                if (sliceDef.constrainedChoice) {
+                    const cc = sliceDef.constrainedChoice;
+                    w.line(
+                        `const value = applySliceMatch(wrapSliceChoice(${inputExpr}, ${JSON.stringify(cc.variant)}), match) as unknown as ${sliceDef.baseType}`,
+                    );
+                } else {
+                    w.line(`const value = applySliceMatch(${inputExpr}, match) as unknown as ${sliceDef.baseType}`);
+                }
                 if (sliceDef.array) {
                     w.line(`const list = (${fieldAccess} ??= [])`);
                     w.line("const index = list.findIndex((item) => matchesSlice(item, match))");
@@ -1111,9 +1230,16 @@ export const generateProfileClass = (
                 if (sliceDef.array) {
                     w.line("if (!item) return undefined");
                 }
-                w.line(
-                    `return extractSliceSimplified(item as unknown as Record<string, unknown>, ${matchKeys}) as ${typeName}`,
-                );
+                if (sliceDef.constrainedChoice) {
+                    const cc = sliceDef.constrainedChoice;
+                    w.line(
+                        `return flattenSliceChoice(item as unknown as Record<string, unknown>, ${matchKeys}, ${JSON.stringify(cc.variant)}) as ${typeName}`,
+                    );
+                } else {
+                    w.line(
+                        `return extractSliceSimplified(item as unknown as Record<string, unknown>, ${matchKeys}) as ${typeName}`,
+                    );
+                }
             });
             w.line();
 
