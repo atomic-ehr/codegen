@@ -84,4 +84,16 @@ describe("TypeScript R4 Example (with generateProfile)", async () => {
         const rewriteWarnings = warnings.filter((w) => w.includes("File will be rewritten"));
         expect(rewriteWarnings).toMatchSnapshot();
     });
+
+    it("generates bodyweight profile with validate()", () => {
+        expect(
+            result.filesGenerated["generated/types/hl7-fhir-r4-core/profiles/Observation_observation_bodyweight.ts"],
+        ).toMatchSnapshot();
+    });
+
+    it("generates bp profile with validate()", () => {
+        expect(
+            result.filesGenerated["generated/types/hl7-fhir-r4-core/profiles/Observation_observation_bp.ts"],
+        ).toMatchSnapshot();
+    });
 });

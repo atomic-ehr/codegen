@@ -4,6 +4,7 @@
 
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Observation } from "../../hl7-fhir-r4-core/Observation";
+import type { Period } from "../../hl7-fhir-r4-core/Period";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 export interface observation_vitalsigns extends Observation {
@@ -13,7 +14,7 @@ export interface observation_vitalsigns extends Observation {
 
 export type Observation_vitalsigns_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
 
-import { applySliceMatch, matchesSlice, extractSliceSimplified } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
 
 export type observation_vitalsignsProfileParams = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
@@ -24,10 +25,16 @@ export type observation_vitalsignsProfileParams = {
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/vitalsigns (pkg: hl7.fhir.r4.core#4.0.1)
 export class observation_vitalsignsProfile {
+    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/vitalsigns"
+
     private resource: Observation
 
     constructor (resource: Observation) {
         this.resource = resource
+        const r = resource as unknown as Record<string, unknown>
+        const meta = (r.meta ??= {}) as Record<string, unknown>
+        const profiles = (meta.profile ??= []) as string[]
+        if (!profiles.includes("http://hl7.org/fhir/StructureDefinition/vitalsigns")) profiles.push("http://hl7.org/fhir/StructureDefinition/vitalsigns")
     }
 
     static from (resource: Observation) : observation_vitalsignsProfile {
@@ -41,6 +48,7 @@ export class observation_vitalsignsProfile {
             category: args.category,
             code: args.code,
             subject: args.subject,
+            meta: { profile: ["http://hl7.org/fhir/StructureDefinition/vitalsigns"] },
         } as unknown as Observation
         return resource
     }
@@ -58,7 +66,7 @@ export class observation_vitalsignsProfile {
     }
 
     setStatus (value: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown")) : this {
-        (this.resource as any).status = value
+        Object.assign(this.resource, { status: value })
         return this
     }
 
@@ -67,7 +75,7 @@ export class observation_vitalsignsProfile {
     }
 
     setCategory (value: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[]) : this {
-        (this.resource as any).category = value
+        Object.assign(this.resource, { category: value })
         return this
     }
 
@@ -76,7 +84,7 @@ export class observation_vitalsignsProfile {
     }
 
     setCode (value: CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)>) : this {
-        (this.resource as any).code = value
+        Object.assign(this.resource, { code: value })
         return this
     }
 
@@ -85,7 +93,25 @@ export class observation_vitalsignsProfile {
     }
 
     setSubject (value: Reference<"Patient">) : this {
-        (this.resource as any).subject = value
+        Object.assign(this.resource, { subject: value })
+        return this
+    }
+
+    getEffectiveDateTime () : string | undefined {
+        return this.resource.effectiveDateTime as string | undefined
+    }
+
+    setEffectiveDateTime (value: string) : this {
+        Object.assign(this.resource, { effectiveDateTime: value })
+        return this
+    }
+
+    getEffectivePeriod () : Period | undefined {
+        return this.resource.effectivePeriod as Period | undefined
+    }
+
+    setEffectivePeriod (value: Period) : this {
+        Object.assign(this.resource, { effectivePeriod: value })
         return this
     }
 
@@ -121,6 +147,24 @@ export class observation_vitalsignsProfile {
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         return item
+    }
+
+    validate () : string[] {
+        const errors: string[] = []
+        const r = this.resource as unknown as Record<string, unknown>
+        { const e = validateRequired(r, "status", "observation-vitalsigns"); if (e) errors.push(e) }
+        { const e = validateEnum(r["status"], ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"], "status", "observation-vitalsigns"); if (e) errors.push(e) }
+        { const e = validateRequired(r, "category", "observation-vitalsigns"); if (e) errors.push(e) }
+        errors.push(...validateSliceCardinality(r["category"] as unknown[] | undefined, {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1, "observation-vitalsigns.category"))
+        { const e = validateRequired(r, "code", "observation-vitalsigns"); if (e) errors.push(e) }
+        { const e = validateRequired(r, "subject", "observation-vitalsigns"); if (e) errors.push(e) }
+        { const e = validateReference(r["subject"], ["Patient"], "subject", "observation-vitalsigns"); if (e) errors.push(e) }
+        if (!(r["effectiveDateTime"] !== undefined || r["effectivePeriod"] !== undefined)) {
+            errors.push("effective: at least one of effectiveDateTime, effectivePeriod is required")
+        }
+        { const e = validateReference(r["hasMember"], ["MolecularSequence","QuestionnaireResponse","observation-vitalsigns"], "hasMember", "observation-vitalsigns"); if (e) errors.push(e) }
+        { const e = validateReference(r["derivedFrom"], ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","observation-vitalsigns"], "derivedFrom", "observation-vitalsigns"); if (e) errors.push(e) }
+        return errors
     }
 
 }

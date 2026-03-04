@@ -6,8 +6,12 @@ import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Period } from "../../hl7-fhir-r4-core/Period";
 
+import { validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
+
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/patient-nationality (pkg: hl7.fhir.r4.core#4.0.1)
 export class nationalityProfile {
+    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/patient-nationality"
+
     private resource: Extension
 
     constructor (resource: Extension) {
@@ -31,6 +35,15 @@ export class nationalityProfile {
 
     toResource () : Extension {
         return this.resource
+    }
+
+    getUrl () : string | undefined {
+        return this.resource.url as string | undefined
+    }
+
+    setUrl (value: string) : this {
+        Object.assign(this.resource, { url: value })
+        return this
     }
 
     public setCode (value: CodeableConcept): this {
@@ -63,6 +76,14 @@ export class nationalityProfile {
     public getPeriodExtension (): Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "period")
         return ext
+    }
+
+    validate () : string[] {
+        const errors: string[] = []
+        const r = this.resource as unknown as Record<string, unknown>
+        { const e = validateRequired(r, "url", "nationality"); if (e) errors.push(e) }
+        { const e = validateFixedValue(r, "url", "http://hl7.org/fhir/StructureDefinition/patient-nationality", "nationality"); if (e) errors.push(e) }
+        return errors
     }
 
 }

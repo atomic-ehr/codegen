@@ -5,12 +5,16 @@
 import type { Address } from "../../hl7-fhir-r4-core/Address";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
+import { validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
+
 export type birthPlaceProfileParams = {
     valueAddress: Address;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/patient-birthPlace (pkg: hl7.fhir.r4.core#4.0.1)
 export class birthPlaceProfile {
+    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/patient-birthPlace"
+
     private resource: Extension
 
     constructor (resource: Extension) {
@@ -42,8 +46,28 @@ export class birthPlaceProfile {
     }
 
     setValueAddress (value: Address) : this {
-        (this.resource as any).valueAddress = value
+        Object.assign(this.resource, { valueAddress: value })
         return this
+    }
+
+    getUrl () : string | undefined {
+        return this.resource.url as string | undefined
+    }
+
+    setUrl (value: string) : this {
+        Object.assign(this.resource, { url: value })
+        return this
+    }
+
+    validate () : string[] {
+        const errors: string[] = []
+        const r = this.resource as unknown as Record<string, unknown>
+        { const e = validateRequired(r, "url", "birthPlace"); if (e) errors.push(e) }
+        { const e = validateFixedValue(r, "url", "http://hl7.org/fhir/StructureDefinition/patient-birthPlace", "birthPlace"); if (e) errors.push(e) }
+        if (!(r["valueAddress"] !== undefined)) {
+            errors.push("value: at least one of valueAddress is required")
+        }
+        return errors
     }
 
 }

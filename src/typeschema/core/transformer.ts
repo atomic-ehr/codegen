@@ -51,7 +51,7 @@ export function mkFields(
         if (isNestedElement(register, fhirSchema, path, elemSnapshot, elements[key])) {
             fields[key] = mkNestedField(register, fhirSchema, path, elemSnapshot);
         } else {
-            fields[key] = mkField(register, fhirSchema, path, elemSnapshot, logger);
+            fields[key] = mkField(register, fhirSchema, path, elemSnapshot, logger, elements[key]);
         }
     }
 

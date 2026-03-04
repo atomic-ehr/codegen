@@ -1,6 +1,7 @@
 import { pascalCase, typeSchemaInfo, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import {
     type CanonicalUrl,
+    type ChoiceFieldInstance,
     type Identifier,
     isChoiceDeclarationField,
     isChoiceInstanceField,
@@ -13,6 +14,7 @@ import {
     type ProfileTypeSchema,
     packageMeta,
     packageMetaToFhir,
+    type RegularField,
     type TypeSchema,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
@@ -38,39 +40,68 @@ import type { TypeScript } from "./writer";
 type ProfileFactoryInfo = {
     autoFields: { name: string; value: string }[];
     params: { name: string; tsType: string; typeId: Identifier }[];
+    accessors: { name: string; tsType: string; typeId: Identifier }[];
+};
+
+const collectChoiceAccessors = (
+    flatProfile: ProfileTypeSchema,
+    promotedChoices: Set<string>,
+): ProfileFactoryInfo["accessors"] => {
+    const accessors: ProfileFactoryInfo["accessors"] = [];
+    for (const [name, field] of Object.entries(flatProfile.fields ?? {})) {
+        if (field.excluded) continue;
+        if (!isChoiceInstanceField(field)) continue;
+        if (promotedChoices.has(name)) continue;
+        const tsType = tsTypeFromIdentifier(field.type) + (field.array ? "[]" : "");
+        accessors.push({ name, tsType, typeId: field.type });
+    }
+    return accessors;
+};
+
+/** Try to promote a required single-choice declaration to a direct param */
+const tryPromoteChoice = (
+    field: NonNullable<ProfileTypeSchema["fields"]>[string],
+    fields: NonNullable<ProfileTypeSchema["fields"]>,
+    params: ProfileFactoryInfo["params"],
+    promotedChoices: Set<string>,
+): void => {
+    if (!isChoiceDeclarationField(field) || !field.required || field.choices.length !== 1) return;
+    const choiceName = field.choices[0];
+    if (!choiceName) return;
+    const choiceField = fields[choiceName];
+    if (!choiceField || !isChoiceInstanceField(choiceField)) return;
+    const tsType = tsTypeFromIdentifier(choiceField.type) + (choiceField.array ? "[]" : "");
+    params.push({ name: choiceName, tsType, typeId: choiceField.type });
+    promotedChoices.add(choiceName);
 };
 
 const collectProfileFactoryInfo = (flatProfile: ProfileTypeSchema): ProfileFactoryInfo => {
     const autoFields: ProfileFactoryInfo["autoFields"] = [];
     const params: ProfileFactoryInfo["params"] = [];
+    const autoAccessors: ProfileFactoryInfo["accessors"] = [];
     const fields = flatProfile.fields ?? {};
+    const promotedChoices = new Set<string>();
 
     if (isResourceIdentifier(flatProfile.base)) {
         autoFields.push({ name: "resourceType", value: JSON.stringify(flatProfile.base.name) });
     }
 
     for (const [name, field] of Object.entries(fields)) {
-        if (isChoiceInstanceField(field)) continue;
         if (field.excluded) continue;
+        if (isChoiceInstanceField(field)) continue;
 
-        // Required choice declaration with a single choice — promote that choice to a param
         if (isChoiceDeclarationField(field)) {
-            if (field.required && field.choices.length === 1) {
-                const choiceName = field.choices[0];
-                if (choiceName) {
-                    const choiceField = fields[choiceName];
-                    if (choiceField && isChoiceInstanceField(choiceField)) {
-                        const tsType = tsTypeFromIdentifier(choiceField.type) + (choiceField.array ? "[]" : "");
-                        params.push({ name: choiceName, tsType, typeId: choiceField.type });
-                    }
-                }
-            }
+            tryPromoteChoice(field, fields, params, promotedChoices);
             continue;
         }
 
         if (field.valueConstraint) {
             const value = JSON.stringify(field.valueConstraint.value);
             autoFields.push({ name, value: field.array ? `[${value}]` : value });
+            if (isNotChoiceDeclarationField(field) && field.type) {
+                const tsType = resolveFieldTsType("", "", field) + (field.array ? "[]" : "");
+                autoAccessors.push({ name, tsType, typeId: field.type });
+            }
             continue;
         }
 
@@ -80,7 +111,8 @@ const collectProfileFactoryInfo = (flatProfile: ProfileTypeSchema): ProfileFacto
         }
     }
 
-    return { autoFields, params };
+    const accessors = [...autoAccessors, ...collectChoiceAccessors(flatProfile, promotedChoices)];
+    return { autoFields, params, accessors };
 };
 
 export const generateProfileIndexFile = (
@@ -330,6 +362,132 @@ export const generateProfileHelpersModule = (w: TypeScript) => {
                 w.lineSM("return result as Partial<T>");
             },
         );
+        w.line();
+        // --- Validation helpers ---
+        w.curlyBlock(
+            [
+                "export const",
+                "validateRequired",
+                "=",
+                "(r: Record<string, unknown>, field: string, path: string): string | undefined",
+                "=>",
+            ],
+            () => {
+                w.lineSM(
+                    "return r[field] === undefined || r[field] === null ? `${path}: required field '${field}' is missing` : undefined",
+                );
+            },
+        );
+        w.line();
+        w.curlyBlock(
+            [
+                "export const",
+                "validateExcluded",
+                "=",
+                "(r: Record<string, unknown>, field: string, path: string): string | undefined",
+                "=>",
+            ],
+            () => {
+                w.lineSM("return r[field] !== undefined ? `${path}: field '${field}' must not be present` : undefined");
+            },
+        );
+        w.line();
+        w.curlyBlock(
+            [
+                "export const",
+                "validateFixedValue",
+                "=",
+                "(r: Record<string, unknown>, field: string, expected: unknown, path: string): string | undefined",
+                "=>",
+            ],
+            () => {
+                w.lineSM(
+                    "return matchesValue(r[field], expected) ? undefined : `${path}: field '${field}' does not match expected fixed value`",
+                );
+            },
+        );
+        w.line();
+        w.curlyBlock(
+            [
+                "export const",
+                "validateSliceCardinality",
+                "=",
+                "(items: unknown[] | undefined, match: Record<string, unknown>, sliceName: string, min: number, max: number, path: string): string[]",
+                "=>",
+            ],
+            () => {
+                w.lineSM("const count = (items ?? []).filter(item => matchesSlice(item, match)).length");
+                w.lineSM("const errors: string[] = []");
+                w.curlyBlock(["if", "(count < min)"], () => {
+                    w.lineSM(
+                        "errors.push(`${path}: slice '${sliceName}' requires at least ${min} item(s), found ${count}`)",
+                    );
+                });
+                w.curlyBlock(["if", "(max > 0 && count > max)"], () => {
+                    w.lineSM(
+                        "errors.push(`${path}: slice '${sliceName}' allows at most ${max} item(s), found ${count}`)",
+                    );
+                });
+                w.lineSM("return errors");
+            },
+        );
+        w.line();
+        w.curlyBlock(
+            [
+                "export const",
+                "validateEnum",
+                "=",
+                "(value: unknown, allowed: string[], field: string, path: string): string | undefined",
+                "=>",
+            ],
+            () => {
+                w.lineSM("if (value === undefined || value === null) return undefined");
+                w.curlyBlock(["if", "(typeof value === 'string')"], () => {
+                    w.lineSM(
+                        "return allowed.includes(value) ? undefined : `${path}: field '${field}' value '${value}' is not in allowed values`",
+                    );
+                });
+                w.lineSM("const rec = value as Record<string, unknown>");
+                w.comment("Coding");
+                w.curlyBlock(["if", "(typeof rec.code === 'string' && rec.system !== undefined)"], () => {
+                    w.lineSM(
+                        "return allowed.includes(rec.code) ? undefined : `${path}: field '${field}' code '${rec.code}' is not in allowed values`",
+                    );
+                });
+                w.comment("CodeableConcept");
+                w.curlyBlock(["if", "(Array.isArray(rec.coding))"], () => {
+                    w.lineSM(
+                        "const codes = (rec.coding as Array<Record<string, unknown>>).map(c => c.code as string).filter(Boolean)",
+                    );
+                    w.lineSM("const hasValid = codes.some(c => allowed.includes(c))");
+                    w.lineSM(
+                        "return hasValid ? undefined : `${path}: field '${field}' has no coding with an allowed code`",
+                    );
+                });
+                w.lineSM("return undefined");
+            },
+        );
+        w.line();
+        w.curlyBlock(
+            [
+                "export const",
+                "validateReference",
+                "=",
+                "(value: unknown, allowed: string[], field: string, path: string): string | undefined",
+                "=>",
+            ],
+            () => {
+                w.lineSM("if (value === undefined || value === null) return undefined");
+                w.lineSM("const ref = (value as Record<string, unknown>).reference as string | undefined");
+                w.lineSM("if (!ref) return undefined");
+                w.lineSM("const slashIdx = ref.indexOf('/')");
+                w.lineSM("if (slashIdx === -1) return undefined");
+                w.lineSM("const refType = ref.slice(0, slashIdx)");
+                w.lineSM(
+                    "return allowed.includes(refType) ? undefined : `${path}: field '${field}' references '${refType}' but only ${allowed.join(', ')} are allowed`",
+                );
+            },
+        );
     });
 };
 
@@ -340,6 +498,7 @@ const generateProfileHelpersImport = (
         needsSliceHelpers: boolean;
         needsExtensionExtraction: boolean;
         needsSliceExtraction: boolean;
+        needsValidation: boolean;
     },
 ) => {
     const imports: string[] = [];
@@ -354,6 +513,16 @@ const generateProfileHelpersImport = (
     }
     if (options.needsSliceExtraction) {
         imports.push("extractSliceSimplified");
+    }
+    if (options.needsValidation) {
+        imports.push(
+            "validateRequired",
+            "validateExcluded",
+            "validateFixedValue",
+            "validateSliceCardinality",
+            "validateEnum",
+            "validateReference",
+        );
     }
     if (imports.length > 0) {
         w.lineSM(`import { ${imports.join(", ")} } from "../../profile-helpers"`);
@@ -456,6 +625,7 @@ export const generateProfileImports = (w: TypeScript, tsIndex: TypeSchemaIndex, 
 
     const factoryInfo = collectProfileFactoryInfo(flatProfile);
     for (const param of factoryInfo.params) addType(param.typeId);
+    for (const accessor of factoryInfo.accessors) addType(accessor.typeId);
 
     if (needsExtensionType) {
         const extensionUrl = "http://hl7.org/fhir/StructureDefinition/Extension" as CanonicalUrl;
@@ -468,6 +638,21 @@ export const generateProfileImports = (w: TypeScript, tsIndex: TypeSchemaIndex, 
         w.tsImportType(importPath, tsName);
     }
     if (sortedImports.length > 0) w.line();
+};
+
+/** Collect method suffixes that extension/slice accessors will generate, to avoid duplicates */
+const collectExtSliceMethodSuffixes = (
+    extensions: ProfileExtension[],
+    extensionMethodNames: Map<ProfileExtension, string>,
+): Set<string> => {
+    const suffixes = new Set<string>();
+    for (const name of extensionMethodNames.values()) {
+        suffixes.add(name.replace(/^set/, ""));
+    }
+    for (const ext of extensions) {
+        if (ext.url) suffixes.add(uppercaseFirstLetter(tsCamelCase(ext.name)));
+    }
+    return suffixes;
 };
 
 export const generateProfileClass = (
@@ -587,12 +772,21 @@ export const generateProfileClass = (
     const needsExtensionExtraction = complexExtensions.length > 0;
     const needsSliceExtraction = sliceDefs.length > 0;
 
-    if (needsSliceHelpers || needsGetOrCreateObjectAtPath || needsExtensionExtraction || needsSliceExtraction) {
+    const needsValidation = Object.keys(flatProfile.fields ?? {}).length > 0;
+
+    if (
+        needsSliceHelpers ||
+        needsGetOrCreateObjectAtPath ||
+        needsExtensionExtraction ||
+        needsSliceExtraction ||
+        needsValidation
+    ) {
         generateProfileHelpersImport(w, {
             needsGetOrCreateObjectAtPath,
             needsSliceHelpers,
             needsExtensionExtraction,
             needsSliceExtraction,
+            needsValidation,
         });
         w.line();
     }
@@ -618,14 +812,28 @@ export const generateProfileClass = (
         w.line();
     }
 
+    const canonicalUrl = schema?.identifier.url;
+
     if (schema) {
         w.comment("CanonicalURL:", schema.identifier.url, `(pkg: ${packageMetaToFhir(packageMeta(schema))})`);
     }
     w.curlyBlock(["export", "class", profileClassName], () => {
+        if (canonicalUrl) {
+            w.line(`static readonly canonicalUrl = ${JSON.stringify(canonicalUrl)}`);
+            w.line();
+        }
         w.line(`private resource: ${tsBaseResourceName}`);
         w.line();
         w.curlyBlock(["constructor", `(resource: ${tsBaseResourceName})`], () => {
             w.line("this.resource = resource");
+            if (canonicalUrl && isResourceIdentifier(flatProfile.base)) {
+                w.line(`const r = resource as unknown as Record<string, unknown>`);
+                w.line(`const meta = (r.meta ??= {}) as Record<string, unknown>`);
+                w.line(`const profiles = (meta.profile ??= []) as string[]`);
+                w.line(
+                    `if (!profiles.includes(${JSON.stringify(canonicalUrl)})) profiles.push(${JSON.stringify(canonicalUrl)})`,
+                );
+            }
         });
         w.line();
         w.curlyBlock(["static", "from", `(resource: ${tsBaseResourceName})`, `: ${profileClassName}`], () => {
@@ -636,6 +844,9 @@ export const generateProfileClass = (
             w.curlyBlock([`const resource: ${tsBaseResourceName} =`], () => {
                 for (const f of allFields) {
                     w.line(`${f.name}: ${f.value},`);
+                }
+                if (canonicalUrl && isResourceIdentifier(flatProfile.base)) {
+                    w.line(`meta: { profile: [${JSON.stringify(canonicalUrl)}] },`);
                 }
             }, [` as unknown as ${tsBaseResourceName}`]);
             w.line("return resource");
@@ -658,19 +869,12 @@ export const generateProfileClass = (
             });
             w.line();
             w.curlyBlock([`set${methodSuffix}`, `(value: ${p.tsType})`, ": this"], () => {
-                w.line(`(this.resource as any).${p.name} = value`);
+                w.line(`Object.assign(this.resource, { ${p.name}: value })`);
                 w.line("return this");
             });
             w.line();
         }
-        // toProfile() returns casted profile type if override interface exists
-        if (hasOverrideInterface) {
-            w.curlyBlock(["toProfile", "()", `: ${tsProfileName}`], () => {
-                w.line(`return this.resource as ${tsProfileName}`);
-            });
-            w.line();
-        }
-
+        // Compute extension and slice method names first to detect collisions with accessors
         const extensionMethods = extensions
             .filter((ext) => ext.url)
             .map((ext) => ({
@@ -697,6 +901,31 @@ export const generateProfileClass = (
                 return [slice, needsFallback ? fallback : baseName];
             }),
         );
+
+        const extSliceMethodSuffixes = collectExtSliceMethodSuffixes(extensions, extensionMethodNames);
+
+        // Getter and setter methods for choice instance fields (skip if extension/slice has same name)
+        for (const a of factoryInfo.accessors) {
+            const methodSuffix = uppercaseFirstLetter(tsCamelCase(a.name));
+            if (extSliceMethodSuffixes.has(methodSuffix)) continue;
+            const fieldAccess = tsFieldName(a.name);
+            w.curlyBlock([`get${methodSuffix}`, "()", `: ${a.tsType} | undefined`], () => {
+                w.line(`return ${tsGet("this.resource", fieldAccess)} as ${a.tsType} | undefined`);
+            });
+            w.line();
+            w.curlyBlock([`set${methodSuffix}`, `(value: ${a.tsType})`, ": this"], () => {
+                w.line(`Object.assign(this.resource, { ${fieldAccess}: value })`);
+                w.line("return this");
+            });
+            w.line();
+        }
+        // toProfile() returns casted profile type if override interface exists
+        if (hasOverrideInterface) {
+            w.curlyBlock(["toProfile", "()", `: ${tsProfileName}`], () => {
+                w.line(`return this.resource as ${tsProfileName}`);
+            });
+            w.line();
+        }
 
         generateExtensionSetterMethods(w, extensions, extensionMethodNames, tsProfileName);
 
@@ -877,6 +1106,85 @@ export const generateProfileClass = (
             });
             w.line();
         }
+
+        generateValidateMethod(w, flatProfile);
+    });
+    w.line();
+};
+
+const emitRegularFieldValidation = (
+    w: TypeScript,
+    name: string,
+    field: RegularField | ChoiceFieldInstance,
+    profileName: string,
+) => {
+    if (field.excluded) {
+        w.line(`{ const e = validateExcluded(r, ${JSON.stringify(name)}, "${profileName}"); if (e) errors.push(e) }`);
+        return;
+    }
+
+    if (field.required) {
+        w.line(`{ const e = validateRequired(r, ${JSON.stringify(name)}, "${profileName}"); if (e) errors.push(e) }`);
+    }
+
+    if (field.valueConstraint) {
+        const expected = JSON.stringify(field.valueConstraint.value);
+        w.line(
+            `{ const e = validateFixedValue(r, ${JSON.stringify(name)}, ${expected}, "${profileName}"); if (e) errors.push(e) }`,
+        );
+    }
+
+    if (field.enum && !field.enum.isOpen) {
+        const values = JSON.stringify(field.enum.values);
+        w.line(
+            `{ const e = validateEnum(r[${JSON.stringify(name)}], ${values}, ${JSON.stringify(name)}, "${profileName}"); if (e) errors.push(e) }`,
+        );
+    }
+
+    if (field.reference && field.reference.length > 0) {
+        const refNames = JSON.stringify(field.reference.map((ref) => ref.name));
+        w.line(
+            `{ const e = validateReference(r[${JSON.stringify(name)}], ${refNames}, ${JSON.stringify(name)}, "${profileName}"); if (e) errors.push(e) }`,
+        );
+    }
+
+    if (field.slicing?.slices) {
+        for (const [sliceName, slice] of Object.entries(field.slicing.slices)) {
+            if (slice.min === undefined && slice.max === undefined) continue;
+            const match = slice.match ?? {};
+            if (Object.keys(match).length === 0) continue;
+            const min = slice.min ?? 0;
+            const max = slice.max ?? 0;
+            w.line(
+                `errors.push(...validateSliceCardinality(r[${JSON.stringify(name)}] as unknown[] | undefined, ${JSON.stringify(match)}, ${JSON.stringify(sliceName)}, ${min}, ${max}, "${profileName}.${name}"))`,
+            );
+        }
+    }
+};
+
+const generateValidateMethod = (w: TypeScript, flatProfile: ProfileTypeSchema) => {
+    const fields = flatProfile.fields ?? {};
+    const profileName = flatProfile.identifier.name;
+    w.curlyBlock(["validate", "()", ": string[]"], () => {
+        w.line("const errors: string[] = []");
+        w.line("const r = this.resource as unknown as Record<string, unknown>");
+        for (const [name, field] of Object.entries(fields)) {
+            if (isChoiceInstanceField(field)) continue;
+
+            if (isChoiceDeclarationField(field)) {
+                if (field.required) {
+                    const choiceNames = field.choices;
+                    const checks = choiceNames.map((c) => `r[${JSON.stringify(c)}] !== undefined`).join(" || ");
+                    w.curlyBlock(["if", `(!(${checks}))`], () => {
+                        w.line(`errors.push("${name}: at least one of ${choiceNames.join(", ")} is required")`);
+                    });
+                }
+                continue;
+            }
+
+            emitRegularFieldValidation(w, name, field, profileName);
+        }
+        w.line("return errors");
     });
     w.line();
 };

@@ -4,12 +4,16 @@
 
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
+import { validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
+
 export type own_prefixProfileParams = {
     valueString: string;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/humanname-own-prefix (pkg: hl7.fhir.r4.core#4.0.1)
 export class own_prefixProfile {
+    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix"
+
     private resource: Extension
 
     constructor (resource: Extension) {
@@ -41,8 +45,28 @@ export class own_prefixProfile {
     }
 
     setValueString (value: string) : this {
-        (this.resource as any).valueString = value
+        Object.assign(this.resource, { valueString: value })
         return this
+    }
+
+    getUrl () : string | undefined {
+        return this.resource.url as string | undefined
+    }
+
+    setUrl (value: string) : this {
+        Object.assign(this.resource, { url: value })
+        return this
+    }
+
+    validate () : string[] {
+        const errors: string[] = []
+        const r = this.resource as unknown as Record<string, unknown>
+        { const e = validateRequired(r, "url", "own-prefix"); if (e) errors.push(e) }
+        { const e = validateFixedValue(r, "url", "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix", "own-prefix"); if (e) errors.push(e) }
+        if (!(r["valueString"] !== undefined)) {
+            errors.push("value: at least one of valueString is required")
+        }
+        return errors
     }
 
 }
