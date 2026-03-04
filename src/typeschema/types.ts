@@ -223,6 +223,7 @@ export interface FieldSlice {
     match?: Record<string, unknown>;
     required?: string[];
     excluded?: string[];
+    elements?: string[];
 }
 
 export interface ExtensionSubField {

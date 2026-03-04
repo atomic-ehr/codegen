@@ -99,6 +99,24 @@ export const extractSliceSimplified = <T extends Record<string, unknown>>(slice:
     return result as Partial<T>;
 }
 
+export const wrapSliceChoice = (input: Record<string, unknown>, choiceVariant: string): Record<string, unknown> => {
+    if (Object.keys(input).length === 0) return input;
+    return { [choiceVariant]: input };
+}
+
+export const flattenSliceChoice = (slice: Record<string, unknown>, matchKeys: string[], choiceVariant: string): Record<string, unknown> => {
+    const result = { ...slice } as Record<string, unknown>;
+    for (const key of matchKeys) {
+        delete result[key];
+    }
+    const variantValue = result[choiceVariant];
+    delete result[choiceVariant];
+    if (isRecord(variantValue)) {
+        Object.assign(result, variantValue);
+    }
+    return result;
+}
+
 export const validateRequired = (r: Record<string, unknown>, field: string, path: string): string | undefined => {
     return r[field] === undefined || r[field] === null ? `${path}: required field '${field}' is missing` : undefined;
 }

@@ -20,6 +20,7 @@ import { applySliceMatch, matchesSlice, extractSliceSimplified, validateRequired
 export type observation_bodyweightProfileParams = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
     subject: Reference<"Patient">;
+    category?: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/bodyweight (pkg: hl7.fhir.r4.core#4.0.1)
@@ -41,10 +42,13 @@ export class observation_bodyweightProfile {
     }
 
     static createResource (args: observation_bodyweightProfileParams) : Observation {
+        const categoryDefaults = [{"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}] as unknown[]
+        const categoryWithDefaults = [...(args.category ?? [])] as unknown[]
+        if (!categoryWithDefaults.some(item => matchesSlice(item, {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>))) categoryWithDefaults.push(categoryDefaults[0]!)
         const resource: Observation = {
             resourceType: "Observation",
-            category: [{"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}],
             code: {"coding":[{"code":"29463-7","system":"http://loinc.org"}]},
+            category: categoryWithDefaults,
             status: args.status,
             subject: args.subject,
             meta: { profile: ["http://hl7.org/fhir/StructureDefinition/bodyweight"] },

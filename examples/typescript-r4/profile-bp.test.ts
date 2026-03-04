@@ -44,12 +44,13 @@ describe("blood pressure profile", () => {
     });
 
     test("setSystolicBP / getSystolicBP / getSystolicBPRaw", () => {
-        profile.setSystolicBP({
-            valueQuantity: { value: 120, unit: "mmHg", system: "http://unitsofmeasure.org", code: "mm[Hg]" },
-        });
+        profile.setSystolicBP({ value: 120, unit: "mmHg", system: "http://unitsofmeasure.org", code: "mm[Hg]" });
 
         expect(profile.getSystolicBP()).toEqual({
-            valueQuantity: { value: 120, unit: "mmHg", system: "http://unitsofmeasure.org", code: "mm[Hg]" },
+            value: 120,
+            unit: "mmHg",
+            system: "http://unitsofmeasure.org",
+            code: "mm[Hg]",
         });
 
         expect(profile.getSystolicBPRaw() as unknown).toEqual({
@@ -59,12 +60,13 @@ describe("blood pressure profile", () => {
     });
 
     test("setDiastolicBP / getDiastolicBP / getDiastolicBPRaw", () => {
-        profile.setDiastolicBP({
-            valueQuantity: { value: 80, unit: "mmHg", system: "http://unitsofmeasure.org", code: "mm[Hg]" },
-        });
+        profile.setDiastolicBP({ value: 80, unit: "mmHg", system: "http://unitsofmeasure.org", code: "mm[Hg]" });
 
         expect(profile.getDiastolicBP()).toEqual({
-            valueQuantity: { value: 80, unit: "mmHg", system: "http://unitsofmeasure.org", code: "mm[Hg]" },
+            value: 80,
+            unit: "mmHg",
+            system: "http://unitsofmeasure.org",
+            code: "mm[Hg]",
         });
 
         expect(profile.getDiastolicBPRaw() as unknown).toEqual({
@@ -87,7 +89,7 @@ describe("blood pressure profile", () => {
     });
 
     test("setSystolicBP replaces an existing systolic component", () => {
-        profile.setSystolicBP({ valueQuantity: { value: 130, unit: "mmHg" } });
+        profile.setSystolicBP({ value: 130, unit: "mmHg" });
 
         expect(profile.toResource().component).toHaveLength(2);
         expect(profile.getSystolicBPRaw()!.valueQuantity!.value).toBe(130);
@@ -116,8 +118,8 @@ describe("blood pressure profile", () => {
             .setVSCat({ text: "Vital Signs" })
             .setEffectiveDateTime("2024-06-15")
             .setSubject({ reference: "Patient/pt-2" })
-            .setSystolicBP({ valueQuantity: { value: 120, unit: "mmHg" } })
-            .setDiastolicBP({ valueQuantity: { value: 80, unit: "mmHg" } });
+            .setSystolicBP({ value: 120, unit: "mmHg" })
+            .setDiastolicBP({ value: 80, unit: "mmHg" });
 
         expect(result).toBe(profile);
         expect(profile.getStatus()).toBe("final");
@@ -136,5 +138,52 @@ describe("blood pressure profile", () => {
         const rawCode = raw.code as Record<string, unknown>;
         expect(rawCode.coding).toEqual({ code: "8480-6", system: "http://loinc.org" });
         expect(raw.valueQuantity).toBeUndefined();
+    });
+
+    test("create() with custom category preserves user values and adds required VSCat", () => {
+        const custom = bpProfile.create({
+            status: "final",
+            subject: { reference: "Patient/pt-1" },
+            category: [{ text: "My Category" }],
+        });
+        const obs = custom.toResource();
+        // User category kept, VSCat auto-added
+        expect(obs.category).toHaveLength(2);
+        expect(obs.category![0]!.text).toBe("My Category");
+        expect((obs.category![1] as Record<string, unknown>).coding).toEqual({
+            code: "vital-signs",
+            system: "http://terminology.hl7.org/CodeSystem/observation-category",
+        });
+    });
+
+    test("create() with empty category still adds required VSCat", () => {
+        const custom = bpProfile.create({
+            status: "final",
+            subject: { reference: "Patient/pt-1" },
+            category: [],
+        });
+        const obs = custom.toResource();
+        expect(obs.category).toHaveLength(1);
+        expect((obs.category![0] as Record<string, unknown>).coding).toEqual({
+            code: "vital-signs",
+            system: "http://terminology.hl7.org/CodeSystem/observation-category",
+        });
+    });
+
+    test("create() with category already containing VSCat does not duplicate it", () => {
+        const custom = bpProfile.create({
+            status: "final",
+            subject: { reference: "Patient/pt-1" },
+            category: [
+                {
+                    coding: {
+                        code: "vital-signs",
+                        system: "http://terminology.hl7.org/CodeSystem/observation-category",
+                    } as unknown,
+                } as never,
+            ],
+        });
+        const obs = custom.toResource();
+        expect(obs.category).toHaveLength(1);
     });
 });
