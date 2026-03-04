@@ -40,6 +40,8 @@ import type { TypeScript } from "./writer";
 
 type ProfileFactoryInfo = {
     autoFields: { name: string; value: string }[];
+    /** Array fields with required slices — optional param with auto-merge of required stubs */
+    sliceAutoFields: { name: string; tsType: string; typeId: Identifier; defaultValue: string; matches: string[] }[];
     params: { name: string; tsType: string; typeId: Identifier }[];
     accessors: { name: string; tsType: string; typeId: Identifier }[];
 };
@@ -86,6 +88,7 @@ const collectRequiredSliceMatches = (field: RegularField): Record<string, unknow
 
 const collectProfileFactoryInfo = (flatProfile: ProfileTypeSchema): ProfileFactoryInfo => {
     const autoFields: ProfileFactoryInfo["autoFields"] = [];
+    const sliceAutoFields: ProfileFactoryInfo["sliceAutoFields"] = [];
     const params: ProfileFactoryInfo["params"] = [];
     const autoAccessors: ProfileFactoryInfo["accessors"] = [];
     const fields = flatProfile.fields ?? {};
@@ -117,10 +120,16 @@ const collectProfileFactoryInfo = (flatProfile: ProfileTypeSchema): ProfileFacto
         if (isNotChoiceDeclarationField(field)) {
             const requiredMatches = collectRequiredSliceMatches(field);
             if (requiredMatches) {
-                const value = `[${requiredMatches.map((m) => JSON.stringify(m)).join(",")}]`;
-                autoFields.push({ name, value });
+                const defaultValue = `[${requiredMatches.map((m) => JSON.stringify(m)).join(",")}]`;
                 if (field.type) {
                     const tsType = resolveFieldTsType("", "", field) + (field.array ? "[]" : "");
+                    sliceAutoFields.push({
+                        name,
+                        tsType,
+                        typeId: field.type,
+                        defaultValue,
+                        matches: requiredMatches.map((m) => JSON.stringify(m)),
+                    });
                     autoAccessors.push({ name, tsType, typeId: field.type });
                 }
                 continue;
@@ -134,7 +143,7 @@ const collectProfileFactoryInfo = (flatProfile: ProfileTypeSchema): ProfileFacto
     }
 
     const accessors = [...autoAccessors, ...collectChoiceAccessors(flatProfile, promotedChoices)];
-    return { autoFields, params, accessors };
+    return { autoFields, sliceAutoFields, params, accessors };
 };
 
 export const generateProfileIndexFile = (
@@ -696,6 +705,7 @@ export const generateProfileImports = (w: TypeScript, tsIndex: TypeSchemaIndex, 
 
     const factoryInfo = collectProfileFactoryInfo(flatProfile);
     for (const param of factoryInfo.params) addType(param.typeId);
+    for (const f of factoryInfo.sliceAutoFields) addType(f.typeId);
     for (const accessor of factoryInfo.accessors) addType(accessor.typeId);
 
     if (needsExtensionType) {
@@ -893,8 +903,12 @@ export const generateProfileClass = (
         w.line();
     }
 
+    // Check if we have an override interface (narrowed types)
+    const hasOverrideInterface = detectFieldOverrides(w, tsIndex, flatProfile).size > 0;
+    const factoryInfo = collectProfileFactoryInfo(flatProfile);
+
     // Determine which helpers are actually needed
-    const needsSliceHelpers = sliceDefs.length > 0;
+    const needsSliceHelpers = sliceDefs.length > 0 || factoryInfo.sliceAutoFields.length > 0;
     const extensionsWithNestedPath = extensions.filter((ext) => {
         const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");
         return targetPath.length > 0;
@@ -925,15 +939,12 @@ export const generateProfileClass = (
         w.line();
     }
 
-    // Check if we have an override interface (narrowed types)
-    const hasOverrideInterface = detectFieldOverrides(w, tsIndex, flatProfile).size > 0;
-    const factoryInfo = collectProfileFactoryInfo(flatProfile);
-
-    const hasParams = factoryInfo.params.length > 0;
+    const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
     const createArgsTypeName = `${profileClassName}Params`;
     const paramSignature = hasParams ? `args: ${createArgsTypeName}` : "";
     const allFields = [
         ...factoryInfo.autoFields.map((f) => ({ name: f.name, value: f.value })),
+        ...factoryInfo.sliceAutoFields.map((f) => ({ name: f.name, value: `${f.name}WithDefaults` })),
         ...factoryInfo.params.map((p) => ({ name: p.name, value: `args.${p.name}` })),
     ];
 
@@ -941,6 +952,9 @@ export const generateProfileClass = (
         w.curlyBlock(["export", "type", createArgsTypeName, "="], () => {
             for (const p of factoryInfo.params) {
                 w.lineSM(`${p.name}: ${p.tsType}`);
+            }
+            for (const f of factoryInfo.sliceAutoFields) {
+                w.lineSM(`${f.name}?: ${f.tsType}`);
             }
         });
         w.line();
@@ -975,6 +989,17 @@ export const generateProfileClass = (
         });
         w.line();
         w.curlyBlock(["static", "createResource", `(${paramSignature})`, `: ${tsBaseResourceName}`], () => {
+            // Generate merge logic for slice auto-fields
+            for (const f of factoryInfo.sliceAutoFields) {
+                const matchExprs = f.matches.map((m) => `${m} as Record<string, unknown>`);
+                w.line(`const ${f.name}Defaults = ${f.defaultValue} as unknown[]`);
+                w.line(`const ${f.name}WithDefaults = [...(args.${f.name} ?? [])] as unknown[]`);
+                for (let i = 0; i < matchExprs.length; i++) {
+                    w.line(
+                        `if (!${f.name}WithDefaults.some(item => matchesSlice(item, ${matchExprs[i]}))) ${f.name}WithDefaults.push(${f.name}Defaults[${i}]!)`,
+                    );
+                }
+            }
             w.curlyBlock([`const resource: ${tsBaseResourceName} =`], () => {
                 for (const f of allFields) {
                     w.line(`${f.name}: ${f.value},`);
