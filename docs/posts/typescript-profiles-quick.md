@@ -1,6 +1,6 @@
 # Profile codegen for TypeScript
 
-[@atomic-ehr/codegen](https://github.com/atomic-ehr/codegen) is an open-source toolkit that generates strongly-typed code from FHIR packages. We've added **FHIR profile support** for TypeScript (dev preview) -- generated classes auto-populate fixed values, provide typed accessors for slices and extensions, and include basic client-side validation:
+Hi! We're working on [@atomic-ehr/codegen](https://github.com/atomic-ehr/codegen), an open-source toolkit that generates strongly-typed code from FHIR packages. We've added **FHIR profile support** for TypeScript (dev preview) -- generated classes auto-populate fixed values, provide typed accessors for slices and extensions, and include basic client-side validation:
 
 ```typescript
 import { observation_bpProfile } from "./profiles/Observation_observation_bp";
@@ -42,20 +42,18 @@ bp2.getSystolicBPRaw();
 Working examples:
 
 - [hl7.fhir.r4.core](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-r4/README.md)
-  - [Blood pressure profile](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-r4/profile-bp.test.ts)
-  - [Bodyweight profile](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-r4/profile-bodyweight.test.ts)
-  - [Extension profiles](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-r4/extension-profile.test.ts)
+  - Blood pressure: [profile](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-r4/fhir-types/hl7-fhir-r4-core/profiles/Observation_observation_bp.ts), [test](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-r4/profile-bp.test.ts)
+  - Bodyweight: [profile](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-r4/fhir-types/hl7-fhir-r4-core/profiles/Observation_observation_bodyweight.ts), [test](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-r4/profile-bodyweight.test.ts)
+  - Extensions: [profile](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-r4/fhir-types/hl7-fhir-r4-core/profiles/Extension_birthPlace.ts), [test](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-r4/extension-profile.test.ts)
 - [hl7.fhir.us.core](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/README.md)
-  - [Patient, BP, conditions](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/profile-demo.ts)
-  - [Multi-profile usage](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/multi-profile.test.ts)
+  - Patient, BP, conditions: [demo](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/profile-demo.ts)
+  - Multi-profile usage: [test](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/multi-profile.test.ts)
 - [hl7.fhir.us.ccda](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-ccda/README.md)
-  - [C-CDA profiles](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-ccda/demo-ccda.test.ts)
-  - [CDA logical models](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-ccda/demo-cda.test.ts)
+  - C-CDA profiles: [test](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-ccda/demo-ccda.test.ts)
+  - CDA logical models: [test](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-ccda/demo-cda.test.ts)
 
-## Current status and what's next
+This is a **dev preview** -- we're focused on stabilization across different profile shapes, edge cases, and FHIR packages (R4, US Core, C-CDA, etc.). We're using it ourselves for a FHIR-to-CCDA converter, which is a good stress test. After that, Python is next.
 
-This is a **dev preview**. Our main focus right now is stabilization across different profile shapes and edge cases. We're using it ourselves for a FHIR-to-CCDA converter, which is a good stress test for the generator. After stabilization, the plan is to bring profile support to Python next.
-
-We'd appreciate any feedback -- profiles that don't generate correctly, API patterns that feel awkward, validation gaps, or anything else. Issues and discussions welcome on [GitHub](https://github.com/atomic-ehr/codegen).
+Would love any feedback -- profiles that don't generate correctly, API patterns that feel awkward, validation gaps, anything really. Issues and discussions welcome on [GitHub](https://github.com/atomic-ehr/codegen).
 
 NPM: [`@atomic-ehr/codegen`](https://www.npmjs.com/package/@atomic-ehr/codegen)
