@@ -85,7 +85,7 @@ function createBloodPressureExample(): Observation {
     const USCoreBloodPressureProfileProfile = new usBpProfile({ resourceType: "Observation" } as Observation);
 
     // Use fluent API to set slices - discriminator values are auto-applied
-    USCoreBloodPressureProfileProfile.setVscat()
+    USCoreBloodPressureProfileProfile.setVSCat()
         .setSystolic({
             // The code for systolic (8480-6) is auto-applied by the profile
             valueQuantity: {
