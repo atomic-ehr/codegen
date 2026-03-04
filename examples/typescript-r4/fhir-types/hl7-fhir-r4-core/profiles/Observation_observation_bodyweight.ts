@@ -127,7 +127,7 @@ export class observation_bodyweightProfile {
         return this.resource as observation_bodyweight
     }
 
-    public setVscat (input?: Observation_bodyweight_Category_VSCatSliceInput): this {
+    public setVSCat (input?: Observation_bodyweight_Category_VSCatSliceInput): this {
         const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
         const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as CodeableConcept
         const list = (this.resource.category ??= [])
@@ -140,7 +140,7 @@ export class observation_bodyweightProfile {
         return this
     }
 
-    public getVscat (): Observation_bodyweight_Category_VSCatSliceInput | undefined {
+    public getVSCat (): Observation_bodyweight_Category_VSCatSliceInput | undefined {
         const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
         const list = this.resource.category
         if (!list) return undefined
@@ -149,7 +149,7 @@ export class observation_bodyweightProfile {
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as Observation_bodyweight_Category_VSCatSliceInput
     }
 
-    public getVscatRaw (): CodeableConcept | undefined {
+    public getVSCatRaw (): CodeableConcept | undefined {
         const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
         const list = this.resource.category
         if (!list) return undefined

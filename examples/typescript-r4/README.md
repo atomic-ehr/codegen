@@ -104,7 +104,7 @@ const baseObservation: Observation = {
 
 // Use profile class to add required slices
 const profile = new bodyweightProfile(baseObservation)
-  .setVscat({ text: 'Vital Signs' });
+  .setVSCat({ text: 'Vital Signs' });
 
 const observation = profile.toResource();
 ```
