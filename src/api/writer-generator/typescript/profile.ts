@@ -1079,7 +1079,7 @@ export const generateProfileClass = (
         // 1. get{SliceName}() - returns simplified (without discriminator fields)
         // 2. get{SliceName}Raw() - returns full FHIR type with all fields
         for (const sliceDef of sliceDefs) {
-            const baseName = uppercaseFirstLetter(tsCamelCase(sliceDef.sliceName));
+            const baseName = uppercaseFirstLetter(sliceDef.sliceName);
             const getMethodName = `get${baseName}`;
             const getRawMethodName = `get${baseName}Raw`;
             if (generatedGetMethods.has(getMethodName)) continue;

@@ -100,8 +100,7 @@ export const tsExtensionInputTypeName = (profileName: string, extensionName: str
 };
 
 export const tsSliceMethodName = (sliceName: string): string => {
-    const normalized = tsCamelCase(sliceName);
-    return `set${uppercaseFirstLetter(normalized || "Slice")}`;
+    return `set${uppercaseFirstLetter(sliceName || "Slice")}`;
 };
 
 export const tsExtensionMethodName = (name: string): string => {
@@ -122,6 +121,6 @@ export const tsQualifiedExtensionMethodName = (name: string, path?: string): str
 
 export const tsQualifiedSliceMethodName = (fieldName: string, sliceName: string): string => {
     const fieldPart = uppercaseFirstLetter(tsCamelCase(fieldName) || "Field");
-    const slicePart = uppercaseFirstLetter(tsCamelCase(sliceName) || "Slice");
+    const slicePart = uppercaseFirstLetter(sliceName || "Slice");
     return `setSlice${fieldPart}${slicePart}`;
 };
