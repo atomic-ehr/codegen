@@ -14,7 +14,6 @@ describe("bodyweight profile creation", () => {
     test("create() returns a profile wrapping the resource with auto-set code", () => {
         const profile = bodyweightProfile.create({
             status: "final",
-            category: [],
             subject: { reference: "Patient/pt-1" },
         });
         fromCreate = profile.toResource();
@@ -29,7 +28,6 @@ describe("bodyweight profile creation", () => {
     test("createResource() returns a plain Observation with auto-set code", () => {
         fromCreateResource = bodyweightProfile.createResource({
             status: "final",
-            category: [],
             subject: { reference: "Patient/pt-1" },
         });
 
@@ -46,7 +44,14 @@ describe("bodyweight profile creation", () => {
         profile
             .setStatus("final")
             .setCode({ coding: [{ code: "29463-7", system: "http://loinc.org" }] })
-            .setCategory([])
+            .setCategory([
+                {
+                    coding: {
+                        code: "vital-signs",
+                        system: "http://terminology.hl7.org/CodeSystem/observation-category",
+                    },
+                } as any,
+            ])
             .setSubject({ reference: "Patient/pt-1" });
 
         fromFrom = profile.toResource();
@@ -73,7 +78,6 @@ describe("bodyweight profile creation", () => {
 describe("bodyweight profile getters and setters", () => {
     const profile = bodyweightProfile.create({
         status: "final",
-        category: [],
         subject: { reference: "Patient/pt-1" },
     });
 
@@ -93,7 +97,8 @@ describe("bodyweight profile getters and setters", () => {
     });
 
     test("getCategory / setCategory", () => {
-        expect(profile.getCategory()).toEqual([]);
+        // category is auto-populated with VSCat discriminator
+        expect(profile.getCategory()).toHaveLength(1);
         const newCategory = [{ text: "Laboratory" }];
         profile.setCategory(newCategory);
         expect(profile.getCategory()).toEqual(newCategory);
@@ -109,23 +114,19 @@ describe("bodyweight profile getters and setters", () => {
 describe("bodyweight profile slice accessors", () => {
     const profile = bodyweightProfile.create({
         status: "final",
-        category: [],
         subject: { reference: "Patient/pt-1" },
     });
 
-    test("getVscat returns undefined when no matching slice", () => {
-        expect(profile.getVscat()).toBeUndefined();
-        expect(profile.getVscatRaw()).toBeUndefined();
-    });
-
-    test("setVscat with no args inserts discriminator-only element", () => {
-        profile.setVscat();
-
+    test("getVscat returns empty simplified view from auto-populated stub", () => {
+        // category is auto-populated with VSCat discriminator match
+        expect(profile.getVscatRaw()).toBeDefined();
         const raw = profile.getVscatRaw()!;
         expect(raw.coding as unknown).toEqual({
             code: "vital-signs",
             system: "http://terminology.hl7.org/CodeSystem/observation-category",
         });
+        // simplified view strips discriminator keys, leaving empty object
+        expect(profile.getVscat()).toEqual({});
     });
 
     test("setVscat adds category with discriminator values", () => {
@@ -162,7 +163,6 @@ describe("bodyweight profile slice accessors", () => {
 describe("bodyweight profile choice type accessors", () => {
     const profile = bodyweightProfile.create({
         status: "final",
-        category: [],
         subject: { reference: "Patient/pt-1" },
     });
 
@@ -199,7 +199,6 @@ describe("bodyweight profile choice type accessors", () => {
     test("choice accessors mutate the underlying resource", () => {
         const obs = bodyweightProfile.createResource({
             status: "final",
-            category: [],
             subject: { reference: "Patient/pt-1" },
         });
         const p = bodyweightProfile.from(obs);
@@ -222,7 +221,6 @@ describe("bodyweight profile mutability", () => {
     test("profile mutates the underlying resource", () => {
         const obs = bodyweightProfile.createResource({
             status: "final",
-            category: [],
             subject: { reference: "Patient/pt-1" },
         });
         const profile = bodyweightProfile.from(obs);
