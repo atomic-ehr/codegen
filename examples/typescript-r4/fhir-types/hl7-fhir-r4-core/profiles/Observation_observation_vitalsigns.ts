@@ -18,7 +18,6 @@ import { applySliceMatch, matchesSlice, extractSliceSimplified, validateRequired
 
 export type observation_vitalsignsProfileParams = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
-    category: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
     code: CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)>;
     subject: Reference<"Patient">;
 }
@@ -44,8 +43,8 @@ export class observation_vitalsignsProfile {
     static createResource (args: observation_vitalsignsProfileParams) : Observation {
         const resource: Observation = {
             resourceType: "Observation",
+            category: [{"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}],
             status: args.status,
-            category: args.category,
             code: args.code,
             subject: args.subject,
             meta: { profile: ["http://hl7.org/fhir/StructureDefinition/vitalsigns"] },
@@ -70,15 +69,6 @@ export class observation_vitalsignsProfile {
         return this
     }
 
-    getCategory () : CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined {
-        return this.resource.category as CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined
-    }
-
-    setCategory (value: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[]) : this {
-        Object.assign(this.resource, { category: value })
-        return this
-    }
-
     getCode () : CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined {
         return this.resource.code as CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined
     }
@@ -94,6 +84,15 @@ export class observation_vitalsignsProfile {
 
     setSubject (value: Reference<"Patient">) : this {
         Object.assign(this.resource, { subject: value })
+        return this
+    }
+
+    getCategory () : CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined {
+        return this.resource.category as CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined
+    }
+
+    setCategory (value: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[]) : this {
+        Object.assign(this.resource, { category: value })
         return this
     }
 

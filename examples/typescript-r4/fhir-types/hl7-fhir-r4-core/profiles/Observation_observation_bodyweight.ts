@@ -19,7 +19,6 @@ import { applySliceMatch, matchesSlice, extractSliceSimplified, validateRequired
 
 export type observation_bodyweightProfileParams = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
-    category: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
     subject: Reference<"Patient">;
 }
 
@@ -44,9 +43,9 @@ export class observation_bodyweightProfile {
     static createResource (args: observation_bodyweightProfileParams) : Observation {
         const resource: Observation = {
             resourceType: "Observation",
+            category: [{"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}],
             code: {"coding":[{"code":"29463-7","system":"http://loinc.org"}]},
             status: args.status,
-            category: args.category,
             subject: args.subject,
             meta: { profile: ["http://hl7.org/fhir/StructureDefinition/bodyweight"] },
         } as unknown as Observation
@@ -70,21 +69,21 @@ export class observation_bodyweightProfile {
         return this
     }
 
-    getCategory () : CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined {
-        return this.resource.category as CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined
-    }
-
-    setCategory (value: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[]) : this {
-        Object.assign(this.resource, { category: value })
-        return this
-    }
-
     getSubject () : Reference<"Patient"> | undefined {
         return this.resource.subject as Reference<"Patient"> | undefined
     }
 
     setSubject (value: Reference<"Patient">) : this {
         Object.assign(this.resource, { subject: value })
+        return this
+    }
+
+    getCategory () : CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined {
+        return this.resource.category as CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined
+    }
+
+    setCategory (value: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[]) : this {
+        Object.assign(this.resource, { category: value })
         return this
     }
 

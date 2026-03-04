@@ -22,7 +22,6 @@ import { applySliceMatch, matchesSlice, extractSliceSimplified, validateRequired
 
 export type observation_bpProfileParams = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
-    category: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
     subject: Reference<"Patient">;
 }
 
@@ -47,9 +46,10 @@ export class observation_bpProfile {
     static createResource (args: observation_bpProfileParams) : Observation {
         const resource: Observation = {
             resourceType: "Observation",
+            category: [{"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}],
             code: {"coding":[{"code":"85354-9","system":"http://loinc.org"}]},
+            component: [{"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}},{"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}}],
             status: args.status,
-            category: args.category,
             subject: args.subject,
             meta: { profile: ["http://hl7.org/fhir/StructureDefinition/bp"] },
         } as unknown as Observation
@@ -73,15 +73,6 @@ export class observation_bpProfile {
         return this
     }
 
-    getCategory () : CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined {
-        return this.resource.category as CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined
-    }
-
-    setCategory (value: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[]) : this {
-        Object.assign(this.resource, { category: value })
-        return this
-    }
-
     getSubject () : Reference<"Patient"> | undefined {
         return this.resource.subject as Reference<"Patient"> | undefined
     }
@@ -91,12 +82,30 @@ export class observation_bpProfile {
         return this
     }
 
+    getCategory () : CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined {
+        return this.resource.category as CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined
+    }
+
+    setCategory (value: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[]) : this {
+        Object.assign(this.resource, { category: value })
+        return this
+    }
+
     getCode () : CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined {
         return this.resource.code as CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined
     }
 
     setCode (value: CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)>) : this {
         Object.assign(this.resource, { code: value })
+        return this
+    }
+
+    getComponent () : ObservationComponent[] | undefined {
+        return this.resource.component as ObservationComponent[] | undefined
+    }
+
+    setComponent (value: ObservationComponent[]) : this {
+        Object.assign(this.resource, { component: value })
         return this
     }
 
