@@ -117,22 +117,22 @@ describe("bodyweight profile slice accessors", () => {
         subject: { reference: "Patient/pt-1" },
     });
 
-    test("getVscat returns empty simplified view from auto-populated stub", () => {
+    test("getVSCat returns empty simplified view from auto-populated stub", () => {
         // category is auto-populated with VSCat discriminator match
-        expect(profile.getVscatRaw()).toBeDefined();
-        const raw = profile.getVscatRaw()!;
+        expect(profile.getVSCatRaw()).toBeDefined();
+        const raw = profile.getVSCatRaw()!;
         expect(raw.coding as unknown).toEqual({
             code: "vital-signs",
             system: "http://terminology.hl7.org/CodeSystem/observation-category",
         });
         // simplified view strips discriminator keys, leaving empty object
-        expect(profile.getVscat()).toEqual({});
+        expect(profile.getVSCat()).toEqual({});
     });
 
-    test("setVscat adds category with discriminator values", () => {
-        profile.setVscat({ text: "Vital Signs" });
+    test("setVSCat adds category with discriminator values", () => {
+        profile.setVSCat({ text: "Vital Signs" });
 
-        const raw = profile.getVscatRaw()!;
+        const raw = profile.getVSCatRaw()!;
         expect(raw.text).toBe("Vital Signs");
         expect(raw.coding as unknown).toEqual({
             code: "vital-signs",
@@ -140,22 +140,22 @@ describe("bodyweight profile slice accessors", () => {
         });
     });
 
-    test("getVscat returns simplified view without discriminator", () => {
-        const simplified = profile.getVscat();
+    test("getVSCat returns simplified view without discriminator", () => {
+        const simplified = profile.getVSCat();
         expect(simplified).toEqual({ text: "Vital Signs" });
         expect("coding" in simplified!).toBe(false);
     });
 
-    test("getVscatRaw returns full element including discriminator", () => {
-        const raw = profile.getVscatRaw()!;
+    test("getVSCatRaw returns full element including discriminator", () => {
+        const raw = profile.getVSCatRaw()!;
         expect(raw.text).toBe("Vital Signs");
         expect(raw.coding).toBeDefined();
     });
 
-    test("setVscat replaces existing slice element", () => {
-        profile.setVscat({ text: "Updated" });
+    test("setVSCat replaces existing slice element", () => {
+        profile.setVSCat({ text: "Updated" });
 
-        expect(profile.getVscat()!.text).toBe("Updated");
+        expect(profile.getVSCat()!.text).toBe("Updated");
         expect(profile.toResource().category!.length).toBe(1);
     });
 });
@@ -228,7 +228,7 @@ describe("bodyweight profile mutability", () => {
         profile.setStatus("amended");
         expect(obs.status).toBe("amended");
 
-        profile.setVscat({ text: "Vital Signs" });
+        profile.setVSCat({ text: "Vital Signs" });
         expect(obs.category!.length).toBe(1);
     });
 });
