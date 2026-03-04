@@ -1,8 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import type { Observation } from "../../../examples/typescript-us-core/fhir-types/hl7-fhir-r4-core/Observation";
 import type { Patient } from "../../../examples/typescript-us-core/fhir-types/hl7-fhir-r4-core/Patient";
-import { USCoreBloodPressureProfileProfile } from "../../../examples/typescript-us-core/fhir-types/hl7-fhir-us-core/profiles/UscoreBloodPressureProfile";
-import { USCorePatientProfileProfile } from "../../../examples/typescript-us-core/fhir-types/hl7-fhir-us-core/profiles/UscorePatientProfile";
+import {
+    USCoreBloodPressureProfileProfile as usBpProfile,
+    USCorePatientProfileProfile as usPatientProfile,
+} from "../../../examples/typescript-us-core/fhir-types/hl7-fhir-us-core/profiles";
 
 const createPatient = (): Patient => ({ resourceType: "Patient" });
 const createObservation = (): Observation => ({ resourceType: "Observation", status: "final", code: {} });
@@ -10,7 +12,7 @@ const createObservation = (): Observation => ({ resourceType: "Observation", sta
 describe("Profile Getter Methods", () => {
     describe("Extension getters", () => {
         it("returns simplified object via getRace()", () => {
-            const profile = new USCorePatientProfileProfile(createPatient());
+            const profile = new usPatientProfile(createPatient());
             profile.setRace({
                 ombCategory: { system: "urn:oid:2.16.840.1.113883.6.238", code: "2106-3", display: "White" },
                 text: "White",
@@ -23,7 +25,7 @@ describe("Profile Getter Methods", () => {
         });
 
         it("returns raw Extension via getRaceExtension()", () => {
-            const profile = new USCorePatientProfileProfile(createPatient());
+            const profile = new usPatientProfile(createPatient());
             profile.setRace({
                 ombCategory: { system: "urn:oid:2.16.840.1.113883.6.238", code: "2106-3", display: "White" },
                 text: "White",
@@ -36,12 +38,12 @@ describe("Profile Getter Methods", () => {
         });
 
         it("returns undefined when extension not set", () => {
-            const profile = new USCorePatientProfileProfile(createPatient());
+            const profile = new usPatientProfile(createPatient());
             expect(profile.getRace()).toBeUndefined();
         });
 
         it("simple extension getter returns value directly", () => {
-            const profile = new USCorePatientProfileProfile(createPatient());
+            const profile = new usPatientProfile(createPatient());
             profile.setSex({ system: "http://hl7.org/fhir/administrative-gender", code: "male" });
 
             const result = profile.getSex();
@@ -50,7 +52,7 @@ describe("Profile Getter Methods", () => {
         });
 
         it("simple extension getSexExtension() returns raw Extension", () => {
-            const profile = new USCorePatientProfileProfile(createPatient());
+            const profile = new usPatientProfile(createPatient());
             profile.setSex({ system: "http://hl7.org/fhir/administrative-gender", code: "male" });
 
             const raw = profile.getSexExtension();
@@ -62,7 +64,7 @@ describe("Profile Getter Methods", () => {
 
     describe("Slice getters", () => {
         it("returns simplified slice without discriminator via getSystolic()", () => {
-            const profile = new USCoreBloodPressureProfileProfile(createObservation());
+            const profile = new usBpProfile(createObservation());
             profile.setSystolic({
                 valueQuantity: { value: 120, unit: "mmHg", system: "http://unitsofmeasure.org", code: "mm[Hg]" },
             });
@@ -75,7 +77,7 @@ describe("Profile Getter Methods", () => {
         });
 
         it("returns full slice with discriminator via getSystolicRaw()", () => {
-            const profile = new USCoreBloodPressureProfileProfile(createObservation());
+            const profile = new usBpProfile(createObservation());
             profile.setSystolic({
                 valueQuantity: { value: 120, unit: "mmHg", system: "http://unitsofmeasure.org", code: "mm[Hg]" },
             });
@@ -88,13 +90,13 @@ describe("Profile Getter Methods", () => {
         });
 
         it("returns undefined when slice not set", () => {
-            const profile = new USCoreBloodPressureProfileProfile(createObservation());
+            const profile = new usBpProfile(createObservation());
             expect(profile.getSystolic()).toBeUndefined();
             expect(profile.getDiastolic()).toBeUndefined();
         });
 
         it("can get multiple slices independently", () => {
-            const profile = new USCoreBloodPressureProfileProfile(createObservation());
+            const profile = new usBpProfile(createObservation());
             profile.setSystolic({ valueQuantity: { value: 120, unit: "mmHg" } });
             profile.setDiastolic({ valueQuantity: { value: 80, unit: "mmHg" } });
 
@@ -108,7 +110,7 @@ describe("Profile Getter Methods", () => {
 
     describe("Round-trip: set and get", () => {
         it("can set and get extension values", () => {
-            const profile = new USCorePatientProfileProfile(createPatient());
+            const profile = new usPatientProfile(createPatient());
 
             // Set values
             profile.setRace({

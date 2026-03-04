@@ -8,7 +8,7 @@ VERSION = $(shell cat package.json | grep version | sed -E 's/ *"version": "//' 
 
 .PHONY: all typecheck test-typeschema test-register test-codegen test-typescript-r4-example
 
-all: test-codegen test-typescript-r4-example test-typescript-ccda-example test-typescript-sql-on-fhir-example lint-unsafe test-all-example-generation
+all: test-codegen test-typescript-r4-example test-typescript-us-core-example test-typescript-ccda-example test-typescript-sql-on-fhir-example lint-unsafe test-all-example-generation
 
 generate-types:
 	bun run scripts/generate-types.ts
@@ -64,6 +64,11 @@ test-typescript-r4-example: typecheck format lint
 	bun run examples/typescript-r4/generate.ts
 	$(TYPECHECK) --project examples/typescript-r4/tsconfig.json
 	$(TEST) ./examples/typescript-r4/
+
+test-typescript-us-core-example: typecheck format lint
+	bun run examples/typescript-us-core/generate.ts
+	$(TYPECHECK) --project examples/typescript-us-core/tsconfig.json
+	$(TEST) ./examples/typescript-us-core/
 
 test-typescript-sql-on-fhir-example: typecheck format lint
 	bun run examples/typescript-sql-on-fhir/generate.ts
