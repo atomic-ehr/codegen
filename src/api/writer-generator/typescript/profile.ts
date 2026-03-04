@@ -19,6 +19,7 @@ import {
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import {
+    normalizeTsName,
     tsCamelCase,
     tsExtensionInputTypeName,
     tsExtensionMethodName,
@@ -1079,7 +1080,7 @@ export const generateProfileClass = (
         // 1. get{SliceName}() - returns simplified (without discriminator fields)
         // 2. get{SliceName}Raw() - returns full FHIR type with all fields
         for (const sliceDef of sliceDefs) {
-            const baseName = uppercaseFirstLetter(sliceDef.sliceName);
+            const baseName = uppercaseFirstLetter(normalizeTsName(sliceDef.sliceName));
             const getMethodName = `get${baseName}`;
             const getRawMethodName = `get${baseName}Raw`;
             if (generatedGetMethods.has(getMethodName)) continue;

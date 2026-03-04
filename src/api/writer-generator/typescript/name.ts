@@ -15,7 +15,7 @@ import type { TypeSchemaIndex } from "@root/typeschema/utils";
 // biome-ignore format: too long
 const tsKeywords = new Set([ "class", "function", "return", "if", "for", "while", "const", "let", "var", "import", "export", "interface" ]);
 
-const normalizeTsName = (n: string): string => {
+export const normalizeTsName = (n: string): string => {
     if (tsKeywords.has(n)) n = `${n}_`;
     return n.replace(/\[x\]/g, "_x_").replace(/[- :.]/g, "_");
 };
@@ -100,7 +100,7 @@ export const tsExtensionInputTypeName = (profileName: string, extensionName: str
 };
 
 export const tsSliceMethodName = (sliceName: string): string => {
-    return `set${uppercaseFirstLetter(sliceName || "Slice")}`;
+    return `set${uppercaseFirstLetter(normalizeTsName(sliceName) || "Slice")}`;
 };
 
 export const tsExtensionMethodName = (name: string): string => {
@@ -121,6 +121,6 @@ export const tsQualifiedExtensionMethodName = (name: string, path?: string): str
 
 export const tsQualifiedSliceMethodName = (fieldName: string, sliceName: string): string => {
     const fieldPart = uppercaseFirstLetter(tsCamelCase(fieldName) || "Field");
-    const slicePart = uppercaseFirstLetter(sliceName || "Slice");
+    const slicePart = uppercaseFirstLetter(normalizeTsName(sliceName) || "Slice");
     return `setSlice${fieldPart}${slicePart}`;
 };
