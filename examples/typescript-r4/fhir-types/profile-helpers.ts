@@ -98,3 +98,56 @@ export const extractSliceSimplified = <T extends Record<string, unknown>>(slice:
     }
     return result as Partial<T>;
 }
+
+export const validateRequired = (r: Record<string, unknown>, field: string, path: string): string | undefined => {
+    return r[field] === undefined || r[field] === null ? `${path}: required field '${field}' is missing` : undefined;
+}
+
+export const validateExcluded = (r: Record<string, unknown>, field: string, path: string): string | undefined => {
+    return r[field] !== undefined ? `${path}: field '${field}' must not be present` : undefined;
+}
+
+export const validateFixedValue = (r: Record<string, unknown>, field: string, expected: unknown, path: string): string | undefined => {
+    return matchesValue(r[field], expected) ? undefined : `${path}: field '${field}' does not match expected fixed value`;
+}
+
+export const validateSliceCardinality = (items: unknown[] | undefined, match: Record<string, unknown>, sliceName: string, min: number, max: number, path: string): string[] => {
+    const count = (items ?? []).filter(item => matchesSlice(item, match)).length;
+    const errors: string[] = [];
+    if (count < min) {
+        errors.push(`${path}: slice '${sliceName}' requires at least ${min} item(s), found ${count}`);
+    }
+    if (max > 0 && count > max) {
+        errors.push(`${path}: slice '${sliceName}' allows at most ${max} item(s), found ${count}`);
+    }
+    return errors;
+}
+
+export const validateEnum = (value: unknown, allowed: string[], field: string, path: string): string | undefined => {
+    if (value === undefined || value === null) return undefined;
+    if (typeof value === 'string') {
+        return allowed.includes(value) ? undefined : `${path}: field '${field}' value '${value}' is not in allowed values`;
+    }
+    const rec = value as Record<string, unknown>;
+    // Coding
+    if (typeof rec.code === 'string' && rec.system !== undefined) {
+        return allowed.includes(rec.code) ? undefined : `${path}: field '${field}' code '${rec.code}' is not in allowed values`;
+    }
+    // CodeableConcept
+    if (Array.isArray(rec.coding)) {
+        const codes = (rec.coding as Array<Record<string, unknown>>).map(c => c.code as string).filter(Boolean);
+        const hasValid = codes.some(c => allowed.includes(c));
+        return hasValid ? undefined : `${path}: field '${field}' has no coding with an allowed code`;
+    }
+    return undefined;
+}
+
+export const validateReference = (value: unknown, allowed: string[], field: string, path: string): string | undefined => {
+    if (value === undefined || value === null) return undefined;
+    const ref = (value as Record<string, unknown>).reference as string | undefined;
+    if (!ref) return undefined;
+    const slashIdx = ref.indexOf('/');
+    if (slashIdx === -1) return undefined;
+    const refType = ref.slice(0, slashIdx);
+    return allowed.includes(refType) ? undefined : `${path}: field '${field}' references '${refType}' but only ${allowed.join(', ')} are allowed`;
+}
