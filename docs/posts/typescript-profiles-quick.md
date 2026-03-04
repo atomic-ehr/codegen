@@ -1,0 +1,60 @@
+# TypeScript Profile Classes in Atomic EHR Codegen
+
+We've added FHIR profile support to the TypeScript generator in [Atomic EHR Codegen](https://github.com/atomic-ehr/codegen). Profiles generate as wrapper classes with typed accessors, automatic slice handling, and runtime validation -- all on top of plain FHIR JSON.
+
+## Quick look
+
+```typescript
+import { observation_bpProfile } from "./profiles/Observation_observation_bp";
+
+const bp = observation_bpProfile.create({
+    status: "final",
+    subject: { reference: "Patient/pt-1" },
+});
+
+// Slice setters -- discriminator values (LOINC codes) applied automatically
+// Single-variant choice types (value[x] → valueQuantity) are flattened:
+bp.setVSCat({ text: "Vital Signs" })
+    .setSystolicBP({ value: 120, unit: "mmHg" })
+    .setDiastolicBP({ value: 80, unit: "mmHg" })
+    .setEffectiveDateTime("2024-06-15");
+
+// Validate against profile constraints
+bp.validate(); // [] -- valid
+
+// Get plain FHIR JSON -- ready for API calls, storage, etc.
+const obs = bp.toResource();
+// {
+//   resourceType: "Observation",
+//   meta: { profile: ["http://hl7.org/fhir/StructureDefinition/bp"] },
+//   status: "final",
+//   code: { coding: [{ code: "85354-9", system: "http://loinc.org" }] },
+//   category: [{ coding: [{ code: "vital-signs", system: "http://...observation-category" }] }],
+//   subject: { reference: "Patient/pt-1" },
+//   effectiveDateTime: "2024-06-15",
+//   component: [
+//     { code: { coding: [{ code: "8480-6", system: "http://loinc.org" }] }, valueQuantity: { value: 120, unit: "mmHg" } },
+//     { code: { coding: [{ code: "8462-4", system: "http://loinc.org" }] }, valueQuantity: { value: 80, unit: "mmHg" } },
+//   ],
+// }
+
+// Wrap any Observation back into a profile to read slices
+const bp2 = observation_bpProfile.from(obs);
+
+bp2.getSystolicBP();    // { value: 120, unit: "mmHg" }  -- flattened from valueQuantity
+bp2.getDiastolicBP();   // { value: 80, unit: "mmHg" }
+bp2.getVSCat();         // { text: "Vital Signs" }
+bp2.getEffectiveDateTime(); // "2024-06-15"
+
+// Raw getters return the full FHIR element including discriminator values
+bp2.getSystolicBPRaw(); // { code: { coding: [{ code: "8480-6", ... }] }, valueQuantity: { value: 120, ... } }
+```
+
+Supports resource profiles, simple/complex extension profiles, slice accessors, choice types, and `validate()` checking required fields, fixed values, slice cardinality, enum bindings, and reference types.
+
+## Looking for feedback
+
+This is an early iteration. We'd appreciate hearing about profiles that don't generate correctly, API patterns that feel awkward, or validation gaps.
+
+GitHub: https://github.com/atomic-ehr/codegen
+NPM: `@atomic-ehr/codegen`
