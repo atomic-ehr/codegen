@@ -65,7 +65,7 @@ export interface TestPlanTestCaseTestRunScript extends BackboneElement {
     sourceString?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/TestPlan
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/TestPlan (pkg: hl7.fhir.r5.core#5.0.0)
 export interface TestPlan extends DomainResource {
     resourceType: "TestPlan";
 

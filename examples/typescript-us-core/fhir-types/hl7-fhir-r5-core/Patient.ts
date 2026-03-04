@@ -44,7 +44,7 @@ export interface PatientLink extends BackboneElement {
     type: ("replaced-by" | "replaces" | "refer" | "seealso");
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Patient
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Patient (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Patient extends DomainResource {
     resourceType: "Patient";
 
@@ -65,7 +65,7 @@ export interface Patient extends DomainResource {
     identifier?: Identifier[];
     link?: PatientLink[];
     managingOrganization?: Reference<"Organization">;
-    maritalStatus?: CodeableConcept;
+    maritalStatus?: CodeableConcept<("A" | "D" | "I" | "L" | "M" | "P" | "S" | "T" | "U" | "W" | "UNK" | string)>;
     multipleBirthBoolean?: boolean;
     _multipleBirthBoolean?: Element;
     multipleBirthInteger?: number;

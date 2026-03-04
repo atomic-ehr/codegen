@@ -23,7 +23,7 @@ export type { Reference } from "../hl7-fhir-r5-core/Reference";
 export type { VirtualServiceDetail } from "../hl7-fhir-r5-core/VirtualServiceDetail";
 
 export interface EncounterAdmission extends BackboneElement {
-    admitSource?: CodeableConcept;
+    admitSource?: CodeableConcept<("hosp-trans" | "emd" | "outp" | "born" | "gp" | "mp" | "nursing" | "psych" | "rehab" | "other" | string)>;
     destination?: Reference<"Location" | "Organization">;
     dischargeDisposition?: CodeableConcept;
     origin?: Reference<"Location" | "Organization">;
@@ -46,7 +46,7 @@ export interface EncounterLocation extends BackboneElement {
 export interface EncounterParticipant extends BackboneElement {
     actor?: Reference<"Device" | "Group" | "HealthcareService" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     period?: Period;
-    type?: CodeableConcept[];
+    type?: CodeableConcept<("translator" | "emergency" | string)>[];
 }
 
 export interface EncounterReason extends BackboneElement {
@@ -54,7 +54,7 @@ export interface EncounterReason extends BackboneElement {
     value?: CodeableReference[];
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Encounter
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Encounter (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Encounter extends DomainResource {
     resourceType: "Encounter";
 
@@ -64,7 +64,7 @@ export interface Encounter extends DomainResource {
     appointment?: Reference<"Appointment">[];
     basedOn?: Reference<"CarePlan" | "DeviceRequest" | "MedicationRequest" | "ServiceRequest">[];
     careTeam?: Reference<"CareTeam">[];
-    "class"?: CodeableConcept[];
+    "class"?: CodeableConcept<("IMP" | "AMB" | "OBSENC" | "EMER" | "VR" | "HH" | string)>[];
     diagnosis?: EncounterDiagnosis[];
     dietPreference?: CodeableConcept[];
     episodeOfCare?: Reference<"EpisodeOfCare">[];
@@ -81,8 +81,8 @@ export interface Encounter extends DomainResource {
     reason?: EncounterReason[];
     serviceProvider?: Reference<"Organization">;
     serviceType?: CodeableReference[];
-    specialArrangement?: CodeableConcept[];
-    specialCourtesy?: CodeableConcept[];
+    specialArrangement?: CodeableConcept<("wheel" | "add-bed" | "int" | "att" | "dog" | string)>[];
+    specialCourtesy?: CodeableConcept<("EXT" | "NRM" | "PRF" | "STF" | "VIP" | "UNK" | string)>[];
     status: ("planned" | "arrived" | "triaged" | "in-progress" | "onleave" | "finished" | "cancelled" | "entered-in-error" | "unknown");
     _status?: Element;
     subject?: Reference<"Group" | "Patient">;

@@ -54,7 +54,7 @@ export interface ResearchElementDefinitionCharacteristic extends BackboneElement
     usageContext?: UsageContext[];
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ResearchElementDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ResearchElementDefinition (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface ResearchElementDefinition extends DomainResource {
     resourceType: "ResearchElementDefinition";
 
@@ -63,7 +63,7 @@ export interface ResearchElementDefinition extends DomainResource {
     author?: ContactDetail[];
     characteristic: ResearchElementDefinitionCharacteristic[];
     comment?: string[];
-    _comment?: Element;
+    _comment?: (Element | null)[];
     contact?: ContactDetail[];
     copyright?: string;
     _copyright?: Element;
@@ -81,7 +81,7 @@ export interface ResearchElementDefinition extends DomainResource {
     lastReviewDate?: string;
     _lastReviewDate?: Element;
     library?: string[];
-    _library?: Element;
+    _library?: (Element | null)[];
     name?: string;
     _name?: Element;
     publisher?: string;

@@ -13,7 +13,7 @@ export type { ProdCharacteristic } from "../hl7-fhir-r4-examples/ProdCharacteris
 export type { Quantity } from "../hl7-fhir-r4-examples/Quantity";
 export type { Reference } from "../hl7-fhir-r4-examples/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductManufactured
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductManufactured (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface MedicinalProductManufactured extends DomainResource {
     resourceType: "MedicinalProductManufactured";
 

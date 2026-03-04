@@ -42,7 +42,7 @@ export interface MedicinalProductPackagedPackageItem extends BackboneElement {
     type: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductPackaged
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductPackaged (pkg: hl7.fhir.r4.core#4.0.1)
 export interface MedicinalProductPackaged extends DomainResource {
     resourceType: "MedicinalProductPackaged";
 

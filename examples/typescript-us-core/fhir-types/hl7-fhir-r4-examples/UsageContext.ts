@@ -16,9 +16,9 @@ export type { Quantity } from "../hl7-fhir-r4-examples/Quantity";
 export type { Range } from "../hl7-fhir-r4-examples/Range";
 export type { Reference } from "../hl7-fhir-r4-examples/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/UsageContext
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/UsageContext (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface UsageContext extends Element {
-    code: Coding;
+    code: Coding<("gender" | "age" | "focus" | "user" | "workflow" | "task" | "venue" | "species" | "program" | string)>;
     valueCodeableConcept?: CodeableConcept;
     valueQuantity?: Quantity;
     valueRange?: Range;

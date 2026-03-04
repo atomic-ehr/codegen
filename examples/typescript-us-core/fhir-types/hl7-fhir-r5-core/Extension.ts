@@ -75,7 +75,7 @@ export type { Timing } from "../hl7-fhir-r5-core/Timing";
 export type { TriggerDefinition } from "../hl7-fhir-r5-core/TriggerDefinition";
 export type { UsageContext } from "../hl7-fhir-r5-core/UsageContext";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Extension
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Extension (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Extension extends DataType {
     url: string;
     _url?: Element;

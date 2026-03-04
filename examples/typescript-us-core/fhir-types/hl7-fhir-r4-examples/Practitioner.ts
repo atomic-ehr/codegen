@@ -31,7 +31,7 @@ export interface PractitionerQualification extends BackboneElement {
     period?: Period;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Practitioner
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Practitioner (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface Practitioner extends DomainResource {
     resourceType: "Practitioner";
 
@@ -40,7 +40,7 @@ export interface Practitioner extends DomainResource {
     address?: Address[];
     birthDate?: string;
     _birthDate?: Element;
-    communication?: CodeableConcept[];
+    communication?: CodeableConcept<("ar" | "bn" | "cs" | "da" | "de" | "de-AT" | "de-CH" | "de-DE" | "el" | "en" | "en-AU" | "en-CA" | "en-GB" | "en-IN" | "en-NZ" | "en-SG" | "en-US" | "es" | "es-AR" | "es-ES" | "es-UY" | "fi" | "fr" | "fr-BE" | "fr-CH" | "fr-FR" | "fy" | "fy-NL" | "hi" | "hr" | "it" | "it-CH" | "it-IT" | "ja" | "ko" | "nl" | "nl-BE" | "nl-NL" | "no" | "no-NO" | "pa" | "pl" | "pt" | "pt-BR" | "ru" | "ru-RU" | "sr" | "sr-RS" | "sv" | "sv-SE" | "te" | "zh" | "zh-CN" | "zh-HK" | "zh-SG" | "zh-TW" | string)>[];
     gender?: ("male" | "female" | "other" | "unknown");
     _gender?: Element;
     identifier?: Identifier[];

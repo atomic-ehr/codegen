@@ -1,6 +1,10 @@
-export { SMARTAppStateBasicProfile } from "./SmartappStateBasic";
-export { TaskEhrLaunchProfile } from "./TaskEhrLaunch";
-export { TaskStandaloneLaunchProfile } from "./TaskStandaloneLaunch";
-export { UserAccessBrandProfile } from "./UserAccessBrand";
-export { UserAccessBrandsBundleProfile } from "./UserAccessBrandsBundle";
-export { UserAccessEndpointProfile } from "./UserAccessEndpoint";
+export type { TaskEhrLaunch } from "./Task_TaskEhrLaunch";
+export type { TaskStandaloneLaunch } from "./Task_TaskStandaloneLaunch";
+export type { UserAccessBrand } from "./Organization_UserAccessBrand";
+export type { UserAccessEndpoint } from "./Endpoint_UserAccessEndpoint";
+export { SMARTAppStateBasicProfile } from "./Basic_SMARTAppStateBasic";
+export { TaskEhrLaunchProfile } from "./Task_TaskEhrLaunch";
+export { TaskStandaloneLaunchProfile } from "./Task_TaskStandaloneLaunch";
+export { UserAccessBrandProfile } from "./Organization_UserAccessBrand";
+export { UserAccessBrandsBundleProfile } from "./Bundle_UserAccessBrandsBundle";
+export { UserAccessEndpointProfile } from "./Endpoint_UserAccessEndpoint";

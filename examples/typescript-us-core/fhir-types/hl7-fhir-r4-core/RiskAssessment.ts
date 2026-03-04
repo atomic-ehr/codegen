@@ -31,7 +31,7 @@ export interface RiskAssessmentPrediction extends BackboneElement {
     whenRange?: Range;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/RiskAssessment
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/RiskAssessment (pkg: hl7.fhir.r4.core#4.0.1)
 export interface RiskAssessment extends DomainResource {
     resourceType: "RiskAssessment";
 

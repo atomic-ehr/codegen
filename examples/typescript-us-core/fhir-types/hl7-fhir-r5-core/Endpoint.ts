@@ -23,7 +23,7 @@ export interface EndpointPayload extends BackboneElement {
     type?: CodeableConcept[];
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Endpoint
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Endpoint (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Endpoint extends DomainResource {
     resourceType: "Endpoint";
 
@@ -35,7 +35,7 @@ export interface Endpoint extends DomainResource {
     _description?: Element;
     environmentType?: CodeableConcept[];
     header?: string[];
-    _header?: Element;
+    _header?: (Element | null)[];
     identifier?: Identifier[];
     managingOrganization?: Reference<"Organization">;
     name?: string;

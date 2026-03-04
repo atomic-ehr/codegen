@@ -50,7 +50,7 @@ export interface SubstanceReferenceInformationTarget extends BackboneElement {
     type?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstanceReferenceInformation
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstanceReferenceInformation (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface SubstanceReferenceInformation extends DomainResource {
     resourceType: "SubstanceReferenceInformation";
 

@@ -36,7 +36,7 @@ export interface ObservationDefinitionQualifiedValue extends BackboneElement {
     age?: Range;
     appliesTo?: CodeableConcept[];
     condition?: string;
-    context?: CodeableConcept;
+    context?: CodeableConcept<("type" | "normal" | "recommended" | "treatment" | "therapeutic" | "pre" | "post" | "endocrine" | "pre-puberty" | "follicular" | "midcycle" | "luteal" | "postmenopausal" | string)>;
     criticalCodedValueSet?: string;
     gender?: ("male" | "female" | "other" | "unknown");
     gestationalAge?: Range;
@@ -46,7 +46,7 @@ export interface ObservationDefinitionQualifiedValue extends BackboneElement {
     validCodedValueSet?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ObservationDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ObservationDefinition (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ObservationDefinition extends DomainResource {
     resourceType: "ObservationDefinition";
 
@@ -64,9 +64,9 @@ export interface ObservationDefinition extends DomainResource {
     date?: string;
     _date?: Element;
     derivedFromCanonical?: string[];
-    _derivedFromCanonical?: Element;
+    _derivedFromCanonical?: (Element | null)[];
     derivedFromUri?: string[];
-    _derivedFromUri?: Element;
+    _derivedFromUri?: (Element | null)[];
     description?: string;
     _description?: Element;
     device?: Reference<"Device" | "DeviceDefinition">[];
@@ -85,7 +85,7 @@ export interface ObservationDefinition extends DomainResource {
     _name?: Element;
     performerType?: CodeableConcept;
     permittedDataType?: ("Quantity" | "CodeableConcept" | "string" | "boolean" | "integer" | "Range" | "Ratio" | "SampledData" | "time" | "dateTime" | "Period")[];
-    _permittedDataType?: Element;
+    _permittedDataType?: (Element | null)[];
     permittedUnit?: Coding[];
     preferredReportName?: string;
     _preferredReportName?: Element;

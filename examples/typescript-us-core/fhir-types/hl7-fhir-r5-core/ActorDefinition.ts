@@ -16,7 +16,7 @@ export type { ContactDetail } from "../hl7-fhir-r5-core/ContactDetail";
 export type { Identifier } from "../hl7-fhir-r5-core/Identifier";
 export type { UsageContext } from "../hl7-fhir-r5-core/UsageContext";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ActorDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ActorDefinition (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ActorDefinition extends DomainResource {
     resourceType: "ActorDefinition";
 
@@ -30,7 +30,7 @@ export interface ActorDefinition extends DomainResource {
     date?: string;
     _date?: Element;
     derivedFrom?: string[];
-    _derivedFrom?: Element;
+    _derivedFrom?: (Element | null)[];
     description?: string;
     _description?: Element;
     documentation?: string;
@@ -46,7 +46,7 @@ export interface ActorDefinition extends DomainResource {
     purpose?: string;
     _purpose?: Element;
     reference?: string[];
-    _reference?: Element;
+    _reference?: (Element | null)[];
     status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     title?: string;

@@ -34,7 +34,7 @@ export interface MedicationDispenseSubstitution extends BackboneElement {
     wasSubstituted: boolean;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicationDispense
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicationDispense (pkg: hl7.fhir.r5.core#5.0.0)
 export interface MedicationDispense extends DomainResource {
     resourceType: "MedicationDispense";
 

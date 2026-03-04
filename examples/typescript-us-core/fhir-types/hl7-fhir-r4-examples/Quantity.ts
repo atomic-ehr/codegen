@@ -6,7 +6,7 @@ import type { Element } from "../hl7-fhir-r4-examples/Element";
 
 export type { Element } from "../hl7-fhir-r4-examples/Element";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Quantity
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Quantity (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface Quantity extends Element {
     code?: string;
     _code?: Element;

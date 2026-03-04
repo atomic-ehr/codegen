@@ -12,7 +12,7 @@ export type { CodeableConcept } from "../hl7-fhir-r5-core/CodeableConcept";
 export type { Identifier } from "../hl7-fhir-r5-core/Identifier";
 export type { Reference } from "../hl7-fhir-r5-core/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/AppointmentResponse
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/AppointmentResponse (pkg: hl7.fhir.r5.core#5.0.0)
 export interface AppointmentResponse extends DomainResource {
     resourceType: "AppointmentResponse";
 
@@ -27,7 +27,7 @@ export interface AppointmentResponse extends DomainResource {
     _occurrenceDate?: Element;
     participantStatus: ("accepted" | "declined" | "tentative" | "needs-action" | "entered-in-error");
     _participantStatus?: Element;
-    participantType?: CodeableConcept[];
+    participantType?: CodeableConcept<("translator" | "emergency" | string)>[];
     proposedNewTime?: boolean;
     _proposedNewTime?: Element;
     recurrenceId?: number;

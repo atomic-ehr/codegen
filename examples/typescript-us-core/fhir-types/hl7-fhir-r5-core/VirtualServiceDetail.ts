@@ -13,10 +13,10 @@ export type { ContactPoint } from "../hl7-fhir-r5-core/ContactPoint";
 export type { DataType } from "../hl7-fhir-r5-core/DataType";
 export type { ExtendedContactDetail } from "../hl7-fhir-r5-core/ExtendedContactDetail";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/VirtualServiceDetail
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/VirtualServiceDetail (pkg: hl7.fhir.r5.core#5.0.0)
 export interface VirtualServiceDetail extends DataType {
     additionalInfo?: string[];
-    _additionalInfo?: Element;
+    _additionalInfo?: (Element | null)[];
     addressContactPoint?: ContactPoint;
     addressExtendedContactDetail?: ExtendedContactDetail;
     addressString?: string;

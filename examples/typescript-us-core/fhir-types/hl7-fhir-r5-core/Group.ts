@@ -37,7 +37,7 @@ export interface GroupMember extends BackboneElement {
     period?: Period;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Group
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Group (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Group extends DomainResource {
     resourceType: "Group";
 

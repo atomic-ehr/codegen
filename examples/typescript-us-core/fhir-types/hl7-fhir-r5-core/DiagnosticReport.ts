@@ -30,7 +30,7 @@ export interface DiagnosticReportSupportingInfo extends BackboneElement {
     type: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DiagnosticReport
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DiagnosticReport (pkg: hl7.fhir.r5.core#5.0.0)
 export interface DiagnosticReport extends DomainResource {
     resourceType: "DiagnosticReport";
 

@@ -19,7 +19,7 @@ export type { Signature } from "../hl7-fhir-r4-core/Signature";
 export interface ProvenanceAgent extends BackboneElement {
     onBehalfOf?: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     role?: CodeableConcept[];
-    type?: CodeableConcept;
+    type?: CodeableConcept<("enterer" | "performer" | "author" | "verifier" | "legal" | "attester" | "informant" | "custodian" | "assembler" | "composer" | string)>;
     who: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
 }
 
@@ -29,11 +29,11 @@ export interface ProvenanceEntity extends BackboneElement {
     what: Reference<"Resource">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Provenance
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Provenance (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Provenance extends DomainResource {
     resourceType: "Provenance";
 
-    activity?: CodeableConcept;
+    activity?: CodeableConcept<("LA" | "ANONY" | "DEID" | "MASK" | "LABEL" | "PSEUD" | "CREATE" | "DELETE" | "UPDATE" | "APPEND" | "NULLIFY" | "PART" | "_ParticipationAncillary" | "ADM" | "ATND" | "CALLBCK" | "CON" | "DIS" | "ESC" | "REF" | "_ParticipationInformationGenerator" | "AUT" | "INF" | "TRANS" | "ENT" | "WIT" | "CST" | "DIR" | "ALY" | "BBY" | "CAT" | "CSM" | "TPA" | "DEV" | "NRD" | "RDV" | "DON" | "EXPAGNT" | "EXPART" | "EXPTRGT" | "EXSRC" | "PRD" | "SBJ" | "SPC" | "IND" | "BEN" | "CAGNT" | "COV" | "GUAR" | "HLD" | "RCT" | "RCV" | "IRCP" | "NOT" | "PRCP" | "REFB" | "REFT" | "TRC" | "LOC" | "DST" | "ELOC" | "ORG" | "RML" | "VIA" | "PRF" | "DIST" | "PPRF" | "SPRF" | "RESP" | "VRF" | "AUTHEN" | "LA" | string)>;
     agent: ProvenanceAgent[];
     entity?: ProvenanceEntity[];
     location?: Reference<"Location">;
@@ -41,7 +41,7 @@ export interface Provenance extends DomainResource {
     _occurredDateTime?: Element;
     occurredPeriod?: Period;
     policy?: string[];
-    _policy?: Element;
+    _policy?: (Element | null)[];
     reason?: CodeableConcept[];
     recorded: string;
     _recorded?: Element;

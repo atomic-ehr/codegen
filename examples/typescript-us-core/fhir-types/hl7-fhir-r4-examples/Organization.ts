@@ -23,11 +23,11 @@ export type { Reference } from "../hl7-fhir-r4-examples/Reference";
 export interface OrganizationContact extends BackboneElement {
     address?: Address;
     name?: HumanName;
-    purpose?: CodeableConcept;
+    purpose?: CodeableConcept<("BILL" | "ADMIN" | "HR" | "PAYOR" | "PATINF" | "PRESS" | string)>;
     telecom?: ContactPoint[];
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Organization
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Organization (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface Organization extends DomainResource {
     resourceType: "Organization";
 
@@ -35,7 +35,7 @@ export interface Organization extends DomainResource {
     _active?: Element;
     address?: Address[];
     alias?: string[];
-    _alias?: Element;
+    _alias?: (Element | null)[];
     contact?: OrganizationContact[];
     endpoint?: Reference<"Endpoint">[];
     identifier?: Identifier[];

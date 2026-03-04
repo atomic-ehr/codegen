@@ -26,18 +26,18 @@ export interface SubscriptionTopicCanFilterBy extends BackboneElement {
     filterDefinition?: string;
     filterParameter: string;
     modifier?: ("missing" | "exact" | "contains" | "not" | "text" | "in" | "not-in" | "below" | "above" | "type" | "identifier" | "ofType")[];
-    resource?: string;
+    resource?: ("Reference" | string);
 }
 
 export interface SubscriptionTopicEventTrigger extends BackboneElement {
     description?: string;
     event: CodeableConcept;
-    resource: string;
+    resource: ("Reference" | string);
 }
 
 export interface SubscriptionTopicNotificationShape extends BackboneElement {
     include?: string[];
-    resource: string;
+    resource: ("Reference" | string);
     revInclude?: string[];
 }
 
@@ -45,7 +45,7 @@ export interface SubscriptionTopicResourceTrigger extends BackboneElement {
     description?: string;
     fhirPathCriteria?: string;
     queryCriteria?: SubscriptionTopicResourceTriggerQueryCriteria;
-    resource: string;
+    resource: ("Reference" | string);
     supportedInteraction?: ("create" | "update" | "delete")[];
 }
 
@@ -57,7 +57,7 @@ export interface SubscriptionTopicResourceTriggerQueryCriteria extends BackboneE
     resultForDelete?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubscriptionTopic
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubscriptionTopic (pkg: hl7.fhir.r5.core#5.0.0)
 export interface SubscriptionTopic extends DomainResource {
     resourceType: "SubscriptionTopic";
 
@@ -72,7 +72,7 @@ export interface SubscriptionTopic extends DomainResource {
     date?: string;
     _date?: Element;
     derivedFrom?: string[];
-    _derivedFrom?: Element;
+    _derivedFrom?: (Element | null)[];
     description?: string;
     _description?: Element;
     effectivePeriod?: Period;

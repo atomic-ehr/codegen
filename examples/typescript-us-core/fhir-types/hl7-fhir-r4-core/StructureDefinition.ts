@@ -40,7 +40,7 @@ export interface StructureDefinitionSnapshot extends BackboneElement {
     element: ElementDefinition[];
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/StructureDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/StructureDefinition (pkg: hl7.fhir.r4.core#4.0.1)
 export interface StructureDefinition extends DomainResource {
     resourceType: "StructureDefinition";
 
@@ -51,7 +51,7 @@ export interface StructureDefinition extends DomainResource {
     contact?: ContactDetail[];
     context?: StructureDefinitionContext[];
     contextInvariant?: string[];
-    _contextInvariant?: Element;
+    _contextInvariant?: (Element | null)[];
     copyright?: string;
     _copyright?: Element;
     date?: string;
@@ -67,7 +67,7 @@ export interface StructureDefinition extends DomainResource {
     _fhirVersion?: Element;
     identifier?: Identifier[];
     jurisdiction?: CodeableConcept[];
-    keyword?: Coding[];
+    keyword?: Coding<("fhir-structure" | "custom-resource" | "dam" | "wire-format" | "archetype" | "template" | string)>[];
     kind: ("primitive-type" | "complex-type" | "resource" | "logical");
     _kind?: Element;
     mapping?: StructureDefinitionMapping[];

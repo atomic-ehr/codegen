@@ -30,7 +30,7 @@ export interface SupplyRequestParameter extends BackboneElement {
     valueRange?: Range;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SupplyRequest
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SupplyRequest (pkg: hl7.fhir.r4.core#4.0.1)
 export interface SupplyRequest extends DomainResource {
     resourceType: "SupplyRequest";
 

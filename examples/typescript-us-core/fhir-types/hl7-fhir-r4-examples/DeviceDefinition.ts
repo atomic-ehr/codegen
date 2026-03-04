@@ -57,7 +57,7 @@ export interface DeviceDefinitionUdiDeviceIdentifier extends BackboneElement {
     jurisdiction: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DeviceDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DeviceDefinition (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface DeviceDefinition extends DomainResource {
     resourceType: "DeviceDefinition";
 
@@ -88,7 +88,7 @@ export interface DeviceDefinition extends DomainResource {
     url?: string;
     _url?: Element;
     version?: string[];
-    _version?: Element;
+    _version?: (Element | null)[];
 }
 export const isDeviceDefinition = (resource: unknown): resource is DeviceDefinition => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "DeviceDefinition";

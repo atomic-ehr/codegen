@@ -61,7 +61,7 @@ export interface GenomicStudyAnalysisPerformer extends BackboneElement {
     role?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/GenomicStudy
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/GenomicStudy (pkg: hl7.fhir.r5.core#5.0.0)
 export interface GenomicStudy extends DomainResource {
     resourceType: "GenomicStudy";
 

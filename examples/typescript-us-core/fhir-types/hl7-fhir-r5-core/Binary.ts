@@ -8,7 +8,7 @@ import type { Resource } from "../hl7-fhir-r5-core/Resource";
 import type { Element } from "../hl7-fhir-r5-core/Element";
 export type { Reference } from "../hl7-fhir-r5-core/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Binary
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Binary (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Binary extends Resource {
     resourceType: "Binary";
 

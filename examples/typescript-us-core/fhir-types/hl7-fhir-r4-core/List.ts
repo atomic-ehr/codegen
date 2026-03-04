@@ -23,21 +23,21 @@ export interface ListEntry extends BackboneElement {
     item: Reference<"Resource">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/List
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/List (pkg: hl7.fhir.r4.core#4.0.1)
 export interface List extends DomainResource {
     resourceType: "List";
 
     code?: CodeableConcept;
     date?: string;
     _date?: Element;
-    emptyReason?: CodeableConcept;
+    emptyReason?: CodeableConcept<("nilknown" | "notasked" | "withheld" | "unavailable" | "notstarted" | "closed" | string)>;
     encounter?: Reference<"Encounter">;
     entry?: ListEntry[];
     identifier?: Identifier[];
     mode: ("working" | "snapshot" | "changes");
     _mode?: Element;
     note?: Annotation[];
-    orderedBy?: CodeableConcept;
+    orderedBy?: CodeableConcept<("user" | "system" | "event-date" | "entry-date" | "priority" | "alphabetic" | "category" | "patient" | string)>;
     source?: Reference<"Device" | "Patient" | "Practitioner" | "PractitionerRole">;
     status: ("current" | "retired" | "entered-in-error");
     _status?: Element;

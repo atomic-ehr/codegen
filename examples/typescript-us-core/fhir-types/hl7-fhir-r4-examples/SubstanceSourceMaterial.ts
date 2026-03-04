@@ -53,7 +53,7 @@ export interface SubstanceSourceMaterialPartDescription extends BackboneElement 
     partLocation?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstanceSourceMaterial
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstanceSourceMaterial (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface SubstanceSourceMaterial extends DomainResource {
     resourceType: "SubstanceSourceMaterial";
 
@@ -61,14 +61,14 @@ export interface SubstanceSourceMaterial extends DomainResource {
     developmentStage?: CodeableConcept;
     fractionDescription?: SubstanceSourceMaterialFractionDescription[];
     geographicalLocation?: string[];
-    _geographicalLocation?: Element;
+    _geographicalLocation?: (Element | null)[];
     organism?: SubstanceSourceMaterialOrganism;
     organismId?: Identifier;
     organismName?: string;
     _organismName?: Element;
     parentSubstanceId?: Identifier[];
     parentSubstanceName?: string[];
-    _parentSubstanceName?: Element;
+    _parentSubstanceName?: (Element | null)[];
     partDescription?: SubstanceSourceMaterialPartDescription[];
     sourceMaterialClass?: CodeableConcept;
     sourceMaterialState?: CodeableConcept;

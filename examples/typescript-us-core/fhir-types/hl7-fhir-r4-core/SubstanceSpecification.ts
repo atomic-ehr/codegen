@@ -116,7 +116,7 @@ export interface SubstanceSpecificationStructureRepresentation extends BackboneE
     type?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstanceSpecification
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstanceSpecification (pkg: hl7.fhir.r4.core#4.0.1)
 export interface SubstanceSpecification extends DomainResource {
     resourceType: "SubstanceSpecification";
 

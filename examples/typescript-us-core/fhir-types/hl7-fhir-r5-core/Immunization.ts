@@ -22,7 +22,7 @@ export type { Reference } from "../hl7-fhir-r5-core/Reference";
 
 export interface ImmunizationPerformer extends BackboneElement {
     actor: Reference<"Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    "function"?: CodeableConcept;
+    "function"?: CodeableConcept<("OP" | "AP" | string)>;
 }
 
 export interface ImmunizationProgramEligibility extends BackboneElement {
@@ -44,7 +44,7 @@ export interface ImmunizationReaction extends BackboneElement {
     reported?: boolean;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Immunization
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Immunization (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Immunization extends DomainResource {
     resourceType: "Immunization";
 

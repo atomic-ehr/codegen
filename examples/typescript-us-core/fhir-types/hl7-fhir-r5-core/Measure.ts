@@ -30,22 +30,22 @@ export interface MeasureGroup extends BackboneElement {
     basis?: string;
     code?: CodeableConcept;
     description?: string;
-    improvementNotation?: CodeableConcept;
+    improvementNotation?: CodeableConcept<("increase" | "decrease")>;
     library?: string[];
     linkId?: string;
     population?: MeasureGroupPopulation[];
     rateAggregation?: string;
-    scoring?: CodeableConcept;
+    scoring?: CodeableConcept<("proportion" | "ratio" | "continuous-variable" | "cohort" | string)>;
     scoringUnit?: CodeableConcept;
     stratifier?: MeasureGroupStratifier[];
     subjectCodeableConcept?: CodeableConcept;
     subjectReference?: Reference<"Group">;
-    type?: CodeableConcept[];
+    type?: CodeableConcept<("process" | "outcome" | "structure" | "patient-reported-outcome" | "composite" | string)>[];
 }
 
 export interface MeasureGroupPopulation extends BackboneElement {
     aggregateMethod?: CodeableConcept;
-    code?: CodeableConcept;
+    code?: CodeableConcept<("initial-population" | "numerator" | "numerator-exclusion" | "denominator" | "denominator-exclusion" | "denominator-exception" | "measure-population" | "measure-population-exclusion" | "measure-observation" | string)>;
     criteria?: Expression;
     description?: string;
     groupDefinition?: Reference<"Group">;
@@ -75,7 +75,7 @@ export interface MeasureSupplementalData extends BackboneElement {
     criteria: Expression;
     description?: string;
     linkId?: string;
-    usage?: CodeableConcept[];
+    usage?: CodeableConcept<("supplemental-data" | "risk-adjustment-factor" | string)>[];
 }
 
 export interface MeasureTerm extends BackboneElement {
@@ -83,7 +83,7 @@ export interface MeasureTerm extends BackboneElement {
     definition?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Measure
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Measure (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Measure extends DomainResource {
     resourceType: "Measure";
 
@@ -94,7 +94,7 @@ export interface Measure extends DomainResource {
     _basis?: Element;
     clinicalRecommendationStatement?: string;
     _clinicalRecommendationStatement?: Element;
-    compositeScoring?: CodeableConcept;
+    compositeScoring?: CodeableConcept<("opportunity" | "all-or-nothing" | "linear" | "weighted" | string)>;
     contact?: ContactDetail[];
     copyright?: string;
     _copyright?: Element;
@@ -115,12 +115,12 @@ export interface Measure extends DomainResource {
     guidance?: string;
     _guidance?: Element;
     identifier?: Identifier[];
-    improvementNotation?: CodeableConcept;
+    improvementNotation?: CodeableConcept<("increase" | "decrease")>;
     jurisdiction?: CodeableConcept[];
     lastReviewDate?: string;
     _lastReviewDate?: Element;
     library?: string[];
-    _library?: Element;
+    _library?: (Element | null)[];
     name?: string;
     _name?: Element;
     publisher?: string;
@@ -135,7 +135,7 @@ export interface Measure extends DomainResource {
     reviewer?: ContactDetail[];
     riskAdjustment?: string;
     _riskAdjustment?: Element;
-    scoring?: CodeableConcept;
+    scoring?: CodeableConcept<("proportion" | "ratio" | "continuous-variable" | "cohort" | string)>;
     scoringUnit?: CodeableConcept;
     status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
@@ -148,7 +148,7 @@ export interface Measure extends DomainResource {
     title?: string;
     _title?: Element;
     topic?: CodeableConcept[];
-    type?: CodeableConcept[];
+    type?: CodeableConcept<("process" | "outcome" | "structure" | "patient-reported-outcome" | "composite" | string)>[];
     url?: string;
     _url?: Element;
     usage?: string;

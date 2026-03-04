@@ -2,8 +2,5 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Request
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Request (pkg: hl7.fhir.r4.core#4.0.1)
 export type Request = object;
-export const isRequest = (resource: unknown): resource is Request => {
-    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Request";
-}

@@ -87,7 +87,7 @@ export interface QuestionnaireItemInitial extends BackboneElement {
     valueUri?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Questionnaire
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Questionnaire (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Questionnaire extends DomainResource {
     resourceType: "Questionnaire";
 
@@ -102,7 +102,7 @@ export interface Questionnaire extends DomainResource {
     date?: string;
     _date?: Element;
     derivedFrom?: string[];
-    _derivedFrom?: Element;
+    _derivedFrom?: (Element | null)[];
     description?: string;
     _description?: Element;
     effectivePeriod?: Period;
@@ -122,7 +122,7 @@ export interface Questionnaire extends DomainResource {
     status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     subjectType?: string[];
-    _subjectType?: Element;
+    _subjectType?: (Element | null)[];
     title?: string;
     _title?: Element;
     url?: string;

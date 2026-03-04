@@ -95,7 +95,7 @@ export interface ConceptMapProperty extends BackboneElement {
     uri?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ConceptMap
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ConceptMap (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ConceptMap extends DomainResource {
     resourceType: "ConceptMap";
 

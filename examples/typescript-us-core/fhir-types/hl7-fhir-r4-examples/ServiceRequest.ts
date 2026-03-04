@@ -24,7 +24,7 @@ export type { Ratio } from "../hl7-fhir-r4-examples/Ratio";
 export type { Reference } from "../hl7-fhir-r4-examples/Reference";
 export type { Timing } from "../hl7-fhir-r4-examples/Timing";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ServiceRequest
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ServiceRequest (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface ServiceRequest extends DomainResource {
     resourceType: "ServiceRequest";
 
@@ -42,9 +42,9 @@ export interface ServiceRequest extends DomainResource {
     encounter?: Reference<"Encounter">;
     identifier?: Identifier[];
     instantiatesCanonical?: string[];
-    _instantiatesCanonical?: Element;
+    _instantiatesCanonical?: (Element | null)[];
     instantiatesUri?: string[];
-    _instantiatesUri?: Element;
+    _instantiatesUri?: (Element | null)[];
     insurance?: Reference<"ClaimResponse" | "Coverage">[];
     intent: ("proposal" | "plan" | "directive" | "order" | "original-order" | "reflex-order" | "filler-order" | "instance-order" | "option");
     _intent?: Element;

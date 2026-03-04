@@ -76,7 +76,7 @@ export interface ExampleScenarioProcessStepOperation extends BackboneElement {
     type?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ExampleScenario
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ExampleScenario (pkg: hl7.fhir.r4.core#4.0.1)
 export interface ExampleScenario extends DomainResource {
     resourceType: "ExampleScenario";
 
@@ -106,7 +106,7 @@ export interface ExampleScenario extends DomainResource {
     version?: string;
     _version?: Element;
     workflow?: string[];
-    _workflow?: Element;
+    _workflow?: (Element | null)[];
 }
 export const isExampleScenario = (resource: unknown): resource is ExampleScenario => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "ExampleScenario";

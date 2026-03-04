@@ -70,7 +70,7 @@ export interface ClinicalUseDefinitionWarning extends BackboneElement {
     description?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ClinicalUseDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ClinicalUseDefinition (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ClinicalUseDefinition extends DomainResource {
     resourceType: "ClinicalUseDefinition";
 
@@ -80,9 +80,9 @@ export interface ClinicalUseDefinition extends DomainResource {
     indication?: ClinicalUseDefinitionIndication;
     interaction?: ClinicalUseDefinitionInteraction;
     library?: string[];
-    _library?: Element;
+    _library?: (Element | null)[];
     population?: Reference<"Group">[];
-    status?: CodeableConcept;
+    status?: CodeableConcept<("draft" | "active" | "retired" | "unknown" | string)>;
     subject?: Reference<"ActivityDefinition" | "BiologicallyDerivedProduct" | "Device" | "DeviceDefinition" | "Medication" | "MedicinalProductDefinition" | "NutritionProduct" | "PlanDefinition" | "Substance">[];
     type: string;
     _type?: Element;

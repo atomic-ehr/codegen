@@ -20,17 +20,12 @@ export interface sdc_question_libraryName extends Element {
     prefix?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-question-library
+// CanonicalURL: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-question-library (pkg: hl7.fhir.uv.sdc#3.0.0)
 export interface SDCQuestionLibrary extends Resource {
-    resourceType: "SDCQuestionLibrary";
-
-    address?: Element;
+    address?: sdc_question_libraryAddress;
     dob?: string;
     _dob?: Element;
-    name?: Element;
+    name?: sdc_question_libraryName;
     sex?: ("male" | "female" | "other" | "unknown");
     _sex?: Element;
-}
-export const isSDCQuestionLibrary = (resource: unknown): resource is SDCQuestionLibrary => {
-    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "SDCQuestionLibrary";
 }

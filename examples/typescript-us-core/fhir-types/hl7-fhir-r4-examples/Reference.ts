@@ -8,7 +8,7 @@ import type { Identifier } from "../hl7-fhir-r4-examples/Identifier";
 export type { Element } from "../hl7-fhir-r4-examples/Element";
 export type { Identifier } from "../hl7-fhir-r4-examples/Identifier";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Reference
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Reference (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface Reference<T extends string = string> extends Element {
     display?: string;
     _display?: Element;

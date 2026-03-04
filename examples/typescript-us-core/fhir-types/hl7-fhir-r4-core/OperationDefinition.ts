@@ -43,7 +43,7 @@ export interface OperationDefinitionParameterReferencedFrom extends BackboneElem
     sourceId?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/OperationDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/OperationDefinition (pkg: hl7.fhir.r4.core#4.0.1)
 export interface OperationDefinition extends DomainResource {
     resourceType: "OperationDefinition";
 
@@ -80,7 +80,7 @@ export interface OperationDefinition extends DomainResource {
     purpose?: string;
     _purpose?: Element;
     resource?: string[];
-    _resource?: Element;
+    _resource?: (Element | null)[];
     status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     system: boolean;

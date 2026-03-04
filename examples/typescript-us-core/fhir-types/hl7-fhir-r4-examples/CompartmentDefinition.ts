@@ -18,7 +18,7 @@ export interface CompartmentDefinitionResource extends BackboneElement {
     param?: string[];
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CompartmentDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CompartmentDefinition (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface CompartmentDefinition extends DomainResource {
     resourceType: "CompartmentDefinition";
 

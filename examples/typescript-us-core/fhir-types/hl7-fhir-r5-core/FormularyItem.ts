@@ -10,7 +10,7 @@ import type { Element } from "../hl7-fhir-r5-core/Element";
 export type { CodeableConcept } from "../hl7-fhir-r5-core/CodeableConcept";
 export type { Identifier } from "../hl7-fhir-r5-core/Identifier";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/FormularyItem
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/FormularyItem (pkg: hl7.fhir.r5.core#5.0.0)
 export interface FormularyItem extends DomainResource {
     resourceType: "FormularyItem";
 

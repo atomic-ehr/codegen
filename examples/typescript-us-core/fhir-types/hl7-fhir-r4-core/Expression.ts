@@ -6,13 +6,13 @@ import type { Element } from "../hl7-fhir-r4-core/Element";
 
 export type { Element } from "../hl7-fhir-r4-core/Element";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Expression
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Expression (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Expression extends Element {
     description?: string;
     _description?: Element;
     expression?: string;
     _expression?: Element;
-    language: string;
+    language: ("text/cql" | "text/fhirpath" | "application/x-fhir-query" | string);
     _language?: Element;
     name?: string;
     _name?: Element;

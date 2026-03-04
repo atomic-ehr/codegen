@@ -22,7 +22,7 @@ export type { UsageContext } from "../hl7-fhir-r5-core/UsageContext";
 
 export interface TestScriptDestination extends BackboneElement {
     index: number;
-    profile: Coding;
+    profile: Coding<("FHIR-Server" | "FHIR-SDC-FormManager" | "FHIR-SDC-FormProcessor" | "FHIR-SDC-FormReceiver" | string)>;
     url?: string;
 }
 
@@ -54,7 +54,7 @@ export interface TestScriptMetadataLink extends BackboneElement {
 
 export interface TestScriptOrigin extends BackboneElement {
     index: number;
-    profile: Coding;
+    profile: Coding<("FHIR-Client" | "FHIR-SDC-FormFiller" | string)>;
     url?: string;
 }
 
@@ -122,7 +122,7 @@ export interface TestScriptSetupActionOperation extends BackboneElement {
     responseId?: string;
     sourceId?: string;
     targetId?: string;
-    type?: Coding;
+    type?: Coding<("read" | "vread" | "update" | "patch" | "delete" | "history" | "history-instance" | "history-type" | "history-system" | "create" | "search" | "search-type" | "search-system" | "capabilities" | "transaction" | "batch" | "operation" | string)>;
     url?: string;
 }
 
@@ -161,7 +161,7 @@ export interface TestScriptVariable extends BackboneElement {
     sourceId?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/TestScript
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/TestScript (pkg: hl7.fhir.r5.core#5.0.0)
 export interface TestScript extends DomainResource {
     resourceType: "TestScript";
 
@@ -185,7 +185,7 @@ export interface TestScript extends DomainResource {
     _name?: Element;
     origin?: TestScriptOrigin[];
     profile?: string[];
-    _profile?: Element;
+    _profile?: (Element | null)[];
     publisher?: string;
     _publisher?: Element;
     purpose?: string;

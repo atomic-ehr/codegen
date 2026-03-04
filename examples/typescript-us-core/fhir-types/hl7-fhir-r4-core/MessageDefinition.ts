@@ -30,7 +30,7 @@ export interface MessageDefinitionFocus extends BackboneElement {
     profile?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MessageDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MessageDefinition (pkg: hl7.fhir.r4.core#4.0.1)
 export interface MessageDefinition extends DomainResource {
     resourceType: "MessageDefinition";
 
@@ -53,19 +53,19 @@ export interface MessageDefinition extends DomainResource {
     _experimental?: Element;
     focus?: MessageDefinitionFocus[];
     graph?: string[];
-    _graph?: Element;
+    _graph?: (Element | null)[];
     identifier?: Identifier[];
     jurisdiction?: CodeableConcept[];
     name?: string;
     _name?: Element;
     parent?: string[];
-    _parent?: Element;
+    _parent?: (Element | null)[];
     publisher?: string;
     _publisher?: Element;
     purpose?: string;
     _purpose?: Element;
     replaces?: string[];
-    _replaces?: Element;
+    _replaces?: (Element | null)[];
     responseRequired?: ("always" | "on-error" | "never" | "on-success");
     _responseRequired?: Element;
     status: ("draft" | "active" | "retired" | "unknown");

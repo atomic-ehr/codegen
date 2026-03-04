@@ -40,7 +40,7 @@ export interface VisionPrescriptionLensSpecificationPrism extends BackboneElemen
     base: ("up" | "down" | "in" | "out");
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/VisionPrescription
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/VisionPrescription (pkg: hl7.fhir.r4.core#4.0.1)
 export interface VisionPrescription extends DomainResource {
     resourceType: "VisionPrescription";
 

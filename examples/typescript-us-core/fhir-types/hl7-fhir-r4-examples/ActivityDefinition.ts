@@ -46,7 +46,7 @@ export interface ActivityDefinitionParticipant extends BackboneElement {
     type: ("patient" | "practitioner" | "related-person" | "device");
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ActivityDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ActivityDefinition (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface ActivityDefinition extends DomainResource {
     resourceType: "ActivityDefinition";
 
@@ -80,7 +80,7 @@ export interface ActivityDefinition extends DomainResource {
     lastReviewDate?: string;
     _lastReviewDate?: Element;
     library?: string[];
-    _library?: Element;
+    _library?: (Element | null)[];
     location?: Reference<"Location">;
     name?: string;
     _name?: Element;

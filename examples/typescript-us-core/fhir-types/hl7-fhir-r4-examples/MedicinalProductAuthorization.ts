@@ -32,7 +32,7 @@ export interface MedicinalProductAuthorizationProcedure extends BackboneElement 
     type: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductAuthorization
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductAuthorization (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface MedicinalProductAuthorization extends DomainResource {
     resourceType: "MedicinalProductAuthorization";
 

@@ -6,6 +6,6 @@ import type { DataType } from "../hl7-fhir-r5-core/DataType";
 
 export type { DataType } from "../hl7-fhir-r5-core/DataType";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/PrimitiveType
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/PrimitiveType (pkg: hl7.fhir.r5.core#5.0.0)
 export interface PrimitiveType extends DataType {
 }

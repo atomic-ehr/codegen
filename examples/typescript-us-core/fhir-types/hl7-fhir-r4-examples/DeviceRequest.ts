@@ -32,7 +32,7 @@ export interface DeviceRequestParameter extends BackboneElement {
     valueRange?: Range;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DeviceRequest
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DeviceRequest (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface DeviceRequest extends DomainResource {
     resourceType: "DeviceRequest";
 
@@ -45,9 +45,9 @@ export interface DeviceRequest extends DomainResource {
     groupIdentifier?: Identifier;
     identifier?: Identifier[];
     instantiatesCanonical?: string[];
-    _instantiatesCanonical?: Element;
+    _instantiatesCanonical?: (Element | null)[];
     instantiatesUri?: string[];
-    _instantiatesUri?: Element;
+    _instantiatesUri?: (Element | null)[];
     insurance?: Reference<"ClaimResponse" | "Coverage">[];
     intent: ("proposal" | "plan" | "directive" | "order" | "original-order" | "reflex-order" | "filler-order" | "instance-order" | "option");
     _intent?: Element;

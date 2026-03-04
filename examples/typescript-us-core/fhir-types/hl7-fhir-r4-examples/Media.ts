@@ -18,7 +18,7 @@ export type { Identifier } from "../hl7-fhir-r4-examples/Identifier";
 export type { Period } from "../hl7-fhir-r4-examples/Period";
 export type { Reference } from "../hl7-fhir-r4-examples/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Media
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Media (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface Media extends DomainResource {
     resourceType: "Media";
 
@@ -49,7 +49,7 @@ export interface Media extends DomainResource {
     status: ("preparation" | "in-progress" | "not-done" | "on-hold" | "stopped" | "completed" | "entered-in-error" | "unknown");
     _status?: Element;
     subject?: Reference<"Device" | "Group" | "Location" | "Patient" | "Practitioner" | "PractitionerRole" | "Specimen">;
-    type?: CodeableConcept;
+    type?: CodeableConcept<("image" | "video" | "audio" | string)>;
     view?: CodeableConcept;
     width?: number;
     _width?: Element;

@@ -168,7 +168,7 @@ export interface ClaimResponseProcessNote extends BackboneElement {
     language?: CodeableConcept;
     number?: number;
     text: string;
-    type?: CodeableConcept;
+    type?: CodeableConcept<("display" | "print" | "printoper" | string)>;
 }
 
 export interface ClaimResponseTotal extends BackboneElement {
@@ -176,7 +176,7 @@ export interface ClaimResponseTotal extends BackboneElement {
     category: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ClaimResponse
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ClaimResponse (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ClaimResponse extends DomainResource {
     resourceType: "ClaimResponse";
 
@@ -215,7 +215,7 @@ export interface ClaimResponse extends DomainResource {
     subType?: CodeableConcept;
     total?: ClaimResponseTotal[];
     traceNumber?: Identifier[];
-    type: CodeableConcept;
+    type: CodeableConcept<("institutional" | "oral" | "pharmacy" | "professional" | "vision" | string)>;
     use: ("claim" | "preauthorization" | "predetermination");
     _use?: Element;
 }

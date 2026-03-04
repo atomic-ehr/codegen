@@ -60,17 +60,17 @@ export interface AuditEventEntityDetail extends BackboneElement {
 }
 
 export interface AuditEventOutcome extends BackboneElement {
-    code: Coding;
+    code: Coding<("fatal" | "error" | "warning" | "information" | string)>;
     detail?: CodeableConcept[];
 }
 
 export interface AuditEventSource extends BackboneElement {
     observer: Reference<"CareTeam" | "Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     site?: Reference<"Location">;
-    type?: CodeableConcept[];
+    type?: CodeableConcept<("1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | string)>[];
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/AuditEvent
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/AuditEvent (pkg: hl7.fhir.r5.core#5.0.0)
 export interface AuditEvent extends DomainResource {
     resourceType: "AuditEvent";
 

@@ -184,7 +184,7 @@ export interface TaskRestriction extends BackboneElement {
     repetitions?: number;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Task
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Task (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Task extends DomainResource {
     resourceType: "Task";
 

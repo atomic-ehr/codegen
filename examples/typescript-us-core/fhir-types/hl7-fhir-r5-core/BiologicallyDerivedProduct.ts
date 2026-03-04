@@ -46,7 +46,7 @@ export interface BiologicallyDerivedProductProperty extends BackboneElement {
     valueString?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProduct
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProduct (pkg: hl7.fhir.r5.core#5.0.0)
 export interface BiologicallyDerivedProduct extends DomainResource {
     resourceType: "BiologicallyDerivedProduct";
 

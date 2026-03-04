@@ -8,7 +8,7 @@ import type { Period } from "../hl7-fhir-r4-examples/Period";
 export type { Element } from "../hl7-fhir-r4-examples/Element";
 export type { Period } from "../hl7-fhir-r4-examples/Period";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ContactPoint
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ContactPoint (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface ContactPoint extends Element {
     period?: Period;
     rank?: number;

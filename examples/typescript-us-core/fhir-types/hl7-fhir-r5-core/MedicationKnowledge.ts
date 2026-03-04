@@ -149,7 +149,7 @@ export interface MedicationKnowledgeStorageGuidelineEnvironmentalSetting extends
     valueRange?: Range;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicationKnowledge
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicationKnowledge (pkg: hl7.fhir.r5.core#5.0.0)
 export interface MedicationKnowledge extends DomainResource {
     resourceType: "MedicationKnowledge";
 
@@ -166,7 +166,7 @@ export interface MedicationKnowledge extends DomainResource {
     monitoringProgram?: MedicationKnowledgeMonitoringProgram[];
     monograph?: MedicationKnowledgeMonograph[];
     name?: string[];
-    _name?: Element;
+    _name?: (Element | null)[];
     packaging?: MedicationKnowledgePackaging[];
     preparationInstruction?: string;
     _preparationInstruction?: Element;

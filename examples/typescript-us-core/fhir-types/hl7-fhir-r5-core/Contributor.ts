@@ -9,7 +9,7 @@ import type { Element } from "../hl7-fhir-r5-core/Element";
 export type { ContactDetail } from "../hl7-fhir-r5-core/ContactDetail";
 export type { DataType } from "../hl7-fhir-r5-core/DataType";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Contributor
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Contributor (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Contributor extends DataType {
     contact?: ContactDetail[];
     name: string;

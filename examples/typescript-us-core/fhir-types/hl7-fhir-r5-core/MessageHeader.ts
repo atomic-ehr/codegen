@@ -41,7 +41,7 @@ export interface MessageHeaderSource extends BackboneElement {
     version?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MessageHeader
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MessageHeader (pkg: hl7.fhir.r5.core#5.0.0)
 export interface MessageHeader extends DomainResource {
     resourceType: "MessageHeader";
 

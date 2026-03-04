@@ -72,7 +72,7 @@ export interface PlanDefinitionAction extends BackboneElement {
     title?: string;
     transform?: string;
     trigger?: TriggerDefinition[];
-    type?: CodeableConcept;
+    type?: CodeableConcept<("create" | "update" | "remove" | "fire-event" | string)>;
 }
 
 export interface PlanDefinitionActionCondition extends BackboneElement {
@@ -102,7 +102,7 @@ export interface PlanDefinitionGoal extends BackboneElement {
     category?: CodeableConcept;
     description: CodeableConcept;
     documentation?: RelatedArtifact[];
-    priority?: CodeableConcept;
+    priority?: CodeableConcept<("high-priority" | "medium-priority" | "low-priority" | string)>;
     start?: CodeableConcept;
     target?: PlanDefinitionGoalTarget[];
 }
@@ -115,7 +115,7 @@ export interface PlanDefinitionGoalTarget extends BackboneElement {
     measure?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/PlanDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/PlanDefinition (pkg: hl7.fhir.r4.core#4.0.1)
 export interface PlanDefinition extends DomainResource {
     resourceType: "PlanDefinition";
 
@@ -141,7 +141,7 @@ export interface PlanDefinition extends DomainResource {
     lastReviewDate?: string;
     _lastReviewDate?: Element;
     library?: string[];
-    _library?: Element;
+    _library?: (Element | null)[];
     name?: string;
     _name?: Element;
     publisher?: string;
@@ -159,7 +159,7 @@ export interface PlanDefinition extends DomainResource {
     title?: string;
     _title?: Element;
     topic?: CodeableConcept[];
-    type?: CodeableConcept;
+    type?: CodeableConcept<("order-set" | "clinical-protocol" | "eca-rule" | "workflow-definition" | string)>;
     url?: string;
     _url?: Element;
     usage?: string;

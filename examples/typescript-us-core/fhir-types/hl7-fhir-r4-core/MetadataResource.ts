@@ -12,10 +12,8 @@ export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 export type { ContactDetail } from "../hl7-fhir-r4-core/ContactDetail";
 export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MetadataResource
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MetadataResource (pkg: hl7.fhir.r4.core#4.0.1)
 export interface MetadataResource extends DomainResource {
-    resourceType: "MetadataResource";
-
     contact?: ContactDetail[];
     date?: string;
     _date?: Element;
@@ -37,7 +35,4 @@ export interface MetadataResource extends DomainResource {
     useContext?: UsageContext[];
     version?: string;
     _version?: Element;
-}
-export const isMetadataResource = (resource: unknown): resource is MetadataResource => {
-    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "MetadataResource";
 }

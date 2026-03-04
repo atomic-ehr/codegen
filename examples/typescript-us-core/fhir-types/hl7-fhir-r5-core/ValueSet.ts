@@ -46,9 +46,9 @@ export interface ValueSetComposeIncludeConcept extends BackboneElement {
 }
 
 export interface ValueSetComposeIncludeConceptDesignation extends BackboneElement {
-    additionalUse?: Coding[];
+    additionalUse?: Coding<("900000000000003001" | "900000000000013009" | string)>[];
     language?: string;
-    use?: Coding;
+    use?: Coding<("900000000000003001" | "900000000000013009" | string)>;
     value: string;
 }
 
@@ -125,7 +125,7 @@ export interface ValueSetScope extends BackboneElement {
     inclusionCriteria?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ValueSet
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ValueSet (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ValueSet extends DomainResource {
     resourceType: "ValueSet";
 

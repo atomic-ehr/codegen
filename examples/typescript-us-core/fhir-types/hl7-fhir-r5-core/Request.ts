@@ -6,11 +6,6 @@ import type { Base } from "../hl7-fhir-r5-core/Base";
 
 export type { Base } from "../hl7-fhir-r5-core/Base";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Request
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Request (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Request extends Base {
-    resourceType: "Request";
-
-}
-export const isRequest = (resource: unknown): resource is Request => {
-    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Request";
 }

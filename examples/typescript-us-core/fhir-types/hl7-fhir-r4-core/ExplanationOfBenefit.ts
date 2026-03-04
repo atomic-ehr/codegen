@@ -216,7 +216,7 @@ export interface ExplanationOfBenefitProcedure extends BackboneElement {
 }
 
 export interface ExplanationOfBenefitProcessNote extends BackboneElement {
-    language?: CodeableConcept;
+    language?: CodeableConcept<("ar" | "bn" | "cs" | "da" | "de" | "de-AT" | "de-CH" | "de-DE" | "el" | "en" | "en-AU" | "en-CA" | "en-GB" | "en-IN" | "en-NZ" | "en-SG" | "en-US" | "es" | "es-AR" | "es-ES" | "es-UY" | "fi" | "fr" | "fr-BE" | "fr-CH" | "fr-FR" | "fy" | "fy-NL" | "hi" | "hr" | "it" | "it-CH" | "it-IT" | "ja" | "ko" | "nl" | "nl-BE" | "nl-NL" | "no" | "no-NO" | "pa" | "pl" | "pt" | "pt-BR" | "ru" | "ru-RU" | "sr" | "sr-RS" | "sv" | "sv-SE" | "te" | "zh" | "zh-CN" | "zh-HK" | "zh-SG" | "zh-TW" | string)>;
     number?: number;
     text?: string;
     type?: ("display" | "print" | "printoper");
@@ -247,7 +247,7 @@ export interface ExplanationOfBenefitTotal extends BackboneElement {
     category: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit (pkg: hl7.fhir.r4.core#4.0.1)
 export interface ExplanationOfBenefit extends DomainResource {
     resourceType: "ExplanationOfBenefit";
 
@@ -282,7 +282,7 @@ export interface ExplanationOfBenefit extends DomainResource {
     payee?: ExplanationOfBenefitPayee;
     payment?: ExplanationOfBenefitPayment;
     preAuthRef?: string[];
-    _preAuthRef?: Element;
+    _preAuthRef?: (Element | null)[];
     preAuthRefPeriod?: Period[];
     precedence?: number;
     _precedence?: Element;
@@ -298,7 +298,7 @@ export interface ExplanationOfBenefit extends DomainResource {
     subType?: CodeableConcept;
     supportingInfo?: ExplanationOfBenefitSupportingInfo[];
     total?: ExplanationOfBenefitTotal[];
-    type: CodeableConcept;
+    type: CodeableConcept<("institutional" | "oral" | "pharmacy" | "professional" | "vision" | string)>;
     use: ("claim" | "preauthorization" | "predetermination");
     _use?: Element;
 }

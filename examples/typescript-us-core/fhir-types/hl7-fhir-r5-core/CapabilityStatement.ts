@@ -116,12 +116,12 @@ export interface CapabilityStatementSoftware extends BackboneElement {
     version?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CapabilityStatement
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CapabilityStatement (pkg: hl7.fhir.r5.core#5.0.0)
 export interface CapabilityStatement extends DomainResource {
     resourceType: "CapabilityStatement";
 
     acceptLanguage?: string[];
-    _acceptLanguage?: Element;
+    _acceptLanguage?: (Element | null)[];
     contact?: ContactDetail[];
     copyright?: string;
     _copyright?: Element;
@@ -137,15 +137,15 @@ export interface CapabilityStatement extends DomainResource {
     fhirVersion: ("0.01" | "0.05" | "0.06" | "0.11" | "0.0.80" | "0.0.81" | "0.0.82" | "0.4.0" | "0.5.0" | "1.0.0" | "1.0.1" | "1.0.2" | "1.1.0" | "1.4.0" | "1.6.0" | "1.8.0" | "3.0.0" | "3.0.1" | "3.3.0" | "3.5.0" | "4.0.0" | "4.0.1");
     _fhirVersion?: Element;
     format: string[];
-    _format?: Element;
+    _format?: (Element | null)[];
     identifier?: Identifier[];
     implementation?: CapabilityStatementImplementation;
     implementationGuide?: string[];
-    _implementationGuide?: Element;
+    _implementationGuide?: (Element | null)[];
     imports?: string[];
-    _imports?: Element;
+    _imports?: (Element | null)[];
     instantiates?: string[];
-    _instantiates?: Element;
+    _instantiates?: (Element | null)[];
     jurisdiction?: CodeableConcept[];
     kind: ("instance" | "capability" | "requirements");
     _kind?: Element;
@@ -153,7 +153,7 @@ export interface CapabilityStatement extends DomainResource {
     name?: string;
     _name?: Element;
     patchFormat?: string[];
-    _patchFormat?: Element;
+    _patchFormat?: (Element | null)[];
     publisher?: string;
     _publisher?: Element;
     purpose?: string;

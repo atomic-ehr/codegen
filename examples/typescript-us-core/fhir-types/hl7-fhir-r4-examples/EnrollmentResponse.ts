@@ -10,7 +10,7 @@ import type { Element } from "../hl7-fhir-r4-examples/Element";
 export type { Identifier } from "../hl7-fhir-r4-examples/Identifier";
 export type { Reference } from "../hl7-fhir-r4-examples/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/EnrollmentResponse
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/EnrollmentResponse (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface EnrollmentResponse extends DomainResource {
     resourceType: "EnrollmentResponse";
 

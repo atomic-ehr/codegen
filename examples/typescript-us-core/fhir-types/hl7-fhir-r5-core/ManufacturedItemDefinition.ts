@@ -49,7 +49,7 @@ export interface ManufacturedItemDefinitionProperty extends BackboneElement {
     valueReference?: Reference<"Binary">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ManufacturedItemDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ManufacturedItemDefinition (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ManufacturedItemDefinition extends DomainResource {
     resourceType: "ManufacturedItemDefinition";
 

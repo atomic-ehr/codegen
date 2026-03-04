@@ -6,6 +6,6 @@ import type { Element } from "../hl7-fhir-r5-core/Element";
 
 export type { Element } from "../hl7-fhir-r5-core/Element";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DataType
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DataType (pkg: hl7.fhir.r5.core#5.0.0)
 export interface DataType extends Element {
 }

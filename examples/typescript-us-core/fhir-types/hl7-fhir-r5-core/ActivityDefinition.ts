@@ -53,7 +53,7 @@ export interface ActivityDefinitionParticipant extends BackboneElement {
     typeReference?: Reference<"CareTeam" | "Device" | "DeviceDefinition" | "Endpoint" | "Group" | "HealthcareService" | "Location" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ActivityDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ActivityDefinition (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ActivityDefinition extends DomainResource {
     resourceType: "ActivityDefinition";
 
@@ -92,14 +92,14 @@ export interface ActivityDefinition extends DomainResource {
     lastReviewDate?: string;
     _lastReviewDate?: Element;
     library?: string[];
-    _library?: Element;
+    _library?: (Element | null)[];
     location?: CodeableReference;
     name?: string;
     _name?: Element;
     observationRequirement?: string[];
-    _observationRequirement?: Element;
+    _observationRequirement?: (Element | null)[];
     observationResultRequirement?: string[];
-    _observationResultRequirement?: Element;
+    _observationResultRequirement?: (Element | null)[];
     participant?: ActivityDefinitionParticipant[];
     priority?: ("routine" | "urgent" | "asap" | "stat");
     _priority?: Element;
@@ -115,7 +115,7 @@ export interface ActivityDefinition extends DomainResource {
     relatedArtifact?: RelatedArtifact[];
     reviewer?: ContactDetail[];
     specimenRequirement?: string[];
-    _specimenRequirement?: Element;
+    _specimenRequirement?: (Element | null)[];
     status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     subjectCanonical?: string;

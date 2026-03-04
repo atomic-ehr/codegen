@@ -9,9 +9,9 @@ import type { Element } from "../hl7-fhir-r5-core/Element";
 export type { Coding } from "../hl7-fhir-r5-core/Coding";
 export type { DataType } from "../hl7-fhir-r5-core/DataType";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CodeableConcept
-export interface CodeableConcept extends DataType {
-    coding?: Coding[];
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CodeableConcept (pkg: hl7.fhir.r5.core#5.0.0)
+export interface CodeableConcept<T extends string = string> extends DataType {
+    coding?: Coding<T>[];
     text?: string;
     _text?: Element;
 }

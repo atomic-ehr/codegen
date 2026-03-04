@@ -9,7 +9,7 @@ import type { Element } from "../hl7-fhir-r5-core/Element";
 export type { DataType } from "../hl7-fhir-r5-core/DataType";
 export type { Identifier } from "../hl7-fhir-r5-core/Identifier";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Reference
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Reference (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Reference<T extends string = string> extends DataType {
     display?: string;
     _display?: Element;

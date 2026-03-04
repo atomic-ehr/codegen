@@ -60,7 +60,7 @@ export interface ResearchStudyOutcomeMeasure extends BackboneElement {
 export interface ResearchStudyProgressStatus extends BackboneElement {
     actual?: boolean;
     period?: Period;
-    state: CodeableConcept;
+    state: CodeableConcept<("active" | "administratively-completed" | "approved" | "closed-to-accrual" | "closed-to-accrual-and-intervention" | "completed" | "disapproved" | "in-review" | "temporarily-closed-to-accrual" | "temporarily-closed-to-accrual-and-intervention" | "withdrawn" | string)>;
 }
 
 export interface ResearchStudyRecruitment extends BackboneElement {
@@ -70,7 +70,7 @@ export interface ResearchStudyRecruitment extends BackboneElement {
     targetNumber?: number;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ResearchStudy
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ResearchStudy (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ResearchStudy extends DomainResource {
     resourceType: "ResearchStudy";
 

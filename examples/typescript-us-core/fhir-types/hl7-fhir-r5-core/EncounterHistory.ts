@@ -25,7 +25,7 @@ export interface EncounterHistoryLocation extends BackboneElement {
     location: Reference<"Location">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/EncounterHistory
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/EncounterHistory (pkg: hl7.fhir.r5.core#5.0.0)
 export interface EncounterHistory extends DomainResource {
     resourceType: "EncounterHistory";
 

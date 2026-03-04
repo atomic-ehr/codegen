@@ -8,7 +8,7 @@ import type { Element } from "../hl7-fhir-r4-examples/Element";
 export type { ContactPoint } from "../hl7-fhir-r4-examples/ContactPoint";
 export type { Element } from "../hl7-fhir-r4-examples/Element";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ContactDetail
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ContactDetail (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface ContactDetail extends Element {
     name?: string;
     _name?: Element;

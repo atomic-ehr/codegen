@@ -14,7 +14,7 @@ export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/BodyStructure
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/BodyStructure (pkg: hl7.fhir.r4.core#4.0.1)
 export interface BodyStructure extends DomainResource {
     resourceType: "BodyStructure";
 

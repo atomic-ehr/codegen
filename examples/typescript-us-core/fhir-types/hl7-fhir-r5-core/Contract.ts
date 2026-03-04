@@ -59,7 +59,7 @@ export interface ContractRule extends BackboneElement {
 export interface ContractSigner extends BackboneElement {
     party: Reference<"Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     signature: Signature[];
-    type: Coding;
+    type: Coding<("AMENDER" | "AUTHN" | "AUT" | "AFFL" | "AGNT" | "ASSIGNED" | "CIT" | "CLAIMANT" | "COAUTH" | "CONSENTER" | "CONSWIT" | "CONT" | "COPART" | "COVPTY" | "DELEGATEE" | "delegator" | "DEPEND" | "DPOWATT" | "EMGCON" | "EVTWIT" | "EXCEST" | "GRANTEE" | "GRANTOR" | "GUAR" | "GUARD" | "GUADLTM" | "INF" | "INTPRT" | "INSBJ" | "HPOWATT" | "HPROV" | "LEGAUTHN" | "NMDINS" | "NOK" | "NOTARY" | "PAT" | "POWATT" | "PRIMAUTH" | "PRIRECIP" | "RECIP" | "RESPRSN" | "REVIEWER" | "TRANS" | "SOURCE" | "SPOWATT" | "VALID" | "VERF" | "WIT" | string)>;
 }
 
 export interface ContractTerm extends BackboneElement {
@@ -114,7 +114,7 @@ export interface ContractTermAsset extends BackboneElement {
     linkId?: string[];
     period?: Period[];
     periodType?: CodeableConcept[];
-    relationship?: Coding;
+    relationship?: Coding<("http://hl7.org/fhir/StructureDefinition/lipidprofile" | "application/hl7-cda+xml" | string)>;
     scope?: CodeableConcept;
     securityLabelNumber?: number[];
     subtype?: CodeableConcept[];
@@ -189,12 +189,12 @@ export interface ContractTermSecurityLabel extends BackboneElement {
     number?: number[];
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Contract
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Contract (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Contract extends DomainResource {
     resourceType: "Contract";
 
     alias?: string[];
-    _alias?: Element;
+    _alias?: (Element | null)[];
     applies?: Period;
     author?: Reference<"Organization" | "Patient" | "Practitioner" | "PractitionerRole">;
     authority?: Reference<"Organization">[];
@@ -212,7 +212,7 @@ export interface Contract extends DomainResource {
     legal?: ContractLegal[];
     legallyBindingAttachment?: Attachment;
     legallyBindingReference?: Reference<"Composition" | "Contract" | "DocumentReference" | "QuestionnaireResponse">;
-    legalState?: CodeableConcept;
+    legalState?: CodeableConcept<("amended" | "appended" | "cancelled" | "disputed" | "entered-in-error" | "executable" | "executed" | "negotiable" | "offered" | "policy" | "rejected" | "renewed" | "revoked" | "resolved" | "terminated" | string)>;
     name?: string;
     _name?: Element;
     relevantHistory?: Reference<"Provenance">[];

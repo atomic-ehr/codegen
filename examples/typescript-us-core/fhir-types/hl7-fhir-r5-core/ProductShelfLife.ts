@@ -11,7 +11,7 @@ export type { BackboneType } from "../hl7-fhir-r5-core/BackboneType";
 export type { CodeableConcept } from "../hl7-fhir-r5-core/CodeableConcept";
 export type { Duration } from "../hl7-fhir-r5-core/Duration";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ProductShelfLife
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ProductShelfLife (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ProductShelfLife extends BackboneType {
     periodDuration?: Duration;
     periodString?: string;

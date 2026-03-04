@@ -21,14 +21,14 @@ export interface AppointmentParticipant extends BackboneElement {
     period?: Period;
     required?: ("required" | "optional" | "information-only");
     status: ("accepted" | "declined" | "tentative" | "needs-action");
-    type?: CodeableConcept[];
+    type?: CodeableConcept<("SPRF" | "PPRF" | "PART" | "translator" | "emergency" | string)>[];
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Appointment
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Appointment (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface Appointment extends DomainResource {
     resourceType: "Appointment";
 
-    appointmentType?: CodeableConcept;
+    appointmentType?: CodeableConcept<("CHECKUP" | "EMERGENCY" | "FOLLOWUP" | "ROUTINE" | "WALKIN" | string)>;
     basedOn?: Reference<"ServiceRequest">[];
     cancelationReason?: CodeableConcept;
     comment?: string;

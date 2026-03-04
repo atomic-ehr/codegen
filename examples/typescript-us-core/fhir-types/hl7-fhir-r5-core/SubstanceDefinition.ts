@@ -33,7 +33,7 @@ export interface SubstanceDefinitionCode extends BackboneElement {
     code?: CodeableConcept;
     note?: Annotation[];
     source?: Reference<"DocumentReference">[];
-    status?: CodeableConcept;
+    status?: CodeableConcept<("draft" | "active" | "retired" | "unknown" | string)>;
     statusDate?: string;
 }
 
@@ -63,7 +63,7 @@ export interface SubstanceDefinitionName extends BackboneElement {
     official?: SubstanceDefinitionNameOfficial[];
     preferred?: boolean;
     source?: Reference<"DocumentReference">[];
-    status?: CodeableConcept;
+    status?: CodeableConcept<("draft" | "active" | "retired" | "unknown" | string)>;
     synonym?: SubstanceDefinitionName[];
     translation?: SubstanceDefinitionName[];
     type?: CodeableConcept;
@@ -72,7 +72,7 @@ export interface SubstanceDefinitionName extends BackboneElement {
 export interface SubstanceDefinitionNameOfficial extends BackboneElement {
     authority?: CodeableConcept;
     date?: string;
-    status?: CodeableConcept;
+    status?: CodeableConcept<("draft" | "active" | "retired" | "unknown" | string)>;
 }
 
 export interface SubstanceDefinitionProperty extends BackboneElement {
@@ -123,7 +123,7 @@ export interface SubstanceDefinitionStructureRepresentation extends BackboneElem
     type?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstanceDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstanceDefinition (pkg: hl7.fhir.r5.core#5.0.0)
 export interface SubstanceDefinition extends DomainResource {
     resourceType: "SubstanceDefinition";
 
@@ -148,7 +148,7 @@ export interface SubstanceDefinition extends DomainResource {
     referenceInformation?: Reference<"SubstanceReferenceInformation">;
     relationship?: SubstanceDefinitionRelationship[];
     sourceMaterial?: SubstanceDefinitionSourceMaterial;
-    status?: CodeableConcept;
+    status?: CodeableConcept<("draft" | "active" | "retired" | "unknown" | string)>;
     structure?: SubstanceDefinitionStructure;
     supplier?: Reference<"Organization">[];
     version?: string;

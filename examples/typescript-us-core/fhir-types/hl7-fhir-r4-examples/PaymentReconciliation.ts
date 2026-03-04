@@ -36,7 +36,7 @@ export interface PaymentReconciliationProcessNote extends BackboneElement {
     type?: ("display" | "print" | "printoper");
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/PaymentReconciliation
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/PaymentReconciliation (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface PaymentReconciliation extends DomainResource {
     resourceType: "PaymentReconciliation";
 

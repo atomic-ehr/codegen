@@ -27,7 +27,7 @@ export interface AccountGuarantor extends BackboneElement {
     period?: Period;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Account
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Account (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Account extends DomainResource {
     resourceType: "Account";
 

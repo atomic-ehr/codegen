@@ -6,11 +6,6 @@ import type { Base } from "../hl7-fhir-r5-core/Base";
 
 export type { Base } from "../hl7-fhir-r5-core/Base";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Shareable
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Shareable (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Shareable extends Base {
-    resourceType: "Shareable";
-
-}
-export const isShareable = (resource: unknown): resource is Shareable => {
-    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Shareable";
 }
