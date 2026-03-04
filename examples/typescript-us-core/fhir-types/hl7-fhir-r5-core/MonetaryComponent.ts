@@ -11,7 +11,7 @@ export type { CodeableConcept } from "../hl7-fhir-r5-core/CodeableConcept";
 export type { DataType } from "../hl7-fhir-r5-core/DataType";
 export type { Money } from "../hl7-fhir-r5-core/Money";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MonetaryComponent
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MonetaryComponent (pkg: hl7.fhir.r5.core#5.0.0)
 export interface MonetaryComponent extends DataType {
     amount?: Money;
     code?: CodeableConcept;

@@ -17,7 +17,7 @@ export interface MedicinalProductInteractionInteractant extends BackboneElement 
     itemReference?: Reference<"Medication" | "MedicinalProduct" | "ObservationDefinition" | "Substance">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductInteraction
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductInteraction (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface MedicinalProductInteraction extends DomainResource {
     resourceType: "MedicinalProductInteraction";
 

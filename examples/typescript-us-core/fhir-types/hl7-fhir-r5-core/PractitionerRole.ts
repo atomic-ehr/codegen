@@ -18,7 +18,7 @@ export type { Identifier } from "../hl7-fhir-r5-core/Identifier";
 export type { Period } from "../hl7-fhir-r5-core/Period";
 export type { Reference } from "../hl7-fhir-r5-core/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/PractitionerRole
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/PractitionerRole (pkg: hl7.fhir.r5.core#5.0.0)
 export interface PractitionerRole extends DomainResource {
     resourceType: "PractitionerRole";
 

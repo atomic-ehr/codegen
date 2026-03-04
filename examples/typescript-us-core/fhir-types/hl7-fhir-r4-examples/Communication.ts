@@ -24,7 +24,7 @@ export interface CommunicationPayload extends BackboneElement {
     contentString?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Communication
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Communication (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface Communication extends DomainResource {
     resourceType: "Communication";
 
@@ -35,9 +35,9 @@ export interface Communication extends DomainResource {
     identifier?: Identifier[];
     inResponseTo?: Reference<"Communication">[];
     instantiatesCanonical?: string[];
-    _instantiatesCanonical?: Element;
+    _instantiatesCanonical?: (Element | null)[];
     instantiatesUri?: string[];
-    _instantiatesUri?: Element;
+    _instantiatesUri?: (Element | null)[];
     medium?: CodeableConcept[];
     note?: Annotation[];
     partOf?: Reference<"Resource">[];

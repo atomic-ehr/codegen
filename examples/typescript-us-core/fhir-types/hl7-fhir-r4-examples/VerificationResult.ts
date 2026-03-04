@@ -28,12 +28,12 @@ export interface VerificationResultAttestation extends BackboneElement {
 }
 
 export interface VerificationResultPrimarySource extends BackboneElement {
-    canPushUpdates?: CodeableConcept;
+    canPushUpdates?: CodeableConcept<("yes" | "no" | "undetermined" | string)>;
     communicationMethod?: CodeableConcept[];
-    pushTypeAvailable?: CodeableConcept[];
+    pushTypeAvailable?: CodeableConcept<("specific" | "any" | "source" | string)>[];
     type?: CodeableConcept[];
     validationDate?: string;
-    validationStatus?: CodeableConcept;
+    validationStatus?: CodeableConcept<("successful" | "failed" | "unknown" | string)>;
     who?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
 }
 
@@ -43,16 +43,16 @@ export interface VerificationResultValidator extends BackboneElement {
     organization: Reference<"Organization">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/VerificationResult
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/VerificationResult (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface VerificationResult extends DomainResource {
     resourceType: "VerificationResult";
 
     attestation?: VerificationResultAttestation;
-    failureAction?: CodeableConcept;
+    failureAction?: CodeableConcept<("fatal" | "warn" | "rec-only" | "none" | string)>;
     frequency?: Timing;
     lastPerformed?: string;
     _lastPerformed?: Element;
-    need?: CodeableConcept;
+    need?: CodeableConcept<("none" | "initial" | "periodic" | string)>;
     nextScheduled?: string;
     _nextScheduled?: Element;
     primarySource?: VerificationResultPrimarySource[];
@@ -62,9 +62,9 @@ export interface VerificationResult extends DomainResource {
     _statusDate?: Element;
     target?: Reference<"Resource">[];
     targetLocation?: string[];
-    _targetLocation?: Element;
+    _targetLocation?: (Element | null)[];
     validationProcess?: CodeableConcept[];
-    validationType?: CodeableConcept;
+    validationType?: CodeableConcept<("nothing" | "primary" | "multiple" | string)>;
     validator?: VerificationResultValidator[];
 }
 export const isVerificationResult = (resource: unknown): resource is VerificationResult => {

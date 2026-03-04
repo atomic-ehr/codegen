@@ -27,36 +27,36 @@ export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 export interface EffectEvidenceSynthesisCertainty extends BackboneElement {
     certaintySubcomponent?: EffectEvidenceSynthesisCertaintyCertaintySubcomponent[];
     note?: Annotation[];
-    rating?: CodeableConcept[];
+    rating?: CodeableConcept<("high" | "moderate" | "low" | "very-low" | string)>[];
 }
 
 export interface EffectEvidenceSynthesisCertaintyCertaintySubcomponent extends BackboneElement {
     note?: Annotation[];
-    rating?: CodeableConcept[];
-    type?: CodeableConcept;
+    rating?: CodeableConcept<("no-change" | "downcode1" | "downcode2" | "downcode3" | "upcode1" | "upcode2" | "no-concern" | "serious-concern" | "critical-concern" | "present" | "absent" | string)>[];
+    type?: CodeableConcept<("RiskOfBias" | "Inconsistency" | "Indirectness" | "Imprecision" | "PublicationBias" | "DoseResponseGradient" | "PlausibleConfounding" | "LargeEffect" | string)>;
 }
 
 export interface EffectEvidenceSynthesisEffectEstimate extends BackboneElement {
     description?: string;
     precisionEstimate?: EffectEvidenceSynthesisEffectEstimatePrecisionEstimate[];
-    type?: CodeableConcept;
+    type?: CodeableConcept<("relative-RR" | "relative-OR" | "relative-HR" | "absolute-ARD" | "absolute-MeanDiff" | "absolute-SMD" | "absolute-MedianDiff" | string)>;
     unitOfMeasure?: CodeableConcept;
     value?: number;
-    variantState?: CodeableConcept;
+    variantState?: CodeableConcept<("low-risk" | "medium-risk" | "high-risk" | string)>;
 }
 
 export interface EffectEvidenceSynthesisEffectEstimatePrecisionEstimate extends BackboneElement {
     from?: number;
     level?: number;
     to?: number;
-    type?: CodeableConcept;
+    type?: CodeableConcept<("CI" | "IQR" | "SD" | "SE" | string)>;
 }
 
 export interface EffectEvidenceSynthesisResultsByExposure extends BackboneElement {
     description?: string;
     exposureState?: ("exposure" | "exposure-alternative");
     riskEvidenceSynthesis: Reference<"RiskEvidenceSynthesis">;
-    variantState?: CodeableConcept;
+    variantState?: CodeableConcept<("low-risk" | "medium-risk" | "high-risk" | string)>;
 }
 
 export interface EffectEvidenceSynthesisSampleSize extends BackboneElement {
@@ -65,7 +65,7 @@ export interface EffectEvidenceSynthesisSampleSize extends BackboneElement {
     numberOfStudies?: number;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis (pkg: hl7.fhir.r4.core#4.0.1)
 export interface EffectEvidenceSynthesis extends DomainResource {
     resourceType: "EffectEvidenceSynthesis";
 
@@ -103,8 +103,8 @@ export interface EffectEvidenceSynthesis extends DomainResource {
     sampleSize?: EffectEvidenceSynthesisSampleSize;
     status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
-    studyType?: CodeableConcept;
-    synthesisType?: CodeableConcept;
+    studyType?: CodeableConcept<("RCT" | "CCT" | "cohort" | "case-control" | "series" | "case-report" | "mixed" | string)>;
+    synthesisType?: CodeableConcept<("std-MA" | "IPD-MA" | "indirect-NMA" | "combined-NMA" | "range" | "classification" | string)>;
     title?: string;
     _title?: Element;
     topic?: CodeableConcept[];

@@ -22,7 +22,7 @@ export type { Reference } from "../hl7-fhir-r4-examples/Reference";
 export type { RelatedArtifact } from "../hl7-fhir-r4-examples/RelatedArtifact";
 export type { UsageContext } from "../hl7-fhir-r4-examples/UsageContext";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Evidence
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Evidence (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface Evidence extends DomainResource {
     resourceType: "Evidence";
 

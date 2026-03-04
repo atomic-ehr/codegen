@@ -20,7 +20,7 @@ export type { Reference } from "../hl7-fhir-r4-core/Reference";
 export type { RelatedArtifact } from "../hl7-fhir-r4-core/RelatedArtifact";
 export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ResearchDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ResearchDefinition (pkg: hl7.fhir.r4.core#4.0.1)
 export interface ResearchDefinition extends DomainResource {
     resourceType: "ResearchDefinition";
 
@@ -28,7 +28,7 @@ export interface ResearchDefinition extends DomainResource {
     _approvalDate?: Element;
     author?: ContactDetail[];
     comment?: string[];
-    _comment?: Element;
+    _comment?: (Element | null)[];
     contact?: ContactDetail[];
     copyright?: string;
     _copyright?: Element;
@@ -48,7 +48,7 @@ export interface ResearchDefinition extends DomainResource {
     lastReviewDate?: string;
     _lastReviewDate?: Element;
     library?: string[];
-    _library?: Element;
+    _library?: (Element | null)[];
     name?: string;
     _name?: Element;
     outcome?: Reference<"ResearchElementDefinition">;

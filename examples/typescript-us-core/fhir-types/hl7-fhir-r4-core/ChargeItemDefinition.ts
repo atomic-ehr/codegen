@@ -40,7 +40,7 @@ export interface ChargeItemDefinitionPropertyGroupPriceComponent extends Backbon
     type: ("base" | "surcharge" | "deduction" | "discount" | "tax" | "informational");
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ChargeItemDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ChargeItemDefinition (pkg: hl7.fhir.r4.core#4.0.1)
 export interface ChargeItemDefinition extends DomainResource {
     resourceType: "ChargeItemDefinition";
 
@@ -54,7 +54,7 @@ export interface ChargeItemDefinition extends DomainResource {
     date?: string;
     _date?: Element;
     derivedFromUri?: string[];
-    _derivedFromUri?: Element;
+    _derivedFromUri?: (Element | null)[];
     description?: string;
     _description?: Element;
     effectivePeriod?: Period;
@@ -66,12 +66,12 @@ export interface ChargeItemDefinition extends DomainResource {
     lastReviewDate?: string;
     _lastReviewDate?: Element;
     partOf?: string[];
-    _partOf?: Element;
+    _partOf?: (Element | null)[];
     propertyGroup?: ChargeItemDefinitionPropertyGroup[];
     publisher?: string;
     _publisher?: Element;
     replaces?: string[];
-    _replaces?: Element;
+    _replaces?: (Element | null)[];
     status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     title?: string;

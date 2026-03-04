@@ -19,14 +19,14 @@ export type { Reference } from "../hl7-fhir-r4-core/Reference";
 export interface AuditEventAgent extends BackboneElement {
     altId?: string;
     location?: Reference<"Location">;
-    media?: Coding;
+    media?: Coding<("110030" | "110031" | "110032" | "110033" | "110034" | "110035" | "110036" | "110037" | "110010" | "110038" | string)>;
     name?: string;
     network?: AuditEventAgentNetwork;
     policy?: string[];
     purposeOfUse?: CodeableConcept[];
     requestor: boolean;
     role?: CodeableConcept[];
-    type?: CodeableConcept;
+    type?: CodeableConcept<("AMENDER" | "COAUTH" | "CONT" | "EVTWIT" | "PRIMAUTH" | "REVIEWER" | "SOURCE" | "TRANS" | "VALID" | "VERF" | "AFFL" | "AGNT" | "ASSIGNED" | "CLAIM" | "COVPTY" | "DEPEN" | "ECON" | "EMP" | "GUARD" | "INVSBJ" | "NAMED" | "NOK" | "PAT" | "PROV" | "NOT" | "CLASSIFIER" | "CONSENTER" | "CONSWIT" | "COPART" | "DECLASSIFIER" | "DELEGATEE" | "DELEGATOR" | "DOWNGRDER" | "DPOWATT" | "EXCEST" | "GRANTEE" | "GRANTOR" | "GT" | "GUADLTM" | "HPOWATT" | "INTPRTER" | "POWATT" | "RESPRSN" | "SPOWATT" | "AUCG" | "AULR" | "AUTM" | "AUWA" | "PROMSK" | "AUT" | "CST" | "INF" | "IRCP" | "LA" | "IRCP" | "TRC" | "WIT" | "authserver" | "datacollector" | "dataprocessor" | "datasubject" | "humanuser" | "110150" | "110151" | "110152" | "110153" | "110154" | "110155" | string)>;
     who?: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
 }
 
@@ -38,10 +38,10 @@ export interface AuditEventAgentNetwork extends BackboneElement {
 export interface AuditEventEntity extends BackboneElement {
     description?: string;
     detail?: AuditEventEntityDetail[];
-    lifecycle?: Coding;
+    lifecycle?: Coding<("1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "14" | "15" | "access" | "hold" | "amend" | "archive" | "attest" | "decrypt" | "deidentify" | "deprecate" | "destroy" | "disclose" | "encrypt" | "extract" | "link" | "merge" | "originate" | "pseudonymize" | "reactivate" | "receive" | "reidentify" | "unhold" | "report" | "restore" | "transform" | "transmit" | "unlink" | "unmerge" | "verify" | string)>;
     name?: string;
     query?: string;
-    role?: Coding;
+    role?: Coding<("1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "14" | "15" | "16" | "17" | "18" | "19" | "20" | "21" | "22" | "23" | "24" | string)>;
     securityLabel?: Coding[];
     type?: Coding;
     what?: Reference<"Resource">;
@@ -56,10 +56,10 @@ export interface AuditEventEntityDetail extends BackboneElement {
 export interface AuditEventSource extends BackboneElement {
     observer: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     site?: string;
-    type?: Coding[];
+    type?: Coding<("1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | string)>[];
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/AuditEvent
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/AuditEvent (pkg: hl7.fhir.r4.core#4.0.1)
 export interface AuditEvent extends DomainResource {
     resourceType: "AuditEvent";
 
@@ -76,8 +76,8 @@ export interface AuditEvent extends DomainResource {
     recorded: string;
     _recorded?: Element;
     source: AuditEventSource;
-    subtype?: Coding[];
-    type: Coding;
+    subtype?: Coding<("110120" | "110121" | "110122" | "110123" | "110124" | "110125" | "110126" | "110127" | "110128" | "110129" | "110130" | "110131" | "110132" | "110133" | "110134" | "110135" | "110136" | "110137" | "110138" | "110139" | "110140" | "110141" | "110142" | "read" | "vread" | "update" | "patch" | "delete" | "history" | "history-instance" | "history-type" | "history-system" | "create" | "search" | "search-type" | "search-system" | "capabilities" | "transaction" | "batch" | "operation" | string)>[];
+    type: Coding<("110100" | "110101" | "110102" | "110103" | "110104" | "110105" | "110106" | "110107" | "110108" | "110109" | "110110" | "110111" | "110112" | "110113" | "110114" | "rest" | "access" | "hold" | "amend" | "archive" | "attest" | "decrypt" | "deidentify" | "deprecate" | "destroy" | "disclose" | "encrypt" | "extract" | "link" | "merge" | "originate" | "pseudonymize" | "reactivate" | "receive" | "reidentify" | "unhold" | "report" | "restore" | "transform" | "transmit" | "unlink" | "unmerge" | "verify" | string)>;
 }
 export const isAuditEvent = (resource: unknown): resource is AuditEvent => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "AuditEvent";

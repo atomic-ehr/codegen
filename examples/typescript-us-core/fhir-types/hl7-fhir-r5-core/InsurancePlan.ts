@@ -66,19 +66,19 @@ export interface InsurancePlanPlanSpecificCostBenefit extends BackboneElement {
 }
 
 export interface InsurancePlanPlanSpecificCostBenefitCost extends BackboneElement {
-    applicability?: CodeableConcept;
+    applicability?: CodeableConcept<("in-network" | "out-of-network" | "other")>;
     qualifiers?: CodeableConcept[];
     type: CodeableConcept;
     value?: Quantity;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/InsurancePlan
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/InsurancePlan (pkg: hl7.fhir.r5.core#5.0.0)
 export interface InsurancePlan extends DomainResource {
     resourceType: "InsurancePlan";
 
     administeredBy?: Reference<"Organization">;
     alias?: string[];
-    _alias?: Element;
+    _alias?: (Element | null)[];
     contact?: ExtendedContactDetail[];
     coverage?: InsurancePlanCoverage[];
     coverageArea?: Reference<"Location">[];

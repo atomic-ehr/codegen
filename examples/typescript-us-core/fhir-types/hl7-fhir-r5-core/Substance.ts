@@ -26,11 +26,11 @@ export interface SubstanceIngredient extends BackboneElement {
     substanceReference?: Reference<"Substance">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Substance
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Substance (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Substance extends DomainResource {
     resourceType: "Substance";
 
-    category?: CodeableConcept[];
+    category?: CodeableConcept<("allergen" | "biological" | "body" | "chemical" | "food" | "drug" | "material" | string)>[];
     code: CodeableReference;
     description?: string;
     _description?: Element;

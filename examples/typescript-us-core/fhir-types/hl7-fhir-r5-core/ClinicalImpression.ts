@@ -25,7 +25,7 @@ export interface ClinicalImpressionFinding extends BackboneElement {
     item?: CodeableReference;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ClinicalImpression
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ClinicalImpression (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ClinicalImpression extends DomainResource {
     resourceType: "ClinicalImpression";
 
@@ -47,7 +47,7 @@ export interface ClinicalImpression extends DomainResource {
     prognosisCodeableConcept?: CodeableConcept[];
     prognosisReference?: Reference<"RiskAssessment">[];
     protocol?: string[];
-    _protocol?: Element;
+    _protocol?: (Element | null)[];
     status: ("preparation" | "in-progress" | "not-done" | "on-hold" | "stopped" | "completed" | "entered-in-error" | "unknown");
     _status?: Element;
     statusReason?: CodeableConcept;

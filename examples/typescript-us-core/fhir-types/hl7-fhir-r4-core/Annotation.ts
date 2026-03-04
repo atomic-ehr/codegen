@@ -8,7 +8,7 @@ import type { Reference } from "../hl7-fhir-r4-core/Reference";
 export type { Element } from "../hl7-fhir-r4-core/Element";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Annotation
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Annotation (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Annotation extends Element {
     authorReference?: Reference<"Organization" | "Patient" | "Practitioner" | "RelatedPerson">;
     authorString?: string;

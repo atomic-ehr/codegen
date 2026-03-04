@@ -44,7 +44,7 @@ export interface BiologicallyDerivedProductStorage extends BackboneElement {
     temperature?: number;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProduct
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProduct (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface BiologicallyDerivedProduct extends DomainResource {
     resourceType: "BiologicallyDerivedProduct";
 

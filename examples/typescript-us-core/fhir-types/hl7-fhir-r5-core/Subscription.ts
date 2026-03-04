@@ -20,7 +20,7 @@ export interface SubscriptionFilterBy extends BackboneElement {
     comparator?: ("eq" | "ne" | "gt" | "lt" | "ge" | "le" | "sa" | "eb" | "ap");
     filterParameter: string;
     modifier?: ("missing" | "exact" | "contains" | "not" | "text" | "in" | "not-in" | "below" | "above" | "type" | "identifier" | "ofType");
-    resourceType?: string;
+    resourceType?: ("Reference" | string);
     value: string;
 }
 
@@ -29,7 +29,7 @@ export interface SubscriptionParameter extends BackboneElement {
     value: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Subscription
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Subscription (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Subscription extends DomainResource {
     resourceType: "Subscription";
 

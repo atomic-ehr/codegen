@@ -90,7 +90,7 @@ export interface ImplementationGuideManifestResource extends BackboneElement {
     relativePath?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ImplementationGuide
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ImplementationGuide (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface ImplementationGuide extends DomainResource {
     resourceType: "ImplementationGuide";
 
@@ -106,7 +106,7 @@ export interface ImplementationGuide extends DomainResource {
     experimental?: boolean;
     _experimental?: Element;
     fhirVersion: ("0.01" | "0.05" | "0.06" | "0.11" | "0.0.80" | "0.0.81" | "0.0.82" | "0.4.0" | "0.5.0" | "1.0.0" | "1.0.1" | "1.0.2" | "1.1.0" | "1.4.0" | "1.6.0" | "1.8.0" | "3.0.0" | "3.0.1" | "3.3.0" | "3.5.0" | "4.0.0" | "4.0.1")[];
-    _fhirVersion?: Element;
+    _fhirVersion?: (Element | null)[];
     global?: ImplementationGuideGlobal[];
     jurisdiction?: CodeableConcept[];
     license?: string;

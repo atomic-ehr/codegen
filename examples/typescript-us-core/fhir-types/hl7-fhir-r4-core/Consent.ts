@@ -41,7 +41,7 @@ export interface ConsentProvision extends BackboneElement {
 
 export interface ConsentProvisionActor extends BackboneElement {
     reference: Reference<"CareTeam" | "Device" | "Group" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    role: CodeableConcept;
+    role: CodeableConcept<("AMENDER" | "COAUTH" | "CONT" | "EVTWIT" | "PRIMAUTH" | "REVIEWER" | "SOURCE" | "TRANS" | "VALID" | "VERF" | "AFFL" | "AGNT" | "ASSIGNED" | "CLAIM" | "COVPTY" | "DEPEN" | "ECON" | "EMP" | "GUARD" | "INVSBJ" | "NAMED" | "NOK" | "PAT" | "PROV" | "NOT" | "CLASSIFIER" | "CONSENTER" | "CONSWIT" | "COPART" | "DECLASSIFIER" | "DELEGATEE" | "DELEGATOR" | "DOWNGRDER" | "DPOWATT" | "EXCEST" | "GRANTEE" | "GRANTOR" | "GT" | "GUADLTM" | "HPOWATT" | "INTPRTER" | "POWATT" | "RESPRSN" | "SPOWATT" | "AUCG" | "AULR" | "AUTM" | "AUWA" | "PROMSK" | "AUT" | "CST" | "INF" | "IRCP" | "LA" | "IRCP" | "TRC" | "WIT" | "authserver" | "datacollector" | "dataprocessor" | "datasubject" | "humanuser" | "110150" | "110151" | "110152" | "110153" | "110154" | "110155" | string)>;
 }
 
 export interface ConsentProvisionData extends BackboneElement {
@@ -55,11 +55,11 @@ export interface ConsentVerification extends BackboneElement {
     verifiedWith?: Reference<"Patient" | "RelatedPerson">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Consent
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Consent (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Consent extends DomainResource {
     resourceType: "Consent";
 
-    category: CodeableConcept[];
+    category: CodeableConcept<("acd" | "dnr" | "emrgonly" | "hcd" | "npp" | "polst" | "research" | "rsdid" | "rsreid" | "59284-0" | "57016-8" | "57017-6" | "64292-6" | string)>[];
     dateTime?: string;
     _dateTime?: Element;
     identifier?: Identifier[];
@@ -67,9 +67,9 @@ export interface Consent extends DomainResource {
     patient?: Reference<"Patient">;
     performer?: Reference<"Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">[];
     policy?: ConsentPolicy[];
-    policyRule?: CodeableConcept;
+    policyRule?: CodeableConcept<("cric" | "illinois-minor-procedure" | "hipaa-auth" | "hipaa-npp" | "hipaa-restrictions" | "hipaa-research" | "hipaa-self-pay" | "mdhhs-5515" | "nyssipp" | "va-10-0484" | "va-10-0485" | "va-10-5345" | "va-10-5345a" | "va-10-5345a-mhv" | "va-10-10116" | "va-21-4142" | "ssa-827" | "dch-3927" | "squaxin" | "nl-lsp" | "at-elga" | "nih-hipaa" | "nci" | "nih-grdr" | "nih-527" | "ga4gh" | string)>;
     provision?: ConsentProvision;
-    scope: CodeableConcept;
+    scope: CodeableConcept<("adr" | "research" | "patient-privacy" | "treatment" | string)>;
     sourceAttachment?: Attachment;
     sourceReference?: Reference<"Consent" | "Contract" | "DocumentReference" | "QuestionnaireResponse">;
     status: ("draft" | "proposed" | "active" | "rejected" | "inactive" | "entered-in-error");

@@ -9,7 +9,7 @@ import type { Element } from "../hl7-fhir-r5-core/Element";
 export type { DataType } from "../hl7-fhir-r5-core/DataType";
 export type { Period } from "../hl7-fhir-r5-core/Period";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Address
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Address (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Address extends DataType {
     city?: string;
     _city?: Element;
@@ -18,7 +18,7 @@ export interface Address extends DataType {
     district?: string;
     _district?: Element;
     line?: string[];
-    _line?: Element;
+    _line?: (Element | null)[];
     period?: Period;
     postalCode?: string;
     _postalCode?: Element;

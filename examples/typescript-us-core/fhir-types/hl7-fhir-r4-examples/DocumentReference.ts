@@ -40,7 +40,7 @@ export interface DocumentReferenceRelatesTo extends BackboneElement {
     target: Reference<"DocumentReference">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DocumentReference
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DocumentReference (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface DocumentReference extends DomainResource {
     resourceType: "DocumentReference";
 

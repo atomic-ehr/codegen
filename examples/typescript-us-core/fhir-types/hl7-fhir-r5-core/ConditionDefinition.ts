@@ -28,7 +28,7 @@ export interface ConditionDefinitionMedication extends BackboneElement {
 }
 
 export interface ConditionDefinitionObservation extends BackboneElement {
-    category?: CodeableConcept;
+    category?: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>;
     code?: CodeableConcept;
 }
 
@@ -49,7 +49,7 @@ export interface ConditionDefinitionQuestionnaire extends BackboneElement {
     reference: Reference<"Questionnaire">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ConditionDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ConditionDefinition (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ConditionDefinition extends DomainResource {
     resourceType: "ConditionDefinition";
 
@@ -59,7 +59,7 @@ export interface ConditionDefinition extends DomainResource {
     date?: string;
     _date?: Element;
     definition?: string[];
-    _definition?: Element;
+    _definition?: (Element | null)[];
     description?: string;
     _description?: Element;
     experimental?: boolean;
@@ -81,7 +81,7 @@ export interface ConditionDefinition extends DomainResource {
     publisher?: string;
     _publisher?: Element;
     questionnaire?: ConditionDefinitionQuestionnaire[];
-    severity?: CodeableConcept;
+    severity?: CodeableConcept<("24484000" | "6736007" | "255604002" | string)>;
     stage?: CodeableConcept;
     status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;

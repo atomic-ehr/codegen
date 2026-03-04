@@ -31,7 +31,7 @@ export interface ArtifactAssessmentContent extends BackboneElement {
     type?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ArtifactAssessment
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ArtifactAssessment (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ArtifactAssessment extends DomainResource {
     resourceType: "ArtifactAssessment";
 

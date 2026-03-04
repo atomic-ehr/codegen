@@ -142,7 +142,7 @@ export interface DeviceDefinitionVersion extends BackboneElement {
     value: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DeviceDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DeviceDefinition (pkg: hl7.fhir.r5.core#5.0.0)
 export interface DeviceDefinition extends DomainResource {
     resourceType: "DeviceDefinition";
 
@@ -169,7 +169,7 @@ export interface DeviceDefinition extends DomainResource {
     partNumber?: string;
     _partNumber?: Element;
     productionIdentifierInUDI?: string[];
-    _productionIdentifierInUDI?: Element;
+    _productionIdentifierInUDI?: (Element | null)[];
     property?: DeviceDefinitionProperty[];
     regulatoryIdentifier?: DeviceDefinitionRegulatoryIdentifier[];
     safety?: CodeableConcept[];

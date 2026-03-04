@@ -41,7 +41,7 @@ export interface MedicationAdministrationPerformer extends BackboneElement {
     "function"?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicationAdministration
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicationAdministration (pkg: hl7.fhir.r5.core#5.0.0)
 export interface MedicationAdministration extends DomainResource {
     resourceType: "MedicationAdministration";
 

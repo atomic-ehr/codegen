@@ -14,11 +14,11 @@ export type { CodeableReference } from "../hl7-fhir-r5-core/CodeableReference";
 export type { Identifier } from "../hl7-fhir-r5-core/Identifier";
 export type { Reference } from "../hl7-fhir-r5-core/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Slot
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Slot (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Slot extends DomainResource {
     resourceType: "Slot";
 
-    appointmentType?: CodeableConcept[];
+    appointmentType?: CodeableConcept<("CHECKUP" | "EMERGENCY" | "FOLLOWUP" | "ROUTINE" | "WALKIN" | string)>[];
     comment?: string;
     _comment?: Element;
     end: string;

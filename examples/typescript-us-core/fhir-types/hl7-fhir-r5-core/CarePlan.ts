@@ -26,7 +26,7 @@ export interface CarePlanActivity extends BackboneElement {
     progress?: Annotation[];
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CarePlan
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CarePlan (pkg: hl7.fhir.r5.core#5.0.0)
 export interface CarePlan extends DomainResource {
     resourceType: "CarePlan";
 
@@ -45,9 +45,9 @@ export interface CarePlan extends DomainResource {
     goal?: Reference<"Goal">[];
     identifier?: Identifier[];
     instantiatesCanonical?: string[];
-    _instantiatesCanonical?: Element;
+    _instantiatesCanonical?: (Element | null)[];
     instantiatesUri?: string[];
-    _instantiatesUri?: Element;
+    _instantiatesUri?: (Element | null)[];
     intent: ("proposal" | "plan" | "order" | "option" | "directive");
     _intent?: Element;
     note?: Annotation[];

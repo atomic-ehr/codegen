@@ -33,7 +33,7 @@ export interface ProcedurePerformer extends BackboneElement {
     onBehalfOf?: Reference<"Organization">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Procedure
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Procedure (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Procedure extends DomainResource {
     resourceType: "Procedure";
 
@@ -49,9 +49,9 @@ export interface Procedure extends DomainResource {
     followUp?: CodeableConcept[];
     identifier?: Identifier[];
     instantiatesCanonical?: string[];
-    _instantiatesCanonical?: Element;
+    _instantiatesCanonical?: (Element | null)[];
     instantiatesUri?: string[];
-    _instantiatesUri?: Element;
+    _instantiatesUri?: (Element | null)[];
     location?: Reference<"Location">;
     note?: Annotation[];
     outcome?: CodeableConcept;

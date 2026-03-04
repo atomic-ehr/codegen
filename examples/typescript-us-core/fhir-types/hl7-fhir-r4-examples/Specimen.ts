@@ -52,13 +52,13 @@ export interface SpecimenProcessing extends BackboneElement {
     timePeriod?: Period;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Specimen
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Specimen (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface Specimen extends DomainResource {
     resourceType: "Specimen";
 
     accessionIdentifier?: Identifier;
     collection?: SpecimenCollection;
-    condition?: CodeableConcept[];
+    condition?: CodeableConcept<("AUT" | "CFU" | "CLOT" | "CON" | "COOL" | "FROZ" | "HEM" | "LIVE" | "ROOM" | "SNR" | string)>[];
     container?: SpecimenContainer[];
     identifier?: Identifier[];
     note?: Annotation[];

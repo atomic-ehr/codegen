@@ -26,7 +26,7 @@ export interface SupplyDeliverySuppliedItem extends BackboneElement {
     quantity?: Quantity;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SupplyDelivery
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SupplyDelivery (pkg: hl7.fhir.r4.core#4.0.1)
 export interface SupplyDelivery extends DomainResource {
     resourceType: "SupplyDelivery";
 
@@ -44,7 +44,7 @@ export interface SupplyDelivery extends DomainResource {
     _status?: Element;
     suppliedItem?: SupplyDeliverySuppliedItem;
     supplier?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
-    type?: CodeableConcept;
+    type?: CodeableConcept<("medication" | "device")>;
 }
 export const isSupplyDelivery = (resource: unknown): resource is SupplyDelivery => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "SupplyDelivery";

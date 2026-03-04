@@ -30,7 +30,7 @@ export interface DetectedIssueMitigation extends BackboneElement {
     note?: Annotation[];
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DetectedIssue
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DetectedIssue (pkg: hl7.fhir.r5.core#5.0.0)
 export interface DetectedIssue extends DomainResource {
     resourceType: "DetectedIssue";
 

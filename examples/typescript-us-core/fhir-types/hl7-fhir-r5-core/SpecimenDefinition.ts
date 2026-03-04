@@ -65,7 +65,7 @@ export interface SpecimenDefinitionTypeTestedHandling extends BackboneElement {
     temperatureRange?: Range;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SpecimenDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SpecimenDefinition (pkg: hl7.fhir.r5.core#5.0.0)
 export interface SpecimenDefinition extends DomainResource {
     resourceType: "SpecimenDefinition";
 
@@ -80,9 +80,9 @@ export interface SpecimenDefinition extends DomainResource {
     date?: string;
     _date?: Element;
     derivedFromCanonical?: string[];
-    _derivedFromCanonical?: Element;
+    _derivedFromCanonical?: (Element | null)[];
     derivedFromUri?: string[];
-    _derivedFromUri?: Element;
+    _derivedFromUri?: (Element | null)[];
     description?: string;
     _description?: Element;
     effectivePeriod?: Period;

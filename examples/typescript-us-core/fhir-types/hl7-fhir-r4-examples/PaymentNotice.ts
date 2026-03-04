@@ -14,7 +14,7 @@ export type { Identifier } from "../hl7-fhir-r4-examples/Identifier";
 export type { Money } from "../hl7-fhir-r4-examples/Money";
 export type { Reference } from "../hl7-fhir-r4-examples/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/PaymentNotice
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/PaymentNotice (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface PaymentNotice extends DomainResource {
     resourceType: "PaymentNotice";
 

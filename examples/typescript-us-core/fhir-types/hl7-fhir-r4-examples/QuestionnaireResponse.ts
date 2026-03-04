@@ -42,7 +42,7 @@ export interface QuestionnaireResponseItemAnswer extends BackboneElement {
     valueUri?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/QuestionnaireResponse
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/QuestionnaireResponse (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface QuestionnaireResponse extends DomainResource {
     resourceType: "QuestionnaireResponse";
 

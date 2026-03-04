@@ -58,7 +58,7 @@ export interface IngredientSubstanceStrengthReferenceStrength extends BackboneEl
     substance: CodeableReference;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Ingredient
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Ingredient (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Ingredient extends DomainResource {
     resourceType: "Ingredient";
 

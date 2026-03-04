@@ -39,17 +39,17 @@ export interface CompositionRelatesTo extends BackboneElement {
 export interface CompositionSection extends BackboneElement {
     author?: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">[];
     code?: CodeableConcept;
-    emptyReason?: CodeableConcept;
+    emptyReason?: CodeableConcept<("nilknown" | "notasked" | "withheld" | "unavailable" | "notstarted" | "closed" | string)>;
     entry?: Reference<"Resource">[];
     focus?: Reference<"Resource">;
     mode?: ("working" | "snapshot" | "changes");
-    orderedBy?: CodeableConcept;
+    orderedBy?: CodeableConcept<("user" | "system" | "event-date" | "entry-date" | "priority" | "alphabetic" | "category" | "patient" | string)>;
     section?: CompositionSection[];
     text?: Narrative;
     title?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Composition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Composition (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Composition extends DomainResource {
     resourceType: "Composition";
 

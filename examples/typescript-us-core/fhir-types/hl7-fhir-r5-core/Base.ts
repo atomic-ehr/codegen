@@ -2,5 +2,5 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Base
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Base (pkg: hl7.fhir.r5.core#5.0.0)
 export type Base = object;

@@ -39,7 +39,7 @@ export interface ChargeItemDefinitionPropertyGroup extends BackboneElement {
     priceComponent?: MonetaryComponent[];
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ChargeItemDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ChargeItemDefinition (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ChargeItemDefinition extends DomainResource {
     resourceType: "ChargeItemDefinition";
 
@@ -55,7 +55,7 @@ export interface ChargeItemDefinition extends DomainResource {
     date?: string;
     _date?: Element;
     derivedFromUri?: string[];
-    _derivedFromUri?: Element;
+    _derivedFromUri?: (Element | null)[];
     description?: string;
     _description?: Element;
     experimental?: boolean;
@@ -68,14 +68,14 @@ export interface ChargeItemDefinition extends DomainResource {
     name?: string;
     _name?: Element;
     partOf?: string[];
-    _partOf?: Element;
+    _partOf?: (Element | null)[];
     propertyGroup?: ChargeItemDefinitionPropertyGroup[];
     publisher?: string;
     _publisher?: Element;
     purpose?: string;
     _purpose?: Element;
     replaces?: string[];
-    _replaces?: Element;
+    _replaces?: (Element | null)[];
     status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     title?: string;

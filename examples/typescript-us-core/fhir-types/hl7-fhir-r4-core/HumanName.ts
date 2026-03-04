@@ -8,17 +8,17 @@ import type { Period } from "../hl7-fhir-r4-core/Period";
 export type { Element } from "../hl7-fhir-r4-core/Element";
 export type { Period } from "../hl7-fhir-r4-core/Period";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/HumanName
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/HumanName (pkg: hl7.fhir.r4.core#4.0.1)
 export interface HumanName extends Element {
     family?: string;
     _family?: Element;
     given?: string[];
-    _given?: Element;
+    _given?: (Element | null)[];
     period?: Period;
     prefix?: string[];
-    _prefix?: Element;
+    _prefix?: (Element | null)[];
     suffix?: string[];
-    _suffix?: Element;
+    _suffix?: (Element | null)[];
     text?: string;
     _text?: Element;
     use?: ("usual" | "official" | "temp" | "nickname" | "anonymous" | "old" | "maiden");

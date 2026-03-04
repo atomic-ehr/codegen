@@ -12,7 +12,7 @@ export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 export type { Period } from "../hl7-fhir-r4-core/Period";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ResearchSubject
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ResearchSubject (pkg: hl7.fhir.r4.core#4.0.1)
 export interface ResearchSubject extends DomainResource {
     resourceType: "ResearchSubject";
 

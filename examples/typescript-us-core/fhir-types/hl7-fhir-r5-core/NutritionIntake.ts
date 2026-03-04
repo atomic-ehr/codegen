@@ -44,7 +44,7 @@ export interface NutritionIntakePerformer extends BackboneElement {
     "function"?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/NutritionIntake
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/NutritionIntake (pkg: hl7.fhir.r5.core#5.0.0)
 export interface NutritionIntake extends DomainResource {
     resourceType: "NutritionIntake";
 
@@ -56,9 +56,9 @@ export interface NutritionIntake extends DomainResource {
     identifier?: Identifier[];
     ingredientLabel?: NutritionIntakeIngredientLabel[];
     instantiatesCanonical?: string[];
-    _instantiatesCanonical?: Element;
+    _instantiatesCanonical?: (Element | null)[];
     instantiatesUri?: string[];
-    _instantiatesUri?: Element;
+    _instantiatesUri?: (Element | null)[];
     location?: Reference<"Location">;
     note?: Annotation[];
     occurrenceDateTime?: string;

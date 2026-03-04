@@ -54,7 +54,7 @@ export interface RequestGroupAction extends BackboneElement {
     timingRange?: Range;
     timingTiming?: Timing;
     title?: string;
-    type?: CodeableConcept;
+    type?: CodeableConcept<("create" | "update" | "remove" | "fire-event" | string)>;
 }
 
 export interface RequestGroupActionCondition extends BackboneElement {
@@ -69,7 +69,7 @@ export interface RequestGroupActionRelatedAction extends BackboneElement {
     relationship: ("before-start" | "before" | "before-end" | "concurrent-with-start" | "concurrent" | "concurrent-with-end" | "after-start" | "after" | "after-end");
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/RequestGroup
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/RequestGroup (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface RequestGroup extends DomainResource {
     resourceType: "RequestGroup";
 
@@ -83,9 +83,9 @@ export interface RequestGroup extends DomainResource {
     groupIdentifier?: Identifier;
     identifier?: Identifier[];
     instantiatesCanonical?: string[];
-    _instantiatesCanonical?: Element;
+    _instantiatesCanonical?: (Element | null)[];
     instantiatesUri?: string[];
-    _instantiatesUri?: Element;
+    _instantiatesUri?: (Element | null)[];
     intent: ("proposal" | "plan" | "directive" | "order" | "original-order" | "reflex-order" | "filler-order" | "instance-order" | "option");
     _intent?: Element;
     note?: Annotation[];

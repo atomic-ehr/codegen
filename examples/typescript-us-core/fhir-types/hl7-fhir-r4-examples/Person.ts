@@ -25,7 +25,7 @@ export interface PersonLink extends BackboneElement {
     target: Reference<"Patient" | "Person" | "Practitioner" | "RelatedPerson">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Person
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Person (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface Person extends DomainResource {
     resourceType: "Person";
 

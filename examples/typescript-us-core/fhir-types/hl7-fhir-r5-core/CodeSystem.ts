@@ -32,9 +32,9 @@ export interface CodeSystemConcept extends BackboneElement {
 }
 
 export interface CodeSystemConceptDesignation extends BackboneElement {
-    additionalUse?: Coding[];
+    additionalUse?: Coding<("900000000000003001" | "900000000000013009" | string)>[];
     language?: string;
-    use?: Coding;
+    use?: Coding<("900000000000003001" | "900000000000013009" | string)>;
     value: string;
 }
 
@@ -63,7 +63,7 @@ export interface CodeSystemProperty extends BackboneElement {
     uri?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CodeSystem
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CodeSystem (pkg: hl7.fhir.r5.core#5.0.0)
 export interface CodeSystem extends DomainResource {
     resourceType: "CodeSystem";
 

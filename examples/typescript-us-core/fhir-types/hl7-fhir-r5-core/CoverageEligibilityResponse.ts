@@ -63,7 +63,7 @@ export interface CoverageEligibilityResponseInsuranceItemBenefit extends Backbon
     usedUnsignedInt?: number;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CoverageEligibilityResponse
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CoverageEligibilityResponse (pkg: hl7.fhir.r5.core#5.0.0)
 export interface CoverageEligibilityResponse extends DomainResource {
     resourceType: "CoverageEligibilityResponse";
 
@@ -83,7 +83,7 @@ export interface CoverageEligibilityResponse extends DomainResource {
     preAuthRef?: string;
     _preAuthRef?: Element;
     purpose: ("auth-requirements" | "benefits" | "discovery" | "validation")[];
-    _purpose?: Element;
+    _purpose?: (Element | null)[];
     request: Reference<"CoverageEligibilityRequest">;
     requestor?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
     servicedDate?: string;

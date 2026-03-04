@@ -148,7 +148,7 @@ export interface ClaimSupportingInfo extends BackboneElement {
     valueString?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Claim
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Claim (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface Claim extends DomainResource {
     resourceType: "Claim";
 
@@ -179,7 +179,7 @@ export interface Claim extends DomainResource {
     subType?: CodeableConcept;
     supportingInfo?: ClaimSupportingInfo[];
     total?: Money;
-    type: CodeableConcept;
+    type: CodeableConcept<("institutional" | "oral" | "pharmacy" | "professional" | "vision" | string)>;
     use: ("claim" | "preauthorization" | "predetermination");
     _use?: Element;
 }

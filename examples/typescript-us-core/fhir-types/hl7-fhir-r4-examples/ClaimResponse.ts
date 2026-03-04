@@ -123,7 +123,7 @@ export interface ClaimResponsePayment extends BackboneElement {
 }
 
 export interface ClaimResponseProcessNote extends BackboneElement {
-    language?: CodeableConcept;
+    language?: CodeableConcept<("ar" | "bn" | "cs" | "da" | "de" | "de-AT" | "de-CH" | "de-DE" | "el" | "en" | "en-AU" | "en-CA" | "en-GB" | "en-IN" | "en-NZ" | "en-SG" | "en-US" | "es" | "es-AR" | "es-ES" | "es-UY" | "fi" | "fr" | "fr-BE" | "fr-CH" | "fr-FR" | "fy" | "fy-NL" | "hi" | "hr" | "it" | "it-CH" | "it-IT" | "ja" | "ko" | "nl" | "nl-BE" | "nl-NL" | "no" | "no-NO" | "pa" | "pl" | "pt" | "pt-BR" | "ru" | "ru-RU" | "sr" | "sr-RS" | "sv" | "sv-SE" | "te" | "zh" | "zh-CN" | "zh-HK" | "zh-SG" | "zh-TW" | string)>;
     number?: number;
     text: string;
     type?: ("display" | "print" | "printoper");
@@ -134,7 +134,7 @@ export interface ClaimResponseTotal extends BackboneElement {
     category: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ClaimResponse
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ClaimResponse (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface ClaimResponse extends DomainResource {
     resourceType: "ClaimResponse";
 
@@ -168,7 +168,7 @@ export interface ClaimResponse extends DomainResource {
     _status?: Element;
     subType?: CodeableConcept;
     total?: ClaimResponseTotal[];
-    type: CodeableConcept;
+    type: CodeableConcept<("institutional" | "oral" | "pharmacy" | "professional" | "vision" | string)>;
     use: ("claim" | "preauthorization" | "predetermination");
     _use?: Element;
 }

@@ -2,8 +2,5 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Definition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Definition (pkg: hl7.fhir.r4.examples#4.0.1)
 export type Definition = object;
-export const isDefinition = (resource: unknown): resource is Definition => {
-    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Definition";
-}

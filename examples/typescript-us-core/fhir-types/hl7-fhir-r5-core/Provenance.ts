@@ -31,7 +31,7 @@ export interface ProvenanceEntity extends BackboneElement {
     what: Reference<"Resource">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Provenance
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Provenance (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Provenance extends DomainResource {
     resourceType: "Provenance";
 
@@ -47,7 +47,7 @@ export interface Provenance extends DomainResource {
     occurredPeriod?: Period;
     patient?: Reference<"Patient">;
     policy?: string[];
-    _policy?: Element;
+    _policy?: (Element | null)[];
     recorded?: string;
     _recorded?: Element;
     signature?: Signature[];

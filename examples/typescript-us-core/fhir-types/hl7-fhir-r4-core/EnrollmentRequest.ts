@@ -10,7 +10,7 @@ import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/EnrollmentRequest
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/EnrollmentRequest (pkg: hl7.fhir.r4.core#4.0.1)
 export interface EnrollmentRequest extends DomainResource {
     resourceType: "EnrollmentRequest";
 

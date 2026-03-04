@@ -45,7 +45,7 @@ export interface MedicationRequestSubstitution extends BackboneElement {
     reason?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicationRequest
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicationRequest (pkg: hl7.fhir.r4.core#4.0.1)
 export interface MedicationRequest extends DomainResource {
     resourceType: "MedicationRequest";
 
@@ -64,9 +64,9 @@ export interface MedicationRequest extends DomainResource {
     groupIdentifier?: Identifier;
     identifier?: Identifier[];
     instantiatesCanonical?: string[];
-    _instantiatesCanonical?: Element;
+    _instantiatesCanonical?: (Element | null)[];
     instantiatesUri?: string[];
-    _instantiatesUri?: Element;
+    _instantiatesUri?: (Element | null)[];
     insurance?: Reference<"ClaimResponse" | "Coverage">[];
     intent: ("proposal" | "plan" | "order" | "original-order" | "reflex-order" | "filler-order" | "instance-order" | "option");
     _intent?: Element;

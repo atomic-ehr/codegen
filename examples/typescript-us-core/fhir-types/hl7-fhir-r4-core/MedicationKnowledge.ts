@@ -113,7 +113,7 @@ export interface MedicationKnowledgeRelatedMedicationKnowledge extends BackboneE
     type: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicationKnowledge
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicationKnowledge (pkg: hl7.fhir.r4.core#4.0.1)
 export interface MedicationKnowledge extends DomainResource {
     resourceType: "MedicationKnowledge";
 
@@ -141,7 +141,7 @@ export interface MedicationKnowledge extends DomainResource {
     status?: ("active" | "inactive" | "entered-in-error");
     _status?: Element;
     synonym?: string[];
-    _synonym?: Element;
+    _synonym?: (Element | null)[];
 }
 export const isMedicationKnowledge = (resource: unknown): resource is MedicationKnowledge => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "MedicationKnowledge";

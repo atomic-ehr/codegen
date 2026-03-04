@@ -25,7 +25,7 @@ export interface ResearchSubjectProgress extends BackboneElement {
     type?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ResearchSubject
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ResearchSubject (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ResearchSubject extends DomainResource {
     resourceType: "ResearchSubject";
 

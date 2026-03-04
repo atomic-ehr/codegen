@@ -35,7 +35,7 @@ export interface InventoryReportInventoryListingItem extends BackboneElement {
     quantity: Quantity;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/InventoryReport
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/InventoryReport (pkg: hl7.fhir.r5.core#5.0.0)
 export interface InventoryReport extends DomainResource {
     resourceType: "InventoryReport";
 

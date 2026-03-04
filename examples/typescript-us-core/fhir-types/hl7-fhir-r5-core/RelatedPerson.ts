@@ -29,7 +29,7 @@ export interface RelatedPersonCommunication extends BackboneElement {
     preferred?: boolean;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/RelatedPerson
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/RelatedPerson (pkg: hl7.fhir.r5.core#5.0.0)
 export interface RelatedPerson extends DomainResource {
     resourceType: "RelatedPerson";
 
@@ -46,7 +46,7 @@ export interface RelatedPerson extends DomainResource {
     patient: Reference<"Patient">;
     period?: Period;
     photo?: Attachment[];
-    relationship?: CodeableConcept[];
+    relationship?: CodeableConcept<("WIT" | "NOT" | "ECON" | "NOK" | "GUARD" | "DEPEN" | "EMP" | "GUAR" | "CAREGIVER" | "E" | "O" | "U" | "INTPRTER" | "POWATT" | "DPOWATT" | "HPOWATT" | "SPOWATT" | "BILL" | string)>[];
     telecom?: ContactPoint[];
 }
 export const isRelatedPerson = (resource: unknown): resource is RelatedPerson => {

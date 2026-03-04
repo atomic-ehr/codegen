@@ -22,8 +22,8 @@ export interface AvailabilityNotAvailableTime extends Element {
     during?: Period;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Availability
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Availability (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Availability extends DataType {
-    availableTime?: Element[];
-    notAvailableTime?: Element[];
+    availableTime?: AvailabilityAvailableTime[];
+    notAvailableTime?: AvailabilityNotAvailableTime[];
 }

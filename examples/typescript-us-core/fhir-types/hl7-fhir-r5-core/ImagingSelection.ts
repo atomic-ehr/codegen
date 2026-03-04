@@ -39,10 +39,10 @@ export interface ImagingSelectionInstanceImageRegion3D extends BackboneElement {
 
 export interface ImagingSelectionPerformer extends BackboneElement {
     actor?: Reference<"CareTeam" | "Device" | "HealthcareService" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    "function"?: CodeableConcept;
+    "function"?: CodeableConcept<("CON" | "VRF" | "PRF" | "SPRF" | "REF" | string)>;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ImagingSelection
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ImagingSelection (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ImagingSelection extends DomainResource {
     resourceType: "ImagingSelection";
 

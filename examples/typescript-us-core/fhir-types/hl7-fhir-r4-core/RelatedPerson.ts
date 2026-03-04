@@ -25,11 +25,11 @@ export type { Period } from "../hl7-fhir-r4-core/Period";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
 export interface RelatedPersonCommunication extends BackboneElement {
-    language: CodeableConcept;
+    language: CodeableConcept<("ar" | "bn" | "cs" | "da" | "de" | "de-AT" | "de-CH" | "de-DE" | "el" | "en" | "en-AU" | "en-CA" | "en-GB" | "en-IN" | "en-NZ" | "en-SG" | "en-US" | "es" | "es-AR" | "es-ES" | "es-UY" | "fi" | "fr" | "fr-BE" | "fr-CH" | "fr-FR" | "fy" | "fy-NL" | "hi" | "hr" | "it" | "it-CH" | "it-IT" | "ja" | "ko" | "nl" | "nl-BE" | "nl-NL" | "no" | "no-NO" | "pa" | "pl" | "pt" | "pt-BR" | "ru" | "ru-RU" | "sr" | "sr-RS" | "sv" | "sv-SE" | "te" | "zh" | "zh-CN" | "zh-HK" | "zh-SG" | "zh-TW" | string)>;
     preferred?: boolean;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/RelatedPerson
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/RelatedPerson (pkg: hl7.fhir.r4.core#4.0.1)
 export interface RelatedPerson extends DomainResource {
     resourceType: "RelatedPerson";
 
@@ -46,7 +46,7 @@ export interface RelatedPerson extends DomainResource {
     patient: Reference<"Patient">;
     period?: Period;
     photo?: Attachment[];
-    relationship?: CodeableConcept[];
+    relationship?: CodeableConcept<("BP" | "C" | "CP" | "E" | "EP" | "F" | "I" | "N" | "O" | "PR" | "S" | "U" | string)>[];
     telecom?: ContactPoint[];
 }
 export const isRelatedPerson = (resource: unknown): resource is RelatedPerson => {

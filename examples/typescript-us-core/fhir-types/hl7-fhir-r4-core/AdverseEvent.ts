@@ -26,13 +26,13 @@ export interface AdverseEventSuspectEntityCausality extends BackboneElement {
     productRelatedness?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/AdverseEvent
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/AdverseEvent (pkg: hl7.fhir.r4.core#4.0.1)
 export interface AdverseEvent extends DomainResource {
     resourceType: "AdverseEvent";
 
     actuality: ("actual" | "potential");
     _actuality?: Element;
-    category?: CodeableConcept[];
+    category?: CodeableConcept<("product-problem" | "product-quality" | "product-use-error" | "wrong-dose" | "incorrect-prescribing-information" | "wrong-technique" | "wrong-route-of-administration" | "wrong-rate" | "wrong-duration" | "wrong-time" | "expired-drug" | "medical-device-use-error" | "problem-different-manufacturer" | "unsafe-physical-environment" | string)>[];
     contributor?: Reference<"Device" | "Practitioner" | "PractitionerRole">[];
     date?: string;
     _date?: Element;
@@ -42,14 +42,14 @@ export interface AdverseEvent extends DomainResource {
     event?: CodeableConcept;
     identifier?: Identifier;
     location?: Reference<"Location">;
-    outcome?: CodeableConcept;
+    outcome?: CodeableConcept<("resolved" | "recovering" | "ongoing" | "resolvedWithSequelae" | "fatal" | "unknown")>;
     recordedDate?: string;
     _recordedDate?: Element;
     recorder?: Reference<"Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     referenceDocument?: Reference<"DocumentReference">[];
     resultingCondition?: Reference<"Condition">[];
     seriousness?: CodeableConcept;
-    severity?: CodeableConcept;
+    severity?: CodeableConcept<("mild" | "moderate" | "severe")>;
     study?: Reference<"ResearchStudy">[];
     subject: Reference<"Group" | "Patient" | "Practitioner" | "RelatedPerson">;
     subjectMedicalHistory?: Reference<"AllergyIntolerance" | "Condition" | "DocumentReference" | "FamilyMemberHistory" | "Immunization" | "Media" | "Observation" | "Procedure">[];

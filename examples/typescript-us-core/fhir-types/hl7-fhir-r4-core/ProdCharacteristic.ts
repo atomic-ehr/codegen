@@ -13,16 +13,16 @@ export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ProdCharacteristic
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ProdCharacteristic (pkg: hl7.fhir.r4.core#4.0.1)
 export interface ProdCharacteristic extends BackboneElement {
     color?: string[];
-    _color?: Element;
+    _color?: (Element | null)[];
     depth?: Quantity;
     externalDiameter?: Quantity;
     height?: Quantity;
     image?: Attachment[];
     imprint?: string[];
-    _imprint?: Element;
+    _imprint?: (Element | null)[];
     nominalVolume?: Quantity;
     scoring?: CodeableConcept;
     shape?: string;

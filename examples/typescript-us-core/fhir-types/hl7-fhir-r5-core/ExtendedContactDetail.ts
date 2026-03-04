@@ -18,12 +18,12 @@ export type { HumanName } from "../hl7-fhir-r5-core/HumanName";
 export type { Period } from "../hl7-fhir-r5-core/Period";
 export type { Reference } from "../hl7-fhir-r5-core/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ExtendedContactDetail
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ExtendedContactDetail (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ExtendedContactDetail extends DataType {
     address?: Address;
     name?: HumanName[];
     organization?: Reference<"Organization">;
     period?: Period;
-    purpose?: CodeableConcept;
+    purpose?: CodeableConcept<("BILL" | "ADMIN" | "HR" | "PAYOR" | "PATINF" | "PRESS" | string)>;
     telecom?: ContactPoint[];
 }

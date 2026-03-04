@@ -17,7 +17,7 @@ export type { Expression } from "../hl7-fhir-r5-core/Expression";
 export type { Reference } from "../hl7-fhir-r5-core/Reference";
 export type { Timing } from "../hl7-fhir-r5-core/Timing";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/TriggerDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/TriggerDefinition (pkg: hl7.fhir.r5.core#5.0.0)
 export interface TriggerDefinition extends DataType {
     code?: CodeableConcept;
     condition?: Expression;

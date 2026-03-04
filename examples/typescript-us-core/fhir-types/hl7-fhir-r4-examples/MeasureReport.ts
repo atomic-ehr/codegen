@@ -26,7 +26,7 @@ export interface MeasureReportGroup extends BackboneElement {
 }
 
 export interface MeasureReportGroupPopulation extends BackboneElement {
-    code?: CodeableConcept;
+    code?: CodeableConcept<("initial-population" | "numerator" | "numerator-exclusion" | "denominator" | "denominator-exclusion" | "denominator-exception" | "measure-population" | "measure-population-exclusion" | "measure-observation" | string)>;
     count?: number;
     subjectResults?: Reference<"List">;
 }
@@ -49,12 +49,12 @@ export interface MeasureReportGroupStratifierStratumComponent extends BackboneEl
 }
 
 export interface MeasureReportGroupStratifierStratumPopulation extends BackboneElement {
-    code?: CodeableConcept;
+    code?: CodeableConcept<("initial-population" | "numerator" | "numerator-exclusion" | "denominator" | "denominator-exclusion" | "denominator-exception" | "measure-population" | "measure-population-exclusion" | "measure-observation" | string)>;
     count?: number;
     subjectResults?: Reference<"List">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MeasureReport
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MeasureReport (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface MeasureReport extends DomainResource {
     resourceType: "MeasureReport";
 
@@ -63,7 +63,7 @@ export interface MeasureReport extends DomainResource {
     evaluatedResource?: Reference<"Resource">[];
     group?: MeasureReportGroup[];
     identifier?: Identifier[];
-    improvementNotation?: CodeableConcept;
+    improvementNotation?: CodeableConcept<("increase" | "decrease")>;
     measure: string;
     _measure?: Element;
     period: Period;

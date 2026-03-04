@@ -27,13 +27,13 @@ export interface DosageDoseAndRate extends Element {
     type?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Dosage
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Dosage (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Dosage extends BackboneType {
     additionalInstruction?: CodeableConcept[];
     asNeeded?: boolean;
     _asNeeded?: Element;
     asNeededFor?: CodeableConcept[];
-    doseAndRate?: Element[];
+    doseAndRate?: DosageDoseAndRate[];
     maxDosePerAdministration?: Quantity;
     maxDosePerLifetime?: Quantity;
     maxDosePerPeriod?: Ratio[];

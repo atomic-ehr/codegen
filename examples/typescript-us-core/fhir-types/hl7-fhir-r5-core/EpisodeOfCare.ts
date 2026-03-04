@@ -33,7 +33,7 @@ export interface EpisodeOfCareStatusHistory extends BackboneElement {
     status: ("planned" | "waitlist" | "active" | "onhold" | "finished" | "cancelled" | "entered-in-error");
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/EpisodeOfCare
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/EpisodeOfCare (pkg: hl7.fhir.r5.core#5.0.0)
 export interface EpisodeOfCare extends DomainResource {
     resourceType: "EpisodeOfCare";
 

@@ -54,7 +54,7 @@ export interface NutritionProductNutrient extends BackboneElement {
     item?: CodeableReference;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/NutritionProduct
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/NutritionProduct (pkg: hl7.fhir.r5.core#5.0.0)
 export interface NutritionProduct extends DomainResource {
     resourceType: "NutritionProduct";
 

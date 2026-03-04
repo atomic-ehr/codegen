@@ -22,7 +22,7 @@ export type { Reference } from "../hl7-fhir-r5-core/Reference";
 
 export interface CoverageClass extends BackboneElement {
     name?: string;
-    type: CodeableConcept;
+    type: CodeableConcept<("group" | "subgroup" | "plan" | "subplan" | "class" | "subclass" | "sequence" | "rxbin" | "rxpcn" | "rxid" | "rxgroup" | string)>;
     value: Identifier;
 }
 
@@ -31,7 +31,7 @@ export interface CoverageCostToBeneficiary extends BackboneElement {
     exception?: CoverageCostToBeneficiaryException[];
     network?: CodeableConcept;
     term?: CodeableConcept;
-    type?: CodeableConcept;
+    type?: CodeableConcept<("gpvisit" | "spvisit" | "emergency" | "inpthosp" | "televisit" | "urgentcare" | "copaypct" | "copay" | "deductible" | "maxoutofpocket" | string)>;
     unit?: CodeableConcept;
     valueMoney?: Money;
     valueQuantity?: Quantity;
@@ -47,7 +47,7 @@ export interface CoveragePaymentBy extends BackboneElement {
     responsibility?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Coverage
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Coverage (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Coverage extends DomainResource {
     resourceType: "Coverage";
 
@@ -69,14 +69,14 @@ export interface Coverage extends DomainResource {
     paymentBy?: CoveragePaymentBy[];
     period?: Period;
     policyHolder?: Reference<"Organization" | "Patient" | "RelatedPerson">;
-    relationship?: CodeableConcept;
+    relationship?: CodeableConcept<("child" | "parent" | "spouse" | "common" | "other" | "self" | "injured" | string)>;
     status: ("active" | "cancelled" | "draft" | "entered-in-error");
     _status?: Element;
     subrogation?: boolean;
     _subrogation?: Element;
     subscriber?: Reference<"Patient" | "RelatedPerson">;
     subscriberId?: Identifier[];
-    type?: CodeableConcept;
+    type?: CodeableConcept<("pay" | string)>;
 }
 export const isCoverage = (resource: unknown): resource is Coverage => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Coverage";

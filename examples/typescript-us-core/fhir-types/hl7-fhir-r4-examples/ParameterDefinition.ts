@@ -6,7 +6,7 @@ import type { Element } from "../hl7-fhir-r4-examples/Element";
 
 export type { Element } from "../hl7-fhir-r4-examples/Element";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ParameterDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ParameterDefinition (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface ParameterDefinition extends Element {
     documentation?: string;
     _documentation?: Element;

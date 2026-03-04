@@ -276,7 +276,7 @@ export interface ExplanationOfBenefitProcessNote extends BackboneElement {
     language?: CodeableConcept;
     number?: number;
     text?: string;
-    type?: CodeableConcept;
+    type?: CodeableConcept<("display" | "print" | "printoper" | string)>;
 }
 
 export interface ExplanationOfBenefitRelated extends BackboneElement {
@@ -305,7 +305,7 @@ export interface ExplanationOfBenefitTotal extends BackboneElement {
     category: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ExplanationOfBenefit extends DomainResource {
     resourceType: "ExplanationOfBenefit";
 
@@ -345,7 +345,7 @@ export interface ExplanationOfBenefit extends DomainResource {
     payee?: ExplanationOfBenefitPayee;
     payment?: ExplanationOfBenefitPayment;
     preAuthRef?: string[];
-    _preAuthRef?: Element;
+    _preAuthRef?: (Element | null)[];
     preAuthRefPeriod?: Period[];
     precedence?: number;
     _precedence?: Element;
@@ -362,7 +362,7 @@ export interface ExplanationOfBenefit extends DomainResource {
     supportingInfo?: ExplanationOfBenefitSupportingInfo[];
     total?: ExplanationOfBenefitTotal[];
     traceNumber?: Identifier[];
-    type: CodeableConcept;
+    type: CodeableConcept<("institutional" | "oral" | "pharmacy" | "professional" | "vision" | string)>;
     use: ("claim" | "preauthorization" | "predetermination");
     _use?: Element;
 }

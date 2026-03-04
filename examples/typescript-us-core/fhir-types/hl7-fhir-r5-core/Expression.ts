@@ -7,13 +7,13 @@ import type { DataType } from "../hl7-fhir-r5-core/DataType";
 import type { Element } from "../hl7-fhir-r5-core/Element";
 export type { DataType } from "../hl7-fhir-r5-core/DataType";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Expression
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Expression (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Expression extends DataType {
     description?: string;
     _description?: Element;
     expression?: string;
     _expression?: Element;
-    language?: string;
+    language?: ("text/cql" | "text/fhirpath" | "text/x-fhir-query" | "text/cql-identifier" | "text/cql-expression" | string);
     _language?: Element;
     name?: string;
     _name?: Element;

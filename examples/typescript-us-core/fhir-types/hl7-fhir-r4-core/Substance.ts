@@ -30,11 +30,11 @@ export interface SubstanceInstance extends BackboneElement {
     quantity?: Quantity;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Substance
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Substance (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Substance extends DomainResource {
     resourceType: "Substance";
 
-    category?: CodeableConcept[];
+    category?: CodeableConcept<("allergen" | "biological" | "body" | "chemical" | "food" | "drug" | "material" | string)>[];
     code: CodeableConcept;
     description?: string;
     _description?: Element;

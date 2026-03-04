@@ -27,7 +27,7 @@ export interface DeviceUsageAdherence extends BackboneElement {
     reason: CodeableConcept[];
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DeviceUsage
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DeviceUsage (pkg: hl7.fhir.r5.core#5.0.0)
 export interface DeviceUsage extends DomainResource {
     resourceType: "DeviceUsage";
 

@@ -92,7 +92,7 @@ export interface MolecularSequenceVariant extends BackboneElement {
     variantPointer?: Reference<"Observation">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MolecularSequence
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MolecularSequence (pkg: hl7.fhir.r4.core#4.0.1)
 export interface MolecularSequence extends DomainResource {
     resourceType: "MolecularSequence";
 

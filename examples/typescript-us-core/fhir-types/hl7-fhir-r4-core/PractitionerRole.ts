@@ -30,7 +30,7 @@ export interface PractitionerRoleNotAvailable extends BackboneElement {
     during?: Period;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/PractitionerRole
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/PractitionerRole (pkg: hl7.fhir.r4.core#4.0.1)
 export interface PractitionerRole extends DomainResource {
     resourceType: "PractitionerRole";
 

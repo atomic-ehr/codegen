@@ -40,8 +40,8 @@ export interface ValueSetComposeIncludeConcept extends BackboneElement {
 }
 
 export interface ValueSetComposeIncludeConceptDesignation extends BackboneElement {
-    language?: string;
-    use?: Coding;
+    language?: ("ar" | "bn" | "cs" | "da" | "de" | "de-AT" | "de-CH" | "de-DE" | "el" | "en" | "en-AU" | "en-CA" | "en-GB" | "en-IN" | "en-NZ" | "en-SG" | "en-US" | "es" | "es-AR" | "es-ES" | "es-UY" | "fi" | "fr" | "fr-BE" | "fr-CH" | "fr-FR" | "fy" | "fy-NL" | "hi" | "hr" | "it" | "it-CH" | "it-IT" | "ja" | "ko" | "nl" | "nl-BE" | "nl-NL" | "no" | "no-NO" | "pa" | "pl" | "pt" | "pt-BR" | "ru" | "ru-RU" | "sr" | "sr-RS" | "sv" | "sv-SE" | "te" | "zh" | "zh-CN" | "zh-HK" | "zh-SG" | "zh-TW" | string);
+    use?: Coding<("900000000000003001" | "900000000000013009" | string)>;
     value: string;
 }
 
@@ -82,7 +82,7 @@ export interface ValueSetExpansionParameter extends BackboneElement {
     valueUri?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ValueSet
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ValueSet (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface ValueSet extends DomainResource {
     resourceType: "ValueSet";
 

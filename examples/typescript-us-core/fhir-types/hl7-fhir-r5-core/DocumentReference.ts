@@ -23,7 +23,7 @@ export type { Period } from "../hl7-fhir-r5-core/Period";
 export type { Reference } from "../hl7-fhir-r5-core/Reference";
 
 export interface DocumentReferenceAttester extends BackboneElement {
-    mode: CodeableConcept;
+    mode: CodeableConcept<("personal" | "professional" | "legal" | "official" | string)>;
     party?: Reference<"Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     time?: string;
 }
@@ -40,11 +40,11 @@ export interface DocumentReferenceContentProfile extends BackboneElement {
 }
 
 export interface DocumentReferenceRelatesTo extends BackboneElement {
-    code: CodeableConcept;
+    code: CodeableConcept<("replaces" | "transforms" | "signs" | "appends" | string)>;
     target: Reference<"DocumentReference">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DocumentReference
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DocumentReference (pkg: hl7.fhir.r5.core#5.0.0)
 export interface DocumentReference extends DomainResource {
     resourceType: "DocumentReference";
 

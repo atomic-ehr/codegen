@@ -8,7 +8,7 @@ import type { Extension } from "../hl7-fhir-r5-core/Extension";
 export type { DataType } from "../hl7-fhir-r5-core/DataType";
 export type { Extension } from "../hl7-fhir-r5-core/Extension";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/BackboneType
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/BackboneType (pkg: hl7.fhir.r5.core#5.0.0)
 export interface BackboneType extends DataType {
     modifierExtension?: Extension[];
 }

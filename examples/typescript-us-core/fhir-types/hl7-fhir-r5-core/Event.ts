@@ -6,11 +6,6 @@ import type { Base } from "../hl7-fhir-r5-core/Base";
 
 export type { Base } from "../hl7-fhir-r5-core/Base";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Event
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Event (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Event extends Base {
-    resourceType: "Event";
-
-}
-export const isEvent = (resource: unknown): resource is Event => {
-    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Event";
 }

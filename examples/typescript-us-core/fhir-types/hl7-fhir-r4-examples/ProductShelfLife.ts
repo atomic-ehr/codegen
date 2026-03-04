@@ -12,7 +12,7 @@ export type { CodeableConcept } from "../hl7-fhir-r4-examples/CodeableConcept";
 export type { Identifier } from "../hl7-fhir-r4-examples/Identifier";
 export type { Quantity } from "../hl7-fhir-r4-examples/Quantity";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ProductShelfLife
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ProductShelfLife (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface ProductShelfLife extends BackboneElement {
     identifier?: Identifier;
     period: Quantity;

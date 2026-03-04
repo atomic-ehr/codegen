@@ -50,7 +50,7 @@ export interface CoverageEligibilityRequestSupportingInfo extends BackboneElemen
     sequence: number;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CoverageEligibilityRequest
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CoverageEligibilityRequest (pkg: hl7.fhir.r4.core#4.0.1)
 export interface CoverageEligibilityRequest extends DomainResource {
     resourceType: "CoverageEligibilityRequest";
 
@@ -66,7 +66,7 @@ export interface CoverageEligibilityRequest extends DomainResource {
     priority?: CodeableConcept;
     provider?: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
     purpose: ("auth-requirements" | "benefits" | "discovery" | "validation")[];
-    _purpose?: Element;
+    _purpose?: (Element | null)[];
     servicedDate?: string;
     _servicedDate?: Element;
     servicedPeriod?: Period;

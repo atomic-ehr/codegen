@@ -92,7 +92,7 @@ export interface EvidenceVariableDefinition extends BackboneElement {
     variableRole: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Evidence
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Evidence (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Evidence extends DomainResource {
     resourceType: "Evidence";
 
@@ -134,7 +134,7 @@ export interface Evidence extends DomainResource {
     status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     studyDesign?: CodeableConcept[];
-    synthesisType?: CodeableConcept;
+    synthesisType?: CodeableConcept<("std-MA" | "IPD-MA" | "indirect-NMA" | "combined-NMA" | "range" | "classification" | string)>;
     title?: string;
     _title?: Element;
     url?: string;

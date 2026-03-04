@@ -32,7 +32,7 @@ export interface PersonLink extends BackboneElement {
     target: Reference<"Patient" | "Person" | "Practitioner" | "RelatedPerson">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Person
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Person (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Person extends DomainResource {
     resourceType: "Person";
 
@@ -51,7 +51,7 @@ export interface Person extends DomainResource {
     identifier?: Identifier[];
     link?: PersonLink[];
     managingOrganization?: Reference<"Organization">;
-    maritalStatus?: CodeableConcept;
+    maritalStatus?: CodeableConcept<("A" | "D" | "I" | "L" | "M" | "P" | "S" | "T" | "U" | "W" | "UNK" | string)>;
     name?: HumanName[];
     photo?: Attachment[];
     telecom?: ContactPoint[];

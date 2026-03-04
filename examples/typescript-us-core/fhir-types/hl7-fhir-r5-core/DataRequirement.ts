@@ -47,20 +47,20 @@ export interface DataRequirementValueFilter extends Element {
     valuePeriod?: Period;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DataRequirement
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DataRequirement (pkg: hl7.fhir.r5.core#5.0.0)
 export interface DataRequirement extends DataType {
-    codeFilter?: Element[];
-    dateFilter?: Element[];
+    codeFilter?: DataRequirementCodeFilter[];
+    dateFilter?: DataRequirementDateFilter[];
     limit?: number;
     _limit?: Element;
     mustSupport?: string[];
-    _mustSupport?: Element;
+    _mustSupport?: (Element | null)[];
     profile?: string[];
-    _profile?: Element;
-    sort?: Element[];
+    _profile?: (Element | null)[];
+    sort?: DataRequirementSort[];
     subjectCodeableConcept?: CodeableConcept;
     subjectReference?: Reference<"Group">;
     type: string;
     _type?: Element;
-    valueFilter?: Element[];
+    valueFilter?: DataRequirementValueFilter[];
 }

@@ -44,14 +44,14 @@ export interface EvidenceReportRelatesToTarget extends BackboneElement {
 
 export interface EvidenceReportSection extends BackboneElement {
     author?: Reference<"Device" | "Group" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">[];
-    emptyReason?: CodeableConcept;
+    emptyReason?: CodeableConcept<("nilknown" | "notasked" | "withheld" | "unavailable" | "notstarted" | "closed" | string)>;
     entryClassifier?: CodeableConcept[];
     entryQuantity?: Quantity[];
     entryReference?: Reference<"Resource">[];
     focus?: CodeableConcept;
     focusReference?: Reference<"Resource">;
     mode?: ("working" | "snapshot" | "changes");
-    orderedBy?: CodeableConcept;
+    orderedBy?: CodeableConcept<("user" | "system" | "event-date" | "entry-date" | "priority" | "alphabetic" | "category" | "patient" | string)>;
     section?: EvidenceReportSection[];
     text?: Narrative;
     title?: string;
@@ -73,7 +73,7 @@ export interface EvidenceReportSubjectCharacteristic extends BackboneElement {
     valueReference?: Reference<"Resource">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/EvidenceReport
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/EvidenceReport (pkg: hl7.fhir.r5.core#5.0.0)
 export interface EvidenceReport extends DomainResource {
     resourceType: "EvidenceReport";
 

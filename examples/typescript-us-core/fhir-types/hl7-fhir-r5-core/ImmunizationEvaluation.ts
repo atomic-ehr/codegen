@@ -12,7 +12,7 @@ export type { CodeableConcept } from "../hl7-fhir-r5-core/CodeableConcept";
 export type { Identifier } from "../hl7-fhir-r5-core/Identifier";
 export type { Reference } from "../hl7-fhir-r5-core/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ImmunizationEvaluation
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ImmunizationEvaluation (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ImmunizationEvaluation extends DomainResource {
     resourceType: "ImmunizationEvaluation";
 

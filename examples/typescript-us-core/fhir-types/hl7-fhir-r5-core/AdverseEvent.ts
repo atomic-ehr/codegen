@@ -57,7 +57,7 @@ export interface AdverseEventSuspectEntityCausality extends BackboneElement {
     entityRelatedness?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/AdverseEvent
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/AdverseEvent (pkg: hl7.fhir.r5.core#5.0.0)
 export interface AdverseEvent extends DomainResource {
     resourceType: "AdverseEvent";
 

@@ -57,7 +57,7 @@ export interface PackagedProductDefinitionPackagingProperty extends BackboneElem
     valueQuantity?: Quantity;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/PackagedProductDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/PackagedProductDefinition (pkg: hl7.fhir.r5.core#5.0.0)
 export interface PackagedProductDefinition extends DomainResource {
     resourceType: "PackagedProductDefinition";
 
@@ -76,7 +76,7 @@ export interface PackagedProductDefinition extends DomainResource {
     _name?: Element;
     packageFor?: Reference<"MedicinalProductDefinition">[];
     packaging?: PackagedProductDefinitionPackaging;
-    status?: CodeableConcept;
+    status?: CodeableConcept<("draft" | "active" | "retired" | "unknown" | string)>;
     statusDate?: string;
     _statusDate?: Element;
     type?: CodeableConcept;

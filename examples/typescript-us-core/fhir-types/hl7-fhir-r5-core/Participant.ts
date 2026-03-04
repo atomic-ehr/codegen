@@ -6,11 +6,6 @@ import type { Base } from "../hl7-fhir-r5-core/Base";
 
 export type { Base } from "../hl7-fhir-r5-core/Base";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Participant
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Participant (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Participant extends Base {
-    resourceType: "Participant";
-
-}
-export const isParticipant = (resource: unknown): resource is Participant => {
-    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Participant";
 }

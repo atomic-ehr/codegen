@@ -69,7 +69,7 @@ export interface DeviceVersion extends BackboneElement {
     value: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Device
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Device (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Device extends DomainResource {
     resourceType: "Device";
 
