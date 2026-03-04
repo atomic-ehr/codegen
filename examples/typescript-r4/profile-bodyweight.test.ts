@@ -1,7 +1,5 @@
 /**
- * FHIR R4 Profile Class API Tests
- *
- * Tests for Profile class usage with bodyweight observation.
+ * FHIR R4 Bodyweight Profile Class API Tests
  */
 
 import { describe, expect, test } from "bun:test";
@@ -13,10 +11,9 @@ describe("bodyweight profile creation", () => {
     let fromCreateResource: Observation;
     let fromFrom: Observation;
 
-    test("create() returns a profile wrapping the resource", () => {
+    test("create() returns a profile wrapping the resource with auto-set code", () => {
         const profile = bodyweightProfile.create({
             status: "final",
-            code: { coding: [{ code: "29463-7", system: "http://loinc.org" }] },
             category: [],
             subject: { reference: "Patient/pt-1" },
         });
@@ -25,13 +22,13 @@ describe("bodyweight profile creation", () => {
         expect(fromCreate.resourceType).toBe("Observation");
         expect(fromCreate.status).toBe("final");
         expect(fromCreate.code!.coding![0]!.code).toBe("29463-7");
+        expect(fromCreate.code!.coding![0]!.system).toBe("http://loinc.org");
         expect(fromCreate.subject!.reference).toBe("Patient/pt-1");
     });
 
-    test("createResource() returns a plain Observation", () => {
+    test("createResource() returns a plain Observation with auto-set code", () => {
         fromCreateResource = bodyweightProfile.createResource({
             status: "final",
-            code: { coding: [{ code: "29463-7", system: "http://loinc.org" }] },
             category: [],
             subject: { reference: "Patient/pt-1" },
         });
@@ -76,7 +73,6 @@ describe("bodyweight profile creation", () => {
 describe("bodyweight profile getters and setters", () => {
     const profile = bodyweightProfile.create({
         status: "final",
-        code: { coding: [{ code: "29463-7", system: "http://loinc.org" }] },
         category: [],
         subject: { reference: "Patient/pt-1" },
     });
@@ -89,6 +85,7 @@ describe("bodyweight profile getters and setters", () => {
     });
 
     test("getCode / setCode", () => {
+        // Code is auto-set but still has getter/setter
         expect(profile.getCode()!.coding![0]!.code).toBe("29463-7");
         const newCode = { coding: [{ code: "3141-9", system: "http://loinc.org" }] };
         profile.setCode(newCode);
@@ -112,7 +109,6 @@ describe("bodyweight profile getters and setters", () => {
 describe("bodyweight profile slice accessors", () => {
     const profile = bodyweightProfile.create({
         status: "final",
-        code: { coding: [{ code: "29463-7", system: "http://loinc.org" }] },
         category: [],
         subject: { reference: "Patient/pt-1" },
     });
@@ -166,7 +162,6 @@ describe("bodyweight profile slice accessors", () => {
 describe("bodyweight profile choice type accessors", () => {
     const profile = bodyweightProfile.create({
         status: "final",
-        code: { coding: [{ code: "29463-7", system: "http://loinc.org" }] },
         category: [],
         subject: { reference: "Patient/pt-1" },
     });
@@ -204,7 +199,6 @@ describe("bodyweight profile choice type accessors", () => {
     test("choice accessors mutate the underlying resource", () => {
         const obs = bodyweightProfile.createResource({
             status: "final",
-            code: { coding: [{ code: "29463-7", system: "http://loinc.org" }] },
             category: [],
             subject: { reference: "Patient/pt-1" },
         });
@@ -228,7 +222,6 @@ describe("bodyweight profile mutability", () => {
     test("profile mutates the underlying resource", () => {
         const obs = bodyweightProfile.createResource({
             status: "final",
-            code: { coding: [{ code: "29463-7", system: "http://loinc.org" }] },
             category: [],
             subject: { reference: "Patient/pt-1" },
         });
