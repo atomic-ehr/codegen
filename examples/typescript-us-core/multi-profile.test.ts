@@ -1,14 +1,13 @@
 import { describe, expect, it } from "bun:test";
 import type { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
-import { USCoreBodyHeightProfileProfile } from "./fhir-types/hl7-fhir-us-core/profiles/UscoreBodyHeightProfile";
-import { USCoreBodyWeightProfileProfile } from "./fhir-types/hl7-fhir-us-core/profiles/UscoreBodyWeightProfile";
+import { USCoreBodyHeightProfileProfile as usHeightProfile, USCoreBodyWeightProfileProfile as usWeightProfile } from "./fhir-types/hl7-fhir-us-core/profiles";
 
 const createObservation = (): Observation => ({ resourceType: "Observation", status: "final", code: {} });
 
 describe("Multi-Profile Pattern", () => {
     describe("Body Weight Profile", () => {
         it("creates valid body weight observation", () => {
-            const profile = new USCoreBodyWeightProfileProfile(createObservation());
+            const profile = new usWeightProfile(createObservation());
             profile.setVscat({});
 
             const resource = profile.toResource();
@@ -18,7 +17,7 @@ describe("Multi-Profile Pattern", () => {
         });
 
         it("has getters for slices", () => {
-            const profile = new USCoreBodyWeightProfileProfile(createObservation());
+            const profile = new usWeightProfile(createObservation());
             profile.setVscat({});
 
             const vscat = profile.getVscat();
@@ -28,7 +27,7 @@ describe("Multi-Profile Pattern", () => {
 
     describe("Body Height Profile", () => {
         it("creates valid body height observation", () => {
-            const profile = new USCoreBodyHeightProfileProfile(createObservation());
+            const profile = new usHeightProfile(createObservation());
             profile.setVscat({});
 
             const resource = profile.toResource();
@@ -38,7 +37,7 @@ describe("Multi-Profile Pattern", () => {
         });
 
         it("has getters for slices", () => {
-            const profile = new USCoreBodyHeightProfileProfile(createObservation());
+            const profile = new usHeightProfile(createObservation());
             profile.setVscat({});
 
             const vscat = profile.getVscat();
@@ -56,7 +55,7 @@ describe("Multi-Profile Pattern", () => {
             };
 
             // Wrap with body weight profile
-            const weightProfile = new USCoreBodyWeightProfileProfile(baseObservation);
+            const weightProfile = new usWeightProfile(baseObservation);
             weightProfile.setVscat({});
 
             const resource = weightProfile.toResource();
@@ -67,14 +66,14 @@ describe("Multi-Profile Pattern", () => {
 
         it("creates separate weight and height observations", () => {
             // Create weight observation
-            const weightProfile = new USCoreBodyWeightProfileProfile(createObservation());
+            const weightProfile = new usWeightProfile(createObservation());
             weightProfile.setVscat({});
             const weightObs = weightProfile.toResource();
             weightObs.code = { coding: [{ system: "http://loinc.org", code: "29463-7", display: "Body Weight" }] };
             weightObs.valueQuantity = { value: 70, unit: "kg", system: "http://unitsofmeasure.org", code: "kg" };
 
             // Create height observation
-            const heightProfile = new USCoreBodyHeightProfileProfile(createObservation());
+            const heightProfile = new usHeightProfile(createObservation());
             heightProfile.setVscat({});
             const heightObs = heightProfile.toResource();
             heightObs.code = { coding: [{ system: "http://loinc.org", code: "8302-2", display: "Body Height" }] };
@@ -99,7 +98,7 @@ describe("Multi-Profile Pattern", () => {
             // The generated USCoreBodyWeightProfile interface extends Observation
             // with narrowed subject: Reference<"Patient"> instead of the base type's
             // subject?: Reference<"Device" | "Group" | "Location" | "Patient">
-            const profile = new USCoreBodyWeightProfileProfile(createObservation());
+            const profile = new usWeightProfile(createObservation());
             const resource = profile.toResource();
 
             // TypeScript should enforce that subject is Reference<"Patient">

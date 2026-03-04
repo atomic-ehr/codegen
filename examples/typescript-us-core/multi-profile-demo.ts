@@ -11,8 +11,7 @@
  */
 
 import type { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
-import { USCoreBodyHeightProfileProfile } from "./fhir-types/hl7-fhir-us-core/profiles/UscoreBodyHeightProfile";
-import { USCoreBodyWeightProfileProfile } from "./fhir-types/hl7-fhir-us-core/profiles/UscoreBodyWeightProfile";
+import { USCoreBodyHeightProfileProfile as usHeightProfile, USCoreBodyWeightProfileProfile as usWeightProfile } from "./fhir-types/hl7-fhir-us-core/profiles";
 
 // Helper to create a base Observation resource
 const createBaseObservation = (): Observation => ({
@@ -24,7 +23,7 @@ const createBaseObservation = (): Observation => ({
 // Example 1: Create a Body Weight observation
 function createBodyWeightObservation(): Observation {
     const resource = createBaseObservation();
-    const profile = new USCoreBodyWeightProfileProfile(resource);
+    const profile = new usWeightProfile(resource);
 
     // Set the vital-signs category slice (auto-applies discriminator)
     // No input needed when all fields are part of the discriminator
@@ -49,7 +48,7 @@ function createBodyWeightObservation(): Observation {
 // Example 2: Create a Body Height observation
 function createBodyHeightObservation(): Observation {
     const resource = createBaseObservation();
-    const profile = new USCoreBodyHeightProfileProfile(resource);
+    const profile = new usHeightProfile(resource);
 
     // Set the vital-signs category slice
     profile.setVscat();
@@ -73,7 +72,7 @@ function createBodyHeightObservation(): Observation {
 // Example 3: Using getters to read values
 function demonstrateGetters() {
     const resource = createBaseObservation();
-    const profile = new USCoreBodyWeightProfileProfile(resource);
+    const profile = new usWeightProfile(resource);
     profile.setVscat();
 
     // Get simplified value (without discriminator) - flat API
@@ -95,7 +94,7 @@ function demonstrateTypeNarrowing() {
     // - category: CodeableConcept[] (made required)
 
     const resource = createBaseObservation();
-    const profile = new USCoreBodyWeightProfileProfile(resource);
+    const profile = new usWeightProfile(resource);
     profile.setVscat();
 
     // TypeScript knows this is an Observation

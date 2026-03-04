@@ -9,8 +9,7 @@
 
 import type { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
 import type { Patient } from "./fhir-types/hl7-fhir-r4-core/Patient";
-import { USCoreBloodPressureProfileProfile } from "./fhir-types/hl7-fhir-us-core/profiles/UscoreBloodPressureProfile";
-import { USCorePatientProfileProfile } from "./fhir-types/hl7-fhir-us-core/profiles/UscorePatientProfile";
+import { USCoreBloodPressureProfileProfile as usBpProfile, USCorePatientProfileProfile as usPatientProfile } from "./fhir-types/hl7-fhir-us-core/profiles";
 
 // =============================================================================
 // Example 1: Creating a US Core Patient with extensions (flat API)
@@ -19,10 +18,10 @@ function createPatientExample(): Patient {
     console.log("=== Example 1: US Core Patient Profile ===\n");
 
     // Create a new patient profile builder with a base Patient resource
-    const patientProfile = new USCorePatientProfileProfile({ resourceType: "Patient" });
+    const USCorePatientProfileProfile = new usPatientProfile({ resourceType: "Patient" });
 
     // Use fluent API with FLAT object structure - no nested extensions!
-    patientProfile
+    USCorePatientProfileProfile
         .setRace({
             // Flat API - just provide the values directly
             ombCategory: {
@@ -48,7 +47,7 @@ function createPatientExample(): Patient {
         });
 
     // Get the underlying FHIR resource
-    const patient = patientProfile.toResource();
+    const patient = USCorePatientProfileProfile.toResource();
 
     // Add additional fields directly to the resource
     patient.id = "example-patient-1";
@@ -81,10 +80,10 @@ function createBloodPressureExample(): Observation {
     console.log("=== Example 2: US Core Blood Pressure Profile ===\n");
 
     // Create a blood pressure profile builder with a base Observation resource
-    const bpProfile = new USCoreBloodPressureProfileProfile({ resourceType: "Observation" } as Observation);
+    const USCoreBloodPressureProfileProfile = new usBpProfile({ resourceType: "Observation" } as Observation);
 
     // Use fluent API to set slices - discriminator values are auto-applied
-    bpProfile
+    USCoreBloodPressureProfileProfile
         .setVscat()
         .setSystolic({
             // The code for systolic (8480-6) is auto-applied by the profile
@@ -106,7 +105,7 @@ function createBloodPressureExample(): Observation {
         });
 
     // Get the underlying FHIR resource
-    const observation = bpProfile.toResource();
+    const observation = USCoreBloodPressureProfileProfile.toResource();
 
     // Add additional fields
     observation.id = "blood-pressure-1";
@@ -148,16 +147,16 @@ function wrapExistingResource(): Patient {
     };
 
     // Wrap it with the profile class to add US Core extensions
-    const patientProfile = new USCorePatientProfileProfile(existingPatient);
+    const USCorePatientProfileProfile = new usPatientProfile(existingPatient);
 
     // Add extensions using the fluent API
-    patientProfile.setSex({
+    USCorePatientProfileProfile.setSex({
         system: "http://hl7.org/fhir/us/core/CodeSystem/birthsex",
         code: "F",
         display: "Female",
     });
 
-    const updatedPatient = patientProfile.toResource();
+    const updatedPatient = USCorePatientProfileProfile.toResource();
 
     console.log("Updated Patient with extensions:");
     console.log(JSON.stringify(updatedPatient, null, 2));
@@ -173,8 +172,8 @@ function resetExtensionExample(): Patient {
     console.log("=== Example 4: Resetting Extensions ===\n");
 
     // Create patient with extensions
-    const patientProfile = new USCorePatientProfileProfile({ resourceType: "Patient" });
-    patientProfile
+    const USCorePatientProfileProfile = new usPatientProfile({ resourceType: "Patient" });
+    USCorePatientProfileProfile
         .setSex({
             system: "http://hl7.org/fhir/us/core/CodeSystem/birthsex",
             code: "M",
@@ -186,11 +185,11 @@ function resetExtensionExample(): Patient {
             display: "Yes",
         });
 
-    console.log("Before reset - extensions count:", patientProfile.toResource().extension?.length);
+    console.log("Before reset - extensions count:", USCorePatientProfileProfile.toResource().extension?.length);
 
-    console.log("After resetInterpreterRequired - extensions count:", patientProfile.toResource().extension?.length);
+    console.log("After resetInterpreterRequired - extensions count:", USCorePatientProfileProfile.toResource().extension?.length);
 
-    const patient = patientProfile.toResource();
+    const patient = USCorePatientProfileProfile.toResource();
     console.log("Patient after reset:");
     console.log(JSON.stringify(patient, null, 2));
     console.log("\n");
