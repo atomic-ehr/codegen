@@ -19,7 +19,7 @@ export type { Reference } from "../hl7-fhir-r4-examples/Reference";
 export interface EpisodeOfCareDiagnosis extends BackboneElement {
     condition: Reference<"Condition">;
     rank?: number;
-    role?: CodeableConcept;
+    role?: CodeableConcept<("AD" | "DD" | "CC" | "CM" | "pre-op" | "post-op" | "billing" | string)>;
 }
 
 export interface EpisodeOfCareStatusHistory extends BackboneElement {
@@ -27,7 +27,7 @@ export interface EpisodeOfCareStatusHistory extends BackboneElement {
     status: ("planned" | "waitlist" | "active" | "onhold" | "finished" | "cancelled" | "entered-in-error");
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/EpisodeOfCare
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/EpisodeOfCare (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface EpisodeOfCare extends DomainResource {
     resourceType: "EpisodeOfCare";
 

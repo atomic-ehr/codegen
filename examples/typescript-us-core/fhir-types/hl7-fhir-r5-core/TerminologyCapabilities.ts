@@ -74,7 +74,7 @@ export interface TerminologyCapabilitiesValidateCode extends BackboneElement {
     translations: boolean;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities (pkg: hl7.fhir.r5.core#5.0.0)
 export interface TerminologyCapabilities extends DomainResource {
     resourceType: "TerminologyCapabilities";
 

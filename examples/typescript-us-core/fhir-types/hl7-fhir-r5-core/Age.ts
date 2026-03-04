@@ -6,6 +6,6 @@ import type { Quantity } from "../hl7-fhir-r5-core/Quantity";
 
 export type { Quantity } from "../hl7-fhir-r5-core/Quantity";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Age
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Age (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Age extends Quantity {
 }

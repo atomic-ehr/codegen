@@ -27,7 +27,7 @@ export type { RelatedArtifact } from "../hl7-fhir-r5-core/RelatedArtifact";
 export type { UsageContext } from "../hl7-fhir-r5-core/UsageContext";
 
 export interface CompositionAttester extends BackboneElement {
-    mode: CodeableConcept;
+    mode: CodeableConcept<("personal" | "professional" | "legal" | "official" | string)>;
     party?: Reference<"Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     time?: string;
 }
@@ -40,16 +40,16 @@ export interface CompositionEvent extends BackboneElement {
 export interface CompositionSection extends BackboneElement {
     author?: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">[];
     code?: CodeableConcept;
-    emptyReason?: CodeableConcept;
+    emptyReason?: CodeableConcept<("nilknown" | "notasked" | "withheld" | "unavailable" | "notstarted" | "closed" | string)>;
     entry?: Reference<"Resource">[];
     focus?: Reference<"Resource">;
-    orderedBy?: CodeableConcept;
+    orderedBy?: CodeableConcept<("user" | "system" | "event-date" | "entry-date" | "priority" | "alphabetic" | "category" | "patient" | string)>;
     section?: CompositionSection[];
     text?: Narrative;
     title?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Composition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Composition (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Composition extends DomainResource {
     resourceType: "Composition";
 

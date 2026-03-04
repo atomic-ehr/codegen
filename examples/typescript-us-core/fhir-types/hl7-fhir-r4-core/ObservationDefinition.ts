@@ -21,7 +21,7 @@ export interface ObservationDefinitionQualifiedInterval extends BackboneElement 
     appliesTo?: CodeableConcept[];
     category?: ("reference" | "critical" | "absolute");
     condition?: string;
-    context?: CodeableConcept;
+    context?: CodeableConcept<("type" | "normal" | "recommended" | "treatment" | "therapeutic" | "pre" | "post" | "endocrine" | "pre-puberty" | "follicular" | "midcycle" | "luteal" | "postmenopausal" | string)>;
     gender?: ("male" | "female" | "other" | "unknown");
     gestationalAge?: Range;
     range?: Range;
@@ -34,7 +34,7 @@ export interface ObservationDefinitionQuantitativeDetails extends BackboneElemen
     unit?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ObservationDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ObservationDefinition (pkg: hl7.fhir.r4.core#4.0.1)
 export interface ObservationDefinition extends DomainResource {
     resourceType: "ObservationDefinition";
 
@@ -48,7 +48,7 @@ export interface ObservationDefinition extends DomainResource {
     _multipleResultsAllowed?: Element;
     normalCodedValueSet?: Reference<"ValueSet">;
     permittedDataType?: ("Quantity" | "CodeableConcept" | "string" | "boolean" | "integer" | "Range" | "Ratio" | "SampledData" | "time" | "dateTime" | "Period")[];
-    _permittedDataType?: Element;
+    _permittedDataType?: (Element | null)[];
     preferredReportName?: string;
     _preferredReportName?: Element;
     qualifiedInterval?: ObservationDefinitionQualifiedInterval[];

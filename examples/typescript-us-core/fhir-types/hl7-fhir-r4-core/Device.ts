@@ -51,7 +51,7 @@ export interface DeviceVersion extends BackboneElement {
     value: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Device
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Device (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Device extends DomainResource {
     resourceType: "Device";
 
@@ -85,7 +85,7 @@ export interface Device extends DomainResource {
     specialization?: DeviceSpecialization[];
     status?: ("active" | "inactive" | "entered-in-error" | "unknown");
     _status?: Element;
-    statusReason?: CodeableConcept[];
+    statusReason?: CodeableConcept<("online" | "paused" | "standby" | "offline" | "not-ready" | "transduc-discon" | "hw-discon" | "off" | string)>[];
     type?: CodeableConcept;
     udiCarrier?: DeviceUdiCarrier[];
     url?: string;

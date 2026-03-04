@@ -23,7 +23,7 @@ export interface BiologicallyDerivedProductDispensePerformer extends BackboneEle
     "function"?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProductDispense
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProductDispense (pkg: hl7.fhir.r5.core#5.0.0)
 export interface BiologicallyDerivedProductDispense extends DomainResource {
     resourceType: "BiologicallyDerivedProductDispense";
 

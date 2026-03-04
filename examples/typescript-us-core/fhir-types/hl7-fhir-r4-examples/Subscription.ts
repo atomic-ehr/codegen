@@ -17,7 +17,7 @@ export interface SubscriptionChannel extends BackboneElement {
     type: ("rest-hook" | "websocket" | "email" | "sms" | "message");
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Subscription
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Subscription (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface Subscription extends DomainResource {
     resourceType: "Subscription";
 

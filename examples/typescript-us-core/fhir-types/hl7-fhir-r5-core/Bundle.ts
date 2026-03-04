@@ -48,7 +48,7 @@ export interface BundleLink extends BackboneElement {
     url: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Bundle
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Bundle (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Bundle extends Resource {
     resourceType: "Bundle";
 

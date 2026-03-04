@@ -48,7 +48,7 @@ export interface CitationCitedArtifact extends BackboneElement {
 
 export interface CitationCitedArtifactAbstract extends BackboneElement {
     copyright?: string;
-    language?: CodeableConcept;
+    language?: CodeableConcept<("ar" | "bg" | "bg-BG" | "bn" | "cs" | "cs-CZ" | "bs" | "bs-BA" | "da" | "da-DK" | "de" | "de-AT" | "de-CH" | "de-DE" | "el" | "el-GR" | "en" | "en-AU" | "en-CA" | "en-GB" | "en-IN" | "en-NZ" | "en-SG" | "en-US" | "es" | "es-AR" | "es-ES" | "es-UY" | "et" | "et-EE" | "fi" | "fr" | "fr-BE" | "fr-CH" | "fr-FR" | "fi-FI" | "fr-CA" | "fy" | "fy-NL" | "hi" | "hr" | "hr-HR" | "is" | "is-IS" | "it" | "it-CH" | "it-IT" | "ja" | "ko" | "lt" | "lt-LT" | "lv" | "lv-LV" | "nl" | "nl-BE" | "nl-NL" | "no" | "no-NO" | "pa" | "pl" | "pl-PL" | "pt" | "pt-PT" | "pt-BR" | "ro" | "ro-RO" | "ru" | "ru-RU" | "sk" | "sk-SK" | "sl" | "sl-SI" | "sr" | "sr-RS" | "sv" | "sv-SE" | "te" | "zh" | "zh-CN" | "zh-HK" | "zh-SG" | "zh-TW" | string)>;
     text: string;
     type?: CodeableConcept;
 }
@@ -101,7 +101,7 @@ export interface CitationCitedArtifactPublicationForm extends BackboneElement {
     copyright?: string;
     firstPage?: string;
     issue?: string;
-    language?: CodeableConcept[];
+    language?: CodeableConcept<("ar" | "bg" | "bg-BG" | "bn" | "cs" | "cs-CZ" | "bs" | "bs-BA" | "da" | "da-DK" | "de" | "de-AT" | "de-CH" | "de-DE" | "el" | "el-GR" | "en" | "en-AU" | "en-CA" | "en-GB" | "en-IN" | "en-NZ" | "en-SG" | "en-US" | "es" | "es-AR" | "es-ES" | "es-UY" | "et" | "et-EE" | "fi" | "fr" | "fr-BE" | "fr-CH" | "fr-FR" | "fi-FI" | "fr-CA" | "fy" | "fy-NL" | "hi" | "hr" | "hr-HR" | "is" | "is-IS" | "it" | "it-CH" | "it-IT" | "ja" | "ko" | "lt" | "lt-LT" | "lv" | "lv-LV" | "nl" | "nl-BE" | "nl-NL" | "no" | "no-NO" | "pa" | "pl" | "pl-PL" | "pt" | "pt-PT" | "pt-BR" | "ro" | "ro-RO" | "ru" | "ru-RU" | "sk" | "sk-SK" | "sl" | "sl-SI" | "sr" | "sr-RS" | "sv" | "sv-SE" | "te" | "zh" | "zh-CN" | "zh-HK" | "zh-SG" | "zh-TW" | string)>[];
     lastPage?: string;
     lastRevisionDate?: string;
     pageCount?: string;
@@ -138,7 +138,7 @@ export interface CitationCitedArtifactStatusDate extends BackboneElement {
 }
 
 export interface CitationCitedArtifactTitle extends BackboneElement {
-    language?: CodeableConcept;
+    language?: CodeableConcept<("ar" | "bg" | "bg-BG" | "bn" | "cs" | "cs-CZ" | "bs" | "bs-BA" | "da" | "da-DK" | "de" | "de-AT" | "de-CH" | "de-DE" | "el" | "el-GR" | "en" | "en-AU" | "en-CA" | "en-GB" | "en-IN" | "en-NZ" | "en-SG" | "en-US" | "es" | "es-AR" | "es-ES" | "es-UY" | "et" | "et-EE" | "fi" | "fr" | "fr-BE" | "fr-CH" | "fr-FR" | "fi-FI" | "fr-CA" | "fy" | "fy-NL" | "hi" | "hr" | "hr-HR" | "is" | "is-IS" | "it" | "it-CH" | "it-IT" | "ja" | "ko" | "lt" | "lt-LT" | "lv" | "lv-LV" | "nl" | "nl-BE" | "nl-NL" | "no" | "no-NO" | "pa" | "pl" | "pl-PL" | "pt" | "pt-PT" | "pt-BR" | "ro" | "ro-RO" | "ru" | "ru-RU" | "sk" | "sk-SK" | "sl" | "sl-SI" | "sr" | "sr-RS" | "sv" | "sv-SE" | "te" | "zh" | "zh-CN" | "zh-HK" | "zh-SG" | "zh-TW" | string)>;
     text: string;
     type?: CodeableConcept[];
 }
@@ -169,7 +169,7 @@ export interface CitationSummary extends BackboneElement {
     text: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Citation
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Citation (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Citation extends DomainResource {
     resourceType: "Citation";
 

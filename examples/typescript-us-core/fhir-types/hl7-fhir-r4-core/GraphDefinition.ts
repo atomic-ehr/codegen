@@ -39,7 +39,7 @@ export interface GraphDefinitionLinkTargetCompartment extends BackboneElement {
     use: ("condition" | "requirement");
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/GraphDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/GraphDefinition (pkg: hl7.fhir.r4.core#4.0.1)
 export interface GraphDefinition extends DomainResource {
     resourceType: "GraphDefinition";
 

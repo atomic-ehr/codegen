@@ -67,7 +67,7 @@ export interface RequestOrchestrationAction extends BackboneElement {
     timingTiming?: Timing;
     title?: string;
     transform?: string;
-    type?: CodeableConcept;
+    type?: CodeableConcept<("create" | "update" | "remove" | "fire-event" | string)>;
 }
 
 export interface RequestOrchestrationActionCondition extends BackboneElement {
@@ -110,7 +110,7 @@ export interface RequestOrchestrationActionRelatedAction extends BackboneElement
     targetId: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/RequestOrchestration
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/RequestOrchestration (pkg: hl7.fhir.r5.core#5.0.0)
 export interface RequestOrchestration extends DomainResource {
     resourceType: "RequestOrchestration";
 
@@ -125,9 +125,9 @@ export interface RequestOrchestration extends DomainResource {
     groupIdentifier?: Identifier;
     identifier?: Identifier[];
     instantiatesCanonical?: string[];
-    _instantiatesCanonical?: Element;
+    _instantiatesCanonical?: (Element | null)[];
     instantiatesUri?: string[];
-    _instantiatesUri?: Element;
+    _instantiatesUri?: (Element | null)[];
     intent: ("proposal" | "plan" | "directive" | "order" | "original-order" | "reflex-order" | "filler-order" | "instance-order" | "option");
     _intent?: Element;
     note?: Annotation[];

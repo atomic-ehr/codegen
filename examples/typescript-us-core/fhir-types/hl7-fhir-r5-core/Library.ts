@@ -28,7 +28,7 @@ export type { Reference } from "../hl7-fhir-r5-core/Reference";
 export type { RelatedArtifact } from "../hl7-fhir-r5-core/RelatedArtifact";
 export type { UsageContext } from "../hl7-fhir-r5-core/UsageContext";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Library
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Library (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Library extends DomainResource {
     resourceType: "Library";
 
@@ -73,7 +73,7 @@ export interface Library extends DomainResource {
     title?: string;
     _title?: Element;
     topic?: CodeableConcept[];
-    type: CodeableConcept;
+    type: CodeableConcept<("logic-library" | "model-definition" | "asset-collection" | "module-definition" | string)>;
     url?: string;
     _url?: Element;
     usage?: string;

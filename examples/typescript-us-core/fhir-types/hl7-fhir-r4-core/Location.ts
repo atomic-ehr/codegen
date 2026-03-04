@@ -33,13 +33,13 @@ export interface LocationPosition extends BackboneElement {
     longitude: number;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Location
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Location (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Location extends DomainResource {
     resourceType: "Location";
 
     address?: Address;
     alias?: string[];
-    _alias?: Element;
+    _alias?: (Element | null)[];
     availabilityExceptions?: string;
     _availabilityExceptions?: Element;
     description?: string;
@@ -52,7 +52,7 @@ export interface Location extends DomainResource {
     _mode?: Element;
     name?: string;
     _name?: Element;
-    operationalStatus?: Coding;
+    operationalStatus?: Coding<("C" | "H" | "I" | "K" | "O" | "U" | string)>;
     partOf?: Reference<"Location">;
     physicalType?: CodeableConcept;
     position?: LocationPosition;

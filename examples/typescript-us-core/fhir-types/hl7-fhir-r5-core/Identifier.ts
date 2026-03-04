@@ -13,13 +13,13 @@ export type { DataType } from "../hl7-fhir-r5-core/DataType";
 export type { Period } from "../hl7-fhir-r5-core/Period";
 export type { Reference } from "../hl7-fhir-r5-core/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Identifier
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Identifier (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Identifier extends DataType {
     assigner?: Reference<"Organization">;
     period?: Period;
     system?: string;
     _system?: Element;
-    type?: CodeableConcept;
+    type?: CodeableConcept<("DL" | "PPN" | "BRN" | "MR" | "MCN" | "EN" | "TAX" | "NIIP" | "PRN" | "MD" | "DR" | "ACSN" | "UDI" | "SNO" | "SB" | "PLAC" | "FILL" | "JHN" | string)>;
     use?: ("usual" | "official" | "temp" | "secondary" | "old");
     _use?: Element;
     value?: string;

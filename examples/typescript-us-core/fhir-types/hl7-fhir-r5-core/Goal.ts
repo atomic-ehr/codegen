@@ -39,11 +39,11 @@ export interface GoalTarget extends BackboneElement {
     measure?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Goal
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Goal (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Goal extends DomainResource {
     resourceType: "Goal";
 
-    achievementStatus?: CodeableConcept;
+    achievementStatus?: CodeableConcept<("in-progress" | "improving" | "worsening" | "no-change" | "achieved" | "sustaining" | "not-achieved" | "no-progress" | "not-attainable" | string)>;
     addresses?: Reference<"Condition" | "MedicationRequest" | "MedicationStatement" | "NutritionOrder" | "Observation" | "Procedure" | "RiskAssessment" | "ServiceRequest">[];
     category?: CodeableConcept[];
     continuous?: boolean;
@@ -54,7 +54,7 @@ export interface Goal extends DomainResource {
     _lifecycleStatus?: Element;
     note?: Annotation[];
     outcome?: CodeableReference[];
-    priority?: CodeableConcept;
+    priority?: CodeableConcept<("high-priority" | "medium-priority" | "low-priority" | string)>;
     source?: Reference<"CareTeam" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     startCodeableConcept?: CodeableConcept;
     startDate?: string;

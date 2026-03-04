@@ -30,10 +30,10 @@ export interface ResearchStudyArm extends BackboneElement {
 
 export interface ResearchStudyObjective extends BackboneElement {
     name?: string;
-    type?: CodeableConcept;
+    type?: CodeableConcept<("primary" | "secondary" | "exploratory" | string)>;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ResearchStudy
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ResearchStudy (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface ResearchStudy extends DomainResource {
     resourceType: "ResearchStudy";
 
@@ -53,7 +53,7 @@ export interface ResearchStudy extends DomainResource {
     partOf?: Reference<"ResearchStudy">[];
     period?: Period;
     phase?: CodeableConcept;
-    primaryPurposeType?: CodeableConcept;
+    primaryPurposeType?: CodeableConcept<("treatment" | "prevention" | "diagnostic" | "supportive-care" | "screening" | "health-services-research" | "basic-science" | "device-feasibility" | string)>;
     principalInvestigator?: Reference<"Practitioner" | "PractitionerRole">;
     protocol?: Reference<"PlanDefinition">[];
     reasonStopped?: CodeableConcept;

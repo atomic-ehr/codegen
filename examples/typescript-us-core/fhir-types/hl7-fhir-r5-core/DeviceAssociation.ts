@@ -21,7 +21,7 @@ export interface DeviceAssociationOperation extends BackboneElement {
     status: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DeviceAssociation
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DeviceAssociation (pkg: hl7.fhir.r5.core#5.0.0)
 export interface DeviceAssociation extends DomainResource {
     resourceType: "DeviceAssociation";
 

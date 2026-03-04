@@ -19,7 +19,7 @@ export interface SubscriptionStatusNotificationEvent extends BackboneElement {
     timestamp?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubscriptionStatus
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubscriptionStatus (pkg: hl7.fhir.r5.core#5.0.0)
 export interface SubscriptionStatus extends DomainResource {
     resourceType: "SubscriptionStatus";
 

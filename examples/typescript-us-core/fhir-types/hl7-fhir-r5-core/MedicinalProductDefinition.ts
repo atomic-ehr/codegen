@@ -72,7 +72,7 @@ export interface MedicinalProductDefinitionOperation extends BackboneElement {
     type?: CodeableReference;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductDefinition (pkg: hl7.fhir.r5.core#5.0.0)
 export interface MedicinalProductDefinition extends DomainResource {
     resourceType: "MedicinalProductDefinition";
 
@@ -103,7 +103,7 @@ export interface MedicinalProductDefinition extends DomainResource {
     pediatricUseIndicator?: CodeableConcept;
     route?: CodeableConcept[];
     specialMeasures?: CodeableConcept[];
-    status?: CodeableConcept;
+    status?: CodeableConcept<("draft" | "active" | "retired" | "unknown" | string)>;
     statusDate?: string;
     _statusDate?: Element;
     type?: CodeableConcept;

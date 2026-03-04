@@ -24,7 +24,7 @@ export interface NamingSystemUniqueId extends BackboneElement {
     value: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/NamingSystem
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/NamingSystem (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface NamingSystem extends DomainResource {
     resourceType: "NamingSystem";
 
@@ -44,7 +44,7 @@ export interface NamingSystem extends DomainResource {
     _responsible?: Element;
     status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
-    type?: CodeableConcept;
+    type?: CodeableConcept<("DL" | "PPN" | "BRN" | "MR" | "MCN" | "EN" | "TAX" | "NIIP" | "PRN" | "MD" | "DR" | "ACSN" | "UDI" | "SNO" | "SB" | "PLAC" | "FILL" | "JHN" | string)>;
     uniqueId: NamingSystemUniqueId[];
     usage?: string;
     _usage?: Element;

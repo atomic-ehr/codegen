@@ -36,10 +36,10 @@ export interface TimingRepeat extends Element {
     when?: ("MORN" | "MORN.early" | "MORN.late" | "NOON" | "AFT" | "AFT.early" | "AFT.late" | "EVE" | "EVE.early" | "EVE.late" | "NIGHT" | "PHS" | "HS" | "WAKE" | "C" | "CM" | "CD" | "CV" | "AC" | "ACM" | "ACD" | "ACV" | "PC" | "PCM" | "PCD" | "PCV")[];
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Timing
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Timing (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Timing extends BackboneElement {
-    code?: CodeableConcept;
+    code?: CodeableConcept<("BID" | "TID" | "QID" | "AM" | "PM" | "QD" | "QOD" | "Q1H" | "Q2H" | "Q3H" | "Q4H" | "Q6H" | "Q8H" | "BED" | "WK" | "MO" | string)>;
     event?: string[];
-    _event?: Element;
-    repeat?: Element;
+    _event?: (Element | null)[];
+    repeat?: TimingRepeat;
 }

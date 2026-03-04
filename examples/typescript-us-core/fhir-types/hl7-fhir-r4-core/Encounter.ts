@@ -28,19 +28,19 @@ export interface EncounterClassHistory extends BackboneElement {
 export interface EncounterDiagnosis extends BackboneElement {
     condition: Reference<"Condition" | "Procedure">;
     rank?: number;
-    use?: CodeableConcept;
+    use?: CodeableConcept<("AD" | "DD" | "CC" | "CM" | "pre-op" | "post-op" | "billing" | string)>;
 }
 
 export interface EncounterHospitalization extends BackboneElement {
-    admitSource?: CodeableConcept;
+    admitSource?: CodeableConcept<("hosp-trans" | "emd" | "outp" | "born" | "gp" | "mp" | "nursing" | "psych" | "rehab" | "other" | string)>;
     destination?: Reference<"Location" | "Organization">;
     dietPreference?: CodeableConcept[];
     dischargeDisposition?: CodeableConcept;
     origin?: Reference<"Location" | "Organization">;
     preAdmissionIdentifier?: Identifier;
     reAdmission?: CodeableConcept;
-    specialArrangement?: CodeableConcept[];
-    specialCourtesy?: CodeableConcept[];
+    specialArrangement?: CodeableConcept<("wheel" | "add-bed" | "int" | "att" | "dog" | string)>[];
+    specialCourtesy?: CodeableConcept<("EXT" | "NRM" | "PRF" | "STF" | "VIP" | "UNK" | string)>[];
 }
 
 export interface EncounterLocation extends BackboneElement {
@@ -53,7 +53,7 @@ export interface EncounterLocation extends BackboneElement {
 export interface EncounterParticipant extends BackboneElement {
     individual?: Reference<"Practitioner" | "PractitionerRole" | "RelatedPerson">;
     period?: Period;
-    type?: CodeableConcept[];
+    type?: CodeableConcept<("SPRF" | "PPRF" | "PART" | "translator" | "emergency" | string)>[];
 }
 
 export interface EncounterStatusHistory extends BackboneElement {
@@ -61,7 +61,7 @@ export interface EncounterStatusHistory extends BackboneElement {
     status: ("planned" | "arrived" | "triaged" | "in-progress" | "onleave" | "finished" | "cancelled" | "entered-in-error" | "unknown");
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Encounter
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Encounter (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Encounter extends DomainResource {
     resourceType: "Encounter";
 

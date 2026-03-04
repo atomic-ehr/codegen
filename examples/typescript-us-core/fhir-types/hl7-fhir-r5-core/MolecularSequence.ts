@@ -45,7 +45,7 @@ export interface MolecularSequenceRelativeStartingSequence extends BackboneEleme
     windowStart?: number;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MolecularSequence
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MolecularSequence (pkg: hl7.fhir.r5.core#5.0.0)
 export interface MolecularSequence extends DomainResource {
     resourceType: "MolecularSequence";
 

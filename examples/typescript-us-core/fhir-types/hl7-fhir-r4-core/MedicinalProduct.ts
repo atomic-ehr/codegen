@@ -55,7 +55,7 @@ export interface MedicinalProductSpecialDesignation extends BackboneElement {
     type?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProduct
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProduct (pkg: hl7.fhir.r4.core#4.0.1)
 export interface MedicinalProduct extends DomainResource {
     resourceType: "MedicinalProduct";
 
@@ -78,7 +78,7 @@ export interface MedicinalProduct extends DomainResource {
     productClassification?: CodeableConcept[];
     specialDesignation?: MedicinalProductSpecialDesignation[];
     specialMeasures?: string[];
-    _specialMeasures?: Element;
+    _specialMeasures?: (Element | null)[];
     type?: CodeableConcept;
 }
 export const isMedicinalProduct = (resource: unknown): resource is MedicinalProduct => {

@@ -6,6 +6,6 @@ import type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 
 export type { Quantity } from "../hl7-fhir-r4-core/Quantity";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Count
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Count (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Count extends Quantity {
 }

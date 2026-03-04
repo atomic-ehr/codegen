@@ -33,7 +33,7 @@ export interface FamilyMemberHistoryCondition extends BackboneElement {
     outcome?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/FamilyMemberHistory
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/FamilyMemberHistory (pkg: hl7.fhir.r4.core#4.0.1)
 export interface FamilyMemberHistory extends DomainResource {
     resourceType: "FamilyMemberHistory";
 
@@ -62,9 +62,9 @@ export interface FamilyMemberHistory extends DomainResource {
     _estimatedAge?: Element;
     identifier?: Identifier[];
     instantiatesCanonical?: string[];
-    _instantiatesCanonical?: Element;
+    _instantiatesCanonical?: (Element | null)[];
     instantiatesUri?: string[];
-    _instantiatesUri?: Element;
+    _instantiatesUri?: (Element | null)[];
     name?: string;
     _name?: Element;
     note?: Annotation[];
@@ -72,7 +72,7 @@ export interface FamilyMemberHistory extends DomainResource {
     reasonCode?: CodeableConcept[];
     reasonReference?: Reference<"AllergyIntolerance" | "Condition" | "DiagnosticReport" | "DocumentReference" | "Observation" | "QuestionnaireResponse">[];
     relationship: CodeableConcept;
-    sex?: CodeableConcept;
+    sex?: CodeableConcept<("male" | "female" | "other" | "unknown" | string)>;
     status: ("partial" | "completed" | "entered-in-error" | "health-unknown");
     _status?: Element;
 }

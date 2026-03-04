@@ -14,7 +14,7 @@ export type { ContactDetail } from "../hl7-fhir-r5-core/ContactDetail";
 export type { Period } from "../hl7-fhir-r5-core/Period";
 export type { RelatedArtifact } from "../hl7-fhir-r5-core/RelatedArtifact";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MetadataResource
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MetadataResource (pkg: hl7.fhir.r5.core#5.0.0)
 export interface MetadataResource extends DomainResource {
     resourceType: "MetadataResource";
 

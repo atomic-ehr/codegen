@@ -32,7 +32,7 @@ export interface CareTeamParticipant extends BackboneElement {
     role?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CareTeam
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CareTeam (pkg: hl7.fhir.r5.core#5.0.0)
 export interface CareTeam extends DomainResource {
     resourceType: "CareTeam";
 

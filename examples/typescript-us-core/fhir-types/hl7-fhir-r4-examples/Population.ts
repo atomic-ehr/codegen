@@ -10,7 +10,7 @@ export type { BackboneElement } from "../hl7-fhir-r4-examples/BackboneElement";
 export type { CodeableConcept } from "../hl7-fhir-r4-examples/CodeableConcept";
 export type { Range } from "../hl7-fhir-r4-examples/Range";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Population
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Population (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface Population extends BackboneElement {
     ageCodeableConcept?: CodeableConcept;
     ageRange?: Range;

@@ -25,14 +25,14 @@ export interface OrganizationQualification extends BackboneElement {
     period?: Period;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Organization
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Organization (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Organization extends DomainResource {
     resourceType: "Organization";
 
     active?: boolean;
     _active?: Element;
     alias?: string[];
-    _alias?: Element;
+    _alias?: (Element | null)[];
     contact?: ExtendedContactDetail[];
     description?: string;
     _description?: Element;

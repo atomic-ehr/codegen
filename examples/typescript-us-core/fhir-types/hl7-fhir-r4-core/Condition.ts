@@ -33,7 +33,7 @@ export interface ConditionStage extends BackboneElement {
     type?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Condition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Condition (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Condition extends DomainResource {
     resourceType: "Condition";
 
@@ -46,8 +46,8 @@ export interface Condition extends DomainResource {
     _abatementString?: Element;
     asserter?: Reference<"Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     bodySite?: CodeableConcept[];
-    category?: CodeableConcept[];
-    clinicalStatus?: CodeableConcept;
+    category?: CodeableConcept<("problem-list-item" | "encounter-diagnosis" | string)>[];
+    clinicalStatus?: CodeableConcept<("active" | "recurrence" | "relapse" | "inactive" | "remission" | "resolved")>;
     code?: CodeableConcept;
     encounter?: Reference<"Encounter">;
     evidence?: ConditionEvidence[];
@@ -63,10 +63,10 @@ export interface Condition extends DomainResource {
     recordedDate?: string;
     _recordedDate?: Element;
     recorder?: Reference<"Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    severity?: CodeableConcept;
+    severity?: CodeableConcept<("24484000" | "6736007" | "255604002" | string)>;
     stage?: ConditionStage[];
     subject: Reference<"Group" | "Patient">;
-    verificationStatus?: CodeableConcept;
+    verificationStatus?: CodeableConcept<("unconfirmed" | "provisional" | "differential" | "confirmed" | "refuted" | "entered-in-error")>;
 }
 export const isCondition = (resource: unknown): resource is Condition => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "Condition";

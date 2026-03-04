@@ -25,7 +25,7 @@ export interface DeviceDispensePerformer extends BackboneElement {
     "function"?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DeviceDispense
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DeviceDispense (pkg: hl7.fhir.r5.core#5.0.0)
 export interface DeviceDispense extends DomainResource {
     resourceType: "DeviceDispense";
 

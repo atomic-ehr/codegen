@@ -18,7 +18,7 @@ export type { Period } from "../hl7-fhir-r4-core/Period";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";
 export type { Timing } from "../hl7-fhir-r4-core/Timing";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DeviceUseStatement
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/DeviceUseStatement (pkg: hl7.fhir.r4.core#4.0.1)
 export interface DeviceUseStatement extends DomainResource {
     resourceType: "DeviceUseStatement";
 

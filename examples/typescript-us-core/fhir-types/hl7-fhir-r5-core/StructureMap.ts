@@ -95,7 +95,7 @@ export interface StructureMapStructure extends BackboneElement {
     url: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/StructureMap
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/StructureMap (pkg: hl7.fhir.r5.core#5.0.0)
 export interface StructureMap extends DomainResource {
     resourceType: "StructureMap";
 
@@ -114,7 +114,7 @@ export interface StructureMap extends DomainResource {
     group: StructureMapGroup[];
     identifier?: Identifier[];
     "import"?: string[];
-    _import?: Element;
+    _import?: (Element | null)[];
     jurisdiction?: CodeableConcept[];
     name: string;
     _name?: Element;

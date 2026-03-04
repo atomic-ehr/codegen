@@ -32,14 +32,14 @@ export interface AllergyIntoleranceReaction extends BackboneElement {
     substance?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/AllergyIntolerance
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/AllergyIntolerance (pkg: hl7.fhir.r4.core#4.0.1)
 export interface AllergyIntolerance extends DomainResource {
     resourceType: "AllergyIntolerance";
 
     asserter?: Reference<"Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     category?: ("food" | "medication" | "environment" | "biologic")[];
-    _category?: Element;
-    clinicalStatus?: CodeableConcept;
+    _category?: (Element | null)[];
+    clinicalStatus?: CodeableConcept<("active" | "inactive" | "resolved")>;
     code?: CodeableConcept;
     criticality?: ("low" | "high" | "unable-to-assess");
     _criticality?: Element;
@@ -62,7 +62,7 @@ export interface AllergyIntolerance extends DomainResource {
     recorder?: Reference<"Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     type?: ("allergy" | "intolerance");
     _type?: Element;
-    verificationStatus?: CodeableConcept;
+    verificationStatus?: CodeableConcept<("unconfirmed" | "confirmed" | "refuted" | "entered-in-error")>;
 }
 export const isAllergyIntolerance = (resource: unknown): resource is AllergyIntolerance => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "AllergyIntolerance";

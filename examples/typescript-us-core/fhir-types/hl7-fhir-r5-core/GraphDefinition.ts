@@ -45,7 +45,7 @@ export interface GraphDefinitionNode extends BackboneElement {
     type: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/GraphDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/GraphDefinition (pkg: hl7.fhir.r5.core#5.0.0)
 export interface GraphDefinition extends DomainResource {
     resourceType: "GraphDefinition";
 

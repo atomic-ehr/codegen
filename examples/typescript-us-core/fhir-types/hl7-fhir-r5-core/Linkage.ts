@@ -15,7 +15,7 @@ export interface LinkageItem extends BackboneElement {
     type: ("source" | "alternate" | "historical");
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Linkage
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Linkage (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Linkage extends DomainResource {
     resourceType: "Linkage";
 

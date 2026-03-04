@@ -48,7 +48,7 @@ export interface PermissionRuleDataResource extends BackboneElement {
     reference: Reference<"Resource">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Permission
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Permission (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Permission extends DomainResource {
     resourceType: "Permission";
 
@@ -56,7 +56,7 @@ export interface Permission extends DomainResource {
     combining: string;
     _combining?: Element;
     date?: string[];
-    _date?: Element;
+    _date?: (Element | null)[];
     justification?: PermissionJustification;
     rule?: PermissionRule[];
     status: string;

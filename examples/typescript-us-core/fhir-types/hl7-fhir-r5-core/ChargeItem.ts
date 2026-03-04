@@ -31,7 +31,7 @@ export interface ChargeItemPerformer extends BackboneElement {
     "function"?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ChargeItem
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ChargeItem (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ChargeItem extends DomainResource {
     resourceType: "ChargeItem";
 
@@ -40,9 +40,9 @@ export interface ChargeItem extends DomainResource {
     code: CodeableConcept;
     costCenter?: Reference<"Organization">;
     definitionCanonical?: string[];
-    _definitionCanonical?: Element;
+    _definitionCanonical?: (Element | null)[];
     definitionUri?: string[];
-    _definitionUri?: Element;
+    _definitionUri?: (Element | null)[];
     encounter?: Reference<"Encounter">;
     enteredDate?: string;
     _enteredDate?: Element;

@@ -28,7 +28,7 @@ export interface MedicationIngredient extends BackboneElement {
     strength?: Ratio;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Medication
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Medication (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface Medication extends DomainResource {
     resourceType: "Medication";
 

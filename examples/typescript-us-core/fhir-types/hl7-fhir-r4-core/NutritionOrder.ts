@@ -31,7 +31,7 @@ export interface NutritionOrderEnteralFormula extends BackboneElement {
     baseFormulaType?: CodeableConcept;
     caloricDensity?: Quantity;
     maxVolumeToDeliver?: Quantity;
-    routeofAdministration?: CodeableConcept;
+    routeofAdministration?: CodeableConcept<("PO" | "EFT" | "ENTINSTL" | "GT" | "NGT" | "OGT" | "GJT" | "JJTINSTL" | "OJJ" | string)>;
 }
 
 export interface NutritionOrderEnteralFormulaAdministration extends BackboneElement {
@@ -68,7 +68,7 @@ export interface NutritionOrderSupplement extends BackboneElement {
     type?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/NutritionOrder
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/NutritionOrder (pkg: hl7.fhir.r4.core#4.0.1)
 export interface NutritionOrder extends DomainResource {
     resourceType: "NutritionOrder";
 
@@ -81,11 +81,11 @@ export interface NutritionOrder extends DomainResource {
     foodPreferenceModifier?: CodeableConcept[];
     identifier?: Identifier[];
     instantiates?: string[];
-    _instantiates?: Element;
+    _instantiates?: (Element | null)[];
     instantiatesCanonical?: string[];
-    _instantiatesCanonical?: Element;
+    _instantiatesCanonical?: (Element | null)[];
     instantiatesUri?: string[];
-    _instantiatesUri?: Element;
+    _instantiatesUri?: (Element | null)[];
     intent: ("proposal" | "plan" | "directive" | "order" | "original-order" | "reflex-order" | "filler-order" | "instance-order" | "option");
     _intent?: Element;
     note?: Annotation[];

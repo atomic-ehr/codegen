@@ -25,7 +25,7 @@ export interface HealthcareServiceEligibility extends BackboneElement {
     comment?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/HealthcareService
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/HealthcareService (pkg: hl7.fhir.r5.core#5.0.0)
 export interface HealthcareService extends DomainResource {
     resourceType: "HealthcareService";
 

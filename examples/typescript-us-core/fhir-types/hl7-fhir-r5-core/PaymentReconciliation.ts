@@ -33,7 +33,7 @@ export interface PaymentReconciliationAllocation extends BackboneElement {
     targetItemIdentifier?: Identifier;
     targetItemPositiveInt?: number;
     targetItemString?: string;
-    type?: CodeableConcept;
+    type?: CodeableConcept<("payment" | "adjustment" | "advance" | string)>;
 }
 
 export interface PaymentReconciliationProcessNote extends BackboneElement {
@@ -41,7 +41,7 @@ export interface PaymentReconciliationProcessNote extends BackboneElement {
     type?: ("display" | "print" | "printoper");
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/PaymentReconciliation
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/PaymentReconciliation (pkg: hl7.fhir.r5.core#5.0.0)
 export interface PaymentReconciliation extends DomainResource {
     resourceType: "PaymentReconciliation";
 
@@ -67,7 +67,7 @@ export interface PaymentReconciliation extends DomainResource {
     issuerType?: CodeableConcept;
     kind?: CodeableConcept;
     location?: Reference<"Location">;
-    method?: CodeableConcept;
+    method?: CodeableConcept<("CASH" | "CCCA" | "CCHK" | "CDAC" | "CHCK" | "DDPO" | "DEBC" | "SWFT" | "TRAC" | "VISN" | string)>;
     outcome?: string;
     _outcome?: Element;
     paymentIdentifier?: Identifier;
@@ -84,7 +84,7 @@ export interface PaymentReconciliation extends DomainResource {
     status: ("active" | "cancelled" | "draft" | "entered-in-error");
     _status?: Element;
     tenderedAmount?: Money;
-    type: CodeableConcept;
+    type: CodeableConcept<("payment" | "adjustment" | "advance" | string)>;
 }
 export const isPaymentReconciliation = (resource: unknown): resource is PaymentReconciliation => {
     return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "PaymentReconciliation";

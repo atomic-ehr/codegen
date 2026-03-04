@@ -49,7 +49,7 @@ export interface ServiceRequestPatientInstruction extends BackboneElement {
     instructionReference?: Reference<"DocumentReference">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ServiceRequest
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ServiceRequest (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ServiceRequest extends DomainResource {
     resourceType: "ServiceRequest";
 
@@ -69,9 +69,9 @@ export interface ServiceRequest extends DomainResource {
     focus?: Reference<"Resource">[];
     identifier?: Identifier[];
     instantiatesCanonical?: string[];
-    _instantiatesCanonical?: Element;
+    _instantiatesCanonical?: (Element | null)[];
     instantiatesUri?: string[];
-    _instantiatesUri?: Element;
+    _instantiatesUri?: (Element | null)[];
     insurance?: Reference<"ClaimResponse" | "Coverage">[];
     intent: ("proposal" | "plan" | "directive" | "order" | "original-order" | "reflex-order" | "filler-order" | "instance-order" | "option");
     _intent?: Element;

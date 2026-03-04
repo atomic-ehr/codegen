@@ -198,7 +198,7 @@ export interface TransportRestriction extends BackboneElement {
     repetitions?: number;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Transport
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Transport (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Transport extends DomainResource {
     resourceType: "Transport";
 

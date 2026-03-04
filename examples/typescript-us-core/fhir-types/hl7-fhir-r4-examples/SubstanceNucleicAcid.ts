@@ -38,7 +38,7 @@ export interface SubstanceNucleicAcidSubunitSugar extends BackboneElement {
     residueSite?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstanceNucleicAcid
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstanceNucleicAcid (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface SubstanceNucleicAcid extends DomainResource {
     resourceType: "SubstanceNucleicAcid";
 

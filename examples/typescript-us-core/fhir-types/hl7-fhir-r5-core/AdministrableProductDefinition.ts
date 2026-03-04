@@ -23,7 +23,7 @@ export type { Ratio } from "../hl7-fhir-r5-core/Ratio";
 export type { Reference } from "../hl7-fhir-r5-core/Reference";
 
 export interface AdministrableProductDefinitionProperty extends BackboneElement {
-    status?: CodeableConcept;
+    status?: CodeableConcept<("draft" | "active" | "retired" | "unknown")>;
     type: CodeableConcept;
     valueAttachment?: Attachment;
     valueBoolean?: boolean;
@@ -55,7 +55,7 @@ export interface AdministrableProductDefinitionRouteOfAdministrationTargetSpecie
     value: Quantity;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/AdministrableProductDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/AdministrableProductDefinition (pkg: hl7.fhir.r5.core#5.0.0)
 export interface AdministrableProductDefinition extends DomainResource {
     resourceType: "AdministrableProductDefinition";
 

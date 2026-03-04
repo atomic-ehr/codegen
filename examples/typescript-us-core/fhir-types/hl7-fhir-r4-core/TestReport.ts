@@ -58,7 +58,7 @@ export interface TestReportTestAction extends BackboneElement {
     operation?: TestReportSetupActionOperation;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/TestReport
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/TestReport (pkg: hl7.fhir.r4.core#4.0.1)
 export interface TestReport extends DomainResource {
     resourceType: "TestReport";
 

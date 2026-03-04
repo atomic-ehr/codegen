@@ -125,7 +125,7 @@ export interface ParametersParameter extends BackboneElement {
     valueUuid?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Parameters
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Parameters (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Parameters extends Resource {
     resourceType: "Parameters";
 

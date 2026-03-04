@@ -23,11 +23,11 @@ export interface RegulatedAuthorizationCase extends BackboneElement {
     dateDateTime?: string;
     datePeriod?: Period;
     identifier?: Identifier;
-    status?: CodeableConcept;
+    status?: CodeableConcept<("draft" | "active" | "retired" | "unknown" | string)>;
     type?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/RegulatedAuthorization
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/RegulatedAuthorization (pkg: hl7.fhir.r5.core#5.0.0)
 export interface RegulatedAuthorization extends DomainResource {
     resourceType: "RegulatedAuthorization";
 
@@ -42,7 +42,7 @@ export interface RegulatedAuthorization extends DomainResource {
     intendedUse?: CodeableConcept;
     region?: CodeableConcept[];
     regulator?: Reference<"Organization">;
-    status?: CodeableConcept;
+    status?: CodeableConcept<("draft" | "active" | "retired" | "unknown" | string)>;
     statusDate?: string;
     _statusDate?: Element;
     subject?: Reference<"ActivityDefinition" | "BiologicallyDerivedProduct" | "DeviceDefinition" | "Ingredient" | "Location" | "ManufacturedItemDefinition" | "MedicinalProductDefinition" | "NutritionProduct" | "ObservationDefinition" | "Organization" | "PackagedProductDefinition" | "PlanDefinition" | "Practitioner" | "ResearchStudy" | "SubstanceDefinition">[];

@@ -32,7 +32,7 @@ export interface MeasureGroup extends BackboneElement {
 }
 
 export interface MeasureGroupPopulation extends BackboneElement {
-    code?: CodeableConcept;
+    code?: CodeableConcept<("initial-population" | "numerator" | "numerator-exclusion" | "denominator" | "denominator-exclusion" | "denominator-exception" | "measure-population" | "measure-population-exclusion" | "measure-observation" | string)>;
     criteria: Expression;
     description?: string;
 }
@@ -54,10 +54,10 @@ export interface MeasureSupplementalData extends BackboneElement {
     code?: CodeableConcept;
     criteria: Expression;
     description?: string;
-    usage?: CodeableConcept[];
+    usage?: CodeableConcept<("supplemental-data" | "risk-adjustment-factor" | string)>[];
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Measure
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Measure (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Measure extends DomainResource {
     resourceType: "Measure";
 
@@ -66,14 +66,14 @@ export interface Measure extends DomainResource {
     author?: ContactDetail[];
     clinicalRecommendationStatement?: string;
     _clinicalRecommendationStatement?: Element;
-    compositeScoring?: CodeableConcept;
+    compositeScoring?: CodeableConcept<("opportunity" | "all-or-nothing" | "linear" | "weighted" | string)>;
     contact?: ContactDetail[];
     copyright?: string;
     _copyright?: Element;
     date?: string;
     _date?: Element;
     definition?: string[];
-    _definition?: Element;
+    _definition?: (Element | null)[];
     description?: string;
     _description?: Element;
     disclaimer?: string;
@@ -87,12 +87,12 @@ export interface Measure extends DomainResource {
     guidance?: string;
     _guidance?: Element;
     identifier?: Identifier[];
-    improvementNotation?: CodeableConcept;
+    improvementNotation?: CodeableConcept<("increase" | "decrease")>;
     jurisdiction?: CodeableConcept[];
     lastReviewDate?: string;
     _lastReviewDate?: Element;
     library?: string[];
-    _library?: Element;
+    _library?: (Element | null)[];
     name?: string;
     _name?: Element;
     publisher?: string;
@@ -107,7 +107,7 @@ export interface Measure extends DomainResource {
     reviewer?: ContactDetail[];
     riskAdjustment?: string;
     _riskAdjustment?: Element;
-    scoring?: CodeableConcept;
+    scoring?: CodeableConcept<("proportion" | "ratio" | "continuous-variable" | "cohort" | string)>;
     status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     subjectCodeableConcept?: CodeableConcept;
@@ -118,7 +118,7 @@ export interface Measure extends DomainResource {
     title?: string;
     _title?: Element;
     topic?: CodeableConcept[];
-    type?: CodeableConcept[];
+    type?: CodeableConcept<("process" | "outcome" | "structure" | "patient-reported-outcome" | "composite" | string)>[];
     url?: string;
     _url?: Element;
     usage?: string;

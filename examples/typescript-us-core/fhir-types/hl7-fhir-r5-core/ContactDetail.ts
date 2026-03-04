@@ -9,7 +9,7 @@ import type { Element } from "../hl7-fhir-r5-core/Element";
 export type { ContactPoint } from "../hl7-fhir-r5-core/ContactPoint";
 export type { DataType } from "../hl7-fhir-r5-core/DataType";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ContactDetail
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ContactDetail (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ContactDetail extends DataType {
     name?: string;
     _name?: Element;

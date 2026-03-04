@@ -33,12 +33,12 @@ export interface RequirementsStatement extends BackboneElement {
     source?: Reference<"CareTeam" | "Device" | "Group" | "HealthcareService" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">[];
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Requirements
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Requirements (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Requirements extends DomainResource {
     resourceType: "Requirements";
 
     actor?: string[];
-    _actor?: Element;
+    _actor?: (Element | null)[];
     contact?: ContactDetail[];
     copyright?: string;
     _copyright?: Element;
@@ -47,7 +47,7 @@ export interface Requirements extends DomainResource {
     date?: string;
     _date?: Element;
     derivedFrom?: string[];
-    _derivedFrom?: Element;
+    _derivedFrom?: (Element | null)[];
     description?: string;
     _description?: Element;
     experimental?: boolean;
@@ -61,7 +61,7 @@ export interface Requirements extends DomainResource {
     purpose?: string;
     _purpose?: Element;
     reference?: string[];
-    _reference?: Element;
+    _reference?: (Element | null)[];
     statement?: RequirementsStatement[];
     status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;

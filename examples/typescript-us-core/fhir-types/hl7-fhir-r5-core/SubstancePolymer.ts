@@ -56,7 +56,7 @@ export interface SubstancePolymerRepeatRepeatUnitStructuralRepresentation extend
     type?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstancePolymer
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstancePolymer (pkg: hl7.fhir.r5.core#5.0.0)
 export interface SubstancePolymer extends DomainResource {
     resourceType: "SubstancePolymer";
 

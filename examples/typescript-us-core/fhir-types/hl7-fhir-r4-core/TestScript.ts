@@ -22,7 +22,7 @@ export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
 export interface TestScriptDestination extends BackboneElement {
     index: number;
-    profile: Coding;
+    profile: Coding<("FHIR-Server" | "FHIR-SDC-FormManager" | "FHIR-SDC-FormProcessor" | "FHIR-SDC-FormReceiver" | string)>;
 }
 
 export interface TestScriptFixture extends BackboneElement {
@@ -53,7 +53,7 @@ export interface TestScriptMetadataLink extends BackboneElement {
 
 export interface TestScriptOrigin extends BackboneElement {
     index: number;
-    profile: Coding;
+    profile: Coding<("FHIR-Client" | "FHIR-SDC-FormFiller" | string)>;
 }
 
 export interface TestScriptSetup extends BackboneElement {
@@ -106,7 +106,7 @@ export interface TestScriptSetupActionOperation extends BackboneElement {
     responseId?: string;
     sourceId?: string;
     targetId?: string;
-    type?: Coding;
+    type?: Coding<("read" | "vread" | "update" | "updateCreate" | "patch" | "delete" | "deleteCondSingle" | "deleteCondMultiple" | "history" | "create" | "search" | "batch" | "transaction" | "capabilities" | "apply" | "closure" | "find-matches" | "conforms" | "data-requirements" | "document" | "evaluate" | "evaluate-measure" | "everything" | "expand" | "find" | "graphql" | "implements" | "lastn" | "lookup" | "match" | "meta" | "meta-add" | "meta-delete" | "populate" | "populatehtml" | "populatelink" | "process-message" | "questionnaire" | "stats" | "subset" | "subsumes" | "transform" | "translate" | "validate" | "validate-code" | string)>;
     url?: string;
 }
 
@@ -145,7 +145,7 @@ export interface TestScriptVariable extends BackboneElement {
     sourceId?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/TestScript
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/TestScript (pkg: hl7.fhir.r4.core#4.0.1)
 export interface TestScript extends DomainResource {
     resourceType: "TestScript";
 

@@ -8,9 +8,9 @@ import type { Element } from "../hl7-fhir-r4-examples/Element";
 export type { Coding } from "../hl7-fhir-r4-examples/Coding";
 export type { Element } from "../hl7-fhir-r4-examples/Element";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CodeableConcept
-export interface CodeableConcept extends Element {
-    coding?: Coding[];
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/CodeableConcept (pkg: hl7.fhir.r4.examples#4.0.1)
+export interface CodeableConcept<T extends string = string> extends Element {
+    coding?: Coding<T>[];
     text?: string;
     _text?: Element;
 }

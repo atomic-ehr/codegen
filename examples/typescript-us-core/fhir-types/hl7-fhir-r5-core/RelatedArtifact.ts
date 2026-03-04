@@ -13,7 +13,7 @@ export type { CodeableConcept } from "../hl7-fhir-r5-core/CodeableConcept";
 export type { DataType } from "../hl7-fhir-r5-core/DataType";
 export type { Reference } from "../hl7-fhir-r5-core/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/RelatedArtifact
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/RelatedArtifact (pkg: hl7.fhir.r5.core#5.0.0)
 export interface RelatedArtifact extends DataType {
     citation?: string;
     _citation?: Element;

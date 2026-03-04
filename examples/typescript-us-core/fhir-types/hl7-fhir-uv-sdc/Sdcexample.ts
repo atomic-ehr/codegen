@@ -8,12 +8,7 @@ import type { Element } from "../hl7-fhir-r4-core/Element";
 export type { CodeableConcept } from "../hl7-fhir-r4-core/CodeableConcept";
 export type { Element } from "../hl7-fhir-r4-core/Element";
 
-// CanonicalURL: http://hl7.org/fhir/uv/sdc/StructureDefinition/structuredefinition-sdc-profile-example
+// CanonicalURL: http://hl7.org/fhir/uv/sdc/StructureDefinition/structuredefinition-sdc-profile-example (pkg: hl7.fhir.uv.sdc#3.0.0)
 export interface SDCExample extends Element {
-    resourceType: "SDCExample";
-
-    gender?: CodeableConcept;
-}
-export const isSDCExample = (resource: unknown): resource is SDCExample => {
-    return resource !== null && typeof resource === "object" && (resource as {resourceType: string}).resourceType === "SDCExample";
+    gender?: CodeableConcept<("male" | "female" | "other" | "unknown")>;
 }

@@ -32,7 +32,7 @@ export interface BodyStructureIncludedStructureBodyLandmarkOrientation extends B
     clockFacePosition?: CodeableConcept[];
     distanceFromLandmark?: BodyStructureIncludedStructureBodyLandmarkOrientationDistanceFromLandmark[];
     landmarkDescription?: CodeableConcept[];
-    surfaceOrientation?: CodeableConcept[];
+    surfaceOrientation?: CodeableConcept<("7771000" | "24028007" | "51440002" | "46053002" | "255554000" | "264147007" | "261183002" | "261122009" | "255561001" | "49370004" | "264217000" | "261089000" | "255551008" | "351726001" | "352730000" | string)>[];
 }
 
 export interface BodyStructureIncludedStructureBodyLandmarkOrientationDistanceFromLandmark extends BackboneElement {
@@ -40,7 +40,7 @@ export interface BodyStructureIncludedStructureBodyLandmarkOrientationDistanceFr
     value?: Quantity[];
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/BodyStructure
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/BodyStructure (pkg: hl7.fhir.r5.core#5.0.0)
 export interface BodyStructure extends DomainResource {
     resourceType: "BodyStructure";
 

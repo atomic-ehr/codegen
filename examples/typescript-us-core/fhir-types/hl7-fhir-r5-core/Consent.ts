@@ -33,7 +33,7 @@ export interface ConsentProvision extends BackboneElement {
     code?: CodeableConcept[];
     data?: ConsentProvisionData[];
     dataPeriod?: Period;
-    documentType?: Coding[];
+    documentType?: Coding<("http://hl7.org/fhir/StructureDefinition/lipidprofile" | "application/hl7-cda+xml" | string)>[];
     expression?: Expression;
     period?: Period;
     provision?: ConsentProvision[];
@@ -60,7 +60,7 @@ export interface ConsentVerification extends BackboneElement {
     verifiedWith?: Reference<"Patient" | "RelatedPerson">;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Consent
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Consent (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Consent extends DomainResource {
     resourceType: "Consent";
 

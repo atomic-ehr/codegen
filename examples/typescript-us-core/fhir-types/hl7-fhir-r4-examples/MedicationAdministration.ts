@@ -37,11 +37,11 @@ export interface MedicationAdministrationPerformer extends BackboneElement {
     "function"?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicationAdministration
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicationAdministration (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface MedicationAdministration extends DomainResource {
     resourceType: "MedicationAdministration";
 
-    category?: CodeableConcept;
+    category?: CodeableConcept<("inpatient" | "outpatient" | "community" | string)>;
     context?: Reference<"Encounter" | "EpisodeOfCare">;
     device?: Reference<"Device">[];
     dosage?: MedicationAdministrationDosage;
@@ -51,7 +51,7 @@ export interface MedicationAdministration extends DomainResource {
     eventHistory?: Reference<"Provenance">[];
     identifier?: Identifier[];
     instantiates?: string[];
-    _instantiates?: Element;
+    _instantiates?: (Element | null)[];
     medicationCodeableConcept?: CodeableConcept;
     medicationReference?: Reference<"Medication">;
     note?: Annotation[];

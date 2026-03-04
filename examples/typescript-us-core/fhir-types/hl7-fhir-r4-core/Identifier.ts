@@ -12,13 +12,13 @@ export type { Element } from "../hl7-fhir-r4-core/Element";
 export type { Period } from "../hl7-fhir-r4-core/Period";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Identifier
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Identifier (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Identifier extends Element {
     assigner?: Reference<"Organization">;
     period?: Period;
     system?: string;
     _system?: Element;
-    type?: CodeableConcept;
+    type?: CodeableConcept<("DL" | "PPN" | "BRN" | "MR" | "MCN" | "EN" | "TAX" | "NIIP" | "PRN" | "MD" | "DR" | "ACSN" | "UDI" | "SNO" | "SB" | "PLAC" | "FILL" | "JHN" | string)>;
     use?: ("usual" | "official" | "temp" | "secondary" | "old");
     _use?: Element;
     value?: string;

@@ -68,7 +68,7 @@ export type { Timing } from "../hl7-fhir-r4-examples/Timing";
 export type { TriggerDefinition } from "../hl7-fhir-r4-examples/TriggerDefinition";
 export type { UsageContext } from "../hl7-fhir-r4-examples/UsageContext";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Extension
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Extension (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface Extension extends Element {
     url: string;
     _url?: Element;

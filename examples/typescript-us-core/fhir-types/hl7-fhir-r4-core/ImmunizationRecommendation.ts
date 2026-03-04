@@ -36,7 +36,7 @@ export interface ImmunizationRecommendationRecommendationDateCriterion extends B
     value: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ImmunizationRecommendation
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ImmunizationRecommendation (pkg: hl7.fhir.r4.core#4.0.1)
 export interface ImmunizationRecommendation extends DomainResource {
     resourceType: "ImmunizationRecommendation";
 

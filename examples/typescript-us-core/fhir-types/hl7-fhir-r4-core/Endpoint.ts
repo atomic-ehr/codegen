@@ -18,22 +18,22 @@ export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 export type { Period } from "../hl7-fhir-r4-core/Period";
 export type { Reference } from "../hl7-fhir-r4-core/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Endpoint
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Endpoint (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Endpoint extends DomainResource {
     resourceType: "Endpoint";
 
     address: string;
     _address?: Element;
-    connectionType: Coding;
+    connectionType: Coding<("ihe-xcpd" | "ihe-xca" | "ihe-xdr" | "ihe-xds" | "ihe-iid" | "dicom-wado-rs" | "dicom-qido-rs" | "dicom-stow-rs" | "dicom-wado-uri" | "hl7-fhir-rest" | "hl7-fhir-msg" | "hl7v2-mllp" | "secure-email" | "direct-project" | string)>;
     contact?: ContactPoint[];
     header?: string[];
-    _header?: Element;
+    _header?: (Element | null)[];
     identifier?: Identifier[];
     managingOrganization?: Reference<"Organization">;
     name?: string;
     _name?: Element;
     payloadMimeType?: string[];
-    _payloadMimeType?: Element;
+    _payloadMimeType?: (Element | null)[];
     payloadType: CodeableConcept[];
     period?: Period;
     status: ("active" | "suspended" | "error" | "off" | "entered-in-error" | "test");

@@ -29,7 +29,7 @@ export type { Reference } from "../hl7-fhir-r4-core/Reference";
 export interface InsurancePlanContact extends BackboneElement {
     address?: Address;
     name?: HumanName;
-    purpose?: CodeableConcept;
+    purpose?: CodeableConcept<("BILL" | "ADMIN" | "HR" | "PAYOR" | "PATINF" | "PRESS" | string)>;
     telecom?: ContactPoint[];
 }
 
@@ -77,19 +77,19 @@ export interface InsurancePlanPlanSpecificCostBenefit extends BackboneElement {
 }
 
 export interface InsurancePlanPlanSpecificCostBenefitCost extends BackboneElement {
-    applicability?: CodeableConcept;
+    applicability?: CodeableConcept<("in-network" | "out-of-network" | "other")>;
     qualifiers?: CodeableConcept[];
     type: CodeableConcept;
     value?: Quantity;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/InsurancePlan
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/InsurancePlan (pkg: hl7.fhir.r4.core#4.0.1)
 export interface InsurancePlan extends DomainResource {
     resourceType: "InsurancePlan";
 
     administeredBy?: Reference<"Organization">;
     alias?: string[];
-    _alias?: Element;
+    _alias?: (Element | null)[];
     contact?: InsurancePlanContact[];
     coverage?: InsurancePlanCoverage[];
     coverageArea?: Reference<"Location">[];

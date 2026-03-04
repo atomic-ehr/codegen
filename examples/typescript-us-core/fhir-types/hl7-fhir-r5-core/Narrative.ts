@@ -7,7 +7,7 @@ import type { DataType } from "../hl7-fhir-r5-core/DataType";
 import type { Element } from "../hl7-fhir-r5-core/Element";
 export type { DataType } from "../hl7-fhir-r5-core/DataType";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Narrative
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Narrative (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Narrative extends DataType {
     div: string;
     _div?: Element;

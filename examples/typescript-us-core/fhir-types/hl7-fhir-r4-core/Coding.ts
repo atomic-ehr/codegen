@@ -6,9 +6,9 @@ import type { Element } from "../hl7-fhir-r4-core/Element";
 
 export type { Element } from "../hl7-fhir-r4-core/Element";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Coding
-export interface Coding extends Element {
-    code?: string;
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Coding (pkg: hl7.fhir.r4.core#4.0.1)
+export interface Coding<T extends string = string> extends Element {
+    code?: T;
     _code?: Element;
     display?: string;
     _display?: Element;

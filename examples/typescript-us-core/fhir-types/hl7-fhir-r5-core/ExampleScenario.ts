@@ -84,10 +84,10 @@ export interface ExampleScenarioProcessStepOperation extends BackboneElement {
     request?: ExampleScenarioInstanceContainedInstance;
     response?: ExampleScenarioInstanceContainedInstance;
     title: string;
-    type?: Coding;
+    type?: Coding<("read" | "vread" | "update" | "patch" | "delete" | "history" | "history-instance" | "history-type" | "history-system" | "create" | "search" | "search-type" | "search-system" | "capabilities" | "transaction" | "batch" | "operation" | string)>;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ExampleScenario
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ExampleScenario (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ExampleScenario extends DomainResource {
     resourceType: "ExampleScenario";
 

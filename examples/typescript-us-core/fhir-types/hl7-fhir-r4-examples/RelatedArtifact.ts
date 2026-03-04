@@ -8,7 +8,7 @@ import type { Element } from "../hl7-fhir-r4-examples/Element";
 export type { Attachment } from "../hl7-fhir-r4-examples/Attachment";
 export type { Element } from "../hl7-fhir-r4-examples/Element";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/RelatedArtifact
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/RelatedArtifact (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface RelatedArtifact extends Element {
     citation?: string;
     _citation?: Element;

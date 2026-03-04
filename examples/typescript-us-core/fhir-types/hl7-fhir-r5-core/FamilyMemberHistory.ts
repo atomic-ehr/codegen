@@ -52,7 +52,7 @@ export interface FamilyMemberHistoryProcedure extends BackboneElement {
     performedString?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/FamilyMemberHistory
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/FamilyMemberHistory (pkg: hl7.fhir.r5.core#5.0.0)
 export interface FamilyMemberHistory extends DomainResource {
     resourceType: "FamilyMemberHistory";
 
@@ -81,9 +81,9 @@ export interface FamilyMemberHistory extends DomainResource {
     _estimatedAge?: Element;
     identifier?: Identifier[];
     instantiatesCanonical?: string[];
-    _instantiatesCanonical?: Element;
+    _instantiatesCanonical?: (Element | null)[];
     instantiatesUri?: string[];
-    _instantiatesUri?: Element;
+    _instantiatesUri?: (Element | null)[];
     name?: string;
     _name?: Element;
     note?: Annotation[];
@@ -92,7 +92,7 @@ export interface FamilyMemberHistory extends DomainResource {
     procedure?: FamilyMemberHistoryProcedure[];
     reason?: CodeableReference[];
     relationship: CodeableConcept;
-    sex?: CodeableConcept;
+    sex?: CodeableConcept<("male" | "female" | "other" | "unknown" | string)>;
     status: ("partial" | "completed" | "entered-in-error" | "health-unknown");
     _status?: Element;
 }

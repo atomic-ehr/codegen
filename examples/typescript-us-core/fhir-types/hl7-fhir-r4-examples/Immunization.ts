@@ -27,7 +27,7 @@ export interface ImmunizationEducation extends BackboneElement {
 
 export interface ImmunizationPerformer extends BackboneElement {
     actor: Reference<"Organization" | "Practitioner" | "PractitionerRole">;
-    "function"?: CodeableConcept;
+    "function"?: CodeableConcept<("OP" | "AP" | string)>;
 }
 
 export interface ImmunizationProtocolApplied extends BackboneElement {
@@ -46,7 +46,7 @@ export interface ImmunizationReaction extends BackboneElement {
     reported?: boolean;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Immunization
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Immunization (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface Immunization extends DomainResource {
     resourceType: "Immunization";
 

@@ -25,12 +25,12 @@ export interface SubstanceProteinSubunit extends BackboneElement {
     subunit?: number;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstanceProtein
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SubstanceProtein (pkg: hl7.fhir.r5.core#5.0.0)
 export interface SubstanceProtein extends DomainResource {
     resourceType: "SubstanceProtein";
 
     disulfideLinkage?: string[];
-    _disulfideLinkage?: Element;
+    _disulfideLinkage?: (Element | null)[];
     numberOfSubunits?: number;
     _numberOfSubunits?: Element;
     sequenceType?: CodeableConcept;

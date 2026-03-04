@@ -83,7 +83,7 @@ export interface ElementDefinitionBase extends Element {
 }
 
 export interface ElementDefinitionBinding extends Element {
-    additional?: Element[];
+    additional?: ElementDefinitionBindingAdditional[];
     description?: string;
     strength: ("required" | "extensible" | "preferred" | "example");
     valueSet?: string;
@@ -175,7 +175,7 @@ export interface ElementDefinitionMapping extends Element {
 
 export interface ElementDefinitionSlicing extends Element {
     description?: string;
-    discriminator?: Element[];
+    discriminator?: ElementDefinitionSlicingDiscriminator[];
     ordered?: boolean;
     rules: ("closed" | "open" | "openAtEnd");
 }
@@ -193,18 +193,18 @@ export interface ElementDefinitionType extends Element {
     versioning?: ("either" | "independent" | "specific");
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ElementDefinition
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ElementDefinition (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ElementDefinition extends BackboneType {
     alias?: string[];
-    _alias?: Element;
-    base?: Element;
-    binding?: Element;
+    _alias?: (Element | null)[];
+    base?: ElementDefinitionBase;
+    binding?: ElementDefinitionBinding;
     code?: Coding[];
     comment?: string;
     _comment?: Element;
     condition?: string[];
-    _condition?: Element;
-    constraint?: Element[];
+    _condition?: (Element | null)[];
+    constraint?: ElementDefinitionConstraint[];
     contentReference?: string;
     _contentReference?: Element;
     defaultValueAddress?: Address;
@@ -283,7 +283,7 @@ export interface ElementDefinition extends BackboneType {
     _defaultValueUuid?: Element;
     definition?: string;
     _definition?: Element;
-    example?: Element[];
+    example?: ElementDefinitionExample[];
     fixedAddress?: Address;
     fixedAge?: Age;
     fixedAnnotation?: Annotation;
@@ -366,7 +366,7 @@ export interface ElementDefinition extends BackboneType {
     _isSummary?: Element;
     label?: string;
     _label?: Element;
-    mapping?: Element[];
+    mapping?: ElementDefinitionMapping[];
     max?: string;
     _max?: Element;
     maxLength?: number;
@@ -496,7 +496,7 @@ export interface ElementDefinition extends BackboneType {
     patternUuid?: string;
     _patternUuid?: Element;
     representation?: ("xmlAttr" | "xmlText" | "typeAttr" | "cdaText" | "xhtml")[];
-    _representation?: Element;
+    _representation?: (Element | null)[];
     requirements?: string;
     _requirements?: Element;
     short?: string;
@@ -505,8 +505,8 @@ export interface ElementDefinition extends BackboneType {
     _sliceIsConstraining?: Element;
     sliceName?: string;
     _sliceName?: Element;
-    slicing?: Element;
-    type?: Element[];
+    slicing?: ElementDefinitionSlicing;
+    type?: ElementDefinitionType[];
     valueAlternatives?: string[];
-    _valueAlternatives?: Element;
+    _valueAlternatives?: (Element | null)[];
 }

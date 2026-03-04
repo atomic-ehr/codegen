@@ -19,18 +19,18 @@ export interface SearchParameterComponent extends BackboneElement {
     expression: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SearchParameter
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/SearchParameter (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface SearchParameter extends DomainResource {
     resourceType: "SearchParameter";
 
     base: string[];
-    _base?: Element;
+    _base?: (Element | null)[];
     chain?: string[];
-    _chain?: Element;
+    _chain?: (Element | null)[];
     code: string;
     _code?: Element;
     comparator?: ("eq" | "ne" | "gt" | "lt" | "ge" | "le" | "sa" | "eb" | "ap")[];
-    _comparator?: Element;
+    _comparator?: (Element | null)[];
     component?: SearchParameterComponent[];
     contact?: ContactDetail[];
     date?: string;
@@ -45,7 +45,7 @@ export interface SearchParameter extends DomainResource {
     _expression?: Element;
     jurisdiction?: CodeableConcept[];
     modifier?: ("missing" | "exact" | "contains" | "not" | "text" | "in" | "not-in" | "below" | "above" | "type" | "identifier" | "ofType")[];
-    _modifier?: Element;
+    _modifier?: (Element | null)[];
     multipleAnd?: boolean;
     _multipleAnd?: Element;
     multipleOr?: boolean;
@@ -59,7 +59,7 @@ export interface SearchParameter extends DomainResource {
     status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
     target?: string[];
-    _target?: Element;
+    _target?: (Element | null)[];
     type: ("number" | "date" | "string" | "token" | "reference" | "composite" | "quantity" | "uri" | "special");
     _type?: Element;
     url: string;

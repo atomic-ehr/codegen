@@ -44,10 +44,10 @@ export interface ImagingStudySeriesInstance extends BackboneElement {
 
 export interface ImagingStudySeriesPerformer extends BackboneElement {
     actor: Reference<"CareTeam" | "Device" | "HealthcareService" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
-    "function"?: CodeableConcept;
+    "function"?: CodeableConcept<("CON" | "VRF" | "PRF" | "SPRF" | "REF" | string)>;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ImagingStudy
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/ImagingStudy (pkg: hl7.fhir.r5.core#5.0.0)
 export interface ImagingStudy extends DomainResource {
     resourceType: "ImagingStudy";
 

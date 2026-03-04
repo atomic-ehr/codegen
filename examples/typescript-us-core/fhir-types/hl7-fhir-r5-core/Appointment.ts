@@ -29,7 +29,7 @@ export interface AppointmentParticipant extends BackboneElement {
     period?: Period;
     required?: boolean;
     status: ("accepted" | "declined" | "tentative" | "needs-action");
-    type?: CodeableConcept[];
+    type?: CodeableConcept<("translator" | "emergency" | string)>[];
 }
 
 export interface AppointmentRecurrenceTemplate extends BackboneElement {
@@ -39,7 +39,7 @@ export interface AppointmentRecurrenceTemplate extends BackboneElement {
     monthlyTemplate?: AppointmentRecurrenceTemplateMonthlyTemplate;
     occurrenceCount?: number;
     occurrenceDate?: string[];
-    recurrenceType: CodeableConcept;
+    recurrenceType: CodeableConcept<("d" | "wk" | "mo" | "a" | string)>;
     timezone?: CodeableConcept;
     weeklyTemplate?: AppointmentRecurrenceTemplateWeeklyTemplate;
     yearlyTemplate?: AppointmentRecurrenceTemplateYearlyTemplate;
@@ -47,7 +47,7 @@ export interface AppointmentRecurrenceTemplate extends BackboneElement {
 
 export interface AppointmentRecurrenceTemplateMonthlyTemplate extends BackboneElement {
     dayOfMonth?: number;
-    dayOfWeek?: Coding;
+    dayOfWeek?: Coding<("mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun")>;
     monthInterval: number;
     nthWeekOfMonth?: Coding;
 }
@@ -67,12 +67,12 @@ export interface AppointmentRecurrenceTemplateYearlyTemplate extends BackboneEle
     yearInterval: number;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Appointment
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Appointment (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Appointment extends DomainResource {
     resourceType: "Appointment";
 
     account?: Reference<"Account">[];
-    appointmentType?: CodeableConcept;
+    appointmentType?: CodeableConcept<("CHECKUP" | "EMERGENCY" | "FOLLOWUP" | "ROUTINE" | "WALKIN" | string)>;
     basedOn?: Reference<"CarePlan" | "DeviceRequest" | "MedicationRequest" | "ServiceRequest">[];
     cancellationDate?: string;
     _cancellationDate?: Element;

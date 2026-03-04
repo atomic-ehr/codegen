@@ -45,7 +45,7 @@ export interface MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpecie
     value: Quantity;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductPharmaceutical
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductPharmaceutical (pkg: hl7.fhir.r4.core#4.0.1)
 export interface MedicinalProductPharmaceutical extends DomainResource {
     resourceType: "MedicinalProductPharmaceutical";
 

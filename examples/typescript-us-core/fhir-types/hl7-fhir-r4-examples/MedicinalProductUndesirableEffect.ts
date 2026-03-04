@@ -11,7 +11,7 @@ export type { CodeableConcept } from "../hl7-fhir-r4-examples/CodeableConcept";
 export type { Population } from "../hl7-fhir-r4-examples/Population";
 export type { Reference } from "../hl7-fhir-r4-examples/Reference";
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductUndesirableEffect
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/MedicinalProductUndesirableEffect (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface MedicinalProductUndesirableEffect extends DomainResource {
     resourceType: "MedicinalProductUndesirableEffect";
 

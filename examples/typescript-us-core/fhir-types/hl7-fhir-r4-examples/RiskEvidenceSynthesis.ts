@@ -27,13 +27,13 @@ export type { UsageContext } from "../hl7-fhir-r4-examples/UsageContext";
 export interface RiskEvidenceSynthesisCertainty extends BackboneElement {
     certaintySubcomponent?: RiskEvidenceSynthesisCertaintyCertaintySubcomponent[];
     note?: Annotation[];
-    rating?: CodeableConcept[];
+    rating?: CodeableConcept<("high" | "moderate" | "low" | "very-low" | string)>[];
 }
 
 export interface RiskEvidenceSynthesisCertaintyCertaintySubcomponent extends BackboneElement {
     note?: Annotation[];
-    rating?: CodeableConcept[];
-    type?: CodeableConcept;
+    rating?: CodeableConcept<("no-change" | "downcode1" | "downcode2" | "downcode3" | "upcode1" | "upcode2" | "no-concern" | "serious-concern" | "critical-concern" | "present" | "absent" | string)>[];
+    type?: CodeableConcept<("RiskOfBias" | "Inconsistency" | "Indirectness" | "Imprecision" | "PublicationBias" | "DoseResponseGradient" | "PlausibleConfounding" | "LargeEffect" | string)>;
 }
 
 export interface RiskEvidenceSynthesisRiskEstimate extends BackboneElement {
@@ -41,7 +41,7 @@ export interface RiskEvidenceSynthesisRiskEstimate extends BackboneElement {
     description?: string;
     numeratorCount?: number;
     precisionEstimate?: RiskEvidenceSynthesisRiskEstimatePrecisionEstimate[];
-    type?: CodeableConcept;
+    type?: CodeableConcept<("proportion" | "derivedProportion" | "mean" | "median" | "count" | "descriptive" | string)>;
     unitOfMeasure?: CodeableConcept;
     value?: number;
 }
@@ -50,7 +50,7 @@ export interface RiskEvidenceSynthesisRiskEstimatePrecisionEstimate extends Back
     from?: number;
     level?: number;
     to?: number;
-    type?: CodeableConcept;
+    type?: CodeableConcept<("CI" | "IQR" | "SD" | "SE" | string)>;
 }
 
 export interface RiskEvidenceSynthesisSampleSize extends BackboneElement {
@@ -59,7 +59,7 @@ export interface RiskEvidenceSynthesisSampleSize extends BackboneElement {
     numberOfStudies?: number;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/RiskEvidenceSynthesis
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/RiskEvidenceSynthesis (pkg: hl7.fhir.r4.examples#4.0.1)
 export interface RiskEvidenceSynthesis extends DomainResource {
     resourceType: "RiskEvidenceSynthesis";
 
@@ -95,8 +95,8 @@ export interface RiskEvidenceSynthesis extends DomainResource {
     sampleSize?: RiskEvidenceSynthesisSampleSize;
     status: ("draft" | "active" | "retired" | "unknown");
     _status?: Element;
-    studyType?: CodeableConcept;
-    synthesisType?: CodeableConcept;
+    studyType?: CodeableConcept<("RCT" | "CCT" | "cohort" | "case-control" | "series" | "case-report" | "mixed" | string)>;
+    synthesisType?: CodeableConcept<("std-MA" | "IPD-MA" | "indirect-NMA" | "combined-NMA" | "range" | "classification" | string)>;
     title?: string;
     _title?: Element;
     topic?: CodeableConcept[];

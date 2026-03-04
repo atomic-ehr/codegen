@@ -36,7 +36,7 @@ export interface InvoiceParticipant extends BackboneElement {
     role?: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Invoice
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Invoice (pkg: hl7.fhir.r5.core#5.0.0)
 export interface Invoice extends DomainResource {
     resourceType: "Invoice";
 

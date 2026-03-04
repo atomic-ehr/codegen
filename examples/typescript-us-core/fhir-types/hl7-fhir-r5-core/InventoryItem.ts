@@ -75,7 +75,7 @@ export interface InventoryItemResponsibleOrganization extends BackboneElement {
     role: CodeableConcept;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/InventoryItem
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/InventoryItem (pkg: hl7.fhir.r5.core#5.0.0)
 export interface InventoryItem extends DomainResource {
     resourceType: "InventoryItem";
 
