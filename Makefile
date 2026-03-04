@@ -55,6 +55,7 @@ test-all-example-generation: test-other-example-generation
 	bun run examples/typescript-ccda/generate.ts
 	bun run examples/typescript-r4/generate.ts
 	bun run examples/typescript-sql-on-fhir/generate.ts
+	bun run examples/typescript-us-core/generate.ts
 
 test-other-example-generation:
 	bun run examples/nodge-r4.ts
