@@ -138,8 +138,3 @@ test-python-fhirpy-sdk: typecheck format prepare-aidbox-runme lint generate-pyth
 	cd $(PYTHON_FHIRPY_EXAMPLE) && \
        . venv/bin/activate && \
        mypy --strict .
-
-release:
-	echo Push tag for $(VERSION)
-	git tag -a v$(VERSION) -m "Release $(VERSION)"
-	git push origin v$(VERSION)
