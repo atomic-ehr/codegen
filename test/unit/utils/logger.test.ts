@@ -440,5 +440,14 @@ describe("makeLogger", () => {
             expect(l.buffer()).toHaveLength(3);
             expect(bufferFilter(l, { suppressed: true })).toHaveLength(2);
         });
+
+        it("silent level suppresses all console output but still buffers", () => {
+            const l = makeLogger<TestTags>({ level: "silent" });
+            l.debug("d");
+            l.info("i");
+            l.warn("w");
+            l.error("e");
+            expect(l.buffer()).toHaveLength(4);
+        });
     });
 });

@@ -19,7 +19,7 @@ describe("CDA", async () => {
 
     describe("TypeScript Generation", async () => {
         const result = await new APIBuilder()
-            .setLogLevel("SILENT")
+            .setLogLevel("silent")
             .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
             .typeSchema({ treeShake: treeShakeConfig })
             .typescript({ inMemoryOnly: true })
@@ -46,7 +46,7 @@ describe("CDA", async () => {
 
     describe("Python Generation", async () => {
         const result = await new APIBuilder()
-            .setLogLevel("SILENT")
+            .setLogLevel("silent")
             .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
             .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
             .python({ inMemoryOnly: true })
@@ -70,7 +70,7 @@ describe("CDA", async () => {
 
     describe("C# Generation", async () => {
         const result = await new APIBuilder()
-            .setLogLevel("SILENT")
+            .setLogLevel("silent")
             .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
             .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
             .csharp({ inMemoryOnly: true })

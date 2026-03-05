@@ -4,7 +4,7 @@ type TagsOf<L> = L extends Logger<infer T> ? T : never;
 
 export type ExtendLogger<Extra extends string, Parent extends Logger<any>> = Logger<TagsOf<Parent> | Extra>;
 
-export type LogLevel = "info" | "warn" | "error" | "debug";
+export type LogLevel = "info" | "warn" | "error" | "debug" | "silent";
 
 export type LogEntry<T extends string = string> = {
     level: LogLevel;
@@ -45,7 +45,7 @@ export type Logger<T extends string = string> = {
     bufferClear(): void;
 };
 
-const LEVEL_PRIORITY: Record<LogLevel, number> = { debug: 0, info: 1, warn: 2, error: 3 };
+const LEVEL_PRIORITY: Record<LogLevel, number> = { debug: 0, info: 1, warn: 2, error: 3, silent: 4 };
 
 export function makeLogger<T extends string>(opts: LoggerOptions<T> = {}): Logger<T> {
     const prefix = opts.prefix ?? "";
@@ -62,6 +62,7 @@ export function makeLogger<T extends string>(opts: LoggerOptions<T> = {}): Logge
         info: (s) => s,
         warn: pc.yellow,
         error: pc.red,
+        silent: (s) => s,
     };
 
     const fmt = (level: LogLevel, icon: string, msg: string, tag?: string) => {
