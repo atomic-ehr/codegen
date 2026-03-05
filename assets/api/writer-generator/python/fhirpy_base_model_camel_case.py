@@ -10,9 +10,19 @@ class ResourceProtocol(Protocol):
 
 class FhirpyBaseModel(BaseModel):
     """
-    This class satisfies ResourceProtocol
+    This class satisfies ResourceProtocol.
+    Uses __pydantic_init_subclass__ to set resourceType as a class-level attribute
+    after Pydantic finishes model construction, so that fhirpy can detect it
+    via cls.resourceType for search/fetch operations.
     """
     id: Optional[str] = Field(None, alias="id")
+
+    @classmethod
+    def __pydantic_init_subclass__(cls, **kwargs: Any) -> None:
+        super().__pydantic_init_subclass__(**kwargs)
+        field = cls.model_fields.get("resource_type") or cls.model_fields.get("resourceType")
+        if field is not None and field.default is not None:
+            type.__setattr__(cls, "resourceType", str(field.default))
 
     def __iter__(self) -> Iterator[Tuple[str, Any]]:  # type: ignore[override]
         data = self.model_dump(mode='json', by_alias=True, exclude_none=True)
