@@ -1032,13 +1032,11 @@ const generateValidateMethod = (w: TypeScript, flatProfile: ProfileTypeSchema) =
         }
 
         if (exprs.length > 0) {
-            w.line("return [");
-            w.indentBlock(() => {
+            w.squareBlock(["return"], () => {
                 for (const expr of exprs) {
                     w.line(`${expr},`);
                 }
             });
-            w.line("]");
         } else {
             w.line("return []");
         }
