@@ -281,6 +281,7 @@ const generateProfileHelpersImport = (
             "validateSliceCardinality",
             "validateEnum",
             "validateReference",
+            "validateChoiceRequired",
         );
     }
     if (imports.length > 0) {
@@ -964,39 +965,36 @@ export const generateProfileClass = (
     w.line();
 };
 
-const emitRegularFieldValidation = (
-    w: TypeScript,
+const collectRegularFieldValidation = (
+    exprs: string[],
     name: string,
     field: RegularField | ChoiceFieldInstance,
     profileName: string,
 ) => {
     if (field.excluded) {
-        w.line(`{ const e = validateExcluded(r, ${JSON.stringify(name)}, "${profileName}"); if (e) errors.push(e) }`);
+        exprs.push(`...validateExcluded(res, "${profileName}", ${JSON.stringify(name)})`);
         return;
     }
 
     if (field.required) {
-        w.line(`{ const e = validateRequired(r, ${JSON.stringify(name)}, "${profileName}"); if (e) errors.push(e) }`);
+        exprs.push(`...validateRequired(res, "${profileName}", ${JSON.stringify(name)})`);
     }
 
     if (field.valueConstraint) {
-        const expected = JSON.stringify(field.valueConstraint.value);
-        w.line(
-            `{ const e = validateFixedValue(r, ${JSON.stringify(name)}, ${expected}, "${profileName}"); if (e) errors.push(e) }`,
+        exprs.push(
+            `...validateFixedValue(res, "${profileName}", ${JSON.stringify(name)}, ${JSON.stringify(field.valueConstraint.value)})`,
         );
     }
 
     if (field.enum && !field.enum.isOpen) {
-        const values = JSON.stringify(field.enum.values);
-        w.line(
-            `{ const e = validateEnum(r[${JSON.stringify(name)}], ${values}, ${JSON.stringify(name)}, "${profileName}"); if (e) errors.push(e) }`,
+        exprs.push(
+            `...validateEnum(res, "${profileName}", ${JSON.stringify(name)}, ${JSON.stringify(field.enum.values)})`,
         );
     }
 
     if (field.reference && field.reference.length > 0) {
-        const refNames = JSON.stringify(field.reference.map((ref) => ref.name));
-        w.line(
-            `{ const e = validateReference(r[${JSON.stringify(name)}], ${refNames}, ${JSON.stringify(name)}, "${profileName}"); if (e) errors.push(e) }`,
+        exprs.push(
+            `...validateReference(res, "${profileName}", ${JSON.stringify(name)}, ${JSON.stringify(field.reference.map((ref) => ref.name))})`,
         );
     }
 
@@ -1007,8 +1005,8 @@ const emitRegularFieldValidation = (
             if (Object.keys(match).length === 0) continue;
             const min = slice.min ?? 0;
             const max = slice.max ?? 0;
-            w.line(
-                `errors.push(...validateSliceCardinality(r[${JSON.stringify(name)}] as unknown[] | undefined, ${JSON.stringify(match)}, ${JSON.stringify(sliceName)}, ${min}, ${max}, "${profileName}.${name}"))`,
+            exprs.push(
+                `...validateSliceCardinality(res, "${profileName}", ${JSON.stringify(name)}, ${JSON.stringify(match)}, ${JSON.stringify(sliceName)}, ${min}, ${max})`,
             );
         }
     }
@@ -1017,26 +1015,33 @@ const emitRegularFieldValidation = (
 const generateValidateMethod = (w: TypeScript, flatProfile: ProfileTypeSchema) => {
     const fields = flatProfile.fields ?? {};
     const profileName = flatProfile.identifier.name;
-    w.curlyBlock(["validate", "()", ": string[]"], () => {
-        w.line("const errors: string[] = []");
-        w.line("const r = this.resource as unknown as Record<string, unknown>");
+    w.curlyBlock(["validate(): string[]"], () => {
+        w.line("const res = this.resource as unknown as Record<string, unknown>");
+
+        const exprs: string[] = [];
         for (const [name, field] of Object.entries(fields)) {
             if (isChoiceInstanceField(field)) continue;
 
             if (isChoiceDeclarationField(field)) {
-                if (field.required) {
-                    const choiceNames = field.choices;
-                    const checks = choiceNames.map((c) => `r[${JSON.stringify(c)}] !== undefined`).join(" || ");
-                    w.curlyBlock(["if", `(!(${checks}))`], () => {
-                        w.line(`errors.push("${name}: at least one of ${choiceNames.join(", ")} is required")`);
-                    });
-                }
+                if (field.required)
+                    exprs.push(`...validateChoiceRequired(res, "${profileName}", ${JSON.stringify(field.choices)})`);
                 continue;
             }
 
-            emitRegularFieldValidation(w, name, field, profileName);
+            collectRegularFieldValidation(exprs, name, field, profileName);
         }
-        w.line("return errors");
+
+        if (exprs.length > 0) {
+            w.line("return [");
+            w.indentBlock(() => {
+                for (const expr of exprs) {
+                    w.line(`${expr},`);
+                }
+            });
+            w.line("]");
+        } else {
+            w.line("return []");
+        }
     });
     w.line();
 };
