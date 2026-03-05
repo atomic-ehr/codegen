@@ -251,11 +251,15 @@ const generateProfileHelpersImport = (
         needsSliceExtraction: boolean;
         needsSliceChoiceHelpers: boolean;
         needsValidation: boolean;
+        needsRegisterProfile: boolean;
     },
 ) => {
     const imports: string[] = [];
+    if (options.needsRegisterProfile) {
+        imports.push("registerProfile");
+    }
     if (options.needsSliceHelpers) {
-        imports.push("applySliceMatch", "matchesSlice");
+        imports.push("applySliceMatch", "matchesSlice", "setArraySlice", "getArraySlice");
     }
     if (options.needsGetOrCreateObjectAtPath) {
         imports.push("getOrCreateObjectAtPath");
@@ -604,6 +608,7 @@ export const generateProfileClass = (
     const needsSliceChoiceHelpers = sliceDefs.some((s) => s.constrainedChoice);
 
     const needsValidation = Object.keys(flatProfile.fields ?? {}).length > 0;
+    const needsRegisterProfile = !!schema?.identifier.url && isResourceIdentifier(flatProfile.base);
 
     if (
         needsSliceHelpers ||
@@ -611,7 +616,8 @@ export const generateProfileClass = (
         needsExtensionExtraction ||
         needsSliceExtraction ||
         needsSliceChoiceHelpers ||
-        needsValidation
+        needsValidation ||
+        needsRegisterProfile
     ) {
         generateProfileHelpersImport(w, {
             needsGetOrCreateObjectAtPath,
@@ -620,6 +626,7 @@ export const generateProfileClass = (
             needsSliceExtraction,
             needsSliceChoiceHelpers,
             needsValidation,
+            needsRegisterProfile,
         });
         w.line();
     }
@@ -660,11 +667,8 @@ export const generateProfileClass = (
         w.curlyBlock(["constructor", `(resource: ${tsBaseResourceName})`], () => {
             w.line("this.resource = resource");
             if (canonicalUrl && isResourceIdentifier(flatProfile.base)) {
-                w.line(`const r = resource as unknown as Record<string, unknown>`);
-                w.line(`const meta = (r.meta ??= {}) as Record<string, unknown>`);
-                w.line(`const profiles = (meta.profile ??= []) as string[]`);
                 w.line(
-                    `if (!profiles.includes(${JSON.stringify(canonicalUrl)})) profiles.push(${JSON.stringify(canonicalUrl)})`,
+                    `registerProfile(resource as unknown as Record<string, unknown>, ${JSON.stringify(canonicalUrl)})`,
                 );
             }
         });
@@ -799,17 +803,9 @@ export const generateProfileClass = (
                     w.line(`const value = applySliceMatch(${inputExpr}, match) as unknown as ${sliceDef.baseType}`);
                 }
                 if (sliceDef.array) {
-                    w.line(`const list = (${fieldAccess} ??= [])`);
-                    w.line("const index = list.findIndex((item) => matchesSlice(item, match))");
-                    w.line("if (index === -1) {");
-                    w.indentBlock(() => {
-                        w.line("list.push(value)");
-                    });
-                    w.line("} else {");
-                    w.indentBlock(() => {
-                        w.line("list[index] = value");
-                    });
-                    w.line("}");
+                    w.line(
+                        `setArraySlice(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(tsField)}, match, value as unknown as Record<string, unknown>)`,
+                    );
                 } else {
                     w.line(`${fieldAccess} = value`);
                 }
@@ -925,9 +921,7 @@ export const generateProfileClass = (
             const generateSliceLookup = () => {
                 w.line(`const match = ${matchLiteral} as Record<string, unknown>`);
                 if (sliceDef.array) {
-                    w.line(`const list = ${fieldAccess}`);
-                    w.line("if (!list) return undefined");
-                    w.line("const item = list.find((item) => matchesSlice(item, match))");
+                    w.line(`const item = getArraySlice(${fieldAccess} as unknown as unknown[] | undefined, match)`);
                 } else {
                     w.line(`const item = ${fieldAccess}`);
                     w.line("if (!item || !matchesSlice(item, match)) return undefined");
@@ -957,7 +951,7 @@ export const generateProfileClass = (
             w.curlyBlock(["public", getRawMethodName, `(): ${baseType} | undefined`], () => {
                 generateSliceLookup();
                 if (sliceDef.array) {
-                    w.line("return item");
+                    w.line(`return item as unknown as ${baseType} | undefined`);
                 } else {
                     w.line("return item");
                 }

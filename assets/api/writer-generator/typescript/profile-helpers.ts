@@ -119,6 +119,35 @@ export const flattenSliceChoice = (
     return result;
 };
 
+export const registerProfile = (resource: Record<string, unknown>, canonicalUrl: string): void => {
+    const meta = (resource.meta ??= {}) as Record<string, unknown>;
+    const profiles = (meta.profile ??= []) as string[];
+    if (!profiles.includes(canonicalUrl)) profiles.push(canonicalUrl);
+};
+
+export const setArraySlice = (
+    resource: Record<string, unknown>,
+    field: string,
+    match: Record<string, unknown>,
+    value: Record<string, unknown>,
+): void => {
+    const list = ((resource as Record<string, unknown>)[field] ??= []) as unknown[];
+    const index = list.findIndex((item) => matchesSlice(item, match));
+    if (index === -1) {
+        list.push(value);
+    } else {
+        list[index] = value;
+    }
+};
+
+export const getArraySlice = (
+    list: unknown[] | undefined,
+    match: Record<string, unknown>,
+): Record<string, unknown> | undefined => {
+    if (!list) return undefined;
+    return list.find((item) => matchesSlice(item, match)) as Record<string, unknown> | undefined;
+};
+
 export const validateRequired = (r: Record<string, unknown>, field: string, path: string): string | undefined => {
     return r[field] === undefined || r[field] === null ? `${path}: required field '${field}' is missing` : undefined;
 };
