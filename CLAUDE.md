@@ -198,6 +198,29 @@ Located in `src/api/writer-generator/`:
 - Each writer traverses TypeSchema index and generates code
 - Maintains language-specific idioms and conventions
 
+## Static Assets for Generators
+
+Static files that are copied verbatim into generated output live in `assets/api/writer-generator/<language>/`. Each language writer has a resolver function (e.g., `resolveTsAssets`, `resolvePyAssets`) that handles path resolution for both dev (`src/`) and dist (`dist/`) builds.
+
+**Pattern:**
+```
+assets/api/writer-generator/
+├── typescript/profile-helpers.ts   # Runtime helpers for TS profile classes
+└── python/
+    ├── requirements.txt
+    ├── fhirpy_base_model.py
+    └── resource_family_validator.py
+```
+
+**How it works:**
+1. Asset files are authored/maintained directly in `assets/` (included in biome linting)
+2. Writers copy them to output via `this.cp("filename", "filename")` — uses `Writer.cp()` which resolves via `resolveAssets`
+3. Each language writer sets `resolveAssets` in its constructor (e.g., TypeScript writer defaults to `resolveTsAssets`)
+
+**When to use assets vs programmatic generation:**
+- Use assets for static runtime code shared across all generated profiles (helpers, validators, base models)
+- Use programmatic generation (`w.lineSM()`, `w.curlyBlock()`) for code that varies per schema/profile
+
 ## Common Development Patterns
 
 ### Adding a New Generator Feature
@@ -235,10 +258,11 @@ Located in `src/api/writer-generator/`:
 
 ### Generators
 - `src/api/writer-generator/introspection.ts` - TypeSchema introspection generation
-- `src/api/writer-generator/typescript.ts` - TypeScript code generation
+- `src/api/writer-generator/typescript/writer.ts` - TypeScript type generation
+- `src/api/writer-generator/typescript/profile.ts` - TypeScript profile class generation
 - `src/api/writer-generator/python.ts` - Python/Pydantic generation
-- `src/api/writer-generator/csharp.ts` - C# generation
-- `src/api/writer-generator/base.ts` - Common writer utilities
+- `src/api/writer-generator/csharp/csharp.ts` - C# generation
+- `src/api/writer-generator/writer.ts` - Base Writer class (I/O, indentation, `cp()` for assets)
 
 ### FHIR Processing
 - `src/typeschema/register.ts` - Package registration and canonical resolution
