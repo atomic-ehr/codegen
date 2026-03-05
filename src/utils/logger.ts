@@ -110,9 +110,10 @@ export function makeLogger<T extends string>(opts: LoggerOptions<T> = {}): Logge
 
         fork<C extends string = T>(childPrefix: string, childOpts?: Partial<LoggerOptions<C>>): Logger<C> {
             const fullPrefix = prefix ? `${prefix}:${childPrefix}` : childPrefix;
+            const merged = [...suppressedSet, ...(childOpts?.suppressTags ?? [])] as C[];
             return makeLogger<C>({
                 prefix: fullPrefix,
-                suppressTags: [...((opts.suppressTags ?? []) as unknown as C[]), ...(childOpts?.suppressTags ?? [])],
+                suppressTags: merged,
                 level: childOpts?.level ?? currentLevel,
             });
         },

@@ -195,6 +195,17 @@ describe("makeLogger", () => {
             child.warn("TAG_A", "valid");
             expect(child.buffer()[0]?.tag).toBe("TAG_A");
         });
+
+        it("inherits runtime suppress() calls", () => {
+            const parent = makeLogger<TestTags>({ suppressTags: ["TAG_A"] });
+            parent.suppress("TAG_B");
+            const child = parent.fork("child");
+            child.warn("TAG_A", "from init");
+            child.warn("TAG_B", "from runtime suppress");
+            child.warn("TAG_C", "not suppressed");
+            expect(bufferFilter(child, { suppressed: true })).toHaveLength(2);
+            expect(child.buffer()[2]?.suppressed).toBe(false);
+        });
     });
 
     describe("as (narrowing)", () => {
