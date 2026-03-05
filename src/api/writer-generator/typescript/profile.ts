@@ -771,6 +771,9 @@ const detectConstrainedChoice = (
         const variantField = baseSchema.fields[variantName];
         if (!variantField || !isChoiceInstanceField(variantField)) continue;
 
+        // Skip flattening for primitive types — can't intersect object with boolean/string/etc.
+        if (isPrimitiveIdentifier(variantField.type)) continue;
+
         return {
             choiceBase: fieldName,
             variant: variantName,
