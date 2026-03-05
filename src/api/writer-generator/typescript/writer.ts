@@ -1,3 +1,5 @@
+import * as Path from "node:path";
+import { fileURLToPath } from "node:url";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
 import {
     type CanonicalUrl,
@@ -28,12 +30,20 @@ import {
 } from "./name";
 import {
     generateProfileClass,
-    generateProfileHelpersModule,
     generateProfileImports,
     generateProfileIndexFile,
     generateProfileOverrideInterface,
 } from "./profile";
 import { resolveFieldTsType } from "./utils";
+
+export const resolveTsAssets = (fn: string) => {
+    const __dirname = Path.dirname(fileURLToPath(import.meta.url));
+    const __filename = fileURLToPath(import.meta.url);
+    if (__filename.endsWith("dist/index.js")) {
+        return Path.resolve(__dirname, "..", "assets", "api", "writer-generator", "typescript", fn);
+    }
+    return Path.resolve(__dirname, "../../../..", "assets", "api", "writer-generator", "typescript", fn);
+};
 
 export type TypeScriptOptions = {
     /** openResourceTypeSet -- for resource families (Resource, DomainResource) use open set for resourceType field.
@@ -46,6 +56,10 @@ export type TypeScriptOptions = {
 } & WriterOptions;
 
 export class TypeScript extends Writer<TypeScriptOptions> {
+    constructor(options: TypeScriptOptions) {
+        super({ ...options, resolveAssets: options.resolveAssets ?? resolveTsAssets });
+    }
+
     tsImportType(tsPackageName: string, ...entities: string[]) {
         this.lineSM(`import type { ${entities.join(", ")} } from "${tsPackageName}"`);
     }
@@ -296,7 +310,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
 
         this.cd("/", () => {
             if (hasProfiles) {
-                generateProfileHelpersModule(this);
+                this.cp("profile-helpers.ts", "profile-helpers.ts");
             }
 
             for (const [packageName, packageSchemas] of Object.entries(grouped)) {
