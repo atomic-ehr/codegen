@@ -6,7 +6,7 @@ US Core FHIR profile generation with type-safe profile wrapper classes.
 
 This example demonstrates how to generate TypeScript types for the HL7 US Core Implementation Guide, including generated profile classes that provide a fluent API for working with extensions and slices. It includes:
 
-- Full US Core 8.0.1 type definitions
+- US Core 8.0.1 type definitions (tree-shaken to Patient, Blood Pressure, and Body Weight)
 - Profile wrapper classes for type-safe extension handling
 - Automatic discriminator application for slices
 - Flat API for complex extensions (race, ethnicity, etc.)
@@ -26,12 +26,23 @@ This will output to `./examples/typescript-us-core/fhir-types/`
 Edit `generate.ts` to customize:
 
 ```typescript
+.typeSchema({
+  treeShake: {
+    "hl7.fhir.us.core": {
+      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient": {},
+      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure": {},
+      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight": {},
+    },
+  },
+})
 .typescript({
   withDebugComment: false,     // Include generation metadata
   generateProfile: true,        // Generate profile wrapper classes
   openResourceTypeSet: false    // Closed resource type union
 })
 ```
+
+Tree shaking keeps only the specified profiles and their transitive dependencies, significantly reducing the generated output.
 
 ## Using Profile Classes
 
@@ -167,10 +178,10 @@ typescript-us-core/
 ├── multi-profile.test.ts        # Profile tests
 ├── tsconfig.json                # TypeScript config
 ├── fhir-types/                  # Generated types (after generation)
-│   ├── hl7-fhir-r4-core/        # FHIR R4 core resources
+│   ├── hl7-fhir-r4-core/        # FHIR R4 core types (tree-shaken dependencies)
 │   ├── hl7-fhir-us-core/        # US Core profiles
-│   │   └── profiles/            # Profile wrapper classes
-│   └── index.ts                 # Main exports
+│   │   └── profiles/            # Profile wrapper classes (Patient, BP, BodyWeight)
+│   └── profile-helpers.ts       # Runtime helpers for profile classes
 └── type-tree.yaml               # Dependency tree (debug output)
 ```
 
