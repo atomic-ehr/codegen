@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
-import type { Observation } from "../../../examples/typescript-us-core/fhir-types/hl7-fhir-r4-core/Observation";
-import type { Patient } from "../../../examples/typescript-us-core/fhir-types/hl7-fhir-r4-core/Patient";
+import type { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
+import type { Patient } from "./fhir-types/hl7-fhir-r4-core/Patient";
 import {
     USCoreBloodPressureProfileProfile as usBpProfile,
     USCorePatientProfileProfile as usPatientProfile,
-} from "../../../examples/typescript-us-core/fhir-types/hl7-fhir-us-core/profiles";
+} from "./fhir-types/hl7-fhir-us-core/profiles";
 
 const createPatient = (): Patient => ({ resourceType: "Patient" });
 const createObservation = (): Observation => ({ resourceType: "Observation", status: "final", code: {} });
