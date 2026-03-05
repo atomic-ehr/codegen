@@ -21,7 +21,7 @@ export type USCoreBloodPressureProfile_Category_VSCatSliceInput = Omit<CodeableC
 export type USCoreBloodPressureProfile_Component_SystolicSliceInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 export type USCoreBloodPressureProfile_Component_DiastolicSliceInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 
-import { applySliceMatch, matchesSlice, extractSliceSimplified, wrapSliceChoice, flattenSliceChoice, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
+import { registerProfile, applySliceMatch, matchesSlice, setArraySlice, getArraySlice, extractSliceSimplified, wrapSliceChoice, flattenSliceChoice, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
 
 export type USCoreBloodPressureProfileProfileParams = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
@@ -38,10 +38,7 @@ export class USCoreBloodPressureProfileProfile {
 
     constructor (resource: Observation) {
         this.resource = resource
-        const r = resource as unknown as Record<string, unknown>
-        const meta = (r.meta ??= {}) as Record<string, unknown>
-        const profiles = (meta.profile ??= []) as string[]
-        if (!profiles.includes("http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure")) profiles.push("http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure")
+        registerProfile(resource as unknown as Record<string, unknown>, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure")
     }
 
     static from (resource: Observation) : USCoreBloodPressureProfileProfile {
@@ -245,91 +242,61 @@ export class USCoreBloodPressureProfileProfile {
     public setVSCat (input?: USCoreBloodPressureProfile_Category_VSCatSliceInput): this {
         const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
         const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as CodeableConcept
-        const list = (this.resource.category ??= [])
-        const index = list.findIndex((item) => matchesSlice(item, match))
-        if (index === -1) {
-            list.push(value)
-        } else {
-            list[index] = value
-        }
+        setArraySlice(this.resource as unknown as Record<string, unknown>, "category", match, value as unknown as Record<string, unknown>)
         return this
     }
 
     public setSystolic (input?: USCoreBloodPressureProfile_Component_SystolicSliceInput): this {
         const match = {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}} as Record<string, unknown>
         const value = applySliceMatch(wrapSliceChoice((input ?? {}) as Record<string, unknown>, "valueQuantity"), match) as unknown as ObservationComponent
-        const list = (this.resource.component ??= [])
-        const index = list.findIndex((item) => matchesSlice(item, match))
-        if (index === -1) {
-            list.push(value)
-        } else {
-            list[index] = value
-        }
+        setArraySlice(this.resource as unknown as Record<string, unknown>, "component", match, value as unknown as Record<string, unknown>)
         return this
     }
 
     public setDiastolic (input?: USCoreBloodPressureProfile_Component_DiastolicSliceInput): this {
         const match = {"code":{"coding":[{"system":"http://loinc.org","code":"8462-4"}]}} as Record<string, unknown>
         const value = applySliceMatch(wrapSliceChoice((input ?? {}) as Record<string, unknown>, "valueQuantity"), match) as unknown as ObservationComponent
-        const list = (this.resource.component ??= [])
-        const index = list.findIndex((item) => matchesSlice(item, match))
-        if (index === -1) {
-            list.push(value)
-        } else {
-            list[index] = value
-        }
+        setArraySlice(this.resource as unknown as Record<string, unknown>, "component", match, value as unknown as Record<string, unknown>)
         return this
     }
 
     public getVSCat (): USCoreBloodPressureProfile_Category_VSCatSliceInput | undefined {
         const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
-        const list = this.resource.category
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
+        const item = getArraySlice(this.resource.category as unknown as unknown[] | undefined, match)
         if (!item) return undefined
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as USCoreBloodPressureProfile_Category_VSCatSliceInput
     }
 
     public getVSCatRaw (): CodeableConcept | undefined {
         const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
-        const list = this.resource.category
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
-        return item
+        const item = getArraySlice(this.resource.category as unknown as unknown[] | undefined, match)
+        return item as unknown as CodeableConcept | undefined
     }
 
     public getSystolic (): USCoreBloodPressureProfile_Component_SystolicSliceInput | undefined {
         const match = {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}} as Record<string, unknown>
-        const list = this.resource.component
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
+        const item = getArraySlice(this.resource.component as unknown as unknown[] | undefined, match)
         if (!item) return undefined
         return flattenSliceChoice(item as unknown as Record<string, unknown>, ["code"], "valueQuantity") as USCoreBloodPressureProfile_Component_SystolicSliceInput
     }
 
     public getSystolicRaw (): ObservationComponent | undefined {
         const match = {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}} as Record<string, unknown>
-        const list = this.resource.component
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
-        return item
+        const item = getArraySlice(this.resource.component as unknown as unknown[] | undefined, match)
+        return item as unknown as ObservationComponent | undefined
     }
 
     public getDiastolic (): USCoreBloodPressureProfile_Component_DiastolicSliceInput | undefined {
         const match = {"code":{"coding":[{"system":"http://loinc.org","code":"8462-4"}]}} as Record<string, unknown>
-        const list = this.resource.component
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
+        const item = getArraySlice(this.resource.component as unknown as unknown[] | undefined, match)
         if (!item) return undefined
         return flattenSliceChoice(item as unknown as Record<string, unknown>, ["code"], "valueQuantity") as USCoreBloodPressureProfile_Component_DiastolicSliceInput
     }
 
     public getDiastolicRaw (): ObservationComponent | undefined {
         const match = {"code":{"coding":[{"system":"http://loinc.org","code":"8462-4"}]}} as Record<string, unknown>
-        const list = this.resource.component
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
-        return item
+        const item = getArraySlice(this.resource.component as unknown as unknown[] | undefined, match)
+        return item as unknown as ObservationComponent | undefined
     }
 
     validate () : string[] {

@@ -18,7 +18,7 @@ export type Observation_bp_Category_VSCatSliceInput = Omit<CodeableConcept, "cod
 export type Observation_bp_Component_SystolicBPSliceInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 export type Observation_bp_Component_DiastolicBPSliceInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 
-import { applySliceMatch, matchesSlice, extractSliceSimplified, wrapSliceChoice, flattenSliceChoice, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
+import { registerProfile, applySliceMatch, matchesSlice, setArraySlice, getArraySlice, extractSliceSimplified, wrapSliceChoice, flattenSliceChoice, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
 
 export type observation_bpProfileParams = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
@@ -35,10 +35,7 @@ export class observation_bpProfile {
 
     constructor (resource: Observation) {
         this.resource = resource
-        const r = resource as unknown as Record<string, unknown>
-        const meta = (r.meta ??= {}) as Record<string, unknown>
-        const profiles = (meta.profile ??= []) as string[]
-        if (!profiles.includes("http://hl7.org/fhir/StructureDefinition/bp")) profiles.push("http://hl7.org/fhir/StructureDefinition/bp")
+        registerProfile(resource as unknown as Record<string, unknown>, "http://hl7.org/fhir/StructureDefinition/bp")
     }
 
     static from (resource: Observation) : observation_bpProfile {
@@ -152,91 +149,61 @@ export class observation_bpProfile {
     public setVSCat (input?: Observation_bp_Category_VSCatSliceInput): this {
         const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
         const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as CodeableConcept
-        const list = (this.resource.category ??= [])
-        const index = list.findIndex((item) => matchesSlice(item, match))
-        if (index === -1) {
-            list.push(value)
-        } else {
-            list[index] = value
-        }
+        setArraySlice(this.resource as unknown as Record<string, unknown>, "category", match, value as unknown as Record<string, unknown>)
         return this
     }
 
     public setSystolicBP (input?: Observation_bp_Component_SystolicBPSliceInput): this {
         const match = {"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}} as Record<string, unknown>
         const value = applySliceMatch(wrapSliceChoice((input ?? {}) as Record<string, unknown>, "valueQuantity"), match) as unknown as ObservationComponent
-        const list = (this.resource.component ??= [])
-        const index = list.findIndex((item) => matchesSlice(item, match))
-        if (index === -1) {
-            list.push(value)
-        } else {
-            list[index] = value
-        }
+        setArraySlice(this.resource as unknown as Record<string, unknown>, "component", match, value as unknown as Record<string, unknown>)
         return this
     }
 
     public setDiastolicBP (input?: Observation_bp_Component_DiastolicBPSliceInput): this {
         const match = {"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}} as Record<string, unknown>
         const value = applySliceMatch(wrapSliceChoice((input ?? {}) as Record<string, unknown>, "valueQuantity"), match) as unknown as ObservationComponent
-        const list = (this.resource.component ??= [])
-        const index = list.findIndex((item) => matchesSlice(item, match))
-        if (index === -1) {
-            list.push(value)
-        } else {
-            list[index] = value
-        }
+        setArraySlice(this.resource as unknown as Record<string, unknown>, "component", match, value as unknown as Record<string, unknown>)
         return this
     }
 
     public getVSCat (): Observation_bp_Category_VSCatSliceInput | undefined {
         const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
-        const list = this.resource.category
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
+        const item = getArraySlice(this.resource.category as unknown as unknown[] | undefined, match)
         if (!item) return undefined
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as Observation_bp_Category_VSCatSliceInput
     }
 
     public getVSCatRaw (): CodeableConcept | undefined {
         const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
-        const list = this.resource.category
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
-        return item
+        const item = getArraySlice(this.resource.category as unknown as unknown[] | undefined, match)
+        return item as unknown as CodeableConcept | undefined
     }
 
     public getSystolicBP (): Observation_bp_Component_SystolicBPSliceInput | undefined {
         const match = {"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}} as Record<string, unknown>
-        const list = this.resource.component
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
+        const item = getArraySlice(this.resource.component as unknown as unknown[] | undefined, match)
         if (!item) return undefined
         return flattenSliceChoice(item as unknown as Record<string, unknown>, ["code"], "valueQuantity") as Observation_bp_Component_SystolicBPSliceInput
     }
 
     public getSystolicBPRaw (): ObservationComponent | undefined {
         const match = {"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}} as Record<string, unknown>
-        const list = this.resource.component
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
-        return item
+        const item = getArraySlice(this.resource.component as unknown as unknown[] | undefined, match)
+        return item as unknown as ObservationComponent | undefined
     }
 
     public getDiastolicBP (): Observation_bp_Component_DiastolicBPSliceInput | undefined {
         const match = {"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}} as Record<string, unknown>
-        const list = this.resource.component
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
+        const item = getArraySlice(this.resource.component as unknown as unknown[] | undefined, match)
         if (!item) return undefined
         return flattenSliceChoice(item as unknown as Record<string, unknown>, ["code"], "valueQuantity") as Observation_bp_Component_DiastolicBPSliceInput
     }
 
     public getDiastolicBPRaw (): ObservationComponent | undefined {
         const match = {"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}} as Record<string, unknown>
-        const list = this.resource.component
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
-        return item
+        const item = getArraySlice(this.resource.component as unknown as unknown[] | undefined, match)
+        return item as unknown as ObservationComponent | undefined
     }
 
     validate () : string[] {

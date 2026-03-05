@@ -18,7 +18,7 @@ export interface USCoreBodyWeightProfile extends Observation {
 
 export type USCoreBodyWeightProfile_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
 
-import { applySliceMatch, matchesSlice, extractSliceSimplified, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
+import { registerProfile, applySliceMatch, matchesSlice, setArraySlice, getArraySlice, extractSliceSimplified, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
 
 export type USCoreBodyWeightProfileProfileParams = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
@@ -34,10 +34,7 @@ export class USCoreBodyWeightProfileProfile {
 
     constructor (resource: Observation) {
         this.resource = resource
-        const r = resource as unknown as Record<string, unknown>
-        const meta = (r.meta ??= {}) as Record<string, unknown>
-        const profiles = (meta.profile ??= []) as string[]
-        if (!profiles.includes("http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight")) profiles.push("http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight")
+        registerProfile(resource as unknown as Record<string, unknown>, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight")
     }
 
     static from (resource: Observation) : USCoreBodyWeightProfileProfile {
@@ -227,31 +224,21 @@ export class USCoreBodyWeightProfileProfile {
     public setVSCat (input?: USCoreBodyWeightProfile_Category_VSCatSliceInput): this {
         const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
         const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as CodeableConcept
-        const list = (this.resource.category ??= [])
-        const index = list.findIndex((item) => matchesSlice(item, match))
-        if (index === -1) {
-            list.push(value)
-        } else {
-            list[index] = value
-        }
+        setArraySlice(this.resource as unknown as Record<string, unknown>, "category", match, value as unknown as Record<string, unknown>)
         return this
     }
 
     public getVSCat (): USCoreBodyWeightProfile_Category_VSCatSliceInput | undefined {
         const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
-        const list = this.resource.category
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
+        const item = getArraySlice(this.resource.category as unknown as unknown[] | undefined, match)
         if (!item) return undefined
         return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as USCoreBodyWeightProfile_Category_VSCatSliceInput
     }
 
     public getVSCatRaw (): CodeableConcept | undefined {
         const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
-        const list = this.resource.category
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
-        return item
+        const item = getArraySlice(this.resource.category as unknown as unknown[] | undefined, match)
+        return item as unknown as CodeableConcept | undefined
     }
 
     validate () : string[] {
