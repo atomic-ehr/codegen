@@ -88,21 +88,18 @@ function createBloodPressureExample(): Observation {
     USCoreBloodPressureProfileProfile.setVSCat()
         .setSystolic({
             // The code for systolic (8480-6) is auto-applied by the profile
-            valueQuantity: {
-                value: 120,
-                unit: "mmHg",
-                system: "http://unitsofmeasure.org",
-                code: "mm[Hg]",
-            },
+            // Quantity fields are flat (valueQuantity is unwrapped)
+            value: 120,
+            unit: "mmHg",
+            system: "http://unitsofmeasure.org",
+            code: "mm[Hg]",
         })
         .setDiastolic({
             // The code for diastolic (8462-4) is auto-applied by the profile
-            valueQuantity: {
-                value: 80,
-                unit: "mmHg",
-                system: "http://unitsofmeasure.org",
-                code: "mm[Hg]",
-            },
+            value: 80,
+            unit: "mmHg",
+            system: "http://unitsofmeasure.org",
+            code: "mm[Hg]",
         });
 
     // Get the underlying FHIR resource

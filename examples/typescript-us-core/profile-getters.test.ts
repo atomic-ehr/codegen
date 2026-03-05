@@ -65,22 +65,16 @@ describe("Profile Getter Methods", () => {
     describe("Slice getters", () => {
         it("returns simplified slice without discriminator via getSystolic()", () => {
             const profile = new usBpProfile(createObservation());
-            profile.setSystolic({
-                valueQuantity: { value: 120, unit: "mmHg", system: "http://unitsofmeasure.org", code: "mm[Hg]" },
-            });
+            profile.setSystolic({ value: 120, unit: "mmHg", system: "http://unitsofmeasure.org", code: "mm[Hg]" });
 
             const result = profile.getSystolic();
             expect(result).toBeDefined();
-            expect(result?.valueQuantity?.value).toBe(120);
-            // Should NOT include the code discriminator in simplified form
-            expect((result as Record<string, unknown>)?.code).toBeUndefined();
+            expect(result?.value).toBe(120);
         });
 
         it("returns full slice with discriminator via getSystolicRaw()", () => {
             const profile = new usBpProfile(createObservation());
-            profile.setSystolic({
-                valueQuantity: { value: 120, unit: "mmHg", system: "http://unitsofmeasure.org", code: "mm[Hg]" },
-            });
+            profile.setSystolic({ value: 120, unit: "mmHg", system: "http://unitsofmeasure.org", code: "mm[Hg]" });
 
             const raw = profile.getSystolicRaw();
             expect(raw).toBeDefined();
@@ -97,14 +91,14 @@ describe("Profile Getter Methods", () => {
 
         it("can get multiple slices independently", () => {
             const profile = new usBpProfile(createObservation());
-            profile.setSystolic({ valueQuantity: { value: 120, unit: "mmHg" } });
-            profile.setDiastolic({ valueQuantity: { value: 80, unit: "mmHg" } });
+            profile.setSystolic({ value: 120, unit: "mmHg" });
+            profile.setDiastolic({ value: 80, unit: "mmHg" });
 
             const systolic = profile.getSystolic();
             const diastolic = profile.getDiastolic();
 
-            expect(systolic?.valueQuantity?.value).toBe(120);
-            expect(diastolic?.valueQuantity?.value).toBe(80);
+            expect(systolic?.value).toBe(120);
+            expect(diastolic?.value).toBe(80);
         });
     });
 

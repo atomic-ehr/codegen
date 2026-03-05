@@ -2,7 +2,7 @@
  * Demonstrates using profile classes with the generated getter/setter methods.
  *
  * This example shows:
- * 1. Creating observations with Body Weight and Body Height profiles
+ * 1. Creating observations with Body Weight profile
  * 2. Using setters to apply profile-defined slices (no input needed for constant slices)
  * 3. Using getters to read values:
  *    - getVSCat() - returns flat API (simplified, without discriminator)
@@ -11,10 +11,7 @@
  */
 
 import type { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
-import {
-    USCoreBodyHeightProfileProfile as usHeightProfile,
-    USCoreBodyWeightProfileProfile as usWeightProfile,
-} from "./fhir-types/hl7-fhir-us-core/profiles";
+import { USCoreBodyWeightProfileProfile as usWeightProfile } from "./fhir-types/hl7-fhir-us-core/profiles";
 
 // Helper to create a base Observation resource
 const createBaseObservation = (): Observation => ({
@@ -48,31 +45,7 @@ function createBodyWeightObservation(): Observation {
     return profile.toResource();
 }
 
-// Example 2: Create a Body Height observation
-function createBodyHeightObservation(): Observation {
-    const resource = createBaseObservation();
-    const profile = new usHeightProfile(resource);
-
-    // Set the vital-signs category slice
-    profile.setVSCat();
-
-    // Set additional required fields
-    resource.code = {
-        coding: [{ system: "http://loinc.org", code: "8302-2", display: "Body Height" }],
-    };
-    resource.valueQuantity = {
-        value: 175,
-        unit: "cm",
-        system: "http://unitsofmeasure.org",
-        code: "cm",
-    };
-    resource.subject = { reference: "Patient/example" };
-    resource.effectiveDateTime = new Date().toISOString();
-
-    return profile.toResource();
-}
-
-// Example 3: Using getters to read values
+// Example 2: Using getters to read values
 function demonstrateGetters() {
     const resource = createBaseObservation();
     const profile = new usWeightProfile(resource);
@@ -90,7 +63,7 @@ function demonstrateGetters() {
     console.log("Raw coding:", raw?.coding);
 }
 
-// Example 4: Using override interface types
+// Example 3: Using override interface types
 function demonstrateTypeNarrowing() {
     // The USCoreBodyWeightProfile interface extends Observation with:
     // - subject: Reference<"Patient"> (narrowed from broader union)
@@ -109,9 +82,6 @@ function demonstrateTypeNarrowing() {
 if (require.main === module) {
     console.log("=== Body Weight Observation ===");
     console.log(JSON.stringify(createBodyWeightObservation(), null, 2));
-
-    console.log("\n=== Body Height Observation ===");
-    console.log(JSON.stringify(createBodyHeightObservation(), null, 2));
 
     console.log("\n=== Getter Demonstration ===");
     demonstrateGetters();
