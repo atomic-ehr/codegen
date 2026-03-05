@@ -79,7 +79,12 @@ export function makeLogger<T extends string>(opts: LoggerOptions<T> = {}): Logge
         return { msg: a };
     };
 
-    const mkLogFn = (level: LogLevel, icon: string, consoleFn: (...args: any[]) => void): TaggedLogFn<T> => {
+    const mkLogFn = (
+        level: LogLevel,
+        icon: string,
+        consoleFn: (...args: any[]) => void,
+        dedupe = false,
+    ): TaggedLogFn<T> => {
         return ((a: string, b?: string) => {
             const { tag, msg } = parseArgs(a, b);
             if (tag) tagCountsMap.set(tag, (tagCountsMap.get(tag) ?? 0) + 1);
@@ -87,28 +92,18 @@ export function makeLogger<T extends string>(opts: LoggerOptions<T> = {}): Logge
             pushEntry(level, msg, tag, isSuppressed);
             if (isSuppressed) return;
             if (!shouldLog(level)) return;
-            consoleFn(fmt(level, icon, msg, tag));
-        }) as TaggedLogFn<T>;
-    };
-
-    const mkDryLogFn = (level: LogLevel, icon: string, consoleFn: (...args: any[]) => void): TaggedLogFn<T> => {
-        return ((a: string, b?: string) => {
-            const { tag, msg } = parseArgs(a, b);
-            if (tag) tagCountsMap.set(tag, (tagCountsMap.get(tag) ?? 0) + 1);
-            const isSuppressed = tag !== undefined && suppressedSet.has(tag);
-            pushEntry(level, msg, tag, isSuppressed);
-            if (isSuppressed) return;
-            if (!shouldLog(level)) return;
-            const dedupeKey = `${level}::${tag ?? ""}::${msg}`;
-            if (drySet.has(dedupeKey)) return;
-            drySet.add(dedupeKey);
+            if (dedupe) {
+                const key = `${level}::${tag ?? ""}::${msg}`;
+                if (drySet.has(key)) return;
+                drySet.add(key);
+            }
             consoleFn(fmt(level, icon, msg, tag));
         }) as TaggedLogFn<T>;
     };
 
     const logger: Logger<T> = {
         warn: mkLogFn("warn", "!", console.warn),
-        dryWarn: mkDryLogFn("warn", "!", console.warn),
+        dryWarn: mkLogFn("warn", "!", console.warn, true),
         info: mkLogFn("info", "i", console.log),
         error: mkLogFn("error", "X", console.error),
         debug: mkLogFn("debug", "D", console.log),
