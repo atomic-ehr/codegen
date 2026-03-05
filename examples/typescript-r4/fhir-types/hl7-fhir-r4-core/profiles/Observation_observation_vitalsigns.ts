@@ -14,7 +14,7 @@ export interface observation_vitalsigns extends Observation {
 
 export type Observation_vitalsigns_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
 
-import { registerProfile, applySliceMatch, matchesSlice, setArraySlice, getArraySlice, extractSliceSimplified, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
+import { registerProfile, applySliceMatch, matchesSlice, setArraySlice, getArraySlice, extractSliceSimplified, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
 
 export type observation_vitalsignsProfileParams = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
@@ -139,22 +139,20 @@ export class observation_vitalsignsProfile {
         return item as unknown as CodeableConcept | undefined
     }
 
-    validate () : string[] {
-        const errors: string[] = []
-        const r = this.resource as unknown as Record<string, unknown>
-        { const e = validateRequired(r, "status", "observation-vitalsigns"); if (e) errors.push(e) }
-        { const e = validateEnum(r["status"], ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"], "status", "observation-vitalsigns"); if (e) errors.push(e) }
-        { const e = validateRequired(r, "category", "observation-vitalsigns"); if (e) errors.push(e) }
-        errors.push(...validateSliceCardinality(r["category"] as unknown[] | undefined, {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1, "observation-vitalsigns.category"))
-        { const e = validateRequired(r, "code", "observation-vitalsigns"); if (e) errors.push(e) }
-        { const e = validateRequired(r, "subject", "observation-vitalsigns"); if (e) errors.push(e) }
-        { const e = validateReference(r["subject"], ["Patient"], "subject", "observation-vitalsigns"); if (e) errors.push(e) }
-        if (!(r["effectiveDateTime"] !== undefined || r["effectivePeriod"] !== undefined)) {
-            errors.push("effective: at least one of effectiveDateTime, effectivePeriod is required")
-        }
-        { const e = validateReference(r["hasMember"], ["MolecularSequence","QuestionnaireResponse","observation-vitalsigns"], "hasMember", "observation-vitalsigns"); if (e) errors.push(e) }
-        { const e = validateReference(r["derivedFrom"], ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","observation-vitalsigns"], "derivedFrom", "observation-vitalsigns"); if (e) errors.push(e) }
-        return errors
+    validate(): string[] {
+        const res = this.resource as unknown as Record<string, unknown>
+        return [
+            ...validateRequired(res, "observation-vitalsigns", "status"),
+            ...validateEnum(res, "observation-vitalsigns", "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
+            ...validateRequired(res, "observation-vitalsigns", "category"),
+            ...validateSliceCardinality(res, "observation-vitalsigns", "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
+            ...validateRequired(res, "observation-vitalsigns", "code"),
+            ...validateRequired(res, "observation-vitalsigns", "subject"),
+            ...validateReference(res, "observation-vitalsigns", "subject", ["Patient"]),
+            ...validateChoiceRequired(res, "observation-vitalsigns", ["effectiveDateTime","effectivePeriod"]),
+            ...validateReference(res, "observation-vitalsigns", "hasMember", ["MolecularSequence","QuestionnaireResponse","observation-vitalsigns"]),
+            ...validateReference(res, "observation-vitalsigns", "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","observation-vitalsigns"]),
+        ]
     }
 
 }

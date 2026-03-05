@@ -15,7 +15,7 @@ export interface observation_bodyweight extends Observation {
 
 export type Observation_bodyweight_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
 
-import { registerProfile, applySliceMatch, matchesSlice, setArraySlice, getArraySlice, extractSliceSimplified, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
+import { registerProfile, applySliceMatch, matchesSlice, setArraySlice, getArraySlice, extractSliceSimplified, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
 
 export type observation_bodyweightProfileParams = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
@@ -148,23 +148,21 @@ export class observation_bodyweightProfile {
         return item as unknown as CodeableConcept | undefined
     }
 
-    validate () : string[] {
-        const errors: string[] = []
-        const r = this.resource as unknown as Record<string, unknown>
-        { const e = validateRequired(r, "status", "observation-bodyweight"); if (e) errors.push(e) }
-        { const e = validateEnum(r["status"], ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"], "status", "observation-bodyweight"); if (e) errors.push(e) }
-        { const e = validateRequired(r, "category", "observation-bodyweight"); if (e) errors.push(e) }
-        errors.push(...validateSliceCardinality(r["category"] as unknown[] | undefined, {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1, "observation-bodyweight.category"))
-        { const e = validateRequired(r, "code", "observation-bodyweight"); if (e) errors.push(e) }
-        { const e = validateFixedValue(r, "code", {"coding":[{"code":"29463-7","system":"http://loinc.org"}]}, "observation-bodyweight"); if (e) errors.push(e) }
-        { const e = validateRequired(r, "subject", "observation-bodyweight"); if (e) errors.push(e) }
-        { const e = validateReference(r["subject"], ["Patient"], "subject", "observation-bodyweight"); if (e) errors.push(e) }
-        if (!(r["effectiveDateTime"] !== undefined || r["effectivePeriod"] !== undefined)) {
-            errors.push("effective: at least one of effectiveDateTime, effectivePeriod is required")
-        }
-        { const e = validateReference(r["hasMember"], ["MolecularSequence","QuestionnaireResponse","observation-vitalsigns"], "hasMember", "observation-bodyweight"); if (e) errors.push(e) }
-        { const e = validateReference(r["derivedFrom"], ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","observation-vitalsigns"], "derivedFrom", "observation-bodyweight"); if (e) errors.push(e) }
-        return errors
+    validate(): string[] {
+        const res = this.resource as unknown as Record<string, unknown>
+        return [
+            ...validateRequired(res, "observation-bodyweight", "status"),
+            ...validateEnum(res, "observation-bodyweight", "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
+            ...validateRequired(res, "observation-bodyweight", "category"),
+            ...validateSliceCardinality(res, "observation-bodyweight", "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
+            ...validateRequired(res, "observation-bodyweight", "code"),
+            ...validateFixedValue(res, "observation-bodyweight", "code", {"coding":[{"code":"29463-7","system":"http://loinc.org"}]}),
+            ...validateRequired(res, "observation-bodyweight", "subject"),
+            ...validateReference(res, "observation-bodyweight", "subject", ["Patient"]),
+            ...validateChoiceRequired(res, "observation-bodyweight", ["effectiveDateTime","effectivePeriod"]),
+            ...validateReference(res, "observation-bodyweight", "hasMember", ["MolecularSequence","QuestionnaireResponse","observation-vitalsigns"]),
+            ...validateReference(res, "observation-bodyweight", "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","observation-vitalsigns"]),
+        ]
     }
 
 }

@@ -18,7 +18,7 @@ export type Observation_bp_Category_VSCatSliceInput = Omit<CodeableConcept, "cod
 export type Observation_bp_Component_SystolicBPSliceInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 export type Observation_bp_Component_DiastolicBPSliceInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 
-import { registerProfile, applySliceMatch, matchesSlice, setArraySlice, getArraySlice, extractSliceSimplified, wrapSliceChoice, flattenSliceChoice, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
+import { registerProfile, applySliceMatch, matchesSlice, setArraySlice, getArraySlice, extractSliceSimplified, wrapSliceChoice, flattenSliceChoice, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
 
 export type observation_bpProfileParams = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
@@ -206,25 +206,23 @@ export class observation_bpProfile {
         return item as unknown as ObservationComponent | undefined
     }
 
-    validate () : string[] {
-        const errors: string[] = []
-        const r = this.resource as unknown as Record<string, unknown>
-        { const e = validateRequired(r, "status", "observation-bp"); if (e) errors.push(e) }
-        { const e = validateEnum(r["status"], ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"], "status", "observation-bp"); if (e) errors.push(e) }
-        { const e = validateRequired(r, "category", "observation-bp"); if (e) errors.push(e) }
-        errors.push(...validateSliceCardinality(r["category"] as unknown[] | undefined, {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1, "observation-bp.category"))
-        { const e = validateRequired(r, "code", "observation-bp"); if (e) errors.push(e) }
-        { const e = validateFixedValue(r, "code", {"coding":[{"code":"85354-9","system":"http://loinc.org"}]}, "observation-bp"); if (e) errors.push(e) }
-        { const e = validateRequired(r, "subject", "observation-bp"); if (e) errors.push(e) }
-        { const e = validateReference(r["subject"], ["Patient"], "subject", "observation-bp"); if (e) errors.push(e) }
-        if (!(r["effectiveDateTime"] !== undefined || r["effectivePeriod"] !== undefined)) {
-            errors.push("effective: at least one of effectiveDateTime, effectivePeriod is required")
-        }
-        { const e = validateReference(r["hasMember"], ["MolecularSequence","QuestionnaireResponse","observation-vitalsigns"], "hasMember", "observation-bp"); if (e) errors.push(e) }
-        { const e = validateReference(r["derivedFrom"], ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","observation-vitalsigns"], "derivedFrom", "observation-bp"); if (e) errors.push(e) }
-        errors.push(...validateSliceCardinality(r["component"] as unknown[] | undefined, {"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}}, "SystolicBP", 1, 1, "observation-bp.component"))
-        errors.push(...validateSliceCardinality(r["component"] as unknown[] | undefined, {"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}}, "DiastolicBP", 1, 1, "observation-bp.component"))
-        return errors
+    validate(): string[] {
+        const res = this.resource as unknown as Record<string, unknown>
+        return [
+            ...validateRequired(res, "observation-bp", "status"),
+            ...validateEnum(res, "observation-bp", "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
+            ...validateRequired(res, "observation-bp", "category"),
+            ...validateSliceCardinality(res, "observation-bp", "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
+            ...validateRequired(res, "observation-bp", "code"),
+            ...validateFixedValue(res, "observation-bp", "code", {"coding":[{"code":"85354-9","system":"http://loinc.org"}]}),
+            ...validateRequired(res, "observation-bp", "subject"),
+            ...validateReference(res, "observation-bp", "subject", ["Patient"]),
+            ...validateChoiceRequired(res, "observation-bp", ["effectiveDateTime","effectivePeriod"]),
+            ...validateReference(res, "observation-bp", "hasMember", ["MolecularSequence","QuestionnaireResponse","observation-vitalsigns"]),
+            ...validateReference(res, "observation-bp", "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","observation-vitalsigns"]),
+            ...validateSliceCardinality(res, "observation-bp", "component", {"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}}, "SystolicBP", 1, 1),
+            ...validateSliceCardinality(res, "observation-bp", "component", {"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}}, "DiastolicBP", 1, 1),
+        ]
     }
 
 }

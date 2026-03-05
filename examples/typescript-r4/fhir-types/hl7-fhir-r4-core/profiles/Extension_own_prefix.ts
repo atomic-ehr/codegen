@@ -4,7 +4,7 @@
 
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
-import { validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
+import { validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
 
 export type own_prefixProfileParams = {
     valueString: string;
@@ -58,15 +58,13 @@ export class own_prefixProfile {
         return this
     }
 
-    validate () : string[] {
-        const errors: string[] = []
-        const r = this.resource as unknown as Record<string, unknown>
-        { const e = validateRequired(r, "url", "own-prefix"); if (e) errors.push(e) }
-        { const e = validateFixedValue(r, "url", "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix", "own-prefix"); if (e) errors.push(e) }
-        if (!(r["valueString"] !== undefined)) {
-            errors.push("value: at least one of valueString is required")
-        }
-        return errors
+    validate(): string[] {
+        const res = this.resource as unknown as Record<string, unknown>
+        return [
+            ...validateRequired(res, "own-prefix", "url"),
+            ...validateFixedValue(res, "own-prefix", "url", "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix"),
+            ...validateChoiceRequired(res, "own-prefix", ["valueString"]),
+        ]
     }
 
 }

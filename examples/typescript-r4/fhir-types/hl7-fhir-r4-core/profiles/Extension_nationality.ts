@@ -6,7 +6,7 @@ import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Period } from "../../hl7-fhir-r4-core/Period";
 
-import { validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
+import { validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/patient-nationality (pkg: hl7.fhir.r4.core#4.0.1)
 export class nationalityProfile {
@@ -78,12 +78,12 @@ export class nationalityProfile {
         return ext
     }
 
-    validate () : string[] {
-        const errors: string[] = []
-        const r = this.resource as unknown as Record<string, unknown>
-        { const e = validateRequired(r, "url", "nationality"); if (e) errors.push(e) }
-        { const e = validateFixedValue(r, "url", "http://hl7.org/fhir/StructureDefinition/patient-nationality", "nationality"); if (e) errors.push(e) }
-        return errors
+    validate(): string[] {
+        const res = this.resource as unknown as Record<string, unknown>
+        return [
+            ...validateRequired(res, "nationality", "url"),
+            ...validateFixedValue(res, "nationality", "url", "http://hl7.org/fhir/StructureDefinition/patient-nationality"),
+        ]
     }
 
 }
