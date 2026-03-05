@@ -18,10 +18,10 @@ export interface USCoreBloodPressureProfile extends Observation {
 }
 
 export type USCoreBloodPressureProfile_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
-export type USCoreBloodPressureProfile_Component_SystolicSliceInput = Omit<ObservationComponent, "code">;
-export type USCoreBloodPressureProfile_Component_DiastolicSliceInput = Omit<ObservationComponent, "code">;
+export type USCoreBloodPressureProfile_Component_SystolicSliceInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
+export type USCoreBloodPressureProfile_Component_DiastolicSliceInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 
-import { applySliceMatch, matchesSlice, extractSliceSimplified, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
+import { applySliceMatch, matchesSlice, extractSliceSimplified, wrapSliceChoice, flattenSliceChoice, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
 
 export type USCoreBloodPressureProfileProfileParams = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
@@ -257,7 +257,7 @@ export class USCoreBloodPressureProfileProfile {
 
     public setSystolic (input?: USCoreBloodPressureProfile_Component_SystolicSliceInput): this {
         const match = {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}} as Record<string, unknown>
-        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as ObservationComponent
+        const value = applySliceMatch(wrapSliceChoice((input ?? {}) as Record<string, unknown>, "valueQuantity"), match) as unknown as ObservationComponent
         const list = (this.resource.component ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -270,7 +270,7 @@ export class USCoreBloodPressureProfileProfile {
 
     public setDiastolic (input?: USCoreBloodPressureProfile_Component_DiastolicSliceInput): this {
         const match = {"code":{"coding":[{"system":"http://loinc.org","code":"8462-4"}]}} as Record<string, unknown>
-        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as ObservationComponent
+        const value = applySliceMatch(wrapSliceChoice((input ?? {}) as Record<string, unknown>, "valueQuantity"), match) as unknown as ObservationComponent
         const list = (this.resource.component ??= [])
         const index = list.findIndex((item) => matchesSlice(item, match))
         if (index === -1) {
@@ -304,7 +304,7 @@ export class USCoreBloodPressureProfileProfile {
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["code"]) as USCoreBloodPressureProfile_Component_SystolicSliceInput
+        return flattenSliceChoice(item as unknown as Record<string, unknown>, ["code"], "valueQuantity") as USCoreBloodPressureProfile_Component_SystolicSliceInput
     }
 
     public getSystolicRaw (): ObservationComponent | undefined {
@@ -321,7 +321,7 @@ export class USCoreBloodPressureProfileProfile {
         if (!list) return undefined
         const item = list.find((item) => matchesSlice(item, match))
         if (!item) return undefined
-        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["code"]) as USCoreBloodPressureProfile_Component_DiastolicSliceInput
+        return flattenSliceChoice(item as unknown as Record<string, unknown>, ["code"], "valueQuantity") as USCoreBloodPressureProfile_Component_DiastolicSliceInput
     }
 
     public getDiastolicRaw (): ObservationComponent | undefined {
