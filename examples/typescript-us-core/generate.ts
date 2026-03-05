@@ -9,6 +9,15 @@ if (require.main === module) {
     const builder = new APIBuilder()
         .throwException()
         .fromPackage("hl7.fhir.us.core", "8.0.1")
+        .typeSchema({
+            treeShake: {
+                "hl7.fhir.us.core": {
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient": {},
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure": {},
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight": {},
+                },
+            },
+        })
         .typescript({
             withDebugComment: false,
             generateProfile: true,
