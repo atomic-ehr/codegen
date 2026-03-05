@@ -1,3 +1,5 @@
+import pc from "picocolors";
+
 type TagsOf<L> = L extends Logger<infer T> ? T : never;
 
 export type ExtendLogger<Extra extends string, Parent extends Logger<any>> = Logger<TagsOf<Parent> | Extra>;
@@ -55,13 +57,11 @@ export function makeLogger<T extends string>(opts: LoggerOptions<T> = {}): Logge
 
     const shouldLog = (level: LogLevel): boolean => LEVEL_PRIORITY[level] >= LEVEL_PRIORITY[currentLevel];
 
-    const yellow = (s: string) => `\x1b[33m${s}\x1b[0m`;
-    const red = (s: string) => `\x1b[31m${s}\x1b[0m`;
     const colorize: Record<LogLevel, (s: string) => string> = {
         debug: (s) => s,
         info: (s) => s,
-        warn: yellow,
-        error: red,
+        warn: pc.yellow,
+        error: pc.red,
     };
 
     const fmt = (level: LogLevel, icon: string, msg: string, tag?: string) => {
