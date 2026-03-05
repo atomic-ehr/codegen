@@ -30,7 +30,7 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
 
     describe("TypeScript Generation", async () => {
         const result = await new APIBuilder()
-            .setLogLevel("SILENT")
+            .setLogLevel("silent")
             .localStructureDefinitions(localPackageConfig)
             .typeSchema({ treeShake: treeShakeConfig })
             .typescript({ inMemoryOnly: true })
@@ -62,7 +62,7 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
 
     describe("Python Generation", async () => {
         const result = await new APIBuilder()
-            .setLogLevel("SILENT")
+            .setLogLevel("silent")
             .localStructureDefinitions(localPackageConfig)
             .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
             .python({ inMemoryOnly: true })
@@ -99,7 +99,7 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
 
     describe("C# Generation", async () => {
         const result = await new APIBuilder()
-            .setLogLevel("SILENT")
+            .setLogLevel("silent")
             .localStructureDefinitions(localPackageConfig)
             .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
             .csharp({ inMemoryOnly: true })
