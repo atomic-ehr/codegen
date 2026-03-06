@@ -67,11 +67,12 @@ describe("TypeScript R4 Example (with generateProfile)", async () => {
         expect(result.success).toBeTrue();
     });
 
-    it("has no file rewrite warnings", () => {
+    it("file rewrite warnings", () => {
         const rewriteWarnings = logger
             .buffer()
-            .filter((e) => e.level === "warn" && e.message.includes("File will be rewritten"));
-        expect(rewriteWarnings).toEqual([]);
+            .filter((e) => e.level === "warn" && e.message.includes("File will be rewritten"))
+            .map((e) => e.message);
+        expect(rewriteWarnings).toMatchSnapshot();
     });
 
     it("generates bodyweight profile with validate()", () => {

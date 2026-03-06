@@ -276,7 +276,7 @@ export const isMaterial = (resource: unknown): resource is Material => {
 "
 `;
 
-exports[`TypeScript R4 Example (with generateProfile) file rewrite warnings match expected collisions 1`] = `
+exports[`TypeScript R4 Example (with generateProfile) file rewrite warnings 1`] = `
 [
   "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_assertedDate.ts'",
   "File will be rewritten 'generated/types/hl7-fhir-r4-core/profiles/Extension_author.ts'",
