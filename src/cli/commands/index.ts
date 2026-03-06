@@ -19,13 +19,13 @@ import { typeschemaCommand } from "./typeschema";
 export interface CLIArgv {
     verbose?: boolean;
     debug?: boolean;
-    logLevel?: "debug" | "info" | "warn" | "error" | "silent";
+    logLevel?: LogLevel;
 }
 
 const cliLogger = mkLogger({ prefix: "cli" });
 
 async function setupLoggingMiddleware(argv: any) {
-    const level: LogLevel = argv.logLevel ?? (argv.debug || argv.verbose ? "debug" : "info");
+    const level: LogLevel = argv.logLevel ?? (argv.debug || argv.verbose ? "DEBUG" : "INFO");
     cliLogger.setLevel(level);
 }
 
@@ -55,8 +55,8 @@ export function createCLI() {
         .option("log-level", {
             alias: "l",
             type: "string",
-            choices: ["debug", "info", "warn", "error", "silent"] as const,
-            description: "Set the log level (default: info)",
+            choices: ["DEBUG", "INFO", "WARN", "ERROR", "SILENT"] as const,
+            description: "Set the log level (default: INFO)",
             global: true,
         })
         .demandCommand(0) // Allow 0 commands so we can handle it ourselves

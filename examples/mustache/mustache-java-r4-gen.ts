@@ -4,7 +4,7 @@ if (require.main === module) {
     console.log("📦 Generating FHIR R4 Core Types...");
 
     const builder = new APIBuilder()
-        .setLogLevel("debug")
+        .setLogLevel("DEBUG")
         .throwException()
         .fromPackage("hl7.fhir.r4.core", "4.0.1")
         .outputTo("./examples/mustache/mustache-java-r4-output")

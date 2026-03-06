@@ -137,7 +137,7 @@ export class APIBuilder {
             treeShake: undefined,
             promoteLogical: undefined,
             registry: undefined,
-            logLevel: "info",
+            logLevel: "INFO",
             dropCanonicalManagerCache: false,
         };
         const opts: APIBuilderOptions = {

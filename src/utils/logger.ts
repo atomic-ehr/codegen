@@ -4,7 +4,7 @@ type TagsOf<L> = L extends Logger<infer T> ? T : never;
 
 export type ExtendLogger<Extra extends string, Parent extends Logger<any>> = Logger<TagsOf<Parent> | Extra>;
 
-export type LogLevel = "INFO" | "WARN" | "ERROR" | "DEBUG" | "SILENT" | "info" | "warn" | "error" | "debug" | "silent";
+export type LogLevel = "DEBUG" | "INFO" | "WARN" | "ERROR" | "SILENT";
 
 export type LogEntry<T extends string = string> = {
     level: LogLevel;
@@ -42,10 +42,7 @@ export type Logger<T extends string = string> = {
     bufferClear(): void;
 };
 
-type UpperLogLevel = "DEBUG" | "INFO" | "WARN" | "ERROR" | "SILENT";
-const normalizeLevel = (level: LogLevel): UpperLogLevel => level.toUpperCase() as UpperLogLevel;
-
-const LEVEL_PRIORITY: Record<UpperLogLevel, number> = { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, SILENT: 4 };
+const LEVEL_PRIORITY: Record<LogLevel, number> = { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, SILENT: 4 };
 
 export function mkLogger<T extends string>(opts: LoggerOptions<T> = {}): Logger<T> {
     const prefix = opts.prefix ?? "";
@@ -53,12 +50,11 @@ export function mkLogger<T extends string>(opts: LoggerOptions<T> = {}): Logger<
     const tagCounts: Record<string, number> = {};
     const entries: LogEntry<T>[] = [];
     const drySet = new Set<string>();
-    let currentLevel: LogLevel = opts.level ?? "info";
+    let currentLevel: LogLevel = opts.level ?? "INFO";
 
-    const shouldLog = (level: LogLevel): boolean =>
-        LEVEL_PRIORITY[normalizeLevel(level)] >= LEVEL_PRIORITY[normalizeLevel(currentLevel)];
+    const shouldLog = (level: LogLevel): boolean => LEVEL_PRIORITY[level] >= LEVEL_PRIORITY[currentLevel];
 
-    const colorize: Record<UpperLogLevel, (s: string) => string> = {
+    const colorize: Record<LogLevel, (s: string) => string> = {
         DEBUG: (s) => s,
         INFO: (s) => s,
         WARN: pc.yellow,
@@ -69,7 +65,7 @@ export function mkLogger<T extends string>(opts: LoggerOptions<T> = {}): Logger<
     const fmt = (level: LogLevel, icon: string, msg: string, tag?: string) => {
         const pfx = prefix ? `[${prefix}] ` : "";
         const tagStr = tag ? `[${tag}] ` : "";
-        return colorize[normalizeLevel(level)](`${icon} ${pfx}${tagStr}${msg}`);
+        return colorize[level](`${icon} ${pfx}${tagStr}${msg}`);
     };
 
     const pushEntry = (level: LogLevel, msg: string, tag?: T, suppressed = false) => {
@@ -100,11 +96,11 @@ export function mkLogger<T extends string>(opts: LoggerOptions<T> = {}): Logger<
     };
 
     const logger: Logger<T> = {
-        warn: mkLogFn("warn", "!", console.warn),
-        dryWarn: mkLogFn("warn", "!", console.warn, true),
-        info: mkLogFn("info", "i", console.log),
-        error: mkLogFn("error", "X", console.error),
-        debug: mkLogFn("debug", "D", console.log),
+        warn: mkLogFn("WARN", "!", console.warn),
+        dryWarn: mkLogFn("WARN", "!", console.warn, true),
+        info: mkLogFn("INFO", "i", console.log),
+        error: mkLogFn("ERROR", "X", console.error),
+        debug: mkLogFn("DEBUG", "D", console.log),
 
         fork<C extends string = T>(childPrefix: string, childOpts?: Partial<LoggerOptions<C>>): Logger<C> {
             const fullPrefix = prefix ? `${prefix}:${childPrefix}` : childPrefix;

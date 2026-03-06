@@ -6,7 +6,7 @@ import { ccdaManager, r4Manager } from "@typeschema-test/utils";
 
 describe("TypeScript Writer Generator", async () => {
     const result = await new APIBuilder({ register: r4Manager })
-        .setLogLevel("error")
+        .setLogLevel("ERROR")
         .typescript({
             inMemoryOnly: true,
         })
@@ -30,7 +30,7 @@ describe("TypeScript Writer Generator", async () => {
 
 describe("TypeScript CDA with Logical Model Promotion to Resource", async () => {
     const result = await new APIBuilder({ register: ccdaManager })
-        .setLogLevel("error")
+        .setLogLevel("ERROR")
         .typeSchema({
             promoteLogical: {
                 "hl7.cda.uv.core": ["http://hl7.org/cda/stds/core/StructureDefinition/Material" as CanonicalUrl],
@@ -52,7 +52,7 @@ describe("TypeScript CDA with Logical Model Promotion to Resource", async () => 
 });
 
 describe("TypeScript R4 Example (with generateProfile)", async () => {
-    const logger = mkLogger({ level: "error" });
+    const logger = mkLogger({ level: "ERROR" });
 
     const result = await new APIBuilder({ register: r4Manager, logger })
         .typescript({
@@ -70,7 +70,7 @@ describe("TypeScript R4 Example (with generateProfile)", async () => {
     it("file rewrite warnings", () => {
         const rewriteWarnings = logger
             .buffer()
-            .filter((e) => e.level === "warn" && e.message.includes("File will be rewritten"))
+            .filter((e) => e.level === "WARN" && e.message.includes("File will be rewritten"))
             .map((e) => e.message);
         expect(rewriteWarnings).toMatchSnapshot();
     });
