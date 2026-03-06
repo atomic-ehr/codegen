@@ -10,6 +10,7 @@
 
 - [Atomic EHR Codegen](#atomic-ehr-codegen)
   - [Features](#features)
+  - [Guides](#guides)
   - [Versions & Release Cycle](#versions--release-cycle)
   - [Installation](#installation)
   - [Quick Start](#quick-start)
@@ -20,23 +21,16 @@
     - [Intermediate - Type Schema](#intermediate---type-schema)
       - [Tree Shaking](#tree-shaking)
         - [Field-Level Tree Shaking](#field-level-tree-shaking)
+      - [Logical Model Promotion](#logical-model-promotion)
     - [Generation](#generation)
       - [1. Writer-Based Generation (Programmatic)](#1-writer-based-generation-programmatic)
       - [2. Mustache Template-Based Generation (Declarative)](#2-mustache-template-based-generation-declarative)
+    - [Profile Classes](#profile-classes)
   - [Support](#support)
-- [Footnotes](#footnotes)
 
 <!-- markdown-toc end -->
 
 A powerful, extensible code generation toolkit for FHIR ([Fast Healthcare Interoperability Resources](https://www.hl7.org/fhir/)) that transforms FHIR specifications into strongly-typed code for multiple programming languages.
-
-Guides:
-
-- **[Writer Generator Guide](docs/guides/writer-generator.md)** - Build custom code generators with the Writer base class
-- **[Mustache Generator Guide](docs/guides/mustache-generator.md)** - Template-based code generation for any language
-- **[TypeSchemaIndex Guide](docs/guides/typeschema-index.md)** - Type Schema structure and utilities
-- **[Testing Generators Guide](docs/guides/testing-generators.md)** - Unit tests, snapshot testing, and best practices
-- **[Contributing Guide](CONTRIBUTING.md)** - Development setup and workflow
 
 ## Features
 
@@ -44,7 +38,7 @@ Guides:
   - Tested with hl7.fhir.r4.core, US Core, C-CDA, SQL on FHIR, etc.
 - [x] **Resources & Complex Types** — Generates typed definitions with proper inheritance
 - [x] **Value Set Bindings** — Strongly-typed enums from FHIR terminology bindings
-- [x] **Profiles & Extensions** — Factory methods with auto-populated fixed values and required slices ([R4 profiles](examples/typescript-r4/profile-bp.test.ts), [US Core](examples/typescript-us-core/))
+- [x] **Profiles** — Factory methods with auto-populated fixed values and required slices ([R4 profiles](examples/typescript-r4/profile-bp.test.ts), [US Core](examples/typescript-us-core/))
   - Extensions — flat typed accessors (e.g. `setRace()` on US Core Patient), [standalone extension profiles](examples/typescript-r4/extension-profile.test.ts)
   - Slicing — typed get/set accessors with discriminator matching
   - Validation — runtime `validate()` for required fields, fixed values, slice cardinality, enums, references
@@ -52,20 +46,27 @@ Guides:
   - TypeSchema is a universal intermediate representation — add a new language by writing only the final generation stage
   - Built-in generators: TypeScript, Python/Pydantic, C#, and Mustache templates
 - [x] **TypeSchema Transformations**:
-  - [x] Tree Shaking — include only the resources and fields you need; automatically resolves dependencies
-  - [x] Logical Model Promotion — promote FHIR logical models (e.g. CDA ClinicalDocument) to first-class resources
-  - [ ] Renaming — custom naming conventions for generated types, fields, packages, etc.
+  - [x] **Tree Shaking** — include only the resources and fields you need; automatically resolves dependencies
+  - [x] **Logical Model Promotion** — promote FHIR logical models to first-class resources
+  - [ ] Renaming — custom naming conventions for generated types and fields
 - [ ] **Search Builders** — type-safe FHIR search query construction
 - [ ] **Operation Generation** — type-safe FHIR operation calls
 
-| Feature | TypeSchema | TypeScript | Python | C# | Mustache |
-|---|---|---|---|---|---|
-| Resources & Complex Types | yes | yes | yes | yes | template |
-| Value Set Bindings | yes | inline | inline | enum | template |
-| Profiles & Extensions | yes | yes | no | no | no |
-| Tree Shaking | yes | 〃 | 〃 | 〃 | 〃 |
-| Logical Model Promotion | yes | 〃 | 〃 | 〃 | 〃 |
+| Feature                   | TypeScript | Python  | C#   | Mustache |
+|---------------------------|------------|---------|------|----------|
+| Resources & Complex Types | yes        | yes     | yes  | template |
+| Value Set Bindings        | inline     | limited | enum | template |
+| Primitive Extensions      | yes        | no      | no   | no       |
+| Profiles                  | yes        | no      | no   | no       |
+| Profile Validation        | yes        | no      | no   | no       |
 
+## Guides
+
+- **[Writer Generator Guide](docs/guides/writer-generator.md)** - Build custom code generators with the Writer base class
+- **[Mustache Generator Guide](docs/guides/mustache-generator.md)** - Template-based code generation for any language
+- **[TypeSchemaIndex Guide](docs/guides/typeschema-index.md)** - Type Schema structure and utilities
+- **[Testing Generators Guide](docs/guides/testing-generators.md)** - Unit tests, snapshot testing, and best practices
+- **[Contributing Guide](CONTRIBUTING.md)** - Development setup and workflow
 
 ## Versions & Release Cycle
 
@@ -204,7 +205,7 @@ Use the new `localPackage` helper to point the builder at an on-disk FHIR packag
 .localTgzPackage("./packages/my-custom-ig.tgz")
 ```
 
-The example above points Canonical Manager at `./custom-profiles`, installs the HL7 R4 core dependency automatically, and then limits generation to the custom `ExampleNotebook` logical model plus the standard R4 `Patient` resource via tree shaking. The `localTgzPackage` helper registers `.tgz` artifacts that Canonical Manager already knows how to unpack.
+The example above points Canonical Manager at `./custom-profiles` and installs the HL7 R4 core dependency automatically. The `localTgzPackage` helper registers `.tgz` artifacts that Canonical Manager already knows how to unpack.
 
 ### Intermediate - Type Schema
 
@@ -263,7 +264,7 @@ Beyond resource-level filtering, tree shaking supports fine-grained field select
 
 FHIR choice types (like `multipleBirth[x]` which can be boolean or integer) are handled intelligently. Selecting/ignoring the base field affects all variants, while targeting specific variants only affects those types.
 
-##### Logical Promotion
+#### Logical Model Promotion
 
 Some implementation guides expose logical models (logical-kind StructureDefinitions) that are intended to be used like resources in generated SDKs. The code generator supports promoting selected logical models to behave as resources during generation.
 
@@ -291,9 +292,7 @@ For languages with built-in support (TypeScript, Python, C#), extend the `Writer
 
 - **FileSystemWriter**: Base class providing file I/O, directory management, and buffer handling (both disk and in-memory modes)
 - **Writer**: Extends FileSystemWriter with code formatting utilities (indentation, blocks, comments, line management)
-- **Language Writers** (`TypeScript`, `Python`[^py], `CSharp`): Implement language-specific generation logic by traversing TypeSchema index and generating corresponding types, interfaces, or classes
-
-[^py]: For details on [Type Schema: Python SDK for FHIR](https://www.health-samurai.io/articles/type-schema-python-sdk-for-fhir)
+- **Language Writers** (`TypeScript`, `Python`, `CSharp`): Implement language-specific generation logic by traversing TypeSchema index and generating corresponding types, interfaces, or classes (see also: [Type Schema: Python SDK for FHIR](https://www.health-samurai.io/articles/type-schema-python-sdk-for-fhir))
 
 Each language writer maintains full control over output formatting while leveraging high-level abstractions for common code patterns. Writers follow language idioms and best practices, with optimized output for production use.
 
@@ -373,8 +372,8 @@ See [examples/typescript-r4/](examples/typescript-r4/) for R4 profile tests and 
 
 ## Support
 
-- 🐛 [Issue Tracker](https://github.com/atomic-ehr/codegen/issues)
+- [Issue Tracker](https://github.com/atomic-ehr/codegen/issues)
 
 ---
 
-Built with ❤️ by the Atomic Healthcare team
+Built by the Atomic Healthcare team
