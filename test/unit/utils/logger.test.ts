@@ -67,14 +67,14 @@ describe("makeLogger", () => {
             logger.warn("TAG_A", "one");
             logger.warn("TAG_A", "two");
             logger.info("TAG_B", "three");
-            expect(logger.tagCounts().get("TAG_A")).toBe(2);
-            expect(logger.tagCounts().get("TAG_B")).toBe(1);
-            expect(logger.tagCounts().has("TAG_C")).toBe(false);
+            expect(logger.tagCounts()["TAG_A"]).toBe(2);
+            expect(logger.tagCounts()["TAG_B"]).toBe(1);
+            expect(logger.tagCounts()["TAG_C"]).toBeUndefined();
         });
 
         it("does not increment tag counts for untagged messages", () => {
             logger.info("no tag");
-            expect(logger.tagCounts().size).toBe(0);
+            expect(Object.keys(logger.tagCounts())).toHaveLength(0);
         });
     });
 
@@ -93,7 +93,7 @@ describe("makeLogger", () => {
             const l = makeLogger<TestTags>({ suppressTags: ["TAG_A"] });
             l.warn("TAG_A", "one");
             l.warn("TAG_A", "two");
-            expect(l.tagCounts().get("TAG_A")).toBe(2);
+            expect(l.tagCounts()["TAG_A"]).toBe(2);
         });
 
         it("suppress() adds tags at runtime", () => {
@@ -116,7 +116,7 @@ describe("makeLogger", () => {
             // but only 1 was not suppressed (the first), the rest are deduped at console level
             // all are marked suppressed=false since TAG_A is not in suppressTags
             expect(bufferFilter(logger, { suppressed: false })).toHaveLength(3);
-            expect(logger.tagCounts().get("TAG_A")).toBe(3);
+            expect(logger.tagCounts()["TAG_A"]).toBe(3);
         });
 
         it("different messages are not deduped", () => {
@@ -185,8 +185,8 @@ describe("makeLogger", () => {
             logger.warn("TAG_A", "parent");
             child.warn("TAG_A", "child");
             child.warn("TAG_A", "child2");
-            expect(logger.tagCounts().get("TAG_A")).toBe(1);
-            expect(child.tagCounts().get("TAG_A")).toBe(2);
+            expect(logger.tagCounts()["TAG_A"]).toBe(1);
+            expect(child.tagCounts()["TAG_A"]).toBe(2);
         });
 
         it("narrows tag set on fork", () => {
@@ -349,7 +349,7 @@ describe("makeLogger", () => {
         it("does not reset tag counts", () => {
             logger.warn("TAG_A", "msg");
             logger.bufferClear();
-            expect(logger.tagCounts().get("TAG_A")).toBe(1);
+            expect(logger.tagCounts()["TAG_A"]).toBe(1);
         });
     });
 
