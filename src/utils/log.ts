@@ -1,11 +1,5 @@
 import pc from "picocolors";
 
-type TagsOf<L> = L extends LogManager<infer T> ? T : never;
-
-export type ExtendLogManager<Extra extends string, Parent extends LogManager<any>> = LogManager<
-    TagsOf<Parent> | Extra
->;
-
 export type LogLevel = "DEBUG" | "INFO" | "WARN" | "ERROR" | "SILENT";
 
 export type LogEntry<T extends string = string> = {
@@ -16,14 +10,6 @@ export type LogEntry<T extends string = string> = {
     prefix: string;
     timestamp: number;
 };
-
-export type LoggerOptions<T extends string> = {
-    prefix?: string;
-    suppressTags?: T[];
-    level?: LogLevel;
-};
-
-export type TaggedLogFn<T extends string> = (...args: [string] | [T, string]) => void;
 
 export type Log<T extends string = string> = {
     warn: TaggedLogFn<T>;
@@ -44,6 +30,20 @@ export type LogManager<T extends string = string> = Log<T> & {
 
     buffer(): readonly LogEntry<T>[];
     bufferClear(): void;
+};
+
+type TagsOf<L> = L extends LogManager<infer T> ? T : never;
+
+export type ExtendLogManager<Extra extends string, Parent extends LogManager<any>> = LogManager<
+    TagsOf<Parent> | Extra
+>;
+
+type TaggedLogFn<T extends string> = (...args: [string] | [T, string]) => void;
+
+type LoggerOptions<T extends string> = {
+    prefix?: string;
+    suppressTags?: T[];
+    level?: LogLevel;
 };
 
 const LEVEL_PRIORITY: Record<LogLevel, number> = { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, SILENT: 4 };
