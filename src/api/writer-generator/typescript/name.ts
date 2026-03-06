@@ -99,6 +99,8 @@ export const tsExtensionInputTypeName = (profileName: string, extensionName: str
     return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(extensionName))}Input`;
 };
 
+export const tsSliceStaticName = (name: string): string => name.replace(/\[x\]/g, "").replace(/[^a-zA-Z0-9_$]/g, "_");
+
 export const tsSliceMethodName = (sliceName: string): string => {
     return `set${uppercaseFirstLetter(normalizeTsName(sliceName) || "Slice")}`;
 };

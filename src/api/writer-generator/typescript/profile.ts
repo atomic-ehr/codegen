@@ -34,11 +34,10 @@ import {
     tsResourceName,
     tsSliceInputTypeName,
     tsSliceMethodName,
+    tsSliceStaticName,
 } from "./name";
 import { resolveFieldTsType, resolvePrimitiveType, tsEnumType, tsGet, tsTypeFromIdentifier } from "./utils";
 import type { TypeScript } from "./writer";
-
-const tsSliceStaticName = (name: string): string => name.replace(/\[x\]/g, "").replace(/[^a-zA-Z0-9_$]/g, "_");
 
 type ProfileFactoryInfo = {
     autoFields: { name: string; value: string }[];
@@ -277,25 +276,14 @@ const generateProfileHelpersImport = (
     },
 ) => {
     const imports: string[] = [];
-    if (options.needsRegisterProfile) {
-        imports.push("ensureProfile");
-    }
-    if (options.needsSliceHelpers) {
+    if (options.needsRegisterProfile) imports.push("ensureProfile");
+    if (options.needsSliceHelpers)
         imports.push("applySliceMatch", "matchesValue", "setArraySlice", "getArraySlice", "ensureSliceDefaults");
-    }
-    if (options.needsGetOrCreateObjectAtPath) {
-        imports.push("ensurePath");
-    }
-    if (options.needsExtensionExtraction) {
-        imports.push("extractComplexExtension");
-    }
-    if (options.needsSliceExtraction) {
-        imports.push("stripMatchKeys");
-    }
-    if (options.needsSliceChoiceHelpers) {
-        imports.push("wrapSliceChoice", "unwrapSliceChoice");
-    }
-    if (options.needsValidation) {
+    if (options.needsGetOrCreateObjectAtPath) imports.push("ensurePath");
+    if (options.needsExtensionExtraction) imports.push("extractComplexExtension");
+    if (options.needsSliceExtraction) imports.push("stripMatchKeys");
+    if (options.needsSliceChoiceHelpers) imports.push("wrapSliceChoice", "unwrapSliceChoice");
+    if (options.needsValidation)
         imports.push(
             "validateRequired",
             "validateExcluded",
@@ -305,10 +293,7 @@ const generateProfileHelpersImport = (
             "validateReference",
             "validateChoiceRequired",
         );
-    }
-    if (imports.length > 0) {
-        w.lineSM(`import { ${imports.join(", ")} } from "../../profile-helpers"`);
-    }
+    if (imports.length > 0) w.lineSM(`import { ${imports.join(", ")} } from "../../profile-helpers"`);
 };
 
 const collectTypesFromSlices = (
@@ -1017,25 +1002,20 @@ const collectRegularFieldValidation = (
         return;
     }
 
-    if (field.required) {
-        exprs.push(`...validateRequired(res, profileName, ${JSON.stringify(name)})`);
-    }
+    if (field.required) exprs.push(`...validateRequired(res, profileName, ${JSON.stringify(name)})`);
 
-    if (field.valueConstraint) {
+    if (field.valueConstraint)
         exprs.push(
             `...validateFixedValue(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(field.valueConstraint.value)})`,
         );
-    }
 
-    if (field.enum && !field.enum.isOpen) {
+    if (field.enum && !field.enum.isOpen)
         exprs.push(`...validateEnum(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(field.enum.values)})`);
-    }
 
-    if (field.reference && field.reference.length > 0) {
+    if (field.reference && field.reference.length > 0)
         exprs.push(
             `...validateReference(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(field.reference.map((ref) => resolveRef(ref).name))})`,
         );
-    }
 
     if (field.slicing?.slices) {
         for (const [sliceName, slice] of Object.entries(field.slicing.slices)) {
