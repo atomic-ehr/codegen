@@ -8,7 +8,7 @@
 
 import { header } from "@root/utils/cli-fmt";
 import type { LogLevel } from "@root/utils/logger";
-import { makeLogger } from "@root/utils/logger";
+import { mkLogger } from "@root/utils/logger";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { typeschemaCommand } from "./typeschema";
@@ -22,7 +22,7 @@ export interface CLIArgv {
     logLevel?: "debug" | "info" | "warn" | "error" | "silent";
 }
 
-const cliLogger = makeLogger({ prefix: "cli" });
+const cliLogger = mkLogger({ prefix: "cli" });
 
 async function setupLoggingMiddleware(argv: any) {
     const level: LogLevel = argv.logLevel ?? (argv.debug || argv.verbose ? "debug" : "info");

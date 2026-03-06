@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { APIBuilder } from "@root/api/builder";
 import type { CanonicalUrl } from "@root/typeschema/types";
-import { makeLogger } from "@root/utils/logger";
+import { mkLogger } from "@root/utils/logger";
 import { ccdaManager, r4Manager } from "@typeschema-test/utils";
 
 describe("TypeScript Writer Generator", async () => {
@@ -52,7 +52,7 @@ describe("TypeScript CDA with Logical Model Promotion to Resource", async () => 
 });
 
 describe("TypeScript R4 Example (with generateProfile)", async () => {
-    const logger = makeLogger({ level: "error" });
+    const logger = mkLogger({ level: "error" });
 
     const result = await new APIBuilder({ register: r4Manager, logger })
         .typescript({

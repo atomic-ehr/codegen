@@ -23,7 +23,7 @@ import type { IrConf, LogicalPromotionConf, TreeShakeConf } from "@root/typesche
 import { type Register, registerFromManager } from "@root/typeschema/register";
 import { type PackageMeta, packageMetaToNpm } from "@root/typeschema/types";
 import { mkTypeSchemaIndex, type TypeSchemaIndex } from "@root/typeschema/utils";
-import { type Logger, type LogLevel, makeLogger } from "@root/utils/logger";
+import { type Logger, type LogLevel, mkLogger } from "@root/utils/logger";
 import { IntrospectionWriter, type IntrospectionWriterOptions } from "./writer-generator/introspection";
 import { IrReportWriterWriter, type IrReportWriterWriterOptions } from "./writer-generator/ir-report";
 import type { FileBasedMustacheGeneratorOptions } from "./writer-generator/mustache";
@@ -173,7 +173,7 @@ export class APIBuilder {
                 dropCache: userOpts.dropCanonicalManagerCache,
                 preprocessPackage: userOpts.preprocessPackage,
             });
-        this.logger = userOpts.logger ?? makeLogger({ prefix: "API", level: opts.logLevel });
+        this.logger = userOpts.logger ?? mkLogger({ prefix: "API", level: opts.logLevel });
         this.options = opts;
     }
 
