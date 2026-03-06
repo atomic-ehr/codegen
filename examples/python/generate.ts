@@ -1,8 +1,14 @@
 import { APIBuilder, prettyReport } from "../../src";
+import { type LogManager, mkLogger } from "../../src/utils/log";
 
 console.log("📦 Generating FHIR R4 Core Types...");
 
-const builder = new APIBuilder()
+const logger: LogManager = mkLogger({
+    prefix: "API",
+    suppressTags: ["FIELD_TYPE_NOT_FOUND", "LARGE_VALUESET"],
+});
+
+const builder = new APIBuilder({ logger })
     .throwException()
     .fromPackage("hl7.fhir.r4.core", "4.0.1")
     .python({

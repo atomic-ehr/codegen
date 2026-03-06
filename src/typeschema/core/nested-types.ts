@@ -6,7 +6,7 @@
 
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import { mergeFsElementProps, type Register, resolveFsElementGenealogy } from "@root/typeschema/register";
-import type { CodegenLogger } from "@root/utils/codegen-logger";
+import type { Log } from "@root/utils/log";
 import type { CanonicalUrl, Field, Identifier, Name, NestedIdentifier, NestedType, RichFHIRSchema } from "../types";
 import { mkField, mkNestedField } from "./field-builder";
 
@@ -114,7 +114,7 @@ function transformNestedElements(
     fhirSchema: RichFHIRSchema,
     parentPath: string[],
     elements: Record<string, FHIRSchemaElement>,
-    logger?: CodegenLogger,
+    logger?: Log,
 ): Record<string, Field> {
     const fields: Record<string, Field> = {};
 
@@ -148,7 +148,7 @@ function transformNestedElements(
 export function mkNestedTypes(
     register: Register,
     fhirSchema: RichFHIRSchema,
-    logger?: CodegenLogger,
+    logger?: Log,
 ): NestedType[] | undefined {
     if (!fhirSchema.elements) return undefined;
 

@@ -1,24 +1,12 @@
 import { describe, expect, it } from "bun:test";
 import { APIBuilder } from "@root/api/builder";
 import type { CanonicalUrl } from "@root/typeschema/types";
-import { CodegenLogger, LogLevel } from "@root/utils/codegen-logger";
+import { mkLogger } from "@root/utils/log";
 import { ccdaManager, r4Manager } from "@typeschema-test/utils";
-
-/** Creates a logger that captures all warnings for testing */
-const createCapturingLogger = () => {
-    const warnings: string[] = [];
-    const logger = new CodegenLogger({ level: LogLevel.WARN });
-    const originalWarn = logger.warn.bind(logger);
-    logger.warn = (message: string) => {
-        warnings.push(message);
-        originalWarn(message);
-    };
-    return { logger, warnings };
-};
 
 describe("TypeScript Writer Generator", async () => {
     const result = await new APIBuilder({ register: r4Manager })
-        .setLogLevel("SILENT")
+        .setLogLevel("ERROR")
         .typescript({
             inMemoryOnly: true,
         })
@@ -42,7 +30,7 @@ describe("TypeScript Writer Generator", async () => {
 
 describe("TypeScript CDA with Logical Model Promotion to Resource", async () => {
     const result = await new APIBuilder({ register: ccdaManager })
-        .setLogLevel("SILENT")
+        .setLogLevel("ERROR")
         .typeSchema({
             promoteLogical: {
                 "hl7.cda.uv.core": ["http://hl7.org/cda/stds/core/StructureDefinition/Material" as CanonicalUrl],
@@ -64,10 +52,9 @@ describe("TypeScript CDA with Logical Model Promotion to Resource", async () => 
 });
 
 describe("TypeScript R4 Example (with generateProfile)", async () => {
-    const { logger, warnings } = createCapturingLogger();
+    const logger = mkLogger({ level: "ERROR" });
 
     const result = await new APIBuilder({ register: r4Manager, logger })
-        .setLogLevel("SILENT")
         .typescript({
             inMemoryOnly: true,
             withDebugComment: false,
@@ -80,8 +67,11 @@ describe("TypeScript R4 Example (with generateProfile)", async () => {
         expect(result.success).toBeTrue();
     });
 
-    it("file rewrite warnings match expected collisions", () => {
-        const rewriteWarnings = warnings.filter((w) => w.includes("File will be rewritten"));
+    it("file rewrite warnings", () => {
+        const rewriteWarnings = logger
+            .buffer()
+            .filter((e) => e.level === "WARN" && e.message.includes("File will be rewritten"))
+            .map((e) => e.message);
         expect(rewriteWarnings).toMatchSnapshot();
     });
 
