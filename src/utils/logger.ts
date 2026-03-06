@@ -4,7 +4,7 @@ type TagsOf<L> = L extends Logger<infer T> ? T : never;
 
 export type ExtendLogger<Extra extends string, Parent extends Logger<any>> = Logger<TagsOf<Parent> | Extra>;
 
-export type LogLevel = "info" | "warn" | "error" | "debug" | "silent";
+export type LogLevel = "INFO" | "WARN" | "ERROR" | "DEBUG" | "SILENT" | "info" | "warn" | "error" | "debug" | "silent";
 
 export type LogEntry<T extends string = string> = {
     level: LogLevel;
@@ -45,7 +45,10 @@ export type Logger<T extends string = string> = {
     bufferClear(): void;
 };
 
-const LEVEL_PRIORITY: Record<LogLevel, number> = { debug: 0, info: 1, warn: 2, error: 3, silent: 4 };
+type UpperLogLevel = "DEBUG" | "INFO" | "WARN" | "ERROR" | "SILENT";
+const normalizeLevel = (level: LogLevel): UpperLogLevel => level.toUpperCase() as UpperLogLevel;
+
+const LEVEL_PRIORITY: Record<UpperLogLevel, number> = { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, SILENT: 4 };
 
 export function makeLogger<T extends string>(opts: LoggerOptions<T> = {}): Logger<T> {
     const prefix = opts.prefix ?? "";
@@ -55,20 +58,21 @@ export function makeLogger<T extends string>(opts: LoggerOptions<T> = {}): Logge
     const drySet = new Set<string>();
     let currentLevel: LogLevel = opts.level ?? "info";
 
-    const shouldLog = (level: LogLevel): boolean => LEVEL_PRIORITY[level] >= LEVEL_PRIORITY[currentLevel];
+    const shouldLog = (level: LogLevel): boolean =>
+        LEVEL_PRIORITY[normalizeLevel(level)] >= LEVEL_PRIORITY[normalizeLevel(currentLevel)];
 
-    const colorize: Record<LogLevel, (s: string) => string> = {
-        debug: (s) => s,
-        info: (s) => s,
-        warn: pc.yellow,
-        error: pc.red,
-        silent: (s) => s,
+    const colorize: Record<UpperLogLevel, (s: string) => string> = {
+        DEBUG: (s) => s,
+        INFO: (s) => s,
+        WARN: pc.yellow,
+        ERROR: pc.red,
+        SILENT: (s) => s,
     };
 
     const fmt = (level: LogLevel, icon: string, msg: string, tag?: string) => {
         const pfx = prefix ? `[${prefix}] ` : "";
         const tagStr = tag ? `[${tag}] ` : "";
-        return colorize[level](`${icon} ${pfx}${tagStr}${msg}`);
+        return colorize[normalizeLevel(level)](`${icon} ${pfx}${tagStr}${msg}`);
     };
 
     const pushEntry = (level: LogLevel, msg: string, tag?: T, suppressed = false) => {
