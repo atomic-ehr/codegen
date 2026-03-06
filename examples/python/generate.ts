@@ -1,9 +1,9 @@
 import { APIBuilder, prettyReport } from "../../src";
-import { type Logger, mkLogger } from "../../src/utils/logger";
+import { type LogManager, mkLogger } from "../../src/utils/log";
 
 console.log("📦 Generating FHIR R4 Core Types...");
 
-const logger: Logger = mkLogger({
+const logger: LogManager = mkLogger({
     prefix: "API",
     suppressTags: ["FIELD_TYPE_NOT_FOUND", "LARGE_VALUESET"],
 });

@@ -7,7 +7,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { complete, list } from "@root/utils/cli-fmt";
-import { mkLogger } from "@root/utils/logger";
+import { mkLogger } from "@root/utils/log";
 import { generateTypeSchemas } from "@typeschema/index";
 import { registerFromPackageMetas } from "@typeschema/register";
 import type { PackageMeta } from "@typeschema/types";

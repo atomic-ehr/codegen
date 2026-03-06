@@ -7,7 +7,7 @@ import {
     type StructureDefinition,
 } from "@atomic-ehr/fhirschema";
 import { type CodeSystem, isCodeSystem, isValueSet, type ValueSet } from "@root/fhir-types/hl7-fhir-r4-core";
-import type { Logger } from "@root/utils/logger";
+import type { Log } from "@root/utils/log";
 import type {
     CanonicalUrl,
     Name,
@@ -86,7 +86,7 @@ const mkPackageAwareResolver = async (
     pkg: PackageMeta,
     deep: number,
     acc: PackageAwareResolver,
-    logger?: Logger,
+    logger?: Log,
 ): Promise<PackageIndex> => {
     const pkgId = packageMetaToFhir(pkg);
     logger?.info(`${" ".repeat(deep * 2)}+ ${pkgId}`);
@@ -119,7 +119,7 @@ const mkPackageAwareResolver = async (
     return index;
 };
 
-const enrichResolver = (resolver: PackageAwareResolver, logger?: Logger) => {
+const enrichResolver = (resolver: PackageAwareResolver, logger?: Log) => {
     for (const { pkg, canonicalResolution } of Object.values(resolver)) {
         const pkgId = packageMetaToFhir(pkg);
         if (!resolver[pkgId]) throw new Error(`Package ${pkgId} not found`);
@@ -145,7 +145,7 @@ const enrichResolver = (resolver: PackageAwareResolver, logger?: Logger) => {
     }
 };
 
-const packageAgnosticResolveCanonical = (resolver: PackageAwareResolver, url: CanonicalUrl, _logger?: Logger) => {
+const packageAgnosticResolveCanonical = (resolver: PackageAwareResolver, url: CanonicalUrl, _logger?: Log) => {
     const options = Object.values(resolver).flatMap((pkg) => pkg.canonicalResolution[url]);
     if (!options) throw new Error(`No canonical resolution found for ${url} in any package`);
     // if (options.length > 1)
@@ -160,7 +160,7 @@ const packageAgnosticResolveCanonical = (resolver: PackageAwareResolver, url: Ca
 };
 
 export type RegisterConfig = {
-    logger?: Logger;
+    logger?: Log;
     focusedPackages?: PackageMeta[];
     /** Custom FHIR package registry URL */
     registry?: string;

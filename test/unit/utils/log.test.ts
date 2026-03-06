@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-import { type ExtendLogger, type LogEntry, type Logger, mkLogger } from "@root/utils/logger";
+import { type ExtendLogManager, type LogEntry, type LogManager, mkLogger } from "@root/utils/log";
 
 type BufferFilter<T extends string> = { level?: string; tag?: T; suppressed?: boolean };
 
-const bufferFilter = <T extends string>(logger: Logger<T>, filter: BufferFilter<T>): LogEntry<T>[] =>
+const bufferFilter = <T extends string>(logger: LogManager<T>, filter: BufferFilter<T>): LogEntry<T>[] =>
     logger.buffer().filter((e) => {
         if (filter.level !== undefined && e.level !== filter.level) return false;
         if (filter.tag !== undefined && e.tag !== filter.tag) return false;
@@ -14,7 +14,7 @@ const bufferFilter = <T extends string>(logger: Logger<T>, filter: BufferFilter<
 type TestTags = "TAG_A" | "TAG_B" | "TAG_C";
 
 describe("mkLogger", () => {
-    let logger: Logger<TestTags>;
+    let logger: LogManager<TestTags>;
 
     beforeEach(() => {
         logger = mkLogger<TestTags>({ prefix: "test" });
@@ -234,10 +234,10 @@ describe("mkLogger", () => {
         });
     });
 
-    describe("ExtendLogger (extending)", () => {
+    describe("ExtendLogManager (extending)", () => {
         type BaseTags = "BASE_A" | "BASE_B";
         type ExtraTags = "EXTRA_X" | "EXTRA_Y";
-        type Combined = ExtendLogger<ExtraTags, Logger<BaseTags>>;
+        type Combined = ExtendLogManager<ExtraTags, LogManager<BaseTags>>;
 
         it("extended logger accepts both base and extra tags", () => {
             const l: Combined = mkLogger<BaseTags | ExtraTags>({});

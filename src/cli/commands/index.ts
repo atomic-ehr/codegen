@@ -7,8 +7,8 @@
  */
 
 import { header } from "@root/utils/cli-fmt";
-import type { LogLevel } from "@root/utils/logger";
-import { mkLogger } from "@root/utils/logger";
+import type { LogLevel } from "@root/utils/log";
+import { mkLogger } from "@root/utils/log";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { typeschemaCommand } from "./typeschema";

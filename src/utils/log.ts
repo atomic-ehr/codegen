@@ -1,8 +1,10 @@
 import pc from "picocolors";
 
-type TagsOf<L> = L extends Logger<infer T> ? T : never;
+type TagsOf<L> = L extends LogManager<infer T> ? T : never;
 
-export type ExtendLogger<Extra extends string, Parent extends Logger<any>> = Logger<TagsOf<Parent> | Extra>;
+export type ExtendLogManager<Extra extends string, Parent extends LogManager<any>> = LogManager<
+    TagsOf<Parent> | Extra
+>;
 
 export type LogLevel = "DEBUG" | "INFO" | "WARN" | "ERROR" | "SILENT";
 
@@ -23,15 +25,17 @@ export type LoggerOptions<T extends string> = {
 
 export type TaggedLogFn<T extends string> = (...args: [string] | [T, string]) => void;
 
-export type Logger<T extends string = string> = {
+export type Log<T extends string = string> = {
     warn: TaggedLogFn<T>;
     dryWarn: TaggedLogFn<T>;
     info: TaggedLogFn<T>;
     error: TaggedLogFn<T>;
     debug: TaggedLogFn<T>;
+};
 
-    fork<C extends string = T>(prefix: string, opts?: Partial<LoggerOptions<C>>): Logger<C>;
-    as<Narrower extends string>(): Logger<Narrower>;
+export type LogManager<T extends string = string> = Log<T> & {
+    fork<C extends string = T>(prefix: string, opts?: Partial<LoggerOptions<C>>): LogManager<C>;
+    as<Narrower extends string>(): LogManager<Narrower>;
 
     suppress(...tags: T[]): void;
     setLevel(level: LogLevel): void;
@@ -44,7 +48,7 @@ export type Logger<T extends string = string> = {
 
 const LEVEL_PRIORITY: Record<LogLevel, number> = { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, SILENT: 4 };
 
-export function mkLogger<T extends string>(opts: LoggerOptions<T> = {}): Logger<T> {
+export function mkLogger<T extends string>(opts: LoggerOptions<T> = {}): LogManager<T> {
     const prefix = opts.prefix ?? "";
     const suppressedSet = new Set<string>(opts.suppressTags ?? []);
     const tagCounts: Record<string, number> = {};
@@ -95,14 +99,14 @@ export function mkLogger<T extends string>(opts: LoggerOptions<T> = {}): Logger<
         };
     };
 
-    const logger: Logger<T> = {
+    const logger: LogManager<T> = {
         warn: mkLogFn("WARN", "!", console.warn),
         dryWarn: mkLogFn("WARN", "!", console.warn, true),
         info: mkLogFn("INFO", "i", console.log),
         error: mkLogFn("ERROR", "X", console.error),
         debug: mkLogFn("DEBUG", "D", console.log),
 
-        fork<C extends string = T>(childPrefix: string, childOpts?: Partial<LoggerOptions<C>>): Logger<C> {
+        fork<C extends string = T>(childPrefix: string, childOpts?: Partial<LoggerOptions<C>>): LogManager<C> {
             const fullPrefix = prefix ? `${prefix}:${childPrefix}` : childPrefix;
             const merged = [...suppressedSet, ...(childOpts?.suppressTags ?? [])] as C[];
             return mkLogger<C>({
@@ -112,8 +116,8 @@ export function mkLogger<T extends string>(opts: LoggerOptions<T> = {}): Logger<
             });
         },
 
-        as<Narrower extends string>(): Logger<Narrower> {
-            return logger as unknown as Logger<Narrower>;
+        as<Narrower extends string>(): LogManager<Narrower> {
+            return logger as unknown as LogManager<Narrower>;
         },
 
         suppress(...tags: T[]) {

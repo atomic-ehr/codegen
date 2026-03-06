@@ -10,7 +10,7 @@
  * - Validating TypeSchema documents
  */
 
-import type { Logger } from "@root/utils/logger";
+import type { Log } from "@root/utils/log";
 import { transformFhirSchema, transformValueSet } from "./core/transformer";
 import type { TypeSchemaCollisions } from "./ir/types";
 import type { Register } from "./register";
@@ -33,7 +33,7 @@ type SchemaWithSource = {
     sourceCanonical: CanonicalUrl;
 };
 
-const deduplicateSchemas = (schemasWithSources: SchemaWithSource[], logger?: Logger): GenerateTypeSchemasResult => {
+const deduplicateSchemas = (schemasWithSources: SchemaWithSource[], logger?: Log): GenerateTypeSchemasResult => {
     // key -> hash
     const groups: Record<string, Record<string, { typeSchema: TypeSchema; sources: SchemaWithSource[] }>> = {};
 
@@ -74,7 +74,7 @@ const deduplicateSchemas = (schemasWithSources: SchemaWithSource[], logger?: Log
     return { schemas, collisions };
 };
 
-export const generateTypeSchemas = async (register: Register, logger?: Logger): Promise<GenerateTypeSchemasResult> => {
+export const generateTypeSchemas = async (register: Register, logger?: Log): Promise<GenerateTypeSchemasResult> => {
     const schemasWithSources: { schema: TypeSchema; sourcePackage: PkgName; sourceCanonical: CanonicalUrl }[] = [];
 
     for (const fhirSchema of register.allFs()) {

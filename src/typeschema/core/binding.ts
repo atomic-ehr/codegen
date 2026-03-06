@@ -7,7 +7,7 @@
 import assert from "node:assert";
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { CodeSystem, CodeSystemConcept } from "@root/fhir-types/hl7-fhir-r4-core";
-import type { Logger } from "@root/utils/logger";
+import type { Log } from "@root/utils/log";
 import type { Register } from "@typeschema/register";
 import type {
     BindingTypeSchema,
@@ -24,7 +24,7 @@ export function extractValueSetConceptsByUrl(
     register: Register,
     pkg: PackageMeta,
     valueSetUrl: CanonicalUrl,
-    logger?: Logger,
+    logger?: Log,
 ): Concept[] | undefined {
     const cleanUrl = dropVersionFromUrl(valueSetUrl) || valueSetUrl;
     const valueSet = register.resolveVs(pkg, cleanUrl as CanonicalUrl);
@@ -32,7 +32,7 @@ export function extractValueSetConceptsByUrl(
     return extractValueSetConcepts(register, valueSet, logger);
 }
 
-function extractValueSetConcepts(register: Register, valueSet: RichValueSet, _logger?: Logger): Concept[] | undefined {
+function extractValueSetConcepts(register: Register, valueSet: RichValueSet, _logger?: Log): Concept[] | undefined {
     if (valueSet.expansion?.contains) {
         return valueSet.expansion.contains
             .filter((item) => item.code !== undefined)
@@ -102,7 +102,7 @@ export function buildEnum(
     register: Register,
     fhirSchema: RichFHIRSchema,
     element: FHIRSchemaElement,
-    logger?: Logger,
+    logger?: Log,
 ): EnumDefinition | undefined {
     if (!element.binding) return undefined;
 
@@ -143,7 +143,7 @@ function generateBindingSchema(
     fhirSchema: RichFHIRSchema,
     path: string[],
     element: FHIRSchemaElement,
-    logger?: Logger,
+    logger?: Log,
 ): BindingTypeSchema | undefined {
     if (!element.binding?.valueSet) return undefined;
 
@@ -168,7 +168,7 @@ function generateBindingSchema(
 export function collectBindingSchemas(
     register: Register,
     fhirSchema: RichFHIRSchema,
-    logger?: Logger,
+    logger?: Log,
 ): BindingTypeSchema[] {
     const processedPaths = new Set<string>();
     if (!fhirSchema.elements) return [];

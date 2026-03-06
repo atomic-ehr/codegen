@@ -7,7 +7,7 @@
 
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
-import type { Logger } from "@root/utils/logger";
+import type { Log } from "@root/utils/log";
 import {
     type CanonicalUrl,
     concatIdentifiers,
@@ -24,7 +24,7 @@ const extractExtensionValueTypes = (
     register: Register,
     fhirSchema: RichFHIRSchema,
     extensionUrl: CanonicalUrl,
-    logger?: Logger,
+    logger?: Log,
 ): Identifier[] | undefined => {
     const extensionSchema = register.resolveFs(fhirSchema.package_meta, extensionUrl);
     if (!extensionSchema?.elements) return undefined;
@@ -42,7 +42,7 @@ const extractExtensionValueTypes = (
 const extractLegacySubExtensions = (
     register: Register,
     extensionSchema: RichFHIRSchema,
-    logger?: Logger,
+    logger?: Log,
 ): ExtensionSubField[] => {
     const subExtensions: ExtensionSubField[] = [];
     if (!extensionSchema.elements) return subExtensions;
@@ -114,7 +114,7 @@ const extractSubExtensions = (
     register: Register,
     fhirSchema: RichFHIRSchema,
     extensionUrl: CanonicalUrl,
-    logger?: Logger,
+    logger?: Log,
 ): ExtensionSubField[] | undefined => {
     const extensionSchema = register.resolveFs(fhirSchema.package_meta, extensionUrl);
     if (!extensionSchema?.elements) return undefined;
@@ -129,7 +129,7 @@ const extractSubExtensions = (
 export const extractProfileExtensions = (
     register: Register,
     fhirSchema: RichFHIRSchema,
-    logger?: Logger,
+    logger?: Log,
 ): ProfileExtension[] | undefined => {
     const extensions: ProfileExtension[] = [];
 
