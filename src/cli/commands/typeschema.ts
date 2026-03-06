@@ -4,13 +4,16 @@
  * Commands for validating and managing TypeSchema files
  */
 
-import { error, info, list } from "@root/utils/codegen-logger";
+import { list } from "@root/utils/cli-fmt";
+import { makeLogger } from "@root/utils/logger";
 import type { CommandModule } from "yargs";
 import { generateTypeschemaCommand } from "./typeschema/generate";
 
 /**
  * TypeSchema command group
  */
+const logger = makeLogger({ prefix: "typeschema" });
+
 export const typeschemaCommand: CommandModule = {
     command: "typeschema [subcommand]",
     describe: "TypeSchema operations - generate, validate and merge schemas",
@@ -21,9 +24,8 @@ export const typeschemaCommand: CommandModule = {
             .example("$0 typeschema generate hl7.fhir.r4.core@4.0.1", "Generate TypeSchema from FHIR R4 core package");
     },
     handler: (argv: any) => {
-        // If no subcommand provided, show available subcommands
         if (!argv.subcommand && argv._.length === 1) {
-            info("Available typeschema subcommands:");
+            logger.info("Available typeschema subcommands:");
             list(["generate    Generate TypeSchema files from FHIR packages"]);
             console.log(
                 "\nUse 'atomic-codegen typeschema <subcommand> --help' for more information about a subcommand.",
@@ -37,10 +39,9 @@ export const typeschemaCommand: CommandModule = {
             return;
         }
 
-        // If unknown subcommand provided, show error and available commands
         if (argv.subcommand && !["generate", "validate", "merge"].includes(argv.subcommand)) {
-            error(`Unknown typeschema subcommand: ${argv.subcommand}\n`);
-            info("Available typeschema subcommands:");
+            logger.error(`Unknown typeschema subcommand: ${argv.subcommand}`);
+            logger.info("Available typeschema subcommands:");
             list([
                 "generate    Generate TypeSchema files from FHIR packages",
                 "validate    Validate TypeSchema files for correctness and consistency",

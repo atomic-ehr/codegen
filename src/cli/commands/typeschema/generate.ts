@@ -6,7 +6,7 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
-import { complete, list } from "@root/utils/codegen-logger";
+import { complete, list } from "@root/utils/cli-fmt";
 import { makeLogger } from "@root/utils/logger";
 import { generateTypeSchemas } from "@typeschema/index";
 import { registerFromPackageMetas } from "@typeschema/register";

@@ -6,7 +6,9 @@
  * Modern CLI with subcommands for typeschema and code generation
  */
 
-import { configure, error, header, LogLevel } from "@root/utils/codegen-logger";
+import { header } from "@root/utils/cli-fmt";
+import type { LogLevel } from "@root/utils/logger";
+import { makeLogger } from "@root/utils/logger";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { typeschemaCommand } from "./typeschema";
@@ -20,42 +22,11 @@ export interface CLIArgv {
     logLevel?: "debug" | "info" | "warn" | "error" | "silent";
 }
 
-/**
- * Map string log level to LogLevel enum
- */
-function parseLogLevel(level: string | undefined): LogLevel | undefined {
-    if (!level) return undefined;
-    const levelMap: Record<string, LogLevel> = {
-        debug: LogLevel.DEBUG,
-        info: LogLevel.INFO,
-        warn: LogLevel.WARN,
-        error: LogLevel.ERROR,
-        silent: LogLevel.SILENT,
-    };
-    return levelMap[level.toLowerCase()];
-}
+const cliLogger = makeLogger({ prefix: "cli" });
 
-/**
- * Middleware to setup logging
- */
 async function setupLoggingMiddleware(argv: any) {
-    // Determine log level: explicit --log-level takes precedence over --verbose/--debug
-    let level = parseLogLevel(argv.logLevel);
-
-    // If no explicit log level, use --verbose or --debug as shortcuts
-    if (level === undefined) {
-        if (argv.debug || argv.verbose) {
-            level = LogLevel.DEBUG;
-        } else {
-            level = LogLevel.INFO;
-        }
-    }
-
-    // Configure the CliLogger with user preferences
-    configure({
-        timestamp: argv.debug,
-        level,
-    });
+    const level: LogLevel = argv.logLevel ?? (argv.debug || argv.verbose ? "debug" : "info");
+    cliLogger.setLevel(level);
 }
 
 /**
@@ -110,13 +81,8 @@ export function createCLI() {
             "Generate TypeSchemas from FHIR package",
         )
         .fail((msg, err, _yargs) => {
-            if (err) {
-                error(err.message, err);
-            } else {
-                error(msg);
-            }
-
-            error("\nUse --help for usage information");
+            cliLogger.error(err ? err.message : msg);
+            cliLogger.error("Use --help for usage information");
             process.exit(1);
         })
         .wrap(Math.min(120, process.stdout.columns || 80));
@@ -132,8 +98,8 @@ export async function runCLI() {
 
 // Run CLI if this file is executed directly
 if (import.meta.main) {
-    runCLI().catch((error) => {
-        error("Unexpected error:", error);
+    runCLI().catch((err) => {
+        cliLogger.error(String(err));
         process.exit(1);
     });
 }
