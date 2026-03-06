@@ -15,7 +15,7 @@ export interface observation_bodyweight extends Observation {
 
 export type Observation_bodyweight_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
 
-import { applySliceMatch, matchesSlice, extractSliceSimplified, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
+import { ensureProfile, applySliceMatch, matchesValue, setArraySlice, getArraySlice, ensureSliceDefaults, stripMatchKeys, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
 
 export type observation_bodyweightProfileParams = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
@@ -27,14 +27,13 @@ export type observation_bodyweightProfileParams = {
 export class observation_bodyweightProfile {
     static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bodyweight"
 
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}
+
     private resource: Observation
 
     constructor (resource: Observation) {
         this.resource = resource
-        const r = resource as unknown as Record<string, unknown>
-        const meta = (r.meta ??= {}) as Record<string, unknown>
-        const profiles = (meta.profile ??= []) as string[]
-        if (!profiles.includes("http://hl7.org/fhir/StructureDefinition/bodyweight")) profiles.push("http://hl7.org/fhir/StructureDefinition/bodyweight")
+        ensureProfile(resource, "http://hl7.org/fhir/StructureDefinition/bodyweight")
     }
 
     static from (resource: Observation) : observation_bodyweightProfile {
@@ -42,16 +41,18 @@ export class observation_bodyweightProfile {
     }
 
     static createResource (args: observation_bodyweightProfileParams) : Observation {
-        const categoryDefaults = [{"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}] as unknown[]
-        const categoryWithDefaults = [...(args.category ?? [])] as unknown[]
-        if (!categoryWithDefaults.some(item => matchesSlice(item, {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>))) categoryWithDefaults.push(categoryDefaults[0]!)
-        const resource: Observation = {
+        const categoryWithDefaults = ensureSliceDefaults(
+            [...(args.category ?? [])],
+            observation_bodyweightProfile.VSCatSliceMatch,
+        )
+
+        const resource = {
             resourceType: "Observation",
             code: {"coding":[{"code":"29463-7","system":"http://loinc.org"}]},
             category: categoryWithDefaults,
             status: args.status,
             subject: args.subject,
-            meta: { profile: ["http://hl7.org/fhir/StructureDefinition/bodyweight"] },
+            meta: { profile: [observation_bodyweightProfile.canonicalUrl] },
         } as unknown as Observation
         return resource
     }
@@ -63,6 +64,8 @@ export class observation_bodyweightProfile {
     toResource () : Observation {
         return this.resource
     }
+
+    // Field accessors
 
     getStatus () : ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined {
         return this.resource.status as ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined
@@ -131,53 +134,46 @@ export class observation_bodyweightProfile {
         return this.resource as observation_bodyweight
     }
 
+    // Slices and extensions
+
     public setVSCat (input?: Observation_bodyweight_Category_VSCatSliceInput): this {
-        const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
-        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as CodeableConcept
-        const list = (this.resource.category ??= [])
-        const index = list.findIndex((item) => matchesSlice(item, match))
-        if (index === -1) {
-            list.push(value)
-        } else {
-            list[index] = value
-        }
+        const match = observation_bodyweightProfile.VSCatSliceMatch
+        const value = applySliceMatch<CodeableConcept>(input ?? {}, match)
+        setArraySlice(this.resource.category ??= [], match, value)
         return this
     }
 
     public getVSCat (): Observation_bodyweight_Category_VSCatSliceInput | undefined {
-        const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
-        const list = this.resource.category
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
+        const match = observation_bodyweightProfile.VSCatSliceMatch
+        const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
-        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as Observation_bodyweight_Category_VSCatSliceInput
+        return stripMatchKeys<Observation_bodyweight_Category_VSCatSliceInput>(item, ["coding"])
     }
 
     public getVSCatRaw (): CodeableConcept | undefined {
-        const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
-        const list = this.resource.category
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
+        const match = observation_bodyweightProfile.VSCatSliceMatch
+        const item = getArraySlice(this.resource.category, match)
         return item
     }
 
-    validate () : string[] {
-        const errors: string[] = []
-        const r = this.resource as unknown as Record<string, unknown>
-        { const e = validateRequired(r, "status", "observation-bodyweight"); if (e) errors.push(e) }
-        { const e = validateEnum(r["status"], ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"], "status", "observation-bodyweight"); if (e) errors.push(e) }
-        { const e = validateRequired(r, "category", "observation-bodyweight"); if (e) errors.push(e) }
-        errors.push(...validateSliceCardinality(r["category"] as unknown[] | undefined, {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1, "observation-bodyweight.category"))
-        { const e = validateRequired(r, "code", "observation-bodyweight"); if (e) errors.push(e) }
-        { const e = validateFixedValue(r, "code", {"coding":[{"code":"29463-7","system":"http://loinc.org"}]}, "observation-bodyweight"); if (e) errors.push(e) }
-        { const e = validateRequired(r, "subject", "observation-bodyweight"); if (e) errors.push(e) }
-        { const e = validateReference(r["subject"], ["Patient"], "subject", "observation-bodyweight"); if (e) errors.push(e) }
-        if (!(r["effectiveDateTime"] !== undefined || r["effectivePeriod"] !== undefined)) {
-            errors.push("effective: at least one of effectiveDateTime, effectivePeriod is required")
-        }
-        { const e = validateReference(r["hasMember"], ["MolecularSequence","QuestionnaireResponse","observation-vitalsigns"], "hasMember", "observation-bodyweight"); if (e) errors.push(e) }
-        { const e = validateReference(r["derivedFrom"], ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","observation-vitalsigns"], "derivedFrom", "observation-bodyweight"); if (e) errors.push(e) }
-        return errors
+    // Validation
+
+    validate(): string[] {
+        const profileName = "observation-bodyweight"
+        const res = this.resource as unknown as Record<string, unknown>
+        return [
+            ...validateRequired(res, profileName, "status"),
+            ...validateEnum(res, profileName, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
+            ...validateRequired(res, profileName, "category"),
+            ...validateSliceCardinality(res, profileName, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
+            ...validateRequired(res, profileName, "code"),
+            ...validateFixedValue(res, profileName, "code", {"coding":[{"code":"29463-7","system":"http://loinc.org"}]}),
+            ...validateRequired(res, profileName, "subject"),
+            ...validateReference(res, profileName, "subject", ["Patient"]),
+            ...validateChoiceRequired(res, profileName, ["effectiveDateTime","effectivePeriod"]),
+            ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
+            ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),
+        ]
     }
 
 }

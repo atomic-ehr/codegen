@@ -31,7 +31,7 @@ export type USCorePatientProfile_TribalAffiliationInput = {
     isEnrolled?: boolean;
 }
 
-import { extractComplexExtension, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
+import { ensureProfile, extractComplexExtension, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
 
 export type USCorePatientProfileProfileParams = {
     identifier: Identifier[];
@@ -46,10 +46,7 @@ export class USCorePatientProfileProfile {
 
     constructor (resource: Patient) {
         this.resource = resource
-        const r = resource as unknown as Record<string, unknown>
-        const meta = (r.meta ??= {}) as Record<string, unknown>
-        const profiles = (meta.profile ??= []) as string[]
-        if (!profiles.includes("http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient")) profiles.push("http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient")
+        ensureProfile(resource, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient")
     }
 
     static from (resource: Patient) : USCorePatientProfileProfile {
@@ -57,11 +54,11 @@ export class USCorePatientProfileProfile {
     }
 
     static createResource (args: USCorePatientProfileProfileParams) : Patient {
-        const resource: Patient = {
+        const resource = {
             resourceType: "Patient",
             identifier: args.identifier,
             name: args.name,
-            meta: { profile: ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"] },
+            meta: { profile: [USCorePatientProfileProfile.canonicalUrl] },
         } as unknown as Patient
         return resource
     }
@@ -73,6 +70,8 @@ export class USCorePatientProfileProfile {
     toResource () : Patient {
         return this.resource
     }
+
+    // Field accessors
 
     getIdentifier () : Identifier[] | undefined {
         return this.resource.identifier as Identifier[] | undefined
@@ -95,6 +94,8 @@ export class USCorePatientProfileProfile {
     toProfile () : USCorePatientProfile {
         return this.resource as USCorePatientProfile
     }
+
+    // Slices and extensions
 
     public setRace (input: USCorePatientProfile_RaceInput): this {
         const subExtensions: Extension[] = []
@@ -213,12 +214,15 @@ export class USCorePatientProfileProfile {
         return ext
     }
 
-    validate () : string[] {
-        const errors: string[] = []
-        const r = this.resource as unknown as Record<string, unknown>
-        { const e = validateRequired(r, "identifier", "USCorePatientProfile"); if (e) errors.push(e) }
-        { const e = validateRequired(r, "name", "USCorePatientProfile"); if (e) errors.push(e) }
-        return errors
+    // Validation
+
+    validate(): string[] {
+        const profileName = "USCorePatientProfile"
+        const res = this.resource as unknown as Record<string, unknown>
+        return [
+            ...validateRequired(res, profileName, "identifier"),
+            ...validateRequired(res, profileName, "name"),
+        ]
     }
 
 }

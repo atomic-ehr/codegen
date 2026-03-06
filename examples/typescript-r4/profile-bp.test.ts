@@ -31,7 +31,7 @@ describe("blood pressure profile", () => {
 
     test("freshly created profile is not yet valid (missing effective)", () => {
         const errors = profile.validate();
-        expect(errors).toEqual(["effective: at least one of effectiveDateTime, effectivePeriod is required"]);
+        expect(errors).toEqual(["observation-bp: at least one of effectiveDateTime, effectivePeriod is required"]);
     });
 
     test("create() auto-populates component with systolic/diastolic stubs", () => {

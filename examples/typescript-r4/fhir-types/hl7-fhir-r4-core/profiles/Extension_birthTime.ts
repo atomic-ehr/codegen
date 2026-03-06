@@ -4,7 +4,7 @@
 
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
-import { validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
+import { validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
 
 export type birthTimeProfileParams = {
     valueDateTime: string;
@@ -25,7 +25,7 @@ export class birthTimeProfile {
     }
 
     static createResource (args: birthTimeProfileParams) : Extension {
-        const resource: Extension = {
+        const resource = {
             url: "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
             valueDateTime: args.valueDateTime,
         } as unknown as Extension
@@ -39,6 +39,8 @@ export class birthTimeProfile {
     toResource () : Extension {
         return this.resource
     }
+
+    // Field accessors
 
     getValueDateTime () : string | undefined {
         return this.resource.valueDateTime as string | undefined
@@ -58,15 +60,16 @@ export class birthTimeProfile {
         return this
     }
 
-    validate () : string[] {
-        const errors: string[] = []
-        const r = this.resource as unknown as Record<string, unknown>
-        { const e = validateRequired(r, "url", "birthTime"); if (e) errors.push(e) }
-        { const e = validateFixedValue(r, "url", "http://hl7.org/fhir/StructureDefinition/patient-birthTime", "birthTime"); if (e) errors.push(e) }
-        if (!(r["valueDateTime"] !== undefined)) {
-            errors.push("value: at least one of valueDateTime is required")
-        }
-        return errors
+    // Validation
+
+    validate(): string[] {
+        const profileName = "birthTime"
+        const res = this.resource as unknown as Record<string, unknown>
+        return [
+            ...validateRequired(res, profileName, "url"),
+            ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/StructureDefinition/patient-birthTime"),
+            ...validateChoiceRequired(res, profileName, ["valueDateTime"]),
+        ]
     }
 
 }
