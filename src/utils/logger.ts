@@ -47,7 +47,7 @@ const normalizeLevel = (level: LogLevel): UpperLogLevel => level.toUpperCase() a
 
 const LEVEL_PRIORITY: Record<UpperLogLevel, number> = { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, SILENT: 4 };
 
-export function makeLogger<T extends string>(opts: LoggerOptions<T> = {}): Logger<T> {
+export function mkLogger<T extends string>(opts: LoggerOptions<T> = {}): Logger<T> {
     const prefix = opts.prefix ?? "";
     const suppressedSet = new Set<string>(opts.suppressTags ?? []);
     const tagCounts: Record<string, number> = {};
@@ -109,7 +109,7 @@ export function makeLogger<T extends string>(opts: LoggerOptions<T> = {}): Logge
         fork<C extends string = T>(childPrefix: string, childOpts?: Partial<LoggerOptions<C>>): Logger<C> {
             const fullPrefix = prefix ? `${prefix}:${childPrefix}` : childPrefix;
             const merged = [...suppressedSet, ...(childOpts?.suppressTags ?? [])] as C[];
-            return makeLogger<C>({
+            return mkLogger<C>({
                 prefix: fullPrefix,
                 suppressTags: merged,
                 level: childOpts?.level ?? currentLevel,

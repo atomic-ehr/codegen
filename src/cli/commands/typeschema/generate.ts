@@ -7,7 +7,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { complete, list } from "@root/utils/cli-fmt";
-import { makeLogger } from "@root/utils/logger";
+import { mkLogger } from "@root/utils/logger";
 import { generateTypeSchemas } from "@typeschema/index";
 import { registerFromPackageMetas } from "@typeschema/register";
 import type { PackageMeta } from "@typeschema/types";
@@ -74,7 +74,7 @@ export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, G
         },
     },
     handler: async (argv) => {
-        const logger = makeLogger({
+        const logger = mkLogger({
             prefix: "TypeSchema",
         });
 

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-import { type ExtendLogger, type LogEntry, type Logger, makeLogger } from "@root/utils/logger";
+import { type ExtendLogger, type LogEntry, type Logger, mkLogger } from "@root/utils/logger";
 
 type BufferFilter<T extends string> = { level?: string; tag?: T; suppressed?: boolean };
 
@@ -13,11 +13,11 @@ const bufferFilter = <T extends string>(logger: Logger<T>, filter: BufferFilter<
 
 type TestTags = "TAG_A" | "TAG_B" | "TAG_C";
 
-describe("makeLogger", () => {
+describe("mkLogger", () => {
     let logger: Logger<TestTags>;
 
     beforeEach(() => {
-        logger = makeLogger<TestTags>({ prefix: "test" });
+        logger = mkLogger<TestTags>({ prefix: "test" });
         mock.module("console", () => ({})); // silence console in tests
     });
 
@@ -34,7 +34,7 @@ describe("makeLogger", () => {
         });
 
         it("untagged messages are never suppressed", () => {
-            const l = makeLogger<TestTags>({ suppressTags: ["TAG_A", "TAG_B", "TAG_C"] });
+            const l = mkLogger<TestTags>({ suppressTags: ["TAG_A", "TAG_B", "TAG_C"] });
             l.info("still visible");
             l.warn("still visible");
             l.error("still visible");
@@ -80,7 +80,7 @@ describe("makeLogger", () => {
 
     describe("suppression", () => {
         it("suppresses tagged messages matching suppressTags", () => {
-            const l = makeLogger<TestTags>({ suppressTags: ["TAG_A"] });
+            const l = mkLogger<TestTags>({ suppressTags: ["TAG_A"] });
             l.warn("TAG_A", "suppressed");
             l.warn("TAG_B", "visible");
 
@@ -90,7 +90,7 @@ describe("makeLogger", () => {
         });
 
         it("still counts suppressed tags", () => {
-            const l = makeLogger<TestTags>({ suppressTags: ["TAG_A"] });
+            const l = mkLogger<TestTags>({ suppressTags: ["TAG_A"] });
             l.warn("TAG_A", "one");
             l.warn("TAG_A", "two");
             expect(l.tagCounts()["TAG_A"]).toBe(2);
@@ -147,21 +147,21 @@ describe("makeLogger", () => {
         });
 
         it("creates child from root without parent prefix", () => {
-            const root = makeLogger<TestTags>({});
+            const root = mkLogger<TestTags>({});
             const child = root.fork("child");
             child.info("hello");
             expect(child.buffer()[0]?.prefix).toBe("child");
         });
 
         it("inherits parent suppressTags", () => {
-            const parent = makeLogger<TestTags>({ suppressTags: ["TAG_A"] });
+            const parent = mkLogger<TestTags>({ suppressTags: ["TAG_A"] });
             const child = parent.fork("child");
             child.warn("TAG_A", "inherited suppression");
             expect(child.buffer()[0]?.suppressed).toBe(true);
         });
 
         it("adds child-specific suppressTags", () => {
-            const parent = makeLogger<TestTags>({ suppressTags: ["TAG_A"] });
+            const parent = mkLogger<TestTags>({ suppressTags: ["TAG_A"] });
             const child = parent.fork<TestTags>("child", { suppressTags: ["TAG_B"] });
             child.warn("TAG_A", "from parent");
             child.warn("TAG_B", "from child");
@@ -197,7 +197,7 @@ describe("makeLogger", () => {
         });
 
         it("inherits runtime suppress() calls", () => {
-            const parent = makeLogger<TestTags>({ suppressTags: ["TAG_A"] });
+            const parent = mkLogger<TestTags>({ suppressTags: ["TAG_A"] });
             parent.suppress("TAG_B");
             const child = parent.fork("child");
             child.warn("TAG_A", "from init");
@@ -218,7 +218,7 @@ describe("makeLogger", () => {
         });
 
         it("narrowed logger inherits suppression from original", () => {
-            const parent = makeLogger<TestTags>({ suppressTags: ["TAG_A"] });
+            const parent = mkLogger<TestTags>({ suppressTags: ["TAG_A"] });
             type Narrow = "TAG_A";
             const narrow = parent.as<Narrow>();
             narrow.warn("TAG_A", "suppressed via parent");
@@ -240,7 +240,7 @@ describe("makeLogger", () => {
         type Combined = ExtendLogger<ExtraTags, Logger<BaseTags>>;
 
         it("extended logger accepts both base and extra tags", () => {
-            const l: Combined = makeLogger<BaseTags | ExtraTags>({});
+            const l: Combined = mkLogger<BaseTags | ExtraTags>({});
             l.warn("BASE_A", "base tag");
             l.warn("EXTRA_X", "extra tag");
             expect(l.buffer()).toHaveLength(2);
@@ -249,7 +249,7 @@ describe("makeLogger", () => {
         });
 
         it("extended logger suppresses both base and extra tags", () => {
-            const l: Combined = makeLogger<BaseTags | ExtraTags>({
+            const l: Combined = mkLogger<BaseTags | ExtraTags>({
                 suppressTags: ["BASE_A", "EXTRA_X"],
             });
             l.warn("BASE_A", "suppressed base");
@@ -261,7 +261,7 @@ describe("makeLogger", () => {
         });
 
         it("base logger can be passed where extended is expected via as()", () => {
-            const base = makeLogger<BaseTags>({});
+            const base = mkLogger<BaseTags>({});
             const extended = base.as<BaseTags | ExtraTags>();
             extended.warn("EXTRA_X", "works at runtime");
             expect(base.buffer()).toHaveLength(1);
@@ -269,7 +269,7 @@ describe("makeLogger", () => {
         });
 
         it("fork from extended logger can narrow to base tags", () => {
-            const extended: Combined = makeLogger<BaseTags | ExtraTags>({
+            const extended: Combined = mkLogger<BaseTags | ExtraTags>({
                 prefix: "root",
                 suppressTags: ["BASE_A"],
             });
@@ -302,7 +302,7 @@ describe("makeLogger", () => {
 
     describe("bufferFilter", () => {
         beforeEach(() => {
-            const l = makeLogger<TestTags>({ prefix: "f", suppressTags: ["TAG_C"] });
+            const l = mkLogger<TestTags>({ prefix: "f", suppressTags: ["TAG_C"] });
             l.info("untagged info");
             l.warn("TAG_A", "tagged warn");
             l.error("TAG_B", "tagged error");
@@ -355,7 +355,7 @@ describe("makeLogger", () => {
 
     describe("printSuppressedSummary", () => {
         it("emits an info entry with suppressed counts", () => {
-            const l = makeLogger<TestTags>({ suppressTags: ["TAG_A", "TAG_B"] });
+            const l = mkLogger<TestTags>({ suppressTags: ["TAG_A", "TAG_B"] });
             l.warn("TAG_A", "a1");
             l.warn("TAG_A", "a2");
             l.warn("TAG_B", "b1");
@@ -377,7 +377,7 @@ describe("makeLogger", () => {
 
     describe("prefix", () => {
         it("uses empty prefix by default", () => {
-            const l = makeLogger<TestTags>({});
+            const l = mkLogger<TestTags>({});
             l.info("msg");
             expect(l.buffer()[0]?.prefix).toBe("");
         });
@@ -391,14 +391,14 @@ describe("makeLogger", () => {
 
     describe("log level filtering", () => {
         it("defaults to info level (debug messages not printed but buffered)", () => {
-            const l = makeLogger<TestTags>({});
+            const l = mkLogger<TestTags>({});
             l.debug("hidden");
             l.info("visible");
             expect(l.buffer()).toHaveLength(2);
         });
 
         it("filters messages below configured level", () => {
-            const l = makeLogger<TestTags>({ level: "warn" });
+            const l = mkLogger<TestTags>({ level: "warn" });
             l.debug("d");
             l.info("i");
             l.warn("w");
@@ -408,7 +408,7 @@ describe("makeLogger", () => {
         });
 
         it("setLevel changes level at runtime", () => {
-            const l = makeLogger<TestTags>({ level: "info" });
+            const l = mkLogger<TestTags>({ level: "info" });
             l.debug("before");
             l.setLevel("debug");
             l.debug("after");
@@ -417,7 +417,7 @@ describe("makeLogger", () => {
         });
 
         it("fork inherits parent level", () => {
-            const parent = makeLogger<TestTags>({ level: "warn" });
+            const parent = mkLogger<TestTags>({ level: "warn" });
             const child = parent.fork("child");
             child.debug("d");
             child.info("i");
@@ -426,14 +426,14 @@ describe("makeLogger", () => {
         });
 
         it("fork can override parent level", () => {
-            const parent = makeLogger<TestTags>({ level: "warn" });
+            const parent = mkLogger<TestTags>({ level: "warn" });
             const child = parent.fork("child", { level: "debug" });
             child.debug("d");
             expect(child.buffer()).toHaveLength(1);
         });
 
         it("level filtering works alongside tag suppression", () => {
-            const l = makeLogger<TestTags>({ level: "warn", suppressTags: ["TAG_A"] });
+            const l = mkLogger<TestTags>({ level: "warn", suppressTags: ["TAG_A"] });
             l.info("TAG_A", "suppressed + below level");
             l.warn("TAG_A", "suppressed at level");
             l.warn("TAG_B", "visible");
@@ -442,7 +442,7 @@ describe("makeLogger", () => {
         });
 
         it("silent level suppresses all console output but still buffers", () => {
-            const l = makeLogger<TestTags>({ level: "silent" });
+            const l = mkLogger<TestTags>({ level: "silent" });
             l.debug("d");
             l.info("i");
             l.warn("w");

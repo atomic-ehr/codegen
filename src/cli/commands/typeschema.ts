@@ -5,14 +5,14 @@
  */
 
 import { list } from "@root/utils/cli-fmt";
-import { makeLogger } from "@root/utils/logger";
+import { mkLogger } from "@root/utils/logger";
 import type { CommandModule } from "yargs";
 import { generateTypeschemaCommand } from "./typeschema/generate";
 
 /**
  * TypeSchema command group
  */
-const logger = makeLogger({ prefix: "typeschema" });
+const logger = mkLogger({ prefix: "typeschema" });
 
 export const typeschemaCommand: CommandModule = {
     command: "typeschema [subcommand]",
