@@ -18,12 +18,12 @@ export interface USCoreVitalSignsProfile extends Observation {
 
 export type USCoreVitalSignsProfile_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
 
-import { applySliceMatch, matchesSlice, extractSliceSimplified, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
+import { ensureProfile, applySliceMatch, matchesValue, setArraySlice, getArraySlice, ensureSliceDefaults, stripMatchKeys, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
 
 export type USCoreVitalSignsProfileProfileParams = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
     code: CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)>;
-    subject: Reference<"USCorePatientProfile">;
+    subject: Reference<"Patient">;
     category?: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
 }
 
@@ -31,14 +31,13 @@ export type USCoreVitalSignsProfileProfileParams = {
 export class USCoreVitalSignsProfileProfile {
     static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-vital-signs"
 
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}
+
     private resource: Observation
 
     constructor (resource: Observation) {
         this.resource = resource
-        const r = resource as unknown as Record<string, unknown>
-        const meta = (r.meta ??= {}) as Record<string, unknown>
-        const profiles = (meta.profile ??= []) as string[]
-        if (!profiles.includes("http://hl7.org/fhir/us/core/StructureDefinition/us-core-vital-signs")) profiles.push("http://hl7.org/fhir/us/core/StructureDefinition/us-core-vital-signs")
+        ensureProfile(resource, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-vital-signs")
     }
 
     static from (resource: Observation) : USCoreVitalSignsProfileProfile {
@@ -46,16 +45,18 @@ export class USCoreVitalSignsProfileProfile {
     }
 
     static createResource (args: USCoreVitalSignsProfileProfileParams) : Observation {
-        const categoryDefaults = [{"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}] as unknown[]
-        const categoryWithDefaults = [...(args.category ?? [])] as unknown[]
-        if (!categoryWithDefaults.some(item => matchesSlice(item, {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>))) categoryWithDefaults.push(categoryDefaults[0]!)
-        const resource: Observation = {
+        const categoryWithDefaults = ensureSliceDefaults(
+            [...(args.category ?? [])],
+            USCoreVitalSignsProfileProfile.VSCatSliceMatch,
+        )
+
+        const resource = {
             resourceType: "Observation",
             category: categoryWithDefaults,
             status: args.status,
             code: args.code,
             subject: args.subject,
-            meta: { profile: ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-vital-signs"] },
+            meta: { profile: [USCoreVitalSignsProfileProfile.canonicalUrl] },
         } as unknown as Observation
         return resource
     }
@@ -67,6 +68,8 @@ export class USCoreVitalSignsProfileProfile {
     toResource () : Observation {
         return this.resource
     }
+
+    // Field accessors
 
     getStatus () : ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined {
         return this.resource.status as ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined
@@ -86,11 +89,11 @@ export class USCoreVitalSignsProfileProfile {
         return this
     }
 
-    getSubject () : Reference<"USCorePatientProfile"> | undefined {
-        return this.resource.subject as Reference<"USCorePatientProfile"> | undefined
+    getSubject () : Reference<"Patient"> | undefined {
+        return this.resource.subject as Reference<"Patient"> | undefined
     }
 
-    setSubject (value: Reference<"USCorePatientProfile">) : this {
+    setSubject (value: Reference<"Patient">) : this {
         Object.assign(this.resource, { subject: value })
         return this
     }
@@ -225,53 +228,46 @@ export class USCoreVitalSignsProfileProfile {
         return this.resource as USCoreVitalSignsProfile
     }
 
+    // Slices and extensions
+
     public setVSCat (input?: USCoreVitalSignsProfile_Category_VSCatSliceInput): this {
-        const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
-        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as CodeableConcept
-        const list = (this.resource.category ??= [])
-        const index = list.findIndex((item) => matchesSlice(item, match))
-        if (index === -1) {
-            list.push(value)
-        } else {
-            list[index] = value
-        }
+        const match = USCoreVitalSignsProfileProfile.VSCatSliceMatch
+        const value = applySliceMatch<CodeableConcept>(input ?? {}, match)
+        setArraySlice(this.resource.category ??= [], match, value)
         return this
     }
 
     public getVSCat (): USCoreVitalSignsProfile_Category_VSCatSliceInput | undefined {
-        const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
-        const list = this.resource.category
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
+        const match = USCoreVitalSignsProfileProfile.VSCatSliceMatch
+        const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
-        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as USCoreVitalSignsProfile_Category_VSCatSliceInput
+        return stripMatchKeys<USCoreVitalSignsProfile_Category_VSCatSliceInput>(item, ["coding"])
     }
 
     public getVSCatRaw (): CodeableConcept | undefined {
-        const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
-        const list = this.resource.category
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
+        const match = USCoreVitalSignsProfileProfile.VSCatSliceMatch
+        const item = getArraySlice(this.resource.category, match)
         return item
     }
 
-    validate () : string[] {
-        const errors: string[] = []
-        const r = this.resource as unknown as Record<string, unknown>
-        { const e = validateRequired(r, "status", "USCoreVitalSignsProfile"); if (e) errors.push(e) }
-        { const e = validateEnum(r["status"], ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"], "status", "USCoreVitalSignsProfile"); if (e) errors.push(e) }
-        { const e = validateRequired(r, "category", "USCoreVitalSignsProfile"); if (e) errors.push(e) }
-        errors.push(...validateSliceCardinality(r["category"] as unknown[] | undefined, {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1, "USCoreVitalSignsProfile.category"))
-        { const e = validateRequired(r, "code", "USCoreVitalSignsProfile"); if (e) errors.push(e) }
-        { const e = validateRequired(r, "subject", "USCoreVitalSignsProfile"); if (e) errors.push(e) }
-        { const e = validateReference(r["subject"], ["USCorePatientProfile"], "subject", "USCoreVitalSignsProfile"); if (e) errors.push(e) }
-        if (!(r["effectiveDateTime"] !== undefined || r["effectivePeriod"] !== undefined)) {
-            errors.push("effective: at least one of effectiveDateTime, effectivePeriod is required")
-        }
-        { const e = validateReference(r["hasMember"], ["MolecularSequence","QuestionnaireResponse","observation-vitalsigns"], "hasMember", "USCoreVitalSignsProfile"); if (e) errors.push(e) }
-        { const e = validateReference(r["derivedFrom"], ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","observation-vitalsigns"], "derivedFrom", "USCoreVitalSignsProfile"); if (e) errors.push(e) }
-        { const e = validateReference(r["performer"], ["PractitionerRole","USCoreCareTeam","USCoreOrganizationProfile","USCorePatientProfile","USCorePractitionerProfile","USCoreRelatedPersonProfile"], "performer", "USCoreVitalSignsProfile"); if (e) errors.push(e) }
-        return errors
+    // Validation
+
+    validate(): string[] {
+        const profileName = "USCoreVitalSignsProfile"
+        const res = this.resource as unknown as Record<string, unknown>
+        return [
+            ...validateRequired(res, profileName, "status"),
+            ...validateEnum(res, profileName, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
+            ...validateRequired(res, profileName, "category"),
+            ...validateSliceCardinality(res, profileName, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
+            ...validateRequired(res, profileName, "code"),
+            ...validateRequired(res, profileName, "subject"),
+            ...validateReference(res, profileName, "subject", ["Patient"]),
+            ...validateChoiceRequired(res, profileName, ["effectiveDateTime","effectivePeriod"]),
+            ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
+            ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),
+            ...validateReference(res, profileName, "performer", ["PractitionerRole","USCoreCareTeam","USCoreOrganizationProfile","Patient","USCorePractitionerProfile","USCoreRelatedPersonProfile"]),
+        ]
     }
 
 }

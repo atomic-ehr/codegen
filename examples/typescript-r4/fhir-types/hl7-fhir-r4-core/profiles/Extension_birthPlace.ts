@@ -5,7 +5,7 @@
 import type { Address } from "../../hl7-fhir-r4-core/Address";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
-import { validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
+import { validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
 
 export type birthPlaceProfileParams = {
     valueAddress: Address;
@@ -26,7 +26,7 @@ export class birthPlaceProfile {
     }
 
     static createResource (args: birthPlaceProfileParams) : Extension {
-        const resource: Extension = {
+        const resource = {
             url: "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
             valueAddress: args.valueAddress,
         } as unknown as Extension
@@ -40,6 +40,8 @@ export class birthPlaceProfile {
     toResource () : Extension {
         return this.resource
     }
+
+    // Field accessors
 
     getValueAddress () : Address | undefined {
         return this.resource.valueAddress as Address | undefined
@@ -59,15 +61,16 @@ export class birthPlaceProfile {
         return this
     }
 
-    validate () : string[] {
-        const errors: string[] = []
-        const r = this.resource as unknown as Record<string, unknown>
-        { const e = validateRequired(r, "url", "birthPlace"); if (e) errors.push(e) }
-        { const e = validateFixedValue(r, "url", "http://hl7.org/fhir/StructureDefinition/patient-birthPlace", "birthPlace"); if (e) errors.push(e) }
-        if (!(r["valueAddress"] !== undefined)) {
-            errors.push("value: at least one of valueAddress is required")
-        }
-        return errors
+    // Validation
+
+    validate(): string[] {
+        const profileName = "birthPlace"
+        const res = this.resource as unknown as Record<string, unknown>
+        return [
+            ...validateRequired(res, profileName, "url"),
+            ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/StructureDefinition/patient-birthPlace"),
+            ...validateChoiceRequired(res, profileName, ["valueAddress"]),
+        ]
     }
 
 }

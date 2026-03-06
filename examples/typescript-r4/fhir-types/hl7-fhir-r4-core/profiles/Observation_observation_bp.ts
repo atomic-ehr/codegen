@@ -18,7 +18,7 @@ export type Observation_bp_Category_VSCatSliceInput = Omit<CodeableConcept, "cod
 export type Observation_bp_Component_SystolicBPSliceInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 export type Observation_bp_Component_DiastolicBPSliceInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 
-import { applySliceMatch, matchesSlice, extractSliceSimplified, wrapSliceChoice, flattenSliceChoice, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
+import { ensureProfile, applySliceMatch, matchesValue, setArraySlice, getArraySlice, ensureSliceDefaults, stripMatchKeys, wrapSliceChoice, unwrapSliceChoice, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
 
 export type observation_bpProfileParams = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
@@ -31,14 +31,15 @@ export type observation_bpProfileParams = {
 export class observation_bpProfile {
     static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bp"
 
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}
+    private static readonly SystolicBPSliceMatch: Record<string, unknown> = {"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}}
+    private static readonly DiastolicBPSliceMatch: Record<string, unknown> = {"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}}
+
     private resource: Observation
 
     constructor (resource: Observation) {
         this.resource = resource
-        const r = resource as unknown as Record<string, unknown>
-        const meta = (r.meta ??= {}) as Record<string, unknown>
-        const profiles = (meta.profile ??= []) as string[]
-        if (!profiles.includes("http://hl7.org/fhir/StructureDefinition/bp")) profiles.push("http://hl7.org/fhir/StructureDefinition/bp")
+        ensureProfile(resource, "http://hl7.org/fhir/StructureDefinition/bp")
     }
 
     static from (resource: Observation) : observation_bpProfile {
@@ -46,21 +47,24 @@ export class observation_bpProfile {
     }
 
     static createResource (args: observation_bpProfileParams) : Observation {
-        const categoryDefaults = [{"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}] as unknown[]
-        const categoryWithDefaults = [...(args.category ?? [])] as unknown[]
-        if (!categoryWithDefaults.some(item => matchesSlice(item, {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>))) categoryWithDefaults.push(categoryDefaults[0]!)
-        const componentDefaults = [{"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}},{"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}}] as unknown[]
-        const componentWithDefaults = [...(args.component ?? [])] as unknown[]
-        if (!componentWithDefaults.some(item => matchesSlice(item, {"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}} as Record<string, unknown>))) componentWithDefaults.push(componentDefaults[0]!)
-        if (!componentWithDefaults.some(item => matchesSlice(item, {"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}} as Record<string, unknown>))) componentWithDefaults.push(componentDefaults[1]!)
-        const resource: Observation = {
+        const categoryWithDefaults = ensureSliceDefaults(
+            [...(args.category ?? [])],
+            observation_bpProfile.VSCatSliceMatch,
+        )
+        const componentWithDefaults = ensureSliceDefaults(
+            [...(args.component ?? [])],
+            observation_bpProfile.SystolicBPSliceMatch,
+            observation_bpProfile.DiastolicBPSliceMatch,
+        )
+
+        const resource = {
             resourceType: "Observation",
             code: {"coding":[{"code":"85354-9","system":"http://loinc.org"}]},
             category: categoryWithDefaults,
             component: componentWithDefaults,
             status: args.status,
             subject: args.subject,
-            meta: { profile: ["http://hl7.org/fhir/StructureDefinition/bp"] },
+            meta: { profile: [observation_bpProfile.canonicalUrl] },
         } as unknown as Observation
         return resource
     }
@@ -72,6 +76,8 @@ export class observation_bpProfile {
     toResource () : Observation {
         return this.resource
     }
+
+    // Field accessors
 
     getStatus () : ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined {
         return this.resource.status as ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined
@@ -149,115 +155,90 @@ export class observation_bpProfile {
         return this.resource as observation_bp
     }
 
+    // Slices and extensions
+
     public setVSCat (input?: Observation_bp_Category_VSCatSliceInput): this {
-        const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
-        const value = applySliceMatch((input ?? {}) as Record<string, unknown>, match) as unknown as CodeableConcept
-        const list = (this.resource.category ??= [])
-        const index = list.findIndex((item) => matchesSlice(item, match))
-        if (index === -1) {
-            list.push(value)
-        } else {
-            list[index] = value
-        }
+        const match = observation_bpProfile.VSCatSliceMatch
+        const value = applySliceMatch<CodeableConcept>(input ?? {}, match)
+        setArraySlice(this.resource.category ??= [], match, value)
         return this
     }
 
     public setSystolicBP (input?: Observation_bp_Component_SystolicBPSliceInput): this {
-        const match = {"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}} as Record<string, unknown>
-        const value = applySliceMatch(wrapSliceChoice((input ?? {}) as Record<string, unknown>, "valueQuantity"), match) as unknown as ObservationComponent
-        const list = (this.resource.component ??= [])
-        const index = list.findIndex((item) => matchesSlice(item, match))
-        if (index === -1) {
-            list.push(value)
-        } else {
-            list[index] = value
-        }
+        const match = observation_bpProfile.SystolicBPSliceMatch
+        const wrapped = wrapSliceChoice<ObservationComponent>(input ?? {}, "valueQuantity")
+        const value = applySliceMatch<ObservationComponent>(wrapped, match)
+        setArraySlice(this.resource.component ??= [], match, value)
         return this
     }
 
     public setDiastolicBP (input?: Observation_bp_Component_DiastolicBPSliceInput): this {
-        const match = {"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}} as Record<string, unknown>
-        const value = applySliceMatch(wrapSliceChoice((input ?? {}) as Record<string, unknown>, "valueQuantity"), match) as unknown as ObservationComponent
-        const list = (this.resource.component ??= [])
-        const index = list.findIndex((item) => matchesSlice(item, match))
-        if (index === -1) {
-            list.push(value)
-        } else {
-            list[index] = value
-        }
+        const match = observation_bpProfile.DiastolicBPSliceMatch
+        const wrapped = wrapSliceChoice<ObservationComponent>(input ?? {}, "valueQuantity")
+        const value = applySliceMatch<ObservationComponent>(wrapped, match)
+        setArraySlice(this.resource.component ??= [], match, value)
         return this
     }
 
     public getVSCat (): Observation_bp_Category_VSCatSliceInput | undefined {
-        const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
-        const list = this.resource.category
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
+        const match = observation_bpProfile.VSCatSliceMatch
+        const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
-        return extractSliceSimplified(item as unknown as Record<string, unknown>, ["coding"]) as Observation_bp_Category_VSCatSliceInput
+        return stripMatchKeys<Observation_bp_Category_VSCatSliceInput>(item, ["coding"])
     }
 
     public getVSCatRaw (): CodeableConcept | undefined {
-        const match = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}} as Record<string, unknown>
-        const list = this.resource.category
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
+        const match = observation_bpProfile.VSCatSliceMatch
+        const item = getArraySlice(this.resource.category, match)
         return item
     }
 
     public getSystolicBP (): Observation_bp_Component_SystolicBPSliceInput | undefined {
-        const match = {"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}} as Record<string, unknown>
-        const list = this.resource.component
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
+        const match = observation_bpProfile.SystolicBPSliceMatch
+        const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
-        return flattenSliceChoice(item as unknown as Record<string, unknown>, ["code"], "valueQuantity") as Observation_bp_Component_SystolicBPSliceInput
+        return unwrapSliceChoice<Observation_bp_Component_SystolicBPSliceInput>(item, ["code"], "valueQuantity")
     }
 
     public getSystolicBPRaw (): ObservationComponent | undefined {
-        const match = {"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}} as Record<string, unknown>
-        const list = this.resource.component
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
+        const match = observation_bpProfile.SystolicBPSliceMatch
+        const item = getArraySlice(this.resource.component, match)
         return item
     }
 
     public getDiastolicBP (): Observation_bp_Component_DiastolicBPSliceInput | undefined {
-        const match = {"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}} as Record<string, unknown>
-        const list = this.resource.component
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
+        const match = observation_bpProfile.DiastolicBPSliceMatch
+        const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
-        return flattenSliceChoice(item as unknown as Record<string, unknown>, ["code"], "valueQuantity") as Observation_bp_Component_DiastolicBPSliceInput
+        return unwrapSliceChoice<Observation_bp_Component_DiastolicBPSliceInput>(item, ["code"], "valueQuantity")
     }
 
     public getDiastolicBPRaw (): ObservationComponent | undefined {
-        const match = {"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}} as Record<string, unknown>
-        const list = this.resource.component
-        if (!list) return undefined
-        const item = list.find((item) => matchesSlice(item, match))
+        const match = observation_bpProfile.DiastolicBPSliceMatch
+        const item = getArraySlice(this.resource.component, match)
         return item
     }
 
-    validate () : string[] {
-        const errors: string[] = []
-        const r = this.resource as unknown as Record<string, unknown>
-        { const e = validateRequired(r, "status", "observation-bp"); if (e) errors.push(e) }
-        { const e = validateEnum(r["status"], ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"], "status", "observation-bp"); if (e) errors.push(e) }
-        { const e = validateRequired(r, "category", "observation-bp"); if (e) errors.push(e) }
-        errors.push(...validateSliceCardinality(r["category"] as unknown[] | undefined, {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1, "observation-bp.category"))
-        { const e = validateRequired(r, "code", "observation-bp"); if (e) errors.push(e) }
-        { const e = validateFixedValue(r, "code", {"coding":[{"code":"85354-9","system":"http://loinc.org"}]}, "observation-bp"); if (e) errors.push(e) }
-        { const e = validateRequired(r, "subject", "observation-bp"); if (e) errors.push(e) }
-        { const e = validateReference(r["subject"], ["Patient"], "subject", "observation-bp"); if (e) errors.push(e) }
-        if (!(r["effectiveDateTime"] !== undefined || r["effectivePeriod"] !== undefined)) {
-            errors.push("effective: at least one of effectiveDateTime, effectivePeriod is required")
-        }
-        { const e = validateReference(r["hasMember"], ["MolecularSequence","QuestionnaireResponse","observation-vitalsigns"], "hasMember", "observation-bp"); if (e) errors.push(e) }
-        { const e = validateReference(r["derivedFrom"], ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","observation-vitalsigns"], "derivedFrom", "observation-bp"); if (e) errors.push(e) }
-        errors.push(...validateSliceCardinality(r["component"] as unknown[] | undefined, {"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}}, "SystolicBP", 1, 1, "observation-bp.component"))
-        errors.push(...validateSliceCardinality(r["component"] as unknown[] | undefined, {"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}}, "DiastolicBP", 1, 1, "observation-bp.component"))
-        return errors
+    // Validation
+
+    validate(): string[] {
+        const profileName = "observation-bp"
+        const res = this.resource as unknown as Record<string, unknown>
+        return [
+            ...validateRequired(res, profileName, "status"),
+            ...validateEnum(res, profileName, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
+            ...validateRequired(res, profileName, "category"),
+            ...validateSliceCardinality(res, profileName, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
+            ...validateRequired(res, profileName, "code"),
+            ...validateFixedValue(res, profileName, "code", {"coding":[{"code":"85354-9","system":"http://loinc.org"}]}),
+            ...validateRequired(res, profileName, "subject"),
+            ...validateReference(res, profileName, "subject", ["Patient"]),
+            ...validateChoiceRequired(res, profileName, ["effectiveDateTime","effectivePeriod"]),
+            ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
+            ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),
+            ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}}, "SystolicBP", 1, 1),
+            ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}}, "DiastolicBP", 1, 1),
+        ]
     }
 
 }

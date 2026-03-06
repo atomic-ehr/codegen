@@ -6,7 +6,7 @@ import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Period } from "../../hl7-fhir-r4-core/Period";
 
-import { validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference } from "../../profile-helpers";
+import { validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/patient-nationality (pkg: hl7.fhir.r4.core#4.0.1)
 export class nationalityProfile {
@@ -23,7 +23,7 @@ export class nationalityProfile {
     }
 
     static createResource () : Extension {
-        const resource: Extension = {
+        const resource = {
             url: "http://hl7.org/fhir/StructureDefinition/patient-nationality",
         } as unknown as Extension
         return resource
@@ -37,6 +37,8 @@ export class nationalityProfile {
         return this.resource
     }
 
+    // Field accessors
+
     getUrl () : string | undefined {
         return this.resource.url as string | undefined
     }
@@ -45,6 +47,8 @@ export class nationalityProfile {
         Object.assign(this.resource, { url: value })
         return this
     }
+
+    // Slices and extensions
 
     public setCode (value: CodeableConcept): this {
         const list = (this.resource.extension ??= [])
@@ -78,12 +82,15 @@ export class nationalityProfile {
         return ext
     }
 
-    validate () : string[] {
-        const errors: string[] = []
-        const r = this.resource as unknown as Record<string, unknown>
-        { const e = validateRequired(r, "url", "nationality"); if (e) errors.push(e) }
-        { const e = validateFixedValue(r, "url", "http://hl7.org/fhir/StructureDefinition/patient-nationality", "nationality"); if (e) errors.push(e) }
-        return errors
+    // Validation
+
+    validate(): string[] {
+        const profileName = "nationality"
+        const res = this.resource as unknown as Record<string, unknown>
+        return [
+            ...validateRequired(res, profileName, "url"),
+            ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/StructureDefinition/patient-nationality"),
+        ]
     }
 
 }

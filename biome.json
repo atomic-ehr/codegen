@@ -17,6 +17,7 @@
       "package.json",
       "examples/*/*.ts",
       "examples/*.ts",
+      "assets/api/writer-generator/**/*.ts",
       ".zed/*.json"
     ]
   },
