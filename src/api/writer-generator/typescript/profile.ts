@@ -38,10 +38,12 @@ import {
 import { resolveFieldTsType, resolvePrimitiveType, tsEnumType, tsGet, tsTypeFromIdentifier } from "./utils";
 import type { TypeScript } from "./writer";
 
+const tsSliceStaticName = (name: string): string => name.replace(/\[x\]/g, "").replace(/[^a-zA-Z0-9_$]/g, "_");
+
 type ProfileFactoryInfo = {
     autoFields: { name: string; value: string }[];
     /** Array fields with required slices — optional param with auto-merge of required stubs */
-    sliceAutoFields: { name: string; tsType: string; typeId: Identifier; defaultValue: string; matches: string[] }[];
+    sliceAutoFields: { name: string; tsType: string; typeId: Identifier; sliceNames: string[] }[];
     params: { name: string; tsType: string; typeId: Identifier }[];
     accessors: { name: string; tsType: string; typeId: Identifier }[];
 };
@@ -78,21 +80,22 @@ const tryPromoteChoice = (
     promotedChoices.add(choiceName);
 };
 
-const collectRequiredSliceMatches = (field: RegularField): Record<string, unknown>[] | undefined => {
+const collectRequiredSliceNames = (field: RegularField): string[] | undefined => {
     if (!field.array || !field.slicing?.slices) return undefined;
-    const matches = Object.values(field.slicing.slices)
-        .filter((s) => s.min !== undefined && s.min >= 1 && s.match && Object.keys(s.match).length > 0)
-        .map((s) => s.match as Record<string, unknown>);
-    return matches.length > 0 ? matches : undefined;
+    const names = Object.entries(field.slicing.slices)
+        .filter(([_, s]) => s.min !== undefined && s.min >= 1 && s.match && Object.keys(s.match).length > 0)
+        .map(([name]) => name);
+    return names.length > 0 ? names : undefined;
 };
 
-const collectProfileFactoryInfo = (flatProfile: ProfileTypeSchema): ProfileFactoryInfo => {
+const collectProfileFactoryInfo = (tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema): ProfileFactoryInfo => {
     const autoFields: ProfileFactoryInfo["autoFields"] = [];
     const sliceAutoFields: ProfileFactoryInfo["sliceAutoFields"] = [];
     const params: ProfileFactoryInfo["params"] = [];
     const autoAccessors: ProfileFactoryInfo["accessors"] = [];
     const fields = flatProfile.fields ?? {};
     const promotedChoices = new Set<string>();
+    const resolveRef = tsIndex.findLastSpecializationByIdentifier;
 
     if (isResourceIdentifier(flatProfile.base)) {
         autoFields.push({ name: "resourceType", value: JSON.stringify(flatProfile.base.name) });
@@ -111,24 +114,22 @@ const collectProfileFactoryInfo = (flatProfile: ProfileTypeSchema): ProfileFacto
             const value = JSON.stringify(field.valueConstraint.value);
             autoFields.push({ name, value: field.array ? `[${value}]` : value });
             if (isNotChoiceDeclarationField(field) && field.type) {
-                const tsType = resolveFieldTsType("", "", field) + (field.array ? "[]" : "");
+                const tsType = resolveFieldTsType("", "", field, resolveRef) + (field.array ? "[]" : "");
                 autoAccessors.push({ name, tsType, typeId: field.type });
             }
             continue;
         }
 
         if (isNotChoiceDeclarationField(field)) {
-            const requiredMatches = collectRequiredSliceMatches(field);
-            if (requiredMatches) {
-                const defaultValue = `[${requiredMatches.map((m) => JSON.stringify(m)).join(",")}]`;
+            const sliceNames = collectRequiredSliceNames(field);
+            if (sliceNames) {
                 if (field.type) {
-                    const tsType = resolveFieldTsType("", "", field) + (field.array ? "[]" : "");
+                    const tsType = resolveFieldTsType("", "", field, resolveRef) + (field.array ? "[]" : "");
                     sliceAutoFields.push({
                         name,
                         tsType,
                         typeId: field.type,
-                        defaultValue,
-                        matches: requiredMatches.map((m) => JSON.stringify(m)),
+                        sliceNames,
                     });
                     autoAccessors.push({ name, tsType, typeId: field.type });
                 }
@@ -137,8 +138,29 @@ const collectProfileFactoryInfo = (flatProfile: ProfileTypeSchema): ProfileFacto
         }
 
         if (field.required) {
-            const tsType = resolveFieldTsType("", "", field) + (field.array ? "[]" : "");
+            const tsType = resolveFieldTsType("", "", field, resolveRef) + (field.array ? "[]" : "");
             params.push({ name, tsType, typeId: field.type });
+        }
+    }
+
+    // Include base-type required fields not already covered by profile constraints
+    const coveredFields = new Set([
+        ...autoFields.map((f) => f.name),
+        ...sliceAutoFields.map((f) => f.name),
+        ...params.map((f) => f.name),
+        ...promotedChoices,
+    ]);
+    const baseSchema = tsIndex.resolve(flatProfile.base);
+    if (baseSchema && "fields" in baseSchema && baseSchema.fields) {
+        for (const [name, field] of Object.entries(baseSchema.fields)) {
+            if (coveredFields.has(name)) continue;
+            if (!field.required) continue;
+            if (isChoiceInstanceField(field)) continue;
+            if (isChoiceDeclarationField(field)) continue;
+            if (isNotChoiceDeclarationField(field) && field.type) {
+                const tsType = resolveFieldTsType("", "", field, resolveRef) + (field.array ? "[]" : "");
+                params.push({ name, tsType, typeId: field.type });
+            }
         }
     }
 
@@ -242,324 +264,6 @@ const tsTypeForProfileField = (
     return tsType;
 };
 
-export const generateProfileHelpersModule = (w: TypeScript) => {
-    w.cat("profile-helpers.ts", () => {
-        w.generateDisclaimer();
-        w.curlyBlock(
-            ["export const", "isRecord", "=", "(value: unknown): value is Record<string, unknown>", "=>"],
-            () => {
-                w.lineSM('return value !== null && typeof value === "object" && !Array.isArray(value)');
-            },
-        );
-        w.line();
-        w.curlyBlock(
-            [
-                "export const",
-                "getOrCreateObjectAtPath",
-                "=",
-                "(root: Record<string, unknown>, path: string[]): Record<string, unknown>",
-                "=>",
-            ],
-            () => {
-                w.lineSM("let current: Record<string, unknown> = root");
-                w.curlyBlock(["for (const", "segment", "of", "path)"], () => {
-                    w.curlyBlock(["if", "(Array.isArray(current[segment]))"], () => {
-                        w.lineSM("const list = current[segment] as unknown[]");
-                        w.curlyBlock(["if", "(list.length === 0)"], () => {
-                            w.lineSM("list.push({})");
-                        });
-                        w.lineSM("current = list[0] as Record<string, unknown>");
-                    });
-                    w.curlyBlock(["else"], () => {
-                        w.curlyBlock(["if", "(!isRecord(current[segment]))"], () => {
-                            w.lineSM("current[segment] = {}");
-                        });
-                        w.lineSM("current = current[segment] as Record<string, unknown>");
-                    });
-                });
-                w.lineSM("return current");
-            },
-        );
-        w.line();
-        w.curlyBlock(
-            [
-                "export const",
-                "mergeMatch",
-                "=",
-                "(target: Record<string, unknown>, match: Record<string, unknown>): void",
-                "=>",
-            ],
-            () => {
-                w.curlyBlock(["for (const", "[key, matchValue]", "of", "Object.entries(match))"], () => {
-                    w.curlyBlock(
-                        ["if", '(key === "__proto__" || key === "constructor" || key === "prototype")'],
-                        () => {
-                            w.lineSM("continue");
-                        },
-                    );
-                    w.curlyBlock(["if", "(isRecord(matchValue))"], () => {
-                        w.curlyBlock(["if", "(isRecord(target[key]))"], () => {
-                            w.lineSM("mergeMatch(target[key] as Record<string, unknown>, matchValue)");
-                        });
-                        w.curlyBlock(["else"], () => {
-                            w.lineSM("target[key] = { ...matchValue }");
-                        });
-                    });
-                    w.curlyBlock(["else"], () => {
-                        w.lineSM("target[key] = matchValue");
-                    });
-                });
-            },
-        );
-        w.line();
-        w.curlyBlock(
-            [
-                "export const",
-                "applySliceMatch",
-                "=",
-                "<T extends Record<string, unknown>>(input: T, match: Record<string, unknown>): T",
-                "=>",
-            ],
-            () => {
-                w.lineSM("const result = { ...input } as Record<string, unknown>");
-                w.lineSM("mergeMatch(result, match)");
-                w.lineSM("return result as T");
-            },
-        );
-        w.line();
-        w.curlyBlock(["export const", "matchesValue", "=", "(value: unknown, match: unknown): boolean", "=>"], () => {
-            w.curlyBlock(["if", "(Array.isArray(match))"], () => {
-                w.curlyBlock(["if", "(!Array.isArray(value))"], () => w.lineSM("return false"));
-                w.lineSM("return match.every((matchItem) => value.some((item) => matchesValue(item, matchItem)))");
-            });
-            w.curlyBlock(["if", "(isRecord(match))"], () => {
-                w.curlyBlock(["if", "(!isRecord(value))"], () => w.lineSM("return false"));
-                w.curlyBlock(["for (const", "[key, matchValue]", "of", "Object.entries(match))"], () => {
-                    w.curlyBlock(["if", "(!matchesValue((value as Record<string, unknown>)[key], matchValue))"], () => {
-                        w.lineSM("return false");
-                    });
-                });
-                w.lineSM("return true");
-            });
-            w.lineSM("return value === match");
-        });
-        w.line();
-        w.curlyBlock(
-            ["export const", "matchesSlice", "=", "(value: unknown, match: Record<string, unknown>): boolean", "=>"],
-            () => {
-                w.lineSM("return matchesValue(value, match)");
-            },
-        );
-        w.line();
-        // extractComplexExtension - extract sub-extension values from complex extension
-        w.curlyBlock(
-            [
-                "export const",
-                "extractComplexExtension",
-                "=",
-                "(extension: { extension?: Array<{ url?: string; [key: string]: unknown }> } | undefined, config: Array<{ name: string; valueField: string; isArray: boolean }>): Record<string, unknown> | undefined",
-                "=>",
-            ],
-            () => {
-                w.lineSM("if (!extension?.extension) return undefined");
-                w.lineSM("const result: Record<string, unknown> = {}");
-                w.curlyBlock(["for (const", "{ name, valueField, isArray }", "of", "config)"], () => {
-                    w.lineSM("const subExts = extension.extension.filter(e => e.url === name)");
-                    w.curlyBlock(["if", "(isArray)"], () => {
-                        w.lineSM("result[name] = subExts.map(e => (e as Record<string, unknown>)[valueField])");
-                    });
-                    w.curlyBlock(["else if", "(subExts[0])"], () => {
-                        w.lineSM("result[name] = (subExts[0] as Record<string, unknown>)[valueField]");
-                    });
-                });
-                w.lineSM("return result");
-            },
-        );
-        w.line();
-        // extractSliceSimplified - remove match keys from slice (reverse of applySliceMatch)
-        w.curlyBlock(
-            [
-                "export const",
-                "extractSliceSimplified",
-                "=",
-                "<T extends Record<string, unknown>>(slice: T, matchKeys: string[]): Partial<T>",
-                "=>",
-            ],
-            () => {
-                w.lineSM("const result = { ...slice } as Record<string, unknown>");
-                w.curlyBlock(["for (const", "key", "of", "matchKeys)"], () => {
-                    w.lineSM("delete result[key]");
-                });
-                w.lineSM("return result as Partial<T>");
-            },
-        );
-        w.line();
-        // wrapSliceChoice - wrap flat input under the single choice variant key for setter
-        w.curlyBlock(
-            [
-                "export const",
-                "wrapSliceChoice",
-                "=",
-                "(input: Record<string, unknown>, choiceVariant: string): Record<string, unknown>",
-                "=>",
-            ],
-            () => {
-                w.lineSM("if (Object.keys(input).length === 0) return input");
-                w.lineSM("return { [choiceVariant]: input }");
-            },
-        );
-        w.line();
-        // flattenSliceChoice - strip match keys and flatten choice variant into parent for getter
-        w.curlyBlock(
-            [
-                "export const",
-                "flattenSliceChoice",
-                "=",
-                "(slice: Record<string, unknown>, matchKeys: string[], choiceVariant: string): Record<string, unknown>",
-                "=>",
-            ],
-            () => {
-                w.lineSM("const result = { ...slice } as Record<string, unknown>");
-                w.curlyBlock(["for (const", "key", "of", "matchKeys)"], () => {
-                    w.lineSM("delete result[key]");
-                });
-                w.lineSM("const variantValue = result[choiceVariant]");
-                w.lineSM("delete result[choiceVariant]");
-                w.curlyBlock(["if", "(isRecord(variantValue))"], () => {
-                    w.lineSM("Object.assign(result, variantValue)");
-                });
-                w.lineSM("return result");
-            },
-        );
-        w.line();
-        // --- Validation helpers ---
-        w.curlyBlock(
-            [
-                "export const",
-                "validateRequired",
-                "=",
-                "(r: Record<string, unknown>, field: string, path: string): string | undefined",
-                "=>",
-            ],
-            () => {
-                w.lineSM(
-                    "return r[field] === undefined || r[field] === null ? `${path}: required field '${field}' is missing` : undefined",
-                );
-            },
-        );
-        w.line();
-        w.curlyBlock(
-            [
-                "export const",
-                "validateExcluded",
-                "=",
-                "(r: Record<string, unknown>, field: string, path: string): string | undefined",
-                "=>",
-            ],
-            () => {
-                w.lineSM("return r[field] !== undefined ? `${path}: field '${field}' must not be present` : undefined");
-            },
-        );
-        w.line();
-        w.curlyBlock(
-            [
-                "export const",
-                "validateFixedValue",
-                "=",
-                "(r: Record<string, unknown>, field: string, expected: unknown, path: string): string | undefined",
-                "=>",
-            ],
-            () => {
-                w.lineSM(
-                    "return matchesValue(r[field], expected) ? undefined : `${path}: field '${field}' does not match expected fixed value`",
-                );
-            },
-        );
-        w.line();
-        w.curlyBlock(
-            [
-                "export const",
-                "validateSliceCardinality",
-                "=",
-                "(items: unknown[] | undefined, match: Record<string, unknown>, sliceName: string, min: number, max: number, path: string): string[]",
-                "=>",
-            ],
-            () => {
-                w.lineSM("const count = (items ?? []).filter(item => matchesSlice(item, match)).length");
-                w.lineSM("const errors: string[] = []");
-                w.curlyBlock(["if", "(count < min)"], () => {
-                    w.lineSM(
-                        "errors.push(`${path}: slice '${sliceName}' requires at least ${min} item(s), found ${count}`)",
-                    );
-                });
-                w.curlyBlock(["if", "(max > 0 && count > max)"], () => {
-                    w.lineSM(
-                        "errors.push(`${path}: slice '${sliceName}' allows at most ${max} item(s), found ${count}`)",
-                    );
-                });
-                w.lineSM("return errors");
-            },
-        );
-        w.line();
-        w.curlyBlock(
-            [
-                "export const",
-                "validateEnum",
-                "=",
-                "(value: unknown, allowed: string[], field: string, path: string): string | undefined",
-                "=>",
-            ],
-            () => {
-                w.lineSM("if (value === undefined || value === null) return undefined");
-                w.curlyBlock(["if", "(typeof value === 'string')"], () => {
-                    w.lineSM(
-                        "return allowed.includes(value) ? undefined : `${path}: field '${field}' value '${value}' is not in allowed values`",
-                    );
-                });
-                w.lineSM("const rec = value as Record<string, unknown>");
-                w.comment("Coding");
-                w.curlyBlock(["if", "(typeof rec.code === 'string' && rec.system !== undefined)"], () => {
-                    w.lineSM(
-                        "return allowed.includes(rec.code) ? undefined : `${path}: field '${field}' code '${rec.code}' is not in allowed values`",
-                    );
-                });
-                w.comment("CodeableConcept");
-                w.curlyBlock(["if", "(Array.isArray(rec.coding))"], () => {
-                    w.lineSM(
-                        "const codes = (rec.coding as Array<Record<string, unknown>>).map(c => c.code as string).filter(Boolean)",
-                    );
-                    w.lineSM("const hasValid = codes.some(c => allowed.includes(c))");
-                    w.lineSM(
-                        "return hasValid ? undefined : `${path}: field '${field}' has no coding with an allowed code`",
-                    );
-                });
-                w.lineSM("return undefined");
-            },
-        );
-        w.line();
-        w.curlyBlock(
-            [
-                "export const",
-                "validateReference",
-                "=",
-                "(value: unknown, allowed: string[], field: string, path: string): string | undefined",
-                "=>",
-            ],
-            () => {
-                w.lineSM("if (value === undefined || value === null) return undefined");
-                w.lineSM("const ref = (value as Record<string, unknown>).reference as string | undefined");
-                w.lineSM("if (!ref) return undefined");
-                w.lineSM("const slashIdx = ref.indexOf('/')");
-                w.lineSM("if (slashIdx === -1) return undefined");
-                w.lineSM("const refType = ref.slice(0, slashIdx)");
-                w.lineSM(
-                    "return allowed.includes(refType) ? undefined : `${path}: field '${field}' references '${refType}' but only ${allowed.join(', ')} are allowed`",
-                );
-            },
-        );
-    });
-};
-
 const generateProfileHelpersImport = (
     w: TypeScript,
     options: {
@@ -569,23 +273,27 @@ const generateProfileHelpersImport = (
         needsSliceExtraction: boolean;
         needsSliceChoiceHelpers: boolean;
         needsValidation: boolean;
+        needsRegisterProfile: boolean;
     },
 ) => {
     const imports: string[] = [];
+    if (options.needsRegisterProfile) {
+        imports.push("ensureProfile");
+    }
     if (options.needsSliceHelpers) {
-        imports.push("applySliceMatch", "matchesSlice");
+        imports.push("applySliceMatch", "matchesValue", "setArraySlice", "getArraySlice", "ensureSliceDefaults");
     }
     if (options.needsGetOrCreateObjectAtPath) {
-        imports.push("getOrCreateObjectAtPath");
+        imports.push("ensurePath");
     }
     if (options.needsExtensionExtraction) {
         imports.push("extractComplexExtension");
     }
     if (options.needsSliceExtraction) {
-        imports.push("extractSliceSimplified");
+        imports.push("stripMatchKeys");
     }
     if (options.needsSliceChoiceHelpers) {
-        imports.push("wrapSliceChoice", "flattenSliceChoice");
+        imports.push("wrapSliceChoice", "unwrapSliceChoice");
     }
     if (options.needsValidation) {
         imports.push(
@@ -595,6 +303,7 @@ const generateProfileHelpersImport = (
             "validateSliceCardinality",
             "validateEnum",
             "validateReference",
+            "validateChoiceRequired",
         );
     }
     if (imports.length > 0) {
@@ -703,7 +412,7 @@ export const generateProfileImports = (w: TypeScript, tsIndex: TypeSchemaIndex, 
     const needsExtensionType = collectTypesFromExtensions(tsIndex, flatProfile, addType);
     collectTypesFromFieldOverrides(tsIndex, flatProfile, addType);
 
-    const factoryInfo = collectProfileFactoryInfo(flatProfile);
+    const factoryInfo = collectProfileFactoryInfo(tsIndex, flatProfile);
     for (const param of factoryInfo.params) addType(param.typeId);
     for (const f of factoryInfo.sliceAutoFields) addType(f.typeId);
     for (const accessor of factoryInfo.accessors) addType(accessor.typeId);
@@ -908,7 +617,7 @@ export const generateProfileClass = (
 
     // Check if we have an override interface (narrowed types)
     const hasOverrideInterface = detectFieldOverrides(w, tsIndex, flatProfile).size > 0;
-    const factoryInfo = collectProfileFactoryInfo(flatProfile);
+    const factoryInfo = collectProfileFactoryInfo(tsIndex, flatProfile);
 
     // Determine which helpers are actually needed
     const needsSliceHelpers = sliceDefs.length > 0 || factoryInfo.sliceAutoFields.length > 0;
@@ -922,6 +631,8 @@ export const generateProfileClass = (
     const needsSliceChoiceHelpers = sliceDefs.some((s) => s.constrainedChoice);
 
     const needsValidation = Object.keys(flatProfile.fields ?? {}).length > 0;
+    const hasMeta = tsIndex.isWithMetaField(flatProfile);
+    const needsRegisterProfile = !!schema?.identifier.url && hasMeta;
 
     if (
         needsSliceHelpers ||
@@ -929,7 +640,8 @@ export const generateProfileClass = (
         needsExtensionExtraction ||
         needsSliceExtraction ||
         needsSliceChoiceHelpers ||
-        needsValidation
+        needsValidation ||
+        needsRegisterProfile
     ) {
         generateProfileHelpersImport(w, {
             needsGetOrCreateObjectAtPath,
@@ -938,6 +650,7 @@ export const generateProfileClass = (
             needsSliceExtraction,
             needsSliceChoiceHelpers,
             needsValidation,
+            needsRegisterProfile,
         });
         w.line();
     }
@@ -973,17 +686,19 @@ export const generateProfileClass = (
             w.line(`static readonly canonicalUrl = ${JSON.stringify(canonicalUrl)}`);
             w.line();
         }
+        for (const sliceDef of sliceDefs) {
+            const staticName = `${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
+            w.line(
+                `private static readonly ${staticName}: Record<string, unknown> = ${JSON.stringify(sliceDef.match)}`,
+            );
+        }
+        if (sliceDefs.length > 0) w.line();
         w.line(`private resource: ${tsBaseResourceName}`);
         w.line();
         w.curlyBlock(["constructor", `(resource: ${tsBaseResourceName})`], () => {
             w.line("this.resource = resource");
-            if (canonicalUrl && isResourceIdentifier(flatProfile.base)) {
-                w.line(`const r = resource as unknown as Record<string, unknown>`);
-                w.line(`const meta = (r.meta ??= {}) as Record<string, unknown>`);
-                w.line(`const profiles = (meta.profile ??= []) as string[]`);
-                w.line(
-                    `if (!profiles.includes(${JSON.stringify(canonicalUrl)})) profiles.push(${JSON.stringify(canonicalUrl)})`,
-                );
+            if (canonicalUrl && hasMeta) {
+                w.line(`ensureProfile(resource, ${JSON.stringify(canonicalUrl)})`);
             }
         });
         w.line();
@@ -994,23 +709,31 @@ export const generateProfileClass = (
         w.curlyBlock(["static", "createResource", `(${paramSignature})`, `: ${tsBaseResourceName}`], () => {
             // Generate merge logic for slice auto-fields
             for (const f of factoryInfo.sliceAutoFields) {
-                const matchExprs = f.matches.map((m) => `${m} as Record<string, unknown>`);
-                w.line(`const ${f.name}Defaults = ${f.defaultValue} as unknown[]`);
-                w.line(`const ${f.name}WithDefaults = [...(args.${f.name} ?? [])] as unknown[]`);
-                for (let i = 0; i < matchExprs.length; i++) {
-                    w.line(
-                        `if (!${f.name}WithDefaults.some(item => matchesSlice(item, ${matchExprs[i]}))) ${f.name}WithDefaults.push(${f.name}Defaults[${i}]!)`,
-                    );
-                }
+                const matchRefs = f.sliceNames.map((s) => `${profileClassName}.${tsSliceStaticName(s)}SliceMatch`);
+                w.line(`const ${f.name}WithDefaults = ensureSliceDefaults(`);
+                w.indentBlock(() => {
+                    w.line(`[...(args.${f.name} ?? [])],`);
+                    for (const ref of matchRefs) {
+                        w.line(`${ref},`);
+                    }
+                });
+                w.line(")");
             }
-            w.curlyBlock([`const resource: ${tsBaseResourceName} =`], () => {
-                for (const f of allFields) {
-                    w.line(`${f.name}: ${f.value},`);
-                }
-                if (canonicalUrl && isResourceIdentifier(flatProfile.base)) {
-                    w.line(`meta: { profile: [${JSON.stringify(canonicalUrl)}] },`);
-                }
-            }, [` as unknown as ${tsBaseResourceName}`]);
+            if (factoryInfo.sliceAutoFields.length > 0) {
+                w.line();
+            }
+            if (isPrimitiveIdentifier(flatProfile.base)) {
+                w.line(`const resource = undefined as unknown as ${tsBaseResourceName}`);
+            } else {
+                w.curlyBlock(["const resource ="], () => {
+                    for (const f of allFields) {
+                        w.line(`${f.name}: ${f.value},`);
+                    }
+                    if (canonicalUrl && hasMeta) {
+                        w.line(`meta: { profile: [${profileClassName}.canonicalUrl] },`);
+                    }
+                }, [` as unknown as ${tsBaseResourceName}`]);
+            }
             w.line("return resource");
         });
         w.line();
@@ -1023,7 +746,12 @@ export const generateProfileClass = (
             w.line("return this.resource");
         });
         w.line();
-        // Getter and setter methods for required profile fields
+        // -- Field accessors section --
+        const hasFieldAccessors = factoryInfo.params.length > 0 || factoryInfo.accessors.length > 0;
+        if (hasFieldAccessors) {
+            w.line("// Field accessors");
+            w.line();
+        }
         for (const p of factoryInfo.params) {
             const methodSuffix = uppercaseFirstLetter(p.name);
             w.curlyBlock([`get${methodSuffix}`, "()", `: ${p.tsType} | undefined`], () => {
@@ -1089,13 +817,20 @@ export const generateProfileClass = (
             w.line();
         }
 
+        // -- Slices and extensions section --
+        const hasSlicesOrExtensions = extensions.length > 0 || sliceDefs.length > 0;
+        if (hasSlicesOrExtensions) {
+            w.line("// Slices and extensions");
+            w.line();
+        }
+
         generateExtensionSetterMethods(w, extensions, extensionMethodNames, tsProfileName);
 
         for (const sliceDef of sliceDefs) {
             const methodName =
                 sliceMethodNames.get(sliceDef) ?? tsQualifiedSliceMethodName(sliceDef.fieldName, sliceDef.sliceName);
             const typeName = tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
-            const matchLiteral = JSON.stringify(sliceDef.match);
+            const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
             const tsField = tsFieldName(sliceDef.fieldName);
             const fieldAccess = tsGet("this.resource", tsField);
             // Make input optional when there are no required fields (input can be empty object)
@@ -1103,31 +838,19 @@ export const generateProfileClass = (
                 ? `(input?: ${typeName}): this`
                 : `(input: ${typeName}): this`;
             w.curlyBlock(["public", methodName, paramSignature], () => {
-                w.line(`const match = ${matchLiteral} as Record<string, unknown>`);
-                // Use empty object as default when input is optional
-                const inputExpr = sliceDef.inputOptional
-                    ? "(input ?? {}) as Record<string, unknown>"
-                    : "input as Record<string, unknown>";
+                w.line(`const match = ${matchRef}`);
+                const inputExpr = sliceDef.inputOptional ? "input ?? {}" : "input";
                 if (sliceDef.constrainedChoice) {
                     const cc = sliceDef.constrainedChoice;
                     w.line(
-                        `const value = applySliceMatch(wrapSliceChoice(${inputExpr}, ${JSON.stringify(cc.variant)}), match) as unknown as ${sliceDef.baseType}`,
+                        `const wrapped = wrapSliceChoice<${sliceDef.baseType}>(${inputExpr}, ${JSON.stringify(cc.variant)})`,
                     );
+                    w.line(`const value = applySliceMatch<${sliceDef.baseType}>(wrapped, match)`);
                 } else {
-                    w.line(`const value = applySliceMatch(${inputExpr}, match) as unknown as ${sliceDef.baseType}`);
+                    w.line(`const value = applySliceMatch<${sliceDef.baseType}>(${inputExpr}, match)`);
                 }
                 if (sliceDef.array) {
-                    w.line(`const list = (${fieldAccess} ??= [])`);
-                    w.line("const index = list.findIndex((item) => matchesSlice(item, match))");
-                    w.line("if (index === -1) {");
-                    w.indentBlock(() => {
-                        w.line("list.push(value)");
-                    });
-                    w.line("} else {");
-                    w.indentBlock(() => {
-                        w.line("list[index] = value");
-                    });
-                    w.line("}");
+                    w.line(`setArraySlice(${fieldAccess} ??= [], match, value)`);
                 } else {
                     w.line(`${fieldAccess} = value`);
                 }
@@ -1157,7 +880,7 @@ export const generateProfileClass = (
                     w.line(`const ext = this.resource.extension?.find(e => e.url === "${ext.url}")`);
                 } else {
                     w.line(
-                        `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
+                        `const target = ensurePath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
                     );
                     w.line(
                         `const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "${ext.url}")`,
@@ -1212,7 +935,7 @@ export const generateProfileClass = (
                         w.line(`return this.resource.extension?.find(e => e.url === "${ext.url}")`);
                     } else {
                         w.line(
-                            `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
+                            `const target = ensurePath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
                         );
                         w.line(
                             `return (target.extension as Extension[] | undefined)?.find(e => e.url === "${ext.url}")`,
@@ -1233,7 +956,7 @@ export const generateProfileClass = (
             if (generatedGetMethods.has(getMethodName)) continue;
             generatedGetMethods.add(getMethodName);
             const typeName = tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
-            const matchLiteral = JSON.stringify(sliceDef.match);
+            const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
             const matchKeys = JSON.stringify(Object.keys(sliceDef.match));
             const tsField = tsFieldName(sliceDef.fieldName);
             const fieldAccess = tsGet("this.resource", tsField);
@@ -1241,14 +964,12 @@ export const generateProfileClass = (
 
             // Helper to find the slice item
             const generateSliceLookup = () => {
-                w.line(`const match = ${matchLiteral} as Record<string, unknown>`);
+                w.line(`const match = ${matchRef}`);
                 if (sliceDef.array) {
-                    w.line(`const list = ${fieldAccess}`);
-                    w.line("if (!list) return undefined");
-                    w.line("const item = list.find((item) => matchesSlice(item, match))");
+                    w.line(`const item = getArraySlice(${fieldAccess}, match)`);
                 } else {
                     w.line(`const item = ${fieldAccess}`);
-                    w.line("if (!item || !matchesSlice(item, match)) return undefined");
+                    w.line("if (!item || !matchesValue(item, match)) return undefined");
                 }
             };
 
@@ -1260,13 +981,9 @@ export const generateProfileClass = (
                 }
                 if (sliceDef.constrainedChoice) {
                     const cc = sliceDef.constrainedChoice;
-                    w.line(
-                        `return flattenSliceChoice(item as unknown as Record<string, unknown>, ${matchKeys}, ${JSON.stringify(cc.variant)}) as ${typeName}`,
-                    );
+                    w.line(`return unwrapSliceChoice<${typeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)})`);
                 } else {
-                    w.line(
-                        `return extractSliceSimplified(item as unknown as Record<string, unknown>, ${matchKeys}) as ${typeName}`,
-                    );
+                    w.line(`return stripMatchKeys<${typeName}>(item, ${matchKeys})`);
                 }
             });
             w.line();
@@ -1274,53 +991,49 @@ export const generateProfileClass = (
             // Raw getter (full FHIR type)
             w.curlyBlock(["public", getRawMethodName, `(): ${baseType} | undefined`], () => {
                 generateSliceLookup();
-                if (sliceDef.array) {
-                    w.line("return item");
-                } else {
-                    w.line("return item");
-                }
+                w.line("return item");
             });
             w.line();
         }
 
-        generateValidateMethod(w, flatProfile);
+        // -- Validation section --
+        if (needsValidation) {
+            w.line("// Validation");
+            w.line();
+        }
+        generateValidateMethod(w, tsIndex, flatProfile);
     });
     w.line();
 };
 
-const emitRegularFieldValidation = (
-    w: TypeScript,
+const collectRegularFieldValidation = (
+    exprs: string[],
     name: string,
     field: RegularField | ChoiceFieldInstance,
-    profileName: string,
+    resolveRef: (ref: Identifier) => Identifier,
 ) => {
     if (field.excluded) {
-        w.line(`{ const e = validateExcluded(r, ${JSON.stringify(name)}, "${profileName}"); if (e) errors.push(e) }`);
+        exprs.push(`...validateExcluded(res, profileName, ${JSON.stringify(name)})`);
         return;
     }
 
     if (field.required) {
-        w.line(`{ const e = validateRequired(r, ${JSON.stringify(name)}, "${profileName}"); if (e) errors.push(e) }`);
+        exprs.push(`...validateRequired(res, profileName, ${JSON.stringify(name)})`);
     }
 
     if (field.valueConstraint) {
-        const expected = JSON.stringify(field.valueConstraint.value);
-        w.line(
-            `{ const e = validateFixedValue(r, ${JSON.stringify(name)}, ${expected}, "${profileName}"); if (e) errors.push(e) }`,
+        exprs.push(
+            `...validateFixedValue(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(field.valueConstraint.value)})`,
         );
     }
 
     if (field.enum && !field.enum.isOpen) {
-        const values = JSON.stringify(field.enum.values);
-        w.line(
-            `{ const e = validateEnum(r[${JSON.stringify(name)}], ${values}, ${JSON.stringify(name)}, "${profileName}"); if (e) errors.push(e) }`,
-        );
+        exprs.push(`...validateEnum(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(field.enum.values)})`);
     }
 
     if (field.reference && field.reference.length > 0) {
-        const refNames = JSON.stringify(field.reference.map((ref) => ref.name));
-        w.line(
-            `{ const e = validateReference(r[${JSON.stringify(name)}], ${refNames}, ${JSON.stringify(name)}, "${profileName}"); if (e) errors.push(e) }`,
+        exprs.push(
+            `...validateReference(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(field.reference.map((ref) => resolveRef(ref).name))})`,
         );
     }
 
@@ -1331,36 +1044,40 @@ const emitRegularFieldValidation = (
             if (Object.keys(match).length === 0) continue;
             const min = slice.min ?? 0;
             const max = slice.max ?? 0;
-            w.line(
-                `errors.push(...validateSliceCardinality(r[${JSON.stringify(name)}] as unknown[] | undefined, ${JSON.stringify(match)}, ${JSON.stringify(sliceName)}, ${min}, ${max}, "${profileName}.${name}"))`,
+            exprs.push(
+                `...validateSliceCardinality(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(match)}, ${JSON.stringify(sliceName)}, ${min}, ${max})`,
             );
         }
     }
 };
 
-const generateValidateMethod = (w: TypeScript, flatProfile: ProfileTypeSchema) => {
+const generateValidateMethod = (w: TypeScript, tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) => {
     const fields = flatProfile.fields ?? {};
     const profileName = flatProfile.identifier.name;
-    w.curlyBlock(["validate", "()", ": string[]"], () => {
-        w.line("const errors: string[] = []");
-        w.line("const r = this.resource as unknown as Record<string, unknown>");
+    w.curlyBlock(["validate(): string[]"], () => {
+        w.line(`const profileName = "${profileName}"`);
+        w.line("const res = this.resource as unknown as Record<string, unknown>");
+
+        const exprs: string[] = [];
         for (const [name, field] of Object.entries(fields)) {
             if (isChoiceInstanceField(field)) continue;
 
             if (isChoiceDeclarationField(field)) {
-                if (field.required) {
-                    const choiceNames = field.choices;
-                    const checks = choiceNames.map((c) => `r[${JSON.stringify(c)}] !== undefined`).join(" || ");
-                    w.curlyBlock(["if", `(!(${checks}))`], () => {
-                        w.line(`errors.push("${name}: at least one of ${choiceNames.join(", ")} is required")`);
-                    });
-                }
+                if (field.required)
+                    exprs.push(`...validateChoiceRequired(res, profileName, ${JSON.stringify(field.choices)})`);
                 continue;
             }
 
-            emitRegularFieldValidation(w, name, field, profileName);
+            collectRegularFieldValidation(exprs, name, field, tsIndex.findLastSpecializationByIdentifier);
         }
-        w.line("return errors");
+
+        if (exprs.length === 0) {
+            w.line("return []");
+        } else {
+            w.squareBlock(["return"], () => {
+                for (const expr of exprs) w.line(`${expr},`);
+            });
+        }
     });
     w.line();
 };
@@ -1405,7 +1122,7 @@ const generateExtensionSetterMethods = (
                     w.line(`list.push({ url: "${ext.url}", extension: subExtensions })`);
                 } else {
                     w.line(
-                        `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
+                        `const target = ensurePath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
                     );
                     w.line("if (!Array.isArray(target.extension)) target.extension = [] as Extension[]");
                     w.line(`(target.extension as Extension[]).push({ url: "${ext.url}", extension: subExtensions })`);
@@ -1424,7 +1141,7 @@ const generateExtensionSetterMethods = (
                     w.line(`list.push(${extLiteral})`);
                 } else {
                     w.line(
-                        `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(
+                        `const target = ensurePath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(
                             targetPath,
                         )})`,
                     );
@@ -1440,7 +1157,7 @@ const generateExtensionSetterMethods = (
                     w.line(`list.push({ url: "${ext.url}", ...value })`);
                 } else {
                     w.line(
-                        `const target = getOrCreateObjectAtPath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(
+                        `const target = ensurePath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(
                             targetPath,
                         )})`,
                     );

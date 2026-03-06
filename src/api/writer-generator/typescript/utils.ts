@@ -62,6 +62,7 @@ export const resolveFieldTsType = (
     schemaName: string,
     tsName: string,
     field: RegularField | ChoiceFieldInstance,
+    resolveRef?: (ref: Identifier) => Identifier,
 ): string => {
     const rewriteFieldType = rewriteFieldTypeDefs[schemaName]?.[tsName];
     if (rewriteFieldType) return rewriteFieldType();
@@ -72,7 +73,10 @@ export const resolveFieldTsType = (
         return tsEnumType(field.enum);
     }
     if (field.reference && field.reference.length > 0) {
-        const references = field.reference.map((ref) => `"${ref.name}"`).join(" | ");
+        const references = field.reference
+            .map((ref) => (resolveRef ? resolveRef(ref) : ref))
+            .map((ref) => `"${ref.name}"`)
+            .join(" | ");
         return `Reference<${references}>`;
     }
     if (isPrimitiveIdentifier(field.type)) return resolvePrimitiveType(field.type.name);
