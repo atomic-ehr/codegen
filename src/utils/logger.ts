@@ -21,10 +21,7 @@ export type LoggerOptions<T extends string> = {
     level?: LogLevel;
 };
 
-export type TaggedLogFn<T extends string> = {
-    (msg: string): void;
-    (tag: T, msg: string): void;
-};
+export type TaggedLogFn<T extends string> = (...args: [string] | [T, string]) => void;
 
 export type Logger<T extends string = string> = {
     warn: TaggedLogFn<T>;
@@ -38,7 +35,7 @@ export type Logger<T extends string = string> = {
 
     suppress(...tags: T[]): void;
     setLevel(level: LogLevel): void;
-    tagCounts(): ReadonlyMap<string, number>;
+    tagCounts(): Readonly<Record<string, number>>;
     printSuppressedSummary(): void;
 
     buffer(): readonly LogEntry<T>[];
@@ -53,7 +50,7 @@ const LEVEL_PRIORITY: Record<UpperLogLevel, number> = { DEBUG: 0, INFO: 1, WARN:
 export function makeLogger<T extends string>(opts: LoggerOptions<T> = {}): Logger<T> {
     const prefix = opts.prefix ?? "";
     const suppressedSet = new Set<string>(opts.suppressTags ?? []);
-    const tagCountsMap = new Map<string, number>();
+    const tagCounts: Record<string, number> = {};
     const entries: LogEntry<T>[] = [];
     const drySet = new Set<string>();
     let currentLevel: LogLevel = opts.level ?? "info";
@@ -79,20 +76,16 @@ export function makeLogger<T extends string>(opts: LoggerOptions<T> = {}): Logge
         entries.push({ level, tag, message: msg, suppressed, prefix, timestamp: Date.now() });
     };
 
-    const parseArgs = (a: string, b?: string): { tag?: T; msg: string } => {
-        if (b !== undefined) return { tag: a as T, msg: b };
-        return { msg: a };
-    };
-
     const mkLogFn = (
         level: LogLevel,
         icon: string,
         consoleFn: (...args: any[]) => void,
         dedupe = false,
     ): TaggedLogFn<T> => {
-        return ((a: string, b?: string) => {
-            const { tag, msg } = parseArgs(a, b);
-            if (tag) tagCountsMap.set(tag, (tagCountsMap.get(tag) ?? 0) + 1);
+        return (...args: [string] | [T, string]) => {
+            const tag = args.length === 2 ? args[0] : undefined;
+            const msg = args.length === 2 ? args[1] : args[0];
+            if (tag) tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
             const isSuppressed = tag !== undefined && suppressedSet.has(tag);
             pushEntry(level, msg, tag, isSuppressed);
             if (isSuppressed) return;
@@ -103,7 +96,7 @@ export function makeLogger<T extends string>(opts: LoggerOptions<T> = {}): Logge
                 drySet.add(key);
             }
             consoleFn(fmt(level, icon, msg, tag));
-        }) as TaggedLogFn<T>;
+        };
     };
 
     const logger: Logger<T> = {
@@ -135,12 +128,12 @@ export function makeLogger<T extends string>(opts: LoggerOptions<T> = {}): Logge
             currentLevel = level;
         },
 
-        tagCounts(): ReadonlyMap<string, number> {
-            return tagCountsMap;
+        tagCounts(): Readonly<Record<string, number>> {
+            return tagCounts;
         },
 
         printSuppressedSummary() {
-            const suppressed = [...tagCountsMap.entries()]
+            const suppressed = Object.entries(tagCounts)
                 .filter(([tag]) => suppressedSet.has(tag))
                 .map(([tag, count]) => `${tag}: ${count}`);
             if (suppressed.length > 0) {
