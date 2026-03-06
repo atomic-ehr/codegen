@@ -26,7 +26,7 @@ describe("mkLogger", () => {
             logger.info("hello");
             const entry = logger.buffer()[0];
             expect(entry).toBeDefined();
-            expect(entry?.level).toBe("info");
+            expect(entry?.level).toBe("INFO");
             expect(entry?.message).toBe("hello");
             expect(entry?.tag).toBeUndefined();
             expect(entry?.suppressed).toBe(false);
@@ -51,7 +51,7 @@ describe("mkLogger", () => {
             expect(entry).toBeDefined();
             expect(entry?.tag).toBe("TAG_A");
             expect(entry?.message).toBe("tagged info");
-            expect(entry?.level).toBe("info");
+            expect(entry?.level).toBe("INFO");
         });
 
         it("works for all log levels", () => {
@@ -59,7 +59,7 @@ describe("mkLogger", () => {
             logger.warn("TAG_B", "w");
             logger.error("TAG_C", "e");
             logger.debug("TAG_A", "d");
-            expect(logger.buffer().map((e) => e.level)).toEqual(["info", "warn", "error", "debug"]);
+            expect(logger.buffer().map((e) => e.level)).toEqual(["INFO", "WARN", "ERROR", "DEBUG"]);
             expect(logger.buffer().every((e) => e.tag !== undefined)).toBe(true);
         });
 
@@ -312,10 +312,10 @@ describe("mkLogger", () => {
         });
 
         it("filters by level", () => {
-            expect(bufferFilter(logger, { level: "info" })).toHaveLength(2);
-            expect(bufferFilter(logger, { level: "warn" })).toHaveLength(1);
-            expect(bufferFilter(logger, { level: "error" })).toHaveLength(1);
-            expect(bufferFilter(logger, { level: "debug" })).toHaveLength(1);
+            expect(bufferFilter(logger, { level: "INFO" })).toHaveLength(2);
+            expect(bufferFilter(logger, { level: "WARN" })).toHaveLength(1);
+            expect(bufferFilter(logger, { level: "ERROR" })).toHaveLength(1);
+            expect(bufferFilter(logger, { level: "DEBUG" })).toHaveLength(1);
         });
 
         it("filters by tag", () => {
@@ -330,10 +330,10 @@ describe("mkLogger", () => {
         });
 
         it("combines filters", () => {
-            expect(bufferFilter(logger, { level: "info", suppressed: true })).toHaveLength(1);
-            expect(bufferFilter(logger, { level: "info", suppressed: false })).toHaveLength(1);
-            expect(bufferFilter(logger, { level: "warn", tag: "TAG_A" })).toHaveLength(1);
-            expect(bufferFilter(logger, { level: "warn", tag: "TAG_B" })).toHaveLength(0);
+            expect(bufferFilter(logger, { level: "INFO", suppressed: true })).toHaveLength(1);
+            expect(bufferFilter(logger, { level: "INFO", suppressed: false })).toHaveLength(1);
+            expect(bufferFilter(logger, { level: "WARN", tag: "TAG_A" })).toHaveLength(1);
+            expect(bufferFilter(logger, { level: "WARN", tag: "TAG_B" })).toHaveLength(0);
         });
     });
 
@@ -361,7 +361,7 @@ describe("mkLogger", () => {
             l.warn("TAG_B", "b1");
             l.printSuppressedSummary();
 
-            const summaryEntries = bufferFilter(l, { level: "info" });
+            const summaryEntries = bufferFilter(l, { level: "INFO" });
             expect(summaryEntries).toHaveLength(1);
             expect(summaryEntries[0]?.message).toContain("TAG_A: 2");
             expect(summaryEntries[0]?.message).toContain("TAG_B: 1");
@@ -398,7 +398,7 @@ describe("mkLogger", () => {
         });
 
         it("filters messages below configured level", () => {
-            const l = mkLogger<TestTags>({ level: "warn" });
+            const l = mkLogger<TestTags>({ level: "WARN" });
             l.debug("d");
             l.info("i");
             l.warn("w");
@@ -408,16 +408,16 @@ describe("mkLogger", () => {
         });
 
         it("setLevel changes level at runtime", () => {
-            const l = mkLogger<TestTags>({ level: "info" });
+            const l = mkLogger<TestTags>({ level: "INFO" });
             l.debug("before");
-            l.setLevel("debug");
+            l.setLevel("DEBUG");
             l.debug("after");
             // both buffered regardless
             expect(l.buffer()).toHaveLength(2);
         });
 
         it("fork inherits parent level", () => {
-            const parent = mkLogger<TestTags>({ level: "warn" });
+            const parent = mkLogger<TestTags>({ level: "WARN" });
             const child = parent.fork("child");
             child.debug("d");
             child.info("i");
@@ -426,14 +426,14 @@ describe("mkLogger", () => {
         });
 
         it("fork can override parent level", () => {
-            const parent = mkLogger<TestTags>({ level: "warn" });
-            const child = parent.fork("child", { level: "debug" });
+            const parent = mkLogger<TestTags>({ level: "WARN" });
+            const child = parent.fork("child", { level: "DEBUG" });
             child.debug("d");
             expect(child.buffer()).toHaveLength(1);
         });
 
         it("level filtering works alongside tag suppression", () => {
-            const l = mkLogger<TestTags>({ level: "warn", suppressTags: ["TAG_A"] });
+            const l = mkLogger<TestTags>({ level: "WARN", suppressTags: ["TAG_A"] });
             l.info("TAG_A", "suppressed + below level");
             l.warn("TAG_A", "suppressed at level");
             l.warn("TAG_B", "visible");
@@ -442,7 +442,7 @@ describe("mkLogger", () => {
         });
 
         it("silent level suppresses all console output but still buffers", () => {
-            const l = mkLogger<TestTags>({ level: "silent" });
+            const l = mkLogger<TestTags>({ level: "SILENT" });
             l.debug("d");
             l.info("i");
             l.warn("w");

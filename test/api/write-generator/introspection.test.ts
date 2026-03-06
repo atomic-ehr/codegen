@@ -4,7 +4,7 @@ import { r4Manager } from "@typeschema-test/utils";
 
 describe("IntrospectionWriter - Fhir Schema Output", async () => {
     const result = await new APIBuilder({ register: r4Manager })
-        .setLogLevel("error")
+        .setLogLevel("ERROR")
         .introspection({ fhirSchemas: "introspection" })
         .introspection({ fhirSchemas: "introspection.ndjson" })
         .generate();
@@ -28,7 +28,7 @@ describe("IntrospectionWriter - Fhir Schema Output", async () => {
 
 describe("IntrospectionWriter - TypeSchema output", async () => {
     const result = await new APIBuilder({ register: r4Manager })
-        .setLogLevel("error")
+        .setLogLevel("ERROR")
         .typeSchema({
             treeShake: {
                 "hl7.fhir.r4.core": {
@@ -68,7 +68,7 @@ describe("IntrospectionWriter - TypeSchema output", async () => {
 
 describe("IntrospectionWriter - typeTree", async () => {
     const result = await new APIBuilder({ register: r4Manager })
-        .setLogLevel("error")
+        .setLogLevel("ERROR")
         .typeSchema({
             treeShake: {
                 "hl7.fhir.r4.core": {
@@ -94,7 +94,7 @@ describe("IntrospectionWriter - typeTree", async () => {
 
 describe("IntrospectionWriter - StructureDefinition output", async () => {
     const result = await new APIBuilder({ register: r4Manager })
-        .setLogLevel("error")
+        .setLogLevel("ERROR")
         .typeSchema({
             treeShake: {
                 "hl7.fhir.r4.core": {
