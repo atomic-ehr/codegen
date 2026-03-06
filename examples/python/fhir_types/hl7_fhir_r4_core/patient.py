@@ -15,7 +15,7 @@ from fhir_types.hl7_fhir_r4_core.resource_families import DomainResourceFamily
 
 class PatientCommunication(BackboneElement):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    language: CodeableConcept = Field(alias="language", serialization_alias="language")
+    language: CodeableConcept[Literal["ar", "bn", "cs", "da", "de", "de-AT", "de-CH", "de-DE", "el", "en", "en-AU", "en-CA", "en-GB", "en-IN", "en-NZ", "en-SG", "en-US", "es", "es-AR", "es-ES", "es-UY", "fi", "fr", "fr-BE", "fr-CH", "fr-FR", "fy", "fy-NL", "hi", "hr", "it", "it-CH", "it-IT", "ja", "ko", "nl", "nl-BE", "nl-NL", "no", "no-NO", "pa", "pl", "pt", "pt-BR", "ru", "ru-RU", "sr", "sr-RS", "sv", "sv-SE", "te", "zh", "zh-CN", "zh-HK", "zh-SG", "zh-TW"] | str] = Field(alias="language", serialization_alias="language")
     preferred: bool | None = Field(None, alias="preferred", serialization_alias="preferred")
 
 class PatientContact(BackboneElement):
@@ -55,7 +55,7 @@ class Patient(DomainResource):
     identifier: PyList[Identifier] | None = Field(None, alias="identifier", serialization_alias="identifier")
     link: PyList[PatientLink] | None = Field(None, alias="link", serialization_alias="link")
     managing_organization: Reference | None = Field(None, alias="managingOrganization", serialization_alias="managingOrganization")
-    marital_status: CodeableConcept | None = Field(None, alias="maritalStatus", serialization_alias="maritalStatus")
+    marital_status: CodeableConcept[Literal["A", "D", "I", "L", "M", "P", "S", "T", "U", "W", "UNK"] | str] | None = Field(None, alias="maritalStatus", serialization_alias="maritalStatus")
     multiple_birth_boolean: bool | None = Field(None, alias="multipleBirthBoolean", serialization_alias="multipleBirthBoolean")
     multiple_birth_integer: int | None = Field(None, alias="multipleBirthInteger", serialization_alias="multipleBirthInteger")
     name: PyList[HumanName] | None = Field(None, alias="name", serialization_alias="name")
