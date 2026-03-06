@@ -2,12 +2,12 @@ import * as fs from "node:fs";
 import * as fsPromises from "node:fs/promises";
 import * as Path from "node:path";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
-import type { Logger } from "@root/utils/logger";
+import type { Log } from "@root/utils/log";
 
 export type FileSystemWriterOptions = {
     outputDir: string;
     inMemoryOnly?: boolean;
-    logger?: Logger;
+    logger?: Log;
     resolveAssets?: (fn: string) => string;
 };
 
@@ -36,7 +36,7 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
         this.opts.outputDir = path;
     }
 
-    logger(): Logger | undefined {
+    logger(): Log | undefined {
         return this.opts.logger;
     }
 

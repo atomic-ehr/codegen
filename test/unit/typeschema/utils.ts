@@ -2,7 +2,7 @@ import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import type { ValueSet } from "@root/fhir-types/hl7-fhir-r4-core";
 import { generateTypeSchemas } from "@root/typeschema";
 import { mkTypeSchemaIndex } from "@root/typeschema/utils";
-import { type Logger, mkLogger } from "@root/utils/logger";
+import { type Log, mkLogger } from "@root/utils/log";
 import { transformFhirSchema, transformValueSet } from "@typeschema/core/transformer";
 import { type Register, registerFromPackageMetas } from "@typeschema/register";
 import { type CanonicalUrl, enrichFHIRSchema, enrichValueSet, type PackageMeta } from "@typeschema/types";
@@ -12,7 +12,7 @@ export type PVS = Partial<ValueSet>;
 
 const logger = mkLogger({ prefix: "TEST" });
 
-export const mkIndex = async (register: Register, logger?: Logger) => {
+export const mkIndex = async (register: Register, logger?: Log) => {
     const { schemas } = await generateTypeSchemas(register, logger);
     return mkTypeSchemaIndex(schemas, { register, logger });
 };

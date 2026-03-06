@@ -5,7 +5,7 @@
  */
 
 import { list } from "@root/utils/cli-fmt";
-import { mkLogger } from "@root/utils/logger";
+import { mkLogger } from "@root/utils/log";
 import type { CommandModule } from "yargs";
 import { generateTypeschemaCommand } from "./typeschema/generate";
 

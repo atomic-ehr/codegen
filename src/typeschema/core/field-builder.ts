@@ -6,7 +6,7 @@
 
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
-import type { Logger } from "@root/utils/logger";
+import type { Log } from "@root/utils/log";
 import { packageMetaToFhir } from "@typeschema/types";
 import type {
     BindingIdentifier,
@@ -224,7 +224,7 @@ export function buildFieldType(
     fhirSchema: RichFHIRSchema,
     path: string[],
     element: FHIRSchemaElement,
-    logger?: Logger,
+    logger?: Log,
 ): Identifier | undefined {
     if (element.elementReference) {
         const refPath = element.elementReference
@@ -259,7 +259,7 @@ export const mkField = (
     fhirSchema: RichFHIRSchema,
     path: string[],
     element: FHIRSchemaElement,
-    logger?: Logger,
+    logger?: Log,
     rawElement?: FHIRSchemaElement,
 ): Field => {
     let binding: BindingIdentifier | undefined;

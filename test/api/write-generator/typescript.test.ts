@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { APIBuilder } from "@root/api/builder";
 import type { CanonicalUrl } from "@root/typeschema/types";
-import { mkLogger } from "@root/utils/logger";
+import { mkLogger } from "@root/utils/log";
 import { ccdaManager, r4Manager } from "@typeschema-test/utils";
 
 describe("TypeScript Writer Generator", async () => {
