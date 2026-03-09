@@ -1,6 +1,6 @@
 import * as afs from "node:fs/promises";
 import * as Path from "node:path";
-import type { Log } from "@root/utils/log";
+import type { CodegenLog } from "@root/utils/types";
 import * as YAML from "yaml";
 import type { IrReport } from "./ir/types";
 import type { Register } from "./register";
@@ -199,7 +199,7 @@ export const mkTypeSchemaIndex = (
         irReport = {},
     }: {
         register?: Register;
-        logger?: Log;
+        logger?: CodegenLog;
         irReport?: IrReport;
     },
 ): TypeSchemaIndex => {

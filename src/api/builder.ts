@@ -23,7 +23,7 @@ import type { IrConf, LogicalPromotionConf, TreeShakeConf } from "@root/typesche
 import { type Register, registerFromManager } from "@root/typeschema/register";
 import { type PackageMeta, packageMetaToNpm } from "@root/typeschema/types";
 import { mkTypeSchemaIndex, type TypeSchemaIndex } from "@root/typeschema/utils";
-import { type LogManager, type LogLevel, mkLogger } from "@root/utils/log";
+import { type LogLevel, type LogManager, mkLogger } from "@root/utils/log";
 import { IntrospectionWriter, type IntrospectionWriterOptions } from "./writer-generator/introspection";
 import { IrReportWriterWriter, type IrReportWriterWriterOptions } from "./writer-generator/ir-report";
 import type { FileBasedMustacheGeneratorOptions } from "./writer-generator/mustache";

@@ -6,7 +6,7 @@
 
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import { shouldSkipCanonical } from "@root/typeschema/skip-hack";
-import type { Log } from "@root/utils/log";
+import type { CodegenLog } from "@root/utils/types";
 import type { Register } from "@typeschema/register";
 import {
     concatIdentifiers,
@@ -33,7 +33,7 @@ export function mkFields(
     fhirSchema: RichFHIRSchema,
     parentPath: string[],
     elements: Record<string, FHIRSchemaElement> | undefined,
-    logger?: Log,
+    logger?: CodegenLog,
 ): Record<string, Field> | undefined {
     if (!elements) return undefined;
 
@@ -77,7 +77,7 @@ function extractFieldDependencies(fields: Record<string, Field>): Identifier[] {
 export async function transformValueSet(
     register: Register,
     valueSet: RichValueSet,
-    logger?: Log,
+    logger?: CodegenLog,
 ): Promise<ValueSetTypeSchema> {
     if (!valueSet.url) throw new Error("ValueSet URL is required");
 
@@ -114,7 +114,11 @@ export function extractDependencies(
     return concatIdentifiers(filtered);
 }
 
-function transformFhirSchemaResource(register: Register, fhirSchema: RichFHIRSchema, logger?: Log): TypeSchema[] {
+function transformFhirSchemaResource(
+    register: Register,
+    fhirSchema: RichFHIRSchema,
+    logger?: CodegenLog,
+): TypeSchema[] {
     const identifier = mkIdentifier(fhirSchema);
 
     let base: Identifier | undefined;
@@ -155,7 +159,7 @@ function transformFhirSchemaResource(register: Register, fhirSchema: RichFHIRSch
 export async function transformFhirSchema(
     register: Register,
     fhirSchema: RichFHIRSchema,
-    logger?: Log,
+    logger?: CodegenLog,
 ): Promise<TypeSchema[]> {
     return transformFhirSchemaResource(register, fhirSchema, logger);
 }

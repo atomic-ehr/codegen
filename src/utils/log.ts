@@ -34,9 +34,7 @@ export type LogManager<T extends string = string> = Log<T> & {
 
 type TagsOf<L> = L extends LogManager<infer T> ? T : never;
 
-export type ExtendLogManager<Extra extends string, Parent extends LogManager<any>> = LogManager<
-    TagsOf<Parent> | Extra
->;
+export type ExtendLogManager<Extra extends string, Parent extends LogManager<any>> = LogManager<TagsOf<Parent> | Extra>;
 
 type TaggedLogFn<T extends string> = (...args: [string] | [T, string]) => void;
 

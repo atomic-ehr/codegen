@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import type { Log } from "@root/utils/log";
+import type { CodegenLog } from "@root/utils/types";
 import { extractDependencies } from "../core/transformer";
 import {
     type CanonicalUrl,
@@ -174,7 +174,7 @@ const mutableFillReport = (report: TreeShakeReport, tsIndex: TypeSchemaIndex, sh
     }
 };
 
-export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _logger?: Log): TypeSchema => {
+export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _logger?: CodegenLog): TypeSchema => {
     schema = JSON.parse(JSON.stringify(schema));
     if (isPrimitiveTypeSchema(schema) || isValueSetTypeSchema(schema) || isBindingSchema(schema)) return schema;
 
