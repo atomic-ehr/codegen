@@ -3,11 +3,10 @@ import { APIBuilder } from "@root/api/builder";
 import type { CanonicalUrl } from "@root/typeschema/types";
 import { mkLogger } from "@root/utils/log";
 import type { CodegenTag } from "@root/utils/types";
-import { ccdaManager, r4Manager } from "@typeschema-test/utils";
+import { ccdaManager, errorLogger, r4Manager } from "@typeschema-test/utils";
 
 describe("TypeScript Writer Generator", async () => {
-    const result = await new APIBuilder({ register: r4Manager })
-        .setLogLevel("ERROR")
+    const result = await new APIBuilder({ register: r4Manager, logger: errorLogger })
         .typescript({
             inMemoryOnly: true,
         })
@@ -30,8 +29,7 @@ describe("TypeScript Writer Generator", async () => {
 });
 
 describe("TypeScript CDA with Logical Model Promotion to Resource", async () => {
-    const result = await new APIBuilder({ register: ccdaManager })
-        .setLogLevel("ERROR")
+    const result = await new APIBuilder({ register: ccdaManager, logger: errorLogger })
         .typeSchema({
             promoteLogical: {
                 "hl7.cda.uv.core": ["http://hl7.org/cda/stds/core/StructureDefinition/Material" as CanonicalUrl],

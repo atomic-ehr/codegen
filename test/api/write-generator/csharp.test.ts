@@ -1,10 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import { APIBuilder } from "@root/api/builder";
-import { r4Manager } from "@typeschema-test/utils";
+import { errorLogger, r4Manager } from "@typeschema-test/utils";
 
 describe("C# Writer Generator", async () => {
-    const result = await new APIBuilder({ register: r4Manager })
-        .setLogLevel("ERROR")
+    const result = await new APIBuilder({ register: r4Manager, logger: errorLogger })
         .csharp({
             inMemoryOnly: true,
         })

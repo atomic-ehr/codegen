@@ -23,7 +23,7 @@ import type { IrConf, LogicalPromotionConf, TreeShakeConf } from "@root/typesche
 import { type Register, registerFromManager } from "@root/typeschema/register";
 import { type PackageMeta, packageMetaToNpm } from "@root/typeschema/types";
 import { mkTypeSchemaIndex, type TypeSchemaIndex } from "@root/typeschema/utils";
-import { type LogLevel, mkLogger } from "@root/utils/log";
+import { mkLogger } from "@root/utils/log";
 import type { CodegenLogManager } from "@root/utils/types";
 import { IntrospectionWriter, type IntrospectionWriterOptions } from "./writer-generator/introspection";
 import { IrReportWriterWriter, type IrReportWriterWriterOptions } from "./writer-generator/ir-report";
@@ -42,8 +42,6 @@ export interface APIBuilderOptions {
     treeShake: TreeShakeConf | undefined;
     promoteLogical: LogicalPromotionConf | undefined;
 
-    /** Log level for the logger. Default: INFO */
-    logLevel: LogLevel;
     /** Custom FHIR package registry URL (default: https://fs.get-ig.org/pkgs/) */
     registry: string | undefined;
     /** Drop the canonical manager cache */
@@ -138,7 +136,6 @@ export class APIBuilder {
             treeShake: undefined,
             promoteLogical: undefined,
             registry: undefined,
-            logLevel: "INFO",
             dropCanonicalManagerCache: false,
         };
         const opts: APIBuilderOptions = {
@@ -174,7 +171,7 @@ export class APIBuilder {
                 dropCache: userOpts.dropCanonicalManagerCache,
                 preprocessPackage: userOpts.preprocessPackage,
             });
-        this.logger = userOpts.logger ?? mkLogger({ prefix: "api", level: opts.logLevel });
+        this.logger = userOpts.logger ?? mkLogger({ prefix: "api" });
         this.options = opts;
     }
 
@@ -332,11 +329,6 @@ export class APIBuilder {
             gen.writer.setOutputDir(directory);
         }
 
-        return this;
-    }
-
-    setLogLevel(level: LogLevel): APIBuilder {
-        this.logger?.setLevel(level);
         return this;
     }
 

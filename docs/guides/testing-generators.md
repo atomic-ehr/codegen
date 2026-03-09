@@ -56,11 +56,10 @@ All generator tests follow this basic structure:
 ```typescript
 import { describe, expect, it } from "bun:test";
 import { APIBuilder } from "@root/api/builder";
-import { r4Manager } from "@typeschema-test/utils";
+import { silentLogger, r4Manager } from "@typeschema-test/utils";
 
 describe("TypeScript Writer Generator", async () => {
-    const result = await new APIBuilder({ manager: r4Manager })
-        .setLogLevel("SILENT")
+    const result = await new APIBuilder({ manager: r4Manager, logger: silentLogger })
         .typescript({
             inMemoryOnly: true,
         })
@@ -79,8 +78,7 @@ describe("TypeScript Writer Generator", async () => {
 ### Key Components
 
 **APIBuilder Setup:**
-- Initialize with test manager: `new APIBuilder({ manager: r4Manager })`
-- Set log level to SILENT to reduce noise: `.setLogLevel("SILENT")`
+- Initialize with test manager and silent logger: `new APIBuilder({ manager: r4Manager, logger: silentLogger })`
 - Choose generator method: `.typescript()`, `.python()`, `.csharp()`, `.mustache()`
 - Enable in-memory mode: `inMemoryOnly: true` (no file I/O)
 

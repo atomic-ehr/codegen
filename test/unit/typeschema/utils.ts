@@ -12,6 +12,8 @@ export type PFS = Partial<FHIRSchema>;
 export type PVS = Partial<ValueSet>;
 
 const logger = mkLogger<CodegenTag>({ prefix: "TEST" });
+export const errorLogger = mkLogger<CodegenTag>({ level: "ERROR" });
+export const silentLogger = mkLogger<CodegenTag>({ level: "SILENT" });
 
 export const mkIndex = async (register: Register, logger?: CodegenLog) => {
     const { schemas } = await generateTypeSchemas(register, logger);
