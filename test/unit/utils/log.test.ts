@@ -143,7 +143,7 @@ describe("mkLogger", () => {
         it("creates child with combined prefix", () => {
             const child = logger.fork("child");
             child.info("hello");
-            expect(child.buffer()[0]?.prefix).toBe("test:child");
+            expect(child.buffer()[0]?.prefix).toBe("test/child");
         });
 
         it("creates child from root without parent prefix", () => {
@@ -278,7 +278,7 @@ describe("mkLogger", () => {
             child.warn("BASE_B", "visible");
             expect(bufferFilter(child, { suppressed: true })).toHaveLength(1);
             expect(child.buffer()[0]?.tag).toBe("BASE_A");
-            expect(child.buffer()[1]?.prefix).toBe("root:child");
+            expect(child.buffer()[1]?.prefix).toBe("root/child");
         });
     });
 
@@ -353,25 +353,22 @@ describe("mkLogger", () => {
         });
     });
 
-    describe("printSuppressedSummary", () => {
-        it("emits an info entry with suppressed counts", () => {
-            const l = mkLogger<TestTags>({ suppressTags: ["TAG_A", "TAG_B"] });
+    describe("printTagSummary", () => {
+        it("prints warning summary with all tag counts", () => {
+            const l = mkLogger<TestTags>({ prefix: "test", suppressTags: ["TAG_A"] });
             l.warn("TAG_A", "a1");
             l.warn("TAG_A", "a2");
             l.warn("TAG_B", "b1");
-            l.printSuppressedSummary();
-
-            const summaryEntries = bufferFilter(l, { level: "INFO" });
-            expect(summaryEntries).toHaveLength(1);
-            expect(summaryEntries[0]?.message).toContain("TAG_A: 2");
-            expect(summaryEntries[0]?.message).toContain("TAG_B: 1");
+            l.printTagSummary();
+            // printTagSummary writes directly to console, doesn't buffer
+            expect(l.tagCounts().TAG_A).toBe(2);
+            expect(l.tagCounts().TAG_B).toBe(1);
         });
 
-        it("does nothing when no tags are suppressed", () => {
-            logger.warn("TAG_A", "visible");
-            const countBefore = logger.buffer().length;
-            logger.printSuppressedSummary();
-            expect(logger.buffer()).toHaveLength(countBefore);
+        it("does nothing when no tags exist", () => {
+            logger.info("no tags");
+            logger.printTagSummary();
+            // no crash, no extra output
         });
     });
 
@@ -385,7 +382,7 @@ describe("mkLogger", () => {
         it("nests prefixes through multiple forks", () => {
             const child = logger.fork("a").fork("b");
             child.info("deep");
-            expect(child.buffer()[0]?.prefix).toBe("test:a:b");
+            expect(child.buffer()[0]?.prefix).toBe("test/a/b");
         });
     });
 

@@ -20,13 +20,14 @@ export type Log<T extends string = string> = {
 };
 
 export type LogManager<T extends string = string> = Log<T> & {
-    fork<C extends string = T>(prefix: string, opts?: Partial<LoggerOptions<C>>): LogManager<C>;
+    fork(prefix: string, opts?: Partial<LoggerOptions<T>>): LogManager<T>;
+    fork<C extends string>(prefix: string, opts?: Partial<LoggerOptions<C>>): LogManager<C>;
     as<Narrower extends string>(): LogManager<Narrower>;
 
     suppress(...tags: T[]): void;
     setLevel(level: LogLevel): void;
     tagCounts(): Readonly<Record<string, number>>;
-    printSuppressedSummary(): void;
+    printTagSummary(): void;
 
     buffer(): readonly LogEntry<T>[];
     bufferClear(): void;
@@ -65,9 +66,9 @@ export function mkLogger<T extends string>(opts: LoggerOptions<T> = {}): LogMana
     };
 
     const fmt = (level: LogLevel, icon: string, msg: string, tag?: string) => {
-        const pfx = prefix ? `[${prefix}] ` : "";
-        const tagStr = tag ? `[${tag}] ` : "";
-        return colorize[level](`${icon} ${pfx}${tagStr}${msg}`);
+        const pfx = prefix ? `${prefix}: ` : "";
+        const tagSuffix = tag ? ` ${pc.dim(`(${tag})`)}` : "";
+        return colorize[level](`${icon} ${pfx}${msg}`) + tagSuffix;
     };
 
     const pushEntry = (level: LogLevel, msg: string, tag?: T, suppressed = false) => {
@@ -105,7 +106,7 @@ export function mkLogger<T extends string>(opts: LoggerOptions<T> = {}): LogMana
         debug: mkLogFn("DEBUG", "D", console.log),
 
         fork<C extends string = T>(childPrefix: string, childOpts?: Partial<LoggerOptions<C>>): LogManager<C> {
-            const fullPrefix = prefix ? `${prefix}:${childPrefix}` : childPrefix;
+            const fullPrefix = prefix ? `${prefix}/${childPrefix}` : childPrefix;
             const merged = [...suppressedSet, ...(childOpts?.suppressTags ?? [])] as C[];
             return mkLogger<C>({
                 prefix: fullPrefix,
@@ -130,12 +131,21 @@ export function mkLogger<T extends string>(opts: LoggerOptions<T> = {}): LogMana
             return tagCounts;
         },
 
-        printSuppressedSummary() {
-            const suppressed = Object.entries(tagCounts)
-                .filter(([tag]) => suppressedSet.has(tag))
-                .map(([tag, count]) => `${tag}: ${count}`);
+        printTagSummary() {
+            const allTags = Object.entries(tagCounts);
+            if (allTags.length === 0) return;
+            const pfx = prefix ? `${prefix}: ` : "";
+            const emitted = allTags.filter(([tag]) => !suppressedSet.has(tag));
+            const suppressed = allTags.filter(([tag]) => suppressedSet.has(tag));
+            if (emitted.length > 0) {
+                const total = emitted.reduce((sum, [, c]) => sum + c, 0);
+                const detail = emitted.map(([tag, c]) => `${tag}: ${c}`).join(", ");
+                console.warn(pc.yellow(`! ${pfx}${total} warnings (${detail})`));
+            }
             if (suppressed.length > 0) {
-                logger.info(`Suppressed: ${suppressed.join(", ")}`);
+                const total = suppressed.reduce((sum, [, c]) => sum + c, 0);
+                const detail = suppressed.map(([tag, c]) => `${tag}: ${c}`).join(", ");
+                console.log(pc.dim(`i ${pfx}${total} suppressed (${detail})`));
             }
         },
 
