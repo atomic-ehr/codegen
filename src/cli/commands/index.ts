@@ -22,11 +22,11 @@ export interface CLIArgv {
     logLevel?: LogLevel;
 }
 
-const cliLogger = mkLogger({ prefix: "cli" });
+let cliLogger = mkLogger({ prefix: "cli" });
 
 async function setupLoggingMiddleware(argv: any) {
     const level: LogLevel = argv.logLevel ?? (argv.debug || argv.verbose ? "DEBUG" : "INFO");
-    cliLogger.setLevel(level);
+    cliLogger = mkLogger({ prefix: "cli", level });
 }
 
 /**

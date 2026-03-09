@@ -95,15 +95,6 @@ describe("mkLogger", () => {
             l.warn("TAG_A", "two");
             expect(l.tagCounts().TAG_A).toBe(2);
         });
-
-        it("suppress() adds tags at runtime", () => {
-            logger.warn("TAG_B", "before");
-            expect(logger.buffer()[0]?.suppressed).toBe(false);
-
-            logger.suppress("TAG_B");
-            logger.warn("TAG_B", "after");
-            expect(logger.buffer()[1]?.suppressed).toBe(true);
-        });
     });
 
     describe("dryWarn deduplication", () => {
@@ -195,17 +186,6 @@ describe("mkLogger", () => {
             child.warn("TAG_A", "valid");
             expect(child.buffer()[0]?.tag).toBe("TAG_A");
         });
-
-        it("inherits runtime suppress() calls", () => {
-            const parent = mkLogger<TestTags>({ suppressTags: ["TAG_A"] });
-            parent.suppress("TAG_B");
-            const child = parent.fork("child");
-            child.warn("TAG_A", "from init");
-            child.warn("TAG_B", "from runtime suppress");
-            child.warn("TAG_C", "not suppressed");
-            expect(bufferFilter(child, { suppressed: true })).toHaveLength(2);
-            expect(child.buffer()[2]?.suppressed).toBe(false);
-        });
     });
 
     describe("as (narrowing)", () => {
@@ -223,14 +203,6 @@ describe("mkLogger", () => {
             const narrow = parent.as<Narrow>();
             narrow.warn("TAG_A", "suppressed via parent");
             expect(narrow.buffer()[0]?.suppressed).toBe(true);
-        });
-
-        it("suppress on narrowed logger affects original", () => {
-            type Narrow = "TAG_A" | "TAG_B";
-            const narrow = logger.as<Narrow>();
-            narrow.suppress("TAG_A");
-            logger.warn("TAG_A", "should be suppressed");
-            expect(logger.buffer()[0]?.suppressed).toBe(true);
         });
     });
 
@@ -402,15 +374,6 @@ describe("mkLogger", () => {
             l.error("e");
             // all 4 buffered
             expect(l.buffer()).toHaveLength(4);
-        });
-
-        it("setLevel changes level at runtime", () => {
-            const l = mkLogger<TestTags>({ level: "INFO" });
-            l.debug("before");
-            l.setLevel("DEBUG");
-            l.debug("after");
-            // both buffered regardless
-            expect(l.buffer()).toHaveLength(2);
         });
 
         it("fork inherits parent level", () => {

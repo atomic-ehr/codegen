@@ -23,8 +23,6 @@ export type LogManager<T extends string = string> = Log<T> & {
     fork(prefix: string, opts?: Partial<LoggerOptions<T>>): LogManager<T>;
     as<Narrower extends string>(): LogManager<Narrower>;
 
-    suppress(...tags: T[]): void;
-    setLevel(level: LogLevel): void;
     tagCounts(): Readonly<Record<string, number>>;
     printTagSummary(): void;
 
@@ -52,7 +50,7 @@ export function mkLogger<T extends string>(opts: LoggerOptions<T> = {}): LogMana
     const tagCounts: Record<string, number> = {};
     const entries: LogEntry<T>[] = [];
     const drySet = new Set<string>();
-    let currentLevel: LogLevel = opts.level ?? "INFO";
+    const currentLevel: LogLevel = opts.level ?? "INFO";
 
     const shouldLog = (level: LogLevel): boolean => LEVEL_PRIORITY[level] >= LEVEL_PRIORITY[currentLevel];
 
@@ -116,14 +114,6 @@ export function mkLogger<T extends string>(opts: LoggerOptions<T> = {}): LogMana
 
         as<Narrower extends string>(): LogManager<Narrower> {
             return logger as unknown as LogManager<Narrower>;
-        },
-
-        suppress(...tags: T[]) {
-            for (const tag of tags) suppressedSet.add(tag);
-        },
-
-        setLevel(level: LogLevel) {
-            currentLevel = level;
         },
 
         tagCounts(): Readonly<Record<string, number>> {
