@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { APIBuilder } from "@root/api/builder";
 import type { CanonicalUrl } from "@root/typeschema/types";
-import { silentLogger } from "@typeschema-test/utils";
+import { mkSilentLogger } from "@typeschema-test/utils";
 
 /**
  * Tests for SQL-on-FHIR package.
@@ -21,7 +21,7 @@ describe("SQL-on-FHIR", async () => {
     };
 
     describe("TypeScript Generation", async () => {
-        const result = await new APIBuilder({ logger: silentLogger })
+        const result = await new APIBuilder({ logger: mkSilentLogger() })
             .fromPackageRef(packageUrl)
             .typeSchema({ treeShake: treeShakeConfig })
             .typescript({ inMemoryOnly: true })
@@ -54,7 +54,7 @@ describe("SQL-on-FHIR", async () => {
     });
 
     describe("Python Generation", async () => {
-        const result = await new APIBuilder({ logger: silentLogger })
+        const result = await new APIBuilder({ logger: mkSilentLogger() })
             .fromPackageRef(packageUrl)
             .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
             .python({ inMemoryOnly: true })
@@ -84,7 +84,7 @@ describe("SQL-on-FHIR", async () => {
     });
 
     describe("C# Generation", async () => {
-        const result = await new APIBuilder({ logger: silentLogger })
+        const result = await new APIBuilder({ logger: mkSilentLogger() })
             .fromPackageRef(packageUrl)
             .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
             .csharp({ inMemoryOnly: true })

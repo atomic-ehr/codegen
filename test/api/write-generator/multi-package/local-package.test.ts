@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import * as Path from "node:path";
 import { APIBuilder } from "@root/api/builder";
 import type { CanonicalUrl } from "@root/typeschema/types";
-import { silentLogger } from "@typeschema-test/utils";
+import { mkSilentLogger } from "@typeschema-test/utils";
 
 const LOCAL_PACKAGE_PATH = Path.join(__dirname, "../../../assets/local-package/structure-definitions");
 
@@ -30,7 +30,7 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
     };
 
     describe("TypeScript Generation", async () => {
-        const result = await new APIBuilder({ logger: silentLogger })
+        const result = await new APIBuilder({ logger: mkSilentLogger() })
             .localStructureDefinitions(localPackageConfig)
             .typeSchema({ treeShake: treeShakeConfig })
             .typescript({ inMemoryOnly: true })
@@ -61,7 +61,7 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
     });
 
     describe("Python Generation", async () => {
-        const result = await new APIBuilder({ logger: silentLogger })
+        const result = await new APIBuilder({ logger: mkSilentLogger() })
             .localStructureDefinitions(localPackageConfig)
             .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
             .python({ inMemoryOnly: true })
@@ -97,7 +97,7 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
     });
 
     describe("C# Generation", async () => {
-        const result = await new APIBuilder({ logger: silentLogger })
+        const result = await new APIBuilder({ logger: mkSilentLogger() })
             .localStructureDefinitions(localPackageConfig)
             .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
             .csharp({ inMemoryOnly: true })

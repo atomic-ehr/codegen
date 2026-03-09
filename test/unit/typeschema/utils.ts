@@ -2,8 +2,8 @@ import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import type { ValueSet } from "@root/fhir-types/hl7-fhir-r4-core";
 import { generateTypeSchemas } from "@root/typeschema";
 import { mkTypeSchemaIndex } from "@root/typeschema/utils";
-import type { CodegenLog, CodegenTag } from "@root/utils/log";
-import { mkLogger } from "@root/utils/log";
+import type { CodegenLog } from "@root/utils/log";
+import { mkCodegenLogger } from "@root/utils/log";
 import { transformFhirSchema, transformValueSet } from "@typeschema/core/transformer";
 import { type Register, registerFromPackageMetas } from "@typeschema/register";
 import { type CanonicalUrl, enrichFHIRSchema, enrichValueSet, type PackageMeta } from "@typeschema/types";
@@ -11,9 +11,9 @@ import { type CanonicalUrl, enrichFHIRSchema, enrichValueSet, type PackageMeta }
 export type PFS = Partial<FHIRSchema>;
 export type PVS = Partial<ValueSet>;
 
-const logger = mkLogger<CodegenTag>({ prefix: "TEST" });
-export const errorLogger = mkLogger<CodegenTag>({ level: "ERROR" });
-export const silentLogger = mkLogger<CodegenTag>({ level: "SILENT" });
+export const mkTestLogger = () => mkCodegenLogger({ prefix: "TEST" });
+export const mkErrorLogger = () => mkCodegenLogger({ level: "ERROR" });
+export const mkSilentLogger = () => mkCodegenLogger({ level: "SILENT" });
 
 export const mkIndex = async (register: Register, logger?: CodegenLog) => {
     const { schemas } = await generateTypeSchemas(register, logger);
@@ -52,13 +52,18 @@ export const registerFs = (register: Register, fs: PFS) => {
     return rfs;
 };
 
-export const resolveTs = async (register: Register, pkgMeta: PackageMeta, url: string | CanonicalUrl) => {
+export const resolveTs = async (
+    register: Register,
+    pkgMeta: PackageMeta,
+    url: string | CanonicalUrl,
+    logger: CodegenLog,
+) => {
     const rfs = register.resolveFs(pkgMeta, url as CanonicalUrl);
     if (!rfs) throw new Error("Failed to resolve registered FHIR schema");
     return await transformFhirSchema(register, rfs, logger);
 };
 
-export const registerFsAndMkTs = async (register: Register, fs: PFS) => {
+export const registerFsAndMkTs = async (register: Register, fs: PFS, logger: CodegenLog) => {
     const rfs = registerFs(register, fs);
     return await transformFhirSchema(register, rfs, logger);
 };

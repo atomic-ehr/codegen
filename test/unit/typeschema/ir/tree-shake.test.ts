@@ -8,7 +8,7 @@ import {
 } from "@root/typeschema/ir/tree-shake";
 import { registerFromPackageMetas } from "@root/typeschema/register";
 import type { CanonicalUrl, RegularTypeSchema } from "@root/typeschema/types";
-import { mkIndex, mkR4Register, r4Package, r5Package, resolveTs } from "@typeschema-test/utils";
+import { mkIndex, mkR4Register, mkTestLogger, r4Package, r5Package, resolveTs } from "@typeschema-test/utils";
 
 describe("treeShake specific TypeSchema", async () => {
     const manager = await registerFromPackageMetas([r4Package, r5Package], {});
@@ -55,10 +55,12 @@ describe("treeShake specific TypeSchema", async () => {
 
 describe("treeShake specific TypeSchema", async () => {
     const r4 = await mkR4Register();
+    const logger = mkTestLogger();
     const patientTss = await resolveTs(
         r4,
         r4Package,
         "http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl,
+        logger,
     );
     const patientOrigin = patientTss[0] as RegularTypeSchema;
     assert(patientOrigin !== undefined);

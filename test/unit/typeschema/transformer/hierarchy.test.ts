@@ -1,9 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import type { PFS } from "@typeschema-test/utils";
-import { mkR4Register, mkR5Register, registerFsAndMkTs } from "@typeschema-test/utils";
+import { mkR4Register, mkR5Register, mkTestLogger, registerFsAndMkTs } from "@typeschema-test/utils";
 
 describe("TypeSchema: Nested types", async () => {
     const r4 = await mkR4Register();
+    const logger = mkTestLogger();
     describe("A with array field", () => {
         const A: PFS = {
             url: "uri::A",
@@ -13,7 +14,7 @@ describe("TypeSchema: Nested types", async () => {
             },
         };
         it("Base", async () => {
-            expect(await registerFsAndMkTs(r4, A)).toMatchObject([
+            expect(await registerFsAndMkTs(r4, A, logger)).toMatchObject([
                 {
                     identifier: { url: "uri::A" },
                     fields: {
@@ -42,7 +43,7 @@ describe("TypeSchema: Nested types", async () => {
             },
         };
 
-        expect(await registerFsAndMkTs(r4, B)).toMatchObject([
+        expect(await registerFsAndMkTs(r4, B, logger)).toMatchObject([
             {
                 identifier: { url: "uri::B" },
                 base: { url: "uri::A" },
@@ -89,8 +90,8 @@ describe("TypeSchema: Nested types", async () => {
         };
         it("Check optional choice fields", async () => {
             // Register B first since C depends on it
-            await registerFsAndMkTs(r4, B);
-            expect(await registerFsAndMkTs(r4, C)).toMatchObject([
+            await registerFsAndMkTs(r4, B, logger);
+            expect(await registerFsAndMkTs(r4, C, logger)).toMatchObject([
                 {
                     identifier: { url: "uri::C" },
                     base: { url: "uri::B" },
@@ -160,8 +161,9 @@ const viewDefinitionSD = {
 
 describe("TypeSchema: Nested types", async () => {
     const r5 = await mkR5Register();
+    const logger = mkTestLogger();
     it("Check recursive nested types", async () => {
-        const tss = await registerFsAndMkTs(r5, viewDefinitionSD);
+        const tss = await registerFsAndMkTs(r5, viewDefinitionSD, logger);
         expect(tss).toMatchObject([
             {
                 nested: [

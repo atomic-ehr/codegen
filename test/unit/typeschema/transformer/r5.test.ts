@@ -1,9 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import type { CanonicalUrl, RegularTypeSchema } from "@root/typeschema/types";
-import { mkR5Register, r5Package, registerFsAndMkTs } from "@typeschema-test/utils";
+import { mkR5Register, mkTestLogger, r5Package, registerFsAndMkTs } from "@typeschema-test/utils";
 
 describe("TypeSchema R5 generation", async () => {
     const r5 = await mkR5Register();
+    const logger = mkTestLogger();
 
     it("http://hl7.org/fhir/StructureDefinition/shareablecodesystem", async () => {
         const fs = r5.resolveFs(
@@ -12,7 +13,7 @@ describe("TypeSchema R5 generation", async () => {
         );
         expect(fs).toBeDefined();
         if (!fs) throw new Error("fs is undefined");
-        const ts = (await registerFsAndMkTs(r5, fs))[0] as RegularTypeSchema;
+        const ts = (await registerFsAndMkTs(r5, fs, logger))[0] as RegularTypeSchema;
 
         expect(ts).toMatchObject({
             identifier: {
@@ -76,7 +77,7 @@ describe("TypeSchema R5 generation", async () => {
         const fs = r5.resolveFs(r5Package, "http://hl7.org/fhir/StructureDefinition/Extension" as CanonicalUrl);
         expect(fs).toBeDefined();
         if (!fs) throw new Error("Failed to resolve fs");
-        const ts = (await registerFsAndMkTs(r5, fs))[0] as RegularTypeSchema;
+        const ts = (await registerFsAndMkTs(r5, fs, logger))[0] as RegularTypeSchema;
         expect(ts).toMatchObject({
             identifier: {
                 kind: "complex-type",

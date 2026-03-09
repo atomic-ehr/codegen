@@ -1,12 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import { APIBuilder } from "@root/api/builder";
 import type { CanonicalUrl } from "@root/typeschema/types";
-import type { CodegenTag } from "@root/utils/log";
-import { mkLogger } from "@root/utils/log";
-import { ccdaManager, errorLogger, r4Manager } from "@typeschema-test/utils";
+import { ccdaManager, mkErrorLogger, r4Manager } from "@typeschema-test/utils";
 
 describe("TypeScript Writer Generator", async () => {
-    const result = await new APIBuilder({ register: r4Manager, logger: errorLogger })
+    const result = await new APIBuilder({ register: r4Manager, logger: mkErrorLogger() })
         .typescript({
             inMemoryOnly: true,
         })
@@ -29,7 +27,7 @@ describe("TypeScript Writer Generator", async () => {
 });
 
 describe("TypeScript CDA with Logical Model Promotion to Resource", async () => {
-    const result = await new APIBuilder({ register: ccdaManager, logger: errorLogger })
+    const result = await new APIBuilder({ register: ccdaManager, logger: mkErrorLogger() })
         .typeSchema({
             promoteLogical: {
                 "hl7.cda.uv.core": ["http://hl7.org/cda/stds/core/StructureDefinition/Material" as CanonicalUrl],
@@ -51,8 +49,7 @@ describe("TypeScript CDA with Logical Model Promotion to Resource", async () => 
 });
 
 describe("TypeScript R4 Example (with generateProfile)", async () => {
-    const logger = mkLogger<CodegenTag>({ level: "ERROR" });
-
+    const logger = mkErrorLogger();
     const result = await new APIBuilder({ register: r4Manager, logger })
         .typescript({
             inMemoryOnly: true,

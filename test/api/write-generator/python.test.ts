@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import { APIBuilder } from "@root/api/builder";
-import { errorLogger, r4Manager } from "@typeschema-test/utils";
+import { mkErrorLogger, r4Manager } from "@typeschema-test/utils";
 
 describe("Python Writer Generator", async () => {
-    const result = await new APIBuilder({ register: r4Manager, logger: errorLogger })
+    const result = await new APIBuilder({ register: r4Manager, logger: mkErrorLogger() })
         .python({
             inMemoryOnly: true,
         })

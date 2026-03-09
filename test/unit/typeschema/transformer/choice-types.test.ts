@@ -1,9 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import type { PFS } from "@typeschema-test/utils";
-import { mkR4Register, registerFsAndMkTs } from "@typeschema-test/utils";
+import { mkR4Register, mkTestLogger, registerFsAndMkTs } from "@typeschema-test/utils";
 
 describe("TypeSchema choice type generation", async () => {
     const r4 = await mkR4Register();
+    const logger = mkTestLogger();
 
     it("Simple choice type generation (optional)", async () => {
         const fs: PFS = {
@@ -15,7 +16,7 @@ describe("TypeSchema choice type generation", async () => {
                 deceasedBoolean: { type: "boolean" },
             },
         };
-        expect(await registerFsAndMkTs(r4, fs)).toMatchObject([
+        expect(await registerFsAndMkTs(r4, fs, logger)).toMatchObject([
             {
                 identifier: { kind: "resource", url: "uri::OptionalChoice" },
                 fields: {
@@ -54,7 +55,7 @@ describe("TypeSchema choice type generation", async () => {
                 deceasedBoolean: { choiceOf: "deceased", type: "boolean" },
             },
         };
-        expect(await registerFsAndMkTs(r4, fs)).toMatchObject([
+        expect(await registerFsAndMkTs(r4, fs, logger)).toMatchObject([
             {
                 identifier: { url: "uri::RequiredChoice" },
                 fields: {
@@ -97,7 +98,7 @@ describe("TypeSchema choice type generation", async () => {
             },
         };
 
-        expect(await registerFsAndMkTs(r4, fs)).toMatchObject([
+        expect(await registerFsAndMkTs(r4, fs, logger)).toMatchObject([
             {
                 identifier: { kind: "resource", url: "uri::RequiredChoiceLimited" },
                 base: { url: "uri::RequiredChoice" },
@@ -132,7 +133,7 @@ describe("TypeSchema choice type generation", async () => {
             },
         };
 
-        expect(await registerFsAndMkTs(r4, fs)).toMatchObject([
+        expect(await registerFsAndMkTs(r4, fs, logger)).toMatchObject([
             {
                 identifier: { kind: "resource", url: "uri::RequiredChoiceLimited" },
                 base: { url: "uri::RequiredChoice" },
