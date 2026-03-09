@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import type { CodegenLog } from "@root/utils/types";
+import type { CodegenLog } from "@root/utils/log";
 import { extractDependencies } from "../core/transformer";
 import {
     type CanonicalUrl,

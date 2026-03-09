@@ -6,7 +6,7 @@
 
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
-import type { CodegenLog } from "@root/utils/types";
+import type { CodegenLog } from "@root/utils/log";
 import { packageMetaToFhir } from "@typeschema/types";
 import type {
     BindingIdentifier,

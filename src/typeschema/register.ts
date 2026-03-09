@@ -7,7 +7,7 @@ import {
     type StructureDefinition,
 } from "@atomic-ehr/fhirschema";
 import { type CodeSystem, isCodeSystem, isValueSet, type ValueSet } from "@root/fhir-types/hl7-fhir-r4-core";
-import type { CodegenLog } from "@root/utils/types";
+import type { CodegenLog } from "@root/utils/log";
 import type {
     CanonicalUrl,
     Name,

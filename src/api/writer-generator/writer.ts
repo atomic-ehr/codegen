@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import * as fsPromises from "node:fs/promises";
 import * as Path from "node:path";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
-import type { CodegenLog } from "@root/utils/types";
+import type { CodegenLog } from "@root/utils/log";
 
 export type FileSystemWriterOptions = {
     outputDir: string;

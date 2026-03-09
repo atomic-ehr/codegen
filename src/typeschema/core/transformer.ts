@@ -6,7 +6,7 @@
 
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import { shouldSkipCanonical } from "@root/typeschema/skip-hack";
-import type { CodegenLog } from "@root/utils/types";
+import type { CodegenLog } from "@root/utils/log";
 import type { Register } from "@typeschema/register";
 import {
     concatIdentifiers,

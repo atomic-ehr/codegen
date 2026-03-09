@@ -6,7 +6,7 @@
 
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import { mergeFsElementProps, type Register, resolveFsElementGenealogy } from "@root/typeschema/register";
-import type { CodegenLog } from "@root/utils/types";
+import type { CodegenLog } from "@root/utils/log";
 import type { CanonicalUrl, Field, Identifier, Name, NestedIdentifier, NestedType, RichFHIRSchema } from "../types";
 import { mkField, mkNestedField } from "./field-builder";
 

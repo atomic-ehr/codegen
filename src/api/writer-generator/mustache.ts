@@ -22,7 +22,7 @@ import type {
     ViewModel,
 } from "@mustache/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
-import type { CodegenLog } from "@root/utils/types";
+import type { CodegenLog } from "@root/utils/log";
 import { default as Mustache } from "mustache";
 import { FileSystemWriter, type FileSystemWriterOptions } from "./writer";
 

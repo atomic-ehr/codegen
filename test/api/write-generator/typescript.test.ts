@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import { APIBuilder } from "@root/api/builder";
 import type { CanonicalUrl } from "@root/typeschema/types";
+import type { CodegenTag } from "@root/utils/log";
 import { mkLogger } from "@root/utils/log";
-import type { CodegenTag } from "@root/utils/types";
 import { ccdaManager, errorLogger, r4Manager } from "@typeschema-test/utils";
 
 describe("TypeScript Writer Generator", async () => {

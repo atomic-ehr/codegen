@@ -7,7 +7,7 @@
 import assert from "node:assert";
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { CodeSystem, CodeSystemConcept } from "@root/fhir-types/hl7-fhir-r4-core";
-import type { CodegenLog } from "@root/utils/types";
+import type { CodegenLog } from "@root/utils/log";
 import type { Register } from "@typeschema/register";
 import type {
     BindingTypeSchema,

@@ -10,7 +10,7 @@
  * - Validating TypeSchema documents
  */
 
-import type { CodegenLog } from "@root/utils/types";
+import type { CodegenLog } from "@root/utils/log";
 import { transformFhirSchema, transformValueSet } from "./core/transformer";
 import type { TypeSchemaCollisions } from "./ir/types";
 import type { Register } from "./register";
