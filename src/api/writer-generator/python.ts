@@ -80,8 +80,6 @@ const PYTHON_KEYWORDS = new Set([
 
 const MAX_IMPORT_LINE_LENGTH = 100;
 
-const GENERIC_COMPLEX_TYPES = new Set(["Coding", "CodeableConcept"]);
-
 const GENERIC_FIELD_REWRITES: Record<string, Record<string, string>> = {
     Coding: { code: "T" },
     CodeableConcept: { coding: "Coding[T]" },
@@ -159,8 +157,6 @@ export class Python extends Writer<PythonGeneratorOptions> {
     private tsIndex: TypeSchemaIndex | undefined;
     private readonly forFhirpyClient: boolean;
     private readonly fieldFormat: StringFormatKey;
-    private currentSchemaName: string | undefined;
-
     constructor(options: PythonGeneratorOptions) {
         super({ ...options, resolveAssets: options.resolveAssets ?? resolvePyAssets });
         this.nameFormatFunction = this.getFieldFormatFunction(options.fieldFormat);
@@ -260,7 +256,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private generateBasePy(packageComplexTypes: RegularTypeSchema[]): void {
-        const hasGenericTypes = packageComplexTypes.some((s) => GENERIC_COMPLEX_TYPES.has(s.identifier.name));
+        const hasGenericTypes = packageComplexTypes.some((s) => s.identifier.name in GENERIC_FIELD_REWRITES);
         this.cat("base.py", () => {
             this.generateDisclaimer();
             this.generateDefaultImports(hasGenericTypes);
@@ -392,7 +388,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     private generateResourceModule(schema: RegularTypeSchema): void {
         this.cat(`${snakeCase(schema.identifier.name)}.py`, () => {
             this.generateDisclaimer();
-            this.generateDefaultImports();
+            this.generateDefaultImports(false);
             this.generateFhirBaseModelImport();
             this.line();
             this.generateDependenciesImports(schema);
@@ -420,20 +416,18 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private getSuperClasses(schema: RegularTypeSchema): string[] {
-        const bases = [...(schema.base ? [schema.base.name] : []), ...this.injectSuperClasses(schema.identifier.url)];
-        if (GENERIC_COMPLEX_TYPES.has(schema.identifier.name)) {
-            bases.push("Generic[T]");
-        }
+        const bases: string[] = [];
+        if (schema.base) bases.push(schema.base.name);
+        bases.push(...this.injectSuperClasses(schema.identifier.url));
+        if (schema.identifier.name in GENERIC_FIELD_REWRITES) bases.push("Generic[T]");
         return bases;
     }
 
     private generateClassBody(schema: RegularTypeSchema): void {
-        this.currentSchemaName = schema.identifier.name;
         this.generateModelConfig();
 
         if (!schema.fields) {
             this.line("pass");
-            this.currentSchemaName = undefined;
             return;
         }
 
@@ -441,12 +435,11 @@ export class Python extends Writer<PythonGeneratorOptions> {
             this.generateResourceTypeField(schema);
         }
 
-        this.generateFields(schema);
+        this.generateFields(schema, schema.identifier.name);
 
         if (schema.identifier.kind === "resource") {
             this.generateResourceMethods(schema);
         }
-        this.currentSchemaName = undefined;
     }
 
     private generateModelConfig(): void {
@@ -476,20 +469,20 @@ export class Python extends Writer<PythonGeneratorOptions> {
         this.line(")");
     }
 
-    private generateFields(schema: RegularTypeSchema): void {
+    private generateFields(schema: RegularTypeSchema, schemaName: string): void {
         const sortedFields = Object.entries(schema.fields ?? []).sort(([a], [b]) => a.localeCompare(b));
 
         for (const [fieldName, field] of sortedFields) {
             if ("choices" in field && field.choices) continue;
 
-            const fieldInfo = this.buildFieldInfo(fieldName, field);
+            const fieldInfo = this.buildFieldInfo(fieldName, field, schemaName);
             this.line(`${fieldInfo.name}: ${fieldInfo.type}${fieldInfo.defaultValue}`);
         }
     }
 
-    private buildFieldInfo(fieldName: string, field: Field): FieldInfo {
+    private buildFieldInfo(fieldName: string, field: Field, schemaName: string): FieldInfo {
         const pyFieldName = fixReservedWords(this.nameFormatFunction(fieldName));
-        const fieldType = this.determineFieldType(field, fieldName);
+        const fieldType = this.determineFieldType(field, fieldName, schemaName);
         const defaultValue = this.getFieldDefaultValue(field, fieldName);
 
         return {
@@ -499,23 +492,21 @@ export class Python extends Writer<PythonGeneratorOptions> {
         };
     }
 
-    private determineFieldType(field: Field, fieldName?: string): string {
+    private determineFieldType(field: Field, fieldName: string, schemaName: string): string {
         let fieldType = field ? this.getBaseFieldType(field) : "";
 
         // Check for generic type field rewrites (e.g., Coding.code → T, CodeableConcept.coding → Coding[T])
-        if (this.currentSchemaName && fieldName) {
-            const rewrite = GENERIC_FIELD_REWRITES[this.currentSchemaName]?.[fieldName];
-            if (rewrite) {
-                fieldType = rewrite;
-                if (field.array) fieldType = `PyList[${fieldType}]`;
-                if (!field.required) fieldType = `${fieldType} | None`;
-                return fieldType;
-            }
+        const rewrite = GENERIC_FIELD_REWRITES[schemaName]?.[fieldName];
+        if (rewrite) {
+            fieldType = rewrite;
+            if (field.array) fieldType = `PyList[${fieldType}]`;
+            if (!field.required) fieldType = `${fieldType} | None`;
+            return fieldType;
         }
 
         if ("enum" in field && field.enum) {
             const baseTypeName = "type" in field ? field.type.name : "";
-            if (GENERIC_COMPLEX_TYPES.has(baseTypeName)) {
+            if (baseTypeName in GENERIC_FIELD_REWRITES) {
                 fieldType = `${fieldType}[${pyEnumType(field.enum)}]`;
             } else if (!field.enum.isOpen) {
                 const s: string = field.enum.values.map((e: string) => `"${e}"`).join(", ");
@@ -576,7 +567,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         }
     }
 
-    private generateDefaultImports(includeGenericImports = false): void {
+    private generateDefaultImports(includeGenericImports: boolean): void {
         this.pyImportFrom("__future__", "annotations");
         this.pyImportFrom("pydantic", "BaseModel", "ConfigDict", "Field", "PositiveInt");
         const typingImports = ["List as PyList", "Literal"];
