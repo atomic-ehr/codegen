@@ -21,7 +21,6 @@ export type Log<T extends string = string> = {
 
 export type LogManager<T extends string = string> = Log<T> & {
     fork(prefix: string, opts?: Partial<LoggerOptions<T>>): LogManager<T>;
-    fork<C extends string>(prefix: string, opts?: Partial<LoggerOptions<C>>): LogManager<C>;
     as<Narrower extends string>(): LogManager<Narrower>;
 
     suppress(...tags: T[]): void;
@@ -105,10 +104,10 @@ export function mkLogger<T extends string>(opts: LoggerOptions<T> = {}): LogMana
         error: mkLogFn("ERROR", "X", console.error),
         debug: mkLogFn("DEBUG", "D", console.log),
 
-        fork<C extends string = T>(childPrefix: string, childOpts?: Partial<LoggerOptions<C>>): LogManager<C> {
+        fork(childPrefix: string, childOpts?: Partial<LoggerOptions<T>>): LogManager<T> {
             const fullPrefix = prefix ? `${prefix}/${childPrefix}` : childPrefix;
-            const merged = [...suppressedSet, ...(childOpts?.suppressTags ?? [])] as C[];
-            return mkLogger<C>({
+            const merged = [...suppressedSet, ...(childOpts?.suppressTags ?? [])] as T[];
+            return mkLogger<T>({
                 prefix: fullPrefix,
                 suppressTags: merged,
                 level: childOpts?.level ?? currentLevel,

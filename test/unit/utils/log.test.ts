@@ -162,7 +162,7 @@ describe("mkLogger", () => {
 
         it("adds child-specific suppressTags", () => {
             const parent = mkLogger<TestTags>({ suppressTags: ["TAG_A"] });
-            const child = parent.fork<TestTags>("child", { suppressTags: ["TAG_B"] });
+            const child = parent.fork("child", { suppressTags: ["TAG_B"] });
             child.warn("TAG_A", "from parent");
             child.warn("TAG_B", "from child");
             child.warn("TAG_C", "not suppressed");
@@ -189,9 +189,9 @@ describe("mkLogger", () => {
             expect(child.tagCounts().TAG_A).toBe(2);
         });
 
-        it("narrows tag set on fork", () => {
+        it("narrows tag set via as()", () => {
             type Narrow = "TAG_A";
-            const child = logger.fork<Narrow>("narrow");
+            const child = logger.fork("narrow").as<Narrow>();
             child.warn("TAG_A", "valid");
             expect(child.buffer()[0]?.tag).toBe("TAG_A");
         });
@@ -273,7 +273,7 @@ describe("mkLogger", () => {
                 prefix: "root",
                 suppressTags: ["BASE_A"],
             });
-            const child = extended.fork<BaseTags>("child");
+            const child = extended.fork("child").as<BaseTags>();
             child.warn("BASE_A", "suppressed from parent");
             child.warn("BASE_B", "visible");
             expect(bufferFilter(child, { suppressed: true })).toHaveLength(1);
