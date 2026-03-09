@@ -241,7 +241,7 @@ assets/api/writer-generator/
 1. Use `builder.introspection({ typeSchemas: "./debug-schemas" })` to inspect intermediate output
 2. Check `src/typeschema/types.ts` for TypeSchema structure
 3. Review `src/typeschema/core/transformer.ts` for transformation logic
-4. Enable verbose logging by passing `mkLogger({ level: "DEBUG" })` to the builder
+4. Enable verbose logging by passing `mkCodegenLogger({ level: "DEBUG" })` to the builder
 
 ### Testing Generated Code
 1. Use `builder.build()` instead of `generate()` to avoid file I/O
