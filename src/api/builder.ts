@@ -23,7 +23,8 @@ import type { IrConf, LogicalPromotionConf, TreeShakeConf } from "@root/typesche
 import { type Register, registerFromManager } from "@root/typeschema/register";
 import { type PackageMeta, packageMetaToNpm } from "@root/typeschema/types";
 import { mkTypeSchemaIndex, type TypeSchemaIndex } from "@root/typeschema/utils";
-import { type LogLevel, type LogManager, mkLogger } from "@root/utils/log";
+import { type LogLevel, mkLogger } from "@root/utils/log";
+import type { CodegenLogManager } from "@root/utils/types";
 import { IntrospectionWriter, type IntrospectionWriterOptions } from "./writer-generator/introspection";
 import { IrReportWriterWriter, type IrReportWriterWriterOptions } from "./writer-generator/ir-report";
 import type { FileBasedMustacheGeneratorOptions } from "./writer-generator/mustache";
@@ -94,7 +95,7 @@ export interface LocalStructureDefinitionConfig {
     dependencies?: PackageMeta[];
 }
 
-const cleanup = async (opts: APIBuilderOptions, logger: LogManager): Promise<void> => {
+const cleanup = async (opts: APIBuilderOptions, logger: CodegenLogManager): Promise<void> => {
     logger.info(`Cleaning outputs...`);
     try {
         logger.info(`Clean ${opts.outputDir}`);
@@ -119,7 +120,7 @@ export class APIBuilder {
         localSDs: LocalPackageConfig[];
         localTgzPackages: TgzPackageConfig[];
     };
-    private logger: LogManager;
+    private logger: CodegenLogManager;
     private generators: { name: string; writer: FileSystemWriter }[] = [];
 
     constructor(
@@ -127,7 +128,7 @@ export class APIBuilder {
             manager?: ReturnType<typeof CanonicalManager>;
             register?: Register;
             preprocessPackage?: (context: PreprocessContext) => PreprocessContext;
-            logger?: LogManager;
+            logger?: CodegenLogManager;
         } = {},
     ) {
         const defaultOpts: APIBuilderOptions = {

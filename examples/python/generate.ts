@@ -1,9 +1,10 @@
+import type { CodegenLog } from "@root/utils/types";
 import { APIBuilder, prettyReport } from "../../src";
-import { type LogManager, mkLogger } from "../../src/utils/log";
+import { mkLogger } from "../../src/utils/log";
 
 console.log("📦 Generating FHIR R4 Core Types...");
 
-const logger: LogManager = mkLogger({
+const logger: CodegenLog = mkLogger({
     prefix: "API",
     suppressTags: ["FIELD_TYPE_NOT_FOUND", "LARGE_VALUESET"],
 });
