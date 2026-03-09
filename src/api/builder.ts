@@ -174,7 +174,7 @@ export class APIBuilder {
                 dropCache: userOpts.dropCanonicalManagerCache,
                 preprocessPackage: userOpts.preprocessPackage,
             });
-        this.logger = userOpts.logger ?? mkLogger({ prefix: "API", level: opts.logLevel });
+        this.logger = userOpts.logger ?? mkLogger({ prefix: "api", level: opts.logLevel });
         this.options = opts;
     }
 
@@ -418,21 +418,25 @@ export class APIBuilder {
 
                 const packageMetas = Object.values(ref2meta);
                 register = await registerFromManager(this.manager, {
-                    logger: this.logger,
+                    logger: this.logger.fork("reg"),
                     focusedPackages: packageMetas,
                 });
             }
 
-            const { schemas: typeSchemas, collisions } = await generateTypeSchemas(register, this.logger);
+            const tsLogger = this.logger.fork("ts");
+
+            const { schemas: typeSchemas, collisions } = await generateTypeSchemas(register, tsLogger);
 
             const tsIndexOpts = {
                 register,
-                logger: this.logger,
+                logger: tsLogger,
                 irReport: Object.keys(collisions).length > 0 ? { collisions } : {},
             };
             let tsIndex = mkTypeSchemaIndex(typeSchemas, tsIndexOpts);
             if (this.options.treeShake) tsIndex = treeShake(tsIndex, this.options.treeShake);
             if (this.options.promoteLogical) tsIndex = promoteLogical(tsIndex, this.options.promoteLogical);
+
+            tsLogger.printTagSummary();
 
             this.logger.debug(`Executing ${this.generators.length} generators`);
 
