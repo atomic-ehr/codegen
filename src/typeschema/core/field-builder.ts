@@ -247,7 +247,7 @@ export function buildFieldType(
         // Some packages (e.g., simplifier.core.r4.*) have incomplete element definitions
         // Log a warning but continue processing instead of throwing
         logger?.dryWarn(
-            "FIELD_TYPE_NOT_FOUND",
+            "#fieldTypeNotFound",
             `Can't recognize element type: <${fhirSchema.url}>.${path.join(".")} (pkg: '${packageMetaToFhir(fhirSchema.package_meta)}'): missing type info`,
         );
         return undefined;
@@ -276,7 +276,7 @@ export const mkField = (
     // TODO: should be an exception
     if (!fieldType)
         logger?.dryWarn(
-            "FIELD_TYPE_NOT_FOUND",
+            "#fieldTypeNotFound",
             `Field type not found for '${fhirSchema.url}#${path.join(".")}' (${fhirSchema.derivation})`,
         );
 

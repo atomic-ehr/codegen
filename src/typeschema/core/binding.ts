@@ -115,7 +115,10 @@ export function buildEnum(
     if (!valueSetUrl) return undefined;
 
     if (!BINDABLE_TYPES.has(element.type ?? "")) {
-        logger?.dryWarn("BINDING", `eld-11: Binding on non-bindable type '${element.type}' (valueSet: ${valueSetUrl})`);
+        logger?.dryWarn(
+            "#binding",
+            `eld-11: Binding on non-bindable type '${element.type}' (valueSet: ${valueSetUrl})`,
+        );
         return undefined;
     }
 
@@ -132,7 +135,7 @@ export function buildEnum(
 
     if (codes.length > MAX_ENUM_LENGTH) {
         logger?.dryWarn(
-            "LARGE_VALUESET",
+            "#largeValueSet",
             `Value set ${valueSetUrl} has ${codes.length} which is more than ${MAX_ENUM_LENGTH} codes, which may cause issues with code generation.`,
         );
         return undefined;

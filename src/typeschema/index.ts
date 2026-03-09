@@ -59,7 +59,7 @@ const deduplicateSchemas = (schemasWithSources: SchemaWithSource[], logger?: Cod
         if (sorted.length > 1) {
             const pkg = best.typeSchema.identifier.package;
             const url = best.typeSchema.identifier.url;
-            logger?.dryWarn("DUPLICATE_SCHEMA", `'${url}' from '${pkg}'' has ${sorted.length} versions`);
+            logger?.dryWarn("#duplicateSchema", `'${url}' from '${pkg}'' has ${sorted.length} versions`);
             collisions[pkg] ??= {};
             collisions[pkg][url] = sorted.flatMap((v) =>
                 v.sources.map((s) => ({
@@ -85,7 +85,7 @@ export const generateTypeSchemas = async (
 
         const skipCheck = shouldSkipCanonical(fhirSchema.package_meta, fhirSchema.url);
         if (skipCheck.shouldSkip) {
-            logger?.dryWarn("SKIP_CANONICAL", `Skip ${fhirSchema.url} from ${pkgId}. Reason: ${skipCheck.reason}`);
+            logger?.dryWarn("#skipCanonical", `Skip ${fhirSchema.url} from ${pkgId}. Reason: ${skipCheck.reason}`);
             continue;
         }
 

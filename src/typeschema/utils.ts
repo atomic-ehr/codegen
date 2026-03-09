@@ -274,7 +274,7 @@ export const mkTypeSchemaIndex = (
             const resolved = resolve(base);
             if (!resolved) {
                 logger?.warn(
-                    "RESOLVE_BASE",
+                    "#resolveBase",
                     `Failed to resolve base type: ${res.map((e) => `${e.identifier.url} (${e.identifier.kind})`).join(", ")}`,
                 );
                 return undefined;

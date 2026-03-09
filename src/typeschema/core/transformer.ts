@@ -44,7 +44,7 @@ export function mkFields(
         const fcurl = elemSnapshot.type ? register.ensureSpecializationCanonicalUrl(elemSnapshot.type) : undefined;
         if (fcurl && shouldSkipCanonical(fhirSchema.package_meta, fcurl).shouldSkip) {
             logger?.warn(
-                "SKIP_CANONICAL",
+                "#skipCanonical",
                 `Skipping field ${path} for ${fcurl} due to skip hack ${shouldSkipCanonical(fhirSchema.package_meta, fcurl).reason}`,
             );
             continue;
