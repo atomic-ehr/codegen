@@ -36,7 +36,7 @@ export type ExtendLogManager<Extra extends string, Parent extends LogManager<any
 
 type TaggedLogFn<T extends string> = (...args: [string] | [T, string]) => void;
 
-type LoggerOptions<T extends string> = {
+export type LoggerOptions<T extends string> = {
     prefix?: string;
     suppressTags?: T[];
     level?: LogLevel;

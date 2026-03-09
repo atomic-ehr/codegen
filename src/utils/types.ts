@@ -1,4 +1,4 @@
-import { type Log, type LogManager, mkLogger } from "./log";
+import { type Log, type LogManager, type LoggerOptions, mkLogger } from "./log";
 
 export type CapitalizeFirst<S extends string> = S extends `${infer F}${infer R}` ? `${Uppercase<F>}${R}` : S;
 
@@ -18,6 +18,4 @@ export type CodegenTag =
 export type CodegenLog = Log<CodegenTag>;
 export type CodegenLogManager = LogManager<CodegenTag>;
 
-export const mkCodegenLogger = (
-    opts: { prefix?: string; suppressTags?: CodegenTag[]; level?: "DEBUG" | "INFO" | "WARN" | "ERROR" | "SILENT" } = {},
-) => mkLogger<CodegenTag>(opts);
+export const mkCodegenLogger = <T extends string = CodegenTag>(opts: LoggerOptions<T> = {}) => mkLogger<T>(opts);
