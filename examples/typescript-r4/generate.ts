@@ -2,11 +2,13 @@
 // bun run scripts/generate-fhir-types.ts
 
 import { APIBuilder, prettyReport } from "../../src/api/builder";
+import { mkLogger } from "../../src/utils/log";
+import type { CodegenTag } from "../../src/utils/types";
 
 if (require.main === module) {
     console.log("📦 Generating FHIR R4 Core Types...");
 
-    const builder = new APIBuilder()
+    const builder = new APIBuilder({ logger: mkLogger<CodegenTag>({ suppressTags: ["#fieldTypeNotFound"] }) })
         .throwException()
         .fromPackage("hl7.fhir.r4.core", "4.0.1")
         .typescript({

@@ -6,7 +6,7 @@ console.log("📦 Generating FHIR R4 Core Types...");
 
 const logger = mkLogger<CodegenTag>({
     prefix: "API",
-    suppressTags: ["FIELD_TYPE_NOT_FOUND", "LARGE_VALUESET"],
+    suppressTags: ["#fieldTypeNotFound", "#largeValueSet"],
 });
 
 const builder = new APIBuilder({ logger })
