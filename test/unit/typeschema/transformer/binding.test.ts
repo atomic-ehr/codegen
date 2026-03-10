@@ -1,9 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import type { PFS } from "@typeschema-test/utils";
-import { mkR4Register, registerFsAndMkTs } from "@typeschema-test/utils";
+import { mkR4Register, mkTestLogger, registerFsAndMkTs } from "@typeschema-test/utils";
 
 describe("Type Schema generator > Binding", async () => {
     const r4 = await mkR4Register();
+    const logger = mkTestLogger();
     const A: PFS = {
         description: "description",
         derivation: "specialization",
@@ -29,7 +30,7 @@ describe("Type Schema generator > Binding", async () => {
         version: "4.0.1",
     };
     it("Generate nested type for resource", async () => {
-        expect(await registerFsAndMkTs(r4, A)).toMatchObject([
+        expect(await registerFsAndMkTs(r4, A, logger)).toMatchObject([
             {
                 identifier: { package: "mypackage", url: "http://example.io/fhir/WithCode" },
                 base: { package: "hl7.fhir.r4.core", url: "http://hl7.org/fhir/StructureDefinition/DomainResource" },

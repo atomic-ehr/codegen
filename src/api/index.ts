@@ -8,7 +8,8 @@
  */
 
 export type { IrConf, LogicalPromotionConf, TreeShakeConf } from "../typeschema/ir/types";
-export { LogLevel } from "../utils/codegen-logger";
+export type { CodegenLog, CodegenLogManager, CodegenTag, LogLevel } from "../utils/log";
+export { mkCodegenLogger } from "../utils/log";
 export type { APIBuilderOptions, LocalStructureDefinitionConfig } from "./builder";
 export { APIBuilder, prettyReport } from "./builder";
 export type { CSharpGeneratorOptions } from "./writer-generator/csharp/csharp";

@@ -7,7 +7,7 @@
 import assert from "node:assert";
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { CodeSystem, CodeSystemConcept } from "@root/fhir-types/hl7-fhir-r4-core";
-import type { CodegenLogger } from "@root/utils/codegen-logger";
+import type { CodegenLog } from "@root/utils/log";
 import type { Register } from "@typeschema/register";
 import type {
     BindingTypeSchema,
@@ -24,7 +24,7 @@ export function extractValueSetConceptsByUrl(
     register: Register,
     pkg: PackageMeta,
     valueSetUrl: CanonicalUrl,
-    logger?: CodegenLogger,
+    logger?: CodegenLog,
 ): Concept[] | undefined {
     const cleanUrl = dropVersionFromUrl(valueSetUrl) || valueSetUrl;
     const valueSet = register.resolveVs(pkg, cleanUrl as CanonicalUrl);
@@ -35,7 +35,7 @@ export function extractValueSetConceptsByUrl(
 function extractValueSetConcepts(
     register: Register,
     valueSet: RichValueSet,
-    _logger?: CodegenLogger,
+    _logger?: CodegenLog,
 ): Concept[] | undefined {
     if (valueSet.expansion?.contains) {
         return valueSet.expansion.contains
@@ -106,7 +106,7 @@ export function buildEnum(
     register: Register,
     fhirSchema: RichFHIRSchema,
     element: FHIRSchemaElement,
-    logger?: CodegenLogger,
+    logger?: CodegenLog,
 ): EnumDefinition | undefined {
     if (!element.binding) return undefined;
 
@@ -115,7 +115,10 @@ export function buildEnum(
     if (!valueSetUrl) return undefined;
 
     if (!BINDABLE_TYPES.has(element.type ?? "")) {
-        logger?.dryWarn(`eld-11: Binding on non-bindable type '${element.type}' (valueSet: ${valueSetUrl})`);
+        logger?.dryWarn(
+            "#binding",
+            `eld-11: Binding on non-bindable type '${element.type}' (valueSet: ${valueSetUrl})`,
+        );
         return undefined;
     }
 
@@ -132,6 +135,7 @@ export function buildEnum(
 
     if (codes.length > MAX_ENUM_LENGTH) {
         logger?.dryWarn(
+            "#largeValueSet",
             `Value set ${valueSetUrl} has ${codes.length} which is more than ${MAX_ENUM_LENGTH} codes, which may cause issues with code generation.`,
         );
         return undefined;
@@ -146,7 +150,7 @@ function generateBindingSchema(
     fhirSchema: RichFHIRSchema,
     path: string[],
     element: FHIRSchemaElement,
-    logger?: CodegenLogger,
+    logger?: CodegenLog,
 ): BindingTypeSchema | undefined {
     if (!element.binding?.valueSet) return undefined;
 
@@ -171,7 +175,7 @@ function generateBindingSchema(
 export function collectBindingSchemas(
     register: Register,
     fhirSchema: RichFHIRSchema,
-    logger?: CodegenLogger,
+    logger?: CodegenLog,
 ): BindingTypeSchema[] {
     const processedPaths = new Set<string>();
     if (!fhirSchema.elements) return [];

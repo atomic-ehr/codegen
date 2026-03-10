@@ -1,17 +1,18 @@
 import { describe, expect, it } from "bun:test";
 import { generateTypeSchemas } from "@root/typeschema";
 import type { CanonicalUrl, Name, RegularTypeSchema } from "@typeschema/types";
-import { mkR4Register, r4Package, registerFsAndMkTs } from "@typeschema-test/utils";
+import { mkR4Register, mkTestLogger, r4Package, registerFsAndMkTs } from "@typeschema-test/utils";
 
 describe("TypeSchema R4 generation", async () => {
     const r4 = await mkR4Register();
+    const logger = mkTestLogger();
 
     it("Bundle and elementReference", async () => {
         const profile = r4.resolveFs(r4Package, "http://hl7.org/fhir/StructureDefinition/Bundle" as CanonicalUrl);
         if (!profile) {
             throw new Error("Bundle profile not found");
         }
-        const ts = (await registerFsAndMkTs(r4, profile))[0] as RegularTypeSchema;
+        const ts = (await registerFsAndMkTs(r4, profile, logger))[0] as RegularTypeSchema;
         expect(ts?.nested).toHaveLength(5);
         expect(ts).toMatchObject({
             identifier: { kind: "resource", url: "http://hl7.org/fhir/StructureDefinition/Bundle" },
@@ -54,7 +55,7 @@ describe("TypeSchema R4 generation", async () => {
         if (!md) {
             throw new Error("markdown type not found");
         }
-        const ts = (await registerFsAndMkTs(r4, md))[0] as RegularTypeSchema;
+        const ts = (await registerFsAndMkTs(r4, md, logger))[0] as RegularTypeSchema;
         expect(ts).toMatchObject({
             identifier: {
                 kind: "primitive-type",
@@ -77,7 +78,7 @@ describe("TypeSchema R4 generation", async () => {
         if (!parameters) {
             throw new Error("Parameters resource not found");
         }
-        const ts = (await registerFsAndMkTs(r4, parameters))[0] as RegularTypeSchema;
+        const ts = (await registerFsAndMkTs(r4, parameters, logger))[0] as RegularTypeSchema;
         expect(ts.dependencies).toBeDefined();
         expect(ts.dependencies).toContainEqual({
             kind: "primitive-type",

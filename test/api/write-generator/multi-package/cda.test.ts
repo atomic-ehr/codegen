@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { APIBuilder } from "@root/api/builder";
 import type { CanonicalUrl } from "@root/typeschema/types";
+import { mkSilentLogger } from "@typeschema-test/utils";
 
 /**
  * Tests for CDA package generation.
@@ -18,8 +19,7 @@ describe("CDA", async () => {
     };
 
     describe("TypeScript Generation", async () => {
-        const result = await new APIBuilder()
-            .setLogLevel("SILENT")
+        const result = await new APIBuilder({ logger: mkSilentLogger() })
             .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
             .typeSchema({ treeShake: treeShakeConfig })
             .typescript({ inMemoryOnly: true })
@@ -45,8 +45,7 @@ describe("CDA", async () => {
     });
 
     describe("Python Generation", async () => {
-        const result = await new APIBuilder()
-            .setLogLevel("SILENT")
+        const result = await new APIBuilder({ logger: mkSilentLogger() })
             .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
             .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
             .python({ inMemoryOnly: true })
@@ -69,8 +68,7 @@ describe("CDA", async () => {
     });
 
     describe("C# Generation", async () => {
-        const result = await new APIBuilder()
-            .setLogLevel("SILENT")
+        const result = await new APIBuilder({ logger: mkSilentLogger() })
             .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
             .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
             .csharp({ inMemoryOnly: true })

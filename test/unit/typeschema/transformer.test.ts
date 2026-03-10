@@ -1,10 +1,11 @@
 import { describe, expect, it } from "bun:test";
 import type { Name, PackageMeta, RegularField, RegularTypeSchema } from "@typeschema/types";
 import type { PFS } from "@typeschema-test/utils";
-import { mkR4Register, registerFsAndMkTs } from "@typeschema-test/utils";
+import { mkR4Register, mkTestLogger, registerFsAndMkTs } from "@typeschema-test/utils";
 
 describe("TypeSchema Transformer Core Logic", async () => {
     const r4 = await mkR4Register();
+    const logger = mkTestLogger();
 
     const _basePackageInfo: PackageMeta = {
         name: "test.package",
@@ -26,7 +27,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 class: "",
             };
 
-            const result = await registerFsAndMkTs(r4, fhirSchema);
+            const result = await registerFsAndMkTs(r4, fhirSchema, logger);
 
             expect(result).toHaveLength(1);
             expect(result[0]?.identifier.name).toBe("TestResource" as Name);
@@ -44,7 +45,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 class: "",
             };
 
-            const result = await registerFsAndMkTs(r4, fhirSchema);
+            const result = await registerFsAndMkTs(r4, fhirSchema, logger);
             const schema = result[0] as RegularTypeSchema;
 
             expect(result).toHaveLength(1);
@@ -61,7 +62,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 class: "",
             };
 
-            const result = await registerFsAndMkTs(r4, fhirSchema);
+            const result = await registerFsAndMkTs(r4, fhirSchema, logger);
 
             expect(result).toHaveLength(1);
             expect(result[0]?.identifier.kind).toBe("primitive-type");
@@ -81,7 +82,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await registerFsAndMkTs(r4, fhirSchema);
+            const result = await registerFsAndMkTs(r4, fhirSchema, logger);
             const schema = result[0] as RegularTypeSchema;
 
             expect(result).toHaveLength(1);
@@ -102,7 +103,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await registerFsAndMkTs(r4, fhirSchema);
+            const result = await registerFsAndMkTs(r4, fhirSchema, logger);
             const schema = result[0] as RegularTypeSchema;
 
             expect(result).toHaveLength(1);
@@ -127,7 +128,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 class: "",
             };
 
-            const result = await registerFsAndMkTs(r4, fhirSchema);
+            const result = await registerFsAndMkTs(r4, fhirSchema, logger);
             const schema = result[0] as RegularTypeSchema;
 
             expect(result).toHaveLength(1);
@@ -147,7 +148,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await registerFsAndMkTs(r4, fhirSchema);
+            const result = await registerFsAndMkTs(r4, fhirSchema, logger);
             const schema = result[0] as RegularTypeSchema;
 
             expect(result).toHaveLength(1);
@@ -169,7 +170,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 elements: {},
             };
 
-            const result = await registerFsAndMkTs(r4, fhirSchema);
+            const result = await registerFsAndMkTs(r4, fhirSchema, logger);
 
             expect(result).toHaveLength(1);
             expect(result[0]?.identifier.kind).toBe("profile");
@@ -187,7 +188,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await registerFsAndMkTs(r4, fhirSchema);
+            const result = await registerFsAndMkTs(r4, fhirSchema, logger);
             const schema = result[0] as RegularTypeSchema;
 
             expect(result).toHaveLength(1);
@@ -208,7 +209,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await registerFsAndMkTs(r4, fhirSchema);
+            const result = await registerFsAndMkTs(r4, fhirSchema, logger);
             const schema = result[0] as RegularTypeSchema;
 
             expect(result).toHaveLength(1);
@@ -230,7 +231,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await registerFsAndMkTs(r4, fhirSchema);
+            const result = await registerFsAndMkTs(r4, fhirSchema, logger);
             const schema = result[0] as RegularTypeSchema;
 
             expect(result).toHaveLength(1);
@@ -254,7 +255,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await registerFsAndMkTs(r4, fhirSchema);
+            const result = await registerFsAndMkTs(r4, fhirSchema, logger);
             const schema = result[0] as RegularTypeSchema;
 
             expect(result.length).toBeGreaterThanOrEqual(1);
@@ -275,7 +276,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await registerFsAndMkTs(r4, fhirSchema);
+            const result = await registerFsAndMkTs(r4, fhirSchema, logger);
             const schema = result[0] as RegularTypeSchema;
 
             expect(result).toHaveLength(1);
@@ -290,7 +291,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 url: "http://example.org/EmptyResource",
             };
 
-            const result = await registerFsAndMkTs(r4, fhirSchema);
+            const result = await registerFsAndMkTs(r4, fhirSchema, logger);
             const schema = result[0] as RegularTypeSchema;
 
             expect(result).toHaveLength(1);
@@ -312,7 +313,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 package_meta: customPackageInfo,
             };
 
-            const result = await registerFsAndMkTs(r4, fhirSchema);
+            const result = await registerFsAndMkTs(r4, fhirSchema, logger);
 
             expect(result).toHaveLength(1);
             expect(result[0]?.identifier.package).toBe("custom.package");
@@ -331,7 +332,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await registerFsAndMkTs(r4, fhirSchema);
+            const result = await registerFsAndMkTs(r4, fhirSchema, logger);
             const schema = result[0] as RegularTypeSchema;
 
             expect(result).toHaveLength(1);
@@ -356,7 +357,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await registerFsAndMkTs(r4, fhirSchema);
+            const result = await registerFsAndMkTs(r4, fhirSchema, logger);
             const schema = result[0] as RegularTypeSchema;
 
             // Binding schemas are also generated
@@ -375,7 +376,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 elements: {},
             };
 
-            const result = await registerFsAndMkTs(r4, fhirSchema);
+            const result = await registerFsAndMkTs(r4, fhirSchema, logger);
 
             expect(result).toHaveLength(1);
             // Extension detection may vary based on URL pattern
@@ -403,7 +404,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 },
             };
 
-            const result = await registerFsAndMkTs(r4, fhirSchema);
+            const result = await registerFsAndMkTs(r4, fhirSchema, logger);
             const schema = result[0] as RegularTypeSchema;
 
             expect(result).toHaveLength(1);

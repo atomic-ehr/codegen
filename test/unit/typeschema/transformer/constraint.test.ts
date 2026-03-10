@@ -1,9 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import type { CanonicalUrl } from "@typeschema/types";
-import { mkR4Register, type PFS, r4Package, registerFsAndMkTs } from "@typeschema-test/utils";
+import { mkR4Register, mkTestLogger, type PFS, r4Package, registerFsAndMkTs } from "@typeschema-test/utils";
 
 describe("TypeSchema Processing constraint generation", async () => {
     const r4 = await mkR4Register();
+    const logger = mkTestLogger();
     const A: PFS = {
         url: "uri::A",
         derivation: "specialization",
@@ -18,7 +19,7 @@ describe("TypeSchema Processing constraint generation", async () => {
         },
     };
     it("Generate nested type for resource", async () => {
-        expect(await registerFsAndMkTs(r4, A)).toMatchObject([
+        expect(await registerFsAndMkTs(r4, A, logger)).toMatchObject([
             {
                 identifier: { kind: "resource", name: "a", url: "uri::A" },
                 fields: {
@@ -47,7 +48,7 @@ describe("TypeSchema Processing constraint generation", async () => {
         elements: { foo: { min: 1 } },
     };
     it("Constraint nested type for resource in profile", async () => {
-        expect(await registerFsAndMkTs(r4, B)).toMatchObject([
+        expect(await registerFsAndMkTs(r4, B, logger)).toMatchObject([
             {
                 identifier: { kind: "profile", name: "b", url: "uri::B" },
                 base: { kind: "resource", name: "a", url: "uri::A" },
@@ -72,7 +73,7 @@ describe("TypeSchema Processing constraint generation", async () => {
     };
 
     it("Constraint nested type for resource in profile", async () => {
-        expect(await registerFsAndMkTs(r4, C)).toMatchObject([
+        expect(await registerFsAndMkTs(r4, C, logger)).toMatchObject([
             {
                 identifier: { kind: "profile", name: "c", url: "uri::C" },
                 base: { kind: "profile", name: "b", url: "uri::B" },
@@ -117,8 +118,8 @@ describe("TypeSchema Processing constraint generation", async () => {
         },
     };
     it("Constraint profile nested type includes all inherited sub-elements", async () => {
-        await registerFsAndMkTs(r4, D);
-        expect(await registerFsAndMkTs(r4, E)).toMatchObject([
+        await registerFsAndMkTs(r4, D, logger);
+        expect(await registerFsAndMkTs(r4, E, logger)).toMatchObject([
             {
                 identifier: { kind: "profile", name: "e", url: "uri::E" },
                 base: { kind: "resource", name: "d", url: "uri::D" },
@@ -151,7 +152,7 @@ describe("TypeSchema Processing constraint generation", async () => {
         if (!profile) {
             throw new Error("shareablecodesystem profile not found");
         }
-        expect(await registerFsAndMkTs(r4, profile)).toMatchObject([
+        expect(await registerFsAndMkTs(r4, profile, logger)).toMatchObject([
             {
                 base: { kind: "resource", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem" },
                 identifier: { kind: "profile", url: "http://hl7.org/fhir/StructureDefinition/shareablecodesystem" },

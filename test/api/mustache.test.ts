@@ -1,10 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import { APIBuilder } from "@root/api/builder";
-import { r4Manager } from "@typeschema-test/utils";
+import { mkErrorLogger, r4Manager } from "@typeschema-test/utils";
 
 describe("Mustache Template Based Generation", async () => {
-    const report = await new APIBuilder({ register: r4Manager })
-        .setLogLevel("SILENT")
+    const report = await new APIBuilder({ register: r4Manager, logger: mkErrorLogger() })
         .mustache("./examples/mustache/java", {
             debug: "COMPACT",
             inMemoryOnly: true,

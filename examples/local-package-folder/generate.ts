@@ -1,12 +1,12 @@
 import * as Path from "node:path";
 import { fileURLToPath } from "node:url";
-import { APIBuilder, LogLevel, prettyReport } from "../../src/api";
+import { APIBuilder, prettyReport } from "../../src/api";
 
 const __dirname = Path.dirname(fileURLToPath(import.meta.url));
 
 async function generateFromLocalPackageFolder() {
     const builder = new APIBuilder({
-        logLevel: LogLevel.INFO,
+        logLevel: "INFO",
     });
 
     const report = await builder

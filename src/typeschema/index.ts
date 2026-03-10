@@ -10,7 +10,7 @@
  * - Validating TypeSchema documents
  */
 
-import type { CodegenLogger } from "@root/utils/codegen-logger";
+import type { CodegenLog } from "@root/utils/log";
 import { transformFhirSchema, transformValueSet } from "./core/transformer";
 import type { TypeSchemaCollisions } from "./ir/types";
 import type { Register } from "./register";
@@ -33,10 +33,7 @@ type SchemaWithSource = {
     sourceCanonical: CanonicalUrl;
 };
 
-const deduplicateSchemas = (
-    schemasWithSources: SchemaWithSource[],
-    logger?: CodegenLogger,
-): GenerateTypeSchemasResult => {
+const deduplicateSchemas = (schemasWithSources: SchemaWithSource[], logger?: CodegenLog): GenerateTypeSchemasResult => {
     // key -> hash
     const groups: Record<string, Record<string, { typeSchema: TypeSchema; sources: SchemaWithSource[] }>> = {};
 
@@ -62,7 +59,7 @@ const deduplicateSchemas = (
         if (sorted.length > 1) {
             const pkg = best.typeSchema.identifier.package;
             const url = best.typeSchema.identifier.url;
-            logger?.dryWarn(`'${url}' from '${pkg}'' has ${sorted.length} versions`);
+            logger?.dryWarn("#duplicateSchema", `'${url}' from '${pkg}' has ${sorted.length} versions`);
             collisions[pkg] ??= {};
             collisions[pkg][url] = sorted.flatMap((v) =>
                 v.sources.map((s) => ({
@@ -79,7 +76,7 @@ const deduplicateSchemas = (
 
 export const generateTypeSchemas = async (
     register: Register,
-    logger?: CodegenLogger,
+    logger?: CodegenLog,
 ): Promise<GenerateTypeSchemasResult> => {
     const schemasWithSources: { schema: TypeSchema; sourcePackage: PkgName; sourceCanonical: CanonicalUrl }[] = [];
 
@@ -88,7 +85,7 @@ export const generateTypeSchemas = async (
 
         const skipCheck = shouldSkipCanonical(fhirSchema.package_meta, fhirSchema.url);
         if (skipCheck.shouldSkip) {
-            logger?.dryWarn(`Skip ${fhirSchema.url} from ${pkgId}. Reason: ${skipCheck.reason}`);
+            logger?.dryWarn("#skipCanonical", `Skip ${fhirSchema.url} from ${pkgId}. Reason: ${skipCheck.reason}`);
             continue;
         }
 

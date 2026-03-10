@@ -6,7 +6,7 @@
 
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import { shouldSkipCanonical } from "@root/typeschema/skip-hack";
-import type { CodegenLogger } from "@root/utils/codegen-logger";
+import type { CodegenLog } from "@root/utils/log";
 import type { Register } from "@typeschema/register";
 import {
     concatIdentifiers,
@@ -33,7 +33,7 @@ export function mkFields(
     fhirSchema: RichFHIRSchema,
     parentPath: string[],
     elements: Record<string, FHIRSchemaElement> | undefined,
-    logger?: CodegenLogger,
+    logger?: CodegenLog,
 ): Record<string, Field> | undefined {
     if (!elements) return undefined;
 
@@ -44,6 +44,7 @@ export function mkFields(
         const fcurl = elemSnapshot.type ? register.ensureSpecializationCanonicalUrl(elemSnapshot.type) : undefined;
         if (fcurl && shouldSkipCanonical(fhirSchema.package_meta, fcurl).shouldSkip) {
             logger?.warn(
+                "#skipCanonical",
                 `Skipping field ${path} for ${fcurl} due to skip hack ${shouldSkipCanonical(fhirSchema.package_meta, fcurl).reason}`,
             );
             continue;
@@ -76,7 +77,7 @@ function extractFieldDependencies(fields: Record<string, Field>): Identifier[] {
 export async function transformValueSet(
     register: Register,
     valueSet: RichValueSet,
-    logger?: CodegenLogger,
+    logger?: CodegenLog,
 ): Promise<ValueSetTypeSchema> {
     if (!valueSet.url) throw new Error("ValueSet URL is required");
 
@@ -116,7 +117,7 @@ export function extractDependencies(
 function transformFhirSchemaResource(
     register: Register,
     fhirSchema: RichFHIRSchema,
-    logger?: CodegenLogger,
+    logger?: CodegenLog,
 ): TypeSchema[] {
     const identifier = mkIdentifier(fhirSchema);
 
@@ -158,7 +159,7 @@ function transformFhirSchemaResource(
 export async function transformFhirSchema(
     register: Register,
     fhirSchema: RichFHIRSchema,
-    logger?: CodegenLogger,
+    logger?: CodegenLog,
 ): Promise<TypeSchema[]> {
     return transformFhirSchemaResource(register, fhirSchema, logger);
 }

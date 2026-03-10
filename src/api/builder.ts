@@ -23,13 +23,8 @@ import type { IrConf, LogicalPromotionConf, TreeShakeConf } from "@root/typesche
 import { type Register, registerFromManager } from "@root/typeschema/register";
 import { type PackageMeta, packageMetaToNpm } from "@root/typeschema/types";
 import { mkTypeSchemaIndex, type TypeSchemaIndex } from "@root/typeschema/utils";
-import {
-    type CodegenLogger,
-    createLogger,
-    type LogLevel,
-    type LogLevelString,
-    parseLogLevel,
-} from "@root/utils/codegen-logger";
+import type { CodegenLogManager } from "@root/utils/log";
+import { mkLogger } from "@root/utils/log";
 import { IntrospectionWriter, type IntrospectionWriterOptions } from "./writer-generator/introspection";
 import { IrReportWriterWriter, type IrReportWriterWriterOptions } from "./writer-generator/ir-report";
 import type { FileBasedMustacheGeneratorOptions } from "./writer-generator/mustache";
@@ -47,8 +42,6 @@ export interface APIBuilderOptions {
     treeShake: TreeShakeConf | undefined;
     promoteLogical: LogicalPromotionConf | undefined;
 
-    /** Log level for the logger. Default: INFO */
-    logLevel: LogLevel;
     /** Custom FHIR package registry URL (default: https://fs.get-ig.org/pkgs/) */
     registry: string | undefined;
     /** Drop the canonical manager cache */
@@ -100,7 +93,7 @@ export interface LocalStructureDefinitionConfig {
     dependencies?: PackageMeta[];
 }
 
-const cleanup = async (opts: APIBuilderOptions, logger: CodegenLogger): Promise<void> => {
+const cleanup = async (opts: APIBuilderOptions, logger: CodegenLogManager): Promise<void> => {
     logger.info(`Cleaning outputs...`);
     try {
         logger.info(`Clean ${opts.outputDir}`);
@@ -125,7 +118,7 @@ export class APIBuilder {
         localSDs: LocalPackageConfig[];
         localTgzPackages: TgzPackageConfig[];
     };
-    private logger: CodegenLogger;
+    private logger: CodegenLogManager;
     private generators: { name: string; writer: FileSystemWriter }[] = [];
 
     constructor(
@@ -133,7 +126,7 @@ export class APIBuilder {
             manager?: ReturnType<typeof CanonicalManager>;
             register?: Register;
             preprocessPackage?: (context: PreprocessContext) => PreprocessContext;
-            logger?: CodegenLogger;
+            logger?: CodegenLogManager;
         } = {},
     ) {
         const defaultOpts: APIBuilderOptions = {
@@ -143,7 +136,6 @@ export class APIBuilder {
             treeShake: undefined,
             promoteLogical: undefined,
             registry: undefined,
-            logLevel: parseLogLevel("INFO"),
             dropCanonicalManagerCache: false,
         };
         const opts: APIBuilderOptions = {
@@ -179,7 +171,7 @@ export class APIBuilder {
                 dropCache: userOpts.dropCanonicalManagerCache,
                 preprocessPackage: userOpts.preprocessPackage,
             });
-        this.logger = userOpts.logger ?? createLogger({ prefix: "API", level: opts.logLevel });
+        this.logger = userOpts.logger ?? mkLogger({ prefix: "api" });
         this.options = opts;
     }
 
@@ -340,11 +332,6 @@ export class APIBuilder {
         return this;
     }
 
-    setLogLevel(level: LogLevel | LogLevelString): APIBuilder {
-        this.logger?.setLevel(typeof level === "string" ? parseLogLevel(level) : level);
-        return this;
-    }
-
     throwException(enabled = true): APIBuilder {
         this.options.throwException = enabled;
         return this;
@@ -423,21 +410,25 @@ export class APIBuilder {
 
                 const packageMetas = Object.values(ref2meta);
                 register = await registerFromManager(this.manager, {
-                    logger: this.logger,
+                    logger: this.logger.fork("reg"),
                     focusedPackages: packageMetas,
                 });
             }
 
-            const { schemas: typeSchemas, collisions } = await generateTypeSchemas(register, this.logger);
+            const tsLogger = this.logger.fork("ts");
+
+            const { schemas: typeSchemas, collisions } = await generateTypeSchemas(register, tsLogger);
 
             const tsIndexOpts = {
                 register,
-                logger: this.logger,
+                logger: tsLogger,
                 irReport: Object.keys(collisions).length > 0 ? { collisions } : {},
             };
             let tsIndex = mkTypeSchemaIndex(typeSchemas, tsIndexOpts);
             if (this.options.treeShake) tsIndex = treeShake(tsIndex, this.options.treeShake);
             if (this.options.promoteLogical) tsIndex = promoteLogical(tsIndex, this.options.promoteLogical);
+
+            tsLogger.printTagSummary();
 
             this.logger.debug(`Executing ${this.generators.length} generators`);
 
@@ -449,7 +440,7 @@ export class APIBuilder {
 
             this.logger.debug(`Generation completed: ${result.filesGenerated.length} files`);
         } catch (error) {
-            this.logger.error("Code generation failed", error instanceof Error ? error : new Error(String(error)));
+            this.logger.error(`Code generation failed: ${error instanceof Error ? error.message : String(error)}`);
             result.errors.push(error instanceof Error ? error.message : String(error));
             if (this.options.throwException) throw error;
         }

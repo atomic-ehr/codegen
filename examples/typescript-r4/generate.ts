@@ -1,12 +1,12 @@
 // Run this script using Bun CLI with:
 // bun run scripts/generate-fhir-types.ts
 
-import { APIBuilder, prettyReport } from "../../src/api/builder";
+import { APIBuilder, mkCodegenLogger, prettyReport } from "../../src";
 
 if (require.main === module) {
     console.log("📦 Generating FHIR R4 Core Types...");
 
-    const builder = new APIBuilder()
+    const builder = new APIBuilder({ logger: mkCodegenLogger({ suppressTags: ["#fieldTypeNotFound"] }) })
         .throwException()
         .fromPackage("hl7.fhir.r4.core", "4.0.1")
         .typescript({

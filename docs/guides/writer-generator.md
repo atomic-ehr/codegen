@@ -77,7 +77,7 @@ The `FileSystemWriter` class handles file I/O and directory management. It requi
 export type FileSystemWriterOptions = {
     outputDir: string;                    // Where to write files
     inMemoryOnly?: boolean;               // Don't write to disk (for testing)
-    logger?: CodegenLogger;               // Optional logging
+    logger?: CodegenLogManager;            // Created automatically if not provided
     resolveAssets?: (fn: string) => string; // Asset resolution function
 };
 ```
