@@ -17,8 +17,8 @@ from fhir_types.hl7_fhir_r4_core.resource_families import DomainResourceFamily
 class ObservationComponent(BackboneElement):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     code: CodeableConcept = Field(alias="code", serialization_alias="code")
-    data_absent_reason: CodeableConcept | None = Field(None, alias="dataAbsentReason", serialization_alias="dataAbsentReason")
-    interpretation: PyList[CodeableConcept] | None = Field(None, alias="interpretation", serialization_alias="interpretation")
+    data_absent_reason: CodeableConcept[Literal["unknown", "asked-unknown", "temp-unknown", "not-asked", "asked-declined", "masked", "not-applicable", "unsupported", "as-text", "error", "not-a-number", "negative-infinity", "positive-infinity", "not-performed", "not-permitted"] | str] | None = Field(None, alias="dataAbsentReason", serialization_alias="dataAbsentReason")
+    interpretation: PyList[CodeableConcept[Literal["_GeneticObservationInterpretation", "CAR", "Carrier", "_ObservationInterpretationChange", "B", "D", "U", "W", "_ObservationInterpretationExceptions", "<", ">", "AC", "IE", "QCF", "TOX", "_ObservationInterpretationNormality", "A", "AA", "HH", "LL", "H", "H>", "HU", "L", "L<", "LU", "N", "_ObservationInterpretationSusceptibility", "I", "MS", "NCL", "NS", "R", "SYN-R", "S", "SDD", "SYN-S", "VS", "EX", "HX", "LX", "HM", "ObservationInterpretationDetection", "IND", "E", "NEG", "ND", "POS", "DET", "ObservationInterpretationExpectation", "EXP", "UNE", "OBX", "ReactivityObservationInterpretation", "NR", "RR", "WR"] | str]] | None = Field(None, alias="interpretation", serialization_alias="interpretation")
     reference_range: PyList[ObservationReferenceRange] | None = Field(None, alias="referenceRange", serialization_alias="referenceRange")
     value_boolean: bool | None = Field(None, alias="valueBoolean", serialization_alias="valueBoolean")
     value_codeable_concept: CodeableConcept | None = Field(None, alias="valueCodeableConcept", serialization_alias="valueCodeableConcept")
@@ -39,7 +39,7 @@ class ObservationReferenceRange(BackboneElement):
     high: Quantity | None = Field(None, alias="high", serialization_alias="high")
     low: Quantity | None = Field(None, alias="low", serialization_alias="low")
     text: str | None = Field(None, alias="text", serialization_alias="text")
-    type: CodeableConcept | None = Field(None, alias="type", serialization_alias="type")
+    type: CodeableConcept[Literal["type", "normal", "recommended", "treatment", "therapeutic", "pre", "post", "endocrine", "pre-puberty", "follicular", "midcycle", "luteal", "postmenopausal"] | str] | None = Field(None, alias="type", serialization_alias="type")
 
 
 class Observation(DomainResource):
@@ -53,10 +53,10 @@ class Observation(DomainResource):
     )
     based_on: PyList[Reference] | None = Field(None, alias="basedOn", serialization_alias="basedOn")
     body_site: CodeableConcept | None = Field(None, alias="bodySite", serialization_alias="bodySite")
-    category: PyList[CodeableConcept] | None = Field(None, alias="category", serialization_alias="category")
+    category: PyList[CodeableConcept[Literal["social-history", "vital-signs", "imaging", "laboratory", "procedure", "survey", "exam", "therapy", "activity"] | str]] | None = Field(None, alias="category", serialization_alias="category")
     code: CodeableConcept = Field(alias="code", serialization_alias="code")
     component: PyList[ObservationComponent] | None = Field(None, alias="component", serialization_alias="component")
-    data_absent_reason: CodeableConcept | None = Field(None, alias="dataAbsentReason", serialization_alias="dataAbsentReason")
+    data_absent_reason: CodeableConcept[Literal["unknown", "asked-unknown", "temp-unknown", "not-asked", "asked-declined", "masked", "not-applicable", "unsupported", "as-text", "error", "not-a-number", "negative-infinity", "positive-infinity", "not-performed", "not-permitted"] | str] | None = Field(None, alias="dataAbsentReason", serialization_alias="dataAbsentReason")
     derived_from: PyList[Reference] | None = Field(None, alias="derivedFrom", serialization_alias="derivedFrom")
     device: Reference | None = Field(None, alias="device", serialization_alias="device")
     effective_date_time: str | None = Field(None, alias="effectiveDateTime", serialization_alias="effectiveDateTime")
@@ -67,7 +67,7 @@ class Observation(DomainResource):
     focus: PyList[Reference] | None = Field(None, alias="focus", serialization_alias="focus")
     has_member: PyList[Reference] | None = Field(None, alias="hasMember", serialization_alias="hasMember")
     identifier: PyList[Identifier] | None = Field(None, alias="identifier", serialization_alias="identifier")
-    interpretation: PyList[CodeableConcept] | None = Field(None, alias="interpretation", serialization_alias="interpretation")
+    interpretation: PyList[CodeableConcept[Literal["_GeneticObservationInterpretation", "CAR", "Carrier", "_ObservationInterpretationChange", "B", "D", "U", "W", "_ObservationInterpretationExceptions", "<", ">", "AC", "IE", "QCF", "TOX", "_ObservationInterpretationNormality", "A", "AA", "HH", "LL", "H", "H>", "HU", "L", "L<", "LU", "N", "_ObservationInterpretationSusceptibility", "I", "MS", "NCL", "NS", "R", "SYN-R", "S", "SDD", "SYN-S", "VS", "EX", "HX", "LX", "HM", "ObservationInterpretationDetection", "IND", "E", "NEG", "ND", "POS", "DET", "ObservationInterpretationExpectation", "EXP", "UNE", "OBX", "ReactivityObservationInterpretation", "NR", "RR", "WR"] | str]] | None = Field(None, alias="interpretation", serialization_alias="interpretation")
     issued: str | None = Field(None, alias="issued", serialization_alias="issued")
     method: CodeableConcept | None = Field(None, alias="method", serialization_alias="method")
     note: PyList[Annotation] | None = Field(None, alias="note", serialization_alias="note")

@@ -4,7 +4,10 @@
 
 from __future__ import annotations
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt
-from typing import List as PyList, Literal
+from typing import Generic, List as PyList, Literal
+from typing_extensions import TypeVar
+
+T = TypeVar('T', bound=str, default=str)
 
 
 class Element(BaseModel):
@@ -65,15 +68,15 @@ class BackboneElement(Element):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
 
 
-class CodeableConcept(Element):
+class CodeableConcept(Element, Generic[T]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    coding: PyList[Coding] | None = Field(None, alias="coding", serialization_alias="coding")
+    coding: PyList[Coding[T]] | None = Field(None, alias="coding", serialization_alias="coding")
     text: str | None = Field(None, alias="text", serialization_alias="text")
 
 
-class Coding(Element):
+class Coding(Element, Generic[T]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    code: str | None = Field(None, alias="code", serialization_alias="code")
+    code: T | None = Field(None, alias="code", serialization_alias="code")
     display: str | None = Field(None, alias="display", serialization_alias="display")
     system: str | None = Field(None, alias="system", serialization_alias="system")
     user_selected: bool | None = Field(None, alias="userSelected", serialization_alias="userSelected")
@@ -259,7 +262,7 @@ class Identifier(Element):
     assigner: Reference | None = Field(None, alias="assigner", serialization_alias="assigner")
     period: Period | None = Field(None, alias="period", serialization_alias="period")
     system: str | None = Field(None, alias="system", serialization_alias="system")
-    type: CodeableConcept | None = Field(None, alias="type", serialization_alias="type")
+    type: CodeableConcept[Literal["DL", "PPN", "BRN", "MR", "MCN", "EN", "TAX", "NIIP", "PRN", "MD", "DR", "ACSN", "UDI", "SNO", "SB", "PLAC", "FILL", "JHN"] | str] | None = Field(None, alias="type", serialization_alias="type")
     use: Literal["usual", "official", "temp", "secondary", "old"] | None = Field(None, alias="use", serialization_alias="use")
     value: str | None = Field(None, alias="value", serialization_alias="value")
 
@@ -351,7 +354,7 @@ class Signature(Element):
     on_behalf_of: Reference | None = Field(None, alias="onBehalfOf", serialization_alias="onBehalfOf")
     sig_format: str | None = Field(None, alias="sigFormat", serialization_alias="sigFormat")
     target_format: str | None = Field(None, alias="targetFormat", serialization_alias="targetFormat")
-    type: PyList[Coding] = Field(alias="type", serialization_alias="type")
+    type: PyList[Coding[Literal["1.2.840.10065.1.12.1.1", "1.2.840.10065.1.12.1.2", "1.2.840.10065.1.12.1.3", "1.2.840.10065.1.12.1.4", "1.2.840.10065.1.12.1.5", "1.2.840.10065.1.12.1.6", "1.2.840.10065.1.12.1.7", "1.2.840.10065.1.12.1.8", "1.2.840.10065.1.12.1.9", "1.2.840.10065.1.12.1.10", "1.2.840.10065.1.12.1.11", "1.2.840.10065.1.12.1.12", "1.2.840.10065.1.12.1.13", "1.2.840.10065.1.12.1.14", "1.2.840.10065.1.12.1.15", "1.2.840.10065.1.12.1.16", "1.2.840.10065.1.12.1.17", "1.2.840.10065.1.12.1.18"] | str]] = Field(alias="type", serialization_alias="type")
     when: str = Field(alias="when", serialization_alias="when")
     who: Reference = Field(alias="who", serialization_alias="who")
 
@@ -379,7 +382,7 @@ class TimingRepeat(Element):
 
 class Timing(BackboneElement):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    code: CodeableConcept | None = Field(None, alias="code", serialization_alias="code")
+    code: CodeableConcept[Literal["BID", "TID", "QID", "AM", "PM", "QD", "QOD", "Q1H", "Q2H", "Q3H", "Q4H", "Q6H", "Q8H", "BED", "WK", "MO"] | str] | None = Field(None, alias="code", serialization_alias="code")
     event: PyList[str] | None = Field(None, alias="event", serialization_alias="event")
     repeat: TimingRepeat | None = Field(None, alias="repeat", serialization_alias="repeat")
 
@@ -398,7 +401,7 @@ class TriggerDefinition(Element):
 
 class UsageContext(Element):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    code: Coding = Field(alias="code", serialization_alias="code")
+    code: Coding[Literal["gender", "age", "focus", "user", "workflow", "task", "venue", "species", "program"] | str] = Field(alias="code", serialization_alias="code")
     value_codeable_concept: CodeableConcept | None = Field(None, alias="valueCodeableConcept", serialization_alias="valueCodeableConcept")
     value_quantity: Quantity | None = Field(None, alias="valueQuantity", serialization_alias="valueQuantity")
     value_range: Range | None = Field(None, alias="valueRange", serialization_alias="valueRange")
