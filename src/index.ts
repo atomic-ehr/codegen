@@ -81,4 +81,5 @@
 
 // Export new high-level API (primary)
 export * from "./api/index";
-export { registerFromPackageMetas } from "./typeschema/register";
+// Export some typeschema APIs useful in CCDA generation
+export { registerFromPackageMetas, registerFromManager } from "./typeschema/register";
