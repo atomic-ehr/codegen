@@ -175,7 +175,7 @@ export const registerFromManager = async (
     for (const pkg of packages) {
         await mkPackageAwareResolver(manager, pkg, 0, resolver, logger);
     }
-    enrichResolver(resolver);
+    enrichResolver(resolver, logger);
 
     const resolveFs = (pkg: PackageMeta, canonicalUrl: CanonicalUrl) => {
         const pkgIndex = resolver[packageMetaToFhir(pkg)];
