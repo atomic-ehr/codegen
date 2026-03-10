@@ -346,7 +346,7 @@ export const registerFromPackageMetas = async (
     conf?.logger?.step(`Loading FHIR packages: ${packageNames.join(", ")}`);
     const manager = CanonicalManager({
         packages: packageNames,
-        workingDir: "tmp/fhir",
+        workingDir: ".codegen-cache/canonical-manager-cache",
         registry: conf.registry || undefined,
     });
     await manager.init();
