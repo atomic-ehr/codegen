@@ -59,6 +59,7 @@ test-all-example-generation: test-other-example-generation
 
 test-other-example-generation:
 	bun run examples/nodge-r4.ts
+	echo '{ "extends": "../../tsconfig.json", "include": ["."] }' > examples/tmp/tsconfig.json
 	$(TYPECHECK) --project examples/tmp/tsconfig.json
 
 test-typescript-r4-example: typecheck format lint
