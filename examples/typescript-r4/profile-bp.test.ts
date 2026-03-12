@@ -39,8 +39,8 @@ describe("blood pressure profile", () => {
         const obs = fresh.toResource();
         expect(obs.component).toHaveLength(2);
         // stubs contain only discriminator match values
-        expect(fresh.getSystolicBPRaw()).toBeDefined();
-        expect(fresh.getDiastolicBPRaw()).toBeDefined();
+        expect(fresh.getSystolicBP("raw")).toBeDefined();
+        expect(fresh.getDiastolicBP("raw")).toBeDefined();
     });
 
     test("setSystolicBP / getSystolicBP / getSystolicBPRaw", () => {
@@ -53,7 +53,7 @@ describe("blood pressure profile", () => {
             code: "mm[Hg]",
         });
 
-        expect(profile.getSystolicBPRaw() as unknown).toEqual({
+        expect(profile.getSystolicBP("raw") as unknown).toEqual({
             valueQuantity: { value: 120, unit: "mmHg", system: "http://unitsofmeasure.org", code: "mm[Hg]" },
             code: { coding: { code: "8480-6", system: "http://loinc.org" } },
         });
@@ -69,7 +69,7 @@ describe("blood pressure profile", () => {
             code: "mm[Hg]",
         });
 
-        expect(profile.getDiastolicBPRaw() as unknown).toEqual({
+        expect(profile.getDiastolicBP("raw") as unknown).toEqual({
             valueQuantity: { value: 80, unit: "mmHg", system: "http://unitsofmeasure.org", code: "mm[Hg]" },
             code: { coding: { code: "8462-4", system: "http://loinc.org" } },
         });
@@ -80,25 +80,25 @@ describe("blood pressure profile", () => {
         // auto-populated stubs + set values = still 2 items (set replaces stubs)
         expect(obs.component).toHaveLength(2);
 
-        const systolicCode = profile.getSystolicBPRaw()!.code as Record<string, unknown>;
-        const diastolicCode = profile.getDiastolicBPRaw()!.code as Record<string, unknown>;
+        const systolicCode = profile.getSystolicBP("raw")!.code as Record<string, unknown>;
+        const diastolicCode = profile.getDiastolicBP("raw")!.code as Record<string, unknown>;
         expect(systolicCode.coding).toEqual({ code: "8480-6", system: "http://loinc.org" });
         expect(diastolicCode.coding).toEqual({ code: "8462-4", system: "http://loinc.org" });
-        expect(profile.getSystolicBPRaw()!.valueQuantity!.value).toBe(120);
-        expect(profile.getDiastolicBPRaw()!.valueQuantity!.value).toBe(80);
+        expect(profile.getSystolicBP("raw")!.valueQuantity!.value).toBe(120);
+        expect(profile.getDiastolicBP("raw")!.valueQuantity!.value).toBe(80);
     });
 
     test("setSystolicBP replaces an existing systolic component", () => {
         profile.setSystolicBP({ value: 130, unit: "mmHg" });
 
         expect(profile.toResource().component).toHaveLength(2);
-        expect(profile.getSystolicBPRaw()!.valueQuantity!.value).toBe(130);
+        expect(profile.getSystolicBP("raw")!.valueQuantity!.value).toBe(130);
     });
 
     test("setVSCat adds category with discriminator values", () => {
         profile.setVSCat({ text: "Vital Signs" });
 
-        const raw = profile.getVSCatRaw()!;
+        const raw = profile.getVSCat("raw")!;
         expect(raw.text).toBe("Vital Signs");
         expect(raw.coding as unknown).toEqual({
             code: "vital-signs",
@@ -126,15 +126,15 @@ describe("blood pressure profile", () => {
         expect(profile.getVSCat()!.text).toBe("Vital Signs");
         expect(profile.getEffectiveDateTime()).toBe("2024-06-15");
         expect(profile.getSubject()!.reference).toBe("Patient/pt-2");
-        expect(profile.getSystolicBPRaw()!.valueQuantity!.value).toBe(120);
-        expect(profile.getDiastolicBPRaw()!.valueQuantity!.value).toBe(80);
+        expect(profile.getSystolicBP("raw")!.valueQuantity!.value).toBe(120);
+        expect(profile.getDiastolicBP("raw")!.valueQuantity!.value).toBe(80);
     });
 
     test("setSystolicBP with no args inserts discriminator-only component", () => {
         const fresh = createBp();
         fresh.setSystolicBP();
 
-        const raw = fresh.getSystolicBPRaw()!;
+        const raw = fresh.getSystolicBP("raw")!;
         const rawCode = raw.code as Record<string, unknown>;
         expect(rawCode.coding).toEqual({ code: "8480-6", system: "http://loinc.org" });
         expect(raw.valueQuantity).toBeUndefined();

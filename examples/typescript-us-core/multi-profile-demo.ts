@@ -6,7 +6,7 @@
  * 2. Using setters to apply profile-defined slices (no input needed for constant slices)
  * 3. Using getters to read values:
  *    - getVSCat() - returns flat API (simplified, without discriminator)
- *    - getVSCatRaw() - returns full FHIR type (with discriminator)
+ *    - getVSCat('raw') - returns full FHIR type (with discriminator)
  * 4. The override interface for type-safe cardinality constraints
  */
 
@@ -37,7 +37,7 @@ const demonstrateGetters = () => {
     console.log("Simplified slice:", simplified);
 
     // Get raw value (with discriminator) - full FHIR type
-    const raw = profile.getVSCatRaw();
+    const raw = profile.getVSCat("raw");
     console.log("Raw slice:", raw);
 
     // The raw value includes the coding discriminator

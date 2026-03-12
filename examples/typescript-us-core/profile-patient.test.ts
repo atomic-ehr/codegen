@@ -19,7 +19,7 @@ import {
     USCorePatientProfile,
     USCoreRaceExtensionProfile,
 } from "./fhir-types/hl7-fhir-us-core/profiles";
-import type { USCoreRaceExtensionProfileInput } from "./fhir-types/hl7-fhir-us-core/profiles/Extension_USCoreRaceExtension";
+import type { USCoreRaceExtensionProfileFlat } from "./fhir-types/hl7-fhir-us-core/profiles/Extension_USCoreRaceExtension";
 
 describe("demo", () => {
     test("three ways to set an extension: flat input, profile instance, raw Extension", () => {
@@ -28,7 +28,7 @@ describe("demo", () => {
             name: [{ family: "Garcia", given: ["Maria", "Elena"] }],
         });
 
-        const raceInput: USCoreRaceExtensionProfileInput = {
+        const raceInput: USCoreRaceExtensionProfileFlat = {
             ombCategory: { system: "urn:oid:2.16.840.1.113883.6.238", code: "2106-3", display: "White" },
             text: "White",
         };
@@ -257,7 +257,7 @@ describe("US Core Patient profile extensions", () => {
         expect(race?.text).toBe("White European");
     });
 
-    test("getRace('extension') returns raw Extension", () => {
+    test("getRace('raw') returns raw Extension", () => {
         const profile = USCorePatientProfile.create({
             identifier: [{ value: "1" }],
             name: [{ family: "Test" }],
@@ -268,7 +268,7 @@ describe("US Core Patient profile extensions", () => {
             text: "White",
         });
 
-        const raw = profile.getRace("extension");
+        const raw = profile.getRace("raw");
         expect(raw).toBeDefined();
         expect(raw?.url).toBe("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race");
         expect(raw?.extension).toBeArray();
@@ -285,7 +285,7 @@ describe("US Core Patient profile extensions", () => {
         expect(profile.getSex()?.code).toBe("male");
     });
 
-    test("getSex('extension') returns raw Extension", () => {
+    test("getSex('raw') returns raw Extension", () => {
         const profile = USCorePatientProfile.create({
             identifier: [{ value: "1" }],
             name: [{ family: "Test" }],
@@ -293,7 +293,7 @@ describe("US Core Patient profile extensions", () => {
 
         profile.setSex({ system: "http://hl7.org/fhir/administrative-gender", code: "female" });
 
-        const raw = profile.getSex("extension");
+        const raw = profile.getSex("raw");
         expect(raw?.url).toBe("http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex");
         expect(raw?.valueCoding?.code).toBe("female");
     });
@@ -310,11 +310,11 @@ describe("US Core Patient profile extensions", () => {
         expect(profile.getTribalAffiliation()).toBeUndefined();
         expect(profile.getInterpreterRequired()).toBeUndefined();
 
-        expect(profile.getRace("extension")).toBeUndefined();
-        expect(profile.getEthnicity("extension")).toBeUndefined();
-        expect(profile.getSex("extension")).toBeUndefined();
-        expect(profile.getTribalAffiliation("extension")).toBeUndefined();
-        expect(profile.getInterpreterRequired("extension")).toBeUndefined();
+        expect(profile.getRace("raw")).toBeUndefined();
+        expect(profile.getEthnicity("raw")).toBeUndefined();
+        expect(profile.getSex("raw")).toBeUndefined();
+        expect(profile.getTribalAffiliation("raw")).toBeUndefined();
+        expect(profile.getInterpreterRequired("raw")).toBeUndefined();
     });
 
     test("fluent chaining across extensions", () => {
@@ -369,7 +369,7 @@ describe("US Core Patient multi-form extension setters", () => {
 
         profile.setRace(raceProfile);
 
-        const raw = profile.getRace("extension");
+        const raw = profile.getRace("raw");
         expect(raw?.url).toBe("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race");
         expect(raw?.extension).toBeArray();
     });
@@ -390,7 +390,7 @@ describe("US Core Patient multi-form extension setters", () => {
 
         profile.setRace(rawExtension);
 
-        const raw = profile.getRace("extension");
+        const raw = profile.getRace("raw");
         expect(raw?.url).toBe("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race");
         expect(raw).toBe(rawExtension);
     });
@@ -420,7 +420,7 @@ describe("US Core Patient multi-form extension setters", () => {
         const sexProfile = USCoreIndividualSexExtensionProfile.create({ valueCoding: { code: "male" } });
         profile.setSex(sexProfile);
 
-        const raw = profile.getSex("extension");
+        const raw = profile.getSex("raw");
         expect(raw?.url).toBe("http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex");
         expect(raw?.valueCoding?.code).toBe("male");
     });
@@ -438,7 +438,7 @@ describe("US Core Patient multi-form extension setters", () => {
 
         profile.setSex(rawExtension);
 
-        const raw = profile.getSex("extension");
+        const raw = profile.getSex("raw");
         expect(raw?.url).toBe("http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex");
         expect(raw).toBe(rawExtension);
     });

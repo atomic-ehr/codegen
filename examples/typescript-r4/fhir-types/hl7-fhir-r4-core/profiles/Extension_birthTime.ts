@@ -15,7 +15,7 @@ import {
     validateChoiceRequired,
 } from "../../profile-helpers";
 
-export type birthTimeProfileInputRaw = {
+export type birthTimeProfileRaw = {
     valueDateTime: string;
 }
 
@@ -40,7 +40,7 @@ export class birthTimeProfile {
         return new birthTimeProfile(resource);
     }
 
-    static createResource (args: birthTimeProfileInputRaw) : Extension {
+    static createResource (args: birthTimeProfileRaw) : Extension {
         const resource = buildResource<Extension>( {
             url: "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
             valueDateTime: args.valueDateTime,
@@ -48,7 +48,7 @@ export class birthTimeProfile {
         return resource;
     }
 
-    static create (args: birthTimeProfileInputRaw) : birthTimeProfile {
+    static create (args: birthTimeProfileRaw) : birthTimeProfile {
         return birthTimeProfile.apply(birthTimeProfile.createResource(args));
     }
 

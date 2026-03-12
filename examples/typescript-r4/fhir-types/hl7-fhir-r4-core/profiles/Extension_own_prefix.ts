@@ -15,7 +15,7 @@ import {
     validateChoiceRequired,
 } from "../../profile-helpers";
 
-export type own_prefixProfileInputRaw = {
+export type own_prefixProfileRaw = {
     valueString: string;
 }
 
@@ -40,7 +40,7 @@ export class own_prefixProfile {
         return new own_prefixProfile(resource);
     }
 
-    static createResource (args: own_prefixProfileInputRaw) : Extension {
+    static createResource (args: own_prefixProfileRaw) : Extension {
         const resource = buildResource<Extension>( {
             url: "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
             valueString: args.valueString,
@@ -48,7 +48,7 @@ export class own_prefixProfile {
         return resource;
     }
 
-    static create (args: own_prefixProfileInputRaw) : own_prefixProfile {
+    static create (args: own_prefixProfileRaw) : own_prefixProfile {
         return own_prefixProfile.apply(own_prefixProfile.createResource(args));
     }
 

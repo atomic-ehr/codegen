@@ -16,7 +16,7 @@ import {
     validateChoiceRequired,
 } from "../../profile-helpers";
 
-export type birthPlaceProfileInputRaw = {
+export type birthPlaceProfileRaw = {
     valueAddress: Address;
 }
 
@@ -41,7 +41,7 @@ export class birthPlaceProfile {
         return new birthPlaceProfile(resource);
     }
 
-    static createResource (args: birthPlaceProfileInputRaw) : Extension {
+    static createResource (args: birthPlaceProfileRaw) : Extension {
         const resource = buildResource<Extension>( {
             url: "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
             valueAddress: args.valueAddress,
@@ -49,7 +49,7 @@ export class birthPlaceProfile {
         return resource;
     }
 
-    static create (args: birthPlaceProfileInputRaw) : birthPlaceProfile {
+    static create (args: birthPlaceProfileRaw) : birthPlaceProfile {
         return birthPlaceProfile.apply(birthPlaceProfile.createResource(args));
     }
 

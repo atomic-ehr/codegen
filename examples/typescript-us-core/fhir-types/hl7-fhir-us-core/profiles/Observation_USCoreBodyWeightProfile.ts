@@ -16,7 +16,7 @@ export interface USCoreBodyWeightProfile extends Observation {
     subject: Reference<"Patient">;
 }
 
-export type USCoreBodyWeightProfile_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
+export type USCoreBodyWeightProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
 
 import {
     buildResource,
@@ -36,7 +36,7 @@ import {
     validateChoiceRequired,
 } from "../../profile-helpers";
 
-export type USCoreBodyWeightProfileInputRaw = {
+export type USCoreBodyWeightProfileRaw = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
     subject: Reference<"Patient">;
     category?: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
@@ -69,7 +69,7 @@ export class USCoreBodyWeightProfile {
         return new USCoreBodyWeightProfile(resource);
     }
 
-    static createResource (args: USCoreBodyWeightProfileInputRaw) : Observation {
+    static createResource (args: USCoreBodyWeightProfileRaw) : Observation {
         const categoryWithDefaults = ensureSliceDefaults(
             [...(args.category ?? [])],
             USCoreBodyWeightProfile.VSCatSliceMatch,
@@ -86,7 +86,7 @@ export class USCoreBodyWeightProfile {
         return resource;
     }
 
-    static create (args: USCoreBodyWeightProfileInputRaw) : USCoreBodyWeightProfile {
+    static create (args: USCoreBodyWeightProfileRaw) : USCoreBodyWeightProfile {
         return USCoreBodyWeightProfile.apply(USCoreBodyWeightProfile.createResource(args));
     }
 
@@ -250,24 +250,26 @@ export class USCoreBodyWeightProfile {
 
     // Extensions
     // Slices
-    public setVSCat (input?: USCoreBodyWeightProfile_Category_VSCatSliceInput): this {
+    public setVSCat (input?: USCoreBodyWeightProfile_Category_VSCatSliceFlat | CodeableConcept): this {
         const match = USCoreBodyWeightProfile.VSCatSliceMatch
+        if (input && matchesValue(input, match)) {
+            setArraySlice(this.resource.category ??= [], match, input as CodeableConcept)
+            return this
+        }
         const value = applySliceMatch<CodeableConcept>(input ?? {}, match)
         setArraySlice(this.resource.category ??= [], match, value)
         return this
     }
 
-    public getVSCat (): USCoreBodyWeightProfile_Category_VSCatSliceInput | undefined {
+    public getVSCat(mode: 'flat'): USCoreBodyWeightProfile_Category_VSCatSliceFlat | undefined;
+    public getVSCat(mode: 'raw'): CodeableConcept | undefined;
+    public getVSCat(): USCoreBodyWeightProfile_Category_VSCatSliceFlat | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): USCoreBodyWeightProfile_Category_VSCatSliceFlat | CodeableConcept | undefined {
         const match = USCoreBodyWeightProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
-        return stripMatchKeys<USCoreBodyWeightProfile_Category_VSCatSliceInput>(item, ["coding"])
-    }
-
-    public getVSCatRaw (): CodeableConcept | undefined {
-        const match = USCoreBodyWeightProfile.VSCatSliceMatch
-        const item = getArraySlice(this.resource.category, match)
-        return item
+        if (mode === 'raw') return item
+        return stripMatchKeys<USCoreBodyWeightProfile_Category_VSCatSliceFlat>(item, ["coding"])
     }
 
     // Validation

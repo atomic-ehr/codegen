@@ -12,7 +12,7 @@ export interface observation_vitalsigns extends Observation {
     subject: Reference<"Patient">;
 }
 
-export type Observation_vitalsigns_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
+export type Observation_vitalsigns_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
 
 import {
     buildResource,
@@ -32,7 +32,7 @@ import {
     validateChoiceRequired,
 } from "../../profile-helpers";
 
-export type observation_vitalsignsProfileInputRaw = {
+export type observation_vitalsignsProfileRaw = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
     code: CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)>;
     subject: Reference<"Patient">;
@@ -66,7 +66,7 @@ export class observation_vitalsignsProfile {
         return new observation_vitalsignsProfile(resource);
     }
 
-    static createResource (args: observation_vitalsignsProfileInputRaw) : Observation {
+    static createResource (args: observation_vitalsignsProfileRaw) : Observation {
         const categoryWithDefaults = ensureSliceDefaults(
             [...(args.category ?? [])],
             observation_vitalsignsProfile.VSCatSliceMatch,
@@ -83,7 +83,7 @@ export class observation_vitalsignsProfile {
         return resource;
     }
 
-    static create (args: observation_vitalsignsProfileInputRaw) : observation_vitalsignsProfile {
+    static create (args: observation_vitalsignsProfileRaw) : observation_vitalsignsProfile {
         return observation_vitalsignsProfile.apply(observation_vitalsignsProfile.createResource(args));
     }
 
@@ -148,24 +148,26 @@ export class observation_vitalsignsProfile {
 
     // Extensions
     // Slices
-    public setVSCat (input?: Observation_vitalsigns_Category_VSCatSliceInput): this {
+    public setVSCat (input?: Observation_vitalsigns_Category_VSCatSliceFlat | CodeableConcept): this {
         const match = observation_vitalsignsProfile.VSCatSliceMatch
+        if (input && matchesValue(input, match)) {
+            setArraySlice(this.resource.category ??= [], match, input as CodeableConcept)
+            return this
+        }
         const value = applySliceMatch<CodeableConcept>(input ?? {}, match)
         setArraySlice(this.resource.category ??= [], match, value)
         return this
     }
 
-    public getVSCat (): Observation_vitalsigns_Category_VSCatSliceInput | undefined {
+    public getVSCat(mode: 'flat'): Observation_vitalsigns_Category_VSCatSliceFlat | undefined;
+    public getVSCat(mode: 'raw'): CodeableConcept | undefined;
+    public getVSCat(): Observation_vitalsigns_Category_VSCatSliceFlat | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_vitalsigns_Category_VSCatSliceFlat | CodeableConcept | undefined {
         const match = observation_vitalsignsProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
-        return stripMatchKeys<Observation_vitalsigns_Category_VSCatSliceInput>(item, ["coding"])
-    }
-
-    public getVSCatRaw (): CodeableConcept | undefined {
-        const match = observation_vitalsignsProfile.VSCatSliceMatch
-        const item = getArraySlice(this.resource.category, match)
-        return item
+        if (mode === 'raw') return item
+        return stripMatchKeys<Observation_vitalsigns_Category_VSCatSliceFlat>(item, ["coding"])
     }
 
     // Validation

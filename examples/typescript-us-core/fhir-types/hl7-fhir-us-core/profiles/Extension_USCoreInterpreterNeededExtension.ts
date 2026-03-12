@@ -16,7 +16,7 @@ import {
     validateChoiceRequired,
 } from "../../profile-helpers";
 
-export type USCoreInterpreterNeededExtensionProfileInputRaw = {
+export type USCoreInterpreterNeededExtensionProfileRaw = {
     valueCoding: Coding;
 }
 
@@ -41,7 +41,7 @@ export class USCoreInterpreterNeededExtensionProfile {
         return new USCoreInterpreterNeededExtensionProfile(resource);
     }
 
-    static createResource (args: USCoreInterpreterNeededExtensionProfileInputRaw) : Extension {
+    static createResource (args: USCoreInterpreterNeededExtensionProfileRaw) : Extension {
         const resource = buildResource<Extension>( {
             url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed",
             valueCoding: args.valueCoding,
@@ -49,7 +49,7 @@ export class USCoreInterpreterNeededExtensionProfile {
         return resource;
     }
 
-    static create (args: USCoreInterpreterNeededExtensionProfileInputRaw) : USCoreInterpreterNeededExtensionProfile {
+    static create (args: USCoreInterpreterNeededExtensionProfileRaw) : USCoreInterpreterNeededExtensionProfile {
         return USCoreInterpreterNeededExtensionProfile.apply(USCoreInterpreterNeededExtensionProfile.createResource(args));
     }
 

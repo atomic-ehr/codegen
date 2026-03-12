@@ -16,7 +16,7 @@ import {
     validateChoiceRequired,
 } from "../../profile-helpers";
 
-export type USCoreIndividualSexExtensionProfileInputRaw = {
+export type USCoreIndividualSexExtensionProfileRaw = {
     valueCoding: Coding;
 }
 
@@ -41,7 +41,7 @@ export class USCoreIndividualSexExtensionProfile {
         return new USCoreIndividualSexExtensionProfile(resource);
     }
 
-    static createResource (args: USCoreIndividualSexExtensionProfileInputRaw) : Extension {
+    static createResource (args: USCoreIndividualSexExtensionProfileRaw) : Extension {
         const resource = buildResource<Extension>( {
             url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex",
             valueCoding: args.valueCoding,
@@ -49,7 +49,7 @@ export class USCoreIndividualSexExtensionProfile {
         return resource;
     }
 
-    static create (args: USCoreIndividualSexExtensionProfileInputRaw) : USCoreIndividualSexExtensionProfile {
+    static create (args: USCoreIndividualSexExtensionProfileRaw) : USCoreIndividualSexExtensionProfile {
         return USCoreIndividualSexExtensionProfile.apply(USCoreIndividualSexExtensionProfile.createResource(args));
     }
 

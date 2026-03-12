@@ -21,11 +21,11 @@ import {
     validateChoiceRequired,
 } from "../../profile-helpers";
 
-export type nationalityProfileInputRaw = {
+export type nationalityProfileRaw = {
     extension?: Extension[];
 }
 
-export type nationalityProfileInput = {
+export type nationalityProfileFlat = {
     code?: CodeableConcept;
     period?: Period;
 }
@@ -51,8 +51,8 @@ export class nationalityProfile {
         return new nationalityProfile(resource);
     }
 
-    private static resolveInput (args: nationalityProfileInputRaw | nationalityProfileInput) : Extension[] {
-        if (isRawExtensionInput<nationalityProfileInputRaw>(args)) {
+    private static resolveInput (args: nationalityProfileRaw | nationalityProfileFlat) : Extension[] {
+        if (isRawExtensionInput<nationalityProfileRaw>(args)) {
             return args.extension ?? [];
         } else {
             const result: Extension[] = [];
@@ -66,7 +66,7 @@ export class nationalityProfile {
         }
     }
 
-    static createResource (args?: nationalityProfileInputRaw | nationalityProfileInput) : Extension {
+    static createResource (args?: nationalityProfileRaw | nationalityProfileFlat) : Extension {
         const resolvedExtensions = nationalityProfile.resolveInput(args ?? {});
 
         const resource = buildResource<Extension>( {
@@ -76,7 +76,7 @@ export class nationalityProfile {
         return resource;
     }
 
-    static create (args?: nationalityProfileInputRaw | nationalityProfileInput) : nationalityProfile {
+    static create (args?: nationalityProfileRaw | nationalityProfileFlat) : nationalityProfile {
         return nationalityProfile.apply(nationalityProfile.createResource(args));
     }
 
@@ -100,13 +100,13 @@ export class nationalityProfile {
         return this
     }
 
-    public getCode(mode: 'input'): CodeableConcept | undefined;
-    public getCode(mode: 'extension'): Extension | undefined;
+    public getCode(mode: 'flat'): CodeableConcept | undefined;
+    public getCode(mode: 'raw'): Extension | undefined;
     public getCode(): CodeableConcept | undefined;
-    public getCode (mode: 'input' | 'extension' = 'input'): CodeableConcept | Extension | undefined {
+    public getCode (mode: 'flat' | 'raw' = 'flat'): CodeableConcept | Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "code")
         if (!ext) return undefined
-        if (mode === 'extension') return ext
+        if (mode === 'raw') return ext
         return getExtensionValue<CodeableConcept>(ext, "valueCodeableConcept")
     }
 
@@ -115,13 +115,13 @@ export class nationalityProfile {
         return this
     }
 
-    public getPeriod(mode: 'input'): Period | undefined;
-    public getPeriod(mode: 'extension'): Extension | undefined;
+    public getPeriod(mode: 'flat'): Period | undefined;
+    public getPeriod(mode: 'raw'): Extension | undefined;
     public getPeriod(): Period | undefined;
-    public getPeriod (mode: 'input' | 'extension' = 'input'): Period | Extension | undefined {
+    public getPeriod (mode: 'flat' | 'raw' = 'flat'): Period | Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "period")
         if (!ext) return undefined
-        if (mode === 'extension') return ext
+        if (mode === 'raw') return ext
         return getExtensionValue<Period>(ext, "valuePeriod")
     }
 

@@ -16,9 +16,9 @@ export interface USCoreBloodPressureProfile extends Observation {
     subject: Reference<"Patient">;
 }
 
-export type USCoreBloodPressureProfile_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
-export type USCoreBloodPressureProfile_Component_SystolicSliceInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
-export type USCoreBloodPressureProfile_Component_DiastolicSliceInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
+export type USCoreBloodPressureProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
+export type USCoreBloodPressureProfile_Component_SystolicSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
+export type USCoreBloodPressureProfile_Component_DiastolicSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 
 import {
     buildResource,
@@ -40,7 +40,7 @@ import {
     validateChoiceRequired,
 } from "../../profile-helpers";
 
-export type USCoreBloodPressureProfileInputRaw = {
+export type USCoreBloodPressureProfileRaw = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
     subject: Reference<"Patient">;
     category?: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
@@ -76,7 +76,7 @@ export class USCoreBloodPressureProfile {
         return new USCoreBloodPressureProfile(resource);
     }
 
-    static createResource (args: USCoreBloodPressureProfileInputRaw) : Observation {
+    static createResource (args: USCoreBloodPressureProfileRaw) : Observation {
         const categoryWithDefaults = ensureSliceDefaults(
             [...(args.category ?? [])],
             USCoreBloodPressureProfile.VSCatSliceMatch,
@@ -99,7 +99,7 @@ export class USCoreBloodPressureProfile {
         return resource;
     }
 
-    static create (args: USCoreBloodPressureProfileInputRaw) : USCoreBloodPressureProfile {
+    static create (args: USCoreBloodPressureProfileRaw) : USCoreBloodPressureProfile {
         return USCoreBloodPressureProfile.apply(USCoreBloodPressureProfile.createResource(args));
     }
 
@@ -272,66 +272,72 @@ export class USCoreBloodPressureProfile {
 
     // Extensions
     // Slices
-    public setVSCat (input?: USCoreBloodPressureProfile_Category_VSCatSliceInput): this {
+    public setVSCat (input?: USCoreBloodPressureProfile_Category_VSCatSliceFlat | CodeableConcept): this {
         const match = USCoreBloodPressureProfile.VSCatSliceMatch
+        if (input && matchesValue(input, match)) {
+            setArraySlice(this.resource.category ??= [], match, input as CodeableConcept)
+            return this
+        }
         const value = applySliceMatch<CodeableConcept>(input ?? {}, match)
         setArraySlice(this.resource.category ??= [], match, value)
         return this
     }
 
-    public setSystolic (input?: USCoreBloodPressureProfile_Component_SystolicSliceInput): this {
+    public setSystolic (input?: USCoreBloodPressureProfile_Component_SystolicSliceFlat | ObservationComponent): this {
         const match = USCoreBloodPressureProfile.systolicSliceMatch
+        if (input && matchesValue(input, match)) {
+            setArraySlice(this.resource.component ??= [], match, input as ObservationComponent)
+            return this
+        }
         const wrapped = wrapSliceChoice<ObservationComponent>(input ?? {}, "valueQuantity")
         const value = applySliceMatch<ObservationComponent>(wrapped, match)
         setArraySlice(this.resource.component ??= [], match, value)
         return this
     }
 
-    public setDiastolic (input?: USCoreBloodPressureProfile_Component_DiastolicSliceInput): this {
+    public setDiastolic (input?: USCoreBloodPressureProfile_Component_DiastolicSliceFlat | ObservationComponent): this {
         const match = USCoreBloodPressureProfile.diastolicSliceMatch
+        if (input && matchesValue(input, match)) {
+            setArraySlice(this.resource.component ??= [], match, input as ObservationComponent)
+            return this
+        }
         const wrapped = wrapSliceChoice<ObservationComponent>(input ?? {}, "valueQuantity")
         const value = applySliceMatch<ObservationComponent>(wrapped, match)
         setArraySlice(this.resource.component ??= [], match, value)
         return this
     }
 
-    public getVSCat (): USCoreBloodPressureProfile_Category_VSCatSliceInput | undefined {
+    public getVSCat(mode: 'flat'): USCoreBloodPressureProfile_Category_VSCatSliceFlat | undefined;
+    public getVSCat(mode: 'raw'): CodeableConcept | undefined;
+    public getVSCat(): USCoreBloodPressureProfile_Category_VSCatSliceFlat | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): USCoreBloodPressureProfile_Category_VSCatSliceFlat | CodeableConcept | undefined {
         const match = USCoreBloodPressureProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
-        return stripMatchKeys<USCoreBloodPressureProfile_Category_VSCatSliceInput>(item, ["coding"])
+        if (mode === 'raw') return item
+        return stripMatchKeys<USCoreBloodPressureProfile_Category_VSCatSliceFlat>(item, ["coding"])
     }
 
-    public getVSCatRaw (): CodeableConcept | undefined {
-        const match = USCoreBloodPressureProfile.VSCatSliceMatch
-        const item = getArraySlice(this.resource.category, match)
-        return item
-    }
-
-    public getSystolic (): USCoreBloodPressureProfile_Component_SystolicSliceInput | undefined {
+    public getSystolic(mode: 'flat'): USCoreBloodPressureProfile_Component_SystolicSliceFlat | undefined;
+    public getSystolic(mode: 'raw'): ObservationComponent | undefined;
+    public getSystolic(): USCoreBloodPressureProfile_Component_SystolicSliceFlat | undefined;
+    public getSystolic (mode: 'flat' | 'raw' = 'flat'): USCoreBloodPressureProfile_Component_SystolicSliceFlat | ObservationComponent | undefined {
         const match = USCoreBloodPressureProfile.systolicSliceMatch
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
-        return unwrapSliceChoice<USCoreBloodPressureProfile_Component_SystolicSliceInput>(item, ["code"], "valueQuantity")
+        if (mode === 'raw') return item
+        return unwrapSliceChoice<USCoreBloodPressureProfile_Component_SystolicSliceFlat>(item, ["code"], "valueQuantity")
     }
 
-    public getSystolicRaw (): ObservationComponent | undefined {
-        const match = USCoreBloodPressureProfile.systolicSliceMatch
-        const item = getArraySlice(this.resource.component, match)
-        return item
-    }
-
-    public getDiastolic (): USCoreBloodPressureProfile_Component_DiastolicSliceInput | undefined {
+    public getDiastolic(mode: 'flat'): USCoreBloodPressureProfile_Component_DiastolicSliceFlat | undefined;
+    public getDiastolic(mode: 'raw'): ObservationComponent | undefined;
+    public getDiastolic(): USCoreBloodPressureProfile_Component_DiastolicSliceFlat | undefined;
+    public getDiastolic (mode: 'flat' | 'raw' = 'flat'): USCoreBloodPressureProfile_Component_DiastolicSliceFlat | ObservationComponent | undefined {
         const match = USCoreBloodPressureProfile.diastolicSliceMatch
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
-        return unwrapSliceChoice<USCoreBloodPressureProfile_Component_DiastolicSliceInput>(item, ["code"], "valueQuantity")
-    }
-
-    public getDiastolicRaw (): ObservationComponent | undefined {
-        const match = USCoreBloodPressureProfile.diastolicSliceMatch
-        const item = getArraySlice(this.resource.component, match)
-        return item
+        if (mode === 'raw') return item
+        return unwrapSliceChoice<USCoreBloodPressureProfile_Component_DiastolicSliceFlat>(item, ["code"], "valueQuantity")
     }
 
     // Validation

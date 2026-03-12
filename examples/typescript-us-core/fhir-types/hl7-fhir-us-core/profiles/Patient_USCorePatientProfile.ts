@@ -11,14 +11,14 @@ import type { Patient } from "../../hl7-fhir-r4-core/Patient";
 
 import {
     USCoreEthnicityExtensionProfile,
-    type USCoreEthnicityExtensionProfileInput,
+    type USCoreEthnicityExtensionProfileFlat,
 } from "./Extension_USCoreEthnicityExtension";
 import { USCoreIndividualSexExtensionProfile } from "./Extension_USCoreIndividualSexExtension";
 import { USCoreInterpreterNeededExtensionProfile } from "./Extension_USCoreInterpreterNeededExtension";
-import { USCoreRaceExtensionProfile, type USCoreRaceExtensionProfileInput } from "./Extension_USCoreRaceExtension";
+import { USCoreRaceExtensionProfile, type USCoreRaceExtensionProfileFlat } from "./Extension_USCoreRaceExtension";
 import {
     USCoreTribalAffiliationExtensionProfile,
-    type USCoreTribalAffiliationExtensionProfileInput,
+    type USCoreTribalAffiliationExtensionProfileFlat,
 } from "./Extension_USCoreTribalAffiliationExtension";
 
 export interface USCorePatientProfile extends Patient {
@@ -42,7 +42,7 @@ import {
     validateChoiceRequired,
 } from "../../profile-helpers";
 
-export type USCorePatientProfileInputRaw = {
+export type USCorePatientProfileRaw = {
     identifier: Identifier[];
     name: HumanName[];
 }
@@ -72,7 +72,7 @@ export class USCorePatientProfile {
         return new USCorePatientProfile(resource);
     }
 
-    static createResource (args: USCorePatientProfileInputRaw) : Patient {
+    static createResource (args: USCorePatientProfileRaw) : Patient {
         const resource = buildResource<Patient>( {
             resourceType: "Patient",
             identifier: args.identifier,
@@ -82,7 +82,7 @@ export class USCorePatientProfile {
         return resource;
     }
 
-    static create (args: USCorePatientProfileInputRaw) : USCorePatientProfile {
+    static create (args: USCorePatientProfileRaw) : USCorePatientProfile {
         return USCorePatientProfile.apply(USCorePatientProfile.createResource(args));
     }
 
@@ -110,7 +110,7 @@ export class USCorePatientProfile {
     }
 
     // Extensions
-    public setRace (input: USCoreRaceExtensionProfileInput | USCoreRaceExtensionProfile | Extension): this {
+    public setRace (input: USCoreRaceExtensionProfileFlat | USCoreRaceExtensionProfile | Extension): this {
         if (input instanceof USCoreRaceExtensionProfile) {
             pushExtension(this.resource, input.toResource())
         } else if (isExtension<Extension>(input)) {
@@ -122,20 +122,20 @@ export class USCorePatientProfile {
         return this
     }
 
-    public getRace(mode: 'input'): USCoreRaceExtensionProfileInput | undefined;
+    public getRace(mode: 'flat'): USCoreRaceExtensionProfileFlat | undefined;
     public getRace(mode: 'profile'): USCoreRaceExtensionProfile | undefined;
-    public getRace(mode: 'extension'): Extension | undefined;
-    public getRace(): USCoreRaceExtensionProfileInput | undefined;
-    public getRace (mode: 'input' | 'profile' | 'extension' = 'input'): USCoreRaceExtensionProfileInput | USCoreRaceExtensionProfile | Extension | undefined {
+    public getRace(mode: 'raw'): Extension | undefined;
+    public getRace(): USCoreRaceExtensionProfileFlat | undefined;
+    public getRace (mode: 'flat' | 'profile' | 'raw' = 'flat'): USCoreRaceExtensionProfileFlat | USCoreRaceExtensionProfile | Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race")
         if (!ext) return undefined
-        if (mode === 'extension') return ext
+        if (mode === 'raw') return ext
         if (mode === 'profile') return USCoreRaceExtensionProfile.apply(ext)
         const config = [{ name: "ombCategory", valueField: "valueCoding", isArray: false }, { name: "detailed", valueField: "valueCoding", isArray: true }, { name: "text", valueField: "valueString", isArray: false }]
-        return extractComplexExtension<USCoreRaceExtensionProfileInput>(ext, config)
+        return extractComplexExtension<USCoreRaceExtensionProfileFlat>(ext, config)
     }
 
-    public setEthnicity (input: USCoreEthnicityExtensionProfileInput | USCoreEthnicityExtensionProfile | Extension): this {
+    public setEthnicity (input: USCoreEthnicityExtensionProfileFlat | USCoreEthnicityExtensionProfile | Extension): this {
         if (input instanceof USCoreEthnicityExtensionProfile) {
             pushExtension(this.resource, input.toResource())
         } else if (isExtension<Extension>(input)) {
@@ -147,20 +147,20 @@ export class USCorePatientProfile {
         return this
     }
 
-    public getEthnicity(mode: 'input'): USCoreEthnicityExtensionProfileInput | undefined;
+    public getEthnicity(mode: 'flat'): USCoreEthnicityExtensionProfileFlat | undefined;
     public getEthnicity(mode: 'profile'): USCoreEthnicityExtensionProfile | undefined;
-    public getEthnicity(mode: 'extension'): Extension | undefined;
-    public getEthnicity(): USCoreEthnicityExtensionProfileInput | undefined;
-    public getEthnicity (mode: 'input' | 'profile' | 'extension' = 'input'): USCoreEthnicityExtensionProfileInput | USCoreEthnicityExtensionProfile | Extension | undefined {
+    public getEthnicity(mode: 'raw'): Extension | undefined;
+    public getEthnicity(): USCoreEthnicityExtensionProfileFlat | undefined;
+    public getEthnicity (mode: 'flat' | 'profile' | 'raw' = 'flat'): USCoreEthnicityExtensionProfileFlat | USCoreEthnicityExtensionProfile | Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity")
         if (!ext) return undefined
-        if (mode === 'extension') return ext
+        if (mode === 'raw') return ext
         if (mode === 'profile') return USCoreEthnicityExtensionProfile.apply(ext)
         const config = [{ name: "ombCategory", valueField: "valueCoding", isArray: false }, { name: "detailed", valueField: "valueCoding", isArray: true }, { name: "text", valueField: "valueString", isArray: false }]
-        return extractComplexExtension<USCoreEthnicityExtensionProfileInput>(ext, config)
+        return extractComplexExtension<USCoreEthnicityExtensionProfileFlat>(ext, config)
     }
 
-    public setTribalAffiliation (input: USCoreTribalAffiliationExtensionProfileInput | USCoreTribalAffiliationExtensionProfile | Extension): this {
+    public setTribalAffiliation (input: USCoreTribalAffiliationExtensionProfileFlat | USCoreTribalAffiliationExtensionProfile | Extension): this {
         if (input instanceof USCoreTribalAffiliationExtensionProfile) {
             pushExtension(this.resource, input.toResource())
         } else if (isExtension<Extension>(input)) {
@@ -172,17 +172,17 @@ export class USCorePatientProfile {
         return this
     }
 
-    public getTribalAffiliation(mode: 'input'): USCoreTribalAffiliationExtensionProfileInput | undefined;
+    public getTribalAffiliation(mode: 'flat'): USCoreTribalAffiliationExtensionProfileFlat | undefined;
     public getTribalAffiliation(mode: 'profile'): USCoreTribalAffiliationExtensionProfile | undefined;
-    public getTribalAffiliation(mode: 'extension'): Extension | undefined;
-    public getTribalAffiliation(): USCoreTribalAffiliationExtensionProfileInput | undefined;
-    public getTribalAffiliation (mode: 'input' | 'profile' | 'extension' = 'input'): USCoreTribalAffiliationExtensionProfileInput | USCoreTribalAffiliationExtensionProfile | Extension | undefined {
+    public getTribalAffiliation(mode: 'raw'): Extension | undefined;
+    public getTribalAffiliation(): USCoreTribalAffiliationExtensionProfileFlat | undefined;
+    public getTribalAffiliation (mode: 'flat' | 'profile' | 'raw' = 'flat'): USCoreTribalAffiliationExtensionProfileFlat | USCoreTribalAffiliationExtensionProfile | Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation")
         if (!ext) return undefined
-        if (mode === 'extension') return ext
+        if (mode === 'raw') return ext
         if (mode === 'profile') return USCoreTribalAffiliationExtensionProfile.apply(ext)
         const config = [{ name: "tribalAffiliation", valueField: "valueCodeableConcept", isArray: false }, { name: "isEnrolled", valueField: "valueBoolean", isArray: false }]
-        return extractComplexExtension<USCoreTribalAffiliationExtensionProfileInput>(ext, config)
+        return extractComplexExtension<USCoreTribalAffiliationExtensionProfileFlat>(ext, config)
     }
 
     public setSex (value: USCoreIndividualSexExtensionProfile | Extension | Coding): this {
@@ -197,14 +197,14 @@ export class USCorePatientProfile {
         return this
     }
 
-    public getSex(mode: 'input'): Coding | undefined;
+    public getSex(mode: 'flat'): Coding | undefined;
     public getSex(mode: 'profile'): USCoreIndividualSexExtensionProfile | undefined;
-    public getSex(mode: 'extension'): Extension | undefined;
+    public getSex(mode: 'raw'): Extension | undefined;
     public getSex(): Coding | undefined;
-    public getSex (mode: 'input' | 'profile' | 'extension' = 'input'): Coding | USCoreIndividualSexExtensionProfile | Extension | undefined {
+    public getSex (mode: 'flat' | 'profile' | 'raw' = 'flat'): Coding | USCoreIndividualSexExtensionProfile | Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex")
         if (!ext) return undefined
-        if (mode === 'extension') return ext
+        if (mode === 'raw') return ext
         if (mode === 'profile') return USCoreIndividualSexExtensionProfile.apply(ext)
         return getExtensionValue<Coding>(ext, "valueCoding")
     }
@@ -221,14 +221,14 @@ export class USCorePatientProfile {
         return this
     }
 
-    public getInterpreterRequired(mode: 'input'): Coding | undefined;
+    public getInterpreterRequired(mode: 'flat'): Coding | undefined;
     public getInterpreterRequired(mode: 'profile'): USCoreInterpreterNeededExtensionProfile | undefined;
-    public getInterpreterRequired(mode: 'extension'): Extension | undefined;
+    public getInterpreterRequired(mode: 'raw'): Extension | undefined;
     public getInterpreterRequired(): Coding | undefined;
-    public getInterpreterRequired (mode: 'input' | 'profile' | 'extension' = 'input'): Coding | USCoreInterpreterNeededExtensionProfile | Extension | undefined {
+    public getInterpreterRequired (mode: 'flat' | 'profile' | 'raw' = 'flat'): Coding | USCoreInterpreterNeededExtensionProfile | Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed")
         if (!ext) return undefined
-        if (mode === 'extension') return ext
+        if (mode === 'raw') return ext
         if (mode === 'profile') return USCoreInterpreterNeededExtensionProfile.apply(ext)
         return getExtensionValue<Coding>(ext, "valueCoding")
     }

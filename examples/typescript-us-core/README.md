@@ -25,8 +25,8 @@ Generated accessors depend on what the profile defines:
 - **Fields** -- `getStatus()` / `setStatus(value)` for profile-constrained fields with narrowed types
 - **Choice types** -- `getEffectiveDateTime()` / `setEffectiveDateTime(value)`, `getEffectivePeriod()` / `setEffectivePeriod(value)` etc.
 - **Fixed values** -- auto-set by `create()` (e.g. `code` on body weight is always LOINC 29463-7)
-- **Slices** -- `setSystolic(value)` / `getSystolic()` for component slices; discriminator values auto-applied; `getSystolicRaw()` returns the full element
-- **Extensions** -- `setRace(value)` accepts flat input, profile instance, or raw FHIR Extension; `getRace()` / `getRace("profile")` / `getRace("extension")` for three return modes
+- **Slices** -- `setSystolic(value)` / `getSystolic()` for component slices; discriminator values auto-applied; `getSystolic('raw')` returns the full element
+- **Extensions** -- `setRace(value)` accepts flat input, profile instance, or raw FHIR Extension; `getRace()` / `getRace("profile")` / `getRace("raw")` for three return modes
 
 ## Tests
 

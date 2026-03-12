@@ -107,8 +107,8 @@ describe("US Core blood pressure profile", () => {
         const fresh = createBp();
         const obs = fresh.toResource();
         expect(obs.component).toHaveLength(2);
-        expect(fresh.getSystolicRaw()).toBeDefined();
-        expect(fresh.getDiastolicRaw()).toBeDefined();
+        expect(fresh.getSystolic("raw")).toBeDefined();
+        expect(fresh.getDiastolic("raw")).toBeDefined();
     });
 
     test("setSystolic / getSystolic / getSystolicRaw", () => {
@@ -121,7 +121,7 @@ describe("US Core blood pressure profile", () => {
             code: "mm[Hg]",
         });
 
-        const raw = profile.getSystolicRaw()!;
+        const raw = profile.getSystolic("raw")!;
         expect(raw.valueQuantity!.value).toBe(120);
         expect(raw.code?.coding?.[0]?.code).toBe("8480-6");
     });
@@ -136,7 +136,7 @@ describe("US Core blood pressure profile", () => {
             code: "mm[Hg]",
         });
 
-        const raw = profile.getDiastolicRaw()!;
+        const raw = profile.getDiastolic("raw")!;
         expect(raw.valueQuantity!.value).toBe(80);
         expect(raw.code?.coding?.[0]?.code).toBe("8462-4");
     });
@@ -145,21 +145,21 @@ describe("US Core blood pressure profile", () => {
         const obs = profile.toResource();
         expect(obs.component).toHaveLength(2);
 
-        expect(profile.getSystolicRaw()!.valueQuantity!.value).toBe(120);
-        expect(profile.getDiastolicRaw()!.valueQuantity!.value).toBe(80);
+        expect(profile.getSystolic("raw")!.valueQuantity!.value).toBe(120);
+        expect(profile.getDiastolic("raw")!.valueQuantity!.value).toBe(80);
     });
 
     test("setSystolic replaces an existing systolic component", () => {
         profile.setSystolic({ value: 130, unit: "mmHg" });
 
         expect(profile.toResource().component).toHaveLength(2);
-        expect(profile.getSystolicRaw()!.valueQuantity!.value).toBe(130);
+        expect(profile.getSystolic("raw")!.valueQuantity!.value).toBe(130);
     });
 
     test("setVSCat adds category with discriminator values", () => {
         profile.setVSCat({ text: "Vital Signs" });
 
-        const raw = profile.getVSCatRaw()!;
+        const raw = profile.getVSCat("raw")!;
         expect(raw.text).toBe("Vital Signs");
         expect(raw.coding as unknown).toEqual({
             code: "vital-signs",
@@ -187,15 +187,15 @@ describe("US Core blood pressure profile", () => {
         expect(profile.getVSCat()!.text).toBe("Vital Signs");
         expect(profile.getEffectiveDateTime()).toBe("2024-06-15");
         expect(profile.getSubject()!.reference).toBe("Patient/pt-2");
-        expect(profile.getSystolicRaw()!.valueQuantity!.value).toBe(120);
-        expect(profile.getDiastolicRaw()!.valueQuantity!.value).toBe(80);
+        expect(profile.getSystolic("raw")!.valueQuantity!.value).toBe(120);
+        expect(profile.getDiastolic("raw")!.valueQuantity!.value).toBe(80);
     });
 
     test("setSystolic with no args inserts discriminator-only component", () => {
         const fresh = createBp();
         fresh.setSystolic();
 
-        const raw = fresh.getSystolicRaw()!;
+        const raw = fresh.getSystolic("raw")!;
         expect(raw.code?.coding?.[0]?.code).toBe("8480-6");
         expect(raw.valueQuantity).toBeUndefined();
     });

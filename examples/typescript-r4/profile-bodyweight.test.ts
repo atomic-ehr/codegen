@@ -119,8 +119,8 @@ describe("bodyweight profile slice accessors", () => {
 
     test("getVSCat returns empty simplified view from auto-populated stub", () => {
         // category is auto-populated with VSCat discriminator match
-        expect(profile.getVSCatRaw()).toBeDefined();
-        const raw = profile.getVSCatRaw()!;
+        expect(profile.getVSCat("raw")).toBeDefined();
+        const raw = profile.getVSCat("raw")!;
         expect(raw.coding as unknown).toEqual({
             code: "vital-signs",
             system: "http://terminology.hl7.org/CodeSystem/observation-category",
@@ -132,7 +132,7 @@ describe("bodyweight profile slice accessors", () => {
     test("setVSCat adds category with discriminator values", () => {
         profile.setVSCat({ text: "Vital Signs" });
 
-        const raw = profile.getVSCatRaw()!;
+        const raw = profile.getVSCat("raw")!;
         expect(raw.text).toBe("Vital Signs");
         expect(raw.coding as unknown).toEqual({
             code: "vital-signs",
@@ -147,7 +147,7 @@ describe("bodyweight profile slice accessors", () => {
     });
 
     test("getVSCatRaw returns full element including discriminator", () => {
-        const raw = profile.getVSCatRaw()!;
+        const raw = profile.getVSCat("raw")!;
         expect(raw.text).toBe("Vital Signs");
         expect(raw.coding).toBeDefined();
     });

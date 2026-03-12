@@ -5,8 +5,8 @@
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
-export type USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceInput = Omit<Extension, "url" | "value" | "valueBase64Binary" | "valueBoolean" | "valueCanonical" | "valueCode" | "valueDate" | "valueDateTime" | "valueDecimal" | "valueId" | "valueInstant" | "valueInteger" | "valueMarkdown" | "valueOid" | "valuePositiveInt" | "valueString" | "valueTime" | "valueUnsignedInt" | "valueUri" | "valueUrl" | "valueUuid" | "valueAddress" | "valueAge" | "valueAnnotation" | "valueAttachment" | "valueCodeableConcept" | "valueCoding" | "valueContactPoint" | "valueCount" | "valueDistance" | "valueDuration" | "valueHumanName" | "valueIdentifier" | "valueMoney" | "valuePeriod" | "valueQuantity" | "valueRange" | "valueRatio" | "valueReference" | "valueSampledData" | "valueSignature" | "valueTiming" | "valueContactDetail" | "valueContributor" | "valueDataRequirement" | "valueExpression" | "valueParameterDefinition" | "valueRelatedArtifact" | "valueTriggerDefinition" | "valueUsageContext" | "valueDosage" | "valueMeta"> & CodeableConcept;
-export type USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceInput = Omit<Extension, "url">;
+export type USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceFlat = Omit<Extension, "url" | "value" | "valueBase64Binary" | "valueBoolean" | "valueCanonical" | "valueCode" | "valueDate" | "valueDateTime" | "valueDecimal" | "valueId" | "valueInstant" | "valueInteger" | "valueMarkdown" | "valueOid" | "valuePositiveInt" | "valueString" | "valueTime" | "valueUnsignedInt" | "valueUri" | "valueUrl" | "valueUuid" | "valueAddress" | "valueAge" | "valueAnnotation" | "valueAttachment" | "valueCodeableConcept" | "valueCoding" | "valueContactPoint" | "valueCount" | "valueDistance" | "valueDuration" | "valueHumanName" | "valueIdentifier" | "valueMoney" | "valuePeriod" | "valueQuantity" | "valueRange" | "valueRatio" | "valueReference" | "valueSampledData" | "valueSignature" | "valueTiming" | "valueContactDetail" | "valueContributor" | "valueDataRequirement" | "valueExpression" | "valueParameterDefinition" | "valueRelatedArtifact" | "valueTriggerDefinition" | "valueUsageContext" | "valueDosage" | "valueMeta"> & CodeableConcept;
+export type USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlat = Omit<Extension, "url">;
 
 import {
     buildResource,
@@ -31,11 +31,11 @@ import {
     validateChoiceRequired,
 } from "../../profile-helpers";
 
-export type USCoreTribalAffiliationExtensionProfileInputRaw = {
+export type USCoreTribalAffiliationExtensionProfileRaw = {
     extension?: Extension[];
 }
 
-export type USCoreTribalAffiliationExtensionProfileInput = {
+export type USCoreTribalAffiliationExtensionProfileFlat = {
     tribalAffiliation: CodeableConcept;
     isEnrolled?: boolean;
 }
@@ -64,8 +64,8 @@ export class USCoreTribalAffiliationExtensionProfile {
         return new USCoreTribalAffiliationExtensionProfile(resource);
     }
 
-    private static resolveInput (args: USCoreTribalAffiliationExtensionProfileInputRaw | USCoreTribalAffiliationExtensionProfileInput) : Extension[] {
-        if (isRawExtensionInput<USCoreTribalAffiliationExtensionProfileInputRaw>(args)) {
+    private static resolveInput (args: USCoreTribalAffiliationExtensionProfileRaw | USCoreTribalAffiliationExtensionProfileFlat) : Extension[] {
+        if (isRawExtensionInput<USCoreTribalAffiliationExtensionProfileRaw>(args)) {
             return args.extension ?? [];
         } else {
             const result: Extension[] = [];
@@ -79,7 +79,7 @@ export class USCoreTribalAffiliationExtensionProfile {
         }
     }
 
-    static createResource (args: USCoreTribalAffiliationExtensionProfileInputRaw | USCoreTribalAffiliationExtensionProfileInput) : Extension {
+    static createResource (args: USCoreTribalAffiliationExtensionProfileRaw | USCoreTribalAffiliationExtensionProfileFlat) : Extension {
         const resolvedExtensions = USCoreTribalAffiliationExtensionProfile.resolveInput(args ?? {});
         const extensionWithDefaults = ensureSliceDefaults(
             resolvedExtensions,
@@ -93,7 +93,7 @@ export class USCoreTribalAffiliationExtensionProfile {
         return resource;
     }
 
-    static create (args: USCoreTribalAffiliationExtensionProfileInputRaw | USCoreTribalAffiliationExtensionProfileInput) : USCoreTribalAffiliationExtensionProfile {
+    static create (args: USCoreTribalAffiliationExtensionProfileRaw | USCoreTribalAffiliationExtensionProfileFlat) : USCoreTribalAffiliationExtensionProfile {
         return USCoreTribalAffiliationExtensionProfile.apply(USCoreTribalAffiliationExtensionProfile.createResource(args));
     }
 
@@ -150,45 +150,49 @@ export class USCoreTribalAffiliationExtensionProfile {
     }
 
     // Slices
-    public setExtensionTribalAffiliation (input?: USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceInput): this {
+    public setExtensionTribalAffiliation (input?: USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceFlat | Extension): this {
         const match = USCoreTribalAffiliationExtensionProfile.tribalAffiliationSliceMatch
+        if (input && matchesValue(input, match)) {
+            setArraySlice(this.resource.extension ??= [], match, input as Extension)
+            return this
+        }
         const wrapped = wrapSliceChoice<Extension>(input ?? {}, "valueCodeableConcept")
         const value = applySliceMatch<Extension>(wrapped, match)
         setArraySlice(this.resource.extension ??= [], match, value)
         return this
     }
 
-    public setExtensionIsEnrolled (input?: USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceInput): this {
+    public setExtensionIsEnrolled (input?: USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlat | Extension): this {
         const match = USCoreTribalAffiliationExtensionProfile.isEnrolledSliceMatch
+        if (input && matchesValue(input, match)) {
+            setArraySlice(this.resource.extension ??= [], match, input as Extension)
+            return this
+        }
         const value = applySliceMatch<Extension>(input ?? {}, match)
         setArraySlice(this.resource.extension ??= [], match, value)
         return this
     }
 
-    public getExtensionTribalAffiliation (): USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceInput | undefined {
+    public getExtensionTribalAffiliation(mode: 'flat'): USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceFlat | undefined;
+    public getExtensionTribalAffiliation(mode: 'raw'): Extension | undefined;
+    public getExtensionTribalAffiliation(): USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceFlat | undefined;
+    public getExtensionTribalAffiliation (mode: 'flat' | 'raw' = 'flat'): USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceFlat | Extension | undefined {
         const match = USCoreTribalAffiliationExtensionProfile.tribalAffiliationSliceMatch
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
-        return unwrapSliceChoice<USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceInput>(item, ["url"], "valueCodeableConcept")
+        if (mode === 'raw') return item
+        return unwrapSliceChoice<USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceFlat>(item, ["url"], "valueCodeableConcept")
     }
 
-    public getExtensionTribalAffiliationRaw (): Extension | undefined {
-        const match = USCoreTribalAffiliationExtensionProfile.tribalAffiliationSliceMatch
-        const item = getArraySlice(this.resource.extension, match)
-        return item
-    }
-
-    public getExtensionIsEnrolled (): USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceInput | undefined {
+    public getExtensionIsEnrolled(mode: 'flat'): USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlat | undefined;
+    public getExtensionIsEnrolled(mode: 'raw'): Extension | undefined;
+    public getExtensionIsEnrolled(): USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlat | undefined;
+    public getExtensionIsEnrolled (mode: 'flat' | 'raw' = 'flat'): USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlat | Extension | undefined {
         const match = USCoreTribalAffiliationExtensionProfile.isEnrolledSliceMatch
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
-        return stripMatchKeys<USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceInput>(item, ["url"])
-    }
-
-    public getExtensionIsEnrolledRaw (): Extension | undefined {
-        const match = USCoreTribalAffiliationExtensionProfile.isEnrolledSliceMatch
-        const item = getArraySlice(this.resource.extension, match)
-        return item
+        if (mode === 'raw') return item
+        return stripMatchKeys<USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlat>(item, ["url"])
     }
 
     // Validation
