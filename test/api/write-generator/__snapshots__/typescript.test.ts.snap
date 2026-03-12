@@ -367,8 +367,8 @@ export class observation_bodyweightProfile {
     }
 
     static from (resource: Observation) : observation_bodyweightProfile {
-        if (!resource.meta?.profile?.includes("http://hl7.org/fhir/StructureDefinition/bodyweight")) {
-            throw new Error("observation_bodyweightProfile: meta.profile must include http://hl7.org/fhir/StructureDefinition/bodyweight")
+        if (!resource.meta?.profile?.includes(observation_bodyweightProfile.canonicalUrl)) {
+            throw new Error(\`observation_bodyweightProfile: meta.profile must include \${observation_bodyweightProfile.canonicalUrl}\`)
         }
         const profile = new observation_bodyweightProfile(resource);
         const { errors } = profile.validate();
@@ -377,7 +377,7 @@ export class observation_bodyweightProfile {
     }
 
     static apply (resource: Observation) : observation_bodyweightProfile {
-        ensureProfile(resource, "http://hl7.org/fhir/StructureDefinition/bodyweight");
+        ensureProfile(resource, observation_bodyweightProfile.canonicalUrl);
         return new observation_bodyweightProfile(resource);
     }
 
@@ -587,8 +587,8 @@ export class observation_bpProfile {
     }
 
     static from (resource: Observation) : observation_bpProfile {
-        if (!resource.meta?.profile?.includes("http://hl7.org/fhir/StructureDefinition/bp")) {
-            throw new Error("observation_bpProfile: meta.profile must include http://hl7.org/fhir/StructureDefinition/bp")
+        if (!resource.meta?.profile?.includes(observation_bpProfile.canonicalUrl)) {
+            throw new Error(\`observation_bpProfile: meta.profile must include \${observation_bpProfile.canonicalUrl}\`)
         }
         const profile = new observation_bpProfile(resource);
         const { errors } = profile.validate();
@@ -597,7 +597,7 @@ export class observation_bpProfile {
     }
 
     static apply (resource: Observation) : observation_bpProfile {
-        ensureProfile(resource, "http://hl7.org/fhir/StructureDefinition/bp");
+        ensureProfile(resource, observation_bpProfile.canonicalUrl);
         return new observation_bpProfile(resource);
     }
 
@@ -869,8 +869,8 @@ export class USCorePatientProfile {
     }
 
     static from (resource: Patient) : USCorePatientProfile {
-        if (!resource.meta?.profile?.includes("http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient")) {
-            throw new Error("USCorePatientProfile: meta.profile must include http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient")
+        if (!resource.meta?.profile?.includes(USCorePatientProfile.canonicalUrl)) {
+            throw new Error(\`USCorePatientProfile: meta.profile must include \${USCorePatientProfile.canonicalUrl}\`)
         }
         const profile = new USCorePatientProfile(resource);
         const { errors } = profile.validate();
@@ -879,7 +879,7 @@ export class USCorePatientProfile {
     }
 
     static apply (resource: Patient) : USCorePatientProfile {
-        ensureProfile(resource, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient");
+        ensureProfile(resource, USCorePatientProfile.canonicalUrl);
         return new USCorePatientProfile(resource);
     }
 
@@ -1132,8 +1132,8 @@ export class USCoreBloodPressureProfile {
     }
 
     static from (resource: Observation) : USCoreBloodPressureProfile {
-        if (!resource.meta?.profile?.includes("http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure")) {
-            throw new Error("USCoreBloodPressureProfile: meta.profile must include http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure")
+        if (!resource.meta?.profile?.includes(USCoreBloodPressureProfile.canonicalUrl)) {
+            throw new Error(\`USCoreBloodPressureProfile: meta.profile must include \${USCoreBloodPressureProfile.canonicalUrl}\`)
         }
         const profile = new USCoreBloodPressureProfile(resource);
         const { errors } = profile.validate();
@@ -1142,7 +1142,7 @@ export class USCoreBloodPressureProfile {
     }
 
     static apply (resource: Observation) : USCoreBloodPressureProfile {
-        ensureProfile(resource, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure");
+        ensureProfile(resource, USCoreBloodPressureProfile.canonicalUrl);
         return new USCoreBloodPressureProfile(resource);
     }
 
@@ -1505,8 +1505,8 @@ export class USCoreBodyWeightProfile {
     }
 
     static from (resource: Observation) : USCoreBodyWeightProfile {
-        if (!resource.meta?.profile?.includes("http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight")) {
-            throw new Error("USCoreBodyWeightProfile: meta.profile must include http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight")
+        if (!resource.meta?.profile?.includes(USCoreBodyWeightProfile.canonicalUrl)) {
+            throw new Error(\`USCoreBodyWeightProfile: meta.profile must include \${USCoreBodyWeightProfile.canonicalUrl}\`)
         }
         const profile = new USCoreBodyWeightProfile(resource);
         const { errors } = profile.validate();
@@ -1515,7 +1515,7 @@ export class USCoreBodyWeightProfile {
     }
 
     static apply (resource: Observation) : USCoreBodyWeightProfile {
-        ensureProfile(resource, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight");
+        ensureProfile(resource, USCoreBodyWeightProfile.canonicalUrl);
         return new USCoreBodyWeightProfile(resource);
     }
 
@@ -2010,7 +2010,7 @@ export class USCoreRaceExtensionProfile {
                 ...validateSliceCardinality(res, profileName, "extension", {"url":"ombCategory"}, "ombCategory", 0, 6),
                 ...validateSliceCardinality(res, profileName, "extension", {"url":"text"}, "text", 1, 1),
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"),
+                ...validateFixedValue(res, profileName, "url", USCoreRaceExtensionProfile.canonicalUrl),
             ],
             warnings: [],
         }
