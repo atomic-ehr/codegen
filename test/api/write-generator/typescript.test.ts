@@ -83,3 +83,62 @@ describe("TypeScript R4 Example (with generateProfile)", async () => {
         ).toMatchSnapshot();
     });
 });
+
+describe("TypeScript US Core Example", async () => {
+    const logger = mkErrorLogger();
+    const result = await new APIBuilder({ logger })
+        .fromPackage("hl7.fhir.us.core", "8.0.1")
+        .typeSchema({
+            treeShake: {
+                "hl7.fhir.us.core": {
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient": {},
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure": {},
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight": {},
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity": {},
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race": {},
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation": {},
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex": {},
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed": {},
+                },
+            },
+        })
+        .typescript({
+            inMemoryOnly: true,
+            withDebugComment: false,
+            generateProfile: true,
+            openResourceTypeSet: false,
+        })
+        .generate();
+
+    it("generates successfully", () => {
+        expect(result.success).toBeTrue();
+    });
+
+    it("generates US Core Patient profile", () => {
+        expect(
+            result.filesGenerated["generated/types/hl7-fhir-us-core/profiles/Patient_USCorePatientProfile.ts"],
+        ).toMatchSnapshot();
+    });
+
+    it("generates US Core Blood Pressure profile", () => {
+        expect(
+            result.filesGenerated[
+                "generated/types/hl7-fhir-us-core/profiles/Observation_USCoreBloodPressureProfile.ts"
+            ],
+        ).toMatchSnapshot();
+    });
+
+    it("generates US Core Body Weight profile", () => {
+        const key = "generated/types/hl7-fhir-us-core/profiles/Observation_USCoreBodyWeightProfile.ts";
+        expect(result.filesGenerated[key]).toMatchSnapshot();
+    });
+
+    it("generates US Core Race extension profile", () => {
+        const key = "generated/types/hl7-fhir-us-core/profiles/Extension_USCoreRaceExtension.ts";
+        expect(result.filesGenerated[key]).toMatchSnapshot();
+    });
+
+    it("generates US Core profiles index", () => {
+        expect(result.filesGenerated["generated/types/hl7-fhir-us-core/profiles/index.ts"]).toMatchSnapshot();
+    });
+});

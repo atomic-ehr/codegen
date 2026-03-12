@@ -10,191 +10,100 @@
 import type { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
 import type { Patient } from "./fhir-types/hl7-fhir-r4-core/Patient";
 import {
-    USCoreBloodPressureProfileProfile as usBpProfile,
-    USCorePatientProfileProfile as usPatientProfile,
+    USCoreBloodPressureProfile as usBpProfile,
+    USCorePatientProfile as usPatientProfile,
 } from "./fhir-types/hl7-fhir-us-core/profiles";
 
 // =============================================================================
 // Example 1: Creating a US Core Patient with extensions (flat API)
 // =============================================================================
-function createPatientExample(): Patient {
+const createPatientExample = (): Patient => {
     console.log("=== Example 1: US Core Patient Profile ===\n");
 
-    // Create a new patient profile builder with a base Patient resource
-    const USCorePatientProfileProfile = new usPatientProfile({ resourceType: "Patient" });
+    const patient = usPatientProfile.apply({ resourceType: "Patient" } as Patient);
 
-    // Use fluent API with FLAT object structure - no nested extensions!
-    USCorePatientProfileProfile.setRace({
-        // Flat API - just provide the values directly
-        ombCategory: {
-            system: "urn:oid:2.16.840.1.113883.6.238",
-            code: "2106-3",
-            display: "White",
-        },
-        text: "White",
-    })
+    patient
+        .setIdentifier([{ system: "http://hospital.example.org/patients", value: "12345" }])
+        .setName([{ family: "Smith", given: ["John", "William"] }])
+        .setRace({
+            ombCategory: { system: "urn:oid:2.16.840.1.113883.6.238", code: "2106-3", display: "White" },
+            text: "White",
+        })
         .setEthnicity({
-            // Flat API - no need to deal with extension arrays
-            ombCategory: {
-                system: "urn:oid:2.16.840.1.113883.6.238",
-                code: "2186-5",
-                display: "Not Hispanic or Latino",
-            },
+            ombCategory: { code: "2186-5", display: "Not Hispanic or Latino" },
             text: "Not Hispanic or Latino",
         })
-        .setSex({
-            system: "http://hl7.org/fhir/us/core/CodeSystem/birthsex",
-            code: "M",
-            display: "Male",
-        });
+        .setSex({ code: "M", display: "Male" });
 
-    // Get the underlying FHIR resource
-    const patient = USCorePatientProfileProfile.toResource();
-
-    // Add additional fields directly to the resource
-    patient.id = "example-patient-1";
-    patient.identifier = [
-        {
-            system: "http://hospital.example.org/patients",
-            value: "12345",
-        },
-    ];
-    patient.name = [
-        {
-            family: "Smith",
-            given: ["John", "William"],
-        },
-    ];
-    patient.gender = "male";
-    patient.birthDate = "1970-01-15";
+    const resource = patient.toResource();
+    resource.gender = "male";
+    resource.birthDate = "1970-01-15";
 
     console.log("Created Patient resource:");
-    console.log(JSON.stringify(patient, null, 2));
+    console.log(JSON.stringify(resource, null, 2));
     console.log("\n");
 
-    return patient;
-}
+    return resource;
+};
 
 // =============================================================================
 // Example 2: Creating a Blood Pressure Observation with slices
 // =============================================================================
-function createBloodPressureExample(): Observation {
+const createBloodPressureExample = (): Observation => {
     console.log("=== Example 2: US Core Blood Pressure Profile ===\n");
 
-    // Create a blood pressure profile builder with a base Observation resource
-    const USCoreBloodPressureProfileProfile = new usBpProfile({ resourceType: "Observation" } as Observation);
+    const bp = usBpProfile.apply({ resourceType: "Observation" } as Observation);
 
-    // Use fluent API to set slices - discriminator values are auto-applied
-    USCoreBloodPressureProfileProfile.setVSCat()
-        .setSystolic({
-            // The code for systolic (8480-6) is auto-applied by the profile
-            // Quantity fields are flat (valueQuantity is unwrapped)
-            value: 120,
-            unit: "mmHg",
-            system: "http://unitsofmeasure.org",
-            code: "mm[Hg]",
+    bp.setStatus("final")
+        .setCode({
+            coding: [{ system: "http://loinc.org", code: "85354-9", display: "Blood pressure panel" }],
+            text: "Blood Pressure",
         })
-        .setDiastolic({
-            // The code for diastolic (8462-4) is auto-applied by the profile
-            value: 80,
-            unit: "mmHg",
-            system: "http://unitsofmeasure.org",
-            code: "mm[Hg]",
-        });
+        .setSubject({ reference: "Patient/example-patient-1" })
+        .setVSCat({})
+        .setEffectiveDateTime("2024-01-15T10:30:00Z")
+        .setSystolic({ value: 120, unit: "mmHg", system: "http://unitsofmeasure.org", code: "mm[Hg]" })
+        .setDiastolic({ value: 80, unit: "mmHg", system: "http://unitsofmeasure.org", code: "mm[Hg]" });
 
-    // Get the underlying FHIR resource
-    const observation = USCoreBloodPressureProfileProfile.toResource();
-
-    // Add additional fields
-    observation.id = "blood-pressure-1";
-    observation.status = "final";
-    observation.code = {
-        coding: [
-            {
-                system: "http://loinc.org",
-                code: "85354-9",
-                display: "Blood pressure panel with all children optional",
-            },
-        ],
-        text: "Blood Pressure",
-    };
-    observation.effectiveDateTime = "2024-01-15T10:30:00Z";
-    observation.subject = {
-        reference: "Patient/example-patient-1",
-    };
-
+    const resource = bp.toResource();
     console.log("Created Blood Pressure Observation:");
-    console.log(JSON.stringify(observation, null, 2));
+    console.log(JSON.stringify(resource, null, 2));
     console.log("\n");
 
-    return observation;
-}
+    return resource;
+};
 
 // =============================================================================
 // Example 3: Wrapping an existing resource
 // =============================================================================
-function wrapExistingResource(): Patient {
+const wrapExistingResource = (): Patient => {
     console.log("=== Example 3: Wrapping an Existing Resource ===\n");
 
-    // Existing patient resource (e.g., from API)
     const existingPatient: Patient = {
         resourceType: "Patient",
-        id: "existing-patient",
+        meta: { profile: ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"] },
+        identifier: [{ value: "67890" }],
         name: [{ family: "Doe", given: ["Jane"] }],
         gender: "female",
     };
 
-    // Wrap it with the profile class to add US Core extensions
-    const USCorePatientProfileProfile = new usPatientProfile(existingPatient);
+    // from() validates the resource conforms to the profile
+    const patient = usPatientProfile.from(existingPatient);
 
-    // Add extensions using the fluent API
-    USCorePatientProfileProfile.setSex({
-        system: "http://hl7.org/fhir/us/core/CodeSystem/birthsex",
-        code: "F",
-        display: "Female",
-    });
+    // Read existing data
+    console.log("Name:", patient.getName());
+    console.log("Race:", patient.getRace());
 
-    const updatedPatient = USCorePatientProfileProfile.toResource();
+    // Enrich with extensions
+    patient.setSex({ code: "F", display: "Female" });
 
+    const resource = patient.toResource();
     console.log("Updated Patient with extensions:");
-    console.log(JSON.stringify(updatedPatient, null, 2));
+    console.log(JSON.stringify(resource, null, 2));
     console.log("\n");
 
-    return updatedPatient;
-}
-
-// =============================================================================
-// Example 4: Using reset methods
-// =============================================================================
-function resetExtensionExample(): Patient {
-    console.log("=== Example 4: Resetting Extensions ===\n");
-
-    // Create patient with extensions
-    const USCorePatientProfileProfile = new usPatientProfile({ resourceType: "Patient" });
-    USCorePatientProfileProfile.setSex({
-        system: "http://hl7.org/fhir/us/core/CodeSystem/birthsex",
-        code: "M",
-        display: "Male",
-    }).setInterpreterRequired({
-        system: "http://terminology.hl7.org/CodeSystem/v2-0136",
-        code: "Y",
-        display: "Yes",
-    });
-
-    console.log("Before reset - extensions count:", USCorePatientProfileProfile.toResource().extension?.length);
-
-    console.log(
-        "After resetInterpreterRequired - extensions count:",
-        USCorePatientProfileProfile.toResource().extension?.length,
-    );
-
-    const patient = USCorePatientProfileProfile.toResource();
-    console.log("Patient after reset:");
-    console.log(JSON.stringify(patient, null, 2));
-    console.log("\n");
-
-    return patient;
-}
+    return resource;
+};
 
 // =============================================================================
 // Run all examples
@@ -207,7 +116,6 @@ console.log(`${"=".repeat(70)}\n`);
 createPatientExample();
 createBloodPressureExample();
 wrapExistingResource();
-resetExtensionExample();
 
 console.log("=".repeat(70));
 console.log("\nDemo completed successfully!");

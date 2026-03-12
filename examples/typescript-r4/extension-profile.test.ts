@@ -34,9 +34,9 @@ test("Patient with extensions built from profiles", () => {
     expect(patient).toMatchSnapshot();
 });
 
-test("from() wraps existing resource", () => {
+test("apply() wraps existing resource", () => {
     const ext = birthPlaceProfile.createResource({ valueAddress: { city: "Boston" } });
-    const profile = birthPlaceProfile.from(ext);
+    const profile = birthPlaceProfile.apply(ext);
     expect(profile.toResource()).toBe(ext);
 });
 

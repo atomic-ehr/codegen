@@ -1,0 +1,85 @@
+# `@atomic-ehr/codegen` adds US Core profile support
+
+New release of [`@atomic-ehr/codegen`](https://github.com/atomic-ehr/codegen) generates typed profile classes for **US Core IG**. Complex extensions (race, ethnicity, tribal affiliation) and simple extensions (individual sex, interpreter needed) get a flat, typed API -- no manual `extension[]` wrangling:
+
+Import a profiled Patient from an API response and read extensions via typed getters:
+
+```typescript
+import { USCorePatientProfile } from "./profiles/Patient_USCorePatientProfile";
+
+// from() validates the resource conforms to the profile (meta.profile + required fields)
+const patient = USCorePatientProfile.from(apiResponse);
+
+patient.getName();              // [{ family: "Smith", given: ["John"] }]
+patient.getRace();              // flat input: { ombCategory: { code: "2054-5", ... }, text: "Black or African American" }
+patient.getSex("profile");      // profile instance: USCoreIndividualSexExtensionProfile
+patient.getRace("extension");   // { url: ".../us-core-race", extension: [{ url: "ombCategory", ... }, ...] }
+```
+
+Apply the profile to a bare resource and populate it -- each extension setter accepts a flat input, a profile instance, or a raw FHIR Extension:
+
+```typescript
+import type { Extension } from "./fhir-types/hl7-fhir-r4-core/Extension";
+import { USCoreEthnicityExtensionProfile, USCorePatientProfile } from "./fhir-types/hl7-fhir-us-core/profiles";
+import type { USCoreRaceExtensionProfileInput } from "./fhir-types/hl7-fhir-us-core/profiles/Extension_USCoreRaceExtension";
+
+// apply() attaches meta.profile without validation -- useful for incremental construction
+const patient = USCorePatientProfile.apply({ resourceType: "Patient" });
+
+patient.setIdentifier([{ system: "http://hospital.example.org/mrn", value: "MRN-00001" }]);
+patient.setName([{ family: "Chen", given: ["Wei"] }]);
+
+// 1. Flat input -- the most common way
+const race: USCoreRaceExtensionProfileInput = {
+    ombCategory: { code: "2028-9", display: "Asian" },
+    text: "Chinese",
+};
+patient.setRace(race);
+
+// 2. Profile instance -- when you already have one from another source
+const ethnicity: USCoreEthnicityExtensionProfile = USCoreEthnicityExtensionProfile.create({
+    ombCategory: { code: "2135-2", display: "Hispanic or Latino" },
+    text: "Hispanic or Latino",
+});
+patient.setEthnicity(ethnicity);
+
+// 3. Raw FHIR Extension -- for pass-through from external sources
+const sex: Extension = {
+    url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex",
+    valueCoding: { code: "female", display: "Female" },
+};
+patient.setSex(sex);
+
+patient.validate(); // []
+patient.toResource();
+// {
+//     resourceType: "Patient",
+//     meta: { profile: ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"] },
+//     identifier: [{ system: "http://hospital.example.org/mrn", value: "MRN-00001" }],
+//     name: [{ family: "Chen", given: ["Wei"] }],
+//     extension: [
+//         { url: ".../us-core-race", extension: [
+//             { url: "ombCategory", valueCoding: { code: "2028-9", display: "Asian" } },
+//             { url: "text", valueString: "Chinese" },
+//         ]},
+//         { url: ".../us-core-ethnicity", extension: [
+//             { url: "ombCategory", valueCoding: { code: "2135-2", display: "Hispanic or Latino" } },
+//             { url: "text", valueString: "Hispanic or Latino" },
+//         ]},
+//         { url: ".../us-core-individual-sex", valueCoding: { code: "female", display: "Female" } },
+//     ],
+// }
+```
+
+See the [generate script](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/generate.ts) and [example README](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/README.md) for setup.
+
+Working examples:
+
+- Patient: [generated class](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/fhir-types/hl7-fhir-us-core/profiles/Patient_USCorePatientProfile.ts), [tests](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/profile-patient.test.ts)
+- Extensions: [race](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/fhir-types/hl7-fhir-us-core/profiles/Extension_USCoreRaceExtension.ts), [ethnicity](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/fhir-types/hl7-fhir-us-core/profiles/Extension_USCoreEthnicityExtension.ts), [tribal affiliation](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/fhir-types/hl7-fhir-us-core/profiles/Extension_USCoreTribalAffiliationExtension.ts)
+- Blood pressure (slices): [generated class](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/fhir-types/hl7-fhir-us-core/profiles/Observation_USCoreBloodPressureProfile.ts), [tests](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/profile-bp.test.ts)
+- Body weight: [generated class](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/fhir-types/hl7-fhir-us-core/profiles/Observation_USCoreBodyWeightProfile.ts), [tests](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/profile-bodyweight.test.ts)
+
+Feedback welcome on [GitHub](https://github.com/atomic-ehr/codegen).
+
+NPM: [`@atomic-ehr/codegen`](https://www.npmjs.com/package/@atomic-ehr/codegen)

@@ -10,46 +10,27 @@
  * 4. The override interface for type-safe cardinality constraints
  */
 
-import type { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
-import { USCoreBodyWeightProfileProfile as usWeightProfile } from "./fhir-types/hl7-fhir-us-core/profiles";
-
-// Helper to create a base Observation resource
-const createBaseObservation = (): Observation => ({
-    resourceType: "Observation",
-    status: "final",
-    code: {},
-});
+import { USCoreBodyWeightProfile as usWeightProfile } from "./fhir-types/hl7-fhir-us-core/profiles";
 
 // Example 1: Create a Body Weight observation
-function createBodyWeightObservation(): Observation {
-    const resource = createBaseObservation();
-    const profile = new usWeightProfile(resource);
+const createBodyWeightObservation = () => {
+    const profile = usWeightProfile.create({
+        status: "final",
+        subject: { reference: "Patient/example" },
+    });
 
-    // Set the vital-signs category slice (auto-applies discriminator)
-    // No input needed when all fields are part of the discriminator
-    profile.setVSCat();
-
-    // Set additional required fields
-    resource.code = {
-        coding: [{ system: "http://loinc.org", code: "29463-7", display: "Body Weight" }],
-    };
-    resource.valueQuantity = {
-        value: 70,
-        unit: "kg",
-        system: "http://unitsofmeasure.org",
-        code: "kg",
-    };
-    resource.subject = { reference: "Patient/example" };
-    resource.effectiveDateTime = new Date().toISOString();
+    profile.setValueQuantity({ value: 70, unit: "kg", system: "http://unitsofmeasure.org", code: "kg" });
+    profile.setEffectiveDateTime(new Date().toISOString());
 
     return profile.toResource();
-}
+};
 
 // Example 2: Using getters to read values
-function demonstrateGetters() {
-    const resource = createBaseObservation();
-    const profile = new usWeightProfile(resource);
-    profile.setVSCat();
+const demonstrateGetters = () => {
+    const profile = usWeightProfile.create({
+        status: "final",
+        subject: { reference: "Patient/example" },
+    });
 
     // Get simplified value (without discriminator) - flat API
     const simplified = profile.getVSCat();
@@ -61,31 +42,11 @@ function demonstrateGetters() {
 
     // The raw value includes the coding discriminator
     console.log("Raw coding:", raw?.coding);
-}
-
-// Example 3: Using override interface types
-function demonstrateTypeNarrowing() {
-    // The USCoreBodyWeightProfile interface extends Observation with:
-    // - subject: Reference<"Patient"> (narrowed from broader union)
-    // - category: CodeableConcept[] (made required)
-
-    const resource = createBaseObservation();
-    const profile = new usWeightProfile(resource);
-    profile.setVSCat();
-
-    // TypeScript knows this is an Observation
-    // The override interface ensures type safety for constrained fields
-    console.log("Resource type:", profile.toResource().resourceType);
-}
+};
 
 // Run examples
-if (require.main === module) {
-    console.log("=== Body Weight Observation ===");
-    console.log(JSON.stringify(createBodyWeightObservation(), null, 2));
+console.log("=== Body Weight Observation ===");
+console.log(JSON.stringify(createBodyWeightObservation(), null, 2));
 
-    console.log("\n=== Getter Demonstration ===");
-    demonstrateGetters();
-
-    console.log("\n=== Type Narrowing ===");
-    demonstrateTypeNarrowing();
-}
+console.log("\n=== Getter Demonstration ===");
+demonstrateGetters();

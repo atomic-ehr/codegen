@@ -2,202 +2,58 @@
 
 US Core FHIR profile generation with type-safe profile wrapper classes.
 
-## Overview
-
-This example demonstrates how to generate TypeScript types for the HL7 US Core Implementation Guide, including generated profile classes that provide a fluent API for working with extensions and slices. It includes:
-
-- US Core 8.0.1 type definitions (tree-shaken to Patient, Blood Pressure, and Body Weight)
-- Profile wrapper classes for type-safe extension handling
-- Automatic discriminator application for slices
-- Flat API for complex extensions (race, ethnicity, etc.)
-
 ## Generating Types
-
-To generate TypeScript types for US Core:
 
 ```bash
 bun run examples/typescript-us-core/generate.ts
 ```
 
-This will output to `./examples/typescript-us-core/fhir-types/`
-
-## Configuration
-
-Edit `generate.ts` to customize:
-
-```typescript
-.typeSchema({
-  treeShake: {
-    "hl7.fhir.us.core": {
-      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient": {},
-      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure": {},
-      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight": {},
-    },
-  },
-})
-.typescript({
-  withDebugComment: false,     // Include generation metadata
-  generateProfile: true,        // Generate profile wrapper classes
-  openResourceTypeSet: false    // Closed resource type union
-})
-```
-
-Tree shaking keeps only the specified profiles and their transitive dependencies, significantly reducing the generated output.
-
-## Using Profile Classes
-
-### US Core Patient with Extensions
-
-Profile classes provide a fluent API for setting extensions without dealing with the complex FHIR extension structure:
-
-```typescript
-import type { Patient } from './fhir-types/hl7-fhir-r4-core/Patient';
-import { USCorePatientProfileProfile } from './fhir-types/hl7-fhir-us-core/profiles/UscorePatientProfile';
-
-// Create a new patient profile builder
-const patientProfile = new USCorePatientProfileProfile({ resourceType: 'Patient' });
-
-// Use flat API - no nested extension arrays needed!
-patientProfile
-  .setRace({
-    ombCategory: {
-      system: 'urn:oid:2.16.840.1.113883.6.238',
-      code: '2106-3',
-      display: 'White'
-    },
-    text: 'White'
-  })
-  .setEthnicity({
-    ombCategory: {
-      system: 'urn:oid:2.16.840.1.113883.6.238',
-      code: '2186-5',
-      display: 'Not Hispanic or Latino'
-    },
-    text: 'Not Hispanic or Latino'
-  })
-  .setSex({
-    system: 'http://hl7.org/fhir/us/core/CodeSystem/birthsex',
-    code: 'M',
-    display: 'Male'
-  });
-
-// Get the underlying FHIR resource
-const patient = patientProfile.toResource();
-patient.name = [{ family: 'Smith', given: ['John'] }];
-```
-
-### US Core Blood Pressure with Slices
-
-Profile classes automatically apply discriminator values for slices:
-
-```typescript
-import type { Observation } from './fhir-types/hl7-fhir-r4-core/Observation';
-import { USCoreBloodPressureProfileProfile } from './fhir-types/hl7-fhir-us-core/profiles/UscoreBloodPressureProfile';
-
-const bpProfile = new USCoreBloodPressureProfileProfile({
-  resourceType: 'Observation'
-} as Observation);
-
-// Discriminator codes (8480-6 for systolic, 8462-4 for diastolic) are auto-applied
-bpProfile
-  .setVscat()
-  .setSystolic({
-    valueQuantity: {
-      value: 120,
-      unit: 'mmHg',
-      system: 'http://unitsofmeasure.org',
-      code: 'mm[Hg]'
-    }
-  })
-  .setDiastolic({
-    valueQuantity: {
-      value: 80,
-      unit: 'mmHg',
-      system: 'http://unitsofmeasure.org',
-      code: 'mm[Hg]'
-    }
-  });
-
-const observation = bpProfile.toResource();
-observation.status = 'final';
-observation.code = {
-  coding: [{
-    system: 'http://loinc.org',
-    code: '85354-9',
-    display: 'Blood pressure panel'
-  }]
-};
-```
-
-### Wrapping Existing Resources
-
-You can wrap existing FHIR resources to add profile-specific extensions:
-
-```typescript
-// Existing patient from API
-const existingPatient: Patient = {
-  resourceType: 'Patient',
-  id: 'existing-patient',
-  name: [{ family: 'Doe', given: ['Jane'] }],
-  gender: 'female'
-};
-
-// Wrap with profile class
-const patientProfile = new USCorePatientProfileProfile(existingPatient);
-
-// Add US Core extensions
-patientProfile.setSex({
-  system: 'http://hl7.org/fhir/us/core/CodeSystem/birthsex',
-  code: 'F',
-  display: 'Female'
-});
-
-const updatedPatient = patientProfile.toResource();
-```
-
-## Running the Demo
-
-After generating types, run the included demos:
-
-```bash
-# Full profile demo with multiple examples
-bun run examples/typescript-us-core/profile-demo.ts
-
-# Multi-profile demo
-bun run examples/typescript-us-core/multi-profile-demo.ts
-```
-
-## File Structure
-
-```
-typescript-us-core/
-├── README.md                    # This file
-├── generate.ts                  # Type generation script
-├── profile-demo.ts              # Profile class usage demo
-├── multi-profile-demo.ts        # Multi-profile examples
-├── multi-profile.test.ts        # Profile tests
-├── tsconfig.json                # TypeScript config
-├── fhir-types/                  # Generated types (after generation)
-│   ├── hl7-fhir-r4-core/        # FHIR R4 core types (tree-shaken dependencies)
-│   ├── hl7-fhir-us-core/        # US Core profiles
-│   │   └── profiles/            # Profile wrapper classes (Patient, BP, BodyWeight)
-│   └── profile-helpers.ts       # Runtime helpers for profile classes
-└── type-tree.yaml               # Dependency tree (debug output)
-```
+Edit [`generate.ts`](generate.ts) to customize which profiles to include. Tree shaking keeps only the specified profiles and their transitive dependencies. Output goes to `./fhir-types/`.
 
 ## Profile Class API
 
 Each profile class provides:
 
-- **Constructor**: `new ProfileClass(resource)` - Wrap a FHIR resource
-- **Setters**: `setExtensionName(value)` - Set extension with flat API
-- **Getters**: `getExtensionName()` - Get extension value (flat)
-- **Raw Getters**: `getExtensionNameExtension()` - Get raw FHIR Extension
-- **Reset**: `resetExtensionName()` - Remove extension
-- **toResource()**: Get the underlying FHIR resource
+- **`from(resource)`** -- validate the resource conforms to the profile (meta.profile + required fields), throw on errors
+- **`apply(resource)`** -- attach meta.profile without validation, useful for incremental construction
+- **`create(args)`** -- build a new resource from typed input, auto-sets fixed values
+- **`validate()`** -- check required fields, return error list
+- **`toResource()`** -- get the underlying FHIR resource
 
-## Next Steps
+Generated accessors depend on what the profile defines:
 
-- See [typescript-r4/](../typescript-r4/) for basic FHIR R4 generation
-- See [examples/](../) overview for other language examples
-- Check [../../docs/guides/writer-generator.md](../../docs/guides/writer-generator.md) for generator documentation
+- **Fields** -- `getStatus()` / `setStatus(value)` for profile-constrained fields with narrowed types
+- **Choice types** -- `getEffectiveDateTime()` / `setEffectiveDateTime(value)`, `getEffectivePeriod()` / `setEffectivePeriod(value)` etc.
+- **Fixed values** -- auto-set by `create()` (e.g. `code` on body weight is always LOINC 29463-7)
+- **Slices** -- `setSystolic(value)` / `getSystolic()` for component slices; discriminator values auto-applied; `getSystolicRaw()` returns the full element
+- **Extensions** -- `setRace(value)` accepts flat input, profile instance, or raw FHIR Extension; `getRace()` / `getRace("profile")` / `getRace("extension")` for three return modes
+
+## Tests
+
+```bash
+cd examples/typescript-us-core && bun test
+```
+
+- [profile-patient.test.ts](profile-patient.test.ts) -- Patient profile with extensions (race, ethnicity, sex)
+- [profile-bp.test.ts](profile-bp.test.ts) -- Blood Pressure with component slices
+- [profile-bodyweight.test.ts](profile-bodyweight.test.ts) -- Body Weight with choice types
+- [profile-getters.test.ts](profile-getters.test.ts) -- Getter mode patterns
+- [multi-profile.test.ts](multi-profile.test.ts) -- Multi-profile usage
+
+## File Structure
+
+```
+typescript-us-core/
+├── generate.ts                  # Type generation script
+├── profile-patient.test.ts      # Patient profile tests
+├── profile-bp.test.ts           # Blood pressure tests
+├── profile-bodyweight.test.ts   # Body weight tests
+├── profile-getters.test.ts      # Getter mode tests
+├── multi-profile.test.ts        # Multi-profile tests
+├── fhir-types/                  # Generated output
+│   ├── hl7-fhir-r4-core/        # FHIR R4 base types
+│   ├── hl7-fhir-us-core/        # US Core types
+│   │   └── profiles/            # Profile wrapper classes
+│   └── profile-helpers.ts       # Runtime helpers
+└── type-tree.yaml               # Dependency tree (debug)
+```

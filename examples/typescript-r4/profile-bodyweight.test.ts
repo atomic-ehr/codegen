@@ -37,9 +37,9 @@ describe("bodyweight profile creation", () => {
         expect(fromCreateResource.subject!.reference).toBe("Patient/pt-1");
     });
 
-    test("from() wraps an existing Observation", () => {
+    test("apply() wraps an existing Observation", () => {
         const obs: Observation = { resourceType: "Observation", code: {}, status: "preliminary" };
-        const profile = bodyweightProfile.from(obs);
+        const profile = bodyweightProfile.apply(obs);
 
         profile
             .setStatus("final")
@@ -201,7 +201,7 @@ describe("bodyweight profile choice type accessors", () => {
             status: "final",
             subject: { reference: "Patient/pt-1" },
         });
-        const p = bodyweightProfile.from(obs);
+        const p = bodyweightProfile.apply(obs);
 
         p.setValueQuantity({ value: 90, unit: "kg" });
         expect((obs as any).valueQuantity.value).toBe(90);
@@ -223,7 +223,7 @@ describe("bodyweight profile mutability", () => {
             status: "final",
             subject: { reference: "Patient/pt-1" },
         });
-        const profile = bodyweightProfile.from(obs);
+        const profile = bodyweightProfile.apply(obs);
 
         profile.setStatus("amended");
         expect(obs.status).toBe("amended");
