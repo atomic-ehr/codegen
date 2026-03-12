@@ -410,7 +410,6 @@ const generateFactoryMethods = (
 ) => {
     const profileClassName = tsProfileClassName(flatProfile);
     const tsBaseResourceName = tsTypeFromIdentifier(flatProfile.base);
-    const canonicalUrl = flatProfile.identifier.url;
     const hasMeta = tsIndex.isWithMetaField(flatProfile);
     const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
     const createArgsTypeName = `${profileClassName}Raw`;
@@ -426,9 +425,9 @@ const generateFactoryMethods = (
     w.line();
     w.curlyBlock(["static", "from", `(resource: ${tsBaseResourceName})`, `: ${profileClassName}`], () => {
         if (hasMeta) {
-            w.curlyBlock(["if", `(!resource.meta?.profile?.includes(${JSON.stringify(canonicalUrl)}))`], () => {
+            w.curlyBlock(["if", `(!resource.meta?.profile?.includes(${profileClassName}.canonicalUrl))`], () => {
                 w.line(
-                    `throw new Error(${JSON.stringify(`${profileClassName}: meta.profile must include ${canonicalUrl}`)})`,
+                    `throw new Error(\`${profileClassName}: meta.profile must include \${${profileClassName}.canonicalUrl}\`)`,
                 );
             });
         }
@@ -440,7 +439,7 @@ const generateFactoryMethods = (
     w.line();
     w.curlyBlock(["static", "apply", `(resource: ${tsBaseResourceName})`, `: ${profileClassName}`], () => {
         if (hasMeta) {
-            w.lineSM(`ensureProfile(resource, ${JSON.stringify(canonicalUrl)})`);
+            w.lineSM(`ensureProfile(resource, ${profileClassName}.canonicalUrl)`);
         }
         w.lineSM(`return new ${profileClassName}(resource)`);
     });

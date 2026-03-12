@@ -7,6 +7,7 @@ import {
     type RegularField,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
+import { tsProfileClassName } from "./name";
 import type { TypeScript } from "./writer";
 
 export const collectRegularFieldValidation = (
@@ -15,6 +16,7 @@ export const collectRegularFieldValidation = (
     name: string,
     field: RegularField | ChoiceFieldInstance,
     resolveRef: (ref: Identifier) => Identifier,
+    canonicalUrlExpr?: { url: string; expr: string },
 ) => {
     if (field.excluded) {
         errors.push(`...validateExcluded(res, profileName, ${JSON.stringify(name)})`);
@@ -23,10 +25,13 @@ export const collectRegularFieldValidation = (
 
     if (field.required) errors.push(`...validateRequired(res, profileName, ${JSON.stringify(name)})`);
 
-    if (field.valueConstraint)
-        errors.push(
-            `...validateFixedValue(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(field.valueConstraint.value)})`,
-        );
+    if (field.valueConstraint) {
+        const valueExpr =
+            canonicalUrlExpr && name === "url" && field.valueConstraint.value === canonicalUrlExpr.url
+                ? canonicalUrlExpr.expr
+                : JSON.stringify(field.valueConstraint.value);
+        errors.push(`...validateFixedValue(res, profileName, ${JSON.stringify(name)}, ${valueExpr})`);
+    }
 
     if (field.enum) {
         const target = field.enum.isOpen ? warnings : errors;
@@ -58,6 +63,10 @@ export const collectRegularFieldValidation = (
 export const generateValidateMethod = (w: TypeScript, tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) => {
     const fields = flatProfile.fields ?? {};
     const profileName = flatProfile.identifier.name;
+    const canonicalUrl = flatProfile.identifier.url;
+    const canonicalUrlExpr = canonicalUrl
+        ? { url: canonicalUrl, expr: `${tsProfileClassName(flatProfile)}.canonicalUrl` }
+        : undefined;
     w.curlyBlock(["validate(): { errors: string[]; warnings: string[] }"], () => {
         w.line(`const profileName = "${profileName}"`);
         w.line("const res = this.resource");
@@ -73,7 +82,14 @@ export const generateValidateMethod = (w: TypeScript, tsIndex: TypeSchemaIndex, 
                 continue;
             }
 
-            collectRegularFieldValidation(errors, warnings, name, field, tsIndex.findLastSpecializationByIdentifier);
+            collectRegularFieldValidation(
+                errors,
+                warnings,
+                name,
+                field,
+                tsIndex.findLastSpecializationByIdentifier,
+                canonicalUrlExpr,
+            );
         }
 
         const emitArray = (label: string, exprs: string[]) => {
