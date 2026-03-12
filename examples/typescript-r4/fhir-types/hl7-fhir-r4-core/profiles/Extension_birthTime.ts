@@ -85,7 +85,7 @@ export class birthTimeProfile {
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/StructureDefinition/patient-birthTime"),
+                ...validateFixedValue(res, profileName, "url", birthTimeProfile.canonicalUrl),
                 ...validateChoiceRequired(res, profileName, ["valueDateTime"]),
             ],
             warnings: [],

@@ -56,8 +56,8 @@ export class USCoreBodyWeightProfile {
     }
 
     static from (resource: Observation) : USCoreBodyWeightProfile {
-        if (!resource.meta?.profile?.includes("http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight")) {
-            throw new Error("USCoreBodyWeightProfile: meta.profile must include http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight")
+        if (!resource.meta?.profile?.includes(USCoreBodyWeightProfile.canonicalUrl)) {
+            throw new Error(`USCoreBodyWeightProfile: meta.profile must include ${USCoreBodyWeightProfile.canonicalUrl}`)
         }
         const profile = new USCoreBodyWeightProfile(resource);
         const { errors } = profile.validate();
@@ -66,7 +66,7 @@ export class USCoreBodyWeightProfile {
     }
 
     static apply (resource: Observation) : USCoreBodyWeightProfile {
-        ensureProfile(resource, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight");
+        ensureProfile(resource, USCoreBodyWeightProfile.canonicalUrl);
         return new USCoreBodyWeightProfile(resource);
     }
 

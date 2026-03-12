@@ -86,7 +86,7 @@ export class USCoreIndividualSexExtensionProfile {
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex"),
+                ...validateFixedValue(res, profileName, "url", USCoreIndividualSexExtensionProfile.canonicalUrl),
                 ...validateChoiceRequired(res, profileName, ["valueCoding"]),
             ],
             warnings: [],

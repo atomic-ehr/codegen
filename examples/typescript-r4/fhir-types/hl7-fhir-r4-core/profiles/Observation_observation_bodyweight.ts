@@ -53,8 +53,8 @@ export class observation_bodyweightProfile {
     }
 
     static from (resource: Observation) : observation_bodyweightProfile {
-        if (!resource.meta?.profile?.includes("http://hl7.org/fhir/StructureDefinition/bodyweight")) {
-            throw new Error("observation_bodyweightProfile: meta.profile must include http://hl7.org/fhir/StructureDefinition/bodyweight")
+        if (!resource.meta?.profile?.includes(observation_bodyweightProfile.canonicalUrl)) {
+            throw new Error(`observation_bodyweightProfile: meta.profile must include ${observation_bodyweightProfile.canonicalUrl}`)
         }
         const profile = new observation_bodyweightProfile(resource);
         const { errors } = profile.validate();
@@ -63,7 +63,7 @@ export class observation_bodyweightProfile {
     }
 
     static apply (resource: Observation) : observation_bodyweightProfile {
-        ensureProfile(resource, "http://hl7.org/fhir/StructureDefinition/bodyweight");
+        ensureProfile(resource, observation_bodyweightProfile.canonicalUrl);
         return new observation_bodyweightProfile(resource);
     }
 

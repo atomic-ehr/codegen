@@ -85,7 +85,7 @@ export class own_prefixProfile {
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix"),
+                ...validateFixedValue(res, profileName, "url", own_prefixProfile.canonicalUrl),
                 ...validateChoiceRequired(res, profileName, ["valueString"]),
             ],
             warnings: [],

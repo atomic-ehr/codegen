@@ -206,7 +206,7 @@ export class USCoreTribalAffiliationExtensionProfile {
                 ...validateSliceCardinality(res, profileName, "extension", {"url":"tribalAffiliation"}, "tribalAffiliation", 1, 1),
                 ...validateSliceCardinality(res, profileName, "extension", {"url":"isEnrolled"}, "isEnrolled", 0, 1),
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation"),
+                ...validateFixedValue(res, profileName, "url", USCoreTribalAffiliationExtensionProfile.canonicalUrl),
             ],
             warnings: [],
         }

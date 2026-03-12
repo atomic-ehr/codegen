@@ -57,8 +57,8 @@ export class USCoreVitalSignsProfile {
     }
 
     static from (resource: Observation) : USCoreVitalSignsProfile {
-        if (!resource.meta?.profile?.includes("http://hl7.org/fhir/us/core/StructureDefinition/us-core-vital-signs")) {
-            throw new Error("USCoreVitalSignsProfile: meta.profile must include http://hl7.org/fhir/us/core/StructureDefinition/us-core-vital-signs")
+        if (!resource.meta?.profile?.includes(USCoreVitalSignsProfile.canonicalUrl)) {
+            throw new Error(`USCoreVitalSignsProfile: meta.profile must include ${USCoreVitalSignsProfile.canonicalUrl}`)
         }
         const profile = new USCoreVitalSignsProfile(resource);
         const { errors } = profile.validate();
@@ -67,7 +67,7 @@ export class USCoreVitalSignsProfile {
     }
 
     static apply (resource: Observation) : USCoreVitalSignsProfile {
-        ensureProfile(resource, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-vital-signs");
+        ensureProfile(resource, USCoreVitalSignsProfile.canonicalUrl);
         return new USCoreVitalSignsProfile(resource);
     }
 

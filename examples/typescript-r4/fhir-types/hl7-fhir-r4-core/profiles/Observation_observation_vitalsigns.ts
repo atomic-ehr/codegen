@@ -53,8 +53,8 @@ export class observation_vitalsignsProfile {
     }
 
     static from (resource: Observation) : observation_vitalsignsProfile {
-        if (!resource.meta?.profile?.includes("http://hl7.org/fhir/StructureDefinition/vitalsigns")) {
-            throw new Error("observation_vitalsignsProfile: meta.profile must include http://hl7.org/fhir/StructureDefinition/vitalsigns")
+        if (!resource.meta?.profile?.includes(observation_vitalsignsProfile.canonicalUrl)) {
+            throw new Error(`observation_vitalsignsProfile: meta.profile must include ${observation_vitalsignsProfile.canonicalUrl}`)
         }
         const profile = new observation_vitalsignsProfile(resource);
         const { errors } = profile.validate();
@@ -63,7 +63,7 @@ export class observation_vitalsignsProfile {
     }
 
     static apply (resource: Observation) : observation_vitalsignsProfile {
-        ensureProfile(resource, "http://hl7.org/fhir/StructureDefinition/vitalsigns");
+        ensureProfile(resource, observation_vitalsignsProfile.canonicalUrl);
         return new observation_vitalsignsProfile(resource);
     }
 

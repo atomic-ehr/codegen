@@ -251,7 +251,7 @@ export class USCoreEthnicityExtensionProfile {
                 ...validateSliceCardinality(res, profileName, "extension", {"url":"ombCategory"}, "ombCategory", 0, 1),
                 ...validateSliceCardinality(res, profileName, "extension", {"url":"text"}, "text", 1, 1),
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"),
+                ...validateFixedValue(res, profileName, "url", USCoreEthnicityExtensionProfile.canonicalUrl),
             ],
             warnings: [],
         }

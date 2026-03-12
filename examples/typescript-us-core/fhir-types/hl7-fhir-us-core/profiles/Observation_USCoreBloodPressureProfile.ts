@@ -63,8 +63,8 @@ export class USCoreBloodPressureProfile {
     }
 
     static from (resource: Observation) : USCoreBloodPressureProfile {
-        if (!resource.meta?.profile?.includes("http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure")) {
-            throw new Error("USCoreBloodPressureProfile: meta.profile must include http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure")
+        if (!resource.meta?.profile?.includes(USCoreBloodPressureProfile.canonicalUrl)) {
+            throw new Error(`USCoreBloodPressureProfile: meta.profile must include ${USCoreBloodPressureProfile.canonicalUrl}`)
         }
         const profile = new USCoreBloodPressureProfile(resource);
         const { errors } = profile.validate();
@@ -73,7 +73,7 @@ export class USCoreBloodPressureProfile {
     }
 
     static apply (resource: Observation) : USCoreBloodPressureProfile {
-        ensureProfile(resource, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure");
+        ensureProfile(resource, USCoreBloodPressureProfile.canonicalUrl);
         return new USCoreBloodPressureProfile(resource);
     }
 

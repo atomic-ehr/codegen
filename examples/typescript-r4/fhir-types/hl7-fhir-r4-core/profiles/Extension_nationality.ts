@@ -134,7 +134,7 @@ export class nationalityProfile {
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/StructureDefinition/patient-nationality"),
+                ...validateFixedValue(res, profileName, "url", nationalityProfile.canonicalUrl),
             ],
             warnings: [],
         }

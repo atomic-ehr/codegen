@@ -60,8 +60,8 @@ export class observation_bpProfile {
     }
 
     static from (resource: Observation) : observation_bpProfile {
-        if (!resource.meta?.profile?.includes("http://hl7.org/fhir/StructureDefinition/bp")) {
-            throw new Error("observation_bpProfile: meta.profile must include http://hl7.org/fhir/StructureDefinition/bp")
+        if (!resource.meta?.profile?.includes(observation_bpProfile.canonicalUrl)) {
+            throw new Error(`observation_bpProfile: meta.profile must include ${observation_bpProfile.canonicalUrl}`)
         }
         const profile = new observation_bpProfile(resource);
         const { errors } = profile.validate();
@@ -70,7 +70,7 @@ export class observation_bpProfile {
     }
 
     static apply (resource: Observation) : observation_bpProfile {
-        ensureProfile(resource, "http://hl7.org/fhir/StructureDefinition/bp");
+        ensureProfile(resource, observation_bpProfile.canonicalUrl);
         return new observation_bpProfile(resource);
     }
 

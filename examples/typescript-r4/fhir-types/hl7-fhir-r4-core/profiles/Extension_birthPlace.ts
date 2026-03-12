@@ -86,7 +86,7 @@ export class birthPlaceProfile {
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/StructureDefinition/patient-birthPlace"),
+                ...validateFixedValue(res, profileName, "url", birthPlaceProfile.canonicalUrl),
                 ...validateChoiceRequired(res, profileName, ["valueAddress"]),
             ],
             warnings: [],

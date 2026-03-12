@@ -59,8 +59,8 @@ export class USCorePatientProfile {
     }
 
     static from (resource: Patient) : USCorePatientProfile {
-        if (!resource.meta?.profile?.includes("http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient")) {
-            throw new Error("USCorePatientProfile: meta.profile must include http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient")
+        if (!resource.meta?.profile?.includes(USCorePatientProfile.canonicalUrl)) {
+            throw new Error(`USCorePatientProfile: meta.profile must include ${USCorePatientProfile.canonicalUrl}`)
         }
         const profile = new USCorePatientProfile(resource);
         const { errors } = profile.validate();
@@ -69,7 +69,7 @@ export class USCorePatientProfile {
     }
 
     static apply (resource: Patient) : USCorePatientProfile {
-        ensureProfile(resource, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient");
+        ensureProfile(resource, USCorePatientProfile.canonicalUrl);
         return new USCorePatientProfile(resource);
     }
 

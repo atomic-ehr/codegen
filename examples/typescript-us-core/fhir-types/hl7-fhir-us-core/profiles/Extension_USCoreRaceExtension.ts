@@ -251,7 +251,7 @@ export class USCoreRaceExtensionProfile {
                 ...validateSliceCardinality(res, profileName, "extension", {"url":"ombCategory"}, "ombCategory", 0, 6),
                 ...validateSliceCardinality(res, profileName, "extension", {"url":"text"}, "text", 1, 1),
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"),
+                ...validateFixedValue(res, profileName, "url", USCoreRaceExtensionProfile.canonicalUrl),
             ],
             warnings: [],
         }

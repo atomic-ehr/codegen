@@ -86,7 +86,7 @@ export class USCoreInterpreterNeededExtensionProfile {
         return {
             errors: [
                 ...validateRequired(res, profileName, "url"),
-                ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed"),
+                ...validateFixedValue(res, profileName, "url", USCoreInterpreterNeededExtensionProfile.canonicalUrl),
                 ...validateChoiceRequired(res, profileName, ["valueCoding"]),
             ],
             warnings: [],
