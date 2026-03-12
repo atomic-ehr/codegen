@@ -191,5 +191,13 @@ export const extractProfileExtensions = (
 
     walkElement([], fhirSchema);
 
-    return extensions.length === 0 ? undefined : extensions;
+    const seen = new Set<string>();
+    const deduped = extensions.filter((ext) => {
+        const key = `${ext.url}:${ext.path}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+
+    return deduped.length === 0 ? undefined : deduped;
 };

@@ -218,6 +218,13 @@ export interface FieldSlicing {
     slices?: Record<string, FieldSlice>;
 }
 
+export type ConstrainedChoiceInfo = {
+    choiceBase: string;
+    variant: string;
+    variantType: Identifier;
+    allChoiceNames: string[];
+};
+
 export interface FieldSlice {
     min?: number;
     max?: number;
