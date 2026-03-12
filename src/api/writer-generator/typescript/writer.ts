@@ -29,6 +29,7 @@ import {
     tsResourceName,
 } from "./name";
 import {
+    detectFieldOverrides,
     generateProfileClass,
     generateProfileImports,
     generateProfileIndexFile,
@@ -46,6 +47,7 @@ export const resolveTsAssets = (fn: string) => {
 };
 
 export type TypeScriptOptions = {
+    lineWidth?: number;
     /** openResourceTypeSet -- for resource families (Resource, DomainResource) use open set for resourceType field.
      *
      * - when openResourceTypeSet is false: `type Resource = { resourceType: "Resource" | "DomainResource" | "Patient" }`
@@ -53,15 +55,56 @@ export type TypeScriptOptions = {
      */
     openResourceTypeSet: boolean;
     primitiveTypeExtension: boolean;
+    extensionGetterDefault?: "input" | "profile" | "extension";
 } & WriterOptions;
 
 export class TypeScript extends Writer<TypeScriptOptions> {
     constructor(options: TypeScriptOptions) {
-        super({ ...options, resolveAssets: options.resolveAssets ?? resolveTsAssets });
+        super({ lineWidth: 120, ...options, resolveAssets: options.resolveAssets ?? resolveTsAssets });
     }
 
-    tsImportType(tsPackageName: string, ...entities: string[]) {
-        this.lineSM(`import type { ${entities.join(", ")} } from "${tsPackageName}"`);
+    ifElseChain(branches: { cond: string; body: () => void }[], elseBody?: () => void) {
+        branches.forEach((branch, i) => {
+            const prefix = i === 0 ? "if" : "} else if";
+            this.line(`${prefix} (${branch.cond}) {`);
+            this.indent();
+            branch.body();
+            this.deindent();
+        });
+        if (elseBody) {
+            this.line("} else {");
+            this.indent();
+            elseBody();
+            this.deindent();
+        }
+        this.line("}");
+    }
+
+    tsImport(tsPackageName: string, ...entities: string[]): void;
+    tsImport(options: { typeOnly: boolean }, tsPackageName: string, ...entities: string[]): void;
+    tsImport(...args: [string, ...string[]] | [{ typeOnly: boolean }, string, ...string[]]) {
+        let typeOnly = false;
+        let tsPackageName: string;
+        let entities: string[];
+        if (typeof args[0] === "object") {
+            typeOnly = args[0].typeOnly;
+            tsPackageName = args[1] as string;
+            entities = args.slice(2) as string[];
+        } else {
+            tsPackageName = args[0];
+            entities = args.slice(1) as string[];
+        }
+        const keyword = typeOnly ? "import type" : "import";
+        const singleLine = `${keyword} { ${entities.join(", ")} } from "${tsPackageName}"`;
+        if (singleLine.length <= (this.opts.lineWidth ?? 120)) {
+            this.lineSM(singleLine);
+        } else {
+            this.curlyBlock([keyword], () => {
+                for (const entity of entities) {
+                    this.line(`${entity},`);
+                }
+            }, [` from "${tsPackageName}";`]);
+        }
     }
 
     generateFhirPackageIndexFile(schemas: TypeSchema[]) {
@@ -140,7 +183,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             imports.sort((a, b) => a.name.localeCompare(b.name));
             for (const dep of imports) {
                 this.debugComment(dep.dep);
-                this.tsImportType(dep.tsPackage, dep.name);
+                this.tsImport({ typeOnly: true }, dep.tsPackage, dep.name);
             }
             for (const dep of skipped) {
                 this.debugComment("skip:", dep);
@@ -155,7 +198,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 const element = tsIndex.resolveByUrl(schema.identifier.package, elementUrl);
                 if (!element) throw new Error(`'${elementUrl}' not found for ${schema.identifier.package}.`);
 
-                this.tsImportType(`${importPrefix}${tsModulePath(element.identifier)}`, "Element");
+                this.tsImport({ typeOnly: true }, `${importPrefix}${tsModulePath(element.identifier)}`, "Element");
             }
         }
     }
@@ -272,9 +315,10 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 this.cat(`${tsProfileModuleFileName(tsIndex, schema)}`, () => {
                     this.generateDisclaimer();
                     const flatProfile = tsIndex.flatProfile(schema);
-                    generateProfileImports(this, tsIndex, flatProfile);
-                    generateProfileOverrideInterface(this, tsIndex, flatProfile);
-                    generateProfileClass(this, tsIndex, flatProfile, schema);
+                    const overrides = detectFieldOverrides(tsIndex, flatProfile);
+                    generateProfileImports(this, tsIndex, flatProfile, overrides);
+                    generateProfileOverrideInterface(this, flatProfile, overrides);
+                    generateProfileClass(this, tsIndex, flatProfile, overrides);
                 });
             });
         } else if (["complex-type", "resource", "logical"].includes(schema.identifier.kind)) {

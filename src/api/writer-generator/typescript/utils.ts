@@ -84,6 +84,11 @@ export const resolveFieldTsType = (
     return field.type.name as string;
 };
 
+export const fieldTsType = (
+    field: RegularField | ChoiceFieldInstance,
+    resolveRef?: (ref: Identifier) => Identifier,
+): string => resolveFieldTsType("", "", field, resolveRef) + (field.array ? "[]" : "");
+
 export const tsTypeFromIdentifier = (id: Identifier): string => {
     if (isNestedIdentifier(id)) return tsResourceName(id);
     if (isPrimitiveIdentifier(id)) return resolvePrimitiveType(id.name);
