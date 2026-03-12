@@ -1,8 +1,24 @@
-# `@atomic-ehr/codegen` adds US Core profile support
+# `@atomic-ehr/codegen` v0.0.9 — FHIR profile class generation
 
-New release of [`@atomic-ehr/codegen`](https://github.com/atomic-ehr/codegen) generates typed profile classes for **US Core IG**. Extensions get a flat, typed API -- no manual `extension[]` wrangling:
+Hey @**everyone**!
 
-Import a profiled Patient from an API response and read extensions via typed getters:
+We're excited to share **[`@atomic-ehr/codegen` v0.0.9](https://github.com/atomic-ehr/codegen/releases/tag/v0.0.9)** — this release adds **FHIR profile class generation** for TypeScript. We demonstrate it on the **[US Core IG](https://www.hl7.org/fhir/us/core/)** package.
+
+Each profile class provides:
+
+- **Slices** -- category and component slices with discriminator values applied automatically
+- **Extensions** -- flat API for complex and simple extensions, multi-form setters (flat input, profile instance, raw Extension)
+- **Field accessors** -- typed get/set for profiled fields with fluent chaining
+- **Fixed values** -- `code`, `meta.profile` auto-set on `create()`
+- **Choice types** -- `effective[x]`, `value[x]` with per-branch accessors
+- **Factory methods** -- `from()` (validates), `apply()` (stamps), `create()` (builds from typed input)
+- **Validation** -- `validate()` returns `{ errors, warnings }` — checks required fields, choice constraints, and must-support field population
+
+---
+
+Let's see some general use cases on the [US Core Patient](https://www.hl7.org/fhir/us/core/StructureDefinition-us-core-patient.html) profile.
+
+## Reading data from a received resource
 
 ```typescript
 import { USCorePatientProfile } from "./profiles/Patient_USCorePatientProfile";
@@ -11,12 +27,12 @@ import { USCorePatientProfile } from "./profiles/Patient_USCorePatientProfile";
 const patient = USCorePatientProfile.from(apiResponse);
 
 patient.getName();              // [{ family: "Smith", given: ["John"] }]
-patient.getRace();              // flat input: { ombCategory: { code: "2054-5", ... }, text: "Black or African American" }
+patient.getRace();              // { ombCategory: { code: "2054-5", ... }, text: "Black or African American" }
 patient.getSex("profile");      // profile instance: USCoreIndividualSexExtensionProfile
 patient.getRace("extension");   // { url: ".../us-core-race", extension: [{ url: "ombCategory", ... }, ...] }
 ```
 
-Apply the profile to a bare resource and populate it -- each extension setter accepts a flat input, a profile instance, or a raw FHIR Extension:
+## Building a resource with a profile
 
 ```typescript
 import type { Extension } from "./fhir-types/hl7-fhir-r4-core/Extension";
@@ -71,16 +87,6 @@ patient.toResource();
 // }
 ```
 
-Each profile class provides:
-
-- **Field accessors** -- typed get/set for profiled fields with fluent chaining
-- **Fixed values** -- `code`, `meta.profile` auto-set on `create()`
-- **Slices** -- category and component slices with discriminator values applied automatically
-- **Choice types** -- `effective[x]`, `value[x]` with per-branch accessors
-- **Extensions** -- flat API for complex and simple extensions, multi-form setters (flat input, profile instance, raw Extension)
-- **Factory methods** -- `from()` (validates), `apply()` (stamps), `create()` (builds from typed input)
-- **Validation** -- `validate()` returns `{ errors, warnings }` — checks required fields, choice constraints, and must-support field population
-
 See the [generate script](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/generate.ts) and [example README](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/README.md) for setup.
 
 Working examples:
@@ -92,4 +98,4 @@ Working examples:
 
 Feedback welcome on [GitHub](https://github.com/atomic-ehr/codegen).
 
-NPM: [`@atomic-ehr/codegen`](https://www.npmjs.com/package/@atomic-ehr/codegen)
+NPM: [`@atomic-ehr/codegen`](https://www.npmjs.com/package/@atomic-ehr/codegen) | [Release v0.0.9](https://github.com/atomic-ehr/codegen/releases/tag/v0.0.9)
