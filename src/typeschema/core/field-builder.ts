@@ -333,6 +333,7 @@ export const mkField = (
         binding: binding,
         enum: enumResult,
         valueConstraint,
+        mustSupport: element.mustSupport,
     };
 };
 

@@ -33,6 +33,9 @@ export const collectRegularFieldValidation = (
         target.push(`...validateEnum(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(field.enum.values)})`);
     }
 
+    if (field.mustSupport && !field.required)
+        warnings.push(`...validateMustSupport(res, profileName, ${JSON.stringify(name)})`);
+
     if (field.reference && field.reference.length > 0)
         errors.push(
             `...validateReference(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(field.reference.map((ref) => resolveRef(ref).name))})`,

@@ -306,6 +306,14 @@ export const validateRequired = (res: object, profileName: string, field: string
         : [];
 };
 
+/** Checks that a must-support field is populated (warning, not error). */
+export const validateMustSupport = (res: object, profileName: string, field: string): string[] => {
+    const rec = res as Record<string, unknown>;
+    return rec[field] === undefined || rec[field] === null
+        ? [`${profileName}: must-support field '${field}' is not populated`]
+        : [];
+};
+
 /** Checks that `field` is absent (profiles may exclude base fields). */
 export const validateExcluded = (res: object, profileName: string, field: string): string[] => {
     return (res as Record<string, unknown>)[field] !== undefined

@@ -276,6 +276,7 @@ export interface RegularField {
     max?: number;
     slicing?: FieldSlicing;
     valueConstraint?: ValueConstraint;
+    mustSupport?: boolean;
 }
 
 export interface ChoiceFieldDeclaration {
@@ -300,6 +301,7 @@ export interface ChoiceFieldInstance {
     max?: number;
     slicing?: FieldSlicing;
     valueConstraint?: ValueConstraint;
+    mustSupport?: boolean;
 }
 
 export type Concept = {

@@ -310,6 +310,7 @@ const generateProfileHelpersImport = (
             "validateEnum",
             "validateReference",
             "validateChoiceRequired",
+            "validateMustSupport",
         );
     if (imports.length > 0) {
         w.tsImport("../../profile-helpers", ...imports);
