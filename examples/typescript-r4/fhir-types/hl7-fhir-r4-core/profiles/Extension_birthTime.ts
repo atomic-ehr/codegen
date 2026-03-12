@@ -4,67 +4,83 @@
 
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
-import { validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
+import {
+    buildResource,
+    validateRequired,
+    validateExcluded,
+    validateFixedValue,
+    validateSliceCardinality,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+} from "../../profile-helpers";
 
-export type birthTimeProfileParams = {
+export type birthTimeProfileInputRaw = {
     valueDateTime: string;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/patient-birthTime (pkg: hl7.fhir.r4.core#4.0.1)
 export class birthTimeProfile {
-    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/patient-birthTime"
+    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/patient-birthTime";
 
-    private resource: Extension
+    private resource: Extension;
 
     constructor (resource: Extension) {
-        this.resource = resource
+        this.resource = resource;
     }
 
     static from (resource: Extension) : birthTimeProfile {
-        return new birthTimeProfile(resource)
+        const profile = new birthTimeProfile(resource);
+        const errors = profile.validate();
+        if (errors.length > 0) throw new Error(errors.join("; "))
+        return profile;
     }
 
-    static createResource (args: birthTimeProfileParams) : Extension {
-        const resource = {
+    static apply (resource: Extension) : birthTimeProfile {
+        return new birthTimeProfile(resource);
+    }
+
+    static createResource (args: birthTimeProfileInputRaw) : Extension {
+        const resource = buildResource<Extension>( {
             url: "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
             valueDateTime: args.valueDateTime,
-        } as unknown as Extension
-        return resource
+        })
+        return resource;
     }
 
-    static create (args: birthTimeProfileParams) : birthTimeProfile {
-        return birthTimeProfile.from(birthTimeProfile.createResource(args))
+    static create (args: birthTimeProfileInputRaw) : birthTimeProfile {
+        return birthTimeProfile.apply(birthTimeProfile.createResource(args));
     }
 
     toResource () : Extension {
-        return this.resource
+        return this.resource;
     }
 
     // Field accessors
-
     getValueDateTime () : string | undefined {
-        return this.resource.valueDateTime as string | undefined
+        return this.resource.valueDateTime as string | undefined;
     }
 
     setValueDateTime (value: string) : this {
-        Object.assign(this.resource, { valueDateTime: value })
-        return this
+        Object.assign(this.resource, { valueDateTime: value });
+        return this;
     }
 
     getUrl () : string | undefined {
-        return this.resource.url as string | undefined
+        return this.resource.url as string | undefined;
     }
 
     setUrl (value: string) : this {
-        Object.assign(this.resource, { url: value })
-        return this
+        Object.assign(this.resource, { url: value });
+        return this;
     }
 
+    // Extensions
+    // Slices
     // Validation
-
     validate(): string[] {
         const profileName = "birthTime"
-        const res = this.resource as unknown as Record<string, unknown>
+        const res = this.resource
         return [
             ...validateRequired(res, profileName, "url"),
             ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/StructureDefinition/patient-birthTime"),

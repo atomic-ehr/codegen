@@ -1,6 +1,6 @@
 # `@atomic-ehr/codegen` adds US Core profile support
 
-New release of [`@atomic-ehr/codegen`](https://github.com/atomic-ehr/codegen) generates typed profile classes for **US Core IG**. Complex extensions (race, ethnicity, tribal affiliation) and simple extensions (individual sex, interpreter needed) get a flat, typed API -- no manual `extension[]` wrangling:
+New release of [`@atomic-ehr/codegen`](https://github.com/atomic-ehr/codegen) generates typed profile classes for **US Core IG**. Extensions get a flat, typed API -- no manual `extension[]` wrangling:
 
 Import a profiled Patient from an API response and read extensions via typed getters:
 
@@ -70,6 +70,16 @@ patient.toResource();
 //     ],
 // }
 ```
+
+Each profile class provides:
+
+- **Field accessors** -- typed get/set for profiled fields with fluent chaining
+- **Fixed values** -- `code`, `meta.profile` auto-set on `create()`
+- **Slices** -- category and component slices with discriminator values applied automatically
+- **Choice types** -- `effective[x]`, `value[x]` with per-branch accessors
+- **Extensions** -- flat API for complex and simple extensions, multi-form setters (flat input, profile instance, raw Extension)
+- **Factory methods** -- `from()` (validates), `apply()` (stamps), `create()` (builds from typed input)
+- **Validation** -- `validate()` checks required fields and choice constraints
 
 See the [generate script](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/generate.ts) and [example README](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/README.md) for setup.
 

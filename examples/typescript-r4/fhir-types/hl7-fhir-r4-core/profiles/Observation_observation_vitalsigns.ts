@@ -14,9 +14,25 @@ export interface observation_vitalsigns extends Observation {
 
 export type Observation_vitalsigns_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
 
-import { ensureProfile, applySliceMatch, matchesValue, setArraySlice, getArraySlice, ensureSliceDefaults, stripMatchKeys, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
+import {
+    buildResource,
+    ensureProfile,
+    applySliceMatch,
+    matchesValue,
+    setArraySlice,
+    getArraySlice,
+    ensureSliceDefaults,
+    stripMatchKeys,
+    validateRequired,
+    validateExcluded,
+    validateFixedValue,
+    validateSliceCardinality,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+} from "../../profile-helpers";
 
-export type observation_vitalsignsProfileParams = {
+export type observation_vitalsignsProfileInputRaw = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
     code: CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)>;
     subject: Reference<"Patient">;
@@ -25,108 +41,117 @@ export type observation_vitalsignsProfileParams = {
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/vitalsigns (pkg: hl7.fhir.r4.core#4.0.1)
 export class observation_vitalsignsProfile {
-    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/vitalsigns"
+    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/vitalsigns";
 
-    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}};
 
-    private resource: Observation
+    private resource: Observation;
 
     constructor (resource: Observation) {
-        this.resource = resource
-        ensureProfile(resource, "http://hl7.org/fhir/StructureDefinition/vitalsigns")
+        this.resource = resource;
     }
 
     static from (resource: Observation) : observation_vitalsignsProfile {
-        return new observation_vitalsignsProfile(resource)
+        if (!resource.meta?.profile?.includes("http://hl7.org/fhir/StructureDefinition/vitalsigns")) {
+            throw new Error("observation_vitalsignsProfile: meta.profile must include http://hl7.org/fhir/StructureDefinition/vitalsigns")
+        }
+        const profile = new observation_vitalsignsProfile(resource);
+        const errors = profile.validate();
+        if (errors.length > 0) throw new Error(errors.join("; "))
+        return profile;
     }
 
-    static createResource (args: observation_vitalsignsProfileParams) : Observation {
+    static apply (resource: Observation) : observation_vitalsignsProfile {
+        ensureProfile(resource, "http://hl7.org/fhir/StructureDefinition/vitalsigns");
+        return new observation_vitalsignsProfile(resource);
+    }
+
+    static createResource (args: observation_vitalsignsProfileInputRaw) : Observation {
         const categoryWithDefaults = ensureSliceDefaults(
             [...(args.category ?? [])],
             observation_vitalsignsProfile.VSCatSliceMatch,
-        )
+        );
 
-        const resource = {
+        const resource = buildResource<Observation>( {
             resourceType: "Observation",
             category: categoryWithDefaults,
             status: args.status,
             code: args.code,
             subject: args.subject,
             meta: { profile: [observation_vitalsignsProfile.canonicalUrl] },
-        } as unknown as Observation
-        return resource
+        })
+        return resource;
     }
 
-    static create (args: observation_vitalsignsProfileParams) : observation_vitalsignsProfile {
-        return observation_vitalsignsProfile.from(observation_vitalsignsProfile.createResource(args))
+    static create (args: observation_vitalsignsProfileInputRaw) : observation_vitalsignsProfile {
+        return observation_vitalsignsProfile.apply(observation_vitalsignsProfile.createResource(args));
     }
 
     toResource () : Observation {
-        return this.resource
+        return this.resource;
     }
 
     // Field accessors
-
     getStatus () : ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined {
-        return this.resource.status as ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined
+        return this.resource.status as ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined;
     }
 
     setStatus (value: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown")) : this {
-        Object.assign(this.resource, { status: value })
-        return this
+        Object.assign(this.resource, { status: value });
+        return this;
     }
 
     getCode () : CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined {
-        return this.resource.code as CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined
+        return this.resource.code as CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined;
     }
 
     setCode (value: CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)>) : this {
-        Object.assign(this.resource, { code: value })
-        return this
+        Object.assign(this.resource, { code: value });
+        return this;
     }
 
     getSubject () : Reference<"Patient"> | undefined {
-        return this.resource.subject as Reference<"Patient"> | undefined
+        return this.resource.subject as Reference<"Patient"> | undefined;
     }
 
     setSubject (value: Reference<"Patient">) : this {
-        Object.assign(this.resource, { subject: value })
-        return this
+        Object.assign(this.resource, { subject: value });
+        return this;
     }
 
     getCategory () : CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined {
-        return this.resource.category as CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined
+        return this.resource.category as CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined;
     }
 
     setCategory (value: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[]) : this {
-        Object.assign(this.resource, { category: value })
-        return this
+        Object.assign(this.resource, { category: value });
+        return this;
     }
 
     getEffectiveDateTime () : string | undefined {
-        return this.resource.effectiveDateTime as string | undefined
+        return this.resource.effectiveDateTime as string | undefined;
     }
 
     setEffectiveDateTime (value: string) : this {
-        Object.assign(this.resource, { effectiveDateTime: value })
-        return this
+        Object.assign(this.resource, { effectiveDateTime: value });
+        return this;
     }
 
     getEffectivePeriod () : Period | undefined {
-        return this.resource.effectivePeriod as Period | undefined
+        return this.resource.effectivePeriod as Period | undefined;
     }
 
     setEffectivePeriod (value: Period) : this {
-        Object.assign(this.resource, { effectivePeriod: value })
-        return this
+        Object.assign(this.resource, { effectivePeriod: value });
+        return this;
     }
 
     toProfile () : observation_vitalsigns {
-        return this.resource as observation_vitalsigns
+        return this.resource as observation_vitalsigns;
     }
 
-    // Slices and extensions
-
+    // Extensions
+    // Slices
     public setVSCat (input?: Observation_vitalsigns_Category_VSCatSliceInput): this {
         const match = observation_vitalsignsProfile.VSCatSliceMatch
         const value = applySliceMatch<CodeableConcept>(input ?? {}, match)
@@ -148,10 +173,9 @@ export class observation_vitalsignsProfile {
     }
 
     // Validation
-
     validate(): string[] {
         const profileName = "observation-vitalsigns"
-        const res = this.resource as unknown as Record<string, unknown>
+        const res = this.resource
         return [
             ...validateRequired(res, profileName, "status"),
             ...validateEnum(res, profileName, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),

@@ -5,67 +5,83 @@
 import type { Address } from "../../hl7-fhir-r4-core/Address";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
-import { validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
+import {
+    buildResource,
+    validateRequired,
+    validateExcluded,
+    validateFixedValue,
+    validateSliceCardinality,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+} from "../../profile-helpers";
 
-export type birthPlaceProfileParams = {
+export type birthPlaceProfileInputRaw = {
     valueAddress: Address;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/patient-birthPlace (pkg: hl7.fhir.r4.core#4.0.1)
 export class birthPlaceProfile {
-    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/patient-birthPlace"
+    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/patient-birthPlace";
 
-    private resource: Extension
+    private resource: Extension;
 
     constructor (resource: Extension) {
-        this.resource = resource
+        this.resource = resource;
     }
 
     static from (resource: Extension) : birthPlaceProfile {
-        return new birthPlaceProfile(resource)
+        const profile = new birthPlaceProfile(resource);
+        const errors = profile.validate();
+        if (errors.length > 0) throw new Error(errors.join("; "))
+        return profile;
     }
 
-    static createResource (args: birthPlaceProfileParams) : Extension {
-        const resource = {
+    static apply (resource: Extension) : birthPlaceProfile {
+        return new birthPlaceProfile(resource);
+    }
+
+    static createResource (args: birthPlaceProfileInputRaw) : Extension {
+        const resource = buildResource<Extension>( {
             url: "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
             valueAddress: args.valueAddress,
-        } as unknown as Extension
-        return resource
+        })
+        return resource;
     }
 
-    static create (args: birthPlaceProfileParams) : birthPlaceProfile {
-        return birthPlaceProfile.from(birthPlaceProfile.createResource(args))
+    static create (args: birthPlaceProfileInputRaw) : birthPlaceProfile {
+        return birthPlaceProfile.apply(birthPlaceProfile.createResource(args));
     }
 
     toResource () : Extension {
-        return this.resource
+        return this.resource;
     }
 
     // Field accessors
-
     getValueAddress () : Address | undefined {
-        return this.resource.valueAddress as Address | undefined
+        return this.resource.valueAddress as Address | undefined;
     }
 
     setValueAddress (value: Address) : this {
-        Object.assign(this.resource, { valueAddress: value })
-        return this
+        Object.assign(this.resource, { valueAddress: value });
+        return this;
     }
 
     getUrl () : string | undefined {
-        return this.resource.url as string | undefined
+        return this.resource.url as string | undefined;
     }
 
     setUrl (value: string) : this {
-        Object.assign(this.resource, { url: value })
-        return this
+        Object.assign(this.resource, { url: value });
+        return this;
     }
 
+    // Extensions
+    // Slices
     // Validation
-
     validate(): string[] {
         const profileName = "birthPlace"
-        const res = this.resource as unknown as Record<string, unknown>
+        const res = this.resource
         return [
             ...validateRequired(res, profileName, "url"),
             ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/StructureDefinition/patient-birthPlace"),
