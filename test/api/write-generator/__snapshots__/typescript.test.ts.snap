@@ -469,10 +469,6 @@ export class observation_bodyweightProfile {
         return this;
     }
 
-    toProfile () : observation_bodyweight {
-        return this.resource as observation_bodyweight;
-    }
-
     // Extensions
     // Slices
     public setVSCat (input?: Observation_bodyweight_Category_VSCatSliceInput): this {
@@ -525,8 +521,7 @@ exports[`TypeScript R4 Example (with generateProfile) generates bp profile with 
 // Any manual changes made to this file may be overwritten.
 
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
-import type { Observation } from "../../hl7-fhir-r4-core/Observation";
-import type { ObservationComponent } from "../../hl7-fhir-r4-core/Observation";
+import type { Observation, ObservationComponent } from "../../hl7-fhir-r4-core/Observation";
 import type { Period } from "../../hl7-fhir-r4-core/Period";
 import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
@@ -696,10 +691,6 @@ export class observation_bpProfile {
     setValueQuantity (value: Quantity) : this {
         Object.assign(this.resource, { valueQuantity: value });
         return this;
-    }
-
-    toProfile () : observation_bp {
-        return this.resource as observation_bp;
     }
 
     // Extensions
@@ -902,10 +893,6 @@ export class USCorePatientProfile {
         return this;
     }
 
-    toProfile () : USCorePatientProfile {
-        return this.resource as USCorePatientProfile;
-    }
-
     // Extensions
     public setRace (input: USCoreRaceExtensionProfileInput | USCoreRaceExtensionProfile | Extension): this {
         if (input instanceof USCoreRaceExtensionProfile) {
@@ -1052,8 +1039,7 @@ exports[`TypeScript US Core Example generates US Core Blood Pressure profile 1`]
 // Any manual changes made to this file may be overwritten.
 
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
-import type { Observation } from "../../hl7-fhir-r4-core/Observation";
-import type { ObservationComponent } from "../../hl7-fhir-r4-core/Observation";
+import type { Observation, ObservationComponent } from "../../hl7-fhir-r4-core/Observation";
 import type { Period } from "../../hl7-fhir-r4-core/Period";
 import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
 import type { Range } from "../../hl7-fhir-r4-core/Range";
@@ -1318,10 +1304,6 @@ export class USCoreBloodPressureProfile {
     setValuePeriod (value: Period) : this {
         Object.assign(this.resource, { valuePeriod: value });
         return this;
-    }
-
-    toProfile () : USCoreBloodPressureProfile {
-        return this.resource as USCoreBloodPressureProfile;
     }
 
     // Extensions
@@ -1664,10 +1646,6 @@ export class USCoreBodyWeightProfile {
     setValuePeriod (value: Period) : this {
         Object.assign(this.resource, { valuePeriod: value });
         return this;
-    }
-
-    toProfile () : USCoreBodyWeightProfile {
-        return this.resource as USCoreBodyWeightProfile;
     }
 
     // Extensions

@@ -7,7 +7,6 @@
  * - Complex extension setters (flat input, profile instance, raw Extension)
  * - Simple extension setters (flat input, profile instance, raw Extension)
  * - Extension getters: simplified and raw Extension forms
- * - toProfile() typed interface cast
  * - Validation of required fields
  */
 
@@ -231,13 +230,6 @@ describe("US Core Patient profile field accessors", () => {
         expect(result).toBe(profile);
         expect(profile.getIdentifier()![0]!.value).toBe("AAA");
         expect(profile.getName()![0]!.family).toBe("Lee");
-    });
-
-    test("toProfile() returns the resource cast to the typed profile interface", () => {
-        const typed: USCorePatientProfile = profile.toProfile();
-        expect(typed.resourceType).toBe("Patient");
-        expect(typed.identifier[0]!.value).toBe("AAA");
-        expect(typed.name[0]!.family).toBe("Lee");
     });
 });
 
