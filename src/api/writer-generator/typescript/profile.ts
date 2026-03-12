@@ -358,11 +358,20 @@ export const generateProfileImports = (
         if (extensionSchema) addType(extensionSchema.identifier);
     }
 
-    const sortedImports = Array.from(usedTypes.values()).sort((a, b) => a.tsName.localeCompare(b.tsName));
-    for (const { importPath, tsName } of sortedImports) {
-        w.tsImport({ typeOnly: true }, importPath, tsName);
+    const grouped = new Map<string, string[]>();
+    for (const { importPath, tsName } of usedTypes.values()) {
+        let names = grouped.get(importPath);
+        if (!names) {
+            names = [];
+            grouped.set(importPath, names);
+        }
+        names.push(tsName);
     }
-    if (sortedImports.length > 0) w.line();
+    const sortedModules = [...grouped.entries()].sort(([a], [b]) => a.localeCompare(b));
+    for (const [importPath, names] of sortedModules) {
+        w.tsImport({ typeOnly: true }, importPath, ...names.sort());
+    }
+    if (sortedModules.length > 0) w.line();
 
     // Import extension profile classes for delegation in setters
     const extProfileImports = new Map<string, { modulePath: string; hasFlatInput: boolean }>();
@@ -573,9 +582,7 @@ const generateFactoryMethods = (
 
 const generateFieldAccessors = (
     w: TypeScript,
-    flatProfile: ProfileTypeSchema,
     factoryInfo: ProfileFactoryInfo,
-    overrides: FieldOverrides,
     extSliceMethodBaseNames: Set<string>,
 ) => {
     w.line("// Field accessors");
@@ -604,14 +611,6 @@ const generateFieldAccessors = (
         w.curlyBlock([`set${methodBaseName}`, `(value: ${a.tsType})`, ": this"], () => {
             w.lineSM(`Object.assign(this.resource, { ${fieldAccess}: value })`);
             w.lineSM("return this");
-        });
-        w.line();
-    }
-    // toProfile() returns casted profile type if override interface exists
-    if (overrides.size > 0) {
-        const tsProfileName = tsResourceName(flatProfile.identifier);
-        w.curlyBlock(["toProfile", "()", `: ${tsProfileName}`], () => {
-            w.lineSM(`return this.resource as ${tsProfileName}`);
         });
         w.line();
     }
@@ -780,12 +779,7 @@ const resolveProfileMethodBaseNames = (
     return { extensions: extensionsRecords, slices: slicesRecords, allBaseNames };
 };
 
-export const generateProfileClass = (
-    w: TypeScript,
-    tsIndex: TypeSchemaIndex,
-    flatProfile: ProfileTypeSchema,
-    overrides: FieldOverrides,
-) => {
+export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) => {
     const tsBaseResourceName = tsTypeFromIdentifier(flatProfile.base);
     const profileClassName = tsProfileClassName(flatProfile);
     const sliceDefs = collectSliceDefs(tsIndex, flatProfile);
@@ -811,7 +805,7 @@ export const generateProfileClass = (
         w.lineSM(`private resource: ${tsBaseResourceName}`);
         w.line();
         generateFactoryMethods(w, tsIndex, flatProfile, factoryInfo);
-        generateFieldAccessors(w, flatProfile, factoryInfo, overrides, resolvedMethodNames.allBaseNames);
+        generateFieldAccessors(w, factoryInfo, resolvedMethodNames.allBaseNames);
 
         w.line("// Extensions");
         generateExtensionMethods(w, tsIndex, flatProfile, resolvedMethodNames.extensions);

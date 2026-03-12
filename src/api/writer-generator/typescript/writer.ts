@@ -318,7 +318,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                     const overrides = detectFieldOverrides(tsIndex, flatProfile);
                     generateProfileImports(this, tsIndex, flatProfile, overrides);
                     generateProfileOverrideInterface(this, flatProfile, overrides);
-                    generateProfileClass(this, tsIndex, flatProfile, overrides);
+                    generateProfileClass(this, tsIndex, flatProfile);
                 });
             });
         } else if (["complex-type", "resource", "logical"].includes(schema.identifier.kind)) {
