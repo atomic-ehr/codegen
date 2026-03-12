@@ -37,9 +37,9 @@ describe("bodyweight profile creation", () => {
         expect(fromCreateResource.subject!.reference).toBe("Patient/pt-1");
     });
 
-    test("from() wraps an existing Observation", () => {
+    test("apply() wraps an existing Observation", () => {
         const obs: Observation = { resourceType: "Observation", code: {}, status: "preliminary" };
-        const profile = bodyweightProfile.from(obs);
+        const profile = bodyweightProfile.apply(obs);
 
         profile
             .setStatus("final")
@@ -119,8 +119,8 @@ describe("bodyweight profile slice accessors", () => {
 
     test("getVSCat returns empty simplified view from auto-populated stub", () => {
         // category is auto-populated with VSCat discriminator match
-        expect(profile.getVSCatRaw()).toBeDefined();
-        const raw = profile.getVSCatRaw()!;
+        expect(profile.getVSCat("raw")).toBeDefined();
+        const raw = profile.getVSCat("raw")!;
         expect(raw.coding as unknown).toEqual({
             code: "vital-signs",
             system: "http://terminology.hl7.org/CodeSystem/observation-category",
@@ -132,7 +132,7 @@ describe("bodyweight profile slice accessors", () => {
     test("setVSCat adds category with discriminator values", () => {
         profile.setVSCat({ text: "Vital Signs" });
 
-        const raw = profile.getVSCatRaw()!;
+        const raw = profile.getVSCat("raw")!;
         expect(raw.text).toBe("Vital Signs");
         expect(raw.coding as unknown).toEqual({
             code: "vital-signs",
@@ -147,7 +147,7 @@ describe("bodyweight profile slice accessors", () => {
     });
 
     test("getVSCatRaw returns full element including discriminator", () => {
-        const raw = profile.getVSCatRaw()!;
+        const raw = profile.getVSCat("raw")!;
         expect(raw.text).toBe("Vital Signs");
         expect(raw.coding).toBeDefined();
     });
@@ -201,7 +201,7 @@ describe("bodyweight profile choice type accessors", () => {
             status: "final",
             subject: { reference: "Patient/pt-1" },
         });
-        const p = bodyweightProfile.from(obs);
+        const p = bodyweightProfile.apply(obs);
 
         p.setValueQuantity({ value: 90, unit: "kg" });
         expect((obs as any).valueQuantity.value).toBe(90);
@@ -223,7 +223,7 @@ describe("bodyweight profile mutability", () => {
             status: "final",
             subject: { reference: "Patient/pt-1" },
         });
-        const profile = bodyweightProfile.from(obs);
+        const profile = bodyweightProfile.apply(obs);
 
         profile.setStatus("amended");
         expect(obs.status).toBe("amended");

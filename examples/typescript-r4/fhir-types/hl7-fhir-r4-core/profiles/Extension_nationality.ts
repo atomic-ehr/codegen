@@ -6,91 +6,138 @@ import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Period } from "../../hl7-fhir-r4-core/Period";
 
-import { validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
+import {
+    buildResource,
+    isRawExtensionInput,
+    isExtension,
+    getExtensionValue,
+    pushExtension,
+    validateRequired,
+    validateExcluded,
+    validateFixedValue,
+    validateSliceCardinality,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+    validateMustSupport,
+} from "../../profile-helpers";
+
+export type nationalityProfileRaw = {
+    extension?: Extension[];
+}
+
+export type nationalityProfileFlat = {
+    code?: CodeableConcept;
+    period?: Period;
+}
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/patient-nationality (pkg: hl7.fhir.r4.core#4.0.1)
 export class nationalityProfile {
-    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/patient-nationality"
+    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/patient-nationality";
 
-    private resource: Extension
+    private resource: Extension;
 
     constructor (resource: Extension) {
-        this.resource = resource
+        this.resource = resource;
     }
 
     static from (resource: Extension) : nationalityProfile {
-        return new nationalityProfile(resource)
+        const profile = new nationalityProfile(resource);
+        const { errors } = profile.validate();
+        if (errors.length > 0) throw new Error(errors.join("; "))
+        return profile;
     }
 
-    static createResource () : Extension {
-        const resource = {
+    static apply (resource: Extension) : nationalityProfile {
+        return new nationalityProfile(resource);
+    }
+
+    private static resolveInput (args: nationalityProfileRaw | nationalityProfileFlat) : Extension[] {
+        if (isRawExtensionInput<nationalityProfileRaw>(args)) {
+            return args.extension ?? [];
+        } else {
+            const result: Extension[] = [];
+            if (args.code !== undefined) {
+                result.push({ url: "code", valueCodeableConcept: args.code } as Extension);
+            }
+            if (args.period !== undefined) {
+                result.push({ url: "period", valuePeriod: args.period } as Extension);
+            }
+            return result;
+        }
+    }
+
+    static createResource (args?: nationalityProfileRaw | nationalityProfileFlat) : Extension {
+        const resolvedExtensions = nationalityProfile.resolveInput(args ?? {});
+
+        const resource = buildResource<Extension>( {
             url: "http://hl7.org/fhir/StructureDefinition/patient-nationality",
-        } as unknown as Extension
-        return resource
+            extension: resolvedExtensions,
+        })
+        return resource;
     }
 
-    static create () : nationalityProfile {
-        return nationalityProfile.from(nationalityProfile.createResource())
+    static create (args?: nationalityProfileRaw | nationalityProfileFlat) : nationalityProfile {
+        return nationalityProfile.apply(nationalityProfile.createResource(args));
     }
 
     toResource () : Extension {
-        return this.resource
+        return this.resource;
     }
 
     // Field accessors
-
     getUrl () : string | undefined {
-        return this.resource.url as string | undefined
+        return this.resource.url as string | undefined;
     }
 
     setUrl (value: string) : this {
-        Object.assign(this.resource, { url: value })
+        Object.assign(this.resource, { url: value });
+        return this;
+    }
+
+    // Extensions
+    public setCode (value: CodeableConcept): this {
+        pushExtension(this.resource, { url: "code", valueCodeableConcept: value } as Extension)
         return this
     }
 
-    // Slices and extensions
-
-    public setCode (value: CodeableConcept): this {
-        const list = (this.resource.extension ??= [])
-        list.push({ url: "code", valueCodeableConcept: value } as Extension)
-        return this
+    public getCode(mode: 'flat'): CodeableConcept | undefined;
+    public getCode(mode: 'raw'): Extension | undefined;
+    public getCode(): CodeableConcept | undefined;
+    public getCode (mode: 'flat' | 'raw' = 'flat'): CodeableConcept | Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "code")
+        if (!ext) return undefined
+        if (mode === 'raw') return ext
+        return getExtensionValue<CodeableConcept>(ext, "valueCodeableConcept")
     }
 
     public setPeriod (value: Period): this {
-        const list = (this.resource.extension ??= [])
-        list.push({ url: "period", valuePeriod: value } as Extension)
+        pushExtension(this.resource, { url: "period", valuePeriod: value } as Extension)
         return this
     }
 
-    public getCode (): CodeableConcept | undefined {
-        const ext = this.resource.extension?.find(e => e.url === "code")
-        return (ext as Record<string, unknown> | undefined)?.valueCodeableConcept as CodeableConcept | undefined
-    }
-
-    public getCodeExtension (): Extension | undefined {
-        const ext = this.resource.extension?.find(e => e.url === "code")
-        return ext
-    }
-
-    public getPeriod (): Period | undefined {
+    public getPeriod(mode: 'flat'): Period | undefined;
+    public getPeriod(mode: 'raw'): Extension | undefined;
+    public getPeriod(): Period | undefined;
+    public getPeriod (mode: 'flat' | 'raw' = 'flat'): Period | Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "period")
-        return (ext as Record<string, unknown> | undefined)?.valuePeriod as Period | undefined
+        if (!ext) return undefined
+        if (mode === 'raw') return ext
+        return getExtensionValue<Period>(ext, "valuePeriod")
     }
 
-    public getPeriodExtension (): Extension | undefined {
-        const ext = this.resource.extension?.find(e => e.url === "period")
-        return ext
-    }
-
+    // Slices
     // Validation
-
-    validate(): string[] {
+    validate(): { errors: string[]; warnings: string[] } {
         const profileName = "nationality"
-        const res = this.resource as unknown as Record<string, unknown>
-        return [
-            ...validateRequired(res, profileName, "url"),
-            ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/StructureDefinition/patient-nationality"),
-        ]
+        const res = this.resource
+        return {
+            errors: [
+                ...validateRequired(res, profileName, "url"),
+                ...validateFixedValue(res, profileName, "url", nationalityProfile.canonicalUrl),
+            ],
+            warnings: [],
+        }
     }
 
 }

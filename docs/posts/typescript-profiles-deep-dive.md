@@ -327,7 +327,7 @@ A few choices worth understanding:
 
 ## Runtime Validation
 
-Profile classes generate a `validate()` method that checks the wrapped resource against profile constraints. It returns an array of error strings -- empty means valid:
+Profile classes generate a `validate()` method that checks the wrapped resource against profile constraints. It returns `{ errors, warnings }` -- errors are hard constraint violations, warnings are soft checks like extensible binding mismatches and unpopulated must-support fields:
 
 ```typescript
 const bp = observation_bpProfile.create({
@@ -335,8 +335,9 @@ const bp = observation_bpProfile.create({
     subject: { reference: "Patient/pt-1" },
 });
 
-bp.validate();
-// ["effective: at least one of effectiveDateTime, effectivePeriod is required"]
+const { errors, warnings } = bp.validate();
+// errors: ["effective: at least one of effectiveDateTime, effectivePeriod is required"]
+// warnings: ["observation_bp: must-support field 'dataAbsentReason' is not populated"]
 // Required slices (VSCat, SystolicBP, DiastolicBP) are auto-populated by create()
 ```
 
@@ -348,10 +349,10 @@ bp.setVSCat({ text: "Vital Signs" })
     .setSystolicBP({ value: 120, unit: "mmHg" })
     .setDiastolicBP({ value: 80, unit: "mmHg" });
 
-bp.validate(); // [] — valid
+bp.validate(); // { errors: [], warnings: [...] }
 ```
 
-The method checks required fields, excluded fields, fixed/pattern values, slice cardinality, closed enum bindings, reference types, and choice type requirements.
+The method checks required fields, excluded fields, fixed/pattern values, slice cardinality, closed enum bindings, reference types, choice type requirements, and must-support field population (as warnings).
 
 ## What's Next
 

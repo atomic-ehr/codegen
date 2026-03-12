@@ -1,6 +1,9 @@
-export type { USCorePatientProfile } from "./Patient_USCorePatientProfile";
-export type { USCoreVitalSignsProfile } from "./Observation_USCoreVitalSignsProfile";
-export { USCoreBloodPressureProfileProfile } from "./Observation_USCoreBloodPressureProfile";
-export { USCoreBodyWeightProfileProfile } from "./Observation_USCoreBodyWeightProfile";
-export { USCorePatientProfileProfile } from "./Patient_USCorePatientProfile";
-export { USCoreVitalSignsProfileProfile } from "./Observation_USCoreVitalSignsProfile";
+export { USCoreBloodPressureProfile } from "./Observation_USCoreBloodPressureProfile";
+export { USCoreBodyWeightProfile } from "./Observation_USCoreBodyWeightProfile";
+export { USCoreEthnicityExtensionProfile } from "./Extension_USCoreEthnicityExtension";
+export { USCoreIndividualSexExtensionProfile } from "./Extension_USCoreIndividualSexExtension";
+export { USCoreInterpreterNeededExtensionProfile } from "./Extension_USCoreInterpreterNeededExtension";
+export { USCorePatientProfile } from "./Patient_USCorePatientProfile";
+export { USCoreRaceExtensionProfile } from "./Extension_USCoreRaceExtension";
+export { USCoreTribalAffiliationExtensionProfile } from "./Extension_USCoreTribalAffiliationExtension";
+export { USCoreVitalSignsProfile } from "./Observation_USCoreVitalSignsProfile";

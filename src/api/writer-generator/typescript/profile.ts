@@ -1,7 +1,6 @@
 import { pascalCase, typeSchemaInfo, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import {
     type CanonicalUrl,
-    type ChoiceFieldInstance,
     type Identifier,
     isChoiceDeclarationField,
     isChoiceInstanceField,
@@ -14,29 +13,42 @@ import {
     type ProfileTypeSchema,
     packageMeta,
     packageMetaToFhir,
-    type RegularField,
-    type TypeSchema,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import {
-    normalizeTsName,
     tsCamelCase,
-    tsExtensionInputTypeName,
-    tsExtensionMethodName,
+    tsExtensionFlatTypeName,
+    tsExtensionMethodBaseName,
     tsFieldName,
     tsModulePath,
     tsNameFromCanonical,
     tsPackageDir,
     tsProfileClassName,
     tsProfileModuleName,
-    tsQualifiedExtensionMethodName,
-    tsQualifiedSliceMethodName,
+    tsQualifiedExtensionMethodBaseName,
+    tsQualifiedSliceMethodBaseName,
     tsResourceName,
-    tsSliceInputTypeName,
-    tsSliceMethodName,
+    tsSliceFlatTypeName,
+    tsSliceMethodBaseName,
     tsSliceStaticName,
 } from "./name";
-import { resolveFieldTsType, resolvePrimitiveType, tsEnumType, tsGet, tsTypeFromIdentifier } from "./utils";
+import {
+    collectSubExtensionSlices,
+    collectTypesFromExtensions,
+    collectTypesFromFlatInput,
+    generateExtensionMethods,
+    resolveExtensionProfile,
+} from "./profile-extensions";
+import {
+    collectRequiredSliceNames,
+    collectSliceDefs,
+    collectTypesFromSlices,
+    generateSliceGetters,
+    generateSliceSetters,
+    type SliceDef,
+} from "./profile-slices";
+import { generateValidateMethod } from "./profile-validation";
+import { fieldTsType, resolvePrimitiveType, tsEnumType, tsGet, tsTypeFromIdentifier } from "./utils";
 import type { TypeScript } from "./writer";
 
 type ProfileFactoryInfo = {
@@ -79,15 +91,10 @@ const tryPromoteChoice = (
     promotedChoices.add(choiceName);
 };
 
-const collectRequiredSliceNames = (field: RegularField): string[] | undefined => {
-    if (!field.array || !field.slicing?.slices) return undefined;
-    const names = Object.entries(field.slicing.slices)
-        .filter(([_, s]) => s.min !== undefined && s.min >= 1 && s.match && Object.keys(s.match).length > 0)
-        .map(([name]) => name);
-    return names.length > 0 ? names : undefined;
-};
-
-const collectProfileFactoryInfo = (tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema): ProfileFactoryInfo => {
+export const collectProfileFactoryInfo = (
+    tsIndex: TypeSchemaIndex,
+    flatProfile: ProfileTypeSchema,
+): ProfileFactoryInfo => {
     const autoFields: ProfileFactoryInfo["autoFields"] = [];
     const sliceAutoFields: ProfileFactoryInfo["sliceAutoFields"] = [];
     const params: ProfileFactoryInfo["params"] = [];
@@ -113,7 +120,7 @@ const collectProfileFactoryInfo = (tsIndex: TypeSchemaIndex, flatProfile: Profil
             const value = JSON.stringify(field.valueConstraint.value);
             autoFields.push({ name, value: field.array ? `[${value}]` : value });
             if (isNotChoiceDeclarationField(field) && field.type) {
-                const tsType = resolveFieldTsType("", "", field, resolveRef) + (field.array ? "[]" : "");
+                const tsType = fieldTsType(field, resolveRef);
                 autoAccessors.push({ name, tsType, typeId: field.type });
             }
             continue;
@@ -123,7 +130,7 @@ const collectProfileFactoryInfo = (tsIndex: TypeSchemaIndex, flatProfile: Profil
             const sliceNames = collectRequiredSliceNames(field);
             if (sliceNames) {
                 if (field.type) {
-                    const tsType = resolveFieldTsType("", "", field, resolveRef) + (field.array ? "[]" : "");
+                    const tsType = fieldTsType(field, resolveRef);
                     sliceAutoFields.push({
                         name,
                         tsType,
@@ -137,34 +144,43 @@ const collectProfileFactoryInfo = (tsIndex: TypeSchemaIndex, flatProfile: Profil
         }
 
         if (field.required) {
-            const tsType = resolveFieldTsType("", "", field, resolveRef) + (field.array ? "[]" : "");
+            const tsType = fieldTsType(field, resolveRef);
             params.push({ name, tsType, typeId: field.type });
         }
     }
 
-    // Include base-type required fields not already covered by profile constraints
-    const coveredFields = new Set([
+    collectBaseRequiredParams(tsIndex, flatProfile, resolveRef, params, [
         ...autoFields.map((f) => f.name),
         ...sliceAutoFields.map((f) => f.name),
         ...params.map((f) => f.name),
         ...promotedChoices,
     ]);
-    const baseSchema = tsIndex.resolve(flatProfile.base);
-    if (baseSchema && "fields" in baseSchema && baseSchema.fields) {
-        for (const [name, field] of Object.entries(baseSchema.fields)) {
-            if (coveredFields.has(name)) continue;
-            if (!field.required) continue;
-            if (isChoiceInstanceField(field)) continue;
-            if (isChoiceDeclarationField(field)) continue;
-            if (isNotChoiceDeclarationField(field) && field.type) {
-                const tsType = resolveFieldTsType("", "", field, resolveRef) + (field.array ? "[]" : "");
-                params.push({ name, tsType, typeId: field.type });
-            }
-        }
-    }
 
     const accessors = [...autoAccessors, ...collectChoiceAccessors(flatProfile, promotedChoices)];
     return { autoFields, sliceAutoFields, params, accessors };
+};
+
+/** Include base-type required fields not already covered by profile constraints */
+const collectBaseRequiredParams = (
+    tsIndex: TypeSchemaIndex,
+    flatProfile: ProfileTypeSchema,
+    resolveRef: TypeSchemaIndex["findLastSpecializationByIdentifier"],
+    params: ProfileFactoryInfo["params"],
+    coveredNames: string[],
+) => {
+    const covered = new Set(coveredNames);
+    const baseSchema = tsIndex.resolve(flatProfile.base);
+    if (!baseSchema || !("fields" in baseSchema) || !baseSchema.fields) return;
+    for (const [name, field] of Object.entries(baseSchema.fields)) {
+        if (covered.has(name)) continue;
+        if (!field.required) continue;
+        if (isChoiceInstanceField(field)) continue;
+        if (isChoiceDeclarationField(field)) continue;
+        if (isNotChoiceDeclarationField(field) && field.type) {
+            const tsType = fieldTsType(field, resolveRef);
+            params.push({ name, tsType, typeId: field.type });
+        }
+    }
 };
 
 export const generateProfileIndexFile = (
@@ -178,7 +194,7 @@ export const generateProfileIndexFile = (
             const profiles: [ProfileTypeSchema, string, string | undefined][] = initialProfiles.map((profile) => {
                 const className = tsProfileClassName(profile);
                 const resourceName = tsResourceName(profile.identifier);
-                const overrides = detectFieldOverrides(w, tsIndex, profile);
+                const overrides = detectFieldOverrides(tsIndex, profile);
                 let typeExport;
                 if (overrides.size > 0) typeExport = resourceName;
                 return [profile, className, typeExport];
@@ -191,7 +207,7 @@ export const generateProfileIndexFile = (
                 if (!classExports.has(className)) {
                     classExports.set(className, `export { ${className} } from "./${moduleName}"`);
                 }
-                if (typeName && !typeExports.has(typeName)) {
+                if (typeName && !typeExports.has(typeName) && !classExports.has(typeName)) {
                     typeExports.set(typeName, `export type { ${typeName} } from "./${moduleName}"`);
                 }
             }
@@ -204,7 +220,6 @@ export const generateProfileIndexFile = (
 };
 
 const tsTypeForProfileField = (
-    _w: TypeScript,
     tsIndex: TypeSchemaIndex,
     flatProfile: ProfileTypeSchema,
     fieldName: string,
@@ -265,25 +280,28 @@ const tsTypeForProfileField = (
 
 const generateProfileHelpersImport = (
     w: TypeScript,
-    options: {
-        needsGetOrCreateObjectAtPath: boolean;
-        needsSliceHelpers: boolean;
-        needsExtensionExtraction: boolean;
-        needsSliceExtraction: boolean;
-        needsSliceChoiceHelpers: boolean;
-        needsValidation: boolean;
-        needsRegisterProfile: boolean;
-    },
+    tsIndex: TypeSchemaIndex,
+    flatProfile: ProfileTypeSchema,
+    sliceDefs: SliceDef[],
+    factoryInfo: ProfileFactoryInfo,
 ) => {
+    const extensions = flatProfile.extensions ?? [];
+    const hasMeta = tsIndex.isWithMetaField(flatProfile);
+    const canonicalUrl = flatProfile.identifier.url;
+
     const imports: string[] = [];
-    if (options.needsRegisterProfile) imports.push("ensureProfile");
-    if (options.needsSliceHelpers)
+    if (!isPrimitiveIdentifier(flatProfile.base)) imports.push("buildResource");
+    if (flatProfile.base.name === "Extension" && !!canonicalUrl && collectSubExtensionSlices(flatProfile).length > 0)
+        imports.push("isRawExtensionInput");
+    if (canonicalUrl && hasMeta) imports.push("ensureProfile");
+    if (sliceDefs.length > 0 || factoryInfo.sliceAutoFields.length > 0)
         imports.push("applySliceMatch", "matchesValue", "setArraySlice", "getArraySlice", "ensureSliceDefaults");
-    if (options.needsGetOrCreateObjectAtPath) imports.push("ensurePath");
-    if (options.needsExtensionExtraction) imports.push("extractComplexExtension");
-    if (options.needsSliceExtraction) imports.push("stripMatchKeys");
-    if (options.needsSliceChoiceHelpers) imports.push("wrapSliceChoice", "unwrapSliceChoice");
-    if (options.needsValidation)
+    if (extensions.some((ext) => ext.path.split(".").some((s) => s !== "extension"))) imports.push("ensurePath");
+    if (extensions.some((ext) => ext.isComplex && ext.subExtensions)) imports.push("extractComplexExtension");
+    if (sliceDefs.length > 0) imports.push("stripMatchKeys");
+    if (sliceDefs.some((s) => s.constrainedChoice)) imports.push("wrapSliceChoice", "unwrapSliceChoice");
+    if (extensions.some((ext) => ext.url)) imports.push("isExtension", "getExtensionValue", "pushExtension");
+    if (Object.keys(flatProfile.fields ?? {}).length > 0)
         imports.push(
             "validateRequired",
             "validateExcluded",
@@ -292,88 +310,20 @@ const generateProfileHelpersImport = (
             "validateEnum",
             "validateReference",
             "validateChoiceRequired",
+            "validateMustSupport",
         );
-    if (imports.length > 0) w.lineSM(`import { ${imports.join(", ")} } from "../../profile-helpers"`);
+    if (imports.length > 0) {
+        w.tsImport("../../profile-helpers", ...imports);
+        w.line();
+    }
 };
 
-const collectTypesFromSlices = (
+export const generateProfileImports = (
+    w: TypeScript,
     tsIndex: TypeSchemaIndex,
     flatProfile: ProfileTypeSchema,
-    addType: (typeId: Identifier) => void,
+    overrides: FieldOverrides,
 ) => {
-    for (const field of Object.values(flatProfile.fields ?? {})) {
-        if (!isNotChoiceDeclarationField(field) || !field.slicing?.slices || !field.type) continue;
-        for (const slice of Object.values(field.slicing.slices)) {
-            if (Object.keys(slice.match ?? {}).length > 0) {
-                addType(field.type);
-                // Also add constrained choice variant types for flattened API
-                const cc = detectConstrainedChoice(tsIndex, flatProfile, field.type, slice.elements);
-                if (cc) addType(cc.variantTypeId);
-            }
-        }
-    }
-};
-
-const collectTypesFromExtensions = (
-    tsIndex: TypeSchemaIndex,
-    flatProfile: ProfileTypeSchema,
-    addType: (typeId: Identifier) => void,
-): boolean => {
-    let needsExtensionType = false;
-
-    for (const ext of flatProfile.extensions ?? []) {
-        if (ext.isComplex && ext.subExtensions) {
-            needsExtensionType = true;
-            for (const sub of ext.subExtensions) {
-                if (!sub.valueType) continue;
-                const resolvedType = tsIndex.resolveByUrl(
-                    flatProfile.identifier.package,
-                    sub.valueType.url as CanonicalUrl,
-                );
-                addType(resolvedType?.identifier ?? sub.valueType);
-            }
-        } else if (ext.valueTypes && ext.valueTypes.length === 1) {
-            needsExtensionType = true;
-            if (ext.valueTypes[0]) {
-                const resolvedType = tsIndex.resolveByUrl(
-                    flatProfile.identifier.package,
-                    ext.valueTypes[0].url as CanonicalUrl,
-                );
-                addType(resolvedType?.identifier ?? ext.valueTypes[0]);
-            }
-        } else {
-            needsExtensionType = true;
-        }
-    }
-
-    return needsExtensionType;
-};
-
-const collectTypesFromFieldOverrides = (
-    tsIndex: TypeSchemaIndex,
-    flatProfile: ProfileTypeSchema,
-    addType: (typeId: Identifier) => void,
-) => {
-    const referenceUrl = "http://hl7.org/fhir/StructureDefinition/Reference" as CanonicalUrl;
-    const referenceSchema = tsIndex.resolveByUrl(flatProfile.identifier.package, referenceUrl);
-    const specialization = tsIndex.findLastSpecialization(flatProfile);
-
-    if (!isSpecializationTypeSchema(specialization)) return;
-
-    for (const [fieldName, pField] of Object.entries(flatProfile.fields ?? {})) {
-        if (!isNotChoiceDeclarationField(pField)) continue;
-        const sField = specialization.fields?.[fieldName];
-        if (!sField || isChoiceDeclarationField(sField)) continue;
-
-        if (pField.reference && sField.reference && pField.reference.length < sField.reference.length) {
-            if (referenceSchema) addType(referenceSchema.identifier);
-        } else if (pField.required && !sField.required && pField.type) {
-            addType(pField.type);
-        }
-    }
-};
-
-export const generateProfileImports = (w: TypeScript, tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) => {
     const usedTypes = new Map<string, { importPath: string; tsName: string }>();
 
     const getModulePath = (typeId: Identifier): string => {
@@ -395,7 +345,8 @@ export const generateProfileImports = (w: TypeScript, tsIndex: TypeSchemaIndex, 
     addType(flatProfile.base);
     collectTypesFromSlices(tsIndex, flatProfile, addType);
     const needsExtensionType = collectTypesFromExtensions(tsIndex, flatProfile, addType);
-    collectTypesFromFieldOverrides(tsIndex, flatProfile, addType);
+    for (const { typeId } of overrides.values()) addType(typeId);
+    collectTypesFromFlatInput(tsIndex, flatProfile, addType);
 
     const factoryInfo = collectProfileFactoryInfo(tsIndex, flatProfile);
     for (const param of factoryInfo.params) addType(param.typeId);
@@ -408,152 +359,273 @@ export const generateProfileImports = (w: TypeScript, tsIndex: TypeSchemaIndex, 
         if (extensionSchema) addType(extensionSchema.identifier);
     }
 
-    const sortedImports = Array.from(usedTypes.values()).sort((a, b) => a.tsName.localeCompare(b.tsName));
-    for (const { importPath, tsName } of sortedImports) {
-        w.tsImportType(importPath, tsName);
+    const grouped = new Map<string, string[]>();
+    for (const { importPath, tsName } of usedTypes.values()) {
+        let names = grouped.get(importPath);
+        if (!names) {
+            names = [];
+            grouped.set(importPath, names);
+        }
+        names.push(tsName);
     }
-    if (sortedImports.length > 0) w.line();
+    const sortedModules = [...grouped.entries()].sort(([a], [b]) => a.localeCompare(b));
+    for (const [importPath, names] of sortedModules) {
+        w.tsImport(importPath, ...names.sort(), { typeOnly: true });
+    }
+    if (sortedModules.length > 0) w.line();
+
+    // Import extension profile classes for delegation in setters
+    const extProfileImports = new Map<string, { modulePath: string; hasFlatInput: boolean }>();
+    for (const ext of flatProfile.extensions ?? []) {
+        if (!ext.url) continue;
+        const info = resolveExtensionProfile(tsIndex, flatProfile.identifier.package, ext.url);
+        if (!info) continue;
+        if (!extProfileImports.has(info.className)) {
+            const hasFlatInput = collectSubExtensionSlices(info.flatProfile).length > 0;
+            extProfileImports.set(info.className, { modulePath: info.modulePath, hasFlatInput });
+        }
+    }
+    for (const [className, { modulePath, hasFlatInput }] of [...extProfileImports.entries()].sort(([a], [b]) =>
+        a.localeCompare(b),
+    )) {
+        const imports = [className, ...(hasFlatInput ? [`type ${className}Flat`] : [])];
+        w.tsImport(modulePath, ...imports);
+    }
+    if (extProfileImports.size > 0) w.line();
 };
 
-/** Collect method suffixes that extension/slice accessors will generate, to avoid duplicates */
-const collectExtSliceMethodSuffixes = (
-    extensions: ProfileExtension[],
-    extensionMethodNames: Map<ProfileExtension, string>,
-): Set<string> => {
-    const suffixes = new Set<string>();
-    for (const name of extensionMethodNames.values()) {
-        suffixes.add(name.replace(/^set/, ""));
+const generateStaticSliceFields = (w: TypeScript, sliceDefs: SliceDef[]) => {
+    for (const sliceDef of sliceDefs) {
+        const staticName = `${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
+        w.lineSM(`private static readonly ${staticName}: Record<string, unknown> = ${JSON.stringify(sliceDef.match)}`);
     }
-    for (const ext of extensions) {
-        if (ext.url) suffixes.add(uppercaseFirstLetter(tsCamelCase(ext.name)));
-    }
-    return suffixes;
+    if (sliceDefs.length > 0) w.line();
 };
 
-type ConstrainedChoice = {
-    choiceBase: string;
-    variant: string;
-    variantType: string;
-    variantTypeId: Identifier;
-    allChoiceNames: string[];
-};
-
-/**
- * Detect if a slice constrains a polymorphic field to exactly one variant.
- * E.g., BP systolic slice constrains value[x] (11 variants) to only valueQuantity.
- */
-const detectConstrainedChoice = (
-    tsIndex: TypeSchemaIndex,
-    flatProfile: ProfileTypeSchema,
-    sliceBaseTypeId: Identifier,
-    sliceElements: string[] | undefined,
-): ConstrainedChoice | undefined => {
-    if (!sliceElements) return undefined;
-
-    // Resolve the base type's TypeSchema to find choice declarations
-    const baseSchema = tsIndex.resolveByUrl(flatProfile.identifier.package, sliceBaseTypeId.url as CanonicalUrl);
-    if (!baseSchema || !("fields" in baseSchema) || !baseSchema.fields) return undefined;
-
-    for (const [fieldName, field] of Object.entries(baseSchema.fields)) {
-        if (!isChoiceDeclarationField(field)) continue;
-
-        // Find which choice instances are in the slice elements
-        const matchingVariants = field.choices.filter((c) => sliceElements.includes(c));
-        if (matchingVariants.length !== 1) continue;
-
-        const variantName = matchingVariants[0] as string;
-        const variantField = baseSchema.fields[variantName];
-        if (!variantField || !isChoiceInstanceField(variantField)) continue;
-
-        // Skip flattening for primitive types — can't intersect object with boolean/string/etc.
-        if (isPrimitiveIdentifier(variantField.type)) continue;
-
-        return {
-            choiceBase: fieldName,
-            variant: variantName,
-            variantType: tsTypeFromIdentifier(variantField.type),
-            variantTypeId: variantField.type,
-            allChoiceNames: field.choices,
-        };
-    }
-    return undefined;
-};
-
-export const generateProfileClass = (
+const generateFactoryMethods = (
     w: TypeScript,
     tsIndex: TypeSchemaIndex,
     flatProfile: ProfileTypeSchema,
-    schema?: TypeSchema,
+    factoryInfo: ProfileFactoryInfo,
 ) => {
-    const tsBaseResourceName = tsTypeFromIdentifier(flatProfile.base);
-    const tsProfileName = tsResourceName(flatProfile.identifier);
     const profileClassName = tsProfileClassName(flatProfile);
+    const tsBaseResourceName = tsTypeFromIdentifier(flatProfile.base);
+    const hasMeta = tsIndex.isWithMetaField(flatProfile);
+    const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
+    const createArgsTypeName = `${profileClassName}Raw`;
+    const paramSignature = hasParams ? `args: ${createArgsTypeName}` : "";
+    const allFields = [
+        ...factoryInfo.autoFields.map((f) => ({ name: f.name, value: f.value })),
+        ...factoryInfo.sliceAutoFields.map((f) => ({ name: f.name, value: `${f.name}WithDefaults` })),
+        ...factoryInfo.params.map((p) => ({ name: p.name, value: `args.${p.name}` })),
+    ];
+    w.curlyBlock(["constructor", `(resource: ${tsBaseResourceName})`], () => {
+        w.lineSM("this.resource = resource");
+    });
+    w.line();
+    w.curlyBlock(["static", "from", `(resource: ${tsBaseResourceName})`, `: ${profileClassName}`], () => {
+        if (hasMeta) {
+            w.curlyBlock(["if", `(!resource.meta?.profile?.includes(${profileClassName}.canonicalUrl))`], () => {
+                w.line(
+                    `throw new Error(\`${profileClassName}: meta.profile must include \${${profileClassName}.canonicalUrl}\`)`,
+                );
+            });
+        }
+        w.lineSM(`const profile = new ${profileClassName}(resource)`);
+        w.lineSM("const { errors } = profile.validate()");
+        w.line(`if (errors.length > 0) throw new Error(errors.join("; "))`);
+        w.lineSM("return profile");
+    });
+    w.line();
+    w.curlyBlock(["static", "apply", `(resource: ${tsBaseResourceName})`, `: ${profileClassName}`], () => {
+        if (hasMeta) {
+            w.lineSM(`ensureProfile(resource, ${profileClassName}.canonicalUrl)`);
+        }
+        w.lineSM(`return new ${profileClassName}(resource)`);
+    });
+    w.line();
+    // For extension profiles with sub-extension slices: generate resolveInput helper,
+    // widen createResource and create to accept Input | Raw
+    const subSlicesForInput = flatProfile.base.name === "Extension" ? collectSubExtensionSlices(flatProfile) : [];
+    const hasInputHelper = subSlicesForInput.length > 0;
 
-    // Known polymorphic field base names in FHIR (value[x], effective[x], etc.)
-    // These don't exist as direct properties on TypeScript types
-    const polymorphicBaseNames = new Set([
-        "value",
-        "effective",
-        "onset",
-        "abatement",
-        "occurrence",
-        "timing",
-        "deceased",
-        "born",
-        "age",
-        "medication",
-        "performed",
-        "serviced",
-        "collected",
-        "item",
-        "subject",
-        "bounds",
-        "amount",
-        "content",
-        "product",
-        "rate",
-        "dose",
-        "asNeeded",
-    ]);
+    if (hasInputHelper) {
+        const rawInputTypeName = `${profileClassName}Raw`;
+        const inputTypeName = `${profileClassName}Flat`;
 
-    const sliceDefs = Object.entries(flatProfile.fields ?? {})
-        .filter(([_fieldName, field]) => isNotChoiceDeclarationField(field) && field.slicing?.slices)
-        .flatMap(([fieldName, field]) => {
-            if (!isNotChoiceDeclarationField(field) || !field.slicing?.slices || !field.type) return [];
-            const baseType = tsTypeFromIdentifier(field.type);
-            return Object.entries(field.slicing.slices)
-                .filter(([_sliceName, slice]) => {
-                    const match = slice.match ?? {};
-                    return Object.keys(match).length > 0;
-                })
-                .map(([sliceName, slice]) => {
-                    const matchFields = Object.keys(slice.match ?? {});
-                    const required = slice.required ?? [];
-                    // Filter out fields that are in match or polymorphic base names
-                    const filteredRequired = required.filter(
-                        (name) => !matchFields.includes(name) && !polymorphicBaseNames.has(name),
-                    );
-                    const constrainedChoice = detectConstrainedChoice(tsIndex, flatProfile, field.type, slice.elements);
-                    return {
-                        fieldName,
-                        baseType,
-                        sliceName,
-                        match: slice.match ?? {},
-                        required,
-                        excluded: slice.excluded ?? [],
-                        array: Boolean(field.array),
-                        // Input is optional when there are no required fields after filtering
-                        inputOptional: filteredRequired.length === 0,
-                        constrainedChoice,
-                    };
+        // Private helper: converts Input to Extension[], passes through Raw.extension
+        w.curlyBlock(
+            ["private static", "resolveInput", `(args: ${rawInputTypeName} | ${inputTypeName})`, ": Extension[]"],
+            () => {
+                w.ifElseChain(
+                    [
+                        {
+                            cond: `isRawExtensionInput<${rawInputTypeName}>(args)`,
+                            body: () => w.lineSM("return args.extension ?? []"),
+                        },
+                    ],
+                    () => {
+                        w.lineSM("const result: Extension[] = []");
+                        for (const sub of subSlicesForInput) {
+                            if (sub.isArray) {
+                                w.curlyBlock(["if", `(args.${sub.name})`], () => {
+                                    w.curlyBlock(["for", `(const item of args.${sub.name})`], () => {
+                                        w.lineSM(
+                                            `result.push({ url: "${sub.url}", ${sub.valueField}: item } as Extension)`,
+                                        );
+                                    });
+                                });
+                            } else {
+                                w.curlyBlock(["if", `(args.${sub.name} !== undefined)`], () => {
+                                    w.lineSM(
+                                        `result.push({ url: "${sub.url}", ${sub.valueField}: args.${sub.name} } as Extension)`,
+                                    );
+                                });
+                            }
+                        }
+                        w.lineSM("return result");
+                    },
+                );
+            },
+        );
+        w.line();
+
+        // createResource — accepts Input | Raw
+        const createResourceSig = hasParams
+            ? `args: ${rawInputTypeName} | ${inputTypeName}`
+            : `args?: ${rawInputTypeName} | ${inputTypeName}`;
+        w.curlyBlock(["static", "createResource", `(${createResourceSig})`, `: ${tsBaseResourceName}`], () => {
+            w.lineSM(`const resolvedExtensions = ${profileClassName}.resolveInput(args ?? {})`);
+            const extSliceField = factoryInfo.sliceAutoFields.find((f) => f.name === "extension");
+            if (extSliceField) {
+                const matchRefs = extSliceField.sliceNames.map(
+                    (s) => `${profileClassName}.${tsSliceStaticName(s)}SliceMatch`,
+                );
+                w.line("const extensionWithDefaults = ensureSliceDefaults(");
+                w.indentBlock(() => {
+                    w.line("resolvedExtensions,");
+                    for (const ref of matchRefs) {
+                        w.line(`${ref},`);
+                    }
                 });
+                w.lineSM(")");
+            }
+            w.line();
+            const extensionVar = extSliceField ? "extensionWithDefaults" : "resolvedExtensions";
+            w.curlyBlock([`const resource = buildResource<${tsBaseResourceName}>(`], () => {
+                for (const f of allFields) {
+                    if (f.name === "extension") continue;
+                    w.line(`${f.name}: ${f.value},`);
+                }
+                w.line(`extension: ${extensionVar},`);
+                if (hasMeta) {
+                    w.line(`meta: { profile: [${profileClassName}.canonicalUrl] },`);
+                }
+            }, [")"]);
+
+            w.lineSM("return resource");
         });
+        w.line();
 
-    const extensions = flatProfile.extensions ?? [];
-    const complexExtensions = extensions.filter((ext) => ext.isComplex && ext.subExtensions);
+        // create — accepts Input | Raw, delegates to createResource
+        const createSig = hasParams
+            ? `args: ${rawInputTypeName} | ${inputTypeName}`
+            : `args?: ${rawInputTypeName} | ${inputTypeName}`;
+        w.curlyBlock(["static", "create", `(${createSig})`, `: ${profileClassName}`], () => {
+            w.lineSM(`return ${profileClassName}.apply(${profileClassName}.createResource(args))`);
+        });
+    } else {
+        // Standard createResource / create (no Input helper)
+        w.curlyBlock(["static", "createResource", `(${paramSignature})`, `: ${tsBaseResourceName}`], () => {
+            for (const f of factoryInfo.sliceAutoFields) {
+                const matchRefs = f.sliceNames.map((s) => `${profileClassName}.${tsSliceStaticName(s)}SliceMatch`);
+                w.line(`const ${f.name}WithDefaults = ensureSliceDefaults(`);
+                w.indentBlock(() => {
+                    w.line(`[...(args.${f.name} ?? [])],`);
+                    for (const ref of matchRefs) {
+                        w.line(`${ref},`);
+                    }
+                });
+                w.lineSM(")");
+            }
+            if (factoryInfo.sliceAutoFields.length > 0) {
+                w.line();
+            }
+            if (isPrimitiveIdentifier(flatProfile.base)) {
+                w.lineSM(`const resource = undefined as unknown as ${tsBaseResourceName}`);
+            } else {
+                w.curlyBlock([`const resource = buildResource<${tsBaseResourceName}>(`], () => {
+                    for (const f of allFields) {
+                        w.line(`${f.name}: ${f.value},`);
+                    }
+                    if (hasMeta) {
+                        w.line(`meta: { profile: [${profileClassName}.canonicalUrl] },`);
+                    }
+                }, [")"]);
+            }
+            w.lineSM("return resource");
+        });
+        w.line();
+        w.curlyBlock(["static", "create", `(${paramSignature})`, `: ${profileClassName}`], () => {
+            w.lineSM(
+                `return ${profileClassName}.apply(${profileClassName}.createResource(${hasParams ? "args" : ""}))`,
+            );
+        });
+    }
+    w.line();
+    // toResource() returns base type (e.g., Patient)
+    w.curlyBlock(["toResource", "()", `: ${tsBaseResourceName}`], () => {
+        w.lineSM("return this.resource");
+    });
+    w.line();
+};
 
+const generateFieldAccessors = (
+    w: TypeScript,
+    factoryInfo: ProfileFactoryInfo,
+    extSliceMethodBaseNames: Set<string>,
+) => {
+    w.line("// Field accessors");
+    for (const p of factoryInfo.params) {
+        const methodBaseName = uppercaseFirstLetter(p.name);
+        w.curlyBlock([`get${methodBaseName}`, "()", `: ${p.tsType} | undefined`], () => {
+            w.lineSM(`return this.resource.${p.name} as ${p.tsType} | undefined`);
+        });
+        w.line();
+        w.curlyBlock([`set${methodBaseName}`, `(value: ${p.tsType})`, ": this"], () => {
+            w.lineSM(`Object.assign(this.resource, { ${p.name}: value })`);
+            w.lineSM("return this");
+        });
+        w.line();
+    }
+
+    // Getter and setter methods for choice instance fields (skip if extension/slice has same name)
+    for (const a of factoryInfo.accessors) {
+        const methodBaseName = uppercaseFirstLetter(tsCamelCase(a.name));
+        if (extSliceMethodBaseNames.has(methodBaseName)) continue;
+        const fieldAccess = tsFieldName(a.name);
+        w.curlyBlock([`get${methodBaseName}`, "()", `: ${a.tsType} | undefined`], () => {
+            w.lineSM(`return ${tsGet("this.resource", fieldAccess)} as ${a.tsType} | undefined`);
+        });
+        w.line();
+        w.curlyBlock([`set${methodBaseName}`, `(value: ${a.tsType})`, ": this"], () => {
+            w.lineSM(`Object.assign(this.resource, { ${fieldAccess}: value })`);
+            w.lineSM("return this");
+        });
+        w.line();
+    }
+};
+
+/** Generate inline extension input types only for complex extensions without a resolved FlatInput profile */
+const generateInlineExtensionInputTypes = (w: TypeScript, tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) => {
+    const tsProfileName = tsResourceName(flatProfile.identifier);
+    const complexExtensions = (flatProfile.extensions ?? []).filter((ext) => ext.isComplex && ext.subExtensions);
     for (const ext of complexExtensions) {
-        const typeName = tsExtensionInputTypeName(tsProfileName, ext.name);
+        if (!ext.url) continue;
+        const extProfileInfo = resolveExtensionProfile(tsIndex, flatProfile.identifier.package, ext.url);
+        const hasFlatInput = extProfileInfo ? collectSubExtensionSlices(extProfileInfo.flatProfile).length > 0 : false;
+        if (hasFlatInput) continue;
+        const typeName = tsExtensionFlatTypeName(tsProfileName, ext.name);
         w.curlyBlock(["export", "type", typeName, "="], () => {
             for (const sub of ext.subExtensions ?? []) {
                 const tsType = sub.valueType ? tsTypeFromIdentifier(sub.valueType) : "unknown";
@@ -564,601 +636,202 @@ export const generateProfileClass = (
         });
         w.line();
     }
+};
 
-    if (sliceDefs.length > 0) {
-        for (const sliceDef of sliceDefs) {
-            const typeName = tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
-            const matchFields = Object.keys(sliceDef.match);
-            const allExcluded = [...new Set([...sliceDef.excluded, ...matchFields])];
-            // When a choice is constrained to a single variant, also omit the choice base + all instances
-            if (sliceDef.constrainedChoice) {
-                const cc = sliceDef.constrainedChoice;
-                allExcluded.push(cc.choiceBase);
-                for (const name of cc.allChoiceNames) {
-                    if (!allExcluded.includes(name)) allExcluded.push(name);
-                }
+const generateSliceInputTypes = (w: TypeScript, flatProfile: ProfileTypeSchema, sliceDefs: SliceDef[]) => {
+    if (sliceDefs.length === 0) return;
+    const tsProfileName = tsResourceName(flatProfile.identifier);
+    for (const sliceDef of sliceDefs) {
+        const typeName = tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+        const matchFields = Object.keys(sliceDef.match);
+        const allExcluded = [...new Set([...sliceDef.excluded, ...matchFields])];
+        if (sliceDef.constrainedChoice) {
+            const cc = sliceDef.constrainedChoice;
+            allExcluded.push(cc.choiceBase);
+            for (const name of cc.allChoiceNames) {
+                if (!allExcluded.includes(name)) allExcluded.push(name);
             }
-            const excludedNames = allExcluded.map((name) => JSON.stringify(name));
-            // Filter out polymorphic base names that don't exist as direct TS properties
-            const filteredRequired = sliceDef.required.filter(
-                (name) => !matchFields.includes(name) && !polymorphicBaseNames.has(name),
-            );
-            const requiredNames = filteredRequired.map((name) => JSON.stringify(name));
-            let typeExpr = sliceDef.baseType;
-            if (excludedNames.length > 0) {
-                typeExpr = `Omit<${typeExpr}, ${excludedNames.join(" | ")}>`;
-            }
-            if (requiredNames.length > 0) {
-                typeExpr = `${typeExpr} & Required<Pick<${sliceDef.baseType}, ${requiredNames.join(" | ")}>>`;
-            }
-            // Intersect with the single variant's type for flattened API
-            if (sliceDef.constrainedChoice) {
-                typeExpr = `${typeExpr} & ${sliceDef.constrainedChoice.variantType}`;
-            }
-            w.lineSM(`export type ${typeName} = ${typeExpr}`);
         }
-        w.line();
+        const excludedNames = allExcluded.map((name) => JSON.stringify(name));
+        const requiredNames = sliceDef.required.map((name) => JSON.stringify(name));
+        let typeExpr = sliceDef.baseType;
+        if (excludedNames.length > 0) {
+            typeExpr = `Omit<${typeExpr}, ${excludedNames.join(" | ")}>`;
+        }
+        if (requiredNames.length > 0) {
+            typeExpr = `${typeExpr} & Required<Pick<${sliceDef.baseType}, ${requiredNames.join(" | ")}>>`;
+        }
+        if (sliceDef.constrainedChoice) {
+            typeExpr = `${typeExpr} & ${tsTypeFromIdentifier(sliceDef.constrainedChoice.variantType)}`;
+        }
+        w.lineSM(`export type ${typeName} = ${typeExpr}`);
     }
+    w.line();
+};
 
-    // Check if we have an override interface (narrowed types)
-    const hasOverrideInterface = detectFieldOverrides(w, tsIndex, flatProfile).size > 0;
+const generateRawType = (w: TypeScript, flatProfile: ProfileTypeSchema, factoryInfo: ProfileFactoryInfo) => {
+    const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
+    const subSlices = flatProfile.base.name === "Extension" ? collectSubExtensionSlices(flatProfile) : [];
+    if (!hasParams && subSlices.length === 0) return;
+
+    const createArgsTypeName = `${tsProfileClassName(flatProfile)}Raw`;
+    w.curlyBlock(["export", "type", createArgsTypeName, "="], () => {
+        for (const p of factoryInfo.params) {
+            w.lineSM(`${p.name}: ${p.tsType}`);
+        }
+        for (const f of factoryInfo.sliceAutoFields) {
+            w.lineSM(`${f.name}?: ${f.tsType}`);
+        }
+        const extensionCovered =
+            factoryInfo.params.some((p) => p.name === "extension") ||
+            factoryInfo.sliceAutoFields.some((f) => f.name === "extension");
+        if (subSlices.length > 0 && !extensionCovered) {
+            w.lineSM("extension?: Extension[]");
+        }
+    });
+    w.line();
+};
+
+const generateFlatInputType = (w: TypeScript, flatProfile: ProfileTypeSchema) => {
+    const subSlices = flatProfile.base.name === "Extension" ? collectSubExtensionSlices(flatProfile) : [];
+    if (subSlices.length === 0) return;
+
+    const flatInputTypeName = `${tsProfileClassName(flatProfile)}Flat`;
+    w.curlyBlock(["export", "type", flatInputTypeName, "="], () => {
+        for (const sub of subSlices) {
+            const opt = sub.isRequired ? "" : "?";
+            const arr = sub.isArray ? "[]" : "";
+            w.lineSM(`${sub.name}${opt}: ${sub.tsType}${arr}`);
+        }
+    });
+    w.line();
+};
+
+type ResolvedProfileMethods = {
+    /** "url:path" → method base name (e.g., "Race" or "PathRace") */
+    extensions: Record<string, string>;
+    /** "fieldName:sliceName" → method base name */
+    slices: Record<string, string>;
+    /** All resolved base names (extensions + slices) for field accessor dedup */
+    allBaseNames: Set<string>;
+};
+
+type NameEntry = { key: string; candidates: string[] };
+
+const countBy = (entries: NameEntry[], level: number): Record<string, number> =>
+    entries.reduce(
+        (counts, e) => {
+            const name = e.candidates[level] ?? "";
+            counts[name] = (counts[name] ?? 0) + 1;
+            return counts;
+        },
+        {} as Record<string, number>,
+    );
+
+/** Resolve naming collisions across multiple levels of candidates.
+ *  Each entry provides candidate names in priority order (e.g. base → qualified → discriminated). */
+const resolveNameCollisions = (entries: NameEntry[]): Record<string, string> => {
+    const levels = entries[0]?.candidates.length ?? 0;
+
+    const resolve = (unresolved: NameEntry[], level: number): Record<string, string> => {
+        if (unresolved.length === 0 || level >= levels) return {};
+        const counts = countBy(unresolved, level);
+        const isLastLevel = level >= levels - 1;
+        const [resolved, colliding] = unresolved.reduce(
+            ([res, col], e) => {
+                const name = e.candidates[level] ?? "";
+                return (counts[name] ?? 0) > 1 && !isLastLevel ? [res, [...col, e]] : [{ ...res, [e.key]: name }, col];
+            },
+            [{} as Record<string, string>, [] as NameEntry[]],
+        );
+        return { ...resolved, ...resolve(colliding, level + 1) };
+    };
+
+    return resolve(entries, 0);
+};
+
+const toRecord = (entries: NameEntry[], resolved: Record<string, string>): Record<string, string> =>
+    Object.fromEntries(entries.map((e) => [e.key, resolved[e.key] ?? e.candidates[0] ?? ""]));
+
+const resolveProfileMethodBaseNames = (
+    extensions: ProfileExtension[],
+    sliceDefs: SliceDef[],
+): ResolvedProfileMethods => {
+    const extensionEntries: NameEntry[] = extensions
+        .filter((ext) => ext.url)
+        .map((ext) => {
+            const base = tsExtensionMethodBaseName(ext.name);
+            const qualified = tsQualifiedExtensionMethodBaseName(ext.name, ext.path);
+            return { key: `${ext.url}:${ext.path}`, candidates: [base, qualified, `${qualified}Extension`] };
+        });
+
+    const sliceEntries: NameEntry[] = sliceDefs.map((slice) => {
+        const base = tsSliceMethodBaseName(slice.sliceName);
+        const qualified = tsQualifiedSliceMethodBaseName(slice.fieldName, slice.sliceName);
+        return { key: `${slice.fieldName}:${slice.sliceName}`, candidates: [base, qualified, `${qualified}Slice`] };
+    });
+
+    const resolved = resolveNameCollisions([...extensionEntries, ...sliceEntries]);
+    const extensionsRecords = toRecord(extensionEntries, resolved);
+    const slicesRecords = toRecord(sliceEntries, resolved);
+    const allBaseNames = new Set([...Object.values(extensionsRecords), ...Object.values(slicesRecords)]);
+
+    return { extensions: extensionsRecords, slices: slicesRecords, allBaseNames };
+};
+
+export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) => {
+    const tsBaseResourceName = tsTypeFromIdentifier(flatProfile.base);
+    const profileClassName = tsProfileClassName(flatProfile);
+    const sliceDefs = collectSliceDefs(tsIndex, flatProfile);
     const factoryInfo = collectProfileFactoryInfo(tsIndex, flatProfile);
 
-    // Determine which helpers are actually needed
-    const needsSliceHelpers = sliceDefs.length > 0 || factoryInfo.sliceAutoFields.length > 0;
-    const extensionsWithNestedPath = extensions.filter((ext) => {
-        const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");
-        return targetPath.length > 0;
-    });
-    const needsGetOrCreateObjectAtPath = extensionsWithNestedPath.length > 0;
-    const needsExtensionExtraction = complexExtensions.length > 0;
-    const needsSliceExtraction = sliceDefs.length > 0;
-    const needsSliceChoiceHelpers = sliceDefs.some((s) => s.constrainedChoice);
+    generateInlineExtensionInputTypes(w, tsIndex, flatProfile);
+    generateSliceInputTypes(w, flatProfile, sliceDefs);
 
-    const needsValidation = Object.keys(flatProfile.fields ?? {}).length > 0;
-    const hasMeta = tsIndex.isWithMetaField(flatProfile);
-    const needsRegisterProfile = !!schema?.identifier.url && hasMeta;
+    generateProfileHelpersImport(w, tsIndex, flatProfile, sliceDefs, factoryInfo);
 
-    if (
-        needsSliceHelpers ||
-        needsGetOrCreateObjectAtPath ||
-        needsExtensionExtraction ||
-        needsSliceExtraction ||
-        needsSliceChoiceHelpers ||
-        needsValidation ||
-        needsRegisterProfile
-    ) {
-        generateProfileHelpersImport(w, {
-            needsGetOrCreateObjectAtPath,
-            needsSliceHelpers,
-            needsExtensionExtraction,
-            needsSliceExtraction,
-            needsSliceChoiceHelpers,
-            needsValidation,
-            needsRegisterProfile,
-        });
-        w.line();
-    }
+    generateRawType(w, flatProfile, factoryInfo);
+    generateFlatInputType(w, flatProfile);
 
-    const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
-    const createArgsTypeName = `${profileClassName}Params`;
-    const paramSignature = hasParams ? `args: ${createArgsTypeName}` : "";
-    const allFields = [
-        ...factoryInfo.autoFields.map((f) => ({ name: f.name, value: f.value })),
-        ...factoryInfo.sliceAutoFields.map((f) => ({ name: f.name, value: `${f.name}WithDefaults` })),
-        ...factoryInfo.params.map((p) => ({ name: p.name, value: `args.${p.name}` })),
-    ];
+    const canonicalUrl = flatProfile.identifier.url;
+    w.comment("CanonicalURL:", canonicalUrl, `(pkg: ${packageMetaToFhir(packageMeta(flatProfile))})`);
 
-    if (hasParams) {
-        w.curlyBlock(["export", "type", createArgsTypeName, "="], () => {
-            for (const p of factoryInfo.params) {
-                w.lineSM(`${p.name}: ${p.tsType}`);
-            }
-            for (const f of factoryInfo.sliceAutoFields) {
-                w.lineSM(`${f.name}?: ${f.tsType}`);
-            }
-        });
-        w.line();
-    }
+    const resolvedMethodNames = resolveProfileMethodBaseNames(flatProfile.extensions ?? [], sliceDefs);
 
-    const canonicalUrl = schema?.identifier.url;
-
-    if (schema) {
-        w.comment("CanonicalURL:", schema.identifier.url, `(pkg: ${packageMetaToFhir(packageMeta(schema))})`);
-    }
     w.curlyBlock(["export", "class", profileClassName], () => {
-        if (canonicalUrl) {
-            w.line(`static readonly canonicalUrl = ${JSON.stringify(canonicalUrl)}`);
-            w.line();
-        }
-        for (const sliceDef of sliceDefs) {
-            const staticName = `${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
-            w.line(
-                `private static readonly ${staticName}: Record<string, unknown> = ${JSON.stringify(sliceDef.match)}`,
-            );
-        }
-        if (sliceDefs.length > 0) w.line();
-        w.line(`private resource: ${tsBaseResourceName}`);
+        w.lineSM(`static readonly canonicalUrl = ${JSON.stringify(canonicalUrl)}`);
         w.line();
-        w.curlyBlock(["constructor", `(resource: ${tsBaseResourceName})`], () => {
-            w.line("this.resource = resource");
-            if (canonicalUrl && hasMeta) {
-                w.line(`ensureProfile(resource, ${JSON.stringify(canonicalUrl)})`);
-            }
-        });
+        generateStaticSliceFields(w, sliceDefs);
+        w.lineSM(`private resource: ${tsBaseResourceName}`);
         w.line();
-        w.curlyBlock(["static", "from", `(resource: ${tsBaseResourceName})`, `: ${profileClassName}`], () => {
-            w.line(`return new ${profileClassName}(resource)`);
-        });
-        w.line();
-        w.curlyBlock(["static", "createResource", `(${paramSignature})`, `: ${tsBaseResourceName}`], () => {
-            // Generate merge logic for slice auto-fields
-            for (const f of factoryInfo.sliceAutoFields) {
-                const matchRefs = f.sliceNames.map((s) => `${profileClassName}.${tsSliceStaticName(s)}SliceMatch`);
-                w.line(`const ${f.name}WithDefaults = ensureSliceDefaults(`);
-                w.indentBlock(() => {
-                    w.line(`[...(args.${f.name} ?? [])],`);
-                    for (const ref of matchRefs) {
-                        w.line(`${ref},`);
-                    }
-                });
-                w.line(")");
-            }
-            if (factoryInfo.sliceAutoFields.length > 0) {
-                w.line();
-            }
-            if (isPrimitiveIdentifier(flatProfile.base)) {
-                w.line(`const resource = undefined as unknown as ${tsBaseResourceName}`);
-            } else {
-                w.curlyBlock(["const resource ="], () => {
-                    for (const f of allFields) {
-                        w.line(`${f.name}: ${f.value},`);
-                    }
-                    if (canonicalUrl && hasMeta) {
-                        w.line(`meta: { profile: [${profileClassName}.canonicalUrl] },`);
-                    }
-                }, [` as unknown as ${tsBaseResourceName}`]);
-            }
-            w.line("return resource");
-        });
-        w.line();
-        w.curlyBlock(["static", "create", `(${paramSignature})`, `: ${profileClassName}`], () => {
-            w.line(`return ${profileClassName}.from(${profileClassName}.createResource(${hasParams ? "args" : ""}))`);
-        });
-        w.line();
-        // toResource() returns base type (e.g., Patient)
-        w.curlyBlock(["toResource", "()", `: ${tsBaseResourceName}`], () => {
-            w.line("return this.resource");
-        });
-        w.line();
-        // -- Field accessors section --
-        const hasFieldAccessors = factoryInfo.params.length > 0 || factoryInfo.accessors.length > 0;
-        if (hasFieldAccessors) {
-            w.line("// Field accessors");
-            w.line();
-        }
-        for (const p of factoryInfo.params) {
-            const methodSuffix = uppercaseFirstLetter(p.name);
-            w.curlyBlock([`get${methodSuffix}`, "()", `: ${p.tsType} | undefined`], () => {
-                w.line(`return this.resource.${p.name} as ${p.tsType} | undefined`);
-            });
-            w.line();
-            w.curlyBlock([`set${methodSuffix}`, `(value: ${p.tsType})`, ": this"], () => {
-                w.line(`Object.assign(this.resource, { ${p.name}: value })`);
-                w.line("return this");
-            });
-            w.line();
-        }
-        // Compute extension and slice method names first to detect collisions with accessors
-        const extensionMethods = extensions
-            .filter((ext) => ext.url)
-            .map((ext) => ({
-                ext,
-                baseName: tsExtensionMethodName(ext.name),
-                fallbackName: tsQualifiedExtensionMethodName(ext.name, ext.path),
-            }));
-        const sliceMethodBases = sliceDefs.map((slice) => tsSliceMethodName(slice.sliceName));
-        const methodCounts = new Map<string, number>();
-        for (const name of [...sliceMethodBases, ...extensionMethods.map((m) => m.baseName)]) {
-            methodCounts.set(name, (methodCounts.get(name) ?? 0) + 1);
-        }
-        const extensionMethodNames = new Map(
-            extensionMethods.map((entry) => [
-                entry.ext,
-                (methodCounts.get(entry.baseName) ?? 0) > 1 ? entry.fallbackName : entry.baseName,
-            ]),
-        );
-        const sliceMethodNames = new Map(
-            sliceDefs.map((slice) => {
-                const baseName = tsSliceMethodName(slice.sliceName);
-                const needsFallback = (methodCounts.get(baseName) ?? 0) > 1;
-                const fallback = tsQualifiedSliceMethodName(slice.fieldName, slice.sliceName);
-                return [slice, needsFallback ? fallback : baseName];
-            }),
-        );
+        generateFactoryMethods(w, tsIndex, flatProfile, factoryInfo);
+        generateFieldAccessors(w, factoryInfo, resolvedMethodNames.allBaseNames);
 
-        const extSliceMethodSuffixes = collectExtSliceMethodSuffixes(extensions, extensionMethodNames);
+        w.line("// Extensions");
+        generateExtensionMethods(w, tsIndex, flatProfile, resolvedMethodNames.extensions);
 
-        // Getter and setter methods for choice instance fields (skip if extension/slice has same name)
-        for (const a of factoryInfo.accessors) {
-            const methodSuffix = uppercaseFirstLetter(tsCamelCase(a.name));
-            if (extSliceMethodSuffixes.has(methodSuffix)) continue;
-            const fieldAccess = tsFieldName(a.name);
-            w.curlyBlock([`get${methodSuffix}`, "()", `: ${a.tsType} | undefined`], () => {
-                w.line(`return ${tsGet("this.resource", fieldAccess)} as ${a.tsType} | undefined`);
-            });
-            w.line();
-            w.curlyBlock([`set${methodSuffix}`, `(value: ${a.tsType})`, ": this"], () => {
-                w.line(`Object.assign(this.resource, { ${fieldAccess}: value })`);
-                w.line("return this");
-            });
-            w.line();
-        }
-        // toProfile() returns casted profile type if override interface exists
-        if (hasOverrideInterface) {
-            w.curlyBlock(["toProfile", "()", `: ${tsProfileName}`], () => {
-                w.line(`return this.resource as ${tsProfileName}`);
-            });
-            w.line();
-        }
+        w.line("// Slices");
+        generateSliceSetters(w, sliceDefs, flatProfile, resolvedMethodNames.slices);
+        generateSliceGetters(w, sliceDefs, flatProfile, resolvedMethodNames.slices);
 
-        // -- Slices and extensions section --
-        const hasSlicesOrExtensions = extensions.length > 0 || sliceDefs.length > 0;
-        if (hasSlicesOrExtensions) {
-            w.line("// Slices and extensions");
-            w.line();
-        }
-
-        generateExtensionSetterMethods(w, extensions, extensionMethodNames, tsProfileName);
-
-        for (const sliceDef of sliceDefs) {
-            const methodName =
-                sliceMethodNames.get(sliceDef) ?? tsQualifiedSliceMethodName(sliceDef.fieldName, sliceDef.sliceName);
-            const typeName = tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
-            const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
-            const tsField = tsFieldName(sliceDef.fieldName);
-            const fieldAccess = tsGet("this.resource", tsField);
-            // Make input optional when there are no required fields (input can be empty object)
-            const paramSignature = sliceDef.inputOptional
-                ? `(input?: ${typeName}): this`
-                : `(input: ${typeName}): this`;
-            w.curlyBlock(["public", methodName, paramSignature], () => {
-                w.line(`const match = ${matchRef}`);
-                const inputExpr = sliceDef.inputOptional ? "input ?? {}" : "input";
-                if (sliceDef.constrainedChoice) {
-                    const cc = sliceDef.constrainedChoice;
-                    w.line(
-                        `const wrapped = wrapSliceChoice<${sliceDef.baseType}>(${inputExpr}, ${JSON.stringify(cc.variant)})`,
-                    );
-                    w.line(`const value = applySliceMatch<${sliceDef.baseType}>(wrapped, match)`);
-                } else {
-                    w.line(`const value = applySliceMatch<${sliceDef.baseType}>(${inputExpr}, match)`);
-                }
-                if (sliceDef.array) {
-                    w.line(`setArraySlice(${fieldAccess} ??= [], match, value)`);
-                } else {
-                    w.line(`${fieldAccess} = value`);
-                }
-                w.line("return this");
-            });
-            w.line();
-        }
-
-        // Generate extension getters - two methods per extension:
-        // 1. get{Name}() - returns flat API (simplified)
-        // 2. get{Name}Extension() - returns raw FHIR Extension
-        const generatedGetMethods = new Set<string>();
-
-        for (const ext of extensions) {
-            if (!ext.url) continue;
-            const baseName = uppercaseFirstLetter(tsCamelCase(ext.name));
-            const getMethodName = `get${baseName}`;
-            const getExtensionMethodName = `get${baseName}Extension`;
-            if (generatedGetMethods.has(getMethodName)) continue;
-            generatedGetMethods.add(getMethodName);
-            const valueTypes = ext.valueTypes ?? [];
-            const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");
-
-            // Helper to generate the extension lookup code
-            const generateExtLookup = () => {
-                if (targetPath.length === 0) {
-                    w.line(`const ext = this.resource.extension?.find(e => e.url === "${ext.url}")`);
-                } else {
-                    w.line(
-                        `const target = ensurePath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
-                    );
-                    w.line(
-                        `const ext = (target.extension as Extension[] | undefined)?.find(e => e.url === "${ext.url}")`,
-                    );
-                }
-            };
-
-            if (ext.isComplex && ext.subExtensions) {
-                const inputTypeName = tsExtensionInputTypeName(tsProfileName, ext.name);
-                // Flat API getter
-                w.curlyBlock(["public", getMethodName, `(): ${inputTypeName} | undefined`], () => {
-                    generateExtLookup();
-                    w.line("if (!ext) return undefined");
-                    // Build extraction config
-                    const configItems = (ext.subExtensions ?? []).map((sub) => {
-                        const valueField = sub.valueType ? `value${uppercaseFirstLetter(sub.valueType.name)}` : "value";
-                        const isArray = sub.max === "*";
-                        return `{ name: "${sub.url}", valueField: "${valueField}", isArray: ${isArray} }`;
-                    });
-                    w.line(`const config = [${configItems.join(", ")}]`);
-                    w.line(
-                        `return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as ${inputTypeName}`,
-                    );
-                });
-                w.line();
-                // Raw Extension getter
-                w.curlyBlock(["public", getExtensionMethodName, "(): Extension | undefined"], () => {
-                    generateExtLookup();
-                    w.line("return ext");
-                });
-            } else if (valueTypes.length === 1 && valueTypes[0]) {
-                const firstValueType = valueTypes[0];
-                const valueType = tsTypeFromIdentifier(firstValueType);
-                const valueField = `value${uppercaseFirstLetter(firstValueType.name)}`;
-                // Flat API getter (cast needed: value field may not exist on Extension in this FHIR version)
-                w.curlyBlock(["public", getMethodName, `(): ${valueType} | undefined`], () => {
-                    generateExtLookup();
-                    w.line(
-                        `return (ext as Record<string, unknown> | undefined)?.${valueField} as ${valueType} | undefined`,
-                    );
-                });
-                w.line();
-                // Raw Extension getter
-                w.curlyBlock(["public", getExtensionMethodName, "(): Extension | undefined"], () => {
-                    generateExtLookup();
-                    w.line("return ext");
-                });
-            } else {
-                // Generic extension - only raw getter makes sense
-                w.curlyBlock(["public", getMethodName, "(): Extension | undefined"], () => {
-                    if (targetPath.length === 0) {
-                        w.line(`return this.resource.extension?.find(e => e.url === "${ext.url}")`);
-                    } else {
-                        w.line(
-                            `const target = ensurePath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
-                        );
-                        w.line(
-                            `return (target.extension as Extension[] | undefined)?.find(e => e.url === "${ext.url}")`,
-                        );
-                    }
-                });
-            }
-            w.line();
-        }
-
-        // Generate slice getters - two methods per slice:
-        // 1. get{SliceName}() - returns simplified (without discriminator fields)
-        // 2. get{SliceName}Raw() - returns full FHIR type with all fields
-        for (const sliceDef of sliceDefs) {
-            const baseName = uppercaseFirstLetter(normalizeTsName(sliceDef.sliceName));
-            const getMethodName = `get${baseName}`;
-            const getRawMethodName = `get${baseName}Raw`;
-            if (generatedGetMethods.has(getMethodName)) continue;
-            generatedGetMethods.add(getMethodName);
-            const typeName = tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
-            const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
-            const matchKeys = JSON.stringify(Object.keys(sliceDef.match));
-            const tsField = tsFieldName(sliceDef.fieldName);
-            const fieldAccess = tsGet("this.resource", tsField);
-            const baseType = sliceDef.baseType;
-
-            // Helper to find the slice item
-            const generateSliceLookup = () => {
-                w.line(`const match = ${matchRef}`);
-                if (sliceDef.array) {
-                    w.line(`const item = getArraySlice(${fieldAccess}, match)`);
-                } else {
-                    w.line(`const item = ${fieldAccess}`);
-                    w.line("if (!item || !matchesValue(item, match)) return undefined");
-                }
-            };
-
-            // Flat API getter (simplified)
-            w.curlyBlock(["public", getMethodName, `(): ${typeName} | undefined`], () => {
-                generateSliceLookup();
-                if (sliceDef.array) {
-                    w.line("if (!item) return undefined");
-                }
-                if (sliceDef.constrainedChoice) {
-                    const cc = sliceDef.constrainedChoice;
-                    w.line(`return unwrapSliceChoice<${typeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)})`);
-                } else {
-                    w.line(`return stripMatchKeys<${typeName}>(item, ${matchKeys})`);
-                }
-            });
-            w.line();
-
-            // Raw getter (full FHIR type)
-            w.curlyBlock(["public", getRawMethodName, `(): ${baseType} | undefined`], () => {
-                generateSliceLookup();
-                w.line("return item");
-            });
-            w.line();
-        }
-
-        // -- Validation section --
-        if (needsValidation) {
-            w.line("// Validation");
-            w.line();
-        }
+        w.line("// Validation");
         generateValidateMethod(w, tsIndex, flatProfile);
     });
     w.line();
 };
 
-const collectRegularFieldValidation = (
-    exprs: string[],
-    name: string,
-    field: RegularField | ChoiceFieldInstance,
-    resolveRef: (ref: Identifier) => Identifier,
-) => {
-    if (field.excluded) {
-        exprs.push(`...validateExcluded(res, profileName, ${JSON.stringify(name)})`);
-        return;
-    }
+export type FieldOverrides = Map<
+    string,
+    { profileType: string; required: boolean; array: boolean; typeId: Identifier }
+>;
 
-    if (field.required) exprs.push(`...validateRequired(res, profileName, ${JSON.stringify(name)})`);
-
-    if (field.valueConstraint)
-        exprs.push(
-            `...validateFixedValue(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(field.valueConstraint.value)})`,
-        );
-
-    if (field.enum && !field.enum.isOpen)
-        exprs.push(`...validateEnum(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(field.enum.values)})`);
-
-    if (field.reference && field.reference.length > 0)
-        exprs.push(
-            `...validateReference(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(field.reference.map((ref) => resolveRef(ref).name))})`,
-        );
-
-    if (field.slicing?.slices) {
-        for (const [sliceName, slice] of Object.entries(field.slicing.slices)) {
-            if (slice.min === undefined && slice.max === undefined) continue;
-            const match = slice.match ?? {};
-            if (Object.keys(match).length === 0) continue;
-            const min = slice.min ?? 0;
-            const max = slice.max ?? 0;
-            exprs.push(
-                `...validateSliceCardinality(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(match)}, ${JSON.stringify(sliceName)}, ${min}, ${max})`,
-            );
-        }
-    }
-};
-
-const generateValidateMethod = (w: TypeScript, tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) => {
-    const fields = flatProfile.fields ?? {};
-    const profileName = flatProfile.identifier.name;
-    w.curlyBlock(["validate(): string[]"], () => {
-        w.line(`const profileName = "${profileName}"`);
-        w.line("const res = this.resource as unknown as Record<string, unknown>");
-
-        const exprs: string[] = [];
-        for (const [name, field] of Object.entries(fields)) {
-            if (isChoiceInstanceField(field)) continue;
-
-            if (isChoiceDeclarationField(field)) {
-                if (field.required)
-                    exprs.push(`...validateChoiceRequired(res, profileName, ${JSON.stringify(field.choices)})`);
-                continue;
-            }
-
-            collectRegularFieldValidation(exprs, name, field, tsIndex.findLastSpecializationByIdentifier);
-        }
-
-        if (exprs.length === 0) {
-            w.line("return []");
-        } else {
-            w.squareBlock(["return"], () => {
-                for (const expr of exprs) w.line(`${expr},`);
-            });
-        }
-    });
-    w.line();
-};
-
-const generateExtensionSetterMethods = (
-    w: TypeScript,
-    extensions: ProfileExtension[],
-    extensionMethodNames: Map<ProfileExtension, string>,
-    tsProfileName: string,
-) => {
-    for (const ext of extensions) {
-        if (!ext.url) continue;
-        const methodName = extensionMethodNames.get(ext) ?? tsQualifiedExtensionMethodName(ext.name, ext.path);
-        const valueTypes = ext.valueTypes ?? [];
-        const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");
-
-        if (ext.isComplex && ext.subExtensions) {
-            const inputTypeName = tsExtensionInputTypeName(tsProfileName, ext.name);
-            w.curlyBlock(["public", methodName, `(input: ${inputTypeName}): this`], () => {
-                w.line("const subExtensions: Extension[] = []");
-                for (const sub of ext.subExtensions ?? []) {
-                    const valueField = sub.valueType ? `value${uppercaseFirstLetter(sub.valueType.name)}` : "value";
-                    // When value type is unknown, cast to Extension to avoid TS error
-                    const needsCast = !sub.valueType;
-                    const pushSuffix = needsCast ? " as Extension" : "";
-                    if (sub.max === "*") {
-                        w.curlyBlock(["if", `(input.${sub.name})`], () => {
-                            w.curlyBlock(["for", `(const item of input.${sub.name})`], () => {
-                                w.line(`subExtensions.push({ url: "${sub.url}", ${valueField}: item }${pushSuffix})`);
-                            });
-                        });
-                    } else {
-                        w.curlyBlock(["if", `(input.${sub.name} !== undefined)`], () => {
-                            w.line(
-                                `subExtensions.push({ url: "${sub.url}", ${valueField}: input.${sub.name} }${pushSuffix})`,
-                            );
-                        });
-                    }
-                }
-                if (targetPath.length === 0) {
-                    w.line("const list = (this.resource.extension ??= [])");
-                    w.line(`list.push({ url: "${ext.url}", extension: subExtensions })`);
-                } else {
-                    w.line(
-                        `const target = ensurePath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
-                    );
-                    w.line("if (!Array.isArray(target.extension)) target.extension = [] as Extension[]");
-                    w.line(`(target.extension as Extension[]).push({ url: "${ext.url}", extension: subExtensions })`);
-                }
-                w.line("return this");
-            });
-        } else if (valueTypes.length === 1 && valueTypes[0]) {
-            const firstValueType = valueTypes[0];
-            const valueType = tsTypeFromIdentifier(firstValueType);
-            const valueField = `value${uppercaseFirstLetter(firstValueType.name)}`;
-            w.curlyBlock(["public", methodName, `(value: ${valueType}): this`], () => {
-                // Cast needed: value field may not exist on Extension in this FHIR version
-                const extLiteral = `{ url: "${ext.url}", ${valueField}: value } as Extension`;
-                if (targetPath.length === 0) {
-                    w.line("const list = (this.resource.extension ??= [])");
-                    w.line(`list.push(${extLiteral})`);
-                } else {
-                    w.line(
-                        `const target = ensurePath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(
-                            targetPath,
-                        )})`,
-                    );
-                    w.line("if (!Array.isArray(target.extension)) target.extension = [] as Extension[]");
-                    w.line(`(target.extension as Extension[]).push(${extLiteral})`);
-                }
-                w.line("return this");
-            });
-        } else {
-            w.curlyBlock(["public", methodName, `(value: Omit<Extension, "url">): this`], () => {
-                if (targetPath.length === 0) {
-                    w.line("const list = (this.resource.extension ??= [])");
-                    w.line(`list.push({ url: "${ext.url}", ...value })`);
-                } else {
-                    w.line(
-                        `const target = ensurePath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(
-                            targetPath,
-                        )})`,
-                    );
-                    w.line("if (!Array.isArray(target.extension)) target.extension = [] as Extension[]");
-                    w.line(`(target.extension as Extension[]).push({ url: "${ext.url}", ...value })`);
-                }
-                w.line("return this");
-            });
-        }
-        w.line();
-    }
-};
-
-const detectFieldOverrides = (
-    w: TypeScript,
-    tsIndex: TypeSchemaIndex,
-    flatProfile: ProfileTypeSchema,
-): Map<string, { profileType: string; required: boolean; array: boolean }> => {
-    const overrides = new Map<string, { profileType: string; required: boolean; array: boolean }>();
+export const detectFieldOverrides = (tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema): FieldOverrides => {
+    const overrides: FieldOverrides = new Map();
     const specialization = tsIndex.findLastSpecialization(flatProfile);
     if (!isSpecializationTypeSchema(specialization)) return overrides;
+
+    const referenceUrl = "http://hl7.org/fhir/StructureDefinition/Reference" as CanonicalUrl;
+    const referenceSchema = tsIndex.resolveByUrl(flatProfile.identifier.package, referenceUrl);
 
     for (const [fieldName, pField] of Object.entries(flatProfile.fields ?? {})) {
         if (!isNotChoiceDeclarationField(pField)) continue;
@@ -1167,6 +840,7 @@ const detectFieldOverrides = (
 
         // Check for Reference narrowing
         if (pField.reference && sField.reference && pField.reference.length < sField.reference.length) {
+            if (!referenceSchema) continue;
             const references = pField.reference
                 .map((ref) => {
                     const resRef = tsIndex.findLastSpecializationByIdentifier(ref);
@@ -1180,15 +854,17 @@ const detectFieldOverrides = (
                 profileType: `Reference<${references}>`,
                 required: pField.required ?? false,
                 array: pField.array ?? false,
+                typeId: referenceSchema.identifier,
             });
         }
         // Check for cardinality change (optional -> required)
         else if (pField.required && !sField.required) {
-            const tsType = tsTypeForProfileField(w, tsIndex, flatProfile, fieldName, pField);
+            const tsType = tsTypeForProfileField(tsIndex, flatProfile, fieldName, pField);
             overrides.set(fieldName, {
                 profileType: tsType,
                 required: true,
                 array: pField.array ?? false,
+                typeId: pField.type,
             });
         }
     }
@@ -1197,10 +873,9 @@ const detectFieldOverrides = (
 
 export const generateProfileOverrideInterface = (
     w: TypeScript,
-    tsIndex: TypeSchemaIndex,
     flatProfile: ProfileTypeSchema,
+    overrides: FieldOverrides,
 ) => {
-    const overrides = detectFieldOverrides(w, tsIndex, flatProfile);
     if (overrides.size === 0) return;
 
     const tsProfileName = tsResourceName(flatProfile.identifier);

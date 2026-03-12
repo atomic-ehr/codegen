@@ -9,220 +9,246 @@ import type { HumanName } from "../../hl7-fhir-r4-core/HumanName";
 import type { Identifier } from "../../hl7-fhir-r4-core/Identifier";
 import type { Patient } from "../../hl7-fhir-r4-core/Patient";
 
+import {
+    USCoreEthnicityExtensionProfile,
+    type USCoreEthnicityExtensionProfileFlat,
+} from "./Extension_USCoreEthnicityExtension";
+import { USCoreIndividualSexExtensionProfile } from "./Extension_USCoreIndividualSexExtension";
+import { USCoreInterpreterNeededExtensionProfile } from "./Extension_USCoreInterpreterNeededExtension";
+import { USCoreRaceExtensionProfile, type USCoreRaceExtensionProfileFlat } from "./Extension_USCoreRaceExtension";
+import {
+    USCoreTribalAffiliationExtensionProfile,
+    type USCoreTribalAffiliationExtensionProfileFlat,
+} from "./Extension_USCoreTribalAffiliationExtension";
+
 export interface USCorePatientProfile extends Patient {
     identifier: Identifier[];
     name: HumanName[];
 }
 
-export type USCorePatientProfile_RaceInput = {
-    ombCategory?: Coding;
-    detailed?: Coding[];
-    text: string;
-}
+import {
+    buildResource,
+    ensureProfile,
+    extractComplexExtension,
+    isExtension,
+    getExtensionValue,
+    pushExtension,
+    validateRequired,
+    validateExcluded,
+    validateFixedValue,
+    validateSliceCardinality,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+    validateMustSupport,
+} from "../../profile-helpers";
 
-export type USCorePatientProfile_EthnicityInput = {
-    ombCategory?: Coding;
-    detailed?: Coding[];
-    text: string;
-}
-
-export type USCorePatientProfile_TribalAffiliationInput = {
-    tribalAffiliation: CodeableConcept;
-    isEnrolled?: boolean;
-}
-
-import { ensureProfile, extractComplexExtension, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
-
-export type USCorePatientProfileProfileParams = {
+export type USCorePatientProfileRaw = {
     identifier: Identifier[];
     name: HumanName[];
 }
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient (pkg: hl7.fhir.us.core#8.0.1)
-export class USCorePatientProfileProfile {
-    static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+export class USCorePatientProfile {
+    static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient";
 
-    private resource: Patient
+    private resource: Patient;
 
     constructor (resource: Patient) {
-        this.resource = resource
-        ensureProfile(resource, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient")
+        this.resource = resource;
     }
 
-    static from (resource: Patient) : USCorePatientProfileProfile {
-        return new USCorePatientProfileProfile(resource)
+    static from (resource: Patient) : USCorePatientProfile {
+        if (!resource.meta?.profile?.includes(USCorePatientProfile.canonicalUrl)) {
+            throw new Error(`USCorePatientProfile: meta.profile must include ${USCorePatientProfile.canonicalUrl}`)
+        }
+        const profile = new USCorePatientProfile(resource);
+        const { errors } = profile.validate();
+        if (errors.length > 0) throw new Error(errors.join("; "))
+        return profile;
     }
 
-    static createResource (args: USCorePatientProfileProfileParams) : Patient {
-        const resource = {
+    static apply (resource: Patient) : USCorePatientProfile {
+        ensureProfile(resource, USCorePatientProfile.canonicalUrl);
+        return new USCorePatientProfile(resource);
+    }
+
+    static createResource (args: USCorePatientProfileRaw) : Patient {
+        const resource = buildResource<Patient>( {
             resourceType: "Patient",
             identifier: args.identifier,
             name: args.name,
-            meta: { profile: [USCorePatientProfileProfile.canonicalUrl] },
-        } as unknown as Patient
-        return resource
+            meta: { profile: [USCorePatientProfile.canonicalUrl] },
+        })
+        return resource;
     }
 
-    static create (args: USCorePatientProfileProfileParams) : USCorePatientProfileProfile {
-        return USCorePatientProfileProfile.from(USCorePatientProfileProfile.createResource(args))
+    static create (args: USCorePatientProfileRaw) : USCorePatientProfile {
+        return USCorePatientProfile.apply(USCorePatientProfile.createResource(args));
     }
 
     toResource () : Patient {
-        return this.resource
+        return this.resource;
     }
 
     // Field accessors
-
     getIdentifier () : Identifier[] | undefined {
-        return this.resource.identifier as Identifier[] | undefined
+        return this.resource.identifier as Identifier[] | undefined;
     }
 
     setIdentifier (value: Identifier[]) : this {
-        Object.assign(this.resource, { identifier: value })
-        return this
+        Object.assign(this.resource, { identifier: value });
+        return this;
     }
 
     getName () : HumanName[] | undefined {
-        return this.resource.name as HumanName[] | undefined
+        return this.resource.name as HumanName[] | undefined;
     }
 
     setName (value: HumanName[]) : this {
-        Object.assign(this.resource, { name: value })
+        Object.assign(this.resource, { name: value });
+        return this;
+    }
+
+    // Extensions
+    public setRace (input: USCoreRaceExtensionProfileFlat | USCoreRaceExtensionProfile | Extension): this {
+        if (input instanceof USCoreRaceExtensionProfile) {
+            pushExtension(this.resource, input.toResource())
+        } else if (isExtension<Extension>(input)) {
+            if (input.url !== "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race") throw new Error(`Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race', got '${input.url}'`)
+            pushExtension(this.resource, input)
+        } else {
+            pushExtension(this.resource, USCoreRaceExtensionProfile.createResource(input))
+        }
         return this
     }
 
-    toProfile () : USCorePatientProfile {
-        return this.resource as USCorePatientProfile
-    }
-
-    // Slices and extensions
-
-    public setRace (input: USCorePatientProfile_RaceInput): this {
-        const subExtensions: Extension[] = []
-        if (input.ombCategory !== undefined) {
-            subExtensions.push({ url: "ombCategory", valueCoding: input.ombCategory })
-        }
-        if (input.detailed) {
-            for (const item of input.detailed) {
-                subExtensions.push({ url: "detailed", valueCoding: item })
-            }
-        }
-        if (input.text !== undefined) {
-            subExtensions.push({ url: "text", valueString: input.text })
-        }
-        const list = (this.resource.extension ??= [])
-        list.push({ url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race", extension: subExtensions })
-        return this
-    }
-
-    public setEthnicity (input: USCorePatientProfile_EthnicityInput): this {
-        const subExtensions: Extension[] = []
-        if (input.ombCategory !== undefined) {
-            subExtensions.push({ url: "ombCategory", valueCoding: input.ombCategory })
-        }
-        if (input.detailed) {
-            for (const item of input.detailed) {
-                subExtensions.push({ url: "detailed", valueCoding: item })
-            }
-        }
-        if (input.text !== undefined) {
-            subExtensions.push({ url: "text", valueString: input.text })
-        }
-        const list = (this.resource.extension ??= [])
-        list.push({ url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity", extension: subExtensions })
-        return this
-    }
-
-    public setTribalAffiliation (input: USCorePatientProfile_TribalAffiliationInput): this {
-        const subExtensions: Extension[] = []
-        if (input.tribalAffiliation !== undefined) {
-            subExtensions.push({ url: "tribalAffiliation", valueCodeableConcept: input.tribalAffiliation })
-        }
-        if (input.isEnrolled !== undefined) {
-            subExtensions.push({ url: "isEnrolled", valueBoolean: input.isEnrolled })
-        }
-        const list = (this.resource.extension ??= [])
-        list.push({ url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation", extension: subExtensions })
-        return this
-    }
-
-    public setSex (value: Coding): this {
-        const list = (this.resource.extension ??= [])
-        list.push({ url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex", valueCoding: value } as Extension)
-        return this
-    }
-
-    public setInterpreterRequired (value: Coding): this {
-        const list = (this.resource.extension ??= [])
-        list.push({ url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed", valueCoding: value } as Extension)
-        return this
-    }
-
-    public getRace (): USCorePatientProfile_RaceInput | undefined {
+    public getRace(mode: 'flat'): USCoreRaceExtensionProfileFlat | undefined;
+    public getRace(mode: 'profile'): USCoreRaceExtensionProfile | undefined;
+    public getRace(mode: 'raw'): Extension | undefined;
+    public getRace(): USCoreRaceExtensionProfileFlat | undefined;
+    public getRace (mode: 'flat' | 'profile' | 'raw' = 'flat'): USCoreRaceExtensionProfileFlat | USCoreRaceExtensionProfile | Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race")
         if (!ext) return undefined
+        if (mode === 'raw') return ext
+        if (mode === 'profile') return USCoreRaceExtensionProfile.apply(ext)
         const config = [{ name: "ombCategory", valueField: "valueCoding", isArray: false }, { name: "detailed", valueField: "valueCoding", isArray: true }, { name: "text", valueField: "valueString", isArray: false }]
-        return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as USCorePatientProfile_RaceInput
+        return extractComplexExtension<USCoreRaceExtensionProfileFlat>(ext, config)
     }
 
-    public getRaceExtension (): Extension | undefined {
-        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race")
-        return ext
+    public setEthnicity (input: USCoreEthnicityExtensionProfileFlat | USCoreEthnicityExtensionProfile | Extension): this {
+        if (input instanceof USCoreEthnicityExtensionProfile) {
+            pushExtension(this.resource, input.toResource())
+        } else if (isExtension<Extension>(input)) {
+            if (input.url !== "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity") throw new Error(`Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity', got '${input.url}'`)
+            pushExtension(this.resource, input)
+        } else {
+            pushExtension(this.resource, USCoreEthnicityExtensionProfile.createResource(input))
+        }
+        return this
     }
 
-    public getEthnicity (): USCorePatientProfile_EthnicityInput | undefined {
+    public getEthnicity(mode: 'flat'): USCoreEthnicityExtensionProfileFlat | undefined;
+    public getEthnicity(mode: 'profile'): USCoreEthnicityExtensionProfile | undefined;
+    public getEthnicity(mode: 'raw'): Extension | undefined;
+    public getEthnicity(): USCoreEthnicityExtensionProfileFlat | undefined;
+    public getEthnicity (mode: 'flat' | 'profile' | 'raw' = 'flat'): USCoreEthnicityExtensionProfileFlat | USCoreEthnicityExtensionProfile | Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity")
         if (!ext) return undefined
+        if (mode === 'raw') return ext
+        if (mode === 'profile') return USCoreEthnicityExtensionProfile.apply(ext)
         const config = [{ name: "ombCategory", valueField: "valueCoding", isArray: false }, { name: "detailed", valueField: "valueCoding", isArray: true }, { name: "text", valueField: "valueString", isArray: false }]
-        return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as USCorePatientProfile_EthnicityInput
+        return extractComplexExtension<USCoreEthnicityExtensionProfileFlat>(ext, config)
     }
 
-    public getEthnicityExtension (): Extension | undefined {
-        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity")
-        return ext
+    public setTribalAffiliation (input: USCoreTribalAffiliationExtensionProfileFlat | USCoreTribalAffiliationExtensionProfile | Extension): this {
+        if (input instanceof USCoreTribalAffiliationExtensionProfile) {
+            pushExtension(this.resource, input.toResource())
+        } else if (isExtension<Extension>(input)) {
+            if (input.url !== "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation") throw new Error(`Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation', got '${input.url}'`)
+            pushExtension(this.resource, input)
+        } else {
+            pushExtension(this.resource, USCoreTribalAffiliationExtensionProfile.createResource(input))
+        }
+        return this
     }
 
-    public getTribalAffiliation (): USCorePatientProfile_TribalAffiliationInput | undefined {
+    public getTribalAffiliation(mode: 'flat'): USCoreTribalAffiliationExtensionProfileFlat | undefined;
+    public getTribalAffiliation(mode: 'profile'): USCoreTribalAffiliationExtensionProfile | undefined;
+    public getTribalAffiliation(mode: 'raw'): Extension | undefined;
+    public getTribalAffiliation(): USCoreTribalAffiliationExtensionProfileFlat | undefined;
+    public getTribalAffiliation (mode: 'flat' | 'profile' | 'raw' = 'flat'): USCoreTribalAffiliationExtensionProfileFlat | USCoreTribalAffiliationExtensionProfile | Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation")
         if (!ext) return undefined
+        if (mode === 'raw') return ext
+        if (mode === 'profile') return USCoreTribalAffiliationExtensionProfile.apply(ext)
         const config = [{ name: "tribalAffiliation", valueField: "valueCodeableConcept", isArray: false }, { name: "isEnrolled", valueField: "valueBoolean", isArray: false }]
-        return extractComplexExtension(ext as unknown as { extension?: Array<{ url?: string; [key: string]: unknown }> }, config) as USCorePatientProfile_TribalAffiliationInput
+        return extractComplexExtension<USCoreTribalAffiliationExtensionProfileFlat>(ext, config)
     }
 
-    public getTribalAffiliationExtension (): Extension | undefined {
-        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation")
-        return ext
+    public setSex (value: USCoreIndividualSexExtensionProfile | Extension | Coding): this {
+        if (value instanceof USCoreIndividualSexExtensionProfile) {
+            pushExtension(this.resource, value.toResource())
+        } else if (isExtension(value)) {
+            if (value.url !== "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex") throw new Error(`Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex', got '${value.url}'`)
+            pushExtension(this.resource, value)
+        } else {
+            pushExtension(this.resource, USCoreIndividualSexExtensionProfile.createResource({ valueCoding: value as Coding }))
+        }
+        return this
     }
 
-    public getSex (): Coding | undefined {
+    public getSex(mode: 'flat'): Coding | undefined;
+    public getSex(mode: 'profile'): USCoreIndividualSexExtensionProfile | undefined;
+    public getSex(mode: 'raw'): Extension | undefined;
+    public getSex(): Coding | undefined;
+    public getSex (mode: 'flat' | 'profile' | 'raw' = 'flat'): Coding | USCoreIndividualSexExtensionProfile | Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex")
-        return (ext as Record<string, unknown> | undefined)?.valueCoding as Coding | undefined
+        if (!ext) return undefined
+        if (mode === 'raw') return ext
+        if (mode === 'profile') return USCoreIndividualSexExtensionProfile.apply(ext)
+        return getExtensionValue<Coding>(ext, "valueCoding")
     }
 
-    public getSexExtension (): Extension | undefined {
-        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex")
-        return ext
+    public setInterpreterRequired (value: USCoreInterpreterNeededExtensionProfile | Extension | Coding): this {
+        if (value instanceof USCoreInterpreterNeededExtensionProfile) {
+            pushExtension(this.resource, value.toResource())
+        } else if (isExtension(value)) {
+            if (value.url !== "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed") throw new Error(`Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed', got '${value.url}'`)
+            pushExtension(this.resource, value)
+        } else {
+            pushExtension(this.resource, USCoreInterpreterNeededExtensionProfile.createResource({ valueCoding: value as Coding }))
+        }
+        return this
     }
 
-    public getInterpreterRequired (): Coding | undefined {
+    public getInterpreterRequired(mode: 'flat'): Coding | undefined;
+    public getInterpreterRequired(mode: 'profile'): USCoreInterpreterNeededExtensionProfile | undefined;
+    public getInterpreterRequired(mode: 'raw'): Extension | undefined;
+    public getInterpreterRequired(): Coding | undefined;
+    public getInterpreterRequired (mode: 'flat' | 'profile' | 'raw' = 'flat'): Coding | USCoreInterpreterNeededExtensionProfile | Extension | undefined {
         const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed")
-        return (ext as Record<string, unknown> | undefined)?.valueCoding as Coding | undefined
+        if (!ext) return undefined
+        if (mode === 'raw') return ext
+        if (mode === 'profile') return USCoreInterpreterNeededExtensionProfile.apply(ext)
+        return getExtensionValue<Coding>(ext, "valueCoding")
     }
 
-    public getInterpreterRequiredExtension (): Extension | undefined {
-        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed")
-        return ext
-    }
-
+    // Slices
     // Validation
-
-    validate(): string[] {
+    validate(): { errors: string[]; warnings: string[] } {
         const profileName = "USCorePatientProfile"
-        const res = this.resource as unknown as Record<string, unknown>
-        return [
-            ...validateRequired(res, profileName, "identifier"),
-            ...validateRequired(res, profileName, "name"),
-        ]
+        const res = this.resource
+        return {
+            errors: [
+                ...validateRequired(res, profileName, "identifier"),
+                ...validateRequired(res, profileName, "name"),
+            ],
+            warnings: [
+                ...validateMustSupport(res, profileName, "birthDate"),
+                ...validateMustSupport(res, profileName, "address"),
+            ],
+        }
     }
 
 }

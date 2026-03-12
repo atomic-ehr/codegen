@@ -3,8 +3,7 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
-import type { Observation } from "../../hl7-fhir-r4-core/Observation";
-import type { ObservationComponent } from "../../hl7-fhir-r4-core/Observation";
+import type { Observation, ObservationComponent } from "../../hl7-fhir-r4-core/Observation";
 import type { Period } from "../../hl7-fhir-r4-core/Period";
 import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
 import type { Range } from "../../hl7-fhir-r4-core/Range";
@@ -17,13 +16,32 @@ export interface USCoreBloodPressureProfile extends Observation {
     subject: Reference<"Patient">;
 }
 
-export type USCoreBloodPressureProfile_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
-export type USCoreBloodPressureProfile_Component_SystolicSliceInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
-export type USCoreBloodPressureProfile_Component_DiastolicSliceInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
+export type USCoreBloodPressureProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
+export type USCoreBloodPressureProfile_Component_SystolicSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
+export type USCoreBloodPressureProfile_Component_DiastolicSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 
-import { ensureProfile, applySliceMatch, matchesValue, setArraySlice, getArraySlice, ensureSliceDefaults, stripMatchKeys, wrapSliceChoice, unwrapSliceChoice, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
+import {
+    buildResource,
+    ensureProfile,
+    applySliceMatch,
+    matchesValue,
+    setArraySlice,
+    getArraySlice,
+    ensureSliceDefaults,
+    stripMatchKeys,
+    wrapSliceChoice,
+    unwrapSliceChoice,
+    validateRequired,
+    validateExcluded,
+    validateFixedValue,
+    validateSliceCardinality,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+    validateMustSupport,
+} from "../../profile-helpers";
 
-export type USCoreBloodPressureProfileProfileParams = {
+export type USCoreBloodPressureProfileRaw = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
     subject: Reference<"Patient">;
     category?: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
@@ -31,308 +49,327 @@ export type USCoreBloodPressureProfileProfileParams = {
 }
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure (pkg: hl7.fhir.us.core#8.0.1)
-export class USCoreBloodPressureProfileProfile {
-    static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure"
+export class USCoreBloodPressureProfile {
+    static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure";
 
-    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}
-    private static readonly systolicSliceMatch: Record<string, unknown> = {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}}
-    private static readonly diastolicSliceMatch: Record<string, unknown> = {"code":{"coding":[{"system":"http://loinc.org","code":"8462-4"}]}}
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}};
+    private static readonly systolicSliceMatch: Record<string, unknown> = {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}};
+    private static readonly diastolicSliceMatch: Record<string, unknown> = {"code":{"coding":[{"system":"http://loinc.org","code":"8462-4"}]}};
 
-    private resource: Observation
+    private resource: Observation;
 
     constructor (resource: Observation) {
-        this.resource = resource
-        ensureProfile(resource, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure")
+        this.resource = resource;
     }
 
-    static from (resource: Observation) : USCoreBloodPressureProfileProfile {
-        return new USCoreBloodPressureProfileProfile(resource)
+    static from (resource: Observation) : USCoreBloodPressureProfile {
+        if (!resource.meta?.profile?.includes(USCoreBloodPressureProfile.canonicalUrl)) {
+            throw new Error(`USCoreBloodPressureProfile: meta.profile must include ${USCoreBloodPressureProfile.canonicalUrl}`)
+        }
+        const profile = new USCoreBloodPressureProfile(resource);
+        const { errors } = profile.validate();
+        if (errors.length > 0) throw new Error(errors.join("; "))
+        return profile;
     }
 
-    static createResource (args: USCoreBloodPressureProfileProfileParams) : Observation {
+    static apply (resource: Observation) : USCoreBloodPressureProfile {
+        ensureProfile(resource, USCoreBloodPressureProfile.canonicalUrl);
+        return new USCoreBloodPressureProfile(resource);
+    }
+
+    static createResource (args: USCoreBloodPressureProfileRaw) : Observation {
         const categoryWithDefaults = ensureSliceDefaults(
             [...(args.category ?? [])],
-            USCoreBloodPressureProfileProfile.VSCatSliceMatch,
-        )
+            USCoreBloodPressureProfile.VSCatSliceMatch,
+        );
         const componentWithDefaults = ensureSliceDefaults(
             [...(args.component ?? [])],
-            USCoreBloodPressureProfileProfile.systolicSliceMatch,
-            USCoreBloodPressureProfileProfile.diastolicSliceMatch,
-        )
+            USCoreBloodPressureProfile.systolicSliceMatch,
+            USCoreBloodPressureProfile.diastolicSliceMatch,
+        );
 
-        const resource = {
+        const resource = buildResource<Observation>( {
             resourceType: "Observation",
             code: {"coding":[{"system":"http://loinc.org","code":"85354-9"}]},
             category: categoryWithDefaults,
             component: componentWithDefaults,
             status: args.status,
             subject: args.subject,
-            meta: { profile: [USCoreBloodPressureProfileProfile.canonicalUrl] },
-        } as unknown as Observation
-        return resource
+            meta: { profile: [USCoreBloodPressureProfile.canonicalUrl] },
+        })
+        return resource;
     }
 
-    static create (args: USCoreBloodPressureProfileProfileParams) : USCoreBloodPressureProfileProfile {
-        return USCoreBloodPressureProfileProfile.from(USCoreBloodPressureProfileProfile.createResource(args))
+    static create (args: USCoreBloodPressureProfileRaw) : USCoreBloodPressureProfile {
+        return USCoreBloodPressureProfile.apply(USCoreBloodPressureProfile.createResource(args));
     }
 
     toResource () : Observation {
-        return this.resource
+        return this.resource;
     }
 
     // Field accessors
-
     getStatus () : ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined {
-        return this.resource.status as ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined
+        return this.resource.status as ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined;
     }
 
     setStatus (value: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown")) : this {
-        Object.assign(this.resource, { status: value })
-        return this
+        Object.assign(this.resource, { status: value });
+        return this;
     }
 
     getSubject () : Reference<"Patient"> | undefined {
-        return this.resource.subject as Reference<"Patient"> | undefined
+        return this.resource.subject as Reference<"Patient"> | undefined;
     }
 
     setSubject (value: Reference<"Patient">) : this {
-        Object.assign(this.resource, { subject: value })
-        return this
+        Object.assign(this.resource, { subject: value });
+        return this;
     }
 
     getCategory () : CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined {
-        return this.resource.category as CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined
+        return this.resource.category as CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined;
     }
 
     setCategory (value: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[]) : this {
-        Object.assign(this.resource, { category: value })
-        return this
+        Object.assign(this.resource, { category: value });
+        return this;
     }
 
     getCode () : CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)> | undefined {
-        return this.resource.code as CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)> | undefined
+        return this.resource.code as CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)> | undefined;
     }
 
     setCode (value: CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)>) : this {
-        Object.assign(this.resource, { code: value })
-        return this
+        Object.assign(this.resource, { code: value });
+        return this;
     }
 
     getComponent () : ObservationComponent[] | undefined {
-        return this.resource.component as ObservationComponent[] | undefined
+        return this.resource.component as ObservationComponent[] | undefined;
     }
 
     setComponent (value: ObservationComponent[]) : this {
-        Object.assign(this.resource, { component: value })
-        return this
+        Object.assign(this.resource, { component: value });
+        return this;
     }
 
     getEffectiveDateTime () : string | undefined {
-        return this.resource.effectiveDateTime as string | undefined
+        return this.resource.effectiveDateTime as string | undefined;
     }
 
     setEffectiveDateTime (value: string) : this {
-        Object.assign(this.resource, { effectiveDateTime: value })
-        return this
+        Object.assign(this.resource, { effectiveDateTime: value });
+        return this;
     }
 
     getEffectivePeriod () : Period | undefined {
-        return this.resource.effectivePeriod as Period | undefined
+        return this.resource.effectivePeriod as Period | undefined;
     }
 
     setEffectivePeriod (value: Period) : this {
-        Object.assign(this.resource, { effectivePeriod: value })
-        return this
+        Object.assign(this.resource, { effectivePeriod: value });
+        return this;
     }
 
     getValueQuantity () : Quantity | undefined {
-        return this.resource.valueQuantity as Quantity | undefined
+        return this.resource.valueQuantity as Quantity | undefined;
     }
 
     setValueQuantity (value: Quantity) : this {
-        Object.assign(this.resource, { valueQuantity: value })
-        return this
+        Object.assign(this.resource, { valueQuantity: value });
+        return this;
     }
 
     getValueCodeableConcept () : CodeableConcept | undefined {
-        return this.resource.valueCodeableConcept as CodeableConcept | undefined
+        return this.resource.valueCodeableConcept as CodeableConcept | undefined;
     }
 
     setValueCodeableConcept (value: CodeableConcept) : this {
-        Object.assign(this.resource, { valueCodeableConcept: value })
-        return this
+        Object.assign(this.resource, { valueCodeableConcept: value });
+        return this;
     }
 
     getValueString () : string | undefined {
-        return this.resource.valueString as string | undefined
+        return this.resource.valueString as string | undefined;
     }
 
     setValueString (value: string) : this {
-        Object.assign(this.resource, { valueString: value })
-        return this
+        Object.assign(this.resource, { valueString: value });
+        return this;
     }
 
     getValueBoolean () : boolean | undefined {
-        return this.resource.valueBoolean as boolean | undefined
+        return this.resource.valueBoolean as boolean | undefined;
     }
 
     setValueBoolean (value: boolean) : this {
-        Object.assign(this.resource, { valueBoolean: value })
-        return this
+        Object.assign(this.resource, { valueBoolean: value });
+        return this;
     }
 
     getValueInteger () : number | undefined {
-        return this.resource.valueInteger as number | undefined
+        return this.resource.valueInteger as number | undefined;
     }
 
     setValueInteger (value: number) : this {
-        Object.assign(this.resource, { valueInteger: value })
-        return this
+        Object.assign(this.resource, { valueInteger: value });
+        return this;
     }
 
     getValueRange () : Range | undefined {
-        return this.resource.valueRange as Range | undefined
+        return this.resource.valueRange as Range | undefined;
     }
 
     setValueRange (value: Range) : this {
-        Object.assign(this.resource, { valueRange: value })
-        return this
+        Object.assign(this.resource, { valueRange: value });
+        return this;
     }
 
     getValueRatio () : Ratio | undefined {
-        return this.resource.valueRatio as Ratio | undefined
+        return this.resource.valueRatio as Ratio | undefined;
     }
 
     setValueRatio (value: Ratio) : this {
-        Object.assign(this.resource, { valueRatio: value })
-        return this
+        Object.assign(this.resource, { valueRatio: value });
+        return this;
     }
 
     getValueSampledData () : SampledData | undefined {
-        return this.resource.valueSampledData as SampledData | undefined
+        return this.resource.valueSampledData as SampledData | undefined;
     }
 
     setValueSampledData (value: SampledData) : this {
-        Object.assign(this.resource, { valueSampledData: value })
-        return this
+        Object.assign(this.resource, { valueSampledData: value });
+        return this;
     }
 
     getValueTime () : string | undefined {
-        return this.resource.valueTime as string | undefined
+        return this.resource.valueTime as string | undefined;
     }
 
     setValueTime (value: string) : this {
-        Object.assign(this.resource, { valueTime: value })
-        return this
+        Object.assign(this.resource, { valueTime: value });
+        return this;
     }
 
     getValueDateTime () : string | undefined {
-        return this.resource.valueDateTime as string | undefined
+        return this.resource.valueDateTime as string | undefined;
     }
 
     setValueDateTime (value: string) : this {
-        Object.assign(this.resource, { valueDateTime: value })
-        return this
+        Object.assign(this.resource, { valueDateTime: value });
+        return this;
     }
 
     getValuePeriod () : Period | undefined {
-        return this.resource.valuePeriod as Period | undefined
+        return this.resource.valuePeriod as Period | undefined;
     }
 
     setValuePeriod (value: Period) : this {
-        Object.assign(this.resource, { valuePeriod: value })
-        return this
+        Object.assign(this.resource, { valuePeriod: value });
+        return this;
     }
 
-    toProfile () : USCoreBloodPressureProfile {
-        return this.resource as USCoreBloodPressureProfile
-    }
-
-    // Slices and extensions
-
-    public setVSCat (input?: USCoreBloodPressureProfile_Category_VSCatSliceInput): this {
-        const match = USCoreBloodPressureProfileProfile.VSCatSliceMatch
+    // Extensions
+    // Slices
+    public setVSCat (input?: USCoreBloodPressureProfile_Category_VSCatSliceFlat | CodeableConcept): this {
+        const match = USCoreBloodPressureProfile.VSCatSliceMatch
+        if (input && matchesValue(input, match)) {
+            setArraySlice(this.resource.category ??= [], match, input as CodeableConcept)
+            return this
+        }
         const value = applySliceMatch<CodeableConcept>(input ?? {}, match)
         setArraySlice(this.resource.category ??= [], match, value)
         return this
     }
 
-    public setSystolic (input?: USCoreBloodPressureProfile_Component_SystolicSliceInput): this {
-        const match = USCoreBloodPressureProfileProfile.systolicSliceMatch
+    public setSystolic (input?: USCoreBloodPressureProfile_Component_SystolicSliceFlat | ObservationComponent): this {
+        const match = USCoreBloodPressureProfile.systolicSliceMatch
+        if (input && matchesValue(input, match)) {
+            setArraySlice(this.resource.component ??= [], match, input as ObservationComponent)
+            return this
+        }
         const wrapped = wrapSliceChoice<ObservationComponent>(input ?? {}, "valueQuantity")
         const value = applySliceMatch<ObservationComponent>(wrapped, match)
         setArraySlice(this.resource.component ??= [], match, value)
         return this
     }
 
-    public setDiastolic (input?: USCoreBloodPressureProfile_Component_DiastolicSliceInput): this {
-        const match = USCoreBloodPressureProfileProfile.diastolicSliceMatch
+    public setDiastolic (input?: USCoreBloodPressureProfile_Component_DiastolicSliceFlat | ObservationComponent): this {
+        const match = USCoreBloodPressureProfile.diastolicSliceMatch
+        if (input && matchesValue(input, match)) {
+            setArraySlice(this.resource.component ??= [], match, input as ObservationComponent)
+            return this
+        }
         const wrapped = wrapSliceChoice<ObservationComponent>(input ?? {}, "valueQuantity")
         const value = applySliceMatch<ObservationComponent>(wrapped, match)
         setArraySlice(this.resource.component ??= [], match, value)
         return this
     }
 
-    public getVSCat (): USCoreBloodPressureProfile_Category_VSCatSliceInput | undefined {
-        const match = USCoreBloodPressureProfileProfile.VSCatSliceMatch
+    public getVSCat(mode: 'flat'): USCoreBloodPressureProfile_Category_VSCatSliceFlat | undefined;
+    public getVSCat(mode: 'raw'): CodeableConcept | undefined;
+    public getVSCat(): USCoreBloodPressureProfile_Category_VSCatSliceFlat | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): USCoreBloodPressureProfile_Category_VSCatSliceFlat | CodeableConcept | undefined {
+        const match = USCoreBloodPressureProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
-        return stripMatchKeys<USCoreBloodPressureProfile_Category_VSCatSliceInput>(item, ["coding"])
+        if (mode === 'raw') return item
+        return stripMatchKeys<USCoreBloodPressureProfile_Category_VSCatSliceFlat>(item, ["coding"])
     }
 
-    public getVSCatRaw (): CodeableConcept | undefined {
-        const match = USCoreBloodPressureProfileProfile.VSCatSliceMatch
-        const item = getArraySlice(this.resource.category, match)
-        return item
-    }
-
-    public getSystolic (): USCoreBloodPressureProfile_Component_SystolicSliceInput | undefined {
-        const match = USCoreBloodPressureProfileProfile.systolicSliceMatch
+    public getSystolic(mode: 'flat'): USCoreBloodPressureProfile_Component_SystolicSliceFlat | undefined;
+    public getSystolic(mode: 'raw'): ObservationComponent | undefined;
+    public getSystolic(): USCoreBloodPressureProfile_Component_SystolicSliceFlat | undefined;
+    public getSystolic (mode: 'flat' | 'raw' = 'flat'): USCoreBloodPressureProfile_Component_SystolicSliceFlat | ObservationComponent | undefined {
+        const match = USCoreBloodPressureProfile.systolicSliceMatch
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
-        return unwrapSliceChoice<USCoreBloodPressureProfile_Component_SystolicSliceInput>(item, ["code"], "valueQuantity")
+        if (mode === 'raw') return item
+        return unwrapSliceChoice<USCoreBloodPressureProfile_Component_SystolicSliceFlat>(item, ["code"], "valueQuantity")
     }
 
-    public getSystolicRaw (): ObservationComponent | undefined {
-        const match = USCoreBloodPressureProfileProfile.systolicSliceMatch
-        const item = getArraySlice(this.resource.component, match)
-        return item
-    }
-
-    public getDiastolic (): USCoreBloodPressureProfile_Component_DiastolicSliceInput | undefined {
-        const match = USCoreBloodPressureProfileProfile.diastolicSliceMatch
+    public getDiastolic(mode: 'flat'): USCoreBloodPressureProfile_Component_DiastolicSliceFlat | undefined;
+    public getDiastolic(mode: 'raw'): ObservationComponent | undefined;
+    public getDiastolic(): USCoreBloodPressureProfile_Component_DiastolicSliceFlat | undefined;
+    public getDiastolic (mode: 'flat' | 'raw' = 'flat'): USCoreBloodPressureProfile_Component_DiastolicSliceFlat | ObservationComponent | undefined {
+        const match = USCoreBloodPressureProfile.diastolicSliceMatch
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
-        return unwrapSliceChoice<USCoreBloodPressureProfile_Component_DiastolicSliceInput>(item, ["code"], "valueQuantity")
-    }
-
-    public getDiastolicRaw (): ObservationComponent | undefined {
-        const match = USCoreBloodPressureProfileProfile.diastolicSliceMatch
-        const item = getArraySlice(this.resource.component, match)
-        return item
+        if (mode === 'raw') return item
+        return unwrapSliceChoice<USCoreBloodPressureProfile_Component_DiastolicSliceFlat>(item, ["code"], "valueQuantity")
     }
 
     // Validation
-
-    validate(): string[] {
+    validate(): { errors: string[]; warnings: string[] } {
         const profileName = "USCoreBloodPressureProfile"
-        const res = this.resource as unknown as Record<string, unknown>
-        return [
-            ...validateRequired(res, profileName, "status"),
-            ...validateEnum(res, profileName, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
-            ...validateRequired(res, profileName, "category"),
-            ...validateSliceCardinality(res, profileName, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
-            ...validateRequired(res, profileName, "code"),
-            ...validateFixedValue(res, profileName, "code", {"coding":[{"system":"http://loinc.org","code":"85354-9"}]}),
-            ...validateRequired(res, profileName, "subject"),
-            ...validateReference(res, profileName, "subject", ["Patient"]),
-            ...validateChoiceRequired(res, profileName, ["effectiveDateTime","effectivePeriod"]),
-            ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
-            ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),
-            ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}}, "systolic", 1, 1),
-            ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":[{"system":"http://loinc.org","code":"8462-4"}]}}, "diastolic", 1, 1),
-            ...validateReference(res, profileName, "performer", ["PractitionerRole","USCoreCareTeam","USCoreOrganizationProfile","Patient","USCorePractitionerProfile","USCoreRelatedPersonProfile"]),
-        ]
+        const res = this.resource
+        return {
+            errors: [
+                ...validateRequired(res, profileName, "status"),
+                ...validateEnum(res, profileName, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
+                ...validateRequired(res, profileName, "category"),
+                ...validateSliceCardinality(res, profileName, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
+                ...validateRequired(res, profileName, "code"),
+                ...validateFixedValue(res, profileName, "code", {"coding":[{"system":"http://loinc.org","code":"85354-9"}]}),
+                ...validateRequired(res, profileName, "subject"),
+                ...validateReference(res, profileName, "subject", ["Patient"]),
+                ...validateChoiceRequired(res, profileName, ["effectiveDateTime","effectivePeriod"]),
+                ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
+                ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),
+                ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}}, "systolic", 1, 1),
+                ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":[{"system":"http://loinc.org","code":"8462-4"}]}}, "diastolic", 1, 1),
+                ...validateReference(res, profileName, "performer", ["PractitionerRole","USCoreCareTeam","USCoreOrganizationProfile","Patient","USCorePractitionerProfile","USCoreRelatedPersonProfile"]),
+            ],
+            warnings: [
+                ...validateEnum(res, profileName, "category", ["social-history","vital-signs","imaging","laboratory","procedure","survey","exam","therapy","activity"]),
+                ...validateEnum(res, profileName, "code", ["2708-6","29463-7","3140-1","3150-0","3151-8","39156-5","59408-5","59575-1","59576-9","77606-2","8287-5","8289-1","8302-2","8306-3","8310-5","8462-4","8478-0","8480-6","8867-4","9279-1","9843-4"]),
+                ...validateEnum(res, profileName, "dataAbsentReason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]),
+                ...validateMustSupport(res, profileName, "dataAbsentReason"),
+                ...validateMustSupport(res, profileName, "performer"),
+            ],
+        }
     }
 
 }

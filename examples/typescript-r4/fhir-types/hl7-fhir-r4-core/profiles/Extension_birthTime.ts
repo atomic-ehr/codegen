@@ -4,72 +4,92 @@
 
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
-import { validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
+import {
+    buildResource,
+    validateRequired,
+    validateExcluded,
+    validateFixedValue,
+    validateSliceCardinality,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+    validateMustSupport,
+} from "../../profile-helpers";
 
-export type birthTimeProfileParams = {
+export type birthTimeProfileRaw = {
     valueDateTime: string;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/patient-birthTime (pkg: hl7.fhir.r4.core#4.0.1)
 export class birthTimeProfile {
-    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/patient-birthTime"
+    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/patient-birthTime";
 
-    private resource: Extension
+    private resource: Extension;
 
     constructor (resource: Extension) {
-        this.resource = resource
+        this.resource = resource;
     }
 
     static from (resource: Extension) : birthTimeProfile {
-        return new birthTimeProfile(resource)
+        const profile = new birthTimeProfile(resource);
+        const { errors } = profile.validate();
+        if (errors.length > 0) throw new Error(errors.join("; "))
+        return profile;
     }
 
-    static createResource (args: birthTimeProfileParams) : Extension {
-        const resource = {
+    static apply (resource: Extension) : birthTimeProfile {
+        return new birthTimeProfile(resource);
+    }
+
+    static createResource (args: birthTimeProfileRaw) : Extension {
+        const resource = buildResource<Extension>( {
             url: "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
             valueDateTime: args.valueDateTime,
-        } as unknown as Extension
-        return resource
+        })
+        return resource;
     }
 
-    static create (args: birthTimeProfileParams) : birthTimeProfile {
-        return birthTimeProfile.from(birthTimeProfile.createResource(args))
+    static create (args: birthTimeProfileRaw) : birthTimeProfile {
+        return birthTimeProfile.apply(birthTimeProfile.createResource(args));
     }
 
     toResource () : Extension {
-        return this.resource
+        return this.resource;
     }
 
     // Field accessors
-
     getValueDateTime () : string | undefined {
-        return this.resource.valueDateTime as string | undefined
+        return this.resource.valueDateTime as string | undefined;
     }
 
     setValueDateTime (value: string) : this {
-        Object.assign(this.resource, { valueDateTime: value })
-        return this
+        Object.assign(this.resource, { valueDateTime: value });
+        return this;
     }
 
     getUrl () : string | undefined {
-        return this.resource.url as string | undefined
+        return this.resource.url as string | undefined;
     }
 
     setUrl (value: string) : this {
-        Object.assign(this.resource, { url: value })
-        return this
+        Object.assign(this.resource, { url: value });
+        return this;
     }
 
+    // Extensions
+    // Slices
     // Validation
-
-    validate(): string[] {
+    validate(): { errors: string[]; warnings: string[] } {
         const profileName = "birthTime"
-        const res = this.resource as unknown as Record<string, unknown>
-        return [
-            ...validateRequired(res, profileName, "url"),
-            ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/StructureDefinition/patient-birthTime"),
-            ...validateChoiceRequired(res, profileName, ["valueDateTime"]),
-        ]
+        const res = this.resource
+        return {
+            errors: [
+                ...validateRequired(res, profileName, "url"),
+                ...validateFixedValue(res, profileName, "url", birthTimeProfile.canonicalUrl),
+                ...validateChoiceRequired(res, profileName, ["valueDateTime"]),
+            ],
+            warnings: [],
+        }
     }
 
 }

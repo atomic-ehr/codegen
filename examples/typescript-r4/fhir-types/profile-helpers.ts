@@ -121,6 +121,42 @@ export const matchesValue = (value: unknown, match: unknown): boolean => {
     return value === match;
 };
 
+/**
+ * Type guard that discriminates a raw extension input (with an `extension`
+ * array) from a flat-API input object.  Using a custom type guard instead of
+ * a bare `"extension" in args` lets TypeScript narrow *both* branches of the
+ * union — the plain `in` check cannot eliminate a type whose `extension`
+ * property is optional.
+ */
+export const isRawExtensionInput = <TRaw extends object>(input: object): input is TRaw => "extension" in input;
+
+/**
+ * Type guard that tests whether an unknown setter input is a raw Extension
+ * (i.e. an object with a `url` property).  When `url` is provided, also
+ * checks that the extension's URL matches the expected value.
+ */
+export const isExtension = <E extends { url: string }>(input: unknown, url?: string): input is E =>
+    typeof input === "object" && input !== null && "url" in input && (url === undefined || input.url === url);
+
+/**
+ * Read a single typed value field from an Extension, returning `undefined`
+ * when the extension itself is absent or the field is not set.
+ *
+ * This avoids the double-cast `(ext as Record<…>)?.field as T` that would
+ * otherwise be needed for value fields not declared on the base Extension type.
+ */
+export const getExtensionValue = <T>(ext: { url?: string } | undefined, field: string): T | undefined => {
+    if (!ext) return undefined;
+    return (ext as Record<string, unknown>)[field] as T | undefined;
+};
+
+/**
+ * Push an extension onto `target.extension`, creating the array if absent.
+ */
+export const pushExtension = <E extends { url?: string }>(target: { extension?: E[] }, ext: E): void => {
+    (target.extension ??= []).push(ext);
+};
+
 // ---------------------------------------------------------------------------
 // Extension helpers
 // ---------------------------------------------------------------------------
@@ -134,10 +170,10 @@ export const matchesValue = (value: unknown, match: unknown): boolean => {
  * @returns A record keyed by sub-extension URL, or `undefined` if the
  *          extension has no nested children.
  */
-export const extractComplexExtension = (
-    extension: { extension?: Array<{ url?: string; [key: string]: unknown }> } | undefined,
+export const extractComplexExtension = <T = Record<string, unknown>>(
+    extension: { extension?: Array<{ url?: string }> } | undefined,
     config: Array<{ name: string; valueField: string; isArray: boolean }>,
-): Record<string, unknown> | undefined => {
+): T | undefined => {
     if (!extension?.extension) return undefined;
     const result: Record<string, unknown> = {};
     for (const { name, valueField, isArray } of config) {
@@ -148,7 +184,7 @@ export const extractComplexExtension = (
             result[name] = (subExts[0] as Record<string, unknown>)[valueField];
         }
     }
-    return result;
+    return result as T;
 };
 
 // ---------------------------------------------------------------------------
@@ -220,6 +256,13 @@ export const ensureSliceDefaults = <T>(items: T[], ...matches: Record<string, un
 };
 
 /**
+ * Cast an object literal to a FHIR resource type.  This centralises the single
+ * `as unknown as T` that is unavoidable when constructing a resource from a
+ * plain object (deep inheritance prevents direct structural compatibility).
+ */
+export const buildResource = <T>(obj: object): T => obj as unknown as T;
+
+/**
  * Add `canonicalUrl` to `resource.meta.profile` if not already present.
  * Creates `meta` and `profile` when missing.
  */
@@ -256,25 +299,31 @@ export const getArraySlice = <T>(list: readonly T[] | undefined, match: Record<s
 // ---------------------------------------------------------------------------
 
 /** Checks that `field` is present (not `undefined` or `null`). */
-export const validateRequired = (res: Record<string, unknown>, profileName: string, field: string): string[] => {
-    return res[field] === undefined || res[field] === null
+export const validateRequired = (res: object, profileName: string, field: string): string[] => {
+    const rec = res as Record<string, unknown>;
+    return rec[field] === undefined || rec[field] === null
         ? [`${profileName}: required field '${field}' is missing`]
         : [];
 };
 
+/** Checks that a must-support field is populated (warning, not error). */
+export const validateMustSupport = (res: object, profileName: string, field: string): string[] => {
+    const rec = res as Record<string, unknown>;
+    return rec[field] === undefined || rec[field] === null
+        ? [`${profileName}: must-support field '${field}' is not populated`]
+        : [];
+};
+
 /** Checks that `field` is absent (profiles may exclude base fields). */
-export const validateExcluded = (res: Record<string, unknown>, profileName: string, field: string): string[] => {
-    return res[field] !== undefined ? [`${profileName}: field '${field}' must not be present`] : [];
+export const validateExcluded = (res: object, profileName: string, field: string): string[] => {
+    return (res as Record<string, unknown>)[field] !== undefined
+        ? [`${profileName}: field '${field}' must not be present`]
+        : [];
 };
 
 /** Checks that `field` structurally contains the expected fixed value. */
-export const validateFixedValue = (
-    res: Record<string, unknown>,
-    profileName: string,
-    field: string,
-    expected: unknown,
-): string[] => {
-    return matchesValue(res[field], expected)
+export const validateFixedValue = (res: object, profileName: string, field: string, expected: unknown): string[] => {
+    return matchesValue((res as Record<string, unknown>)[field], expected)
         ? []
         : [`${profileName}: field '${field}' does not match expected fixed value`];
 };
@@ -284,7 +333,7 @@ export const validateFixedValue = (
  * discriminator) falls within [`min`, `max`].  Pass `max = 0` for unbounded.
  */
 export const validateSliceCardinality = (
-    res: Record<string, unknown>,
+    res: object,
     profileName: string,
     field: string,
     match: Record<string, unknown>,
@@ -292,7 +341,7 @@ export const validateSliceCardinality = (
     min: number,
     max: number,
 ): string[] => {
-    const items = res[field] as unknown[] | undefined;
+    const items = (res as Record<string, unknown>)[field] as unknown[] | undefined;
     const count = (items ?? []).filter((item) => matchesValue(item, match)).length;
     const errors: string[] = [];
     if (count < min) {
@@ -308,12 +357,9 @@ export const validateSliceCardinality = (
  * Checks that at least one of the listed choice-type variants is present.
  * E.g. `["effectiveDateTime", "effectivePeriod"]`.
  */
-export const validateChoiceRequired = (
-    res: Record<string, unknown>,
-    profileName: string,
-    choices: string[],
-): string[] => {
-    return choices.some((c) => res[c] !== undefined)
+export const validateChoiceRequired = (res: object, profileName: string, choices: string[]): string[] => {
+    const rec = res as Record<string, unknown>;
+    return choices.some((c) => rec[c] !== undefined)
         ? []
         : [`${profileName}: at least one of ${choices.join(", ")} is required`];
 };
@@ -323,13 +369,8 @@ export const validateChoiceRequired = (
  * Handles plain strings, Coding objects, and CodeableConcept objects.
  * Skips validation when the field is absent.
  */
-export const validateEnum = (
-    res: Record<string, unknown>,
-    profileName: string,
-    field: string,
-    allowed: string[],
-): string[] => {
-    const value = res[field];
+export const validateEnum = (res: object, profileName: string, field: string, allowed: string[]): string[] => {
+    const value = (res as Record<string, unknown>)[field];
     if (value === undefined || value === null) return [];
     if (typeof value === "string") {
         return allowed.includes(value)
@@ -357,13 +398,8 @@ export const validateEnum = (
  * types.  Extracts the type from the `reference` string (the part before
  * the first `/`).  Skips validation when the field or reference is absent.
  */
-export const validateReference = (
-    res: Record<string, unknown>,
-    profileName: string,
-    field: string,
-    allowed: string[],
-): string[] => {
-    const value = res[field];
+export const validateReference = (res: object, profileName: string, field: string, allowed: string[]): string[] => {
+    const value = (res as Record<string, unknown>)[field];
     if (value === undefined || value === null) return [];
     const ref = (value as Record<string, unknown>).reference as string | undefined;
     if (!ref) return [];

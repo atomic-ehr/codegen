@@ -88,41 +88,53 @@ export const tsProfileModuleFileName = (tsIndex: TypeSchemaIndex, schema: Profil
 };
 
 export const tsProfileClassName = (schema: ProfileTypeSchema): string => {
-    return `${normalizeTsName(schema.identifier.name)}Profile`;
+    const name = normalizeTsName(schema.identifier.name);
+    return name.endsWith("Profile") ? name : `${name}Profile`;
 };
 
-export const tsSliceInputTypeName = (profileName: string, fieldName: string, sliceName: string): string => {
-    return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(fieldName))}_${uppercaseFirstLetter(normalizeTsName(sliceName))}SliceInput`;
+export const tsSliceFlatTypeName = (profileName: string, fieldName: string, sliceName: string): string => {
+    return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(fieldName))}_${uppercaseFirstLetter(normalizeTsName(sliceName))}SliceFlat`;
 };
 
-export const tsExtensionInputTypeName = (profileName: string, extensionName: string): string => {
-    return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(extensionName))}Input`;
+export const tsExtensionFlatTypeName = (profileName: string, extensionName: string): string => {
+    return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(extensionName))}Flat`;
 };
 
 export const tsSliceStaticName = (name: string): string => name.replace(/\[x\]/g, "").replace(/[^a-zA-Z0-9_$]/g, "_");
 
-export const tsSliceMethodName = (sliceName: string): string => {
-    return `set${uppercaseFirstLetter(normalizeTsName(sliceName) || "Slice")}`;
-};
+export const tsSliceMethodBaseName = (sliceName: string): string =>
+    uppercaseFirstLetter(normalizeTsName(sliceName) || "Slice");
 
-export const tsExtensionMethodName = (name: string): string => {
-    const normalized = tsCamelCase(name);
-    return `set${uppercaseFirstLetter(normalized || "Extension")}`;
-};
+export const tsExtensionMethodBaseName = (name: string): string =>
+    uppercaseFirstLetter(tsCamelCase(name) || "Extension");
 
-export const tsQualifiedExtensionMethodName = (name: string, path?: string): string => {
+export const tsQualifiedExtensionMethodBaseName = (name: string, path?: string): string => {
     const rawPath =
         path
             ?.split(".")
             .filter((p) => p && p !== "extension")
             .join("_") ?? "";
     const pathPart = rawPath ? uppercaseFirstLetter(tsCamelCase(rawPath)) : "";
-    const normalized = tsCamelCase(name);
-    return `setExtension${pathPart}${uppercaseFirstLetter(normalized || "Extension")}`;
+    return `${pathPart}${uppercaseFirstLetter(tsCamelCase(name) || "Extension")}`;
 };
 
-export const tsQualifiedSliceMethodName = (fieldName: string, sliceName: string): string => {
+export const tsQualifiedSliceMethodBaseName = (fieldName: string, sliceName: string): string => {
     const fieldPart = uppercaseFirstLetter(tsCamelCase(fieldName) || "Field");
     const slicePart = uppercaseFirstLetter(normalizeTsName(sliceName) || "Slice");
-    return `setSlice${fieldPart}${slicePart}`;
+    return `${fieldPart}${slicePart}`;
 };
+
+export const tsResolvedExtensionBaseName = (
+    extensionBaseNames: Record<string, string>,
+    url: string,
+    path: string,
+    fallbackName: string,
+): string => extensionBaseNames[`${url}:${path}`] ?? fallbackName;
+
+export const tsResolvedSliceBaseName = (
+    sliceBaseNames: Record<string, string>,
+    fieldName: string,
+    sliceName: string,
+): string => sliceBaseNames[`${fieldName}:${sliceName}`] ?? sliceName;
+
+export const tsValueFieldName = (id: Identifier): string => `value${uppercaseFirstLetter(id.name)}`;

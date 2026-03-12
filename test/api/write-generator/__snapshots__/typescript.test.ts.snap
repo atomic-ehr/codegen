@@ -327,11 +327,28 @@ export interface observation_bodyweight extends Observation {
     subject: Reference<"Patient">;
 }
 
-export type Observation_bodyweight_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
+export type Observation_bodyweight_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
 
-import { ensureProfile, applySliceMatch, matchesValue, setArraySlice, getArraySlice, ensureSliceDefaults, stripMatchKeys, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
+import {
+    buildResource,
+    ensureProfile,
+    applySliceMatch,
+    matchesValue,
+    setArraySlice,
+    getArraySlice,
+    ensureSliceDefaults,
+    stripMatchKeys,
+    validateRequired,
+    validateExcluded,
+    validateFixedValue,
+    validateSliceCardinality,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+    validateMustSupport,
+} from "../../profile-helpers";
 
-export type observation_bodyweightProfileParams = {
+export type observation_bodyweightProfileRaw = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
     subject: Reference<"Patient">;
     category?: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
@@ -339,155 +356,169 @@ export type observation_bodyweightProfileParams = {
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/bodyweight (pkg: hl7.fhir.r4.core#4.0.1)
 export class observation_bodyweightProfile {
-    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bodyweight"
+    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bodyweight";
 
-    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}};
 
-    private resource: Observation
+    private resource: Observation;
 
     constructor (resource: Observation) {
-        this.resource = resource
-        ensureProfile(resource, "http://hl7.org/fhir/StructureDefinition/bodyweight")
+        this.resource = resource;
     }
 
     static from (resource: Observation) : observation_bodyweightProfile {
-        return new observation_bodyweightProfile(resource)
+        if (!resource.meta?.profile?.includes(observation_bodyweightProfile.canonicalUrl)) {
+            throw new Error(\`observation_bodyweightProfile: meta.profile must include \${observation_bodyweightProfile.canonicalUrl}\`)
+        }
+        const profile = new observation_bodyweightProfile(resource);
+        const { errors } = profile.validate();
+        if (errors.length > 0) throw new Error(errors.join("; "))
+        return profile;
     }
 
-    static createResource (args: observation_bodyweightProfileParams) : Observation {
+    static apply (resource: Observation) : observation_bodyweightProfile {
+        ensureProfile(resource, observation_bodyweightProfile.canonicalUrl);
+        return new observation_bodyweightProfile(resource);
+    }
+
+    static createResource (args: observation_bodyweightProfileRaw) : Observation {
         const categoryWithDefaults = ensureSliceDefaults(
             [...(args.category ?? [])],
             observation_bodyweightProfile.VSCatSliceMatch,
-        )
+        );
 
-        const resource = {
+        const resource = buildResource<Observation>( {
             resourceType: "Observation",
             code: {"coding":[{"code":"29463-7","system":"http://loinc.org"}]},
             category: categoryWithDefaults,
             status: args.status,
             subject: args.subject,
             meta: { profile: [observation_bodyweightProfile.canonicalUrl] },
-        } as unknown as Observation
-        return resource
+        })
+        return resource;
     }
 
-    static create (args: observation_bodyweightProfileParams) : observation_bodyweightProfile {
-        return observation_bodyweightProfile.from(observation_bodyweightProfile.createResource(args))
+    static create (args: observation_bodyweightProfileRaw) : observation_bodyweightProfile {
+        return observation_bodyweightProfile.apply(observation_bodyweightProfile.createResource(args));
     }
 
     toResource () : Observation {
-        return this.resource
+        return this.resource;
     }
 
     // Field accessors
-
     getStatus () : ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined {
-        return this.resource.status as ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined
+        return this.resource.status as ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined;
     }
 
     setStatus (value: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown")) : this {
-        Object.assign(this.resource, { status: value })
-        return this
+        Object.assign(this.resource, { status: value });
+        return this;
     }
 
     getSubject () : Reference<"Patient"> | undefined {
-        return this.resource.subject as Reference<"Patient"> | undefined
+        return this.resource.subject as Reference<"Patient"> | undefined;
     }
 
     setSubject (value: Reference<"Patient">) : this {
-        Object.assign(this.resource, { subject: value })
-        return this
+        Object.assign(this.resource, { subject: value });
+        return this;
     }
 
     getCategory () : CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined {
-        return this.resource.category as CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined
+        return this.resource.category as CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined;
     }
 
     setCategory (value: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[]) : this {
-        Object.assign(this.resource, { category: value })
-        return this
+        Object.assign(this.resource, { category: value });
+        return this;
     }
 
     getCode () : CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined {
-        return this.resource.code as CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined
+        return this.resource.code as CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined;
     }
 
     setCode (value: CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)>) : this {
-        Object.assign(this.resource, { code: value })
-        return this
+        Object.assign(this.resource, { code: value });
+        return this;
     }
 
     getEffectiveDateTime () : string | undefined {
-        return this.resource.effectiveDateTime as string | undefined
+        return this.resource.effectiveDateTime as string | undefined;
     }
 
     setEffectiveDateTime (value: string) : this {
-        Object.assign(this.resource, { effectiveDateTime: value })
-        return this
+        Object.assign(this.resource, { effectiveDateTime: value });
+        return this;
     }
 
     getEffectivePeriod () : Period | undefined {
-        return this.resource.effectivePeriod as Period | undefined
+        return this.resource.effectivePeriod as Period | undefined;
     }
 
     setEffectivePeriod (value: Period) : this {
-        Object.assign(this.resource, { effectivePeriod: value })
-        return this
+        Object.assign(this.resource, { effectivePeriod: value });
+        return this;
     }
 
     getValueQuantity () : Quantity | undefined {
-        return this.resource.valueQuantity as Quantity | undefined
+        return this.resource.valueQuantity as Quantity | undefined;
     }
 
     setValueQuantity (value: Quantity) : this {
-        Object.assign(this.resource, { valueQuantity: value })
-        return this
+        Object.assign(this.resource, { valueQuantity: value });
+        return this;
     }
 
-    toProfile () : observation_bodyweight {
-        return this.resource as observation_bodyweight
-    }
-
-    // Slices and extensions
-
-    public setVSCat (input?: Observation_bodyweight_Category_VSCatSliceInput): this {
+    // Extensions
+    // Slices
+    public setVSCat (input?: Observation_bodyweight_Category_VSCatSliceFlat | CodeableConcept): this {
         const match = observation_bodyweightProfile.VSCatSliceMatch
+        if (input && matchesValue(input, match)) {
+            setArraySlice(this.resource.category ??= [], match, input as CodeableConcept)
+            return this
+        }
         const value = applySliceMatch<CodeableConcept>(input ?? {}, match)
         setArraySlice(this.resource.category ??= [], match, value)
         return this
     }
 
-    public getVSCat (): Observation_bodyweight_Category_VSCatSliceInput | undefined {
+    public getVSCat(mode: 'flat'): Observation_bodyweight_Category_VSCatSliceFlat | undefined;
+    public getVSCat(mode: 'raw'): CodeableConcept | undefined;
+    public getVSCat(): Observation_bodyweight_Category_VSCatSliceFlat | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_bodyweight_Category_VSCatSliceFlat | CodeableConcept | undefined {
         const match = observation_bodyweightProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
-        return stripMatchKeys<Observation_bodyweight_Category_VSCatSliceInput>(item, ["coding"])
-    }
-
-    public getVSCatRaw (): CodeableConcept | undefined {
-        const match = observation_bodyweightProfile.VSCatSliceMatch
-        const item = getArraySlice(this.resource.category, match)
-        return item
+        if (mode === 'raw') return item
+        return stripMatchKeys<Observation_bodyweight_Category_VSCatSliceFlat>(item, ["coding"])
     }
 
     // Validation
-
-    validate(): string[] {
+    validate(): { errors: string[]; warnings: string[] } {
         const profileName = "observation-bodyweight"
-        const res = this.resource as unknown as Record<string, unknown>
-        return [
-            ...validateRequired(res, profileName, "status"),
-            ...validateEnum(res, profileName, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
-            ...validateRequired(res, profileName, "category"),
-            ...validateSliceCardinality(res, profileName, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
-            ...validateRequired(res, profileName, "code"),
-            ...validateFixedValue(res, profileName, "code", {"coding":[{"code":"29463-7","system":"http://loinc.org"}]}),
-            ...validateRequired(res, profileName, "subject"),
-            ...validateReference(res, profileName, "subject", ["Patient"]),
-            ...validateChoiceRequired(res, profileName, ["effectiveDateTime","effectivePeriod"]),
-            ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
-            ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),
-        ]
+        const res = this.resource
+        return {
+            errors: [
+                ...validateRequired(res, profileName, "status"),
+                ...validateEnum(res, profileName, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
+                ...validateRequired(res, profileName, "category"),
+                ...validateSliceCardinality(res, profileName, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
+                ...validateRequired(res, profileName, "code"),
+                ...validateFixedValue(res, profileName, "code", {"coding":[{"code":"29463-7","system":"http://loinc.org"}]}),
+                ...validateRequired(res, profileName, "subject"),
+                ...validateReference(res, profileName, "subject", ["Patient"]),
+                ...validateChoiceRequired(res, profileName, ["effectiveDateTime","effectivePeriod"]),
+                ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
+                ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),
+            ],
+            warnings: [
+                ...validateEnum(res, profileName, "category", ["social-history","vital-signs","imaging","laboratory","procedure","survey","exam","therapy","activity"]),
+                ...validateEnum(res, profileName, "code", ["85353-1","9279-1","8867-4","2708-6","8310-5","8302-2","9843-4","29463-7","39156-5","85354-9","8480-6","8462-4","8478-0"]),
+                ...validateEnum(res, profileName, "dataAbsentReason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]),
+                ...validateMustSupport(res, profileName, "dataAbsentReason"),
+            ],
+        }
     }
 
 }
@@ -501,8 +532,7 @@ exports[`TypeScript R4 Example (with generateProfile) generates bp profile with 
 // Any manual changes made to this file may be overwritten.
 
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
-import type { Observation } from "../../hl7-fhir-r4-core/Observation";
-import type { ObservationComponent } from "../../hl7-fhir-r4-core/Observation";
+import type { Observation, ObservationComponent } from "../../hl7-fhir-r4-core/Observation";
 import type { Period } from "../../hl7-fhir-r4-core/Period";
 import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
@@ -512,13 +542,30 @@ export interface observation_bp extends Observation {
     subject: Reference<"Patient">;
 }
 
-export type Observation_bp_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
-export type Observation_bp_Component_SystolicBPSliceInput = Omit<ObservationComponent, "code">;
-export type Observation_bp_Component_DiastolicBPSliceInput = Omit<ObservationComponent, "code">;
+export type Observation_bp_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
+export type Observation_bp_Component_SystolicBPSliceFlat = Omit<ObservationComponent, "code">;
+export type Observation_bp_Component_DiastolicBPSliceFlat = Omit<ObservationComponent, "code">;
 
-import { ensureProfile, applySliceMatch, matchesValue, setArraySlice, getArraySlice, ensureSliceDefaults, stripMatchKeys, validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
+import {
+    buildResource,
+    ensureProfile,
+    applySliceMatch,
+    matchesValue,
+    setArraySlice,
+    getArraySlice,
+    ensureSliceDefaults,
+    stripMatchKeys,
+    validateRequired,
+    validateExcluded,
+    validateFixedValue,
+    validateSliceCardinality,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+    validateMustSupport,
+} from "../../profile-helpers";
 
-export type observation_bpProfileParams = {
+export type observation_bpProfileRaw = {
     status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
     subject: Reference<"Patient">;
     category?: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
@@ -527,35 +574,45 @@ export type observation_bpProfileParams = {
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/bp (pkg: hl7.fhir.r4.core#4.0.1)
 export class observation_bpProfile {
-    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bp"
+    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bp";
 
-    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}
-    private static readonly SystolicBPSliceMatch: Record<string, unknown> = {"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}}
-    private static readonly DiastolicBPSliceMatch: Record<string, unknown> = {"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}}
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}};
+    private static readonly SystolicBPSliceMatch: Record<string, unknown> = {"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}};
+    private static readonly DiastolicBPSliceMatch: Record<string, unknown> = {"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}};
 
-    private resource: Observation
+    private resource: Observation;
 
     constructor (resource: Observation) {
-        this.resource = resource
-        ensureProfile(resource, "http://hl7.org/fhir/StructureDefinition/bp")
+        this.resource = resource;
     }
 
     static from (resource: Observation) : observation_bpProfile {
-        return new observation_bpProfile(resource)
+        if (!resource.meta?.profile?.includes(observation_bpProfile.canonicalUrl)) {
+            throw new Error(\`observation_bpProfile: meta.profile must include \${observation_bpProfile.canonicalUrl}\`)
+        }
+        const profile = new observation_bpProfile(resource);
+        const { errors } = profile.validate();
+        if (errors.length > 0) throw new Error(errors.join("; "))
+        return profile;
     }
 
-    static createResource (args: observation_bpProfileParams) : Observation {
+    static apply (resource: Observation) : observation_bpProfile {
+        ensureProfile(resource, observation_bpProfile.canonicalUrl);
+        return new observation_bpProfile(resource);
+    }
+
+    static createResource (args: observation_bpProfileRaw) : Observation {
         const categoryWithDefaults = ensureSliceDefaults(
             [...(args.category ?? [])],
             observation_bpProfile.VSCatSliceMatch,
-        )
+        );
         const componentWithDefaults = ensureSliceDefaults(
             [...(args.component ?? [])],
             observation_bpProfile.SystolicBPSliceMatch,
             observation_bpProfile.DiastolicBPSliceMatch,
-        )
+        );
 
-        const resource = {
+        const resource = buildResource<Observation>( {
             resourceType: "Observation",
             code: {"coding":[{"code":"85354-9","system":"http://loinc.org"}]},
             category: categoryWithDefaults,
@@ -563,181 +620,1416 @@ export class observation_bpProfile {
             status: args.status,
             subject: args.subject,
             meta: { profile: [observation_bpProfile.canonicalUrl] },
-        } as unknown as Observation
-        return resource
+        })
+        return resource;
     }
 
-    static create (args: observation_bpProfileParams) : observation_bpProfile {
-        return observation_bpProfile.from(observation_bpProfile.createResource(args))
+    static create (args: observation_bpProfileRaw) : observation_bpProfile {
+        return observation_bpProfile.apply(observation_bpProfile.createResource(args));
     }
 
     toResource () : Observation {
-        return this.resource
+        return this.resource;
     }
 
     // Field accessors
-
     getStatus () : ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined {
-        return this.resource.status as ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined
+        return this.resource.status as ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined;
     }
 
     setStatus (value: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown")) : this {
-        Object.assign(this.resource, { status: value })
-        return this
+        Object.assign(this.resource, { status: value });
+        return this;
     }
 
     getSubject () : Reference<"Patient"> | undefined {
-        return this.resource.subject as Reference<"Patient"> | undefined
+        return this.resource.subject as Reference<"Patient"> | undefined;
     }
 
     setSubject (value: Reference<"Patient">) : this {
-        Object.assign(this.resource, { subject: value })
-        return this
+        Object.assign(this.resource, { subject: value });
+        return this;
     }
 
     getCategory () : CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined {
-        return this.resource.category as CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined
+        return this.resource.category as CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined;
     }
 
     setCategory (value: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[]) : this {
-        Object.assign(this.resource, { category: value })
-        return this
+        Object.assign(this.resource, { category: value });
+        return this;
     }
 
     getCode () : CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined {
-        return this.resource.code as CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined
+        return this.resource.code as CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined;
     }
 
     setCode (value: CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)>) : this {
-        Object.assign(this.resource, { code: value })
-        return this
+        Object.assign(this.resource, { code: value });
+        return this;
     }
 
     getComponent () : ObservationComponent[] | undefined {
-        return this.resource.component as ObservationComponent[] | undefined
+        return this.resource.component as ObservationComponent[] | undefined;
     }
 
     setComponent (value: ObservationComponent[]) : this {
-        Object.assign(this.resource, { component: value })
-        return this
+        Object.assign(this.resource, { component: value });
+        return this;
     }
 
     getEffectiveDateTime () : string | undefined {
-        return this.resource.effectiveDateTime as string | undefined
+        return this.resource.effectiveDateTime as string | undefined;
     }
 
     setEffectiveDateTime (value: string) : this {
-        Object.assign(this.resource, { effectiveDateTime: value })
-        return this
+        Object.assign(this.resource, { effectiveDateTime: value });
+        return this;
     }
 
     getEffectivePeriod () : Period | undefined {
-        return this.resource.effectivePeriod as Period | undefined
+        return this.resource.effectivePeriod as Period | undefined;
     }
 
     setEffectivePeriod (value: Period) : this {
-        Object.assign(this.resource, { effectivePeriod: value })
-        return this
+        Object.assign(this.resource, { effectivePeriod: value });
+        return this;
     }
 
     getValueQuantity () : Quantity | undefined {
-        return this.resource.valueQuantity as Quantity | undefined
+        return this.resource.valueQuantity as Quantity | undefined;
     }
 
     setValueQuantity (value: Quantity) : this {
-        Object.assign(this.resource, { valueQuantity: value })
-        return this
+        Object.assign(this.resource, { valueQuantity: value });
+        return this;
     }
 
-    toProfile () : observation_bp {
-        return this.resource as observation_bp
-    }
-
-    // Slices and extensions
-
-    public setVSCat (input?: Observation_bp_Category_VSCatSliceInput): this {
+    // Extensions
+    // Slices
+    public setVSCat (input?: Observation_bp_Category_VSCatSliceFlat | CodeableConcept): this {
         const match = observation_bpProfile.VSCatSliceMatch
+        if (input && matchesValue(input, match)) {
+            setArraySlice(this.resource.category ??= [], match, input as CodeableConcept)
+            return this
+        }
         const value = applySliceMatch<CodeableConcept>(input ?? {}, match)
         setArraySlice(this.resource.category ??= [], match, value)
         return this
     }
 
-    public setSystolicBP (input?: Observation_bp_Component_SystolicBPSliceInput): this {
+    public setSystolicBP (input?: Observation_bp_Component_SystolicBPSliceFlat | ObservationComponent): this {
         const match = observation_bpProfile.SystolicBPSliceMatch
+        if (input && matchesValue(input, match)) {
+            setArraySlice(this.resource.component ??= [], match, input as ObservationComponent)
+            return this
+        }
         const value = applySliceMatch<ObservationComponent>(input ?? {}, match)
         setArraySlice(this.resource.component ??= [], match, value)
         return this
     }
 
-    public setDiastolicBP (input?: Observation_bp_Component_DiastolicBPSliceInput): this {
+    public setDiastolicBP (input?: Observation_bp_Component_DiastolicBPSliceFlat | ObservationComponent): this {
         const match = observation_bpProfile.DiastolicBPSliceMatch
+        if (input && matchesValue(input, match)) {
+            setArraySlice(this.resource.component ??= [], match, input as ObservationComponent)
+            return this
+        }
         const value = applySliceMatch<ObservationComponent>(input ?? {}, match)
         setArraySlice(this.resource.component ??= [], match, value)
         return this
     }
 
-    public getVSCat (): Observation_bp_Category_VSCatSliceInput | undefined {
+    public getVSCat(mode: 'flat'): Observation_bp_Category_VSCatSliceFlat | undefined;
+    public getVSCat(mode: 'raw'): CodeableConcept | undefined;
+    public getVSCat(): Observation_bp_Category_VSCatSliceFlat | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Category_VSCatSliceFlat | CodeableConcept | undefined {
         const match = observation_bpProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
-        return stripMatchKeys<Observation_bp_Category_VSCatSliceInput>(item, ["coding"])
+        if (mode === 'raw') return item
+        return stripMatchKeys<Observation_bp_Category_VSCatSliceFlat>(item, ["coding"])
     }
 
-    public getVSCatRaw (): CodeableConcept | undefined {
-        const match = observation_bpProfile.VSCatSliceMatch
-        const item = getArraySlice(this.resource.category, match)
-        return item
-    }
-
-    public getSystolicBP (): Observation_bp_Component_SystolicBPSliceInput | undefined {
+    public getSystolicBP(mode: 'flat'): Observation_bp_Component_SystolicBPSliceFlat | undefined;
+    public getSystolicBP(mode: 'raw'): ObservationComponent | undefined;
+    public getSystolicBP(): Observation_bp_Component_SystolicBPSliceFlat | undefined;
+    public getSystolicBP (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Component_SystolicBPSliceFlat | ObservationComponent | undefined {
         const match = observation_bpProfile.SystolicBPSliceMatch
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
-        return stripMatchKeys<Observation_bp_Component_SystolicBPSliceInput>(item, ["code"])
+        if (mode === 'raw') return item
+        return stripMatchKeys<Observation_bp_Component_SystolicBPSliceFlat>(item, ["code"])
     }
 
-    public getSystolicBPRaw (): ObservationComponent | undefined {
-        const match = observation_bpProfile.SystolicBPSliceMatch
-        const item = getArraySlice(this.resource.component, match)
-        return item
-    }
-
-    public getDiastolicBP (): Observation_bp_Component_DiastolicBPSliceInput | undefined {
+    public getDiastolicBP(mode: 'flat'): Observation_bp_Component_DiastolicBPSliceFlat | undefined;
+    public getDiastolicBP(mode: 'raw'): ObservationComponent | undefined;
+    public getDiastolicBP(): Observation_bp_Component_DiastolicBPSliceFlat | undefined;
+    public getDiastolicBP (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Component_DiastolicBPSliceFlat | ObservationComponent | undefined {
         const match = observation_bpProfile.DiastolicBPSliceMatch
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
-        return stripMatchKeys<Observation_bp_Component_DiastolicBPSliceInput>(item, ["code"])
-    }
-
-    public getDiastolicBPRaw (): ObservationComponent | undefined {
-        const match = observation_bpProfile.DiastolicBPSliceMatch
-        const item = getArraySlice(this.resource.component, match)
-        return item
+        if (mode === 'raw') return item
+        return stripMatchKeys<Observation_bp_Component_DiastolicBPSliceFlat>(item, ["code"])
     }
 
     // Validation
-
-    validate(): string[] {
+    validate(): { errors: string[]; warnings: string[] } {
         const profileName = "observation-bp"
-        const res = this.resource as unknown as Record<string, unknown>
-        return [
-            ...validateRequired(res, profileName, "status"),
-            ...validateEnum(res, profileName, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
-            ...validateRequired(res, profileName, "category"),
-            ...validateSliceCardinality(res, profileName, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
-            ...validateRequired(res, profileName, "code"),
-            ...validateFixedValue(res, profileName, "code", {"coding":[{"code":"85354-9","system":"http://loinc.org"}]}),
-            ...validateRequired(res, profileName, "subject"),
-            ...validateReference(res, profileName, "subject", ["Patient"]),
-            ...validateChoiceRequired(res, profileName, ["effectiveDateTime","effectivePeriod"]),
-            ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
-            ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),
-            ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}}, "SystolicBP", 1, 1),
-            ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}}, "DiastolicBP", 1, 1),
-        ]
+        const res = this.resource
+        return {
+            errors: [
+                ...validateRequired(res, profileName, "status"),
+                ...validateEnum(res, profileName, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
+                ...validateRequired(res, profileName, "category"),
+                ...validateSliceCardinality(res, profileName, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
+                ...validateRequired(res, profileName, "code"),
+                ...validateFixedValue(res, profileName, "code", {"coding":[{"code":"85354-9","system":"http://loinc.org"}]}),
+                ...validateRequired(res, profileName, "subject"),
+                ...validateReference(res, profileName, "subject", ["Patient"]),
+                ...validateChoiceRequired(res, profileName, ["effectiveDateTime","effectivePeriod"]),
+                ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
+                ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),
+                ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}}, "SystolicBP", 1, 1),
+                ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}}, "DiastolicBP", 1, 1),
+            ],
+            warnings: [
+                ...validateEnum(res, profileName, "category", ["social-history","vital-signs","imaging","laboratory","procedure","survey","exam","therapy","activity"]),
+                ...validateEnum(res, profileName, "code", ["85353-1","9279-1","8867-4","2708-6","8310-5","8302-2","9843-4","29463-7","39156-5","85354-9","8480-6","8462-4","8478-0"]),
+                ...validateEnum(res, profileName, "dataAbsentReason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]),
+                ...validateMustSupport(res, profileName, "dataAbsentReason"),
+            ],
+        }
     }
 
 }
 
+"
+`;
+
+exports[`TypeScript US Core Example generates US Core Patient profile 1`] = `
+"// WARNING: This file is autogenerated by @atomic-ehr/codegen.
+// GitHub: https://github.com/atomic-ehr/codegen
+// Any manual changes made to this file may be overwritten.
+
+import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
+import type { Coding } from "../../hl7-fhir-r4-core/Coding";
+import type { Extension } from "../../hl7-fhir-r4-core/Extension";
+import type { HumanName } from "../../hl7-fhir-r4-core/HumanName";
+import type { Identifier } from "../../hl7-fhir-r4-core/Identifier";
+import type { Patient } from "../../hl7-fhir-r4-core/Patient";
+
+import {
+    USCoreEthnicityExtensionProfile,
+    type USCoreEthnicityExtensionProfileFlat,
+} from "./Extension_USCoreEthnicityExtension";
+import { USCoreIndividualSexExtensionProfile } from "./Extension_USCoreIndividualSexExtension";
+import { USCoreInterpreterNeededExtensionProfile } from "./Extension_USCoreInterpreterNeededExtension";
+import { USCoreRaceExtensionProfile, type USCoreRaceExtensionProfileFlat } from "./Extension_USCoreRaceExtension";
+import {
+    USCoreTribalAffiliationExtensionProfile,
+    type USCoreTribalAffiliationExtensionProfileFlat,
+} from "./Extension_USCoreTribalAffiliationExtension";
+
+export interface USCorePatientProfile extends Patient {
+    identifier: Identifier[];
+    name: HumanName[];
+}
+
+import {
+    buildResource,
+    ensureProfile,
+    extractComplexExtension,
+    isExtension,
+    getExtensionValue,
+    pushExtension,
+    validateRequired,
+    validateExcluded,
+    validateFixedValue,
+    validateSliceCardinality,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+    validateMustSupport,
+} from "../../profile-helpers";
+
+export type USCorePatientProfileRaw = {
+    identifier: Identifier[];
+    name: HumanName[];
+}
+
+// CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient (pkg: hl7.fhir.us.core#8.0.1)
+export class USCorePatientProfile {
+    static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient";
+
+    private resource: Patient;
+
+    constructor (resource: Patient) {
+        this.resource = resource;
+    }
+
+    static from (resource: Patient) : USCorePatientProfile {
+        if (!resource.meta?.profile?.includes(USCorePatientProfile.canonicalUrl)) {
+            throw new Error(\`USCorePatientProfile: meta.profile must include \${USCorePatientProfile.canonicalUrl}\`)
+        }
+        const profile = new USCorePatientProfile(resource);
+        const { errors } = profile.validate();
+        if (errors.length > 0) throw new Error(errors.join("; "))
+        return profile;
+    }
+
+    static apply (resource: Patient) : USCorePatientProfile {
+        ensureProfile(resource, USCorePatientProfile.canonicalUrl);
+        return new USCorePatientProfile(resource);
+    }
+
+    static createResource (args: USCorePatientProfileRaw) : Patient {
+        const resource = buildResource<Patient>( {
+            resourceType: "Patient",
+            identifier: args.identifier,
+            name: args.name,
+            meta: { profile: [USCorePatientProfile.canonicalUrl] },
+        })
+        return resource;
+    }
+
+    static create (args: USCorePatientProfileRaw) : USCorePatientProfile {
+        return USCorePatientProfile.apply(USCorePatientProfile.createResource(args));
+    }
+
+    toResource () : Patient {
+        return this.resource;
+    }
+
+    // Field accessors
+    getIdentifier () : Identifier[] | undefined {
+        return this.resource.identifier as Identifier[] | undefined;
+    }
+
+    setIdentifier (value: Identifier[]) : this {
+        Object.assign(this.resource, { identifier: value });
+        return this;
+    }
+
+    getName () : HumanName[] | undefined {
+        return this.resource.name as HumanName[] | undefined;
+    }
+
+    setName (value: HumanName[]) : this {
+        Object.assign(this.resource, { name: value });
+        return this;
+    }
+
+    // Extensions
+    public setRace (input: USCoreRaceExtensionProfileFlat | USCoreRaceExtensionProfile | Extension): this {
+        if (input instanceof USCoreRaceExtensionProfile) {
+            pushExtension(this.resource, input.toResource())
+        } else if (isExtension<Extension>(input)) {
+            if (input.url !== "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race") throw new Error(\`Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race', got '\${input.url}'\`)
+            pushExtension(this.resource, input)
+        } else {
+            pushExtension(this.resource, USCoreRaceExtensionProfile.createResource(input))
+        }
+        return this
+    }
+
+    public getRace(mode: 'flat'): USCoreRaceExtensionProfileFlat | undefined;
+    public getRace(mode: 'profile'): USCoreRaceExtensionProfile | undefined;
+    public getRace(mode: 'raw'): Extension | undefined;
+    public getRace(): USCoreRaceExtensionProfileFlat | undefined;
+    public getRace (mode: 'flat' | 'profile' | 'raw' = 'flat'): USCoreRaceExtensionProfileFlat | USCoreRaceExtensionProfile | Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race")
+        if (!ext) return undefined
+        if (mode === 'raw') return ext
+        if (mode === 'profile') return USCoreRaceExtensionProfile.apply(ext)
+        const config = [{ name: "ombCategory", valueField: "valueCoding", isArray: false }, { name: "detailed", valueField: "valueCoding", isArray: true }, { name: "text", valueField: "valueString", isArray: false }]
+        return extractComplexExtension<USCoreRaceExtensionProfileFlat>(ext, config)
+    }
+
+    public setEthnicity (input: USCoreEthnicityExtensionProfileFlat | USCoreEthnicityExtensionProfile | Extension): this {
+        if (input instanceof USCoreEthnicityExtensionProfile) {
+            pushExtension(this.resource, input.toResource())
+        } else if (isExtension<Extension>(input)) {
+            if (input.url !== "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity") throw new Error(\`Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity', got '\${input.url}'\`)
+            pushExtension(this.resource, input)
+        } else {
+            pushExtension(this.resource, USCoreEthnicityExtensionProfile.createResource(input))
+        }
+        return this
+    }
+
+    public getEthnicity(mode: 'flat'): USCoreEthnicityExtensionProfileFlat | undefined;
+    public getEthnicity(mode: 'profile'): USCoreEthnicityExtensionProfile | undefined;
+    public getEthnicity(mode: 'raw'): Extension | undefined;
+    public getEthnicity(): USCoreEthnicityExtensionProfileFlat | undefined;
+    public getEthnicity (mode: 'flat' | 'profile' | 'raw' = 'flat'): USCoreEthnicityExtensionProfileFlat | USCoreEthnicityExtensionProfile | Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity")
+        if (!ext) return undefined
+        if (mode === 'raw') return ext
+        if (mode === 'profile') return USCoreEthnicityExtensionProfile.apply(ext)
+        const config = [{ name: "ombCategory", valueField: "valueCoding", isArray: false }, { name: "detailed", valueField: "valueCoding", isArray: true }, { name: "text", valueField: "valueString", isArray: false }]
+        return extractComplexExtension<USCoreEthnicityExtensionProfileFlat>(ext, config)
+    }
+
+    public setTribalAffiliation (input: USCoreTribalAffiliationExtensionProfileFlat | USCoreTribalAffiliationExtensionProfile | Extension): this {
+        if (input instanceof USCoreTribalAffiliationExtensionProfile) {
+            pushExtension(this.resource, input.toResource())
+        } else if (isExtension<Extension>(input)) {
+            if (input.url !== "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation") throw new Error(\`Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation', got '\${input.url}'\`)
+            pushExtension(this.resource, input)
+        } else {
+            pushExtension(this.resource, USCoreTribalAffiliationExtensionProfile.createResource(input))
+        }
+        return this
+    }
+
+    public getTribalAffiliation(mode: 'flat'): USCoreTribalAffiliationExtensionProfileFlat | undefined;
+    public getTribalAffiliation(mode: 'profile'): USCoreTribalAffiliationExtensionProfile | undefined;
+    public getTribalAffiliation(mode: 'raw'): Extension | undefined;
+    public getTribalAffiliation(): USCoreTribalAffiliationExtensionProfileFlat | undefined;
+    public getTribalAffiliation (mode: 'flat' | 'profile' | 'raw' = 'flat'): USCoreTribalAffiliationExtensionProfileFlat | USCoreTribalAffiliationExtensionProfile | Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation")
+        if (!ext) return undefined
+        if (mode === 'raw') return ext
+        if (mode === 'profile') return USCoreTribalAffiliationExtensionProfile.apply(ext)
+        const config = [{ name: "tribalAffiliation", valueField: "valueCodeableConcept", isArray: false }, { name: "isEnrolled", valueField: "valueBoolean", isArray: false }]
+        return extractComplexExtension<USCoreTribalAffiliationExtensionProfileFlat>(ext, config)
+    }
+
+    public setSex (value: USCoreIndividualSexExtensionProfile | Extension | Coding): this {
+        if (value instanceof USCoreIndividualSexExtensionProfile) {
+            pushExtension(this.resource, value.toResource())
+        } else if (isExtension(value)) {
+            if (value.url !== "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex") throw new Error(\`Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex', got '\${value.url}'\`)
+            pushExtension(this.resource, value)
+        } else {
+            pushExtension(this.resource, USCoreIndividualSexExtensionProfile.createResource({ valueCoding: value as Coding }))
+        }
+        return this
+    }
+
+    public getSex(mode: 'flat'): Coding | undefined;
+    public getSex(mode: 'profile'): USCoreIndividualSexExtensionProfile | undefined;
+    public getSex(mode: 'raw'): Extension | undefined;
+    public getSex(): Coding | undefined;
+    public getSex (mode: 'flat' | 'profile' | 'raw' = 'flat'): Coding | USCoreIndividualSexExtensionProfile | Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex")
+        if (!ext) return undefined
+        if (mode === 'raw') return ext
+        if (mode === 'profile') return USCoreIndividualSexExtensionProfile.apply(ext)
+        return getExtensionValue<Coding>(ext, "valueCoding")
+    }
+
+    public setInterpreterRequired (value: USCoreInterpreterNeededExtensionProfile | Extension | Coding): this {
+        if (value instanceof USCoreInterpreterNeededExtensionProfile) {
+            pushExtension(this.resource, value.toResource())
+        } else if (isExtension(value)) {
+            if (value.url !== "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed") throw new Error(\`Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed', got '\${value.url}'\`)
+            pushExtension(this.resource, value)
+        } else {
+            pushExtension(this.resource, USCoreInterpreterNeededExtensionProfile.createResource({ valueCoding: value as Coding }))
+        }
+        return this
+    }
+
+    public getInterpreterRequired(mode: 'flat'): Coding | undefined;
+    public getInterpreterRequired(mode: 'profile'): USCoreInterpreterNeededExtensionProfile | undefined;
+    public getInterpreterRequired(mode: 'raw'): Extension | undefined;
+    public getInterpreterRequired(): Coding | undefined;
+    public getInterpreterRequired (mode: 'flat' | 'profile' | 'raw' = 'flat'): Coding | USCoreInterpreterNeededExtensionProfile | Extension | undefined {
+        const ext = this.resource.extension?.find(e => e.url === "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed")
+        if (!ext) return undefined
+        if (mode === 'raw') return ext
+        if (mode === 'profile') return USCoreInterpreterNeededExtensionProfile.apply(ext)
+        return getExtensionValue<Coding>(ext, "valueCoding")
+    }
+
+    // Slices
+    // Validation
+    validate(): { errors: string[]; warnings: string[] } {
+        const profileName = "USCorePatientProfile"
+        const res = this.resource
+        return {
+            errors: [
+                ...validateRequired(res, profileName, "identifier"),
+                ...validateRequired(res, profileName, "name"),
+            ],
+            warnings: [
+                ...validateMustSupport(res, profileName, "birthDate"),
+                ...validateMustSupport(res, profileName, "address"),
+            ],
+        }
+    }
+
+}
+
+"
+`;
+
+exports[`TypeScript US Core Example generates US Core Blood Pressure profile 1`] = `
+"// WARNING: This file is autogenerated by @atomic-ehr/codegen.
+// GitHub: https://github.com/atomic-ehr/codegen
+// Any manual changes made to this file may be overwritten.
+
+import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
+import type { Observation, ObservationComponent } from "../../hl7-fhir-r4-core/Observation";
+import type { Period } from "../../hl7-fhir-r4-core/Period";
+import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
+import type { Range } from "../../hl7-fhir-r4-core/Range";
+import type { Ratio } from "../../hl7-fhir-r4-core/Ratio";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
+import type { SampledData } from "../../hl7-fhir-r4-core/SampledData";
+
+export interface USCoreBloodPressureProfile extends Observation {
+    category: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
+    subject: Reference<"Patient">;
+}
+
+export type USCoreBloodPressureProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
+export type USCoreBloodPressureProfile_Component_SystolicSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
+export type USCoreBloodPressureProfile_Component_DiastolicSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
+
+import {
+    buildResource,
+    ensureProfile,
+    applySliceMatch,
+    matchesValue,
+    setArraySlice,
+    getArraySlice,
+    ensureSliceDefaults,
+    stripMatchKeys,
+    wrapSliceChoice,
+    unwrapSliceChoice,
+    validateRequired,
+    validateExcluded,
+    validateFixedValue,
+    validateSliceCardinality,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+    validateMustSupport,
+} from "../../profile-helpers";
+
+export type USCoreBloodPressureProfileRaw = {
+    status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
+    subject: Reference<"Patient">;
+    category?: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
+    component?: ObservationComponent[];
+}
+
+// CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure (pkg: hl7.fhir.us.core#8.0.1)
+export class USCoreBloodPressureProfile {
+    static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure";
+
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}};
+    private static readonly systolicSliceMatch: Record<string, unknown> = {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}};
+    private static readonly diastolicSliceMatch: Record<string, unknown> = {"code":{"coding":[{"system":"http://loinc.org","code":"8462-4"}]}};
+
+    private resource: Observation;
+
+    constructor (resource: Observation) {
+        this.resource = resource;
+    }
+
+    static from (resource: Observation) : USCoreBloodPressureProfile {
+        if (!resource.meta?.profile?.includes(USCoreBloodPressureProfile.canonicalUrl)) {
+            throw new Error(\`USCoreBloodPressureProfile: meta.profile must include \${USCoreBloodPressureProfile.canonicalUrl}\`)
+        }
+        const profile = new USCoreBloodPressureProfile(resource);
+        const { errors } = profile.validate();
+        if (errors.length > 0) throw new Error(errors.join("; "))
+        return profile;
+    }
+
+    static apply (resource: Observation) : USCoreBloodPressureProfile {
+        ensureProfile(resource, USCoreBloodPressureProfile.canonicalUrl);
+        return new USCoreBloodPressureProfile(resource);
+    }
+
+    static createResource (args: USCoreBloodPressureProfileRaw) : Observation {
+        const categoryWithDefaults = ensureSliceDefaults(
+            [...(args.category ?? [])],
+            USCoreBloodPressureProfile.VSCatSliceMatch,
+        );
+        const componentWithDefaults = ensureSliceDefaults(
+            [...(args.component ?? [])],
+            USCoreBloodPressureProfile.systolicSliceMatch,
+            USCoreBloodPressureProfile.diastolicSliceMatch,
+        );
+
+        const resource = buildResource<Observation>( {
+            resourceType: "Observation",
+            code: {"coding":[{"system":"http://loinc.org","code":"85354-9"}]},
+            category: categoryWithDefaults,
+            component: componentWithDefaults,
+            status: args.status,
+            subject: args.subject,
+            meta: { profile: [USCoreBloodPressureProfile.canonicalUrl] },
+        })
+        return resource;
+    }
+
+    static create (args: USCoreBloodPressureProfileRaw) : USCoreBloodPressureProfile {
+        return USCoreBloodPressureProfile.apply(USCoreBloodPressureProfile.createResource(args));
+    }
+
+    toResource () : Observation {
+        return this.resource;
+    }
+
+    // Field accessors
+    getStatus () : ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined {
+        return this.resource.status as ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined;
+    }
+
+    setStatus (value: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown")) : this {
+        Object.assign(this.resource, { status: value });
+        return this;
+    }
+
+    getSubject () : Reference<"Patient"> | undefined {
+        return this.resource.subject as Reference<"Patient"> | undefined;
+    }
+
+    setSubject (value: Reference<"Patient">) : this {
+        Object.assign(this.resource, { subject: value });
+        return this;
+    }
+
+    getCategory () : CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined {
+        return this.resource.category as CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined;
+    }
+
+    setCategory (value: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[]) : this {
+        Object.assign(this.resource, { category: value });
+        return this;
+    }
+
+    getCode () : CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)> | undefined {
+        return this.resource.code as CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)> | undefined;
+    }
+
+    setCode (value: CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)>) : this {
+        Object.assign(this.resource, { code: value });
+        return this;
+    }
+
+    getComponent () : ObservationComponent[] | undefined {
+        return this.resource.component as ObservationComponent[] | undefined;
+    }
+
+    setComponent (value: ObservationComponent[]) : this {
+        Object.assign(this.resource, { component: value });
+        return this;
+    }
+
+    getEffectiveDateTime () : string | undefined {
+        return this.resource.effectiveDateTime as string | undefined;
+    }
+
+    setEffectiveDateTime (value: string) : this {
+        Object.assign(this.resource, { effectiveDateTime: value });
+        return this;
+    }
+
+    getEffectivePeriod () : Period | undefined {
+        return this.resource.effectivePeriod as Period | undefined;
+    }
+
+    setEffectivePeriod (value: Period) : this {
+        Object.assign(this.resource, { effectivePeriod: value });
+        return this;
+    }
+
+    getValueQuantity () : Quantity | undefined {
+        return this.resource.valueQuantity as Quantity | undefined;
+    }
+
+    setValueQuantity (value: Quantity) : this {
+        Object.assign(this.resource, { valueQuantity: value });
+        return this;
+    }
+
+    getValueCodeableConcept () : CodeableConcept | undefined {
+        return this.resource.valueCodeableConcept as CodeableConcept | undefined;
+    }
+
+    setValueCodeableConcept (value: CodeableConcept) : this {
+        Object.assign(this.resource, { valueCodeableConcept: value });
+        return this;
+    }
+
+    getValueString () : string | undefined {
+        return this.resource.valueString as string | undefined;
+    }
+
+    setValueString (value: string) : this {
+        Object.assign(this.resource, { valueString: value });
+        return this;
+    }
+
+    getValueBoolean () : boolean | undefined {
+        return this.resource.valueBoolean as boolean | undefined;
+    }
+
+    setValueBoolean (value: boolean) : this {
+        Object.assign(this.resource, { valueBoolean: value });
+        return this;
+    }
+
+    getValueInteger () : number | undefined {
+        return this.resource.valueInteger as number | undefined;
+    }
+
+    setValueInteger (value: number) : this {
+        Object.assign(this.resource, { valueInteger: value });
+        return this;
+    }
+
+    getValueRange () : Range | undefined {
+        return this.resource.valueRange as Range | undefined;
+    }
+
+    setValueRange (value: Range) : this {
+        Object.assign(this.resource, { valueRange: value });
+        return this;
+    }
+
+    getValueRatio () : Ratio | undefined {
+        return this.resource.valueRatio as Ratio | undefined;
+    }
+
+    setValueRatio (value: Ratio) : this {
+        Object.assign(this.resource, { valueRatio: value });
+        return this;
+    }
+
+    getValueSampledData () : SampledData | undefined {
+        return this.resource.valueSampledData as SampledData | undefined;
+    }
+
+    setValueSampledData (value: SampledData) : this {
+        Object.assign(this.resource, { valueSampledData: value });
+        return this;
+    }
+
+    getValueTime () : string | undefined {
+        return this.resource.valueTime as string | undefined;
+    }
+
+    setValueTime (value: string) : this {
+        Object.assign(this.resource, { valueTime: value });
+        return this;
+    }
+
+    getValueDateTime () : string | undefined {
+        return this.resource.valueDateTime as string | undefined;
+    }
+
+    setValueDateTime (value: string) : this {
+        Object.assign(this.resource, { valueDateTime: value });
+        return this;
+    }
+
+    getValuePeriod () : Period | undefined {
+        return this.resource.valuePeriod as Period | undefined;
+    }
+
+    setValuePeriod (value: Period) : this {
+        Object.assign(this.resource, { valuePeriod: value });
+        return this;
+    }
+
+    // Extensions
+    // Slices
+    public setVSCat (input?: USCoreBloodPressureProfile_Category_VSCatSliceFlat | CodeableConcept): this {
+        const match = USCoreBloodPressureProfile.VSCatSliceMatch
+        if (input && matchesValue(input, match)) {
+            setArraySlice(this.resource.category ??= [], match, input as CodeableConcept)
+            return this
+        }
+        const value = applySliceMatch<CodeableConcept>(input ?? {}, match)
+        setArraySlice(this.resource.category ??= [], match, value)
+        return this
+    }
+
+    public setSystolic (input?: USCoreBloodPressureProfile_Component_SystolicSliceFlat | ObservationComponent): this {
+        const match = USCoreBloodPressureProfile.systolicSliceMatch
+        if (input && matchesValue(input, match)) {
+            setArraySlice(this.resource.component ??= [], match, input as ObservationComponent)
+            return this
+        }
+        const wrapped = wrapSliceChoice<ObservationComponent>(input ?? {}, "valueQuantity")
+        const value = applySliceMatch<ObservationComponent>(wrapped, match)
+        setArraySlice(this.resource.component ??= [], match, value)
+        return this
+    }
+
+    public setDiastolic (input?: USCoreBloodPressureProfile_Component_DiastolicSliceFlat | ObservationComponent): this {
+        const match = USCoreBloodPressureProfile.diastolicSliceMatch
+        if (input && matchesValue(input, match)) {
+            setArraySlice(this.resource.component ??= [], match, input as ObservationComponent)
+            return this
+        }
+        const wrapped = wrapSliceChoice<ObservationComponent>(input ?? {}, "valueQuantity")
+        const value = applySliceMatch<ObservationComponent>(wrapped, match)
+        setArraySlice(this.resource.component ??= [], match, value)
+        return this
+    }
+
+    public getVSCat(mode: 'flat'): USCoreBloodPressureProfile_Category_VSCatSliceFlat | undefined;
+    public getVSCat(mode: 'raw'): CodeableConcept | undefined;
+    public getVSCat(): USCoreBloodPressureProfile_Category_VSCatSliceFlat | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): USCoreBloodPressureProfile_Category_VSCatSliceFlat | CodeableConcept | undefined {
+        const match = USCoreBloodPressureProfile.VSCatSliceMatch
+        const item = getArraySlice(this.resource.category, match)
+        if (!item) return undefined
+        if (mode === 'raw') return item
+        return stripMatchKeys<USCoreBloodPressureProfile_Category_VSCatSliceFlat>(item, ["coding"])
+    }
+
+    public getSystolic(mode: 'flat'): USCoreBloodPressureProfile_Component_SystolicSliceFlat | undefined;
+    public getSystolic(mode: 'raw'): ObservationComponent | undefined;
+    public getSystolic(): USCoreBloodPressureProfile_Component_SystolicSliceFlat | undefined;
+    public getSystolic (mode: 'flat' | 'raw' = 'flat'): USCoreBloodPressureProfile_Component_SystolicSliceFlat | ObservationComponent | undefined {
+        const match = USCoreBloodPressureProfile.systolicSliceMatch
+        const item = getArraySlice(this.resource.component, match)
+        if (!item) return undefined
+        if (mode === 'raw') return item
+        return unwrapSliceChoice<USCoreBloodPressureProfile_Component_SystolicSliceFlat>(item, ["code"], "valueQuantity")
+    }
+
+    public getDiastolic(mode: 'flat'): USCoreBloodPressureProfile_Component_DiastolicSliceFlat | undefined;
+    public getDiastolic(mode: 'raw'): ObservationComponent | undefined;
+    public getDiastolic(): USCoreBloodPressureProfile_Component_DiastolicSliceFlat | undefined;
+    public getDiastolic (mode: 'flat' | 'raw' = 'flat'): USCoreBloodPressureProfile_Component_DiastolicSliceFlat | ObservationComponent | undefined {
+        const match = USCoreBloodPressureProfile.diastolicSliceMatch
+        const item = getArraySlice(this.resource.component, match)
+        if (!item) return undefined
+        if (mode === 'raw') return item
+        return unwrapSliceChoice<USCoreBloodPressureProfile_Component_DiastolicSliceFlat>(item, ["code"], "valueQuantity")
+    }
+
+    // Validation
+    validate(): { errors: string[]; warnings: string[] } {
+        const profileName = "USCoreBloodPressureProfile"
+        const res = this.resource
+        return {
+            errors: [
+                ...validateRequired(res, profileName, "status"),
+                ...validateEnum(res, profileName, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
+                ...validateRequired(res, profileName, "category"),
+                ...validateSliceCardinality(res, profileName, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
+                ...validateRequired(res, profileName, "code"),
+                ...validateFixedValue(res, profileName, "code", {"coding":[{"system":"http://loinc.org","code":"85354-9"}]}),
+                ...validateRequired(res, profileName, "subject"),
+                ...validateReference(res, profileName, "subject", ["Patient"]),
+                ...validateChoiceRequired(res, profileName, ["effectiveDateTime","effectivePeriod"]),
+                ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
+                ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),
+                ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}}, "systolic", 1, 1),
+                ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":[{"system":"http://loinc.org","code":"8462-4"}]}}, "diastolic", 1, 1),
+                ...validateReference(res, profileName, "performer", ["PractitionerRole","USCoreCareTeam","USCoreOrganizationProfile","Patient","USCorePractitionerProfile","USCoreRelatedPersonProfile"]),
+            ],
+            warnings: [
+                ...validateEnum(res, profileName, "category", ["social-history","vital-signs","imaging","laboratory","procedure","survey","exam","therapy","activity"]),
+                ...validateEnum(res, profileName, "code", ["2708-6","29463-7","3140-1","3150-0","3151-8","39156-5","59408-5","59575-1","59576-9","77606-2","8287-5","8289-1","8302-2","8306-3","8310-5","8462-4","8478-0","8480-6","8867-4","9279-1","9843-4"]),
+                ...validateEnum(res, profileName, "dataAbsentReason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]),
+                ...validateMustSupport(res, profileName, "dataAbsentReason"),
+                ...validateMustSupport(res, profileName, "performer"),
+            ],
+        }
+    }
+
+}
+
+"
+`;
+
+exports[`TypeScript US Core Example generates US Core Body Weight profile 1`] = `
+"// WARNING: This file is autogenerated by @atomic-ehr/codegen.
+// GitHub: https://github.com/atomic-ehr/codegen
+// Any manual changes made to this file may be overwritten.
+
+import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
+import type { Observation } from "../../hl7-fhir-r4-core/Observation";
+import type { Period } from "../../hl7-fhir-r4-core/Period";
+import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
+import type { Range } from "../../hl7-fhir-r4-core/Range";
+import type { Ratio } from "../../hl7-fhir-r4-core/Ratio";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference";
+import type { SampledData } from "../../hl7-fhir-r4-core/SampledData";
+
+export interface USCoreBodyWeightProfile extends Observation {
+    category: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
+    subject: Reference<"Patient">;
+}
+
+export type USCoreBodyWeightProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
+
+import {
+    buildResource,
+    ensureProfile,
+    applySliceMatch,
+    matchesValue,
+    setArraySlice,
+    getArraySlice,
+    ensureSliceDefaults,
+    stripMatchKeys,
+    validateRequired,
+    validateExcluded,
+    validateFixedValue,
+    validateSliceCardinality,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+    validateMustSupport,
+} from "../../profile-helpers";
+
+export type USCoreBodyWeightProfileRaw = {
+    status: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown");
+    subject: Reference<"Patient">;
+    category?: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
+}
+
+// CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight (pkg: hl7.fhir.us.core#8.0.1)
+export class USCoreBodyWeightProfile {
+    static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight";
+
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}};
+
+    private resource: Observation;
+
+    constructor (resource: Observation) {
+        this.resource = resource;
+    }
+
+    static from (resource: Observation) : USCoreBodyWeightProfile {
+        if (!resource.meta?.profile?.includes(USCoreBodyWeightProfile.canonicalUrl)) {
+            throw new Error(\`USCoreBodyWeightProfile: meta.profile must include \${USCoreBodyWeightProfile.canonicalUrl}\`)
+        }
+        const profile = new USCoreBodyWeightProfile(resource);
+        const { errors } = profile.validate();
+        if (errors.length > 0) throw new Error(errors.join("; "))
+        return profile;
+    }
+
+    static apply (resource: Observation) : USCoreBodyWeightProfile {
+        ensureProfile(resource, USCoreBodyWeightProfile.canonicalUrl);
+        return new USCoreBodyWeightProfile(resource);
+    }
+
+    static createResource (args: USCoreBodyWeightProfileRaw) : Observation {
+        const categoryWithDefaults = ensureSliceDefaults(
+            [...(args.category ?? [])],
+            USCoreBodyWeightProfile.VSCatSliceMatch,
+        );
+
+        const resource = buildResource<Observation>( {
+            resourceType: "Observation",
+            code: {"coding":[{"system":"http://loinc.org","code":"29463-7"}]},
+            category: categoryWithDefaults,
+            status: args.status,
+            subject: args.subject,
+            meta: { profile: [USCoreBodyWeightProfile.canonicalUrl] },
+        })
+        return resource;
+    }
+
+    static create (args: USCoreBodyWeightProfileRaw) : USCoreBodyWeightProfile {
+        return USCoreBodyWeightProfile.apply(USCoreBodyWeightProfile.createResource(args));
+    }
+
+    toResource () : Observation {
+        return this.resource;
+    }
+
+    // Field accessors
+    getStatus () : ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined {
+        return this.resource.status as ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown") | undefined;
+    }
+
+    setStatus (value: ("registered" | "preliminary" | "final" | "amended" | "corrected" | "cancelled" | "entered-in-error" | "unknown")) : this {
+        Object.assign(this.resource, { status: value });
+        return this;
+    }
+
+    getSubject () : Reference<"Patient"> | undefined {
+        return this.resource.subject as Reference<"Patient"> | undefined;
+    }
+
+    setSubject (value: Reference<"Patient">) : this {
+        Object.assign(this.resource, { subject: value });
+        return this;
+    }
+
+    getCategory () : CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined {
+        return this.resource.category as CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[] | undefined;
+    }
+
+    setCategory (value: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[]) : this {
+        Object.assign(this.resource, { category: value });
+        return this;
+    }
+
+    getCode () : CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)> | undefined {
+        return this.resource.code as CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)> | undefined;
+    }
+
+    setCode (value: CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)>) : this {
+        Object.assign(this.resource, { code: value });
+        return this;
+    }
+
+    getEffectiveDateTime () : string | undefined {
+        return this.resource.effectiveDateTime as string | undefined;
+    }
+
+    setEffectiveDateTime (value: string) : this {
+        Object.assign(this.resource, { effectiveDateTime: value });
+        return this;
+    }
+
+    getEffectivePeriod () : Period | undefined {
+        return this.resource.effectivePeriod as Period | undefined;
+    }
+
+    setEffectivePeriod (value: Period) : this {
+        Object.assign(this.resource, { effectivePeriod: value });
+        return this;
+    }
+
+    getValueQuantity () : Quantity | undefined {
+        return this.resource.valueQuantity as Quantity | undefined;
+    }
+
+    setValueQuantity (value: Quantity) : this {
+        Object.assign(this.resource, { valueQuantity: value });
+        return this;
+    }
+
+    getValueCodeableConcept () : CodeableConcept | undefined {
+        return this.resource.valueCodeableConcept as CodeableConcept | undefined;
+    }
+
+    setValueCodeableConcept (value: CodeableConcept) : this {
+        Object.assign(this.resource, { valueCodeableConcept: value });
+        return this;
+    }
+
+    getValueString () : string | undefined {
+        return this.resource.valueString as string | undefined;
+    }
+
+    setValueString (value: string) : this {
+        Object.assign(this.resource, { valueString: value });
+        return this;
+    }
+
+    getValueBoolean () : boolean | undefined {
+        return this.resource.valueBoolean as boolean | undefined;
+    }
+
+    setValueBoolean (value: boolean) : this {
+        Object.assign(this.resource, { valueBoolean: value });
+        return this;
+    }
+
+    getValueInteger () : number | undefined {
+        return this.resource.valueInteger as number | undefined;
+    }
+
+    setValueInteger (value: number) : this {
+        Object.assign(this.resource, { valueInteger: value });
+        return this;
+    }
+
+    getValueRange () : Range | undefined {
+        return this.resource.valueRange as Range | undefined;
+    }
+
+    setValueRange (value: Range) : this {
+        Object.assign(this.resource, { valueRange: value });
+        return this;
+    }
+
+    getValueRatio () : Ratio | undefined {
+        return this.resource.valueRatio as Ratio | undefined;
+    }
+
+    setValueRatio (value: Ratio) : this {
+        Object.assign(this.resource, { valueRatio: value });
+        return this;
+    }
+
+    getValueSampledData () : SampledData | undefined {
+        return this.resource.valueSampledData as SampledData | undefined;
+    }
+
+    setValueSampledData (value: SampledData) : this {
+        Object.assign(this.resource, { valueSampledData: value });
+        return this;
+    }
+
+    getValueTime () : string | undefined {
+        return this.resource.valueTime as string | undefined;
+    }
+
+    setValueTime (value: string) : this {
+        Object.assign(this.resource, { valueTime: value });
+        return this;
+    }
+
+    getValueDateTime () : string | undefined {
+        return this.resource.valueDateTime as string | undefined;
+    }
+
+    setValueDateTime (value: string) : this {
+        Object.assign(this.resource, { valueDateTime: value });
+        return this;
+    }
+
+    getValuePeriod () : Period | undefined {
+        return this.resource.valuePeriod as Period | undefined;
+    }
+
+    setValuePeriod (value: Period) : this {
+        Object.assign(this.resource, { valuePeriod: value });
+        return this;
+    }
+
+    // Extensions
+    // Slices
+    public setVSCat (input?: USCoreBodyWeightProfile_Category_VSCatSliceFlat | CodeableConcept): this {
+        const match = USCoreBodyWeightProfile.VSCatSliceMatch
+        if (input && matchesValue(input, match)) {
+            setArraySlice(this.resource.category ??= [], match, input as CodeableConcept)
+            return this
+        }
+        const value = applySliceMatch<CodeableConcept>(input ?? {}, match)
+        setArraySlice(this.resource.category ??= [], match, value)
+        return this
+    }
+
+    public getVSCat(mode: 'flat'): USCoreBodyWeightProfile_Category_VSCatSliceFlat | undefined;
+    public getVSCat(mode: 'raw'): CodeableConcept | undefined;
+    public getVSCat(): USCoreBodyWeightProfile_Category_VSCatSliceFlat | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): USCoreBodyWeightProfile_Category_VSCatSliceFlat | CodeableConcept | undefined {
+        const match = USCoreBodyWeightProfile.VSCatSliceMatch
+        const item = getArraySlice(this.resource.category, match)
+        if (!item) return undefined
+        if (mode === 'raw') return item
+        return stripMatchKeys<USCoreBodyWeightProfile_Category_VSCatSliceFlat>(item, ["coding"])
+    }
+
+    // Validation
+    validate(): { errors: string[]; warnings: string[] } {
+        const profileName = "USCoreBodyWeightProfile"
+        const res = this.resource
+        return {
+            errors: [
+                ...validateRequired(res, profileName, "status"),
+                ...validateEnum(res, profileName, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
+                ...validateRequired(res, profileName, "category"),
+                ...validateSliceCardinality(res, profileName, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
+                ...validateRequired(res, profileName, "code"),
+                ...validateFixedValue(res, profileName, "code", {"coding":[{"system":"http://loinc.org","code":"29463-7"}]}),
+                ...validateRequired(res, profileName, "subject"),
+                ...validateReference(res, profileName, "subject", ["Patient"]),
+                ...validateChoiceRequired(res, profileName, ["effectiveDateTime","effectivePeriod"]),
+                ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
+                ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),
+                ...validateReference(res, profileName, "performer", ["PractitionerRole","USCoreCareTeam","USCoreOrganizationProfile","Patient","USCorePractitionerProfile","USCoreRelatedPersonProfile"]),
+            ],
+            warnings: [
+                ...validateEnum(res, profileName, "category", ["social-history","vital-signs","imaging","laboratory","procedure","survey","exam","therapy","activity"]),
+                ...validateEnum(res, profileName, "code", ["2708-6","29463-7","3140-1","3150-0","3151-8","39156-5","59408-5","59575-1","59576-9","77606-2","8287-5","8289-1","8302-2","8306-3","8310-5","8462-4","8478-0","8480-6","8867-4","9279-1","9843-4"]),
+                ...validateEnum(res, profileName, "dataAbsentReason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]),
+                ...validateMustSupport(res, profileName, "dataAbsentReason"),
+                ...validateMustSupport(res, profileName, "performer"),
+            ],
+        }
+    }
+
+}
+
+"
+`;
+
+exports[`TypeScript US Core Example generates US Core Race extension profile 1`] = `
+"// WARNING: This file is autogenerated by @atomic-ehr/codegen.
+// GitHub: https://github.com/atomic-ehr/codegen
+// Any manual changes made to this file may be overwritten.
+
+import type { Coding } from "../../hl7-fhir-r4-core/Coding";
+import type { Extension } from "../../hl7-fhir-r4-core/Extension";
+
+export type USCoreRaceExtension_Extension_OmbCategorySliceFlat = Omit<Extension, "url" | "value" | "valueBase64Binary" | "valueBoolean" | "valueCanonical" | "valueCode" | "valueDate" | "valueDateTime" | "valueDecimal" | "valueId" | "valueInstant" | "valueInteger" | "valueMarkdown" | "valueOid" | "valuePositiveInt" | "valueString" | "valueTime" | "valueUnsignedInt" | "valueUri" | "valueUrl" | "valueUuid" | "valueAddress" | "valueAge" | "valueAnnotation" | "valueAttachment" | "valueCodeableConcept" | "valueCoding" | "valueContactPoint" | "valueCount" | "valueDistance" | "valueDuration" | "valueHumanName" | "valueIdentifier" | "valueMoney" | "valuePeriod" | "valueQuantity" | "valueRange" | "valueRatio" | "valueReference" | "valueSampledData" | "valueSignature" | "valueTiming" | "valueContactDetail" | "valueContributor" | "valueDataRequirement" | "valueExpression" | "valueParameterDefinition" | "valueRelatedArtifact" | "valueTriggerDefinition" | "valueUsageContext" | "valueDosage" | "valueMeta"> & Coding;
+export type USCoreRaceExtension_Extension_DetailedSliceFlat = Omit<Extension, "url" | "value" | "valueBase64Binary" | "valueBoolean" | "valueCanonical" | "valueCode" | "valueDate" | "valueDateTime" | "valueDecimal" | "valueId" | "valueInstant" | "valueInteger" | "valueMarkdown" | "valueOid" | "valuePositiveInt" | "valueString" | "valueTime" | "valueUnsignedInt" | "valueUri" | "valueUrl" | "valueUuid" | "valueAddress" | "valueAge" | "valueAnnotation" | "valueAttachment" | "valueCodeableConcept" | "valueCoding" | "valueContactPoint" | "valueCount" | "valueDistance" | "valueDuration" | "valueHumanName" | "valueIdentifier" | "valueMoney" | "valuePeriod" | "valueQuantity" | "valueRange" | "valueRatio" | "valueReference" | "valueSampledData" | "valueSignature" | "valueTiming" | "valueContactDetail" | "valueContributor" | "valueDataRequirement" | "valueExpression" | "valueParameterDefinition" | "valueRelatedArtifact" | "valueTriggerDefinition" | "valueUsageContext" | "valueDosage" | "valueMeta"> & Coding;
+export type USCoreRaceExtension_Extension_TextSliceFlat = Omit<Extension, "url">;
+
+import {
+    buildResource,
+    isRawExtensionInput,
+    applySliceMatch,
+    matchesValue,
+    setArraySlice,
+    getArraySlice,
+    ensureSliceDefaults,
+    stripMatchKeys,
+    wrapSliceChoice,
+    unwrapSliceChoice,
+    isExtension,
+    getExtensionValue,
+    pushExtension,
+    validateRequired,
+    validateExcluded,
+    validateFixedValue,
+    validateSliceCardinality,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+    validateMustSupport,
+} from "../../profile-helpers";
+
+export type USCoreRaceExtensionProfileRaw = {
+    extension?: Extension[];
+}
+
+export type USCoreRaceExtensionProfileFlat = {
+    ombCategory?: Coding;
+    detailed?: Coding[];
+    text: string;
+}
+
+// CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-race (pkg: hl7.fhir.us.core#8.0.1)
+export class USCoreRaceExtensionProfile {
+    static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race";
+
+    private static readonly ombCategorySliceMatch: Record<string, unknown> = {"url":"ombCategory"};
+    private static readonly detailedSliceMatch: Record<string, unknown> = {"url":"detailed"};
+    private static readonly textSliceMatch: Record<string, unknown> = {"url":"text"};
+
+    private resource: Extension;
+
+    constructor (resource: Extension) {
+        this.resource = resource;
+    }
+
+    static from (resource: Extension) : USCoreRaceExtensionProfile {
+        const profile = new USCoreRaceExtensionProfile(resource);
+        const { errors } = profile.validate();
+        if (errors.length > 0) throw new Error(errors.join("; "))
+        return profile;
+    }
+
+    static apply (resource: Extension) : USCoreRaceExtensionProfile {
+        return new USCoreRaceExtensionProfile(resource);
+    }
+
+    private static resolveInput (args: USCoreRaceExtensionProfileRaw | USCoreRaceExtensionProfileFlat) : Extension[] {
+        if (isRawExtensionInput<USCoreRaceExtensionProfileRaw>(args)) {
+            return args.extension ?? [];
+        } else {
+            const result: Extension[] = [];
+            if (args.ombCategory !== undefined) {
+                result.push({ url: "ombCategory", valueCoding: args.ombCategory } as Extension);
+            }
+            if (args.detailed) {
+                for (const item of args.detailed) {
+                    result.push({ url: "detailed", valueCoding: item } as Extension);
+                }
+            }
+            if (args.text !== undefined) {
+                result.push({ url: "text", valueString: args.text } as Extension);
+            }
+            return result;
+        }
+    }
+
+    static createResource (args: USCoreRaceExtensionProfileRaw | USCoreRaceExtensionProfileFlat) : Extension {
+        const resolvedExtensions = USCoreRaceExtensionProfile.resolveInput(args ?? {});
+        const extensionWithDefaults = ensureSliceDefaults(
+            resolvedExtensions,
+            USCoreRaceExtensionProfile.textSliceMatch,
+        );
+
+        const resource = buildResource<Extension>( {
+            url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            extension: extensionWithDefaults,
+        })
+        return resource;
+    }
+
+    static create (args: USCoreRaceExtensionProfileRaw | USCoreRaceExtensionProfileFlat) : USCoreRaceExtensionProfile {
+        return USCoreRaceExtensionProfile.apply(USCoreRaceExtensionProfile.createResource(args));
+    }
+
+    toResource () : Extension {
+        return this.resource;
+    }
+
+    // Field accessors
+    getExtension () : Extension[] | undefined {
+        return this.resource.extension as Extension[] | undefined;
+    }
+
+    setExtension (value: Extension[]) : this {
+        Object.assign(this.resource, { extension: value });
+        return this;
+    }
+
+    getUrl () : string | undefined {
+        return this.resource.url as string | undefined;
+    }
+
+    setUrl (value: string) : this {
+        Object.assign(this.resource, { url: value });
+        return this;
+    }
+
+    // Extensions
+    public setOmbCategory (value: Omit<Extension, "url"> | Extension): this {
+        if (isExtension(value)) {
+            if (value.url !== "ombCategory") throw new Error(\`Expected extension url 'ombCategory', got '\${value.url}'\`)
+            pushExtension(this.resource, value)
+        } else {
+            pushExtension(this.resource, { url: "ombCategory", ...value } as Extension)
+        }
+        return this
+    }
+
+    public getOmbCategory (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "ombCategory")
+    }
+
+    public setDetailed (value: Omit<Extension, "url"> | Extension): this {
+        if (isExtension(value)) {
+            if (value.url !== "detailed") throw new Error(\`Expected extension url 'detailed', got '\${value.url}'\`)
+            pushExtension(this.resource, value)
+        } else {
+            pushExtension(this.resource, { url: "detailed", ...value } as Extension)
+        }
+        return this
+    }
+
+    public getDetailed (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "detailed")
+    }
+
+    public setText (value: Omit<Extension, "url"> | Extension): this {
+        if (isExtension(value)) {
+            if (value.url !== "text") throw new Error(\`Expected extension url 'text', got '\${value.url}'\`)
+            pushExtension(this.resource, value)
+        } else {
+            pushExtension(this.resource, { url: "text", ...value } as Extension)
+        }
+        return this
+    }
+
+    public getText (): Extension | undefined {
+        return this.resource.extension?.find(e => e.url === "text")
+    }
+
+    // Slices
+    public setExtensionOmbCategory (input?: USCoreRaceExtension_Extension_OmbCategorySliceFlat | Extension): this {
+        const match = USCoreRaceExtensionProfile.ombCategorySliceMatch
+        if (input && matchesValue(input, match)) {
+            setArraySlice(this.resource.extension ??= [], match, input as Extension)
+            return this
+        }
+        const wrapped = wrapSliceChoice<Extension>(input ?? {}, "valueCoding")
+        const value = applySliceMatch<Extension>(wrapped, match)
+        setArraySlice(this.resource.extension ??= [], match, value)
+        return this
+    }
+
+    public setExtensionDetailed (input?: USCoreRaceExtension_Extension_DetailedSliceFlat | Extension): this {
+        const match = USCoreRaceExtensionProfile.detailedSliceMatch
+        if (input && matchesValue(input, match)) {
+            setArraySlice(this.resource.extension ??= [], match, input as Extension)
+            return this
+        }
+        const wrapped = wrapSliceChoice<Extension>(input ?? {}, "valueCoding")
+        const value = applySliceMatch<Extension>(wrapped, match)
+        setArraySlice(this.resource.extension ??= [], match, value)
+        return this
+    }
+
+    public setExtensionText (input?: USCoreRaceExtension_Extension_TextSliceFlat | Extension): this {
+        const match = USCoreRaceExtensionProfile.textSliceMatch
+        if (input && matchesValue(input, match)) {
+            setArraySlice(this.resource.extension ??= [], match, input as Extension)
+            return this
+        }
+        const value = applySliceMatch<Extension>(input ?? {}, match)
+        setArraySlice(this.resource.extension ??= [], match, value)
+        return this
+    }
+
+    public getExtensionOmbCategory(mode: 'flat'): USCoreRaceExtension_Extension_OmbCategorySliceFlat | undefined;
+    public getExtensionOmbCategory(mode: 'raw'): Extension | undefined;
+    public getExtensionOmbCategory(): USCoreRaceExtension_Extension_OmbCategorySliceFlat | undefined;
+    public getExtensionOmbCategory (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_OmbCategorySliceFlat | Extension | undefined {
+        const match = USCoreRaceExtensionProfile.ombCategorySliceMatch
+        const item = getArraySlice(this.resource.extension, match)
+        if (!item) return undefined
+        if (mode === 'raw') return item
+        return unwrapSliceChoice<USCoreRaceExtension_Extension_OmbCategorySliceFlat>(item, ["url"], "valueCoding")
+    }
+
+    public getExtensionDetailed(mode: 'flat'): USCoreRaceExtension_Extension_DetailedSliceFlat | undefined;
+    public getExtensionDetailed(mode: 'raw'): Extension | undefined;
+    public getExtensionDetailed(): USCoreRaceExtension_Extension_DetailedSliceFlat | undefined;
+    public getExtensionDetailed (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_DetailedSliceFlat | Extension | undefined {
+        const match = USCoreRaceExtensionProfile.detailedSliceMatch
+        const item = getArraySlice(this.resource.extension, match)
+        if (!item) return undefined
+        if (mode === 'raw') return item
+        return unwrapSliceChoice<USCoreRaceExtension_Extension_DetailedSliceFlat>(item, ["url"], "valueCoding")
+    }
+
+    public getExtensionText(mode: 'flat'): USCoreRaceExtension_Extension_TextSliceFlat | undefined;
+    public getExtensionText(mode: 'raw'): Extension | undefined;
+    public getExtensionText(): USCoreRaceExtension_Extension_TextSliceFlat | undefined;
+    public getExtensionText (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_TextSliceFlat | Extension | undefined {
+        const match = USCoreRaceExtensionProfile.textSliceMatch
+        const item = getArraySlice(this.resource.extension, match)
+        if (!item) return undefined
+        if (mode === 'raw') return item
+        return stripMatchKeys<USCoreRaceExtension_Extension_TextSliceFlat>(item, ["url"])
+    }
+
+    // Validation
+    validate(): { errors: string[]; warnings: string[] } {
+        const profileName = "USCoreRaceExtension"
+        const res = this.resource
+        return {
+            errors: [
+                ...validateRequired(res, profileName, "extension"),
+                ...validateSliceCardinality(res, profileName, "extension", {"url":"ombCategory"}, "ombCategory", 0, 6),
+                ...validateSliceCardinality(res, profileName, "extension", {"url":"text"}, "text", 1, 1),
+                ...validateRequired(res, profileName, "url"),
+                ...validateFixedValue(res, profileName, "url", USCoreRaceExtensionProfile.canonicalUrl),
+            ],
+            warnings: [],
+        }
+    }
+
+}
+
+"
+`;
+
+exports[`TypeScript US Core Example generates US Core profiles index 1`] = `
+"export { USCoreBloodPressureProfile } from "./Observation_USCoreBloodPressureProfile";
+export { USCoreBodyWeightProfile } from "./Observation_USCoreBodyWeightProfile";
+export { USCoreEthnicityExtensionProfile } from "./Extension_USCoreEthnicityExtension";
+export { USCoreIndividualSexExtensionProfile } from "./Extension_USCoreIndividualSexExtension";
+export { USCoreInterpreterNeededExtensionProfile } from "./Extension_USCoreInterpreterNeededExtension";
+export { USCorePatientProfile } from "./Patient_USCorePatientProfile";
+export { USCoreRaceExtensionProfile } from "./Extension_USCoreRaceExtension";
+export { USCoreTribalAffiliationExtensionProfile } from "./Extension_USCoreTribalAffiliationExtension";
+export { USCoreVitalSignsProfile } from "./Observation_USCoreVitalSignsProfile";
 "
 `;

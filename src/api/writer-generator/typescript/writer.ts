@@ -29,6 +29,7 @@ import {
     tsResourceName,
 } from "./name";
 import {
+    detectFieldOverrides,
     generateProfileClass,
     generateProfileImports,
     generateProfileIndexFile,
@@ -46,6 +47,7 @@ export const resolveTsAssets = (fn: string) => {
 };
 
 export type TypeScriptOptions = {
+    lineWidth?: number;
     /** openResourceTypeSet -- for resource families (Resource, DomainResource) use open set for resourceType field.
      *
      * - when openResourceTypeSet is false: `type Resource = { resourceType: "Resource" | "DomainResource" | "Patient" }`
@@ -53,15 +55,49 @@ export type TypeScriptOptions = {
      */
     openResourceTypeSet: boolean;
     primitiveTypeExtension: boolean;
+    extensionGetterDefault?: "flat" | "profile" | "raw";
+    sliceGetterDefault?: "flat" | "raw";
 } & WriterOptions;
 
 export class TypeScript extends Writer<TypeScriptOptions> {
     constructor(options: TypeScriptOptions) {
-        super({ ...options, resolveAssets: options.resolveAssets ?? resolveTsAssets });
+        super({ lineWidth: 120, ...options, resolveAssets: options.resolveAssets ?? resolveTsAssets });
     }
 
-    tsImportType(tsPackageName: string, ...entities: string[]) {
-        this.lineSM(`import type { ${entities.join(", ")} } from "${tsPackageName}"`);
+    ifElseChain(branches: { cond: string; body: () => void }[], elseBody?: () => void) {
+        branches.forEach((branch, i) => {
+            const prefix = i === 0 ? "if" : "} else if";
+            this.line(`${prefix} (${branch.cond}) {`);
+            this.indent();
+            branch.body();
+            this.deindent();
+        });
+        if (elseBody) {
+            this.line("} else {");
+            this.indent();
+            elseBody();
+            this.deindent();
+        }
+        this.line("}");
+    }
+
+    tsImport(tsPackageName: string, ...entities: string[]): void;
+    tsImport(tsPackageName: string, ...args: [...string[], { typeOnly: boolean }]): void;
+    tsImport(tsPackageName: string, ...rest: (string | { typeOnly: boolean })[]) {
+        const last = rest[rest.length - 1];
+        const typeOnly = typeof last === "object" ? last.typeOnly : false;
+        const entities = (typeof last === "object" ? rest.slice(0, -1) : rest) as string[];
+        const keyword = typeOnly ? "import type" : "import";
+        const singleLine = `${keyword} { ${entities.join(", ")} } from "${tsPackageName}"`;
+        if (singleLine.length <= (this.opts.lineWidth ?? 120)) {
+            this.lineSM(singleLine);
+        } else {
+            this.curlyBlock([keyword], () => {
+                for (const entity of entities) {
+                    this.line(`${entity},`);
+                }
+            }, [` from "${tsPackageName}";`]);
+        }
     }
 
     generateFhirPackageIndexFile(schemas: TypeSchema[]) {
@@ -140,7 +176,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             imports.sort((a, b) => a.name.localeCompare(b.name));
             for (const dep of imports) {
                 this.debugComment(dep.dep);
-                this.tsImportType(dep.tsPackage, dep.name);
+                this.tsImport(dep.tsPackage, dep.name, { typeOnly: true });
             }
             for (const dep of skipped) {
                 this.debugComment("skip:", dep);
@@ -155,7 +191,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 const element = tsIndex.resolveByUrl(schema.identifier.package, elementUrl);
                 if (!element) throw new Error(`'${elementUrl}' not found for ${schema.identifier.package}.`);
 
-                this.tsImportType(`${importPrefix}${tsModulePath(element.identifier)}`, "Element");
+                this.tsImport(`${importPrefix}${tsModulePath(element.identifier)}`, "Element", { typeOnly: true });
             }
         }
     }
@@ -272,9 +308,10 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 this.cat(`${tsProfileModuleFileName(tsIndex, schema)}`, () => {
                     this.generateDisclaimer();
                     const flatProfile = tsIndex.flatProfile(schema);
-                    generateProfileImports(this, tsIndex, flatProfile);
-                    generateProfileOverrideInterface(this, tsIndex, flatProfile);
-                    generateProfileClass(this, tsIndex, flatProfile, schema);
+                    const overrides = detectFieldOverrides(tsIndex, flatProfile);
+                    generateProfileImports(this, tsIndex, flatProfile, overrides);
+                    generateProfileOverrideInterface(this, flatProfile, overrides);
+                    generateProfileClass(this, tsIndex, flatProfile);
                 });
             });
         } else if (["complex-type", "resource", "logical"].includes(schema.identifier.kind)) {

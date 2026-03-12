@@ -4,72 +4,92 @@
 
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
-import { validateRequired, validateExcluded, validateFixedValue, validateSliceCardinality, validateEnum, validateReference, validateChoiceRequired } from "../../profile-helpers";
+import {
+    buildResource,
+    validateRequired,
+    validateExcluded,
+    validateFixedValue,
+    validateSliceCardinality,
+    validateEnum,
+    validateReference,
+    validateChoiceRequired,
+    validateMustSupport,
+} from "../../profile-helpers";
 
-export type own_prefixProfileParams = {
+export type own_prefixProfileRaw = {
     valueString: string;
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/humanname-own-prefix (pkg: hl7.fhir.r4.core#4.0.1)
 export class own_prefixProfile {
-    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix"
+    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix";
 
-    private resource: Extension
+    private resource: Extension;
 
     constructor (resource: Extension) {
-        this.resource = resource
+        this.resource = resource;
     }
 
     static from (resource: Extension) : own_prefixProfile {
-        return new own_prefixProfile(resource)
+        const profile = new own_prefixProfile(resource);
+        const { errors } = profile.validate();
+        if (errors.length > 0) throw new Error(errors.join("; "))
+        return profile;
     }
 
-    static createResource (args: own_prefixProfileParams) : Extension {
-        const resource = {
+    static apply (resource: Extension) : own_prefixProfile {
+        return new own_prefixProfile(resource);
+    }
+
+    static createResource (args: own_prefixProfileRaw) : Extension {
+        const resource = buildResource<Extension>( {
             url: "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
             valueString: args.valueString,
-        } as unknown as Extension
-        return resource
+        })
+        return resource;
     }
 
-    static create (args: own_prefixProfileParams) : own_prefixProfile {
-        return own_prefixProfile.from(own_prefixProfile.createResource(args))
+    static create (args: own_prefixProfileRaw) : own_prefixProfile {
+        return own_prefixProfile.apply(own_prefixProfile.createResource(args));
     }
 
     toResource () : Extension {
-        return this.resource
+        return this.resource;
     }
 
     // Field accessors
-
     getValueString () : string | undefined {
-        return this.resource.valueString as string | undefined
+        return this.resource.valueString as string | undefined;
     }
 
     setValueString (value: string) : this {
-        Object.assign(this.resource, { valueString: value })
-        return this
+        Object.assign(this.resource, { valueString: value });
+        return this;
     }
 
     getUrl () : string | undefined {
-        return this.resource.url as string | undefined
+        return this.resource.url as string | undefined;
     }
 
     setUrl (value: string) : this {
-        Object.assign(this.resource, { url: value })
-        return this
+        Object.assign(this.resource, { url: value });
+        return this;
     }
 
+    // Extensions
+    // Slices
     // Validation
-
-    validate(): string[] {
+    validate(): { errors: string[]; warnings: string[] } {
         const profileName = "own-prefix"
-        const res = this.resource as unknown as Record<string, unknown>
-        return [
-            ...validateRequired(res, profileName, "url"),
-            ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix"),
-            ...validateChoiceRequired(res, profileName, ["valueString"]),
-        ]
+        const res = this.resource
+        return {
+            errors: [
+                ...validateRequired(res, profileName, "url"),
+                ...validateFixedValue(res, profileName, "url", own_prefixProfile.canonicalUrl),
+                ...validateChoiceRequired(res, profileName, ["valueString"]),
+            ],
+            warnings: [],
+        }
     }
 
 }

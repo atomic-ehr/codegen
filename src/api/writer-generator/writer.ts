@@ -177,11 +177,11 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
 export abstract class Writer<T extends WriterOptions = WriterOptions> extends FileSystemWriter<T> {
     currentIndent: number = 0;
 
-    private indent() {
+    protected indent() {
         this.currentIndent += this.opts.tabSize;
     }
 
-    private deindent() {
+    protected deindent() {
         this.currentIndent -= this.opts.tabSize;
     }
 

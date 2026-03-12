@@ -218,6 +218,13 @@ export interface FieldSlicing {
     slices?: Record<string, FieldSlice>;
 }
 
+export type ConstrainedChoiceInfo = {
+    choiceBase: string;
+    variant: string;
+    variantType: Identifier;
+    allChoiceNames: string[];
+};
+
 export interface FieldSlice {
     min?: number;
     max?: number;
@@ -269,6 +276,7 @@ export interface RegularField {
     max?: number;
     slicing?: FieldSlicing;
     valueConstraint?: ValueConstraint;
+    mustSupport?: boolean;
 }
 
 export interface ChoiceFieldDeclaration {
@@ -293,6 +301,7 @@ export interface ChoiceFieldInstance {
     max?: number;
     slicing?: FieldSlicing;
     valueConstraint?: ValueConstraint;
+    mustSupport?: boolean;
 }
 
 export type Concept = {

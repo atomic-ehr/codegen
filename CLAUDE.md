@@ -116,6 +116,9 @@ FHIR Package → TypeSchema Generator → TypeSchema Format → Code Generators 
 - Avoid `function foo() { ... }` declarations in new code
 - Avoid re-exports inside project
 - Avoid `interface Foo { ... }` declarations in new code, prefer type syntax if it is possible
+- In code generators (writer-generator): use `curlyBlock` and `squareBlock` helpers for writing structured output instead of manual indent/deindent or string concatenation
+- Use `Record` instead of `Map` unless there is a significant reason for `Map` (e.g. non-string keys, iteration order guarantees, frequent deletion)
+- Prefer single-line guard clauses without braces: `if (!x) throw new Error("...");` instead of wrapping in `{ }`
 
 ### Testing Strategy
 - Uses Bun's built-in test runner

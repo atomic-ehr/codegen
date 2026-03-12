@@ -6,8 +6,11 @@ import type { IrReport } from "./ir/types";
 import type { Register } from "./register";
 import {
     type CanonicalUrl,
+    type ConstrainedChoiceInfo,
     type Field,
     type Identifier,
+    isChoiceDeclarationField,
+    isChoiceInstanceField,
     isComplexTypeTypeSchema,
     isLogicalTypeSchema,
     isProfileTypeSchema,
@@ -182,6 +185,11 @@ export type TypeSchemaIndex = {
     findLastSpecialization: (schema: TypeSchema) => TypeSchema;
     findLastSpecializationByIdentifier: (id: Identifier) => Identifier;
     flatProfile: (schema: ProfileTypeSchema) => ProfileTypeSchema;
+    constrainedChoice: (
+        pkgName: PkgName,
+        baseTypeId: Identifier,
+        sliceElements: string[],
+    ) => ConstrainedChoiceInfo | undefined;
     isWithMetaField: (profile: ProfileTypeSchema) => boolean;
     entityTree: () => EntityTree;
     exportTree: (filename: string) => Promise<void>;
@@ -360,6 +368,30 @@ export const mkTypeSchemaIndex = (
         };
     };
 
+    const constrainedChoice = (
+        pkgName: PkgName,
+        baseTypeId: Identifier,
+        sliceElements: string[],
+    ): ConstrainedChoiceInfo | undefined => {
+        const baseSchema = resolveByUrl(pkgName, baseTypeId.url as CanonicalUrl);
+        if (!baseSchema || !("fields" in baseSchema) || !baseSchema.fields) return undefined;
+        for (const [fieldName, field] of Object.entries(baseSchema.fields)) {
+            if (!isChoiceDeclarationField(field)) continue;
+            const matchingVariants = field.choices.filter((c) => sliceElements.includes(c));
+            if (matchingVariants.length !== 1) continue;
+            const variantName = matchingVariants[0] as string;
+            const variantField = baseSchema.fields[variantName];
+            if (!variantField || !isChoiceInstanceField(variantField)) continue;
+            return {
+                choiceBase: fieldName,
+                variant: variantName,
+                variantType: variantField.type,
+                allChoiceNames: field.choices,
+            };
+        }
+        return undefined;
+    };
+
     const isWithMetaField = (profile: ProfileTypeSchema): boolean => {
         const genealogy = tryHierarchy(profile);
         if (!genealogy) return false;
@@ -413,6 +445,7 @@ export const mkTypeSchemaIndex = (
         findLastSpecialization,
         findLastSpecializationByIdentifier,
         flatProfile,
+        constrainedChoice,
         isWithMetaField,
         entityTree,
         exportTree,

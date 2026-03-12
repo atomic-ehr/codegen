@@ -343,11 +343,11 @@ const obs = bp.toResource();
 **Slicing & Choice Type Flattening:**
 
 ```typescript
-// Simplified getter — discriminator stripped, choice type flattened
-bp.getSystolicBP();    // { value: 120, unit: "mmHg" }
+// Flat getter (default) — discriminator stripped, choice type flattened
+bp.getSystolicBP();        // { value: 120, unit: "mmHg" }
 
 // Raw getter — full FHIR element including discriminator values
-bp.getSystolicBPRaw(); // { code: { coding: [...] }, valueQuantity: { value: 120, ... } }
+bp.getSystolicBP('raw');   // { code: { coding: [...] }, valueQuantity: { value: 120, ... } }
 ```
 
 **Wrapping Existing Resources:**
