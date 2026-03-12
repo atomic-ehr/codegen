@@ -1,6 +1,6 @@
 # FHIR Profiles Representation
 
-Status: Implemented (TypeScript). See `examples/typescript-r4/` for working examples.
+Status: Implemented (TypeScript). See `examples/typescript-r4/` and `examples/typescript-us-core/` for working examples.
 
 This document covers the representation of FHIR profiles in generated code: resource profiles, extension profiles, and their relationship to base resources.
 
@@ -82,16 +82,21 @@ Problem: if we have several levels of profiles on top of the resource how they s
 Arbitrary JSON can be converted to:
 
 1. Resource type, independently from the profiles.
-1. Profile type via `ProfileClass.from(resource)`.
+1. Profile type via `ProfileClass.from(resource)` or `ProfileClass.apply(resource)`.
 
 ```typescript
 // Parse as resource
 const obs: Observation = JSON.parse(json)
 
-// Wrap with profile
+// from() validates meta.profile and runs validate(), throws on errors
 const bodyweight = observation_bodyweightProfile.from(obs)
-bodyweight.getVSCat() // access slice
-bodyweight.toResource() // back to Observation (same object)
+
+// apply() stamps meta.profile without validation, for incremental construction
+const bodyweight = observation_bodyweightProfile.apply(obs)
+
+bodyweight.getVSCat()      // access slice (flat by default)
+bodyweight.getVSCat("raw") // access raw FHIR element
+bodyweight.toResource()    // back to Observation (same object)
 ```
 
 ### Mutable/Immutable Representation
@@ -100,7 +105,7 @@ The profile class holds a mutable reference to the underlying resource. Mutation
 
 ```typescript
 const obs: Observation = { resourceType: "Observation", status: "preliminary", ... }
-const profile = observation_bodyweightProfile.from(obs)
+const profile = observation_bodyweightProfile.apply(obs)
 profile.setStatus("final")
 obs.status // "final" — same object
 ```
@@ -120,38 +125,44 @@ export interface observation_bodyweight extends Observation {
 }
 ```
 
-2. **Profile class** — wraps the resource with typed getters/setters and slice accessors:
+2. **Profile class** — wraps the resource with factory methods, typed getters/setters, slice accessors, extension accessors, and validation:
 
 ```typescript
 export class observation_bodyweightProfile {
+    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bodyweight"
     private resource: Observation
 
     constructor(resource: Observation) { ... }
-    static from(resource: Observation): observation_bodyweightProfile { ... }
-    static createResource(args: observation_bodyweightProfileParams): Observation { ... }
-    static create(args: observation_bodyweightProfileParams): observation_bodyweightProfile { ... }
+
+    // Factory methods
+    static from(resource: Observation): observation_bodyweightProfile { ... }     // validates, throws on error
+    static apply(resource: Observation): observation_bodyweightProfile { ... }    // stamps meta.profile, no validation
+    static createResource(args: observation_bodyweightProfileRaw): Observation { ... }
+    static create(args: observation_bodyweightProfileRaw): observation_bodyweightProfile { ... }
 
     // Typed getters/setters for constrained fields
     getStatus(): (...) | undefined { ... }
     setStatus(value: ...): this { ... }
 
-    // Slice accessors (see slices.md)
-    setVSCat(input?: Observation_bodyweight_Category_VSCatSliceInput): this { ... }
-    getVSCat(): Observation_bodyweight_Category_VSCatSliceInput | undefined { ... }
-    getVSCatRaw(): CodeableConcept | undefined { ... }
+    // Slice accessors with mode overloads (see slices.md)
+    setVSCat(input?: VSCatSliceFlat | CodeableConcept): this { ... }
+    getVSCat(): VSCatSliceFlat | undefined { ... }          // flat (default)
+    getVSCat(mode: 'flat'): VSCatSliceFlat | undefined { ... }
+    getVSCat(mode: 'raw'): CodeableConcept | undefined { ... }
 
     // Conversion
     toResource(): Observation { ... }
-    toProfile(): observation_bodyweight { ... }
+
+    // Validation
+    validate(): { errors: string[]; warnings: string[] } { ... }
 }
 ```
 
 3. **Params type** — lists fields for the `createResource`/`create` factory methods. Array fields with required slices are optional -- stubs are auto-merged:
 
 ```typescript
-export type observation_bodyweightProfileParams = {
+export type observation_bodyweightProfileRaw = {
     status: (...);
-    code: CodeableConcept<(...)>;
     subject: Reference<"Patient">;
     category?: CodeableConcept<(...)>[];  // optional -- required slice stubs auto-merged
 }
@@ -166,27 +177,24 @@ Extension profiles constrain the `Extension` type. They come in two forms:
 A simple extension carries one `value[x]` field (e.g., `patient-birthPlace` carries `valueAddress`):
 
 ```typescript
-export type birthPlaceProfileParams = {
+export type birthPlaceProfileRaw = {
     valueAddress: Address;
 }
 
 export class birthPlaceProfile {
+    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/patient-birthPlace"
     private resource: Extension
 
-    static createResource(args: birthPlaceProfileParams): Extension {
-        return {
-            url: "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
-            valueAddress: args.valueAddress,
-        } as unknown as Extension
-    }
-
-    static create(args: birthPlaceProfileParams): birthPlaceProfile { ... }
-    static from(resource: Extension): birthPlaceProfile { ... }
+    static from(resource: Extension): birthPlaceProfile { ... }   // validates
+    static apply(resource: Extension): birthPlaceProfile { ... }  // no validation
+    static createResource(args: birthPlaceProfileRaw): Extension { ... }
+    static create(args: birthPlaceProfileRaw): birthPlaceProfile { ... }
 
     getValueAddress(): Address | undefined { ... }
     setValueAddress(value: Address): this { ... }
 
     toResource(): Extension { ... }
+    validate(): { errors: string[]; warnings: string[] } { ... }
 }
 ```
 
@@ -206,34 +214,68 @@ const patient: Patient = {
 A complex extension has nested extension elements instead of a single value (e.g., `patient-nationality` has `code` and `period` sub-extensions):
 
 ```typescript
+// Raw input — pass extension[] directly
+export type nationalityProfileRaw = { extension?: Extension[] }
+
+// Flat input — typed sub-extension fields
+export type nationalityProfileFlat = { code?: CodeableConcept; period?: Period }
+
 export class nationalityProfile {
+    static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/patient-nationality"
     private resource: Extension
 
-    static createResource(): Extension {
-        return {
-            url: "http://hl7.org/fhir/StructureDefinition/patient-nationality",
-        } as unknown as Extension
-    }
+    static from(resource: Extension): nationalityProfile { ... }
+    static apply(resource: Extension): nationalityProfile { ... }
 
-    // Sub-extension accessors
+    // create/createResource accept both raw and flat input
+    static createResource(args?: nationalityProfileRaw | nationalityProfileFlat): Extension { ... }
+    static create(args?: nationalityProfileRaw | nationalityProfileFlat): nationalityProfile { ... }
+
+    // Sub-extension accessors with mode overloads
     setCode(value: CodeableConcept): this { ... }
+    getCode(): CodeableConcept | undefined { ... }          // flat (default)
+    getCode(mode: 'flat'): CodeableConcept | undefined { ... }
+    getCode(mode: 'raw'): Extension | undefined { ... }     // raw sub-extension
+
     setPeriod(value: Period): this { ... }
-    getCode(): CodeableConcept | undefined { ... }
-    getCodeExtension(): Extension | undefined { ... }  // raw access
     getPeriod(): Period | undefined { ... }
-    getPeriodExtension(): Extension | undefined { ... }
+    getPeriod(mode: 'raw'): Extension | undefined { ... }
 
     toResource(): Extension { ... }
+    validate(): { errors: string[]; warnings: string[] } { ... }
 }
 ```
 
 Usage:
 
 ```typescript
-const profile = nationalityProfile.create()
-    .setCode({ coding: [{ system: "urn:iso:std:iso:3166", code: "US" }] })
-    .setPeriod({ start: "2000-01-01" })
+// Flat input
+const profile = nationalityProfile.create({
+    code: { coding: [{ system: "urn:iso:std:iso:3166", code: "US" }] },
+    period: { start: "2000-01-01" },
+})
+
+// Read values back
+profile.getCode()        // { coding: [...] }
+profile.getCode("raw")   // { url: "code", valueCodeableConcept: { coding: [...] } }
+
 const ext: Extension = profile.toResource()
+```
+
+### Extension Accessors on Resource Profiles
+
+Resource profiles that declare extensions (e.g., US Core Patient with `us-core-race`) generate multi-form setters and overloaded getters:
+
+```typescript
+// Setter accepts flat input, profile instance, or raw Extension
+patient.setRace({ ombCategory: { code: "2028-9" }, text: "Asian" })      // flat input
+patient.setRace(USCoreRaceExtensionProfile.create({ ... }))               // profile instance
+patient.setRace({ url: "http://.../us-core-race", extension: [...] })     // raw Extension
+
+// Getter with mode overloads
+patient.getRace()            // flat: { ombCategory: ..., text: "Asian" }
+patient.getRace("profile")   // USCoreRaceExtensionProfile instance
+patient.getRace("raw")       // raw FHIR Extension
 ```
 
 ## TypeSchema Representation
@@ -246,20 +288,38 @@ Current approach: to collect all profile elements we traverse the inheritance tr
 
 Profile classes depend on a generated `profile-helpers.ts` module that provides:
 
+Slice helpers:
 - `applySliceMatch(input, match)` — merges discriminator values into a slice element
-- `matchesSlice(value, match)` — checks if an element matches a slice discriminator
-- `extractSliceSimplified(slice, matchKeys)` — strips discriminator keys from a slice for the simplified input type
-- `wrapSliceChoice(input, choiceVariant)` — wraps flat input fields under a single choice variant key (for setter)
-- `flattenSliceChoice(slice, matchKeys, choiceVariant)` — strips discriminator keys and flattens a single choice variant into parent (for getter)
-- `mergeMatch(target, match)` — deep-merges match values into target
+- `matchesValue(value, match)` — recursive structural match test
+- `setArraySlice(list, match, value)` — find-or-insert in array by discriminator
+- `getArraySlice(list, match)` — find first matching element
+- `ensureSliceDefaults(items, ...matches)` — ensure required slices have stubs
+- `stripMatchKeys(slice, matchKeys)` — remove discriminator keys from getter result
+- `wrapSliceChoice(input, choiceVariant)` — wrap flat input fields under a single choice variant key (for setter)
+- `unwrapSliceChoice(slice, matchKeys, choiceVariant)` — inverse of wrap
+
+Extension helpers:
+- `ensurePath(root, path)` — navigate/create nested paths for deep extensions
 - `extractComplexExtension(extension, config)` — extracts typed values from nested extension elements
-- `validateRequired(r, field, path)` — checks that a required field is present
-- `validateMustSupport(r, field, path)` — checks that a must-support field is populated (warning, not error)
-- `validateExcluded(r, field, path)` — checks that a forbidden field is absent
-- `validateFixedValue(r, field, expected, path)` — checks that a field matches a fixed/pattern value
-- `validateSliceCardinality(items, match, sliceName, min, max, path)` — checks min/max counts for a named slice
-- `validateEnum(value, allowed, field, path)` — checks that a value is within a required value set (supports primitives, Coding, CodeableConcept)
-- `validateReference(value, allowed, field, path)` — checks that a reference targets an allowed resource type
+- `isExtension(input, url?)` — type guard for raw Extension detection
+- `isRawExtensionInput(input)` — discriminate raw vs flat input for extension profile factories
+- `getExtensionValue(ext, field)` — read a typed value field from Extension
+- `pushExtension(target, ext)` — push extension onto target.extension array
+
+Factory helpers:
+- `buildResource(obj)` — cast object to resource type
+- `ensureProfile(resource, canonicalUrl)` — add profile URL to meta.profile
+- `mergeMatch(target, match)` — deep-merges match values into target
+
+Validation helpers:
+- `validateRequired(res, profileName, field)` — checks that a required field is present
+- `validateMustSupport(res, profileName, field)` — checks that a must-support field is populated (warning, not error)
+- `validateExcluded(res, profileName, field)` — checks that a forbidden field is absent
+- `validateFixedValue(res, profileName, field, expected)` — checks that a field matches a fixed/pattern value
+- `validateSliceCardinality(res, profileName, field, match, sliceName, min, max)` — checks min/max counts for a named slice
+- `validateChoiceRequired(res, profileName, choices)` — checks that at least one choice variant is present
+- `validateEnum(res, profileName, field, allowed)` — checks that a value is within a value set (supports primitives, Coding, CodeableConcept)
+- `validateReference(res, profileName, field, allowed)` — checks that a reference targets an allowed resource type
 
 ## Configuration
 
@@ -306,6 +366,14 @@ const { errors, warnings } = bp.validate();
 // errors: ["effective: at least one of effectiveDateTime, effectivePeriod is required"]
 // warnings: ["observation_bp: must-support field 'dataAbsentReason' is not populated"]
 // Required slices (VSCat, SystolicBP, DiastolicBP) are auto-populated by create()
+```
+
+`from()` uses `validate()` internally — it throws on errors but allows warnings:
+
+```typescript
+const profile = observation_bodyweightProfile.from(obs)
+// throws if meta.profile is missing or validate().errors is non-empty
+// warnings are not thrown — retrieve them via profile.validate().warnings
 ```
 
 Validation helpers are emitted into `profile-helpers.ts` alongside the existing slice helpers.
