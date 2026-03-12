@@ -1,13 +1,15 @@
 #!/bin/bash
 set -e
 
-# Check if version argument is provided
-if [ -z "$1" ]; then
-    echo "Error: Version number required"
+# Validate semver format
+if ! echo "$1" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$'; then
+    echo "❌ Error: Invalid version format"
     echo "Usage: bun run release <version>"
     echo "Example: bun run release 0.0.18"
     exit 1
 fi
+
+VERSION=$1
 
 # Check if we're on main branch
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -18,7 +20,12 @@ if [ "$CURRENT_BRANCH" != "main" ]; then
     exit 1
 fi
 
-VERSION=$1
+# Check for uncommitted changes
+if ! git diff --quiet || ! git diff --cached --quiet; then
+    echo "❌ Error: Working tree has uncommitted changes"
+    echo "Please commit or stash your changes before releasing"
+    exit 1
+fi
 
 echo "📦 Releasing version $VERSION..."
 
@@ -26,13 +33,9 @@ echo "📦 Releasing version $VERSION..."
 echo "Updating package.json..."
 npm version $VERSION --no-git-tag-version
 
-# Commit the changes (package.json and package-lock.json if it exists)
+# Commit the changes
 echo "Committing changes..."
 git add package.json
-if [ -f "package-lock.json" ]; then
-    git add package-lock.json
-    echo "Updated package-lock.json"
-fi
 git commit -m "chore: bump version to $VERSION"
 
 # Create and push tag
