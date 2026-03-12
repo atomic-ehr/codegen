@@ -36,9 +36,7 @@ cd examples/typescript-us-core && bun test
 
 - [profile-patient.test.ts](profile-patient.test.ts) -- Patient profile with extensions (race, ethnicity, sex)
 - [profile-bp.test.ts](profile-bp.test.ts) -- Blood Pressure with component slices
-- [profile-bodyweight.test.ts](profile-bodyweight.test.ts) -- Body Weight with choice types
-- [profile-getters.test.ts](profile-getters.test.ts) -- Getter mode patterns
-- [multi-profile.test.ts](multi-profile.test.ts) -- Multi-profile usage
+- [profile-bodyweight.test.ts](profile-bodyweight.test.ts) -- Body Weight with choice types, slice getter modes
 
 ## File Structure
 
@@ -48,8 +46,6 @@ typescript-us-core/
 ├── profile-patient.test.ts      # Patient profile tests
 ├── profile-bp.test.ts           # Blood pressure tests
 ├── profile-bodyweight.test.ts   # Body weight tests
-├── profile-getters.test.ts      # Getter mode tests
-├── multi-profile.test.ts        # Multi-profile tests
 ├── fhir-types/                  # Generated output
 │   ├── hl7-fhir-r4-core/        # FHIR R4 base types
 │   ├── hl7-fhir-us-core/        # US Core types
