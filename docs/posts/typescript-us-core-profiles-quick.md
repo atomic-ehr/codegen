@@ -50,7 +50,7 @@ const sex: Extension = {
 };
 patient.setSex(sex);
 
-patient.validate(); // []
+patient.validate(); // { errors: [], warnings: [...] }
 patient.toResource();
 // {
 //     resourceType: "Patient",
@@ -79,7 +79,7 @@ Each profile class provides:
 - **Choice types** -- `effective[x]`, `value[x]` with per-branch accessors
 - **Extensions** -- flat API for complex and simple extensions, multi-form setters (flat input, profile instance, raw Extension)
 - **Factory methods** -- `from()` (validates), `apply()` (stamps), `create()` (builds from typed input)
-- **Validation** -- `validate()` checks required fields and choice constraints
+- **Validation** -- `validate()` returns `{ errors, warnings }` — checks required fields, choice constraints, and must-support field population
 
 See the [generate script](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/generate.ts) and [example README](https://github.com/atomic-ehr/codegen/blob/main/examples/typescript-us-core/README.md) for setup.
 

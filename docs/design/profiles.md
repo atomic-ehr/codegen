@@ -254,6 +254,7 @@ Profile classes depend on a generated `profile-helpers.ts` module that provides:
 - `mergeMatch(target, match)` — deep-merges match values into target
 - `extractComplexExtension(extension, config)` — extracts typed values from nested extension elements
 - `validateRequired(r, field, path)` — checks that a required field is present
+- `validateMustSupport(r, field, path)` — checks that a must-support field is populated (warning, not error)
 - `validateExcluded(r, field, path)` — checks that a forbidden field is absent
 - `validateFixedValue(r, field, expected, path)` — checks that a field matches a fixed/pattern value
 - `validateSliceCardinality(items, match, sliceName, min, max, path)` — checks min/max counts for a named slice
@@ -280,9 +281,9 @@ new APIBuilder()
 
 ## Runtime Validation
 
-Profile classes generate a `validate(): string[]` method that checks the wrapped resource against the profile's constraints. An empty array means the resource conforms; each string describes one violation.
+Profile classes generate a `validate(): { errors: string[]; warnings: string[] }` method that checks the wrapped resource against the profile's constraints. Empty arrays mean the resource conforms; each string describes one violation.
 
-Checks performed:
+Errors (hard constraint violations):
 - **Required fields** — fields that the profile marks as mandatory (min >= 1)
 - **Excluded fields** — fields that the profile forbids (max = 0)
 - **Fixed/pattern values** — fields constrained to specific values (e.g., `code.coding` must contain a specific LOINC code)
@@ -291,14 +292,19 @@ Checks performed:
 - **Reference types** — reference targets restricted to specific resource types
 - **Choice type requirements** — at least one variant must be present when the choice group is required
 
+Warnings (soft checks):
+- **Extensible binding mismatches** — values outside an extensible value set
+- **Must-support fields** — fields marked `mustSupport: true` in the profile that are not populated (only for non-required fields; required fields already produce errors)
+
 ```typescript
 const bp = observation_bpProfile.create({
     status: "final",
     subject: { reference: "Patient/pt-1" },
 });
 
-const errors = bp.validate();
-// ["effective: at least one of effectiveDateTime, effectivePeriod is required"]
+const { errors, warnings } = bp.validate();
+// errors: ["effective: at least one of effectiveDateTime, effectivePeriod is required"]
+// warnings: ["observation_bp: must-support field 'dataAbsentReason' is not populated"]
 // Required slices (VSCat, SystolicBP, DiastolicBP) are auto-populated by create()
 ```
 

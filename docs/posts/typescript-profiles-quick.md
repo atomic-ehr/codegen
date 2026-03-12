@@ -18,7 +18,7 @@ bp.setVSCat({ text: "Vital Signs" })
     .setDiastolicBP({ value: 80, unit: "mmHg" })
     .setEffectiveDateTime("2024-06-15");
 
-bp.validate(); // [] -- valid
+bp.validate(); // { errors: [], warnings: [...] }
 
 // Plain FHIR JSON -- ready for API calls, storage, etc.
 const obs = bp.toResource();
