@@ -17,7 +17,7 @@ import {
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import {
     tsCamelCase,
-    tsExtensionInputTypeName,
+    tsExtensionFlatTypeName,
     tsExtensionMethodBaseName,
     tsFieldName,
     tsModulePath,
@@ -28,7 +28,7 @@ import {
     tsQualifiedExtensionMethodBaseName,
     tsQualifiedSliceMethodBaseName,
     tsResourceName,
-    tsSliceInputTypeName,
+    tsSliceFlatTypeName,
     tsSliceMethodBaseName,
     tsSliceStaticName,
 } from "./name";
@@ -387,7 +387,7 @@ export const generateProfileImports = (
     for (const [className, { modulePath, hasFlatInput }] of [...extProfileImports.entries()].sort(([a], [b]) =>
         a.localeCompare(b),
     )) {
-        const imports = [className, ...(hasFlatInput ? [`type ${className}Input`] : [])];
+        const imports = [className, ...(hasFlatInput ? [`type ${className}Flat`] : [])];
         w.tsImport(modulePath, ...imports);
     }
     if (extProfileImports.size > 0) w.line();
@@ -412,7 +412,7 @@ const generateFactoryMethods = (
     const canonicalUrl = flatProfile.identifier.url;
     const hasMeta = tsIndex.isWithMetaField(flatProfile);
     const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
-    const createArgsTypeName = `${profileClassName}InputRaw`;
+    const createArgsTypeName = `${profileClassName}Raw`;
     const paramSignature = hasParams ? `args: ${createArgsTypeName}` : "";
     const allFields = [
         ...factoryInfo.autoFields.map((f) => ({ name: f.name, value: f.value })),
@@ -445,15 +445,15 @@ const generateFactoryMethods = (
     });
     w.line();
     // For extension profiles with sub-extension slices: generate resolveInput helper,
-    // widen createResource and create to accept Input | InputRaw
+    // widen createResource and create to accept Input | Raw
     const subSlicesForInput = flatProfile.base.name === "Extension" ? collectSubExtensionSlices(flatProfile) : [];
     const hasInputHelper = subSlicesForInput.length > 0;
 
     if (hasInputHelper) {
-        const rawInputTypeName = `${profileClassName}InputRaw`;
-        const inputTypeName = `${profileClassName}Input`;
+        const rawInputTypeName = `${profileClassName}Raw`;
+        const inputTypeName = `${profileClassName}Flat`;
 
-        // Private helper: converts Input to Extension[], passes through InputRaw.extension
+        // Private helper: converts Input to Extension[], passes through Raw.extension
         w.curlyBlock(
             ["private static", "resolveInput", `(args: ${rawInputTypeName} | ${inputTypeName})`, ": Extension[]"],
             () => {
@@ -490,7 +490,7 @@ const generateFactoryMethods = (
         );
         w.line();
 
-        // createResource — accepts Input | InputRaw
+        // createResource — accepts Input | Raw
         const createResourceSig = hasParams
             ? `args: ${rawInputTypeName} | ${inputTypeName}`
             : `args?: ${rawInputTypeName} | ${inputTypeName}`;
@@ -527,7 +527,7 @@ const generateFactoryMethods = (
         });
         w.line();
 
-        // create — accepts Input | InputRaw, delegates to createResource
+        // create — accepts Input | Raw, delegates to createResource
         const createSig = hasParams
             ? `args: ${rawInputTypeName} | ${inputTypeName}`
             : `args?: ${rawInputTypeName} | ${inputTypeName}`;
@@ -625,7 +625,7 @@ const generateInlineExtensionInputTypes = (w: TypeScript, tsIndex: TypeSchemaInd
         const extProfileInfo = resolveExtensionProfile(tsIndex, flatProfile.identifier.package, ext.url);
         const hasFlatInput = extProfileInfo ? collectSubExtensionSlices(extProfileInfo.flatProfile).length > 0 : false;
         if (hasFlatInput) continue;
-        const typeName = tsExtensionInputTypeName(tsProfileName, ext.name);
+        const typeName = tsExtensionFlatTypeName(tsProfileName, ext.name);
         w.curlyBlock(["export", "type", typeName, "="], () => {
             for (const sub of ext.subExtensions ?? []) {
                 const tsType = sub.valueType ? tsTypeFromIdentifier(sub.valueType) : "unknown";
@@ -642,7 +642,7 @@ const generateSliceInputTypes = (w: TypeScript, flatProfile: ProfileTypeSchema, 
     if (sliceDefs.length === 0) return;
     const tsProfileName = tsResourceName(flatProfile.identifier);
     for (const sliceDef of sliceDefs) {
-        const typeName = tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+        const typeName = tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
         const matchFields = Object.keys(sliceDef.match);
         const allExcluded = [...new Set([...sliceDef.excluded, ...matchFields])];
         if (sliceDef.constrainedChoice) {
@@ -669,12 +669,12 @@ const generateSliceInputTypes = (w: TypeScript, flatProfile: ProfileTypeSchema, 
     w.line();
 };
 
-const generateInputRawType = (w: TypeScript, flatProfile: ProfileTypeSchema, factoryInfo: ProfileFactoryInfo) => {
+const generateRawType = (w: TypeScript, flatProfile: ProfileTypeSchema, factoryInfo: ProfileFactoryInfo) => {
     const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
     const subSlices = flatProfile.base.name === "Extension" ? collectSubExtensionSlices(flatProfile) : [];
     if (!hasParams && subSlices.length === 0) return;
 
-    const createArgsTypeName = `${tsProfileClassName(flatProfile)}InputRaw`;
+    const createArgsTypeName = `${tsProfileClassName(flatProfile)}Raw`;
     w.curlyBlock(["export", "type", createArgsTypeName, "="], () => {
         for (const p of factoryInfo.params) {
             w.lineSM(`${p.name}: ${p.tsType}`);
@@ -696,7 +696,7 @@ const generateFlatInputType = (w: TypeScript, flatProfile: ProfileTypeSchema) =>
     const subSlices = flatProfile.base.name === "Extension" ? collectSubExtensionSlices(flatProfile) : [];
     if (subSlices.length === 0) return;
 
-    const flatInputTypeName = `${tsProfileClassName(flatProfile)}Input`;
+    const flatInputTypeName = `${tsProfileClassName(flatProfile)}Flat`;
     w.curlyBlock(["export", "type", flatInputTypeName, "="], () => {
         for (const sub of subSlices) {
             const opt = sub.isRequired ? "" : "?";
@@ -790,7 +790,7 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, fl
 
     generateProfileHelpersImport(w, tsIndex, flatProfile, sliceDefs, factoryInfo);
 
-    generateInputRawType(w, flatProfile, factoryInfo);
+    generateRawType(w, flatProfile, factoryInfo);
     generateFlatInputType(w, flatProfile);
 
     const canonicalUrl = flatProfile.identifier.url;

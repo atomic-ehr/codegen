@@ -55,7 +55,8 @@ export type TypeScriptOptions = {
      */
     openResourceTypeSet: boolean;
     primitiveTypeExtension: boolean;
-    extensionGetterDefault?: "input" | "profile" | "extension";
+    extensionGetterDefault?: "flat" | "profile" | "raw";
+    sliceGetterDefault?: "flat" | "raw";
 } & WriterOptions;
 
 export class TypeScript extends Writer<TypeScriptOptions> {

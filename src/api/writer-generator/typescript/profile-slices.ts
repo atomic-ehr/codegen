@@ -13,7 +13,7 @@ import {
     tsProfileClassName,
     tsResolvedSliceBaseName,
     tsResourceName,
-    tsSliceInputTypeName,
+    tsSliceFlatTypeName,
     tsSliceStaticName,
 } from "./name";
 import { tsGet, tsTypeFromIdentifier } from "./utils";
@@ -113,24 +113,32 @@ export const generateSliceSetters = (
     for (const sliceDef of sliceDefs) {
         const baseName = tsResolvedSliceBaseName(sliceBaseNames, sliceDef.fieldName, sliceDef.sliceName);
         const methodName = `set${baseName}`;
-        const typeName = tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+        const typeName = tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
         const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
         const tsField = tsFieldName(sliceDef.fieldName);
         const fieldAccess = tsGet("this.resource", tsField);
+        const baseType = sliceDef.baseType;
         // Make input optional when there are no required fields (input can be empty object)
         const inputOptional = sliceDef.required.length === 0;
-        const paramSignature = inputOptional ? `(input?: ${typeName}): this` : `(input: ${typeName}): this`;
+        const unionType = `${typeName} | ${baseType}`;
+        const paramSignature = inputOptional ? `(input?: ${unionType}): this` : `(input: ${unionType}): this`;
         w.curlyBlock(["public", methodName, paramSignature], () => {
             w.line(`const match = ${matchRef}`);
+            w.curlyBlock(["if", "(input && matchesValue(input, match))"], () => {
+                if (sliceDef.array) {
+                    w.line(`setArraySlice(${fieldAccess} ??= [], match, input as ${baseType})`);
+                } else {
+                    w.line(`${fieldAccess} = input as ${baseType}`);
+                }
+                w.line("return this");
+            });
             const inputExpr = inputOptional ? "input ?? {}" : "input";
             if (sliceDef.constrainedChoice) {
                 const cc = sliceDef.constrainedChoice;
-                w.line(
-                    `const wrapped = wrapSliceChoice<${sliceDef.baseType}>(${inputExpr}, ${JSON.stringify(cc.variant)})`,
-                );
-                w.line(`const value = applySliceMatch<${sliceDef.baseType}>(wrapped, match)`);
+                w.line(`const wrapped = wrapSliceChoice<${baseType}>(${inputExpr}, ${JSON.stringify(cc.variant)})`);
+                w.line(`const value = applySliceMatch<${baseType}>(wrapped, match)`);
             } else {
-                w.line(`const value = applySliceMatch<${sliceDef.baseType}>(${inputExpr}, match)`);
+                w.line(`const value = applySliceMatch<${baseType}>(${inputExpr}, match)`);
             }
             if (sliceDef.array) {
                 w.line(`setArraySlice(${fieldAccess} ??= [], match, value)`);
@@ -151,51 +159,48 @@ export const generateSliceGetters = (
 ) => {
     const profileClassName = tsProfileClassName(flatProfile);
     const tsProfileName = tsResourceName(flatProfile.identifier);
-    // Generate slice getters - two methods per slice:
-    // 1. get{SliceName}() - returns simplified (without discriminator fields)
-    // 2. get{SliceName}Raw() - returns full FHIR type with all fields
+    const defaultMode = w.opts.sliceGetterDefault ?? "flat";
     for (const sliceDef of sliceDefs) {
         const baseName = tsResolvedSliceBaseName(sliceBaseNames, sliceDef.fieldName, sliceDef.sliceName);
         const getMethodName = `get${baseName}`;
-        const getRawMethodName = `get${baseName}Raw`;
-        const typeName = tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+        const typeName = tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
         const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
         const matchKeys = JSON.stringify(Object.keys(sliceDef.match));
         const tsField = tsFieldName(sliceDef.fieldName);
         const fieldAccess = tsGet("this.resource", tsField);
         const baseType = sliceDef.baseType;
+        const defaultReturn = defaultMode === "raw" ? baseType : typeName;
 
-        // Helper to find the slice item
-        const generateSliceLookup = () => {
-            w.line(`const match = ${matchRef}`);
-            if (sliceDef.array) {
-                w.line(`const item = getArraySlice(${fieldAccess}, match)`);
-            } else {
-                w.line(`const item = ${fieldAccess}`);
-                w.line("if (!item || !matchesValue(item, match)) return undefined");
-            }
-        };
+        // Overload signatures
+        w.lineSM(`public ${getMethodName}(mode: 'flat'): ${typeName} | undefined`);
+        w.lineSM(`public ${getMethodName}(mode: 'raw'): ${baseType} | undefined`);
+        w.lineSM(`public ${getMethodName}(): ${defaultReturn} | undefined`);
 
-        // Flat API getter (simplified)
-        w.curlyBlock(["public", getMethodName, `(): ${typeName} | undefined`], () => {
-            generateSliceLookup();
-            if (sliceDef.array) {
-                w.line("if (!item) return undefined");
-            }
-            if (sliceDef.constrainedChoice) {
-                const cc = sliceDef.constrainedChoice;
-                w.line(`return unwrapSliceChoice<${typeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)})`);
-            } else {
-                w.line(`return stripMatchKeys<${typeName}>(item, ${matchKeys})`);
-            }
-        });
-        w.line();
-
-        // Raw getter (full FHIR type)
-        w.curlyBlock(["public", getRawMethodName, `(): ${baseType} | undefined`], () => {
-            generateSliceLookup();
-            w.line("return item");
-        });
+        // Implementation
+        w.curlyBlock(
+            [
+                "public",
+                getMethodName,
+                `(mode: 'flat' | 'raw' = '${defaultMode}'): ${typeName} | ${baseType} | undefined`,
+            ],
+            () => {
+                w.line(`const match = ${matchRef}`);
+                if (sliceDef.array) {
+                    w.line(`const item = getArraySlice(${fieldAccess}, match)`);
+                    w.line("if (!item) return undefined");
+                } else {
+                    w.line(`const item = ${fieldAccess}`);
+                    w.line("if (!item || !matchesValue(item, match)) return undefined");
+                }
+                w.line("if (mode === 'raw') return item");
+                if (sliceDef.constrainedChoice) {
+                    const cc = sliceDef.constrainedChoice;
+                    w.line(`return unwrapSliceChoice<${typeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)})`);
+                } else {
+                    w.line(`return stripMatchKeys<${typeName}>(item, ${matchKeys})`);
+                }
+            },
+        );
         w.line();
     }
 };

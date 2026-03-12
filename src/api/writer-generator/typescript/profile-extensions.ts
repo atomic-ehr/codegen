@@ -9,7 +9,7 @@ import {
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import {
     tsCamelCase,
-    tsExtensionInputTypeName,
+    tsExtensionFlatTypeName,
     tsProfileClassName,
     tsProfileModuleName,
     tsResolvedExtensionBaseName,
@@ -152,19 +152,15 @@ const generateExtLookup = (w: TypeScript, ext: ProfileExtension, targetPath: str
     }
 };
 
-const effectiveGetterDefault = (w: TypeScript, hasProfile: boolean): "input" | "profile" | "extension" => {
-    const configured = w.opts.extensionGetterDefault ?? "input";
-    if (configured === "profile" && !hasProfile) return "input";
+const effectiveGetterDefault = (w: TypeScript, hasProfile: boolean): "flat" | "profile" | "raw" => {
+    const configured = w.opts.extensionGetterDefault ?? "flat";
+    if (configured === "profile" && !hasProfile) return "flat";
     return configured;
 };
 
-const returnTypeForMode = (
-    mode: "input" | "profile" | "extension",
-    inputType: string,
-    profileClassName?: string,
-): string => {
+const returnTypeForMode = (mode: "flat" | "profile" | "raw", inputType: string, profileClassName?: string): string => {
     if (mode === "profile" && profileClassName) return profileClassName;
-    if (mode === "extension") return "Extension";
+    if (mode === "raw") return "Extension";
     return inputType;
 };
 
@@ -179,9 +175,7 @@ const generateExtensionGetterOverloads = (
 ) => {
     const hasProfile = !!extProfileInfo;
     const defaultMode = effectiveGetterDefault(w, hasProfile);
-    const modes: ("input" | "profile" | "extension")[] = hasProfile
-        ? ["input", "profile", "extension"]
-        : ["input", "extension"];
+    const modes: ("flat" | "profile" | "raw")[] = hasProfile ? ["flat", "profile", "raw"] : ["flat", "raw"];
 
     for (const mode of modes) {
         const rt = returnTypeForMode(mode, inputType, extProfileInfo?.className);
@@ -197,7 +191,7 @@ const generateExtensionGetterOverloads = (
         () => {
             generateExtLookup(w, ext, targetPath);
             w.line("if (!ext) return undefined");
-            w.line("if (mode === 'extension') return ext");
+            w.line("if (mode === 'raw') return ext");
             if (hasProfile) {
                 w.line(`if (mode === 'profile') return ${extProfileInfo?.className}.apply(ext)`);
             }
@@ -220,13 +214,13 @@ type ExtensionMethodInfo = {
 const generateComplexExtensionSetter = (w: TypeScript, info: ExtensionMethodInfo) => {
     const { ext, flatProfile, setMethodName, targetPath, extProfileInfo } = info;
     const tsProfileName = tsResourceName(flatProfile.identifier);
-    const inputTypeName = tsExtensionInputTypeName(tsProfileName, ext.name);
+    const inputTypeName = tsExtensionFlatTypeName(tsProfileName, ext.name);
     const extProfileHasFlatInput = extProfileInfo
         ? collectSubExtensionSlices(extProfileInfo.flatProfile).length > 0
         : false;
 
     if (extProfileInfo && extProfileHasFlatInput) {
-        const paramType = `${extProfileInfo.className}Input | ${extProfileInfo.className} | Extension`;
+        const paramType = `${extProfileInfo.className}Flat | ${extProfileInfo.className} | Extension`;
         w.curlyBlock(["public", setMethodName, `(input: ${paramType}): this`], () => {
             w.ifElseChain(
                 [
@@ -280,11 +274,11 @@ const generateComplexExtensionSetter = (w: TypeScript, info: ExtensionMethodInfo
 const generateComplexExtensionGetter = (w: TypeScript, info: ExtensionMethodInfo) => {
     const { ext, flatProfile, getMethodName, targetPath, extProfileInfo } = info;
     const tsProfileName = tsResourceName(flatProfile.identifier);
-    const inputTypeName = tsExtensionInputTypeName(tsProfileName, ext.name);
+    const inputTypeName = tsExtensionFlatTypeName(tsProfileName, ext.name);
     const extProfileHasFlatInput = extProfileInfo
         ? collectSubExtensionSlices(extProfileInfo.flatProfile).length > 0
         : false;
-    const inputType = extProfileHasFlatInput && extProfileInfo ? `${extProfileInfo.className}Input` : inputTypeName;
+    const inputType = extProfileHasFlatInput && extProfileInfo ? `${extProfileInfo.className}Flat` : inputTypeName;
 
     generateExtensionGetterOverloads(w, ext, targetPath, getMethodName, inputType, extProfileInfo, () => {
         const configItems = (ext.subExtensions ?? []).map((sub) => {

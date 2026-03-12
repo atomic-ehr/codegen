@@ -92,12 +92,12 @@ export const tsProfileClassName = (schema: ProfileTypeSchema): string => {
     return name.endsWith("Profile") ? name : `${name}Profile`;
 };
 
-export const tsSliceInputTypeName = (profileName: string, fieldName: string, sliceName: string): string => {
-    return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(fieldName))}_${uppercaseFirstLetter(normalizeTsName(sliceName))}SliceInput`;
+export const tsSliceFlatTypeName = (profileName: string, fieldName: string, sliceName: string): string => {
+    return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(fieldName))}_${uppercaseFirstLetter(normalizeTsName(sliceName))}SliceFlat`;
 };
 
-export const tsExtensionInputTypeName = (profileName: string, extensionName: string): string => {
-    return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(extensionName))}Input`;
+export const tsExtensionFlatTypeName = (profileName: string, extensionName: string): string => {
+    return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(extensionName))}Flat`;
 };
 
 export const tsSliceStaticName = (name: string): string => name.replace(/\[x\]/g, "").replace(/[^a-zA-Z0-9_$]/g, "_");
