@@ -249,10 +249,6 @@ export class USCoreVitalSignsProfile {
         return this;
     }
 
-    toProfile () : USCoreVitalSignsProfile {
-        return this.resource as USCoreVitalSignsProfile;
-    }
-
     // Extensions
     // Slices
     public setVSCat (input?: USCoreVitalSignsProfile_Category_VSCatSliceInput): this {

@@ -109,10 +109,6 @@ export class USCorePatientProfile {
         return this;
     }
 
-    toProfile () : USCorePatientProfile {
-        return this.resource as USCorePatientProfile;
-    }
-
     // Extensions
     public setRace (input: USCoreRaceExtensionProfileInput | USCoreRaceExtensionProfile | Extension): this {
         if (input instanceof USCoreRaceExtensionProfile) {

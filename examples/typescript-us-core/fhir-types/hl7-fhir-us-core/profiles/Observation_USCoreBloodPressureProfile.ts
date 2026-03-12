@@ -3,8 +3,7 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
-import type { Observation } from "../../hl7-fhir-r4-core/Observation";
-import type { ObservationComponent } from "../../hl7-fhir-r4-core/Observation";
+import type { Observation, ObservationComponent } from "../../hl7-fhir-r4-core/Observation";
 import type { Period } from "../../hl7-fhir-r4-core/Period";
 import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
 import type { Range } from "../../hl7-fhir-r4-core/Range";
@@ -269,10 +268,6 @@ export class USCoreBloodPressureProfile {
     setValuePeriod (value: Period) : this {
         Object.assign(this.resource, { valuePeriod: value });
         return this;
-    }
-
-    toProfile () : USCoreBloodPressureProfile {
-        return this.resource as USCoreBloodPressureProfile;
     }
 
     // Extensions

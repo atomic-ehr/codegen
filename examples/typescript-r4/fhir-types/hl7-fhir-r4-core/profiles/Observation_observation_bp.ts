@@ -3,8 +3,7 @@
 // Any manual changes made to this file may be overwritten.
 
 import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept";
-import type { Observation } from "../../hl7-fhir-r4-core/Observation";
-import type { ObservationComponent } from "../../hl7-fhir-r4-core/Observation";
+import type { Observation, ObservationComponent } from "../../hl7-fhir-r4-core/Observation";
 import type { Period } from "../../hl7-fhir-r4-core/Period";
 import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
@@ -176,10 +175,6 @@ export class observation_bpProfile {
     setValueQuantity (value: Quantity) : this {
         Object.assign(this.resource, { valueQuantity: value });
         return this;
-    }
-
-    toProfile () : observation_bp {
-        return this.resource as observation_bp;
     }
 
     // Extensions

@@ -155,10 +155,6 @@ export class observation_bodyweightProfile {
         return this;
     }
 
-    toProfile () : observation_bodyweight {
-        return this.resource as observation_bodyweight;
-    }
-
     // Extensions
     // Slices
     public setVSCat (input?: Observation_bodyweight_Category_VSCatSliceInput): this {

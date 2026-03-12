@@ -248,10 +248,6 @@ export class USCoreBodyWeightProfile {
         return this;
     }
 
-    toProfile () : USCoreBodyWeightProfile {
-        return this.resource as USCoreBodyWeightProfile;
-    }
-
     // Extensions
     // Slices
     public setVSCat (input?: USCoreBodyWeightProfile_Category_VSCatSliceInput): this {

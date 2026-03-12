@@ -146,10 +146,6 @@ export class observation_vitalsignsProfile {
         return this;
     }
 
-    toProfile () : observation_vitalsigns {
-        return this.resource as observation_vitalsigns;
-    }
-
     // Extensions
     // Slices
     public setVSCat (input?: Observation_vitalsigns_Category_VSCatSliceInput): this {

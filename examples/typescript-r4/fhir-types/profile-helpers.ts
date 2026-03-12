@@ -121,39 +121,6 @@ export const matchesValue = (value: unknown, match: unknown): boolean => {
     return value === match;
 };
 
-// ---------------------------------------------------------------------------
-// Extension input resolution
-// ---------------------------------------------------------------------------
-
-/**
- * Structural type for any generated extension profile instance.
- * Uses `toResource` as the marker method — runtime detection checks
- * `constructor.canonicalUrl` which is always present on generated classes.
- */
-export type ExtensionProfileLike = {
-    toResource(): unknown;
-};
-
-/**
- * Resolve an ambiguous setter input to a raw Extension when the input is
- * either an extension profile instance or a raw Extension with the expected URL.
- *
- * Returns `null` when the input is a flat-API value that should be handled
- * by the caller.
- */
-export const resolveExtensionInput = <E extends { url?: string }>(input: unknown, url: string): E | null => {
-    if (input !== null && typeof input === "object") {
-        const ctor = (input as { constructor?: { canonicalUrl?: string } }).constructor;
-        if (ctor?.canonicalUrl) {
-            return (input as ExtensionProfileLike).toResource() as E;
-        }
-        if ((input as { url?: string }).url === url) {
-            return input as E;
-        }
-    }
-    return null;
-};
-
 /**
  * Type guard that discriminates a raw extension input (with an `extension`
  * array) from a flat-API input object.  Using a custom type guard instead of
