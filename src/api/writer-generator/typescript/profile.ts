@@ -432,7 +432,7 @@ const generateFactoryMethods = (
             });
         }
         w.lineSM(`const profile = new ${profileClassName}(resource)`);
-        w.lineSM("const errors = profile.validate()");
+        w.lineSM("const { errors } = profile.validate()");
         w.line(`if (errors.length > 0) throw new Error(errors.join("; "))`);
         w.lineSM("return profile");
     });
