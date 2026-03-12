@@ -32,7 +32,7 @@ export class birthPlaceProfile {
 
     static from (resource: Extension) : birthPlaceProfile {
         const profile = new birthPlaceProfile(resource);
-        const errors = profile.validate();
+        const { errors } = profile.validate();
         if (errors.length > 0) throw new Error(errors.join("; "))
         return profile;
     }
@@ -79,14 +79,17 @@ export class birthPlaceProfile {
     // Extensions
     // Slices
     // Validation
-    validate(): string[] {
+    validate(): { errors: string[]; warnings: string[] } {
         const profileName = "birthPlace"
         const res = this.resource
-        return [
-            ...validateRequired(res, profileName, "url"),
-            ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/StructureDefinition/patient-birthPlace"),
-            ...validateChoiceRequired(res, profileName, ["valueAddress"]),
-        ]
+        return {
+            errors: [
+                ...validateRequired(res, profileName, "url"),
+                ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/StructureDefinition/patient-birthPlace"),
+                ...validateChoiceRequired(res, profileName, ["valueAddress"]),
+            ],
+            warnings: [],
+        }
     }
 
 }

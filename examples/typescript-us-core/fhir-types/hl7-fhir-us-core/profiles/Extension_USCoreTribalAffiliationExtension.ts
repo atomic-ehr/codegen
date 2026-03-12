@@ -55,7 +55,7 @@ export class USCoreTribalAffiliationExtensionProfile {
 
     static from (resource: Extension) : USCoreTribalAffiliationExtensionProfile {
         const profile = new USCoreTribalAffiliationExtensionProfile(resource);
-        const errors = profile.validate();
+        const { errors } = profile.validate();
         if (errors.length > 0) throw new Error(errors.join("; "))
         return profile;
     }
@@ -196,16 +196,19 @@ export class USCoreTribalAffiliationExtensionProfile {
     }
 
     // Validation
-    validate(): string[] {
+    validate(): { errors: string[]; warnings: string[] } {
         const profileName = "USCoreTribalAffiliationExtension"
         const res = this.resource
-        return [
-            ...validateRequired(res, profileName, "extension"),
-            ...validateSliceCardinality(res, profileName, "extension", {"url":"tribalAffiliation"}, "tribalAffiliation", 1, 1),
-            ...validateSliceCardinality(res, profileName, "extension", {"url":"isEnrolled"}, "isEnrolled", 0, 1),
-            ...validateRequired(res, profileName, "url"),
-            ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation"),
-        ]
+        return {
+            errors: [
+                ...validateRequired(res, profileName, "extension"),
+                ...validateSliceCardinality(res, profileName, "extension", {"url":"tribalAffiliation"}, "tribalAffiliation", 1, 1),
+                ...validateSliceCardinality(res, profileName, "extension", {"url":"isEnrolled"}, "isEnrolled", 0, 1),
+                ...validateRequired(res, profileName, "url"),
+                ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation"),
+            ],
+            warnings: [],
+        }
     }
 
 }

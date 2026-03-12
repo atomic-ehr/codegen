@@ -60,7 +60,7 @@ export class USCoreVitalSignsProfile {
             throw new Error("USCoreVitalSignsProfile: meta.profile must include http://hl7.org/fhir/us/core/StructureDefinition/us-core-vital-signs")
         }
         const profile = new USCoreVitalSignsProfile(resource);
-        const errors = profile.validate();
+        const { errors } = profile.validate();
         if (errors.length > 0) throw new Error(errors.join("; "))
         return profile;
     }
@@ -274,22 +274,29 @@ export class USCoreVitalSignsProfile {
     }
 
     // Validation
-    validate(): string[] {
+    validate(): { errors: string[]; warnings: string[] } {
         const profileName = "USCoreVitalSignsProfile"
         const res = this.resource
-        return [
-            ...validateRequired(res, profileName, "status"),
-            ...validateEnum(res, profileName, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
-            ...validateRequired(res, profileName, "category"),
-            ...validateSliceCardinality(res, profileName, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
-            ...validateRequired(res, profileName, "code"),
-            ...validateRequired(res, profileName, "subject"),
-            ...validateReference(res, profileName, "subject", ["Patient"]),
-            ...validateChoiceRequired(res, profileName, ["effectiveDateTime","effectivePeriod"]),
-            ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
-            ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),
-            ...validateReference(res, profileName, "performer", ["PractitionerRole","USCoreCareTeam","USCoreOrganizationProfile","Patient","USCorePractitionerProfile","USCoreRelatedPersonProfile"]),
-        ]
+        return {
+            errors: [
+                ...validateRequired(res, profileName, "status"),
+                ...validateEnum(res, profileName, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
+                ...validateRequired(res, profileName, "category"),
+                ...validateSliceCardinality(res, profileName, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
+                ...validateRequired(res, profileName, "code"),
+                ...validateRequired(res, profileName, "subject"),
+                ...validateReference(res, profileName, "subject", ["Patient"]),
+                ...validateChoiceRequired(res, profileName, ["effectiveDateTime","effectivePeriod"]),
+                ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
+                ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),
+                ...validateReference(res, profileName, "performer", ["PractitionerRole","USCoreCareTeam","USCoreOrganizationProfile","Patient","USCorePractitionerProfile","USCoreRelatedPersonProfile"]),
+            ],
+            warnings: [
+                ...validateEnum(res, profileName, "category", ["social-history","vital-signs","imaging","laboratory","procedure","survey","exam","therapy","activity"]),
+                ...validateEnum(res, profileName, "code", ["2708-6","29463-7","3140-1","3150-0","3151-8","39156-5","59408-5","59575-1","59576-9","77606-2","8287-5","8289-1","8302-2","8306-3","8310-5","8462-4","8478-0","8480-6","8867-4","9279-1","9843-4"]),
+                ...validateEnum(res, profileName, "dataAbsentReason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]),
+            ],
+        }
     }
 
 }

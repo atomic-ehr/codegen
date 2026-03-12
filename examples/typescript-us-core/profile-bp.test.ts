@@ -72,7 +72,7 @@ describe("demo", () => {
             .setSystolic({ value: 120, unit: "mmHg" })
             .setDiastolic({ value: 80, unit: "mmHg" });
 
-        expect(profile.validate()).toEqual([]);
+        expect(profile.validate().errors).toEqual([]);
         expect(profile.toResource().meta?.profile).toContain(
             "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure",
         );
@@ -97,7 +97,7 @@ describe("US Core blood pressure profile", () => {
     });
 
     test("freshly created profile is not yet valid (missing effective)", () => {
-        const errors = profile.validate();
+        const { errors } = profile.validate();
         expect(errors).toEqual([
             "USCoreBloodPressureProfile: at least one of effectiveDateTime, effectivePeriod is required",
         ]);

@@ -56,7 +56,7 @@ export class observation_bodyweightProfile {
             throw new Error("observation_bodyweightProfile: meta.profile must include http://hl7.org/fhir/StructureDefinition/bodyweight")
         }
         const profile = new observation_bodyweightProfile(resource);
-        const errors = profile.validate();
+        const { errors } = profile.validate();
         if (errors.length > 0) throw new Error(errors.join("; "))
         return profile;
     }
@@ -180,22 +180,29 @@ export class observation_bodyweightProfile {
     }
 
     // Validation
-    validate(): string[] {
+    validate(): { errors: string[]; warnings: string[] } {
         const profileName = "observation-bodyweight"
         const res = this.resource
-        return [
-            ...validateRequired(res, profileName, "status"),
-            ...validateEnum(res, profileName, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
-            ...validateRequired(res, profileName, "category"),
-            ...validateSliceCardinality(res, profileName, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
-            ...validateRequired(res, profileName, "code"),
-            ...validateFixedValue(res, profileName, "code", {"coding":[{"code":"29463-7","system":"http://loinc.org"}]}),
-            ...validateRequired(res, profileName, "subject"),
-            ...validateReference(res, profileName, "subject", ["Patient"]),
-            ...validateChoiceRequired(res, profileName, ["effectiveDateTime","effectivePeriod"]),
-            ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
-            ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),
-        ]
+        return {
+            errors: [
+                ...validateRequired(res, profileName, "status"),
+                ...validateEnum(res, profileName, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
+                ...validateRequired(res, profileName, "category"),
+                ...validateSliceCardinality(res, profileName, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
+                ...validateRequired(res, profileName, "code"),
+                ...validateFixedValue(res, profileName, "code", {"coding":[{"code":"29463-7","system":"http://loinc.org"}]}),
+                ...validateRequired(res, profileName, "subject"),
+                ...validateReference(res, profileName, "subject", ["Patient"]),
+                ...validateChoiceRequired(res, profileName, ["effectiveDateTime","effectivePeriod"]),
+                ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
+                ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),
+            ],
+            warnings: [
+                ...validateEnum(res, profileName, "category", ["social-history","vital-signs","imaging","laboratory","procedure","survey","exam","therapy","activity"]),
+                ...validateEnum(res, profileName, "code", ["85353-1","9279-1","8867-4","2708-6","8310-5","8302-2","9843-4","29463-7","39156-5","85354-9","8480-6","8462-4","8478-0"]),
+                ...validateEnum(res, profileName, "dataAbsentReason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]),
+            ],
+        }
     }
 
 }

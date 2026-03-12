@@ -31,7 +31,7 @@ export class own_prefixProfile {
 
     static from (resource: Extension) : own_prefixProfile {
         const profile = new own_prefixProfile(resource);
-        const errors = profile.validate();
+        const { errors } = profile.validate();
         if (errors.length > 0) throw new Error(errors.join("; "))
         return profile;
     }
@@ -78,14 +78,17 @@ export class own_prefixProfile {
     // Extensions
     // Slices
     // Validation
-    validate(): string[] {
+    validate(): { errors: string[]; warnings: string[] } {
         const profileName = "own-prefix"
         const res = this.resource
-        return [
-            ...validateRequired(res, profileName, "url"),
-            ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix"),
-            ...validateChoiceRequired(res, profileName, ["valueString"]),
-        ]
+        return {
+            errors: [
+                ...validateRequired(res, profileName, "url"),
+                ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix"),
+                ...validateChoiceRequired(res, profileName, ["valueString"]),
+            ],
+            warnings: [],
+        }
     }
 
 }

@@ -62,7 +62,7 @@ export class USCorePatientProfile {
             throw new Error("USCorePatientProfile: meta.profile must include http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient")
         }
         const profile = new USCorePatientProfile(resource);
-        const errors = profile.validate();
+        const { errors } = profile.validate();
         if (errors.length > 0) throw new Error(errors.join("; "))
         return profile;
     }
@@ -235,13 +235,16 @@ export class USCorePatientProfile {
 
     // Slices
     // Validation
-    validate(): string[] {
+    validate(): { errors: string[]; warnings: string[] } {
         const profileName = "USCorePatientProfile"
         const res = this.resource
-        return [
-            ...validateRequired(res, profileName, "identifier"),
-            ...validateRequired(res, profileName, "name"),
-        ]
+        return {
+            errors: [
+                ...validateRequired(res, profileName, "identifier"),
+                ...validateRequired(res, profileName, "name"),
+            ],
+            warnings: [],
+        }
     }
 
 }

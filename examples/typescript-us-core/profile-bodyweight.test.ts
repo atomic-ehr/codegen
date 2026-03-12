@@ -51,7 +51,7 @@ describe("demo", () => {
             .setEffectiveDateTime("2024-06-15")
             .setValueQuantity({ value: 75, unit: "kg", system: "http://unitsofmeasure.org", code: "kg" });
 
-        expect(profile.validate()).toEqual([]);
+        expect(profile.validate().errors).toEqual([]);
         expect(profile.toResource().meta?.profile).toContain(
             "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight",
         );

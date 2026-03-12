@@ -47,7 +47,7 @@ describe("demo", () => {
         };
         patient.setSex(sexExtension);
 
-        expect(patient.validate()).toEqual([]);
+        expect(patient.validate().errors).toEqual([]);
         expect(patient.toResource()).toEqual({
             resourceType: "Patient",
             identifier: [{ system: "http://hospital.example.org/mrn", value: "MRN-12345" }],
@@ -126,7 +126,7 @@ describe("demo", () => {
         patient.setRace({ ombCategory: { code: "2028-9", display: "Asian" }, text: "Chinese" });
         patient.setEthnicity({ text: "Not Hispanic or Latino" });
 
-        expect(patient.validate()).toEqual([]);
+        expect(patient.validate().errors).toEqual([]);
         expect(patient.toResource()).toEqual({
             resourceType: "Patient",
             identifier: [{ system: "http://hospital.example.org/mrn", value: "MRN-00001" }],
@@ -464,13 +464,13 @@ describe("US Core Patient profile validation", () => {
             name: [{ family: "Test" }],
         });
 
-        expect(profile.validate()).toEqual([]);
+        expect(profile.validate().errors).toEqual([]);
     });
 
     test("profile from empty resource reports missing required fields", () => {
         const profile = USCorePatientProfile.apply({ resourceType: "Patient" });
 
-        const errors = profile.validate();
+        const { errors } = profile.validate();
         expect(errors).toContain("USCorePatientProfile: required field 'identifier' is missing");
         expect(errors).toContain("USCorePatientProfile: required field 'name' is missing");
     });

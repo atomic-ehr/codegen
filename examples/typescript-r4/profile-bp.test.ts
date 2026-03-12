@@ -30,7 +30,7 @@ describe("blood pressure profile", () => {
     });
 
     test("freshly created profile is not yet valid (missing effective)", () => {
-        const errors = profile.validate();
+        const { errors } = profile.validate();
         expect(errors).toEqual(["observation-bp: at least one of effectiveDateTime, effectivePeriod is required"]);
     });
 

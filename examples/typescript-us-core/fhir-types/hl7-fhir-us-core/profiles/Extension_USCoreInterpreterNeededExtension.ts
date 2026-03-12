@@ -32,7 +32,7 @@ export class USCoreInterpreterNeededExtensionProfile {
 
     static from (resource: Extension) : USCoreInterpreterNeededExtensionProfile {
         const profile = new USCoreInterpreterNeededExtensionProfile(resource);
-        const errors = profile.validate();
+        const { errors } = profile.validate();
         if (errors.length > 0) throw new Error(errors.join("; "))
         return profile;
     }
@@ -79,14 +79,17 @@ export class USCoreInterpreterNeededExtensionProfile {
     // Extensions
     // Slices
     // Validation
-    validate(): string[] {
+    validate(): { errors: string[]; warnings: string[] } {
         const profileName = "USCoreInterpreterNeededExtension"
         const res = this.resource
-        return [
-            ...validateRequired(res, profileName, "url"),
-            ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed"),
-            ...validateChoiceRequired(res, profileName, ["valueCoding"]),
-        ]
+        return {
+            errors: [
+                ...validateRequired(res, profileName, "url"),
+                ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed"),
+                ...validateChoiceRequired(res, profileName, ["valueCoding"]),
+            ],
+            warnings: [],
+        }
     }
 
 }

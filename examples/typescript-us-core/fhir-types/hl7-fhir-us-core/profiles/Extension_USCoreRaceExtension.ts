@@ -58,7 +58,7 @@ export class USCoreRaceExtensionProfile {
 
     static from (resource: Extension) : USCoreRaceExtensionProfile {
         const profile = new USCoreRaceExtensionProfile(resource);
-        const errors = profile.validate();
+        const { errors } = profile.validate();
         if (errors.length > 0) throw new Error(errors.join("; "))
         return profile;
     }
@@ -241,16 +241,19 @@ export class USCoreRaceExtensionProfile {
     }
 
     // Validation
-    validate(): string[] {
+    validate(): { errors: string[]; warnings: string[] } {
         const profileName = "USCoreRaceExtension"
         const res = this.resource
-        return [
-            ...validateRequired(res, profileName, "extension"),
-            ...validateSliceCardinality(res, profileName, "extension", {"url":"ombCategory"}, "ombCategory", 0, 6),
-            ...validateSliceCardinality(res, profileName, "extension", {"url":"text"}, "text", 1, 1),
-            ...validateRequired(res, profileName, "url"),
-            ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"),
-        ]
+        return {
+            errors: [
+                ...validateRequired(res, profileName, "extension"),
+                ...validateSliceCardinality(res, profileName, "extension", {"url":"ombCategory"}, "ombCategory", 0, 6),
+                ...validateSliceCardinality(res, profileName, "extension", {"url":"text"}, "text", 1, 1),
+                ...validateRequired(res, profileName, "url"),
+                ...validateFixedValue(res, profileName, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"),
+            ],
+            warnings: [],
+        }
     }
 
 }
