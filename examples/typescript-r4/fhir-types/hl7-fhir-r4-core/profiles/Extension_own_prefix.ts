@@ -13,6 +13,7 @@ import {
     validateEnum,
     validateReference,
     validateChoiceRequired,
+    validateMustSupport,
 } from "../../profile-helpers";
 
 export type own_prefixProfileRaw = {

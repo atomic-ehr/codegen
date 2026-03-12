@@ -40,6 +40,7 @@ import {
     validateEnum,
     validateReference,
     validateChoiceRequired,
+    validateMustSupport,
 } from "../../profile-helpers";
 
 export type USCorePatientProfileRaw = {
@@ -243,7 +244,10 @@ export class USCorePatientProfile {
                 ...validateRequired(res, profileName, "identifier"),
                 ...validateRequired(res, profileName, "name"),
             ],
-            warnings: [],
+            warnings: [
+                ...validateMustSupport(res, profileName, "birthDate"),
+                ...validateMustSupport(res, profileName, "address"),
+            ],
         }
     }
 

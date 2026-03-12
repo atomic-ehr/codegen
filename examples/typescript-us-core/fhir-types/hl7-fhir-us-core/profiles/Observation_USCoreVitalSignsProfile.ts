@@ -34,6 +34,7 @@ import {
     validateEnum,
     validateReference,
     validateChoiceRequired,
+    validateMustSupport,
 } from "../../profile-helpers";
 
 export type USCoreVitalSignsProfileRaw = {
@@ -295,6 +296,8 @@ export class USCoreVitalSignsProfile {
                 ...validateEnum(res, profileName, "category", ["social-history","vital-signs","imaging","laboratory","procedure","survey","exam","therapy","activity"]),
                 ...validateEnum(res, profileName, "code", ["2708-6","29463-7","3140-1","3150-0","3151-8","39156-5","59408-5","59575-1","59576-9","77606-2","8287-5","8289-1","8302-2","8306-3","8310-5","8462-4","8478-0","8480-6","8867-4","9279-1","9843-4"]),
                 ...validateEnum(res, profileName, "dataAbsentReason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]),
+                ...validateMustSupport(res, profileName, "dataAbsentReason"),
+                ...validateMustSupport(res, profileName, "performer"),
             ],
         }
     }
