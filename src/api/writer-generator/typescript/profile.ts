@@ -370,7 +370,7 @@ export const generateProfileImports = (
     }
     const sortedModules = [...grouped.entries()].sort(([a], [b]) => a.localeCompare(b));
     for (const [importPath, names] of sortedModules) {
-        w.tsImport({ typeOnly: true }, importPath, ...names.sort());
+        w.tsImport(importPath, ...names.sort(), { typeOnly: true });
     }
     if (sortedModules.length > 0) w.line();
 

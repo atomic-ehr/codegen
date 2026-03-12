@@ -82,19 +82,11 @@ export class TypeScript extends Writer<TypeScriptOptions> {
     }
 
     tsImport(tsPackageName: string, ...entities: string[]): void;
-    tsImport(options: { typeOnly: boolean }, tsPackageName: string, ...entities: string[]): void;
-    tsImport(...args: [string, ...string[]] | [{ typeOnly: boolean }, string, ...string[]]) {
-        let typeOnly = false;
-        let tsPackageName: string;
-        let entities: string[];
-        if (typeof args[0] === "object") {
-            typeOnly = args[0].typeOnly;
-            tsPackageName = args[1] as string;
-            entities = args.slice(2) as string[];
-        } else {
-            tsPackageName = args[0];
-            entities = args.slice(1) as string[];
-        }
+    tsImport(tsPackageName: string, ...args: [...string[], { typeOnly: boolean }]): void;
+    tsImport(tsPackageName: string, ...rest: (string | { typeOnly: boolean })[]) {
+        const last = rest[rest.length - 1];
+        const typeOnly = typeof last === "object" ? last.typeOnly : false;
+        const entities = (typeof last === "object" ? rest.slice(0, -1) : rest) as string[];
         const keyword = typeOnly ? "import type" : "import";
         const singleLine = `${keyword} { ${entities.join(", ")} } from "${tsPackageName}"`;
         if (singleLine.length <= (this.opts.lineWidth ?? 120)) {
@@ -184,7 +176,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             imports.sort((a, b) => a.name.localeCompare(b.name));
             for (const dep of imports) {
                 this.debugComment(dep.dep);
-                this.tsImport({ typeOnly: true }, dep.tsPackage, dep.name);
+                this.tsImport(dep.tsPackage, dep.name, { typeOnly: true });
             }
             for (const dep of skipped) {
                 this.debugComment("skip:", dep);
@@ -199,7 +191,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 const element = tsIndex.resolveByUrl(schema.identifier.package, elementUrl);
                 if (!element) throw new Error(`'${elementUrl}' not found for ${schema.identifier.package}.`);
 
-                this.tsImport({ typeOnly: true }, `${importPrefix}${tsModulePath(element.identifier)}`, "Element");
+                this.tsImport(`${importPrefix}${tsModulePath(element.identifier)}`, "Element", { typeOnly: true });
             }
         }
     }
