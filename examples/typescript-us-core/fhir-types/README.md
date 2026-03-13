@@ -1995,7 +1995,6 @@
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter#hospitalization.dischargeDisposition_binding`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter#type_binding`
-- `http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-extension-questionnaire-uri`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-genderIdentity`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-goal`
@@ -2012,8 +2011,6 @@
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization#vaccineCode_binding`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-implantable-device`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-implantable-device#type_binding`
-- `http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex`
-- `http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-jurisdiction`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-location`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-location#address.state_binding`
@@ -2066,7 +2063,6 @@
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-pulse-oximetry`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-pulse-oximetry#code_binding`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse`
-- `http://hl7.org/fhir/us/core/StructureDefinition/us-core-race`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson#relationship_binding`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-respiratory-rate`
@@ -2086,7 +2082,6 @@
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen#type_binding`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-treatment-intervention-preference`
 - `http://hl7.org/fhir/us/core/StructureDefinition/us-core-treatment-intervention-preference#category_binding`
-- `http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation`
 - `http://hl7.org/fhir/us/core/StructureDefinition/uscdi-requirement`
 - `http://hl7.org/fhir/us/core/ValueSet/us-core-clinical-note-type`
 - `http://hl7.org/fhir/us/core/ValueSet/us-core-clinical-result-observation-category`

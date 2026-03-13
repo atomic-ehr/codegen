@@ -7,7 +7,14 @@ import {
     treeShakeTypeSchema,
 } from "@root/typeschema/ir/tree-shake";
 import { registerFromPackageMetas } from "@root/typeschema/register";
-import type { CanonicalUrl, RegularTypeSchema } from "@root/typeschema/types";
+import type {
+    CanonicalUrl,
+    Identifier,
+    Name,
+    ProfileIdentifier,
+    ProfileTypeSchema,
+    RegularTypeSchema,
+} from "@root/typeschema/types";
 import { mkIndex, mkR4Register, mkTestLogger, r4Package, r5Package, resolveTs } from "@typeschema-test/utils";
 
 describe("treeShake specific TypeSchema", async () => {
@@ -71,6 +78,13 @@ describe("treeShake specific TypeSchema", async () => {
 
     it("No rule -- no change", () => {
         const patient = treeShakeTypeSchema(patientOrigin, {});
+        expect(JSON.stringify(patient, null, 2)).toBe(JSON.stringify(patientOrigin, null, 2));
+    });
+
+    it("ignoreExtensions on non-profile schema is no-op", () => {
+        const patient = treeShakeTypeSchema(patientOrigin, {
+            ignoreExtensions: ["http://example.com/ext/race"],
+        });
         expect(JSON.stringify(patient, null, 2)).toBe(JSON.stringify(patientOrigin, null, 2));
     });
 
@@ -257,5 +271,115 @@ describe("treeShake specific TypeSchema", async () => {
                 }).toThrowError("Field nonExistentField not found");
             });
         });
+    });
+});
+
+describe("ignoreExtensions", () => {
+    const mkDep = (url: string): Identifier => ({
+        kind: "complex-type",
+        name: url.split("/").pop()! as Name,
+        url: url as CanonicalUrl,
+        package: "test",
+        version: "1.0.0",
+    });
+
+    const mkProfileId = (url: string): ProfileIdentifier => ({
+        kind: "profile",
+        name: url.split("/").pop()! as Name,
+        url: url as CanonicalUrl,
+        package: "test",
+        version: "1.0.0",
+    });
+
+    const mkProfile = (): ProfileTypeSchema => ({
+        identifier: mkProfileId("http://example.com/TestProfile"),
+        base: mkDep("http://hl7.org/fhir/StructureDefinition/Patient"),
+        extensions: [
+            {
+                name: "race",
+                path: "Patient.extension",
+                url: "http://example.com/ext/race",
+                profile: mkProfileId("http://example.com/ext/race"),
+                valueFieldTypes: [mkDep("http://hl7.org/fhir/StructureDefinition/Coding")],
+            },
+            {
+                name: "ethnicity",
+                path: "Patient.extension",
+                url: "http://example.com/ext/ethnicity",
+                profile: mkProfileId("http://example.com/ext/ethnicity"),
+                valueFieldTypes: [mkDep("http://hl7.org/fhir/StructureDefinition/CodeableConcept")],
+            },
+            {
+                name: "birthsex",
+                path: "Patient.extension",
+                url: "http://example.com/ext/birthsex",
+                profile: mkProfileId("http://example.com/ext/birthsex"),
+            },
+        ],
+    });
+
+    it("removes matching extensions from profile", () => {
+        const profile = mkProfile();
+        const result = treeShakeTypeSchema(profile, {
+            ignoreExtensions: ["http://example.com/ext/race"],
+        }) as ProfileTypeSchema;
+        expect(result.extensions).toHaveLength(2);
+        expect(result.extensions?.find((e) => e.url === "http://example.com/ext/race")).toBeUndefined();
+        expect(result.extensions?.find((e) => e.url === "http://example.com/ext/ethnicity")).toBeDefined();
+        expect(result.extensions?.find((e) => e.url === "http://example.com/ext/birthsex")).toBeDefined();
+    });
+
+    it("throws error on non-existent extension URL", () => {
+        const profile = mkProfile();
+        expect(() => {
+            treeShakeTypeSchema(profile, {
+                ignoreExtensions: ["http://example.com/ext/nonexistent"],
+            });
+        }).toThrowError(
+            "Extension http://example.com/ext/nonexistent not found in profile http://example.com/TestProfile",
+        );
+    });
+
+    it("empty ignoreExtensions array is no-op", () => {
+        const profile = mkProfile();
+        const result = treeShakeTypeSchema(profile, {
+            ignoreExtensions: [],
+        }) as ProfileTypeSchema;
+        expect(result.extensions).toHaveLength(3);
+    });
+
+    it("dependencies are recalculated (ignored extension deps not in output)", () => {
+        const profile = mkProfile();
+        const result = treeShakeTypeSchema(profile, {
+            ignoreExtensions: ["http://example.com/ext/race"],
+        }) as ProfileTypeSchema;
+        // Coding was only a dep of the "race" extension, so it should be gone
+        expect(
+            result.dependencies?.find((d) => d.url === "http://hl7.org/fhir/StructureDefinition/Coding"),
+        ).toBeUndefined();
+        // race definition identifier should be gone
+        expect(result.dependencies?.find((d) => d.url === "http://example.com/ext/race")).toBeUndefined();
+        // CodeableConcept is still a dep of the "ethnicity" extension
+        expect(
+            result.dependencies?.find((d) => d.url === "http://hl7.org/fhir/StructureDefinition/CodeableConcept"),
+        ).toBeDefined();
+        // ethnicity definition identifier should still be there
+        expect(result.dependencies?.find((d) => d.url === "http://example.com/ext/ethnicity")).toBeDefined();
+        // Patient base dep should still be there
+        expect(
+            result.dependencies?.find((d) => d.url === "http://hl7.org/fhir/StructureDefinition/Patient"),
+        ).toBeDefined();
+    });
+
+    it("removing all extensions sets extensions to undefined", () => {
+        const profile = mkProfile();
+        const result = treeShakeTypeSchema(profile, {
+            ignoreExtensions: [
+                "http://example.com/ext/race",
+                "http://example.com/ext/ethnicity",
+                "http://example.com/ext/birthsex",
+            ],
+        }) as ProfileTypeSchema;
+        expect(result.extensions).toBeUndefined();
     });
 });

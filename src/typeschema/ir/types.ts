@@ -21,7 +21,7 @@ export type LogicalPromotionConf = Record<PkgName, CanonicalUrl[]>;
 
 export type TreeShakeConf = Record<string, Record<string, TreeShakeRule>>;
 
-export type TreeShakeRule = { ignoreFields?: string[]; selectFields?: string[] };
+export type TreeShakeRule = { ignoreFields?: string[]; selectFields?: string[]; ignoreExtensions?: string[] };
 
 export type IrReport = {
     treeShake?: TreeShakeReport;

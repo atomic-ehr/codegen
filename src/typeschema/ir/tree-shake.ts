@@ -3,6 +3,8 @@ import type { CodegenLog } from "@root/utils/log";
 import { extractDependencies } from "../core/transformer";
 import {
     type CanonicalUrl,
+    concatIdentifiers,
+    extractExtensionDeps,
     type Field,
     isBindingSchema,
     isChoiceDeclarationField,
@@ -15,6 +17,7 @@ import {
     isValueSetTypeSchema,
     type NestedType,
     type PkgName,
+    type ProfileTypeSchema,
     type RegularTypeSchema,
     type TypeSchema,
 } from "../types";
@@ -135,6 +138,16 @@ const mutableIgnoreFields = (schema: RegularTypeSchema, ignoreFields: string[]) 
     }
 };
 
+const mutableIgnoreExtensions = (schema: ProfileTypeSchema, ignoreExtensions: string[]) => {
+    if (!schema.extensions) return;
+    for (const url of ignoreExtensions) {
+        if (!schema.extensions.some((ext) => ext.url === url))
+            throw new Error(`Extension ${url} not found in profile ${schema.identifier.url}`);
+    }
+    schema.extensions = schema.extensions.filter((ext) => !ext.url || !ignoreExtensions.includes(ext.url));
+    if (schema.extensions.length === 0) schema.extensions = undefined;
+};
+
 const mutableFillReport = (report: TreeShakeReport, tsIndex: TypeSchemaIndex, shakedIndex: TypeSchemaIndex) => {
     const packages = Object.keys(tsIndex.schemasByPackage);
     const shakedPackages = Object.keys(shakedIndex.schemasByPackage);
@@ -188,6 +201,10 @@ export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _lo
         mutableIgnoreFields(schema, rule.ignoreFields);
     }
 
+    if (isProfileTypeSchema(schema) && rule.ignoreExtensions) {
+        mutableIgnoreExtensions(schema, rule.ignoreExtensions);
+    }
+
     if (schema.nested) {
         const usedTypes = new Set<CanonicalUrl>();
         const collectUsedNestedTypes = (s: RegularTypeSchema | NestedType) => {
@@ -208,7 +225,11 @@ export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _lo
         schema.nested = schema.nested.filter((n) => usedTypes.has(n.identifier.url));
     }
 
-    schema.dependencies = extractDependencies(schema.identifier, schema.base, schema.fields, schema.nested);
+    const extDeps = isProfileTypeSchema(schema) ? schema.extensions?.flatMap(extractExtensionDeps) : undefined;
+    schema.dependencies = concatIdentifiers(
+        extractDependencies(schema.identifier, schema.base, schema.fields, schema.nested),
+        extDeps,
+    );
     return schema;
 };
 
