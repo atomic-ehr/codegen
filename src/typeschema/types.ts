@@ -237,7 +237,7 @@ export interface FieldSlice {
 export interface ExtensionSubField {
     name: string;
     url: string;
-    valueType?: Identifier;
+    valueFieldType?: Identifier;
     min?: number;
     max?: string;
 }
@@ -249,7 +249,7 @@ export interface ProfileExtension {
     min?: number;
     max?: string;
     mustSupport?: boolean;
-    valueTypes?: Identifier[];
+    valueFieldTypes?: Identifier[];
     subExtensions?: ExtensionSubField[];
     isComplex?: boolean;
 }

@@ -139,7 +139,7 @@ function transformFhirSchemaResource(
 
     const extensions =
         fhirSchema.derivation === "constraint" ? extractProfileExtensions(register, fhirSchema, logger) : undefined;
-    const extensionDeps = extensions?.flatMap((ext) => ext.valueTypes ?? []) ?? [];
+    const extensionDeps = extensions?.flatMap((ext) => ext.valueFieldTypes ?? []) ?? [];
     const dependencies = extractDependencies(identifier, base, fields, nested);
 
     const typeSchema: TypeSchema = {

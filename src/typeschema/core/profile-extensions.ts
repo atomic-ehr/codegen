@@ -20,7 +20,7 @@ import {
 
 import { buildFieldType } from "./field-builder";
 
-const extractExtensionValueTypes = (
+const extractExtensionValueFieldTypes = (
     register: Register,
     fhirSchema: RichFHIRSchema,
     extensionUrl: CanonicalUrl,
@@ -29,14 +29,14 @@ const extractExtensionValueTypes = (
     const extensionSchema = register.resolveFs(fhirSchema.package_meta, extensionUrl);
     if (!extensionSchema?.elements) return undefined;
 
-    const valueTypes: Identifier[] = [];
+    const valueFieldTypes: Identifier[] = [];
     for (const [key, element] of Object.entries(extensionSchema.elements)) {
         if (element.choiceOf !== "value" && !key.startsWith("value")) continue;
         const fieldType = buildFieldType(register, extensionSchema, [key], element, logger);
-        if (fieldType) valueTypes.push(fieldType);
+        if (fieldType) valueFieldTypes.push(fieldType);
     }
 
-    return concatIdentifiers(valueTypes);
+    return concatIdentifiers(valueFieldTypes);
 };
 
 const extractLegacySubExtensions = (
@@ -63,7 +63,7 @@ const extractLegacySubExtensions = (
         subExtensions.push({
             name: sliceName,
             url: element.url ?? sliceName,
-            valueType,
+            valueFieldType: valueType,
             min: element.min,
             max: element.max !== undefined ? String(element.max) : undefined,
         });
@@ -101,7 +101,7 @@ const extractSlicingSubExtensions = (extensionSchema: RichFHIRSchema): Extension
         subExtensions.push({
             name: sliceName,
             url: slice.match?.url ?? sliceName,
-            valueType,
+            valueFieldType: valueType,
             min: schema._required ? 1 : (schema.min ?? 0),
             // biome-ignore lint/style/noNestedTernary : okay here
             max: schema.max !== undefined ? String(schema.max) : schema.array ? "*" : "1",
@@ -135,7 +135,7 @@ export const extractProfileExtensions = (
 
     const addExtensionEntry = (path: string[], name: string, schema: FHIRSchemaElement) => {
         let url = schema.url as CanonicalUrl | undefined;
-        let valueTypes = url ? extractExtensionValueTypes(register, fhirSchema, url, logger) : undefined;
+        let valueFieldTypes = url ? extractExtensionValueFieldTypes(register, fhirSchema, url, logger) : undefined;
         const subExtensions = url ? extractSubExtensions(register, fhirSchema, url, logger) : undefined;
 
         // For extension profiles, sub-extension entries may lack a url.
@@ -147,7 +147,7 @@ export const extractProfileExtensions = (
                 for (const [_elemKey, elemValue] of Object.entries(sliceSchema.elements ?? {})) {
                     const elem = elemValue as { choiceOf?: string; type?: string };
                     if (elem.choiceOf === "value" && elem.type) {
-                        valueTypes = [
+                        valueFieldTypes = [
                             {
                                 kind: "complex-type" as const,
                                 package: fhirSchema.package_meta.name,
@@ -170,7 +170,7 @@ export const extractProfileExtensions = (
             min: schema.min,
             max: schema.max !== undefined ? String(schema.max) : undefined,
             mustSupport: schema.mustSupport,
-            valueTypes,
+            valueFieldTypes,
             subExtensions,
             isComplex,
         });

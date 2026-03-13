@@ -628,7 +628,7 @@ const generateInlineExtensionInputTypes = (w: TypeScript, tsIndex: TypeSchemaInd
         const typeName = tsExtensionFlatTypeName(tsProfileName, ext.name);
         w.curlyBlock(["export", "type", typeName, "="], () => {
             for (const sub of ext.subExtensions ?? []) {
-                const tsType = sub.valueType ? tsTypeFromIdentifier(sub.valueType) : "unknown";
+                const tsType = sub.valueFieldType ? tsTypeFromIdentifier(sub.valueFieldType) : "unknown";
                 const isArray = sub.max === "*";
                 const isRequired = sub.min !== undefined && sub.min > 0;
                 w.lineSM(`${sub.name}${isRequired ? "" : "?"}: ${tsType}${isArray ? "[]" : ""}`);

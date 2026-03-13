@@ -241,7 +241,7 @@ const generateComplexExtensionSetter = (w: TypeScript, info: ExtensionMethodInfo
         w.curlyBlock(["public", setMethodName, `(input: ${inputTypeName}): this`], () => {
             w.line("const subExtensions: Extension[] = []");
             for (const sub of ext.subExtensions ?? []) {
-                const valueField = sub.valueType ? tsValueFieldName(sub.valueType) : "value";
+                const valueField = sub.valueFieldType ? tsValueFieldName(sub.valueFieldType) : "value";
                 if (sub.max === "*") {
                     w.curlyBlock(["if", `(input.${sub.name})`], () => {
                         w.curlyBlock(["for", `(const item of input.${sub.name})`], () => {
@@ -282,7 +282,7 @@ const generateComplexExtensionGetter = (w: TypeScript, info: ExtensionMethodInfo
 
     generateExtensionGetterOverloads(w, ext, targetPath, getMethodName, inputType, extProfileInfo, () => {
         const configItems = (ext.subExtensions ?? []).map((sub) => {
-            const valueField = sub.valueType ? tsValueFieldName(sub.valueType) : "value";
+            const valueField = sub.valueFieldType ? tsValueFieldName(sub.valueFieldType) : "value";
             const isArray = sub.max === "*";
             return `{ name: "${sub.url}", valueField: "${valueField}", isArray: ${isArray} }`;
         });
@@ -295,7 +295,7 @@ const generateComplexExtensionGetter = (w: TypeScript, info: ExtensionMethodInfo
 
 const generateSingleValueExtensionSetter = (w: TypeScript, tsIndex: TypeSchemaIndex, info: ExtensionMethodInfo) => {
     const { ext, setMethodName, targetPath, extProfileInfo } = info;
-    const firstValueType = ext.valueTypes?.[0];
+    const firstValueType = ext.valueFieldTypes?.[0];
     if (!firstValueType) return;
     const valueType = tsTypeFromIdentifier(firstValueType);
     const valueField = tsValueFieldName(firstValueType);
@@ -335,7 +335,7 @@ const generateSingleValueExtensionSetter = (w: TypeScript, tsIndex: TypeSchemaIn
 
 const generateSingleValueExtensionGetter = (w: TypeScript, info: ExtensionMethodInfo) => {
     const { ext, getMethodName, targetPath, extProfileInfo } = info;
-    const firstValueType = ext.valueTypes?.[0];
+    const firstValueType = ext.valueFieldTypes?.[0];
     if (!firstValueType) return;
     const valueType = tsTypeFromIdentifier(firstValueType);
     const valueField = tsValueFieldName(firstValueType);
@@ -403,7 +403,7 @@ export const generateExtensionMethods = (
             generateComplexExtensionSetter(w, info);
             w.line();
             generateComplexExtensionGetter(w, info);
-        } else if (ext.valueTypes?.length === 1 && ext.valueTypes[0]) {
+        } else if (ext.valueFieldTypes?.length === 1 && ext.valueFieldTypes[0]) {
             generateSingleValueExtensionSetter(w, tsIndex, info);
             w.line();
             generateSingleValueExtensionGetter(w, info);
@@ -427,21 +427,21 @@ export const collectTypesFromExtensions = (
         if (ext.isComplex && ext.subExtensions) {
             needsExtensionType = true;
             for (const sub of ext.subExtensions) {
-                if (!sub.valueType) continue;
+                if (!sub.valueFieldType) continue;
                 const resolvedType = tsIndex.resolveByUrl(
                     flatProfile.identifier.package,
-                    sub.valueType.url as CanonicalUrl,
+                    sub.valueFieldType.url as CanonicalUrl,
                 );
-                addType(resolvedType?.identifier ?? sub.valueType);
+                addType(resolvedType?.identifier ?? sub.valueFieldType);
             }
-        } else if (ext.valueTypes && ext.valueTypes.length === 1) {
+        } else if (ext.valueFieldTypes && ext.valueFieldTypes.length === 1) {
             needsExtensionType = true;
-            if (ext.valueTypes[0]) {
+            if (ext.valueFieldTypes[0]) {
                 const resolvedType = tsIndex.resolveByUrl(
                     flatProfile.identifier.package,
-                    ext.valueTypes[0].url as CanonicalUrl,
+                    ext.valueFieldTypes[0].url as CanonicalUrl,
                 );
-                addType(resolvedType?.identifier ?? ext.valueTypes[0]);
+                addType(resolvedType?.identifier ?? ext.valueFieldTypes[0]);
             }
         } else {
             needsExtensionType = true;
