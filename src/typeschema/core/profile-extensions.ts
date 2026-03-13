@@ -13,12 +13,13 @@ import {
     concatIdentifiers,
     type ExtensionSubField,
     type Identifier,
-    type Name,
     type ProfileExtension,
+    type ProfileIdentifier,
     type RichFHIRSchema,
 } from "@typeschema/types";
 
 import { buildFieldType } from "./field-builder";
+import { mkIdentifier } from "./identifier";
 
 const extractExtensionValueFieldTypes = (
     register: Register,
@@ -71,7 +72,11 @@ const extractLegacySubExtensions = (
     return subExtensions;
 };
 
-const extractSlicingSubExtensions = (extensionSchema: RichFHIRSchema): ExtensionSubField[] => {
+const extractSlicingSubExtensions = (
+    register: Register,
+    extensionSchema: RichFHIRSchema,
+    logger?: CodegenLog,
+): ExtensionSubField[] => {
     const subExtensions: ExtensionSubField[] = [];
     const extensionElement = extensionSchema.elements?.extension as any;
     const slices = extensionElement?.slicing?.slices;
@@ -86,16 +91,8 @@ const extractSlicingSubExtensions = (extensionSchema: RichFHIRSchema): Extension
         for (const [elemKey, elemValue] of Object.entries(schema.elements ?? {})) {
             const elem = elemValue as any;
             if (elem.choiceOf !== "value" && !elemKey.startsWith("value")) continue;
-            if (elem.type) {
-                valueType = {
-                    kind: "complex-type" as const,
-                    package: extensionSchema.package_meta.name,
-                    version: extensionSchema.package_meta.version,
-                    name: elem.type as any,
-                    url: `http://hl7.org/fhir/StructureDefinition/${elem.type}` as CanonicalUrl,
-                };
-                break;
-            }
+            valueType = buildFieldType(register, extensionSchema, [elemKey], elem, logger);
+            if (valueType) break;
         }
 
         subExtensions.push({
@@ -120,7 +117,7 @@ const extractSubExtensions = (
     if (!extensionSchema?.elements) return undefined;
 
     const legacySubs = extractLegacySubExtensions(register, extensionSchema, logger);
-    const slicingSubs = extractSlicingSubExtensions(extensionSchema);
+    const slicingSubs = extractSlicingSubExtensions(register, extensionSchema, logger);
     const subExtensions = [...legacySubs, ...slicingSubs];
 
     return subExtensions.length > 0 ? subExtensions : undefined;
@@ -144,29 +141,28 @@ export const extractProfileExtensions = (
             const sliceSchema = (fhirSchema.elements?.extension as any)?.slicing?.slices?.[name]?.schema;
             if (sliceSchema) {
                 url = (sliceSchema.elements?.url?.fixed?.value ?? name) as CanonicalUrl;
-                for (const [_elemKey, elemValue] of Object.entries(sliceSchema.elements ?? {})) {
-                    const elem = elemValue as { choiceOf?: string; type?: string };
-                    if (elem.choiceOf === "value" && elem.type) {
-                        valueFieldTypes = [
-                            {
-                                kind: "complex-type" as const,
-                                package: fhirSchema.package_meta.name,
-                                version: fhirSchema.package_meta.version,
-                                name: elem.type as Name,
-                                url: `http://hl7.org/fhir/StructureDefinition/${elem.type}` as CanonicalUrl,
-                            },
-                        ];
-                        break;
+                for (const [elemKey, elemValue] of Object.entries(sliceSchema.elements ?? {})) {
+                    const elem = elemValue as FHIRSchemaElement;
+                    if (elem.choiceOf === "value" || elemKey.startsWith("value")) {
+                        const ft = buildFieldType(register, fhirSchema, [elemKey], elem, logger);
+                        if (ft) {
+                            valueFieldTypes = [ft];
+                            break;
+                        }
                     }
                 }
             }
         }
 
         const isComplex = subExtensions && subExtensions.length > 0;
+        const extFs = url ? register.resolveFs(fhirSchema.package_meta, url) : undefined;
+        const profile = extFs ? (mkIdentifier(extFs) as ProfileIdentifier) : undefined;
+
         extensions.push({
             name,
             path: [...path, "extension"].join("."),
             url,
+            profile,
             min: schema.min,
             max: schema.max !== undefined ? String(schema.max) : undefined,
             mustSupport: schema.mustSupport,

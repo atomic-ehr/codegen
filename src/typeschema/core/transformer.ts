@@ -10,6 +10,7 @@ import type { CodegenLog } from "@root/utils/log";
 import type { Register } from "@typeschema/register";
 import {
     concatIdentifiers,
+    extractExtensionDeps,
     type Field,
     type Identifier,
     isNestedIdentifier,
@@ -139,8 +140,8 @@ function transformFhirSchemaResource(
 
     const extensions =
         fhirSchema.derivation === "constraint" ? extractProfileExtensions(register, fhirSchema, logger) : undefined;
-    const extensionDeps = extensions?.flatMap((ext) => ext.valueFieldTypes ?? []) ?? [];
-    const dependencies = extractDependencies(identifier, base, fields, nested);
+    const extensionDeps = extensions?.flatMap(extractExtensionDeps);
+    const dependencies = concatIdentifiers(extractDependencies(identifier, base, fields, nested), extensionDeps);
 
     const typeSchema: TypeSchema = {
         identifier,
@@ -148,7 +149,7 @@ function transformFhirSchemaResource(
         fields,
         nested,
         description: fhirSchema.description,
-        dependencies: concatIdentifiers(dependencies, extensionDeps),
+        dependencies,
         extensions,
     };
 

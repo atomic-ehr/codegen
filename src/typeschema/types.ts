@@ -99,7 +99,7 @@ type ResourceIdentifier = { kind: "resource" } & IdentifierBase;
 export type ValueSetIdentifier = { kind: "value-set" } & IdentifierBase;
 export type NestedIdentifier = { kind: "nested" } & IdentifierBase;
 export type BindingIdentifier = { kind: "binding" } & IdentifierBase;
-type ProfileIdentifier = { kind: "profile" } & IdentifierBase;
+export type ProfileIdentifier = { kind: "profile" } & IdentifierBase;
 type LogicalIdentifier = { kind: "logical" } & IdentifierBase;
 
 export type Identifier =
@@ -243,6 +243,7 @@ export interface ExtensionSubField {
 }
 
 export interface ProfileExtension {
+    profile?: ProfileIdentifier;
     name: string;
     path: string;
     url?: string;
@@ -253,6 +254,12 @@ export interface ProfileExtension {
     subExtensions?: ExtensionSubField[];
     isComplex?: boolean;
 }
+
+export const extractExtensionDeps = (ext: ProfileExtension): Identifier[] => [
+    ...(ext.valueFieldTypes ?? []),
+    ...(ext.profile ? [ext.profile] : []),
+    ...(ext.subExtensions?.flatMap((sub) => (sub.valueFieldType ? [sub.valueFieldType] : [])) ?? []),
+];
 
 export interface RegularTypeSchema {
     // TODO: restrict to ResourceIdentifier | ComplexTypeIdentifier | LogicalIdentifier
