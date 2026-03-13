@@ -233,7 +233,7 @@ Tree shaking optimizes the generated output by including only the resources you 
 })
 ```
 
-This feature automatically resolves and includes all dependencies (referenced types, base resources, nested types) while excluding unused resources, significantly reducing the size of generated code and improving compilation times.
+This feature automatically resolves and includes all dependencies (referenced types, base resources, nested types, and extension definitions used by profiles) while excluding unused resources, significantly reducing the size of generated code and improving compilation times.
 
 ##### Field-Level Tree Shaking
 
@@ -259,6 +259,7 @@ Beyond resource-level filtering, tree shaking supports fine-grained field select
 - `selectFields`: Only includes the specified fields (whitelist approach)
 - `ignoreFields`: Removes specified fields, keeps everything else (blacklist approach)
 - These options are **mutually exclusive** - you cannot use both in the same rule
+- `ignoreExtensions`: Removes specific extensions from a profile by canonical URL
 
 **Polymorphic Field Handling:**
 

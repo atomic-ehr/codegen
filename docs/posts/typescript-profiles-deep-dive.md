@@ -293,7 +293,13 @@ new APIBuilder()
     .generate();
 ```
 
-The generator resolves dependencies automatically. If you include `bodyweight`, it knows to include `Observation`, `DomainResource`, and any types referenced by the profile's fields.
+The generator resolves dependencies automatically. If you include `bodyweight`, it knows to include `Observation`, `DomainResource`, and any types referenced by the profile's fields. Extension definitions used by profiles (e.g., `us-core-race`, `us-core-ethnicity`) are also auto-collected — you don't need to list them manually. To exclude specific extensions, use `ignoreExtensions`:
+
+```typescript
+"http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient": {
+    ignoreExtensions: ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-genderIdentity"]
+}
+```
 
 Generated files land in a `profiles/` subdirectory alongside the base types:
 
