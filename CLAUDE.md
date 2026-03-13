@@ -97,11 +97,13 @@ FHIR Package → TypeSchema Generator → TypeSchema Format → Code Generators 
 
 ## Pull Request Style
 
-- PR body should be a bullet list summarizing changes — no section headers, no test plan.
+- PR body should be a bullet list summarizing changes — no test plan section.
   - Use two-level nesting to group related items when the list is long; keep it flat when short.
+  - Use `##` section headers to group changes by concern when the PR spans multiple topics (e.g. renames, new features, config changes).
 - Keep bullets concise and focused on what changed, not why.
 - When a PR changes generated code or user-facing API, include before/after code examples.
   - Add a short motivation line before each example explaining why the change was made.
+- When a PR changes user-facing config (generation scripts, tree shake rules, APIBuilder options), show the config diff as a before/after code block.
 
 ## Development Guidelines
 
