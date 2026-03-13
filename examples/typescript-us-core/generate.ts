@@ -15,11 +15,6 @@ if (require.main === module) {
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient": {},
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure": {},
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight": {},
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity": {},
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race": {},
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation": {},
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex": {},
-                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed": {},
                 },
             },
         })
