@@ -97,6 +97,7 @@ FHIR Package → TypeSchema Generator → TypeSchema Format → Code Generators 
 
 ## Pull Request Style
 
+- PR title must start with a module prefix: `TS:`, `PY:`, `C#:`, `TypeSchema:`, `CLI:`, `API:`, etc. to indicate which part of the codebase is affected. Use multiple prefixes (e.g. `TypeSchema/TS:`) when a change spans modules.
 - PR body should be a bullet list summarizing changes — no test plan section.
   - Use two-level nesting to group related items when the list is long; keep it flat when short.
   - Use `##` section headers to group changes by concern when the PR spans multiple topics (e.g. renames, new features, config changes).
