@@ -11,11 +11,6 @@ import type { Ratio } from "../../hl7-fhir-r4-core/Ratio";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import type { SampledData } from "../../hl7-fhir-r4-core/SampledData";
 
-export interface USCoreBodyWeightProfile extends Observation {
-    category: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
-    subject: Reference<"Patient">;
-}
-
 export type USCoreBodyWeightProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
 
 import {

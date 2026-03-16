@@ -21,11 +21,6 @@ import {
     type USCoreTribalAffiliationExtensionProfileFlat,
 } from "./Extension_USCoreTribalAffiliationExtension";
 
-export interface USCorePatientProfile extends Patient {
-    identifier: Identifier[];
-    name: HumanName[];
-}
-
 import {
     buildResource,
     ensureProfile,
