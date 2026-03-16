@@ -28,13 +28,7 @@ import {
     tsProfileModuleFileName,
     tsResourceName,
 } from "./name";
-import {
-    detectFieldOverrides,
-    generateProfileClass,
-    generateProfileImports,
-    generateProfileIndexFile,
-    generateProfileOverrideInterface,
-} from "./profile";
+import { generateProfileClass, generateProfileImports, generateProfileIndexFile } from "./profile";
 import { resolveFieldTsType } from "./utils";
 
 export const resolveTsAssets = (fn: string) => {
@@ -308,9 +302,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 this.cat(`${tsProfileModuleFileName(tsIndex, schema)}`, () => {
                     this.generateDisclaimer();
                     const flatProfile = tsIndex.flatProfile(schema);
-                    const overrides = detectFieldOverrides(tsIndex, flatProfile);
-                    generateProfileImports(this, tsIndex, flatProfile, overrides);
-                    generateProfileOverrideInterface(this, flatProfile, overrides);
+                    generateProfileImports(this, tsIndex, flatProfile);
                     generateProfileClass(this, tsIndex, flatProfile);
                 });
             });

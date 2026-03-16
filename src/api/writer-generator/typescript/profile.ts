@@ -1,4 +1,4 @@
-import { pascalCase, typeSchemaInfo, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
+import { pascalCase, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import {
     type CanonicalUrl,
     type Identifier,
@@ -8,7 +8,6 @@ import {
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
     isResourceIdentifier,
-    isSpecializationTypeSchema,
     type ProfileExtension,
     type ProfileTypeSchema,
     packageMeta,
@@ -48,7 +47,7 @@ import {
     type SliceDef,
 } from "./profile-slices";
 import { generateValidateMethod } from "./profile-validation";
-import { fieldTsType, resolvePrimitiveType, tsEnumType, tsGet, tsTypeFromIdentifier } from "./utils";
+import { fieldTsType, tsGet, tsTypeFromIdentifier } from "./utils";
 import type { TypeScript } from "./writer";
 
 type ProfileFactoryInfo = {
@@ -191,91 +190,19 @@ export const generateProfileIndexFile = (
     if (initialProfiles.length === 0) return;
     w.cd("profiles", () => {
         w.cat("index.ts", () => {
-            const profiles: [ProfileTypeSchema, string, string | undefined][] = initialProfiles.map((profile) => {
+            const exports: Map<string, string> = new Map();
+            for (const profile of initialProfiles) {
                 const className = tsProfileClassName(profile);
-                const resourceName = tsResourceName(profile.identifier);
-                const overrides = detectFieldOverrides(tsIndex, profile);
-                let typeExport;
-                if (overrides.size > 0) typeExport = resourceName;
-                return [profile, className, typeExport];
-            });
-            if (profiles.length === 0) return;
-            const classExports: Map<string, string> = new Map();
-            const typeExports: Map<string, string> = new Map();
-            for (const [profile, className, typeName] of profiles) {
                 const moduleName = tsProfileModuleName(tsIndex, profile);
-                if (!classExports.has(className)) {
-                    classExports.set(className, `export { ${className} } from "./${moduleName}"`);
-                }
-                if (typeName && !typeExports.has(typeName) && !classExports.has(typeName)) {
-                    typeExports.set(typeName, `export type { ${typeName} } from "./${moduleName}"`);
+                if (!exports.has(className)) {
+                    exports.set(className, `export { ${className} } from "./${moduleName}"`);
                 }
             }
-            const allExports = [...classExports.values(), ...typeExports.values()].sort();
-            for (const exp of allExports) {
+            for (const exp of [...exports.values()].sort()) {
                 w.lineSM(exp);
             }
         });
     });
-};
-
-const tsTypeForProfileField = (
-    tsIndex: TypeSchemaIndex,
-    flatProfile: ProfileTypeSchema,
-    fieldName: string,
-    field: NonNullable<ProfileTypeSchema["fields"]>[string],
-): string => {
-    if (!isNotChoiceDeclarationField(field)) {
-        throw new Error(`Choice declaration fields not supported for '${fieldName}'`);
-    }
-
-    let tsType: string;
-    if (field.enum) {
-        if (field.type?.name === "Coding") {
-            tsType = `Coding<${tsEnumType(field.enum)}>`;
-        } else if (field.type?.name === "CodeableConcept") {
-            tsType = `CodeableConcept<${tsEnumType(field.enum)}>`;
-        } else {
-            tsType = tsEnumType(field.enum);
-        }
-    } else if (field.reference && field.reference.length > 0) {
-        const specialization = tsIndex.findLastSpecialization(flatProfile);
-        if (!isSpecializationTypeSchema(specialization))
-            throw new Error(`Invalid specialization for ${flatProfile.identifier}`);
-
-        const sField = specialization.fields?.[fieldName];
-        if (sField === undefined || isChoiceDeclarationField(sField) || sField.reference === undefined)
-            throw new Error(`Invalid field declaration for ${fieldName}`);
-
-        const sRefs = sField.reference.map((e) => e.name);
-        const references = field.reference
-            .map((ref) => {
-                const resRef = tsIndex.findLastSpecializationByIdentifier(ref);
-                if (resRef.name !== ref.name) {
-                    return `"${resRef.name}" /*${ref.name}*/`;
-                }
-                return `'${ref.name}'`;
-            })
-            .join(" | ");
-        if (sRefs.length === 1 && sRefs[0] === "Resource" && references !== '"Resource"') {
-            // FIXME: should be generilized to type families
-            // Strip inner comments to avoid nested /* */ which is invalid
-            const cleanRefs = references.replace(/\/\*[^*]*\*\//g, "").trim();
-            tsType = `Reference<"Resource" /* ${cleanRefs} */ >`;
-        } else {
-            tsType = `Reference<${references}>`;
-        }
-    } else if (isPrimitiveIdentifier(field.type)) {
-        tsType = resolvePrimitiveType(field.type.name);
-    } else if (isNestedIdentifier(field.type)) {
-        tsType = tsResourceName(field.type);
-    } else if (field.type === undefined) {
-        throw new Error(`Undefined type for '${fieldName}' field at ${typeSchemaInfo(flatProfile)}`);
-    } else {
-        tsType = field.type.name;
-    }
-
-    return tsType;
 };
 
 const generateProfileHelpersImport = (
@@ -318,12 +245,7 @@ const generateProfileHelpersImport = (
     }
 };
 
-export const generateProfileImports = (
-    w: TypeScript,
-    tsIndex: TypeSchemaIndex,
-    flatProfile: ProfileTypeSchema,
-    overrides: FieldOverrides,
-) => {
+export const generateProfileImports = (w: TypeScript, tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) => {
     const usedTypes = new Map<string, { importPath: string; tsName: string }>();
 
     const getModulePath = (typeId: Identifier): string => {
@@ -345,7 +267,6 @@ export const generateProfileImports = (
     addType(flatProfile.base);
     collectTypesFromSlices(tsIndex, flatProfile, addType);
     const needsExtensionType = collectTypesFromExtensions(tsIndex, flatProfile, addType);
-    for (const { typeId } of overrides.values()) addType(typeId);
     collectTypesFromFlatInput(tsIndex, flatProfile, addType);
 
     const factoryInfo = collectProfileFactoryInfo(tsIndex, flatProfile);
@@ -816,78 +737,6 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, fl
 
         w.line("// Validation");
         generateValidateMethod(w, tsIndex, flatProfile);
-    });
-    w.line();
-};
-
-export type FieldOverrides = Map<
-    string,
-    { profileType: string; required: boolean; array: boolean; typeId: Identifier }
->;
-
-export const detectFieldOverrides = (tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema): FieldOverrides => {
-    const overrides: FieldOverrides = new Map();
-    const specialization = tsIndex.findLastSpecialization(flatProfile);
-    if (!isSpecializationTypeSchema(specialization)) return overrides;
-
-    const referenceUrl = "http://hl7.org/fhir/StructureDefinition/Reference" as CanonicalUrl;
-    const referenceSchema = tsIndex.resolveByUrl(flatProfile.identifier.package, referenceUrl);
-
-    for (const [fieldName, pField] of Object.entries(flatProfile.fields ?? {})) {
-        if (!isNotChoiceDeclarationField(pField)) continue;
-        const sField = specialization.fields?.[fieldName];
-        if (!sField || isChoiceDeclarationField(sField)) continue;
-
-        // Check for Reference narrowing
-        if (pField.reference && sField.reference && pField.reference.length < sField.reference.length) {
-            if (!referenceSchema) continue;
-            const references = pField.reference
-                .map((ref) => {
-                    const resRef = tsIndex.findLastSpecializationByIdentifier(ref);
-                    if (resRef.name !== ref.name) {
-                        return `"${resRef.name}"`;
-                    }
-                    return `"${ref.name}"`;
-                })
-                .join(" | ");
-            overrides.set(fieldName, {
-                profileType: `Reference<${references}>`,
-                required: pField.required ?? false,
-                array: pField.array ?? false,
-                typeId: referenceSchema.identifier,
-            });
-        }
-        // Check for cardinality change (optional -> required)
-        else if (pField.required && !sField.required) {
-            const tsType = tsTypeForProfileField(tsIndex, flatProfile, fieldName, pField);
-            overrides.set(fieldName, {
-                profileType: tsType,
-                required: true,
-                array: pField.array ?? false,
-                typeId: pField.type,
-            });
-        }
-    }
-    return overrides;
-};
-
-export const generateProfileOverrideInterface = (
-    w: TypeScript,
-    flatProfile: ProfileTypeSchema,
-    overrides: FieldOverrides,
-) => {
-    if (overrides.size === 0) return;
-
-    const tsProfileName = tsResourceName(flatProfile.identifier);
-    const tsBaseResourceName = tsResourceName(flatProfile.base);
-
-    w.curlyBlock(["export", "interface", tsProfileName, "extends", tsBaseResourceName], () => {
-        for (const [fieldName, override] of overrides) {
-            const tsField = tsFieldName(fieldName);
-            const optionalSymbol = override.required ? "" : "?";
-            const arraySymbol = override.array ? "[]" : "";
-            w.lineSM(`${tsField}${optionalSymbol}: ${override.profileType}${arraySymbol}`);
-        }
     });
     w.line();
 };
