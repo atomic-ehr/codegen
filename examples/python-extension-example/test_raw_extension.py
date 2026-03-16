@@ -6,6 +6,8 @@ Mirrors examples/typescript-r4/raw-extension.test.ts for the Python generator.
 
 import json
 
+from syrupy.assertion import SnapshotAssertion
+
 from fhir_types.hl7_fhir_r4_core import (
     Address,
     ContactPoint,
@@ -94,87 +96,7 @@ def create_patient_with_extensions() -> Patient:
     )
 
 
-def test_patient_with_extensions() -> None:
+def test_patient_with_extensions(snapshot: SnapshotAssertion) -> None:
     patient = create_patient_with_extensions()
     dumped = json.loads(patient.to_json(indent=2))
-
-    # NOTE: With allowExtraFields (extra="allow"), primitive extension fields
-    # on resources serialize using their Python kwarg name (_birth_date),
-    # not the FHIR alias (_birthDate). Complex-type extras (_family, _given)
-    # keep FHIR names since they don't go through alias resolution.
-    # Use primitiveTypeExtension for correct FHIR aliases everywhere.
-    assert dumped == {
-        "id": "ext-demo",
-        "extension": [
-            {
-                "url": "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
-                "valueAddress": {"city": "Springfield", "country": "US"},
-            }
-        ],
-        "modifierExtension": [
-            {
-                "url": "http://example.org/fhir/StructureDefinition/do-not-contact",
-                "valueBoolean": False,
-            }
-        ],
-        "birthDate": "1990-03-15",
-        "_birth_date": {
-            "extension": [
-                {
-                    "url": "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
-                    "valueDateTime": "1990-03-15T08:22:00-05:00",
-                }
-            ]
-        },
-        "name": [
-            {
-                "extension": [
-                    {
-                        "url": "http://example.org/fhir/StructureDefinition/name-verified",
-                        "valueBoolean": True,
-                    }
-                ],
-                "family": "van Beethoven",
-                "_family": {
-                    "extension": [
-                        {
-                            "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
-                            "valueString": "van",
-                        }
-                    ]
-                },
-                "given": ["Ludwig", "Maria", "Johann"],
-                "_given": [
-                    {
-                        "extension": [
-                            {
-                                "url": "http://example.org/fhir/StructureDefinition/name-source",
-                                "valueCode": "birth-certificate",
-                            }
-                        ]
-                    },
-                    None,
-                    {
-                        "extension": [
-                            {
-                                "url": "http://example.org/fhir/StructureDefinition/name-source",
-                                "valueCode": "baptism-record",
-                            }
-                        ]
-                    },
-                ],
-            }
-        ],
-        "contact": [
-            {
-                "extension": [
-                    {
-                        "url": "http://example.org/fhir/StructureDefinition/contact-priority",
-                        "valueInteger": 1,
-                    }
-                ],
-                "name": {"family": "Watson", "given": ["John"]},
-                "telecom": [{"system": "phone", "value": "+44-20-7946-1234"}],
-            }
-        ],
-    }
+    assert dumped == snapshot
