@@ -227,6 +227,45 @@ jobs:
             exit 1
           fi
 
+  test-python-extension-example:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        bun-version: [ latest ]
+        python-version: [ "3.13" ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ matrix.bun-version }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Test Python Extension Example
+        run: make test-python-extension-example
+
+      - name: Repository contains actual python-extension-example version
+        run: |
+          diff_result=$(git diff --exit-code --name-only examples/python-extension-example/fhir_types || true)
+
+          if [ -z "$diff_result" ]; then
+            echo "✅ Generated SDK is identical to the one stored in repository."
+          else
+            echo "❌ Generated SDK differs from the one stored in repository."
+            echo "Differences:"
+            git diff examples/python-extension-example/fhir_types
+            exit 1
+          fi
+
   test-mustache-java-r4-example:
     runs-on: ubuntu-latest
 
