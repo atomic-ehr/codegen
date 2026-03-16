@@ -7,11 +7,6 @@ import type { Observation } from "../../hl7-fhir-r4-core/Observation";
 import type { Period } from "../../hl7-fhir-r4-core/Period";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
-export interface observation_vitalsigns extends Observation {
-    category: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
-    subject: Reference<"Patient">;
-}
-
 export type Observation_vitalsigns_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
 
 import {

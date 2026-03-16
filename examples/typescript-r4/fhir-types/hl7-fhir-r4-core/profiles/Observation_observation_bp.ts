@@ -8,11 +8,6 @@ import type { Period } from "../../hl7-fhir-r4-core/Period";
 import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
-export interface observation_bp extends Observation {
-    category: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
-    subject: Reference<"Patient">;
-}
-
 export type Observation_bp_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
 export type Observation_bp_Component_SystolicBPSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 export type Observation_bp_Component_DiastolicBPSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;

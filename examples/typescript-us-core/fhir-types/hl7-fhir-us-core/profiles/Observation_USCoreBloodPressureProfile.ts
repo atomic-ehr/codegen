@@ -11,11 +11,6 @@ import type { Ratio } from "../../hl7-fhir-r4-core/Ratio";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import type { SampledData } from "../../hl7-fhir-r4-core/SampledData";
 
-export interface USCoreBloodPressureProfile extends Observation {
-    category: CodeableConcept<("social-history" | "vital-signs" | "imaging" | "laboratory" | "procedure" | "survey" | "exam" | "therapy" | "activity" | string)>[];
-    subject: Reference<"Patient">;
-}
-
 export type USCoreBloodPressureProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
 export type USCoreBloodPressureProfile_Component_SystolicSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 export type USCoreBloodPressureProfile_Component_DiastolicSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
