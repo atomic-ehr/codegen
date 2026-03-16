@@ -6,6 +6,7 @@ import type { IrReport } from "./ir/types";
 import type { Register } from "./register";
 import {
     type CanonicalUrl,
+    type ChoiceFieldInstance,
     type ConstrainedChoiceInfo,
     type Field,
     type Identifier,
@@ -314,6 +315,50 @@ export const mkTypeSchemaIndex = (
         return findLastSpecialization(schema).identifier;
     };
 
+    /** Narrow choice declarations by finding the most derived schema that constrains each choice group.
+     *  When a child profile declares only specific choice instances without re-declaring the declaration,
+     *  restrict the declaration's choices array to only the allowed instances. */
+    const narrowMergedChoiceDeclarations = (
+        mergedFields: Record<string, Field>,
+        constraintSchemas: TypeSchema[],
+    ): Record<string, Field> => {
+        const result = { ...mergedFields };
+        for (const [declName, declField] of Object.entries(result)) {
+            if (!isChoiceDeclarationField(declField) || declField.excluded) continue;
+
+            for (const cSchema of constraintSchemas) {
+                const sFields = (cSchema as RegularTypeSchema).fields;
+                if (!sFields) continue;
+                if (sFields[declName] && isChoiceDeclarationField(sFields[declName])) continue;
+
+                const instancesInSchema = Object.entries(sFields)
+                    .filter(([_, f]) => isChoiceInstanceField(f) && (f as ChoiceFieldInstance).choiceOf === declName)
+                    .map(([name]) => name);
+                if (instancesInSchema.length === 0) continue;
+
+                const allowed = new Set(instancesInSchema);
+                result[declName] = { ...declField, choices: declField.choices.filter((c) => allowed.has(c)) };
+                break;
+            }
+        }
+
+        // Compute prohibited for all choice declarations
+        for (const [declName, declField] of Object.entries(result)) {
+            if (!isChoiceDeclarationField(declField)) continue;
+            const permitted = new Set(declField.excluded ? [] : declField.choices);
+            const prohibited = Object.entries(result)
+                .filter(
+                    (e): e is [string, ChoiceFieldInstance] =>
+                        isChoiceInstanceField(e[1]) && e[1].choiceOf === declName,
+                )
+                .filter(([name]) => !permitted.has(name))
+                .map(([name]) => name);
+            if (prohibited.length > 0) result[declName] = { ...declField, prohibited };
+        }
+
+        return result;
+    };
+
     const flatProfile = (schema: ProfileTypeSchema): ProfileTypeSchema => {
         const hierarchySchemas = hierarchy(schema);
         const constraintSchemas = hierarchySchemas.filter((s) => s.identifier.kind === "profile");
@@ -339,6 +384,8 @@ export const mkTypeSchemaIndex = (
             }
         }
 
+        const narrowedFields = narrowMergedChoiceDeclarations(mergedFields, constraintSchemas);
+
         const dependencies = Object.values(
             Object.fromEntries(
                 constraintSchemas
@@ -362,7 +409,7 @@ export const mkTypeSchemaIndex = (
         return {
             ...schema,
             base: nonConstraintSchema.identifier,
-            fields: mergedFields,
+            fields: narrowedFields,
             dependencies: dependencies,
             extensions: mergedExtensions.length > 0 ? mergedExtensions : undefined,
         };

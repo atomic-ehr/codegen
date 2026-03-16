@@ -74,7 +74,12 @@ export const generateValidateMethod = (w: TypeScript, tsIndex: TypeSchemaIndex, 
         const errors: string[] = [];
         const warnings: string[] = [];
         for (const [name, field] of Object.entries(fields)) {
-            if (isChoiceInstanceField(field)) continue;
+            if (isChoiceInstanceField(field)) {
+                const decl = fields[field.choiceOf];
+                if (decl && isChoiceDeclarationField(decl) && decl.prohibited?.includes(name))
+                    errors.push(`...validateExcluded(res, profileName, ${JSON.stringify(name)})`);
+                continue;
+            }
 
             if (isChoiceDeclarationField(field)) {
                 if (field.required)
