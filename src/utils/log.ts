@@ -17,7 +17,8 @@ export type CodegenTag =
     | "#skipCanonical"
     | "#duplicateSchema"
     | "#duplicateCanonical"
-    | "#resolveBase";
+    | "#resolveBase"
+    | "#resolveCollisionMiss";
 
 export type CodegenLog = Log<CodegenTag>;
 export type CodegenLogManager = LogManager<CodegenTag>;
