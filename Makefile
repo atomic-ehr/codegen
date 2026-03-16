@@ -139,8 +139,7 @@ python-extension-test-setup:
 		cd $(PYTHON_EXTENSION_EXAMPLE) && \
 		$(PYTHON) -m venv venv && \
 		. venv/bin/activate && \
-		pip install -r fhir_types/requirements.txt && \
-		pip install syrupy; \
+		pip install -r requirements.txt; \
 	fi
 
 test-python-sdk: typecheck format prepare-aidbox-runme lint generate-python-sdk python-test-setup
