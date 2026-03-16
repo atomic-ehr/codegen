@@ -103,6 +103,7 @@ test-csharp-sdk: typecheck format prepare-aidbox-runme lint
 PYTHON=python3.13
 PYTHON_EXAMPLE=./examples/python
 PYTHON_FHIRPY_EXAMPLE=./examples/python-fhirpy
+PYTHON_EXTENSION_EXAMPLE=./examples/python-extension-example
 
 generate-python-sdk:
 	$(TYPECHECK) --project examples/python/tsconfig.json
@@ -111,6 +112,10 @@ generate-python-sdk:
 generate-python-sdk-fhirpy:
 	$(TYPECHECK) --project examples/python-fhirpy/tsconfig.json
 	bun run examples/python-fhirpy/generate.ts
+
+generate-python-extension-example:
+	$(TYPECHECK) --project examples/python-extension-example/tsconfig.json
+	bun run examples/python-extension-example/generate.ts
 
 python-test-setup:
 	@if [ ! -d "$(PYTHON_EXAMPLE)/venv" ]; then \
@@ -129,6 +134,15 @@ python-fhirpy-test-setup:
 		pip install fhirpy; \
 	fi
 
+python-extension-test-setup:
+	@if [ ! -d "$(PYTHON_EXTENSION_EXAMPLE)/venv" ]; then \
+		cd $(PYTHON_EXTENSION_EXAMPLE) && \
+		$(PYTHON) -m venv venv && \
+		. venv/bin/activate && \
+		pip install -r fhir_types/requirements.txt && \
+		pip install syrupy; \
+	fi
+
 test-python-sdk: typecheck format prepare-aidbox-runme lint generate-python-sdk python-test-setup
     # Run mypy in strict mode
 	cd $(PYTHON_EXAMPLE) && \
@@ -144,3 +158,8 @@ test-python-fhirpy-sdk: typecheck format prepare-aidbox-runme lint generate-pyth
 	cd $(PYTHON_FHIRPY_EXAMPLE) && \
        . venv/bin/activate && \
        mypy --strict .
+
+test-python-extension-example: typecheck format lint generate-python-extension-example python-extension-test-setup
+	cd $(PYTHON_EXTENSION_EXAMPLE) && \
+         . venv/bin/activate && \
+         python -m pytest test_raw_extension.py -v
