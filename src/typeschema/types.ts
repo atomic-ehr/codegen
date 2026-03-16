@@ -288,6 +288,7 @@ export interface RegularField {
 
 export interface ChoiceFieldDeclaration {
     choices: string[];
+    prohibited?: string[];
     required?: boolean;
     excluded?: boolean;
     array?: boolean;

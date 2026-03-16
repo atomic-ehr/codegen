@@ -73,6 +73,30 @@ describe("demo", () => {
         expect(profile.validate().errors).toEqual([]);
     });
 
+    test("validate() catches disallowed value[x] variants on raw resource", () => {
+        const resource: Observation = {
+            resourceType: "Observation",
+            meta: { profile: ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight"] },
+            status: "final",
+            category: [
+                {
+                    coding: {
+                        code: "vital-signs",
+                        system: "http://terminology.hl7.org/CodeSystem/observation-category",
+                    },
+                },
+            ] as any,
+            code: { coding: [{ code: "29463-7", system: "http://loinc.org" }] },
+            subject: { reference: "Patient/pt-1" },
+            effectiveDateTime: "2024-06-15",
+            valueString: "not allowed",
+        };
+
+        const profile = USCoreBodyWeightProfile.apply(resource);
+        const { errors } = profile.validate();
+        expect(errors).toContain("USCoreBodyWeightProfile: field 'valueString' must not be present");
+    });
+
     test("getVSCat() returns flat value, getVSCat('raw') includes discriminator", () => {
         const profile = USCoreBodyWeightProfile.create({
             status: "final",
