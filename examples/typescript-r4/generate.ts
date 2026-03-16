@@ -33,6 +33,24 @@ if (require.main === module) {
                     "http://hl7.org/fhir/StructureDefinition/patient-birthTime": {},
                 },
             },
+            resolveCollisions: {
+                "urn:fhir:binding:CommunicationReason": {
+                    package: "hl7.fhir.r4.core#4.0.1",
+                    canonical: "http://hl7.org/fhir/StructureDefinition/Communication",
+                },
+                "urn:fhir:binding:ObservationCategory": {
+                    package: "hl7.fhir.r4.core#4.0.1",
+                    canonical: "http://hl7.org/fhir/StructureDefinition/Observation",
+                },
+                "urn:fhir:binding:ObservationRangeMeaning": {
+                    package: "hl7.fhir.r4.core#4.0.1",
+                    canonical: "http://hl7.org/fhir/StructureDefinition/Observation",
+                },
+                "urn:fhir:binding:PaymentType": {
+                    package: "hl7.fhir.r4.core#4.0.1",
+                    canonical: "http://hl7.org/fhir/StructureDefinition/ClaimResponse",
+                },
+            },
         })
         .introspection({
             typeSchemas: "type-schemas",
