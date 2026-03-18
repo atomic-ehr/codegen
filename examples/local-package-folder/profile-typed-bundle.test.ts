@@ -85,9 +85,10 @@ describe("type-discriminated bundle slices", () => {
         expect(bundle.toResource().entry).toHaveLength(2);
     });
 
-    test("set/get PatientEntry with full BundleEntry input", () => {
+    test("set/get PatientEntry with full BundleEntry<Patient> input", () => {
         const bundle = createBundle();
-        bundle.setPatientEntry({ fullUrl: "urn:uuid:p1", resource: smithPatient });
+        const input: BundleEntry<Patient> = { fullUrl: "urn:uuid:p1", resource: smithPatient };
+        bundle.setPatientEntry(input);
 
         const raw = bundle.getPatientEntry("raw")!;
         expect(raw.fullUrl).toBe("urn:uuid:p1");
@@ -98,9 +99,10 @@ describe("type-discriminated bundle slices", () => {
         expect(flat.resource).toEqual(smithPatient);
     });
 
-    test("set/get OrganizationEntry with full BundleEntry input", () => {
+    test("set/get OrganizationEntry with full BundleEntry<Organization> input", () => {
         const bundle = createBundle();
-        bundle.setOrganizationEntry({ fullUrl: "urn:uuid:o1", resource: acmeOrg });
+        const input: BundleEntry<Organization> = { fullUrl: "urn:uuid:o1", resource: acmeOrg };
+        bundle.setOrganizationEntry(input);
 
         const raw = bundle.getOrganizationEntry("raw")!;
         expect(raw.fullUrl).toBe("urn:uuid:o1");
