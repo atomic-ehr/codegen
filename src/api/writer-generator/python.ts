@@ -99,6 +99,7 @@ const pyEnumType = (enumDef: EnumDefinition): string => {
 
 export interface PythonGeneratorOptions extends WriterOptions {
     allowExtraFields?: boolean;
+    primitiveTypeExtension?: boolean;
     rootPackageName: string; /// e.g. <rootPackageName>.hl7_fhir_r4_core.Patient.
     fieldFormat: StringFormatKey;
     fhirpyClient?: boolean;
@@ -476,13 +477,36 @@ export class Python extends Writer<PythonGeneratorOptions> {
 
     private generateFields(schema: SpecializationTypeSchema | NestedTypeSchema, schemaName: string): void {
         const sortedFields = Object.entries(schema.fields ?? []).sort(([a], [b]) => a.localeCompare(b));
+        const withExtensions = this.shouldAddPrimitiveExtensions(schema);
 
         for (const [fieldName, field] of sortedFields) {
             if ("choices" in field && field.choices) continue;
 
             const fieldInfo = this.buildFieldInfo(fieldName, field, schemaName);
             this.line(`${fieldInfo.name}: ${fieldInfo.type}${fieldInfo.defaultValue}`);
+
+            if (withExtensions && "type" in field && isPrimitiveIdentifier(field.type)) {
+                this.addPrimitiveExtensionField(fieldName, field.array ?? false);
+            }
         }
+    }
+
+    private shouldAddPrimitiveExtensions(schema: RegularTypeSchema): boolean {
+        if (!this.opts.primitiveTypeExtension) return false;
+        if (!isSpecializationTypeSchema(schema)) return false;
+        for (const field of Object.values(schema.fields ?? {})) {
+            if ("choices" in field && field.choices) continue;
+            if ("type" in field && isPrimitiveIdentifier(field.type)) return true;
+        }
+        return false;
+    }
+
+    private addPrimitiveExtensionField(fieldName: string, isArray: boolean): void {
+        const pyFieldName = this.nameFormatFunction(`${fieldName}Extension`);
+        const alias = `_${fieldName}`;
+        const typeExpr = isArray ? "PyList[Element | None] | None" : "Element | None";
+        const aliasSpec = `alias="${alias}", serialization_alias="${alias}"`;
+        this.line(`${pyFieldName}: ${typeExpr} = Field(None, ${aliasSpec})`);
     }
 
     private buildFieldInfo(fieldName: string, field: Field, schemaName: string): FieldInfo {
@@ -590,6 +614,21 @@ export class Python extends Writer<PythonGeneratorOptions> {
 
         this.importComplexTypeDependencies(schema.dependencies);
         this.importResourceDependencies(schema.dependencies);
+        this.importElementIfNeeded(schema);
+    }
+
+    private importElementIfNeeded(schema: RegularTypeSchema): void {
+        if (!this.shouldAddPrimitiveExtensions(schema)) return;
+        if (schema.identifier.name === "Element") return;
+        if (schema.dependencies?.find((d) => d.name === "Element")) return;
+
+        assert(this.tsIndex !== undefined);
+        const elementUrl = "http://hl7.org/fhir/StructureDefinition/Element" as CanonicalUrl;
+        const element = this.tsIndex.resolveByUrl(schema.identifier.package, elementUrl);
+        if (!element) return;
+
+        const pyPackage = this.pyPackage(element.identifier);
+        this.pyImportFrom(pyPackage, "Element");
     }
 
     private importComplexTypeDependencies(dependencies: TypeIdentifier[]): void {

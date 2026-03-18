@@ -12,7 +12,7 @@ from fhir_types.hl7_fhir_r4_core.resource_families import DomainResourceFamily
 
 
 class OperationOutcomeIssue(BackboneElement):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     code: Literal["invalid", "structure", "required", "value", "invariant", "security", "login", "unknown", "expired", "forbidden", "suppressed", "processing", "not-supported", "duplicate", "multiple-matches", "not-found", "deleted", "too-long", "code-invalid", "extension", "too-costly", "business-rule", "conflict", "transient", "lock-error", "no-store", "exception", "timeout", "incomplete", "throttled", "informational"] = Field(alias="code", serialization_alias="code")
     details: CodeableConcept | None = Field(None, alias="details", serialization_alias="details")
     diagnostics: str | None = Field(None, alias="diagnostics", serialization_alias="diagnostics")
@@ -22,7 +22,7 @@ class OperationOutcomeIssue(BackboneElement):
 
 
 class OperationOutcome(DomainResource):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     resource_type: Literal['OperationOutcome'] = Field(
         default='OperationOutcome',
         alias='resourceType',

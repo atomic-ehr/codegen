@@ -9,10 +9,11 @@ from typing import List as PyList, Literal
 from fhir_types.hl7_fhir_r4_core.base import BackboneElement, Identifier, Signature
 from fhir_types.hl7_fhir_r4_core.resource import Resource
 from fhir_types.hl7_fhir_r4_core.resource_families import ResourceFamily
+from fhir_types.hl7_fhir_r4_core.base import Element
 
 
 class BundleEntry(BackboneElement):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     full_url: str | None = Field(None, alias="fullUrl", serialization_alias="fullUrl")
     link: PyList[BundleLink] | None = Field(None, alias="link", serialization_alias="link")
     request: BundleEntryRequest | None = Field(None, alias="request", serialization_alias="request")
@@ -21,7 +22,7 @@ class BundleEntry(BackboneElement):
     search: BundleEntrySearch | None = Field(None, alias="search", serialization_alias="search")
 
 class BundleEntryRequest(BackboneElement):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     if_match: str | None = Field(None, alias="ifMatch", serialization_alias="ifMatch")
     if_modified_since: str | None = Field(None, alias="ifModifiedSince", serialization_alias="ifModifiedSince")
     if_none_exist: str | None = Field(None, alias="ifNoneExist", serialization_alias="ifNoneExist")
@@ -30,7 +31,7 @@ class BundleEntryRequest(BackboneElement):
     url: str = Field(alias="url", serialization_alias="url")
 
 class BundleEntryResponse(BackboneElement):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     etag: str | None = Field(None, alias="etag", serialization_alias="etag")
     last_modified: str | None = Field(None, alias="lastModified", serialization_alias="lastModified")
     location: str | None = Field(None, alias="location", serialization_alias="location")
@@ -38,18 +39,18 @@ class BundleEntryResponse(BackboneElement):
     status: str = Field(alias="status", serialization_alias="status")
 
 class BundleEntrySearch(BackboneElement):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     mode: Literal["match", "include", "outcome"] | None = Field(None, alias="mode", serialization_alias="mode")
     score: float | None = Field(None, alias="score", serialization_alias="score")
 
 class BundleLink(BackboneElement):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     relation: str = Field(alias="relation", serialization_alias="relation")
     url: str = Field(alias="url", serialization_alias="url")
 
 
 class Bundle(Resource):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     resource_type: Literal['Bundle'] = Field(
         default='Bundle',
         alias='resourceType',
@@ -62,8 +63,11 @@ class Bundle(Resource):
     link: PyList[BundleLink] | None = Field(None, alias="link", serialization_alias="link")
     signature: Signature | None = Field(None, alias="signature", serialization_alias="signature")
     timestamp: str | None = Field(None, alias="timestamp", serialization_alias="timestamp")
+    timestamp_extension: Element | None = Field(None, alias="_timestamp", serialization_alias="_timestamp")
     total: int | None = Field(None, alias="total", serialization_alias="total")
+    total_extension: Element | None = Field(None, alias="_total", serialization_alias="_total")
     type: Literal["document", "message", "transaction", "transaction-response", "batch", "batch-response", "history", "searchset", "collection"] = Field(alias="type", serialization_alias="type")
+    type_extension: Element | None = Field(None, alias="_type", serialization_alias="_type")
 
     def to_json(self, indent: int | None = None) -> str:
         return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)

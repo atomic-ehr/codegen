@@ -11,7 +11,8 @@ const builder = new APIBuilder({ logger })
     .throwException()
     .fromPackage("hl7.fhir.r4.core", "4.0.1")
     .python({
-        allowExtraFields: true,
+        allowExtraFields: false,
+        primitiveTypeExtension: true,
         fhirpyClient: false,
         fieldFormat: "snake_case",
     })
