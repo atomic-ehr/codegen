@@ -4,10 +4,15 @@
  * The profile slices Bundle.entry[] by resource type:
  *   - PatientEntry (min: 1, max: 1) — entry where resource is Patient
  *   - OrganizationEntry (min: 0, max: *) — entry where resource is Organization
+ *
+ * Generic type parameters (BundleEntry<Patient>, BundleEntry<Organization>) let
+ * the compiler narrow `entry.resource` to the concrete resource type — no casts needed.
  */
 
 import { describe, expect, test } from "bun:test";
 import { ExampleTypedBundleProfile } from "./fhir-types/example-folder-structures/profiles/Bundle_ExampleTypedBundle";
+import type { BundleEntry } from "./fhir-types/hl7-fhir-r4-core/Bundle";
+import type { DomainResource } from "./fhir-types/hl7-fhir-r4-core/DomainResource";
 import type { Organization } from "./fhir-types/hl7-fhir-r4-core/Organization";
 import type { Patient } from "./fhir-types/hl7-fhir-r4-core/Patient";
 
@@ -80,9 +85,10 @@ describe("type-discriminated bundle slices", () => {
         expect(bundle.toResource().entry).toHaveLength(2);
     });
 
-    test("set/get PatientEntry with full BundleEntry input", () => {
+    test("set/get PatientEntry with full BundleEntry<Patient> input", () => {
         const bundle = createBundle();
-        bundle.setPatientEntry({ fullUrl: "urn:uuid:p1", resource: smithPatient });
+        const input: BundleEntry<Patient> = { fullUrl: "urn:uuid:p1", resource: smithPatient };
+        bundle.setPatientEntry(input);
 
         const raw = bundle.getPatientEntry("raw")!;
         expect(raw.fullUrl).toBe("urn:uuid:p1");
@@ -93,9 +99,10 @@ describe("type-discriminated bundle slices", () => {
         expect(flat.resource).toEqual(smithPatient);
     });
 
-    test("set/get OrganizationEntry with full BundleEntry input", () => {
+    test("set/get OrganizationEntry with full BundleEntry<Organization> input", () => {
         const bundle = createBundle();
-        bundle.setOrganizationEntry({ fullUrl: "urn:uuid:o1", resource: acmeOrg });
+        const input: BundleEntry<Organization> = { fullUrl: "urn:uuid:o1", resource: acmeOrg };
+        bundle.setOrganizationEntry(input);
 
         const raw = bundle.getOrganizationEntry("raw")!;
         expect(raw.fullUrl).toBe("urn:uuid:o1");
@@ -104,5 +111,52 @@ describe("type-discriminated bundle slices", () => {
         const flat = bundle.getOrganizationEntry("flat")!;
         expect(flat.fullUrl).toBe("urn:uuid:o1");
         expect(flat.resource).toEqual(acmeOrg);
+    });
+});
+
+describe("generic type-family fields — compile-time narrowing", () => {
+    test("BundleEntry<Patient>.resource is Patient (access Patient-specific fields without cast)", () => {
+        const bundle = createBundle();
+        bundle.setPatientEntry({ resource: smithPatient });
+
+        const entry = bundle.getPatientEntry()!;
+        // entry.resource is Patient — .name is available directly, no cast needed
+        const family: string | undefined = entry.resource?.name?.[0]?.family;
+        expect(family).toBe("Smith");
+    });
+
+    test("BundleEntry<Organization>.resource is Organization (access Organization-specific fields without cast)", () => {
+        const bundle = createBundle();
+        bundle.setOrganizationEntry({ resource: acmeOrg });
+
+        const entry = bundle.getOrganizationEntry()!;
+        // entry.resource is Organization — .name is string, not HumanName[]
+        const name: string | undefined = entry.resource?.name;
+        expect(name).toBe("Acme Corp");
+    });
+
+    test("BundleEntry<T> defaults to BundleEntry<Resource> — unparameterized usage unchanged", () => {
+        const entry: BundleEntry = { resource: smithPatient };
+        expect(entry.resource?.resourceType).toBe("Patient");
+    });
+
+    test("DomainResource<T> narrows contained to T[]", () => {
+        const container: DomainResource<Patient> = {
+            resourceType: "Patient",
+            contained: [smithPatient, jonesPatient],
+        };
+        // contained is Patient[] — .name available directly
+        const family: string | undefined = container.contained?.[0]?.name?.[0]?.family;
+        expect(family).toBe("Smith");
+    });
+
+    test("BundleEntry<Patient> rejects Organization at compile time", () => {
+        const patientEntry: BundleEntry<Patient> = { resource: smithPatient };
+        expect(patientEntry.resource?.resourceType).toBe("Patient");
+
+        // Uncomment to verify compile error:
+        // @ts-expect-error — Organization is not assignable to Patient
+        const _bad: BundleEntry<Patient> = { resource: acmeOrg };
+        void _bad;
     });
 });

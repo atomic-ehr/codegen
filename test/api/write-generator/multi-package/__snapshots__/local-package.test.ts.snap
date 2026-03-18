@@ -34,9 +34,11 @@ exports[`Local Package Folder - Multi-Package Generation TypeScript Generation w
 // Any manual changes made to this file may be overwritten.
 
 import type { Bundle, BundleEntry } from "../../hl7-fhir-r4-core/Bundle";
+import type { Organization } from "../../hl7-fhir-r4-core/Organization";
+import type { Patient } from "../../hl7-fhir-r4-core/Patient";
 
-export type ExampleTypedBundle_Entry_PatientEntrySliceFlat = BundleEntry;
-export type ExampleTypedBundle_Entry_OrganizationEntrySliceFlat = BundleEntry;
+export type ExampleTypedBundle_Entry_PatientEntrySliceFlat = BundleEntry<Patient>;
+export type ExampleTypedBundle_Entry_OrganizationEntrySliceFlat = BundleEntry<Organization>;
 
 import {
     buildResource,
@@ -133,47 +135,47 @@ export class ExampleTypedBundleProfile {
 
     // Extensions
     // Slices
-    public setPatientEntry (input?: ExampleTypedBundle_Entry_PatientEntrySliceFlat | BundleEntry): this {
+    public setPatientEntry (input?: ExampleTypedBundle_Entry_PatientEntrySliceFlat | BundleEntry<Patient>): this {
         const match = ExampleTypedBundleProfile.PatientEntrySliceMatch
         if (input && matchesValue(input, match)) {
-            setArraySlice(this.resource.entry ??= [], match, input as BundleEntry)
+            setArraySlice(this.resource.entry ??= [], match, input as BundleEntry<Patient>)
             return this
         }
-        const value = applySliceMatch<BundleEntry>(input ?? {}, match)
+        const value = applySliceMatch<BundleEntry<Patient>>(input ?? {}, match)
         setArraySlice(this.resource.entry ??= [], match, value)
         return this
     }
 
-    public setOrganizationEntry (input?: ExampleTypedBundle_Entry_OrganizationEntrySliceFlat | BundleEntry): this {
+    public setOrganizationEntry (input?: ExampleTypedBundle_Entry_OrganizationEntrySliceFlat | BundleEntry<Organization>): this {
         const match = ExampleTypedBundleProfile.OrganizationEntrySliceMatch
         if (input && matchesValue(input, match)) {
-            setArraySlice(this.resource.entry ??= [], match, input as BundleEntry)
+            setArraySlice(this.resource.entry ??= [], match, input as BundleEntry<Organization>)
             return this
         }
-        const value = applySliceMatch<BundleEntry>(input ?? {}, match)
+        const value = applySliceMatch<BundleEntry<Organization>>(input ?? {}, match)
         setArraySlice(this.resource.entry ??= [], match, value)
         return this
     }
 
     public getPatientEntry(mode: 'flat'): ExampleTypedBundle_Entry_PatientEntrySliceFlat | undefined;
-    public getPatientEntry(mode: 'raw'): BundleEntry | undefined;
+    public getPatientEntry(mode: 'raw'): BundleEntry<Patient> | undefined;
     public getPatientEntry(): ExampleTypedBundle_Entry_PatientEntrySliceFlat | undefined;
-    public getPatientEntry (mode: 'flat' | 'raw' = 'flat'): ExampleTypedBundle_Entry_PatientEntrySliceFlat | BundleEntry | undefined {
+    public getPatientEntry (mode: 'flat' | 'raw' = 'flat'): ExampleTypedBundle_Entry_PatientEntrySliceFlat | BundleEntry<Patient> | undefined {
         const match = ExampleTypedBundleProfile.PatientEntrySliceMatch
         const item = getArraySlice(this.resource.entry, match)
         if (!item) return undefined
-        if (mode === 'raw') return item
+        if (mode === 'raw') return item as BundleEntry<Patient>
         return item as ExampleTypedBundle_Entry_PatientEntrySliceFlat
     }
 
     public getOrganizationEntry(mode: 'flat'): ExampleTypedBundle_Entry_OrganizationEntrySliceFlat | undefined;
-    public getOrganizationEntry(mode: 'raw'): BundleEntry | undefined;
+    public getOrganizationEntry(mode: 'raw'): BundleEntry<Organization> | undefined;
     public getOrganizationEntry(): ExampleTypedBundle_Entry_OrganizationEntrySliceFlat | undefined;
-    public getOrganizationEntry (mode: 'flat' | 'raw' = 'flat'): ExampleTypedBundle_Entry_OrganizationEntrySliceFlat | BundleEntry | undefined {
+    public getOrganizationEntry (mode: 'flat' | 'raw' = 'flat'): ExampleTypedBundle_Entry_OrganizationEntrySliceFlat | BundleEntry<Organization> | undefined {
         const match = ExampleTypedBundleProfile.OrganizationEntrySliceMatch
         const item = getArraySlice(this.resource.entry, match)
         if (!item) return undefined
-        if (mode === 'raw') return item
+        if (mode === 'raw') return item as BundleEntry<Organization>
         return item as ExampleTypedBundle_Entry_OrganizationEntrySliceFlat
     }
 

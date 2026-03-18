@@ -575,12 +575,13 @@ const generateSliceInputTypes = (w: TypeScript, flatProfile: ProfileTypeSchema, 
         }
         const excludedNames = allExcluded.map((name) => JSON.stringify(name));
         const requiredNames = sliceDef.required.map((name) => JSON.stringify(name));
-        let typeExpr = sliceDef.baseType;
+        const baseType = sliceDef.typedBaseType;
+        let typeExpr = baseType;
         if (excludedNames.length > 0) {
             typeExpr = `Omit<${typeExpr}, ${excludedNames.join(" | ")}>`;
         }
         if (requiredNames.length > 0) {
-            typeExpr = `${typeExpr} & Required<Pick<${sliceDef.baseType}, ${requiredNames.join(" | ")}>>`;
+            typeExpr = `${typeExpr} & Required<Pick<${baseType}, ${requiredNames.join(" | ")}>>`;
         }
         if (sliceDef.constrainedChoice) {
             typeExpr = `${typeExpr} & ${tsTypeFromIdentifier(sliceDef.constrainedChoice.variantType)}`;

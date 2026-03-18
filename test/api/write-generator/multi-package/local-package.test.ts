@@ -68,6 +68,10 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
                     "example.folder.structures": {
                         "http://example.org/fhir/StructureDefinition/ExampleTypedBundle": {},
                     },
+                    "hl7.fhir.r4.core": {
+                        "http://hl7.org/fhir/StructureDefinition/Patient": {},
+                        "http://hl7.org/fhir/StructureDefinition/Organization": {},
+                    },
                 },
             })
             .typescript({ inMemoryOnly: true, generateProfile: true, withDebugComment: false })

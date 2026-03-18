@@ -63,7 +63,10 @@ export const resolveFieldTsType = (
     tsName: string,
     field: RegularField | ChoiceFieldInstance,
     resolveRef?: (ref: Identifier) => Identifier,
+    genericFieldMap?: Record<string, string>,
 ): string => {
+    if (genericFieldMap?.[tsName]) return genericFieldMap[tsName];
+
     const rewriteFieldType = rewriteFieldTypeDefs[schemaName]?.[tsName];
     if (rewriteFieldType) return rewriteFieldType();
 

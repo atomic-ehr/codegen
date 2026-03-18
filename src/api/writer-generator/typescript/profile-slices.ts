@@ -31,6 +31,18 @@ const collectChoiceBaseNames = (tsIndex: TypeSchemaIndex, typeId: Identifier): S
     return names;
 };
 
+/** Extract resource type name from a type-discriminator match (e.g. {"resource":{"resourceType":"Patient"}} → "Patient") */
+export const extractResourceTypeFromMatch = (match: Record<string, unknown>): string | undefined => {
+    for (const value of Object.values(match)) {
+        if (typeof value !== "object" || value === null) continue;
+        const obj = value as Record<string, unknown>;
+        if (typeof obj.resourceType === "string") return obj.resourceType;
+        const nested = extractResourceTypeFromMatch(obj);
+        if (nested) return nested;
+    }
+    return undefined;
+};
+
 export const collectTypesFromSlices = (
     tsIndex: TypeSchemaIndex,
     flatProfile: ProfileTypeSchema,
@@ -39,11 +51,22 @@ export const collectTypesFromSlices = (
     const pkgName = flatProfile.identifier.package;
     for (const field of Object.values(flatProfile.fields ?? {})) {
         if (!isNotChoiceDeclarationField(field) || !field.slicing?.slices || !field.type) continue;
+        const isTypeDisc = field.slicing.discriminator?.some((d) => d.type === "type") ?? false;
         for (const slice of Object.values(field.slicing.slices)) {
             if (Object.keys(slice.match ?? {}).length > 0) {
                 addType(field.type);
                 const cc = slice.elements ? tsIndex.constrainedChoice(pkgName, field.type, slice.elements) : undefined;
                 if (cc) addType(cc.variantType);
+                // For type discriminator slices, also import the matched resource type
+                if (isTypeDisc && slice.match) {
+                    const resourceTypeName = extractResourceTypeFromMatch(slice.match);
+                    if (resourceTypeName) {
+                        const resourceSchema = tsIndex.schemas.find(
+                            (s) => s.identifier.name === resourceTypeName && s.identifier.kind === "resource",
+                        );
+                        if (resourceSchema) addType(resourceSchema.identifier);
+                    }
+                }
             }
         }
     }
@@ -60,6 +83,8 @@ export const collectRequiredSliceNames = (field: RegularField): string[] | undef
 export type SliceDef = {
     fieldName: string;
     baseType: string;
+    /** Base type parameterized with the matched resource type (e.g. "BundleEntry<Patient>") */
+    typedBaseType: string;
     sliceName: string;
     match: Record<string, unknown>;
     /** Required fields, already filtered (match keys and polymorphic base names removed) */
@@ -92,9 +117,12 @@ export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: ProfileT
                         : undefined;
                     // Skip flattening for primitive types — can't intersect object with boolean/string/etc.
                     const constrainedChoice = cc && !isPrimitiveIdentifier(cc.variantType) ? cc : undefined;
+                    const resourceType = isTypeDisc ? extractResourceTypeFromMatch(slice.match ?? {}) : undefined;
+                    const typedBaseType = resourceType ? `${baseType}<${resourceType}>` : baseType;
                     return {
                         fieldName,
                         baseType,
+                        typedBaseType,
                         sliceName,
                         match: slice.match ?? {},
                         required,
@@ -121,7 +149,7 @@ export const generateSliceSetters = (
         const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
         const tsField = tsFieldName(sliceDef.fieldName);
         const fieldAccess = tsGet("this.resource", tsField);
-        const baseType = sliceDef.baseType;
+        const baseType = sliceDef.typedBaseType;
         // Make input optional when there are no required fields (input can be empty object)
         const inputOptional = sliceDef.required.length === 0;
         const unionType = `${typeName} | ${baseType}`;
@@ -172,7 +200,7 @@ export const generateSliceGetters = (
         const matchKeys = JSON.stringify(Object.keys(sliceDef.match));
         const tsField = tsFieldName(sliceDef.fieldName);
         const fieldAccess = tsGet("this.resource", tsField);
-        const baseType = sliceDef.baseType;
+        const baseType = sliceDef.typedBaseType;
         const defaultReturn = defaultMode === "raw" ? baseType : typeName;
 
         // Overload signatures
@@ -196,7 +224,11 @@ export const generateSliceGetters = (
                     w.line(`const item = ${fieldAccess}`);
                     w.line("if (!item || !matchesValue(item, match)) return undefined");
                 }
-                w.line("if (mode === 'raw') return item");
+                if (sliceDef.typeDiscriminator) {
+                    w.line(`if (mode === 'raw') return item as ${baseType}`);
+                } else {
+                    w.line("if (mode === 'raw') return item");
+                }
                 if (sliceDef.typeDiscriminator) {
                     w.line(`return item as ${typeName}`);
                 } else if (sliceDef.constrainedChoice) {
