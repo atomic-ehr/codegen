@@ -6,9 +6,9 @@ LINT = bunx biome check --write
 TEST = bun test
 VERSION = $(shell cat package.json | grep version | sed -E 's/ *"version": "//' | sed -E 's/",.*//')
 
-.PHONY: all typecheck test-typeschema test-register test-codegen test-typescript-r4-example
+.PHONY: all typecheck test-typeschema test-register test-codegen test-typescript-r4-example test-local-package-folder-example
 
-all: test-codegen test-typescript-r4-example test-typescript-us-core-example test-typescript-ccda-example test-typescript-sql-on-fhir-example lint-unsafe test-all-example-generation
+all: test-codegen test-typescript-r4-example test-typescript-us-core-example test-typescript-ccda-example test-typescript-sql-on-fhir-example test-local-package-folder-example lint-unsafe test-all-example-generation
 
 generate-types:
 	bun run scripts/generate-types.ts
@@ -83,6 +83,11 @@ test-typescript-ccda-example: typecheck
 	$(TEST) --project examples/typescript-ccda/tsconfig.json \
 		./examples/typescript-ccda/demo-cda.test.ts \
 		./examples/typescript-ccda/demo-ccda.test.ts
+
+test-local-package-folder-example: typecheck
+	bun run examples/local-package-folder/generate.ts
+	$(TYPECHECK) --project examples/local-package-folder/tsconfig.json
+	$(TEST) ./examples/local-package-folder/
 
 test-mustache-java-r4-example: typecheck format lint
 	bun run examples/mustache/mustache-java-r4-gen.ts
