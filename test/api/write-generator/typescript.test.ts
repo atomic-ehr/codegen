@@ -24,6 +24,21 @@ describe("TypeScript Writer Generator", async () => {
         expect(ccTs).toContain("export interface CodeableConcept<T extends string = string>");
         expect(ccTs).toContain("coding?: Coding<T>[]");
     });
+    it("generates BundleEntry with generic type-family parameter", async () => {
+        const bundleTs = result.filesGenerated["generated/types/hl7-fhir-r4-core/Bundle.ts"];
+        expect(bundleTs).toContain("export interface BundleEntry<T extends Resource = Resource>");
+        expect(bundleTs).toContain("resource?: T");
+    });
+    it("generates BundleEntryResponse with generic type-family parameter", async () => {
+        const bundleTs = result.filesGenerated["generated/types/hl7-fhir-r4-core/Bundle.ts"];
+        expect(bundleTs).toContain("export interface BundleEntryResponse<T extends Resource = Resource>");
+        expect(bundleTs).toContain("outcome?: T");
+    });
+    it("generates DomainResource with generic type-family parameter", async () => {
+        const domainResourceTs = result.filesGenerated["generated/types/hl7-fhir-r4-core/DomainResource.ts"];
+        expect(domainResourceTs).toContain("export interface DomainResource<T extends Resource = Resource>");
+        expect(domainResourceTs).toContain("contained?: T[]");
+    });
 });
 
 describe("TypeScript CDA with Logical Model Promotion to Resource", async () => {

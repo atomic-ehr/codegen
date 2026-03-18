@@ -190,6 +190,81 @@ describe("TypeSchema Index", () => {
         });
     });
 
+    describe("typeFamily", () => {
+        it("should populate typeFamily on resource schemas with children", () => {
+            const resourceSchema: RegularTypeSchema = {
+                identifier: {
+                    name: "Resource" as Name,
+                    package: "test",
+                    kind: "resource",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/Resource" as CanonicalUrl,
+                },
+            };
+            const domainSchema: RegularTypeSchema = {
+                identifier: {
+                    name: "DomainResource" as Name,
+                    package: "test",
+                    kind: "resource",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/DomainResource" as CanonicalUrl,
+                },
+                base: resourceSchema.identifier,
+            };
+            const patientSchema: RegularTypeSchema = {
+                identifier: {
+                    name: "Patient" as Name,
+                    package: "test",
+                    kind: "resource",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/Patient" as CanonicalUrl,
+                },
+                base: domainSchema.identifier,
+            };
+
+            const index = mkTypeSchemaIndex([resourceSchema, domainSchema, patientSchema], {});
+
+            // Resource has DomainResource and Patient as transitive children
+            expect(resourceSchema.typeFamily).toBeDefined();
+            expect(resourceSchema.typeFamily?.map((id) => id.name as string).sort()).toEqual([
+                "DomainResource",
+                "Patient",
+            ]);
+            // DomainResource has Patient as child
+            expect(domainSchema.typeFamily).toBeDefined();
+            expect(domainSchema.typeFamily?.map((id) => id.name as string)).toEqual(["Patient"]);
+            // Patient is a leaf — no typeFamily
+            expect(patientSchema.typeFamily).toBeUndefined();
+        });
+
+        it("should not populate typeFamily on complex-type schemas", () => {
+            const elementSchema: RegularTypeSchema = {
+                identifier: {
+                    name: "Element" as Name,
+                    package: "test",
+                    kind: "complex-type",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/Element" as CanonicalUrl,
+                },
+            };
+            const backboneSchema: RegularTypeSchema = {
+                identifier: {
+                    name: "BackboneElement" as Name,
+                    package: "test",
+                    kind: "complex-type",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/BackboneElement" as CanonicalUrl,
+                },
+                base: elementSchema.identifier,
+            };
+
+            mkTypeSchemaIndex([elementSchema, backboneSchema], {});
+
+            expect(elementSchema.typeFamily).toBeUndefined();
+            expect(backboneSchema.typeFamily).toBeUndefined();
+        });
+    });
+
     describe("flatProfile", () => {
         it("should flatten a profile with a single constraint", () => {
             const baseSchema: RegularTypeSchema = {
