@@ -211,8 +211,10 @@ export interface ProfileTypeSchema {
     nested?: NestedType[];
 }
 
+export type DiscriminatorType = "value" | "exists" | "pattern" | "type" | "profile";
+
 export interface FieldSlicing {
-    discriminator?: Array<{ type?: string; path: string }>;
+    discriminator?: { type: DiscriminatorType; path: string }[];
     rules?: string;
     ordered?: boolean;
     slices?: Record<string, FieldSlice>;
