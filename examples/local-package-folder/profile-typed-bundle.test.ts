@@ -7,9 +7,9 @@
  */
 
 import { describe, expect, test } from "bun:test";
+import { ExampleTypedBundleProfile } from "./fhir-types/example-folder-structures/profiles/Bundle_ExampleTypedBundle";
 import type { Organization } from "./fhir-types/hl7-fhir-r4-core/Organization";
 import type { Patient } from "./fhir-types/hl7-fhir-r4-core/Patient";
-import { ExampleTypedBundleProfile } from "./fhir-types/example-folder-structures/profiles/Bundle_ExampleTypedBundle";
 
 const createBundle = () => ExampleTypedBundleProfile.create({ type: "collection" });
 

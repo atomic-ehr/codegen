@@ -27,7 +27,7 @@ async function generateFromLocalPackageFolder() {
                 },
             },
         })
-        .introspection({typeSchemas: "ts/"})
+        .introspection({ typeSchemas: "ts/" })
         .outputTo("./examples/local-package-folder/fhir-types")
         .generate();
 
