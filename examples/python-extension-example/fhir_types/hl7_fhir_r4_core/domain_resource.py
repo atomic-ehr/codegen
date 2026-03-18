@@ -12,7 +12,7 @@ from fhir_types.hl7_fhir_r4_core.resource_families import ResourceFamily
 
 
 class DomainResource(Resource):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     resource_type: str = Field(
         default='DomainResource',
         alias='resourceType',

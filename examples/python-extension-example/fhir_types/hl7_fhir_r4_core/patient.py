@@ -11,15 +11,16 @@ from fhir_types.hl7_fhir_r4_core.base import (\
 )
 from fhir_types.hl7_fhir_r4_core.domain_resource import DomainResource
 from fhir_types.hl7_fhir_r4_core.resource_families import DomainResourceFamily
+from fhir_types.hl7_fhir_r4_core.base import Element
 
 
 class PatientCommunication(BackboneElement):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     language: CodeableConcept[Literal["ar", "bn", "cs", "da", "de", "de-AT", "de-CH", "de-DE", "el", "en", "en-AU", "en-CA", "en-GB", "en-IN", "en-NZ", "en-SG", "en-US", "es", "es-AR", "es-ES", "es-UY", "fi", "fr", "fr-BE", "fr-CH", "fr-FR", "fy", "fy-NL", "hi", "hr", "it", "it-CH", "it-IT", "ja", "ko", "nl", "nl-BE", "nl-NL", "no", "no-NO", "pa", "pl", "pt", "pt-BR", "ru", "ru-RU", "sr", "sr-RS", "sv", "sv-SE", "te", "zh", "zh-CN", "zh-HK", "zh-SG", "zh-TW"] | str] = Field(alias="language", serialization_alias="language")
     preferred: bool | None = Field(None, alias="preferred", serialization_alias="preferred")
 
 class PatientContact(BackboneElement):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     address: Address | None = Field(None, alias="address", serialization_alias="address")
     gender: Literal["male", "female", "other", "unknown"] | None = Field(None, alias="gender", serialization_alias="gender")
     name: HumanName | None = Field(None, alias="name", serialization_alias="name")
@@ -29,13 +30,13 @@ class PatientContact(BackboneElement):
     telecom: PyList[ContactPoint] | None = Field(None, alias="telecom", serialization_alias="telecom")
 
 class PatientLink(BackboneElement):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     other: Reference = Field(alias="other", serialization_alias="other")
     type: Literal["replaced-by", "replaces", "refer", "seealso"] = Field(alias="type", serialization_alias="type")
 
 
 class Patient(DomainResource):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     resource_type: Literal['Patient'] = Field(
         default='Patient',
         alias='resourceType',
@@ -44,20 +45,27 @@ class Patient(DomainResource):
         pattern='Patient'
     )
     active: bool | None = Field(None, alias="active", serialization_alias="active")
+    active_extension: Element | None = Field(None, alias="_active", serialization_alias="_active")
     address: PyList[Address] | None = Field(None, alias="address", serialization_alias="address")
     birth_date: str | None = Field(None, alias="birthDate", serialization_alias="birthDate")
+    birth_date_extension: Element | None = Field(None, alias="_birthDate", serialization_alias="_birthDate")
     communication: PyList[PatientCommunication] | None = Field(None, alias="communication", serialization_alias="communication")
     contact: PyList[PatientContact] | None = Field(None, alias="contact", serialization_alias="contact")
     deceased_boolean: bool | None = Field(None, alias="deceasedBoolean", serialization_alias="deceasedBoolean")
+    deceased_boolean_extension: Element | None = Field(None, alias="_deceasedBoolean", serialization_alias="_deceasedBoolean")
     deceased_date_time: str | None = Field(None, alias="deceasedDateTime", serialization_alias="deceasedDateTime")
+    deceased_date_time_extension: Element | None = Field(None, alias="_deceasedDateTime", serialization_alias="_deceasedDateTime")
     gender: Literal["male", "female", "other", "unknown"] | None = Field(None, alias="gender", serialization_alias="gender")
+    gender_extension: Element | None = Field(None, alias="_gender", serialization_alias="_gender")
     general_practitioner: PyList[Reference] | None = Field(None, alias="generalPractitioner", serialization_alias="generalPractitioner")
     identifier: PyList[Identifier] | None = Field(None, alias="identifier", serialization_alias="identifier")
     link: PyList[PatientLink] | None = Field(None, alias="link", serialization_alias="link")
     managing_organization: Reference | None = Field(None, alias="managingOrganization", serialization_alias="managingOrganization")
     marital_status: CodeableConcept[Literal["A", "D", "I", "L", "M", "P", "S", "T", "U", "W", "UNK"] | str] | None = Field(None, alias="maritalStatus", serialization_alias="maritalStatus")
     multiple_birth_boolean: bool | None = Field(None, alias="multipleBirthBoolean", serialization_alias="multipleBirthBoolean")
+    multiple_birth_boolean_extension: Element | None = Field(None, alias="_multipleBirthBoolean", serialization_alias="_multipleBirthBoolean")
     multiple_birth_integer: int | None = Field(None, alias="multipleBirthInteger", serialization_alias="multipleBirthInteger")
+    multiple_birth_integer_extension: Element | None = Field(None, alias="_multipleBirthInteger", serialization_alias="_multipleBirthInteger")
     name: PyList[HumanName] | None = Field(None, alias="name", serialization_alias="name")
     photo: PyList[Attachment] | None = Field(None, alias="photo", serialization_alias="photo")
     telecom: PyList[ContactPoint] | None = Field(None, alias="telecom", serialization_alias="telecom")

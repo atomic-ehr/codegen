@@ -11,115 +11,154 @@ T = TypeVar('T', bound=str, default=str)
 
 
 class Element(BaseModel):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     extension: PyList[Extension] | None = Field(None, alias="extension", serialization_alias="extension")
     id: str | None = Field(None, alias="id", serialization_alias="id")
+    id_extension: Element | None = Field(None, alias="_id", serialization_alias="_id")
 
 
 class Address(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     city: str | None = Field(None, alias="city", serialization_alias="city")
+    city_extension: Element | None = Field(None, alias="_city", serialization_alias="_city")
     country: str | None = Field(None, alias="country", serialization_alias="country")
+    country_extension: Element | None = Field(None, alias="_country", serialization_alias="_country")
     district: str | None = Field(None, alias="district", serialization_alias="district")
+    district_extension: Element | None = Field(None, alias="_district", serialization_alias="_district")
     line: PyList[str] | None = Field(None, alias="line", serialization_alias="line")
+    line_extension: PyList[Element | None] | None = Field(None, alias="_line", serialization_alias="_line")
     period: Period | None = Field(None, alias="period", serialization_alias="period")
     postal_code: str | None = Field(None, alias="postalCode", serialization_alias="postalCode")
+    postal_code_extension: Element | None = Field(None, alias="_postalCode", serialization_alias="_postalCode")
     state: str | None = Field(None, alias="state", serialization_alias="state")
+    state_extension: Element | None = Field(None, alias="_state", serialization_alias="_state")
     text: str | None = Field(None, alias="text", serialization_alias="text")
+    text_extension: Element | None = Field(None, alias="_text", serialization_alias="_text")
     type: Literal["postal", "physical", "both"] | None = Field(None, alias="type", serialization_alias="type")
+    type_extension: Element | None = Field(None, alias="_type", serialization_alias="_type")
     use: Literal["home", "work", "temp", "old", "billing"] | None = Field(None, alias="use", serialization_alias="use")
+    use_extension: Element | None = Field(None, alias="_use", serialization_alias="_use")
 
 
 class Quantity(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     code: str | None = Field(None, alias="code", serialization_alias="code")
+    code_extension: Element | None = Field(None, alias="_code", serialization_alias="_code")
     comparator: Literal["<", "<=", ">=", ">"] | None = Field(None, alias="comparator", serialization_alias="comparator")
+    comparator_extension: Element | None = Field(None, alias="_comparator", serialization_alias="_comparator")
     system: str | None = Field(None, alias="system", serialization_alias="system")
+    system_extension: Element | None = Field(None, alias="_system", serialization_alias="_system")
     unit: str | None = Field(None, alias="unit", serialization_alias="unit")
+    unit_extension: Element | None = Field(None, alias="_unit", serialization_alias="_unit")
     value: float | None = Field(None, alias="value", serialization_alias="value")
+    value_extension: Element | None = Field(None, alias="_value", serialization_alias="_value")
 
 
 class Age(Quantity):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     pass
 
 
 class Annotation(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     author_reference: Reference | None = Field(None, alias="authorReference", serialization_alias="authorReference")
     author_string: str | None = Field(None, alias="authorString", serialization_alias="authorString")
+    author_string_extension: Element | None = Field(None, alias="_authorString", serialization_alias="_authorString")
     text: str = Field(alias="text", serialization_alias="text")
+    text_extension: Element | None = Field(None, alias="_text", serialization_alias="_text")
     time: str | None = Field(None, alias="time", serialization_alias="time")
+    time_extension: Element | None = Field(None, alias="_time", serialization_alias="_time")
 
 
 class Attachment(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     content_type: str | None = Field(None, alias="contentType", serialization_alias="contentType")
+    content_type_extension: Element | None = Field(None, alias="_contentType", serialization_alias="_contentType")
     creation: str | None = Field(None, alias="creation", serialization_alias="creation")
+    creation_extension: Element | None = Field(None, alias="_creation", serialization_alias="_creation")
     data: str | None = Field(None, alias="data", serialization_alias="data")
+    data_extension: Element | None = Field(None, alias="_data", serialization_alias="_data")
     hash: str | None = Field(None, alias="hash", serialization_alias="hash")
+    hash_extension: Element | None = Field(None, alias="_hash", serialization_alias="_hash")
     language: str | None = Field(None, alias="language", serialization_alias="language")
+    language_extension: Element | None = Field(None, alias="_language", serialization_alias="_language")
     size: int | None = Field(None, alias="size", serialization_alias="size")
+    size_extension: Element | None = Field(None, alias="_size", serialization_alias="_size")
     title: str | None = Field(None, alias="title", serialization_alias="title")
+    title_extension: Element | None = Field(None, alias="_title", serialization_alias="_title")
     url: str | None = Field(None, alias="url", serialization_alias="url")
+    url_extension: Element | None = Field(None, alias="_url", serialization_alias="_url")
 
 
 class BackboneElement(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     modifier_extension: PyList[Extension] | None = Field(None, alias="modifierExtension", serialization_alias="modifierExtension")
 
 
 class CodeableConcept(Element, Generic[T]):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     coding: PyList[Coding[T]] | None = Field(None, alias="coding", serialization_alias="coding")
     text: str | None = Field(None, alias="text", serialization_alias="text")
+    text_extension: Element | None = Field(None, alias="_text", serialization_alias="_text")
 
 
 class Coding(Element, Generic[T]):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     code: T | None = Field(None, alias="code", serialization_alias="code")
+    code_extension: Element | None = Field(None, alias="_code", serialization_alias="_code")
     display: str | None = Field(None, alias="display", serialization_alias="display")
+    display_extension: Element | None = Field(None, alias="_display", serialization_alias="_display")
     system: str | None = Field(None, alias="system", serialization_alias="system")
+    system_extension: Element | None = Field(None, alias="_system", serialization_alias="_system")
     user_selected: bool | None = Field(None, alias="userSelected", serialization_alias="userSelected")
+    user_selected_extension: Element | None = Field(None, alias="_userSelected", serialization_alias="_userSelected")
     version: str | None = Field(None, alias="version", serialization_alias="version")
+    version_extension: Element | None = Field(None, alias="_version", serialization_alias="_version")
 
 
 class ContactDetail(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     name: str | None = Field(None, alias="name", serialization_alias="name")
+    name_extension: Element | None = Field(None, alias="_name", serialization_alias="_name")
     telecom: PyList[ContactPoint] | None = Field(None, alias="telecom", serialization_alias="telecom")
 
 
 class ContactPoint(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     period: Period | None = Field(None, alias="period", serialization_alias="period")
     rank: PositiveInt | None = Field(None, alias="rank", serialization_alias="rank")
+    rank_extension: Element | None = Field(None, alias="_rank", serialization_alias="_rank")
     system: Literal["phone", "fax", "email", "pager", "url", "sms", "other"] | None = Field(None, alias="system", serialization_alias="system")
+    system_extension: Element | None = Field(None, alias="_system", serialization_alias="_system")
     use: Literal["home", "work", "temp", "old", "mobile"] | None = Field(None, alias="use", serialization_alias="use")
+    use_extension: Element | None = Field(None, alias="_use", serialization_alias="_use")
     value: str | None = Field(None, alias="value", serialization_alias="value")
+    value_extension: Element | None = Field(None, alias="_value", serialization_alias="_value")
 
 
 class Contributor(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     contact: PyList[ContactDetail] | None = Field(None, alias="contact", serialization_alias="contact")
     name: str = Field(alias="name", serialization_alias="name")
+    name_extension: Element | None = Field(None, alias="_name", serialization_alias="_name")
     type: Literal["author", "editor", "reviewer", "endorser"] = Field(alias="type", serialization_alias="type")
+    type_extension: Element | None = Field(None, alias="_type", serialization_alias="_type")
 
 
 class Count(Quantity):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     pass
 
 
 class DataRequirementCodeFilter(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     code: PyList[Coding] | None = Field(None, alias="code", serialization_alias="code")
     path: str | None = Field(None, alias="path", serialization_alias="path")
     search_param: str | None = Field(None, alias="searchParam", serialization_alias="searchParam")
     value_set: str | None = Field(None, alias="valueSet", serialization_alias="valueSet")
 
 class DataRequirementDateFilter(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     path: str | None = Field(None, alias="path", serialization_alias="path")
     search_param: str | None = Field(None, alias="searchParam", serialization_alias="searchParam")
     value_date_time: str | None = Field(None, alias="valueDateTime", serialization_alias="valueDateTime")
@@ -127,31 +166,35 @@ class DataRequirementDateFilter(Element):
     value_period: Period | None = Field(None, alias="valuePeriod", serialization_alias="valuePeriod")
 
 class DataRequirementSort(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     direction: Literal["ascending", "descending"] = Field(alias="direction", serialization_alias="direction")
     path: str = Field(alias="path", serialization_alias="path")
 
 
 class DataRequirement(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     code_filter: PyList[DataRequirementCodeFilter] | None = Field(None, alias="codeFilter", serialization_alias="codeFilter")
     date_filter: PyList[DataRequirementDateFilter] | None = Field(None, alias="dateFilter", serialization_alias="dateFilter")
     limit: PositiveInt | None = Field(None, alias="limit", serialization_alias="limit")
+    limit_extension: Element | None = Field(None, alias="_limit", serialization_alias="_limit")
     must_support: PyList[str] | None = Field(None, alias="mustSupport", serialization_alias="mustSupport")
+    must_support_extension: PyList[Element | None] | None = Field(None, alias="_mustSupport", serialization_alias="_mustSupport")
     profile: PyList[str] | None = Field(None, alias="profile", serialization_alias="profile")
+    profile_extension: PyList[Element | None] | None = Field(None, alias="_profile", serialization_alias="_profile")
     sort: PyList[DataRequirementSort] | None = Field(None, alias="sort", serialization_alias="sort")
     subject_codeable_concept: CodeableConcept | None = Field(None, alias="subjectCodeableConcept", serialization_alias="subjectCodeableConcept")
     subject_reference: Reference | None = Field(None, alias="subjectReference", serialization_alias="subjectReference")
     type: str = Field(alias="type", serialization_alias="type")
+    type_extension: Element | None = Field(None, alias="_type", serialization_alias="_type")
 
 
 class Distance(Quantity):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     pass
 
 
 class DosageDoseAndRate(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     dose_quantity: Quantity | None = Field(None, alias="doseQuantity", serialization_alias="doseQuantity")
     dose_range: Range | None = Field(None, alias="doseRange", serialization_alias="doseRange")
     rate_quantity: Quantity | None = Field(None, alias="rateQuantity", serialization_alias="rateQuantity")
@@ -161,9 +204,10 @@ class DosageDoseAndRate(Element):
 
 
 class Dosage(BackboneElement):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     additional_instruction: PyList[CodeableConcept] | None = Field(None, alias="additionalInstruction", serialization_alias="additionalInstruction")
     as_needed_boolean: bool | None = Field(None, alias="asNeededBoolean", serialization_alias="asNeededBoolean")
+    as_needed_boolean_extension: Element | None = Field(None, alias="_asNeededBoolean", serialization_alias="_asNeededBoolean")
     as_needed_codeable_concept: CodeableConcept | None = Field(None, alias="asNeededCodeableConcept", serialization_alias="asNeededCodeableConcept")
     dose_and_rate: PyList[DosageDoseAndRate] | None = Field(None, alias="doseAndRate", serialization_alias="doseAndRate")
     max_dose_per_administration: Quantity | None = Field(None, alias="maxDosePerAdministration", serialization_alias="maxDosePerAdministration")
@@ -171,38 +215,51 @@ class Dosage(BackboneElement):
     max_dose_per_period: Ratio | None = Field(None, alias="maxDosePerPeriod", serialization_alias="maxDosePerPeriod")
     method: CodeableConcept | None = Field(None, alias="method", serialization_alias="method")
     patient_instruction: str | None = Field(None, alias="patientInstruction", serialization_alias="patientInstruction")
+    patient_instruction_extension: Element | None = Field(None, alias="_patientInstruction", serialization_alias="_patientInstruction")
     route: CodeableConcept | None = Field(None, alias="route", serialization_alias="route")
     sequence: int | None = Field(None, alias="sequence", serialization_alias="sequence")
+    sequence_extension: Element | None = Field(None, alias="_sequence", serialization_alias="_sequence")
     site: CodeableConcept | None = Field(None, alias="site", serialization_alias="site")
     text: str | None = Field(None, alias="text", serialization_alias="text")
+    text_extension: Element | None = Field(None, alias="_text", serialization_alias="_text")
     timing: Timing | None = Field(None, alias="timing", serialization_alias="timing")
 
 
 class Duration(Quantity):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     pass
 
 
 class Expression(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     description: str | None = Field(None, alias="description", serialization_alias="description")
+    description_extension: Element | None = Field(None, alias="_description", serialization_alias="_description")
     expression: str | None = Field(None, alias="expression", serialization_alias="expression")
+    expression_extension: Element | None = Field(None, alias="_expression", serialization_alias="_expression")
     language: str = Field(alias="language", serialization_alias="language")
+    language_extension: Element | None = Field(None, alias="_language", serialization_alias="_language")
     name: str | None = Field(None, alias="name", serialization_alias="name")
+    name_extension: Element | None = Field(None, alias="_name", serialization_alias="_name")
     reference: str | None = Field(None, alias="reference", serialization_alias="reference")
+    reference_extension: Element | None = Field(None, alias="_reference", serialization_alias="_reference")
 
 
 class Extension(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     url: str = Field(alias="url", serialization_alias="url")
+    url_extension: Element | None = Field(None, alias="_url", serialization_alias="_url")
     value_address: Address | None = Field(None, alias="valueAddress", serialization_alias="valueAddress")
     value_age: Age | None = Field(None, alias="valueAge", serialization_alias="valueAge")
     value_annotation: Annotation | None = Field(None, alias="valueAnnotation", serialization_alias="valueAnnotation")
     value_attachment: Attachment | None = Field(None, alias="valueAttachment", serialization_alias="valueAttachment")
     value_base64binary: str | None = Field(None, alias="valueBase64Binary", serialization_alias="valueBase64Binary")
+    value_base64binary_extension: Element | None = Field(None, alias="_valueBase64Binary", serialization_alias="_valueBase64Binary")
     value_boolean: bool | None = Field(None, alias="valueBoolean", serialization_alias="valueBoolean")
+    value_boolean_extension: Element | None = Field(None, alias="_valueBoolean", serialization_alias="_valueBoolean")
     value_canonical: str | None = Field(None, alias="valueCanonical", serialization_alias="valueCanonical")
+    value_canonical_extension: Element | None = Field(None, alias="_valueCanonical", serialization_alias="_valueCanonical")
     value_code: str | None = Field(None, alias="valueCode", serialization_alias="valueCode")
+    value_code_extension: Element | None = Field(None, alias="_valueCode", serialization_alias="_valueCode")
     value_codeable_concept: CodeableConcept | None = Field(None, alias="valueCodeableConcept", serialization_alias="valueCodeableConcept")
     value_coding: Coding | None = Field(None, alias="valueCoding", serialization_alias="valueCoding")
     value_contact_detail: ContactDetail | None = Field(None, alias="valueContactDetail", serialization_alias="valueContactDetail")
@@ -211,24 +268,33 @@ class Extension(Element):
     value_count: Count | None = Field(None, alias="valueCount", serialization_alias="valueCount")
     value_data_requirement: DataRequirement | None = Field(None, alias="valueDataRequirement", serialization_alias="valueDataRequirement")
     value_date: str | None = Field(None, alias="valueDate", serialization_alias="valueDate")
+    value_date_extension: Element | None = Field(None, alias="_valueDate", serialization_alias="_valueDate")
     value_date_time: str | None = Field(None, alias="valueDateTime", serialization_alias="valueDateTime")
+    value_date_time_extension: Element | None = Field(None, alias="_valueDateTime", serialization_alias="_valueDateTime")
     value_decimal: float | None = Field(None, alias="valueDecimal", serialization_alias="valueDecimal")
+    value_decimal_extension: Element | None = Field(None, alias="_valueDecimal", serialization_alias="_valueDecimal")
     value_distance: Distance | None = Field(None, alias="valueDistance", serialization_alias="valueDistance")
     value_dosage: Dosage | None = Field(None, alias="valueDosage", serialization_alias="valueDosage")
     value_duration: Duration | None = Field(None, alias="valueDuration", serialization_alias="valueDuration")
     value_expression: Expression | None = Field(None, alias="valueExpression", serialization_alias="valueExpression")
     value_human_name: HumanName | None = Field(None, alias="valueHumanName", serialization_alias="valueHumanName")
     value_id: str | None = Field(None, alias="valueId", serialization_alias="valueId")
+    value_id_extension: Element | None = Field(None, alias="_valueId", serialization_alias="_valueId")
     value_identifier: Identifier | None = Field(None, alias="valueIdentifier", serialization_alias="valueIdentifier")
     value_instant: str | None = Field(None, alias="valueInstant", serialization_alias="valueInstant")
+    value_instant_extension: Element | None = Field(None, alias="_valueInstant", serialization_alias="_valueInstant")
     value_integer: int | None = Field(None, alias="valueInteger", serialization_alias="valueInteger")
+    value_integer_extension: Element | None = Field(None, alias="_valueInteger", serialization_alias="_valueInteger")
     value_markdown: str | None = Field(None, alias="valueMarkdown", serialization_alias="valueMarkdown")
+    value_markdown_extension: Element | None = Field(None, alias="_valueMarkdown", serialization_alias="_valueMarkdown")
     value_meta: Meta | None = Field(None, alias="valueMeta", serialization_alias="valueMeta")
     value_money: Money | None = Field(None, alias="valueMoney", serialization_alias="valueMoney")
     value_oid: str | None = Field(None, alias="valueOid", serialization_alias="valueOid")
+    value_oid_extension: Element | None = Field(None, alias="_valueOid", serialization_alias="_valueOid")
     value_parameter_definition: ParameterDefinition | None = Field(None, alias="valueParameterDefinition", serialization_alias="valueParameterDefinition")
     value_period: Period | None = Field(None, alias="valuePeriod", serialization_alias="valuePeriod")
     value_positive_int: PositiveInt | None = Field(None, alias="valuePositiveInt", serialization_alias="valuePositiveInt")
+    value_positive_int_extension: Element | None = Field(None, alias="_valuePositiveInt", serialization_alias="_valuePositiveInt")
     value_quantity: Quantity | None = Field(None, alias="valueQuantity", serialization_alias="valueQuantity")
     value_range: Range | None = Field(None, alias="valueRange", serialization_alias="valueRange")
     value_ratio: Ratio | None = Field(None, alias="valueRatio", serialization_alias="valueRatio")
@@ -237,131 +303,182 @@ class Extension(Element):
     value_sampled_data: SampledData | None = Field(None, alias="valueSampledData", serialization_alias="valueSampledData")
     value_signature: Signature | None = Field(None, alias="valueSignature", serialization_alias="valueSignature")
     value_string: str | None = Field(None, alias="valueString", serialization_alias="valueString")
+    value_string_extension: Element | None = Field(None, alias="_valueString", serialization_alias="_valueString")
     value_time: str | None = Field(None, alias="valueTime", serialization_alias="valueTime")
+    value_time_extension: Element | None = Field(None, alias="_valueTime", serialization_alias="_valueTime")
     value_timing: Timing | None = Field(None, alias="valueTiming", serialization_alias="valueTiming")
     value_trigger_definition: TriggerDefinition | None = Field(None, alias="valueTriggerDefinition", serialization_alias="valueTriggerDefinition")
     value_unsigned_int: int | None = Field(None, alias="valueUnsignedInt", serialization_alias="valueUnsignedInt")
+    value_unsigned_int_extension: Element | None = Field(None, alias="_valueUnsignedInt", serialization_alias="_valueUnsignedInt")
     value_uri: str | None = Field(None, alias="valueUri", serialization_alias="valueUri")
+    value_uri_extension: Element | None = Field(None, alias="_valueUri", serialization_alias="_valueUri")
     value_url: str | None = Field(None, alias="valueUrl", serialization_alias="valueUrl")
+    value_url_extension: Element | None = Field(None, alias="_valueUrl", serialization_alias="_valueUrl")
     value_usage_context: UsageContext | None = Field(None, alias="valueUsageContext", serialization_alias="valueUsageContext")
     value_uuid: str | None = Field(None, alias="valueUuid", serialization_alias="valueUuid")
+    value_uuid_extension: Element | None = Field(None, alias="_valueUuid", serialization_alias="_valueUuid")
 
 
 class HumanName(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     family: str | None = Field(None, alias="family", serialization_alias="family")
+    family_extension: Element | None = Field(None, alias="_family", serialization_alias="_family")
     given: PyList[str] | None = Field(None, alias="given", serialization_alias="given")
+    given_extension: PyList[Element | None] | None = Field(None, alias="_given", serialization_alias="_given")
     period: Period | None = Field(None, alias="period", serialization_alias="period")
     prefix: PyList[str] | None = Field(None, alias="prefix", serialization_alias="prefix")
+    prefix_extension: PyList[Element | None] | None = Field(None, alias="_prefix", serialization_alias="_prefix")
     suffix: PyList[str] | None = Field(None, alias="suffix", serialization_alias="suffix")
+    suffix_extension: PyList[Element | None] | None = Field(None, alias="_suffix", serialization_alias="_suffix")
     text: str | None = Field(None, alias="text", serialization_alias="text")
+    text_extension: Element | None = Field(None, alias="_text", serialization_alias="_text")
     use: Literal["usual", "official", "temp", "nickname", "anonymous", "old", "maiden"] | None = Field(None, alias="use", serialization_alias="use")
+    use_extension: Element | None = Field(None, alias="_use", serialization_alias="_use")
 
 
 class Identifier(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     assigner: Reference | None = Field(None, alias="assigner", serialization_alias="assigner")
     period: Period | None = Field(None, alias="period", serialization_alias="period")
     system: str | None = Field(None, alias="system", serialization_alias="system")
+    system_extension: Element | None = Field(None, alias="_system", serialization_alias="_system")
     type: CodeableConcept[Literal["DL", "PPN", "BRN", "MR", "MCN", "EN", "TAX", "NIIP", "PRN", "MD", "DR", "ACSN", "UDI", "SNO", "SB", "PLAC", "FILL", "JHN"] | str] | None = Field(None, alias="type", serialization_alias="type")
     use: Literal["usual", "official", "temp", "secondary", "old"] | None = Field(None, alias="use", serialization_alias="use")
+    use_extension: Element | None = Field(None, alias="_use", serialization_alias="_use")
     value: str | None = Field(None, alias="value", serialization_alias="value")
+    value_extension: Element | None = Field(None, alias="_value", serialization_alias="_value")
 
 
 class Meta(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     last_updated: str | None = Field(None, alias="lastUpdated", serialization_alias="lastUpdated")
+    last_updated_extension: Element | None = Field(None, alias="_lastUpdated", serialization_alias="_lastUpdated")
     profile: PyList[str] | None = Field(None, alias="profile", serialization_alias="profile")
+    profile_extension: PyList[Element | None] | None = Field(None, alias="_profile", serialization_alias="_profile")
     security: PyList[Coding] | None = Field(None, alias="security", serialization_alias="security")
     source: str | None = Field(None, alias="source", serialization_alias="source")
+    source_extension: Element | None = Field(None, alias="_source", serialization_alias="_source")
     tag: PyList[Coding] | None = Field(None, alias="tag", serialization_alias="tag")
     version_id: str | None = Field(None, alias="versionId", serialization_alias="versionId")
+    version_id_extension: Element | None = Field(None, alias="_versionId", serialization_alias="_versionId")
 
 
 class Money(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     currency: str | None = Field(None, alias="currency", serialization_alias="currency")
+    currency_extension: Element | None = Field(None, alias="_currency", serialization_alias="_currency")
     value: float | None = Field(None, alias="value", serialization_alias="value")
+    value_extension: Element | None = Field(None, alias="_value", serialization_alias="_value")
 
 
 class Narrative(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     div: str = Field(alias="div", serialization_alias="div")
+    div_extension: Element | None = Field(None, alias="_div", serialization_alias="_div")
     status: Literal["generated", "extensions", "additional", "empty"] = Field(alias="status", serialization_alias="status")
+    status_extension: Element | None = Field(None, alias="_status", serialization_alias="_status")
 
 
 class ParameterDefinition(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     documentation: str | None = Field(None, alias="documentation", serialization_alias="documentation")
+    documentation_extension: Element | None = Field(None, alias="_documentation", serialization_alias="_documentation")
     max: str | None = Field(None, alias="max", serialization_alias="max")
+    max_extension: Element | None = Field(None, alias="_max", serialization_alias="_max")
     min: int | None = Field(None, alias="min", serialization_alias="min")
+    min_extension: Element | None = Field(None, alias="_min", serialization_alias="_min")
     name: str | None = Field(None, alias="name", serialization_alias="name")
+    name_extension: Element | None = Field(None, alias="_name", serialization_alias="_name")
     profile: str | None = Field(None, alias="profile", serialization_alias="profile")
+    profile_extension: Element | None = Field(None, alias="_profile", serialization_alias="_profile")
     type: str = Field(alias="type", serialization_alias="type")
+    type_extension: Element | None = Field(None, alias="_type", serialization_alias="_type")
     use: Literal["in", "out"] = Field(alias="use", serialization_alias="use")
+    use_extension: Element | None = Field(None, alias="_use", serialization_alias="_use")
 
 
 class Period(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     end: str | None = Field(None, alias="end", serialization_alias="end")
+    end_extension: Element | None = Field(None, alias="_end", serialization_alias="_end")
     start: str | None = Field(None, alias="start", serialization_alias="start")
+    start_extension: Element | None = Field(None, alias="_start", serialization_alias="_start")
 
 
 class Range(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     high: Quantity | None = Field(None, alias="high", serialization_alias="high")
     low: Quantity | None = Field(None, alias="low", serialization_alias="low")
 
 
 class Ratio(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     denominator: Quantity | None = Field(None, alias="denominator", serialization_alias="denominator")
     numerator: Quantity | None = Field(None, alias="numerator", serialization_alias="numerator")
 
 
 class Reference(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     display: str | None = Field(None, alias="display", serialization_alias="display")
+    display_extension: Element | None = Field(None, alias="_display", serialization_alias="_display")
     identifier: Identifier | None = Field(None, alias="identifier", serialization_alias="identifier")
     reference: str | None = Field(None, alias="reference", serialization_alias="reference")
+    reference_extension: Element | None = Field(None, alias="_reference", serialization_alias="_reference")
     type: str | None = Field(None, alias="type", serialization_alias="type")
+    type_extension: Element | None = Field(None, alias="_type", serialization_alias="_type")
 
 
 class RelatedArtifact(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     citation: str | None = Field(None, alias="citation", serialization_alias="citation")
+    citation_extension: Element | None = Field(None, alias="_citation", serialization_alias="_citation")
     display: str | None = Field(None, alias="display", serialization_alias="display")
+    display_extension: Element | None = Field(None, alias="_display", serialization_alias="_display")
     document: Attachment | None = Field(None, alias="document", serialization_alias="document")
     label: str | None = Field(None, alias="label", serialization_alias="label")
+    label_extension: Element | None = Field(None, alias="_label", serialization_alias="_label")
     resource: str | None = Field(None, alias="resource", serialization_alias="resource")
+    resource_extension: Element | None = Field(None, alias="_resource", serialization_alias="_resource")
     type: Literal["documentation", "justification", "citation", "predecessor", "successor", "derived-from", "depends-on", "composed-of"] = Field(alias="type", serialization_alias="type")
+    type_extension: Element | None = Field(None, alias="_type", serialization_alias="_type")
     url: str | None = Field(None, alias="url", serialization_alias="url")
+    url_extension: Element | None = Field(None, alias="_url", serialization_alias="_url")
 
 
 class SampledData(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     data: str | None = Field(None, alias="data", serialization_alias="data")
+    data_extension: Element | None = Field(None, alias="_data", serialization_alias="_data")
     dimensions: PositiveInt = Field(alias="dimensions", serialization_alias="dimensions")
+    dimensions_extension: Element | None = Field(None, alias="_dimensions", serialization_alias="_dimensions")
     factor: float | None = Field(None, alias="factor", serialization_alias="factor")
+    factor_extension: Element | None = Field(None, alias="_factor", serialization_alias="_factor")
     lower_limit: float | None = Field(None, alias="lowerLimit", serialization_alias="lowerLimit")
+    lower_limit_extension: Element | None = Field(None, alias="_lowerLimit", serialization_alias="_lowerLimit")
     origin: Quantity = Field(alias="origin", serialization_alias="origin")
     period: float = Field(alias="period", serialization_alias="period")
+    period_extension: Element | None = Field(None, alias="_period", serialization_alias="_period")
     upper_limit: float | None = Field(None, alias="upperLimit", serialization_alias="upperLimit")
+    upper_limit_extension: Element | None = Field(None, alias="_upperLimit", serialization_alias="_upperLimit")
 
 
 class Signature(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     data: str | None = Field(None, alias="data", serialization_alias="data")
+    data_extension: Element | None = Field(None, alias="_data", serialization_alias="_data")
     on_behalf_of: Reference | None = Field(None, alias="onBehalfOf", serialization_alias="onBehalfOf")
     sig_format: str | None = Field(None, alias="sigFormat", serialization_alias="sigFormat")
+    sig_format_extension: Element | None = Field(None, alias="_sigFormat", serialization_alias="_sigFormat")
     target_format: str | None = Field(None, alias="targetFormat", serialization_alias="targetFormat")
+    target_format_extension: Element | None = Field(None, alias="_targetFormat", serialization_alias="_targetFormat")
     type: PyList[Coding[Literal["1.2.840.10065.1.12.1.1", "1.2.840.10065.1.12.1.2", "1.2.840.10065.1.12.1.3", "1.2.840.10065.1.12.1.4", "1.2.840.10065.1.12.1.5", "1.2.840.10065.1.12.1.6", "1.2.840.10065.1.12.1.7", "1.2.840.10065.1.12.1.8", "1.2.840.10065.1.12.1.9", "1.2.840.10065.1.12.1.10", "1.2.840.10065.1.12.1.11", "1.2.840.10065.1.12.1.12", "1.2.840.10065.1.12.1.13", "1.2.840.10065.1.12.1.14", "1.2.840.10065.1.12.1.15", "1.2.840.10065.1.12.1.16", "1.2.840.10065.1.12.1.17", "1.2.840.10065.1.12.1.18"] | str]] = Field(alias="type", serialization_alias="type")
     when: str = Field(alias="when", serialization_alias="when")
+    when_extension: Element | None = Field(None, alias="_when", serialization_alias="_when")
     who: Reference = Field(alias="who", serialization_alias="who")
 
 
 class TimingRepeat(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     bounds_duration: Duration | None = Field(None, alias="boundsDuration", serialization_alias="boundsDuration")
     bounds_period: Period | None = Field(None, alias="boundsPeriod", serialization_alias="boundsPeriod")
     bounds_range: Range | None = Field(None, alias="boundsRange", serialization_alias="boundsRange")
@@ -382,26 +499,31 @@ class TimingRepeat(Element):
 
 
 class Timing(BackboneElement):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     code: CodeableConcept[Literal["BID", "TID", "QID", "AM", "PM", "QD", "QOD", "Q1H", "Q2H", "Q3H", "Q4H", "Q6H", "Q8H", "BED", "WK", "MO"] | str] | None = Field(None, alias="code", serialization_alias="code")
     event: PyList[str] | None = Field(None, alias="event", serialization_alias="event")
+    event_extension: PyList[Element | None] | None = Field(None, alias="_event", serialization_alias="_event")
     repeat: TimingRepeat | None = Field(None, alias="repeat", serialization_alias="repeat")
 
 
 class TriggerDefinition(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     condition: Expression | None = Field(None, alias="condition", serialization_alias="condition")
     data: PyList[DataRequirement] | None = Field(None, alias="data", serialization_alias="data")
     name: str | None = Field(None, alias="name", serialization_alias="name")
+    name_extension: Element | None = Field(None, alias="_name", serialization_alias="_name")
     timing_date: str | None = Field(None, alias="timingDate", serialization_alias="timingDate")
+    timing_date_extension: Element | None = Field(None, alias="_timingDate", serialization_alias="_timingDate")
     timing_date_time: str | None = Field(None, alias="timingDateTime", serialization_alias="timingDateTime")
+    timing_date_time_extension: Element | None = Field(None, alias="_timingDateTime", serialization_alias="_timingDateTime")
     timing_reference: Reference | None = Field(None, alias="timingReference", serialization_alias="timingReference")
     timing_timing: Timing | None = Field(None, alias="timingTiming", serialization_alias="timingTiming")
     type: Literal["named-event", "periodic", "data-changed", "data-added", "data-modified", "data-removed", "data-accessed", "data-access-ended"] = Field(alias="type", serialization_alias="type")
+    type_extension: Element | None = Field(None, alias="_type", serialization_alias="_type")
 
 
 class UsageContext(Element):
-    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     code: Coding[Literal["gender", "age", "focus", "user", "workflow", "task", "venue", "species", "program"] | str] = Field(alias="code", serialization_alias="code")
     value_codeable_concept: CodeableConcept | None = Field(None, alias="valueCodeableConcept", serialization_alias="valueCodeableConcept")
     value_quantity: Quantity | None = Field(None, alias="valueQuantity", serialization_alias="valueQuantity")

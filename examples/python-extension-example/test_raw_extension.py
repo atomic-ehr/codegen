@@ -28,7 +28,7 @@ def create_patient_with_extensions() -> Patient:
             )
         ],
         family="van Beethoven",
-        _family=Element(
+        family_extension=Element(
             extension=[
                 Extension(
                     url="http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
@@ -37,7 +37,7 @@ def create_patient_with_extensions() -> Patient:
             ],
         ),
         given=["Ludwig", "Maria", "Johann"],
-        _given=[
+        given_extension=[
             Element(
                 extension=[
                     Extension(
@@ -84,7 +84,7 @@ def create_patient_with_extensions() -> Patient:
             ),
         ],
         birth_date="1990-03-15",
-        _birth_date=Element(
+        birth_date_extension=Element(
             extension=[
                 Extension(
                     url="http://hl7.org/fhir/StructureDefinition/patient-birthTime",
@@ -134,26 +134,25 @@ def test_read_element_level_extension() -> None:
     assert contact.extension[0].value_integer == 1
 
 
-def test_read_primitive_extension_via_extra() -> None:
+def test_read_primitive_extension() -> None:
     patient = create_patient_with_extensions()
 
     name = patient.name[0]
-    assert isinstance(name._family, Element)
-    assert name._family.extension[0].value_string == "van"
+    assert isinstance(name.family_extension, Element)
+    assert name.family_extension.extension[0].value_string == "van"
 
-    assert isinstance(name._given, list)
-    assert name._given[0].extension[0].value_code == "birth-certificate"
-    assert name._given[1] is None
-    assert name._given[2].extension[0].value_code == "baptism-record"
+    assert isinstance(name.given_extension, list)
+    assert name.given_extension[0].extension[0].value_code == "birth-certificate"
+    assert name.given_extension[1] is None
+    assert name.given_extension[2].extension[0].value_code == "baptism-record"
 
-    assert patient._birth_date is not None
-    assert isinstance(patient._birth_date, Element)
-    assert patient._birth_date.extension[0].value_date_time == "1990-03-15T08:22:00-05:00"
+    assert patient.birth_date_extension is not None
+    assert isinstance(patient.birth_date_extension, Element)
+    assert patient.birth_date_extension.extension[0].value_date_time == "1990-03-15T08:22:00-05:00"
 
 
-def test_primitive_extension_lost_after_round_trip() -> None:
-    """After serialize → deserialize, extra fields come back as raw dicts
-    instead of Element instances because extra="allow" has no type info."""
+def test_primitive_extension_survives_round_trip() -> None:
+    """After serialize → deserialize, typed _extension fields come back as Element instances."""
     patient = create_patient_with_extensions()
     restored = Patient.from_json(patient.to_json())
 
@@ -162,7 +161,6 @@ def test_primitive_extension_lost_after_round_trip() -> None:
     assert restored.extension[0].value_address is not None
     assert restored.extension[0].value_address.city == "Springfield"
 
-    assert restored._birth_date is not None
-    assert not isinstance(restored._birth_date, Element)
-    assert isinstance(restored._birth_date, dict)
-    assert restored._birth_date["extension"][0]["valueDateTime"] == "1990-03-15T08:22:00-05:00"  # type: ignore[attr-defined]
+    assert restored.birth_date_extension is not None
+    assert isinstance(restored.birth_date_extension, Element)
+    assert restored.birth_date_extension.extension[0].value_date_time == "1990-03-15T08:22:00-05:00"
