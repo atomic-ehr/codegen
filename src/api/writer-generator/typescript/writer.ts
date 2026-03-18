@@ -10,7 +10,6 @@ import {
     isNestedIdentifier,
     isPrimitiveIdentifier,
     isProfileTypeSchema,
-    isResourceIdentifier,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
     type Name,
@@ -225,7 +224,8 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         const typeFamilyFields: { fieldName: string; familyTypeName: string }[] = [];
         for (const [fieldName, field] of Object.entries(schema.fields ?? {})) {
             if (isChoiceDeclarationField(field) || !field.type) continue;
-            if (isResourceIdentifier(field.type) && tsIndex.resourceChildren(field.type).length > 0) {
+            const fieldTypeSchema = tsIndex.resolve(field.type);
+            if (fieldTypeSchema && "typeFamily" in fieldTypeSchema && fieldTypeSchema.typeFamily?.resources?.length) {
                 typeFamilyFields.push({ fieldName: tsFieldName(fieldName), familyTypeName: field.type.name });
             }
         }

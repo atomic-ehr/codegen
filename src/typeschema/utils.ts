@@ -15,6 +15,7 @@ import {
     isComplexTypeTypeSchema,
     isLogicalTypeSchema,
     isProfileTypeSchema,
+    isResourceIdentifier,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
     type PkgName,
@@ -242,6 +243,26 @@ export const mkTypeSchemaIndex = (
         append(schema);
     }
     const relations = resourceRelatives(schemas);
+
+    // Populate typeFamily on schemas that have children, grouped by kind
+    const childrenByParent = new Map<string, Identifier[]>();
+    for (const rel of relations) {
+        let children = childrenByParent.get(rel.parent.name);
+        if (!children) {
+            children = [];
+            childrenByParent.set(rel.parent.name, children);
+        }
+        children.push(rel.child);
+    }
+    for (const schema of schemas) {
+        if (!isSpecializationTypeSchema(schema)) continue;
+        const children = childrenByParent.get(schema.identifier.name);
+        if (!children || children.length === 0) continue;
+        const resources = children.filter(isResourceIdentifier);
+        const family: NonNullable<RegularTypeSchema["typeFamily"]> = {};
+        if (resources.length > 0) family.resources = resources;
+        if (Object.keys(family).length > 0) schema.typeFamily = family;
+    }
 
     const resolve = (id: Identifier) => {
         if (id.kind === "nested") return nestedIndex[id.url]?.[id.package];
