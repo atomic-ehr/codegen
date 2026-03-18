@@ -225,7 +225,7 @@ const generateProfileHelpersImport = (
         imports.push("applySliceMatch", "matchesValue", "setArraySlice", "getArraySlice", "ensureSliceDefaults");
     if (extensions.some((ext) => ext.path.split(".").some((s) => s !== "extension"))) imports.push("ensurePath");
     if (extensions.some((ext) => ext.isComplex && ext.subExtensions)) imports.push("extractComplexExtension");
-    if (sliceDefs.length > 0) imports.push("stripMatchKeys");
+    if (sliceDefs.some((s) => !s.typeDiscriminator)) imports.push("stripMatchKeys");
     if (sliceDefs.some((s) => s.constrainedChoice)) imports.push("wrapSliceChoice", "unwrapSliceChoice");
     if (extensions.some((ext) => ext.url)) imports.push("isExtension", "getExtensionValue", "pushExtension");
     if (Object.keys(flatProfile.fields ?? {}).length > 0)
@@ -564,7 +564,7 @@ const generateSliceInputTypes = (w: TypeScript, flatProfile: ProfileTypeSchema, 
     const tsProfileName = tsResourceName(flatProfile.identifier);
     for (const sliceDef of sliceDefs) {
         const typeName = tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
-        const matchFields = Object.keys(sliceDef.match);
+        const matchFields = sliceDef.typeDiscriminator ? [] : Object.keys(sliceDef.match);
         const allExcluded = [...new Set([...sliceDef.excluded, ...matchFields])];
         if (sliceDef.constrainedChoice) {
             const cc = sliceDef.constrainedChoice;

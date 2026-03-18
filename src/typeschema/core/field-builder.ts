@@ -173,20 +173,47 @@ const collectDiscriminatorValue = (
 };
 
 /**
+ * For type discriminators, navigate the discriminator path through schema.elements
+ * and read the `type` field. If type is a simple name (not a URL), treat as FHIR
+ * resource type and set `{ <path>: { resourceType: "<type>" } }`.
+ */
+const computeTypeDiscriminatorMatch = (
+    path: string,
+    schema: FHIRSchemaElement,
+    result: Record<string, unknown>,
+): void => {
+    if (path === "$this") return;
+    const segments = path.split(".");
+    let elem: FHIRSchemaElement | undefined = schema;
+    for (const seg of segments) {
+        elem = elem?.elements?.[seg];
+        if (!elem) return;
+    }
+    const typeName = elem.type;
+    if (!typeName || typeName.includes("/")) return;
+    setNestedValue(result, segments, { resourceType: typeName });
+};
+
+/**
  * Computes match values by navigating the slice's schema elements along discriminator paths.
  * Used when a slice has an empty match but the discriminator values are nested deeper
  * (e.g., component slices in BP where the discriminator crosses a nested slicing boundary).
  */
 const computeMatchFromSchema = (
-    discriminators: Array<{ path: string }>,
+    discriminators: Array<{ type?: string; path: string }>,
     schema: FHIRSchemaElement | undefined,
 ): Record<string, unknown> | undefined => {
-    if (!schema?.elements || !discriminators || discriminators.length === 0) return undefined;
+    if (!schema || !discriminators || discriminators.length === 0) return undefined;
 
     const result: Record<string, unknown> = {};
     for (const disc of discriminators) {
-        const segments = disc.path.split(".");
-        collectDiscriminatorValue(schema, segments, 0, result);
+        if (disc.type === "type") {
+            computeTypeDiscriminatorMatch(disc.path, schema, result);
+        } else {
+            if (!schema.elements) continue;
+            const segments = disc.path.split(".");
+            collectDiscriminatorValue(schema, segments, 0, result);
+        }
     }
     return Object.keys(result).length > 0 ? result : undefined;
 };
