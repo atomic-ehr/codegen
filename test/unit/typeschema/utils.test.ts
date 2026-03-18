@@ -191,7 +191,7 @@ describe("TypeSchema Index", () => {
     });
 
     describe("typeFamily", () => {
-        it("should populate typeFamily on resource schemas with children", () => {
+        it("should populate typeFamily.resources on resource schemas with children", () => {
             const resourceSchema: RegularTypeSchema = {
                 identifier: {
                     name: "Resource" as Name,
@@ -222,22 +222,20 @@ describe("TypeSchema Index", () => {
                 base: domainSchema.identifier,
             };
 
-            const index = mkTypeSchemaIndex([resourceSchema, domainSchema, patientSchema], {});
+            mkTypeSchemaIndex([resourceSchema, domainSchema, patientSchema], {});
 
-            // Resource has DomainResource and Patient as transitive children
-            expect(resourceSchema.typeFamily).toBeDefined();
-            expect(resourceSchema.typeFamily?.map((id) => id.name as string).sort()).toEqual([
+            // Resource has DomainResource and Patient as transitive resource children
+            expect(resourceSchema.typeFamily?.resources?.map((id) => id.name as string).sort()).toEqual([
                 "DomainResource",
                 "Patient",
             ]);
             // DomainResource has Patient as child
-            expect(domainSchema.typeFamily).toBeDefined();
-            expect(domainSchema.typeFamily?.map((id) => id.name as string)).toEqual(["Patient"]);
+            expect(domainSchema.typeFamily?.resources?.map((id) => id.name as string)).toEqual(["Patient"]);
             // Patient is a leaf — no typeFamily
             expect(patientSchema.typeFamily).toBeUndefined();
         });
 
-        it("should not populate typeFamily on complex-type schemas", () => {
+        it("should not populate typeFamily.resources on complex-type-only hierarchies", () => {
             const elementSchema: RegularTypeSchema = {
                 identifier: {
                     name: "Element" as Name,
@@ -260,6 +258,7 @@ describe("TypeSchema Index", () => {
 
             mkTypeSchemaIndex([elementSchema, backboneSchema], {});
 
+            // Complex-type children are not resource children, so no typeFamily
             expect(elementSchema.typeFamily).toBeUndefined();
             expect(backboneSchema.typeFamily).toBeUndefined();
         });

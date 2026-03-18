@@ -15,6 +15,7 @@ import {
     isComplexTypeTypeSchema,
     isLogicalTypeSchema,
     isProfileTypeSchema,
+    isResourceIdentifier,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
     type PkgName,
@@ -243,7 +244,7 @@ export const mkTypeSchemaIndex = (
     }
     const relations = resourceRelatives(schemas);
 
-    // Populate typeFamily on resource schemas that have children
+    // Populate typeFamily on schemas that have children, grouped by kind
     const childrenByParent = new Map<string, Identifier[]>();
     for (const rel of relations) {
         let children = childrenByParent.get(rel.parent.name);
@@ -254,11 +255,13 @@ export const mkTypeSchemaIndex = (
         children.push(rel.child);
     }
     for (const schema of schemas) {
-        if (!isResourceTypeSchema(schema)) continue;
+        if (!isSpecializationTypeSchema(schema)) continue;
         const children = childrenByParent.get(schema.identifier.name);
-        if (children && children.length > 0) {
-            schema.typeFamily = children;
-        }
+        if (!children || children.length === 0) continue;
+        const resources = children.filter(isResourceIdentifier);
+        const family: NonNullable<RegularTypeSchema["typeFamily"]> = {};
+        if (resources.length > 0) family.resources = resources;
+        if (Object.keys(family).length > 0) schema.typeFamily = family;
     }
 
     const resolve = (id: Identifier) => {

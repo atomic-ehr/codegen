@@ -225,7 +225,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         for (const [fieldName, field] of Object.entries(schema.fields ?? {})) {
             if (isChoiceDeclarationField(field) || !field.type) continue;
             const fieldTypeSchema = tsIndex.resolve(field.type);
-            if (fieldTypeSchema && "typeFamily" in fieldTypeSchema && fieldTypeSchema.typeFamily?.length) {
+            if (fieldTypeSchema && "typeFamily" in fieldTypeSchema && fieldTypeSchema.typeFamily?.resources?.length) {
                 typeFamilyFields.push({ fieldName: tsFieldName(fieldName), familyTypeName: field.type.name });
             }
         }
