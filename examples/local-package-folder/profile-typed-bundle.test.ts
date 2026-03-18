@@ -11,6 +11,12 @@ import { ExampleTypedBundleProfile } from "./fhir-types/example-folder-structure
 
 const createBundle = () => ExampleTypedBundleProfile.create({ type: "collection" });
 
+const smithPatient = { resourceType: "Patient", name: [{ family: "Smith" }] } as const;
+const jonesPatient = { resourceType: "Patient", name: [{ family: "Jones" }] } as const;
+const activePatient = { resourceType: "Patient", active: true } as const;
+const acmeOrg = { resourceType: "Organization", name: "Acme Corp" } as const;
+const clinicOrg = { resourceType: "Organization", name: "Clinic" } as const;
+
 describe("type-discriminated bundle slices", () => {
     test("create() auto-populates a PatientEntry stub (min: 1)", () => {
         const bundle = createBundle();
@@ -21,50 +27,35 @@ describe("type-discriminated bundle slices", () => {
 
     test("setPatientEntry inserts a typed patient entry", () => {
         const bundle = createBundle();
-        bundle.setPatientEntry({
-            resource: { resourceType: "Patient", name: [{ family: "Smith" }] },
-        } as never);
+        bundle.setPatientEntry({ resource: smithPatient } as never);
 
-        const raw = bundle.getPatientEntry("raw")!;
-        expect(raw.resource!.resourceType as string).toBe("Patient");
-        expect((raw.resource as unknown as Record<string, unknown>).name).toEqual([{ family: "Smith" }]);
+        expect(bundle.getPatientEntry()!.resource as unknown).toEqual(smithPatient);
     });
 
     test("setPatientEntry replaces existing patient entry (no duplicates)", () => {
         const bundle = createBundle();
-        bundle.setPatientEntry({
-            resource: { resourceType: "Patient", name: [{ family: "Smith" }] },
-        } as never);
-        bundle.setPatientEntry({
-            resource: { resourceType: "Patient", name: [{ family: "Jones" }] },
-        } as never);
+        bundle.setPatientEntry({ resource: smithPatient } as never);
+        bundle.setPatientEntry({ resource: jonesPatient } as never);
 
-        const patients = bundle.toResource().entry!.filter((e) => (e.resource?.resourceType as string) === "Patient");
+        const patients = bundle.toResource().entry!.filter((e) => (e.resource as { resourceType: string })?.resourceType === "Patient");
         expect(patients).toHaveLength(1);
-        expect((patients[0]!.resource as unknown as Record<string, unknown>).name).toEqual([{ family: "Jones" }]);
+        expect(bundle.getPatientEntry()!.resource as unknown).toEqual(jonesPatient);
     });
 
     test("setOrganizationEntry adds an organization entry", () => {
         const bundle = createBundle();
-        bundle.setOrganizationEntry({
-            resource: { resourceType: "Organization", name: "Acme Corp" },
-        } as never);
+        bundle.setOrganizationEntry({ resource: acmeOrg } as never);
 
-        const raw = bundle.getOrganizationEntry("raw")!;
-        expect(raw.resource!.resourceType as string).toBe("Organization");
-        expect((raw.resource as unknown as Record<string, unknown>).name).toBe("Acme Corp");
+        expect(bundle.getOrganizationEntry()!.resource as unknown).toEqual(acmeOrg);
     });
 
     test("getPatientEntry('flat') returns the entry as-is (no keys stripped)", () => {
         const bundle = createBundle();
-        bundle.setPatientEntry({
-            fullUrl: "urn:uuid:patient-1",
-            resource: { resourceType: "Patient", active: true },
-        } as never);
+        bundle.setPatientEntry({ fullUrl: "urn:uuid:patient-1", resource: activePatient } as never);
 
         const flat = bundle.getPatientEntry("flat")!;
         expect(flat.fullUrl).toBe("urn:uuid:patient-1");
-        expect(flat.resource!.resourceType as string).toBe("Patient");
+        expect(flat.resource as unknown).toEqual(activePatient);
     });
 
     test("validate() checks PatientEntry cardinality", () => {
@@ -78,15 +69,37 @@ describe("type-discriminated bundle slices", () => {
 
     test("fluent chaining across slice setters", () => {
         const bundle = createBundle()
-            .setPatientEntry({
-                resource: { resourceType: "Patient", active: true },
-            } as never)
-            .setOrganizationEntry({
-                resource: { resourceType: "Organization", name: "Clinic" },
-            } as never);
+            .setPatientEntry({ resource: activePatient } as never)
+            .setOrganizationEntry({ resource: clinicOrg } as never);
 
-        expect(bundle.getPatientEntry("raw")!.resource!.resourceType as string).toBe("Patient");
-        expect(bundle.getOrganizationEntry("raw")!.resource!.resourceType as string).toBe("Organization");
+        expect(bundle.getPatientEntry()!.resource as unknown).toEqual(activePatient);
+        expect(bundle.getOrganizationEntry()!.resource as unknown).toEqual(clinicOrg);
         expect(bundle.toResource().entry).toHaveLength(2);
+    });
+
+    test("set/get PatientEntry with full BundleEntry input", () => {
+        const bundle = createBundle();
+        bundle.setPatientEntry({ fullUrl: "urn:uuid:p1", resource: smithPatient } as never);
+
+        const raw = bundle.getPatientEntry("raw")!;
+        expect(raw.fullUrl).toBe("urn:uuid:p1");
+        expect(raw.resource as unknown).toEqual(smithPatient);
+
+        const flat = bundle.getPatientEntry("flat")!;
+        expect(flat.fullUrl).toBe("urn:uuid:p1");
+        expect(flat.resource as unknown).toEqual(smithPatient);
+    });
+
+    test("set/get OrganizationEntry with full BundleEntry input", () => {
+        const bundle = createBundle();
+        bundle.setOrganizationEntry({ fullUrl: "urn:uuid:o1", resource: acmeOrg } as never);
+
+        const raw = bundle.getOrganizationEntry("raw")!;
+        expect(raw.fullUrl).toBe("urn:uuid:o1");
+        expect(raw.resource as unknown).toEqual(acmeOrg);
+
+        const flat = bundle.getOrganizationEntry("flat")!;
+        expect(flat.fullUrl).toBe("urn:uuid:o1");
+        expect(flat.resource as unknown).toEqual(acmeOrg);
     });
 });
