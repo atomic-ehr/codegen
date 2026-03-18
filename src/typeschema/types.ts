@@ -271,6 +271,8 @@ export interface RegularTypeSchema {
     fields?: { [k: string]: Field };
     nested?: NestedType[];
     dependencies?: Identifier[];
+    /** Transitive children of this type (e.g. Resource → [DomainResource, Patient, …]) */
+    typeFamily?: Identifier[];
 }
 
 export interface RegularField {

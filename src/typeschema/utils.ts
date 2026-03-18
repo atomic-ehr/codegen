@@ -243,6 +243,24 @@ export const mkTypeSchemaIndex = (
     }
     const relations = resourceRelatives(schemas);
 
+    // Populate typeFamily on resource schemas that have children
+    const childrenByParent = new Map<string, Identifier[]>();
+    for (const rel of relations) {
+        let children = childrenByParent.get(rel.parent.name);
+        if (!children) {
+            children = [];
+            childrenByParent.set(rel.parent.name, children);
+        }
+        children.push(rel.child);
+    }
+    for (const schema of schemas) {
+        if (!isResourceTypeSchema(schema)) continue;
+        const children = childrenByParent.get(schema.identifier.name);
+        if (children && children.length > 0) {
+            schema.typeFamily = children;
+        }
+    }
+
     const resolve = (id: Identifier) => {
         if (id.kind === "nested") return nestedIndex[id.url]?.[id.package];
         return index[id.url]?.[id.package];
