@@ -5,9 +5,7 @@ import { APIBuilder, prettyReport } from "../../src/api";
 const __dirname = Path.dirname(fileURLToPath(import.meta.url));
 
 async function generateFromLocalPackageFolder() {
-    const builder = new APIBuilder({
-        logLevel: "INFO",
-    });
+    const builder = new APIBuilder();
 
     const report = await builder
         .localStructureDefinitions({
@@ -21,9 +19,15 @@ async function generateFromLocalPackageFolder() {
             treeShake: {
                 "example.folder.structures": {
                     "http://example.org/fhir/StructureDefinition/ExampleNotebook": {},
+                    "http://example.org/fhir/StructureDefinition/ExampleTypedBundle": {},
+                },
+                "hl7.fhir.r4.core": {
+                    "http://hl7.org/fhir/StructureDefinition/Patient": {},
+                    "http://hl7.org/fhir/StructureDefinition/Organization": {},
                 },
             },
         })
+        .introspection({ typeSchemas: "ts/" })
         .outputTo("./examples/local-package-folder/fhir-types")
         .generate();
 

@@ -4,7 +4,7 @@ import { APIBuilder } from "@root/api/builder";
 import type { CanonicalUrl } from "@root/typeschema/types";
 import { mkSilentLogger } from "@typeschema-test/utils";
 
-const LOCAL_PACKAGE_PATH = Path.join(__dirname, "../../../assets/local-package/structure-definitions");
+const LOCAL_PACKAGE_PATH = Path.join(__dirname, "../../../../examples/local-package-folder/structure-definitions");
 
 /**
  * Tests for local package folder functionality with multi-package dependency resolution.
@@ -57,6 +57,33 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
             expect(result.filesGenerated["generated/types/hl7-fhir-r4-core/Identifier.ts"]).toBeDefined();
             expect(result.filesGenerated["generated/types/hl7-fhir-r4-core/Reference.ts"]).toBeDefined();
             expect(result.filesGenerated["generated/types/hl7-fhir-r4-core/Coding.ts"]).toBeDefined();
+        });
+    });
+
+    describe("TypeScript Generation with type-discriminated profile", async () => {
+        const result = await new APIBuilder({ logger: mkSilentLogger() })
+            .localStructureDefinitions(localPackageConfig)
+            .typeSchema({
+                treeShake: {
+                    "example.folder.structures": {
+                        "http://example.org/fhir/StructureDefinition/ExampleTypedBundle": {},
+                    },
+                },
+            })
+            .typescript({ inMemoryOnly: true, generateProfile: true, withDebugComment: false })
+            .generate();
+
+        it("should succeed", () => {
+            expect(result.success).toBeTrue();
+        });
+
+        it("should generate ExampleTypedBundle profile with type-discriminated slices", () => {
+            const profileFile =
+                result.filesGenerated[
+                    "generated/types/example-folder-structures/profiles/Bundle_ExampleTypedBundle.ts"
+                ];
+            expect(profileFile).toBeDefined();
+            expect(profileFile).toMatchSnapshot();
         });
     });
 

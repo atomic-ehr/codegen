@@ -67,6 +67,8 @@ export type SliceDef = {
     excluded: string[];
     array: boolean;
     constrainedChoice: ConstrainedChoiceInfo | undefined;
+    /** True when the slice uses a type discriminator (match by resourceType) */
+    typeDiscriminator: boolean;
 };
 
 export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema): SliceDef[] =>
@@ -77,6 +79,7 @@ export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: ProfileT
             const baseType = tsTypeFromIdentifier(field.type);
             const pkgName = flatProfile.identifier.package;
             const choiceBaseNames = collectChoiceBaseNames(tsIndex, field.type);
+            const isTypeDisc = field.slicing.discriminator?.some((d) => d.type === "type") ?? false;
             return Object.entries(field.slicing.slices)
                 .filter(([_, slice]) => Object.keys(slice.match ?? {}).length > 0)
                 .map(([sliceName, slice]) => {
@@ -98,6 +101,7 @@ export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: ProfileT
                         excluded: slice.excluded ?? [],
                         array: Boolean(field.array),
                         constrainedChoice,
+                        typeDiscriminator: isTypeDisc,
                     };
                 });
         });
@@ -193,7 +197,9 @@ export const generateSliceGetters = (
                     w.line("if (!item || !matchesValue(item, match)) return undefined");
                 }
                 w.line("if (mode === 'raw') return item");
-                if (sliceDef.constrainedChoice) {
+                if (sliceDef.typeDiscriminator) {
+                    w.line(`return item as ${typeName}`);
+                } else if (sliceDef.constrainedChoice) {
                     const cc = sliceDef.constrainedChoice;
                     w.line(`return unwrapSliceChoice<${typeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)})`);
                 } else {
