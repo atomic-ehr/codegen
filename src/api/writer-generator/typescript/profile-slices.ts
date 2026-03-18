@@ -31,6 +31,18 @@ const collectChoiceBaseNames = (tsIndex: TypeSchemaIndex, typeId: Identifier): S
     return names;
 };
 
+/** Extract resource type name from a type-discriminator match (e.g. {"resource":{"resourceType":"Patient"}} → "Patient") */
+export const extractResourceTypeFromMatch = (match: Record<string, unknown>): string | undefined => {
+    for (const value of Object.values(match)) {
+        if (typeof value !== "object" || value === null) continue;
+        const obj = value as Record<string, unknown>;
+        if (typeof obj.resourceType === "string") return obj.resourceType;
+        const nested = extractResourceTypeFromMatch(obj);
+        if (nested) return nested;
+    }
+    return undefined;
+};
+
 export const collectTypesFromSlices = (
     tsIndex: TypeSchemaIndex,
     flatProfile: ProfileTypeSchema,
@@ -39,11 +51,22 @@ export const collectTypesFromSlices = (
     const pkgName = flatProfile.identifier.package;
     for (const field of Object.values(flatProfile.fields ?? {})) {
         if (!isNotChoiceDeclarationField(field) || !field.slicing?.slices || !field.type) continue;
+        const isTypeDisc = field.slicing.discriminator?.some((d) => d.type === "type") ?? false;
         for (const slice of Object.values(field.slicing.slices)) {
             if (Object.keys(slice.match ?? {}).length > 0) {
                 addType(field.type);
                 const cc = slice.elements ? tsIndex.constrainedChoice(pkgName, field.type, slice.elements) : undefined;
                 if (cc) addType(cc.variantType);
+                // For type discriminator slices, also import the matched resource type
+                if (isTypeDisc && slice.match) {
+                    const resourceTypeName = extractResourceTypeFromMatch(slice.match);
+                    if (resourceTypeName) {
+                        const resourceSchema = tsIndex.schemas.find(
+                            (s) => s.identifier.name === resourceTypeName && s.identifier.kind === "resource",
+                        );
+                        if (resourceSchema) addType(resourceSchema.identifier);
+                    }
+                }
             }
         }
     }

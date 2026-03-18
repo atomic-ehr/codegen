@@ -34,9 +34,11 @@ exports[`Local Package Folder - Multi-Package Generation TypeScript Generation w
 // Any manual changes made to this file may be overwritten.
 
 import type { Bundle, BundleEntry } from "../../hl7-fhir-r4-core/Bundle";
+import type { Organization } from "../../hl7-fhir-r4-core/Organization";
+import type { Patient } from "../../hl7-fhir-r4-core/Patient";
 
-export type ExampleTypedBundle_Entry_PatientEntrySliceFlat = BundleEntry;
-export type ExampleTypedBundle_Entry_OrganizationEntrySliceFlat = BundleEntry;
+export type ExampleTypedBundle_Entry_PatientEntrySliceFlat = BundleEntry<Patient>;
+export type ExampleTypedBundle_Entry_OrganizationEntrySliceFlat = BundleEntry<Organization>;
 
 import {
     buildResource,

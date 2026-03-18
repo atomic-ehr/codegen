@@ -1,5 +1,6 @@
 import * as Path from "node:path";
 import { fileURLToPath } from "node:url";
+import { uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
 import {
     type CanonicalUrl,
@@ -9,6 +10,7 @@ import {
     isNestedIdentifier,
     isPrimitiveIdentifier,
     isProfileTypeSchema,
+    isResourceIdentifier,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
     type Name,
@@ -219,6 +221,32 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             name = tsResourceName(schema.identifier);
         }
 
+        // Collect fields whose type is a resource type family (has children)
+        const typeFamilyFields: { fieldName: string; familyTypeName: string }[] = [];
+        for (const [fieldName, field] of Object.entries(schema.fields ?? {})) {
+            if (isChoiceDeclarationField(field) || !field.type) continue;
+            if (isResourceIdentifier(field.type) && tsIndex.resourceChildren(field.type).length > 0) {
+                typeFamilyFields.push({ fieldName: tsFieldName(fieldName), familyTypeName: field.type.name });
+            }
+        }
+
+        // Build generic params from type-family fields
+        const genericFieldMap: Record<string, string> = {};
+        if (!genericTypes.includes(schema.identifier.name) && typeFamilyFields.length > 0) {
+            const [first, ...rest] = typeFamilyFields;
+            if (first && rest.length === 0) {
+                genericFieldMap[first.fieldName] = "T";
+                name += `<T extends ${first.familyTypeName} = ${first.familyTypeName}>`;
+            } else {
+                const params = typeFamilyFields.map((tf) => {
+                    const paramName = `T${uppercaseFirstLetter(tf.fieldName)}`;
+                    genericFieldMap[tf.fieldName] = paramName;
+                    return `${paramName} extends ${tf.familyTypeName} = ${tf.familyTypeName}`;
+                });
+                name += `<${params.join(", ")}>`;
+            }
+        }
+
         let extendsClause: string | undefined;
         if (schema.base) extendsClause = `extends ${tsNameFromCanonical(schema.base.url)}`;
 
@@ -253,7 +281,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 this.debugComment(fieldName, ":", field);
 
                 const tsName = tsFieldName(fieldName);
-                const tsType = resolveFieldTsType(schema.identifier.name, tsName, field);
+                const tsType = resolveFieldTsType(schema.identifier.name, tsName, field, undefined, genericFieldMap);
                 const optionalSymbol = field.required ? "" : "?";
                 const arraySymbol = field.array ? "[]" : "";
                 this.lineSM(`${tsName}${optionalSymbol}: ${tsType}${arraySymbol}`);

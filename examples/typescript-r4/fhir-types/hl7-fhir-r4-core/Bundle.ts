@@ -12,11 +12,11 @@ export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 export type { Signature } from "../hl7-fhir-r4-core/Signature";
 
-export interface BundleEntry extends BackboneElement {
+export interface BundleEntry<T extends Resource = Resource> extends BackboneElement {
     fullUrl?: string;
     link?: BundleLink[];
     request?: BundleEntryRequest;
-    resource?: Resource;
+    resource?: T;
     response?: BundleEntryResponse;
     search?: BundleEntrySearch;
 }
@@ -30,11 +30,11 @@ export interface BundleEntryRequest extends BackboneElement {
     url: string;
 }
 
-export interface BundleEntryResponse extends BackboneElement {
+export interface BundleEntryResponse<T extends Resource = Resource> extends BackboneElement {
     etag?: string;
     lastModified?: string;
     location?: string;
-    outcome?: Resource;
+    outcome?: T;
     status: string;
 }
 

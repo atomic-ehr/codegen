@@ -42,6 +42,7 @@ import {
     collectRequiredSliceNames,
     collectSliceDefs,
     collectTypesFromSlices,
+    extractResourceTypeFromMatch,
     generateSliceGetters,
     generateSliceSetters,
     type SliceDef,
@@ -559,7 +560,12 @@ const generateInlineExtensionInputTypes = (w: TypeScript, tsIndex: TypeSchemaInd
     }
 };
 
-const generateSliceInputTypes = (w: TypeScript, flatProfile: ProfileTypeSchema, sliceDefs: SliceDef[]) => {
+const generateSliceInputTypes = (
+    w: TypeScript,
+    tsIndex: TypeSchemaIndex,
+    flatProfile: ProfileTypeSchema,
+    sliceDefs: SliceDef[],
+) => {
     if (sliceDefs.length === 0) return;
     const tsProfileName = tsResourceName(flatProfile.identifier);
     for (const sliceDef of sliceDefs) {
@@ -575,12 +581,23 @@ const generateSliceInputTypes = (w: TypeScript, flatProfile: ProfileTypeSchema, 
         }
         const excludedNames = allExcluded.map((name) => JSON.stringify(name));
         const requiredNames = sliceDef.required.map((name) => JSON.stringify(name));
-        let typeExpr = sliceDef.baseType;
+        let baseType = sliceDef.baseType;
+        // For type discriminator slices, parameterize the base type with the matched resource type
+        if (sliceDef.typeDiscriminator) {
+            const resourceType = extractResourceTypeFromMatch(sliceDef.match);
+            if (resourceType) {
+                const resourceSchema = tsIndex.schemas.find(
+                    (s) => s.identifier.name === resourceType && s.identifier.kind === "resource",
+                );
+                if (resourceSchema) baseType = `${baseType}<${resourceType}>`;
+            }
+        }
+        let typeExpr = baseType;
         if (excludedNames.length > 0) {
             typeExpr = `Omit<${typeExpr}, ${excludedNames.join(" | ")}>`;
         }
         if (requiredNames.length > 0) {
-            typeExpr = `${typeExpr} & Required<Pick<${sliceDef.baseType}, ${requiredNames.join(" | ")}>>`;
+            typeExpr = `${typeExpr} & Required<Pick<${baseType}, ${requiredNames.join(" | ")}>>`;
         }
         if (sliceDef.constrainedChoice) {
             typeExpr = `${typeExpr} & ${tsTypeFromIdentifier(sliceDef.constrainedChoice.variantType)}`;
@@ -707,7 +724,7 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, fl
     const factoryInfo = collectProfileFactoryInfo(tsIndex, flatProfile);
 
     generateInlineExtensionInputTypes(w, tsIndex, flatProfile);
-    generateSliceInputTypes(w, flatProfile, sliceDefs);
+    generateSliceInputTypes(w, tsIndex, flatProfile, sliceDefs);
 
     generateProfileHelpersImport(w, tsIndex, flatProfile, sliceDefs, factoryInfo);
 
