@@ -118,7 +118,7 @@ bp.validate();
 - No compile-time enforcement of slice constraints
 - No dedicated types for slice elements (see Refine below)
 - Array ordering is not enforced by the setter
-- Only `value`/`pattern` discriminator types are supported; `type`, `profile`, and `exists` discriminators are not yet implemented
+- Only `value`/`pattern`/`type` (resource type) discriminator types are supported; `profile` and `exists` discriminators are not yet implemented
 
 ## Refine (Not Implemented)
 
@@ -154,7 +154,7 @@ class USCoreBloodPressureProfile {
 |---|---|---|
 | `value` | Supported | Fixed value matching (most common) |
 | `pattern` | Supported | Pattern matching on element |
-| `type` | Not supported | Discriminate by element type |
+| `type` | Partial | Resource type discrimination (by `resourceType` field) |
 | `profile` | Not supported | Discriminate by profile URL |
 | `exists` | Not supported | Discriminate by field presence |
 
