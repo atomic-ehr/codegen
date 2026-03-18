@@ -22,6 +22,7 @@
       - [Tree Shaking](#tree-shaking)
         - [Field-Level Tree Shaking](#field-level-tree-shaking)
       - [Logical Model Promotion](#logical-model-promotion)
+      - [Resolving Schema Collisions](#resolving-schema-collisions)
     - [Generation](#generation)
       - [1. Writer-Based Generation (Programmatic)](#1-writer-based-generation-programmatic)
       - [2. Mustache Template-Based Generation (Declarative)](#2-mustache-template-based-generation-declarative)
@@ -147,6 +148,7 @@ const builder = new APIBuilder()
     .typeSchema({
         treeShake: { ... },        // Include only specified types
         promoteLogical: { ... },   // Process logical models as resources
+        resolveCollisions: { ... },// Resolve duplicate schema collisions
     })
 
     // Code generator (choose one)
@@ -282,6 +284,57 @@ const builder = new APIBuilder({})
     }
   })
 ```
+
+#### Resolving Schema Collisions
+
+When multiple StructureDefinitions produce the same binding (e.g. `ObservationCategory` from both `Observation` and `ObservationDefinition`), the schemas may differ in strength or value set. By default the generator picks the most common variant and emits a warning:
+
+```
+! ts: 'urn:fhir:binding:ObservationCategory' from 'shared' has 2 versions (#duplicateSchema)
+```
+
+To fix this, add `resolveCollisions` to `.typeSchema()` specifying which source should win for each binding URL:
+
+```typescript
+.typeSchema({
+    resolveCollisions: {
+        "urn:fhir:binding:ObservationCategory": {
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Observation",
+        },
+    },
+})
+```
+
+- **`package`** — the FHIR package ID (`name#version`) that contains the preferred source
+- **`canonical`** — the StructureDefinition URL that should provide the authoritative binding
+
+The generated `README.md` report (from `.introspection()`) lists all collisions with version details and includes a ready-to-paste `resolveCollisions` config for any unresolved ones. Example output:
+
+```markdown
+## Schema Collisions
+
+- `urn:fhir:binding:CommunicationReason` (2 versions)
+  - Version 1 (selected): Communication (hl7.fhir.r4.core#4.0.1)
+  - Version 2: CommunicationRequest (hl7.fhir.r4.core#4.0.1)
+- `urn:fhir:binding:ProcessPriority` (2 versions)
+  - Version 1 (auto): Claim (hl7.fhir.r4.core#4.0.1), CoverageEligibilityRequest (hl7.fhir.r4.core#4.0.1)
+  - Version 2: ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1)
+
+### Suggested `resolveCollisions` config
+
+.typeSchema({
+    resolveCollisions: {
+        "urn:fhir:binding:ProcessPriority": {
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Claim",
+        },
+    },
+})
+```
+
+- **(selected)** — resolved by your `resolveCollisions` config
+- **(auto)** — picked automatically (most common variant); add to config to make explicit
 
 ### Generation
 

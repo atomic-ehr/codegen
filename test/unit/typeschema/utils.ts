@@ -16,7 +16,7 @@ export const mkErrorLogger = () => mkCodegenLogger({ level: "ERROR" });
 export const mkSilentLogger = () => mkCodegenLogger({ level: "SILENT" });
 
 export const mkIndex = async (register: Register, logger?: CodegenLog) => {
-    const { schemas } = await generateTypeSchemas(register, logger);
+    const { schemas } = await generateTypeSchemas(register, undefined, logger);
     return mkTypeSchemaIndex(schemas, { register, logger });
 };
 

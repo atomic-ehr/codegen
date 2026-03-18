@@ -1,6 +1,12 @@
 import type { CanonicalUrl, PkgName } from "@root/typeschema/types";
 import { extractNameFromCanonical } from "@root/typeschema/types";
-import type { IrReport, TreeShakeReport, TypeSchemaCollisions } from "./types";
+import type {
+    CollisionResolution,
+    IrReport,
+    ResolveCollisionsConf,
+    TreeShakeReport,
+    TypeSchemaCollisions,
+} from "./types";
 
 type TreeShakePackageReport = TreeShakeReport["packages"][PkgName];
 type CollisionEntry = TypeSchemaCollisions[PkgName][CanonicalUrl][number];
@@ -56,7 +62,10 @@ const generatePackageSection = (
     }
 };
 
-const generateCollisionVersionLines = (entries: CollisionEntry[]): string[] => {
+type VersionMark = "selected" | "auto" | undefined;
+type VersionGroup = { entries: CollisionEntry[]; mark: VersionMark };
+
+const groupCollisionVersions = (entries: CollisionEntry[], resolution?: CollisionResolution): VersionGroup[] => {
     const uniqueSchemas = new Map<string, CollisionEntry[]>();
     for (const entry of entries) {
         const key = JSON.stringify(entry.typeSchema);
@@ -64,28 +73,48 @@ const generateCollisionVersionLines = (entries: CollisionEntry[]): string[] => {
         uniqueSchemas.get(key)?.push(entry);
     }
 
-    const versionLines: string[] = [];
-    const sortedVersions = [...uniqueSchemas.values()].sort((a, b) => b.length - a.length);
+    const sorted = [...uniqueSchemas.values()].sort((a, b) => b.length - a.length);
+    const markVersion = (group: CollisionEntry[], i: number): VersionMark => {
+        if (resolution)
+            return group.some(
+                (e) => e.sourceCanonical === resolution.canonical && e.sourcePackage === resolution.package,
+            )
+                ? "selected"
+                : undefined;
+        return i === 0 ? "auto" : undefined;
+    };
+    return sorted.map((group, i) => ({ entries: group, mark: markVersion(group, i) }));
+};
+
+const versionMarkLabel: Record<string, string> = { selected: " (selected)", auto: " (auto)" };
+
+const generateCollisionVersionLines = (versions: VersionGroup[]): string[] => {
     let version = 1;
-    for (const schemaEntries of sortedVersions) {
-        const sourceList = schemaEntries
+    return versions.map((v) => {
+        const sourceList = v.entries
             .map((e) => {
                 const name = extractNameFromCanonical(e.sourceCanonical as CanonicalUrl) ?? e.sourceCanonical;
                 return `${name} (${e.sourcePackage})`;
             })
             .join(", ");
-        versionLines.push(`  - Version ${version++}: ${sourceList}`);
-    }
-    return versionLines;
+        const mark = v.mark ? versionMarkLabel[v.mark] : "";
+        return `  - Version ${version++}${mark}: ${sourceList}`;
+    });
 };
 
-const generateCollisionsSection = (lines: string[], collisions: IrReport["collisions"]): void => {
+const generateCollisionsSection = (
+    lines: string[],
+    collisions: IrReport["collisions"],
+    resolveCollisions?: ResolveCollisionsConf,
+): void => {
     if (!collisions) return;
 
     lines.push("## Schema Collisions", "");
     lines.push("The following canonicals have multiple schema versions with different content.");
     lines.push("To inspect collision versions, export TypeSchemas using `.introspection({ typeSchemas: 'path' })`");
     lines.push("and check `<pkg>/collisions/<name>/1.json, 2.json, ...` files.", "");
+
+    const allCollisions: { url: string; firstSource: CollisionEntry }[] = [];
 
     const collisionPackages = Object.keys(collisions).sort();
     for (const pkgName of collisionPackages) {
@@ -101,11 +130,33 @@ const generateCollisionsSection = (lines: string[], collisions: IrReport["collis
         if (sortedEntries.length > 0) {
             lines.push(`### \`${pkgName}\``, "");
             for (const [canonical, entries] of sortedEntries) {
-                const versionLines = generateCollisionVersionLines(entries);
-                lines.push(`- \`${canonical}\` (${versionLines.length} versions)`);
+                const versions = groupCollisionVersions(entries, resolveCollisions?.[canonical]);
+                const versionLines = generateCollisionVersionLines(versions);
+                lines.push(`- \`${canonical}\` (${versions.length} versions)`);
                 lines.push(...versionLines);
+                if (entries[0]) allCollisions.push({ url: canonical, firstSource: entries[0] });
             }
             lines.push("");
+        }
+    }
+
+    if (allCollisions.length > 0) {
+        const unresolved = allCollisions.filter((c) => !resolveCollisions?.[c.url]);
+        if (unresolved.length > 0) {
+            lines.push("### Suggested `resolveCollisions` config", "");
+            lines.push("Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collisions:", "");
+            lines.push("```typescript");
+            lines.push(".typeSchema({");
+            lines.push("    resolveCollisions: {");
+            for (const { url, firstSource } of unresolved) {
+                lines.push(`        "${url}": {`);
+                lines.push(`            package: "${firstSource.sourcePackage}",`);
+                lines.push(`            canonical: "${firstSource.sourceCanonical}",`);
+                lines.push("        },");
+            }
+            lines.push("    },");
+            lines.push("})");
+            lines.push("```", "");
         }
     }
 };
@@ -142,7 +193,7 @@ export const generateIrReportReadme = (report: IrReport): string => {
     }
 
     if (hasCollisions) {
-        generateCollisionsSection(lines, report.collisions);
+        generateCollisionsSection(lines, report.collisions, report.resolveCollisions);
     }
 
     return lines.join("\n");

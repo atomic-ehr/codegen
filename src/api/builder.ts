@@ -19,7 +19,7 @@ import { Python, type PythonGeneratorOptions } from "@root/api/writer-generator/
 import { generateTypeSchemas } from "@root/typeschema";
 import { promoteLogical } from "@root/typeschema/ir/logic-promotion";
 import { treeShake } from "@root/typeschema/ir/tree-shake";
-import type { IrConf, LogicalPromotionConf, TreeShakeConf } from "@root/typeschema/ir/types";
+import type { IrConf } from "@root/typeschema/ir/types";
 import { type Register, registerFromManager } from "@root/typeschema/register";
 import { type PackageMeta, packageMetaToNpm } from "@root/typeschema/types";
 import { mkTypeSchemaIndex, type TypeSchemaIndex } from "@root/typeschema/utils";
@@ -39,8 +39,7 @@ export interface APIBuilderOptions {
     outputDir: string;
     cleanOutput: boolean;
     throwException: boolean;
-    treeShake: TreeShakeConf | undefined;
-    promoteLogical: LogicalPromotionConf | undefined;
+    typeSchema?: IrConf;
 
     /** Custom FHIR package registry URL (default: https://fs.get-ig.org/pkgs/) */
     registry: string | undefined;
@@ -133,8 +132,6 @@ export class APIBuilder {
             outputDir: "./generated",
             cleanOutput: true,
             throwException: false,
-            treeShake: undefined,
-            promoteLogical: undefined,
             registry: undefined,
             dropCanonicalManagerCache: false,
         };
@@ -343,13 +340,18 @@ export class APIBuilder {
     }
 
     typeSchema(cfg: IrConf) {
+        this.options.typeSchema ??= {};
         if (cfg.treeShake) {
-            assert(this.options.treeShake === undefined, "treeShake option is already set");
-            this.options.treeShake = cfg.treeShake;
+            assert(this.options.typeSchema.treeShake === undefined, "treeShake option is already set");
+            this.options.typeSchema.treeShake = cfg.treeShake;
         }
         if (cfg.promoteLogical) {
-            assert(this.options.promoteLogical === undefined, "promoteLogical option is already set");
-            this.options.promoteLogical = cfg.promoteLogical;
+            assert(this.options.typeSchema.promoteLogical === undefined, "promoteLogical option is already set");
+            this.options.typeSchema.promoteLogical = cfg.promoteLogical;
+        }
+        if (cfg.resolveCollisions) {
+            assert(this.options.typeSchema.resolveCollisions === undefined, "resolveCollisions option is already set");
+            this.options.typeSchema.resolveCollisions = cfg.resolveCollisions;
         }
         this.irReport({});
         return this;
@@ -417,16 +419,21 @@ export class APIBuilder {
 
             const tsLogger = this.logger.fork("ts");
 
-            const { schemas: typeSchemas, collisions } = await generateTypeSchemas(register, tsLogger);
-
-            const tsIndexOpts = {
+            const { schemas: typeSchemas, collisions } = await generateTypeSchemas(
                 register,
-                logger: tsLogger,
-                irReport: Object.keys(collisions).length > 0 ? { collisions } : {},
+                this.options.typeSchema?.resolveCollisions,
+                tsLogger,
+            );
+
+            const irReport = {
+                resolveCollisions: this.options.typeSchema?.resolveCollisions,
+                collisions,
             };
+            const tsIndexOpts = { register, irReport, logger: tsLogger };
             let tsIndex = mkTypeSchemaIndex(typeSchemas, tsIndexOpts);
-            if (this.options.treeShake) tsIndex = treeShake(tsIndex, this.options.treeShake);
-            if (this.options.promoteLogical) tsIndex = promoteLogical(tsIndex, this.options.promoteLogical);
+            if (this.options.typeSchema?.treeShake) tsIndex = treeShake(tsIndex, this.options.typeSchema.treeShake);
+            if (this.options.typeSchema?.promoteLogical)
+                tsIndex = promoteLogical(tsIndex, this.options.typeSchema.promoteLogical);
 
             tsLogger.printTagSummary();
 

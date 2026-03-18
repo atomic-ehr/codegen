@@ -172,6 +172,7 @@ The `APIBuilder` class (`src/api/builder.ts`) provides the fluent API for the th
 .typeSchema({                                         // IR transformations
     treeShake: {...},                                 // Filter types
     promoteLogical: {...},                            // Promote logical models
+    resolveCollisions: {...},                         // Resolve schema collisions
 })
 .introspection({                                      // Debug output (optional)
     typeSchemas: "./schemas",                         // Type Schemas path/.ndjson

@@ -124,7 +124,7 @@ export const generateTypeschemaCommand: CommandModule<Record<string, unknown>, G
             });
 
             // Generate TypeSchemas
-            const { schemas: allSchemas } = await generateTypeSchemas(register, logger);
+            const { schemas: allSchemas } = await generateTypeSchemas(register, undefined, logger);
 
             if (allSchemas.length === 0) {
                 throw new Error("No schemas were generated from the specified packages");

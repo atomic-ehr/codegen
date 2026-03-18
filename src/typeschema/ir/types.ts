@@ -12,9 +12,13 @@ export type TypeSchemaCollisions = Record<
     >
 >;
 
+export type CollisionResolution = { package: string; canonical: string };
+export type ResolveCollisionsConf = Record<string, CollisionResolution>;
+
 export type IrConf = {
     treeShake?: TreeShakeConf;
     promoteLogical?: LogicalPromotionConf;
+    resolveCollisions?: ResolveCollisionsConf;
 };
 
 export type LogicalPromotionConf = Record<PkgName, CanonicalUrl[]>;
@@ -27,6 +31,7 @@ export type IrReport = {
     treeShake?: TreeShakeReport;
     logicalPromotion?: LogicalPromotionReport;
     collisions?: TypeSchemaCollisions;
+    resolveCollisions?: ResolveCollisionsConf;
 };
 
 export type LogicalPromotionReport = {

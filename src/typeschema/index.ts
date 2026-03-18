@@ -12,7 +12,7 @@
 
 import type { CodegenLog } from "@root/utils/log";
 import { transformFhirSchema, transformValueSet } from "./core/transformer";
-import type { TypeSchemaCollisions } from "./ir/types";
+import type { ResolveCollisionsConf, TypeSchemaCollisions } from "./ir/types";
 import type { Register } from "./register";
 import { shouldSkipCanonical } from "./skip-hack";
 import type { CanonicalUrl, PkgName } from "./types";
@@ -33,7 +33,11 @@ type SchemaWithSource = {
     sourceCanonical: CanonicalUrl;
 };
 
-const deduplicateSchemas = (schemasWithSources: SchemaWithSource[], logger?: CodegenLog): GenerateTypeSchemasResult => {
+const deduplicateSchemas = (
+    schemasWithSources: SchemaWithSource[],
+    resolveCollisions?: ResolveCollisionsConf,
+    logger?: CodegenLog,
+): GenerateTypeSchemasResult => {
     // key -> hash
     const groups: Record<string, Record<string, { typeSchema: TypeSchema; sources: SchemaWithSource[] }>> = {};
 
@@ -54,12 +58,34 @@ const deduplicateSchemas = (schemasWithSources: SchemaWithSource[], logger?: Cod
         const best = sorted[0];
         if (!best) continue;
 
-        schemas.push(best.typeSchema);
-
         if (sorted.length > 1) {
-            const pkg = best.typeSchema.identifier.package;
             const url = best.typeSchema.identifier.url;
-            logger?.dryWarn("#duplicateSchema", `'${url}' from '${pkg}' has ${sorted.length} versions`);
+            const pkg = best.typeSchema.identifier.package;
+            const preferredCanonical = resolveCollisions?.[url];
+
+            if (preferredCanonical) {
+                const allSources = sorted.flatMap((v) => v.sources);
+                const match = sorted.find((v) =>
+                    v.sources.some(
+                        (s) =>
+                            s.sourceCanonical === preferredCanonical.canonical &&
+                            s.sourcePackage === preferredCanonical.package,
+                    ),
+                );
+                if (match) {
+                    schemas.push(match.typeSchema);
+                } else {
+                    logger?.dryWarn(
+                        "#resolveCollisionMiss",
+                        `'${url}': preferred source '${preferredCanonical.canonical}' from '${preferredCanonical.package}' not found among variants: ${allSources.map((s) => `${s.sourceCanonical} (${s.sourcePackage})`).join(", ")}`,
+                    );
+                    schemas.push(best.typeSchema);
+                }
+            } else {
+                logger?.dryWarn("#duplicateSchema", `'${url}' from '${pkg}' has ${sorted.length} versions`);
+                schemas.push(best.typeSchema);
+            }
+
             collisions[pkg] ??= {};
             collisions[pkg][url] = sorted.flatMap((v) =>
                 v.sources.map((s) => ({
@@ -68,6 +94,8 @@ const deduplicateSchemas = (schemasWithSources: SchemaWithSource[], logger?: Cod
                     sourceCanonical: s.sourceCanonical,
                 })),
             );
+        } else {
+            schemas.push(best.typeSchema);
         }
     }
 
@@ -76,6 +104,7 @@ const deduplicateSchemas = (schemasWithSources: SchemaWithSource[], logger?: Cod
 
 export const generateTypeSchemas = async (
     register: Register,
+    resolveCollisions?: ResolveCollisionsConf,
     logger?: CodegenLog,
 ): Promise<GenerateTypeSchemasResult> => {
     const schemasWithSources: { schema: TypeSchema; sourcePackage: PkgName; sourceCanonical: CanonicalUrl }[] = [];
@@ -106,5 +135,5 @@ export const generateTypeSchemas = async (
         });
     }
 
-    return deduplicateSchemas(schemasWithSources, logger);
+    return deduplicateSchemas(schemasWithSources, resolveCollisions, logger);
 };
