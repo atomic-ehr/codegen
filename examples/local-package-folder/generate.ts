@@ -21,6 +21,10 @@ async function generateFromLocalPackageFolder() {
                     "http://example.org/fhir/StructureDefinition/ExampleNotebook": {},
                     "http://example.org/fhir/StructureDefinition/ExampleTypedBundle": {},
                 },
+                "hl7.fhir.r4.core": {
+                    "http://hl7.org/fhir/StructureDefinition/Patient": {},
+                    "http://hl7.org/fhir/StructureDefinition/Organization": {},
+                },
             },
         })
         .introspection({typeSchemas: "ts/"})
