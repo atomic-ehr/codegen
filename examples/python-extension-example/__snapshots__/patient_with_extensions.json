@@ -1,5 +1,5 @@
 {
-  "_birth_date": {
+  "_birthDate": {
     "extension": [
       {
         "url": "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
