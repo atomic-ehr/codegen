@@ -254,6 +254,7 @@ export class APIBuilder {
             ...defaultWriterOpts,
             rootPackageName: "fhir_types",
             fieldFormat: "snake_case",
+            primitiveTypeExtension: false,
         };
 
         const opts: PythonGeneratorOptions = {
