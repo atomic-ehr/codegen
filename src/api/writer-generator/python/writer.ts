@@ -1,8 +1,6 @@
 import assert from "node:assert";
 import fs from "node:fs";
-import * as Path from "node:path";
-import { fileURLToPath } from "node:url";
-import { camelCase, pascalCase, snakeCase, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils";
+import { camelCase, pascalCase, snakeCase } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
 import { groupByPackages, sortAsDeclarationSequence, type TypeSchemaIndex } from "@root/typeschema/utils";
 import {
@@ -12,32 +10,11 @@ import {
     type Identifier,
     isPrimitiveIdentifier,
     isSpecializationTypeSchema,
+    type ProfileTypeSchema,
     type RegularTypeSchema,
 } from "@typeschema/types.ts";
-
-const PRIMITIVE_TYPE_MAP: Record<string, string> = {
-    boolean: "bool",
-    instant: "str",
-    time: "str",
-    date: "str",
-    dateTime: "str",
-    decimal: "float",
-    integer: "int",
-    unsignedInt: "int",
-    positiveInt: "PositiveInt",
-    integer64: "int",
-    base64Binary: "str",
-    uri: "str",
-    url: "str",
-    canonical: "str",
-    oid: "str",
-    uuid: "str",
-    string: "str",
-    code: "str",
-    markdown: "str",
-    id: "str",
-    xhtml: "str",
-};
+import { generateExtensionProfiles } from "./extension-profile";
+import { canonicalToName, deriveResourceName, fixReservedWords, PRIMITIVE_TYPE_MAP, resolvePyAssets } from "./py-utils";
 
 type StringFormatKey = "snake_case" | "PascalCase" | "camelCase";
 
@@ -46,45 +23,6 @@ const AVAILABLE_STRING_FORMATS: Record<StringFormatKey, (str: string) => string>
     PascalCase: pascalCase,
     camelCase: camelCase,
 };
-
-const PYTHON_KEYWORDS = new Set([
-    "False",
-    "None",
-    "True",
-    "and",
-    "as",
-    "assert",
-    "async",
-    "await",
-    "break",
-    "class",
-    "continue",
-    "def",
-    "del",
-    "elif",
-    "else",
-    "except",
-    "finally",
-    "for",
-    "from",
-    "global",
-    "if",
-    "import",
-    "in",
-    "is",
-    "lambda",
-    "nonlocal",
-    "not",
-    "or",
-    "pass",
-    "raise",
-    "return",
-    "try",
-    "while",
-    "with",
-    "yield",
-    "List",
-]);
 
 const MAX_IMPORT_LINE_LENGTH = 100;
 
@@ -104,6 +42,7 @@ export interface PythonGeneratorOptions extends WriterOptions {
     rootPackageName: string; /// e.g. <rootPackageName>.hl7_fhir_r4_core.Patient.
     fieldFormat: StringFormatKey;
     fhirpyClient?: boolean;
+    generateProfile?: boolean;
 }
 
 interface ImportGroup {
@@ -115,46 +54,6 @@ interface FieldInfo {
     type: string;
     defaultValue: string;
 }
-
-const fixReservedWords = (name: string): string => {
-    return PYTHON_KEYWORDS.has(name) ? `${name}_` : name;
-};
-
-const canonicalToName = (canonical: string | undefined, dropFragment = true) => {
-    if (!canonical) return undefined;
-    let localName = canonical.split("/").pop();
-    if (!localName) return undefined;
-    if (dropFragment && localName.includes("#")) {
-        localName = localName.split("#")[0];
-    }
-    if (!localName) return undefined;
-    if (/^\d/.test(localName)) {
-        localName = `number_${localName}`;
-    }
-    return snakeCase(localName);
-};
-
-const deriveResourceName = (id: Identifier): string => {
-    if (id.kind === "nested") {
-        const url = id.url;
-        const path = canonicalToName(url, false);
-        if (!path) return "";
-        const [resourceName, fragment] = path.split("#");
-        const name = uppercaseFirstLetterOfEach((fragment ?? "").split(".")).join("");
-        return pascalCase([resourceName, name].join(""));
-    }
-    return pascalCase(id.name);
-};
-
-const resolvePyAssets = (fn: string) => {
-    const __dirname = Path.dirname(fileURLToPath(import.meta.url));
-    const __filename = fileURLToPath(import.meta.url);
-    if (__filename.endsWith("dist/index.js")) {
-        return Path.resolve(__dirname, "..", "assets", "api", "writer-generator", "python", fn);
-    } else {
-        return Path.resolve(__dirname, "../../..", "assets", "api", "writer-generator", "python", fn);
-    }
-};
 
 type TypeSchemaPackageGroups = {
     groupedResources: Record<string, RegularTypeSchema[]>;
@@ -173,6 +72,16 @@ export class Python extends Writer<PythonGeneratorOptions> {
         this.fieldFormat = options.fieldFormat;
     }
 
+    /** Exposed for extension-profile generator */
+    get rootPackageName(): string {
+        return this.opts.rootPackageName;
+    }
+
+    /** Exposed for extension-profile generator */
+    formatFieldName(name: string): string {
+        return this.nameFormatFunction(name);
+    }
+
     override async generate(tsIndex: TypeSchemaIndex): Promise<void> {
         this.tsIndex = tsIndex;
         const groups: TypeSchemaPackageGroups = {
@@ -181,6 +90,19 @@ export class Python extends Writer<PythonGeneratorOptions> {
         };
         this.generateRootPackages(groups);
         this.generateSDKPackages(groups);
+
+        if (this.opts.generateProfile) {
+            const profiles = tsIndex.collectProfiles();
+            const extensionProfiles = profiles.filter((p) => p.base.name === "Extension");
+            if (extensionProfiles.length > 0) {
+                const groupedByPackage = groupByPackages(extensionProfiles);
+                for (const [packageName, packageProfiles] of Object.entries(groupedByPackage)) {
+                    this.cd(`/${snakeCase(packageName)}`, () => {
+                        generateExtensionProfiles(this, tsIndex, packageProfiles as ProfileTypeSchema[]);
+                    });
+                }
+            }
+        }
     }
 
     private generateRootPackages(groups: TypeSchemaPackageGroups): void {
@@ -669,7 +591,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         return grouped;
     }
 
-    private pyImportFrom(pyPackage: string, ...entities: string[]): void {
+    pyImportFrom(pyPackage: string, ...entities: string[]): void {
         const oneLine = `from ${pyPackage} import ${entities.join(", ")}`;
 
         if (this.shouldUseSingleLineImport(oneLine, entities)) {
