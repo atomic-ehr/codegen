@@ -17,6 +17,7 @@ import {
     isNestedIdentifier,
     isProfileIdentifier,
     type NestedTypeSchema,
+    type ProfileIdentifier,
     packageMetaToFhir,
     type RichFHIRSchema,
     type RichValueSet,
@@ -125,15 +126,13 @@ export const extractDependencies = (
 };
 
 export const extractProfileDependencies = (
-    identifier: TypeIdentifier,
+    identifier: ProfileIdentifier,
     base: TypeIdentifier | undefined,
     fields: Record<string, Field> | undefined,
     nestedTypes: NestedTypeSchema[] | undefined,
 ): TypeIdentifier[] | undefined => {
     const deps = collectRawDeps(base, fields, nestedTypes);
-
     const filtered = deps.filter((dep) => dep.url !== identifier.url);
-
     return concatIdentifiers(filtered);
 };
 
