@@ -13,7 +13,7 @@ import type {
     Name,
     ProfileIdentifier,
     ProfileTypeSchema,
-    RegularTypeSchema,
+    SpecializationTypeSchema,
 } from "@root/typeschema/types";
 import { mkIndex, mkR4Register, mkTestLogger, r4Package, r5Package, resolveTs } from "@typeschema-test/utils";
 
@@ -69,7 +69,7 @@ describe("treeShake specific TypeSchema", async () => {
         "http://hl7.org/fhir/StructureDefinition/Patient" as CanonicalUrl,
         logger,
     );
-    const patientOrigin = patientTss[0] as RegularTypeSchema;
+    const patientOrigin = patientTss[0] as SpecializationTypeSchema;
     assert(patientOrigin !== undefined);
 
     it("Original Patient", () => {
@@ -101,7 +101,7 @@ describe("treeShake specific TypeSchema", async () => {
         it("regular field", () => {
             const patient = treeShakeTypeSchema(patientOrigin, {
                 ignoreFields: ["gender"],
-            }) as RegularTypeSchema;
+            }) as SpecializationTypeSchema;
             expect(patientOrigin.fields?.gender).toBeDefined();
             expect(patient.fields?.gender).toBeUndefined();
             expect(JSON.stringify(patient, null, 2)).toMatchSnapshot();
@@ -121,7 +121,7 @@ describe("treeShake specific TypeSchema", async () => {
             it("choice declaration", () => {
                 const patient = treeShakeTypeSchema(patientOrigin, {
                     ignoreFields: ["multipleBirth"],
-                }) as RegularTypeSchema;
+                }) as SpecializationTypeSchema;
                 expect(patient.fields?.multipleBirth).toBeUndefined();
                 expect(patient.fields?.multipleBirthBoolean).toBeUndefined();
                 expect(patient.fields?.multipleBirthInteger).toBeUndefined();
@@ -130,7 +130,7 @@ describe("treeShake specific TypeSchema", async () => {
             it("choice instance", () => {
                 const patient = treeShakeTypeSchema(patientOrigin, {
                     ignoreFields: ["multipleBirthInteger"],
-                }) as RegularTypeSchema;
+                }) as SpecializationTypeSchema;
                 expect(patient.fields?.multipleBirth).toMatchObject({
                     choices: ["multipleBirthBoolean"],
                 });
@@ -142,7 +142,7 @@ describe("treeShake specific TypeSchema", async () => {
             it("all choice instance", () => {
                 const patient = treeShakeTypeSchema(patientOrigin, {
                     ignoreFields: ["multipleBirthBoolean", "multipleBirthInteger"],
-                }) as RegularTypeSchema;
+                }) as SpecializationTypeSchema;
                 expect(patient.fields?.multipleBirth).toBeUndefined();
                 expect(patient.fields?.multipleBirthBoolean).toBeUndefined();
                 expect(patient.fields?.multipleBirthInteger).toBeUndefined();
@@ -161,7 +161,7 @@ describe("treeShake specific TypeSchema", async () => {
             it("empty ignoreFields array", () => {
                 const patient = treeShakeTypeSchema(patientOrigin, {
                     ignoreFields: [],
-                }) as RegularTypeSchema;
+                }) as SpecializationTypeSchema;
                 expect(JSON.stringify(patient, null, 2)).toBe(JSON.stringify(patientOrigin, null, 2));
             });
         });
@@ -171,7 +171,7 @@ describe("treeShake specific TypeSchema", async () => {
         it("regular field", () => {
             const patient = treeShakeTypeSchema(patientOrigin, {
                 selectFields: ["gender"],
-            }) as RegularTypeSchema;
+            }) as SpecializationTypeSchema;
             expect(patient.fields?.gender).toBeDefined();
             expect(patient.fields?.name).toBeUndefined();
             expect(patient.fields?.birthDate).toBeUndefined();
@@ -182,7 +182,7 @@ describe("treeShake specific TypeSchema", async () => {
         it("multiple regular fields", () => {
             const patient = treeShakeTypeSchema(patientOrigin, {
                 selectFields: ["gender", "birthDate", "active"],
-            }) as RegularTypeSchema;
+            }) as SpecializationTypeSchema;
             expect(patient.fields?.gender).toBeDefined();
             expect(patient.fields?.birthDate).toBeDefined();
             expect(patient.fields?.active).toBeDefined();
@@ -206,7 +206,7 @@ describe("treeShake specific TypeSchema", async () => {
             it("choice declaration - get all polimorphic fields", () => {
                 const patient = treeShakeTypeSchema(patientOrigin, {
                     selectFields: ["multipleBirth"],
-                }) as RegularTypeSchema;
+                }) as SpecializationTypeSchema;
 
                 expect(patient.fields?.multipleBirth).toMatchObject({
                     choices: ["multipleBirthBoolean", "multipleBirthInteger"],
@@ -224,7 +224,7 @@ describe("treeShake specific TypeSchema", async () => {
             it("choice instance", () => {
                 const patient = treeShakeTypeSchema(patientOrigin, {
                     selectFields: ["multipleBirthBoolean"],
-                }) as RegularTypeSchema;
+                }) as SpecializationTypeSchema;
 
                 expect(patient.fields?.multipleBirth).toMatchObject({
                     choices: ["multipleBirthBoolean"],
@@ -240,7 +240,7 @@ describe("treeShake specific TypeSchema", async () => {
             it("choice declaration & instance", () => {
                 const patient = treeShakeTypeSchema(patientOrigin, {
                     selectFields: ["multipleBirth", "multipleBirthBoolean"],
-                }) as RegularTypeSchema;
+                }) as SpecializationTypeSchema;
 
                 expect(patient.fields?.multipleBirth).toMatchObject({
                     choices: ["multipleBirthBoolean"],
@@ -258,7 +258,7 @@ describe("treeShake specific TypeSchema", async () => {
             it("empty selectFields array", () => {
                 const patient = treeShakeTypeSchema(patientOrigin, {
                     selectFields: [],
-                }) as RegularTypeSchema;
+                }) as SpecializationTypeSchema;
 
                 expect(patient.fields).toEqual({});
             });

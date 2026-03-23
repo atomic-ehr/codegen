@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import type { CanonicalUrl, RegularTypeSchema } from "@root/typeschema/types";
+import type { CanonicalUrl, SpecializationTypeSchema } from "@root/typeschema/types";
 import { ccdaPackage, mkCCDARegister, mkTestLogger, registerFsAndMkTs } from "@typeschema-test/utils";
 
 const skipMe = false;
@@ -16,7 +16,7 @@ describe("TypeSchema CCDA generation", async () => {
         if (!resource) {
             throw new Error("workflow-protectiveFactor not found");
         }
-        const ts = (await registerFsAndMkTs(ccda, resource, logger))[0] as RegularTypeSchema;
+        const ts = (await registerFsAndMkTs(ccda, resource, logger))[0] as SpecializationTypeSchema;
         expect(ts).toMatchObject({
             identifier: {
                 kind: "profile",
@@ -75,7 +75,7 @@ describe("TypeSchema CCDA generation", async () => {
         if (!resource) {
             throw new Error("ON StructureDefinition not found");
         }
-        const ts = (await registerFsAndMkTs(ccda, resource, logger))[0] as RegularTypeSchema;
+        const ts = (await registerFsAndMkTs(ccda, resource, logger))[0] as SpecializationTypeSchema;
         expect(ts).toMatchObject({
             identifier: {
                 kind: "logical",
@@ -167,7 +167,7 @@ describe("TypeSchema CCDA generation", async () => {
         if (!resource) {
             throw new Error("ehrsrle-auditevent not found");
         }
-        const ts = (await registerFsAndMkTs(ccda, resource, logger))[0] as RegularTypeSchema;
+        const ts = (await registerFsAndMkTs(ccda, resource, logger))[0] as SpecializationTypeSchema;
         // console.log(JSON.stringify(ts, null, 2));
         // NOTE: problem: canonical manager recomend us to use R5, but we failing on R4 AuditEvent.
         expect(ts).toMatchObject({

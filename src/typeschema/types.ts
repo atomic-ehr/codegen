@@ -146,13 +146,13 @@ export const concatIdentifiers = (...sources: (Identifier[] | undefined)[]): Ide
 };
 
 export type TypeSchema =
-    | RegularTypeSchema
+    | SpecializationTypeSchema
     | PrimitiveTypeSchema
     | ValueSetTypeSchema
     | BindingTypeSchema
     | ProfileTypeSchema;
 
-export const isSpecializationTypeSchema = (schema: TypeSchema | undefined): schema is RegularTypeSchema => {
+export const isSpecializationTypeSchema = (schema: TypeSchema | undefined): schema is SpecializationTypeSchema => {
     return (
         schema?.identifier.kind === "resource" ||
         schema?.identifier.kind === "complex-type" ||
@@ -160,11 +160,11 @@ export const isSpecializationTypeSchema = (schema: TypeSchema | undefined): sche
     );
 };
 
-export const isComplexTypeTypeSchema = (schema: TypeSchema | undefined): schema is RegularTypeSchema => {
+export const isComplexTypeTypeSchema = (schema: TypeSchema | undefined): schema is SpecializationTypeSchema => {
     return schema?.identifier.kind === "complex-type";
 };
 
-export const isResourceTypeSchema = (schema: TypeSchema | undefined): schema is RegularTypeSchema => {
+export const isResourceTypeSchema = (schema: TypeSchema | undefined): schema is SpecializationTypeSchema => {
     return schema?.identifier.kind === "resource";
 };
 
@@ -172,7 +172,7 @@ export const isPrimitiveTypeSchema = (schema: TypeSchema | undefined): schema is
     return schema?.identifier.kind === "primitive-type";
 };
 
-export const isLogicalTypeSchema = (schema: TypeSchema | undefined): schema is RegularTypeSchema => {
+export const isLogicalTypeSchema = (schema: TypeSchema | undefined): schema is SpecializationTypeSchema => {
     return schema?.identifier.kind === "logical";
 };
 
@@ -263,7 +263,7 @@ export const extractExtensionDeps = (ext: ProfileExtension): Identifier[] => [
     ...(ext.subExtensions?.flatMap((sub) => (sub.valueFieldType ? [sub.valueFieldType] : [])) ?? []),
 ];
 
-export interface RegularTypeSchema {
+export interface SpecializationTypeSchema {
     // TODO: restrict to ResourceIdentifier | ComplexTypeIdentifier | LogicalIdentifier
     identifier: Identifier;
     base?: Identifier;

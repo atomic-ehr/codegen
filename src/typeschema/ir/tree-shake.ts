@@ -18,7 +18,7 @@ import {
     type NestedType,
     type PkgName,
     type ProfileTypeSchema,
-    type RegularTypeSchema,
+    type SpecializationTypeSchema,
     type TypeSchema,
 } from "../types";
 import type { TypeSchemaIndex } from "../utils";
@@ -78,7 +78,7 @@ export const packageTreeShakeReadme = (report: TypeSchemaIndex | IrReport, pkgNa
     return lines.join("\n");
 };
 
-const mutableSelectFields = (schema: RegularTypeSchema, selectFields: string[]) => {
+const mutableSelectFields = (schema: SpecializationTypeSchema, selectFields: string[]) => {
     const selectedFields: Record<string, Field> = {};
 
     const selectPolimorphic: Record<string, { declaration?: string[]; instances?: string[] }> = {};
@@ -113,7 +113,7 @@ const mutableSelectFields = (schema: RegularTypeSchema, selectFields: string[]) 
     schema.fields = selectedFields;
 };
 
-const mutableIgnoreFields = (schema: RegularTypeSchema, ignoreFields: string[]) => {
+const mutableIgnoreFields = (schema: SpecializationTypeSchema, ignoreFields: string[]) => {
     for (const fieldName of ignoreFields) {
         const field = schema.fields?.[fieldName];
         if (!schema.fields || !field) throw new Error(`Field ${fieldName} not found`);
@@ -207,7 +207,7 @@ export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _lo
 
     if (schema.nested) {
         const usedTypes = new Set<CanonicalUrl>();
-        const collectUsedNestedTypes = (s: RegularTypeSchema | NestedType) => {
+        const collectUsedNestedTypes = (s: SpecializationTypeSchema | NestedType) => {
             Object.values(s.fields ?? {})
                 .filter(isNotChoiceDeclarationField)
                 .filter((f) => isNestedIdentifier(f.type))

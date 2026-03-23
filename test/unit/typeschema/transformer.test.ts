@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import type { Name, PackageMeta, RegularField, RegularTypeSchema } from "@typeschema/types";
+import type { Name, PackageMeta, RegularField, SpecializationTypeSchema } from "@typeschema/types";
 import type { PFS } from "@typeschema-test/utils";
 import { mkR4Register, mkTestLogger, registerFsAndMkTs } from "@typeschema-test/utils";
 
@@ -46,7 +46,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
             };
 
             const result = await registerFsAndMkTs(r4, fhirSchema, logger);
-            const schema = result[0] as RegularTypeSchema;
+            const schema = result[0] as SpecializationTypeSchema;
 
             expect(result).toHaveLength(1);
             expect(schema.base).toBeDefined();
@@ -83,7 +83,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
             };
 
             const result = await registerFsAndMkTs(r4, fhirSchema, logger);
-            const schema = result[0] as RegularTypeSchema;
+            const schema = result[0] as SpecializationTypeSchema;
 
             expect(result).toHaveLength(1);
             expect(schema.identifier.kind).toBe("complex-type");
@@ -104,7 +104,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
             };
 
             const result = await registerFsAndMkTs(r4, fhirSchema, logger);
-            const schema = result[0] as RegularTypeSchema;
+            const schema = result[0] as SpecializationTypeSchema;
 
             expect(result).toHaveLength(1);
             expect(schema.base?.name).toBe("Extension" as Name);
@@ -129,7 +129,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
             };
 
             const result = await registerFsAndMkTs(r4, fhirSchema, logger);
-            const schema = result[0] as RegularTypeSchema;
+            const schema = result[0] as SpecializationTypeSchema;
 
             expect(result).toHaveLength(1);
             expect(schema.fields?.contact).toBeDefined();
@@ -149,7 +149,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
             };
 
             const result = await registerFsAndMkTs(r4, fhirSchema, logger);
-            const schema = result[0] as RegularTypeSchema;
+            const schema = result[0] as SpecializationTypeSchema;
 
             expect(result).toHaveLength(1);
             expect(schema.dependencies).toBeDefined();
@@ -189,7 +189,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
             };
 
             const result = await registerFsAndMkTs(r4, fhirSchema, logger);
-            const schema = result[0] as RegularTypeSchema;
+            const schema = result[0] as SpecializationTypeSchema;
 
             expect(result).toHaveLength(1);
             expect(schema.fields?.names?.array).toBe(true);
@@ -210,7 +210,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
             };
 
             const result = await registerFsAndMkTs(r4, fhirSchema, logger);
-            const schema = result[0] as RegularTypeSchema;
+            const schema = result[0] as SpecializationTypeSchema;
 
             expect(result).toHaveLength(1);
             expect(schema.fields?.mandatoryField?.required).toBe(true);
@@ -232,7 +232,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
             };
 
             const result = await registerFsAndMkTs(r4, fhirSchema, logger);
-            const schema = result[0] as RegularTypeSchema;
+            const schema = result[0] as SpecializationTypeSchema;
 
             expect(result).toHaveLength(1);
             expect(schema.fields?.value).toBeDefined();
@@ -256,7 +256,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
             };
 
             const result = await registerFsAndMkTs(r4, fhirSchema, logger);
-            const schema = result[0] as RegularTypeSchema;
+            const schema = result[0] as SpecializationTypeSchema;
 
             expect(result.length).toBeGreaterThanOrEqual(1);
             expect(schema.fields?.status).toBeDefined();
@@ -277,7 +277,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
             };
 
             const result = await registerFsAndMkTs(r4, fhirSchema, logger);
-            const schema = result[0] as RegularTypeSchema;
+            const schema = result[0] as SpecializationTypeSchema;
 
             expect(result).toHaveLength(1);
             expect(schema.fields?.subject).toBeDefined();
@@ -292,7 +292,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
             };
 
             const result = await registerFsAndMkTs(r4, fhirSchema, logger);
-            const schema = result[0] as RegularTypeSchema;
+            const schema = result[0] as SpecializationTypeSchema;
 
             expect(result).toHaveLength(1);
             expect(schema.identifier.name).toBe("EmptyResource" as Name);
@@ -333,7 +333,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
             };
 
             const result = await registerFsAndMkTs(r4, fhirSchema, logger);
-            const schema = result[0] as RegularTypeSchema;
+            const schema = result[0] as SpecializationTypeSchema;
 
             expect(result).toHaveLength(1);
             expect(schema.fields?.type).toBeDefined();
@@ -358,7 +358,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
             };
 
             const result = await registerFsAndMkTs(r4, fhirSchema, logger);
-            const schema = result[0] as RegularTypeSchema;
+            const schema = result[0] as SpecializationTypeSchema;
 
             // Binding schemas are also generated
             expect(result.length).toBeGreaterThanOrEqual(1);
@@ -405,7 +405,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
             };
 
             const result = await registerFsAndMkTs(r4, fhirSchema, logger);
-            const schema = result[0] as RegularTypeSchema;
+            const schema = result[0] as SpecializationTypeSchema;
 
             expect(result).toHaveLength(1);
             expect(schema.fields?.level1).toBeDefined();

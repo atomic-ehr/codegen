@@ -22,7 +22,7 @@ import {
     type PkgName,
     type ProfileExtension,
     type ProfileTypeSchema,
-    type RegularTypeSchema,
+    type SpecializationTypeSchema,
     type TypeSchema,
 } from "./types";
 
@@ -48,8 +48,8 @@ export const groupByPackages = (typeSchemas: TypeSchema[]): Record<PkgName, Type
     return grouped;
 };
 
-const buildDependencyGraph = (schemas: RegularTypeSchema[]): Record<string, string[]> => {
-    const nameToMap: Record<string, RegularTypeSchema> = {};
+const buildDependencyGraph = (schemas: SpecializationTypeSchema[]): Record<string, string[]> => {
+    const nameToMap: Record<string, SpecializationTypeSchema> = {};
     for (const schema of schemas) {
         nameToMap[schema.identifier.name] = schema;
     }
@@ -96,12 +96,12 @@ const topologicalSort = (graph: Record<string, string[]>): string[] => {
     return sorted;
 };
 
-export const sortAsDeclarationSequence = (schemas: RegularTypeSchema[]): RegularTypeSchema[] => {
+export const sortAsDeclarationSequence = (schemas: SpecializationTypeSchema[]): SpecializationTypeSchema[] => {
     const graph = buildDependencyGraph(schemas);
     const sorted = topologicalSort(graph);
     return sorted
         .map((name) => schemas.find((schema) => schema.identifier.name === name))
-        .filter(Boolean) as RegularTypeSchema[];
+        .filter(Boolean) as SpecializationTypeSchema[];
 };
 
 ///////////////////////////////////////////////////////////
@@ -135,7 +135,7 @@ const populateTypeFamily = (schemas: TypeSchema[]): void => {
         if (allChildren.length === 0) continue;
         const resources = allChildren.filter(isResourceIdentifier);
         const complexTypes = allChildren.filter(isComplexTypeIdentifier);
-        const family: NonNullable<RegularTypeSchema["typeFamily"]> = {};
+        const family: NonNullable<SpecializationTypeSchema["typeFamily"]> = {};
         if (resources.length > 0) family.resources = resources;
         if (complexTypes.length > 0) family.complexTypes = complexTypes;
         if (Object.keys(family).length > 0) schema.typeFamily = family;
@@ -150,9 +150,9 @@ export type TypeSchemaIndex = {
     schemas: TypeSchema[];
     schemasByPackage: Record<PkgName, TypeSchema[]>;
     register?: Register;
-    collectComplexTypes: () => RegularTypeSchema[];
-    collectResources: () => RegularTypeSchema[];
-    collectLogicalModels: () => RegularTypeSchema[];
+    collectComplexTypes: () => SpecializationTypeSchema[];
+    collectResources: () => SpecializationTypeSchema[];
+    collectLogicalModels: () => SpecializationTypeSchema[];
     collectProfiles: () => ProfileTypeSchema[];
     resolve: (id: Identifier) => TypeSchema | undefined;
     resolveByUrl: (pkgName: PkgName, url: CanonicalUrl) => TypeSchema | undefined;
@@ -249,7 +249,7 @@ export const mkTypeSchemaIndex = (
         let cur: TypeSchema | undefined = schema;
         while (cur) {
             res.push(cur);
-            const base = (cur as RegularTypeSchema).base;
+            const base = (cur as SpecializationTypeSchema).base;
             if (base === undefined) break;
             const resolved = resolve(base);
             if (!resolved) {
@@ -298,7 +298,7 @@ export const mkTypeSchemaIndex = (
             if (!isChoiceDeclarationField(declField) || declField.excluded) continue;
 
             for (const cSchema of constraintSchemas) {
-                const sFields = (cSchema as RegularTypeSchema).fields;
+                const sFields = (cSchema as SpecializationTypeSchema).fields;
                 if (!sFields) continue;
                 if (sFields[declName] && isChoiceDeclarationField(sFields[declName])) continue;
 
@@ -340,7 +340,7 @@ export const mkTypeSchemaIndex = (
 
         const mergedFields = {} as Record<string, Field>;
         for (const anySchema of constraintSchemas.slice().reverse()) {
-            const schema = anySchema as RegularTypeSchema;
+            const schema = anySchema as SpecializationTypeSchema;
             if (!schema.fields) continue;
 
             for (const [fieldName, fieldConstraints] of Object.entries(schema.fields)) {
@@ -360,7 +360,7 @@ export const mkTypeSchemaIndex = (
         const dependencies = Object.values(
             Object.fromEntries(
                 constraintSchemas
-                    .flatMap((s) => (s as RegularTypeSchema).dependencies ?? [])
+                    .flatMap((s) => (s as SpecializationTypeSchema).dependencies ?? [])
                     .map((dep) => [dep.url, dep]),
             ),
         );

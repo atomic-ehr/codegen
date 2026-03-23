@@ -15,7 +15,7 @@ import {
     type Name,
     packageMeta,
     packageMetaToFhir,
-    type RegularTypeSchema,
+    type SpecializationTypeSchema,
     type TypeSchema,
 } from "@root/typeschema/types";
 import { groupByPackages, type TypeSchemaIndex } from "@root/typeschema/utils";
@@ -145,7 +145,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         });
     }
 
-    generateDependenciesImports(tsIndex: TypeSchemaIndex, schema: RegularTypeSchema, importPrefix = "../") {
+    generateDependenciesImports(tsIndex: TypeSchemaIndex, schema: SpecializationTypeSchema, importPrefix = "../") {
         if (schema.dependencies) {
             const imports = [];
             const skipped = [];
@@ -191,7 +191,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         }
     }
 
-    generateComplexTypeReexports(schema: RegularTypeSchema) {
+    generateComplexTypeReexports(schema: SpecializationTypeSchema) {
         const complexTypeDeps = schema.dependencies?.filter(isComplexTypeIdentifier);
         if (complexTypeDeps && complexTypeDeps.length > 0) {
             for (const dep of complexTypeDeps) {
@@ -208,7 +208,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         this.lineSM(`${extFieldName}?: ${typeExpr}`);
     }
 
-    generateType(tsIndex: TypeSchemaIndex, schema: RegularTypeSchema) {
+    generateType(tsIndex: TypeSchemaIndex, schema: SpecializationTypeSchema) {
         let name: string;
         // Generic types: Reference, Coding, CodeableConcept
         const genericTypes = ["Reference", "Coding", "CodeableConcept"];
@@ -307,7 +307,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         return false;
     }
 
-    generateResourceTypePredicate(schema: RegularTypeSchema) {
+    generateResourceTypePredicate(schema: SpecializationTypeSchema) {
         if (!isResourceTypeSchema(schema)) return;
         const name = tsResourceName(schema.identifier);
         this.curlyBlock(["export", "const", `is${name}`, "=", `(resource: unknown): resource is ${name}`, "=>"], () => {
@@ -317,7 +317,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         });
     }
 
-    generateNestedTypes(tsIndex: TypeSchemaIndex, schema: RegularTypeSchema) {
+    generateNestedTypes(tsIndex: TypeSchemaIndex, schema: SpecializationTypeSchema) {
         if (schema.nested) {
             for (const subtype of schema.nested) {
                 this.generateType(tsIndex, subtype);
