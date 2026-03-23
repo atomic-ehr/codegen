@@ -100,13 +100,12 @@ export type ValueSetIdentifier = { kind: "value-set" } & IdentifierBase;
 export type NestedIdentifier = { kind: "nested" } & IdentifierBase;
 export type BindingIdentifier = { kind: "binding" } & IdentifierBase;
 export type ProfileIdentifier = { kind: "profile" } & IdentifierBase;
-type LogicalIdentifier = { kind: "logical" } & IdentifierBase;
+export type LogicalIdentifier = { kind: "logical" } & IdentifierBase;
 
 export type Identifier =
     | PrimitiveIdentifier
     | ComplexTypeIdentifier
     | ResourceIdentifier
-    | NestedIdentifier
     | BindingIdentifier
     | ValueSetIdentifier
     | ProfileIdentifier

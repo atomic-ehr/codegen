@@ -166,7 +166,7 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
 
         this.line();
         for (const subtype of schema.nested) {
-            this.generateType(subtype, packageName);
+            this.generateType(subtype as unknown as SpecializationTypeSchema, packageName);
         }
     }
 

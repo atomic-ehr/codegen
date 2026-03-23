@@ -56,10 +56,7 @@ describe("TypeSchema Processing constraint generation", async () => {
                     foo: { type: { kind: "nested", name: "foo", url: "uri::A#foo" } },
                 },
                 nested: undefined,
-                dependencies: [
-                    { kind: "resource", name: "a", url: "uri::A" },
-                    { kind: "nested", name: "foo", url: "uri::A#foo" },
-                ],
+                dependencies: [{ kind: "resource", name: "a", url: "uri::A" }],
             },
         ]);
     });
@@ -81,10 +78,7 @@ describe("TypeSchema Processing constraint generation", async () => {
                     foo: { type: { kind: "nested", name: "foo", url: "uri::A#foo" } },
                 },
                 nested: undefined,
-                dependencies: [
-                    { kind: "nested", name: "foo", url: "uri::A#foo" },
-                    { kind: "profile", name: "b", url: "uri::B" },
-                ],
+                dependencies: [{ kind: "profile", name: "b", url: "uri::B" }],
             },
         ]);
     });
@@ -166,12 +160,6 @@ describe("TypeSchema Processing constraint generation", async () => {
                     { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/boolean" },
                     { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/code" },
                     { kind: "resource", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem" },
-                    { kind: "nested", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept" },
-                    {
-                        kind: "nested",
-                        url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept.designation",
-                    },
-                    { kind: "nested", url: "http://hl7.org/fhir/StructureDefinition/CodeSystem#concept.property" },
                     { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/markdown" },
                     { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/string" },
                     { kind: "primitive-type", url: "http://hl7.org/fhir/StructureDefinition/uri" },

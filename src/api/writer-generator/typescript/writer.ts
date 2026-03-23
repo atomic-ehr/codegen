@@ -7,12 +7,10 @@ import {
     isChoiceDeclarationField,
     isComplexTypeIdentifier,
     isLogicalTypeSchema,
-    isNestedIdentifier,
     isPrimitiveIdentifier,
     isProfileTypeSchema,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
-    type Name,
     packageMeta,
     packageMetaToFhir,
     type SpecializationTypeSchema,
@@ -156,14 +154,6 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                         name: tsResourceName(dep),
                         dep: dep,
                     });
-                } else if (isNestedIdentifier(dep)) {
-                    const ndep = { ...dep };
-                    ndep.name = tsNameFromCanonical(dep.url) as Name;
-                    imports.push({
-                        tsPackage: `${importPrefix}${tsModulePath(ndep)}`,
-                        name: tsResourceName(dep),
-                        dep: dep,
-                    });
                 } else {
                     skipped.push(dep);
                 }
@@ -214,8 +204,6 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         const genericTypes = ["Reference", "Coding", "CodeableConcept"];
         if (genericTypes.includes(schema.identifier.name)) {
             name = `${schema.identifier.name}<T extends string = string>`;
-        } else if (schema.identifier.kind === "nested") {
-            name = tsResourceName(schema.identifier);
         } else {
             name = tsResourceName(schema.identifier);
         }
@@ -320,7 +308,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
     generateNestedTypes(tsIndex: TypeSchemaIndex, schema: SpecializationTypeSchema) {
         if (schema.nested) {
             for (const subtype of schema.nested) {
-                this.generateType(tsIndex, subtype);
+                this.generateType(tsIndex, subtype as unknown as SpecializationTypeSchema);
                 this.line();
             }
         }
@@ -337,18 +325,19 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 });
             });
         } else if (["complex-type", "resource", "logical"].includes(schema.identifier.kind)) {
+            const resourceSchema = schema as SpecializationTypeSchema;
             this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
                 this.generateDisclaimer();
-                this.generateDependenciesImports(tsIndex, schema);
-                this.generateComplexTypeReexports(schema);
-                this.generateNestedTypes(tsIndex, schema);
+                this.generateDependenciesImports(tsIndex, resourceSchema);
+                this.generateComplexTypeReexports(resourceSchema);
+                this.generateNestedTypes(tsIndex, resourceSchema);
                 this.comment(
                     "CanonicalURL:",
                     schema.identifier.url,
                     `(pkg: ${packageMetaToFhir(packageMeta(schema))})`,
                 );
-                this.generateType(tsIndex, schema);
-                this.generateResourceTypePredicate(schema);
+                this.generateType(tsIndex, resourceSchema);
+                this.generateResourceTypePredicate(resourceSchema);
             });
         } else {
             throw new Error(`Profile generation not implemented for kind: ${schema.identifier.kind}`);

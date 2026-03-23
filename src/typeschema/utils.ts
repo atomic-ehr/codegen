@@ -209,7 +209,7 @@ export const mkTypeSchemaIndex = (
                     const nurl = nschema.identifier.url;
                     const npkg = nschema.identifier.package;
                     nestedIndex[nurl] ??= {};
-                    nestedIndex[nurl][npkg] = nschema;
+                    nestedIndex[nurl][npkg] = nschema as unknown as TypeSchema;
                 });
             }
         }
@@ -232,6 +232,7 @@ export const mkTypeSchemaIndex = (
             }
         }
         if (index[url]?.[pkgName]) return index[url]?.[pkgName];
+        if (nestedIndex[url]?.[pkgName]) return nestedIndex[url]?.[pkgName];
         logger?.dryWarn(`Type '${url}' not found in '${pkgName}'`);
 
         // Fallback: search across all packages when type exists elsewhere

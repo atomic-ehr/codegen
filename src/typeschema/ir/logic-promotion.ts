@@ -36,7 +36,7 @@ export const promoteLogical = (tsIndex: TypeSchemaIndex, promotes: LogicalPromot
         return Object.fromEntries(
             Object.entries(fields).map(([k, f]) => {
                 if (isChoiceDeclarationField(f)) return [k, f];
-                return [k, { ...f, type: f.type ? replace(f.type) : undefined }];
+                return [k, { ...f, type: f.type ? replace(f.type as Identifier) : undefined }];
             }),
         );
     };

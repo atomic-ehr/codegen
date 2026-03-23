@@ -533,8 +533,8 @@ import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 export type Observation_bp_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
-export type Observation_bp_Component_SystolicBPSliceFlat = Omit<ObservationComponent, "code">;
-export type Observation_bp_Component_DiastolicBPSliceFlat = Omit<ObservationComponent, "code">;
+export type Observation_bp_Component_SystolicBPSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
+export type Observation_bp_Component_DiastolicBPSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 
 import {
     buildResource,
@@ -545,6 +545,8 @@ import {
     getArraySlice,
     ensureSliceDefaults,
     stripMatchKeys,
+    wrapSliceChoice,
+    unwrapSliceChoice,
     validateRequired,
     validateExcluded,
     validateFixedValue,
@@ -714,7 +716,8 @@ export class observation_bpProfile {
             setArraySlice(this.resource.component ??= [], match, input as ObservationComponent)
             return this
         }
-        const value = applySliceMatch<ObservationComponent>(input ?? {}, match)
+        const wrapped = wrapSliceChoice<ObservationComponent>(input ?? {}, "valueQuantity")
+        const value = applySliceMatch<ObservationComponent>(wrapped, match)
         setArraySlice(this.resource.component ??= [], match, value)
         return this
     }
@@ -725,7 +728,8 @@ export class observation_bpProfile {
             setArraySlice(this.resource.component ??= [], match, input as ObservationComponent)
             return this
         }
-        const value = applySliceMatch<ObservationComponent>(input ?? {}, match)
+        const wrapped = wrapSliceChoice<ObservationComponent>(input ?? {}, "valueQuantity")
+        const value = applySliceMatch<ObservationComponent>(wrapped, match)
         setArraySlice(this.resource.component ??= [], match, value)
         return this
     }
@@ -749,7 +753,7 @@ export class observation_bpProfile {
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<Observation_bp_Component_SystolicBPSliceFlat>(item, ["code"])
+        return unwrapSliceChoice<Observation_bp_Component_SystolicBPSliceFlat>(item, ["code"], "valueQuantity")
     }
 
     public getDiastolicBP(mode: 'flat'): Observation_bp_Component_DiastolicBPSliceFlat | undefined;
@@ -760,7 +764,7 @@ export class observation_bpProfile {
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<Observation_bp_Component_DiastolicBPSliceFlat>(item, ["code"])
+        return unwrapSliceChoice<Observation_bp_Component_DiastolicBPSliceFlat>(item, ["code"], "valueQuantity")
     }
 
     // Validation
@@ -1066,8 +1070,8 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import type { SampledData } from "../../hl7-fhir-r4-core/SampledData";
 
 export type USCoreBloodPressureProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
-export type USCoreBloodPressureProfile_Component_SystolicSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
-export type USCoreBloodPressureProfile_Component_DiastolicSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
+export type USCoreBloodPressureProfile_Component_SystolicSliceFlat = Omit<ObservationComponent, "code">;
+export type USCoreBloodPressureProfile_Component_DiastolicSliceFlat = Omit<ObservationComponent, "code">;
 
 import {
     buildResource,
@@ -1078,8 +1082,6 @@ import {
     getArraySlice,
     ensureSliceDefaults,
     stripMatchKeys,
-    wrapSliceChoice,
-    unwrapSliceChoice,
     validateRequired,
     validateExcluded,
     validateFixedValue,
@@ -1339,8 +1341,7 @@ export class USCoreBloodPressureProfile {
             setArraySlice(this.resource.component ??= [], match, input as ObservationComponent)
             return this
         }
-        const wrapped = wrapSliceChoice<ObservationComponent>(input ?? {}, "valueQuantity")
-        const value = applySliceMatch<ObservationComponent>(wrapped, match)
+        const value = applySliceMatch<ObservationComponent>(input ?? {}, match)
         setArraySlice(this.resource.component ??= [], match, value)
         return this
     }
@@ -1351,8 +1352,7 @@ export class USCoreBloodPressureProfile {
             setArraySlice(this.resource.component ??= [], match, input as ObservationComponent)
             return this
         }
-        const wrapped = wrapSliceChoice<ObservationComponent>(input ?? {}, "valueQuantity")
-        const value = applySliceMatch<ObservationComponent>(wrapped, match)
+        const value = applySliceMatch<ObservationComponent>(input ?? {}, match)
         setArraySlice(this.resource.component ??= [], match, value)
         return this
     }
@@ -1376,7 +1376,7 @@ export class USCoreBloodPressureProfile {
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<USCoreBloodPressureProfile_Component_SystolicSliceFlat>(item, ["code"], "valueQuantity")
+        return stripMatchKeys<USCoreBloodPressureProfile_Component_SystolicSliceFlat>(item, ["code"])
     }
 
     public getDiastolic(mode: 'flat'): USCoreBloodPressureProfile_Component_DiastolicSliceFlat | undefined;
@@ -1387,7 +1387,7 @@ export class USCoreBloodPressureProfile {
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<USCoreBloodPressureProfile_Component_DiastolicSliceFlat>(item, ["code"], "valueQuantity")
+        return stripMatchKeys<USCoreBloodPressureProfile_Component_DiastolicSliceFlat>(item, ["code"])
     }
 
     // Validation
