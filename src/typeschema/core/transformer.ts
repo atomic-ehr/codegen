@@ -93,24 +93,24 @@ export async function transformValueSet(
     };
 }
 
-function collectRawDeps(
+const collectRawDeps = (
     base: TypeIdentifier | undefined,
     fields: Record<string, Field> | undefined,
     nestedTypes: NestedTypeSchema[] | undefined,
-): TypeIdentifier[] {
+): TypeIdentifier[] => {
     const deps: TypeIdentifier[] = [];
     if (base) deps.push(base);
     if (fields) deps.push(...extractFieldDependencies(fields));
     if (nestedTypes) deps.push(...extractNestedDependencies(nestedTypes));
     return deps;
-}
+};
 
-export function extractDependencies(
+export const extractDependencies = (
     identifier: TypeIdentifier,
     base: TypeIdentifier | undefined,
     fields: Record<string, Field> | undefined,
     nestedTypes: NestedTypeSchema[] | undefined,
-): Identifier[] | undefined {
+): Identifier[] | undefined => {
     const deps = collectRawDeps(base, fields, nestedTypes);
 
     const filtered = deps.filter((dep): dep is Identifier => {
@@ -120,20 +120,20 @@ export function extractDependencies(
     });
 
     return concatIdentifiers(filtered) as Identifier[] | undefined;
-}
+};
 
-export function extractProfileDependencies(
+export const extractProfileDependencies = (
     identifier: TypeIdentifier,
     base: TypeIdentifier | undefined,
     fields: Record<string, Field> | undefined,
     nestedTypes: NestedTypeSchema[] | undefined,
-): TypeIdentifier[] | undefined {
+): TypeIdentifier[] | undefined => {
     const deps = collectRawDeps(base, fields, nestedTypes);
 
     const filtered = deps.filter((dep) => dep.url !== identifier.url);
 
     return concatIdentifiers(filtered);
-}
+};
 
 export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSchema, logger?: CodegenLog): TypeSchema[] {
     const identifier = mkIdentifier(fhirSchema);
