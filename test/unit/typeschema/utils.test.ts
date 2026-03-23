@@ -5,7 +5,7 @@ import type {
     Name,
     ProfileTypeSchema,
     RegularField,
-    RegularTypeSchema,
+    SpecializationTypeSchema,
 } from "@typeschema/types";
 import { mkTypeSchemaIndex } from "@typeschema/utils";
 
@@ -36,7 +36,7 @@ const booleanType: Identifier = {
 describe("TypeSchema Index", () => {
     describe("hierarchy", () => {
         it("should return a single element hierarchy for a constraint resource", () => {
-            const aSchema: RegularTypeSchema = {
+            const aSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "A" as Name,
                     package: "test",
@@ -46,7 +46,7 @@ describe("TypeSchema Index", () => {
                 },
             };
 
-            const bSchema: RegularTypeSchema = {
+            const bSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "B" as Name,
                     package: "test",
@@ -63,7 +63,7 @@ describe("TypeSchema Index", () => {
         });
 
         it("should return single item for types without base", () => {
-            const aSchema: RegularTypeSchema = {
+            const aSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "A" as Name,
                     package: "test",
@@ -80,7 +80,7 @@ describe("TypeSchema Index", () => {
         });
 
         it("should handle a schema without a base reference", () => {
-            const bSchema: RegularTypeSchema = {
+            const bSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "B" as Name,
                     package: "test",
@@ -98,7 +98,7 @@ describe("TypeSchema Index", () => {
         });
 
         it("should handle multi-level constraint hierarchy", () => {
-            const aSchema: RegularTypeSchema = {
+            const aSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "A" as Name,
                     package: "test",
@@ -108,7 +108,7 @@ describe("TypeSchema Index", () => {
                 },
             };
 
-            const bSchema: RegularTypeSchema = {
+            const bSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "B" as Name,
                     package: "test",
@@ -119,7 +119,7 @@ describe("TypeSchema Index", () => {
                 base: aSchema.identifier,
             };
 
-            const cSchema: RegularTypeSchema = {
+            const cSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "C" as Name,
                     package: "test",
@@ -137,7 +137,7 @@ describe("TypeSchema Index", () => {
         });
 
         it("should throw an error when base type cannot be resolved", () => {
-            const bSchema: RegularTypeSchema = {
+            const bSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "B" as Name,
                     package: "test",
@@ -162,7 +162,7 @@ describe("TypeSchema Index", () => {
         });
 
         it("should handle packages with different casing", () => {
-            const aSchema: RegularTypeSchema = {
+            const aSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "A" as Name,
                     package: "test",
@@ -172,7 +172,7 @@ describe("TypeSchema Index", () => {
                 },
             };
 
-            const bSchema: RegularTypeSchema = {
+            const bSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "B" as Name,
                     package: "TEST",
@@ -192,7 +192,7 @@ describe("TypeSchema Index", () => {
 
     describe("typeFamily", () => {
         it("should populate typeFamily.resources on resource schemas with children", () => {
-            const resourceSchema: RegularTypeSchema = {
+            const resourceSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "Resource" as Name,
                     package: "test",
@@ -201,7 +201,7 @@ describe("TypeSchema Index", () => {
                     url: "http://example.org/StructureDefinition/Resource" as CanonicalUrl,
                 },
             };
-            const domainSchema: RegularTypeSchema = {
+            const domainSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "DomainResource" as Name,
                     package: "test",
@@ -211,7 +211,7 @@ describe("TypeSchema Index", () => {
                 },
                 base: resourceSchema.identifier,
             };
-            const patientSchema: RegularTypeSchema = {
+            const patientSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "Patient" as Name,
                     package: "test",
@@ -236,7 +236,7 @@ describe("TypeSchema Index", () => {
         });
 
         it("should populate typeFamily.complexTypes on complex-type hierarchies", () => {
-            const elementSchema: RegularTypeSchema = {
+            const elementSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "Element" as Name,
                     package: "test",
@@ -245,7 +245,7 @@ describe("TypeSchema Index", () => {
                     url: "http://example.org/StructureDefinition/Element" as CanonicalUrl,
                 },
             };
-            const backboneSchema: RegularTypeSchema = {
+            const backboneSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "BackboneElement" as Name,
                     package: "test",
@@ -266,7 +266,7 @@ describe("TypeSchema Index", () => {
         });
 
         it("should populate both resources and complexTypes for mixed hierarchies", () => {
-            const resourceSchema: RegularTypeSchema = {
+            const resourceSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "Resource" as Name,
                     package: "test",
@@ -275,7 +275,7 @@ describe("TypeSchema Index", () => {
                     url: "http://example.org/StructureDefinition/Resource" as CanonicalUrl,
                 },
             };
-            const patientSchema: RegularTypeSchema = {
+            const patientSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "Patient" as Name,
                     package: "test",
@@ -285,7 +285,7 @@ describe("TypeSchema Index", () => {
                 },
                 base: resourceSchema.identifier,
             };
-            const elementSchema: RegularTypeSchema = {
+            const elementSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "Element" as Name,
                     package: "test",
@@ -294,7 +294,7 @@ describe("TypeSchema Index", () => {
                     url: "http://example.org/StructureDefinition/Element" as CanonicalUrl,
                 },
             };
-            const codingSchema: RegularTypeSchema = {
+            const codingSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "Coding" as Name,
                     package: "test",
@@ -316,7 +316,7 @@ describe("TypeSchema Index", () => {
 
     describe("flatProfile", () => {
         it("should flatten a profile with a single constraint", () => {
-            const baseSchema: RegularTypeSchema = {
+            const baseSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "Base" as Name,
                     package: "test",
@@ -359,7 +359,7 @@ describe("TypeSchema Index", () => {
         });
 
         it("should merge fields from multiple constraints", () => {
-            const baseSchema: RegularTypeSchema = {
+            const baseSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "Base" as Name,
                     package: "test",
@@ -427,7 +427,7 @@ describe("TypeSchema Index", () => {
         });
 
         it("should override fields when merged", () => {
-            const baseSchema: RegularTypeSchema = {
+            const baseSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "Base" as Name,
                     package: "test",
@@ -490,7 +490,7 @@ describe("TypeSchema Index", () => {
         });
 
         it("should handle constraints without fields", () => {
-            const baseSchema: RegularTypeSchema = {
+            const baseSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "Base" as Name,
                     package: "test",
@@ -564,7 +564,7 @@ describe("TypeSchema Index", () => {
         });
 
         it("should preserve identifier from original schema", () => {
-            const baseSchema: RegularTypeSchema = {
+            const baseSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "Base" as Name,
                     package: "test",

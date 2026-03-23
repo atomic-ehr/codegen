@@ -5,7 +5,11 @@ import { pascalCase, uppercaseFirstLetter, uppercaseFirstLetterOfEach } from "@r
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
 import type { PartialBy } from "@root/utils/types.ts";
 import type { Field, Identifier, RegularField } from "@typeschema/types";
-import { type ChoiceFieldInstance, isChoiceDeclarationField, type RegularTypeSchema } from "@typeschema/types.ts";
+import {
+    type ChoiceFieldInstance,
+    isChoiceDeclarationField,
+    type SpecializationTypeSchema,
+} from "@typeschema/types.ts";
 import type { TypeSchemaIndex } from "@typeschema/utils.ts";
 import { formatEnumEntry, formatName } from "./formatHelper.ts";
 
@@ -49,12 +53,12 @@ const getFieldModifiers = (field: Field) => {
     return field.required ? ["required"] : [];
 };
 
-const formatClassName = (schema: RegularTypeSchema) => {
+const formatClassName = (schema: SpecializationTypeSchema) => {
     const name = prefixReservedTypeName(getResourceName(schema.identifier));
     return uppercaseFirstLetter(name);
 };
 
-const formatBaseClass = (schema: RegularTypeSchema) => {
+const formatBaseClass = (schema: SpecializationTypeSchema) => {
     return schema.base ? `: ${schema.base.name}` : "";
 };
 
@@ -122,8 +126,8 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
     }
 
     private generateAllFiles(
-        complexTypes: RegularTypeSchema[],
-        resources: RegularTypeSchema[],
+        complexTypes: SpecializationTypeSchema[],
+        resources: SpecializationTypeSchema[],
         packages: string[],
     ): void {
         this.generateUsingFile(packages);
@@ -134,7 +138,7 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
         this.generateHelperFile();
     }
 
-    private generateType(schema: RegularTypeSchema, packageName: string): void {
+    private generateType(schema: SpecializationTypeSchema, packageName: string): void {
         const className = formatClassName(schema);
         const baseClass = formatBaseClass(schema);
 
@@ -147,7 +151,7 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
         this.line();
     }
 
-    private generateFields(schema: RegularTypeSchema, packageName: string): void {
+    private generateFields(schema: SpecializationTypeSchema, packageName: string): void {
         if (!schema.fields) return;
 
         const sortedFields = Object.entries(schema.fields).sort(([a], [b]) => a.localeCompare(b));
@@ -157,7 +161,7 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
         }
     }
 
-    private generateNestedTypes(schema: RegularTypeSchema, packageName: string): void {
+    private generateNestedTypes(schema: SpecializationTypeSchema, packageName: string): void {
         if (!("nested" in schema) || !schema.nested) return;
 
         this.line();
@@ -257,7 +261,7 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
         for (const using of globalUsings) this.lineSM("global", "using", using);
     }
 
-    private generateBaseTypes(complexTypes: RegularTypeSchema[]): void {
+    private generateBaseTypes(complexTypes: SpecializationTypeSchema[]): void {
         this.cd("/", async () => {
             this.cat("base.cs", () => {
                 this.generateDisclaimer();
@@ -272,11 +276,11 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
         });
     }
 
-    private generateResources(resources: RegularTypeSchema[]): void {
+    private generateResources(resources: SpecializationTypeSchema[]): void {
         for (const schema of resources) this.generateResourceFile(schema);
     }
 
-    private generateResourceFile(schema: RegularTypeSchema): void {
+    private generateResourceFile(schema: SpecializationTypeSchema): void {
         const packageName = formatName(schema.identifier.package);
 
         this.cd(`/${packageName}`, async () => {
@@ -328,7 +332,7 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
         this.line();
     }
 
-    private generateResourceDictionaries(resources: RegularTypeSchema[], packages: string[]): void {
+    private generateResourceDictionaries(resources: SpecializationTypeSchema[], packages: string[]): void {
         this.cd("/", async () => {
             for (const packageName of packages) {
                 const packageResources = resources.filter((r) => formatName(r.identifier.package) === packageName);
@@ -345,7 +349,7 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
         });
     }
 
-    private generateResourceDictionaryClass(packageName: string, resources: RegularTypeSchema[]): void {
+    private generateResourceDictionaryClass(packageName: string, resources: SpecializationTypeSchema[]): void {
         this.curlyBlock(["public", "static", "class", "ResourceDictionary"], () => {
             this.curlyBlock(["public static readonly Dictionary<Type, string> Map = new()"], () => {
                 for (const schema of resources) {
