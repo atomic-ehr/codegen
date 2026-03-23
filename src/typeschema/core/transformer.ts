@@ -19,6 +19,7 @@ import {
     packageMetaToFhir,
     type RichFHIRSchema,
     type RichValueSet,
+    type SpecializationTypeSchema,
     type TypeIdentifier,
     type TypeSchema,
     type ValueSetTypeSchema,
@@ -171,7 +172,7 @@ export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSche
         };
     } else {
         const rawDeps = extractDependencies(identifier, base, fields, nested);
-        typeSchema = {
+        const specialization: SpecializationTypeSchema = {
             identifier,
             base,
             fields,
@@ -179,7 +180,8 @@ export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSche
             description: fhirSchema.description,
             dependencies: rawDeps,
             typeFamily: undefined, // NOTE: should be populateTypeFamily later.
-        } as TypeSchema;
+        };
+        typeSchema = specialization;
     }
 
     const bindingSchemas = collectBindingSchemas(register, fhirSchema, logger);
