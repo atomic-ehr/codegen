@@ -94,8 +94,8 @@ type IdentifierBase = {
 };
 
 type PrimitiveIdentifier = { kind: "primitive-type" } & IdentifierBase;
-type ComplexTypeIdentifier = { kind: "complex-type" } & IdentifierBase;
-type ResourceIdentifier = { kind: "resource" } & IdentifierBase;
+export type ComplexTypeIdentifier = { kind: "complex-type" } & IdentifierBase;
+export type ResourceIdentifier = { kind: "resource" } & IdentifierBase;
 export type ValueSetIdentifier = { kind: "value-set" } & IdentifierBase;
 export type NestedIdentifier = { kind: "nested" } & IdentifierBase;
 export type BindingIdentifier = { kind: "binding" } & IdentifierBase;
@@ -271,6 +271,11 @@ export interface RegularTypeSchema {
     fields?: { [k: string]: Field };
     nested?: NestedType[];
     dependencies?: Identifier[];
+    /** Transitive children grouped by kind (e.g. Resource → { resources: [DomainResource, Patient, …] }) */
+    typeFamily?: {
+        resources?: ResourceIdentifier[];
+        complexTypes?: ComplexTypeIdentifier[];
+    };
 }
 
 export interface RegularField {

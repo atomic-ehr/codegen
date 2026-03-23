@@ -60,12 +60,12 @@ export const resolveTs = async (
 ) => {
     const rfs = register.resolveFs(pkgMeta, url as CanonicalUrl);
     if (!rfs) throw new Error("Failed to resolve registered FHIR schema");
-    return await transformFhirSchema(register, rfs, logger);
+    return transformFhirSchema(register, rfs, logger);
 };
 
 export const registerFsAndMkTs = async (register: Register, fs: PFS, logger: CodegenLog) => {
     const rfs = registerFs(register, fs);
-    return await transformFhirSchema(register, rfs, logger);
+    return transformFhirSchema(register, rfs, logger);
 };
 
 export const transformVS = async (register: Register, pkg: PackageMeta, vs: PVS) => {

@@ -122,17 +122,15 @@ export class ViewModelFactory {
     }
 
     private _createChildrenFor(typeRef: Identifier, cache: ViewModelCache, nestedIn?: TypeSchema): TypeViewModel[] {
+        const schema = this.tsIndex.resolve(typeRef);
+        if (!schema || !("typeFamily" in schema)) return [];
         if (isComplexTypeIdentifier(typeRef)) {
-            return this.tsIndex
-                .resourceChildren(typeRef)
-                .filter(isComplexTypeIdentifier)
+            return (schema.typeFamily?.complexTypes ?? [])
                 .filter(this.filterPred)
                 .map((childRef: Identifier) => this._createFor(childRef, cache, nestedIn));
         }
         if (isResourceIdentifier(typeRef)) {
-            return this.tsIndex
-                .resourceChildren(typeRef)
-                .filter(isResourceIdentifier)
+            return (schema.typeFamily?.resources ?? [])
                 .filter(this.filterPred)
                 .map((childRef: Identifier) => this._createFor(childRef, cache, nestedIn));
         }

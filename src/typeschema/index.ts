@@ -118,7 +118,7 @@ export const generateTypeSchemas = async (
             continue;
         }
 
-        for (const schema of await transformFhirSchema(register, fhirSchema, logger)) {
+        for (const schema of transformFhirSchema(register, fhirSchema, logger)) {
             schemasWithSources.push({
                 schema,
                 sourcePackage: pkgId,
