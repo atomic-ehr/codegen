@@ -123,6 +123,7 @@ FHIR Package → TypeSchema Generator → TypeSchema Format → Code Generators 
 - In code generators (writer-generator): use `curlyBlock` and `squareBlock` helpers for writing structured output instead of manual indent/deindent or string concatenation
 - Use `Record` instead of `Map` unless there is a significant reason for `Map` (e.g. non-string keys, iteration order guarantees, frequent deletion)
 - Prefer single-line guard clauses without braces: `if (!x) throw new Error("...");` instead of wrapping in `{ }`
+- Do not check `kind` of `Identifier`/`TypeIdentifier`/`TypeSchema` by manually comparing the `kind` field. Use dedicated predicates (`isPrimitiveIdentifier`, `isSpecializationTypeSchema`, etc.)
 
 ### Testing Strategy
 - Uses Bun's built-in test runner

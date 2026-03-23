@@ -1,4 +1,4 @@
-import type { Field, NestedType, TypeIdentifier, TypeSchema } from "@typeschema/types";
+import type { Field, NestedTypeSchema, TypeIdentifier, TypeSchema } from "@typeschema/types";
 
 export type NameTransformation = {
     pattern: RegExp | string;
@@ -86,7 +86,7 @@ export class NameGenerator {
         return this._generateTypeFromTypeRef((schema as any).type);
     }
 
-    public generateType(schemaOrRefOrString: TypeSchema | NestedType | TypeIdentifier | string): string {
+    public generateType(schemaOrRefOrString: TypeSchema | NestedTypeSchema | TypeIdentifier | string): string {
         if (typeof schemaOrRefOrString === "string") {
             return this._generateTypeName(schemaOrRefOrString);
         }

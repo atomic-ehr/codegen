@@ -137,6 +137,12 @@ export const isProfileIdentifier = (id: TypeIdentifier | undefined): id is Profi
     return id?.kind === "profile";
 };
 
+export const isSpecializationIdentifier = (
+    id: TypeIdentifier | undefined,
+): id is ResourceIdentifier | ComplexTypeIdentifier | LogicalIdentifier => {
+    return isResourceIdentifier(id) || isComplexTypeIdentifier(id) || isLogicalIdentifier(id);
+};
+
 export const concatIdentifiers = <T extends TypeIdentifier = TypeIdentifier>(
     ...sources: (T[] | undefined)[]
 ): T[] | undefined => {
@@ -200,7 +206,7 @@ interface PrimitiveTypeSchema {
     dependencies?: TypeIdentifier[];
 }
 
-export interface NestedType {
+export interface NestedTypeSchema {
     identifier: NestedIdentifier;
     base: TypeIdentifier;
     fields: Record<string, Field>;
@@ -213,7 +219,7 @@ export interface ProfileTypeSchema {
     fields?: Record<string, Field>;
     extensions?: ProfileExtension[];
     dependencies?: TypeIdentifier[];
-    nested?: NestedType[];
+    nested?: NestedTypeSchema[];
 }
 
 export type DiscriminatorType = "value" | "exists" | "pattern" | "type" | "profile";
@@ -272,7 +278,7 @@ type SpecializationTypeSchemaBody = {
     base?: TypeIdentifier;
     description?: string;
     fields?: { [k: string]: Field };
-    nested?: NestedType[];
+    nested?: NestedTypeSchema[];
     dependencies?: Identifier[];
     /** Transitive children grouped by kind (e.g. Resource → { resources: [DomainResource, Patient, …] }) */
     typeFamily?: TypeFamily;
@@ -283,11 +289,13 @@ export type TypeFamily = {
     complexTypes?: ComplexTypeIdentifier[];
 };
 
-export type ResourceTypeSchema = { identifier: ResourceIdentifier } & SpecializationTypeSchemaBody;
-export type ComplexTypeTypeSchema = { identifier: ComplexTypeIdentifier } & SpecializationTypeSchemaBody;
-export type LogicalTypeSchema = { identifier: LogicalIdentifier } & SpecializationTypeSchemaBody;
+export type SpecializationTypeSchema = {
+    identifier: ResourceIdentifier | ComplexTypeIdentifier | LogicalIdentifier;
+} & SpecializationTypeSchemaBody;
 
-export type SpecializationTypeSchema = ResourceTypeSchema | ComplexTypeTypeSchema | LogicalTypeSchema;
+export type ResourceTypeSchema = SpecializationTypeSchema & { identifier: ResourceIdentifier };
+export type ComplexTypeTypeSchema = SpecializationTypeSchema & { identifier: ComplexTypeIdentifier };
+export type LogicalTypeSchema = SpecializationTypeSchema & { identifier: LogicalIdentifier };
 
 export interface RegularField {
     type: TypeIdentifier;

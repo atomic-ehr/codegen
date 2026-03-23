@@ -58,6 +58,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 name: "string",
                 type: "string",
                 kind: "primitive-type",
+                base: "http://hl7.org/fhir/StructureDefinition/Element",
                 url: "http://hl7.org/fhir/StructureDefinition/string",
                 class: "",
             };

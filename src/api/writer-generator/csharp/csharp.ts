@@ -8,7 +8,7 @@ import type { Field, RegularField, TypeIdentifier } from "@typeschema/types";
 import {
     type ChoiceFieldInstance,
     isChoiceDeclarationField,
-    type NestedType,
+    type NestedTypeSchema,
     type SpecializationTypeSchema,
 } from "@typeschema/types.ts";
 import type { TypeSchemaIndex } from "@typeschema/utils.ts";
@@ -54,12 +54,12 @@ const getFieldModifiers = (field: Field) => {
     return field.required ? ["required"] : [];
 };
 
-const formatClassName = (schema: SpecializationTypeSchema | NestedType) => {
+const formatClassName = (schema: SpecializationTypeSchema | NestedTypeSchema) => {
     const name = prefixReservedTypeName(getResourceName(schema.identifier));
     return uppercaseFirstLetter(name);
 };
 
-const formatBaseClass = (schema: SpecializationTypeSchema | NestedType) => {
+const formatBaseClass = (schema: SpecializationTypeSchema | NestedTypeSchema) => {
     return schema.base ? `: ${schema.base.name}` : "";
 };
 
@@ -139,7 +139,7 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
         this.generateHelperFile();
     }
 
-    private generateType(schema: SpecializationTypeSchema | NestedType, packageName: string): void {
+    private generateType(schema: SpecializationTypeSchema | NestedTypeSchema, packageName: string): void {
         const className = formatClassName(schema);
         const baseClass = formatBaseClass(schema);
 
@@ -152,7 +152,7 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
         this.line();
     }
 
-    private generateFields(schema: SpecializationTypeSchema | NestedType, packageName: string): void {
+    private generateFields(schema: SpecializationTypeSchema | NestedTypeSchema, packageName: string): void {
         if (!schema.fields) return;
 
         const sortedFields = Object.entries(schema.fields).sort(([a], [b]) => a.localeCompare(b));
@@ -162,7 +162,7 @@ export class CSharp extends Writer<CSharpGeneratorOptions> {
         }
     }
 
-    private generateNestedTypes(schema: SpecializationTypeSchema | NestedType, packageName: string): void {
+    private generateNestedTypes(schema: SpecializationTypeSchema | NestedTypeSchema, packageName: string): void {
         if (!("nested" in schema) || !schema.nested) return;
 
         this.line();

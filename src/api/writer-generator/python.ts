@@ -9,7 +9,7 @@ import {
     type EnumDefinition,
     type Field,
     isResourceTypeSchema,
-    type NestedType,
+    type NestedTypeSchema,
     type SpecializationTypeSchema,
     type TypeIdentifier,
 } from "@typeschema/types.ts";
@@ -410,7 +410,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
             this.pyImportFrom(`${this.opts.rootPackageName}.fhirpy_base_model`, "FhirpyBaseModel");
     }
 
-    private generateType(schema: SpecializationTypeSchema | NestedType): void {
+    private generateType(schema: SpecializationTypeSchema | NestedTypeSchema): void {
         const className = deriveResourceName(schema.identifier);
         const superClasses = this.getSuperClasses(schema);
 
@@ -421,7 +421,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         this.line();
     }
 
-    private getSuperClasses(schema: SpecializationTypeSchema | NestedType): string[] {
+    private getSuperClasses(schema: SpecializationTypeSchema | NestedTypeSchema): string[] {
         const bases: string[] = [];
         if (schema.base) bases.push(schema.base.name);
         bases.push(...this.injectSuperClasses(schema.identifier.url));
@@ -429,7 +429,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         return bases;
     }
 
-    private generateClassBody(schema: SpecializationTypeSchema | NestedType): void {
+    private generateClassBody(schema: SpecializationTypeSchema | NestedTypeSchema): void {
         this.generateModelConfig();
 
         if (!schema.fields) {
@@ -474,7 +474,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         this.line(")");
     }
 
-    private generateFields(schema: SpecializationTypeSchema | NestedType, schemaName: string): void {
+    private generateFields(schema: SpecializationTypeSchema | NestedTypeSchema, schemaName: string): void {
         const sortedFields = Object.entries(schema.fields ?? []).sort(([a], [b]) => a.localeCompare(b));
 
         for (const [fieldName, field] of sortedFields) {

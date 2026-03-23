@@ -55,7 +55,7 @@ describe("TypeSchema R4 generation", async () => {
         if (!md) {
             throw new Error("markdown type not found");
         }
-        const ts = (await registerFsAndMkTs(r4, md, logger))[0] as SpecializationTypeSchema;
+        const ts = (await registerFsAndMkTs(r4, md, logger))[0];
         expect(ts).toMatchObject({
             identifier: {
                 kind: "primitive-type",
@@ -63,8 +63,6 @@ describe("TypeSchema R4 generation", async () => {
                 url: "http://hl7.org/fhir/StructureDefinition/markdown",
             },
             base: { url: "http://hl7.org/fhir/StructureDefinition/string" },
-            fields: undefined,
-            nested: undefined,
             dependencies: [{ url: "http://hl7.org/fhir/StructureDefinition/string" }],
         });
     });

@@ -942,6 +942,7 @@ exports[`FHIR Schema to Type Schema (snapshot) Real world examples string primit
       "name": "string",
       "url": "http://hl7.org/fhir/StructureDefinition/string"
     },
+    "description": "Base StructureDefinition for string Type: A sequence of Unicode characters",
     "base": {
       "kind": "complex-type",
       "package": "hl7.fhir.r4.core",
@@ -949,7 +950,6 @@ exports[`FHIR Schema to Type Schema (snapshot) Real world examples string primit
       "name": "Element",
       "url": "http://hl7.org/fhir/StructureDefinition/Element"
     },
-    "description": "Base StructureDefinition for string Type: A sequence of Unicode characters",
     "dependencies": [
       {
         "kind": "complex-type",

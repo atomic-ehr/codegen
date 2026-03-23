@@ -20,7 +20,7 @@ import {
     isResourceTypeSchema,
     isSpecializationTypeSchema,
     type LogicalTypeSchema,
-    type NestedType,
+    type NestedTypeSchema,
     type PkgName,
     type ProfileExtension,
     type ProfileTypeSchema,
@@ -193,7 +193,7 @@ export const mkTypeSchemaIndex = (
     },
 ): TypeSchemaIndex => {
     const index: Record<CanonicalUrl, Record<PkgName, TypeSchema>> = {};
-    const nestedIndex: Record<CanonicalUrl, Record<PkgName, NestedType>> = {};
+    const nestedIndex: Record<CanonicalUrl, Record<PkgName, NestedTypeSchema>> = {};
     const append = (schema: TypeSchema) => {
         const url = schema.identifier.url;
         const pkg = schema.identifier.package;

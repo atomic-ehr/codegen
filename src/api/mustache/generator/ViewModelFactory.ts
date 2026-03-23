@@ -15,10 +15,10 @@ import type { IsPrefixed } from "@root/utils/types";
 import {
     type ChoiceFieldInstance,
     type Field,
-    isComplexTypeIdentifier,
+    isComplexTypeTypeSchema,
     isNotChoiceDeclarationField,
-    isResourceIdentifier,
-    type NestedType,
+    isResourceTypeSchema,
+    type NestedTypeSchema,
     type RegularField,
     type TypeIdentifier,
     type TypeSchema,
@@ -127,13 +127,13 @@ export class ViewModelFactory {
 
     private _createChildrenFor(typeRef: TypeIdentifier, cache: ViewModelCache, nestedIn?: TypeSchema): TypeViewModel[] {
         const schema = this.tsIndex.resolve(typeRef);
-        if (!schema || !("typeFamily" in schema)) return [];
-        if (isComplexTypeIdentifier(typeRef)) {
+        if (!schema) return [];
+        if (isComplexTypeTypeSchema(schema)) {
             return (schema.typeFamily?.complexTypes ?? [])
                 .filter(this.filterPred)
                 .map((childRef: TypeIdentifier) => this._createFor(childRef, cache, nestedIn));
         }
-        if (isResourceIdentifier(typeRef)) {
+        if (isResourceTypeSchema(schema)) {
             return (schema.typeFamily?.resources ?? [])
                 .filter(this.filterPred)
                 .map((childRef: TypeIdentifier) => this._createFor(childRef, cache, nestedIn));
@@ -141,7 +141,7 @@ export class ViewModelFactory {
         return [];
     }
 
-    private _createParentsFor(base: TypeSchema | NestedType, cache: ViewModelCache) {
+    private _createParentsFor(base: TypeSchema | NestedTypeSchema, cache: ViewModelCache) {
         const parents: TypeViewModel[] = [];
         let parentRef: TypeIdentifier | undefined = "base" in base ? base.base : undefined;
         while (parentRef) {
@@ -153,7 +153,7 @@ export class ViewModelFactory {
     }
 
     private _createForNestedType(
-        nested: NestedType,
+        nested: NestedTypeSchema,
         cache: ViewModelCache,
         nestedIn?: TypeSchema,
     ): ResolvedTypeViewModel {
@@ -175,7 +175,7 @@ export class ViewModelFactory {
     }
 
     private _createTypeViewModel(
-        schema: TypeSchema | NestedType,
+        schema: TypeSchema | NestedTypeSchema,
         cache: ViewModelCache,
         nestedIn?: TypeSchema,
     ): TypeViewModel {
@@ -233,7 +233,7 @@ export class ViewModelFactory {
         };
     }
 
-    private _collectDependencies(schema: TypeSchema | NestedType): TypeViewModel["dependencies"] {
+    private _collectDependencies(schema: TypeSchema | NestedTypeSchema): TypeViewModel["dependencies"] {
         const dependencies: TypeViewModel["dependencies"] = {
             resources: [],
             complexTypes: [],
@@ -315,7 +315,7 @@ export class ViewModelFactory {
     }
 
     private _collectNestedComplex(
-        schema: TypeSchema | NestedType,
+        schema: TypeSchema | NestedTypeSchema,
         cache: ViewModelCache,
     ): ResolvedTypeViewModel[] {
         const nested: ResolvedTypeViewModel[] = [];

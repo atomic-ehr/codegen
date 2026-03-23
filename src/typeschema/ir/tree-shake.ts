@@ -192,12 +192,12 @@ export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _lo
 
     if (rule.selectFields) {
         if (rule.ignoreFields) throw new Error("Cannot use both ignoreFields and selectFields in the same rule");
-        mutableSelectFields(schema as SpecializationTypeSchema, rule.selectFields);
+        mutableSelectFields(schema, rule.selectFields);
     }
 
     if (rule.ignoreFields) {
         if (rule.selectFields) throw new Error("Cannot use both ignoreFields and selectFields in the same rule");
-        mutableIgnoreFields(schema as SpecializationTypeSchema, rule.ignoreFields);
+        mutableIgnoreFields(schema, rule.ignoreFields);
     }
 
     if (isProfileTypeSchema(schema) && rule.ignoreExtensions) {
@@ -220,7 +220,7 @@ export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _lo
                     }
                 });
         };
-        collectUsedNestedTypes(schema as SpecializationTypeSchema);
+        collectUsedNestedTypes(schema);
         schema.nested = schema.nested.filter((n) => usedTypes.has(n.identifier.url));
     }
 
@@ -267,13 +267,8 @@ export const treeShake = (tsIndex: TypeSchemaIndex, treeShake: TreeShakeConf): T
                     const id = JSON.stringify(depSchema.identifier);
                     if (!acc[id]) newSchemas.push(depSchema);
                 });
-                if (schema.nested) {
-                    for (const nest of schema.nested) {
-                        if (isNestedIdentifier(nest.identifier)) continue;
-                        const id = JSON.stringify(nest.identifier);
-                        if (!acc[id]) newSchemas.push(nest as unknown as TypeSchema);
-                    }
-                }
+                // NOTE: nested types' deps are already included in the parent's dependencies
+                // via extractNestedDependencies, so no need to collect them separately.
             }
         }
         return collectDeps(newSchemas, acc);

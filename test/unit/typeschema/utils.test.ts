@@ -6,7 +6,6 @@ import type {
     RegularField,
     SpecializationTypeSchema,
     TypeIdentifier,
-    TypeSchema,
 } from "@typeschema/types";
 import { mkTypeSchemaIndex } from "@typeschema/utils";
 
@@ -81,16 +80,15 @@ describe("TypeSchema Index", () => {
         });
 
         it("should handle a schema without a base reference", () => {
-            const bSchema: TypeSchema = {
+            const bSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "B" as Name,
                     package: "test",
-                    kind: "profile",
+                    kind: "resource",
                     version: "1.0.0",
                     url: "http://example.org/StructureDefinition/B" as CanonicalUrl,
                 },
-                // No base provided
-            } as TypeSchema;
+            };
 
             const index = mkTypeSchemaIndex([bSchema], {});
             const result = index.hierarchy(bSchema);
