@@ -271,7 +271,7 @@ export interface SpecializationTypeSchema {
     description?: string;
     fields?: { [k: string]: Field };
     nested?: NestedTypeSchema[];
-    dependencies?: TypeIdentifier[];
+    dependencies?: Identifier[];
     /** Transitive children grouped by kind (e.g. Resource → { resources: [DomainResource, Patient, …] }) */
     typeFamily?: {
         resources?: ResourceIdentifier[];
