@@ -4,6 +4,7 @@
  * Core transformation logic for converting FHIRSchema to TypeSchema format
  */
 
+import assert from "node:assert";
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import { shouldSkipCanonical } from "@root/typeschema/skip-hack";
 import type { CodegenLog } from "@root/utils/log";
@@ -14,8 +15,8 @@ import {
     type Field,
     type Identifier,
     isNestedIdentifier,
+    isProfileIdentifier,
     type NestedTypeSchema,
-    type ProfileIdentifier,
     packageMetaToFhir,
     type RichFHIRSchema,
     type RichValueSet,
@@ -158,11 +159,15 @@ export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSche
     let typeSchema: TypeSchema;
     if (fhirSchema.derivation === "constraint") {
         if (!base) throw new Error(`Profile ${fhirSchema.url} must have a base type`);
+        assert(
+            isProfileIdentifier(identifier),
+            `Expected profile identifier for ${fhirSchema.url}, got ${identifier.kind}`,
+        );
         const extensions = extractProfileExtensions(register, fhirSchema, logger);
         const extensionDeps = extensions?.flatMap(extractExtensionDeps);
         const rawDeps = extractProfileDependencies(identifier, base, fields, nested);
         typeSchema = {
-            identifier: identifier as ProfileIdentifier,
+            identifier,
             base,
             fields,
             nested,
