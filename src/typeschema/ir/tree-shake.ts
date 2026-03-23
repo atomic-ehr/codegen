@@ -15,7 +15,7 @@ import {
     isProfileTypeSchema,
     isSpecializationTypeSchema,
     isValueSetTypeSchema,
-    type NestedType,
+    type NestedTypeSchema,
     type PkgName,
     type ProfileTypeSchema,
     type SpecializationTypeSchema,
@@ -207,7 +207,7 @@ export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _lo
 
     if (schema.nested) {
         const usedTypes = new Set<CanonicalUrl>();
-        const collectUsedNestedTypes = (s: SpecializationTypeSchema | NestedType) => {
+        const collectUsedNestedTypes = (s: SpecializationTypeSchema | NestedTypeSchema) => {
             Object.values(s.fields ?? {})
                 .filter(isNotChoiceDeclarationField)
                 .filter((f) => isNestedIdentifier(f.type))

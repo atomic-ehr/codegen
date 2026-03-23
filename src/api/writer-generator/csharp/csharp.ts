@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { pascalCase, uppercaseFirstLetter, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils.ts";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
 import type { PartialBy } from "@root/utils/types.ts";
-import type { Field, Identifier, RegularField } from "@typeschema/types";
+import type { Field, RegularField, TypeIdentifier } from "@typeschema/types";
 import {
     type ChoiceFieldInstance,
     isChoiceDeclarationField,
@@ -74,7 +74,7 @@ const canonicalToName = (canonical: string | undefined, dropFragment = true): st
     return formatName(localName);
 };
 
-const getResourceName = (id: Identifier): string => {
+const getResourceName = (id: TypeIdentifier): string => {
     if (id.kind === "nested") {
         const url = id.url;
         const path = canonicalToName(url, false);

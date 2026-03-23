@@ -15,10 +15,10 @@ import type {
     Field,
     FieldSlice,
     FieldSlicing,
-    Identifier,
     Name,
     RegularField,
     RichFHIRSchema,
+    TypeIdentifier,
     ValueConstraint,
 } from "../types";
 import { BINDABLE_TYPES, buildEnum } from "./binding";
@@ -64,7 +64,7 @@ const buildReferences = (
     register: Register,
     fhirSchema: RichFHIRSchema,
     element: FHIRSchemaElement,
-): Identifier[] | undefined => {
+): TypeIdentifier[] | undefined => {
     if (!element.refers) return undefined;
     return element.refers.map((ref) => {
         const curl = register.ensureSpecializationCanonicalUrl(ref as Name);
@@ -261,7 +261,7 @@ export function buildFieldType(
     path: string[],
     element: FHIRSchemaElement,
     logger?: CodegenLog,
-): Identifier | undefined {
+): TypeIdentifier | undefined {
     if (element.elementReference) {
         const refPath = element.elementReference
             .slice(1) // drop canonicalUrl
@@ -352,7 +352,7 @@ export const mkField = (
     }
 
     return {
-        type: fieldType as Identifier,
+        type: fieldType as TypeIdentifier,
         required: isRequired(register, fhirSchema, path),
         excluded: isExcluded(register, fhirSchema, path),
 

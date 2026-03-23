@@ -7,8 +7,9 @@ import {
     isProfileTypeSchema,
     isSpecializationTypeSchema,
     isValueSetTypeSchema,
-    type NestedType,
+    type NestedTypeSchema,
     type PkgName,
+    type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { LogicalPromotionConf } from "./types";
@@ -18,8 +19,8 @@ export const promoteLogical = (tsIndex: TypeSchemaIndex, promotes: LogicalPromot
         Object.entries(promotes).map(([pkg, urls]) => [pkg, new Set(urls)]),
     );
 
-    const identifierToString = (i: Identifier): string => `${i.package}-${i.version}-${i.kind}-${i.url}`;
-    const renames: Record<string, Identifier> = Object.fromEntries(
+    const identifierToString = (i: TypeIdentifier): string => `${i.package}-${i.version}-${i.kind}-${i.url}`;
+    const renames: Record<string, TypeIdentifier> = Object.fromEntries(
         tsIndex.schemas
             .map((schema) => {
                 const promo = promoteSets[schema.identifier.package]?.has(schema.identifier.url);
@@ -30,13 +31,13 @@ export const promoteLogical = (tsIndex: TypeSchemaIndex, promotes: LogicalPromot
             })
             .filter((e) => e !== undefined),
     );
-    const replace = (i: Identifier): Identifier => renames[identifierToString(i)] || i;
+    const replace = (i: TypeIdentifier): TypeIdentifier => renames[identifierToString(i)] || i;
     const replaceInFields = (fields: Record<string, Field> | undefined) => {
         if (!fields) return undefined;
         return Object.fromEntries(
             Object.entries(fields).map(([k, f]) => {
                 if (isChoiceDeclarationField(f)) return [k, f];
-                return [k, { ...f, type: f.type ? replace(f.type) : undefined }];
+                return [k, { ...f, type: f.type ? replace(f.type as Identifier) : undefined }];
             }),
         );
     };
@@ -49,7 +50,7 @@ export const promoteLogical = (tsIndex: TypeSchemaIndex, promotes: LogicalPromot
         cloned.dependencies = cloned.dependencies?.map(replace);
         if (isSpecializationTypeSchema(cloned) || isProfileTypeSchema(cloned)) {
             cloned.fields = replaceInFields(cloned.fields);
-            cloned.nested = cloned.nested?.map((n: NestedType) => {
+            cloned.nested = cloned.nested?.map((n: NestedTypeSchema) => {
                 return {
                     ...n,
                     base: replace(n.base),

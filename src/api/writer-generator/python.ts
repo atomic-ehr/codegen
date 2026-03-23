@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { camelCase, pascalCase, snakeCase, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
 import { groupByPackages, sortAsDeclarationSequence, type TypeSchemaIndex } from "@root/typeschema/utils";
-import type { EnumDefinition, Field, Identifier, SpecializationTypeSchema } from "@typeschema/types.ts";
+import type { EnumDefinition, Field, SpecializationTypeSchema, TypeIdentifier } from "@typeschema/types.ts";
 
 const PRIMITIVE_TYPE_MAP: Record<string, string> = {
     boolean: "bool",
@@ -125,7 +125,7 @@ const canonicalToName = (canonical: string | undefined, dropFragment = true) => 
     return snakeCase(localName);
 };
 
-const deriveResourceName = (id: Identifier): string => {
+const deriveResourceName = (id: TypeIdentifier): string => {
     if (id.kind === "nested") {
         const url = id.url;
         const path = canonicalToName(url, false);
@@ -585,7 +585,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         this.importResourceDependencies(schema.dependencies);
     }
 
-    private importComplexTypeDependencies(dependencies: Identifier[]): void {
+    private importComplexTypeDependencies(dependencies: TypeIdentifier[]): void {
         const complexTypeDeps = dependencies.filter((dep) => dep.kind === "complex-type");
         const depsByPackage = this.groupDependenciesByPackage(complexTypeDeps);
 
@@ -594,7 +594,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         }
     }
 
-    private importResourceDependencies(dependencies: Identifier[]): void {
+    private importResourceDependencies(dependencies: TypeIdentifier[]): void {
         const resourceDeps = dependencies.filter((dep) => dep.kind === "resource");
 
         for (const dep of resourceDeps) {
@@ -606,7 +606,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         }
     }
 
-    private groupDependenciesByPackage(dependencies: Identifier[]): ImportGroup {
+    private groupDependenciesByPackage(dependencies: TypeIdentifier[]): ImportGroup {
         const grouped: ImportGroup = {};
 
         for (const dep of dependencies) {
@@ -646,7 +646,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         this.line(")");
     }
 
-    private pyImportType(identifier: Identifier): void {
+    private pyImportType(identifier: TypeIdentifier): void {
         this.pyImportFrom(this.pyPackage(identifier), pascalCase(identifier.name));
     }
 
@@ -727,7 +727,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         return parts.join(".");
     }
 
-    private pyFhirPackage(identifier: Identifier): string {
+    private pyFhirPackage(identifier: TypeIdentifier): string {
         return this.pyFhirPackageByName(identifier.package);
     }
 
@@ -735,7 +735,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         return [this.opts.rootPackageName, this.buildPyPackageName(name)].join(".");
     }
 
-    private pyPackage(identifier: Identifier): string {
+    private pyPackage(identifier: TypeIdentifier): string {
         if (identifier.kind === "complex-type") {
             return `${this.pyFhirPackage(identifier)}.base`;
         }

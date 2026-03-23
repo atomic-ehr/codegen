@@ -106,42 +106,43 @@ export type Identifier =
     | PrimitiveIdentifier
     | ComplexTypeIdentifier
     | ResourceIdentifier
-    | NestedIdentifier
     | BindingIdentifier
     | ValueSetIdentifier
     | ProfileIdentifier
     | LogicalIdentifier;
 
-export const isResourceIdentifier = (id: Identifier | undefined): id is ResourceIdentifier => {
+export type TypeIdentifier = Identifier | NestedIdentifier;
+
+export const isResourceIdentifier = (id: TypeIdentifier | undefined): id is ResourceIdentifier => {
     return id?.kind === "resource";
 };
 
-export const isLogicalIdentifier = (id: Identifier | undefined): id is LogicalIdentifier => {
+export const isLogicalIdentifier = (id: TypeIdentifier | undefined): id is LogicalIdentifier => {
     return id?.kind === "logical";
 };
 
-export const isComplexTypeIdentifier = (id: Identifier | undefined): id is ComplexTypeIdentifier => {
+export const isComplexTypeIdentifier = (id: TypeIdentifier | undefined): id is ComplexTypeIdentifier => {
     return id?.kind === "complex-type";
 };
 
-export const isPrimitiveIdentifier = (id: Identifier | undefined): id is PrimitiveIdentifier => {
+export const isPrimitiveIdentifier = (id: TypeIdentifier | undefined): id is PrimitiveIdentifier => {
     return id?.kind === "primitive-type";
 };
 
-export const isNestedIdentifier = (id: Identifier | undefined): id is NestedIdentifier => {
+export const isNestedIdentifier = (id: TypeIdentifier | undefined): id is NestedIdentifier => {
     return id?.kind === "nested";
 };
 
-export const isProfileIdentifier = (id: Identifier | undefined): id is ProfileIdentifier => {
+export const isProfileIdentifier = (id: TypeIdentifier | undefined): id is ProfileIdentifier => {
     return id?.kind === "profile";
 };
 
-export const concatIdentifiers = (...sources: (Identifier[] | undefined)[]): Identifier[] | undefined => {
+export const concatIdentifiers = (...sources: (TypeIdentifier[] | undefined)[]): TypeIdentifier[] | undefined => {
     const entries = sources
-        .filter((s): s is Identifier[] => s !== undefined)
-        .flatMap((s) => s.map((id): [string, Identifier] => [id.url, id]));
+        .filter((s): s is TypeIdentifier[] => s !== undefined)
+        .flatMap((s) => s.map((id): [string, TypeIdentifier] => [id.url, id]));
     if (entries.length === 0) return undefined;
-    const deduped = Object.values(Object.fromEntries(entries) as Record<string, Identifier>);
+    const deduped = Object.values(Object.fromEntries(entries) as Record<string, TypeIdentifier>);
     return deduped.sort((a, b) => a.url.localeCompare(b.url));
 };
 
@@ -191,24 +192,24 @@ export function isValueSetTypeSchema(schema: TypeSchema | undefined): schema is 
 interface PrimitiveTypeSchema {
     identifier: PrimitiveIdentifier;
     description?: string;
-    base: Identifier;
-    dependencies?: Identifier[];
+    base: TypeIdentifier;
+    dependencies?: TypeIdentifier[];
 }
 
-export interface NestedType {
+export interface NestedTypeSchema {
     identifier: NestedIdentifier;
-    base: Identifier;
+    base: TypeIdentifier;
     fields: Record<string, Field>;
 }
 
 export interface ProfileTypeSchema {
     identifier: ProfileIdentifier;
-    base: Identifier;
+    base: TypeIdentifier;
     description?: string;
     fields?: Record<string, Field>;
     extensions?: ProfileExtension[];
-    dependencies?: Identifier[];
-    nested?: NestedType[];
+    dependencies?: TypeIdentifier[];
+    nested?: NestedTypeSchema[];
 }
 
 export type DiscriminatorType = "value" | "exists" | "pattern" | "type" | "profile";
@@ -223,7 +224,7 @@ export interface FieldSlicing {
 export type ConstrainedChoiceInfo = {
     choiceBase: string;
     variant: string;
-    variantType: Identifier;
+    variantType: TypeIdentifier;
     allChoiceNames: string[];
 };
 
@@ -239,7 +240,7 @@ export interface FieldSlice {
 export interface ExtensionSubField {
     name: string;
     url: string;
-    valueFieldType?: Identifier;
+    valueFieldType?: TypeIdentifier;
     min?: number;
     max?: string;
 }
@@ -252,12 +253,12 @@ export interface ProfileExtension {
     min?: number;
     max?: string;
     mustSupport?: boolean;
-    valueFieldTypes?: Identifier[];
+    valueFieldTypes?: TypeIdentifier[];
     subExtensions?: ExtensionSubField[];
     isComplex?: boolean;
 }
 
-export const extractExtensionDeps = (ext: ProfileExtension): Identifier[] => [
+export const extractExtensionDeps = (ext: ProfileExtension): TypeIdentifier[] => [
     ...(ext.valueFieldTypes ?? []),
     ...(ext.profile ? [ext.profile] : []),
     ...(ext.subExtensions?.flatMap((sub) => (sub.valueFieldType ? [sub.valueFieldType] : [])) ?? []),
@@ -265,12 +266,12 @@ export const extractExtensionDeps = (ext: ProfileExtension): Identifier[] => [
 
 export interface SpecializationTypeSchema {
     // TODO: restrict to ResourceIdentifier | ComplexTypeIdentifier | LogicalIdentifier
-    identifier: Identifier;
-    base?: Identifier;
+    identifier: TypeIdentifier;
+    base?: TypeIdentifier;
     description?: string;
     fields?: { [k: string]: Field };
-    nested?: NestedType[];
-    dependencies?: Identifier[];
+    nested?: NestedTypeSchema[];
+    dependencies?: TypeIdentifier[];
     /** Transitive children grouped by kind (e.g. Resource → { resources: [DomainResource, Patient, …] }) */
     typeFamily?: {
         resources?: ResourceIdentifier[];
@@ -279,8 +280,8 @@ export interface SpecializationTypeSchema {
 }
 
 export interface RegularField {
-    type: Identifier;
-    reference?: Identifier[];
+    type: TypeIdentifier;
+    reference?: TypeIdentifier[];
     required?: boolean;
     excluded?: boolean;
     array?: boolean;
@@ -305,11 +306,11 @@ export interface ChoiceFieldDeclaration {
 
 export interface ChoiceFieldInstance {
     choiceOf: string;
-    type: Identifier;
+    type: TypeIdentifier;
     required?: boolean;
     excluded?: boolean;
     array?: boolean;
-    reference?: Identifier[];
+    reference?: TypeIdentifier[];
     binding?: BindingIdentifier;
     enum?: EnumDefinition;
     min?: number;
@@ -343,7 +344,7 @@ export interface BindingTypeSchema {
     strength?: string;
     enum?: EnumDefinition;
     valueset?: ValueSetIdentifier;
-    dependencies?: Identifier[];
+    dependencies?: TypeIdentifier[];
 }
 
 export type Field = RegularField | ChoiceFieldDeclaration | ChoiceFieldInstance;

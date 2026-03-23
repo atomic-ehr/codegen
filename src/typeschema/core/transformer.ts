@@ -12,13 +12,13 @@ import {
     concatIdentifiers,
     extractExtensionDeps,
     type Field,
-    type Identifier,
     isNestedIdentifier,
     isProfileIdentifier,
-    type NestedType,
+    type NestedTypeSchema,
     packageMetaToFhir,
     type RichFHIRSchema,
     type RichValueSet,
+    type TypeIdentifier,
     type TypeSchema,
     type ValueSetTypeSchema,
 } from "@typeschema/types";
@@ -60,8 +60,8 @@ export function mkFields(
     return fields;
 }
 
-function extractFieldDependencies(fields: Record<string, Field>): Identifier[] {
-    const deps: Identifier[] = [];
+function extractFieldDependencies(fields: Record<string, Field>): TypeIdentifier[] {
+    const deps: TypeIdentifier[] = [];
 
     for (const field of Object.values(fields)) {
         if ("type" in field && field.type) {
@@ -93,11 +93,11 @@ export async function transformValueSet(
 }
 
 export function extractDependencies(
-    identifier: Identifier,
-    base: Identifier | undefined,
+    identifier: TypeIdentifier,
+    base: TypeIdentifier | undefined,
     fields: Record<string, Field> | undefined,
-    nestedTypes: NestedType[] | undefined,
-): Identifier[] | undefined {
+    nestedTypes: NestedTypeSchema[] | undefined,
+): TypeIdentifier[] | undefined {
     const deps = [];
     if (base) deps.push(base);
     if (fields) deps.push(...extractFieldDependencies(fields));
@@ -118,7 +118,7 @@ export function extractDependencies(
 export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSchema, logger?: CodegenLog): TypeSchema[] {
     const identifier = mkIdentifier(fhirSchema);
 
-    let base: Identifier | undefined;
+    let base: TypeIdentifier | undefined;
     if (fhirSchema.base) {
         const baseFs = register.resolveFs(
             fhirSchema.package_meta,

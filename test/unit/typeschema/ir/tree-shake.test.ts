@@ -9,11 +9,11 @@ import {
 import { registerFromPackageMetas } from "@root/typeschema/register";
 import type {
     CanonicalUrl,
-    Identifier,
     Name,
     ProfileIdentifier,
     ProfileTypeSchema,
     SpecializationTypeSchema,
+    TypeIdentifier,
 } from "@root/typeschema/types";
 import { mkIndex, mkR4Register, mkTestLogger, r4Package, r5Package, resolveTs } from "@typeschema-test/utils";
 
@@ -275,7 +275,7 @@ describe("treeShake specific TypeSchema", async () => {
 });
 
 describe("ignoreExtensions", () => {
-    const mkDep = (url: string): Identifier => ({
+    const mkDep = (url: string): TypeIdentifier => ({
         kind: "complex-type",
         name: url.split("/").pop()! as Name,
         url: url as CanonicalUrl,

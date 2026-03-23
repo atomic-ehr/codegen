@@ -1,14 +1,14 @@
 import { describe, expect, test } from "bun:test";
 import { tsResourceName } from "@root/api/writer-generator/typescript/name";
-import type { CanonicalUrl, Identifier, Name } from "@root/typeschema/types";
+import type { CanonicalUrl, Name, TypeIdentifier } from "@root/typeschema/types";
 
 const makeIdentifier = (props: {
-    kind: Identifier["kind"];
+    kind: TypeIdentifier["kind"];
     name: string;
     url?: string;
     package?: string;
     version?: string;
-}): Identifier => {
+}): TypeIdentifier => {
     return {
         kind: props.kind,
         package: props.package ?? "test-package",

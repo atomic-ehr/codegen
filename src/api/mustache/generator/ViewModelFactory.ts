@@ -15,12 +15,12 @@ import type { IsPrefixed } from "@root/utils/types";
 import {
     type ChoiceFieldInstance,
     type Field,
-    type Identifier,
     isComplexTypeIdentifier,
     isNotChoiceDeclarationField,
     isResourceIdentifier,
-    type NestedType,
+    type NestedTypeSchema,
     type RegularField,
+    type TypeIdentifier,
     type TypeSchema,
 } from "@typeschema/types";
 
@@ -35,7 +35,7 @@ export class ViewModelFactory {
     constructor(
         private readonly tsIndex: TypeSchemaIndex,
         private readonly nameGenerator: NameGenerator,
-        private readonly filterPred: (id: Identifier) => boolean,
+        private readonly filterPred: (id: TypeIdentifier) => boolean,
     ) {}
 
     public createUtility(): RootViewModel<ViewModel> {
@@ -43,7 +43,7 @@ export class ViewModelFactory {
     }
 
     public createComplexType(
-        typeRef: Identifier,
+        typeRef: TypeIdentifier,
         cache: ViewModelCache = { resourcesByUri: {}, complexTypesByUri: {} },
     ): RootViewModel<ResolvedTypeViewModel> {
         const base = this._createForComplexType(typeRef, cache);
@@ -64,7 +64,7 @@ export class ViewModelFactory {
         });
     }
     public createResource(
-        typeRef: Identifier,
+        typeRef: TypeIdentifier,
         cache: ViewModelCache = { resourcesByUri: {}, complexTypesByUri: {} },
     ): RootViewModel<ResolvedTypeViewModel> {
         const base = this._createForResource(typeRef, cache);
@@ -85,7 +85,7 @@ export class ViewModelFactory {
         });
     }
 
-    private _createFor(typeRef: Identifier, cache: ViewModelCache, nestedIn?: TypeSchema): TypeViewModel {
+    private _createFor(typeRef: TypeIdentifier, cache: ViewModelCache, nestedIn?: TypeSchema): TypeViewModel {
         if (typeRef.kind === "complex-type") {
             return this._createForComplexType(typeRef, cache, nestedIn);
         }
@@ -95,7 +95,11 @@ export class ViewModelFactory {
         throw new Error(`Unknown type ${typeRef.kind}`);
     }
 
-    private _createForComplexType(typeRef: Identifier, cache: ViewModelCache, nestedIn?: TypeSchema): TypeViewModel {
+    private _createForComplexType(
+        typeRef: TypeIdentifier,
+        cache: ViewModelCache,
+        nestedIn?: TypeSchema,
+    ): TypeViewModel {
         const type = this.tsIndex.resolve(typeRef);
         if (!type) {
             throw new Error(`ComplexType ${typeRef.name} not found`);
@@ -108,7 +112,7 @@ export class ViewModelFactory {
         return res;
     }
 
-    private _createForResource(typeRef: Identifier, cache: ViewModelCache, nestedIn?: TypeSchema): TypeViewModel {
+    private _createForResource(typeRef: TypeIdentifier, cache: ViewModelCache, nestedIn?: TypeSchema): TypeViewModel {
         const type = this.tsIndex.resolve(typeRef);
         if (!type) {
             throw new Error(`Resource ${typeRef.name} not found`);
@@ -121,25 +125,25 @@ export class ViewModelFactory {
         return res;
     }
 
-    private _createChildrenFor(typeRef: Identifier, cache: ViewModelCache, nestedIn?: TypeSchema): TypeViewModel[] {
+    private _createChildrenFor(typeRef: TypeIdentifier, cache: ViewModelCache, nestedIn?: TypeSchema): TypeViewModel[] {
         const schema = this.tsIndex.resolve(typeRef);
         if (!schema || !("typeFamily" in schema)) return [];
         if (isComplexTypeIdentifier(typeRef)) {
             return (schema.typeFamily?.complexTypes ?? [])
                 .filter(this.filterPred)
-                .map((childRef: Identifier) => this._createFor(childRef, cache, nestedIn));
+                .map((childRef: TypeIdentifier) => this._createFor(childRef, cache, nestedIn));
         }
         if (isResourceIdentifier(typeRef)) {
             return (schema.typeFamily?.resources ?? [])
                 .filter(this.filterPred)
-                .map((childRef: Identifier) => this._createFor(childRef, cache, nestedIn));
+                .map((childRef: TypeIdentifier) => this._createFor(childRef, cache, nestedIn));
         }
         return [];
     }
 
-    private _createParentsFor(base: TypeSchema | NestedType, cache: ViewModelCache) {
+    private _createParentsFor(base: TypeSchema | NestedTypeSchema, cache: ViewModelCache) {
         const parents: TypeViewModel[] = [];
-        let parentRef: Identifier | undefined = "base" in base ? base.base : undefined;
+        let parentRef: TypeIdentifier | undefined = "base" in base ? base.base : undefined;
         while (parentRef) {
             parents.push(this._createFor(parentRef, cache, undefined));
             const parent = this.tsIndex.resolve(parentRef);
@@ -149,7 +153,7 @@ export class ViewModelFactory {
     }
 
     private _createForNestedType(
-        nested: NestedType,
+        nested: NestedTypeSchema,
         cache: ViewModelCache,
         nestedIn?: TypeSchema,
     ): ResolvedTypeViewModel {
@@ -171,7 +175,7 @@ export class ViewModelFactory {
     }
 
     private _createTypeViewModel(
-        schema: TypeSchema | NestedType,
+        schema: TypeSchema | NestedTypeSchema,
         cache: ViewModelCache,
         nestedIn?: TypeSchema,
     ): TypeViewModel {
@@ -229,7 +233,7 @@ export class ViewModelFactory {
         };
     }
 
-    private _collectDependencies(schema: TypeSchema | NestedType): TypeViewModel["dependencies"] {
+    private _collectDependencies(schema: TypeSchema | NestedTypeSchema): TypeViewModel["dependencies"] {
         const dependencies: TypeViewModel["dependencies"] = {
             resources: [],
             complexTypes: [],
@@ -273,7 +277,7 @@ export class ViewModelFactory {
         return dependencies;
     }
 
-    private _createIsResource(typeRef: Identifier): Record<IsPrefixed<string>, boolean> | false {
+    private _createIsResource(typeRef: TypeIdentifier): Record<IsPrefixed<string>, boolean> | false {
         if (typeRef.kind !== "resource") {
             return false;
         }
@@ -281,13 +285,13 @@ export class ViewModelFactory {
             this.tsIndex
                 .collectResources()
                 .map((e) => e.identifier)
-                .map((resourceRef: Identifier) => [
+                .map((resourceRef: TypeIdentifier) => [
                     `is${resourceRef.name.charAt(0).toUpperCase() + resourceRef.name.slice(1)}`,
                     resourceRef.url === typeRef.url,
                 ]),
         ) as Record<IsPrefixed<string>, boolean>;
     }
-    private _createIsComplexType(typeRef: Identifier): Record<IsPrefixed<string>, boolean> | false {
+    private _createIsComplexType(typeRef: TypeIdentifier): Record<IsPrefixed<string>, boolean> | false {
         if (typeRef.kind !== "complex-type" && typeRef.kind !== "nested") {
             return false;
         }
@@ -295,13 +299,13 @@ export class ViewModelFactory {
             this.tsIndex
                 .collectComplexTypes()
                 .map((e) => e.identifier)
-                .map((complexTypeRef: Identifier) => [
+                .map((complexTypeRef: TypeIdentifier) => [
                     `is${complexTypeRef.name.charAt(0).toUpperCase() + complexTypeRef.name.slice(1)}`,
                     complexTypeRef.url === typeRef.url,
                 ]),
         ) as Record<IsPrefixed<string>, boolean>;
     }
-    private _createIsPrimitiveType(typeRef: Identifier): Record<IsPrefixed<string>, boolean> | false {
+    private _createIsPrimitiveType(typeRef: TypeIdentifier): Record<IsPrefixed<string>, boolean> | false {
         if (typeRef.kind !== "primitive-type") {
             return false;
         }
@@ -310,7 +314,10 @@ export class ViewModelFactory {
         ) as FieldViewModel["isPrimitive"];
     }
 
-    private _collectNestedComplex(schema: TypeSchema | NestedType, cache: ViewModelCache): ResolvedTypeViewModel[] {
+    private _collectNestedComplex(
+        schema: TypeSchema | NestedTypeSchema,
+        cache: ViewModelCache,
+    ): ResolvedTypeViewModel[] {
         const nested: ResolvedTypeViewModel[] = [];
         if ("nested" in schema && schema.nested) {
             schema.nested
@@ -347,14 +354,14 @@ export class ViewModelFactory {
             complexTypes: this.tsIndex
                 .collectComplexTypes()
                 .map((e) => e.identifier)
-                .map((typeRef: Identifier) => ({
+                .map((typeRef: TypeIdentifier) => ({
                     name: typeRef.name,
                     saveName: this.nameGenerator.generateType(typeRef),
                 })),
             resources: this.tsIndex
                 .collectResources()
                 .map((e) => e.identifier)
-                .map((typeRef: Identifier) => ({
+                .map((typeRef: TypeIdentifier) => ({
                     name: typeRef.name,
                     saveName: this.nameGenerator.generateType(typeRef),
                 })),
