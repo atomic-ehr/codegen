@@ -6,6 +6,7 @@ import type {
     RegularField,
     SpecializationTypeSchema,
     TypeIdentifier,
+    TypeSchema,
 } from "@typeschema/types";
 import { mkTypeSchemaIndex } from "@typeschema/utils";
 
@@ -46,7 +47,7 @@ describe("TypeSchema Index", () => {
                 },
             };
 
-            const bSchema: SpecializationTypeSchema = {
+            const bSchema: ProfileTypeSchema = {
                 identifier: {
                     name: "B" as Name,
                     package: "test",
@@ -80,7 +81,7 @@ describe("TypeSchema Index", () => {
         });
 
         it("should handle a schema without a base reference", () => {
-            const bSchema: SpecializationTypeSchema = {
+            const bSchema: TypeSchema = {
                 identifier: {
                     name: "B" as Name,
                     package: "test",
@@ -89,7 +90,7 @@ describe("TypeSchema Index", () => {
                     url: "http://example.org/StructureDefinition/B" as CanonicalUrl,
                 },
                 // No base provided
-            };
+            } as TypeSchema;
 
             const index = mkTypeSchemaIndex([bSchema], {});
             const result = index.hierarchy(bSchema);
@@ -108,7 +109,7 @@ describe("TypeSchema Index", () => {
                 },
             };
 
-            const bSchema: SpecializationTypeSchema = {
+            const bSchema: ProfileTypeSchema = {
                 identifier: {
                     name: "B" as Name,
                     package: "test",
@@ -119,7 +120,7 @@ describe("TypeSchema Index", () => {
                 base: aSchema.identifier,
             };
 
-            const cSchema: SpecializationTypeSchema = {
+            const cSchema: ProfileTypeSchema = {
                 identifier: {
                     name: "C" as Name,
                     package: "test",
@@ -137,7 +138,7 @@ describe("TypeSchema Index", () => {
         });
 
         it("should throw an error when base type cannot be resolved", () => {
-            const bSchema: SpecializationTypeSchema = {
+            const bSchema: ProfileTypeSchema = {
                 identifier: {
                     name: "B" as Name,
                     package: "test",
@@ -172,7 +173,7 @@ describe("TypeSchema Index", () => {
                 },
             };
 
-            const bSchema: SpecializationTypeSchema = {
+            const bSchema: ProfileTypeSchema = {
                 identifier: {
                     name: "B" as Name,
                     package: "TEST",

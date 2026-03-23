@@ -1,5 +1,5 @@
 import type { IsPrefixed } from "@root/utils/types";
-import type { Field, NestedTypeSchema, TypeSchema } from "@typeschema/types";
+import type { Field, NestedType, TypeSchema } from "@typeschema/types";
 
 export type DebugMixin = {
     debug: string;
@@ -131,7 +131,7 @@ export type RootViewModel<T> = T & {
 };
 
 export type TypeViewModel = NamedViewModel & {
-    schema: TypeSchema | NestedTypeSchema;
+    schema: TypeSchema | NestedType;
     fields: FieldViewModel[];
 
     dependencies: {

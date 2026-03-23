@@ -11,6 +11,7 @@ import {
     isProfileTypeSchema,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
+    type NestedType,
     packageMeta,
     packageMetaToFhir,
     type SpecializationTypeSchema,
@@ -198,7 +199,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         this.lineSM(`${extFieldName}?: ${typeExpr}`);
     }
 
-    generateType(tsIndex: TypeSchemaIndex, schema: SpecializationTypeSchema) {
+    generateType(tsIndex: TypeSchemaIndex, schema: SpecializationTypeSchema | NestedType) {
         let name: string;
         // Generic types: Reference, Coding, CodeableConcept
         const genericTypes = ["Reference", "Coding", "CodeableConcept"];
@@ -285,7 +286,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         });
     }
 
-    withPrimitiveTypeExtension(schema: TypeSchema): boolean {
+    withPrimitiveTypeExtension(schema: TypeSchema | NestedType): boolean {
         if (!this.opts.primitiveTypeExtension) return false;
         if (!isSpecializationTypeSchema(schema)) return false;
         for (const field of Object.values(schema.fields ?? {})) {

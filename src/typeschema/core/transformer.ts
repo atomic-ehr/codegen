@@ -16,7 +16,7 @@ import {
     type Identifier,
     isNestedIdentifier,
     isProfileIdentifier,
-    type NestedTypeSchema,
+    type NestedType,
     type ProfileIdentifier,
     packageMetaToFhir,
     type RichFHIRSchema,
@@ -99,7 +99,7 @@ export async function transformValueSet(
 const collectRawDeps = (
     base: TypeIdentifier | undefined,
     fields: Record<string, Field> | undefined,
-    nestedTypes: NestedTypeSchema[] | undefined,
+    nestedTypes: NestedType[] | undefined,
 ): TypeIdentifier[] => {
     const deps: TypeIdentifier[] = [];
     if (base) deps.push(base);
@@ -112,7 +112,7 @@ export const extractDependencies = (
     identifier: Identifier,
     base: TypeIdentifier | undefined,
     fields: Record<string, Field> | undefined,
-    nestedTypes: NestedTypeSchema[] | undefined,
+    nestedTypes: NestedType[] | undefined,
 ): Identifier[] | undefined => {
     const deps = collectRawDeps(base, fields, nestedTypes);
 
@@ -129,7 +129,7 @@ export const extractProfileDependencies = (
     identifier: ProfileIdentifier,
     base: TypeIdentifier | undefined,
     fields: Record<string, Field> | undefined,
-    nestedTypes: NestedTypeSchema[] | undefined,
+    nestedTypes: NestedType[] | undefined,
 ): TypeIdentifier[] | undefined => {
     const deps = collectRawDeps(base, fields, nestedTypes);
     const filtered = deps.filter((dep) => dep.url !== identifier.url);
@@ -176,7 +176,7 @@ export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSche
     } else {
         assert(!isNestedIdentifier(identifier), `Unexpected nested identifier for ${fhirSchema.url}`);
         const rawDeps = extractDependencies(identifier, base, fields, nested);
-        const specialization: SpecializationTypeSchema = {
+        typeSchema = {
             identifier,
             base,
             fields,
@@ -184,8 +184,7 @@ export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSche
             description: fhirSchema.description,
             dependencies: rawDeps,
             typeFamily: undefined, // NOTE: should be populateTypeFamily later.
-        };
-        typeSchema = specialization;
+        } as TypeSchema;
     }
 
     const bindingSchemas = collectBindingSchemas(register, fhirSchema, logger);

@@ -7,6 +7,7 @@ import type { Register } from "./register";
 import {
     type CanonicalUrl,
     type ChoiceFieldInstance,
+    type ComplexTypeTypeSchema,
     type ConstrainedChoiceInfo,
     type Field,
     isChoiceDeclarationField,
@@ -18,10 +19,14 @@ import {
     isResourceIdentifier,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
+    type LogicalTypeSchema,
+    type NestedType,
     type PkgName,
     type ProfileExtension,
     type ProfileTypeSchema,
+    type ResourceTypeSchema,
     type SpecializationTypeSchema,
+    type TypeFamily,
     type TypeIdentifier,
     type TypeSchema,
 } from "./types";
@@ -135,7 +140,7 @@ const populateTypeFamily = (schemas: TypeSchema[]): void => {
         if (allChildren.length === 0) continue;
         const resources = allChildren.filter(isResourceIdentifier);
         const complexTypes = allChildren.filter(isComplexTypeIdentifier);
-        const family: NonNullable<SpecializationTypeSchema["typeFamily"]> = {};
+        const family: TypeFamily = {};
         if (resources.length > 0) family.resources = resources;
         if (complexTypes.length > 0) family.complexTypes = complexTypes;
         if (Object.keys(family).length > 0) schema.typeFamily = family;
@@ -150,9 +155,9 @@ export type TypeSchemaIndex = {
     schemas: TypeSchema[];
     schemasByPackage: Record<PkgName, TypeSchema[]>;
     register?: Register;
-    collectComplexTypes: () => SpecializationTypeSchema[];
-    collectResources: () => SpecializationTypeSchema[];
-    collectLogicalModels: () => SpecializationTypeSchema[];
+    collectComplexTypes: () => ComplexTypeTypeSchema[];
+    collectResources: () => ResourceTypeSchema[];
+    collectLogicalModels: () => LogicalTypeSchema[];
     collectProfiles: () => ProfileTypeSchema[];
     resolve: (id: TypeIdentifier) => TypeSchema | undefined;
     resolveByUrl: (pkgName: PkgName, url: CanonicalUrl) => TypeSchema | undefined;
@@ -188,7 +193,7 @@ export const mkTypeSchemaIndex = (
     },
 ): TypeSchemaIndex => {
     const index: Record<CanonicalUrl, Record<PkgName, TypeSchema>> = {};
-    const nestedIndex: Record<CanonicalUrl, Record<PkgName, TypeSchema>> = {};
+    const nestedIndex: Record<CanonicalUrl, Record<PkgName, NestedType>> = {};
     const append = (schema: TypeSchema) => {
         const url = schema.identifier.url;
         const pkg = schema.identifier.package;
@@ -218,8 +223,8 @@ export const mkTypeSchemaIndex = (
     }
     populateTypeFamily(schemas);
 
-    const resolve = (id: TypeIdentifier) => {
-        if (id.kind === "nested") return nestedIndex[id.url]?.[id.package];
+    const resolve = (id: TypeIdentifier): TypeSchema | undefined => {
+        if (id.kind === "nested") return nestedIndex[id.url]?.[id.package] as unknown as TypeSchema | undefined;
         return index[id.url]?.[id.package];
     };
     const resolveByUrl = (pkgName: PkgName, url: CanonicalUrl) => {
@@ -231,7 +236,7 @@ export const mkTypeSchemaIndex = (
             }
         }
         if (index[url]?.[pkgName]) return index[url]?.[pkgName];
-        if (nestedIndex[url]?.[pkgName]) return nestedIndex[url]?.[pkgName];
+        if (nestedIndex[url]?.[pkgName]) return nestedIndex[url]?.[pkgName] as unknown as TypeSchema;
         logger?.dryWarn(`Type '${url}' not found in '${pkgName}'`);
 
         // Fallback: search across all packages when type exists elsewhere

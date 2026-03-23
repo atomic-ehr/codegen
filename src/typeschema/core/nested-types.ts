@@ -12,7 +12,7 @@ import type {
     Field,
     Name,
     NestedIdentifier,
-    NestedTypeSchema,
+    NestedType,
     RichFHIRSchema,
     TypeIdentifier,
 } from "../types";
@@ -157,7 +157,7 @@ export function mkNestedTypes(
     register: Register,
     fhirSchema: RichFHIRSchema,
     logger?: CodegenLog,
-): NestedTypeSchema[] | undefined {
+): NestedType[] | undefined {
     if (!fhirSchema.elements) return undefined;
 
     const nested = collectNestedElements(fhirSchema, [], fhirSchema.elements).filter(([path, element]) => {
@@ -172,7 +172,7 @@ export function mkNestedTypes(
         return true;
     });
 
-    const nestedTypes = [] as NestedTypeSchema[];
+    const nestedTypes = [] as NestedType[];
     for (const [path, element] of nested) {
         const identifier = mkNestedIdentifier(register, fhirSchema, path);
 
@@ -195,7 +195,7 @@ export function mkNestedTypes(
 
         const fields = transformNestedElements(register, fhirSchema, path, element.elements ?? {}, logger);
 
-        const nestedType: NestedTypeSchema = {
+        const nestedType: NestedType = {
             identifier,
             base,
             fields,
@@ -208,7 +208,7 @@ export function mkNestedTypes(
     return nestedTypes.length === 0 ? undefined : nestedTypes;
 }
 
-export function extractNestedDependencies(nestedTypes: NestedTypeSchema[]): TypeIdentifier[] {
+export function extractNestedDependencies(nestedTypes: NestedType[]): TypeIdentifier[] {
     const deps: TypeIdentifier[] = [];
 
     for (const nested of nestedTypes) {

@@ -192,12 +192,12 @@ export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _lo
 
     if (rule.selectFields) {
         if (rule.ignoreFields) throw new Error("Cannot use both ignoreFields and selectFields in the same rule");
-        mutableSelectFields(schema, rule.selectFields);
+        mutableSelectFields(schema as SpecializationTypeSchema, rule.selectFields);
     }
 
     if (rule.ignoreFields) {
         if (rule.selectFields) throw new Error("Cannot use both ignoreFields and selectFields in the same rule");
-        mutableIgnoreFields(schema, rule.ignoreFields);
+        mutableIgnoreFields(schema as SpecializationTypeSchema, rule.ignoreFields);
     }
 
     if (isProfileTypeSchema(schema) && rule.ignoreExtensions) {
@@ -220,7 +220,7 @@ export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _lo
                     }
                 });
         };
-        collectUsedNestedTypes(schema);
+        collectUsedNestedTypes(schema as SpecializationTypeSchema);
         schema.nested = schema.nested.filter((n) => usedTypes.has(n.identifier.url));
     }
 
@@ -271,7 +271,7 @@ export const treeShake = (tsIndex: TypeSchemaIndex, treeShake: TreeShakeConf): T
                     for (const nest of schema.nested) {
                         if (isNestedIdentifier(nest.identifier)) continue;
                         const id = JSON.stringify(nest.identifier);
-                        if (!acc[id]) newSchemas.push(nest);
+                        if (!acc[id]) newSchemas.push(nest as unknown as TypeSchema);
                     }
                 }
             }

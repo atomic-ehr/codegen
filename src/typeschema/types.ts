@@ -100,7 +100,7 @@ export type ValueSetIdentifier = { kind: "value-set" } & IdentifierBase;
 export type NestedIdentifier = { kind: "nested" } & IdentifierBase;
 export type BindingIdentifier = { kind: "binding" } & IdentifierBase;
 export type ProfileIdentifier = { kind: "profile" } & IdentifierBase;
-type LogicalIdentifier = { kind: "logical" } & IdentifierBase;
+export type LogicalIdentifier = { kind: "logical" } & IdentifierBase;
 
 export type Identifier =
     | PrimitiveIdentifier
@@ -155,7 +155,9 @@ export type TypeSchema =
     | BindingTypeSchema
     | ProfileTypeSchema;
 
-export const isSpecializationTypeSchema = (schema: TypeSchema | undefined): schema is SpecializationTypeSchema => {
+type SchemaGuardInput = { identifier: TypeIdentifier } | undefined;
+
+export const isSpecializationTypeSchema = (schema: SchemaGuardInput): schema is SpecializationTypeSchema => {
     return (
         schema?.identifier.kind === "resource" ||
         schema?.identifier.kind === "complex-type" ||
@@ -163,33 +165,33 @@ export const isSpecializationTypeSchema = (schema: TypeSchema | undefined): sche
     );
 };
 
-export const isComplexTypeTypeSchema = (schema: TypeSchema | undefined): schema is SpecializationTypeSchema => {
+export const isComplexTypeTypeSchema = (schema: SchemaGuardInput): schema is ComplexTypeTypeSchema => {
     return schema?.identifier.kind === "complex-type";
 };
 
-export const isResourceTypeSchema = (schema: TypeSchema | undefined): schema is SpecializationTypeSchema => {
+export const isResourceTypeSchema = (schema: SchemaGuardInput): schema is ResourceTypeSchema => {
     return schema?.identifier.kind === "resource";
 };
 
-export const isPrimitiveTypeSchema = (schema: TypeSchema | undefined): schema is PrimitiveTypeSchema => {
+export const isPrimitiveTypeSchema = (schema: SchemaGuardInput): schema is PrimitiveTypeSchema => {
     return schema?.identifier.kind === "primitive-type";
 };
 
-export const isLogicalTypeSchema = (schema: TypeSchema | undefined): schema is SpecializationTypeSchema => {
+export const isLogicalTypeSchema = (schema: SchemaGuardInput): schema is LogicalTypeSchema => {
     return schema?.identifier.kind === "logical";
 };
 
-export const isProfileTypeSchema = (schema: TypeSchema | undefined): schema is ProfileTypeSchema => {
+export const isProfileTypeSchema = (schema: SchemaGuardInput): schema is ProfileTypeSchema => {
     return schema?.identifier.kind === "profile";
 };
 
-export function isBindingSchema(schema: TypeSchema | undefined): schema is BindingTypeSchema {
+export const isBindingSchema = (schema: SchemaGuardInput): schema is BindingTypeSchema => {
     return schema?.identifier.kind === "binding";
-}
+};
 
-export function isValueSetTypeSchema(schema: TypeSchema | undefined): schema is ValueSetTypeSchema {
+export const isValueSetTypeSchema = (schema: SchemaGuardInput): schema is ValueSetTypeSchema => {
     return schema?.identifier.kind === "value-set";
-}
+};
 
 interface PrimitiveTypeSchema {
     identifier: PrimitiveIdentifier;
@@ -198,7 +200,7 @@ interface PrimitiveTypeSchema {
     dependencies?: TypeIdentifier[];
 }
 
-export interface NestedTypeSchema {
+export interface NestedType {
     identifier: NestedIdentifier;
     base: TypeIdentifier;
     fields: Record<string, Field>;
@@ -211,7 +213,7 @@ export interface ProfileTypeSchema {
     fields?: Record<string, Field>;
     extensions?: ProfileExtension[];
     dependencies?: TypeIdentifier[];
-    nested?: NestedTypeSchema[];
+    nested?: NestedType[];
 }
 
 export type DiscriminatorType = "value" | "exists" | "pattern" | "type" | "profile";
@@ -266,20 +268,26 @@ export const extractExtensionDeps = (ext: ProfileExtension): TypeIdentifier[] =>
     ...(ext.subExtensions?.flatMap((sub) => (sub.valueFieldType ? [sub.valueFieldType] : [])) ?? []),
 ];
 
-export interface SpecializationTypeSchema {
-    // TODO: restrict to ResourceIdentifier | ComplexTypeIdentifier | LogicalIdentifier
-    identifier: TypeIdentifier;
+type SpecializationTypeSchemaBody = {
     base?: TypeIdentifier;
     description?: string;
     fields?: { [k: string]: Field };
-    nested?: NestedTypeSchema[];
+    nested?: NestedType[];
     dependencies?: Identifier[];
     /** Transitive children grouped by kind (e.g. Resource → { resources: [DomainResource, Patient, …] }) */
-    typeFamily?: {
-        resources?: ResourceIdentifier[];
-        complexTypes?: ComplexTypeIdentifier[];
-    };
-}
+    typeFamily?: TypeFamily;
+};
+
+export type TypeFamily = {
+    resources?: ResourceIdentifier[];
+    complexTypes?: ComplexTypeIdentifier[];
+};
+
+export type ResourceTypeSchema = { identifier: ResourceIdentifier } & SpecializationTypeSchemaBody;
+export type ComplexTypeTypeSchema = { identifier: ComplexTypeIdentifier } & SpecializationTypeSchemaBody;
+export type LogicalTypeSchema = { identifier: LogicalIdentifier } & SpecializationTypeSchemaBody;
+
+export type SpecializationTypeSchema = ResourceTypeSchema | ComplexTypeTypeSchema | LogicalTypeSchema;
 
 export interface RegularField {
     type: TypeIdentifier;

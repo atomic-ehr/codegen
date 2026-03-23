@@ -48,13 +48,13 @@ Why TypeSchemaIndex Matters
 Query schemas by type category:
 
 ```typescript
-collectComplexTypes(): SpecializationTypeSchema[]
+collectComplexTypes(): ComplexTypeTypeSchema[]
   Returns all complex types (datatypes, backbone elements)
 
-collectResources(): SpecializationTypeSchema[]
+collectResources(): ResourceTypeSchema[]
   Returns all FHIR resources (Patient, Observation, etc.)
 
-collectLogicalModels(): SpecializationTypeSchema[]
+collectLogicalModels(): LogicalTypeSchema[]
   Returns all logical models
 
 collectProfiles(): ProfileTypeSchema[]
