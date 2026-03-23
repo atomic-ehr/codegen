@@ -15,7 +15,6 @@ import {
     isProfileTypeSchema,
     isSpecializationTypeSchema,
     isValueSetTypeSchema,
-    type NestedTypeSchema,
     type PkgName,
     type ProfileTypeSchema,
     type SpecializationTypeSchema,
@@ -78,7 +77,7 @@ export const packageTreeShakeReadme = (report: TypeSchemaIndex | IrReport, pkgNa
     return lines.join("\n");
 };
 
-const mutableSelectFields = (schema: SpecializationTypeSchema, selectFields: string[]) => {
+const mutableSelectFields = (schema: SpecializationTypeSchema | ProfileTypeSchema, selectFields: string[]) => {
     const selectedFields: Record<string, Field> = {};
 
     const selectPolimorphic: Record<string, { declaration?: string[]; instances?: string[] }> = {};
@@ -113,7 +112,7 @@ const mutableSelectFields = (schema: SpecializationTypeSchema, selectFields: str
     schema.fields = selectedFields;
 };
 
-const mutableIgnoreFields = (schema: SpecializationTypeSchema, ignoreFields: string[]) => {
+const mutableIgnoreFields = (schema: SpecializationTypeSchema | ProfileTypeSchema, ignoreFields: string[]) => {
     for (const fieldName of ignoreFields) {
         const field = schema.fields?.[fieldName];
         if (!schema.fields || !field) throw new Error(`Field ${fieldName} not found`);
@@ -193,12 +192,12 @@ export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _lo
 
     if (rule.selectFields) {
         if (rule.ignoreFields) throw new Error("Cannot use both ignoreFields and selectFields in the same rule");
-        mutableSelectFields(schema as SpecializationTypeSchema, rule.selectFields);
+        mutableSelectFields(schema, rule.selectFields);
     }
 
     if (rule.ignoreFields) {
         if (rule.selectFields) throw new Error("Cannot use both ignoreFields and selectFields in the same rule");
-        mutableIgnoreFields(schema as SpecializationTypeSchema, rule.ignoreFields);
+        mutableIgnoreFields(schema, rule.ignoreFields);
     }
 
     if (isProfileTypeSchema(schema) && rule.ignoreExtensions) {
@@ -207,7 +206,7 @@ export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _lo
 
     if (schema.nested) {
         const usedTypes = new Set<CanonicalUrl>();
-        const collectUsedNestedTypes = (s: SpecializationTypeSchema | NestedTypeSchema) => {
+        const collectUsedNestedTypes = (s: { fields?: Record<string, Field> }) => {
             Object.values(s.fields ?? {})
                 .filter(isNotChoiceDeclarationField)
                 .filter((f) => isNestedIdentifier(f.type))
@@ -221,7 +220,7 @@ export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _lo
                     }
                 });
         };
-        collectUsedNestedTypes(schema as SpecializationTypeSchema);
+        collectUsedNestedTypes(schema);
         schema.nested = schema.nested.filter((n) => usedTypes.has(n.identifier.url));
     }
 
@@ -271,7 +270,7 @@ export const treeShake = (tsIndex: TypeSchemaIndex, treeShake: TreeShakeConf): T
                     for (const nest of schema.nested) {
                         if (isNestedIdentifier(nest.identifier)) continue;
                         const id = JSON.stringify(nest.identifier);
-                        if (!acc[id]) newSchemas.push(nest as unknown as TypeSchema);
+                        if (!acc[id]) newSchemas.push(nest);
                     }
                 }
             }

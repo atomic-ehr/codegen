@@ -173,11 +173,8 @@ export class Python extends Writer<PythonGeneratorOptions> {
     override async generate(tsIndex: TypeSchemaIndex): Promise<void> {
         this.tsIndex = tsIndex;
         const groups: TypeSchemaPackageGroups = {
-            groupedComplexTypes: groupByPackages(tsIndex.collectComplexTypes()) as Record<
-                string,
-                SpecializationTypeSchema[]
-            >,
-            groupedResources: groupByPackages(tsIndex.collectResources()) as Record<string, SpecializationTypeSchema[]>,
+            groupedComplexTypes: groupByPackages(tsIndex.collectComplexTypes()),
+            groupedResources: groupByPackages(tsIndex.collectResources()),
         };
         this.generateRootPackages(groups);
         this.generateSDKPackages(groups);

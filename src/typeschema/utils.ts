@@ -29,15 +29,15 @@ import {
 ///////////////////////////////////////////////////////////
 // TypeSchema processing
 
-export const groupByPackages = (typeSchemas: TypeSchema[]): Record<PkgName, TypeSchema[]> => {
-    const grouped = {} as Record<PkgName, TypeSchema[]>;
+export const groupByPackages = <T extends { identifier: TypeIdentifier }>(typeSchemas: T[]): Record<PkgName, T[]> => {
+    const grouped = {} as Record<PkgName, T[]>;
     for (const ts of typeSchemas) {
         const pkgName = ts.identifier.package;
         if (!grouped[pkgName]) grouped[pkgName] = [];
         grouped[pkgName].push(ts);
     }
     for (const [packageName, typeSchemas] of Object.entries(grouped)) {
-        const dict: Record<string, TypeSchema> = {};
+        const dict: Record<string, T> = {};
         for (const ts of typeSchemas) {
             dict[JSON.stringify(ts.identifier)] = ts;
         }
@@ -208,7 +208,7 @@ export const mkTypeSchemaIndex = (
                     const nurl = nschema.identifier.url;
                     const npkg = nschema.identifier.package;
                     nestedIndex[nurl] ??= {};
-                    nestedIndex[nurl][npkg] = nschema as unknown as TypeSchema;
+                    nestedIndex[nurl][npkg] = nschema;
                 });
             }
         }
