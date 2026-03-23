@@ -109,7 +109,7 @@ const collectRawDeps = (
 };
 
 export const extractDependencies = (
-    identifier: TypeIdentifier,
+    identifier: Identifier,
     base: TypeIdentifier | undefined,
     fields: Record<string, Field> | undefined,
     nestedTypes: NestedTypeSchema[] | undefined,
@@ -175,6 +175,7 @@ export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSche
             extensions,
         };
     } else {
+        assert(!isNestedIdentifier(identifier), `Unexpected nested identifier for ${fhirSchema.url}`);
         const rawDeps = extractDependencies(identifier, base, fields, nested);
         const specialization: SpecializationTypeSchema = {
             identifier,

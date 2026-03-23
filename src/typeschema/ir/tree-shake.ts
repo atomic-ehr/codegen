@@ -231,6 +231,7 @@ export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _lo
             extDeps,
         );
     } else {
+        assert(!isNestedIdentifier(schema.identifier));
         schema.dependencies = extractDependencies(schema.identifier, schema.base, schema.fields, schema.nested);
     }
     return schema;
