@@ -115,11 +115,7 @@ export function extractDependencies(
     return concatIdentifiers(filtered);
 }
 
-function transformFhirSchemaResource(
-    register: Register,
-    fhirSchema: RichFHIRSchema,
-    logger?: CodegenLog,
-): TypeSchema[] {
+export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSchema, logger?: CodegenLog): TypeSchema[] {
     const identifier = mkIdentifier(fhirSchema);
 
     let base: Identifier | undefined;
@@ -151,16 +147,9 @@ function transformFhirSchemaResource(
         description: fhirSchema.description,
         dependencies,
         extensions,
+        typeFamily: undefined, // NOTE: should be populateTypeFamily later.
     };
 
     const bindingSchemas = collectBindingSchemas(register, fhirSchema, logger);
     return [typeSchema, ...bindingSchemas];
-}
-
-export async function transformFhirSchema(
-    register: Register,
-    fhirSchema: RichFHIRSchema,
-    logger?: CodegenLog,
-): Promise<TypeSchema[]> {
-    return transformFhirSchemaResource(register, fhirSchema, logger);
 }

@@ -365,8 +365,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private shouldImportResourceFamily(resource: RegularTypeSchema): boolean {
-        assert(this.tsIndex !== undefined);
-        return resource.identifier.kind === "resource" && this.tsIndex.resourceChildren(resource.identifier).length > 0;
+        return resource.identifier.kind === "resource" && (resource.typeFamily?.resources?.length ?? 0) > 0;
     }
 
     private generateExportsDeclaration(
@@ -448,8 +447,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private generateResourceTypeField(schema: RegularTypeSchema): void {
-        assert(this.tsIndex !== undefined);
-        const hasChildren = this.tsIndex.resourceChildren(schema.identifier).length > 0;
+        const hasChildren = (schema.typeFamily?.resources?.length ?? 0) > 0;
 
         if (hasChildren) {
             this.line(`${this.nameFormatFunction("resourceType")}: str = Field(`);
@@ -660,7 +658,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
             );
         const families: Record<string, string[]> = {};
         for (const resource of this.tsIndex.collectResources()) {
-            const children: string[] = this.tsIndex.resourceChildren(resource.identifier).map((c) => c.name);
+            const children = (resource.typeFamily?.resources ?? []).map((c) => c.name);
             if (children.length > 0) {
                 const familyName = `${resource.identifier.name}Family`;
                 families[familyName] = children;

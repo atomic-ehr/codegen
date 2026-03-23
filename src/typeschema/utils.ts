@@ -12,9 +12,11 @@ import {
     type Identifier,
     isChoiceDeclarationField,
     isChoiceInstanceField,
+    isComplexTypeIdentifier,
     isComplexTypeTypeSchema,
     isLogicalTypeSchema,
     isProfileTypeSchema,
+    isResourceIdentifier,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
     type PkgName,
@@ -103,66 +105,41 @@ export const sortAsDeclarationSequence = (schemas: RegularTypeSchema[]): Regular
 };
 
 ///////////////////////////////////////////////////////////
-// Type Schema Relations
+// Type Family
 
-interface TypeRelation {
-    parent: Identifier;
-    child: Identifier;
-}
-
-const resourceRelatives = (schemas: TypeSchema[]): TypeRelation[] => {
-    const regularSchemas = schemas.filter(
-        (e) => isResourceTypeSchema(e) || isLogicalTypeSchema(e) || isComplexTypeTypeSchema(e),
-    );
-
-    const directPairs: TypeRelation[] = [];
-    const childrenByParent = new Map<string, Identifier[]>();
-
-    for (const schema of regularSchemas) {
-        if (schema.base) {
-            directPairs.push({ parent: schema.base, child: schema.identifier });
-            const parentName = schema.base.name;
-            let children = childrenByParent.get(parentName);
-            if (!children) {
-                children = [];
-                childrenByParent.set(parentName, children);
-            }
-            children.push(schema.identifier);
-        }
+/** Populate `typeFamily` on specialization schemas with transitive children grouped by kind. */
+const populateTypeFamily = (schemas: TypeSchema[]): void => {
+    const directChildrenByParent: Record<string, Identifier[]> = {};
+    for (const schema of schemas) {
+        if (!isSpecializationTypeSchema(schema) || !schema.base) continue;
+        const parentUrl = schema.base.url;
+        if (!directChildrenByParent[parentUrl]) directChildrenByParent[parentUrl] = [];
+        directChildrenByParent[parentUrl].push(schema.identifier);
     }
 
-    const transitiveCache = new Map<string, Identifier[]>();
-    const getTransitiveChildren = (parentName: string): Identifier[] => {
-        const cached = transitiveCache.get(parentName);
-        if (cached) return cached;
-
-        const directChildren = childrenByParent.get(parentName) ?? [];
-        const result: Identifier[] = [...directChildren];
-        for (const child of directChildren) {
-            result.push(...getTransitiveChildren(child.name));
+    const transitiveCache: Record<string, Identifier[]> = {};
+    const getTransitiveChildren = (parentUrl: string): Identifier[] => {
+        if (transitiveCache[parentUrl]) return transitiveCache[parentUrl];
+        const direct = directChildrenByParent[parentUrl] ?? [];
+        const result: Identifier[] = [...direct];
+        for (const child of direct) {
+            result.push(...getTransitiveChildren(child.url));
         }
-        transitiveCache.set(parentName, result);
+        transitiveCache[parentUrl] = result;
         return result;
     };
 
-    const seen = new Set<string>();
-    const allPairs: TypeRelation[] = [];
-
-    for (const pair of directPairs) {
-        const key = `${pair.parent.name}|${pair.child.name}`;
-        seen.add(key);
-        allPairs.push(pair);
-
-        for (const transitiveChild of getTransitiveChildren(pair.child.name)) {
-            const transitiveKey = `${pair.parent.name}|${transitiveChild.name}`;
-            if (!seen.has(transitiveKey)) {
-                seen.add(transitiveKey);
-                allPairs.push({ parent: pair.parent, child: transitiveChild });
-            }
-        }
+    for (const schema of schemas) {
+        if (!isSpecializationTypeSchema(schema)) continue;
+        const allChildren = getTransitiveChildren(schema.identifier.url);
+        if (allChildren.length === 0) continue;
+        const resources = allChildren.filter(isResourceIdentifier);
+        const complexTypes = allChildren.filter(isComplexTypeIdentifier);
+        const family: NonNullable<RegularTypeSchema["typeFamily"]> = {};
+        if (resources.length > 0) family.resources = resources;
+        if (complexTypes.length > 0) family.complexTypes = complexTypes;
+        if (Object.keys(family).length > 0) schema.typeFamily = family;
     }
-
-    return allPairs;
 };
 
 ///////////////////////////////////////////////////////////
@@ -170,7 +147,6 @@ const resourceRelatives = (schemas: TypeSchema[]): TypeRelation[] => {
 
 export type TypeSchemaIndex = {
     _schemaIndex: Record<CanonicalUrl, Record<PkgName, TypeSchema>>;
-    _relations: TypeRelation[];
     schemas: TypeSchema[];
     schemasByPackage: Record<PkgName, TypeSchema[]>;
     register?: Register;
@@ -180,7 +156,6 @@ export type TypeSchemaIndex = {
     collectProfiles: () => ProfileTypeSchema[];
     resolve: (id: Identifier) => TypeSchema | undefined;
     resolveByUrl: (pkgName: PkgName, url: CanonicalUrl) => TypeSchema | undefined;
-    resourceChildren: (id: Identifier) => Identifier[];
     tryHierarchy: (schema: TypeSchema) => TypeSchema[] | undefined;
     hierarchy: (schema: TypeSchema) => TypeSchema[];
     findLastSpecialization: (schema: TypeSchema) => TypeSchema;
@@ -241,7 +216,7 @@ export const mkTypeSchemaIndex = (
     for (const schema of schemas) {
         append(schema);
     }
-    const relations = resourceRelatives(schemas);
+    populateTypeFamily(schemas);
 
     const resolve = (id: Identifier) => {
         if (id.kind === "nested") return nestedIndex[id.url]?.[id.package];
@@ -267,10 +242,6 @@ export const mkTypeSchemaIndex = (
             }
         }
         return undefined;
-    };
-
-    const resourceChildren = (id: Identifier): Identifier[] => {
-        return relations.filter((relative) => relative.parent.name === id.name).map((relative) => relative.child);
     };
 
     const tryHierarchy = (schema: TypeSchema): TypeSchema[] | undefined => {
@@ -476,7 +447,6 @@ export const mkTypeSchemaIndex = (
 
     return {
         _schemaIndex: index,
-        _relations: relations,
         schemas,
         schemasByPackage: groupByPackages(schemas),
         register,
@@ -486,7 +456,6 @@ export const mkTypeSchemaIndex = (
         collectProfiles: () => schemas.filter(isProfileTypeSchema),
         resolve,
         resolveByUrl,
-        resourceChildren,
         tryHierarchy,
         hierarchy,
         findLastSpecialization,
