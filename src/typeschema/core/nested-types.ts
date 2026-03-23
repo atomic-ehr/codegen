@@ -7,7 +7,16 @@
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import { mergeFsElementProps, type Register, resolveFsElementGenealogy } from "@root/typeschema/register";
 import type { CodegenLog } from "@root/utils/log";
-import type { CanonicalUrl, Field, Identifier, Name, NestedIdentifier, NestedType, RichFHIRSchema } from "../types";
+import type {
+    CanonicalUrl,
+    Field,
+    Identifier,
+    Name,
+    NestedIdentifier,
+    NestedTypeSchema,
+    RichFHIRSchema,
+    TypeIdentifier,
+} from "../types";
 import { mkField, mkNestedField } from "./field-builder";
 
 /**
@@ -149,7 +158,7 @@ export function mkNestedTypes(
     register: Register,
     fhirSchema: RichFHIRSchema,
     logger?: CodegenLog,
-): NestedType[] | undefined {
+): NestedTypeSchema[] | undefined {
     if (!fhirSchema.elements) return undefined;
 
     const nested = collectNestedElements(fhirSchema, [], fhirSchema.elements).filter(([path, element]) => {
@@ -164,7 +173,7 @@ export function mkNestedTypes(
         return true;
     });
 
-    const nestedTypes = [] as NestedType[];
+    const nestedTypes = [] as NestedTypeSchema[];
     for (const [path, element] of nested) {
         const identifier = mkNestedIdentifier(register, fhirSchema, path);
 
@@ -187,7 +196,7 @@ export function mkNestedTypes(
 
         const fields = transformNestedElements(register, fhirSchema, path, element.elements ?? {}, logger);
 
-        const nestedType: NestedType = {
+        const nestedType: NestedTypeSchema = {
             identifier,
             base,
             fields,
@@ -200,8 +209,8 @@ export function mkNestedTypes(
     return nestedTypes.length === 0 ? undefined : nestedTypes;
 }
 
-export function extractNestedDependencies(nestedTypes: NestedType[]): Identifier[] {
-    const deps: Identifier[] = [];
+export function extractNestedDependencies(nestedTypes: NestedTypeSchema[]): TypeIdentifier[] {
+    const deps: TypeIdentifier[] = [];
 
     for (const nested of nestedTypes) {
         if (nested.base) {

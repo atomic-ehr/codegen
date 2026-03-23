@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { camelCase, pascalCase, snakeCase, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
 import { groupByPackages, sortAsDeclarationSequence, type TypeSchemaIndex } from "@root/typeschema/utils";
-import type { EnumDefinition, Field, Identifier, SpecializationTypeSchema } from "@typeschema/types.ts";
+import type { EnumDefinition, Field, Identifier, SpecializationTypeSchema, TypeIdentifier } from "@typeschema/types.ts";
 
 const PRIMITIVE_TYPE_MAP: Record<string, string> = {
     boolean: "bool",
@@ -125,7 +125,7 @@ const canonicalToName = (canonical: string | undefined, dropFragment = true) => 
     return snakeCase(localName);
 };
 
-const deriveResourceName = (id: Identifier): string => {
+const deriveResourceName = (id: TypeIdentifier): string => {
     if (id.kind === "nested") {
         const url = id.url;
         const path = canonicalToName(url, false);

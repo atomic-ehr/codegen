@@ -19,6 +19,7 @@ import type {
     Name,
     RegularField,
     RichFHIRSchema,
+    TypeIdentifier,
     ValueConstraint,
 } from "../types";
 import { BINDABLE_TYPES, buildEnum } from "./binding";
@@ -261,7 +262,7 @@ export function buildFieldType(
     path: string[],
     element: FHIRSchemaElement,
     logger?: CodegenLog,
-): Identifier | undefined {
+): TypeIdentifier | undefined {
     if (element.elementReference) {
         const refPath = element.elementReference
             .slice(1) // drop canonicalUrl

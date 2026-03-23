@@ -1,10 +1,10 @@
 import {
     type CanonicalUrl,
-    type Identifier,
     isChoiceDeclarationField,
     isProfileTypeSchema,
     type ProfileExtension,
     type ProfileTypeSchema,
+    type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import {
@@ -419,7 +419,7 @@ export const generateExtensionMethods = (
 export const collectTypesFromExtensions = (
     tsIndex: TypeSchemaIndex,
     flatProfile: ProfileTypeSchema,
-    addType: (typeId: Identifier) => void,
+    addType: (typeId: TypeIdentifier) => void,
 ): boolean => {
     let needsExtensionType = false;
 
@@ -455,7 +455,7 @@ export const collectTypesFromExtensions = (
 export const collectTypesFromFlatInput = (
     tsIndex: TypeSchemaIndex,
     flatProfile: ProfileTypeSchema,
-    addType: (typeId: Identifier) => void,
+    addType: (typeId: TypeIdentifier) => void,
 ) => {
     if (flatProfile.base.name !== "Extension") return;
     const subSlices = collectSubExtensionSlices(flatProfile);

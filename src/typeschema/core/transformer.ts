@@ -15,7 +15,7 @@ import {
     type Identifier,
     isNestedIdentifier,
     isProfileIdentifier,
-    type NestedType,
+    type NestedTypeSchema,
     packageMetaToFhir,
     type RichFHIRSchema,
     type RichValueSet,
@@ -96,7 +96,7 @@ export function extractDependencies(
     identifier: Identifier,
     base: Identifier | undefined,
     fields: Record<string, Field> | undefined,
-    nestedTypes: NestedType[] | undefined,
+    nestedTypes: NestedTypeSchema[] | undefined,
 ): Identifier[] | undefined {
     const deps = [];
     if (base) deps.push(base);

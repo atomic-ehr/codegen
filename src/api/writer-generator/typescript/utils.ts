@@ -5,6 +5,7 @@ import {
     isNestedIdentifier,
     isPrimitiveIdentifier,
     type RegularField,
+    type TypeIdentifier,
 } from "@root/typeschema/types";
 import { tsResourceName } from "./name";
 
@@ -62,7 +63,7 @@ export const resolveFieldTsType = (
     schemaName: string,
     tsName: string,
     field: RegularField | ChoiceFieldInstance,
-    resolveRef?: (ref: Identifier) => Identifier,
+    resolveRef?: (ref: Identifier) => TypeIdentifier,
     genericFieldMap?: Record<string, string>,
 ): string => {
     if (genericFieldMap?.[tsName]) return genericFieldMap[tsName];
@@ -89,10 +90,10 @@ export const resolveFieldTsType = (
 
 export const fieldTsType = (
     field: RegularField | ChoiceFieldInstance,
-    resolveRef?: (ref: Identifier) => Identifier,
+    resolveRef?: (ref: Identifier) => TypeIdentifier,
 ): string => resolveFieldTsType("", "", field, resolveRef) + (field.array ? "[]" : "");
 
-export const tsTypeFromIdentifier = (id: Identifier): string => {
+export const tsTypeFromIdentifier = (id: TypeIdentifier): string => {
     if (isNestedIdentifier(id)) return tsResourceName(id);
     if (isPrimitiveIdentifier(id)) return resolvePrimitiveType(id.name);
     // Fallback: check if id.name is a known primitive type even if kind isn't set

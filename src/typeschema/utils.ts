@@ -23,6 +23,7 @@ import {
     type ProfileExtension,
     type ProfileTypeSchema,
     type SpecializationTypeSchema,
+    type TypeIdentifier,
     type TypeSchema,
 } from "./types";
 
@@ -154,16 +155,16 @@ export type TypeSchemaIndex = {
     collectResources: () => SpecializationTypeSchema[];
     collectLogicalModels: () => SpecializationTypeSchema[];
     collectProfiles: () => ProfileTypeSchema[];
-    resolve: (id: Identifier) => TypeSchema | undefined;
+    resolve: (id: TypeIdentifier) => TypeSchema | undefined;
     resolveByUrl: (pkgName: PkgName, url: CanonicalUrl) => TypeSchema | undefined;
     tryHierarchy: (schema: TypeSchema) => TypeSchema[] | undefined;
     hierarchy: (schema: TypeSchema) => TypeSchema[];
     findLastSpecialization: (schema: TypeSchema) => TypeSchema;
-    findLastSpecializationByIdentifier: (id: Identifier) => Identifier;
+    findLastSpecializationByIdentifier: (id: TypeIdentifier) => TypeIdentifier;
     flatProfile: (schema: ProfileTypeSchema) => ProfileTypeSchema;
     constrainedChoice: (
         pkgName: PkgName,
-        baseTypeId: Identifier,
+        baseTypeId: TypeIdentifier,
         sliceElements: string[],
     ) => ConstrainedChoiceInfo | undefined;
     isWithMetaField: (profile: ProfileTypeSchema) => boolean;
@@ -173,7 +174,7 @@ export type TypeSchemaIndex = {
     replaceSchemas: (schemas: TypeSchema[]) => TypeSchemaIndex;
 };
 
-type EntityTree = Record<PkgName, Record<Identifier["kind"], Record<CanonicalUrl, object>>>;
+type EntityTree = Record<PkgName, Record<TypeIdentifier["kind"], Record<CanonicalUrl, object>>>;
 
 export const mkTypeSchemaIndex = (
     schemas: TypeSchema[],
@@ -218,7 +219,7 @@ export const mkTypeSchemaIndex = (
     }
     populateTypeFamily(schemas);
 
-    const resolve = (id: Identifier) => {
+    const resolve = (id: TypeIdentifier) => {
         if (id.kind === "nested") return nestedIndex[id.url]?.[id.package];
         return index[id.url]?.[id.package];
     };
@@ -280,7 +281,7 @@ export const mkTypeSchemaIndex = (
         return nonConstraintSchema;
     };
 
-    const findLastSpecializationByIdentifier = (id: Identifier): Identifier => {
+    const findLastSpecializationByIdentifier = (id: TypeIdentifier): TypeIdentifier => {
         const schema = resolve(id);
         if (!schema) return id;
         return findLastSpecialization(schema).identifier;
@@ -388,7 +389,7 @@ export const mkTypeSchemaIndex = (
 
     const constrainedChoice = (
         pkgName: PkgName,
-        baseTypeId: Identifier,
+        baseTypeId: TypeIdentifier,
         sliceElements: string[],
     ): ConstrainedChoiceInfo | undefined => {
         const baseSchema = resolveByUrl(pkgName, baseTypeId.url as CanonicalUrl);

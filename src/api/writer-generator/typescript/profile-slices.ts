@@ -1,11 +1,11 @@
 import {
     type ConstrainedChoiceInfo,
-    type Identifier,
     isChoiceDeclarationField,
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
     type ProfileTypeSchema,
     type RegularField,
+    type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import {
@@ -20,7 +20,7 @@ import { tsGet, tsTypeFromIdentifier } from "./utils";
 import type { TypeScript } from "./writer";
 
 /** Collect choice declaration field names from a base type schema */
-const collectChoiceBaseNames = (tsIndex: TypeSchemaIndex, typeId: Identifier): Set<string> => {
+const collectChoiceBaseNames = (tsIndex: TypeSchemaIndex, typeId: TypeIdentifier): Set<string> => {
     const names = new Set<string>();
     const schema = tsIndex.resolve(typeId);
     if (schema && "fields" in schema && schema.fields) {
@@ -46,7 +46,7 @@ export const extractResourceTypeFromMatch = (match: Record<string, unknown>): st
 export const collectTypesFromSlices = (
     tsIndex: TypeSchemaIndex,
     flatProfile: ProfileTypeSchema,
-    addType: (typeId: Identifier) => void,
+    addType: (typeId: TypeIdentifier) => void,
 ) => {
     const pkgName = flatProfile.identifier.package;
     for (const field of Object.values(flatProfile.fields ?? {})) {

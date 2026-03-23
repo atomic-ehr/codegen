@@ -19,8 +19,9 @@ import {
     isComplexTypeIdentifier,
     isNotChoiceDeclarationField,
     isResourceIdentifier,
-    type NestedType,
+    type NestedTypeSchema,
     type RegularField,
+    type TypeIdentifier,
     type TypeSchema,
 } from "@typeschema/types";
 
@@ -121,7 +122,7 @@ export class ViewModelFactory {
         return res;
     }
 
-    private _createChildrenFor(typeRef: Identifier, cache: ViewModelCache, nestedIn?: TypeSchema): TypeViewModel[] {
+    private _createChildrenFor(typeRef: TypeIdentifier, cache: ViewModelCache, nestedIn?: TypeSchema): TypeViewModel[] {
         const schema = this.tsIndex.resolve(typeRef);
         if (!schema || !("typeFamily" in schema)) return [];
         if (isComplexTypeIdentifier(typeRef)) {
@@ -137,7 +138,7 @@ export class ViewModelFactory {
         return [];
     }
 
-    private _createParentsFor(base: TypeSchema | NestedType, cache: ViewModelCache) {
+    private _createParentsFor(base: TypeSchema | NestedTypeSchema, cache: ViewModelCache) {
         const parents: TypeViewModel[] = [];
         let parentRef: Identifier | undefined = "base" in base ? base.base : undefined;
         while (parentRef) {
@@ -149,7 +150,7 @@ export class ViewModelFactory {
     }
 
     private _createForNestedType(
-        nested: NestedType,
+        nested: NestedTypeSchema,
         cache: ViewModelCache,
         nestedIn?: TypeSchema,
     ): ResolvedTypeViewModel {
@@ -171,7 +172,7 @@ export class ViewModelFactory {
     }
 
     private _createTypeViewModel(
-        schema: TypeSchema | NestedType,
+        schema: TypeSchema | NestedTypeSchema,
         cache: ViewModelCache,
         nestedIn?: TypeSchema,
     ): TypeViewModel {
@@ -229,7 +230,7 @@ export class ViewModelFactory {
         };
     }
 
-    private _collectDependencies(schema: TypeSchema | NestedType): TypeViewModel["dependencies"] {
+    private _collectDependencies(schema: TypeSchema | NestedTypeSchema): TypeViewModel["dependencies"] {
         const dependencies: TypeViewModel["dependencies"] = {
             resources: [],
             complexTypes: [],
@@ -273,7 +274,7 @@ export class ViewModelFactory {
         return dependencies;
     }
 
-    private _createIsResource(typeRef: Identifier): Record<IsPrefixed<string>, boolean> | false {
+    private _createIsResource(typeRef: TypeIdentifier): Record<IsPrefixed<string>, boolean> | false {
         if (typeRef.kind !== "resource") {
             return false;
         }
@@ -287,7 +288,7 @@ export class ViewModelFactory {
                 ]),
         ) as Record<IsPrefixed<string>, boolean>;
     }
-    private _createIsComplexType(typeRef: Identifier): Record<IsPrefixed<string>, boolean> | false {
+    private _createIsComplexType(typeRef: TypeIdentifier): Record<IsPrefixed<string>, boolean> | false {
         if (typeRef.kind !== "complex-type" && typeRef.kind !== "nested") {
             return false;
         }
@@ -301,7 +302,7 @@ export class ViewModelFactory {
                 ]),
         ) as Record<IsPrefixed<string>, boolean>;
     }
-    private _createIsPrimitiveType(typeRef: Identifier): Record<IsPrefixed<string>, boolean> | false {
+    private _createIsPrimitiveType(typeRef: TypeIdentifier): Record<IsPrefixed<string>, boolean> | false {
         if (typeRef.kind !== "primitive-type") {
             return false;
         }
@@ -310,7 +311,10 @@ export class ViewModelFactory {
         ) as FieldViewModel["isPrimitive"];
     }
 
-    private _collectNestedComplex(schema: TypeSchema | NestedType, cache: ViewModelCache): ResolvedTypeViewModel[] {
+    private _collectNestedComplex(
+        schema: TypeSchema | NestedTypeSchema,
+        cache: ViewModelCache,
+    ): ResolvedTypeViewModel[] {
         const nested: ResolvedTypeViewModel[] = [];
         if ("nested" in schema && schema.nested) {
             schema.nested

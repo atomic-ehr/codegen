@@ -1,10 +1,10 @@
 import {
     type ChoiceFieldInstance,
-    type Identifier,
     isChoiceDeclarationField,
     isChoiceInstanceField,
     type ProfileTypeSchema,
     type RegularField,
+    type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import { tsProfileClassName } from "./name";
@@ -15,7 +15,7 @@ export const collectRegularFieldValidation = (
     warnings: string[],
     name: string,
     field: RegularField | ChoiceFieldInstance,
-    resolveRef: (ref: Identifier) => Identifier,
+    resolveRef: (ref: TypeIdentifier) => TypeIdentifier,
     canonicalUrlExpr?: { url: string; expr: string },
 ) => {
     if (field.excluded) {
