@@ -92,8 +92,9 @@ FHIR Package → TypeSchema Generator → TypeSchema Format → Code Generators 
 ## Commit Guidelines
 
 - Split commits logically by concern. Always separate example/generated file updates from source code changes.
-- If a change is a direct fix for a specific previous commit, place it immediately after that commit with a `fix:` prefix in the message.
 - Typical commit order: source changes → test changes → regenerated examples. Example updates should be the last commit in the branch.
+- When making follow-up changes (fixes, refactors) to code already committed on the branch, create a new commit on top of the original commit with a prefix: `fix: ...`, `ref: ...`, etc. Do NOT amend or squash into the original commit — the user reviews changes step by step and will squash when finished.
+- Never rewrite branch history (rebase, squash, amend) unless the user explicitly asks.
 
 ## Pull Request Style
 
