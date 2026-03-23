@@ -122,7 +122,7 @@ export const extractDependencies = (
         return true;
     });
 
-    return concatIdentifiers(filtered) as Identifier[] | undefined;
+    return concatIdentifiers(filtered);
 };
 
 export const extractProfileDependencies = (
@@ -139,7 +139,7 @@ export const extractProfileDependencies = (
 export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSchema, logger?: CodegenLog): TypeSchema[] {
     const identifier = mkIdentifier(fhirSchema);
 
-    let base: TypeIdentifier | undefined;
+    let base: Identifier | undefined;
     if (fhirSchema.base) {
         const baseFs = register.resolveFs(
             fhirSchema.package_meta,
@@ -149,7 +149,9 @@ export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSche
             throw new Error(
                 `Base resource not found '${fhirSchema.base}' for <${fhirSchema.url}> from ${packageMetaToFhir(fhirSchema.package_meta)}`,
             );
-        base = mkIdentifier(baseFs);
+        const baseId = mkIdentifier(baseFs);
+        assert(!isNestedIdentifier(baseId), `Unexpected nested base for ${fhirSchema.url}`);
+        base = baseId;
     }
 
     const fields = mkFields(register, fhirSchema, [], fhirSchema.elements, logger);
@@ -158,10 +160,7 @@ export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSche
     let typeSchema: TypeSchema;
     if (fhirSchema.derivation === "constraint") {
         if (!base) throw new Error(`Profile ${fhirSchema.url} must have a base type`);
-        assert(
-            isProfileIdentifier(identifier),
-            `Expected profile identifier for ${fhirSchema.url}, got ${identifier.kind}`,
-        );
+        assert(isProfileIdentifier(identifier));
         const extensions = extractProfileExtensions(register, fhirSchema, logger);
         const extensionDeps = extensions?.flatMap(extractExtensionDeps);
         const rawDeps = extractProfileDependencies(identifier, base, fields, nested);

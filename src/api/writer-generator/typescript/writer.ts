@@ -325,19 +325,18 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 });
             });
         } else if (isSpecializationTypeSchema(schema)) {
-            const resourceSchema = schema;
             this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
                 this.generateDisclaimer();
-                this.generateDependenciesImports(tsIndex, resourceSchema);
-                this.generateComplexTypeReexports(resourceSchema);
-                this.generateNestedTypes(tsIndex, resourceSchema);
+                this.generateDependenciesImports(tsIndex, schema);
+                this.generateComplexTypeReexports(schema);
+                this.generateNestedTypes(tsIndex, schema);
                 this.comment(
                     "CanonicalURL:",
                     schema.identifier.url,
                     `(pkg: ${packageMetaToFhir(packageMeta(schema))})`,
                 );
-                this.generateType(tsIndex, resourceSchema);
-                this.generateResourceTypePredicate(resourceSchema);
+                this.generateType(tsIndex, schema);
+                this.generateResourceTypePredicate(schema);
             });
         } else {
             throw new Error(`Profile generation not implemented for kind: ${schema.identifier.kind}`);
