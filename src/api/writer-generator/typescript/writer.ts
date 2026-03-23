@@ -324,8 +324,8 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                     generateProfileClass(this, tsIndex, flatProfile);
                 });
             });
-        } else if (["complex-type", "resource", "logical"].includes(schema.identifier.kind)) {
-            const resourceSchema = schema as SpecializationTypeSchema;
+        } else if (isSpecializationTypeSchema(schema)) {
+            const resourceSchema = schema;
             this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
                 this.generateDisclaimer();
                 this.generateDependenciesImports(tsIndex, resourceSchema);

@@ -5,7 +5,13 @@ import { fileURLToPath } from "node:url";
 import { camelCase, pascalCase, snakeCase, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
 import { groupByPackages, sortAsDeclarationSequence, type TypeSchemaIndex } from "@root/typeschema/utils";
-import type { EnumDefinition, Field, SpecializationTypeSchema, TypeIdentifier } from "@typeschema/types.ts";
+import {
+    type EnumDefinition,
+    type Field,
+    isResourceTypeSchema,
+    type SpecializationTypeSchema,
+    type TypeIdentifier,
+} from "@typeschema/types.ts";
 
 const PRIMITIVE_TYPE_MAP: Record<string, string> = {
     boolean: "bool",
@@ -433,13 +439,13 @@ export class Python extends Writer<PythonGeneratorOptions> {
             return;
         }
 
-        if (schema.identifier.kind === "resource") {
+        if (isResourceTypeSchema(schema)) {
             this.generateResourceTypeField(schema);
         }
 
         this.generateFields(schema, schema.identifier.name);
 
-        if (schema.identifier.kind === "resource") {
+        if (isResourceTypeSchema(schema)) {
             this.generateResourceMethods(schema);
         }
     }
