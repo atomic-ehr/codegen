@@ -1,7 +1,6 @@
 import { pascalCase, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import {
     type CanonicalUrl,
-    type Identifier,
     isChoiceDeclarationField,
     isChoiceInstanceField,
     isNestedIdentifier,
@@ -12,6 +11,7 @@ import {
     type ProfileTypeSchema,
     packageMeta,
     packageMetaToFhir,
+    type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import {
@@ -53,9 +53,9 @@ import type { TypeScript } from "./writer";
 type ProfileFactoryInfo = {
     autoFields: { name: string; value: string }[];
     /** Array fields with required slices — optional param with auto-merge of required stubs */
-    sliceAutoFields: { name: string; tsType: string; typeId: Identifier; sliceNames: string[] }[];
-    params: { name: string; tsType: string; typeId: Identifier }[];
-    accessors: { name: string; tsType: string; typeId: Identifier }[];
+    sliceAutoFields: { name: string; tsType: string; typeId: TypeIdentifier; sliceNames: string[] }[];
+    params: { name: string; tsType: string; typeId: TypeIdentifier }[];
+    accessors: { name: string; tsType: string; typeId: TypeIdentifier }[];
 };
 
 const collectChoiceAccessors = (
@@ -248,7 +248,7 @@ const generateProfileHelpersImport = (
 export const generateProfileImports = (w: TypeScript, tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) => {
     const usedTypes = new Map<string, { importPath: string; tsName: string }>();
 
-    const getModulePath = (typeId: Identifier): string => {
+    const getModulePath = (typeId: TypeIdentifier): string => {
         if (isNestedIdentifier(typeId)) {
             const path = tsNameFromCanonical(typeId.url, true);
             if (path) return `../../${tsPackageDir(typeId.package)}/${pascalCase(path)}`;
@@ -256,7 +256,7 @@ export const generateProfileImports = (w: TypeScript, tsIndex: TypeSchemaIndex, 
         return `../../${tsModulePath(typeId)}`;
     };
 
-    const addType = (typeId: Identifier) => {
+    const addType = (typeId: TypeIdentifier) => {
         if (typeId.kind === "primitive-type") return;
         const tsName = tsResourceName(typeId);
         if (!usedTypes.has(tsName)) {

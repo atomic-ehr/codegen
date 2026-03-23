@@ -9,7 +9,6 @@ import {
     type ChoiceFieldInstance,
     type ConstrainedChoiceInfo,
     type Field,
-    type Identifier,
     isChoiceDeclarationField,
     isChoiceInstanceField,
     isComplexTypeIdentifier,
@@ -23,6 +22,7 @@ import {
     type ProfileExtension,
     type ProfileTypeSchema,
     type SpecializationTypeSchema,
+    type TypeIdentifier,
     type TypeSchema,
 } from "./types";
 
@@ -109,7 +109,7 @@ export const sortAsDeclarationSequence = (schemas: SpecializationTypeSchema[]): 
 
 /** Populate `typeFamily` on specialization schemas with transitive children grouped by kind. */
 const populateTypeFamily = (schemas: TypeSchema[]): void => {
-    const directChildrenByParent: Record<string, Identifier[]> = {};
+    const directChildrenByParent: Record<string, TypeIdentifier[]> = {};
     for (const schema of schemas) {
         if (!isSpecializationTypeSchema(schema) || !schema.base) continue;
         const parentUrl = schema.base.url;
@@ -117,11 +117,11 @@ const populateTypeFamily = (schemas: TypeSchema[]): void => {
         directChildrenByParent[parentUrl].push(schema.identifier);
     }
 
-    const transitiveCache: Record<string, Identifier[]> = {};
-    const getTransitiveChildren = (parentUrl: string): Identifier[] => {
+    const transitiveCache: Record<string, TypeIdentifier[]> = {};
+    const getTransitiveChildren = (parentUrl: string): TypeIdentifier[] => {
         if (transitiveCache[parentUrl]) return transitiveCache[parentUrl];
         const direct = directChildrenByParent[parentUrl] ?? [];
-        const result: Identifier[] = [...direct];
+        const result: TypeIdentifier[] = [...direct];
         for (const child of direct) {
             result.push(...getTransitiveChildren(child.url));
         }
@@ -154,16 +154,16 @@ export type TypeSchemaIndex = {
     collectResources: () => SpecializationTypeSchema[];
     collectLogicalModels: () => SpecializationTypeSchema[];
     collectProfiles: () => ProfileTypeSchema[];
-    resolve: (id: Identifier) => TypeSchema | undefined;
+    resolve: (id: TypeIdentifier) => TypeSchema | undefined;
     resolveByUrl: (pkgName: PkgName, url: CanonicalUrl) => TypeSchema | undefined;
     tryHierarchy: (schema: TypeSchema) => TypeSchema[] | undefined;
     hierarchy: (schema: TypeSchema) => TypeSchema[];
     findLastSpecialization: (schema: TypeSchema) => TypeSchema;
-    findLastSpecializationByIdentifier: (id: Identifier) => Identifier;
+    findLastSpecializationByIdentifier: (id: TypeIdentifier) => TypeIdentifier;
     flatProfile: (schema: ProfileTypeSchema) => ProfileTypeSchema;
     constrainedChoice: (
         pkgName: PkgName,
-        baseTypeId: Identifier,
+        baseTypeId: TypeIdentifier,
         sliceElements: string[],
     ) => ConstrainedChoiceInfo | undefined;
     isWithMetaField: (profile: ProfileTypeSchema) => boolean;
@@ -173,7 +173,7 @@ export type TypeSchemaIndex = {
     replaceSchemas: (schemas: TypeSchema[]) => TypeSchemaIndex;
 };
 
-type EntityTree = Record<PkgName, Record<Identifier["kind"], Record<CanonicalUrl, object>>>;
+type EntityTree = Record<PkgName, Record<TypeIdentifier["kind"], Record<CanonicalUrl, object>>>;
 
 export const mkTypeSchemaIndex = (
     schemas: TypeSchema[],
@@ -218,7 +218,7 @@ export const mkTypeSchemaIndex = (
     }
     populateTypeFamily(schemas);
 
-    const resolve = (id: Identifier) => {
+    const resolve = (id: TypeIdentifier) => {
         if (id.kind === "nested") return nestedIndex[id.url]?.[id.package];
         return index[id.url]?.[id.package];
     };
@@ -280,7 +280,7 @@ export const mkTypeSchemaIndex = (
         return nonConstraintSchema;
     };
 
-    const findLastSpecializationByIdentifier = (id: Identifier): Identifier => {
+    const findLastSpecializationByIdentifier = (id: TypeIdentifier): TypeIdentifier => {
         const schema = resolve(id);
         if (!schema) return id;
         return findLastSpecialization(schema).identifier;
@@ -388,7 +388,7 @@ export const mkTypeSchemaIndex = (
 
     const constrainedChoice = (
         pkgName: PkgName,
-        baseTypeId: Identifier,
+        baseTypeId: TypeIdentifier,
         sliceElements: string[],
     ): ConstrainedChoiceInfo | undefined => {
         const baseSchema = resolveByUrl(pkgName, baseTypeId.url as CanonicalUrl);

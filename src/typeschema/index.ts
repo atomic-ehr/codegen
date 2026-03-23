@@ -20,7 +20,7 @@ import { hashSchema, packageMetaToFhir, type TypeSchema } from "./types";
 
 // Re-export core dependencies
 export { shouldSkipCanonical, skipList } from "./skip-hack";
-export type { Identifier, TypeSchema } from "./types";
+export type { TypeIdentifier as Identifier, TypeSchema } from "./types";
 
 export interface GenerateTypeSchemasResult {
     schemas: TypeSchema[];

@@ -1,15 +1,15 @@
 import { describe, expect, it } from "bun:test";
 import type {
     CanonicalUrl,
-    Identifier,
     Name,
     ProfileTypeSchema,
     RegularField,
     SpecializationTypeSchema,
+    TypeIdentifier,
 } from "@typeschema/types";
 import { mkTypeSchemaIndex } from "@typeschema/utils";
 
-const stringType: Identifier = {
+const stringType: TypeIdentifier = {
     name: "string" as Name,
     package: "test",
     kind: "primitive-type",
@@ -17,7 +17,7 @@ const stringType: Identifier = {
     url: "http://example.org/StructureDefinition/string" as CanonicalUrl,
 };
 
-const numberType: Identifier = {
+const numberType: TypeIdentifier = {
     name: "number" as Name,
     package: "test",
     kind: "primitive-type",
@@ -25,7 +25,7 @@ const numberType: Identifier = {
     url: "http://example.org/StructureDefinition/number" as CanonicalUrl,
 };
 
-const booleanType: Identifier = {
+const booleanType: TypeIdentifier = {
     name: "boolean" as Name,
     package: "test",
     kind: "primitive-type",

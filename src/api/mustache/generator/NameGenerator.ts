@@ -1,4 +1,4 @@
-import type { Field, Identifier, NestedType, TypeSchema } from "@typeschema/types";
+import type { Field, NestedTypeSchema, TypeIdentifier, TypeSchema } from "@typeschema/types";
 
 export type NameTransformation = {
     pattern: RegExp | string;
@@ -65,7 +65,7 @@ export class NameGenerator {
         return this._generateTypeName(name);
     }
 
-    private _generateTypeFromTypeRef(typeRef: Identifier): string {
+    private _generateTypeFromTypeRef(typeRef: TypeIdentifier): string {
         if (typeRef.kind === "primitive-type") {
             return this._generateTypeName(typeRef.name);
         }
@@ -86,7 +86,7 @@ export class NameGenerator {
         return this._generateTypeFromTypeRef((schema as any).type);
     }
 
-    public generateType(schemaOrRefOrString: TypeSchema | NestedType | Identifier | string): string {
+    public generateType(schemaOrRefOrString: TypeSchema | NestedTypeSchema | TypeIdentifier | string): string {
         if (typeof schemaOrRefOrString === "string") {
             return this._generateTypeName(schemaOrRefOrString);
         }

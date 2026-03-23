@@ -8,11 +8,11 @@ import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type {
     BindingIdentifier,
     CanonicalUrl,
-    Identifier,
     Name,
     PackageMeta,
     RichFHIRSchema,
     RichValueSet,
+    TypeIdentifier,
     ValueSetIdentifier,
 } from "@typeschema/types";
 import type { Register } from "../register";
@@ -27,7 +27,7 @@ function getVersionFromUrl(url: CanonicalUrl): string | undefined {
     return version;
 }
 
-function determineKind(fhirSchema: RichFHIRSchema): Identifier["kind"] {
+function determineKind(fhirSchema: RichFHIRSchema): TypeIdentifier["kind"] {
     if (fhirSchema.derivation === "constraint") return "profile";
     if (fhirSchema.kind === "primitive-type") return "primitive-type";
     if (fhirSchema.kind === "complex-type") return "complex-type";
@@ -36,7 +36,7 @@ function determineKind(fhirSchema: RichFHIRSchema): Identifier["kind"] {
     return "resource";
 }
 
-export function mkIdentifier(fhirSchema: RichFHIRSchema): Identifier {
+export function mkIdentifier(fhirSchema: RichFHIRSchema): TypeIdentifier {
     return {
         kind: determineKind(fhirSchema),
         package: fhirSchema.package_meta.name,
