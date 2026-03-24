@@ -38,12 +38,12 @@ export interface DataRequirementSort extends Element {
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/DataRequirement (pkg: hl7.fhir.r4.core#4.0.1)
 export interface DataRequirement extends Element {
-    codeFilter?: Element[];
-    dateFilter?: Element[];
+    codeFilter?: DataRequirementCodeFilter[];
+    dateFilter?: DataRequirementDateFilter[];
     limit?: number;
     mustSupport?: string[];
     profile?: string[];
-    sort?: Element[];
+    sort?: DataRequirementSort[];
     subjectCodeableConcept?: CodeableConcept;
     subjectReference?: Reference<"Group">;
     type: string;

@@ -24,7 +24,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                     id: { type: "id" },
                     name: { type: "string" },
                 },
-                class: "",
+                class: "resource",
             };
 
             const result = await registerFsAndMkTs(r4, fhirSchema, logger);
@@ -42,7 +42,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 base: "Patient",
                 url: "http://example.org/CustomPatient",
                 elements: {},
-                class: "",
+                class: "resource",
             };
 
             const result = await registerFsAndMkTs(r4, fhirSchema, logger);
@@ -60,7 +60,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                 kind: "primitive-type",
                 base: "http://hl7.org/fhir/StructureDefinition/Element",
                 url: "http://hl7.org/fhir/StructureDefinition/string",
-                class: "",
+                class: "resource",
             };
 
             const result = await registerFsAndMkTs(r4, fhirSchema, logger);
@@ -126,7 +126,7 @@ describe("TypeSchema Transformer Core Logic", async () => {
                         },
                     },
                 },
-                class: "",
+                class: "resource",
             };
 
             const result = await registerFsAndMkTs(r4, fhirSchema, logger);

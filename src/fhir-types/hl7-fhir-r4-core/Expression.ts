@@ -10,7 +10,7 @@ export type { Element } from "../hl7-fhir-r4-core/Element";
 export interface Expression extends Element {
     description?: string;
     expression?: string;
-    language: string;
+    language: ("text/cql" | "text/fhirpath" | "application/x-fhir-query" | string);
     name?: string;
     reference?: string;
 }

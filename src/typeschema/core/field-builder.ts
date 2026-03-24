@@ -4,13 +4,12 @@
  * Functions for transforming FHIRSchema elements into TypeSchema fields
  */
 
-import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
+import type { FHIRSchemaDiscriminator, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
 import type { CodegenLog } from "@root/utils/log";
 import { packageMetaToFhir } from "@typeschema/types";
 import type {
     BindingIdentifier,
-    DiscriminatorType,
     EnumDefinition,
     Field,
     FieldSlice,
@@ -200,16 +199,9 @@ const computeTypeDiscriminatorMatch = (
  * Used when a slice has an empty match but the discriminator values are nested deeper
  * (e.g., component slices in BP where the discriminator crosses a nested slicing boundary).
  */
-const validDiscriminatorTypes = new Set<string>(["value", "exists", "pattern", "type", "profile"]);
-
-// TODO: Update type in FHIR Schema to prevent this casting.
-const toDiscriminators = (
-    raw: { type: string; path: string }[] | undefined,
-): { type: DiscriminatorType; path: string }[] =>
-    (raw ?? []).filter((d) => validDiscriminatorTypes.has(d.type)) as { type: DiscriminatorType; path: string }[];
 
 const computeMatchFromSchema = (
-    discriminators: { type: DiscriminatorType; path: string }[],
+    discriminators: FHIRSchemaDiscriminator[],
     schema: FHIRSchemaElement | undefined,
 ): Record<string, unknown> | undefined => {
     if (!schema || !discriminators || discriminators.length === 0) return undefined;
@@ -239,7 +231,7 @@ const buildSlicing = (element: FHIRSchemaElement): FieldSlicing | undefined => {
             min: slice.min,
             max: slice.max,
             match: isEmptyMatch(slice.match)
-                ? computeMatchFromSchema(toDiscriminators(slicing.discriminator), slice.schema)
+                ? computeMatchFromSchema(slicing.discriminator ?? [], slice.schema)
                 : (slice.match as Record<string, unknown> | undefined),
             required,
             excluded,
@@ -248,7 +240,7 @@ const buildSlicing = (element: FHIRSchemaElement): FieldSlicing | undefined => {
     }
 
     return {
-        discriminator: toDiscriminators(slicing.discriminator),
+        discriminator: slicing.discriminator ?? [],
         rules: slicing.rules,
         ordered: slicing.ordered,
         slices: Object.keys(slices).length > 0 ? slices : undefined,

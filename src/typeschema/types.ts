@@ -246,10 +246,8 @@ export interface ProfileTypeSchema {
     nested?: NestedTypeSchema[];
 }
 
-export type DiscriminatorType = "value" | "exists" | "pattern" | "type" | "profile";
-
 export interface FieldSlicing {
-    discriminator?: { type: DiscriminatorType; path: string }[];
+    discriminator?: FS.FHIRSchemaDiscriminator[];
     rules?: string;
     ordered?: boolean;
     slices?: Record<string, FieldSlice>;

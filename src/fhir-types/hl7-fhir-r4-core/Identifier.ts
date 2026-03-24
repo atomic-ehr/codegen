@@ -17,7 +17,7 @@ export interface Identifier extends Element {
     assigner?: Reference<"Organization">;
     period?: Period;
     system?: string;
-    type?: CodeableConcept;
+    type?: CodeableConcept<("DL" | "PPN" | "BRN" | "MR" | "MCN" | "EN" | "TAX" | "NIIP" | "PRN" | "MD" | "DR" | "ACSN" | "UDI" | "SNO" | "SB" | "PLAC" | "FILL" | "JHN" | string)>;
     use?: ("usual" | "official" | "temp" | "secondary" | "old");
     value?: string;
 }

@@ -32,7 +32,7 @@ export interface Dosage extends BackboneElement {
     additionalInstruction?: CodeableConcept[];
     asNeededBoolean?: boolean;
     asNeededCodeableConcept?: CodeableConcept;
-    doseAndRate?: Element[];
+    doseAndRate?: DosageDoseAndRate[];
     maxDosePerAdministration?: Quantity;
     maxDosePerLifetime?: Quantity;
     maxDosePerPeriod?: Ratio;
