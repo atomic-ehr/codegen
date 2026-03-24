@@ -64,9 +64,7 @@ hl7.fhir.r4.core:
     http://hl7.org/fhir/StructureDefinition/Patient: {}
     http://hl7.org/fhir/StructureDefinition/Resource: {}
   value-set: {}
-  nested:
-    http://hl7.org/fhir/StructureDefinition/Observation#component: {}
-    http://hl7.org/fhir/StructureDefinition/Observation#referenceRange: {}
+  nested: {}
   binding: {}
   profile:
     http://hl7.org/fhir/StructureDefinition/patient-birthPlace: {}
