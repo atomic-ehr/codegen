@@ -13,15 +13,6 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { typeschemaCommand } from "./typeschema";
 
-/**
- * CLI arguments interface
- */
-export interface CLIArgv {
-    verbose?: boolean;
-    debug?: boolean;
-    logLevel?: LogLevel;
-}
-
 let cliLogger = mkLogger({ prefix: "cli" });
 
 async function setupLoggingMiddleware(argv: any) {
