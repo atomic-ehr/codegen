@@ -181,9 +181,9 @@ export type TypeSchema =
     | BindingTypeSchema
     | ProfileTypeSchema;
 
-type SchemaGuardInput = { identifier: TypeIdentifier } | undefined;
+type TypeSchemaGuardInput = TypeSchema | NestedTypeSchema | undefined;
 
-export const isSpecializationTypeSchema = (schema: SchemaGuardInput): schema is SpecializationTypeSchema => {
+export const isSpecializationTypeSchema = (schema: TypeSchemaGuardInput): schema is SpecializationTypeSchema => {
     return (
         schema?.identifier.kind === "resource" ||
         schema?.identifier.kind === "complex-type" ||
@@ -191,31 +191,31 @@ export const isSpecializationTypeSchema = (schema: SchemaGuardInput): schema is 
     );
 };
 
-export const isComplexTypeTypeSchema = (schema: SchemaGuardInput): schema is ComplexTypeTypeSchema => {
+export const isComplexTypeTypeSchema = (schema: TypeSchemaGuardInput): schema is ComplexTypeTypeSchema => {
     return schema?.identifier.kind === "complex-type";
 };
 
-export const isResourceTypeSchema = (schema: SchemaGuardInput): schema is ResourceTypeSchema => {
+export const isResourceTypeSchema = (schema: TypeSchemaGuardInput): schema is ResourceTypeSchema => {
     return schema?.identifier.kind === "resource";
 };
 
-export const isPrimitiveTypeSchema = (schema: SchemaGuardInput): schema is PrimitiveTypeSchema => {
+export const isPrimitiveTypeSchema = (schema: TypeSchemaGuardInput): schema is PrimitiveTypeSchema => {
     return schema?.identifier.kind === "primitive-type";
 };
 
-export const isLogicalTypeSchema = (schema: SchemaGuardInput): schema is LogicalTypeSchema => {
+export const isLogicalTypeSchema = (schema: TypeSchemaGuardInput): schema is LogicalTypeSchema => {
     return schema?.identifier.kind === "logical";
 };
 
-export const isProfileTypeSchema = (schema: SchemaGuardInput): schema is ProfileTypeSchema => {
+export const isProfileTypeSchema = (schema: TypeSchemaGuardInput): schema is ProfileTypeSchema => {
     return schema?.identifier.kind === "profile";
 };
 
-export const isBindingSchema = (schema: SchemaGuardInput): schema is BindingTypeSchema => {
+export const isBindingSchema = (schema: TypeSchemaGuardInput): schema is BindingTypeSchema => {
     return schema?.identifier.kind === "binding";
 };
 
-export const isValueSetTypeSchema = (schema: SchemaGuardInput): schema is ValueSetTypeSchema => {
+export const isValueSetTypeSchema = (schema: TypeSchemaGuardInput): schema is ValueSetTypeSchema => {
     return schema?.identifier.kind === "value-set";
 };
 
