@@ -57,7 +57,7 @@ export interface StructureDefinition extends DomainResource {
     fhirVersion?: ("0.01" | "0.05" | "0.06" | "0.11" | "0.0.80" | "0.0.81" | "0.0.82" | "0.4.0" | "0.5.0" | "1.0.0" | "1.0.1" | "1.0.2" | "1.1.0" | "1.4.0" | "1.6.0" | "1.8.0" | "3.0.0" | "3.0.1" | "3.3.0" | "3.5.0" | "4.0.0" | "4.0.1");
     identifier?: Identifier[];
     jurisdiction?: CodeableConcept[];
-    keyword?: Coding[];
+    keyword?: Coding<("fhir-structure" | "custom-resource" | "dam" | "wire-format" | "archetype" | "template" | string)>[];
     kind: ("primitive-type" | "complex-type" | "resource" | "logical");
     mapping?: StructureDefinitionMapping[];
     name: string;

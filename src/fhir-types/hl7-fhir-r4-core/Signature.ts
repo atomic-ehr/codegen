@@ -16,7 +16,7 @@ export interface Signature extends Element {
     onBehalfOf?: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
     sigFormat?: string;
     targetFormat?: string;
-    type: Coding[];
+    type: Coding<("1.2.840.10065.1.12.1.1" | "1.2.840.10065.1.12.1.2" | "1.2.840.10065.1.12.1.3" | "1.2.840.10065.1.12.1.4" | "1.2.840.10065.1.12.1.5" | "1.2.840.10065.1.12.1.6" | "1.2.840.10065.1.12.1.7" | "1.2.840.10065.1.12.1.8" | "1.2.840.10065.1.12.1.9" | "1.2.840.10065.1.12.1.10" | "1.2.840.10065.1.12.1.11" | "1.2.840.10065.1.12.1.12" | "1.2.840.10065.1.12.1.13" | "1.2.840.10065.1.12.1.14" | "1.2.840.10065.1.12.1.15" | "1.2.840.10065.1.12.1.16" | "1.2.840.10065.1.12.1.17" | "1.2.840.10065.1.12.1.18" | string)>[];
     when: string;
     who: Reference<"Device" | "Organization" | "Patient" | "Practitioner" | "PractitionerRole" | "RelatedPerson">;
 }

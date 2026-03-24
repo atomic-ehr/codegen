@@ -155,7 +155,7 @@ export interface ElementDefinitionMapping extends Element {
 
 export interface ElementDefinitionSlicing extends Element {
     description?: string;
-    discriminator?: Element[];
+    discriminator?: ElementDefinitionSlicingDiscriminator[];
     ordered?: boolean;
     rules: ("closed" | "open" | "openAtEnd");
 }
@@ -176,12 +176,12 @@ export interface ElementDefinitionType extends Element {
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/ElementDefinition (pkg: hl7.fhir.r4.core#4.0.1)
 export interface ElementDefinition extends BackboneElement {
     alias?: string[];
-    base?: Element;
-    binding?: Element;
+    base?: ElementDefinitionBase;
+    binding?: ElementDefinitionBinding;
     code?: Coding[];
     comment?: string;
     condition?: string[];
-    constraint?: Element[];
+    constraint?: ElementDefinitionConstraint[];
     contentReference?: string;
     defaultValueAddress?: Address;
     defaultValueAge?: Age;
@@ -234,7 +234,7 @@ export interface ElementDefinition extends BackboneElement {
     defaultValueUsageContext?: UsageContext;
     defaultValueUuid?: string;
     definition?: string;
-    example?: Element[];
+    example?: ElementDefinitionExample[];
     fixedAddress?: Address;
     fixedAge?: Age;
     fixedAnnotation?: Annotation;
@@ -289,7 +289,7 @@ export interface ElementDefinition extends BackboneElement {
     isModifierReason?: string;
     isSummary?: boolean;
     label?: string;
-    mapping?: Element[];
+    mapping?: ElementDefinitionMapping[];
     max?: string;
     maxLength?: number;
     maxValueDate?: string;
@@ -370,6 +370,6 @@ export interface ElementDefinition extends BackboneElement {
     short?: string;
     sliceIsConstraining?: boolean;
     sliceName?: string;
-    slicing?: Element;
-    type?: Element[];
+    slicing?: ElementDefinitionSlicing;
+    type?: ElementDefinitionType[];
 }
