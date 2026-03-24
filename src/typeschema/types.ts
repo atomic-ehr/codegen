@@ -69,16 +69,36 @@ export type RichStructureDefinition = Omit<StructureDefinition, "url"> & {
     url: CanonicalUrl;
 };
 
-export type RichFHIRSchema = Omit<FS.FHIRSchema, "package_meta" | "base" | "name" | "url"> & {
+export type FHIRSchemaKind = "primitive-type" | "complex-type" | "resource" | "logical";
+
+type RichFHIRSchemaBase = Omit<FS.FHIRSchema, "package_meta" | "base" | "name" | "url" | "derivation" | "kind"> & {
     package_meta: PackageMeta;
     name: Name;
     url: CanonicalUrl;
     base: CanonicalUrl;
+    kind: FHIRSchemaKind;
 };
 
+export type RichProfileFHIRSchema = RichFHIRSchemaBase & { derivation: "constraint" };
+
+export type RichPrimitiveFHIRSchema = RichFHIRSchemaBase & { derivation: "specialization"; kind: "primitive-type" };
+export type RichComplexTypeFHIRSchema = RichFHIRSchemaBase & { derivation: "specialization"; kind: "complex-type" };
+export type RichResourceFHIRSchema = RichFHIRSchemaBase & { derivation: "specialization"; kind: "resource" };
+export type RichLogicalFHIRSchema = RichFHIRSchemaBase & { derivation: "specialization"; kind: "logical" };
+export type RichSpecializationFHIRSchema =
+    | RichPrimitiveFHIRSchema
+    | RichComplexTypeFHIRSchema
+    | RichResourceFHIRSchema
+    | RichLogicalFHIRSchema;
+
+export type RichFHIRSchema = RichProfileFHIRSchema | RichSpecializationFHIRSchema;
+
 export const enrichFHIRSchema = (schema: FS.FHIRSchema, packageMeta: PackageMeta): RichFHIRSchema => {
+    const derivation = schema.derivation === "constraint" ? ("constraint" as const) : ("specialization" as const);
     return {
         ...schema,
+        derivation,
+        kind: schema.kind as FHIRSchemaKind,
         package_meta: schema.package_meta || packageMeta,
         name: schema.name as Name,
         url: schema.url as CanonicalUrl,
@@ -93,7 +113,7 @@ type IdentifierBase = {
     version: PkgVersion;
 };
 
-type PrimitiveIdentifier = { kind: "primitive-type" } & IdentifierBase;
+export type PrimitiveIdentifier = { kind: "primitive-type" } & IdentifierBase;
 export type ComplexTypeIdentifier = { kind: "complex-type" } & IdentifierBase;
 export type ResourceIdentifier = { kind: "resource" } & IdentifierBase;
 export type ValueSetIdentifier = { kind: "value-set" } & IdentifierBase;
