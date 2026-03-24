@@ -7,21 +7,29 @@ import type { Register } from "./register";
 import {
     type CanonicalUrl,
     type ChoiceFieldInstance,
+    type ComplexTypeTypeSchema,
     type ConstrainedChoiceInfo,
     type Field,
+    type Identifier,
     isChoiceDeclarationField,
     isChoiceInstanceField,
     isComplexTypeIdentifier,
     isComplexTypeTypeSchema,
     isLogicalTypeSchema,
+    isNestedIdentifier,
+    isNestedTypeSchema,
     isProfileTypeSchema,
     isResourceIdentifier,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
+    type LogicalTypeSchema,
+    type NestedTypeSchema,
     type PkgName,
     type ProfileExtension,
     type ProfileTypeSchema,
+    type ResourceTypeSchema,
     type SpecializationTypeSchema,
+    type TypeFamily,
     type TypeIdentifier,
     type TypeSchema,
 } from "./types";
@@ -135,7 +143,7 @@ const populateTypeFamily = (schemas: TypeSchema[]): void => {
         if (allChildren.length === 0) continue;
         const resources = allChildren.filter(isResourceIdentifier);
         const complexTypes = allChildren.filter(isComplexTypeIdentifier);
-        const family: NonNullable<SpecializationTypeSchema["typeFamily"]> = {};
+        const family: TypeFamily = {};
         if (resources.length > 0) family.resources = resources;
         if (complexTypes.length > 0) family.complexTypes = complexTypes;
         if (Object.keys(family).length > 0) schema.typeFamily = family;
@@ -150,12 +158,13 @@ export type TypeSchemaIndex = {
     schemas: TypeSchema[];
     schemasByPackage: Record<PkgName, TypeSchema[]>;
     register?: Register;
-    collectComplexTypes: () => SpecializationTypeSchema[];
-    collectResources: () => SpecializationTypeSchema[];
-    collectLogicalModels: () => SpecializationTypeSchema[];
+    collectComplexTypes: () => ComplexTypeTypeSchema[];
+    collectResources: () => ResourceTypeSchema[];
+    collectLogicalModels: () => LogicalTypeSchema[];
     collectProfiles: () => ProfileTypeSchema[];
-    resolve: (id: TypeIdentifier) => TypeSchema | undefined;
-    resolveByUrl: (pkgName: PkgName, url: CanonicalUrl) => TypeSchema | undefined;
+    resolve: (id: Identifier) => TypeSchema | undefined;
+    resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | undefined;
+    resolveByUrl: (pkgName: PkgName, url: CanonicalUrl) => TypeSchema | NestedTypeSchema | undefined;
     tryHierarchy: (schema: TypeSchema) => TypeSchema[] | undefined;
     hierarchy: (schema: TypeSchema) => TypeSchema[];
     findLastSpecialization: (schema: TypeSchema) => TypeSchema;
@@ -188,7 +197,7 @@ export const mkTypeSchemaIndex = (
     },
 ): TypeSchemaIndex => {
     const index: Record<CanonicalUrl, Record<PkgName, TypeSchema>> = {};
-    const nestedIndex: Record<CanonicalUrl, Record<PkgName, TypeSchema>> = {};
+    const nestedIndex: Record<CanonicalUrl, Record<PkgName, NestedTypeSchema>> = {};
     const append = (schema: TypeSchema) => {
         const url = schema.identifier.url;
         const pkg = schema.identifier.package;
@@ -218,11 +227,14 @@ export const mkTypeSchemaIndex = (
     }
     populateTypeFamily(schemas);
 
-    const resolve = (id: TypeIdentifier) => {
-        if (id.kind === "nested") return nestedIndex[id.url]?.[id.package];
+    const resolve = (id: Identifier): TypeSchema | undefined => {
         return index[id.url]?.[id.package];
     };
-    const resolveByUrl = (pkgName: PkgName, url: CanonicalUrl) => {
+    const resolveType = (id: TypeIdentifier): TypeSchema | NestedTypeSchema | undefined => {
+        if (isNestedIdentifier(id)) return nestedIndex[id.url]?.[id.package];
+        return index[id.url]?.[id.package];
+    };
+    const resolveByUrl = (pkgName: PkgName, url: CanonicalUrl): TypeSchema | NestedTypeSchema | undefined => {
         if (register) {
             const resolutionTree = register.resolutionTree();
             const resolution = resolutionTree[pkgName]?.[url]?.[0];
@@ -242,6 +254,13 @@ export const mkTypeSchemaIndex = (
                 return index[url]?.[anyPkg];
             }
         }
+        if (nestedIndex[url]) {
+            const anyPkg = Object.keys(nestedIndex[url])[0];
+            if (anyPkg) {
+                logger?.dryWarn(`Type '${url}' fallback to package ${anyPkg}`);
+                return nestedIndex[url]?.[anyPkg];
+            }
+        }
         return undefined;
     };
 
@@ -252,6 +271,7 @@ export const mkTypeSchemaIndex = (
             res.push(cur);
             const base = (cur as SpecializationTypeSchema).base;
             if (base === undefined) break;
+            if (isNestedIdentifier(base)) break;
             const resolved = resolve(base);
             if (!resolved) {
                 logger?.warn(
@@ -282,9 +302,10 @@ export const mkTypeSchemaIndex = (
     };
 
     const findLastSpecializationByIdentifier = (id: TypeIdentifier): TypeIdentifier => {
-        const schema = resolve(id);
-        if (!schema) return id;
-        return findLastSpecialization(schema).identifier;
+        const resolved = resolveType(id);
+        if (!resolved) return id;
+        if (isNestedTypeSchema(resolved)) return findLastSpecializationByIdentifier(resolved.base);
+        return findLastSpecialization(resolved).identifier;
     };
 
     /** Narrow choice declarations by finding the most derived schema that constrains each choice group.
@@ -456,6 +477,7 @@ export const mkTypeSchemaIndex = (
         collectLogicalModels: () => schemas.filter(isLogicalTypeSchema),
         collectProfiles: () => schemas.filter(isProfileTypeSchema),
         resolve,
+        resolveType,
         resolveByUrl,
         tryHierarchy,
         hierarchy,

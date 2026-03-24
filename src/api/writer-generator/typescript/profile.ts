@@ -168,7 +168,7 @@ const collectBaseRequiredParams = (
     coveredNames: string[],
 ) => {
     const covered = new Set(coveredNames);
-    const baseSchema = tsIndex.resolve(flatProfile.base);
+    const baseSchema = tsIndex.resolveType(flatProfile.base);
     if (!baseSchema || !("fields" in baseSchema) || !baseSchema.fields) return;
     for (const [name, field] of Object.entries(baseSchema.fields)) {
         if (covered.has(name)) continue;

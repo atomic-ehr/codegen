@@ -11,6 +11,7 @@ import {
     isProfileTypeSchema,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
+    type NestedTypeSchema,
     packageMeta,
     packageMetaToFhir,
     type SpecializationTypeSchema,
@@ -198,7 +199,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         this.lineSM(`${extFieldName}?: ${typeExpr}`);
     }
 
-    generateType(tsIndex: TypeSchemaIndex, schema: SpecializationTypeSchema) {
+    generateType(tsIndex: TypeSchemaIndex, schema: SpecializationTypeSchema | NestedTypeSchema) {
         let name: string;
         // Generic types: Reference, Coding, CodeableConcept
         const genericTypes = ["Reference", "Coding", "CodeableConcept"];
@@ -212,7 +213,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         const typeFamilyFields: { fieldName: string; familyTypeName: string }[] = [];
         for (const [fieldName, field] of Object.entries(schema.fields ?? {})) {
             if (isChoiceDeclarationField(field) || !field.type) continue;
-            const fieldTypeSchema = tsIndex.resolve(field.type);
+            const fieldTypeSchema = tsIndex.resolveType(field.type);
             if (
                 isSpecializationTypeSchema(fieldTypeSchema) &&
                 (fieldTypeSchema.typeFamily?.resources?.length ?? 0) > 0
@@ -285,7 +286,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         });
     }
 
-    withPrimitiveTypeExtension(schema: TypeSchema): boolean {
+    withPrimitiveTypeExtension(schema: TypeSchema | NestedTypeSchema): boolean {
         if (!this.opts.primitiveTypeExtension) return false;
         if (!isSpecializationTypeSchema(schema)) return false;
         for (const field of Object.values(schema.fields ?? {})) {

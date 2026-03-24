@@ -15,7 +15,6 @@ import {
     type Field,
     type Identifier,
     isNestedIdentifier,
-    isProfileIdentifier,
     type NestedTypeSchema,
     type ProfileIdentifier,
     packageMetaToFhir,
@@ -137,8 +136,6 @@ export const extractProfileDependencies = (
 };
 
 export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSchema, logger?: CodegenLog): TypeSchema[] {
-    const identifier = mkIdentifier(fhirSchema);
-
     let base: Identifier | undefined;
     if (fhirSchema.base) {
         const baseFs = register.resolveFs(
@@ -156,38 +153,51 @@ export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSche
 
     const fields = mkFields(register, fhirSchema, [], fhirSchema.elements, logger);
     const nested = mkNestedTypes(register, fhirSchema, logger);
+    const bindingSchemas = collectBindingSchemas(register, fhirSchema, logger);
 
-    let typeSchema: TypeSchema;
     if (fhirSchema.derivation === "constraint") {
+        const identifier = mkIdentifier(fhirSchema);
         if (!base) throw new Error(`Profile ${fhirSchema.url} must have a base type`);
-        assert(isProfileIdentifier(identifier));
         const extensions = extractProfileExtensions(register, fhirSchema, logger);
         const extensionDeps = extensions?.flatMap(extractExtensionDeps);
         const rawDeps = extractProfileDependencies(identifier, base, fields, nested);
-        typeSchema = {
-            identifier,
-            base,
-            fields,
-            nested,
-            description: fhirSchema.description,
-            dependencies: concatIdentifiers(rawDeps, extensionDeps),
-            extensions,
-        };
-    } else {
-        assert(!isNestedIdentifier(identifier), `Unexpected nested identifier for ${fhirSchema.url}`);
-        const rawDeps = extractDependencies(identifier, base, fields, nested);
-        const specialization: SpecializationTypeSchema = {
-            identifier,
-            base,
-            fields,
-            nested,
-            description: fhirSchema.description,
-            dependencies: rawDeps,
-            typeFamily: undefined, // NOTE: should be populateTypeFamily later.
-        };
-        typeSchema = specialization;
+        return [
+            {
+                identifier,
+                base,
+                fields,
+                nested,
+                description: fhirSchema.description,
+                dependencies: concatIdentifiers(rawDeps, extensionDeps),
+                extensions,
+            },
+            ...bindingSchemas,
+        ];
     }
 
-    const bindingSchemas = collectBindingSchemas(register, fhirSchema, logger);
-    return [typeSchema, ...bindingSchemas];
+    if (fhirSchema.kind === "primitive-type") {
+        const identifier = mkIdentifier(fhirSchema);
+        assert(base, `Primitive type ${fhirSchema.url} must have a base type`);
+        return [
+            {
+                identifier,
+                description: fhirSchema.description,
+                base,
+                dependencies: extractDependencies(identifier, base, fields, nested),
+            },
+            ...bindingSchemas,
+        ];
+    }
+
+    const identifier = mkIdentifier(fhirSchema);
+    const schema = {
+        identifier,
+        base,
+        fields,
+        nested,
+        description: fhirSchema.description,
+        dependencies: extractDependencies(identifier, base, fields, nested),
+        typeFamily: undefined,
+    } as SpecializationTypeSchema;
+    return [schema, ...bindingSchemas];
 }

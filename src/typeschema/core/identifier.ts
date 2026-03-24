@@ -8,11 +8,21 @@ import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type {
     BindingIdentifier,
     CanonicalUrl,
+    ComplexTypeIdentifier,
+    Identifier,
+    LogicalIdentifier,
     Name,
     PackageMeta,
+    PrimitiveIdentifier,
+    ProfileIdentifier,
+    ResourceIdentifier,
+    RichComplexTypeFHIRSchema,
     RichFHIRSchema,
+    RichLogicalFHIRSchema,
+    RichPrimitiveFHIRSchema,
+    RichProfileFHIRSchema,
+    RichResourceFHIRSchema,
     RichValueSet,
-    TypeIdentifier,
     ValueSetIdentifier,
 } from "@typeschema/types";
 import type { Register } from "../register";
@@ -27,23 +37,30 @@ function getVersionFromUrl(url: CanonicalUrl): string | undefined {
     return version;
 }
 
-function determineKind(fhirSchema: RichFHIRSchema): TypeIdentifier["kind"] {
-    if (fhirSchema.derivation === "constraint") return "profile";
-    if (fhirSchema.kind === "primitive-type") return "primitive-type";
-    if (fhirSchema.kind === "complex-type") return "complex-type";
-    if (fhirSchema.kind === "resource") return "resource";
-    if (fhirSchema.kind === "logical") return "logical";
-    return "resource";
-}
+const identifierBase = (fhirSchema: RichFHIRSchema) => ({
+    package: fhirSchema.package_meta.name,
+    version: fhirSchema.package_meta.version,
+    name: fhirSchema.name,
+    url: fhirSchema.url,
+});
 
-export function mkIdentifier(fhirSchema: RichFHIRSchema): TypeIdentifier {
-    return {
-        kind: determineKind(fhirSchema),
-        package: fhirSchema.package_meta.name,
-        version: fhirSchema.package_meta.version,
-        name: fhirSchema.name,
-        url: fhirSchema.url,
-    };
+export function mkIdentifier(fhirSchema: RichProfileFHIRSchema): ProfileIdentifier;
+export function mkIdentifier(fhirSchema: RichPrimitiveFHIRSchema): PrimitiveIdentifier;
+export function mkIdentifier(fhirSchema: RichComplexTypeFHIRSchema): ComplexTypeIdentifier;
+export function mkIdentifier(fhirSchema: RichResourceFHIRSchema): ResourceIdentifier;
+export function mkIdentifier(fhirSchema: RichLogicalFHIRSchema): LogicalIdentifier;
+export function mkIdentifier(
+    fhirSchema: RichComplexTypeFHIRSchema | RichResourceFHIRSchema | RichLogicalFHIRSchema,
+): ComplexTypeIdentifier | ResourceIdentifier | LogicalIdentifier;
+export function mkIdentifier(fhirSchema: RichFHIRSchema): Identifier;
+export function mkIdentifier(fhirSchema: RichFHIRSchema): Identifier {
+    const fields = identifierBase(fhirSchema);
+    if (fhirSchema.derivation === "constraint") return { kind: "profile", ...fields };
+    if (fhirSchema.kind === "primitive-type") return { kind: "primitive-type", ...fields };
+    if (fhirSchema.kind === "complex-type") return { kind: "complex-type", ...fields };
+    if (fhirSchema.kind === "resource") return { kind: "resource", ...fields };
+    if (fhirSchema.kind === "logical") return { kind: "logical", ...fields };
+    return { kind: "resource", ...fields };
 }
 
 const getValueSetName = (url: CanonicalUrl): Name => {

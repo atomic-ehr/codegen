@@ -10,6 +10,7 @@ import {
     isChoiceDeclarationField,
     isChoiceInstanceField,
     isNestedIdentifier,
+    isNestedTypeSchema,
     isNotChoiceDeclarationField,
     isPrimitiveTypeSchema,
     isProfileTypeSchema,
@@ -242,7 +243,7 @@ export const treeShake = (tsIndex: TypeSchemaIndex, treeShake: TreeShakeConf): T
     for (const [pkgId, requires] of Object.entries(treeShake)) {
         for (const [url, rule] of Object.entries(requires)) {
             const schema = tsIndex.resolveByUrl(pkgId, url as CanonicalUrl);
-            if (!schema) throw new Error(`Schema not found for ${pkgId} ${url}`);
+            if (!schema || isNestedTypeSchema(schema)) throw new Error(`Schema not found for ${pkgId} ${url}`);
             const shaked = treeShakeTypeSchema(schema, rule);
             focusedSchemas.push(shaked);
         }
@@ -259,6 +260,7 @@ export const treeShake = (tsIndex: TypeSchemaIndex, treeShake: TreeShakeConf): T
             if (isSpecializationTypeSchema(schema) || isProfileTypeSchema(schema)) {
                 if (!schema.dependencies) continue;
                 schema.dependencies.forEach((dep) => {
+                    if (isNestedIdentifier(dep)) return;
                     const depSchema = tsIndex.resolve(dep);
                     if (!depSchema)
                         throw new Error(
@@ -267,13 +269,8 @@ export const treeShake = (tsIndex: TypeSchemaIndex, treeShake: TreeShakeConf): T
                     const id = JSON.stringify(depSchema.identifier);
                     if (!acc[id]) newSchemas.push(depSchema);
                 });
-                if (schema.nested) {
-                    for (const nest of schema.nested) {
-                        if (isNestedIdentifier(nest.identifier)) continue;
-                        const id = JSON.stringify(nest.identifier);
-                        if (!acc[id]) newSchemas.push(nest);
-                    }
-                }
+                // NOTE: nested types' deps are already included in the parent's dependencies
+                // via extractNestedDependencies, so no need to collect them separately.
             }
         }
         return collectDeps(newSchemas, acc);

@@ -46,7 +46,7 @@ describe("TypeSchema Index", () => {
                 },
             };
 
-            const bSchema: SpecializationTypeSchema = {
+            const bSchema: ProfileTypeSchema = {
                 identifier: {
                     name: "B" as Name,
                     package: "test",
@@ -84,11 +84,10 @@ describe("TypeSchema Index", () => {
                 identifier: {
                     name: "B" as Name,
                     package: "test",
-                    kind: "profile",
+                    kind: "resource",
                     version: "1.0.0",
                     url: "http://example.org/StructureDefinition/B" as CanonicalUrl,
                 },
-                // No base provided
             };
 
             const index = mkTypeSchemaIndex([bSchema], {});
@@ -108,7 +107,7 @@ describe("TypeSchema Index", () => {
                 },
             };
 
-            const bSchema: SpecializationTypeSchema = {
+            const bSchema: ProfileTypeSchema = {
                 identifier: {
                     name: "B" as Name,
                     package: "test",
@@ -119,7 +118,7 @@ describe("TypeSchema Index", () => {
                 base: aSchema.identifier,
             };
 
-            const cSchema: SpecializationTypeSchema = {
+            const cSchema: ProfileTypeSchema = {
                 identifier: {
                     name: "C" as Name,
                     package: "test",
@@ -137,7 +136,7 @@ describe("TypeSchema Index", () => {
         });
 
         it("should throw an error when base type cannot be resolved", () => {
-            const bSchema: SpecializationTypeSchema = {
+            const bSchema: ProfileTypeSchema = {
                 identifier: {
                     name: "B" as Name,
                     package: "test",
@@ -172,7 +171,7 @@ describe("TypeSchema Index", () => {
                 },
             };
 
-            const bSchema: SpecializationTypeSchema = {
+            const bSchema: ProfileTypeSchema = {
                 identifier: {
                     name: "B" as Name,
                     package: "TEST",
