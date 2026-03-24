@@ -100,7 +100,7 @@ export class ViewModelFactory {
         cache: ViewModelCache,
         nestedIn?: TypeSchema,
     ): TypeViewModel {
-        const type = this.tsIndex.resolve(typeRef);
+        const type = this.tsIndex.resolveType(typeRef);
         if (!type) {
             throw new Error(`ComplexType ${typeRef.name} not found`);
         }
@@ -113,7 +113,7 @@ export class ViewModelFactory {
     }
 
     private _createForResource(typeRef: TypeIdentifier, cache: ViewModelCache, nestedIn?: TypeSchema): TypeViewModel {
-        const type = this.tsIndex.resolve(typeRef);
+        const type = this.tsIndex.resolveType(typeRef);
         if (!type) {
             throw new Error(`Resource ${typeRef.name} not found`);
         }
@@ -126,7 +126,7 @@ export class ViewModelFactory {
     }
 
     private _createChildrenFor(typeRef: TypeIdentifier, cache: ViewModelCache, nestedIn?: TypeSchema): TypeViewModel[] {
-        const schema = this.tsIndex.resolve(typeRef);
+        const schema = this.tsIndex.resolveType(typeRef);
         if (!schema) return [];
         if (isComplexTypeTypeSchema(schema)) {
             return (schema.typeFamily?.complexTypes ?? [])
@@ -146,7 +146,7 @@ export class ViewModelFactory {
         let parentRef: TypeIdentifier | undefined = "base" in base ? base.base : undefined;
         while (parentRef) {
             parents.push(this._createFor(parentRef, cache, undefined));
-            const parent = this.tsIndex.resolve(parentRef);
+            const parent = this.tsIndex.resolveType(parentRef);
             parentRef = parent && "base" in parent ? parent.base : undefined;
         }
         return parents;

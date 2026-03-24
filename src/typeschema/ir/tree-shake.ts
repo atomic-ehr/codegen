@@ -10,6 +10,7 @@ import {
     isChoiceDeclarationField,
     isChoiceInstanceField,
     isNestedIdentifier,
+    isNestedTypeSchema,
     isNotChoiceDeclarationField,
     isPrimitiveTypeSchema,
     isProfileTypeSchema,
@@ -242,7 +243,7 @@ export const treeShake = (tsIndex: TypeSchemaIndex, treeShake: TreeShakeConf): T
     for (const [pkgId, requires] of Object.entries(treeShake)) {
         for (const [url, rule] of Object.entries(requires)) {
             const schema = tsIndex.resolveByUrl(pkgId, url as CanonicalUrl);
-            if (!schema) throw new Error(`Schema not found for ${pkgId} ${url}`);
+            if (!schema || isNestedTypeSchema(schema)) throw new Error(`Schema not found for ${pkgId} ${url}`);
             const shaked = treeShakeTypeSchema(schema, rule);
             focusedSchemas.push(shaked);
         }
@@ -259,6 +260,7 @@ export const treeShake = (tsIndex: TypeSchemaIndex, treeShake: TreeShakeConf): T
             if (isSpecializationTypeSchema(schema) || isProfileTypeSchema(schema)) {
                 if (!schema.dependencies) continue;
                 schema.dependencies.forEach((dep) => {
+                    if (isNestedIdentifier(dep)) return;
                     const depSchema = tsIndex.resolve(dep);
                     if (!depSchema)
                         throw new Error(

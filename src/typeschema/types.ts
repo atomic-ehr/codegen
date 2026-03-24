@@ -183,6 +183,10 @@ export type TypeSchema =
 
 type TypeSchemaGuardInput = TypeSchema | NestedTypeSchema | undefined;
 
+export const isNestedTypeSchema = (schema: TypeSchemaGuardInput): schema is NestedTypeSchema => {
+    return schema !== undefined && isNestedIdentifier(schema.identifier);
+};
+
 export const isSpecializationTypeSchema = (schema: TypeSchemaGuardInput): schema is SpecializationTypeSchema => {
     return (
         schema?.identifier.kind === "resource" ||

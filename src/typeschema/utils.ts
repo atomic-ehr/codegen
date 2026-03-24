@@ -10,11 +10,14 @@ import {
     type ComplexTypeTypeSchema,
     type ConstrainedChoiceInfo,
     type Field,
+    type Identifier,
     isChoiceDeclarationField,
     isChoiceInstanceField,
     isComplexTypeIdentifier,
     isComplexTypeTypeSchema,
     isLogicalTypeSchema,
+    isNestedIdentifier,
+    isNestedTypeSchema,
     isProfileTypeSchema,
     isResourceIdentifier,
     isResourceTypeSchema,
@@ -159,8 +162,9 @@ export type TypeSchemaIndex = {
     collectResources: () => ResourceTypeSchema[];
     collectLogicalModels: () => LogicalTypeSchema[];
     collectProfiles: () => ProfileTypeSchema[];
-    resolve: (id: TypeIdentifier) => TypeSchema | undefined;
-    resolveByUrl: (pkgName: PkgName, url: CanonicalUrl) => TypeSchema | undefined;
+    resolve: (id: Identifier) => TypeSchema | undefined;
+    resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | undefined;
+    resolveByUrl: (pkgName: PkgName, url: CanonicalUrl) => TypeSchema | NestedTypeSchema | undefined;
     tryHierarchy: (schema: TypeSchema) => TypeSchema[] | undefined;
     hierarchy: (schema: TypeSchema) => TypeSchema[];
     findLastSpecialization: (schema: TypeSchema) => TypeSchema;
@@ -223,11 +227,14 @@ export const mkTypeSchemaIndex = (
     }
     populateTypeFamily(schemas);
 
-    const resolve = (id: TypeIdentifier): TypeSchema | undefined => {
-        if (id.kind === "nested") return nestedIndex[id.url]?.[id.package] as unknown as TypeSchema | undefined;
+    const resolve = (id: Identifier): TypeSchema | undefined => {
         return index[id.url]?.[id.package];
     };
-    const resolveByUrl = (pkgName: PkgName, url: CanonicalUrl) => {
+    const resolveType = (id: TypeIdentifier): TypeSchema | NestedTypeSchema | undefined => {
+        if (isNestedIdentifier(id)) return nestedIndex[id.url]?.[id.package];
+        return index[id.url]?.[id.package];
+    };
+    const resolveByUrl = (pkgName: PkgName, url: CanonicalUrl): TypeSchema | NestedTypeSchema | undefined => {
         if (register) {
             const resolutionTree = register.resolutionTree();
             const resolution = resolutionTree[pkgName]?.[url]?.[0];
@@ -236,7 +243,7 @@ export const mkTypeSchemaIndex = (
             }
         }
         if (index[url]?.[pkgName]) return index[url]?.[pkgName];
-        if (nestedIndex[url]?.[pkgName]) return nestedIndex[url]?.[pkgName] as unknown as TypeSchema;
+        if (nestedIndex[url]?.[pkgName]) return nestedIndex[url]?.[pkgName];
         logger?.dryWarn(`Type '${url}' not found in '${pkgName}'`);
 
         // Fallback: search across all packages when type exists elsewhere
@@ -245,6 +252,13 @@ export const mkTypeSchemaIndex = (
             if (anyPkg) {
                 logger?.dryWarn(`Type '${url}' fallback to package ${anyPkg}`);
                 return index[url]?.[anyPkg];
+            }
+        }
+        if (nestedIndex[url]) {
+            const anyPkg = Object.keys(nestedIndex[url])[0];
+            if (anyPkg) {
+                logger?.dryWarn(`Type '${url}' fallback to package ${anyPkg}`);
+                return nestedIndex[url]?.[anyPkg];
             }
         }
         return undefined;
@@ -257,6 +271,7 @@ export const mkTypeSchemaIndex = (
             res.push(cur);
             const base = (cur as SpecializationTypeSchema).base;
             if (base === undefined) break;
+            if (isNestedIdentifier(base)) break;
             const resolved = resolve(base);
             if (!resolved) {
                 logger?.warn(
@@ -287,9 +302,10 @@ export const mkTypeSchemaIndex = (
     };
 
     const findLastSpecializationByIdentifier = (id: TypeIdentifier): TypeIdentifier => {
-        const schema = resolve(id);
-        if (!schema) return id;
-        return findLastSpecialization(schema).identifier;
+        const resolved = resolveType(id);
+        if (!resolved) return id;
+        if (isNestedTypeSchema(resolved)) return findLastSpecializationByIdentifier(resolved.base);
+        return findLastSpecialization(resolved).identifier;
     };
 
     /** Narrow choice declarations by finding the most derived schema that constrains each choice group.
@@ -461,6 +477,7 @@ export const mkTypeSchemaIndex = (
         collectLogicalModels: () => schemas.filter(isLogicalTypeSchema),
         collectProfiles: () => schemas.filter(isProfileTypeSchema),
         resolve,
+        resolveType,
         resolveByUrl,
         tryHierarchy,
         hierarchy,

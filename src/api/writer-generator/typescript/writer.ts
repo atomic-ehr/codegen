@@ -213,7 +213,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         const typeFamilyFields: { fieldName: string; familyTypeName: string }[] = [];
         for (const [fieldName, field] of Object.entries(schema.fields ?? {})) {
             if (isChoiceDeclarationField(field) || !field.type) continue;
-            const fieldTypeSchema = tsIndex.resolve(field.type);
+            const fieldTypeSchema = tsIndex.resolveType(field.type);
             if (
                 isSpecializationTypeSchema(fieldTypeSchema) &&
                 (fieldTypeSchema.typeFamily?.resources?.length ?? 0) > 0

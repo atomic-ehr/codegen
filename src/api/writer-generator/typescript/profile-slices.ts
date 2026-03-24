@@ -22,7 +22,7 @@ import type { TypeScript } from "./writer";
 /** Collect choice declaration field names from a base type schema */
 const collectChoiceBaseNames = (tsIndex: TypeSchemaIndex, typeId: TypeIdentifier): Set<string> => {
     const names = new Set<string>();
-    const schema = tsIndex.resolve(typeId);
+    const schema = tsIndex.resolveType(typeId);
     if (schema && "fields" in schema && schema.fields) {
         for (const [name, f] of Object.entries(schema.fields)) {
             if (isChoiceDeclarationField(f)) names.add(name);
