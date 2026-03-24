@@ -29,15 +29,15 @@ import {
 ///////////////////////////////////////////////////////////
 // TypeSchema processing
 
-export const groupByPackages = (typeSchemas: TypeSchema[]): Record<PkgName, TypeSchema[]> => {
-    const grouped = {} as Record<PkgName, TypeSchema[]>;
+export const groupByPackages = <T extends { identifier: TypeIdentifier }>(typeSchemas: T[]): Record<PkgName, T[]> => {
+    const grouped = {} as Record<PkgName, T[]>;
     for (const ts of typeSchemas) {
         const pkgName = ts.identifier.package;
         if (!grouped[pkgName]) grouped[pkgName] = [];
         grouped[pkgName].push(ts);
     }
     for (const [packageName, typeSchemas] of Object.entries(grouped)) {
-        const dict: Record<string, TypeSchema> = {};
+        const dict: Record<string, T> = {};
         for (const ts of typeSchemas) {
             dict[JSON.stringify(ts.identifier)] = ts;
         }
@@ -231,6 +231,7 @@ export const mkTypeSchemaIndex = (
             }
         }
         if (index[url]?.[pkgName]) return index[url]?.[pkgName];
+        if (nestedIndex[url]?.[pkgName]) return nestedIndex[url]?.[pkgName];
         logger?.dryWarn(`Type '${url}' not found in '${pkgName}'`);
 
         // Fallback: search across all packages when type exists elsewhere

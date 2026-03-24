@@ -3,6 +3,7 @@ import {
     type Field,
     type Identifier,
     isChoiceDeclarationField,
+    isLogicalTypeSchema,
     isPrimitiveTypeSchema,
     isProfileTypeSchema,
     isSpecializationTypeSchema,
@@ -25,7 +26,7 @@ export const promoteLogical = (tsIndex: TypeSchemaIndex, promotes: LogicalPromot
             .map((schema) => {
                 const promo = promoteSets[schema.identifier.package]?.has(schema.identifier.url);
                 if (!promo) return undefined;
-                if (schema.identifier.kind !== "logical")
+                if (!isLogicalTypeSchema(schema))
                     throw new Error(`Unexpected schema kind: ${JSON.stringify(schema.identifier)}`);
                 return [identifierToString(schema.identifier), { ...schema.identifier, kind: "resource" }] as const;
             })

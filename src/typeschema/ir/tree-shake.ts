@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import type { CodegenLog } from "@root/utils/log";
-import { extractDependencies } from "../core/transformer";
+import { extractDependencies, extractProfileDependencies } from "../core/transformer";
 import {
     type CanonicalUrl,
     concatIdentifiers,
@@ -15,7 +15,6 @@ import {
     isProfileTypeSchema,
     isSpecializationTypeSchema,
     isValueSetTypeSchema,
-    type NestedTypeSchema,
     type PkgName,
     type ProfileTypeSchema,
     type SpecializationTypeSchema,
@@ -78,7 +77,7 @@ export const packageTreeShakeReadme = (report: TypeSchemaIndex | IrReport, pkgNa
     return lines.join("\n");
 };
 
-const mutableSelectFields = (schema: SpecializationTypeSchema, selectFields: string[]) => {
+const mutableSelectFields = (schema: SpecializationTypeSchema | ProfileTypeSchema, selectFields: string[]) => {
     const selectedFields: Record<string, Field> = {};
 
     const selectPolimorphic: Record<string, { declaration?: string[]; instances?: string[] }> = {};
@@ -113,7 +112,7 @@ const mutableSelectFields = (schema: SpecializationTypeSchema, selectFields: str
     schema.fields = selectedFields;
 };
 
-const mutableIgnoreFields = (schema: SpecializationTypeSchema, ignoreFields: string[]) => {
+const mutableIgnoreFields = (schema: SpecializationTypeSchema | ProfileTypeSchema, ignoreFields: string[]) => {
     for (const fieldName of ignoreFields) {
         const field = schema.fields?.[fieldName];
         if (!schema.fields || !field) throw new Error(`Field ${fieldName} not found`);
@@ -207,7 +206,7 @@ export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _lo
 
     if (schema.nested) {
         const usedTypes = new Set<CanonicalUrl>();
-        const collectUsedNestedTypes = (s: SpecializationTypeSchema | NestedTypeSchema) => {
+        const collectUsedNestedTypes = (s: { fields?: Record<string, Field> }) => {
             Object.values(s.fields ?? {})
                 .filter(isNotChoiceDeclarationField)
                 .filter((f) => isNestedIdentifier(f.type))
@@ -225,11 +224,16 @@ export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _lo
         schema.nested = schema.nested.filter((n) => usedTypes.has(n.identifier.url));
     }
 
-    const extDeps = isProfileTypeSchema(schema) ? schema.extensions?.flatMap(extractExtensionDeps) : undefined;
-    schema.dependencies = concatIdentifiers(
-        extractDependencies(schema.identifier, schema.base, schema.fields, schema.nested),
-        extDeps,
-    );
+    if (isProfileTypeSchema(schema)) {
+        const extDeps = schema.extensions?.flatMap(extractExtensionDeps);
+        schema.dependencies = concatIdentifiers(
+            extractProfileDependencies(schema.identifier, schema.base, schema.fields, schema.nested),
+            extDeps,
+        );
+    } else {
+        assert(!isNestedIdentifier(schema.identifier));
+        schema.dependencies = extractDependencies(schema.identifier, schema.base, schema.fields, schema.nested);
+    }
     return schema;
 };
 

@@ -7,12 +7,10 @@ import {
     isChoiceDeclarationField,
     isComplexTypeIdentifier,
     isLogicalTypeSchema,
-    isNestedIdentifier,
     isPrimitiveIdentifier,
     isProfileTypeSchema,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
-    type Name,
     packageMeta,
     packageMetaToFhir,
     type SpecializationTypeSchema,
@@ -156,14 +154,6 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                         name: tsResourceName(dep),
                         dep: dep,
                     });
-                } else if (isNestedIdentifier(dep)) {
-                    const ndep = { ...dep };
-                    ndep.name = tsNameFromCanonical(dep.url) as Name;
-                    imports.push({
-                        tsPackage: `${importPrefix}${tsModulePath(ndep)}`,
-                        name: tsResourceName(dep),
-                        dep: dep,
-                    });
                 } else {
                     skipped.push(dep);
                 }
@@ -214,8 +204,6 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         const genericTypes = ["Reference", "Coding", "CodeableConcept"];
         if (genericTypes.includes(schema.identifier.name)) {
             name = `${schema.identifier.name}<T extends string = string>`;
-        } else if (schema.identifier.kind === "nested") {
-            name = tsResourceName(schema.identifier);
         } else {
             name = tsResourceName(schema.identifier);
         }
@@ -336,7 +324,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                     generateProfileClass(this, tsIndex, flatProfile);
                 });
             });
-        } else if (["complex-type", "resource", "logical"].includes(schema.identifier.kind)) {
+        } else if (isSpecializationTypeSchema(schema)) {
             this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
                 this.generateDisclaimer();
                 this.generateDependenciesImports(tsIndex, schema);

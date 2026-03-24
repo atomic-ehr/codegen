@@ -137,12 +137,14 @@ export const isProfileIdentifier = (id: TypeIdentifier | undefined): id is Profi
     return id?.kind === "profile";
 };
 
-export const concatIdentifiers = (...sources: (TypeIdentifier[] | undefined)[]): TypeIdentifier[] | undefined => {
+export const concatIdentifiers = <T extends TypeIdentifier = TypeIdentifier>(
+    ...sources: (T[] | undefined)[]
+): T[] | undefined => {
     const entries = sources
-        .filter((s): s is TypeIdentifier[] => s !== undefined)
-        .flatMap((s) => s.map((id): [string, TypeIdentifier] => [id.url, id]));
+        .filter((s): s is T[] => s !== undefined)
+        .flatMap((s) => s.map((id): [string, T] => [id.url, id]));
     if (entries.length === 0) return undefined;
-    const deduped = Object.values(Object.fromEntries(entries) as Record<string, TypeIdentifier>);
+    const deduped = Object.values(Object.fromEntries(entries) as Record<string, T>);
     return deduped.sort((a, b) => a.url.localeCompare(b.url));
 };
 
@@ -271,7 +273,7 @@ export interface SpecializationTypeSchema {
     description?: string;
     fields?: { [k: string]: Field };
     nested?: NestedTypeSchema[];
-    dependencies?: TypeIdentifier[];
+    dependencies?: Identifier[];
     /** Transitive children grouped by kind (e.g. Resource → { resources: [DomainResource, Patient, …] }) */
     typeFamily?: {
         resources?: ResourceIdentifier[];
