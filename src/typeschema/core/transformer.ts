@@ -20,6 +20,7 @@ import {
     packageMetaToFhir,
     type RichFHIRSchema,
     type RichValueSet,
+    type SpecializationTypeSchema,
     type TypeIdentifier,
     type TypeSchema,
     type ValueSetTypeSchema,
@@ -189,16 +190,14 @@ export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSche
     }
 
     const identifier = mkIdentifier(fhirSchema);
-    return [
-        {
-            identifier,
-            base,
-            fields,
-            nested,
-            description: fhirSchema.description,
-            dependencies: extractDependencies(identifier, base, fields, nested),
-            typeFamily: undefined,
-        },
-        ...bindingSchemas,
-    ];
+    const schema = {
+        identifier,
+        base,
+        fields,
+        nested,
+        description: fhirSchema.description,
+        dependencies: extractDependencies(identifier, base, fields, nested),
+        typeFamily: undefined,
+    } as SpecializationTypeSchema;
+    return [schema, ...bindingSchemas];
 }

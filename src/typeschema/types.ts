@@ -313,13 +313,11 @@ export type TypeFamily = {
     complexTypes?: ComplexTypeIdentifier[];
 };
 
-export type SpecializationTypeSchema = {
-    identifier: ResourceIdentifier | ComplexTypeIdentifier | LogicalIdentifier;
-} & SpecializationTypeSchemaBody;
+export type ResourceTypeSchema = { identifier: ResourceIdentifier } & SpecializationTypeSchemaBody;
+export type ComplexTypeTypeSchema = { identifier: ComplexTypeIdentifier } & SpecializationTypeSchemaBody;
+export type LogicalTypeSchema = { identifier: LogicalIdentifier } & SpecializationTypeSchemaBody;
 
-export type ResourceTypeSchema = SpecializationTypeSchema & { identifier: ResourceIdentifier };
-export type ComplexTypeTypeSchema = SpecializationTypeSchema & { identifier: ComplexTypeIdentifier };
-export type LogicalTypeSchema = SpecializationTypeSchema & { identifier: LogicalIdentifier };
+export type SpecializationTypeSchema = ResourceTypeSchema | ComplexTypeTypeSchema | LogicalTypeSchema;
 
 export interface RegularField {
     type: TypeIdentifier;
