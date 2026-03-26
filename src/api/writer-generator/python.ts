@@ -6,9 +6,12 @@ import { camelCase, pascalCase, snakeCase, uppercaseFirstLetterOfEach } from "@r
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
 import { groupByPackages, sortAsDeclarationSequence, type TypeSchemaIndex } from "@root/typeschema/utils";
 import {
+    type CanonicalUrl,
     type EnumDefinition,
     type Field,
+    isPrimitiveIdentifier,
     isResourceTypeSchema,
+    isSpecializationTypeSchema,
     type NestedTypeSchema,
     type SpecializationTypeSchema,
     type TypeIdentifier,
@@ -491,7 +494,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         }
     }
 
-    private shouldAddPrimitiveExtensions(schema: RegularTypeSchema): boolean {
+    private shouldAddPrimitiveExtensions(schema: SpecializationTypeSchema | NestedTypeSchema): boolean {
         if (!this.opts.primitiveTypeExtension) return false;
         if (!isSpecializationTypeSchema(schema)) return false;
         for (const field of Object.values(schema.fields ?? {})) {
@@ -617,7 +620,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         this.importElementIfNeeded(schema);
     }
 
-    private importElementIfNeeded(schema: RegularTypeSchema): void {
+    private importElementIfNeeded(schema: SpecializationTypeSchema): void {
         if (!this.shouldAddPrimitiveExtensions(schema)) return;
         if (schema.identifier.name === "Element") return;
         if (schema.dependencies?.find((d) => d.name === "Element")) return;
