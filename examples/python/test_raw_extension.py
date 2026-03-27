@@ -7,8 +7,6 @@ Mirrors examples/typescript-r4/raw-extension.test.ts for the Python generator.
 import json
 from pathlib import Path
 
-from pytest_snapshot.plugin import Snapshot
-
 from fhir_types.hl7_fhir_r4_core import (
     Address,
     ContactPoint,
@@ -100,11 +98,11 @@ def create_patient_with_extensions() -> Patient:
 SNAPSHOT_DIR = Path(__file__).parent / "__snapshots__"
 
 
-def test_patient_with_extensions(snapshot: Snapshot) -> None:
-    snapshot.snapshot_dir = SNAPSHOT_DIR
+def test_patient_with_extensions() -> None:
     patient = create_patient_with_extensions()
-    dumped = json.dumps(json.loads(patient.to_json(indent=2)), indent=2, sort_keys=True)
-    snapshot.assert_match(dumped, "patient_with_extensions.json")
+    actual = json.loads(patient.to_json(indent=2))
+    expected = json.loads((SNAPSHOT_DIR / "patient_with_extensions.json").read_text())
+    assert actual == expected
 
 
 def test_read_resource_level_extension() -> None:
