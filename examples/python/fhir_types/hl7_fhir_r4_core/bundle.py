@@ -9,6 +9,7 @@ from typing import List as PyList, Literal
 from fhir_types.hl7_fhir_r4_core.base import BackboneElement, Identifier, Signature
 from fhir_types.hl7_fhir_r4_core.resource import Resource
 from fhir_types.hl7_fhir_r4_core.resource_families import ResourceFamily
+from fhir_types.hl7_fhir_r4_core.base import Element
 
 
 class BundleEntry(BackboneElement):
@@ -62,8 +63,11 @@ class Bundle(Resource):
     link: PyList[BundleLink] | None = Field(None, alias="link", serialization_alias="link")
     signature: Signature | None = Field(None, alias="signature", serialization_alias="signature")
     timestamp: str | None = Field(None, alias="timestamp", serialization_alias="timestamp")
+    timestamp_extension: Element | None = Field(None, alias="_timestamp", serialization_alias="_timestamp")
     total: int | None = Field(None, alias="total", serialization_alias="total")
+    total_extension: Element | None = Field(None, alias="_total", serialization_alias="_total")
     type: Literal["document", "message", "transaction", "transaction-response", "batch", "batch-response", "history", "searchset", "collection"] = Field(alias="type", serialization_alias="type")
+    type_extension: Element | None = Field(None, alias="_type", serialization_alias="_type")
 
     def to_json(self, indent: int | None = None) -> str:
         return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)
