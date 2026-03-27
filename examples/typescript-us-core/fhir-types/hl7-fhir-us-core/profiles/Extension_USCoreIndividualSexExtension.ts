@@ -39,6 +39,7 @@ export class USCoreIndividualSexExtensionProfile {
     }
 
     static apply (resource: Extension) : USCoreIndividualSexExtensionProfile {
+        resource.url = USCoreIndividualSexExtensionProfile.canonicalUrl;
         return new USCoreIndividualSexExtensionProfile(resource);
     }
 
@@ -70,11 +71,6 @@ export class USCoreIndividualSexExtensionProfile {
 
     getUrl () : string | undefined {
         return this.resource.url as string | undefined;
-    }
-
-    setUrl (value: string) : this {
-        Object.assign(this.resource, { url: value });
-        return this;
     }
 
     // Extensions

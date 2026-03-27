@@ -38,6 +38,7 @@ export class own_prefixProfile {
     }
 
     static apply (resource: Extension) : own_prefixProfile {
+        resource.url = own_prefixProfile.canonicalUrl;
         return new own_prefixProfile(resource);
     }
 
@@ -69,11 +70,6 @@ export class own_prefixProfile {
 
     getUrl () : string | undefined {
         return this.resource.url as string | undefined;
-    }
-
-    setUrl (value: string) : this {
-        Object.assign(this.resource, { url: value });
-        return this;
     }
 
     // Extensions

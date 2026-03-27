@@ -39,6 +39,7 @@ export class birthPlaceProfile {
     }
 
     static apply (resource: Extension) : birthPlaceProfile {
+        resource.url = birthPlaceProfile.canonicalUrl;
         return new birthPlaceProfile(resource);
     }
 
@@ -70,11 +71,6 @@ export class birthPlaceProfile {
 
     getUrl () : string | undefined {
         return this.resource.url as string | undefined;
-    }
-
-    setUrl (value: string) : this {
-        Object.assign(this.resource, { url: value });
-        return this;
     }
 
     // Extensions

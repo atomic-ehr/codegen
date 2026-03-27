@@ -12,6 +12,7 @@ import {
     isExtension,
     getExtensionValue,
     pushExtension,
+    upsertExtension,
     validateRequired,
     validateExcluded,
     validateFixedValue,
@@ -49,6 +50,7 @@ export class nationalityProfile {
     }
 
     static apply (resource: Extension) : nationalityProfile {
+        resource.url = nationalityProfile.canonicalUrl;
         return new nationalityProfile(resource);
     }
 
@@ -90,14 +92,9 @@ export class nationalityProfile {
         return this.resource.url as string | undefined;
     }
 
-    setUrl (value: string) : this {
-        Object.assign(this.resource, { url: value });
-        return this;
-    }
-
     // Extensions
     public setCode (value: CodeableConcept): this {
-        pushExtension(this.resource, { url: "code", valueCodeableConcept: value } as Extension)
+        upsertExtension(this.resource, { url: "code", valueCodeableConcept: value } as Extension)
         return this
     }
 
@@ -112,7 +109,7 @@ export class nationalityProfile {
     }
 
     public setPeriod (value: Period): this {
-        pushExtension(this.resource, { url: "period", valuePeriod: value } as Extension)
+        upsertExtension(this.resource, { url: "period", valuePeriod: value } as Extension)
         return this
     }
 

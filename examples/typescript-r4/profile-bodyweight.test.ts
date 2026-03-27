@@ -43,7 +43,6 @@ describe("bodyweight profile creation", () => {
 
         profile
             .setStatus("final")
-            .setCode({ coding: [{ code: "29463-7", system: "http://loinc.org" }] })
             .setCategory([
                 {
                     coding: {
@@ -53,6 +52,11 @@ describe("bodyweight profile creation", () => {
                 } as any,
             ])
             .setSubject({ reference: "Patient/pt-1" });
+
+        // code is a fixed-value field — assign directly on the resource
+        Object.assign(profile.toResource(), {
+            code: { coding: [{ code: "29463-7", system: "http://loinc.org" }] },
+        });
 
         fromFrom = profile.toResource();
 
@@ -88,12 +92,9 @@ describe("bodyweight profile getters and setters", () => {
         expect(profile.toResource().status).toBe("amended");
     });
 
-    test("getCode / setCode", () => {
-        // Code is auto-set but still has getter/setter
+    test("getCode returns the fixed value", () => {
+        // Code is auto-set by the profile and has no setter (fixed-value field)
         expect(profile.getCode()!.coding![0]!.code).toBe("29463-7");
-        const newCode = { coding: [{ code: "3141-9", system: "http://loinc.org" }] };
-        profile.setCode(newCode);
-        expect(profile.getCode()).toEqual(newCode);
     });
 
     test("getCategory / setCategory", () => {

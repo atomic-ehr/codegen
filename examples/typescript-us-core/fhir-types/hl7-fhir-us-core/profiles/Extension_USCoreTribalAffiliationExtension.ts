@@ -22,6 +22,7 @@ import {
     isExtension,
     getExtensionValue,
     pushExtension,
+    upsertExtension,
     validateRequired,
     validateExcluded,
     validateFixedValue,
@@ -62,6 +63,7 @@ export class USCoreTribalAffiliationExtensionProfile {
     }
 
     static apply (resource: Extension) : USCoreTribalAffiliationExtensionProfile {
+        resource.url = USCoreTribalAffiliationExtensionProfile.canonicalUrl;
         return new USCoreTribalAffiliationExtensionProfile(resource);
     }
 
@@ -116,18 +118,13 @@ export class USCoreTribalAffiliationExtensionProfile {
         return this.resource.url as string | undefined;
     }
 
-    setUrl (value: string) : this {
-        Object.assign(this.resource, { url: value });
-        return this;
-    }
-
     // Extensions
     public setTribalAffiliation (value: Omit<Extension, "url"> | Extension): this {
         if (isExtension(value)) {
             if (value.url !== "tribalAffiliation") throw new Error(`Expected extension url 'tribalAffiliation', got '${value.url}'`)
-            pushExtension(this.resource, value)
+            upsertExtension(this.resource, value)
         } else {
-            pushExtension(this.resource, { url: "tribalAffiliation", ...value } as Extension)
+            upsertExtension(this.resource, { url: "tribalAffiliation", ...value } as Extension)
         }
         return this
     }
@@ -139,9 +136,9 @@ export class USCoreTribalAffiliationExtensionProfile {
     public setIsEnrolled (value: Omit<Extension, "url"> | Extension): this {
         if (isExtension(value)) {
             if (value.url !== "isEnrolled") throw new Error(`Expected extension url 'isEnrolled', got '${value.url}'`)
-            pushExtension(this.resource, value)
+            upsertExtension(this.resource, value)
         } else {
-            pushExtension(this.resource, { url: "isEnrolled", ...value } as Extension)
+            upsertExtension(this.resource, { url: "isEnrolled", ...value } as Extension)
         }
         return this
     }

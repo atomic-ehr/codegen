@@ -23,6 +23,7 @@ import {
     isExtension,
     getExtensionValue,
     pushExtension,
+    upsertExtension,
     validateRequired,
     validateExcluded,
     validateFixedValue,
@@ -65,6 +66,7 @@ export class USCoreEthnicityExtensionProfile {
     }
 
     static apply (resource: Extension) : USCoreEthnicityExtensionProfile {
+        resource.url = USCoreEthnicityExtensionProfile.canonicalUrl;
         return new USCoreEthnicityExtensionProfile(resource);
     }
 
@@ -124,18 +126,13 @@ export class USCoreEthnicityExtensionProfile {
         return this.resource.url as string | undefined;
     }
 
-    setUrl (value: string) : this {
-        Object.assign(this.resource, { url: value });
-        return this;
-    }
-
     // Extensions
     public setOmbCategory (value: Omit<Extension, "url"> | Extension): this {
         if (isExtension(value)) {
             if (value.url !== "ombCategory") throw new Error(`Expected extension url 'ombCategory', got '${value.url}'`)
-            pushExtension(this.resource, value)
+            upsertExtension(this.resource, value)
         } else {
-            pushExtension(this.resource, { url: "ombCategory", ...value } as Extension)
+            upsertExtension(this.resource, { url: "ombCategory", ...value } as Extension)
         }
         return this
     }
@@ -161,9 +158,9 @@ export class USCoreEthnicityExtensionProfile {
     public setText (value: Omit<Extension, "url"> | Extension): this {
         if (isExtension(value)) {
             if (value.url !== "text") throw new Error(`Expected extension url 'text', got '${value.url}'`)
-            pushExtension(this.resource, value)
+            upsertExtension(this.resource, value)
         } else {
-            pushExtension(this.resource, { url: "text", ...value } as Extension)
+            upsertExtension(this.resource, { url: "text", ...value } as Extension)
         }
         return this
     }

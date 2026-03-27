@@ -45,11 +45,15 @@ describe("demo", () => {
 
         profile
             .setStatus("final")
-            .setCode({ coding: [{ code: "29463-7", system: "http://loinc.org" }] })
             .setSubject({ reference: "Patient/pt-1" })
             .setVSCat({})
             .setEffectiveDateTime("2024-06-15")
             .setValueQuantity({ value: 75, unit: "kg", system: "http://unitsofmeasure.org", code: "kg" });
+
+        // code is a fixed-value field — assign directly on the resource
+        Object.assign(profile.toResource(), {
+            code: { coding: [{ code: "29463-7", system: "http://loinc.org" }] },
+        });
 
         expect(profile.validate().errors).toEqual([]);
         expect(profile.toResource().meta?.profile).toContain(
