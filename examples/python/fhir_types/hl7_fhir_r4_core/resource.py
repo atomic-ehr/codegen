@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, PositiveInt
 from typing import List as PyList, Literal
 
 from fhir_types.hl7_fhir_r4_core.base import Meta
+from fhir_types.hl7_fhir_r4_core.base import Element
 
 
 class Resource(BaseModel):
@@ -19,8 +20,11 @@ class Resource(BaseModel):
         pattern='Resource'
     )
     id: str | None = Field(None, alias="id", serialization_alias="id")
+    id_extension: Element | None = Field(None, alias="_id", serialization_alias="_id")
     implicit_rules: str | None = Field(None, alias="implicitRules", serialization_alias="implicitRules")
+    implicit_rules_extension: Element | None = Field(None, alias="_implicitRules", serialization_alias="_implicitRules")
     language: str | None = Field(None, alias="language", serialization_alias="language")
+    language_extension: Element | None = Field(None, alias="_language", serialization_alias="_language")
     meta: Meta | None = Field(None, alias="meta", serialization_alias="meta")
 
     def to_json(self, indent: int | None = None) -> str:
