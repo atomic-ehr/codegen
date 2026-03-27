@@ -132,11 +132,6 @@ export class observation_bpProfile {
         return this.resource.code as CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined;
     }
 
-    setCode (value: CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)>) : this {
-        Object.assign(this.resource, { code: value });
-        return this;
-    }
-
     getComponent () : ObservationComponent[] | undefined {
         return this.resource.component as ObservationComponent[] | undefined;
     }

@@ -39,6 +39,7 @@ export class USCoreInterpreterNeededExtensionProfile {
     }
 
     static apply (resource: Extension) : USCoreInterpreterNeededExtensionProfile {
+        resource.url = USCoreInterpreterNeededExtensionProfile.canonicalUrl;
         return new USCoreInterpreterNeededExtensionProfile(resource);
     }
 
@@ -70,11 +71,6 @@ export class USCoreInterpreterNeededExtensionProfile {
 
     getUrl () : string | undefined {
         return this.resource.url as string | undefined;
-    }
-
-    setUrl (value: string) : this {
-        Object.assign(this.resource, { url: value });
-        return this;
     }
 
     // Extensions

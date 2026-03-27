@@ -135,11 +135,6 @@ export class USCoreBloodPressureProfile {
         return this.resource.code as CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)> | undefined;
     }
 
-    setCode (value: CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)>) : this {
-        Object.assign(this.resource, { code: value });
-        return this;
-    }
-
     getComponent () : ObservationComponent[] | undefined {
         return this.resource.component as ObservationComponent[] | undefined;
     }
