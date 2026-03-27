@@ -69,7 +69,6 @@
     "@atomic-ehr/fhirschema": "0.0.9",
     "mustache": "^4.2.0",
     "picocolors": "^1.1.1",
-    "tinyglobby": "^0.2.15",
     "yaml": "^2.8.2",
     "yargs": "^18.0.0"
   },
