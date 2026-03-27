@@ -433,11 +433,6 @@ export class observation_bodyweightProfile {
         return this.resource.code as CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined;
     }
 
-    setCode (value: CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)>) : this {
-        Object.assign(this.resource, { code: value });
-        return this;
-    }
-
     getEffectiveDateTime () : string | undefined {
         return this.resource.effectiveDateTime as string | undefined;
     }
@@ -656,11 +651,6 @@ export class observation_bpProfile {
         return this.resource.code as CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined;
     }
 
-    setCode (value: CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)>) : this {
-        Object.assign(this.resource, { code: value });
-        return this;
-    }
-
     getComponent () : ObservationComponent[] | undefined {
         return this.resource.component as ObservationComponent[] | undefined;
     }
@@ -832,6 +822,7 @@ import {
     isExtension,
     getExtensionValue,
     pushExtension,
+    upsertExtension,
     validateRequired,
     validateExcluded,
     validateFixedValue,
@@ -912,12 +903,12 @@ export class USCorePatientProfile {
     // Extensions
     public setRace (input: USCoreRaceExtensionProfileFlat | USCoreRaceExtensionProfile | Extension): this {
         if (input instanceof USCoreRaceExtensionProfile) {
-            pushExtension(this.resource, input.toResource())
+            upsertExtension(this.resource, input.toResource())
         } else if (isExtension<Extension>(input)) {
             if (input.url !== "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race") throw new Error(\`Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race', got '\${input.url}'\`)
-            pushExtension(this.resource, input)
+            upsertExtension(this.resource, input)
         } else {
-            pushExtension(this.resource, USCoreRaceExtensionProfile.createResource(input))
+            upsertExtension(this.resource, USCoreRaceExtensionProfile.createResource(input))
         }
         return this
     }
@@ -937,12 +928,12 @@ export class USCorePatientProfile {
 
     public setEthnicity (input: USCoreEthnicityExtensionProfileFlat | USCoreEthnicityExtensionProfile | Extension): this {
         if (input instanceof USCoreEthnicityExtensionProfile) {
-            pushExtension(this.resource, input.toResource())
+            upsertExtension(this.resource, input.toResource())
         } else if (isExtension<Extension>(input)) {
             if (input.url !== "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity") throw new Error(\`Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity', got '\${input.url}'\`)
-            pushExtension(this.resource, input)
+            upsertExtension(this.resource, input)
         } else {
-            pushExtension(this.resource, USCoreEthnicityExtensionProfile.createResource(input))
+            upsertExtension(this.resource, USCoreEthnicityExtensionProfile.createResource(input))
         }
         return this
     }
@@ -987,12 +978,12 @@ export class USCorePatientProfile {
 
     public setSex (value: USCoreIndividualSexExtensionProfile | Extension | Coding): this {
         if (value instanceof USCoreIndividualSexExtensionProfile) {
-            pushExtension(this.resource, value.toResource())
+            upsertExtension(this.resource, value.toResource())
         } else if (isExtension(value)) {
             if (value.url !== "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex") throw new Error(\`Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex', got '\${value.url}'\`)
-            pushExtension(this.resource, value)
+            upsertExtension(this.resource, value)
         } else {
-            pushExtension(this.resource, USCoreIndividualSexExtensionProfile.createResource({ valueCoding: value as Coding }))
+            upsertExtension(this.resource, USCoreIndividualSexExtensionProfile.createResource({ valueCoding: value as Coding }))
         }
         return this
     }
@@ -1011,12 +1002,12 @@ export class USCorePatientProfile {
 
     public setInterpreterRequired (value: USCoreInterpreterNeededExtensionProfile | Extension | Coding): this {
         if (value instanceof USCoreInterpreterNeededExtensionProfile) {
-            pushExtension(this.resource, value.toResource())
+            upsertExtension(this.resource, value.toResource())
         } else if (isExtension(value)) {
             if (value.url !== "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed") throw new Error(\`Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed', got '\${value.url}'\`)
-            pushExtension(this.resource, value)
+            upsertExtension(this.resource, value)
         } else {
-            pushExtension(this.resource, USCoreInterpreterNeededExtensionProfile.createResource({ valueCoding: value as Coding }))
+            upsertExtension(this.resource, USCoreInterpreterNeededExtensionProfile.createResource({ valueCoding: value as Coding }))
         }
         return this
     }
@@ -1191,11 +1182,6 @@ export class USCoreBloodPressureProfile {
 
     getCode () : CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)> | undefined {
         return this.resource.code as CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)> | undefined;
-    }
-
-    setCode (value: CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)>) : this {
-        Object.assign(this.resource, { code: value });
-        return this;
     }
 
     getComponent () : ObservationComponent[] | undefined {
@@ -1555,11 +1541,6 @@ export class USCoreBodyWeightProfile {
         return this.resource.code as CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)> | undefined;
     }
 
-    setCode (value: CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)>) : this {
-        Object.assign(this.resource, { code: value });
-        return this;
-    }
-
     getEffectiveDateTime () : string | undefined {
         return this.resource.effectiveDateTime as string | undefined;
     }
@@ -1771,6 +1752,7 @@ import {
     isExtension,
     getExtensionValue,
     pushExtension,
+    upsertExtension,
     validateRequired,
     validateExcluded,
     validateFixedValue,
@@ -1813,6 +1795,7 @@ export class USCoreRaceExtensionProfile {
     }
 
     static apply (resource: Extension) : USCoreRaceExtensionProfile {
+        resource.url = USCoreRaceExtensionProfile.canonicalUrl;
         return new USCoreRaceExtensionProfile(resource);
     }
 
@@ -1872,11 +1855,6 @@ export class USCoreRaceExtensionProfile {
         return this.resource.url as string | undefined;
     }
 
-    setUrl (value: string) : this {
-        Object.assign(this.resource, { url: value });
-        return this;
-    }
-
     // Extensions
     public setOmbCategory (value: Omit<Extension, "url"> | Extension): this {
         if (isExtension(value)) {
@@ -1909,9 +1887,9 @@ export class USCoreRaceExtensionProfile {
     public setText (value: Omit<Extension, "url"> | Extension): this {
         if (isExtension(value)) {
             if (value.url !== "text") throw new Error(\`Expected extension url 'text', got '\${value.url}'\`)
-            pushExtension(this.resource, value)
+            upsertExtension(this.resource, value)
         } else {
-            pushExtension(this.resource, { url: "text", ...value } as Extension)
+            upsertExtension(this.resource, { url: "text", ...value } as Extension)
         }
         return this
     }
