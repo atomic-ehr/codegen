@@ -2,6 +2,7 @@ import assert from "node:assert";
 import fs from "node:fs";
 import * as Path from "node:path";
 import { fileURLToPath } from "node:url";
+import { canonicalToName, deriveResourceName, fixReservedWords } from "@root/api/writer-generator/python/py-utils.ts";
 import { camelCase, pascalCase, snakeCase, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
 import { groupByPackages, sortAsDeclarationSequence, type TypeSchemaIndex } from "@root/typeschema/utils";
@@ -19,11 +20,6 @@ import {
     type TypeIdentifier,
 } from "@typeschema/types.ts";
 import { generateExtensionProfiles } from "./extension-profile";
-import {
-    canonicalToName,
-    deriveResourceName,
-    fixReservedWords
-} from "@root/api/writer-generator/python/py-utils.ts";
 
 const PRIMITIVE_TYPE_MAP: Record<string, string> = {
     boolean: "bool",
@@ -151,9 +147,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private generateResourcePackages(groups: TypeSchemaPackageGroups, tsIndex: TypeSchemaIndex): void {
-        const profilesByPackage = this.opts.generateProfile
-            ? groupByPackages(tsIndex.collectProfiles())
-            : {};
+        const profilesByPackage = this.opts.generateProfile ? groupByPackages(tsIndex.collectProfiles()) : {};
 
         for (const [packageName, packageResources] of Object.entries(groups.groupedResources)) {
             this.cd(`/${snakeCase(packageName)}`, () => {
