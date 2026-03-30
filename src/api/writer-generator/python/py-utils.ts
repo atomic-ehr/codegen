@@ -1,6 +1,6 @@
 import * as Path from "node:path";
 import { fileURLToPath } from "node:url";
-import {camelCase, pascalCase, snakeCase, uppercaseFirstLetterOfEach} from "@root/api/writer-generator/utils";
+import { camelCase, pascalCase, snakeCase, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils";
 import type { TypeIdentifier } from "@typeschema/types.ts";
 
 export const PRIMITIVE_TYPE_MAP: Record<string, string> = {
