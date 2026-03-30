@@ -1,7 +1,7 @@
 import * as Path from "node:path";
 import { fileURLToPath } from "node:url";
-import { pascalCase, snakeCase, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils";
-import type { Identifier } from "@typeschema/types.ts";
+import {camelCase, pascalCase, snakeCase, uppercaseFirstLetterOfEach} from "@root/api/writer-generator/utils";
+import type { TypeIdentifier } from "@typeschema/types.ts";
 
 export const PRIMITIVE_TYPE_MAP: Record<string, string> = {
     boolean: "bool",
@@ -28,6 +28,8 @@ export const PRIMITIVE_TYPE_MAP: Record<string, string> = {
 };
 
 export const isPythonPrimitive = (typeName: string): boolean => typeName in PRIMITIVE_TYPE_MAP;
+
+export const PYTHON_BUILTINS = new Set(["str", "int", "float", "bool", "list", "dict", "set", "tuple", "bytes"]);
 
 const PYTHON_KEYWORDS = new Set([
     "False",
@@ -86,7 +88,7 @@ export const canonicalToName = (canonical: string | undefined, dropFragment = tr
     return snakeCase(localName);
 };
 
-export const deriveResourceName = (id: Identifier): string => {
+export const deriveResourceName = (id: TypeIdentifier): string => {
     if (id.kind === "nested") {
         const url = id.url;
         const path = canonicalToName(url, false);

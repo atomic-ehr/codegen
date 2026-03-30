@@ -22,38 +22,137 @@ from fhir_types.hl7_fhir_r4_core.profiles.extension_nationality import (
 from fhir_types.hl7_fhir_r4_core.profiles.extension_own_prefix import OwnPrefixExtension
 
 
+def test_extension_profiles_demo() -> None:
+    """
+    Extension profiles are typed Pydantic wrappers around FHIR extensions.
+
+    Instead of working with raw Extension dicts, you get:
+    - Auto-complete and type checking for extension values
+    - Canonical URL enforced at construction time
+    - Proper serialization to FHIR JSON with correct aliases
+    - Discriminated unions for complex extensions with sub-extensions
+
+    This test shows all three extension placement levels on a Patient resource.
+    """
+
+    # 1. Simple extension — wraps a single typed value
+    birth_place = BirthPlaceExtension(value_address=Address(city="Bonn", country="DE"))
+    assert birth_place.url == "http://hl7.org/fhir/StructureDefinition/patient-birthPlace"
+    assert birth_place.value_address.city == "Bonn"
+
+    # 2. Complex extension — contains sub-extensions routed by URL discriminator
+    nationality = NationalityExtension(extension=[
+        NationalityCodeExtension(
+            value_codeable_concept=CodeableConcept(
+                coding=[Coding(system="urn:iso:std:iso:3166", code="DE")],
+            ),
+        ),
+        NationalityPeriodExtension(value_period=Period(start="1770-12-17")),
+    ])
+    assert isinstance(nationality.extension[0], NationalityCodeExtension)
+    assert nationality.extension[0].value_codeable_concept.coding[0].code == "DE"
+
+    # 3. Primitive extension — attached via _field pattern on primitive fields
+    name = HumanName(
+        family="van Beethoven",
+        family_extension=Element(extension=[OwnPrefixExtension(value_string="van")]),
+        given=["Ludwig"],
+    )
+
+    # 4. Build a Patient with all extension types at once
+    patient = Patient(
+        resource_type="Patient",
+        birth_date="1770-12-17",
+        birth_date_extension=Element(
+            extension=[BirthTimeExtension(value_date_time="1770-12-17T12:00:00+01:00")],
+        ),
+        extension=[birth_place, nationality],
+        name=[name],
+    )
+
+    # 5. Serializes to standard FHIR JSON
+    raw = json.loads(patient.model_dump_json(by_alias=True, exclude_none=True))
+    assert raw["extension"][0]["valueAddress"]["city"] == "Bonn"
+    assert raw["extension"][1]["extension"][0]["valueCodeableConcept"]["coding"][0]["code"] == "DE"
+    assert raw["_birthDate"]["extension"][0]["valueDateTime"] == "1770-12-17T12:00:00+01:00"
+    assert raw["name"][0]["_family"]["extension"][0]["valueString"] == "van"
+
+    # 6. Round-trips back through deserialization
+    restored = Patient.model_validate_json(patient.model_dump_json(by_alias=True, exclude_none=True))
+    assert restored.birth_date == "1770-12-17"
+    assert len(restored.extension) == 2
+    assert restored.name[0].family == "van Beethoven"
+
+
 # ---------------------------------------------------------------------------
-# Simple extensions: construction, url enforcement, required value, subclass
+# Simple extensions
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize(
-    ("cls", "kwargs", "expected_url"),
-    [
-        (BirthPlaceExtension, {"value_address": Address(city="Bonn")}, "http://hl7.org/fhir/StructureDefinition/patient-birthPlace"),
-        (BirthTimeExtension, {"value_date_time": "1990-03-15T08:22:00-05:00"}, "http://hl7.org/fhir/StructureDefinition/patient-birthTime"),
-        (OwnPrefixExtension, {"value_string": "van"}, "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix"),
-    ],
-    ids=["birth_place", "birth_time", "own_prefix"],
-)
-class TestSimpleExtension:
-    def test_construction_and_url(self, cls, kwargs, expected_url) -> None:
-        ext = cls(**kwargs)
-        assert ext.url == expected_url
+class TestBirthPlaceExtension:
+    def test_construction_and_url(self) -> None:
+        ext = BirthPlaceExtension(value_address=Address(city="Bonn"))
+        assert ext.url == "http://hl7.org/fhir/StructureDefinition/patient-birthPlace"
         assert isinstance(ext, Extension)
 
-    def test_rejects_wrong_url(self, cls, kwargs, expected_url) -> None:
+    def test_rejects_wrong_url(self) -> None:
         with pytest.raises(ValidationError):
-            cls(url="http://wrong", **kwargs)
+            BirthPlaceExtension(url="http://wrong", value_address=Address(city="Bonn"))
 
-    def test_value_is_required(self, cls, kwargs, expected_url) -> None:
+    def test_value_is_required(self) -> None:
         with pytest.raises(ValidationError):
-            cls()
+            BirthPlaceExtension()
 
-    def test_round_trip(self, cls, kwargs, expected_url) -> None:
-        original = cls(**kwargs)
-        restored = cls.model_validate_json(original.model_dump_json(by_alias=True, exclude_none=True))
-        assert restored.url == expected_url
+    def test_round_trip(self) -> None:
+        original = BirthPlaceExtension(value_address=Address(city="Bonn"))
+        restored = BirthPlaceExtension.model_validate_json(
+            original.model_dump_json(by_alias=True, exclude_none=True)
+        )
+        assert restored.url == "http://hl7.org/fhir/StructureDefinition/patient-birthPlace"
+
+
+class TestBirthTimeExtension:
+    def test_construction_and_url(self) -> None:
+        ext = BirthTimeExtension(value_date_time="1990-03-15T08:22:00-05:00")
+        assert ext.url == "http://hl7.org/fhir/StructureDefinition/patient-birthTime"
+        assert isinstance(ext, Extension)
+
+    def test_rejects_wrong_url(self) -> None:
+        with pytest.raises(ValidationError):
+            BirthTimeExtension(url="http://wrong", value_date_time="1990-03-15T08:22:00-05:00")
+
+    def test_value_is_required(self) -> None:
+        with pytest.raises(ValidationError):
+            BirthTimeExtension()
+
+    def test_round_trip(self) -> None:
+        original = BirthTimeExtension(value_date_time="1990-03-15T08:22:00-05:00")
+        restored = BirthTimeExtension.model_validate_json(
+            original.model_dump_json(by_alias=True, exclude_none=True)
+        )
+        assert restored.url == "http://hl7.org/fhir/StructureDefinition/patient-birthTime"
+
+
+class TestOwnPrefixExtension:
+    def test_construction_and_url(self) -> None:
+        ext = OwnPrefixExtension(value_string="van")
+        assert ext.url == "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix"
+        assert isinstance(ext, Extension)
+
+    def test_rejects_wrong_url(self) -> None:
+        with pytest.raises(ValidationError):
+            OwnPrefixExtension(url="http://wrong", value_string="van")
+
+    def test_value_is_required(self) -> None:
+        with pytest.raises(ValidationError):
+            OwnPrefixExtension()
+
+    def test_round_trip(self) -> None:
+        original = OwnPrefixExtension(value_string="van")
+        restored = OwnPrefixExtension.model_validate_json(
+            original.model_dump_json(by_alias=True, exclude_none=True)
+        )
+        assert restored.url == "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix"
 
 
 # ---------------------------------------------------------------------------
@@ -159,59 +258,3 @@ def test_complex_extension_serializes_with_fhir_aliases() -> None:
     assert "valueCodeableConcept" in data["extension"][0]
     assert "value_codeable_concept" not in data["extension"][0]
     assert data["extension"][1]["valuePeriod"]["start"] == "2000-01-01"
-
-
-# ---------------------------------------------------------------------------
-# Patient integration: all extension placement types + full round-trip
-# ---------------------------------------------------------------------------
-
-
-def test_patient_with_all_extension_types() -> None:
-    """Resource-level, element-level, and primitive-level extensions on one Patient."""
-    patient = Patient(
-        resource_type="Patient",
-        birth_date="1770-12-17",
-        birth_date_extension=Element(
-            extension=[BirthTimeExtension(value_date_time="1770-12-17T12:00:00+01:00")],
-        ),
-        extension=[
-            BirthPlaceExtension(value_address=Address(city="Bonn", country="DE")),
-            NationalityExtension(extension=[
-                NationalityCodeExtension(
-                    value_codeable_concept=CodeableConcept(
-                        coding=[Coding(system="urn:iso:std:iso:3166", code="DE")],
-                    ),
-                ),
-                NationalityPeriodExtension(value_period=Period(start="1770-12-17")),
-            ]),
-        ],
-        name=[
-            HumanName(
-                family="van Beethoven",
-                family_extension=Element(extension=[OwnPrefixExtension(value_string="van")]),
-                given=["Ludwig"],
-            ),
-        ],
-    )
-
-    # Resource-level
-    assert patient.extension[0].url == "http://hl7.org/fhir/StructureDefinition/patient-birthPlace"
-    assert patient.extension[1].url == "http://hl7.org/fhir/StructureDefinition/patient-nationality"
-    # Primitive-level
-    assert patient.birth_date_extension.extension[0].url == "http://hl7.org/fhir/StructureDefinition/patient-birthTime"
-    # Element-level
-    assert patient.name[0].family_extension.extension[0].url == "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix"
-
-    # Round-trip through FHIR JSON
-    json_str = patient.model_dump_json(by_alias=True, exclude_none=True)
-    raw = json.loads(json_str)
-
-    assert raw["_birthDate"]["extension"][0]["url"] == "http://hl7.org/fhir/StructureDefinition/patient-birthTime"
-    assert raw["_birthDate"]["extension"][0]["valueDateTime"] == "1770-12-17T12:00:00+01:00"
-    assert raw["extension"][0]["valueAddress"]["city"] == "Bonn"
-    assert raw["name"][0]["_family"]["extension"][0]["valueString"] == "van"
-
-    restored = Patient.model_validate_json(json_str)
-    assert restored.birth_date == "1770-12-17"
-    assert len(restored.extension) == 2
-    assert restored.name[0].family == "van Beethoven"
