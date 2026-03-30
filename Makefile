@@ -139,7 +139,6 @@ test-python-sdk: typecheck format prepare-aidbox-runme lint generate-python-sdk 
          . venv/bin/activate && \
          python -m pytest test_sdk.py -v
 
-test-python-extension-example: typecheck format lint generate-python-sdk python-test-setup
 	cd $(PYTHON_EXAMPLE) && \
          . venv/bin/activate && \
          python -m pytest test_raw_extension.py -v
