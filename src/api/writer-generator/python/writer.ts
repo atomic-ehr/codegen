@@ -1,9 +1,12 @@
 import assert from "node:assert";
 import fs from "node:fs";
-import * as Path from "node:path";
-import { fileURLToPath } from "node:url";
-import { canonicalToName, deriveResourceName, fixReservedWords } from "@root/api/writer-generator/python/py-utils.ts";
-import { camelCase, pascalCase, snakeCase, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils";
+import {
+    canonicalToName,
+    deriveResourceName,
+    fixReservedWords,
+    resolvePyAssets,
+} from "@root/api/writer-generator/python/py-utils.ts";
+import { camelCase, pascalCase, snakeCase } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
 import { groupByPackages, sortAsDeclarationSequence, type TypeSchemaIndex } from "@root/typeschema/utils";
 import {
@@ -11,11 +14,9 @@ import {
     type EnumDefinition,
     type Field,
     isPrimitiveIdentifier,
-    isProfileTypeSchema,
     isResourceTypeSchema,
     isSpecializationTypeSchema,
     type NestedTypeSchema,
-    type ProfileTypeSchema,
     type SpecializationTypeSchema,
     type TypeIdentifier,
 } from "@typeschema/types.ts";
@@ -83,16 +84,6 @@ interface FieldInfo {
     type: string;
     defaultValue: string;
 }
-
-const resolvePyAssets = (fn: string) => {
-    const __dirname = Path.dirname(fileURLToPath(import.meta.url));
-    const __filename = fileURLToPath(import.meta.url);
-    if (__filename.endsWith("dist/index.js")) {
-        return Path.resolve(__dirname, "..", "assets", "api", "writer-generator", "python", fn);
-    } else {
-        return Path.resolve(__dirname, "../../../..", "assets", "api", "writer-generator", "python", fn);
-    }
-};
 
 type TypeSchemaPackageGroups = {
     groupedResources: Record<string, SpecializationTypeSchema[]>;

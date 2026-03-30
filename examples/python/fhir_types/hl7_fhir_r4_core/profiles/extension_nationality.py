@@ -38,5 +38,5 @@ class NationalityExtension(Extension):
         "http://hl7.org/fhir/StructureDefinition/patient-nationality",
         alias="url", serialization_alias="url",
     )
-    extension: list[NationalitySubExtension] | None = Field(None, alias="extension", serialization_alias="extension")
+    extension: list[NationalitySubExtension] | None = Field(None, alias="extension", serialization_alias="extension")  # type: ignore[assignment]
 
