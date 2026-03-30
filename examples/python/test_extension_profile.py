@@ -101,7 +101,7 @@ class TestBirthPlaceExtension:
 
     def test_value_is_required(self) -> None:
         with pytest.raises(ValidationError):
-            BirthPlaceExtension()
+            BirthPlaceExtension()  # type: ignore[call-arg]
 
     def test_round_trip(self) -> None:
         original = BirthPlaceExtension(value_address=Address(city="Bonn"))
@@ -123,7 +123,7 @@ class TestBirthTimeExtension:
 
     def test_value_is_required(self) -> None:
         with pytest.raises(ValidationError):
-            BirthTimeExtension()
+            BirthTimeExtension()  # type: ignore[call-arg]
 
     def test_round_trip(self) -> None:
         original = BirthTimeExtension(value_date_time="1990-03-15T08:22:00-05:00")
@@ -145,7 +145,7 @@ class TestOwnPrefixExtension:
 
     def test_value_is_required(self) -> None:
         with pytest.raises(ValidationError):
-            OwnPrefixExtension()
+            OwnPrefixExtension()  # type: ignore[call-arg]
 
     def test_round_trip(self) -> None:
         original = OwnPrefixExtension(value_string="van")
@@ -196,7 +196,7 @@ class TestNationalityExtension:
 
     def test_sub_extension_value_is_required(self) -> None:
         with pytest.raises(ValidationError):
-            NationalityCodeExtension()
+            NationalityCodeExtension()  # type: ignore[call-arg]
 
     def test_round_trip(self) -> None:
         original = NationalityExtension(extension=[
