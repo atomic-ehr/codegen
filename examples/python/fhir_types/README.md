@@ -2,21 +2,6 @@
 
 ## Package: `hl7.fhir.r4.core`
 
-### Modified Canonicals
-
-#### `http://hl7.org/fhir/StructureDefinition/BackboneElement`
-
-Skipped fields:
-
-- `modifierExtension`
-
-#### `http://hl7.org/fhir/StructureDefinition/DomainResource`
-
-Skipped fields:
-
-- `extension`
-- `modifierExtension`
-
 ### Skipped Canonicals
 
 - `http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities`

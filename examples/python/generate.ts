@@ -12,6 +12,7 @@ const builder = new APIBuilder({ logger })
     .fromPackage("hl7.fhir.r4.core", "4.0.1")
     .python({
         allowExtraFields: false,
+        primitiveTypeExtension: true,
         fhirpyClient: false,
         fieldFormat: "snake_case",
     })
@@ -20,12 +21,8 @@ const builder = new APIBuilder({ logger })
             "hl7.fhir.r4.core": {
                 "http://hl7.org/fhir/StructureDefinition/Bundle": {},
                 "http://hl7.org/fhir/StructureDefinition/OperationOutcome": {},
-                "http://hl7.org/fhir/StructureDefinition/DomainResource": {
-                    ignoreFields: ["extension", "modifierExtension"],
-                },
-                "http://hl7.org/fhir/StructureDefinition/BackboneElement": {
-                    ignoreFields: ["modifierExtension"],
-                },
+                "http://hl7.org/fhir/StructureDefinition/DomainResource": {},
+                "http://hl7.org/fhir/StructureDefinition/BackboneElement": {},
                 "http://hl7.org/fhir/StructureDefinition/Element": {},
                 "http://hl7.org/fhir/StructureDefinition/Patient": {},
                 "http://hl7.org/fhir/StructureDefinition/Observation": {},
