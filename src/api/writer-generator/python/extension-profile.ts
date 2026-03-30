@@ -210,7 +210,7 @@ const generateComplexExtensionProfile = (w: Python, profile: ProfileTypeSchema):
     w.indentBlock(() => {
         generateDocstringAndUrl(w, profile, canonicalUrl);
         w.line(
-            `extension: list[${unionName}] | None = Field(None, alias="extension", serialization_alias="extension")`,
+            `extension: list[${unionName}] | None = Field(None, alias="extension", serialization_alias="extension")  # type: ignore[assignment]`,
         );
     });
     w.line();
