@@ -1,7 +1,7 @@
 import { pascalCase, snakeCase } from "@root/api/writer-generator/utils";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
-import type { ChoiceFieldDeclaration, Identifier, ProfileExtension, ProfileTypeSchema } from "@typeschema/types.ts";
-import { isPythonPrimitive, PRIMITIVE_TYPE_MAP } from "./py-utils";
+import type { ChoiceFieldDeclaration, ProfileExtension, ProfileTypeSchema, TypeIdentifier } from "@typeschema/types.ts";
+import { isPythonPrimitive, PRIMITIVE_TYPE_MAP, PYTHON_BUILTINS } from "./py-utils";
 import type { Python } from "./writer";
 
 const extensionProfileClassName = (profile: ProfileTypeSchema): string =>
@@ -60,7 +60,7 @@ const extractSimpleExtensionInfo = (
     return { canonicalUrl, valueFieldName, valueType, valueRequired };
 };
 
-const subExtValueFieldName = (valueFieldType: Identifier | undefined): string => {
+const subExtValueFieldName = (valueFieldType: TypeIdentifier | undefined): string => {
     if (!valueFieldType) return "valueString";
     return `value${valueFieldType.name}`;
 };
@@ -87,10 +87,11 @@ const generateSimpleExtensionProfile = (w: Python, profile: ProfileTypeSchema): 
     w.pyImportFrom("typing", "Literal");
     w.pyImportFrom("pydantic", "Field");
 
-    const basePackage = `${w.rootPackageName}.${snakeCase(profile.identifier.package)}.base`;
+    const basePackage = `${w.opts.rootPackageName}.${snakeCase(profile.identifier.package)}.base`;
+    const pyValueType = PRIMITIVE_TYPE_MAP[valueType] ?? valueType;
     const importNames = ["Extension"];
-    if (valueType !== "Extension" && !isPythonPrimitive(valueType)) {
-        importNames.push(valueType);
+    if (pyValueType !== "Extension" && !isPythonPrimitive(valueType) && !PYTHON_BUILTINS.has(pyValueType)) {
+        importNames.push(pyValueType);
     }
     w.pyImportFrom(basePackage, ...importNames.sort());
 
@@ -98,8 +99,7 @@ const generateSimpleExtensionProfile = (w: Python, profile: ProfileTypeSchema): 
     w.line();
 
     const className = extensionProfileClassName(profile);
-    const pyValueType = PRIMITIVE_TYPE_MAP[valueType] ?? valueType;
-    const pyFieldName = w.formatFieldName(valueFieldName);
+    const pyFieldName = w.nameFormatFunction(valueFieldName);
 
     w.line(`class ${className}(Extension):`);
     w.indentBlock(() => {
@@ -137,7 +137,7 @@ const generateSubExtensionClass = (w: Python, ext: ProfileExtension, parentName:
         valueType = "str";
     }
 
-    const pyFieldName = w.formatFieldName(valueFieldName);
+    const pyFieldName = w.nameFormatFunction(valueFieldName);
 
     w.line(`class ${className}(Extension):`);
     w.indentBlock(() => {
@@ -173,7 +173,7 @@ const generateComplexExtensionProfile = (w: Python, profile: ProfileTypeSchema):
     w.pyImportFrom("typing", "Annotated", "Literal", "Union");
     w.pyImportFrom("pydantic", "Discriminator", "Field", "Tag");
 
-    const basePackage = `${w.rootPackageName}.${snakeCase(profile.identifier.package)}.base`;
+    const basePackage = `${w.opts.rootPackageName}.${snakeCase(profile.identifier.package)}.base`;
     const baseImports = ["Extension", ...Array.from(valueTypeImports)].sort();
     w.pyImportFrom(basePackage, ...baseImports);
 
@@ -239,7 +239,7 @@ const generateProfilesInitFile = (w: Python, profiles: ProfileTypeSchema[]): voi
         w.generateDisclaimer();
         const firstProfile = profiles[0];
         if (!firstProfile) return;
-        const pyPackage = `${w.rootPackageName}.${snakeCase(firstProfile.identifier.package)}.profiles`;
+        const pyPackage = `${w.opts.rootPackageName}.${snakeCase(firstProfile.identifier.package)}.profiles`;
         for (const profile of profiles) {
             const moduleName = `extension_${snakeCase(profile.identifier.name)}`;
             const className = extensionProfileClassName(profile);
