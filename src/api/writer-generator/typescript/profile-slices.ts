@@ -72,10 +72,24 @@ export const collectTypesFromSlices = (
     }
 };
 
+/**
+ * Returns names of required slices that can be auto-populated with just the discriminator match.
+ * Slices are excluded (need user-provided data) when:
+ * - They have required fields beyond the match keys (e.g. BP component.valueQuantity)
+ * - The field uses a type discriminator (e.g. Bundle entry.resource) — the stub only sets
+ *   resourceType, the user must provide the actual typed resource
+ */
 export const collectRequiredSliceNames = (field: RegularField): string[] | undefined => {
     if (!field.array || !field.slicing?.slices) return undefined;
+    const isTypeDisc = field.slicing.discriminator?.some((d) => d.type === "type") ?? false;
+    if (isTypeDisc) return undefined;
     const names = Object.entries(field.slicing.slices)
-        .filter(([_, s]) => s.min !== undefined && s.min >= 1 && s.match && Object.keys(s.match).length > 0)
+        .filter(([_, s]) => {
+            if (s.min === undefined || s.min < 1 || !s.match || Object.keys(s.match).length === 0) return false;
+            const matchKeys = new Set(Object.keys(s.match));
+            const requiredBeyondMatch = (s.required ?? []).filter((name) => !matchKeys.has(name));
+            return requiredBeyondMatch.length === 0;
+        })
         .map(([name]) => name);
     return names.length > 0 ? names : undefined;
 };

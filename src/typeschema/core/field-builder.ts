@@ -137,6 +137,7 @@ const collectDiscriminatorValue = (
     segments: string[],
     index: number,
     result: Record<string, unknown>,
+    arrayPaths: Set<string>,
 ): void => {
     if (index >= segments.length || !schema.elements) return;
 
@@ -152,6 +153,8 @@ const collectDiscriminatorValue = (
 
     // Element has slicing with sub-slices — collect match values from required slices
     if (element.slicing?.slices) {
+        // Slicing implies array — record the path for post-processing
+        arrayPaths.add(segments.slice(0, index + 1).join("."));
         const remainingSegments = segments.slice(index + 1);
         for (const subSlice of Object.values(element.slicing.slices)) {
             if (!subSlice.min || subSlice.min < 1 || !subSlice.match || typeof subSlice.match !== "object") continue;
@@ -169,7 +172,7 @@ const collectDiscriminatorValue = (
     }
 
     // Continue navigating deeper
-    collectDiscriminatorValue(element, segments, index + 1, result);
+    collectDiscriminatorValue(element, segments, index + 1, result, arrayPaths);
 };
 
 /**
@@ -207,16 +210,32 @@ const computeMatchFromSchema = (
     if (!schema || !discriminators || discriminators.length === 0) return undefined;
 
     const result: Record<string, unknown> = {};
+    const arrayPaths = new Set<string>();
     for (const disc of discriminators) {
         if (disc.type === "type") {
             computeTypeDiscriminatorMatch(disc.path, schema, result);
         } else {
             if (!schema.elements) continue;
             const segments = disc.path.split(".");
-            collectDiscriminatorValue(schema, segments, 0, result);
+            collectDiscriminatorValue(schema, segments, 0, result, arrayPaths);
         }
     }
-    return Object.keys(result).length > 0 ? result : undefined;
+    if (Object.keys(result).length === 0) return undefined;
+    // Wrap values at paths where sliced (array) elements were traversed
+    for (const path of arrayPaths) {
+        const segments = path.split(".");
+        let target: Record<string, unknown> = result;
+        for (let i = 0; i < segments.length - 1; i++) {
+            const v = target[segments[i] as string];
+            if (!v || typeof v !== "object" || Array.isArray(v)) break;
+            target = v as Record<string, unknown>;
+        }
+        const key = segments[segments.length - 1] as string;
+        if (target[key] && typeof target[key] === "object" && !Array.isArray(target[key])) {
+            target[key] = [target[key]];
+        }
+    }
+    return result;
 };
 
 const buildSlicing = (element: FHIRSchemaElement): FieldSlicing | undefined => {
