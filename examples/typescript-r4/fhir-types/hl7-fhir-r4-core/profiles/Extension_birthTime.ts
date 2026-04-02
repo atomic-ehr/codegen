@@ -38,6 +38,10 @@ export class birthTimeProfile {
     }
 
     static apply (resource: Extension) : birthTimeProfile {
+        resource.url = birthTimeProfile.canonicalUrl;
+        Object.assign(resource, {
+            url: "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
+        })
         return new birthTimeProfile(resource);
     }
 
@@ -50,7 +54,8 @@ export class birthTimeProfile {
     }
 
     static create (args: birthTimeProfileRaw) : birthTimeProfile {
-        return birthTimeProfile.apply(birthTimeProfile.createResource(args));
+        const resource = birthTimeProfile.createResource(args);
+        return birthTimeProfile.apply(resource);
     }
 
     toResource () : Extension {
@@ -69,11 +74,6 @@ export class birthTimeProfile {
 
     getUrl () : string | undefined {
         return this.resource.url as string | undefined;
-    }
-
-    setUrl (value: string) : this {
-        Object.assign(this.resource, { url: value });
-        return this;
     }
 
     // Extensions

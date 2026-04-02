@@ -23,6 +23,7 @@ import {
     isExtension,
     getExtensionValue,
     pushExtension,
+    upsertExtension,
     validateRequired,
     validateExcluded,
     validateFixedValue,
@@ -34,7 +35,7 @@ import {
 } from "../../profile-helpers";
 
 export type USCoreRaceExtensionProfileRaw = {
-    extension?: Extension[];
+    extension: Extension[];
 }
 
 export type USCoreRaceExtensionProfileFlat = {
@@ -65,6 +66,10 @@ export class USCoreRaceExtensionProfile {
     }
 
     static apply (resource: Extension) : USCoreRaceExtensionProfile {
+        resource.url = USCoreRaceExtensionProfile.canonicalUrl;
+        Object.assign(resource, {
+            url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+        })
         return new USCoreRaceExtensionProfile(resource);
     }
 
@@ -90,14 +95,10 @@ export class USCoreRaceExtensionProfile {
 
     static createResource (args: USCoreRaceExtensionProfileRaw | USCoreRaceExtensionProfileFlat) : Extension {
         const resolvedExtensions = USCoreRaceExtensionProfile.resolveInput(args ?? {});
-        const extensionWithDefaults = ensureSliceDefaults(
-            resolvedExtensions,
-            USCoreRaceExtensionProfile.textSliceMatch,
-        );
 
         const resource = buildResource<Extension>( {
             url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
-            extension: extensionWithDefaults,
+            extension: resolvedExtensions,
         })
         return resource;
     }
@@ -122,11 +123,6 @@ export class USCoreRaceExtensionProfile {
 
     getUrl () : string | undefined {
         return this.resource.url as string | undefined;
-    }
-
-    setUrl (value: string) : this {
-        Object.assign(this.resource, { url: value });
-        return this;
     }
 
     // Extensions
@@ -161,9 +157,9 @@ export class USCoreRaceExtensionProfile {
     public setText (value: Omit<Extension, "url"> | Extension): this {
         if (isExtension(value)) {
             if (value.url !== "text") throw new Error(`Expected extension url 'text', got '${value.url}'`)
-            pushExtension(this.resource, value)
+            upsertExtension(this.resource, value)
         } else {
-            pushExtension(this.resource, { url: "text", ...value } as Extension)
+            upsertExtension(this.resource, { url: "text", ...value } as Extension)
         }
         return this
     }

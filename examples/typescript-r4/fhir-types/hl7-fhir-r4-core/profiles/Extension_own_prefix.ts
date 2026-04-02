@@ -38,6 +38,10 @@ export class own_prefixProfile {
     }
 
     static apply (resource: Extension) : own_prefixProfile {
+        resource.url = own_prefixProfile.canonicalUrl;
+        Object.assign(resource, {
+            url: "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
+        })
         return new own_prefixProfile(resource);
     }
 
@@ -50,7 +54,8 @@ export class own_prefixProfile {
     }
 
     static create (args: own_prefixProfileRaw) : own_prefixProfile {
-        return own_prefixProfile.apply(own_prefixProfile.createResource(args));
+        const resource = own_prefixProfile.createResource(args);
+        return own_prefixProfile.apply(resource);
     }
 
     toResource () : Extension {
@@ -69,11 +74,6 @@ export class own_prefixProfile {
 
     getUrl () : string | undefined {
         return this.resource.url as string | undefined;
-    }
-
-    setUrl (value: string) : this {
-        Object.assign(this.resource, { url: value });
-        return this;
     }
 
     // Extensions

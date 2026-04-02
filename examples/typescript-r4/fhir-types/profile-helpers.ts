@@ -157,6 +157,18 @@ export const pushExtension = <E extends { url?: string }>(target: { extension?: 
     (target.extension ??= []).push(ext);
 };
 
+/**
+ * Insert or replace an extension by URL on `target.extension`.
+ * If an extension with the same `url` already exists it is replaced in place;
+ * otherwise the new extension is appended (like {@link pushExtension}).
+ */
+export const upsertExtension = <E extends { url?: string }>(target: { extension?: E[] }, ext: E): void => {
+    const list = (target.extension ??= []);
+    const idx = list.findIndex((e) => e.url === ext.url);
+    if (idx >= 0) list[idx] = ext;
+    else list.push(ext);
+};
+
 // ---------------------------------------------------------------------------
 // Extension helpers
 // ---------------------------------------------------------------------------

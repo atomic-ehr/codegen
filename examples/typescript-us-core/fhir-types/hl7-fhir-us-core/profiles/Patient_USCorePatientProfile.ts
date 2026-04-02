@@ -28,6 +28,7 @@ import {
     isExtension,
     getExtensionValue,
     pushExtension,
+    upsertExtension,
     validateRequired,
     validateExcluded,
     validateFixedValue,
@@ -79,7 +80,8 @@ export class USCorePatientProfile {
     }
 
     static create (args: USCorePatientProfileRaw) : USCorePatientProfile {
-        return USCorePatientProfile.apply(USCorePatientProfile.createResource(args));
+        const resource = USCorePatientProfile.createResource(args);
+        return USCorePatientProfile.apply(resource);
     }
 
     toResource () : Patient {
@@ -108,12 +110,12 @@ export class USCorePatientProfile {
     // Extensions
     public setRace (input: USCoreRaceExtensionProfileFlat | USCoreRaceExtensionProfile | Extension): this {
         if (input instanceof USCoreRaceExtensionProfile) {
-            pushExtension(this.resource, input.toResource())
+            upsertExtension(this.resource, input.toResource())
         } else if (isExtension<Extension>(input)) {
             if (input.url !== "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race") throw new Error(`Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race', got '${input.url}'`)
-            pushExtension(this.resource, input)
+            upsertExtension(this.resource, input)
         } else {
-            pushExtension(this.resource, USCoreRaceExtensionProfile.createResource(input))
+            upsertExtension(this.resource, USCoreRaceExtensionProfile.createResource(input))
         }
         return this
     }
@@ -133,12 +135,12 @@ export class USCorePatientProfile {
 
     public setEthnicity (input: USCoreEthnicityExtensionProfileFlat | USCoreEthnicityExtensionProfile | Extension): this {
         if (input instanceof USCoreEthnicityExtensionProfile) {
-            pushExtension(this.resource, input.toResource())
+            upsertExtension(this.resource, input.toResource())
         } else if (isExtension<Extension>(input)) {
             if (input.url !== "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity") throw new Error(`Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity', got '${input.url}'`)
-            pushExtension(this.resource, input)
+            upsertExtension(this.resource, input)
         } else {
-            pushExtension(this.resource, USCoreEthnicityExtensionProfile.createResource(input))
+            upsertExtension(this.resource, USCoreEthnicityExtensionProfile.createResource(input))
         }
         return this
     }
@@ -183,12 +185,12 @@ export class USCorePatientProfile {
 
     public setSex (value: USCoreIndividualSexExtensionProfile | Extension | Coding): this {
         if (value instanceof USCoreIndividualSexExtensionProfile) {
-            pushExtension(this.resource, value.toResource())
+            upsertExtension(this.resource, value.toResource())
         } else if (isExtension(value)) {
             if (value.url !== "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex") throw new Error(`Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex', got '${value.url}'`)
-            pushExtension(this.resource, value)
+            upsertExtension(this.resource, value)
         } else {
-            pushExtension(this.resource, USCoreIndividualSexExtensionProfile.createResource({ valueCoding: value as Coding }))
+            upsertExtension(this.resource, USCoreIndividualSexExtensionProfile.createResource({ valueCoding: value as Coding }))
         }
         return this
     }
@@ -207,12 +209,12 @@ export class USCorePatientProfile {
 
     public setInterpreterRequired (value: USCoreInterpreterNeededExtensionProfile | Extension | Coding): this {
         if (value instanceof USCoreInterpreterNeededExtensionProfile) {
-            pushExtension(this.resource, value.toResource())
+            upsertExtension(this.resource, value.toResource())
         } else if (isExtension(value)) {
             if (value.url !== "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed") throw new Error(`Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed', got '${value.url}'`)
-            pushExtension(this.resource, value)
+            upsertExtension(this.resource, value)
         } else {
-            pushExtension(this.resource, USCoreInterpreterNeededExtensionProfile.createResource({ valueCoding: value as Coding }))
+            upsertExtension(this.resource, USCoreInterpreterNeededExtensionProfile.createResource({ valueCoding: value as Coding }))
         }
         return this
     }

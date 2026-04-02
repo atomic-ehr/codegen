@@ -131,6 +131,20 @@ FHIR Package → TypeSchema Generator → TypeSchema Format → Code Generators 
 - Tests mirror source structure in `test/unit/`
 - API tests for high-level generators
 
+### Example Test Structure
+
+Example test files in `examples/` follow a two-tier structure:
+
+1. **Demo tests** come first — readable, self-contained scenarios that show how the generated API is used. Each demo is a separate `describe("demo: ...")` block covering one use case. Demos should:
+   - Build **valid** resources (populate all required fields so `validate().errors` is empty)
+   - Use `toMatchSnapshot()` on the final resource to capture the full FHIR JSON
+   - Show the validation error → fix → valid flow when it makes the demo clearer
+   - Use comments to explain what the profile API does, not what the test asserts
+
+2. **Regression tests** follow — concise, focused tests for edge cases and mechanics not covered by demos (e.g. factory equivalence, slice replacement, choice type independence). Keep these minimal; don't duplicate what demos already prove.
+
+Reference example: `examples/typescript-r4/profile-bodyweight.test.ts`
+
 ### Key Dependencies
 - `@atomic-ehr/fhir-canonical-manager`: FHIR package management
 - `@atomic-ehr/fhirschema`: FHIR schema definitions

@@ -60,7 +60,6 @@ import {
 
 export type ExampleTypedBundleProfileRaw = {
     type: ("document" | "message" | "transaction" | "transaction-response" | "batch" | "batch-response" | "history" | "searchset" | "collection");
-    entry?: BundleEntry[];
 }
 
 // CanonicalURL: http://example.org/fhir/StructureDefinition/ExampleTypedBundle (pkg: example.folder.structures#0.0.1)
@@ -92,14 +91,8 @@ export class ExampleTypedBundleProfile {
     }
 
     static createResource (args: ExampleTypedBundleProfileRaw) : Bundle {
-        const entryWithDefaults = ensureSliceDefaults(
-            [...(args.entry ?? [])],
-            ExampleTypedBundleProfile.PatientEntrySliceMatch,
-        );
-
         const resource = buildResource<Bundle>( {
             resourceType: "Bundle",
-            entry: entryWithDefaults,
             type: args.type,
             meta: { profile: [ExampleTypedBundleProfile.canonicalUrl] },
         })
@@ -107,7 +100,8 @@ export class ExampleTypedBundleProfile {
     }
 
     static create (args: ExampleTypedBundleProfileRaw) : ExampleTypedBundleProfile {
-        return ExampleTypedBundleProfile.apply(ExampleTypedBundleProfile.createResource(args));
+        const resource = ExampleTypedBundleProfile.createResource(args);
+        return ExampleTypedBundleProfile.apply(resource);
     }
 
     toResource () : Bundle {
@@ -121,15 +115,6 @@ export class ExampleTypedBundleProfile {
 
     setType (value: ("document" | "message" | "transaction" | "transaction-response" | "batch" | "batch-response" | "history" | "searchset" | "collection")) : this {
         Object.assign(this.resource, { type: value });
-        return this;
-    }
-
-    getEntry () : BundleEntry[] | undefined {
-        return this.resource.entry as BundleEntry[] | undefined;
-    }
-
-    setEntry (value: BundleEntry[]) : this {
-        Object.assign(this.resource, { entry: value });
         return this;
     }
 

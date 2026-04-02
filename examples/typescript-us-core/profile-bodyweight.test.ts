@@ -1,91 +1,122 @@
 /**
  * US Core Body Weight Profile Class API Tests
- *
- * Feature coverage focus: from() / apply() / create(), slice getter modes.
- * Factory methods, field accessors, slice accessors, choice types, validation,
- * and mutability are tested on Patient and Blood Pressure profiles.
  */
 
 import { describe, expect, test } from "bun:test";
 import type { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
 import { USCoreBodyWeightProfile } from "./fhir-types/hl7-fhir-us-core/profiles";
 
-describe("demo", () => {
-    test("import a profiled Observation from an API and read values", () => {
-        const apiResponse: Observation = {
+describe("demo: create a US Core body weight observation", () => {
+    test("build a valid body weight resource step by step", () => {
+        // Create a new body weight profile — auto-sets code and category
+        const profile = USCoreBodyWeightProfile.create({
+            status: "final",
+            subject: { reference: "Patient/pt-1" },
+        });
+
+        // Not yet valid: effective[x] is required by the vitalsigns base profile
+        expect(profile.validate().errors).toEqual([
+            "USCoreBodyWeightProfile: at least one of effectiveDateTime, effectivePeriod is required",
+        ]);
+
+        // Fill in the remaining required fields
+        profile
+            .setEffectiveDateTime("2024-06-15")
+            .setValueQuantity({ value: 75, unit: "kg", system: "http://unitsofmeasure.org", code: "kg" });
+
+        // Now the resource is fully valid
+        expect(profile.validate().errors).toEqual([]);
+        expect(profile.toResource()).toMatchSnapshot();
+    });
+});
+
+describe("demo: apply US Core body weight profile to an existing Observation", () => {
+    test("wrap a plain Observation and populate profiled fields", () => {
+        // Start with an existing Observation — e.g. received from another system
+        const obs: Observation = {
+            resourceType: "Observation",
+            status: "preliminary",
+            code: { coding: [{ code: "29463-7", system: "http://loinc.org" }] },
+            subject: { reference: "Patient/pt-1" },
+        };
+
+        // apply() adds meta.profile, sets fixed values (code), and auto-populates required slices
+        const profile = USCoreBodyWeightProfile.apply(obs);
+
+        // Not yet valid: effective[x] is required
+        expect(profile.validate().errors).toEqual([
+            "USCoreBodyWeightProfile: at least one of effectiveDateTime, effectivePeriod is required",
+        ]);
+
+        // The profile mutates the original resource — no copy is made
+        expect(profile.toResource()).toBe(obs);
+        expect(obs.meta?.profile).toContain("http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight");
+
+        // Fill in the remaining fields via fluent setters
+        profile
+            .setStatus("final")
+            .setEffectiveDateTime("2024-06-15")
+            .setValueQuantity({ value: 75, unit: "kg", system: "http://unitsofmeasure.org", code: "kg" });
+
+        expect(profile.validate().errors).toEqual([]);
+    });
+});
+
+describe("demo: read a US Core body weight observation from JSON", () => {
+    test("parse an API response and use typed getters", () => {
+        const json: Observation = {
             resourceType: "Observation",
             meta: { profile: ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight"] },
             status: "final",
-            // singular coding matches the slice discriminator format used by the profile
             category: [
                 {
-                    coding: {
-                        code: "vital-signs",
-                        system: "http://terminology.hl7.org/CodeSystem/observation-category",
-                    },
+                    coding: [
+                        { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
+                    ],
+                    text: "Vital Signs",
                 },
-            ] as any,
+            ],
             code: { coding: [{ code: "29463-7", system: "http://loinc.org", display: "Body weight" }] },
             subject: { reference: "Patient/pt-1" },
             effectiveDateTime: "2024-06-15",
             valueQuantity: { value: 75, unit: "kg", system: "http://unitsofmeasure.org", code: "kg" },
         };
 
-        const profile = USCoreBodyWeightProfile.from(apiResponse);
+        // from() validates the resource against the profile before wrapping
+        const profile = USCoreBodyWeightProfile.from(json);
 
+        // Typed getters provide direct access to profiled fields
         expect(profile.getStatus()).toBe("final");
-        expect(profile.getValueQuantity()!.value).toBe(75);
-        expect(profile.getEffectiveDateTime()).toBe("2024-06-15");
         expect(profile.getSubject()!.reference).toBe("Patient/pt-1");
+        expect(profile.getEffectiveDateTime()).toBe("2024-06-15");
+        expect(profile.getValueQuantity()!.value).toBe(75);
+        expect(profile.getValueQuantity()!.unit).toBe("kg");
+
+        // Code is a fixed value — auto-set by the profile, read-only (no setter)
+        expect(profile.getCode()!.coding![0]!.code).toBe("29463-7");
+
+        // Slice accessor strips discriminator keys (coding) by default — only user data remains
+        expect(profile.getVSCat()).toEqual({ text: "Vital Signs" });
+        // Use "raw" mode to see the full element including discriminator
+        expect(profile.getVSCat("raw")!.coding).toEqual([
+            { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
+        ]);
     });
+});
 
-    test("apply profile to a bare Observation and populate it", () => {
-        const bareObservation: Observation = { resourceType: "Observation", status: "preliminary", code: {} };
-        const profile = USCoreBodyWeightProfile.apply(bareObservation);
-
-        profile
-            .setStatus("final")
-            .setCode({ coding: [{ code: "29463-7", system: "http://loinc.org" }] })
-            .setSubject({ reference: "Patient/pt-1" })
-            .setVSCat({})
-            .setEffectiveDateTime("2024-06-15")
-            .setValueQuantity({ value: 75, unit: "kg", system: "http://unitsofmeasure.org", code: "kg" });
-
-        expect(profile.validate().errors).toEqual([]);
-        expect(profile.toResource().meta?.profile).toContain(
-            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight",
-        );
-    });
-
-    test("create() builds a resource with fixed code and required slice stubs", () => {
-        const profile = USCoreBodyWeightProfile.create({
-            status: "final",
-            subject: { reference: "Patient/example" },
-        });
-
-        profile.setValueQuantity({ value: 70, unit: "kg", system: "http://unitsofmeasure.org", code: "kg" });
-        profile.setEffectiveDateTime("2024-01-15");
-
-        const obs = profile.toResource();
-        expect(obs.code!.coding![0]!.code).toBe("29463-7");
-        expect(obs.valueQuantity!.value).toBe(70);
-        expect(obs.category).toHaveLength(1);
-        expect(profile.validate().errors).toEqual([]);
-    });
-
-    test("validate() catches disallowed value[x] variants on raw resource", () => {
+describe("validation", () => {
+    test("catches disallowed value[x] variants", () => {
         const resource: Observation = {
             resourceType: "Observation",
             meta: { profile: ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight"] },
             status: "final",
             category: [
                 {
-                    coding: {
-                        code: "vital-signs",
-                        system: "http://terminology.hl7.org/CodeSystem/observation-category",
-                    },
+                    coding: [
+                        { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
+                    ],
                 },
-            ] as any,
+            ],
             code: { coding: [{ code: "29463-7", system: "http://loinc.org" }] },
             subject: { reference: "Patient/pt-1" },
             effectiveDateTime: "2024-06-15",
@@ -95,20 +126,5 @@ describe("demo", () => {
         const profile = USCoreBodyWeightProfile.apply(resource);
         const { errors } = profile.validate();
         expect(errors).toContain("USCoreBodyWeightProfile: field 'valueString' must not be present");
-    });
-
-    test("getVSCat() returns flat value, getVSCat('raw') includes discriminator", () => {
-        const profile = USCoreBodyWeightProfile.create({
-            status: "final",
-            subject: { reference: "Patient/example" },
-        });
-
-        const flat = profile.getVSCat();
-        expect(flat).toBeDefined();
-        expect(flat).not.toHaveProperty("coding");
-
-        const raw = profile.getVSCat("raw");
-        expect(raw).toBeDefined();
-        expect(raw!.coding).toBeDefined();
     });
 });

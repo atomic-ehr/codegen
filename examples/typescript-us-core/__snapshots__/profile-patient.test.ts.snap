@@ -1,0 +1,78 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`demo three ways to set an extension: flat input, profile instance, raw Extension 1`] = `
+{
+  "birthDate": "1985-03-15",
+  "extension": [
+    {
+      "extension": [
+        {
+          "url": "ombCategory",
+          "valueCoding": {
+            "code": "2106-3",
+            "display": "White",
+            "system": "urn:oid:2.16.840.1.113883.6.238",
+          },
+        },
+        {
+          "url": "text",
+          "valueString": "White",
+        },
+      ],
+      "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+    },
+    {
+      "extension": [
+        {
+          "url": "ombCategory",
+          "valueCoding": {
+            "code": "2135-2",
+            "display": "Hispanic or Latino",
+          },
+        },
+        {
+          "url": "detailed",
+          "valueCoding": {
+            "code": "2148-5",
+            "display": "Mexican",
+          },
+        },
+        {
+          "url": "text",
+          "valueString": "Mexican",
+        },
+      ],
+      "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+    },
+    {
+      "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex",
+      "valueCoding": {
+        "code": "female",
+        "display": "Female",
+      },
+    },
+  ],
+  "gender": "female",
+  "identifier": [
+    {
+      "system": "http://hospital.example.org/mrn",
+      "value": "MRN-12345",
+    },
+  ],
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient",
+    ],
+  },
+  "name": [
+    {
+      "family": "Garcia",
+      "given": [
+        "Maria",
+        "Elena",
+      ],
+    },
+  ],
+  "resourceType": "Patient",
+}
+`;

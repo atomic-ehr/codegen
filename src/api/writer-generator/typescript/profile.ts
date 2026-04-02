@@ -56,6 +56,8 @@ type ProfileFactoryInfo = {
     sliceAutoFields: { name: string; tsType: string; typeId: TypeIdentifier; sliceNames: string[] }[];
     params: { name: string; tsType: string; typeId: TypeIdentifier }[];
     accessors: { name: string; tsType: string; typeId: TypeIdentifier }[];
+    /** Accessor names that come from valueConstraint fields — skip generating setters for these */
+    fixedFields: Set<string>;
 };
 
 const collectChoiceAccessors = (
@@ -98,6 +100,7 @@ export const collectProfileFactoryInfo = (
     const sliceAutoFields: ProfileFactoryInfo["sliceAutoFields"] = [];
     const params: ProfileFactoryInfo["params"] = [];
     const autoAccessors: ProfileFactoryInfo["accessors"] = [];
+    const fixedFields = new Set<string>();
     const fields = flatProfile.fields ?? {};
     const promotedChoices = new Set<string>();
     const resolveRef = tsIndex.findLastSpecializationByIdentifier;
@@ -118,6 +121,7 @@ export const collectProfileFactoryInfo = (
         if (field.valueConstraint) {
             const value = JSON.stringify(field.valueConstraint.value);
             autoFields.push({ name, value: field.array ? `[${value}]` : value });
+            fixedFields.add(name);
             if (isNotChoiceDeclarationField(field) && field.type) {
                 const tsType = fieldTsType(field, resolveRef);
                 autoAccessors.push({ name, tsType, typeId: field.type });
@@ -156,7 +160,7 @@ export const collectProfileFactoryInfo = (
     ]);
 
     const accessors = [...autoAccessors, ...collectChoiceAccessors(flatProfile, promotedChoices)];
-    return { autoFields, sliceAutoFields, params, accessors };
+    return { autoFields, sliceAutoFields, params, accessors, fixedFields };
 };
 
 /** Include base-type required fields not already covered by profile constraints */
@@ -227,7 +231,10 @@ const generateProfileHelpersImport = (
     if (extensions.some((ext) => ext.isComplex && ext.subExtensions)) imports.push("extractComplexExtension");
     if (sliceDefs.some((s) => !s.typeDiscriminator)) imports.push("stripMatchKeys");
     if (sliceDefs.some((s) => s.constrainedChoice)) imports.push("wrapSliceChoice", "unwrapSliceChoice");
-    if (extensions.some((ext) => ext.url)) imports.push("isExtension", "getExtensionValue", "pushExtension");
+    if (extensions.some((ext) => ext.url)) {
+        imports.push("isExtension", "getExtensionValue", "pushExtension");
+        if (extensions.some((ext) => ext.url && ext.max === "1")) imports.push("upsertExtension");
+    }
     if (Object.keys(flatProfile.fields ?? {}).length > 0)
         imports.push(
             "validateRequired",
@@ -362,6 +369,28 @@ const generateFactoryMethods = (
         if (hasMeta) {
             w.lineSM(`ensureProfile(resource, ${profileClassName}.canonicalUrl)`);
         }
+        if (flatProfile.base.name === "Extension" && flatProfile.identifier.url) {
+            w.lineSM(`resource.url = ${profileClassName}.canonicalUrl`);
+        }
+        const applyAutoFields = factoryInfo.autoFields.filter((f) => f.name !== "resourceType");
+        if (applyAutoFields.length > 0) {
+            w.curlyBlock(["Object.assign(resource,"], () => {
+                for (const f of applyAutoFields) {
+                    w.line(`${f.name}: ${f.value},`);
+                }
+            }, [")"]);
+        }
+        for (const f of factoryInfo.sliceAutoFields) {
+            const matchRefs = f.sliceNames.map((s) => `${profileClassName}.${tsSliceStaticName(s)}SliceMatch`);
+            w.line(`resource.${f.name} = ensureSliceDefaults(`);
+            w.indentBlock(() => {
+                w.line(`[...(resource.${f.name} ?? [])],`);
+                for (const ref of matchRefs) {
+                    w.line(`${ref},`);
+                }
+            });
+            w.lineSM(")");
+        }
         w.lineSM(`return new ${profileClassName}(resource)`);
     });
     w.line();
@@ -488,9 +517,8 @@ const generateFactoryMethods = (
         });
         w.line();
         w.curlyBlock(["static", "create", `(${paramSignature})`, `: ${profileClassName}`], () => {
-            w.lineSM(
-                `return ${profileClassName}.apply(${profileClassName}.createResource(${hasParams ? "args" : ""}))`,
-            );
+            w.lineSM(`const resource = ${profileClassName}.createResource(${hasParams ? "args" : ""})`);
+            w.lineSM(`return ${profileClassName}.apply(resource)`);
         });
     }
     w.line();
@@ -529,11 +557,13 @@ const generateFieldAccessors = (
             w.lineSM(`return ${tsGet("this.resource", fieldAccess)} as ${a.tsType} | undefined`);
         });
         w.line();
-        w.curlyBlock([`set${methodBaseName}`, `(value: ${a.tsType})`, ": this"], () => {
-            w.lineSM(`Object.assign(this.resource, { ${fieldAccess}: value })`);
-            w.lineSM("return this");
-        });
-        w.line();
+        if (!factoryInfo.fixedFields.has(a.name)) {
+            w.curlyBlock([`set${methodBaseName}`, `(value: ${a.tsType})`, ": this"], () => {
+                w.lineSM(`Object.assign(this.resource, { ${fieldAccess}: value })`);
+                w.lineSM("return this");
+            });
+            w.line();
+        }
     }
 };
 

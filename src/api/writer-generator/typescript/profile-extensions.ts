@@ -119,24 +119,31 @@ export const resolveExtensionProfile = (
     return { className, modulePath, flatProfile };
 };
 
-/** Generate the body of a raw Extension branch: validate url, then push. */
-const generateRawExtensionBody = (w: TypeScript, ext: ProfileExtension, targetPath: string[], paramName = "input") => {
+/** Generate the body of a raw Extension branch: validate url, then push/upsert. */
+const generateRawExtensionBody = (
+    w: TypeScript,
+    ext: ProfileExtension,
+    targetPath: string[],
+    paramName = "input",
+    useUpsert = false,
+) => {
     w.line(
         `if (${paramName}.url !== ${JSON.stringify(ext.url)}) throw new Error(\`Expected extension url '${ext.url}', got '\${${paramName}.url}'\`)`,
     );
-    generateExtensionPush(w, targetPath, paramName);
+    generateExtensionPush(w, targetPath, paramName, useUpsert);
 };
 
-/** Generate the code that pushes an extension onto the target (root or nested path). */
-export const generateExtensionPush = (w: TypeScript, targetPath: string[], extExpr: string) => {
+/** Generate the code that pushes (or upserts) an extension onto the target (root or nested path). */
+export const generateExtensionPush = (w: TypeScript, targetPath: string[], extExpr: string, useUpsert = false) => {
+    const fn = useUpsert ? "upsertExtension" : "pushExtension";
     if (targetPath.length === 0) {
-        w.line(`pushExtension(this.resource, ${extExpr})`);
+        w.line(`${fn}(this.resource, ${extExpr})`);
     } else {
         w.line(
             `const target = ensurePath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
         );
         w.line("if (!Array.isArray(target.extension)) target.extension = [] as Extension[]");
-        w.line(`pushExtension(target as unknown as { extension?: Extension[] }, ${extExpr})`);
+        w.line(`${fn}(target as unknown as { extension?: Extension[] }, ${extExpr})`);
     }
 };
 
@@ -218,6 +225,7 @@ const generateComplexExtensionSetter = (w: TypeScript, info: ExtensionMethodInfo
     const extProfileHasFlatInput = extProfileInfo
         ? collectSubExtensionSlices(extProfileInfo.flatProfile).length > 0
         : false;
+    const useUpsert = ext.max === "1";
 
     if (extProfileInfo && extProfileHasFlatInput) {
         const paramType = `${extProfileInfo.className}Flat | ${extProfileInfo.className} | Extension`;
@@ -226,14 +234,20 @@ const generateComplexExtensionSetter = (w: TypeScript, info: ExtensionMethodInfo
                 [
                     {
                         cond: `input instanceof ${extProfileInfo.className}`,
-                        body: () => generateExtensionPush(w, targetPath, "input.toResource()"),
+                        body: () => generateExtensionPush(w, targetPath, "input.toResource()", useUpsert),
                     },
                     {
                         cond: "isExtension<Extension>(input)",
-                        body: () => generateRawExtensionBody(w, ext, targetPath),
+                        body: () => generateRawExtensionBody(w, ext, targetPath, "input", useUpsert),
                     },
                 ],
-                () => generateExtensionPush(w, targetPath, `${extProfileInfo.className}.createResource(input)`),
+                () =>
+                    generateExtensionPush(
+                        w,
+                        targetPath,
+                        `${extProfileInfo.className}.createResource(input)`,
+                        useUpsert,
+                    ),
             );
             w.line("return this");
         });
@@ -256,15 +270,16 @@ const generateComplexExtensionSetter = (w: TypeScript, info: ExtensionMethodInfo
                     });
                 }
             }
+            const extLiteral = `{ url: "${ext.url}", extension: subExtensions }`;
+            const fn = useUpsert ? "upsertExtension" : "pushExtension";
             if (targetPath.length === 0) {
-                w.line("const list = (this.resource.extension ??= [])");
-                w.line(`list.push({ url: "${ext.url}", extension: subExtensions })`);
+                w.line(`${fn}(this.resource, ${extLiteral})`);
             } else {
                 w.line(
                     `const target = ensurePath(this.resource as unknown as Record<string, unknown>, ${JSON.stringify(targetPath)})`,
                 );
                 w.line("if (!Array.isArray(target.extension)) target.extension = [] as Extension[]");
-                w.line(`(target.extension as Extension[]).push({ url: "${ext.url}", extension: subExtensions })`);
+                w.line(`${fn}(target as unknown as { extension?: Extension[] }, ${extLiteral})`);
             }
             w.line("return this");
         });
@@ -299,6 +314,7 @@ const generateSingleValueExtensionSetter = (w: TypeScript, tsIndex: TypeSchemaIn
     if (!firstValueType) return;
     const valueType = tsTypeFromIdentifier(firstValueType);
     const valueField = tsValueFieldName(firstValueType);
+    const useUpsert = ext.max === "1";
 
     if (extProfileInfo) {
         const paramType = `${extProfileInfo.className} | Extension | ${valueType}`;
@@ -313,21 +329,21 @@ const generateSingleValueExtensionSetter = (w: TypeScript, tsIndex: TypeSchemaIn
                 [
                     {
                         cond: `value instanceof ${extProfileInfo.className}`,
-                        body: () => generateExtensionPush(w, targetPath, "value.toResource()"),
+                        body: () => generateExtensionPush(w, targetPath, "value.toResource()", useUpsert),
                     },
                     {
                         cond: "isExtension(value)",
-                        body: () => generateRawExtensionBody(w, ext, targetPath, "value"),
+                        body: () => generateRawExtensionBody(w, ext, targetPath, "value", useUpsert),
                     },
                 ],
-                () => generateExtensionPush(w, targetPath, elseExpr),
+                () => generateExtensionPush(w, targetPath, elseExpr, useUpsert),
             );
             w.line("return this");
         });
     } else {
         w.curlyBlock(["public", setMethodName, `(value: ${valueType}): this`], () => {
             const extLiteral = `{ url: "${ext.url}", ${valueField}: value } as Extension`;
-            generateExtensionPush(w, targetPath, extLiteral);
+            generateExtensionPush(w, targetPath, extLiteral, useUpsert);
             w.line("return this");
         });
     }
@@ -349,16 +365,17 @@ const generateSingleValueExtensionGetter = (w: TypeScript, info: ExtensionMethod
 
 const generateGenericExtensionSetter = (w: TypeScript, info: ExtensionMethodInfo) => {
     const { ext, setMethodName, targetPath } = info;
+    const useUpsert = ext.max === "1";
 
     w.curlyBlock(["public", setMethodName, `(value: Omit<Extension, "url"> | Extension): this`], () => {
         w.ifElseChain(
             [
                 {
                     cond: "isExtension(value)",
-                    body: () => generateRawExtensionBody(w, ext, targetPath, "value"),
+                    body: () => generateRawExtensionBody(w, ext, targetPath, "value", useUpsert),
                 },
             ],
-            () => generateExtensionPush(w, targetPath, `{ url: "${ext.url}", ...value } as Extension`),
+            () => generateExtensionPush(w, targetPath, `{ url: "${ext.url}", ...value } as Extension`, useUpsert),
         );
         w.line("return this");
     });
