@@ -47,11 +47,17 @@ describe("demo", () => {
         };
         patient.setSex(sexExtension);
 
+        // gender and birthDate are must-support base Patient fields — set directly on the resource
+        Object.assign(patient.toResource(), { gender: "female", birthDate: "1985-03-15" });
+
         expect(patient.validate().errors).toEqual([]);
+        expect(patient.toResource()).toMatchSnapshot();
         expect(patient.toResource()).toEqual({
             resourceType: "Patient",
             identifier: [{ system: "http://hospital.example.org/mrn", value: "MRN-12345" }],
             name: [{ family: "Garcia", given: ["Maria", "Elena"] }],
+            gender: "female",
+            birthDate: "1985-03-15",
             meta: { profile: ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"] },
             extension: [
                 {
