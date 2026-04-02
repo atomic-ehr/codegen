@@ -1,0 +1,41 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`demo: create a US Core body weight observation build a valid body weight resource step by step 1`] = `
+{
+  "category": [
+    {
+      "coding": [
+        {
+          "code": "vital-signs",
+          "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+        },
+      ],
+    },
+  ],
+  "code": {
+    "coding": [
+      {
+        "code": "29463-7",
+        "system": "http://loinc.org",
+      },
+    ],
+  },
+  "effectiveDateTime": "2024-06-15",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight",
+    ],
+  },
+  "resourceType": "Observation",
+  "status": "final",
+  "subject": {
+    "reference": "Patient/pt-1",
+  },
+  "valueQuantity": {
+    "code": "kg",
+    "system": "http://unitsofmeasure.org",
+    "unit": "kg",
+    "value": 75,
+  },
+}
+`;
