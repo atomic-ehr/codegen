@@ -44,9 +44,9 @@ export type observation_bpProfileRaw = {
 export class observation_bpProfile {
     static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bp";
 
-    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}};
-    private static readonly SystolicBPSliceMatch: Record<string, unknown> = {"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}};
-    private static readonly DiastolicBPSliceMatch: Record<string, unknown> = {"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}};
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]};
+    private static readonly SystolicBPSliceMatch: Record<string, unknown> = {"code":{"coding":[{"code":"8480-6","system":"http://loinc.org"}]}};
+    private static readonly DiastolicBPSliceMatch: Record<string, unknown> = {"code":{"coding":[{"code":"8462-4","system":"http://loinc.org"}]}};
 
     private resource: Observation;
 
@@ -66,6 +66,18 @@ export class observation_bpProfile {
 
     static apply (resource: Observation) : observation_bpProfile {
         ensureProfile(resource, observation_bpProfile.canonicalUrl);
+        Object.assign(resource, {
+            code: {"coding":[{"code":"85354-9","system":"http://loinc.org"}]},
+        })
+        resource.category = ensureSliceDefaults(
+            [...(resource.category ?? [])],
+            observation_bpProfile.VSCatSliceMatch,
+        );
+        resource.component = ensureSliceDefaults(
+            [...(resource.component ?? [])],
+            observation_bpProfile.SystolicBPSliceMatch,
+            observation_bpProfile.DiastolicBPSliceMatch,
+        );
         return new observation_bpProfile(resource);
     }
 
@@ -93,7 +105,8 @@ export class observation_bpProfile {
     }
 
     static create (args: observation_bpProfileRaw) : observation_bpProfile {
-        return observation_bpProfile.apply(observation_bpProfile.createResource(args));
+        const resource = observation_bpProfile.createResource(args);
+        return observation_bpProfile.apply(resource);
     }
 
     toResource () : Observation {
@@ -130,11 +143,6 @@ export class observation_bpProfile {
 
     getCode () : CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined {
         return this.resource.code as CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined;
-    }
-
-    setCode (value: CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)>) : this {
-        Object.assign(this.resource, { code: value });
-        return this;
     }
 
     getComponent () : ObservationComponent[] | undefined {
@@ -252,7 +260,7 @@ export class observation_bpProfile {
                 ...validateRequired(res, profileName, "status"),
                 ...validateEnum(res, profileName, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
                 ...validateRequired(res, profileName, "category"),
-                ...validateSliceCardinality(res, profileName, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
+                ...validateSliceCardinality(res, profileName, "category", {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}, "VSCat", 1, 1),
                 ...validateRequired(res, profileName, "code"),
                 ...validateFixedValue(res, profileName, "code", {"coding":[{"code":"85354-9","system":"http://loinc.org"}]}),
                 ...validateRequired(res, profileName, "subject"),
@@ -260,8 +268,8 @@ export class observation_bpProfile {
                 ...validateChoiceRequired(res, profileName, ["effectiveDateTime","effectivePeriod"]),
                 ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
                 ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),
-                ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}}, "SystolicBP", 1, 1),
-                ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}}, "DiastolicBP", 1, 1),
+                ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":[{"code":"8480-6","system":"http://loinc.org"}]}}, "SystolicBP", 1, 1),
+                ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":[{"code":"8462-4","system":"http://loinc.org"}]}}, "DiastolicBP", 1, 1),
             ],
             warnings: [
                 ...validateEnum(res, profileName, "category", ["social-history","vital-signs","imaging","laboratory","procedure","survey","exam","therapy","activity"]),

@@ -23,6 +23,7 @@ import {
     isExtension,
     getExtensionValue,
     pushExtension,
+    upsertExtension,
     validateRequired,
     validateExcluded,
     validateFixedValue,
@@ -34,7 +35,7 @@ import {
 } from "../../profile-helpers";
 
 export type USCoreEthnicityExtensionProfileRaw = {
-    extension?: Extension[];
+    extension: Extension[];
 }
 
 export type USCoreEthnicityExtensionProfileFlat = {
@@ -65,6 +66,10 @@ export class USCoreEthnicityExtensionProfile {
     }
 
     static apply (resource: Extension) : USCoreEthnicityExtensionProfile {
+        resource.url = USCoreEthnicityExtensionProfile.canonicalUrl;
+        Object.assign(resource, {
+            url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+        })
         return new USCoreEthnicityExtensionProfile(resource);
     }
 
@@ -90,14 +95,10 @@ export class USCoreEthnicityExtensionProfile {
 
     static createResource (args: USCoreEthnicityExtensionProfileRaw | USCoreEthnicityExtensionProfileFlat) : Extension {
         const resolvedExtensions = USCoreEthnicityExtensionProfile.resolveInput(args ?? {});
-        const extensionWithDefaults = ensureSliceDefaults(
-            resolvedExtensions,
-            USCoreEthnicityExtensionProfile.textSliceMatch,
-        );
 
         const resource = buildResource<Extension>( {
             url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
-            extension: extensionWithDefaults,
+            extension: resolvedExtensions,
         })
         return resource;
     }
@@ -124,18 +125,13 @@ export class USCoreEthnicityExtensionProfile {
         return this.resource.url as string | undefined;
     }
 
-    setUrl (value: string) : this {
-        Object.assign(this.resource, { url: value });
-        return this;
-    }
-
     // Extensions
     public setOmbCategory (value: Omit<Extension, "url"> | Extension): this {
         if (isExtension(value)) {
             if (value.url !== "ombCategory") throw new Error(`Expected extension url 'ombCategory', got '${value.url}'`)
-            pushExtension(this.resource, value)
+            upsertExtension(this.resource, value)
         } else {
-            pushExtension(this.resource, { url: "ombCategory", ...value } as Extension)
+            upsertExtension(this.resource, { url: "ombCategory", ...value } as Extension)
         }
         return this
     }
@@ -161,9 +157,9 @@ export class USCoreEthnicityExtensionProfile {
     public setText (value: Omit<Extension, "url"> | Extension): this {
         if (isExtension(value)) {
             if (value.url !== "text") throw new Error(`Expected extension url 'text', got '${value.url}'`)
-            pushExtension(this.resource, value)
+            upsertExtension(this.resource, value)
         } else {
-            pushExtension(this.resource, { url: "text", ...value } as Extension)
+            upsertExtension(this.resource, { url: "text", ...value } as Extension)
         }
         return this
     }

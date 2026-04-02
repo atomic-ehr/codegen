@@ -47,7 +47,7 @@ export type USCoreBloodPressureProfileRaw = {
 export class USCoreBloodPressureProfile {
     static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure";
 
-    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}};
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]};
     private static readonly systolicSliceMatch: Record<string, unknown> = {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}};
     private static readonly diastolicSliceMatch: Record<string, unknown> = {"code":{"coding":[{"system":"http://loinc.org","code":"8462-4"}]}};
 
@@ -69,6 +69,18 @@ export class USCoreBloodPressureProfile {
 
     static apply (resource: Observation) : USCoreBloodPressureProfile {
         ensureProfile(resource, USCoreBloodPressureProfile.canonicalUrl);
+        Object.assign(resource, {
+            code: {"coding":[{"system":"http://loinc.org","code":"85354-9"}]},
+        })
+        resource.category = ensureSliceDefaults(
+            [...(resource.category ?? [])],
+            USCoreBloodPressureProfile.VSCatSliceMatch,
+        );
+        resource.component = ensureSliceDefaults(
+            [...(resource.component ?? [])],
+            USCoreBloodPressureProfile.systolicSliceMatch,
+            USCoreBloodPressureProfile.diastolicSliceMatch,
+        );
         return new USCoreBloodPressureProfile(resource);
     }
 
@@ -96,7 +108,8 @@ export class USCoreBloodPressureProfile {
     }
 
     static create (args: USCoreBloodPressureProfileRaw) : USCoreBloodPressureProfile {
-        return USCoreBloodPressureProfile.apply(USCoreBloodPressureProfile.createResource(args));
+        const resource = USCoreBloodPressureProfile.createResource(args);
+        return USCoreBloodPressureProfile.apply(resource);
     }
 
     toResource () : Observation {
@@ -133,11 +146,6 @@ export class USCoreBloodPressureProfile {
 
     getCode () : CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)> | undefined {
         return this.resource.code as CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)> | undefined;
-    }
-
-    setCode (value: CodeableConcept<("2708-6" | "29463-7" | "3140-1" | "3150-0" | "3151-8" | "39156-5" | "59408-5" | "59575-1" | "59576-9" | "77606-2" | "8287-5" | "8289-1" | "8302-2" | "8306-3" | "8310-5" | "8462-4" | "8478-0" | "8480-6" | "8867-4" | "9279-1" | "9843-4" | string)>) : this {
-        Object.assign(this.resource, { code: value });
-        return this;
     }
 
     getComponent () : ObservationComponent[] | undefined {
@@ -345,7 +353,7 @@ export class USCoreBloodPressureProfile {
                 ...validateRequired(res, profileName, "status"),
                 ...validateEnum(res, profileName, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
                 ...validateRequired(res, profileName, "category"),
-                ...validateSliceCardinality(res, profileName, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
+                ...validateSliceCardinality(res, profileName, "category", {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}, "VSCat", 1, 1),
                 ...validateRequired(res, profileName, "code"),
                 ...validateFixedValue(res, profileName, "code", {"coding":[{"system":"http://loinc.org","code":"85354-9"}]}),
                 ...validateRequired(res, profileName, "subject"),

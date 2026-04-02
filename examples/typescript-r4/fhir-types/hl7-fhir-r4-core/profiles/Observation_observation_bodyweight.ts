@@ -39,7 +39,7 @@ export type observation_bodyweightProfileRaw = {
 export class observation_bodyweightProfile {
     static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bodyweight";
 
-    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}};
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]};
 
     private resource: Observation;
 
@@ -59,6 +59,13 @@ export class observation_bodyweightProfile {
 
     static apply (resource: Observation) : observation_bodyweightProfile {
         ensureProfile(resource, observation_bodyweightProfile.canonicalUrl);
+        Object.assign(resource, {
+            code: {"coding":[{"code":"29463-7","system":"http://loinc.org"}]},
+        })
+        resource.category = ensureSliceDefaults(
+            [...(resource.category ?? [])],
+            observation_bodyweightProfile.VSCatSliceMatch,
+        );
         return new observation_bodyweightProfile(resource);
     }
 
@@ -80,7 +87,8 @@ export class observation_bodyweightProfile {
     }
 
     static create (args: observation_bodyweightProfileRaw) : observation_bodyweightProfile {
-        return observation_bodyweightProfile.apply(observation_bodyweightProfile.createResource(args));
+        const resource = observation_bodyweightProfile.createResource(args);
+        return observation_bodyweightProfile.apply(resource);
     }
 
     toResource () : Observation {
@@ -117,11 +125,6 @@ export class observation_bodyweightProfile {
 
     getCode () : CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined {
         return this.resource.code as CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)> | undefined;
-    }
-
-    setCode (value: CodeableConcept<("85353-1" | "9279-1" | "8867-4" | "2708-6" | "8310-5" | "8302-2" | "9843-4" | "29463-7" | "39156-5" | "85354-9" | "8480-6" | "8462-4" | "8478-0" | string)>) : this {
-        Object.assign(this.resource, { code: value });
-        return this;
     }
 
     getEffectiveDateTime () : string | undefined {
@@ -184,7 +187,7 @@ export class observation_bodyweightProfile {
                 ...validateRequired(res, profileName, "status"),
                 ...validateEnum(res, profileName, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
                 ...validateRequired(res, profileName, "category"),
-                ...validateSliceCardinality(res, profileName, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
+                ...validateSliceCardinality(res, profileName, "category", {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}, "VSCat", 1, 1),
                 ...validateRequired(res, profileName, "code"),
                 ...validateFixedValue(res, profileName, "code", {"coding":[{"code":"29463-7","system":"http://loinc.org"}]}),
                 ...validateRequired(res, profileName, "subject"),

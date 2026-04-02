@@ -39,6 +39,10 @@ export class USCoreInterpreterNeededExtensionProfile {
     }
 
     static apply (resource: Extension) : USCoreInterpreterNeededExtensionProfile {
+        resource.url = USCoreInterpreterNeededExtensionProfile.canonicalUrl;
+        Object.assign(resource, {
+            url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed",
+        })
         return new USCoreInterpreterNeededExtensionProfile(resource);
     }
 
@@ -51,7 +55,8 @@ export class USCoreInterpreterNeededExtensionProfile {
     }
 
     static create (args: USCoreInterpreterNeededExtensionProfileRaw) : USCoreInterpreterNeededExtensionProfile {
-        return USCoreInterpreterNeededExtensionProfile.apply(USCoreInterpreterNeededExtensionProfile.createResource(args));
+        const resource = USCoreInterpreterNeededExtensionProfile.createResource(args);
+        return USCoreInterpreterNeededExtensionProfile.apply(resource);
     }
 
     toResource () : Extension {
@@ -70,11 +75,6 @@ export class USCoreInterpreterNeededExtensionProfile {
 
     getUrl () : string | undefined {
         return this.resource.url as string | undefined;
-    }
-
-    setUrl (value: string) : this {
-        Object.assign(this.resource, { url: value });
-        return this;
     }
 
     // Extensions

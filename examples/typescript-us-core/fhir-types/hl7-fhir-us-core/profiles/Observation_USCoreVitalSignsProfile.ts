@@ -43,7 +43,7 @@ export type USCoreVitalSignsProfileRaw = {
 export class USCoreVitalSignsProfile {
     static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-vital-signs";
 
-    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}};
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]};
 
     private resource: Observation;
 
@@ -63,6 +63,10 @@ export class USCoreVitalSignsProfile {
 
     static apply (resource: Observation) : USCoreVitalSignsProfile {
         ensureProfile(resource, USCoreVitalSignsProfile.canonicalUrl);
+        resource.category = ensureSliceDefaults(
+            [...(resource.category ?? [])],
+            USCoreVitalSignsProfile.VSCatSliceMatch,
+        );
         return new USCoreVitalSignsProfile(resource);
     }
 
@@ -84,7 +88,8 @@ export class USCoreVitalSignsProfile {
     }
 
     static create (args: USCoreVitalSignsProfileRaw) : USCoreVitalSignsProfile {
-        return USCoreVitalSignsProfile.apply(USCoreVitalSignsProfile.createResource(args));
+        const resource = USCoreVitalSignsProfile.createResource(args);
+        return USCoreVitalSignsProfile.apply(resource);
     }
 
     toResource () : Observation {
@@ -278,7 +283,7 @@ export class USCoreVitalSignsProfile {
                 ...validateRequired(res, profileName, "status"),
                 ...validateEnum(res, profileName, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]),
                 ...validateRequired(res, profileName, "category"),
-                ...validateSliceCardinality(res, profileName, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1),
+                ...validateSliceCardinality(res, profileName, "category", {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}, "VSCat", 1, 1),
                 ...validateRequired(res, profileName, "code"),
                 ...validateRequired(res, profileName, "subject"),
                 ...validateReference(res, profileName, "subject", ["Patient"]),
