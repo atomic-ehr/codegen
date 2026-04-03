@@ -22,7 +22,6 @@ import {
 } from "./Extension_USCoreTribalAffiliationExtension";
 
 import {
-    buildResource,
     ensureProfile,
     extractComplexExtension,
     isExtension,
@@ -70,12 +69,12 @@ export class USCorePatientProfile {
     }
 
     static createResource (args: USCorePatientProfileRaw) : Patient {
-        const resource = buildResource<Patient>( {
+        const resource: Patient = {
             resourceType: "Patient",
             identifier: args.identifier,
             name: args.name,
             meta: { profile: [USCorePatientProfile.canonicalUrl] },
-        })
+        }
         return resource;
     }
 

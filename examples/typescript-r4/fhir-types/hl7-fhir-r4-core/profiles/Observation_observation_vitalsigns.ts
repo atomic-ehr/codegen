@@ -10,7 +10,6 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 export type Observation_vitalsigns_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
 
 import {
-    buildResource,
     ensureProfile,
     applySliceMatch,
     matchesValue,
@@ -72,14 +71,14 @@ export class observation_vitalsignsProfile {
             observation_vitalsignsProfile.VSCatSliceMatch,
         );
 
-        const resource = buildResource<Observation>( {
+        const resource: Observation = {
             resourceType: "Observation",
             category: categoryWithDefaults,
             status: args.status,
             code: args.code,
             subject: args.subject,
             meta: { profile: [observation_vitalsignsProfile.canonicalUrl] },
-        })
+        }
         return resource;
     }
 

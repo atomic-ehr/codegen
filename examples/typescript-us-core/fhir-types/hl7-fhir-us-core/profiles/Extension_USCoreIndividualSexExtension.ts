@@ -6,7 +6,6 @@ import type { Coding } from "../../hl7-fhir-r4-core/Coding";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import {
-    buildResource,
     validateRequired,
     validateExcluded,
     validateFixedValue,
@@ -47,10 +46,10 @@ export class USCoreIndividualSexExtensionProfile {
     }
 
     static createResource (args: USCoreIndividualSexExtensionProfileRaw) : Extension {
-        const resource = buildResource<Extension>( {
+        const resource: Extension = {
             url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex",
             valueCoding: args.valueCoding,
-        })
+        }
         return resource;
     }
 

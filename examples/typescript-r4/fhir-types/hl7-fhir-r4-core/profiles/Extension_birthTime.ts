@@ -5,7 +5,6 @@
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import {
-    buildResource,
     validateRequired,
     validateExcluded,
     validateFixedValue,
@@ -46,10 +45,10 @@ export class birthTimeProfile {
     }
 
     static createResource (args: birthTimeProfileRaw) : Extension {
-        const resource = buildResource<Extension>( {
+        const resource: Extension = {
             url: "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
             valueDateTime: args.valueDateTime,
-        })
+        }
         return resource;
     }
 

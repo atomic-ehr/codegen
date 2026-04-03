@@ -268,13 +268,6 @@ export const ensureSliceDefaults = <T>(items: T[], ...matches: Record<string, un
 };
 
 /**
- * Cast an object literal to a FHIR resource type.  This centralises the single
- * `as unknown as T` that is unavoidable when constructing a resource from a
- * plain object (deep inheritance prevents direct structural compatibility).
- */
-export const buildResource = <T>(obj: object): T => obj as unknown as T;
-
-/**
  * Add `canonicalUrl` to `resource.meta.profile` if not already present.
  * Creates `meta` and `profile` when missing.
  */

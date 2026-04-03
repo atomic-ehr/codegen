@@ -16,7 +16,6 @@ export type USCoreBloodPressureProfile_Component_SystolicSliceFlat = Omit<Observ
 export type USCoreBloodPressureProfile_Component_DiastolicSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 
 import {
-    buildResource,
     ensureProfile,
     applySliceMatch,
     matchesValue,
@@ -95,7 +94,7 @@ export class USCoreBloodPressureProfile {
             USCoreBloodPressureProfile.diastolicSliceMatch,
         );
 
-        const resource = buildResource<Observation>( {
+        const resource: Observation = {
             resourceType: "Observation",
             code: {"coding":[{"system":"http://loinc.org","code":"85354-9"}]},
             category: categoryWithDefaults,
@@ -103,7 +102,7 @@ export class USCoreBloodPressureProfile {
             status: args.status,
             subject: args.subject,
             meta: { profile: [USCoreBloodPressureProfile.canonicalUrl] },
-        })
+        }
         return resource;
     }
 

@@ -10,7 +10,6 @@ export type USCoreRaceExtension_Extension_DetailedSliceFlat = Omit<Extension, "u
 export type USCoreRaceExtension_Extension_TextSliceFlat = Omit<Extension, "url">;
 
 import {
-    buildResource,
     isRawExtensionInput,
     applySliceMatch,
     matchesValue,
@@ -96,10 +95,10 @@ export class USCoreRaceExtensionProfile {
     static createResource (args: USCoreRaceExtensionProfileRaw | USCoreRaceExtensionProfileFlat) : Extension {
         const resolvedExtensions = USCoreRaceExtensionProfile.resolveInput(args ?? {});
 
-        const resource = buildResource<Extension>( {
+        const resource: Extension = {
             url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
             extension: resolvedExtensions,
-        })
+        }
         return resource;
     }
 

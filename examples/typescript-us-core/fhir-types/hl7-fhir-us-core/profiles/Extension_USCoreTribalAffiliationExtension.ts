@@ -9,7 +9,6 @@ export type USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceFla
 export type USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlat = Omit<Extension, "url">;
 
 import {
-    buildResource,
     isRawExtensionInput,
     applySliceMatch,
     matchesValue,
@@ -88,10 +87,10 @@ export class USCoreTribalAffiliationExtensionProfile {
     static createResource (args: USCoreTribalAffiliationExtensionProfileRaw | USCoreTribalAffiliationExtensionProfileFlat) : Extension {
         const resolvedExtensions = USCoreTribalAffiliationExtensionProfile.resolveInput(args ?? {});
 
-        const resource = buildResource<Extension>( {
+        const resource: Extension = {
             url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation",
             extension: resolvedExtensions,
-        })
+        }
         return resource;
     }
 

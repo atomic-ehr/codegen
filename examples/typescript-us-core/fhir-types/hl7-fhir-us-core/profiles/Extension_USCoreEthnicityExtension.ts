@@ -10,7 +10,6 @@ export type USCoreEthnicityExtension_Extension_DetailedSliceFlat = Omit<Extensio
 export type USCoreEthnicityExtension_Extension_TextSliceFlat = Omit<Extension, "url">;
 
 import {
-    buildResource,
     isRawExtensionInput,
     applySliceMatch,
     matchesValue,
@@ -96,10 +95,10 @@ export class USCoreEthnicityExtensionProfile {
     static createResource (args: USCoreEthnicityExtensionProfileRaw | USCoreEthnicityExtensionProfileFlat) : Extension {
         const resolvedExtensions = USCoreEthnicityExtensionProfile.resolveInput(args ?? {});
 
-        const resource = buildResource<Extension>( {
+        const resource: Extension = {
             url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
             extension: resolvedExtensions,
-        })
+        }
         return resource;
     }
 
