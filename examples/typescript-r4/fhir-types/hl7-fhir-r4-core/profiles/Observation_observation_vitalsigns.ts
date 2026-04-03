@@ -7,7 +7,7 @@ import type { Observation } from "../../hl7-fhir-r4-core/Observation";
 import type { Period } from "../../hl7-fhir-r4-core/Period";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
-export type Observation_vitalsigns_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
+export type Observation_vitalsigns_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding"> & { coding?: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }] };
 
 import {
     ensureProfile,
