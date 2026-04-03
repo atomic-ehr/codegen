@@ -317,12 +317,12 @@ const generateSingleValueExtensionSetter = (w: TypeScript, tsIndex: TypeSchemaIn
     const useUpsert = ext.max === "1";
 
     if (extProfileInfo) {
-        const paramType = `${extProfileInfo.className} | Extension | ${valueType}`;
-        const extHasValueParam = collectProfileFactoryInfo(tsIndex, extProfileInfo.flatProfile).params.some(
-            (p) => p.name === valueField,
-        );
-        const elseExpr = extHasValueParam
-            ? `${extProfileInfo.className}.createResource({ ${valueField}: value as ${valueType} })`
+        const extFactoryInfo = collectProfileFactoryInfo(tsIndex, extProfileInfo.flatProfile);
+        const extValueParam = extFactoryInfo.params.find((p) => p.name === valueField);
+        const resolvedValueType = extValueParam?.tsType ?? valueType;
+        const paramType = `${extProfileInfo.className} | Extension | ${resolvedValueType}`;
+        const elseExpr = extValueParam
+            ? `${extProfileInfo.className}.createResource({ ${valueField}: value as ${resolvedValueType} })`
             : `{ url: "${ext.url}", ${valueField}: value as ${valueType} } as Extension`;
         w.curlyBlock(["public", setMethodName, `(value: ${paramType}): this`], () => {
             w.ifElseChain(

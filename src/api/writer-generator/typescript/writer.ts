@@ -15,6 +15,7 @@ import {
     packageMeta,
     packageMetaToFhir,
     type SpecializationTypeSchema,
+    type TypeIdentifier,
     type TypeSchema,
 } from "@root/typeschema/types";
 import { groupByPackages, type TypeSchemaIndex } from "@root/typeschema/utils";
@@ -28,7 +29,7 @@ import {
     tsProfileModuleFileName,
     tsResourceName,
 } from "./name";
-import { generateProfileClass, generateProfileImports, generateProfileIndexFile } from "./profile";
+import { generateProfileClass, generateProfileImports, generateProfileIndexFile, mkIsFamilyType } from "./profile";
 import { resolveFieldTsType } from "./utils";
 
 export const resolveTsAssets = (fn: string) => {
@@ -199,7 +200,11 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         this.lineSM(`${extFieldName}?: ${typeExpr}`);
     }
 
-    generateType(tsIndex: TypeSchemaIndex, schema: SpecializationTypeSchema | NestedTypeSchema) {
+    generateType(
+        tsIndex: TypeSchemaIndex,
+        schema: SpecializationTypeSchema | NestedTypeSchema,
+        isFamilyType?: (ref: TypeIdentifier) => boolean,
+    ) {
         let name: string;
         // Generic types: Reference, Coding, CodeableConcept
         const genericTypes = ["Reference", "Coding", "CodeableConcept"];
@@ -272,7 +277,14 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 this.debugComment(fieldName, ":", field);
 
                 const tsName = tsFieldName(fieldName);
-                const tsType = resolveFieldTsType(schema.identifier.name, tsName, field, undefined, genericFieldMap);
+                const tsType = resolveFieldTsType(
+                    schema.identifier.name,
+                    tsName,
+                    field,
+                    undefined,
+                    genericFieldMap,
+                    isFamilyType,
+                );
                 const optionalSymbol = field.required ? "" : "?";
                 const arraySymbol = field.array ? "[]" : "";
                 this.lineSM(`${tsName}${optionalSymbol}: ${tsType}${arraySymbol}`);
@@ -306,10 +318,14 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         });
     }
 
-    generateNestedTypes(tsIndex: TypeSchemaIndex, schema: SpecializationTypeSchema) {
+    generateNestedTypes(
+        tsIndex: TypeSchemaIndex,
+        schema: SpecializationTypeSchema,
+        isFamilyType?: (ref: TypeIdentifier) => boolean,
+    ) {
         if (schema.nested) {
             for (const subtype of schema.nested) {
-                this.generateType(tsIndex, subtype);
+                this.generateType(tsIndex, subtype, isFamilyType);
                 this.line();
             }
         }
@@ -326,17 +342,18 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 });
             });
         } else if (isSpecializationTypeSchema(schema)) {
+            const isFamilyType = mkIsFamilyType(tsIndex);
             this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
                 this.generateDisclaimer();
                 this.generateDependenciesImports(tsIndex, schema);
                 this.generateComplexTypeReexports(schema);
-                this.generateNestedTypes(tsIndex, schema);
+                this.generateNestedTypes(tsIndex, schema, isFamilyType);
                 this.comment(
                     "CanonicalURL:",
                     schema.identifier.url,
                     `(pkg: ${packageMetaToFhir(packageMeta(schema))})`,
                 );
-                this.generateType(tsIndex, schema);
+                this.generateType(tsIndex, schema, isFamilyType);
                 this.generateResourceTypePredicate(schema);
             });
         } else {
