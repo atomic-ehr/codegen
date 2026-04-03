@@ -132,6 +132,22 @@ describe("slice accessors", () => {
         expect(profile.getVSCat("raw")!.text).toBe("Vital Signs");
     });
 
+    test("SliceInput and SliceFlat types serve different purposes", () => {
+        const profile = bodyweightProfile.create({ status: "final", subject: { reference: "Patient/pt-1" } });
+
+        // setVSCat accepts SliceInput — no discriminator fields, they're auto-applied
+        profile.setVSCat({ text: "Vital Signs" });
+
+        // getVSCat() returns SliceInput — discriminator keys are stripped at runtime
+        const flat = profile.getVSCat()!;
+        expect(flat.text).toBe("Vital Signs");
+        expect("coding" in flat).toBe(false);
+
+        // SliceFlat type includes readonly discriminator literals for documentation:
+        // type VSCatSliceFlat = VSCatSliceInput & { readonly coding: [{ code: "vital-signs"; ... }] }
+        // It's available as a type-level reference but not used in getter/setter signatures
+    });
+
     test("setVSCat replaces existing slice element", () => {
         const profile = bodyweightProfile.create({ status: "final", subject: { reference: "Patient/pt-1" } });
         profile.setVSCat({ text: "First" });

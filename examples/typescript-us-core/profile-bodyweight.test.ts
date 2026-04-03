@@ -104,6 +104,28 @@ describe("demo: read a US Core body weight observation from JSON", () => {
     });
 });
 
+describe("slice input/flat type split", () => {
+    test("setter accepts SliceInput (no discriminators), getter returns SliceInput (stripped)", () => {
+        const profile = USCoreBodyWeightProfile.create({
+            status: "final",
+            subject: { reference: "Patient/pt-1" },
+        });
+
+        // setVSCat accepts SliceInput — only user data, discriminators auto-applied
+        profile.setVSCat({ text: "Vital Signs" });
+
+        // getVSCat() returns SliceInput — discriminator keys stripped at runtime
+        const flat = profile.getVSCat()!;
+        expect(flat.text).toBe("Vital Signs");
+        expect("coding" in flat).toBe(false);
+
+        // getVSCat("raw") returns the full element with discriminators
+        expect(profile.getVSCat("raw")!.coding).toEqual([
+            { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
+        ]);
+    });
+});
+
 describe("validation", () => {
     test("catches disallowed value[x] variants", () => {
         const resource: Observation = {

@@ -28,6 +28,7 @@ import {
     tsQualifiedSliceMethodBaseName,
     tsResourceName,
     tsSliceFlatTypeName,
+    tsSliceInputTypeName,
     tsSliceMethodBaseName,
     tsSliceStaticName,
 } from "./name";
@@ -607,11 +608,27 @@ const generateInlineExtensionInputTypes = (w: TypeScript, tsIndex: TypeSchemaInd
     }
 };
 
+/** Convert a JS value to a TypeScript type literal string (e.g. `{ code: "vital-signs"; system: "http://..." }`). */
+const valueToTypeLiteral = (value: unknown): string => {
+    if (value === null || value === undefined) return "undefined";
+    if (typeof value === "string") return JSON.stringify(value);
+    if (typeof value === "number" || typeof value === "boolean") return String(value);
+    if (Array.isArray(value)) return `[${value.map(valueToTypeLiteral).join(", ")}]`;
+    if (typeof value === "object") {
+        const entries = Object.entries(value as Record<string, unknown>)
+            .map(([k, v]) => `${k}: ${valueToTypeLiteral(v)}`)
+            .join("; ");
+        return `{ ${entries} }`;
+    }
+    return "unknown";
+};
+
 const generateSliceInputTypes = (w: TypeScript, flatProfile: ProfileTypeSchema, sliceDefs: SliceDef[]) => {
     if (sliceDefs.length === 0) return;
     const tsProfileName = tsResourceName(flatProfile.identifier);
     for (const sliceDef of sliceDefs) {
-        const typeName = tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+        const inputTypeName = tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+        const flatTypeName = tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
         const matchFields = sliceDef.typeDiscriminator ? [] : Object.keys(sliceDef.match);
         const allExcluded = [...new Set([...sliceDef.excluded, ...matchFields])];
         if (sliceDef.constrainedChoice) {
@@ -624,17 +641,32 @@ const generateSliceInputTypes = (w: TypeScript, flatProfile: ProfileTypeSchema, 
         const excludedNames = allExcluded.map((name) => JSON.stringify(name));
         const requiredNames = sliceDef.required.map((name) => JSON.stringify(name));
         const baseType = sliceDef.typedBaseType;
-        let typeExpr = baseType;
+        let inputTypeExpr = baseType;
         if (excludedNames.length > 0) {
-            typeExpr = `Omit<${typeExpr}, ${excludedNames.join(" | ")}>`;
+            inputTypeExpr = `Omit<${inputTypeExpr}, ${excludedNames.join(" | ")}>`;
         }
         if (requiredNames.length > 0) {
-            typeExpr = `${typeExpr} & Required<Pick<${baseType}, ${requiredNames.join(" | ")}>>`;
+            inputTypeExpr = `${inputTypeExpr} & Required<Pick<${baseType}, ${requiredNames.join(" | ")}>>`;
         }
         if (sliceDef.constrainedChoice) {
-            typeExpr = `${typeExpr} & ${tsTypeFromIdentifier(sliceDef.constrainedChoice.variantType)}`;
+            inputTypeExpr = `${inputTypeExpr} & ${tsTypeFromIdentifier(sliceDef.constrainedChoice.variantType)}`;
         }
-        w.lineSM(`export type ${typeName} = ${typeExpr}`);
+        // Input type — setter parameter, no discriminator fields
+        w.lineSM(`export type ${inputTypeName} = ${inputTypeExpr}`);
+        // Flat type — getter return, includes readonly discriminator values as literal types
+        let flatTypeExpr = inputTypeName;
+        if (matchFields.length > 0 && !sliceDef.constrainedChoice) {
+            const safeEntries = matchFields
+                .filter((key) => {
+                    const v = sliceDef.match[key];
+                    return Array.isArray(v) || typeof v !== "object" || v === null;
+                })
+                .map((key) => `readonly ${key}: ${valueToTypeLiteral(sliceDef.match[key])}`);
+            if (safeEntries.length > 0) {
+                flatTypeExpr = `${flatTypeExpr} & { ${safeEntries.join("; ")} }`;
+            }
+        }
+        w.lineSM(`export type ${flatTypeName} = ${flatTypeExpr}`);
     }
     w.line();
 };
