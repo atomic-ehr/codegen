@@ -221,7 +221,6 @@ const generateProfileHelpersImport = (
     const canonicalUrl = flatProfile.identifier.url;
 
     const imports: string[] = [];
-    if (!isPrimitiveIdentifier(flatProfile.base)) imports.push("buildResource");
     if (flatProfile.base.name === "Extension" && !!canonicalUrl && collectSubExtensionSlices(flatProfile).length > 0)
         imports.push("isRawExtensionInput");
     if (canonicalUrl && hasMeta) imports.push("ensureProfile");
@@ -462,7 +461,7 @@ const generateFactoryMethods = (
             }
             w.line();
             const extensionVar = extSliceField ? "extensionWithDefaults" : "resolvedExtensions";
-            w.curlyBlock([`const resource = buildResource<${tsBaseResourceName}>(`], () => {
+            w.curlyBlock([`const resource: ${tsBaseResourceName} =`], () => {
                 for (const f of allFields) {
                     if (f.name === "extension") continue;
                     w.line(`${f.name}: ${f.value},`);
@@ -471,7 +470,7 @@ const generateFactoryMethods = (
                 if (hasMeta) {
                     w.line(`meta: { profile: [${profileClassName}.canonicalUrl] },`);
                 }
-            }, [")"]);
+            });
 
             w.lineSM("return resource");
         });
@@ -504,14 +503,14 @@ const generateFactoryMethods = (
             if (isPrimitiveIdentifier(flatProfile.base)) {
                 w.lineSM(`const resource = undefined as unknown as ${tsBaseResourceName}`);
             } else {
-                w.curlyBlock([`const resource = buildResource<${tsBaseResourceName}>(`], () => {
+                w.curlyBlock([`const resource: ${tsBaseResourceName} =`], () => {
                     for (const f of allFields) {
                         w.line(`${f.name}: ${f.value},`);
                     }
                     if (hasMeta) {
                         w.line(`meta: { profile: [${profileClassName}.canonicalUrl] },`);
                     }
-                }, [")"]);
+                });
             }
             w.lineSM("return resource");
         });
