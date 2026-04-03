@@ -104,6 +104,27 @@ describe("demo: read a US Core body weight observation from JSON", () => {
     });
 });
 
+describe("slice flat types carry discriminator values", () => {
+    test("flat type includes optional discriminator as literal type", () => {
+        const profile = USCoreBodyWeightProfile.create({
+            status: "final",
+            subject: { reference: "Patient/pt-1" },
+        });
+
+        // setVSCat accepts flat input — discriminator coding is optional and auto-applied
+        profile.setVSCat({ text: "Vital Signs" });
+
+        // The flat type's coding field is typed with the exact discriminator values:
+        // coding?: [{ code: "vital-signs"; system: "http://...observation-category" }]
+        // This is useful for type-level documentation and checks
+        profile.setVSCat({
+            text: "Vital Signs",
+            coding: [{ code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" }],
+        });
+        expect(profile.getVSCat()!.text).toBe("Vital Signs");
+    });
+});
+
 describe("validation", () => {
     test("catches disallowed value[x] variants", () => {
         const resource: Observation = {

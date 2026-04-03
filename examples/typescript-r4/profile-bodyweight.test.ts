@@ -132,6 +132,25 @@ describe("slice accessors", () => {
         expect(profile.getVSCat("raw")!.text).toBe("Vital Signs");
     });
 
+    test("flat type includes optional discriminator values as literal types", () => {
+        const profile = bodyweightProfile.create({ status: "final", subject: { reference: "Patient/pt-1" } });
+
+        // The flat type carries the discriminator values at the type level.
+        // The coding field is optional — auto-applied by setVSCat, visible via getVSCat("raw").
+        profile.setVSCat({ text: "Vital Signs" });
+        const flat = profile.getVSCat()!;
+
+        // flat.coding is typed as optional discriminator literal:
+        // coding?: [{ code: "vital-signs"; system: "http://...observation-category" }]
+        // At runtime, getVSCat() strips it — but the type allows passing it through setVSCat
+        profile.setVSCat({
+            text: "Vital Signs",
+            coding: [{ code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" }],
+        });
+        expect(profile.getVSCat()!.text).toBe("Vital Signs");
+        expect(flat.text).toBe("Vital Signs");
+    });
+
     test("setVSCat replaces existing slice element", () => {
         const profile = bodyweightProfile.create({ status: "final", subject: { reference: "Patient/pt-1" } });
         profile.setVSCat({ text: "First" });
