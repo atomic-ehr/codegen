@@ -15,6 +15,19 @@ const preprocessPackage = (ctx: PreprocessContext): PreprocessContext => {
         );
         return { ...ctx, resource: JSON.parse(str) };
     }
+    // CarePlanAct profile binds moodCode to an external NLM ValueSet that
+    // isn't available in any loaded package. Reuse the base Act binding.
+    if (ctx.package.name === "hl7.cda.us.ccda") {
+        const res = ctx.resource as { url?: string };
+        if (res.url === "http://hl7.org/cda/us/ccda/StructureDefinition/CarePlanAct") {
+            let str = JSON.stringify(ctx.resource);
+            str = str.replaceAll(
+                "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1267.37",
+                "http://terminology.hl7.org/ValueSet/v3-xDocumentActMood",
+            );
+            return { ...ctx, resource: JSON.parse(str) };
+        }
+    }
     // The bundle-type CodeSystem is missing codes "bundle" and
     // "subscription-notification" used by BatchBundle and
     // SubscriptionNotificationBundle profiles. Patch all instances since
