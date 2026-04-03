@@ -607,6 +607,21 @@ const generateInlineExtensionInputTypes = (w: TypeScript, tsIndex: TypeSchemaInd
     }
 };
 
+/** Convert a JS value to a TypeScript type literal string (e.g. `{ code: "vital-signs"; system: "http://..." }`). */
+const valueToTypeLiteral = (value: unknown): string => {
+    if (value === null || value === undefined) return "undefined";
+    if (typeof value === "string") return JSON.stringify(value);
+    if (typeof value === "number" || typeof value === "boolean") return String(value);
+    if (Array.isArray(value)) return `[${value.map(valueToTypeLiteral).join(", ")}]`;
+    if (typeof value === "object") {
+        const entries = Object.entries(value as Record<string, unknown>)
+            .map(([k, v]) => `${k}: ${valueToTypeLiteral(v)}`)
+            .join("; ");
+        return `{ ${entries} }`;
+    }
+    return "unknown";
+};
+
 const generateSliceInputTypes = (w: TypeScript, flatProfile: ProfileTypeSchema, sliceDefs: SliceDef[]) => {
     if (sliceDefs.length === 0) return;
     const tsProfileName = tsResourceName(flatProfile.identifier);
@@ -633,6 +648,19 @@ const generateSliceInputTypes = (w: TypeScript, flatProfile: ProfileTypeSchema, 
         }
         if (sliceDef.constrainedChoice) {
             typeExpr = `${typeExpr} & ${tsTypeFromIdentifier(sliceDef.constrainedChoice.variantType)}`;
+        }
+        if (matchFields.length > 0 && !sliceDef.constrainedChoice) {
+            // Only include match fields whose values are arrays or scalars —
+            // plain object matches may be partial and conflict with required fields.
+            const safeEntries = matchFields
+                .filter((key) => {
+                    const v = sliceDef.match[key];
+                    return Array.isArray(v) || typeof v !== "object" || v === null;
+                })
+                .map((key) => `${key}?: ${valueToTypeLiteral(sliceDef.match[key])}`);
+            if (safeEntries.length > 0) {
+                typeExpr = `${typeExpr} & { ${safeEntries.join("; ")} }`;
+            }
         }
         w.lineSM(`export type ${typeName} = ${typeExpr}`);
     }
