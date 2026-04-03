@@ -1,8 +1,12 @@
 import assert from "node:assert";
 import fs from "node:fs";
-import * as Path from "node:path";
-import { fileURLToPath } from "node:url";
-import { camelCase, pascalCase, snakeCase, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils";
+import {
+    canonicalToName,
+    deriveResourceName,
+    fixReservedWords,
+    resolvePyAssets,
+} from "@root/api/writer-generator/python/py-utils.ts";
+import { camelCase, pascalCase, snakeCase } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
 import { groupByPackages, sortAsDeclarationSequence, type TypeSchemaIndex } from "@root/typeschema/utils";
 import {
@@ -16,6 +20,7 @@ import {
     type SpecializationTypeSchema,
     type TypeIdentifier,
 } from "@typeschema/types.ts";
+import { generateExtensionProfiles } from "./extension-profile";
 
 const PRIMITIVE_TYPE_MAP: Record<string, string> = {
     boolean: "bool",
@@ -49,45 +54,6 @@ const AVAILABLE_STRING_FORMATS: Record<StringFormatKey, (str: string) => string>
     camelCase: camelCase,
 };
 
-const PYTHON_KEYWORDS = new Set([
-    "False",
-    "None",
-    "True",
-    "and",
-    "as",
-    "assert",
-    "async",
-    "await",
-    "break",
-    "class",
-    "continue",
-    "def",
-    "del",
-    "elif",
-    "else",
-    "except",
-    "finally",
-    "for",
-    "from",
-    "global",
-    "if",
-    "import",
-    "in",
-    "is",
-    "lambda",
-    "nonlocal",
-    "not",
-    "or",
-    "pass",
-    "raise",
-    "return",
-    "try",
-    "while",
-    "with",
-    "yield",
-    "List",
-]);
-
 const MAX_IMPORT_LINE_LENGTH = 100;
 
 const GENERIC_FIELD_REWRITES: Record<string, Record<string, string>> = {
@@ -103,6 +69,7 @@ const pyEnumType = (enumDef: EnumDefinition): string => {
 export interface PythonGeneratorOptions extends WriterOptions {
     allowExtraFields?: boolean;
     primitiveTypeExtension?: boolean;
+    generateProfile?: boolean;
     rootPackageName: string; /// e.g. <rootPackageName>.hl7_fhir_r4_core.Patient.
     fieldFormat: StringFormatKey;
     fhirpyClient?: boolean;
@@ -118,53 +85,13 @@ interface FieldInfo {
     defaultValue: string;
 }
 
-const fixReservedWords = (name: string): string => {
-    return PYTHON_KEYWORDS.has(name) ? `${name}_` : name;
-};
-
-const canonicalToName = (canonical: string | undefined, dropFragment = true) => {
-    if (!canonical) return undefined;
-    let localName = canonical.split("/").pop();
-    if (!localName) return undefined;
-    if (dropFragment && localName.includes("#")) {
-        localName = localName.split("#")[0];
-    }
-    if (!localName) return undefined;
-    if (/^\d/.test(localName)) {
-        localName = `number_${localName}`;
-    }
-    return snakeCase(localName);
-};
-
-const deriveResourceName = (id: TypeIdentifier): string => {
-    if (id.kind === "nested") {
-        const url = id.url;
-        const path = canonicalToName(url, false);
-        if (!path) return "";
-        const [resourceName, fragment] = path.split("#");
-        const name = uppercaseFirstLetterOfEach((fragment ?? "").split(".")).join("");
-        return pascalCase([resourceName, name].join(""));
-    }
-    return pascalCase(id.name);
-};
-
-const resolvePyAssets = (fn: string) => {
-    const __dirname = Path.dirname(fileURLToPath(import.meta.url));
-    const __filename = fileURLToPath(import.meta.url);
-    if (__filename.endsWith("dist/index.js")) {
-        return Path.resolve(__dirname, "..", "assets", "api", "writer-generator", "python", fn);
-    } else {
-        return Path.resolve(__dirname, "../../..", "assets", "api", "writer-generator", "python", fn);
-    }
-};
-
 type TypeSchemaPackageGroups = {
     groupedResources: Record<string, SpecializationTypeSchema[]>;
     groupedComplexTypes: Record<string, SpecializationTypeSchema[]>;
 };
 
 export class Python extends Writer<PythonGeneratorOptions> {
-    private readonly nameFormatFunction: (name: string) => string;
+    readonly nameFormatFunction: (name: string) => string;
     private tsIndex: TypeSchemaIndex | undefined;
     private readonly forFhirpyClient: boolean;
     private readonly fieldFormat: StringFormatKey;
@@ -182,7 +109,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
             groupedResources: groupByPackages(tsIndex.collectResources()),
         };
         this.generateRootPackages(groups);
-        this.generateSDKPackages(groups);
+        this.generateSDKPackages(groups, tsIndex);
     }
 
     private generateRootPackages(groups: TypeSchemaPackageGroups): void {
@@ -197,9 +124,9 @@ export class Python extends Writer<PythonGeneratorOptions> {
         this.copyAssets(resolvePyAssets("requirements.txt"), "requirements.txt");
     }
 
-    private generateSDKPackages(groups: TypeSchemaPackageGroups): void {
+    private generateSDKPackages(groups: TypeSchemaPackageGroups, tsIndex: TypeSchemaIndex): void {
         this.generateComplexTypesPackages(groups.groupedComplexTypes);
-        this.generateResourcePackages(groups);
+        this.generateResourcePackages(groups, tsIndex);
     }
 
     private generateComplexTypesPackages(groupedComplexTypes: Record<string, SpecializationTypeSchema[]>): void {
@@ -210,7 +137,9 @@ export class Python extends Writer<PythonGeneratorOptions> {
         }
     }
 
-    private generateResourcePackages(groups: TypeSchemaPackageGroups): void {
+    private generateResourcePackages(groups: TypeSchemaPackageGroups, tsIndex: TypeSchemaIndex): void {
+        const profilesByPackage = this.opts.generateProfile ? groupByPackages(tsIndex.collectProfiles()) : {};
+
         for (const [packageName, packageResources] of Object.entries(groups.groupedResources)) {
             this.cd(`/${snakeCase(packageName)}`, () => {
                 this.generateResourcePackageContent(
@@ -218,6 +147,11 @@ export class Python extends Writer<PythonGeneratorOptions> {
                     packageResources,
                     groups.groupedComplexTypes[packageName] || [],
                 );
+
+                const packageProfiles = profilesByPackage[packageName];
+                if (packageProfiles && packageProfiles.length > 0) {
+                    generateExtensionProfiles(this, tsIndex, packageProfiles);
+                }
             });
         }
     }
@@ -669,7 +603,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         return grouped;
     }
 
-    private pyImportFrom(pyPackage: string, ...entities: string[]): void {
+    pyImportFrom(pyPackage: string, ...entities: string[]): void {
         const oneLine = `from ${pyPackage} import ${entities.join(", ")}`;
 
         if (this.shouldUseSingleLineImport(oneLine, entities)) {
