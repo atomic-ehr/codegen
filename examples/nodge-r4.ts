@@ -22,7 +22,19 @@ const needsCoreDependency = (name: string): boolean => {
 };
 
 const preprocessPackage = (ctx: PreprocessContext): PreprocessContext => {
-    if (ctx.kind !== "package") return ctx;
+    // GdRelatedPerson widens patient reference to include Person, but the
+    // base R4 RelatedPerson.patient only allows Patient. Drop the Person targets.
+    if (ctx.kind === "resource") {
+        const res = ctx.resource as { url?: string };
+        if (res.url === "http://ehelse.no/fhir/StructureDefinition/gd-RelatedPerson") {
+            let str = JSON.stringify(ctx.resource);
+            str = str.replaceAll("http://hl7.org/fhir/StructureDefinition/Person", "http://hl7.org/fhir/StructureDefinition/Patient");
+            str = str.replaceAll("http://hl7.no/fhir/StructureDefinition/no-basis-Person", "http://hl7.org/fhir/StructureDefinition/Patient");
+            str = str.replaceAll("http://ehelse.no/fhir/StructureDefinition/gd-Person", "http://hl7.org/fhir/StructureDefinition/Patient");
+            return { ...ctx, resource: JSON.parse(str) };
+        }
+        return ctx;
+    }
     let json = ctx.packageJson;
     const name = json.name as string;
 
