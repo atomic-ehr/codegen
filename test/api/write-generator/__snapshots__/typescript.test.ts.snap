@@ -325,7 +325,6 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 export type Observation_bodyweight_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
 
 import {
-    buildResource,
     ensureProfile,
     applySliceMatch,
     matchesValue,
@@ -389,14 +388,14 @@ export class observation_bodyweightProfile {
             observation_bodyweightProfile.VSCatSliceMatch,
         );
 
-        const resource = buildResource<Observation>( {
+        const resource: Observation = {
             resourceType: "Observation",
             code: {"coding":[{"code":"29463-7","system":"http://loinc.org"}]},
             category: categoryWithDefaults,
             status: args.status,
             subject: args.subject,
             meta: { profile: [observation_bodyweightProfile.canonicalUrl] },
-        })
+        }
         return resource;
     }
 
@@ -540,7 +539,6 @@ export type Observation_bp_Component_SystolicBPSliceFlat = Omit<ObservationCompo
 export type Observation_bp_Component_DiastolicBPSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 
 import {
-    buildResource,
     ensureProfile,
     applySliceMatch,
     matchesValue,
@@ -619,7 +617,7 @@ export class observation_bpProfile {
             observation_bpProfile.DiastolicBPSliceMatch,
         );
 
-        const resource = buildResource<Observation>( {
+        const resource: Observation = {
             resourceType: "Observation",
             code: {"coding":[{"code":"85354-9","system":"http://loinc.org"}]},
             category: categoryWithDefaults,
@@ -627,7 +625,7 @@ export class observation_bpProfile {
             status: args.status,
             subject: args.subject,
             meta: { profile: [observation_bpProfile.canonicalUrl] },
-        })
+        }
         return resource;
     }
 
@@ -837,7 +835,6 @@ import {
 } from "./Extension_USCoreTribalAffiliationExtension";
 
 import {
-    buildResource,
     ensureProfile,
     extractComplexExtension,
     isExtension,
@@ -885,12 +882,12 @@ export class USCorePatientProfile {
     }
 
     static createResource (args: USCorePatientProfileRaw) : Patient {
-        const resource = buildResource<Patient>( {
+        const resource: Patient = {
             resourceType: "Patient",
             identifier: args.identifier,
             name: args.name,
             meta: { profile: [USCorePatientProfile.canonicalUrl] },
-        })
+        }
         return resource;
     }
 
@@ -1087,7 +1084,6 @@ export type USCoreBloodPressureProfile_Component_SystolicSliceFlat = Omit<Observ
 export type USCoreBloodPressureProfile_Component_DiastolicSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 
 import {
-    buildResource,
     ensureProfile,
     applySliceMatch,
     matchesValue,
@@ -1166,7 +1162,7 @@ export class USCoreBloodPressureProfile {
             USCoreBloodPressureProfile.diastolicSliceMatch,
         );
 
-        const resource = buildResource<Observation>( {
+        const resource: Observation = {
             resourceType: "Observation",
             code: {"coding":[{"system":"http://loinc.org","code":"85354-9"}]},
             category: categoryWithDefaults,
@@ -1174,7 +1170,7 @@ export class USCoreBloodPressureProfile {
             status: args.status,
             subject: args.subject,
             meta: { profile: [USCoreBloodPressureProfile.canonicalUrl] },
-        })
+        }
         return resource;
     }
 
@@ -1468,7 +1464,6 @@ import type { SampledData } from "../../hl7-fhir-r4-core/SampledData";
 export type USCoreBodyWeightProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
 
 import {
-    buildResource,
     ensureProfile,
     applySliceMatch,
     matchesValue,
@@ -1532,14 +1527,14 @@ export class USCoreBodyWeightProfile {
             USCoreBodyWeightProfile.VSCatSliceMatch,
         );
 
-        const resource = buildResource<Observation>( {
+        const resource: Observation = {
             resourceType: "Observation",
             code: {"coding":[{"system":"http://loinc.org","code":"29463-7"}]},
             category: categoryWithDefaults,
             status: args.status,
             subject: args.subject,
             meta: { profile: [USCoreBodyWeightProfile.canonicalUrl] },
-        })
+        }
         return resource;
     }
 
@@ -1782,7 +1777,6 @@ export type USCoreRaceExtension_Extension_DetailedSliceFlat = Omit<Extension, "u
 export type USCoreRaceExtension_Extension_TextSliceFlat = Omit<Extension, "url">;
 
 import {
-    buildResource,
     isRawExtensionInput,
     applySliceMatch,
     matchesValue,
@@ -1868,10 +1862,10 @@ export class USCoreRaceExtensionProfile {
     static createResource (args: USCoreRaceExtensionProfileRaw | USCoreRaceExtensionProfileFlat) : Extension {
         const resolvedExtensions = USCoreRaceExtensionProfile.resolveInput(args ?? {});
 
-        const resource = buildResource<Extension>( {
+        const resource: Extension = {
             url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
             extension: resolvedExtensions,
-        })
+        }
         return resource;
     }
 
