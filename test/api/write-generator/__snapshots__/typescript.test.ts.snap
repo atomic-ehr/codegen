@@ -322,7 +322,7 @@ import type { Period } from "../../hl7-fhir-r4-core/Period";
 import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
-export type Observation_bodyweight_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
+export type Observation_bodyweight_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding"> & { coding?: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }] };
 
 import {
     ensureProfile,
@@ -534,7 +534,7 @@ import type { Period } from "../../hl7-fhir-r4-core/Period";
 import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
-export type Observation_bp_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
+export type Observation_bp_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding"> & { coding?: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }] };
 export type Observation_bp_Component_SystolicBPSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 export type Observation_bp_Component_DiastolicBPSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 
@@ -1079,7 +1079,7 @@ import type { Ratio } from "../../hl7-fhir-r4-core/Ratio";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import type { SampledData } from "../../hl7-fhir-r4-core/SampledData";
 
-export type USCoreBloodPressureProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
+export type USCoreBloodPressureProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding"> & { coding?: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }] };
 export type USCoreBloodPressureProfile_Component_SystolicSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 export type USCoreBloodPressureProfile_Component_DiastolicSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 
@@ -1461,7 +1461,7 @@ import type { Ratio } from "../../hl7-fhir-r4-core/Ratio";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import type { SampledData } from "../../hl7-fhir-r4-core/SampledData";
 
-export type USCoreBodyWeightProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
+export type USCoreBodyWeightProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding"> & { coding?: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }] };
 
 import {
     ensureProfile,
@@ -1774,7 +1774,7 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 export type USCoreRaceExtension_Extension_OmbCategorySliceFlat = Omit<Extension, "url" | "value" | "valueBase64Binary" | "valueBoolean" | "valueCanonical" | "valueCode" | "valueDate" | "valueDateTime" | "valueDecimal" | "valueId" | "valueInstant" | "valueInteger" | "valueMarkdown" | "valueOid" | "valuePositiveInt" | "valueString" | "valueTime" | "valueUnsignedInt" | "valueUri" | "valueUrl" | "valueUuid" | "valueAddress" | "valueAge" | "valueAnnotation" | "valueAttachment" | "valueCodeableConcept" | "valueCoding" | "valueContactPoint" | "valueCount" | "valueDistance" | "valueDuration" | "valueHumanName" | "valueIdentifier" | "valueMoney" | "valuePeriod" | "valueQuantity" | "valueRange" | "valueRatio" | "valueReference" | "valueSampledData" | "valueSignature" | "valueTiming" | "valueContactDetail" | "valueContributor" | "valueDataRequirement" | "valueExpression" | "valueParameterDefinition" | "valueRelatedArtifact" | "valueTriggerDefinition" | "valueUsageContext" | "valueDosage" | "valueMeta"> & Coding;
 export type USCoreRaceExtension_Extension_DetailedSliceFlat = Omit<Extension, "url" | "value" | "valueBase64Binary" | "valueBoolean" | "valueCanonical" | "valueCode" | "valueDate" | "valueDateTime" | "valueDecimal" | "valueId" | "valueInstant" | "valueInteger" | "valueMarkdown" | "valueOid" | "valuePositiveInt" | "valueString" | "valueTime" | "valueUnsignedInt" | "valueUri" | "valueUrl" | "valueUuid" | "valueAddress" | "valueAge" | "valueAnnotation" | "valueAttachment" | "valueCodeableConcept" | "valueCoding" | "valueContactPoint" | "valueCount" | "valueDistance" | "valueDuration" | "valueHumanName" | "valueIdentifier" | "valueMoney" | "valuePeriod" | "valueQuantity" | "valueRange" | "valueRatio" | "valueReference" | "valueSampledData" | "valueSignature" | "valueTiming" | "valueContactDetail" | "valueContributor" | "valueDataRequirement" | "valueExpression" | "valueParameterDefinition" | "valueRelatedArtifact" | "valueTriggerDefinition" | "valueUsageContext" | "valueDosage" | "valueMeta"> & Coding;
-export type USCoreRaceExtension_Extension_TextSliceFlat = Omit<Extension, "url">;
+export type USCoreRaceExtension_Extension_TextSliceFlat = Omit<Extension, "url"> & { url?: "text" };
 
 import {
     isRawExtensionInput,
