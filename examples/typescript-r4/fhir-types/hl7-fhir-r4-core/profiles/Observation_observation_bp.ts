@@ -13,7 +13,6 @@ export type Observation_bp_Component_SystolicBPSliceFlat = Omit<ObservationCompo
 export type Observation_bp_Component_DiastolicBPSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 
 import {
-    buildResource,
     ensureProfile,
     applySliceMatch,
     matchesValue,
@@ -92,7 +91,7 @@ export class observation_bpProfile {
             observation_bpProfile.DiastolicBPSliceMatch,
         );
 
-        const resource = buildResource<Observation>( {
+        const resource: Observation = {
             resourceType: "Observation",
             code: {"coding":[{"code":"85354-9","system":"http://loinc.org"}]},
             category: categoryWithDefaults,
@@ -100,7 +99,7 @@ export class observation_bpProfile {
             status: args.status,
             subject: args.subject,
             meta: { profile: [observation_bpProfile.canonicalUrl] },
-        })
+        }
         return resource;
     }
 

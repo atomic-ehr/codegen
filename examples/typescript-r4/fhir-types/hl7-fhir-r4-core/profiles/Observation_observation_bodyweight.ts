@@ -11,7 +11,6 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 export type Observation_bodyweight_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
 
 import {
-    buildResource,
     ensureProfile,
     applySliceMatch,
     matchesValue,
@@ -75,14 +74,14 @@ export class observation_bodyweightProfile {
             observation_bodyweightProfile.VSCatSliceMatch,
         );
 
-        const resource = buildResource<Observation>( {
+        const resource: Observation = {
             resourceType: "Observation",
             code: {"coding":[{"code":"29463-7","system":"http://loinc.org"}]},
             category: categoryWithDefaults,
             status: args.status,
             subject: args.subject,
             meta: { profile: [observation_bodyweightProfile.canonicalUrl] },
-        })
+        }
         return resource;
     }
 

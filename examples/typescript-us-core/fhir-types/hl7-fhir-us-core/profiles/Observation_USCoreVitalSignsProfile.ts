@@ -14,7 +14,6 @@ import type { SampledData } from "../../hl7-fhir-r4-core/SampledData";
 export type USCoreVitalSignsProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
 
 import {
-    buildResource,
     ensureProfile,
     applySliceMatch,
     matchesValue,
@@ -76,14 +75,14 @@ export class USCoreVitalSignsProfile {
             USCoreVitalSignsProfile.VSCatSliceMatch,
         );
 
-        const resource = buildResource<Observation>( {
+        const resource: Observation = {
             resourceType: "Observation",
             category: categoryWithDefaults,
             status: args.status,
             code: args.code,
             subject: args.subject,
             meta: { profile: [USCoreVitalSignsProfile.canonicalUrl] },
-        })
+        }
         return resource;
     }
 

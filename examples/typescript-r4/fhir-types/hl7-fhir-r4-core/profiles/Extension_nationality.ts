@@ -7,7 +7,6 @@ import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 import type { Period } from "../../hl7-fhir-r4-core/Period";
 
 import {
-    buildResource,
     isRawExtensionInput,
     isExtension,
     getExtensionValue,
@@ -75,10 +74,10 @@ export class nationalityProfile {
     static createResource (args?: nationalityProfileRaw | nationalityProfileFlat) : Extension {
         const resolvedExtensions = nationalityProfile.resolveInput(args ?? {});
 
-        const resource = buildResource<Extension>( {
+        const resource: Extension = {
             url: "http://hl7.org/fhir/StructureDefinition/patient-nationality",
             extension: resolvedExtensions,
-        })
+        }
         return resource;
     }
 

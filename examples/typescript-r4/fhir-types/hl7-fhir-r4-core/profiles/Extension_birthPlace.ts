@@ -6,7 +6,6 @@ import type { Address } from "../../hl7-fhir-r4-core/Address";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import {
-    buildResource,
     validateRequired,
     validateExcluded,
     validateFixedValue,
@@ -47,10 +46,10 @@ export class birthPlaceProfile {
     }
 
     static createResource (args: birthPlaceProfileRaw) : Extension {
-        const resource = buildResource<Extension>( {
+        const resource: Extension = {
             url: "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
             valueAddress: args.valueAddress,
-        })
+        }
         return resource;
     }
 

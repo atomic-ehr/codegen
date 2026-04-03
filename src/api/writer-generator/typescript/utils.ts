@@ -64,6 +64,7 @@ export const resolveFieldTsType = (
     field: RegularField | ChoiceFieldInstance,
     resolveRef?: (ref: TypeIdentifier) => TypeIdentifier,
     genericFieldMap?: Record<string, string>,
+    isFamilyType?: (ref: TypeIdentifier) => boolean,
 ): string => {
     if (genericFieldMap?.[tsName]) return genericFieldMap[tsName];
 
@@ -76,9 +77,9 @@ export const resolveFieldTsType = (
         return tsEnumType(field.enum);
     }
     if (field.reference && field.reference.length > 0) {
-        const references = field.reference
-            .map((ref) => (resolveRef ? resolveRef(ref) : ref))
-            .map((ref) => `"${ref.name}"`)
+        const resolved = field.reference.map((ref) => (resolveRef ? resolveRef(ref) : ref));
+        const references = resolved
+            .map((ref) => (isFamilyType?.(ref) ? `string /* ${ref.name} */` : `"${ref.name}"`))
             .join(" | ");
         return `Reference<${references}>`;
     }
@@ -90,7 +91,8 @@ export const resolveFieldTsType = (
 export const fieldTsType = (
     field: RegularField | ChoiceFieldInstance,
     resolveRef?: (ref: TypeIdentifier) => TypeIdentifier,
-): string => resolveFieldTsType("", "", field, resolveRef) + (field.array ? "[]" : "");
+    isFamilyType?: (ref: TypeIdentifier) => boolean,
+): string => resolveFieldTsType("", "", field, resolveRef, undefined, isFamilyType) + (field.array ? "[]" : "");
 
 export const tsTypeFromIdentifier = (id: TypeIdentifier): string => {
     if (isNestedIdentifier(id)) return tsResourceName(id);

@@ -41,7 +41,6 @@ export type ExampleTypedBundle_Entry_PatientEntrySliceFlat = BundleEntry<Patient
 export type ExampleTypedBundle_Entry_OrganizationEntrySliceFlat = BundleEntry<Organization>;
 
 import {
-    buildResource,
     ensureProfile,
     applySliceMatch,
     matchesValue,
@@ -91,11 +90,11 @@ export class ExampleTypedBundleProfile {
     }
 
     static createResource (args: ExampleTypedBundleProfileRaw) : Bundle {
-        const resource = buildResource<Bundle>( {
+        const resource: Bundle = {
             resourceType: "Bundle",
             type: args.type,
             meta: { profile: [ExampleTypedBundleProfile.canonicalUrl] },
-        })
+        }
         return resource;
     }
 

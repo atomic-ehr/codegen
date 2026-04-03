@@ -81,16 +81,26 @@ const tryPromoteChoice = (
     fields: NonNullable<ProfileTypeSchema["fields"]>,
     params: ProfileFactoryInfo["params"],
     promotedChoices: Set<string>,
+    resolveRef?: (ref: TypeIdentifier) => TypeIdentifier,
+    isFamilyType?: (ref: TypeIdentifier) => boolean,
 ): void => {
     if (!isChoiceDeclarationField(field) || !field.required || field.choices.length !== 1) return;
     const choiceName = field.choices[0];
     if (!choiceName) return;
     const choiceField = fields[choiceName];
     if (!choiceField || !isChoiceInstanceField(choiceField)) return;
-    const tsType = tsTypeFromIdentifier(choiceField.type) + (choiceField.array ? "[]" : "");
+    const tsType = fieldTsType(choiceField, resolveRef, isFamilyType);
     params.push({ name: choiceName, tsType, typeId: choiceField.type });
     promotedChoices.add(choiceName);
 };
+
+export const mkIsFamilyType =
+    (tsIndex: TypeSchemaIndex) =>
+    (ref: TypeIdentifier): boolean => {
+        const schema = tsIndex.resolveType(ref);
+        if (!schema || !("typeFamily" in schema)) return false;
+        return (schema.typeFamily?.resources?.length ?? 0) > 0;
+    };
 
 export const collectProfileFactoryInfo = (
     tsIndex: TypeSchemaIndex,
@@ -104,6 +114,7 @@ export const collectProfileFactoryInfo = (
     const fields = flatProfile.fields ?? {};
     const promotedChoices = new Set<string>();
     const resolveRef = tsIndex.findLastSpecializationByIdentifier;
+    const isFamilyType = mkIsFamilyType(tsIndex);
 
     if (isResourceIdentifier(flatProfile.base)) {
         autoFields.push({ name: "resourceType", value: JSON.stringify(flatProfile.base.name) });
@@ -114,7 +125,7 @@ export const collectProfileFactoryInfo = (
         if (isChoiceInstanceField(field)) continue;
 
         if (isChoiceDeclarationField(field)) {
-            tryPromoteChoice(field, fields, params, promotedChoices);
+            tryPromoteChoice(field, fields, params, promotedChoices, resolveRef, isFamilyType);
             continue;
         }
 
@@ -123,7 +134,7 @@ export const collectProfileFactoryInfo = (
             autoFields.push({ name, value: field.array ? `[${value}]` : value });
             fixedFields.add(name);
             if (isNotChoiceDeclarationField(field) && field.type) {
-                const tsType = fieldTsType(field, resolveRef);
+                const tsType = fieldTsType(field, resolveRef, isFamilyType);
                 autoAccessors.push({ name, tsType, typeId: field.type });
             }
             continue;
@@ -133,7 +144,7 @@ export const collectProfileFactoryInfo = (
             const sliceNames = collectRequiredSliceNames(field);
             if (sliceNames) {
                 if (field.type) {
-                    const tsType = fieldTsType(field, resolveRef);
+                    const tsType = fieldTsType(field, resolveRef, isFamilyType);
                     sliceAutoFields.push({
                         name,
                         tsType,
@@ -147,17 +158,24 @@ export const collectProfileFactoryInfo = (
         }
 
         if (field.required) {
-            const tsType = fieldTsType(field, resolveRef);
+            const tsType = fieldTsType(field, resolveRef, isFamilyType);
             params.push({ name, tsType, typeId: field.type });
         }
     }
 
-    collectBaseRequiredParams(tsIndex, flatProfile, resolveRef, params, [
-        ...autoFields.map((f) => f.name),
-        ...sliceAutoFields.map((f) => f.name),
-        ...params.map((f) => f.name),
-        ...promotedChoices,
-    ]);
+    collectBaseRequiredParams(
+        tsIndex,
+        flatProfile,
+        resolveRef,
+        params,
+        [
+            ...autoFields.map((f) => f.name),
+            ...sliceAutoFields.map((f) => f.name),
+            ...params.map((f) => f.name),
+            ...promotedChoices,
+        ],
+        isFamilyType,
+    );
 
     const accessors = [...autoAccessors, ...collectChoiceAccessors(flatProfile, promotedChoices)];
     return { autoFields, sliceAutoFields, params, accessors, fixedFields };
@@ -170,6 +188,7 @@ const collectBaseRequiredParams = (
     resolveRef: TypeSchemaIndex["findLastSpecializationByIdentifier"],
     params: ProfileFactoryInfo["params"],
     coveredNames: string[],
+    isFamilyType?: (ref: TypeIdentifier) => boolean,
 ) => {
     const covered = new Set(coveredNames);
     const baseSchema = tsIndex.resolveType(flatProfile.base);
@@ -180,7 +199,7 @@ const collectBaseRequiredParams = (
         if (isChoiceInstanceField(field)) continue;
         if (isChoiceDeclarationField(field)) continue;
         if (isNotChoiceDeclarationField(field) && field.type) {
-            const tsType = fieldTsType(field, resolveRef);
+            const tsType = fieldTsType(field, resolveRef, isFamilyType);
             params.push({ name, tsType, typeId: field.type });
         }
     }
@@ -221,7 +240,6 @@ const generateProfileHelpersImport = (
     const canonicalUrl = flatProfile.identifier.url;
 
     const imports: string[] = [];
-    if (!isPrimitiveIdentifier(flatProfile.base)) imports.push("buildResource");
     if (flatProfile.base.name === "Extension" && !!canonicalUrl && collectSubExtensionSlices(flatProfile).length > 0)
         imports.push("isRawExtensionInput");
     if (canonicalUrl && hasMeta) imports.push("ensureProfile");
@@ -462,7 +480,7 @@ const generateFactoryMethods = (
             }
             w.line();
             const extensionVar = extSliceField ? "extensionWithDefaults" : "resolvedExtensions";
-            w.curlyBlock([`const resource = buildResource<${tsBaseResourceName}>(`], () => {
+            w.curlyBlock([`const resource: ${tsBaseResourceName} =`], () => {
                 for (const f of allFields) {
                     if (f.name === "extension") continue;
                     w.line(`${f.name}: ${f.value},`);
@@ -471,7 +489,7 @@ const generateFactoryMethods = (
                 if (hasMeta) {
                     w.line(`meta: { profile: [${profileClassName}.canonicalUrl] },`);
                 }
-            }, [")"]);
+            });
 
             w.lineSM("return resource");
         });
@@ -504,14 +522,14 @@ const generateFactoryMethods = (
             if (isPrimitiveIdentifier(flatProfile.base)) {
                 w.lineSM(`const resource = undefined as unknown as ${tsBaseResourceName}`);
             } else {
-                w.curlyBlock([`const resource = buildResource<${tsBaseResourceName}>(`], () => {
+                w.curlyBlock([`const resource: ${tsBaseResourceName} =`], () => {
                     for (const f of allFields) {
                         w.line(`${f.name}: ${f.value},`);
                     }
                     if (hasMeta) {
                         w.line(`meta: { profile: [${profileClassName}.canonicalUrl] },`);
                     }
-                }, [")"]);
+                });
             }
             w.lineSM("return resource");
         });
