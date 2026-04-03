@@ -5,9 +5,12 @@
 import type { Coding } from "../../hl7-fhir-r4-core/Coding";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
-export type USCoreRaceExtension_Extension_OmbCategorySliceFlat = Omit<Extension, "url" | "value" | "valueBase64Binary" | "valueBoolean" | "valueCanonical" | "valueCode" | "valueDate" | "valueDateTime" | "valueDecimal" | "valueId" | "valueInstant" | "valueInteger" | "valueMarkdown" | "valueOid" | "valuePositiveInt" | "valueString" | "valueTime" | "valueUnsignedInt" | "valueUri" | "valueUrl" | "valueUuid" | "valueAddress" | "valueAge" | "valueAnnotation" | "valueAttachment" | "valueCodeableConcept" | "valueCoding" | "valueContactPoint" | "valueCount" | "valueDistance" | "valueDuration" | "valueHumanName" | "valueIdentifier" | "valueMoney" | "valuePeriod" | "valueQuantity" | "valueRange" | "valueRatio" | "valueReference" | "valueSampledData" | "valueSignature" | "valueTiming" | "valueContactDetail" | "valueContributor" | "valueDataRequirement" | "valueExpression" | "valueParameterDefinition" | "valueRelatedArtifact" | "valueTriggerDefinition" | "valueUsageContext" | "valueDosage" | "valueMeta"> & Coding;
-export type USCoreRaceExtension_Extension_DetailedSliceFlat = Omit<Extension, "url" | "value" | "valueBase64Binary" | "valueBoolean" | "valueCanonical" | "valueCode" | "valueDate" | "valueDateTime" | "valueDecimal" | "valueId" | "valueInstant" | "valueInteger" | "valueMarkdown" | "valueOid" | "valuePositiveInt" | "valueString" | "valueTime" | "valueUnsignedInt" | "valueUri" | "valueUrl" | "valueUuid" | "valueAddress" | "valueAge" | "valueAnnotation" | "valueAttachment" | "valueCodeableConcept" | "valueCoding" | "valueContactPoint" | "valueCount" | "valueDistance" | "valueDuration" | "valueHumanName" | "valueIdentifier" | "valueMoney" | "valuePeriod" | "valueQuantity" | "valueRange" | "valueRatio" | "valueReference" | "valueSampledData" | "valueSignature" | "valueTiming" | "valueContactDetail" | "valueContributor" | "valueDataRequirement" | "valueExpression" | "valueParameterDefinition" | "valueRelatedArtifact" | "valueTriggerDefinition" | "valueUsageContext" | "valueDosage" | "valueMeta"> & Coding;
-export type USCoreRaceExtension_Extension_TextSliceFlat = Omit<Extension, "url"> & { url?: "text" };
+export type USCoreRaceExtension_Extension_OmbCategorySliceInput = Omit<Extension, "url" | "value" | "valueBase64Binary" | "valueBoolean" | "valueCanonical" | "valueCode" | "valueDate" | "valueDateTime" | "valueDecimal" | "valueId" | "valueInstant" | "valueInteger" | "valueMarkdown" | "valueOid" | "valuePositiveInt" | "valueString" | "valueTime" | "valueUnsignedInt" | "valueUri" | "valueUrl" | "valueUuid" | "valueAddress" | "valueAge" | "valueAnnotation" | "valueAttachment" | "valueCodeableConcept" | "valueCoding" | "valueContactPoint" | "valueCount" | "valueDistance" | "valueDuration" | "valueHumanName" | "valueIdentifier" | "valueMoney" | "valuePeriod" | "valueQuantity" | "valueRange" | "valueRatio" | "valueReference" | "valueSampledData" | "valueSignature" | "valueTiming" | "valueContactDetail" | "valueContributor" | "valueDataRequirement" | "valueExpression" | "valueParameterDefinition" | "valueRelatedArtifact" | "valueTriggerDefinition" | "valueUsageContext" | "valueDosage" | "valueMeta"> & Coding;
+export type USCoreRaceExtension_Extension_OmbCategorySliceFlat = USCoreRaceExtension_Extension_OmbCategorySliceInput;
+export type USCoreRaceExtension_Extension_DetailedSliceInput = Omit<Extension, "url" | "value" | "valueBase64Binary" | "valueBoolean" | "valueCanonical" | "valueCode" | "valueDate" | "valueDateTime" | "valueDecimal" | "valueId" | "valueInstant" | "valueInteger" | "valueMarkdown" | "valueOid" | "valuePositiveInt" | "valueString" | "valueTime" | "valueUnsignedInt" | "valueUri" | "valueUrl" | "valueUuid" | "valueAddress" | "valueAge" | "valueAnnotation" | "valueAttachment" | "valueCodeableConcept" | "valueCoding" | "valueContactPoint" | "valueCount" | "valueDistance" | "valueDuration" | "valueHumanName" | "valueIdentifier" | "valueMoney" | "valuePeriod" | "valueQuantity" | "valueRange" | "valueRatio" | "valueReference" | "valueSampledData" | "valueSignature" | "valueTiming" | "valueContactDetail" | "valueContributor" | "valueDataRequirement" | "valueExpression" | "valueParameterDefinition" | "valueRelatedArtifact" | "valueTriggerDefinition" | "valueUsageContext" | "valueDosage" | "valueMeta"> & Coding;
+export type USCoreRaceExtension_Extension_DetailedSliceFlat = USCoreRaceExtension_Extension_DetailedSliceInput;
+export type USCoreRaceExtension_Extension_TextSliceInput = Omit<Extension, "url">;
+export type USCoreRaceExtension_Extension_TextSliceFlat = USCoreRaceExtension_Extension_TextSliceInput & { readonly url: "text" };
 
 import {
     isRawExtensionInput,
@@ -168,7 +171,7 @@ export class USCoreRaceExtensionProfile {
     }
 
     // Slices
-    public setExtensionOmbCategory (input?: USCoreRaceExtension_Extension_OmbCategorySliceFlat | Extension): this {
+    public setExtensionOmbCategory (input?: USCoreRaceExtension_Extension_OmbCategorySliceInput | Extension): this {
         const match = USCoreRaceExtensionProfile.ombCategorySliceMatch
         if (input && matchesValue(input, match)) {
             setArraySlice(this.resource.extension ??= [], match, input as Extension)
@@ -180,7 +183,7 @@ export class USCoreRaceExtensionProfile {
         return this
     }
 
-    public setExtensionDetailed (input?: USCoreRaceExtension_Extension_DetailedSliceFlat | Extension): this {
+    public setExtensionDetailed (input?: USCoreRaceExtension_Extension_DetailedSliceInput | Extension): this {
         const match = USCoreRaceExtensionProfile.detailedSliceMatch
         if (input && matchesValue(input, match)) {
             setArraySlice(this.resource.extension ??= [], match, input as Extension)
@@ -192,7 +195,7 @@ export class USCoreRaceExtensionProfile {
         return this
     }
 
-    public setExtensionText (input?: USCoreRaceExtension_Extension_TextSliceFlat | Extension): this {
+    public setExtensionText (input?: USCoreRaceExtension_Extension_TextSliceInput | Extension): this {
         const match = USCoreRaceExtensionProfile.textSliceMatch
         if (input && matchesValue(input, match)) {
             setArraySlice(this.resource.extension ??= [], match, input as Extension)
@@ -203,37 +206,37 @@ export class USCoreRaceExtensionProfile {
         return this
     }
 
-    public getExtensionOmbCategory(mode: 'flat'): USCoreRaceExtension_Extension_OmbCategorySliceFlat | undefined;
+    public getExtensionOmbCategory(mode: 'flat'): USCoreRaceExtension_Extension_OmbCategorySliceInput | undefined;
     public getExtensionOmbCategory(mode: 'raw'): Extension | undefined;
-    public getExtensionOmbCategory(): USCoreRaceExtension_Extension_OmbCategorySliceFlat | undefined;
-    public getExtensionOmbCategory (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_OmbCategorySliceFlat | Extension | undefined {
+    public getExtensionOmbCategory(): USCoreRaceExtension_Extension_OmbCategorySliceInput | undefined;
+    public getExtensionOmbCategory (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_OmbCategorySliceInput | Extension | undefined {
         const match = USCoreRaceExtensionProfile.ombCategorySliceMatch
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<USCoreRaceExtension_Extension_OmbCategorySliceFlat>(item, ["url"], "valueCoding")
+        return unwrapSliceChoice<USCoreRaceExtension_Extension_OmbCategorySliceInput>(item, ["url"], "valueCoding")
     }
 
-    public getExtensionDetailed(mode: 'flat'): USCoreRaceExtension_Extension_DetailedSliceFlat | undefined;
+    public getExtensionDetailed(mode: 'flat'): USCoreRaceExtension_Extension_DetailedSliceInput | undefined;
     public getExtensionDetailed(mode: 'raw'): Extension | undefined;
-    public getExtensionDetailed(): USCoreRaceExtension_Extension_DetailedSliceFlat | undefined;
-    public getExtensionDetailed (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_DetailedSliceFlat | Extension | undefined {
+    public getExtensionDetailed(): USCoreRaceExtension_Extension_DetailedSliceInput | undefined;
+    public getExtensionDetailed (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_DetailedSliceInput | Extension | undefined {
         const match = USCoreRaceExtensionProfile.detailedSliceMatch
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<USCoreRaceExtension_Extension_DetailedSliceFlat>(item, ["url"], "valueCoding")
+        return unwrapSliceChoice<USCoreRaceExtension_Extension_DetailedSliceInput>(item, ["url"], "valueCoding")
     }
 
-    public getExtensionText(mode: 'flat'): USCoreRaceExtension_Extension_TextSliceFlat | undefined;
+    public getExtensionText(mode: 'flat'): USCoreRaceExtension_Extension_TextSliceInput | undefined;
     public getExtensionText(mode: 'raw'): Extension | undefined;
-    public getExtensionText(): USCoreRaceExtension_Extension_TextSliceFlat | undefined;
-    public getExtensionText (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_TextSliceFlat | Extension | undefined {
+    public getExtensionText(): USCoreRaceExtension_Extension_TextSliceInput | undefined;
+    public getExtensionText (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_TextSliceInput | Extension | undefined {
         const match = USCoreRaceExtensionProfile.textSliceMatch
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<USCoreRaceExtension_Extension_TextSliceFlat>(item, ["url"])
+        return stripMatchKeys<USCoreRaceExtension_Extension_TextSliceInput>(item, ["url"])
     }
 
     // Validation

@@ -132,23 +132,20 @@ describe("slice accessors", () => {
         expect(profile.getVSCat("raw")!.text).toBe("Vital Signs");
     });
 
-    test("flat type includes optional discriminator values as literal types", () => {
+    test("SliceInput and SliceFlat types serve different purposes", () => {
         const profile = bodyweightProfile.create({ status: "final", subject: { reference: "Patient/pt-1" } });
 
-        // The flat type carries the discriminator values at the type level.
-        // The coding field is optional — auto-applied by setVSCat, visible via getVSCat("raw").
+        // setVSCat accepts SliceInput — no discriminator fields, they're auto-applied
         profile.setVSCat({ text: "Vital Signs" });
-        const flat = profile.getVSCat()!;
 
-        // flat.coding is typed as optional discriminator literal:
-        // coding?: [{ code: "vital-signs"; system: "http://...observation-category" }]
-        // At runtime, getVSCat() strips it — but the type allows passing it through setVSCat
-        profile.setVSCat({
-            text: "Vital Signs",
-            coding: [{ code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" }],
-        });
-        expect(profile.getVSCat()!.text).toBe("Vital Signs");
+        // getVSCat() returns SliceInput — discriminator keys are stripped at runtime
+        const flat = profile.getVSCat()!;
         expect(flat.text).toBe("Vital Signs");
+        expect("coding" in flat).toBe(false);
+
+        // SliceFlat type includes readonly discriminator literals for documentation:
+        // type VSCatSliceFlat = VSCatSliceInput & { readonly coding: [{ code: "vital-signs"; ... }] }
+        // It's available as a type-level reference but not used in getter/setter signatures
     });
 
     test("setVSCat replaces existing slice element", () => {

@@ -104,24 +104,25 @@ describe("demo: read a US Core body weight observation from JSON", () => {
     });
 });
 
-describe("slice flat types carry discriminator values", () => {
-    test("flat type includes optional discriminator as literal type", () => {
+describe("slice input/flat type split", () => {
+    test("setter accepts SliceInput (no discriminators), getter returns SliceInput (stripped)", () => {
         const profile = USCoreBodyWeightProfile.create({
             status: "final",
             subject: { reference: "Patient/pt-1" },
         });
 
-        // setVSCat accepts flat input — discriminator coding is optional and auto-applied
+        // setVSCat accepts SliceInput — only user data, discriminators auto-applied
         profile.setVSCat({ text: "Vital Signs" });
 
-        // The flat type's coding field is typed with the exact discriminator values:
-        // coding?: [{ code: "vital-signs"; system: "http://...observation-category" }]
-        // This is useful for type-level documentation and checks
-        profile.setVSCat({
-            text: "Vital Signs",
-            coding: [{ code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" }],
-        });
-        expect(profile.getVSCat()!.text).toBe("Vital Signs");
+        // getVSCat() returns SliceInput — discriminator keys stripped at runtime
+        const flat = profile.getVSCat()!;
+        expect(flat.text).toBe("Vital Signs");
+        expect("coding" in flat).toBe(false);
+
+        // getVSCat("raw") returns the full element with discriminators
+        expect(profile.getVSCat("raw")!.coding).toEqual([
+            { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
+        ]);
     });
 });
 

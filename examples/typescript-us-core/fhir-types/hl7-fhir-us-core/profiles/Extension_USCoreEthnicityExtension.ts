@@ -5,9 +5,12 @@
 import type { Coding } from "../../hl7-fhir-r4-core/Coding";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
-export type USCoreEthnicityExtension_Extension_OmbCategorySliceFlat = Omit<Extension, "url" | "value" | "valueBase64Binary" | "valueBoolean" | "valueCanonical" | "valueCode" | "valueDate" | "valueDateTime" | "valueDecimal" | "valueId" | "valueInstant" | "valueInteger" | "valueMarkdown" | "valueOid" | "valuePositiveInt" | "valueString" | "valueTime" | "valueUnsignedInt" | "valueUri" | "valueUrl" | "valueUuid" | "valueAddress" | "valueAge" | "valueAnnotation" | "valueAttachment" | "valueCodeableConcept" | "valueCoding" | "valueContactPoint" | "valueCount" | "valueDistance" | "valueDuration" | "valueHumanName" | "valueIdentifier" | "valueMoney" | "valuePeriod" | "valueQuantity" | "valueRange" | "valueRatio" | "valueReference" | "valueSampledData" | "valueSignature" | "valueTiming" | "valueContactDetail" | "valueContributor" | "valueDataRequirement" | "valueExpression" | "valueParameterDefinition" | "valueRelatedArtifact" | "valueTriggerDefinition" | "valueUsageContext" | "valueDosage" | "valueMeta"> & Coding;
-export type USCoreEthnicityExtension_Extension_DetailedSliceFlat = Omit<Extension, "url" | "value" | "valueBase64Binary" | "valueBoolean" | "valueCanonical" | "valueCode" | "valueDate" | "valueDateTime" | "valueDecimal" | "valueId" | "valueInstant" | "valueInteger" | "valueMarkdown" | "valueOid" | "valuePositiveInt" | "valueString" | "valueTime" | "valueUnsignedInt" | "valueUri" | "valueUrl" | "valueUuid" | "valueAddress" | "valueAge" | "valueAnnotation" | "valueAttachment" | "valueCodeableConcept" | "valueCoding" | "valueContactPoint" | "valueCount" | "valueDistance" | "valueDuration" | "valueHumanName" | "valueIdentifier" | "valueMoney" | "valuePeriod" | "valueQuantity" | "valueRange" | "valueRatio" | "valueReference" | "valueSampledData" | "valueSignature" | "valueTiming" | "valueContactDetail" | "valueContributor" | "valueDataRequirement" | "valueExpression" | "valueParameterDefinition" | "valueRelatedArtifact" | "valueTriggerDefinition" | "valueUsageContext" | "valueDosage" | "valueMeta"> & Coding;
-export type USCoreEthnicityExtension_Extension_TextSliceFlat = Omit<Extension, "url"> & { url?: "text" };
+export type USCoreEthnicityExtension_Extension_OmbCategorySliceInput = Omit<Extension, "url" | "value" | "valueBase64Binary" | "valueBoolean" | "valueCanonical" | "valueCode" | "valueDate" | "valueDateTime" | "valueDecimal" | "valueId" | "valueInstant" | "valueInteger" | "valueMarkdown" | "valueOid" | "valuePositiveInt" | "valueString" | "valueTime" | "valueUnsignedInt" | "valueUri" | "valueUrl" | "valueUuid" | "valueAddress" | "valueAge" | "valueAnnotation" | "valueAttachment" | "valueCodeableConcept" | "valueCoding" | "valueContactPoint" | "valueCount" | "valueDistance" | "valueDuration" | "valueHumanName" | "valueIdentifier" | "valueMoney" | "valuePeriod" | "valueQuantity" | "valueRange" | "valueRatio" | "valueReference" | "valueSampledData" | "valueSignature" | "valueTiming" | "valueContactDetail" | "valueContributor" | "valueDataRequirement" | "valueExpression" | "valueParameterDefinition" | "valueRelatedArtifact" | "valueTriggerDefinition" | "valueUsageContext" | "valueDosage" | "valueMeta"> & Coding;
+export type USCoreEthnicityExtension_Extension_OmbCategorySliceFlat = USCoreEthnicityExtension_Extension_OmbCategorySliceInput;
+export type USCoreEthnicityExtension_Extension_DetailedSliceInput = Omit<Extension, "url" | "value" | "valueBase64Binary" | "valueBoolean" | "valueCanonical" | "valueCode" | "valueDate" | "valueDateTime" | "valueDecimal" | "valueId" | "valueInstant" | "valueInteger" | "valueMarkdown" | "valueOid" | "valuePositiveInt" | "valueString" | "valueTime" | "valueUnsignedInt" | "valueUri" | "valueUrl" | "valueUuid" | "valueAddress" | "valueAge" | "valueAnnotation" | "valueAttachment" | "valueCodeableConcept" | "valueCoding" | "valueContactPoint" | "valueCount" | "valueDistance" | "valueDuration" | "valueHumanName" | "valueIdentifier" | "valueMoney" | "valuePeriod" | "valueQuantity" | "valueRange" | "valueRatio" | "valueReference" | "valueSampledData" | "valueSignature" | "valueTiming" | "valueContactDetail" | "valueContributor" | "valueDataRequirement" | "valueExpression" | "valueParameterDefinition" | "valueRelatedArtifact" | "valueTriggerDefinition" | "valueUsageContext" | "valueDosage" | "valueMeta"> & Coding;
+export type USCoreEthnicityExtension_Extension_DetailedSliceFlat = USCoreEthnicityExtension_Extension_DetailedSliceInput;
+export type USCoreEthnicityExtension_Extension_TextSliceInput = Omit<Extension, "url">;
+export type USCoreEthnicityExtension_Extension_TextSliceFlat = USCoreEthnicityExtension_Extension_TextSliceInput & { readonly url: "text" };
 
 import {
     isRawExtensionInput,
@@ -168,7 +171,7 @@ export class USCoreEthnicityExtensionProfile {
     }
 
     // Slices
-    public setExtensionOmbCategory (input?: USCoreEthnicityExtension_Extension_OmbCategorySliceFlat | Extension): this {
+    public setExtensionOmbCategory (input?: USCoreEthnicityExtension_Extension_OmbCategorySliceInput | Extension): this {
         const match = USCoreEthnicityExtensionProfile.ombCategorySliceMatch
         if (input && matchesValue(input, match)) {
             setArraySlice(this.resource.extension ??= [], match, input as Extension)
@@ -180,7 +183,7 @@ export class USCoreEthnicityExtensionProfile {
         return this
     }
 
-    public setExtensionDetailed (input?: USCoreEthnicityExtension_Extension_DetailedSliceFlat | Extension): this {
+    public setExtensionDetailed (input?: USCoreEthnicityExtension_Extension_DetailedSliceInput | Extension): this {
         const match = USCoreEthnicityExtensionProfile.detailedSliceMatch
         if (input && matchesValue(input, match)) {
             setArraySlice(this.resource.extension ??= [], match, input as Extension)
@@ -192,7 +195,7 @@ export class USCoreEthnicityExtensionProfile {
         return this
     }
 
-    public setExtensionText (input?: USCoreEthnicityExtension_Extension_TextSliceFlat | Extension): this {
+    public setExtensionText (input?: USCoreEthnicityExtension_Extension_TextSliceInput | Extension): this {
         const match = USCoreEthnicityExtensionProfile.textSliceMatch
         if (input && matchesValue(input, match)) {
             setArraySlice(this.resource.extension ??= [], match, input as Extension)
@@ -203,37 +206,37 @@ export class USCoreEthnicityExtensionProfile {
         return this
     }
 
-    public getExtensionOmbCategory(mode: 'flat'): USCoreEthnicityExtension_Extension_OmbCategorySliceFlat | undefined;
+    public getExtensionOmbCategory(mode: 'flat'): USCoreEthnicityExtension_Extension_OmbCategorySliceInput | undefined;
     public getExtensionOmbCategory(mode: 'raw'): Extension | undefined;
-    public getExtensionOmbCategory(): USCoreEthnicityExtension_Extension_OmbCategorySliceFlat | undefined;
-    public getExtensionOmbCategory (mode: 'flat' | 'raw' = 'flat'): USCoreEthnicityExtension_Extension_OmbCategorySliceFlat | Extension | undefined {
+    public getExtensionOmbCategory(): USCoreEthnicityExtension_Extension_OmbCategorySliceInput | undefined;
+    public getExtensionOmbCategory (mode: 'flat' | 'raw' = 'flat'): USCoreEthnicityExtension_Extension_OmbCategorySliceInput | Extension | undefined {
         const match = USCoreEthnicityExtensionProfile.ombCategorySliceMatch
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<USCoreEthnicityExtension_Extension_OmbCategorySliceFlat>(item, ["url"], "valueCoding")
+        return unwrapSliceChoice<USCoreEthnicityExtension_Extension_OmbCategorySliceInput>(item, ["url"], "valueCoding")
     }
 
-    public getExtensionDetailed(mode: 'flat'): USCoreEthnicityExtension_Extension_DetailedSliceFlat | undefined;
+    public getExtensionDetailed(mode: 'flat'): USCoreEthnicityExtension_Extension_DetailedSliceInput | undefined;
     public getExtensionDetailed(mode: 'raw'): Extension | undefined;
-    public getExtensionDetailed(): USCoreEthnicityExtension_Extension_DetailedSliceFlat | undefined;
-    public getExtensionDetailed (mode: 'flat' | 'raw' = 'flat'): USCoreEthnicityExtension_Extension_DetailedSliceFlat | Extension | undefined {
+    public getExtensionDetailed(): USCoreEthnicityExtension_Extension_DetailedSliceInput | undefined;
+    public getExtensionDetailed (mode: 'flat' | 'raw' = 'flat'): USCoreEthnicityExtension_Extension_DetailedSliceInput | Extension | undefined {
         const match = USCoreEthnicityExtensionProfile.detailedSliceMatch
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<USCoreEthnicityExtension_Extension_DetailedSliceFlat>(item, ["url"], "valueCoding")
+        return unwrapSliceChoice<USCoreEthnicityExtension_Extension_DetailedSliceInput>(item, ["url"], "valueCoding")
     }
 
-    public getExtensionText(mode: 'flat'): USCoreEthnicityExtension_Extension_TextSliceFlat | undefined;
+    public getExtensionText(mode: 'flat'): USCoreEthnicityExtension_Extension_TextSliceInput | undefined;
     public getExtensionText(mode: 'raw'): Extension | undefined;
-    public getExtensionText(): USCoreEthnicityExtension_Extension_TextSliceFlat | undefined;
-    public getExtensionText (mode: 'flat' | 'raw' = 'flat'): USCoreEthnicityExtension_Extension_TextSliceFlat | Extension | undefined {
+    public getExtensionText(): USCoreEthnicityExtension_Extension_TextSliceInput | undefined;
+    public getExtensionText (mode: 'flat' | 'raw' = 'flat'): USCoreEthnicityExtension_Extension_TextSliceInput | Extension | undefined {
         const match = USCoreEthnicityExtensionProfile.textSliceMatch
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<USCoreEthnicityExtension_Extension_TextSliceFlat>(item, ["url"])
+        return stripMatchKeys<USCoreEthnicityExtension_Extension_TextSliceInput>(item, ["url"])
     }
 
     // Validation
