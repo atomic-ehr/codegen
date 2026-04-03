@@ -74,7 +74,7 @@ export interface Observation extends DomainResource {
     effectivePeriod?: Period;
     effectiveTiming?: Timing;
     encounter?: Reference<"Encounter">;
-    focus?: Reference<"Resource">[];
+    focus?: Reference<string /* Resource */>[];
     hasMember?: Reference<"MolecularSequence" | "Observation" | "QuestionnaireResponse">[];
     identifier?: Identifier[];
     interpretation?: CodeableConcept<("_GeneticObservationInterpretation" | "CAR" | "Carrier" | "_ObservationInterpretationChange" | "B" | "D" | "U" | "W" | "_ObservationInterpretationExceptions" | "<" | ">" | "AC" | "IE" | "QCF" | "TOX" | "_ObservationInterpretationNormality" | "A" | "AA" | "HH" | "LL" | "H" | "H>" | "HU" | "L" | "L<" | "LU" | "N" | "_ObservationInterpretationSusceptibility" | "I" | "MS" | "NCL" | "NS" | "R" | "SYN-R" | "S" | "SDD" | "SYN-S" | "VS" | "EX" | "HX" | "LX" | "HM" | "ObservationInterpretationDetection" | "IND" | "E" | "NEG" | "ND" | "POS" | "DET" | "ObservationInterpretationExpectation" | "EXP" | "UNE" | "OBX" | "ReactivityObservationInterpretation" | "NR" | "RR" | "WR" | string)>[];
