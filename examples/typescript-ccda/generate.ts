@@ -7,13 +7,33 @@ import { APIBuilder, prettyReport } from "../../src/api/builder";
 
 const preprocessPackage = (ctx: PreprocessContext): PreprocessContext => {
     if (ctx.kind !== "resource") return ctx;
-    if (ctx.package.name !== "hl7.cda.uv.core") return ctx;
-    let str = JSON.stringify(ctx.resource);
-    str = str.replaceAll(
-        "http://hl7.org/cda/stds/core/StructureDefinition/IVL_TS",
-        "http://hl7.org/cda/stds/core/StructureDefinition/IVL-TS",
-    );
-    return { ...ctx, resource: JSON.parse(str) };
+    if (ctx.package.name === "hl7.cda.uv.core") {
+        let str = JSON.stringify(ctx.resource);
+        str = str.replaceAll(
+            "http://hl7.org/cda/stds/core/StructureDefinition/IVL_TS",
+            "http://hl7.org/cda/stds/core/StructureDefinition/IVL-TS",
+        );
+        return { ...ctx, resource: JSON.parse(str) };
+    }
+    // The bundle-type CodeSystem is missing codes "bundle" and
+    // "subscription-notification" used by BatchBundle and
+    // SubscriptionNotificationBundle profiles. Patch all instances since
+    // resolveAny may pick any package's copy of the CodeSystem.
+    const res = ctx.resource as { url?: string; concept?: { code: string }[] };
+    if (res.url === "http://hl7.org/fhir/bundle-type" && res.concept) {
+        const existing = new Set(res.concept.map((c) => c.code));
+        const missing = ["bundle", "subscription-notification"].filter((c) => !existing.has(c));
+        if (missing.length > 0) {
+            return {
+                ...ctx,
+                resource: {
+                    ...ctx.resource,
+                    concept: [...res.concept, ...missing.map((code) => ({ code }))],
+                },
+            };
+        }
+    }
+    return ctx;
 };
 
 if (require.main === module) {
