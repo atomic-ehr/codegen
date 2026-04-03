@@ -13,7 +13,7 @@ import {
     tsProfileClassName,
     tsResolvedSliceBaseName,
     tsResourceName,
-    tsSliceFlatTypeName,
+    tsSliceInputTypeName,
     tsSliceStaticName,
 } from "./name";
 import { tsGet, tsTypeFromIdentifier } from "./utils";
@@ -159,14 +159,14 @@ export const generateSliceSetters = (
     for (const sliceDef of sliceDefs) {
         const baseName = tsResolvedSliceBaseName(sliceBaseNames, sliceDef.fieldName, sliceDef.sliceName);
         const methodName = `set${baseName}`;
-        const typeName = tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+        const inputTypeName = tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
         const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
         const tsField = tsFieldName(sliceDef.fieldName);
         const fieldAccess = tsGet("this.resource", tsField);
         const baseType = sliceDef.typedBaseType;
         // Make input optional when there are no required fields (input can be empty object)
         const inputOptional = sliceDef.required.length === 0;
-        const unionType = `${typeName} | ${baseType}`;
+        const unionType = `${inputTypeName} | ${baseType}`;
         const paramSignature = inputOptional ? `(input?: ${unionType}): this` : `(input: ${unionType}): this`;
         w.curlyBlock(["public", methodName, paramSignature], () => {
             w.line(`const match = ${matchRef}`);
@@ -209,16 +209,16 @@ export const generateSliceGetters = (
     for (const sliceDef of sliceDefs) {
         const baseName = tsResolvedSliceBaseName(sliceBaseNames, sliceDef.fieldName, sliceDef.sliceName);
         const getMethodName = `get${baseName}`;
-        const typeName = tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+        const inputTypeName = tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
         const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
         const matchKeys = JSON.stringify(Object.keys(sliceDef.match));
         const tsField = tsFieldName(sliceDef.fieldName);
         const fieldAccess = tsGet("this.resource", tsField);
         const baseType = sliceDef.typedBaseType;
-        const defaultReturn = defaultMode === "raw" ? baseType : typeName;
+        const defaultReturn = defaultMode === "raw" ? baseType : inputTypeName;
 
         // Overload signatures
-        w.lineSM(`public ${getMethodName}(mode: 'flat'): ${typeName} | undefined`);
+        w.lineSM(`public ${getMethodName}(mode: 'flat'): ${inputTypeName} | undefined`);
         w.lineSM(`public ${getMethodName}(mode: 'raw'): ${baseType} | undefined`);
         w.lineSM(`public ${getMethodName}(): ${defaultReturn} | undefined`);
 
@@ -227,7 +227,7 @@ export const generateSliceGetters = (
             [
                 "public",
                 getMethodName,
-                `(mode: 'flat' | 'raw' = '${defaultMode}'): ${typeName} | ${baseType} | undefined`,
+                `(mode: 'flat' | 'raw' = '${defaultMode}'): ${inputTypeName} | ${baseType} | undefined`,
             ],
             () => {
                 w.line(`const match = ${matchRef}`);
@@ -244,12 +244,14 @@ export const generateSliceGetters = (
                     w.line("if (mode === 'raw') return item");
                 }
                 if (sliceDef.typeDiscriminator) {
-                    w.line(`return item as ${typeName}`);
+                    w.line(`return item as ${inputTypeName}`);
                 } else if (sliceDef.constrainedChoice) {
                     const cc = sliceDef.constrainedChoice;
-                    w.line(`return unwrapSliceChoice<${typeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)})`);
+                    w.line(
+                        `return unwrapSliceChoice<${inputTypeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)})`,
+                    );
                 } else {
-                    w.line(`return stripMatchKeys<${typeName}>(item, ${matchKeys})`);
+                    w.line(`return stripMatchKeys<${inputTypeName}>(item, ${matchKeys})`);
                 }
             },
         );
