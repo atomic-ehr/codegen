@@ -28,9 +28,18 @@ const preprocessPackage = (ctx: PreprocessContext): PreprocessContext => {
         const res = ctx.resource as { url?: string };
         if (res.url === "http://ehelse.no/fhir/StructureDefinition/gd-RelatedPerson") {
             let str = JSON.stringify(ctx.resource);
-            str = str.replaceAll("http://hl7.org/fhir/StructureDefinition/Person", "http://hl7.org/fhir/StructureDefinition/Patient");
-            str = str.replaceAll("http://hl7.no/fhir/StructureDefinition/no-basis-Person", "http://hl7.org/fhir/StructureDefinition/Patient");
-            str = str.replaceAll("http://ehelse.no/fhir/StructureDefinition/gd-Person", "http://hl7.org/fhir/StructureDefinition/Patient");
+            str = str.replaceAll(
+                "http://hl7.org/fhir/StructureDefinition/Person",
+                "http://hl7.org/fhir/StructureDefinition/Patient",
+            );
+            str = str.replaceAll(
+                "http://hl7.no/fhir/StructureDefinition/no-basis-Person",
+                "http://hl7.org/fhir/StructureDefinition/Patient",
+            );
+            str = str.replaceAll(
+                "http://ehelse.no/fhir/StructureDefinition/gd-Person",
+                "http://hl7.org/fhir/StructureDefinition/Patient",
+            );
             return { ...ctx, resource: JSON.parse(str) };
         }
         return ctx;
