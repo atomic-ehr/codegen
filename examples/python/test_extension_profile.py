@@ -5,6 +5,7 @@ Tests generated extension profile classes (Pydantic subclasses of Extension).
 """
 
 import json
+from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
@@ -28,8 +29,7 @@ def test_extension_profiles_demo() -> None:
     """
 
     birth_place = BirthPlaceExtension(value_address=Address(city="Bonn", country="DE"))
-    assert birth_place.url == "http://hl7.org/fhir/StructureDefinition/patient-birthPlace"
-    assert birth_place.value_address.city == "Bonn"
+    assert birth_place == BirthPlaceExtension(value_address=Address(city="Bonn", country="DE"))
 
     nationality = NationalityExtension(extension=[
         NationalityCodeExtension(
@@ -40,7 +40,6 @@ def test_extension_profiles_demo() -> None:
         NationalityPeriodExtension(value_period=Period(start="1770-12-17")),
     ])
     assert isinstance(nationality.extension[0], NationalityCodeExtension)
-    assert nationality.extension[0].value_codeable_concept.coding[0].code == "DE"
 
     # Primitive extension — attached via _field pattern on primitive fields
     name = HumanName(
@@ -60,18 +59,18 @@ def test_extension_profiles_demo() -> None:
         name=[name],
     )
 
-    # Serializes to standard FHIR JSON
-    raw = json.loads(patient.model_dump_json(by_alias=True, exclude_none=True))
-    assert raw["extension"][0]["valueAddress"]["city"] == "Bonn"
-    assert raw["extension"][1]["extension"][0]["valueCodeableConcept"]["coding"][0]["code"] == "DE"
-    assert raw["_birthDate"]["extension"][0]["valueDateTime"] == "1770-12-17T12:00:00+01:00"
-    assert raw["name"][0]["_family"]["extension"][0]["valueString"] == "van"
+    # Serializes to standard FHIR JSON (by_alias keeps FHIR field names, exclude_none drops nulls)
+    patient_json = patient.model_dump_json(by_alias=True, exclude_none=True)
+    snapshot_dir = Path(__file__).parent / "__snapshots__"
+    expected = json.loads((snapshot_dir / "patient_with_extension_profiles.json").read_text())
+    assert json.loads(patient_json) == expected
 
     # Round-trips back through deserialization
-    restored = Patient.model_validate_json(patient.model_dump_json(by_alias=True, exclude_none=True))
-    assert restored.birth_date == "1770-12-17"
-    assert len(restored.extension) == 2
-    assert restored.name[0].family == "van Beethoven"
+    restored = Patient.from_json(patient_json)
+    assert restored.resource_type == patient.resource_type
+    assert restored.birth_date == patient.birth_date
+    assert restored.name[0].family == patient.name[0].family
+    assert restored.name[0].given == patient.name[0].given
 
 
 # ---------------------------------------------------------------------------
@@ -98,7 +97,7 @@ class TestSimpleExtension:
         restored = BirthPlaceExtension.model_validate_json(
             original.model_dump_json(by_alias=True, exclude_none=True)
         )
-        assert restored.url == "http://hl7.org/fhir/StructureDefinition/patient-birthPlace"
+        assert restored == original
 
 # ---------------------------------------------------------------------------
 # Complex extension: NationalityExtension with discriminated sub-extensions
@@ -123,17 +122,14 @@ class TestNationalityExtension:
         assert isinstance(code_ext, Extension)
 
     def test_with_both_sub_extensions(self) -> None:
-        ext = NationalityExtension(extension=[
-            NationalityCodeExtension(
-                value_codeable_concept=CodeableConcept(
-                    coding=[Coding(system="urn:iso:std:iso:3166", code="DE")],
-                ),
+        code_ext = NationalityCodeExtension(
+            value_codeable_concept=CodeableConcept(
+                coding=[Coding(system="urn:iso:std:iso:3166", code="DE")],
             ),
-            NationalityPeriodExtension(value_period=Period(start="1770-12-17")),
-        ])
-        assert len(ext.extension) == 2
-        assert isinstance(ext.extension[0], NationalityCodeExtension)
-        assert isinstance(ext.extension[1], NationalityPeriodExtension)
+        )
+        period_ext = NationalityPeriodExtension(value_period=Period(start="1770-12-17"))
+        ext = NationalityExtension(extension=[code_ext, period_ext])
+        assert ext.extension == [code_ext, period_ext]
 
     def test_sub_extension_rejects_wrong_url(self) -> None:
         with pytest.raises(ValidationError):
@@ -154,11 +150,7 @@ class TestNationalityExtension:
         ])
         json_str = original.model_dump_json(by_alias=True, exclude_none=True)
         restored = NationalityExtension.model_validate_json(json_str)
-        assert len(restored.extension) == 2
-        assert isinstance(restored.extension[0], NationalityCodeExtension)
-        assert restored.extension[0].value_codeable_concept.coding[0].code == "DE"
-        assert isinstance(restored.extension[1], NationalityPeriodExtension)
-        assert restored.extension[1].value_period.start == "1770-12-17"
+        assert restored == original
 
     def test_deserialization_from_fhir_json(self) -> None:
         """Discriminated union routes sub-extensions by url during deserialization."""
@@ -170,6 +162,11 @@ class TestNationalityExtension:
             ],
         })
         ext = NationalityExtension.model_validate_json(raw)
-        assert isinstance(ext.extension[0], NationalityCodeExtension)
-        assert ext.extension[0].value_codeable_concept.coding[0].code == "FR"
-        assert isinstance(ext.extension[1], NationalityPeriodExtension)
+        assert ext == NationalityExtension(extension=[
+            NationalityCodeExtension(
+                value_codeable_concept=CodeableConcept(
+                    coding=[Coding(system="urn:iso:std:iso:3166", code="FR")],
+                ),
+            ),
+            NationalityPeriodExtension(value_period=Period(start="1990-01-01")),
+        ])

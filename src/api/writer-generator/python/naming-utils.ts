@@ -1,5 +1,3 @@
-import * as Path from "node:path";
-import { fileURLToPath } from "node:url";
 import { pascalCase, snakeCase, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils";
 import type { TypeIdentifier } from "@typeschema/types.ts";
 
@@ -100,11 +98,49 @@ export const deriveResourceName = (id: TypeIdentifier): string => {
     return pascalCase(id.name);
 };
 
-export const resolvePyAssets = (fn: string) => {
-    const __dirname = Path.dirname(fileURLToPath(import.meta.url));
-    const __filename = fileURLToPath(import.meta.url);
-    if (__filename.endsWith("dist/index.js")) {
-        return Path.resolve(__dirname, "..", "assets", "api", "writer-generator", "python", fn);
-    }
-    return Path.resolve(__dirname, "../../../..", "assets", "api", "writer-generator", "python", fn);
+const buildPyPackageName = (packageName: string): string => {
+    const parts = packageName ? [snakeCase(packageName)] : [""];
+    return parts.join(".");
 };
+
+export const pyFhirPackageByName = (rootPackageName: string, name: string): string =>
+    [rootPackageName, buildPyPackageName(name)].join(".");
+
+export const pyFhirPackage = (rootPackageName: string, identifier: TypeIdentifier): string =>
+    pyFhirPackageByName(rootPackageName, identifier.package);
+
+export const pyPackage = (rootPackageName: string, identifier: TypeIdentifier): string => {
+    if (identifier.kind === "complex-type") {
+        return `${pyFhirPackage(rootPackageName, identifier)}.base`;
+    }
+    if (identifier.kind === "resource") {
+        return [pyFhirPackage(rootPackageName, identifier), snakeCase(identifier.name)].join(".");
+    }
+    return pyFhirPackage(rootPackageName, identifier);
+};
+
+export const extensionProfileClassName = (profile: { identifier: { name: string } }): string =>
+    `${pascalCase(profile.identifier.name)}Extension`;
+
+export const collectSubExtensionClassNames = (profile: {
+    identifier: { name: string };
+    extensions?: { name: string }[];
+}): string[] => {
+    const parentName = pascalCase(profile.identifier.name);
+    return (profile.extensions ?? []).map((ext) => `${parentName}${pascalCase(ext.name)}Extension`);
+};
+
+export const subExtValueFieldName = (valueFieldType: { name: string } | undefined): string => {
+    if (!valueFieldType) return "valueString";
+    return `value${valueFieldType.name}`;
+};
+
+export const subExtensionClassName = (parentName: string, extName: string): string =>
+    `${parentName}${pascalCase(extName)}Extension`;
+
+export const subExtensionUnionName = (parentName: string): string => `${parentName}SubExtension`;
+
+export const extensionProfileParentName = (profile: { identifier: { name: string } }): string =>
+    pascalCase(profile.identifier.name);
+
+export const extensionModuleName = (name: string): string => `extension_${snakeCase(name)}`;
