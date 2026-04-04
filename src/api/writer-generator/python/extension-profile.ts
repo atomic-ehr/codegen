@@ -1,18 +1,21 @@
-import { pascalCase, snakeCase } from "@root/api/writer-generator/utils";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
-import type { ChoiceFieldDeclaration, ProfileExtension, ProfileTypeSchema, TypeIdentifier } from "@typeschema/types.ts";
-import { isPythonPrimitive, PRIMITIVE_TYPE_MAP, PYTHON_BUILTINS } from "./py-utils";
+import type { ChoiceFieldDeclaration, ProfileExtension, ProfileTypeSchema } from "@typeschema/types.ts";
+import {
+    collectSubExtensionClassNames,
+    extensionModuleName,
+    extensionProfileClassName,
+    extensionProfileParentName,
+    isPythonPrimitive,
+    PRIMITIVE_TYPE_MAP,
+    PYTHON_BUILTINS,
+    pyFhirPackageByName,
+    subExtensionClassName,
+    subExtensionUnionName,
+    subExtValueFieldName,
+} from "./naming-utils";
 import type { Python } from "./writer";
 
-const extensionProfileClassName = (profile: ProfileTypeSchema): string =>
-    `${pascalCase(profile.identifier.name)}Extension`;
-
 const isComplexExtensionProfile = (profile: ProfileTypeSchema): boolean => (profile.extensions ?? []).length > 0;
-
-const collectSubExtensionClassNames = (profile: ProfileTypeSchema): string[] => {
-    const parentName = pascalCase(profile.identifier.name);
-    return (profile.extensions ?? []).map((ext) => `${parentName}${pascalCase(ext.name)}Extension`);
-};
 
 const extractCanonicalUrl = (profile: ProfileTypeSchema): string => {
     const fields = profile.fields ?? {};
@@ -60,11 +63,6 @@ const extractSimpleExtensionInfo = (
     return { canonicalUrl, valueFieldName, valueType, valueRequired };
 };
 
-const subExtValueFieldName = (valueFieldType: TypeIdentifier | undefined): string => {
-    if (!valueFieldType) return "valueString";
-    return `value${valueFieldType.name}`;
-};
-
 const generateDocstringAndUrl = (w: Python, profile: ProfileTypeSchema, canonicalUrl: string): void => {
     if (profile.description) {
         w.line(`"""${profile.description}`);
@@ -87,7 +85,7 @@ const generateSimpleExtensionProfile = (w: Python, profile: ProfileTypeSchema): 
     w.pyImportFrom("typing", "Literal");
     w.pyImportFrom("pydantic", "Field");
 
-    const basePackage = `${w.opts.rootPackageName}.${snakeCase(profile.identifier.package)}.base`;
+    const basePackage = `${pyFhirPackageByName(w.opts.rootPackageName, profile.identifier.package)}.base`;
     const pyValueType = PRIMITIVE_TYPE_MAP[valueType] ?? valueType;
     const importNames = ["Extension"];
     if (pyValueType !== "Extension" && !isPythonPrimitive(valueType) && !PYTHON_BUILTINS.has(pyValueType)) {
@@ -115,7 +113,7 @@ const generateSimpleExtensionProfile = (w: Python, profile: ProfileTypeSchema): 
 };
 
 const generateSubExtensionClass = (w: Python, ext: ProfileExtension, parentName: string): void => {
-    const className = `${parentName}${pascalCase(ext.name)}Extension`;
+    const className = subExtensionClassName(parentName, ext.name);
     const extUrl = ext.url ?? ext.name;
 
     let valueFieldName: string;
@@ -130,7 +128,7 @@ const generateSubExtensionClass = (w: Python, ext: ProfileExtension, parentName:
             ? (PRIMITIVE_TYPE_MAP[firstSub.valueFieldType.name] ?? firstSub.valueFieldType.name)
             : "str";
     } else if (firstVt) {
-        valueFieldName = `value${firstVt.name}`;
+        valueFieldName = subExtValueFieldName(firstVt);
         valueType = PRIMITIVE_TYPE_MAP[firstVt.name] ?? firstVt.name;
     } else {
         valueFieldName = "valueString";
@@ -152,7 +150,7 @@ const generateSubExtensionClass = (w: Python, ext: ProfileExtension, parentName:
 const generateComplexExtensionProfile = (w: Python, profile: ProfileTypeSchema): void => {
     const extensions = profile.extensions ?? [];
     const canonicalUrl = extractCanonicalUrl(profile);
-    const parentName = pascalCase(profile.identifier.name);
+    const parentName = extensionProfileParentName(profile);
     const className = extensionProfileClassName(profile);
 
     const valueTypeImports = new Set<string>();
@@ -173,7 +171,7 @@ const generateComplexExtensionProfile = (w: Python, profile: ProfileTypeSchema):
     w.pyImportFrom("typing", "Annotated", "Literal", "Union");
     w.pyImportFrom("pydantic", "Discriminator", "Field", "Tag");
 
-    const basePackage = `${w.opts.rootPackageName}.${snakeCase(profile.identifier.package)}.base`;
+    const basePackage = `${pyFhirPackageByName(w.opts.rootPackageName, profile.identifier.package)}.base`;
     const baseImports = ["Extension", ...Array.from(valueTypeImports)].sort();
     w.pyImportFrom(basePackage, ...baseImports);
 
@@ -186,14 +184,14 @@ const generateComplexExtensionProfile = (w: Python, profile: ProfileTypeSchema):
         w.line();
     }
 
-    const unionName = `${parentName}SubExtension`;
+    const unionName = subExtensionUnionName(parentName);
 
     w.line(`${unionName} = Annotated[`);
     w.indentBlock(() => {
         w.line("Union[");
         w.indentBlock(() => {
             for (const ext of extensions) {
-                const subClassName = `${parentName}${pascalCase(ext.name)}Extension`;
+                const subClassName = subExtensionClassName(parentName, ext.name);
                 const tag = ext.url ?? ext.name;
                 w.line(`Annotated[${subClassName}, Tag("${tag}")],`);
             }
@@ -220,7 +218,7 @@ export const generateExtensionProfiles = (w: Python, tsIndex: TypeSchemaIndex, p
     w.cd("profiles", () => {
         for (const profile of profiles) {
             const flatProfile = tsIndex.flatProfile(profile);
-            const moduleName = `extension_${snakeCase(flatProfile.identifier.name)}`;
+            const moduleName = extensionModuleName(flatProfile.identifier.name);
             w.cat(`${moduleName}.py`, () => {
                 w.generateDisclaimer();
                 if (isComplexExtensionProfile(flatProfile)) {
@@ -237,11 +235,11 @@ export const generateExtensionProfiles = (w: Python, tsIndex: TypeSchemaIndex, p
 const generateProfilesInitFile = (w: Python, profiles: ProfileTypeSchema[]): void => {
     w.cat("__init__.py", () => {
         w.generateDisclaimer();
-        const firstProfile = profiles[0];
-        if (!firstProfile) return;
-        const pyPackage = `${w.opts.rootPackageName}.${snakeCase(firstProfile.identifier.package)}.profiles`;
+        const packageName = profiles[0]?.identifier.package;
+        if (!packageName) return;
+        const pyPackage = `${pyFhirPackageByName(w.opts.rootPackageName, packageName)}.profiles`;
         for (const profile of profiles) {
-            const moduleName = `extension_${snakeCase(profile.identifier.name)}`;
+            const moduleName = extensionModuleName(profile.identifier.name);
             const className = extensionProfileClassName(profile);
             if (isComplexExtensionProfile(profile)) {
                 const subNames = collectSubExtensionClassNames(profile);

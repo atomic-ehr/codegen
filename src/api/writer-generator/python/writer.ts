@@ -1,11 +1,16 @@
 import assert from "node:assert";
 import fs from "node:fs";
+import * as Path from "node:path";
+import { fileURLToPath } from "node:url";
 import {
     canonicalToName,
     deriveResourceName,
     fixReservedWords,
-    resolvePyAssets,
-} from "@root/api/writer-generator/python/py-utils.ts";
+    PRIMITIVE_TYPE_MAP,
+    pyFhirPackage,
+    pyFhirPackageByName,
+    pyPackage,
+} from "@root/api/writer-generator/python/naming-utils.ts";
 import { camelCase, pascalCase, snakeCase } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer.ts";
 import { groupByPackages, sortAsDeclarationSequence, type TypeSchemaIndex } from "@root/typeschema/utils";
@@ -22,28 +27,13 @@ import {
 } from "@typeschema/types.ts";
 import { generateExtensionProfiles } from "./extension-profile";
 
-const PRIMITIVE_TYPE_MAP: Record<string, string> = {
-    boolean: "bool",
-    instant: "str",
-    time: "str",
-    date: "str",
-    dateTime: "str",
-    decimal: "float",
-    integer: "int",
-    unsignedInt: "int",
-    positiveInt: "PositiveInt",
-    integer64: "int",
-    base64Binary: "str",
-    uri: "str",
-    url: "str",
-    canonical: "str",
-    oid: "str",
-    uuid: "str",
-    string: "str",
-    code: "str",
-    markdown: "str",
-    id: "str",
-    xhtml: "str",
+export const resolvePyAssets = (fn: string) => {
+    const __dirname = Path.dirname(fileURLToPath(import.meta.url));
+    const __filename = fileURLToPath(import.meta.url);
+    if (__filename.endsWith("dist/index.js")) {
+        return Path.resolve(__dirname, "..", "assets", "api", "writer-generator", "python", fn);
+    }
+    return Path.resolve(__dirname, "../../../..", "assets", "api", "writer-generator", "python", fn);
 };
 
 type StringFormatKey = "snake_case" | "PascalCase" | "camelCase";
@@ -109,7 +99,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
             groupedResources: groupByPackages(tsIndex.collectResources()),
         };
         this.generateRootPackages(groups);
-        this.generateSDKPackages(groups, tsIndex);
+        this.generateSDKPackages(tsIndex, groups);
     }
 
     private generateRootPackages(groups: TypeSchemaPackageGroups): void {
@@ -124,9 +114,9 @@ export class Python extends Writer<PythonGeneratorOptions> {
         this.copyAssets(resolvePyAssets("requirements.txt"), "requirements.txt");
     }
 
-    private generateSDKPackages(groups: TypeSchemaPackageGroups, tsIndex: TypeSchemaIndex): void {
+    private generateSDKPackages(tsIndex: TypeSchemaIndex, groups: TypeSchemaPackageGroups): void {
         this.generateComplexTypesPackages(groups.groupedComplexTypes);
-        this.generateResourcePackages(groups, tsIndex);
+        this.generateResourcePackages(tsIndex, groups);
     }
 
     private generateComplexTypesPackages(groupedComplexTypes: Record<string, SpecializationTypeSchema[]>): void {
@@ -137,7 +127,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         }
     }
 
-    private generateResourcePackages(groups: TypeSchemaPackageGroups, tsIndex: TypeSchemaIndex): void {
+    private generateResourcePackages(tsIndex: TypeSchemaIndex, groups: TypeSchemaPackageGroups): void {
         const profilesByPackage = this.opts.generateProfile ? groupByPackages(tsIndex.collectProfiles()) : {};
 
         for (const [packageName, packageResources] of Object.entries(groups.groupedResources)) {
@@ -161,7 +151,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         packageResources: SpecializationTypeSchema[],
         packageComplexTypes: SpecializationTypeSchema[],
     ): void {
-        const pyPackageName = this.pyFhirPackageByName(packageName);
+        const pyPackageName = pyFhirPackageByName(this.opts.rootPackageName, packageName);
 
         this.generateResourcePackageInit(pyPackageName, packageResources, packageComplexTypes);
         this.generateResourceFamilies(packageResources);
@@ -185,7 +175,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         const models: string[] = [];
 
         for (const packageName of Object.keys(groups.groupedResources)) {
-            const fullPyPackageName = this.pyFhirPackageByName(packageName);
+            const fullPyPackageName = pyFhirPackageByName(this.opts.rootPackageName, packageName);
             models.push(...this.importComplexTypes(fullPyPackageName, groups.groupedComplexTypes[packageName]));
             models.push(...this.importResources(fullPyPackageName, false, groups.groupedResources[packageName]));
         }
@@ -564,8 +554,8 @@ export class Python extends Writer<PythonGeneratorOptions> {
         const element = this.tsIndex.resolveByUrl(schema.identifier.package, elementUrl);
         if (!element) return;
 
-        const pyPackage = this.pyPackage(element.identifier);
-        this.pyImportFrom(pyPackage, "Element");
+        const pyPkg = pyPackage(this.opts.rootPackageName, element.identifier);
+        this.pyImportFrom(pyPkg, "Element");
     }
 
     private importComplexTypeDependencies(dependencies: TypeIdentifier[]): void {
@@ -584,7 +574,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
             this.pyImportType(dep);
 
             const familyName = `${pascalCase(dep.name)}Family`;
-            const familyPackage = `${this.pyFhirPackage(dep)}.resource_families`;
+            const familyPackage = `${pyFhirPackage(this.opts.rootPackageName, dep)}.resource_families`;
             this.pyImportFrom(familyPackage, familyName);
         }
     }
@@ -593,11 +583,11 @@ export class Python extends Writer<PythonGeneratorOptions> {
         const grouped: ImportGroup = {};
 
         for (const dep of dependencies) {
-            const pyPackage = this.pyPackage(dep);
-            if (!grouped[pyPackage]) {
-                grouped[pyPackage] = [];
+            const pyPkg = pyPackage(this.opts.rootPackageName, dep);
+            if (!grouped[pyPkg]) {
+                grouped[pyPkg] = [];
             }
-            grouped[pyPackage].push(dep.name);
+            grouped[pyPkg].push(dep.name);
         }
 
         return grouped;
@@ -630,7 +620,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private pyImportType(identifier: TypeIdentifier): void {
-        this.pyImportFrom(this.pyPackage(identifier), pascalCase(identifier.name));
+        this.pyImportFrom(pyPackage(this.opts.rootPackageName, identifier), pascalCase(identifier.name));
     }
 
     private generateResourceFamilies(packageResources: SpecializationTypeSchema[]): void {
@@ -703,29 +693,6 @@ export class Python extends Writer<PythonGeneratorOptions> {
 
     private generateFamilyExports(exportList: string[]): void {
         this.line(`__all__ = [${exportList.map((e) => `'${e}'`).join(", ")}]`);
-    }
-
-    private buildPyPackageName(packageName: string): string {
-        const parts = packageName ? [snakeCase(packageName)] : [""];
-        return parts.join(".");
-    }
-
-    private pyFhirPackage(identifier: TypeIdentifier): string {
-        return this.pyFhirPackageByName(identifier.package);
-    }
-
-    private pyFhirPackageByName(name: string): string {
-        return [this.opts.rootPackageName, this.buildPyPackageName(name)].join(".");
-    }
-
-    private pyPackage(identifier: TypeIdentifier): string {
-        if (identifier.kind === "complex-type") {
-            return `${this.pyFhirPackage(identifier)}.base`;
-        }
-        if (identifier.kind === "resource") {
-            return [this.pyFhirPackage(identifier), snakeCase(identifier.name)].join(".");
-        }
-        return this.pyFhirPackage(identifier);
     }
 
     private getFieldFormatFunction(format: StringFormatKey): (name: string) => string {
