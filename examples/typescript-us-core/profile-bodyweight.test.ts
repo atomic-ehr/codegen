@@ -99,14 +99,11 @@ describe("demo: read a US Core body weight observation from JSON", () => {
         // Code is a fixed value — auto-set by the profile, read-only (no setter)
         expect(profile.getCode()!.coding![0]!.code).toBe("29463-7");
 
-        // getVSCat() returns SliceFlat — typed with readonly discriminator literals
-        // Discriminator keys are stripped at runtime, user data remains
-        expect(profile.getVSCat()!.text).toBe("Vital Signs");
-
-        // getVSCat("raw") returns the full CodeableConcept including discriminator
-        expect(profile.getVSCat("raw")!.coding).toEqual([
-            { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
-        ]);
+        // Slice getter returns SliceFlat — includes both user data and discriminator values
+        expect(profile.getVSCat()).toEqual({
+            text: "Vital Signs",
+            coding: [{ code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" }],
+        });
     });
 });
 
@@ -121,17 +118,12 @@ describe("slice input/flat type split", () => {
         const input: VSCatFlatInput = { text: "Vital Signs" };
         profile.setVSCat(input);
 
-        // Getter returns SliceFlat — includes readonly discriminator literal types
+        // Getter returns SliceFlat — includes discriminator values + user data
         const flat: VSCatFlat = profile.getVSCat()!;
-        expect(flat.text).toBe("Vital Signs");
-        expect(flat.coding).toEqual([
-            { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
-        ]);
-
-        // Raw mode returns the full CodeableConcept with discriminator values
-        expect(profile.getVSCat("raw")!.coding).toEqual([
-            { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
-        ]);
+        expect(flat).toEqual({
+            text: "Vital Signs",
+            coding: [{ code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" }],
+        });
     });
 });
 

@@ -101,10 +101,10 @@ describe("demo: read a bodyweight observation from JSON", () => {
 
         // Slice getter returns SliceFlat — includes both user data and discriminator values
         const vsCat = profile.getVSCat()!;
-        expect(vsCat.text).toBe("Vital Signs");
-        expect(vsCat.coding).toEqual([
-            { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
-        ]);
+        expect(vsCat).toEqual({
+            text: "Vital Signs",
+            coding: [{ code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" }],
+        });
     });
 });
 
@@ -135,10 +135,10 @@ describe("slice accessors", () => {
 
         // Getter returns SliceFlat — includes discriminator values + user data
         const flat: VSCatFlat = profile.getVSCat()!;
-        expect(flat.text).toBe("Vital Signs");
-        expect(flat.coding).toEqual([
-            { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
-        ]);
+        expect(flat).toEqual({
+            text: "Vital Signs",
+            coding: [{ code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" }],
+        });
     });
 
     test("setVSCat replaces existing slice element", () => {
