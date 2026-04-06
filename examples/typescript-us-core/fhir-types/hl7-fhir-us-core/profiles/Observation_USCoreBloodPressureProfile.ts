@@ -12,7 +12,9 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import type { SampledData } from "../../hl7-fhir-r4-core/SampledData";
 
 export type USCoreBloodPressureProfile_Category_VSCatSliceFlatInput = Omit<CodeableConcept, "coding">;
-export type USCoreBloodPressureProfile_Category_VSCatSliceFlat = USCoreBloodPressureProfile_Category_VSCatSliceFlatInput & { readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }] };
+export type USCoreBloodPressureProfile_Category_VSCatSliceFlat = USCoreBloodPressureProfile_Category_VSCatSliceFlatInput & {
+    readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }];
+}
 
 export type USCoreBloodPressureProfile_Component_SystolicSliceFlatInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 export type USCoreBloodPressureProfile_Component_SystolicSliceFlat = USCoreBloodPressureProfile_Component_SystolicSliceFlatInput;

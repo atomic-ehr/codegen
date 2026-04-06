@@ -12,7 +12,9 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import type { SampledData } from "../../hl7-fhir-r4-core/SampledData";
 
 export type USCoreVitalSignsProfile_Category_VSCatSliceFlatInput = Omit<CodeableConcept, "coding">;
-export type USCoreVitalSignsProfile_Category_VSCatSliceFlat = USCoreVitalSignsProfile_Category_VSCatSliceFlatInput & { readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }] };
+export type USCoreVitalSignsProfile_Category_VSCatSliceFlat = USCoreVitalSignsProfile_Category_VSCatSliceFlatInput & {
+    readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }];
+}
 
 import {
     ensureProfile,

@@ -12,7 +12,9 @@ export type USCoreRaceExtension_Extension_DetailedSliceFlatInput = Omit<Extensio
 export type USCoreRaceExtension_Extension_DetailedSliceFlat = USCoreRaceExtension_Extension_DetailedSliceFlatInput;
 
 export type USCoreRaceExtension_Extension_TextSliceFlatInput = Omit<Extension, "url">;
-export type USCoreRaceExtension_Extension_TextSliceFlat = USCoreRaceExtension_Extension_TextSliceFlatInput & { readonly url: "text" };
+export type USCoreRaceExtension_Extension_TextSliceFlat = USCoreRaceExtension_Extension_TextSliceFlatInput & {
+    readonly url: "text";
+}
 
 import {
     isRawExtensionInput,

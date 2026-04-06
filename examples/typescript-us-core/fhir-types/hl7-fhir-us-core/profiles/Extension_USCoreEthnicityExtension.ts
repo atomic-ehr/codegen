@@ -12,7 +12,9 @@ export type USCoreEthnicityExtension_Extension_DetailedSliceFlatInput = Omit<Ext
 export type USCoreEthnicityExtension_Extension_DetailedSliceFlat = USCoreEthnicityExtension_Extension_DetailedSliceFlatInput;
 
 export type USCoreEthnicityExtension_Extension_TextSliceFlatInput = Omit<Extension, "url">;
-export type USCoreEthnicityExtension_Extension_TextSliceFlat = USCoreEthnicityExtension_Extension_TextSliceFlatInput & { readonly url: "text" };
+export type USCoreEthnicityExtension_Extension_TextSliceFlat = USCoreEthnicityExtension_Extension_TextSliceFlatInput & {
+    readonly url: "text";
+}
 
 import {
     isRawExtensionInput,

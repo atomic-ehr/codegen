@@ -9,7 +9,9 @@ export type USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceFla
 export type USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceFlat = USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceFlatInput;
 
 export type USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlatInput = Omit<Extension, "url">;
-export type USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlat = USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlatInput & { readonly url: "isEnrolled" };
+export type USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlat = USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlatInput & {
+    readonly url: "isEnrolled";
+}
 
 import {
     isRawExtensionInput,
