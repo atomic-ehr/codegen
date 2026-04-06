@@ -124,6 +124,9 @@ describe("slice input/flat type split", () => {
         // Getter returns SliceFlat — includes readonly discriminator literal types
         const flat: VSCatFlat = profile.getVSCat()!;
         expect(flat.text).toBe("Vital Signs");
+        expect(flat.coding).toEqual([
+            { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
+        ]);
 
         // Raw mode returns the full CodeableConcept with discriminator values
         expect(profile.getVSCat("raw")!.coding).toEqual([

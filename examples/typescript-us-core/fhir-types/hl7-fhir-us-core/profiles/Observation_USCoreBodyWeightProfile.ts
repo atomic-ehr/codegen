@@ -23,7 +23,6 @@ import {
     setArraySlice,
     getArraySlice,
     ensureSliceDefaults,
-    stripMatchKeys,
     validateRequired,
     validateExcluded,
     validateFixedValue,
@@ -272,7 +271,7 @@ export class USCoreBodyWeightProfile {
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<USCoreBodyWeightProfile_Category_VSCatSliceFlat>(item, ["coding"])
+        return item as unknown as USCoreBodyWeightProfile_Category_VSCatSliceFlat
     }
 
     // Validation

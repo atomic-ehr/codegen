@@ -334,7 +334,6 @@ import {
     setArraySlice,
     getArraySlice,
     ensureSliceDefaults,
-    stripMatchKeys,
     validateRequired,
     validateExcluded,
     validateFixedValue,
@@ -493,7 +492,7 @@ export class observation_bodyweightProfile {
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<Observation_bodyweight_Category_VSCatSliceFlat>(item, ["coding"])
+        return item as unknown as Observation_bodyweight_Category_VSCatSliceFlat
     }
 
     // Validation
@@ -557,7 +556,6 @@ import {
     setArraySlice,
     getArraySlice,
     ensureSliceDefaults,
-    stripMatchKeys,
     wrapSliceChoice,
     unwrapSliceChoice,
     validateRequired,
@@ -769,7 +767,7 @@ export class observation_bpProfile {
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<Observation_bp_Category_VSCatSliceFlat>(item, ["coding"])
+        return item as unknown as Observation_bp_Category_VSCatSliceFlat
     }
 
     public getSystolicBP(mode: 'flat'): Observation_bp_Component_SystolicBPSliceFlat | undefined;
@@ -1115,7 +1113,6 @@ import {
     setArraySlice,
     getArraySlice,
     ensureSliceDefaults,
-    stripMatchKeys,
     wrapSliceChoice,
     unwrapSliceChoice,
     validateRequired,
@@ -1417,7 +1414,7 @@ export class USCoreBloodPressureProfile {
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<USCoreBloodPressureProfile_Category_VSCatSliceFlat>(item, ["coding"])
+        return item as unknown as USCoreBloodPressureProfile_Category_VSCatSliceFlat
     }
 
     public getSystolic(mode: 'flat'): USCoreBloodPressureProfile_Component_SystolicSliceFlat | undefined;
@@ -1504,7 +1501,6 @@ import {
     setArraySlice,
     getArraySlice,
     ensureSliceDefaults,
-    stripMatchKeys,
     validateRequired,
     validateExcluded,
     validateFixedValue,
@@ -1753,7 +1749,7 @@ export class USCoreBodyWeightProfile {
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<USCoreBodyWeightProfile_Category_VSCatSliceFlat>(item, ["coding"])
+        return item as unknown as USCoreBodyWeightProfile_Category_VSCatSliceFlat
     }
 
     // Validation
@@ -1826,7 +1822,6 @@ import {
     setArraySlice,
     getArraySlice,
     ensureSliceDefaults,
-    stripMatchKeys,
     wrapSliceChoice,
     unwrapSliceChoice,
     isExtension,
@@ -2043,7 +2038,7 @@ export class USCoreRaceExtensionProfile {
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<USCoreRaceExtension_Extension_TextSliceFlat>(item, ["url"])
+        return item as unknown as USCoreRaceExtension_Extension_TextSliceFlat
     }
 
     // Validation

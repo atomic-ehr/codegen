@@ -26,7 +26,6 @@ import {
     setArraySlice,
     getArraySlice,
     ensureSliceDefaults,
-    stripMatchKeys,
     wrapSliceChoice,
     unwrapSliceChoice,
     validateRequired,
@@ -238,7 +237,7 @@ export class observation_bpProfile {
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<Observation_bp_Category_VSCatSliceFlat>(item, ["coding"])
+        return item as unknown as Observation_bp_Category_VSCatSliceFlat
     }
 
     public getSystolicBP(mode: 'flat'): Observation_bp_Component_SystolicBPSliceFlat | undefined;

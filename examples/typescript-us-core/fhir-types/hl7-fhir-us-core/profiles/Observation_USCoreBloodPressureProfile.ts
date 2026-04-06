@@ -29,7 +29,6 @@ import {
     setArraySlice,
     getArraySlice,
     ensureSliceDefaults,
-    stripMatchKeys,
     wrapSliceChoice,
     unwrapSliceChoice,
     validateRequired,
@@ -331,7 +330,7 @@ export class USCoreBloodPressureProfile {
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<USCoreBloodPressureProfile_Category_VSCatSliceFlat>(item, ["coding"])
+        return item as unknown as USCoreBloodPressureProfile_Category_VSCatSliceFlat
     }
 
     public getSystolic(mode: 'flat'): USCoreBloodPressureProfile_Component_SystolicSliceFlat | undefined;

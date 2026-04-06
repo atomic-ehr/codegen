@@ -20,7 +20,6 @@ import {
     setArraySlice,
     getArraySlice,
     ensureSliceDefaults,
-    stripMatchKeys,
     wrapSliceChoice,
     unwrapSliceChoice,
     isExtension,
@@ -193,7 +192,7 @@ export class USCoreTribalAffiliationExtensionProfile {
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlat>(item, ["url"])
+        return item as unknown as USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlat
     }
 
     // Validation

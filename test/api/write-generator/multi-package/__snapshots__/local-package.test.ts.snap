@@ -154,7 +154,7 @@ export class ExampleTypedBundleProfile {
         const item = getArraySlice(this.resource.entry, match)
         if (!item) return undefined
         if (mode === 'raw') return item as BundleEntry<Patient>
-        return item as ExampleTypedBundle_Entry_PatientEntrySliceFlat
+        return item as unknown as ExampleTypedBundle_Entry_PatientEntrySliceFlat
     }
 
     public getOrganizationEntry(mode: 'flat'): ExampleTypedBundle_Entry_OrganizationEntrySliceFlat | undefined;
@@ -165,7 +165,7 @@ export class ExampleTypedBundleProfile {
         const item = getArraySlice(this.resource.entry, match)
         if (!item) return undefined
         if (mode === 'raw') return item as BundleEntry<Organization>
-        return item as ExampleTypedBundle_Entry_OrganizationEntrySliceFlat
+        return item as unknown as ExampleTypedBundle_Entry_OrganizationEntrySliceFlat
     }
 
     // Validation

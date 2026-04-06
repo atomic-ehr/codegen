@@ -23,7 +23,6 @@ import {
     setArraySlice,
     getArraySlice,
     ensureSliceDefaults,
-    stripMatchKeys,
     validateRequired,
     validateExcluded,
     validateFixedValue,
@@ -275,7 +274,7 @@ export class USCoreVitalSignsProfile {
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<USCoreVitalSignsProfile_Category_VSCatSliceFlat>(item, ["coding"])
+        return item as unknown as USCoreVitalSignsProfile_Category_VSCatSliceFlat
     }
 
     // Validation

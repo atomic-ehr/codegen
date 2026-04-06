@@ -19,7 +19,6 @@ import {
     setArraySlice,
     getArraySlice,
     ensureSliceDefaults,
-    stripMatchKeys,
     validateRequired,
     validateExcluded,
     validateFixedValue,
@@ -172,7 +171,7 @@ export class observation_vitalsignsProfile {
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<Observation_vitalsigns_Category_VSCatSliceFlat>(item, ["coding"])
+        return item as unknown as Observation_vitalsigns_Category_VSCatSliceFlat
     }
 
     // Validation

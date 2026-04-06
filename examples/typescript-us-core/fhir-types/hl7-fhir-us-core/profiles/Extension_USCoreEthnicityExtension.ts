@@ -23,7 +23,6 @@ import {
     setArraySlice,
     getArraySlice,
     ensureSliceDefaults,
-    stripMatchKeys,
     wrapSliceChoice,
     unwrapSliceChoice,
     isExtension,
@@ -240,7 +239,7 @@ export class USCoreEthnicityExtensionProfile {
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<USCoreEthnicityExtension_Extension_TextSliceFlat>(item, ["url"])
+        return item as unknown as USCoreEthnicityExtension_Extension_TextSliceFlat
     }
 
     // Validation

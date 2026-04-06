@@ -99,13 +99,12 @@ describe("demo: read a bodyweight observation from JSON", () => {
         // Code is a fixed value — auto-set by the profile, read-only (no setter)
         expect(profile.getCode()!.coding![0]!.code).toBe("29463-7");
 
-        // Slice accessor strips discriminator keys (coding) by default — only user data remains
-        expect(profile.getVSCat()!.text).toBe("Vital Signs");
-        // Use "raw" mode to see the full element including discriminator
-        expect(profile.getVSCat("raw")!.coding).toEqual([
+        // Slice getter returns SliceFlat — includes both user data and discriminator values
+        const vsCat = profile.getVSCat()!;
+        expect(vsCat.text).toBe("Vital Signs");
+        expect(vsCat.coding).toEqual([
             { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
         ]);
-        expect(profile.getVSCat("raw")!.text).toBe("Vital Signs");
     });
 });
 
@@ -134,16 +133,12 @@ describe("slice accessors", () => {
         const input: VSCatFlatInput = { text: "Vital Signs" };
         profile.setVSCat(input);
 
-        // Getter returns SliceFlat — includes readonly discriminator literal types
+        // Getter returns SliceFlat — includes discriminator values + user data
         const flat: VSCatFlat = profile.getVSCat()!;
         expect(flat.text).toBe("Vital Signs");
-        // flat.coding is typed as readonly [{ code: "vital-signs"; system: "http://..." }]
-
-        // Raw mode returns the full CodeableConcept including discriminator values
-        expect(profile.getVSCat("raw")!.coding).toEqual([
+        expect(flat.coding).toEqual([
             { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
         ]);
-        expect(profile.getVSCat("raw")!.text).toBe("Vital Signs");
     });
 
     test("setVSCat replaces existing slice element", () => {
