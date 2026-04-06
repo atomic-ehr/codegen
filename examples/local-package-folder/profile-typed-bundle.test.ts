@@ -57,8 +57,8 @@ describe("demo: unbounded slice (max: *) — OrganizationEntry", () => {
         // Set multiple organization entries at once
         bundle.setOrganizationEntry([{ resource: clinicOrg }, { resource: acmeOrg }]);
 
-        // Getter returns all matching entries as an array
-        const orgs = bundle.getOrganizationEntry();
+        // Getter returns all matching entries as an array (undefined if none)
+        const orgs = bundle.getOrganizationEntry()!;
         expect(orgs).toHaveLength(2);
         expect(orgs[0]!.resource).toEqual(clinicOrg);
         expect(orgs[1]!.resource).toEqual(acmeOrg);
@@ -75,7 +75,7 @@ describe("demo: unbounded slice (max: *) — OrganizationEntry", () => {
         // Replace with a single org — previous two are removed
         bundle.setOrganizationEntry([{ resource: { resourceType: "Organization", name: "NewCo" } }]);
 
-        const orgs = bundle.getOrganizationEntry();
+        const orgs = bundle.getOrganizationEntry()!;
         expect(orgs).toHaveLength(1);
         expect(orgs[0]!.resource!.name).toBe("NewCo");
 
@@ -89,22 +89,23 @@ describe("demo: unbounded slice (max: *) — OrganizationEntry", () => {
             .setOrganizationEntry([{ resource: clinicOrg }]);
 
         // Append a new org by spreading existing entries
-        bundle.setOrganizationEntry([...bundle.getOrganizationEntry(), { resource: acmeOrg }]);
+        bundle.setOrganizationEntry([...(bundle.getOrganizationEntry() ?? []), { resource: acmeOrg }]);
 
-        const orgs = bundle.getOrganizationEntry();
+        const orgs = bundle.getOrganizationEntry()!;
         expect(orgs).toHaveLength(2);
         expect(orgs[0]!.resource).toEqual(clinicOrg);
         expect(orgs[1]!.resource).toEqual(acmeOrg);
     });
 
-    test("empty array removes all org entries", () => {
+    test("empty array removes all org entries, getter returns undefined", () => {
         const bundle = ExampleTypedBundleProfile.create({ type: "collection" })
             .setPatientEntry({ resource: activePatient })
             .setOrganizationEntry([{ resource: clinicOrg }]);
 
         bundle.setOrganizationEntry([]);
 
-        expect(bundle.getOrganizationEntry()).toHaveLength(0);
+        // No matching entries — returns undefined, not empty array
+        expect(bundle.getOrganizationEntry()).toBeUndefined();
         // Patient entry still present
         expect(bundle.toResource().entry).toHaveLength(1);
     });
@@ -121,7 +122,7 @@ describe("fluent chaining across slice types", () => {
 
         expect(bundle.toResource().entry).toHaveLength(3);
         expect(bundle.getPatientEntry()!.fullUrl).toBe("urn:uuid:patient-1");
-        expect(bundle.getOrganizationEntry()[0]!.fullUrl).toBe("urn:uuid:org-1");
-        expect(bundle.getOrganizationEntry()[1]!.fullUrl).toBe("urn:uuid:org-2");
+        expect(bundle.getOrganizationEntry()![0]!.fullUrl).toBe("urn:uuid:org-1");
+        expect(bundle.getOrganizationEntry()![1]!.fullUrl).toBe("urn:uuid:org-2");
     });
 });

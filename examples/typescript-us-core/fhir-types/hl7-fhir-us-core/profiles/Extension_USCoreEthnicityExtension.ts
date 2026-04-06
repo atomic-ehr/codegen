@@ -218,12 +218,13 @@ export class USCoreEthnicityExtensionProfile {
         return unwrapSliceChoice<USCoreEthnicityExtension_Extension_OmbCategorySliceFlatAll>(item, ["url"], "valueCoding")
     }
 
-    public getExtensionDetailed(mode: 'flat'): USCoreEthnicityExtension_Extension_DetailedSliceFlatAll[];
-    public getExtensionDetailed(mode: 'raw'): Extension[];
-    public getExtensionDetailed(): USCoreEthnicityExtension_Extension_DetailedSliceFlatAll[];
-    public getExtensionDetailed (mode: 'flat' | 'raw' = 'flat'): (USCoreEthnicityExtension_Extension_DetailedSliceFlatAll | Extension)[] {
+    public getExtensionDetailed(mode: 'flat'): USCoreEthnicityExtension_Extension_DetailedSliceFlatAll[] | undefined;
+    public getExtensionDetailed(mode: 'raw'): Extension[] | undefined;
+    public getExtensionDetailed(): USCoreEthnicityExtension_Extension_DetailedSliceFlatAll[] | undefined;
+    public getExtensionDetailed (mode: 'flat' | 'raw' = 'flat'): (USCoreEthnicityExtension_Extension_DetailedSliceFlatAll | Extension)[] | undefined {
         const match = USCoreEthnicityExtensionProfile.detailedSliceMatch
         const items = getArraySliceAll(this.resource.extension, match)
+        if (items.length === 0) return undefined
         if (mode === 'raw') return items
         return items.map(item => unwrapSliceChoice<USCoreEthnicityExtension_Extension_DetailedSliceFlatAll>(item, ["url"], "valueCoding"))
     }

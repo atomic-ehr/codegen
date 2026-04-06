@@ -2017,12 +2017,13 @@ export class USCoreRaceExtensionProfile {
         return unwrapSliceChoice<USCoreRaceExtension_Extension_OmbCategorySliceFlatAll>(item, ["url"], "valueCoding")
     }
 
-    public getExtensionDetailed(mode: 'flat'): USCoreRaceExtension_Extension_DetailedSliceFlatAll[];
-    public getExtensionDetailed(mode: 'raw'): Extension[];
-    public getExtensionDetailed(): USCoreRaceExtension_Extension_DetailedSliceFlatAll[];
-    public getExtensionDetailed (mode: 'flat' | 'raw' = 'flat'): (USCoreRaceExtension_Extension_DetailedSliceFlatAll | Extension)[] {
+    public getExtensionDetailed(mode: 'flat'): USCoreRaceExtension_Extension_DetailedSliceFlatAll[] | undefined;
+    public getExtensionDetailed(mode: 'raw'): Extension[] | undefined;
+    public getExtensionDetailed(): USCoreRaceExtension_Extension_DetailedSliceFlatAll[] | undefined;
+    public getExtensionDetailed (mode: 'flat' | 'raw' = 'flat'): (USCoreRaceExtension_Extension_DetailedSliceFlatAll | Extension)[] | undefined {
         const match = USCoreRaceExtensionProfile.detailedSliceMatch
         const items = getArraySliceAll(this.resource.extension, match)
+        if (items.length === 0) return undefined
         if (mode === 'raw') return items
         return items.map(item => unwrapSliceChoice<USCoreRaceExtension_Extension_DetailedSliceFlatAll>(item, ["url"], "valueCoding"))
     }

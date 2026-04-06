@@ -156,12 +156,13 @@ export class ExampleTypedBundleProfile {
         return item as unknown as ExampleTypedBundle_Entry_PatientEntrySliceFlatAll
     }
 
-    public getOrganizationEntry(mode: 'flat'): ExampleTypedBundle_Entry_OrganizationEntrySliceFlatAll[];
-    public getOrganizationEntry(mode: 'raw'): BundleEntry<Organization>[];
-    public getOrganizationEntry(): ExampleTypedBundle_Entry_OrganizationEntrySliceFlatAll[];
-    public getOrganizationEntry (mode: 'flat' | 'raw' = 'flat'): (ExampleTypedBundle_Entry_OrganizationEntrySliceFlatAll | BundleEntry<Organization>)[] {
+    public getOrganizationEntry(mode: 'flat'): ExampleTypedBundle_Entry_OrganizationEntrySliceFlatAll[] | undefined;
+    public getOrganizationEntry(mode: 'raw'): BundleEntry<Organization>[] | undefined;
+    public getOrganizationEntry(): ExampleTypedBundle_Entry_OrganizationEntrySliceFlatAll[] | undefined;
+    public getOrganizationEntry (mode: 'flat' | 'raw' = 'flat'): (ExampleTypedBundle_Entry_OrganizationEntrySliceFlatAll | BundleEntry<Organization>)[] | undefined {
         const match = ExampleTypedBundleProfile.OrganizationEntrySliceMatch
         const items = getArraySliceAll(this.resource.entry, match)
+        if (items.length === 0) return undefined
         if (mode === 'raw') return items as BundleEntry<Organization>[]
         return items as unknown as ExampleTypedBundle_Entry_OrganizationEntrySliceFlatAll[]
     }
