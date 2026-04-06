@@ -228,11 +228,11 @@ export const generateExtensionProfiles = (w: Python, tsIndex: TypeSchemaIndex, p
                 }
             });
         }
-        generateProfilesInitFile(w, profiles);
+        generateProfilesInitFile(w, tsIndex, profiles);
     });
 };
 
-const generateProfilesInitFile = (w: Python, profiles: ProfileTypeSchema[]): void => {
+const generateProfilesInitFile = (w: Python, tsIndex: TypeSchemaIndex, profiles: ProfileTypeSchema[]): void => {
     w.cat("__init__.py", () => {
         w.generateDisclaimer();
         const packageName = profiles[0]?.identifier.package;
@@ -246,6 +246,19 @@ const generateProfilesInitFile = (w: Python, profiles: ProfileTypeSchema[]): voi
                 w.pyImportFrom(`${pyPackage}.${moduleName}`, className, ...subNames);
             } else {
                 w.pyImportFrom(`${pyPackage}.${moduleName}`, className);
+            }
+        }
+
+        w.line();
+
+        // model_rebuild() so Pydantic can resolve inherited deferred annotations
+        for (const profile of profiles) {
+            const className = extensionProfileClassName(profile);
+            w.line(`${className}.model_rebuild()`);
+            if (isComplexExtensionProfile(profile)) {
+                for (const subName of collectSubExtensionClassNames(profile)) {
+                    w.line(`${subName}.model_rebuild()`);
+                }
             }
         }
     });

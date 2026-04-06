@@ -12,8 +12,8 @@ coverage
 
 # logs
 logs
-*.log
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+_.log
+report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # dotenv environment variable files
 .env
@@ -23,6 +23,7 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 .env.local
 
 # caches
+.eslintcache
 .cache
 *.tsbuildinfo
 
@@ -35,7 +36,11 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 # project-specific temp directories
 .codegen-cache/
 test-output
+.lsp
+.clj-kondo
 /types/
 /generated
 .typeschema-cache
 *.cpuprofile
+examples/tmp/
+/examples/python/fhir_types/type-schemas/

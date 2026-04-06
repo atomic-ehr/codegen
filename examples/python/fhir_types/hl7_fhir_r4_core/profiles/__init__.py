@@ -10,3 +10,12 @@ from fhir_types.hl7_fhir_r4_core.profiles.extension_nationality import (\
 from fhir_types.hl7_fhir_r4_core.profiles.extension_observation_bodyweight import ObservationBodyweightExtension
 from fhir_types.hl7_fhir_r4_core.profiles.extension_observation_vitalsigns import ObservationVitalsignsExtension
 from fhir_types.hl7_fhir_r4_core.profiles.extension_own_prefix import OwnPrefixExtension
+
+BirthPlaceExtension.model_rebuild()
+BirthTimeExtension.model_rebuild()
+NationalityExtension.model_rebuild()
+NationalityCodeExtension.model_rebuild()
+NationalityPeriodExtension.model_rebuild()
+ObservationBodyweightExtension.model_rebuild()
+ObservationVitalsignsExtension.model_rebuild()
+OwnPrefixExtension.model_rebuild()
