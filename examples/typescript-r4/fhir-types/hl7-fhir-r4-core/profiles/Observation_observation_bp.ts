@@ -8,12 +8,12 @@ import type { Period } from "../../hl7-fhir-r4-core/Period";
 import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
-export type Observation_bp_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
-export type Observation_bp_Category_VSCatSliceFlat = Observation_bp_Category_VSCatSliceInput & { readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }] };
-export type Observation_bp_Component_SystolicBPSliceInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
-export type Observation_bp_Component_SystolicBPSliceFlat = Observation_bp_Component_SystolicBPSliceInput;
-export type Observation_bp_Component_DiastolicBPSliceInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
-export type Observation_bp_Component_DiastolicBPSliceFlat = Observation_bp_Component_DiastolicBPSliceInput;
+export type Observation_bp_Category_VSCatSliceFlatInput = Omit<CodeableConcept, "coding">;
+export type Observation_bp_Category_VSCatSliceFlat = Observation_bp_Category_VSCatSliceFlatInput & { readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }] };
+export type Observation_bp_Component_SystolicBPSliceFlatInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
+export type Observation_bp_Component_SystolicBPSliceFlat = Observation_bp_Component_SystolicBPSliceFlatInput;
+export type Observation_bp_Component_DiastolicBPSliceFlatInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
+export type Observation_bp_Component_DiastolicBPSliceFlat = Observation_bp_Component_DiastolicBPSliceFlatInput;
 
 import {
     ensureProfile,
@@ -185,7 +185,7 @@ export class observation_bpProfile {
 
     // Extensions
     // Slices
-    public setVSCat (input?: Observation_bp_Category_VSCatSliceInput | CodeableConcept): this {
+    public setVSCat (input?: Observation_bp_Category_VSCatSliceFlatInput | CodeableConcept): this {
         const match = observation_bpProfile.VSCatSliceMatch
         if (input && matchesValue(input, match)) {
             setArraySlice(this.resource.category ??= [], match, input as CodeableConcept)
@@ -196,7 +196,7 @@ export class observation_bpProfile {
         return this
     }
 
-    public setSystolicBP (input?: Observation_bp_Component_SystolicBPSliceInput | ObservationComponent): this {
+    public setSystolicBP (input?: Observation_bp_Component_SystolicBPSliceFlatInput | ObservationComponent): this {
         const match = observation_bpProfile.SystolicBPSliceMatch
         if (input && matchesValue(input, match)) {
             setArraySlice(this.resource.component ??= [], match, input as ObservationComponent)
@@ -208,7 +208,7 @@ export class observation_bpProfile {
         return this
     }
 
-    public setDiastolicBP (input?: Observation_bp_Component_DiastolicBPSliceInput | ObservationComponent): this {
+    public setDiastolicBP (input?: Observation_bp_Component_DiastolicBPSliceFlatInput | ObservationComponent): this {
         const match = observation_bpProfile.DiastolicBPSliceMatch
         if (input && matchesValue(input, match)) {
             setArraySlice(this.resource.component ??= [], match, input as ObservationComponent)
@@ -220,37 +220,37 @@ export class observation_bpProfile {
         return this
     }
 
-    public getVSCat(mode: 'flat'): Observation_bp_Category_VSCatSliceInput | undefined;
+    public getVSCat(mode: 'flat'): Observation_bp_Category_VSCatSliceFlatInput | undefined;
     public getVSCat(mode: 'raw'): CodeableConcept | undefined;
-    public getVSCat(): Observation_bp_Category_VSCatSliceInput | undefined;
-    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Category_VSCatSliceInput | CodeableConcept | undefined {
+    public getVSCat(): Observation_bp_Category_VSCatSliceFlatInput | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Category_VSCatSliceFlatInput | CodeableConcept | undefined {
         const match = observation_bpProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<Observation_bp_Category_VSCatSliceInput>(item, ["coding"])
+        return stripMatchKeys<Observation_bp_Category_VSCatSliceFlatInput>(item, ["coding"])
     }
 
-    public getSystolicBP(mode: 'flat'): Observation_bp_Component_SystolicBPSliceInput | undefined;
+    public getSystolicBP(mode: 'flat'): Observation_bp_Component_SystolicBPSliceFlatInput | undefined;
     public getSystolicBP(mode: 'raw'): ObservationComponent | undefined;
-    public getSystolicBP(): Observation_bp_Component_SystolicBPSliceInput | undefined;
-    public getSystolicBP (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Component_SystolicBPSliceInput | ObservationComponent | undefined {
+    public getSystolicBP(): Observation_bp_Component_SystolicBPSliceFlatInput | undefined;
+    public getSystolicBP (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Component_SystolicBPSliceFlatInput | ObservationComponent | undefined {
         const match = observation_bpProfile.SystolicBPSliceMatch
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<Observation_bp_Component_SystolicBPSliceInput>(item, ["code"], "valueQuantity")
+        return unwrapSliceChoice<Observation_bp_Component_SystolicBPSliceFlatInput>(item, ["code"], "valueQuantity")
     }
 
-    public getDiastolicBP(mode: 'flat'): Observation_bp_Component_DiastolicBPSliceInput | undefined;
+    public getDiastolicBP(mode: 'flat'): Observation_bp_Component_DiastolicBPSliceFlatInput | undefined;
     public getDiastolicBP(mode: 'raw'): ObservationComponent | undefined;
-    public getDiastolicBP(): Observation_bp_Component_DiastolicBPSliceInput | undefined;
-    public getDiastolicBP (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Component_DiastolicBPSliceInput | ObservationComponent | undefined {
+    public getDiastolicBP(): Observation_bp_Component_DiastolicBPSliceFlatInput | undefined;
+    public getDiastolicBP (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Component_DiastolicBPSliceFlatInput | ObservationComponent | undefined {
         const match = observation_bpProfile.DiastolicBPSliceMatch
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<Observation_bp_Component_DiastolicBPSliceInput>(item, ["code"], "valueQuantity")
+        return unwrapSliceChoice<Observation_bp_Component_DiastolicBPSliceFlatInput>(item, ["code"], "valueQuantity")
     }
 
     // Validation

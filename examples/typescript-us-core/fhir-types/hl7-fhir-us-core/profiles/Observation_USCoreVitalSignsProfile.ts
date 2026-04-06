@@ -11,8 +11,8 @@ import type { Ratio } from "../../hl7-fhir-r4-core/Ratio";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import type { SampledData } from "../../hl7-fhir-r4-core/SampledData";
 
-export type USCoreVitalSignsProfile_Category_VSCatSliceInput = Omit<CodeableConcept, "coding">;
-export type USCoreVitalSignsProfile_Category_VSCatSliceFlat = USCoreVitalSignsProfile_Category_VSCatSliceInput & { readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }] };
+export type USCoreVitalSignsProfile_Category_VSCatSliceFlatInput = Omit<CodeableConcept, "coding">;
+export type USCoreVitalSignsProfile_Category_VSCatSliceFlat = USCoreVitalSignsProfile_Category_VSCatSliceFlatInput & { readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }] };
 
 import {
     ensureProfile,
@@ -252,7 +252,7 @@ export class USCoreVitalSignsProfile {
 
     // Extensions
     // Slices
-    public setVSCat (input?: USCoreVitalSignsProfile_Category_VSCatSliceInput | CodeableConcept): this {
+    public setVSCat (input?: USCoreVitalSignsProfile_Category_VSCatSliceFlatInput | CodeableConcept): this {
         const match = USCoreVitalSignsProfile.VSCatSliceMatch
         if (input && matchesValue(input, match)) {
             setArraySlice(this.resource.category ??= [], match, input as CodeableConcept)
@@ -263,15 +263,15 @@ export class USCoreVitalSignsProfile {
         return this
     }
 
-    public getVSCat(mode: 'flat'): USCoreVitalSignsProfile_Category_VSCatSliceInput | undefined;
+    public getVSCat(mode: 'flat'): USCoreVitalSignsProfile_Category_VSCatSliceFlatInput | undefined;
     public getVSCat(mode: 'raw'): CodeableConcept | undefined;
-    public getVSCat(): USCoreVitalSignsProfile_Category_VSCatSliceInput | undefined;
-    public getVSCat (mode: 'flat' | 'raw' = 'flat'): USCoreVitalSignsProfile_Category_VSCatSliceInput | CodeableConcept | undefined {
+    public getVSCat(): USCoreVitalSignsProfile_Category_VSCatSliceFlatInput | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): USCoreVitalSignsProfile_Category_VSCatSliceFlatInput | CodeableConcept | undefined {
         const match = USCoreVitalSignsProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<USCoreVitalSignsProfile_Category_VSCatSliceInput>(item, ["coding"])
+        return stripMatchKeys<USCoreVitalSignsProfile_Category_VSCatSliceFlatInput>(item, ["coding"])
     }
 
     // Validation
