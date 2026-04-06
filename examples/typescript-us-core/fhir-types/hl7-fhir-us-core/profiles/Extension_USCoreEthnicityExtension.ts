@@ -35,6 +35,7 @@ import {
     validateExcluded,
     validateFixedValue,
     validateSliceCardinality,
+    validateSliceFields,
     validateEnum,
     validateReference,
     validateChoiceRequired,
@@ -248,7 +249,10 @@ export class USCoreEthnicityExtensionProfile {
             errors: [
                 ...validateRequired(res, profileName, "extension"),
                 ...validateSliceCardinality(res, profileName, "extension", {"url":"ombCategory"}, "ombCategory", 0, 1),
+                ...validateSliceFields(res, profileName, "extension", {"url":"ombCategory"}, "ombCategory", ["value","valueCoding"]),
+                ...validateSliceFields(res, profileName, "extension", {"url":"detailed"}, "detailed", ["value","valueCoding"]),
                 ...validateSliceCardinality(res, profileName, "extension", {"url":"text"}, "text", 1, 1),
+                ...validateSliceFields(res, profileName, "extension", {"url":"text"}, "text", ["value","valueString"]),
                 ...validateRequired(res, profileName, "url"),
                 ...validateFixedValue(res, profileName, "url", USCoreEthnicityExtensionProfile.canonicalUrl),
             ],

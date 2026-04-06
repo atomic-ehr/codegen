@@ -32,6 +32,7 @@ import {
     validateExcluded,
     validateFixedValue,
     validateSliceCardinality,
+    validateSliceFields,
     validateEnum,
     validateReference,
     validateChoiceRequired,
@@ -280,7 +281,9 @@ export class observation_bpProfile {
                 ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
                 ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),
                 ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":[{"code":"8480-6","system":"http://loinc.org"}]}}, "SystolicBP", 1, 1),
+                ...validateSliceFields(res, profileName, "component", {"code":{"coding":[{"code":"8480-6","system":"http://loinc.org"}]}}, "SystolicBP", ["valueQuantity"]),
                 ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":[{"code":"8462-4","system":"http://loinc.org"}]}}, "DiastolicBP", 1, 1),
+                ...validateSliceFields(res, profileName, "component", {"code":{"coding":[{"code":"8462-4","system":"http://loinc.org"}]}}, "DiastolicBP", ["valueQuantity"]),
             ],
             warnings: [
                 ...validateEnum(res, profileName, "category", ["social-history","vital-signs","imaging","laboratory","procedure","survey","exam","therapy","activity"]),

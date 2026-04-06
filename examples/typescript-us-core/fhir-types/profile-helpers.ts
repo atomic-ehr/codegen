@@ -379,6 +379,31 @@ export const validateSliceCardinality = (
 };
 
 /**
+ * Validate required fields within matched slice elements.
+ * For each array item matching the discriminator, checks that the listed fields are present.
+ */
+export const validateSliceFields = (
+    res: object,
+    profileName: string,
+    field: string,
+    match: Record<string, unknown>,
+    sliceName: string,
+    requiredFields: string[],
+): string[] => {
+    const items = (res as Record<string, unknown>)[field] as unknown[] | undefined;
+    const errors: string[] = [];
+    for (const item of (items ?? []).filter((item) => matchesValue(item, match))) {
+        const obj = item as Record<string, unknown>;
+        for (const rf of requiredFields) {
+            if (obj[rf] === undefined || obj[rf] === null) {
+                errors.push(`${profileName}.${field}[${sliceName}].${rf} is required`);
+            }
+        }
+    }
+    return errors;
+};
+
+/**
  * Checks that at least one of the listed choice-type variants is present.
  * E.g. `["effectiveDateTime", "effectivePeriod"]`.
  */

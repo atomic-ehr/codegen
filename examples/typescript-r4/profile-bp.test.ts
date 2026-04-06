@@ -14,9 +14,11 @@ describe("demo: create a blood pressure observation", () => {
             subject: { reference: "Patient/pt-1" },
         });
 
-        // Not yet valid: effective[x] is required by the vitalsigns base profile
+        // Not yet valid: effective[x] and component valueQuantity are required
         expect(profile.validate().errors).toEqual([
             "observation-bp: at least one of effectiveDateTime, effectivePeriod is required",
+            "observation-bp.component[SystolicBP].valueQuantity is required",
+            "observation-bp.component[DiastolicBP].valueQuantity is required",
         ]);
 
         // Fill in the remaining required fields
@@ -44,9 +46,11 @@ describe("demo: apply BP profile to an existing Observation", () => {
         // apply() adds meta.profile, sets fixed values (code), and auto-populates required slices
         const profile = bpProfile.apply(obs);
 
-        // Not yet valid: effective[x] is required
+        // Not yet valid: effective[x] and component valueQuantity are required
         expect(profile.validate().errors).toEqual([
             "observation-bp: at least one of effectiveDateTime, effectivePeriod is required",
+            "observation-bp.component[SystolicBP].valueQuantity is required",
+            "observation-bp.component[DiastolicBP].valueQuantity is required",
         ]);
 
         // The profile mutates the original resource — no copy is made
