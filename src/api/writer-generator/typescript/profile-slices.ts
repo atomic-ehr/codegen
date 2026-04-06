@@ -14,6 +14,7 @@ import {
     tsResolvedSliceBaseName,
     tsResourceName,
     tsSliceFlatInputTypeName,
+    tsSliceFlatTypeName,
     tsSliceStaticName,
 } from "./name";
 import { tsGet, tsTypeFromIdentifier } from "./utils";
@@ -209,16 +210,16 @@ export const generateSliceGetters = (
     for (const sliceDef of sliceDefs) {
         const baseName = tsResolvedSliceBaseName(sliceBaseNames, sliceDef.fieldName, sliceDef.sliceName);
         const getMethodName = `get${baseName}`;
-        const inputTypeName = tsSliceFlatInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+        const flatTypeName = tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
         const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
         const matchKeys = JSON.stringify(Object.keys(sliceDef.match));
         const tsField = tsFieldName(sliceDef.fieldName);
         const fieldAccess = tsGet("this.resource", tsField);
         const baseType = sliceDef.typedBaseType;
-        const defaultReturn = defaultMode === "raw" ? baseType : inputTypeName;
+        const defaultReturn = defaultMode === "raw" ? baseType : flatTypeName;
 
         // Overload signatures
-        w.lineSM(`public ${getMethodName}(mode: 'flat'): ${inputTypeName} | undefined`);
+        w.lineSM(`public ${getMethodName}(mode: 'flat'): ${flatTypeName} | undefined`);
         w.lineSM(`public ${getMethodName}(mode: 'raw'): ${baseType} | undefined`);
         w.lineSM(`public ${getMethodName}(): ${defaultReturn} | undefined`);
 
@@ -227,7 +228,7 @@ export const generateSliceGetters = (
             [
                 "public",
                 getMethodName,
-                `(mode: 'flat' | 'raw' = '${defaultMode}'): ${inputTypeName} | ${baseType} | undefined`,
+                `(mode: 'flat' | 'raw' = '${defaultMode}'): ${flatTypeName} | ${baseType} | undefined`,
             ],
             () => {
                 w.line(`const match = ${matchRef}`);
@@ -244,14 +245,14 @@ export const generateSliceGetters = (
                     w.line("if (mode === 'raw') return item");
                 }
                 if (sliceDef.typeDiscriminator) {
-                    w.line(`return item as ${inputTypeName}`);
+                    w.line(`return item as ${flatTypeName}`);
                 } else if (sliceDef.constrainedChoice) {
                     const cc = sliceDef.constrainedChoice;
                     w.line(
-                        `return unwrapSliceChoice<${inputTypeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)})`,
+                        `return unwrapSliceChoice<${flatTypeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)})`,
                     );
                 } else {
-                    w.line(`return stripMatchKeys<${inputTypeName}>(item, ${matchKeys})`);
+                    w.line(`return stripMatchKeys<${flatTypeName}>(item, ${matchKeys})`);
                 }
             },
         );
