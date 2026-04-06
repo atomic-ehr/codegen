@@ -296,6 +296,26 @@ export const getArraySlice = <T>(list: readonly T[] | undefined, match: Record<s
     return list.find((item) => matchesValue(item, match));
 };
 
+/** Return all elements in `list` that satisfy the slice discriminator `match`. */
+export const getArraySliceAll = <T>(list: readonly T[] | undefined, match: Record<string, unknown>): T[] => {
+    if (!list) return [];
+    return list.filter((item) => matchesValue(item, match));
+};
+
+/**
+ * Replace all elements matching `match` in `list` with `newItems`.
+ * Each new item has the discriminator values applied via {@link applySliceMatch}
+ * before this call, so this helper only handles the array surgery.
+ */
+export const setArraySliceAll = <T>(list: T[], match: Record<string, unknown>, newItems: T[]): void => {
+    // Remove all existing items that match the discriminator
+    for (let i = list.length - 1; i >= 0; i--) {
+        if (matchesValue(list[i], match)) list.splice(i, 1);
+    }
+    // Append new items
+    list.push(...newItems);
+};
+
 // ---------------------------------------------------------------------------
 // Validation helpers
 //

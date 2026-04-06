@@ -58,21 +58,37 @@ describe("type-discriminated bundle slices", () => {
     test("fluent chaining across slice setters", () => {
         const bundle = ExampleTypedBundleProfile.create({ type: "collection" })
             .setPatientEntry({ resource: activePatient })
-            .setOrganizationEntry({ resource: clinicOrg });
+            .setOrganizationEntry([{ resource: clinicOrg }]);
 
         expect(bundle.toResource().entry).toHaveLength(2);
         expect(bundle.getPatientEntry()!.resource).toEqual(activePatient);
-        expect(bundle.getOrganizationEntry()!.resource).toEqual(clinicOrg);
+        expect(bundle.getOrganizationEntry()[0]!.resource).toEqual(clinicOrg);
     });
 
-    test("setOrganizationEntry replaces existing org entry (same discriminator)", () => {
+    test("setOrganizationEntry replaces all org entries (unbounded slice)", () => {
         const bundle = ExampleTypedBundleProfile.create({ type: "collection" })
             .setPatientEntry({ resource: activePatient })
-            .setOrganizationEntry({ resource: clinicOrg })
-            .setOrganizationEntry({ resource: { resourceType: "Organization", name: "Acme" } });
+            .setOrganizationEntry([{ resource: clinicOrg }])
+            .setOrganizationEntry([{ resource: { resourceType: "Organization", name: "Acme" } }]);
 
         const entries = bundle.toResource().entry!;
         expect(entries).toHaveLength(2);
-        expect(bundle.getOrganizationEntry()!.resource!.name).toBe("Acme");
+        expect(bundle.getOrganizationEntry()[0]!.resource!.name).toBe("Acme");
+    });
+
+    test("setOrganizationEntry supports multiple items (max: *)", () => {
+        const bundle = ExampleTypedBundleProfile.create({ type: "collection" })
+            .setPatientEntry({ resource: activePatient })
+            .setOrganizationEntry([
+                { resource: clinicOrg },
+                { resource: { resourceType: "Organization", name: "Acme" } },
+            ]);
+
+        const entries = bundle.toResource().entry!;
+        expect(entries).toHaveLength(3);
+        const orgs = bundle.getOrganizationEntry();
+        expect(orgs).toHaveLength(2);
+        expect(orgs[0]!.resource).toEqual(clinicOrg);
+        expect(orgs[1]!.resource!.name).toBe("Acme");
     });
 });
