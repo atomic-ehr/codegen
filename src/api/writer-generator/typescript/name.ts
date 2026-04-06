@@ -93,7 +93,7 @@ export const tsProfileClassName = (schema: ProfileTypeSchema): string => {
 };
 
 export const tsSliceFlatTypeName = (profileName: string, fieldName: string, sliceName: string): string => {
-    return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(fieldName))}_${uppercaseFirstLetter(normalizeTsName(sliceName))}SliceFlat`;
+    return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(fieldName))}_${uppercaseFirstLetter(normalizeTsName(sliceName))}SliceFlatFull`;
 };
 
 export const tsSliceFlatInputTypeName = (profileName: string, fieldName: string, sliceName: string): string => {
