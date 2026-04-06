@@ -244,15 +244,13 @@ export const generateSliceGetters = (
                 } else {
                     w.line("if (mode === 'raw') return item");
                 }
-                if (sliceDef.typeDiscriminator) {
-                    w.line(`return item as ${flatTypeName}`);
-                } else if (sliceDef.constrainedChoice) {
+                if (sliceDef.constrainedChoice) {
                     const cc = sliceDef.constrainedChoice;
                     w.line(
                         `return unwrapSliceChoice<${flatTypeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)})`,
                     );
                 } else {
-                    w.line(`return stripMatchKeys<${flatTypeName}>(item, ${matchKeys})`);
+                    w.line(`return item as unknown as ${flatTypeName}`);
                 }
             },
         );

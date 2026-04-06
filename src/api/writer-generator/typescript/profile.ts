@@ -248,7 +248,6 @@ const generateProfileHelpersImport = (
         imports.push("applySliceMatch", "matchesValue", "setArraySlice", "getArraySlice", "ensureSliceDefaults");
     if (extensions.some((ext) => ext.path.split(".").some((s) => s !== "extension"))) imports.push("ensurePath");
     if (extensions.some((ext) => ext.isComplex && ext.subExtensions)) imports.push("extractComplexExtension");
-    if (sliceDefs.some((s) => !s.typeDiscriminator)) imports.push("stripMatchKeys");
     if (sliceDefs.some((s) => s.constrainedChoice)) imports.push("wrapSliceChoice", "unwrapSliceChoice");
     if (extensions.some((ext) => ext.url)) {
         imports.push("isExtension", "getExtensionValue", "pushExtension");
