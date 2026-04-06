@@ -53,9 +53,15 @@ export type USCoreBloodPressureProfileRaw = {
 export class USCoreBloodPressureProfile {
     static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure";
 
-    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]};
-    private static readonly systolicSliceMatch: Record<string, unknown> = {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}};
-    private static readonly diastolicSliceMatch: Record<string, unknown> = {"code":{"coding":[{"system":"http://loinc.org","code":"8462-4"}]}};
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {
+        "coding": [{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}],
+    }
+    private static readonly systolicSliceMatch: Record<string, unknown> = {
+        "code": {"coding":[{"system":"http://loinc.org","code":"8480-6"}]},
+    }
+    private static readonly diastolicSliceMatch: Record<string, unknown> = {
+        "code": {"coding":[{"system":"http://loinc.org","code":"8462-4"}]},
+    }
 
     private resource: Observation;
 

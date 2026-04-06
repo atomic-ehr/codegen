@@ -69,7 +69,9 @@ export class ExampleTypedBundleProfile {
     static readonly canonicalUrl = "http://example.org/fhir/StructureDefinition/ExampleTypedBundle";
 
     private static readonly PatientEntrySliceMatch: Record<string, unknown> = {"resource":{"resourceType":"Patient"}};
-    private static readonly OrganizationEntrySliceMatch: Record<string, unknown> = {"resource":{"resourceType":"Organization"}};
+    private static readonly OrganizationEntrySliceMatch: Record<string, unknown> = {
+        "resource": {"resourceType":"Organization"},
+    }
 
     private resource: Bundle;
 

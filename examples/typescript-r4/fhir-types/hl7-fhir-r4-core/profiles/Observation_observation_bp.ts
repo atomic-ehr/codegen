@@ -50,9 +50,15 @@ export type observation_bpProfileRaw = {
 export class observation_bpProfile {
     static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bp";
 
-    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]};
-    private static readonly SystolicBPSliceMatch: Record<string, unknown> = {"code":{"coding":[{"code":"8480-6","system":"http://loinc.org"}]}};
-    private static readonly DiastolicBPSliceMatch: Record<string, unknown> = {"code":{"coding":[{"code":"8462-4","system":"http://loinc.org"}]}};
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {
+        "coding": [{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}],
+    }
+    private static readonly SystolicBPSliceMatch: Record<string, unknown> = {
+        "code": {"coding":[{"code":"8480-6","system":"http://loinc.org"}]},
+    }
+    private static readonly DiastolicBPSliceMatch: Record<string, unknown> = {
+        "code": {"coding":[{"code":"8462-4","system":"http://loinc.org"}]},
+    }
 
     private resource: Observation;
 

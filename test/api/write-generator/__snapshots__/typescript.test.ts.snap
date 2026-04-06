@@ -355,7 +355,9 @@ export type observation_bodyweightProfileRaw = {
 export class observation_bodyweightProfile {
     static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bodyweight";
 
-    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]};
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {
+        "coding": [{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}],
+    }
 
     private resource: Observation;
 
@@ -579,9 +581,15 @@ export type observation_bpProfileRaw = {
 export class observation_bpProfile {
     static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bp";
 
-    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]};
-    private static readonly SystolicBPSliceMatch: Record<string, unknown> = {"code":{"coding":[{"code":"8480-6","system":"http://loinc.org"}]}};
-    private static readonly DiastolicBPSliceMatch: Record<string, unknown> = {"code":{"coding":[{"code":"8462-4","system":"http://loinc.org"}]}};
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {
+        "coding": [{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}],
+    }
+    private static readonly SystolicBPSliceMatch: Record<string, unknown> = {
+        "code": {"coding":[{"code":"8480-6","system":"http://loinc.org"}]},
+    }
+    private static readonly DiastolicBPSliceMatch: Record<string, unknown> = {
+        "code": {"coding":[{"code":"8462-4","system":"http://loinc.org"}]},
+    }
 
     private resource: Observation;
 
@@ -1131,9 +1139,15 @@ export type USCoreBloodPressureProfileRaw = {
 export class USCoreBloodPressureProfile {
     static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure";
 
-    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]};
-    private static readonly systolicSliceMatch: Record<string, unknown> = {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}};
-    private static readonly diastolicSliceMatch: Record<string, unknown> = {"code":{"coding":[{"system":"http://loinc.org","code":"8462-4"}]}};
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {
+        "coding": [{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}],
+    }
+    private static readonly systolicSliceMatch: Record<string, unknown> = {
+        "code": {"coding":[{"system":"http://loinc.org","code":"8480-6"}]},
+    }
+    private static readonly diastolicSliceMatch: Record<string, unknown> = {
+        "code": {"coding":[{"system":"http://loinc.org","code":"8462-4"}]},
+    }
 
     private resource: Observation;
 
@@ -1511,7 +1525,9 @@ export type USCoreBodyWeightProfileRaw = {
 export class USCoreBodyWeightProfile {
     static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight";
 
-    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]};
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {
+        "coding": [{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}],
+    }
 
     private resource: Observation;
 

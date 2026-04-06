@@ -41,7 +41,9 @@ export type observation_vitalsignsProfileRaw = {
 export class observation_vitalsignsProfile {
     static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/vitalsigns";
 
-    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]};
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {
+        "coding": [{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}],
+    }
 
     private resource: Observation;
 

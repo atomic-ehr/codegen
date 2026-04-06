@@ -41,7 +41,9 @@ export type observation_bodyweightProfileRaw = {
 export class observation_bodyweightProfile {
     static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bodyweight";
 
-    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]};
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {
+        "coding": [{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}],
+    }
 
     private resource: Observation;
 

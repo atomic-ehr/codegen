@@ -44,7 +44,9 @@ export type USCoreBodyWeightProfileRaw = {
 export class USCoreBodyWeightProfile {
     static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight";
 
-    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]};
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {
+        "coding": [{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}],
+    }
 
     private resource: Observation;
 
