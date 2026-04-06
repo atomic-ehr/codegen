@@ -13,7 +13,7 @@ import {
     tsProfileClassName,
     tsResolvedSliceBaseName,
     tsResourceName,
-    tsSliceInputTypeName,
+    tsSliceFlatInputTypeName,
     tsSliceStaticName,
 } from "./name";
 import { tsGet, tsTypeFromIdentifier } from "./utils";
@@ -159,7 +159,7 @@ export const generateSliceSetters = (
     for (const sliceDef of sliceDefs) {
         const baseName = tsResolvedSliceBaseName(sliceBaseNames, sliceDef.fieldName, sliceDef.sliceName);
         const methodName = `set${baseName}`;
-        const inputTypeName = tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+        const inputTypeName = tsSliceFlatInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
         const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
         const tsField = tsFieldName(sliceDef.fieldName);
         const fieldAccess = tsGet("this.resource", tsField);
@@ -209,7 +209,7 @@ export const generateSliceGetters = (
     for (const sliceDef of sliceDefs) {
         const baseName = tsResolvedSliceBaseName(sliceBaseNames, sliceDef.fieldName, sliceDef.sliceName);
         const getMethodName = `get${baseName}`;
-        const inputTypeName = tsSliceInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+        const inputTypeName = tsSliceFlatInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
         const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
         const matchKeys = JSON.stringify(Object.keys(sliceDef.match));
         const tsField = tsFieldName(sliceDef.fieldName);
