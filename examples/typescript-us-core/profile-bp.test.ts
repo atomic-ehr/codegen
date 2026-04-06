@@ -109,8 +109,8 @@ describe("demo: read a US Core blood pressure observation from JSON", () => {
         expect(profile.getSystolic("raw")!.valueQuantity!.value).toBe(120);
         expect(profile.getSystolic("raw")!.code?.coding?.[0]?.code).toBe("8480-6");
 
-        // Category slice — flat strips discriminator, raw includes it
-        expect(profile.getVSCat()).toEqual({ text: "Vital Signs" });
+        // Category slice — flat returns SliceFlat type, raw includes full element
+        expect(profile.getVSCat()!.text).toBe("Vital Signs");
         expect(profile.getVSCat("raw")!.coding).toEqual([
             { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
         ]);

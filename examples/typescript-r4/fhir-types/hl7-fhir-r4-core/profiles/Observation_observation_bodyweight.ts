@@ -167,15 +167,15 @@ export class observation_bodyweightProfile {
         return this
     }
 
-    public getVSCat(mode: 'flat'): Observation_bodyweight_Category_VSCatSliceFlatInput | undefined;
+    public getVSCat(mode: 'flat'): Observation_bodyweight_Category_VSCatSliceFlat | undefined;
     public getVSCat(mode: 'raw'): CodeableConcept | undefined;
-    public getVSCat(): Observation_bodyweight_Category_VSCatSliceFlatInput | undefined;
-    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_bodyweight_Category_VSCatSliceFlatInput | CodeableConcept | undefined {
+    public getVSCat(): Observation_bodyweight_Category_VSCatSliceFlat | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_bodyweight_Category_VSCatSliceFlat | CodeableConcept | undefined {
         const match = observation_bodyweightProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<Observation_bodyweight_Category_VSCatSliceFlatInput>(item, ["coding"])
+        return stripMatchKeys<Observation_bodyweight_Category_VSCatSliceFlat>(item, ["coding"])
     }
 
     // Validation

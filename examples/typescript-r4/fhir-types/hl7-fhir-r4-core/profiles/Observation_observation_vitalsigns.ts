@@ -160,15 +160,15 @@ export class observation_vitalsignsProfile {
         return this
     }
 
-    public getVSCat(mode: 'flat'): Observation_vitalsigns_Category_VSCatSliceFlatInput | undefined;
+    public getVSCat(mode: 'flat'): Observation_vitalsigns_Category_VSCatSliceFlat | undefined;
     public getVSCat(mode: 'raw'): CodeableConcept | undefined;
-    public getVSCat(): Observation_vitalsigns_Category_VSCatSliceFlatInput | undefined;
-    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_vitalsigns_Category_VSCatSliceFlatInput | CodeableConcept | undefined {
+    public getVSCat(): Observation_vitalsigns_Category_VSCatSliceFlat | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_vitalsigns_Category_VSCatSliceFlat | CodeableConcept | undefined {
         const match = observation_vitalsignsProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<Observation_vitalsigns_Category_VSCatSliceFlatInput>(item, ["coding"])
+        return stripMatchKeys<Observation_vitalsigns_Category_VSCatSliceFlat>(item, ["coding"])
     }
 
     // Validation

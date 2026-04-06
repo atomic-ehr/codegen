@@ -222,37 +222,37 @@ export class observation_bpProfile {
         return this
     }
 
-    public getVSCat(mode: 'flat'): Observation_bp_Category_VSCatSliceFlatInput | undefined;
+    public getVSCat(mode: 'flat'): Observation_bp_Category_VSCatSliceFlat | undefined;
     public getVSCat(mode: 'raw'): CodeableConcept | undefined;
-    public getVSCat(): Observation_bp_Category_VSCatSliceFlatInput | undefined;
-    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Category_VSCatSliceFlatInput | CodeableConcept | undefined {
+    public getVSCat(): Observation_bp_Category_VSCatSliceFlat | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Category_VSCatSliceFlat | CodeableConcept | undefined {
         const match = observation_bpProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<Observation_bp_Category_VSCatSliceFlatInput>(item, ["coding"])
+        return stripMatchKeys<Observation_bp_Category_VSCatSliceFlat>(item, ["coding"])
     }
 
-    public getSystolicBP(mode: 'flat'): Observation_bp_Component_SystolicBPSliceFlatInput | undefined;
+    public getSystolicBP(mode: 'flat'): Observation_bp_Component_SystolicBPSliceFlat | undefined;
     public getSystolicBP(mode: 'raw'): ObservationComponent | undefined;
-    public getSystolicBP(): Observation_bp_Component_SystolicBPSliceFlatInput | undefined;
-    public getSystolicBP (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Component_SystolicBPSliceFlatInput | ObservationComponent | undefined {
+    public getSystolicBP(): Observation_bp_Component_SystolicBPSliceFlat | undefined;
+    public getSystolicBP (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Component_SystolicBPSliceFlat | ObservationComponent | undefined {
         const match = observation_bpProfile.SystolicBPSliceMatch
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<Observation_bp_Component_SystolicBPSliceFlatInput>(item, ["code"], "valueQuantity")
+        return unwrapSliceChoice<Observation_bp_Component_SystolicBPSliceFlat>(item, ["code"], "valueQuantity")
     }
 
-    public getDiastolicBP(mode: 'flat'): Observation_bp_Component_DiastolicBPSliceFlatInput | undefined;
+    public getDiastolicBP(mode: 'flat'): Observation_bp_Component_DiastolicBPSliceFlat | undefined;
     public getDiastolicBP(mode: 'raw'): ObservationComponent | undefined;
-    public getDiastolicBP(): Observation_bp_Component_DiastolicBPSliceFlatInput | undefined;
-    public getDiastolicBP (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Component_DiastolicBPSliceFlatInput | ObservationComponent | undefined {
+    public getDiastolicBP(): Observation_bp_Component_DiastolicBPSliceFlat | undefined;
+    public getDiastolicBP (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Component_DiastolicBPSliceFlat | ObservationComponent | undefined {
         const match = observation_bpProfile.DiastolicBPSliceMatch
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<Observation_bp_Component_DiastolicBPSliceFlatInput>(item, ["code"], "valueQuantity")
+        return unwrapSliceChoice<Observation_bp_Component_DiastolicBPSliceFlat>(item, ["code"], "valueQuantity")
     }
 
     // Validation

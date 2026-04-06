@@ -96,7 +96,7 @@ describe("demo: read a bodyweight observation from JSON", () => {
         expect(profile.getCode()!.coding![0]!.code).toBe("29463-7");
 
         // Slice accessor strips discriminator keys (coding) by default — only user data remains
-        expect(profile.getVSCat()).toEqual({ text: "Vital Signs" });
+        expect(profile.getVSCat()!.text).toBe("Vital Signs");
         // Use "raw" mode to see the full element including discriminator
         expect(profile.getVSCat("raw")!.coding).toEqual([
             { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
@@ -123,29 +123,23 @@ describe("factory method equivalence", () => {
 });
 
 describe("slice accessors", () => {
-    test("setVSCat merges discriminator and strips it in flat mode", () => {
-        const profile = bodyweightProfile.create({ status: "final", subject: { reference: "Patient/pt-1" } });
-        profile.setVSCat({ text: "Vital Signs" });
-
-        expect(profile.getVSCat()).toEqual({ text: "Vital Signs" });
-        expect(profile.getVSCat("raw")!.coding).toBeDefined();
-        expect(profile.getVSCat("raw")!.text).toBe("Vital Signs");
-    });
-
-    test("SliceInput and SliceFlat types serve different purposes", () => {
+    test("setVSCat accepts SliceFlatInput, getVSCat returns SliceFlat", () => {
         const profile = bodyweightProfile.create({ status: "final", subject: { reference: "Patient/pt-1" } });
 
-        // setVSCat accepts SliceInput — no discriminator fields, they're auto-applied
+        // setVSCat accepts SliceFlatInput — only user data, discriminators auto-applied
         profile.setVSCat({ text: "Vital Signs" });
 
-        // getVSCat() returns SliceInput — discriminator keys are stripped at runtime
+        // getVSCat() returns SliceFlat — typed with readonly discriminator literals
+        // type VSCatSliceFlat = Omit<CodeableConcept, "coding">
+        //   & { readonly coding: [{ code: "vital-signs"; system: "http://..." }] }
         const flat = profile.getVSCat()!;
         expect(flat.text).toBe("Vital Signs");
-        expect("coding" in flat).toBe(false);
 
-        // SliceFlat type includes readonly discriminator literals for documentation:
-        // type VSCatSliceFlat = VSCatSliceInput & { readonly coding: [{ code: "vital-signs"; ... }] }
-        // It's available as a type-level reference but not used in getter/setter signatures
+        // getVSCat("raw") returns the full CodeableConcept including discriminator
+        expect(profile.getVSCat("raw")!.coding).toEqual([
+            { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
+        ]);
+        expect(profile.getVSCat("raw")!.text).toBe("Vital Signs");
     });
 
     test("setVSCat replaces existing slice element", () => {

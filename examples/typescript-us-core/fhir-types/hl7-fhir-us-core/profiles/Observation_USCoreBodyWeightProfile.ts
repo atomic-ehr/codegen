@@ -260,15 +260,15 @@ export class USCoreBodyWeightProfile {
         return this
     }
 
-    public getVSCat(mode: 'flat'): USCoreBodyWeightProfile_Category_VSCatSliceFlatInput | undefined;
+    public getVSCat(mode: 'flat'): USCoreBodyWeightProfile_Category_VSCatSliceFlat | undefined;
     public getVSCat(mode: 'raw'): CodeableConcept | undefined;
-    public getVSCat(): USCoreBodyWeightProfile_Category_VSCatSliceFlatInput | undefined;
-    public getVSCat (mode: 'flat' | 'raw' = 'flat'): USCoreBodyWeightProfile_Category_VSCatSliceFlatInput | CodeableConcept | undefined {
+    public getVSCat(): USCoreBodyWeightProfile_Category_VSCatSliceFlat | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): USCoreBodyWeightProfile_Category_VSCatSliceFlat | CodeableConcept | undefined {
         const match = USCoreBodyWeightProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<USCoreBodyWeightProfile_Category_VSCatSliceFlatInput>(item, ["coding"])
+        return stripMatchKeys<USCoreBodyWeightProfile_Category_VSCatSliceFlat>(item, ["coding"])
     }
 
     // Validation

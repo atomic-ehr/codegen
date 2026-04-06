@@ -172,26 +172,26 @@ export class USCoreTribalAffiliationExtensionProfile {
         return this
     }
 
-    public getExtensionTribalAffiliation(mode: 'flat'): USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceFlatInput | undefined;
+    public getExtensionTribalAffiliation(mode: 'flat'): USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceFlat | undefined;
     public getExtensionTribalAffiliation(mode: 'raw'): Extension | undefined;
-    public getExtensionTribalAffiliation(): USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceFlatInput | undefined;
-    public getExtensionTribalAffiliation (mode: 'flat' | 'raw' = 'flat'): USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceFlatInput | Extension | undefined {
+    public getExtensionTribalAffiliation(): USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceFlat | undefined;
+    public getExtensionTribalAffiliation (mode: 'flat' | 'raw' = 'flat'): USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceFlat | Extension | undefined {
         const match = USCoreTribalAffiliationExtensionProfile.tribalAffiliationSliceMatch
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceFlatInput>(item, ["url"], "valueCodeableConcept")
+        return unwrapSliceChoice<USCoreTribalAffiliationExtension_Extension_TribalAffiliationSliceFlat>(item, ["url"], "valueCodeableConcept")
     }
 
-    public getExtensionIsEnrolled(mode: 'flat'): USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlatInput | undefined;
+    public getExtensionIsEnrolled(mode: 'flat'): USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlat | undefined;
     public getExtensionIsEnrolled(mode: 'raw'): Extension | undefined;
-    public getExtensionIsEnrolled(): USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlatInput | undefined;
-    public getExtensionIsEnrolled (mode: 'flat' | 'raw' = 'flat'): USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlatInput | Extension | undefined {
+    public getExtensionIsEnrolled(): USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlat | undefined;
+    public getExtensionIsEnrolled (mode: 'flat' | 'raw' = 'flat'): USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlat | Extension | undefined {
         const match = USCoreTribalAffiliationExtensionProfile.isEnrolledSliceMatch
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlatInput>(item, ["url"])
+        return stripMatchKeys<USCoreTribalAffiliationExtension_Extension_IsEnrolledSliceFlat>(item, ["url"])
     }
 
     // Validation

@@ -263,15 +263,15 @@ export class USCoreVitalSignsProfile {
         return this
     }
 
-    public getVSCat(mode: 'flat'): USCoreVitalSignsProfile_Category_VSCatSliceFlatInput | undefined;
+    public getVSCat(mode: 'flat'): USCoreVitalSignsProfile_Category_VSCatSliceFlat | undefined;
     public getVSCat(mode: 'raw'): CodeableConcept | undefined;
-    public getVSCat(): USCoreVitalSignsProfile_Category_VSCatSliceFlatInput | undefined;
-    public getVSCat (mode: 'flat' | 'raw' = 'flat'): USCoreVitalSignsProfile_Category_VSCatSliceFlatInput | CodeableConcept | undefined {
+    public getVSCat(): USCoreVitalSignsProfile_Category_VSCatSliceFlat | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): USCoreVitalSignsProfile_Category_VSCatSliceFlat | CodeableConcept | undefined {
         const match = USCoreVitalSignsProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<USCoreVitalSignsProfile_Category_VSCatSliceFlatInput>(item, ["coding"])
+        return stripMatchKeys<USCoreVitalSignsProfile_Category_VSCatSliceFlat>(item, ["coding"])
     }
 
     // Validation

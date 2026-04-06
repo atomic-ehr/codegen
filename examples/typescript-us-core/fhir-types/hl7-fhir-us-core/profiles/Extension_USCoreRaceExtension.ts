@@ -208,37 +208,37 @@ export class USCoreRaceExtensionProfile {
         return this
     }
 
-    public getExtensionOmbCategory(mode: 'flat'): USCoreRaceExtension_Extension_OmbCategorySliceFlatInput | undefined;
+    public getExtensionOmbCategory(mode: 'flat'): USCoreRaceExtension_Extension_OmbCategorySliceFlat | undefined;
     public getExtensionOmbCategory(mode: 'raw'): Extension | undefined;
-    public getExtensionOmbCategory(): USCoreRaceExtension_Extension_OmbCategorySliceFlatInput | undefined;
-    public getExtensionOmbCategory (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_OmbCategorySliceFlatInput | Extension | undefined {
+    public getExtensionOmbCategory(): USCoreRaceExtension_Extension_OmbCategorySliceFlat | undefined;
+    public getExtensionOmbCategory (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_OmbCategorySliceFlat | Extension | undefined {
         const match = USCoreRaceExtensionProfile.ombCategorySliceMatch
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<USCoreRaceExtension_Extension_OmbCategorySliceFlatInput>(item, ["url"], "valueCoding")
+        return unwrapSliceChoice<USCoreRaceExtension_Extension_OmbCategorySliceFlat>(item, ["url"], "valueCoding")
     }
 
-    public getExtensionDetailed(mode: 'flat'): USCoreRaceExtension_Extension_DetailedSliceFlatInput | undefined;
+    public getExtensionDetailed(mode: 'flat'): USCoreRaceExtension_Extension_DetailedSliceFlat | undefined;
     public getExtensionDetailed(mode: 'raw'): Extension | undefined;
-    public getExtensionDetailed(): USCoreRaceExtension_Extension_DetailedSliceFlatInput | undefined;
-    public getExtensionDetailed (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_DetailedSliceFlatInput | Extension | undefined {
+    public getExtensionDetailed(): USCoreRaceExtension_Extension_DetailedSliceFlat | undefined;
+    public getExtensionDetailed (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_DetailedSliceFlat | Extension | undefined {
         const match = USCoreRaceExtensionProfile.detailedSliceMatch
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<USCoreRaceExtension_Extension_DetailedSliceFlatInput>(item, ["url"], "valueCoding")
+        return unwrapSliceChoice<USCoreRaceExtension_Extension_DetailedSliceFlat>(item, ["url"], "valueCoding")
     }
 
-    public getExtensionText(mode: 'flat'): USCoreRaceExtension_Extension_TextSliceFlatInput | undefined;
+    public getExtensionText(mode: 'flat'): USCoreRaceExtension_Extension_TextSliceFlat | undefined;
     public getExtensionText(mode: 'raw'): Extension | undefined;
-    public getExtensionText(): USCoreRaceExtension_Extension_TextSliceFlatInput | undefined;
-    public getExtensionText (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_TextSliceFlatInput | Extension | undefined {
+    public getExtensionText(): USCoreRaceExtension_Extension_TextSliceFlat | undefined;
+    public getExtensionText (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_TextSliceFlat | Extension | undefined {
         const match = USCoreRaceExtensionProfile.textSliceMatch
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<USCoreRaceExtension_Extension_TextSliceFlatInput>(item, ["url"])
+        return stripMatchKeys<USCoreRaceExtension_Extension_TextSliceFlat>(item, ["url"])
     }
 
     // Validation

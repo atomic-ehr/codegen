@@ -95,9 +95,11 @@ describe("demo: read a US Core body weight observation from JSON", () => {
         // Code is a fixed value — auto-set by the profile, read-only (no setter)
         expect(profile.getCode()!.coding![0]!.code).toBe("29463-7");
 
-        // Slice accessor strips discriminator keys (coding) by default — only user data remains
-        expect(profile.getVSCat()).toEqual({ text: "Vital Signs" });
-        // Use "raw" mode to see the full element including discriminator
+        // getVSCat() returns SliceFlat — typed with readonly discriminator literals
+        // Discriminator keys are stripped at runtime, user data remains
+        expect(profile.getVSCat()!.text).toBe("Vital Signs");
+
+        // getVSCat("raw") returns the full CodeableConcept including discriminator
         expect(profile.getVSCat("raw")!.coding).toEqual([
             { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
         ]);
@@ -105,21 +107,20 @@ describe("demo: read a US Core body weight observation from JSON", () => {
 });
 
 describe("slice input/flat type split", () => {
-    test("setter accepts SliceInput (no discriminators), getter returns SliceInput (stripped)", () => {
+    test("setVSCat accepts SliceFlatInput, getVSCat returns SliceFlat", () => {
         const profile = USCoreBodyWeightProfile.create({
             status: "final",
             subject: { reference: "Patient/pt-1" },
         });
 
-        // setVSCat accepts SliceInput — only user data, discriminators auto-applied
+        // setVSCat accepts SliceFlatInput — only user data, discriminators auto-applied
         profile.setVSCat({ text: "Vital Signs" });
 
-        // getVSCat() returns SliceInput — discriminator keys stripped at runtime
+        // getVSCat() returns SliceFlat — includes readonly discriminator type info
         const flat = profile.getVSCat()!;
         expect(flat.text).toBe("Vital Signs");
-        expect("coding" in flat).toBe(false);
 
-        // getVSCat("raw") returns the full element with discriminators
+        // getVSCat("raw") returns the full CodeableConcept with discriminator values
         expect(profile.getVSCat("raw")!.coding).toEqual([
             { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
         ]);
