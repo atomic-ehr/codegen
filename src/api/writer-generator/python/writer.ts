@@ -122,7 +122,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     private generateComplexTypesPackages(groupedComplexTypes: Record<string, SpecializationTypeSchema[]>): void {
         for (const [packageName, packageComplexTypes] of Object.entries(groupedComplexTypes)) {
             this.cd(`/${snakeCase(packageName)}`, () => {
-                this.generateBasePy(packageComplexTypes);
+                this.generateBasePy(packageName, packageComplexTypes);
             });
         }
     }
@@ -190,7 +190,16 @@ export class Python extends Writer<PythonGeneratorOptions> {
         }
     }
 
-    private generateBasePy(packageComplexTypes: SpecializationTypeSchema[]): void {
+    private importProfileRegistrations(groups: TypeSchemaPackageGroups): void {
+        if (!this.opts.generateProfile) return;
+        this.line();
+        for (const packageName of Object.keys(groups.groupedResources)) {
+            const profilesPackage = `${pyFhirPackageByName(this.opts.rootPackageName, packageName)}.profiles`;
+            this.line(`import ${profilesPackage}  # noqa: F401`);
+        }
+    }
+
+    private generateBasePy(packageName: string, packageComplexTypes: SpecializationTypeSchema[]): void {
         const hasGenericTypes = packageComplexTypes.some((s) => s.identifier.name in GENERIC_FIELD_REWRITES);
         this.cat("base.py", () => {
             this.generateDisclaimer();
@@ -371,6 +380,10 @@ export class Python extends Writer<PythonGeneratorOptions> {
 
         this.generateFields(schema, schema.identifier.name);
 
+        if (this.opts.generateProfile && schema.identifier.name === "Extension") {
+            this.generateExtensionEqualityMethods();
+        }
+
         if (isResourceTypeSchema(schema)) {
             this.generateResourceMethods(schema);
         }
@@ -506,15 +519,29 @@ export class Python extends Writer<PythonGeneratorOptions> {
         const className = schema.identifier.name.toString();
 
         this.line();
-        this.line("def model_post_init(self, __context: Any) -> None:");
-        this.line('    self.__pydantic_fields_set__.add("resource_type")');
-        this.line();
-        this.line("def to_json(self, indent: int | None = None) -> str:");
-        this.line("    return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)");
+        this.line(
+            "def to_json(self, indent: int | None = None, by_alias: bool = False, exclude_unset: bool = True) -> str:",
+        );
+        this.line(
+            "    return self.model_dump_json(by_alias=by_alias, exclude_unset=exclude_unset, exclude_none=True, indent=indent)",
+        );
         this.line();
         this.line("@classmethod");
         this.line(`def from_json(cls, json: str) -> ${className}:`);
         this.line("    return cls.model_validate_json(json)");
+    }
+
+    private generateExtensionEqualityMethods(): void {
+        this.line();
+        this.line("def __eq__(self, other: object) -> bool:");
+        this.line("    if not isinstance(other, Extension):");
+        this.line("        return NotImplemented");
+        this.line(
+            "    return self.model_dump(by_alias=True, exclude_none=True) == other.model_dump(by_alias=True, exclude_none=True)",
+        );
+        this.line();
+        this.line("def __hash__(self) -> int:");
+        this.line("    return hash(self.url)");
     }
 
     private generateNestedTypes(schema: SpecializationTypeSchema): void {
