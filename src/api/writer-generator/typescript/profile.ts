@@ -344,7 +344,17 @@ export const generateProfileImports = (w: TypeScript, tsIndex: TypeSchemaIndex, 
 const generateStaticSliceFields = (w: TypeScript, sliceDefs: SliceDef[]) => {
     for (const sliceDef of sliceDefs) {
         const staticName = `${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
-        w.lineSM(`private static readonly ${staticName}: Record<string, unknown> = ${JSON.stringify(sliceDef.match)}`);
+        const json = JSON.stringify(sliceDef.match);
+        const prefix = `private static readonly ${staticName}: Record<string, unknown> = `;
+        if (prefix.length + json.length <= (w.opts.lineWidth ?? 120)) {
+            w.lineSM(`${prefix}${json}`);
+        } else {
+            w.curlyBlock([prefix.trimEnd()], () => {
+                for (const [key, value] of Object.entries(sliceDef.match)) {
+                    w.line(`${JSON.stringify(key)}: ${JSON.stringify(value)},`);
+                }
+            });
+        }
     }
     if (sliceDefs.length > 0) w.line();
 };
