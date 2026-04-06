@@ -5,6 +5,10 @@
 import { describe, expect, test } from "bun:test";
 import type { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
 import { USCoreBodyWeightProfile } from "./fhir-types/hl7-fhir-us-core/profiles";
+import type {
+    USCoreBodyWeightProfile_Category_VSCatSliceFlat as VSCatFlat,
+    USCoreBodyWeightProfile_Category_VSCatSliceFlatAll as VSCatFlatAll,
+} from "./fhir-types/hl7-fhir-us-core/profiles/Observation_USCoreBodyWeightProfile";
 
 describe("demo: create a US Core body weight observation", () => {
     test("build a valid body weight resource step by step", () => {
@@ -95,12 +99,31 @@ describe("demo: read a US Core body weight observation from JSON", () => {
         // Code is a fixed value — auto-set by the profile, read-only (no setter)
         expect(profile.getCode()!.coding![0]!.code).toBe("29463-7");
 
-        // Slice accessor strips discriminator keys (coding) by default — only user data remains
-        expect(profile.getVSCat()).toEqual({ text: "Vital Signs" });
-        // Use "raw" mode to see the full element including discriminator
-        expect(profile.getVSCat("raw")!.coding).toEqual([
-            { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
-        ]);
+        // Slice getter returns SliceFlat — includes both user data and discriminator values
+        expect(profile.getVSCat()).toEqual({
+            text: "Vital Signs",
+            coding: [{ code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" }],
+        });
+    });
+});
+
+describe("slice input/flat type split", () => {
+    test("setVSCat accepts SliceFlatInput, getVSCat returns SliceFlat", () => {
+        const profile = USCoreBodyWeightProfile.create({
+            status: "final",
+            subject: { reference: "Patient/pt-1" },
+        });
+
+        // Setter accepts SliceFlat — only user-supplied fields, no discriminators
+        const input: VSCatFlat = { text: "Vital Signs" };
+        profile.setVSCat(input);
+
+        // Getter returns SliceFlatAll — includes discriminator values + user data
+        const flat: VSCatFlatAll = profile.getVSCat()!;
+        expect(flat).toEqual({
+            text: "Vital Signs",
+            coding: [{ code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" }],
+        });
     });
 });
 

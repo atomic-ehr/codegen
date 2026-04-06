@@ -4,7 +4,11 @@
 
 import { describe, expect, test } from "bun:test";
 import type { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
-import { observation_bodyweightProfile as bodyweightProfile } from "./fhir-types/hl7-fhir-r4-core/profiles/Observation_observation_bodyweight";
+import {
+    observation_bodyweightProfile as bodyweightProfile,
+    type Observation_bodyweight_Category_VSCatSliceFlat as VSCatFlat,
+    type Observation_bodyweight_Category_VSCatSliceFlatAll as VSCatFlatAll,
+} from "./fhir-types/hl7-fhir-r4-core/profiles/Observation_observation_bodyweight";
 
 describe("demo: create a bodyweight observation", () => {
     test("build a valid bodyweight resource step by step", () => {
@@ -95,13 +99,12 @@ describe("demo: read a bodyweight observation from JSON", () => {
         // Code is a fixed value — auto-set by the profile, read-only (no setter)
         expect(profile.getCode()!.coding![0]!.code).toBe("29463-7");
 
-        // Slice accessor strips discriminator keys (coding) by default — only user data remains
-        expect(profile.getVSCat()).toEqual({ text: "Vital Signs" });
-        // Use "raw" mode to see the full element including discriminator
-        expect(profile.getVSCat("raw")!.coding).toEqual([
-            { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
-        ]);
-        expect(profile.getVSCat("raw")!.text).toBe("Vital Signs");
+        // Slice getter returns SliceFlat — includes both user data and discriminator values
+        const vsCat = profile.getVSCat()!;
+        expect(vsCat).toEqual({
+            text: "Vital Signs",
+            coding: [{ code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" }],
+        });
     });
 });
 
@@ -123,13 +126,19 @@ describe("factory method equivalence", () => {
 });
 
 describe("slice accessors", () => {
-    test("setVSCat merges discriminator and strips it in flat mode", () => {
+    test("setVSCat accepts SliceFlatInput, getVSCat returns SliceFlat", () => {
         const profile = bodyweightProfile.create({ status: "final", subject: { reference: "Patient/pt-1" } });
-        profile.setVSCat({ text: "Vital Signs" });
 
-        expect(profile.getVSCat()).toEqual({ text: "Vital Signs" });
-        expect(profile.getVSCat("raw")!.coding).toBeDefined();
-        expect(profile.getVSCat("raw")!.text).toBe("Vital Signs");
+        // Setter accepts SliceFlatInput — only user-supplied fields, no discriminators
+        const input: VSCatFlat = { text: "Vital Signs" };
+        profile.setVSCat(input);
+
+        // Getter returns SliceFlatAll — includes discriminator values + user data
+        const flat: VSCatFlatAll = profile.getVSCat()!;
+        expect(flat).toEqual({
+            text: "Vital Signs",
+            coding: [{ code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" }],
+        });
     });
 
     test("setVSCat replaces existing slice element", () => {

@@ -9,8 +9,15 @@ import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 export type Observation_bp_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
+export type Observation_bp_Category_VSCatSliceFlatAll = Observation_bp_Category_VSCatSliceFlat & {
+    readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }];
+}
+
 export type Observation_bp_Component_SystolicBPSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
+export type Observation_bp_Component_SystolicBPSliceFlatAll = Observation_bp_Component_SystolicBPSliceFlat;
+
 export type Observation_bp_Component_DiastolicBPSliceFlat = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
+export type Observation_bp_Component_DiastolicBPSliceFlatAll = Observation_bp_Component_DiastolicBPSliceFlat;
 
 import {
     ensureProfile,
@@ -19,7 +26,6 @@ import {
     setArraySlice,
     getArraySlice,
     ensureSliceDefaults,
-    stripMatchKeys,
     wrapSliceChoice,
     unwrapSliceChoice,
     validateRequired,
@@ -43,9 +49,15 @@ export type observation_bpProfileRaw = {
 export class observation_bpProfile {
     static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bp";
 
-    private static readonly VSCatSliceMatch: Record<string, unknown> = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]};
-    private static readonly SystolicBPSliceMatch: Record<string, unknown> = {"code":{"coding":[{"code":"8480-6","system":"http://loinc.org"}]}};
-    private static readonly DiastolicBPSliceMatch: Record<string, unknown> = {"code":{"coding":[{"code":"8462-4","system":"http://loinc.org"}]}};
+    private static readonly VSCatSliceMatch: Record<string, unknown> = {
+        "coding": [{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}],
+    }
+    private static readonly SystolicBPSliceMatch: Record<string, unknown> = {
+        "code": {"coding":[{"code":"8480-6","system":"http://loinc.org"}]},
+    }
+    private static readonly DiastolicBPSliceMatch: Record<string, unknown> = {
+        "code": {"coding":[{"code":"8462-4","system":"http://loinc.org"}]},
+    }
 
     private resource: Observation;
 
@@ -217,37 +229,37 @@ export class observation_bpProfile {
         return this
     }
 
-    public getVSCat(mode: 'flat'): Observation_bp_Category_VSCatSliceFlat | undefined;
+    public getVSCat(mode: 'flat'): Observation_bp_Category_VSCatSliceFlatAll | undefined;
     public getVSCat(mode: 'raw'): CodeableConcept | undefined;
-    public getVSCat(): Observation_bp_Category_VSCatSliceFlat | undefined;
-    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Category_VSCatSliceFlat | CodeableConcept | undefined {
+    public getVSCat(): Observation_bp_Category_VSCatSliceFlatAll | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Category_VSCatSliceFlatAll | CodeableConcept | undefined {
         const match = observation_bpProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<Observation_bp_Category_VSCatSliceFlat>(item, ["coding"])
+        return item as unknown as Observation_bp_Category_VSCatSliceFlatAll
     }
 
-    public getSystolicBP(mode: 'flat'): Observation_bp_Component_SystolicBPSliceFlat | undefined;
+    public getSystolicBP(mode: 'flat'): Observation_bp_Component_SystolicBPSliceFlatAll | undefined;
     public getSystolicBP(mode: 'raw'): ObservationComponent | undefined;
-    public getSystolicBP(): Observation_bp_Component_SystolicBPSliceFlat | undefined;
-    public getSystolicBP (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Component_SystolicBPSliceFlat | ObservationComponent | undefined {
+    public getSystolicBP(): Observation_bp_Component_SystolicBPSliceFlatAll | undefined;
+    public getSystolicBP (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Component_SystolicBPSliceFlatAll | ObservationComponent | undefined {
         const match = observation_bpProfile.SystolicBPSliceMatch
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<Observation_bp_Component_SystolicBPSliceFlat>(item, ["code"], "valueQuantity")
+        return unwrapSliceChoice<Observation_bp_Component_SystolicBPSliceFlatAll>(item, ["code"], "valueQuantity")
     }
 
-    public getDiastolicBP(mode: 'flat'): Observation_bp_Component_DiastolicBPSliceFlat | undefined;
+    public getDiastolicBP(mode: 'flat'): Observation_bp_Component_DiastolicBPSliceFlatAll | undefined;
     public getDiastolicBP(mode: 'raw'): ObservationComponent | undefined;
-    public getDiastolicBP(): Observation_bp_Component_DiastolicBPSliceFlat | undefined;
-    public getDiastolicBP (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Component_DiastolicBPSliceFlat | ObservationComponent | undefined {
+    public getDiastolicBP(): Observation_bp_Component_DiastolicBPSliceFlatAll | undefined;
+    public getDiastolicBP (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Component_DiastolicBPSliceFlatAll | ObservationComponent | undefined {
         const match = observation_bpProfile.DiastolicBPSliceMatch
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<Observation_bp_Component_DiastolicBPSliceFlat>(item, ["code"], "valueQuantity")
+        return unwrapSliceChoice<Observation_bp_Component_DiastolicBPSliceFlatAll>(item, ["code"], "valueQuantity")
     }
 
     // Validation

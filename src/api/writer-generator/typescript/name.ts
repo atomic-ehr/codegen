@@ -96,6 +96,10 @@ export const tsSliceFlatTypeName = (profileName: string, fieldName: string, slic
     return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(fieldName))}_${uppercaseFirstLetter(normalizeTsName(sliceName))}SliceFlat`;
 };
 
+export const tsSliceFlatAllTypeName = (profileName: string, fieldName: string, sliceName: string): string => {
+    return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(fieldName))}_${uppercaseFirstLetter(normalizeTsName(sliceName))}SliceFlatAll`;
+};
+
 export const tsExtensionFlatTypeName = (profileName: string, extensionName: string): string => {
     return `${uppercaseFirstLetter(profileName)}_${uppercaseFirstLetter(normalizeTsName(extensionName))}Flat`;
 };
