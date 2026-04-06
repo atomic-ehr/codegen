@@ -109,6 +109,8 @@ export type SliceDef = {
     constrainedChoice: ConstrainedChoiceInfo | undefined;
     /** True when the slice uses a type discriminator (match by resourceType) */
     typeDiscriminator: boolean;
+    /** Max cardinality of the slice. 0 or undefined = unbounded ("*"), positive = exact limit. */
+    max: number;
 };
 
 export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema): SliceDef[] =>
@@ -145,6 +147,7 @@ export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: ProfileT
                         array: Boolean(field.array),
                         constrainedChoice,
                         typeDiscriminator: isTypeDisc,
+                        max: slice.max ?? 0,
                     };
                 });
         });
@@ -165,35 +168,59 @@ export const generateSliceSetters = (
         const tsField = tsFieldName(sliceDef.fieldName);
         const fieldAccess = tsGet("this.resource", tsField);
         const baseType = sliceDef.typedBaseType;
-        // Make input optional when there are no required fields (input can be empty object)
-        const inputOptional = sliceDef.required.length === 0;
-        const unionType = `${inputTypeName} | ${baseType}`;
-        const paramSignature = inputOptional ? `(input?: ${unionType}): this` : `(input: ${unionType}): this`;
-        w.curlyBlock(["public", methodName, paramSignature], () => {
-            w.line(`const match = ${matchRef}`);
-            w.curlyBlock(["if", "(input && matchesValue(input, match))"], () => {
-                if (sliceDef.array) {
-                    w.line(`setArraySlice(${fieldAccess} ??= [], match, input as ${baseType})`);
+        const isUnbounded = sliceDef.array && (sliceDef.max === 0 || sliceDef.max === undefined);
+
+        if (isUnbounded) {
+            // Unbounded slice: accept an array of items
+            const unionType = `(${inputTypeName} | ${baseType})[]`;
+            const paramSignature = `(input: ${unionType}): this`;
+            w.curlyBlock(["public", methodName, paramSignature], () => {
+                w.line(`const match = ${matchRef}`);
+                w.line(`const arr = ${fieldAccess} ??= []`);
+                if (sliceDef.constrainedChoice) {
+                    const cc = sliceDef.constrainedChoice;
+                    w.line(
+                        `const values = input.map(item => matchesValue(item, match) ? item as ${baseType} : applySliceMatch<${baseType}>(wrapSliceChoice<${baseType}>(item, ${JSON.stringify(cc.variant)}), match))`,
+                    );
                 } else {
-                    w.line(`${fieldAccess} = input as ${baseType}`);
+                    w.line(
+                        `const values = input.map(item => matchesValue(item, match) ? item as ${baseType} : applySliceMatch<${baseType}>(item, match))`,
+                    );
+                }
+                w.line("setArraySliceAll(arr, match, values)");
+                w.line("return this");
+            });
+        } else {
+            // Single-element slice (max: 1): keep existing behavior
+            const inputOptional = sliceDef.required.length === 0;
+            const unionType = `${inputTypeName} | ${baseType}`;
+            const paramSignature = inputOptional ? `(input?: ${unionType}): this` : `(input: ${unionType}): this`;
+            w.curlyBlock(["public", methodName, paramSignature], () => {
+                w.line(`const match = ${matchRef}`);
+                w.curlyBlock(["if", "(input && matchesValue(input, match))"], () => {
+                    if (sliceDef.array) {
+                        w.line(`setArraySlice(${fieldAccess} ??= [], match, input as ${baseType})`);
+                    } else {
+                        w.line(`${fieldAccess} = input as ${baseType}`);
+                    }
+                    w.line("return this");
+                });
+                const inputExpr = inputOptional ? "input ?? {}" : "input";
+                if (sliceDef.constrainedChoice) {
+                    const cc = sliceDef.constrainedChoice;
+                    w.line(`const wrapped = wrapSliceChoice<${baseType}>(${inputExpr}, ${JSON.stringify(cc.variant)})`);
+                    w.line(`const value = applySliceMatch<${baseType}>(wrapped, match)`);
+                } else {
+                    w.line(`const value = applySliceMatch<${baseType}>(${inputExpr}, match)`);
+                }
+                if (sliceDef.array) {
+                    w.line(`setArraySlice(${fieldAccess} ??= [], match, value)`);
+                } else {
+                    w.line(`${fieldAccess} = value`);
                 }
                 w.line("return this");
             });
-            const inputExpr = inputOptional ? "input ?? {}" : "input";
-            if (sliceDef.constrainedChoice) {
-                const cc = sliceDef.constrainedChoice;
-                w.line(`const wrapped = wrapSliceChoice<${baseType}>(${inputExpr}, ${JSON.stringify(cc.variant)})`);
-                w.line(`const value = applySliceMatch<${baseType}>(wrapped, match)`);
-            } else {
-                w.line(`const value = applySliceMatch<${baseType}>(${inputExpr}, match)`);
-            }
-            if (sliceDef.array) {
-                w.line(`setArraySlice(${fieldAccess} ??= [], match, value)`);
-            } else {
-                w.line(`${fieldAccess} = value`);
-            }
-            w.line("return this");
-        });
+        }
         w.line();
     }
 };
@@ -216,44 +243,79 @@ export const generateSliceGetters = (
         const tsField = tsFieldName(sliceDef.fieldName);
         const fieldAccess = tsGet("this.resource", tsField);
         const baseType = sliceDef.typedBaseType;
-        const defaultReturn = defaultMode === "raw" ? baseType : flatTypeName;
+        const isUnbounded = sliceDef.array && (sliceDef.max === 0 || sliceDef.max === undefined);
 
-        // Overload signatures
-        w.lineSM(`public ${getMethodName}(mode: 'flat'): ${flatTypeName} | undefined`);
-        w.lineSM(`public ${getMethodName}(mode: 'raw'): ${baseType} | undefined`);
-        w.lineSM(`public ${getMethodName}(): ${defaultReturn} | undefined`);
+        if (isUnbounded) {
+            // Unbounded slice: return an array
+            const defaultReturn = defaultMode === "raw" ? `${baseType}[]` : `${flatTypeName}[]`;
 
-        // Implementation
-        w.curlyBlock(
-            [
-                "public",
-                getMethodName,
-                `(mode: 'flat' | 'raw' = '${defaultMode}'): ${flatTypeName} | ${baseType} | undefined`,
-            ],
-            () => {
-                w.line(`const match = ${matchRef}`);
-                if (sliceDef.array) {
-                    w.line(`const item = getArraySlice(${fieldAccess}, match)`);
-                    w.line("if (!item) return undefined");
-                } else {
-                    w.line(`const item = ${fieldAccess}`);
-                    w.line("if (!item || !matchesValue(item, match)) return undefined");
-                }
-                if (sliceDef.typeDiscriminator) {
-                    w.line(`if (mode === 'raw') return item as ${baseType}`);
-                } else {
-                    w.line("if (mode === 'raw') return item");
-                }
-                if (sliceDef.constrainedChoice) {
-                    const cc = sliceDef.constrainedChoice;
-                    w.line(
-                        `return unwrapSliceChoice<${flatTypeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)})`,
-                    );
-                } else {
-                    w.line(`return item as unknown as ${flatTypeName}`);
-                }
-            },
-        );
+            // Overload signatures
+            w.lineSM(`public ${getMethodName}(mode: 'flat'): ${flatTypeName}[]`);
+            w.lineSM(`public ${getMethodName}(mode: 'raw'): ${baseType}[]`);
+            w.lineSM(`public ${getMethodName}(): ${defaultReturn}`);
+
+            // Implementation
+            w.curlyBlock(
+                ["public", getMethodName, `(mode: 'flat' | 'raw' = '${defaultMode}'): (${flatTypeName} | ${baseType})[]`],
+                () => {
+                    w.line(`const match = ${matchRef}`);
+                    w.line(`const items = getArraySliceAll(${fieldAccess}, match)`);
+                    if (sliceDef.typeDiscriminator) {
+                        w.line(`if (mode === 'raw') return items as ${baseType}[]`);
+                    } else {
+                        w.line("if (mode === 'raw') return items");
+                    }
+                    if (sliceDef.constrainedChoice) {
+                        const cc = sliceDef.constrainedChoice;
+                        w.line(
+                            `return items.map(item => unwrapSliceChoice<${flatTypeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)}))`,
+                        );
+                    } else {
+                        w.line(`return items as unknown as ${flatTypeName}[]`);
+                    }
+                },
+            );
+        } else {
+            // Single-element slice: return single item or undefined
+            const defaultReturn = defaultMode === "raw" ? baseType : flatTypeName;
+
+            // Overload signatures
+            w.lineSM(`public ${getMethodName}(mode: 'flat'): ${flatTypeName} | undefined`);
+            w.lineSM(`public ${getMethodName}(mode: 'raw'): ${baseType} | undefined`);
+            w.lineSM(`public ${getMethodName}(): ${defaultReturn} | undefined`);
+
+            // Implementation
+            w.curlyBlock(
+                [
+                    "public",
+                    getMethodName,
+                    `(mode: 'flat' | 'raw' = '${defaultMode}'): ${flatTypeName} | ${baseType} | undefined`,
+                ],
+                () => {
+                    w.line(`const match = ${matchRef}`);
+                    if (sliceDef.array) {
+                        w.line(`const item = getArraySlice(${fieldAccess}, match)`);
+                        w.line("if (!item) return undefined");
+                    } else {
+                        w.line(`const item = ${fieldAccess}`);
+                        w.line("if (!item || !matchesValue(item, match)) return undefined");
+                    }
+                    if (sliceDef.typeDiscriminator) {
+                        w.line(`if (mode === 'raw') return item as ${baseType}`);
+                    } else {
+                        w.line("if (mode === 'raw') return item");
+                    }
+                    if (sliceDef.constrainedChoice) {
+                        const cc = sliceDef.constrainedChoice;
+                        w.line(
+                            `return unwrapSliceChoice<${flatTypeName}>(item, ${matchKeys}, ${JSON.stringify(cc.variant)})`,
+                        );
+                    } else {
+                        w.line(`return item as unknown as ${flatTypeName}`);
+                    }
+                },
+            );
+        }
         w.line();
     }
 };

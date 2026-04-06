@@ -246,6 +246,8 @@ const generateProfileHelpersImport = (
     if (canonicalUrl && hasMeta) imports.push("ensureProfile");
     if (sliceDefs.length > 0 || factoryInfo.sliceAutoFields.length > 0)
         imports.push("applySliceMatch", "matchesValue", "setArraySlice", "getArraySlice", "ensureSliceDefaults");
+    const hasUnboundedSlice = sliceDefs.some((s) => s.array && (s.max === 0 || s.max === undefined));
+    if (hasUnboundedSlice) imports.push("setArraySliceAll", "getArraySliceAll");
     if (extensions.some((ext) => ext.path.split(".").some((s) => s !== "extension"))) imports.push("ensurePath");
     if (extensions.some((ext) => ext.isComplex && ext.subExtensions)) imports.push("extractComplexExtension");
     if (sliceDefs.some((s) => s.constrainedChoice)) imports.push("wrapSliceChoice", "unwrapSliceChoice");
