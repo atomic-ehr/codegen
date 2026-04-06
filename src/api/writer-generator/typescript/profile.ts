@@ -654,19 +654,24 @@ const generateSliceInputTypes = (w: TypeScript, flatProfile: ProfileTypeSchema, 
         // Input type — setter parameter, no discriminator fields
         w.lineSM(`export type ${inputTypeName} = ${inputTypeExpr}`);
         // Flat type — getter return, includes readonly discriminator values as literal types
-        let flatTypeExpr = inputTypeName;
-        if (matchFields.length > 0 && !sliceDef.constrainedChoice) {
-            const safeEntries = matchFields
-                .filter((key) => {
-                    const v = sliceDef.match[key];
-                    return Array.isArray(v) || typeof v !== "object" || v === null;
-                })
-                .map((key) => `readonly ${key}: ${valueToTypeLiteral(sliceDef.match[key])}`);
-            if (safeEntries.length > 0) {
-                flatTypeExpr = `${flatTypeExpr} & { ${safeEntries.join("; ")} }`;
-            }
+        const safeMatchEntries =
+            matchFields.length > 0 && !sliceDef.constrainedChoice
+                ? matchFields
+                      .filter((key) => {
+                          const v = sliceDef.match[key];
+                          return Array.isArray(v) || typeof v !== "object" || v === null;
+                      })
+                      .map((key) => ({ key, typeLiteral: valueToTypeLiteral(sliceDef.match[key]) }))
+                : [];
+        if (safeMatchEntries.length > 0) {
+            w.curlyBlock([`export type ${flatTypeName} = ${inputTypeName} &`], () => {
+                for (const entry of safeMatchEntries) {
+                    w.lineSM(`readonly ${entry.key}: ${entry.typeLiteral}`);
+                }
+            });
+        } else {
+            w.lineSM(`export type ${flatTypeName} = ${inputTypeName}`);
         }
-        w.lineSM(`export type ${flatTypeName} = ${flatTypeExpr}`);
         w.line();
     }
 };
