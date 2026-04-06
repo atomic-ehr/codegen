@@ -27,7 +27,7 @@ import {
     tsQualifiedExtensionMethodBaseName,
     tsQualifiedSliceMethodBaseName,
     tsResourceName,
-    tsSliceFlatInputTypeName,
+    tsSliceFlatAllTypeName,
     tsSliceFlatTypeName,
     tsSliceMethodBaseName,
     tsSliceStaticName,
@@ -636,8 +636,8 @@ const generateSliceInputTypes = (w: TypeScript, flatProfile: ProfileTypeSchema, 
     if (sliceDefs.length === 0) return;
     const tsProfileName = tsResourceName(flatProfile.identifier);
     for (const sliceDef of sliceDefs) {
-        const inputTypeName = tsSliceFlatInputTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
-        const flatTypeName = tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+        const inputTypeName = tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+        const flatTypeName = tsSliceFlatAllTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
         const matchFields = sliceDef.typeDiscriminator ? [] : Object.keys(sliceDef.match);
         const allExcluded = [...new Set([...sliceDef.excluded, ...matchFields])];
         if (sliceDef.constrainedChoice) {
