@@ -59,18 +59,32 @@ def test_extension_profiles_demo() -> None:
         name=[name],
     )
 
-    # Serializes to standard FHIR JSON (by_alias keeps FHIR field names, exclude_none drops nulls)
-    patient_json = patient.model_dump_json(by_alias=True, exclude_none=True)
-    snapshot_dir = Path(__file__).parent / "__snapshots__"
-    expected = json.loads((snapshot_dir / "patient_with_extension_profiles.json").read_text())
+    patient_json = patient.to_json(by_alias=True, exclude_unset=False)
+    expected = json.loads(((Path(__file__).parent / "__snapshots__") / "patient_with_extension_profiles.json").read_text())
     assert json.loads(patient_json) == expected
 
-    # Round-trips back through deserialization
     restored = Patient.from_json(patient_json)
-    assert restored.resource_type == patient.resource_type
-    assert restored.birth_date == patient.birth_date
-    assert restored.name[0].family == patient.name[0].family
-    assert restored.name[0].given == patient.name[0].given
+    assert restored == patient
+
+def test_non_conformant_extension() -> None:
+    """Demonstrates what happens when incoming FHIR JSON contains extensions
+        that don't conform to a profile's constraints."""
+    patient_json = json.dumps({
+        "resourceType": "Patient",
+        "extension": [
+            {
+                "url": "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
+                "valueString": "not an address",
+            },
+        ],
+    })
+    patient = Patient.from_json(patient_json)
+    ext = patient.extension[0]
+    assert ext.value_string == "not an address"
+    assert ext.value_address is None
+
+    with pytest.raises(ValidationError):
+        BirthPlaceExtension.model_validate(ext.model_dump(by_alias=True))
 
 
 # ---------------------------------------------------------------------------

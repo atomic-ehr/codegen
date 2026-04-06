@@ -100,7 +100,7 @@ SNAPSHOT_DIR = Path(__file__).parent / "__snapshots__"
 
 def test_patient_with_extensions() -> None:
     patient = create_patient_with_extensions()
-    actual = json.loads(patient.to_json(indent=2))
+    actual = json.loads(patient.to_json(indent=2, by_alias=True))
     expected = json.loads((SNAPSHOT_DIR / "patient_with_extensions.json").read_text())
     assert actual == expected
 
