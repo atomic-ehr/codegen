@@ -9,7 +9,7 @@ import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 export type Observation_bodyweight_Category_VSCatSliceFlatInput = Omit<CodeableConcept, "coding">;
-export type Observation_bodyweight_Category_VSCatSliceFlat = Observation_bodyweight_Category_VSCatSliceFlatInput & {
+export type Observation_bodyweight_Category_VSCatSliceFlatFull = Observation_bodyweight_Category_VSCatSliceFlatInput & {
     readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }];
 }
 
@@ -170,15 +170,15 @@ export class observation_bodyweightProfile {
         return this
     }
 
-    public getVSCat(mode: 'flat'): Observation_bodyweight_Category_VSCatSliceFlat | undefined;
+    public getVSCat(mode: 'flat'): Observation_bodyweight_Category_VSCatSliceFlatFull | undefined;
     public getVSCat(mode: 'raw'): CodeableConcept | undefined;
-    public getVSCat(): Observation_bodyweight_Category_VSCatSliceFlat | undefined;
-    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_bodyweight_Category_VSCatSliceFlat | CodeableConcept | undefined {
+    public getVSCat(): Observation_bodyweight_Category_VSCatSliceFlatFull | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_bodyweight_Category_VSCatSliceFlatFull | CodeableConcept | undefined {
         const match = observation_bodyweightProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return item as unknown as Observation_bodyweight_Category_VSCatSliceFlat
+        return item as unknown as Observation_bodyweight_Category_VSCatSliceFlatFull
     }
 
     // Validation

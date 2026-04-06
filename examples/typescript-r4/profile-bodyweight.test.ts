@@ -6,7 +6,7 @@ import { describe, expect, test } from "bun:test";
 import type { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
 import {
     observation_bodyweightProfile as bodyweightProfile,
-    type Observation_bodyweight_Category_VSCatSliceFlat as VSCatFlat,
+    type Observation_bodyweight_Category_VSCatSliceFlatFull as VSCatFlat,
     type Observation_bodyweight_Category_VSCatSliceFlatInput as VSCatFlatInput,
 } from "./fhir-types/hl7-fhir-r4-core/profiles/Observation_observation_bodyweight";
 

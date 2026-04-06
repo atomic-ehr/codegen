@@ -6,13 +6,13 @@ import type { Coding } from "../../hl7-fhir-r4-core/Coding";
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 export type USCoreEthnicityExtension_Extension_OmbCategorySliceFlatInput = Omit<Extension, "url" | "value" | "valueBase64Binary" | "valueBoolean" | "valueCanonical" | "valueCode" | "valueDate" | "valueDateTime" | "valueDecimal" | "valueId" | "valueInstant" | "valueInteger" | "valueMarkdown" | "valueOid" | "valuePositiveInt" | "valueString" | "valueTime" | "valueUnsignedInt" | "valueUri" | "valueUrl" | "valueUuid" | "valueAddress" | "valueAge" | "valueAnnotation" | "valueAttachment" | "valueCodeableConcept" | "valueCoding" | "valueContactPoint" | "valueCount" | "valueDistance" | "valueDuration" | "valueHumanName" | "valueIdentifier" | "valueMoney" | "valuePeriod" | "valueQuantity" | "valueRange" | "valueRatio" | "valueReference" | "valueSampledData" | "valueSignature" | "valueTiming" | "valueContactDetail" | "valueContributor" | "valueDataRequirement" | "valueExpression" | "valueParameterDefinition" | "valueRelatedArtifact" | "valueTriggerDefinition" | "valueUsageContext" | "valueDosage" | "valueMeta"> & Coding;
-export type USCoreEthnicityExtension_Extension_OmbCategorySliceFlat = USCoreEthnicityExtension_Extension_OmbCategorySliceFlatInput;
+export type USCoreEthnicityExtension_Extension_OmbCategorySliceFlatFull = USCoreEthnicityExtension_Extension_OmbCategorySliceFlatInput;
 
 export type USCoreEthnicityExtension_Extension_DetailedSliceFlatInput = Omit<Extension, "url" | "value" | "valueBase64Binary" | "valueBoolean" | "valueCanonical" | "valueCode" | "valueDate" | "valueDateTime" | "valueDecimal" | "valueId" | "valueInstant" | "valueInteger" | "valueMarkdown" | "valueOid" | "valuePositiveInt" | "valueString" | "valueTime" | "valueUnsignedInt" | "valueUri" | "valueUrl" | "valueUuid" | "valueAddress" | "valueAge" | "valueAnnotation" | "valueAttachment" | "valueCodeableConcept" | "valueCoding" | "valueContactPoint" | "valueCount" | "valueDistance" | "valueDuration" | "valueHumanName" | "valueIdentifier" | "valueMoney" | "valuePeriod" | "valueQuantity" | "valueRange" | "valueRatio" | "valueReference" | "valueSampledData" | "valueSignature" | "valueTiming" | "valueContactDetail" | "valueContributor" | "valueDataRequirement" | "valueExpression" | "valueParameterDefinition" | "valueRelatedArtifact" | "valueTriggerDefinition" | "valueUsageContext" | "valueDosage" | "valueMeta"> & Coding;
-export type USCoreEthnicityExtension_Extension_DetailedSliceFlat = USCoreEthnicityExtension_Extension_DetailedSliceFlatInput;
+export type USCoreEthnicityExtension_Extension_DetailedSliceFlatFull = USCoreEthnicityExtension_Extension_DetailedSliceFlatInput;
 
 export type USCoreEthnicityExtension_Extension_TextSliceFlatInput = Omit<Extension, "url">;
-export type USCoreEthnicityExtension_Extension_TextSliceFlat = USCoreEthnicityExtension_Extension_TextSliceFlatInput & {
+export type USCoreEthnicityExtension_Extension_TextSliceFlatFull = USCoreEthnicityExtension_Extension_TextSliceFlatInput & {
     readonly url: "text";
 }
 
@@ -209,37 +209,37 @@ export class USCoreEthnicityExtensionProfile {
         return this
     }
 
-    public getExtensionOmbCategory(mode: 'flat'): USCoreEthnicityExtension_Extension_OmbCategorySliceFlat | undefined;
+    public getExtensionOmbCategory(mode: 'flat'): USCoreEthnicityExtension_Extension_OmbCategorySliceFlatFull | undefined;
     public getExtensionOmbCategory(mode: 'raw'): Extension | undefined;
-    public getExtensionOmbCategory(): USCoreEthnicityExtension_Extension_OmbCategorySliceFlat | undefined;
-    public getExtensionOmbCategory (mode: 'flat' | 'raw' = 'flat'): USCoreEthnicityExtension_Extension_OmbCategorySliceFlat | Extension | undefined {
+    public getExtensionOmbCategory(): USCoreEthnicityExtension_Extension_OmbCategorySliceFlatFull | undefined;
+    public getExtensionOmbCategory (mode: 'flat' | 'raw' = 'flat'): USCoreEthnicityExtension_Extension_OmbCategorySliceFlatFull | Extension | undefined {
         const match = USCoreEthnicityExtensionProfile.ombCategorySliceMatch
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<USCoreEthnicityExtension_Extension_OmbCategorySliceFlat>(item, ["url"], "valueCoding")
+        return unwrapSliceChoice<USCoreEthnicityExtension_Extension_OmbCategorySliceFlatFull>(item, ["url"], "valueCoding")
     }
 
-    public getExtensionDetailed(mode: 'flat'): USCoreEthnicityExtension_Extension_DetailedSliceFlat | undefined;
+    public getExtensionDetailed(mode: 'flat'): USCoreEthnicityExtension_Extension_DetailedSliceFlatFull | undefined;
     public getExtensionDetailed(mode: 'raw'): Extension | undefined;
-    public getExtensionDetailed(): USCoreEthnicityExtension_Extension_DetailedSliceFlat | undefined;
-    public getExtensionDetailed (mode: 'flat' | 'raw' = 'flat'): USCoreEthnicityExtension_Extension_DetailedSliceFlat | Extension | undefined {
+    public getExtensionDetailed(): USCoreEthnicityExtension_Extension_DetailedSliceFlatFull | undefined;
+    public getExtensionDetailed (mode: 'flat' | 'raw' = 'flat'): USCoreEthnicityExtension_Extension_DetailedSliceFlatFull | Extension | undefined {
         const match = USCoreEthnicityExtensionProfile.detailedSliceMatch
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<USCoreEthnicityExtension_Extension_DetailedSliceFlat>(item, ["url"], "valueCoding")
+        return unwrapSliceChoice<USCoreEthnicityExtension_Extension_DetailedSliceFlatFull>(item, ["url"], "valueCoding")
     }
 
-    public getExtensionText(mode: 'flat'): USCoreEthnicityExtension_Extension_TextSliceFlat | undefined;
+    public getExtensionText(mode: 'flat'): USCoreEthnicityExtension_Extension_TextSliceFlatFull | undefined;
     public getExtensionText(mode: 'raw'): Extension | undefined;
-    public getExtensionText(): USCoreEthnicityExtension_Extension_TextSliceFlat | undefined;
-    public getExtensionText (mode: 'flat' | 'raw' = 'flat'): USCoreEthnicityExtension_Extension_TextSliceFlat | Extension | undefined {
+    public getExtensionText(): USCoreEthnicityExtension_Extension_TextSliceFlatFull | undefined;
+    public getExtensionText (mode: 'flat' | 'raw' = 'flat'): USCoreEthnicityExtension_Extension_TextSliceFlatFull | Extension | undefined {
         const match = USCoreEthnicityExtensionProfile.textSliceMatch
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return item as unknown as USCoreEthnicityExtension_Extension_TextSliceFlat
+        return item as unknown as USCoreEthnicityExtension_Extension_TextSliceFlatFull
     }
 
     // Validation

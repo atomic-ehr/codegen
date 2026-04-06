@@ -12,7 +12,7 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import type { SampledData } from "../../hl7-fhir-r4-core/SampledData";
 
 export type USCoreVitalSignsProfile_Category_VSCatSliceFlatInput = Omit<CodeableConcept, "coding">;
-export type USCoreVitalSignsProfile_Category_VSCatSliceFlat = USCoreVitalSignsProfile_Category_VSCatSliceFlatInput & {
+export type USCoreVitalSignsProfile_Category_VSCatSliceFlatFull = USCoreVitalSignsProfile_Category_VSCatSliceFlatInput & {
     readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }];
 }
 
@@ -266,15 +266,15 @@ export class USCoreVitalSignsProfile {
         return this
     }
 
-    public getVSCat(mode: 'flat'): USCoreVitalSignsProfile_Category_VSCatSliceFlat | undefined;
+    public getVSCat(mode: 'flat'): USCoreVitalSignsProfile_Category_VSCatSliceFlatFull | undefined;
     public getVSCat(mode: 'raw'): CodeableConcept | undefined;
-    public getVSCat(): USCoreVitalSignsProfile_Category_VSCatSliceFlat | undefined;
-    public getVSCat (mode: 'flat' | 'raw' = 'flat'): USCoreVitalSignsProfile_Category_VSCatSliceFlat | CodeableConcept | undefined {
+    public getVSCat(): USCoreVitalSignsProfile_Category_VSCatSliceFlatFull | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): USCoreVitalSignsProfile_Category_VSCatSliceFlatFull | CodeableConcept | undefined {
         const match = USCoreVitalSignsProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return item as unknown as USCoreVitalSignsProfile_Category_VSCatSliceFlat
+        return item as unknown as USCoreVitalSignsProfile_Category_VSCatSliceFlatFull
     }
 
     // Validation
