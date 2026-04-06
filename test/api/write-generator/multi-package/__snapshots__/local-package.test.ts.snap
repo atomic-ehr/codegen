@@ -38,10 +38,12 @@ import type { Organization } from "../../hl7-fhir-r4-core/Organization";
 import type { Patient } from "../../hl7-fhir-r4-core/Patient";
 
 export type ExampleTypedBundle_Entry_PatientEntrySliceFlat = BundleEntry<Patient>;
+export type ExampleTypedBundle_Entry_PatientEntrySliceFlatAll = ExampleTypedBundle_Entry_PatientEntrySliceFlat;
+
 export type ExampleTypedBundle_Entry_OrganizationEntrySliceFlat = BundleEntry<Organization>;
+export type ExampleTypedBundle_Entry_OrganizationEntrySliceFlatAll = ExampleTypedBundle_Entry_OrganizationEntrySliceFlat;
 
 import {
-    buildResource,
     ensureProfile,
     applySliceMatch,
     matchesValue,
@@ -69,7 +71,9 @@ export class ExampleTypedBundleProfile {
     static readonly canonicalUrl = "http://example.org/fhir/StructureDefinition/ExampleTypedBundle";
 
     private static readonly PatientEntrySliceMatch: Record<string, unknown> = {"resource":{"resourceType":"Patient"}};
-    private static readonly OrganizationEntrySliceMatch: Record<string, unknown> = {"resource":{"resourceType":"Organization"}};
+    private static readonly OrganizationEntrySliceMatch: Record<string, unknown> = {
+        "resource": {"resourceType":"Organization"},
+    }
 
     private resource: Bundle;
 
@@ -93,11 +97,11 @@ export class ExampleTypedBundleProfile {
     }
 
     static createResource (args: ExampleTypedBundleProfileRaw) : Bundle {
-        const resource = buildResource<Bundle>( {
+        const resource: Bundle = {
             resourceType: "Bundle",
             type: args.type,
             meta: { profile: [ExampleTypedBundleProfile.canonicalUrl] },
-        })
+        }
         return resource;
     }
 
@@ -141,25 +145,25 @@ export class ExampleTypedBundleProfile {
         return this
     }
 
-    public getPatientEntry(mode: 'flat'): ExampleTypedBundle_Entry_PatientEntrySliceFlat | undefined;
+    public getPatientEntry(mode: 'flat'): ExampleTypedBundle_Entry_PatientEntrySliceFlatAll | undefined;
     public getPatientEntry(mode: 'raw'): BundleEntry<Patient> | undefined;
-    public getPatientEntry(): ExampleTypedBundle_Entry_PatientEntrySliceFlat | undefined;
-    public getPatientEntry (mode: 'flat' | 'raw' = 'flat'): ExampleTypedBundle_Entry_PatientEntrySliceFlat | BundleEntry<Patient> | undefined {
+    public getPatientEntry(): ExampleTypedBundle_Entry_PatientEntrySliceFlatAll | undefined;
+    public getPatientEntry (mode: 'flat' | 'raw' = 'flat'): ExampleTypedBundle_Entry_PatientEntrySliceFlatAll | BundleEntry<Patient> | undefined {
         const match = ExampleTypedBundleProfile.PatientEntrySliceMatch
         const item = getArraySlice(this.resource.entry, match)
         if (!item) return undefined
         if (mode === 'raw') return item as BundleEntry<Patient>
-        return item as ExampleTypedBundle_Entry_PatientEntrySliceFlat
+        return item as unknown as ExampleTypedBundle_Entry_PatientEntrySliceFlatAll
     }
 
-    public getOrganizationEntry(mode: 'flat'): ExampleTypedBundle_Entry_OrganizationEntrySliceFlat[];
+    public getOrganizationEntry(mode: 'flat'): ExampleTypedBundle_Entry_OrganizationEntrySliceFlatAll[];
     public getOrganizationEntry(mode: 'raw'): BundleEntry<Organization>[];
-    public getOrganizationEntry(): ExampleTypedBundle_Entry_OrganizationEntrySliceFlat[];
-    public getOrganizationEntry (mode: 'flat' | 'raw' = 'flat'): (ExampleTypedBundle_Entry_OrganizationEntrySliceFlat | BundleEntry<Organization>)[] {
+    public getOrganizationEntry(): ExampleTypedBundle_Entry_OrganizationEntrySliceFlatAll[];
+    public getOrganizationEntry (mode: 'flat' | 'raw' = 'flat'): (ExampleTypedBundle_Entry_OrganizationEntrySliceFlatAll | BundleEntry<Organization>)[] {
         const match = ExampleTypedBundleProfile.OrganizationEntrySliceMatch
         const items = getArraySliceAll(this.resource.entry, match)
         if (mode === 'raw') return items as BundleEntry<Organization>[]
-        return items as ExampleTypedBundle_Entry_OrganizationEntrySliceFlat[]
+        return items as unknown as ExampleTypedBundle_Entry_OrganizationEntrySliceFlatAll[]
     }
 
     // Validation

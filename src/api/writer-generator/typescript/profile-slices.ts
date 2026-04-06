@@ -256,7 +256,11 @@ export const generateSliceGetters = (
 
             // Implementation
             w.curlyBlock(
-                ["public", getMethodName, `(mode: 'flat' | 'raw' = '${defaultMode}'): (${flatTypeName} | ${baseType})[]`],
+                [
+                    "public",
+                    getMethodName,
+                    `(mode: 'flat' | 'raw' = '${defaultMode}'): (${flatTypeName} | ${baseType})[]`,
+                ],
                 () => {
                     w.line(`const match = ${matchRef}`);
                     w.line(`const items = getArraySliceAll(${fieldAccess}, match)`);
