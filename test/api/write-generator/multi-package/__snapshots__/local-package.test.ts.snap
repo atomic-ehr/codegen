@@ -39,6 +39,7 @@ import type { Patient } from "../../hl7-fhir-r4-core/Patient";
 
 export type ExampleTypedBundle_Entry_PatientEntrySliceFlatInput = BundleEntry<Patient>;
 export type ExampleTypedBundle_Entry_PatientEntrySliceFlat = ExampleTypedBundle_Entry_PatientEntrySliceFlatInput;
+
 export type ExampleTypedBundle_Entry_OrganizationEntrySliceFlatInput = BundleEntry<Organization>;
 export type ExampleTypedBundle_Entry_OrganizationEntrySliceFlat = ExampleTypedBundle_Entry_OrganizationEntrySliceFlatInput;
 

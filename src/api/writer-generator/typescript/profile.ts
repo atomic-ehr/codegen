@@ -667,8 +667,8 @@ const generateSliceInputTypes = (w: TypeScript, flatProfile: ProfileTypeSchema, 
             }
         }
         w.lineSM(`export type ${flatTypeName} = ${flatTypeExpr}`);
+        w.line();
     }
-    w.line();
 };
 
 const generateRawType = (w: TypeScript, flatProfile: ProfileTypeSchema, factoryInfo: ProfileFactoryInfo) => {
