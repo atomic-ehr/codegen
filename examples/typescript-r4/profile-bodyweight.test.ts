@@ -6,8 +6,8 @@ import { describe, expect, test } from "bun:test";
 import type { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
 import {
     observation_bodyweightProfile as bodyweightProfile,
-    type Observation_bodyweight_Category_VSCatSliceFlatFull as VSCatFlat,
-    type Observation_bodyweight_Category_VSCatSliceFlatInput as VSCatFlatInput,
+    type Observation_bodyweight_Category_VSCatSliceFlat as VSCatFlat,
+    type Observation_bodyweight_Category_VSCatSliceFlatAll as VSCatFlatAll,
 } from "./fhir-types/hl7-fhir-r4-core/profiles/Observation_observation_bodyweight";
 
 describe("demo: create a bodyweight observation", () => {
@@ -130,11 +130,11 @@ describe("slice accessors", () => {
         const profile = bodyweightProfile.create({ status: "final", subject: { reference: "Patient/pt-1" } });
 
         // Setter accepts SliceFlatInput — only user-supplied fields, no discriminators
-        const input: VSCatFlatInput = { text: "Vital Signs" };
+        const input: VSCatFlat = { text: "Vital Signs" };
         profile.setVSCat(input);
 
-        // Getter returns SliceFlat — includes discriminator values + user data
-        const flat: VSCatFlat = profile.getVSCat()!;
+        // Getter returns SliceFlatAll — includes discriminator values + user data
+        const flat: VSCatFlatAll = profile.getVSCat()!;
         expect(flat).toEqual({
             text: "Vital Signs",
             coding: [{ code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" }],

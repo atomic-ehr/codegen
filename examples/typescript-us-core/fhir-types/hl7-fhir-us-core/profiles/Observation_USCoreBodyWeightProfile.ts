@@ -11,8 +11,8 @@ import type { Ratio } from "../../hl7-fhir-r4-core/Ratio";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 import type { SampledData } from "../../hl7-fhir-r4-core/SampledData";
 
-export type USCoreBodyWeightProfile_Category_VSCatSliceFlatInput = Omit<CodeableConcept, "coding">;
-export type USCoreBodyWeightProfile_Category_VSCatSliceFlatFull = USCoreBodyWeightProfile_Category_VSCatSliceFlatInput & {
+export type USCoreBodyWeightProfile_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
+export type USCoreBodyWeightProfile_Category_VSCatSliceFlatAll = USCoreBodyWeightProfile_Category_VSCatSliceFlat & {
     readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }];
 }
 
@@ -252,7 +252,7 @@ export class USCoreBodyWeightProfile {
 
     // Extensions
     // Slices
-    public setVSCat (input?: USCoreBodyWeightProfile_Category_VSCatSliceFlatInput | CodeableConcept): this {
+    public setVSCat (input?: USCoreBodyWeightProfile_Category_VSCatSliceFlat | CodeableConcept): this {
         const match = USCoreBodyWeightProfile.VSCatSliceMatch
         if (input && matchesValue(input, match)) {
             setArraySlice(this.resource.category ??= [], match, input as CodeableConcept)
@@ -263,15 +263,15 @@ export class USCoreBodyWeightProfile {
         return this
     }
 
-    public getVSCat(mode: 'flat'): USCoreBodyWeightProfile_Category_VSCatSliceFlatFull | undefined;
+    public getVSCat(mode: 'flat'): USCoreBodyWeightProfile_Category_VSCatSliceFlatAll | undefined;
     public getVSCat(mode: 'raw'): CodeableConcept | undefined;
-    public getVSCat(): USCoreBodyWeightProfile_Category_VSCatSliceFlatFull | undefined;
-    public getVSCat (mode: 'flat' | 'raw' = 'flat'): USCoreBodyWeightProfile_Category_VSCatSliceFlatFull | CodeableConcept | undefined {
+    public getVSCat(): USCoreBodyWeightProfile_Category_VSCatSliceFlatAll | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): USCoreBodyWeightProfile_Category_VSCatSliceFlatAll | CodeableConcept | undefined {
         const match = USCoreBodyWeightProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return item as unknown as USCoreBodyWeightProfile_Category_VSCatSliceFlatFull
+        return item as unknown as USCoreBodyWeightProfile_Category_VSCatSliceFlatAll
     }
 
     // Validation

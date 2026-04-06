@@ -8,8 +8,8 @@ import type { Period } from "../../hl7-fhir-r4-core/Period";
 import type { Quantity } from "../../hl7-fhir-r4-core/Quantity";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
-export type Observation_bodyweight_Category_VSCatSliceFlatInput = Omit<CodeableConcept, "coding">;
-export type Observation_bodyweight_Category_VSCatSliceFlatFull = Observation_bodyweight_Category_VSCatSliceFlatInput & {
+export type Observation_bodyweight_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
+export type Observation_bodyweight_Category_VSCatSliceFlatAll = Observation_bodyweight_Category_VSCatSliceFlat & {
     readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }];
 }
 
@@ -159,7 +159,7 @@ export class observation_bodyweightProfile {
 
     // Extensions
     // Slices
-    public setVSCat (input?: Observation_bodyweight_Category_VSCatSliceFlatInput | CodeableConcept): this {
+    public setVSCat (input?: Observation_bodyweight_Category_VSCatSliceFlat | CodeableConcept): this {
         const match = observation_bodyweightProfile.VSCatSliceMatch
         if (input && matchesValue(input, match)) {
             setArraySlice(this.resource.category ??= [], match, input as CodeableConcept)
@@ -170,15 +170,15 @@ export class observation_bodyweightProfile {
         return this
     }
 
-    public getVSCat(mode: 'flat'): Observation_bodyweight_Category_VSCatSliceFlatFull | undefined;
+    public getVSCat(mode: 'flat'): Observation_bodyweight_Category_VSCatSliceFlatAll | undefined;
     public getVSCat(mode: 'raw'): CodeableConcept | undefined;
-    public getVSCat(): Observation_bodyweight_Category_VSCatSliceFlatFull | undefined;
-    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_bodyweight_Category_VSCatSliceFlatFull | CodeableConcept | undefined {
+    public getVSCat(): Observation_bodyweight_Category_VSCatSliceFlatAll | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_bodyweight_Category_VSCatSliceFlatAll | CodeableConcept | undefined {
         const match = observation_bodyweightProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return item as unknown as Observation_bodyweight_Category_VSCatSliceFlatFull
+        return item as unknown as Observation_bodyweight_Category_VSCatSliceFlatAll
     }
 
     // Validation

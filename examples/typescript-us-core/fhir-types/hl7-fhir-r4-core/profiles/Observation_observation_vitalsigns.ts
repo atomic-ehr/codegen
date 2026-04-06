@@ -7,8 +7,8 @@ import type { Observation } from "../../hl7-fhir-r4-core/Observation";
 import type { Period } from "../../hl7-fhir-r4-core/Period";
 import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
-export type Observation_vitalsigns_Category_VSCatSliceFlatInput = Omit<CodeableConcept, "coding">;
-export type Observation_vitalsigns_Category_VSCatSliceFlatFull = Observation_vitalsigns_Category_VSCatSliceFlatInput & {
+export type Observation_vitalsigns_Category_VSCatSliceFlat = Omit<CodeableConcept, "coding">;
+export type Observation_vitalsigns_Category_VSCatSliceFlatAll = Observation_vitalsigns_Category_VSCatSliceFlat & {
     readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }];
 }
 
@@ -152,7 +152,7 @@ export class observation_vitalsignsProfile {
 
     // Extensions
     // Slices
-    public setVSCat (input?: Observation_vitalsigns_Category_VSCatSliceFlatInput | CodeableConcept): this {
+    public setVSCat (input?: Observation_vitalsigns_Category_VSCatSliceFlat | CodeableConcept): this {
         const match = observation_vitalsignsProfile.VSCatSliceMatch
         if (input && matchesValue(input, match)) {
             setArraySlice(this.resource.category ??= [], match, input as CodeableConcept)
@@ -163,15 +163,15 @@ export class observation_vitalsignsProfile {
         return this
     }
 
-    public getVSCat(mode: 'flat'): Observation_vitalsigns_Category_VSCatSliceFlatFull | undefined;
+    public getVSCat(mode: 'flat'): Observation_vitalsigns_Category_VSCatSliceFlatAll | undefined;
     public getVSCat(mode: 'raw'): CodeableConcept | undefined;
-    public getVSCat(): Observation_vitalsigns_Category_VSCatSliceFlatFull | undefined;
-    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_vitalsigns_Category_VSCatSliceFlatFull | CodeableConcept | undefined {
+    public getVSCat(): Observation_vitalsigns_Category_VSCatSliceFlatAll | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_vitalsigns_Category_VSCatSliceFlatAll | CodeableConcept | undefined {
         const match = observation_vitalsignsProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return item as unknown as Observation_vitalsigns_Category_VSCatSliceFlatFull
+        return item as unknown as Observation_vitalsigns_Category_VSCatSliceFlatAll
     }
 
     // Validation

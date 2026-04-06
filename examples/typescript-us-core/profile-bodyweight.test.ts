@@ -6,8 +6,8 @@ import { describe, expect, test } from "bun:test";
 import type { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
 import { USCoreBodyWeightProfile } from "./fhir-types/hl7-fhir-us-core/profiles";
 import type {
-    USCoreBodyWeightProfile_Category_VSCatSliceFlatFull as VSCatFlat,
-    USCoreBodyWeightProfile_Category_VSCatSliceFlatInput as VSCatFlatInput,
+    USCoreBodyWeightProfile_Category_VSCatSliceFlat as VSCatFlat,
+    USCoreBodyWeightProfile_Category_VSCatSliceFlatAll as VSCatFlatAll,
 } from "./fhir-types/hl7-fhir-us-core/profiles/Observation_USCoreBodyWeightProfile";
 
 describe("demo: create a US Core body weight observation", () => {
@@ -114,12 +114,12 @@ describe("slice input/flat type split", () => {
             subject: { reference: "Patient/pt-1" },
         });
 
-        // Setter accepts SliceFlatInput — only user-supplied fields, no discriminators
-        const input: VSCatFlatInput = { text: "Vital Signs" };
+        // Setter accepts SliceFlat — only user-supplied fields, no discriminators
+        const input: VSCatFlat = { text: "Vital Signs" };
         profile.setVSCat(input);
 
-        // Getter returns SliceFlat — includes discriminator values + user data
-        const flat: VSCatFlat = profile.getVSCat()!;
+        // Getter returns SliceFlatAll — includes discriminator values + user data
+        const flat: VSCatFlatAll = profile.getVSCat()!;
         expect(flat).toEqual({
             text: "Vital Signs",
             coding: [{ code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" }],
