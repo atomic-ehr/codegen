@@ -10,8 +10,10 @@ import type { Reference } from "../../hl7-fhir-r4-core/Reference";
 
 export type Observation_bp_Category_VSCatSliceFlatInput = Omit<CodeableConcept, "coding">;
 export type Observation_bp_Category_VSCatSliceFlat = Observation_bp_Category_VSCatSliceFlatInput & { readonly coding: [{ code: "vital-signs"; system: "http://terminology.hl7.org/CodeSystem/observation-category" }] };
+
 export type Observation_bp_Component_SystolicBPSliceFlatInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 export type Observation_bp_Component_SystolicBPSliceFlat = Observation_bp_Component_SystolicBPSliceFlatInput;
+
 export type Observation_bp_Component_DiastolicBPSliceFlatInput = Omit<ObservationComponent, "code" | "value" | "valueQuantity" | "valueCodeableConcept" | "valueString" | "valueBoolean" | "valueInteger" | "valueRange" | "valueRatio" | "valueSampledData" | "valueTime" | "valueDateTime" | "valuePeriod"> & Quantity;
 export type Observation_bp_Component_DiastolicBPSliceFlat = Observation_bp_Component_DiastolicBPSliceFlatInput;
 
