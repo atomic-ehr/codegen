@@ -4,7 +4,11 @@
 
 import { describe, expect, test } from "bun:test";
 import type { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
-import { observation_bodyweightProfile as bodyweightProfile } from "./fhir-types/hl7-fhir-r4-core/profiles/Observation_observation_bodyweight";
+import {
+    observation_bodyweightProfile as bodyweightProfile,
+    type Observation_bodyweight_Category_VSCatSliceFlat as VSCatFlat,
+    type Observation_bodyweight_Category_VSCatSliceFlatInput as VSCatFlatInput,
+} from "./fhir-types/hl7-fhir-r4-core/profiles/Observation_observation_bodyweight";
 
 describe("demo: create a bodyweight observation", () => {
     test("build a valid bodyweight resource step by step", () => {
@@ -126,16 +130,16 @@ describe("slice accessors", () => {
     test("setVSCat accepts SliceFlatInput, getVSCat returns SliceFlat", () => {
         const profile = bodyweightProfile.create({ status: "final", subject: { reference: "Patient/pt-1" } });
 
-        // setVSCat accepts SliceFlatInput — only user data, discriminators auto-applied
-        profile.setVSCat({ text: "Vital Signs" });
+        // Setter accepts SliceFlatInput — only user-supplied fields, no discriminators
+        const input: VSCatFlatInput = { text: "Vital Signs" };
+        profile.setVSCat(input);
 
-        // getVSCat() returns SliceFlat — typed with readonly discriminator literals
-        // type VSCatSliceFlat = Omit<CodeableConcept, "coding">
-        //   & { readonly coding: [{ code: "vital-signs"; system: "http://..." }] }
-        const flat = profile.getVSCat()!;
+        // Getter returns SliceFlat — includes readonly discriminator literal types
+        const flat: VSCatFlat = profile.getVSCat()!;
         expect(flat.text).toBe("Vital Signs");
+        // flat.coding is typed as readonly [{ code: "vital-signs"; system: "http://..." }]
 
-        // getVSCat("raw") returns the full CodeableConcept including discriminator
+        // Raw mode returns the full CodeableConcept including discriminator values
         expect(profile.getVSCat("raw")!.coding).toEqual([
             { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
         ]);
