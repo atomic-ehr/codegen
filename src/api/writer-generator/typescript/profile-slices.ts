@@ -246,24 +246,25 @@ export const generateSliceGetters = (
         const isUnbounded = sliceDef.array && (sliceDef.max === 0 || sliceDef.max === undefined);
 
         if (isUnbounded) {
-            // Unbounded slice: return an array
+            // Unbounded slice: return an array or undefined
             const defaultReturn = defaultMode === "raw" ? `${baseType}[]` : `${flatTypeName}[]`;
 
             // Overload signatures
-            w.lineSM(`public ${getMethodName}(mode: 'flat'): ${flatTypeName}[]`);
-            w.lineSM(`public ${getMethodName}(mode: 'raw'): ${baseType}[]`);
-            w.lineSM(`public ${getMethodName}(): ${defaultReturn}`);
+            w.lineSM(`public ${getMethodName}(mode: 'flat'): ${flatTypeName}[] | undefined`);
+            w.lineSM(`public ${getMethodName}(mode: 'raw'): ${baseType}[] | undefined`);
+            w.lineSM(`public ${getMethodName}(): ${defaultReturn} | undefined`);
 
             // Implementation
             w.curlyBlock(
                 [
                     "public",
                     getMethodName,
-                    `(mode: 'flat' | 'raw' = '${defaultMode}'): (${flatTypeName} | ${baseType})[]`,
+                    `(mode: 'flat' | 'raw' = '${defaultMode}'): (${flatTypeName} | ${baseType})[] | undefined`,
                 ],
                 () => {
                     w.line(`const match = ${matchRef}`);
                     w.line(`const items = getArraySliceAll(${fieldAccess}, match)`);
+                    w.line("if (items.length === 0) return undefined");
                     if (sliceDef.typeDiscriminator) {
                         w.line(`if (mode === 'raw') return items as ${baseType}[]`);
                     } else {
