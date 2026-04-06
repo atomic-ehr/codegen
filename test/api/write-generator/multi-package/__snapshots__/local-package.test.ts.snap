@@ -144,26 +144,26 @@ export class ExampleTypedBundleProfile {
         return this
     }
 
-    public getPatientEntry(mode: 'flat'): ExampleTypedBundle_Entry_PatientEntrySliceFlatInput | undefined;
+    public getPatientEntry(mode: 'flat'): ExampleTypedBundle_Entry_PatientEntrySliceFlat | undefined;
     public getPatientEntry(mode: 'raw'): BundleEntry<Patient> | undefined;
-    public getPatientEntry(): ExampleTypedBundle_Entry_PatientEntrySliceFlatInput | undefined;
-    public getPatientEntry (mode: 'flat' | 'raw' = 'flat'): ExampleTypedBundle_Entry_PatientEntrySliceFlatInput | BundleEntry<Patient> | undefined {
+    public getPatientEntry(): ExampleTypedBundle_Entry_PatientEntrySliceFlat | undefined;
+    public getPatientEntry (mode: 'flat' | 'raw' = 'flat'): ExampleTypedBundle_Entry_PatientEntrySliceFlat | BundleEntry<Patient> | undefined {
         const match = ExampleTypedBundleProfile.PatientEntrySliceMatch
         const item = getArraySlice(this.resource.entry, match)
         if (!item) return undefined
         if (mode === 'raw') return item as BundleEntry<Patient>
-        return item as ExampleTypedBundle_Entry_PatientEntrySliceFlatInput
+        return item as ExampleTypedBundle_Entry_PatientEntrySliceFlat
     }
 
-    public getOrganizationEntry(mode: 'flat'): ExampleTypedBundle_Entry_OrganizationEntrySliceFlatInput | undefined;
+    public getOrganizationEntry(mode: 'flat'): ExampleTypedBundle_Entry_OrganizationEntrySliceFlat | undefined;
     public getOrganizationEntry(mode: 'raw'): BundleEntry<Organization> | undefined;
-    public getOrganizationEntry(): ExampleTypedBundle_Entry_OrganizationEntrySliceFlatInput | undefined;
-    public getOrganizationEntry (mode: 'flat' | 'raw' = 'flat'): ExampleTypedBundle_Entry_OrganizationEntrySliceFlatInput | BundleEntry<Organization> | undefined {
+    public getOrganizationEntry(): ExampleTypedBundle_Entry_OrganizationEntrySliceFlat | undefined;
+    public getOrganizationEntry (mode: 'flat' | 'raw' = 'flat'): ExampleTypedBundle_Entry_OrganizationEntrySliceFlat | BundleEntry<Organization> | undefined {
         const match = ExampleTypedBundleProfile.OrganizationEntrySliceMatch
         const item = getArraySlice(this.resource.entry, match)
         if (!item) return undefined
         if (mode === 'raw') return item as BundleEntry<Organization>
-        return item as ExampleTypedBundle_Entry_OrganizationEntrySliceFlatInput
+        return item as ExampleTypedBundle_Entry_OrganizationEntrySliceFlat
     }
 
     // Validation

@@ -481,15 +481,15 @@ export class observation_bodyweightProfile {
         return this
     }
 
-    public getVSCat(mode: 'flat'): Observation_bodyweight_Category_VSCatSliceFlatInput | undefined;
+    public getVSCat(mode: 'flat'): Observation_bodyweight_Category_VSCatSliceFlat | undefined;
     public getVSCat(mode: 'raw'): CodeableConcept | undefined;
-    public getVSCat(): Observation_bodyweight_Category_VSCatSliceFlatInput | undefined;
-    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_bodyweight_Category_VSCatSliceFlatInput | CodeableConcept | undefined {
+    public getVSCat(): Observation_bodyweight_Category_VSCatSliceFlat | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_bodyweight_Category_VSCatSliceFlat | CodeableConcept | undefined {
         const match = observation_bodyweightProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<Observation_bodyweight_Category_VSCatSliceFlatInput>(item, ["coding"])
+        return stripMatchKeys<Observation_bodyweight_Category_VSCatSliceFlat>(item, ["coding"])
     }
 
     // Validation
@@ -749,37 +749,37 @@ export class observation_bpProfile {
         return this
     }
 
-    public getVSCat(mode: 'flat'): Observation_bp_Category_VSCatSliceFlatInput | undefined;
+    public getVSCat(mode: 'flat'): Observation_bp_Category_VSCatSliceFlat | undefined;
     public getVSCat(mode: 'raw'): CodeableConcept | undefined;
-    public getVSCat(): Observation_bp_Category_VSCatSliceFlatInput | undefined;
-    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Category_VSCatSliceFlatInput | CodeableConcept | undefined {
+    public getVSCat(): Observation_bp_Category_VSCatSliceFlat | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Category_VSCatSliceFlat | CodeableConcept | undefined {
         const match = observation_bpProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<Observation_bp_Category_VSCatSliceFlatInput>(item, ["coding"])
+        return stripMatchKeys<Observation_bp_Category_VSCatSliceFlat>(item, ["coding"])
     }
 
-    public getSystolicBP(mode: 'flat'): Observation_bp_Component_SystolicBPSliceFlatInput | undefined;
+    public getSystolicBP(mode: 'flat'): Observation_bp_Component_SystolicBPSliceFlat | undefined;
     public getSystolicBP(mode: 'raw'): ObservationComponent | undefined;
-    public getSystolicBP(): Observation_bp_Component_SystolicBPSliceFlatInput | undefined;
-    public getSystolicBP (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Component_SystolicBPSliceFlatInput | ObservationComponent | undefined {
+    public getSystolicBP(): Observation_bp_Component_SystolicBPSliceFlat | undefined;
+    public getSystolicBP (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Component_SystolicBPSliceFlat | ObservationComponent | undefined {
         const match = observation_bpProfile.SystolicBPSliceMatch
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<Observation_bp_Component_SystolicBPSliceFlatInput>(item, ["code"], "valueQuantity")
+        return unwrapSliceChoice<Observation_bp_Component_SystolicBPSliceFlat>(item, ["code"], "valueQuantity")
     }
 
-    public getDiastolicBP(mode: 'flat'): Observation_bp_Component_DiastolicBPSliceFlatInput | undefined;
+    public getDiastolicBP(mode: 'flat'): Observation_bp_Component_DiastolicBPSliceFlat | undefined;
     public getDiastolicBP(mode: 'raw'): ObservationComponent | undefined;
-    public getDiastolicBP(): Observation_bp_Component_DiastolicBPSliceFlatInput | undefined;
-    public getDiastolicBP (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Component_DiastolicBPSliceFlatInput | ObservationComponent | undefined {
+    public getDiastolicBP(): Observation_bp_Component_DiastolicBPSliceFlat | undefined;
+    public getDiastolicBP (mode: 'flat' | 'raw' = 'flat'): Observation_bp_Component_DiastolicBPSliceFlat | ObservationComponent | undefined {
         const match = observation_bpProfile.DiastolicBPSliceMatch
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<Observation_bp_Component_DiastolicBPSliceFlatInput>(item, ["code"], "valueQuantity")
+        return unwrapSliceChoice<Observation_bp_Component_DiastolicBPSliceFlat>(item, ["code"], "valueQuantity")
     }
 
     // Validation
@@ -1389,37 +1389,37 @@ export class USCoreBloodPressureProfile {
         return this
     }
 
-    public getVSCat(mode: 'flat'): USCoreBloodPressureProfile_Category_VSCatSliceFlatInput | undefined;
+    public getVSCat(mode: 'flat'): USCoreBloodPressureProfile_Category_VSCatSliceFlat | undefined;
     public getVSCat(mode: 'raw'): CodeableConcept | undefined;
-    public getVSCat(): USCoreBloodPressureProfile_Category_VSCatSliceFlatInput | undefined;
-    public getVSCat (mode: 'flat' | 'raw' = 'flat'): USCoreBloodPressureProfile_Category_VSCatSliceFlatInput | CodeableConcept | undefined {
+    public getVSCat(): USCoreBloodPressureProfile_Category_VSCatSliceFlat | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): USCoreBloodPressureProfile_Category_VSCatSliceFlat | CodeableConcept | undefined {
         const match = USCoreBloodPressureProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<USCoreBloodPressureProfile_Category_VSCatSliceFlatInput>(item, ["coding"])
+        return stripMatchKeys<USCoreBloodPressureProfile_Category_VSCatSliceFlat>(item, ["coding"])
     }
 
-    public getSystolic(mode: 'flat'): USCoreBloodPressureProfile_Component_SystolicSliceFlatInput | undefined;
+    public getSystolic(mode: 'flat'): USCoreBloodPressureProfile_Component_SystolicSliceFlat | undefined;
     public getSystolic(mode: 'raw'): ObservationComponent | undefined;
-    public getSystolic(): USCoreBloodPressureProfile_Component_SystolicSliceFlatInput | undefined;
-    public getSystolic (mode: 'flat' | 'raw' = 'flat'): USCoreBloodPressureProfile_Component_SystolicSliceFlatInput | ObservationComponent | undefined {
+    public getSystolic(): USCoreBloodPressureProfile_Component_SystolicSliceFlat | undefined;
+    public getSystolic (mode: 'flat' | 'raw' = 'flat'): USCoreBloodPressureProfile_Component_SystolicSliceFlat | ObservationComponent | undefined {
         const match = USCoreBloodPressureProfile.systolicSliceMatch
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<USCoreBloodPressureProfile_Component_SystolicSliceFlatInput>(item, ["code"], "valueQuantity")
+        return unwrapSliceChoice<USCoreBloodPressureProfile_Component_SystolicSliceFlat>(item, ["code"], "valueQuantity")
     }
 
-    public getDiastolic(mode: 'flat'): USCoreBloodPressureProfile_Component_DiastolicSliceFlatInput | undefined;
+    public getDiastolic(mode: 'flat'): USCoreBloodPressureProfile_Component_DiastolicSliceFlat | undefined;
     public getDiastolic(mode: 'raw'): ObservationComponent | undefined;
-    public getDiastolic(): USCoreBloodPressureProfile_Component_DiastolicSliceFlatInput | undefined;
-    public getDiastolic (mode: 'flat' | 'raw' = 'flat'): USCoreBloodPressureProfile_Component_DiastolicSliceFlatInput | ObservationComponent | undefined {
+    public getDiastolic(): USCoreBloodPressureProfile_Component_DiastolicSliceFlat | undefined;
+    public getDiastolic (mode: 'flat' | 'raw' = 'flat'): USCoreBloodPressureProfile_Component_DiastolicSliceFlat | ObservationComponent | undefined {
         const match = USCoreBloodPressureProfile.diastolicSliceMatch
         const item = getArraySlice(this.resource.component, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<USCoreBloodPressureProfile_Component_DiastolicSliceFlatInput>(item, ["code"], "valueQuantity")
+        return unwrapSliceChoice<USCoreBloodPressureProfile_Component_DiastolicSliceFlat>(item, ["code"], "valueQuantity")
     }
 
     // Validation
@@ -1721,15 +1721,15 @@ export class USCoreBodyWeightProfile {
         return this
     }
 
-    public getVSCat(mode: 'flat'): USCoreBodyWeightProfile_Category_VSCatSliceFlatInput | undefined;
+    public getVSCat(mode: 'flat'): USCoreBodyWeightProfile_Category_VSCatSliceFlat | undefined;
     public getVSCat(mode: 'raw'): CodeableConcept | undefined;
-    public getVSCat(): USCoreBodyWeightProfile_Category_VSCatSliceFlatInput | undefined;
-    public getVSCat (mode: 'flat' | 'raw' = 'flat'): USCoreBodyWeightProfile_Category_VSCatSliceFlatInput | CodeableConcept | undefined {
+    public getVSCat(): USCoreBodyWeightProfile_Category_VSCatSliceFlat | undefined;
+    public getVSCat (mode: 'flat' | 'raw' = 'flat'): USCoreBodyWeightProfile_Category_VSCatSliceFlat | CodeableConcept | undefined {
         const match = USCoreBodyWeightProfile.VSCatSliceMatch
         const item = getArraySlice(this.resource.category, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<USCoreBodyWeightProfile_Category_VSCatSliceFlatInput>(item, ["coding"])
+        return stripMatchKeys<USCoreBodyWeightProfile_Category_VSCatSliceFlat>(item, ["coding"])
     }
 
     // Validation
@@ -1987,37 +1987,37 @@ export class USCoreRaceExtensionProfile {
         return this
     }
 
-    public getExtensionOmbCategory(mode: 'flat'): USCoreRaceExtension_Extension_OmbCategorySliceFlatInput | undefined;
+    public getExtensionOmbCategory(mode: 'flat'): USCoreRaceExtension_Extension_OmbCategorySliceFlat | undefined;
     public getExtensionOmbCategory(mode: 'raw'): Extension | undefined;
-    public getExtensionOmbCategory(): USCoreRaceExtension_Extension_OmbCategorySliceFlatInput | undefined;
-    public getExtensionOmbCategory (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_OmbCategorySliceFlatInput | Extension | undefined {
+    public getExtensionOmbCategory(): USCoreRaceExtension_Extension_OmbCategorySliceFlat | undefined;
+    public getExtensionOmbCategory (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_OmbCategorySliceFlat | Extension | undefined {
         const match = USCoreRaceExtensionProfile.ombCategorySliceMatch
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<USCoreRaceExtension_Extension_OmbCategorySliceFlatInput>(item, ["url"], "valueCoding")
+        return unwrapSliceChoice<USCoreRaceExtension_Extension_OmbCategorySliceFlat>(item, ["url"], "valueCoding")
     }
 
-    public getExtensionDetailed(mode: 'flat'): USCoreRaceExtension_Extension_DetailedSliceFlatInput | undefined;
+    public getExtensionDetailed(mode: 'flat'): USCoreRaceExtension_Extension_DetailedSliceFlat | undefined;
     public getExtensionDetailed(mode: 'raw'): Extension | undefined;
-    public getExtensionDetailed(): USCoreRaceExtension_Extension_DetailedSliceFlatInput | undefined;
-    public getExtensionDetailed (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_DetailedSliceFlatInput | Extension | undefined {
+    public getExtensionDetailed(): USCoreRaceExtension_Extension_DetailedSliceFlat | undefined;
+    public getExtensionDetailed (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_DetailedSliceFlat | Extension | undefined {
         const match = USCoreRaceExtensionProfile.detailedSliceMatch
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return unwrapSliceChoice<USCoreRaceExtension_Extension_DetailedSliceFlatInput>(item, ["url"], "valueCoding")
+        return unwrapSliceChoice<USCoreRaceExtension_Extension_DetailedSliceFlat>(item, ["url"], "valueCoding")
     }
 
-    public getExtensionText(mode: 'flat'): USCoreRaceExtension_Extension_TextSliceFlatInput | undefined;
+    public getExtensionText(mode: 'flat'): USCoreRaceExtension_Extension_TextSliceFlat | undefined;
     public getExtensionText(mode: 'raw'): Extension | undefined;
-    public getExtensionText(): USCoreRaceExtension_Extension_TextSliceFlatInput | undefined;
-    public getExtensionText (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_TextSliceFlatInput | Extension | undefined {
+    public getExtensionText(): USCoreRaceExtension_Extension_TextSliceFlat | undefined;
+    public getExtensionText (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_TextSliceFlat | Extension | undefined {
         const match = USCoreRaceExtensionProfile.textSliceMatch
         const item = getArraySlice(this.resource.extension, match)
         if (!item) return undefined
         if (mode === 'raw') return item
-        return stripMatchKeys<USCoreRaceExtension_Extension_TextSliceFlatInput>(item, ["url"])
+        return stripMatchKeys<USCoreRaceExtension_Extension_TextSliceFlat>(item, ["url"])
     }
 
     // Validation
