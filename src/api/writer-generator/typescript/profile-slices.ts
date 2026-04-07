@@ -160,14 +160,16 @@ export const generateSliceSetters = (
     for (const sliceDef of sliceDefs) {
         const baseName = tsResolvedSliceBaseName(sliceBaseNames, sliceDef.fieldName, sliceDef.sliceName);
         const methodName = `set${baseName}`;
-        const inputTypeName = tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+        const inputTypeName = sliceDef.typeDiscriminator
+            ? sliceDef.typedBaseType
+            : tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
         const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
         const tsField = tsFieldName(sliceDef.fieldName);
         const fieldAccess = tsGet("this.resource", tsField);
         const baseType = sliceDef.typedBaseType;
         // Make input optional when there are no required fields (input can be empty object)
         const inputOptional = sliceDef.required.length === 0;
-        const unionType = `${inputTypeName} | ${baseType}`;
+        const unionType = sliceDef.typeDiscriminator ? inputTypeName : `${inputTypeName} | ${baseType}`;
         const paramSignature = inputOptional ? `(input?: ${unionType}): this` : `(input: ${unionType}): this`;
         w.curlyBlock(["public", methodName, paramSignature], () => {
             w.line(`const match = ${matchRef}`);
@@ -210,7 +212,9 @@ export const generateSliceGetters = (
     for (const sliceDef of sliceDefs) {
         const baseName = tsResolvedSliceBaseName(sliceBaseNames, sliceDef.fieldName, sliceDef.sliceName);
         const getMethodName = `get${baseName}`;
-        const flatTypeName = tsSliceFlatAllTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
+        const flatTypeName = sliceDef.typeDiscriminator
+            ? sliceDef.typedBaseType
+            : tsSliceFlatAllTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
         const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
         const matchKeys = JSON.stringify(Object.keys(sliceDef.match));
         const tsField = tsFieldName(sliceDef.fieldName);

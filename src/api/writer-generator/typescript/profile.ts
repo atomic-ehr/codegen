@@ -636,9 +636,12 @@ const generateSliceInputTypes = (w: TypeScript, flatProfile: ProfileTypeSchema, 
     if (sliceDefs.length === 0) return;
     const tsProfileName = tsResourceName(flatProfile.identifier);
     for (const sliceDef of sliceDefs) {
+        // Type-discriminated slices (e.g. entry by resourceType) use the base type directly
+        if (sliceDef.typeDiscriminator) continue;
+
         const inputTypeName = tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
         const flatTypeName = tsSliceFlatAllTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
-        const matchFields = sliceDef.typeDiscriminator ? [] : Object.keys(sliceDef.match);
+        const matchFields = Object.keys(sliceDef.match);
         const allExcluded = [...new Set([...sliceDef.excluded, ...matchFields])];
         if (sliceDef.constrainedChoice) {
             const cc = sliceDef.constrainedChoice;
