@@ -23,6 +23,8 @@ import {
     setArraySlice,
     getArraySlice,
     ensureSliceDefaults,
+    setArraySliceAll,
+    getArraySliceAll,
     wrapSliceChoice,
     unwrapSliceChoice,
     isExtension,
@@ -186,15 +188,11 @@ export class USCoreRaceExtensionProfile {
         return this
     }
 
-    public setExtensionDetailed (input?: USCoreRaceExtension_Extension_DetailedSliceFlat | Extension): this {
+    public setExtensionDetailed (input: (USCoreRaceExtension_Extension_DetailedSliceFlat | Extension)[]): this {
         const match = USCoreRaceExtensionProfile.detailedSliceMatch
-        if (input && matchesValue(input, match)) {
-            setArraySlice(this.resource.extension ??= [], match, input as Extension)
-            return this
-        }
-        const wrapped = wrapSliceChoice<Extension>(input ?? {}, "valueCoding")
-        const value = applySliceMatch<Extension>(wrapped, match)
-        setArraySlice(this.resource.extension ??= [], match, value)
+        const arr = this.resource.extension ??= []
+        const values = input.map(item => matchesValue(item, match) ? item as Extension : applySliceMatch<Extension>(wrapSliceChoice<Extension>(item, "valueCoding"), match))
+        setArraySliceAll(arr, match, values)
         return this
     }
 
@@ -220,15 +218,15 @@ export class USCoreRaceExtensionProfile {
         return unwrapSliceChoice<USCoreRaceExtension_Extension_OmbCategorySliceFlatAll>(item, ["url"], "valueCoding")
     }
 
-    public getExtensionDetailed(mode: 'flat'): USCoreRaceExtension_Extension_DetailedSliceFlatAll | undefined;
-    public getExtensionDetailed(mode: 'raw'): Extension | undefined;
-    public getExtensionDetailed(): USCoreRaceExtension_Extension_DetailedSliceFlatAll | undefined;
-    public getExtensionDetailed (mode: 'flat' | 'raw' = 'flat'): USCoreRaceExtension_Extension_DetailedSliceFlatAll | Extension | undefined {
+    public getExtensionDetailed(mode: 'flat'): USCoreRaceExtension_Extension_DetailedSliceFlatAll[] | undefined;
+    public getExtensionDetailed(mode: 'raw'): Extension[] | undefined;
+    public getExtensionDetailed(): USCoreRaceExtension_Extension_DetailedSliceFlatAll[] | undefined;
+    public getExtensionDetailed (mode: 'flat' | 'raw' = 'flat'): (USCoreRaceExtension_Extension_DetailedSliceFlatAll | Extension)[] | undefined {
         const match = USCoreRaceExtensionProfile.detailedSliceMatch
-        const item = getArraySlice(this.resource.extension, match)
-        if (!item) return undefined
-        if (mode === 'raw') return item
-        return unwrapSliceChoice<USCoreRaceExtension_Extension_DetailedSliceFlatAll>(item, ["url"], "valueCoding")
+        const items = getArraySliceAll(this.resource.extension, match)
+        if (items.length === 0) return undefined
+        if (mode === 'raw') return items
+        return items.map(item => unwrapSliceChoice<USCoreRaceExtension_Extension_DetailedSliceFlatAll>(item, ["url"], "valueCoding"))
     }
 
     public getExtensionText(mode: 'flat'): USCoreRaceExtension_Extension_TextSliceFlatAll | undefined;
