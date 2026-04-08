@@ -14,6 +14,7 @@ import {
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import {
+    tsCamelCase,
     tsExtensionFlatTypeName,
     tsFieldName,
     tsModulePath,
@@ -570,7 +571,7 @@ const generateFieldAccessors = (w: TypeScript, factoryInfo: ProfileFactoryInfo) 
     }
 
     for (const a of factoryInfo.accessors) {
-        const methodBaseName = uppercaseFirstLetter(a.name);
+        const methodBaseName = uppercaseFirstLetter(tsCamelCase(a.name));
         const fieldAccess = tsFieldName(a.name);
         w.curlyBlock([`get${methodBaseName}`, "()", `: ${a.tsType} | undefined`], () => {
             w.lineSM(`return ${tsGet("this.resource", fieldAccess)} as ${a.tsType} | undefined`);
