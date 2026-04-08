@@ -255,6 +255,12 @@ export interface FieldSlice {
     required?: string[];
     excluded?: string[];
     elements?: string[];
+    /** True when the slice uses a type discriminator (match by resourceType) */
+    typeDiscriminator?: boolean;
+    /** For type-discriminated slices: the concrete resource type identifier */
+    typedResourceIdentifier?: TypeIdentifier;
+    /** When the slice constrains a choice field to a single variant */
+    constrainedChoice?: ConstrainedChoiceInfo;
 }
 
 export interface ExtensionSubField {

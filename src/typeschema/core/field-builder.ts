@@ -242,6 +242,7 @@ const buildSlicing = (element: FHIRSchemaElement): FieldSlicing | undefined => {
     const slicing = element.slicing;
     if (!slicing) return undefined;
 
+    const isTypeDisc = slicing.discriminator?.some((d) => d.type === "type") ?? false;
     const slices: Record<string, FieldSlice> = {};
     for (const [name, slice] of Object.entries(slicing.slices ?? {})) {
         if (!slice) continue;
@@ -255,6 +256,7 @@ const buildSlicing = (element: FHIRSchemaElement): FieldSlicing | undefined => {
             required,
             excluded,
             elements,
+            typeDiscriminator: isTypeDisc || undefined,
         };
     }
 

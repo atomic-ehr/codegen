@@ -10,6 +10,7 @@ import {
     type ComplexTypeTypeSchema,
     type ConstrainedChoiceInfo,
     type Field,
+    type FieldSlice,
     type Identifier,
     isChoiceDeclarationField,
     isChoiceInstanceField,
@@ -431,6 +432,48 @@ export const mkTypeSchemaIndex = (
         }
         return undefined;
     };
+
+    // Populate precomputed slice fields: constrainedChoice and typedResourceIdentifier
+    const populateSliceInfo = () => {
+        const extractResourceTypeFromMatch = (match: Record<string, unknown>): string | undefined => {
+            for (const value of Object.values(match)) {
+                if (typeof value !== "object" || value === null) continue;
+                const obj = value as Record<string, unknown>;
+                if (typeof obj.resourceType === "string") return obj.resourceType;
+                const nested = extractResourceTypeFromMatch(obj);
+                if (nested) return nested;
+            }
+            return undefined;
+        };
+
+        const populateSlice = (slice: FieldSlice, fieldType: TypeIdentifier, pkgName: PkgName) => {
+            if (slice.elements && !slice.constrainedChoice) {
+                const cc = constrainedChoice(pkgName, fieldType, slice.elements);
+                if (cc) slice.constrainedChoice = cc;
+            }
+            if (slice.typeDiscriminator && !slice.typedResourceIdentifier) {
+                const resourceTypeName = extractResourceTypeFromMatch(slice.match ?? {});
+                if (resourceTypeName) {
+                    const resourceSchema = schemas.find(
+                        (s) => s.identifier.name === resourceTypeName && s.identifier.kind === "resource",
+                    );
+                    if (resourceSchema) slice.typedResourceIdentifier = resourceSchema.identifier;
+                }
+            }
+        };
+
+        for (const schema of schemas) {
+            if (!("fields" in schema) || !schema.fields) continue;
+            for (const field of Object.values(schema.fields)) {
+                if (isChoiceDeclarationField(field) || isChoiceInstanceField(field)) continue;
+                if (!field.slicing?.slices || !field.type) continue;
+                for (const slice of Object.values(field.slicing.slices)) {
+                    populateSlice(slice, field.type, schema.identifier.package);
+                }
+            }
+        }
+    };
+    populateSliceInfo();
 
     const isWithMetaField = (profile: ProfileTypeSchema): boolean => {
         const genealogy = tryHierarchy(profile);
