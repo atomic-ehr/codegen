@@ -42,24 +42,26 @@ const sliceCandidates = (fieldName: string, sliceName: string): string[] => {
 
 type NameEntry = { key: string; candidates: string[] };
 
-const countBy = (entries: NameEntry[], level: number): Record<string, number> =>
+const countBy = (entries: NameEntry[], level: number, reserved: Set<string>): Record<string, number> =>
     entries.reduce(
         (counts, e) => {
             const name = e.candidates[level] ?? "";
             counts[name] = (counts[name] ?? 0) + 1;
+            if (reserved.has(name)) counts[name] = (counts[name] ?? 0) + 1;
             return counts;
         },
         {} as Record<string, number>,
     );
 
 /** Resolve naming collisions across multiple levels of candidates.
- *  Each entry provides candidate names in priority order (e.g. base → qualified → discriminated). */
-const resolveNameCollisions = (entries: NameEntry[]): Record<string, string> => {
+ *  Each entry provides candidate names in priority order (e.g. base → qualified → discriminated).
+ *  Names in `reserved` are treated as taken — entries colliding with them are bumped to the next level. */
+const resolveNameCollisions = (entries: NameEntry[], reserved: Set<string>): Record<string, string> => {
     const levels = entries[0]?.candidates.length ?? 0;
 
     const resolve = (unresolved: NameEntry[], level: number): Record<string, string> => {
         if (unresolved.length === 0 || level >= levels) return {};
-        const counts = countBy(unresolved, level);
+        const counts = countBy(unresolved, level, reserved);
         const isLastLevel = level >= levels - 1;
         const [resolved, colliding] = unresolved.reduce(
             ([res, col], e) => {
@@ -87,6 +89,7 @@ export const mkSliceNameCandidates = (fieldName: string, sliceName: string): Nam
 };
 
 /** Resolve collisions across all extensions and slices within a profile.
+ *  Field accessor names are reserved — slices/extensions are bumped to avoid them.
  *  Mutates `nameCandidates.recommended` on each extension/slice in place. */
 export const assignRecommendedBaseNames = (profile: ProfileTypeSchema): void => {
     const extensionEntries: NameEntry[] = (profile.extensions ?? [])
@@ -104,10 +107,13 @@ export const assignRecommendedBaseNames = (profile: ProfileTypeSchema): void => 
         }));
     });
 
+    // Field names are reserved so slices/extensions avoid colliding with field accessors
+    const reservedNames = new Set(Object.keys(profile.fields ?? {}).map(normalizeCamelName));
+
     const allEntries = [...extensionEntries, ...sliceEntries];
     if (allEntries.length === 0) return;
 
-    const resolved = resolveNameCollisions(allEntries);
+    const resolved = resolveNameCollisions(allEntries, reservedNames);
 
     for (const ext of profile.extensions ?? []) {
         if (!ext.url) continue;

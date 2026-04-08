@@ -14,7 +14,6 @@ import {
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import {
-    tsCamelCase,
     tsExtensionFlatTypeName,
     tsFieldName,
     tsModulePath,
@@ -555,11 +554,7 @@ const generateFactoryMethods = (
     w.line();
 };
 
-const generateFieldAccessors = (
-    w: TypeScript,
-    factoryInfo: ProfileFactoryInfo,
-    extSliceMethodBaseNames: Set<string>,
-) => {
+const generateFieldAccessors = (w: TypeScript, factoryInfo: ProfileFactoryInfo) => {
     w.line("// Field accessors");
     for (const p of factoryInfo.params) {
         const methodBaseName = uppercaseFirstLetter(p.name);
@@ -574,10 +569,8 @@ const generateFieldAccessors = (
         w.line();
     }
 
-    // Getter and setter methods for choice instance fields (skip if extension/slice has same name)
     for (const a of factoryInfo.accessors) {
-        const methodBaseName = uppercaseFirstLetter(tsCamelCase(a.name));
-        if (extSliceMethodBaseNames.has(methodBaseName)) continue;
+        const methodBaseName = uppercaseFirstLetter(a.name);
         const fieldAccess = tsFieldName(a.name);
         w.curlyBlock([`get${methodBaseName}`, "()", `: ${a.tsType} | undefined`], () => {
             w.lineSM(`return ${tsGet("this.resource", fieldAccess)} as ${a.tsType} | undefined`);
@@ -721,18 +714,6 @@ const generateFlatInputType = (w: TypeScript, flatProfile: ProfileTypeSchema) =>
     w.line();
 };
 
-/** Collect all resolved base names (extensions + slices) for field accessor dedup. */
-const collectAllBaseNames = (flatProfile: ProfileTypeSchema, sliceDefs: SliceDef[]): Set<string> => {
-    const names = new Set<string>();
-    for (const ext of flatProfile.extensions ?? []) {
-        if (ext.url) names.add(ext.nameCandidates.recommended);
-    }
-    for (const slice of sliceDefs) {
-        names.add(slice.baseName);
-    }
-    return names;
-};
-
 export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) => {
     const tsBaseResourceName = tsTypeFromIdentifier(flatProfile.base);
     const profileClassName = tsProfileClassName(flatProfile);
@@ -750,8 +731,6 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, fl
     const canonicalUrl = flatProfile.identifier.url;
     w.comment("CanonicalURL:", canonicalUrl, `(pkg: ${packageMetaToFhir(packageMeta(flatProfile))})`);
 
-    const allBaseNames = collectAllBaseNames(flatProfile, sliceDefs);
-
     w.curlyBlock(["export", "class", profileClassName], () => {
         w.lineSM(`static readonly canonicalUrl = ${JSON.stringify(canonicalUrl)}`);
         w.line();
@@ -759,7 +738,7 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, fl
         w.lineSM(`private resource: ${tsBaseResourceName}`);
         w.line();
         generateFactoryMethods(w, tsIndex, flatProfile, factoryInfo);
-        generateFieldAccessors(w, factoryInfo, allBaseNames);
+        generateFieldAccessors(w, factoryInfo);
 
         w.line("// Extensions");
         generateExtensionMethods(w, tsIndex, flatProfile);
