@@ -4,7 +4,7 @@
  * Functions for transforming FHIRSchema elements into TypeSchema fields
  */
 
-import type { FHIRSchemaDiscriminator, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
+import type { FHIRCoding, FHIRSchemaDiscriminator, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import type { Register } from "@root/typeschema/register";
 import type { CodegenLog } from "@root/utils/log";
 import { packageMetaToFhir } from "@typeschema/types";
@@ -351,13 +351,13 @@ export const mkField = (
                     Object.keys(s.match as object).length > 0,
             );
         if (allRequired) {
-            const codingValues = allSliceValues.map((s) => s.match as import("@atomic-ehr/fhirschema").FHIRValue);
+            const codingValues = allSliceValues.flatMap((s) => (s.match ? [s.match as FHIRCoding] : []));
             valueConstraint = {
                 kind: "fixed",
                 type: "CodeableConcept",
                 value: {
-                    coding: codingValues.length === 1 ? [codingValues[0]] : codingValues,
-                } as unknown as import("@atomic-ehr/fhirschema").FHIRValue,
+                    coding: codingValues,
+                },
             };
         }
     }
