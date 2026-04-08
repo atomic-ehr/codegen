@@ -318,6 +318,14 @@ class Extension(Element):
     value_uuid: str | None = Field(None, alias="valueUuid", serialization_alias="valueUuid")
     value_uuid_extension: Element | None = Field(None, alias="_valueUuid", serialization_alias="_valueUuid")
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Extension):
+            return NotImplemented
+        return self.model_dump(by_alias=True, exclude_none=True) == other.model_dump(by_alias=True, exclude_none=True)
+
+    def __hash__(self) -> int:
+        return hash(self.url)
+
 
 class HumanName(Element):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
