@@ -24,6 +24,7 @@ import {
     type TypeIdentifier,
     type TypeSchema,
     type ValueSetTypeSchema,
+    type ProfileTypeSchema,
 } from "@typeschema/types";
 
 import { collectBindingSchemas, extractValueSetConceptsByUrl } from "./binding";
@@ -162,7 +163,7 @@ export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSche
         const extensions = extractProfileExtensions(register, fhirSchema, logger);
         const extensionDeps = extensions?.flatMap(extractExtensionDeps);
         const rawDeps = extractProfileDependencies(identifier, base, fields, nested);
-        const profileSchema = {
+        const profileSchema: ProfileTypeSchema = {
             identifier,
             base,
             fields,
