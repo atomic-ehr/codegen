@@ -248,6 +248,11 @@ export type ConstrainedChoiceInfo = {
     allChoiceNames: string[];
 };
 
+export type NameCandidates = {
+    candidates: string[];
+    recommended: string;
+};
+
 export interface FieldSlice {
     min?: number;
     max?: number;
@@ -255,6 +260,7 @@ export interface FieldSlice {
     required?: string[];
     excluded?: string[];
     elements?: string[];
+    nameCandidates: NameCandidates;
 }
 
 export interface ExtensionSubField {
@@ -276,6 +282,7 @@ export interface ProfileExtension {
     valueFieldTypes?: TypeIdentifier[];
     subExtensions?: ExtensionSubField[];
     isComplex?: boolean;
+    nameCandidates: NameCandidates;
 }
 
 export const extractExtensionDeps = (ext: ProfileExtension): TypeIdentifier[] => [

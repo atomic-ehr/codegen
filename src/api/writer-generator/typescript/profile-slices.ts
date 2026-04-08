@@ -11,7 +11,6 @@ import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import {
     tsFieldName,
     tsProfileClassName,
-    tsResolvedSliceBaseName,
     tsResourceName,
     tsSliceFlatAllTypeName,
     tsSliceFlatTypeName,
@@ -101,6 +100,8 @@ export type SliceDef = {
     /** Base type parameterized with the matched resource type (e.g. "BundleEntry<Patient>") */
     typedBaseType: string;
     sliceName: string;
+    /** Collision-free base name from nameCandidates.recommended (e.g. "VSCat", "SystolicBP") */
+    baseName: string;
     match: Record<string, unknown>;
     /** Required fields, already filtered (match keys and polymorphic base names removed) */
     required: string[];
@@ -141,6 +142,7 @@ export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: ProfileT
                         baseType,
                         typedBaseType,
                         sliceName,
+                        baseName: slice.nameCandidates.recommended,
                         match: slice.match ?? {},
                         required,
                         excluded: slice.excluded ?? [],
@@ -152,16 +154,11 @@ export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: ProfileT
                 });
         });
 
-export const generateSliceSetters = (
-    w: TypeScript,
-    sliceDefs: SliceDef[],
-    flatProfile: ProfileTypeSchema,
-    sliceBaseNames: Record<string, string>,
-) => {
+export const generateSliceSetters = (w: TypeScript, sliceDefs: SliceDef[], flatProfile: ProfileTypeSchema) => {
     const profileClassName = tsProfileClassName(flatProfile);
     const tsProfileName = tsResourceName(flatProfile.identifier);
     for (const sliceDef of sliceDefs) {
-        const baseName = tsResolvedSliceBaseName(sliceBaseNames, sliceDef.fieldName, sliceDef.sliceName);
+        const baseName = sliceDef.baseName;
         const methodName = `set${baseName}`;
         const inputTypeName = tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
         const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;
@@ -225,17 +222,12 @@ export const generateSliceSetters = (
     }
 };
 
-export const generateSliceGetters = (
-    w: TypeScript,
-    sliceDefs: SliceDef[],
-    flatProfile: ProfileTypeSchema,
-    sliceBaseNames: Record<string, string>,
-) => {
+export const generateSliceGetters = (w: TypeScript, sliceDefs: SliceDef[], flatProfile: ProfileTypeSchema) => {
     const profileClassName = tsProfileClassName(flatProfile);
     const tsProfileName = tsResourceName(flatProfile.identifier);
     const defaultMode = w.opts.sliceGetterDefault ?? "flat";
     for (const sliceDef of sliceDefs) {
-        const baseName = tsResolvedSliceBaseName(sliceBaseNames, sliceDef.fieldName, sliceDef.sliceName);
+        const baseName = sliceDef.baseName;
         const getMethodName = `get${baseName}`;
         const flatTypeName = tsSliceFlatAllTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
         const matchRef = `${profileClassName}.${tsSliceStaticName(sliceDef.sliceName)}SliceMatch`;

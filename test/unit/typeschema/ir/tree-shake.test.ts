@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import assert from "node:assert";
+import { mkExtensionNameCandidates } from "@root/typeschema/core/name-candidates";
 import {
     packageTreeShakeReadme,
     rootTreeShakeReadme,
@@ -301,6 +302,7 @@ describe("ignoreExtensions", () => {
                 url: "http://example.com/ext/race",
                 profile: mkProfileId("http://example.com/ext/race"),
                 valueFieldTypes: [mkDep("http://hl7.org/fhir/StructureDefinition/Coding")],
+                nameCandidates: mkExtensionNameCandidates({ name: "race", path: "Patient.extension" }),
             },
             {
                 name: "ethnicity",
@@ -308,12 +310,14 @@ describe("ignoreExtensions", () => {
                 url: "http://example.com/ext/ethnicity",
                 profile: mkProfileId("http://example.com/ext/ethnicity"),
                 valueFieldTypes: [mkDep("http://hl7.org/fhir/StructureDefinition/CodeableConcept")],
+                nameCandidates: mkExtensionNameCandidates({ name: "ethnicity", path: "Patient.extension" }),
             },
             {
                 name: "birthsex",
                 path: "Patient.extension",
                 url: "http://example.com/ext/birthsex",
                 profile: mkProfileId("http://example.com/ext/birthsex"),
+                nameCandidates: mkExtensionNameCandidates({ name: "birthsex", path: "Patient.extension" }),
             },
         ],
     });
