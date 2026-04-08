@@ -17,6 +17,7 @@ import {
     isNestedIdentifier,
     type NestedTypeSchema,
     type ProfileIdentifier,
+    type ProfileTypeSchema,
     packageMetaToFhir,
     type RichFHIRSchema,
     type RichValueSet,
@@ -24,7 +25,6 @@ import {
     type TypeIdentifier,
     type TypeSchema,
     type ValueSetTypeSchema,
-    type ProfileTypeSchema,
 } from "@typeschema/types";
 
 import { collectBindingSchemas, extractValueSetConceptsByUrl } from "./binding";
