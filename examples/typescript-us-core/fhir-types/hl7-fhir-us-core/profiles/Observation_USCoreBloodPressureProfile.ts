@@ -35,6 +35,7 @@ import {
     validateExcluded,
     validateFixedValue,
     validateSliceCardinality,
+    validateSliceFields,
     validateEnum,
     validateReference,
     validateChoiceRequired,
@@ -373,7 +374,9 @@ export class USCoreBloodPressureProfile {
                 ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
                 ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),
                 ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}}, "systolic", 1, 1),
+                ...validateSliceFields(res, profileName, "component", {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}}, "systolic", ["valueQuantity"]),
                 ...validateSliceCardinality(res, profileName, "component", {"code":{"coding":[{"system":"http://loinc.org","code":"8462-4"}]}}, "diastolic", 1, 1),
+                ...validateSliceFields(res, profileName, "component", {"code":{"coding":[{"system":"http://loinc.org","code":"8462-4"}]}}, "diastolic", ["valueQuantity"]),
                 ...validateReference(res, profileName, "performer", ["PractitionerRole","USCoreCareTeam","USCoreOrganizationProfile","Patient","USCorePractitionerProfile","USCoreRelatedPersonProfile"]),
             ],
             warnings: [

@@ -16,6 +16,7 @@ import {
     validateExcluded,
     validateFixedValue,
     validateSliceCardinality,
+    validateSliceFields,
     validateEnum,
     validateReference,
     validateChoiceRequired,

@@ -30,6 +30,7 @@ import {
     validateExcluded,
     validateFixedValue,
     validateSliceCardinality,
+    validateSliceFields,
     validateEnum,
     validateReference,
     validateChoiceRequired,
@@ -203,7 +204,9 @@ export class USCoreTribalAffiliationExtensionProfile {
             errors: [
                 ...validateRequired(res, profileName, "extension"),
                 ...validateSliceCardinality(res, profileName, "extension", {"url":"tribalAffiliation"}, "tribalAffiliation", 1, 1),
+                ...validateSliceFields(res, profileName, "extension", {"url":"tribalAffiliation"}, "tribalAffiliation", ["value","valueCodeableConcept"]),
                 ...validateSliceCardinality(res, profileName, "extension", {"url":"isEnrolled"}, "isEnrolled", 0, 1),
+                ...validateSliceFields(res, profileName, "extension", {"url":"isEnrolled"}, "isEnrolled", ["value","valueBoolean"]),
                 ...validateRequired(res, profileName, "url"),
                 ...validateFixedValue(res, profileName, "url", USCoreTribalAffiliationExtensionProfile.canonicalUrl),
             ],
