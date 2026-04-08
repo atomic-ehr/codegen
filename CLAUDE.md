@@ -252,6 +252,47 @@ assets/api/writer-generator/
 - Use assets for static runtime code shared across all generated profiles (helpers, validators, base models)
 - Use programmatic generation (`w.lineSM()`, `w.curlyBlock()`) for code that varies per schema/profile
 
+## TypeScript Profile API
+
+### Slice Types
+
+Each non-type-discriminated slice generates two types:
+- **`SliceFlat`** — setter input, discriminator fields omitted (auto-applied by setter)
+- **`SliceFlatAll`** — getter return, extends `SliceFlat` with readonly discriminator literals
+
+```typescript
+// Setter input — only user data
+export type VSCatSliceFlat = Omit<CodeableConcept, "coding">;
+// Getter return — includes discriminator values
+export type VSCatSliceFlatAll = VSCatSliceFlat & {
+    readonly coding: [{ code: "vital-signs"; system: "http://...observation-category" }];
+}
+```
+
+Type-discriminated slices (e.g. `BundleEntry<Patient>`) use the typed base type directly — no `SliceFlat`/`SliceFlatAll` generated.
+
+### Unbounded Slices (max: *)
+
+Slices with `max: *` use array-based API:
+- **Setter**: `setOrganizationEntry(entries[])` — replaces all matched elements
+- **Getter**: `getOrganizationEntry()` — returns `T[] | undefined`
+
+Single-element slices (`max: 1`) keep the existing single-item API.
+
+### Reference Types for Family Types
+
+When a reference target is a family type (e.g. `Resource`, `DomainResource`), the generated type uses `Reference<string /* Resource */>` instead of `Reference<"Resource">`. This makes narrower profile references like `Reference<"Patient">` assignable to the base type field.
+
+Detection uses `mkIsFamilyType(tsIndex)` which checks `schema.typeFamily.resources.length > 0`.
+
+### Slice Field Validation
+
+`validate()` checks required fields inside matched slice elements via `validateSliceFields`. For constrained choice slices (e.g. BP `component.value[x]` restricted to `valueQuantity`), the variant is validated as required:
+
+```
+"observation-bp.component[SystolicBP].valueQuantity is required"
+```
+
 ## Common Development Patterns
 
 ### Adding a New Generator Feature
