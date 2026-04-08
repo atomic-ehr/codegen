@@ -22,6 +22,7 @@ import type {
 } from "../types";
 import { BINDABLE_TYPES, buildEnum } from "./binding";
 import { mkBindingIdentifier, mkIdentifier } from "./identifier";
+import { mkSliceNameCandidates } from "./name-candidates";
 import { mkNestedIdentifier } from "./nested-types";
 
 function isRequired(register: Register, fhirSchema: RichFHIRSchema, path: string[]): boolean {
@@ -238,7 +239,7 @@ const computeMatchFromSchema = (
     return result;
 };
 
-const buildSlicing = (element: FHIRSchemaElement): FieldSlicing | undefined => {
+const buildSlicing = (fieldName: string, element: FHIRSchemaElement): FieldSlicing | undefined => {
     const slicing = element.slicing;
     if (!slicing) return undefined;
 
@@ -255,6 +256,7 @@ const buildSlicing = (element: FHIRSchemaElement): FieldSlicing | undefined => {
             required,
             excluded,
             elements,
+            nameCandidates: mkSliceNameCandidates(fieldName, name),
         };
     }
 
@@ -372,7 +374,7 @@ export const mkField = (
         array: element.array || false,
         min: element.min,
         max: element.max,
-        slicing: buildSlicing(element),
+        slicing: buildSlicing(path[path.length - 1] ?? "", element),
 
         choices: element.choices,
         choiceOf: element.choiceOf,
@@ -396,6 +398,6 @@ export function mkNestedField(
         array: element.array || false,
         required: isRequired(register, fhirSchema, path),
         excluded: isExcluded(register, fhirSchema, path),
-        slicing: buildSlicing(element),
+        slicing: buildSlicing(path[path.length - 1] ?? "", element),
     };
 }

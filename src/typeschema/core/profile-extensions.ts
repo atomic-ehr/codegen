@@ -20,6 +20,7 @@ import {
 
 import { buildFieldType } from "./field-builder";
 import { mkIdentifier } from "./identifier";
+import { mkExtensionNameCandidates } from "./name-candidates";
 
 const extractExtensionValueFieldTypes = (
     register: Register,
@@ -158,9 +159,10 @@ export const extractProfileExtensions = (
         const extFs = url ? register.resolveFs(fhirSchema.package_meta, url) : undefined;
         const profile = extFs ? (mkIdentifier(extFs) as ProfileIdentifier) : undefined;
 
+        const extPath = [...path, "extension"].join(".");
         extensions.push({
             name,
-            path: [...path, "extension"].join("."),
+            path: extPath,
             url,
             profile,
             min: schema.min,
@@ -169,6 +171,7 @@ export const extractProfileExtensions = (
             valueFieldTypes,
             subExtensions,
             isComplex,
+            nameCandidates: mkExtensionNameCandidates({ name, path: extPath }),
         });
     };
 

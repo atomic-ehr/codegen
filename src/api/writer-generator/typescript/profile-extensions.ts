@@ -12,7 +12,6 @@ import {
     tsExtensionFlatTypeName,
     tsProfileClassName,
     tsProfileModuleName,
-    tsResolvedExtensionBaseName,
     tsResourceName,
     tsValueFieldName,
 } from "./name";
@@ -396,15 +395,10 @@ const generateGenericExtensionGetter = (w: TypeScript, info: ExtensionMethodInfo
     });
 };
 
-export const generateExtensionMethods = (
-    w: TypeScript,
-    tsIndex: TypeSchemaIndex,
-    flatProfile: ProfileTypeSchema,
-    extensionBaseNames: Record<string, string>,
-) => {
+export const generateExtensionMethods = (w: TypeScript, tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) => {
     for (const ext of flatProfile.extensions ?? []) {
         if (!ext.url) continue;
-        const baseName = tsResolvedExtensionBaseName(extensionBaseNames, ext.url, ext.path, ext.name);
+        const baseName = ext.nameCandidates.recommended;
         const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");
         const extProfileInfo = resolveExtensionProfile(tsIndex, flatProfile.identifier.package, ext.url);
         const info: ExtensionMethodInfo = {

@@ -7,7 +7,6 @@ import {
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
     isResourceIdentifier,
-    type ProfileExtension,
     type ProfileTypeSchema,
     packageMeta,
     packageMetaToFhir,
@@ -17,19 +16,15 @@ import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import {
     tsCamelCase,
     tsExtensionFlatTypeName,
-    tsExtensionMethodBaseName,
     tsFieldName,
     tsModulePath,
     tsNameFromCanonical,
     tsPackageDir,
     tsProfileClassName,
     tsProfileModuleName,
-    tsQualifiedExtensionMethodBaseName,
-    tsQualifiedSliceMethodBaseName,
     tsResourceName,
     tsSliceFlatAllTypeName,
     tsSliceFlatTypeName,
-    tsSliceMethodBaseName,
     tsSliceStaticName,
 } from "./name";
 import {
@@ -726,76 +721,16 @@ const generateFlatInputType = (w: TypeScript, flatProfile: ProfileTypeSchema) =>
     w.line();
 };
 
-type ResolvedProfileMethods = {
-    /** "url:path" → method base name (e.g., "Race" or "PathRace") */
-    extensions: Record<string, string>;
-    /** "fieldName:sliceName" → method base name */
-    slices: Record<string, string>;
-    /** All resolved base names (extensions + slices) for field accessor dedup */
-    allBaseNames: Set<string>;
-};
-
-type NameEntry = { key: string; candidates: string[] };
-
-const countBy = (entries: NameEntry[], level: number): Record<string, number> =>
-    entries.reduce(
-        (counts, e) => {
-            const name = e.candidates[level] ?? "";
-            counts[name] = (counts[name] ?? 0) + 1;
-            return counts;
-        },
-        {} as Record<string, number>,
-    );
-
-/** Resolve naming collisions across multiple levels of candidates.
- *  Each entry provides candidate names in priority order (e.g. base → qualified → discriminated). */
-const resolveNameCollisions = (entries: NameEntry[]): Record<string, string> => {
-    const levels = entries[0]?.candidates.length ?? 0;
-
-    const resolve = (unresolved: NameEntry[], level: number): Record<string, string> => {
-        if (unresolved.length === 0 || level >= levels) return {};
-        const counts = countBy(unresolved, level);
-        const isLastLevel = level >= levels - 1;
-        const [resolved, colliding] = unresolved.reduce(
-            ([res, col], e) => {
-                const name = e.candidates[level] ?? "";
-                return (counts[name] ?? 0) > 1 && !isLastLevel ? [res, [...col, e]] : [{ ...res, [e.key]: name }, col];
-            },
-            [{} as Record<string, string>, [] as NameEntry[]],
-        );
-        return { ...resolved, ...resolve(colliding, level + 1) };
-    };
-
-    return resolve(entries, 0);
-};
-
-const toRecord = (entries: NameEntry[], resolved: Record<string, string>): Record<string, string> =>
-    Object.fromEntries(entries.map((e) => [e.key, resolved[e.key] ?? e.candidates[0] ?? ""]));
-
-const resolveProfileMethodBaseNames = (
-    extensions: ProfileExtension[],
-    sliceDefs: SliceDef[],
-): ResolvedProfileMethods => {
-    const extensionEntries: NameEntry[] = extensions
-        .filter((ext) => ext.url)
-        .map((ext) => {
-            const base = tsExtensionMethodBaseName(ext.name);
-            const qualified = tsQualifiedExtensionMethodBaseName(ext.name, ext.path);
-            return { key: `${ext.url}:${ext.path}`, candidates: [base, qualified, `${qualified}Extension`] };
-        });
-
-    const sliceEntries: NameEntry[] = sliceDefs.map((slice) => {
-        const base = tsSliceMethodBaseName(slice.sliceName);
-        const qualified = tsQualifiedSliceMethodBaseName(slice.fieldName, slice.sliceName);
-        return { key: `${slice.fieldName}:${slice.sliceName}`, candidates: [base, qualified, `${qualified}Slice`] };
-    });
-
-    const resolved = resolveNameCollisions([...extensionEntries, ...sliceEntries]);
-    const extensionsRecords = toRecord(extensionEntries, resolved);
-    const slicesRecords = toRecord(sliceEntries, resolved);
-    const allBaseNames = new Set([...Object.values(extensionsRecords), ...Object.values(slicesRecords)]);
-
-    return { extensions: extensionsRecords, slices: slicesRecords, allBaseNames };
+/** Collect all resolved base names (extensions + slices) for field accessor dedup. */
+const collectAllBaseNames = (flatProfile: ProfileTypeSchema, sliceDefs: SliceDef[]): Set<string> => {
+    const names = new Set<string>();
+    for (const ext of flatProfile.extensions ?? []) {
+        if (ext.url) names.add(ext.nameCandidates.recommended);
+    }
+    for (const slice of sliceDefs) {
+        names.add(slice.baseName);
+    }
+    return names;
 };
 
 export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) => {
@@ -815,7 +750,7 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, fl
     const canonicalUrl = flatProfile.identifier.url;
     w.comment("CanonicalURL:", canonicalUrl, `(pkg: ${packageMetaToFhir(packageMeta(flatProfile))})`);
 
-    const resolvedMethodNames = resolveProfileMethodBaseNames(flatProfile.extensions ?? [], sliceDefs);
+    const allBaseNames = collectAllBaseNames(flatProfile, sliceDefs);
 
     w.curlyBlock(["export", "class", profileClassName], () => {
         w.lineSM(`static readonly canonicalUrl = ${JSON.stringify(canonicalUrl)}`);
@@ -824,14 +759,14 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, fl
         w.lineSM(`private resource: ${tsBaseResourceName}`);
         w.line();
         generateFactoryMethods(w, tsIndex, flatProfile, factoryInfo);
-        generateFieldAccessors(w, factoryInfo, resolvedMethodNames.allBaseNames);
+        generateFieldAccessors(w, factoryInfo, allBaseNames);
 
         w.line("// Extensions");
-        generateExtensionMethods(w, tsIndex, flatProfile, resolvedMethodNames.extensions);
+        generateExtensionMethods(w, tsIndex, flatProfile);
 
         w.line("// Slices");
-        generateSliceSetters(w, sliceDefs, flatProfile, resolvedMethodNames.slices);
-        generateSliceGetters(w, sliceDefs, flatProfile, resolvedMethodNames.slices);
+        generateSliceSetters(w, sliceDefs, flatProfile);
+        generateSliceGetters(w, sliceDefs, flatProfile);
 
         w.line("// Validation");
         generateValidateMethod(w, tsIndex, flatProfile);

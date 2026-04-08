@@ -29,6 +29,7 @@ import {
 import { collectBindingSchemas, extractValueSetConceptsByUrl } from "./binding";
 import { mkField, mkNestedField } from "./field-builder";
 import { mkIdentifier, mkValueSetIdentifierByUrl } from "./identifier";
+import { assignRecommendedBaseNames } from "./name-candidates";
 import { extractNestedDependencies, isNestedElement, mkNestedTypes } from "./nested-types";
 import { extractProfileExtensions } from "./profile-extensions";
 
@@ -161,18 +162,17 @@ export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSche
         const extensions = extractProfileExtensions(register, fhirSchema, logger);
         const extensionDeps = extensions?.flatMap(extractExtensionDeps);
         const rawDeps = extractProfileDependencies(identifier, base, fields, nested);
-        return [
-            {
-                identifier,
-                base,
-                fields,
-                nested,
-                description: fhirSchema.description,
-                dependencies: concatIdentifiers(rawDeps, extensionDeps),
-                extensions,
-            },
-            ...bindingSchemas,
-        ];
+        const profileSchema = {
+            identifier,
+            base,
+            fields,
+            nested,
+            description: fhirSchema.description,
+            dependencies: concatIdentifiers(rawDeps, extensionDeps),
+            extensions,
+        };
+        assignRecommendedBaseNames(profileSchema);
+        return [profileSchema, ...bindingSchemas];
     }
 
     if (fhirSchema.kind === "primitive-type") {
