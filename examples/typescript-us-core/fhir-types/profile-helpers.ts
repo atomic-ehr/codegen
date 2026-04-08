@@ -204,19 +204,6 @@ export const extractComplexExtension = <T = Record<string, unknown>>(
 // ---------------------------------------------------------------------------
 
 /**
- * Remove discriminator keys from a slice element, returning only the
- * user-supplied portion.  Used by slice getters so callers see a clean object
- * without the fixed discriminator values baked in.
- */
-export const stripMatchKeys = <T>(slice: object, matchKeys: string[]): T => {
-    const result = { ...slice } as Record<string, unknown>;
-    for (const key of matchKeys) {
-        delete result[key];
-    }
-    return result as T;
-};
-
-/**
  * Wrap a flat input object under a choice-type key before inserting into a
  * slice.  For example, a Quantity value destined for `valueQuantity` is
  * wrapped as `{ valueQuantity: { ...input } }`.
