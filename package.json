@@ -52,7 +52,8 @@
     "codegen:all": "bun run src/cli/index.ts generate",
     "prune": "knip",
     "prune:strict": "knip --strict",
-    "prune:fix": "knip --fix"
+    "prune:fix": "knip --fix",
+    "release": "bash ./scripts/release.sh"
   },
   "repository": {
     "type": "git",
