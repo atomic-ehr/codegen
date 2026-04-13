@@ -25,7 +25,7 @@ import {
     type SpecializationTypeSchema,
     type TypeIdentifier,
 } from "@typeschema/types.ts";
-import { generateExtensionProfiles } from "./extension-profile";
+import { generateNewProfiles } from "./profile";
 
 export const resolvePyAssets = (fn: string) => {
     const __dirname = Path.dirname(fileURLToPath(import.meta.url));
@@ -140,8 +140,19 @@ export class Python extends Writer<PythonGeneratorOptions> {
 
                 const packageProfiles = profilesByPackage[packageName];
                 if (packageProfiles && packageProfiles.length > 0) {
-                    generateExtensionProfiles(this, tsIndex, packageProfiles);
+                    generateNewProfiles(this, tsIndex, packageProfiles);
                 }
+            });
+        }
+
+        // Profile-only packages (e.g. us-core, which constrains r4.core
+        // resources but has no resources of its own). Emit their profiles
+        // into a sibling package directory.
+        for (const [packageName, packageProfiles] of Object.entries(profilesByPackage)) {
+            if (groups.groupedResources[packageName]) continue;
+            if (!packageProfiles || packageProfiles.length === 0) continue;
+            this.cd(`/${snakeCase(packageName)}`, () => {
+                generateNewProfiles(this, tsIndex, packageProfiles);
             });
         }
     }
@@ -199,7 +210,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         }
     }
 
-    private generateBasePy(packageName: string, packageComplexTypes: SpecializationTypeSchema[]): void {
+    private generateBasePy(_packageName: string, packageComplexTypes: SpecializationTypeSchema[]): void {
         const hasGenericTypes = packageComplexTypes.some((s) => s.identifier.name in GENERIC_FIELD_REWRITES);
         this.cat("base.py", () => {
             this.generateDisclaimer();
