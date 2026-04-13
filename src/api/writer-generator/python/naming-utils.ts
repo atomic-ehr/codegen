@@ -25,11 +25,7 @@ export const PRIMITIVE_TYPE_MAP: Record<string, string> = {
     xhtml: "str",
 };
 
-export const isPythonPrimitive = (typeName: string): boolean => typeName in PRIMITIVE_TYPE_MAP;
-
-export const PYTHON_BUILTINS = new Set(["str", "int", "float", "bool", "list", "dict", "set", "tuple", "bytes"]);
-
-const PYTHON_KEYWORDS = new Set([
+export const PYTHON_KEYWORDS = new Set([
     "False",
     "None",
     "True",
@@ -65,7 +61,6 @@ const PYTHON_KEYWORDS = new Set([
     "while",
     "with",
     "yield",
-    "List",
 ]);
 
 export const fixReservedWords = (name: string): string => {
@@ -118,29 +113,3 @@ export const pyPackage = (rootPackageName: string, identifier: TypeIdentifier): 
     }
     return pyFhirPackage(rootPackageName, identifier);
 };
-
-export const extensionProfileClassName = (profile: { identifier: { name: string } }): string =>
-    `${pascalCase(profile.identifier.name)}Extension`;
-
-export const collectSubExtensionClassNames = (profile: {
-    identifier: { name: string };
-    extensions?: { name: string }[];
-}): string[] => {
-    const parentName = pascalCase(profile.identifier.name);
-    return (profile.extensions ?? []).map((ext) => `${parentName}${pascalCase(ext.name)}Extension`);
-};
-
-export const subExtValueFieldName = (valueFieldType: { name: string } | undefined): string => {
-    if (!valueFieldType) return "valueString";
-    return `value${valueFieldType.name}`;
-};
-
-export const subExtensionClassName = (parentName: string, extName: string): string =>
-    `${parentName}${pascalCase(extName)}Extension`;
-
-export const subExtensionUnionName = (parentName: string): string => `${parentName}SubExtension`;
-
-export const extensionProfileParentName = (profile: { identifier: { name: string } }): string =>
-    pascalCase(profile.identifier.name);
-
-export const extensionModuleName = (name: string): string => `extension_${snakeCase(name)}`;

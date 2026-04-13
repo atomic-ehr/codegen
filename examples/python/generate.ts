@@ -13,7 +13,7 @@ const builder = new APIBuilder({ logger })
     .python({
         allowExtraFields: false,
         primitiveTypeExtension: true,
-        generateProfile: true,
+        generateProfile: false,
         fhirpyClient: false,
         fieldFormat: "snake_case",
     })
