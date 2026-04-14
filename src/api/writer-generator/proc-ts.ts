@@ -61,20 +61,17 @@ export class ProcTs extends Writer<ProcTsOptions> {
     private resolveType(field: any, schemaName: string): string {
         if (!field.type) return "any";
 
-        // Enum values
+        // Enum values — just use the base type (no generics)
         if (field.enum) {
+            if (field.type.name === "Coding") return `${this.prefix}.Coding`;
+            if (field.type.name === "CodeableConcept") return `${this.prefix}.CodeableConcept`;
             const values = field.enum.values.map((e: string) => `"${e}"`).join(" | ");
-            const enumType = field.enum.isOpen ? `(${values} | string)` : `(${values})`;
-
-            if (field.type.name === "Coding") return `${this.prefix}.Coding<${enumType}>`;
-            if (field.type.name === "CodeableConcept") return `${this.prefix}.CodeableConcept<${enumType}>`;
-            return enumType;
+            return field.enum.isOpen ? `(${values} | string)` : `(${values})`;
         }
 
-        // References
+        // References — just Reference, no generic target
         if (field.reference && field.reference.length > 0) {
-            const refs = field.reference.map((r: TypeIdentifier) => `"${r.name}"`).join(" | ");
-            return `${this.prefix}.Reference<${refs}>`;
+            return `${this.prefix}.Reference`;
         }
 
         // Primitive
@@ -97,19 +94,23 @@ export class ProcTs extends Writer<ProcTsOptions> {
         isNested = false,
     ) {
         const name = normalizeName(schema.identifier);
-        // Nested types don't extend (they're local to the file)
-        // Top-level types can extend if they have a base
         let extendsClause = "";
         if (!isNested && schema.base) {
             const baseName = tsNameFromCanonical(schema.base.url);
-            if (baseName && baseName !== "DomainResource" && baseName !== "Resource" && baseName !== "Element" && baseName !== "BackboneElement") {
+            if (baseName) {
                 extendsClause = ` extends ${this.prefix}.${baseName}`;
             }
         }
 
         this.curlyBlock(["export", "interface", name, extendsClause || undefined], () => {
             if (isResourceTypeSchema(schema)) {
-                this.lineSM(`resourceType: "${schema.identifier.name}"`);
+                // Base types use string, concrete types use literal
+                const hasChildren = (schema.typeFamily?.resources?.length ?? 0) > 0;
+                if (hasChildren) {
+                    this.lineSM(`resourceType: string`);
+                } else {
+                    this.lineSM(`resourceType: "${schema.identifier.name}"`);
+                }
                 this.line();
             }
             if (!schema.fields) return;
