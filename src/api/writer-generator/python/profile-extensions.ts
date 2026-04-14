@@ -100,9 +100,7 @@ const generateComplexExtensionGetter = (
             return `{"name": ${JSON.stringify(sub.url)}, "valueField": ${JSON.stringify(valueField)}, "isArray": ${isArray ? "True" : "False"}}`;
         });
         w.line(`config = [${configItems.join(", ")}]`);
-        w.line(
-            "return extract_complex_extension(ext, config)",
-        );
+        w.line("return extract_complex_extension(ext, config)");
     });
     w.line();
 };
