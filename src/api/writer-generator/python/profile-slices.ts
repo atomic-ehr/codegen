@@ -1,10 +1,13 @@
 import {
+    type ConstrainedChoiceInfo,
     isChoiceDeclarationField,
     isNotChoiceDeclarationField,
+    isPrimitiveIdentifier,
     type ProfileTypeSchema,
     type RegularField,
 } from "@typeschema/types.ts";
 import type { TypeSchemaIndex } from "@typeschema/utils.ts";
+import { pyTypeFromIdentifier } from "./profile-extensions";
 import { pyFieldName, pySliceMethodBaseName, pySliceStaticName } from "./profile-naming";
 import type { Python } from "./writer";
 
@@ -14,6 +17,8 @@ export type SliceDef = {
     match: Record<string, unknown>;
     required: string[];
     array: boolean;
+    constrainedChoice: ConstrainedChoiceInfo | undefined;
+    elementTypeName: string | undefined;
 };
 
 // todo: move duplicating ts+py logic into a shared helper
@@ -33,10 +38,10 @@ export const generateStaticSliceFields = (w: Python, sliceDefs: SliceDef[]): voi
     if (sliceDefs.length > 0) w.line();
 };
 
-/** Recursively wrap nested plain-object match values in single-element arrays
- *  where the corresponding base-type field is declared as ``array``.  This
- *  ensures the match pattern is valid for Pydantic model construction (e.g.
- *  ``coding`` in CodeableConcept must be a list, not a plain dict). */
+/** Ensure the slice match has shapes that Pydantic accepts when the match is
+ *  later merged into user input and passed to a model constructor: a plain-
+ *  object value for a list-typed field is wrapped in a single-element list.
+ *  Values that are already lists are recursed into but not rewrapped. */
 export const normalizeMatchForPython = (
     tsIndex: TypeSchemaIndex,
     match: Record<string, unknown>,
@@ -50,20 +55,29 @@ export const normalizeMatchForPython = (
             result[key] = value;
             continue;
         }
-        const isObj = typeof value === "object" && value !== null && !Array.isArray(value);
-        if (isObj) {
-            const nestedSchema = fieldDef.type ? tsIndex.resolveType(fieldDef.type) : undefined;
-            const normalized = normalizeMatchForPython(tsIndex, value as Record<string, unknown>, nestedSchema);
+        const nestedSchema = fieldDef.type ? tsIndex.resolveType(fieldDef.type) : undefined;
+        const normalizeOne = (v: unknown): unknown =>
+            v !== null && typeof v === "object" && !Array.isArray(v)
+                ? normalizeMatchForPython(tsIndex, v as Record<string, unknown>, nestedSchema)
+                : v;
+
+        if (Array.isArray(value)) {
+            // Already a list — normalize each element, do not wrap again.
+            result[key] = value.map(normalizeOne);
+        } else if (value !== null && typeof value === "object") {
+            const normalized = normalizeOne(value);
             result[key] = fieldDef.array ? [normalized] : normalized;
         } else {
-            result[key] = fieldDef.array ? [value] : value;
+            // Primitive — leave as-is.
+            result[key] = value;
         }
     }
     return result;
 };
 
-export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema): SliceDef[] =>
-    Object.entries(flatProfile.fields ?? {})
+export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema): SliceDef[] => {
+    const pkgName = flatProfile.identifier.package;
+    return Object.entries(flatProfile.fields ?? {})
         .filter(([_, field]) => isNotChoiceDeclarationField(field) && field.slicing?.slices)
         .flatMap(([fieldName, field]) => {
             if (!isNotChoiceDeclarationField(field) || !field.slicing?.slices || !field.type) return [];
@@ -81,15 +95,26 @@ export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: ProfileT
                     const required = (slice.required ?? []).filter(
                         (name) => !matchFields.includes(name) && !choiceBaseNames.has(name),
                     );
+                    const cc = slice.elements
+                        ? tsIndex.constrainedChoice(pkgName, field.type, slice.elements)
+                        : undefined;
+                    // Skip flattening for primitive types — can't wrap/unwrap under a variant key.
+                    const constrainedChoice = cc && !isPrimitiveIdentifier(cc.variantType) ? cc : undefined;
                     return {
                         fieldName,
                         sliceName,
                         match: normalizeMatchForPython(tsIndex, slice.match ?? {}, baseSchema),
                         required,
                         array: Boolean(field.array),
+                        constrainedChoice,
+                        elementTypeName:
+                            field.type && !isPrimitiveIdentifier(field.type)
+                                ? pyTypeFromIdentifier(field.type)
+                                : undefined,
                     };
                 });
         });
+};
 
 // ---------------------------------------------------------------------------
 // Slice getters / setters
@@ -108,7 +133,7 @@ export const generateSliceGetters = (
         const fieldName = pyFieldName(sliceDef.fieldName);
         const matchKeys = JSON.stringify(Object.keys(sliceDef.match));
 
-        w.line(`def get_${baseName}(self) -> dict | None:`);
+        w.line(`def get_${baseName}(self, mode: str | None = None) -> Any | None:`);
         w.indentBlock(() => {
             w.line(`match = self.__class__.${staticName}`);
             if (sliceDef.array) {
@@ -124,9 +149,17 @@ export const generateSliceGetters = (
             w.indentBlock(() => {
                 w.line("return None");
             });
-            w.line(
-                `return strip_match_keys(item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True), ${matchKeys})`,
-            );
+            w.line('if mode == "raw":');
+            w.indentBlock(() => {
+                w.line("return item");
+            });
+            w.line("item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)");
+            if (sliceDef.constrainedChoice) {
+                const variant = JSON.stringify(sliceDef.constrainedChoice.variant);
+                w.line(`return unwrap_slice_choice(item_dict, ${matchKeys}, ${variant})`);
+            } else {
+                w.line(`return strip_match_keys(item_dict, ${matchKeys})`);
+            }
         });
         w.line();
     }
@@ -143,11 +176,27 @@ export const generateSliceSetters = (
             sliceBaseNames[`${sliceDef.fieldName}:${sliceDef.sliceName}`] ?? pySliceMethodBaseName(sliceDef.sliceName);
         const staticName = pySliceStaticName(sliceDef.sliceName);
         const fieldName = pyFieldName(sliceDef.fieldName);
+        // Make input optional when there are no required fields (input can be empty / omitted),
+        // mirroring TS `inputOptional = sliceDef.required.length === 0`.
+        const inputOptional = sliceDef.required.length === 0;
+        const sig = inputOptional
+            ? `def set_${baseName}(self, value: dict | None = None) -> "${className}":`
+            : `def set_${baseName}(self, value: dict) -> "${className}":`;
 
-        w.line(`def set_${baseName}(self, value: dict) -> "${className}":`);
+        w.line(sig);
         w.indentBlock(() => {
             w.line(`match = self.__class__.${staticName}`);
-            w.line("merged = apply_slice_match(value, match)");
+            const inputExpr = inputOptional ? "(value or {})" : "value";
+            if (sliceDef.constrainedChoice) {
+                const variant = JSON.stringify(sliceDef.constrainedChoice.variant);
+                w.line(`wrapped = wrap_slice_choice(${inputExpr}, ${variant})`);
+                w.line("merged = apply_slice_match(wrapped, match)");
+            } else {
+                w.line(`merged = apply_slice_match(${inputExpr}, match)`);
+            }
+            if (sliceDef.elementTypeName) {
+                w.line(`merged = ${sliceDef.elementTypeName}(**merged)`);
+            }
             if (sliceDef.array) {
                 w.line(`items = getattr(self._resource, ${JSON.stringify(fieldName)}, None) or []`);
                 w.line("set_array_slice(items, match, merged)");

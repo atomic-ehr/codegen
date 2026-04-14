@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
     CodeableConcept,
@@ -203,16 +205,20 @@ class UscoreBodyWeightProfile:
         setattr(self._resource, "value_period", value)
         return self
 
-    def get_vscat(self) -> dict | None:
+    def get_vscat(self, mode: str | None = None) -> Any | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
         if item is None:
             return None
-        return strip_match_keys(item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True), ["coding"])
+        if mode == "raw":
+            return item
+        item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
+        return strip_match_keys(item_dict, ["coding"])
 
-    def set_vscat(self, value: dict) -> "UscoreBodyWeightProfile":
+    def set_vscat(self, value: dict | None = None) -> "UscoreBodyWeightProfile":
         match = self.__class__._vscat_slice_match
-        merged = apply_slice_match(value, match)
+        merged = apply_slice_match((value or {}), match)
+        merged = CodeableConcept(**merged)
         items = getattr(self._resource, "category", None) or []
         set_array_slice(items, match, merged)
         setattr(self._resource, "category", items)
