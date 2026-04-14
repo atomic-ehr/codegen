@@ -15,6 +15,7 @@ import {
     type TgzPackageConfig,
 } from "@atomic-ehr/fhir-canonical-manager";
 import { CSharp, type CSharpGeneratorOptions } from "@root/api/writer-generator/csharp/csharp";
+import { ProcTs, type ProcTsOptions } from "@root/api/writer-generator/proc-ts";
 import { Python, type PythonGeneratorOptions } from "@root/api/writer-generator/python";
 import { generateTypeSchemas } from "@root/typeschema";
 import { promoteLogical } from "@root/typeschema/ir/logic-promotion";
@@ -238,6 +239,21 @@ export class APIBuilder {
         const generator = new TypeScript(opts);
         this.generators.push({ name: "typescript", writer: generator });
         this.logger.debug(`Configured TypeScript generator (${JSON.stringify(opts, undefined, 2)})`);
+        return this;
+    }
+
+    procTs(userOpts: Partial<ProcTsOptions> = {}) {
+        const opts: ProcTsOptions = {
+            logger: this.logger,
+            outputDir: Path.join(this.options.outputDir, "/types"),
+            tabSize: 4,
+            withDebugComment: false,
+            commentLinePrefix: "//",
+            ...Object.fromEntries(Object.entries(userOpts).filter(([_, v]) => v !== undefined)),
+        };
+        const generator = new ProcTs(opts);
+        this.generators.push({ name: "proc-ts", writer: generator });
+        this.logger.debug(`Configured proc-ts generator`);
         return this;
     }
 

@@ -14,3 +14,4 @@ export type { APIBuilderOptions, LocalStructureDefinitionConfig } from "./builde
 export { APIBuilder, prettyReport } from "./builder";
 export type { CSharpGeneratorOptions } from "./writer-generator/csharp/csharp";
 export type { TypeScriptOptions } from "./writer-generator/typescript/writer";
+export type { ProcTsOptions } from "./writer-generator/proc-ts";
