@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from .profile_helpers import (
     build_resource,
@@ -13,6 +15,8 @@ from .profile_helpers import (
     matches_value,
     set_array_slice,
     strip_match_keys,
+    wrap_slice_choice,
+    unwrap_slice_choice,
     is_extension,
     get_extension_value,
     push_extension,
@@ -112,46 +116,60 @@ class UscoreEthnicityExtension:
         push_extension(self._resource, {"url": "text", **value})
         return self
 
-    def get_extension_omb_category(self) -> dict | None:
+    def get_extension_omb_category(self, mode: str | None = None) -> Any | None:
         match = self.__class__._omb_category_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
         if item is None:
             return None
-        return strip_match_keys(item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True), ["url"])
+        if mode == "raw":
+            return item
+        item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
+        return unwrap_slice_choice(item_dict, ["url"], "valueCoding")
 
-    def get_extension_detailed(self) -> dict | None:
+    def get_extension_detailed(self, mode: str | None = None) -> Any | None:
         match = self.__class__._detailed_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
         if item is None:
             return None
-        return strip_match_keys(item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True), ["url"])
+        if mode == "raw":
+            return item
+        item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
+        return unwrap_slice_choice(item_dict, ["url"], "valueCoding")
 
-    def get_extension_text(self) -> dict | None:
+    def get_extension_text(self, mode: str | None = None) -> Any | None:
         match = self.__class__._text_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
         if item is None:
             return None
-        return strip_match_keys(item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True), ["url"])
+        if mode == "raw":
+            return item
+        item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
+        return strip_match_keys(item_dict, ["url"])
 
-    def set_extension_omb_category(self, value: dict) -> "UscoreEthnicityExtension":
+    def set_extension_omb_category(self, value: dict | None = None) -> "UscoreEthnicityExtension":
         match = self.__class__._omb_category_slice_match
-        merged = apply_slice_match(value, match)
+        wrapped = wrap_slice_choice((value or {}), "valueCoding")
+        merged = apply_slice_match(wrapped, match)
+        merged = Extension(**merged)
         items = getattr(self._resource, "extension", None) or []
         set_array_slice(items, match, merged)
         setattr(self._resource, "extension", items)
         return self
 
-    def set_extension_detailed(self, value: dict) -> "UscoreEthnicityExtension":
+    def set_extension_detailed(self, value: dict | None = None) -> "UscoreEthnicityExtension":
         match = self.__class__._detailed_slice_match
-        merged = apply_slice_match(value, match)
+        wrapped = wrap_slice_choice((value or {}), "valueCoding")
+        merged = apply_slice_match(wrapped, match)
+        merged = Extension(**merged)
         items = getattr(self._resource, "extension", None) or []
         set_array_slice(items, match, merged)
         setattr(self._resource, "extension", items)
         return self
 
-    def set_extension_text(self, value: dict) -> "UscoreEthnicityExtension":
+    def set_extension_text(self, value: dict | None = None) -> "UscoreEthnicityExtension":
         match = self.__class__._text_slice_match
-        merged = apply_slice_match(value, match)
+        merged = apply_slice_match((value or {}), match)
+        merged = Extension(**merged)
         items = getattr(self._resource, "extension", None) or []
         set_array_slice(items, match, merged)
         setattr(self._resource, "extension", items)

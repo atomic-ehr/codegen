@@ -210,6 +210,9 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, profile: Pro
             "set_array_slice",
             "strip_match_keys",
         );
+        if (sliceDefs.some((s) => s.constrainedChoice)) {
+            helperImports.push("wrap_slice_choice", "unwrap_slice_choice");
+        }
     }
     if (extensions.length > 0) {
         helperImports.push("is_extension", "get_extension_value", "push_extension");
@@ -252,6 +255,11 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, profile: Pro
 
     w.line("from __future__ import annotations");
     w.line();
+
+    if (sliceDefs.length > 0) {
+        w.line("from typing import Any");
+        w.line();
+    }
 
     const basePkg = pyFhirPackageByName(w.opts.rootPackageName, flatProfile.base.package);
     if (isResourceBase) {

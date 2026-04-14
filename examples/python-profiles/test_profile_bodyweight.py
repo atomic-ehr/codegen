@@ -111,10 +111,6 @@ def test_get_vscat_returns_flat_value():
     assert "coding" not in flat
 
 
-@pytest.mark.skip(
-    reason="TODO: Python get_vscat() does not accept a 'raw' mode parameter — only the "
-    "stripped/flat view is exposed."
-)
 def test_get_vscat_raw_includes_discriminator():
     profile = UscoreBodyWeightProfile.create(
         status="final",
@@ -123,4 +119,4 @@ def test_get_vscat_raw_includes_discriminator():
 
     raw = profile.get_vscat("raw")  # type: ignore[call-arg]
     assert raw is not None
-    assert raw["coding"] is not None
+    assert raw.coding is not None

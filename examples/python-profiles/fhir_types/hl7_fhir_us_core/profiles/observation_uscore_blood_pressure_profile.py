@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
     CodeableConcept,
@@ -24,6 +26,8 @@ from .profile_helpers import (
     matches_value,
     set_array_slice,
     strip_match_keys,
+    wrap_slice_choice,
+    unwrap_slice_choice,
     validate_choice_required,
     validate_enum,
     validate_fixed_value,
@@ -43,8 +47,8 @@ class UscoreBloodPressureProfile:
     canonical_url: str = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure"
 
     _vscat_slice_match: dict = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}
-    _systolic_slice_match: dict = {"code":{"coding":[[{"system":"http://loinc.org","code":"8480-6"}]]}}
-    _diastolic_slice_match: dict = {"code":{"coding":[[{"system":"http://loinc.org","code":"8462-4"}]]}}
+    _systolic_slice_match: dict = {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}}
+    _diastolic_slice_match: dict = {"code":{"coding":[{"system":"http://loinc.org","code":"8462-4"}]}}
 
     def __init__(self, resource: Observation) -> None:
         self._resource = resource
@@ -219,46 +223,60 @@ class UscoreBloodPressureProfile:
         setattr(self._resource, "value_period", value)
         return self
 
-    def get_vscat(self) -> dict | None:
+    def get_vscat(self, mode: str | None = None) -> Any | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
         if item is None:
             return None
-        return strip_match_keys(item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True), ["coding"])
+        if mode == "raw":
+            return item
+        item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
+        return strip_match_keys(item_dict, ["coding"])
 
-    def get_systolic(self) -> dict | None:
+    def get_systolic(self, mode: str | None = None) -> Any | None:
         match = self.__class__._systolic_slice_match
         item = get_array_slice(getattr(self._resource, "component", None), match)
         if item is None:
             return None
-        return strip_match_keys(item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True), ["code"])
+        if mode == "raw":
+            return item
+        item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
+        return unwrap_slice_choice(item_dict, ["code"], "valueQuantity")
 
-    def get_diastolic(self) -> dict | None:
+    def get_diastolic(self, mode: str | None = None) -> Any | None:
         match = self.__class__._diastolic_slice_match
         item = get_array_slice(getattr(self._resource, "component", None), match)
         if item is None:
             return None
-        return strip_match_keys(item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True), ["code"])
+        if mode == "raw":
+            return item
+        item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
+        return unwrap_slice_choice(item_dict, ["code"], "valueQuantity")
 
-    def set_vscat(self, value: dict) -> "UscoreBloodPressureProfile":
+    def set_vscat(self, value: dict | None = None) -> "UscoreBloodPressureProfile":
         match = self.__class__._vscat_slice_match
-        merged = apply_slice_match(value, match)
+        merged = apply_slice_match((value or {}), match)
+        merged = CodeableConcept(**merged)
         items = getattr(self._resource, "category", None) or []
         set_array_slice(items, match, merged)
         setattr(self._resource, "category", items)
         return self
 
-    def set_systolic(self, value: dict) -> "UscoreBloodPressureProfile":
+    def set_systolic(self, value: dict | None = None) -> "UscoreBloodPressureProfile":
         match = self.__class__._systolic_slice_match
-        merged = apply_slice_match(value, match)
+        wrapped = wrap_slice_choice((value or {}), "valueQuantity")
+        merged = apply_slice_match(wrapped, match)
+        merged = ObservationComponent(**merged)
         items = getattr(self._resource, "component", None) or []
         set_array_slice(items, match, merged)
         setattr(self._resource, "component", items)
         return self
 
-    def set_diastolic(self, value: dict) -> "UscoreBloodPressureProfile":
+    def set_diastolic(self, value: dict | None = None) -> "UscoreBloodPressureProfile":
         match = self.__class__._diastolic_slice_match
-        merged = apply_slice_match(value, match)
+        wrapped = wrap_slice_choice((value or {}), "valueQuantity")
+        merged = apply_slice_match(wrapped, match)
+        merged = ObservationComponent(**merged)
         items = getattr(self._resource, "component", None) or []
         set_array_slice(items, match, merged)
         setattr(self._resource, "component", items)
