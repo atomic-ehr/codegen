@@ -227,6 +227,32 @@ jobs:
             exit 1
           fi
 
+  test-python-profiles-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        bun-version: [ latest ]
+        python-version: [ "3.13" ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ matrix.bun-version }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Test Python profiles
+        run: make test-python-profiles
+
   test-mustache-java-r4-example:
     runs-on: ubuntu-latest
 
