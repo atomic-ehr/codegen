@@ -13,7 +13,12 @@ import {
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import { canonicalToName, deriveResourceName, PRIMITIVE_TYPE_MAP, pyFhirPackageByName } from "./naming-utils";
-import { generateExtensionMethods, pyTypeFromIdentifier } from "./profile-extensions";
+import {
+    type ExtensionProfileInfo,
+    generateExtensionMethods,
+    pyTypeFromIdentifier,
+    resolveExtensionProfile,
+} from "./profile-extensions";
 import {
     pyFieldName,
     pyProfileClassName,
@@ -215,13 +220,21 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, profile: Pro
         }
     }
     if (extensions.length > 0) {
-        helperImports.push("is_extension", "get_extension_value", "push_extension");
+        helperImports.push("_get_key", "is_extension", "get_extension_value", "push_extension");
         if (extensions.some((ext) => ext.isComplex && ext.subExtensions)) {
             helperImports.push("extract_complex_extension");
         }
         if (extensions.some((ext) => ext.path.split(".").some((s) => s !== "extension"))) {
             helperImports.push("ensure_path");
         }
+    }
+
+    // Resolve extension-profile class imports (dedupe by class name)
+    const extProfileImports = new Map<string, ExtensionProfileInfo>();
+    for (const ext of extensions) {
+        if (!ext.url) continue;
+        const info = resolveExtensionProfile(tsIndex, flatProfile.identifier.package, ext.url);
+        if (info && !extProfileImports.has(info.className)) extProfileImports.set(info.className, info);
     }
     for (const h of [...helpers].sort()) helperImports.push(h);
 
@@ -256,8 +269,11 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, profile: Pro
     w.line("from __future__ import annotations");
     w.line();
 
-    if (sliceDefs.length > 0) {
-        w.line("from typing import Any");
+    const typingNames: string[] = [];
+    if (sliceDefs.length > 0 || extensions.length > 0) typingNames.push("Any");
+    if (extensions.length > 0) typingNames.push("Literal", "overload");
+    if (typingNames.length > 0) {
+        emitImport(w, "typing", [...typingNames].sort());
         w.line();
     }
 
@@ -267,8 +283,14 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, profile: Pro
     } else {
         emitImport(w, `${basePkg}.base`, [baseTypeName]);
     }
+    if (extensions.length > 0) {
+        emitImport(w, `${basePkg}.base`, ["Extension"]);
+    }
     for (const [modulePath, names] of [...typeImports.entries()].sort(([a], [b]) => a.localeCompare(b))) {
         emitImport(w, modulePath, [...names].sort());
+    }
+    for (const [extClassName, info] of [...extProfileImports.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+        emitImport(w, `.${info.moduleName}`, [extClassName]);
     }
     emitImport(w, ".profile_helpers", helperImports);
     w.line();

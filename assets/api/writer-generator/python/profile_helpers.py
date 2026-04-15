@@ -157,16 +157,16 @@ def get_extension_value(ext: Any | None, field: str) -> Any:
 def push_extension(target: Any, ext: Any) -> None:
     """Push an extension onto ``target.extension`` (Pydantic model) or
     ``target['extension']`` (dict), creating the list if absent. ``ext`` may
-    be a dict-like mapping or a Pydantic model instance (which is dumped to a
-    dict before storage)."""
+    be either a dict-like mapping or a Pydantic model instance — mappings are
+    shallow-copied, Pydantic models are stored as-is so attribute access and
+    nested model instances are preserved."""
     lst = getattr(target, "extension", None) if hasattr(target, "__dict__") else target.get("extension")
     if not isinstance(lst, list):
         lst = []
     if hasattr(ext, "model_dump"):
-        ext_dict = ext.model_dump(by_alias=True, exclude_none=True)
+        lst.append(ext)
     else:
-        ext_dict = dict(ext)
-    lst.append(ext_dict)
+        lst.append(dict(ext))
     if hasattr(target, "__dict__"):
         setattr(target, "extension", lst)
     else:

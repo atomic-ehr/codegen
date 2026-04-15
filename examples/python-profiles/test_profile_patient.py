@@ -9,6 +9,9 @@ import warnings
 import pytest
 from fhir_types.hl7_fhir_r4_core.base import Coding, Extension, HumanName, Identifier
 from fhir_types.hl7_fhir_r4_core.patient import Patient
+from fhir_types.hl7_fhir_us_core.profiles.extension_uscore_ethnicity_extension import (
+    UscoreEthnicityExtension,
+)
 from fhir_types.hl7_fhir_us_core.profiles.extension_uscore_individual_sex_extension import (
     UscoreIndividualSexExtension,
 )
@@ -24,19 +27,6 @@ CANONICAL_URL = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient
 RACE_URL = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
 ETHNICITY_URL = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"
 SEX_URL = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex"
-
-_EXTENSION_FORMS_REASON = (
-    "TODO: Python set_race / set_ethnicity / set_sex / set_tribal_affiliation / "
-    "set_interpreter_required only accept a flat dict. The TS profile supports three input "
-    "forms (flat dict, extension profile instance, raw Extension); the Python implementation "
-    "needs equivalent overloads (and should raise on mismatched url for raw Extension input)."
-)
-
-_RAW_MODE_REASON = (
-    "TODO: Python extension getters do not accept a 'raw' mode parameter — they always return "
-    "the simplified dict / Coding view. The TS profile exposes both modes."
-)
-
 
 # ---------------------------------------------------------------------------
 # demo
@@ -75,18 +65,18 @@ def test_set_extension_via_flat_input():
     assert len(res.extension) == 3
 
 
-@pytest.mark.skip(reason=_EXTENSION_FORMS_REASON)
 def test_set_extension_via_extension_profile_instance():
     patient = UscorePatientProfile.create(
         identifier=[Identifier(system="http://hospital.example.org/mrn", value="MRN-12345")],
         name=[HumanName(family="Garcia", given=["Maria", "Elena"])],
     )
-    ethnicity_profile = ...  # USCoreEthnicityExtensionProfile.create(...) equivalent
+    ethnicity_profile = UscoreEthnicityExtension.create()
+    ethnicity_profile.set_extension_omb_category({"code": "2135-2", "display": "Hispanic or Latino"})
+    ethnicity_profile.set_extension_text({"value_string": "Hispanic or Latino"})
     patient.set_ethnicity(ethnicity_profile)
     assert patient.get_ethnicity() is not None
 
 
-@pytest.mark.skip(reason=_EXTENSION_FORMS_REASON)
 def test_set_extension_via_raw_extension():
     patient = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
@@ -281,7 +271,6 @@ def test_set_race_get_race_round_trip_with_detailed_categories():
     assert race["text"] == "White European"
 
 
-@pytest.mark.skip(reason=_RAW_MODE_REASON)
 def test_get_race_raw_returns_raw_extension():
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
@@ -305,7 +294,6 @@ def test_set_sex_get_sex_round_trip():
     assert sex.code == "male"
 
 
-@pytest.mark.skip(reason=_RAW_MODE_REASON)
 def test_get_sex_raw_returns_raw_extension():
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
@@ -331,7 +319,6 @@ def test_extension_getters_return_none_when_not_set():
     assert profile.get_interpreter_required() is None
 
 
-@pytest.mark.skip(reason=_RAW_MODE_REASON)
 def test_extension_raw_getters_return_none_when_not_set():
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
@@ -388,7 +375,6 @@ def test_extensions_are_added_to_the_resource():
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.skip(reason=_EXTENSION_FORMS_REASON)
 def test_set_race_accepts_extension_profile_instance():
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
@@ -400,7 +386,6 @@ def test_set_race_accepts_extension_profile_instance():
     assert profile.get_race() is not None
 
 
-@pytest.mark.skip(reason=_EXTENSION_FORMS_REASON)
 def test_set_race_accepts_raw_extension():
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
@@ -417,7 +402,6 @@ def test_set_race_accepts_raw_extension():
     assert profile.get_race() is not None
 
 
-@pytest.mark.skip(reason=_EXTENSION_FORMS_REASON)
 def test_set_race_throws_on_wrong_extension_url():
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
@@ -428,7 +412,6 @@ def test_set_race_throws_on_wrong_extension_url():
         profile.set_race(wrong_extension)
 
 
-@pytest.mark.skip(reason=_EXTENSION_FORMS_REASON)
 def test_set_sex_accepts_extension_profile_instance():
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
@@ -439,7 +422,6 @@ def test_set_sex_accepts_extension_profile_instance():
     assert profile.get_sex().code == "male"
 
 
-@pytest.mark.skip(reason=_EXTENSION_FORMS_REASON)
 def test_set_sex_accepts_raw_extension():
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],

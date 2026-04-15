@@ -4,11 +4,20 @@
 
 from __future__ import annotations
 
+from typing import Any, Literal, overload
+
 from fhir_types.hl7_fhir_r4_core.patient import Patient
+from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.hl7_fhir_r4_core.base import HumanName, Identifier
+from .extension_uscore_ethnicity_extension import UscoreEthnicityExtension
+from .extension_uscore_individual_sex_extension import UscoreIndividualSexExtension
+from .extension_uscore_interpreter_needed_extension import UscoreInterpreterNeededExtension
+from .extension_uscore_race_extension import UscoreRaceExtension
+from .extension_uscore_tribal_affiliation_extension import UscoreTribalAffiliationExtension
 from .profile_helpers import (
     build_resource,
     ensure_profile,
+    _get_key,
     is_extension,
     get_extension_value,
     push_extension,
@@ -77,81 +86,166 @@ class UscorePatientProfile:
         setattr(self._resource, "name", value)
         return self
 
-    def get_race(self) -> dict | None:
+    @overload
+    def get_race(self) -> dict | None: ...
+    @overload
+    def get_race(self, mode: Literal["raw"]) -> Extension | None: ...
+    @overload
+    def get_race(self, mode: Literal["profile"]) -> UscoreRaceExtension | None: ...
+    def get_race(self, mode: Literal["raw", "profile"] | None = None) -> dict | Extension | UscoreRaceExtension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race")), None)
         if ext is None:
             return None
+        if mode == "raw":
+            return ext if not isinstance(ext, dict) else Extension(**ext)
+        if mode == "profile":
+            return UscoreRaceExtension.apply(ext if not isinstance(ext, dict) else Extension(**ext))
         config = [{"name": "ombCategory", "valueField": "value_coding", "isArray": False}, {"name": "detailed", "valueField": "value_coding", "isArray": True}, {"name": "text", "valueField": "value_string", "isArray": False}]
         return extract_complex_extension(ext, config)
 
-    def set_race(self, value: dict) -> "UscorePatientProfile":
-        sub_extensions = []
-        if value.get("ombCategory") is not None:
-            sub_extensions.append({"url": "ombCategory", "value_coding": value["ombCategory"]})
-        for item in value.get("detailed", []):
-            sub_extensions.append({"url": "detailed", "value_coding": item})
-        if value.get("text") is not None:
-            sub_extensions.append({"url": "text", "value_string": value["text"]})
-        push_extension(self._resource, {"url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race", "extension": sub_extensions})
+    def set_race(self, value: "UscoreRaceExtension | Extension | dict") -> "UscorePatientProfile":
+        if isinstance(value, UscoreRaceExtension):
+            push_extension(self._resource, value.to_resource())
+        elif is_extension(value):
+            if _get_key(value, "url") != "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race":
+                raise ValueError(f"Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race', got {_get_key(value, 'url')!r}")
+            push_extension(self._resource, value)
+        else:
+            sub_extensions = []
+            if value.get("ombCategory") is not None:
+                sub_extensions.append({"url": "ombCategory", "value_coding": value["ombCategory"]})
+            for item in value.get("detailed", []):
+                sub_extensions.append({"url": "detailed", "value_coding": item})
+            if value.get("text") is not None:
+                sub_extensions.append({"url": "text", "value_string": value["text"]})
+            push_extension(self._resource, {"url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race", "extension": sub_extensions})
         return self
 
-    def get_ethnicity(self) -> dict | None:
+    @overload
+    def get_ethnicity(self) -> dict | None: ...
+    @overload
+    def get_ethnicity(self, mode: Literal["raw"]) -> Extension | None: ...
+    @overload
+    def get_ethnicity(self, mode: Literal["profile"]) -> UscoreEthnicityExtension | None: ...
+    def get_ethnicity(self, mode: Literal["raw", "profile"] | None = None) -> dict | Extension | UscoreEthnicityExtension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity")), None)
         if ext is None:
             return None
+        if mode == "raw":
+            return ext if not isinstance(ext, dict) else Extension(**ext)
+        if mode == "profile":
+            return UscoreEthnicityExtension.apply(ext if not isinstance(ext, dict) else Extension(**ext))
         config = [{"name": "ombCategory", "valueField": "value_coding", "isArray": False}, {"name": "detailed", "valueField": "value_coding", "isArray": True}, {"name": "text", "valueField": "value_string", "isArray": False}]
         return extract_complex_extension(ext, config)
 
-    def set_ethnicity(self, value: dict) -> "UscorePatientProfile":
-        sub_extensions = []
-        if value.get("ombCategory") is not None:
-            sub_extensions.append({"url": "ombCategory", "value_coding": value["ombCategory"]})
-        for item in value.get("detailed", []):
-            sub_extensions.append({"url": "detailed", "value_coding": item})
-        if value.get("text") is not None:
-            sub_extensions.append({"url": "text", "value_string": value["text"]})
-        push_extension(self._resource, {"url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity", "extension": sub_extensions})
+    def set_ethnicity(self, value: "UscoreEthnicityExtension | Extension | dict") -> "UscorePatientProfile":
+        if isinstance(value, UscoreEthnicityExtension):
+            push_extension(self._resource, value.to_resource())
+        elif is_extension(value):
+            if _get_key(value, "url") != "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity":
+                raise ValueError(f"Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity', got {_get_key(value, 'url')!r}")
+            push_extension(self._resource, value)
+        else:
+            sub_extensions = []
+            if value.get("ombCategory") is not None:
+                sub_extensions.append({"url": "ombCategory", "value_coding": value["ombCategory"]})
+            for item in value.get("detailed", []):
+                sub_extensions.append({"url": "detailed", "value_coding": item})
+            if value.get("text") is not None:
+                sub_extensions.append({"url": "text", "value_string": value["text"]})
+            push_extension(self._resource, {"url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity", "extension": sub_extensions})
         return self
 
-    def get_tribal_affiliation(self) -> dict | None:
+    @overload
+    def get_tribal_affiliation(self) -> dict | None: ...
+    @overload
+    def get_tribal_affiliation(self, mode: Literal["raw"]) -> Extension | None: ...
+    @overload
+    def get_tribal_affiliation(self, mode: Literal["profile"]) -> UscoreTribalAffiliationExtension | None: ...
+    def get_tribal_affiliation(self, mode: Literal["raw", "profile"] | None = None) -> dict | Extension | UscoreTribalAffiliationExtension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation")), None)
         if ext is None:
             return None
+        if mode == "raw":
+            return ext if not isinstance(ext, dict) else Extension(**ext)
+        if mode == "profile":
+            return UscoreTribalAffiliationExtension.apply(ext if not isinstance(ext, dict) else Extension(**ext))
         config = [{"name": "tribalAffiliation", "valueField": "value_codeable_concept", "isArray": False}, {"name": "isEnrolled", "valueField": "value_boolean", "isArray": False}]
         return extract_complex_extension(ext, config)
 
-    def set_tribal_affiliation(self, value: dict) -> "UscorePatientProfile":
-        sub_extensions = []
-        if value.get("tribalAffiliation") is not None:
-            sub_extensions.append({"url": "tribalAffiliation", "value_codeable_concept": value["tribalAffiliation"]})
-        if value.get("isEnrolled") is not None:
-            sub_extensions.append({"url": "isEnrolled", "value_boolean": value["isEnrolled"]})
-        push_extension(self._resource, {"url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation", "extension": sub_extensions})
+    def set_tribal_affiliation(self, value: "UscoreTribalAffiliationExtension | Extension | dict") -> "UscorePatientProfile":
+        if isinstance(value, UscoreTribalAffiliationExtension):
+            push_extension(self._resource, value.to_resource())
+        elif is_extension(value):
+            if _get_key(value, "url") != "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation":
+                raise ValueError(f"Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation', got {_get_key(value, 'url')!r}")
+            push_extension(self._resource, value)
+        else:
+            sub_extensions = []
+            if value.get("tribalAffiliation") is not None:
+                sub_extensions.append({"url": "tribalAffiliation", "value_codeable_concept": value["tribalAffiliation"]})
+            if value.get("isEnrolled") is not None:
+                sub_extensions.append({"url": "isEnrolled", "value_boolean": value["isEnrolled"]})
+            push_extension(self._resource, {"url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation", "extension": sub_extensions})
         return self
 
-    def get_sex(self) -> Coding | None:
+    @overload
+    def get_sex(self) -> Coding | None: ...
+    @overload
+    def get_sex(self, mode: Literal["raw"]) -> Extension | None: ...
+    @overload
+    def get_sex(self, mode: Literal["profile"]) -> UscoreIndividualSexExtension | None: ...
+    def get_sex(self, mode: Literal["raw", "profile"] | None = None) -> Coding | Extension | UscoreIndividualSexExtension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex")), None)
         if ext is None:
             return None
+        if mode == "raw":
+            return ext if not isinstance(ext, dict) else Extension(**ext)
+        if mode == "profile":
+            return UscoreIndividualSexExtension.apply(ext if not isinstance(ext, dict) else Extension(**ext))
         return get_extension_value(ext, "value_coding")
 
-    def set_sex(self, value) -> "UscorePatientProfile":
-        push_extension(self._resource, {"url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex", "value_coding": value})
+    def set_sex(self, value: "UscoreIndividualSexExtension | Extension | Any") -> "UscorePatientProfile":
+        if isinstance(value, UscoreIndividualSexExtension):
+            push_extension(self._resource, value.to_resource())
+        elif is_extension(value):
+            if _get_key(value, "url") != "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex":
+                raise ValueError(f"Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex', got {_get_key(value, 'url')!r}")
+            push_extension(self._resource, value)
+        else:
+            push_extension(self._resource, {"url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex", "value_coding": value})
         return self
 
-    def get_interpreter_required(self) -> Coding | None:
+    @overload
+    def get_interpreter_required(self) -> Coding | None: ...
+    @overload
+    def get_interpreter_required(self, mode: Literal["raw"]) -> Extension | None: ...
+    @overload
+    def get_interpreter_required(self, mode: Literal["profile"]) -> UscoreInterpreterNeededExtension | None: ...
+    def get_interpreter_required(self, mode: Literal["raw", "profile"] | None = None) -> Coding | Extension | UscoreInterpreterNeededExtension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed")), None)
         if ext is None:
             return None
+        if mode == "raw":
+            return ext if not isinstance(ext, dict) else Extension(**ext)
+        if mode == "profile":
+            return UscoreInterpreterNeededExtension.apply(ext if not isinstance(ext, dict) else Extension(**ext))
         return get_extension_value(ext, "value_coding")
 
-    def set_interpreter_required(self, value) -> "UscorePatientProfile":
-        push_extension(self._resource, {"url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed", "value_coding": value})
+    def set_interpreter_required(self, value: "UscoreInterpreterNeededExtension | Extension | Any") -> "UscorePatientProfile":
+        if isinstance(value, UscoreInterpreterNeededExtension):
+            push_extension(self._resource, value.to_resource())
+        elif is_extension(value):
+            if _get_key(value, "url") != "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed":
+                raise ValueError(f"Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed', got {_get_key(value, 'url')!r}")
+            push_extension(self._resource, value)
+        else:
+            push_extension(self._resource, {"url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed", "value_coding": value})
         return self
 
     def validate(self) -> dict[str, list[str]]:
