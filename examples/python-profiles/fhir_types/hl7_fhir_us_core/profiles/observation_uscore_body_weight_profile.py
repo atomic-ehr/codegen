@@ -27,6 +27,7 @@ from .profile_helpers import (
     strip_match_keys,
     validate_choice_required,
     validate_enum,
+    validate_excluded,
     validate_fixed_value,
     validate_must_support,
     validate_reference,
@@ -240,6 +241,16 @@ class UscoreBodyWeightProfile:
         errors.extend(validate_reference(self._resource, profile_name, "has_member", ["MolecularSequence","QuestionnaireResponse","Observation"]))
         errors.extend(validate_reference(self._resource, profile_name, "derived_from", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]))
         errors.extend(validate_reference(self._resource, profile_name, "performer", ["PractitionerRole","USCoreCareTeam","USCoreOrganizationProfile","Patient","USCorePractitionerProfile","USCoreRelatedPersonProfile"]))
+        errors.extend(validate_excluded(self._resource, profile_name, "value_codeable_concept"))
+        errors.extend(validate_excluded(self._resource, profile_name, "value_string"))
+        errors.extend(validate_excluded(self._resource, profile_name, "value_boolean"))
+        errors.extend(validate_excluded(self._resource, profile_name, "value_integer"))
+        errors.extend(validate_excluded(self._resource, profile_name, "value_range"))
+        errors.extend(validate_excluded(self._resource, profile_name, "value_ratio"))
+        errors.extend(validate_excluded(self._resource, profile_name, "value_sampled_data"))
+        errors.extend(validate_excluded(self._resource, profile_name, "value_time"))
+        errors.extend(validate_excluded(self._resource, profile_name, "value_date_time"))
+        errors.extend(validate_excluded(self._resource, profile_name, "value_period"))
         warnings.extend(validate_enum(self._resource, profile_name, "category", ["social-history","vital-signs","imaging","laboratory","procedure","survey","exam","therapy","activity"]))
         warnings.extend(validate_enum(self._resource, profile_name, "code", ["2708-6","29463-7","3140-1","3150-0","3151-8","39156-5","59408-5","59575-1","59576-9","77606-2","8287-5","8289-1","8302-2","8306-3","8310-5","8462-4","8478-0","8480-6","8867-4","9279-1","9843-4"]))
         warnings.extend(validate_enum(self._resource, profile_name, "data_absent_reason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]))

@@ -75,10 +75,6 @@ def test_create_builds_a_resource_with_fixed_code_and_required_slice_stubs():
     assert profile.validate()["errors"] == []
 
 
-@pytest.mark.skip(
-    reason="TODO: validate() does not catch disallowed value[x] variants — Python profile "
-    "is missing a validate_excluded call for forbidden choice variants."
-)
 def test_validate_catches_disallowed_value_variants_on_raw_resource():
     resource = Observation(
         resource_type="Observation",

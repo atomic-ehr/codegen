@@ -22,9 +22,13 @@ export const collectValidateBody = (
     warningLines: string[],
 ): Set<string> => {
     const helpers = new Set<string>();
-    for (const [name, field] of Object.entries(flatProfile.fields ?? {})) {
+    const fields = flatProfile.fields ?? {};
+    for (const [name, field] of Object.entries(fields)) {
         const pyName = pyFieldName(name);
-        if (isChoiceInstanceField(field)) continue;
+        if (isChoiceInstanceField(field)) {
+            collectProhibitedChoiceValidation(fields, name, pyName, helpers, errorLines);
+            continue;
+        }
         if (isChoiceDeclarationField(field)) {
             if (field.required) {
                 helpers.add("validate_choice_required");
@@ -83,6 +87,21 @@ export const collectValidateBody = (
         }
     }
     return helpers;
+};
+
+const collectProhibitedChoiceValidation = (
+    fields: NonNullable<ProfileTypeSchema["fields"]>,
+    name: string,
+    pyName: string,
+    helpers: Set<string>,
+    errorLines: string[],
+): void => {
+    const field = fields[name];
+    if (!field || !isChoiceInstanceField(field)) return;
+    const decl = fields[field.choiceOf];
+    if (!decl || !isChoiceDeclarationField(decl) || !decl.prohibited?.includes(name)) return;
+    helpers.add("validate_excluded");
+    errorLines.push(`errors.extend(validate_excluded(self._resource, profile_name, ${JSON.stringify(pyName)}))`);
 };
 
 const collectSliceCardinalityValidation = (
