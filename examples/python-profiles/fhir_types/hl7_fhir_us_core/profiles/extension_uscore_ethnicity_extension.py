@@ -4,8 +4,9 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal, overload
 
+from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from .profile_helpers import (
     build_resource,
@@ -17,6 +18,7 @@ from .profile_helpers import (
     strip_match_keys,
     wrap_slice_choice,
     unwrap_slice_choice,
+    _get_key,
     is_extension,
     get_extension_value,
     push_extension,
@@ -83,37 +85,70 @@ class UscoreEthnicityExtension:
         setattr(self._resource, "url", value)
         return self
 
-    def get_omb_category(self) -> dict | None:
+    @overload
+    def get_omb_category(self) -> dict | None: ...
+    @overload
+    def get_omb_category(self, mode: Literal["raw"]) -> Extension | None: ...
+    def get_omb_category(self, mode: Literal["raw"] | None = None) -> dict | Extension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "ombCategory")), None)
         if ext is None:
             return None
+        if mode == "raw":
+            return ext if not isinstance(ext, dict) else Extension(**ext)
         return ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True)
 
-    def set_omb_category(self, value: dict) -> "UscoreEthnicityExtension":
-        push_extension(self._resource, {"url": "ombCategory", **value})
+    def set_omb_category(self, value: "Extension | dict") -> "UscoreEthnicityExtension":
+        if is_extension(value):
+            if _get_key(value, "url") != "ombCategory":
+                raise ValueError(f"Expected extension url 'ombCategory', got {_get_key(value, 'url')!r}")
+            push_extension(self._resource, value)
+        else:
+            push_extension(self._resource, {"url": "ombCategory", **value})
         return self
 
-    def get_detailed(self) -> dict | None:
+    @overload
+    def get_detailed(self) -> dict | None: ...
+    @overload
+    def get_detailed(self, mode: Literal["raw"]) -> Extension | None: ...
+    def get_detailed(self, mode: Literal["raw"] | None = None) -> dict | Extension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "detailed")), None)
         if ext is None:
             return None
+        if mode == "raw":
+            return ext if not isinstance(ext, dict) else Extension(**ext)
         return ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True)
 
-    def set_detailed(self, value: dict) -> "UscoreEthnicityExtension":
-        push_extension(self._resource, {"url": "detailed", **value})
+    def set_detailed(self, value: "Extension | dict") -> "UscoreEthnicityExtension":
+        if is_extension(value):
+            if _get_key(value, "url") != "detailed":
+                raise ValueError(f"Expected extension url 'detailed', got {_get_key(value, 'url')!r}")
+            push_extension(self._resource, value)
+        else:
+            push_extension(self._resource, {"url": "detailed", **value})
         return self
 
-    def get_text(self) -> dict | None:
+    @overload
+    def get_text(self) -> dict | None: ...
+    @overload
+    def get_text(self, mode: Literal["raw"]) -> Extension | None: ...
+    def get_text(self, mode: Literal["raw"] | None = None) -> dict | Extension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "text")), None)
         if ext is None:
             return None
+        if mode == "raw":
+            return ext if not isinstance(ext, dict) else Extension(**ext)
         return ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True)
 
-    def set_text(self, value: dict) -> "UscoreEthnicityExtension":
-        push_extension(self._resource, {"url": "text", **value})
+    def set_text(self, value: "Extension | dict") -> "UscoreEthnicityExtension":
+        if is_extension(value):
+            if _get_key(value, "url") != "text":
+                raise ValueError(f"Expected extension url 'text', got {_get_key(value, 'url')!r}")
+            push_extension(self._resource, value)
+        else:
+            push_extension(self._resource, {"url": "text", **value})
         return self
 
     def get_extension_omb_category(self, mode: str | None = None) -> Any | None:
