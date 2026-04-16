@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -48,16 +48,43 @@ jobs:
       - name: Run security audit
         run: bun audit
 
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Build and pack
+        run: |
+          bun install --frozen-lockfile
+          bun run build
+          bun pm pack
+
+      - name: Upload tarball
+        uses: actions/upload-artifact@v5
+        with:
+          name: package-tarball
+          path: "*.tgz"
+
   package-managers:
     runs-on: ubuntu-latest
+    needs: build
 
     strategy:
+      fail-fast: false
       matrix:
         package-manager: [bun, npm, pnpm]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Download tarball
+        uses: actions/download-artifact@v5
+        with:
+          name: package-tarball
 
       - name: Setup Bun
         if: matrix.package-manager == 'bun'
@@ -67,44 +94,67 @@ jobs:
 
       - name: Setup Node.js
         if: matrix.package-manager != 'bun'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "20"
 
       - name: Setup pnpm
         if: matrix.package-manager == 'pnpm'
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
         with:
           version: latest
 
-      - name: Install dependencies (bun)
-        if: matrix.package-manager == 'bun'
-        run: bun install
-
-      - name: Install dependencies (npm)
-        if: matrix.package-manager == 'npm'
-        run: npm install
-
-      - name: Install dependencies (pnpm)
-        if: matrix.package-manager == 'pnpm'
-        run: pnpm install
-
-      - name: Run codegen for FHIR R4
+      - name: Install package
         run: |
+          TARBALL=$(ls *.tgz)
+          mkdir /tmp/test-install && cd /tmp/test-install
+          echo '{}' > package.json
+
           if [ "${{ matrix.package-manager }}" == "bun" ]; then
-            bun run examples/python/generate.ts
+            bun add "$OLDPWD/$TARBALL"
           elif [ "${{ matrix.package-manager }}" == "npm" ]; then
-            npx tsx examples/python/generate.ts
+            npm install "$OLDPWD/$TARBALL"
           else
-            pnpm dlx tsx examples/python/generate.ts
+            pnpm add "$OLDPWD/$TARBALL"
           fi
 
-      - name: Verify output exists
+      - name: Generate FHIR R4 type tree
+        working-directory: /tmp/test-install
         run: |
-          if [ -d examples/python/fhir_types ]; then
-            echo "Output directory generated successfully"
-            ls -la examples/python/fhir_types
+          cat > generate.ts <<'SCRIPT'
+          import { APIBuilder } from "@atomic-ehr/codegen";
+
+          const generate = async () => {
+              const builder = new APIBuilder()
+                  .fromPackage("hl7.fhir.r4.core", "4.0.1")
+                  .introspection({ typeTree: "./type-tree.json" })
+                  .outputTo("./output");
+
+              const report = await builder.generate();
+
+              if (!report.success) {
+                  console.error("Generation failed");
+                  process.exit(1);
+              }
+
+              console.log("OK: type tree generated");
+          };
+
+          generate();
+          SCRIPT
+
+          if [ "${{ matrix.package-manager }}" == "bun" ]; then
+            bun generate.ts
+          elif [ "${{ matrix.package-manager }}" == "npm" ]; then
+            npx tsx generate.ts
           else
-            echo "Output directory not found"
+            pnpm dlx tsx generate.ts
+          fi
+
+      - name: Verify output
+        run: |
+          if [ ! -f /tmp/test-install/output/type-tree.json ]; then
+            echo "type-tree.json not found"
             exit 1
           fi
+          echo "type-tree.json exists ($(wc -c < /tmp/test-install/output/type-tree.json) bytes)"
