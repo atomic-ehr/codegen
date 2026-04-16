@@ -53,13 +53,14 @@ A powerful, extensible code generation toolkit for FHIR ([Fast Healthcare Intero
 - [ ] **Search Builders** — type-safe FHIR search query construction
 - [ ] **Operation Generation** — type-safe FHIR operation calls
 
-| Feature                   | TypeScript | Python  | C#   | Mustache |
-|---------------------------|------------|---------|------|----------|
-| Resources & Complex Types | yes        | yes     | yes  | template |
-| Value Set Bindings        | inline     | limited | enum | template |
-| Primitive Extensions      | yes        | no      | no   | no       |
-| Profiles                  | yes        | no      | no   | no       |
-| Profile Validation        | yes        | no      | no   | no       |
+| Feature                           | TypeScript | Python  | C#   | Mustache |
+|-----------------------------------|------------|---------|------|----------|
+| Resources & Complex Types         | yes        | yes     | yes  | template |
+| Polymorphic container `Bundle<T>` | yes        | yes     | no   | no       |
+| Value Set Bindings                | inline     | limited | enum | template |
+| Primitive Extensions              | yes        | no      | no   | no       |
+| Profiles                          | yes        | no      | no   | no       |
+| Profile Validation                | yes        | no      | no   | no       |
 
 ## Guides
 
