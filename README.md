@@ -56,7 +56,7 @@ A powerful, extensible code generation toolkit for FHIR ([Fast Healthcare Intero
 | Feature                           | TypeScript | Python  | C#   | Mustache |
 |-----------------------------------|------------|---------|------|----------|
 | Resources & Complex Types         | yes        | yes     | yes  | template |
-| Polymorphic container `Bundle<T>` | yes        | no      | no   | no       |
+| Polymorphic container `Bundle<T>` | yes        | yes     | no   | no       |
 | Value Set Bindings                | inline     | limited | enum | template |
 | Primitive Extensions              | yes        | no      | no   | no       |
 | Profiles                          | yes        | no      | no   | no       |
