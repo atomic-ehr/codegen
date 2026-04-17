@@ -1,4 +1,5 @@
 import { pascalCase, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
+import { collectFixedFields, type FixedField } from "@root/typeschema/core/profile";
 import {
     type CanonicalUrl,
     isChoiceDeclarationField,
@@ -6,7 +7,6 @@ import {
     isNestedIdentifier,
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
-    isResourceIdentifier,
     type ProfileTypeSchema,
     packageMeta,
     packageMetaToFhir,
@@ -47,13 +47,12 @@ import { fieldTsType, tsGet, tsTypeFromIdentifier } from "./utils";
 import type { TypeScript } from "./writer";
 
 type ProfileFactoryInfo = {
-    autoFields: { name: string; value: string }[];
+    /** Fields with fixed values from the constraint (language-neutral) */
+    fixed: Record<string, FixedField>;
     /** Array fields with required slices — optional param with auto-merge of required stubs */
     sliceAutoFields: { name: string; tsType: string; typeId: TypeIdentifier; sliceNames: string[] }[];
     params: { name: string; tsType: string; typeId: TypeIdentifier }[];
     accessors: { name: string; tsType: string; typeId: TypeIdentifier }[];
-    /** Accessor names that come from valueConstraint fields — skip generating setters for these */
-    fixedFields: Set<string>;
 };
 
 const collectChoiceAccessors = (
@@ -98,23 +97,24 @@ export const mkIsFamilyType =
         return (schema.typeFamily?.resources?.length ?? 0) > 0;
     };
 
+const fixedFieldToAutoValue = ([name, f]: [string, FixedField]): { name: string; value: string } => {
+    const value = JSON.stringify(f.value);
+    return { name, value: f.array ? `[${value}]` : value };
+};
+
 export const collectProfileFactoryInfo = (
     tsIndex: TypeSchemaIndex,
     flatProfile: ProfileTypeSchema,
 ): ProfileFactoryInfo => {
-    const autoFields: ProfileFactoryInfo["autoFields"] = [];
     const sliceAutoFields: ProfileFactoryInfo["sliceAutoFields"] = [];
     const params: ProfileFactoryInfo["params"] = [];
     const autoAccessors: ProfileFactoryInfo["accessors"] = [];
-    const fixedFields = new Set<string>();
     const fields = flatProfile.fields ?? {};
     const promotedChoices = new Set<string>();
     const resolveRef = tsIndex.findLastSpecializationByIdentifier;
     const isFamilyType = mkIsFamilyType(tsIndex);
 
-    if (isResourceIdentifier(flatProfile.base)) {
-        autoFields.push({ name: "resourceType", value: JSON.stringify(flatProfile.base.name) });
-    }
+    const fixed = collectFixedFields(flatProfile);
 
     for (const [name, field] of Object.entries(fields)) {
         if (field.excluded) continue;
@@ -125,10 +125,7 @@ export const collectProfileFactoryInfo = (
             continue;
         }
 
-        if (field.valueConstraint) {
-            const value = JSON.stringify(field.valueConstraint.value);
-            autoFields.push({ name, value: field.array ? `[${value}]` : value });
-            fixedFields.add(name);
+        if (name in fixed) {
             if (isNotChoiceDeclarationField(field) && field.type) {
                 const tsType = fieldTsType(field, resolveRef, isFamilyType);
                 autoAccessors.push({ name, tsType, typeId: field.type });
@@ -165,7 +162,7 @@ export const collectProfileFactoryInfo = (
         resolveRef,
         params,
         [
-            ...autoFields.map((f) => f.name),
+            ...Object.keys(fixed),
             ...sliceAutoFields.map((f) => f.name),
             ...params.map((f) => f.name),
             ...promotedChoices,
@@ -174,7 +171,7 @@ export const collectProfileFactoryInfo = (
     );
 
     const accessors = [...autoAccessors, ...collectChoiceAccessors(flatProfile, promotedChoices)];
-    return { autoFields, sliceAutoFields, params, accessors, fixedFields };
+    return { fixed, sliceAutoFields, params, accessors };
 };
 
 /** Include base-type required fields not already covered by profile constraints */
@@ -368,8 +365,9 @@ const generateFactoryMethods = (
     const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
     const createArgsTypeName = `${profileClassName}Raw`;
     const paramSignature = hasParams ? `args: ${createArgsTypeName}` : "";
+    const autoFields = Object.entries(factoryInfo.fixed).map(fixedFieldToAutoValue);
     const allFields = [
-        ...factoryInfo.autoFields.map((f) => ({ name: f.name, value: f.value })),
+        ...autoFields,
         ...factoryInfo.sliceAutoFields.map((f) => ({ name: f.name, value: `${f.name}WithDefaults` })),
         ...factoryInfo.params.map((p) => ({ name: p.name, value: `args.${p.name}` })),
     ];
@@ -398,7 +396,7 @@ const generateFactoryMethods = (
         if (flatProfile.base.name === "Extension" && flatProfile.identifier.url) {
             w.lineSM(`resource.url = ${profileClassName}.canonicalUrl`);
         }
-        const applyAutoFields = factoryInfo.autoFields.filter((f) => f.name !== "resourceType");
+        const applyAutoFields = autoFields.filter((f) => f.name !== "resourceType");
         if (applyAutoFields.length > 0) {
             w.curlyBlock(["Object.assign(resource,"], () => {
                 for (const f of applyAutoFields) {
@@ -577,7 +575,7 @@ const generateFieldAccessors = (w: TypeScript, factoryInfo: ProfileFactoryInfo) 
             w.lineSM(`return ${tsGet("this.resource", fieldAccess)} as ${a.tsType} | undefined`);
         });
         w.line();
-        if (!factoryInfo.fixedFields.has(a.name)) {
+        if (!(a.name in factoryInfo.fixed)) {
             w.curlyBlock([`set${methodBaseName}`, `(value: ${a.tsType})`, ": this"], () => {
                 w.lineSM(`Object.assign(this.resource, { ${fieldAccess}: value })`);
                 w.lineSM("return this");
