@@ -582,6 +582,9 @@ export class Python extends Writer<PythonGeneratorOptions> {
         const className = schema.identifier.name.toString();
 
         this.line();
+        this.line("def model_post_init(self, __context: Any) -> None:");
+        this.line('    self.__pydantic_fields_set__.add("resource_type")');
+        this.line();
         this.line("def to_json(self, indent: int | None = None) -> str:");
         this.line("    return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)");
         this.line();
@@ -602,7 +605,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     private generateDefaultImports(includeGenericImports: boolean): void {
         this.pyImportFrom("__future__", "annotations");
         this.pyImportFrom("pydantic", "BaseModel", "ConfigDict", "Field", "PositiveInt");
-        const typingImports = ["List as PyList", "Literal"];
+        const typingImports = ["Any", "List as PyList", "Literal"];
         if (includeGenericImports) {
             typingImports.push("Generic");
         }

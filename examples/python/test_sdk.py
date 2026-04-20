@@ -216,3 +216,27 @@ def test_to_from_json() -> None:
     json = p.to_json(indent=2)
     p2 = Patient.from_json(json)
     assert p == p2
+
+
+def test_to_json_shape() -> None:
+    import json as json_mod
+
+    p = Patient(
+        name=[HumanName(given=["Test"], family="Patient")],
+        gender="female",
+        birth_date="1980-01-01",
+    )
+    data = json_mod.loads(p.to_json())
+
+    # Uses FHIR camelCase keys, not Python snake_case; includes resourceType
+    assert data == {
+        "resourceType": "Patient",
+        "name": [{"given": ["Test"], "family": "Patient"}],
+        "gender": "female",
+        "birthDate": "1980-01-01",
+    }
+
+    # Unset fields are omitted
+    assert "id" not in data
+    assert "address" not in data
+    assert "telecom" not in data

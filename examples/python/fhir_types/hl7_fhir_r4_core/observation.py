@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt
-from typing import List as PyList, Literal
+from typing import Any, List as PyList, Literal
 
 from fhir_types.hl7_fhir_r4_core.base import (\
     Annotation, BackboneElement, CodeableConcept, Identifier, Period, Quantity, Range, Ratio, Reference, SampledData, \
@@ -98,6 +98,9 @@ class Observation(DomainResource):
     value_string_extension: Element | None = Field(None, alias="_valueString", serialization_alias="_valueString")
     value_time: str | None = Field(None, alias="valueTime", serialization_alias="valueTime")
     value_time_extension: Element | None = Field(None, alias="_valueTime", serialization_alias="_valueTime")
+
+    def model_post_init(self, __context: Any) -> None:
+        self.__pydantic_fields_set__.add("resource_type")
 
     def to_json(self, indent: int | None = None) -> str:
         return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)
