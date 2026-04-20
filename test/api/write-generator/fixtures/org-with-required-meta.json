@@ -1,0 +1,27 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "org-with-required-meta",
+  "url": "http://example.org/fhir/StructureDefinition/OrgWithRequiredMeta",
+  "version": "0.0.1",
+  "name": "OrgWithRequiredMeta",
+  "title": "Organization with Required Meta (regression test for duplicate-meta-key bug)",
+  "status": "draft",
+  "date": "2024-01-01",
+  "publisher": "atomic-ehr/codegen test suite",
+  "description": "Minimal Organization profile pinning meta.min=1, mirroring KBV ITA FOR/ERP/EAU pattern. Used as a regression fixture for the duplicate-meta-key bug (PR #138).",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Organization",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Organization",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Organization.meta",
+        "path": "Organization.meta",
+        "min": 1
+      }
+    ]
+  }
+}
