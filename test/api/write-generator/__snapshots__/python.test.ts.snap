@@ -245,7 +245,7 @@ class ObservationBodyweightProfile:
         errors.extend(validate_required(self._resource, profile_name, "status"))
         errors.extend(validate_enum(self._resource, profile_name, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]))
         errors.extend(validate_required(self._resource, profile_name, "category"))
-        errors.extend(validate_slice_cardinality(self._resource, profile_name, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1))
+        errors.extend(validate_slice_cardinality(self._resource, profile_name, "category", {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}, "VSCat", 1, 1))
         errors.extend(validate_required(self._resource, profile_name, "code"))
         errors.extend(validate_fixed_value(self._resource, profile_name, "code", {"coding":[{"code":"29463-7","system":"http://loinc.org"}]}))
         errors.extend(validate_required(self._resource, profile_name, "subject"))
@@ -272,7 +272,13 @@ from __future__ import annotations
 from typing import Any
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
-from fhir_types.hl7_fhir_r4_core.base import CodeableConcept, Period, Quantity, Reference
+from fhir_types.hl7_fhir_r4_core.base import (
+    BackboneElement,
+    CodeableConcept,
+    Period,
+    Quantity,
+    Reference,
+)
 from fhir_types.hl7_fhir_r4_core.observation import ObservationComponent
 from .profile_helpers import (
     build_resource,
@@ -476,7 +482,7 @@ class ObservationBpProfile:
         errors.extend(validate_required(self._resource, profile_name, "status"))
         errors.extend(validate_enum(self._resource, profile_name, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]))
         errors.extend(validate_required(self._resource, profile_name, "category"))
-        errors.extend(validate_slice_cardinality(self._resource, profile_name, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1))
+        errors.extend(validate_slice_cardinality(self._resource, profile_name, "category", {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}, "VSCat", 1, 1))
         errors.extend(validate_required(self._resource, profile_name, "code"))
         errors.extend(validate_fixed_value(self._resource, profile_name, "code", {"coding":[{"code":"85354-9","system":"http://loinc.org"}]}))
         errors.extend(validate_required(self._resource, profile_name, "subject"))
@@ -484,8 +490,8 @@ class ObservationBpProfile:
         errors.extend(validate_choice_required(self._resource, profile_name, ["effective_date_time","effective_period"]))
         errors.extend(validate_reference(self._resource, profile_name, "has_member", ["MolecularSequence","QuestionnaireResponse","Observation"]))
         errors.extend(validate_reference(self._resource, profile_name, "derived_from", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]))
-        errors.extend(validate_slice_cardinality(self._resource, profile_name, "component", {"code":{"coding":{"code":"8480-6","system":"http://loinc.org"}}}, "SystolicBP", 1, 1))
-        errors.extend(validate_slice_cardinality(self._resource, profile_name, "component", {"code":{"coding":{"code":"8462-4","system":"http://loinc.org"}}}, "DiastolicBP", 1, 1))
+        errors.extend(validate_slice_cardinality(self._resource, profile_name, "component", {"code":{"coding":[{"code":"8480-6","system":"http://loinc.org"}]}}, "SystolicBP", 1, 1))
+        errors.extend(validate_slice_cardinality(self._resource, profile_name, "component", {"code":{"coding":[{"code":"8462-4","system":"http://loinc.org"}]}}, "DiastolicBP", 1, 1))
         warnings.extend(validate_enum(self._resource, profile_name, "category", ["social-history","vital-signs","imaging","laboratory","procedure","survey","exam","therapy","activity"]))
         warnings.extend(validate_enum(self._resource, profile_name, "code", ["85353-1","9279-1","8867-4","2708-6","8310-5","8302-2","9843-4","29463-7","39156-5","85354-9","8480-6","8462-4","8478-0"]))
         warnings.extend(validate_enum(self._resource, profile_name, "data_absent_reason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]))
@@ -770,6 +776,7 @@ from typing import Any
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
+    BackboneElement,
     CodeableConcept,
     Period,
     Quantity,
@@ -1051,7 +1058,7 @@ class UscoreBloodPressureProfile:
         errors.extend(validate_required(self._resource, profile_name, "status"))
         errors.extend(validate_enum(self._resource, profile_name, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]))
         errors.extend(validate_required(self._resource, profile_name, "category"))
-        errors.extend(validate_slice_cardinality(self._resource, profile_name, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1))
+        errors.extend(validate_slice_cardinality(self._resource, profile_name, "category", {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}, "VSCat", 1, 1))
         errors.extend(validate_required(self._resource, profile_name, "code"))
         errors.extend(validate_fixed_value(self._resource, profile_name, "code", {"coding":[{"system":"http://loinc.org","code":"85354-9"}]}))
         errors.extend(validate_required(self._resource, profile_name, "subject"))
@@ -1307,7 +1314,7 @@ class UscoreBodyWeightProfile:
         errors.extend(validate_required(self._resource, profile_name, "status"))
         errors.extend(validate_enum(self._resource, profile_name, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]))
         errors.extend(validate_required(self._resource, profile_name, "category"))
-        errors.extend(validate_slice_cardinality(self._resource, profile_name, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1))
+        errors.extend(validate_slice_cardinality(self._resource, profile_name, "category", {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}, "VSCat", 1, 1))
         errors.extend(validate_required(self._resource, profile_name, "code"))
         errors.extend(validate_fixed_value(self._resource, profile_name, "code", {"coding":[{"system":"http://loinc.org","code":"29463-7"}]}))
         errors.extend(validate_required(self._resource, profile_name, "subject"))
