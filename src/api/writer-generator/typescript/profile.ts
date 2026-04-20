@@ -1,5 +1,5 @@
 import { pascalCase, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
-import { collectFixedFields, type FixedField } from "@root/typeschema/core/profile";
+import { collectFixedFields, collectSliceAutoFields, type FixedField } from "@root/typeschema/core/profile";
 import {
     type CanonicalUrl,
     isChoiceDeclarationField,
@@ -35,7 +35,6 @@ import {
     resolveExtensionProfile,
 } from "./profile-extensions";
 import {
-    collectRequiredSliceNames,
     collectSliceDefs,
     collectTypesFromSlices,
     generateSliceGetters,
@@ -49,8 +48,8 @@ import type { TypeScript } from "./writer";
 type ProfileFactoryInfo = {
     /** Fields with fixed values from the constraint (language-neutral) */
     fixed: Record<string, FixedField>;
-    /** Array fields with required slices — optional param with auto-merge of required stubs */
-    sliceAutoFields: { name: string; tsType: string; typeId: TypeIdentifier; sliceNames: string[] }[];
+    /** Array fields with required slices (language-neutral, keyed by field name) */
+    sliceAutoFields: Record<string, { sliceNames: string[]; typeId: TypeIdentifier }>;
     params: { name: string; tsType: string; typeId: TypeIdentifier }[];
     accessors: { name: string; tsType: string; typeId: TypeIdentifier }[];
 };
@@ -106,7 +105,6 @@ export const collectProfileFactoryInfo = (
     tsIndex: TypeSchemaIndex,
     flatProfile: ProfileTypeSchema,
 ): ProfileFactoryInfo => {
-    const sliceAutoFields: ProfileFactoryInfo["sliceAutoFields"] = [];
     const params: ProfileFactoryInfo["params"] = [];
     const autoAccessors: ProfileFactoryInfo["accessors"] = [];
     const fields = flatProfile.fields ?? {};
@@ -115,6 +113,7 @@ export const collectProfileFactoryInfo = (
     const isFamilyType = mkIsFamilyType(tsIndex);
 
     const fixed = collectFixedFields(flatProfile);
+    const sliceAutoFields = collectSliceAutoFields(flatProfile);
 
     for (const [name, field] of Object.entries(fields)) {
         if (field.excluded) continue;
@@ -133,21 +132,12 @@ export const collectProfileFactoryInfo = (
             continue;
         }
 
-        if (isNotChoiceDeclarationField(field)) {
-            const sliceNames = collectRequiredSliceNames(field);
-            if (sliceNames) {
-                if (field.type) {
-                    const tsType = fieldTsType(field, resolveRef, isFamilyType);
-                    sliceAutoFields.push({
-                        name,
-                        tsType,
-                        typeId: field.type,
-                        sliceNames,
-                    });
-                    autoAccessors.push({ name, tsType, typeId: field.type });
-                }
-                continue;
+        if (name in sliceAutoFields) {
+            if (isNotChoiceDeclarationField(field) && field.type) {
+                const tsType = fieldTsType(field, resolveRef, isFamilyType);
+                autoAccessors.push({ name, tsType, typeId: field.type });
             }
+            continue;
         }
 
         if (field.required) {
@@ -161,12 +151,7 @@ export const collectProfileFactoryInfo = (
         flatProfile,
         resolveRef,
         params,
-        [
-            ...Object.keys(fixed),
-            ...sliceAutoFields.map((f) => f.name),
-            ...params.map((f) => f.name),
-            ...promotedChoices,
-        ],
+        [...Object.keys(fixed), ...Object.keys(sliceAutoFields), ...params.map((f) => f.name), ...promotedChoices],
         isFamilyType,
     );
 
@@ -236,7 +221,7 @@ const generateProfileHelpersImport = (
     if (flatProfile.base.name === "Extension" && !!canonicalUrl && collectSubExtensionSlices(flatProfile).length > 0)
         imports.push("isRawExtensionInput");
     if (canonicalUrl && hasMeta) imports.push("ensureProfile");
-    if (sliceDefs.length > 0 || factoryInfo.sliceAutoFields.length > 0)
+    if (sliceDefs.length > 0 || Object.keys(factoryInfo.sliceAutoFields).length > 0)
         imports.push("applySliceMatch", "matchesValue", "setArraySlice", "getArraySlice", "ensureSliceDefaults");
     const hasUnboundedSlice = sliceDefs.some((s) => s.array && (s.max === 0 || s.max === undefined));
     if (hasUnboundedSlice) imports.push("setArraySliceAll", "getArraySliceAll");
@@ -291,7 +276,7 @@ export const generateProfileImports = (w: TypeScript, tsIndex: TypeSchemaIndex, 
 
     const factoryInfo = collectProfileFactoryInfo(tsIndex, flatProfile);
     for (const param of factoryInfo.params) addType(param.typeId);
-    for (const f of factoryInfo.sliceAutoFields) addType(f.typeId);
+    for (const f of Object.values(factoryInfo.sliceAutoFields)) addType(f.typeId);
     for (const accessor of factoryInfo.accessors) addType(accessor.typeId);
 
     if (needsExtensionType) {
@@ -362,13 +347,13 @@ const generateFactoryMethods = (
     const profileClassName = tsProfileClassName(flatProfile);
     const tsBaseResourceName = tsTypeFromIdentifier(flatProfile.base);
     const hasMeta = tsIndex.isWithMetaField(flatProfile);
-    const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
+    const hasParams = factoryInfo.params.length > 0 || Object.keys(factoryInfo.sliceAutoFields).length > 0;
     const createArgsTypeName = `${profileClassName}Raw`;
     const paramSignature = hasParams ? `args: ${createArgsTypeName}` : "";
     const autoFields = Object.entries(factoryInfo.fixed).map(fixedFieldToAutoValue);
     const allFields = [
         ...autoFields,
-        ...factoryInfo.sliceAutoFields.map((f) => ({ name: f.name, value: `${f.name}WithDefaults` })),
+        ...Object.keys(factoryInfo.sliceAutoFields).map((name) => ({ name, value: `${name}WithDefaults` })),
         ...factoryInfo.params.map((p) => ({ name: p.name, value: `args.${p.name}` })),
     ];
     w.curlyBlock(["constructor", `(resource: ${tsBaseResourceName})`], () => {
@@ -404,11 +389,11 @@ const generateFactoryMethods = (
                 }
             }, [")"]);
         }
-        for (const f of factoryInfo.sliceAutoFields) {
+        for (const [name, f] of Object.entries(factoryInfo.sliceAutoFields)) {
             const matchRefs = f.sliceNames.map((s) => `${profileClassName}.${tsSliceStaticName(s)}SliceMatch`);
-            w.line(`resource.${f.name} = ensureSliceDefaults(`);
+            w.line(`resource.${name} = ensureSliceDefaults(`);
             w.indentBlock(() => {
-                w.line(`[...(resource.${f.name} ?? [])],`);
+                w.line(`[...(resource.${name} ?? [])],`);
                 for (const ref of matchRefs) {
                     w.line(`${ref},`);
                 }
@@ -470,7 +455,7 @@ const generateFactoryMethods = (
             : `args?: ${rawInputTypeName} | ${inputTypeName}`;
         w.curlyBlock(["static", "createResource", `(${createResourceSig})`, `: ${tsBaseResourceName}`], () => {
             w.lineSM(`const resolvedExtensions = ${profileClassName}.resolveInput(args ?? {})`);
-            const extSliceField = factoryInfo.sliceAutoFields.find((f) => f.name === "extension");
+            const extSliceField = factoryInfo.sliceAutoFields.extension;
             if (extSliceField) {
                 const matchRefs = extSliceField.sliceNames.map(
                     (s) => `${profileClassName}.${tsSliceStaticName(s)}SliceMatch`,
@@ -511,18 +496,18 @@ const generateFactoryMethods = (
     } else {
         // Standard createResource / create (no Input helper)
         w.curlyBlock(["static", "createResource", `(${paramSignature})`, `: ${tsBaseResourceName}`], () => {
-            for (const f of factoryInfo.sliceAutoFields) {
+            for (const [name, f] of Object.entries(factoryInfo.sliceAutoFields)) {
                 const matchRefs = f.sliceNames.map((s) => `${profileClassName}.${tsSliceStaticName(s)}SliceMatch`);
-                w.line(`const ${f.name}WithDefaults = ensureSliceDefaults(`);
+                w.line(`const ${name}WithDefaults = ensureSliceDefaults(`);
                 w.indentBlock(() => {
-                    w.line(`[...(args.${f.name} ?? [])],`);
+                    w.line(`[...(args.${name} ?? [])],`);
                     for (const ref of matchRefs) {
                         w.line(`${ref},`);
                     }
                 });
                 w.lineSM(")");
             }
-            if (factoryInfo.sliceAutoFields.length > 0) {
+            if (Object.keys(factoryInfo.sliceAutoFields).length > 0) {
                 w.line();
             }
             if (isPrimitiveIdentifier(flatProfile.base)) {
@@ -676,7 +661,7 @@ const generateSliceInputTypes = (w: TypeScript, flatProfile: ProfileTypeSchema, 
 };
 
 const generateRawType = (w: TypeScript, flatProfile: ProfileTypeSchema, factoryInfo: ProfileFactoryInfo) => {
-    const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
+    const hasParams = factoryInfo.params.length > 0 || Object.keys(factoryInfo.sliceAutoFields).length > 0;
     const subSlices = flatProfile.base.name === "Extension" ? collectSubExtensionSlices(flatProfile) : [];
     if (!hasParams && subSlices.length === 0) return;
 
@@ -685,12 +670,14 @@ const generateRawType = (w: TypeScript, flatProfile: ProfileTypeSchema, factoryI
         for (const p of factoryInfo.params) {
             w.lineSM(`${p.name}: ${p.tsType}`);
         }
-        for (const f of factoryInfo.sliceAutoFields) {
-            w.lineSM(`${f.name}?: ${f.tsType}`);
+        for (const [name, sf] of Object.entries(factoryInfo.sliceAutoFields)) {
+            const field = flatProfile.fields?.[name];
+            const tsType =
+                field && isNotChoiceDeclarationField(field) ? fieldTsType(field) : tsTypeFromIdentifier(sf.typeId);
+            w.lineSM(`${name}?: ${tsType}`);
         }
         const extensionCovered =
-            factoryInfo.params.some((p) => p.name === "extension") ||
-            factoryInfo.sliceAutoFields.some((f) => f.name === "extension");
+            factoryInfo.params.some((p) => p.name === "extension") || "extension" in factoryInfo.sliceAutoFields;
         if (subSlices.length > 0 && !extensionCovered) {
             w.lineSM("extension?: Extension[]");
         }
