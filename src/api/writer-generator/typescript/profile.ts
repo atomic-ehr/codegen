@@ -488,14 +488,22 @@ const generateFactoryMethods = (
             }
             w.line();
             const extensionVar = extSliceField ? "extensionWithDefaults" : "resolvedExtensions";
+            const hasMetaParam = allFields.some((f) => f.name === "meta");
             w.curlyBlock([`const resource: ${tsBaseResourceName} =`], () => {
                 for (const f of allFields) {
                     if (f.name === "extension") continue;
+                    if (f.name === "meta" && hasMeta) continue;
                     w.line(`${f.name}: ${f.value},`);
                 }
                 w.line(`extension: ${extensionVar},`);
                 if (hasMeta) {
-                    w.line(`meta: { profile: [${profileClassName}.canonicalUrl] },`);
+                    if (hasMetaParam) {
+                        w.line(
+                            `meta: { ...args.meta, profile: [...(args.meta?.profile ?? []), ${profileClassName}.canonicalUrl] },`,
+                        );
+                    } else {
+                        w.line(`meta: { profile: [${profileClassName}.canonicalUrl] },`);
+                    }
                 }
             });
 
@@ -530,12 +538,20 @@ const generateFactoryMethods = (
             if (isPrimitiveIdentifier(flatProfile.base)) {
                 w.lineSM(`const resource = undefined as unknown as ${tsBaseResourceName}`);
             } else {
+                const hasMetaParam = allFields.some((f) => f.name === "meta");
                 w.curlyBlock([`const resource: ${tsBaseResourceName} =`], () => {
                     for (const f of allFields) {
+                        if (f.name === "meta" && hasMeta) continue;
                         w.line(`${f.name}: ${f.value},`);
                     }
                     if (hasMeta) {
-                        w.line(`meta: { profile: [${profileClassName}.canonicalUrl] },`);
+                        if (hasMetaParam) {
+                            w.line(
+                                `meta: { ...args.meta, profile: [...(args.meta?.profile ?? []), ${profileClassName}.canonicalUrl] },`,
+                            );
+                        } else {
+                            w.line(`meta: { profile: [${profileClassName}.canonicalUrl] },`);
+                        }
                     }
                 });
             }
