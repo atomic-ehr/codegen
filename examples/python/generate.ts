@@ -13,6 +13,7 @@ const builder = new APIBuilder({ logger })
     .python({
         allowExtraFields: false,
         primitiveTypeExtension: true,
+        generateProfile: false,
         fhirpyClient: false,
         fieldFormat: "snake_case",
     })
@@ -27,8 +28,16 @@ const builder = new APIBuilder({ logger })
                 "http://hl7.org/fhir/StructureDefinition/Patient": {},
                 "http://hl7.org/fhir/StructureDefinition/Observation": {},
                 "http://hl7.org/fhir/StructureDefinition/bodyweight": {},
+                // Extensions
+                "http://hl7.org/fhir/StructureDefinition/patient-birthPlace": {},
+                "http://hl7.org/fhir/StructureDefinition/patient-nationality": {},
+                "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix": {},
+                "http://hl7.org/fhir/StructureDefinition/patient-birthTime": {},
             },
         },
+    })
+    .introspection({
+        typeSchemas: "type-schemas",
     })
     .outputTo("./examples/python/fhir_types")
     .cleanOutput(true);

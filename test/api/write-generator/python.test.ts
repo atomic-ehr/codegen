@@ -39,3 +39,84 @@ describe("Python Writer Generator", async () => {
         expect(basePy).toContain("T = TypeVar('T', bound=str, default=str)");
     });
 });
+
+describe("Python R4 Example (with generateProfile)", async () => {
+    const logger = mkErrorLogger();
+    const result = await new APIBuilder({ register: r4Manager, logger })
+        .python({
+            inMemoryOnly: true,
+            generateProfile: true,
+        })
+        .generate();
+
+    it("generates successfully", () => {
+        expect(result.success).toBeTrue();
+    });
+
+    it("generates bodyweight profile with validate()", () => {
+        expect(
+            result.filesGenerated["generated/hl7_fhir_r4_core/profiles/observation_observation_bodyweight.py"],
+        ).toMatchSnapshot();
+    });
+
+    it("generates bp profile with validate()", () => {
+        expect(
+            result.filesGenerated["generated/hl7_fhir_r4_core/profiles/observation_observation_bp.py"],
+        ).toMatchSnapshot();
+    });
+});
+
+describe("Python US Core Example", async () => {
+    const logger = mkErrorLogger();
+    const result = await new APIBuilder({ logger })
+        .fromPackage("hl7.fhir.us.core", "8.0.1")
+        .typeSchema({
+            treeShake: {
+                "hl7.fhir.us.core": {
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient": {},
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure": {},
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight": {},
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity": {},
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race": {},
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation": {},
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex": {},
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed": {},
+                },
+            },
+        })
+        .python({
+            inMemoryOnly: true,
+            generateProfile: true,
+        })
+        .generate();
+
+    it("generates successfully", () => {
+        expect(result.success).toBeTrue();
+    });
+
+    it("generates US Core Patient profile", () => {
+        expect(
+            result.filesGenerated["generated/hl7_fhir_us_core/profiles/patient_uscore_patient_profile.py"],
+        ).toMatchSnapshot();
+    });
+
+    it("generates US Core Blood Pressure profile", () => {
+        expect(
+            result.filesGenerated["generated/hl7_fhir_us_core/profiles/observation_uscore_blood_pressure_profile.py"],
+        ).toMatchSnapshot();
+    });
+
+    it("generates US Core Body Weight profile", () => {
+        const key = "generated/hl7_fhir_us_core/profiles/observation_uscore_body_weight_profile.py";
+        expect(result.filesGenerated[key]).toMatchSnapshot();
+    });
+
+    it("generates US Core Race extension profile", () => {
+        const key = "generated/hl7_fhir_us_core/profiles/extension_uscore_race_extension.py";
+        expect(result.filesGenerated[key]).toMatchSnapshot();
+    });
+
+    it("generates US Core profiles index", () => {
+        expect(result.filesGenerated["generated/hl7_fhir_us_core/profiles/__init__.py"]).toMatchSnapshot();
+    });
+});

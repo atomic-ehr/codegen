@@ -43,3 +43,5 @@ test-output
 .typeschema-cache
 *.cpuprofile
 examples/tmp/
+/examples/python/fhir_types/type-schemas/
+/examples/python-profiles/fhir_types/type-schemas/

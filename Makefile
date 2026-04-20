@@ -103,6 +103,7 @@ test-csharp-sdk: typecheck format prepare-aidbox-runme lint
 PYTHON=python3.13
 PYTHON_EXAMPLE=./examples/python
 PYTHON_FHIRPY_EXAMPLE=./examples/python-fhirpy
+PYTHON_PROFILES_EXAMPLE=./examples/python-profiles
 
 generate-python-sdk:
 	$(TYPECHECK) --project examples/python/tsconfig.json
@@ -111,6 +112,10 @@ generate-python-sdk:
 generate-python-sdk-fhirpy:
 	$(TYPECHECK) --project examples/python-fhirpy/tsconfig.json
 	bun run examples/python-fhirpy/generate.ts
+
+generate-python-profiles:
+	$(TYPECHECK) --project examples/python-profiles/tsconfig.json
+	bun run examples/python-profiles/generate.ts
 
 python-test-setup:
 	@if [ ! -d "$(PYTHON_EXAMPLE)/venv" ]; then \
@@ -128,6 +133,19 @@ python-fhirpy-test-setup:
 		pip install -r fhir_types/requirements.txt && \
 		pip install fhirpy; \
 	fi
+
+python-profiles-test-setup:
+	@if [ ! -d "$(PYTHON_PROFILES_EXAMPLE)/venv" ]; then \
+		cd $(PYTHON_PROFILES_EXAMPLE) && \
+		$(PYTHON) -m venv venv && \
+		. venv/bin/activate && \
+		pip install -r fhir_types/requirements.txt; \
+	fi
+
+test-python-profiles: typecheck format lint generate-python-profiles python-profiles-test-setup
+	cd $(PYTHON_PROFILES_EXAMPLE) && \
+	     . venv/bin/activate && \
+	     python -m pytest test_profile_patient.py test_profile_bp.py test_profile_bodyweight.py -v
 
 test-python-sdk: typecheck format prepare-aidbox-runme lint generate-python-sdk python-test-setup
     # Run mypy in strict mode
