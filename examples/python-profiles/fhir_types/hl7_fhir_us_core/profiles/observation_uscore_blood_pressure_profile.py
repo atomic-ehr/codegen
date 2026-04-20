@@ -8,6 +8,7 @@ from typing import Any
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
+    BackboneElement,
     CodeableConcept,
     Period,
     Quantity,
@@ -289,7 +290,7 @@ class UscoreBloodPressureProfile:
         errors.extend(validate_required(self._resource, profile_name, "status"))
         errors.extend(validate_enum(self._resource, profile_name, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]))
         errors.extend(validate_required(self._resource, profile_name, "category"))
-        errors.extend(validate_slice_cardinality(self._resource, profile_name, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1))
+        errors.extend(validate_slice_cardinality(self._resource, profile_name, "category", {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}, "VSCat", 1, 1))
         errors.extend(validate_required(self._resource, profile_name, "code"))
         errors.extend(validate_fixed_value(self._resource, profile_name, "code", {"coding":[{"system":"http://loinc.org","code":"85354-9"}]}))
         errors.extend(validate_required(self._resource, profile_name, "subject"))

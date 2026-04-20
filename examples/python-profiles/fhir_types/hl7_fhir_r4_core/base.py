@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt
-from typing import Generic, List as PyList, Literal
+from typing import Any, Generic, List as PyList, Literal
 from typing_extensions import TypeVar
 
 T = TypeVar('T', bound=str, default=str)
