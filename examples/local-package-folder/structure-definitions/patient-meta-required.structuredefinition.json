@@ -1,0 +1,31 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "patient-meta-required",
+  "url": "http://example.org/fhir/StructureDefinition/PatientMetaRequired",
+  "version": "0.0.1",
+  "name": "PatientMetaRequired",
+  "title": "Patient Profile with required meta",
+  "status": "draft",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Patient",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Patient",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Patient.meta",
+        "path": "Patient.meta",
+        "min": 1,
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.meta.profile",
+        "path": "Patient.meta.profile",
+        "min": 1,
+        "mustSupport": true
+      }
+    ]
+  }
+}
