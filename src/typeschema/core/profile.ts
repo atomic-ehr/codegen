@@ -41,9 +41,7 @@ export type SliceAutoField = {
 };
 
 /** Collect array fields with required slices that can be auto-populated from discriminator match alone. */
-export const collectSliceAutoFields = (
-    flatProfile: ProfileTypeSchema,
-): Record<string, SliceAutoField> => {
+export const collectSliceAutoFields = (flatProfile: ProfileTypeSchema): Record<string, SliceAutoField> => {
     const fixedFields = collectFixedFields(flatProfile);
 
     const result: Record<string, SliceAutoField> = {};

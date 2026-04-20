@@ -46,10 +46,6 @@ import { fieldTsType, tsGet, tsTypeFromIdentifier } from "./utils";
 import type { TypeScript } from "./writer";
 
 type ProfileFactoryInfo = {
-    /** Fields with fixed values from the constraint (language-neutral) */
-    fixed: Record<string, FixedField>;
-    /** Array fields with required slices (language-neutral, keyed by field name) */
-    sliceAutoFields: Record<string, { sliceNames: string[]; typeId: TypeIdentifier }>;
     params: { name: string; tsType: string; typeId: TypeIdentifier }[];
     accessors: { name: string; tsType: string; typeId: TypeIdentifier }[];
 };
@@ -156,7 +152,7 @@ export const collectProfileFactoryInfo = (
     );
 
     const accessors = [...autoAccessors, ...collectChoiceAccessors(flatProfile, promotedChoices)];
-    return { fixed, sliceAutoFields, params, accessors };
+    return { params, accessors };
 };
 
 /** Include base-type required fields not already covered by profile constraints */
@@ -211,7 +207,6 @@ const generateProfileHelpersImport = (
     tsIndex: TypeSchemaIndex,
     flatProfile: ProfileTypeSchema,
     sliceDefs: SliceDef[],
-    factoryInfo: ProfileFactoryInfo,
 ) => {
     const extensions = flatProfile.extensions ?? [];
     const hasMeta = tsIndex.isWithMetaField(flatProfile);
@@ -221,7 +216,8 @@ const generateProfileHelpersImport = (
     if (flatProfile.base.name === "Extension" && !!canonicalUrl && collectSubExtensionSlices(flatProfile).length > 0)
         imports.push("isRawExtensionInput");
     if (canonicalUrl && hasMeta) imports.push("ensureProfile");
-    if (sliceDefs.length > 0 || Object.keys(factoryInfo.sliceAutoFields).length > 0)
+    const sliceAutoFields = collectSliceAutoFields(flatProfile);
+    if (sliceDefs.length > 0 || Object.keys(sliceAutoFields).length > 0)
         imports.push("applySliceMatch", "matchesValue", "setArraySlice", "getArraySlice", "ensureSliceDefaults");
     const hasUnboundedSlice = sliceDefs.some((s) => s.array && (s.max === 0 || s.max === undefined));
     if (hasUnboundedSlice) imports.push("setArraySliceAll", "getArraySliceAll");
@@ -276,7 +272,7 @@ export const generateProfileImports = (w: TypeScript, tsIndex: TypeSchemaIndex, 
 
     const factoryInfo = collectProfileFactoryInfo(tsIndex, flatProfile);
     for (const param of factoryInfo.params) addType(param.typeId);
-    for (const f of Object.values(factoryInfo.sliceAutoFields)) addType(f.typeId);
+    for (const f of Object.values(collectSliceAutoFields(flatProfile))) addType(f.typeId);
     for (const accessor of factoryInfo.accessors) addType(accessor.typeId);
 
     if (needsExtensionType) {
@@ -347,13 +343,15 @@ const generateFactoryMethods = (
     const profileClassName = tsProfileClassName(flatProfile);
     const tsBaseResourceName = tsTypeFromIdentifier(flatProfile.base);
     const hasMeta = tsIndex.isWithMetaField(flatProfile);
-    const hasParams = factoryInfo.params.length > 0 || Object.keys(factoryInfo.sliceAutoFields).length > 0;
+    const fixed = collectFixedFields(flatProfile);
+    const sliceAutoFields = collectSliceAutoFields(flatProfile);
+    const hasParams = factoryInfo.params.length > 0 || Object.keys(sliceAutoFields).length > 0;
     const createArgsTypeName = `${profileClassName}Raw`;
     const paramSignature = hasParams ? `args: ${createArgsTypeName}` : "";
-    const autoFields = Object.entries(factoryInfo.fixed).map(fixedFieldToAutoValue);
+    const autoFields = Object.entries(fixed).map(fixedFieldToAutoValue);
     const allFields = [
         ...autoFields,
-        ...Object.keys(factoryInfo.sliceAutoFields).map((name) => ({ name, value: `${name}WithDefaults` })),
+        ...Object.keys(sliceAutoFields).map((name) => ({ name, value: `${name}WithDefaults` })),
         ...factoryInfo.params.map((p) => ({ name: p.name, value: `args.${p.name}` })),
     ];
     w.curlyBlock(["constructor", `(resource: ${tsBaseResourceName})`], () => {
@@ -389,7 +387,7 @@ const generateFactoryMethods = (
                 }
             }, [")"]);
         }
-        for (const [name, f] of Object.entries(factoryInfo.sliceAutoFields)) {
+        for (const [name, f] of Object.entries(sliceAutoFields)) {
             const matchRefs = f.sliceNames.map((s) => `${profileClassName}.${tsSliceStaticName(s)}SliceMatch`);
             w.line(`resource.${name} = ensureSliceDefaults(`);
             w.indentBlock(() => {
@@ -455,7 +453,7 @@ const generateFactoryMethods = (
             : `args?: ${rawInputTypeName} | ${inputTypeName}`;
         w.curlyBlock(["static", "createResource", `(${createResourceSig})`, `: ${tsBaseResourceName}`], () => {
             w.lineSM(`const resolvedExtensions = ${profileClassName}.resolveInput(args ?? {})`);
-            const extSliceField = factoryInfo.sliceAutoFields.extension;
+            const extSliceField = sliceAutoFields.extension;
             if (extSliceField) {
                 const matchRefs = extSliceField.sliceNames.map(
                     (s) => `${profileClassName}.${tsSliceStaticName(s)}SliceMatch`,
@@ -496,7 +494,7 @@ const generateFactoryMethods = (
     } else {
         // Standard createResource / create (no Input helper)
         w.curlyBlock(["static", "createResource", `(${paramSignature})`, `: ${tsBaseResourceName}`], () => {
-            for (const [name, f] of Object.entries(factoryInfo.sliceAutoFields)) {
+            for (const [name, f] of Object.entries(sliceAutoFields)) {
                 const matchRefs = f.sliceNames.map((s) => `${profileClassName}.${tsSliceStaticName(s)}SliceMatch`);
                 w.line(`const ${name}WithDefaults = ensureSliceDefaults(`);
                 w.indentBlock(() => {
@@ -507,7 +505,7 @@ const generateFactoryMethods = (
                 });
                 w.lineSM(")");
             }
-            if (Object.keys(factoryInfo.sliceAutoFields).length > 0) {
+            if (Object.keys(sliceAutoFields).length > 0) {
                 w.line();
             }
             if (isPrimitiveIdentifier(flatProfile.base)) {
@@ -538,7 +536,8 @@ const generateFactoryMethods = (
     w.line();
 };
 
-const generateFieldAccessors = (w: TypeScript, factoryInfo: ProfileFactoryInfo) => {
+const generateFieldAccessors = (w: TypeScript, flatProfile: ProfileTypeSchema, factoryInfo: ProfileFactoryInfo) => {
+    const fixed = collectFixedFields(flatProfile);
     w.line("// Field accessors");
     for (const p of factoryInfo.params) {
         const methodBaseName = uppercaseFirstLetter(p.name);
@@ -560,7 +559,7 @@ const generateFieldAccessors = (w: TypeScript, factoryInfo: ProfileFactoryInfo) 
             w.lineSM(`return ${tsGet("this.resource", fieldAccess)} as ${a.tsType} | undefined`);
         });
         w.line();
-        if (!(a.name in factoryInfo.fixed)) {
+        if (!(a.name in fixed)) {
             w.curlyBlock([`set${methodBaseName}`, `(value: ${a.tsType})`, ": this"], () => {
                 w.lineSM(`Object.assign(this.resource, { ${fieldAccess}: value })`);
                 w.lineSM("return this");
@@ -661,7 +660,8 @@ const generateSliceInputTypes = (w: TypeScript, flatProfile: ProfileTypeSchema, 
 };
 
 const generateRawType = (w: TypeScript, flatProfile: ProfileTypeSchema, factoryInfo: ProfileFactoryInfo) => {
-    const hasParams = factoryInfo.params.length > 0 || Object.keys(factoryInfo.sliceAutoFields).length > 0;
+    const sliceAutoFields = collectSliceAutoFields(flatProfile);
+    const hasParams = factoryInfo.params.length > 0 || Object.keys(sliceAutoFields).length > 0;
     const subSlices = flatProfile.base.name === "Extension" ? collectSubExtensionSlices(flatProfile) : [];
     if (!hasParams && subSlices.length === 0) return;
 
@@ -670,14 +670,14 @@ const generateRawType = (w: TypeScript, flatProfile: ProfileTypeSchema, factoryI
         for (const p of factoryInfo.params) {
             w.lineSM(`${p.name}: ${p.tsType}`);
         }
-        for (const [name, sf] of Object.entries(factoryInfo.sliceAutoFields)) {
+        for (const [name, sf] of Object.entries(sliceAutoFields)) {
             const field = flatProfile.fields?.[name];
             const tsType =
                 field && isNotChoiceDeclarationField(field) ? fieldTsType(field) : tsTypeFromIdentifier(sf.typeId);
             w.lineSM(`${name}?: ${tsType}`);
         }
         const extensionCovered =
-            factoryInfo.params.some((p) => p.name === "extension") || "extension" in factoryInfo.sliceAutoFields;
+            factoryInfo.params.some((p) => p.name === "extension") || "extension" in sliceAutoFields;
         if (subSlices.length > 0 && !extensionCovered) {
             w.lineSM("extension?: Extension[]");
         }
@@ -709,7 +709,7 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, fl
     generateInlineExtensionInputTypes(w, tsIndex, flatProfile);
     generateSliceInputTypes(w, flatProfile, sliceDefs);
 
-    generateProfileHelpersImport(w, tsIndex, flatProfile, sliceDefs, factoryInfo);
+    generateProfileHelpersImport(w, tsIndex, flatProfile, sliceDefs);
 
     generateRawType(w, flatProfile, factoryInfo);
     generateFlatInputType(w, flatProfile);
@@ -724,7 +724,7 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, fl
         w.lineSM(`private resource: ${tsBaseResourceName}`);
         w.line();
         generateFactoryMethods(w, tsIndex, flatProfile, factoryInfo);
-        generateFieldAccessors(w, factoryInfo);
+        generateFieldAccessors(w, flatProfile, factoryInfo);
 
         w.line("// Extensions");
         generateExtensionMethods(w, tsIndex, flatProfile);
