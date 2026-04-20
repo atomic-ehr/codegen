@@ -125,6 +125,7 @@ export class APIBuilder {
             manager?: ReturnType<typeof CanonicalManager>;
             register?: Register;
             preprocessPackage?: (context: PreprocessContext) => PreprocessContext;
+            ignorePackageIndex?: boolean;
             logger?: CodegenLogManager;
         } = {},
     ) {
@@ -135,18 +136,17 @@ export class APIBuilder {
             registry: undefined,
             dropCanonicalManagerCache: false,
         };
+        const apiBuilderKeys: (keyof APIBuilderOptions)[] = [
+            "outputDir",
+            "cleanOutput",
+            "throwException",
+            "typeSchema",
+            "registry",
+            "dropCanonicalManagerCache",
+        ];
         const opts: APIBuilderOptions = {
             ...defaultOpts,
-            ...Object.fromEntries(
-                Object.entries(userOpts).filter(
-                    ([k, v]) =>
-                        v !== undefined &&
-                        k !== "manager" &&
-                        k !== "register" &&
-                        k !== "preprocessPackage" &&
-                        k !== "logger",
-                ),
-            ),
+            ...Object.fromEntries(apiBuilderKeys.filter((k) => userOpts[k] !== undefined).map((k) => [k, userOpts[k]])),
         };
 
         if (userOpts.manager && userOpts.register) {
@@ -167,6 +167,7 @@ export class APIBuilder {
                 registry: userOpts.registry,
                 dropCache: userOpts.dropCanonicalManagerCache,
                 preprocessPackage: userOpts.preprocessPackage,
+                ignorePackageIndex: userOpts.ignorePackageIndex,
             });
         this.logger = userOpts.logger ?? mkLogger({ prefix: "api" });
         this.options = opts;
