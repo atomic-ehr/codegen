@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt
-from typing import List as PyList, Literal
+from typing import Any, List as PyList, Literal
 
 from fhir_types.hl7_fhir_r4_core.base import Extension, Narrative
 from fhir_types.hl7_fhir_r4_core.resource import Resource
@@ -25,8 +25,11 @@ class DomainResource(Resource):
     modifier_extension: PyList[Extension] | None = Field(None, alias="modifierExtension", serialization_alias="modifierExtension")
     text: Narrative | None = Field(None, alias="text", serialization_alias="text")
 
-    def to_json(self, indent: int | None = None, by_alias: bool = False, exclude_unset: bool = True) -> str:
-        return self.model_dump_json(by_alias=by_alias, exclude_unset=exclude_unset, exclude_none=True, indent=indent)
+    def model_post_init(self, __context: Any) -> None:
+        self.__pydantic_fields_set__.add("resource_type")
+
+    def to_json(self, indent: int | None = None) -> str:
+        return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)
 
     @classmethod
     def from_json(cls, json: str) -> DomainResource:

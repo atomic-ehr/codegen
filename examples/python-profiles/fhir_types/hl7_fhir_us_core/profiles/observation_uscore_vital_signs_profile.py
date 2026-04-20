@@ -230,7 +230,7 @@ class UscoreVitalSignsProfile:
         errors.extend(validate_required(self._resource, profile_name, "status"))
         errors.extend(validate_enum(self._resource, profile_name, "status", ["registered","preliminary","final","amended","corrected","cancelled","entered-in-error","unknown"]))
         errors.extend(validate_required(self._resource, profile_name, "category"))
-        errors.extend(validate_slice_cardinality(self._resource, profile_name, "category", {"coding":{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}}, "VSCat", 1, 1))
+        errors.extend(validate_slice_cardinality(self._resource, profile_name, "category", {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}, "VSCat", 1, 1))
         errors.extend(validate_required(self._resource, profile_name, "code"))
         errors.extend(validate_required(self._resource, profile_name, "subject"))
         errors.extend(validate_reference(self._resource, profile_name, "subject", ["Patient"]))

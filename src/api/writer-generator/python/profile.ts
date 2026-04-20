@@ -186,6 +186,43 @@ const collectBaseRequiredParams = (
     }
 };
 
+const modulePathForTypeId = (rootPackageName: string, typeId: TypeIdentifier): string => {
+    const pkg = pyFhirPackageByName(rootPackageName, typeId.package);
+    if (isResourceIdentifier(typeId)) return `${pkg}.${snakeCase(typeId.name)}`;
+    if (isNestedIdentifier(typeId)) {
+        const path = canonicalToName(typeId.url, false);
+        const parentName = path?.split("#")[0];
+        return parentName ? `${pkg}.${snakeCase(parentName)}` : `${pkg}.base`;
+    }
+    return `${pkg}.base`;
+};
+
+/** Record import(s) needed to reference `typeId` in generated code. */
+const addTypeImport = (
+    typeImports: Map<string, Set<string>>,
+    rootPackageName: string,
+    skipName: string,
+    resolveRef: TypeSchemaIndex["findLastSpecializationByIdentifier"],
+    typeId: TypeIdentifier,
+): void => {
+    const ids: TypeIdentifier[] = [typeId];
+    const resolved = resolveRef(typeId);
+    if (resolved !== typeId) ids.push(resolved);
+
+    for (const id of ids) {
+        if (isPrimitiveIdentifier(id) || PRIMITIVE_TYPE_MAP[id.name] !== undefined) continue;
+        const name = deriveResourceName(id);
+        if (name === skipName) continue;
+        const modulePath = modulePathForTypeId(rootPackageName, id);
+        let names = typeImports.get(modulePath);
+        if (!names) {
+            names = new Set();
+            typeImports.set(modulePath, names);
+        }
+        names.add(name);
+    }
+};
+
 const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, profile: ProfileTypeSchema): void => {
     const flatProfile = tsIndex.flatProfile(profile);
     const className = pyProfileClassName(flatProfile);
@@ -240,31 +277,13 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, profile: Pro
 
     // Collect additional type imports needed for factory params and accessors
     const typeImports = new Map<string, Set<string>>(); // module → set of names
-    const addTypeImport = (typeId: TypeIdentifier) => {
-        if (isPrimitiveIdentifier(typeId) || PRIMITIVE_TYPE_MAP[typeId.name] !== undefined) return;
-        const name = deriveResourceName(typeId);
-        if (name === baseTypeName) return; // already imported
-        const pkg = pyFhirPackageByName(w.opts.rootPackageName, typeId.package);
-        let modulePath: string;
-        if (isResourceIdentifier(typeId)) {
-            modulePath = `${pkg}.${snakeCase(typeId.name)}`;
-        } else if (isNestedIdentifier(typeId)) {
-            const path = canonicalToName(typeId.url, false);
-            const parentName = path?.split("#")[0];
-            modulePath = parentName ? `${pkg}.${snakeCase(parentName)}` : `${pkg}.base`;
-        } else {
-            modulePath = `${pkg}.base`;
-        }
-        let names = typeImports.get(modulePath);
-        if (!names) {
-            names = new Set();
-            typeImports.set(modulePath, names);
-        }
-        names.add(name);
-    };
-    for (const p of factoryInfo.params) addTypeImport(p.typeId);
-    for (const f of factoryInfo.sliceAutoFields) addTypeImport(f.typeId);
-    for (const a of factoryInfo.accessors) addTypeImport(a.typeId);
+    const resolveRef = tsIndex.findLastSpecializationByIdentifier;
+    for (const p of factoryInfo.params)
+        addTypeImport(typeImports, w.opts.rootPackageName, baseTypeName, resolveRef, p.typeId);
+    for (const f of factoryInfo.sliceAutoFields)
+        addTypeImport(typeImports, w.opts.rootPackageName, baseTypeName, resolveRef, f.typeId);
+    for (const a of factoryInfo.accessors)
+        addTypeImport(typeImports, w.opts.rootPackageName, baseTypeName, resolveRef, a.typeId);
 
     w.line("from __future__ import annotations");
     w.line();

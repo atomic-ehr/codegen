@@ -178,6 +178,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
                 this.generateDisclaimer();
                 const pydanticModels: string[] = this.collectAndImportAllModels(groups);
                 this.generateModelRebuilds(pydanticModels);
+                this.importProfileRegistrations(groups);
             });
         });
     }
@@ -530,12 +531,11 @@ export class Python extends Writer<PythonGeneratorOptions> {
         const className = schema.identifier.name.toString();
 
         this.line();
-        this.line(
-            "def to_json(self, indent: int | None = None, by_alias: bool = False, exclude_unset: bool = True) -> str:",
-        );
-        this.line(
-            "    return self.model_dump_json(by_alias=by_alias, exclude_unset=exclude_unset, exclude_none=True, indent=indent)",
-        );
+        this.line("def model_post_init(self, __context: Any) -> None:");
+        this.line('    self.__pydantic_fields_set__.add("resource_type")');
+        this.line();
+        this.line("def to_json(self, indent: int | None = None) -> str:");
+        this.line("    return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)");
         this.line();
         this.line("@classmethod");
         this.line(`def from_json(cls, json: str) -> ${className}:`);
