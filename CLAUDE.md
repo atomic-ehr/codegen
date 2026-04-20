@@ -361,7 +361,7 @@ Detection uses `mkIsFamilyType(tsIndex)` which checks `schema.typeFamily.resourc
 2. Enable caching in APIBuilder
 3. Process large packages in batches
 4. Use `build()` instead of `generate()` for testing
-5. Run `bun run quality` before committing (combines typecheck, lint, test:unit)
+5. Run `make test` before committing (typecheck + tests)
 
 ## Useful External Resources
 

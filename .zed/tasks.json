@@ -1,15 +1,7 @@
 [
   {
-    "label": "test-typeschema",
-    "command": "make test-typeschema"
-  },
-  {
-    "label": "test-register",
-    "command": "make test-register"
-  },
-  {
-    "label": "test-codegen",
-    "command": "make test-codegen"
+    "label": "test",
+    "command": "make test"
   },
   {
     "label": "test-ts-r4-example",
