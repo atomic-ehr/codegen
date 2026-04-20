@@ -1,8 +1,7 @@
 AIDBOX_LICENSE_ID ?=
 
 TYPECHECK = bunx tsc --noEmit
-LINT = bunx biome check
-TEST = bun test
+
 VERSION = $(shell cat package.json | grep version | sed -E 's/ *"version": "//' | sed -E 's/",.*//')
 
 .PHONY: all generate-types lint lint-fix lint-unsafe typecheck \
@@ -19,7 +18,7 @@ generate-types:
 	bun run scripts/generate-types.ts
 
 lint:
-	$(LINT)
+	bunx biome check
 
 lint-fix:
 	bunx biome check --write
@@ -31,7 +30,7 @@ typecheck:
 	$(TYPECHECK)
 
 test: typecheck
-	$(TEST)
+	bun test
 
 prepare-aidbox-runme:
 	@if [ ! -f "example/docker-compose.yaml" ]; then \
@@ -61,37 +60,37 @@ test-other-example-generation: test-on-the-fly-example
 test-on-the-fly-example: typecheck
 	bun run examples/on-the-fly/norge-r4/generate.ts
 	$(TYPECHECK) --project examples/on-the-fly/norge-r4/tsconfig.json
-	$(TEST) ./examples/on-the-fly/norge-r4/
+	bun test ./examples/on-the-fly/norge-r4/
 	bun run examples/on-the-fly/kbv-r4/generate.ts
 	$(TYPECHECK) --project examples/on-the-fly/kbv-r4/tsconfig.json
-	$(TEST) ./examples/on-the-fly/kbv-r4/
+	bun test ./examples/on-the-fly/kbv-r4/
 
 test-typescript-r4-example: typecheck
 	bun run examples/typescript-r4/generate.ts
 	$(TYPECHECK) --project examples/typescript-r4/tsconfig.json
-	$(TEST) ./examples/typescript-r4/
+	bun test ./examples/typescript-r4/
 
 test-typescript-us-core-example: typecheck
 	bun run examples/typescript-us-core/generate.ts
 	$(TYPECHECK) --project examples/typescript-us-core/tsconfig.json
-	$(TEST) ./examples/typescript-us-core/
+	bun test ./examples/typescript-us-core/
 
 test-typescript-sql-on-fhir-example: typecheck
 	bun run examples/typescript-sql-on-fhir/generate.ts
 	$(TYPECHECK) --project examples/typescript-sql-on-fhir/tsconfig.json
 
 test-typescript-ccda-example: typecheck
-	$(TEST) test/unit/typeschema/transformer/ccda.test.ts
+	bun test test/unit/typeschema/transformer/ccda.test.ts
 	bun run examples/typescript-ccda/generate.ts
 	$(TYPECHECK) --project examples/typescript-ccda/tsconfig.json
-	$(TEST) --project examples/typescript-ccda/tsconfig.json \
+	bun test --project examples/typescript-ccda/tsconfig.json \
 		./examples/typescript-ccda/demo-cda.test.ts \
 		./examples/typescript-ccda/demo-ccda.test.ts
 
 test-local-package-folder-example: typecheck
 	bun run examples/local-package-folder/generate.ts
 	$(TYPECHECK) --project examples/local-package-folder/tsconfig.json
-	$(TEST) ./examples/local-package-folder/
+	bun test ./examples/local-package-folder/
 
 test-mustache-java-r4-example: typecheck
 	bun run examples/mustache/mustache-java-r4-gen.ts
