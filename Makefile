@@ -6,7 +6,8 @@ VERSION = $(shell cat package.json | grep version | sed -E 's/ *"version": "//' 
 
 .PHONY: all generate-types lint lint-fix lint-unsafe typecheck \
 	test \
-	prepare-aidbox-runme test-all-example-generation test-other-example-generation test-on-the-fly-example \
+	prepare-aidbox-runme test-all-example-generation test-other-example-generation \
+	test-on-the-fly-example test-on-the-fly-norge-r4 test-on-the-fly-kbv-r4 \
 	test-typescript-r4-example test-typescript-us-core-example test-typescript-sql-on-fhir-example \
 	test-typescript-ccda-example test-local-package-folder-example test-mustache-java-r4-example \
 	test-csharp-sdk generate-python-sdk generate-python-sdk-fhirpy \
@@ -57,10 +58,14 @@ test-all-example-generation: test-other-example-generation
 
 test-other-example-generation: test-on-the-fly-example
 
-test-on-the-fly-example: typecheck
+test-on-the-fly-example: test-on-the-fly-norge-r4 test-on-the-fly-kbv-r4
+
+test-on-the-fly-norge-r4: typecheck
 	bun run examples/on-the-fly/norge-r4/generate.ts
 	$(TYPECHECK) --project examples/on-the-fly/norge-r4/tsconfig.json
 	bun test ./examples/on-the-fly/norge-r4/
+
+test-on-the-fly-kbv-r4: typecheck
 	bun run examples/on-the-fly/kbv-r4/generate.ts
 	$(TYPECHECK) --project examples/on-the-fly/kbv-r4/tsconfig.json
 	bun test ./examples/on-the-fly/kbv-r4/
