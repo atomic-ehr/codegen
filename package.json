@@ -32,7 +32,6 @@
     "build": "tsup",
     "typecheck": "bunx tsc --noEmit",
     "lint": "biome check",
-    "cli": "bun run src/cli/index.ts",
     "prune": "knip",
     "prune:fix": "knip --fix",
     "release": "bash ./scripts/release.sh"

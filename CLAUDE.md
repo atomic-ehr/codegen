@@ -15,11 +15,11 @@ bun run lint                  # Lint and format code with Biome
 
 # Building
 bun run build                 # Build the project (creates dist/)
-bun run cli                   # Run CLI in development mode
+bun run src/cli/index.ts                   # Run CLI in development mode
 
 # CLI Usage
-bun run cli typeschema generate hl7.fhir.r4.core@4.0.1 -o schemas.ndjson
-bun run cli generate typescript -i schemas.ndjson -o ./types
+bun run src/cli/index.ts typeschema generate hl7.fhir.r4.core@4.0.1 -o schemas.ndjson
+bun run src/cli/index.ts generate typescript -i schemas.ndjson -o ./types
 ```
 
 ## Verification
