@@ -1,8 +1,5 @@
-// Run this script using Bun CLI with:
-// bun run scripts/generate-fhir-types.ts
-
 import type { PreprocessContext } from "@atomic-ehr/fhir-canonical-manager";
-import { APIBuilder, prettyReport } from "../src/api/builder";
+import { APIBuilder, prettyReport } from "../../../src/api/builder";
 
 // Fix known package name typos (in-memory transformation)
 const packageNameFixes: Record<string, string> = {
@@ -66,11 +63,11 @@ const preprocessPackage = (ctx: PreprocessContext): PreprocessContext => {
         }
     }
 
-    return { kind: "package", packageJson: json };
+    return { ...ctx, kind: "package", packageJson: json };
 };
 
 if (require.main === module) {
-    console.log("📦 Generating FHIR R4 Core Types...");
+    console.log("Generating Norge R4 types...");
 
     const builder = new APIBuilder({
         preprocessPackage,
@@ -93,7 +90,7 @@ if (require.main === module) {
             fhirSchemas: "fhir-schemas",
             structureDefinitions: "structure-definitions",
         })
-        .outputTo("./examples/tmp/norge-r4")
+        .outputTo("./examples/on-the-fly/norge-r4/fhir-types")
         .cleanOutput(true);
 
     const report = await builder.generate();

@@ -58,6 +58,18 @@ This directory contains working examples demonstrating the capabilities of Atomi
   - Demonstrates dependency resolution with FHIR R4 core
   - Shows tree shaking for custom logical models
 
+### On-the-Fly Generation
+
+These examples pull packages from the FHIR registry and generate types on-the-fly (generated types are gitignored and regenerated on CI).
+
+- **[on-the-fly/norge-r4/](on-the-fly/norge-r4/)** - Norwegian FHIR profiles (Grunndata, no-basis, SFM)
+  - `generate.ts` - Fetches multiple Norwegian FHIR packages from Simplifier
+  - Demonstrates `preprocessPackage` for fixing package metadata and dependency injection
+
+- **[on-the-fly/kbv-r4/](on-the-fly/kbv-r4/)** - German KBV profiles (kbv.ita.for)
+  - `generate.ts` - Fetches KBV packages with `ignorePackageIndex: true` for corrupt package indices
+  - `profile-patient.test.ts` - Regression test for `meta` merge in profiles with required `meta` (#137)
+
 ## Running Examples
 
 Each example contains a `generate.ts` script that can be run with:

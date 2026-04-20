@@ -15,11 +15,11 @@ bun run lint                  # Lint and format code with Biome
 
 # Building
 bun run build                 # Build the project (creates dist/)
-bun run cli                   # Run CLI in development mode
+bun run src/cli/index.ts                   # Run CLI in development mode
 
 # CLI Usage
-bun run cli typeschema generate hl7.fhir.r4.core@4.0.1 -o schemas.ndjson
-bun run cli generate typescript -i schemas.ndjson -o ./types
+bun run src/cli/index.ts typeschema generate hl7.fhir.r4.core@4.0.1 -o schemas.ndjson
+bun run src/cli/index.ts generate typescript -i schemas.ndjson -o ./types
 ```
 
 ## Verification
@@ -361,7 +361,7 @@ Detection uses `mkIsFamilyType(tsIndex)` which checks `schema.typeFamily.resourc
 2. Enable caching in APIBuilder
 3. Process large packages in batches
 4. Use `build()` instead of `generate()` for testing
-5. Run `bun run quality` before committing (combines typecheck, lint, test:unit)
+5. Run `make test` before committing (typecheck + tests)
 
 ## Useful External Resources
 

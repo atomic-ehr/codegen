@@ -13,13 +13,16 @@ async function generateFromLocalPackageFolder() {
             path: Path.join(__dirname, "structure-definitions"),
             dependencies: [{ name: "hl7.fhir.r4.core", version: "4.0.1" }],
         })
-        .typescript({})
+        .typescript({
+            generateProfile: true,
+        })
         .throwException(true)
         .typeSchema({
             treeShake: {
                 "example.folder.structures": {
                     "http://example.org/fhir/StructureDefinition/ExampleNotebook": {},
                     "http://example.org/fhir/StructureDefinition/ExampleTypedBundle": {},
+                    "http://example.org/fhir/StructureDefinition/PatientMetaRequired": {},
                 },
                 "hl7.fhir.r4.core": {
                     "http://hl7.org/fhir/StructureDefinition/Patient": {},
