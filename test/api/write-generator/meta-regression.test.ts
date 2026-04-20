@@ -42,8 +42,7 @@ describe("Regression: profile with meta.min=1 generates single meta key", async 
         .typescript({ inMemoryOnly: true, generateProfile: true, withDebugComment: false })
         .generate();
 
-    const PROFILE_KEY =
-        "generated/types/example-meta-regression/profiles/Organization_OrgWithRequiredMeta.ts";
+    const PROFILE_KEY = "generated/types/example-meta-regression/profiles/Organization_OrgWithRequiredMeta.ts";
 
     it("generates successfully", () => {
         expect(result.success).toBeTrue();
@@ -55,15 +54,26 @@ describe("Regression: profile with meta.min=1 generates single meta key", async 
 
     it("meta: key appears exactly once in createResource (no TS1117 duplicate key)", () => {
         const content = result.filesGenerated[PROFILE_KEY]!;
-        // Count all `meta:` property assignments in the file.
-        // Expected: 2 — one in the ProfileRaw type declaration, one in createResource.
-        // With the bug: 3 (an extra duplicate in createResource).
-        const metaAssignments = content.match(/^\s+meta[?]?:/gm) ?? [];
-        expect(metaAssignments.length).toBe(2);
+        // Extract the createResource method body
+        const createResourceMatch = content.match(/static createResource[\s\S]*?\n {4}\}/);
+        expect(createResourceMatch).not.toBeNull();
+        const createResourceBody = createResourceMatch![0];
+        // meta: should appear exactly once inside createResource — not twice (which was the bug)
+        const metaInCreateResource = createResourceBody.match(/\bmeta:/g) ?? [];
+        expect(metaInCreateResource.length).toBe(1);
     });
 
     it("createResource merges args.meta via spread (no silent overwrite)", () => {
         const content = result.filesGenerated[PROFILE_KEY]!;
+        expect(content).toContain("...args.meta");
+    });
+
+    it("generated createResource has no duplicate property keys (no TS1117)", () => {
+        const content = result.filesGenerated[PROFILE_KEY]!;
+        // The bug produced `meta: args.meta,\n...\n    meta: { profile: [...] }` — two meta: keys.
+        // TypeScript TS1117 fires on duplicate object literal keys.
+        // Verify the duplicate pattern is absent: no two consecutive meta: lines in createResource.
+        expect(content).not.toContain("meta: args.meta,");
         expect(content).toContain("...args.meta");
     });
 
