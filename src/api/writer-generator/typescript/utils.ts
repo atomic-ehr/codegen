@@ -54,7 +54,10 @@ export const tsEnumType = (enumDef: EnumDefinition) => {
 const rewriteFieldTypeDefs: Record<string, Record<string, () => string>> = {
     Coding: { code: () => "T" },
     // biome-ignore lint: that is exactly string what we want
-    Reference: { reference: () => "`${T}/${string}`" },
+    Reference: {
+        reference: () =>
+            "`${T}/${string}` | `http://${string}` | `https://${string}` | `urn:uuid:${string}` | `urn:oid:${string}` | `#${string}`",
+    },
     CodeableConcept: { coding: () => "Coding<T>" },
 };
 
