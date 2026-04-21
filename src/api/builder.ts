@@ -63,7 +63,11 @@ function countLinesByMatches(text: string): number {
     return m ? m.length + 1 : 1;
 }
 
-const formatLoc = (loc: number): string => (loc >= 1000 ? `${Math.round(loc / 1000)} kloc` : `${loc} loc`);
+const formatLoc = (loc: number): string => {
+    if (loc >= 10000) return `${Math.round(loc / 1000)} kloc`;
+    if (loc >= 1000) return `${(loc / 1000).toFixed(1)} kloc`;
+    return `${loc} loc`;
+};
 
 export interface PrettyReportOptions {
     /** When a generator produces more than this many files, aggregate them by directory instead of listing each file. */
