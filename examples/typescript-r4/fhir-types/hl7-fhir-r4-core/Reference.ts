@@ -13,7 +13,7 @@ export interface Reference<T extends string = string> extends Element {
     display?: string;
     _display?: Element;
     identifier?: Identifier;
-    reference?: `${T}/${string}`;
+    reference?: `${T}/${string}` | `http://${string}` | `https://${string}` | `urn:uuid:${string}` | `urn:oid:${string}` | `#${string}`;
     _reference?: Element;
     type?: string;
     _type?: Element;
