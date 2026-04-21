@@ -51,6 +51,7 @@ export type GenerationReport = {
     success: boolean;
     outputDir: string;
     filesGenerated: Record<string, string>;
+    filesByGenerator: Record<string, string[]>;
     errors: string[];
     warnings: string[];
     duration: number;
@@ -62,21 +63,46 @@ function countLinesByMatches(text: string): number {
     return m ? m.length + 1 : 1;
 }
 
+const formatLoc = (loc: number): string => (loc >= 1000 ? `${Math.round(loc / 1000)} kloc` : `${loc} loc`);
+
 export const prettyReport = (report: GenerationReport): string => {
-    const { success, filesGenerated, errors, warnings, duration } = report;
+    const { success, filesGenerated, filesByGenerator, errors, warnings, duration } = report;
     const errorsStr = errors.length > 0 ? `Errors: ${errors.join(", ")}` : undefined;
     const warningsStr = warnings.length > 0 ? `Warnings: ${warnings.join(", ")}` : undefined;
-    let allLoc = 0;
-    const files = Object.entries(filesGenerated)
-        .map(([path, content]) => {
-            const loc = countLinesByMatches(content);
-            allLoc += loc;
-            return `  - ${path} (${loc} loc)`;
-        })
-        .join("\n");
+
+    const locByPath: Record<string, number> = {};
+    let totalLoc = 0;
+    for (const [path, content] of Object.entries(filesGenerated)) {
+        const loc = countLinesByMatches(content);
+        locByPath[path] = loc;
+        totalLoc += loc;
+    }
+
+    const groupedPaths = new Set<string>();
+    const groups = Object.entries(filesByGenerator).map(([name, paths]) => {
+        let groupLoc = 0;
+        for (const p of paths) {
+            groupLoc += locByPath[p] ?? 0;
+            groupedPaths.add(p);
+        }
+        return { name, paths, loc: groupLoc };
+    });
+
+    const ungrouped = Object.keys(filesGenerated).filter((p) => !groupedPaths.has(p));
+    if (ungrouped.length > 0) {
+        const loc = ungrouped.reduce((acc, p) => acc + (locByPath[p] ?? 0), 0);
+        groups.push({ name: "other", paths: ungrouped, loc });
+    }
+
+    const groupStrs = groups.map(({ name, paths, loc }) => {
+        const header = `  ${name} (${paths.length} files, ${formatLoc(loc)}):`;
+        const fileLines = paths.map((p) => `    - ${p} (${locByPath[p] ?? 0} loc)`).join("\n");
+        return fileLines ? `${header}\n${fileLines}` : header;
+    });
+
     return [
-        `Generated files (${Math.round(allLoc / 1000)} kloc):`,
-        files,
+        `Generated files (${Object.keys(filesGenerated).length} files, ${formatLoc(totalLoc)}):`,
+        ...groupStrs,
         errorsStr,
         warningsStr,
         `Duration: ${Math.round(duration)}ms`,
@@ -383,6 +409,7 @@ export class APIBuilder {
             success: false,
             outputDir: this.options.outputDir,
             filesGenerated: {},
+            filesByGenerator: {},
             errors: [],
             warnings: [],
             duration: 0,
@@ -483,9 +510,12 @@ export class APIBuilder {
             try {
                 await gen.writer.generateAsync(tsIndex);
                 const fileBuffer: FileBuffer[] = gen.writer.writtenFiles();
+                const paths: string[] = [];
                 fileBuffer.forEach((buf) => {
                     result.filesGenerated[buf.relPath] = buf.content;
+                    paths.push(buf.relPath);
                 });
+                result.filesByGenerator[gen.name] = paths;
                 this.logger.info(`Generating ${gen.name} finished successfully`);
             } catch (error) {
                 result.errors.push(
