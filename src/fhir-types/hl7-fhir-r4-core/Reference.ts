@@ -12,6 +12,6 @@ export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 export interface Reference<T extends string = string> extends Element {
     display?: string;
     identifier?: Identifier;
-    reference?: `${T}/${string}`;
+    reference?: `${T}/${string}` | `http://${string}` | `https://${string}` | `urn:uuid:${string}` | `urn:oid:${string}` | `#${string}`;
     type?: string;
 }

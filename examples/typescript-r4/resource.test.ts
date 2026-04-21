@@ -120,3 +120,18 @@ test("Bundle with resources", () => {
     expect(bundle.entry).toHaveLength(2);
     expect(bundle).toMatchSnapshot();
 });
+
+test("Reference accepts all FHIR literal reference forms", () => {
+    // Relative reference — still narrowed to the typed form
+    const relative: Observation["subject"] = { reference: "Patient/123" };
+    // Bundle placeholder — common in transaction bundles
+    const urnUuid: Observation["subject"] = { reference: "urn:uuid:a1b2c3d4-e5f6-7890-abcd-ef0123456789" };
+    // OID reference
+    const urnOid: Observation["subject"] = { reference: "urn:oid:2.16.840.1.113883.2.4.6.3" };
+    // Absolute URL
+    const absolute: Observation["subject"] = { reference: "https://example.org/fhir/Patient/123" };
+    // Fragment reference to a contained resource
+    const fragment: Observation["subject"] = { reference: "#contained-1" };
+
+    expect([relative, urnUuid, urnOid, absolute, fragment]).toHaveLength(5);
+});
