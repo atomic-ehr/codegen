@@ -65,8 +65,14 @@ function countLinesByMatches(text: string): number {
 
 const formatLoc = (loc: number): string => (loc >= 1000 ? `${Math.round(loc / 1000)} kloc` : `${loc} loc`);
 
-export const prettyReport = (report: GenerationReport): string => {
+export interface PrettyReportOptions {
+    /** When a generator produces more than this many files, aggregate them by directory instead of listing each file. */
+    fileLimit?: number;
+}
+
+export const prettyReport = (report: GenerationReport, options: PrettyReportOptions = {}): string => {
     const { success, filesGenerated, filesByGenerator, errors, warnings, duration } = report;
+    const fileLimit = options.fileLimit ?? 20;
     const errorsStr = errors.length > 0 ? `Errors: ${errors.join(", ")}` : undefined;
     const warningsStr = warnings.length > 0 ? `Warnings: ${warnings.join(", ")}` : undefined;
 
@@ -94,10 +100,29 @@ export const prettyReport = (report: GenerationReport): string => {
         groups.push({ name: "other", paths: ungrouped, loc });
     }
 
+    const aggregateByDir = (paths: string[]): { dir: string; count: number; loc: number }[] => {
+        const byDir: Record<string, { count: number; loc: number }> = {};
+        for (const p of paths) {
+            const dir = Path.dirname(p);
+            byDir[dir] ??= { count: 0, loc: 0 };
+            byDir[dir].count += 1;
+            byDir[dir].loc += locByPath[p] ?? 0;
+        }
+        return Object.entries(byDir)
+            .map(([dir, v]) => ({ dir, count: v.count, loc: v.loc }))
+            .sort((a, b) => a.dir.localeCompare(b.dir));
+    };
+
     const groupStrs = groups.map(({ name, paths, loc }) => {
         const header = `  ${name} (${paths.length} files, ${formatLoc(loc)}):`;
+        if (paths.length === 0) return header;
+        if (paths.length > fileLimit) {
+            const dirs = aggregateByDir(paths);
+            const dirLines = dirs.map((d) => `    - ${d.dir}/ (${d.count} files, ${formatLoc(d.loc)})`).join("\n");
+            return `${header}\n${dirLines}`;
+        }
         const fileLines = paths.map((p) => `    - ${p} (${locByPath[p] ?? 0} loc)`).join("\n");
-        return fileLines ? `${header}\n${fileLines}` : header;
+        return `${header}\n${fileLines}`;
     });
 
     return [
