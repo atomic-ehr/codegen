@@ -41,22 +41,24 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
         });
 
         it("should generate ExampleNotebook type in custom package folder", () => {
-            const notebookFile = result.filesGenerated["generated/types/example-folder-structures/ExampleNotebook.ts"];
+            const notebookFile =
+                result.filesGenerated.typescript!["generated/types/example-folder-structures/ExampleNotebook.ts"];
             expect(notebookFile).toBeDefined();
             expect(notebookFile).toMatchSnapshot();
         });
 
         it("should resolve R4 dependencies (Identifier, Reference, Coding)", () => {
-            const notebookFile = result.filesGenerated["generated/types/example-folder-structures/ExampleNotebook.ts"];
+            const notebookFile =
+                result.filesGenerated.typescript!["generated/types/example-folder-structures/ExampleNotebook.ts"];
             expect(notebookFile).toContain("Identifier");
             expect(notebookFile).toContain("Reference");
             expect(notebookFile).toContain("Coding");
         });
 
         it("should generate R4 dependency types", () => {
-            expect(result.filesGenerated["generated/types/hl7-fhir-r4-core/Identifier.ts"]).toBeDefined();
-            expect(result.filesGenerated["generated/types/hl7-fhir-r4-core/Reference.ts"]).toBeDefined();
-            expect(result.filesGenerated["generated/types/hl7-fhir-r4-core/Coding.ts"]).toBeDefined();
+            expect(result.filesGenerated.typescript!["generated/types/hl7-fhir-r4-core/Identifier.ts"]).toBeDefined();
+            expect(result.filesGenerated.typescript!["generated/types/hl7-fhir-r4-core/Reference.ts"]).toBeDefined();
+            expect(result.filesGenerated.typescript!["generated/types/hl7-fhir-r4-core/Coding.ts"]).toBeDefined();
         });
     });
 
@@ -83,7 +85,7 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
 
         it("should generate ExampleTypedBundle profile with type-discriminated slices", () => {
             const profileFile =
-                result.filesGenerated[
+                result.filesGenerated.typescript![
                     "generated/types/example-folder-structures/profiles/Bundle_ExampleTypedBundle.ts"
                 ];
             expect(profileFile).toBeDefined();
@@ -103,25 +105,25 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
         });
 
         it("should generate ExampleNotebook type (promoted logical)", () => {
-            const notebook = result.filesGenerated["generated/example_folder_structures/example_notebook.py"];
+            const notebook = result.filesGenerated.python!["generated/example_folder_structures/example_notebook.py"];
             expect(notebook).toBeDefined();
             expect(notebook).toMatchSnapshot();
         });
 
         it("should generate R4 dependency types", () => {
             // Python generator resolves R4 dependencies from tree-shaking
-            expect(result.filesGenerated["generated/hl7_fhir_r4_core/__init__.py"]).toBeDefined();
-            expect(result.filesGenerated["generated/hl7_fhir_r4_core/domain_resource.py"]).toBeDefined();
+            expect(result.filesGenerated.python!["generated/hl7_fhir_r4_core/__init__.py"]).toBeDefined();
+            expect(result.filesGenerated.python!["generated/hl7_fhir_r4_core/domain_resource.py"]).toBeDefined();
         });
 
         it("should generate base types for dependencies", () => {
-            const domainResource = result.filesGenerated["generated/hl7_fhir_r4_core/domain_resource.py"];
+            const domainResource = result.filesGenerated.python!["generated/hl7_fhir_r4_core/domain_resource.py"];
             expect(domainResource).toBeDefined();
             expect(domainResource).toMatchSnapshot();
         });
 
         it("should generate Patient resource", () => {
-            const patient = result.filesGenerated["generated/hl7_fhir_r4_core/patient.py"];
+            const patient = result.filesGenerated.python!["generated/hl7_fhir_r4_core/patient.py"];
             expect(patient).toBeDefined();
             expect(patient).toMatchSnapshot();
         });
@@ -139,31 +141,32 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
         });
 
         it("should generate ExampleNotebook type (promoted logical)", () => {
-            const notebook = result.filesGenerated["generated/types/ExampleFolderStructures/ExampleNotebook.cs"];
+            const notebook =
+                result.filesGenerated.csharp!["generated/types/ExampleFolderStructures/ExampleNotebook.cs"];
             expect(notebook).toBeDefined();
             expect(notebook).toMatchSnapshot();
         });
 
         it("should generate R4 dependency types", () => {
             // C# generator resolves R4 dependencies from tree-shaking
-            expect(result.filesGenerated["generated/types/Hl7FhirR4Core/DomainResource.cs"]).toBeDefined();
-            expect(result.filesGenerated["generated/types/Hl7FhirR4Core/Resource.cs"]).toBeDefined();
+            expect(result.filesGenerated.csharp!["generated/types/Hl7FhirR4Core/DomainResource.cs"]).toBeDefined();
+            expect(result.filesGenerated.csharp!["generated/types/Hl7FhirR4Core/Resource.cs"]).toBeDefined();
         });
 
         it("should generate DomainResource base class", () => {
-            const domainResource = result.filesGenerated["generated/types/Hl7FhirR4Core/DomainResource.cs"];
+            const domainResource = result.filesGenerated.csharp!["generated/types/Hl7FhirR4Core/DomainResource.cs"];
             expect(domainResource).toBeDefined();
             expect(domainResource).toMatchSnapshot();
         });
 
         it("should generate Resource base class", () => {
-            const resource = result.filesGenerated["generated/types/Hl7FhirR4Core/Resource.cs"];
+            const resource = result.filesGenerated.csharp!["generated/types/Hl7FhirR4Core/Resource.cs"];
             expect(resource).toBeDefined();
             expect(resource).toMatchSnapshot();
         });
 
         it("should generate Patient resource", () => {
-            const patient = result.filesGenerated["generated/types/Hl7FhirR4Core/Patient.cs"];
+            const patient = result.filesGenerated.csharp!["generated/types/Hl7FhirR4Core/Patient.cs"];
             expect(patient).toBeDefined();
             expect(patient).toMatchSnapshot();
         });

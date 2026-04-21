@@ -10,18 +10,19 @@ describe("IntrospectionWriter - Fhir Schema Output", async () => {
 
     expect(result.success).toBeTrue();
 
-    expect(Object.keys(result.filesGenerated).length).toEqual(656);
+    const files = result.filesGenerated.introspection!;
+    expect(Object.keys(files).length).toEqual(656);
     it("Generated file list", () => {
-        expect(Object.keys(result.filesGenerated)).toMatchSnapshot();
+        expect(Object.keys(files)).toMatchSnapshot();
     });
     it("Check OperationOutcome introspection schema", () => {
         const operationOutcome =
-            result.filesGenerated["generated/introspection/hl7.fhir.r4.core/OperationOutcome(OperationOutcome).json"];
+            files["generated/introspection/hl7.fhir.r4.core/OperationOutcome(OperationOutcome).json"];
         expect(operationOutcome).toBeDefined();
         expect(operationOutcome).toMatchSnapshot();
     });
     it("Check all introspection data in a single ndjson file", () => {
-        expect(result.filesGenerated["generated/introspection.ndjson"]).toMatchSnapshot();
+        expect(files["generated/introspection.ndjson"]).toMatchSnapshot();
     });
 });
 
@@ -49,18 +50,19 @@ describe("IntrospectionWriter - TypeSchema output", async () => {
 
     expect(result.success).toBeTrue();
 
-    expect(Object.keys(result.filesGenerated).length).toEqual(45);
+    const files = result.filesGenerated.introspection!;
+    expect(Object.keys(files).length).toEqual(44);
     it("Generated file list", () => {
-        expect(Object.keys(result.filesGenerated)).toMatchSnapshot();
+        expect(Object.keys(files)).toMatchSnapshot();
     });
     it("Check OperationOutcome introspection schema", () => {
         const operationOutcome =
-            result.filesGenerated["generated/introspection/hl7.fhir.r4.core/OperationOutcome(OperationOutcome).json"];
+            files["generated/introspection/hl7.fhir.r4.core/OperationOutcome(OperationOutcome).json"];
         expect(operationOutcome).toBeDefined();
         expect(operationOutcome).toMatchSnapshot();
     });
     it("Check all introspection data in a single ndjson file", () => {
-        expect(result.filesGenerated["generated/introspection.ndjson"]).toMatchSnapshot();
+        expect(files["generated/introspection.ndjson"]).toMatchSnapshot();
     });
 });
 
@@ -84,8 +86,10 @@ describe("IntrospectionWriter - typeTree", async () => {
 
     expect(result.success).toBeTrue();
 
+    const files = result.filesGenerated.introspection!;
+
     it("Type tree file should be generated", () => {
-        expect(result.filesGenerated["generated/type-tree.json"]).toBeDefined();
+        expect(files["generated/type-tree.json"]).toBeDefined();
     });
 });
 
@@ -113,18 +117,18 @@ describe("IntrospectionWriter - StructureDefinition output", async () => {
 
     expect(result.success).toBeTrue();
 
+    const files = result.filesGenerated.introspection!;
+
     it("Generated file list", () => {
-        expect(Object.keys(result.filesGenerated)).toMatchSnapshot();
+        expect(Object.keys(files)).toMatchSnapshot();
     });
     it("Check OperationOutcome StructureDefinition", () => {
         const operationOutcome =
-            result.filesGenerated[
-                "generated/structure-definitions/hl7.fhir.r4.core/OperationOutcome(OperationOutcome).json"
-            ];
+            files["generated/structure-definitions/hl7.fhir.r4.core/OperationOutcome(OperationOutcome).json"];
         expect(operationOutcome).toBeDefined();
         expect(operationOutcome).toMatchSnapshot();
     });
     it("Check all StructureDefinitions in a single ndjson file", () => {
-        expect(result.filesGenerated["generated/structure-definitions.ndjson"]).toMatchSnapshot();
+        expect(files["generated/structure-definitions.ndjson"]).toMatchSnapshot();
     });
 });

@@ -10,12 +10,13 @@ describe("C# Writer Generator", async () => {
         .throwException()
         .generate();
     expect(result.success).toBeTrue();
-    expect(Object.keys(result.filesGenerated).length).toEqual(154);
+    const files = result.filesGenerated.csharp!;
+    expect(Object.keys(files).length).toEqual(154);
     it("generates Patient resource in inMemoryOnly mode with snapshot", async () => {
-        expect(result.filesGenerated["generated/types/Hl7FhirR4Core/Patient.cs"]).toMatchSnapshot();
+        expect(files["generated/types/Hl7FhirR4Core/Patient.cs"]).toMatchSnapshot();
     });
     it("static files", async () => {
-        expect(result.filesGenerated["generated/types/Client.cs"]).toMatchSnapshot();
-        expect(result.filesGenerated["generated/types/Helper.cs"]).toMatchSnapshot();
+        expect(files["generated/types/Client.cs"]).toMatchSnapshot();
+        expect(files["generated/types/Helper.cs"]).toMatchSnapshot();
     });
 });
