@@ -92,6 +92,13 @@ export class ExampleTypedBundleProfile {
         return profile;
     }
 
+    static is (resource: unknown) : resource is Bundle {
+        if (typeof resource !== "object" || resource === null) return false;
+        const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
+        if (r.resourceType !== "Bundle") return false;
+        return (r.meta?.profile ?? []).includes(ExampleTypedBundleProfile.canonicalUrl);
+    }
+
     static apply (resource: Bundle) : ExampleTypedBundleProfile {
         ensureProfile(resource, ExampleTypedBundleProfile.canonicalUrl);
         return new ExampleTypedBundleProfile(resource);
