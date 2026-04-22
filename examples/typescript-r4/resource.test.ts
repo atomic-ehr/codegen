@@ -121,6 +121,47 @@ test("Bundle with resources", () => {
     expect(bundle).toMatchSnapshot();
 });
 
+test("Bundle<T> narrows entry resources without type predicates", () => {
+    // A bundle carrying only Patients and Observations
+    const patient = createPatient();
+    assert(patient.id);
+    const observation = createObservation(patient.id);
+    const bundle: Bundle<Patient | Observation> = {
+        resourceType: "Bundle",
+        type: "transaction",
+        entry: [
+            { fullUrl: `urn:uuid:${patient.id}`, resource: patient },
+            { fullUrl: `urn:uuid:${observation.id}`, resource: observation },
+        ],
+    };
+
+    // Discriminated-union narrowing works without a `r is Observation` predicate
+    const observations: Observation[] = (bundle.entry ?? [])
+        .map((e) => e.resource)
+        .filter((r): r is Observation => r?.resourceType === "Observation");
+
+    expect(observations).toHaveLength(1);
+    expect(observations[0]!.id).toBe("glucose-obs-1");
+});
+
+test("Bundle<T> entry type is BundleEntry<T>", () => {
+    const patient = createPatient();
+    const entry: BundleEntry<Patient> = { fullUrl: `urn:uuid:${patient.id}`, resource: patient };
+    // resource is narrowed to Patient, not Resource
+    expect(entry.resource?.resourceType).toBe("Patient");
+});
+
+test("Bundle defaults to Bundle<Resource> (backwards compatible)", () => {
+    const patient = createPatient();
+    // No type param — entry.resource is Resource | undefined (original behaviour)
+    const bundle: Bundle = {
+        resourceType: "Bundle",
+        type: "collection",
+        entry: [{ fullUrl: `urn:uuid:${patient.id}`, resource: patient }],
+    };
+    expect(bundle.entry).toHaveLength(1);
+});
+
 test("Reference accepts all FHIR literal reference forms", () => {
     // Relative reference — still narrowed to the typed form
     const relative: Observation["subject"] = { reference: "Patient/123" };

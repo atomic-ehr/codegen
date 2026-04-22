@@ -49,10 +49,10 @@ export interface BundleLink extends BackboneElement {
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/Bundle (pkg: hl7.fhir.r4.core#4.0.1)
-export interface Bundle extends Resource {
+export interface Bundle<T extends Resource = Resource> extends Resource {
     resourceType: "Bundle";
 
-    entry?: BundleEntry[];
+    entry?: BundleEntry<T>[];
     identifier?: Identifier;
     link?: BundleLink[];
     signature?: Signature;
