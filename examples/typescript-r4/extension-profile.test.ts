@@ -74,3 +74,12 @@ test("create() with no required params", () => {
     const profile = nationalityProfile.create();
     expect(profile.toResource().url).toBe("http://hl7.org/fhir/StructureDefinition/patient-nationality");
 });
+
+test("is() matches extensions by url", () => {
+    const ext = birthPlaceProfile.createResource({ valueAddress: { city: "Bonn" } });
+    expect(birthPlaceProfile.is(ext)).toBe(true);
+    expect(birthTimeProfile.is(ext)).toBe(false);
+    expect(birthPlaceProfile.is({ url: "http://example.com/other" })).toBe(false);
+    expect(birthPlaceProfile.is(null)).toBe(false);
+    expect(birthPlaceProfile.is("not an object")).toBe(false);
+});

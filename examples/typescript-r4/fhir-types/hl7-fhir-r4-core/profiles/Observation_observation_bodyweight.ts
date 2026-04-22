@@ -61,6 +61,13 @@ export class observation_bodyweightProfile {
         return profile;
     }
 
+    static is (resource: unknown) : resource is Observation {
+        if (typeof resource !== "object" || resource === null) return false;
+        const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
+        if (r.resourceType !== "Observation") return false;
+        return (r.meta?.profile ?? []).includes(observation_bodyweightProfile.canonicalUrl);
+    }
+
     static apply (resource: Observation) : observation_bodyweightProfile {
         ensureProfile(resource, observation_bodyweightProfile.canonicalUrl);
         Object.assign(resource, {

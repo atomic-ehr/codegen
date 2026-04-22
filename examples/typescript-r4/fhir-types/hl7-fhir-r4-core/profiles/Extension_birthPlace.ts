@@ -38,6 +38,11 @@ export class birthPlaceProfile {
         return profile;
     }
 
+    static is (resource: unknown) : resource is Extension {
+        if (typeof resource !== "object" || resource === null) return false;
+        return (resource as { url?: string }).url === birthPlaceProfile.canonicalUrl;
+    }
+
     static apply (resource: Extension) : birthPlaceProfile {
         resource.url = birthPlaceProfile.canonicalUrl;
         Object.assign(resource, {

@@ -108,6 +108,73 @@ describe("demo: read a bodyweight observation from JSON", () => {
     });
 });
 
+describe("demo: filter a mixed collection with is()", () => {
+    test("is() narrows unknown values to profile matches", () => {
+        // A mixed bag: a matching bodyweight, a non-matching Observation, a non-Observation, and junk
+        const bodyweight: Observation = {
+            resourceType: "Observation",
+            meta: { profile: ["http://hl7.org/fhir/StructureDefinition/bodyweight"] },
+            status: "final",
+            code: { coding: [{ code: "29463-7", system: "http://loinc.org" }] },
+            subject: { reference: "Patient/pt-1" },
+            effectiveDateTime: "2024-06-15",
+            valueQuantity: { value: 75, unit: "kg" },
+        };
+        const otherObs: Observation = {
+            resourceType: "Observation",
+            status: "final",
+            code: { coding: [{ code: "8867-4", system: "http://loinc.org" }] },
+        };
+        const resources: unknown[] = [bodyweight, otherObs, { resourceType: "Patient" }, null, "not a resource"];
+
+        // is() is a cheap type guard — no validation, no instance constructed
+        const matches = resources.filter(bodyweightProfile.is);
+
+        expect(matches).toEqual([bodyweight]);
+    });
+});
+
+describe("is() type guard", () => {
+    test("returns true for Observation with matching meta.profile", () => {
+        const obs: Observation = {
+            resourceType: "Observation",
+            meta: { profile: ["http://hl7.org/fhir/StructureDefinition/bodyweight"] },
+            status: "final",
+            code: { coding: [{ code: "29463-7", system: "http://loinc.org" }] },
+        };
+        expect(bodyweightProfile.is(obs)).toBe(true);
+    });
+
+    test("returns false when meta.profile does not include canonical url", () => {
+        const obs: Observation = {
+            resourceType: "Observation",
+            status: "final",
+            code: { coding: [{ code: "29463-7", system: "http://loinc.org" }] },
+        };
+        expect(bodyweightProfile.is(obs)).toBe(false);
+    });
+
+    test("returns false for wrong resourceType", () => {
+        expect(bodyweightProfile.is({ resourceType: "Patient" })).toBe(false);
+    });
+
+    test("returns false for non-object inputs", () => {
+        expect(bodyweightProfile.is(null)).toBe(false);
+        expect(bodyweightProfile.is(undefined)).toBe(false);
+        expect(bodyweightProfile.is("string")).toBe(false);
+        expect(bodyweightProfile.is(42)).toBe(false);
+    });
+
+    test("does not validate — only checks identity", () => {
+        // A resource that claims the profile but is otherwise invalid still passes is()
+        const bogus = {
+            resourceType: "Observation",
+            meta: { profile: ["http://hl7.org/fhir/StructureDefinition/bodyweight"] },
+        };
+        expect(bodyweightProfile.is(bogus)).toBe(true);
+    });
+});
+
 describe("factory method equivalence", () => {
     test("create(), createResource(), and apply() produce equal resources", () => {
         const args = { status: "final" as const, subject: { reference: "Patient/pt-1" as const } };
