@@ -391,6 +391,20 @@ const generateFactoryMethods = (
         w.lineSM("return profile");
     });
     w.line();
+    const canEmitIs = (hasMeta && isResourceIdentifier(flatProfile.base)) || flatProfile.base.name === "Extension";
+    if (canEmitIs) {
+        w.curlyBlock(["static", "is", "(resource: unknown)", `: resource is ${tsBaseResourceName}`], () => {
+            w.line(`if (typeof resource !== "object" || resource === null) return false;`);
+            if (hasMeta && isResourceIdentifier(flatProfile.base)) {
+                w.line(`const r = resource as { resourceType?: string; meta?: { profile?: string[] } };`);
+                w.line(`if (r.resourceType !== ${JSON.stringify(flatProfile.base.name)}) return false;`);
+                w.lineSM(`return (r.meta?.profile ?? []).includes(${profileClassName}.canonicalUrl)`);
+            } else {
+                w.lineSM(`return (resource as { url?: string }).url === ${profileClassName}.canonicalUrl`);
+            }
+        });
+        w.line();
+    }
     w.curlyBlock(["static", "apply", `(resource: ${tsBaseResourceName})`, `: ${profileClassName}`], () => {
         if (hasMeta) {
             w.lineSM(`ensureProfile(resource, ${profileClassName}.canonicalUrl)`);

@@ -37,6 +37,11 @@ export class birthTimeProfile {
         return profile;
     }
 
+    static is (resource: unknown) : resource is Extension {
+        if (typeof resource !== "object" || resource === null) return false;
+        return (resource as { url?: string }).url === birthTimeProfile.canonicalUrl;
+    }
+
     static apply (resource: Extension) : birthTimeProfile {
         resource.url = birthTimeProfile.canonicalUrl;
         Object.assign(resource, {

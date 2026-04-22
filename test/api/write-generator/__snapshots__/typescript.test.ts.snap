@@ -375,6 +375,13 @@ export class observation_bodyweightProfile {
         return profile;
     }
 
+    static is (resource: unknown) : resource is Observation {
+        if (typeof resource !== "object" || resource === null) return false;
+        const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
+        if (r.resourceType !== "Observation") return false;
+        return (r.meta?.profile ?? []).includes(observation_bodyweightProfile.canonicalUrl);
+    }
+
     static apply (resource: Observation) : observation_bodyweightProfile {
         ensureProfile(resource, observation_bodyweightProfile.canonicalUrl);
         Object.assign(resource, {
@@ -605,6 +612,13 @@ export class observation_bpProfile {
         const { errors } = profile.validate();
         if (errors.length > 0) throw new Error(errors.join("; "))
         return profile;
+    }
+
+    static is (resource: unknown) : resource is Observation {
+        if (typeof resource !== "object" || resource === null) return false;
+        const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
+        if (r.resourceType !== "Observation") return false;
+        return (r.meta?.profile ?? []).includes(observation_bpProfile.canonicalUrl);
     }
 
     static apply (resource: Observation) : observation_bpProfile {
@@ -897,6 +911,13 @@ export class USCorePatientProfile {
         return profile;
     }
 
+    static is (resource: unknown) : resource is Patient {
+        if (typeof resource !== "object" || resource === null) return false;
+        const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
+        if (r.resourceType !== "Patient") return false;
+        return (r.meta?.profile ?? []).includes(USCorePatientProfile.canonicalUrl);
+    }
+
     static apply (resource: Patient) : USCorePatientProfile {
         ensureProfile(resource, USCorePatientProfile.canonicalUrl);
         return new USCorePatientProfile(resource);
@@ -1166,6 +1187,13 @@ export class USCoreBloodPressureProfile {
         const { errors } = profile.validate();
         if (errors.length > 0) throw new Error(errors.join("; "))
         return profile;
+    }
+
+    static is (resource: unknown) : resource is Observation {
+        if (typeof resource !== "object" || resource === null) return false;
+        const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
+        if (r.resourceType !== "Observation") return false;
+        return (r.meta?.profile ?? []).includes(USCoreBloodPressureProfile.canonicalUrl);
     }
 
     static apply (resource: Observation) : USCoreBloodPressureProfile {
@@ -1550,6 +1578,13 @@ export class USCoreBodyWeightProfile {
         return profile;
     }
 
+    static is (resource: unknown) : resource is Observation {
+        if (typeof resource !== "object" || resource === null) return false;
+        const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
+        if (r.resourceType !== "Observation") return false;
+        return (r.meta?.profile ?? []).includes(USCoreBodyWeightProfile.canonicalUrl);
+    }
+
     static apply (resource: Observation) : USCoreBodyWeightProfile {
         ensureProfile(resource, USCoreBodyWeightProfile.canonicalUrl);
         Object.assign(resource, {
@@ -1879,6 +1914,11 @@ export class USCoreRaceExtensionProfile {
         const { errors } = profile.validate();
         if (errors.length > 0) throw new Error(errors.join("; "))
         return profile;
+    }
+
+    static is (resource: unknown) : resource is Extension {
+        if (typeof resource !== "object" || resource === null) return false;
+        return (resource as { url?: string }).url === USCoreRaceExtensionProfile.canonicalUrl;
     }
 
     static apply (resource: Extension) : USCoreRaceExtensionProfile {

@@ -49,6 +49,11 @@ export class nationalityProfile {
         return profile;
     }
 
+    static is (resource: unknown) : resource is Extension {
+        if (typeof resource !== "object" || resource === null) return false;
+        return (resource as { url?: string }).url === nationalityProfile.canonicalUrl;
+    }
+
     static apply (resource: Extension) : nationalityProfile {
         resource.url = nationalityProfile.canonicalUrl;
         Object.assign(resource, {

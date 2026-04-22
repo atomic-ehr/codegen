@@ -37,6 +37,11 @@ export class own_prefixProfile {
         return profile;
     }
 
+    static is (resource: unknown) : resource is Extension {
+        if (typeof resource !== "object" || resource === null) return false;
+        return (resource as { url?: string }).url === own_prefixProfile.canonicalUrl;
+    }
+
     static apply (resource: Extension) : own_prefixProfile {
         resource.url = own_prefixProfile.canonicalUrl;
         Object.assign(resource, {

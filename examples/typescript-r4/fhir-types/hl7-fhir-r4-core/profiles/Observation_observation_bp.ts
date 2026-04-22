@@ -76,6 +76,13 @@ export class observation_bpProfile {
         return profile;
     }
 
+    static is (resource: unknown) : resource is Observation {
+        if (typeof resource !== "object" || resource === null) return false;
+        const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
+        if (r.resourceType !== "Observation") return false;
+        return (r.meta?.profile ?? []).includes(observation_bpProfile.canonicalUrl);
+    }
+
     static apply (resource: Observation) : observation_bpProfile {
         ensureProfile(resource, observation_bpProfile.canonicalUrl);
         Object.assign(resource, {
