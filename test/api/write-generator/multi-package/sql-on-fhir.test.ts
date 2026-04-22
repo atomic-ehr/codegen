@@ -32,24 +32,26 @@ describe("SQL-on-FHIR", async () => {
         });
 
         it("should generate ViewDefinition type", () => {
-            const viewDef = result.filesGenerated["generated/types/org-sql-on-fhir-ig/ViewDefinition.ts"];
+            const viewDef = result.filesGenerated.typescript!["generated/types/org-sql-on-fhir-ig/ViewDefinition.ts"];
             expect(viewDef).toBeDefined();
             expect(viewDef).toMatchSnapshot();
         });
 
         it("should resolve R5 dependencies (required by SQL-on-FHIR)", () => {
-            const files = Object.keys(result.filesGenerated);
+            const files = Object.keys(result.filesGenerated.typescript!);
             const r5Files = files.filter((f) => f.includes("hl7-fhir-r5-core"));
             expect(r5Files.length).toBe(45);
 
             // Core R5 types should be included
-            expect(result.filesGenerated["generated/types/hl7-fhir-r5-core/Element.ts"]).toBeDefined();
-            expect(result.filesGenerated["generated/types/hl7-fhir-r5-core/DomainResource.ts"]).toBeDefined();
+            expect(result.filesGenerated.typescript!["generated/types/hl7-fhir-r5-core/Element.ts"]).toBeDefined();
+            expect(
+                result.filesGenerated.typescript!["generated/types/hl7-fhir-r5-core/DomainResource.ts"],
+            ).toBeDefined();
         });
 
         it("should generate package index files", () => {
-            expect(result.filesGenerated["generated/types/org-sql-on-fhir-ig/index.ts"]).toBeDefined();
-            expect(result.filesGenerated["generated/types/hl7-fhir-r5-core/index.ts"]).toBeDefined();
+            expect(result.filesGenerated.typescript!["generated/types/org-sql-on-fhir-ig/index.ts"]).toBeDefined();
+            expect(result.filesGenerated.typescript!["generated/types/hl7-fhir-r5-core/index.ts"]).toBeDefined();
         });
     });
 
@@ -65,19 +67,19 @@ describe("SQL-on-FHIR", async () => {
         });
 
         it("should generate ViewDefinition type (promoted logical)", () => {
-            const viewDef = result.filesGenerated["generated/org_sql_on_fhir_ig/view_definition.py"];
+            const viewDef = result.filesGenerated.python!["generated/org_sql_on_fhir_ig/view_definition.py"];
             expect(viewDef).toBeDefined();
             expect(viewDef).toMatchSnapshot();
         });
 
         it("should generate R5 dependency package", () => {
             // Python generator creates R5 base types for dependencies
-            expect(result.filesGenerated["generated/hl7_fhir_r5_core/__init__.py"]).toBeDefined();
-            expect(result.filesGenerated["generated/hl7_fhir_r5_core/domain_resource.py"]).toBeDefined();
+            expect(result.filesGenerated.python!["generated/hl7_fhir_r5_core/__init__.py"]).toBeDefined();
+            expect(result.filesGenerated.python!["generated/hl7_fhir_r5_core/domain_resource.py"]).toBeDefined();
         });
 
         it("should generate domain_resource for R5", () => {
-            const domainResource = result.filesGenerated["generated/hl7_fhir_r5_core/domain_resource.py"];
+            const domainResource = result.filesGenerated.python!["generated/hl7_fhir_r5_core/domain_resource.py"];
             expect(domainResource).toBeDefined();
             expect(domainResource).toMatchSnapshot();
         });
@@ -95,20 +97,20 @@ describe("SQL-on-FHIR", async () => {
         });
 
         it("should generate ViewDefinition type (promoted logical)", () => {
-            const viewDef = result.filesGenerated["generated/types/OrgSqlOnFhirIg/ViewDefinition.cs"];
+            const viewDef = result.filesGenerated.csharp!["generated/types/OrgSqlOnFhirIg/ViewDefinition.cs"];
             expect(viewDef).toBeDefined();
             expect(viewDef).toMatchSnapshot();
         });
 
         it("should generate R5 dependency namespace", () => {
             // C# generator creates R5 types for dependencies
-            const files = Object.keys(result.filesGenerated);
+            const files = Object.keys(result.filesGenerated.csharp!);
             const r5Files = files.filter((f) => f.includes("Hl7FhirR5Core"));
             expect(r5Files.length).toBe(5);
         });
 
         it("should generate DomainResource for R5", () => {
-            const domainResource = result.filesGenerated["generated/types/Hl7FhirR5Core/DomainResource.cs"];
+            const domainResource = result.filesGenerated.csharp!["generated/types/Hl7FhirR5Core/DomainResource.cs"];
             expect(domainResource).toBeDefined();
             expect(domainResource).toMatchSnapshot();
         });

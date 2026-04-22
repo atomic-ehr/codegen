@@ -66,10 +66,11 @@ describe("TypeScript Writer Generator", async () => {
         .generate();
 
     expect(result.success).toBeTrue();
-    expect(Object.keys(result.filesGenerated).length).toEqual(236);
+    const files = result.filesGenerated.typescript!;
+    expect(Object.keys(files).length).toEqual(236);
 
     it("generates Patient resource with snapshot", async () => {
-        expect(result.filesGenerated["generated/types/hl7-fhir-r4-core/Patient.ts"])
+        expect(files["generated/types/hl7-fhir-r4-core/Patient.ts"])
             .toMatchSnapshot();
     });
 });
@@ -84,13 +85,13 @@ describe("TypeScript Writer Generator", async () => {
 
 **Generation Result:**
 - Contains `success` boolean flag
-- Contains `filesGenerated` object with paths as keys and content as values
+- Contains `filesGenerated` nested by generator name, then by path: `filesGenerated[generator][path] = content`
 - Can be accessed and asserted in tests
 
 **Assertions:**
 - Validate success: `expect(result.success).toBeTrue()`
-- Check file count: `expect(Object.keys(result.filesGenerated).length).toEqual(expected)`
-- Snapshot specific files: `expect(result.filesGenerated[path]).toMatchSnapshot()`
+- Check file count for a generator: `expect(Object.keys(result.filesGenerated.typescript!).length).toEqual(expected)`
+- Snapshot specific files: `expect(result.filesGenerated.typescript![path]).toMatchSnapshot()`
 
 ## Configuration Notes
 
@@ -147,7 +148,7 @@ This updates all snapshot files to match current output.
    ```typescript
    it("generates fields with camelCase names", async () => {
        // Changed from PascalCase to camelCase to match TypeScript conventions
-       expect(result.filesGenerated["generated/types/Patient.ts"])
+       expect(result.filesGenerated.typescript!["generated/types/Patient.ts"])
            .toMatchSnapshot();
    });
    ```

@@ -30,13 +30,14 @@ describe("CDA", async () => {
         });
 
         it("should generate ClinicalDocument type", () => {
-            const clinicalDoc = result.filesGenerated["generated/types/hl7-cda-uv-core/ClinicalDocument.ts"];
+            const clinicalDoc =
+                result.filesGenerated.typescript!["generated/types/hl7-cda-uv-core/ClinicalDocument.ts"];
             expect(clinicalDoc).toBeDefined();
             expect(clinicalDoc).toMatchSnapshot();
         });
 
         it("should generate CDA-specific types", () => {
-            const files = Object.keys(result.filesGenerated);
+            const files = Object.keys(result.filesGenerated.typescript!);
             const cdaFiles = files.filter((f) => f.includes("hl7-cda-uv-core"));
             expect(cdaFiles.length).toBe(124);
 
@@ -56,14 +57,14 @@ describe("CDA", async () => {
         });
 
         it("should generate ClinicalDocument type (promoted logical)", () => {
-            const clinicalDoc = result.filesGenerated["generated/hl7_cda_uv_core/clinical_document.py"];
+            const clinicalDoc = result.filesGenerated.python!["generated/hl7_cda_uv_core/clinical_document.py"];
             expect(clinicalDoc).toBeDefined();
             expect(clinicalDoc).toMatchSnapshot();
         });
 
         it("should generate base package structure", () => {
-            expect(result.filesGenerated["generated/__init__.py"]).toBeDefined();
-            expect(result.filesGenerated["generated/requirements.txt"]).toBeDefined();
+            expect(result.filesGenerated.python!["generated/__init__.py"]).toBeDefined();
+            expect(result.filesGenerated.python!["generated/requirements.txt"]).toBeDefined();
         });
     });
 
@@ -79,14 +80,14 @@ describe("CDA", async () => {
         });
 
         it("should generate ClinicalDocument type (promoted logical)", () => {
-            const clinicalDoc = result.filesGenerated["generated/types/Hl7CdaUvCore/ClinicalDocument.cs"];
+            const clinicalDoc = result.filesGenerated.csharp!["generated/types/Hl7CdaUvCore/ClinicalDocument.cs"];
             expect(clinicalDoc).toBeDefined();
             expect(clinicalDoc).toMatchSnapshot();
         });
 
         it("should generate base helper files", () => {
-            expect(result.filesGenerated["generated/types/base.cs"]).toBeDefined();
-            expect(result.filesGenerated["generated/types/Helper.cs"]).toBeDefined();
+            expect(result.filesGenerated.csharp!["generated/types/base.cs"]).toBeDefined();
+            expect(result.filesGenerated.csharp!["generated/types/Helper.cs"]).toBeDefined();
         });
     });
 });

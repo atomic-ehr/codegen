@@ -50,7 +50,8 @@ export interface APIBuilderOptions {
 export type GenerationReport = {
     success: boolean;
     outputDir: string;
-    filesGenerated: Record<string, string>;
+    /** Generated files nested by generator name, then by path: `filesGenerated[generator][path] = content`. */
+    filesGenerated: Record<string, Record<string, string>>;
     errors: string[];
     warnings: string[];
     duration: number;
@@ -62,21 +63,67 @@ function countLinesByMatches(text: string): number {
     return m ? m.length + 1 : 1;
 }
 
-export const prettyReport = (report: GenerationReport): string => {
+const formatLoc = (loc: number): string => {
+    if (loc >= 10000) return `${Math.round(loc / 1000)} kloc`;
+    if (loc >= 1000) return `${(loc / 1000).toFixed(1)} kloc`;
+    return `${loc} loc`;
+};
+
+export interface PrettyReportOptions {
+    /** When a generator produces more than this many files, aggregate them by directory instead of listing each file. */
+    fileLimit?: number;
+}
+
+export const prettyReport = (report: GenerationReport, options: PrettyReportOptions = {}): string => {
     const { success, filesGenerated, errors, warnings, duration } = report;
+    const fileLimit = options.fileLimit ?? 20;
     const errorsStr = errors.length > 0 ? `Errors: ${errors.join(", ")}` : undefined;
     const warningsStr = warnings.length > 0 ? `Warnings: ${warnings.join(", ")}` : undefined;
-    let allLoc = 0;
-    const files = Object.entries(filesGenerated)
-        .map(([path, content]) => {
+
+    let totalFiles = 0;
+    let totalLoc = 0;
+
+    const aggregateByDir = (files: Record<string, number>): { dir: string; count: number; loc: number }[] => {
+        const byDir: Record<string, { count: number; loc: number }> = {};
+        for (const [p, loc] of Object.entries(files)) {
+            const dir = Path.dirname(p);
+            byDir[dir] ??= { count: 0, loc: 0 };
+            byDir[dir].count += 1;
+            byDir[dir].loc += loc;
+        }
+        return Object.entries(byDir)
+            .map(([dir, v]) => ({ dir, count: v.count, loc: v.loc }))
+            .sort((a, b) => a.dir.localeCompare(b.dir));
+    };
+
+    const groupStrs = Object.entries(filesGenerated).map(([name, files]) => {
+        const locByPath: Record<string, number> = {};
+        let groupLoc = 0;
+        for (const [path, content] of Object.entries(files)) {
             const loc = countLinesByMatches(content);
-            allLoc += loc;
-            return `  - ${path} (${loc} loc)`;
-        })
-        .join("\n");
+            locByPath[path] = loc;
+            groupLoc += loc;
+        }
+        const count = Object.keys(files).length;
+        totalFiles += count;
+        totalLoc += groupLoc;
+
+        const header = `  ${name} (${count} files, ${formatLoc(groupLoc)}):`;
+        if (count === 0) return header;
+        if (count > fileLimit) {
+            const dirs = aggregateByDir(locByPath);
+            const dirLines = dirs.map((d) => `    - ${d.dir}/ (${d.count} files, ${formatLoc(d.loc)})`).join("\n");
+            return `${header}\n${dirLines}`;
+        }
+        const fileLines = Object.entries(locByPath)
+            .map(([p, loc]) => `    - ${p} (${loc} loc)`)
+            .join("\n");
+        return `${header}\n${fileLines}`;
+    });
+
     return [
-        `Generated files (${Math.round(allLoc / 1000)} kloc):`,
-        files,
+        `Generated files (${totalFiles} files, ${formatLoc(totalLoc)}):`,
+        ...groupStrs,
         errorsStr,
         warningsStr,
         `Duration: ${Math.round(duration)}ms`,
@@ -447,7 +494,8 @@ export class APIBuilder {
 
             result.success = result.errors.length === 0;
 
-            this.logger.debug(`Generation completed: ${result.filesGenerated.length} files`);
+            const totalFiles = Object.values(result.filesGenerated).reduce((n, f) => n + Object.keys(f).length, 0);
+            this.logger.debug(`Generation completed: ${totalFiles} files`);
         } catch (error) {
             this.logger.error(`Code generation failed: ${error instanceof Error ? error.message : String(error)}`);
             result.errors.push(error instanceof Error ? error.message : String(error));
@@ -483,8 +531,9 @@ export class APIBuilder {
             try {
                 await gen.writer.generateAsync(tsIndex);
                 const fileBuffer: FileBuffer[] = gen.writer.writtenFiles();
+                const files = (result.filesGenerated[gen.name] ??= {});
                 fileBuffer.forEach((buf) => {
-                    result.filesGenerated[buf.relPath] = buf.content;
+                    files[buf.relPath] = buf.content;
                 });
                 this.logger.info(`Generating ${gen.name} finished successfully`);
             } catch (error) {
