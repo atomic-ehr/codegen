@@ -301,6 +301,8 @@ describe("scanNodeModulesPackage: cache-key mismatch fallback (codegen-pkt)", ()
             resolved,
             "pflegegrad must resolve from sibling cache directory when computed path does not exist",
         ).toBeDefined();
-        expect(resolved!.version, "should have loaded from the actual cache, version 1.6.0-ballot").toBe("1.6.0-ballot");
+        expect(resolved!.version, "should have loaded from the actual cache, version 1.6.0-ballot").toBe(
+            "1.6.0-ballot",
+        );
     }, 60000);
 });
