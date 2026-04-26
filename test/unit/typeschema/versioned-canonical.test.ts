@@ -9,33 +9,37 @@
  * not found" errors when transforming KBV profiles that inherit from de.basisprofil.r4
  * profiles via versioned canonical references.
  *
- * Fix: registerFromPackageMetas computes the canonical manager's node_modules path and
- * passes it as nodeModulesPath. mkPackageAwareResolver uses it as a fallback when the
- * canonical manager returns 0 resources for a focused package — scanning the directory
- * directly, which has no id-null restriction.
+ * Fix: registerFromPackageMetas and registerFromManager compute the canonical manager's
+ * node_modules path and pass it as nodeModulesPath. mkPackageAwareResolver uses it as a
+ * fallback when the canonical manager returns 0 resources for a focused package — scanning
+ * the directory directly, which has no id-null restriction.
  *
  * See: codegen-vrq
  */
-import { describe, expect, it } from "bun:test";
+import { beforeAll, describe, expect, it } from "bun:test";
 import type { CanonicalUrl } from "@root/typeschema/types";
-import { generateTypeSchemas } from "@root/typeschema/index";
+import type { Register } from "@typeschema/register";
 import { registerFromPackageMetas } from "@typeschema/register";
 
 const kbvPkg = { name: "kbv.basis", version: "1.8.0" };
 const basisprofil = { name: "de.basisprofil.r4", version: "1.5.4" };
 
 describe("Versioned canonical resolution (codegen-vrq)", () => {
+    let register: Register;
+
+    beforeAll(async () => {
+        register = await registerFromPackageMetas([kbvPkg, basisprofil], {});
+    });
+
     describe("resolveFs — cross-package base type lookup", () => {
-        it("finds de.basisprofil.r4 profile from kbv.basis context using clean URL", async () => {
-            const register = await registerFromPackageMetas([kbvPkg, basisprofil], {});
+        it("finds de.basisprofil.r4 profile from kbv.basis context using clean URL", () => {
             const url = "http://fhir.de/StructureDefinition/observation-de-pflegegrad" as CanonicalUrl;
             const resolved = register.resolveFs(kbvPkg, url);
             expect(resolved).toBeDefined();
             expect(resolved?.url).toBe(url);
         });
 
-        it("strips |version suffix before lookup — versioned canonical resolves to the same schema", async () => {
-            const register = await registerFromPackageMetas([kbvPkg, basisprofil], {});
+        it("strips |version suffix before lookup — versioned canonical resolves to the same schema", () => {
             const versioned =
                 "http://fhir.de/StructureDefinition/observation-de-pflegegrad|1.5.4" as CanonicalUrl;
             const clean = "http://fhir.de/StructureDefinition/observation-de-pflegegrad" as CanonicalUrl;
@@ -50,8 +54,7 @@ describe("Versioned canonical resolution (codegen-vrq)", () => {
             expect(resolved?.url).toBe(clean);
         });
 
-        it("resolves all vitalsign profiles that kbv.basis pins to de.basisprofil.r4@1.5.4", async () => {
-            const register = await registerFromPackageMetas([kbvPkg, basisprofil], {});
+        it("resolves all vitalsign profiles that kbv.basis pins to de.basisprofil.r4@1.5.4", () => {
             // These are the profiles that kbv.basis@1.8.0 uses with |1.5.4 suffix in baseDefinition
             const vitalsignUrls: CanonicalUrl[] = [
                 "http://fhir.de/StructureDefinition/observation-de-vitalsign-blutdruck",
@@ -68,12 +71,10 @@ describe("Versioned canonical resolution (codegen-vrq)", () => {
     });
 
     describe("transformFhirSchema — base type resolution for KBV profiles", () => {
-        it("resolves base type for KBV_PR_Base_Observation_Care_Level (versioned pflegegrad reference)", async () => {
+        it("resolves base type for KBV_PR_Base_Observation_Care_Level (versioned pflegegrad reference)", () => {
             // KBV_PR_Base_Observation_Care_Level has baseDefinition pointing to pflegegrad|1.5.4.
             // Before the fix, transformFhirSchema would throw "Base resource not found '...pflegegrad|1.5.4'"
             // because de.basisprofil.r4 had 0 indexed resources in the canonical manager.
-            const register = await registerFromPackageMetas([kbvPkg, basisprofil], {});
-
             const careLevelUrl = "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Observation_Care_Level";
             const careLevel = register.resolveFs(kbvPkg, careLevelUrl as CanonicalUrl);
             expect(careLevel, "KBV_PR_Base_Observation_Care_Level must be resolvable").toBeDefined();
@@ -89,9 +90,7 @@ describe("Versioned canonical resolution (codegen-vrq)", () => {
             ).toBeDefined();
         });
 
-        it("resolves base type chain for KBV vitalsign profiles with versioned de.basisprofil.r4 references", async () => {
-            const register = await registerFromPackageMetas([kbvPkg, basisprofil], {});
-
+        it("resolves base type chain for KBV vitalsign profiles with versioned de.basisprofil.r4 references", () => {
             // KBV blood pressure profile: baseDefinition = ...observation-de-vitalsign-blutdruck|1.5.4
             const bpUrl = "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Observation_Blood_Pressure";
             const bp = register.resolveFs(kbvPkg, bpUrl as CanonicalUrl);

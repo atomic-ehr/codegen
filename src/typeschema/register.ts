@@ -1,9 +1,9 @@
+import { createHash } from "node:crypto";
+import { existsSync } from "node:fs";
+import { readdir, readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import * as fhirschema from "@atomic-ehr/fhirschema";
-import { createHash } from "node:crypto";
-import { readdir, readFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
-import { join } from "node:path";
 import {
     type FHIRSchema,
     type FHIRSchemaElement,
@@ -99,8 +99,7 @@ const mkPackageAwareResolver = async (
 
     const index = mkEmptyPkgIndex(pkg);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let resources: any[] = await manager.search({ package: pkg });
+    let resources: FocusedResource[] = (await manager.search({ package: pkg })) as unknown as FocusedResource[];
 
     // Fallback: some FHIR packages (e.g. de.basisprofil.r4@1.5.4) ship a .index.json with
     // entries that have null `id` fields (e.g. ImplementationGuide resources). The canonical
@@ -194,7 +193,9 @@ export type RegisterConfig = {
      * Path to the canonical manager's node_modules directory.
      * Used as a fallback when the canonical manager reports 0 resources for a package
      * (which happens when the package's .index.json has invalid entries).
-     * Computed automatically in registerFromPackageMetas.
+     * Computed automatically in registerFromPackageMetas and registerFromManager.
+     * Can be overridden explicitly if the canonical manager is configured with a custom
+     * workingDir or a non-standard package layout.
      */
     nodeModulesPath?: string;
 };
@@ -204,6 +205,20 @@ export const registerFromManager = async (
     { logger, focusedPackages, nodeModulesPath }: RegisterConfig,
 ): Promise<Register> => {
     const packages = focusedPackages ?? (await manager.packages());
+
+    // Compute the node_modules fallback path if not supplied by the caller.
+    // This covers APIBuilder callers that invoke registerFromManager directly without
+    // going through registerFromPackageMetas. Both code paths use the same hardcoded
+    // workingDir, so the cache-key derivation produces the correct path.
+    // NOTE: computeCanonicalManagerCacheKey mirrors the SHA-256 algorithm inside
+    // @atomic-ehr/fhir-canonical-manager@0.0.23 (dist/cache.js#computeCacheKey).
+    // If the canonical manager changes its hash strategy, this fallback will silently
+    // stop working — update both together.
+    if (!nodeModulesPath && focusedPackages) {
+        const pkgNames = focusedPackages.map(packageMetaToNpm);
+        nodeModulesPath = computeNodeModulesPath(pkgNames, CANONICAL_MANAGER_WORKING_DIR);
+    }
+
     const resolver: PackageAwareResolver = {};
     for (const pkg of packages) {
         await mkPackageAwareResolver(manager, pkg, 0, resolver, logger, nodeModulesPath);
@@ -369,12 +384,25 @@ export const registerFromManager = async (
 };
 
 /**
- * Compute the same cache key as @atomic-ehr/fhir-canonical-manager uses internally.
- * The canonical manager uses SHA-256 of the sorted, JSON-stringified package spec list.
+ * Compute the same cache key as @atomic-ehr/fhir-canonical-manager uses internally
+ * (mirrors computeCacheKey in dist/cache.js — tracked at @0.0.23).
+ * Key: SHA-256 of the sorted, JSON-stringified package spec list (e.g. ["kbv.basis@1.8.0", ...]).
+ * NOTE: Only the explicitly requested packages go into the key; transitive dependencies
+ * are installed into the same node_modules but do not affect the hash.
  */
 const computeCanonicalManagerCacheKey = (packageNames: string[]): string => {
     const content = JSON.stringify([...packageNames].sort());
     return createHash("sha256").update(content).digest("hex");
+};
+
+/**
+ * Returns the path to the canonical manager's node_modules directory for a given
+ * set of package names and working directory. Both this function and process.cwd()
+ * must stay in sync with @atomic-ehr/fhir-canonical-manager's cacheRecordPaths logic.
+ */
+const computeNodeModulesPath = (packageNames: string[], workingDir: string): string => {
+    const cacheKey = computeCanonicalManagerCacheKey(packageNames);
+    return join(process.cwd(), workingDir, cacheKey, "node", "node_modules");
 };
 
 /**
@@ -403,7 +431,11 @@ const scanNodeModulesPackage = async (
     try {
         // readdir without withFileTypes returns string[] — avoids Bun's Dirent<Buffer> type mismatch
         fileNames = await readdir(pkgDir);
-    } catch {
+    } catch (err) {
+        logger?.dryWarn(
+            "#canonicalManagerFallback",
+            `Failed to read directory for ${packageMetaToFhir(pkg)} at ${pkgDir}: ${err}`,
+        );
         return [];
     }
 
@@ -414,12 +446,13 @@ const scanNodeModulesPackage = async (
             const content = await readFile(join(pkgDir, name), "utf-8");
             const resource = JSON.parse(content) as Record<string, unknown>;
             if (!resource.resourceType || !resource.url) continue;
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            if (!(isStructureDefinition(resource as any) || isValueSet(resource as any) || isCodeSystem(resource as any)))
-                continue;
+            if (!(isStructureDefinition(resource) || isValueSet(resource) || isCodeSystem(resource))) continue;
             resources.push(resource as unknown as FocusedResource);
-        } catch {
-            // Skip unreadable/malformed files
+        } catch (err) {
+            logger?.dryWarn(
+                "#canonicalManagerFallback",
+                `Skipping ${name} in ${packageMetaToFhir(pkg)}: ${err}`,
+            );
         }
     }
 
@@ -449,15 +482,12 @@ export const registerFromPackageMetas = async (
     });
     await manager.init();
 
-    // Compute the canonical manager's node_modules path so we can fall back to direct
-    // directory scanning when the manager fails to index a focused package.
-    const cacheKey = computeCanonicalManagerCacheKey(packageNames);
-    const nodeModulesPath = join(process.cwd(), CANONICAL_MANAGER_WORKING_DIR, cacheKey, "node", "node_modules");
-
     return await registerFromManager(manager, {
         ...conf,
         focusedPackages: packageMetas,
-        nodeModulesPath,
+        // Provide nodeModulesPath explicitly so registerFromManager doesn't have to
+        // recompute it from focusedPackages (both produce the same result here).
+        nodeModulesPath: computeNodeModulesPath(packageNames, CANONICAL_MANAGER_WORKING_DIR),
     });
 };
 
