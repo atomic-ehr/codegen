@@ -1,5 +1,9 @@
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import * as fhirschema from "@atomic-ehr/fhirschema";
+import { createHash } from "node:crypto";
+import { readdir, readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import {
     type FHIRSchema,
     type FHIRSchemaElement,
@@ -87,13 +91,28 @@ const mkPackageAwareResolver = async (
     deep: number,
     acc: PackageAwareResolver,
     logger?: CodegenLog,
+    nodeModulesPath?: string,
 ): Promise<PackageIndex> => {
     const pkgId = packageMetaToFhir(pkg);
     logger?.info(`${" ".repeat(deep * 2)}+ ${pkgId}`);
     if (acc[pkgId]) return acc[pkgId];
 
     const index = mkEmptyPkgIndex(pkg);
-    for (const resource of await manager.search({ package: pkg })) {
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let resources: any[] = await manager.search({ package: pkg });
+
+    // Fallback: some FHIR packages (e.g. de.basisprofil.r4@1.5.4) ship a .index.json with
+    // entries that have null `id` fields (e.g. ImplementationGuide resources). The canonical
+    // manager's strict parseIndex validation rejects the entire .index.json in this case,
+    // leaving the package with 0 indexed resources. When that happens, we fall back to
+    // reading the package files directly from the canonical manager's node_modules cache.
+    // This is equivalent to the canonical manager's own scanDirectoryForResources fallback.
+    if (resources.length === 0 && nodeModulesPath) {
+        resources = await scanNodeModulesPackage(nodeModulesPath, pkg, logger);
+    }
+
+    for (const resource of resources) {
         const rawUrl = resource.url;
         if (!rawUrl) continue;
         if (!(isStructureDefinition(resource) || isValueSet(resource) || isCodeSystem(resource))) continue;
@@ -105,7 +124,14 @@ const mkPackageAwareResolver = async (
 
     const deps = await readPackageDependencies(manager, pkg);
     for (const depPkg of deps) {
-        const { canonicalResolution } = await mkPackageAwareResolver(manager, depPkg, deep + 1, acc, logger);
+        const { canonicalResolution } = await mkPackageAwareResolver(
+            manager,
+            depPkg,
+            deep + 1,
+            acc,
+            logger,
+            nodeModulesPath,
+        );
         for (const [surl, resolutions] of Object.entries(canonicalResolution)) {
             const url = surl as CanonicalUrl;
             index.canonicalResolution[url] = [...(index.canonicalResolution[url] || []), ...resolutions];
@@ -164,16 +190,23 @@ export type RegisterConfig = {
     focusedPackages?: PackageMeta[];
     /** Custom FHIR package registry URL */
     registry?: string;
+    /**
+     * Path to the canonical manager's node_modules directory.
+     * Used as a fallback when the canonical manager reports 0 resources for a package
+     * (which happens when the package's .index.json has invalid entries).
+     * Computed automatically in registerFromPackageMetas.
+     */
+    nodeModulesPath?: string;
 };
 
 export const registerFromManager = async (
     manager: ReturnType<typeof CanonicalManager>,
-    { logger, focusedPackages }: RegisterConfig,
+    { logger, focusedPackages, nodeModulesPath }: RegisterConfig,
 ): Promise<Register> => {
     const packages = focusedPackages ?? (await manager.packages());
     const resolver: PackageAwareResolver = {};
     for (const pkg of packages) {
-        await mkPackageAwareResolver(manager, pkg, 0, resolver, logger);
+        await mkPackageAwareResolver(manager, pkg, 0, resolver, logger, nodeModulesPath);
     }
     enrichResolver(resolver, logger);
 
@@ -335,6 +368,74 @@ export const registerFromManager = async (
     };
 };
 
+/**
+ * Compute the same cache key as @atomic-ehr/fhir-canonical-manager uses internally.
+ * The canonical manager uses SHA-256 of the sorted, JSON-stringified package spec list.
+ */
+const computeCanonicalManagerCacheKey = (packageNames: string[]): string => {
+    const content = JSON.stringify([...packageNames].sort());
+    return createHash("sha256").update(content).digest("hex");
+};
+
+/**
+ * Some FHIR packages (e.g. de.basisprofil.r4@1.5.4) ship an .index.json that contains
+ * entries where the `id` field is null (e.g. ImplementationGuide resources without an id).
+ * The canonical manager's parseIndex function treats ANY such entry as fatal — it returns
+ * null and silently skips ALL resources from that package.  This means `manager.search()`
+ * returns 0 resources for the affected package, so nothing gets added to the canonical
+ * resolution and cross-package base-type lookups fail at transform time.
+ *
+ * Rather than trying to patch the canonical manager's cache (which gets regenerated on
+ * reinstall), we scan the package directory directly from the canonical manager's
+ * node_modules when the manager reports 0 resources for a focused package.
+ * This mirrors what the canonical manager's own `scanDirectoryForResources` does.
+ */
+const scanNodeModulesPackage = async (
+    nodeModulesPath: string,
+    pkg: PackageMeta,
+    logger?: CodegenLog,
+): Promise<FocusedResource[]> => {
+    const pkgDir = join(nodeModulesPath, pkg.name);
+    if (!existsSync(pkgDir)) return [];
+
+    const resources: FocusedResource[] = [];
+    let fileNames: string[];
+    try {
+        // readdir without withFileTypes returns string[] — avoids Bun's Dirent<Buffer> type mismatch
+        fileNames = await readdir(pkgDir);
+    } catch {
+        return [];
+    }
+
+    for (const name of fileNames) {
+        if (!name.endsWith(".json")) continue;
+        if (name === "package.json" || name === ".index.json") continue;
+        try {
+            const content = await readFile(join(pkgDir, name), "utf-8");
+            const resource = JSON.parse(content) as Record<string, unknown>;
+            if (!resource.resourceType || !resource.url) continue;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if (!(isStructureDefinition(resource as any) || isValueSet(resource as any) || isCodeSystem(resource as any)))
+                continue;
+            resources.push(resource as unknown as FocusedResource);
+        } catch {
+            // Skip unreadable/malformed files
+        }
+    }
+
+    if (resources.length > 0) {
+        logger?.warn(
+            "#canonicalManagerFallback",
+            `Package ${packageMetaToFhir(pkg)} had 0 resources in canonical manager ` +
+                `(likely due to invalid .index.json entries). ` +
+                `Falling back to direct directory scan: ${resources.length} resources found.`,
+        );
+    }
+    return resources;
+};
+
+const CANONICAL_MANAGER_WORKING_DIR = ".codegen-cache/canonical-manager-cache" as const;
+
 export const registerFromPackageMetas = async (
     packageMetas: PackageMeta[],
     conf: RegisterConfig,
@@ -343,13 +444,20 @@ export const registerFromPackageMetas = async (
     conf?.logger?.info(`Loading FHIR packages: ${packageNames.join(", ")}`);
     const manager = CanonicalManager({
         packages: packageNames,
-        workingDir: ".codegen-cache/canonical-manager-cache",
+        workingDir: CANONICAL_MANAGER_WORKING_DIR,
         registry: conf.registry || undefined,
     });
     await manager.init();
+
+    // Compute the canonical manager's node_modules path so we can fall back to direct
+    // directory scanning when the manager fails to index a focused package.
+    const cacheKey = computeCanonicalManagerCacheKey(packageNames);
+    const nodeModulesPath = join(process.cwd(), CANONICAL_MANAGER_WORKING_DIR, cacheKey, "node", "node_modules");
+
     return await registerFromManager(manager, {
         ...conf,
         focusedPackages: packageMetas,
+        nodeModulesPath,
     });
 };
 
