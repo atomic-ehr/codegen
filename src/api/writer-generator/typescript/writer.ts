@@ -42,64 +42,7 @@ export const resolveTsAssets = (fn: string) => {
     return Path.resolve(__dirname, "../../../..", "assets", "api", "writer-generator", "typescript", fn);
 };
 
-export type GenericInfo = {
-    paramList: { name: string; constraint: string }[];
-    /** fieldName (ts-name) -> generic param name, used by resolveFieldTsType to substitute the field's type */
-    fieldMap: Record<string, string>;
-    /** fieldName (ts-name) -> generic args suffix to append (e.g. "<T>") when the field references a generic nested type */
-    nestedArgsByField: Record<string, string>;
-};
-
-const computeGenericInfo = (
-    tsIndex: TypeSchemaIndex,
-    schema: SpecializationTypeSchema | NestedTypeSchema,
-    nestedGenericInfos: Record<string, GenericInfo>,
-): GenericInfo => {
-    const typeFamilyFields: { fieldName: string; familyTypeName: string }[] = [];
-    const nestedFields: { fieldName: string; nestedName: string; info: GenericInfo }[] = [];
-    for (const [fieldName, field] of Object.entries(schema.fields ?? {})) {
-        if (isChoiceDeclarationField(field) || !field.type) continue;
-        const tsName = tsFieldName(fieldName);
-        if (isNestedIdentifier(field.type)) {
-            const nestedInfo = nestedGenericInfos[field.type.name];
-            if (nestedInfo && nestedInfo.paramList.length > 0) {
-                nestedFields.push({ fieldName: tsName, nestedName: field.type.name, info: nestedInfo });
-            }
-            continue;
-        }
-        const fieldTypeSchema = tsIndex.resolveType(field.type);
-        if (isSpecializationTypeSchema(fieldTypeSchema) && (fieldTypeSchema.typeFamily?.resources?.length ?? 0) > 0) {
-            typeFamilyFields.push({ fieldName: tsName, familyTypeName: field.type.name });
-        }
-    }
-
-    const fieldMap: Record<string, string> = {};
-    const nestedArgsByField: Record<string, string> = {};
-    const paramList: { name: string; constraint: string }[] = [];
-    const [first] = typeFamilyFields;
-    if (typeFamilyFields.length === 1 && nestedFields.length === 0 && first) {
-        fieldMap[first.fieldName] = "T";
-        paramList.push({ name: "T", constraint: first.familyTypeName });
-    } else {
-        for (const tf of typeFamilyFields) {
-            const paramName = `T${uppercaseFirstLetter(tf.fieldName)}`;
-            fieldMap[tf.fieldName] = paramName;
-            paramList.push({ name: paramName, constraint: tf.familyTypeName });
-        }
-    }
-    // Inherit nested type's generic params by reusing the same parameter names.
-    // Only propagate when the parent doesn't already define a param with the same name/constraint.
-    for (const nf of nestedFields) {
-        const passThrough: string[] = [];
-        for (const np of nf.info.paramList) {
-            const existing = paramList.find((p) => p.name === np.name);
-            if (!existing) paramList.push({ name: np.name, constraint: np.constraint });
-            passThrough.push(np.name);
-        }
-        nestedArgsByField[nf.fieldName] = `<${passThrough.join(", ")}>`;
-    }
-    return { paramList, fieldMap, nestedArgsByField };
-};
+type GenericParam = { name: string; constraint: string };
 
 export type TypeScriptOptions = {
     lineWidth?: number;
@@ -264,23 +207,64 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         tsIndex: TypeSchemaIndex,
         schema: SpecializationTypeSchema | NestedTypeSchema,
         isFamilyType?: (ref: TypeIdentifier) => boolean,
-        nestedGenericInfos: Record<string, GenericInfo> = {},
-    ): GenericInfo {
+        nestedGenericParams: Record<string, GenericParam[]> = {},
+    ): GenericParam[] {
         let name: string;
         // Generic types: Reference, Coding, CodeableConcept
         const genericTypes = ["Reference", "Coding", "CodeableConcept"];
-        if (genericTypes.includes(schema.identifier.name)) {
+        const isHardcodedGeneric = genericTypes.includes(schema.identifier.name);
+        if (isHardcodedGeneric) {
             name = `${schema.identifier.name}<T extends string = string>`;
         } else {
             name = tsResourceName(schema.identifier);
         }
 
-        const isHardcodedGeneric = genericTypes.includes(schema.identifier.name);
-        const genericInfo: GenericInfo = isHardcodedGeneric
-            ? { paramList: [], fieldMap: {}, nestedArgsByField: {} }
-            : computeGenericInfo(tsIndex, schema, nestedGenericInfos);
-        if (!isHardcodedGeneric && genericInfo.paramList.length > 0) {
-            const declParams = genericInfo.paramList.map((p) => `${p.name} extends ${p.constraint} = ${p.constraint}`);
+        // Collect type-family fields (e.g. `resource: Resource` -> needs T extends Resource)
+        // and references to generic nested types (e.g. `entry: BundleEntry` when BundleEntry is generic).
+        const typeFamilyFields: { fieldName: string; familyTypeName: string }[] = [];
+        const nestedFields: { fieldName: string; params: GenericParam[] }[] = [];
+        if (!isHardcodedGeneric) {
+            for (const [fieldName, field] of Object.entries(schema.fields ?? {})) {
+                if (isChoiceDeclarationField(field) || !field.type) continue;
+                const tsName = tsFieldName(fieldName);
+                if (isNestedIdentifier(field.type)) {
+                    const params = nestedGenericParams[field.type.name];
+                    if (params?.length) nestedFields.push({ fieldName: tsName, params });
+                    continue;
+                }
+                const fieldTypeSchema = tsIndex.resolveType(field.type);
+                if (
+                    isSpecializationTypeSchema(fieldTypeSchema) &&
+                    (fieldTypeSchema.typeFamily?.resources?.length ?? 0) > 0
+                ) {
+                    typeFamilyFields.push({ fieldName: tsName, familyTypeName: field.type.name });
+                }
+            }
+        }
+
+        // Build generic params from type-family fields, then pass-through nested-type params.
+        const fieldMap: Record<string, string> = {};
+        const paramList: GenericParam[] = [];
+        const [first] = typeFamilyFields;
+        if (typeFamilyFields.length === 1 && nestedFields.length === 0 && first) {
+            fieldMap[first.fieldName] = "T";
+            paramList.push({ name: "T", constraint: first.familyTypeName });
+        } else {
+            for (const tf of typeFamilyFields) {
+                const paramName = `T${uppercaseFirstLetter(tf.fieldName)}`;
+                fieldMap[tf.fieldName] = paramName;
+                paramList.push({ name: paramName, constraint: tf.familyTypeName });
+            }
+        }
+        const nestedArgsByField: Record<string, string> = {};
+        for (const nf of nestedFields) {
+            for (const np of nf.params) {
+                if (!paramList.find((p) => p.name === np.name)) paramList.push(np);
+            }
+            nestedArgsByField[nf.fieldName] = `<${nf.params.map((p) => p.name).join(", ")}>`;
+        }
+        if (!isHardcodedGeneric && paramList.length > 0) {
+            const declParams = paramList.map((p) => `${p.name} extends ${p.constraint} = ${p.constraint}`);
             name += `<${declParams.join(", ")}>`;
         }
 
@@ -290,7 +274,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         this.debugComment(schema.identifier);
         if (!schema.fields && !extendsClause && !isResourceTypeSchema(schema)) {
             this.lineSM(`export type ${name} = object`);
-            return genericInfo;
+            return paramList;
         }
         this.curlyBlock(["export", "interface", name, extendsClause], () => {
             if (isResourceTypeSchema(schema)) {
@@ -322,12 +306,12 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                     tsName,
                     field,
                     undefined,
-                    genericInfo.fieldMap,
+                    fieldMap,
                     isFamilyType,
                 );
                 const optionalSymbol = field.required ? "" : "?";
                 const arraySymbol = field.array ? "[]" : "";
-                const nestedArgs = genericInfo.nestedArgsByField[tsName] ?? "";
+                const nestedArgs = nestedArgsByField[tsName] ?? "";
                 this.lineSM(`${tsName}${optionalSymbol}: ${tsType}${nestedArgs}${arraySymbol}`);
 
                 if (this.withPrimitiveTypeExtension(schema)) {
@@ -337,7 +321,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 }
             }
         });
-        return genericInfo;
+        return paramList;
     }
 
     withPrimitiveTypeExtension(schema: TypeSchema | NestedTypeSchema): boolean {
@@ -364,16 +348,16 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         tsIndex: TypeSchemaIndex,
         schema: SpecializationTypeSchema,
         isFamilyType?: (ref: TypeIdentifier) => boolean,
-    ): Record<string, GenericInfo> {
-        const nestedGenericInfos: Record<string, GenericInfo> = {};
+    ): Record<string, GenericParam[]> {
+        const nestedGenericParams: Record<string, GenericParam[]> = {};
         if (schema.nested) {
             for (const subtype of schema.nested) {
-                const info = this.generateType(tsIndex, subtype, isFamilyType, nestedGenericInfos);
-                nestedGenericInfos[subtype.identifier.name] = info;
+                const params = this.generateType(tsIndex, subtype, isFamilyType, nestedGenericParams);
+                nestedGenericParams[subtype.identifier.name] = params;
                 this.line();
             }
         }
-        return nestedGenericInfos;
+        return nestedGenericParams;
     }
 
     generateResourceModule(tsIndex: TypeSchemaIndex, schema: TypeSchema) {
@@ -392,13 +376,13 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 this.generateDisclaimer();
                 this.generateDependenciesImports(tsIndex, schema);
                 this.generateComplexTypeReexports(schema);
-                const nestedGenericInfos = this.generateNestedTypes(tsIndex, schema, isFamilyType);
+                const nestedGenericParams = this.generateNestedTypes(tsIndex, schema, isFamilyType);
                 this.comment(
                     "CanonicalURL:",
                     schema.identifier.url,
                     `(pkg: ${packageMetaToFhir(packageMeta(schema))})`,
                 );
-                this.generateType(tsIndex, schema, isFamilyType, nestedGenericInfos);
+                this.generateType(tsIndex, schema, isFamilyType, nestedGenericParams);
                 this.generateResourceTypePredicate(schema);
             });
         } else {
