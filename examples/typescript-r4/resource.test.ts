@@ -135,10 +135,10 @@ test("Bundle<T> narrows entry resources without type predicates", () => {
         ],
     };
 
-    // Discriminated-union narrowing works without a `r is Observation` predicate
+    // TS 5.5+ infers the type predicate from the discriminated union — no explicit `r is Observation` needed
     const observations: Observation[] = (bundle.entry ?? [])
         .map((e) => e.resource)
-        .filter((r): r is Observation => r?.resourceType === "Observation");
+        .filter((r) => r?.resourceType === "Observation");
 
     expect(observations).toHaveLength(1);
     expect(observations[0]!.id).toBe("glucose-obs-1");
