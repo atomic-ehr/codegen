@@ -28,7 +28,7 @@ export const tsCamelCase = (name: string): string => {
 };
 
 export const tsPackageDir = (name: string): string => {
-    return kebabCase(name);
+    return kebabCase(name.replace(/[@/]/g, "_"));
 };
 
 export const tsModuleName = (id: TypeIdentifier): string => {
