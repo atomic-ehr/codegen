@@ -10,6 +10,7 @@ import {
     type ComplexTypeTypeSchema,
     type ConstrainedChoiceInfo,
     type Field,
+    type GenericParam,
     type Identifier,
     isChoiceDeclarationField,
     isChoiceInstanceField,
@@ -151,6 +152,78 @@ const populateTypeFamily = (schemas: TypeSchema[]): void => {
 };
 
 ///////////////////////////////////////////////////////////
+// Generic Params
+
+const upperFirst = (s: string): string => (s.length === 0 ? s : (s[0]?.toUpperCase() ?? "") + s.slice(1));
+
+type GenericContribution =
+    | { kind: "introduce"; fieldName: string; constraint: TypeIdentifier }
+    | { kind: "passthrough"; fieldName: string; params: GenericParam[] };
+
+const collectGenericContributions = (
+    nested: NestedTypeSchema,
+    resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | undefined,
+): GenericContribution[] => {
+    const contributions: GenericContribution[] = [];
+    for (const [fieldName, field] of Object.entries(nested.fields ?? {})) {
+        if (isChoiceDeclarationField(field) || !field.type) continue;
+        const target = resolveType(field.type);
+        if (!target) continue;
+        if (isNestedTypeSchema(target)) {
+            const params = target.generic?.params;
+            if (params?.length) contributions.push({ kind: "passthrough", fieldName, params });
+        } else if (isSpecializationTypeSchema(target) && (target.typeFamily?.resources?.length ?? 0) > 0) {
+            contributions.push({ kind: "introduce", fieldName, constraint: field.type });
+        }
+    }
+    return contributions;
+};
+
+const renderGenericParams = (contributions: GenericContribution[]): GenericParam[] => {
+    const introduceCount = contributions.filter((c) => c.kind === "introduce").length;
+    const useShortName = introduceCount === 1 && contributions.length === 1;
+    const params: GenericParam[] = [];
+    for (const c of contributions) {
+        if (c.kind === "introduce") {
+            const name = useShortName ? "T" : `T${upperFirst(c.fieldName)}`;
+            params.push({ name, constraint: c.constraint });
+        } else {
+            for (const np of c.params) {
+                if (!params.find((p) => p.name === np.name)) params.push(np);
+            }
+        }
+    }
+    return params;
+};
+
+/** Populate `generic.params` on each NestedTypeSchema. A nested becomes generic when one
+ *  of its fields targets a type-family root (introduce) or a generic nested type
+ *  (passthrough). Param naming policy: a single introduce with no passthrough → "T";
+ *  otherwise `T${UpperFirst(fieldName)}` per introduce, and passthrough names come from
+ *  the target nested's already-populated params. Iterates nested schemas in URL-sorted
+ *  order so passthrough lookups resolve in one pass. */
+const populateNestedGeneric = (
+    schemas: TypeSchema[],
+    resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | undefined,
+): void => {
+    // Clear stale data — schemas may be mutated by a previous index build (replaceSchemas).
+    for (const schema of schemas) {
+        if (!isSpecializationTypeSchema(schema) && !isProfileTypeSchema(schema)) continue;
+        for (const nested of schema.nested ?? []) nested.generic = undefined;
+    }
+
+    for (const schema of schemas) {
+        if (!isSpecializationTypeSchema(schema) && !isProfileTypeSchema(schema)) continue;
+        if (!schema.nested) continue;
+        const sorted = [...schema.nested].sort((a, b) => a.identifier.url.localeCompare(b.identifier.url));
+        for (const nested of sorted) {
+            const params = renderGenericParams(collectGenericContributions(nested, resolveType));
+            if (params.length > 0) nested.generic = { params };
+        }
+    }
+};
+
+///////////////////////////////////////////////////////////
 // Type Schema Index
 
 export type TypeSchemaIndex = {
@@ -234,6 +307,8 @@ export const mkTypeSchemaIndex = (
         if (isNestedIdentifier(id)) return nestedIndex[id.url]?.[id.package];
         return index[id.url]?.[id.package];
     };
+
+    populateNestedGeneric(schemas, resolveType);
     const resolveByUrl = (pkgName: PkgName, url: CanonicalUrl): TypeSchema | NestedTypeSchema | undefined => {
         if (register) {
             const resolutionTree = register.resolutionTree();

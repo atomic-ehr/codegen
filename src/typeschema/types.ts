@@ -218,10 +218,20 @@ interface PrimitiveTypeSchema {
     dependencies?: TypeIdentifier[];
 }
 
+export type GenericParam = {
+    name: string;
+    constraint: TypeIdentifier;
+};
+
 export interface NestedTypeSchema {
     identifier: NestedIdentifier;
     base: TypeIdentifier;
     fields: Record<string, Field>;
+    /** Generic params this nested type exposes. Populated during index build (after
+     *  `populateTypeFamily`). Each param either binds directly to a field whose type is a
+     *  type-family root (e.g. `BundleEntry.resource: Resource` → T extends Resource) or
+     *  is inherited from a generic-bearing nested-type field (passthrough). */
+    generic?: { params: GenericParam[] };
 }
 
 export interface ProfileTypeSchema {
