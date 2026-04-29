@@ -29,8 +29,11 @@ describe("TypeScript Writer Generator", async () => {
     });
     it("generates BundleEntry with generic type-family parameter", async () => {
         const bundleTs = files["generated/types/hl7-fhir-r4-core/Bundle.ts"];
-        expect(bundleTs).toContain("export interface BundleEntry<T extends Resource = Resource>");
-        expect(bundleTs).toContain("resource?: T");
+        expect(bundleTs).toContain(
+            "export interface BundleEntry<TResource extends Resource = Resource, T extends Resource = Resource>",
+        );
+        expect(bundleTs).toContain("resource?: TResource");
+        expect(bundleTs).toContain("response?: BundleEntryResponse<T>");
         expect(bundleTs).toMatchSnapshot();
     });
     it("generates Bundle with generic entry type (nested generic propagation)", async () => {
