@@ -41,6 +41,9 @@ describe("IntrospectionWriter - TypeSchema output", async () => {
                     "http://hl7.org/fhir/StructureDefinition/Element": {
                         ignoreFields: ["extension"],
                     },
+                    "http://hl7.org/fhir/StructureDefinition/Bundle": {},
+                    "http://hl7.org/fhir/StructureDefinition/Coding": {},
+                    "http://hl7.org/fhir/StructureDefinition/CodeableConcept": {},
                 },
             },
         })
@@ -51,7 +54,7 @@ describe("IntrospectionWriter - TypeSchema output", async () => {
     expect(result.success).toBeTrue();
 
     const files = result.filesGenerated.introspection!;
-    expect(Object.keys(files).length).toEqual(44);
+    expect(Object.keys(files).length).toMatchInlineSnapshot(`61`);
     it("Generated file list", () => {
         expect(Object.keys(files)).toMatchSnapshot();
     });
@@ -60,6 +63,24 @@ describe("IntrospectionWriter - TypeSchema output", async () => {
             files["generated/introspection/hl7.fhir.r4.core/OperationOutcome(OperationOutcome).json"];
         expect(operationOutcome).toBeDefined();
         expect(operationOutcome).toMatchSnapshot();
+    });
+    it("Check Bundle type schema", () => {
+        const bundle =
+            files["generated/introspection/hl7.fhir.r4.core/Bundle(Bundle).json"];
+        expect(bundle).toBeDefined();
+        expect(bundle).toMatchSnapshot();
+    });
+    it("Check Coding type schema", () => {
+        const coding =
+            files["generated/introspection/hl7.fhir.r4.core/Coding(Coding).json"];
+        expect(coding).toBeDefined();
+        expect(coding).toMatchSnapshot();
+    });
+    it("Check CodableConcept type schema", () => {
+        const codableConcept =
+            files["generated/introspection/hl7.fhir.r4.core/CodeableConcept(CodeableConcept).json"];
+        expect(codableConcept).toBeDefined();
+        expect(codableConcept).toMatchSnapshot();
     });
     it("Check all introspection data in a single ndjson file", () => {
         expect(files["generated/introspection.ndjson"]).toMatchSnapshot();
