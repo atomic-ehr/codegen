@@ -19,16 +19,23 @@ describe("TypeScript Writer Generator", async () => {
         const codingTs = files["generated/types/hl7-fhir-r4-core/Coding.ts"];
         expect(codingTs).toContain("export interface Coding<T extends string = string>");
         expect(codingTs).toContain("code?: T");
+        expect(codingTs).toMatchSnapshot();
     });
     it("generates CodeableConcept with generic parameter", async () => {
         const ccTs = files["generated/types/hl7-fhir-r4-core/CodeableConcept.ts"];
         expect(ccTs).toContain("export interface CodeableConcept<T extends string = string>");
         expect(ccTs).toContain("coding?: Coding<T>[]");
+        expect(ccTs).toMatchSnapshot();
     });
     it("generates BundleEntry with generic type-family parameter", async () => {
         const bundleTs = files["generated/types/hl7-fhir-r4-core/Bundle.ts"];
         expect(bundleTs).toContain("export interface BundleEntry<T extends Resource = Resource>");
         expect(bundleTs).toContain("resource?: T");
+        expect(bundleTs).toMatchSnapshot();
+    });
+    it("generates Bundle with generic entry type (nested generic propagation)", async () => {
+        const bundleTs = files["generated/types/hl7-fhir-r4-core/Bundle.ts"];
+        expect(bundleTs).toMatchSnapshot();
     });
     it("generates BundleEntryResponse with generic type-family parameter", async () => {
         const bundleTs = files["generated/types/hl7-fhir-r4-core/Bundle.ts"];
