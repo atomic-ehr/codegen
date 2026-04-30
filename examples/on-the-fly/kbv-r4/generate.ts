@@ -32,8 +32,9 @@ if (require.main === module) {
         registry: "https://packages.simplifier.net",
         ignorePackageIndex: true,
     })
-        .fromPackage("hl7.fhir.r4.core", "4.0.1")
         .fromPackage("kbv.ita.for", "1.3.1")
+        .fromPackage("de.basisprofil.r4", "1.6.0-ballot2")
+        .fromPackage("kbv.basis", "1.8.0")
         .throwException()
         .typescript({
             withDebugComment: false,
