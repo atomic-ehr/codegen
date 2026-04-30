@@ -65,20 +65,17 @@ describe("IntrospectionWriter - TypeSchema output", async () => {
         expect(operationOutcome).toMatchSnapshot();
     });
     it("Check Bundle type schema", () => {
-        const bundle =
-            files["generated/introspection/hl7.fhir.r4.core/Bundle(Bundle).json"];
+        const bundle = files["generated/introspection/hl7.fhir.r4.core/Bundle(Bundle).json"];
         expect(bundle).toBeDefined();
         expect(bundle).toMatchSnapshot();
     });
     it("Check Coding type schema", () => {
-        const coding =
-            files["generated/introspection/hl7.fhir.r4.core/Coding(Coding).json"];
+        const coding = files["generated/introspection/hl7.fhir.r4.core/Coding(Coding).json"];
         expect(coding).toBeDefined();
         expect(coding).toMatchSnapshot();
     });
     it("Check CodableConcept type schema", () => {
-        const codableConcept =
-            files["generated/introspection/hl7.fhir.r4.core/CodeableConcept(CodeableConcept).json"];
+        const codableConcept = files["generated/introspection/hl7.fhir.r4.core/CodeableConcept(CodeableConcept).json"];
         expect(codableConcept).toBeDefined();
         expect(codableConcept).toMatchSnapshot();
     });
