@@ -49,6 +49,11 @@ type Contribution =
 
 const leafOf = (path: string[]): string => path[path.length - 1] ?? "";
 
+// Schemas that the TS writer renders with a hardcoded `<T extends string>` generic — their IR
+// `generic.params` (if any, computed via structural propagation) must be ignored at reference sites
+// so we don't emit `<T>` args clashing with the hardcoded `T extends string` declaration.
+const TS_HARDCODED_GENERIC_NAMES = new Set(["Reference", "Coding", "CodeableConcept"]);
+
 const collectGenericContributions = (
     tsIndex: TypeSchemaIndex,
     schema: SpecializationTypeSchema | NestedTypeSchema,
@@ -59,6 +64,7 @@ const collectGenericContributions = (
         const tsName = tsFieldName(fieldName);
         const target = tsIndex.resolveType(field.type);
         if (!target) continue;
+        if (TS_HARDCODED_GENERIC_NAMES.has(target.identifier.name)) continue;
         const targetParams =
             isNestedTypeSchema(target) || isSpecializationTypeSchema(target) ? target.generic?.params : undefined;
         if (targetParams?.length) {

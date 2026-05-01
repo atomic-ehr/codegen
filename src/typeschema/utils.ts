@@ -9,6 +9,7 @@ import {
     type ChoiceFieldInstance,
     type ComplexTypeTypeSchema,
     type ConstrainedChoiceInfo,
+    concatIdentifiers,
     type Field,
     type GenericParam,
     type Identifier,
@@ -266,6 +267,25 @@ const populateGeneric = (
             c.generic = newParams.length > 0 ? { params: newParams } : undefined;
             changed = true;
         }
+    }
+
+    // Ensure each schema's dependency list includes its generic constraint types so writers
+    // emit the corresponding imports. Top-level specializations have a `dependencies` array;
+    // nested types don't (their imports come via the parent schema's dependencies).
+    for (const schema of schemas) {
+        if (!isSpecializationTypeSchema(schema)) continue;
+        const constraints: Identifier[] = [];
+        const collect = (params: GenericParam[]) => {
+            for (const p of params) {
+                if (!isNestedIdentifier(p.constraint)) constraints.push(p.constraint);
+            }
+        };
+        if (schema.generic) collect(schema.generic.params);
+        for (const nested of schema.nested ?? []) {
+            if (nested.generic) collect(nested.generic.params);
+        }
+        if (constraints.length === 0) continue;
+        schema.dependencies = concatIdentifiers(schema.dependencies, constraints) ?? schema.dependencies;
     }
 };
 
