@@ -41,11 +41,13 @@ export const resolveTsAssets = (fn: string) => {
     return Path.resolve(__dirname, "../../../..", "assets", "api", "writer-generator", "typescript", fn);
 };
 
-type WriterGenericParam = { name: string; constraint: string; sourceField: string };
+type WriterGenericParam = { typeVar: string; constraint: string; path: string[] };
 
 type Contribution =
     | { kind: "introduce"; fieldName: string; constraint: string }
     | { kind: "passthrough"; fieldName: string; params: WriterGenericParam[] };
+
+const leafOf = (path: string[]): string => path[path.length - 1] ?? "";
 
 const collectGenericContributions = (
     tsIndex: TypeSchemaIndex,
@@ -64,9 +66,9 @@ const collectGenericContributions = (
                 kind: "passthrough",
                 fieldName: tsName,
                 params: targetParams.map((p) => ({
-                    name: p.name,
+                    typeVar: p.typeVar,
                     constraint: p.constraint.name,
-                    sourceField: p.sourceField,
+                    path: p.path,
                 })),
             });
         } else if (isSpecializationTypeSchema(target) && (target.typeFamily?.resources?.length ?? 0) > 0) {
@@ -255,27 +257,27 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         const params = isHardcodedGeneric ? [] : (schema.generic?.params ?? []);
 
         // Per-field substitutions: when a field maps to one of the schema's params (introduce case),
-        // emit the param name in place of the field's type. When the field's target carries its own
-        // generic params (passthrough case), append matching args at the reference site, aligning
-        // by `sourceField` so deep origins line up across nesting hops.
+        // emit the param's typeVar in place of the field's type. When the field's target carries its
+        // own generic params (passthrough case), append matching args at the reference site, aligning
+        // by leaf segment of the param's `path` (the deepest origin).
         const fieldMap: Record<string, string> = {};
         const nestedArgsByField: Record<string, string> = {};
         if (!isHardcodedGeneric) {
             const contributions = collectGenericContributions(tsIndex, schema);
             for (const c of contributions) {
                 if (c.kind === "introduce") {
-                    const p = params.find((q) => q.sourceField === c.fieldName);
-                    if (p) fieldMap[c.fieldName] = p.name;
+                    const p = params.find((q) => leafOf(q.path) === c.fieldName);
+                    if (p) fieldMap[c.fieldName] = p.typeVar;
                 } else {
                     const args = c.params.map(
-                        (cp) => params.find((q) => q.sourceField === cp.sourceField)?.name ?? cp.name,
+                        (cp) => params.find((q) => leafOf(q.path) === leafOf(cp.path))?.typeVar ?? cp.typeVar,
                     );
                     nestedArgsByField[c.fieldName] = `<${args.join(", ")}>`;
                 }
             }
         }
         if (!isHardcodedGeneric && params.length > 0) {
-            const declParams = params.map((p) => `${p.name} extends ${p.constraint.name} = ${p.constraint.name}`);
+            const declParams = params.map((p) => `${p.typeVar} extends ${p.constraint.name} = ${p.constraint.name}`);
             name += `<${declParams.join(", ")}>`;
         }
 

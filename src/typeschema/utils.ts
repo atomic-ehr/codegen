@@ -182,19 +182,27 @@ const collectGenericContributions = (
     return contributions;
 };
 
+const samePath = (a: string[], b: string[]): boolean => a.length === b.length && a.every((s, i) => s === b[i]);
+const leafOf = (path: string[]): string => path[path.length - 1] ?? "";
+
 const renderGenericParams = (contributions: GenericContribution[]): GenericParam[] => {
-    // Collect raw {sourceField, constraint} pairs across all contributions, deduped by sourceField.
-    type Raw = { sourceField: string; constraint: TypeIdentifier };
+    // Collect raw {path, constraint} pairs. Introduce contributions create single-segment paths
+    // (the field name); passthrough contributions prepend the carrier field to each inherited
+    // param's path. Dedup by leaf (last segment) — multiple fields with the same deepest origin
+    // share one generic param, so callers narrow once and many fields update at once.
+    type Raw = { path: string[]; constraint: TypeIdentifier };
     const raw: Raw[] = [];
     for (const c of contributions) {
         if (c.kind === "introduce") {
-            if (!raw.find((r) => r.sourceField === c.fieldName)) {
-                raw.push({ sourceField: c.fieldName, constraint: c.constraint });
+            const path = [c.fieldName];
+            if (!raw.find((r) => leafOf(r.path) === leafOf(path))) {
+                raw.push({ path, constraint: c.constraint });
             }
         } else {
             for (const np of c.params) {
-                if (!raw.find((r) => r.sourceField === np.sourceField)) {
-                    raw.push({ sourceField: np.sourceField, constraint: np.constraint });
+                const path = [c.fieldName, ...np.path];
+                if (!raw.find((r) => leafOf(r.path) === leafOf(path))) {
+                    raw.push({ path, constraint: np.constraint });
                 }
             }
         }
@@ -202,9 +210,9 @@ const renderGenericParams = (contributions: GenericContribution[]): GenericParam
     if (raw.length === 0) return [];
     // Single param → "T"; multiple → "T1", "T2", … positional names.
     return raw.map((r, i) => ({
-        name: raw.length === 1 ? "T" : `T${i + 1}`,
+        typeVar: raw.length === 1 ? "T" : `T${i + 1}`,
         constraint: r.constraint,
-        sourceField: r.sourceField,
+        path: r.path,
     }));
 };
 
@@ -239,7 +247,7 @@ const populateGeneric = (
         for (let i = 0; i < a.length; i++) {
             const x = a[i]!;
             const y = b[i]!;
-            if (x.name !== y.name || x.sourceField !== y.sourceField || x.constraint.url !== y.constraint.url)
+            if (x.typeVar !== y.typeVar || !samePath(x.path, y.path) || x.constraint.url !== y.constraint.url)
                 return false;
         }
         return true;

@@ -219,12 +219,14 @@ interface PrimitiveTypeSchema {
 }
 
 export type GenericParam = {
-    name: string;
+    typeVar: string;
     constraint: TypeIdentifier;
-    /** The deep field that originally introduced this param (the typeFamily-rooted field
-     *  at the bottom of the passthrough chain). Used for stable naming when the param
-     *  surfaces in a parent schema and to align passthrough args across nesting hops. */
-    sourceField: string;
+    /** Path from this schema down to the typeFamily-rooted field that introduces the param.
+     *  Single segment for a direct introduce (e.g. `["outcome"]` on `BundleEntryResponse`);
+     *  carrier fields are prepended as the param surfaces through passthrough (e.g.
+     *  `["response", "outcome"]` on `BundleEntry`, `["entry", "response", "outcome"]` on
+     *  `Bundle`). Used to align passthrough args across nesting hops. */
+    path: string[];
 };
 
 /** Generic params a schema exposes — populated during index build (after
