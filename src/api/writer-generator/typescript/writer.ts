@@ -1,6 +1,5 @@
 import * as Path from "node:path";
 import { fileURLToPath } from "node:url";
-import { uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
 import {
     type CanonicalUrl,
@@ -279,9 +278,8 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 }
             }
         }
-        const useShortName = raw.length === 1;
-        const paramList: WriterGenericParam[] = raw.map((r) => ({
-            name: useShortName ? "T" : `T${uppercaseFirstLetter(r.sourceField)}`,
+        const paramList: WriterGenericParam[] = raw.map((r, i) => ({
+            name: raw.length === 1 ? "T" : `T${i + 1}`,
             constraint: r.constraint,
             sourceField: r.sourceField,
         }));

@@ -154,8 +154,6 @@ const populateTypeFamily = (schemas: TypeSchema[]): void => {
 ///////////////////////////////////////////////////////////
 // Generic Params
 
-const upperFirst = (s: string): string => (s.length === 0 ? s : (s[0]?.toUpperCase() ?? "") + s.slice(1));
-
 type GenericContribution =
     | { kind: "introduce"; fieldName: string; constraint: TypeIdentifier }
     | { kind: "passthrough"; fieldName: string; params: GenericParam[] };
@@ -197,10 +195,9 @@ const renderGenericParams = (contributions: GenericContribution[]): GenericParam
         }
     }
     if (raw.length === 0) return [];
-    // Single param → short name "T"; otherwise long names based on origin field.
-    const useShortName = raw.length === 1;
-    return raw.map((r) => ({
-        name: useShortName ? "T" : `T${upperFirst(r.sourceField)}`,
+    // Single param → "T"; multiple → "T1", "T2", … positional names.
+    return raw.map((r, i) => ({
+        name: raw.length === 1 ? "T" : `T${i + 1}`,
         constraint: r.constraint,
         sourceField: r.sourceField,
     }));
