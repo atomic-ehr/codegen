@@ -38,6 +38,11 @@ export class USCoreIndividualSexExtensionProfile {
         return profile;
     }
 
+    static is (resource: unknown) : resource is Extension {
+        if (typeof resource !== "object" || resource === null) return false;
+        return (resource as { url?: string }).url === USCoreIndividualSexExtensionProfile.canonicalUrl;
+    }
+
     static apply (resource: Extension) : USCoreIndividualSexExtensionProfile {
         resource.url = USCoreIndividualSexExtensionProfile.canonicalUrl;
         Object.assign(resource, {

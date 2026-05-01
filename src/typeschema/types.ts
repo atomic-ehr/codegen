@@ -218,10 +218,30 @@ interface PrimitiveTypeSchema {
     dependencies?: TypeIdentifier[];
 }
 
+export type GenericParam = {
+    typeVar: string;
+    constraint: TypeIdentifier;
+    /** Path from this schema down to the typeFamily-rooted field that introduces the param.
+     *  Single segment for a direct introduce (e.g. `["outcome"]` on `BundleEntryResponse`);
+     *  carrier fields are prepended as the param surfaces through passthrough (e.g.
+     *  `["response", "outcome"]` on `BundleEntry`, `["entry", "response", "outcome"]` on
+     *  `Bundle`). Used to align passthrough args across nesting hops. */
+    path: string[];
+};
+
+/** Generic params a schema exposes — populated during index build (after
+ *  `populateTypeFamily`). Each param either binds directly to a field whose type is a
+ *  type-family root (e.g. `BundleEntry.resource: Resource` → T extends Resource) or
+ *  is inherited from a generic-bearing field's target (passthrough). */
+export type GenericInfo = {
+    params: GenericParam[];
+};
+
 export interface NestedTypeSchema {
     identifier: NestedIdentifier;
     base: TypeIdentifier;
     fields: Record<string, Field>;
+    generic?: GenericInfo;
 }
 
 export interface ProfileTypeSchema {
@@ -299,6 +319,7 @@ type SpecializationTypeSchemaBody = {
     dependencies?: Identifier[];
     /** Transitive children grouped by kind (e.g. Resource → { resources: [DomainResource, Patient, …] }) */
     typeFamily?: TypeFamily;
+    generic?: GenericInfo;
 };
 
 export type TypeFamily = {

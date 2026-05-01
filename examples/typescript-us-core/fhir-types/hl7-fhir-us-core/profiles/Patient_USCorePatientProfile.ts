@@ -64,6 +64,13 @@ export class USCorePatientProfile {
         return profile;
     }
 
+    static is (resource: unknown) : resource is Patient {
+        if (typeof resource !== "object" || resource === null) return false;
+        const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
+        if (r.resourceType !== "Patient") return false;
+        return (r.meta?.profile ?? []).includes(USCorePatientProfile.canonicalUrl);
+    }
+
     static apply (resource: Patient) : USCorePatientProfile {
         ensureProfile(resource, USCorePatientProfile.canonicalUrl);
         return new USCorePatientProfile(resource);

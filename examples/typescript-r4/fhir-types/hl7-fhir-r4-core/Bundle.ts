@@ -12,12 +12,12 @@ export type { BackboneElement } from "../hl7-fhir-r4-core/BackboneElement";
 export type { Identifier } from "../hl7-fhir-r4-core/Identifier";
 export type { Signature } from "../hl7-fhir-r4-core/Signature";
 
-export interface BundleEntry<T extends Resource = Resource> extends BackboneElement {
+export interface BundleEntry<T1 extends Resource = Resource, T2 extends Resource = Resource> extends BackboneElement {
     fullUrl?: string;
     link?: BundleLink[];
     request?: BundleEntryRequest;
-    resource?: T;
-    response?: BundleEntryResponse;
+    resource?: T1;
+    response?: BundleEntryResponse<T2>;
     search?: BundleEntrySearch;
 }
 
@@ -49,10 +49,10 @@ export interface BundleLink extends BackboneElement {
 }
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/Bundle (pkg: hl7.fhir.r4.core#4.0.1)
-export interface Bundle extends Resource {
+export interface Bundle<T1 extends Resource = Resource, T2 extends Resource = Resource> extends Resource {
     resourceType: "Bundle";
 
-    entry?: BundleEntry[];
+    entry?: BundleEntry<T1, T2>[];
     identifier?: Identifier;
     link?: BundleLink[];
     signature?: Signature;

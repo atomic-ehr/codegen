@@ -66,6 +66,11 @@ export class USCoreTribalAffiliationExtensionProfile {
         return profile;
     }
 
+    static is (resource: unknown) : resource is Extension {
+        if (typeof resource !== "object" || resource === null) return false;
+        return (resource as { url?: string }).url === USCoreTribalAffiliationExtensionProfile.canonicalUrl;
+    }
+
     static apply (resource: Extension) : USCoreTribalAffiliationExtensionProfile {
         resource.url = USCoreTribalAffiliationExtensionProfile.canonicalUrl;
         Object.assign(resource, {

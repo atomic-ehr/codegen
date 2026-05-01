@@ -9,7 +9,9 @@ import {
     type ChoiceFieldInstance,
     type ComplexTypeTypeSchema,
     type ConstrainedChoiceInfo,
+    concatIdentifiers,
     type Field,
+    type GenericParam,
     type Identifier,
     isChoiceDeclarationField,
     isChoiceInstanceField,
@@ -151,6 +153,143 @@ const populateTypeFamily = (schemas: TypeSchema[]): void => {
 };
 
 ///////////////////////////////////////////////////////////
+// Generic Params
+
+type GenericContribution =
+    | { kind: "introduce"; fieldName: string; constraint: TypeIdentifier }
+    | { kind: "passthrough"; fieldName: string; params: GenericParam[] };
+
+const collectGenericContributions = (
+    schema: SpecializationTypeSchema | NestedTypeSchema,
+    resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | undefined,
+): GenericContribution[] => {
+    const contributions: GenericContribution[] = [];
+    for (const [fieldName, field] of Object.entries(schema.fields ?? {})) {
+        if (isChoiceDeclarationField(field) || !field.type) continue;
+        const target = resolveType(field.type);
+        if (!target) continue;
+        if (isNestedTypeSchema(target)) {
+            const params = target.generic?.params;
+            if (params?.length) contributions.push({ kind: "passthrough", fieldName, params });
+        } else if (isSpecializationTypeSchema(target)) {
+            const params = target.generic?.params;
+            if (params?.length) {
+                contributions.push({ kind: "passthrough", fieldName, params });
+            } else if ((target.typeFamily?.resources?.length ?? 0) > 0) {
+                contributions.push({ kind: "introduce", fieldName, constraint: field.type });
+            }
+        }
+    }
+    return contributions;
+};
+
+const samePath = (a: string[], b: string[]): boolean => a.length === b.length && a.every((s, i) => s === b[i]);
+const leafOf = (path: string[]): string => path[path.length - 1] ?? "";
+
+const renderGenericParams = (contributions: GenericContribution[]): GenericParam[] => {
+    // Collect raw {path, constraint} pairs. Introduce contributions create single-segment paths
+    // (the field name); passthrough contributions prepend the carrier field to each inherited
+    // param's path. Dedup by leaf (last segment) — multiple fields with the same deepest origin
+    // share one generic param, so callers narrow once and many fields update at once.
+    type Raw = { path: string[]; constraint: TypeIdentifier };
+    const raw: Raw[] = [];
+    for (const c of contributions) {
+        if (c.kind === "introduce") {
+            const path = [c.fieldName];
+            if (!raw.find((r) => leafOf(r.path) === leafOf(path))) {
+                raw.push({ path, constraint: c.constraint });
+            }
+        } else {
+            for (const np of c.params) {
+                const path = [c.fieldName, ...np.path];
+                if (!raw.find((r) => leafOf(r.path) === leafOf(path))) {
+                    raw.push({ path, constraint: np.constraint });
+                }
+            }
+        }
+    }
+    if (raw.length === 0) return [];
+    // Single param → "T"; multiple → "T1", "T2", … positional names.
+    return raw.map((r, i) => ({
+        typeVar: raw.length === 1 ? "T" : `T${i + 1}`,
+        constraint: r.constraint,
+        path: r.path,
+    }));
+};
+
+/** Populate `generic.params` on every specialization schema (top-level and nested).
+ *  A schema becomes generic when one of its fields targets a type-family root
+ *  (introduce) or a generic-bearing schema (passthrough). Param naming: single param
+ *  → "T"; multiple → "T1", "T2", … positional. Each param keeps its `sourceField`
+ *  (the deep field that originally introduced it) so passthrough args align across
+ *  hops. Iterates to a fixpoint so order doesn't matter. */
+const populateGeneric = (
+    schemas: TypeSchema[],
+    resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | undefined,
+): void => {
+    type Carrier = SpecializationTypeSchema | NestedTypeSchema;
+    const carriers: Carrier[] = [];
+    for (const schema of schemas) {
+        if (isSpecializationTypeSchema(schema)) {
+            carriers.push(schema);
+            for (const nested of schema.nested ?? []) carriers.push(nested);
+        } else if (isProfileTypeSchema(schema)) {
+            // Profiles aren't generic-bearing themselves (deliberately out of scope), but their
+            // nested types follow the same rules as specializations'.
+            for (const nested of schema.nested ?? []) carriers.push(nested);
+        }
+    }
+
+    // Clear stale data — schemas may be mutated by a previous index build (replaceSchemas).
+    for (const c of carriers) c.generic = undefined;
+
+    const sameParams = (a: GenericParam[], b: GenericParam[]): boolean => {
+        if (a.length !== b.length) return false;
+        for (let i = 0; i < a.length; i++) {
+            const x = a[i]!;
+            const y = b[i]!;
+            if (x.typeVar !== y.typeVar || !samePath(x.path, y.path) || x.constraint.url !== y.constraint.url)
+                return false;
+        }
+        return true;
+    };
+
+    // Fixpoint: passthrough between schemas means processing order doesn't fully resolve in one pass.
+    // Iterate until no changes; bounded by the total number of carriers as a safety cap.
+    let changed = true;
+    let iter = 0;
+    while (changed && iter++ <= carriers.length) {
+        changed = false;
+        for (const c of carriers) {
+            const newParams = renderGenericParams(collectGenericContributions(c, resolveType));
+            const oldParams = c.generic?.params ?? [];
+            if (sameParams(oldParams, newParams)) continue;
+            c.generic = newParams.length > 0 ? { params: newParams } : undefined;
+            changed = true;
+        }
+    }
+
+    // Ensure each schema's dependency list includes its generic constraint types so writers
+    // emit the corresponding imports. Top-level specializations have a `dependencies` array;
+    // nested types don't (their imports come via the parent schema's dependencies).
+    for (const schema of schemas) {
+        if (!isSpecializationTypeSchema(schema)) continue;
+        const constraints: Identifier[] = [];
+        const collect = (params: GenericParam[]) => {
+            for (const p of params) {
+                if (!isNestedIdentifier(p.constraint)) constraints.push(p.constraint);
+            }
+        };
+        if (schema.generic) collect(schema.generic.params);
+        for (const nested of schema.nested ?? []) {
+            if (nested.generic) collect(nested.generic.params);
+        }
+        if (constraints.length === 0) continue;
+        schema.dependencies = concatIdentifiers(schema.dependencies, constraints) ?? schema.dependencies;
+    }
+};
+
+///////////////////////////////////////////////////////////
 // Type Schema Index
 
 export type TypeSchemaIndex = {
@@ -234,6 +373,8 @@ export const mkTypeSchemaIndex = (
         if (isNestedIdentifier(id)) return nestedIndex[id.url]?.[id.package];
         return index[id.url]?.[id.package];
     };
+
+    populateGeneric(schemas, resolveType);
     const resolveByUrl = (pkgName: PkgName, url: CanonicalUrl): TypeSchema | NestedTypeSchema | undefined => {
         if (register) {
             const resolutionTree = register.resolutionTree();
