@@ -11,7 +11,7 @@ describe("TypeScript Writer Generator", async () => {
         .generate();
     expect(result.success).toBeTrue();
     const files = result.filesGenerated.typescript!;
-    expect(Object.keys(files).length).toEqual(608);
+    expect(Object.keys(files).length).toEqual(609);
     it("generates Patient resource in inMemoryOnly mode with snapshot", async () => {
         expect(files["generated/types/hl7-fhir-r4-core/Patient.ts"]).toMatchSnapshot();
     });

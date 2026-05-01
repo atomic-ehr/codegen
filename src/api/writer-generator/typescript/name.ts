@@ -107,3 +107,5 @@ export const tsExtensionFlatTypeName = (profileName: string, extensionName: stri
 export const tsSliceStaticName = (name: string): string => name.replace(/\[x\]/g, "").replace(/[^a-zA-Z0-9_$]/g, "_");
 
 export const tsValueFieldName = (id: TypeIdentifier): string => `value${uppercaseFirstLetter(id.name)}`;
+
+export const tsBindingName = (id: TypeIdentifier): string => normalizeTsName(id.name);

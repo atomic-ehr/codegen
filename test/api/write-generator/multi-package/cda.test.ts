@@ -39,7 +39,7 @@ describe("CDA", async () => {
         it("should generate CDA-specific types", () => {
             const files = Object.keys(result.filesGenerated.typescript!);
             const cdaFiles = files.filter((f) => f.includes("hl7-cda-uv-core"));
-            expect(cdaFiles.length).toBe(124);
+            expect(cdaFiles.length).toBe(125);
 
             expect(files.some((f) => f.includes("/AD.ts") || f.includes("/CD.ts"))).toBeTrue();
         });

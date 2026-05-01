@@ -487,7 +487,10 @@ export const parseCoding = <T extends string>(
     lookup: Readonly<Record<string, { system?: string; code: T; display?: string }>>,
     fieldName?: string,
 ): { system?: string; code: T; display?: string } => {
-    if (typeof input === "string" && Object.hasOwn(lookup, input)) return lookup[input];
+    if (typeof input === "string" && Object.hasOwn(lookup, input)) {
+        const concept = lookup[input];
+        if (concept) return concept;
+    }
     const where = fieldName ? `${fieldName}: ` : "";
     const allowed = Object.keys(lookup).join(", ");
     throw new Error(`${where}invalid code ${JSON.stringify(input)}. Expected one of: ${allowed}`);
