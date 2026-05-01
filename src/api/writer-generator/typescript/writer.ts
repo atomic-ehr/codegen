@@ -57,19 +57,18 @@ const collectGenericContributions = (
         const tsName = tsFieldName(fieldName);
         const target = tsIndex.resolveType(field.type);
         if (!target) continue;
-        if (isNestedTypeSchema(target)) {
-            const params = target.generic?.params;
-            if (params?.length) {
-                contributions.push({
-                    kind: "passthrough",
-                    fieldName: tsName,
-                    params: params.map((p) => ({
-                        name: p.name,
-                        constraint: p.constraint.name,
-                        sourceField: p.sourceField,
-                    })),
-                });
-            }
+        const targetParams =
+            isNestedTypeSchema(target) || isSpecializationTypeSchema(target) ? target.generic?.params : undefined;
+        if (targetParams?.length) {
+            contributions.push({
+                kind: "passthrough",
+                fieldName: tsName,
+                params: targetParams.map((p) => ({
+                    name: p.name,
+                    constraint: p.constraint.name,
+                    sourceField: p.sourceField,
+                })),
+            });
         } else if (isSpecializationTypeSchema(target) && (target.typeFamily?.resources?.length ?? 0) > 0) {
             contributions.push({ kind: "introduce", fieldName: tsName, constraint: field.type.name });
         }
@@ -251,53 +250,32 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             name = tsResourceName(schema.identifier);
         }
 
-        // Per-field generic contributions: either introduce a fresh param (typeFamily-rooted field type)
-        // or inherit a nested type's existing params (pass-through). Nested-type passthrough reads
-        // `target.generic.params` populated during index build.
-        const contributions = isHardcodedGeneric ? [] : collectGenericContributions(tsIndex, schema);
+        // Generic params come from the IR (populated for all generic-bearing schemas, top-level + nested).
+        // Hardcoded TS specials (Reference/Coding/CodeableConcept) get their `<T extends string>` above.
+        const params = isHardcodedGeneric ? [] : (schema.generic?.params ?? []);
 
-        // Render contributions into paramList + per-field substitution maps. Naming:
-        //   single param → "T"; multiple → "T${UpperFirst(sourceField)}" per param,
-        // where sourceField is the deep field that originally introduced the param
-        // (preserved through passthrough so e.g. `outcome` shows up as `TOutcome` even
-        // when surfaced through an intermediate carrier).
+        // Per-field substitutions: when a field maps to one of the schema's params (introduce case),
+        // emit the param name in place of the field's type. When the field's target carries its own
+        // generic params (passthrough case), append matching args at the reference site, aligning
+        // by `sourceField` so deep origins line up across nesting hops.
         const fieldMap: Record<string, string> = {};
         const nestedArgsByField: Record<string, string> = {};
-        type Raw = { sourceField: string; constraint: string; carrierField?: string };
-        const raw: Raw[] = [];
-        for (const c of contributions) {
-            if (c.kind === "introduce") {
-                if (!raw.find((r) => r.sourceField === c.fieldName)) {
-                    raw.push({ sourceField: c.fieldName, constraint: c.constraint });
-                }
-            } else {
-                for (const np of c.params) {
-                    if (!raw.find((r) => r.sourceField === np.sourceField)) {
-                        raw.push({ sourceField: np.sourceField, constraint: np.constraint, carrierField: c.fieldName });
-                    }
+        if (!isHardcodedGeneric) {
+            const contributions = collectGenericContributions(tsIndex, schema);
+            for (const c of contributions) {
+                if (c.kind === "introduce") {
+                    const p = params.find((q) => q.sourceField === c.fieldName);
+                    if (p) fieldMap[c.fieldName] = p.name;
+                } else {
+                    const args = c.params.map(
+                        (cp) => params.find((q) => q.sourceField === cp.sourceField)?.name ?? cp.name,
+                    );
+                    nestedArgsByField[c.fieldName] = `<${args.join(", ")}>`;
                 }
             }
         }
-        const paramList: WriterGenericParam[] = raw.map((r, i) => ({
-            name: raw.length === 1 ? "T" : `T${i + 1}`,
-            constraint: r.constraint,
-            sourceField: r.sourceField,
-        }));
-        // Build per-field substitutions: introduces map fieldName→paramName; passthroughs
-        // collect their args by carrier field.
-        for (const c of contributions) {
-            if (c.kind === "introduce") {
-                const p = paramList.find((q) => q.sourceField === c.fieldName);
-                if (p) fieldMap[c.fieldName] = p.name;
-            } else {
-                const args = c.params.map(
-                    (cp) => paramList.find((q) => q.sourceField === cp.sourceField)?.name ?? cp.name,
-                );
-                nestedArgsByField[c.fieldName] = `<${args.join(", ")}>`;
-            }
-        }
-        if (!isHardcodedGeneric && paramList.length > 0) {
-            const declParams = paramList.map((p) => `${p.name} extends ${p.constraint} = ${p.constraint}`);
+        if (!isHardcodedGeneric && params.length > 0) {
+            const declParams = params.map((p) => `${p.name} extends ${p.constraint.name} = ${p.constraint.name}`);
             name += `<${declParams.join(", ")}>`;
         }
 

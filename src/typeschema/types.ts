@@ -223,20 +223,23 @@ export type GenericParam = {
     constraint: TypeIdentifier;
     /** The deep field that originally introduced this param (the typeFamily-rooted field
      *  at the bottom of the passthrough chain). Used for stable naming when the param
-     *  surfaces in a parent schema (e.g. inherited from BundleEntryResponse.outcome →
-     *  parent renames to `TOutcome` rather than the local `T`). */
+     *  surfaces in a parent schema and to align passthrough args across nesting hops. */
     sourceField: string;
+};
+
+/** Generic params a schema exposes — populated during index build (after
+ *  `populateTypeFamily`). Each param either binds directly to a field whose type is a
+ *  type-family root (e.g. `BundleEntry.resource: Resource` → T extends Resource) or
+ *  is inherited from a generic-bearing field's target (passthrough). */
+export type GenericInfo = {
+    params: GenericParam[];
 };
 
 export interface NestedTypeSchema {
     identifier: NestedIdentifier;
     base: TypeIdentifier;
     fields: Record<string, Field>;
-    /** Generic params this nested type exposes. Populated during index build (after
-     *  `populateTypeFamily`). Each param either binds directly to a field whose type is a
-     *  type-family root (e.g. `BundleEntry.resource: Resource` → T extends Resource) or
-     *  is inherited from a generic-bearing nested-type field (passthrough). */
-    generic?: { params: GenericParam[] };
+    generic?: GenericInfo;
 }
 
 export interface ProfileTypeSchema {
@@ -314,6 +317,7 @@ type SpecializationTypeSchemaBody = {
     dependencies?: Identifier[];
     /** Transitive children grouped by kind (e.g. Resource → { resources: [DomainResource, Patient, …] }) */
     typeFamily?: TypeFamily;
+    generic?: GenericInfo;
 };
 
 export type TypeFamily = {

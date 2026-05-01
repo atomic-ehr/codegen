@@ -159,19 +159,24 @@ type GenericContribution =
     | { kind: "passthrough"; fieldName: string; params: GenericParam[] };
 
 const collectGenericContributions = (
-    nested: NestedTypeSchema,
+    schema: SpecializationTypeSchema | NestedTypeSchema,
     resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | undefined,
 ): GenericContribution[] => {
     const contributions: GenericContribution[] = [];
-    for (const [fieldName, field] of Object.entries(nested.fields ?? {})) {
+    for (const [fieldName, field] of Object.entries(schema.fields ?? {})) {
         if (isChoiceDeclarationField(field) || !field.type) continue;
         const target = resolveType(field.type);
         if (!target) continue;
         if (isNestedTypeSchema(target)) {
             const params = target.generic?.params;
             if (params?.length) contributions.push({ kind: "passthrough", fieldName, params });
-        } else if (isSpecializationTypeSchema(target) && (target.typeFamily?.resources?.length ?? 0) > 0) {
-            contributions.push({ kind: "introduce", fieldName, constraint: field.type });
+        } else if (isSpecializationTypeSchema(target)) {
+            const params = target.generic?.params;
+            if (params?.length) {
+                contributions.push({ kind: "passthrough", fieldName, params });
+            } else if ((target.typeFamily?.resources?.length ?? 0) > 0) {
+                contributions.push({ kind: "introduce", fieldName, constraint: field.type });
+            }
         }
     }
     return contributions;
@@ -203,21 +208,31 @@ const renderGenericParams = (contributions: GenericContribution[]): GenericParam
     }));
 };
 
-/** Populate `generic.params` on each NestedTypeSchema. A nested becomes generic when one
- *  of its fields targets a type-family root (introduce) or a generic nested type
- *  (passthrough). Param naming policy: a single param → "T"; multiple params →
- *  `T${UpperFirst(sourceField)}` for each, where sourceField is the deep field that
- *  originally introduced the param (preserved through passthrough). Iterates nested
- *  schemas in URL-sorted order so passthrough lookups resolve in one pass. */
-const populateNestedGeneric = (
+/** Populate `generic.params` on every specialization schema (top-level and nested).
+ *  A schema becomes generic when one of its fields targets a type-family root
+ *  (introduce) or a generic-bearing schema (passthrough). Param naming: single param
+ *  → "T"; multiple → "T1", "T2", … positional. Each param keeps its `sourceField`
+ *  (the deep field that originally introduced it) so passthrough args align across
+ *  hops. Iterates to a fixpoint so order doesn't matter. */
+const populateGeneric = (
     schemas: TypeSchema[],
     resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | undefined,
 ): void => {
-    // Clear stale data — schemas may be mutated by a previous index build (replaceSchemas).
+    type Carrier = SpecializationTypeSchema | NestedTypeSchema;
+    const carriers: Carrier[] = [];
     for (const schema of schemas) {
-        if (!isSpecializationTypeSchema(schema) && !isProfileTypeSchema(schema)) continue;
-        for (const nested of schema.nested ?? []) nested.generic = undefined;
+        if (isSpecializationTypeSchema(schema)) {
+            carriers.push(schema);
+            for (const nested of schema.nested ?? []) carriers.push(nested);
+        } else if (isProfileTypeSchema(schema)) {
+            // Profiles aren't generic-bearing themselves (deliberately out of scope), but their
+            // nested types follow the same rules as specializations'.
+            for (const nested of schema.nested ?? []) carriers.push(nested);
+        }
     }
+
+    // Clear stale data — schemas may be mutated by a previous index build (replaceSchemas).
+    for (const c of carriers) c.generic = undefined;
 
     const sameParams = (a: GenericParam[], b: GenericParam[]): boolean => {
         if (a.length !== b.length) return false;
@@ -230,27 +245,18 @@ const populateNestedGeneric = (
         return true;
     };
 
-    // Fixpoint: passthrough between siblings means later-processed nesteds influence earlier ones.
-    // Iterate until no changes; capped by total nested count as a safety bound.
-    let totalNested = 0;
-    for (const schema of schemas) {
-        if (!isSpecializationTypeSchema(schema) && !isProfileTypeSchema(schema)) continue;
-        totalNested += schema.nested?.length ?? 0;
-    }
+    // Fixpoint: passthrough between schemas means processing order doesn't fully resolve in one pass.
+    // Iterate until no changes; bounded by the total number of carriers as a safety cap.
     let changed = true;
     let iter = 0;
-    while (changed && iter++ < totalNested + 1) {
+    while (changed && iter++ <= carriers.length) {
         changed = false;
-        for (const schema of schemas) {
-            if (!isSpecializationTypeSchema(schema) && !isProfileTypeSchema(schema)) continue;
-            if (!schema.nested) continue;
-            for (const nested of schema.nested) {
-                const newParams = renderGenericParams(collectGenericContributions(nested, resolveType));
-                const oldParams = nested.generic?.params ?? [];
-                if (sameParams(oldParams, newParams)) continue;
-                nested.generic = newParams.length > 0 ? { params: newParams } : undefined;
-                changed = true;
-            }
+        for (const c of carriers) {
+            const newParams = renderGenericParams(collectGenericContributions(c, resolveType));
+            const oldParams = c.generic?.params ?? [];
+            if (sameParams(oldParams, newParams)) continue;
+            c.generic = newParams.length > 0 ? { params: newParams } : undefined;
+            changed = true;
         }
     }
 };
@@ -340,7 +346,7 @@ export const mkTypeSchemaIndex = (
         return index[id.url]?.[id.package];
     };
 
-    populateNestedGeneric(schemas, resolveType);
+    populateGeneric(schemas, resolveType);
     const resolveByUrl = (pkgName: PkgName, url: CanonicalUrl): TypeSchema | NestedTypeSchema | undefined => {
         if (register) {
             const resolutionTree = register.resolutionTree();
