@@ -9,6 +9,7 @@ import type { ANY } from "../hl7-cda-uv-core/ANY";
 import type { Authenticator } from "../hl7-cda-uv-core/Authenticator";
 import type { Author } from "../hl7-cda-uv-core/Author";
 import type { Authorization } from "../hl7-cda-uv-core/Authorization";
+import type { Base } from "../hl7-fhir-r5-core/Base";
 import type { CD } from "../hl7-cda-uv-core/CD";
 import type { CE } from "../hl7-cda-uv-core/CE";
 import type { Component } from "../hl7-cda-uv-core/Component";
@@ -30,6 +31,8 @@ import type { ST } from "../hl7-cda-uv-core/ST";
 import type { TS } from "../hl7-cda-uv-core/TS";
 
 import type { Element } from "../hl7-fhir-r5-core/Element";
+export type { Base } from "../hl7-fhir-r5-core/Base";
+
 // CanonicalURL: http://hl7.org/cda/stds/core/StructureDefinition/ClinicalDocument (pkg: hl7.cda.uv.core#2.0.1-sd)
 export interface ClinicalDocument<T extends Base = Base> extends ANY {
     authenticator?: Authenticator<T>[];
@@ -78,6 +81,7 @@ from __future__ import annotations
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt
 from typing import Any, List as PyList, Literal
 
+from fhir_types.hl7_fhir_r5_core.base import Base
 
 
 class ClinicalDocument(ANY):
