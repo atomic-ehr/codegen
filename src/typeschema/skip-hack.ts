@@ -5,6 +5,8 @@ const availabilityInR4 = "Use Availability which is not provided by FHIR R4.";
 
 export const skipList: Record<string, Record<CanonicalUrl, string>> = {
     "hl7.fhir.uv.extensions.r4": {
+        "http://hl7.org/fhir/StructureDefinition/biologicallyderivedproduct-manipulation": codeableReferenceInR4,
+        "http://hl7.org/fhir/StructureDefinition/biologicallyderivedproduct-processing": codeableReferenceInR4,
         "http://hl7.org/fhir/StructureDefinition/extended-contact-availability": availabilityInR4,
         "http://hl7.org/fhir/StructureDefinition/immunization-procedure": codeableReferenceInR4,
         "http://hl7.org/fhir/StructureDefinition/specimen-additive": codeableReferenceInR4,

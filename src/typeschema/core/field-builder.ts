@@ -15,6 +15,7 @@ import type {
     FieldSlice,
     FieldSlicing,
     Name,
+    PackageMeta,
     RegularField,
     RichFHIRSchema,
     TypeIdentifier,
@@ -24,6 +25,35 @@ import { BINDABLE_TYPES, buildEnum } from "./binding";
 import { mkBindingIdentifier, mkIdentifier } from "./identifier";
 import { mkSliceNameCandidates } from "./name-candidates";
 import { mkNestedIdentifier } from "./nested-types";
+
+const R5_ONLY_TYPES = new Set([
+    "Availability",
+    "CodeableReference",
+    "ExtendedContactDetail",
+    "MonetaryComponent",
+    "RatioRange",
+    "VirtualServiceDetail",
+]);
+
+const dependsOnR4Core = (register: Register, pkg: PackageMeta): boolean => {
+    const pkgIndex = register.resolver[packageMetaToFhir(pkg)];
+    if (!pkgIndex) return false;
+    for (const options of Object.values(pkgIndex.canonicalResolution)) {
+        for (const opt of options) {
+            if (opt.pkg.name === "hl7.fhir.r4.core") return true;
+        }
+    }
+    return false;
+};
+
+const fieldTypeResolutionHint = (register: Register, pkg: PackageMeta, type: string): string => {
+    if (!R5_ONLY_TYPES.has(type)) return "";
+    if (!dependsOnR4Core(register, pkg)) return "";
+    return (
+        `\n  hint:    '${type}' is an R5+ type and is not available when generating against R4.` +
+        `\n           Either skip this canonical via skip-hack.ts, or upgrade the target to R5.`
+    );
+};
 
 function isRequired(register: Register, fhirSchema: RichFHIRSchema, path: string[]): boolean {
     const fieldName = path[path.length - 1];
@@ -283,10 +313,18 @@ export function buildFieldType(
     } else if (element.type) {
         const url = register.ensureSpecializationCanonicalUrl(element.type);
         const fieldFs = register.resolveFs(fhirSchema.package_meta, url);
-        if (!fieldFs)
+        if (!fieldFs) {
+            const pkgId = packageMetaToFhir(fhirSchema.package_meta);
+            const fieldPath = path.join(".");
+            const hint = fieldTypeResolutionHint(register, fhirSchema.package_meta, element.type);
             throw new Error(
-                `Could not resolve field type: <${fhirSchema.url}>.${path.join(".")}: <${element.type}> (pkg: '${packageMetaToFhir(fhirSchema.package_meta)}'))`,
+                `Could not resolve field type:
+  package: ${pkgId}
+  schema:  ${fhirSchema.url}
+  field:   ${fieldPath}
+  type:    ${element.type}${hint}`,
             );
+        }
         return mkIdentifier(fieldFs);
     } else if (element.choices) {
         return undefined;
