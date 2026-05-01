@@ -1,8 +1,8 @@
 /**
- * Runtime helpers for generated FHIR profile classes.
+ * Runtime helpers for generated FHIR types and profile classes.
  *
  * This file is copied verbatim into every generated TypeScript output and
- * imported by profile modules.  It provides:
+ * imported by profile and binding modules.  It provides:
  *
  * - **Slice helpers** – match, get, set, and default-fill array slices
  *   defined by a FHIR StructureDefinition.
@@ -12,6 +12,8 @@
  *   profile classes can expose a flat API.
  * - **Validation helpers** – lightweight structural checks that profile
  *   classes call from their `validate()` method.
+ * - **Parse helpers** – validate / enrich values coming from external
+ *   sources (CSV, HTTP form, untyped JSON) into typed FHIR values.
  * - **Misc utilities** – deep-match, deep-merge, path navigation.
  */
 
@@ -446,4 +448,93 @@ export const validateReference = (res: object, profileName: string, field: strin
     return allowed.includes(refType)
         ? []
         : [`${profileName}: field '${field}' references '${refType}' but only ${allowed.join(", ")} are allowed`];
+};
+
+// ---------------------------------------------------------------------------
+// Parse helpers
+//
+// Each `parse*` validates an untyped value (typically string from CSV or HTTP
+// form input) and returns a value of the typed FHIR shape.  All throw an
+// `Error` on failure; the message includes `fieldName` when provided so the
+// call site can be located in stack traces.
+// ---------------------------------------------------------------------------
+
+/**
+ * Validate that `input` is one of the literal values in `allowed`, returning
+ * it as the narrowed type.  Throws when `input` is not in the set.
+ *
+ * @example
+ *   parseLiteral(row.gender, ["male", "female", "other", "unknown"], "Patient.gender")
+ */
+export const parseLiteral = <const T extends string>(input: unknown, allowed: readonly T[], fieldName?: string): T => {
+    if (typeof input === "string" && (allowed as readonly string[]).includes(input)) return input as T;
+    const where = fieldName ? `${fieldName}: ` : "";
+    throw new Error(`${where}invalid value ${JSON.stringify(input)}. Expected one of: ${allowed.join(", ")}`);
+};
+
+/**
+ * Look up `input` in a code → `{system, code, display}` table and return the
+ * corresponding FHIR Coding.  Throws when the code is not in the table.
+ *
+ * Generated per-binding helpers wrap this with the binding's lookup table so
+ * callers only need to supply the code string.
+ *
+ * @example
+ *   parseCoding(row.raceCode, USCoreOmbRaceCategoriesCodes, "Race.ombCategory")
+ */
+export const parseCoding = <T extends string>(
+    input: unknown,
+    lookup: Readonly<Record<string, { system?: string; code: T; display?: string }>>,
+    fieldName?: string,
+): { system?: string; code: T; display?: string } => {
+    if (typeof input === "string" && Object.hasOwn(lookup, input)) {
+        const concept = lookup[input];
+        if (concept) return concept;
+    }
+    const where = fieldName ? `${fieldName}: ` : "";
+    const allowed = Object.keys(lookup).join(", ");
+    throw new Error(`${where}invalid code ${JSON.stringify(input)}. Expected one of: ${allowed}`);
+};
+
+/**
+ * Coerce `input` into a boolean.  Accepts `true`/`false`, `"true"`/`"false"`,
+ * `"1"`/`"0"` (case-insensitive).  Throws on anything else.
+ */
+export const parseBoolean = (input: unknown, fieldName?: string): boolean => {
+    if (typeof input === "boolean") return input;
+    if (typeof input === "string") {
+        const v = input.trim().toLowerCase();
+        if (v === "true" || v === "1") return true;
+        if (v === "false" || v === "0") return false;
+    }
+    const where = fieldName ? `${fieldName}: ` : "";
+    throw new Error(`${where}invalid boolean ${JSON.stringify(input)}`);
+};
+
+/**
+ * Coerce `input` into a finite number.  Accepts numbers and numeric strings.
+ * Throws on `NaN`, `Infinity`, or non-numeric input.
+ */
+export const parseNumber = (input: unknown, fieldName?: string): number => {
+    if (typeof input === "number" && Number.isFinite(input)) return input;
+    if (typeof input === "string" && input.trim() !== "") {
+        const n = Number(input);
+        if (Number.isFinite(n)) return n;
+    }
+    const where = fieldName ? `${fieldName}: ` : "";
+    throw new Error(`${where}invalid number ${JSON.stringify(input)}`);
+};
+
+/**
+ * Validate that `input` is a FHIR `instant` string (ISO 8601 with timezone).
+ * Returns the original string on success; throws on malformed input.
+ */
+export const parseInstant = (input: unknown, fieldName?: string): string => {
+    if (typeof input === "string") {
+        // FHIR instant: YYYY-MM-DDTHH:MM:SS(.sss)?(Z|[+-]HH:MM)
+        const re = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
+        if (re.test(input) && !Number.isNaN(Date.parse(input))) return input;
+    }
+    const where = fieldName ? `${fieldName}: ` : "";
+    throw new Error(`${where}invalid instant ${JSON.stringify(input)}`);
 };

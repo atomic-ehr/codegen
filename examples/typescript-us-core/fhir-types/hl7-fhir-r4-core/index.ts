@@ -1,4 +1,5 @@
 export * from "./profiles";
+export * from "./bindings";
 export type { Address } from "./Address";
 export type { Age } from "./Age";
 export type { Annotation } from "./Annotation";
