@@ -42,7 +42,7 @@ export const resolveTsAssets = (fn: string) => {
     return Path.resolve(__dirname, "../../../..", "assets", "api", "writer-generator", "typescript", fn);
 };
 
-type WriterGenericParam = { name: string; constraint: string };
+type WriterGenericParam = { name: string; constraint: string; sourceField: string };
 
 type Contribution =
     | { kind: "introduce"; fieldName: string; constraint: string }
@@ -64,7 +64,11 @@ const collectGenericContributions = (
                 contributions.push({
                     kind: "passthrough",
                     fieldName: tsName,
-                    params: params.map((p) => ({ name: p.name, constraint: p.constraint.name })),
+                    params: params.map((p) => ({
+                        name: p.name,
+                        constraint: p.constraint.name,
+                        sourceField: p.sourceField,
+                    })),
                 });
             }
         } else if (isSpecializationTypeSchema(target) && (target.typeFamily?.resources?.length ?? 0) > 0) {
@@ -253,22 +257,45 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         // `target.generic.params` populated during index build.
         const contributions = isHardcodedGeneric ? [] : collectGenericContributions(tsIndex, schema);
 
-        // Render contributions into paramList + per-field substitution maps.
+        // Render contributions into paramList + per-field substitution maps. Naming:
+        //   single param → "T"; multiple → "T${UpperFirst(sourceField)}" per param,
+        // where sourceField is the deep field that originally introduced the param
+        // (preserved through passthrough so e.g. `outcome` shows up as `TOutcome` even
+        // when surfaced through an intermediate carrier).
         const fieldMap: Record<string, string> = {};
         const nestedArgsByField: Record<string, string> = {};
-        const paramList: WriterGenericParam[] = [];
-        const introduceCount = contributions.filter((c) => c.kind === "introduce").length;
-        const useShortName = introduceCount === 1 && contributions.length === 1;
+        type Raw = { sourceField: string; constraint: string; carrierField?: string };
+        const raw: Raw[] = [];
         for (const c of contributions) {
             if (c.kind === "introduce") {
-                const paramName = useShortName ? "T" : `T${uppercaseFirstLetter(c.fieldName)}`;
-                fieldMap[c.fieldName] = paramName;
-                paramList.push({ name: paramName, constraint: c.constraint });
+                if (!raw.find((r) => r.sourceField === c.fieldName)) {
+                    raw.push({ sourceField: c.fieldName, constraint: c.constraint });
+                }
             } else {
                 for (const np of c.params) {
-                    if (!paramList.find((p) => p.name === np.name)) paramList.push(np);
+                    if (!raw.find((r) => r.sourceField === np.sourceField)) {
+                        raw.push({ sourceField: np.sourceField, constraint: np.constraint, carrierField: c.fieldName });
+                    }
                 }
-                nestedArgsByField[c.fieldName] = `<${c.params.map((p) => p.name).join(", ")}>`;
+            }
+        }
+        const useShortName = raw.length === 1;
+        const paramList: WriterGenericParam[] = raw.map((r) => ({
+            name: useShortName ? "T" : `T${uppercaseFirstLetter(r.sourceField)}`,
+            constraint: r.constraint,
+            sourceField: r.sourceField,
+        }));
+        // Build per-field substitutions: introduces map fieldName→paramName; passthroughs
+        // collect their args by carrier field.
+        for (const c of contributions) {
+            if (c.kind === "introduce") {
+                const p = paramList.find((q) => q.sourceField === c.fieldName);
+                if (p) fieldMap[c.fieldName] = p.name;
+            } else {
+                const args = c.params.map(
+                    (cp) => paramList.find((q) => q.sourceField === cp.sourceField)?.name ?? cp.name,
+                );
+                nestedArgsByField[c.fieldName] = `<${args.join(", ")}>`;
             }
         }
         if (!isHardcodedGeneric && paramList.length > 0) {

@@ -180,28 +180,38 @@ const collectGenericContributions = (
 };
 
 const renderGenericParams = (contributions: GenericContribution[]): GenericParam[] => {
-    const introduceCount = contributions.filter((c) => c.kind === "introduce").length;
-    const useShortName = introduceCount === 1 && contributions.length === 1;
-    const params: GenericParam[] = [];
+    // Collect raw {sourceField, constraint} pairs across all contributions, deduped by sourceField.
+    type Raw = { sourceField: string; constraint: TypeIdentifier };
+    const raw: Raw[] = [];
     for (const c of contributions) {
         if (c.kind === "introduce") {
-            const name = useShortName ? "T" : `T${upperFirst(c.fieldName)}`;
-            params.push({ name, constraint: c.constraint });
+            if (!raw.find((r) => r.sourceField === c.fieldName)) {
+                raw.push({ sourceField: c.fieldName, constraint: c.constraint });
+            }
         } else {
             for (const np of c.params) {
-                if (!params.find((p) => p.name === np.name)) params.push(np);
+                if (!raw.find((r) => r.sourceField === np.sourceField)) {
+                    raw.push({ sourceField: np.sourceField, constraint: np.constraint });
+                }
             }
         }
     }
-    return params;
+    if (raw.length === 0) return [];
+    // Single param → short name "T"; otherwise long names based on origin field.
+    const useShortName = raw.length === 1;
+    return raw.map((r) => ({
+        name: useShortName ? "T" : `T${upperFirst(r.sourceField)}`,
+        constraint: r.constraint,
+        sourceField: r.sourceField,
+    }));
 };
 
 /** Populate `generic.params` on each NestedTypeSchema. A nested becomes generic when one
  *  of its fields targets a type-family root (introduce) or a generic nested type
- *  (passthrough). Param naming policy: a single introduce with no passthrough → "T";
- *  otherwise `T${UpperFirst(fieldName)}` per introduce, and passthrough names come from
- *  the target nested's already-populated params. Iterates nested schemas in URL-sorted
- *  order so passthrough lookups resolve in one pass. */
+ *  (passthrough). Param naming policy: a single param → "T"; multiple params →
+ *  `T${UpperFirst(sourceField)}` for each, where sourceField is the deep field that
+ *  originally introduced the param (preserved through passthrough). Iterates nested
+ *  schemas in URL-sorted order so passthrough lookups resolve in one pass. */
 const populateNestedGeneric = (
     schemas: TypeSchema[],
     resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | undefined,
@@ -212,13 +222,38 @@ const populateNestedGeneric = (
         for (const nested of schema.nested ?? []) nested.generic = undefined;
     }
 
+    const sameParams = (a: GenericParam[], b: GenericParam[]): boolean => {
+        if (a.length !== b.length) return false;
+        for (let i = 0; i < a.length; i++) {
+            const x = a[i]!;
+            const y = b[i]!;
+            if (x.name !== y.name || x.sourceField !== y.sourceField || x.constraint.url !== y.constraint.url)
+                return false;
+        }
+        return true;
+    };
+
+    // Fixpoint: passthrough between siblings means later-processed nesteds influence earlier ones.
+    // Iterate until no changes; capped by total nested count as a safety bound.
+    let totalNested = 0;
     for (const schema of schemas) {
         if (!isSpecializationTypeSchema(schema) && !isProfileTypeSchema(schema)) continue;
-        if (!schema.nested) continue;
-        const sorted = [...schema.nested].sort((a, b) => a.identifier.url.localeCompare(b.identifier.url));
-        for (const nested of sorted) {
-            const params = renderGenericParams(collectGenericContributions(nested, resolveType));
-            if (params.length > 0) nested.generic = { params };
+        totalNested += schema.nested?.length ?? 0;
+    }
+    let changed = true;
+    let iter = 0;
+    while (changed && iter++ < totalNested + 1) {
+        changed = false;
+        for (const schema of schemas) {
+            if (!isSpecializationTypeSchema(schema) && !isProfileTypeSchema(schema)) continue;
+            if (!schema.nested) continue;
+            for (const nested of schema.nested) {
+                const newParams = renderGenericParams(collectGenericContributions(nested, resolveType));
+                const oldParams = nested.generic?.params ?? [];
+                if (sameParams(oldParams, newParams)) continue;
+                nested.generic = newParams.length > 0 ? { params: newParams } : undefined;
+                changed = true;
+            }
         }
     }
 };

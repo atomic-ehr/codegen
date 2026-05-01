@@ -221,6 +221,11 @@ interface PrimitiveTypeSchema {
 export type GenericParam = {
     name: string;
     constraint: TypeIdentifier;
+    /** The deep field that originally introduced this param (the typeFamily-rooted field
+     *  at the bottom of the passthrough chain). Used for stable naming when the param
+     *  surfaces in a parent schema (e.g. inherited from BundleEntryResponse.outcome →
+     *  parent renames to `TOutcome` rather than the local `T`). */
+    sourceField: string;
 };
 
 export interface NestedTypeSchema {
