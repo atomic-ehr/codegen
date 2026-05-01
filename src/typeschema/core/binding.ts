@@ -162,12 +162,21 @@ function generateBindingSchema(
     );
 
     const enumResult = buildEnum(register, fhirSchema, element, logger);
+    const concepts = enumResult
+        ? extractValueSetConceptsByUrl(
+              register,
+              fhirSchema.package_meta,
+              element.binding.valueSet as CanonicalUrl,
+              logger,
+          )?.filter((c) => enumResult.values.includes(c.code))
+        : undefined;
 
     return {
         identifier,
         valueset: valueSetIdentifier,
         strength: element.binding.strength,
         enum: enumResult,
+        concepts: concepts && concepts.length > 0 ? concepts : undefined,
         dependencies: [valueSetIdentifier],
     };
 }

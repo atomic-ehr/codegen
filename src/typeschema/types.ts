@@ -397,6 +397,7 @@ export interface BindingTypeSchema {
     description?: string;
     strength?: string;
     enum?: EnumDefinition;
+    concepts?: Concept[];
     valueset?: ValueSetIdentifier;
     dependencies?: TypeIdentifier[];
 }
