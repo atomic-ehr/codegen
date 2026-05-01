@@ -79,6 +79,13 @@ export class USCoreBloodPressureProfile {
         return profile;
     }
 
+    static is (resource: unknown) : resource is Observation {
+        if (typeof resource !== "object" || resource === null) return false;
+        const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
+        if (r.resourceType !== "Observation") return false;
+        return (r.meta?.profile ?? []).includes(USCoreBloodPressureProfile.canonicalUrl);
+    }
+
     static apply (resource: Observation) : USCoreBloodPressureProfile {
         ensureProfile(resource, USCoreBloodPressureProfile.canonicalUrl);
         Object.assign(resource, {

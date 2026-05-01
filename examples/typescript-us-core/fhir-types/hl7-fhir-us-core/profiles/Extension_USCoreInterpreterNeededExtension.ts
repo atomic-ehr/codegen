@@ -38,6 +38,11 @@ export class USCoreInterpreterNeededExtensionProfile {
         return profile;
     }
 
+    static is (resource: unknown) : resource is Extension {
+        if (typeof resource !== "object" || resource === null) return false;
+        return (resource as { url?: string }).url === USCoreInterpreterNeededExtensionProfile.canonicalUrl;
+    }
+
     static apply (resource: Extension) : USCoreInterpreterNeededExtensionProfile {
         resource.url = USCoreInterpreterNeededExtensionProfile.canonicalUrl;
         Object.assign(resource, {

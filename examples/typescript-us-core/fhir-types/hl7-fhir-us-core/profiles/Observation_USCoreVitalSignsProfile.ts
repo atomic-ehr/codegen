@@ -65,6 +65,13 @@ export class USCoreVitalSignsProfile {
         return profile;
     }
 
+    static is (resource: unknown) : resource is Observation {
+        if (typeof resource !== "object" || resource === null) return false;
+        const r = resource as { resourceType?: string; meta?: { profile?: string[] } };
+        if (r.resourceType !== "Observation") return false;
+        return (r.meta?.profile ?? []).includes(USCoreVitalSignsProfile.canonicalUrl);
+    }
+
     static apply (resource: Observation) : USCoreVitalSignsProfile {
         ensureProfile(resource, USCoreVitalSignsProfile.canonicalUrl);
         resource.category = ensureSliceDefaults(
