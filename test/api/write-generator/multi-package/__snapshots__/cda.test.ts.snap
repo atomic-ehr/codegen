@@ -31,32 +31,32 @@ import type { TS } from "../hl7-cda-uv-core/TS";
 
 import type { Element } from "../hl7-fhir-r5-core/Element";
 // CanonicalURL: http://hl7.org/cda/stds/core/StructureDefinition/ClinicalDocument (pkg: hl7.cda.uv.core#2.0.1-sd)
-export interface ClinicalDocument extends ANY {
-    authenticator?: Authenticator[];
-    author: Author[];
+export interface ClinicalDocument<T extends Base = Base> extends ANY {
+    authenticator?: Authenticator<T>[];
+    author: Author<T>[];
     authorization?: Authorization[];
     classCode?: string;
     _classCode?: Element;
     code: CE;
-    component: Component;
-    componentOf?: ComponentOf;
+    component: Component<T>;
+    componentOf?: ComponentOf<T>;
     confidentialityCode: CE;
     copyTime?: TS;
     custodian: Custodian;
-    dataEnterer?: DataEnterer;
-    documentationOf?: DocumentationOf[];
+    dataEnterer?: DataEnterer<T>;
+    documentationOf?: DocumentationOf<T>[];
     effectiveTime: TS;
     id: II;
-    informant?: Informant[];
-    informationRecipient?: InformationRecipient[];
+    informant?: Informant<T>[];
+    informationRecipient?: InformationRecipient<T>[];
     inFulfillmentOf?: InFulfillmentOf[];
     languageCode?: CS;
-    legalAuthenticator?: LegalAuthenticator;
+    legalAuthenticator?: LegalAuthenticator<T>;
     moodCode?: ("INT" | "APT" | "ARQ" | "PRMS" | "PRP" | "RQO" | "SLOT" | "DEF" | "EVN" | "EVN.CRT" | "GOL" | "OPT" | "PERM" | "PERMRQ");
     _moodCode?: Element;
-    participant?: Participant1[];
+    participant?: Participant1<T>[];
     realmCode?: CS[];
-    recordTarget: RecordTarget[];
+    recordTarget: RecordTarget<T>[];
     relatedDocument?: RelatedDocument[];
     sdtcCategory?: CD[];
     sdtcStatusCode?: CS;
