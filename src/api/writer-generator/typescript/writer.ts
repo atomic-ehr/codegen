@@ -41,48 +41,12 @@ export const resolveTsAssets = (fn: string) => {
     return Path.resolve(__dirname, "../../../..", "assets", "api", "writer-generator", "typescript", fn);
 };
 
-type WriterGenericParam = { typeVar: string; constraint: string; path: string[] };
-
-type Contribution =
-    | { kind: "introduce"; fieldName: string; constraint: string }
-    | { kind: "passthrough"; fieldName: string; params: WriterGenericParam[] };
-
 const leafOf = (path: string[]): string => path[path.length - 1] ?? "";
 
 // Schemas that the TS writer renders with a hardcoded `<T extends string>` generic — their IR
 // `generic.params` (if any, computed via structural propagation) must be ignored at reference sites
 // so we don't emit `<T>` args clashing with the hardcoded `T extends string` declaration.
 const TS_HARDCODED_GENERIC_NAMES = new Set(["Reference", "Coding", "CodeableConcept"]);
-
-const collectGenericContributions = (
-    tsIndex: TypeSchemaIndex,
-    schema: SpecializationTypeSchema | NestedTypeSchema,
-): Contribution[] => {
-    const contributions: Contribution[] = [];
-    for (const [fieldName, field] of Object.entries(schema.fields ?? {})) {
-        if (isChoiceDeclarationField(field) || !field.type) continue;
-        const tsName = tsFieldName(fieldName);
-        const target = tsIndex.resolveType(field.type);
-        if (!target) continue;
-        if (TS_HARDCODED_GENERIC_NAMES.has(target.identifier.name)) continue;
-        const targetParams =
-            isNestedTypeSchema(target) || isSpecializationTypeSchema(target) ? target.generic?.params : undefined;
-        if (targetParams?.length) {
-            contributions.push({
-                kind: "passthrough",
-                fieldName: tsName,
-                params: targetParams.map((p) => ({
-                    typeVar: p.typeVar,
-                    constraint: p.constraint.name,
-                    path: p.path,
-                })),
-            });
-        } else if (isSpecializationTypeSchema(target) && (target.typeFamily?.resources?.length ?? 0) > 0) {
-            contributions.push({ kind: "introduce", fieldName: tsName, constraint: field.type.name });
-        }
-    }
-    return contributions;
-};
 
 export type TypeScriptOptions = {
     lineWidth?: number;
@@ -262,23 +226,29 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         // Hardcoded TS specials (Reference/Coding/CodeableConcept) get their `<T extends string>` above.
         const params = isHardcodedGeneric ? [] : (schema.generic?.params ?? []);
 
-        // Per-field substitutions: when a field maps to one of the schema's params (introduce case),
-        // emit the param's typeVar in place of the field's type. When the field's target carries its
-        // own generic params (passthrough case), append matching args at the reference site, aligning
-        // by leaf segment of the param's `path` (the deepest origin).
+        // Per-field substitutions: walk fields once, deciding for each whether its type substitutes
+        // with a schema param (introduce) or its reference appends args (passthrough). Aligning by
+        // leaf segment of the param's `path` matches deep origins across nesting hops.
         const fieldMap: Record<string, string> = {};
         const nestedArgsByField: Record<string, string> = {};
         if (!isHardcodedGeneric) {
-            const contributions = collectGenericContributions(tsIndex, schema);
-            for (const c of contributions) {
-                if (c.kind === "introduce") {
-                    const p = params.find((q) => leafOf(q.path) === c.fieldName);
-                    if (p) fieldMap[c.fieldName] = p.typeVar;
-                } else {
-                    const args = c.params.map(
-                        (cp) => params.find((q) => leafOf(q.path) === leafOf(cp.path))?.typeVar ?? cp.typeVar,
+            for (const [fieldName, field] of Object.entries(schema.fields ?? {})) {
+                if (isChoiceDeclarationField(field) || !field.type) continue;
+                const target = tsIndex.resolveType(field.type);
+                if (!target || TS_HARDCODED_GENERIC_NAMES.has(target.identifier.name)) continue;
+                const tsName = tsFieldName(fieldName);
+                const targetParams =
+                    isNestedTypeSchema(target) || isSpecializationTypeSchema(target)
+                        ? target.generic?.params
+                        : undefined;
+                if (targetParams?.length) {
+                    const args = targetParams.map(
+                        (tp) => params.find((q) => leafOf(q.path) === leafOf(tp.path))?.typeVar ?? tp.typeVar,
                     );
-                    nestedArgsByField[c.fieldName] = `<${args.join(", ")}>`;
+                    nestedArgsByField[tsName] = `<${args.join(", ")}>`;
+                } else if (isSpecializationTypeSchema(target) && (target.typeFamily?.resources?.length ?? 0) > 0) {
+                    const p = params.find((q) => leafOf(q.path) === fieldName);
+                    if (p) fieldMap[tsName] = p.typeVar;
                 }
             }
         }
