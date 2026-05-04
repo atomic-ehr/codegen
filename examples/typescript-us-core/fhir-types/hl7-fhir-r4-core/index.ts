@@ -4,6 +4,8 @@ export type { Age } from "./Age";
 export type { Annotation } from "./Annotation";
 export type { Attachment } from "./Attachment";
 export type { BackboneElement } from "./BackboneElement";
+export type { Bundle, BundleEntry, BundleEntryRequest, BundleEntryResponse, BundleEntrySearch, BundleLink } from "./Bundle";
+export { isBundle } from "./Bundle";
 export type { CodeableConcept } from "./CodeableConcept";
 export type { Coding } from "./Coding";
 export type { ContactDetail } from "./ContactDetail";

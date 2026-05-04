@@ -18,6 +18,9 @@ if (require.main === module) {
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure": {},
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight": {},
                 },
+                "hl7.fhir.r4.core": {
+                    "http://hl7.org/fhir/StructureDefinition/Bundle": {},
+                },
             },
         })
         .typescript({

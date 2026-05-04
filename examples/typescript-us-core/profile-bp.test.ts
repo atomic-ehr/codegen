@@ -3,6 +3,7 @@
  */
 
 import { describe, expect, test } from "bun:test";
+import type { Bundle } from "./fhir-types/hl7-fhir-r4-core/Bundle";
 import type { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
 import type { Patient } from "./fhir-types/hl7-fhir-r4-core/Patient";
 import { USCoreBloodPressureProfile, USCorePatientProfile } from "./fhir-types/hl7-fhir-us-core/profiles";
@@ -122,9 +123,8 @@ describe("demo: read a US Core blood pressure observation from JSON", () => {
     });
 });
 
-describe("demo: filter a mixed collection with profile is()", () => {
-    test("is() narrows by resourceType + meta.profile, no validation, no instance constructed", () => {
-        // A mixed bag: a US Core patient, a US Core BP observation, a non-profiled observation, and junk
+describe("demo: filter Bundle<T> with profile is()", () => {
+    test("is() narrows by resourceType + meta.profile across a typed bundle and a raw collection", () => {
         const patient: Patient = {
             resourceType: "Patient",
             meta: { profile: ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"] },
@@ -161,17 +161,26 @@ describe("demo: filter a mixed collection with profile is()", () => {
             status: "final",
             code: { coding: [{ code: "29463-7", system: "http://loinc.org" }] },
         };
-        const resources: unknown[] = [patient, bp, otherObs, { resourceType: "Patient" }, null, "not a resource"];
 
-        // Profile is() filters by resourceType AND meta.profile.includes(canonicalUrl)
-        const bps = resources.filter(USCoreBloodPressureProfile.is);
+        // Bundle<T> propagation narrows entry[].resource to Patient | Observation at the type level
+        const bundle: Bundle<Patient | Observation> = {
+            resourceType: "Bundle",
+            type: "transaction",
+            entry: [{ resource: patient }, { resource: bp }, { resource: otherObs }],
+        };
+
+        // is() adds runtime narrowing on top of Bundle<T>: filters by resourceType + meta.profile
+        const bps = (bundle.entry ?? []).map((e) => e.resource).filter(USCoreBloodPressureProfile.is);
         expect(bps).toEqual([bp]);
 
-        // Same guard works for the Patient profile against the same input
-        const patients = resources.filter(USCorePatientProfile.is);
+        const patients = (bundle.entry ?? []).map((e) => e.resource).filter(USCorePatientProfile.is);
         expect(patients).toEqual([patient]);
 
-        // Hand survivors to from() to use typed getters
+        // Same guard also works on a plain unknown[] — no Bundle<T> required
+        const mixed: unknown[] = [patient, bp, otherObs, { resourceType: "Patient" }, null, "not a resource"];
+        expect(mixed.filter(USCoreBloodPressureProfile.is)).toEqual([bp]);
+
+        // Hand survivors to from() for typed reads
         const wrapped = bps.map((o) => USCoreBloodPressureProfile.from(o));
         expect(wrapped[0]!.getSystolic()!.value).toBe(120);
         expect(wrapped[0]!.getDiastolic()!.value).toBe(80);
