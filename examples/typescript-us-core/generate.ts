@@ -1,12 +1,14 @@
 // Run this script using Bun CLI with:
 // bun run scripts/generate-fhir-types.ts
 
-import { APIBuilder } from "../../src/api/builder";
+import { APIBuilder, mkCodegenLogger, prettyReport } from "../../src/api";
 
 if (require.main === module) {
-    console.log("📦 Generating US Core Types...");
+    const logger = mkCodegenLogger({
+        suppressTags: ["#fieldTypeNotFound", "#duplicateSchema", "#duplicateCanonical", "#largeValueSet"],
+    });
 
-    const builder = new APIBuilder()
+    const builder = new APIBuilder({ logger })
         .throwException()
         .fromPackage("hl7.fhir.us.core", "8.0.1")
         .typeSchema({
@@ -31,13 +33,7 @@ if (require.main === module) {
         .cleanOutput(true);
 
     const report = await builder.generate();
+    console.log(prettyReport(report));
 
-    // console.log(report);
-
-    if (report.success) {
-        console.log("✅ FHIR US Core types generated successfully!");
-    } else {
-        console.error("❌ FHIR US Core types generation failed.");
-        process.exit(1);
-    }
+    if (!report.success) process.exit(1);
 }
