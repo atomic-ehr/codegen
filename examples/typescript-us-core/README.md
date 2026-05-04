@@ -8,7 +8,7 @@ US Core FHIR profile generation with type-safe profile wrapper classes.
 bun run examples/typescript-us-core/generate.ts
 ```
 
-`generate.ts` calls `prettyReport(report)` to print a grouped summary on stdout — files-per-generator, line counts, errors, warnings, duration, status. Edit the script to customize which profiles to include; tree shaking keeps only the specified profiles and their transitive dependencies. Output goes to `./fhir-types/`.
+`generate.ts` calls `prettyReport(report)` to print a grouped summary of what was emitted. Edit the script to add/remove profiles; tree shaking keeps only what you list. Output: `./fhir-types/`.
 
 ## Profile Class API
 
