@@ -14,12 +14,12 @@ bun run examples/typescript-us-core/generate.ts
 
 Each profile class provides:
 
-- **`from(resource)`** -- validate the resource conforms to the profile (meta.profile + required fields), throw on errors
-- **`apply(resource)`** -- attach meta.profile without validation, useful for incremental construction
-- **`create(args)`** -- build a new resource from typed input, auto-sets fixed values
-- **`is(value)`** -- non-throwing type guard (resourceType + meta.profile.includes(canonicalUrl)); drop into `.filter()` on any collection
-- **`validate()`** -- return `{ errors, warnings }`; errors block (required fields, slice cardinality), warnings cover must-support gaps
-- **`toResource()`** -- get the underlying FHIR resource
+- **`from(resource)`** -- validate against the profile, throw on errors
+- **`apply(resource)`** -- attach meta.profile, no validation
+- **`create(args)`** -- build a new resource, auto-set fixed values
+- **`is(value)`** -- non-throwing type guard for `.filter()`
+- **`validate()`** -- return `{ errors, warnings }`
+- **`toResource()`** -- the underlying FHIR resource
 
 Generated accessors depend on what the profile defines:
 
