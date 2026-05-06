@@ -19,6 +19,7 @@ import {
     type TypeSchema,
 } from "@root/typeschema/types";
 import { groupByPackages, type TypeSchemaIndex } from "@root/typeschema/utils";
+import { collectBindingsForPackage, generateBindingsModule } from "./bindings";
 import {
     tsFieldName,
     tsModuleFileName,
@@ -102,11 +103,14 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         }
     }
 
-    generateFhirPackageIndexFile(schemas: TypeSchema[]) {
+    generateFhirPackageIndexFile(schemas: TypeSchema[], withBindings = false) {
         this.cat("index.ts", () => {
             const profiles = schemas.filter(isProfileTypeSchema);
             if (profiles.length > 0) {
                 this.lineSM(`export * from "./profiles"`);
+            }
+            if (withBindings) {
+                this.lineSM(`export * from "./bindings"`);
             }
 
             let exports = schemas
@@ -385,9 +389,15 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         const grouped = groupByPackages(typesToGenerate);
 
         const hasProfiles = this.opts.generateProfile && typesToGenerate.some(isProfileTypeSchema);
+        const bindingsByPackage: Record<string, ReturnType<typeof collectBindingsForPackage>> = {};
+        for (const [pkg, schemas] of Object.entries(grouped)) {
+            const bindings = collectBindingsForPackage(tsIndex, schemas);
+            if (bindings.length > 0) bindingsByPackage[pkg] = bindings;
+        }
+        const hasBindings = Object.keys(bindingsByPackage).length > 0;
 
         this.cd("/", () => {
-            if (hasProfiles) {
+            if (hasProfiles || hasBindings) {
                 this.cp("profile-helpers.ts", "profile-helpers.ts");
             }
 
@@ -398,7 +408,11 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                         this.generateResourceModule(tsIndex, schema);
                     }
                     generateProfileIndexFile(this, tsIndex, packageSchemas.filter(isProfileTypeSchema));
-                    this.generateFhirPackageIndexFile(packageSchemas);
+                    const packageBindings = bindingsByPackage[packageName];
+                    if (packageBindings) {
+                        generateBindingsModule(this, packageBindings, "../profile-helpers");
+                    }
+                    this.generateFhirPackageIndexFile(packageSchemas, packageBindings !== undefined);
                 });
             }
         });

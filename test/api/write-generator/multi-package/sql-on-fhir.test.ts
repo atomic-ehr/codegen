@@ -40,7 +40,7 @@ describe("SQL-on-FHIR", async () => {
         it("should resolve R5 dependencies (required by SQL-on-FHIR)", () => {
             const files = Object.keys(result.filesGenerated.typescript!);
             const r5Files = files.filter((f) => f.includes("hl7-fhir-r5-core"));
-            expect(r5Files.length).toBe(45);
+            expect(r5Files.length).toBe(46);
 
             // Core R5 types should be included
             expect(result.filesGenerated.typescript!["generated/types/hl7-fhir-r5-core/Element.ts"]).toBeDefined();

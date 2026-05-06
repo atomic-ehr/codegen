@@ -11,7 +11,7 @@ describe("TypeScript Writer Generator", async () => {
         .generate();
     expect(result.success).toBeTrue();
     const files = result.filesGenerated.typescript!;
-    expect(Object.keys(files).length).toEqual(608);
+    expect(Object.keys(files).length).toEqual(609);
     it("generates Patient resource in inMemoryOnly mode with snapshot", async () => {
         expect(files["generated/types/hl7-fhir-r4-core/Patient.ts"]).toMatchSnapshot();
     });
@@ -53,6 +53,26 @@ describe("TypeScript Writer Generator", async () => {
         const domainResourceTs = files["generated/types/hl7-fhir-r4-core/DomainResource.ts"];
         expect(domainResourceTs).toContain("export interface DomainResource<T extends Resource = Resource>");
         expect(domainResourceTs).toContain("contained?: T[]");
+    });
+    it("emits bindings.ts with parse helpers for AdministrativeGender", () => {
+        const bindingsTs = files["generated/types/hl7-fhir-r4-core/bindings.ts"];
+        expect(bindingsTs).toBeDefined();
+        expect(bindingsTs).toContain(
+            'export const AdministrativeGenderCodes = ["male", "female", "other", "unknown"] as const',
+        );
+        expect(bindingsTs).toContain("export type AdministrativeGender = (typeof AdministrativeGenderCodes)[number]");
+        expect(bindingsTs).toContain(
+            'male: { system: "http://hl7.org/fhir/administrative-gender", code: "male", display: "Male" }',
+        );
+        expect(bindingsTs).toContain("export const parseAdministrativeGender = (input: unknown");
+        expect(bindingsTs).toContain("export const parseAdministrativeGenderCoding = (input: unknown");
+    });
+    it("re-exports bindings from package index", () => {
+        const indexTs = files["generated/types/hl7-fhir-r4-core/index.ts"];
+        expect(indexTs).toContain('export * from "./bindings"');
+    });
+    it("copies profile-helpers.ts when bindings are emitted", () => {
+        expect(files["generated/types/profile-helpers.ts"]).toBeDefined();
     });
 });
 

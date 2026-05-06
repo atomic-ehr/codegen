@@ -74,6 +74,12 @@ describe("Type Schema generator > Binding", async () => {
                     },
                 ],
                 enum: { values: ["male", "female", "other", "unknown"], isOpen: false },
+                concepts: [
+                    { code: "male", display: "Male", system: "http://hl7.org/fhir/administrative-gender" },
+                    { code: "female", display: "Female", system: "http://hl7.org/fhir/administrative-gender" },
+                    { code: "other", display: "Other", system: "http://hl7.org/fhir/administrative-gender" },
+                    { code: "unknown", display: "Unknown", system: "http://hl7.org/fhir/administrative-gender" },
+                ],
 
                 strength: "required",
                 valueset: {
