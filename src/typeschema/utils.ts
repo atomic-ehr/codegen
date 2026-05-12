@@ -293,7 +293,7 @@ const populateGeneric = (
 // Type Schema Index
 
 export type TypeSchemaIndex = {
-    _schemaIndex: Record<CanonicalUrl, Record<PkgName, TypeSchema>>;
+    _schemaIndex: Record<CanonicalUrl, Record<PkgName, Partial<Record<TypeIdentifier["kind"], TypeSchema>>>>;
     schemas: TypeSchema[];
     schemasByPackage: Record<PkgName, TypeSchema[]>;
     register?: Register;
@@ -335,20 +335,22 @@ export const mkTypeSchemaIndex = (
         irReport?: IrReport;
     },
 ): TypeSchemaIndex => {
-    const index: Record<CanonicalUrl, Record<PkgName, TypeSchema>> = {};
+    const index: Record<CanonicalUrl, Record<PkgName, Partial<Record<TypeIdentifier["kind"], TypeSchema>>>> = {};
     const nestedIndex: Record<CanonicalUrl, Record<PkgName, NestedTypeSchema>> = {};
     const append = (schema: TypeSchema) => {
         const url = schema.identifier.url;
         const pkg = schema.identifier.package;
-        if (!index[url]) index[url] = {};
+        const kind = schema.identifier.kind;
+        const byPkg = (index[url] ??= {});
+        const byKind = (byPkg[pkg] ??= {});
 
-        if (index[url][pkg] && pkg !== "shared") {
+        if (byKind[kind] && pkg !== "shared") {
             const r1 = JSON.stringify(schema.identifier, undefined, 2);
-            const r2 = JSON.stringify(index[url][pkg]?.identifier, undefined, 2);
+            const r2 = JSON.stringify(byKind[kind]?.identifier, undefined, 2);
             if (r1 !== r2) throw new Error(`Duplicate schema: ${r1} and ${r2}`);
             return;
         }
-        index[url][pkg] = schema;
+        byKind[kind] = schema;
 
         if (isSpecializationTypeSchema(schema) || isProfileTypeSchema(schema)) {
             if (schema.nested) {
@@ -366,12 +368,26 @@ export const mkTypeSchemaIndex = (
     }
     populateTypeFamily(schemas);
 
-    const resolve = (id: Identifier): TypeSchema | undefined => {
-        return index[id.url]?.[id.package];
+    /** Pick the single schema from a kind-keyed slot. resolveByUrl callers don't supply a
+     *  kind, so they get whatever's there — fine while each slot holds at most one entry. */
+    const pickFromSlot = (
+        slot: Partial<Record<TypeIdentifier["kind"], TypeSchema>> | undefined,
+    ): TypeSchema | undefined => (slot ? Object.values(slot)[0] : undefined);
+
+    /** Look up at [url][package][kind]; if the requested kind isn't present, fall back to
+     *  whatever's at the slot. Some IRs (e.g. CDA) declare dependency identifiers with a
+     *  different `kind` than the actual stored schema — the pre-kind-keyed index ignored
+     *  `kind` entirely, so we preserve that lenience. */
+    const lookup = (url: CanonicalUrl, pkg: PkgName, kind: TypeIdentifier["kind"]): TypeSchema | undefined => {
+        const slot = index[url]?.[pkg];
+        if (!slot) return undefined;
+        return slot[kind] ?? pickFromSlot(slot);
     };
+
+    const resolve = (id: Identifier): TypeSchema | undefined => lookup(id.url, id.package, id.kind);
     const resolveType = (id: TypeIdentifier): TypeSchema | NestedTypeSchema | undefined => {
         if (isNestedIdentifier(id)) return nestedIndex[id.url]?.[id.package];
-        return index[id.url]?.[id.package];
+        return lookup(id.url, id.package, id.kind);
     };
 
     populateGeneric(schemas, resolveType);
@@ -380,10 +396,11 @@ export const mkTypeSchemaIndex = (
             const resolutionTree = register.resolutionTree();
             const resolution = resolutionTree[pkgName]?.[url]?.[0];
             if (resolution) {
-                return index[url]?.[resolution.pkg.name];
+                return pickFromSlot(index[url]?.[resolution.pkg.name]);
             }
         }
-        if (index[url]?.[pkgName]) return index[url]?.[pkgName];
+        const direct = pickFromSlot(index[url]?.[pkgName]);
+        if (direct) return direct;
         if (nestedIndex[url]?.[pkgName]) return nestedIndex[url]?.[pkgName];
         logger?.dryWarn(`Type '${url}' not found in '${pkgName}'`);
 
@@ -392,7 +409,7 @@ export const mkTypeSchemaIndex = (
             const anyPkg = Object.keys(index[url])[0];
             if (anyPkg) {
                 logger?.dryWarn(`Type '${url}' fallback to package ${anyPkg}`);
-                return index[url]?.[anyPkg];
+                return pickFromSlot(index[url][anyPkg]);
             }
         }
         if (nestedIndex[url]) {
