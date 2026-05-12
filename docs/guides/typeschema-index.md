@@ -115,9 +115,6 @@ Work with FHIR profiles and their constraints:
 ```typescript
 flatProfile(schema: ProfileTypeSchema): ProfileTypeSchema
   Flattens a profile by resolving all differential constraints into a complete snapshot
-
-isWithMetaField(profile: ProfileTypeSchema): boolean
-  Checks if a profile includes the meta field
 ```
 
 ---
@@ -172,7 +169,6 @@ const specializedId = tsIndex.findLastSpecializationByIdentifier(patientIdentifi
 
 ```typescript
 const flatProfile = tsIndex.flatProfile(useCorePatientProfile);
-const hasMeta = tsIndex.isWithMetaField(profile);
 ```
 
 ### Debug Utilities

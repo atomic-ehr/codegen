@@ -314,7 +314,6 @@ export type TypeSchemaIndex = {
         baseTypeId: TypeIdentifier,
         sliceElements: string[],
     ) => ConstrainedChoiceInfo | undefined;
-    isWithMetaField: (profile: ProfileTypeSchema) => boolean;
     entityTree: () => EntityTree;
     exportTree: (filename: string) => Promise<void>;
     irReport: () => IrReport;
@@ -573,14 +572,6 @@ export const mkTypeSchemaIndex = (
         return undefined;
     };
 
-    const isWithMetaField = (profile: ProfileTypeSchema): boolean => {
-        const genealogy = tryHierarchy(profile);
-        if (!genealogy) return false;
-        return genealogy.filter(isSpecializationTypeSchema).some((schema) => {
-            return schema.fields?.meta !== undefined;
-        });
-    };
-
     const entityTree = () => {
         const tree: EntityTree = {};
         for (const [pkgId, shemas] of Object.entries(groupByPackages(schemas))) {
@@ -626,7 +617,6 @@ export const mkTypeSchemaIndex = (
         findLastSpecializationByIdentifier,
         flatProfile,
         constrainedChoice,
-        isWithMetaField,
         entityTree,
         exportTree,
         irReport: () => irReport,

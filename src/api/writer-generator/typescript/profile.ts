@@ -226,13 +226,12 @@ export const generateProfileIndexFile = (
 
 const generateProfileHelpersImport = (
     w: TypeScript,
-    tsIndex: TypeSchemaIndex,
     flatProfile: ProfileTypeSchema,
     sliceDefs: SliceDef[],
     factoryInfo: ProfileFactoryInfo,
 ) => {
     const extensions = flatProfile.extensions ?? [];
-    const hasMeta = tsIndex.isWithMetaField(flatProfile);
+    const hasMeta = isResourceIdentifier(flatProfile.base);
     const canonicalUrl = flatProfile.identifier.url;
 
     const imports: string[] = [];
@@ -356,15 +355,10 @@ const generateStaticSliceFields = (w: TypeScript, sliceDefs: SliceDef[]) => {
     if (sliceDefs.length > 0) w.line();
 };
 
-const generateFactoryMethods = (
-    w: TypeScript,
-    tsIndex: TypeSchemaIndex,
-    flatProfile: ProfileTypeSchema,
-    factoryInfo: ProfileFactoryInfo,
-) => {
+const generateFactoryMethods = (w: TypeScript, flatProfile: ProfileTypeSchema, factoryInfo: ProfileFactoryInfo) => {
     const profileClassName = tsProfileClassName(flatProfile);
     const tsBaseResourceName = tsTypeFromIdentifier(flatProfile.base);
-    const hasMeta = tsIndex.isWithMetaField(flatProfile);
+    const hasMeta = isResourceIdentifier(flatProfile.base);
     const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
     const createArgsTypeName = `${profileClassName}Raw`;
     const paramSignature = hasParams ? `args: ${createArgsTypeName}` : "";
@@ -391,11 +385,11 @@ const generateFactoryMethods = (
         w.lineSM("return profile");
     });
     w.line();
-    const canEmitIs = (hasMeta && isResourceIdentifier(flatProfile.base)) || flatProfile.base.name === "Extension";
+    const canEmitIs = hasMeta || flatProfile.base.name === "Extension";
     if (canEmitIs) {
         w.curlyBlock(["static", "is", "(resource: unknown)", `: resource is ${tsBaseResourceName}`], () => {
             w.line(`if (typeof resource !== "object" || resource === null) return false;`);
-            if (hasMeta && isResourceIdentifier(flatProfile.base)) {
+            if (hasMeta) {
                 w.line(`const r = resource as { resourceType?: string; meta?: { profile?: string[] } };`);
                 w.line(`if (r.resourceType !== ${JSON.stringify(flatProfile.base.name)}) return false;`);
                 w.lineSM(`return (r.meta?.profile ?? []).includes(${profileClassName}.canonicalUrl)`);
@@ -754,7 +748,7 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, fl
     generateInlineExtensionInputTypes(w, tsIndex, flatProfile);
     generateSliceInputTypes(w, flatProfile, sliceDefs);
 
-    generateProfileHelpersImport(w, tsIndex, flatProfile, sliceDefs, factoryInfo);
+    generateProfileHelpersImport(w, flatProfile, sliceDefs, factoryInfo);
 
     generateRawType(w, flatProfile, factoryInfo);
     generateFlatInputType(w, flatProfile);
@@ -768,7 +762,7 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, fl
         generateStaticSliceFields(w, sliceDefs);
         w.lineSM(`private resource: ${tsBaseResourceName}`);
         w.line();
-        generateFactoryMethods(w, tsIndex, flatProfile, factoryInfo);
+        generateFactoryMethods(w, flatProfile, factoryInfo);
         generateFieldAccessors(w, factoryInfo);
 
         w.line("// Extensions");
