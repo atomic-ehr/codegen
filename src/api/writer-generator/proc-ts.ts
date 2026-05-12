@@ -1,7 +1,8 @@
 /**
  * proc-ts TypeScript generator
  *
- * Generates flat TypeScript files with _type.ts suffix.
+ * Generates flat TypeScript files named $type_<Name>.ts so they're picked up
+ * by the procedural project scanner ($type_-prefix → kind: "type" → global).
  * All type references use `types.fhir.*` global namespace.
  * Resource types get `export default function isX` type guard.
  * Data types are type-only (no default export).
@@ -131,8 +132,9 @@ export class ProcTs extends Writer<ProcTsOptions> {
         if (!schema.nested) return;
         for (const subtype of schema.nested) {
             const nestedName = normalizeName(subtype.identifier);
-            // Each nested type gets its own _type.ts file
-            this.cat(`${nestedName}_type.ts`, () => {
+            // Each nested type gets its own $type_<Name>.ts file (matches the
+            // procedural project scanner convention: $type_-prefix → global type).
+            this.cat(`$type_${nestedName}.ts`, () => {
                 this.generateDisclaimer();
                 this.comment("Nested type from", schema.identifier.name);
                 this.generateInterface(tsIndex, subtype, true);
@@ -158,8 +160,8 @@ export class ProcTs extends Writer<ProcTsOptions> {
         const name = tsResourceName(schema.identifier);
         // Generate nested types as separate files first
         this.generateNestedTypes(tsIndex, schema);
-        // Generate main type file
-        this.cat(`${name}_type.ts`, () => {
+        // Generate main type file as $type_<Name>.ts (procedural-scanner convention).
+        this.cat(`$type_${name}.ts`, () => {
             this.generateDisclaimer();
             this.comment("CanonicalURL:", schema.identifier.url, `(pkg: ${packageMetaToFhir(packageMeta(schema))})`);
             this.generateInterface(tsIndex, schema);
