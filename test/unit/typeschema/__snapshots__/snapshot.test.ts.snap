@@ -1,4 +1,4 @@
-// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+// Bun Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ValueSet to Type Schema (snapshot) administrative-gender 1`] = `
 "{
@@ -122,6 +122,490 @@ exports[`ValueSet to Type Schema (snapshot) marital-status 1`] = `
     }
   ]
 }"
+`;
+
+exports[`FHIR Schema to Type Schema (snapshot) Real world examples coding primitive type 1`] = `
+"[
+  {
+    "identifier": {
+      "kind": "complex-type",
+      "package": "realworld.test",
+      "version": "1.0.0",
+      "name": "Coding",
+      "url": "http://hl7.org/fhir/StructureDefinition/Coding"
+    },
+    "base": {
+      "kind": "complex-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "Element",
+      "url": "http://hl7.org/fhir/StructureDefinition/Element"
+    },
+    "fields": {
+      "system": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "uri",
+          "url": "http://hl7.org/fhir/StructureDefinition/uri"
+        },
+        "required": false,
+        "excluded": false,
+        "array": false
+      },
+      "version": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "string",
+          "url": "http://hl7.org/fhir/StructureDefinition/string"
+        },
+        "required": false,
+        "excluded": false,
+        "array": false
+      },
+      "code": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "code",
+          "url": "http://hl7.org/fhir/StructureDefinition/code"
+        },
+        "required": false,
+        "excluded": false,
+        "array": false
+      },
+      "display": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "string",
+          "url": "http://hl7.org/fhir/StructureDefinition/string"
+        },
+        "required": false,
+        "excluded": false,
+        "array": false
+      },
+      "userSelected": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "boolean",
+          "url": "http://hl7.org/fhir/StructureDefinition/boolean"
+        },
+        "required": false,
+        "excluded": false,
+        "array": false
+      }
+    },
+    "description": "Base StructureDefinition for Coding Type: A reference to a code defined by a terminology system.",
+    "dependencies": [
+      {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "boolean",
+        "url": "http://hl7.org/fhir/StructureDefinition/boolean"
+      },
+      {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "code",
+        "url": "http://hl7.org/fhir/StructureDefinition/code"
+      },
+      {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "Element",
+        "url": "http://hl7.org/fhir/StructureDefinition/Element"
+      },
+      {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "string",
+        "url": "http://hl7.org/fhir/StructureDefinition/string"
+      },
+      {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "uri",
+        "url": "http://hl7.org/fhir/StructureDefinition/uri"
+      }
+    ]
+  }
+]"
+`;
+
+exports[`FHIR Schema to Type Schema (snapshot) Real world examples string primitive type 1`] = `
+"[
+  {
+    "identifier": {
+      "kind": "primitive-type",
+      "package": "realworld.test",
+      "version": "1.0.0",
+      "name": "string",
+      "url": "http://hl7.org/fhir/StructureDefinition/string"
+    },
+    "description": "Base StructureDefinition for string Type: A sequence of Unicode characters",
+    "base": {
+      "kind": "complex-type",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "Element",
+      "url": "http://hl7.org/fhir/StructureDefinition/Element"
+    },
+    "dependencies": [
+      {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "Element",
+        "url": "http://hl7.org/fhir/StructureDefinition/Element"
+      }
+    ]
+  }
+]"
+`;
+
+exports[`FHIR Schema to Type Schema (snapshot) Custom resource TutorNotificationTemplate 1`] = `
+"[
+  {
+    "identifier": {
+      "kind": "resource",
+      "package": "mypackage",
+      "version": "0.0.0",
+      "name": "TutorNotificationTemplate",
+      "url": "http://example.com/aidbox-sms-tutor/TutorNotificationTemplate"
+    },
+    "base": {
+      "kind": "resource",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "DomainResource",
+      "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+    },
+    "fields": {
+      "template": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "string",
+          "url": "http://hl7.org/fhir/StructureDefinition/string"
+        },
+        "required": true,
+        "excluded": false,
+        "array": false
+      }
+    },
+    "dependencies": [
+      {
+        "kind": "resource",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "DomainResource",
+        "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+      },
+      {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "string",
+        "url": "http://hl7.org/fhir/StructureDefinition/string"
+      }
+    ]
+  }
+]"
+`;
+
+exports[`FHIR Schema to Type Schema (snapshot) Custom resource TutorNotification 1`] = `
+"[
+  {
+    "identifier": {
+      "kind": "resource",
+      "package": "mypackage",
+      "version": "0.0.0",
+      "name": "TutorNotification",
+      "url": "http://example.com/aidbox-sms-tutor/TutorNotification"
+    },
+    "base": {
+      "kind": "resource",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "DomainResource",
+      "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+    },
+    "fields": {
+      "type": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "string",
+          "url": "http://hl7.org/fhir/StructureDefinition/string"
+        },
+        "required": true,
+        "excluded": false,
+        "array": false,
+        "binding": {
+          "kind": "binding",
+          "package": "mypackage",
+          "version": "0.0.0",
+          "name": "TutorNotification.type_binding",
+          "url": "http://example.com/aidbox-sms-tutor/TutorNotification#type_binding"
+        },
+        "enum": {
+          "isOpen": false,
+          "values": [
+            "phone",
+            "fax",
+            "email",
+            "pager",
+            "url",
+            "sms",
+            "other"
+          ]
+        }
+      },
+      "status": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "string",
+          "url": "http://hl7.org/fhir/StructureDefinition/string"
+        },
+        "required": true,
+        "excluded": false,
+        "array": false,
+        "binding": {
+          "kind": "binding",
+          "package": "mypackage",
+          "version": "0.0.0",
+          "name": "TutorNotification.status_binding",
+          "url": "http://example.com/aidbox-sms-tutor/TutorNotification#status_binding"
+        },
+        "enum": {
+          "isOpen": false,
+          "values": [
+            "draft",
+            "requested",
+            "received",
+            "accepted",
+            "rejected",
+            "ready",
+            "cancelled",
+            "in-progress",
+            "on-hold",
+            "failed",
+            "completed",
+            "entered-in-error"
+          ]
+        }
+      },
+      "template": {
+        "type": {
+          "kind": "complex-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "Reference",
+          "url": "http://hl7.org/fhir/StructureDefinition/Reference"
+        },
+        "required": true,
+        "excluded": false,
+        "reference": [
+          {
+            "kind": "resource",
+            "package": "mypackage",
+            "version": "0.0.0",
+            "name": "TutorNotificationTemplate",
+            "url": "http://example.com/aidbox-sms-tutor/TutorNotificationTemplate"
+          }
+        ],
+        "array": false
+      },
+      "message": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "string",
+          "url": "http://hl7.org/fhir/StructureDefinition/string"
+        },
+        "required": false,
+        "excluded": false,
+        "array": false
+      },
+      "sendAfter": {
+        "type": {
+          "kind": "primitive-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "dateTime",
+          "url": "http://hl7.org/fhir/StructureDefinition/dateTime"
+        },
+        "required": true,
+        "excluded": false,
+        "array": false
+      },
+      "subject": {
+        "type": {
+          "kind": "complex-type",
+          "package": "hl7.fhir.r4.core",
+          "version": "4.0.1",
+          "name": "Reference",
+          "url": "http://hl7.org/fhir/StructureDefinition/Reference"
+        },
+        "required": true,
+        "excluded": false,
+        "reference": [
+          {
+            "kind": "resource",
+            "package": "hl7.fhir.r4.core",
+            "version": "4.0.1",
+            "name": "Patient",
+            "url": "http://hl7.org/fhir/StructureDefinition/Patient"
+          }
+        ],
+        "array": false
+      }
+    },
+    "dependencies": [
+      {
+        "kind": "binding",
+        "package": "mypackage",
+        "version": "0.0.0",
+        "name": "TutorNotification.status_binding",
+        "url": "http://example.com/aidbox-sms-tutor/TutorNotification#status_binding"
+      },
+      {
+        "kind": "binding",
+        "package": "mypackage",
+        "version": "0.0.0",
+        "name": "TutorNotification.type_binding",
+        "url": "http://example.com/aidbox-sms-tutor/TutorNotification#type_binding"
+      },
+      {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "dateTime",
+        "url": "http://hl7.org/fhir/StructureDefinition/dateTime"
+      },
+      {
+        "kind": "resource",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "DomainResource",
+        "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
+      },
+      {
+        "kind": "complex-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "Reference",
+        "url": "http://hl7.org/fhir/StructureDefinition/Reference"
+      },
+      {
+        "kind": "primitive-type",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "string",
+        "url": "http://hl7.org/fhir/StructureDefinition/string"
+      }
+    ]
+  },
+  {
+    "identifier": {
+      "kind": "binding",
+      "package": "mypackage",
+      "version": "0.0.0",
+      "name": "TutorNotification.status_binding",
+      "url": "http://example.com/aidbox-sms-tutor/TutorNotification#status_binding"
+    },
+    "valueset": {
+      "kind": "value-set",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "TaskStatus",
+      "url": "http://hl7.org/fhir/ValueSet/task-status"
+    },
+    "strength": "required",
+    "enum": {
+      "isOpen": false,
+      "values": [
+        "draft",
+        "requested",
+        "received",
+        "accepted",
+        "rejected",
+        "ready",
+        "cancelled",
+        "in-progress",
+        "on-hold",
+        "failed",
+        "completed",
+        "entered-in-error"
+      ]
+    },
+    "dependencies": [
+      {
+        "kind": "value-set",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "TaskStatus",
+        "url": "http://hl7.org/fhir/ValueSet/task-status"
+      }
+    ]
+  },
+  {
+    "identifier": {
+      "kind": "binding",
+      "package": "mypackage",
+      "version": "0.0.0",
+      "name": "TutorNotification.type_binding",
+      "url": "http://example.com/aidbox-sms-tutor/TutorNotification#type_binding"
+    },
+    "valueset": {
+      "kind": "value-set",
+      "package": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "name": "ContactPointSystem",
+      "url": "http://hl7.org/fhir/ValueSet/contact-point-system"
+    },
+    "strength": "required",
+    "enum": {
+      "isOpen": false,
+      "values": [
+        "phone",
+        "fax",
+        "email",
+        "pager",
+        "url",
+        "sms",
+        "other"
+      ]
+    },
+    "dependencies": [
+      {
+        "kind": "value-set",
+        "package": "hl7.fhir.r4.core",
+        "version": "4.0.1",
+        "name": "ContactPointSystem",
+        "url": "http://hl7.org/fhir/ValueSet/contact-point-system"
+      }
+    ]
+  }
+]"
 `;
 
 exports[`FHIR Schema to Type Schema (snapshot) with cardinality 1`] = `
@@ -805,490 +1289,6 @@ exports[`FHIR Schema to Type Schema (snapshot) with resource with nested type 2 
         "version": "4.0.1",
         "name": "string",
         "url": "http://hl7.org/fhir/StructureDefinition/string"
-      }
-    ]
-  }
-]"
-`;
-
-exports[`FHIR Schema to Type Schema (snapshot) Real world examples coding primitive type 1`] = `
-"[
-  {
-    "identifier": {
-      "kind": "complex-type",
-      "package": "mypackage",
-      "version": "0.0.0",
-      "name": "Coding",
-      "url": "http://hl7.org/fhir/StructureDefinition/Coding"
-    },
-    "base": {
-      "kind": "complex-type",
-      "package": "hl7.fhir.r4.core",
-      "version": "4.0.1",
-      "name": "Element",
-      "url": "http://hl7.org/fhir/StructureDefinition/Element"
-    },
-    "fields": {
-      "system": {
-        "type": {
-          "kind": "primitive-type",
-          "package": "hl7.fhir.r4.core",
-          "version": "4.0.1",
-          "name": "uri",
-          "url": "http://hl7.org/fhir/StructureDefinition/uri"
-        },
-        "required": false,
-        "excluded": false,
-        "array": false
-      },
-      "version": {
-        "type": {
-          "kind": "primitive-type",
-          "package": "hl7.fhir.r4.core",
-          "version": "4.0.1",
-          "name": "string",
-          "url": "http://hl7.org/fhir/StructureDefinition/string"
-        },
-        "required": false,
-        "excluded": false,
-        "array": false
-      },
-      "code": {
-        "type": {
-          "kind": "primitive-type",
-          "package": "hl7.fhir.r4.core",
-          "version": "4.0.1",
-          "name": "code",
-          "url": "http://hl7.org/fhir/StructureDefinition/code"
-        },
-        "required": false,
-        "excluded": false,
-        "array": false
-      },
-      "display": {
-        "type": {
-          "kind": "primitive-type",
-          "package": "hl7.fhir.r4.core",
-          "version": "4.0.1",
-          "name": "string",
-          "url": "http://hl7.org/fhir/StructureDefinition/string"
-        },
-        "required": false,
-        "excluded": false,
-        "array": false
-      },
-      "userSelected": {
-        "type": {
-          "kind": "primitive-type",
-          "package": "hl7.fhir.r4.core",
-          "version": "4.0.1",
-          "name": "boolean",
-          "url": "http://hl7.org/fhir/StructureDefinition/boolean"
-        },
-        "required": false,
-        "excluded": false,
-        "array": false
-      }
-    },
-    "description": "Base StructureDefinition for Coding Type: A reference to a code defined by a terminology system.",
-    "dependencies": [
-      {
-        "kind": "primitive-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "boolean",
-        "url": "http://hl7.org/fhir/StructureDefinition/boolean"
-      },
-      {
-        "kind": "primitive-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "code",
-        "url": "http://hl7.org/fhir/StructureDefinition/code"
-      },
-      {
-        "kind": "complex-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "Element",
-        "url": "http://hl7.org/fhir/StructureDefinition/Element"
-      },
-      {
-        "kind": "primitive-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "string",
-        "url": "http://hl7.org/fhir/StructureDefinition/string"
-      },
-      {
-        "kind": "primitive-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "uri",
-        "url": "http://hl7.org/fhir/StructureDefinition/uri"
-      }
-    ]
-  }
-]"
-`;
-
-exports[`FHIR Schema to Type Schema (snapshot) Real world examples string primitive type 1`] = `
-"[
-  {
-    "identifier": {
-      "kind": "primitive-type",
-      "package": "mypackage",
-      "version": "0.0.0",
-      "name": "string",
-      "url": "http://hl7.org/fhir/StructureDefinition/string"
-    },
-    "description": "Base StructureDefinition for string Type: A sequence of Unicode characters",
-    "base": {
-      "kind": "complex-type",
-      "package": "hl7.fhir.r4.core",
-      "version": "4.0.1",
-      "name": "Element",
-      "url": "http://hl7.org/fhir/StructureDefinition/Element"
-    },
-    "dependencies": [
-      {
-        "kind": "complex-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "Element",
-        "url": "http://hl7.org/fhir/StructureDefinition/Element"
-      }
-    ]
-  }
-]"
-`;
-
-exports[`FHIR Schema to Type Schema (snapshot) Custom resource TutorNotificationTemplate 1`] = `
-"[
-  {
-    "identifier": {
-      "kind": "resource",
-      "package": "mypackage",
-      "version": "0.0.0",
-      "name": "TutorNotificationTemplate",
-      "url": "http://example.com/aidbox-sms-tutor/TutorNotificationTemplate"
-    },
-    "base": {
-      "kind": "resource",
-      "package": "hl7.fhir.r4.core",
-      "version": "4.0.1",
-      "name": "DomainResource",
-      "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
-    },
-    "fields": {
-      "template": {
-        "type": {
-          "kind": "primitive-type",
-          "package": "mypackage",
-          "version": "0.0.0",
-          "name": "string",
-          "url": "http://hl7.org/fhir/StructureDefinition/string"
-        },
-        "required": true,
-        "excluded": false,
-        "array": false
-      }
-    },
-    "dependencies": [
-      {
-        "kind": "resource",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "DomainResource",
-        "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
-      },
-      {
-        "kind": "primitive-type",
-        "package": "mypackage",
-        "version": "0.0.0",
-        "name": "string",
-        "url": "http://hl7.org/fhir/StructureDefinition/string"
-      }
-    ]
-  }
-]"
-`;
-
-exports[`FHIR Schema to Type Schema (snapshot) Custom resource TutorNotification 1`] = `
-"[
-  {
-    "identifier": {
-      "kind": "resource",
-      "package": "mypackage",
-      "version": "0.0.0",
-      "name": "TutorNotification",
-      "url": "http://example.com/aidbox-sms-tutor/TutorNotification"
-    },
-    "base": {
-      "kind": "resource",
-      "package": "hl7.fhir.r4.core",
-      "version": "4.0.1",
-      "name": "DomainResource",
-      "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
-    },
-    "fields": {
-      "type": {
-        "type": {
-          "kind": "primitive-type",
-          "package": "mypackage",
-          "version": "0.0.0",
-          "name": "string",
-          "url": "http://hl7.org/fhir/StructureDefinition/string"
-        },
-        "required": true,
-        "excluded": false,
-        "array": false,
-        "binding": {
-          "kind": "binding",
-          "package": "mypackage",
-          "version": "0.0.0",
-          "name": "TutorNotification.type_binding",
-          "url": "http://example.com/aidbox-sms-tutor/TutorNotification#type_binding"
-        },
-        "enum": {
-          "isOpen": false,
-          "values": [
-            "phone",
-            "fax",
-            "email",
-            "pager",
-            "url",
-            "sms",
-            "other"
-          ]
-        }
-      },
-      "status": {
-        "type": {
-          "kind": "primitive-type",
-          "package": "mypackage",
-          "version": "0.0.0",
-          "name": "string",
-          "url": "http://hl7.org/fhir/StructureDefinition/string"
-        },
-        "required": true,
-        "excluded": false,
-        "array": false,
-        "binding": {
-          "kind": "binding",
-          "package": "mypackage",
-          "version": "0.0.0",
-          "name": "TutorNotification.status_binding",
-          "url": "http://example.com/aidbox-sms-tutor/TutorNotification#status_binding"
-        },
-        "enum": {
-          "isOpen": false,
-          "values": [
-            "draft",
-            "requested",
-            "received",
-            "accepted",
-            "rejected",
-            "ready",
-            "cancelled",
-            "in-progress",
-            "on-hold",
-            "failed",
-            "completed",
-            "entered-in-error"
-          ]
-        }
-      },
-      "template": {
-        "type": {
-          "kind": "complex-type",
-          "package": "hl7.fhir.r4.core",
-          "version": "4.0.1",
-          "name": "Reference",
-          "url": "http://hl7.org/fhir/StructureDefinition/Reference"
-        },
-        "required": true,
-        "excluded": false,
-        "reference": [
-          {
-            "kind": "resource",
-            "package": "mypackage",
-            "version": "0.0.0",
-            "name": "TutorNotificationTemplate",
-            "url": "http://example.com/aidbox-sms-tutor/TutorNotificationTemplate"
-          }
-        ],
-        "array": false
-      },
-      "message": {
-        "type": {
-          "kind": "primitive-type",
-          "package": "mypackage",
-          "version": "0.0.0",
-          "name": "string",
-          "url": "http://hl7.org/fhir/StructureDefinition/string"
-        },
-        "required": false,
-        "excluded": false,
-        "array": false
-      },
-      "sendAfter": {
-        "type": {
-          "kind": "primitive-type",
-          "package": "hl7.fhir.r4.core",
-          "version": "4.0.1",
-          "name": "dateTime",
-          "url": "http://hl7.org/fhir/StructureDefinition/dateTime"
-        },
-        "required": true,
-        "excluded": false,
-        "array": false
-      },
-      "subject": {
-        "type": {
-          "kind": "complex-type",
-          "package": "hl7.fhir.r4.core",
-          "version": "4.0.1",
-          "name": "Reference",
-          "url": "http://hl7.org/fhir/StructureDefinition/Reference"
-        },
-        "required": true,
-        "excluded": false,
-        "reference": [
-          {
-            "kind": "resource",
-            "package": "hl7.fhir.r4.core",
-            "version": "4.0.1",
-            "name": "Patient",
-            "url": "http://hl7.org/fhir/StructureDefinition/Patient"
-          }
-        ],
-        "array": false
-      }
-    },
-    "dependencies": [
-      {
-        "kind": "binding",
-        "package": "mypackage",
-        "version": "0.0.0",
-        "name": "TutorNotification.status_binding",
-        "url": "http://example.com/aidbox-sms-tutor/TutorNotification#status_binding"
-      },
-      {
-        "kind": "binding",
-        "package": "mypackage",
-        "version": "0.0.0",
-        "name": "TutorNotification.type_binding",
-        "url": "http://example.com/aidbox-sms-tutor/TutorNotification#type_binding"
-      },
-      {
-        "kind": "primitive-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "dateTime",
-        "url": "http://hl7.org/fhir/StructureDefinition/dateTime"
-      },
-      {
-        "kind": "resource",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "DomainResource",
-        "url": "http://hl7.org/fhir/StructureDefinition/DomainResource"
-      },
-      {
-        "kind": "complex-type",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "Reference",
-        "url": "http://hl7.org/fhir/StructureDefinition/Reference"
-      },
-      {
-        "kind": "primitive-type",
-        "package": "mypackage",
-        "version": "0.0.0",
-        "name": "string",
-        "url": "http://hl7.org/fhir/StructureDefinition/string"
-      }
-    ]
-  },
-  {
-    "identifier": {
-      "kind": "binding",
-      "package": "mypackage",
-      "version": "0.0.0",
-      "name": "TutorNotification.status_binding",
-      "url": "http://example.com/aidbox-sms-tutor/TutorNotification#status_binding"
-    },
-    "valueset": {
-      "kind": "value-set",
-      "package": "hl7.fhir.r4.core",
-      "version": "4.0.1",
-      "name": "TaskStatus",
-      "url": "http://hl7.org/fhir/ValueSet/task-status"
-    },
-    "strength": "required",
-    "enum": {
-      "isOpen": false,
-      "values": [
-        "draft",
-        "requested",
-        "received",
-        "accepted",
-        "rejected",
-        "ready",
-        "cancelled",
-        "in-progress",
-        "on-hold",
-        "failed",
-        "completed",
-        "entered-in-error"
-      ]
-    },
-    "dependencies": [
-      {
-        "kind": "value-set",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "TaskStatus",
-        "url": "http://hl7.org/fhir/ValueSet/task-status"
-      }
-    ]
-  },
-  {
-    "identifier": {
-      "kind": "binding",
-      "package": "mypackage",
-      "version": "0.0.0",
-      "name": "TutorNotification.type_binding",
-      "url": "http://example.com/aidbox-sms-tutor/TutorNotification#type_binding"
-    },
-    "valueset": {
-      "kind": "value-set",
-      "package": "hl7.fhir.r4.core",
-      "version": "4.0.1",
-      "name": "ContactPointSystem",
-      "url": "http://hl7.org/fhir/ValueSet/contact-point-system"
-    },
-    "strength": "required",
-    "enum": {
-      "isOpen": false,
-      "values": [
-        "phone",
-        "fax",
-        "email",
-        "pager",
-        "url",
-        "sms",
-        "other"
-      ]
-    },
-    "dependencies": [
-      {
-        "kind": "value-set",
-        "package": "hl7.fhir.r4.core",
-        "version": "4.0.1",
-        "name": "ContactPointSystem",
-        "url": "http://hl7.org/fhir/ValueSet/contact-point-system"
       }
     ]
   }
