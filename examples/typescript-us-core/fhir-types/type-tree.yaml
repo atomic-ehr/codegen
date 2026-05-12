@@ -80,6 +80,7 @@ hl7.fhir.r4.core:
     http://hl7.org/fhir/StructureDefinition/TriggerDefinition: {}
     http://hl7.org/fhir/StructureDefinition/UsageContext: {}
   resource:
+    http://hl7.org/fhir/StructureDefinition/Bundle: {}
     http://hl7.org/fhir/StructureDefinition/DomainResource: {}
     http://hl7.org/fhir/StructureDefinition/Observation: {}
     http://hl7.org/fhir/StructureDefinition/Patient: {}
@@ -102,6 +103,7 @@ shared:
     urn:fhir:binding:AddressUse: {}
     urn:fhir:binding:AdministrativeGender: {}
     urn:fhir:binding:BodySite: {}
+    urn:fhir:binding:BundleType: {}
     urn:fhir:binding:ContactPointSystem: {}
     urn:fhir:binding:ContactPointUse: {}
     urn:fhir:binding:ContactRelationship: {}
@@ -113,6 +115,7 @@ shared:
     urn:fhir:binding:ExpressionLanguage: {}
     urn:fhir:binding:FHIRAllTypes: {}
     urn:fhir:binding:FHIRResourceTypeExt: {}
+    urn:fhir:binding:HTTPVerb: {}
     urn:fhir:binding:IdentifierType: {}
     urn:fhir:binding:IdentifierUse: {}
     urn:fhir:binding:Language: {}
@@ -135,6 +138,7 @@ shared:
     urn:fhir:binding:QuantityComparator: {}
     urn:fhir:binding:RelatedArtifactType: {}
     urn:fhir:binding:RouteOfAdministration: {}
+    urn:fhir:binding:SearchEntryMode: {}
     urn:fhir:binding:SecurityLabels: {}
     urn:fhir:binding:SignatureType: {}
     urn:fhir:binding:SortDirection: {}

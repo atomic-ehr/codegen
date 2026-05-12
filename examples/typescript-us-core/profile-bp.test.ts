@@ -3,8 +3,10 @@
  */
 
 import { describe, expect, test } from "bun:test";
+import type { Bundle } from "./fhir-types/hl7-fhir-r4-core/Bundle";
 import type { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
-import { USCoreBloodPressureProfile } from "./fhir-types/hl7-fhir-us-core/profiles";
+import type { Patient } from "./fhir-types/hl7-fhir-r4-core/Patient";
+import { USCoreBloodPressureProfile, USCorePatientProfile } from "./fhir-types/hl7-fhir-us-core/profiles";
 
 describe("demo: create a US Core blood pressure observation", () => {
     test("build a valid BP resource step by step", () => {
@@ -118,6 +120,70 @@ describe("demo: read a US Core blood pressure observation from JSON", () => {
         expect(profile.getVSCat("raw")!.coding).toEqual([
             { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
         ]);
+    });
+});
+
+describe("demo: filter Bundle<T> with profile is()", () => {
+    test("is() narrows by resourceType + meta.profile across a typed bundle and a raw collection", () => {
+        const patient: Patient = {
+            resourceType: "Patient",
+            meta: { profile: ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"] },
+            identifier: [{ system: "http://hospital.example.org/mrn", value: "MRN-001" }],
+            name: [{ family: "Lovelace", given: ["Ada"] }],
+        };
+        const bp: Observation = {
+            resourceType: "Observation",
+            meta: { profile: ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure"] },
+            status: "final",
+            category: [
+                {
+                    coding: [
+                        { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
+                    ],
+                },
+            ],
+            code: { coding: [{ code: "85354-9", system: "http://loinc.org" }] },
+            subject: { reference: "Patient/pt-1" },
+            effectiveDateTime: "2024-06-15",
+            component: [
+                {
+                    code: { coding: [{ code: "8480-6", system: "http://loinc.org" }] },
+                    valueQuantity: { value: 120, unit: "mmHg" },
+                },
+                {
+                    code: { coding: [{ code: "8462-4", system: "http://loinc.org" }] },
+                    valueQuantity: { value: 80, unit: "mmHg" },
+                },
+            ],
+        };
+        const otherObs: Observation = {
+            resourceType: "Observation",
+            status: "final",
+            code: { coding: [{ code: "29463-7", system: "http://loinc.org" }] },
+        };
+
+        // Bundle<T> propagation narrows entry[].resource to Patient | Observation at the type level
+        const bundle: Bundle<Patient | Observation> = {
+            resourceType: "Bundle",
+            type: "transaction",
+            entry: [{ resource: patient }, { resource: bp }, { resource: otherObs }],
+        };
+
+        // is() adds runtime narrowing on top of Bundle<T>: filters by resourceType + meta.profile
+        const bps = (bundle.entry ?? []).map((e) => e.resource).filter(USCoreBloodPressureProfile.is);
+        expect(bps).toEqual([bp]);
+
+        const patients = (bundle.entry ?? []).map((e) => e.resource).filter(USCorePatientProfile.is);
+        expect(patients).toEqual([patient]);
+
+        // Same guard also works on a plain unknown[] — no Bundle<T> required
+        const mixed: unknown[] = [patient, bp, otherObs, { resourceType: "Patient" }, null, "not a resource"];
+        expect(mixed.filter(USCoreBloodPressureProfile.is)).toEqual([bp]);
+
+        // Hand survivors to from() for typed reads
+        const wrapped = bps.map((o) => USCoreBloodPressureProfile.from(o));
+        expect(wrapped[0]!.getSystolic()!.value).toBe(120);
+        expect(wrapped[0]!.getDiastolic()!.value).toBe(80);
     });
 });
 

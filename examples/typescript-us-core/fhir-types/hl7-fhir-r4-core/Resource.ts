@@ -9,7 +9,7 @@ export type { Meta } from "../hl7-fhir-r4-core/Meta";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/Resource (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Resource {
-    resourceType: "DomainResource" | "Observation" | "Patient" | "Resource";
+    resourceType: "Bundle" | "DomainResource" | "Observation" | "Patient" | "Resource";
 
     id?: string;
     _id?: Element;

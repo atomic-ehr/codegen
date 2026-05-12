@@ -8,17 +8,18 @@ US Core FHIR profile generation with type-safe profile wrapper classes.
 bun run examples/typescript-us-core/generate.ts
 ```
 
-Edit [`generate.ts`](generate.ts) to customize which profiles to include. Tree shaking keeps only the specified profiles and their transitive dependencies. Output goes to `./fhir-types/`.
+`generate.ts` calls `prettyReport(report)` to print a grouped summary of what was emitted. Edit the script to add/remove profiles; tree shaking keeps only what you list. Output: `./fhir-types/`.
 
 ## Profile Class API
 
 Each profile class provides:
 
-- **`from(resource)`** -- validate the resource conforms to the profile (meta.profile + required fields), throw on errors
-- **`apply(resource)`** -- attach meta.profile without validation, useful for incremental construction
-- **`create(args)`** -- build a new resource from typed input, auto-sets fixed values
-- **`validate()`** -- check required fields, return error list
-- **`toResource()`** -- get the underlying FHIR resource
+- **`from(resource)`** -- validate against the profile, throw on errors
+- **`apply(resource)`** -- attach meta.profile, no validation
+- **`create(args)`** -- build a new resource, auto-set fixed values
+- **`is(value)`** -- non-throwing type guard for `.filter()`
+- **`validate()`** -- return `{ errors, warnings }`
+- **`toResource()`** -- the underlying FHIR resource
 
 Generated accessors depend on what the profile defines:
 

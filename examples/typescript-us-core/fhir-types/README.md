@@ -2219,7 +2219,6 @@
 - `urn:fhir:binding:BodyStructureQualifier`
 - `urn:fhir:binding:BodyTempUnits`
 - `urn:fhir:binding:BodyWeightUnits`
-- `urn:fhir:binding:BundleType`
 - `urn:fhir:binding:CapabilityStatementKind`
 - `urn:fhir:binding:CarePlanActivityKind`
 - `urn:fhir:binding:CarePlanActivityOutcome`
@@ -2534,7 +2533,6 @@
 - `urn:fhir:binding:GuidanceResponseStatus`
 - `urn:fhir:binding:GuidePageGeneration`
 - `urn:fhir:binding:GuideParameterCode`
-- `urn:fhir:binding:HTTPVerb`
 - `urn:fhir:binding:HandlingConditionSet`
 - `urn:fhir:binding:HumanRefSeqNCBIBuildId`
 - `urn:fhir:binding:IANATimezone`
@@ -2842,7 +2840,6 @@
 - `urn:fhir:binding:SPDXLicense`
 - `urn:fhir:binding:Safety`
 - `urn:fhir:binding:SearchComparator`
-- `urn:fhir:binding:SearchEntryMode`
 - `urn:fhir:binding:SearchModifierCode`
 - `urn:fhir:binding:SearchParamType`
 - `urn:fhir:binding:SearchProcessingModeType`
