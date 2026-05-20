@@ -14,6 +14,7 @@ import {
     isNotChoiceDeclarationField,
     isPrimitiveTypeSchema,
     isProfileTypeSchema,
+    isSnapshotProfileTypeSchema,
     isSpecializationTypeSchema,
     isValueSetTypeSchema,
     type PkgName,
@@ -189,7 +190,13 @@ const mutableFillReport = (report: TreeShakeReport, tsIndex: TypeSchemaIndex, sh
 
 export const treeShakeTypeSchema = (schema: TypeSchema, rule: TreeShakeRule, _logger?: CodegenLog): TypeSchema => {
     schema = JSON.parse(JSON.stringify(schema));
-    if (isPrimitiveTypeSchema(schema) || isValueSetTypeSchema(schema) || isBindingSchema(schema)) return schema;
+    if (
+        isPrimitiveTypeSchema(schema) ||
+        isValueSetTypeSchema(schema) ||
+        isBindingSchema(schema) ||
+        isSnapshotProfileTypeSchema(schema)
+    )
+        return schema;
 
     if (rule.selectFields) {
         if (rule.ignoreFields) throw new Error("Cannot use both ignoreFields and selectFields in the same rule");
