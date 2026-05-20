@@ -2,11 +2,13 @@ import { describe, expect, it } from "bun:test";
 import type {
     CanonicalUrl,
     Name,
+    NestedTypeSchema,
     ProfileTypeSchema,
     RegularField,
     SpecializationTypeSchema,
     TypeIdentifier,
 } from "@typeschema/types";
+import { snapshotIdentifier } from "@typeschema/types";
 import { mkTypeSchemaIndex } from "@typeschema/utils";
 
 const stringType: TypeIdentifier = {
@@ -602,6 +604,113 @@ describe("TypeSchema Index", () => {
             const result = index.flatProfile(constraintSchema);
 
             expect(result.identifier).toEqual(constraintSchema.identifier);
+        });
+    });
+
+    describe("snapshot nested collection", () => {
+        it("inherits nested types referenced by inherited fields from the base", () => {
+            const nestedId = {
+                name: "Patient_contact" as Name,
+                package: "test",
+                kind: "nested" as const,
+                version: "1.0.0",
+                url: "http://example.org/StructureDefinition/Patient#contact" as CanonicalUrl,
+            };
+
+            const nestedSchema: NestedTypeSchema = {
+                identifier: nestedId,
+                base: stringType,
+                fields: {
+                    name: { type: stringType, required: false, array: false } as RegularField,
+                },
+            };
+
+            const baseSchema: SpecializationTypeSchema = {
+                identifier: {
+                    name: "Patient" as Name,
+                    package: "test",
+                    kind: "resource",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/Patient" as CanonicalUrl,
+                },
+                fields: {
+                    contact: { type: nestedId, required: false, array: true } as RegularField,
+                },
+                nested: [nestedSchema],
+            };
+
+            const profileSchema: ProfileTypeSchema = {
+                identifier: {
+                    name: "MyPatient" as Name,
+                    package: "test",
+                    kind: "profile",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/MyPatient" as CanonicalUrl,
+                },
+                base: baseSchema.identifier,
+                fields: {},
+            };
+
+            const index = mkTypeSchemaIndex([baseSchema, profileSchema], {});
+            const snapshot = index.resolve(snapshotIdentifier(profileSchema.identifier));
+
+            expect(snapshot).toBeDefined();
+            expect(snapshot?.nested?.map((n) => n.identifier.url)).toEqual([nestedId.url]);
+        });
+
+        it("prefers profile-local nested over inherited when URLs match", () => {
+            const nestedUrl = "http://example.org/StructureDefinition/Patient#contact" as CanonicalUrl;
+            const baseNested: NestedTypeSchema = {
+                identifier: {
+                    name: "Patient_contact" as Name,
+                    package: "test",
+                    kind: "nested",
+                    version: "1.0.0",
+                    url: nestedUrl,
+                },
+                base: stringType,
+                fields: { name: { type: stringType } as RegularField },
+            };
+            const profileNested: NestedTypeSchema = {
+                identifier: baseNested.identifier,
+                base: stringType,
+                // Profile-local version constrains the field as required.
+                fields: { name: { type: stringType, required: true } as RegularField },
+            };
+
+            const baseSchema: SpecializationTypeSchema = {
+                identifier: {
+                    name: "Patient" as Name,
+                    package: "test",
+                    kind: "resource",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/Patient" as CanonicalUrl,
+                },
+                fields: {
+                    contact: { type: baseNested.identifier, required: false, array: true } as RegularField,
+                },
+                nested: [baseNested],
+            };
+
+            const profileSchema: ProfileTypeSchema = {
+                identifier: {
+                    name: "MyPatient" as Name,
+                    package: "test",
+                    kind: "profile",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/MyPatient" as CanonicalUrl,
+                },
+                base: baseSchema.identifier,
+                fields: {},
+                nested: [profileNested],
+            };
+
+            const index = mkTypeSchemaIndex([baseSchema, profileSchema], {});
+            const snapshot = index.resolve(snapshotIdentifier(profileSchema.identifier));
+
+            expect(snapshot?.nested).toHaveLength(1);
+            const collected = snapshot?.nested?.[0];
+            expect((collected?.fields?.name as RegularField).required).toBe(true);
         });
     });
 });

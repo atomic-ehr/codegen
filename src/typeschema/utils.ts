@@ -598,8 +598,41 @@ export const mkTypeSchemaIndex = (
         };
     };
 
+    /** Walk fields recursively and collect every nested type they reference. Profile-local
+     *  nested types (already in `into`) take precedence over inherited ones — their URLs
+     *  are seeded first, so the inherited lookup is skipped for them. Identities (URLs) are
+     *  preserved; this is a closure-by-reference, not a re-rooting. */
+    const collectReferencedNested = (
+        fields: Record<string, Field> | undefined,
+        into: Map<string, NestedTypeSchema>,
+    ): void => {
+        if (!fields) return;
+        for (const field of Object.values(fields)) {
+            if (isChoiceDeclarationField(field)) continue;
+            const t = field.type;
+            if (!t || !isNestedIdentifier(t) || into.has(t.url)) continue;
+            const nested = resolveType(t);
+            if (!isNestedTypeSchema(nested)) continue;
+            into.set(t.url, nested);
+            collectReferencedNested(nested.fields, into);
+        }
+    };
+
     const buildProfileSnapshot = (schema: ProfileTypeSchema): SnapshotProfileTypeSchema => {
         const flat = flatProfile(schema);
+        const collected = new Map<string, NestedTypeSchema>();
+        // Profile-local nested types take precedence by URL — they may carry constraints
+        // not present on the inherited copy.
+        for (const n of flat.nested ?? []) collected.set(n.identifier.url, n);
+        for (const n of flat.nested ?? []) collectReferencedNested(n.fields, collected);
+        collectReferencedNested(flat.fields, collected);
+        // Profile fields only carry constraints; consumers also access inherited base fields,
+        // which may reference nested types invisible from the profile's own constraints.
+        const baseSchema = resolveType(flat.base);
+        if (baseSchema && "fields" in baseSchema) {
+            collectReferencedNested(baseSchema.fields, collected);
+        }
+        const nested = collected.size > 0 ? Array.from(collected.values()) : undefined;
         return {
             identifier: snapshotIdentifier(flat.identifier),
             base: flat.base,
@@ -607,7 +640,7 @@ export const mkTypeSchemaIndex = (
             fields: flat.fields ?? {},
             extensions: flat.extensions,
             dependencies: flat.dependencies,
-            nested: flat.nested,
+            nested,
         };
     };
 
