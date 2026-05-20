@@ -116,3 +116,5 @@ describe("SQL-on-FHIR", async () => {
         });
     });
 });
+
+Bun.gc(true);

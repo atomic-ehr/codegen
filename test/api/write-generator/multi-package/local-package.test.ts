@@ -172,3 +172,5 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
         });
     });
 });
+
+Bun.gc(true);

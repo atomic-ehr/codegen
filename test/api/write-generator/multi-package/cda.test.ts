@@ -91,3 +91,5 @@ describe("CDA", async () => {
         });
     });
 });
+
+Bun.gc(true);
