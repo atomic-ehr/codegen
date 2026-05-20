@@ -130,6 +130,7 @@ FHIR Package → TypeSchema Generator → TypeSchema Format → Code Generators 
 - Unit tests for core functionality (transformers, builders)
 - Tests mirror source structure in `test/unit/`
 - API tests for high-level generators
+- SQL-on-FHIR is split into per-language files (`sql-on-fhir-typescript.test.ts`, `sql-on-fhir-python.test.ts`, `sql-on-fhir-csharp.test.ts`) and the `test` Makefile target runs each as a separate `bun test` invocation. The combined file ran out of memory on `ubuntu-latest` (~7 GiB) because all three generators built simultaneously against R5 + the SQL-on-FHIR IG. Each file gets its own bun process so peak memory is bounded to one generator's output at a time. Do not recombine.
 
 ### Example Test Structure
 
@@ -354,6 +355,7 @@ Detection uses `mkIsFamilyType(tsIndex)` which checks `schema.typeFamily.resourc
 3. **Choice Types**: Supported but representation differs by language
 4. **Circular References**: Handled but may affect tree shaking
 5. **Large Packages**: May require increased Node.js memory (`--max-old-space-size`)
+6. **Bun version pinned via `.bun-version`**: Bun 1.3.14 introduced a memory regression that OOM-kills `make test` on `ubuntu-latest`. Stick to the version pinned in `.bun-version` until a fixed Bun release is verified to pass CI.
 
 ## Performance Optimization Tips
 
