@@ -31,8 +31,8 @@ typecheck:
 	$(TYPECHECK)
 
 test: typecheck
-	bun test --smol --path-ignore-patterns '**/sql-on-fhir.test.ts'
-	bun test --smol test/api/write-generator/multi-package/sql-on-fhir.test.ts
+	bun test --path-ignore-patterns '**/sql-on-fhir.test.ts'
+	bun test test/api/write-generator/multi-package/sql-on-fhir.test.ts
 
 prepare-aidbox-runme:
 	@if [ ! -f "example/docker-compose.yaml" ]; then \
