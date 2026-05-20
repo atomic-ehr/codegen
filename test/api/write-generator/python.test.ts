@@ -10,7 +10,7 @@ describe("Python Writer Generator", async () => {
         .generate();
     expect(result.success).toBeTrue();
     const files = result.filesGenerated.python!;
-    expect(Object.keys(files).length).toEqual(154);
+    expect(Object.keys(files).length).toEqual(153);
     it("generates Patient resource in inMemoryOnly mode with snapshot", async () => {
         expect(files["generated/hl7_fhir_r4_core/patient.py"]).toMatchSnapshot();
     });

@@ -1,5 +1,4 @@
 import assert from "node:assert";
-import fs from "node:fs";
 import * as Path from "node:path";
 import { fileURLToPath } from "node:url";
 import { camelCase, pascalCase, snakeCase, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils";
@@ -249,7 +248,6 @@ export class Python extends Writer<PythonGeneratorOptions> {
         const pyPackageName = this.pyFhirPackageByName(packageName);
 
         this.generateResourcePackageInit(pyPackageName, packageResources, packageComplexTypes);
-        this.generateResourceFamilies(packageResources);
 
         const hasAnyResourceGenericParams = packageResources.some((s) => collectResourceGenericTypeVars(s).length > 0);
         if (hasAnyResourceGenericParams) {
@@ -378,14 +376,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
 
         this.pyImportFrom(moduleName, ...importNames);
 
-        const names = [...importNames];
-
-        if (this.shouldImportResourceFamily(resource)) {
-            const familyName = `${resource.identifier.name}Family`;
-            this.pyImportFrom(`${fullPyPackageName}.resource_families`, familyName);
-        }
-
-        return names;
+        return [...importNames];
     }
 
     private collectResourceImportNames(resource: SpecializationTypeSchema): string[] {
@@ -397,10 +388,6 @@ export class Python extends Writer<PythonGeneratorOptions> {
         }
 
         return names;
-    }
-
-    private shouldImportResourceFamily(resource: SpecializationTypeSchema): boolean {
-        return resource.identifier.kind === "resource" && (resource.typeFamily?.resources?.length ?? 0) > 0;
     }
 
     private generateExportsDeclaration(
@@ -794,78 +781,6 @@ export class Python extends Writer<PythonGeneratorOptions> {
 
     private pyImportType(identifier: TypeIdentifier): void {
         this.pyImportFrom(this.pyPackage(identifier), pascalCase(identifier.name));
-    }
-
-    private generateResourceFamilies(packageResources: SpecializationTypeSchema[]): void {
-        assert(this.tsIndex !== undefined);
-        const packages = //this.helper.getPackages(packageResources, this.opts.rootPackageName);
-            Object.keys(groupByPackages(packageResources)).map(
-                (pkgName) => `${this.opts.rootPackageName}.${pkgName.replaceAll(".", "_")}`,
-            );
-        const families: Record<string, string[]> = {};
-        for (const resource of this.tsIndex.collectResources()) {
-            const children = (resource.typeFamily?.resources ?? []).map((c) => c.name);
-            if (children.length > 0) {
-                const familyName = `${resource.identifier.name}Family`;
-                families[familyName] = children;
-            }
-        }
-        const exportList = Object.keys(families);
-
-        if (exportList.length === 0) return;
-
-        this.buildResourceFamiliesFile(packages, families, exportList);
-    }
-
-    private buildResourceFamiliesFile(
-        packages: string[],
-        families: Record<string, string[]>,
-        exportList: string[],
-    ): void {
-        this.cat("resource_families.py", () => {
-            this.generateDisclaimer();
-            this.includeResourceFamilyValidator();
-            this.line();
-            this.generateFamilyDefinitions(packages, families);
-            this.generateFamilyExports(exportList);
-        });
-    }
-
-    private includeResourceFamilyValidator(): void {
-        const content = fs.readFileSync(resolvePyAssets("resource_family_validator.py"), "utf-8");
-        this.line(content);
-    }
-
-    private generateFamilyDefinitions(packages: string[], families: Record<string, string[]>): void {
-        this.line(`packages = [${packages.map((p) => `'${p}'`).join(", ")}]`);
-        this.line();
-
-        for (const [familyName, resources] of Object.entries(families)) {
-            this.generateFamilyDefinition(familyName, resources);
-        }
-    }
-
-    private generateFamilyDefinition(familyName: string, resources: string[]): void {
-        const listName = `${familyName}_resources`;
-
-        this.line(
-            `${listName} = [${resources
-                .map((r) => `'${r}'`)
-                .sort()
-                .join(", ")}]`,
-        );
-        this.line();
-
-        this.line(`def validate_and_downcast_${familyName}(v: Any) -> Any:`);
-        this.line(`   return validate_and_downcast(v, packages, ${listName})`);
-        this.line();
-
-        this.line(`type ${familyName} = Annotated[Any, BeforeValidator(validate_and_downcast_${familyName})]`);
-        this.line();
-    }
-
-    private generateFamilyExports(exportList: string[]): void {
-        this.line(`__all__ = [${exportList.map((e) => `'${e}'`).join(", ")}]`);
     }
 
     private buildPyPackageName(packageName: string): string {
