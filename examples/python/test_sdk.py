@@ -218,6 +218,29 @@ def test_to_from_json() -> None:
     assert p == p2
 
 
+def test_bundle_from_json() -> None:
+    json = """{
+        "resourceType": "Bundle",
+        "type": "searchset",
+        "total": 1,
+        "entry": [{
+            "resource": {
+                "resourceType": "Patient",
+                "id": "p-1",
+                "gender": "female"
+            }
+        }]
+    }"""
+    bundle = Bundle.from_json(json)
+    assert bundle.entry is not None
+    assert len(bundle.entry) == 1
+    resource = bundle.entry[0].resource
+    assert resource is not None
+    assert resource.id == "p-1"
+    from fhir_types.hl7_fhir_r4_core.patient import Patient as PatientClass
+    assert type(resource) is PatientClass
+
+
 def test_to_json_shape() -> None:
     import json as json_mod
 

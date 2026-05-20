@@ -10,7 +10,7 @@ describe("Python Writer Generator", async () => {
         .generate();
     expect(result.success).toBeTrue();
     const files = result.filesGenerated.python!;
-    expect(Object.keys(files).length).toEqual(153);
+    expect(Object.keys(files).length).toEqual(154);
     it("generates Patient resource in inMemoryOnly mode with snapshot", async () => {
         expect(files["generated/hl7_fhir_r4_core/patient.py"]).toMatchSnapshot();
     });
@@ -38,5 +38,33 @@ describe("Python Writer Generator", async () => {
         expect(basePy).toContain("from typing import Any, Generic, List as PyList, Literal");
         expect(basePy).toContain("from typing_extensions import TypeVar");
         expect(basePy).toContain("T = TypeVar('T', bound=str, default=str)");
+    });
+    it("generates BundleEntryResponse with generic type-family parameter", async () => {
+        const bundlePy = files["generated/hl7_fhir_r4_core/bundle.py"];
+        expect(bundlePy).toContain("class BundleEntryResponse(BackboneElement, Generic[T]):");
+        expect(bundlePy).toContain("outcome: T | None");
+    });
+    it("generates BundleEntry with generic type-family parameters", async () => {
+        const bundlePy = files["generated/hl7_fhir_r4_core/bundle.py"];
+        expect(bundlePy).toContain("class BundleEntry(BackboneElement, Generic[T1, T2]):");
+        expect(bundlePy).toContain("resource: T1 | None");
+        expect(bundlePy).toContain("response: BundleEntryResponse[T2] | None");
+        expect(bundlePy).toMatchSnapshot();
+    });
+    it("generates Bundle with inherited generic params from BundleEntry", async () => {
+        const bundlePy = files["generated/hl7_fhir_r4_core/bundle.py"];
+        expect(bundlePy).toContain("class Bundle(Resource, Generic[T1, T2]):");
+        expect(bundlePy).toContain("entry: PyList[BundleEntry[T1, T2]] | None");
+        expect(bundlePy).toMatchSnapshot();
+    });
+    it("generates DomainResource with generic type-family parameter", async () => {
+        const domainResourcePy = files["generated/hl7_fhir_r4_core/domain_resource.py"];
+        expect(domainResourcePy).toContain("class DomainResource(Resource, Generic[T]):");
+        expect(domainResourcePy).toContain("contained: PyList[T] | None");
+    });
+    it("declares resource-constrained TypeVars in bundle.py", async () => {
+        const bundlePy = files["generated/hl7_fhir_r4_core/bundle.py"];
+        expect(bundlePy).toContain("T1 = TypeVar('T1', bound=Resource, default=Resource)");
+        expect(bundlePy).toContain("T2 = TypeVar('T2', bound=Resource, default=Resource)");
     });
 });

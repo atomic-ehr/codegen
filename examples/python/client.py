@@ -103,4 +103,4 @@ class Client:
         url = f"{self.base_url}/{resource_type}"
         response = self.session.get(url, params=params)
         response.raise_for_status()
-        return Bundle.model_validate(response.json())
+        return Bundle[resource_class].model_validate(response.json())
