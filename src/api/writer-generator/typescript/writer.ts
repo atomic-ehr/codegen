@@ -8,8 +8,8 @@ import {
     isLogicalTypeSchema,
     isNestedTypeSchema,
     isPrimitiveIdentifier,
-    isProfileTypeSchema,
     isResourceTypeSchema,
+    isSnapshotProfileTypeSchema,
     isSpecializationTypeSchema,
     type NestedTypeSchema,
     packageMeta,
@@ -104,7 +104,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
 
     generateFhirPackageIndexFile(schemas: TypeSchema[]) {
         this.cat("index.ts", () => {
-            const profiles = schemas.filter(isProfileTypeSchema);
+            const profiles = schemas.filter(isSnapshotProfileTypeSchema);
             if (profiles.length > 0) {
                 this.lineSM(`export * from "./profiles"`);
             }
@@ -112,7 +112,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             let exports = schemas
                 .flatMap((schema) => {
                     const resourceName = tsResourceName(schema.identifier);
-                    const typeExports = isProfileTypeSchema(schema)
+                    const typeExports = isSnapshotProfileTypeSchema(schema)
                         ? []
                         : [
                               resourceName,
@@ -345,13 +345,12 @@ export class TypeScript extends Writer<TypeScriptOptions> {
     }
 
     generateResourceModule(tsIndex: TypeSchemaIndex, schema: TypeSchema) {
-        if (isProfileTypeSchema(schema)) {
+        if (isSnapshotProfileTypeSchema(schema)) {
             this.cd("profiles", () => {
                 this.cat(`${tsProfileModuleFileName(tsIndex, schema)}`, () => {
                     this.generateDisclaimer();
-                    const flatProfile = tsIndex.flatProfile(schema);
-                    generateProfileImports(this, tsIndex, flatProfile);
-                    generateProfileClass(this, tsIndex, flatProfile);
+                    generateProfileImports(this, tsIndex, schema);
+                    generateProfileClass(this, tsIndex, schema);
                 });
             });
         } else if (isSpecializationTypeSchema(schema)) {
@@ -380,11 +379,11 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             ...tsIndex.collectComplexTypes(),
             ...tsIndex.collectResources(),
             ...tsIndex.collectLogicalModels(),
-            ...(this.opts.generateProfile ? tsIndex.collectProfiles() : []),
+            ...(this.opts.generateProfile ? tsIndex.collectSnapshotProfiles() : []),
         ];
         const grouped = groupByPackages(typesToGenerate);
 
-        const hasProfiles = this.opts.generateProfile && typesToGenerate.some(isProfileTypeSchema);
+        const hasProfiles = this.opts.generateProfile && typesToGenerate.some(isSnapshotProfileTypeSchema);
 
         this.cd("/", () => {
             if (hasProfiles) {
@@ -397,7 +396,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                     for (const schema of packageSchemas) {
                         this.generateResourceModule(tsIndex, schema);
                     }
-                    generateProfileIndexFile(this, tsIndex, packageSchemas.filter(isProfileTypeSchema));
+                    generateProfileIndexFile(this, tsIndex, packageSchemas.filter(isSnapshotProfileTypeSchema));
                     this.generateFhirPackageIndexFile(packageSchemas);
                 });
             }
