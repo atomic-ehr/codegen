@@ -150,3 +150,5 @@ describe("IntrospectionWriter - StructureDefinition output", async () => {
         expect(files["generated/structure-definitions.ndjson"]).toMatchSnapshot();
     });
 });
+
+Bun.gc(true);

@@ -20,3 +20,5 @@ describe("C# Writer Generator", async () => {
         expect(files["generated/types/Helper.cs"]).toMatchSnapshot();
     });
 });
+
+Bun.gc(true);

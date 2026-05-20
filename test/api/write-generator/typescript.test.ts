@@ -171,3 +171,5 @@ describe("TypeScript US Core Example", async () => {
         expect(files["generated/types/hl7-fhir-us-core/profiles/index.ts"]).toMatchSnapshot();
     });
 });
+
+Bun.gc(true);

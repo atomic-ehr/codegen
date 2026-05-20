@@ -40,3 +40,5 @@ describe("Python Writer Generator", async () => {
         expect(basePy).toContain("T = TypeVar('T', bound=str, default=str)");
     });
 });
+
+Bun.gc(true);
