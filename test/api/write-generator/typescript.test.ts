@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { APIBuilder } from "@root/api/builder";
 import type { CanonicalUrl } from "@root/typeschema/types";
-import { ccdaManager, mkErrorLogger, r4Manager } from "@typeschema-test/utils";
+import { mkCCDARegister, mkErrorLogger, r4Manager } from "@typeschema-test/utils";
 
 describe("TypeScript Writer Generator", async () => {
     const result = await new APIBuilder({ register: r4Manager, logger: mkErrorLogger() })
@@ -57,7 +57,7 @@ describe("TypeScript Writer Generator", async () => {
 });
 
 describe("TypeScript CDA with Logical Model Promotion to Resource", async () => {
-    const result = await new APIBuilder({ register: ccdaManager, logger: mkErrorLogger() })
+    const result = await new APIBuilder({ register: await mkCCDARegister(), logger: mkErrorLogger() })
         .typeSchema({
             promoteLogical: {
                 "hl7.cda.uv.core": ["http://hl7.org/cda/stds/core/StructureDefinition/Material" as CanonicalUrl],
