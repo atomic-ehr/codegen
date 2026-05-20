@@ -3,7 +3,8 @@ import {
     isChoiceDeclarationField,
     isProfileTypeSchema,
     type ProfileExtension,
-    type ProfileTypeSchema,
+    type SnapshotProfileTypeSchema,
+    snapshotIdentifier,
     type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
@@ -31,7 +32,7 @@ export type SubExtensionSliceInfo = {
 export type ExtensionProfileInfo = {
     className: string;
     modulePath: string;
-    flatProfile: ProfileTypeSchema;
+    snapshot: SnapshotProfileTypeSchema;
 };
 
 /**
@@ -77,8 +78,8 @@ export const valueFieldToTsType = (valueField: string): string => {
  * Collect sub-extension "flat input" info from an extension profile's own
  * slice definitions on its `extension` field.
  */
-export const collectSubExtensionSlices = (extProfile: ProfileTypeSchema): SubExtensionSliceInfo[] => {
-    const extensionField = extProfile.fields?.extension;
+export const collectSubExtensionSlices = (extProfile: SnapshotProfileTypeSchema): SubExtensionSliceInfo[] => {
+    const extensionField = extProfile.fields.extension;
     if (!extensionField || isChoiceDeclarationField(extensionField) || !extensionField.slicing?.slices) return [];
     const result: SubExtensionSliceInfo[] = [];
     for (const [sliceName, slice] of Object.entries(extensionField.slicing.slices)) {
@@ -112,10 +113,11 @@ export const resolveExtensionProfile = (
     if (!schema || !isProfileTypeSchema(schema)) return undefined;
     // Only resolve extension profiles from the same package to avoid cross-package imports
     if (schema.identifier.package !== pkgName) return undefined;
-    const className = tsProfileClassName(schema);
-    const modulePath = `./${tsProfileModuleName(tsIndex, schema)}`;
-    const flatProfile = tsIndex.flatProfile(schema);
-    return { className, modulePath, flatProfile };
+    const snapshot = tsIndex.resolve(snapshotIdentifier(schema.identifier));
+    if (!snapshot) return undefined;
+    const className = tsProfileClassName(snapshot);
+    const modulePath = `./${tsProfileModuleName(tsIndex, snapshot)}`;
+    return { className, modulePath, snapshot };
 };
 
 /** Generate the body of a raw Extension branch: validate url, then push/upsert. */
@@ -208,7 +210,7 @@ const generateExtensionGetterOverloads = (
 
 type ExtensionMethodInfo = {
     ext: ProfileExtension;
-    flatProfile: ProfileTypeSchema;
+    snapshot: SnapshotProfileTypeSchema;
     setMethodName: string;
     getMethodName: string;
     targetPath: string[];
@@ -218,11 +220,11 @@ type ExtensionMethodInfo = {
 // Complex extension — has sub-extensions (e.g., Race with ombCategory, detailed, text)
 
 const generateComplexExtensionSetter = (w: TypeScript, info: ExtensionMethodInfo) => {
-    const { ext, flatProfile, setMethodName, targetPath, extProfileInfo } = info;
-    const tsProfileName = tsResourceName(flatProfile.identifier);
+    const { ext, snapshot, setMethodName, targetPath, extProfileInfo } = info;
+    const tsProfileName = tsResourceName(snapshot.identifier);
     const inputTypeName = tsExtensionFlatTypeName(tsProfileName, ext.name);
     const extProfileHasFlatInput = extProfileInfo
-        ? collectSubExtensionSlices(extProfileInfo.flatProfile).length > 0
+        ? collectSubExtensionSlices(extProfileInfo.snapshot).length > 0
         : false;
     const useUpsert = ext.max === "1";
 
@@ -286,11 +288,11 @@ const generateComplexExtensionSetter = (w: TypeScript, info: ExtensionMethodInfo
 };
 
 const generateComplexExtensionGetter = (w: TypeScript, info: ExtensionMethodInfo) => {
-    const { ext, flatProfile, getMethodName, targetPath, extProfileInfo } = info;
-    const tsProfileName = tsResourceName(flatProfile.identifier);
+    const { ext, snapshot, getMethodName, targetPath, extProfileInfo } = info;
+    const tsProfileName = tsResourceName(snapshot.identifier);
     const inputTypeName = tsExtensionFlatTypeName(tsProfileName, ext.name);
     const extProfileHasFlatInput = extProfileInfo
-        ? collectSubExtensionSlices(extProfileInfo.flatProfile).length > 0
+        ? collectSubExtensionSlices(extProfileInfo.snapshot).length > 0
         : false;
     const inputType = extProfileHasFlatInput && extProfileInfo ? `${extProfileInfo.className}Flat` : inputTypeName;
 
@@ -316,7 +318,7 @@ const generateSingleValueExtensionSetter = (w: TypeScript, tsIndex: TypeSchemaIn
     const useUpsert = ext.max === "1";
 
     if (extProfileInfo) {
-        const extFactoryInfo = collectProfileFactoryInfo(tsIndex, extProfileInfo.flatProfile);
+        const extFactoryInfo = collectProfileFactoryInfo(tsIndex, extProfileInfo.snapshot);
         const extValueParam = extFactoryInfo.params.find((p) => p.name === valueField);
         const resolvedValueType = extValueParam?.tsType ?? valueType;
         const paramType = `${extProfileInfo.className} | Extension | ${resolvedValueType}`;
@@ -395,15 +397,19 @@ const generateGenericExtensionGetter = (w: TypeScript, info: ExtensionMethodInfo
     });
 };
 
-export const generateExtensionMethods = (w: TypeScript, tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) => {
-    for (const ext of flatProfile.extensions ?? []) {
+export const generateExtensionMethods = (
+    w: TypeScript,
+    tsIndex: TypeSchemaIndex,
+    snapshot: SnapshotProfileTypeSchema,
+) => {
+    for (const ext of snapshot.extensions ?? []) {
         if (!ext.url) continue;
         const baseName = ext.nameCandidates.recommended;
         const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");
-        const extProfileInfo = resolveExtensionProfile(tsIndex, flatProfile.identifier.package, ext.url);
+        const extProfileInfo = resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext.url);
         const info: ExtensionMethodInfo = {
             ext,
-            flatProfile,
+            snapshot,
             setMethodName: `set${baseName}`,
             getMethodName: `get${baseName}`,
             targetPath,
@@ -429,18 +435,18 @@ export const generateExtensionMethods = (w: TypeScript, tsIndex: TypeSchemaIndex
 
 export const collectTypesFromExtensions = (
     tsIndex: TypeSchemaIndex,
-    flatProfile: ProfileTypeSchema,
+    snapshot: SnapshotProfileTypeSchema,
     addType: (typeId: TypeIdentifier) => void,
 ): boolean => {
     let needsExtensionType = false;
 
-    for (const ext of flatProfile.extensions ?? []) {
+    for (const ext of snapshot.extensions ?? []) {
         if (ext.isComplex && ext.subExtensions) {
             needsExtensionType = true;
             for (const sub of ext.subExtensions) {
                 if (!sub.valueFieldType) continue;
                 const resolvedType = tsIndex.resolveByUrl(
-                    flatProfile.identifier.package,
+                    snapshot.identifier.package,
                     sub.valueFieldType.url as CanonicalUrl,
                 );
                 addType(resolvedType?.identifier ?? sub.valueFieldType);
@@ -449,7 +455,7 @@ export const collectTypesFromExtensions = (
             needsExtensionType = true;
             if (ext.valueFieldTypes[0]) {
                 const resolvedType = tsIndex.resolveByUrl(
-                    flatProfile.identifier.package,
+                    snapshot.identifier.package,
                     ext.valueFieldTypes[0].url as CanonicalUrl,
                 );
                 addType(resolvedType?.identifier ?? ext.valueFieldTypes[0]);
@@ -465,18 +471,18 @@ export const collectTypesFromExtensions = (
 /** Collect types used in the FlatInput of extension profiles. */
 export const collectTypesFromFlatInput = (
     tsIndex: TypeSchemaIndex,
-    flatProfile: ProfileTypeSchema,
+    snapshot: SnapshotProfileTypeSchema,
     addType: (typeId: TypeIdentifier) => void,
 ) => {
-    if (flatProfile.base.name !== "Extension") return;
-    const subSlices = collectSubExtensionSlices(flatProfile);
+    if (snapshot.base.name !== "Extension") return;
+    const subSlices = collectSubExtensionSlices(snapshot);
     for (const sub of subSlices) {
         const tsType = sub.tsType;
         // Primitive types (string, boolean, number) don't need imports
         if (["string", "boolean", "number"].includes(tsType)) continue;
         // Resolve complex FHIR type by name
         const fhirUrl = `http://hl7.org/fhir/StructureDefinition/${tsType}` as CanonicalUrl;
-        const schema = tsIndex.resolveByUrl(flatProfile.identifier.package, fhirUrl);
+        const schema = tsIndex.resolveByUrl(snapshot.identifier.package, fhirUrl);
         if (schema) addType(schema.identifier);
     }
 };

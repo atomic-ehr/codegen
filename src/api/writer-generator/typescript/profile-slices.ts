@@ -3,8 +3,8 @@ import {
     isChoiceDeclarationField,
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
-    type ProfileTypeSchema,
     type RegularField,
+    type SnapshotProfileTypeSchema,
     type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
@@ -45,11 +45,11 @@ export const extractResourceTypeFromMatch = (match: Record<string, unknown>): st
 
 export const collectTypesFromSlices = (
     tsIndex: TypeSchemaIndex,
-    flatProfile: ProfileTypeSchema,
+    snapshot: SnapshotProfileTypeSchema,
     addType: (typeId: TypeIdentifier) => void,
 ) => {
-    const pkgName = flatProfile.identifier.package;
-    for (const field of Object.values(flatProfile.fields ?? {})) {
+    const pkgName = snapshot.identifier.package;
+    for (const field of Object.values(snapshot.fields)) {
         if (!isNotChoiceDeclarationField(field) || !field.slicing?.slices || !field.type) continue;
         const isTypeDisc = field.slicing.discriminator?.some((d) => d.type === "type") ?? false;
         for (const slice of Object.values(field.slicing.slices)) {
@@ -114,13 +114,13 @@ export type SliceDef = {
     max: number;
 };
 
-export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema): SliceDef[] =>
-    Object.entries(flatProfile.fields ?? {})
+export const collectSliceDefs = (tsIndex: TypeSchemaIndex, snapshot: SnapshotProfileTypeSchema): SliceDef[] =>
+    Object.entries(snapshot.fields)
         .filter(([_, field]) => isNotChoiceDeclarationField(field) && field.slicing?.slices)
         .flatMap(([fieldName, field]) => {
             if (!isNotChoiceDeclarationField(field) || !field.slicing?.slices || !field.type) return [];
             const baseType = tsTypeFromIdentifier(field.type);
-            const pkgName = flatProfile.identifier.package;
+            const pkgName = snapshot.identifier.package;
             const choiceBaseNames = collectChoiceBaseNames(tsIndex, field.type);
             const isTypeDisc = field.slicing.discriminator?.some((d) => d.type === "type") ?? false;
             return Object.entries(field.slicing.slices)
@@ -154,9 +154,9 @@ export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: ProfileT
                 });
         });
 
-export const generateSliceSetters = (w: TypeScript, sliceDefs: SliceDef[], flatProfile: ProfileTypeSchema) => {
-    const profileClassName = tsProfileClassName(flatProfile);
-    const tsProfileName = tsResourceName(flatProfile.identifier);
+export const generateSliceSetters = (w: TypeScript, sliceDefs: SliceDef[], snapshot: SnapshotProfileTypeSchema) => {
+    const profileClassName = tsProfileClassName(snapshot);
+    const tsProfileName = tsResourceName(snapshot.identifier);
     for (const sliceDef of sliceDefs) {
         const baseName = sliceDef.baseName;
         const methodName = `set${baseName}`;
@@ -222,9 +222,9 @@ export const generateSliceSetters = (w: TypeScript, sliceDefs: SliceDef[], flatP
     }
 };
 
-export const generateSliceGetters = (w: TypeScript, sliceDefs: SliceDef[], flatProfile: ProfileTypeSchema) => {
-    const profileClassName = tsProfileClassName(flatProfile);
-    const tsProfileName = tsResourceName(flatProfile.identifier);
+export const generateSliceGetters = (w: TypeScript, sliceDefs: SliceDef[], snapshot: SnapshotProfileTypeSchema) => {
+    const profileClassName = tsProfileClassName(snapshot);
+    const tsProfileName = tsResourceName(snapshot.identifier);
     const defaultMode = w.opts.sliceGetterDefault ?? "flat";
     for (const sliceDef of sliceDefs) {
         const baseName = sliceDef.baseName;
