@@ -1,5 +1,5 @@
-import { describe, expect, it } from "bun:test";
-import { APIBuilder } from "@root/api/builder";
+import { afterAll, beforeAll, describe, expect, it } from "bun:test";
+import { APIBuilder, type GenerationReport } from "@root/api/builder";
 import type { CanonicalUrl } from "@root/typeschema/types";
 import { mkSilentLogger } from "@typeschema-test/utils";
 
@@ -7,7 +7,7 @@ import { mkSilentLogger } from "@typeschema-test/utils";
  * Tests for SQL-on-FHIR package.
  * The SQL-on-FHIR package depends on hl7.fhir.r5.core.
  */
-describe("SQL-on-FHIR", async () => {
+describe("SQL-on-FHIR", () => {
     const packageUrl = "https://build.fhir.org/ig/FHIR/sql-on-fhir-v2/package.tgz";
 
     const treeShakeConfig = {
@@ -20,12 +20,21 @@ describe("SQL-on-FHIR", async () => {
         "org.sql-on-fhir.ig": ["https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition" as CanonicalUrl],
     };
 
-    describe("TypeScript Generation", async () => {
-        const result = await new APIBuilder({ logger: mkSilentLogger() })
-            .fromPackageRef(packageUrl)
-            .typeSchema({ treeShake: treeShakeConfig })
-            .typescript({ inMemoryOnly: true })
-            .generate();
+    describe("TypeScript Generation", () => {
+        let result: GenerationReport;
+
+        beforeAll(async () => {
+            result = await new APIBuilder({ logger: mkSilentLogger() })
+                .fromPackageRef(packageUrl)
+                .typeSchema({ treeShake: treeShakeConfig })
+                .typescript({ inMemoryOnly: true })
+                .generate();
+        });
+
+        afterAll(() => {
+            result = undefined as unknown as GenerationReport;
+            Bun.gc(true);
+        });
 
         it("should succeed", () => {
             expect(result.success).toBeTrue();
@@ -55,12 +64,21 @@ describe("SQL-on-FHIR", async () => {
         });
     });
 
-    describe("Python Generation", async () => {
-        const result = await new APIBuilder({ logger: mkSilentLogger() })
-            .fromPackageRef(packageUrl)
-            .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
-            .python({ inMemoryOnly: true })
-            .generate();
+    describe("Python Generation", () => {
+        let result: GenerationReport;
+
+        beforeAll(async () => {
+            result = await new APIBuilder({ logger: mkSilentLogger() })
+                .fromPackageRef(packageUrl)
+                .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
+                .python({ inMemoryOnly: true })
+                .generate();
+        });
+
+        afterAll(() => {
+            result = undefined as unknown as GenerationReport;
+            Bun.gc(true);
+        });
 
         it("should succeed", () => {
             expect(result.success).toBeTrue();
@@ -85,12 +103,21 @@ describe("SQL-on-FHIR", async () => {
         });
     });
 
-    describe("C# Generation", async () => {
-        const result = await new APIBuilder({ logger: mkSilentLogger() })
-            .fromPackageRef(packageUrl)
-            .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
-            .csharp({ inMemoryOnly: true })
-            .generate();
+    describe("C# Generation", () => {
+        let result: GenerationReport;
+
+        beforeAll(async () => {
+            result = await new APIBuilder({ logger: mkSilentLogger() })
+                .fromPackageRef(packageUrl)
+                .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
+                .csharp({ inMemoryOnly: true })
+                .generate();
+        });
+
+        afterAll(() => {
+            result = undefined as unknown as GenerationReport;
+            Bun.gc(true);
+        });
 
         it("should succeed", () => {
             expect(result.success).toBeTrue();

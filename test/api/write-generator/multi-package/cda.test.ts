@@ -1,5 +1,5 @@
-import { describe, expect, it } from "bun:test";
-import { APIBuilder } from "@root/api/builder";
+import { afterAll, beforeAll, describe, expect, it } from "bun:test";
+import { APIBuilder, type GenerationReport } from "@root/api/builder";
 import type { CanonicalUrl } from "@root/typeschema/types";
 import { mkSilentLogger } from "@typeschema-test/utils";
 
@@ -7,7 +7,7 @@ import { mkSilentLogger } from "@typeschema-test/utils";
  * Tests for CDA package generation.
  * Package: hl7.cda.uv.core@2.0.1-sd
  */
-describe("CDA", async () => {
+describe("CDA", () => {
     const treeShakeConfig = {
         "hl7.cda.uv.core": {
             "http://hl7.org/cda/stds/core/StructureDefinition/ClinicalDocument": {},
@@ -18,12 +18,21 @@ describe("CDA", async () => {
         "hl7.cda.uv.core": ["http://hl7.org/cda/stds/core/StructureDefinition/ClinicalDocument" as CanonicalUrl],
     };
 
-    describe("TypeScript Generation", async () => {
-        const result = await new APIBuilder({ logger: mkSilentLogger() })
-            .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
-            .typeSchema({ treeShake: treeShakeConfig })
-            .typescript({ inMemoryOnly: true })
-            .generate();
+    describe("TypeScript Generation", () => {
+        let result: GenerationReport;
+
+        beforeAll(async () => {
+            result = await new APIBuilder({ logger: mkSilentLogger() })
+                .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
+                .typeSchema({ treeShake: treeShakeConfig })
+                .typescript({ inMemoryOnly: true })
+                .generate();
+        });
+
+        afterAll(() => {
+            result = undefined as unknown as GenerationReport;
+            Bun.gc(true);
+        });
 
         it("should succeed", () => {
             expect(result.success).toBeTrue();
@@ -45,12 +54,21 @@ describe("CDA", async () => {
         });
     });
 
-    describe("Python Generation", async () => {
-        const result = await new APIBuilder({ logger: mkSilentLogger() })
-            .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
-            .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
-            .python({ inMemoryOnly: true })
-            .generate();
+    describe("Python Generation", () => {
+        let result: GenerationReport;
+
+        beforeAll(async () => {
+            result = await new APIBuilder({ logger: mkSilentLogger() })
+                .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
+                .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
+                .python({ inMemoryOnly: true })
+                .generate();
+        });
+
+        afterAll(() => {
+            result = undefined as unknown as GenerationReport;
+            Bun.gc(true);
+        });
 
         it("should succeed", () => {
             expect(result.success).toBeTrue();
@@ -68,12 +86,21 @@ describe("CDA", async () => {
         });
     });
 
-    describe("C# Generation", async () => {
-        const result = await new APIBuilder({ logger: mkSilentLogger() })
-            .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
-            .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
-            .csharp({ inMemoryOnly: true })
-            .generate();
+    describe("C# Generation", () => {
+        let result: GenerationReport;
+
+        beforeAll(async () => {
+            result = await new APIBuilder({ logger: mkSilentLogger() })
+                .fromPackage("hl7.cda.uv.core", "2.0.1-sd")
+                .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
+                .csharp({ inMemoryOnly: true })
+                .generate();
+        });
+
+        afterAll(() => {
+            result = undefined as unknown as GenerationReport;
+            Bun.gc(true);
+        });
 
         it("should succeed", () => {
             expect(result.success).toBeTrue();
