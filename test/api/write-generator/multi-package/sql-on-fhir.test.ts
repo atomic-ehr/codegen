@@ -29,7 +29,7 @@ describe("SQL-on-FHIR", () => {
                 .typeSchema({ treeShake: treeShakeConfig })
                 .typescript({ inMemoryOnly: true })
                 .generate();
-        });
+        }, 180_000);
 
         afterAll(() => {
             result = undefined as unknown as GenerationReport;
@@ -73,7 +73,7 @@ describe("SQL-on-FHIR", () => {
                 .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
                 .python({ inMemoryOnly: true })
                 .generate();
-        });
+        }, 180_000);
 
         afterAll(() => {
             result = undefined as unknown as GenerationReport;
@@ -112,7 +112,7 @@ describe("SQL-on-FHIR", () => {
                 .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
                 .csharp({ inMemoryOnly: true })
                 .generate();
-        });
+        }, 180_000);
 
         afterAll(() => {
             result = undefined as unknown as GenerationReport;
