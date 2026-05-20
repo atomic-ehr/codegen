@@ -5,7 +5,7 @@ TYPECHECK = bunx tsc --noEmit
 VERSION = $(shell cat package.json | grep version | sed -E 's/ *"version": "//' | sed -E 's/",.*//')
 
 .PHONY: all generate-types lint lint-fix lint-unsafe typecheck \
-	test \
+	test test-multi-package \
 	prepare-aidbox-runme test-all-example-generation test-other-example-generation \
 	test-on-the-fly-example test-on-the-fly-norge-r4 test-on-the-fly-kbv-r4 \
 	test-typescript-r4-example test-typescript-us-core-example test-typescript-sql-on-fhir-example \
@@ -13,7 +13,7 @@ VERSION = $(shell cat package.json | grep version | sed -E 's/ *"version": "//' 
 	test-csharp-sdk generate-python-sdk generate-python-sdk-fhirpy \
 	python-test-setup python-fhirpy-test-setup test-python-sdk test-python-fhirpy-sdk
 
-all: test test-typescript-r4-example test-typescript-us-core-example test-typescript-ccda-example test-typescript-sql-on-fhir-example test-local-package-folder-example lint-unsafe test-all-example-generation
+all: test test-multi-package test-typescript-r4-example test-typescript-us-core-example test-typescript-ccda-example test-typescript-sql-on-fhir-example test-local-package-folder-example lint-unsafe test-all-example-generation
 
 generate-types:
 	bun run scripts/generate-types.ts
@@ -31,7 +31,12 @@ typecheck:
 	$(TYPECHECK)
 
 test: typecheck
-	bun test
+	bun test --path-ignore-patterns="**/test/api/write-generator/multi-package/**"
+
+test-multi-package: typecheck
+	bun test test/api/write-generator/multi-package/cda.test.ts
+	bun test test/api/write-generator/multi-package/local-package.test.ts
+	bun test test/api/write-generator/multi-package/sql-on-fhir.test.ts
 
 prepare-aidbox-runme:
 	@if [ ! -f "example/docker-compose.yaml" ]; then \
