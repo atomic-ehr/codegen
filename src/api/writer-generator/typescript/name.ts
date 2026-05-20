@@ -7,7 +7,7 @@ import {
 import {
     type CanonicalUrl,
     extractNameFromCanonical,
-    type ProfileTypeSchema,
+    type SnapshotProfileTypeSchema,
     type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
@@ -77,17 +77,17 @@ export const tsFieldName = (n: string): string => {
     return n;
 };
 
-export const tsProfileModuleName = (tsIndex: TypeSchemaIndex, schema: ProfileTypeSchema): string => {
-    const resourceSchema = tsIndex.findLastSpecialization(schema);
-    const resourceName = uppercaseFirstLetter(normalizeTsName(resourceSchema.identifier.name));
+export const tsProfileModuleName = (tsIndex: TypeSchemaIndex, schema: SnapshotProfileTypeSchema): string => {
+    const resourceId = tsIndex.findLastSpecializationByIdentifier(schema.identifier);
+    const resourceName = uppercaseFirstLetter(normalizeTsName(resourceId.name));
     return `${resourceName}_${normalizeTsName(schema.identifier.name)}`;
 };
 
-export const tsProfileModuleFileName = (tsIndex: TypeSchemaIndex, schema: ProfileTypeSchema): string => {
+export const tsProfileModuleFileName = (tsIndex: TypeSchemaIndex, schema: SnapshotProfileTypeSchema): string => {
     return `${tsProfileModuleName(tsIndex, schema)}.ts`;
 };
 
-export const tsProfileClassName = (schema: ProfileTypeSchema): string => {
+export const tsProfileClassName = (schema: SnapshotProfileTypeSchema): string => {
     const name = normalizeTsName(schema.identifier.name);
     return name.endsWith("Profile") ? name : `${name}Profile`;
 };
