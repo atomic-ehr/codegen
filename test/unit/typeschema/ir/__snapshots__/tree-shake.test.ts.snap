@@ -4946,6 +4946,7 @@ exports[`treeShake specific TypeSchema Only Bundle & Operation Outcome without e
       "http://hl7.org/fhir/StructureDefinition/xhtml": {},
     },
     "profile": {},
+    "profile-snapshot": {},
     "resource": {
       "http://hl7.org/fhir/StructureDefinition/Bundle": {},
       "http://hl7.org/fhir/StructureDefinition/DomainResource": {},
@@ -4977,6 +4978,7 @@ exports[`treeShake specific TypeSchema Only Bundle & Operation Outcome without e
     "nested": {},
     "primitive-type": {},
     "profile": {},
+    "profile-snapshot": {},
     "resource": {},
     "value-set": {},
   },
