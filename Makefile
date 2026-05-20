@@ -31,7 +31,7 @@ typecheck:
 	$(TYPECHECK)
 
 test: typecheck
-	bun test
+	bun test --smol
 
 prepare-aidbox-runme:
 	@if [ ! -f "example/docker-compose.yaml" ]; then \
