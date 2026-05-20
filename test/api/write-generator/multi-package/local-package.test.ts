@@ -1,6 +1,6 @@
-import { afterAll, beforeAll, describe, expect, it } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import * as Path from "node:path";
-import { APIBuilder, type GenerationReport } from "@root/api/builder";
+import { APIBuilder } from "@root/api/builder";
 import type { CanonicalUrl } from "@root/typeschema/types";
 import { mkSilentLogger } from "@typeschema-test/utils";
 
@@ -9,7 +9,7 @@ const LOCAL_PACKAGE_PATH = Path.join(__dirname, "../../../../examples/local-pack
 /**
  * Tests for local package folder functionality with multi-package dependency resolution.
  * */
-describe("Local Package Folder - Multi-Package Generation", () => {
+describe("Local Package Folder - Multi-Package Generation", async () => {
     const localPackageConfig = {
         package: { name: "example.folder.structures", version: "0.0.1" },
         path: LOCAL_PACKAGE_PATH,
@@ -29,21 +29,12 @@ describe("Local Package Folder - Multi-Package Generation", () => {
         "example.folder.structures": ["http://example.org/fhir/StructureDefinition/ExampleNotebook" as CanonicalUrl],
     };
 
-    describe("TypeScript Generation", () => {
-        let result: GenerationReport;
-
-        beforeAll(async () => {
-            result = await new APIBuilder({ logger: mkSilentLogger() })
-                .localStructureDefinitions(localPackageConfig)
-                .typeSchema({ treeShake: treeShakeConfig })
-                .typescript({ inMemoryOnly: true })
-                .generate();
-        });
-
-        afterAll(() => {
-            result = undefined as unknown as GenerationReport;
-            Bun.gc(true);
-        });
+    describe("TypeScript Generation", async () => {
+        const result = await new APIBuilder({ logger: mkSilentLogger() })
+            .localStructureDefinitions(localPackageConfig)
+            .typeSchema({ treeShake: treeShakeConfig })
+            .typescript({ inMemoryOnly: true })
+            .generate();
 
         it("should succeed", () => {
             expect(result.success).toBeTrue();
@@ -71,31 +62,22 @@ describe("Local Package Folder - Multi-Package Generation", () => {
         });
     });
 
-    describe("TypeScript Generation with type-discriminated profile", () => {
-        let result: GenerationReport;
-
-        beforeAll(async () => {
-            result = await new APIBuilder({ logger: mkSilentLogger() })
-                .localStructureDefinitions(localPackageConfig)
-                .typeSchema({
-                    treeShake: {
-                        "example.folder.structures": {
-                            "http://example.org/fhir/StructureDefinition/ExampleTypedBundle": {},
-                        },
-                        "hl7.fhir.r4.core": {
-                            "http://hl7.org/fhir/StructureDefinition/Patient": {},
-                            "http://hl7.org/fhir/StructureDefinition/Organization": {},
-                        },
+    describe("TypeScript Generation with type-discriminated profile", async () => {
+        const result = await new APIBuilder({ logger: mkSilentLogger() })
+            .localStructureDefinitions(localPackageConfig)
+            .typeSchema({
+                treeShake: {
+                    "example.folder.structures": {
+                        "http://example.org/fhir/StructureDefinition/ExampleTypedBundle": {},
                     },
-                })
-                .typescript({ inMemoryOnly: true, generateProfile: true, withDebugComment: false })
-                .generate();
-        });
-
-        afterAll(() => {
-            result = undefined as unknown as GenerationReport;
-            Bun.gc(true);
-        });
+                    "hl7.fhir.r4.core": {
+                        "http://hl7.org/fhir/StructureDefinition/Patient": {},
+                        "http://hl7.org/fhir/StructureDefinition/Organization": {},
+                    },
+                },
+            })
+            .typescript({ inMemoryOnly: true, generateProfile: true, withDebugComment: false })
+            .generate();
 
         it("should succeed", () => {
             expect(result.success).toBeTrue();
@@ -111,21 +93,12 @@ describe("Local Package Folder - Multi-Package Generation", () => {
         });
     });
 
-    describe("Python Generation", () => {
-        let result: GenerationReport;
-
-        beforeAll(async () => {
-            result = await new APIBuilder({ logger: mkSilentLogger() })
-                .localStructureDefinitions(localPackageConfig)
-                .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
-                .python({ inMemoryOnly: true })
-                .generate();
-        });
-
-        afterAll(() => {
-            result = undefined as unknown as GenerationReport;
-            Bun.gc(true);
-        });
+    describe("Python Generation", async () => {
+        const result = await new APIBuilder({ logger: mkSilentLogger() })
+            .localStructureDefinitions(localPackageConfig)
+            .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
+            .python({ inMemoryOnly: true })
+            .generate();
 
         it("should succeed", () => {
             expect(result.success).toBeTrue();
@@ -156,21 +129,12 @@ describe("Local Package Folder - Multi-Package Generation", () => {
         });
     });
 
-    describe("C# Generation", () => {
-        let result: GenerationReport;
-
-        beforeAll(async () => {
-            result = await new APIBuilder({ logger: mkSilentLogger() })
-                .localStructureDefinitions(localPackageConfig)
-                .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
-                .csharp({ inMemoryOnly: true })
-                .generate();
-        });
-
-        afterAll(() => {
-            result = undefined as unknown as GenerationReport;
-            Bun.gc(true);
-        });
+    describe("C# Generation", async () => {
+        const result = await new APIBuilder({ logger: mkSilentLogger() })
+            .localStructureDefinitions(localPackageConfig)
+            .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
+            .csharp({ inMemoryOnly: true })
+            .generate();
 
         it("should succeed", () => {
             expect(result.success).toBeTrue();
