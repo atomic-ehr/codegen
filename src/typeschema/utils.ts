@@ -5,8 +5,11 @@ import * as YAML from "yaml";
 import type { IrReport } from "./ir/types";
 import type { Register } from "./register";
 import {
+    type BindingIdentifier,
+    type BindingTypeSchema,
     type CanonicalUrl,
     type ChoiceFieldInstance,
+    type ComplexTypeIdentifier,
     type ComplexTypeTypeSchema,
     type ConstrainedChoiceInfo,
     concatIdentifiers,
@@ -23,17 +26,30 @@ import {
     isProfileTypeSchema,
     isResourceIdentifier,
     isResourceTypeSchema,
+    isSnapshotProfileIdentifier,
+    isSnapshotProfileTypeSchema,
     isSpecializationTypeSchema,
+    type LogicalIdentifier,
     type LogicalTypeSchema,
+    type NestedIdentifier,
     type NestedTypeSchema,
     type PkgName,
+    type PrimitiveIdentifier,
+    type PrimitiveTypeSchema,
     type ProfileExtension,
+    type ProfileIdentifier,
     type ProfileTypeSchema,
+    type ResourceIdentifier,
     type ResourceTypeSchema,
+    type SnapshotProfileIdentifier,
+    type SnapshotProfileTypeSchema,
     type SpecializationTypeSchema,
+    snapshotIdentifier,
     type TypeFamily,
     type TypeIdentifier,
     type TypeSchema,
+    type ValueSetIdentifier,
+    type ValueSetTypeSchema,
 } from "./types";
 
 ///////////////////////////////////////////////////////////
@@ -292,6 +308,33 @@ const populateGeneric = (
 ///////////////////////////////////////////////////////////
 // Type Schema Index
 
+/** Overloaded `resolve` — passing a specific identifier kind narrows the return type. */
+type ResolveFn = {
+    (id: PrimitiveIdentifier): PrimitiveTypeSchema | undefined;
+    (id: ComplexTypeIdentifier): ComplexTypeTypeSchema | undefined;
+    (id: ResourceIdentifier): ResourceTypeSchema | undefined;
+    (id: LogicalIdentifier): LogicalTypeSchema | undefined;
+    (id: ValueSetIdentifier): ValueSetTypeSchema | undefined;
+    (id: BindingIdentifier): BindingTypeSchema | undefined;
+    (id: ProfileIdentifier): ProfileTypeSchema | undefined;
+    (id: SnapshotProfileIdentifier): SnapshotProfileTypeSchema | undefined;
+    (id: Identifier): TypeSchema | undefined;
+};
+
+/** Overloaded `resolveType` — same as ResolveFn plus a NestedIdentifier overload. */
+type ResolveTypeFn = {
+    (id: NestedIdentifier): NestedTypeSchema | undefined;
+    (id: PrimitiveIdentifier): PrimitiveTypeSchema | undefined;
+    (id: ComplexTypeIdentifier): ComplexTypeTypeSchema | undefined;
+    (id: ResourceIdentifier): ResourceTypeSchema | undefined;
+    (id: LogicalIdentifier): LogicalTypeSchema | undefined;
+    (id: ValueSetIdentifier): ValueSetTypeSchema | undefined;
+    (id: BindingIdentifier): BindingTypeSchema | undefined;
+    (id: ProfileIdentifier): ProfileTypeSchema | undefined;
+    (id: SnapshotProfileIdentifier): SnapshotProfileTypeSchema | undefined;
+    (id: TypeIdentifier): TypeSchema | NestedTypeSchema | undefined;
+};
+
 export type TypeSchemaIndex = {
     _schemaIndex: Record<CanonicalUrl, Record<PkgName, TypeSchema>>;
     schemas: TypeSchema[];
@@ -301,8 +344,9 @@ export type TypeSchemaIndex = {
     collectResources: () => ResourceTypeSchema[];
     collectLogicalModels: () => LogicalTypeSchema[];
     collectProfiles: () => ProfileTypeSchema[];
-    resolve: (id: Identifier) => TypeSchema | undefined;
-    resolveType: (id: TypeIdentifier) => TypeSchema | NestedTypeSchema | undefined;
+    collectSnapshotProfiles: () => SnapshotProfileTypeSchema[];
+    resolve: ResolveFn;
+    resolveType: ResolveTypeFn;
     resolveByUrl: (pkgName: PkgName, url: CanonicalUrl) => TypeSchema | NestedTypeSchema | undefined;
     tryHierarchy: (schema: TypeSchema) => TypeSchema[] | undefined;
     hierarchy: (schema: TypeSchema) => TypeSchema[];
@@ -314,7 +358,7 @@ export type TypeSchemaIndex = {
         baseTypeId: TypeIdentifier,
         sliceElements: string[],
     ) => ConstrainedChoiceInfo | undefined;
-    isWithMetaField: (profile: ProfileTypeSchema) => boolean;
+    isWithMetaField: (profile: ProfileTypeSchema | SnapshotProfileTypeSchema) => boolean;
     entityTree: () => EntityTree;
     exportTree: (filename: string) => Promise<void>;
     irReport: () => IrReport;
@@ -337,6 +381,7 @@ export const mkTypeSchemaIndex = (
 ): TypeSchemaIndex => {
     const index: Record<CanonicalUrl, Record<PkgName, TypeSchema>> = {};
     const nestedIndex: Record<CanonicalUrl, Record<PkgName, NestedTypeSchema>> = {};
+    const snapshotIndex: Record<CanonicalUrl, Record<PkgName, SnapshotProfileTypeSchema>> = {};
     const append = (schema: TypeSchema) => {
         const url = schema.identifier.url;
         const pkg = schema.identifier.package;
@@ -366,13 +411,15 @@ export const mkTypeSchemaIndex = (
     }
     populateTypeFamily(schemas);
 
-    const resolve = (id: Identifier): TypeSchema | undefined => {
+    const resolve = ((id: Identifier): TypeSchema | undefined => {
+        if (isSnapshotProfileIdentifier(id)) return snapshotIndex[id.url]?.[id.package];
         return index[id.url]?.[id.package];
-    };
-    const resolveType = (id: TypeIdentifier): TypeSchema | NestedTypeSchema | undefined => {
+    }) as ResolveFn;
+    const resolveType = ((id: TypeIdentifier): TypeSchema | NestedTypeSchema | undefined => {
         if (isNestedIdentifier(id)) return nestedIndex[id.url]?.[id.package];
+        if (isSnapshotProfileIdentifier(id)) return snapshotIndex[id.url]?.[id.package];
         return index[id.url]?.[id.package];
-    };
+    }) as ResolveTypeFn;
 
     populateGeneric(schemas, resolveType);
     const resolveByUrl = (pkgName: PkgName, url: CanonicalUrl): TypeSchema | NestedTypeSchema | undefined => {
@@ -410,10 +457,10 @@ export const mkTypeSchemaIndex = (
         let cur: TypeSchema | undefined = schema;
         while (cur) {
             res.push(cur);
-            const base = (cur as SpecializationTypeSchema).base;
+            const base: TypeIdentifier | undefined = (cur as SpecializationTypeSchema).base;
             if (base === undefined) break;
             if (isNestedIdentifier(base)) break;
-            const resolved = resolve(base);
+            const resolved: TypeSchema | undefined = resolve(base);
             if (!resolved) {
                 logger?.warn(
                     "#resolveBase",
@@ -435,7 +482,9 @@ export const mkTypeSchemaIndex = (
     };
 
     const findLastSpecialization = (schema: TypeSchema): TypeSchema => {
-        const nonConstraintSchema = hierarchy(schema).find((s) => s.identifier.kind !== "profile");
+        const nonConstraintSchema = hierarchy(schema).find(
+            (s) => !isProfileTypeSchema(s) && !isSnapshotProfileTypeSchema(s),
+        );
         if (!nonConstraintSchema) {
             throw new Error(`No non-constraint schema found in hierarchy for: ${schema.identifier.name}`);
         }
@@ -549,6 +598,34 @@ export const mkTypeSchemaIndex = (
         };
     };
 
+    const buildProfileSnapshot = (schema: ProfileTypeSchema): SnapshotProfileTypeSchema => {
+        const flat = flatProfile(schema);
+        return {
+            identifier: snapshotIdentifier(flat.identifier),
+            base: flat.base,
+            description: flat.description,
+            fields: flat.fields ?? {},
+            extensions: flat.extensions,
+            dependencies: flat.dependencies,
+            nested: flat.nested,
+        };
+    };
+
+    for (const schema of schemas) {
+        if (!isProfileTypeSchema(schema)) continue;
+        // Skip profiles whose hierarchy is incomplete — no resolvable base, or no
+        // non-profile root (e.g. constraint-on-constraint with nothing underneath).
+        // flatProfile would throw on these; direct callers still see the original exception.
+        const hier = tryHierarchy(schema);
+        if (!hier?.some((s) => !isProfileTypeSchema(s) && !isSnapshotProfileTypeSchema(s))) continue;
+        const snap = buildProfileSnapshot(schema);
+        const byPkg = (snapshotIndex[snap.identifier.url] ??= {});
+        byPkg[snap.identifier.package] = snap;
+    }
+
+    const collectSnapshotProfiles = (): SnapshotProfileTypeSchema[] =>
+        Object.values(snapshotIndex).flatMap((byPkg) => Object.values(byPkg));
+
     const constrainedChoice = (
         pkgName: PkgName,
         baseTypeId: TypeIdentifier,
@@ -573,7 +650,7 @@ export const mkTypeSchemaIndex = (
         return undefined;
     };
 
-    const isWithMetaField = (profile: ProfileTypeSchema): boolean => {
+    const isWithMetaField = (profile: ProfileTypeSchema | SnapshotProfileTypeSchema): boolean => {
         const genealogy = tryHierarchy(profile);
         if (!genealogy) return false;
         return genealogy.filter(isSpecializationTypeSchema).some((schema) => {
@@ -592,6 +669,7 @@ export const mkTypeSchemaIndex = (
                 nested: {},
                 binding: {},
                 profile: {},
+                "profile-snapshot": {},
                 logical: {},
             };
             for (const schema of shemas) {
@@ -617,6 +695,7 @@ export const mkTypeSchemaIndex = (
         collectResources: () => schemas.filter(isResourceTypeSchema),
         collectLogicalModels: () => schemas.filter(isLogicalTypeSchema),
         collectProfiles: () => schemas.filter(isProfileTypeSchema),
+        collectSnapshotProfiles,
         resolve,
         resolveType,
         resolveByUrl,

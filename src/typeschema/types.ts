@@ -108,6 +108,7 @@ export type ValueSetIdentifier = { kind: "value-set" } & IdentifierBase;
 export type NestedIdentifier = { kind: "nested" } & IdentifierBase;
 export type BindingIdentifier = { kind: "binding" } & IdentifierBase;
 export type ProfileIdentifier = { kind: "profile" } & IdentifierBase;
+export type SnapshotProfileIdentifier = { kind: "profile-snapshot" } & IdentifierBase;
 export type LogicalIdentifier = { kind: "logical" } & IdentifierBase;
 
 export type Identifier =
@@ -117,6 +118,7 @@ export type Identifier =
     | BindingIdentifier
     | ValueSetIdentifier
     | ProfileIdentifier
+    | SnapshotProfileIdentifier
     | LogicalIdentifier;
 
 export type TypeIdentifier = Identifier | NestedIdentifier;
@@ -145,6 +147,15 @@ export const isProfileIdentifier = (id: TypeIdentifier | undefined): id is Profi
     return id?.kind === "profile";
 };
 
+export const isSnapshotProfileIdentifier = (id: TypeIdentifier | undefined): id is SnapshotProfileIdentifier => {
+    return id?.kind === "profile-snapshot";
+};
+
+export const snapshotIdentifier = (id: ProfileIdentifier): SnapshotProfileIdentifier => ({
+    ...id,
+    kind: "profile-snapshot",
+});
+
 export const isSpecializationIdentifier = (
     id: TypeIdentifier | undefined,
 ): id is ResourceIdentifier | ComplexTypeIdentifier | LogicalIdentifier => {
@@ -167,7 +178,8 @@ export type TypeSchema =
     | PrimitiveTypeSchema
     | ValueSetTypeSchema
     | BindingTypeSchema
-    | ProfileTypeSchema;
+    | ProfileTypeSchema
+    | SnapshotProfileTypeSchema;
 
 type TypeSchemaGuardInput = TypeSchema | NestedTypeSchema | undefined;
 
@@ -211,7 +223,7 @@ export const isValueSetTypeSchema = (schema: TypeSchemaGuardInput): schema is Va
     return schema?.identifier.kind === "value-set";
 };
 
-interface PrimitiveTypeSchema {
+export interface PrimitiveTypeSchema {
     identifier: PrimitiveIdentifier;
     description?: string;
     base: TypeIdentifier;
@@ -253,6 +265,21 @@ export interface ProfileTypeSchema {
     dependencies?: TypeIdentifier[];
     nested?: NestedTypeSchema[];
 }
+
+/** Flattened profile. */
+export interface SnapshotProfileTypeSchema {
+    identifier: SnapshotProfileIdentifier;
+    base: TypeIdentifier;
+    description?: string;
+    fields: Record<string, Field>;
+    extensions?: ProfileExtension[];
+    dependencies?: TypeIdentifier[];
+    nested?: NestedTypeSchema[];
+}
+
+export const isSnapshotProfileTypeSchema = (s: TypeSchemaGuardInput): s is SnapshotProfileTypeSchema => {
+    return s?.identifier.kind === "profile-snapshot";
+};
 
 export interface FieldSlicing {
     discriminator?: FS.FHIRSchemaDiscriminator[];
