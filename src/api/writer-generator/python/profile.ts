@@ -245,13 +245,12 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, profile: Pro
     if (isResourceBase) helperImports.push("ensure_profile");
     if (factoryInfo.sliceAutoFields.length > 0) helperImports.push("ensure_slice_defaults");
     if (sliceDefs.length > 0) {
-        helperImports.push(
-            "apply_slice_match",
-            "get_array_slice",
-            "matches_value",
-            "set_array_slice",
-            "strip_match_keys",
-        );
+        const hasNonTyped = sliceDefs.some((s) => !s.isTypeDiscriminated);
+        const hasTypedBounded = sliceDefs.some((s) => s.isTypeDiscriminated && !(s.array && s.max === 0));
+        const hasTypedUnbounded = sliceDefs.some((s) => s.isTypeDiscriminated && s.array && s.max === 0);
+        if (hasNonTyped) helperImports.push("apply_slice_match", "matches_value", "strip_match_keys");
+        if (hasTypedBounded || hasNonTyped) helperImports.push("get_array_slice", "set_array_slice");
+        if (hasTypedUnbounded) helperImports.push("get_array_slices", "set_array_slices");
         if (sliceDefs.some((s) => s.constrainedChoice)) {
             helperImports.push("wrap_slice_choice", "unwrap_slice_choice");
         }
@@ -284,6 +283,18 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, profile: Pro
         addTypeImport(typeImports, w.opts.rootPackageName, baseTypeName, resolveRef, f.typeId);
     for (const a of factoryInfo.accessors)
         addTypeImport(typeImports, w.opts.rootPackageName, baseTypeName, resolveRef, a.typeId);
+    // Collect imports for resource types referenced in type-discriminated slice signatures
+    for (const s of sliceDefs) {
+        if (!s.isTypeDiscriminated || !s.typeDiscriminatorResource) continue;
+        const resourceId = tsIndex.schemas
+            .find(
+                (schema) =>
+                    schema.identifier.kind === "resource" &&
+                    schema.identifier.name === s.typeDiscriminatorResource,
+            )
+            ?.identifier;
+        if (resourceId) addTypeImport(typeImports, w.opts.rootPackageName, baseTypeName, resolveRef, resourceId);
+    }
 
     w.line("from __future__ import annotations");
     w.line();

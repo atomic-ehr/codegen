@@ -350,6 +350,25 @@ def get_array_slice(lst: Sequence[Any] | None, match: Mapping[str, Any]) -> Any:
     return None
 
 
+def get_array_slices(lst: Sequence[Any] | None, match: Mapping[str, Any]) -> list[Any]:
+    """Return all elements in ``lst`` that satisfy ``match``."""
+    if lst is None:
+        return []
+    return [item for item in lst if matches_value(item, match)]
+
+
+def set_array_slices(
+    lst: MutableSequence[Any],
+    match: Mapping[str, Any],
+    values: Sequence[Any],
+) -> None:
+    """Remove all elements matching ``match``, then append ``values``."""
+    indices = [i for i, item in enumerate(lst) if matches_value(item, match)]
+    for i in reversed(indices):
+        del lst[i]
+    lst.extend(values)
+
+
 # ---------------------------------------------------------------------------
 # Validation helpers
 #

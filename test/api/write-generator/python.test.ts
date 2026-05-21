@@ -77,6 +77,7 @@ describe("Python R4 Example (with generateProfile)", async () => {
             generateProfile: true,
         })
         .generate();
+    const files = result.filesGenerated.python!;
 
     it("generates successfully", () => {
         expect(result.success).toBeTrue();
@@ -84,13 +85,13 @@ describe("Python R4 Example (with generateProfile)", async () => {
 
     it("generates bodyweight profile with validate()", () => {
         expect(
-            result.filesGenerated["generated/hl7_fhir_r4_core/profiles/observation_observation_bodyweight.py"],
+            files["generated/hl7_fhir_r4_core/profiles/observation_observation_bodyweight.py"],
         ).toMatchSnapshot();
     });
 
     it("generates bp profile with validate()", () => {
         expect(
-            result.filesGenerated["generated/hl7_fhir_r4_core/profiles/observation_observation_bp.py"],
+            files["generated/hl7_fhir_r4_core/profiles/observation_observation_bp.py"],
         ).toMatchSnapshot();
     });
 });
@@ -118,6 +119,7 @@ describe("Python US Core Example", async () => {
             generateProfile: true,
         })
         .generate();
+    const files = result.filesGenerated.python!;
 
     it("generates successfully", () => {
         expect(result.success).toBeTrue();
@@ -125,27 +127,27 @@ describe("Python US Core Example", async () => {
 
     it("generates US Core Patient profile", () => {
         expect(
-            result.filesGenerated["generated/hl7_fhir_us_core/profiles/patient_uscore_patient_profile.py"],
+            files["generated/hl7_fhir_us_core/profiles/patient_uscore_patient_profile.py"],
         ).toMatchSnapshot();
     });
 
     it("generates US Core Blood Pressure profile", () => {
         expect(
-            result.filesGenerated["generated/hl7_fhir_us_core/profiles/observation_uscore_blood_pressure_profile.py"],
+            files["generated/hl7_fhir_us_core/profiles/observation_uscore_blood_pressure_profile.py"],
         ).toMatchSnapshot();
     });
 
     it("generates US Core Body Weight profile", () => {
         const key = "generated/hl7_fhir_us_core/profiles/observation_uscore_body_weight_profile.py";
-        expect(result.filesGenerated[key]).toMatchSnapshot();
+        expect(files[key]).toMatchSnapshot();
     });
 
     it("generates US Core Race extension profile", () => {
         const key = "generated/hl7_fhir_us_core/profiles/extension_uscore_race_extension.py";
-        expect(result.filesGenerated[key]).toMatchSnapshot();
+        expect(files[key]).toMatchSnapshot();
     });
 
     it("generates US Core profiles index", () => {
-        expect(result.filesGenerated["generated/hl7_fhir_us_core/profiles/__init__.py"]).toMatchSnapshot();
+        expect(files["generated/hl7_fhir_us_core/profiles/__init__.py"]).toMatchSnapshot();
     });
 });

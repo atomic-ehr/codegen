@@ -30,6 +30,8 @@ export type SliceDef = {
 // todo: move duplicating ts+py logic into a shared helper
 export const collectRequiredSliceNames = (field: RegularField): string[] | undefined => {
     if (!field.array || !field.slicing?.slices) return undefined;
+    // Type-discriminated slices ("type" discriminator) require explicit typed setters — no stubs.
+    if (field.slicing.discriminator?.some((d) => d.type === "type")) return undefined;
     const names = Object.entries(field.slicing.slices)
         .filter(([_, s]) => s.min !== undefined && s.min >= 1 && s.match && Object.keys(s.match).length > 0)
         .map(([name]) => name);
@@ -162,34 +164,56 @@ export const generateSliceGetters = (
         const fieldName = pyFieldName(sliceDef.fieldName);
         const matchKeys = JSON.stringify(Object.keys(sliceDef.match));
 
-        w.line(`def get_${baseName}(self, mode: str | None = None) -> Any | None:`);
-        w.indentBlock(() => {
-            w.line(`match = self.__class__.${staticName}`);
-            if (sliceDef.array) {
-                w.line(`item = get_array_slice(getattr(self._resource, ${JSON.stringify(fieldName)}, None), match)`);
+        if (sliceDef.isTypeDiscriminated) {
+            const retType =
+                sliceDef.elementTypeName && sliceDef.typeDiscriminatorResource
+                    ? `${sliceDef.elementTypeName}[${sliceDef.typeDiscriminatorResource}]`
+                    : (sliceDef.elementTypeName ?? "Any");
+            const isUnbounded = sliceDef.array && sliceDef.max === 0;
+            if (isUnbounded) {
+                w.line(`def get_${baseName}(self, mode: str | None = None) -> list[${retType}] | None:`);
+                w.indentBlock(() => {
+                    w.line(`match = self.__class__.${staticName}`);
+                    w.line(`result = get_array_slices(getattr(self._resource, ${JSON.stringify(fieldName)}, None), match)`);
+                    w.line("return result or None");
+                });
             } else {
-                w.line(`item = getattr(self._resource, ${JSON.stringify(fieldName)}, None)`);
-                w.line("if item is None or not matches_value(item, match):");
+                w.line(`def get_${baseName}(self, mode: str | None = None) -> ${retType} | None:`);
+                w.indentBlock(() => {
+                    w.line(`match = self.__class__.${staticName}`);
+                    w.line(`return get_array_slice(getattr(self._resource, ${JSON.stringify(fieldName)}, None), match)`);
+                });
+            }
+        } else {
+            w.line(`def get_${baseName}(self, mode: str | None = None) -> Any | None:`);
+            w.indentBlock(() => {
+                w.line(`match = self.__class__.${staticName}`);
+                if (sliceDef.array) {
+                    w.line(`item = get_array_slice(getattr(self._resource, ${JSON.stringify(fieldName)}, None), match)`);
+                } else {
+                    w.line(`item = getattr(self._resource, ${JSON.stringify(fieldName)}, None)`);
+                    w.line("if item is None or not matches_value(item, match):");
+                    w.indentBlock(() => {
+                        w.line("return None");
+                    });
+                }
+                w.line("if item is None:");
                 w.indentBlock(() => {
                     w.line("return None");
                 });
-            }
-            w.line("if item is None:");
-            w.indentBlock(() => {
-                w.line("return None");
+                w.line('if mode == "raw":');
+                w.indentBlock(() => {
+                    w.line("return item");
+                });
+                w.line("item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)");
+                if (sliceDef.constrainedChoice) {
+                    const variant = JSON.stringify(sliceDef.constrainedChoice.variant);
+                    w.line(`return unwrap_slice_choice(item_dict, ${matchKeys}, ${variant})`);
+                } else {
+                    w.line(`return strip_match_keys(item_dict, ${matchKeys})`);
+                }
             });
-            w.line('if mode == "raw":');
-            w.indentBlock(() => {
-                w.line("return item");
-            });
-            w.line("item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)");
-            if (sliceDef.constrainedChoice) {
-                const variant = JSON.stringify(sliceDef.constrainedChoice.variant);
-                w.line(`return unwrap_slice_choice(item_dict, ${matchKeys}, ${variant})`);
-            } else {
-                w.line(`return strip_match_keys(item_dict, ${matchKeys})`);
-            }
-        });
+        }
         w.line();
     }
 };
@@ -205,36 +229,62 @@ export const generateSliceSetters = (
             sliceBaseNames[`${sliceDef.fieldName}:${sliceDef.sliceName}`] ?? pySliceMethodBaseName(sliceDef.sliceName);
         const staticName = pySliceStaticName(sliceDef.sliceName);
         const fieldName = pyFieldName(sliceDef.fieldName);
-        // Make input optional when there are no required fields (input can be empty / omitted),
-        // mirroring TS `inputOptional = sliceDef.required.length === 0`.
-        const inputOptional = sliceDef.required.length === 0;
-        const sig = inputOptional
-            ? `def set_${baseName}(self, value: dict | None = None) -> "${className}":`
-            : `def set_${baseName}(self, value: dict) -> "${className}":`;
-
-        w.line(sig);
-        w.indentBlock(() => {
-            w.line(`match = self.__class__.${staticName}`);
-            const inputExpr = inputOptional ? "(value or {})" : "value";
-            if (sliceDef.constrainedChoice) {
-                const variant = JSON.stringify(sliceDef.constrainedChoice.variant);
-                w.line(`wrapped = wrap_slice_choice(${inputExpr}, ${variant})`);
-                w.line("merged = apply_slice_match(wrapped, match)");
+        if (sliceDef.isTypeDiscriminated) {
+            const retType =
+                sliceDef.elementTypeName && sliceDef.typeDiscriminatorResource
+                    ? `${sliceDef.elementTypeName}[${sliceDef.typeDiscriminatorResource}]`
+                    : (sliceDef.elementTypeName ?? "Any");
+            const isUnbounded = sliceDef.array && sliceDef.max === 0;
+            if (isUnbounded) {
+                w.line(`def set_${baseName}(self, values: list[${retType}]) -> "${className}":`);
+                w.indentBlock(() => {
+                    w.line(`match = self.__class__.${staticName}`);
+                    w.line(`items = list(getattr(self._resource, ${JSON.stringify(fieldName)}, None) or [])`);
+                    w.line("set_array_slices(items, match, values)");
+                    w.line(`setattr(self._resource, ${JSON.stringify(fieldName)}, items)`);
+                    w.line("return self");
+                });
             } else {
-                w.line(`merged = apply_slice_match(${inputExpr}, match)`);
+                w.line(`def set_${baseName}(self, value: ${retType} | None = None) -> "${className}":`);
+                w.indentBlock(() => {
+                    w.line(`match = self.__class__.${staticName}`);
+                    w.line(`items = getattr(self._resource, ${JSON.stringify(fieldName)}, None) or []`);
+                    w.line("set_array_slice(items, match, value)");
+                    w.line(`setattr(self._resource, ${JSON.stringify(fieldName)}, items)`);
+                    w.line("return self");
+                });
             }
-            if (sliceDef.elementTypeName) {
-                w.line(`merged = ${sliceDef.elementTypeName}(**merged)`);
-            }
-            if (sliceDef.array) {
-                w.line(`items = getattr(self._resource, ${JSON.stringify(fieldName)}, None) or []`);
-                w.line("set_array_slice(items, match, merged)");
-                w.line(`setattr(self._resource, ${JSON.stringify(fieldName)}, items)`);
-            } else {
-                w.line(`setattr(self._resource, ${JSON.stringify(fieldName)}, merged)`);
-            }
-            w.line("return self");
-        });
+        } else {
+            // Make input optional when there are no required fields (input can be empty / omitted),
+            // mirroring TS `inputOptional = sliceDef.required.length === 0`.
+            const inputOptional = sliceDef.required.length === 0;
+            const sig = inputOptional
+                ? `def set_${baseName}(self, value: dict | None = None) -> "${className}":`
+                : `def set_${baseName}(self, value: dict) -> "${className}":`;
+            w.line(sig);
+            w.indentBlock(() => {
+                w.line(`match = self.__class__.${staticName}`);
+                const inputExpr = inputOptional ? "(value or {})" : "value";
+                if (sliceDef.constrainedChoice) {
+                    const variant = JSON.stringify(sliceDef.constrainedChoice.variant);
+                    w.line(`wrapped = wrap_slice_choice(${inputExpr}, ${variant})`);
+                    w.line("merged = apply_slice_match(wrapped, match)");
+                } else {
+                    w.line(`merged = apply_slice_match(${inputExpr}, match)`);
+                }
+                if (sliceDef.elementTypeName) {
+                    w.line(`merged = ${sliceDef.elementTypeName}(**merged)`);
+                }
+                if (sliceDef.array) {
+                    w.line(`items = getattr(self._resource, ${JSON.stringify(fieldName)}, None) or []`);
+                    w.line("set_array_slice(items, match, merged)");
+                    w.line(`setattr(self._resource, ${JSON.stringify(fieldName)}, items)`);
+                } else {
+                    w.line(`setattr(self._resource, ${JSON.stringify(fieldName)}, merged)`);
+                }
+                w.line("return self");
+            });
+        }
         w.line();
     }
 };
