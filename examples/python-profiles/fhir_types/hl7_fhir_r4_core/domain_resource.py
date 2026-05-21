@@ -3,15 +3,18 @@
 # Any manual changes made to this file may be overwritten.
 
 from __future__ import annotations
-from pydantic import BaseModel, ConfigDict, Field, PositiveInt
-from typing import Any, List as PyList, Literal
+from pydantic import BaseModel, ConfigDict, Field, PositiveInt, model_validator
+from typing import Any, Generic, List as PyList, Literal
+from typing_extensions import Self, TypeVar
 
 from fhir_types.hl7_fhir_r4_core.base import Extension, Narrative
 from fhir_types.hl7_fhir_r4_core.resource import Resource
-from fhir_types.hl7_fhir_r4_core.resource_families import ResourceFamily
+from fhir_types.hl7_fhir_r4_core.resource_preprocessor import preprocess_resource_fields
+
+T = TypeVar('T', bound=Resource, default=Resource)
 
 
-class DomainResource(Resource):
+class DomainResource(Resource, Generic[T]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     resource_type: str = Field(
         default='DomainResource',
@@ -20,7 +23,7 @@ class DomainResource(Resource):
         frozen=True,
         pattern='DomainResource'
     )
-    contained: PyList[ResourceFamily] | None = Field(None, alias="contained", serialization_alias="contained")
+    contained: PyList[T] | None = Field(None, alias="contained", serialization_alias="contained")
     extension: PyList[Extension] | None = Field(None, alias="extension", serialization_alias="extension")
     modifier_extension: PyList[Extension] | None = Field(None, alias="modifierExtension", serialization_alias="modifierExtension")
     text: Narrative | None = Field(None, alias="text", serialization_alias="text")
@@ -32,6 +35,13 @@ class DomainResource(Resource):
         return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)
 
     @classmethod
-    def from_json(cls, json: str) -> DomainResource:
+    def from_json(cls, json: str) -> Self:
         return cls.model_validate_json(json)
+
+    @model_validator(mode='before')
+    @classmethod
+    def _preprocess_resources(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            return preprocess_resource_fields(data, "fhir_types.hl7_fhir_r4_core")
+        return data
 

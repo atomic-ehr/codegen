@@ -9,16 +9,18 @@ from fhir_types.hl7_fhir_r4_core.base import (\
     SampledData, Signature, Timing, TriggerDefinition, UsageContext
 )
 
+from fhir_types.hl7_fhir_r4_core.bundle import (\
+    Bundle, BundleEntry, BundleEntryRequest, BundleEntryResponse, BundleEntrySearch, BundleLink
+)
 from fhir_types.hl7_fhir_r4_core.domain_resource import DomainResource
-from fhir_types.hl7_fhir_r4_core.resource_families import DomainResourceFamily
 from fhir_types.hl7_fhir_r4_core.observation import (\
     Observation, ObservationComponent, ObservationReferenceRange
 )
+from fhir_types.hl7_fhir_r4_core.organization import Organization, OrganizationContact
 from fhir_types.hl7_fhir_r4_core.patient import (\
     Patient, PatientCommunication, PatientContact, PatientLink
 )
 from fhir_types.hl7_fhir_r4_core.resource import Resource
-from fhir_types.hl7_fhir_r4_core.resource_families import ResourceFamily
 
 __all__ = [
     'Address',
@@ -26,6 +28,12 @@ __all__ = [
     'Annotation',
     'Attachment',
     'BackboneElement',
+    'Bundle',
+    'BundleEntry',
+    'BundleEntryRequest',
+    'BundleEntryResponse',
+    'BundleEntrySearch',
+    'BundleLink',
     'CodeableConcept',
     'Coding',
     'ContactDetail',
@@ -48,6 +56,8 @@ __all__ = [
     'Observation',
     'ObservationComponent',
     'ObservationReferenceRange',
+    'Organization',
+    'OrganizationContact',
     'ParameterDefinition',
     'Patient',
     'PatientCommunication',

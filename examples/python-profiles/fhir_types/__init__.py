@@ -9,22 +9,30 @@ from fhir_types.hl7_fhir_r4_core.base import (\
     SampledData, Signature, Timing, TriggerDefinition, UsageContext
 )
 
+from fhir_types.hl7_fhir_r4_core.bundle import (\
+    Bundle, BundleEntry, BundleEntryRequest, BundleEntryResponse, BundleEntrySearch, BundleLink
+)
 from fhir_types.hl7_fhir_r4_core.domain_resource import DomainResource
-from fhir_types.hl7_fhir_r4_core.resource_families import DomainResourceFamily
 from fhir_types.hl7_fhir_r4_core.observation import (\
     Observation, ObservationComponent, ObservationReferenceRange
 )
+from fhir_types.hl7_fhir_r4_core.organization import Organization, OrganizationContact
 from fhir_types.hl7_fhir_r4_core.patient import (\
     Patient, PatientCommunication, PatientContact, PatientLink
 )
 from fhir_types.hl7_fhir_r4_core.resource import Resource
-from fhir_types.hl7_fhir_r4_core.resource_families import ResourceFamily
 
 Address.model_rebuild()
 Age.model_rebuild()
 Annotation.model_rebuild()
 Attachment.model_rebuild()
 BackboneElement.model_rebuild()
+Bundle.model_rebuild()
+BundleEntry.model_rebuild()
+BundleEntryRequest.model_rebuild()
+BundleEntryResponse.model_rebuild()
+BundleEntrySearch.model_rebuild()
+BundleLink.model_rebuild()
 CodeableConcept.model_rebuild()
 Coding.model_rebuild()
 ContactDetail.model_rebuild()
@@ -47,6 +55,8 @@ Narrative.model_rebuild()
 Observation.model_rebuild()
 ObservationComponent.model_rebuild()
 ObservationReferenceRange.model_rebuild()
+Organization.model_rebuild()
+OrganizationContact.model_rebuild()
 ParameterDefinition.model_rebuild()
 Patient.model_rebuild()
 PatientCommunication.model_rebuild()
