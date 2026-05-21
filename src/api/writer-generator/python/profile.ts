@@ -283,16 +283,22 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, profile: Pro
         addTypeImport(typeImports, w.opts.rootPackageName, baseTypeName, resolveRef, f.typeId);
     for (const a of factoryInfo.accessors)
         addTypeImport(typeImports, w.opts.rootPackageName, baseTypeName, resolveRef, a.typeId);
-    // Collect imports for resource types referenced in type-discriminated slice signatures
+    // Collect imports for element types and resource types referenced in type-discriminated slice signatures
     for (const s of sliceDefs) {
-        if (!s.isTypeDiscriminated || !s.typeDiscriminatorResource) continue;
-        const resourceId = tsIndex.schemas
-            .find(
-                (schema) =>
-                    schema.identifier.kind === "resource" &&
-                    schema.identifier.name === s.typeDiscriminatorResource,
-            )
-            ?.identifier;
+        if (!s.isTypeDiscriminated) continue;
+        if (s.elementTypeId && !isPrimitiveIdentifier(s.elementTypeId)) {
+            const name = deriveResourceName(s.elementTypeId);
+            if (name && name !== baseTypeName) {
+                const modulePath = modulePathForTypeId(w.opts.rootPackageName, s.elementTypeId);
+                const names = typeImports.get(modulePath) ?? new Set<string>();
+                names.add(name);
+                typeImports.set(modulePath, names);
+            }
+        }
+        if (!s.typeDiscriminatorResource) continue;
+        const resourceId = tsIndex.schemas.find(
+            (schema) => schema.identifier.kind === "resource" && schema.identifier.name === s.typeDiscriminatorResource,
+        )?.identifier;
         if (resourceId) addTypeImport(typeImports, w.opts.rootPackageName, baseTypeName, resolveRef, resourceId);
     }
 

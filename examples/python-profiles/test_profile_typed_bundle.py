@@ -61,16 +61,6 @@ def test_get_patient_entry_returns_stored_entry_including_resource():
     assert resource is not None
 
 
-def test_get_patient_entry_resource_accessible_in_raw_mode():
-    bundle = ExampleTypedBundleProfile.create(type="collection")
-    bundle.set_patient_entry({"resource": smith_patient.model_dump(by_alias=True, exclude_none=True)})
-
-    entry = bundle.get_patient_entry()
-    assert entry is not None
-    resource = entry.resource if hasattr(entry, "resource") else (entry or {}).get("resource")
-    assert resource is not None
-
-
 def test_set_patient_entry_replaces_existing():
     bundle = ExampleTypedBundleProfile.create(type="collection")
     bundle.set_patient_entry({"resource": smith_patient.model_dump(by_alias=True, exclude_none=True)})

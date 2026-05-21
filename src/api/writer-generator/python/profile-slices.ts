@@ -5,6 +5,7 @@ import {
     isPrimitiveIdentifier,
     type ProfileTypeSchema,
     type RegularField,
+    type TypeIdentifier,
 } from "@typeschema/types.ts";
 import type { TypeSchemaIndex } from "@typeschema/utils.ts";
 import { pyTypeFromIdentifier } from "./profile-extensions";
@@ -21,6 +22,8 @@ export type SliceDef = {
     max: number;
     constrainedChoice: ConstrainedChoiceInfo | undefined;
     elementTypeName: string | undefined;
+    /** The type identifier of the array element, used for import resolution. */
+    elementTypeId: TypeIdentifier | undefined;
     /** True when the FieldSlicing discriminator type is "type" (resource-type discriminator). */
     isTypeDiscriminated: boolean;
     /** For type-discriminated slices: the resource type name, e.g. "Patient", "Organization". */
@@ -122,8 +125,7 @@ export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: ProfileT
                         : undefined;
                     // Skip flattening for primitive types — can't wrap/unwrap under a variant key.
                     const constrainedChoice = cc && !isPrimitiveIdentifier(cc.variantType) ? cc : undefined;
-                    const isTypeDiscriminated =
-                        field.slicing?.discriminator?.some((d) => d.type === "type") ?? false;
+                    const isTypeDiscriminated = field.slicing?.discriminator?.some((d) => d.type === "type") ?? false;
                     const typeDiscriminatorResource = extractTypeDiscriminatorResource(
                         isTypeDiscriminated,
                         slice.match as Record<string, unknown> | undefined,
@@ -140,6 +142,8 @@ export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: ProfileT
                             field.type && !isPrimitiveIdentifier(field.type)
                                 ? pyTypeFromIdentifier(field.type)
                                 : undefined,
+                        elementTypeId:
+                            field.type && !isPrimitiveIdentifier(field.type) ? field.type : undefined,
                         isTypeDiscriminated,
                         typeDiscriminatorResource,
                     };
@@ -174,14 +178,18 @@ export const generateSliceGetters = (
                 w.line(`def get_${baseName}(self, mode: str | None = None) -> list[${retType}] | None:`);
                 w.indentBlock(() => {
                     w.line(`match = self.__class__.${staticName}`);
-                    w.line(`result = get_array_slices(getattr(self._resource, ${JSON.stringify(fieldName)}, None), match)`);
+                    w.line(
+                        `result = get_array_slices(getattr(self._resource, ${JSON.stringify(fieldName)}, None), match)`,
+                    );
                     w.line("return result or None");
                 });
             } else {
                 w.line(`def get_${baseName}(self, mode: str | None = None) -> ${retType} | None:`);
                 w.indentBlock(() => {
                     w.line(`match = self.__class__.${staticName}`);
-                    w.line(`return get_array_slice(getattr(self._resource, ${JSON.stringify(fieldName)}, None), match)`);
+                    w.line(
+                        `return get_array_slice(getattr(self._resource, ${JSON.stringify(fieldName)}, None), match)`,
+                    );
                 });
             }
         } else {
@@ -189,7 +197,9 @@ export const generateSliceGetters = (
             w.indentBlock(() => {
                 w.line(`match = self.__class__.${staticName}`);
                 if (sliceDef.array) {
-                    w.line(`item = get_array_slice(getattr(self._resource, ${JSON.stringify(fieldName)}, None), match)`);
+                    w.line(
+                        `item = get_array_slice(getattr(self._resource, ${JSON.stringify(fieldName)}, None), match)`,
+                    );
                 } else {
                     w.line(`item = getattr(self._resource, ${JSON.stringify(fieldName)}, None)`);
                     w.line("if item is None or not matches_value(item, match):");
@@ -205,7 +215,9 @@ export const generateSliceGetters = (
                 w.indentBlock(() => {
                     w.line("return item");
                 });
-                w.line("item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)");
+                w.line(
+                    "item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)",
+                );
                 if (sliceDef.constrainedChoice) {
                     const variant = JSON.stringify(sliceDef.constrainedChoice.variant);
                     w.line(`return unwrap_slice_choice(item_dict, ${matchKeys}, ${variant})`);

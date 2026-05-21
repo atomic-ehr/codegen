@@ -84,15 +84,11 @@ describe("Python R4 Example (with generateProfile)", async () => {
     });
 
     it("generates bodyweight profile with validate()", () => {
-        expect(
-            files["generated/hl7_fhir_r4_core/profiles/observation_observation_bodyweight.py"],
-        ).toMatchSnapshot();
+        expect(files["generated/hl7_fhir_r4_core/profiles/observation_observation_bodyweight.py"]).toMatchSnapshot();
     });
 
     it("generates bp profile with validate()", () => {
-        expect(
-            files["generated/hl7_fhir_r4_core/profiles/observation_observation_bp.py"],
-        ).toMatchSnapshot();
+        expect(files["generated/hl7_fhir_r4_core/profiles/observation_observation_bp.py"]).toMatchSnapshot();
     });
 });
 
@@ -126,9 +122,7 @@ describe("Python US Core Example", async () => {
     });
 
     it("generates US Core Patient profile", () => {
-        expect(
-            files["generated/hl7_fhir_us_core/profiles/patient_uscore_patient_profile.py"],
-        ).toMatchSnapshot();
+        expect(files["generated/hl7_fhir_us_core/profiles/patient_uscore_patient_profile.py"]).toMatchSnapshot();
     });
 
     it("generates US Core Blood Pressure profile", () => {

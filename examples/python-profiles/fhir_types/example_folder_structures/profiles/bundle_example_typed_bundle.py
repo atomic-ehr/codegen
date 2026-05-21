@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import Any
 
 from fhir_types.hl7_fhir_r4_core.bundle import Bundle
+from fhir_types.hl7_fhir_r4_core.bundle import BundleEntry
 from fhir_types.hl7_fhir_r4_core.organization import Organization
 from fhir_types.hl7_fhir_r4_core.patient import Patient
 from .profile_helpers import (
