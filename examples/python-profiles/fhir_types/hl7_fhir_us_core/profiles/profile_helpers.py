@@ -97,6 +97,24 @@ def _get_key(obj: Any, key: str) -> Any:
     return getattr(obj, key, None)
 
 
+def _model_get(value: Any, key: str) -> Any:
+    """Get an attribute from a Pydantic model by Python name or field alias.
+
+    Pydantic stores fields as snake_case attributes but slice match dicts use
+    camelCase aliases (e.g. ``resourceType``). Try the direct attribute first;
+    fall back to scanning ``model_fields`` for a matching alias.
+    """
+    direct = getattr(value, key, None)
+    if direct is not None:
+        return direct
+    model_fields = getattr(type(value), "model_fields", None)
+    if model_fields:
+        for field_name, field_info in model_fields.items():
+            if field_info.alias == key or field_info.serialization_alias == key:
+                return getattr(value, field_name, None)
+    return None
+
+
 def matches_value(value: Any, match: Any) -> bool:
     """Recursively test whether ``value`` structurally contains everything in
     ``match``. Lists use "every match item has a corresponding value item"
@@ -126,10 +144,10 @@ def matches_value(value: Any, match: Any) -> bool:
                 if not matches_value(value.get(key), m_val):
                     return False
             return True
-        # Pydantic model (or any object with attributes)
+        # Pydantic model (or any object with attributes) — use alias-aware lookup
         if hasattr(value, "__dict__"):
             for key, m_val in match.items():
-                if not matches_value(getattr(value, key, None), m_val):
+                if not matches_value(_model_get(value, key), m_val):
                     return False
             return True
         return False

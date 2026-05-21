@@ -17,8 +17,14 @@ export type SliceDef = {
     match: Record<string, unknown>;
     required: string[];
     array: boolean;
+    /** 0 = unbounded ("*"), mirrors TS SliceDef.max */
+    max: number;
     constrainedChoice: ConstrainedChoiceInfo | undefined;
     elementTypeName: string | undefined;
+    /** True when the FieldSlicing discriminator type is "type" (resource-type discriminator). */
+    isTypeDiscriminated: boolean;
+    /** For type-discriminated slices: the resource type name, e.g. "Patient", "Organization". */
+    typeDiscriminatorResource: string | undefined;
 };
 
 // todo: move duplicating ts+py logic into a shared helper
@@ -75,6 +81,20 @@ export const normalizeMatchForPython = (
     return result;
 };
 
+const extractTypeDiscriminatorResource = (
+    isTypeDiscriminated: boolean,
+    rawMatch: Record<string, unknown> | undefined,
+): string | undefined => {
+    if (!isTypeDiscriminated || !rawMatch) return undefined;
+    for (const val of Object.values(rawMatch)) {
+        if (val !== null && typeof val === "object" && !Array.isArray(val)) {
+            const rt = (val as Record<string, unknown>).resourceType;
+            if (typeof rt === "string") return rt;
+        }
+    }
+    return undefined;
+};
+
 export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema): SliceDef[] => {
     const pkgName = flatProfile.identifier.package;
     return Object.entries(flatProfile.fields ?? {})
@@ -100,17 +120,26 @@ export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: ProfileT
                         : undefined;
                     // Skip flattening for primitive types — can't wrap/unwrap under a variant key.
                     const constrainedChoice = cc && !isPrimitiveIdentifier(cc.variantType) ? cc : undefined;
+                    const isTypeDiscriminated =
+                        field.slicing?.discriminator?.some((d) => d.type === "type") ?? false;
+                    const typeDiscriminatorResource = extractTypeDiscriminatorResource(
+                        isTypeDiscriminated,
+                        slice.match as Record<string, unknown> | undefined,
+                    );
                     return {
                         fieldName,
                         sliceName,
                         match: normalizeMatchForPython(tsIndex, slice.match ?? {}, baseSchema),
                         required,
                         array: Boolean(field.array),
+                        max: slice.max ?? 0,
                         constrainedChoice,
                         elementTypeName:
                             field.type && !isPrimitiveIdentifier(field.type)
                                 ? pyTypeFromIdentifier(field.type)
                                 : undefined,
+                        isTypeDiscriminated,
+                        typeDiscriminatorResource,
                     };
                 });
         });
