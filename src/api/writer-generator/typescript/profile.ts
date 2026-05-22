@@ -236,7 +236,7 @@ const generateProfileHelpersImport = (
     const canonicalUrl = flatProfile.identifier.url;
 
     const imports: string[] = [];
-    if (flatProfile.base.name === "Extension" && !!canonicalUrl && collectSubExtensionSlices(flatProfile).length > 0)
+    if (flatProfile.base.name === "Extension" && canonicalUrl && collectSubExtensionSlices(flatProfile).length > 0)
         imports.push("isRawExtensionInput");
     if (canonicalUrl && hasMeta) imports.push("ensureProfile");
     if (sliceDefs.length > 0 || factoryInfo.sliceAutoFields.length > 0)
