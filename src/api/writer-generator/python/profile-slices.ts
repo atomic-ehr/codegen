@@ -3,13 +3,14 @@ import {
     isChoiceDeclarationField,
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
+    type NameCandidates,
     type ProfileTypeSchema,
     type RegularField,
     type TypeIdentifier,
 } from "@typeschema/types.ts";
 import type { TypeSchemaIndex } from "@typeschema/utils.ts";
 import { pyTypeFromIdentifier } from "./naming-utils";
-import { pyFieldName, pySliceMethodBaseName, pySliceStaticName } from "./profile-naming";
+import { pyFieldName, pySliceStaticName } from "./profile-naming";
 import type { Python } from "./writer";
 
 export type SliceDef = {
@@ -28,6 +29,8 @@ export type SliceDef = {
     isTypeDiscriminated: boolean;
     /** For type-discriminated slices: the resource type name, e.g. "Patient", "Organization". */
     typeDiscriminatorResource: string | undefined;
+    /** Pre-computed name candidates from TypeSchema (recommended is PascalCase). */
+    nameCandidates: NameCandidates;
 };
 
 // todo: move duplicating ts+py logic into a shared helper
@@ -145,6 +148,7 @@ export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: ProfileT
                         elementTypeId: field.type && !isPrimitiveIdentifier(field.type) ? field.type : undefined,
                         isTypeDiscriminated,
                         typeDiscriminatorResource,
+                        nameCandidates: slice.nameCandidates,
                     };
                 });
         });
@@ -162,7 +166,7 @@ export const generateSliceGetters = (
 ): void => {
     for (const sliceDef of sliceDefs) {
         const baseName =
-            sliceBaseNames[`${sliceDef.fieldName}:${sliceDef.sliceName}`] ?? pySliceMethodBaseName(sliceDef.sliceName);
+            sliceBaseNames[`${sliceDef.fieldName}:${sliceDef.sliceName}`] ?? sliceDef.nameCandidates.recommended;
         const staticName = pySliceStaticName(sliceDef.sliceName);
         const fieldName = pyFieldName(sliceDef.fieldName);
         const matchKeys = JSON.stringify(Object.keys(sliceDef.match));
@@ -233,7 +237,7 @@ export const generateSliceSetters = (
 ): void => {
     for (const sliceDef of sliceDefs) {
         const baseName =
-            sliceBaseNames[`${sliceDef.fieldName}:${sliceDef.sliceName}`] ?? pySliceMethodBaseName(sliceDef.sliceName);
+            sliceBaseNames[`${sliceDef.fieldName}:${sliceDef.sliceName}`] ?? sliceDef.nameCandidates.recommended;
         const staticName = pySliceStaticName(sliceDef.sliceName);
         const fieldName = pyFieldName(sliceDef.fieldName);
         if (sliceDef.isTypeDiscriminated) {

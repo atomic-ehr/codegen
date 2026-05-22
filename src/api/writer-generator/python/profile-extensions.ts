@@ -1,3 +1,4 @@
+import { snakeCase } from "@root/api/writer-generator/utils";
 import {
     type CanonicalUrl,
     isProfileTypeSchema,
@@ -6,7 +7,7 @@ import {
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import { pyTypeFromIdentifier } from "./naming-utils";
-import { pyExtensionMethodBaseName, pyProfileClassName, pyProfileModuleName, pyValueFieldName } from "./profile-naming";
+import { pyProfileClassName, pyProfileModuleName, pyValueFieldName } from "./profile-naming";
 import type { Python } from "./writer";
 
 // ---------------------------------------------------------------------------
@@ -52,7 +53,7 @@ export const generateExtensionMethods = (
     const pkgName = flatProfile.identifier.package;
     for (const ext of flatProfile.extensions ?? []) {
         if (!ext.url) continue;
-        const baseName = extensionBaseNames[`${ext.url}:${ext.path}`] ?? pyExtensionMethodBaseName(ext.name);
+        const baseName = extensionBaseNames[`${ext.url}:${ext.path}`] ?? snakeCase(ext.nameCandidates.recommended);
         const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");
         const extProfileInfo = resolveExtensionProfile(tsIndex, pkgName, ext.url);
 

@@ -75,65 +75,8 @@ export const pySliceStaticName = (name: string): string => {
     return `_${snakeCase(cleaned)}_slice_match`;
 };
 
-/** Base method name for a slice (mirrors `tsSliceMethodBaseName` but snake). */
-export const pySliceMethodBaseName = (sliceName: string): string => pySnakeName(sliceName) || "slice";
-
-/** Disambiguated slice base name including the field. */
-export const pyQualifiedSliceMethodBaseName = (fieldName: string, sliceName: string): string => {
-    const fieldPart = pySnakeName(fieldName) || "field";
-    const slicePart = pySnakeName(sliceName) || "slice";
-    return `${fieldPart}_${slicePart}`;
-};
-
-/** Base method name for an extension. */
-export const pyExtensionMethodBaseName = (name: string): string => pySnakeName(name) || "extension";
-
-/** Disambiguated extension base name including its path. */
-export const pyQualifiedExtensionMethodBaseName = (name: string, path?: string): string => {
-    const rawPath =
-        path
-            ?.split(".")
-            .filter((p) => p && p !== "extension")
-            .map(pySnakeName)
-            .filter(Boolean)
-            .join("_") ?? "";
-    const namePart = pySnakeName(name) || "extension";
-    return rawPath ? `${rawPath}_${namePart}` : namePart;
-};
-
 /** snake_case the FHIR `value[x]` field for a TypeIdentifier. */
 export const pyValueFieldName = (id: TypeIdentifier): string => `value_${snakeCase(normalizePyName(id.name))}`;
-
-// ---------------------------------------------------------------------------
-// Name collision resolution
-// ---------------------------------------------------------------------------
-
-type NameEntry = { key: string; candidates: string[] };
-
-const resolveNameCollisions = (entries: NameEntry[]): Record<string, string> => {
-    const levels = entries[0]?.candidates.length ?? 0;
-    const resolve = (unresolved: NameEntry[], level: number): Record<string, string> => {
-        if (unresolved.length === 0 || level >= levels) return {};
-        const counts: Record<string, number> = {};
-        for (const e of unresolved) {
-            const name = e.candidates[level] ?? "";
-            counts[name] = (counts[name] ?? 0) + 1;
-        }
-        const isLastLevel = level >= levels - 1;
-        const resolved: Record<string, string> = {};
-        const colliding: NameEntry[] = [];
-        for (const e of unresolved) {
-            const name = e.candidates[level] ?? "";
-            if ((counts[name] ?? 0) > 1 && !isLastLevel) {
-                colliding.push(e);
-            } else {
-                resolved[e.key] = name;
-            }
-        }
-        return { ...resolved, ...resolve(colliding, level + 1) };
-    };
-    return resolve(entries, 0);
-};
 
 export type ResolvedProfileMethods = {
     extensions: Record<string, string>;
@@ -145,29 +88,17 @@ export const resolveProfileMethodBaseNames = (
     extensions: ProfileExtension[],
     sliceDefs: SliceDef[],
 ): ResolvedProfileMethods => {
-    const extensionEntries: NameEntry[] = extensions
-        .filter((ext) => ext.url)
-        .map((ext) => {
-            const base = pyExtensionMethodBaseName(ext.name);
-            const qualified = pyQualifiedExtensionMethodBaseName(ext.name, ext.path);
-            return { key: `${ext.url}:${ext.path}`, candidates: [base, qualified, `${qualified}_extension`] };
-        });
+    const extensionsRecord: Record<string, string> = {};
+    for (const ext of extensions) {
+        if (!ext.url) continue;
+        extensionsRecord[`${ext.url}:${ext.path}`] = snakeCase(ext.nameCandidates.recommended);
+    }
 
-    const sliceEntries: NameEntry[] = sliceDefs.map((s) => {
-        const base = pySliceMethodBaseName(s.sliceName);
-        const qualified = pyQualifiedSliceMethodBaseName(s.fieldName, s.sliceName);
-        return { key: `${s.fieldName}:${s.sliceName}`, candidates: [base, qualified, `${qualified}_slice`] };
-    });
+    const slicesRecord: Record<string, string> = {};
+    for (const s of sliceDefs) {
+        slicesRecord[`${s.fieldName}:${s.sliceName}`] = snakeCase(s.nameCandidates.recommended);
+    }
 
-    const allEntries = [...extensionEntries, ...sliceEntries];
-    if (allEntries.length === 0) return { extensions: {}, slices: {}, allBaseNames: new Set() };
-
-    const resolved = resolveNameCollisions(allEntries);
-    const toRecord = (entries: NameEntry[]) =>
-        Object.fromEntries(entries.map((e) => [e.key, resolved[e.key] ?? e.candidates[0] ?? ""]));
-
-    const extensionsRecord = toRecord(extensionEntries);
-    const slicesRecord = toRecord(sliceEntries);
     const allBaseNames = new Set([...Object.values(extensionsRecord), ...Object.values(slicesRecord)]);
     return { extensions: extensionsRecord, slices: slicesRecord, allBaseNames };
 };
