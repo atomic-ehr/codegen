@@ -50,6 +50,20 @@ const fieldPyType = (
     return field.array ? `list[${base}]` : base;
 };
 
+type ProfileGenContext = {
+    w: Python;
+    tsIndex: TypeSchemaIndex;
+    flatProfile: ProfileTypeSchema;
+    baseTypeName: string;
+    className: string;
+    isResourceBase: boolean;
+    factoryInfo: ProfileFactoryInfo;
+    sliceDefs: SliceDef[];
+    resolvedNames: ResolvedProfileMethods;
+    errorLines: string[];
+    warningLines: string[];
+};
+
 type ProfileFactoryInfo = {
     autoFields: { name: string; value: string }[];
     sliceAutoFields: { name: string; pyType: string; typeId: TypeIdentifier; sliceNames: string[] }[];
@@ -341,36 +355,37 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, profile: Pro
         w.line(`canonical_url: str = ${JSON.stringify(canonicalUrl)}`);
         w.line();
         generateStaticSliceFields(w, sliceDefs);
-        generateClassBody(
+        generateClassBody({
             w,
             tsIndex,
             flatProfile,
             baseTypeName,
             className,
             isResourceBase,
-            errorLines,
-            warningLines,
             factoryInfo,
             sliceDefs,
             resolvedNames,
-        );
+            errorLines,
+            warningLines,
+        });
     });
     w.line();
 };
 
-const generateClassBody = (
-    w: Python,
-    tsIndex: TypeSchemaIndex,
-    flatProfile: ProfileTypeSchema,
-    baseTypeName: string,
-    className: string,
-    isResourceBase: boolean,
-    errorLines: string[],
-    warningLines: string[],
-    factoryInfo: ProfileFactoryInfo,
-    sliceDefs: SliceDef[],
-    resolvedNames: ResolvedProfileMethods,
-): void => {
+const generateClassBody = (ctx: ProfileGenContext): void => {
+    const {
+        w,
+        tsIndex,
+        flatProfile,
+        baseTypeName,
+        className,
+        isResourceBase,
+        errorLines,
+        warningLines,
+        factoryInfo,
+        sliceDefs,
+        resolvedNames,
+    } = ctx;
     const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
 
     // __init__
