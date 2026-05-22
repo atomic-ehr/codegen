@@ -12,11 +12,10 @@ import {
     type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
-import { canonicalToName, deriveResourceName, PRIMITIVE_TYPE_MAP, pyFhirPackageByName } from "./naming-utils";
+import { canonicalToName, deriveResourceName, PRIMITIVE_TYPE_MAP, pyFhirPackageByName, pyTypeFromIdentifier } from "./naming-utils";
 import {
     type ExtensionProfileInfo,
     generateExtensionMethods,
-    pyTypeFromIdentifier,
     resolveExtensionProfile,
 } from "./profile-extensions";
 import {

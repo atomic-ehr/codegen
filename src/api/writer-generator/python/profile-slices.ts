@@ -8,7 +8,7 @@ import {
     type TypeIdentifier,
 } from "@typeschema/types.ts";
 import type { TypeSchemaIndex } from "@typeschema/utils.ts";
-import { pyTypeFromIdentifier } from "./profile-extensions";
+import { pyTypeFromIdentifier } from "./naming-utils";
 import { pyFieldName, pySliceMethodBaseName, pySliceStaticName } from "./profile-naming";
 import type { Python } from "./writer";
 

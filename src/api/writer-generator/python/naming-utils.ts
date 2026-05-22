@@ -1,5 +1,5 @@
 import { pascalCase, snakeCase, uppercaseFirstLetterOfEach } from "@root/api/writer-generator/utils";
-import type { TypeIdentifier } from "@typeschema/types.ts";
+import { isPrimitiveIdentifier, type TypeIdentifier } from "@typeschema/types.ts";
 
 export const PRIMITIVE_TYPE_MAP: Record<string, string> = {
     boolean: "bool",
@@ -112,4 +112,12 @@ export const pyPackage = (rootPackageName: string, identifier: TypeIdentifier): 
         return [pyFhirPackage(rootPackageName, identifier), snakeCase(identifier.name)].join(".");
     }
     return pyFhirPackage(rootPackageName, identifier);
+};
+
+/** Map a TypeIdentifier to its Python type string. */
+export const pyTypeFromIdentifier = (id: TypeIdentifier): string => {
+    if (isPrimitiveIdentifier(id)) return PRIMITIVE_TYPE_MAP[id.name] ?? "str";
+    const prim = PRIMITIVE_TYPE_MAP[id.name];
+    if (prim !== undefined) return prim;
+    return deriveResourceName(id);
 };

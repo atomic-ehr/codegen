@@ -1,27 +1,13 @@
 import {
     type CanonicalUrl,
-    isPrimitiveIdentifier,
     isProfileTypeSchema,
     type ProfileExtension,
     type ProfileTypeSchema,
-    type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
-import { deriveResourceName, PRIMITIVE_TYPE_MAP } from "./naming-utils";
+import { pyTypeFromIdentifier } from "./naming-utils";
 import { pyExtensionMethodBaseName, pyProfileClassName, pyProfileModuleName, pyValueFieldName } from "./profile-naming";
 import type { Python } from "./writer";
-
-// ---------------------------------------------------------------------------
-// Python type mapping (shared with profile.ts via re-export)
-// ---------------------------------------------------------------------------
-
-/** Map a TypeIdentifier to its Python type string. */
-export const pyTypeFromIdentifier = (id: TypeIdentifier): string => {
-    if (isPrimitiveIdentifier(id)) return PRIMITIVE_TYPE_MAP[id.name] ?? "str";
-    const prim = PRIMITIVE_TYPE_MAP[id.name];
-    if (prim !== undefined) return prim;
-    return deriveResourceName(id);
-};
 
 // ---------------------------------------------------------------------------
 // Extension-profile resolution
