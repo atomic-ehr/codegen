@@ -10,7 +10,12 @@
 
 import { PYTHON_KEYWORDS } from "@root/api/writer-generator/python/naming-utils";
 import { pascalCase, snakeCase } from "@root/api/writer-generator/utils";
-import type { ProfileExtension, ProfileTypeSchema, TypeIdentifier } from "@root/typeschema/types";
+import type {
+    ProfileExtension,
+    ProfileTypeSchema,
+    SnapshotProfileTypeSchema,
+    TypeIdentifier,
+} from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import type { SliceDef } from "./profile-slices";
 
@@ -46,7 +51,7 @@ export const pyFieldName = (n: string): string => {
 /** PascalCase class name for a profile, suffixed with `Profile` (or
  *  `Extension` when the profile already ends in "Extension"). Mirrors
  *  `tsProfileClassName` exactly. */
-export const pyProfileClassName = (schema: ProfileTypeSchema): string => {
+export const pyProfileClassName = (schema: ProfileTypeSchema | SnapshotProfileTypeSchema): string => {
     const name = pascalCase(normalizePyName(schema.identifier.name));
     if (schema.base.name === "Extension") {
         return name.endsWith("Extension") ? name : `${name}Extension`;
@@ -58,7 +63,10 @@ export const pyProfileClassName = (schema: ProfileTypeSchema): string => {
  *  `tsProfileModuleName`. The profile portion uses the raw identifier name
  *  (NOT the class name), so e.g. R4 `bodyweight` → `observation_bodyweight`
  *  and US Core `USCorePatientProfile` → `patient_us_core_patient_profile`. */
-export const pyProfileModuleName = (tsIndex: TypeSchemaIndex, schema: ProfileTypeSchema): string => {
+export const pyProfileModuleName = (
+    tsIndex: TypeSchemaIndex,
+    schema: ProfileTypeSchema | SnapshotProfileTypeSchema,
+): string => {
     const baseSchema = tsIndex.findLastSpecialization(schema);
     const baseName = snakeCase(normalizePyName(baseSchema.identifier.name));
     const profileName = snakeCase(normalizePyName(schema.identifier.name));

@@ -1,10 +1,11 @@
 import {
     type ChoiceFieldInstance,
+    type Field,
     isChoiceDeclarationField,
     isChoiceInstanceField,
     isNotChoiceDeclarationField,
-    type ProfileTypeSchema,
     type RegularField,
+    type SnapshotProfileTypeSchema,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import { pyFieldName } from "./profile-naming";
@@ -16,13 +17,13 @@ import { pyFieldName } from "./profile-naming";
 /** Walk fields once and emit validate() body lines into `out`, returning the
  *  set of helper function names referenced. Pure: no writer side effects. */
 export const collectValidateBody = (
-    flatProfile: ProfileTypeSchema,
+    flatProfile: SnapshotProfileTypeSchema,
     resolveRef: TypeSchemaIndex["findLastSpecializationByIdentifier"],
     errorLines: string[],
     warningLines: string[],
 ): Set<string> => {
     const helpers = new Set<string>();
-    const fields = flatProfile.fields ?? {};
+    const fields = flatProfile.fields;
     for (const [name, field] of Object.entries(fields)) {
         const pyName = pyFieldName(name);
         if (isChoiceInstanceField(field)) {
@@ -90,7 +91,7 @@ export const collectValidateBody = (
 };
 
 const collectProhibitedChoiceValidation = (
-    fields: NonNullable<ProfileTypeSchema["fields"]>,
+    fields: Record<string, Field>,
     name: string,
     pyName: string,
     helpers: Set<string>,

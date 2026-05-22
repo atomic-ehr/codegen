@@ -1,14 +1,15 @@
 import { snakeCase } from "@root/api/writer-generator/utils";
 import {
     type ChoiceFieldInstance,
+    type Field,
     isChoiceDeclarationField,
     isChoiceInstanceField,
     isNestedIdentifier,
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
     isResourceIdentifier,
-    type ProfileTypeSchema,
     type RegularField,
+    type SnapshotProfileTypeSchema,
     type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
@@ -53,7 +54,7 @@ const fieldPyType = (
 type ProfileGenContext = {
     w: Python;
     tsIndex: TypeSchemaIndex;
-    flatProfile: ProfileTypeSchema;
+    flatProfile: SnapshotProfileTypeSchema;
     baseTypeName: string;
     className: string;
     isResourceBase: boolean;
@@ -73,8 +74,8 @@ type ProfileFactoryInfo = {
 
 /** Try to promote a required single-choice declaration to a direct param. */
 const tryPromoteChoice = (
-    field: NonNullable<ProfileTypeSchema["fields"]>[string],
-    fields: NonNullable<ProfileTypeSchema["fields"]>,
+    field: Field,
+    fields: Record<string, Field>,
     params: ProfileFactoryInfo["params"],
     promotedChoices: Set<string>,
 ): void => {
@@ -89,11 +90,11 @@ const tryPromoteChoice = (
 };
 
 const collectChoiceAccessors = (
-    flatProfile: ProfileTypeSchema,
+    flatProfile: SnapshotProfileTypeSchema,
     promotedChoices: Set<string>,
 ): ProfileFactoryInfo["accessors"] => {
     const accessors: ProfileFactoryInfo["accessors"] = [];
-    for (const [name, field] of Object.entries(flatProfile.fields ?? {})) {
+    for (const [name, field] of Object.entries(flatProfile.fields)) {
         if (field.excluded) continue;
         if (!isChoiceInstanceField(field)) continue;
         if (promotedChoices.has(name)) continue;
@@ -103,12 +104,15 @@ const collectChoiceAccessors = (
     return accessors;
 };
 
-const collectProfileFactoryInfo = (tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema): ProfileFactoryInfo => {
+const collectProfileFactoryInfo = (
+    tsIndex: TypeSchemaIndex,
+    flatProfile: SnapshotProfileTypeSchema,
+): ProfileFactoryInfo => {
     const autoFields: ProfileFactoryInfo["autoFields"] = [];
     const sliceAutoFields: ProfileFactoryInfo["sliceAutoFields"] = [];
     const params: ProfileFactoryInfo["params"] = [];
     const autoAccessors: ProfileFactoryInfo["accessors"] = [];
-    const fields = flatProfile.fields ?? {};
+    const fields = flatProfile.fields;
     const promotedChoices = new Set<string>();
     const resolveRef = tsIndex.findLastSpecializationByIdentifier;
 
@@ -167,7 +171,7 @@ const collectProfileFactoryInfo = (tsIndex: TypeSchemaIndex, flatProfile: Profil
 /** Include base-type required fields not already covered by profile constraints. */
 const collectBaseRequiredParams = (
     tsIndex: TypeSchemaIndex,
-    flatProfile: ProfileTypeSchema,
+    flatProfile: SnapshotProfileTypeSchema,
     resolveRef: TypeSchemaIndex["findLastSpecializationByIdentifier"],
     params: ProfileFactoryInfo["params"],
     coveredNames: string[],
@@ -241,8 +245,8 @@ const addTypeImport = (
     }
 };
 
-const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, profile: ProfileTypeSchema): void => {
-    const flatProfile = tsIndex.flatProfile(profile);
+const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, profile: SnapshotProfileTypeSchema): void => {
+    const flatProfile = profile;
     const className = pyProfileClassName(flatProfile);
     const baseTypeName = flatProfile.base.name;
     const isResourceBase = isResourceIdentifier(flatProfile.base);
@@ -614,7 +618,7 @@ const generateFieldAccessors = (
     }
 };
 
-const generateProfilesInit = (w: Python, tsIndex: TypeSchemaIndex, profiles: ProfileTypeSchema[]): void => {
+const generateProfilesInit = (w: Python, tsIndex: TypeSchemaIndex, profiles: SnapshotProfileTypeSchema[]): void => {
     w.cat("__init__.py", () => {
         w.generateDisclaimer();
         const seen = new Set<string>();
@@ -629,7 +633,11 @@ const generateProfilesInit = (w: Python, tsIndex: TypeSchemaIndex, profiles: Pro
 };
 
 /** Entry point called from `python/writer.ts` when `generateProfile` is true. */
-export const generateNewProfiles = (w: Python, tsIndex: TypeSchemaIndex, profiles: ProfileTypeSchema[]): void => {
+export const generateNewProfiles = (
+    w: Python,
+    tsIndex: TypeSchemaIndex,
+    profiles: SnapshotProfileTypeSchema[],
+): void => {
     if (profiles.length === 0) return;
     w.cd("profiles", () => {
         w.cp("profile_helpers.py", "profile_helpers.py");

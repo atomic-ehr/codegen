@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field, PositiveInt
 from typing import Any, List as PyList, Literal
 from typing_extensions import Self
 
-from fhir_types.hl7_fhir_r4_core.base import (\\
+from fhir_types.hl7_fhir_r4_core.base import (
     Address, Attachment, BackboneElement, CodeableConcept, ContactPoint, HumanName, Identifier, Period, Reference
 )
 from fhir_types.hl7_fhir_r4_core.domain_resource import DomainResource
@@ -315,21 +315,9 @@ from typing import Any
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import CodeableConcept, Period, Quantity, Reference
 from .profile_helpers import (
-    build_resource,
-    ensure_profile,
-    ensure_slice_defaults,
-    apply_slice_match,
-    matches_value,
-    strip_match_keys,
-    get_array_slice,
-    set_array_slice,
-    validate_choice_required,
-    validate_enum,
-    validate_fixed_value,
-    validate_must_support,
-    validate_reference,
-    validate_required,
-    validate_slice_cardinality,
+    apply_slice_match, build_resource, ensure_profile, ensure_slice_defaults, get_array_slice, matches_value, \\
+    set_array_slice, strip_match_keys, validate_choice_required, validate_enum, validate_fixed_value, validate_must_support, \\
+    validate_reference, validate_required, validate_slice_cardinality
 )
 
 
@@ -436,8 +424,6 @@ class ObservationBodyweightProfile:
     def get_vscat(self, mode: str | None = None) -> Any | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
-        if item is None:
-            return None
         if mode == "raw":
             return item
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
@@ -487,31 +473,13 @@ from typing import Any
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
-    BackboneElement,
-    CodeableConcept,
-    Period,
-    Quantity,
-    Reference,
+    BackboneElement, CodeableConcept, Period, Quantity, Reference
 )
 from fhir_types.hl7_fhir_r4_core.observation import ObservationComponent
 from .profile_helpers import (
-    build_resource,
-    ensure_profile,
-    ensure_slice_defaults,
-    apply_slice_match,
-    matches_value,
-    strip_match_keys,
-    get_array_slice,
-    set_array_slice,
-    wrap_slice_choice,
-    unwrap_slice_choice,
-    validate_choice_required,
-    validate_enum,
-    validate_fixed_value,
-    validate_must_support,
-    validate_reference,
-    validate_required,
-    validate_slice_cardinality,
+    apply_slice_match, build_resource, ensure_profile, ensure_slice_defaults, get_array_slice, matches_value, \\
+    set_array_slice, strip_match_keys, unwrap_slice_choice, validate_choice_required, validate_enum, validate_fixed_value, \\
+    validate_must_support, validate_reference, validate_required, validate_slice_cardinality, wrap_slice_choice
 )
 
 
@@ -633,8 +601,6 @@ class ObservationBpProfile:
     def get_vscat(self, mode: str | None = None) -> Any | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
-        if item is None:
-            return None
         if mode == "raw":
             return item
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
@@ -643,8 +609,6 @@ class ObservationBpProfile:
     def get_systolic_bp(self, mode: str | None = None) -> Any | None:
         match = self.__class__._systolic_bp_slice_match
         item = get_array_slice(getattr(self._resource, "component", None), match)
-        if item is None:
-            return None
         if mode == "raw":
             return item
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
@@ -653,8 +617,6 @@ class ObservationBpProfile:
     def get_diastolic_bp(self, mode: str | None = None) -> Any | None:
         match = self.__class__._diastolic_bp_slice_match
         item = get_array_slice(getattr(self._resource, "component", None), match)
-        if item is None:
-            return None
         if mode == "raw":
             return item
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
@@ -733,15 +695,8 @@ from .extension_uscore_interpreter_needed_extension import UscoreInterpreterNeed
 from .extension_uscore_race_extension import UscoreRaceExtension
 from .extension_uscore_tribal_affiliation_extension import UscoreTribalAffiliationExtension
 from .profile_helpers import (
-    build_resource,
-    ensure_profile,
-    _get_key,
-    is_extension,
-    get_extension_value,
-    push_extension,
-    extract_complex_extension,
-    validate_must_support,
-    validate_required,
+    _get_key, build_resource, ensure_profile, extract_complex_extension, get_extension_value, is_extension, \\
+    push_extension, validate_must_support, validate_required
 )
 
 
@@ -815,10 +770,11 @@ class UscorePatientProfile:
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race")), None)
         if ext is None:
             return None
+        ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
-            return ext if not isinstance(ext, dict) else Extension(**ext)
+            return ext_obj
         if mode == "profile":
-            return UscoreRaceExtension.apply(ext if not isinstance(ext, dict) else Extension(**ext))
+            return UscoreRaceExtension.apply(ext_obj)
         config = [{"name": "ombCategory", "valueField": "value_coding", "isArray": False}, {"name": "detailed", "valueField": "value_coding", "isArray": True}, {"name": "text", "valueField": "value_string", "isArray": False}]
         return extract_complex_extension(ext, config)
 
@@ -851,10 +807,11 @@ class UscorePatientProfile:
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity")), None)
         if ext is None:
             return None
+        ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
-            return ext if not isinstance(ext, dict) else Extension(**ext)
+            return ext_obj
         if mode == "profile":
-            return UscoreEthnicityExtension.apply(ext if not isinstance(ext, dict) else Extension(**ext))
+            return UscoreEthnicityExtension.apply(ext_obj)
         config = [{"name": "ombCategory", "valueField": "value_coding", "isArray": False}, {"name": "detailed", "valueField": "value_coding", "isArray": True}, {"name": "text", "valueField": "value_string", "isArray": False}]
         return extract_complex_extension(ext, config)
 
@@ -887,10 +844,11 @@ class UscorePatientProfile:
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation")), None)
         if ext is None:
             return None
+        ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
-            return ext if not isinstance(ext, dict) else Extension(**ext)
+            return ext_obj
         if mode == "profile":
-            return UscoreTribalAffiliationExtension.apply(ext if not isinstance(ext, dict) else Extension(**ext))
+            return UscoreTribalAffiliationExtension.apply(ext_obj)
         config = [{"name": "tribalAffiliation", "valueField": "value_codeable_concept", "isArray": False}, {"name": "isEnrolled", "valueField": "value_boolean", "isArray": False}]
         return extract_complex_extension(ext, config)
 
@@ -921,10 +879,11 @@ class UscorePatientProfile:
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex")), None)
         if ext is None:
             return None
+        ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
-            return ext if not isinstance(ext, dict) else Extension(**ext)
+            return ext_obj
         if mode == "profile":
-            return UscoreIndividualSexExtension.apply(ext if not isinstance(ext, dict) else Extension(**ext))
+            return UscoreIndividualSexExtension.apply(ext_obj)
         return get_extension_value(ext, "value_coding")
 
     def set_sex(self, value: "UscoreIndividualSexExtension | Extension | Any") -> "UscorePatientProfile":
@@ -949,10 +908,11 @@ class UscorePatientProfile:
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed")), None)
         if ext is None:
             return None
+        ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
-            return ext if not isinstance(ext, dict) else Extension(**ext)
+            return ext_obj
         if mode == "profile":
-            return UscoreInterpreterNeededExtension.apply(ext if not isinstance(ext, dict) else Extension(**ext))
+            return UscoreInterpreterNeededExtension.apply(ext_obj)
         return get_extension_value(ext, "value_coding")
 
     def set_interpreter_required(self, value: "UscoreInterpreterNeededExtension | Extension | Any") -> "UscorePatientProfile":
@@ -990,34 +950,13 @@ from typing import Any
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
-    BackboneElement,
-    CodeableConcept,
-    Period,
-    Quantity,
-    Range,
-    Ratio,
-    Reference,
-    SampledData,
+    BackboneElement, CodeableConcept, Period, Quantity, Range, Ratio, Reference, SampledData
 )
 from fhir_types.hl7_fhir_r4_core.observation import ObservationComponent
 from .profile_helpers import (
-    build_resource,
-    ensure_profile,
-    ensure_slice_defaults,
-    apply_slice_match,
-    matches_value,
-    strip_match_keys,
-    get_array_slice,
-    set_array_slice,
-    wrap_slice_choice,
-    unwrap_slice_choice,
-    validate_choice_required,
-    validate_enum,
-    validate_fixed_value,
-    validate_must_support,
-    validate_reference,
-    validate_required,
-    validate_slice_cardinality,
+    apply_slice_match, build_resource, ensure_profile, ensure_slice_defaults, get_array_slice, matches_value, \\
+    set_array_slice, strip_match_keys, unwrap_slice_choice, validate_choice_required, validate_enum, validate_fixed_value, \\
+    validate_must_support, validate_reference, validate_required, validate_slice_cardinality, wrap_slice_choice
 )
 
 
@@ -1209,8 +1148,6 @@ class UscoreBloodPressureProfile:
     def get_vscat(self, mode: str | None = None) -> Any | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
-        if item is None:
-            return None
         if mode == "raw":
             return item
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
@@ -1219,8 +1156,6 @@ class UscoreBloodPressureProfile:
     def get_systolic(self, mode: str | None = None) -> Any | None:
         match = self.__class__._systolic_slice_match
         item = get_array_slice(getattr(self._resource, "component", None), match)
-        if item is None:
-            return None
         if mode == "raw":
             return item
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
@@ -1229,8 +1164,6 @@ class UscoreBloodPressureProfile:
     def get_diastolic(self, mode: str | None = None) -> Any | None:
         match = self.__class__._diastolic_slice_match
         item = get_array_slice(getattr(self._resource, "component", None), match)
-        if item is None:
-            return None
         if mode == "raw":
             return item
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
@@ -1304,31 +1237,12 @@ from typing import Any
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
-    CodeableConcept,
-    Period,
-    Quantity,
-    Range,
-    Ratio,
-    Reference,
-    SampledData,
+    CodeableConcept, Period, Quantity, Range, Ratio, Reference, SampledData
 )
 from .profile_helpers import (
-    build_resource,
-    ensure_profile,
-    ensure_slice_defaults,
-    apply_slice_match,
-    matches_value,
-    strip_match_keys,
-    get_array_slice,
-    set_array_slice,
-    validate_choice_required,
-    validate_enum,
-    validate_excluded,
-    validate_fixed_value,
-    validate_must_support,
-    validate_reference,
-    validate_required,
-    validate_slice_cardinality,
+    apply_slice_match, build_resource, ensure_profile, ensure_slice_defaults, get_array_slice, matches_value, \\
+    set_array_slice, strip_match_keys, validate_choice_required, validate_enum, validate_excluded, validate_fixed_value, \\
+    validate_must_support, validate_reference, validate_required, validate_slice_cardinality
 )
 
 
@@ -1505,8 +1419,6 @@ class UscoreBodyWeightProfile:
     def get_vscat(self, mode: str | None = None) -> Any | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
-        if item is None:
-            return None
         if mode == "raw":
             return item
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
@@ -1569,22 +1481,9 @@ from typing import Any, Literal, overload
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from .profile_helpers import (
-    build_resource,
-    ensure_slice_defaults,
-    apply_slice_match,
-    matches_value,
-    strip_match_keys,
-    get_array_slice,
-    set_array_slice,
-    wrap_slice_choice,
-    unwrap_slice_choice,
-    _get_key,
-    is_extension,
-    get_extension_value,
-    push_extension,
-    validate_fixed_value,
-    validate_required,
-    validate_slice_cardinality,
+    _get_key, apply_slice_match, build_resource, ensure_slice_defaults, get_array_slice, get_extension_value, \\
+    is_extension, matches_value, push_extension, set_array_slice, strip_match_keys, unwrap_slice_choice, validate_fixed_value, \\
+    validate_required, validate_slice_cardinality, wrap_slice_choice
 )
 
 
@@ -1657,8 +1556,9 @@ class UscoreRaceExtension:
         ext = next((e for e in exts if is_extension(e, "ombCategory")), None)
         if ext is None:
             return None
+        ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
-            return ext if not isinstance(ext, dict) else Extension(**ext)
+            return ext_obj
         return ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True)
 
     def set_omb_category(self, value: "Extension | dict") -> "UscoreRaceExtension":
@@ -1679,8 +1579,9 @@ class UscoreRaceExtension:
         ext = next((e for e in exts if is_extension(e, "detailed")), None)
         if ext is None:
             return None
+        ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
-            return ext if not isinstance(ext, dict) else Extension(**ext)
+            return ext_obj
         return ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True)
 
     def set_detailed(self, value: "Extension | dict") -> "UscoreRaceExtension":
@@ -1701,8 +1602,9 @@ class UscoreRaceExtension:
         ext = next((e for e in exts if is_extension(e, "text")), None)
         if ext is None:
             return None
+        ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
-            return ext if not isinstance(ext, dict) else Extension(**ext)
+            return ext_obj
         return ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True)
 
     def set_text(self, value: "Extension | dict") -> "UscoreRaceExtension":
@@ -1717,8 +1619,6 @@ class UscoreRaceExtension:
     def get_extension_omb_category(self, mode: str | None = None) -> Any | None:
         match = self.__class__._omb_category_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
-        if item is None:
-            return None
         if mode == "raw":
             return item
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
@@ -1727,8 +1627,6 @@ class UscoreRaceExtension:
     def get_extension_detailed(self, mode: str | None = None) -> Any | None:
         match = self.__class__._detailed_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
-        if item is None:
-            return None
         if mode == "raw":
             return item
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
@@ -1737,8 +1635,6 @@ class UscoreRaceExtension:
     def get_extension_text(self, mode: str | None = None) -> Any | None:
         match = self.__class__._text_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
-        if item is None:
-            return None
         if mode == "raw":
             return item
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)

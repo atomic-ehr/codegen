@@ -3,7 +3,7 @@ import {
     type CanonicalUrl,
     isProfileTypeSchema,
     type ProfileExtension,
-    type ProfileTypeSchema,
+    type SnapshotProfileTypeSchema,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import { pyTypeFromIdentifier } from "./naming-utils";
@@ -17,7 +17,6 @@ import type { Python } from "./writer";
 export type ExtensionProfileInfo = {
     className: string;
     moduleName: string;
-    flatProfile: ProfileTypeSchema;
 };
 
 /**
@@ -35,7 +34,6 @@ export const resolveExtensionProfile = (
     return {
         className: pyProfileClassName(schema),
         moduleName: pyProfileModuleName(tsIndex, schema),
-        flatProfile: tsIndex.flatProfile(schema),
     };
 };
 
@@ -46,7 +44,7 @@ export const resolveExtensionProfile = (
 export const generateExtensionMethods = (
     w: Python,
     tsIndex: TypeSchemaIndex,
-    flatProfile: ProfileTypeSchema,
+    flatProfile: SnapshotProfileTypeSchema,
     className: string,
     extensionBaseNames: Record<string, string>,
 ): void => {

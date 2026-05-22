@@ -4,7 +4,7 @@ import {
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
     type NameCandidates,
-    type ProfileTypeSchema,
+    type SnapshotProfileTypeSchema,
     type RegularField,
     type TypeIdentifier,
 } from "@typeschema/types.ts";
@@ -33,7 +33,6 @@ export type SliceDef = {
     nameCandidates: NameCandidates;
 };
 
-// todo: move duplicating ts+py logic into a shared helper
 export const collectRequiredSliceNames = (field: RegularField): string[] | undefined => {
     if (!field.array || !field.slicing?.slices) return undefined;
     // Type-discriminated slices ("type" discriminator) require explicit typed setters — no stubs.
@@ -53,7 +52,7 @@ export const generateStaticSliceFields = (w: Python, sliceDefs: SliceDef[]): voi
 };
 
 /** Ensure the slice match has shapes that Pydantic accepts when the match is
- *  later merged into user input and passed to a model constructor: a plain-
+ *  later merged into user input and passed to a model constructor: a plain
  *  object value for a list-typed field is wrapped in a single-element list.
  *  Values that are already lists are recursed into but not rewrapped. */
 export const normalizeMatchForPython = (
@@ -103,9 +102,9 @@ const extractTypeDiscriminatorResource = (
     return undefined;
 };
 
-export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema): SliceDef[] => {
+export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: SnapshotProfileTypeSchema): SliceDef[] => {
     const pkgName = flatProfile.identifier.package;
-    return Object.entries(flatProfile.fields ?? {})
+    return Object.entries(flatProfile.fields)
         .filter(([_, field]) => isNotChoiceDeclarationField(field) && field.slicing?.slices)
         .flatMap(([fieldName, field]) => {
             if (!isNotChoiceDeclarationField(field) || !field.slicing?.slices || !field.type) return [];

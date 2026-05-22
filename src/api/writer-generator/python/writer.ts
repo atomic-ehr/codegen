@@ -145,7 +145,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private generateResourcePackages(tsIndex: TypeSchemaIndex, groups: TypeSchemaPackageGroups): void {
-        const profilesByPackage = this.opts.generateProfile ? groupByPackages(tsIndex.collectProfiles()) : {};
+        const profilesByPackage = this.opts.generateProfile ? groupByPackages(tsIndex.collectSnapshotProfiles()) : {};
 
         for (const [packageName, packageResources] of Object.entries(groups.groupedResources)) {
             this.cd(`/${snakeCase(packageName)}`, () => {
