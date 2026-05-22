@@ -15,15 +15,8 @@ from .extension_uscore_interpreter_needed_extension import UscoreInterpreterNeed
 from .extension_uscore_race_extension import UscoreRaceExtension
 from .extension_uscore_tribal_affiliation_extension import UscoreTribalAffiliationExtension
 from .profile_helpers import (
-    _get_key,
-    build_resource,
-    ensure_profile,
-    extract_complex_extension,
-    get_extension_value,
-    is_extension,
-    push_extension,
-    validate_must_support,
-    validate_required,
+    _get_key, build_resource, ensure_profile, extract_complex_extension, get_extension_value, is_extension, \
+    push_extension, validate_must_support, validate_required
 )
 
 

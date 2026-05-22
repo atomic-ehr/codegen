@@ -723,7 +723,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private writeMultiLineImport(pyPackage: string, entities: string[]): void {
-        this.line(`from ${pyPackage} import (\\`);
+        this.line(`from ${pyPackage} import (`);
         this.indentBlock(() => {
             let i = 0;
             while (i < entities.length) {
@@ -737,10 +737,6 @@ export class Python extends Writer<PythonGeneratorOptions> {
 
     private pyImportType(identifier: TypeIdentifier): void {
         this.pyImportFrom(pyPackage(this.opts.rootPackageName, identifier), pascalCase(identifier.name));
-    }
-
-    private buildPyPackageName(packageName: string): string {
-        return packageName ? snakeCase(packageName) : "";
     }
 
     private getFieldFormatFunction(format: StringFormatKey): (name: string) => string {

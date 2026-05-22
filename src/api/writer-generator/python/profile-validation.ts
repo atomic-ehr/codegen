@@ -110,7 +110,8 @@ const collectSliceCardinalityValidation = (
     helpers: Set<string>,
     errorLines: string[],
 ): void => {
-    for (const [sliceName, slice] of Object.entries(field.slicing!.slices!)) {
+    if (!field.slicing?.slices) return;
+    for (const [sliceName, slice] of Object.entries(field.slicing.slices)) {
         if (slice.min === undefined && slice.max === undefined) continue;
         const match = slice.match ?? {};
         if (Object.keys(match).length === 0) continue;

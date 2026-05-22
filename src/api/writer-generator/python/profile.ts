@@ -12,12 +12,14 @@ import {
     type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
-import { canonicalToName, deriveResourceName, PRIMITIVE_TYPE_MAP, pyFhirPackageByName, pyTypeFromIdentifier } from "./naming-utils";
 import {
-    type ExtensionProfileInfo,
-    generateExtensionMethods,
-    resolveExtensionProfile,
-} from "./profile-extensions";
+    canonicalToName,
+    deriveResourceName,
+    PRIMITIVE_TYPE_MAP,
+    pyFhirPackageByName,
+    pyTypeFromIdentifier,
+} from "./naming-utils";
+import { type ExtensionProfileInfo, generateExtensionMethods, resolveExtensionProfile } from "./profile-extensions";
 import {
     pyFieldName,
     pyProfileClassName,
@@ -37,20 +39,6 @@ import {
 } from "./profile-slices";
 import { collectValidateBody } from "./profile-validation";
 import type { Python } from "./writer";
-
-const emitImport = (w: Python, module: string, names: string[], maxLen = 100): void => {
-    if (names.length === 0) return;
-    const oneLine = `from ${module} import ${names.join(", ")}`;
-    if (oneLine.length <= maxLen || names.length === 1) {
-        w.line(oneLine);
-        return;
-    }
-    w.line(`from ${module} import (`);
-    w.indentBlock(() => {
-        for (const name of names) w.line(`${name},`);
-    });
-    w.line(")");
-};
 
 /** Full Python type annotation for a field (appends `list[...]` for arrays). */
 const fieldPyType = (
@@ -318,26 +306,26 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, profile: Pro
     if (sliceDefs.length > 0 || extensions.length > 0) typingNames.push("Any");
     if (extensions.length > 0) typingNames.push("Literal", "overload");
     if (typingNames.length > 0) {
-        emitImport(w, "typing", [...typingNames].sort());
+        w.pyImportFrom("typing", ...[...typingNames].sort());
         w.line();
     }
 
     const basePkg = pyFhirPackageByName(w.opts.rootPackageName, flatProfile.base.package);
     if (isResourceBase) {
-        emitImport(w, `${basePkg}.${snakeCase(baseTypeName)}`, [baseTypeName]);
+        w.pyImportFrom(`${basePkg}.${snakeCase(baseTypeName)}`, baseTypeName);
     } else {
-        emitImport(w, `${basePkg}.base`, [baseTypeName]);
+        w.pyImportFrom(`${basePkg}.base`, baseTypeName);
     }
     if (extensions.length > 0) {
-        emitImport(w, `${basePkg}.base`, ["Extension"]);
+        w.pyImportFrom(`${basePkg}.base`, "Extension");
     }
     for (const [modulePath, names] of [...typeImports.entries()].sort(([a], [b]) => a.localeCompare(b))) {
-        emitImport(w, modulePath, [...names].sort());
+        w.pyImportFrom(modulePath, ...[...names].sort());
     }
     for (const [extClassName, info] of [...extProfileImports.entries()].sort(([a], [b]) => a.localeCompare(b))) {
-        emitImport(w, `.${info.moduleName}`, [extClassName]);
+        w.pyImportFrom(`.${info.moduleName}`, extClassName);
     }
-    emitImport(w, ".profile_helpers", helperImports);
+    w.pyImportFrom(".profile_helpers", ...helperImports);
     w.line();
     w.line();
 

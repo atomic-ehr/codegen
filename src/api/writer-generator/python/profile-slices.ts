@@ -142,8 +142,7 @@ export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: ProfileT
                             field.type && !isPrimitiveIdentifier(field.type)
                                 ? pyTypeFromIdentifier(field.type)
                                 : undefined,
-                        elementTypeId:
-                            field.type && !isPrimitiveIdentifier(field.type) ? field.type : undefined,
+                        elementTypeId: field.type && !isPrimitiveIdentifier(field.type) ? field.type : undefined,
                         isTypeDiscriminated,
                         typeDiscriminatorResource,
                     };
