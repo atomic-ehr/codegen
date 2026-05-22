@@ -7,9 +7,9 @@ import {
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
     isResourceIdentifier,
-    type ProfileTypeSchema,
     packageMeta,
     packageMetaToFhir,
+    type SnapshotProfileTypeSchema,
     type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
@@ -57,11 +57,11 @@ type ProfileFactoryInfo = {
 };
 
 const collectChoiceAccessors = (
-    flatProfile: ProfileTypeSchema,
+    snapshot: SnapshotProfileTypeSchema,
     promotedChoices: Set<string>,
 ): ProfileFactoryInfo["accessors"] => {
     const accessors: ProfileFactoryInfo["accessors"] = [];
-    for (const [name, field] of Object.entries(flatProfile.fields ?? {})) {
+    for (const [name, field] of Object.entries(snapshot.fields)) {
         if (field.excluded) continue;
         if (!isChoiceInstanceField(field)) continue;
         if (promotedChoices.has(name)) continue;
@@ -73,8 +73,8 @@ const collectChoiceAccessors = (
 
 /** Try to promote a required single-choice declaration to a direct param */
 const tryPromoteChoice = (
-    field: NonNullable<ProfileTypeSchema["fields"]>[string],
-    fields: NonNullable<ProfileTypeSchema["fields"]>,
+    field: SnapshotProfileTypeSchema["fields"][string],
+    fields: SnapshotProfileTypeSchema["fields"],
     params: ProfileFactoryInfo["params"],
     promotedChoices: Set<string>,
     resolveRef?: (ref: TypeIdentifier) => TypeIdentifier,
@@ -100,20 +100,20 @@ export const mkIsFamilyType =
 
 export const collectProfileFactoryInfo = (
     tsIndex: TypeSchemaIndex,
-    flatProfile: ProfileTypeSchema,
+    snapshot: SnapshotProfileTypeSchema,
 ): ProfileFactoryInfo => {
     const autoFields: ProfileFactoryInfo["autoFields"] = [];
     const sliceAutoFields: ProfileFactoryInfo["sliceAutoFields"] = [];
     const params: ProfileFactoryInfo["params"] = [];
     const autoAccessors: ProfileFactoryInfo["accessors"] = [];
     const fixedFields = new Set<string>();
-    const fields = flatProfile.fields ?? {};
+    const fields = snapshot.fields;
     const promotedChoices = new Set<string>();
     const resolveRef = tsIndex.findLastSpecializationByIdentifier;
     const isFamilyType = mkIsFamilyType(tsIndex);
 
-    if (isResourceIdentifier(flatProfile.base)) {
-        autoFields.push({ name: "resourceType", value: JSON.stringify(flatProfile.base.name) });
+    if (isResourceIdentifier(snapshot.base)) {
+        autoFields.push({ name: "resourceType", value: JSON.stringify(snapshot.base.name) });
     }
 
     for (const [name, field] of Object.entries(fields)) {
@@ -161,7 +161,7 @@ export const collectProfileFactoryInfo = (
 
     collectBaseRequiredParams(
         tsIndex,
-        flatProfile,
+        snapshot,
         resolveRef,
         params,
         [
@@ -173,21 +173,21 @@ export const collectProfileFactoryInfo = (
         isFamilyType,
     );
 
-    const accessors = [...autoAccessors, ...collectChoiceAccessors(flatProfile, promotedChoices)];
+    const accessors = [...autoAccessors, ...collectChoiceAccessors(snapshot, promotedChoices)];
     return { autoFields, sliceAutoFields, params, accessors, fixedFields };
 };
 
 /** Include base-type required fields not already covered by profile constraints */
 const collectBaseRequiredParams = (
     tsIndex: TypeSchemaIndex,
-    flatProfile: ProfileTypeSchema,
+    snapshot: SnapshotProfileTypeSchema,
     resolveRef: TypeSchemaIndex["findLastSpecializationByIdentifier"],
     params: ProfileFactoryInfo["params"],
     coveredNames: string[],
     isFamilyType?: (ref: TypeIdentifier) => boolean,
 ) => {
     const covered = new Set(coveredNames);
-    const baseSchema = tsIndex.resolveType(flatProfile.base);
+    const baseSchema = tsIndex.resolveType(snapshot.base);
     if (!baseSchema || !("fields" in baseSchema) || !baseSchema.fields) return;
     for (const [name, field] of Object.entries(baseSchema.fields)) {
         if (covered.has(name)) continue;
@@ -204,15 +204,15 @@ const collectBaseRequiredParams = (
 export const generateProfileIndexFile = (
     w: TypeScript,
     tsIndex: TypeSchemaIndex,
-    initialProfiles: ProfileTypeSchema[],
+    snapshots: SnapshotProfileTypeSchema[],
 ) => {
-    if (initialProfiles.length === 0) return;
+    if (snapshots.length === 0) return;
     w.cd("profiles", () => {
         w.cat("index.ts", () => {
             const exports: Map<string, string> = new Map();
-            for (const profile of initialProfiles) {
-                const className = tsProfileClassName(profile);
-                const moduleName = tsProfileModuleName(tsIndex, profile);
+            for (const snapshot of snapshots) {
+                const className = tsProfileClassName(snapshot);
+                const moduleName = tsProfileModuleName(tsIndex, snapshot);
                 if (!exports.has(className)) {
                     exports.set(className, `export { ${className} } from "./${moduleName}"`);
                 }
@@ -227,16 +227,16 @@ export const generateProfileIndexFile = (
 const generateProfileHelpersImport = (
     w: TypeScript,
     tsIndex: TypeSchemaIndex,
-    flatProfile: ProfileTypeSchema,
+    snapshot: SnapshotProfileTypeSchema,
     sliceDefs: SliceDef[],
     factoryInfo: ProfileFactoryInfo,
 ) => {
-    const extensions = flatProfile.extensions ?? [];
-    const hasMeta = tsIndex.isWithMetaField(flatProfile);
-    const canonicalUrl = flatProfile.identifier.url;
+    const extensions = snapshot.extensions ?? [];
+    const hasMeta = tsIndex.isWithMetaField(snapshot);
+    const canonicalUrl = snapshot.identifier.url;
 
     const imports: string[] = [];
-    if (flatProfile.base.name === "Extension" && canonicalUrl && collectSubExtensionSlices(flatProfile).length > 0)
+    if (snapshot.base.name === "Extension" && canonicalUrl && collectSubExtensionSlices(snapshot).length > 0)
         imports.push("isRawExtensionInput");
     if (canonicalUrl && hasMeta) imports.push("ensureProfile");
     if (sliceDefs.length > 0 || factoryInfo.sliceAutoFields.length > 0)
@@ -250,7 +250,7 @@ const generateProfileHelpersImport = (
         imports.push("isExtension", "getExtensionValue", "pushExtension");
         if (extensions.some((ext) => ext.url && ext.max === "1")) imports.push("upsertExtension");
     }
-    if (Object.keys(flatProfile.fields ?? {}).length > 0)
+    if (Object.keys(snapshot.fields).length > 0)
         imports.push(
             "validateRequired",
             "validateExcluded",
@@ -268,7 +268,11 @@ const generateProfileHelpersImport = (
     }
 };
 
-export const generateProfileImports = (w: TypeScript, tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) => {
+export const generateProfileImports = (
+    w: TypeScript,
+    tsIndex: TypeSchemaIndex,
+    snapshot: SnapshotProfileTypeSchema,
+) => {
     const usedTypes = new Map<string, { importPath: string; tsName: string }>();
 
     const getModulePath = (typeId: TypeIdentifier): string => {
@@ -287,19 +291,19 @@ export const generateProfileImports = (w: TypeScript, tsIndex: TypeSchemaIndex, 
         }
     };
 
-    addType(flatProfile.base);
-    collectTypesFromSlices(tsIndex, flatProfile, addType);
-    const needsExtensionType = collectTypesFromExtensions(tsIndex, flatProfile, addType);
-    collectTypesFromFlatInput(tsIndex, flatProfile, addType);
+    addType(snapshot.base);
+    collectTypesFromSlices(tsIndex, snapshot, addType);
+    const needsExtensionType = collectTypesFromExtensions(tsIndex, snapshot, addType);
+    collectTypesFromFlatInput(tsIndex, snapshot, addType);
 
-    const factoryInfo = collectProfileFactoryInfo(tsIndex, flatProfile);
+    const factoryInfo = collectProfileFactoryInfo(tsIndex, snapshot);
     for (const param of factoryInfo.params) addType(param.typeId);
     for (const f of factoryInfo.sliceAutoFields) addType(f.typeId);
     for (const accessor of factoryInfo.accessors) addType(accessor.typeId);
 
     if (needsExtensionType) {
         const extensionUrl = "http://hl7.org/fhir/StructureDefinition/Extension" as CanonicalUrl;
-        const extensionSchema = tsIndex.resolveByUrl(flatProfile.identifier.package, extensionUrl);
+        const extensionSchema = tsIndex.resolveByUrl(snapshot.identifier.package, extensionUrl);
         if (extensionSchema) addType(extensionSchema.identifier);
     }
 
@@ -320,12 +324,12 @@ export const generateProfileImports = (w: TypeScript, tsIndex: TypeSchemaIndex, 
 
     // Import extension profile classes for delegation in setters
     const extProfileImports = new Map<string, { modulePath: string; hasFlatInput: boolean }>();
-    for (const ext of flatProfile.extensions ?? []) {
+    for (const ext of snapshot.extensions ?? []) {
         if (!ext.url) continue;
-        const info = resolveExtensionProfile(tsIndex, flatProfile.identifier.package, ext.url);
+        const info = resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext.url);
         if (!info) continue;
         if (!extProfileImports.has(info.className)) {
-            const hasFlatInput = collectSubExtensionSlices(info.flatProfile).length > 0;
+            const hasFlatInput = collectSubExtensionSlices(info.snapshot).length > 0;
             extProfileImports.set(info.className, { modulePath: info.modulePath, hasFlatInput });
         }
     }
@@ -359,12 +363,12 @@ const generateStaticSliceFields = (w: TypeScript, sliceDefs: SliceDef[]) => {
 const generateFactoryMethods = (
     w: TypeScript,
     tsIndex: TypeSchemaIndex,
-    flatProfile: ProfileTypeSchema,
+    snapshot: SnapshotProfileTypeSchema,
     factoryInfo: ProfileFactoryInfo,
 ) => {
-    const profileClassName = tsProfileClassName(flatProfile);
-    const tsBaseResourceName = tsTypeFromIdentifier(flatProfile.base);
-    const hasMeta = tsIndex.isWithMetaField(flatProfile);
+    const profileClassName = tsProfileClassName(snapshot);
+    const tsBaseResourceName = tsTypeFromIdentifier(snapshot.base);
+    const hasMeta = tsIndex.isWithMetaField(snapshot);
     const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
     const createArgsTypeName = `${profileClassName}Raw`;
     const paramSignature = hasParams ? `args: ${createArgsTypeName}` : "";
@@ -391,13 +395,13 @@ const generateFactoryMethods = (
         w.lineSM("return profile");
     });
     w.line();
-    const canEmitIs = (hasMeta && isResourceIdentifier(flatProfile.base)) || flatProfile.base.name === "Extension";
+    const canEmitIs = (hasMeta && isResourceIdentifier(snapshot.base)) || snapshot.base.name === "Extension";
     if (canEmitIs) {
         w.curlyBlock(["static", "is", "(resource: unknown)", `: resource is ${tsBaseResourceName}`], () => {
             w.line(`if (typeof resource !== "object" || resource === null) return false;`);
-            if (hasMeta && isResourceIdentifier(flatProfile.base)) {
+            if (hasMeta && isResourceIdentifier(snapshot.base)) {
                 w.line(`const r = resource as { resourceType?: string; meta?: { profile?: string[] } };`);
-                w.line(`if (r.resourceType !== ${JSON.stringify(flatProfile.base.name)}) return false;`);
+                w.line(`if (r.resourceType !== ${JSON.stringify(snapshot.base.name)}) return false;`);
                 w.lineSM(`return (r.meta?.profile ?? []).includes(${profileClassName}.canonicalUrl)`);
             } else {
                 w.lineSM(`return (resource as { url?: string }).url === ${profileClassName}.canonicalUrl`);
@@ -409,7 +413,7 @@ const generateFactoryMethods = (
         if (hasMeta) {
             w.lineSM(`ensureProfile(resource, ${profileClassName}.canonicalUrl)`);
         }
-        if (flatProfile.base.name === "Extension" && flatProfile.identifier.url) {
+        if (snapshot.base.name === "Extension" && snapshot.identifier.url) {
             w.lineSM(`resource.url = ${profileClassName}.canonicalUrl`);
         }
         const applyAutoFields = factoryInfo.autoFields.filter((f) => f.name !== "resourceType");
@@ -436,7 +440,7 @@ const generateFactoryMethods = (
     w.line();
     // For extension profiles with sub-extension slices: generate resolveInput helper,
     // widen createResource and create to accept Input | Raw
-    const subSlicesForInput = flatProfile.base.name === "Extension" ? collectSubExtensionSlices(flatProfile) : [];
+    const subSlicesForInput = snapshot.base.name === "Extension" ? collectSubExtensionSlices(snapshot) : [];
     const hasInputHelper = subSlicesForInput.length > 0;
 
     if (hasInputHelper) {
@@ -549,7 +553,7 @@ const generateFactoryMethods = (
             if (factoryInfo.sliceAutoFields.length > 0) {
                 w.line();
             }
-            if (isPrimitiveIdentifier(flatProfile.base)) {
+            if (isPrimitiveIdentifier(snapshot.base)) {
                 w.lineSM(`const resource = undefined as unknown as ${tsBaseResourceName}`);
             } else {
                 const hasMetaParam = allFields.some((f) => f.name === "meta");
@@ -618,13 +622,17 @@ const generateFieldAccessors = (w: TypeScript, factoryInfo: ProfileFactoryInfo) 
 };
 
 /** Generate inline extension input types only for complex extensions without a resolved FlatInput profile */
-const generateInlineExtensionInputTypes = (w: TypeScript, tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) => {
-    const tsProfileName = tsResourceName(flatProfile.identifier);
-    const complexExtensions = (flatProfile.extensions ?? []).filter((ext) => ext.isComplex && ext.subExtensions);
+const generateInlineExtensionInputTypes = (
+    w: TypeScript,
+    tsIndex: TypeSchemaIndex,
+    snapshot: SnapshotProfileTypeSchema,
+) => {
+    const tsProfileName = tsResourceName(snapshot.identifier);
+    const complexExtensions = (snapshot.extensions ?? []).filter((ext) => ext.isComplex && ext.subExtensions);
     for (const ext of complexExtensions) {
         if (!ext.url) continue;
-        const extProfileInfo = resolveExtensionProfile(tsIndex, flatProfile.identifier.package, ext.url);
-        const hasFlatInput = extProfileInfo ? collectSubExtensionSlices(extProfileInfo.flatProfile).length > 0 : false;
+        const extProfileInfo = resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext.url);
+        const hasFlatInput = extProfileInfo ? collectSubExtensionSlices(extProfileInfo.snapshot).length > 0 : false;
         if (hasFlatInput) continue;
         const typeName = tsExtensionFlatTypeName(tsProfileName, ext.name);
         w.curlyBlock(["export", "type", typeName, "="], () => {
@@ -654,9 +662,9 @@ const valueToTypeLiteral = (value: unknown): string => {
     return "unknown";
 };
 
-const generateSliceInputTypes = (w: TypeScript, flatProfile: ProfileTypeSchema, sliceDefs: SliceDef[]) => {
+const generateSliceInputTypes = (w: TypeScript, snapshot: SnapshotProfileTypeSchema, sliceDefs: SliceDef[]) => {
     if (sliceDefs.length === 0) return;
-    const tsProfileName = tsResourceName(flatProfile.identifier);
+    const tsProfileName = tsResourceName(snapshot.identifier);
     for (const sliceDef of sliceDefs) {
         const inputTypeName = tsSliceFlatTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
         const flatTypeName = tsSliceFlatAllTypeName(tsProfileName, sliceDef.fieldName, sliceDef.sliceName);
@@ -707,12 +715,12 @@ const generateSliceInputTypes = (w: TypeScript, flatProfile: ProfileTypeSchema, 
     }
 };
 
-const generateRawType = (w: TypeScript, flatProfile: ProfileTypeSchema, factoryInfo: ProfileFactoryInfo) => {
+const generateRawType = (w: TypeScript, snapshot: SnapshotProfileTypeSchema, factoryInfo: ProfileFactoryInfo) => {
     const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
-    const subSlices = flatProfile.base.name === "Extension" ? collectSubExtensionSlices(flatProfile) : [];
+    const subSlices = snapshot.base.name === "Extension" ? collectSubExtensionSlices(snapshot) : [];
     if (!hasParams && subSlices.length === 0) return;
 
-    const createArgsTypeName = `${tsProfileClassName(flatProfile)}Raw`;
+    const createArgsTypeName = `${tsProfileClassName(snapshot)}Raw`;
     w.curlyBlock(["export", "type", createArgsTypeName, "="], () => {
         for (const p of factoryInfo.params) {
             w.lineSM(`${p.name}: ${p.tsType}`);
@@ -730,11 +738,11 @@ const generateRawType = (w: TypeScript, flatProfile: ProfileTypeSchema, factoryI
     w.line();
 };
 
-const generateFlatInputType = (w: TypeScript, flatProfile: ProfileTypeSchema) => {
-    const subSlices = flatProfile.base.name === "Extension" ? collectSubExtensionSlices(flatProfile) : [];
+const generateFlatInputType = (w: TypeScript, snapshot: SnapshotProfileTypeSchema) => {
+    const subSlices = snapshot.base.name === "Extension" ? collectSubExtensionSlices(snapshot) : [];
     if (subSlices.length === 0) return;
 
-    const flatInputTypeName = `${tsProfileClassName(flatProfile)}Flat`;
+    const flatInputTypeName = `${tsProfileClassName(snapshot)}Flat`;
     w.curlyBlock(["export", "type", flatInputTypeName, "="], () => {
         for (const sub of subSlices) {
             const opt = sub.isRequired ? "" : "?";
@@ -745,22 +753,22 @@ const generateFlatInputType = (w: TypeScript, flatProfile: ProfileTypeSchema) =>
     w.line();
 };
 
-export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) => {
-    const tsBaseResourceName = tsTypeFromIdentifier(flatProfile.base);
-    const profileClassName = tsProfileClassName(flatProfile);
-    const sliceDefs = collectSliceDefs(tsIndex, flatProfile);
-    const factoryInfo = collectProfileFactoryInfo(tsIndex, flatProfile);
+export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, snapshot: SnapshotProfileTypeSchema) => {
+    const tsBaseResourceName = tsTypeFromIdentifier(snapshot.base);
+    const profileClassName = tsProfileClassName(snapshot);
+    const sliceDefs = collectSliceDefs(tsIndex, snapshot);
+    const factoryInfo = collectProfileFactoryInfo(tsIndex, snapshot);
 
-    generateInlineExtensionInputTypes(w, tsIndex, flatProfile);
-    generateSliceInputTypes(w, flatProfile, sliceDefs);
+    generateInlineExtensionInputTypes(w, tsIndex, snapshot);
+    generateSliceInputTypes(w, snapshot, sliceDefs);
 
-    generateProfileHelpersImport(w, tsIndex, flatProfile, sliceDefs, factoryInfo);
+    generateProfileHelpersImport(w, tsIndex, snapshot, sliceDefs, factoryInfo);
 
-    generateRawType(w, flatProfile, factoryInfo);
-    generateFlatInputType(w, flatProfile);
+    generateRawType(w, snapshot, factoryInfo);
+    generateFlatInputType(w, snapshot);
 
-    const canonicalUrl = flatProfile.identifier.url;
-    w.comment("CanonicalURL:", canonicalUrl, `(pkg: ${packageMetaToFhir(packageMeta(flatProfile))})`);
+    const canonicalUrl = snapshot.identifier.url;
+    w.comment("CanonicalURL:", canonicalUrl, `(pkg: ${packageMetaToFhir(packageMeta(snapshot))})`);
 
     w.curlyBlock(["export", "class", profileClassName], () => {
         w.lineSM(`static readonly canonicalUrl = ${JSON.stringify(canonicalUrl)}`);
@@ -768,18 +776,18 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, fl
         generateStaticSliceFields(w, sliceDefs);
         w.lineSM(`private resource: ${tsBaseResourceName}`);
         w.line();
-        generateFactoryMethods(w, tsIndex, flatProfile, factoryInfo);
+        generateFactoryMethods(w, tsIndex, snapshot, factoryInfo);
         generateFieldAccessors(w, factoryInfo);
 
         w.line("// Extensions");
-        generateExtensionMethods(w, tsIndex, flatProfile);
+        generateExtensionMethods(w, tsIndex, snapshot);
 
         w.line("// Slices");
-        generateSliceSetters(w, sliceDefs, flatProfile);
-        generateSliceGetters(w, sliceDefs, flatProfile);
+        generateSliceSetters(w, sliceDefs, snapshot);
+        generateSliceGetters(w, sliceDefs, snapshot);
 
         w.line("// Validation");
-        generateValidateMethod(w, tsIndex, flatProfile);
+        generateValidateMethod(w, tsIndex, snapshot);
     });
     w.line();
 };

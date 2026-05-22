@@ -2,8 +2,8 @@ import {
     type ChoiceFieldInstance,
     isChoiceDeclarationField,
     isChoiceInstanceField,
-    type ProfileTypeSchema,
     type RegularField,
+    type SnapshotProfileTypeSchema,
     type TypeIdentifier,
 } from "@root/typeschema/types";
 import type { TypeSchemaIndex } from "@root/typeschema/utils";
@@ -78,12 +78,16 @@ export const collectRegularFieldValidation = (
     }
 };
 
-export const generateValidateMethod = (w: TypeScript, tsIndex: TypeSchemaIndex, flatProfile: ProfileTypeSchema) => {
-    const fields = flatProfile.fields ?? {};
-    const profileName = flatProfile.identifier.name;
-    const canonicalUrl = flatProfile.identifier.url;
+export const generateValidateMethod = (
+    w: TypeScript,
+    tsIndex: TypeSchemaIndex,
+    snapshot: SnapshotProfileTypeSchema,
+) => {
+    const fields = snapshot.fields;
+    const profileName = snapshot.identifier.name;
+    const canonicalUrl = snapshot.identifier.url;
     const canonicalUrlExpr = canonicalUrl
-        ? { url: canonicalUrl, expr: `${tsProfileClassName(flatProfile)}.canonicalUrl` }
+        ? { url: canonicalUrl, expr: `${tsProfileClassName(snapshot)}.canonicalUrl` }
         : undefined;
     w.curlyBlock(["validate(): { errors: string[]; warnings: string[] }"], () => {
         w.line(`const profileName = "${profileName}"`);
