@@ -1,3 +1,6 @@
+import pytest
+from pydantic import ValidationError
+
 from fhir_types.hl7_fhir_r4_core.base import CodeableConcept
 from fhir_types.hl7_fhir_r4_core.bundle import Bundle, BundleEntry
 from fhir_types.hl7_fhir_r4_core.observation import Observation
@@ -38,3 +41,19 @@ def test_bundle_without_type_param_is_backwards_compatible() -> None:
         entry=[BundleEntry(resource=patient)],
     )
     assert len(bundle.entry) == 1
+
+
+def test_bundle_from_json_raises_on_invalid_resource() -> None:
+    # Observation requires `status` and `code` — omitting them causes a runtime ValidationError
+    bundle_json = """{
+        "resourceType": "Bundle",
+        "type": "searchset",
+        "entry": [{
+            "resource": {
+                "resourceType": "Observation",
+                "id": "obs-1"
+            }
+        }]
+    }"""
+    with pytest.raises(ValidationError):
+        Bundle.from_json(bundle_json)

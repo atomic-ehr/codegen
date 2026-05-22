@@ -732,10 +732,6 @@ export class Python extends Writer<PythonGeneratorOptions> {
 
         for (const dep of resourceDeps) {
             this.pyImportType(dep);
-
-            // const familyName = `${pascalCase(dep.name)}Family`;
-            // const familyPackage = `${this.pyFhirPackage(dep)}.resource_families`;
-            // this.pyImportFrom(familyPackage, familyName);
         }
     }
 
