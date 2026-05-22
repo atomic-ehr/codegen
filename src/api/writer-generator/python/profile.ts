@@ -197,6 +197,23 @@ const modulePathForTypeId = (rootPackageName: string, typeId: TypeIdentifier): s
     return `${pkg}.base`;
 };
 
+/** Record a single import without resolving aliases — used when the exact declared
+ *  type must be imported as-is (e.g. array element types in typed slices). */
+const addExactTypeImport = (
+    typeImports: Map<string, Set<string>>,
+    rootPackageName: string,
+    skipName: string,
+    typeId: TypeIdentifier,
+): void => {
+    if (isPrimitiveIdentifier(typeId) || PRIMITIVE_TYPE_MAP[typeId.name] !== undefined) return;
+    const name = deriveResourceName(typeId);
+    if (!name || name === skipName) return;
+    const modulePath = modulePathForTypeId(rootPackageName, typeId);
+    const names = typeImports.get(modulePath) ?? new Set<string>();
+    names.add(name);
+    typeImports.set(modulePath, names);
+};
+
 /** Record import(s) needed to reference `typeId` in generated code. */
 const addTypeImport = (
     typeImports: Map<string, Set<string>>,
@@ -286,15 +303,7 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, profile: Pro
     // Collect imports for element types and resource types referenced in type-discriminated slice signatures
     for (const s of sliceDefs) {
         if (!s.isTypeDiscriminated) continue;
-        if (s.elementTypeId && !isPrimitiveIdentifier(s.elementTypeId)) {
-            const name = deriveResourceName(s.elementTypeId);
-            if (name && name !== baseTypeName) {
-                const modulePath = modulePathForTypeId(w.opts.rootPackageName, s.elementTypeId);
-                const names = typeImports.get(modulePath) ?? new Set<string>();
-                names.add(name);
-                typeImports.set(modulePath, names);
-            }
-        }
+        if (s.elementTypeId) addExactTypeImport(typeImports, w.opts.rootPackageName, baseTypeName, s.elementTypeId);
         if (!s.typeDiscriminatorResource) continue;
         const resourceId = tsIndex.schemas.find(
             (schema) => schema.identifier.kind === "resource" && schema.identifier.name === s.typeDiscriminatorResource,

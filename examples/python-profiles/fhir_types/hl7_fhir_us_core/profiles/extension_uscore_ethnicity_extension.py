@@ -154,8 +154,6 @@ class UscoreEthnicityExtension:
     def get_extension_omb_category(self, mode: str | None = None) -> Any | None:
         match = self.__class__._omb_category_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
-        if item is None:
-            return None
         if mode == "raw":
             return item
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
@@ -164,8 +162,6 @@ class UscoreEthnicityExtension:
     def get_extension_detailed(self, mode: str | None = None) -> Any | None:
         match = self.__class__._detailed_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
-        if item is None:
-            return None
         if mode == "raw":
             return item
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
@@ -174,8 +170,6 @@ class UscoreEthnicityExtension:
     def get_extension_text(self, mode: str | None = None) -> Any | None:
         match = self.__class__._text_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
-        if item is None:
-            return None
         if mode == "raw":
             return item
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)

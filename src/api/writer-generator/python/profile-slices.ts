@@ -207,10 +207,6 @@ export const generateSliceGetters = (
                         w.line("return None");
                     });
                 }
-                w.line("if item is None:");
-                w.indentBlock(() => {
-                    w.line("return None");
-                });
                 w.line('if mode == "raw":');
                 w.indentBlock(() => {
                     w.line("return item");

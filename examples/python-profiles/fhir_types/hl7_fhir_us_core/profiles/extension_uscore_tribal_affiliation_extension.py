@@ -128,8 +128,6 @@ class UscoreTribalAffiliationExtension:
     def get_extension_tribal_affiliation(self, mode: str | None = None) -> Any | None:
         match = self.__class__._tribal_affiliation_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
-        if item is None:
-            return None
         if mode == "raw":
             return item
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
@@ -138,8 +136,6 @@ class UscoreTribalAffiliationExtension:
     def get_extension_is_enrolled(self, mode: str | None = None) -> Any | None:
         match = self.__class__._is_enrolled_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
-        if item is None:
-            return None
         if mode == "raw":
             return item
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)

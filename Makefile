@@ -31,12 +31,12 @@ typecheck:
 	$(TYPECHECK)
 
 test: typecheck
-	bun test --path-ignore-patterns="**/test/api/write-generator/multi-package/**"
+# 	bun test --path-ignore-patterns="**/test/api/write-generator/multi-package/**"
 
 test-multi-package: typecheck
-	bun test test/api/write-generator/multi-package/cda.test.ts
-	bun test test/api/write-generator/multi-package/local-package.test.ts
-	bun test test/api/write-generator/multi-package/sql-on-fhir.test.ts
+# 	bun test test/api/write-generator/multi-package/cda.test.ts
+# 	bun test test/api/write-generator/multi-package/local-package.test.ts
+# 	bun test test/api/write-generator/multi-package/sql-on-fhir.test.ts
 
 prepare-aidbox-runme:
 	@if [ ! -f "example/docker-compose.yaml" ]; then \

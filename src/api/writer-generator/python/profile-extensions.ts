@@ -93,14 +93,13 @@ export const generateExtensionMethods = (
 const emitExtLookup = (w: Python, ext: ProfileExtension, targetPath: string[]): void => {
     if (targetPath.length === 0) {
         w.line(`exts = getattr(self._resource, "extension", None) or []`);
-        w.line(`ext = next((e for e in exts if is_extension(e, ${JSON.stringify(ext.url)})), None)`);
     } else {
         w.line(
             `target = ensure_path(self._resource.model_dump(by_alias=True, exclude_none=True) if hasattr(self._resource, "model_dump") else self._resource, ${JSON.stringify(targetPath)})`,
         );
         w.line(`exts = target.get("extension", []) if isinstance(target, dict) else []`);
-        w.line(`ext = next((e for e in exts if is_extension(e, ${JSON.stringify(ext.url)})), None)`);
     }
+    w.line(`ext = next((e for e in exts if is_extension(e, ${JSON.stringify(ext.url)})), None)`);
 };
 
 const emitExtPush = (w: Python, _ext: ProfileExtension, targetPath: string[], extExpr: string): void => {

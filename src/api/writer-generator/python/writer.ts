@@ -361,7 +361,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
             this.line();
             this.generateDependenciesImports(schema);
             if (hasResourceGenericParams) {
-                const pyFhirPackage = this.pyFhirPackageByName(schema.identifier.package);
+                const pyFhirPackage = pyFhirPackageByName(this.opts.rootPackageName, schema.identifier.package);
                 this.pyImportFrom(`${pyFhirPackage}.resource_preprocessor`, "preprocess_resource_fields");
                 this.line();
                 for (const { typeVar, constraint } of typeVars) {
@@ -432,7 +432,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private generateResourcePreprocessorMethod(schema: SpecializationTypeSchema | NestedTypeSchema): void {
-        const pyFhirPackage = this.pyFhirPackageByName(schema.identifier.package);
+        const pyFhirPackage = pyFhirPackageByName(this.opts.rootPackageName, schema.identifier.package);
         this.line();
         this.line("@model_validator(mode='before')");
         this.line("@classmethod");
@@ -745,12 +745,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private buildPyPackageName(packageName: string): string {
-        const parts = packageName ? [snakeCase(packageName)] : [""];
-        return parts.join(".");
-    }
-
-    private pyFhirPackageByName(name: string): string {
-        return [this.opts.rootPackageName, this.buildPyPackageName(name)].join(".");
+        return packageName ? snakeCase(packageName) : "";
     }
 
     private getFieldFormatFunction(format: StringFormatKey): (name: string) => string {
