@@ -289,7 +289,8 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, profile: Pro
         const info = resolveExtensionProfile(tsIndex, flatProfile.identifier.package, ext.url);
         if (info && !extProfileImports.has(info.className)) extProfileImports.set(info.className, info);
     }
-    for (const h of [...helpers].sort()) helperImports.push(h);
+    helperImports.push(...helpers);
+    helperImports.sort();
 
     // Collect additional type imports needed for factory params and accessors
     const typeImports = new Map<string, Set<string>>(); // module → set of names

@@ -14,8 +14,8 @@ from .profile_helpers import (
     build_resource,
     ensure_profile,
     get_array_slice,
-    set_array_slice,
     get_array_slices,
+    set_array_slice,
     set_array_slices,
     validate_slice_cardinality,
 )

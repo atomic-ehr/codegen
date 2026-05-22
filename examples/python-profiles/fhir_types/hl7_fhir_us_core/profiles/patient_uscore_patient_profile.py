@@ -15,13 +15,13 @@ from .extension_uscore_interpreter_needed_extension import UscoreInterpreterNeed
 from .extension_uscore_race_extension import UscoreRaceExtension
 from .extension_uscore_tribal_affiliation_extension import UscoreTribalAffiliationExtension
 from .profile_helpers import (
+    _get_key,
     build_resource,
     ensure_profile,
-    _get_key,
-    is_extension,
-    get_extension_value,
-    push_extension,
     extract_complex_extension,
+    get_extension_value,
+    is_extension,
+    push_extension,
     validate_must_support,
     validate_required,
 )
@@ -97,10 +97,11 @@ class UscorePatientProfile:
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race")), None)
         if ext is None:
             return None
+        ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
-            return ext if not isinstance(ext, dict) else Extension(**ext)
+            return ext_obj
         if mode == "profile":
-            return UscoreRaceExtension.apply(ext if not isinstance(ext, dict) else Extension(**ext))
+            return UscoreRaceExtension.apply(ext_obj)
         config = [{"name": "ombCategory", "valueField": "value_coding", "isArray": False}, {"name": "detailed", "valueField": "value_coding", "isArray": True}, {"name": "text", "valueField": "value_string", "isArray": False}]
         return extract_complex_extension(ext, config)
 
@@ -133,10 +134,11 @@ class UscorePatientProfile:
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity")), None)
         if ext is None:
             return None
+        ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
-            return ext if not isinstance(ext, dict) else Extension(**ext)
+            return ext_obj
         if mode == "profile":
-            return UscoreEthnicityExtension.apply(ext if not isinstance(ext, dict) else Extension(**ext))
+            return UscoreEthnicityExtension.apply(ext_obj)
         config = [{"name": "ombCategory", "valueField": "value_coding", "isArray": False}, {"name": "detailed", "valueField": "value_coding", "isArray": True}, {"name": "text", "valueField": "value_string", "isArray": False}]
         return extract_complex_extension(ext, config)
 
@@ -169,10 +171,11 @@ class UscorePatientProfile:
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation")), None)
         if ext is None:
             return None
+        ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
-            return ext if not isinstance(ext, dict) else Extension(**ext)
+            return ext_obj
         if mode == "profile":
-            return UscoreTribalAffiliationExtension.apply(ext if not isinstance(ext, dict) else Extension(**ext))
+            return UscoreTribalAffiliationExtension.apply(ext_obj)
         config = [{"name": "tribalAffiliation", "valueField": "value_codeable_concept", "isArray": False}, {"name": "isEnrolled", "valueField": "value_boolean", "isArray": False}]
         return extract_complex_extension(ext, config)
 
@@ -203,10 +206,11 @@ class UscorePatientProfile:
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex")), None)
         if ext is None:
             return None
+        ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
-            return ext if not isinstance(ext, dict) else Extension(**ext)
+            return ext_obj
         if mode == "profile":
-            return UscoreIndividualSexExtension.apply(ext if not isinstance(ext, dict) else Extension(**ext))
+            return UscoreIndividualSexExtension.apply(ext_obj)
         return get_extension_value(ext, "value_coding")
 
     def set_sex(self, value: "UscoreIndividualSexExtension | Extension | Any") -> "UscorePatientProfile":
@@ -231,10 +235,11 @@ class UscorePatientProfile:
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed")), None)
         if ext is None:
             return None
+        ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
-            return ext if not isinstance(ext, dict) else Extension(**ext)
+            return ext_obj
         if mode == "profile":
-            return UscoreInterpreterNeededExtension.apply(ext if not isinstance(ext, dict) else Extension(**ext))
+            return UscoreInterpreterNeededExtension.apply(ext_obj)
         return get_extension_value(ext, "value_coding")
 
     def set_interpreter_required(self, value: "UscoreInterpreterNeededExtension | Extension | Any") -> "UscorePatientProfile":

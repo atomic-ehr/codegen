@@ -9,22 +9,22 @@ from typing import Any, Literal, overload
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from .profile_helpers import (
+    _get_key,
+    apply_slice_match,
     build_resource,
     ensure_slice_defaults,
-    apply_slice_match,
-    matches_value,
-    strip_match_keys,
     get_array_slice,
-    set_array_slice,
-    wrap_slice_choice,
-    unwrap_slice_choice,
-    _get_key,
-    is_extension,
     get_extension_value,
+    is_extension,
+    matches_value,
     push_extension,
+    set_array_slice,
+    strip_match_keys,
+    unwrap_slice_choice,
     validate_fixed_value,
     validate_required,
     validate_slice_cardinality,
+    wrap_slice_choice,
 )
 
 
@@ -90,8 +90,9 @@ class UscoreTribalAffiliationExtension:
         ext = next((e for e in exts if is_extension(e, "tribalAffiliation")), None)
         if ext is None:
             return None
+        ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
-            return ext if not isinstance(ext, dict) else Extension(**ext)
+            return ext_obj
         return ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True)
 
     def set_tribal_affiliation(self, value: "Extension | dict") -> "UscoreTribalAffiliationExtension":
@@ -112,8 +113,9 @@ class UscoreTribalAffiliationExtension:
         ext = next((e for e in exts if is_extension(e, "isEnrolled")), None)
         if ext is None:
             return None
+        ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
-            return ext if not isinstance(ext, dict) else Extension(**ext)
+            return ext_obj
         return ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True)
 
     def set_is_enrolled(self, value: "Extension | dict") -> "UscoreTribalAffiliationExtension":

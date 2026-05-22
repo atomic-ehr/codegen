@@ -146,13 +146,12 @@ const emitGetterOverloads = (
  * body.
  */
 const emitGetterModeDispatch = (w: Python, extProfileInfo: ExtensionProfileInfo | undefined): void => {
+    w.line("ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)");
     w.line(`if mode == "raw":`);
-    w.indentBlock(() => w.line("return ext if not isinstance(ext, dict) else Extension(**ext)"));
+    w.indentBlock(() => w.line("return ext_obj"));
     if (extProfileInfo) {
         w.line(`if mode == "profile":`);
-        w.indentBlock(() =>
-            w.line(`return ${extProfileInfo.className}.apply(ext if not isinstance(ext, dict) else Extension(**ext))`),
-        );
+        w.indentBlock(() => w.line(`return ${extProfileInfo.className}.apply(ext_obj)`));
     }
 };
 

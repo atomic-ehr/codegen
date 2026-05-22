@@ -19,15 +19,14 @@ from fhir_types.hl7_fhir_r4_core.base import (
 )
 from fhir_types.hl7_fhir_r4_core.observation import ObservationComponent
 from .profile_helpers import (
+    apply_slice_match,
     build_resource,
     ensure_profile,
     ensure_slice_defaults,
-    apply_slice_match,
-    matches_value,
-    strip_match_keys,
     get_array_slice,
+    matches_value,
     set_array_slice,
-    wrap_slice_choice,
+    strip_match_keys,
     unwrap_slice_choice,
     validate_choice_required,
     validate_enum,
@@ -36,6 +35,7 @@ from .profile_helpers import (
     validate_reference,
     validate_required,
     validate_slice_cardinality,
+    wrap_slice_choice,
 )
 
 

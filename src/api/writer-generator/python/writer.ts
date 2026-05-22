@@ -279,22 +279,16 @@ export class Python extends Writer<PythonGeneratorOptions> {
         return baseTypes;
     }
 
-    private buildImportLine(remaining: string[], maxImportLineLength: number): string {
+    private buildImportLine(entities: string[], start: number, maxLen: number): { line: string; next: number } {
         let line = "";
-        while (remaining.length > 0 && line.length < maxImportLineLength) {
-            const entity = remaining.shift();
-            if (!entity) throw new Error("Unexpected empty entity");
-            if (line.length > 0) {
-                line += ", ";
-            }
-            line += entity;
+        let i = start;
+        while (i < entities.length && line.length < maxLen) {
+            if (line.length > 0) line += ", ";
+            line += entities[i];
+            i++;
         }
-
-        if (remaining.length > 0) {
-            line += ", \\";
-        }
-
-        return line;
+        if (i < entities.length) line += ", \\";
+        return { line, next: i };
     }
 
     private importResources(
@@ -592,7 +586,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
         return "type" in field ? field.type.name : "";
     }
 
-    private getFieldDefaultValue(field: any, fieldName: string): string {
+    private getFieldDefaultValue(field: Field, fieldName: string): string {
         const aliasSpec = `alias="${fieldName}", serialization_alias="${fieldName}"`;
 
         if (!field.required) {
@@ -731,10 +725,11 @@ export class Python extends Writer<PythonGeneratorOptions> {
     private writeMultiLineImport(pyPackage: string, entities: string[]): void {
         this.line(`from ${pyPackage} import (\\`);
         this.indentBlock(() => {
-            const remaining = [...entities];
-            while (remaining.length > 0) {
-                const line = this.buildImportLine(remaining, MAX_IMPORT_LINE_LENGTH);
+            let i = 0;
+            while (i < entities.length) {
+                const { line, next } = this.buildImportLine(entities, i, MAX_IMPORT_LINE_LENGTH);
                 this.line(line);
+                i = next;
             }
         });
         this.line(")");
