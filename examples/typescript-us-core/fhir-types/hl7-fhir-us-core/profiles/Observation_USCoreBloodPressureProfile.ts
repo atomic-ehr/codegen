@@ -24,6 +24,7 @@ export type USCoreBloodPressureProfile_Component_DiastolicSliceFlatAll = USCoreB
 
 import {
     ensureProfile,
+    applyFixedValue,
     applySliceMatch,
     matchesValue,
     setArraySlice,
@@ -88,9 +89,7 @@ export class USCoreBloodPressureProfile {
 
     static apply (resource: Observation) : USCoreBloodPressureProfile {
         ensureProfile(resource, USCoreBloodPressureProfile.canonicalUrl);
-        Object.assign(resource, {
-            code: {"coding":[{"system":"http://loinc.org","code":"85354-9"}]},
-        })
+        applyFixedValue(resource, "code", {"coding":[{"system":"http://loinc.org","code":"85354-9"}]});
         resource.category = ensureSliceDefaults(
             [...(resource.category ?? [])],
             USCoreBloodPressureProfile.VSCatSliceMatch,

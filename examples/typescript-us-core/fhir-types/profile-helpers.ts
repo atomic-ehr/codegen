@@ -92,6 +92,42 @@ export const applySliceMatch = <T extends object>(input: Partial<T>, match: Part
     return result as T;
 };
 
+const mergeFixedArray = (current: unknown[], fixed: unknown[]): unknown[] => {
+    const result = [...current];
+    for (const fixedItem of fixed) {
+        const existingIndex = result.findIndex((item) => matchesValue(item, fixedItem));
+        if (existingIndex === -1) {
+            result.push(fixedItem);
+        } else {
+            result[existingIndex] = mergeFixedValue(result[existingIndex], fixedItem);
+        }
+    }
+    return result;
+};
+
+const mergeFixedValue = (current: unknown, fixed: unknown): unknown => {
+    if (Array.isArray(current) && Array.isArray(fixed)) {
+        return mergeFixedArray(current, fixed);
+    }
+    if (isRecord(current) && isRecord(fixed)) {
+        const result: Record<string, unknown> = { ...current };
+        for (const [key, fixedValue] of Object.entries(fixed)) {
+            if (key === "__proto__" || key === "constructor" || key === "prototype") {
+                continue;
+            }
+            result[key] = mergeFixedValue(result[key], fixedValue);
+        }
+        return result;
+    }
+    return fixed;
+};
+
+/** Apply a generated fixed/profile value while preserving compatible existing data. */
+export const applyFixedValue = <T extends object>(resource: T, field: string, fixed: unknown): void => {
+    const rec = resource as Record<string, unknown>;
+    rec[field] = mergeFixedValue(rec[field], fixed);
+};
+
 /**
  * Recursively test whether `value` structurally contains everything in
  * `match`.  Arrays are matched with "every match item has a corresponding

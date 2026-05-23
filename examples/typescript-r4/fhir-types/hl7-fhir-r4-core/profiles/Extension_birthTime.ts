@@ -5,6 +5,7 @@
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import {
+    applyFixedValue,
     validateRequired,
     validateExcluded,
     validateFixedValue,
@@ -44,9 +45,7 @@ export class birthTimeProfile {
 
     static apply (resource: Extension) : birthTimeProfile {
         resource.url = birthTimeProfile.canonicalUrl;
-        Object.assign(resource, {
-            url: "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
-        })
+        applyFixedValue(resource, "url", "http://hl7.org/fhir/StructureDefinition/patient-birthTime");
         return new birthTimeProfile(resource);
     }
 

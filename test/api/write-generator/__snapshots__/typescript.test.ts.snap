@@ -518,6 +518,7 @@ export type Observation_bodyweight_Category_VSCatSliceFlatAll = Observation_body
 
 import {
     ensureProfile,
+    applyFixedValue,
     applySliceMatch,
     matchesValue,
     setArraySlice,
@@ -573,9 +574,7 @@ export class observation_bodyweightProfile {
 
     static apply (resource: Observation) : observation_bodyweightProfile {
         ensureProfile(resource, observation_bodyweightProfile.canonicalUrl);
-        Object.assign(resource, {
-            code: {"coding":[{"code":"29463-7","system":"http://loinc.org"}]},
-        })
+        applyFixedValue(resource, "code", {"coding":[{"code":"29463-7","system":"http://loinc.org"}]});
         resource.category = ensureSliceDefaults(
             [...(resource.category ?? [])],
             observation_bodyweightProfile.VSCatSliceMatch,
@@ -748,6 +747,7 @@ export type Observation_bp_Component_DiastolicBPSliceFlatAll = Observation_bp_Co
 
 import {
     ensureProfile,
+    applyFixedValue,
     applySliceMatch,
     matchesValue,
     setArraySlice,
@@ -812,9 +812,7 @@ export class observation_bpProfile {
 
     static apply (resource: Observation) : observation_bpProfile {
         ensureProfile(resource, observation_bpProfile.canonicalUrl);
-        Object.assign(resource, {
-            code: {"coding":[{"code":"85354-9","system":"http://loinc.org"}]},
-        })
+        applyFixedValue(resource, "code", {"coding":[{"code":"85354-9","system":"http://loinc.org"}]});
         resource.category = ensureSliceDefaults(
             [...(resource.category ?? [])],
             observation_bpProfile.VSCatSliceMatch,
@@ -1323,6 +1321,7 @@ export type USCoreBloodPressureProfile_Component_DiastolicSliceFlatAll = USCoreB
 
 import {
     ensureProfile,
+    applyFixedValue,
     applySliceMatch,
     matchesValue,
     setArraySlice,
@@ -1387,9 +1386,7 @@ export class USCoreBloodPressureProfile {
 
     static apply (resource: Observation) : USCoreBloodPressureProfile {
         ensureProfile(resource, USCoreBloodPressureProfile.canonicalUrl);
-        Object.assign(resource, {
-            code: {"coding":[{"system":"http://loinc.org","code":"85354-9"}]},
-        })
+        applyFixedValue(resource, "code", {"coding":[{"system":"http://loinc.org","code":"85354-9"}]});
         resource.category = ensureSliceDefaults(
             [...(resource.category ?? [])],
             USCoreBloodPressureProfile.VSCatSliceMatch,
@@ -1721,6 +1718,7 @@ export type USCoreBodyWeightProfile_Category_VSCatSliceFlatAll = USCoreBodyWeigh
 
 import {
     ensureProfile,
+    applyFixedValue,
     applySliceMatch,
     matchesValue,
     setArraySlice,
@@ -1776,9 +1774,7 @@ export class USCoreBodyWeightProfile {
 
     static apply (resource: Observation) : USCoreBodyWeightProfile {
         ensureProfile(resource, USCoreBodyWeightProfile.canonicalUrl);
-        Object.assign(resource, {
-            code: {"coding":[{"system":"http://loinc.org","code":"29463-7"}]},
-        })
+        applyFixedValue(resource, "code", {"coding":[{"system":"http://loinc.org","code":"29463-7"}]});
         resource.category = ensureSliceDefaults(
             [...(resource.category ?? [])],
             USCoreBodyWeightProfile.VSCatSliceMatch,
@@ -2050,6 +2046,7 @@ export type USCoreRaceExtension_Extension_TextSliceFlatAll = USCoreRaceExtension
 
 import {
     isRawExtensionInput,
+    applyFixedValue,
     applySliceMatch,
     matchesValue,
     setArraySlice,
@@ -2112,9 +2109,7 @@ export class USCoreRaceExtensionProfile {
 
     static apply (resource: Extension) : USCoreRaceExtensionProfile {
         resource.url = USCoreRaceExtensionProfile.canonicalUrl;
-        Object.assign(resource, {
-            url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
-        })
+        applyFixedValue(resource, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race");
         return new USCoreRaceExtensionProfile(resource);
     }
 
