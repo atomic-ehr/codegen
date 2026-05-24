@@ -53,4 +53,22 @@ describe("Profile inherited base-required fields (codegen-8iw)", async () => {
         expect(file).toContain('validateRequired(res, profileName, "target")');
         expect(file).toContain('validateRequired(res, profileName, "recorded")');
     });
+
+    // An Extension profile whose differential states no fields still inherits the
+    // required Extension.url. validate() must emit validateRequired("url") AND the
+    // generated file must import validateRequired — otherwise tsc fails with TS2304
+    // ("Cannot find name 'validateRequired'"). The import guard previously keyed only
+    // on snapshot.fields being non-empty, which is false for this profile.
+    const extensionKey = Object.keys(result.filesGenerated.typescript ?? {}).find((k) =>
+        k.includes("MinimalRequiredExtension"),
+    );
+    const extensionFile = () => (extensionKey ? result.filesGenerated.typescript![extensionKey] : undefined);
+
+    it("imports validateRequired when the only validation is an inherited required field", () => {
+        const file = extensionFile();
+        expect(file).toBeDefined();
+        expect(file).toContain('validateRequired(res, profileName, "url")');
+        // The import must be present for the emitted call to typecheck.
+        expect(file).toMatch(/import\s*\{[^}]*\bvalidateRequired\b/);
+    });
 });

@@ -1,0 +1,30 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "minimal-required-extension",
+  "url": "https://example.org/StructureDefinition/minimal-required-extension",
+  "version": "0.0.1",
+  "name": "MinimalRequiredExtension",
+  "title": "Minimal Required Extension",
+  "status": "active",
+  "fhirVersion": "4.0.1",
+  "kind": "complex-type",
+  "abstract": false,
+  "context": [
+    {
+      "type": "element",
+      "expression": "Patient"
+    }
+  ],
+  "type": "Extension",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Extension",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Extension",
+        "path": "Extension",
+        "short": "Extension that re-states no fields in its differential"
+      }
+    ]
+  }
+}
