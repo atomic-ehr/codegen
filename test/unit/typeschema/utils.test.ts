@@ -708,5 +708,37 @@ describe("TypeSchema Index", () => {
 
             expect(snap.inheritedRequiredFields).toBeUndefined();
         });
+
+        it("AC-2b: covers snapshot-inlined base fields that lack a restated required flag", () => {
+            // FHIRSchema snapshot expansion can copy inherited elements into a
+            // profile's `elements` without re-deriving the `required` array
+            // (because the differential doesn't restate them). The
+            // field-builder then emits the field with required:undefined/false
+            // even though the base requires it. validate() would silently
+            // skip the field unless inheritedRequiredFields catches it.
+            const base = provenanceLike();
+            const profile: ProfileTypeSchema = {
+                identifier: {
+                    name: "InlinedProvenance" as Name,
+                    package: "test",
+                    kind: "profile",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/InlinedProvenance" as CanonicalUrl,
+                },
+                base: base.identifier,
+                fields: {
+                    activity: { type: stringType, required: true, array: false, min: 1 },
+                    // Snapshot-inlined: present but neither restated nor relaxed
+                    target: { type: stringType, required: false, array: true },
+                    recorded: { type: stringType, array: false },
+                },
+            };
+
+            const index = mkTypeSchemaIndex([base, profile], {});
+            const snap = index.collectSnapshotProfiles().find((s) => s.identifier.name === "InlinedProvenance");
+            if (!snap) throw new Error("snapshot not built");
+
+            expect(snap.inheritedRequiredFields).toEqual(["target", "recorded", "agent"]);
+        });
     });
 });

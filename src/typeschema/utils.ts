@@ -617,8 +617,21 @@ export const mkTypeSchemaIndex = (
             | undefined;
         const inheritedRequiredFields: string[] = [];
         if (nonConstraintSchema?.fields) {
-            for (const [name, field] of Object.entries(nonConstraintSchema.fields)) {
-                if (field.required && !(name in flatFields)) inheritedRequiredFields.push(name);
+            for (const [name, baseField] of Object.entries(nonConstraintSchema.fields)) {
+                if (!baseField.required) continue;
+                const flat = flatFields[name] as { required?: boolean; min?: number } | undefined;
+                // Profile explicitly relaxed the field via differential min:0 →
+                // skip (regular validate emission also skips it because flatField
+                // .required was reset to false in flatProfile).
+                if (flat?.min === 0) continue;
+                // Profile (or any ancestor in the chain) restated the field with
+                // required:true → already emitted by the regular field loop.
+                if (flat?.required) continue;
+                // Either the profile leaves the field untouched, or the FHIRSchema
+                // snapshot expansion inlined the inherited element with required
+                // unset / false despite the base requiring it. Either way the
+                // emitter needs an explicit validateRequired() call.
+                inheritedRequiredFields.push(name);
             }
         }
 
