@@ -604,4 +604,109 @@ describe("TypeSchema Index", () => {
             expect(result.identifier).toEqual(constraintSchema.identifier);
         });
     });
+
+    describe("buildProfileSnapshot — inherited required fields", () => {
+        // Provenance-like base resource with three top-level required fields,
+        // mirroring the FHIR R4 Provenance.target/.recorded/.agent constraint.
+        const provenanceLike = (): SpecializationTypeSchema => ({
+            identifier: {
+                name: "Provenance" as Name,
+                package: "test",
+                kind: "resource",
+                version: "1.0.0",
+                url: "http://example.org/StructureDefinition/Provenance" as CanonicalUrl,
+            },
+            fields: {
+                target: { type: stringType, required: true, array: true },
+                recorded: { type: stringType, required: true, array: false },
+                agent: { type: stringType, required: true, array: true },
+                activity: { type: stringType, required: false, array: false },
+            },
+        });
+
+        it("AC-2: lists base-required fields that the profile never re-states", () => {
+            const base = provenanceLike();
+            const profile: ProfileTypeSchema = {
+                identifier: {
+                    name: "ProvenanceProfile" as Name,
+                    package: "test",
+                    kind: "profile",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/ProvenanceProfile" as CanonicalUrl,
+                },
+                base: base.identifier,
+                fields: {
+                    activity: { type: stringType, required: true, array: false, min: 1 },
+                    agent: { type: stringType, required: true, array: true, min: 1 },
+                },
+            };
+
+            const index = mkTypeSchemaIndex([base, profile], {});
+            const snap = index.collectSnapshotProfiles().find((s) => s.identifier.name === "ProvenanceProfile");
+            if (!snap) throw new Error("snapshot not built");
+
+            // target + recorded are inherited (profile didn't restate them)
+            expect(snap.inheritedRequiredFields).toEqual(["target", "recorded"]);
+            // agent is restated → already in fields, NOT in the inherited list
+            expect(snap.fields.agent).toBeDefined();
+            expect(snap.inheritedRequiredFields).not.toContain("agent");
+        });
+
+        it("AC-3: omits a base-required field when the profile relaxes it via min:0", () => {
+            const base = provenanceLike();
+            const profile: ProfileTypeSchema = {
+                identifier: {
+                    name: "RelaxedProvenance" as Name,
+                    package: "test",
+                    kind: "profile",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/RelaxedProvenance" as CanonicalUrl,
+                },
+                base: base.identifier,
+                fields: {
+                    // Profile explicitly relaxes target to optional; field-builder
+                    // would have walked genealogy and set required:true here, but
+                    // flatProfile should override that based on the explicit min:0.
+                    target: { type: stringType, required: true, array: true, min: 0 },
+                },
+            };
+
+            const index = mkTypeSchemaIndex([base, profile], {});
+            const snap = index.collectSnapshotProfiles().find((s) => s.identifier.name === "RelaxedProvenance");
+            if (!snap) throw new Error("snapshot not built");
+
+            // target was relaxed → it lives in fields with required:false, NOT in inheritedRequiredFields
+            const target = snap.fields.target as RegularField;
+            expect(target).toBeDefined();
+            expect(target.required).toBe(false);
+            expect(snap.inheritedRequiredFields).not.toContain("target");
+            // recorded + agent remain inherited (profile didn't restate them)
+            expect(snap.inheritedRequiredFields).toEqual(["recorded", "agent"]);
+        });
+
+        it("returns undefined when the profile restates (or relaxes) every base-required field", () => {
+            const base = provenanceLike();
+            const profile: ProfileTypeSchema = {
+                identifier: {
+                    name: "FullyStatedProvenance" as Name,
+                    package: "test",
+                    kind: "profile",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/FullyStatedProvenance" as CanonicalUrl,
+                },
+                base: base.identifier,
+                fields: {
+                    target: { type: stringType, required: true, array: true, min: 1 },
+                    recorded: { type: stringType, required: true, array: false, min: 1 },
+                    agent: { type: stringType, required: true, array: true, min: 1 },
+                },
+            };
+
+            const index = mkTypeSchemaIndex([base, profile], {});
+            const snap = index.collectSnapshotProfiles().find((s) => s.identifier.name === "FullyStatedProvenance");
+            if (!snap) throw new Error("snapshot not built");
+
+            expect(snap.inheritedRequiredFields).toBeUndefined();
+        });
+    });
 });
