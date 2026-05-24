@@ -272,6 +272,14 @@ export interface SnapshotProfileTypeSchema {
     base: TypeIdentifier;
     description?: string;
     fields: Record<string, Field>;
+    /** Top-level required field names inherited from the base resource that the
+     *  profile chain does not re-state in its differential. Needed so that
+     *  validate() emits validateRequired() for base-FHIR cardinality (e.g. for
+     *  Provenance.target / .recorded) when a profile leaves those fields
+     *  untouched. Profiles that explicitly include the field in their
+     *  differential are NOT listed here — their constraint is already in
+     *  `fields` and the validator handles them via the regular path. */
+    inheritedRequiredFields?: string[];
     extensions?: ProfileExtension[];
     dependencies?: TypeIdentifier[];
     nested?: NestedTypeSchema[];

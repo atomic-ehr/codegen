@@ -556,14 +556,18 @@ export const mkTypeSchemaIndex = (
             if (!schema.fields) continue;
 
             for (const [fieldName, fieldConstraints] of Object.entries(schema.fields)) {
-                if (mergedFields[fieldName]) {
-                    mergedFields[fieldName] = {
-                        ...mergedFields[fieldName],
-                        ...fieldConstraints,
-                    };
-                } else {
-                    mergedFields[fieldName] = { ...fieldConstraints };
+                const merged: Field = mergedFields[fieldName]
+                    ? { ...mergedFields[fieldName], ...fieldConstraints }
+                    : { ...fieldConstraints };
+                // Profile-explicit relaxation: differential lowered min to 0
+                // → the field is no longer required even if a base ancestor
+                // (or earlier profile in the chain) declared it so. Without
+                // this, validate() would emit validateRequired() for a field
+                // the leaf profile intentionally relaxed.
+                if ("min" in fieldConstraints && fieldConstraints.min === 0) {
+                    (merged as { required?: boolean }).required = false;
                 }
+                mergedFields[fieldName] = merged;
             }
         }
 
@@ -600,11 +604,30 @@ export const mkTypeSchemaIndex = (
 
     const buildProfileSnapshot = (schema: ProfileTypeSchema): SnapshotProfileTypeSchema => {
         const flat = flatProfile(schema);
+        const flatFields = flat.fields ?? {};
+
+        // Inherited-required collection: top-level required fields on the base
+        // resource that the profile chain never re-states. Listed separately
+        // from `fields` so this fix only adds validateRequired() calls without
+        // pulling unrelated base metadata (e.g. unused value[x] variants) into
+        // the snapshot — which would otherwise expand profile getters/setters.
+        const hierarchySchemas = hierarchy(schema);
+        const nonConstraintSchema = hierarchySchemas.find((s) => s.identifier.kind !== "profile") as
+            | SpecializationTypeSchema
+            | undefined;
+        const inheritedRequiredFields: string[] = [];
+        if (nonConstraintSchema?.fields) {
+            for (const [name, field] of Object.entries(nonConstraintSchema.fields)) {
+                if (field.required && !(name in flatFields)) inheritedRequiredFields.push(name);
+            }
+        }
+
         return {
             identifier: snapshotIdentifier(flat.identifier),
             base: flat.base,
             description: flat.description,
-            fields: flat.fields ?? {},
+            fields: flatFields,
+            inheritedRequiredFields: inheritedRequiredFields.length > 0 ? inheritedRequiredFields : undefined,
             extensions: flat.extensions,
             dependencies: flat.dependencies,
             nested: flat.nested,
