@@ -20,15 +20,26 @@ export type ExtensionProfileInfo = {
 };
 
 /**
- * Resolve an extension URL to its generated profile class (if any exists in the
- * same package). Returns undefined when no profile class is available.
+ * Resolve an extension to its generated profile class (if any exists in the
+ * same package). Checks `ext.profile` first, falls back to URL lookup.
+ * Returns undefined when no profile class is available.
  */
 export const resolveExtensionProfile = (
     tsIndex: TypeSchemaIndex,
     pkgName: string,
-    url: string,
+    ext: ProfileExtension,
 ): ExtensionProfileInfo | undefined => {
-    const schema = tsIndex.resolveByUrl(pkgName, url as CanonicalUrl);
+    if (ext.profile) {
+        const schema = tsIndex.resolve(ext.profile);
+        if (schema) {
+            return {
+                className: pyProfileClassName(schema),
+                moduleName: pyProfileModuleName(tsIndex, schema),
+            };
+        }
+    }
+    if (!ext.url) return undefined;
+    const schema = tsIndex.resolveByUrl(pkgName, ext.url as CanonicalUrl);
     if (!schema || !isProfileTypeSchema(schema)) return undefined;
     if (schema.identifier.package !== pkgName) return undefined;
     return {
@@ -53,7 +64,7 @@ export const generateExtensionMethods = (
         if (!ext.url) continue;
         const baseName = extensionBaseNames[`${ext.url}:${ext.path}`] ?? snakeCase(ext.nameCandidates.recommended);
         const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");
-        const extProfileInfo = resolveExtensionProfile(tsIndex, pkgName, ext.url);
+        const extProfileInfo = resolveExtensionProfile(tsIndex, pkgName, ext);
 
         if (ext.isComplex && ext.subExtensions) {
             generateComplexExtensionGetter(w, ext, baseName, targetPath, extProfileInfo);

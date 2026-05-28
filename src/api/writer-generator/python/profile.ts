@@ -291,7 +291,7 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, profile: Sna
     const extProfileImports = new Map<string, ExtensionProfileInfo>();
     for (const ext of extensions) {
         if (!ext.url) continue;
-        const info = resolveExtensionProfile(tsIndex, flatProfile.identifier.package, ext.url);
+        const info = resolveExtensionProfile(tsIndex, flatProfile.identifier.package, ext);
         if (info && !extProfileImports.has(info.className)) extProfileImports.set(info.className, info);
     }
     helperImports.push(...helpers);
