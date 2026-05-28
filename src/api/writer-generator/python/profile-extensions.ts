@@ -188,6 +188,30 @@ const buildSetterParamType = (flatType: string, extProfileInfo: ExtensionProfile
 };
 
 // ---------------------------------------------------------------------------
+// Unified getter skeleton
+// ---------------------------------------------------------------------------
+
+const generateExtensionGetter = (
+    w: Python,
+    ext: ProfileExtension,
+    baseName: string,
+    flatPyType: string,
+    targetPath: string[],
+    extProfileInfo: ExtensionProfileInfo | undefined,
+    emitFlatReturn: () => void,
+): void => {
+    emitGetterOverloads(w, `get_${baseName}`, flatPyType, extProfileInfo);
+    w.indentBlock(() => {
+        emitExtLookup(w, ext, targetPath);
+        w.line("if ext is None:");
+        w.indentBlock(() => w.line("return None"));
+        emitGetterModeDispatch(w, extProfileInfo);
+        emitFlatReturn();
+    });
+    w.line();
+};
+
+// ---------------------------------------------------------------------------
 // Complex extension (has sub-extensions)
 // ---------------------------------------------------------------------------
 
@@ -198,12 +222,7 @@ const generateComplexExtensionGetter = (
     targetPath: string[],
     extProfileInfo: ExtensionProfileInfo | undefined,
 ): void => {
-    emitGetterOverloads(w, `get_${baseName}`, "dict", extProfileInfo);
-    w.indentBlock(() => {
-        emitExtLookup(w, ext, targetPath);
-        w.line("if ext is None:");
-        w.indentBlock(() => w.line("return None"));
-        emitGetterModeDispatch(w, extProfileInfo);
+    generateExtensionGetter(w, ext, baseName, "dict", targetPath, extProfileInfo, () => {
         const configItems = (ext.subExtensions ?? []).map((sub) => {
             const valueField = sub.valueFieldType ? pyValueFieldName(sub.valueFieldType) : "value";
             const isArray = sub.max === "*";
@@ -211,6 +230,30 @@ const generateComplexExtensionGetter = (
         });
         w.line(`config = [${configItems.join(", ")}]`);
         w.line("return extract_complex_extension(ext, config)");
+    });
+};
+
+// ---------------------------------------------------------------------------
+// Unified setter skeleton
+// ---------------------------------------------------------------------------
+
+const generateExtensionSetter = (
+    w: Python,
+    ext: ProfileExtension,
+    className: string,
+    baseName: string,
+    flatParamType: string,
+    targetPath: string[],
+    extProfileInfo: ExtensionProfileInfo | undefined,
+    emitElseBody: () => void,
+): void => {
+    const paramType = buildSetterParamType(flatParamType, extProfileInfo);
+    w.line(`def set_${baseName}(self, value: ${paramType}) -> "${className}":`);
+    w.indentBlock(() => {
+        emitSetterDispatchPreamble(w, ext, targetPath, extProfileInfo);
+        w.line("else:");
+        w.indentBlock(emitElseBody);
+        w.line("return self");
     });
     w.line();
 };
@@ -223,37 +266,29 @@ const generateComplexExtensionSetter = (
     targetPath: string[],
     extProfileInfo: ExtensionProfileInfo | undefined,
 ): void => {
-    const paramType = buildSetterParamType("dict", extProfileInfo);
-    w.line(`def set_${baseName}(self, value: ${paramType}) -> "${className}":`);
-    w.indentBlock(() => {
-        emitSetterDispatchPreamble(w, ext, targetPath, extProfileInfo);
-        w.line("else:");
-        w.indentBlock(() => {
-            w.line("sub_extensions = []");
-            for (const sub of ext.subExtensions ?? []) {
-                const valueField = sub.valueFieldType ? pyValueFieldName(sub.valueFieldType) : "value";
-                if (sub.max === "*") {
-                    w.line(`for item in value.get(${JSON.stringify(sub.url)}, []):`);
-                    w.indentBlock(() => {
-                        w.line(
-                            `sub_extensions.append({"url": ${JSON.stringify(sub.url)}, ${JSON.stringify(valueField)}: item})`,
-                        );
-                    });
-                } else {
-                    w.line(`if value.get(${JSON.stringify(sub.url)}) is not None:`);
-                    w.indentBlock(() => {
-                        w.line(
-                            `sub_extensions.append({"url": ${JSON.stringify(sub.url)}, ${JSON.stringify(valueField)}: value[${JSON.stringify(sub.url)}]})`,
-                        );
-                    });
-                }
+    generateExtensionSetter(w, ext, className, baseName, "dict", targetPath, extProfileInfo, () => {
+        w.line("sub_extensions = []");
+        for (const sub of ext.subExtensions ?? []) {
+            const valueField = sub.valueFieldType ? pyValueFieldName(sub.valueFieldType) : "value";
+            if (sub.max === "*") {
+                w.line(`for item in value.get(${JSON.stringify(sub.url)}, []):`);
+                w.indentBlock(() => {
+                    w.line(
+                        `sub_extensions.append({"url": ${JSON.stringify(sub.url)}, ${JSON.stringify(valueField)}: item})`,
+                    );
+                });
+            } else {
+                w.line(`if value.get(${JSON.stringify(sub.url)}) is not None:`);
+                w.indentBlock(() => {
+                    w.line(
+                        `sub_extensions.append({"url": ${JSON.stringify(sub.url)}, ${JSON.stringify(valueField)}: value[${JSON.stringify(sub.url)}]})`,
+                    );
+                });
             }
-            const extObj = `{"url": ${JSON.stringify(ext.url)}, "extension": sub_extensions}`;
-            emitExtPush(w, ext, targetPath, extObj);
-        });
-        w.line("return self");
+        }
+        const extObj = `{"url": ${JSON.stringify(ext.url)}, "extension": sub_extensions}`;
+        emitExtPush(w, ext, targetPath, extObj);
     });
-    w.line();
 };
 
 // ---------------------------------------------------------------------------
@@ -269,15 +304,9 @@ const generateSingleValueExtensionGetter = (
     pyType: string,
     extProfileInfo: ExtensionProfileInfo | undefined,
 ): void => {
-    emitGetterOverloads(w, `get_${baseName}`, pyType, extProfileInfo);
-    w.indentBlock(() => {
-        emitExtLookup(w, ext, targetPath);
-        w.line("if ext is None:");
-        w.indentBlock(() => w.line("return None"));
-        emitGetterModeDispatch(w, extProfileInfo);
+    generateExtensionGetter(w, ext, baseName, pyType, targetPath, extProfileInfo, () => {
         w.line(`return get_extension_value(ext, ${JSON.stringify(valueField)})`);
     });
-    w.line();
 };
 
 const generateSingleValueExtensionSetter = (
@@ -289,18 +318,9 @@ const generateSingleValueExtensionSetter = (
     valueField: string,
     extProfileInfo: ExtensionProfileInfo | undefined,
 ): void => {
-    const paramType = buildSetterParamType("Any", extProfileInfo);
-    w.line(`def set_${baseName}(self, value: ${paramType}) -> "${className}":`);
-    w.indentBlock(() => {
-        emitSetterDispatchPreamble(w, ext, targetPath, extProfileInfo);
-        w.line("else:");
-        w.indentBlock(() => {
-            const extObj = `{"url": ${JSON.stringify(ext.url)}, ${JSON.stringify(valueField)}: value}`;
-            emitExtPush(w, ext, targetPath, extObj);
-        });
-        w.line("return self");
+    generateExtensionSetter(w, ext, className, baseName, "Any", targetPath, extProfileInfo, () => {
+        emitExtPush(w, ext, targetPath, `{"url": ${JSON.stringify(ext.url)}, ${JSON.stringify(valueField)}: value}`);
     });
-    w.line();
 };
 
 // ---------------------------------------------------------------------------
@@ -314,15 +334,9 @@ const generateGenericExtensionGetter = (
     targetPath: string[],
     extProfileInfo: ExtensionProfileInfo | undefined,
 ): void => {
-    emitGetterOverloads(w, `get_${baseName}`, "dict", extProfileInfo);
-    w.indentBlock(() => {
-        emitExtLookup(w, ext, targetPath);
-        w.line("if ext is None:");
-        w.indentBlock(() => w.line("return None"));
-        emitGetterModeDispatch(w, extProfileInfo);
+    generateExtensionGetter(w, ext, baseName, "dict", targetPath, extProfileInfo, () => {
         w.line("return ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True)");
     });
-    w.line();
 };
 
 const generateGenericExtensionSetter = (
@@ -333,16 +347,7 @@ const generateGenericExtensionSetter = (
     targetPath: string[],
     extProfileInfo: ExtensionProfileInfo | undefined,
 ): void => {
-    const paramType = buildSetterParamType("dict", extProfileInfo);
-    w.line(`def set_${baseName}(self, value: ${paramType}) -> "${className}":`);
-    w.indentBlock(() => {
-        emitSetterDispatchPreamble(w, ext, targetPath, extProfileInfo);
-        w.line("else:");
-        w.indentBlock(() => {
-            const extObj = `{"url": ${JSON.stringify(ext.url)}, **value}`;
-            emitExtPush(w, ext, targetPath, extObj);
-        });
-        w.line("return self");
+    generateExtensionSetter(w, ext, className, baseName, "dict", targetPath, extProfileInfo, () => {
+        emitExtPush(w, ext, targetPath, `{"url": ${JSON.stringify(ext.url)}, **value}`);
     });
-    w.line();
 };

@@ -4,8 +4,8 @@ import {
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
     type NameCandidates,
-    type SnapshotProfileTypeSchema,
     type RegularField,
+    type SnapshotProfileTypeSchema,
     type TypeIdentifier,
 } from "@typeschema/types.ts";
 import type { TypeSchemaIndex } from "@typeschema/utils.ts";
