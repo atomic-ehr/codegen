@@ -89,21 +89,6 @@ const tryPromoteChoice = (
     promotedChoices.add(choiceName);
 };
 
-const collectChoiceAccessors = (
-    flatProfile: SnapshotProfileTypeSchema,
-    promotedChoices: Set<string>,
-): ProfileFactoryInfo["accessors"] => {
-    const accessors: ProfileFactoryInfo["accessors"] = [];
-    for (const [name, field] of Object.entries(flatProfile.fields)) {
-        if (field.excluded) continue;
-        if (!isChoiceInstanceField(field)) continue;
-        if (promotedChoices.has(name)) continue;
-        const pyType = pyTypeFromIdentifier(field.type) + (field.array ? "[]" : "");
-        accessors.push({ name, pyType, typeId: field.type });
-    }
-    return accessors;
-};
-
 const collectProfileFactoryInfo = (
     tsIndex: TypeSchemaIndex,
     flatProfile: SnapshotProfileTypeSchema,
@@ -112,6 +97,7 @@ const collectProfileFactoryInfo = (
     const sliceAutoFields: ProfileFactoryInfo["sliceAutoFields"] = [];
     const params: ProfileFactoryInfo["params"] = [];
     const autoAccessors: ProfileFactoryInfo["accessors"] = [];
+    const pendingChoiceInstances: [string, ChoiceFieldInstance][] = [];
     const fields = flatProfile.fields;
     const promotedChoices = new Set<string>();
     const resolveRef = tsIndex.findLastSpecializationByIdentifier;
@@ -122,7 +108,10 @@ const collectProfileFactoryInfo = (
 
     for (const [name, field] of Object.entries(fields)) {
         if (field.excluded) continue;
-        if (isChoiceInstanceField(field)) continue;
+        if (isChoiceInstanceField(field)) {
+            pendingChoiceInstances.push([name, field]);
+            continue;
+        }
 
         if (isChoiceDeclarationField(field)) {
             tryPromoteChoice(field, fields, params, promotedChoices);
@@ -164,8 +153,14 @@ const collectProfileFactoryInfo = (
         ...promotedChoices,
     ]);
 
-    const accessors = [...autoAccessors, ...collectChoiceAccessors(flatProfile, promotedChoices)];
-    return { autoFields, sliceAutoFields, params, accessors };
+    const choiceAccessors: ProfileFactoryInfo["accessors"] = [];
+    for (const [name, field] of pendingChoiceInstances) {
+        if (promotedChoices.has(name)) continue;
+        const pyType = pyTypeFromIdentifier(field.type) + (field.array ? "[]" : "");
+        choiceAccessors.push({ name, pyType, typeId: field.type });
+    }
+
+    return { autoFields, sliceAutoFields, params, accessors: [...autoAccessors, ...choiceAccessors] };
 };
 
 /** Include base-type required fields not already covered by profile constraints. */
