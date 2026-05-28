@@ -98,7 +98,7 @@ const emitExtLookup = (w: Python, ext: ProfileExtension, targetPath: string[]): 
     w.line(`ext = next((e for e in exts if is_extension(e, ${JSON.stringify(ext.url)})), None)`);
 };
 
-const emitExtPush = (w: Python, _ext: ProfileExtension, targetPath: string[], extExpr: string): void => {
+const emitExtPush = (w: Python, targetPath: string[], extExpr: string): void => {
     if (targetPath.length === 0) {
         w.line(`push_extension(self._resource, ${extExpr})`);
     } else {
@@ -165,7 +165,7 @@ const emitSetterDispatchPreamble = (
     let startedChain = false;
     if (extProfileInfo) {
         w.line(`if isinstance(value, ${extProfileInfo.className}):`);
-        w.indentBlock(() => emitExtPush(w, ext, targetPath, "value.to_resource()"));
+        w.indentBlock(() => emitExtPush(w, targetPath, "value.to_resource()"));
         startedChain = true;
     }
     const keyword = startedChain ? "elif" : "if";
@@ -175,7 +175,7 @@ const emitSetterDispatchPreamble = (
         w.indentBlock(() =>
             w.line(`raise ValueError(f"Expected extension url '${ext.url}', got {_get_key(value, 'url')!r}")`),
         );
-        emitExtPush(w, ext, targetPath, "value");
+        emitExtPush(w, targetPath, "value");
     });
 };
 
@@ -287,7 +287,7 @@ const generateComplexExtensionSetter = (
             }
         }
         const extObj = `{"url": ${JSON.stringify(ext.url)}, "extension": sub_extensions}`;
-        emitExtPush(w, ext, targetPath, extObj);
+        emitExtPush(w, targetPath, extObj);
     });
 };
 
@@ -319,7 +319,7 @@ const generateSingleValueExtensionSetter = (
     extProfileInfo: ExtensionProfileInfo | undefined,
 ): void => {
     generateExtensionSetter(w, ext, className, baseName, "Any", targetPath, extProfileInfo, () => {
-        emitExtPush(w, ext, targetPath, `{"url": ${JSON.stringify(ext.url)}, ${JSON.stringify(valueField)}: value}`);
+        emitExtPush(w, targetPath, `{"url": ${JSON.stringify(ext.url)}, ${JSON.stringify(valueField)}: value}`);
     });
 };
 
@@ -348,6 +348,6 @@ const generateGenericExtensionSetter = (
     extProfileInfo: ExtensionProfileInfo | undefined,
 ): void => {
     generateExtensionSetter(w, ext, className, baseName, "dict", targetPath, extProfileInfo, () => {
-        emitExtPush(w, ext, targetPath, `{"url": ${JSON.stringify(ext.url)}, **value}`);
+        emitExtPush(w, targetPath, `{"url": ${JSON.stringify(ext.url)}, **value}`);
     });
 };

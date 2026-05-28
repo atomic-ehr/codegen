@@ -333,7 +333,7 @@ const generateClassBody = (ctx: ProfileGenContext): void => {
     if (extensions.length > 0) generateExtensionMethods(w, tsIndex, flatProfile, className, resolvedNames.extensions);
 
     if (sliceDefs.length > 0) {
-        generateSliceGetters(w, className, sliceDefs, resolvedNames.slices);
+        generateSliceGetters(w, sliceDefs, resolvedNames.slices);
         generateSliceSetters(w, className, sliceDefs, resolvedNames.slices);
     }
 

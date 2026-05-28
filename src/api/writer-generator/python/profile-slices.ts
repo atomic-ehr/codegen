@@ -104,62 +104,60 @@ const extractTypeDiscriminatorResource = (
 
 export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: SnapshotProfileTypeSchema): SliceDef[] => {
     const pkgName = flatProfile.identifier.package;
-    return Object.entries(flatProfile.fields)
-        .filter(([_, field]) => isNotChoiceDeclarationField(field) && field.slicing?.slices)
-        .flatMap(([fieldName, field]) => {
-            if (!isNotChoiceDeclarationField(field) || !field.slicing?.slices || !field.type) return [];
-            const choiceBaseNames = new Set<string>();
-            const baseSchema = tsIndex.resolveType(field.type);
-            if (baseSchema && "fields" in baseSchema && baseSchema.fields) {
-                for (const [n, f] of Object.entries(baseSchema.fields)) {
-                    if (isChoiceDeclarationField(f)) choiceBaseNames.add(n);
-                }
+    return Object.entries(flatProfile.fields).flatMap(([fieldName, field]) => {
+        if (!isNotChoiceDeclarationField(field) || !field.slicing?.slices || !field.type) return [];
+        const choiceBaseNames = new Set<string>();
+        const baseSchema = tsIndex.resolveType(field.type);
+        if (baseSchema && "fields" in baseSchema && baseSchema.fields) {
+            for (const [n, f] of Object.entries(baseSchema.fields)) {
+                if (isChoiceDeclarationField(f)) choiceBaseNames.add(n);
             }
-            return Object.entries(field.slicing.slices)
-                .filter(([_, slice]) => Object.keys(slice.match ?? {}).length > 0)
-                .map(([sliceName, slice]) => {
-                    const matchFields = Object.keys(slice.match ?? {});
-                    const required = (slice.required ?? []).filter(
-                        (name) => !matchFields.includes(name) && !choiceBaseNames.has(name),
-                    );
-                    const cc = slice.elements
-                        ? tsIndex.constrainedChoice(pkgName, field.type, slice.elements)
-                        : undefined;
-                    // Skip flattening for primitive types — can't wrap/unwrap under a variant key.
-                    const constrainedChoice = cc && !isPrimitiveIdentifier(cc.variantType) ? cc : undefined;
-                    const isTypeDiscriminated = field.slicing?.discriminator?.some((d) => d.type === "type") ?? false;
-                    const typeDiscriminatorResource = extractTypeDiscriminatorResource(
-                        isTypeDiscriminated,
-                        slice.match as Record<string, unknown> | undefined,
-                    );
-                    return {
-                        fieldName,
-                        sliceName,
-                        match: normalizeMatchForPython(tsIndex, slice.match ?? {}, baseSchema),
-                        required,
-                        array: Boolean(field.array),
-                        max: slice.max ?? 0,
-                        constrainedChoice,
-                        elementTypeName:
-                            field.type && !isPrimitiveIdentifier(field.type)
-                                ? pyTypeFromIdentifier(field.type)
-                                : undefined,
-                        elementTypeId: field.type && !isPrimitiveIdentifier(field.type) ? field.type : undefined,
-                        isTypeDiscriminated,
-                        typeDiscriminatorResource,
-                        nameCandidates: slice.nameCandidates,
-                    };
-                });
-        });
+        }
+        return Object.entries(field.slicing.slices)
+            .filter(([_, slice]) => Object.keys(slice.match ?? {}).length > 0)
+            .map(([sliceName, slice]) => {
+                const matchFields = Object.keys(slice.match ?? {});
+                const required = (slice.required ?? []).filter(
+                    (name) => !matchFields.includes(name) && !choiceBaseNames.has(name),
+                );
+                const cc = slice.elements ? tsIndex.constrainedChoice(pkgName, field.type, slice.elements) : undefined;
+                // Skip flattening for primitive types — can't wrap/unwrap under a variant key.
+                const constrainedChoice = cc && !isPrimitiveIdentifier(cc.variantType) ? cc : undefined;
+                const isTypeDiscriminated = field.slicing?.discriminator?.some((d) => d.type === "type") ?? false;
+                const typeDiscriminatorResource = extractTypeDiscriminatorResource(
+                    isTypeDiscriminated,
+                    slice.match as Record<string, unknown> | undefined,
+                );
+                return {
+                    fieldName,
+                    sliceName,
+                    match: normalizeMatchForPython(tsIndex, slice.match ?? {}, baseSchema),
+                    required,
+                    array: Boolean(field.array),
+                    max: slice.max ?? 0,
+                    constrainedChoice,
+                    elementTypeName:
+                        field.type && !isPrimitiveIdentifier(field.type) ? pyTypeFromIdentifier(field.type) : undefined,
+                    elementTypeId: field.type && !isPrimitiveIdentifier(field.type) ? field.type : undefined,
+                    isTypeDiscriminated,
+                    typeDiscriminatorResource,
+                    nameCandidates: slice.nameCandidates,
+                };
+            });
+    });
 };
 
 // ---------------------------------------------------------------------------
 // Slice getters / setters
 // ---------------------------------------------------------------------------
 
+const sliceElementRetType = (sliceDef: SliceDef): string =>
+    sliceDef.elementTypeName && sliceDef.typeDiscriminatorResource
+        ? `${sliceDef.elementTypeName}[${sliceDef.typeDiscriminatorResource}]`
+        : (sliceDef.elementTypeName ?? "Any");
+
 export const generateSliceGetters = (
     w: Python,
-    _className: string,
     sliceDefs: SliceDef[],
     sliceBaseNames: Record<string, string>,
 ): void => {
@@ -171,10 +169,7 @@ export const generateSliceGetters = (
         const matchKeys = JSON.stringify(Object.keys(sliceDef.match));
 
         if (sliceDef.isTypeDiscriminated) {
-            const retType =
-                sliceDef.elementTypeName && sliceDef.typeDiscriminatorResource
-                    ? `${sliceDef.elementTypeName}[${sliceDef.typeDiscriminatorResource}]`
-                    : (sliceDef.elementTypeName ?? "Any");
+            const retType = sliceElementRetType(sliceDef);
             const isUnbounded = sliceDef.array && sliceDef.max === 0;
             if (isUnbounded) {
                 w.line(`def get_${baseName}(self, mode: str | None = None) -> list[${retType}] | None:`);
@@ -240,10 +235,7 @@ export const generateSliceSetters = (
         const staticName = pySliceStaticName(sliceDef.sliceName);
         const fieldName = pyFieldName(sliceDef.fieldName);
         if (sliceDef.isTypeDiscriminated) {
-            const retType =
-                sliceDef.elementTypeName && sliceDef.typeDiscriminatorResource
-                    ? `${sliceDef.elementTypeName}[${sliceDef.typeDiscriminatorResource}]`
-                    : (sliceDef.elementTypeName ?? "Any");
+            const retType = sliceElementRetType(sliceDef);
             const isUnbounded = sliceDef.array && sliceDef.max === 0;
             if (isUnbounded) {
                 w.line(`def set_${baseName}(self, values: list[${retType}]) -> "${className}":`);
