@@ -1,0 +1,6 @@
+mrn,first,last,gender,dob,race,race_code,systolic,diastolic,bp_date
+MRN-001,Ada,Lovelace,female,1815-12-10,White,2106-3,120,80,2026-04-15
+MRN-002,Alan,Turing,male,1912-06-23,White,2106-3,118,76,2026-04-15
+MRN-003,Marie,Curie,female,1867-11-07,White,2106-3,125,82,2026-04-16
+MRN-004,George,Carver,male,1864-01-01,Black or African American,2054-5,135,88,2026-04-16
+MRN-005,Ellen,Ochoa,female,1958-05-10,Black or African American,2054-5,128,84,2026-04-17
