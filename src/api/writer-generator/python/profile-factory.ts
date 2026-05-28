@@ -1,0 +1,293 @@
+import {
+    type ChoiceFieldInstance,
+    type Field,
+    isChoiceDeclarationField,
+    isChoiceInstanceField,
+    isNotChoiceDeclarationField,
+    isResourceIdentifier,
+    type RegularField,
+    type SnapshotProfileTypeSchema,
+    type TypeIdentifier,
+} from "@root/typeschema/types";
+import type { TypeSchemaIndex } from "@root/typeschema/utils";
+import { pyTypeFromIdentifier } from "./naming-utils";
+import { pyFieldName, pySliceStaticName, pySnakeName } from "./profile-naming";
+import { collectRequiredSliceNames } from "./profile-slices";
+import type { Python } from "./writer";
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export type ProfileFactoryInfo = {
+    autoFields: { name: string; value: string }[];
+    sliceAutoFields: { name: string; pyType: string; typeId: TypeIdentifier; sliceNames: string[] }[];
+    params: { name: string; pyType: string; typeId: TypeIdentifier }[];
+    accessors: { name: string; pyType: string; typeId: TypeIdentifier }[];
+};
+
+// ---------------------------------------------------------------------------
+// Field type utility
+// ---------------------------------------------------------------------------
+
+/** Full Python type annotation for a field (appends `list[...]` for arrays). */
+export const fieldPyType = (
+    field: RegularField | ChoiceFieldInstance,
+    resolveRef?: TypeSchemaIndex["findLastSpecializationByIdentifier"],
+): string => {
+    const resolved = resolveRef ? resolveRef(field.type) : field.type;
+    const base = pyTypeFromIdentifier(resolved);
+    return field.array ? `list[${base}]` : base;
+};
+
+// ---------------------------------------------------------------------------
+// Factory info collection
+// ---------------------------------------------------------------------------
+
+/** Try to promote a required single-choice declaration to a direct param. */
+const tryPromoteChoice = (
+    field: Field,
+    fields: Record<string, Field>,
+    params: ProfileFactoryInfo["params"],
+    promotedChoices: Set<string>,
+): void => {
+    if (!isChoiceDeclarationField(field) || !field.required || field.choices.length !== 1) return;
+    const choiceName = field.choices[0];
+    if (!choiceName) return;
+    const choiceField = fields[choiceName];
+    if (!choiceField || !isChoiceInstanceField(choiceField)) return;
+    const pyType = pyTypeFromIdentifier(choiceField.type) + (choiceField.array ? "[]" : "");
+    params.push({ name: choiceName, pyType, typeId: choiceField.type });
+    promotedChoices.add(choiceName);
+};
+
+/** Include base-type required fields not already covered by profile constraints. */
+const collectBaseRequiredParams = (
+    tsIndex: TypeSchemaIndex,
+    flatProfile: SnapshotProfileTypeSchema,
+    resolveRef: TypeSchemaIndex["findLastSpecializationByIdentifier"],
+    params: ProfileFactoryInfo["params"],
+    coveredNames: string[],
+): void => {
+    const covered = new Set(coveredNames);
+    const baseSchema = tsIndex.resolveType(flatProfile.base);
+    if (!baseSchema || !("fields" in baseSchema) || !baseSchema.fields) return;
+    for (const [name, field] of Object.entries(baseSchema.fields)) {
+        if (covered.has(name)) continue;
+        if (!field.required) continue;
+        if (isChoiceInstanceField(field)) continue;
+        if (isChoiceDeclarationField(field)) continue;
+        if (isNotChoiceDeclarationField(field) && field.type) {
+            const pyType = fieldPyType(field, resolveRef);
+            params.push({ name, pyType, typeId: field.type });
+        }
+    }
+};
+
+export const collectProfileFactoryInfo = (
+    tsIndex: TypeSchemaIndex,
+    flatProfile: SnapshotProfileTypeSchema,
+): ProfileFactoryInfo => {
+    const autoFields: ProfileFactoryInfo["autoFields"] = [];
+    const sliceAutoFields: ProfileFactoryInfo["sliceAutoFields"] = [];
+    const params: ProfileFactoryInfo["params"] = [];
+    const autoAccessors: ProfileFactoryInfo["accessors"] = [];
+    const pendingChoiceInstances: [string, ChoiceFieldInstance][] = [];
+    const fields = flatProfile.fields;
+    const promotedChoices = new Set<string>();
+    const resolveRef = tsIndex.findLastSpecializationByIdentifier;
+
+    if (isResourceIdentifier(flatProfile.base)) {
+        autoFields.push({ name: "resourceType", value: JSON.stringify(flatProfile.base.name) });
+    }
+
+    for (const [name, field] of Object.entries(fields)) {
+        if (field.excluded) continue;
+        if (isChoiceInstanceField(field)) {
+            pendingChoiceInstances.push([name, field]);
+            continue;
+        }
+
+        if (isChoiceDeclarationField(field)) {
+            tryPromoteChoice(field, fields, params, promotedChoices);
+            continue;
+        }
+
+        if (field.valueConstraint) {
+            const value = JSON.stringify(field.valueConstraint.value);
+            autoFields.push({ name, value: field.array ? `[${value}]` : value });
+            if (isNotChoiceDeclarationField(field) && field.type) {
+                const pyType = fieldPyType(field, resolveRef);
+                autoAccessors.push({ name, pyType, typeId: field.type });
+            }
+            continue;
+        }
+
+        if (isNotChoiceDeclarationField(field)) {
+            const sliceNames = collectRequiredSliceNames(field);
+            if (sliceNames) {
+                if (field.type) {
+                    const pyType = fieldPyType(field, resolveRef);
+                    sliceAutoFields.push({ name, pyType, typeId: field.type, sliceNames });
+                    autoAccessors.push({ name, pyType, typeId: field.type });
+                }
+                continue;
+            }
+        }
+
+        if (field.required) {
+            const pyType = fieldPyType(field, resolveRef);
+            params.push({ name, pyType, typeId: field.type });
+        }
+    }
+
+    collectBaseRequiredParams(tsIndex, flatProfile, resolveRef, params, [
+        ...autoFields.map((f) => f.name),
+        ...sliceAutoFields.map((f) => f.name),
+        ...params.map((f) => f.name),
+        ...promotedChoices,
+    ]);
+
+    const choiceAccessors: ProfileFactoryInfo["accessors"] = [];
+    for (const [name, field] of pendingChoiceInstances) {
+        if (promotedChoices.has(name)) continue;
+        const pyType = pyTypeFromIdentifier(field.type) + (field.array ? "[]" : "");
+        choiceAccessors.push({ name, pyType, typeId: field.type });
+    }
+
+    return { autoFields, sliceAutoFields, params, accessors: [...autoAccessors, ...choiceAccessors] };
+};
+
+// ---------------------------------------------------------------------------
+// Param signature / call args builders
+// ---------------------------------------------------------------------------
+
+/** Build `*, param1: Type1, param2: Type2` keyword-only signature. */
+export const buildParamSignature = (factoryInfo: ProfileFactoryInfo): string => {
+    const parts: string[] = [];
+    for (const f of factoryInfo.sliceAutoFields) {
+        parts.push(`${pyFieldName(f.name)}: ${f.pyType} | None = None`);
+    }
+    for (const p of factoryInfo.params) {
+        parts.push(`${pyFieldName(p.name)}: ${p.pyType}`);
+    }
+    if (parts.length === 0) return "";
+    return `*, ${parts.join(", ")}`;
+};
+
+/** Build call-site args matching the param signature. */
+export const buildCallArgs = (factoryInfo: ProfileFactoryInfo): string => {
+    const parts: string[] = [];
+    for (const f of factoryInfo.sliceAutoFields) {
+        const name = pyFieldName(f.name);
+        parts.push(`${name}=${name}`);
+    }
+    for (const p of factoryInfo.params) {
+        const name = pyFieldName(p.name);
+        parts.push(`${name}=${name}`);
+    }
+    return parts.join(", ");
+};
+
+// ---------------------------------------------------------------------------
+// Code generation
+// ---------------------------------------------------------------------------
+
+export const generateCreateResource = (
+    w: Python,
+    baseTypeName: string,
+    isResourceBase: boolean,
+    hasParams: boolean,
+    factoryInfo: ProfileFactoryInfo,
+): void => {
+    w.line("@classmethod");
+    if (hasParams) {
+        w.line(`def create_resource(cls, ${buildParamSignature(factoryInfo)}) -> ${baseTypeName}:`);
+    } else {
+        w.line(`def create_resource(cls) -> ${baseTypeName}:`);
+    }
+    w.indentBlock(() => {
+        for (const f of factoryInfo.sliceAutoFields) {
+            const fieldName = pyFieldName(f.name);
+            const matchRefs = f.sliceNames.map((s) => `cls.${pySliceStaticName(s)}`);
+            if (matchRefs.length === 1) {
+                w.line(`${fieldName}_with_defaults = ensure_slice_defaults(list(${fieldName} or []), ${matchRefs[0]})`);
+            } else {
+                w.line(`${fieldName}_with_defaults = ensure_slice_defaults(`);
+                w.indentBlock(() => {
+                    w.line(`list(${fieldName} or []),`);
+                    for (const ref of matchRefs) w.line(`${ref},`);
+                });
+                w.line(")");
+            }
+        }
+        if (factoryInfo.sliceAutoFields.length > 0) w.line();
+
+        const buildArgs: string[] = [];
+        for (const f of factoryInfo.autoFields) {
+            buildArgs.push(`${pyFieldName(f.name)}=${f.value}`);
+        }
+        for (const f of factoryInfo.sliceAutoFields) {
+            buildArgs.push(`${pyFieldName(f.name)}=${pyFieldName(f.name)}_with_defaults`);
+        }
+        for (const p of factoryInfo.params) {
+            buildArgs.push(`${pyFieldName(p.name)}=${pyFieldName(p.name)}`);
+        }
+        if (isResourceBase) {
+            buildArgs.push(`meta={"profile": [cls.canonical_url]}`);
+        }
+
+        if (buildArgs.length <= 2) {
+            w.line(`return build_resource(${baseTypeName}, ${buildArgs.join(", ")})`);
+        } else {
+            w.line(`return build_resource(`);
+            w.indentBlock(() => {
+                w.line(`${baseTypeName},`);
+                for (const arg of buildArgs) {
+                    w.line(`${arg},`);
+                }
+            });
+            w.line(")");
+        }
+    });
+};
+
+export const generateFieldAccessors = (
+    w: Python,
+    className: string,
+    factoryInfo: ProfileFactoryInfo,
+    extSliceMethodBaseNames: Set<string>,
+): void => {
+    for (const p of factoryInfo.params) {
+        const fieldName = pyFieldName(p.name);
+        const methodSuffix = pySnakeName(p.name);
+        w.line(`def get_${methodSuffix}(self) -> ${p.pyType} | None:`);
+        w.indentBlock(() => {
+            w.line(`return getattr(self._resource, ${JSON.stringify(fieldName)}, None)`);
+        });
+        w.line();
+        w.line(`def set_${methodSuffix}(self, value: ${p.pyType}) -> "${className}":`);
+        w.indentBlock(() => {
+            w.line(`setattr(self._resource, ${JSON.stringify(fieldName)}, value)`);
+            w.line("return self");
+        });
+        w.line();
+    }
+
+    for (const a of factoryInfo.accessors) {
+        const methodSuffix = pySnakeName(a.name);
+        if (extSliceMethodBaseNames.has(methodSuffix)) continue;
+        const fieldName = pyFieldName(a.name);
+        w.line(`def get_${methodSuffix}(self) -> ${a.pyType} | None:`);
+        w.indentBlock(() => {
+            w.line(`return getattr(self._resource, ${JSON.stringify(fieldName)}, None)`);
+        });
+        w.line();
+        w.line(`def set_${methodSuffix}(self, value: ${a.pyType}) -> "${className}":`);
+        w.indentBlock(() => {
+            w.line(`setattr(self._resource, ${JSON.stringify(fieldName)}, value)`);
+            w.line("return self");
+        });
+        w.line();
+    }
+};
