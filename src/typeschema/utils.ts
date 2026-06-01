@@ -619,6 +619,13 @@ export const mkTypeSchemaIndex = (
         if (nonConstraintSchema?.fields) {
             for (const [name, baseField] of Object.entries(nonConstraintSchema.fields)) {
                 if (!baseField.required) continue;
+                // Choice declarations (e.g. `value[x]`) are required via the
+                // declaration, not a real property — validateRequired() would
+                // check a key that never exists in FHIR JSON. The correct
+                // validateChoiceRequired() handling is deferred to the per-type
+                // validator redesign (#169); until then, skip rather than emit
+                // a check that can only misfire.
+                if (isChoiceDeclarationField(baseField)) continue;
                 const flat = flatFields[name] as { required?: boolean; min?: number } | undefined;
                 // Profile explicitly relaxed the field via differential min:0 →
                 // skip (regular validate emission also skips it because flatField

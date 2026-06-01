@@ -740,5 +740,45 @@ describe("TypeSchema Index", () => {
 
             expect(snap.inheritedRequiredFields).toEqual(["target", "recorded", "agent"]);
         });
+
+        it("skips a base-required choice declaration the profile does not re-state", () => {
+            // A required choice (`value[x]`, 1..1) is satisfied via one of its
+            // variants, not a property literally named "value[x]". Listing it in
+            // inheritedRequiredFields would emit validateRequired("value[x]") —
+            // a check against a key that never exists in FHIR JSON. It must be
+            // skipped (proper validateChoiceRequired handling is tracked in #169).
+            const base: SpecializationTypeSchema = {
+                identifier: {
+                    name: "Observationish" as Name,
+                    package: "test",
+                    kind: "resource",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/Observationish" as CanonicalUrl,
+                },
+                fields: {
+                    recorded: { type: stringType, required: true, array: false },
+                    "value[x]": { choices: ["valueString", "valueQuantity"], required: true },
+                },
+            };
+            const profile: ProfileTypeSchema = {
+                identifier: {
+                    name: "ObservationishProfile" as Name,
+                    package: "test",
+                    kind: "profile",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/ObservationishProfile" as CanonicalUrl,
+                },
+                base: base.identifier,
+                fields: {},
+            };
+
+            const index = mkTypeSchemaIndex([base, profile], {});
+            const snap = index.collectSnapshotProfiles().find((s) => s.identifier.name === "ObservationishProfile");
+            if (!snap) throw new Error("snapshot not built");
+
+            // recorded is inherited; value[x] is a choice declaration → skipped.
+            expect(snap.inheritedRequiredFields).toEqual(["recorded"]);
+            expect(snap.inheritedRequiredFields).not.toContain("value[x]");
+        });
     });
 });
