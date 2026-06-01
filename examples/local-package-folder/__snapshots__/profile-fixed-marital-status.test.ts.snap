@@ -1,0 +1,44 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`demo: create() materializes the fixed maritalStatus create() produces exactly the fixed CodeableConcept 1`] = `
+{
+  "maritalStatus": {
+    "coding": [
+      {
+        "code": "M",
+        "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+      },
+    ],
+  },
+  "meta": {
+    "profile": [
+      "http://example.org/fhir/StructureDefinition/PatientFixedMaritalStatus",
+    ],
+  },
+  "resourceType": "Patient",
+}
+`;
+
+exports[`corner case: apply() merges a true fixed[x] instead of replacing it conflicting caller coding and text survive the fixed-value apply() 1`] = `
+{
+  "maritalStatus": {
+    "coding": [
+      {
+        "code": "S",
+        "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+      },
+      {
+        "code": "M",
+        "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+      },
+    ],
+    "text": "Never married (caller-provided)",
+  },
+  "meta": {
+    "profile": [
+      "http://example.org/fhir/StructureDefinition/PatientFixedMaritalStatus",
+    ],
+  },
+  "resourceType": "Patient",
+}
+`;

@@ -23,6 +23,7 @@ async function generateFromLocalPackageFolder() {
                     "http://example.org/fhir/StructureDefinition/ExampleNotebook": {},
                     "http://example.org/fhir/StructureDefinition/ExampleTypedBundle": {},
                     "http://example.org/fhir/StructureDefinition/PatientMetaRequired": {},
+                    "http://example.org/fhir/StructureDefinition/PatientFixedMaritalStatus": {},
                 },
                 "hl7.fhir.r4.core": {
                     "http://hl7.org/fhir/StructureDefinition/Patient": {},
