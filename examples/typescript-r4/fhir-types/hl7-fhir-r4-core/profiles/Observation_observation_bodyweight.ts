@@ -15,6 +15,7 @@ export type Observation_bodyweight_Category_VSCatSliceFlatAll = Observation_body
 
 import {
     ensureProfile,
+    applyFixedValue,
     applySliceMatch,
     matchesValue,
     setArraySlice,
@@ -70,9 +71,7 @@ export class observation_bodyweightProfile {
 
     static apply (resource: Observation) : observation_bodyweightProfile {
         ensureProfile(resource, observation_bodyweightProfile.canonicalUrl);
-        Object.assign(resource, {
-            code: {"coding":[{"code":"29463-7","system":"http://loinc.org"}]},
-        })
+        applyFixedValue(resource, "code", {"coding":[{"code":"29463-7","system":"http://loinc.org"}]});
         resource.category = ensureSliceDefaults(
             [...(resource.category ?? [])],
             observation_bodyweightProfile.VSCatSliceMatch,

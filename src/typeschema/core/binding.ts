@@ -89,6 +89,7 @@ function extractValueSetConcepts(
 }
 
 const MAX_ENUM_LENGTH = 100;
+const PLACEHOLDER_ONLY_ENUM_CODES = new Set(["UNK"]);
 
 // eld-11: Types that can have bindings
 export const BINDABLE_TYPES = new Set([
@@ -132,6 +133,15 @@ export function buildEnum(
     const codes = concepts
         .map((c) => c.code)
         .filter((code) => code && typeof code === "string" && code.trim().length > 0);
+
+    const onlyCode = codes.length === 1 ? codes[0] : undefined;
+    if (onlyCode && PLACEHOLDER_ONLY_ENUM_CODES.has(onlyCode)) {
+        logger?.dryWarn(
+            "#placeholderValueSet",
+            `Value set ${valueSetUrl} only expands to placeholder code '${onlyCode}'; skipping enum generation.`,
+        );
+        return undefined;
+    }
 
     if (codes.length > MAX_ENUM_LENGTH) {
         logger?.dryWarn(

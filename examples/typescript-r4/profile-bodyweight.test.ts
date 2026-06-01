@@ -182,7 +182,7 @@ describe("factory method equivalence", () => {
         const fromCreate = bodyweightProfile.create(args).toResource();
         const fromCreateResource = bodyweightProfile.createResource(args);
         const fromApply = bodyweightProfile
-            .apply({ resourceType: "Observation", status: "preliminary", code: { text: "Body weight" } })
+            .apply({ resourceType: "Observation", status: "preliminary", code: {} })
             .setStatus("final")
             .setSubject({ reference: "Patient/pt-1" })
             .toResource();

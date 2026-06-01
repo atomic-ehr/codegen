@@ -239,6 +239,7 @@ const generateProfileHelpersImport = (
     if (snapshot.base.name === "Extension" && canonicalUrl && collectSubExtensionSlices(snapshot).length > 0)
         imports.push("isRawExtensionInput");
     if (canonicalUrl && hasMeta) imports.push("ensureProfile");
+    if (factoryInfo.autoFields.some((f) => f.name !== "resourceType")) imports.push("applyFixedValue");
     if (sliceDefs.length > 0 || factoryInfo.sliceAutoFields.length > 0)
         imports.push("applySliceMatch", "matchesValue", "setArraySlice", "getArraySlice", "ensureSliceDefaults");
     const hasUnboundedSlice = sliceDefs.some((s) => s.array && (s.max === 0 || s.max === undefined));
@@ -418,11 +419,9 @@ const generateFactoryMethods = (
         }
         const applyAutoFields = factoryInfo.autoFields.filter((f) => f.name !== "resourceType");
         if (applyAutoFields.length > 0) {
-            w.curlyBlock(["Object.assign(resource,"], () => {
-                for (const f of applyAutoFields) {
-                    w.line(`${f.name}: ${f.value},`);
-                }
-            }, [")"]);
+            for (const f of applyAutoFields) {
+                w.lineSM(`applyFixedValue(resource, ${JSON.stringify(f.name)}, ${f.value})`);
+            }
         }
         for (const f of factoryInfo.sliceAutoFields) {
             const matchRefs = f.sliceNames.map((s) => `${profileClassName}.${tsSliceStaticName(s)}SliceMatch`);

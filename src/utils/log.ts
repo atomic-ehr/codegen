@@ -13,6 +13,7 @@ export { mkLogger } from "./common-log";
 export type CodegenTag =
     | "#binding"
     | "#largeValueSet"
+    | "#placeholderValueSet"
     | "#fieldTypeNotFound"
     | "#skipCanonical"
     | "#duplicateSchema"

@@ -18,6 +18,7 @@ export type USCoreEthnicityExtension_Extension_TextSliceFlatAll = USCoreEthnicit
 
 import {
     isRawExtensionInput,
+    applyFixedValue,
     applySliceMatch,
     matchesValue,
     setArraySlice,
@@ -80,9 +81,7 @@ export class USCoreEthnicityExtensionProfile {
 
     static apply (resource: Extension) : USCoreEthnicityExtensionProfile {
         resource.url = USCoreEthnicityExtensionProfile.canonicalUrl;
-        Object.assign(resource, {
-            url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
-        })
+        applyFixedValue(resource, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity");
         return new USCoreEthnicityExtensionProfile(resource);
     }
 
