@@ -120,6 +120,14 @@ export const generateValidateMethod = (
             );
         }
 
+        // Base-resource required fields the profile chain did not re-state.
+        // Emitted here (not via the regular field loop) because they intentionally
+        // live outside `fields` to avoid pulling unrelated base metadata into the
+        // profile's getter/setter surface.
+        for (const inheritedName of snapshot.inheritedRequiredFields ?? []) {
+            errors.push(`...validateRequired(res, profileName, ${JSON.stringify(inheritedName)})`);
+        }
+
         const emitArray = (label: string, exprs: string[]) => {
             if (exprs.length === 0) {
                 w.line(`${label}: [],`);

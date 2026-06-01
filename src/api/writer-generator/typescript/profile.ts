@@ -251,7 +251,13 @@ const generateProfileHelpersImport = (
         imports.push("isExtension", "getExtensionValue", "pushExtension");
         if (extensions.some((ext) => ext.url && ext.max === "1")) imports.push("upsertExtension");
     }
-    if (Object.keys(snapshot.fields).length > 0)
+    // validate() emits calls when the profile has its own fields OR when it
+    // inherits base-required fields it does not re-state (those produce
+    // validateRequired() calls with no entry in `fields`). Without the second
+    // clause, a profile whose only validation is an inherited required field
+    // (e.g. an Extension profile relying on the base Extension.url) would emit
+    // validateRequired() without importing it (TS2304).
+    if (Object.keys(snapshot.fields).length > 0 || (snapshot.inheritedRequiredFields?.length ?? 0) > 0)
         imports.push(
             "validateRequired",
             "validateExcluded",
