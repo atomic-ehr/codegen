@@ -1,0 +1,32 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "patient-fixed-marital-status",
+  "url": "http://example.org/fhir/StructureDefinition/PatientFixedMaritalStatus",
+  "version": "0.0.1",
+  "name": "PatientFixedMaritalStatus",
+  "title": "Patient Profile with a fixed maritalStatus CodeableConcept",
+  "status": "draft",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Patient",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Patient",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Patient.maritalStatus",
+        "path": "Patient.maritalStatus",
+        "min": 1,
+        "fixedCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+              "code": "M"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
