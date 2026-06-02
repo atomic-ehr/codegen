@@ -261,10 +261,9 @@ const populateGeneric = (
 
     const sameParams = (a: GenericParam[], b: GenericParam[]): boolean => {
         if (a.length !== b.length) return false;
-        for (let i = 0; i < a.length; i++) {
-            const x = a[i]!;
-            const y = b[i]!;
-            if (x.typeVar !== y.typeVar || !samePath(x.path, y.path) || x.constraint.url !== y.constraint.url)
+        for (const [i, x] of a.entries()) {
+            const y = b[i];
+            if (!y || x.typeVar !== y.typeVar || !samePath(x.path, y.path) || x.constraint.url !== y.constraint.url)
                 return false;
         }
         return true;
