@@ -23,7 +23,7 @@ export type ProfileFactoryInfo = {
     autoFields: { name: string; value: string }[];
     sliceAutoFields: { name: string; pyType: string; typeId: TypeIdentifier; sliceNames: string[] }[];
     params: { name: string; pyType: string; typeId: TypeIdentifier }[];
-    accessors: { name: string; pyType: string; typeId: TypeIdentifier }[];
+    accessors: { name: string; pyType: string; typeId: TypeIdentifier; choiceSiblings?: string[] }[];
 };
 
 // ---------------------------------------------------------------------------
@@ -96,6 +96,13 @@ export const collectProfileFactoryInfo = (
     const fields = flatProfile.fields;
     const promotedChoices = new Set<string>();
     const resolveRef = tsIndex.findLastSpecializationByIdentifier;
+    // Maps each choice instance name to all sibling instance names (from the same declaration).
+    const choiceGroups = new Map<string, string[]>();
+    for (const [, field] of Object.entries(fields)) {
+        if (isChoiceDeclarationField(field)) {
+            for (const choice of field.choices) choiceGroups.set(choice, field.choices);
+        }
+    }
 
     if (isResourceIdentifier(flatProfile.base)) {
         autoFields.push({ name: "resourceType", value: JSON.stringify(flatProfile.base.name) });
@@ -152,7 +159,8 @@ export const collectProfileFactoryInfo = (
     for (const [name, field] of pendingChoiceInstances) {
         if (promotedChoices.has(name)) continue;
         const pyType = pyTypeFromIdentifier(field.type) + (field.array ? "[]" : "");
-        choiceAccessors.push({ name, pyType, typeId: field.type });
+        const choiceSiblings = (choiceGroups.get(name) ?? []).filter((s) => s !== name && !promotedChoices.has(s));
+        choiceAccessors.push({ name, pyType, typeId: field.type, choiceSiblings });
     }
 
     return { autoFields, sliceAutoFields, params, accessors: [...autoAccessors, ...choiceAccessors] };
@@ -286,6 +294,11 @@ export const generateFieldAccessors = (
         w.line();
         w.line(`def set_${methodSuffix}(self, value: ${a.pyType}) -> "${className}":`);
         w.indentBlock(() => {
+            if (a.choiceSiblings?.length) {
+                for (const sibling of a.choiceSiblings) {
+                    w.line(`setattr(self._resource, ${JSON.stringify(pyFieldName(sibling))}, None)`);
+                }
+            }
             w.line(`setattr(self._resource, ${JSON.stringify(fieldName)}, value)`);
             w.line("return self");
         });

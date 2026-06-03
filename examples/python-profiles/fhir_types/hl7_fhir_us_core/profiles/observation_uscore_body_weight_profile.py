@@ -100,6 +100,7 @@ class UscoreBodyWeightProfile:
         return getattr(self._resource, "effective_date_time", None)
 
     def set_effective_date_time(self, value: str) -> "UscoreBodyWeightProfile":
+        setattr(self._resource, "effective_period", None)
         setattr(self._resource, "effective_date_time", value)
         return self
 
@@ -107,6 +108,7 @@ class UscoreBodyWeightProfile:
         return getattr(self._resource, "effective_period", None)
 
     def set_effective_period(self, value: Period) -> "UscoreBodyWeightProfile":
+        setattr(self._resource, "effective_date_time", None)
         setattr(self._resource, "effective_period", value)
         return self
 

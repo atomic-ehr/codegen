@@ -116,6 +116,7 @@ class UscoreBloodPressureProfile:
         return getattr(self._resource, "effective_date_time", None)
 
     def set_effective_date_time(self, value: str) -> "UscoreBloodPressureProfile":
+        setattr(self._resource, "effective_period", None)
         setattr(self._resource, "effective_date_time", value)
         return self
 
@@ -123,6 +124,7 @@ class UscoreBloodPressureProfile:
         return getattr(self._resource, "effective_period", None)
 
     def set_effective_period(self, value: Period) -> "UscoreBloodPressureProfile":
+        setattr(self._resource, "effective_date_time", None)
         setattr(self._resource, "effective_period", value)
         return self
 
@@ -130,6 +132,16 @@ class UscoreBloodPressureProfile:
         return getattr(self._resource, "value_quantity", None)
 
     def set_value_quantity(self, value: Quantity) -> "UscoreBloodPressureProfile":
+        setattr(self._resource, "value_codeable_concept", None)
+        setattr(self._resource, "value_string", None)
+        setattr(self._resource, "value_boolean", None)
+        setattr(self._resource, "value_integer", None)
+        setattr(self._resource, "value_range", None)
+        setattr(self._resource, "value_ratio", None)
+        setattr(self._resource, "value_sampled_data", None)
+        setattr(self._resource, "value_time", None)
+        setattr(self._resource, "value_date_time", None)
+        setattr(self._resource, "value_period", None)
         setattr(self._resource, "value_quantity", value)
         return self
 
@@ -137,6 +149,16 @@ class UscoreBloodPressureProfile:
         return getattr(self._resource, "value_codeable_concept", None)
 
     def set_value_codeable_concept(self, value: CodeableConcept) -> "UscoreBloodPressureProfile":
+        setattr(self._resource, "value_quantity", None)
+        setattr(self._resource, "value_string", None)
+        setattr(self._resource, "value_boolean", None)
+        setattr(self._resource, "value_integer", None)
+        setattr(self._resource, "value_range", None)
+        setattr(self._resource, "value_ratio", None)
+        setattr(self._resource, "value_sampled_data", None)
+        setattr(self._resource, "value_time", None)
+        setattr(self._resource, "value_date_time", None)
+        setattr(self._resource, "value_period", None)
         setattr(self._resource, "value_codeable_concept", value)
         return self
 
@@ -144,6 +166,16 @@ class UscoreBloodPressureProfile:
         return getattr(self._resource, "value_string", None)
 
     def set_value_string(self, value: str) -> "UscoreBloodPressureProfile":
+        setattr(self._resource, "value_quantity", None)
+        setattr(self._resource, "value_codeable_concept", None)
+        setattr(self._resource, "value_boolean", None)
+        setattr(self._resource, "value_integer", None)
+        setattr(self._resource, "value_range", None)
+        setattr(self._resource, "value_ratio", None)
+        setattr(self._resource, "value_sampled_data", None)
+        setattr(self._resource, "value_time", None)
+        setattr(self._resource, "value_date_time", None)
+        setattr(self._resource, "value_period", None)
         setattr(self._resource, "value_string", value)
         return self
 
@@ -151,6 +183,16 @@ class UscoreBloodPressureProfile:
         return getattr(self._resource, "value_boolean", None)
 
     def set_value_boolean(self, value: bool) -> "UscoreBloodPressureProfile":
+        setattr(self._resource, "value_quantity", None)
+        setattr(self._resource, "value_codeable_concept", None)
+        setattr(self._resource, "value_string", None)
+        setattr(self._resource, "value_integer", None)
+        setattr(self._resource, "value_range", None)
+        setattr(self._resource, "value_ratio", None)
+        setattr(self._resource, "value_sampled_data", None)
+        setattr(self._resource, "value_time", None)
+        setattr(self._resource, "value_date_time", None)
+        setattr(self._resource, "value_period", None)
         setattr(self._resource, "value_boolean", value)
         return self
 
@@ -158,6 +200,16 @@ class UscoreBloodPressureProfile:
         return getattr(self._resource, "value_integer", None)
 
     def set_value_integer(self, value: int) -> "UscoreBloodPressureProfile":
+        setattr(self._resource, "value_quantity", None)
+        setattr(self._resource, "value_codeable_concept", None)
+        setattr(self._resource, "value_string", None)
+        setattr(self._resource, "value_boolean", None)
+        setattr(self._resource, "value_range", None)
+        setattr(self._resource, "value_ratio", None)
+        setattr(self._resource, "value_sampled_data", None)
+        setattr(self._resource, "value_time", None)
+        setattr(self._resource, "value_date_time", None)
+        setattr(self._resource, "value_period", None)
         setattr(self._resource, "value_integer", value)
         return self
 
@@ -165,6 +217,16 @@ class UscoreBloodPressureProfile:
         return getattr(self._resource, "value_range", None)
 
     def set_value_range(self, value: Range) -> "UscoreBloodPressureProfile":
+        setattr(self._resource, "value_quantity", None)
+        setattr(self._resource, "value_codeable_concept", None)
+        setattr(self._resource, "value_string", None)
+        setattr(self._resource, "value_boolean", None)
+        setattr(self._resource, "value_integer", None)
+        setattr(self._resource, "value_ratio", None)
+        setattr(self._resource, "value_sampled_data", None)
+        setattr(self._resource, "value_time", None)
+        setattr(self._resource, "value_date_time", None)
+        setattr(self._resource, "value_period", None)
         setattr(self._resource, "value_range", value)
         return self
 
@@ -172,6 +234,16 @@ class UscoreBloodPressureProfile:
         return getattr(self._resource, "value_ratio", None)
 
     def set_value_ratio(self, value: Ratio) -> "UscoreBloodPressureProfile":
+        setattr(self._resource, "value_quantity", None)
+        setattr(self._resource, "value_codeable_concept", None)
+        setattr(self._resource, "value_string", None)
+        setattr(self._resource, "value_boolean", None)
+        setattr(self._resource, "value_integer", None)
+        setattr(self._resource, "value_range", None)
+        setattr(self._resource, "value_sampled_data", None)
+        setattr(self._resource, "value_time", None)
+        setattr(self._resource, "value_date_time", None)
+        setattr(self._resource, "value_period", None)
         setattr(self._resource, "value_ratio", value)
         return self
 
@@ -179,6 +251,16 @@ class UscoreBloodPressureProfile:
         return getattr(self._resource, "value_sampled_data", None)
 
     def set_value_sampled_data(self, value: SampledData) -> "UscoreBloodPressureProfile":
+        setattr(self._resource, "value_quantity", None)
+        setattr(self._resource, "value_codeable_concept", None)
+        setattr(self._resource, "value_string", None)
+        setattr(self._resource, "value_boolean", None)
+        setattr(self._resource, "value_integer", None)
+        setattr(self._resource, "value_range", None)
+        setattr(self._resource, "value_ratio", None)
+        setattr(self._resource, "value_time", None)
+        setattr(self._resource, "value_date_time", None)
+        setattr(self._resource, "value_period", None)
         setattr(self._resource, "value_sampled_data", value)
         return self
 
@@ -186,6 +268,16 @@ class UscoreBloodPressureProfile:
         return getattr(self._resource, "value_time", None)
 
     def set_value_time(self, value: str) -> "UscoreBloodPressureProfile":
+        setattr(self._resource, "value_quantity", None)
+        setattr(self._resource, "value_codeable_concept", None)
+        setattr(self._resource, "value_string", None)
+        setattr(self._resource, "value_boolean", None)
+        setattr(self._resource, "value_integer", None)
+        setattr(self._resource, "value_range", None)
+        setattr(self._resource, "value_ratio", None)
+        setattr(self._resource, "value_sampled_data", None)
+        setattr(self._resource, "value_date_time", None)
+        setattr(self._resource, "value_period", None)
         setattr(self._resource, "value_time", value)
         return self
 
@@ -193,6 +285,16 @@ class UscoreBloodPressureProfile:
         return getattr(self._resource, "value_date_time", None)
 
     def set_value_date_time(self, value: str) -> "UscoreBloodPressureProfile":
+        setattr(self._resource, "value_quantity", None)
+        setattr(self._resource, "value_codeable_concept", None)
+        setattr(self._resource, "value_string", None)
+        setattr(self._resource, "value_boolean", None)
+        setattr(self._resource, "value_integer", None)
+        setattr(self._resource, "value_range", None)
+        setattr(self._resource, "value_ratio", None)
+        setattr(self._resource, "value_sampled_data", None)
+        setattr(self._resource, "value_time", None)
+        setattr(self._resource, "value_period", None)
         setattr(self._resource, "value_date_time", value)
         return self
 
@@ -200,6 +302,16 @@ class UscoreBloodPressureProfile:
         return getattr(self._resource, "value_period", None)
 
     def set_value_period(self, value: Period) -> "UscoreBloodPressureProfile":
+        setattr(self._resource, "value_quantity", None)
+        setattr(self._resource, "value_codeable_concept", None)
+        setattr(self._resource, "value_string", None)
+        setattr(self._resource, "value_boolean", None)
+        setattr(self._resource, "value_integer", None)
+        setattr(self._resource, "value_range", None)
+        setattr(self._resource, "value_ratio", None)
+        setattr(self._resource, "value_sampled_data", None)
+        setattr(self._resource, "value_time", None)
+        setattr(self._resource, "value_date_time", None)
         setattr(self._resource, "value_period", value)
         return self
 

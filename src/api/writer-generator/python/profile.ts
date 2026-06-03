@@ -255,7 +255,12 @@ const generateFromResourceMethod = (
     w.line();
 };
 
-const generateApplyMethod = (w: Python, annotatedBaseTypeName: string, className: string, isResourceBase: boolean): void => {
+const generateApplyMethod = (
+    w: Python,
+    annotatedBaseTypeName: string,
+    className: string,
+    isResourceBase: boolean,
+): void => {
     w.line("@classmethod");
     w.line(`def apply(cls, resource: ${annotatedBaseTypeName}) -> "${className}":`);
     w.indentBlock(() => {
@@ -350,11 +355,13 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, flatProfile:
     const canonicalUrl = flatProfile.identifier.url ?? "";
     const factoryInfo = collectProfileFactoryInfo(tsIndex, flatProfile);
     const sliceDefs = collectSliceDefs(tsIndex, flatProfile);
-    const typedResources = [...new Set(
-        sliceDefs
-            .filter((s) => s.isTypeDiscriminated && s.typeDiscriminatorResource)
-            .map((s) => s.typeDiscriminatorResource!),
-    )];
+    const typedResources = [
+        ...new Set(
+            sliceDefs
+                .filter((s) => s.isTypeDiscriminated && s.typeDiscriminatorResource)
+                .map((s) => s.typeDiscriminatorResource!),
+        ),
+    ];
     const annotatedBaseTypeName =
         typedResources.length > 0 ? `${baseTypeName}[${typedResources.join(" | ")}, Any]` : baseTypeName;
     const extensions = flatProfile.extensions ?? [];
