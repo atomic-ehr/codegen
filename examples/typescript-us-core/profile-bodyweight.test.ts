@@ -151,3 +151,29 @@ describe("validation", () => {
         expect(errors).toContain("USCoreBodyWeightProfile: field 'valueString' must not be present");
     });
 });
+
+describe("value[x] choice is mutually exclusive on a constrained profile", () => {
+    test("switching variants clears the previous one, even when the declaration narrows value[x]", () => {
+        // Body weight constrains value[x] to valueQuantity, so the choice
+        // declaration lists only that variant — but the base value* instances
+        // still have setters. Mutual exclusion must hold across all of them,
+        // not just the single declared variant.
+        const profile = USCoreBodyWeightProfile.create({
+            status: "final",
+            subject: { reference: "Patient/pt-1" },
+        });
+
+        // Two variants that are NOT the declared one — neither cleared the other
+        // before the fix (siblings were derived from the narrowed declaration).
+        profile.setValueString("first");
+        profile.setValueCodeableConcept({ text: "second" });
+        expect(profile.getValueString()).toBeUndefined();
+        expect(profile.getValueCodeableConcept()).toEqual({ text: "second" });
+
+        // The declared variant clears the others too.
+        profile.setValueQuantity({ value: 70, unit: "kg" });
+        const resource = profile.toResource();
+        const valueKeys = Object.keys(resource).filter((k) => k.startsWith("value"));
+        expect(valueKeys).toEqual(["valueQuantity"]);
+    });
+});
