@@ -187,7 +187,7 @@ class UscoreBodyWeightProfile:
         setattr(self._resource, "value_period", value)
         return self
 
-    def get_vscat(self, mode: str | None = None) -> Any | None:
+    def get_vscat(self, mode: str | None = None) -> dict | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
         if mode == "raw":

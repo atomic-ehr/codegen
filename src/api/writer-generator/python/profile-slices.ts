@@ -190,7 +190,10 @@ export const generateSliceGetters = (
                 });
             }
         } else {
-            w.line(`def get_${baseName}(self, mode: str | None = None) -> Any | None:`);
+            const flatRetType = sliceDef.constrainedChoice
+                ? pyTypeFromIdentifier(sliceDef.constrainedChoice.variantType)
+                : "dict";
+            w.line(`def get_${baseName}(self, mode: str | None = None) -> ${flatRetType} | None:`);
             w.indentBlock(() => {
                 w.line(`match = self.__class__.${staticName}`);
                 if (sliceDef.array) {

@@ -203,7 +203,7 @@ class UscoreBloodPressureProfile:
         setattr(self._resource, "value_period", value)
         return self
 
-    def get_vscat(self, mode: str | None = None) -> Any | None:
+    def get_vscat(self, mode: str | None = None) -> dict | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
         if mode == "raw":
@@ -211,7 +211,7 @@ class UscoreBloodPressureProfile:
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return strip_match_keys(item_dict, ["coding"])
 
-    def get_systolic(self, mode: str | None = None) -> Any | None:
+    def get_systolic(self, mode: str | None = None) -> Quantity | None:
         match = self.__class__._systolic_slice_match
         item = get_array_slice(getattr(self._resource, "component", None), match)
         if mode == "raw":
@@ -219,7 +219,7 @@ class UscoreBloodPressureProfile:
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return unwrap_slice_choice(item_dict, ["code"], "valueQuantity")
 
-    def get_diastolic(self, mode: str | None = None) -> Any | None:
+    def get_diastolic(self, mode: str | None = None) -> Quantity | None:
         match = self.__class__._diastolic_slice_match
         item = get_array_slice(getattr(self._resource, "component", None), match)
         if mode == "raw":

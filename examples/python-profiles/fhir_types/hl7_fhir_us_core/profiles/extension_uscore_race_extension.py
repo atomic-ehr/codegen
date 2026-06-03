@@ -144,7 +144,7 @@ class UscoreRaceExtension:
             push_extension(self._resource, {"url": "text", **value})
         return self
 
-    def get_extension_omb_category(self, mode: str | None = None) -> Any | None:
+    def get_extension_omb_category(self, mode: str | None = None) -> Coding | None:
         match = self.__class__._omb_category_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
         if mode == "raw":
@@ -152,7 +152,7 @@ class UscoreRaceExtension:
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return unwrap_slice_choice(item_dict, ["url"], "valueCoding")
 
-    def get_extension_detailed(self, mode: str | None = None) -> Any | None:
+    def get_extension_detailed(self, mode: str | None = None) -> Coding | None:
         match = self.__class__._detailed_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
         if mode == "raw":
@@ -160,7 +160,7 @@ class UscoreRaceExtension:
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return unwrap_slice_choice(item_dict, ["url"], "valueCoding")
 
-    def get_extension_text(self, mode: str | None = None) -> Any | None:
+    def get_extension_text(self, mode: str | None = None) -> dict | None:
         match = self.__class__._text_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
         if mode == "raw":
