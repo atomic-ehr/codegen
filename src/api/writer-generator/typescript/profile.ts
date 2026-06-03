@@ -51,24 +51,53 @@ type ProfileFactoryInfo = {
     /** Array fields with required slices — optional param with auto-merge of required stubs */
     sliceAutoFields: { name: string; tsType: string; typeId: TypeIdentifier; sliceNames: string[] }[];
     params: { name: string; tsType: string; typeId: TypeIdentifier }[];
-    accessors: { name: string; tsType: string; typeId: TypeIdentifier }[];
+    /** `choiceClearMethod` names the helper a choice setter calls to clear its sibling variants. */
+    accessors: { name: string; tsType: string; typeId: TypeIdentifier; choiceClearMethod?: string }[];
+    /** One helper per multi-variant choice group: clears every variant of that choice. */
+    choiceClearMethods: { method: string; variants: string[] }[];
     /** Accessor names that come from valueConstraint fields — skip generating setters for these */
     fixedFields: Set<string>;
 };
 
+/** Public helper name that clears all variants of a choice group, e.g. `clearValue`. */
+const choiceClearMethodName = (choiceOf: string): string => `clear${uppercaseFirstLetter(tsCamelCase(choiceOf))}`;
+
 const collectChoiceAccessors = (
     snapshot: SnapshotProfileTypeSchema,
     promotedChoices: Set<string>,
-): ProfileFactoryInfo["accessors"] => {
+): Pick<ProfileFactoryInfo, "accessors" | "choiceClearMethods"> => {
+    // Group every choice-instance field by its declaration (choiceOf). A profile
+    // that constrains value[x] narrows the declaration's `choices` list, but the
+    // base variants still exist as instance fields with generated setters — so
+    // siblings must come from the instances, not the (possibly narrowed) `choices`.
+    const variantsByChoice: Record<string, string[]> = {};
+    for (const [name, field] of Object.entries(snapshot.fields)) {
+        if (field.excluded) continue;
+        if (!isChoiceInstanceField(field)) continue;
+        (variantsByChoice[field.choiceOf] ??= []).push(name);
+    }
+
     const accessors: ProfileFactoryInfo["accessors"] = [];
     for (const [name, field] of Object.entries(snapshot.fields)) {
         if (field.excluded) continue;
         if (!isChoiceInstanceField(field)) continue;
         if (promotedChoices.has(name)) continue;
         const tsType = tsTypeFromIdentifier(field.type) + (field.array ? "[]" : "");
-        accessors.push({ name, tsType, typeId: field.type });
+        // value[x] variants are mutually exclusive — a single-variant group has
+        // nothing to clear, so only multi-variant groups get a clear helper.
+        const hasSiblings = (variantsByChoice[field.choiceOf]?.length ?? 0) > 1;
+        const choiceClearMethod = hasSiblings ? choiceClearMethodName(field.choiceOf) : undefined;
+        accessors.push({ name, tsType, typeId: field.type, choiceClearMethod });
     }
-    return accessors;
+
+    const choiceClearMethods = Object.entries(variantsByChoice)
+        .filter(([, variants]) => variants.length > 1)
+        .map(([choiceOf, variants]) => ({
+            method: choiceClearMethodName(choiceOf),
+            variants: variants.map(tsFieldName),
+        }));
+
+    return { accessors, choiceClearMethods };
 };
 
 /** Try to promote a required single-choice declaration to a direct param */
@@ -173,8 +202,9 @@ export const collectProfileFactoryInfo = (
         isFamilyType,
     );
 
-    const accessors = [...autoAccessors, ...collectChoiceAccessors(snapshot, promotedChoices)];
-    return { autoFields, sliceAutoFields, params, accessors, fixedFields };
+    const { accessors: choiceAccessors, choiceClearMethods } = collectChoiceAccessors(snapshot, promotedChoices);
+    const accessors = [...autoAccessors, ...choiceAccessors];
+    return { autoFields, sliceAutoFields, params, accessors, choiceClearMethods, fixedFields };
 };
 
 /** Include base-type required fields not already covered by profile constraints */
@@ -618,11 +648,19 @@ const generateFieldAccessors = (w: TypeScript, factoryInfo: ProfileFactoryInfo) 
         w.line();
         if (!factoryInfo.fixedFields.has(a.name)) {
             w.curlyBlock([`set${methodBaseName}`, `(value: ${a.tsType})`, ": this"], () => {
+                if (a.choiceClearMethod) w.lineSM(`this.${a.choiceClearMethod}()`);
                 w.lineSM(`Object.assign(this.resource, { ${fieldAccess}: value })`);
                 w.lineSM("return this");
             });
             w.line();
         }
+    }
+
+    for (const { method, variants } of factoryInfo.choiceClearMethods) {
+        w.curlyBlock([method, "()", ": void"], () => {
+            for (const variant of variants) w.lineSM(`delete ${tsGet("this.resource", variant)}`);
+        });
+        w.line();
     }
 };
 

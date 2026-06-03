@@ -217,3 +217,27 @@ describe("category auto-population", () => {
         expect(profile.toResource().category).toHaveLength(1);
     });
 });
+
+describe("value[x] choice is mutually exclusive", () => {
+    test("setting a second value variant clears the first", () => {
+        const profile = USCoreBloodPressureProfile.create({
+            status: "final",
+            subject: { reference: "Patient/pt-1" },
+        });
+
+        profile.setValueQuantity({ value: 120, unit: "mmHg" });
+        expect(profile.getValueQuantity()).toEqual({ value: 120, unit: "mmHg" });
+
+        // A resource may carry at most one value[x] variant — switching to
+        // valueCodeableConcept must drop valueQuantity, otherwise the resource
+        // serialises two mutually-exclusive value* fields (invalid FHIR).
+        profile.setValueCodeableConcept({ text: "unable to obtain" });
+
+        expect(profile.getValueCodeableConcept()).toEqual({ text: "unable to obtain" });
+        expect(profile.getValueQuantity()).toBeUndefined();
+
+        const resource = profile.toResource();
+        const valueKeys = Object.keys(resource).filter((k) => k.startsWith("value"));
+        expect(valueKeys).toEqual(["valueCodeableConcept"]);
+    });
+});
