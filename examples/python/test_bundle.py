@@ -57,3 +57,18 @@ def test_bundle_from_json_raises_on_invalid_resource() -> None:
     }"""
     with pytest.raises(ValidationError):
         Bundle.from_json(bundle_json)
+
+
+def test_bundle_from_json_raises_on_wrong_typed_resource() -> None:
+    bundle_json = """{
+        "resourceType": "Bundle",
+        "type": "searchset",
+        "entry": [{
+            "resource": {
+                "resourceType": "Patient",
+                "id": "pt-1"
+            }
+        }]
+    }"""
+    with pytest.raises(ValidationError):
+        Bundle[Observation].from_json(bundle_json)
