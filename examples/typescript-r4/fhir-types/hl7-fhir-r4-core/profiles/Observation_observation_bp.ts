@@ -177,6 +177,7 @@ export class observation_bpProfile {
     }
 
     setEffectiveDateTime (value: string) : this {
+        this.clearEffective();
         Object.assign(this.resource, { effectiveDateTime: value });
         return this;
     }
@@ -186,6 +187,7 @@ export class observation_bpProfile {
     }
 
     setEffectivePeriod (value: Period) : this {
+        this.clearEffective();
         Object.assign(this.resource, { effectivePeriod: value });
         return this;
     }
@@ -197,6 +199,11 @@ export class observation_bpProfile {
     setValueQuantity (value: Quantity) : this {
         Object.assign(this.resource, { valueQuantity: value });
         return this;
+    }
+
+    clearEffective () : void {
+        delete this.resource.effectiveDateTime;
+        delete this.resource.effectivePeriod;
     }
 
     // Extensions

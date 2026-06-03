@@ -145,6 +145,7 @@ export class USCoreBodyWeightProfile {
     }
 
     setEffectiveDateTime (value: string) : this {
+        this.clearEffective();
         Object.assign(this.resource, { effectiveDateTime: value });
         return this;
     }
@@ -154,6 +155,7 @@ export class USCoreBodyWeightProfile {
     }
 
     setEffectivePeriod (value: Period) : this {
+        this.clearEffective();
         Object.assign(this.resource, { effectivePeriod: value });
         return this;
     }
@@ -163,6 +165,7 @@ export class USCoreBodyWeightProfile {
     }
 
     setValueQuantity (value: Quantity) : this {
+        this.clearValue();
         Object.assign(this.resource, { valueQuantity: value });
         return this;
     }
@@ -172,6 +175,7 @@ export class USCoreBodyWeightProfile {
     }
 
     setValueCodeableConcept (value: CodeableConcept) : this {
+        this.clearValue();
         Object.assign(this.resource, { valueCodeableConcept: value });
         return this;
     }
@@ -181,6 +185,7 @@ export class USCoreBodyWeightProfile {
     }
 
     setValueString (value: string) : this {
+        this.clearValue();
         Object.assign(this.resource, { valueString: value });
         return this;
     }
@@ -190,6 +195,7 @@ export class USCoreBodyWeightProfile {
     }
 
     setValueBoolean (value: boolean) : this {
+        this.clearValue();
         Object.assign(this.resource, { valueBoolean: value });
         return this;
     }
@@ -199,6 +205,7 @@ export class USCoreBodyWeightProfile {
     }
 
     setValueInteger (value: number) : this {
+        this.clearValue();
         Object.assign(this.resource, { valueInteger: value });
         return this;
     }
@@ -208,6 +215,7 @@ export class USCoreBodyWeightProfile {
     }
 
     setValueRange (value: Range) : this {
+        this.clearValue();
         Object.assign(this.resource, { valueRange: value });
         return this;
     }
@@ -217,6 +225,7 @@ export class USCoreBodyWeightProfile {
     }
 
     setValueRatio (value: Ratio) : this {
+        this.clearValue();
         Object.assign(this.resource, { valueRatio: value });
         return this;
     }
@@ -226,6 +235,7 @@ export class USCoreBodyWeightProfile {
     }
 
     setValueSampledData (value: SampledData) : this {
+        this.clearValue();
         Object.assign(this.resource, { valueSampledData: value });
         return this;
     }
@@ -235,6 +245,7 @@ export class USCoreBodyWeightProfile {
     }
 
     setValueTime (value: string) : this {
+        this.clearValue();
         Object.assign(this.resource, { valueTime: value });
         return this;
     }
@@ -244,6 +255,7 @@ export class USCoreBodyWeightProfile {
     }
 
     setValueDateTime (value: string) : this {
+        this.clearValue();
         Object.assign(this.resource, { valueDateTime: value });
         return this;
     }
@@ -253,8 +265,28 @@ export class USCoreBodyWeightProfile {
     }
 
     setValuePeriod (value: Period) : this {
+        this.clearValue();
         Object.assign(this.resource, { valuePeriod: value });
         return this;
+    }
+
+    clearEffective () : void {
+        delete this.resource.effectiveDateTime;
+        delete this.resource.effectivePeriod;
+    }
+
+    clearValue () : void {
+        delete this.resource.valueQuantity;
+        delete this.resource.valueCodeableConcept;
+        delete this.resource.valueString;
+        delete this.resource.valueBoolean;
+        delete this.resource.valueInteger;
+        delete this.resource.valueRange;
+        delete this.resource.valueRatio;
+        delete this.resource.valueSampledData;
+        delete this.resource.valueTime;
+        delete this.resource.valueDateTime;
+        delete this.resource.valuePeriod;
     }
 
     // Extensions
