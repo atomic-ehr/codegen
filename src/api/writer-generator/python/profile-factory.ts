@@ -196,15 +196,16 @@ export const buildCallArgs = (factoryInfo: ProfileFactoryInfo): string => {
 export const generateCreateResource = (
     w: Python,
     baseTypeName: string,
+    annotatedBaseTypeName: string,
     isResourceBase: boolean,
     hasParams: boolean,
     factoryInfo: ProfileFactoryInfo,
 ): void => {
     w.line("@classmethod");
     if (hasParams) {
-        w.line(`def create_resource(cls, ${buildParamSignature(factoryInfo)}) -> ${baseTypeName}:`);
+        w.line(`def create_resource(cls, ${buildParamSignature(factoryInfo)}) -> ${annotatedBaseTypeName}:`);
     } else {
-        w.line(`def create_resource(cls) -> ${baseTypeName}:`);
+        w.line(`def create_resource(cls) -> ${annotatedBaseTypeName}:`);
     }
     w.indentBlock(() => {
         for (const f of factoryInfo.sliceAutoFields) {

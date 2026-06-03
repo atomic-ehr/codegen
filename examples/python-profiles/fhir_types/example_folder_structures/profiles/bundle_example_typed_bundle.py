@@ -27,11 +27,11 @@ class ExampleTypedBundleProfile:
     _patient_entry_slice_match: dict = {"resource":{"resourceType":"Patient"}}
     _organization_entry_slice_match: dict = {"resource":{"resourceType":"Organization"}}
 
-    def __init__(self, resource: Bundle) -> None:
+    def __init__(self, resource: Bundle[Patient | Organization, Any]) -> None:
         self._resource = resource
 
     @classmethod
-    def from_resource(cls, resource: Bundle) -> "ExampleTypedBundleProfile":
+    def from_resource(cls, resource: Bundle[Patient | Organization, Any]) -> "ExampleTypedBundleProfile":
         meta = getattr(resource, "meta", None)
         profiles = getattr(meta, "profile", None) if meta is not None else None
         if profiles is None or cls.canonical_url not in profiles:
@@ -43,12 +43,12 @@ class ExampleTypedBundleProfile:
         return profile
 
     @classmethod
-    def apply(cls, resource: Bundle) -> "ExampleTypedBundleProfile":
+    def apply(cls, resource: Bundle[Patient | Organization, Any]) -> "ExampleTypedBundleProfile":
         ensure_profile(resource, cls.canonical_url)
         return cls(resource)
 
     @classmethod
-    def create_resource(cls, *, type: str) -> Bundle:
+    def create_resource(cls, *, type: str) -> Bundle[Patient | Organization, Any]:
         return build_resource(
             Bundle,
             resource_type="Bundle",
@@ -60,7 +60,7 @@ class ExampleTypedBundleProfile:
     def create(cls, *, type: str) -> "ExampleTypedBundleProfile":
         return cls.apply(cls.create_resource(type=type))
 
-    def to_resource(self) -> Bundle:
+    def to_resource(self) -> Bundle[Patient | Organization, Any]:
         return self._resource
 
     def get_type(self) -> str | None:

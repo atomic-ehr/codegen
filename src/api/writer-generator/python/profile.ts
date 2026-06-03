@@ -43,6 +43,8 @@ type ProfileGenContext = {
     tsIndex: TypeSchemaIndex;
     flatProfile: SnapshotProfileTypeSchema;
     baseTypeName: string;
+    /** Base type with generic params filled in when slices are type-discriminated (e.g. `Bundle[Patient | Organization, Any]`). Equals `baseTypeName` when no type params apply. */
+    annotatedBaseTypeName: string;
     className: string;
     isResourceBase: boolean;
     factoryInfo: ProfileFactoryInfo;
@@ -229,12 +231,12 @@ const emitModuleImports = (
 
 const generateFromResourceMethod = (
     w: Python,
-    baseTypeName: string,
+    annotatedBaseTypeName: string,
     className: string,
     isResourceBase: boolean,
 ): void => {
     w.line("@classmethod");
-    w.line(`def from_resource(cls, resource: ${baseTypeName}) -> "${className}":`);
+    w.line(`def from_resource(cls, resource: ${annotatedBaseTypeName}) -> "${className}":`);
     w.indentBlock(() => {
         if (isResourceBase) {
             w.line('meta = getattr(resource, "meta", None)');
@@ -253,9 +255,9 @@ const generateFromResourceMethod = (
     w.line();
 };
 
-const generateApplyMethod = (w: Python, baseTypeName: string, className: string, isResourceBase: boolean): void => {
+const generateApplyMethod = (w: Python, annotatedBaseTypeName: string, className: string, isResourceBase: boolean): void => {
     w.line("@classmethod");
-    w.line(`def apply(cls, resource: ${baseTypeName}) -> "${className}":`);
+    w.line(`def apply(cls, resource: ${annotatedBaseTypeName}) -> "${className}":`);
     w.indentBlock(() => {
         if (isResourceBase) w.line("ensure_profile(resource, cls.canonical_url)");
         w.line("return cls(resource)");
@@ -302,6 +304,7 @@ const generateClassBody = (ctx: ProfileGenContext): void => {
         tsIndex,
         flatProfile,
         baseTypeName,
+        annotatedBaseTypeName,
         className,
         isResourceBase,
         errorLines,
@@ -312,17 +315,17 @@ const generateClassBody = (ctx: ProfileGenContext): void => {
     } = ctx;
     const hasParams = factoryInfo.params.length > 0 || factoryInfo.sliceAutoFields.length > 0;
 
-    w.line(`def __init__(self, resource: ${baseTypeName}) -> None:`);
+    w.line(`def __init__(self, resource: ${annotatedBaseTypeName}) -> None:`);
     w.indentBlock(() => w.line("self._resource = resource"));
     w.line();
 
-    generateFromResourceMethod(w, baseTypeName, className, isResourceBase);
-    generateApplyMethod(w, baseTypeName, className, isResourceBase);
-    generateCreateResource(w, baseTypeName, isResourceBase, hasParams, factoryInfo);
+    generateFromResourceMethod(w, annotatedBaseTypeName, className, isResourceBase);
+    generateApplyMethod(w, annotatedBaseTypeName, className, isResourceBase);
+    generateCreateResource(w, baseTypeName, annotatedBaseTypeName, isResourceBase, hasParams, factoryInfo);
     w.line();
     generateCreateMethod(w, className, hasParams, factoryInfo);
 
-    w.line(`def to_resource(self) -> ${baseTypeName}:`);
+    w.line(`def to_resource(self) -> ${annotatedBaseTypeName}:`);
     w.indentBlock(() => w.line("return self._resource"));
     w.line();
 
@@ -347,6 +350,13 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, flatProfile:
     const canonicalUrl = flatProfile.identifier.url ?? "";
     const factoryInfo = collectProfileFactoryInfo(tsIndex, flatProfile);
     const sliceDefs = collectSliceDefs(tsIndex, flatProfile);
+    const typedResources = [...new Set(
+        sliceDefs
+            .filter((s) => s.isTypeDiscriminated && s.typeDiscriminatorResource)
+            .map((s) => s.typeDiscriminatorResource!),
+    )];
+    const annotatedBaseTypeName =
+        typedResources.length > 0 ? `${baseTypeName}[${typedResources.join(" | ")}, Any]` : baseTypeName;
     const extensions = flatProfile.extensions ?? [];
     const resolvedNames = resolveProfileMethodBaseNames(extensions, sliceDefs);
     const errorLines: string[] = [];
@@ -397,6 +407,7 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, flatProfile:
             tsIndex,
             flatProfile,
             baseTypeName,
+            annotatedBaseTypeName,
             className,
             isResourceBase,
             factoryInfo,
