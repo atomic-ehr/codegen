@@ -34,7 +34,9 @@
         "noImplicitAnyLet": "off",
         "noExplicitAny": "off",
         "noAssignInExpressions": "off",
-        "noVar": "error"
+        "noVar": "error",
+        "noEmptyBlockStatements": "warn",
+        "noMisplacedAssertion": "warn"
       },
       "correctness": {
         "noUnusedPrivateClassMembers": "error",
@@ -60,7 +62,14 @@
         "useThrowOnlyError": "error",
         "useDefaultSwitchClause": "error",
         "noEnum": "error",
-        "useFilenamingConvention": "error"
+        "useFilenamingConvention": "error",
+        "noUselessElse": "warn"
+      },
+      "performance": {
+        "useTopLevelRegex": "warn"
+      },
+      "nursery": {
+        "noFloatingPromises": "warn"
       },
       "recommended": true
     }
