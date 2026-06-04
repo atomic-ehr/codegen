@@ -159,8 +159,11 @@ describe("Register tests", async () => {
 describe("cyclic package dependencies", () => {
     it("registerFromManager terminates on a dependency cycle", async () => {
         // a ↔ b mutually depend (like hl7.terminology.r5 ↔ hl7.fhir.uv.extensions.r5).
-        // Without guarding the dependency walk this recurses until stack overflow / OOM.
+        // Without memoizing each package before recursing into its deps, the walk recurses
+        // forever; each unique package should be visited exactly once. The search-call cap
+        // makes a regression fail fast (red) instead of slowly exhausting memory.
         const deps: Record<string, string[]> = { a: ["b"], b: ["a"] };
+        let searchCalls = 0;
         const manager = {
             packages: async () => Object.keys(deps).map((name) => ({ name, version: "1.0.0" })),
             packageJson: async (name: string) => ({
@@ -168,11 +171,15 @@ describe("cyclic package dependencies", () => {
                 version: "1.0.0",
                 dependencies: Object.fromEntries((deps[name] ?? []).map((d) => [d, "1.0.0"])),
             }),
-            search: async () => [],
+            search: async () => {
+                if (++searchCalls > 10) throw new Error("dependency walk did not terminate on cycle");
+                return [];
+            },
         } as unknown as Parameters<typeof registerFromManager>[0];
 
         const reg = await registerFromManager(manager, { focusedPackages: [{ name: "a", version: "1.0.0" }] });
 
+        expect(searchCalls).toBe(2); // each package scanned exactly once
         expect(reg.resolver["a#1.0.0"]).toBeDefined();
         expect(reg.resolver["b#1.0.0"]).toBeDefined();
     });
