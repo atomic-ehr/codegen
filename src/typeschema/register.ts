@@ -93,8 +93,6 @@ const mkPackageAwareResolver = async (
     if (acc[pkgId]) return acc[pkgId];
 
     const index = mkEmptyPkgIndex(pkg);
-    // Memoize before recursing into dependencies so cyclic deps (e.g. hl7.terminology.r5 ↔
-    // hl7.fhir.uv.extensions.r5) terminate at the guard above instead of recursing forever.
     acc[pkgId] = index;
     for (const resource of await manager.search({ package: pkg })) {
         const rawUrl = resource.url;
