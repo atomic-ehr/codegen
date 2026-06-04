@@ -5,10 +5,13 @@ import { mkSilentLogger } from "@typeschema-test/utils";
 
 /**
  * Tests for SQL-on-FHIR package.
- * The SQL-on-FHIR package depends on hl7.fhir.r5.core.
+ * The IG targets FHIR R5 and references R5 core resources (e.g. the ViewDefinition base
+ * chain reaches `Library`), but its package does not declare an `hl7.fhir.r5.core`
+ * dependency — so we add it explicitly, otherwise those R5 bases fail to resolve.
  */
 describe("SQL-on-FHIR", async () => {
     const packageUrl = "https://build.fhir.org/ig/FHIR/sql-on-fhir-v2/package.tgz";
+    const r5Core = { name: "hl7.fhir.r5.core", version: "5.0.0" };
 
     const treeShakeConfig = {
         "org.sql-on-fhir.ig": {
@@ -22,6 +25,7 @@ describe("SQL-on-FHIR", async () => {
 
     describe("TypeScript Generation", async () => {
         const result = await new APIBuilder({ logger: mkSilentLogger() })
+            .fromPackage(r5Core.name, r5Core.version)
             .fromPackageRef(packageUrl)
             .typeSchema({ treeShake: treeShakeConfig })
             .typescript({ inMemoryOnly: true })
@@ -57,6 +61,7 @@ describe("SQL-on-FHIR", async () => {
 
     describe("Python Generation", async () => {
         const result = await new APIBuilder({ logger: mkSilentLogger() })
+            .fromPackage(r5Core.name, r5Core.version)
             .fromPackageRef(packageUrl)
             .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
             .python({ inMemoryOnly: true })
@@ -87,6 +92,7 @@ describe("SQL-on-FHIR", async () => {
 
     describe("C# Generation", async () => {
         const result = await new APIBuilder({ logger: mkSilentLogger() })
+            .fromPackage(r5Core.name, r5Core.version)
             .fromPackageRef(packageUrl)
             .typeSchema({ treeShake: treeShakeConfig, promoteLogical: promoteLogicalConfig })
             .csharp({ inMemoryOnly: true })
