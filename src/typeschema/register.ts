@@ -93,6 +93,7 @@ const mkPackageAwareResolver = async (
     if (acc[pkgId]) return acc[pkgId];
 
     const index = mkEmptyPkgIndex(pkg);
+    acc[pkgId] = index;
     for (const resource of await manager.search({ package: pkg })) {
         const rawUrl = resource.url;
         if (!rawUrl) continue;
@@ -115,7 +116,6 @@ const mkPackageAwareResolver = async (
         resolutionOptions.sort((a, b) => a.deep - b.deep);
     }
 
-    acc[pkgId] = index;
     return index;
 };
 
