@@ -3,23 +3,35 @@
 # Any manual changes made to this file may be overwritten.
 
 from __future__ import annotations
-from pydantic import BaseModel, ConfigDict, Field, PositiveInt
-from typing import Any, List as PyList, Literal
+from pydantic import BaseModel, ConfigDict, Field, PositiveInt, model_validator
+from typing import Any, Generic, List as PyList, Literal
+from typing_extensions import Self, TypeVar
 
 from fhir_types.hl7_fhir_r4_core.base import BackboneElement, Identifier, Signature
 from fhir_types.hl7_fhir_r4_core.resource import Resource
-from fhir_types.hl7_fhir_r4_core.resource_families import ResourceFamily
 from fhir_types.hl7_fhir_r4_core.base import Element
+from fhir_types.hl7_fhir_r4_core.resource_preprocessor import preprocess_resource_fields
+
+T = TypeVar('T', bound=Resource, default=Resource)
+T1 = TypeVar('T1', bound=Resource, default=Resource)
+T2 = TypeVar('T2', bound=Resource, default=Resource)
 
 
-class BundleEntry(BackboneElement):
+class BundleEntry(BackboneElement, Generic[T1, T2]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     full_url: str | None = Field(None, alias="fullUrl", serialization_alias="fullUrl")
     link: PyList[BundleLink] | None = Field(None, alias="link", serialization_alias="link")
     request: BundleEntryRequest | None = Field(None, alias="request", serialization_alias="request")
-    resource: ResourceFamily | None = Field(None, alias="resource", serialization_alias="resource")
-    response: BundleEntryResponse | None = Field(None, alias="response", serialization_alias="response")
+    resource: T1 | None = Field(None, alias="resource", serialization_alias="resource")
+    response: BundleEntryResponse[T2] | None = Field(None, alias="response", serialization_alias="response")
     search: BundleEntrySearch | None = Field(None, alias="search", serialization_alias="search")
+
+    @model_validator(mode='before')
+    @classmethod
+    def _preprocess_resources(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            return preprocess_resource_fields(data, "fhir_types.hl7_fhir_r4_core")
+        return data
 
 class BundleEntryRequest(BackboneElement):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
@@ -30,13 +42,20 @@ class BundleEntryRequest(BackboneElement):
     method: Literal["GET", "HEAD", "POST", "PUT", "DELETE", "PATCH"] = Field(alias="method", serialization_alias="method")
     url: str = Field(alias="url", serialization_alias="url")
 
-class BundleEntryResponse(BackboneElement):
+class BundleEntryResponse(BackboneElement, Generic[T]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     etag: str | None = Field(None, alias="etag", serialization_alias="etag")
     last_modified: str | None = Field(None, alias="lastModified", serialization_alias="lastModified")
     location: str | None = Field(None, alias="location", serialization_alias="location")
-    outcome: ResourceFamily | None = Field(None, alias="outcome", serialization_alias="outcome")
+    outcome: T | None = Field(None, alias="outcome", serialization_alias="outcome")
     status: str = Field(alias="status", serialization_alias="status")
+
+    @model_validator(mode='before')
+    @classmethod
+    def _preprocess_resources(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            return preprocess_resource_fields(data, "fhir_types.hl7_fhir_r4_core")
+        return data
 
 class BundleEntrySearch(BackboneElement):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
@@ -49,7 +68,7 @@ class BundleLink(BackboneElement):
     url: str = Field(alias="url", serialization_alias="url")
 
 
-class Bundle(Resource):
+class Bundle(Resource, Generic[T1, T2]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     resource_type: Literal['Bundle'] = Field(
         default='Bundle',
@@ -58,7 +77,7 @@ class Bundle(Resource):
         frozen=True,
         pattern='Bundle'
     )
-    entry: PyList[BundleEntry] | None = Field(None, alias="entry", serialization_alias="entry")
+    entry: PyList[BundleEntry[T1, T2]] | None = Field(None, alias="entry", serialization_alias="entry")
     identifier: Identifier | None = Field(None, alias="identifier", serialization_alias="identifier")
     link: PyList[BundleLink] | None = Field(None, alias="link", serialization_alias="link")
     signature: Signature | None = Field(None, alias="signature", serialization_alias="signature")
@@ -76,6 +95,13 @@ class Bundle(Resource):
         return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)
 
     @classmethod
-    def from_json(cls, json: str) -> Bundle:
+    def from_json(cls, json: str) -> Self:
         return cls.model_validate_json(json)
+
+    @model_validator(mode='before')
+    @classmethod
+    def _preprocess_resources(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            return preprocess_resource_fields(data, "fhir_types.hl7_fhir_r4_core")
+        return data
 

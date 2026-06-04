@@ -5,12 +5,12 @@
 from __future__ import annotations
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt
 from typing import Any, List as PyList, Literal
+from typing_extensions import Self
 
 from fhir_types.hl7_fhir_r4_core.base import (\
     Address, Attachment, BackboneElement, CodeableConcept, ContactPoint, HumanName, Identifier, Period, Reference
 )
 from fhir_types.hl7_fhir_r4_core.domain_resource import DomainResource
-from fhir_types.hl7_fhir_r4_core.resource_families import DomainResourceFamily
 from fhir_types.hl7_fhir_r4_core.base import Element
 
 
@@ -77,6 +77,6 @@ class Patient(DomainResource):
         return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)
 
     @classmethod
-    def from_json(cls, json: str) -> Patient:
+    def from_json(cls, json: str) -> Self:
         return cls.model_validate_json(json)
 

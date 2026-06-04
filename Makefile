@@ -156,6 +156,10 @@ test-python-sdk: typecheck prepare-aidbox-runme generate-python-sdk python-test-
          . venv/bin/activate && \
          python -m pytest test_raw_extension.py -v
 
+	cd $(PYTHON_EXAMPLE) && \
+         . venv/bin/activate && \
+         python -m pytest test_bundle.py -v
+
 test-python-fhirpy-sdk: typecheck prepare-aidbox-runme generate-python-sdk-fhirpy python-fhirpy-test-setup
     # Run mypy in strict mode
 	cd $(PYTHON_FHIRPY_EXAMPLE) && \
