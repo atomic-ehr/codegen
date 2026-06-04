@@ -1,7 +1,12 @@
 import { describe, expect, it } from "bun:test";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import { type CanonicalUrl, enrichFHIRSchema, type Name } from "@root/typeschema/types";
-import { mergeFsElementProps, registerFromPackageMetas, resolveFsElementGenealogy } from "@typeschema/register";
+import {
+    mergeFsElementProps,
+    registerFromManager,
+    registerFromPackageMetas,
+    resolveFsElementGenealogy,
+} from "@typeschema/register";
 
 type PFS = Partial<FHIRSchema>;
 
@@ -148,5 +153,27 @@ describe("Register tests", async () => {
             min: 1,
             type: "string",
         });
+    });
+});
+
+describe("cyclic package dependencies", () => {
+    it("registerFromManager terminates on a dependency cycle", async () => {
+        // a ↔ b mutually depend (like hl7.terminology.r5 ↔ hl7.fhir.uv.extensions.r5).
+        // Without guarding the dependency walk this recurses until stack overflow / OOM.
+        const deps: Record<string, string[]> = { a: ["b"], b: ["a"] };
+        const manager = {
+            packages: async () => Object.keys(deps).map((name) => ({ name, version: "1.0.0" })),
+            packageJson: async (name: string) => ({
+                name,
+                version: "1.0.0",
+                dependencies: Object.fromEntries((deps[name] ?? []).map((d) => [d, "1.0.0"])),
+            }),
+            search: async () => [],
+        } as unknown as Parameters<typeof registerFromManager>[0];
+
+        const reg = await registerFromManager(manager, { focusedPackages: [{ name: "a", version: "1.0.0" }] });
+
+        expect(reg.resolver["a#1.0.0"]).toBeDefined();
+        expect(reg.resolver["b#1.0.0"]).toBeDefined();
     });
 });
