@@ -1,5 +1,11 @@
 import { APIBuilder, prettyReport } from "../../../src/api/builder";
-import { injectDependency, renamePackage, renameReferenceTarget } from "../../../src/api/patches";
+import {
+    forPackage,
+    forResource,
+    injectDependency,
+    renamePackage,
+    renameReferenceTarget,
+} from "../../../src/api/patches";
 
 // Fix known package name typos (in-memory transformation)
 const packageNameFixes: Record<string, string> = {
@@ -25,24 +31,20 @@ if (require.main === module) {
         patches: {
             package: [
                 // Core packages reference core types without declaring the dep; fix the name typo.
-                injectDependency((pkg) => needsCoreDependency(pkg.name), { "hl7.fhir.r4.core": "4.0.1" }),
+                forPackage((pkg) => needsCoreDependency(pkg.name), [injectDependency({ "hl7.fhir.r4.core": "4.0.1" })]),
                 renamePackage(packageNameFixes),
             ],
             // gd-RelatedPerson widens patient to include Person, but base R4 RelatedPerson.patient
             // only allows Patient — narrow the Person targets back to Patient.
-            resource: [
-                renameReferenceTarget(
-                    {
-                        "http://hl7.org/fhir/StructureDefinition/Person":
-                            "http://hl7.org/fhir/StructureDefinition/Patient",
-                        "http://hl7.no/fhir/StructureDefinition/no-basis-Person":
-                            "http://hl7.org/fhir/StructureDefinition/Patient",
-                        "http://ehelse.no/fhir/StructureDefinition/gd-Person":
-                            "http://hl7.org/fhir/StructureDefinition/Patient",
-                    },
-                    { url: "http://ehelse.no/fhir/StructureDefinition/gd-RelatedPerson" },
-                ),
-            ],
+            resource: forResource("http://ehelse.no/fhir/StructureDefinition/gd-RelatedPerson", [
+                renameReferenceTarget({
+                    "http://hl7.org/fhir/StructureDefinition/Person": "http://hl7.org/fhir/StructureDefinition/Patient",
+                    "http://hl7.no/fhir/StructureDefinition/no-basis-Person":
+                        "http://hl7.org/fhir/StructureDefinition/Patient",
+                    "http://ehelse.no/fhir/StructureDefinition/gd-Person":
+                        "http://hl7.org/fhir/StructureDefinition/Patient",
+                }),
+            ]),
         },
         registry: "https://packages.simplifier.net",
     })

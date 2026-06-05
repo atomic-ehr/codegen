@@ -10,9 +10,12 @@ import * as fs from "node:fs";
 import * as Path from "node:path";
 import {
     CanonicalManager,
+    type EntryPatch,
     type LocalPackageConfig,
+    type PackagePatch,
     type Patches,
     type PreprocessContext,
+    type ResourcePatch,
     type TgzPackageConfig,
 } from "@atomic-ehr/fhir-canonical-manager";
 import { CSharp, type CSharpGeneratorOptions } from "@root/api/writer-generator/csharp/csharp";
@@ -32,6 +35,29 @@ import type { FileBasedMustacheGeneratorOptions } from "./writer-generator/musta
 import * as Mustache from "./writer-generator/mustache";
 import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript/writer";
 import type { FileBuffer, FileSystemWriter, FileSystemWriterOptions, WriterOptions } from "./writer-generator/writer";
+
+/**
+ * Per-phase patch handlers for the `APIBuilder` `patches` option. Each phase accepts a single
+ * handler or a list (handlers are typically `forPackage`/`forResource` combinators); normalized
+ * to the CanonicalManager `Patches` (array) form before being passed to the manager.
+ */
+export type PatchesInput = {
+    package?: PackagePatch | PackagePatch[];
+    entry?: EntryPatch | EntryPatch[];
+    resource?: ResourcePatch | ResourcePatch[];
+};
+
+const toArray = <T>(value: T | T[] | undefined): T[] | undefined => {
+    if (value === undefined) return undefined;
+    return Array.isArray(value) ? value : [value];
+};
+
+const normalizePatches = (patches: PatchesInput | undefined): Partial<Patches> | undefined =>
+    patches && {
+        package: toArray(patches.package),
+        entry: toArray(patches.entry),
+        resource: toArray(patches.resource),
+    };
 
 /**
  * Configuration options for the API builder
@@ -173,7 +199,7 @@ export class APIBuilder {
             manager?: ReturnType<typeof CanonicalManager>;
             register?: Register;
             /** Per-phase patch handlers passed to the CanonicalManager (package-defect fixes). */
-            patches?: Partial<Patches>;
+            patches?: PatchesInput;
             preprocessPackage?: (context: PreprocessContext) => PreprocessContext;
             ignorePackageIndex?: boolean;
             logger?: CodegenLogManager;
@@ -216,7 +242,7 @@ export class APIBuilder {
                 workingDir: ".codegen-cache/canonical-manager-cache",
                 registry: userOpts.registry,
                 dropCache: userOpts.dropCanonicalManagerCache,
-                patches: userOpts.patches,
+                patches: normalizePatches(userOpts.patches),
                 preprocessPackage: userOpts.preprocessPackage,
                 ignorePackageIndex: userOpts.ignorePackageIndex,
             });
