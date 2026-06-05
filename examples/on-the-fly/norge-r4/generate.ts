@@ -1,5 +1,6 @@
 import type { PreprocessContext } from "@atomic-ehr/fhir-canonical-manager";
 import { APIBuilder, prettyReport } from "../../../src/api/builder";
+import { injectDependency } from "../../../src/api/patches";
 
 // Fix known package name typos (in-memory transformation)
 const packageNameFixes: Record<string, string> = {
@@ -51,18 +52,6 @@ const preprocessPackage = (ctx: PreprocessContext): PreprocessContext => {
         json = { ...json, name: fixedName };
     }
 
-    // Add missing core dependency to packages that don't properly declare it
-    if (needsCoreDependency(name)) {
-        const deps = (json.dependencies as Record<string, string>) || {};
-        if (!deps["hl7.fhir.r4.core"]) {
-            console.log(`Injecting hl7.fhir.r4.core dependency into ${name}`);
-            json = {
-                ...json,
-                dependencies: { ...deps, "hl7.fhir.r4.core": "4.0.1" },
-            };
-        }
-    }
-
     return { ...ctx, kind: "package", packageJson: json };
 };
 
@@ -70,6 +59,10 @@ if (require.main === module) {
     console.log("Generating Norge R4 types...");
 
     const builder = new APIBuilder({
+        // Norwegian/simplifier core packages reference core types without declaring the dep.
+        patches: {
+            package: [injectDependency((pkg) => needsCoreDependency(pkg.name), { "hl7.fhir.r4.core": "4.0.1" })],
+        },
         preprocessPackage,
         registry: "https://packages.simplifier.net",
     })
