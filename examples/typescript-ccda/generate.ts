@@ -4,17 +4,10 @@
 import { CanonicalManager, type PreprocessContext } from "@atomic-ehr/fhir-canonical-manager";
 import { registerFromManager } from "@root/typeschema/register";
 import { APIBuilder, prettyReport } from "../../src/api/builder";
+import { renameCanonical } from "../../src/api/patches";
 
 const preprocessPackage = (ctx: PreprocessContext): PreprocessContext => {
     if (ctx.kind !== "resource") return ctx;
-    if (ctx.package.name === "hl7.cda.uv.core") {
-        let str = JSON.stringify(ctx.resource);
-        str = str.replaceAll(
-            "http://hl7.org/cda/stds/core/StructureDefinition/IVL_TS",
-            "http://hl7.org/cda/stds/core/StructureDefinition/IVL-TS",
-        );
-        return { ...ctx, resource: JSON.parse(str) };
-    }
     // CarePlanAct profile binds moodCode to an external NLM ValueSet that
     // isn't available in any loaded package. Reuse the base Act binding.
     if (ctx.package.name === "hl7.cda.us.ccda") {
@@ -55,6 +48,18 @@ if (require.main === module) {
     const manager = CanonicalManager({
         packages: [],
         workingDir: ".codegen-cache/canonical-manager-cache",
+        // IVL_TS is a typo'd canonical in hl7.cda.uv.core (should be IVL-TS).
+        patches: {
+            resource: [
+                renameCanonical(
+                    {
+                        "http://hl7.org/cda/stds/core/StructureDefinition/IVL_TS":
+                            "http://hl7.org/cda/stds/core/StructureDefinition/IVL-TS",
+                    },
+                    { package: "hl7.cda.uv.core" },
+                ),
+            ],
+        },
         preprocessPackage,
     });
 

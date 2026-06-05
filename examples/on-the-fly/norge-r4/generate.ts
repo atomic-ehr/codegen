@@ -1,6 +1,5 @@
-import type { PreprocessContext } from "@atomic-ehr/fhir-canonical-manager";
 import { APIBuilder, prettyReport } from "../../../src/api/builder";
-import { injectDependency, renamePackage } from "../../../src/api/patches";
+import { injectDependency, renamePackage, renameReferenceTarget } from "../../../src/api/patches";
 
 // Fix known package name typos (in-memory transformation)
 const packageNameFixes: Record<string, string> = {
@@ -19,31 +18,6 @@ const needsCoreDependency = (name: string): boolean => {
     );
 };
 
-const preprocessPackage = (ctx: PreprocessContext): PreprocessContext => {
-    // GdRelatedPerson widens patient reference to include Person, but the
-    // base R4 RelatedPerson.patient only allows Patient. Drop the Person targets.
-    if (ctx.kind === "resource") {
-        const res = ctx.resource as { url?: string };
-        if (res.url === "http://ehelse.no/fhir/StructureDefinition/gd-RelatedPerson") {
-            let str = JSON.stringify(ctx.resource);
-            str = str.replaceAll(
-                "http://hl7.org/fhir/StructureDefinition/Person",
-                "http://hl7.org/fhir/StructureDefinition/Patient",
-            );
-            str = str.replaceAll(
-                "http://hl7.no/fhir/StructureDefinition/no-basis-Person",
-                "http://hl7.org/fhir/StructureDefinition/Patient",
-            );
-            str = str.replaceAll(
-                "http://ehelse.no/fhir/StructureDefinition/gd-Person",
-                "http://hl7.org/fhir/StructureDefinition/Patient",
-            );
-            return { ...ctx, resource: JSON.parse(str) };
-        }
-    }
-    return ctx;
-};
-
 if (require.main === module) {
     console.log("Generating Norge R4 types...");
 
@@ -54,8 +28,22 @@ if (require.main === module) {
                 injectDependency((pkg) => needsCoreDependency(pkg.name), { "hl7.fhir.r4.core": "4.0.1" }),
                 renamePackage(packageNameFixes),
             ],
+            // gd-RelatedPerson widens patient to include Person, but base R4 RelatedPerson.patient
+            // only allows Patient — narrow the Person targets back to Patient.
+            resource: [
+                renameReferenceTarget(
+                    {
+                        "http://hl7.org/fhir/StructureDefinition/Person":
+                            "http://hl7.org/fhir/StructureDefinition/Patient",
+                        "http://hl7.no/fhir/StructureDefinition/no-basis-Person":
+                            "http://hl7.org/fhir/StructureDefinition/Patient",
+                        "http://ehelse.no/fhir/StructureDefinition/gd-Person":
+                            "http://hl7.org/fhir/StructureDefinition/Patient",
+                    },
+                    { url: "http://ehelse.no/fhir/StructureDefinition/gd-RelatedPerson" },
+                ),
+            ],
         },
-        preprocessPackage,
         registry: "https://packages.simplifier.net",
     })
         .fromPackage("hl7.fhir.r4.core", "4.0.1")
