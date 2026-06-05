@@ -38,13 +38,13 @@ import type { FileBuffer, FileSystemWriter, FileSystemWriterOptions, WriterOptio
 
 /**
  * Per-phase patch handlers for the `APIBuilder` `patches` option. Each phase accepts a single
- * handler or a list (handlers are typically `forPackage`/`forResource` combinators); normalized
+ * handler or a list (handlers are typically `inPackage`/`inResource` combinators); normalized
  * to the CanonicalManager `Patches` (array) form before being passed to the manager.
  */
 export type PatchesInput = {
-    package?: PackagePatch | PackagePatch[];
-    entry?: EntryPatch | EntryPatch[];
-    resource?: ResourcePatch | ResourcePatch[];
+    packageJson?: PackagePatch | PackagePatch[];
+    indexEntry?: EntryPatch | EntryPatch[];
+    fhirResource?: ResourcePatch | ResourcePatch[];
 };
 
 const toArray = <T>(value: T | T[] | undefined): T[] | undefined => {
@@ -54,9 +54,9 @@ const toArray = <T>(value: T | T[] | undefined): T[] | undefined => {
 
 const normalizePatches = (patches: PatchesInput | undefined): Partial<Patches> | undefined =>
     patches && {
-        package: toArray(patches.package),
-        entry: toArray(patches.entry),
-        resource: toArray(patches.resource),
+        packageJson: toArray(patches.packageJson),
+        indexEntry: toArray(patches.indexEntry),
+        fhirResource: toArray(patches.fhirResource),
     };
 
 /**

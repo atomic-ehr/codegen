@@ -1,12 +1,12 @@
 import { APIBuilder, prettyReport } from "../../../src/api/builder";
-import { forPackage, injectDependency } from "../../../src/api/patches";
+import { injectDependency, inPackage } from "../../../src/api/patches";
 
 if (require.main === module) {
     console.log("Generating KBV R4 types...");
 
     const builder = new APIBuilder({
         // de.basisprofil.r4 references core types without declaring hl7.fhir.r4.core.
-        patches: { package: forPackage("de.basisprofil.r4", [injectDependency({ "hl7.fhir.r4.core": "4.0.1" })]) },
+        patches: { packageJson: inPackage("de.basisprofil.r4", [injectDependency({ "hl7.fhir.r4.core": "4.0.1" })]) },
         registry: "https://packages.simplifier.net",
         ignorePackageIndex: true,
     })

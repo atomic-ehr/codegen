@@ -3,9 +3,9 @@
  * runtime.
  *
  * Helpers are unscoped transforms (`injectDependency`, `renameCanonical`, …); scope them with
- * the `forPackage` / `forResource` combinators, which nest. Pass the result via `APIBuilder`'s
+ * the `inPackage` / `inResource` combinators, which nest. Pass the result via `APIBuilder`'s
  * `patches` option (a phase accepts a single handler or a list), e.g.
- * `patches: { package: forPackage("de.basisprofil.r4", [injectDependency({ "hl7.fhir.r4.core": "4.0.1" })]) }`.
+ * `patches: { packageJson: inPackage("de.basisprofil.r4", [injectDependency({ "hl7.fhir.r4.core": "4.0.1" })]) }`.
  */
 
 import type { PackageId, PackagePatch, PatchReportSink, ResourcePatch } from "@atomic-ehr/fhir-canonical-manager";
@@ -31,13 +31,13 @@ const run = <V>(handlers: Handler<V>[], pkg: PackageId, value: V, report: PatchR
 // ── Scoping combinators ──────────────────────────────────────────────────────
 
 /** Apply `handlers` only to packages matching `match`. Works for package- and resource-phase
- *  handlers, and nests with `forResource`. */
-export const forPackage = <V>(match: PackageMatch, handlers: Handler<V>[]): Handler<V> => {
+ *  handlers, and nests with `inResource`. */
+export const inPackage = <V>(match: PackageMatch, handlers: Handler<V>[]): Handler<V> => {
     return (pkg, value, report) => (matchPackage(match, pkg) ? run(handlers, pkg, value, report) : undefined);
 };
 
 /** Apply resource `handlers` only to the resource with the given canonical `url`. */
-export const forResource = (url: string, handlers: ResourcePatch[]): ResourcePatch => {
+export const inResource = (url: string, handlers: ResourcePatch[]): ResourcePatch => {
     return (pkg, resource, report) => (resource.url === url ? run(handlers, pkg, resource, report) : undefined);
 };
 
@@ -86,7 +86,7 @@ export const patchCodeSystem =
 /**
  * Inject FHIR package dependencies into the manifest when they aren't already declared (a common
  * defect: a package references core types without depending on the core package). Scope it with
- * `forPackage`. No-op if every dep is already declared.
+ * `inPackage`. No-op if every dep is already declared.
  */
 export const injectDependency =
     (deps: Record<string, string>): PackagePatch =>

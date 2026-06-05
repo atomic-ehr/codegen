@@ -4,7 +4,7 @@
 import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import { registerFromManager } from "@root/typeschema/register";
 import { APIBuilder, prettyReport } from "../../src/api/builder";
-import { forPackage, forResource, patchCodeSystem, renameCanonical, swapBinding } from "../../src/api/patches";
+import { inPackage, inResource, patchCodeSystem, renameCanonical, swapBinding } from "../../src/api/patches";
 
 if (require.main === module) {
     console.log("📦 Generating CCDA Types...");
@@ -13,9 +13,9 @@ if (require.main === module) {
         packages: [],
         workingDir: ".codegen-cache/canonical-manager-cache",
         patches: {
-            resource: [
+            fhirResource: [
                 // IVL_TS is a typo'd canonical in hl7.cda.uv.core (should be IVL-TS).
-                forPackage("hl7.cda.uv.core", [
+                inPackage("hl7.cda.uv.core", [
                     renameCanonical({
                         "http://hl7.org/cda/stds/core/StructureDefinition/IVL_TS":
                             "http://hl7.org/cda/stds/core/StructureDefinition/IVL-TS",
@@ -23,8 +23,8 @@ if (require.main === module) {
                 ]),
                 // CarePlanAct binds moodCode to an external NLM ValueSet absent from every loaded
                 // package; reuse the base Act binding.
-                forPackage("hl7.cda.us.ccda", [
-                    forResource("http://hl7.org/cda/us/ccda/StructureDefinition/CarePlanAct", [
+                inPackage("hl7.cda.us.ccda", [
+                    inResource("http://hl7.org/cda/us/ccda/StructureDefinition/CarePlanAct", [
                         swapBinding({
                             "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1267.37":
                                 "http://terminology.hl7.org/ValueSet/v3-xDocumentActMood",

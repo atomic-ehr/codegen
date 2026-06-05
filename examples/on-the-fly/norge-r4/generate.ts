@@ -1,8 +1,8 @@
 import { APIBuilder, prettyReport } from "../../../src/api/builder";
 import {
-    forPackage,
-    forResource,
     injectDependency,
+    inPackage,
+    inResource,
     renamePackage,
     renameReferenceTarget,
 } from "../../../src/api/patches";
@@ -29,14 +29,14 @@ if (require.main === module) {
 
     const builder = new APIBuilder({
         patches: {
-            package: [
+            packageJson: [
                 // Core packages reference core types without declaring the dep; fix the name typo.
-                forPackage((pkg) => needsCoreDependency(pkg.name), [injectDependency({ "hl7.fhir.r4.core": "4.0.1" })]),
+                inPackage((pkg) => needsCoreDependency(pkg.name), [injectDependency({ "hl7.fhir.r4.core": "4.0.1" })]),
                 renamePackage(packageNameFixes),
             ],
             // gd-RelatedPerson widens patient to include Person, but base R4 RelatedPerson.patient
             // only allows Patient — narrow the Person targets back to Patient.
-            resource: forResource("http://ehelse.no/fhir/StructureDefinition/gd-RelatedPerson", [
+            fhirResource: inResource("http://ehelse.no/fhir/StructureDefinition/gd-RelatedPerson", [
                 renameReferenceTarget({
                     "http://hl7.org/fhir/StructureDefinition/Person": "http://hl7.org/fhir/StructureDefinition/Patient",
                     "http://hl7.no/fhir/StructureDefinition/no-basis-Person":
