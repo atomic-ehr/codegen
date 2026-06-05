@@ -5,7 +5,7 @@
     "": {
       "name": "@atomic-ehr/codegen",
       "dependencies": {
-        "@atomic-ehr/fhir-canonical-manager": "0.0.24-canary.20260605130552.a469e45",
+        "@atomic-ehr/fhir-canonical-manager": "0.0.24-canary.20260605153206.1343644",
         "@atomic-ehr/fhirschema": "0.0.11",
         "mustache": "^4.2.0",
         "picocolors": "^1.1.1",
@@ -32,7 +32,7 @@
     "smol-toml": ">=1.6.1",
   },
   "packages": {
-    "@atomic-ehr/fhir-canonical-manager": ["@atomic-ehr/fhir-canonical-manager@0.0.24-canary.20260605130552.a469e45", "", { "peerDependencies": { "typescript": "^5" }, "bin": { "fcm": "dist/cli/index.js" } }, "sha512-ThKIkfbRr3a9LSoPv+STQ0272a5jRwN+qf76qZo7M+OdaNA0GJ2lGuozjORJVlWY4JmWG8MbfJfORuR8ZJxBHQ=="],
+    "@atomic-ehr/fhir-canonical-manager": ["@atomic-ehr/fhir-canonical-manager@0.0.24-canary.20260605153206.1343644", "", { "peerDependencies": { "typescript": "^5" }, "bin": { "fcm": "dist/cli/index.js" } }, "sha512-V8QCLV7fIqmWtix2njrNaE3keqwFVhfTEqDAlc08EB4R8bp0DUNux+L8JNtXQFBeZbpIIZz/aNbQf+nQnm5HQw=="],
 
     "@atomic-ehr/fhirschema": ["@atomic-ehr/fhirschema@0.0.11", "", { "peerDependencies": { "typescript": "^5" } }, "sha512-oMNxhncEGspGI+QlK/FPjc7akLbfwMYw/hDfW6SbO8xF1KvSSH7NWqc3CJg/k5/309ZuJ6lKsHkgmgVDxo80sQ=="],
 
