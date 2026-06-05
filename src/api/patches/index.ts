@@ -43,6 +43,26 @@ export const renameCanonical = (renames: Record<string, string>, scope?: Resourc
 export const renameReferenceTarget = (renames: Record<string, string>, scope?: ResourceScope): ResourcePatch =>
     replaceUrls(renames, scope);
 
+/** Swap a binding's ValueSet URL for an available one (e.g. an external set not in any package). */
+export const swapBinding = (swaps: Record<string, string>, scope?: ResourceScope): ResourcePatch =>
+    replaceUrls(swaps, scope);
+
+/**
+ * Add missing codes to a CodeSystem (matched by `url`) — for systems that omit codes used by
+ * profiles. No-op if the resource isn't that CodeSystem or already declares every code.
+ */
+export const patchCodeSystem =
+    (url: string, codes: string[]): ResourcePatch =>
+    (_pkg, resource) => {
+        if (resource.url !== url) return undefined;
+        const concept = (resource as { concept?: { code: string }[] }).concept;
+        if (!concept) return undefined;
+        const existing = new Set(concept.map((c) => c.code));
+        const missing = codes.filter((code) => !existing.has(code));
+        if (missing.length === 0) return undefined;
+        return { ...resource, concept: [...concept, ...missing.map((code) => ({ code }))] };
+    };
+
 /**
  * Inject FHIR package dependencies into a matching package's manifest when they aren't
  * already declared (a common defect: a package references core types without depending on
