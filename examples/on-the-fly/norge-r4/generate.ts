@@ -1,6 +1,6 @@
 import type { PreprocessContext } from "@atomic-ehr/fhir-canonical-manager";
 import { APIBuilder, prettyReport } from "../../../src/api/builder";
-import { injectDependency } from "../../../src/api/patches";
+import { injectDependency, renamePackage } from "../../../src/api/patches";
 
 // Fix known package name typos (in-memory transformation)
 const packageNameFixes: Record<string, string> = {
@@ -40,28 +40,20 @@ const preprocessPackage = (ctx: PreprocessContext): PreprocessContext => {
             );
             return { ...ctx, resource: JSON.parse(str) };
         }
-        return ctx;
     }
-    let json = ctx.packageJson;
-    const name = json.name as string;
-
-    // Fix package name typos
-    const fixedName = packageNameFixes[name];
-    if (fixedName) {
-        console.log(`Fixed package name: ${name} -> ${fixedName}`);
-        json = { ...json, name: fixedName };
-    }
-
-    return { ...ctx, kind: "package", packageJson: json };
+    return ctx;
 };
 
 if (require.main === module) {
     console.log("Generating Norge R4 types...");
 
     const builder = new APIBuilder({
-        // Norwegian/simplifier core packages reference core types without declaring the dep.
         patches: {
-            package: [injectDependency((pkg) => needsCoreDependency(pkg.name), { "hl7.fhir.r4.core": "4.0.1" })],
+            package: [
+                // Core packages reference core types without declaring the dep; fix the name typo.
+                injectDependency((pkg) => needsCoreDependency(pkg.name), { "hl7.fhir.r4.core": "4.0.1" }),
+                renamePackage(packageNameFixes),
+            ],
         },
         preprocessPackage,
         registry: "https://packages.simplifier.net",

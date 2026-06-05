@@ -23,3 +23,14 @@ export const injectDependency =
         if (missing.length === 0) return undefined;
         return { ...packageJson, dependencies: { ...existing, ...Object.fromEntries(missing) } };
     };
+
+/**
+ * Rename a package whose manifest name is a typo, via an old-name → new-name map. No-op for
+ * packages not in the map.
+ */
+export const renamePackage =
+    (renames: Record<string, string>): PackagePatch =>
+    (pkg, packageJson) => {
+        const renamed = renames[pkg.name];
+        return renamed === undefined ? undefined : { ...packageJson, name: renamed };
+    };
