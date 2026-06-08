@@ -7,11 +7,6 @@ import {
     renameReferenceTarget,
 } from "../../../src/api/patches";
 
-// Fix known package name typos (in-memory transformation)
-const packageNameFixes: Record<string, string> = {
-    "simplifier.core.r4.rResources": "simplifier.core.r4.resources",
-};
-
 // Packages that need hl7.fhir.r4.core dependency injected
 const needsCoreDependency = (name: string): boolean => {
     return (
@@ -32,7 +27,8 @@ if (require.main === module) {
             packageJson: [
                 // Core packages reference core types without declaring the dep; fix the name typo.
                 inPackage((pkg) => needsCoreDependency(pkg.name), [injectDependency({ "hl7.fhir.r4.core": "4.0.1" })]),
-                renamePackage(packageNameFixes),
+                // Fix known package name typo.
+                renamePackage({ "simplifier.core.r4.rResources": "simplifier.core.r4.resources" }),
             ],
             // gd-RelatedPerson widens patient to include Person, but base R4 RelatedPerson.patient
             // only allows Patient — narrow the Person targets back to Patient.
