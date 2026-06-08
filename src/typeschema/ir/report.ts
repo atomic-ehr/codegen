@@ -13,7 +13,7 @@ type CollisionEntry = TypeSchemaCollisions[PkgName][CanonicalUrl][number];
 
 const generateSkippedPackagesSection = (lines: string[], skippedPackages: string[]): void => {
     lines.push("## Skipped Packages", "");
-    for (const pkg of skippedPackages) {
+    for (const pkg of [...skippedPackages].sort()) {
         lines.push(`- ${pkg}`);
     }
     lines.push("");
