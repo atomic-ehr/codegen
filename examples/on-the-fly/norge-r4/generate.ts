@@ -27,15 +27,18 @@ if (require.main === module) {
             ],
             // gd-RelatedPerson widens patient to include Person, but base R4 RelatedPerson.patient
             // only allows Patient — narrow the Person targets back to Patient.
-            fhirResource: inResource("http://ehelse.no/fhir/StructureDefinition/gd-RelatedPerson", [
-                renameReferenceTarget({
-                    "http://hl7.org/fhir/StructureDefinition/Person": "http://hl7.org/fhir/StructureDefinition/Patient",
-                    "http://hl7.no/fhir/StructureDefinition/no-basis-Person":
-                        "http://hl7.org/fhir/StructureDefinition/Patient",
-                    "http://ehelse.no/fhir/StructureDefinition/gd-Person":
-                        "http://hl7.org/fhir/StructureDefinition/Patient",
-                }),
-            ]),
+            fhirResource: [
+                inResource("http://ehelse.no/fhir/StructureDefinition/gd-RelatedPerson", [
+                    renameReferenceTarget({
+                        "http://hl7.org/fhir/StructureDefinition/Person":
+                            "http://hl7.org/fhir/StructureDefinition/Patient",
+                        "http://hl7.no/fhir/StructureDefinition/no-basis-Person":
+                            "http://hl7.org/fhir/StructureDefinition/Patient",
+                        "http://ehelse.no/fhir/StructureDefinition/gd-Person":
+                            "http://hl7.org/fhir/StructureDefinition/Patient",
+                    }),
+                ]),
+            ],
         },
         registry: "https://packages.simplifier.net",
     })

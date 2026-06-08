@@ -6,7 +6,7 @@ if (require.main === module) {
 
     const builder = new APIBuilder({
         // de.basisprofil.r4 references core types without declaring hl7.fhir.r4.core.
-        patches: { packageJson: inPackage("de.basisprofil.r4", [injectDependency({ "hl7.fhir.r4.core": "4.0.1" })]) },
+        patches: { packageJson: [inPackage("de.basisprofil.r4", [injectDependency({ "hl7.fhir.r4.core": "4.0.1" })])] },
         registry: "https://packages.simplifier.net",
         ignorePackageIndex: true,
     })
