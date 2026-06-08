@@ -10,12 +10,9 @@ import * as fs from "node:fs";
 import * as Path from "node:path";
 import {
     CanonicalManager,
-    type EntryPatch,
     type LocalPackageConfig,
-    type PackagePatch,
     type Patches,
     type PreprocessContext,
-    type ResourcePatch,
     type TgzPackageConfig,
 } from "@atomic-ehr/fhir-canonical-manager";
 import { CSharp, type CSharpGeneratorOptions } from "@root/api/writer-generator/csharp/csharp";
@@ -37,27 +34,11 @@ import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescrip
 import type { FileBuffer, FileSystemWriter, FileSystemWriterOptions, WriterOptions } from "./writer-generator/writer";
 
 /**
- * Per-phase patch handlers for the `APIBuilder` `patches` option. Each phase accepts a single
- * handler or a list (handlers are typically `inPackage`/`inResource` combinators); normalized
- * to the CanonicalManager `Patches` (array) form before being passed to the manager.
+ * Per-phase patch handlers for the `APIBuilder` `patches` option. Each phase is a list of
+ * handlers (typically `inPackage`/`inResource` combinators), passed straight to the
+ * CanonicalManager `Patches` config.
  */
-export type PatchesInput = {
-    packageJson?: PackagePatch | PackagePatch[];
-    indexEntry?: EntryPatch | EntryPatch[];
-    fhirResource?: ResourcePatch | ResourcePatch[];
-};
-
-const toArray = <T>(value: T | T[] | undefined): T[] | undefined => {
-    if (value === undefined) return undefined;
-    return Array.isArray(value) ? value : [value];
-};
-
-const normalizePatches = (patches: PatchesInput | undefined): Partial<Patches> | undefined =>
-    patches && {
-        packageJson: toArray(patches.packageJson),
-        indexEntry: toArray(patches.indexEntry),
-        fhirResource: toArray(patches.fhirResource),
-    };
+export type PatchesInput = Partial<Patches>;
 
 /**
  * Configuration options for the API builder
@@ -242,7 +223,7 @@ export class APIBuilder {
                 workingDir: ".codegen-cache/canonical-manager-cache",
                 registry: userOpts.registry,
                 dropCache: userOpts.dropCanonicalManagerCache,
-                patches: normalizePatches(userOpts.patches),
+                patches: userOpts.patches,
                 preprocessPackage: userOpts.preprocessPackage,
                 ignorePackageIndex: userOpts.ignorePackageIndex,
             });
