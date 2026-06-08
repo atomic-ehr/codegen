@@ -7,17 +7,11 @@ import {
     renameReferenceTarget,
 } from "../../../src/api/patches";
 
-// Packages that need hl7.fhir.r4.core dependency injected
-const needsCoreDependency = (name: string): boolean => {
-    return (
-        name.startsWith("simplifier.core.r4.") ||
-        name === "simplifier.core.r4" ||
-        name.startsWith("hl7.fhir.no.") ||
-        name.startsWith("ehelse.fhir.no.") ||
-        name.startsWith("nhn.fhir.no.") ||
-        name.startsWith("sfm.")
-    );
-};
+const CORE_PACKAGE = "hl7.fhir.r4.core";
+
+// True for every package except core itself — injectDependency is a no-op when the
+// dependency is already declared, so this only needs to keep core from depending on itself.
+const needsCoreDependency = (name: string): boolean => name !== CORE_PACKAGE;
 
 if (require.main === module) {
     console.log("Generating Norge R4 types...");
@@ -25,8 +19,9 @@ if (require.main === module) {
     const builder = new APIBuilder({
         patches: {
             packageJson: [
-                // Core packages reference core types without declaring the dep; fix the name typo.
-                inPackage((pkg) => needsCoreDependency(pkg.name), [injectDependency({ "hl7.fhir.r4.core": "4.0.1" })]),
+                // Many Norge packages reference core types without declaring the dependency;
+                // inject it wherever it's missing.
+                inPackage((pkg) => needsCoreDependency(pkg.name), [injectDependency({ [CORE_PACKAGE]: "4.0.1" })]),
                 // Fix known package name typo.
                 renamePackage({ "simplifier.core.r4.rResources": "simplifier.core.r4.resources" }),
             ],
