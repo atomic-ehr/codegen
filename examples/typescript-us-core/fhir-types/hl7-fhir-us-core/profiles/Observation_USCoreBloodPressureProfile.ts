@@ -24,6 +24,7 @@ export type USCoreBloodPressureProfile_Component_DiastolicSliceFlatAll = USCoreB
 
 import {
     ensureProfile,
+    applyFixedValue,
     applySliceMatch,
     matchesValue,
     setArraySlice,
@@ -88,9 +89,7 @@ export class USCoreBloodPressureProfile {
 
     static apply (resource: Observation) : USCoreBloodPressureProfile {
         ensureProfile(resource, USCoreBloodPressureProfile.canonicalUrl);
-        Object.assign(resource, {
-            code: {"coding":[{"system":"http://loinc.org","code":"85354-9"}]},
-        })
+        applyFixedValue(resource, "code", {"coding":[{"system":"http://loinc.org","code":"85354-9"}]});
         resource.category = ensureSliceDefaults(
             [...(resource.category ?? [])],
             USCoreBloodPressureProfile.VSCatSliceMatch,
@@ -181,6 +180,7 @@ export class USCoreBloodPressureProfile {
     }
 
     setEffectiveDateTime (value: string) : this {
+        this.clearEffective();
         Object.assign(this.resource, { effectiveDateTime: value });
         return this;
     }
@@ -190,6 +190,7 @@ export class USCoreBloodPressureProfile {
     }
 
     setEffectivePeriod (value: Period) : this {
+        this.clearEffective();
         Object.assign(this.resource, { effectivePeriod: value });
         return this;
     }
@@ -199,6 +200,7 @@ export class USCoreBloodPressureProfile {
     }
 
     setValueQuantity (value: Quantity) : this {
+        this.clearValue();
         Object.assign(this.resource, { valueQuantity: value });
         return this;
     }
@@ -208,6 +210,7 @@ export class USCoreBloodPressureProfile {
     }
 
     setValueCodeableConcept (value: CodeableConcept) : this {
+        this.clearValue();
         Object.assign(this.resource, { valueCodeableConcept: value });
         return this;
     }
@@ -217,6 +220,7 @@ export class USCoreBloodPressureProfile {
     }
 
     setValueString (value: string) : this {
+        this.clearValue();
         Object.assign(this.resource, { valueString: value });
         return this;
     }
@@ -226,6 +230,7 @@ export class USCoreBloodPressureProfile {
     }
 
     setValueBoolean (value: boolean) : this {
+        this.clearValue();
         Object.assign(this.resource, { valueBoolean: value });
         return this;
     }
@@ -235,6 +240,7 @@ export class USCoreBloodPressureProfile {
     }
 
     setValueInteger (value: number) : this {
+        this.clearValue();
         Object.assign(this.resource, { valueInteger: value });
         return this;
     }
@@ -244,6 +250,7 @@ export class USCoreBloodPressureProfile {
     }
 
     setValueRange (value: Range) : this {
+        this.clearValue();
         Object.assign(this.resource, { valueRange: value });
         return this;
     }
@@ -253,6 +260,7 @@ export class USCoreBloodPressureProfile {
     }
 
     setValueRatio (value: Ratio) : this {
+        this.clearValue();
         Object.assign(this.resource, { valueRatio: value });
         return this;
     }
@@ -262,6 +270,7 @@ export class USCoreBloodPressureProfile {
     }
 
     setValueSampledData (value: SampledData) : this {
+        this.clearValue();
         Object.assign(this.resource, { valueSampledData: value });
         return this;
     }
@@ -271,6 +280,7 @@ export class USCoreBloodPressureProfile {
     }
 
     setValueTime (value: string) : this {
+        this.clearValue();
         Object.assign(this.resource, { valueTime: value });
         return this;
     }
@@ -280,6 +290,7 @@ export class USCoreBloodPressureProfile {
     }
 
     setValueDateTime (value: string) : this {
+        this.clearValue();
         Object.assign(this.resource, { valueDateTime: value });
         return this;
     }
@@ -289,8 +300,28 @@ export class USCoreBloodPressureProfile {
     }
 
     setValuePeriod (value: Period) : this {
+        this.clearValue();
         Object.assign(this.resource, { valuePeriod: value });
         return this;
+    }
+
+    clearEffective () : void {
+        delete this.resource.effectiveDateTime;
+        delete this.resource.effectivePeriod;
+    }
+
+    clearValue () : void {
+        delete this.resource.valueQuantity;
+        delete this.resource.valueCodeableConcept;
+        delete this.resource.valueString;
+        delete this.resource.valueBoolean;
+        delete this.resource.valueInteger;
+        delete this.resource.valueRange;
+        delete this.resource.valueRatio;
+        delete this.resource.valueSampledData;
+        delete this.resource.valueTime;
+        delete this.resource.valueDateTime;
+        delete this.resource.valuePeriod;
     }
 
     // Extensions

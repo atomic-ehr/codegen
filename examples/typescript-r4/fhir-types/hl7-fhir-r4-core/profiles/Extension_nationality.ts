@@ -8,6 +8,7 @@ import type { Period } from "../../hl7-fhir-r4-core/Period";
 
 import {
     isRawExtensionInput,
+    applyFixedValue,
     isExtension,
     getExtensionValue,
     pushExtension,
@@ -56,9 +57,7 @@ export class nationalityProfile {
 
     static apply (resource: Extension) : nationalityProfile {
         resource.url = nationalityProfile.canonicalUrl;
-        Object.assign(resource, {
-            url: "http://hl7.org/fhir/StructureDefinition/patient-nationality",
-        })
+        applyFixedValue(resource, "url", "http://hl7.org/fhir/StructureDefinition/patient-nationality");
         return new nationalityProfile(resource);
     }
 

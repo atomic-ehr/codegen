@@ -1,0 +1,65 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "praxis-proposal-provenance",
+  "url": "https://fhir.cognovis.de/praxis/StructureDefinition/praxis-proposal-provenance",
+  "version": "0.68.0",
+  "name": "PraxisProposalProvenance",
+  "title": "Praxis Proposal Provenance",
+  "status": "active",
+  "date": "2026-05-23T19:13:21+02:00",
+  "publisher": "cognovis GmbH",
+  "description": "Vendor-neutral Provenance profile for clinical proposal lifecycles: software or LLM suggestions, clinician confirmations, links to existing clinical records, and direct manual entries.",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Provenance",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Provenance",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Provenance",
+        "path": "Provenance",
+        "constraint": [
+          {
+            "key": "provenance-source-required-for-derived",
+            "severity": "error",
+            "human": "If agent.role contains software-suggested, llm-suggested, or linked-existing, then entity must be present.",
+            "expression": "agent.role.coding.where(system = 'https://fhir.cognovis.de/praxis/CodeSystem/proposal-contribution-role' and (code = 'software-suggested' or code = 'llm-suggested' or code = 'linked-existing')).exists() implies entity.exists()",
+            "source": "https://fhir.cognovis.de/praxis/StructureDefinition/praxis-proposal-provenance"
+          }
+        ]
+      },
+      {
+        "id": "Provenance.activity",
+        "path": "Provenance.activity",
+        "short": "FHIR DataOperation for this proposal provenance event",
+        "definition": "Use CREATE for proposal creation, UPDATE for confirmation or structured-resource update events, and other FHIR DataOperation codes where appropriate.",
+        "min": 1
+      },
+      {
+        "id": "Provenance.agent.type",
+        "path": "Provenance.agent.type",
+        "short": "Standard FHIR provenance participant type",
+        "min": 1
+      },
+      {
+        "id": "Provenance.agent.role",
+        "path": "Provenance.agent.role",
+        "short": "Proposal contribution role",
+        "definition": "Classifies the participant's contribution to the proposal lifecycle, such as LLM suggestion, deterministic software suggestion, clinician confirmation, existing-record linkage, or manual entry.",
+        "min": 1,
+        "binding": {
+          "strength": "required",
+          "valueSet": "https://fhir.cognovis.de/praxis/ValueSet/proposal-contribution-role-vs"
+        }
+      },
+      {
+        "id": "Provenance.entity",
+        "path": "Provenance.entity",
+        "short": "Source or revision input for derived proposal events",
+        "definition": "Source entities are optional for direct manual entry, but required by invariant for software-suggested, LLM-suggested, and linked-existing events."
+      }
+    ]
+  }
+}

@@ -182,7 +182,7 @@ describe("factory method equivalence", () => {
         const fromCreate = bodyweightProfile.create(args).toResource();
         const fromCreateResource = bodyweightProfile.createResource(args);
         const fromApply = bodyweightProfile
-            .apply({ resourceType: "Observation", status: "preliminary", code: { text: "Body weight" } })
+            .apply({ resourceType: "Observation", status: "preliminary", code: {} })
             .setStatus("final")
             .setSubject({ reference: "Patient/pt-1" })
             .toResource();
@@ -219,7 +219,7 @@ describe("slice accessors", () => {
 });
 
 describe("choice type accessors", () => {
-    test("effectiveDateTime and effectivePeriod are independent choices", () => {
+    test("setting a second effective[x] choice clears the first", () => {
         const profile = bodyweightProfile.create({ status: "final", subject: { reference: "Patient/pt-1" } });
 
         expect(profile.getEffectiveDateTime()).toBeUndefined();
@@ -228,7 +228,30 @@ describe("choice type accessors", () => {
         profile.setEffectiveDateTime("2024-01-15");
         expect(profile.getEffectiveDateTime()).toBe("2024-01-15");
 
+        // effective[x] is polymorphic: a resource may carry at most one variant,
+        // so switching to a different one must clear the previous value —
+        // otherwise the resource serialises two mutually-exclusive effective*
+        // fields and is invalid FHIR.
         profile.setEffectivePeriod({ start: "2024-01-15", end: "2024-01-16" });
         expect(profile.getEffectivePeriod()).toEqual({ start: "2024-01-15", end: "2024-01-16" });
+        expect(profile.getEffectiveDateTime()).toBeUndefined();
+
+        const resource = profile.toResource();
+        const effectiveKeys = Object.keys(resource).filter((k) => k.startsWith("effective"));
+        expect(effectiveKeys).toEqual(["effectivePeriod"]);
+    });
+
+    test("clearEffective() removes whichever effective[x] variant is set", () => {
+        const profile = bodyweightProfile.create({ status: "final", subject: { reference: "Patient/pt-1" } });
+
+        profile.setEffectiveDateTime("2024-01-15");
+        expect(profile.getEffectiveDateTime()).toBe("2024-01-15");
+
+        // The clear helper is public — callers can drop the choice entirely.
+        profile.clearEffective();
+
+        expect(profile.getEffectiveDateTime()).toBeUndefined();
+        expect(profile.getEffectivePeriod()).toBeUndefined();
+        expect(Object.keys(profile.toResource()).some((k) => k.startsWith("effective"))).toBe(false);
     });
 });

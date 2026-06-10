@@ -2539,7 +2539,7 @@ and check `<pkg>/collisions/<name>/1.json, 2.json, ...` files.
   - Version 1 (auto): Observation (hl7.fhir.r4.core#4.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1)
   - Version 2: ObservationDefinition (hl7.fhir.r4.core#4.0.1)
 - `urn:fhir:binding:ObservationRangeMeaning` (2 versions)
-  - Version 1 (auto): cholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1)
+  - Version 1 (auto): Observation (hl7.fhir.r4.core#4.0.1), cholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1)
   - Version 2: ObservationDefinition (hl7.fhir.r4.core#4.0.1)
 - `urn:fhir:binding:PaymentType` (2 versions)
   - Version 1 (auto): ClaimResponse (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1)

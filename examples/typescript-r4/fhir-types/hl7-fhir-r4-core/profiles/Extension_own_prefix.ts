@@ -5,6 +5,7 @@
 import type { Extension } from "../../hl7-fhir-r4-core/Extension";
 
 import {
+    applyFixedValue,
     validateRequired,
     validateExcluded,
     validateFixedValue,
@@ -44,9 +45,7 @@ export class own_prefixProfile {
 
     static apply (resource: Extension) : own_prefixProfile {
         resource.url = own_prefixProfile.canonicalUrl;
-        Object.assign(resource, {
-            url: "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
-        })
+        applyFixedValue(resource, "url", "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix");
         return new own_prefixProfile(resource);
     }
 

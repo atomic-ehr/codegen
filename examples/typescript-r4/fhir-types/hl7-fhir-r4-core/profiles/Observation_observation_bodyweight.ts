@@ -15,6 +15,7 @@ export type Observation_bodyweight_Category_VSCatSliceFlatAll = Observation_body
 
 import {
     ensureProfile,
+    applyFixedValue,
     applySliceMatch,
     matchesValue,
     setArraySlice,
@@ -70,9 +71,7 @@ export class observation_bodyweightProfile {
 
     static apply (resource: Observation) : observation_bodyweightProfile {
         ensureProfile(resource, observation_bodyweightProfile.canonicalUrl);
-        Object.assign(resource, {
-            code: {"coding":[{"code":"29463-7","system":"http://loinc.org"}]},
-        })
+        applyFixedValue(resource, "code", {"coding":[{"code":"29463-7","system":"http://loinc.org"}]});
         resource.category = ensureSliceDefaults(
             [...(resource.category ?? [])],
             observation_bodyweightProfile.VSCatSliceMatch,
@@ -143,6 +142,7 @@ export class observation_bodyweightProfile {
     }
 
     setEffectiveDateTime (value: string) : this {
+        this.clearEffective();
         Object.assign(this.resource, { effectiveDateTime: value });
         return this;
     }
@@ -152,6 +152,7 @@ export class observation_bodyweightProfile {
     }
 
     setEffectivePeriod (value: Period) : this {
+        this.clearEffective();
         Object.assign(this.resource, { effectivePeriod: value });
         return this;
     }
@@ -163,6 +164,11 @@ export class observation_bodyweightProfile {
     setValueQuantity (value: Quantity) : this {
         Object.assign(this.resource, { valueQuantity: value });
         return this;
+    }
+
+    clearEffective () : void {
+        delete this.resource.effectiveDateTime;
+        delete this.resource.effectivePeriod;
     }
 
     // Extensions

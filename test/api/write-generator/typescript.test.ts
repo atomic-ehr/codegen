@@ -1,7 +1,23 @@
 import { describe, expect, it } from "bun:test";
 import { APIBuilder } from "@root/api/builder";
-import type { CanonicalUrl } from "@root/typeschema/types";
-import { ccdaManager, mkErrorLogger, r4Manager } from "@typeschema-test/utils";
+import type { ValueSet } from "@root/fhir-types/hl7-fhir-r4-core";
+import type { Register } from "@root/typeschema/register";
+import { type CanonicalUrl, enrichValueSet, type PackageMeta, packageMetaToFhir } from "@root/typeschema/types";
+import {
+    ccdaManager,
+    mkErrorLogger,
+    mkR4Register,
+    type PFS,
+    type PVS,
+    r4Manager,
+    registerFs,
+} from "@typeschema-test/utils";
+import { applyFixedValue } from "../../../assets/api/writer-generator/typescript/profile-helpers";
+
+const appendValueSet = (register: Register, pkg: PackageMeta, valueSet: PVS) => {
+    const richValueSet = enrichValueSet(valueSet as ValueSet, pkg);
+    register.resolver[packageMetaToFhir(pkg)]!.valueSets[richValueSet.url] = richValueSet;
+};
 
 describe("TypeScript Writer Generator", async () => {
     const result = await new APIBuilder({ register: r4Manager, logger: mkErrorLogger() })
@@ -53,6 +69,108 @@ describe("TypeScript Writer Generator", async () => {
         const domainResourceTs = files["generated/types/hl7-fhir-r4-core/DomainResource.ts"];
         expect(domainResourceTs).toContain("export interface DomainResource<T extends Resource = Resource>");
         expect(domainResourceTs).toContain("contained?: T[]");
+    });
+});
+
+describe("TypeScript profile fixed CodeableConcept semantics", async () => {
+    const fixedSystem = "http://example.org/CodeSystem/coverage-type";
+    const secondarySystem = "http://example.org/CodeSystem/hzv-contract";
+
+    it("applies fixed CodeableConcept codings without dropping compatible secondary codings", () => {
+        const resource = {
+            type: {
+                text: "Private coverage",
+                coding: [
+                    { system: fixedSystem, code: "PKV", display: "Private insurance" },
+                    { system: secondarySystem, code: "AOK_BY_HZV" },
+                ],
+            },
+        };
+
+        applyFixedValue(resource, "type", {
+            coding: [{ system: fixedSystem }],
+        });
+
+        expect(resource.type).toEqual({
+            text: "Private coverage",
+            coding: [
+                { system: fixedSystem, code: "PKV", display: "Private insurance" },
+                { system: secondarySystem, code: "AOK_BY_HZV" },
+            ],
+        });
+    });
+
+    it("generates apply() with fixed-value merge and skips placeholder-only enum validation", async () => {
+        const register = await mkR4Register();
+        const pkg = { name: "codegen.test", version: "1.0.0" };
+        const placeholderValueSetUrl = "http://example.org/ValueSet/placeholder-coverage-type";
+        const profileUrl = "http://example.org/StructureDefinition/fixed-coverage";
+        const profile: PFS = {
+            description: "Coverage profile with fixed CodeableConcept coding and placeholder-only binding",
+            derivation: "constraint",
+            type: "Coverage",
+            name: "FixedCoverage",
+            kind: "resource",
+            url: profileUrl,
+            base: "http://hl7.org/fhir/StructureDefinition/Coverage",
+            package_meta: pkg,
+            required: ["type"],
+            elements: {
+                type: {
+                    type: "CodeableConcept",
+                    binding: {
+                        strength: "required",
+                        valueSet: placeholderValueSetUrl,
+                        bindingName: "PlaceholderCoverageType",
+                    },
+                    elements: {
+                        coding: {
+                            slicing: {
+                                slices: {
+                                    InsuranceType: {
+                                        min: 1,
+                                        match: { system: fixedSystem },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        };
+
+        registerFs(register, profile);
+        appendValueSet(register, pkg, {
+            resourceType: "ValueSet",
+            id: "placeholder-coverage-type",
+            name: "PlaceholderCoverageType",
+            url: placeholderValueSetUrl,
+            status: "active",
+            expansion: {
+                timestamp: "2026-01-01T00:00:00Z",
+                contains: [{ system: "http://terminology.hl7.org/CodeSystem/v3-NullFlavor", code: "UNK" }],
+            },
+        });
+
+        const result = await new APIBuilder({ register, logger: mkErrorLogger() })
+            .typescript({
+                inMemoryOnly: true,
+                withDebugComment: false,
+                generateProfile: true,
+                openResourceTypeSet: false,
+            })
+            .generate();
+
+        expect(result.success).toBeTrue();
+        const files = result.filesGenerated.typescript!;
+        const profileFile = Object.entries(files).find(([path]) => path.endsWith("profiles/Coverage_FixedCoverage.ts"));
+        expect(profileFile).toBeDefined();
+        const profileTs = profileFile![1];
+
+        expect(profileTs).toContain(`applyFixedValue(resource, "type", {"coding":[{"system":"${fixedSystem}"}]})`);
+        expect(profileTs).not.toContain("Object.assign(resource");
+        expect(profileTs).not.toContain(`validateEnum(res, profileName, "type", ["UNK"])`);
+        expect(profileTs).not.toContain(`CodeableConcept<("UNK")>`);
     });
 });
 

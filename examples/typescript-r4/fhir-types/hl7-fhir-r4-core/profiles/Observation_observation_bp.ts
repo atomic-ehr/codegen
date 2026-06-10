@@ -21,6 +21,7 @@ export type Observation_bp_Component_DiastolicBPSliceFlatAll = Observation_bp_Co
 
 import {
     ensureProfile,
+    applyFixedValue,
     applySliceMatch,
     matchesValue,
     setArraySlice,
@@ -85,9 +86,7 @@ export class observation_bpProfile {
 
     static apply (resource: Observation) : observation_bpProfile {
         ensureProfile(resource, observation_bpProfile.canonicalUrl);
-        Object.assign(resource, {
-            code: {"coding":[{"code":"85354-9","system":"http://loinc.org"}]},
-        })
+        applyFixedValue(resource, "code", {"coding":[{"code":"85354-9","system":"http://loinc.org"}]});
         resource.category = ensureSliceDefaults(
             [...(resource.category ?? [])],
             observation_bpProfile.VSCatSliceMatch,
@@ -178,6 +177,7 @@ export class observation_bpProfile {
     }
 
     setEffectiveDateTime (value: string) : this {
+        this.clearEffective();
         Object.assign(this.resource, { effectiveDateTime: value });
         return this;
     }
@@ -187,6 +187,7 @@ export class observation_bpProfile {
     }
 
     setEffectivePeriod (value: Period) : this {
+        this.clearEffective();
         Object.assign(this.resource, { effectivePeriod: value });
         return this;
     }
@@ -198,6 +199,11 @@ export class observation_bpProfile {
     setValueQuantity (value: Quantity) : this {
         Object.assign(this.resource, { valueQuantity: value });
         return this;
+    }
+
+    clearEffective () : void {
+        delete this.resource.effectiveDateTime;
+        delete this.resource.effectivePeriod;
     }
 
     // Extensions

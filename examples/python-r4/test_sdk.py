@@ -237,8 +237,7 @@ def test_bundle_from_json() -> None:
     resource = bundle.entry[0].resource
     assert resource is not None
     assert resource.id == "p-1"
-    from fhir_types.hl7_fhir_r4_core.patient import Patient as PatientClass
-    assert type(resource) is PatientClass
+    assert type(resource) is Patient
 
 
 def test_to_json_shape() -> None:

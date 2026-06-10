@@ -13,7 +13,7 @@ type CollisionEntry = TypeSchemaCollisions[PkgName][CanonicalUrl][number];
 
 const generateSkippedPackagesSection = (lines: string[], skippedPackages: string[]): void => {
     lines.push("## Skipped Packages", "");
-    for (const pkg of skippedPackages) {
+    for (const pkg of [...skippedPackages].sort()) {
         lines.push(`- ${pkg}`);
     }
     lines.push("");
@@ -96,6 +96,7 @@ const generateCollisionVersionLines = (versions: VersionGroup[]): string[] => {
                 const name = extractNameFromCanonical(e.sourceCanonical as CanonicalUrl) ?? e.sourceCanonical;
                 return `${name} (${e.sourcePackage})`;
             })
+            .sort()
             .join(", ");
         const mark = v.mark ? versionMarkLabel[v.mark] : "";
         return `  - Version ${version++}${mark}: ${sourceList}`;
