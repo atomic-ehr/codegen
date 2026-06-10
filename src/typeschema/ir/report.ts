@@ -96,6 +96,7 @@ const generateCollisionVersionLines = (versions: VersionGroup[]): string[] => {
                 const name = extractNameFromCanonical(e.sourceCanonical as CanonicalUrl) ?? e.sourceCanonical;
                 return `${name} (${e.sourcePackage})`;
             })
+            .sort()
             .join(", ");
         const mark = v.mark ? versionMarkLabel[v.mark] : "";
         return `  - Version ${version++}${mark}: ${sourceList}`;
