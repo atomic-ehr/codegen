@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
@@ -48,7 +48,7 @@ class UscoreBodyWeightProfile:
         return cls(resource)
 
     @classmethod
-    def create_resource(cls, *, category: list[CodeableConcept] | None = None, status: str, subject: Reference) -> Observation:
+    def create_resource(cls, *, category: list[CodeableConcept] | None = None, status: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"], subject: Reference) -> Observation:
         category_with_defaults = ensure_slice_defaults(list(category or []), cls._vscat_slice_match)
 
         return build_resource(
@@ -62,16 +62,16 @@ class UscoreBodyWeightProfile:
         )
 
     @classmethod
-    def create(cls, *, category: list[CodeableConcept] | None = None, status: str, subject: Reference) -> "UscoreBodyWeightProfile":
+    def create(cls, *, category: list[CodeableConcept] | None = None, status: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"], subject: Reference) -> "UscoreBodyWeightProfile":
         return cls.apply(cls.create_resource(category=category, status=status, subject=subject))
 
     def to_resource(self) -> Observation:
         return self._resource
 
-    def get_status(self) -> str | None:
+    def get_status(self) -> Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"] | None:
         return getattr(self._resource, "status", None)
 
-    def set_status(self, value: str) -> "UscoreBodyWeightProfile":
+    def set_status(self, value: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"]) -> "UscoreBodyWeightProfile":
         setattr(self._resource, "status", value)
         return self
 

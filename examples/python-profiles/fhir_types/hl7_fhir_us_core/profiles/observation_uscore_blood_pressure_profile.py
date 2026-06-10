@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
@@ -51,7 +51,7 @@ class UscoreBloodPressureProfile:
         return cls(resource)
 
     @classmethod
-    def create_resource(cls, *, category: list[CodeableConcept] | None = None, component: list[BackboneElement] | None = None, status: str, subject: Reference) -> Observation:
+    def create_resource(cls, *, category: list[CodeableConcept] | None = None, component: list[BackboneElement] | None = None, status: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"], subject: Reference) -> Observation:
         category_with_defaults = ensure_slice_defaults(list(category or []), cls._vscat_slice_match)
         component_with_defaults = ensure_slice_defaults(
             list(component or []),
@@ -71,16 +71,16 @@ class UscoreBloodPressureProfile:
         )
 
     @classmethod
-    def create(cls, *, category: list[CodeableConcept] | None = None, component: list[BackboneElement] | None = None, status: str, subject: Reference) -> "UscoreBloodPressureProfile":
+    def create(cls, *, category: list[CodeableConcept] | None = None, component: list[BackboneElement] | None = None, status: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"], subject: Reference) -> "UscoreBloodPressureProfile":
         return cls.apply(cls.create_resource(category=category, component=component, status=status, subject=subject))
 
     def to_resource(self) -> Observation:
         return self._resource
 
-    def get_status(self) -> str | None:
+    def get_status(self) -> Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"] | None:
         return getattr(self._resource, "status", None)
 
-    def set_status(self, value: str) -> "UscoreBloodPressureProfile":
+    def set_status(self, value: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"]) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "status", value)
         return self
 

@@ -191,6 +191,7 @@ const emitModuleImports = (
     isResourceBase: boolean,
     extensions: ProfileExtension[],
     sliceDefs: SliceDef[],
+    factoryInfo: ProfileFactoryInfo,
     typeImports: Map<string, Set<string>>,
     extProfileImports: Map<string, ExtensionProfileInfo>,
     helperImports: string[],
@@ -198,9 +199,13 @@ const emitModuleImports = (
     w.line("from __future__ import annotations");
     w.line();
 
+    const usesLiteral = [...factoryInfo.params, ...factoryInfo.accessors, ...factoryInfo.sliceAutoFields].some((f) =>
+        f.pyType.includes("Literal["),
+    );
     const typingNames: string[] = [];
     if (sliceDefs.length > 0 || extensions.length > 0) typingNames.push("Any");
     if (extensions.length > 0) typingNames.push("Literal", "overload");
+    else if (usesLiteral) typingNames.push("Literal");
     if (typingNames.length > 0) {
         w.pyImportFrom("typing", ...[...typingNames].sort());
         w.line();
@@ -392,6 +397,7 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, flatProfile:
         isResourceBase,
         extensions,
         sliceDefs,
+        factoryInfo,
         typeImports,
         extProfileImports,
         helperImports,

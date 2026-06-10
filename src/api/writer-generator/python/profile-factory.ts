@@ -30,13 +30,21 @@ export type ProfileFactoryInfo = {
 // Field type utility
 // ---------------------------------------------------------------------------
 
-/** Full Python type annotation for a field (appends `list[...]` for arrays). */
+/** Full Python type annotation for a field (appends `list[...]` for arrays).
+ *
+ * A required code binding with a closed value set is emitted as a `Literal[...]`
+ * union instead of a bare `str` (open value sets stay `str`, since
+ * `Literal[...] | str` collapses to `str`). */
 export const fieldPyType = (
     field: RegularField | ChoiceFieldInstance,
     resolveRef?: TypeSchemaIndex["findLastSpecializationByIdentifier"],
 ): string => {
     const resolved = resolveRef ? resolveRef(field.type) : field.type;
     const base = pyTypeFromIdentifier(resolved);
+    if (base === "str" && field.enum && !field.enum.isOpen && field.enum.values.length > 0) {
+        const literal = `Literal[${field.enum.values.map((v) => JSON.stringify(v)).join(", ")}]`;
+        return field.array ? `list[${literal}]` : literal;
+    }
     return field.array ? `list[${base}]` : base;
 };
 

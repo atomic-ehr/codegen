@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from fhir_types.hl7_fhir_r4_core.bundle import Bundle
 from fhir_types.hl7_fhir_r4_core.bundle import BundleEntry
@@ -48,7 +48,7 @@ class ExampleTypedBundleProfile:
         return cls(resource)
 
     @classmethod
-    def create_resource(cls, *, type: str) -> Bundle[Patient | Organization, Any]:
+    def create_resource(cls, *, type: Literal["document", "message", "transaction", "transaction-response", "batch", "batch-response", "history", "searchset", "collection"]) -> Bundle[Patient | Organization, Any]:
         return build_resource(
             Bundle,
             resource_type="Bundle",
@@ -57,16 +57,16 @@ class ExampleTypedBundleProfile:
         )
 
     @classmethod
-    def create(cls, *, type: str) -> "ExampleTypedBundleProfile":
+    def create(cls, *, type: Literal["document", "message", "transaction", "transaction-response", "batch", "batch-response", "history", "searchset", "collection"]) -> "ExampleTypedBundleProfile":
         return cls.apply(cls.create_resource(type=type))
 
     def to_resource(self) -> Bundle[Patient | Organization, Any]:
         return self._resource
 
-    def get_type(self) -> str | None:
+    def get_type(self) -> Literal["document", "message", "transaction", "transaction-response", "batch", "batch-response", "history", "searchset", "collection"] | None:
         return getattr(self._resource, "type", None)
 
-    def set_type(self, value: str) -> "ExampleTypedBundleProfile":
+    def set_type(self, value: Literal["document", "message", "transaction", "transaction-response", "batch", "batch-response", "history", "searchset", "collection"]) -> "ExampleTypedBundleProfile":
         setattr(self._resource, "type", value)
         return self
 
