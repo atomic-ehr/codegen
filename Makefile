@@ -55,7 +55,7 @@ test-all-example-generation: test-other-example-generation
 	bun run examples/csharp/generate.ts
 	bun run examples/local-package-folder/generate.ts
 	bun run examples/mustache/mustache-java-r4-gen.ts
-	bun run examples/python/generate.ts
+	bun run examples/python-r4/generate.ts
 	bun run examples/python-fhirpy/generate.ts
 	bun run examples/typescript-ccda/generate.ts
 	bun run examples/typescript-r4/generate.ts
@@ -115,12 +115,12 @@ test-csharp-sdk: typecheck prepare-aidbox-runme
 	cd examples/csharp && dotnet test
 
 PYTHON=python3.13
-PYTHON_EXAMPLE=./examples/python
+PYTHON_EXAMPLE=./examples/python-r4
 PYTHON_FHIRPY_EXAMPLE=./examples/python-fhirpy
 
 generate-python-sdk:
-	$(TYPECHECK) --project examples/python/tsconfig.json
-	bun run examples/python/generate.ts
+	$(TYPECHECK) --project examples/python-r4/tsconfig.json
+	bun run examples/python-r4/generate.ts
 
 generate-python-sdk-fhirpy:
 	$(TYPECHECK) --project examples/python-fhirpy/tsconfig.json

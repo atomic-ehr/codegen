@@ -39,7 +39,7 @@ const builder = new APIBuilder({ logger })
     .introspection({
         typeSchemas: "type-schemas",
     })
-    .outputTo("./examples/python/fhir_types")
+    .outputTo("./examples/python-r4/fhir_types")
     .cleanOutput(true);
 
 const report = await builder.generate();
