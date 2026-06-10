@@ -64,14 +64,9 @@ def ensure_path(root: MutableMapping[str, Any], path: Sequence[str]) -> MutableM
 # ---------------------------------------------------------------------------
 
 
-_FORBIDDEN_KEYS = {"__proto__", "constructor", "prototype"}
-
-
 def merge_match(target: MutableMapping[str, Any], match: Mapping[str, Any]) -> None:
     """Deep-merge ``match`` into ``target``, mutating ``target`` in place."""
     for key, match_value in match.items():
-        if key in _FORBIDDEN_KEYS:
-            continue
         if is_record(match_value):
             existing = target.get(key)
             if is_record(existing):
