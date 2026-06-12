@@ -10,8 +10,9 @@ VERSION = $(shell cat package.json | grep version | sed -E 's/ *"version": "//' 
 	test-on-the-fly-example test-on-the-fly-norge-r4 test-on-the-fly-kbv-r4 \
 	test-typescript-r4-example test-typescript-us-core-example test-typescript-sql-on-fhir-example \
 	test-typescript-ccda-example test-local-package-folder-example test-mustache-java-r4-example \
-	test-csharp-sdk generate-python-sdk generate-python-sdk-fhirpy \
-	python-test-setup python-fhirpy-test-setup test-python-sdk test-python-fhirpy-sdk
+	test-csharp-sdk generate-python-sdk generate-python-sdk-fhirpy generate-python-us-core-sdk \
+	python-test-setup python-fhirpy-test-setup python-us-core-test-setup \
+	test-python-sdk test-python-fhirpy-sdk test-python-us-core-example
 
 all: test test-multi-package test-typescript-r4-example test-typescript-us-core-example test-typescript-ccda-example test-typescript-sql-on-fhir-example test-local-package-folder-example lint-unsafe test-all-example-generation
 
@@ -31,7 +32,8 @@ typecheck:
 	$(TYPECHECK)
 
 test: typecheck
-	bun test --path-ignore-patterns="**/test/api/write-generator/multi-package/**"
+	@find test -name "*.test.ts" -not -path "*/multi-package/*" | sort | \
+		xargs -P 1 -I{} sh -c 'echo "==> {}" && bun test {} || exit 255'
 
 test-multi-package: typecheck
 	bun test test/api/write-generator/multi-package/cda.test.ts
@@ -54,8 +56,9 @@ test-all-example-generation: test-other-example-generation
 	bun run examples/csharp/generate.ts
 	bun run examples/local-package-folder/generate.ts
 	bun run examples/mustache/mustache-java-r4-gen.ts
-	bun run examples/python/generate.ts
+	bun run examples/python-r4/generate.ts
 	bun run examples/python-fhirpy/generate.ts
+	bun run examples/python-us-core/generate.ts
 	bun run examples/typescript-ccda/generate.ts
 	bun run examples/typescript-r4/generate.ts
 	bun run examples/typescript-sql-on-fhir/generate.ts
@@ -114,16 +117,21 @@ test-csharp-sdk: typecheck prepare-aidbox-runme
 	cd examples/csharp && dotnet test
 
 PYTHON=python3.13
-PYTHON_EXAMPLE=./examples/python
+PYTHON_EXAMPLE=./examples/python-r4
 PYTHON_FHIRPY_EXAMPLE=./examples/python-fhirpy
+PYTHON_US_CORE_EXAMPLE=./examples/python-us-core
 
 generate-python-sdk:
-	$(TYPECHECK) --project examples/python/tsconfig.json
-	bun run examples/python/generate.ts
+	$(TYPECHECK) --project examples/python-r4/tsconfig.json
+	bun run examples/python-r4/generate.ts
 
 generate-python-sdk-fhirpy:
 	$(TYPECHECK) --project examples/python-fhirpy/tsconfig.json
 	bun run examples/python-fhirpy/generate.ts
+
+generate-python-us-core-sdk:
+	$(TYPECHECK) --project examples/python-us-core/tsconfig.json
+	bun run examples/python-us-core/generate.ts
 
 python-test-setup:
 	@if [ ! -d "$(PYTHON_EXAMPLE)/venv" ]; then \
@@ -140,6 +148,14 @@ python-fhirpy-test-setup:
 		. venv/bin/activate && \
 		pip install -r fhir_types/requirements.txt && \
 		pip install fhirpy; \
+	fi
+
+python-us-core-test-setup:
+	@if [ ! -d "$(PYTHON_US_CORE_EXAMPLE)/venv" ]; then \
+		cd $(PYTHON_US_CORE_EXAMPLE) && \
+		$(PYTHON) -m venv venv && \
+		. venv/bin/activate && \
+		pip install -r fhir_types/requirements.txt; \
 	fi
 
 test-python-sdk: typecheck prepare-aidbox-runme generate-python-sdk python-test-setup
@@ -165,3 +181,13 @@ test-python-fhirpy-sdk: typecheck prepare-aidbox-runme generate-python-sdk-fhirp
 	cd $(PYTHON_FHIRPY_EXAMPLE) && \
        . venv/bin/activate && \
        mypy --strict .
+
+# Profile tests are offline (no Aidbox required).
+test-python-us-core-example: typecheck generate-python-us-core-sdk python-us-core-test-setup
+	cd $(PYTHON_US_CORE_EXAMPLE) && \
+	     . venv/bin/activate && \
+	     mypy --config-file mypy.ini fhir_types/
+
+	cd $(PYTHON_US_CORE_EXAMPLE) && \
+	     . venv/bin/activate && \
+	     python -m pytest -v
