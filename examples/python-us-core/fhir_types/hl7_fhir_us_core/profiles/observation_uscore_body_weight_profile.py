@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Literal
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (

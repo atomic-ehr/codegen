@@ -4,12 +4,13 @@
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Literal
 
 from fhir_types.hl7_fhir_r4_core.bundle import Bundle
 from fhir_types.hl7_fhir_r4_core.bundle import BundleEntry
 from fhir_types.hl7_fhir_r4_core.organization import Organization
 from fhir_types.hl7_fhir_r4_core.patient import Patient
+from fhir_types.hl7_fhir_r4_core.resource import Resource
 from .profile_helpers import (
     build_resource, ensure_profile, get_array_slice, get_array_slices, set_array_slice, set_array_slices, \
     validate_slice_cardinality
@@ -27,11 +28,11 @@ class ExampleTypedBundleProfile:
     _patient_entry_slice_match: dict = {"resource":{"resourceType":"Patient"}}
     _organization_entry_slice_match: dict = {"resource":{"resourceType":"Organization"}}
 
-    def __init__(self, resource: Bundle[Patient | Organization, Any]) -> None:
+    def __init__(self, resource: Bundle[Patient | Organization, Resource]) -> None:
         self._resource = resource
 
     @classmethod
-    def from_resource(cls, resource: Bundle[Patient | Organization, Any]) -> "ExampleTypedBundleProfile":
+    def from_resource(cls, resource: Bundle[Patient | Organization, Resource]) -> "ExampleTypedBundleProfile":
         meta = getattr(resource, "meta", None)
         profiles = getattr(meta, "profile", None) if meta is not None else None
         if profiles is None or cls.canonical_url not in profiles:
@@ -43,12 +44,12 @@ class ExampleTypedBundleProfile:
         return profile
 
     @classmethod
-    def apply(cls, resource: Bundle[Patient | Organization, Any]) -> "ExampleTypedBundleProfile":
+    def apply(cls, resource: Bundle[Patient | Organization, Resource]) -> "ExampleTypedBundleProfile":
         ensure_profile(resource, cls.canonical_url)
         return cls(resource)
 
     @classmethod
-    def create_resource(cls, *, type: Literal["document", "message", "transaction", "transaction-response", "batch", "batch-response", "history", "searchset", "collection"]) -> Bundle[Patient | Organization, Any]:
+    def create_resource(cls, *, type: Literal["document", "message", "transaction", "transaction-response", "batch", "batch-response", "history", "searchset", "collection"]) -> Bundle[Patient | Organization, Resource]:
         return build_resource(
             Bundle,
             resource_type="Bundle",
@@ -60,7 +61,7 @@ class ExampleTypedBundleProfile:
     def create(cls, *, type: Literal["document", "message", "transaction", "transaction-response", "batch", "batch-response", "history", "searchset", "collection"]) -> "ExampleTypedBundleProfile":
         return cls.apply(cls.create_resource(type=type))
 
-    def to_resource(self) -> Bundle[Patient | Organization, Any]:
+    def to_resource(self) -> Bundle[Patient | Organization, Resource]:
         return self._resource
 
     def get_type(self) -> Literal["document", "message", "transaction", "transaction-response", "batch", "batch-response", "history", "searchset", "collection"] | None:

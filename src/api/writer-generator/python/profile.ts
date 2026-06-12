@@ -190,7 +190,6 @@ const emitModuleImports = (
     flatProfile: SnapshotProfileTypeSchema,
     isResourceBase: boolean,
     extensions: ProfileExtension[],
-    sliceDefs: SliceDef[],
     factoryInfo: ProfileFactoryInfo,
     typeImports: Map<string, Set<string>>,
     extProfileImports: Map<string, ExtensionProfileInfo>,
@@ -203,8 +202,8 @@ const emitModuleImports = (
         f.pyType.includes("Literal["),
     );
     const typingNames: string[] = [];
-    if (sliceDefs.length > 0 || extensions.length > 0) typingNames.push("Any");
-    if (extensions.length > 0) typingNames.push("Literal", "overload");
+    // `Any` is only needed for extension setter inputs (`X | Extension | Any`).
+    if (extensions.length > 0) typingNames.push("Any", "Literal", "overload");
     else if (usesLiteral) typingNames.push("Literal");
     if (typingNames.length > 0) {
         w.pyImportFrom("typing", ...[...typingNames].sort());
@@ -368,7 +367,7 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, flatProfile:
         ),
     ];
     const annotatedBaseTypeName =
-        typedResources.length > 0 ? `${baseTypeName}[${typedResources.join(" | ")}, Any]` : baseTypeName;
+        typedResources.length > 0 ? `${baseTypeName}[${typedResources.join(" | ")}, Resource]` : baseTypeName;
     const extensions = flatProfile.extensions ?? [];
     const resolvedNames = resolveProfileMethodBaseNames(extensions, sliceDefs);
     const errorLines: string[] = [];
@@ -391,12 +390,20 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, flatProfile:
     );
     const extProfileImports = collectExtProfileImports(tsIndex, flatProfile, extensions);
 
+    // Type-discriminated base types fill their resource generic params with `Resource` (the param bound/default).
+    if (typedResources.length > 0) {
+        const basePkg = pyFhirPackageByName(w.opts.rootPackageName, flatProfile.base.package);
+        const resourceModule = `${basePkg}.resource`;
+        const names = typeImports.get(resourceModule) ?? new Set<string>();
+        names.add("Resource");
+        typeImports.set(resourceModule, names);
+    }
+
     emitModuleImports(
         w,
         flatProfile,
         isResourceBase,
         extensions,
-        sliceDefs,
         factoryInfo,
         typeImports,
         extProfileImports,
