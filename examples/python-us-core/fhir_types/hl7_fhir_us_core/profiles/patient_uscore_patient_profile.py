@@ -8,7 +8,7 @@ from typing import Any, Literal, overload
 
 from fhir_types.hl7_fhir_r4_core.patient import Patient
 from fhir_types.hl7_fhir_r4_core.base import Extension
-from fhir_types.hl7_fhir_r4_core.base import HumanName, Identifier
+from fhir_types.hl7_fhir_r4_core.base import Coding, HumanName, Identifier
 from .extension_uscore_ethnicity_extension import UscoreEthnicityExtension
 from .extension_uscore_individual_sex_extension import UscoreIndividualSexExtension
 from .extension_uscore_interpreter_needed_extension import UscoreInterpreterNeededExtension

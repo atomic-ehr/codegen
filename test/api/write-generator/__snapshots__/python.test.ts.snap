@@ -799,7 +799,7 @@ from typing import Any, Literal, overload
 
 from fhir_types.hl7_fhir_r4_core.patient import Patient
 from fhir_types.hl7_fhir_r4_core.base import Extension
-from fhir_types.hl7_fhir_r4_core.base import HumanName, Identifier
+from fhir_types.hl7_fhir_r4_core.base import Coding, HumanName, Identifier
 from .extension_uscore_ethnicity_extension import UscoreEthnicityExtension
 from .extension_uscore_individual_sex_extension import UscoreIndividualSexExtension
 from .extension_uscore_interpreter_needed_extension import UscoreInterpreterNeededExtension
@@ -1705,6 +1705,7 @@ from typing import Any, Literal, overload
 
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.hl7_fhir_r4_core.base import Extension
+from fhir_types.hl7_fhir_r4_core.base import Coding
 from .profile_helpers import (
     _get_key, apply_slice_match, build_resource, ensure_slice_defaults, get_array_slice, get_extension_value, \\
     is_extension, matches_value, push_extension, set_array_slice, strip_match_keys, unwrap_slice_choice, validate_fixed_value, \\

@@ -184,10 +184,10 @@ test-python-fhirpy-sdk: typecheck prepare-aidbox-runme generate-python-sdk-fhirp
 
 # Profile tests are offline (no Aidbox required).
 test-python-us-core-example: typecheck generate-python-us-core-sdk python-us-core-test-setup
-	# TODO: enable mypy once generated profile typing is fixed (see PR #167 review, the `Any` -> `Resource` thread)
-	# cd $(PYTHON_US_CORE_EXAMPLE) && \
-	#      . venv/bin/activate && \
-	#      mypy fhir_types/
+	cd $(PYTHON_US_CORE_EXAMPLE) && \
+	     . venv/bin/activate && \
+	     mypy --config-file mypy.ini fhir_types/
+
 	cd $(PYTHON_US_CORE_EXAMPLE) && \
 	     . venv/bin/activate && \
 	     python -m pytest -v

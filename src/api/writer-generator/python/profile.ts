@@ -147,6 +147,7 @@ const collectTypeImports = (
     resolveRef: TypeSchemaIndex["findLastSpecializationByIdentifier"],
     factoryInfo: ProfileFactoryInfo,
     sliceDefs: SliceDef[],
+    extensions: ProfileExtension[],
     schemas: TypeSchemaIndex["schemas"],
 ): Map<string, Set<string>> => {
     const typeImports = new Map<string, Set<string>>();
@@ -156,6 +157,9 @@ const collectTypeImports = (
     for (const a of factoryInfo.accessors)
         addTypeImport(typeImports, rootPackageName, baseTypeName, resolveRef, a.typeId);
     for (const s of sliceDefs) {
+        // Constrained-choice slice getters return the variant type (e.g. `valueCoding` -> `Coding`).
+        if (s.constrainedChoice)
+            addExactTypeImport(typeImports, rootPackageName, baseTypeName, s.constrainedChoice.variantType);
         if (!s.isTypeDiscriminated) continue;
         if (s.elementTypeId) addExactTypeImport(typeImports, rootPackageName, baseTypeName, s.elementTypeId);
         if (!s.typeDiscriminatorResource) continue;
@@ -163,6 +167,12 @@ const collectTypeImports = (
             (schema) => schema.identifier.kind === "resource" && schema.identifier.name === s.typeDiscriminatorResource,
         )?.identifier;
         if (resourceId) addTypeImport(typeImports, rootPackageName, baseTypeName, resolveRef, resourceId);
+    }
+    // Single-value extension getters reference the value type in their return annotation.
+    for (const ext of extensions) {
+        if (ext.isComplex && ext.subExtensions) continue;
+        if (ext.valueFieldTypes?.length === 1 && ext.valueFieldTypes[0])
+            addExactTypeImport(typeImports, rootPackageName, baseTypeName, ext.valueFieldTypes[0]);
     }
     return typeImports;
 };
@@ -386,6 +396,7 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, flatProfile:
         tsIndex.findLastSpecializationByIdentifier,
         factoryInfo,
         sliceDefs,
+        extensions,
         tsIndex.schemas,
     );
     const extProfileImports = collectExtProfileImports(tsIndex, flatProfile, extensions);
