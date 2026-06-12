@@ -11,6 +11,7 @@ import * as Path from "node:path";
 import {
     CanonicalManager,
     type LocalPackageConfig,
+    type Patches,
     type PreprocessContext,
     type TgzPackageConfig,
 } from "@atomic-ehr/fhir-canonical-manager";
@@ -31,6 +32,13 @@ import type { FileBasedMustacheGeneratorOptions } from "./writer-generator/musta
 import * as Mustache from "./writer-generator/mustache";
 import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescript/writer";
 import type { FileBuffer, FileSystemWriter, FileSystemWriterOptions, WriterOptions } from "./writer-generator/writer";
+
+/**
+ * Per-phase patch handlers for the `APIBuilder` `patches` option. Each phase is a list of
+ * handlers (typically `inPackage`/`inResource` combinators), passed straight to the
+ * CanonicalManager `Patches` config.
+ */
+export type PatchesInput = Partial<Patches>;
 
 /**
  * Configuration options for the API builder
@@ -171,6 +179,8 @@ export class APIBuilder {
         userOpts: Partial<APIBuilderOptions> & {
             manager?: ReturnType<typeof CanonicalManager>;
             register?: Register;
+            /** Per-phase patch handlers passed to the CanonicalManager (package-defect fixes). */
+            patches?: PatchesInput;
             preprocessPackage?: (context: PreprocessContext) => PreprocessContext;
             ignorePackageIndex?: boolean;
             logger?: CodegenLogManager;
@@ -213,10 +223,16 @@ export class APIBuilder {
                 workingDir: ".codegen-cache/canonical-manager-cache",
                 registry: userOpts.registry,
                 dropCache: userOpts.dropCanonicalManagerCache,
+                patches: userOpts.patches,
                 preprocessPackage: userOpts.preprocessPackage,
                 ignorePackageIndex: userOpts.ignorePackageIndex,
             });
         this.logger = userOpts.logger ?? mkLogger({ prefix: "api" });
+        // `patches` only apply to a CM that this builder constructs; an injected
+        // manager/register owns its own patch wiring.
+        if (userOpts.patches && (userOpts.manager || userOpts.register)) {
+            this.logger.warn("`patches` is ignored when a prebuilt `manager`/`register` is provided.");
+        }
         this.options = opts;
     }
 

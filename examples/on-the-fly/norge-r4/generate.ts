@@ -1,76 +1,45 @@
-import type { PreprocessContext } from "@atomic-ehr/fhir-canonical-manager";
 import { APIBuilder, prettyReport } from "../../../src/api/builder";
+import {
+    injectDependency,
+    inPackage,
+    inResource,
+    renamePackage,
+    renameReferenceTarget,
+} from "../../../src/api/patches";
 
-// Fix known package name typos (in-memory transformation)
-const packageNameFixes: Record<string, string> = {
-    "simplifier.core.r4.rResources": "simplifier.core.r4.resources",
-};
+const CORE_PACKAGE = "hl7.fhir.r4.core";
 
-// Packages that need hl7.fhir.r4.core dependency injected
-const needsCoreDependency = (name: string): boolean => {
-    return (
-        name.startsWith("simplifier.core.r4.") ||
-        name === "simplifier.core.r4" ||
-        name.startsWith("hl7.fhir.no.") ||
-        name.startsWith("ehelse.fhir.no.") ||
-        name.startsWith("nhn.fhir.no.") ||
-        name.startsWith("sfm.")
-    );
-};
-
-const preprocessPackage = (ctx: PreprocessContext): PreprocessContext => {
-    // GdRelatedPerson widens patient reference to include Person, but the
-    // base R4 RelatedPerson.patient only allows Patient. Drop the Person targets.
-    if (ctx.kind === "resource") {
-        const res = ctx.resource as { url?: string };
-        if (res.url === "http://ehelse.no/fhir/StructureDefinition/gd-RelatedPerson") {
-            let str = JSON.stringify(ctx.resource);
-            str = str.replaceAll(
-                "http://hl7.org/fhir/StructureDefinition/Person",
-                "http://hl7.org/fhir/StructureDefinition/Patient",
-            );
-            str = str.replaceAll(
-                "http://hl7.no/fhir/StructureDefinition/no-basis-Person",
-                "http://hl7.org/fhir/StructureDefinition/Patient",
-            );
-            str = str.replaceAll(
-                "http://ehelse.no/fhir/StructureDefinition/gd-Person",
-                "http://hl7.org/fhir/StructureDefinition/Patient",
-            );
-            return { ...ctx, resource: JSON.parse(str) };
-        }
-        return ctx;
-    }
-    let json = ctx.packageJson;
-    const name = json.name as string;
-
-    // Fix package name typos
-    const fixedName = packageNameFixes[name];
-    if (fixedName) {
-        console.log(`Fixed package name: ${name} -> ${fixedName}`);
-        json = { ...json, name: fixedName };
-    }
-
-    // Add missing core dependency to packages that don't properly declare it
-    if (needsCoreDependency(name)) {
-        const deps = (json.dependencies as Record<string, string>) || {};
-        if (!deps["hl7.fhir.r4.core"]) {
-            console.log(`Injecting hl7.fhir.r4.core dependency into ${name}`);
-            json = {
-                ...json,
-                dependencies: { ...deps, "hl7.fhir.r4.core": "4.0.1" },
-            };
-        }
-    }
-
-    return { ...ctx, kind: "package", packageJson: json };
-};
+// True for every package except core itself — injectDependency is a no-op when the
+// dependency is already declared, so this only needs to keep core from depending on itself.
+const needsCoreDependency = (name: string): boolean => name !== CORE_PACKAGE;
 
 if (require.main === module) {
     console.log("Generating Norge R4 types...");
 
     const builder = new APIBuilder({
-        preprocessPackage,
+        patches: {
+            packageJson: [
+                // Many Norge packages reference core types without declaring the dependency;
+                // inject it wherever it's missing.
+                inPackage((pkg) => needsCoreDependency(pkg.name), [injectDependency({ [CORE_PACKAGE]: "4.0.1" })]),
+                // Fix known package name typo.
+                renamePackage({ "simplifier.core.r4.rResources": "simplifier.core.r4.resources" }),
+            ],
+            // gd-RelatedPerson widens patient to include Person, but base R4 RelatedPerson.patient
+            // only allows Patient — narrow the Person targets back to Patient.
+            fhirResource: [
+                inResource("http://ehelse.no/fhir/StructureDefinition/gd-RelatedPerson", [
+                    renameReferenceTarget({
+                        "http://hl7.org/fhir/StructureDefinition/Person":
+                            "http://hl7.org/fhir/StructureDefinition/Patient",
+                        "http://hl7.no/fhir/StructureDefinition/no-basis-Person":
+                            "http://hl7.org/fhir/StructureDefinition/Patient",
+                        "http://ehelse.no/fhir/StructureDefinition/gd-Person":
+                            "http://hl7.org/fhir/StructureDefinition/Patient",
+                    }),
+                ]),
+            ],
+        },
         registry: "https://packages.simplifier.net",
     })
         .fromPackage("hl7.fhir.r4.core", "4.0.1")

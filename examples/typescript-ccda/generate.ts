@@ -1,53 +1,10 @@
 // Run this script using Bun CLI with:
 // bun run scripts/generate-fhir-types.ts
 
-import { CanonicalManager, type PreprocessContext } from "@atomic-ehr/fhir-canonical-manager";
+import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import { registerFromManager } from "@root/typeschema/register";
 import { APIBuilder, prettyReport } from "../../src/api/builder";
-
-const preprocessPackage = (ctx: PreprocessContext): PreprocessContext => {
-    if (ctx.kind !== "resource") return ctx;
-    if (ctx.package.name === "hl7.cda.uv.core") {
-        let str = JSON.stringify(ctx.resource);
-        str = str.replaceAll(
-            "http://hl7.org/cda/stds/core/StructureDefinition/IVL_TS",
-            "http://hl7.org/cda/stds/core/StructureDefinition/IVL-TS",
-        );
-        return { ...ctx, resource: JSON.parse(str) };
-    }
-    // CarePlanAct profile binds moodCode to an external NLM ValueSet that
-    // isn't available in any loaded package. Reuse the base Act binding.
-    if (ctx.package.name === "hl7.cda.us.ccda") {
-        const res = ctx.resource as { url?: string };
-        if (res.url === "http://hl7.org/cda/us/ccda/StructureDefinition/CarePlanAct") {
-            let str = JSON.stringify(ctx.resource);
-            str = str.replaceAll(
-                "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1267.37",
-                "http://terminology.hl7.org/ValueSet/v3-xDocumentActMood",
-            );
-            return { ...ctx, resource: JSON.parse(str) };
-        }
-    }
-    // The bundle-type CodeSystem is missing codes "bundle" and
-    // "subscription-notification" used by BatchBundle and
-    // SubscriptionNotificationBundle profiles. Patch all instances since
-    // resolveAny may pick any package's copy of the CodeSystem.
-    const res = ctx.resource as { url?: string; concept?: { code: string }[] };
-    if (res.url === "http://hl7.org/fhir/bundle-type" && res.concept) {
-        const existing = new Set(res.concept.map((c) => c.code));
-        const missing = ["bundle", "subscription-notification"].filter((c) => !existing.has(c));
-        if (missing.length > 0) {
-            return {
-                ...ctx,
-                resource: {
-                    ...ctx.resource,
-                    concept: [...res.concept, ...missing.map((code) => ({ code }))],
-                },
-            };
-        }
-    }
-    return ctx;
-};
+import { inPackage, inResource, patchCodeSystem, renameCanonical, swapBinding } from "../../src/api/patches";
 
 if (require.main === module) {
     console.log("📦 Generating CCDA Types...");
@@ -55,7 +12,30 @@ if (require.main === module) {
     const manager = CanonicalManager({
         packages: [],
         workingDir: ".codegen-cache/canonical-manager-cache",
-        preprocessPackage,
+        patches: {
+            fhirResource: [
+                // IVL_TS is a typo'd canonical in hl7.cda.uv.core (should be IVL-TS).
+                inPackage("hl7.cda.uv.core", [
+                    renameCanonical({
+                        "http://hl7.org/cda/stds/core/StructureDefinition/IVL_TS":
+                            "http://hl7.org/cda/stds/core/StructureDefinition/IVL-TS",
+                    }),
+                ]),
+                // CarePlanAct binds moodCode to an external NLM ValueSet absent from every loaded
+                // package; reuse the base Act binding.
+                inPackage("hl7.cda.us.ccda", [
+                    inResource("http://hl7.org/cda/us/ccda/StructureDefinition/CarePlanAct", [
+                        swapBinding({
+                            "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1267.37":
+                                "http://terminology.hl7.org/ValueSet/v3-xDocumentActMood",
+                        }),
+                    ]),
+                ]),
+                // The bundle-type CodeSystem omits codes used by BatchBundle /
+                // SubscriptionNotificationBundle; patch every copy (resolveAny may pick any).
+                patchCodeSystem("http://hl7.org/fhir/bundle-type", ["bundle", "subscription-notification"]),
+            ],
+        },
     });
 
     // Initialize manager with packages to discover CDA resources
