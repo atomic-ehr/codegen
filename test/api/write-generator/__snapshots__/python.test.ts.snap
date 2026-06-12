@@ -417,7 +417,7 @@ exports[`Python R4 Example (with generateProfile) generates bodyweight profile w
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Literal
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import CodeableConcept, Period, Quantity, Reference
@@ -578,7 +578,7 @@ exports[`Python R4 Example (with generateProfile) generates bp profile with vali
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Literal
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
@@ -1057,7 +1057,7 @@ exports[`Python US Core Example generates US Core Blood Pressure profile 1`] = `
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Literal
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
@@ -1456,7 +1456,7 @@ exports[`Python US Core Example generates US Core Body Weight profile 1`] = `
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Literal
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
