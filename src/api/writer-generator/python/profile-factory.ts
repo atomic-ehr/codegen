@@ -179,27 +179,27 @@ export const collectProfileFactoryInfo = (
 // ---------------------------------------------------------------------------
 
 /** Build `*, param1: Type1, param2: Type2` keyword-only signature. */
-export const buildParamSignature = (factoryInfo: ProfileFactoryInfo): string => {
+export const buildParamSignature = (factoryInfo: ProfileFactoryInfo, formatName: (s: string) => string): string => {
     const parts: string[] = [];
     for (const f of factoryInfo.sliceAutoFields) {
-        parts.push(`${pyFieldName(f.name)}: ${f.pyType} | None = None`);
+        parts.push(`${pyFieldName(f.name, formatName)}: ${f.pyType} | None = None`);
     }
     for (const p of factoryInfo.params) {
-        parts.push(`${pyFieldName(p.name)}: ${p.pyType}`);
+        parts.push(`${pyFieldName(p.name, formatName)}: ${p.pyType}`);
     }
     if (parts.length === 0) return "";
     return `*, ${parts.join(", ")}`;
 };
 
 /** Build call-site args matching the param signature. */
-export const buildCallArgs = (factoryInfo: ProfileFactoryInfo): string => {
+export const buildCallArgs = (factoryInfo: ProfileFactoryInfo, formatName: (s: string) => string): string => {
     const parts: string[] = [];
     for (const f of factoryInfo.sliceAutoFields) {
-        const name = pyFieldName(f.name);
+        const name = pyFieldName(f.name, formatName);
         parts.push(`${name}=${name}`);
     }
     for (const p of factoryInfo.params) {
-        const name = pyFieldName(p.name);
+        const name = pyFieldName(p.name, formatName);
         parts.push(`${name}=${name}`);
     }
     return parts.join(", ");
@@ -217,15 +217,16 @@ export const generateCreateResource = (
     hasParams: boolean,
     factoryInfo: ProfileFactoryInfo,
 ): void => {
+    const fmt = w.nameFormatFunction;
     w.line("@classmethod");
     if (hasParams) {
-        w.line(`def create_resource(cls, ${buildParamSignature(factoryInfo)}) -> ${annotatedBaseTypeName}:`);
+        w.line(`def create_resource(cls, ${buildParamSignature(factoryInfo, fmt)}) -> ${annotatedBaseTypeName}:`);
     } else {
         w.line(`def create_resource(cls) -> ${annotatedBaseTypeName}:`);
     }
     w.indentBlock(() => {
         for (const f of factoryInfo.sliceAutoFields) {
-            const fieldName = pyFieldName(f.name);
+            const fieldName = pyFieldName(f.name, fmt);
             const matchRefs = f.sliceNames.map((s) => `cls.${pySliceStaticName(s)}`);
             if (matchRefs.length === 1) {
                 w.line(`${fieldName}_with_defaults = ensure_slice_defaults(list(${fieldName} or []), ${matchRefs[0]})`);
@@ -242,13 +243,13 @@ export const generateCreateResource = (
 
         const buildArgs: string[] = [];
         for (const f of factoryInfo.autoFields) {
-            buildArgs.push(`${pyFieldName(f.name)}=${f.value}`);
+            buildArgs.push(`${pyFieldName(f.name, fmt)}=${f.value}`);
         }
         for (const f of factoryInfo.sliceAutoFields) {
-            buildArgs.push(`${pyFieldName(f.name)}=${pyFieldName(f.name)}_with_defaults`);
+            buildArgs.push(`${pyFieldName(f.name, fmt)}=${pyFieldName(f.name, fmt)}_with_defaults`);
         }
         for (const p of factoryInfo.params) {
-            buildArgs.push(`${pyFieldName(p.name)}=${pyFieldName(p.name)}`);
+            buildArgs.push(`${pyFieldName(p.name, fmt)}=${pyFieldName(p.name, fmt)}`);
         }
         if (isResourceBase) {
             buildArgs.push(`meta={"profile": [cls.canonical_url]}`);
@@ -275,8 +276,9 @@ export const generateFieldAccessors = (
     factoryInfo: ProfileFactoryInfo,
     extSliceMethodBaseNames: Set<string>,
 ): void => {
+    const fmt = w.nameFormatFunction;
     for (const p of factoryInfo.params) {
-        const fieldName = pyFieldName(p.name);
+        const fieldName = pyFieldName(p.name, fmt);
         const methodSuffix = pySnakeName(p.name);
         w.line(`def get_${methodSuffix}(self) -> ${p.pyType} | None:`);
         w.indentBlock(() => {
@@ -294,7 +296,7 @@ export const generateFieldAccessors = (
     for (const a of factoryInfo.accessors) {
         const methodSuffix = pySnakeName(a.name);
         if (extSliceMethodBaseNames.has(methodSuffix)) continue;
-        const fieldName = pyFieldName(a.name);
+        const fieldName = pyFieldName(a.name, fmt);
         w.line(`def get_${methodSuffix}(self) -> ${a.pyType} | None:`);
         w.indentBlock(() => {
             w.line(`return getattr(self._resource, ${JSON.stringify(fieldName)}, None)`);
@@ -304,7 +306,7 @@ export const generateFieldAccessors = (
         w.indentBlock(() => {
             if (a.choiceSiblings?.length) {
                 for (const sibling of a.choiceSiblings) {
-                    w.line(`setattr(self._resource, ${JSON.stringify(pyFieldName(sibling))}, None)`);
+                    w.line(`setattr(self._resource, ${JSON.stringify(pyFieldName(sibling, fmt))}, None)`);
                 }
             }
             w.line(`setattr(self._resource, ${JSON.stringify(fieldName)}, value)`);

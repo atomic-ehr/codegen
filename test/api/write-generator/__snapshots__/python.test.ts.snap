@@ -904,7 +904,7 @@ class UscorePatientProfile:
                 sub_extensions.append({"url": "detailed", "value_coding": item})
             if value.get("text") is not None:
                 sub_extensions.append({"url": "text", "value_string": value["text"]})
-            push_extension(self._resource, {"url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race", "extension": sub_extensions})
+            push_extension(self._resource, Extension(url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-race", extension=sub_extensions))
         return self
 
     @overload
@@ -941,7 +941,7 @@ class UscorePatientProfile:
                 sub_extensions.append({"url": "detailed", "value_coding": item})
             if value.get("text") is not None:
                 sub_extensions.append({"url": "text", "value_string": value["text"]})
-            push_extension(self._resource, {"url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity", "extension": sub_extensions})
+            push_extension(self._resource, Extension(url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity", extension=sub_extensions))
         return self
 
     @overload
@@ -976,7 +976,7 @@ class UscorePatientProfile:
                 sub_extensions.append({"url": "tribalAffiliation", "value_codeable_concept": value["tribalAffiliation"]})
             if value.get("isEnrolled") is not None:
                 sub_extensions.append({"url": "isEnrolled", "value_boolean": value["isEnrolled"]})
-            push_extension(self._resource, {"url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation", "extension": sub_extensions})
+            push_extension(self._resource, Extension(url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation", extension=sub_extensions))
         return self
 
     @overload
@@ -1005,7 +1005,7 @@ class UscorePatientProfile:
                 raise ValueError(f"Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
-            push_extension(self._resource, {"url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex", "value_coding": value})
+            push_extension(self._resource, Extension(url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex", value_coding=value))
         return self
 
     @overload
@@ -1034,7 +1034,7 @@ class UscorePatientProfile:
                 raise ValueError(f"Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
-            push_extension(self._resource, {"url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed", "value_coding": value})
+            push_extension(self._resource, Extension(url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed", value_coding=value))
         return self
 
     def validate(self) -> dict[str, list[str]]:
@@ -1793,7 +1793,7 @@ class UscoreRaceExtension:
                 raise ValueError(f"Expected extension url 'ombCategory', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
-            push_extension(self._resource, {"url": "ombCategory", **value})
+            push_extension(self._resource, Extension(url="ombCategory", **value))
         return self
 
     @overload
@@ -1816,7 +1816,7 @@ class UscoreRaceExtension:
                 raise ValueError(f"Expected extension url 'detailed', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
-            push_extension(self._resource, {"url": "detailed", **value})
+            push_extension(self._resource, Extension(url="detailed", **value))
         return self
 
     @overload
@@ -1839,7 +1839,7 @@ class UscoreRaceExtension:
                 raise ValueError(f"Expected extension url 'text', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
-            push_extension(self._resource, {"url": "text", **value})
+            push_extension(self._resource, Extension(url="text", **value))
         return self
 
     def get_extension_omb_category(self, mode: str | None = None) -> Coding | None:

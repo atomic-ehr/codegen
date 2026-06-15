@@ -89,7 +89,7 @@ class UscoreTribalAffiliationExtension:
                 raise ValueError(f"Expected extension url 'tribalAffiliation', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
-            push_extension(self._resource, {"url": "tribalAffiliation", **value})
+            push_extension(self._resource, Extension(url="tribalAffiliation", **value))
         return self
 
     @overload
@@ -112,7 +112,7 @@ class UscoreTribalAffiliationExtension:
                 raise ValueError(f"Expected extension url 'isEnrolled', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
-            push_extension(self._resource, {"url": "isEnrolled", **value})
+            push_extension(self._resource, Extension(url="isEnrolled", **value))
         return self
 
     def get_extension_tribal_affiliation(self, mode: str | None = None) -> CodeableConcept | None:

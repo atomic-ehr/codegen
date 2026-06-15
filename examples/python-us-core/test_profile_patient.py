@@ -267,7 +267,7 @@ def test_set_race_get_race_round_trip_with_detailed_categories():
     )
 
     race = profile.get_race()
-    assert race["ombCategory"]["code"] == "2106-3"
+    assert race["ombCategory"].code == "2106-3"
     assert race["text"] == "White European"
 
 
@@ -350,7 +350,7 @@ def test_fluent_chaining_across_extensions():
     assert profile.get_race()["text"] == "White"
     assert profile.get_ethnicity()["text"] == "Not Hispanic or Latino"
     assert profile.get_sex().code == "male"
-    assert profile.get_tribal_affiliation()["tribalAffiliation"]["text"] == "Navajo"
+    assert profile.get_tribal_affiliation()["tribalAffiliation"].text == "Navajo"
     assert profile.get_interpreter_required().code == "no"
 
 

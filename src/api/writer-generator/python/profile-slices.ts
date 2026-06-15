@@ -165,7 +165,7 @@ export const generateSliceGetters = (
         const baseName =
             sliceBaseNames[`${sliceDef.fieldName}:${sliceDef.sliceName}`] ?? sliceDef.nameCandidates.recommended;
         const staticName = pySliceStaticName(sliceDef.sliceName);
-        const fieldName = pyFieldName(sliceDef.fieldName);
+        const fieldName = pyFieldName(sliceDef.fieldName, w.nameFormatFunction);
         const matchKeys = JSON.stringify(Object.keys(sliceDef.match));
 
         if (sliceDef.isTypeDiscriminated) {
@@ -236,7 +236,7 @@ export const generateSliceSetters = (
         const baseName =
             sliceBaseNames[`${sliceDef.fieldName}:${sliceDef.sliceName}`] ?? sliceDef.nameCandidates.recommended;
         const staticName = pySliceStaticName(sliceDef.sliceName);
-        const fieldName = pyFieldName(sliceDef.fieldName);
+        const fieldName = pyFieldName(sliceDef.fieldName, w.nameFormatFunction);
         if (sliceDef.isTypeDiscriminated) {
             const retType = sliceElementRetType(sliceDef);
             const isUnbounded = sliceDef.array && sliceDef.max === 0;

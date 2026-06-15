@@ -292,8 +292,10 @@ const generateCreateMethod = (
 ): void => {
     w.line("@classmethod");
     if (hasParams) {
-        w.line(`def create(cls, ${buildParamSignature(factoryInfo)}) -> "${className}":`);
-        w.indentBlock(() => w.line(`return cls.apply(cls.create_resource(${buildCallArgs(factoryInfo)}))`));
+        w.line(`def create(cls, ${buildParamSignature(factoryInfo, w.nameFormatFunction)}) -> "${className}":`);
+        w.indentBlock(() =>
+            w.line(`return cls.apply(cls.create_resource(${buildCallArgs(factoryInfo, w.nameFormatFunction)}))`),
+        );
     } else {
         w.line(`def create(cls) -> "${className}":`);
         w.indentBlock(() => w.line("return cls.apply(cls.create_resource())"));
@@ -387,6 +389,7 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, flatProfile:
         tsIndex.findLastSpecializationByIdentifier,
         errorLines,
         warningLines,
+        w.nameFormatFunction,
     );
 
     const helperImports = collectHelperImports(isResourceBase, factoryInfo, sliceDefs, extensions, validationHelpers);
