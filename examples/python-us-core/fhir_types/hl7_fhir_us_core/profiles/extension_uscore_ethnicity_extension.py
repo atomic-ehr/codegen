@@ -93,7 +93,7 @@ class UscoreEthnicityExtension:
                 raise ValueError(f"Expected extension url 'ombCategory', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
-            push_extension(self._resource, Extension(url="ombCategory", **value))
+            push_extension(self._resource, {"url": "ombCategory", **value})
         return self
 
     @overload
@@ -116,7 +116,7 @@ class UscoreEthnicityExtension:
                 raise ValueError(f"Expected extension url 'detailed', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
-            push_extension(self._resource, Extension(url="detailed", **value))
+            push_extension(self._resource, {"url": "detailed", **value})
         return self
 
     @overload
@@ -139,7 +139,7 @@ class UscoreEthnicityExtension:
                 raise ValueError(f"Expected extension url 'text', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
-            push_extension(self._resource, Extension(url="text", **value))
+            push_extension(self._resource, {"url": "text", **value})
         return self
 
     def get_extension_omb_category(self, mode: str | None = None) -> Coding | None:

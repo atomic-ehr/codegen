@@ -355,7 +355,6 @@ const generateGenericExtensionSetter = (
     extProfileInfo: ExtensionProfileInfo | undefined,
 ): void => {
     generateExtensionSetter(w, ext, className, baseName, "dict", targetPath, extProfileInfo, () => {
-        // Wrap in an Extension model so any value[x] keys serialize with FHIR aliases.
-        emitExtPush(w, targetPath, `Extension(url=${JSON.stringify(ext.url)}, **value)`);
+        emitExtPush(w, targetPath, `{"url": ${JSON.stringify(ext.url)}, **value}`);
     });
 };
