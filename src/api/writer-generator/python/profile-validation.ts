@@ -21,11 +21,12 @@ export const collectValidateBody = (
     resolveRef: TypeSchemaIndex["findLastSpecializationByIdentifier"],
     errorLines: string[],
     warningLines: string[],
+    formatName: (s: string) => string,
 ): Set<string> => {
     const helpers = new Set<string>();
     const fields = flatProfile.fields;
     for (const [name, field] of Object.entries(fields)) {
-        const pyName = pyFieldName(name);
+        const pyName = pyFieldName(name, formatName);
         if (isChoiceInstanceField(field)) {
             collectProhibitedChoiceValidation(fields, name, pyName, helpers, errorLines);
             continue;
@@ -33,7 +34,7 @@ export const collectValidateBody = (
         if (isChoiceDeclarationField(field)) {
             if (field.required) {
                 helpers.add("validate_choice_required");
-                const pyChoices = field.choices.map(pyFieldName);
+                const pyChoices = field.choices.map((c) => pyFieldName(c, formatName));
                 errorLines.push(
                     `errors.extend(validate_choice_required(self._resource, profile_name, ${JSON.stringify(pyChoices)}))`,
                 );

@@ -38,9 +38,12 @@ export const pySnakeName = (name: string): string => {
     return snakeCase(cleaned);
 };
 
-/** Snake-case a field name, escaping Python keywords. */
-export const pyFieldName = (n: string): string => {
-    const out = pySnakeName(n);
+/** Format a field name per the active field-naming mode (defaults to snake_case),
+ *  escaping Python keywords. The result must match the model's field name, so the
+ *  same `formatName` used to generate the models is threaded through. */
+export const pyFieldName = (n: string, formatName: (s: string) => string = snakeCase): string => {
+    const cleaned = n.replace(/\[x\]/g, "").replace(/[:./]/g, "_");
+    const out = formatName(cleaned);
     return PYTHON_KEYWORDS.has(out) ? `${out}_` : out;
 };
 
@@ -83,8 +86,10 @@ export const pySliceStaticName = (name: string): string => {
     return `_${snakeCase(cleaned)}_slice_match`;
 };
 
-/** snake_case the FHIR `value[x]` field for a TypeIdentifier. */
-export const pyValueFieldName = (id: TypeIdentifier): string => `value_${snakeCase(normalizePyName(id.name))}`;
+/** The FHIR `value[x]` field name for a TypeIdentifier, formatted per the active
+ *  field-naming mode (e.g. `value_coding` for snake_case, `valueCoding` for camelCase). */
+export const pyValueFieldName = (id: TypeIdentifier, formatName: (s: string) => string = snakeCase): string =>
+    formatName(`value${pascalCase(normalizePyName(id.name))}`);
 
 export type ResolvedProfileMethods = {
     extensions: Record<string, string>;

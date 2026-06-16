@@ -71,7 +71,7 @@ export const generateExtensionMethods = (
             generateComplexExtensionSetter(w, ext, className, baseName, targetPath, extProfileInfo);
         } else if (ext.valueFieldTypes?.length === 1 && ext.valueFieldTypes[0]) {
             const valueType = ext.valueFieldTypes[0];
-            const valueField = pyValueFieldName(valueType);
+            const valueField = pyValueFieldName(valueType, w.nameFormatFunction);
             const pyType = pyTypeFromIdentifier(valueType);
             generateSingleValueExtensionGetter(w, ext, baseName, targetPath, valueField, pyType, extProfileInfo);
             generateSingleValueExtensionSetter(w, ext, className, baseName, targetPath, valueField, extProfileInfo);
@@ -224,7 +224,9 @@ const generateComplexExtensionGetter = (
 ): void => {
     generateExtensionGetter(w, ext, baseName, "dict", targetPath, extProfileInfo, () => {
         const configItems = (ext.subExtensions ?? []).map((sub) => {
-            const valueField = sub.valueFieldType ? pyValueFieldName(sub.valueFieldType) : "value";
+            const valueField = sub.valueFieldType
+                ? pyValueFieldName(sub.valueFieldType, w.nameFormatFunction)
+                : "value";
             const isArray = sub.max === "*";
             return `{"name": ${JSON.stringify(sub.url)}, "valueField": ${JSON.stringify(valueField)}, "isArray": ${isArray ? "True" : "False"}}`;
         });
@@ -269,7 +271,9 @@ const generateComplexExtensionSetter = (
     generateExtensionSetter(w, ext, className, baseName, "dict", targetPath, extProfileInfo, () => {
         w.line("sub_extensions = []");
         for (const sub of ext.subExtensions ?? []) {
-            const valueField = sub.valueFieldType ? pyValueFieldName(sub.valueFieldType) : "value";
+            const valueField = sub.valueFieldType
+                ? pyValueFieldName(sub.valueFieldType, w.nameFormatFunction)
+                : "value";
             if (sub.max === "*") {
                 w.line(`for item in value.get(${JSON.stringify(sub.url)}, []):`);
                 w.indentBlock(() => {
@@ -286,7 +290,9 @@ const generateComplexExtensionSetter = (
                 });
             }
         }
-        const extObj = `{"url": ${JSON.stringify(ext.url)}, "extension": sub_extensions}`;
+        // Wrap in an Extension model so Pydantic coerces the sub-extension dicts and
+        // serializes their value fields with FHIR aliases (valueCoding, not value_coding).
+        const extObj = `Extension(url=${JSON.stringify(ext.url)}, extension=sub_extensions)`;
         emitExtPush(w, targetPath, extObj);
     });
 };
@@ -319,7 +325,8 @@ const generateSingleValueExtensionSetter = (
     extProfileInfo: ExtensionProfileInfo | undefined,
 ): void => {
     generateExtensionSetter(w, ext, className, baseName, "Any", targetPath, extProfileInfo, () => {
-        emitExtPush(w, targetPath, `{"url": ${JSON.stringify(ext.url)}, ${JSON.stringify(valueField)}: value}`);
+        // Wrap in an Extension model so the value field serializes with its FHIR alias.
+        emitExtPush(w, targetPath, `Extension(url=${JSON.stringify(ext.url)}, ${valueField}=value)`);
     });
 };
 
