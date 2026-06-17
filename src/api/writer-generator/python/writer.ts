@@ -115,11 +115,12 @@ export class Python extends Writer<PythonGeneratorOptions> {
             groupedComplexTypes: groupByPackages(tsIndex.collectComplexTypes()),
             groupedResources: groupByPackages(tsIndex.collectResources()),
         };
-        this.generateRootPackages(groups);
+        const hasProfiles = (this.opts.generateProfile ?? false) && tsIndex.collectSnapshotProfiles().length > 0;
+        this.generateRootPackages(groups, hasProfiles);
         this.generateSDKPackages(tsIndex, groups);
     }
 
-    private generateRootPackages(groups: TypeSchemaPackageGroups): void {
+    private generateRootPackages(groups: TypeSchemaPackageGroups, hasProfiles: boolean): void {
         this.generateRootInitFile(groups);
         if (this.forFhirpyClient) {
             if (this.fieldFormat === "camelCase") {
@@ -127,6 +128,11 @@ export class Python extends Writer<PythonGeneratorOptions> {
             } else {
                 this.copyAssets(resolvePyAssets("fhirpy_base_model.py"), "fhirpy_base_model.py");
             }
+        }
+        // Shared profile runtime helpers live once at the root package and are
+        // imported absolutely (e.g. `from fhir_types.profile_helpers import ...`).
+        if (hasProfiles) {
+            this.copyAssets(resolvePyAssets("profile_helpers.py"), "profile_helpers.py");
         }
         this.copyAssets(resolvePyAssets("requirements.txt"), "requirements.txt");
     }

@@ -14,7 +14,7 @@ from .extension_uscore_individual_sex_extension import UscoreIndividualSexExtens
 from .extension_uscore_interpreter_needed_extension import UscoreInterpreterNeededExtension
 from .extension_uscore_race_extension import UscoreRaceExtension
 from .extension_uscore_tribal_affiliation_extension import UscoreTribalAffiliationExtension
-from .profile_helpers import (
+from fhir_types.profile_helpers import (
     _get_key, build_resource, ensure_profile, extract_complex_extension, get_extension_value, is_extension, \
     push_extension, validate_must_support, validate_required
 )

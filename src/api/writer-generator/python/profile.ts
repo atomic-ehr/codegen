@@ -234,7 +234,7 @@ const emitModuleImports = (
     for (const [extClassName, info] of [...extProfileImports.entries()].sort(([a], [b]) => a.localeCompare(b))) {
         w.pyImportFrom(`.${info.moduleName}`, extClassName);
     }
-    w.pyImportFrom(".profile_helpers", ...helperImports);
+    w.pyImportFrom(`${w.opts.rootPackageName}.profile_helpers`, ...helperImports);
     w.line();
     w.line();
 };
@@ -480,7 +480,6 @@ export const generateNewProfiles = (
 ): void => {
     if (profiles.length === 0) return;
     w.cd("profiles", () => {
-        w.cp("profile_helpers.py", "profile_helpers.py");
         for (const profile of profiles) {
             const moduleName = pyProfileModuleName(tsIndex, profile);
             w.cat(`${moduleName}.py`, () => {

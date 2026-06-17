@@ -10,7 +10,7 @@ from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
     CodeableConcept, Period, Quantity, Range, Ratio, Reference, SampledData
 )
-from .profile_helpers import (
+from fhir_types.profile_helpers import (
     apply_slice_match, build_resource, ensure_profile, ensure_slice_defaults, get_array_slice, matches_value, \
     set_array_slice, strip_match_keys, validate_choice_required, validate_enum, validate_excluded, validate_fixed_value, \
     validate_must_support, validate_reference, validate_required, validate_slice_cardinality

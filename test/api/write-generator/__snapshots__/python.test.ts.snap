@@ -421,7 +421,7 @@ from typing import Literal
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import CodeableConcept, Period, Quantity, Reference
-from .profile_helpers import (
+from fhir_types.profile_helpers import (
     apply_slice_match, build_resource, ensure_profile, ensure_slice_defaults, get_array_slice, matches_value, \\
     set_array_slice, strip_match_keys, validate_choice_required, validate_enum, validate_fixed_value, validate_must_support, \\
     validate_reference, validate_required, validate_slice_cardinality
@@ -585,7 +585,7 @@ from fhir_types.hl7_fhir_r4_core.base import (
     BackboneElement, CodeableConcept, Period, Quantity, Reference
 )
 from fhir_types.hl7_fhir_r4_core.observation import ObservationComponent
-from .profile_helpers import (
+from fhir_types.profile_helpers import (
     apply_slice_match, build_resource, ensure_profile, ensure_slice_defaults, get_array_slice, matches_value, \\
     set_array_slice, strip_match_keys, unwrap_slice_choice, validate_choice_required, validate_enum, validate_fixed_value, \\
     validate_must_support, validate_reference, validate_required, validate_slice_cardinality, wrap_slice_choice
@@ -805,7 +805,7 @@ from .extension_uscore_individual_sex_extension import UscoreIndividualSexExtens
 from .extension_uscore_interpreter_needed_extension import UscoreInterpreterNeededExtension
 from .extension_uscore_race_extension import UscoreRaceExtension
 from .extension_uscore_tribal_affiliation_extension import UscoreTribalAffiliationExtension
-from .profile_helpers import (
+from fhir_types.profile_helpers import (
     _get_key, build_resource, ensure_profile, extract_complex_extension, get_extension_value, is_extension, \\
     push_extension, validate_must_support, validate_required
 )
@@ -1064,7 +1064,7 @@ from fhir_types.hl7_fhir_r4_core.base import (
     BackboneElement, CodeableConcept, Period, Quantity, Range, Ratio, Reference, SampledData
 )
 from fhir_types.hl7_fhir_r4_core.observation import ObservationComponent
-from .profile_helpers import (
+from fhir_types.profile_helpers import (
     apply_slice_match, build_resource, ensure_profile, ensure_slice_defaults, get_array_slice, matches_value, \\
     set_array_slice, strip_match_keys, unwrap_slice_choice, validate_choice_required, validate_enum, validate_fixed_value, \\
     validate_must_support, validate_reference, validate_required, validate_slice_cardinality, wrap_slice_choice
@@ -1462,7 +1462,7 @@ from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
     CodeableConcept, Period, Quantity, Range, Ratio, Reference, SampledData
 )
-from .profile_helpers import (
+from fhir_types.profile_helpers import (
     apply_slice_match, build_resource, ensure_profile, ensure_slice_defaults, get_array_slice, matches_value, \\
     set_array_slice, strip_match_keys, validate_choice_required, validate_enum, validate_excluded, validate_fixed_value, \\
     validate_must_support, validate_reference, validate_required, validate_slice_cardinality
@@ -1706,7 +1706,7 @@ from typing import Any, Literal, overload
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.hl7_fhir_r4_core.base import Coding
-from .profile_helpers import (
+from fhir_types.profile_helpers import (
     _get_key, apply_slice_match, build_resource, ensure_slice_defaults, get_array_slice, get_extension_value, \\
     is_extension, matches_value, push_extension, set_array_slice, strip_match_keys, unwrap_slice_choice, validate_fixed_value, \\
     validate_required, validate_slice_cardinality, wrap_slice_choice
