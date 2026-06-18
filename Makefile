@@ -171,7 +171,7 @@ test-python-fhirpy-sdk: typecheck prepare-aidbox-runme generate-python-sdk-fhirp
 test-python-us-core-example: typecheck generate-python-us-core-sdk python-us-core-test-setup
 	cd $(PYTHON_US_CORE_EXAMPLE) && \
 	     . venv/bin/activate && \
-	     mypy --config-file mypy.ini fhir_types/
+	     mypy --config-file mypy.ini .
 
 	cd $(PYTHON_US_CORE_EXAMPLE) && \
 	     . venv/bin/activate && \
