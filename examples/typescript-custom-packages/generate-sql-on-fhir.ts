@@ -7,7 +7,7 @@ const builder = new APIBuilder()
     // but doesn't declare an hl7.fhir.r5.core dependency, so add it explicitly to resolve them.
     .fromPackage("hl7.fhir.r5.core", "5.0.0")
     .fromPackageRef("https://build.fhir.org/ig/FHIR/sql-on-fhir-v2/package.tgz")
-    .outputTo("./examples/typescript-sql-on-fhir/fhir-types")
+    .outputTo("./examples/typescript-custom-packages/sql-on-fhir-types")
     .introspection({ typeTree: "tree.yaml" })
     .typeSchema({
         treeShake: {

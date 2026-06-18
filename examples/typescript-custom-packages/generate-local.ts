@@ -31,7 +31,7 @@ async function generateFromLocalPackageFolder() {
             },
         })
         .introspection({ typeSchemas: "ts/" })
-        .outputTo("./examples/local-package-folder/fhir-types")
+        .outputTo("./examples/typescript-custom-packages/fhir-types")
         .generate();
 
     console.log(prettyReport(report));
