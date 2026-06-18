@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, overload
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import CodeableConcept, Period, Reference
@@ -110,7 +110,11 @@ class ObservationVitalsignsProfile:
         setattr(self._resource, "effective_period", value)
         return self
 
-    def get_vscat(self, mode: str | None = None) -> dict | None:
+    @overload
+    def get_vscat(self) -> dict | None: ...
+    @overload
+    def get_vscat(self, mode: Literal["raw"]) -> CodeableConcept | None: ...
+    def get_vscat(self, mode: Literal["raw"] | None = None) -> dict | CodeableConcept | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
         if mode == "raw":
