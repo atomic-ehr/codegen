@@ -1,19 +1,32 @@
-# Python Example
+# Python Example — FHIR R4 Core + US Core
 
-FHIR R4 type generation with Pydantic models, configurable field formats, and validation.
+Python/Pydantic model generation for FHIR R4 core **and** US Core profiles, with
+configurable field formats, validation, and a simple `requests`-based FHIR client.
+
+A single `generate.ts` pulls US Core 8.0.1 (which depends on R4 core) plus a local
+`ExampleTypedBundle` StructureDefinition, so one `fhir_types/` tree contains the base
+R4 models/profiles (`hl7_fhir_r4_core`), the US Core profiles (`hl7_fhir_us_core`), and
+the local typed-bundle profile (`example_folder_structures`).
 
 ## Overview
 
-This example demonstrates how to generate Python/Pydantic models from the FHIR R4 specification using the Atomic EHR Codegen toolkit. It includes:
+This example demonstrates how to generate Python/Pydantic models using the Atomic EHR
+Codegen toolkit. It includes:
 
-- Full FHIR R4 resource type definitions as Pydantic models
+- FHIR R4 resource type definitions as Pydantic models, plus base R4 profiles (bodyweight)
+- US Core profiles (Patient, blood pressure, body weight) with typed accessors and race/ethnicity/birth-sex extensions
 - Automatic validation and serialization
 - Configurable field naming conventions (snake_case or camelCase)
-- Integration with Python type checking and IDE support
-- Virtual environment setup
-- Simple FHIR server client example using `requests`
+- Integration with Python type checking (mypy) and IDE support
+- A simple FHIR server client example using `requests` (`client.py`, exercised by `test_sdk.py`)
 
 For an example using the `fhirpy` async client library, see [python-fhirpy/](../python-fhirpy/).
+
+## Tests
+
+- `test_profile_*.py` — US Core profile API (offline: no server required)
+- `test_bundle.py` / `test_raw_extension.py` — generic Bundle and extension handling (offline)
+- `test_sdk.py` — live CRUD against a FHIR server via `client.py` (requires Aidbox)
 
 ## Setup
 
@@ -22,7 +35,7 @@ For an example using the `fhirpy` async client library, see [python-fhirpy/](../
 1. Create virtual environment:
 
 ```bash
-cd examples/python
+cd examples/python-r4-us-core
 python3 -m venv venv
 
 # On macOS/Linux:
@@ -48,10 +61,10 @@ python --version  # Should be 3.10 or higher
 To generate Python/Pydantic types for FHIR R4:
 
 ```bash
-bun run examples/python/generate.ts
+bun run examples/python-r4-us-core/generate.ts
 ```
 
-This will output to `./examples/python/fhir_types/`
+This will output to `./examples/python-r4-us-core/fhir_types/`
 
 ## Configuration
 

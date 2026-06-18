@@ -17,6 +17,7 @@ from fhir_types.hl7_fhir_r4_core.observation import (
     Observation, ObservationComponent, ObservationReferenceRange
 )
 from fhir_types.hl7_fhir_r4_core.operation_outcome import OperationOutcome, OperationOutcomeIssue
+from fhir_types.hl7_fhir_r4_core.organization import Organization, OrganizationContact
 from fhir_types.hl7_fhir_r4_core.patient import (
     Patient, PatientCommunication, PatientContact, PatientLink
 )
@@ -57,6 +58,8 @@ ObservationComponent.model_rebuild()
 ObservationReferenceRange.model_rebuild()
 OperationOutcome.model_rebuild()
 OperationOutcomeIssue.model_rebuild()
+Organization.model_rebuild()
+OrganizationContact.model_rebuild()
 ParameterDefinition.model_rebuild()
 Patient.model_rebuild()
 PatientCommunication.model_rebuild()
@@ -74,3 +77,5 @@ Signature.model_rebuild()
 Timing.model_rebuild()
 TriggerDefinition.model_rebuild()
 UsageContext.model_rebuild()
+
+import fhir_types.hl7_fhir_r4_core.profiles  # noqa: F401
