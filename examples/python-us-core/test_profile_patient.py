@@ -33,7 +33,7 @@ SEX_URL = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-se
 # ---------------------------------------------------------------------------
 
 
-def test_set_extension_via_flat_input():
+def test_set_extension_via_flat_input() -> None:
     """Flat-dict form of the extension setters (the only form Python currently supports)."""
     patient = UscorePatientProfile.create(
         identifier=[Identifier(system="http://hospital.example.org/mrn", value="MRN-12345")],
@@ -65,7 +65,7 @@ def test_set_extension_via_flat_input():
     assert len(res.extension) == 3
 
 
-def test_set_extension_via_extension_profile_instance():
+def test_set_extension_via_extension_profile_instance() -> None:
     patient = UscorePatientProfile.create(
         identifier=[Identifier(system="http://hospital.example.org/mrn", value="MRN-12345")],
         name=[HumanName(family="Garcia", given=["Maria", "Elena"])],
@@ -77,7 +77,7 @@ def test_set_extension_via_extension_profile_instance():
     assert patient.get_ethnicity() is not None
 
 
-def test_set_extension_via_raw_extension():
+def test_set_extension_via_raw_extension() -> None:
     patient = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
         name=[HumanName(family="Test")],
@@ -87,7 +87,7 @@ def test_set_extension_via_raw_extension():
     assert patient.get_sex().code == "female"
 
 
-def test_import_profiled_resource_from_api_and_access_data_via_typed_getters():
+def test_import_profiled_resource_from_api_and_access_data_via_typed_getters() -> None:
     api_response = Patient(
         resource_type="Patient",
         meta={"profile": [CANONICAL_URL]},
@@ -127,7 +127,7 @@ def test_import_profiled_resource_from_api_and_access_data_via_typed_getters():
     assert patient.get_ethnicity() is None
 
 
-def test_apply_profile_to_a_bare_resource_and_populate_it():
+def test_apply_profile_to_a_bare_resource_and_populate_it() -> None:
     patient = UscorePatientProfile.apply(Patient(resource_type="Patient"))
 
     patient.set_identifier([Identifier(system="http://hospital.example.org/mrn", value="MRN-00001")])
@@ -153,7 +153,7 @@ def test_apply_profile_to_a_bare_resource_and_populate_it():
 # ---------------------------------------------------------------------------
 
 
-def test_create_returns_a_profile_wrapping_the_resource():
+def test_create_returns_a_profile_wrapping_the_resource() -> None:
     profile = UscorePatientProfile.create(
         identifier=[Identifier(system="http://hospital.example.org", value="12345")],
         name=[HumanName(family="Smith", given=["John"])],
@@ -165,7 +165,7 @@ def test_create_returns_a_profile_wrapping_the_resource():
     assert res.name[0].family == "Smith"
 
 
-def test_create_resource_returns_a_plain_patient():
+def test_create_resource_returns_a_plain_patient() -> None:
     res = UscorePatientProfile.create_resource(
         identifier=[Identifier(system="http://hospital.example.org", value="12345")],
         name=[HumanName(family="Smith", given=["John"])],
@@ -175,7 +175,7 @@ def test_create_resource_returns_a_plain_patient():
     assert res.identifier[0].value == "12345"
 
 
-def test_apply_wraps_an_existing_patient():
+def test_apply_wraps_an_existing_patient() -> None:
     patient = Patient(resource_type="Patient")
     profile = UscorePatientProfile.apply(patient)
 
@@ -187,7 +187,7 @@ def test_apply_wraps_an_existing_patient():
     assert profile.get_name()[0].family == "Smith"
 
 
-def test_all_three_methods_produce_equivalent_resources():
+def test_all_three_methods_produce_equivalent_resources() -> None:
     identifier = [Identifier(system="http://hospital.example.org", value="12345")]
     name = [HumanName(family="Smith", given=["John"])]
     from_create = UscorePatientProfile.create(identifier=identifier, name=name).to_resource()
@@ -216,21 +216,21 @@ def _make_patient() -> UscorePatientProfile:
     )
 
 
-def test_get_identifier_set_identifier():
+def test_get_identifier_set_identifier() -> None:
     profile = _make_patient()
     assert profile.get_identifier()[0].value == "12345"
     profile.set_identifier([Identifier(system="http://hospital.example.org", value="67890")])
     assert profile.get_identifier()[0].value == "67890"
 
 
-def test_get_name_set_name():
+def test_get_name_set_name() -> None:
     profile = _make_patient()
     assert profile.get_name()[0].family == "Smith"
     profile.set_name([HumanName(family="Doe", given=["Jane"])])
     assert profile.get_name()[0].family == "Doe"
 
 
-def test_fluent_chaining_across_field_accessors():
+def test_fluent_chaining_across_field_accessors() -> None:
     profile = _make_patient()
     result = profile.set_identifier(
         [Identifier(system="http://hospital.example.org", value="AAA")]
@@ -246,11 +246,11 @@ def test_fluent_chaining_across_field_accessors():
 # ---------------------------------------------------------------------------
 
 
-def test_canonical_url_is_exposed():
+def test_canonical_url_is_exposed() -> None:
     assert UscorePatientProfile.canonical_url == CANONICAL_URL
 
 
-def test_set_race_get_race_round_trip_with_detailed_categories():
+def test_set_race_get_race_round_trip_with_detailed_categories() -> None:
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
         name=[HumanName(family="Test")],
@@ -269,19 +269,19 @@ def test_set_race_get_race_round_trip_with_detailed_categories():
     assert race["text"] == "White European"
 
 
-def test_get_race_raw_returns_raw_extension():
+def test_get_race_raw_returns_raw_extension() -> None:
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
         name=[HumanName(family="Test")],
     )
     profile.set_race({"ombCategory": {"code": "2106-3", "display": "White"}, "text": "White"})
 
-    raw = profile.get_race("raw")  # type: ignore[call-arg]
+    raw = profile.get_race("raw")
     assert raw is not None
     assert raw.url == RACE_URL
 
 
-def test_set_sex_get_sex_round_trip():
+def test_set_sex_get_sex_round_trip() -> None:
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
         name=[HumanName(family="Test")],
@@ -292,19 +292,19 @@ def test_set_sex_get_sex_round_trip():
     assert sex.code == "male"
 
 
-def test_get_sex_raw_returns_raw_extension():
+def test_get_sex_raw_returns_raw_extension() -> None:
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
         name=[HumanName(family="Test")],
     )
     profile.set_sex(Coding(system="http://hl7.org/fhir/administrative-gender", code="female"))
 
-    raw = profile.get_sex("raw")  # type: ignore[call-arg]
+    raw = profile.get_sex("raw")
     assert raw.url == SEX_URL
     assert raw.value_coding.code == "female"
 
 
-def test_extension_getters_return_none_when_not_set():
+def test_extension_getters_return_none_when_not_set() -> None:
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
         name=[HumanName(family="Test")],
@@ -317,20 +317,20 @@ def test_extension_getters_return_none_when_not_set():
     assert profile.get_interpreter_required() is None
 
 
-def test_extension_raw_getters_return_none_when_not_set():
+def test_extension_raw_getters_return_none_when_not_set() -> None:
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
         name=[HumanName(family="Test")],
     )
 
-    assert profile.get_race("raw") is None  # type: ignore[call-arg]
-    assert profile.get_ethnicity("raw") is None  # type: ignore[call-arg]
-    assert profile.get_sex("raw") is None  # type: ignore[call-arg]
-    assert profile.get_tribal_affiliation("raw") is None  # type: ignore[call-arg]
-    assert profile.get_interpreter_required("raw") is None  # type: ignore[call-arg]
+    assert profile.get_race("raw") is None
+    assert profile.get_ethnicity("raw") is None
+    assert profile.get_sex("raw") is None
+    assert profile.get_tribal_affiliation("raw") is None
+    assert profile.get_interpreter_required("raw") is None
 
 
-def test_fluent_chaining_across_extensions():
+def test_fluent_chaining_across_extensions() -> None:
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
         name=[HumanName(family="Test")],
@@ -352,7 +352,7 @@ def test_fluent_chaining_across_extensions():
     assert profile.get_interpreter_required().code == "no"
 
 
-def test_extensions_are_added_to_the_resource():
+def test_extensions_are_added_to_the_resource() -> None:
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
         name=[HumanName(family="Test")],
@@ -373,7 +373,7 @@ def test_extensions_are_added_to_the_resource():
 # ---------------------------------------------------------------------------
 
 
-def test_set_race_accepts_extension_profile_instance():
+def test_set_race_accepts_extension_profile_instance() -> None:
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
         name=[HumanName(family="Test")],
@@ -384,7 +384,7 @@ def test_set_race_accepts_extension_profile_instance():
     assert profile.get_race() is not None
 
 
-def test_set_race_accepts_raw_extension():
+def test_set_race_accepts_raw_extension() -> None:
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
         name=[HumanName(family="Test")],
@@ -400,7 +400,7 @@ def test_set_race_accepts_raw_extension():
     assert profile.get_race() is not None
 
 
-def test_set_race_throws_on_wrong_extension_url():
+def test_set_race_throws_on_wrong_extension_url() -> None:
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
         name=[HumanName(family="Test")],
@@ -410,7 +410,7 @@ def test_set_race_throws_on_wrong_extension_url():
         profile.set_race(wrong_extension)
 
 
-def test_set_sex_accepts_extension_profile_instance():
+def test_set_sex_accepts_extension_profile_instance() -> None:
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
         name=[HumanName(family="Test")],
@@ -420,7 +420,7 @@ def test_set_sex_accepts_extension_profile_instance():
     assert profile.get_sex().code == "male"
 
 
-def test_set_sex_accepts_raw_extension():
+def test_set_sex_accepts_raw_extension() -> None:
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
         name=[HumanName(family="Test")],
@@ -435,7 +435,7 @@ def test_set_sex_accepts_raw_extension():
 # ---------------------------------------------------------------------------
 
 
-def test_profile_mutates_the_underlying_resource():
+def test_profile_mutates_the_underlying_resource() -> None:
     patient = Patient(resource_type="Patient")
     profile = UscorePatientProfile.apply(patient)
 
@@ -451,7 +451,7 @@ def test_profile_mutates_the_underlying_resource():
 # ---------------------------------------------------------------------------
 
 
-def test_freshly_created_profile_with_required_fields_is_valid():
+def test_freshly_created_profile_with_required_fields_is_valid() -> None:
     profile = UscorePatientProfile.create(
         identifier=[Identifier(value="1")],
         name=[HumanName(family="Test")],
@@ -459,7 +459,7 @@ def test_freshly_created_profile_with_required_fields_is_valid():
     assert profile.validate()["errors"] == []
 
 
-def test_profile_from_empty_resource_reports_missing_required_fields():
+def test_profile_from_empty_resource_reports_missing_required_fields() -> None:
     profile = UscorePatientProfile.apply(Patient(resource_type="Patient"))
     errors = profile.validate()["errors"]
 

@@ -222,7 +222,7 @@ const generateComplexExtensionGetter = (
     targetPath: string[],
     extProfileInfo: ExtensionProfileInfo | undefined,
 ): void => {
-    generateExtensionGetter(w, ext, baseName, "dict", targetPath, extProfileInfo, () => {
+    generateExtensionGetter(w, ext, baseName, "dict[str, Any]", targetPath, extProfileInfo, () => {
         const configItems = (ext.subExtensions ?? []).map((sub) => {
             const valueField = sub.valueFieldType
                 ? pyValueFieldName(sub.valueFieldType, w.nameFormatFunction)
@@ -268,7 +268,7 @@ const generateComplexExtensionSetter = (
     targetPath: string[],
     extProfileInfo: ExtensionProfileInfo | undefined,
 ): void => {
-    generateExtensionSetter(w, ext, className, baseName, "dict", targetPath, extProfileInfo, () => {
+    generateExtensionSetter(w, ext, className, baseName, "dict[str, Any]", targetPath, extProfileInfo, () => {
         w.line("sub_extensions = []");
         for (const sub of ext.subExtensions ?? []) {
             const valueField = sub.valueFieldType
@@ -311,7 +311,7 @@ const generateSingleValueExtensionGetter = (
     extProfileInfo: ExtensionProfileInfo | undefined,
 ): void => {
     generateExtensionGetter(w, ext, baseName, pyType, targetPath, extProfileInfo, () => {
-        w.line(`return get_extension_value(ext, ${JSON.stringify(valueField)})`);
+        w.line(`return cast('${pyType} | None', get_extension_value(ext, ${JSON.stringify(valueField)}))`);
     });
 };
 
@@ -341,8 +341,10 @@ const generateGenericExtensionGetter = (
     targetPath: string[],
     extProfileInfo: ExtensionProfileInfo | undefined,
 ): void => {
-    generateExtensionGetter(w, ext, baseName, "dict", targetPath, extProfileInfo, () => {
-        w.line("return ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True)");
+    generateExtensionGetter(w, ext, baseName, "dict[str, Any]", targetPath, extProfileInfo, () => {
+        w.line(
+            'return cast("dict[str, Any] | None", ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True))',
+        );
     });
 };
 
@@ -354,7 +356,7 @@ const generateGenericExtensionSetter = (
     targetPath: string[],
     extProfileInfo: ExtensionProfileInfo | undefined,
 ): void => {
-    generateExtensionSetter(w, ext, className, baseName, "dict", targetPath, extProfileInfo, () => {
+    generateExtensionSetter(w, ext, className, baseName, "dict[str, Any]", targetPath, extProfileInfo, () => {
         emitExtPush(w, targetPath, `{"url": ${JSON.stringify(ext.url)}, **value}`);
     });
 };

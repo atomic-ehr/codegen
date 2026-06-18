@@ -4,11 +4,10 @@
 
 from __future__ import annotations
 
-from typing import Any, Literal, overload
+from typing import Any, Literal, cast, overload
 
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.hl7_fhir_r4_core.base import Extension
-from fhir_types.hl7_fhir_r4_core.base import Coding
 from fhir_types.profile_helpers import (
     _get_key, apply_slice_match, build_resource, ensure_slice_defaults, get_array_slice, get_extension_value, \
     is_extension, matches_value, push_extension, set_array_slice, strip_match_keys, unwrap_slice_choice, validate_fixed_value, \
@@ -27,9 +26,9 @@ class UscoreEthnicityExtension:
 
     canonical_url: str = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"
 
-    _omb_category_slice_match: dict = {"url":"ombCategory"}
-    _detailed_slice_match: dict = {"url":"detailed"}
-    _text_slice_match: dict = {"url":"text"}
+    _omb_category_slice_match: dict[str, Any] = {"url":"ombCategory"}
+    _detailed_slice_match: dict[str, Any] = {"url":"detailed"}
+    _text_slice_match: dict[str, Any] = {"url":"text"}
 
     def __init__(self, resource: Extension) -> None:
         self._resource = resource
@@ -60,24 +59,24 @@ class UscoreEthnicityExtension:
         return self._resource
 
     def get_extension(self) -> list[Extension] | None:
-        return getattr(self._resource, "extension", None)
+        return cast('list[Extension] | None', getattr(self._resource, "extension", None))
 
     def set_extension(self, value: list[Extension]) -> "UscoreEthnicityExtension":
         setattr(self._resource, "extension", value)
         return self
 
     def get_url(self) -> str | None:
-        return getattr(self._resource, "url", None)
+        return cast('str | None', getattr(self._resource, "url", None))
 
     def set_url(self, value: str) -> "UscoreEthnicityExtension":
         setattr(self._resource, "url", value)
         return self
 
     @overload
-    def get_omb_category(self) -> dict | None: ...
+    def get_omb_category(self) -> dict[str, Any] | None: ...
     @overload
     def get_omb_category(self, mode: Literal["raw"]) -> Extension | None: ...
-    def get_omb_category(self, mode: Literal["raw"] | None = None) -> dict | Extension | None:
+    def get_omb_category(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | Extension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "ombCategory")), None)
         if ext is None:
@@ -85,9 +84,9 @@ class UscoreEthnicityExtension:
         ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
             return ext_obj
-        return ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True)
+        return cast("dict[str, Any] | None", ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True))
 
-    def set_omb_category(self, value: "Extension | dict") -> "UscoreEthnicityExtension":
+    def set_omb_category(self, value: "Extension | dict[str, Any]") -> "UscoreEthnicityExtension":
         if is_extension(value):
             if _get_key(value, "url") != "ombCategory":
                 raise ValueError(f"Expected extension url 'ombCategory', got {_get_key(value, 'url')!r}")
@@ -97,10 +96,10 @@ class UscoreEthnicityExtension:
         return self
 
     @overload
-    def get_detailed(self) -> dict | None: ...
+    def get_detailed(self) -> dict[str, Any] | None: ...
     @overload
     def get_detailed(self, mode: Literal["raw"]) -> Extension | None: ...
-    def get_detailed(self, mode: Literal["raw"] | None = None) -> dict | Extension | None:
+    def get_detailed(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | Extension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "detailed")), None)
         if ext is None:
@@ -108,9 +107,9 @@ class UscoreEthnicityExtension:
         ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
             return ext_obj
-        return ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True)
+        return cast("dict[str, Any] | None", ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True))
 
-    def set_detailed(self, value: "Extension | dict") -> "UscoreEthnicityExtension":
+    def set_detailed(self, value: "Extension | dict[str, Any]") -> "UscoreEthnicityExtension":
         if is_extension(value):
             if _get_key(value, "url") != "detailed":
                 raise ValueError(f"Expected extension url 'detailed', got {_get_key(value, 'url')!r}")
@@ -120,10 +119,10 @@ class UscoreEthnicityExtension:
         return self
 
     @overload
-    def get_text(self) -> dict | None: ...
+    def get_text(self) -> dict[str, Any] | None: ...
     @overload
     def get_text(self, mode: Literal["raw"]) -> Extension | None: ...
-    def get_text(self, mode: Literal["raw"] | None = None) -> dict | Extension | None:
+    def get_text(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | Extension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "text")), None)
         if ext is None:
@@ -131,9 +130,9 @@ class UscoreEthnicityExtension:
         ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
             return ext_obj
-        return ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True)
+        return cast("dict[str, Any] | None", ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True))
 
-    def set_text(self, value: "Extension | dict") -> "UscoreEthnicityExtension":
+    def set_text(self, value: "Extension | dict[str, Any]") -> "UscoreEthnicityExtension":
         if is_extension(value):
             if _get_key(value, "url") != "text":
                 raise ValueError(f"Expected extension url 'text', got {_get_key(value, 'url')!r}")
@@ -143,42 +142,42 @@ class UscoreEthnicityExtension:
         return self
 
     @overload
-    def get_extension_omb_category(self) -> Coding | None: ...
+    def get_extension_omb_category(self) -> dict[str, Any] | None: ...
     @overload
     def get_extension_omb_category(self, mode: Literal["raw"]) -> Extension | None: ...
-    def get_extension_omb_category(self, mode: Literal["raw"] | None = None) -> Coding | Extension | None:
+    def get_extension_omb_category(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | Extension | None:
         match = self.__class__._omb_category_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
         if mode == "raw":
-            return item
+            return cast('Extension | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return unwrap_slice_choice(item_dict, ["url"], "valueCoding")
 
     @overload
-    def get_extension_detailed(self) -> Coding | None: ...
+    def get_extension_detailed(self) -> dict[str, Any] | None: ...
     @overload
     def get_extension_detailed(self, mode: Literal["raw"]) -> Extension | None: ...
-    def get_extension_detailed(self, mode: Literal["raw"] | None = None) -> Coding | Extension | None:
+    def get_extension_detailed(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | Extension | None:
         match = self.__class__._detailed_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
         if mode == "raw":
-            return item
+            return cast('Extension | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return unwrap_slice_choice(item_dict, ["url"], "valueCoding")
 
     @overload
-    def get_extension_text(self) -> dict | None: ...
+    def get_extension_text(self) -> dict[str, Any] | None: ...
     @overload
     def get_extension_text(self, mode: Literal["raw"]) -> Extension | None: ...
-    def get_extension_text(self, mode: Literal["raw"] | None = None) -> dict | Extension | None:
+    def get_extension_text(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | Extension | None:
         match = self.__class__._text_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
         if mode == "raw":
-            return item
+            return cast('Extension | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return strip_match_keys(item_dict, ["url"])
 
-    def set_extension_omb_category(self, value: dict | None = None) -> "UscoreEthnicityExtension":
+    def set_extension_omb_category(self, value: dict[str, Any] | None = None) -> "UscoreEthnicityExtension":
         match = self.__class__._omb_category_slice_match
         wrapped = wrap_slice_choice((value or {}), "valueCoding")
         merged = apply_slice_match(wrapped, match)
@@ -188,7 +187,7 @@ class UscoreEthnicityExtension:
         setattr(self._resource, "extension", items)
         return self
 
-    def set_extension_detailed(self, value: dict | None = None) -> "UscoreEthnicityExtension":
+    def set_extension_detailed(self, value: dict[str, Any] | None = None) -> "UscoreEthnicityExtension":
         match = self.__class__._detailed_slice_match
         wrapped = wrap_slice_choice((value or {}), "valueCoding")
         merged = apply_slice_match(wrapped, match)
@@ -198,7 +197,7 @@ class UscoreEthnicityExtension:
         setattr(self._resource, "extension", items)
         return self
 
-    def set_extension_text(self, value: dict | None = None) -> "UscoreEthnicityExtension":
+    def set_extension_text(self, value: dict[str, Any] | None = None) -> "UscoreEthnicityExtension":
         match = self.__class__._text_slice_match
         merged = apply_slice_match((value or {}), match)
         merged = Extension(**merged)

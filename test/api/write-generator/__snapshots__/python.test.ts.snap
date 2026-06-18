@@ -417,7 +417,7 @@ exports[`Python R4 Example (with generateProfile) generates bodyweight profile w
 
 from __future__ import annotations
 
-from typing import Literal, overload
+from typing import Any, Literal, cast, overload
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import CodeableConcept, Period, Quantity, Reference
@@ -436,7 +436,7 @@ class ObservationBodyweightProfile:
 
     canonical_url: str = "http://hl7.org/fhir/StructureDefinition/bodyweight"
 
-    _vscat_slice_match: dict = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}
+    _vscat_slice_match: dict[str, Any] = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}
 
     def __init__(self, resource: Observation) -> None:
         self._resource = resource
@@ -480,35 +480,35 @@ class ObservationBodyweightProfile:
         return self._resource
 
     def get_status(self) -> Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"] | None:
-        return getattr(self._resource, "status", None)
+        return cast('Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"] | None', getattr(self._resource, "status", None))
 
     def set_status(self, value: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"]) -> "ObservationBodyweightProfile":
         setattr(self._resource, "status", value)
         return self
 
     def get_subject(self) -> Reference | None:
-        return getattr(self._resource, "subject", None)
+        return cast('Reference | None', getattr(self._resource, "subject", None))
 
     def set_subject(self, value: Reference) -> "ObservationBodyweightProfile":
         setattr(self._resource, "subject", value)
         return self
 
     def get_category(self) -> list[CodeableConcept] | None:
-        return getattr(self._resource, "category", None)
+        return cast('list[CodeableConcept] | None', getattr(self._resource, "category", None))
 
     def set_category(self, value: list[CodeableConcept]) -> "ObservationBodyweightProfile":
         setattr(self._resource, "category", value)
         return self
 
     def get_code(self) -> CodeableConcept | None:
-        return getattr(self._resource, "code", None)
+        return cast('CodeableConcept | None', getattr(self._resource, "code", None))
 
     def set_code(self, value: CodeableConcept) -> "ObservationBodyweightProfile":
         setattr(self._resource, "code", value)
         return self
 
     def get_effective_date_time(self) -> str | None:
-        return getattr(self._resource, "effective_date_time", None)
+        return cast('str | None', getattr(self._resource, "effective_date_time", None))
 
     def set_effective_date_time(self, value: str) -> "ObservationBodyweightProfile":
         setattr(self._resource, "effective_period", None)
@@ -516,7 +516,7 @@ class ObservationBodyweightProfile:
         return self
 
     def get_effective_period(self) -> Period | None:
-        return getattr(self._resource, "effective_period", None)
+        return cast('Period | None', getattr(self._resource, "effective_period", None))
 
     def set_effective_period(self, value: Period) -> "ObservationBodyweightProfile":
         setattr(self._resource, "effective_date_time", None)
@@ -524,25 +524,25 @@ class ObservationBodyweightProfile:
         return self
 
     def get_value_quantity(self) -> Quantity | None:
-        return getattr(self._resource, "value_quantity", None)
+        return cast('Quantity | None', getattr(self._resource, "value_quantity", None))
 
     def set_value_quantity(self, value: Quantity) -> "ObservationBodyweightProfile":
         setattr(self._resource, "value_quantity", value)
         return self
 
     @overload
-    def get_vscat(self) -> dict | None: ...
+    def get_vscat(self) -> dict[str, Any] | None: ...
     @overload
     def get_vscat(self, mode: Literal["raw"]) -> CodeableConcept | None: ...
-    def get_vscat(self, mode: Literal["raw"] | None = None) -> dict | CodeableConcept | None:
+    def get_vscat(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | CodeableConcept | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
         if mode == "raw":
-            return item
+            return cast('CodeableConcept | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return strip_match_keys(item_dict, ["coding"])
 
-    def set_vscat(self, value: dict | None = None) -> "ObservationBodyweightProfile":
+    def set_vscat(self, value: dict[str, Any] | None = None) -> "ObservationBodyweightProfile":
         match = self.__class__._vscat_slice_match
         merged = apply_slice_match((value or {}), match)
         merged = CodeableConcept(**merged)
@@ -582,7 +582,7 @@ exports[`Python R4 Example (with generateProfile) generates bp profile with vali
 
 from __future__ import annotations
 
-from typing import Literal, overload
+from typing import Any, Literal, cast, overload
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
@@ -604,9 +604,9 @@ class ObservationBpProfile:
 
     canonical_url: str = "http://hl7.org/fhir/StructureDefinition/bp"
 
-    _vscat_slice_match: dict = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}
-    _systolic_bp_slice_match: dict = {"code":{"coding":[{"code":"8480-6","system":"http://loinc.org"}]}}
-    _diastolic_bp_slice_match: dict = {"code":{"coding":[{"code":"8462-4","system":"http://loinc.org"}]}}
+    _vscat_slice_match: dict[str, Any] = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}
+    _systolic_bp_slice_match: dict[str, Any] = {"code":{"coding":[{"code":"8480-6","system":"http://loinc.org"}]}}
+    _diastolic_bp_slice_match: dict[str, Any] = {"code":{"coding":[{"code":"8462-4","system":"http://loinc.org"}]}}
 
     def __init__(self, resource: Observation) -> None:
         self._resource = resource
@@ -656,42 +656,42 @@ class ObservationBpProfile:
         return self._resource
 
     def get_status(self) -> Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"] | None:
-        return getattr(self._resource, "status", None)
+        return cast('Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"] | None', getattr(self._resource, "status", None))
 
     def set_status(self, value: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"]) -> "ObservationBpProfile":
         setattr(self._resource, "status", value)
         return self
 
     def get_subject(self) -> Reference | None:
-        return getattr(self._resource, "subject", None)
+        return cast('Reference | None', getattr(self._resource, "subject", None))
 
     def set_subject(self, value: Reference) -> "ObservationBpProfile":
         setattr(self._resource, "subject", value)
         return self
 
     def get_category(self) -> list[CodeableConcept] | None:
-        return getattr(self._resource, "category", None)
+        return cast('list[CodeableConcept] | None', getattr(self._resource, "category", None))
 
     def set_category(self, value: list[CodeableConcept]) -> "ObservationBpProfile":
         setattr(self._resource, "category", value)
         return self
 
     def get_code(self) -> CodeableConcept | None:
-        return getattr(self._resource, "code", None)
+        return cast('CodeableConcept | None', getattr(self._resource, "code", None))
 
     def set_code(self, value: CodeableConcept) -> "ObservationBpProfile":
         setattr(self._resource, "code", value)
         return self
 
     def get_component(self) -> list[BackboneElement] | None:
-        return getattr(self._resource, "component", None)
+        return cast('list[BackboneElement] | None', getattr(self._resource, "component", None))
 
     def set_component(self, value: list[BackboneElement]) -> "ObservationBpProfile":
         setattr(self._resource, "component", value)
         return self
 
     def get_effective_date_time(self) -> str | None:
-        return getattr(self._resource, "effective_date_time", None)
+        return cast('str | None', getattr(self._resource, "effective_date_time", None))
 
     def set_effective_date_time(self, value: str) -> "ObservationBpProfile":
         setattr(self._resource, "effective_period", None)
@@ -699,7 +699,7 @@ class ObservationBpProfile:
         return self
 
     def get_effective_period(self) -> Period | None:
-        return getattr(self._resource, "effective_period", None)
+        return cast('Period | None', getattr(self._resource, "effective_period", None))
 
     def set_effective_period(self, value: Period) -> "ObservationBpProfile":
         setattr(self._resource, "effective_date_time", None)
@@ -707,49 +707,49 @@ class ObservationBpProfile:
         return self
 
     def get_value_quantity(self) -> Quantity | None:
-        return getattr(self._resource, "value_quantity", None)
+        return cast('Quantity | None', getattr(self._resource, "value_quantity", None))
 
     def set_value_quantity(self, value: Quantity) -> "ObservationBpProfile":
         setattr(self._resource, "value_quantity", value)
         return self
 
     @overload
-    def get_vscat(self) -> dict | None: ...
+    def get_vscat(self) -> dict[str, Any] | None: ...
     @overload
     def get_vscat(self, mode: Literal["raw"]) -> CodeableConcept | None: ...
-    def get_vscat(self, mode: Literal["raw"] | None = None) -> dict | CodeableConcept | None:
+    def get_vscat(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | CodeableConcept | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
         if mode == "raw":
-            return item
+            return cast('CodeableConcept | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return strip_match_keys(item_dict, ["coding"])
 
     @overload
-    def get_systolic_bp(self) -> Quantity | None: ...
+    def get_systolic_bp(self) -> dict[str, Any] | None: ...
     @overload
     def get_systolic_bp(self, mode: Literal["raw"]) -> ObservationComponent | None: ...
-    def get_systolic_bp(self, mode: Literal["raw"] | None = None) -> Quantity | ObservationComponent | None:
+    def get_systolic_bp(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | ObservationComponent | None:
         match = self.__class__._systolic_bp_slice_match
         item = get_array_slice(getattr(self._resource, "component", None), match)
         if mode == "raw":
-            return item
+            return cast('ObservationComponent | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return unwrap_slice_choice(item_dict, ["code"], "valueQuantity")
 
     @overload
-    def get_diastolic_bp(self) -> Quantity | None: ...
+    def get_diastolic_bp(self) -> dict[str, Any] | None: ...
     @overload
     def get_diastolic_bp(self, mode: Literal["raw"]) -> ObservationComponent | None: ...
-    def get_diastolic_bp(self, mode: Literal["raw"] | None = None) -> Quantity | ObservationComponent | None:
+    def get_diastolic_bp(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | ObservationComponent | None:
         match = self.__class__._diastolic_bp_slice_match
         item = get_array_slice(getattr(self._resource, "component", None), match)
         if mode == "raw":
-            return item
+            return cast('ObservationComponent | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return unwrap_slice_choice(item_dict, ["code"], "valueQuantity")
 
-    def set_vscat(self, value: dict | None = None) -> "ObservationBpProfile":
+    def set_vscat(self, value: dict[str, Any] | None = None) -> "ObservationBpProfile":
         match = self.__class__._vscat_slice_match
         merged = apply_slice_match((value or {}), match)
         merged = CodeableConcept(**merged)
@@ -758,7 +758,7 @@ class ObservationBpProfile:
         setattr(self._resource, "category", items)
         return self
 
-    def set_systolic_bp(self, value: dict | None = None) -> "ObservationBpProfile":
+    def set_systolic_bp(self, value: dict[str, Any] | None = None) -> "ObservationBpProfile":
         match = self.__class__._systolic_bp_slice_match
         wrapped = wrap_slice_choice((value or {}), "valueQuantity")
         merged = apply_slice_match(wrapped, match)
@@ -768,7 +768,7 @@ class ObservationBpProfile:
         setattr(self._resource, "component", items)
         return self
 
-    def set_diastolic_bp(self, value: dict | None = None) -> "ObservationBpProfile":
+    def set_diastolic_bp(self, value: dict[str, Any] | None = None) -> "ObservationBpProfile":
         match = self.__class__._diastolic_bp_slice_match
         wrapped = wrap_slice_choice((value or {}), "valueQuantity")
         merged = apply_slice_match(wrapped, match)
@@ -811,7 +811,7 @@ exports[`Python US Core Example generates US Core Patient profile 1`] = `
 
 from __future__ import annotations
 
-from typing import Any, Literal, overload
+from typing import Any, Literal, cast, overload
 
 from fhir_types.hl7_fhir_r4_core.patient import Patient
 from fhir_types.hl7_fhir_r4_core.base import Extension
@@ -873,26 +873,26 @@ class UscorePatientProfile:
         return self._resource
 
     def get_identifier(self) -> list[Identifier] | None:
-        return getattr(self._resource, "identifier", None)
+        return cast('list[Identifier] | None', getattr(self._resource, "identifier", None))
 
     def set_identifier(self, value: list[Identifier]) -> "UscorePatientProfile":
         setattr(self._resource, "identifier", value)
         return self
 
     def get_name(self) -> list[HumanName] | None:
-        return getattr(self._resource, "name", None)
+        return cast('list[HumanName] | None', getattr(self._resource, "name", None))
 
     def set_name(self, value: list[HumanName]) -> "UscorePatientProfile":
         setattr(self._resource, "name", value)
         return self
 
     @overload
-    def get_race(self) -> dict | None: ...
+    def get_race(self) -> dict[str, Any] | None: ...
     @overload
     def get_race(self, mode: Literal["raw"]) -> Extension | None: ...
     @overload
     def get_race(self, mode: Literal["profile"]) -> UscoreRaceExtension | None: ...
-    def get_race(self, mode: Literal["raw", "profile"] | None = None) -> dict | Extension | UscoreRaceExtension | None:
+    def get_race(self, mode: Literal["raw", "profile"] | None = None) -> dict[str, Any] | Extension | UscoreRaceExtension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race")), None)
         if ext is None:
@@ -905,7 +905,7 @@ class UscorePatientProfile:
         config = [{"name": "ombCategory", "valueField": "value_coding", "isArray": False}, {"name": "detailed", "valueField": "value_coding", "isArray": True}, {"name": "text", "valueField": "value_string", "isArray": False}]
         return extract_complex_extension(ext, config)
 
-    def set_race(self, value: "UscoreRaceExtension | Extension | dict") -> "UscorePatientProfile":
+    def set_race(self, value: "UscoreRaceExtension | Extension | dict[str, Any]") -> "UscorePatientProfile":
         if isinstance(value, UscoreRaceExtension):
             push_extension(self._resource, value.to_resource())
         elif is_extension(value):
@@ -924,12 +924,12 @@ class UscorePatientProfile:
         return self
 
     @overload
-    def get_ethnicity(self) -> dict | None: ...
+    def get_ethnicity(self) -> dict[str, Any] | None: ...
     @overload
     def get_ethnicity(self, mode: Literal["raw"]) -> Extension | None: ...
     @overload
     def get_ethnicity(self, mode: Literal["profile"]) -> UscoreEthnicityExtension | None: ...
-    def get_ethnicity(self, mode: Literal["raw", "profile"] | None = None) -> dict | Extension | UscoreEthnicityExtension | None:
+    def get_ethnicity(self, mode: Literal["raw", "profile"] | None = None) -> dict[str, Any] | Extension | UscoreEthnicityExtension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity")), None)
         if ext is None:
@@ -942,7 +942,7 @@ class UscorePatientProfile:
         config = [{"name": "ombCategory", "valueField": "value_coding", "isArray": False}, {"name": "detailed", "valueField": "value_coding", "isArray": True}, {"name": "text", "valueField": "value_string", "isArray": False}]
         return extract_complex_extension(ext, config)
 
-    def set_ethnicity(self, value: "UscoreEthnicityExtension | Extension | dict") -> "UscorePatientProfile":
+    def set_ethnicity(self, value: "UscoreEthnicityExtension | Extension | dict[str, Any]") -> "UscorePatientProfile":
         if isinstance(value, UscoreEthnicityExtension):
             push_extension(self._resource, value.to_resource())
         elif is_extension(value):
@@ -961,12 +961,12 @@ class UscorePatientProfile:
         return self
 
     @overload
-    def get_tribal_affiliation(self) -> dict | None: ...
+    def get_tribal_affiliation(self) -> dict[str, Any] | None: ...
     @overload
     def get_tribal_affiliation(self, mode: Literal["raw"]) -> Extension | None: ...
     @overload
     def get_tribal_affiliation(self, mode: Literal["profile"]) -> UscoreTribalAffiliationExtension | None: ...
-    def get_tribal_affiliation(self, mode: Literal["raw", "profile"] | None = None) -> dict | Extension | UscoreTribalAffiliationExtension | None:
+    def get_tribal_affiliation(self, mode: Literal["raw", "profile"] | None = None) -> dict[str, Any] | Extension | UscoreTribalAffiliationExtension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation")), None)
         if ext is None:
@@ -979,7 +979,7 @@ class UscorePatientProfile:
         config = [{"name": "tribalAffiliation", "valueField": "value_codeable_concept", "isArray": False}, {"name": "isEnrolled", "valueField": "value_boolean", "isArray": False}]
         return extract_complex_extension(ext, config)
 
-    def set_tribal_affiliation(self, value: "UscoreTribalAffiliationExtension | Extension | dict") -> "UscorePatientProfile":
+    def set_tribal_affiliation(self, value: "UscoreTribalAffiliationExtension | Extension | dict[str, Any]") -> "UscorePatientProfile":
         if isinstance(value, UscoreTribalAffiliationExtension):
             push_extension(self._resource, value.to_resource())
         elif is_extension(value):
@@ -1011,7 +1011,7 @@ class UscorePatientProfile:
             return ext_obj
         if mode == "profile":
             return UscoreIndividualSexExtension.apply(ext_obj)
-        return get_extension_value(ext, "value_coding")
+        return cast('Coding | None', get_extension_value(ext, "value_coding"))
 
     def set_sex(self, value: "UscoreIndividualSexExtension | Extension | Any") -> "UscorePatientProfile":
         if isinstance(value, UscoreIndividualSexExtension):
@@ -1040,7 +1040,7 @@ class UscorePatientProfile:
             return ext_obj
         if mode == "profile":
             return UscoreInterpreterNeededExtension.apply(ext_obj)
-        return get_extension_value(ext, "value_coding")
+        return cast('Coding | None', get_extension_value(ext, "value_coding"))
 
     def set_interpreter_required(self, value: "UscoreInterpreterNeededExtension | Extension | Any") -> "UscorePatientProfile":
         if isinstance(value, UscoreInterpreterNeededExtension):
@@ -1073,7 +1073,7 @@ exports[`Python US Core Example generates US Core Blood Pressure profile 1`] = `
 
 from __future__ import annotations
 
-from typing import Literal, overload
+from typing import Any, Literal, cast, overload
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
@@ -1095,9 +1095,9 @@ class UscoreBloodPressureProfile:
 
     canonical_url: str = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure"
 
-    _vscat_slice_match: dict = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}
-    _systolic_slice_match: dict = {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}}
-    _diastolic_slice_match: dict = {"code":{"coding":[{"system":"http://loinc.org","code":"8462-4"}]}}
+    _vscat_slice_match: dict[str, Any] = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}
+    _systolic_slice_match: dict[str, Any] = {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}}
+    _diastolic_slice_match: dict[str, Any] = {"code":{"coding":[{"system":"http://loinc.org","code":"8462-4"}]}}
 
     def __init__(self, resource: Observation) -> None:
         self._resource = resource
@@ -1147,42 +1147,42 @@ class UscoreBloodPressureProfile:
         return self._resource
 
     def get_status(self) -> Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"] | None:
-        return getattr(self._resource, "status", None)
+        return cast('Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"] | None', getattr(self._resource, "status", None))
 
     def set_status(self, value: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"]) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "status", value)
         return self
 
     def get_subject(self) -> Reference | None:
-        return getattr(self._resource, "subject", None)
+        return cast('Reference | None', getattr(self._resource, "subject", None))
 
     def set_subject(self, value: Reference) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "subject", value)
         return self
 
     def get_category(self) -> list[CodeableConcept] | None:
-        return getattr(self._resource, "category", None)
+        return cast('list[CodeableConcept] | None', getattr(self._resource, "category", None))
 
     def set_category(self, value: list[CodeableConcept]) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "category", value)
         return self
 
     def get_code(self) -> CodeableConcept | None:
-        return getattr(self._resource, "code", None)
+        return cast('CodeableConcept | None', getattr(self._resource, "code", None))
 
     def set_code(self, value: CodeableConcept) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "code", value)
         return self
 
     def get_component(self) -> list[BackboneElement] | None:
-        return getattr(self._resource, "component", None)
+        return cast('list[BackboneElement] | None', getattr(self._resource, "component", None))
 
     def set_component(self, value: list[BackboneElement]) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "component", value)
         return self
 
     def get_effective_date_time(self) -> str | None:
-        return getattr(self._resource, "effective_date_time", None)
+        return cast('str | None', getattr(self._resource, "effective_date_time", None))
 
     def set_effective_date_time(self, value: str) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "effective_period", None)
@@ -1190,7 +1190,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_effective_period(self) -> Period | None:
-        return getattr(self._resource, "effective_period", None)
+        return cast('Period | None', getattr(self._resource, "effective_period", None))
 
     def set_effective_period(self, value: Period) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "effective_date_time", None)
@@ -1198,7 +1198,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_quantity(self) -> Quantity | None:
-        return getattr(self._resource, "value_quantity", None)
+        return cast('Quantity | None', getattr(self._resource, "value_quantity", None))
 
     def set_value_quantity(self, value: Quantity) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_codeable_concept", None)
@@ -1215,7 +1215,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_codeable_concept(self) -> CodeableConcept | None:
-        return getattr(self._resource, "value_codeable_concept", None)
+        return cast('CodeableConcept | None', getattr(self._resource, "value_codeable_concept", None))
 
     def set_value_codeable_concept(self, value: CodeableConcept) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_quantity", None)
@@ -1232,7 +1232,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_string(self) -> str | None:
-        return getattr(self._resource, "value_string", None)
+        return cast('str | None', getattr(self._resource, "value_string", None))
 
     def set_value_string(self, value: str) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_quantity", None)
@@ -1249,7 +1249,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_boolean(self) -> bool | None:
-        return getattr(self._resource, "value_boolean", None)
+        return cast('bool | None', getattr(self._resource, "value_boolean", None))
 
     def set_value_boolean(self, value: bool) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_quantity", None)
@@ -1266,7 +1266,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_integer(self) -> int | None:
-        return getattr(self._resource, "value_integer", None)
+        return cast('int | None', getattr(self._resource, "value_integer", None))
 
     def set_value_integer(self, value: int) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_quantity", None)
@@ -1283,7 +1283,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_range(self) -> Range | None:
-        return getattr(self._resource, "value_range", None)
+        return cast('Range | None', getattr(self._resource, "value_range", None))
 
     def set_value_range(self, value: Range) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_quantity", None)
@@ -1300,7 +1300,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_ratio(self) -> Ratio | None:
-        return getattr(self._resource, "value_ratio", None)
+        return cast('Ratio | None', getattr(self._resource, "value_ratio", None))
 
     def set_value_ratio(self, value: Ratio) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_quantity", None)
@@ -1317,7 +1317,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_sampled_data(self) -> SampledData | None:
-        return getattr(self._resource, "value_sampled_data", None)
+        return cast('SampledData | None', getattr(self._resource, "value_sampled_data", None))
 
     def set_value_sampled_data(self, value: SampledData) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_quantity", None)
@@ -1334,7 +1334,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_time(self) -> str | None:
-        return getattr(self._resource, "value_time", None)
+        return cast('str | None', getattr(self._resource, "value_time", None))
 
     def set_value_time(self, value: str) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_quantity", None)
@@ -1351,7 +1351,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_date_time(self) -> str | None:
-        return getattr(self._resource, "value_date_time", None)
+        return cast('str | None', getattr(self._resource, "value_date_time", None))
 
     def set_value_date_time(self, value: str) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_quantity", None)
@@ -1368,7 +1368,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_period(self) -> Period | None:
-        return getattr(self._resource, "value_period", None)
+        return cast('Period | None', getattr(self._resource, "value_period", None))
 
     def set_value_period(self, value: Period) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_quantity", None)
@@ -1385,42 +1385,42 @@ class UscoreBloodPressureProfile:
         return self
 
     @overload
-    def get_vscat(self) -> dict | None: ...
+    def get_vscat(self) -> dict[str, Any] | None: ...
     @overload
     def get_vscat(self, mode: Literal["raw"]) -> CodeableConcept | None: ...
-    def get_vscat(self, mode: Literal["raw"] | None = None) -> dict | CodeableConcept | None:
+    def get_vscat(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | CodeableConcept | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
         if mode == "raw":
-            return item
+            return cast('CodeableConcept | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return strip_match_keys(item_dict, ["coding"])
 
     @overload
-    def get_systolic(self) -> Quantity | None: ...
+    def get_systolic(self) -> dict[str, Any] | None: ...
     @overload
     def get_systolic(self, mode: Literal["raw"]) -> ObservationComponent | None: ...
-    def get_systolic(self, mode: Literal["raw"] | None = None) -> Quantity | ObservationComponent | None:
+    def get_systolic(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | ObservationComponent | None:
         match = self.__class__._systolic_slice_match
         item = get_array_slice(getattr(self._resource, "component", None), match)
         if mode == "raw":
-            return item
+            return cast('ObservationComponent | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return unwrap_slice_choice(item_dict, ["code"], "valueQuantity")
 
     @overload
-    def get_diastolic(self) -> Quantity | None: ...
+    def get_diastolic(self) -> dict[str, Any] | None: ...
     @overload
     def get_diastolic(self, mode: Literal["raw"]) -> ObservationComponent | None: ...
-    def get_diastolic(self, mode: Literal["raw"] | None = None) -> Quantity | ObservationComponent | None:
+    def get_diastolic(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | ObservationComponent | None:
         match = self.__class__._diastolic_slice_match
         item = get_array_slice(getattr(self._resource, "component", None), match)
         if mode == "raw":
-            return item
+            return cast('ObservationComponent | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return unwrap_slice_choice(item_dict, ["code"], "valueQuantity")
 
-    def set_vscat(self, value: dict | None = None) -> "UscoreBloodPressureProfile":
+    def set_vscat(self, value: dict[str, Any] | None = None) -> "UscoreBloodPressureProfile":
         match = self.__class__._vscat_slice_match
         merged = apply_slice_match((value or {}), match)
         merged = CodeableConcept(**merged)
@@ -1429,7 +1429,7 @@ class UscoreBloodPressureProfile:
         setattr(self._resource, "category", items)
         return self
 
-    def set_systolic(self, value: dict | None = None) -> "UscoreBloodPressureProfile":
+    def set_systolic(self, value: dict[str, Any] | None = None) -> "UscoreBloodPressureProfile":
         match = self.__class__._systolic_slice_match
         wrapped = wrap_slice_choice((value or {}), "valueQuantity")
         merged = apply_slice_match(wrapped, match)
@@ -1439,7 +1439,7 @@ class UscoreBloodPressureProfile:
         setattr(self._resource, "component", items)
         return self
 
-    def set_diastolic(self, value: dict | None = None) -> "UscoreBloodPressureProfile":
+    def set_diastolic(self, value: dict[str, Any] | None = None) -> "UscoreBloodPressureProfile":
         match = self.__class__._diastolic_slice_match
         wrapped = wrap_slice_choice((value or {}), "valueQuantity")
         merged = apply_slice_match(wrapped, match)
@@ -1484,7 +1484,7 @@ exports[`Python US Core Example generates US Core Body Weight profile 1`] = `
 
 from __future__ import annotations
 
-from typing import Literal, overload
+from typing import Any, Literal, cast, overload
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
@@ -1505,7 +1505,7 @@ class UscoreBodyWeightProfile:
 
     canonical_url: str = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight"
 
-    _vscat_slice_match: dict = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}
+    _vscat_slice_match: dict[str, Any] = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}
 
     def __init__(self, resource: Observation) -> None:
         self._resource = resource
@@ -1549,35 +1549,35 @@ class UscoreBodyWeightProfile:
         return self._resource
 
     def get_status(self) -> Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"] | None:
-        return getattr(self._resource, "status", None)
+        return cast('Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"] | None', getattr(self._resource, "status", None))
 
     def set_status(self, value: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"]) -> "UscoreBodyWeightProfile":
         setattr(self._resource, "status", value)
         return self
 
     def get_subject(self) -> Reference | None:
-        return getattr(self._resource, "subject", None)
+        return cast('Reference | None', getattr(self._resource, "subject", None))
 
     def set_subject(self, value: Reference) -> "UscoreBodyWeightProfile":
         setattr(self._resource, "subject", value)
         return self
 
     def get_category(self) -> list[CodeableConcept] | None:
-        return getattr(self._resource, "category", None)
+        return cast('list[CodeableConcept] | None', getattr(self._resource, "category", None))
 
     def set_category(self, value: list[CodeableConcept]) -> "UscoreBodyWeightProfile":
         setattr(self._resource, "category", value)
         return self
 
     def get_code(self) -> CodeableConcept | None:
-        return getattr(self._resource, "code", None)
+        return cast('CodeableConcept | None', getattr(self._resource, "code", None))
 
     def set_code(self, value: CodeableConcept) -> "UscoreBodyWeightProfile":
         setattr(self._resource, "code", value)
         return self
 
     def get_effective_date_time(self) -> str | None:
-        return getattr(self._resource, "effective_date_time", None)
+        return cast('str | None', getattr(self._resource, "effective_date_time", None))
 
     def set_effective_date_time(self, value: str) -> "UscoreBodyWeightProfile":
         setattr(self._resource, "effective_period", None)
@@ -1585,7 +1585,7 @@ class UscoreBodyWeightProfile:
         return self
 
     def get_effective_period(self) -> Period | None:
-        return getattr(self._resource, "effective_period", None)
+        return cast('Period | None', getattr(self._resource, "effective_period", None))
 
     def set_effective_period(self, value: Period) -> "UscoreBodyWeightProfile":
         setattr(self._resource, "effective_date_time", None)
@@ -1593,95 +1593,95 @@ class UscoreBodyWeightProfile:
         return self
 
     def get_value_quantity(self) -> Quantity | None:
-        return getattr(self._resource, "value_quantity", None)
+        return cast('Quantity | None', getattr(self._resource, "value_quantity", None))
 
     def set_value_quantity(self, value: Quantity) -> "UscoreBodyWeightProfile":
         setattr(self._resource, "value_quantity", value)
         return self
 
     def get_value_codeable_concept(self) -> CodeableConcept | None:
-        return getattr(self._resource, "value_codeable_concept", None)
+        return cast('CodeableConcept | None', getattr(self._resource, "value_codeable_concept", None))
 
     def set_value_codeable_concept(self, value: CodeableConcept) -> "UscoreBodyWeightProfile":
         setattr(self._resource, "value_codeable_concept", value)
         return self
 
     def get_value_string(self) -> str | None:
-        return getattr(self._resource, "value_string", None)
+        return cast('str | None', getattr(self._resource, "value_string", None))
 
     def set_value_string(self, value: str) -> "UscoreBodyWeightProfile":
         setattr(self._resource, "value_string", value)
         return self
 
     def get_value_boolean(self) -> bool | None:
-        return getattr(self._resource, "value_boolean", None)
+        return cast('bool | None', getattr(self._resource, "value_boolean", None))
 
     def set_value_boolean(self, value: bool) -> "UscoreBodyWeightProfile":
         setattr(self._resource, "value_boolean", value)
         return self
 
     def get_value_integer(self) -> int | None:
-        return getattr(self._resource, "value_integer", None)
+        return cast('int | None', getattr(self._resource, "value_integer", None))
 
     def set_value_integer(self, value: int) -> "UscoreBodyWeightProfile":
         setattr(self._resource, "value_integer", value)
         return self
 
     def get_value_range(self) -> Range | None:
-        return getattr(self._resource, "value_range", None)
+        return cast('Range | None', getattr(self._resource, "value_range", None))
 
     def set_value_range(self, value: Range) -> "UscoreBodyWeightProfile":
         setattr(self._resource, "value_range", value)
         return self
 
     def get_value_ratio(self) -> Ratio | None:
-        return getattr(self._resource, "value_ratio", None)
+        return cast('Ratio | None', getattr(self._resource, "value_ratio", None))
 
     def set_value_ratio(self, value: Ratio) -> "UscoreBodyWeightProfile":
         setattr(self._resource, "value_ratio", value)
         return self
 
     def get_value_sampled_data(self) -> SampledData | None:
-        return getattr(self._resource, "value_sampled_data", None)
+        return cast('SampledData | None', getattr(self._resource, "value_sampled_data", None))
 
     def set_value_sampled_data(self, value: SampledData) -> "UscoreBodyWeightProfile":
         setattr(self._resource, "value_sampled_data", value)
         return self
 
     def get_value_time(self) -> str | None:
-        return getattr(self._resource, "value_time", None)
+        return cast('str | None', getattr(self._resource, "value_time", None))
 
     def set_value_time(self, value: str) -> "UscoreBodyWeightProfile":
         setattr(self._resource, "value_time", value)
         return self
 
     def get_value_date_time(self) -> str | None:
-        return getattr(self._resource, "value_date_time", None)
+        return cast('str | None', getattr(self._resource, "value_date_time", None))
 
     def set_value_date_time(self, value: str) -> "UscoreBodyWeightProfile":
         setattr(self._resource, "value_date_time", value)
         return self
 
     def get_value_period(self) -> Period | None:
-        return getattr(self._resource, "value_period", None)
+        return cast('Period | None', getattr(self._resource, "value_period", None))
 
     def set_value_period(self, value: Period) -> "UscoreBodyWeightProfile":
         setattr(self._resource, "value_period", value)
         return self
 
     @overload
-    def get_vscat(self) -> dict | None: ...
+    def get_vscat(self) -> dict[str, Any] | None: ...
     @overload
     def get_vscat(self, mode: Literal["raw"]) -> CodeableConcept | None: ...
-    def get_vscat(self, mode: Literal["raw"] | None = None) -> dict | CodeableConcept | None:
+    def get_vscat(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | CodeableConcept | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
         if mode == "raw":
-            return item
+            return cast('CodeableConcept | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return strip_match_keys(item_dict, ["coding"])
 
-    def set_vscat(self, value: dict | None = None) -> "UscoreBodyWeightProfile":
+    def set_vscat(self, value: dict[str, Any] | None = None) -> "UscoreBodyWeightProfile":
         match = self.__class__._vscat_slice_match
         merged = apply_slice_match((value or {}), match)
         merged = CodeableConcept(**merged)
@@ -1733,11 +1733,10 @@ exports[`Python US Core Example generates US Core Race extension profile 1`] = `
 
 from __future__ import annotations
 
-from typing import Any, Literal, overload
+from typing import Any, Literal, cast, overload
 
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.hl7_fhir_r4_core.base import Extension
-from fhir_types.hl7_fhir_r4_core.base import Coding
 from fhir_types.profile_helpers import (
     _get_key, apply_slice_match, build_resource, ensure_slice_defaults, get_array_slice, get_extension_value, \\
     is_extension, matches_value, push_extension, set_array_slice, strip_match_keys, unwrap_slice_choice, validate_fixed_value, \\
@@ -1759,9 +1758,9 @@ class UscoreRaceExtension:
 
     canonical_url: str = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
 
-    _omb_category_slice_match: dict = {"url":"ombCategory"}
-    _detailed_slice_match: dict = {"url":"detailed"}
-    _text_slice_match: dict = {"url":"text"}
+    _omb_category_slice_match: dict[str, Any] = {"url":"ombCategory"}
+    _detailed_slice_match: dict[str, Any] = {"url":"detailed"}
+    _text_slice_match: dict[str, Any] = {"url":"text"}
 
     def __init__(self, resource: Extension) -> None:
         self._resource = resource
@@ -1792,24 +1791,24 @@ class UscoreRaceExtension:
         return self._resource
 
     def get_extension(self) -> list[Extension] | None:
-        return getattr(self._resource, "extension", None)
+        return cast('list[Extension] | None', getattr(self._resource, "extension", None))
 
     def set_extension(self, value: list[Extension]) -> "UscoreRaceExtension":
         setattr(self._resource, "extension", value)
         return self
 
     def get_url(self) -> str | None:
-        return getattr(self._resource, "url", None)
+        return cast('str | None', getattr(self._resource, "url", None))
 
     def set_url(self, value: str) -> "UscoreRaceExtension":
         setattr(self._resource, "url", value)
         return self
 
     @overload
-    def get_omb_category(self) -> dict | None: ...
+    def get_omb_category(self) -> dict[str, Any] | None: ...
     @overload
     def get_omb_category(self, mode: Literal["raw"]) -> Extension | None: ...
-    def get_omb_category(self, mode: Literal["raw"] | None = None) -> dict | Extension | None:
+    def get_omb_category(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | Extension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "ombCategory")), None)
         if ext is None:
@@ -1817,9 +1816,9 @@ class UscoreRaceExtension:
         ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
             return ext_obj
-        return ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True)
+        return cast("dict[str, Any] | None", ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True))
 
-    def set_omb_category(self, value: "Extension | dict") -> "UscoreRaceExtension":
+    def set_omb_category(self, value: "Extension | dict[str, Any]") -> "UscoreRaceExtension":
         if is_extension(value):
             if _get_key(value, "url") != "ombCategory":
                 raise ValueError(f"Expected extension url 'ombCategory', got {_get_key(value, 'url')!r}")
@@ -1829,10 +1828,10 @@ class UscoreRaceExtension:
         return self
 
     @overload
-    def get_detailed(self) -> dict | None: ...
+    def get_detailed(self) -> dict[str, Any] | None: ...
     @overload
     def get_detailed(self, mode: Literal["raw"]) -> Extension | None: ...
-    def get_detailed(self, mode: Literal["raw"] | None = None) -> dict | Extension | None:
+    def get_detailed(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | Extension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "detailed")), None)
         if ext is None:
@@ -1840,9 +1839,9 @@ class UscoreRaceExtension:
         ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
             return ext_obj
-        return ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True)
+        return cast("dict[str, Any] | None", ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True))
 
-    def set_detailed(self, value: "Extension | dict") -> "UscoreRaceExtension":
+    def set_detailed(self, value: "Extension | dict[str, Any]") -> "UscoreRaceExtension":
         if is_extension(value):
             if _get_key(value, "url") != "detailed":
                 raise ValueError(f"Expected extension url 'detailed', got {_get_key(value, 'url')!r}")
@@ -1852,10 +1851,10 @@ class UscoreRaceExtension:
         return self
 
     @overload
-    def get_text(self) -> dict | None: ...
+    def get_text(self) -> dict[str, Any] | None: ...
     @overload
     def get_text(self, mode: Literal["raw"]) -> Extension | None: ...
-    def get_text(self, mode: Literal["raw"] | None = None) -> dict | Extension | None:
+    def get_text(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | Extension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "text")), None)
         if ext is None:
@@ -1863,9 +1862,9 @@ class UscoreRaceExtension:
         ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
             return ext_obj
-        return ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True)
+        return cast("dict[str, Any] | None", ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True))
 
-    def set_text(self, value: "Extension | dict") -> "UscoreRaceExtension":
+    def set_text(self, value: "Extension | dict[str, Any]") -> "UscoreRaceExtension":
         if is_extension(value):
             if _get_key(value, "url") != "text":
                 raise ValueError(f"Expected extension url 'text', got {_get_key(value, 'url')!r}")
@@ -1875,42 +1874,42 @@ class UscoreRaceExtension:
         return self
 
     @overload
-    def get_extension_omb_category(self) -> Coding | None: ...
+    def get_extension_omb_category(self) -> dict[str, Any] | None: ...
     @overload
     def get_extension_omb_category(self, mode: Literal["raw"]) -> Extension | None: ...
-    def get_extension_omb_category(self, mode: Literal["raw"] | None = None) -> Coding | Extension | None:
+    def get_extension_omb_category(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | Extension | None:
         match = self.__class__._omb_category_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
         if mode == "raw":
-            return item
+            return cast('Extension | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return unwrap_slice_choice(item_dict, ["url"], "valueCoding")
 
     @overload
-    def get_extension_detailed(self) -> Coding | None: ...
+    def get_extension_detailed(self) -> dict[str, Any] | None: ...
     @overload
     def get_extension_detailed(self, mode: Literal["raw"]) -> Extension | None: ...
-    def get_extension_detailed(self, mode: Literal["raw"] | None = None) -> Coding | Extension | None:
+    def get_extension_detailed(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | Extension | None:
         match = self.__class__._detailed_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
         if mode == "raw":
-            return item
+            return cast('Extension | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return unwrap_slice_choice(item_dict, ["url"], "valueCoding")
 
     @overload
-    def get_extension_text(self) -> dict | None: ...
+    def get_extension_text(self) -> dict[str, Any] | None: ...
     @overload
     def get_extension_text(self, mode: Literal["raw"]) -> Extension | None: ...
-    def get_extension_text(self, mode: Literal["raw"] | None = None) -> dict | Extension | None:
+    def get_extension_text(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | Extension | None:
         match = self.__class__._text_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
         if mode == "raw":
-            return item
+            return cast('Extension | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return strip_match_keys(item_dict, ["url"])
 
-    def set_extension_omb_category(self, value: dict | None = None) -> "UscoreRaceExtension":
+    def set_extension_omb_category(self, value: dict[str, Any] | None = None) -> "UscoreRaceExtension":
         match = self.__class__._omb_category_slice_match
         wrapped = wrap_slice_choice((value or {}), "valueCoding")
         merged = apply_slice_match(wrapped, match)
@@ -1920,7 +1919,7 @@ class UscoreRaceExtension:
         setattr(self._resource, "extension", items)
         return self
 
-    def set_extension_detailed(self, value: dict | None = None) -> "UscoreRaceExtension":
+    def set_extension_detailed(self, value: dict[str, Any] | None = None) -> "UscoreRaceExtension":
         match = self.__class__._detailed_slice_match
         wrapped = wrap_slice_choice((value or {}), "valueCoding")
         merged = apply_slice_match(wrapped, match)
@@ -1930,7 +1929,7 @@ class UscoreRaceExtension:
         setattr(self._resource, "extension", items)
         return self
 
-    def set_extension_text(self, value: dict | None = None) -> "UscoreRaceExtension":
+    def set_extension_text(self, value: dict[str, Any] | None = None) -> "UscoreRaceExtension":
         match = self.__class__._text_slice_match
         merged = apply_slice_match((value or {}), match)
         merged = Extension(**merged)
@@ -1967,5 +1966,17 @@ from .patient_uscore_patient_profile import UscorePatientProfile
 from .extension_uscore_race_extension import UscoreRaceExtension
 from .extension_uscore_tribal_affiliation_extension import UscoreTribalAffiliationExtension
 from .observation_uscore_vital_signs_profile import UscoreVitalSignsProfile
+
+__all__ = [
+    'UscoreBloodPressureProfile',
+    'UscoreBodyWeightProfile',
+    'UscoreEthnicityExtension',
+    'UscoreIndividualSexExtension',
+    'UscoreInterpreterNeededExtension',
+    'UscorePatientProfile',
+    'UscoreRaceExtension',
+    'UscoreTribalAffiliationExtension',
+    'UscoreVitalSignsProfile',
+]
 "
 `;

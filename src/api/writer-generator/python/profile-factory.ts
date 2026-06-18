@@ -282,7 +282,7 @@ export const generateFieldAccessors = (
         const methodSuffix = pySnakeName(p.name);
         w.line(`def get_${methodSuffix}(self) -> ${p.pyType} | None:`);
         w.indentBlock(() => {
-            w.line(`return getattr(self._resource, ${JSON.stringify(fieldName)}, None)`);
+            w.line(`return cast('${p.pyType} | None', getattr(self._resource, ${JSON.stringify(fieldName)}, None))`);
         });
         w.line();
         w.line(`def set_${methodSuffix}(self, value: ${p.pyType}) -> "${className}":`);
@@ -299,7 +299,7 @@ export const generateFieldAccessors = (
         const fieldName = pyFieldName(a.name, fmt);
         w.line(`def get_${methodSuffix}(self) -> ${a.pyType} | None:`);
         w.indentBlock(() => {
-            w.line(`return getattr(self._resource, ${JSON.stringify(fieldName)}, None)`);
+            w.line(`return cast('${a.pyType} | None', getattr(self._resource, ${JSON.stringify(fieldName)}, None))`);
         });
         w.line();
         w.line(`def set_${methodSuffix}(self, value: ${a.pyType}) -> "${className}":`);

@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal, cast
 
 from fhir_types.hl7_fhir_r4_core.bundle import Bundle
 from fhir_types.hl7_fhir_r4_core.bundle import BundleEntry
@@ -25,8 +25,8 @@ class ExampleTypedBundleProfile:
 
     canonical_url: str = "http://example.org/fhir/StructureDefinition/ExampleTypedBundle"
 
-    _patient_entry_slice_match: dict = {"resource":{"resourceType":"Patient"}}
-    _organization_entry_slice_match: dict = {"resource":{"resourceType":"Organization"}}
+    _patient_entry_slice_match: dict[str, Any] = {"resource":{"resourceType":"Patient"}}
+    _organization_entry_slice_match: dict[str, Any] = {"resource":{"resourceType":"Organization"}}
 
     def __init__(self, resource: Bundle[Patient | Organization, Resource]) -> None:
         self._resource = resource
@@ -65,7 +65,7 @@ class ExampleTypedBundleProfile:
         return self._resource
 
     def get_type(self) -> Literal["document", "message", "transaction", "transaction-response", "batch", "batch-response", "history", "searchset", "collection"] | None:
-        return getattr(self._resource, "type", None)
+        return cast('Literal["document", "message", "transaction", "transaction-response", "batch", "batch-response", "history", "searchset", "collection"] | None', getattr(self._resource, "type", None))
 
     def set_type(self, value: Literal["document", "message", "transaction", "transaction-response", "batch", "batch-response", "history", "searchset", "collection"]) -> "ExampleTypedBundleProfile":
         setattr(self._resource, "type", value)
@@ -73,12 +73,12 @@ class ExampleTypedBundleProfile:
 
     def get_patient_entry(self, mode: str | None = None) -> BundleEntry[Patient] | None:
         match = self.__class__._patient_entry_slice_match
-        return get_array_slice(getattr(self._resource, "entry", None), match)
+        return cast('BundleEntry[Patient] | None', get_array_slice(getattr(self._resource, "entry", None), match))
 
     def get_organization_entry(self, mode: str | None = None) -> list[BundleEntry[Organization]] | None:
         match = self.__class__._organization_entry_slice_match
         result = get_array_slices(getattr(self._resource, "entry", None), match)
-        return result or None
+        return cast('list[BundleEntry[Organization]] | None', result or None)
 
     def set_patient_entry(self, value: BundleEntry[Patient] | None = None) -> "ExampleTypedBundleProfile":
         match = self.__class__._patient_entry_slice_match

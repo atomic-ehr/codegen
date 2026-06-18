@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Literal, overload
+from typing import Any, Literal, cast, overload
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
@@ -25,7 +25,7 @@ class UscoreVitalSignsProfile:
 
     canonical_url: str = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-vital-signs"
 
-    _vscat_slice_match: dict = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}
+    _vscat_slice_match: dict[str, Any] = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}
 
     def __init__(self, resource: Observation) -> None:
         self._resource = resource
@@ -69,35 +69,35 @@ class UscoreVitalSignsProfile:
         return self._resource
 
     def get_status(self) -> Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"] | None:
-        return getattr(self._resource, "status", None)
+        return cast('Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"] | None', getattr(self._resource, "status", None))
 
     def set_status(self, value: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"]) -> "UscoreVitalSignsProfile":
         setattr(self._resource, "status", value)
         return self
 
     def get_code(self) -> CodeableConcept | None:
-        return getattr(self._resource, "code", None)
+        return cast('CodeableConcept | None', getattr(self._resource, "code", None))
 
     def set_code(self, value: CodeableConcept) -> "UscoreVitalSignsProfile":
         setattr(self._resource, "code", value)
         return self
 
     def get_subject(self) -> Reference | None:
-        return getattr(self._resource, "subject", None)
+        return cast('Reference | None', getattr(self._resource, "subject", None))
 
     def set_subject(self, value: Reference) -> "UscoreVitalSignsProfile":
         setattr(self._resource, "subject", value)
         return self
 
     def get_category(self) -> list[CodeableConcept] | None:
-        return getattr(self._resource, "category", None)
+        return cast('list[CodeableConcept] | None', getattr(self._resource, "category", None))
 
     def set_category(self, value: list[CodeableConcept]) -> "UscoreVitalSignsProfile":
         setattr(self._resource, "category", value)
         return self
 
     def get_effective_date_time(self) -> str | None:
-        return getattr(self._resource, "effective_date_time", None)
+        return cast('str | None', getattr(self._resource, "effective_date_time", None))
 
     def set_effective_date_time(self, value: str) -> "UscoreVitalSignsProfile":
         setattr(self._resource, "effective_period", None)
@@ -105,7 +105,7 @@ class UscoreVitalSignsProfile:
         return self
 
     def get_effective_period(self) -> Period | None:
-        return getattr(self._resource, "effective_period", None)
+        return cast('Period | None', getattr(self._resource, "effective_period", None))
 
     def set_effective_period(self, value: Period) -> "UscoreVitalSignsProfile":
         setattr(self._resource, "effective_date_time", None)
@@ -113,7 +113,7 @@ class UscoreVitalSignsProfile:
         return self
 
     def get_value_quantity(self) -> Quantity | None:
-        return getattr(self._resource, "value_quantity", None)
+        return cast('Quantity | None', getattr(self._resource, "value_quantity", None))
 
     def set_value_quantity(self, value: Quantity) -> "UscoreVitalSignsProfile":
         setattr(self._resource, "value_codeable_concept", None)
@@ -130,7 +130,7 @@ class UscoreVitalSignsProfile:
         return self
 
     def get_value_codeable_concept(self) -> CodeableConcept | None:
-        return getattr(self._resource, "value_codeable_concept", None)
+        return cast('CodeableConcept | None', getattr(self._resource, "value_codeable_concept", None))
 
     def set_value_codeable_concept(self, value: CodeableConcept) -> "UscoreVitalSignsProfile":
         setattr(self._resource, "value_quantity", None)
@@ -147,7 +147,7 @@ class UscoreVitalSignsProfile:
         return self
 
     def get_value_string(self) -> str | None:
-        return getattr(self._resource, "value_string", None)
+        return cast('str | None', getattr(self._resource, "value_string", None))
 
     def set_value_string(self, value: str) -> "UscoreVitalSignsProfile":
         setattr(self._resource, "value_quantity", None)
@@ -164,7 +164,7 @@ class UscoreVitalSignsProfile:
         return self
 
     def get_value_boolean(self) -> bool | None:
-        return getattr(self._resource, "value_boolean", None)
+        return cast('bool | None', getattr(self._resource, "value_boolean", None))
 
     def set_value_boolean(self, value: bool) -> "UscoreVitalSignsProfile":
         setattr(self._resource, "value_quantity", None)
@@ -181,7 +181,7 @@ class UscoreVitalSignsProfile:
         return self
 
     def get_value_integer(self) -> int | None:
-        return getattr(self._resource, "value_integer", None)
+        return cast('int | None', getattr(self._resource, "value_integer", None))
 
     def set_value_integer(self, value: int) -> "UscoreVitalSignsProfile":
         setattr(self._resource, "value_quantity", None)
@@ -198,7 +198,7 @@ class UscoreVitalSignsProfile:
         return self
 
     def get_value_range(self) -> Range | None:
-        return getattr(self._resource, "value_range", None)
+        return cast('Range | None', getattr(self._resource, "value_range", None))
 
     def set_value_range(self, value: Range) -> "UscoreVitalSignsProfile":
         setattr(self._resource, "value_quantity", None)
@@ -215,7 +215,7 @@ class UscoreVitalSignsProfile:
         return self
 
     def get_value_ratio(self) -> Ratio | None:
-        return getattr(self._resource, "value_ratio", None)
+        return cast('Ratio | None', getattr(self._resource, "value_ratio", None))
 
     def set_value_ratio(self, value: Ratio) -> "UscoreVitalSignsProfile":
         setattr(self._resource, "value_quantity", None)
@@ -232,7 +232,7 @@ class UscoreVitalSignsProfile:
         return self
 
     def get_value_sampled_data(self) -> SampledData | None:
-        return getattr(self._resource, "value_sampled_data", None)
+        return cast('SampledData | None', getattr(self._resource, "value_sampled_data", None))
 
     def set_value_sampled_data(self, value: SampledData) -> "UscoreVitalSignsProfile":
         setattr(self._resource, "value_quantity", None)
@@ -249,7 +249,7 @@ class UscoreVitalSignsProfile:
         return self
 
     def get_value_time(self) -> str | None:
-        return getattr(self._resource, "value_time", None)
+        return cast('str | None', getattr(self._resource, "value_time", None))
 
     def set_value_time(self, value: str) -> "UscoreVitalSignsProfile":
         setattr(self._resource, "value_quantity", None)
@@ -266,7 +266,7 @@ class UscoreVitalSignsProfile:
         return self
 
     def get_value_date_time(self) -> str | None:
-        return getattr(self._resource, "value_date_time", None)
+        return cast('str | None', getattr(self._resource, "value_date_time", None))
 
     def set_value_date_time(self, value: str) -> "UscoreVitalSignsProfile":
         setattr(self._resource, "value_quantity", None)
@@ -283,7 +283,7 @@ class UscoreVitalSignsProfile:
         return self
 
     def get_value_period(self) -> Period | None:
-        return getattr(self._resource, "value_period", None)
+        return cast('Period | None', getattr(self._resource, "value_period", None))
 
     def set_value_period(self, value: Period) -> "UscoreVitalSignsProfile":
         setattr(self._resource, "value_quantity", None)
@@ -300,18 +300,18 @@ class UscoreVitalSignsProfile:
         return self
 
     @overload
-    def get_vscat(self) -> dict | None: ...
+    def get_vscat(self) -> dict[str, Any] | None: ...
     @overload
     def get_vscat(self, mode: Literal["raw"]) -> CodeableConcept | None: ...
-    def get_vscat(self, mode: Literal["raw"] | None = None) -> dict | CodeableConcept | None:
+    def get_vscat(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | CodeableConcept | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
         if mode == "raw":
-            return item
+            return cast('CodeableConcept | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return strip_match_keys(item_dict, ["coding"])
 
-    def set_vscat(self, value: dict | None = None) -> "UscoreVitalSignsProfile":
+    def set_vscat(self, value: dict[str, Any] | None = None) -> "UscoreVitalSignsProfile":
         match = self.__class__._vscat_slice_match
         merged = apply_slice_match((value or {}), match)
         merged = CodeableConcept(**merged)

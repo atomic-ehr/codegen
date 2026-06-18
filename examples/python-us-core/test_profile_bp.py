@@ -8,7 +8,7 @@ import warnings
 
 from fhir_types.hl7_fhir_r4_core.base import CodeableConcept, Coding, Quantity, Reference
 from fhir_types.hl7_fhir_r4_core.observation import Observation, ObservationComponent
-from fhir_types.hl7_fhir_r4_core.resource import Meta
+from fhir_types.hl7_fhir_r4_core.base import Meta
 from fhir_types.hl7_fhir_us_core.profiles.observation_uscore_blood_pressure_profile import UscoreBloodPressureProfile
 
 # Pydantic warns when extensions list contains plain dicts instead of Extension
@@ -32,7 +32,7 @@ def _make_bp() -> UscoreBloodPressureProfile:
 # ---------------------------------------------------------------------------
 
 
-def test_import_profiled_observation_from_api_and_read_components():
+def test_import_profiled_observation_from_api_and_read_components() -> None:
     api_response = Observation(
         resource_type="Observation",
         meta=Meta(profile=[CANONICAL_URL]),
@@ -70,7 +70,7 @@ def test_import_profiled_observation_from_api_and_read_components():
     assert profile.get_effective_date_time() == "2024-06-15"
 
 
-def test_apply_profile_to_bare_observation_and_populate_it():
+def test_apply_profile_to_bare_observation_and_populate_it() -> None:
     bare_observation = Observation(resource_type="Observation", status="preliminary", code=CodeableConcept())
     profile = UscoreBloodPressureProfile.apply(bare_observation)
 
@@ -91,11 +91,11 @@ def test_apply_profile_to_bare_observation_and_populate_it():
 # ---------------------------------------------------------------------------
 
 
-def test_canonical_url_is_exposed():
+def test_canonical_url_is_exposed() -> None:
     assert UscoreBloodPressureProfile.canonical_url == CANONICAL_URL
 
 
-def test_create_auto_sets_code_and_meta_profile():
+def test_create_auto_sets_code_and_meta_profile() -> None:
     profile = _make_bp()
     obs = profile.to_resource()
     assert obs.resource_type == "Observation"
@@ -104,7 +104,7 @@ def test_create_auto_sets_code_and_meta_profile():
     assert obs.meta.profile == [CANONICAL_URL]
 
 
-def test_freshly_created_profile_is_not_yet_valid_missing_effective():
+def test_freshly_created_profile_is_not_yet_valid_missing_effective() -> None:
     profile = _make_bp()
     errors = profile.validate()["errors"]
     assert errors == [
@@ -112,13 +112,13 @@ def test_freshly_created_profile_is_not_yet_valid_missing_effective():
     ]
 
 
-def test_create_auto_populates_component_with_systolic_diastolic_stubs():
+def test_create_auto_populates_component_with_systolic_diastolic_stubs() -> None:
     profile = _make_bp()
     obs = profile.to_resource()
     assert len(obs.component) == 2
 
 
-def test_set_systolic_get_systolic_get_systolic_raw():
+def test_set_systolic_get_systolic_get_systolic_raw() -> None:
     profile = _make_bp()
     profile.set_systolic({"value": 120, "unit": "mmHg", "system": "http://unitsofmeasure.org", "code": "mm[Hg]"})
 
@@ -134,7 +134,7 @@ def test_set_systolic_get_systolic_get_systolic_raw():
     assert raw.code.coding[0].code == "8480-6"
 
 
-def test_set_diastolic_get_diastolic_get_diastolic_raw():
+def test_set_diastolic_get_diastolic_get_diastolic_raw() -> None:
     profile = _make_bp()
     profile.set_diastolic({"value": 80, "unit": "mmHg", "system": "http://unitsofmeasure.org", "code": "mm[Hg]"})
 
@@ -150,13 +150,13 @@ def test_set_diastolic_get_diastolic_get_diastolic_raw():
     assert raw.code.coding[0].code == "8462-4"
 
 
-def test_both_systolic_and_diastolic_are_in_the_component_array():
+def test_both_systolic_and_diastolic_are_in_the_component_array() -> None:
     profile = _make_bp()
     obs = profile.to_resource()
     assert len(obs.component) == 2
 
 
-def test_set_systolic_replaces_an_existing_systolic_component():
+def test_set_systolic_replaces_an_existing_systolic_component() -> None:
     profile = _make_bp()
     profile.set_systolic({"value": 130, "unit": "mmHg"})
     obs = profile.to_resource()
@@ -164,21 +164,21 @@ def test_set_systolic_replaces_an_existing_systolic_component():
     assert profile.get_systolic("raw").value_quantity.value == 130
 
 
-def test_set_vscat_adds_category_with_discriminator_values():
+def test_set_vscat_adds_category_with_discriminator_values() -> None:
     profile = _make_bp()
     profile.set_vscat({"text": "Vital Signs"})
     flat = profile.get_vscat()
     assert flat["text"] == "Vital Signs"
 
 
-def test_set_effective_date_time_get_effective_date_time():
+def test_set_effective_date_time_get_effective_date_time() -> None:
     profile = _make_bp()
     profile.set_effective_date_time("2024-06-15T10:30:00Z")
     assert profile.get_effective_date_time() == "2024-06-15T10:30:00Z"
     assert profile.get_value_quantity() is None
 
 
-def test_fluent_chaining_across_all_accessor_types():
+def test_fluent_chaining_across_all_accessor_types() -> None:
     profile = _make_bp()
     result = (
         profile.set_status("final")
@@ -193,13 +193,13 @@ def test_fluent_chaining_across_all_accessor_types():
     assert profile.get_subject().reference == "Patient/pt-2"
 
 
-def test_set_systolic_with_no_args_inserts_discriminator_only_component():
+def test_set_systolic_with_no_args_inserts_discriminator_only_component() -> None:
     profile = _make_bp()
-    profile.set_systolic()  # type: ignore[call-arg]
+    profile.set_systolic()
     assert profile.get_systolic() is not None
 
 
-def test_create_with_custom_category_preserves_user_values_and_adds_required_vscat():
+def test_create_with_custom_category_preserves_user_values_and_adds_required_vscat() -> None:
     custom = UscoreBloodPressureProfile.create(
         status="final",
         subject=Reference(reference="Patient/pt-1"),
@@ -209,7 +209,7 @@ def test_create_with_custom_category_preserves_user_values_and_adds_required_vsc
     assert len(obs.category) == 2
 
 
-def test_create_with_empty_category_still_adds_required_vscat():
+def test_create_with_empty_category_still_adds_required_vscat() -> None:
     custom = UscoreBloodPressureProfile.create(
         status="final",
         subject=Reference(reference="Patient/pt-1"),
@@ -219,7 +219,7 @@ def test_create_with_empty_category_still_adds_required_vscat():
     assert len(obs.category) == 1
 
 
-def test_create_with_category_already_containing_vscat_does_not_duplicate_it():
+def test_create_with_category_already_containing_vscat_does_not_duplicate_it() -> None:
     custom = UscoreBloodPressureProfile.create(
         status="final",
         subject=Reference(reference="Patient/pt-1"),

@@ -56,8 +56,8 @@ def row_to_patient(row: Row) -> Patient:
         identifier=[Identifier(system="http://hospital.example.org/mrn", value=row.mrn)],
         name=[HumanName(family=row.last, given=[row.first])],
     )
-    resource.gender = row.gender  # type: ignore[assignment]
-    resource.birth_date = row.dob  # type: ignore[assignment]
+    resource.gender = row.gender
+    resource.birth_date = row.dob
 
     race = UscoreRaceExtension.create()
     race.set_extension_omb_category({

@@ -3,3 +3,7 @@
 # Any manual changes made to this file may be overwritten.
 
 from .observation_observation_vitalsigns import ObservationVitalsignsProfile
+
+__all__ = [
+    'ObservationVitalsignsProfile',
+]

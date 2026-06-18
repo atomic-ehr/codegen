@@ -4,11 +4,10 @@
 
 from __future__ import annotations
 
-from typing import Any, Literal, overload
+from typing import Any, Literal, cast, overload
 
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.hl7_fhir_r4_core.base import Extension
-from fhir_types.hl7_fhir_r4_core.base import CodeableConcept
 from fhir_types.profile_helpers import (
     _get_key, apply_slice_match, build_resource, ensure_slice_defaults, get_array_slice, get_extension_value, \
     is_extension, matches_value, push_extension, set_array_slice, strip_match_keys, unwrap_slice_choice, validate_fixed_value, \
@@ -24,8 +23,8 @@ class UscoreTribalAffiliationExtension:
 
     canonical_url: str = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation"
 
-    _tribal_affiliation_slice_match: dict = {"url":"tribalAffiliation"}
-    _is_enrolled_slice_match: dict = {"url":"isEnrolled"}
+    _tribal_affiliation_slice_match: dict[str, Any] = {"url":"tribalAffiliation"}
+    _is_enrolled_slice_match: dict[str, Any] = {"url":"isEnrolled"}
 
     def __init__(self, resource: Extension) -> None:
         self._resource = resource
@@ -56,24 +55,24 @@ class UscoreTribalAffiliationExtension:
         return self._resource
 
     def get_extension(self) -> list[Extension] | None:
-        return getattr(self._resource, "extension", None)
+        return cast('list[Extension] | None', getattr(self._resource, "extension", None))
 
     def set_extension(self, value: list[Extension]) -> "UscoreTribalAffiliationExtension":
         setattr(self._resource, "extension", value)
         return self
 
     def get_url(self) -> str | None:
-        return getattr(self._resource, "url", None)
+        return cast('str | None', getattr(self._resource, "url", None))
 
     def set_url(self, value: str) -> "UscoreTribalAffiliationExtension":
         setattr(self._resource, "url", value)
         return self
 
     @overload
-    def get_tribal_affiliation(self) -> dict | None: ...
+    def get_tribal_affiliation(self) -> dict[str, Any] | None: ...
     @overload
     def get_tribal_affiliation(self, mode: Literal["raw"]) -> Extension | None: ...
-    def get_tribal_affiliation(self, mode: Literal["raw"] | None = None) -> dict | Extension | None:
+    def get_tribal_affiliation(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | Extension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "tribalAffiliation")), None)
         if ext is None:
@@ -81,9 +80,9 @@ class UscoreTribalAffiliationExtension:
         ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
             return ext_obj
-        return ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True)
+        return cast("dict[str, Any] | None", ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True))
 
-    def set_tribal_affiliation(self, value: "Extension | dict") -> "UscoreTribalAffiliationExtension":
+    def set_tribal_affiliation(self, value: "Extension | dict[str, Any]") -> "UscoreTribalAffiliationExtension":
         if is_extension(value):
             if _get_key(value, "url") != "tribalAffiliation":
                 raise ValueError(f"Expected extension url 'tribalAffiliation', got {_get_key(value, 'url')!r}")
@@ -93,10 +92,10 @@ class UscoreTribalAffiliationExtension:
         return self
 
     @overload
-    def get_is_enrolled(self) -> dict | None: ...
+    def get_is_enrolled(self) -> dict[str, Any] | None: ...
     @overload
     def get_is_enrolled(self, mode: Literal["raw"]) -> Extension | None: ...
-    def get_is_enrolled(self, mode: Literal["raw"] | None = None) -> dict | Extension | None:
+    def get_is_enrolled(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | Extension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "isEnrolled")), None)
         if ext is None:
@@ -104,9 +103,9 @@ class UscoreTribalAffiliationExtension:
         ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
             return ext_obj
-        return ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True)
+        return cast("dict[str, Any] | None", ext if isinstance(ext, dict) else ext.model_dump(by_alias=True, exclude_none=True))
 
-    def set_is_enrolled(self, value: "Extension | dict") -> "UscoreTribalAffiliationExtension":
+    def set_is_enrolled(self, value: "Extension | dict[str, Any]") -> "UscoreTribalAffiliationExtension":
         if is_extension(value):
             if _get_key(value, "url") != "isEnrolled":
                 raise ValueError(f"Expected extension url 'isEnrolled', got {_get_key(value, 'url')!r}")
@@ -116,30 +115,30 @@ class UscoreTribalAffiliationExtension:
         return self
 
     @overload
-    def get_extension_tribal_affiliation(self) -> CodeableConcept | None: ...
+    def get_extension_tribal_affiliation(self) -> dict[str, Any] | None: ...
     @overload
     def get_extension_tribal_affiliation(self, mode: Literal["raw"]) -> Extension | None: ...
-    def get_extension_tribal_affiliation(self, mode: Literal["raw"] | None = None) -> CodeableConcept | Extension | None:
+    def get_extension_tribal_affiliation(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | Extension | None:
         match = self.__class__._tribal_affiliation_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
         if mode == "raw":
-            return item
+            return cast('Extension | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return unwrap_slice_choice(item_dict, ["url"], "valueCodeableConcept")
 
     @overload
-    def get_extension_is_enrolled(self) -> dict | None: ...
+    def get_extension_is_enrolled(self) -> dict[str, Any] | None: ...
     @overload
     def get_extension_is_enrolled(self, mode: Literal["raw"]) -> Extension | None: ...
-    def get_extension_is_enrolled(self, mode: Literal["raw"] | None = None) -> dict | Extension | None:
+    def get_extension_is_enrolled(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | Extension | None:
         match = self.__class__._is_enrolled_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
         if mode == "raw":
-            return item
+            return cast('Extension | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return strip_match_keys(item_dict, ["url"])
 
-    def set_extension_tribal_affiliation(self, value: dict | None = None) -> "UscoreTribalAffiliationExtension":
+    def set_extension_tribal_affiliation(self, value: dict[str, Any] | None = None) -> "UscoreTribalAffiliationExtension":
         match = self.__class__._tribal_affiliation_slice_match
         wrapped = wrap_slice_choice((value or {}), "valueCodeableConcept")
         merged = apply_slice_match(wrapped, match)
@@ -149,7 +148,7 @@ class UscoreTribalAffiliationExtension:
         setattr(self._resource, "extension", items)
         return self
 
-    def set_extension_is_enrolled(self, value: dict | None = None) -> "UscoreTribalAffiliationExtension":
+    def set_extension_is_enrolled(self, value: dict[str, Any] | None = None) -> "UscoreTribalAffiliationExtension":
         match = self.__class__._is_enrolled_slice_match
         merged = apply_slice_match((value or {}), match)
         merged = Extension(**merged)

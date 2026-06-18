@@ -46,7 +46,7 @@ export const collectRequiredSliceNames = (field: RegularField): string[] | undef
 export const generateStaticSliceFields = (w: Python, sliceDefs: SliceDef[]): void => {
     for (const sliceDef of sliceDefs) {
         const staticName = pySliceStaticName(sliceDef.sliceName);
-        w.line(`${staticName}: dict = ${JSON.stringify(sliceDef.match)}`);
+        w.line(`${staticName}: dict[str, Any] = ${JSON.stringify(sliceDef.match)}`);
     }
     if (sliceDefs.length > 0) w.line();
 };
@@ -178,21 +178,21 @@ export const generateSliceGetters = (
                     w.line(
                         `result = get_array_slices(getattr(self._resource, ${JSON.stringify(fieldName)}, None), match)`,
                     );
-                    w.line("return result or None");
+                    w.line(`return cast('list[${retType}] | None', result or None)`);
                 });
             } else {
                 w.line(`def get_${baseName}(self, mode: str | None = None) -> ${retType} | None:`);
                 w.indentBlock(() => {
                     w.line(`match = self.__class__.${staticName}`);
                     w.line(
-                        `return get_array_slice(getattr(self._resource, ${JSON.stringify(fieldName)}, None), match)`,
+                        `return cast('${retType} | None', get_array_slice(getattr(self._resource, ${JSON.stringify(fieldName)}, None), match))`,
                     );
                 });
             }
         } else {
-            const flatRetType = sliceDef.constrainedChoice
-                ? pyTypeFromIdentifier(sliceDef.constrainedChoice.variantType)
-                : "dict";
+            // The flat form is always a plain dict at runtime (helpers return dict[str, Any]),
+            // including constrained-choice slices where the variant wrapper is unwrapped.
+            const flatRetType = "dict[str, Any]";
             const rawRetType = sliceDef.elementTypeName ?? "Any";
             w.line("@overload");
             w.line(`def get_${baseName}(self) -> ${flatRetType} | None: ...`);
@@ -216,7 +216,7 @@ export const generateSliceGetters = (
                 }
                 w.line('if mode == "raw":');
                 w.indentBlock(() => {
-                    w.line("return item");
+                    w.line(`return cast('${rawRetType} | None', item)`);
                 });
                 w.line(
                     "item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)",
@@ -271,8 +271,8 @@ export const generateSliceSetters = (
             // mirroring TS `inputOptional = sliceDef.required.length === 0`.
             const inputOptional = sliceDef.required.length === 0;
             const sig = inputOptional
-                ? `def set_${baseName}(self, value: dict | None = None) -> "${className}":`
-                : `def set_${baseName}(self, value: dict) -> "${className}":`;
+                ? `def set_${baseName}(self, value: dict[str, Any] | None = None) -> "${className}":`
+                : `def set_${baseName}(self, value: dict[str, Any]) -> "${className}":`;
             w.line(sig);
             w.indentBlock(() => {
                 w.line(`match = self.__class__.${staticName}`);

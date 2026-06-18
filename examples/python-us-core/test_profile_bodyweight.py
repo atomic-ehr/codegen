@@ -9,7 +9,7 @@ import warnings
 import pytest
 from fhir_types.hl7_fhir_r4_core.base import CodeableConcept, Coding, Quantity, Reference
 from fhir_types.hl7_fhir_r4_core.observation import Observation
-from fhir_types.hl7_fhir_r4_core.resource import Meta
+from fhir_types.hl7_fhir_r4_core.base import Meta
 from fhir_types.hl7_fhir_us_core.profiles.observation_uscore_body_weight_profile import UscoreBodyWeightProfile
 
 # Pydantic warns when extensions list contains plain dicts instead of Extension
@@ -20,7 +20,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 CANONICAL_URL = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight"
 
 
-def test_import_profiled_observation_from_api_and_read_values():
+def test_import_profiled_observation_from_api_and_read_values() -> None:
     api_response = Observation(
         resource_type="Observation",
         meta=Meta(profile=[CANONICAL_URL]),
@@ -44,7 +44,7 @@ def test_import_profiled_observation_from_api_and_read_values():
     assert profile.get_subject().reference == "Patient/pt-1"
 
 
-def test_apply_profile_to_bare_observation_and_populate_it():
+def test_apply_profile_to_bare_observation_and_populate_it() -> None:
     bare_observation = Observation(resource_type="Observation", status="preliminary", code=CodeableConcept())
     profile = UscoreBodyWeightProfile.apply(bare_observation)
 
@@ -59,7 +59,7 @@ def test_apply_profile_to_bare_observation_and_populate_it():
     assert CANONICAL_URL in profile.to_resource().meta.profile
 
 
-def test_create_builds_a_resource_with_fixed_code_and_required_slice_stubs():
+def test_create_builds_a_resource_with_fixed_code_and_required_slice_stubs() -> None:
     profile = UscoreBodyWeightProfile.create(
         status="final",
         subject=Reference(reference="Patient/example"),
@@ -75,7 +75,7 @@ def test_create_builds_a_resource_with_fixed_code_and_required_slice_stubs():
     assert profile.validate()["errors"] == []
 
 
-def test_validate_catches_disallowed_value_variants_on_raw_resource():
+def test_validate_catches_disallowed_value_variants_on_raw_resource() -> None:
     resource = Observation(
         resource_type="Observation",
         meta=Meta(profile=[CANONICAL_URL]),
@@ -96,7 +96,7 @@ def test_validate_catches_disallowed_value_variants_on_raw_resource():
     assert "UscoreBodyWeightProfile: field 'value_string' must not be present" in errors
 
 
-def test_get_vscat_returns_flat_value():
+def test_get_vscat_returns_flat_value() -> None:
     profile = UscoreBodyWeightProfile.create(
         status="final",
         subject=Reference(reference="Patient/example"),
@@ -107,7 +107,7 @@ def test_get_vscat_returns_flat_value():
     assert "coding" not in flat
 
 
-def test_get_vscat_raw_includes_discriminator():
+def test_get_vscat_raw_includes_discriminator() -> None:
     profile = UscoreBodyWeightProfile.create(
         status="final",
         subject=Reference(reference="Patient/example"),
