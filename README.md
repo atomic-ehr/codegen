@@ -40,7 +40,7 @@ A powerful, extensible code generation toolkit for FHIR ([Fast Healthcare Intero
 - [x] **Resources & Complex Types** — Generates typed definitions with proper inheritance
 - [x] **Value Set Bindings** — Strongly-typed enums from FHIR terminology bindings
 - [x] **Profiles** — Factory methods with auto-populated fixed values and required slices ([R4 profiles](examples/typescript-r4-us-core/profile-r4-bp.test.ts), [US Core](examples/typescript-r4-us-core/profile-us-core-patient.test.ts))
-  - Extensions — flat typed accessors (e.g. `setRace()` on US Core Patient), [standalone extension profiles](examples/typescript-r4-us-core/extension-profile.test.ts)
+  - Extensions — flat typed accessors (e.g. `setRace()` on US Core Patient), [standalone extension profiles](examples/typescript-r4-us-core/profile-r4-extension.test.ts)
   - Slicing — typed get/set accessors with discriminator matching
   - Validation — runtime `validate()` for required fields, fixed values, slice cardinality, enums, references
 - [x] **Extensible Architecture** — Three-stage pipeline: FHIR packages → [TypeSchema](https://www.health-samurai.io/articles/type-schema-a-pragmatic-approach-to-build-fhir-sdk) IR → code generation

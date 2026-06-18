@@ -2,7 +2,7 @@
  * US Core Blood Pressure Profile Class API Tests
  *
  * The create/apply mechanics and category auto-population are demonstrated in
- * profile-bp.test.ts against the base R4 profile. This file keeps one
+ * profile-r4-bp.test.ts against the base R4 profile. This file keeps one
  * self-contained create demo plus the scenarios that only work / only matter on
  * US Core: a from() round-trip (the R4 BP discriminator is array-shaped here) and
  * Bundle<T> + multi-profile is() narrowing.

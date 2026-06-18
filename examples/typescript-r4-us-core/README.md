@@ -30,9 +30,10 @@ bun test ./examples/typescript-r4-us-core/
 
 ## Tests
 
-- **resource.test.ts** - Patient, Observation, Profile class API, and Bundle creation
-- **extension-profile.test.ts** / **raw-extension.test.ts** - FHIR extensions (resource-level, primitive, complex type, array elements)
-- **profile-r4-bodyweight.test.ts** / **profile-r4-bp.test.ts** - base R4 profile class API (canonical profile-API demos)
+- **resources.test.ts** - Patient, Observation, Bundle creation and `Bundle<T>` typing
+- **raw-extensions.test.ts** - FHIR extensions as raw data (resource-level, primitive, complex type, array elements)
+- **profile-r4-extension.test.ts** - R4 extension profile classes (birthPlace, nationality, etc.)
+- **profile-r4-bodyweight.test.ts** / **profile-r4-bp.test.ts** - base R4 resource profile class API (canonical profile-API demos)
 - **profile-us-core-patient.test.ts** - US Core Patient profile: race/ethnicity/birth-sex extensions, field accessors
 - **profile-us-core-bp.test.ts** / **profile-us-core-bodyweight.test.ts** - US Core-specific slicing and constrained `value[x]` validation
 
@@ -140,11 +141,11 @@ const bundle: Bundle = {
 typescript-r4-us-core/
 ├── README.md                       # This file
 ├── generate.ts                     # Type generation script (R4 core + US Core)
-├── resource.test.ts                # Resource and profile tests
-├── extension-profile.test.ts       # Extension profile tests
-├── raw-extension.test.ts           # Raw extension tests
-├── profile-r4-bodyweight.test.ts      # Base R4 profile API
-├── profile-r4-bp.test.ts              # Base R4 profile API
+├── resources.test.ts               # Resource creation + Bundle<T> typing
+├── raw-extensions.test.ts          # Raw extension data on resources
+├── profile-r4-extension.test.ts    # R4 extension profile classes
+├── profile-r4-bodyweight.test.ts   # Base R4 resource profile API
+├── profile-r4-bp.test.ts           # Base R4 resource profile API
 ├── profile-us-core-*.test.ts       # US Core profile tests
 ├── __snapshots__/                  # Test snapshots
 ├── tsconfig.json                   # TypeScript configuration

@@ -2,7 +2,7 @@
  * US Core Body Weight Profile Class API Tests
  *
  * The general profile-class API (apply/from/slice accessors) is demonstrated in
- * profile-bodyweight.test.ts against the base R4 profile. This file keeps one
+ * profile-r4-bodyweight.test.ts against the base R4 profile. This file keeps one
  * self-contained create demo plus the scenarios specific to US Core body weight,
  * which constrains value[x] to valueQuantity.
  */
