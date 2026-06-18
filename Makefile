@@ -7,14 +7,14 @@ VERSION = $(shell cat package.json | grep version | sed -E 's/ *"version": "//' 
 .PHONY: all generate-types lint lint-fix lint-unsafe typecheck \
 	test test-multi-package \
 	prepare-aidbox-runme test-all-example-generation test-other-example-generation \
-	test-on-the-fly-example test-on-the-fly-norge-r4 test-on-the-fly-kbv-r4 \
-	test-typescript-r4-example test-typescript-us-core-example test-typescript-sql-on-fhir-example \
-	test-typescript-ccda-example test-local-package-folder-example test-mustache-java-r4-example \
+	test-on-the-fly-example test-on-the-fly-norge-r4 test-on-the-fly-kbv-r4 test-on-the-fly-ccda \
+	test-typescript-r4-us-core-example test-typescript-custom-packages-example \
+	test-mustache-java-r4-example \
 	test-csharp-sdk generate-python-sdk generate-python-sdk-fhirpy generate-python-us-core-sdk \
 	python-test-setup python-fhirpy-test-setup python-us-core-test-setup \
 	test-python-sdk test-python-fhirpy-sdk test-python-us-core-example
 
-all: test test-multi-package test-typescript-r4-example test-typescript-us-core-example test-typescript-ccda-example test-typescript-sql-on-fhir-example test-local-package-folder-example lint-unsafe test-all-example-generation
+all: test test-multi-package test-typescript-r4-us-core-example test-typescript-custom-packages-example lint-unsafe test-all-example-generation
 
 generate-types:
 	bun run scripts/generate-types.ts
@@ -54,19 +54,17 @@ prepare-aidbox-runme:
 
 test-all-example-generation: test-other-example-generation
 	bun run examples/csharp/generate.ts
-	bun run examples/local-package-folder/generate.ts
+	bun run examples/typescript-custom-packages/generate-local.ts
+	bun run examples/typescript-custom-packages/generate-sql-on-fhir.ts
 	bun run examples/mustache/mustache-java-r4-gen.ts
 	bun run examples/python-r4/generate.ts
 	bun run examples/python-fhirpy/generate.ts
 	bun run examples/python-us-core/generate.ts
-	bun run examples/typescript-ccda/generate.ts
-	bun run examples/typescript-r4/generate.ts
-	bun run examples/typescript-sql-on-fhir/generate.ts
-	bun run examples/typescript-us-core/generate.ts
+	bun run examples/typescript-r4-us-core/generate.ts
 
 test-other-example-generation: test-on-the-fly-example
 
-test-on-the-fly-example: test-on-the-fly-norge-r4 test-on-the-fly-kbv-r4
+test-on-the-fly-example: test-on-the-fly-norge-r4 test-on-the-fly-kbv-r4 test-on-the-fly-ccda
 
 test-on-the-fly-norge-r4: typecheck
 	bun run examples/on-the-fly/norge-r4/generate.ts
@@ -78,32 +76,21 @@ test-on-the-fly-kbv-r4: typecheck
 	$(TYPECHECK) --project examples/on-the-fly/kbv-r4/tsconfig.json
 	bun test ./examples/on-the-fly/kbv-r4/
 
-test-typescript-r4-example: typecheck
-	bun run examples/typescript-r4/generate.ts
-	$(TYPECHECK) --project examples/typescript-r4/tsconfig.json
-	bun test ./examples/typescript-r4/
+test-on-the-fly-ccda: typecheck
+	bun run examples/on-the-fly/ccda/generate.ts
+	$(TYPECHECK) --project examples/on-the-fly/ccda/tsconfig.json
+	bun test ./examples/on-the-fly/ccda/
 
-test-typescript-us-core-example: typecheck
-	bun run examples/typescript-us-core/generate.ts
-	$(TYPECHECK) --project examples/typescript-us-core/tsconfig.json
-	bun test ./examples/typescript-us-core/
+test-typescript-r4-us-core-example: typecheck
+	bun run examples/typescript-r4-us-core/generate.ts
+	$(TYPECHECK) --project examples/typescript-r4-us-core/tsconfig.json
+	bun test ./examples/typescript-r4-us-core/
 
-test-typescript-sql-on-fhir-example: typecheck
-	bun run examples/typescript-sql-on-fhir/generate.ts
-	$(TYPECHECK) --project examples/typescript-sql-on-fhir/tsconfig.json
-
-test-typescript-ccda-example: typecheck
-	bun test test/unit/typeschema/transformer/ccda.test.ts
-	bun run examples/typescript-ccda/generate.ts
-	$(TYPECHECK) --project examples/typescript-ccda/tsconfig.json
-	bun test --project examples/typescript-ccda/tsconfig.json \
-		./examples/typescript-ccda/demo-cda.test.ts \
-		./examples/typescript-ccda/demo-ccda.test.ts
-
-test-local-package-folder-example: typecheck
-	bun run examples/local-package-folder/generate.ts
-	$(TYPECHECK) --project examples/local-package-folder/tsconfig.json
-	bun test ./examples/local-package-folder/
+test-typescript-custom-packages-example: typecheck
+	bun run examples/typescript-custom-packages/generate-local.ts
+	bun run examples/typescript-custom-packages/generate-sql-on-fhir.ts
+	$(TYPECHECK) --project examples/typescript-custom-packages/tsconfig.json
+	bun test ./examples/typescript-custom-packages/
 
 test-mustache-java-r4-example: typecheck
 	bun run examples/mustache/mustache-java-r4-gen.ts

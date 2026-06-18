@@ -6,24 +6,10 @@ This directory contains working examples demonstrating the capabilities of Atomi
 
 ### TypeScript Generation
 
-- **[typescript-r4/](typescript-r4/)** - FHIR R4 core type generation
-  - `generate.ts` - Generates TypeScript interfaces for FHIR R4 specification
-  - `demo.ts` - Demonstrates resource creation, profile usage (bodyweight), and bundle composition
-  - Shows how to use `attach` and `extract` functions for FHIR profiles
-
-- **[typescript-ccda/](typescript-ccda/)** - C-CDA on FHIR type generation
-  - `generate.ts` - Generates types from HL7 CDA UV Core package (`hl7.cda.uv.core@2.0.1-sd`)
-  - Exports TypeSchema files and dependency tree
-
-- **[typescript-sql-on-fhir/](typescript-sql-on-fhir/)** - SQL on FHIR ViewDefinition types
-  - `generate.ts` - Generates types from remote TGZ package
-  - Demonstrates tree shaking to include only specific resources
-
-- **[typescript-us-core/](typescript-us-core/)** - US Core profile generation with profile classes
-  - `generate.ts` - Generates TypeScript types for US Core 8.0.1 with profile classes
-  - `profile-demo.ts` - Demonstrates profile class fluent API for extensions and slices
-  - Shows type-safe handling of race, ethnicity, birth sex extensions
-  - Demonstrates blood pressure observation slicing
+- **[typescript-r4-us-core/](typescript-r4-us-core/)** - FHIR R4 core + US Core type generation with profile classes
+  - `generate.ts` - Generates TypeScript interfaces for FHIR R4 core and US Core 8.0.1 in one tree
+  - Resource creation, base R4 profiles (bodyweight, blood pressure), and bundle composition
+  - US Core profiles with type-safe race/ethnicity/birth-sex extensions and observation slicing
 
 ### Multi-Language Generation
 
@@ -51,12 +37,12 @@ This directory contains working examples demonstrating the capabilities of Atomi
   - Full Maven project structure with post-generation hooks
   - Demonstrates template-driven code generation for any language or format
 
-### Local Package Support
+### Custom Package Sources
 
-- **[local-package-folder/](local-package-folder/)** - Working with unpublished FHIR packages
-  - `generate.ts` - Loads local StructureDefinitions from disk
-  - Demonstrates dependency resolution with FHIR R4 core
-  - Shows tree shaking for custom logical models
+- **[typescript-custom-packages/](typescript-custom-packages/)** - Feeding packages from sources other than the registry
+  - `generate-local.ts` - Loads local unpublished StructureDefinitions from disk (`.localStructureDefinitions()`)
+  - `generate-sql-on-fhir.ts` - Loads a remote TGZ package by URL (`.fromPackageRef()`), SQL-on-FHIR ViewDefinition
+  - Demonstrates dependency resolution with FHIR R4/R5 core and tree shaking
 
 ### On-the-Fly Generation
 
@@ -70,25 +56,23 @@ These examples pull packages from the FHIR registry and generate types on-the-fl
   - `generate.ts` - Fetches KBV packages with `ignorePackageIndex: true` for corrupt package indices
   - `profile-patient.test.ts` - Regression test for `meta` merge in profiles with required `meta` (#137)
 
+- **[on-the-fly/ccda/](on-the-fly/ccda/)** - C-CDA on FHIR type generation (HL7 CDA logical models)
+  - `generate.ts` - Builds a `CanonicalManager` with `preprocessPackage` fixes and `promoteLogical` for CDA resources
+  - `demo-cda.test.ts` / `demo-ccda.test.ts` - CDA ↔ FHIR R4 mapping demos
+
 ## Running Examples
 
 Each example contains a `generate.ts` script that can be run with:
 
 ```bash
 # Using Bun
-bun run examples/typescript-r4/generate.ts
+bun run examples/typescript-r4-us-core/generate.ts
 
 # Using Node with tsx
-npx tsx examples/typescript-r4/generate.ts
+npx tsx examples/typescript-r4-us-core/generate.ts
 
 # Using ts-node
-npx ts-node examples/typescript-r4/generate.ts
-```
-
-To run the TypeScript R4 demo after generation:
-
-```bash
-bun run examples/typescript-r4/demo.ts
+npx ts-node examples/typescript-r4-us-core/generate.ts
 ```
 
 For the Mustache example:

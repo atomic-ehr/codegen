@@ -4,7 +4,10 @@ import { APIBuilder } from "@root/api/builder";
 import type { CanonicalUrl } from "@root/typeschema/types";
 import { mkSilentLogger } from "@typeschema-test/utils";
 
-const LOCAL_PACKAGE_PATH = Path.join(__dirname, "../../../../examples/local-package-folder/structure-definitions");
+const LOCAL_PACKAGE_PATH = Path.join(
+    __dirname,
+    "../../../../examples/typescript-custom-packages/structure-definitions",
+);
 
 /**
  * Tests for local package folder functionality with multi-package dependency resolution.

@@ -16,7 +16,7 @@ const builder = new APIBuilder({ logger })
     .fromPackage("hl7.fhir.us.core", "8.0.1")
     .localStructureDefinitions({
         package: { name: "example.folder.structures", version: "0.0.1" },
-        path: Path.join(__dirname, "../local-package-folder/structure-definitions"),
+        path: Path.join(__dirname, "../typescript-custom-packages/structure-definitions"),
         dependencies: [{ name: "hl7.fhir.r4.core", version: "4.0.1" }],
     })
     .python({
