@@ -39,10 +39,12 @@
 - `http://hl7.org/fhir/StructureDefinition/Appointment`
 - `http://hl7.org/fhir/StructureDefinition/AppointmentResponse`
 - `http://hl7.org/fhir/StructureDefinition/AuditEvent`
+- `http://hl7.org/fhir/StructureDefinition/BackboneElement`
 - `http://hl7.org/fhir/StructureDefinition/Basic`
 - `http://hl7.org/fhir/StructureDefinition/Binary`
 - `http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProduct`
 - `http://hl7.org/fhir/StructureDefinition/BodyStructure`
+- `http://hl7.org/fhir/StructureDefinition/Bundle`
 - `http://hl7.org/fhir/StructureDefinition/CapabilityStatement`
 - `http://hl7.org/fhir/StructureDefinition/CarePlan`
 - `http://hl7.org/fhir/StructureDefinition/CareTeam`
@@ -78,7 +80,9 @@
 - `http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsReferences`
 - `http://hl7.org/fhir/StructureDefinition/DocumentManifest`
 - `http://hl7.org/fhir/StructureDefinition/DocumentReference`
+- `http://hl7.org/fhir/StructureDefinition/DomainResource`
 - `http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis`
+- `http://hl7.org/fhir/StructureDefinition/Element`
 - `http://hl7.org/fhir/StructureDefinition/ElementDefinition`
 - `http://hl7.org/fhir/StructureDefinition/Encounter`
 - `http://hl7.org/fhir/StructureDefinition/Endpoint`
@@ -137,12 +141,14 @@
 - `http://hl7.org/fhir/StructureDefinition/MoneyQuantity`
 - `http://hl7.org/fhir/StructureDefinition/NamingSystem`
 - `http://hl7.org/fhir/StructureDefinition/NutritionOrder`
+- `http://hl7.org/fhir/StructureDefinition/Observation`
 - `http://hl7.org/fhir/StructureDefinition/ObservationDefinition`
 - `http://hl7.org/fhir/StructureDefinition/OperationDefinition`
 - `http://hl7.org/fhir/StructureDefinition/OperationOutcome`
 - `http://hl7.org/fhir/StructureDefinition/Organization`
 - `http://hl7.org/fhir/StructureDefinition/OrganizationAffiliation`
 - `http://hl7.org/fhir/StructureDefinition/Parameters`
+- `http://hl7.org/fhir/StructureDefinition/Patient`
 - `http://hl7.org/fhir/StructureDefinition/PaymentNotice`
 - `http://hl7.org/fhir/StructureDefinition/PaymentReconciliation`
 - `http://hl7.org/fhir/StructureDefinition/Person`
@@ -2581,9 +2587,6 @@
 - `urn:fhir:binding:InvestigationGroupType`
 - `urn:fhir:binding:InvoicePriceComponentType`
 - `urn:fhir:binding:InvoiceStatus`
-- `urn:fhir:binding:IssueDetails`
-- `urn:fhir:binding:IssueSeverity`
-- `urn:fhir:binding:IssueType`
 - `urn:fhir:binding:ItemDescriptionLanguage`
 - `urn:fhir:binding:Jurisdiction`
 - `urn:fhir:binding:LDLCodes`

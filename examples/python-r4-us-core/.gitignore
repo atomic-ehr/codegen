@@ -3,3 +3,4 @@ __pycache__
 .mypy_cache
 venv
 /.venv/
+fhir_types/type-schemas/

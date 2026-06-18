@@ -91,19 +91,6 @@ jobs:
           export AIDBOX_LICENSE_ID="${{ secrets.AIDBOX_LICENSE_ID }}"
           make test-python-sdk
 
-      - name: Repository contains actual python-sdk version
-        run: |
-          diff_result=$(git diff --exit-code --name-only examples/python/fhir_types || true)
-
-          if [ -z "$diff_result" ]; then
-            echo "✅ Generated SDK is identical to the one stored in repository."
-          else
-            echo "❌ Generated SDK differs from the one stored in repository."
-            echo "Differences:"
-            git diff examples/python/fhir_types
-            exit 1
-          fi
-
   test-python-fhirpy-sdk:
     runs-on: ubuntu-latest
 
@@ -138,7 +125,7 @@ jobs:
             exit 1
           fi
 
-  test-python-us-core-example:
+  test-python-r4-us-core-example:
     runs-on: ubuntu-latest
 
     steps:
@@ -155,7 +142,20 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Run tests
-        run: make test-python-us-core-example
+        run: make test-python-r4-us-core-example
+
+      - name: Repository contains actual python-sdk version
+        run: |
+          diff_result=$(git diff --exit-code --name-only examples/python-r4-us-core/fhir_types || true)
+
+          if [ -z "$diff_result" ]; then
+            echo "✅ Generated SDK is identical to the one stored in repository."
+          else
+            echo "❌ Generated SDK differs from the one stored in repository."
+            echo "Differences:"
+            git diff examples/python-r4-us-core/fhir_types
+            exit 1
+          fi
 
   test-typescript-custom-packages-example:
     runs-on: ubuntu-latest

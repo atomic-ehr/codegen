@@ -16,6 +16,7 @@ from fhir_types.hl7_fhir_r4_core.domain_resource import DomainResource
 from fhir_types.hl7_fhir_r4_core.observation import (
     Observation, ObservationComponent, ObservationReferenceRange
 )
+from fhir_types.hl7_fhir_r4_core.operation_outcome import OperationOutcome, OperationOutcomeIssue
 from fhir_types.hl7_fhir_r4_core.organization import Organization, OrganizationContact
 from fhir_types.hl7_fhir_r4_core.patient import (
     Patient, PatientCommunication, PatientContact, PatientLink
@@ -56,6 +57,8 @@ __all__ = [
     'Observation',
     'ObservationComponent',
     'ObservationReferenceRange',
+    'OperationOutcome',
+    'OperationOutcomeIssue',
     'Organization',
     'OrganizationContact',
     'ParameterDefinition',
