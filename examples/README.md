@@ -11,7 +11,11 @@ This directory contains working examples demonstrating the capabilities of Atomi
   - Resource creation, base R4 profiles (bodyweight, blood pressure), and bundle composition
   - US Core profiles with type-safe race/ethnicity/birth-sex extensions and observation slicing
 
-### Multi-Language Generation
+- **[typescript-custom-packages/](typescript-custom-packages/)** - Feeding packages from sources other than the registry
+  - `generate.ts` - Runs two input mechanisms: local unpublished StructureDefinitions from disk (`.localStructureDefinitions()`) and a remote TGZ package by URL (`.fromPackageRef()`, SQL-on-FHIR ViewDefinition)
+  - Demonstrates dependency resolution with FHIR R4/R5 core and tree shaking
+
+### Python Generation
 
 - **[python/](python/)** - Python/Pydantic model generation with simple requests-based client
   - `generate.ts` - Generates Python models with configurable field formats
@@ -24,11 +28,25 @@ This directory contains working examples demonstrating the capabilities of Atomi
   - Uses `fhirpyClient: true` for async FHIR client support
   - Client implementation example: [python-fhirpy/client.py](python-fhirpy/client.py)
 
+### C# Generation
 
 - **[csharp/](csharp/)** - C# class generation
   - `generate.ts` - Generates C# classes with custom namespace
   - Includes static files for base functionality
   - Includes integration tests with Aidbox FHIR server
+
+The C# integration tests require an Aidbox FHIR server:
+
+```bash
+# Start Aidbox server
+docker compose up
+
+# In another terminal, run the C# tests
+cd examples/csharp
+dotnet test
+```
+
+See [examples/csharp/README.md](csharp/README.md) for detailed setup instructions.
 
 ### Template-Based Generation
 
@@ -36,12 +54,6 @@ This directory contains working examples demonstrating the capabilities of Atomi
   - `mustache-java-r4-gen.ts` - Generates Java code using Mustache templates
   - Full Maven project structure with post-generation hooks
   - Demonstrates template-driven code generation for any language or format
-
-### Custom Package Sources
-
-- **[typescript-custom-packages/](typescript-custom-packages/)** - Feeding packages from sources other than the registry
-  - `generate.ts` - Runs two input mechanisms: local unpublished StructureDefinitions from disk (`.localStructureDefinitions()`) and a remote TGZ package by URL (`.fromPackageRef()`, SQL-on-FHIR ViewDefinition)
-  - Demonstrates dependency resolution with FHIR R4/R5 core and tree shaking
 
 ### On-the-Fly Generation
 
@@ -73,26 +85,3 @@ npx tsx examples/typescript-r4-us-core/generate.ts
 # Using ts-node
 npx ts-node examples/typescript-r4-us-core/generate.ts
 ```
-
-For the Mustache example:
-
-```bash
-bun run examples/mustache/mustache-java-r4-gen.ts
-```
-
-This generates a complete Maven project with Java classes ready to build.
-
-## Prerequisites for C# Example
-
-The C# example includes integration tests with Aidbox FHIR server. To run the tests:
-
-```bash
-# Start Aidbox server
-docker compose up
-
-# In another terminal, run the C# tests
-cd examples/csharp
-dotnet test
-```
-
-See [examples/csharp/README.md](csharp/README.md) for detailed setup instructions.
