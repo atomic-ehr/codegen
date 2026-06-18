@@ -1,4 +1,4 @@
-from typing import Any, Union, Optional, Iterator, Tuple, Dict
+from typing import TYPE_CHECKING, Any, Union, Optional, Iterator, Tuple, Dict
 from pydantic import BaseModel, Field
 from typing import Protocol
 
@@ -15,6 +15,15 @@ class FhirpyBaseModel(BaseModel):
     after Pydantic finishes model construction, so that fhirpy can detect it
     via cls.resourceType for search/fetch operations.
     """
+
+    if TYPE_CHECKING:
+        # Set at runtime per-subclass by __pydantic_init_subclass__ below. Declared here
+        # so static type-checkers see it: fhirpy's ResourceProtocol requires a settable
+        # `resourceType`, and snake_case models expose the field as `resource_type`
+        # (alias "resourceType"). A settable instance attr (not ClassVar) satisfies the
+        # protocol's mutable member; the default keeps it optional for the pydantic mypy plugin.
+        resourceType: str = ""
+
     id: Optional[str] = Field(None, alias="id")
 
     @classmethod

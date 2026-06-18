@@ -6,6 +6,7 @@ describe("Python Writer Generator", async () => {
     const result = await new APIBuilder({ register: r4Manager, logger: mkErrorLogger() })
         .python({
             inMemoryOnly: true,
+            client: "none",
         })
         .generate();
     expect(result.success).toBeTrue();
@@ -112,6 +113,7 @@ describe("Python R4 Example (with generateProfile)", async () => {
         .python({
             inMemoryOnly: true,
             generateProfile: true,
+            client: "none",
         })
         .generate();
     const files = result.filesGenerated.python!;
@@ -150,6 +152,7 @@ describe("Python US Core Example", async () => {
         .python({
             inMemoryOnly: true,
             generateProfile: true,
+            client: "none",
         })
         .generate();
     const files = result.filesGenerated.python!;
@@ -180,5 +183,32 @@ describe("Python US Core Example", async () => {
 
     it("generates US Core profiles index", () => {
         expect(files["generated/hl7_fhir_us_core/profiles/__init__.py"]).toMatchSnapshot();
+    });
+});
+
+describe("Python client option", async () => {
+    const gen = async (opts: { client?: "fhirpy" | "none"; fhirpyClient?: boolean }) => {
+        const result = await new APIBuilder({ register: r4Manager, logger: mkErrorLogger() })
+            .python({ inMemoryOnly: true, ...opts })
+            .generate();
+        expect(result.success).toBeTrue();
+        return result.filesGenerated.python!;
+    };
+
+    it("defaults to the fhirpy client", async () => {
+        const files = await gen({});
+        expect(files["generated/fhirpy_base_model.py"]).toBeDefined();
+        expect(files["generated/hl7_fhir_r4_core/resource.py"]).toContain("FhirpyBaseModel");
+    });
+
+    it('client: "none" emits plain models with no fhirpy code', async () => {
+        const files = await gen({ client: "none" });
+        expect(files["generated/fhirpy_base_model.py"]).toBeUndefined();
+        expect(files["generated/hl7_fhir_r4_core/resource.py"]).not.toContain("FhirpyBaseModel");
+    });
+
+    it("deprecated fhirpyClient: true still selects the fhirpy client", async () => {
+        const files = await gen({ fhirpyClient: true });
+        expect(files["generated/fhirpy_base_model.py"]).toBeDefined();
     });
 });
