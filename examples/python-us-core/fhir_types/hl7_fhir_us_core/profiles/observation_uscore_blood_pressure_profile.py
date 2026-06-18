@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Literal, overload
+from typing import Any, Literal, cast, overload
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
@@ -26,9 +26,9 @@ class UscoreBloodPressureProfile:
 
     canonical_url: str = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure"
 
-    _vscat_slice_match: dict = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}
-    _systolic_slice_match: dict = {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}}
-    _diastolic_slice_match: dict = {"code":{"coding":[{"system":"http://loinc.org","code":"8462-4"}]}}
+    _vscat_slice_match: dict[str, Any] = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}
+    _systolic_slice_match: dict[str, Any] = {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}}
+    _diastolic_slice_match: dict[str, Any] = {"code":{"coding":[{"system":"http://loinc.org","code":"8462-4"}]}}
 
     def __init__(self, resource: Observation) -> None:
         self._resource = resource
@@ -78,42 +78,42 @@ class UscoreBloodPressureProfile:
         return self._resource
 
     def get_status(self) -> Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"] | None:
-        return getattr(self._resource, "status", None)
+        return cast('Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"] | None', getattr(self._resource, "status", None))
 
     def set_status(self, value: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"]) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "status", value)
         return self
 
     def get_subject(self) -> Reference | None:
-        return getattr(self._resource, "subject", None)
+        return cast('Reference | None', getattr(self._resource, "subject", None))
 
     def set_subject(self, value: Reference) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "subject", value)
         return self
 
     def get_category(self) -> list[CodeableConcept] | None:
-        return getattr(self._resource, "category", None)
+        return cast('list[CodeableConcept] | None', getattr(self._resource, "category", None))
 
     def set_category(self, value: list[CodeableConcept]) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "category", value)
         return self
 
     def get_code(self) -> CodeableConcept | None:
-        return getattr(self._resource, "code", None)
+        return cast('CodeableConcept | None', getattr(self._resource, "code", None))
 
     def set_code(self, value: CodeableConcept) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "code", value)
         return self
 
     def get_component(self) -> list[BackboneElement] | None:
-        return getattr(self._resource, "component", None)
+        return cast('list[BackboneElement] | None', getattr(self._resource, "component", None))
 
     def set_component(self, value: list[BackboneElement]) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "component", value)
         return self
 
     def get_effective_date_time(self) -> str | None:
-        return getattr(self._resource, "effective_date_time", None)
+        return cast('str | None', getattr(self._resource, "effective_date_time", None))
 
     def set_effective_date_time(self, value: str) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "effective_period", None)
@@ -121,7 +121,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_effective_period(self) -> Period | None:
-        return getattr(self._resource, "effective_period", None)
+        return cast('Period | None', getattr(self._resource, "effective_period", None))
 
     def set_effective_period(self, value: Period) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "effective_date_time", None)
@@ -129,7 +129,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_quantity(self) -> Quantity | None:
-        return getattr(self._resource, "value_quantity", None)
+        return cast('Quantity | None', getattr(self._resource, "value_quantity", None))
 
     def set_value_quantity(self, value: Quantity) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_codeable_concept", None)
@@ -146,7 +146,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_codeable_concept(self) -> CodeableConcept | None:
-        return getattr(self._resource, "value_codeable_concept", None)
+        return cast('CodeableConcept | None', getattr(self._resource, "value_codeable_concept", None))
 
     def set_value_codeable_concept(self, value: CodeableConcept) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_quantity", None)
@@ -163,7 +163,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_string(self) -> str | None:
-        return getattr(self._resource, "value_string", None)
+        return cast('str | None', getattr(self._resource, "value_string", None))
 
     def set_value_string(self, value: str) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_quantity", None)
@@ -180,7 +180,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_boolean(self) -> bool | None:
-        return getattr(self._resource, "value_boolean", None)
+        return cast('bool | None', getattr(self._resource, "value_boolean", None))
 
     def set_value_boolean(self, value: bool) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_quantity", None)
@@ -197,7 +197,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_integer(self) -> int | None:
-        return getattr(self._resource, "value_integer", None)
+        return cast('int | None', getattr(self._resource, "value_integer", None))
 
     def set_value_integer(self, value: int) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_quantity", None)
@@ -214,7 +214,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_range(self) -> Range | None:
-        return getattr(self._resource, "value_range", None)
+        return cast('Range | None', getattr(self._resource, "value_range", None))
 
     def set_value_range(self, value: Range) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_quantity", None)
@@ -231,7 +231,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_ratio(self) -> Ratio | None:
-        return getattr(self._resource, "value_ratio", None)
+        return cast('Ratio | None', getattr(self._resource, "value_ratio", None))
 
     def set_value_ratio(self, value: Ratio) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_quantity", None)
@@ -248,7 +248,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_sampled_data(self) -> SampledData | None:
-        return getattr(self._resource, "value_sampled_data", None)
+        return cast('SampledData | None', getattr(self._resource, "value_sampled_data", None))
 
     def set_value_sampled_data(self, value: SampledData) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_quantity", None)
@@ -265,7 +265,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_time(self) -> str | None:
-        return getattr(self._resource, "value_time", None)
+        return cast('str | None', getattr(self._resource, "value_time", None))
 
     def set_value_time(self, value: str) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_quantity", None)
@@ -282,7 +282,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_date_time(self) -> str | None:
-        return getattr(self._resource, "value_date_time", None)
+        return cast('str | None', getattr(self._resource, "value_date_time", None))
 
     def set_value_date_time(self, value: str) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_quantity", None)
@@ -299,7 +299,7 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_value_period(self) -> Period | None:
-        return getattr(self._resource, "value_period", None)
+        return cast('Period | None', getattr(self._resource, "value_period", None))
 
     def set_value_period(self, value: Period) -> "UscoreBloodPressureProfile":
         setattr(self._resource, "value_quantity", None)
@@ -316,42 +316,42 @@ class UscoreBloodPressureProfile:
         return self
 
     @overload
-    def get_vscat(self) -> dict | None: ...
+    def get_vscat(self) -> dict[str, Any] | None: ...
     @overload
     def get_vscat(self, mode: Literal["raw"]) -> CodeableConcept | None: ...
-    def get_vscat(self, mode: Literal["raw"] | None = None) -> dict | CodeableConcept | None:
+    def get_vscat(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | CodeableConcept | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
         if mode == "raw":
-            return item
+            return cast('CodeableConcept | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return strip_match_keys(item_dict, ["coding"])
 
     @overload
-    def get_systolic(self) -> Quantity | None: ...
+    def get_systolic(self) -> dict[str, Any] | None: ...
     @overload
     def get_systolic(self, mode: Literal["raw"]) -> ObservationComponent | None: ...
-    def get_systolic(self, mode: Literal["raw"] | None = None) -> Quantity | ObservationComponent | None:
+    def get_systolic(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | ObservationComponent | None:
         match = self.__class__._systolic_slice_match
         item = get_array_slice(getattr(self._resource, "component", None), match)
         if mode == "raw":
-            return item
+            return cast('ObservationComponent | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return unwrap_slice_choice(item_dict, ["code"], "valueQuantity")
 
     @overload
-    def get_diastolic(self) -> Quantity | None: ...
+    def get_diastolic(self) -> dict[str, Any] | None: ...
     @overload
     def get_diastolic(self, mode: Literal["raw"]) -> ObservationComponent | None: ...
-    def get_diastolic(self, mode: Literal["raw"] | None = None) -> Quantity | ObservationComponent | None:
+    def get_diastolic(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | ObservationComponent | None:
         match = self.__class__._diastolic_slice_match
         item = get_array_slice(getattr(self._resource, "component", None), match)
         if mode == "raw":
-            return item
+            return cast('ObservationComponent | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return unwrap_slice_choice(item_dict, ["code"], "valueQuantity")
 
-    def set_vscat(self, value: dict | None = None) -> "UscoreBloodPressureProfile":
+    def set_vscat(self, value: dict[str, Any] | None = None) -> "UscoreBloodPressureProfile":
         match = self.__class__._vscat_slice_match
         merged = apply_slice_match((value or {}), match)
         merged = CodeableConcept(**merged)
@@ -360,7 +360,7 @@ class UscoreBloodPressureProfile:
         setattr(self._resource, "category", items)
         return self
 
-    def set_systolic(self, value: dict | None = None) -> "UscoreBloodPressureProfile":
+    def set_systolic(self, value: dict[str, Any] | None = None) -> "UscoreBloodPressureProfile":
         match = self.__class__._systolic_slice_match
         wrapped = wrap_slice_choice((value or {}), "valueQuantity")
         merged = apply_slice_match(wrapped, match)
@@ -370,7 +370,7 @@ class UscoreBloodPressureProfile:
         setattr(self._resource, "component", items)
         return self
 
-    def set_diastolic(self, value: dict | None = None) -> "UscoreBloodPressureProfile":
+    def set_diastolic(self, value: dict[str, Any] | None = None) -> "UscoreBloodPressureProfile":
         match = self.__class__._diastolic_slice_match
         wrapped = wrap_slice_choice((value or {}), "valueQuantity")
         merged = apply_slice_match(wrapped, match)

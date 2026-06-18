@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Literal, overload
+from typing import Any, Literal, cast, overload
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import CodeableConcept, Period, Reference
@@ -23,7 +23,7 @@ class ObservationVitalsignsProfile:
 
     canonical_url: str = "http://hl7.org/fhir/StructureDefinition/vitalsigns"
 
-    _vscat_slice_match: dict = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}
+    _vscat_slice_match: dict[str, Any] = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}
 
     def __init__(self, resource: Observation) -> None:
         self._resource = resource
@@ -67,35 +67,35 @@ class ObservationVitalsignsProfile:
         return self._resource
 
     def get_status(self) -> Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"] | None:
-        return getattr(self._resource, "status", None)
+        return cast('Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"] | None', getattr(self._resource, "status", None))
 
     def set_status(self, value: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"]) -> "ObservationVitalsignsProfile":
         setattr(self._resource, "status", value)
         return self
 
     def get_code(self) -> CodeableConcept | None:
-        return getattr(self._resource, "code", None)
+        return cast('CodeableConcept | None', getattr(self._resource, "code", None))
 
     def set_code(self, value: CodeableConcept) -> "ObservationVitalsignsProfile":
         setattr(self._resource, "code", value)
         return self
 
     def get_subject(self) -> Reference | None:
-        return getattr(self._resource, "subject", None)
+        return cast('Reference | None', getattr(self._resource, "subject", None))
 
     def set_subject(self, value: Reference) -> "ObservationVitalsignsProfile":
         setattr(self._resource, "subject", value)
         return self
 
     def get_category(self) -> list[CodeableConcept] | None:
-        return getattr(self._resource, "category", None)
+        return cast('list[CodeableConcept] | None', getattr(self._resource, "category", None))
 
     def set_category(self, value: list[CodeableConcept]) -> "ObservationVitalsignsProfile":
         setattr(self._resource, "category", value)
         return self
 
     def get_effective_date_time(self) -> str | None:
-        return getattr(self._resource, "effective_date_time", None)
+        return cast('str | None', getattr(self._resource, "effective_date_time", None))
 
     def set_effective_date_time(self, value: str) -> "ObservationVitalsignsProfile":
         setattr(self._resource, "effective_period", None)
@@ -103,7 +103,7 @@ class ObservationVitalsignsProfile:
         return self
 
     def get_effective_period(self) -> Period | None:
-        return getattr(self._resource, "effective_period", None)
+        return cast('Period | None', getattr(self._resource, "effective_period", None))
 
     def set_effective_period(self, value: Period) -> "ObservationVitalsignsProfile":
         setattr(self._resource, "effective_date_time", None)
@@ -111,18 +111,18 @@ class ObservationVitalsignsProfile:
         return self
 
     @overload
-    def get_vscat(self) -> dict | None: ...
+    def get_vscat(self) -> dict[str, Any] | None: ...
     @overload
     def get_vscat(self, mode: Literal["raw"]) -> CodeableConcept | None: ...
-    def get_vscat(self, mode: Literal["raw"] | None = None) -> dict | CodeableConcept | None:
+    def get_vscat(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | CodeableConcept | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
         if mode == "raw":
-            return item
+            return cast('CodeableConcept | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return strip_match_keys(item_dict, ["coding"])
 
-    def set_vscat(self, value: dict | None = None) -> "ObservationVitalsignsProfile":
+    def set_vscat(self, value: dict[str, Any] | None = None) -> "ObservationVitalsignsProfile":
         match = self.__class__._vscat_slice_match
         merged = apply_slice_match((value or {}), match)
         merged = CodeableConcept(**merged)

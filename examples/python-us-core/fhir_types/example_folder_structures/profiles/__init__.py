@@ -3,3 +3,7 @@
 # Any manual changes made to this file may be overwritten.
 
 from .bundle_example_typed_bundle import ExampleTypedBundleProfile
+
+__all__ = [
+    'ExampleTypedBundleProfile',
+]

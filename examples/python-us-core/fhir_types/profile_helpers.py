@@ -55,7 +55,7 @@ def ensure_path(root: MutableMapping[str, Any], path: Sequence[str]) -> MutableM
             if not isinstance(nxt, MutableMapping):
                 nxt = {}
                 current[segment] = nxt
-            current = nxt  # type: ignore[assignment]
+            current = nxt
     return current
 
 
@@ -70,7 +70,7 @@ def merge_match(target: MutableMapping[str, Any], match: Mapping[str, Any]) -> N
         if is_record(match_value):
             existing = target.get(key)
             if is_record(existing):
-                merge_match(existing, match_value)  # type: ignore[arg-type]
+                merge_match(existing, match_value)
             else:
                 target[key] = dict(match_value)
         else:
@@ -146,7 +146,7 @@ def matches_value(value: Any, match: Any) -> bool:
                     return False
             return True
         return False
-    return value == match
+    return bool(value == match)
 
 
 def is_extension(value: Any, url: str | None = None) -> bool:
@@ -156,7 +156,7 @@ def is_extension(value: Any, url: str | None = None) -> bool:
     ext_url = _get_key(value, "url") if (is_record(value) or hasattr(value, "__dict__")) else None
     if ext_url is None:
         return False
-    return url is None or ext_url == url
+    return url is None or bool(ext_url == url)
 
 
 def get_extension_value(ext: Any | None, field: str) -> Any:
@@ -254,7 +254,7 @@ def unwrap_slice_choice(
         result.pop(key, None)
     variant_value = result.pop(choice_variant, None)
     if is_record(variant_value):
-        for k, v in variant_value.items():  # type: ignore[union-attr]
+        for k, v in variant_value.items():
             result[k] = v
     return result
 
@@ -276,7 +276,7 @@ def build_resource(resource_cls: type[T], /, **fields: Any) -> T:
     Centralises construction so generators don't need to import every model.
     """
     cleaned = {k: v for k, v in fields.items() if v is not None}
-    return resource_cls(**cleaned)  # type: ignore[call-arg]
+    return resource_cls(**cleaned)
 
 
 def ensure_profile(resource: Any, canonical_url: str) -> None:
@@ -311,8 +311,8 @@ def ensure_profile(resource: Any, canonical_url: str) -> None:
                     args = [a for a in ann.__args__ if a is not type(None)]
                     if args:
                         ann = args[0]
-                meta = ann(profile=[canonical_url])  # type: ignore[call-arg]
-                resource.meta = meta  # type: ignore[attr-defined]
+                meta = ann(profile=[canonical_url])
+                resource.meta = meta
                 return
             except Exception:
                 pass
@@ -320,7 +320,7 @@ def ensure_profile(resource: Any, canonical_url: str) -> None:
         return
     profiles = getattr(meta, "profile", None)
     if profiles is None:
-        meta.profile = [canonical_url]  # type: ignore[attr-defined]
+        meta.profile = [canonical_url]
     elif canonical_url not in profiles:
         profiles.append(canonical_url)
 

@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Literal, overload
+from typing import Any, Literal, cast, overload
 
 from fhir_types.hl7_fhir_r4_core.patient import Patient
 from fhir_types.hl7_fhir_r4_core.base import Extension
@@ -66,26 +66,26 @@ class UscorePatientProfile:
         return self._resource
 
     def get_identifier(self) -> list[Identifier] | None:
-        return getattr(self._resource, "identifier", None)
+        return cast('list[Identifier] | None', getattr(self._resource, "identifier", None))
 
     def set_identifier(self, value: list[Identifier]) -> "UscorePatientProfile":
         setattr(self._resource, "identifier", value)
         return self
 
     def get_name(self) -> list[HumanName] | None:
-        return getattr(self._resource, "name", None)
+        return cast('list[HumanName] | None', getattr(self._resource, "name", None))
 
     def set_name(self, value: list[HumanName]) -> "UscorePatientProfile":
         setattr(self._resource, "name", value)
         return self
 
     @overload
-    def get_race(self) -> dict | None: ...
+    def get_race(self) -> dict[str, Any] | None: ...
     @overload
     def get_race(self, mode: Literal["raw"]) -> Extension | None: ...
     @overload
     def get_race(self, mode: Literal["profile"]) -> UscoreRaceExtension | None: ...
-    def get_race(self, mode: Literal["raw", "profile"] | None = None) -> dict | Extension | UscoreRaceExtension | None:
+    def get_race(self, mode: Literal["raw", "profile"] | None = None) -> dict[str, Any] | Extension | UscoreRaceExtension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race")), None)
         if ext is None:
@@ -98,7 +98,7 @@ class UscorePatientProfile:
         config = [{"name": "ombCategory", "valueField": "value_coding", "isArray": False}, {"name": "detailed", "valueField": "value_coding", "isArray": True}, {"name": "text", "valueField": "value_string", "isArray": False}]
         return extract_complex_extension(ext, config)
 
-    def set_race(self, value: "UscoreRaceExtension | Extension | dict") -> "UscorePatientProfile":
+    def set_race(self, value: "UscoreRaceExtension | Extension | dict[str, Any]") -> "UscorePatientProfile":
         if isinstance(value, UscoreRaceExtension):
             push_extension(self._resource, value.to_resource())
         elif is_extension(value):
@@ -117,12 +117,12 @@ class UscorePatientProfile:
         return self
 
     @overload
-    def get_ethnicity(self) -> dict | None: ...
+    def get_ethnicity(self) -> dict[str, Any] | None: ...
     @overload
     def get_ethnicity(self, mode: Literal["raw"]) -> Extension | None: ...
     @overload
     def get_ethnicity(self, mode: Literal["profile"]) -> UscoreEthnicityExtension | None: ...
-    def get_ethnicity(self, mode: Literal["raw", "profile"] | None = None) -> dict | Extension | UscoreEthnicityExtension | None:
+    def get_ethnicity(self, mode: Literal["raw", "profile"] | None = None) -> dict[str, Any] | Extension | UscoreEthnicityExtension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity")), None)
         if ext is None:
@@ -135,7 +135,7 @@ class UscorePatientProfile:
         config = [{"name": "ombCategory", "valueField": "value_coding", "isArray": False}, {"name": "detailed", "valueField": "value_coding", "isArray": True}, {"name": "text", "valueField": "value_string", "isArray": False}]
         return extract_complex_extension(ext, config)
 
-    def set_ethnicity(self, value: "UscoreEthnicityExtension | Extension | dict") -> "UscorePatientProfile":
+    def set_ethnicity(self, value: "UscoreEthnicityExtension | Extension | dict[str, Any]") -> "UscorePatientProfile":
         if isinstance(value, UscoreEthnicityExtension):
             push_extension(self._resource, value.to_resource())
         elif is_extension(value):
@@ -154,12 +154,12 @@ class UscorePatientProfile:
         return self
 
     @overload
-    def get_tribal_affiliation(self) -> dict | None: ...
+    def get_tribal_affiliation(self) -> dict[str, Any] | None: ...
     @overload
     def get_tribal_affiliation(self, mode: Literal["raw"]) -> Extension | None: ...
     @overload
     def get_tribal_affiliation(self, mode: Literal["profile"]) -> UscoreTribalAffiliationExtension | None: ...
-    def get_tribal_affiliation(self, mode: Literal["raw", "profile"] | None = None) -> dict | Extension | UscoreTribalAffiliationExtension | None:
+    def get_tribal_affiliation(self, mode: Literal["raw", "profile"] | None = None) -> dict[str, Any] | Extension | UscoreTribalAffiliationExtension | None:
         exts = getattr(self._resource, "extension", None) or []
         ext = next((e for e in exts if is_extension(e, "http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation")), None)
         if ext is None:
@@ -172,7 +172,7 @@ class UscorePatientProfile:
         config = [{"name": "tribalAffiliation", "valueField": "value_codeable_concept", "isArray": False}, {"name": "isEnrolled", "valueField": "value_boolean", "isArray": False}]
         return extract_complex_extension(ext, config)
 
-    def set_tribal_affiliation(self, value: "UscoreTribalAffiliationExtension | Extension | dict") -> "UscorePatientProfile":
+    def set_tribal_affiliation(self, value: "UscoreTribalAffiliationExtension | Extension | dict[str, Any]") -> "UscorePatientProfile":
         if isinstance(value, UscoreTribalAffiliationExtension):
             push_extension(self._resource, value.to_resource())
         elif is_extension(value):
@@ -204,7 +204,7 @@ class UscorePatientProfile:
             return ext_obj
         if mode == "profile":
             return UscoreIndividualSexExtension.apply(ext_obj)
-        return get_extension_value(ext, "value_coding")
+        return cast('Coding | None', get_extension_value(ext, "value_coding"))
 
     def set_sex(self, value: "UscoreIndividualSexExtension | Extension | Any") -> "UscorePatientProfile":
         if isinstance(value, UscoreIndividualSexExtension):
@@ -233,7 +233,7 @@ class UscorePatientProfile:
             return ext_obj
         if mode == "profile":
             return UscoreInterpreterNeededExtension.apply(ext_obj)
-        return get_extension_value(ext, "value_coding")
+        return cast('Coding | None', get_extension_value(ext, "value_coding"))
 
     def set_interpreter_required(self, value: "UscoreInterpreterNeededExtension | Extension | Any") -> "UscorePatientProfile":
         if isinstance(value, UscoreInterpreterNeededExtension):

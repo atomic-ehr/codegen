@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.hl7_fhir_r4_core.base import Coding
 from fhir_types.profile_helpers import (
@@ -46,14 +48,14 @@ class UscoreInterpreterNeededExtension:
         return self._resource
 
     def get_value_coding(self) -> Coding | None:
-        return getattr(self._resource, "value_coding", None)
+        return cast('Coding | None', getattr(self._resource, "value_coding", None))
 
     def set_value_coding(self, value: Coding) -> "UscoreInterpreterNeededExtension":
         setattr(self._resource, "value_coding", value)
         return self
 
     def get_url(self) -> str | None:
-        return getattr(self._resource, "url", None)
+        return cast('str | None', getattr(self._resource, "url", None))
 
     def set_url(self, value: str) -> "UscoreInterpreterNeededExtension":
         setattr(self._resource, "url", value)
