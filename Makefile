@@ -10,9 +10,9 @@ VERSION = $(shell cat package.json | grep version | sed -E 's/ *"version": "//' 
 	test-on-the-fly-example test-on-the-fly-norge-r4 test-on-the-fly-kbv-r4 test-on-the-fly-ccda \
 	test-typescript-r4-us-core-example test-typescript-custom-packages-example \
 	test-mustache-java-r4-example \
-	test-csharp-sdk generate-python-sdk generate-python-sdk-fhirpy generate-python-us-core-sdk \
-	python-test-setup python-fhirpy-test-setup python-us-core-test-setup \
-	test-python-sdk test-python-fhirpy-sdk test-python-us-core-example
+	test-csharp-sdk generate-python-r4-us-core-sdk generate-python-sdk-fhirpy \
+	python-r4-us-core-test-setup python-fhirpy-test-setup \
+	test-python-sdk test-python-fhirpy-sdk test-python-r4-us-core-example
 
 all: test test-multi-package test-typescript-r4-us-core-example test-typescript-custom-packages-example lint-unsafe test-all-example-generation
 
@@ -56,9 +56,8 @@ test-all-example-generation: test-other-example-generation
 	bun run examples/csharp/generate.ts
 	bun run examples/typescript-custom-packages/generate.ts
 	bun run examples/mustache/mustache-java-r4-gen.ts
-	bun run examples/python-r4/generate.ts
+	bun run examples/python-r4-us-core/generate.ts
 	bun run examples/python-fhirpy/generate.ts
-	bun run examples/python-us-core/generate.ts
 	bun run examples/typescript-r4-us-core/generate.ts
 
 test-other-example-generation: test-on-the-fly-example
@@ -102,25 +101,20 @@ test-csharp-sdk: typecheck prepare-aidbox-runme
 	cd examples/csharp && dotnet test
 
 PYTHON=python3.13
-PYTHON_EXAMPLE=./examples/python-r4
+PYTHON_R4_US_CORE_EXAMPLE=./examples/python-r4-us-core
 PYTHON_FHIRPY_EXAMPLE=./examples/python-fhirpy
-PYTHON_US_CORE_EXAMPLE=./examples/python-us-core
 
-generate-python-sdk:
-	$(TYPECHECK) --project examples/python-r4/tsconfig.json
-	bun run examples/python-r4/generate.ts
+generate-python-r4-us-core-sdk:
+	$(TYPECHECK) --project examples/python-r4-us-core/tsconfig.json
+	bun run examples/python-r4-us-core/generate.ts
 
 generate-python-sdk-fhirpy:
 	$(TYPECHECK) --project examples/python-fhirpy/tsconfig.json
 	bun run examples/python-fhirpy/generate.ts
 
-generate-python-us-core-sdk:
-	$(TYPECHECK) --project examples/python-us-core/tsconfig.json
-	bun run examples/python-us-core/generate.ts
-
-python-test-setup:
-	@if [ ! -d "$(PYTHON_EXAMPLE)/venv" ]; then \
-		cd $(PYTHON_EXAMPLE) && \
+python-r4-us-core-test-setup:
+	@if [ ! -d "$(PYTHON_R4_US_CORE_EXAMPLE)/venv" ]; then \
+		cd $(PYTHON_R4_US_CORE_EXAMPLE) && \
 		$(PYTHON) -m venv venv && \
 		. venv/bin/activate && \
 		pip install -r fhir_types/requirements.txt; \
@@ -135,44 +129,24 @@ python-fhirpy-test-setup:
 		pip install fhirpy; \
 	fi
 
-python-us-core-test-setup:
-	@if [ ! -d "$(PYTHON_US_CORE_EXAMPLE)/venv" ]; then \
-		cd $(PYTHON_US_CORE_EXAMPLE) && \
-		$(PYTHON) -m venv venv && \
-		. venv/bin/activate && \
-		pip install -r fhir_types/requirements.txt; \
-	fi
-
-test-python-sdk: typecheck prepare-aidbox-runme generate-python-sdk python-test-setup
-    # Run mypy in strict mode
-	cd $(PYTHON_EXAMPLE) && \
-         . venv/bin/activate && \
-         mypy --strict .
-
-	cd $(PYTHON_EXAMPLE) && \
-         . venv/bin/activate && \
-         python -m pytest test_sdk.py -v
-
-	cd $(PYTHON_EXAMPLE) && \
-         . venv/bin/activate && \
-         python -m pytest test_raw_extension.py -v
-
-	cd $(PYTHON_EXAMPLE) && \
-         . venv/bin/activate && \
-         python -m pytest test_bundle.py -v
-
-test-python-fhirpy-sdk: typecheck prepare-aidbox-runme generate-python-sdk-fhirpy python-fhirpy-test-setup
-    # Run mypy in strict mode
-	cd $(PYTHON_FHIRPY_EXAMPLE) && \
-       . venv/bin/activate && \
-       mypy --strict .
-
-# Profile tests are offline (no Aidbox required).
-test-python-us-core-example: typecheck generate-python-us-core-sdk python-us-core-test-setup
-	cd $(PYTHON_US_CORE_EXAMPLE) && \
+# Offline: mypy + profile/bundle/extension tests (no Aidbox required).
+test-python-r4-us-core-example: typecheck generate-python-r4-us-core-sdk python-r4-us-core-test-setup
+	cd $(PYTHON_R4_US_CORE_EXAMPLE) && \
 	     . venv/bin/activate && \
 	     mypy --config-file mypy.ini .
 
-	cd $(PYTHON_US_CORE_EXAMPLE) && \
+	cd $(PYTHON_R4_US_CORE_EXAMPLE) && \
 	     . venv/bin/activate && \
-	     python -m pytest -v
+	     python -m pytest test_profile_bodyweight.py test_profile_bp.py test_profile_patient.py test_profile_typed_bundle.py test_bundle.py test_raw_extension.py -v
+
+# Live SDK client tests via client.py (require Aidbox).
+test-python-sdk: typecheck prepare-aidbox-runme generate-python-r4-us-core-sdk python-r4-us-core-test-setup
+	cd $(PYTHON_R4_US_CORE_EXAMPLE) && \
+	     . venv/bin/activate && \
+	     python -m pytest test_sdk.py -v
+
+test-python-fhirpy-sdk: typecheck prepare-aidbox-runme generate-python-sdk-fhirpy python-fhirpy-test-setup
+	# Run mypy in strict mode
+	cd $(PYTHON_FHIRPY_EXAMPLE) && \
+	   . venv/bin/activate && \
+	   mypy --strict .
