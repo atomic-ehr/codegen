@@ -79,6 +79,16 @@ export interface PythonGeneratorOptions extends WriterOptions {
     generateProfile?: boolean;
     rootPackageName: string; /// e.g. <rootPackageName>.hl7_fhir_r4_core.Patient.
     fieldFormat: StringFormatKey;
+    /**
+     * Which client integration to generate into the output models.
+     * - `"fhirpy"` — models extend `FhirpyBaseModel` for use with the fhirpy async client (default).
+     * - `"none"` — plain Pydantic models with no client-specific code.
+     */
+    client?: "fhirpy" | "none";
+    /**
+     * @deprecated Use `client` instead: `fhirpyClient: true` → `client: "fhirpy"`,
+     * `fhirpyClient: false` → `client: "none"`.
+     */
     fhirpyClient?: boolean;
 }
 
@@ -105,8 +115,18 @@ export class Python extends Writer<PythonGeneratorOptions> {
     constructor(options: PythonGeneratorOptions) {
         super({ ...options, resolveAssets: options.resolveAssets ?? resolvePyAssets });
         this.nameFormatFunction = this.getFieldFormatFunction(options.fieldFormat);
-        this.forFhirpyClient = options.fhirpyClient ?? false;
+        this.forFhirpyClient = this.resolveClient(options);
         this.fieldFormat = options.fieldFormat;
+    }
+
+    /** Resolve which client integration to emit. `client` wins; `fhirpyClient` is the deprecated fallback; default is fhirpy. */
+    private resolveClient(options: PythonGeneratorOptions): boolean {
+        if (options.client !== undefined) return options.client === "fhirpy";
+        if (options.fhirpyClient !== undefined) {
+            this.logger()?.warn('python: `fhirpyClient` is deprecated; use `client: "fhirpy" | "none"` instead.');
+            return options.fhirpyClient;
+        }
+        return true; // default: fhirpy client
     }
 
     override async generate(tsIndex: TypeSchemaIndex): Promise<void> {
