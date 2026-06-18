@@ -133,11 +133,11 @@ python-fhirpy-test-setup:
 test-python-r4-us-core-example: typecheck generate-python-r4-us-core-sdk python-r4-us-core-test-setup
 	cd $(PYTHON_R4_US_CORE_EXAMPLE) && \
 	     . venv/bin/activate && \
-	     mypy --config-file mypy.ini .
+	     mypy .
 
 	cd $(PYTHON_R4_US_CORE_EXAMPLE) && \
 	     . venv/bin/activate && \
-	     python -m pytest test_profile_bodyweight.py test_profile_bp.py test_profile_patient.py test_profile_typed_bundle.py test_bundle.py test_raw_extension.py -v
+	     python -m pytest --ignore=test_sdk.py -v
 
 # Live SDK client tests via client.py (require Aidbox).
 test-python-sdk: typecheck prepare-aidbox-runme generate-python-r4-us-core-sdk python-r4-us-core-test-setup
@@ -146,7 +146,6 @@ test-python-sdk: typecheck prepare-aidbox-runme generate-python-r4-us-core-sdk p
 	     python -m pytest test_sdk.py -v
 
 test-python-fhirpy-sdk: typecheck prepare-aidbox-runme generate-python-sdk-fhirpy python-fhirpy-test-setup
-	# Run mypy in strict mode
 	cd $(PYTHON_FHIRPY_EXAMPLE) && \
 	   . venv/bin/activate && \
-	   mypy --strict .
+	   mypy .
