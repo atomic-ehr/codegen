@@ -143,7 +143,7 @@ Example test files in `examples/` follow a two-tier structure:
 
 2. **Regression tests** follow — concise, focused tests for edge cases and mechanics not covered by demos (e.g. factory equivalence, slice replacement, choice type independence). Keep these minimal; don't duplicate what demos already prove.
 
-Reference example: `examples/typescript-r4-us-core/profile-bodyweight.test.ts`
+Reference example: `examples/typescript-r4-us-core/profile-r4-bodyweight.test.ts`
 
 ### Key Dependencies
 - `@atomic-ehr/fhir-canonical-manager`: FHIR package management

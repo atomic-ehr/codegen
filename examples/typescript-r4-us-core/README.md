@@ -32,7 +32,7 @@ bun test ./examples/typescript-r4-us-core/
 
 - **resource.test.ts** - Patient, Observation, Profile class API, and Bundle creation
 - **extension-profile.test.ts** / **raw-extension.test.ts** - FHIR extensions (resource-level, primitive, complex type, array elements)
-- **profile-bodyweight.test.ts** / **profile-bp.test.ts** - base R4 profile class API (canonical profile-API demos)
+- **profile-r4-bodyweight.test.ts** / **profile-r4-bp.test.ts** - base R4 profile class API (canonical profile-API demos)
 - **profile-us-core-patient.test.ts** - US Core Patient profile: race/ethnicity/birth-sex extensions, field accessors
 - **profile-us-core-bp.test.ts** / **profile-us-core-bodyweight.test.ts** - US Core-specific slicing and constrained `value[x]` validation
 
@@ -143,8 +143,8 @@ typescript-r4-us-core/
 ├── resource.test.ts                # Resource and profile tests
 ├── extension-profile.test.ts       # Extension profile tests
 ├── raw-extension.test.ts           # Raw extension tests
-├── profile-bodyweight.test.ts      # Base R4 profile API
-├── profile-bp.test.ts              # Base R4 profile API
+├── profile-r4-bodyweight.test.ts      # Base R4 profile API
+├── profile-r4-bp.test.ts              # Base R4 profile API
 ├── profile-us-core-*.test.ts       # US Core profile tests
 ├── __snapshots__/                  # Test snapshots
 ├── tsconfig.json                   # TypeScript configuration
