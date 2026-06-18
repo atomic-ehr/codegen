@@ -19,9 +19,8 @@ const resolveCSharpAssets = (fn: string) => {
     const __dirname = Path.dirname(__filename);
     if (__filename.endsWith("dist/index.js")) {
         return Path.resolve(__dirname, "..", "assets", "api", "writer-generator", "csharp", fn);
-    } else {
-        return Path.resolve(__dirname, "../../../..", "assets", "api", "writer-generator", "csharp", fn);
     }
+    return Path.resolve(__dirname, "../../../..", "assets", "api", "writer-generator", "csharp", fn);
 };
 
 const PRIMITIVE_TYPE_MAP: Record<string, string> = {

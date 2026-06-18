@@ -215,9 +215,8 @@ export abstract class Writer<T extends WriterOptions = WriterOptions> extends Fi
             tokens = tokens.map((token) => {
                 if (typeof token === "string") {
                     return token;
-                } else {
-                    return JSON.stringify(token, null, 2);
                 }
+                return JSON.stringify(token, null, 2);
             });
             this.comment(...tokens);
         }
