@@ -18,7 +18,7 @@ active_patient = Patient(resource_type="Patient", active=True)
 # ---------------------------------------------------------------------------
 
 
-def test_freshly_created_bundle_fails_validation_missing_patient_entry():
+def test_freshly_created_bundle_fails_validation_missing_patient_entry() -> None:
     bundle = ExampleTypedBundleProfile.create(type="collection")
     errors = bundle.validate()["errors"]
     assert errors == [
@@ -26,12 +26,12 @@ def test_freshly_created_bundle_fails_validation_missing_patient_entry():
     ]
 
 
-def test_set_patient_entry_accepts_typed_bundle_entry():
+def test_set_patient_entry_accepts_typed_bundle_entry() -> None:
     bundle = ExampleTypedBundleProfile.create(type="collection")
     bundle.set_patient_entry(BundleEntry(resource=smith_patient))
 
 
-def test_get_patient_entry_returns_bundle_entry_instance():
+def test_get_patient_entry_returns_bundle_entry_instance() -> None:
     bundle = ExampleTypedBundleProfile.create(type="collection")
     bundle.set_patient_entry(BundleEntry(resource=smith_patient))
 
@@ -41,7 +41,7 @@ def test_get_patient_entry_returns_bundle_entry_instance():
     assert entry.resource.name[0].family == "Smith"
 
 
-def test_get_patient_entry_raw_mode_returns_bundle_entry_instance():
+def test_get_patient_entry_raw_mode_returns_bundle_entry_instance() -> None:
     bundle = ExampleTypedBundleProfile.create(type="collection")
     bundle.set_patient_entry(BundleEntry(resource=smith_patient))
 
@@ -50,7 +50,7 @@ def test_get_patient_entry_raw_mode_returns_bundle_entry_instance():
     assert entry.resource.resource_type == "Patient"
 
 
-def test_get_patient_entry_returns_stored_entry_including_resource():
+def test_get_patient_entry_returns_stored_entry_including_resource() -> None:
     """Getter returns the stored entry as-is — resource data is preserved."""
     bundle = ExampleTypedBundleProfile.create(type="collection")
     bundle.set_patient_entry(BundleEntry(resource=smith_patient))
@@ -61,7 +61,7 @@ def test_get_patient_entry_returns_stored_entry_including_resource():
     assert resource is not None
 
 
-def test_set_patient_entry_replaces_existing():
+def test_set_patient_entry_replaces_existing() -> None:
     bundle = ExampleTypedBundleProfile.create(type="collection")
     bundle.set_patient_entry(BundleEntry(resource=smith_patient))
     bundle.set_patient_entry(BundleEntry(resource=active_patient))
@@ -75,7 +75,7 @@ def test_set_patient_entry_replaces_existing():
 # ---------------------------------------------------------------------------
 
 
-def test_set_organization_entry_accepts_a_list():
+def test_set_organization_entry_accepts_a_list() -> None:
     from fhir_types.hl7_fhir_r4_core.organization import Organization
 
     bundle = ExampleTypedBundleProfile.create(type="collection")
@@ -91,7 +91,7 @@ def test_set_organization_entry_accepts_a_list():
     assert len(orgs) == 2
 
 
-def test_get_organization_entry_returns_list():
+def test_get_organization_entry_returns_list() -> None:
     from fhir_types.hl7_fhir_r4_core.organization import Organization
 
     bundle = ExampleTypedBundleProfile.create(type="collection")
