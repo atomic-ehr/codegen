@@ -8,10 +8,13 @@ describe("IntrospectionWriter - Fhir Schema Output", async () => {
         .introspection({ fhirSchemas: "introspection.ndjson" })
         .generate();
 
-    expect(result.success).toBeTrue();
-
     const files = result.filesGenerated.introspection!;
-    expect(Object.keys(files).length).toEqual(656);
+
+    it("generates 656 files successfully", () => {
+        expect(result.success).toBeTrue();
+        expect(Object.keys(files).length).toEqual(656);
+    });
+
     it("Generated file list", () => {
         expect(Object.keys(files)).toMatchSnapshot();
     });
@@ -51,10 +54,13 @@ describe("IntrospectionWriter - TypeSchema output", async () => {
         .introspection({ typeSchemas: "introspection.ndjson" })
         .generate();
 
-    expect(result.success).toBeTrue();
-
     const files = result.filesGenerated.introspection!;
-    expect(Object.keys(files).length).toMatchInlineSnapshot(`61`);
+
+    it("generates the expected number of files successfully", () => {
+        expect(result.success).toBeTrue();
+        expect(Object.keys(files).length).toMatchInlineSnapshot(`61`);
+    });
+
     it("Generated file list", () => {
         expect(Object.keys(files)).toMatchSnapshot();
     });
@@ -102,9 +108,11 @@ describe("IntrospectionWriter - typeTree", async () => {
         .introspection({ typeTree: "type-tree.json" })
         .generate();
 
-    expect(result.success).toBeTrue();
-
     const files = result.filesGenerated.introspection!;
+
+    it("generates successfully", () => {
+        expect(result.success).toBeTrue();
+    });
 
     it("Type tree file should be generated", () => {
         expect(files["generated/type-tree.json"]).toBeDefined();
@@ -133,9 +141,11 @@ describe("IntrospectionWriter - StructureDefinition output", async () => {
         .introspection({ structureDefinitions: "structure-definitions.ndjson" })
         .generate();
 
-    expect(result.success).toBeTrue();
-
     const files = result.filesGenerated.introspection!;
+
+    it("generates successfully", () => {
+        expect(result.success).toBeTrue();
+    });
 
     it("Generated file list", () => {
         expect(Object.keys(files)).toMatchSnapshot();
