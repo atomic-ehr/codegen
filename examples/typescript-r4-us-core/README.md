@@ -1,30 +1,40 @@
-# TypeScript R4 Example
+# TypeScript Example
 
-Complete FHIR R4 type generation with resource creation, profile usage, extensions, and bundle composition.
+Complete TypeScript type generation for FHIR R4 core **and** US Core profiles, covering
+resource creation, profile usage, extensions, slices, and bundle composition.
+
+A single `generate.ts` pulls US Core 8.0.1 (which depends on FHIR R4 core), so one
+`fhir-types/` tree contains both the base R4 types/profiles (`hl7-fhir-r4-core/`) and the
+US Core profiles (`hl7-fhir-us-core/`).
 
 ## Overview
 
-This example demonstrates how to use the Atomic EHR Codegen toolkit to generate TypeScript interfaces for the FHIR R4 core specification. It includes:
+This example demonstrates how to use the Atomic EHR Codegen toolkit to generate TypeScript
+interfaces for FHIR. It includes:
 
 - FHIR R4 resource type definitions
+- Base R4 profiles (bodyweight, blood pressure) and US Core profiles (Patient, blood pressure, body weight)
 - Profile support with type-safe slices
-- Extension support with proper typing for array primitives
+- Extension support with proper typing for array primitives, plus US Core flat extension accessors (race, ethnicity, birth sex)
 - Bundle composition utilities
 
 ## Quick Start
 
 ```bash
-# Generate types
-bun run examples/typescript-r4/generate.ts
+# Generate types (R4 core + US Core)
+bun run examples/typescript-r4-us-core/generate.ts
 
 # Run tests
-bun test ./examples/typescript-r4/
+bun test ./examples/typescript-r4-us-core/
 ```
 
 ## Tests
 
-- **resource.test.ts** - Tests for Patient, Observation, Profile class API, and Bundle creation
-- **extension.test.ts** - Tests for FHIR extensions (resource-level, primitive, complex type, array elements)
+- **resource.test.ts** - Patient, Observation, Profile class API, and Bundle creation
+- **extension-profile.test.ts** / **raw-extension.test.ts** - FHIR extensions (resource-level, primitive, complex type, array elements)
+- **profile-bodyweight.test.ts** / **profile-bp.test.ts** - base R4 profile class API (canonical profile-API demos)
+- **profile-us-core-patient.test.ts** - US Core Patient profile: race/ethnicity/birth-sex extensions, field accessors
+- **profile-us-core-bp.test.ts** / **profile-us-core-bodyweight.test.ts** - US Core-specific slicing and constrained `value[x]` validation
 
 ## Configuration
 
@@ -127,22 +137,22 @@ const bundle: Bundle = {
 ## File Structure
 
 ```
-typescript-r4/
-├── README.md                # This file
-├── generate.ts              # Type generation script
-├── resource.test.ts         # Resource and profile tests
-├── extension.test.ts        # Extension tests
-├── __snapshots__/           # Test snapshots
-├── tsconfig.json            # TypeScript configuration
-└── fhir-types/              # Generated types
-    ├── hl7-fhir-r4-core/
-    │   ├── index.ts         # Package exports
-    │   ├── Patient.ts       # Resource types
-    │   ├── Element.ts       # Base types with extension support
-    │   ├── Extension.ts     # Extension type with all value[x] variants
-    │   └── profiles/        # Profile classes
-    ├── type-schemas/        # TypeSchema JSON (debug)
-    └── type-tree.yaml       # Dependency tree (debug)
+typescript-r4-us-core/
+├── README.md                       # This file
+├── generate.ts                     # Type generation script (R4 core + US Core)
+├── resource.test.ts                # Resource and profile tests
+├── extension-profile.test.ts       # Extension profile tests
+├── raw-extension.test.ts           # Raw extension tests
+├── profile-bodyweight.test.ts      # Base R4 profile API
+├── profile-bp.test.ts              # Base R4 profile API
+├── profile-us-core-*.test.ts       # US Core profile tests
+├── __snapshots__/                  # Test snapshots
+├── tsconfig.json                   # TypeScript configuration
+└── fhir-types/                     # Generated types (gitignored)
+    ├── hl7-fhir-r4-core/           # Base R4 resources, profiles, extensions
+    ├── hl7-fhir-us-core/           # US Core profiles
+    ├── type-schemas/               # TypeSchema JSON (debug)
+    └── type-tree.yaml              # Dependency tree (debug)
 ```
 
 ## Customization

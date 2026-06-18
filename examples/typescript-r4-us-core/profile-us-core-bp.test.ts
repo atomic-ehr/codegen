@@ -1,5 +1,11 @@
 /**
  * US Core Blood Pressure Profile Class API Tests
+ *
+ * The create/apply mechanics and category auto-population are demonstrated in
+ * profile-bp.test.ts against the base R4 profile. This file keeps one
+ * self-contained create demo plus the scenarios that only work / only matter on
+ * US Core: a from() round-trip (the R4 BP discriminator is array-shaped here) and
+ * Bundle<T> + multi-profile is() narrowing.
  */
 
 import { describe, expect, test } from "bun:test";
@@ -10,7 +16,8 @@ import { USCoreBloodPressureProfile, USCorePatientProfile } from "./fhir-types/h
 
 describe("demo: create a US Core blood pressure observation", () => {
     test("build a valid BP resource step by step", () => {
-        // Create a new BP profile — auto-sets code, category, and component stubs
+        // Create a new BP profile — auto-sets code, category, and component stubs.
+        // Note the US Core slice names: setSystolic / setDiastolic.
         const profile = USCoreBloodPressureProfile.create({
             status: "final",
             subject: { reference: "Patient/pt-1" },
@@ -35,42 +42,10 @@ describe("demo: create a US Core blood pressure observation", () => {
     });
 });
 
-describe("demo: apply US Core BP profile to an existing Observation", () => {
-    test("wrap a plain Observation and populate profiled fields", () => {
-        // Start with an existing Observation — e.g. received from another system
-        const obs: Observation = {
-            resourceType: "Observation",
-            status: "preliminary",
-            code: { coding: [{ code: "85354-9", system: "http://loinc.org" }] },
-            subject: { reference: "Patient/pt-1" },
-        };
-
-        // apply() adds meta.profile, sets fixed values (code), and auto-populates required slices
-        const profile = USCoreBloodPressureProfile.apply(obs);
-
-        // Not yet valid: effective[x] and component valueQuantity are required
-        expect(profile.validate().errors).toEqual([
-            "USCoreBloodPressureProfile: at least one of effectiveDateTime, effectivePeriod is required",
-            "USCoreBloodPressureProfile.component[systolic].valueQuantity is required",
-            "USCoreBloodPressureProfile.component[diastolic].valueQuantity is required",
-        ]);
-
-        // The profile mutates the original resource — no copy is made
-        expect(profile.toResource()).toBe(obs);
-        expect(obs.meta?.profile).toContain("http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure");
-
-        // Fill in the remaining fields via fluent setters
-        profile
-            .setStatus("final")
-            .setEffectiveDateTime("2024-06-15")
-            .setSystolic({ value: 120, unit: "mmHg" })
-            .setDiastolic({ value: 80, unit: "mmHg" });
-
-        expect(profile.validate().errors).toEqual([]);
-    });
-});
-
 describe("demo: read a US Core blood pressure observation from JSON", () => {
+    // R4 BP omits a from() demo because its component discriminator stores
+    // code.coding as a plain object; US Core BP has correct array-shaped
+    // discriminators, so from() works here.
     test("parse an API response and use typed getters", () => {
         const json: Observation = {
             resourceType: "Observation",
@@ -184,60 +159,5 @@ describe("demo: filter Bundle<T> with profile is()", () => {
         const wrapped = bps.map((o) => USCoreBloodPressureProfile.from(o));
         expect(wrapped[0]!.getSystolic()!.value).toBe(120);
         expect(wrapped[0]!.getDiastolic()!.value).toBe(80);
-    });
-});
-
-describe("category auto-population", () => {
-    test("custom category is preserved, VSCat is appended", () => {
-        const profile = USCoreBloodPressureProfile.create({
-            status: "final",
-            subject: { reference: "Patient/pt-1" },
-            category: [{ text: "My Category" }],
-        });
-        const obs = profile.toResource();
-        expect(obs.category).toHaveLength(2);
-        expect(obs.category![0]!.text).toBe("My Category");
-        expect(obs.category![1]!.coding).toEqual([
-            { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
-        ]);
-    });
-
-    test("existing VSCat is not duplicated", () => {
-        const profile = USCoreBloodPressureProfile.create({
-            status: "final",
-            subject: { reference: "Patient/pt-1" },
-            category: [
-                {
-                    coding: [
-                        { code: "vital-signs", system: "http://terminology.hl7.org/CodeSystem/observation-category" },
-                    ],
-                },
-            ],
-        });
-        expect(profile.toResource().category).toHaveLength(1);
-    });
-});
-
-describe("value[x] choice is mutually exclusive", () => {
-    test("setting a second value variant clears the first", () => {
-        const profile = USCoreBloodPressureProfile.create({
-            status: "final",
-            subject: { reference: "Patient/pt-1" },
-        });
-
-        profile.setValueQuantity({ value: 120, unit: "mmHg" });
-        expect(profile.getValueQuantity()).toEqual({ value: 120, unit: "mmHg" });
-
-        // A resource may carry at most one value[x] variant — switching to
-        // valueCodeableConcept must drop valueQuantity, otherwise the resource
-        // serialises two mutually-exclusive value* fields (invalid FHIR).
-        profile.setValueCodeableConcept({ text: "unable to obtain" });
-
-        expect(profile.getValueCodeableConcept()).toEqual({ text: "unable to obtain" });
-        expect(profile.getValueQuantity()).toBeUndefined();
-
-        const resource = profile.toResource();
-        const valueKeys = Object.keys(resource).filter((k) => k.startsWith("value"));
-        expect(valueKeys).toEqual(["valueCodeableConcept"]);
     });
 });

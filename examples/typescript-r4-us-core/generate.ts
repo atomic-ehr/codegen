@@ -1,14 +1,21 @@
 // Run this script using Bun CLI with:
-// bun run scripts/generate-fhir-types.ts
+// bun run examples/typescript-r4-us-core/generate.ts
 
 import { APIBuilder, mkCodegenLogger, prettyReport } from "../../src";
 
 if (require.main === module) {
-    console.log("📦 Generating FHIR R4 Core Types...");
+    console.log("📦 Generating FHIR R4 Core + US Core Types...");
 
-    const builder = new APIBuilder({ logger: mkCodegenLogger({ suppressTags: ["#fieldTypeNotFound"] }) })
+    // US Core 8.0.1 brings hl7.fhir.r4.core in as a dependency, so a single
+    // generation emits both the base R4 types/profiles (bodyweight, bp,
+    // extensions) and the US Core profiles into one fhir-types tree.
+    const logger = mkCodegenLogger({
+        suppressTags: ["#fieldTypeNotFound", "#duplicateSchema", "#duplicateCanonical", "#largeValueSet"],
+    });
+
+    const builder = new APIBuilder({ logger })
         .throwException()
-        .fromPackage("hl7.fhir.r4.core", "4.0.1")
+        .fromPackage("hl7.fhir.us.core", "8.0.1")
         .typescript({
             withDebugComment: false,
             generateProfile: true,
@@ -31,6 +38,11 @@ if (require.main === module) {
                     "http://hl7.org/fhir/StructureDefinition/patient-nationality": {},
                     "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix": {},
                     "http://hl7.org/fhir/StructureDefinition/patient-birthTime": {},
+                },
+                "hl7.fhir.us.core": {
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient": {},
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure": {},
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight": {},
                 },
             },
             resolveCollisions: {
@@ -55,10 +67,8 @@ if (require.main === module) {
         .introspection({
             typeSchemas: "type-schemas",
             typeTree: "type-tree.yaml",
-            fhirSchemas: "fhir-schemas",
-            structureDefinitions: "structure-definitions",
         })
-        .outputTo("./examples/typescript-r4/fhir-types")
+        .outputTo("./examples/typescript-r4-us-core/fhir-types")
         .cleanOutput(true);
 
     const report = await builder.generate();

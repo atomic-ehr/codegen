@@ -31,6 +31,7 @@
 - `http://hl7.org/fhir/StructureDefinition/Appointment`
 - `http://hl7.org/fhir/StructureDefinition/AppointmentResponse`
 - `http://hl7.org/fhir/StructureDefinition/AuditEvent`
+- `http://hl7.org/fhir/StructureDefinition/BackboneElement`
 - `http://hl7.org/fhir/StructureDefinition/Basic`
 - `http://hl7.org/fhir/StructureDefinition/Binary`
 - `http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProduct`
@@ -71,7 +72,9 @@
 - `http://hl7.org/fhir/StructureDefinition/DiagnosticReport-geneticsReferences`
 - `http://hl7.org/fhir/StructureDefinition/DocumentManifest`
 - `http://hl7.org/fhir/StructureDefinition/DocumentReference`
+- `http://hl7.org/fhir/StructureDefinition/DomainResource`
 - `http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis`
+- `http://hl7.org/fhir/StructureDefinition/Element`
 - `http://hl7.org/fhir/StructureDefinition/ElementDefinition`
 - `http://hl7.org/fhir/StructureDefinition/Encounter`
 - `http://hl7.org/fhir/StructureDefinition/Endpoint`
@@ -130,12 +133,14 @@
 - `http://hl7.org/fhir/StructureDefinition/MoneyQuantity`
 - `http://hl7.org/fhir/StructureDefinition/NamingSystem`
 - `http://hl7.org/fhir/StructureDefinition/NutritionOrder`
+- `http://hl7.org/fhir/StructureDefinition/Observation`
 - `http://hl7.org/fhir/StructureDefinition/ObservationDefinition`
 - `http://hl7.org/fhir/StructureDefinition/OperationDefinition`
 - `http://hl7.org/fhir/StructureDefinition/OperationOutcome`
 - `http://hl7.org/fhir/StructureDefinition/Organization`
 - `http://hl7.org/fhir/StructureDefinition/OrganizationAffiliation`
 - `http://hl7.org/fhir/StructureDefinition/Parameters`
+- `http://hl7.org/fhir/StructureDefinition/Patient`
 - `http://hl7.org/fhir/StructureDefinition/PaymentNotice`
 - `http://hl7.org/fhir/StructureDefinition/PaymentReconciliation`
 - `http://hl7.org/fhir/StructureDefinition/Person`
@@ -2575,9 +2580,6 @@
 - `urn:fhir:binding:InvestigationGroupType`
 - `urn:fhir:binding:InvoicePriceComponentType`
 - `urn:fhir:binding:InvoiceStatus`
-- `urn:fhir:binding:IssueDetails`
-- `urn:fhir:binding:IssueSeverity`
-- `urn:fhir:binding:IssueType`
 - `urn:fhir:binding:ItemDescriptionLanguage`
 - `urn:fhir:binding:Jurisdiction`
 - `urn:fhir:binding:LDLCodes`
@@ -3508,8 +3510,8 @@ and check `<pkg>/collisions/<name>/1.json, 2.json, ...` files.
   - Version 2: Communication (hl7.fhir.r5.core#5.0.0), Communication (hl7.fhir.r5.core#5.0.0), Communication (hl7.fhir.r5.core#5.0.0), CommunicationRequest (hl7.fhir.r5.core#5.0.0), CommunicationRequest (hl7.fhir.r5.core#5.0.0), CommunicationRequest (hl7.fhir.r5.core#5.0.0)
   - Version 3: Communication (hl7.fhir.r4.examples#4.0.1), CommunicationRequest (hl7.fhir.r4.examples#4.0.1)
 - `urn:fhir:binding:CommunicationReason` (5 versions)
-  - Version 1 (auto): CommunicationRequest (hl7.fhir.r4.core#4.0.1), CommunicationRequest (hl7.fhir.r4.core#4.0.1), CommunicationRequest (hl7.fhir.r4.core#4.0.1), CommunicationRequest (hl7.fhir.r4.core#4.0.1), CommunicationRequest (hl7.fhir.r4.core#4.0.1), CommunicationRequest (hl7.fhir.r4.core#4.0.1), CommunicationRequest (hl7.fhir.r4.core#4.0.1), CommunicationRequest (hl7.fhir.r4.core#4.0.1), CommunicationRequest (hl7.fhir.r4.core#4.0.1), CommunicationRequest (hl7.fhir.r4.core#4.0.1), CommunicationRequest (hl7.fhir.r5.core#5.0.0), CommunicationRequest (hl7.fhir.r5.core#5.0.0), CommunicationRequest (hl7.fhir.r5.core#5.0.0)
-  - Version 2: Communication (hl7.fhir.r4.core#4.0.1), Communication (hl7.fhir.r4.core#4.0.1), Communication (hl7.fhir.r4.core#4.0.1), Communication (hl7.fhir.r4.core#4.0.1), Communication (hl7.fhir.r4.core#4.0.1), Communication (hl7.fhir.r4.core#4.0.1), Communication (hl7.fhir.r4.core#4.0.1), Communication (hl7.fhir.r4.core#4.0.1), Communication (hl7.fhir.r4.core#4.0.1), Communication (hl7.fhir.r4.core#4.0.1)
+  - Version 1: CommunicationRequest (hl7.fhir.r4.core#4.0.1), CommunicationRequest (hl7.fhir.r4.core#4.0.1), CommunicationRequest (hl7.fhir.r4.core#4.0.1), CommunicationRequest (hl7.fhir.r4.core#4.0.1), CommunicationRequest (hl7.fhir.r4.core#4.0.1), CommunicationRequest (hl7.fhir.r4.core#4.0.1), CommunicationRequest (hl7.fhir.r4.core#4.0.1), CommunicationRequest (hl7.fhir.r4.core#4.0.1), CommunicationRequest (hl7.fhir.r4.core#4.0.1), CommunicationRequest (hl7.fhir.r4.core#4.0.1), CommunicationRequest (hl7.fhir.r5.core#5.0.0), CommunicationRequest (hl7.fhir.r5.core#5.0.0), CommunicationRequest (hl7.fhir.r5.core#5.0.0)
+  - Version 2 (selected): Communication (hl7.fhir.r4.core#4.0.1), Communication (hl7.fhir.r4.core#4.0.1), Communication (hl7.fhir.r4.core#4.0.1), Communication (hl7.fhir.r4.core#4.0.1), Communication (hl7.fhir.r4.core#4.0.1), Communication (hl7.fhir.r4.core#4.0.1), Communication (hl7.fhir.r4.core#4.0.1), Communication (hl7.fhir.r4.core#4.0.1), Communication (hl7.fhir.r4.core#4.0.1), Communication (hl7.fhir.r4.core#4.0.1)
   - Version 3: Communication (hl7.fhir.r5.core#5.0.0), Communication (hl7.fhir.r5.core#5.0.0), Communication (hl7.fhir.r5.core#5.0.0)
   - Version 4: Communication (hl7.fhir.r4.examples#4.0.1)
   - Version 5: CommunicationRequest (hl7.fhir.r4.examples#4.0.1)
@@ -4725,7 +4727,7 @@ and check `<pkg>/collisions/<name>/1.json, 2.json, ...` files.
   - Version 2: NutritionOrder (hl7.fhir.r5.core#5.0.0), NutritionOrder (hl7.fhir.r5.core#5.0.0), NutritionOrder (hl7.fhir.r5.core#5.0.0)
   - Version 3: NutritionOrder (hl7.fhir.r4.examples#4.0.1)
 - `urn:fhir:binding:ObservationCategory` (6 versions)
-  - Version 1 (auto): Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), us-core-average-blood-pressure (hl7.fhir.us.core#8.0.1), us-core-observation-clinical-result (hl7.fhir.us.core#8.0.1), us-core-observation-lab (hl7.fhir.us.core#8.0.1), us-core-observation-occupation (hl7.fhir.us.core#8.0.1), us-core-observation-pregnancyintent (hl7.fhir.us.core#8.0.1), us-core-observation-pregnancystatus (hl7.fhir.us.core#8.0.1), us-core-observation-screening-assessment (hl7.fhir.us.core#8.0.1), us-core-smokingstatus (hl7.fhir.us.core#8.0.1), us-core-vital-signs (hl7.fhir.us.core#8.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1)
+  - Version 1 (selected): Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), us-core-average-blood-pressure (hl7.fhir.us.core#8.0.1), us-core-observation-clinical-result (hl7.fhir.us.core#8.0.1), us-core-observation-lab (hl7.fhir.us.core#8.0.1), us-core-observation-occupation (hl7.fhir.us.core#8.0.1), us-core-observation-pregnancyintent (hl7.fhir.us.core#8.0.1), us-core-observation-pregnancystatus (hl7.fhir.us.core#8.0.1), us-core-observation-screening-assessment (hl7.fhir.us.core#8.0.1), us-core-smokingstatus (hl7.fhir.us.core#8.0.1), us-core-vital-signs (hl7.fhir.us.core#8.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1), vitalsigns (hl7.fhir.r4.core#4.0.1)
   - Version 2: ConditionDefinition (hl7.fhir.r5.core#5.0.0), ConditionDefinition (hl7.fhir.r5.core#5.0.0), ConditionDefinition (hl7.fhir.r5.core#5.0.0), ConditionDefinition (hl7.fhir.r5.core#5.0.0), ConditionDefinition (hl7.fhir.r5.core#5.0.0), Observation (hl7.fhir.r5.core#5.0.0), Observation (hl7.fhir.r5.core#5.0.0), Observation (hl7.fhir.r5.core#5.0.0), vitalsigns (hl7.fhir.r5.core#5.0.0), vitalsigns (hl7.fhir.r5.core#5.0.0), vitalsigns (hl7.fhir.r5.core#5.0.0)
   - Version 3: ObservationDefinition (hl7.fhir.r4.core#4.0.1), ObservationDefinition (hl7.fhir.r4.core#4.0.1), ObservationDefinition (hl7.fhir.r4.core#4.0.1), ObservationDefinition (hl7.fhir.r4.core#4.0.1), ObservationDefinition (hl7.fhir.r4.core#4.0.1), ObservationDefinition (hl7.fhir.r4.core#4.0.1), ObservationDefinition (hl7.fhir.r4.core#4.0.1), ObservationDefinition (hl7.fhir.r4.core#4.0.1), ObservationDefinition (hl7.fhir.r4.core#4.0.1), ObservationDefinition (hl7.fhir.r4.core#4.0.1)
   - Version 4: ObservationDefinition (hl7.fhir.r5.core#5.0.0), ObservationDefinition (hl7.fhir.r5.core#5.0.0), ObservationDefinition (hl7.fhir.r5.core#5.0.0)
@@ -4756,7 +4758,7 @@ and check `<pkg>/collisions/<name>/1.json, 2.json, ...` files.
   - Version 2: ObservationDefinition (hl7.fhir.r5.core#5.0.0), ObservationDefinition (hl7.fhir.r5.core#5.0.0), ObservationDefinition (hl7.fhir.r5.core#5.0.0)
   - Version 3: ObservationDefinition (hl7.fhir.r4.examples#4.0.1)
 - `urn:fhir:binding:ObservationRangeMeaning` (6 versions)
-  - Version 1 (auto): Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), cholesterol (hl7.fhir.r4.core#4.0.1), cholesterol (hl7.fhir.r4.core#4.0.1), cholesterol (hl7.fhir.r4.core#4.0.1), cholesterol (hl7.fhir.r4.core#4.0.1), cholesterol (hl7.fhir.r4.core#4.0.1), cholesterol (hl7.fhir.r4.core#4.0.1), cholesterol (hl7.fhir.r4.core#4.0.1), cholesterol (hl7.fhir.r4.core#4.0.1), cholesterol (hl7.fhir.r4.core#4.0.1), cholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1)
+  - Version 1 (selected): Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), Observation (hl7.fhir.r4.core#4.0.1), cholesterol (hl7.fhir.r4.core#4.0.1), cholesterol (hl7.fhir.r4.core#4.0.1), cholesterol (hl7.fhir.r4.core#4.0.1), cholesterol (hl7.fhir.r4.core#4.0.1), cholesterol (hl7.fhir.r4.core#4.0.1), cholesterol (hl7.fhir.r4.core#4.0.1), cholesterol (hl7.fhir.r4.core#4.0.1), cholesterol (hl7.fhir.r4.core#4.0.1), cholesterol (hl7.fhir.r4.core#4.0.1), cholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), hdlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), ldlcholesterol (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1), triglyceride (hl7.fhir.r4.core#4.0.1)
   - Version 2: Observation (hl7.fhir.r5.core#5.0.0), Observation (hl7.fhir.r5.core#5.0.0), Observation (hl7.fhir.r5.core#5.0.0), cholesterol (hl7.fhir.r5.core#5.0.0), cholesterol (hl7.fhir.r5.core#5.0.0), cholesterol (hl7.fhir.r5.core#5.0.0), hdlcholesterol (hl7.fhir.r5.core#5.0.0), hdlcholesterol (hl7.fhir.r5.core#5.0.0), hdlcholesterol (hl7.fhir.r5.core#5.0.0), ldlcholesterol (hl7.fhir.r5.core#5.0.0), ldlcholesterol (hl7.fhir.r5.core#5.0.0), ldlcholesterol (hl7.fhir.r5.core#5.0.0), triglyceride (hl7.fhir.r5.core#5.0.0), triglyceride (hl7.fhir.r5.core#5.0.0), triglyceride (hl7.fhir.r5.core#5.0.0)
   - Version 3: ObservationDefinition (hl7.fhir.r4.core#4.0.1), ObservationDefinition (hl7.fhir.r4.core#4.0.1), ObservationDefinition (hl7.fhir.r4.core#4.0.1), ObservationDefinition (hl7.fhir.r4.core#4.0.1), ObservationDefinition (hl7.fhir.r4.core#4.0.1), ObservationDefinition (hl7.fhir.r4.core#4.0.1), ObservationDefinition (hl7.fhir.r4.core#4.0.1), ObservationDefinition (hl7.fhir.r4.core#4.0.1), ObservationDefinition (hl7.fhir.r4.core#4.0.1), ObservationDefinition (hl7.fhir.r4.core#4.0.1)
   - Version 4: Observation (hl7.fhir.r4.examples#4.0.1), cholesterol (hl7.fhir.r4.examples#4.0.1), hdlcholesterol (hl7.fhir.r4.examples#4.0.1), ldlcholesterol (hl7.fhir.r4.examples#4.0.1), triglyceride (hl7.fhir.r4.examples#4.0.1)
@@ -4868,7 +4870,7 @@ and check `<pkg>/collisions/<name>/1.json, 2.json, ...` files.
   - Version 2: PaymentNotice (hl7.fhir.r5.core#5.0.0), PaymentNotice (hl7.fhir.r5.core#5.0.0), PaymentNotice (hl7.fhir.r5.core#5.0.0)
   - Version 3: PaymentNotice (hl7.fhir.r4.examples#4.0.1)
 - `urn:fhir:binding:PaymentType` (6 versions)
-  - Version 1 (auto): ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1)
+  - Version 1 (selected): ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1)
   - Version 2: PaymentReconciliation (hl7.fhir.r4.core#4.0.1), PaymentReconciliation (hl7.fhir.r4.core#4.0.1), PaymentReconciliation (hl7.fhir.r4.core#4.0.1), PaymentReconciliation (hl7.fhir.r4.core#4.0.1), PaymentReconciliation (hl7.fhir.r4.core#4.0.1), PaymentReconciliation (hl7.fhir.r4.core#4.0.1), PaymentReconciliation (hl7.fhir.r4.core#4.0.1), PaymentReconciliation (hl7.fhir.r4.core#4.0.1), PaymentReconciliation (hl7.fhir.r4.core#4.0.1), PaymentReconciliation (hl7.fhir.r4.core#4.0.1)
   - Version 3: ClaimResponse (hl7.fhir.r5.core#5.0.0), ClaimResponse (hl7.fhir.r5.core#5.0.0), ClaimResponse (hl7.fhir.r5.core#5.0.0), ExplanationOfBenefit (hl7.fhir.r5.core#5.0.0), ExplanationOfBenefit (hl7.fhir.r5.core#5.0.0), ExplanationOfBenefit (hl7.fhir.r5.core#5.0.0)
   - Version 4: PaymentReconciliation (hl7.fhir.r5.core#5.0.0), PaymentReconciliation (hl7.fhir.r5.core#5.0.0), PaymentReconciliation (hl7.fhir.r5.core#5.0.0)
@@ -6087,10 +6089,6 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         "urn:fhir:binding:CommunicationPriority": {
             package: "hl7.fhir.r4.core#4.0.1",
             canonical: "http://hl7.org/fhir/StructureDefinition/Communication",
-        },
-        "urn:fhir:binding:CommunicationReason": {
-            package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/CommunicationRequest",
         },
         "urn:fhir:binding:CommunicationRequestStatus": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7344,10 +7342,6 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
             package: "hl7.fhir.r4.core#4.0.1",
             canonical: "http://hl7.org/fhir/StructureDefinition/NutritionOrder",
         },
-        "urn:fhir:binding:ObservationCategory": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-average-blood-pressure",
-        },
         "urn:fhir:binding:ObservationCode": {
             package: "hl7.fhir.us.core#8.0.1",
             canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-average-blood-pressure",
@@ -7371,10 +7365,6 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         "urn:fhir:binding:ObservationRangeCategory": {
             package: "hl7.fhir.r4.core#4.0.1",
             canonical: "http://hl7.org/fhir/StructureDefinition/ObservationDefinition",
-        },
-        "urn:fhir:binding:ObservationRangeMeaning": {
-            package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/Observation",
         },
         "urn:fhir:binding:ObservationRangeType": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7483,10 +7473,6 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         "urn:fhir:binding:PaymentStatus": {
             package: "hl7.fhir.r4.core#4.0.1",
             canonical: "http://hl7.org/fhir/StructureDefinition/PaymentNotice",
-        },
-        "urn:fhir:binding:PaymentType": {
-            package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/ClaimResponse",
         },
         "urn:fhir:binding:PhysicalType": {
             package: "hl7.fhir.r4.core#4.0.1",
