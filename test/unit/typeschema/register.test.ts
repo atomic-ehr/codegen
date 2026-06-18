@@ -59,24 +59,26 @@ describe("Register tests", async () => {
             throw new Error("Patient genealogy not found");
         }
 
-        expect(pat.map((fs) => fs.url)).toMatchObject([
-            "http://hl7.org/fhir/StructureDefinition/Patient",
-            "http://hl7.org/fhir/StructureDefinition/DomainResource",
-            "http://hl7.org/fhir/StructureDefinition/Resource",
-        ]);
+        it("resolves the Patient genealogy and its gender binding", () => {
+            expect(pat.map((fs) => fs.url)).toMatchObject([
+                "http://hl7.org/fhir/StructureDefinition/Patient",
+                "http://hl7.org/fhir/StructureDefinition/DomainResource",
+                "http://hl7.org/fhir/StructureDefinition/Resource",
+            ]);
 
-        expect(resolveFsElementGenealogy(pat, ["gender"])).toMatchObject([
-            {
-                binding: {
-                    bindingName: "AdministrativeGender",
-                    strength: "required",
-                    valueSet: "http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1",
+            expect(resolveFsElementGenealogy(pat, ["gender"])).toMatchObject([
+                {
+                    binding: {
+                        bindingName: "AdministrativeGender",
+                        strength: "required",
+                        valueSet: "http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1",
+                    },
+                    isSummary: true,
+                    short: "male | female | other | unknown",
+                    type: "code",
                 },
-                isSummary: true,
-                short: "male | female | other | unknown",
-                type: "code",
-            },
-        ]);
+            ]);
+        });
     });
 
     describe("resolve element genealogy", () => {
@@ -99,24 +101,26 @@ describe("Register tests", async () => {
             },
         ];
 
-        expect(resolveFsElementGenealogyT(flatGenealogy, ["foo"])).toMatchObject([
-            { min: 1 },
-            { array: true, type: "string" },
-        ]);
-        expect(mergeFsElementProps(resolveFsElementGenealogyT(flatGenealogy, ["foo"]))).toMatchObject({
-            array: true,
-            min: 1,
-            type: "string",
-        });
+        it("resolves and merges flat genealogy", () => {
+            expect(resolveFsElementGenealogyT(flatGenealogy, ["foo"])).toMatchObject([
+                { min: 1 },
+                { array: true, type: "string" },
+            ]);
+            expect(mergeFsElementProps(resolveFsElementGenealogyT(flatGenealogy, ["foo"]))).toMatchObject({
+                array: true,
+                min: 1,
+                type: "string",
+            });
 
-        expect(resolveFsElementGenealogyT(flatGenealogy, ["bar"])).toMatchObject([
-            { min: 12 },
-            { array: true, min: 0, type: "code" },
-        ]);
-        expect(mergeFsElementProps(resolveFsElementGenealogyT(flatGenealogy, ["bar"]))).toMatchObject({
-            array: true,
-            min: 12,
-            type: "code",
+            expect(resolveFsElementGenealogyT(flatGenealogy, ["bar"])).toMatchObject([
+                { min: 12 },
+                { array: true, min: 0, type: "code" },
+            ]);
+            expect(mergeFsElementProps(resolveFsElementGenealogyT(flatGenealogy, ["bar"]))).toMatchObject({
+                array: true,
+                min: 12,
+                type: "code",
+            });
         });
 
         const deepGenealogy = [
@@ -136,22 +140,24 @@ describe("Register tests", async () => {
             },
         ];
 
-        expect(resolveFsElementGenealogyT(deepGenealogy, ["foo"])).toMatchObject([
-            { elements: { bar: { min: 1, type: "string" } } },
-            { elements: { bar: { array: true, type: "string" } }, type: "string" },
-        ]);
-        expect(mergeFsElementProps(resolveFsElementGenealogyT(deepGenealogy, ["foo"]))).toMatchObject({
-            type: "string",
-        });
+        it("resolves and merges deep (nested) genealogy", () => {
+            expect(resolveFsElementGenealogyT(deepGenealogy, ["foo"])).toMatchObject([
+                { elements: { bar: { min: 1, type: "string" } } },
+                { elements: { bar: { array: true, type: "string" } }, type: "string" },
+            ]);
+            expect(mergeFsElementProps(resolveFsElementGenealogyT(deepGenealogy, ["foo"]))).toMatchObject({
+                type: "string",
+            });
 
-        expect(resolveFsElementGenealogyT(deepGenealogy, ["foo", "bar"])).toMatchObject([
-            { min: 1, type: "string" },
-            { array: true, type: "string" },
-        ]);
-        expect(mergeFsElementProps(resolveFsElementGenealogyT(deepGenealogy, ["foo", "bar"]))).toMatchObject({
-            array: true,
-            min: 1,
-            type: "string",
+            expect(resolveFsElementGenealogyT(deepGenealogy, ["foo", "bar"])).toMatchObject([
+                { min: 1, type: "string" },
+                { array: true, type: "string" },
+            ]);
+            expect(mergeFsElementProps(resolveFsElementGenealogyT(deepGenealogy, ["foo", "bar"]))).toMatchObject({
+                array: true,
+                min: 1,
+                type: "string",
+            });
         });
     });
 });
