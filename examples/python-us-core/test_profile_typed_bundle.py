@@ -53,18 +53,18 @@ def test_get_patient_entry_raw_mode_returns_bundle_entry_instance():
 def test_get_patient_entry_returns_stored_entry_including_resource():
     """Getter returns the stored entry as-is — resource data is preserved."""
     bundle = ExampleTypedBundleProfile.create(type="collection")
-    bundle.set_patient_entry({"resource": smith_patient.model_dump(by_alias=True, exclude_none=True)})
+    bundle.set_patient_entry(BundleEntry(resource=smith_patient))
 
     entry = bundle.get_patient_entry()
     assert entry is not None
-    resource = entry.resource if hasattr(entry, "resource") else (entry or {}).get("resource")
+    resource = entry.resource
     assert resource is not None
 
 
 def test_set_patient_entry_replaces_existing():
     bundle = ExampleTypedBundleProfile.create(type="collection")
-    bundle.set_patient_entry({"resource": smith_patient.model_dump(by_alias=True, exclude_none=True)})
-    bundle.set_patient_entry({"resource": active_patient.model_dump(by_alias=True, exclude_none=True)})
+    bundle.set_patient_entry(BundleEntry(resource=smith_patient))
+    bundle.set_patient_entry(BundleEntry(resource=active_patient))
 
     # Only one patient entry — the second call replaced the first.
     assert len(bundle.to_resource().entry) == 1
@@ -79,7 +79,7 @@ def test_set_organization_entry_accepts_a_list():
     from fhir_types.hl7_fhir_r4_core.organization import Organization
 
     bundle = ExampleTypedBundleProfile.create(type="collection")
-    bundle.set_patient_entry({"resource": smith_patient.model_dump(by_alias=True, exclude_none=True)})
+    bundle.set_patient_entry(BundleEntry(resource=smith_patient))
 
     clinic = Organization(resource_type="Organization", name="Clinic")
     acme = Organization(resource_type="Organization", name="Acme")
@@ -95,7 +95,7 @@ def test_get_organization_entry_returns_list():
     from fhir_types.hl7_fhir_r4_core.organization import Organization
 
     bundle = ExampleTypedBundleProfile.create(type="collection")
-    bundle.set_patient_entry({"resource": smith_patient.model_dump(by_alias=True, exclude_none=True)})
+    bundle.set_patient_entry(BundleEntry(resource=smith_patient))
     org = Organization(resource_type="Organization", name="Clinic")
     bundle.set_organization_entry([BundleEntry(resource=org)])
 

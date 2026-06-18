@@ -193,7 +193,14 @@ export const generateSliceGetters = (
             const flatRetType = sliceDef.constrainedChoice
                 ? pyTypeFromIdentifier(sliceDef.constrainedChoice.variantType)
                 : "dict";
-            w.line(`def get_${baseName}(self, mode: str | None = None) -> ${flatRetType} | None:`);
+            const rawRetType = sliceDef.elementTypeName ?? "Any";
+            w.line("@overload");
+            w.line(`def get_${baseName}(self) -> ${flatRetType} | None: ...`);
+            w.line("@overload");
+            w.line(`def get_${baseName}(self, mode: Literal["raw"]) -> ${rawRetType} | None: ...`);
+            w.line(
+                `def get_${baseName}(self, mode: Literal["raw"] | None = None) -> ${flatRetType} | ${rawRetType} | None:`,
+            );
             w.indentBlock(() => {
                 w.line(`match = self.__class__.${staticName}`);
                 if (sliceDef.array) {

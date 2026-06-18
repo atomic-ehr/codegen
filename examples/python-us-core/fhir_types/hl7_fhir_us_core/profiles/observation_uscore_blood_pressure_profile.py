@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, overload
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
@@ -315,7 +315,11 @@ class UscoreBloodPressureProfile:
         setattr(self._resource, "value_period", value)
         return self
 
-    def get_vscat(self, mode: str | None = None) -> dict | None:
+    @overload
+    def get_vscat(self) -> dict | None: ...
+    @overload
+    def get_vscat(self, mode: Literal["raw"]) -> CodeableConcept | None: ...
+    def get_vscat(self, mode: Literal["raw"] | None = None) -> dict | CodeableConcept | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
         if mode == "raw":
@@ -323,7 +327,11 @@ class UscoreBloodPressureProfile:
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return strip_match_keys(item_dict, ["coding"])
 
-    def get_systolic(self, mode: str | None = None) -> Quantity | None:
+    @overload
+    def get_systolic(self) -> Quantity | None: ...
+    @overload
+    def get_systolic(self, mode: Literal["raw"]) -> ObservationComponent | None: ...
+    def get_systolic(self, mode: Literal["raw"] | None = None) -> Quantity | ObservationComponent | None:
         match = self.__class__._systolic_slice_match
         item = get_array_slice(getattr(self._resource, "component", None), match)
         if mode == "raw":
@@ -331,7 +339,11 @@ class UscoreBloodPressureProfile:
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return unwrap_slice_choice(item_dict, ["code"], "valueQuantity")
 
-    def get_diastolic(self, mode: str | None = None) -> Quantity | None:
+    @overload
+    def get_diastolic(self) -> Quantity | None: ...
+    @overload
+    def get_diastolic(self, mode: Literal["raw"]) -> ObservationComponent | None: ...
+    def get_diastolic(self, mode: Literal["raw"] | None = None) -> Quantity | ObservationComponent | None:
         match = self.__class__._diastolic_slice_match
         item = get_array_slice(getattr(self._resource, "component", None), match)
         if mode == "raw":

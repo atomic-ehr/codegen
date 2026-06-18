@@ -417,7 +417,7 @@ exports[`Python R4 Example (with generateProfile) generates bodyweight profile w
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, overload
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import CodeableConcept, Period, Quantity, Reference
@@ -530,7 +530,11 @@ class ObservationBodyweightProfile:
         setattr(self._resource, "value_quantity", value)
         return self
 
-    def get_vscat(self, mode: str | None = None) -> dict | None:
+    @overload
+    def get_vscat(self) -> dict | None: ...
+    @overload
+    def get_vscat(self, mode: Literal["raw"]) -> CodeableConcept | None: ...
+    def get_vscat(self, mode: Literal["raw"] | None = None) -> dict | CodeableConcept | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
         if mode == "raw":
@@ -578,7 +582,7 @@ exports[`Python R4 Example (with generateProfile) generates bp profile with vali
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, overload
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
@@ -709,7 +713,11 @@ class ObservationBpProfile:
         setattr(self._resource, "value_quantity", value)
         return self
 
-    def get_vscat(self, mode: str | None = None) -> dict | None:
+    @overload
+    def get_vscat(self) -> dict | None: ...
+    @overload
+    def get_vscat(self, mode: Literal["raw"]) -> CodeableConcept | None: ...
+    def get_vscat(self, mode: Literal["raw"] | None = None) -> dict | CodeableConcept | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
         if mode == "raw":
@@ -717,7 +725,11 @@ class ObservationBpProfile:
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return strip_match_keys(item_dict, ["coding"])
 
-    def get_systolic_bp(self, mode: str | None = None) -> Quantity | None:
+    @overload
+    def get_systolic_bp(self) -> Quantity | None: ...
+    @overload
+    def get_systolic_bp(self, mode: Literal["raw"]) -> ObservationComponent | None: ...
+    def get_systolic_bp(self, mode: Literal["raw"] | None = None) -> Quantity | ObservationComponent | None:
         match = self.__class__._systolic_bp_slice_match
         item = get_array_slice(getattr(self._resource, "component", None), match)
         if mode == "raw":
@@ -725,7 +737,11 @@ class ObservationBpProfile:
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return unwrap_slice_choice(item_dict, ["code"], "valueQuantity")
 
-    def get_diastolic_bp(self, mode: str | None = None) -> Quantity | None:
+    @overload
+    def get_diastolic_bp(self) -> Quantity | None: ...
+    @overload
+    def get_diastolic_bp(self, mode: Literal["raw"]) -> ObservationComponent | None: ...
+    def get_diastolic_bp(self, mode: Literal["raw"] | None = None) -> Quantity | ObservationComponent | None:
         match = self.__class__._diastolic_bp_slice_match
         item = get_array_slice(getattr(self._resource, "component", None), match)
         if mode == "raw":
@@ -1057,7 +1073,7 @@ exports[`Python US Core Example generates US Core Blood Pressure profile 1`] = `
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, overload
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
@@ -1368,7 +1384,11 @@ class UscoreBloodPressureProfile:
         setattr(self._resource, "value_period", value)
         return self
 
-    def get_vscat(self, mode: str | None = None) -> dict | None:
+    @overload
+    def get_vscat(self) -> dict | None: ...
+    @overload
+    def get_vscat(self, mode: Literal["raw"]) -> CodeableConcept | None: ...
+    def get_vscat(self, mode: Literal["raw"] | None = None) -> dict | CodeableConcept | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
         if mode == "raw":
@@ -1376,7 +1396,11 @@ class UscoreBloodPressureProfile:
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return strip_match_keys(item_dict, ["coding"])
 
-    def get_systolic(self, mode: str | None = None) -> Quantity | None:
+    @overload
+    def get_systolic(self) -> Quantity | None: ...
+    @overload
+    def get_systolic(self, mode: Literal["raw"]) -> ObservationComponent | None: ...
+    def get_systolic(self, mode: Literal["raw"] | None = None) -> Quantity | ObservationComponent | None:
         match = self.__class__._systolic_slice_match
         item = get_array_slice(getattr(self._resource, "component", None), match)
         if mode == "raw":
@@ -1384,7 +1408,11 @@ class UscoreBloodPressureProfile:
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return unwrap_slice_choice(item_dict, ["code"], "valueQuantity")
 
-    def get_diastolic(self, mode: str | None = None) -> Quantity | None:
+    @overload
+    def get_diastolic(self) -> Quantity | None: ...
+    @overload
+    def get_diastolic(self, mode: Literal["raw"]) -> ObservationComponent | None: ...
+    def get_diastolic(self, mode: Literal["raw"] | None = None) -> Quantity | ObservationComponent | None:
         match = self.__class__._diastolic_slice_match
         item = get_array_slice(getattr(self._resource, "component", None), match)
         if mode == "raw":
@@ -1456,7 +1484,7 @@ exports[`Python US Core Example generates US Core Body Weight profile 1`] = `
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, overload
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
@@ -1641,7 +1669,11 @@ class UscoreBodyWeightProfile:
         setattr(self._resource, "value_period", value)
         return self
 
-    def get_vscat(self, mode: str | None = None) -> dict | None:
+    @overload
+    def get_vscat(self) -> dict | None: ...
+    @overload
+    def get_vscat(self, mode: Literal["raw"]) -> CodeableConcept | None: ...
+    def get_vscat(self, mode: Literal["raw"] | None = None) -> dict | CodeableConcept | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
         if mode == "raw":
@@ -1842,7 +1874,11 @@ class UscoreRaceExtension:
             push_extension(self._resource, {"url": "text", **value})
         return self
 
-    def get_extension_omb_category(self, mode: str | None = None) -> Coding | None:
+    @overload
+    def get_extension_omb_category(self) -> Coding | None: ...
+    @overload
+    def get_extension_omb_category(self, mode: Literal["raw"]) -> Extension | None: ...
+    def get_extension_omb_category(self, mode: Literal["raw"] | None = None) -> Coding | Extension | None:
         match = self.__class__._omb_category_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
         if mode == "raw":
@@ -1850,7 +1886,11 @@ class UscoreRaceExtension:
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return unwrap_slice_choice(item_dict, ["url"], "valueCoding")
 
-    def get_extension_detailed(self, mode: str | None = None) -> Coding | None:
+    @overload
+    def get_extension_detailed(self) -> Coding | None: ...
+    @overload
+    def get_extension_detailed(self, mode: Literal["raw"]) -> Extension | None: ...
+    def get_extension_detailed(self, mode: Literal["raw"] | None = None) -> Coding | Extension | None:
         match = self.__class__._detailed_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
         if mode == "raw":
@@ -1858,7 +1898,11 @@ class UscoreRaceExtension:
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return unwrap_slice_choice(item_dict, ["url"], "valueCoding")
 
-    def get_extension_text(self, mode: str | None = None) -> dict | None:
+    @overload
+    def get_extension_text(self) -> dict | None: ...
+    @overload
+    def get_extension_text(self, mode: Literal["raw"]) -> Extension | None: ...
+    def get_extension_text(self, mode: Literal["raw"] | None = None) -> dict | Extension | None:
         match = self.__class__._text_slice_match
         item = get_array_slice(getattr(self._resource, "extension", None), match)
         if mode == "raw":

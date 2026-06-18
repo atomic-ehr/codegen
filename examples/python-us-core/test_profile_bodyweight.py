@@ -113,6 +113,6 @@ def test_get_vscat_raw_includes_discriminator():
         subject=Reference(reference="Patient/example"),
     )
 
-    raw = profile.get_vscat("raw")  # type: ignore[call-arg]
+    raw = profile.get_vscat("raw")
     assert raw is not None
     assert raw.coding is not None

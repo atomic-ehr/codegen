@@ -160,8 +160,10 @@ const collectTypeImports = (
         // Constrained-choice slice getters return the variant type (e.g. `valueCoding` -> `Coding`).
         if (s.constrainedChoice)
             addExactTypeImport(typeImports, rootPackageName, baseTypeName, s.constrainedChoice.variantType);
-        if (!s.isTypeDiscriminated) continue;
+        // The element type is referenced by both the setter (`ElementType(**merged)`) and the
+        // raw getter overload, for type-discriminated and plain slices alike.
         if (s.elementTypeId) addExactTypeImport(typeImports, rootPackageName, baseTypeName, s.elementTypeId);
+        if (!s.isTypeDiscriminated) continue;
         if (!s.typeDiscriminatorResource) continue;
         const resourceId = schemas.find(
             (schema) => schema.identifier.kind === "resource" && schema.identifier.name === s.typeDiscriminatorResource,
@@ -204,6 +206,7 @@ const emitModuleImports = (
     typeImports: Map<string, Set<string>>,
     extProfileImports: Map<string, ExtensionProfileInfo>,
     helperImports: string[],
+    sliceDefs: SliceDef[],
 ): void => {
     w.line("from __future__ import annotations");
     w.line();
@@ -211,10 +214,16 @@ const emitModuleImports = (
     const usesLiteral = [...factoryInfo.params, ...factoryInfo.accessors, ...factoryInfo.sliceAutoFields].some((f) =>
         f.pyType.includes("Literal["),
     );
+    // Non-type-discriminated slice getters emit `@overload`s with a `Literal["raw"]` mode.
+    const hasNonTypedSlice = sliceDefs.some((s) => !s.isTypeDiscriminated);
+    const needsOverload = extensions.length > 0 || hasNonTypedSlice;
+    // `Any` is needed for extension setter inputs (`X | Extension | Any`) and for raw
+    // slice getters whose element type is unknown (`rawRetType = "Any"`).
+    const needsAny = extensions.length > 0 || sliceDefs.some((s) => !s.isTypeDiscriminated && !s.elementTypeName);
     const typingNames: string[] = [];
-    // `Any` is only needed for extension setter inputs (`X | Extension | Any`).
-    if (extensions.length > 0) typingNames.push("Any", "Literal", "overload");
-    else if (usesLiteral) typingNames.push("Literal");
+    if (needsAny) typingNames.push("Any");
+    if (needsOverload || usesLiteral) typingNames.push("Literal");
+    if (needsOverload) typingNames.push("overload");
     if (typingNames.length > 0) {
         w.pyImportFrom("typing", ...[...typingNames].sort());
         w.line();
@@ -422,6 +431,7 @@ const generateProfileModule = (w: Python, tsIndex: TypeSchemaIndex, flatProfile:
         typeImports,
         extProfileImports,
         helperImports,
+        sliceDefs,
     );
 
     w.line(`class ${className}:`);
