@@ -157,9 +157,6 @@ const collectTypeImports = (
     for (const a of factoryInfo.accessors)
         addTypeImport(typeImports, rootPackageName, baseTypeName, resolveRef, a.typeId);
     for (const s of sliceDefs) {
-        // Constrained-choice slice getters return the variant type (e.g. `valueCoding` -> `Coding`).
-        if (s.constrainedChoice)
-            addExactTypeImport(typeImports, rootPackageName, baseTypeName, s.constrainedChoice.variantType);
         // The element type is referenced by both the setter (`ElementType(**merged)`) and the
         // raw getter overload, for type-discriminated and plain slices alike.
         if (s.elementTypeId) addExactTypeImport(typeImports, rootPackageName, baseTypeName, s.elementTypeId);
@@ -217,11 +214,18 @@ const emitModuleImports = (
     // Non-type-discriminated slice getters emit `@overload`s with a `Literal["raw"]` mode.
     const hasNonTypedSlice = sliceDefs.some((s) => !s.isTypeDiscriminated);
     const needsOverload = extensions.length > 0 || hasNonTypedSlice;
-    // `Any` is needed for extension setter inputs (`X | Extension | Any`) and for raw
-    // slice getters whose element type is unknown (`rawRetType = "Any"`).
-    const needsAny = extensions.length > 0 || sliceDefs.some((s) => !s.isTypeDiscriminated && !s.elementTypeName);
+    // `Any` is needed for extension setter inputs (`X | Extension | Any`) and for the
+    // `dict[str, Any]` slice match fields / flat getters / setters.
+    const needsAny = extensions.length > 0 || sliceDefs.length > 0;
+    // `cast` wraps `getattr`/helper results (which return `Any`) in accessor and slice getters.
+    const needsCast =
+        factoryInfo.params.length > 0 ||
+        factoryInfo.accessors.length > 0 ||
+        sliceDefs.length > 0 ||
+        extensions.length > 0;
     const typingNames: string[] = [];
     if (needsAny) typingNames.push("Any");
+    if (needsCast) typingNames.push("cast");
     if (needsOverload || usesLiteral) typingNames.push("Literal");
     if (needsOverload) typingNames.push("overload");
     if (typingNames.length > 0) {
@@ -479,6 +483,11 @@ const generateProfilesInit = (w: Python, tsIndex: TypeSchemaIndex, profiles: Sna
             seen.add(className);
             w.pyImportFrom(`.${moduleName}`, className);
         }
+        // Explicit re-export so strict mypy (no_implicit_reexport) sees these names.
+        w.line();
+        w.squareBlock(["__all__", "="], () => {
+            for (const className of [...seen].sort()) w.line(`'${className}',`);
+        });
     });
 };
 
