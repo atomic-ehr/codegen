@@ -62,13 +62,15 @@ const formatBaseClass = (schema: SpecializationTypeSchema | NestedTypeSchema) =>
     return schema.base ? `: ${schema.base.name}` : "";
 };
 
+const LEADING_DIGIT_RE = /^\d/;
+
 const canonicalToName = (canonical: string | undefined, dropFragment = true): string | undefined => {
     if (!canonical) return undefined;
     let localName = canonical.split("/").pop();
     if (!localName) return undefined;
     if (dropFragment && localName.includes("#")) localName = localName.split("#")[0];
     if (!localName) return undefined;
-    if (/^\d/.test(localName)) {
+    if (LEADING_DIGIT_RE.test(localName)) {
         localName = `number_${localName}`;
     }
     return formatName(localName);

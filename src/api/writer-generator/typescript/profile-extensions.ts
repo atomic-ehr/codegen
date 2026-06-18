@@ -47,8 +47,10 @@ export const extractValueField = (elements: string[] | undefined): string | unde
 /**
  * Map a FHIR value field name (e.g. "valueCoding") to its TypeScript type.
  */
+const VALUE_PREFIX_RE = /^value/;
+
 export const valueFieldToTsType = (valueField: string): string => {
-    const fhirName = valueField.replace(/^value/, "");
+    const fhirName = valueField.replace(VALUE_PREFIX_RE, "");
     // Primitive types that map to TS primitives
     const primitives: Record<string, string> = {
         String: "string",

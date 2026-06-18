@@ -1,5 +1,7 @@
+const WORD_SPLIT_RE = /(?<=[a-z])(?=[A-Z])|[-_.\s]/;
+
 export const words = (s: string) => {
-    return s.split(/(?<=[a-z])(?=[A-Z])|[-_.\s]/).filter(Boolean);
+    return s.split(WORD_SPLIT_RE).filter(Boolean);
 };
 
 export const kebabCase = (s: string) => {

@@ -87,6 +87,9 @@
         "rules": {
           "style": {
             "noNonNullAssertion": "off"
+          },
+          "performance": {
+            "useTopLevelRegex": "off"
           }
         }
       }
