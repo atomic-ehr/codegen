@@ -129,7 +129,7 @@ def test_set_systolic_get_systolic_get_systolic_raw():
         "code": "mm[Hg]",
     }
 
-    raw = profile.get_systolic("raw")  # type: ignore[call-arg]
+    raw = profile.get_systolic("raw")
     assert raw.value_quantity.value == 120
     assert raw.code.coding[0].code == "8480-6"
 
@@ -145,7 +145,7 @@ def test_set_diastolic_get_diastolic_get_diastolic_raw():
         "code": "mm[Hg]",
     }
 
-    raw = profile.get_diastolic("raw")  # type: ignore[call-arg]
+    raw = profile.get_diastolic("raw")
     assert raw.value_quantity.value == 80
     assert raw.code.coding[0].code == "8462-4"
 
@@ -161,7 +161,7 @@ def test_set_systolic_replaces_an_existing_systolic_component():
     profile.set_systolic({"value": 130, "unit": "mmHg"})
     obs = profile.to_resource()
     assert len(obs.component) == 2
-    assert profile.get_systolic("raw").value_quantity.value == 130  # type: ignore[call-arg]
+    assert profile.get_systolic("raw").value_quantity.value == 130
 
 
 def test_set_vscat_adds_category_with_discriminator_values():
