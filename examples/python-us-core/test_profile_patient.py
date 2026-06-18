@@ -188,16 +188,14 @@ def test_apply_wraps_an_existing_patient():
 
 
 def test_all_three_methods_produce_equivalent_resources():
-    args = dict(
-        identifier=[Identifier(system="http://hospital.example.org", value="12345")],
-        name=[HumanName(family="Smith", given=["John"])],
-    )
-    from_create = UscorePatientProfile.create(**args).to_resource()
-    from_create_resource = UscorePatientProfile.create_resource(**args)
+    identifier = [Identifier(system="http://hospital.example.org", value="12345")]
+    name = [HumanName(family="Smith", given=["John"])]
+    from_create = UscorePatientProfile.create(identifier=identifier, name=name).to_resource()
+    from_create_resource = UscorePatientProfile.create_resource(identifier=identifier, name=name)
 
     bare = Patient(resource_type="Patient")
     profile = UscorePatientProfile.apply(bare)
-    profile.set_identifier(args["identifier"]).set_name(args["name"])
+    profile.set_identifier(identifier).set_name(name)
     from_apply = profile.to_resource()
 
     for res in (from_create, from_create_resource, from_apply):
