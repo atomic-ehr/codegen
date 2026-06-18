@@ -1,6 +1,6 @@
 # FHIR Slices Representation
 
-Status: Implemented (TypeScript, Lens level). See `examples/typescript-r4/` for working examples.
+Status: Implemented (TypeScript, Lens level). See `examples/typescript-r4-us-core/` for working examples.
 
 Working issue: [#24](https://github.com/atomic-ehr/codegen/issues/24)
 

@@ -6,26 +6,16 @@ This directory contains working examples demonstrating the capabilities of Atomi
 
 ### TypeScript Generation
 
-- **[typescript-r4/](typescript-r4/)** - FHIR R4 core type generation
-  - `generate.ts` - Generates TypeScript interfaces for FHIR R4 specification
-  - `demo.ts` - Demonstrates resource creation, profile usage (bodyweight), and bundle composition
-  - Shows how to use `attach` and `extract` functions for FHIR profiles
+- **[typescript-r4-us-core/](typescript-r4-us-core/)** - FHIR R4 core + US Core type generation with profile classes
+  - `generate.ts` - Generates TypeScript interfaces for FHIR R4 core and US Core 8.0.1 in one tree
+  - Resource creation, base R4 profiles (bodyweight, blood pressure), and bundle composition
+  - US Core profiles with type-safe race/ethnicity/birth-sex extensions and observation slicing
 
-- **[typescript-ccda/](typescript-ccda/)** - C-CDA on FHIR type generation
-  - `generate.ts` - Generates types from HL7 CDA UV Core package (`hl7.cda.uv.core@2.0.1-sd`)
-  - Exports TypeSchema files and dependency tree
+- **[typescript-custom-packages/](typescript-custom-packages/)** - Feeding packages from sources other than the registry
+  - `generate.ts` - Runs two input mechanisms: local unpublished StructureDefinitions from disk (`.localStructureDefinitions()`) and a remote TGZ package by URL (`.fromPackageRef()`, SQL-on-FHIR ViewDefinition)
+  - Demonstrates dependency resolution with FHIR R4/R5 core and tree shaking
 
-- **[typescript-sql-on-fhir/](typescript-sql-on-fhir/)** - SQL on FHIR ViewDefinition types
-  - `generate.ts` - Generates types from remote TGZ package
-  - Demonstrates tree shaking to include only specific resources
-
-- **[typescript-us-core/](typescript-us-core/)** - US Core profile generation with profile classes
-  - `generate.ts` - Generates TypeScript types for US Core 8.0.1 with profile classes
-  - `profile-demo.ts` - Demonstrates profile class fluent API for extensions and slices
-  - Shows type-safe handling of race, ethnicity, birth sex extensions
-  - Demonstrates blood pressure observation slicing
-
-### Multi-Language Generation
+### Python Generation
 
 - **[python/](python/)** - Python/Pydantic model generation with simple requests-based client
   - `generate.ts` - Generates Python models with configurable field formats
@@ -38,11 +28,25 @@ This directory contains working examples demonstrating the capabilities of Atomi
   - Uses `fhirpyClient: true` for async FHIR client support
   - Client implementation example: [python-fhirpy/client.py](python-fhirpy/client.py)
 
+### C# Generation
 
 - **[csharp/](csharp/)** - C# class generation
   - `generate.ts` - Generates C# classes with custom namespace
   - Includes static files for base functionality
   - Includes integration tests with Aidbox FHIR server
+
+The C# integration tests require an Aidbox FHIR server:
+
+```bash
+# Start Aidbox server
+docker compose up
+
+# In another terminal, run the C# tests
+cd examples/csharp
+dotnet test
+```
+
+See [examples/csharp/README.md](csharp/README.md) for detailed setup instructions.
 
 ### Template-Based Generation
 
@@ -50,13 +54,6 @@ This directory contains working examples demonstrating the capabilities of Atomi
   - `mustache-java-r4-gen.ts` - Generates Java code using Mustache templates
   - Full Maven project structure with post-generation hooks
   - Demonstrates template-driven code generation for any language or format
-
-### Local Package Support
-
-- **[local-package-folder/](local-package-folder/)** - Working with unpublished FHIR packages
-  - `generate.ts` - Loads local StructureDefinitions from disk
-  - Demonstrates dependency resolution with FHIR R4 core
-  - Shows tree shaking for custom logical models
 
 ### On-the-Fly Generation
 
@@ -70,46 +67,21 @@ These examples pull packages from the FHIR registry and generate types on-the-fl
   - `generate.ts` - Fetches KBV packages with `ignorePackageIndex: true` for corrupt package indices
   - `profile-patient.test.ts` - Regression test for `meta` merge in profiles with required `meta` (#137)
 
+- **[on-the-fly/ccda/](on-the-fly/ccda/)** - C-CDA on FHIR type generation (HL7 CDA logical models)
+  - `generate.ts` - Builds a `CanonicalManager` with `preprocessPackage` fixes and `promoteLogical` for CDA resources
+  - `demo-cda.test.ts` / `demo-ccda.test.ts` - CDA ↔ FHIR R4 mapping demos
+
 ## Running Examples
 
 Each example contains a `generate.ts` script that can be run with:
 
 ```bash
 # Using Bun
-bun run examples/typescript-r4/generate.ts
+bun run examples/typescript-r4-us-core/generate.ts
 
 # Using Node with tsx
-npx tsx examples/typescript-r4/generate.ts
+npx tsx examples/typescript-r4-us-core/generate.ts
 
 # Using ts-node
-npx ts-node examples/typescript-r4/generate.ts
+npx ts-node examples/typescript-r4-us-core/generate.ts
 ```
-
-To run the TypeScript R4 demo after generation:
-
-```bash
-bun run examples/typescript-r4/demo.ts
-```
-
-For the Mustache example:
-
-```bash
-bun run examples/mustache/mustache-java-r4-gen.ts
-```
-
-This generates a complete Maven project with Java classes ready to build.
-
-## Prerequisites for C# Example
-
-The C# example includes integration tests with Aidbox FHIR server. To run the tests:
-
-```bash
-# Start Aidbox server
-docker compose up
-
-# In another terminal, run the C# tests
-cd examples/csharp
-dotnet test
-```
-
-See [examples/csharp/README.md](csharp/README.md) for detailed setup instructions.

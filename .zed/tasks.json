@@ -4,11 +4,11 @@
     "command": "make test"
   },
   {
-    "label": "test-ts-r4-example",
-    "command": "make test-typescript-r4-example"
+    "label": "test-ts-r4-us-core-example",
+    "command": "make test-typescript-r4-us-core-example"
   },
   {
     "label": "test-ts-ccda-example",
-    "command": "make test-typescript-ccda-example"
+    "command": "make test-on-the-fly-ccda"
   }
 ]

@@ -1,6 +1,6 @@
 # FHIR Profiles Representation
 
-Status: Implemented (TypeScript). See `examples/typescript-r4/` and `examples/typescript-us-core/` for working examples.
+Status: Implemented (TypeScript). See `examples/typescript-r4-us-core/` for working R4 and US Core examples.
 
 This document covers the representation of FHIR profiles in generated code: resource profiles, extension profiles, and their relationship to base resources.
 

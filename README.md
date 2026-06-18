@@ -35,12 +35,12 @@ A powerful, extensible code generation toolkit for FHIR ([Fast Healthcare Intero
 
 ## Features
 
-- [x] **Multi-Package Support** — Load packages from the [FHIR registry](examples/typescript-r4/), [remote TGZ files](examples/typescript-sql-on-fhir/), or a [local folder with custom StructureDefinitions](examples/local-package-folder/)
+- [x] **Multi-Package Support** — Load packages from the [FHIR registry](examples/typescript-r4-us-core/), [remote TGZ files](examples/typescript-custom-packages/), or a [local folder with custom StructureDefinitions](examples/typescript-custom-packages/)
   - Tested with hl7.fhir.r4.core, US Core, C-CDA, SQL on FHIR, etc.
 - [x] **Resources & Complex Types** — Generates typed definitions with proper inheritance
 - [x] **Value Set Bindings** — Strongly-typed enums from FHIR terminology bindings
-- [x] **Profiles** — Factory methods with auto-populated fixed values and required slices ([R4 profiles](examples/typescript-r4/profile-bp.test.ts), [US Core](examples/typescript-us-core/))
-  - Extensions — flat typed accessors (e.g. `setRace()` on US Core Patient), [standalone extension profiles](examples/typescript-r4/extension-profile.test.ts)
+- [x] **Profiles** — Factory methods with auto-populated fixed values and required slices ([R4 profiles](examples/typescript-r4-us-core/profile-r4-bp.test.ts), [US Core](examples/typescript-r4-us-core/profile-us-core-patient.test.ts))
+  - Extensions — flat typed accessors (e.g. `setRace()` on US Core Patient), [standalone extension profiles](examples/typescript-r4-us-core/profile-r4-extension.test.ts)
   - Slicing — typed get/set accessors with discriminator matching
   - Validation — runtime `validate()` for required fields, fixed values, slice cardinality, enums, references
 - [x] **Extensible Architecture** — Three-stage pipeline: FHIR packages → [TypeSchema](https://www.health-samurai.io/articles/type-schema-a-pragmatic-approach-to-build-fhir-sdk) IR → code generation
@@ -99,7 +99,7 @@ yarn add @atomic-ehr/codegen
     const builder = new APIBuilder()
         .fromPackage("hl7.fhir.r4.core", "4.0.1")
         .typescript({})
-        .outputTo("./examples/typescript-r4/fhir-types")
+        .outputTo("./examples/typescript-r4-us-core/fhir-types")
         .introspection({ typeTree: "./type-tree.yaml" });
 
     const report = await builder.generate();
@@ -116,14 +116,13 @@ yarn add @atomic-ehr/codegen
 
 See the [examples/](examples/) directory for working demonstrations:
 
-- **[typescript-r4/](examples/typescript-r4/)** - FHIR R4 type generation with resource creation demo and profile usage
-- **[typescript-ccda/](examples/typescript-ccda/)** - C-CDA on FHIR type generation
-- **[typescript-sql-on-fhir/](examples/typescript-sql-on-fhir/)** - SQL on FHIR ViewDefinition with tree shaking
+- **[typescript-r4-us-core/](examples/typescript-r4-us-core/)** - FHIR R4 core + US Core type generation with resource creation, profiles, and extensions
+- **[on-the-fly/ccda/](examples/on-the-fly/ccda/)** - C-CDA on FHIR type generation (logical models, generated on the fly)
 - **[python/](examples/python/)** - Python/Pydantic model generation with simple requests-based client
 - **[python-fhirpy/](examples/python-fhirpy/)** - Python/Pydantic model generation with fhirpy async client
 - **[csharp/](examples/csharp/)** - C# class generation with namespace configuration
 - **[mustache/](examples/mustache/)** - Java generation with Mustache templates and post-generation hooks
-- **[local-package-folder/](examples/local-package-folder/)** - Loading unpublished local FHIR packages
+- **[typescript-custom-packages/](examples/typescript-custom-packages/)** - Loading packages from local folders or remote TGZ URLs (SQL-on-FHIR)
 
 For detailed documentation, see [examples/README.md](examples/README.md).
 
@@ -423,7 +422,7 @@ const errors = bp.validate();
 // ["effective: at least one of effectiveDateTime, effectivePeriod is required"]
 ```
 
-See [examples/typescript-r4/](examples/typescript-r4/) for R4 profile tests and [examples/typescript-us-core/](examples/typescript-us-core/) for US Core profile examples.
+See [examples/typescript-r4-us-core/](examples/typescript-r4-us-core/) for R4 and US Core profile tests.
 
 ## Support
 
