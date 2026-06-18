@@ -26,7 +26,7 @@ const builder = new APIBuilder({ logger })
         allowExtraFields: false,
         primitiveTypeExtension: true,
         generateProfile: true,
-        fhirpyClient: false,
+        // client defaults to "fhirpy"
         fieldFormat: "snake_case",
     })
     .typeSchema({

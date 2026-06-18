@@ -18,14 +18,13 @@ This directory contains working examples demonstrating the capabilities of Atomi
 ### Python Generation
 
 - **[python-r4-us-core/](python-r4-us-core/)** - Python/Pydantic models for FHIR R4 core + US Core profiles
-  - `generate.ts` - Generates R4 models and US Core profiles in one tree; configurable `snake_case`/`camelCase` field naming and extra-field validation
+  - `generate.ts` - Generates R4 models and US Core profiles in one tree with the default `fhirpy` async client
   - US Core profile classes (Patient, blood pressure, body weight) with typed accessors and race/ethnicity/birth-sex extensions
-  - Simple `requests`-based FHIR client ([python-r4-us-core/client.py](python-r4-us-core/client.py)), exercised by `test_sdk.py`
+  - `fhirpy` `AsyncFHIRClient` demo ([python-r4-us-core/demo.py](python-r4-us-core/demo.py)), exercised by `test_sdk.py`
 
-- **[python-fhirpy/](python-fhirpy/)** - Python/Pydantic models with fhirpy async client
-  - `generate.ts` - Generates Python models with fhirpy integration
-  - Uses `fhirpyClient: true` for async FHIR client support
-  - Client implementation example: [python-fhirpy/client.py](python-fhirpy/client.py)
+- **[python-r4/](python-r4/)** - Python/Pydantic models with the simple `requests`-based client
+  - `generate.ts` - Generates R4 models with `client: "none"`, `snake_case`
+  - Reusable `Client` class with basic auth and CRUD/search ([python-r4/client.py](python-r4/client.py))
 
 ### C# Generation
 

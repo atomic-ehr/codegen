@@ -10,9 +10,9 @@ VERSION = $(shell cat package.json | grep version | sed -E 's/ *"version": "//' 
 	test-on-the-fly-example test-on-the-fly-norge-r4 test-on-the-fly-kbv-r4 test-on-the-fly-ccda \
 	test-typescript-r4-us-core-example test-typescript-custom-packages-example \
 	test-mustache-java-r4-example \
-	test-csharp-sdk generate-python-r4-us-core-sdk generate-python-sdk-fhirpy \
-	python-r4-us-core-test-setup python-fhirpy-test-setup \
-	test-python-sdk test-python-fhirpy-sdk test-python-r4-us-core-example
+	test-csharp-sdk generate-python-r4-us-core-sdk generate-python-r4-sdk \
+	python-r4-us-core-test-setup python-r4-test-setup \
+	test-python-sdk test-python-r4-example test-python-r4-us-core-example
 
 all: test test-multi-package test-typescript-r4-us-core-example test-typescript-custom-packages-example lint-unsafe test-all-example-generation
 
@@ -57,7 +57,7 @@ test-all-example-generation: test-other-example-generation
 	bun run examples/typescript-custom-packages/generate.ts
 	bun run examples/mustache/mustache-java-r4-gen.ts
 	bun run examples/python-r4-us-core/generate.ts
-	bun run examples/python-fhirpy/generate.ts
+	bun run examples/python-r4/generate.ts
 	bun run examples/typescript-r4-us-core/generate.ts
 
 test-other-example-generation: test-on-the-fly-example
@@ -102,15 +102,15 @@ test-csharp-sdk: typecheck prepare-aidbox-runme
 
 PYTHON=python3.13
 PYTHON_R4_US_CORE_EXAMPLE=./examples/python-r4-us-core
-PYTHON_FHIRPY_EXAMPLE=./examples/python-fhirpy
+PYTHON_R4_EXAMPLE=./examples/python-r4
 
 generate-python-r4-us-core-sdk:
 	$(TYPECHECK) --project examples/python-r4-us-core/tsconfig.json
 	bun run examples/python-r4-us-core/generate.ts
 
-generate-python-sdk-fhirpy:
-	$(TYPECHECK) --project examples/python-fhirpy/tsconfig.json
-	bun run examples/python-fhirpy/generate.ts
+generate-python-r4-sdk:
+	$(TYPECHECK) --project examples/python-r4/tsconfig.json
+	bun run examples/python-r4/generate.ts
 
 python-r4-us-core-test-setup:
 	@if [ ! -d "$(PYTHON_R4_US_CORE_EXAMPLE)/venv" ]; then \
@@ -120,9 +120,9 @@ python-r4-us-core-test-setup:
 		pip install -r fhir_types/requirements.txt; \
 	fi
 
-python-fhirpy-test-setup:
-	@if [ ! -d "$(PYTHON_FHIRPY_EXAMPLE)/venv" ]; then \
-		cd $(PYTHON_FHIRPY_EXAMPLE) && \
+python-r4-test-setup:
+	@if [ ! -d "$(PYTHON_R4_EXAMPLE)/venv" ]; then \
+		cd $(PYTHON_R4_EXAMPLE) && \
 		$(PYTHON) -m venv venv && \
 		. venv/bin/activate && \
 		pip install -r fhir_types/requirements.txt && \
@@ -145,7 +145,7 @@ test-python-sdk: typecheck prepare-aidbox-runme generate-python-r4-us-core-sdk p
 	     . venv/bin/activate && \
 	     python -m pytest test_sdk.py -v
 
-test-python-fhirpy-sdk: typecheck prepare-aidbox-runme generate-python-sdk-fhirpy python-fhirpy-test-setup
-	cd $(PYTHON_FHIRPY_EXAMPLE) && \
+test-python-r4-example: typecheck prepare-aidbox-runme generate-python-r4-sdk python-r4-test-setup
+	cd $(PYTHON_R4_EXAMPLE) && \
 	   . venv/bin/activate && \
 	   mypy .
