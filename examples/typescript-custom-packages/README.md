@@ -1,20 +1,17 @@
 # Package Sources Example
 
-Feeding the codegen pipeline from package sources **other than the NPM-style registry** (`.fromPackage()`). Two input mechanisms are demonstrated:
+Feeding the codegen pipeline from package sources **other than the NPM-style registry** (`.fromPackage()`). A single `generate.ts` runs two input mechanisms in sequence:
 
-- **Local StructureDefinitions from disk** — `.localStructureDefinitions()` (`generate-local.ts`)
-- **Remote `.tgz` package by URL** — `.fromPackageRef()` (`generate-sql-on-fhir.ts`)
+- **Local StructureDefinitions from disk** — `.localStructureDefinitions()` → `./fhir-types`
+- **Remote `.tgz` package by URL** — `.fromPackageRef()` → `./sql-on-fhir-types`
 
 Both also show tree shaking and dependency resolution against published packages.
 
 ## Quick Start
 
 ```bash
-# Local unpublished StructureDefinitions → ./fhir-types
-bun run examples/typescript-custom-packages/generate-local.ts
-
-# Remote SQL-on-FHIR .tgz package → ./sql-on-fhir-types
-bun run examples/typescript-custom-packages/generate-sql-on-fhir.ts
+# Generate both: local StructureDefinitions + remote SQL-on-FHIR .tgz package
+bun run examples/typescript-custom-packages/generate.ts
 
 # Run the local-package tests
 bun test ./examples/typescript-custom-packages/
@@ -25,8 +22,7 @@ bun test ./examples/typescript-custom-packages/
 ```
 typescript-custom-packages/
 ├── README.md                            # This file
-├── generate-local.ts                    # .localStructureDefinitions() → ./fhir-types
-├── generate-sql-on-fhir.ts              # .fromPackageRef()            → ./sql-on-fhir-types
+├── generate.ts                          # both inputs: .localStructureDefinitions() + .fromPackageRef()
 ├── structure-definitions/               # Custom StructureDefinitions for the local demo
 ├── profile-*.test.ts                    # Tests for the locally-generated profiles
 └── (generated output, gitignored)
@@ -34,7 +30,7 @@ typescript-custom-packages/
 
 ---
 
-## 1. Local StructureDefinitions (`generate-local.ts`)
+## 1. Local StructureDefinitions
 
 Generate TypeScript types from custom FHIR StructureDefinitions stored on disk, without
 publishing them to a registry. Demonstrates:
@@ -47,7 +43,7 @@ publishing them to a registry. Demonstrates:
 ### Adding Your StructureDefinitions
 
 Place your FHIR StructureDefinition JSON files in `structure-definitions/`, then point
-`generate-local.ts` at them:
+the local-generation step of `generate.ts` at them:
 
 ```typescript
 await builder
@@ -95,7 +91,7 @@ await builder
 
 ---
 
-## 2. Remote `.tgz` Package — SQL-on-FHIR (`generate-sql-on-fhir.ts`)
+## 2. Remote `.tgz` Package — SQL-on-FHIR
 
 Generate TypeScript types from a package fetched directly from a remote URL, using the
 SQL-on-FHIR ViewDefinition specification as the example. Demonstrates:

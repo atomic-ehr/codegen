@@ -40,8 +40,7 @@ This directory contains working examples demonstrating the capabilities of Atomi
 ### Custom Package Sources
 
 - **[typescript-custom-packages/](typescript-custom-packages/)** - Feeding packages from sources other than the registry
-  - `generate-local.ts` - Loads local unpublished StructureDefinitions from disk (`.localStructureDefinitions()`)
-  - `generate-sql-on-fhir.ts` - Loads a remote TGZ package by URL (`.fromPackageRef()`), SQL-on-FHIR ViewDefinition
+  - `generate.ts` - Runs two input mechanisms: local unpublished StructureDefinitions from disk (`.localStructureDefinitions()`) and a remote TGZ package by URL (`.fromPackageRef()`, SQL-on-FHIR ViewDefinition)
   - Demonstrates dependency resolution with FHIR R4/R5 core and tree shaking
 
 ### On-the-Fly Generation

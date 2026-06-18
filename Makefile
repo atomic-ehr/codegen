@@ -54,8 +54,7 @@ prepare-aidbox-runme:
 
 test-all-example-generation: test-other-example-generation
 	bun run examples/csharp/generate.ts
-	bun run examples/typescript-custom-packages/generate-local.ts
-	bun run examples/typescript-custom-packages/generate-sql-on-fhir.ts
+	bun run examples/typescript-custom-packages/generate.ts
 	bun run examples/mustache/mustache-java-r4-gen.ts
 	bun run examples/python-r4/generate.ts
 	bun run examples/python-fhirpy/generate.ts
@@ -87,8 +86,7 @@ test-typescript-r4-us-core-example: typecheck
 	bun test ./examples/typescript-r4-us-core/
 
 test-typescript-custom-packages-example: typecheck
-	bun run examples/typescript-custom-packages/generate-local.ts
-	bun run examples/typescript-custom-packages/generate-sql-on-fhir.ts
+	bun run examples/typescript-custom-packages/generate.ts
 	$(TYPECHECK) --project examples/typescript-custom-packages/tsconfig.json
 	bun test ./examples/typescript-custom-packages/
 
