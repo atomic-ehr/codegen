@@ -16,10 +16,10 @@ This example demonstrates how to generate TypeScript interfaces from the HL7 CDA
 To generate TypeScript types for CDA:
 
 ```bash
-bun run examples/typescript-ccda/generate.ts
+bun run examples/on-the-fly/ccda/generate.ts
 ```
 
-This will output to `./examples/typescript-ccda/fhir-types/` and create debug files.
+This will output to `./examples/on-the-fly/ccda/fhir-types/` (gitignored, regenerated on CI) and create debug files.
 
 ## Configuration
 

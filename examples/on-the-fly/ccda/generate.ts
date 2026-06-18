@@ -3,7 +3,7 @@
 
 import { CanonicalManager, type PreprocessContext } from "@atomic-ehr/fhir-canonical-manager";
 import { registerFromManager } from "@root/typeschema/register";
-import { APIBuilder, prettyReport } from "../../src/api/builder";
+import { APIBuilder, prettyReport } from "../../../src/api/builder";
 
 const preprocessPackage = (ctx: PreprocessContext): PreprocessContext => {
     if (ctx.kind !== "resource") return ctx;
@@ -80,7 +80,7 @@ if (require.main === module) {
         .throwException()
         .typeSchema({ promoteLogical: { "hl7.cda.uv.core": cdaResources } })
         .typescript({ withDebugComment: false })
-        .outputTo("./examples/typescript-ccda/fhir-types")
+        .outputTo("./examples/on-the-fly/ccda/fhir-types")
         .introspection({
             typeSchemas: "TS",
             fhirSchemas: "FS",
