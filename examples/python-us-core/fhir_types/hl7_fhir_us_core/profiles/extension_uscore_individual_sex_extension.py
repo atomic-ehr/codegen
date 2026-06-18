@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.hl7_fhir_r4_core.base import Coding
-from .profile_helpers import (
+from fhir_types.profile_helpers import (
     build_resource, validate_choice_required, validate_fixed_value, validate_required
 )
 
