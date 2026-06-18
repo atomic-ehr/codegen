@@ -91,7 +91,7 @@ jobs:
           export AIDBOX_LICENSE_ID="${{ secrets.AIDBOX_LICENSE_ID }}"
           make test-python-sdk
 
-  test-python-fhirpy-sdk:
+  test-python-r4-example:
     runs-on: ubuntu-latest
 
     steps:
@@ -110,18 +110,18 @@ jobs:
       - name: Test Python fhirpy SDK
         run: |
           export AIDBOX_LICENSE_ID="${{ secrets.AIDBOX_LICENSE_ID }}"
-          make test-python-fhirpy-sdk
+          make test-python-r4-example
 
-      - name: Repository contains actual python-fhirpy-sdk version
+      - name: Repository contains actual python-r4 version
         run: |
-          diff_result=$(git diff --exit-code --name-only examples/python-fhirpy/fhir_types || true)
+          diff_result=$(git diff --exit-code --name-only examples/python-r4/fhir_types || true)
 
           if [ -z "$diff_result" ]; then
             echo "✅ Generated SDK is identical to the one stored in repository."
           else
             echo "❌ Generated SDK differs from the one stored in repository."
             echo "Differences:"
-            git diff examples/python-fhirpy/fhir_types
+            git diff examples/python-r4/fhir_types
             exit 1
           fi
 

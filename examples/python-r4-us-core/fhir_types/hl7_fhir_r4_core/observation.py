@@ -6,6 +6,7 @@ from __future__ import annotations
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt
 from typing import Any, List as PyList, Literal
 from typing_extensions import Self
+from fhir_types.fhirpy_base_model import FhirpyBaseModel
 
 from fhir_types.hl7_fhir_r4_core.base import (
     Annotation, BackboneElement, CodeableConcept, Identifier, Period, Quantity, Range, Ratio, Reference, SampledData, \
@@ -49,7 +50,6 @@ class Observation(DomainResource):
         default='Observation',
         alias='resourceType',
         serialization_alias='resourceType',
-        frozen=True,
         pattern='Observation'
     )
     based_on: PyList[Reference] | None = Field(None, alias="basedOn", serialization_alias="basedOn")

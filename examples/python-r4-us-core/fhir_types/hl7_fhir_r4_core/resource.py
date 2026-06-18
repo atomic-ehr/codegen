@@ -6,18 +6,18 @@ from __future__ import annotations
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt
 from typing import Any, List as PyList, Literal
 from typing_extensions import Self
+from fhir_types.fhirpy_base_model import FhirpyBaseModel
 
 from fhir_types.hl7_fhir_r4_core.base import Meta
 from fhir_types.hl7_fhir_r4_core.base import Element
 
 
-class Resource(BaseModel):
+class Resource(FhirpyBaseModel):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     resource_type: str = Field(
         default='Resource',
         alias='resourceType',
         serialization_alias='resourceType',
-        frozen=True,
         pattern='Resource'
     )
     id: str | None = Field(None, alias="id", serialization_alias="id")
