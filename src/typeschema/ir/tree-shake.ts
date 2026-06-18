@@ -28,9 +28,8 @@ import type { IrReport, TreeShakeConf, TreeShakeReport, TreeShakeRule } from "./
 const ensureIrReport = (indexOrReport: TypeSchemaIndex | IrReport): IrReport => {
     if ("irReport" in indexOrReport && typeof indexOrReport.irReport === "function") {
         return indexOrReport.irReport();
-    } else {
-        return indexOrReport as IrReport;
     }
+    return indexOrReport as IrReport;
 };
 
 export const rootTreeShakeReadme = (report: TypeSchemaIndex | IrReport) => {

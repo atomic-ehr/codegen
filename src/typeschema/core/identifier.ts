@@ -63,13 +63,16 @@ export function mkIdentifier(fhirSchema: RichFHIRSchema): Identifier {
     return { kind: "resource", ...fields };
 }
 
+const VALUE_SET_NAME_SPLIT_RE = /[-_]/;
+const OPAQUE_VALUE_SET_ID_RE = /^[a-zA-Z0-9_-]{20,}$/;
+
 const getValueSetName = (url: CanonicalUrl): Name => {
     const urlParts = url.split("/");
     const lastSegment = urlParts[urlParts.length - 1];
 
     if (lastSegment && lastSegment.length > 0) {
         return lastSegment
-            .split(/[-_]/)
+            .split(VALUE_SET_NAME_SPLIT_RE)
             .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
             .join("") as Name;
     }
@@ -97,7 +100,7 @@ export function mkValueSetIdentifierByUrl(
     const valueSet: RichValueSet = register.resolveVs(pkg, valueSetUrl) || valuesSetFallback;
     // NOTE: ignore valueSet.name due to human name
     const valueSetName: Name =
-        valueSet?.id && !/^[a-zA-Z0-9_-]{20,}$/.test(valueSet.id) ? (valueSet.id as Name) : valueSetNameFallback;
+        valueSet?.id && !OPAQUE_VALUE_SET_ID_RE.test(valueSet.id) ? (valueSet.id as Name) : valueSetNameFallback;
 
     return {
         kind: "value-set",

@@ -437,7 +437,7 @@ export class APIBuilder {
 
         this.logger.debug(`Starting generation with ${this.generators.length} generators`);
         try {
-            if (this.options.cleanOutput) cleanup(this.options, this.logger);
+            if (this.options.cleanOutput) await cleanup(this.options, this.logger);
 
             let register: Register;
             if (this.prebuiltRegister) {

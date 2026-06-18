@@ -19,9 +19,8 @@ const resolveCSharpAssets = (fn: string) => {
     const __dirname = Path.dirname(__filename);
     if (__filename.endsWith("dist/index.js")) {
         return Path.resolve(__dirname, "..", "assets", "api", "writer-generator", "csharp", fn);
-    } else {
-        return Path.resolve(__dirname, "../../../..", "assets", "api", "writer-generator", "csharp", fn);
     }
+    return Path.resolve(__dirname, "../../../..", "assets", "api", "writer-generator", "csharp", fn);
 };
 
 const PRIMITIVE_TYPE_MAP: Record<string, string> = {
@@ -63,13 +62,15 @@ const formatBaseClass = (schema: SpecializationTypeSchema | NestedTypeSchema) =>
     return schema.base ? `: ${schema.base.name}` : "";
 };
 
+const LEADING_DIGIT_RE = /^\d/;
+
 const canonicalToName = (canonical: string | undefined, dropFragment = true): string | undefined => {
     if (!canonical) return undefined;
     let localName = canonical.split("/").pop();
     if (!localName) return undefined;
     if (dropFragment && localName.includes("#")) localName = localName.split("#")[0];
     if (!localName) return undefined;
-    if (/^\d/.test(localName)) {
+    if (LEADING_DIGIT_RE.test(localName)) {
         localName = `number_${localName}`;
     }
     return formatName(localName);

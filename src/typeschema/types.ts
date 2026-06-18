@@ -10,6 +10,8 @@ import type { StructureDefinition, ValueSet, ValueSetCompose } from "@root/fhir-
 export type Name = string & { readonly __brand: unique symbol };
 export type CanonicalUrl = string & { readonly __brand: unique symbol };
 
+const LEADING_DIGIT_RE = /^\d/;
+
 export const extractNameFromCanonical = (canonical: CanonicalUrl, dropFragment = true) => {
     let localName = canonical.split("/").pop();
     if (!localName) return undefined;
@@ -17,7 +19,7 @@ export const extractNameFromCanonical = (canonical: CanonicalUrl, dropFragment =
         localName = localName.split("#")[0];
     }
     if (!localName) return undefined;
-    if (/^\d/.test(localName)) {
+    if (LEADING_DIGIT_RE.test(localName)) {
         localName = `number_${localName}`;
     }
     return localName;

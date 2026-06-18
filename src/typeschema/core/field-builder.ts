@@ -310,7 +310,8 @@ export function buildFieldType(
             .slice(1) // drop canonicalUrl
             .filter((_, i) => i % 2 === 1); // drop `elements` from path
         return mkNestedIdentifier(register, fhirSchema, refPath);
-    } else if (element.type) {
+    }
+    if (element.type) {
         const url = register.ensureSpecializationCanonicalUrl(element.type);
         const fieldFs = register.resolveFs(fhirSchema.package_meta, url);
         if (!fieldFs) {
@@ -326,19 +327,20 @@ export function buildFieldType(
             );
         }
         return mkIdentifier(fieldFs);
-    } else if (element.choices) {
-        return undefined;
-    } else if (fhirSchema.derivation === "constraint") {
-        return undefined; // FIXME: should be removed
-    } else {
-        // Some packages (e.g., simplifier.core.r4.*) have incomplete element definitions
-        // Log a warning but continue processing instead of throwing
-        logger?.dryWarn(
-            "#fieldTypeNotFound",
-            `Can't recognize element type: <${fhirSchema.url}>.${path.join(".")} (pkg: '${packageMetaToFhir(fhirSchema.package_meta)}'): missing type info`,
-        );
+    }
+    if (element.choices) {
         return undefined;
     }
+    if (fhirSchema.derivation === "constraint") {
+        return undefined; // FIXME: should be removed
+    }
+    // Some packages (e.g., simplifier.core.r4.*) have incomplete element definitions
+    // Log a warning but continue processing instead of throwing
+    logger?.dryWarn(
+        "#fieldTypeNotFound",
+        `Can't recognize element type: <${fhirSchema.url}>.${path.join(".")} (pkg: '${packageMetaToFhir(fhirSchema.package_meta)}'): missing type info`,
+    );
+    return undefined;
 }
 
 export const mkField = (

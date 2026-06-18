@@ -66,7 +66,9 @@ export function loadMustacheGeneratorConfig(
         if (parsed && typeof parsed === "object") {
             return parsed as Partial<FileBasedMustacheGeneratorOptions>;
         }
-    } catch (_e) {}
+    } catch {
+        // Missing or invalid config.json: fall through to the warning below and return defaults.
+    }
     logger?.warn(`Failed to load JSON file with mustache generator config: ${filePath}`);
     return {};
 }

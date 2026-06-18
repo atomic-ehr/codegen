@@ -34,11 +34,15 @@
         "noImplicitAnyLet": "off",
         "noExplicitAny": "off",
         "noAssignInExpressions": "off",
-        "noVar": "error"
+        "noVar": "error",
+        "noEmptyBlockStatements": "warn",
+        "noMisplacedAssertion": "warn"
       },
       "correctness": {
         "noUnusedPrivateClassMembers": "error",
-        "noUnusedImports": { "level": "warn" }
+        "noUnusedImports": { "level": "warn" },
+        "noUnusedVariables": "error",
+        "noUnusedFunctionParameters": "error"
       },
       "complexity": {
         "noExcessiveCognitiveComplexity": {
@@ -46,12 +50,26 @@
           "options": {
             "maxAllowedComplexity": 41
           }
-        }
+        },
+        "noUselessFragments": "error"
       },
       "style": {
         "useConsistentArrayType": "error",
         "useArrayLiterals": "error",
-        "noNestedTernary": "error"
+        "noNestedTernary": "error",
+        "useImportType": "error",
+        "useExportType": "error",
+        "useThrowOnlyError": "error",
+        "useDefaultSwitchClause": "error",
+        "noEnum": "error",
+        "useFilenamingConvention": "error",
+        "noUselessElse": "warn"
+      },
+      "performance": {
+        "useTopLevelRegex": "warn"
+      },
+      "nursery": {
+        "noFloatingPromises": "warn"
       },
       "recommended": true
     }
@@ -69,6 +87,9 @@
         "rules": {
           "style": {
             "noNonNullAssertion": "off"
+          },
+          "performance": {
+            "useTopLevelRegex": "off"
           }
         }
       }

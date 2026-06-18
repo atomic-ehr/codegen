@@ -18,6 +18,8 @@ import type {
 } from "@typeschema/types";
 import { enrichFHIRSchema, enrichValueSet, packageMetaToFhir, packageMetaToNpm } from "@typeschema/types";
 
+const BARE_RESOURCE_NAME_RE = /^[a-zA-Z0-9]+$/;
+
 export type Register = {
     testAppendFs(fs: FHIRSchema): void;
     ensureSpecializationCanonicalUrl(name: string | Name | CanonicalUrl): CanonicalUrl;
@@ -224,7 +226,7 @@ export const registerFromManager = async (
     const ensureSpecializationCanonicalUrl = (name: string | Name | CanonicalUrl): CanonicalUrl => {
         // Strip version suffix from canonical URL (e.g., "Extension|4.0.1" -> "Extension")
         if (name.includes("|")) name = name.split("|")[0] as CanonicalUrl;
-        if (name.match(/^[a-zA-Z0-9]+$/)) {
+        if (BARE_RESOURCE_NAME_RE.test(name)) {
             return `http://hl7.org/fhir/StructureDefinition/${name}` as CanonicalUrl;
         }
         return name as CanonicalUrl;
