@@ -1,12 +1,12 @@
 import asyncio
 import base64
 import json
+
 from fhirpy import AsyncFHIRClient
 
 from fhir_types.hl7_fhir_r4_core import HumanName
-from fhir_types.hl7_fhir_r4_core.patient import Patient
 from fhir_types.hl7_fhir_r4_core.organization import Organization
-
+from fhir_types.hl7_fhir_r4_core.patient import Patient
 
 FHIR_SERVER_URL = "http://localhost:8080/fhir"
 USERNAME = "root"
@@ -16,31 +16,31 @@ TOKEN = base64.b64encode(f"{USERNAME}:{PASSWORD}".encode()).decode()
 
 async def main() -> None:
     """
-    Demonstrates usage of fhirpy AsyncFHIRClient with generated FHIR types.
+    Demonstrates usage of fhirpy AsyncFHIRClient with the generated FHIR types.
     Shows create, search, fetch, and update operations.
+
+    The generated models use snake_case field names with FHIR camelCase aliases, so
+    `dump_resource` serializes with `by_alias=True` to produce valid FHIR JSON.
     """
 
     client = AsyncFHIRClient(
         FHIR_SERVER_URL,
         authorization=f"Basic {TOKEN}",
-        dump_resource=lambda x: x.model_dump(exclude_none=True),
+        dump_resource=lambda x: x.serialize(),
     )
 
     # Create a Patient
     patient = Patient(
         name=[HumanName(given=["Bob"], family="Cool2")],
         gender="female",
-        birthDate="1980-01-01",
+        birth_date="1980-01-01",
     )
     created_patient = await client.create(patient)
     print(f"Created patient: {created_patient.id}")
-    print(json.dumps(created_patient.model_dump(exclude_none=True), indent=2))
+    print(json.dumps(created_patient.serialize(), indent=2))
 
     # Create an Organization
-    organization = Organization(
-        name="Beda Software",
-        active=True
-    )
+    organization = Organization(name="Beda Software", active=True)
     created_organization = await client.create(organization)
     print(f"Created organization: {created_organization.id}")
 

@@ -118,8 +118,8 @@ See the [examples/](examples/) directory for working demonstrations:
 
 - **[typescript-r4-us-core/](examples/typescript-r4-us-core/)** - FHIR R4 core + US Core type generation with resource creation, profiles, and extensions
 - **[on-the-fly/ccda/](examples/on-the-fly/ccda/)** - C-CDA on FHIR type generation (logical models, generated on the fly)
-- **[python-r4-us-core/](examples/python-r4-us-core/)** - Python/Pydantic models for FHIR R4 core + US Core profiles, with a requests-based client
-- **[python-fhirpy/](examples/python-fhirpy/)** - Python/Pydantic model generation with fhirpy async client
+- **[python-r4-us-core/](examples/python-r4-us-core/)** - Python/Pydantic models for FHIR R4 core + US Core profiles, with the default fhirpy async client
+- **[python-r4/](examples/python-r4/)** - Python/Pydantic model generation with the simple requests-based client
 - **[csharp/](examples/csharp/)** - C# class generation with namespace configuration
 - **[mustache/](examples/mustache/)** - Java generation with Mustache templates and post-generation hooks
 - **[typescript-custom-packages/](examples/typescript-custom-packages/)** - Loading packages from local folders or remote TGZ URLs (SQL-on-FHIR)

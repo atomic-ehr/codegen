@@ -6,6 +6,7 @@ from __future__ import annotations
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, model_validator
 from typing import Any, Generic, List as PyList, Literal
 from typing_extensions import Self, TypeVar
+from fhir_types.fhirpy_base_model import FhirpyBaseModel
 
 from fhir_types.hl7_fhir_r4_core.base import BackboneElement, Identifier, Signature
 from fhir_types.hl7_fhir_r4_core.resource import Resource
@@ -74,7 +75,6 @@ class Bundle(Resource, Generic[T1, T2]):
         default='Bundle',
         alias='resourceType',
         serialization_alias='resourceType',
-        frozen=True,
         pattern='Bundle'
     )
     entry: PyList[BundleEntry[T1, T2]] | None = Field(None, alias="entry", serialization_alias="entry")

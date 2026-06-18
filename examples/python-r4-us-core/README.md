@@ -1,32 +1,27 @@
 # Python Example — FHIR R4 Core + US Core
 
-Python/Pydantic model generation for FHIR R4 core **and** US Core profiles, with
-configurable field formats, validation, and a simple `requests`-based FHIR client.
+Python/Pydantic model generation for FHIR R4 core **and** US Core profiles, with configurable field formats, validation, and a [fhirpy](https://github.com/beda-software/fhir-py) async FHIR client (the default client).
 
-A single `generate.ts` pulls US Core 8.0.1 (which depends on R4 core) plus a local
-`ExampleTypedBundle` StructureDefinition, so one `fhir_types/` tree contains the base
-R4 models/profiles (`hl7_fhir_r4_core`), the US Core profiles (`hl7_fhir_us_core`), and
-the local typed-bundle profile (`example_folder_structures`).
+A single `generate.ts` pulls US Core 8.0.1 (which depends on R4 core) plus a local `ExampleTypedBundle` StructureDefinition, so one `fhir_types/` tree contains the base R4 models/profiles (`hl7_fhir_r4_core`), the US Core profiles (`hl7_fhir_us_core`), and the local typed-bundle profile (`example_folder_structures`).
 
 ## Overview
 
-This example demonstrates how to generate Python/Pydantic models using the Atomic EHR
-Codegen toolkit. It includes:
+This example demonstrates how to generate Python/Pydantic models using the Atomic EHR Codegen toolkit. It includes:
 
 - FHIR R4 resource type definitions as Pydantic models, plus base R4 profiles (bodyweight)
 - US Core profiles (Patient, blood pressure, body weight) with typed accessors and race/ethnicity/birth-sex extensions
 - Automatic validation and serialization
 - Configurable field naming conventions (snake_case or camelCase)
 - Integration with Python type checking (mypy) and IDE support
-- A simple FHIR server client example using `requests` (`client.py`, exercised by `test_sdk.py`)
+- A `fhirpy` `AsyncFHIRClient` demo (`demo.py`, exercised by `test_sdk.py`); the models carry FHIR camelCase aliases and the client serializes via the generated `serialize()` helper
 
-For an example using the `fhirpy` async client library, see [python-fhirpy/](../python-fhirpy/).
+For a simpler `requests`-based client example, see [python-r4/](../python-r4/).
 
 ## Tests
 
 - `test_profile_*.py` — US Core profile API (offline: no server required)
 - `test_bundle.py` / `test_raw_extension.py` — generic Bundle and extension handling (offline)
-- `test_sdk.py` — live CRUD against a FHIR server via `client.py` (requires Aidbox)
+- `test_sdk.py` — live CRUD against a FHIR server via the fhirpy `AsyncFHIRClient` (requires Aidbox)
 
 ## Setup
 
@@ -216,6 +211,6 @@ pytest test_sdk.py -v
 
 ## Next Steps
 
-- See [python-fhirpy/](../python-fhirpy/) for fhirpy async client example
+- See [python-r4/](../python-r4/) for a simpler `requests`-based client example
 - See [examples/](../) overview for other language examples
 - Check [../../CLAUDE.md](../../CLAUDE.md) for architecture details

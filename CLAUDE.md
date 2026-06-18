@@ -125,6 +125,9 @@ FHIR Package → TypeSchema Generator → TypeSchema Format → Code Generators 
 - Prefer single-line guard clauses without braces: `if (!x) throw new Error("...");` instead of wrapping in `{ }`
 - Do not check `kind` of `Identifier`/`TypeIdentifier`/`TypeSchema` by manually comparing the `kind` field. Use dedicated predicates (`isPrimitiveIdentifier`, `isSpecializationTypeSchema`, etc.)
 
+### Documentation
+- Don't hard-wrap paragraphs in Markdown files (`README.md`, `docs/`). Write each paragraph as a single physical line and let it soft-wrap; reserve line breaks for list items and intentional structure.
+
 ### Testing Strategy
 - Uses Bun's built-in test runner
 - Unit tests for core functionality (transformers, builders)

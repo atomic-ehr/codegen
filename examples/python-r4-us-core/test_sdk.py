@@ -1,159 +1,127 @@
-from typing import Iterator
+import base64
+from typing import AsyncIterator
 
 import pytest
-from client import Auth, AuthCredentials, Client
+import pytest_asyncio
+from fhirpy import AsyncFHIRClient
+from pydantic import ValidationError
+
 from fhir_types.hl7_fhir_r4_core import HumanName
 from fhir_types.hl7_fhir_r4_core.bundle import Bundle
+from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.patient import Patient
-from pydantic import ValidationError
 
 FHIR_SERVER_URL = "http://localhost:8080/fhir"
 USERNAME = "root"
-PASSWORD = (
-    "<SECRET>"  # get actual value from docker-compose.yaml: BOX_ROOT_CLIENT_SECRET
-)
+PASSWORD = "<SECRET>"  # get actual value from docker-compose.yaml: BOX_ROOT_CLIENT_SECRET
+TOKEN = base64.b64encode(f"{USERNAME}:{PASSWORD}".encode()).decode()
 
 
 @pytest.fixture(scope="module")
-def client() -> Client:
-    return Client(
-        base_url=FHIR_SERVER_URL,
-        auth=Auth(
-            method="basic",
-            credentials=AuthCredentials(
-                username=USERNAME,
-                password=PASSWORD,
-            ),
-        ),
+def client() -> AsyncFHIRClient:
+    # Generated models are snake_case with FHIR camelCase aliases; serialize() dumps by alias.
+    return AsyncFHIRClient(
+        FHIR_SERVER_URL,
+        authorization=f"Basic {TOKEN}",
+        dump_resource=lambda x: x.serialize(),
     )
 
 
-@pytest.fixture
-def created_patient(client: Client) -> Iterator[Patient]:
-    patient = client.create(
-        Patient(
-            name=[HumanName(given=["Test"], family="Patient")],
-            gender="female",
-            birth_date="1980-01-01",
-        )
+@pytest_asyncio.fixture
+async def created_patient(client: AsyncFHIRClient) -> AsyncIterator[Patient]:
+    patient = Patient(
+        name=[HumanName(given=["Test"], family="FhirpyPatient")],
+        gender="female",
+        birth_date="1980-01-01",
     )
-    # This fixture has module scope, so we yield the result for all tests to use
-    yield patient
+    created = await client.create(patient)
+    yield created
     try:
-        if patient.id is not None:
-            client.delete("Patient", patient.id)
+        if created.id is not None:
+            await client.delete(f"Patient/{created.id}")
     except Exception:
         pass
 
 
-def test_create_patient(client: Client) -> None:
-    new_patient = Patient(
+@pytest.mark.asyncio
+async def test_create_patient(client: AsyncFHIRClient) -> None:
+    patient = Patient(
         name=[HumanName(given=["Create"], family="Test")],
         gender="female",
         birth_date="1980-01-01",
     )
 
-    created = client.create(new_patient)
+    created = await client.create(patient)
     assert created.id is not None
     assert created.name is not None
     assert created.name[0].family == "Test"
     assert created.gender == "female"
     assert created.birth_date == "1980-01-01"
 
-    client.delete("Patient", created.id)
+    await client.delete(f"Patient/{created.id}")
 
 
-def test_read_patient(client: Client, created_patient: Patient) -> None:
-    assert created_patient.name is not None
-    assert created_patient.id is not None
-    read_patient = client.read(Patient, created_patient.id)
+@pytest.mark.asyncio
+async def test_search_patients(client: AsyncFHIRClient, created_patient: Patient) -> None:
+    """client.resources(Patient).fetch() — requires class-level resourceType access"""
+    patients = await client.resources(Patient).fetch()
+    assert len(patients) > 0
 
-    assert read_patient.id == created_patient.id
-    assert read_patient.name is not None
-    assert read_patient.name[0].family == created_patient.name[0].family
-    assert read_patient.gender == created_patient.gender
-
-
-def test_update_patient(client: Client, created_patient: Patient) -> None:
-    assert created_patient.id is not None
-    patient_to_update = client.read(Patient, created_patient.id)
-
-    assert patient_to_update.id == created_patient.id
-    assert patient_to_update.gender == "female"
-    assert patient_to_update.name is not None
-    assert patient_to_update.name[0].family == "Patient"
-
-    patient_to_update.name[0].family = "UpdatedFamily"
-    patient_to_update.name[0].given = ["UpdatedGiven"]
-    patient_to_update.gender = "male"
-    updated_patient = client.update(patient_to_update)
-
-    assert updated_patient.id == created_patient.id  # ID should not change
-    assert updated_patient.gender == "male"  # Gender should be updated
-    assert updated_patient.name is not None
-    assert (
-        updated_patient.name[0].family == "UpdatedFamily"
-    )  # Family name should be updated
-    assert updated_patient.name[0].given == [
-        "UpdatedGiven"
-    ]  # Given name should be updated
-
-    assert created_patient.id is not None
-    re_read_patient = client.read(Patient, created_patient.id)
-    assert re_read_patient.gender == "male"
-    assert re_read_patient.name is not None
-    assert re_read_patient.name[0].family == "UpdatedFamily"
-    assert re_read_patient.name[0].given == ["UpdatedGiven"]
-
-
-def test_search_patient(client: Client, created_patient: Patient) -> None:
-    search_params = {"name": "Patient"}
-    result_bundle = client.search(Patient, search_params)
-    assert result_bundle is not None
-    assert result_bundle.total is not None
-    assert result_bundle.total > 0, "No patients found in search"
-
-    assert result_bundle.entry is not None
-    foundResource = None
-    for entry in result_bundle.entry or []:
-        assert entry.resource is not None
-        if entry.resource.id == created_patient.id:
-            foundResource = entry.resource
+    found = None
+    for p in patients:
+        if p.id == created_patient.id:
+            found = p
             break
-    assert foundResource is not None, (
-        f"Patient with ID {created_patient.id} not found in search results"
-    )
-    assert type(foundResource) is Patient
-    assert foundResource.gender == created_patient.gender
+    assert found is not None, f"Patient {created_patient.id} not found in search results"
+
+
+@pytest.mark.asyncio
+async def test_search_with_filters(client: AsyncFHIRClient, created_patient: Patient) -> None:
+    patients = await client.resources(Patient).search(family="FhirpyPatient").fetch()
+    assert len(patients) > 0
+
+    ids = [p.id for p in patients]
+    assert created_patient.id in ids
+
+
+@pytest.mark.asyncio
+async def test_search_returns_typed_resources(client: AsyncFHIRClient, created_patient: Patient) -> None:
+    """Verify fetched resources deserialize into the generated Patient class."""
+    patients = await client.resources(Patient).fetch()
+    for p in patients:
+        assert isinstance(p, Patient)
+        assert p.resource_type == "Patient"
+
+
+@pytest.mark.asyncio
+async def test_update_patient(client: AsyncFHIRClient, created_patient: Patient) -> None:
+    assert created_patient.id is not None
+
+    created_patient.name = [HumanName(given=["Updated"], family="FhirpyPatient")]
+    created_patient.gender = "male"
+    updated = await client.update(created_patient)
+
+    assert updated.id == created_patient.id
+    assert updated.gender == "male"
+    assert updated.name is not None
+    assert updated.name[0].given == ["Updated"]
+
+
+def test_resource_type_class_access() -> None:
+    """resourceType is exposed at class level (needed for fhirpy search/fetch)."""
+    assert Patient.resourceType == "Patient"
+    assert Observation.resourceType == "Observation"
+    assert Bundle.resourceType == "Bundle"
 
 
 def test_wrong_resource_type() -> None:
     json = """
     {
       "resourceType" : "Bundle",
-      "id" : "bundle-example",
       "type" : "searchset",
-      "total" : 3,
-      "link" : [{
-        "relation" : "self",
-        "url" : "https://example.com/base/MedicationRequest?patient=347&_include=MedicationRequest.medication&_count=2"
-      },
-      {
-        "relation" : "next",
-        "url" : "https://example.com/base/MedicationRequest?patient=347&searchId=ff15fd40-ff71-4b48-b366-09c706bed9d0&page=2"
-      }],
       "entry" : [{
-        "fullUrl" : "https://example.com/base/MedicationRequest/3123",
-        "resource" : {
-          "resourceType" : "Weird_Patient",
-          "id" : "3123"
-        },
-        "search" : {
-          "mode" : "match",
-          "score" : 1
-        }
-      }
-      ]
+        "resource" : { "resourceType" : "Weird_Patient", "id" : "3123" }
+      }]
     }
     """
     with pytest.raises(ValidationError):
@@ -164,47 +132,14 @@ def test_wrong_fields() -> None:
     json = """
     {
       "resourceType" : "Bundle",
-      "id" : "bundle-example",
       "type" : "searchset",
-      "total" : 3,
-      "link" : [{
-        "relation" : "self",
-        "url" : "https://example.com/base/MedicationRequest?patient=347&_include=MedicationRequest.medication&_count=2"
-      },
-      {
-        "relation" : "next",
-        "url" : "https://example.com/base/MedicationRequest?patient=347&searchId=ff15fd40-ff71-4b48-b366-09c706bed9d0&page=2"
-      }],
       "entry" : [{
-        "fullUrl" : "https://example.com/base/MedicationRequest/3123",
-        "resource" : {
-          "resourceType" : "Patient",
-          "id" : "3123",
-          "very_wrong_field" : "WRONG"
-        },
-        "search" : {
-          "mode" : "match",
-          "score" : 1
-        }
-      }
-      ]
+        "resource" : { "resourceType" : "Patient", "id" : "3123", "very_wrong_field" : "WRONG" }
+      }]
     }
     """
     with pytest.raises(ValidationError):
         Bundle.from_json(json)
-
-
-def test_delete_patient(client: Client) -> None:
-    delete_patient = Patient(
-        name=[HumanName(given=["Delete"], family="Test")],
-        gender="other",
-    )
-
-    created = client.create(delete_patient)
-    assert created.id is not None
-    client.delete("Patient", created.id)
-    with pytest.raises(Exception) as _excinfo:
-        client.read(Patient, created.id)
 
 
 def test_to_from_json() -> None:
@@ -216,49 +151,3 @@ def test_to_from_json() -> None:
     json = p.to_json(indent=2)
     p2 = Patient.from_json(json)
     assert p == p2
-
-
-def test_bundle_from_json() -> None:
-    json = """{
-        "resourceType": "Bundle",
-        "type": "searchset",
-        "total": 1,
-        "entry": [{
-            "resource": {
-                "resourceType": "Patient",
-                "id": "p-1",
-                "gender": "female"
-            }
-        }]
-    }"""
-    bundle = Bundle.from_json(json)
-    assert bundle.entry is not None
-    assert len(bundle.entry) == 1
-    resource = bundle.entry[0].resource
-    assert resource is not None
-    assert resource.id == "p-1"
-    assert type(resource) is Patient
-
-
-def test_to_json_shape() -> None:
-    import json as json_mod
-
-    p = Patient(
-        name=[HumanName(given=["Test"], family="Patient")],
-        gender="female",
-        birth_date="1980-01-01",
-    )
-    data = json_mod.loads(p.to_json())
-
-    # Uses FHIR camelCase keys, not Python snake_case; includes resourceType
-    assert data == {
-        "resourceType": "Patient",
-        "name": [{"given": ["Test"], "family": "Patient"}],
-        "gender": "female",
-        "birthDate": "1980-01-01",
-    }
-
-    # Unset fields are omitted
-    assert "id" not in data
-    assert "address" not in data
-    assert "telecom" not in data
