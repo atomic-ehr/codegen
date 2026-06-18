@@ -14,9 +14,13 @@ describe("Mustache Template Based Generation", async () => {
         })
         .throwException()
         .generate();
-    expect(report.success).toBeTrue();
     const files = report.filesGenerated["mustache[./examples/mustache/java]"]!;
-    expect(Object.keys(files).length).toEqual(192);
+
+    it("generates 192 files successfully", () => {
+        expect(report.success).toBeTrue();
+        expect(Object.keys(files).length).toEqual(192);
+    });
+
     it("Patient resource", async () => {
         expect(
             files["generated/model/src/main/java/de/solutio/fhir/models/resources/PatientDTO.java"],

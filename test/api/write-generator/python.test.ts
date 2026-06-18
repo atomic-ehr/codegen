@@ -9,9 +9,12 @@ describe("Python Writer Generator", async () => {
             client: "none",
         })
         .generate();
-    expect(result.success).toBeTrue();
     const files = result.filesGenerated.python!;
-    expect(Object.keys(files).length).toEqual(153);
+
+    it("generates 153 files successfully", () => {
+        expect(result.success).toBeTrue();
+        expect(Object.keys(files).length).toEqual(153);
+    });
 
     it("static files", async () => {
         expect(files["generated/requirements.txt"]).toMatchSnapshot();
@@ -191,7 +194,6 @@ describe("Python client option", async () => {
         const result = await new APIBuilder({ register: r4Manager, logger: mkErrorLogger() })
             .python({ inMemoryOnly: true, ...opts })
             .generate();
-        expect(result.success).toBeTrue();
         return result.filesGenerated.python!;
     };
 

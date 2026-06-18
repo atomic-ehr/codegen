@@ -25,9 +25,13 @@ describe("TypeScript Writer Generator", async () => {
             inMemoryOnly: true,
         })
         .generate();
-    expect(result.success).toBeTrue();
     const files = result.filesGenerated.typescript!;
-    expect(Object.keys(files).length).toEqual(608);
+
+    it("generates 608 files successfully", () => {
+        expect(result.success).toBeTrue();
+        expect(Object.keys(files).length).toEqual(608);
+    });
+
     it("generates Patient resource in inMemoryOnly mode with snapshot", async () => {
         expect(files["generated/types/hl7-fhir-r4-core/Patient.ts"]).toMatchSnapshot();
     });
@@ -185,8 +189,12 @@ describe("TypeScript CDA with Logical Model Promotion to Resource", async () => 
             inMemoryOnly: true,
         })
         .generate();
-    expect(result.success).toBeTrue();
     const files = result.filesGenerated.typescript!;
+
+    it("generates successfully", () => {
+        expect(result.success).toBeTrue();
+    });
+
     it("without resourceType", async () => {
         expect(files["generated/types/hl7-cda-uv-core/CV.ts"]).toMatchSnapshot();
         expect(files["generated/types/hl7-cda-uv-core/index.ts"]).toMatchSnapshot();

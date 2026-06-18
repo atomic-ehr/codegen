@@ -109,14 +109,16 @@ describe("treeShake specific TypeSchema", async () => {
         });
 
         describe("polimorphic field", () => {
-            expect(patientOrigin.fields?.multipleBirth).toMatchObject({
-                choices: ["multipleBirthBoolean", "multipleBirthInteger"],
-            });
-            expect(patientOrigin.fields?.multipleBirthBoolean).toMatchObject({
-                type: { name: "boolean" },
-            });
-            expect(patientOrigin.fields?.multipleBirthInteger).toMatchObject({
-                type: { name: "integer" },
+            it("keeps the polymorphic field and its variants", () => {
+                expect(patientOrigin.fields?.multipleBirth).toMatchObject({
+                    choices: ["multipleBirthBoolean", "multipleBirthInteger"],
+                });
+                expect(patientOrigin.fields?.multipleBirthBoolean).toMatchObject({
+                    type: { name: "boolean" },
+                });
+                expect(patientOrigin.fields?.multipleBirthInteger).toMatchObject({
+                    type: { name: "integer" },
+                });
             });
 
             it("choice declaration", () => {
@@ -194,14 +196,16 @@ describe("treeShake specific TypeSchema", async () => {
         });
 
         describe("polymorphic field", () => {
-            expect(patientOrigin.fields?.multipleBirth).toMatchObject({
-                choices: ["multipleBirthBoolean", "multipleBirthInteger"],
-            });
-            expect(patientOrigin.fields?.multipleBirthBoolean).toMatchObject({
-                type: { name: "boolean" },
-            });
-            expect(patientOrigin.fields?.multipleBirthInteger).toMatchObject({
-                type: { name: "integer" },
+            it("keeps the polymorphic field and its variants", () => {
+                expect(patientOrigin.fields?.multipleBirth).toMatchObject({
+                    choices: ["multipleBirthBoolean", "multipleBirthInteger"],
+                });
+                expect(patientOrigin.fields?.multipleBirthBoolean).toMatchObject({
+                    type: { name: "boolean" },
+                });
+                expect(patientOrigin.fields?.multipleBirthInteger).toMatchObject({
+                    type: { name: "integer" },
+                });
             });
 
             it("choice declaration - get all polimorphic fields", () => {

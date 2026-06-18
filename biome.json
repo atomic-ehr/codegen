@@ -36,7 +36,7 @@
         "noAssignInExpressions": "off",
         "noVar": "error",
         "noEmptyBlockStatements": "warn",
-        "noMisplacedAssertion": "warn"
+        "noMisplacedAssertion": "error"
       },
       "correctness": {
         "noUnusedPrivateClassMembers": "error",
