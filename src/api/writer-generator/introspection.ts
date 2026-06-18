@@ -66,7 +66,7 @@ export class IntrospectionWriter extends FileSystemWriter<IntrospectionWriterOpt
 
         if (this.opts.typeSchemas) {
             if (Path.extname(this.opts.typeSchemas) === ".ndjson") {
-                this.writeNdjson(tsIndex.schemas, this.opts.typeSchemas, typeSchemaToJson);
+                await this.writeNdjson(tsIndex.schemas, this.opts.typeSchemas, typeSchemaToJson);
             } else {
                 const items = tsIndex.schemas.map((ts) => typeSchemaToJson(ts, true));
                 const seenFilenames = new Set<string>();
@@ -125,9 +125,9 @@ export class IntrospectionWriter extends FileSystemWriter<IntrospectionWriterOpt
             });
 
             if (Path.extname(outputPath) === ".ndjson") {
-                this.writeNdjson(fhirSchemas, outputPath, fhirSchemaToJson);
+                await this.writeNdjson(fhirSchemas, outputPath, fhirSchemaToJson);
             } else {
-                this.writeJsonFiles(
+                await this.writeJsonFiles(
                     fhirSchemas.map((fs) => fhirSchemaToJson(fs, true)),
                     outputPath,
                 );
@@ -148,9 +148,9 @@ export class IntrospectionWriter extends FileSystemWriter<IntrospectionWriterOpt
             });
 
             if (Path.extname(outputPath) === ".ndjson") {
-                this.writeNdjson(structureDefinitions, outputPath, structureDefinitionToJson);
+                await this.writeNdjson(structureDefinitions, outputPath, structureDefinitionToJson);
             } else {
-                this.writeJsonFiles(
+                await this.writeJsonFiles(
                     structureDefinitions.map((sd) => structureDefinitionToJson(sd, true)),
                     outputPath,
                 );
