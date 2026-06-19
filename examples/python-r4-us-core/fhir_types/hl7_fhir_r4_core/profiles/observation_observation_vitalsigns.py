@@ -51,7 +51,7 @@ class ObservationVitalsignsProfile:
 
         return build_resource(
             Observation,
-            resource_type="Observation",
+            resourceType="Observation",
             category=category_with_defaults,
             status=status,
             code=code,
@@ -95,19 +95,19 @@ class ObservationVitalsignsProfile:
         return self
 
     def get_effective_date_time(self) -> str | None:
-        return cast('str | None', getattr(self._resource, "effective_date_time", None))
+        return cast('str | None', getattr(self._resource, "effectiveDateTime", None))
 
     def set_effective_date_time(self, value: str) -> "ObservationVitalsignsProfile":
-        setattr(self._resource, "effective_period", None)
-        setattr(self._resource, "effective_date_time", value)
+        setattr(self._resource, "effectivePeriod", None)
+        setattr(self._resource, "effectiveDateTime", value)
         return self
 
     def get_effective_period(self) -> Period | None:
-        return cast('Period | None', getattr(self._resource, "effective_period", None))
+        return cast('Period | None', getattr(self._resource, "effectivePeriod", None))
 
     def set_effective_period(self, value: Period) -> "ObservationVitalsignsProfile":
-        setattr(self._resource, "effective_date_time", None)
-        setattr(self._resource, "effective_period", value)
+        setattr(self._resource, "effectiveDateTime", None)
+        setattr(self._resource, "effectivePeriod", value)
         return self
 
     @overload
@@ -142,12 +142,12 @@ class ObservationVitalsignsProfile:
         errors.extend(validate_required(self._resource, profile_name, "code"))
         errors.extend(validate_required(self._resource, profile_name, "subject"))
         errors.extend(validate_reference(self._resource, profile_name, "subject", ["Patient"]))
-        errors.extend(validate_choice_required(self._resource, profile_name, ["effective_date_time","effective_period"]))
-        errors.extend(validate_reference(self._resource, profile_name, "has_member", ["MolecularSequence","QuestionnaireResponse","Observation"]))
-        errors.extend(validate_reference(self._resource, profile_name, "derived_from", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]))
+        errors.extend(validate_choice_required(self._resource, profile_name, ["effectiveDateTime","effectivePeriod"]))
+        errors.extend(validate_reference(self._resource, profile_name, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]))
+        errors.extend(validate_reference(self._resource, profile_name, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]))
         warnings.extend(validate_enum(self._resource, profile_name, "category", ["social-history","vital-signs","imaging","laboratory","procedure","survey","exam","therapy","activity"]))
         warnings.extend(validate_enum(self._resource, profile_name, "code", ["85353-1","9279-1","8867-4","2708-6","8310-5","8302-2","9843-4","29463-7","39156-5","85354-9","8480-6","8462-4","8478-0"]))
-        warnings.extend(validate_enum(self._resource, profile_name, "data_absent_reason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]))
-        warnings.extend(validate_must_support(self._resource, profile_name, "data_absent_reason"))
+        warnings.extend(validate_enum(self._resource, profile_name, "dataAbsentReason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]))
+        warnings.extend(validate_must_support(self._resource, profile_name, "dataAbsentReason"))
         return {"errors": errors, "warnings": warnings}
 

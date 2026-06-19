@@ -20,7 +20,7 @@ T2 = TypeVar('T2', bound=Resource, default=Resource)
 
 class BundleEntry(BackboneElement, Generic[T1, T2]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    full_url: str | None = Field(None, alias="fullUrl", serialization_alias="fullUrl")
+    fullUrl: str | None = Field(None, alias="fullUrl", serialization_alias="fullUrl")
     link: PyList[BundleLink] | None = Field(None, alias="link", serialization_alias="link")
     request: BundleEntryRequest | None = Field(None, alias="request", serialization_alias="request")
     resource: T1 | None = Field(None, alias="resource", serialization_alias="resource")
@@ -36,17 +36,17 @@ class BundleEntry(BackboneElement, Generic[T1, T2]):
 
 class BundleEntryRequest(BackboneElement):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    if_match: str | None = Field(None, alias="ifMatch", serialization_alias="ifMatch")
-    if_modified_since: str | None = Field(None, alias="ifModifiedSince", serialization_alias="ifModifiedSince")
-    if_none_exist: str | None = Field(None, alias="ifNoneExist", serialization_alias="ifNoneExist")
-    if_none_match: str | None = Field(None, alias="ifNoneMatch", serialization_alias="ifNoneMatch")
+    ifMatch: str | None = Field(None, alias="ifMatch", serialization_alias="ifMatch")
+    ifModifiedSince: str | None = Field(None, alias="ifModifiedSince", serialization_alias="ifModifiedSince")
+    ifNoneExist: str | None = Field(None, alias="ifNoneExist", serialization_alias="ifNoneExist")
+    ifNoneMatch: str | None = Field(None, alias="ifNoneMatch", serialization_alias="ifNoneMatch")
     method: Literal["GET", "HEAD", "POST", "PUT", "DELETE", "PATCH"] = Field(alias="method", serialization_alias="method")
     url: str = Field(alias="url", serialization_alias="url")
 
 class BundleEntryResponse(BackboneElement, Generic[T]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     etag: str | None = Field(None, alias="etag", serialization_alias="etag")
-    last_modified: str | None = Field(None, alias="lastModified", serialization_alias="lastModified")
+    lastModified: str | None = Field(None, alias="lastModified", serialization_alias="lastModified")
     location: str | None = Field(None, alias="location", serialization_alias="location")
     outcome: T | None = Field(None, alias="outcome", serialization_alias="outcome")
     status: str = Field(alias="status", serialization_alias="status")
@@ -71,7 +71,7 @@ class BundleLink(BackboneElement):
 
 class Bundle(Resource, Generic[T1, T2]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    resource_type: Literal['Bundle'] = Field(
+    resourceType: Literal['Bundle'] = Field(
         default='Bundle',
         alias='resourceType',
         serialization_alias='resourceType',
@@ -82,14 +82,14 @@ class Bundle(Resource, Generic[T1, T2]):
     link: PyList[BundleLink] | None = Field(None, alias="link", serialization_alias="link")
     signature: Signature | None = Field(None, alias="signature", serialization_alias="signature")
     timestamp: str | None = Field(None, alias="timestamp", serialization_alias="timestamp")
-    timestamp_extension: Element | None = Field(None, alias="_timestamp", serialization_alias="_timestamp")
+    timestampExtension: Element | None = Field(None, alias="_timestamp", serialization_alias="_timestamp")
     total: int | None = Field(None, alias="total", serialization_alias="total")
-    total_extension: Element | None = Field(None, alias="_total", serialization_alias="_total")
+    totalExtension: Element | None = Field(None, alias="_total", serialization_alias="_total")
     type: Literal["document", "message", "transaction", "transaction-response", "batch", "batch-response", "history", "searchset", "collection"] = Field(alias="type", serialization_alias="type")
-    type_extension: Element | None = Field(None, alias="_type", serialization_alias="_type")
+    typeExtension: Element | None = Field(None, alias="_type", serialization_alias="_type")
 
     def model_post_init(self, __context: Any) -> None:
-        self.__pydantic_fields_set__.add("resource_type")
+        self.__pydantic_fields_set__.add("resourceType")
 
     def to_json(self, indent: int | None = None) -> str:
         return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)

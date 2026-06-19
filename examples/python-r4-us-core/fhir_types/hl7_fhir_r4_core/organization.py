@@ -25,28 +25,28 @@ class OrganizationContact(BackboneElement):
 
 class Organization(DomainResource):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    resource_type: Literal['Organization'] = Field(
+    resourceType: Literal['Organization'] = Field(
         default='Organization',
         alias='resourceType',
         serialization_alias='resourceType',
         pattern='Organization'
     )
     active: bool | None = Field(None, alias="active", serialization_alias="active")
-    active_extension: Element | None = Field(None, alias="_active", serialization_alias="_active")
+    activeExtension: Element | None = Field(None, alias="_active", serialization_alias="_active")
     address: PyList[Address] | None = Field(None, alias="address", serialization_alias="address")
     alias: PyList[str] | None = Field(None, alias="alias", serialization_alias="alias")
-    alias_extension: PyList[Element | None] | None = Field(None, alias="_alias", serialization_alias="_alias")
+    aliasExtension: PyList[Element | None] | None = Field(None, alias="_alias", serialization_alias="_alias")
     contact: PyList[OrganizationContact] | None = Field(None, alias="contact", serialization_alias="contact")
     endpoint: PyList[Reference] | None = Field(None, alias="endpoint", serialization_alias="endpoint")
     identifier: PyList[Identifier] | None = Field(None, alias="identifier", serialization_alias="identifier")
     name: str | None = Field(None, alias="name", serialization_alias="name")
-    name_extension: Element | None = Field(None, alias="_name", serialization_alias="_name")
-    part_of: Reference | None = Field(None, alias="partOf", serialization_alias="partOf")
+    nameExtension: Element | None = Field(None, alias="_name", serialization_alias="_name")
+    partOf: Reference | None = Field(None, alias="partOf", serialization_alias="partOf")
     telecom: PyList[ContactPoint] | None = Field(None, alias="telecom", serialization_alias="telecom")
     type: PyList[CodeableConcept] | None = Field(None, alias="type", serialization_alias="type")
 
     def model_post_init(self, __context: Any) -> None:
-        self.__pydantic_fields_set__.add("resource_type")
+        self.__pydantic_fields_set__.add("resourceType")
 
     def to_json(self, indent: int | None = None) -> str:
         return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)

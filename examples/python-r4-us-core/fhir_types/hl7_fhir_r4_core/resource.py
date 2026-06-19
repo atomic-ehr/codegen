@@ -14,22 +14,22 @@ from fhir_types.hl7_fhir_r4_core.base import Element
 
 class Resource(FhirpyBaseModel):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    resource_type: str = Field(
+    resourceType: str = Field(
         default='Resource',
         alias='resourceType',
         serialization_alias='resourceType',
         pattern='Resource'
     )
     id: str | None = Field(None, alias="id", serialization_alias="id")
-    id_extension: Element | None = Field(None, alias="_id", serialization_alias="_id")
-    implicit_rules: str | None = Field(None, alias="implicitRules", serialization_alias="implicitRules")
-    implicit_rules_extension: Element | None = Field(None, alias="_implicitRules", serialization_alias="_implicitRules")
+    idExtension: Element | None = Field(None, alias="_id", serialization_alias="_id")
+    implicitRules: str | None = Field(None, alias="implicitRules", serialization_alias="implicitRules")
+    implicitRulesExtension: Element | None = Field(None, alias="_implicitRules", serialization_alias="_implicitRules")
     language: str | None = Field(None, alias="language", serialization_alias="language")
-    language_extension: Element | None = Field(None, alias="_language", serialization_alias="_language")
+    languageExtension: Element | None = Field(None, alias="_language", serialization_alias="_language")
     meta: Meta | None = Field(None, alias="meta", serialization_alias="meta")
 
     def model_post_init(self, __context: Any) -> None:
-        self.__pydantic_fields_set__.add("resource_type")
+        self.__pydantic_fields_set__.add("resourceType")
 
     def to_json(self, indent: int | None = None) -> str:
         return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)

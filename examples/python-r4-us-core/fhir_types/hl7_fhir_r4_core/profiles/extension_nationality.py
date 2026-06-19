@@ -67,7 +67,7 @@ class NationalityExtension:
         ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
             return ext_obj
-        return cast('CodeableConcept | None', get_extension_value(ext, "value_codeable_concept"))
+        return cast('CodeableConcept | None', get_extension_value(ext, "valueCodeableConcept"))
 
     def set_code(self, value: "Extension | Any") -> "NationalityExtension":
         if is_extension(value):
@@ -75,7 +75,7 @@ class NationalityExtension:
                 raise ValueError(f"Expected extension url 'code', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
-            push_extension(self._resource, Extension(url="code", value_codeable_concept=value))
+            push_extension(self._resource, Extension(url="code", valueCodeableConcept=value))
         return self
 
     @overload
@@ -90,7 +90,7 @@ class NationalityExtension:
         ext_obj = ext if not isinstance(ext, dict) else Extension(**ext)
         if mode == "raw":
             return ext_obj
-        return cast('Period | None', get_extension_value(ext, "value_period"))
+        return cast('Period | None', get_extension_value(ext, "valuePeriod"))
 
     def set_period(self, value: "Extension | Any") -> "NationalityExtension":
         if is_extension(value):
@@ -98,7 +98,7 @@ class NationalityExtension:
                 raise ValueError(f"Expected extension url 'period', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
-            push_extension(self._resource, Extension(url="period", value_period=value))
+            push_extension(self._resource, Extension(url="period", valuePeriod=value))
         return self
 
     def validate(self) -> dict[str, list[str]]:

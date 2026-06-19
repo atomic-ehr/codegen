@@ -36,21 +36,21 @@ class OwnPrefixExtension:
         return cls(resource)
 
     @classmethod
-    def create_resource(cls, *, value_string: str) -> Extension:
-        return build_resource(Extension, url="http://hl7.org/fhir/StructureDefinition/humanname-own-prefix", value_string=value_string)
+    def create_resource(cls, *, valueString: str) -> Extension:
+        return build_resource(Extension, url="http://hl7.org/fhir/StructureDefinition/humanname-own-prefix", valueString=valueString)
 
     @classmethod
-    def create(cls, *, value_string: str) -> "OwnPrefixExtension":
-        return cls.apply(cls.create_resource(value_string=value_string))
+    def create(cls, *, valueString: str) -> "OwnPrefixExtension":
+        return cls.apply(cls.create_resource(valueString=valueString))
 
     def to_resource(self) -> Extension:
         return self._resource
 
     def get_value_string(self) -> str | None:
-        return cast('str | None', getattr(self._resource, "value_string", None))
+        return cast('str | None', getattr(self._resource, "valueString", None))
 
     def set_value_string(self, value: str) -> "OwnPrefixExtension":
-        setattr(self._resource, "value_string", value)
+        setattr(self._resource, "valueString", value)
         return self
 
     def get_url(self) -> str | None:
@@ -66,6 +66,6 @@ class OwnPrefixExtension:
         warnings: list[str] = []
         errors.extend(validate_required(self._resource, profile_name, "url"))
         errors.extend(validate_fixed_value(self._resource, profile_name, "url", "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix"))
-        errors.extend(validate_choice_required(self._resource, profile_name, ["value_string"]))
+        errors.extend(validate_choice_required(self._resource, profile_name, ["valueString"]))
         return {"errors": errors, "warnings": warnings}
 
