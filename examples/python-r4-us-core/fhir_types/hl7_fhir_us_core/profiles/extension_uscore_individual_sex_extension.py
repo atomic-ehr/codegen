@@ -37,21 +37,21 @@ class UscoreIndividualSexExtension:
         return cls(resource)
 
     @classmethod
-    def create_resource(cls, *, value_coding: Coding) -> Extension:
-        return build_resource(Extension, url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex", value_coding=value_coding)
+    def create_resource(cls, *, valueCoding: Coding) -> Extension:
+        return build_resource(Extension, url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex", valueCoding=valueCoding)
 
     @classmethod
-    def create(cls, *, value_coding: Coding) -> "UscoreIndividualSexExtension":
-        return cls.apply(cls.create_resource(value_coding=value_coding))
+    def create(cls, *, valueCoding: Coding) -> "UscoreIndividualSexExtension":
+        return cls.apply(cls.create_resource(valueCoding=valueCoding))
 
     def to_resource(self) -> Extension:
         return self._resource
 
     def get_value_coding(self) -> Coding | None:
-        return cast('Coding | None', getattr(self._resource, "value_coding", None))
+        return cast('Coding | None', getattr(self._resource, "valueCoding", None))
 
     def set_value_coding(self, value: Coding) -> "UscoreIndividualSexExtension":
-        setattr(self._resource, "value_coding", value)
+        setattr(self._resource, "valueCoding", value)
         return self
 
     def get_url(self) -> str | None:
@@ -67,6 +67,6 @@ class UscoreIndividualSexExtension:
         warnings: list[str] = []
         errors.extend(validate_required(self._resource, profile_name, "url"))
         errors.extend(validate_fixed_value(self._resource, profile_name, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex"))
-        errors.extend(validate_choice_required(self._resource, profile_name, ["value_coding"]))
+        errors.extend(validate_choice_required(self._resource, profile_name, ["valueCoding"]))
         return {"errors": errors, "warnings": warnings}
 

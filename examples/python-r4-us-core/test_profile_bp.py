@@ -34,21 +34,21 @@ def _make_bp() -> UscoreBloodPressureProfile:
 
 def test_import_profiled_observation_from_api_and_read_components() -> None:
     api_response = Observation(
-        resource_type="Observation",
+        resourceType="Observation",
         meta=Meta(profile=[CANONICAL_URL]),
         status="final",
         category=[CodeableConcept(coding=[VSCAT_CODING])],
         code=CodeableConcept(coding=[Coding(code="85354-9", system="http://loinc.org", display="Blood pressure panel")]),
         subject=Reference(reference="Patient/pt-1"),
-        effective_date_time="2024-06-15",
+        effectiveDateTime="2024-06-15",
         component=[
             ObservationComponent(
                 code=CodeableConcept(coding=[Coding(code="8480-6", system="http://loinc.org")]),
-                value_quantity=Quantity(value=120, unit="mmHg", system="http://unitsofmeasure.org", code="mm[Hg]"),
+                valueQuantity=Quantity(value=120, unit="mmHg", system="http://unitsofmeasure.org", code="mm[Hg]"),
             ),
             ObservationComponent(
                 code=CodeableConcept(coding=[Coding(code="8462-4", system="http://loinc.org")]),
-                value_quantity=Quantity(value=80, unit="mmHg", system="http://unitsofmeasure.org", code="mm[Hg]"),
+                valueQuantity=Quantity(value=80, unit="mmHg", system="http://unitsofmeasure.org", code="mm[Hg]"),
             ),
         ],
     )
@@ -71,7 +71,7 @@ def test_import_profiled_observation_from_api_and_read_components() -> None:
 
 
 def test_apply_profile_to_bare_observation_and_populate_it() -> None:
-    bare_observation = Observation(resource_type="Observation", status="preliminary", code=CodeableConcept())
+    bare_observation = Observation(resourceType="Observation", status="preliminary", code=CodeableConcept())
     profile = UscoreBloodPressureProfile.apply(bare_observation)
 
     profile.set_status("final")
@@ -98,7 +98,7 @@ def test_canonical_url_is_exposed() -> None:
 def test_create_auto_sets_code_and_meta_profile() -> None:
     profile = _make_bp()
     obs = profile.to_resource()
-    assert obs.resource_type == "Observation"
+    assert obs.resourceType == "Observation"
     assert obs.code.coding[0].code == "85354-9"
     assert obs.code.coding[0].system == "http://loinc.org"
     assert obs.meta.profile == [CANONICAL_URL]
@@ -108,7 +108,7 @@ def test_freshly_created_profile_is_not_yet_valid_missing_effective() -> None:
     profile = _make_bp()
     errors = profile.validate()["errors"]
     assert errors == [
-        "UscoreBloodPressureProfile: at least one of effective_date_time, effective_period is required",
+        "UscoreBloodPressureProfile: at least one of effectiveDateTime, effectivePeriod is required",
     ]
 
 
@@ -130,7 +130,7 @@ def test_set_systolic_get_systolic_get_systolic_raw() -> None:
     }
 
     raw = profile.get_systolic("raw")
-    assert raw.value_quantity.value == 120
+    assert raw.valueQuantity.value == 120
     assert raw.code.coding[0].code == "8480-6"
 
 
@@ -146,7 +146,7 @@ def test_set_diastolic_get_diastolic_get_diastolic_raw() -> None:
     }
 
     raw = profile.get_diastolic("raw")
-    assert raw.value_quantity.value == 80
+    assert raw.valueQuantity.value == 80
     assert raw.code.coding[0].code == "8462-4"
 
 
@@ -161,7 +161,7 @@ def test_set_systolic_replaces_an_existing_systolic_component() -> None:
     profile.set_systolic({"value": 130, "unit": "mmHg"})
     obs = profile.to_resource()
     assert len(obs.component) == 2
-    assert profile.get_systolic("raw").value_quantity.value == 130
+    assert profile.get_systolic("raw").valueQuantity.value == 130
 
 
 def test_set_vscat_adds_category_with_discriminator_values() -> None:

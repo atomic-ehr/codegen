@@ -22,7 +22,7 @@ def test_bundle_generic_narrows_entry_resources() -> None:
     observations = [
         e.resource
         for e in (bundle.entry or [])
-        if e.resource and e.resource.resource_type == "Observation"
+        if e.resource and e.resource.resourceType == "Observation"
     ]
     assert len(observations) == 1
     assert observations[0].id == "obs-1"
@@ -31,7 +31,7 @@ def test_bundle_generic_narrows_entry_resources() -> None:
 def test_bundle_entry_generic_narrows_resource() -> None:
     patient = Patient(id="p-1")
     entry: BundleEntry[Patient] = BundleEntry(resource=patient)
-    assert entry.resource.resource_type == "Patient"
+    assert entry.resource.resourceType == "Patient"
 
 
 def test_bundle_without_type_param_is_backwards_compatible() -> None:

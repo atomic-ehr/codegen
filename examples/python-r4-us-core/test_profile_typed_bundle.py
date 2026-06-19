@@ -9,8 +9,8 @@ from fhir_types.hl7_fhir_r4_core.patient import Patient
 from fhir_types.example_folder_structures.profiles.bundle_example_typed_bundle import ExampleTypedBundleProfile
 
 
-smith_patient = Patient(resource_type="Patient", name=[HumanName(family="Smith")])
-active_patient = Patient(resource_type="Patient", active=True)
+smith_patient = Patient(resourceType="Patient", name=[HumanName(family="Smith")])
+active_patient = Patient(resourceType="Patient", active=True)
 
 
 # ---------------------------------------------------------------------------
@@ -37,7 +37,7 @@ def test_get_patient_entry_returns_bundle_entry_instance() -> None:
 
     entry = bundle.get_patient_entry()
     assert isinstance(entry, BundleEntry)
-    assert entry.resource.resource_type == "Patient"
+    assert entry.resource.resourceType == "Patient"
     assert entry.resource.name[0].family == "Smith"
 
 
@@ -47,7 +47,7 @@ def test_get_patient_entry_raw_mode_returns_bundle_entry_instance() -> None:
 
     entry = bundle.get_patient_entry()
     assert isinstance(entry, BundleEntry)
-    assert entry.resource.resource_type == "Patient"
+    assert entry.resource.resourceType == "Patient"
 
 
 def test_get_patient_entry_returns_stored_entry_including_resource() -> None:
@@ -81,8 +81,8 @@ def test_set_organization_entry_accepts_a_list() -> None:
     bundle = ExampleTypedBundleProfile.create(type="collection")
     bundle.set_patient_entry(BundleEntry(resource=smith_patient))
 
-    clinic = Organization(resource_type="Organization", name="Clinic")
-    acme = Organization(resource_type="Organization", name="Acme")
+    clinic = Organization(resourceType="Organization", name="Clinic")
+    acme = Organization(resourceType="Organization", name="Acme")
 
     bundle.set_organization_entry([BundleEntry(resource=clinic), BundleEntry(resource=acme)])
 
@@ -96,7 +96,7 @@ def test_get_organization_entry_returns_list() -> None:
 
     bundle = ExampleTypedBundleProfile.create(type="collection")
     bundle.set_patient_entry(BundleEntry(resource=smith_patient))
-    org = Organization(resource_type="Organization", name="Clinic")
+    org = Organization(resourceType="Organization", name="Clinic")
     bundle.set_organization_entry([BundleEntry(resource=org)])
 
     result = bundle.get_organization_entry()

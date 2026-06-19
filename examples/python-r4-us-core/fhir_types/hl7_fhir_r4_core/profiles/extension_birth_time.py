@@ -36,21 +36,21 @@ class BirthTimeExtension:
         return cls(resource)
 
     @classmethod
-    def create_resource(cls, *, value_date_time: str) -> Extension:
-        return build_resource(Extension, url="http://hl7.org/fhir/StructureDefinition/patient-birthTime", value_date_time=value_date_time)
+    def create_resource(cls, *, valueDateTime: str) -> Extension:
+        return build_resource(Extension, url="http://hl7.org/fhir/StructureDefinition/patient-birthTime", valueDateTime=valueDateTime)
 
     @classmethod
-    def create(cls, *, value_date_time: str) -> "BirthTimeExtension":
-        return cls.apply(cls.create_resource(value_date_time=value_date_time))
+    def create(cls, *, valueDateTime: str) -> "BirthTimeExtension":
+        return cls.apply(cls.create_resource(valueDateTime=valueDateTime))
 
     def to_resource(self) -> Extension:
         return self._resource
 
     def get_value_date_time(self) -> str | None:
-        return cast('str | None', getattr(self._resource, "value_date_time", None))
+        return cast('str | None', getattr(self._resource, "valueDateTime", None))
 
     def set_value_date_time(self, value: str) -> "BirthTimeExtension":
-        setattr(self._resource, "value_date_time", value)
+        setattr(self._resource, "valueDateTime", value)
         return self
 
     def get_url(self) -> str | None:
@@ -66,6 +66,6 @@ class BirthTimeExtension:
         warnings: list[str] = []
         errors.extend(validate_required(self._resource, profile_name, "url"))
         errors.extend(validate_fixed_value(self._resource, profile_name, "url", "http://hl7.org/fhir/StructureDefinition/patient-birthTime"))
-        errors.extend(validate_choice_required(self._resource, profile_name, ["value_date_time"]))
+        errors.extend(validate_choice_required(self._resource, profile_name, ["valueDateTime"]))
         return {"errors": errors, "warnings": warnings}
 

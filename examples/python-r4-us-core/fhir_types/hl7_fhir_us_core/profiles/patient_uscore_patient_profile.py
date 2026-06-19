@@ -52,7 +52,7 @@ class UscorePatientProfile:
     def create_resource(cls, *, identifier: list[Identifier], name: list[HumanName]) -> Patient:
         return build_resource(
             Patient,
-            resource_type="Patient",
+            resourceType="Patient",
             identifier=identifier,
             name=name,
             meta={"profile": [cls.canonical_url]},
@@ -95,7 +95,7 @@ class UscorePatientProfile:
             return ext_obj
         if mode == "profile":
             return UscoreRaceExtension.apply(ext_obj)
-        config = [{"name": "ombCategory", "valueField": "value_coding", "isArray": False}, {"name": "detailed", "valueField": "value_coding", "isArray": True}, {"name": "text", "valueField": "value_string", "isArray": False}]
+        config = [{"name": "ombCategory", "valueField": "valueCoding", "isArray": False}, {"name": "detailed", "valueField": "valueCoding", "isArray": True}, {"name": "text", "valueField": "valueString", "isArray": False}]
         return extract_complex_extension(ext, config)
 
     def set_race(self, value: "UscoreRaceExtension | Extension | dict[str, Any]") -> "UscorePatientProfile":
@@ -108,11 +108,11 @@ class UscorePatientProfile:
         else:
             sub_extensions = []
             if value.get("ombCategory") is not None:
-                sub_extensions.append({"url": "ombCategory", "value_coding": value["ombCategory"]})
+                sub_extensions.append({"url": "ombCategory", "valueCoding": value["ombCategory"]})
             for item in value.get("detailed", []):
-                sub_extensions.append({"url": "detailed", "value_coding": item})
+                sub_extensions.append({"url": "detailed", "valueCoding": item})
             if value.get("text") is not None:
-                sub_extensions.append({"url": "text", "value_string": value["text"]})
+                sub_extensions.append({"url": "text", "valueString": value["text"]})
             push_extension(self._resource, Extension(url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-race", extension=sub_extensions))
         return self
 
@@ -132,7 +132,7 @@ class UscorePatientProfile:
             return ext_obj
         if mode == "profile":
             return UscoreEthnicityExtension.apply(ext_obj)
-        config = [{"name": "ombCategory", "valueField": "value_coding", "isArray": False}, {"name": "detailed", "valueField": "value_coding", "isArray": True}, {"name": "text", "valueField": "value_string", "isArray": False}]
+        config = [{"name": "ombCategory", "valueField": "valueCoding", "isArray": False}, {"name": "detailed", "valueField": "valueCoding", "isArray": True}, {"name": "text", "valueField": "valueString", "isArray": False}]
         return extract_complex_extension(ext, config)
 
     def set_ethnicity(self, value: "UscoreEthnicityExtension | Extension | dict[str, Any]") -> "UscorePatientProfile":
@@ -145,11 +145,11 @@ class UscorePatientProfile:
         else:
             sub_extensions = []
             if value.get("ombCategory") is not None:
-                sub_extensions.append({"url": "ombCategory", "value_coding": value["ombCategory"]})
+                sub_extensions.append({"url": "ombCategory", "valueCoding": value["ombCategory"]})
             for item in value.get("detailed", []):
-                sub_extensions.append({"url": "detailed", "value_coding": item})
+                sub_extensions.append({"url": "detailed", "valueCoding": item})
             if value.get("text") is not None:
-                sub_extensions.append({"url": "text", "value_string": value["text"]})
+                sub_extensions.append({"url": "text", "valueString": value["text"]})
             push_extension(self._resource, Extension(url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity", extension=sub_extensions))
         return self
 
@@ -169,7 +169,7 @@ class UscorePatientProfile:
             return ext_obj
         if mode == "profile":
             return UscoreTribalAffiliationExtension.apply(ext_obj)
-        config = [{"name": "tribalAffiliation", "valueField": "value_codeable_concept", "isArray": False}, {"name": "isEnrolled", "valueField": "value_boolean", "isArray": False}]
+        config = [{"name": "tribalAffiliation", "valueField": "valueCodeableConcept", "isArray": False}, {"name": "isEnrolled", "valueField": "valueBoolean", "isArray": False}]
         return extract_complex_extension(ext, config)
 
     def set_tribal_affiliation(self, value: "UscoreTribalAffiliationExtension | Extension | dict[str, Any]") -> "UscorePatientProfile":
@@ -182,9 +182,9 @@ class UscorePatientProfile:
         else:
             sub_extensions = []
             if value.get("tribalAffiliation") is not None:
-                sub_extensions.append({"url": "tribalAffiliation", "value_codeable_concept": value["tribalAffiliation"]})
+                sub_extensions.append({"url": "tribalAffiliation", "valueCodeableConcept": value["tribalAffiliation"]})
             if value.get("isEnrolled") is not None:
-                sub_extensions.append({"url": "isEnrolled", "value_boolean": value["isEnrolled"]})
+                sub_extensions.append({"url": "isEnrolled", "valueBoolean": value["isEnrolled"]})
             push_extension(self._resource, Extension(url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation", extension=sub_extensions))
         return self
 
@@ -204,7 +204,7 @@ class UscorePatientProfile:
             return ext_obj
         if mode == "profile":
             return UscoreIndividualSexExtension.apply(ext_obj)
-        return cast('Coding | None', get_extension_value(ext, "value_coding"))
+        return cast('Coding | None', get_extension_value(ext, "valueCoding"))
 
     def set_sex(self, value: "UscoreIndividualSexExtension | Extension | Any") -> "UscorePatientProfile":
         if isinstance(value, UscoreIndividualSexExtension):
@@ -214,7 +214,7 @@ class UscorePatientProfile:
                 raise ValueError(f"Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
-            push_extension(self._resource, Extension(url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex", value_coding=value))
+            push_extension(self._resource, Extension(url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex", valueCoding=value))
         return self
 
     @overload
@@ -233,7 +233,7 @@ class UscorePatientProfile:
             return ext_obj
         if mode == "profile":
             return UscoreInterpreterNeededExtension.apply(ext_obj)
-        return cast('Coding | None', get_extension_value(ext, "value_coding"))
+        return cast('Coding | None', get_extension_value(ext, "valueCoding"))
 
     def set_interpreter_required(self, value: "UscoreInterpreterNeededExtension | Extension | Any") -> "UscorePatientProfile":
         if isinstance(value, UscoreInterpreterNeededExtension):
@@ -243,7 +243,7 @@ class UscorePatientProfile:
                 raise ValueError(f"Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
-            push_extension(self._resource, Extension(url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed", value_coding=value))
+            push_extension(self._resource, Extension(url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed", valueCoding=value))
         return self
 
     def validate(self) -> dict[str, list[str]]:
@@ -252,7 +252,7 @@ class UscorePatientProfile:
         warnings: list[str] = []
         errors.extend(validate_required(self._resource, profile_name, "identifier"))
         errors.extend(validate_required(self._resource, profile_name, "name"))
-        warnings.extend(validate_must_support(self._resource, profile_name, "birth_date"))
+        warnings.extend(validate_must_support(self._resource, profile_name, "birthDate"))
         warnings.extend(validate_must_support(self._resource, profile_name, "address"))
         return {"errors": errors, "warnings": warnings}
 

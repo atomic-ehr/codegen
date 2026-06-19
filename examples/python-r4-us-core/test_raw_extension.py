@@ -22,25 +22,25 @@ def create_patient_with_extensions() -> Patient:
         extension=[
             Extension(
                 url="http://example.org/fhir/StructureDefinition/name-verified",
-                value_boolean=True,
+                valueBoolean=True,
             )
         ],
         family="van Beethoven",
-        family_extension=Element(
+        familyExtension=Element(
             extension=[
                 Extension(
                     url="http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
-                    value_string="van",
+                    valueString="van",
                 ),
             ],
         ),
         given=["Ludwig", "Maria", "Johann"],
-        given_extension=[
+        givenExtension=[
             Element(
                 extension=[
                     Extension(
                         url="http://example.org/fhir/StructureDefinition/name-source",
-                        value_code="birth-certificate",
+                        valueCode="birth-certificate",
                     ),
                 ],
             ),
@@ -49,7 +49,7 @@ def create_patient_with_extensions() -> Patient:
                 extension=[
                     Extension(
                         url="http://example.org/fhir/StructureDefinition/name-source",
-                        value_code="baptism-record",
+                        valueCode="baptism-record",
                     ),
                 ],
             ),
@@ -60,7 +60,7 @@ def create_patient_with_extensions() -> Patient:
         extension=[
             Extension(
                 url="http://example.org/fhir/StructureDefinition/contact-priority",
-                value_integer=1,
+                valueInteger=1,
             )
         ],
         name=HumanName(family="Watson", given=["John"]),
@@ -72,21 +72,21 @@ def create_patient_with_extensions() -> Patient:
         extension=[
             Extension(
                 url="http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
-                value_address=Address(city="Springfield", country="US"),
+                valueAddress=Address(city="Springfield", country="US"),
             ),
         ],
-        modifier_extension=[
+        modifierExtension=[
             Extension(
                 url="http://example.org/fhir/StructureDefinition/do-not-contact",
-                value_boolean=False,
+                valueBoolean=False,
             ),
         ],
-        birth_date="1990-03-15",
-        birth_date_extension=Element(
+        birthDate="1990-03-15",
+        birthDateExtension=Element(
             extension=[
                 Extension(
                     url="http://hl7.org/fhir/StructureDefinition/patient-birthTime",
-                    value_date_time="1990-03-15T08:22:00-05:00",
+                    valueDateTime="1990-03-15T08:22:00-05:00",
                 ),
             ],
         ),
@@ -110,11 +110,11 @@ def test_read_resource_level_extension() -> None:
 
     assert patient.extension is not None
     assert patient.extension[0].url == "http://hl7.org/fhir/StructureDefinition/patient-birthPlace"
-    assert patient.extension[0].value_address is not None
-    assert patient.extension[0].value_address.city == "Springfield"
+    assert patient.extension[0].valueAddress is not None
+    assert patient.extension[0].valueAddress.city == "Springfield"
 
-    assert patient.modifier_extension is not None
-    assert patient.modifier_extension[0].value_boolean is False
+    assert patient.modifierExtension is not None
+    assert patient.modifierExtension[0].valueBoolean is False
 
 
 def test_read_element_level_extension() -> None:
@@ -124,29 +124,29 @@ def test_read_element_level_extension() -> None:
     name = patient.name[0]
     assert name.extension is not None
     assert name.extension[0].url == "http://example.org/fhir/StructureDefinition/name-verified"
-    assert name.extension[0].value_boolean is True
+    assert name.extension[0].valueBoolean is True
 
     assert patient.contact is not None
     contact = patient.contact[0]
     assert contact.extension is not None
-    assert contact.extension[0].value_integer == 1
+    assert contact.extension[0].valueInteger == 1
 
 
 def test_read_primitive_extension() -> None:
     patient = create_patient_with_extensions()
 
     name = patient.name[0]
-    assert isinstance(name.family_extension, Element)
-    assert name.family_extension.extension[0].value_string == "van"
+    assert isinstance(name.familyExtension, Element)
+    assert name.familyExtension.extension[0].valueString == "van"
 
-    assert isinstance(name.given_extension, list)
-    assert name.given_extension[0].extension[0].value_code == "birth-certificate"
-    assert name.given_extension[1] is None
-    assert name.given_extension[2].extension[0].value_code == "baptism-record"
+    assert isinstance(name.givenExtension, list)
+    assert name.givenExtension[0].extension[0].valueCode == "birth-certificate"
+    assert name.givenExtension[1] is None
+    assert name.givenExtension[2].extension[0].valueCode == "baptism-record"
 
-    assert patient.birth_date_extension is not None
-    assert isinstance(patient.birth_date_extension, Element)
-    assert patient.birth_date_extension.extension[0].value_date_time == "1990-03-15T08:22:00-05:00"
+    assert patient.birthDateExtension is not None
+    assert isinstance(patient.birthDateExtension, Element)
+    assert patient.birthDateExtension.extension[0].valueDateTime == "1990-03-15T08:22:00-05:00"
 
 
 def test_primitive_extension_survives_round_trip() -> None:
@@ -154,11 +154,11 @@ def test_primitive_extension_survives_round_trip() -> None:
     patient = create_patient_with_extensions()
     restored = Patient.from_json(patient.to_json())
 
-    assert restored.birth_date == "1990-03-15"
+    assert restored.birthDate == "1990-03-15"
     assert restored.extension is not None
-    assert restored.extension[0].value_address is not None
-    assert restored.extension[0].value_address.city == "Springfield"
+    assert restored.extension[0].valueAddress is not None
+    assert restored.extension[0].valueAddress.city == "Springfield"
 
-    assert restored.birth_date_extension is not None
-    assert isinstance(restored.birth_date_extension, Element)
-    assert restored.birth_date_extension.extension[0].value_date_time == "1990-03-15T08:22:00-05:00"
+    assert restored.birthDateExtension is not None
+    assert isinstance(restored.birthDateExtension, Element)
+    assert restored.birthDateExtension.extension[0].valueDateTime == "1990-03-15T08:22:00-05:00"

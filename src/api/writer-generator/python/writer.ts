@@ -625,7 +625,7 @@ export class Python extends Writer<PythonGeneratorOptions> {
     private generateResourceMethods(_schema: SpecializationTypeSchema): void {
         this.line();
         this.line("def model_post_init(self, __context: Any) -> None:");
-        this.line('    self.__pydantic_fields_set__.add("resource_type")');
+        this.line(`    self.__pydantic_fields_set__.add("${this.nameFormatFunction("resourceType")}")`);
         this.line();
         this.line("def to_json(self, indent: int | None = None) -> str:");
         this.line("    return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)");

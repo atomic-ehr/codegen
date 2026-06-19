@@ -32,7 +32,7 @@ async def created_patient(client: AsyncFHIRClient) -> AsyncIterator[Patient]:
     patient = Patient(
         name=[HumanName(given=["Test"], family="FhirpyPatient")],
         gender="female",
-        birth_date="1980-01-01",
+        birthDate="1980-01-01",
     )
     created = await client.create(patient)
     yield created
@@ -48,7 +48,7 @@ async def test_create_patient(client: AsyncFHIRClient) -> None:
     patient = Patient(
         name=[HumanName(given=["Create"], family="Test")],
         gender="female",
-        birth_date="1980-01-01",
+        birthDate="1980-01-01",
     )
 
     created = await client.create(patient)
@@ -56,7 +56,7 @@ async def test_create_patient(client: AsyncFHIRClient) -> None:
     assert created.name is not None
     assert created.name[0].family == "Test"
     assert created.gender == "female"
-    assert created.birth_date == "1980-01-01"
+    assert created.birthDate == "1980-01-01"
 
     await client.delete(f"Patient/{created.id}")
 
@@ -90,7 +90,7 @@ async def test_search_returns_typed_resources(client: AsyncFHIRClient, created_p
     patients = await client.resources(Patient).fetch()
     for p in patients:
         assert isinstance(p, Patient)
-        assert p.resource_type == "Patient"
+        assert p.resourceType == "Patient"
 
 
 @pytest.mark.asyncio
@@ -146,7 +146,7 @@ def test_to_from_json() -> None:
     p = Patient(
         name=[HumanName(given=["Test"], family="Patient")],
         gender="female",
-        birth_date="1980-01-01",
+        birthDate="1980-01-01",
     )
     json = p.to_json(indent=2)
     p2 = Patient.from_json(json)

@@ -73,7 +73,7 @@ describe("Python Writer Generator", async () => {
         const patientPy = files["generated/hl7_fhir_r4_core/patient.py"];
         it("generates CodeableConcept fields with enum bindings", () => {
             expect(patientPy).toContain(
-                'marital_status: CodeableConcept[Literal["A", "D", "I", "L", "M", "P", "S", "T", "U", "W", "UNK"] | str] | None',
+                'maritalStatus: CodeableConcept[Literal["A", "D", "I", "L", "M", "P", "S", "T", "U", "W", "UNK"] | str] | None',
             );
         });
         it("matches snapshot", () => {

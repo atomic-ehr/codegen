@@ -52,7 +52,7 @@ class ExampleTypedBundleProfile:
     def create_resource(cls, *, type: Literal["document", "message", "transaction", "transaction-response", "batch", "batch-response", "history", "searchset", "collection"]) -> Bundle[Patient | Organization, Resource]:
         return build_resource(
             Bundle,
-            resource_type="Bundle",
+            resourceType="Bundle",
             type=type,
             meta={"profile": [cls.canonical_url]},
         )

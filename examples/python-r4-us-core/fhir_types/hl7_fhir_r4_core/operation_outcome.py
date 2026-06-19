@@ -24,7 +24,7 @@ class OperationOutcomeIssue(BackboneElement):
 
 class OperationOutcome(DomainResource):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    resource_type: Literal['OperationOutcome'] = Field(
+    resourceType: Literal['OperationOutcome'] = Field(
         default='OperationOutcome',
         alias='resourceType',
         serialization_alias='resourceType',
@@ -33,7 +33,7 @@ class OperationOutcome(DomainResource):
     issue: PyList[OperationOutcomeIssue] = Field(alias="issue", serialization_alias="issue")
 
     def model_post_init(self, __context: Any) -> None:
-        self.__pydantic_fields_set__.add("resource_type")
+        self.__pydantic_fields_set__.add("resourceType")
 
     def to_json(self, indent: int | None = None) -> str:
         return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)

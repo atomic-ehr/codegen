@@ -37,21 +37,21 @@ class BirthPlaceExtension:
         return cls(resource)
 
     @classmethod
-    def create_resource(cls, *, value_address: Address) -> Extension:
-        return build_resource(Extension, url="http://hl7.org/fhir/StructureDefinition/patient-birthPlace", value_address=value_address)
+    def create_resource(cls, *, valueAddress: Address) -> Extension:
+        return build_resource(Extension, url="http://hl7.org/fhir/StructureDefinition/patient-birthPlace", valueAddress=valueAddress)
 
     @classmethod
-    def create(cls, *, value_address: Address) -> "BirthPlaceExtension":
-        return cls.apply(cls.create_resource(value_address=value_address))
+    def create(cls, *, valueAddress: Address) -> "BirthPlaceExtension":
+        return cls.apply(cls.create_resource(valueAddress=valueAddress))
 
     def to_resource(self) -> Extension:
         return self._resource
 
     def get_value_address(self) -> Address | None:
-        return cast('Address | None', getattr(self._resource, "value_address", None))
+        return cast('Address | None', getattr(self._resource, "valueAddress", None))
 
     def set_value_address(self, value: Address) -> "BirthPlaceExtension":
-        setattr(self._resource, "value_address", value)
+        setattr(self._resource, "valueAddress", value)
         return self
 
     def get_url(self) -> str | None:
@@ -67,6 +67,6 @@ class BirthPlaceExtension:
         warnings: list[str] = []
         errors.extend(validate_required(self._resource, profile_name, "url"))
         errors.extend(validate_fixed_value(self._resource, profile_name, "url", "http://hl7.org/fhir/StructureDefinition/patient-birthPlace"))
-        errors.extend(validate_choice_required(self._resource, profile_name, ["value_address"]))
+        errors.extend(validate_choice_required(self._resource, profile_name, ["valueAddress"]))
         return {"errors": errors, "warnings": warnings}
 

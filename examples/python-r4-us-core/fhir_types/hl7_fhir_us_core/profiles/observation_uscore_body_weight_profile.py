@@ -53,7 +53,7 @@ class UscoreBodyWeightProfile:
 
         return build_resource(
             Observation,
-            resource_type="Observation",
+            resourceType="Observation",
             code={"coding":[{"system":"http://loinc.org","code":"29463-7"}]},
             category=category_with_defaults,
             status=status,
@@ -97,96 +97,96 @@ class UscoreBodyWeightProfile:
         return self
 
     def get_effective_date_time(self) -> str | None:
-        return cast('str | None', getattr(self._resource, "effective_date_time", None))
+        return cast('str | None', getattr(self._resource, "effectiveDateTime", None))
 
     def set_effective_date_time(self, value: str) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "effective_period", None)
-        setattr(self._resource, "effective_date_time", value)
+        setattr(self._resource, "effectivePeriod", None)
+        setattr(self._resource, "effectiveDateTime", value)
         return self
 
     def get_effective_period(self) -> Period | None:
-        return cast('Period | None', getattr(self._resource, "effective_period", None))
+        return cast('Period | None', getattr(self._resource, "effectivePeriod", None))
 
     def set_effective_period(self, value: Period) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "effective_date_time", None)
-        setattr(self._resource, "effective_period", value)
+        setattr(self._resource, "effectiveDateTime", None)
+        setattr(self._resource, "effectivePeriod", value)
         return self
 
     def get_value_quantity(self) -> Quantity | None:
-        return cast('Quantity | None', getattr(self._resource, "value_quantity", None))
+        return cast('Quantity | None', getattr(self._resource, "valueQuantity", None))
 
     def set_value_quantity(self, value: Quantity) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_quantity", value)
+        setattr(self._resource, "valueQuantity", value)
         return self
 
     def get_value_codeable_concept(self) -> CodeableConcept | None:
-        return cast('CodeableConcept | None', getattr(self._resource, "value_codeable_concept", None))
+        return cast('CodeableConcept | None', getattr(self._resource, "valueCodeableConcept", None))
 
     def set_value_codeable_concept(self, value: CodeableConcept) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_codeable_concept", value)
+        setattr(self._resource, "valueCodeableConcept", value)
         return self
 
     def get_value_string(self) -> str | None:
-        return cast('str | None', getattr(self._resource, "value_string", None))
+        return cast('str | None', getattr(self._resource, "valueString", None))
 
     def set_value_string(self, value: str) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_string", value)
+        setattr(self._resource, "valueString", value)
         return self
 
     def get_value_boolean(self) -> bool | None:
-        return cast('bool | None', getattr(self._resource, "value_boolean", None))
+        return cast('bool | None', getattr(self._resource, "valueBoolean", None))
 
     def set_value_boolean(self, value: bool) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_boolean", value)
+        setattr(self._resource, "valueBoolean", value)
         return self
 
     def get_value_integer(self) -> int | None:
-        return cast('int | None', getattr(self._resource, "value_integer", None))
+        return cast('int | None', getattr(self._resource, "valueInteger", None))
 
     def set_value_integer(self, value: int) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_integer", value)
+        setattr(self._resource, "valueInteger", value)
         return self
 
     def get_value_range(self) -> Range | None:
-        return cast('Range | None', getattr(self._resource, "value_range", None))
+        return cast('Range | None', getattr(self._resource, "valueRange", None))
 
     def set_value_range(self, value: Range) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_range", value)
+        setattr(self._resource, "valueRange", value)
         return self
 
     def get_value_ratio(self) -> Ratio | None:
-        return cast('Ratio | None', getattr(self._resource, "value_ratio", None))
+        return cast('Ratio | None', getattr(self._resource, "valueRatio", None))
 
     def set_value_ratio(self, value: Ratio) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_ratio", value)
+        setattr(self._resource, "valueRatio", value)
         return self
 
     def get_value_sampled_data(self) -> SampledData | None:
-        return cast('SampledData | None', getattr(self._resource, "value_sampled_data", None))
+        return cast('SampledData | None', getattr(self._resource, "valueSampledData", None))
 
     def set_value_sampled_data(self, value: SampledData) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_sampled_data", value)
+        setattr(self._resource, "valueSampledData", value)
         return self
 
     def get_value_time(self) -> str | None:
-        return cast('str | None', getattr(self._resource, "value_time", None))
+        return cast('str | None', getattr(self._resource, "valueTime", None))
 
     def set_value_time(self, value: str) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_time", value)
+        setattr(self._resource, "valueTime", value)
         return self
 
     def get_value_date_time(self) -> str | None:
-        return cast('str | None', getattr(self._resource, "value_date_time", None))
+        return cast('str | None', getattr(self._resource, "valueDateTime", None))
 
     def set_value_date_time(self, value: str) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_date_time", value)
+        setattr(self._resource, "valueDateTime", value)
         return self
 
     def get_value_period(self) -> Period | None:
-        return cast('Period | None', getattr(self._resource, "value_period", None))
+        return cast('Period | None', getattr(self._resource, "valuePeriod", None))
 
     def set_value_period(self, value: Period) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_period", value)
+        setattr(self._resource, "valuePeriod", value)
         return self
 
     @overload
@@ -222,24 +222,24 @@ class UscoreBodyWeightProfile:
         errors.extend(validate_fixed_value(self._resource, profile_name, "code", {"coding":[{"system":"http://loinc.org","code":"29463-7"}]}))
         errors.extend(validate_required(self._resource, profile_name, "subject"))
         errors.extend(validate_reference(self._resource, profile_name, "subject", ["Patient"]))
-        errors.extend(validate_choice_required(self._resource, profile_name, ["effective_date_time","effective_period"]))
-        errors.extend(validate_reference(self._resource, profile_name, "has_member", ["MolecularSequence","QuestionnaireResponse","Observation"]))
-        errors.extend(validate_reference(self._resource, profile_name, "derived_from", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]))
+        errors.extend(validate_choice_required(self._resource, profile_name, ["effectiveDateTime","effectivePeriod"]))
+        errors.extend(validate_reference(self._resource, profile_name, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]))
+        errors.extend(validate_reference(self._resource, profile_name, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]))
         errors.extend(validate_reference(self._resource, profile_name, "performer", ["PractitionerRole","USCoreCareTeam","USCoreOrganizationProfile","Patient","USCorePractitionerProfile","USCoreRelatedPersonProfile"]))
-        errors.extend(validate_excluded(self._resource, profile_name, "value_codeable_concept"))
-        errors.extend(validate_excluded(self._resource, profile_name, "value_string"))
-        errors.extend(validate_excluded(self._resource, profile_name, "value_boolean"))
-        errors.extend(validate_excluded(self._resource, profile_name, "value_integer"))
-        errors.extend(validate_excluded(self._resource, profile_name, "value_range"))
-        errors.extend(validate_excluded(self._resource, profile_name, "value_ratio"))
-        errors.extend(validate_excluded(self._resource, profile_name, "value_sampled_data"))
-        errors.extend(validate_excluded(self._resource, profile_name, "value_time"))
-        errors.extend(validate_excluded(self._resource, profile_name, "value_date_time"))
-        errors.extend(validate_excluded(self._resource, profile_name, "value_period"))
+        errors.extend(validate_excluded(self._resource, profile_name, "valueCodeableConcept"))
+        errors.extend(validate_excluded(self._resource, profile_name, "valueString"))
+        errors.extend(validate_excluded(self._resource, profile_name, "valueBoolean"))
+        errors.extend(validate_excluded(self._resource, profile_name, "valueInteger"))
+        errors.extend(validate_excluded(self._resource, profile_name, "valueRange"))
+        errors.extend(validate_excluded(self._resource, profile_name, "valueRatio"))
+        errors.extend(validate_excluded(self._resource, profile_name, "valueSampledData"))
+        errors.extend(validate_excluded(self._resource, profile_name, "valueTime"))
+        errors.extend(validate_excluded(self._resource, profile_name, "valueDateTime"))
+        errors.extend(validate_excluded(self._resource, profile_name, "valuePeriod"))
         warnings.extend(validate_enum(self._resource, profile_name, "category", ["social-history","vital-signs","imaging","laboratory","procedure","survey","exam","therapy","activity"]))
         warnings.extend(validate_enum(self._resource, profile_name, "code", ["2708-6","29463-7","3140-1","3150-0","3151-8","39156-5","59408-5","59575-1","59576-9","77606-2","8287-5","8289-1","8302-2","8306-3","8310-5","8462-4","8478-0","8480-6","8867-4","9279-1","9843-4"]))
-        warnings.extend(validate_enum(self._resource, profile_name, "data_absent_reason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]))
-        warnings.extend(validate_must_support(self._resource, profile_name, "data_absent_reason"))
+        warnings.extend(validate_enum(self._resource, profile_name, "dataAbsentReason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]))
+        warnings.extend(validate_must_support(self._resource, profile_name, "dataAbsentReason"))
         warnings.extend(validate_must_support(self._resource, profile_name, "performer"))
         return {"errors": errors, "warnings": warnings}
 

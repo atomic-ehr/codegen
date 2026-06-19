@@ -32,7 +32,7 @@ T2 = TypeVar('T2', bound=Resource, default=Resource)
 
 class BundleEntry(BackboneElement, Generic[T1, T2]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    full_url: str | None = Field(None, alias="fullUrl", serialization_alias="fullUrl")
+    fullUrl: str | None = Field(None, alias="fullUrl", serialization_alias="fullUrl")
     link: PyList[BundleLink] | None = Field(None, alias="link", serialization_alias="link")
     request: BundleEntryRequest | None = Field(None, alias="request", serialization_alias="request")
     resource: T1 | None = Field(None, alias="resource", serialization_alias="resource")
@@ -48,17 +48,17 @@ class BundleEntry(BackboneElement, Generic[T1, T2]):
 
 class BundleEntryRequest(BackboneElement):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    if_match: str | None = Field(None, alias="ifMatch", serialization_alias="ifMatch")
-    if_modified_since: str | None = Field(None, alias="ifModifiedSince", serialization_alias="ifModifiedSince")
-    if_none_exist: str | None = Field(None, alias="ifNoneExist", serialization_alias="ifNoneExist")
-    if_none_match: str | None = Field(None, alias="ifNoneMatch", serialization_alias="ifNoneMatch")
+    ifMatch: str | None = Field(None, alias="ifMatch", serialization_alias="ifMatch")
+    ifModifiedSince: str | None = Field(None, alias="ifModifiedSince", serialization_alias="ifModifiedSince")
+    ifNoneExist: str | None = Field(None, alias="ifNoneExist", serialization_alias="ifNoneExist")
+    ifNoneMatch: str | None = Field(None, alias="ifNoneMatch", serialization_alias="ifNoneMatch")
     method: Literal["GET", "HEAD", "POST", "PUT", "DELETE", "PATCH"] = Field(alias="method", serialization_alias="method")
     url: str = Field(alias="url", serialization_alias="url")
 
 class BundleEntryResponse(BackboneElement, Generic[T]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     etag: str | None = Field(None, alias="etag", serialization_alias="etag")
-    last_modified: str | None = Field(None, alias="lastModified", serialization_alias="lastModified")
+    lastModified: str | None = Field(None, alias="lastModified", serialization_alias="lastModified")
     location: str | None = Field(None, alias="location", serialization_alias="location")
     outcome: T | None = Field(None, alias="outcome", serialization_alias="outcome")
     status: str = Field(alias="status", serialization_alias="status")
@@ -83,7 +83,7 @@ class BundleLink(BackboneElement):
 
 class Bundle(Resource, Generic[T1, T2]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    resource_type: Literal['Bundle'] = Field(
+    resourceType: Literal['Bundle'] = Field(
         default='Bundle',
         alias='resourceType',
         serialization_alias='resourceType',
@@ -99,7 +99,7 @@ class Bundle(Resource, Generic[T1, T2]):
     type: Literal["document", "message", "transaction", "transaction-response", "batch", "batch-response", "history", "searchset", "collection"] = Field(alias="type", serialization_alias="type")
 
     def model_post_init(self, __context: Any) -> None:
-        self.__pydantic_fields_set__.add("resource_type")
+        self.__pydantic_fields_set__.add("resourceType")
 
     def to_json(self, indent: int | None = None) -> str:
         return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)
@@ -157,7 +157,7 @@ class PatientLink(BackboneElement):
 
 class Patient(DomainResource):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    resource_type: Literal['Patient'] = Field(
+    resourceType: Literal['Patient'] = Field(
         default='Patient',
         alias='resourceType',
         serialization_alias='resourceType',
@@ -166,25 +166,25 @@ class Patient(DomainResource):
     )
     active: bool | None = Field(None, alias="active", serialization_alias="active")
     address: PyList[Address] | None = Field(None, alias="address", serialization_alias="address")
-    birth_date: str | None = Field(None, alias="birthDate", serialization_alias="birthDate")
+    birthDate: str | None = Field(None, alias="birthDate", serialization_alias="birthDate")
     communication: PyList[PatientCommunication] | None = Field(None, alias="communication", serialization_alias="communication")
     contact: PyList[PatientContact] | None = Field(None, alias="contact", serialization_alias="contact")
-    deceased_boolean: bool | None = Field(None, alias="deceasedBoolean", serialization_alias="deceasedBoolean")
-    deceased_date_time: str | None = Field(None, alias="deceasedDateTime", serialization_alias="deceasedDateTime")
+    deceasedBoolean: bool | None = Field(None, alias="deceasedBoolean", serialization_alias="deceasedBoolean")
+    deceasedDateTime: str | None = Field(None, alias="deceasedDateTime", serialization_alias="deceasedDateTime")
     gender: Literal["male", "female", "other", "unknown"] | None = Field(None, alias="gender", serialization_alias="gender")
-    general_practitioner: PyList[Reference] | None = Field(None, alias="generalPractitioner", serialization_alias="generalPractitioner")
+    generalPractitioner: PyList[Reference] | None = Field(None, alias="generalPractitioner", serialization_alias="generalPractitioner")
     identifier: PyList[Identifier] | None = Field(None, alias="identifier", serialization_alias="identifier")
     link: PyList[PatientLink] | None = Field(None, alias="link", serialization_alias="link")
-    managing_organization: Reference | None = Field(None, alias="managingOrganization", serialization_alias="managingOrganization")
-    marital_status: CodeableConcept[Literal["A", "D", "I", "L", "M", "P", "S", "T", "U", "W", "UNK"] | str] | None = Field(None, alias="maritalStatus", serialization_alias="maritalStatus")
-    multiple_birth_boolean: bool | None = Field(None, alias="multipleBirthBoolean", serialization_alias="multipleBirthBoolean")
-    multiple_birth_integer: int | None = Field(None, alias="multipleBirthInteger", serialization_alias="multipleBirthInteger")
+    managingOrganization: Reference | None = Field(None, alias="managingOrganization", serialization_alias="managingOrganization")
+    maritalStatus: CodeableConcept[Literal["A", "D", "I", "L", "M", "P", "S", "T", "U", "W", "UNK"] | str] | None = Field(None, alias="maritalStatus", serialization_alias="maritalStatus")
+    multipleBirthBoolean: bool | None = Field(None, alias="multipleBirthBoolean", serialization_alias="multipleBirthBoolean")
+    multipleBirthInteger: int | None = Field(None, alias="multipleBirthInteger", serialization_alias="multipleBirthInteger")
     name: PyList[HumanName] | None = Field(None, alias="name", serialization_alias="name")
     photo: PyList[Attachment] | None = Field(None, alias="photo", serialization_alias="photo")
     telecom: PyList[ContactPoint] | None = Field(None, alias="telecom", serialization_alias="telecom")
 
     def model_post_init(self, __context: Any) -> None:
-        self.__pydantic_fields_set__.add("resource_type")
+        self.__pydantic_fields_set__.add("resourceType")
 
     def to_json(self, indent: int | None = None) -> str:
         return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)
@@ -217,7 +217,7 @@ T2 = TypeVar('T2', bound=Resource, default=Resource)
 
 class BundleEntry(BackboneElement, Generic[T1, T2]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    full_url: str | None = Field(None, alias="fullUrl", serialization_alias="fullUrl")
+    fullUrl: str | None = Field(None, alias="fullUrl", serialization_alias="fullUrl")
     link: PyList[BundleLink] | None = Field(None, alias="link", serialization_alias="link")
     request: BundleEntryRequest | None = Field(None, alias="request", serialization_alias="request")
     resource: T1 | None = Field(None, alias="resource", serialization_alias="resource")
@@ -233,17 +233,17 @@ class BundleEntry(BackboneElement, Generic[T1, T2]):
 
 class BundleEntryRequest(BackboneElement):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    if_match: str | None = Field(None, alias="ifMatch", serialization_alias="ifMatch")
-    if_modified_since: str | None = Field(None, alias="ifModifiedSince", serialization_alias="ifModifiedSince")
-    if_none_exist: str | None = Field(None, alias="ifNoneExist", serialization_alias="ifNoneExist")
-    if_none_match: str | None = Field(None, alias="ifNoneMatch", serialization_alias="ifNoneMatch")
+    ifMatch: str | None = Field(None, alias="ifMatch", serialization_alias="ifMatch")
+    ifModifiedSince: str | None = Field(None, alias="ifModifiedSince", serialization_alias="ifModifiedSince")
+    ifNoneExist: str | None = Field(None, alias="ifNoneExist", serialization_alias="ifNoneExist")
+    ifNoneMatch: str | None = Field(None, alias="ifNoneMatch", serialization_alias="ifNoneMatch")
     method: Literal["GET", "HEAD", "POST", "PUT", "DELETE", "PATCH"] = Field(alias="method", serialization_alias="method")
     url: str = Field(alias="url", serialization_alias="url")
 
 class BundleEntryResponse(BackboneElement, Generic[T]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     etag: str | None = Field(None, alias="etag", serialization_alias="etag")
-    last_modified: str | None = Field(None, alias="lastModified", serialization_alias="lastModified")
+    lastModified: str | None = Field(None, alias="lastModified", serialization_alias="lastModified")
     location: str | None = Field(None, alias="location", serialization_alias="location")
     outcome: T | None = Field(None, alias="outcome", serialization_alias="outcome")
     status: str = Field(alias="status", serialization_alias="status")
@@ -268,7 +268,7 @@ class BundleLink(BackboneElement):
 
 class Bundle(Resource, Generic[T1, T2]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    resource_type: Literal['Bundle'] = Field(
+    resourceType: Literal['Bundle'] = Field(
         default='Bundle',
         alias='resourceType',
         serialization_alias='resourceType',
@@ -284,7 +284,7 @@ class Bundle(Resource, Generic[T1, T2]):
     type: Literal["document", "message", "transaction", "transaction-response", "batch", "batch-response", "history", "searchset", "collection"] = Field(alias="type", serialization_alias="type")
 
     def model_post_init(self, __context: Any) -> None:
-        self.__pydantic_fields_set__.add("resource_type")
+        self.__pydantic_fields_set__.add("resourceType")
 
     def to_json(self, indent: int | None = None) -> str:
         return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)
@@ -324,7 +324,7 @@ T2 = TypeVar('T2', bound=Resource, default=Resource)
 
 class BundleEntry(BackboneElement, Generic[T1, T2]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    full_url: str | None = Field(None, alias="fullUrl", serialization_alias="fullUrl")
+    fullUrl: str | None = Field(None, alias="fullUrl", serialization_alias="fullUrl")
     link: PyList[BundleLink] | None = Field(None, alias="link", serialization_alias="link")
     request: BundleEntryRequest | None = Field(None, alias="request", serialization_alias="request")
     resource: T1 | None = Field(None, alias="resource", serialization_alias="resource")
@@ -340,17 +340,17 @@ class BundleEntry(BackboneElement, Generic[T1, T2]):
 
 class BundleEntryRequest(BackboneElement):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    if_match: str | None = Field(None, alias="ifMatch", serialization_alias="ifMatch")
-    if_modified_since: str | None = Field(None, alias="ifModifiedSince", serialization_alias="ifModifiedSince")
-    if_none_exist: str | None = Field(None, alias="ifNoneExist", serialization_alias="ifNoneExist")
-    if_none_match: str | None = Field(None, alias="ifNoneMatch", serialization_alias="ifNoneMatch")
+    ifMatch: str | None = Field(None, alias="ifMatch", serialization_alias="ifMatch")
+    ifModifiedSince: str | None = Field(None, alias="ifModifiedSince", serialization_alias="ifModifiedSince")
+    ifNoneExist: str | None = Field(None, alias="ifNoneExist", serialization_alias="ifNoneExist")
+    ifNoneMatch: str | None = Field(None, alias="ifNoneMatch", serialization_alias="ifNoneMatch")
     method: Literal["GET", "HEAD", "POST", "PUT", "DELETE", "PATCH"] = Field(alias="method", serialization_alias="method")
     url: str = Field(alias="url", serialization_alias="url")
 
 class BundleEntryResponse(BackboneElement, Generic[T]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     etag: str | None = Field(None, alias="etag", serialization_alias="etag")
-    last_modified: str | None = Field(None, alias="lastModified", serialization_alias="lastModified")
+    lastModified: str | None = Field(None, alias="lastModified", serialization_alias="lastModified")
     location: str | None = Field(None, alias="location", serialization_alias="location")
     outcome: T | None = Field(None, alias="outcome", serialization_alias="outcome")
     status: str = Field(alias="status", serialization_alias="status")
@@ -375,7 +375,7 @@ class BundleLink(BackboneElement):
 
 class Bundle(Resource, Generic[T1, T2]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    resource_type: Literal['Bundle'] = Field(
+    resourceType: Literal['Bundle'] = Field(
         default='Bundle',
         alias='resourceType',
         serialization_alias='resourceType',
@@ -391,7 +391,7 @@ class Bundle(Resource, Generic[T1, T2]):
     type: Literal["document", "message", "transaction", "transaction-response", "batch", "batch-response", "history", "searchset", "collection"] = Field(alias="type", serialization_alias="type")
 
     def model_post_init(self, __context: Any) -> None:
-        self.__pydantic_fields_set__.add("resource_type")
+        self.__pydantic_fields_set__.add("resourceType")
 
     def to_json(self, indent: int | None = None) -> str:
         return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)
@@ -464,7 +464,7 @@ class ObservationBodyweightProfile:
 
         return build_resource(
             Observation,
-            resource_type="Observation",
+            resourceType="Observation",
             code={"coding":[{"code":"29463-7","system":"http://loinc.org"}]},
             category=category_with_defaults,
             status=status,
@@ -508,26 +508,26 @@ class ObservationBodyweightProfile:
         return self
 
     def get_effective_date_time(self) -> str | None:
-        return cast('str | None', getattr(self._resource, "effective_date_time", None))
+        return cast('str | None', getattr(self._resource, "effectiveDateTime", None))
 
     def set_effective_date_time(self, value: str) -> "ObservationBodyweightProfile":
-        setattr(self._resource, "effective_period", None)
-        setattr(self._resource, "effective_date_time", value)
+        setattr(self._resource, "effectivePeriod", None)
+        setattr(self._resource, "effectiveDateTime", value)
         return self
 
     def get_effective_period(self) -> Period | None:
-        return cast('Period | None', getattr(self._resource, "effective_period", None))
+        return cast('Period | None', getattr(self._resource, "effectivePeriod", None))
 
     def set_effective_period(self, value: Period) -> "ObservationBodyweightProfile":
-        setattr(self._resource, "effective_date_time", None)
-        setattr(self._resource, "effective_period", value)
+        setattr(self._resource, "effectiveDateTime", None)
+        setattr(self._resource, "effectivePeriod", value)
         return self
 
     def get_value_quantity(self) -> Quantity | None:
-        return cast('Quantity | None', getattr(self._resource, "value_quantity", None))
+        return cast('Quantity | None', getattr(self._resource, "valueQuantity", None))
 
     def set_value_quantity(self, value: Quantity) -> "ObservationBodyweightProfile":
-        setattr(self._resource, "value_quantity", value)
+        setattr(self._resource, "valueQuantity", value)
         return self
 
     @overload
@@ -563,13 +563,13 @@ class ObservationBodyweightProfile:
         errors.extend(validate_fixed_value(self._resource, profile_name, "code", {"coding":[{"code":"29463-7","system":"http://loinc.org"}]}))
         errors.extend(validate_required(self._resource, profile_name, "subject"))
         errors.extend(validate_reference(self._resource, profile_name, "subject", ["Patient"]))
-        errors.extend(validate_choice_required(self._resource, profile_name, ["effective_date_time","effective_period"]))
-        errors.extend(validate_reference(self._resource, profile_name, "has_member", ["MolecularSequence","QuestionnaireResponse","Observation"]))
-        errors.extend(validate_reference(self._resource, profile_name, "derived_from", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]))
+        errors.extend(validate_choice_required(self._resource, profile_name, ["effectiveDateTime","effectivePeriod"]))
+        errors.extend(validate_reference(self._resource, profile_name, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]))
+        errors.extend(validate_reference(self._resource, profile_name, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]))
         warnings.extend(validate_enum(self._resource, profile_name, "category", ["social-history","vital-signs","imaging","laboratory","procedure","survey","exam","therapy","activity"]))
         warnings.extend(validate_enum(self._resource, profile_name, "code", ["85353-1","9279-1","8867-4","2708-6","8310-5","8302-2","9843-4","29463-7","39156-5","85354-9","8480-6","8462-4","8478-0"]))
-        warnings.extend(validate_enum(self._resource, profile_name, "data_absent_reason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]))
-        warnings.extend(validate_must_support(self._resource, profile_name, "data_absent_reason"))
+        warnings.extend(validate_enum(self._resource, profile_name, "dataAbsentReason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]))
+        warnings.extend(validate_must_support(self._resource, profile_name, "dataAbsentReason"))
         return {"errors": errors, "warnings": warnings}
 
 "
@@ -639,7 +639,7 @@ class ObservationBpProfile:
 
         return build_resource(
             Observation,
-            resource_type="Observation",
+            resourceType="Observation",
             code={"coding":[{"code":"85354-9","system":"http://loinc.org"}]},
             category=category_with_defaults,
             component=component_with_defaults,
@@ -691,26 +691,26 @@ class ObservationBpProfile:
         return self
 
     def get_effective_date_time(self) -> str | None:
-        return cast('str | None', getattr(self._resource, "effective_date_time", None))
+        return cast('str | None', getattr(self._resource, "effectiveDateTime", None))
 
     def set_effective_date_time(self, value: str) -> "ObservationBpProfile":
-        setattr(self._resource, "effective_period", None)
-        setattr(self._resource, "effective_date_time", value)
+        setattr(self._resource, "effectivePeriod", None)
+        setattr(self._resource, "effectiveDateTime", value)
         return self
 
     def get_effective_period(self) -> Period | None:
-        return cast('Period | None', getattr(self._resource, "effective_period", None))
+        return cast('Period | None', getattr(self._resource, "effectivePeriod", None))
 
     def set_effective_period(self, value: Period) -> "ObservationBpProfile":
-        setattr(self._resource, "effective_date_time", None)
-        setattr(self._resource, "effective_period", value)
+        setattr(self._resource, "effectiveDateTime", None)
+        setattr(self._resource, "effectivePeriod", value)
         return self
 
     def get_value_quantity(self) -> Quantity | None:
-        return cast('Quantity | None', getattr(self._resource, "value_quantity", None))
+        return cast('Quantity | None', getattr(self._resource, "valueQuantity", None))
 
     def set_value_quantity(self, value: Quantity) -> "ObservationBpProfile":
-        setattr(self._resource, "value_quantity", value)
+        setattr(self._resource, "valueQuantity", value)
         return self
 
     @overload
@@ -790,15 +790,15 @@ class ObservationBpProfile:
         errors.extend(validate_fixed_value(self._resource, profile_name, "code", {"coding":[{"code":"85354-9","system":"http://loinc.org"}]}))
         errors.extend(validate_required(self._resource, profile_name, "subject"))
         errors.extend(validate_reference(self._resource, profile_name, "subject", ["Patient"]))
-        errors.extend(validate_choice_required(self._resource, profile_name, ["effective_date_time","effective_period"]))
-        errors.extend(validate_reference(self._resource, profile_name, "has_member", ["MolecularSequence","QuestionnaireResponse","Observation"]))
-        errors.extend(validate_reference(self._resource, profile_name, "derived_from", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]))
+        errors.extend(validate_choice_required(self._resource, profile_name, ["effectiveDateTime","effectivePeriod"]))
+        errors.extend(validate_reference(self._resource, profile_name, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]))
+        errors.extend(validate_reference(self._resource, profile_name, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]))
         errors.extend(validate_slice_cardinality(self._resource, profile_name, "component", {"code":{"coding":[{"code":"8480-6","system":"http://loinc.org"}]}}, "SystolicBP", 1, 1))
         errors.extend(validate_slice_cardinality(self._resource, profile_name, "component", {"code":{"coding":[{"code":"8462-4","system":"http://loinc.org"}]}}, "DiastolicBP", 1, 1))
         warnings.extend(validate_enum(self._resource, profile_name, "category", ["social-history","vital-signs","imaging","laboratory","procedure","survey","exam","therapy","activity"]))
         warnings.extend(validate_enum(self._resource, profile_name, "code", ["85353-1","9279-1","8867-4","2708-6","8310-5","8302-2","9843-4","29463-7","39156-5","85354-9","8480-6","8462-4","8478-0"]))
-        warnings.extend(validate_enum(self._resource, profile_name, "data_absent_reason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]))
-        warnings.extend(validate_must_support(self._resource, profile_name, "data_absent_reason"))
+        warnings.extend(validate_enum(self._resource, profile_name, "dataAbsentReason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]))
+        warnings.extend(validate_must_support(self._resource, profile_name, "dataAbsentReason"))
         return {"errors": errors, "warnings": warnings}
 
 "
@@ -859,7 +859,7 @@ class UscorePatientProfile:
     def create_resource(cls, *, identifier: list[Identifier], name: list[HumanName]) -> Patient:
         return build_resource(
             Patient,
-            resource_type="Patient",
+            resourceType="Patient",
             identifier=identifier,
             name=name,
             meta={"profile": [cls.canonical_url]},
@@ -902,7 +902,7 @@ class UscorePatientProfile:
             return ext_obj
         if mode == "profile":
             return UscoreRaceExtension.apply(ext_obj)
-        config = [{"name": "ombCategory", "valueField": "value_coding", "isArray": False}, {"name": "detailed", "valueField": "value_coding", "isArray": True}, {"name": "text", "valueField": "value_string", "isArray": False}]
+        config = [{"name": "ombCategory", "valueField": "valueCoding", "isArray": False}, {"name": "detailed", "valueField": "valueCoding", "isArray": True}, {"name": "text", "valueField": "valueString", "isArray": False}]
         return extract_complex_extension(ext, config)
 
     def set_race(self, value: "UscoreRaceExtension | Extension | dict[str, Any]") -> "UscorePatientProfile":
@@ -915,11 +915,11 @@ class UscorePatientProfile:
         else:
             sub_extensions = []
             if value.get("ombCategory") is not None:
-                sub_extensions.append({"url": "ombCategory", "value_coding": value["ombCategory"]})
+                sub_extensions.append({"url": "ombCategory", "valueCoding": value["ombCategory"]})
             for item in value.get("detailed", []):
-                sub_extensions.append({"url": "detailed", "value_coding": item})
+                sub_extensions.append({"url": "detailed", "valueCoding": item})
             if value.get("text") is not None:
-                sub_extensions.append({"url": "text", "value_string": value["text"]})
+                sub_extensions.append({"url": "text", "valueString": value["text"]})
             push_extension(self._resource, Extension(url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-race", extension=sub_extensions))
         return self
 
@@ -939,7 +939,7 @@ class UscorePatientProfile:
             return ext_obj
         if mode == "profile":
             return UscoreEthnicityExtension.apply(ext_obj)
-        config = [{"name": "ombCategory", "valueField": "value_coding", "isArray": False}, {"name": "detailed", "valueField": "value_coding", "isArray": True}, {"name": "text", "valueField": "value_string", "isArray": False}]
+        config = [{"name": "ombCategory", "valueField": "valueCoding", "isArray": False}, {"name": "detailed", "valueField": "valueCoding", "isArray": True}, {"name": "text", "valueField": "valueString", "isArray": False}]
         return extract_complex_extension(ext, config)
 
     def set_ethnicity(self, value: "UscoreEthnicityExtension | Extension | dict[str, Any]") -> "UscorePatientProfile":
@@ -952,11 +952,11 @@ class UscorePatientProfile:
         else:
             sub_extensions = []
             if value.get("ombCategory") is not None:
-                sub_extensions.append({"url": "ombCategory", "value_coding": value["ombCategory"]})
+                sub_extensions.append({"url": "ombCategory", "valueCoding": value["ombCategory"]})
             for item in value.get("detailed", []):
-                sub_extensions.append({"url": "detailed", "value_coding": item})
+                sub_extensions.append({"url": "detailed", "valueCoding": item})
             if value.get("text") is not None:
-                sub_extensions.append({"url": "text", "value_string": value["text"]})
+                sub_extensions.append({"url": "text", "valueString": value["text"]})
             push_extension(self._resource, Extension(url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity", extension=sub_extensions))
         return self
 
@@ -976,7 +976,7 @@ class UscorePatientProfile:
             return ext_obj
         if mode == "profile":
             return UscoreTribalAffiliationExtension.apply(ext_obj)
-        config = [{"name": "tribalAffiliation", "valueField": "value_codeable_concept", "isArray": False}, {"name": "isEnrolled", "valueField": "value_boolean", "isArray": False}]
+        config = [{"name": "tribalAffiliation", "valueField": "valueCodeableConcept", "isArray": False}, {"name": "isEnrolled", "valueField": "valueBoolean", "isArray": False}]
         return extract_complex_extension(ext, config)
 
     def set_tribal_affiliation(self, value: "UscoreTribalAffiliationExtension | Extension | dict[str, Any]") -> "UscorePatientProfile":
@@ -989,9 +989,9 @@ class UscorePatientProfile:
         else:
             sub_extensions = []
             if value.get("tribalAffiliation") is not None:
-                sub_extensions.append({"url": "tribalAffiliation", "value_codeable_concept": value["tribalAffiliation"]})
+                sub_extensions.append({"url": "tribalAffiliation", "valueCodeableConcept": value["tribalAffiliation"]})
             if value.get("isEnrolled") is not None:
-                sub_extensions.append({"url": "isEnrolled", "value_boolean": value["isEnrolled"]})
+                sub_extensions.append({"url": "isEnrolled", "valueBoolean": value["isEnrolled"]})
             push_extension(self._resource, Extension(url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation", extension=sub_extensions))
         return self
 
@@ -1011,7 +1011,7 @@ class UscorePatientProfile:
             return ext_obj
         if mode == "profile":
             return UscoreIndividualSexExtension.apply(ext_obj)
-        return cast('Coding | None', get_extension_value(ext, "value_coding"))
+        return cast('Coding | None', get_extension_value(ext, "valueCoding"))
 
     def set_sex(self, value: "UscoreIndividualSexExtension | Extension | Any") -> "UscorePatientProfile":
         if isinstance(value, UscoreIndividualSexExtension):
@@ -1021,7 +1021,7 @@ class UscorePatientProfile:
                 raise ValueError(f"Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
-            push_extension(self._resource, Extension(url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex", value_coding=value))
+            push_extension(self._resource, Extension(url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex", valueCoding=value))
         return self
 
     @overload
@@ -1040,7 +1040,7 @@ class UscorePatientProfile:
             return ext_obj
         if mode == "profile":
             return UscoreInterpreterNeededExtension.apply(ext_obj)
-        return cast('Coding | None', get_extension_value(ext, "value_coding"))
+        return cast('Coding | None', get_extension_value(ext, "valueCoding"))
 
     def set_interpreter_required(self, value: "UscoreInterpreterNeededExtension | Extension | Any") -> "UscorePatientProfile":
         if isinstance(value, UscoreInterpreterNeededExtension):
@@ -1050,7 +1050,7 @@ class UscorePatientProfile:
                 raise ValueError(f"Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
-            push_extension(self._resource, Extension(url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed", value_coding=value))
+            push_extension(self._resource, Extension(url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed", valueCoding=value))
         return self
 
     def validate(self) -> dict[str, list[str]]:
@@ -1059,7 +1059,7 @@ class UscorePatientProfile:
         warnings: list[str] = []
         errors.extend(validate_required(self._resource, profile_name, "identifier"))
         errors.extend(validate_required(self._resource, profile_name, "name"))
-        warnings.extend(validate_must_support(self._resource, profile_name, "birth_date"))
+        warnings.extend(validate_must_support(self._resource, profile_name, "birthDate"))
         warnings.extend(validate_must_support(self._resource, profile_name, "address"))
         return {"errors": errors, "warnings": warnings}
 
@@ -1130,7 +1130,7 @@ class UscoreBloodPressureProfile:
 
         return build_resource(
             Observation,
-            resource_type="Observation",
+            resourceType="Observation",
             code={"coding":[{"system":"http://loinc.org","code":"85354-9"}]},
             category=category_with_defaults,
             component=component_with_defaults,
@@ -1182,206 +1182,206 @@ class UscoreBloodPressureProfile:
         return self
 
     def get_effective_date_time(self) -> str | None:
-        return cast('str | None', getattr(self._resource, "effective_date_time", None))
+        return cast('str | None', getattr(self._resource, "effectiveDateTime", None))
 
     def set_effective_date_time(self, value: str) -> "UscoreBloodPressureProfile":
-        setattr(self._resource, "effective_period", None)
-        setattr(self._resource, "effective_date_time", value)
+        setattr(self._resource, "effectivePeriod", None)
+        setattr(self._resource, "effectiveDateTime", value)
         return self
 
     def get_effective_period(self) -> Period | None:
-        return cast('Period | None', getattr(self._resource, "effective_period", None))
+        return cast('Period | None', getattr(self._resource, "effectivePeriod", None))
 
     def set_effective_period(self, value: Period) -> "UscoreBloodPressureProfile":
-        setattr(self._resource, "effective_date_time", None)
-        setattr(self._resource, "effective_period", value)
+        setattr(self._resource, "effectiveDateTime", None)
+        setattr(self._resource, "effectivePeriod", value)
         return self
 
     def get_value_quantity(self) -> Quantity | None:
-        return cast('Quantity | None', getattr(self._resource, "value_quantity", None))
+        return cast('Quantity | None', getattr(self._resource, "valueQuantity", None))
 
     def set_value_quantity(self, value: Quantity) -> "UscoreBloodPressureProfile":
-        setattr(self._resource, "value_codeable_concept", None)
-        setattr(self._resource, "value_string", None)
-        setattr(self._resource, "value_boolean", None)
-        setattr(self._resource, "value_integer", None)
-        setattr(self._resource, "value_range", None)
-        setattr(self._resource, "value_ratio", None)
-        setattr(self._resource, "value_sampled_data", None)
-        setattr(self._resource, "value_time", None)
-        setattr(self._resource, "value_date_time", None)
-        setattr(self._resource, "value_period", None)
-        setattr(self._resource, "value_quantity", value)
+        setattr(self._resource, "valueCodeableConcept", None)
+        setattr(self._resource, "valueString", None)
+        setattr(self._resource, "valueBoolean", None)
+        setattr(self._resource, "valueInteger", None)
+        setattr(self._resource, "valueRange", None)
+        setattr(self._resource, "valueRatio", None)
+        setattr(self._resource, "valueSampledData", None)
+        setattr(self._resource, "valueTime", None)
+        setattr(self._resource, "valueDateTime", None)
+        setattr(self._resource, "valuePeriod", None)
+        setattr(self._resource, "valueQuantity", value)
         return self
 
     def get_value_codeable_concept(self) -> CodeableConcept | None:
-        return cast('CodeableConcept | None', getattr(self._resource, "value_codeable_concept", None))
+        return cast('CodeableConcept | None', getattr(self._resource, "valueCodeableConcept", None))
 
     def set_value_codeable_concept(self, value: CodeableConcept) -> "UscoreBloodPressureProfile":
-        setattr(self._resource, "value_quantity", None)
-        setattr(self._resource, "value_string", None)
-        setattr(self._resource, "value_boolean", None)
-        setattr(self._resource, "value_integer", None)
-        setattr(self._resource, "value_range", None)
-        setattr(self._resource, "value_ratio", None)
-        setattr(self._resource, "value_sampled_data", None)
-        setattr(self._resource, "value_time", None)
-        setattr(self._resource, "value_date_time", None)
-        setattr(self._resource, "value_period", None)
-        setattr(self._resource, "value_codeable_concept", value)
+        setattr(self._resource, "valueQuantity", None)
+        setattr(self._resource, "valueString", None)
+        setattr(self._resource, "valueBoolean", None)
+        setattr(self._resource, "valueInteger", None)
+        setattr(self._resource, "valueRange", None)
+        setattr(self._resource, "valueRatio", None)
+        setattr(self._resource, "valueSampledData", None)
+        setattr(self._resource, "valueTime", None)
+        setattr(self._resource, "valueDateTime", None)
+        setattr(self._resource, "valuePeriod", None)
+        setattr(self._resource, "valueCodeableConcept", value)
         return self
 
     def get_value_string(self) -> str | None:
-        return cast('str | None', getattr(self._resource, "value_string", None))
+        return cast('str | None', getattr(self._resource, "valueString", None))
 
     def set_value_string(self, value: str) -> "UscoreBloodPressureProfile":
-        setattr(self._resource, "value_quantity", None)
-        setattr(self._resource, "value_codeable_concept", None)
-        setattr(self._resource, "value_boolean", None)
-        setattr(self._resource, "value_integer", None)
-        setattr(self._resource, "value_range", None)
-        setattr(self._resource, "value_ratio", None)
-        setattr(self._resource, "value_sampled_data", None)
-        setattr(self._resource, "value_time", None)
-        setattr(self._resource, "value_date_time", None)
-        setattr(self._resource, "value_period", None)
-        setattr(self._resource, "value_string", value)
+        setattr(self._resource, "valueQuantity", None)
+        setattr(self._resource, "valueCodeableConcept", None)
+        setattr(self._resource, "valueBoolean", None)
+        setattr(self._resource, "valueInteger", None)
+        setattr(self._resource, "valueRange", None)
+        setattr(self._resource, "valueRatio", None)
+        setattr(self._resource, "valueSampledData", None)
+        setattr(self._resource, "valueTime", None)
+        setattr(self._resource, "valueDateTime", None)
+        setattr(self._resource, "valuePeriod", None)
+        setattr(self._resource, "valueString", value)
         return self
 
     def get_value_boolean(self) -> bool | None:
-        return cast('bool | None', getattr(self._resource, "value_boolean", None))
+        return cast('bool | None', getattr(self._resource, "valueBoolean", None))
 
     def set_value_boolean(self, value: bool) -> "UscoreBloodPressureProfile":
-        setattr(self._resource, "value_quantity", None)
-        setattr(self._resource, "value_codeable_concept", None)
-        setattr(self._resource, "value_string", None)
-        setattr(self._resource, "value_integer", None)
-        setattr(self._resource, "value_range", None)
-        setattr(self._resource, "value_ratio", None)
-        setattr(self._resource, "value_sampled_data", None)
-        setattr(self._resource, "value_time", None)
-        setattr(self._resource, "value_date_time", None)
-        setattr(self._resource, "value_period", None)
-        setattr(self._resource, "value_boolean", value)
+        setattr(self._resource, "valueQuantity", None)
+        setattr(self._resource, "valueCodeableConcept", None)
+        setattr(self._resource, "valueString", None)
+        setattr(self._resource, "valueInteger", None)
+        setattr(self._resource, "valueRange", None)
+        setattr(self._resource, "valueRatio", None)
+        setattr(self._resource, "valueSampledData", None)
+        setattr(self._resource, "valueTime", None)
+        setattr(self._resource, "valueDateTime", None)
+        setattr(self._resource, "valuePeriod", None)
+        setattr(self._resource, "valueBoolean", value)
         return self
 
     def get_value_integer(self) -> int | None:
-        return cast('int | None', getattr(self._resource, "value_integer", None))
+        return cast('int | None', getattr(self._resource, "valueInteger", None))
 
     def set_value_integer(self, value: int) -> "UscoreBloodPressureProfile":
-        setattr(self._resource, "value_quantity", None)
-        setattr(self._resource, "value_codeable_concept", None)
-        setattr(self._resource, "value_string", None)
-        setattr(self._resource, "value_boolean", None)
-        setattr(self._resource, "value_range", None)
-        setattr(self._resource, "value_ratio", None)
-        setattr(self._resource, "value_sampled_data", None)
-        setattr(self._resource, "value_time", None)
-        setattr(self._resource, "value_date_time", None)
-        setattr(self._resource, "value_period", None)
-        setattr(self._resource, "value_integer", value)
+        setattr(self._resource, "valueQuantity", None)
+        setattr(self._resource, "valueCodeableConcept", None)
+        setattr(self._resource, "valueString", None)
+        setattr(self._resource, "valueBoolean", None)
+        setattr(self._resource, "valueRange", None)
+        setattr(self._resource, "valueRatio", None)
+        setattr(self._resource, "valueSampledData", None)
+        setattr(self._resource, "valueTime", None)
+        setattr(self._resource, "valueDateTime", None)
+        setattr(self._resource, "valuePeriod", None)
+        setattr(self._resource, "valueInteger", value)
         return self
 
     def get_value_range(self) -> Range | None:
-        return cast('Range | None', getattr(self._resource, "value_range", None))
+        return cast('Range | None', getattr(self._resource, "valueRange", None))
 
     def set_value_range(self, value: Range) -> "UscoreBloodPressureProfile":
-        setattr(self._resource, "value_quantity", None)
-        setattr(self._resource, "value_codeable_concept", None)
-        setattr(self._resource, "value_string", None)
-        setattr(self._resource, "value_boolean", None)
-        setattr(self._resource, "value_integer", None)
-        setattr(self._resource, "value_ratio", None)
-        setattr(self._resource, "value_sampled_data", None)
-        setattr(self._resource, "value_time", None)
-        setattr(self._resource, "value_date_time", None)
-        setattr(self._resource, "value_period", None)
-        setattr(self._resource, "value_range", value)
+        setattr(self._resource, "valueQuantity", None)
+        setattr(self._resource, "valueCodeableConcept", None)
+        setattr(self._resource, "valueString", None)
+        setattr(self._resource, "valueBoolean", None)
+        setattr(self._resource, "valueInteger", None)
+        setattr(self._resource, "valueRatio", None)
+        setattr(self._resource, "valueSampledData", None)
+        setattr(self._resource, "valueTime", None)
+        setattr(self._resource, "valueDateTime", None)
+        setattr(self._resource, "valuePeriod", None)
+        setattr(self._resource, "valueRange", value)
         return self
 
     def get_value_ratio(self) -> Ratio | None:
-        return cast('Ratio | None', getattr(self._resource, "value_ratio", None))
+        return cast('Ratio | None', getattr(self._resource, "valueRatio", None))
 
     def set_value_ratio(self, value: Ratio) -> "UscoreBloodPressureProfile":
-        setattr(self._resource, "value_quantity", None)
-        setattr(self._resource, "value_codeable_concept", None)
-        setattr(self._resource, "value_string", None)
-        setattr(self._resource, "value_boolean", None)
-        setattr(self._resource, "value_integer", None)
-        setattr(self._resource, "value_range", None)
-        setattr(self._resource, "value_sampled_data", None)
-        setattr(self._resource, "value_time", None)
-        setattr(self._resource, "value_date_time", None)
-        setattr(self._resource, "value_period", None)
-        setattr(self._resource, "value_ratio", value)
+        setattr(self._resource, "valueQuantity", None)
+        setattr(self._resource, "valueCodeableConcept", None)
+        setattr(self._resource, "valueString", None)
+        setattr(self._resource, "valueBoolean", None)
+        setattr(self._resource, "valueInteger", None)
+        setattr(self._resource, "valueRange", None)
+        setattr(self._resource, "valueSampledData", None)
+        setattr(self._resource, "valueTime", None)
+        setattr(self._resource, "valueDateTime", None)
+        setattr(self._resource, "valuePeriod", None)
+        setattr(self._resource, "valueRatio", value)
         return self
 
     def get_value_sampled_data(self) -> SampledData | None:
-        return cast('SampledData | None', getattr(self._resource, "value_sampled_data", None))
+        return cast('SampledData | None', getattr(self._resource, "valueSampledData", None))
 
     def set_value_sampled_data(self, value: SampledData) -> "UscoreBloodPressureProfile":
-        setattr(self._resource, "value_quantity", None)
-        setattr(self._resource, "value_codeable_concept", None)
-        setattr(self._resource, "value_string", None)
-        setattr(self._resource, "value_boolean", None)
-        setattr(self._resource, "value_integer", None)
-        setattr(self._resource, "value_range", None)
-        setattr(self._resource, "value_ratio", None)
-        setattr(self._resource, "value_time", None)
-        setattr(self._resource, "value_date_time", None)
-        setattr(self._resource, "value_period", None)
-        setattr(self._resource, "value_sampled_data", value)
+        setattr(self._resource, "valueQuantity", None)
+        setattr(self._resource, "valueCodeableConcept", None)
+        setattr(self._resource, "valueString", None)
+        setattr(self._resource, "valueBoolean", None)
+        setattr(self._resource, "valueInteger", None)
+        setattr(self._resource, "valueRange", None)
+        setattr(self._resource, "valueRatio", None)
+        setattr(self._resource, "valueTime", None)
+        setattr(self._resource, "valueDateTime", None)
+        setattr(self._resource, "valuePeriod", None)
+        setattr(self._resource, "valueSampledData", value)
         return self
 
     def get_value_time(self) -> str | None:
-        return cast('str | None', getattr(self._resource, "value_time", None))
+        return cast('str | None', getattr(self._resource, "valueTime", None))
 
     def set_value_time(self, value: str) -> "UscoreBloodPressureProfile":
-        setattr(self._resource, "value_quantity", None)
-        setattr(self._resource, "value_codeable_concept", None)
-        setattr(self._resource, "value_string", None)
-        setattr(self._resource, "value_boolean", None)
-        setattr(self._resource, "value_integer", None)
-        setattr(self._resource, "value_range", None)
-        setattr(self._resource, "value_ratio", None)
-        setattr(self._resource, "value_sampled_data", None)
-        setattr(self._resource, "value_date_time", None)
-        setattr(self._resource, "value_period", None)
-        setattr(self._resource, "value_time", value)
+        setattr(self._resource, "valueQuantity", None)
+        setattr(self._resource, "valueCodeableConcept", None)
+        setattr(self._resource, "valueString", None)
+        setattr(self._resource, "valueBoolean", None)
+        setattr(self._resource, "valueInteger", None)
+        setattr(self._resource, "valueRange", None)
+        setattr(self._resource, "valueRatio", None)
+        setattr(self._resource, "valueSampledData", None)
+        setattr(self._resource, "valueDateTime", None)
+        setattr(self._resource, "valuePeriod", None)
+        setattr(self._resource, "valueTime", value)
         return self
 
     def get_value_date_time(self) -> str | None:
-        return cast('str | None', getattr(self._resource, "value_date_time", None))
+        return cast('str | None', getattr(self._resource, "valueDateTime", None))
 
     def set_value_date_time(self, value: str) -> "UscoreBloodPressureProfile":
-        setattr(self._resource, "value_quantity", None)
-        setattr(self._resource, "value_codeable_concept", None)
-        setattr(self._resource, "value_string", None)
-        setattr(self._resource, "value_boolean", None)
-        setattr(self._resource, "value_integer", None)
-        setattr(self._resource, "value_range", None)
-        setattr(self._resource, "value_ratio", None)
-        setattr(self._resource, "value_sampled_data", None)
-        setattr(self._resource, "value_time", None)
-        setattr(self._resource, "value_period", None)
-        setattr(self._resource, "value_date_time", value)
+        setattr(self._resource, "valueQuantity", None)
+        setattr(self._resource, "valueCodeableConcept", None)
+        setattr(self._resource, "valueString", None)
+        setattr(self._resource, "valueBoolean", None)
+        setattr(self._resource, "valueInteger", None)
+        setattr(self._resource, "valueRange", None)
+        setattr(self._resource, "valueRatio", None)
+        setattr(self._resource, "valueSampledData", None)
+        setattr(self._resource, "valueTime", None)
+        setattr(self._resource, "valuePeriod", None)
+        setattr(self._resource, "valueDateTime", value)
         return self
 
     def get_value_period(self) -> Period | None:
-        return cast('Period | None', getattr(self._resource, "value_period", None))
+        return cast('Period | None', getattr(self._resource, "valuePeriod", None))
 
     def set_value_period(self, value: Period) -> "UscoreBloodPressureProfile":
-        setattr(self._resource, "value_quantity", None)
-        setattr(self._resource, "value_codeable_concept", None)
-        setattr(self._resource, "value_string", None)
-        setattr(self._resource, "value_boolean", None)
-        setattr(self._resource, "value_integer", None)
-        setattr(self._resource, "value_range", None)
-        setattr(self._resource, "value_ratio", None)
-        setattr(self._resource, "value_sampled_data", None)
-        setattr(self._resource, "value_time", None)
-        setattr(self._resource, "value_date_time", None)
-        setattr(self._resource, "value_period", value)
+        setattr(self._resource, "valueQuantity", None)
+        setattr(self._resource, "valueCodeableConcept", None)
+        setattr(self._resource, "valueString", None)
+        setattr(self._resource, "valueBoolean", None)
+        setattr(self._resource, "valueInteger", None)
+        setattr(self._resource, "valueRange", None)
+        setattr(self._resource, "valueRatio", None)
+        setattr(self._resource, "valueSampledData", None)
+        setattr(self._resource, "valueTime", None)
+        setattr(self._resource, "valueDateTime", None)
+        setattr(self._resource, "valuePeriod", value)
         return self
 
     @overload
@@ -1461,16 +1461,16 @@ class UscoreBloodPressureProfile:
         errors.extend(validate_fixed_value(self._resource, profile_name, "code", {"coding":[{"system":"http://loinc.org","code":"85354-9"}]}))
         errors.extend(validate_required(self._resource, profile_name, "subject"))
         errors.extend(validate_reference(self._resource, profile_name, "subject", ["Patient"]))
-        errors.extend(validate_choice_required(self._resource, profile_name, ["effective_date_time","effective_period"]))
-        errors.extend(validate_reference(self._resource, profile_name, "has_member", ["MolecularSequence","QuestionnaireResponse","Observation"]))
-        errors.extend(validate_reference(self._resource, profile_name, "derived_from", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]))
+        errors.extend(validate_choice_required(self._resource, profile_name, ["effectiveDateTime","effectivePeriod"]))
+        errors.extend(validate_reference(self._resource, profile_name, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]))
+        errors.extend(validate_reference(self._resource, profile_name, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]))
         errors.extend(validate_slice_cardinality(self._resource, profile_name, "component", {"code":{"coding":[{"system":"http://loinc.org","code":"8480-6"}]}}, "systolic", 1, 1))
         errors.extend(validate_slice_cardinality(self._resource, profile_name, "component", {"code":{"coding":[{"system":"http://loinc.org","code":"8462-4"}]}}, "diastolic", 1, 1))
         errors.extend(validate_reference(self._resource, profile_name, "performer", ["PractitionerRole","USCoreCareTeam","USCoreOrganizationProfile","Patient","USCorePractitionerProfile","USCoreRelatedPersonProfile"]))
         warnings.extend(validate_enum(self._resource, profile_name, "category", ["social-history","vital-signs","imaging","laboratory","procedure","survey","exam","therapy","activity"]))
         warnings.extend(validate_enum(self._resource, profile_name, "code", ["2708-6","29463-7","3140-1","3150-0","3151-8","39156-5","59408-5","59575-1","59576-9","77606-2","8287-5","8289-1","8302-2","8306-3","8310-5","8462-4","8478-0","8480-6","8867-4","9279-1","9843-4"]))
-        warnings.extend(validate_enum(self._resource, profile_name, "data_absent_reason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]))
-        warnings.extend(validate_must_support(self._resource, profile_name, "data_absent_reason"))
+        warnings.extend(validate_enum(self._resource, profile_name, "dataAbsentReason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]))
+        warnings.extend(validate_must_support(self._resource, profile_name, "dataAbsentReason"))
         warnings.extend(validate_must_support(self._resource, profile_name, "performer"))
         return {"errors": errors, "warnings": warnings}
 
@@ -1533,7 +1533,7 @@ class UscoreBodyWeightProfile:
 
         return build_resource(
             Observation,
-            resource_type="Observation",
+            resourceType="Observation",
             code={"coding":[{"system":"http://loinc.org","code":"29463-7"}]},
             category=category_with_defaults,
             status=status,
@@ -1577,96 +1577,96 @@ class UscoreBodyWeightProfile:
         return self
 
     def get_effective_date_time(self) -> str | None:
-        return cast('str | None', getattr(self._resource, "effective_date_time", None))
+        return cast('str | None', getattr(self._resource, "effectiveDateTime", None))
 
     def set_effective_date_time(self, value: str) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "effective_period", None)
-        setattr(self._resource, "effective_date_time", value)
+        setattr(self._resource, "effectivePeriod", None)
+        setattr(self._resource, "effectiveDateTime", value)
         return self
 
     def get_effective_period(self) -> Period | None:
-        return cast('Period | None', getattr(self._resource, "effective_period", None))
+        return cast('Period | None', getattr(self._resource, "effectivePeriod", None))
 
     def set_effective_period(self, value: Period) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "effective_date_time", None)
-        setattr(self._resource, "effective_period", value)
+        setattr(self._resource, "effectiveDateTime", None)
+        setattr(self._resource, "effectivePeriod", value)
         return self
 
     def get_value_quantity(self) -> Quantity | None:
-        return cast('Quantity | None', getattr(self._resource, "value_quantity", None))
+        return cast('Quantity | None', getattr(self._resource, "valueQuantity", None))
 
     def set_value_quantity(self, value: Quantity) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_quantity", value)
+        setattr(self._resource, "valueQuantity", value)
         return self
 
     def get_value_codeable_concept(self) -> CodeableConcept | None:
-        return cast('CodeableConcept | None', getattr(self._resource, "value_codeable_concept", None))
+        return cast('CodeableConcept | None', getattr(self._resource, "valueCodeableConcept", None))
 
     def set_value_codeable_concept(self, value: CodeableConcept) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_codeable_concept", value)
+        setattr(self._resource, "valueCodeableConcept", value)
         return self
 
     def get_value_string(self) -> str | None:
-        return cast('str | None', getattr(self._resource, "value_string", None))
+        return cast('str | None', getattr(self._resource, "valueString", None))
 
     def set_value_string(self, value: str) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_string", value)
+        setattr(self._resource, "valueString", value)
         return self
 
     def get_value_boolean(self) -> bool | None:
-        return cast('bool | None', getattr(self._resource, "value_boolean", None))
+        return cast('bool | None', getattr(self._resource, "valueBoolean", None))
 
     def set_value_boolean(self, value: bool) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_boolean", value)
+        setattr(self._resource, "valueBoolean", value)
         return self
 
     def get_value_integer(self) -> int | None:
-        return cast('int | None', getattr(self._resource, "value_integer", None))
+        return cast('int | None', getattr(self._resource, "valueInteger", None))
 
     def set_value_integer(self, value: int) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_integer", value)
+        setattr(self._resource, "valueInteger", value)
         return self
 
     def get_value_range(self) -> Range | None:
-        return cast('Range | None', getattr(self._resource, "value_range", None))
+        return cast('Range | None', getattr(self._resource, "valueRange", None))
 
     def set_value_range(self, value: Range) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_range", value)
+        setattr(self._resource, "valueRange", value)
         return self
 
     def get_value_ratio(self) -> Ratio | None:
-        return cast('Ratio | None', getattr(self._resource, "value_ratio", None))
+        return cast('Ratio | None', getattr(self._resource, "valueRatio", None))
 
     def set_value_ratio(self, value: Ratio) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_ratio", value)
+        setattr(self._resource, "valueRatio", value)
         return self
 
     def get_value_sampled_data(self) -> SampledData | None:
-        return cast('SampledData | None', getattr(self._resource, "value_sampled_data", None))
+        return cast('SampledData | None', getattr(self._resource, "valueSampledData", None))
 
     def set_value_sampled_data(self, value: SampledData) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_sampled_data", value)
+        setattr(self._resource, "valueSampledData", value)
         return self
 
     def get_value_time(self) -> str | None:
-        return cast('str | None', getattr(self._resource, "value_time", None))
+        return cast('str | None', getattr(self._resource, "valueTime", None))
 
     def set_value_time(self, value: str) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_time", value)
+        setattr(self._resource, "valueTime", value)
         return self
 
     def get_value_date_time(self) -> str | None:
-        return cast('str | None', getattr(self._resource, "value_date_time", None))
+        return cast('str | None', getattr(self._resource, "valueDateTime", None))
 
     def set_value_date_time(self, value: str) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_date_time", value)
+        setattr(self._resource, "valueDateTime", value)
         return self
 
     def get_value_period(self) -> Period | None:
-        return cast('Period | None', getattr(self._resource, "value_period", None))
+        return cast('Period | None', getattr(self._resource, "valuePeriod", None))
 
     def set_value_period(self, value: Period) -> "UscoreBodyWeightProfile":
-        setattr(self._resource, "value_period", value)
+        setattr(self._resource, "valuePeriod", value)
         return self
 
     @overload
@@ -1702,24 +1702,24 @@ class UscoreBodyWeightProfile:
         errors.extend(validate_fixed_value(self._resource, profile_name, "code", {"coding":[{"system":"http://loinc.org","code":"29463-7"}]}))
         errors.extend(validate_required(self._resource, profile_name, "subject"))
         errors.extend(validate_reference(self._resource, profile_name, "subject", ["Patient"]))
-        errors.extend(validate_choice_required(self._resource, profile_name, ["effective_date_time","effective_period"]))
-        errors.extend(validate_reference(self._resource, profile_name, "has_member", ["MolecularSequence","QuestionnaireResponse","Observation"]))
-        errors.extend(validate_reference(self._resource, profile_name, "derived_from", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]))
+        errors.extend(validate_choice_required(self._resource, profile_name, ["effectiveDateTime","effectivePeriod"]))
+        errors.extend(validate_reference(self._resource, profile_name, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]))
+        errors.extend(validate_reference(self._resource, profile_name, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]))
         errors.extend(validate_reference(self._resource, profile_name, "performer", ["PractitionerRole","USCoreCareTeam","USCoreOrganizationProfile","Patient","USCorePractitionerProfile","USCoreRelatedPersonProfile"]))
-        errors.extend(validate_excluded(self._resource, profile_name, "value_codeable_concept"))
-        errors.extend(validate_excluded(self._resource, profile_name, "value_string"))
-        errors.extend(validate_excluded(self._resource, profile_name, "value_boolean"))
-        errors.extend(validate_excluded(self._resource, profile_name, "value_integer"))
-        errors.extend(validate_excluded(self._resource, profile_name, "value_range"))
-        errors.extend(validate_excluded(self._resource, profile_name, "value_ratio"))
-        errors.extend(validate_excluded(self._resource, profile_name, "value_sampled_data"))
-        errors.extend(validate_excluded(self._resource, profile_name, "value_time"))
-        errors.extend(validate_excluded(self._resource, profile_name, "value_date_time"))
-        errors.extend(validate_excluded(self._resource, profile_name, "value_period"))
+        errors.extend(validate_excluded(self._resource, profile_name, "valueCodeableConcept"))
+        errors.extend(validate_excluded(self._resource, profile_name, "valueString"))
+        errors.extend(validate_excluded(self._resource, profile_name, "valueBoolean"))
+        errors.extend(validate_excluded(self._resource, profile_name, "valueInteger"))
+        errors.extend(validate_excluded(self._resource, profile_name, "valueRange"))
+        errors.extend(validate_excluded(self._resource, profile_name, "valueRatio"))
+        errors.extend(validate_excluded(self._resource, profile_name, "valueSampledData"))
+        errors.extend(validate_excluded(self._resource, profile_name, "valueTime"))
+        errors.extend(validate_excluded(self._resource, profile_name, "valueDateTime"))
+        errors.extend(validate_excluded(self._resource, profile_name, "valuePeriod"))
         warnings.extend(validate_enum(self._resource, profile_name, "category", ["social-history","vital-signs","imaging","laboratory","procedure","survey","exam","therapy","activity"]))
         warnings.extend(validate_enum(self._resource, profile_name, "code", ["2708-6","29463-7","3140-1","3150-0","3151-8","39156-5","59408-5","59575-1","59576-9","77606-2","8287-5","8289-1","8302-2","8306-3","8310-5","8462-4","8478-0","8480-6","8867-4","9279-1","9843-4"]))
-        warnings.extend(validate_enum(self._resource, profile_name, "data_absent_reason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]))
-        warnings.extend(validate_must_support(self._resource, profile_name, "data_absent_reason"))
+        warnings.extend(validate_enum(self._resource, profile_name, "dataAbsentReason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]))
+        warnings.extend(validate_must_support(self._resource, profile_name, "dataAbsentReason"))
         warnings.extend(validate_must_support(self._resource, profile_name, "performer"))
         return {"errors": errors, "warnings": warnings}
 

@@ -22,7 +22,7 @@ CANONICAL_URL = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-we
 
 def test_import_profiled_observation_from_api_and_read_values() -> None:
     api_response = Observation(
-        resource_type="Observation",
+        resourceType="Observation",
         meta=Meta(profile=[CANONICAL_URL]),
         status="final",
         category=[
@@ -32,8 +32,8 @@ def test_import_profiled_observation_from_api_and_read_values() -> None:
         ],
         code=CodeableConcept(coding=[Coding(code="29463-7", system="http://loinc.org", display="Body weight")]),
         subject=Reference(reference="Patient/pt-1"),
-        effective_date_time="2024-06-15",
-        value_quantity=Quantity(value=75, unit="kg", system="http://unitsofmeasure.org", code="kg"),
+        effectiveDateTime="2024-06-15",
+        valueQuantity=Quantity(value=75, unit="kg", system="http://unitsofmeasure.org", code="kg"),
     )
 
     profile = UscoreBodyWeightProfile.from_resource(api_response)
@@ -45,7 +45,7 @@ def test_import_profiled_observation_from_api_and_read_values() -> None:
 
 
 def test_apply_profile_to_bare_observation_and_populate_it() -> None:
-    bare_observation = Observation(resource_type="Observation", status="preliminary", code=CodeableConcept())
+    bare_observation = Observation(resourceType="Observation", status="preliminary", code=CodeableConcept())
     profile = UscoreBodyWeightProfile.apply(bare_observation)
 
     profile.set_status("final")
@@ -70,14 +70,14 @@ def test_create_builds_a_resource_with_fixed_code_and_required_slice_stubs() -> 
 
     obs = profile.to_resource()
     assert obs.code.coding[0].code == "29463-7"
-    assert obs.value_quantity.value == 70
+    assert obs.valueQuantity.value == 70
     assert len(obs.category) == 1
     assert profile.validate()["errors"] == []
 
 
 def test_validate_catches_disallowed_value_variants_on_raw_resource() -> None:
     resource = Observation(
-        resource_type="Observation",
+        resourceType="Observation",
         meta=Meta(profile=[CANONICAL_URL]),
         status="final",
         category=[
@@ -87,13 +87,13 @@ def test_validate_catches_disallowed_value_variants_on_raw_resource() -> None:
         ],
         code=CodeableConcept(coding=[Coding(code="29463-7", system="http://loinc.org")]),
         subject=Reference(reference="Patient/pt-1"),
-        effective_date_time="2024-06-15",
-        value_string="not allowed",
+        effectiveDateTime="2024-06-15",
+        valueString="not allowed",
     )
 
     profile = UscoreBodyWeightProfile.apply(resource)
     errors = profile.validate()["errors"]
-    assert "UscoreBodyWeightProfile: field 'value_string' must not be present" in errors
+    assert "UscoreBodyWeightProfile: field 'valueString' must not be present" in errors
 
 
 def test_get_vscat_returns_flat_value() -> None:
