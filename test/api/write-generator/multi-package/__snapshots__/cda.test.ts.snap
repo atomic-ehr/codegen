@@ -81,6 +81,7 @@ from __future__ import annotations
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, model_validator
 from typing import Any, Generic, List as PyList, Literal
 from typing_extensions import Self, TypeVar
+from fhir_types.fhirpy_base_model import FhirpyBaseModel
 
 from fhir_types.hl7_fhir_r5_core.base import Base
 from fhir_types.hl7_cda_uv_core.resource_preprocessor import preprocess_resource_fields
@@ -91,47 +92,46 @@ T2 = TypeVar('T2', bound=ANY, default=ANY)
 
 class ClinicalDocument(ANY, Generic[T1, T2]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    resource_type: Literal['ClinicalDocument'] = Field(
+    resourceType: Literal['ClinicalDocument'] = Field(
         default='ClinicalDocument',
         alias='resourceType',
         serialization_alias='resourceType',
-        frozen=True,
         pattern='ClinicalDocument'
     )
     authenticator: PyList[Authenticator[T1]] | None = Field(None, alias="authenticator", serialization_alias="authenticator")
     author: PyList[Author[T1]] = Field(alias="author", serialization_alias="author")
     authorization: PyList[Authorization] | None = Field(None, alias="authorization", serialization_alias="authorization")
-    class_code: str | None = Field(None, alias="classCode", serialization_alias="classCode")
+    classCode: str | None = Field(None, alias="classCode", serialization_alias="classCode")
     code: CE = Field(alias="code", serialization_alias="code")
     component: Component[T1, T2] = Field(alias="component", serialization_alias="component")
-    component_of: ComponentOf[T1] | None = Field(None, alias="componentOf", serialization_alias="componentOf")
-    confidentiality_code: CE = Field(alias="confidentialityCode", serialization_alias="confidentialityCode")
-    copy_time: TS | None = Field(None, alias="copyTime", serialization_alias="copyTime")
+    componentOf: ComponentOf[T1] | None = Field(None, alias="componentOf", serialization_alias="componentOf")
+    confidentialityCode: CE = Field(alias="confidentialityCode", serialization_alias="confidentialityCode")
+    copyTime: TS | None = Field(None, alias="copyTime", serialization_alias="copyTime")
     custodian: Custodian = Field(alias="custodian", serialization_alias="custodian")
-    data_enterer: DataEnterer[T1] | None = Field(None, alias="dataEnterer", serialization_alias="dataEnterer")
-    documentation_of: PyList[DocumentationOf[T1]] | None = Field(None, alias="documentationOf", serialization_alias="documentationOf")
-    effective_time: TS = Field(alias="effectiveTime", serialization_alias="effectiveTime")
+    dataEnterer: DataEnterer[T1] | None = Field(None, alias="dataEnterer", serialization_alias="dataEnterer")
+    documentationOf: PyList[DocumentationOf[T1]] | None = Field(None, alias="documentationOf", serialization_alias="documentationOf")
+    effectiveTime: TS = Field(alias="effectiveTime", serialization_alias="effectiveTime")
     id: II = Field(alias="id", serialization_alias="id")
     informant: PyList[Informant[T1]] | None = Field(None, alias="informant", serialization_alias="informant")
-    information_recipient: PyList[InformationRecipient[T1]] | None = Field(None, alias="informationRecipient", serialization_alias="informationRecipient")
-    in_fulfillment_of: PyList[InFulfillmentOf] | None = Field(None, alias="inFulfillmentOf", serialization_alias="inFulfillmentOf")
-    language_code: CS | None = Field(None, alias="languageCode", serialization_alias="languageCode")
-    legal_authenticator: LegalAuthenticator[T1] | None = Field(None, alias="legalAuthenticator", serialization_alias="legalAuthenticator")
-    mood_code: Literal["INT", "APT", "ARQ", "PRMS", "PRP", "RQO", "SLOT", "DEF", "EVN", "EVN.CRT", "GOL", "OPT", "PERM", "PERMRQ"] | None = Field(None, alias="moodCode", serialization_alias="moodCode")
+    informationRecipient: PyList[InformationRecipient[T1]] | None = Field(None, alias="informationRecipient", serialization_alias="informationRecipient")
+    inFulfillmentOf: PyList[InFulfillmentOf] | None = Field(None, alias="inFulfillmentOf", serialization_alias="inFulfillmentOf")
+    languageCode: CS | None = Field(None, alias="languageCode", serialization_alias="languageCode")
+    legalAuthenticator: LegalAuthenticator[T1] | None = Field(None, alias="legalAuthenticator", serialization_alias="legalAuthenticator")
+    moodCode: Literal["INT", "APT", "ARQ", "PRMS", "PRP", "RQO", "SLOT", "DEF", "EVN", "EVN.CRT", "GOL", "OPT", "PERM", "PERMRQ"] | None = Field(None, alias="moodCode", serialization_alias="moodCode")
     participant: PyList[Participant1[T1]] | None = Field(None, alias="participant", serialization_alias="participant")
-    realm_code: PyList[CS] | None = Field(None, alias="realmCode", serialization_alias="realmCode")
-    record_target: PyList[RecordTarget[T1]] = Field(alias="recordTarget", serialization_alias="recordTarget")
-    related_document: PyList[RelatedDocument] | None = Field(None, alias="relatedDocument", serialization_alias="relatedDocument")
-    sdtc_category: PyList[CD] | None = Field(None, alias="sdtcCategory", serialization_alias="sdtcCategory")
-    sdtc_status_code: CS | None = Field(None, alias="sdtcStatusCode", serialization_alias="sdtcStatusCode")
-    set_id: II | None = Field(None, alias="setId", serialization_alias="setId")
-    template_id: PyList[II] | None = Field(None, alias="templateId", serialization_alias="templateId")
+    realmCode: PyList[CS] | None = Field(None, alias="realmCode", serialization_alias="realmCode")
+    recordTarget: PyList[RecordTarget[T1]] = Field(alias="recordTarget", serialization_alias="recordTarget")
+    relatedDocument: PyList[RelatedDocument] | None = Field(None, alias="relatedDocument", serialization_alias="relatedDocument")
+    sdtcCategory: PyList[CD] | None = Field(None, alias="sdtcCategory", serialization_alias="sdtcCategory")
+    sdtcStatusCode: CS | None = Field(None, alias="sdtcStatusCode", serialization_alias="sdtcStatusCode")
+    setId: II | None = Field(None, alias="setId", serialization_alias="setId")
+    templateId: PyList[II] | None = Field(None, alias="templateId", serialization_alias="templateId")
     title: ST | None = Field(None, alias="title", serialization_alias="title")
-    type_id: II | None = Field(None, alias="typeId", serialization_alias="typeId")
-    version_number: INT | None = Field(None, alias="versionNumber", serialization_alias="versionNumber")
+    typeId: II | None = Field(None, alias="typeId", serialization_alias="typeId")
+    versionNumber: INT | None = Field(None, alias="versionNumber", serialization_alias="versionNumber")
 
     def model_post_init(self, __context: Any) -> None:
-        self.__pydantic_fields_set__.add("resource_type")
+        self.__pydantic_fields_set__.add("resourceType")
 
     def to_json(self, indent: int | None = None) -> str:
         return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)
