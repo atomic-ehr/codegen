@@ -57,7 +57,7 @@ def row_to_patient(row: Row) -> Patient:
         name=[HumanName(family=row.last, given=[row.first])],
     )
     resource.gender = row.gender
-    resource.birth_date = row.dob
+    resource.birthDate = row.dob
 
     race = UscoreRaceExtension.create()
     race.set_extension_omb_category({
@@ -65,7 +65,7 @@ def row_to_patient(row: Row) -> Patient:
         "system": "urn:oid:2.16.840.1.113883.6.238",
         "display": row.race,
     })
-    race.set_extension_text({"value_string": row.race})
+    race.set_extension_text({"valueString": row.race})
 
     profile = UscorePatientProfile.apply(resource)
     profile.set_race(race)

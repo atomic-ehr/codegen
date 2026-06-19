@@ -58,7 +58,7 @@ def test_set_extension_via_flat_input() -> None:
     assert patient.validate()["errors"] == []
 
     res = patient.to_resource()
-    assert res.resource_type == "Patient"
+    assert res.resourceType == "Patient"
     assert res.identifier[0].value == "MRN-12345"
     assert res.name[0].family == "Garcia"
     assert res.meta.profile == [CANONICAL_URL]
@@ -72,7 +72,7 @@ def test_set_extension_via_extension_profile_instance() -> None:
     )
     ethnicity_profile = UscoreEthnicityExtension.create()
     ethnicity_profile.set_extension_omb_category({"code": "2135-2", "display": "Hispanic or Latino"})
-    ethnicity_profile.set_extension_text({"value_string": "Hispanic or Latino"})
+    ethnicity_profile.set_extension_text({"valueString": "Hispanic or Latino"})
     patient.set_ethnicity(ethnicity_profile)
     assert patient.get_ethnicity() is not None
 
@@ -82,14 +82,14 @@ def test_set_extension_via_raw_extension() -> None:
         identifier=[Identifier(value="1")],
         name=[HumanName(family="Test")],
     )
-    sex_extension = Extension(url=SEX_URL, value_coding=Coding(code="female", display="Female"))
+    sex_extension = Extension(url=SEX_URL, valueCoding=Coding(code="female", display="Female"))
     patient.set_sex(sex_extension)
     assert patient.get_sex().code == "female"
 
 
 def test_import_profiled_resource_from_api_and_access_data_via_typed_getters() -> None:
     api_response = Patient(
-        resource_type="Patient",
+        resourceType="Patient",
         meta={"profile": [CANONICAL_URL]},
         identifier=[Identifier(system="http://hospital.example.org/mrn", value="MRN-99999")],
         name=[HumanName(family="Smith", given=["John"])],
@@ -97,13 +97,13 @@ def test_import_profiled_resource_from_api_and_access_data_via_typed_getters() -
             {
                 "url": RACE_URL,
                 "extension": [
-                    {"url": "ombCategory", "value_coding": {"code": "2054-5", "display": "Black or African American"}},
-                    {"url": "text", "value_string": "Black or African American"},
+                    {"url": "ombCategory", "valueCoding": {"code": "2054-5", "display": "Black or African American"}},
+                    {"url": "text", "valueString": "Black or African American"},
                 ],
             },
             {
                 "url": SEX_URL,
-                "value_coding": {"code": "male"},
+                "valueCoding": {"code": "male"},
             },
         ],
     )
@@ -116,7 +116,7 @@ def test_import_profiled_resource_from_api_and_access_data_via_typed_getters() -
     assert names[0].given == ["John"]
 
     race = patient.get_race()
-    # Pydantic parses the value_coding sub-extension input into a Coding model,
+    # Pydantic parses the valueCoding sub-extension input into a Coding model,
     # so race["ombCategory"] is a Coding instance (not a dict like in TS).
     assert race["ombCategory"].code == "2054-5"
     assert race["ombCategory"].display == "Black or African American"
@@ -128,7 +128,7 @@ def test_import_profiled_resource_from_api_and_access_data_via_typed_getters() -
 
 
 def test_apply_profile_to_a_bare_resource_and_populate_it() -> None:
-    patient = UscorePatientProfile.apply(Patient(resource_type="Patient"))
+    patient = UscorePatientProfile.apply(Patient(resourceType="Patient"))
 
     patient.set_identifier([Identifier(system="http://hospital.example.org/mrn", value="MRN-00001")])
     patient.set_name([HumanName(family="Chen", given=["Wei"])])
@@ -160,7 +160,7 @@ def test_create_returns_a_profile_wrapping_the_resource() -> None:
     )
     res = profile.to_resource()
 
-    assert res.resource_type == "Patient"
+    assert res.resourceType == "Patient"
     assert res.identifier[0].value == "12345"
     assert res.name[0].family == "Smith"
 
@@ -171,12 +171,12 @@ def test_create_resource_returns_a_plain_patient() -> None:
         name=[HumanName(family="Smith", given=["John"])],
     )
     assert isinstance(res, Patient)
-    assert res.resource_type == "Patient"
+    assert res.resourceType == "Patient"
     assert res.identifier[0].value == "12345"
 
 
 def test_apply_wraps_an_existing_patient() -> None:
-    patient = Patient(resource_type="Patient")
+    patient = Patient(resourceType="Patient")
     profile = UscorePatientProfile.apply(patient)
 
     profile.set_identifier([Identifier(system="http://hospital.example.org", value="12345")])
@@ -193,7 +193,7 @@ def test_all_three_methods_produce_equivalent_resources() -> None:
     from_create = UscorePatientProfile.create(identifier=identifier, name=name).to_resource()
     from_create_resource = UscorePatientProfile.create_resource(identifier=identifier, name=name)
 
-    bare = Patient(resource_type="Patient")
+    bare = Patient(resourceType="Patient")
     profile = UscorePatientProfile.apply(bare)
     profile.set_identifier(identifier).set_name(name)
     from_apply = profile.to_resource()
@@ -301,7 +301,7 @@ def test_get_sex_raw_returns_raw_extension() -> None:
 
     raw = profile.get_sex("raw")
     assert raw.url == SEX_URL
-    assert raw.value_coding.code == "female"
+    assert raw.valueCoding.code == "female"
 
 
 def test_extension_getters_return_none_when_not_set() -> None:
@@ -392,8 +392,8 @@ def test_set_race_accepts_raw_extension() -> None:
     raw_extension = Extension(
         url=RACE_URL,
         extension=[
-            {"url": "ombCategory", "value_coding": {"code": "2106-3", "display": "White"}},
-            {"url": "text", "value_string": "White"},
+            {"url": "ombCategory", "valueCoding": {"code": "2106-3", "display": "White"}},
+            {"url": "text", "valueString": "White"},
         ],
     )
     profile.set_race(raw_extension)
@@ -415,7 +415,7 @@ def test_set_sex_accepts_extension_profile_instance() -> None:
         identifier=[Identifier(value="1")],
         name=[HumanName(family="Test")],
     )
-    sex_profile = UscoreIndividualSexExtension.create(value_coding=Coding(code="male"))
+    sex_profile = UscoreIndividualSexExtension.create(valueCoding=Coding(code="male"))
     profile.set_sex(sex_profile)
     assert profile.get_sex().code == "male"
 
@@ -425,7 +425,7 @@ def test_set_sex_accepts_raw_extension() -> None:
         identifier=[Identifier(value="1")],
         name=[HumanName(family="Test")],
     )
-    raw_extension = Extension(url=SEX_URL, value_coding=Coding(code="female"))
+    raw_extension = Extension(url=SEX_URL, valueCoding=Coding(code="female"))
     profile.set_sex(raw_extension)
     assert profile.get_sex().code == "female"
 
@@ -436,7 +436,7 @@ def test_set_sex_accepts_raw_extension() -> None:
 
 
 def test_profile_mutates_the_underlying_resource() -> None:
-    patient = Patient(resource_type="Patient")
+    patient = Patient(resourceType="Patient")
     profile = UscorePatientProfile.apply(patient)
 
     profile.set_identifier([Identifier(value="123")])
@@ -460,7 +460,7 @@ def test_freshly_created_profile_with_required_fields_is_valid() -> None:
 
 
 def test_profile_from_empty_resource_reports_missing_required_fields() -> None:
-    profile = UscorePatientProfile.apply(Patient(resource_type="Patient"))
+    profile = UscorePatientProfile.apply(Patient(resourceType="Patient"))
     errors = profile.validate()["errors"]
 
     assert "UscorePatientProfile: required field 'identifier' is missing" in errors

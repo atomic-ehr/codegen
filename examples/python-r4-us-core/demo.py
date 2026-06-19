@@ -33,7 +33,7 @@ async def main() -> None:
     patient = Patient(
         name=[HumanName(given=["Bob"], family="Cool2")],
         gender="female",
-        birth_date="1980-01-01",
+        birthDate="1980-01-01",
     )
     created_patient = await client.create(patient)
     print(f"Created patient: {created_patient.id}")

@@ -27,7 +27,7 @@ const builder = new APIBuilder({ logger })
         primitiveTypeExtension: true,
         generateProfile: true,
         // client defaults to "fhirpy"
-        fieldFormat: "snake_case",
+        // fieldFormat defaults to "camelCase"
     })
     .typeSchema({
         treeShake: {
