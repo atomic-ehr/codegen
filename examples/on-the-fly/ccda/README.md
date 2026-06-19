@@ -1,63 +1,63 @@
-# TypeScript C-CDA Example
+# C-CDA on FHIR Example
 
-FHIR type generation from HL7 CDA on FHIR specification.
+TypeScript type generation for HL7 CDA, generated on the fly from the FHIR registry. Demonstrates **logical model promotion** (`promoteLogical`) — CDA's logical-kind StructureDefinitions are promoted to first-class resources so they generate like normal types — together with `preprocessPackage` fixes for package defects.
+
+A single `generate.ts` pulls `hl7.cda.us.ccda@5.0.0-ballot` (US C-CDA, which depends on CDA UV Core) plus `hl7.fhir.r4.core@4.0.1`, so one `fhir-types/` tree contains the base R4 types (`hl7-fhir-r4-core/`), the CDA UV Core logical models promoted to resources (`hl7-cda-uv-core/`), and the US C-CDA profiles (`hl7-cda-us-ccda/`).
 
 ## Overview
 
-This example demonstrates how to generate TypeScript interfaces from the HL7 CDA UV Core (Clinical Document Architecture) FHIR package. It includes:
+This example demonstrates:
 
-- Full C-CDA on FHIR type definitions
-- Document structure and sections
-- Clinical content models
-- Export of TypeSchema and dependency tree for debugging
+- Promoting CDA logical models to resources via `.typeSchema({ promoteLogical: { ... } })`
+- Discovering which StructureDefinitions to promote by inspecting the `type-profile-style` extension (`generate.ts`)
+- `preprocessPackage` fixes for known package defects (malformed `IVL_TS` canonical, an unavailable NLM value set on `CarePlanAct`, missing `bundle-type` codes)
+- Mapping between CDA and FHIR R4 in both directions
 
 ## Generating Types
-
-To generate TypeScript types for CDA:
 
 ```bash
 bun run examples/on-the-fly/ccda/generate.ts
 ```
 
-This will output to `./examples/on-the-fly/ccda/fhir-types/` (gitignored, regenerated on CI) and create debug files.
+This outputs to `./examples/on-the-fly/ccda/fhir-types/` (gitignored, regenerated on CI) along with introspection debug files (TypeSchema, FHIR schemas, StructureDefinitions, `type-tree.yaml`).
 
 ## Configuration
 
-Edit `generate.ts` to customize:
+Edit `generate.ts` to customize generation:
 
 ```typescript
-.typescript({
-  withDebugComment: false    // Include generation metadata
-})
+.typeSchema({ promoteLogical: { "hl7.cda.uv.core": cdaResources } })
+.typescript({ withDebugComment: false })
+```
+
+`cdaResources` is computed at runtime by filtering the registry for StructureDefinitions whose `type-profile-style` extension is `"cda"`.
+
+## Tests
+
+- **demo-cda.test.ts** — CDA → FHIR R4 mapping (CDA `Patient`/`Observation` → FHIR `Patient`/`Observation`)
+- **demo-ccda.test.ts** — FHIR R4 → C-CDA mapping (FHIR `MedicationStatement` → `MedicationActivityProfile`)
+
+```bash
+bun test ./examples/on-the-fly/ccda/
 ```
 
 ## Using Generated Types
 
-### Import CDA Document Types
+Types are emitted per package; import from the package subpath rather than a top-level barrel.
 
 ```typescript
-import { ClinicalDocument } from './fhir-types/index.js';
+import type * as CDA from "./fhir-types/hl7-cda-uv-core";
+import type * as FHIR from "./fhir-types/hl7-fhir-r4-core";
+import { MedicationActivityProfile } from "./fhir-types/hl7-cda-us-ccda";
 
-const clinicalDoc: ClinicalDocument = {
-  resourceType: 'ClinicalDocument',
-  id: 'doc-1',
-  code: {
-    coding: [{
-      system: 'http://loinc.org',
-      code: '34133-9'  // Summarization of Episode Note
-    }]
-  },
-  // ... additional fields
+// Promoted CDA logical model used as a resource
+const admin: CDA.SubstanceAdministration = {
+    resourceType: "SubstanceAdministration",
+    classCode: "SBADM",
+    moodCode: "INT",
+    statusCode: { code: "completed" },
 };
-```
 
-### Working with Document Sections
-
-```typescript
-if (clinicalDoc.section) {
-  clinicalDoc.section.forEach(section => {
-    console.log(`Section: ${section.code?.coding?.[0].display}`);
-    // Process section content
-  });
-}
+// US C-CDA profile class wrapping a CDA resource
+const activity = new MedicationActivityProfile(admin);
 ```

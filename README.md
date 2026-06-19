@@ -58,9 +58,9 @@ A powerful, extensible code generation toolkit for FHIR ([Fast Healthcare Intero
 | Resources & Complex Types         | yes        | yes     | yes  | template |
 | Polymorphic container `Bundle<T>` | yes        | yes     | no   | no       |
 | Value Set Bindings                | inline     | limited | enum | template |
-| Primitive Extensions              | yes        | no      | no   | no       |
-| Profiles                          | yes        | no      | no   | no       |
-| Profile Validation                | yes        | no      | no   | no       |
+| Primitive Extensions              | yes        | opt-in  | no   | no       |
+| Profiles                          | yes        | yes     | no   | no       |
+| Profile Validation                | yes        | yes     | no   | no       |
 
 ## Guides
 
@@ -158,11 +158,16 @@ const builder = new APIBuilder()
         openResourceTypeSet?: boolean,
     })
     .python({                                   // Python generator
+        client?: "fhirpy" | "none",            // client integration (default: fhirpy)
+        generateProfile?: boolean,             // generate profile wrapper classes
+        primitiveTypeExtension?: boolean,
         allowExtraFields?: boolean,
         fieldFormat?: "snake_case" | "camelCase",
-        staticDir?: string,
     })
-    .csharp("NameSpace", "staticFilesPath")   // C# generator
+    .csharp({                                  // C# generator
+        rootNamespace: "Fhir.Types",
+        staticSourceDir?: "./static",
+    })
 
     // Output configuration
     .outputTo("./generated/types")             // Output directory
@@ -423,6 +428,8 @@ const errors = bp.validate();
 ```
 
 See [examples/typescript-r4-us-core/](examples/typescript-r4-us-core/) for R4 and US Core profile tests.
+
+Python (`generateProfile: true`) produces equivalent profile classes — `create()`, typed accessors, and `validate()` — wrapping a Pydantic model via `_resource`. See [examples/python-r4-us-core/](examples/python-r4-us-core/).
 
 ## Support
 
