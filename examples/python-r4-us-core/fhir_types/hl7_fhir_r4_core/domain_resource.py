@@ -18,7 +18,6 @@ T = TypeVar('T', bound=Resource, default=Resource)
 class DomainResource(Resource, Generic[T]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     resourceType: str = Field(
-        default='DomainResource',
         alias='resourceType',
         serialization_alias='resourceType',
         pattern='DomainResource'

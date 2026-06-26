@@ -1,5 +1,6 @@
 from typing import Any, Union, Optional, Iterator, Tuple, Dict
 from pydantic import BaseModel, Field
+from pydantic_core import PydanticUndefined
 from typing import Protocol
 
 
@@ -22,7 +23,10 @@ class FhirpyBaseModel(BaseModel):
     def __pydantic_init_subclass__(cls, **kwargs: Any) -> None:
         super().__pydantic_init_subclass__(**kwargs)
         field = cls.model_fields.get("resource_type") or cls.model_fields.get("resourceType")
-        if field is not None and field.default is not None:
+        # Only concrete resources carry a default resourceType. Abstract/family base types
+        # (Resource, DomainResource) leave it unset, so we skip them to avoid registering a
+        # class attribute that concrete subclasses would shadow.
+        if field is not None and field.default is not None and field.default is not PydanticUndefined:
             type.__setattr__(cls, "resourceType", str(field.default))
 
     def __iter__(self) -> Iterator[Tuple[str, Any]]:  # type: ignore[override]

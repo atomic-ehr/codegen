@@ -15,7 +15,6 @@ from fhir_types.hl7_fhir_r4_core.base import Element
 class Resource(FhirpyBaseModel):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
     resourceType: str = Field(
-        default='Resource',
         alias='resourceType',
         serialization_alias='resourceType',
         pattern='Resource'
