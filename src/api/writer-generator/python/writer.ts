@@ -468,13 +468,9 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private generateResourceTypeField(schema: SpecializationTypeSchema): void {
-        const hasChildren = (schema.typeFamily?.resources?.length ?? 0) > 0;
-
-        if (hasChildren) {
-            this.line(`${this.nameFormatFunction("resourceType")}: str = Field(`);
-        } else {
-            this.line(`${this.nameFormatFunction("resourceType")}: Literal['${schema.identifier.name}'] = Field(`);
-        }
+        // Always type as `str`; the value is validated on the pydantic side via `pattern`.
+        // A `Literal[...]` here would shadow the parent's field and trigger Pydantic warnings.
+        this.line(`${this.nameFormatFunction("resourceType")}: str = Field(`);
         this.indentBlock(() => {
             this.line(`default='${schema.identifier.name}',`);
             this.line(`alias='resourceType',`);
