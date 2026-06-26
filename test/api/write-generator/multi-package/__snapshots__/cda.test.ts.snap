@@ -92,7 +92,7 @@ T2 = TypeVar('T2', bound=ANY, default=ANY)
 
 class ClinicalDocument(ANY, Generic[T1, T2]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    resourceType: Literal['ClinicalDocument'] = Field(
+    resourceType: str = Field(
         default='ClinicalDocument',
         alias='resourceType',
         serialization_alias='resourceType',

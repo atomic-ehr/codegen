@@ -24,7 +24,7 @@ class OperationOutcomeIssue(BackboneElement):
 
 class OperationOutcome(DomainResource):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    resourceType: Literal['OperationOutcome'] = Field(
+    resourceType: str = Field(
         default='OperationOutcome',
         alias='resourceType',
         serialization_alias='resourceType',

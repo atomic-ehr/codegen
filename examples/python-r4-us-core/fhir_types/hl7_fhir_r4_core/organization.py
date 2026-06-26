@@ -25,7 +25,7 @@ class OrganizationContact(BackboneElement):
 
 class Organization(DomainResource):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    resourceType: Literal['Organization'] = Field(
+    resourceType: str = Field(
         default='Organization',
         alias='resourceType',
         serialization_alias='resourceType',

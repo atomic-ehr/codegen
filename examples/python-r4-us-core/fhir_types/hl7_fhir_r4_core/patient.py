@@ -38,7 +38,7 @@ class PatientLink(BackboneElement):
 
 class Patient(DomainResource):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    resourceType: Literal['Patient'] = Field(
+    resourceType: str = Field(
         default='Patient',
         alias='resourceType',
         serialization_alias='resourceType',

@@ -46,7 +46,7 @@ class ObservationReferenceRange(BackboneElement):
 
 class Observation(DomainResource):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    resourceType: Literal['Observation'] = Field(
+    resourceType: str = Field(
         default='Observation',
         alias='resourceType',
         serialization_alias='resourceType',

@@ -148,7 +148,7 @@ class ViewDefinitionWhere(BackboneElement):
 
 class ViewDefinition(CanonicalResource):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    resourceType: Literal['ViewDefinition'] = Field(
+    resourceType: str = Field(
         default='ViewDefinition',
         alias='resourceType',
         serialization_alias='resourceType',
