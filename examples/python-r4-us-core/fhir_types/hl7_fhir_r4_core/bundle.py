@@ -71,7 +71,7 @@ class BundleLink(BackboneElement):
 
 class Bundle(Resource, Generic[T1, T2]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    resourceType: Literal['Bundle'] = Field(
+    resourceType: str = Field(
         default='Bundle',
         alias='resourceType',
         serialization_alias='resourceType',
