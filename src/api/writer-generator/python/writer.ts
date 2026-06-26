@@ -468,11 +468,15 @@ export class Python extends Writer<PythonGeneratorOptions> {
     }
 
     private generateResourceTypeField(schema: SpecializationTypeSchema): void {
-        // Always type as `str`; the value is validated on the pydantic side via `pattern`.
-        // A `Literal[...]` here would shadow the parent's field and trigger Pydantic warnings.
+        // Type as `str`; the value is validated on the pydantic side via `pattern`.
+        const hasChildren = (schema.typeFamily?.resources?.length ?? 0) > 0;
         this.line(`${this.nameFormatFunction("resourceType")}: str = Field(`);
         this.indentBlock(() => {
-            this.line(`default='${schema.identifier.name}',`);
+            // Family/abstract base types (Resource, DomainResource) are subclassed by concrete
+            // resources and never instantiated directly. Omitting the default keeps `resourceType`
+            // out of the class namespace (see fhirpy_base_model.__pydantic_init_subclass__), so the
+            // concrete subclasses don't "shadow" it and trigger Pydantic UserWarnings.
+            if (!hasChildren) this.line(`default='${schema.identifier.name}',`);
             this.line(`alias='resourceType',`);
             this.line(`serialization_alias='resourceType',`);
             if (!this.forFhirpyClient) {
