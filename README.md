@@ -16,6 +16,7 @@
   - [Quick Start](#quick-start)
     - [Usage Examples](#usage-examples)
   - [Architecture](#architecture)
+    - [Generator Options](#generator-options)
     - [Input - FHIR packages & resolves canonicals](#input---fhir-packages--resolves-canonicals)
       - [Load Local StructureDefinitions & TGZ Archives](#load-local-structuredefinitions--tgz-archives)
     - [Intermediate - Type Schema](#intermediate---type-schema)
@@ -187,6 +188,44 @@ const builder = new APIBuilder()
 ```
 
 Each method returns the builder instance, allowing method chaining. The `generate()` method executes the pipeline and returns a report with success status and generated file details.
+
+### Generator Options
+
+Each language generator accepts its own option object. All options are optional; the tables below list the defaults.
+
+**TypeScript** — `.typescript({ ... })`
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `generateProfile` | `boolean` | `true` | Generate profile wrapper classes (factories, typed slice/extension accessors, `validate()`). |
+| `primitiveTypeExtension` | `boolean` | `true` | Emit sibling `_field` properties for [primitive element extensions](https://www.hl7.org/fhir/element.html#json). |
+| `openResourceTypeSet` | `boolean` | `false` | For resource families (`Resource`, `DomainResource`), keep the `resourceType` union open by adding a `string` fallback instead of a closed literal union. |
+| `extensionGetterDefault` | `"flat" \| "profile" \| "raw"` | `"flat"` | Default return shape for generated extension getters. |
+| `sliceGetterDefault` | `"flat" \| "raw"` | `"flat"` | Default return shape for generated slice getters (`flat` strips discriminators, `raw` returns the full FHIR element). |
+| `lineWidth` | `number` | `120` | Maximum line width before wrapping. |
+| `withDebugComment` | `boolean` | `false` | Emit comments tracing each generated type back to its source schema. |
+
+**Python** — `.python({ ... })`
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `client` | `"fhirpy" \| "none"` | `"fhirpy"` | Client integration baked into the models: `"fhirpy"` makes models extend `FhirpyBaseModel` for the fhirpy async client; `"none"` emits plain Pydantic models. |
+| `fieldFormat` | `"camelCase" \| "snake_case" \| "PascalCase"` | `"camelCase"` | Naming convention for generated model fields. |
+| `generateProfile` | `boolean` | `false` | Generate profile wrapper classes (`create()`, typed accessors, `validate()`) around the Pydantic models. |
+| `primitiveTypeExtension` | `boolean` | `false` | Emit primitive element extension fields. |
+| `allowExtraFields` | `boolean` | `false` | Allow fields not present in the schema on generated models (Pydantic `extra`). |
+| `rootPackageName` | `string` | `"fhir_types"` | Root Python package name for the generated module tree. |
+| `withDebugComment` | `boolean` | `false` | Emit comments tracing each generated type back to its source schema. |
+
+> `fhirpyClient?: boolean` is **deprecated** — use `client` instead (`true` → `"fhirpy"`, `false` → `"none"`).
+
+**C#** — `.csharp({ ... })`
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `rootNamespace` | `string` | `"Fhir.Types"` | Root namespace for generated classes. |
+| `staticSourceDir` | `string` | — | Directory of static `.cs` source files copied verbatim into the output. |
+| `withDebugComment` | `boolean` | `false` | Emit comments tracing each generated type back to its source schema. |
 
 ### Input - FHIR packages & resolves canonicals
 
