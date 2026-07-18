@@ -271,7 +271,11 @@ const computeMatchFromSchema = (
 
 const choiceBaseName = (name: string): string => (name.endsWith("[x]") ? name.slice(0, -3) : name);
 
+const choiceInstanceName = (baseName: string, typeCode: string): string =>
+    `${baseName}${typeCode.charAt(0).toUpperCase()}${typeCode.slice(1)}`;
+
 type DifferentialChoiceMetadata = {
+    choices: string[];
     choiceTypesExplicit: boolean;
     slicingRules?: string;
     slicingRulesExplicit: boolean;
@@ -291,8 +295,13 @@ const resolveDifferentialChoiceMetadata = (
         const differentialPath = candidate.path.split(".").slice(1).map(choiceBaseName);
         return differentialPath.length === path.length && differentialPath.every((part, index) => part === path[index]);
     });
+    const baseName = path[path.length - 1] ?? "";
+    const choices = (differentialElement?.type ?? []).flatMap((type) =>
+        type.code ? [choiceInstanceName(baseName, type.code)] : [],
+    );
     return {
-        choiceTypesExplicit: (differentialElement?.type?.length ?? 0) > 0,
+        choices,
+        choiceTypesExplicit: choices.length > 0,
         slicingRules: differentialElement?.slicing?.rules,
         slicingRulesExplicit: differentialElement?.slicing?.rules !== undefined,
     };
@@ -452,7 +461,10 @@ export const mkField = (
         max: element.max,
         slicing: buildSlicing(path[path.length - 1] ?? "", element, differentialChoiceMetadata?.slicingRules),
 
-        choices: element.choices,
+        choices:
+            differentialChoiceMetadata && differentialChoiceMetadata.choices.length > 0
+                ? differentialChoiceMetadata.choices
+                : element.choices,
         choiceOf: element.choiceOf,
         ...(element.choices && differentialChoiceMetadata
             ? {
