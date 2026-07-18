@@ -106,6 +106,8 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
                         "http://example.org/fhir/StructureDefinition/ExampleClosedChoiceCondition": {},
                         "http://example.org/fhir/StructureDefinition/ExampleInheritedOpenChoiceCondition": {},
                         "http://example.org/fhir/StructureDefinition/ExampleOpenEffectiveObservation": {},
+                        "http://example.org/fhir/StructureDefinition/ExampleOpenMultiTypeObservation": {},
+                        "http://example.org/fhir/StructureDefinition/ExampleOpenPrimitiveValueObservation": {},
                         "http://example.org/fhir/StructureDefinition/ExampleRootRestrictedChoiceCondition": {},
                     },
                     "hl7.fhir.r4.core": {
@@ -167,6 +169,34 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
             expect(profileFile).not.toContain('validateExcluded(res, profileName, "effectivePeriod")');
             expect(profileFile).toContain('validateExcluded(res, profileName, "effectiveTiming")');
             expect(profileFile).toContain('validateExcluded(res, profileName, "effectiveInstant")');
+        });
+
+        // Guards codegen-y24: the differential type list is the effective ceiling even when only one slice is materialized.
+        it("fixes codegen-y24 for explicit open multi-type ceilings", () => {
+            const profileFile =
+                result.filesGenerated.typescript![
+                    "generated/types/example-folder-structures/profiles/Observation_ExampleOpenMultiTypeObservation.ts"
+                ];
+            expect(profileFile).toBeDefined();
+            expect(profileFile).not.toContain('validateExcluded(res, profileName, "effectiveDateTime")');
+            expect(profileFile).not.toContain('validateExcluded(res, profileName, "effectivePeriod")');
+            expect(profileFile).toContain('validateExcluded(res, profileName, "effectiveTiming")');
+            expect(profileFile).toContain('validateExcluded(res, profileName, "effectiveInstant")');
+            expect(profileFile).not.toContain('validateExcluded(res, profileName, "valueQuantity")');
+            expect(profileFile).not.toContain('validateExcluded(res, profileName, "valueCodeableConcept")');
+            expect(profileFile).toContain('validateExcluded(res, profileName, "valueBoolean")');
+        });
+
+        // Guards codegen-y24 for a primitive type that has no separate typed slice in the differential.
+        it("fixes codegen-y24 for explicit open primitive choice types", () => {
+            const profileFile =
+                result.filesGenerated.typescript![
+                    "generated/types/example-folder-structures/profiles/Observation_ExampleOpenPrimitiveValueObservation.ts"
+                ];
+            expect(profileFile).toBeDefined();
+            expect(profileFile).not.toContain('validateExcluded(res, profileName, "valueBoolean")');
+            expect(profileFile).not.toContain('validateExcluded(res, profileName, "valueCodeableConcept")');
+            expect(profileFile).toContain('validateExcluded(res, profileName, "valueQuantity")');
         });
 
         it("should apply a child root type restriction under inherited open slicing", () => {

@@ -1,0 +1,56 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "example-open-primitive-value-observation",
+  "url": "http://example.org/fhir/StructureDefinition/ExampleOpenPrimitiveValueObservation",
+  "version": "0.0.1",
+  "name": "ExampleOpenPrimitiveValueObservation",
+  "title": "Example Open Primitive Value Observation",
+  "status": "draft",
+  "date": "2024-01-01",
+  "publisher": "Atomic Example Studio",
+  "description": "An Observation profile with an explicit primitive and complex value choice ceiling.",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Observation",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Observation",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Observation.value[x]",
+        "path": "Observation.value[x]",
+        "slicing": {
+          "discriminator": [
+            {
+              "type": "type",
+              "path": "$this"
+            }
+          ],
+          "rules": "open",
+          "ordered": false
+        },
+        "type": [
+          {
+            "code": "CodeableConcept"
+          },
+          {
+            "code": "boolean"
+          }
+        ]
+      },
+      {
+        "id": "Observation.value[x]:valueCodeableConcept",
+        "path": "Observation.value[x]",
+        "sliceName": "valueCodeableConcept",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "CodeableConcept"
+          }
+        ]
+      }
+    ]
+  }
+}
