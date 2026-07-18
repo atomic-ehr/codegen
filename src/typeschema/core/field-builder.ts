@@ -271,20 +271,31 @@ const computeMatchFromSchema = (
 
 const choiceBaseName = (name: string): string => (name.endsWith("[x]") ? name.slice(0, -3) : name);
 
-const resolveDifferentialSlicingRules = (
+type DifferentialChoiceMetadata = {
+    choiceTypesExplicit: boolean;
+    slicingRules?: string;
+    slicingRulesExplicit: boolean;
+};
+
+const resolveDifferentialChoiceMetadata = (
     register: Register,
     fhirSchema: RichFHIRSchema,
     path: string[],
-    element: FHIRSchemaElement,
-): string | undefined => {
-    if (!element.slicing || fhirSchema.derivation !== "constraint") return undefined;
+): DifferentialChoiceMetadata | undefined => {
+    if (fhirSchema.derivation !== "constraint") return undefined;
     const structureDefinition = register.resolveSd(fhirSchema.package_meta, fhirSchema.url);
+    if (!structureDefinition) return undefined;
     const differentialElements = structureDefinition?.differential?.element ?? [];
-    return differentialElements.find((differentialElement) => {
-        if (!differentialElement.slicing?.rules) return false;
-        const differentialPath = differentialElement.path.split(".").slice(1).map(choiceBaseName);
+    const differentialElement = differentialElements.find((candidate) => {
+        if (candidate.sliceName !== undefined) return false;
+        const differentialPath = candidate.path.split(".").slice(1).map(choiceBaseName);
         return differentialPath.length === path.length && differentialPath.every((part, index) => part === path[index]);
-    })?.slicing?.rules;
+    });
+    return {
+        choiceTypesExplicit: (differentialElement?.type?.length ?? 0) > 0,
+        slicingRules: differentialElement?.slicing?.rules,
+        slicingRulesExplicit: differentialElement?.slicing?.rules !== undefined,
+    };
 };
 
 const buildSlicing = (
@@ -373,6 +384,9 @@ export const mkField = (
     logger?: CodegenLog,
     rawElement?: FHIRSchemaElement,
 ): Field => {
+    const differentialChoiceMetadata = element.choices
+        ? resolveDifferentialChoiceMetadata(register, fhirSchema, path)
+        : undefined;
     let binding: BindingIdentifier | undefined;
     let enumResult: EnumDefinition | undefined;
     if (element.binding) {
@@ -436,14 +450,16 @@ export const mkField = (
         array: element.array || false,
         min: element.min,
         max: element.max,
-        slicing: buildSlicing(
-            path[path.length - 1] ?? "",
-            element,
-            resolveDifferentialSlicingRules(register, fhirSchema, path, element),
-        ),
+        slicing: buildSlicing(path[path.length - 1] ?? "", element, differentialChoiceMetadata?.slicingRules),
 
         choices: element.choices,
         choiceOf: element.choiceOf,
+        ...(element.choices && differentialChoiceMetadata
+            ? {
+                  choiceTypesExplicit: differentialChoiceMetadata.choiceTypesExplicit,
+                  slicingRulesExplicit: differentialChoiceMetadata.slicingRulesExplicit,
+              }
+            : {}),
 
         binding: binding,
         enum: enumResult,

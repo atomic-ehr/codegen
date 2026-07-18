@@ -412,15 +412,17 @@ const applyChoiceConstraint = (
         return { ...state, permitted: new Set([...permitted].filter((name) => declaredChoices.has(name))) };
     }
 
-    const explicitRules = declaration.slicing?.rules;
+    const explicitRules = declaration.slicingRulesExplicit === false ? undefined : declaration.slicing?.rules;
     const effectiveSlicingRules = explicitRules ?? state.effectiveSlicingRules;
     if (declaration.excluded) return { permitted: new Set(), effectiveSlicingRules };
 
     const continuesInheritedOpenSlicing =
+        declaration.choiceTypesExplicit !== true &&
         explicitRules === undefined &&
         isOpenLikeChoiceSlicing(effectiveSlicingRules) &&
         declaration.slicing !== undefined;
-    if (isOpenLikeChoiceSlicing(explicitRules) || continuesInheritedOpenSlicing) {
+    const declaresOnlyOpenSlicing = declaration.choiceTypesExplicit !== true && isOpenLikeChoiceSlicing(explicitRules);
+    if (declaresOnlyOpenSlicing || continuesInheritedOpenSlicing) {
         return { permitted, effectiveSlicingRules };
     }
 

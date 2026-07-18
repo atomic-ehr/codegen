@@ -388,6 +388,8 @@ export interface RegularField {
 export interface ChoiceFieldDeclaration {
     choices: string[];
     prohibited?: string[];
+    choiceTypesExplicit?: boolean;
+    slicingRulesExplicit?: boolean;
     required?: boolean;
     excluded?: boolean;
     array?: boolean;

@@ -106,6 +106,7 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
                         "http://example.org/fhir/StructureDefinition/ExampleClosedChoiceCondition": {},
                         "http://example.org/fhir/StructureDefinition/ExampleInheritedOpenChoiceCondition": {},
                         "http://example.org/fhir/StructureDefinition/ExampleOpenEffectiveObservation": {},
+                        "http://example.org/fhir/StructureDefinition/ExampleRootRestrictedChoiceCondition": {},
                     },
                     "hl7.fhir.r4.core": {
                         "http://hl7.org/fhir/StructureDefinition/Condition": {},
@@ -166,6 +167,19 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
             expect(profileFile).not.toContain('validateExcluded(res, profileName, "effectivePeriod")');
             expect(profileFile).toContain('validateExcluded(res, profileName, "effectiveTiming")');
             expect(profileFile).toContain('validateExcluded(res, profileName, "effectiveInstant")');
+        });
+
+        it("should apply a child root type restriction under inherited open slicing", () => {
+            const profileFile =
+                result.filesGenerated.typescript![
+                    "generated/types/example-folder-structures/profiles/Condition_ExampleRootRestrictedChoiceCondition.ts"
+                ];
+            expect(profileFile).toBeDefined();
+            expect(profileFile).not.toContain('validateExcluded(res, profileName, "onsetDateTime")');
+            expect(profileFile).toContain('validateExcluded(res, profileName, "onsetPeriod")');
+            expect(profileFile).toContain('validateExcluded(res, profileName, "onsetRange")');
+            expect(profileFile).toContain('validateExcluded(res, profileName, "onsetString")');
+            expect(profileFile).toContain('validateExcluded(res, profileName, "onsetAge")');
         });
     });
 

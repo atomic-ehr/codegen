@@ -1,0 +1,31 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "example-root-restricted-choice-condition",
+  "url": "http://example.org/fhir/StructureDefinition/ExampleRootRestrictedChoiceCondition",
+  "version": "0.0.1",
+  "name": "ExampleRootRestrictedChoiceCondition",
+  "title": "Example Root Restricted Choice Condition",
+  "status": "draft",
+  "date": "2024-01-01",
+  "publisher": "Atomic Example Studio",
+  "description": "A Condition profile that explicitly restricts an inherited open choice at its root.",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Condition",
+  "baseDefinition": "http://example.org/fhir/StructureDefinition/ExampleOpenChoiceCondition",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Condition.onset[x]",
+        "path": "Condition.onset[x]",
+        "type": [
+          {
+            "code": "dateTime"
+          }
+        ]
+      }
+    ]
+  }
+}
