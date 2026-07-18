@@ -269,7 +269,29 @@ const computeMatchFromSchema = (
     return result;
 };
 
-const buildSlicing = (fieldName: string, element: FHIRSchemaElement): FieldSlicing | undefined => {
+const choiceBaseName = (name: string): string => (name.endsWith("[x]") ? name.slice(0, -3) : name);
+
+const resolveDifferentialSlicingRules = (
+    register: Register,
+    fhirSchema: RichFHIRSchema,
+    path: string[],
+    element: FHIRSchemaElement,
+): string | undefined => {
+    if (!element.slicing || fhirSchema.derivation !== "constraint") return undefined;
+    const structureDefinition = register.resolveSd(fhirSchema.package_meta, fhirSchema.url);
+    const differentialElements = structureDefinition?.differential?.element ?? [];
+    return differentialElements.find((differentialElement) => {
+        if (!differentialElement.slicing?.rules) return false;
+        const differentialPath = differentialElement.path.split(".").slice(1).map(choiceBaseName);
+        return differentialPath.length === path.length && differentialPath.every((part, index) => part === path[index]);
+    })?.slicing?.rules;
+};
+
+const buildSlicing = (
+    fieldName: string,
+    element: FHIRSchemaElement,
+    differentialRules?: string,
+): FieldSlicing | undefined => {
     const slicing = element.slicing;
     if (!slicing) return undefined;
 
@@ -292,7 +314,7 @@ const buildSlicing = (fieldName: string, element: FHIRSchemaElement): FieldSlici
 
     return {
         discriminator: slicing.discriminator ?? [],
-        rules: slicing.rules,
+        rules: differentialRules ?? slicing.rules,
         ordered: slicing.ordered,
         slices: Object.keys(slices).length > 0 ? slices : undefined,
     };
@@ -414,7 +436,11 @@ export const mkField = (
         array: element.array || false,
         min: element.min,
         max: element.max,
-        slicing: buildSlicing(path[path.length - 1] ?? "", element),
+        slicing: buildSlicing(
+            path[path.length - 1] ?? "",
+            element,
+            resolveDifferentialSlicingRules(register, fhirSchema, path, element),
+        ),
 
         choices: element.choices,
         choiceOf: element.choiceOf,

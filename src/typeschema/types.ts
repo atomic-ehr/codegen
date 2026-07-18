@@ -393,6 +393,7 @@ export interface ChoiceFieldDeclaration {
     array?: boolean;
     min?: number;
     max?: number;
+    slicing?: FieldSlicing;
 }
 
 export interface ChoiceFieldInstance {

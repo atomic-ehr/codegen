@@ -1,0 +1,72 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "example-open-choice-condition",
+  "url": "http://example.org/fhir/StructureDefinition/ExampleOpenChoiceCondition",
+  "version": "0.0.1",
+  "name": "ExampleOpenChoiceCondition",
+  "title": "Example Open Choice Condition",
+  "status": "draft",
+  "date": "2024-01-01",
+  "publisher": "Atomic Example Studio",
+  "description": "A Condition profile that uses open type slicing on onset[x].",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Condition",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Condition",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Condition.onset[x]",
+        "path": "Condition.onset[x]",
+        "slicing": {
+          "discriminator": [
+            {
+              "type": "type",
+              "path": "$this"
+            }
+          ],
+          "rules": "open",
+          "ordered": false
+        }
+      },
+      {
+        "id": "Condition.onset[x]:onsetDateTime",
+        "path": "Condition.onset[x]",
+        "sliceName": "onsetDateTime",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "dateTime"
+          }
+        ]
+      },
+      {
+        "id": "Condition.onset[x]:onsetPeriod",
+        "path": "Condition.onset[x]",
+        "sliceName": "onsetPeriod",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "Period"
+          }
+        ]
+      },
+      {
+        "id": "Condition.onset[x]:onsetAge",
+        "path": "Condition.onset[x]",
+        "sliceName": "onsetAge",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "Age"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -544,6 +544,207 @@ describe("TypeSchema Index", () => {
             expect((result.fields?.fieldA as RegularField).type).toEqual(numberType);
         });
 
+        it("keeps explicitly excluded instances prohibited in an open-sliced choice", () => {
+            const baseSchema: SpecializationTypeSchema = {
+                identifier: {
+                    name: "Base" as Name,
+                    package: "test",
+                    kind: "resource",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/Base" as CanonicalUrl,
+                },
+            };
+            const constraintSchema: ProfileTypeSchema = {
+                identifier: {
+                    name: "Constraint" as Name,
+                    package: "test",
+                    kind: "profile",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/Constraint" as CanonicalUrl,
+                },
+                base: baseSchema.identifier,
+                fields: {
+                    onset: {
+                        choices: ["onsetAge"],
+                        slicing: { rules: "open" },
+                    },
+                    onsetDateTime: { choiceOf: "onset", type: stringType },
+                    onsetPeriod: { choiceOf: "onset", type: stringType, excluded: true },
+                    onsetAge: { choiceOf: "onset", type: stringType },
+                },
+            };
+
+            const index = mkTypeSchemaIndex([baseSchema, constraintSchema], {});
+            const result = index.flatProfile(constraintSchema);
+
+            expect(result.fields?.onset).toMatchObject({
+                choices: ["onsetAge", "onsetDateTime"],
+                prohibited: ["onsetPeriod"],
+            });
+        });
+
+        it("keeps undeclared instances prohibited in a closed-sliced choice", () => {
+            const baseSchema: SpecializationTypeSchema = {
+                identifier: {
+                    name: "Base" as Name,
+                    package: "test",
+                    kind: "resource",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/Base" as CanonicalUrl,
+                },
+                fields: {
+                    onset: {
+                        choices: ["onsetDateTime", "onsetPeriod", "onsetRange", "onsetAge"],
+                    },
+                    onsetDateTime: { choiceOf: "onset", type: stringType },
+                    onsetPeriod: { choiceOf: "onset", type: stringType },
+                    onsetRange: { choiceOf: "onset", type: stringType },
+                    onsetAge: { choiceOf: "onset", type: stringType },
+                },
+            };
+            const constraintSchema: ProfileTypeSchema = {
+                identifier: {
+                    name: "Constraint" as Name,
+                    package: "test",
+                    kind: "profile",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/Constraint" as CanonicalUrl,
+                },
+                base: baseSchema.identifier,
+                fields: {
+                    onset: {
+                        choices: ["onsetAge"],
+                        slicing: { rules: "closed" },
+                    },
+                    onsetDateTime: { choiceOf: "onset", type: stringType },
+                    onsetPeriod: { choiceOf: "onset", type: stringType },
+                    onsetAge: { choiceOf: "onset", type: stringType },
+                },
+            };
+
+            const index = mkTypeSchemaIndex([baseSchema, constraintSchema], {});
+            const result = index.flatProfile(constraintSchema);
+
+            expect(result.fields?.onset).toMatchObject({
+                choices: ["onsetAge"],
+                prohibited: ["onsetDateTime", "onsetPeriod", "onsetRange"],
+            });
+        });
+
+        it("inherits open slicing when a leaf profile only restates a typed instance", () => {
+            const baseSchema: SpecializationTypeSchema = {
+                identifier: {
+                    name: "Base" as Name,
+                    package: "test",
+                    kind: "resource",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/Base" as CanonicalUrl,
+                },
+                fields: {
+                    onset: { choices: ["onsetDateTime", "onsetPeriod", "onsetAge"] },
+                    onsetDateTime: { choiceOf: "onset", type: stringType },
+                    onsetPeriod: { choiceOf: "onset", type: stringType },
+                    onsetAge: { choiceOf: "onset", type: stringType },
+                },
+            };
+            const parentSchema: ProfileTypeSchema = {
+                identifier: {
+                    name: "Parent" as Name,
+                    package: "test",
+                    kind: "profile",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/Parent" as CanonicalUrl,
+                },
+                base: baseSchema.identifier,
+                fields: {
+                    onset: { choices: ["onsetAge"], slicing: { rules: "open" } },
+                    onsetDateTime: { choiceOf: "onset", type: stringType },
+                    onsetPeriod: { choiceOf: "onset", type: stringType },
+                    onsetAge: { choiceOf: "onset", type: stringType },
+                },
+            };
+            const leafSchema: ProfileTypeSchema = {
+                identifier: {
+                    name: "Leaf" as Name,
+                    package: "test",
+                    kind: "profile",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/Leaf" as CanonicalUrl,
+                },
+                base: parentSchema.identifier,
+                fields: {
+                    onsetDateTime: { choiceOf: "onset", type: stringType },
+                },
+            };
+
+            const index = mkTypeSchemaIndex([baseSchema, parentSchema, leafSchema], {});
+            const result = index.flatProfile(leafSchema);
+
+            expect(result.fields?.onset).toMatchObject({
+                choices: ["onsetDateTime", "onsetPeriod", "onsetAge"],
+            });
+            expect(result.fields?.onset).not.toHaveProperty("prohibited");
+        });
+
+        it("uses a leaf closed rule instead of an inherited open rule", () => {
+            const baseSchema: SpecializationTypeSchema = {
+                identifier: {
+                    name: "Base" as Name,
+                    package: "test",
+                    kind: "resource",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/Base" as CanonicalUrl,
+                },
+                fields: {
+                    onset: {
+                        choices: ["onsetDateTime", "onsetPeriod", "onsetRange", "onsetAge"],
+                    },
+                    onsetDateTime: { choiceOf: "onset", type: stringType },
+                    onsetPeriod: { choiceOf: "onset", type: stringType },
+                    onsetRange: { choiceOf: "onset", type: stringType },
+                    onsetAge: { choiceOf: "onset", type: stringType },
+                },
+            };
+            const parentSchema: ProfileTypeSchema = {
+                identifier: {
+                    name: "Parent" as Name,
+                    package: "test",
+                    kind: "profile",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/Parent" as CanonicalUrl,
+                },
+                base: baseSchema.identifier,
+                fields: {
+                    onset: { choices: ["onsetAge"], slicing: { rules: "open" } },
+                    onsetDateTime: { choiceOf: "onset", type: stringType },
+                    onsetPeriod: { choiceOf: "onset", type: stringType },
+                    onsetAge: { choiceOf: "onset", type: stringType },
+                },
+            };
+            const leafSchema: ProfileTypeSchema = {
+                identifier: {
+                    name: "Leaf" as Name,
+                    package: "test",
+                    kind: "profile",
+                    version: "1.0.0",
+                    url: "http://example.org/StructureDefinition/Leaf" as CanonicalUrl,
+                },
+                base: parentSchema.identifier,
+                fields: {
+                    onset: { choices: ["onsetDateTime"], slicing: { rules: "closed" } },
+                    onsetDateTime: { choiceOf: "onset", type: stringType },
+                },
+            };
+
+            const index = mkTypeSchemaIndex([baseSchema, parentSchema, leafSchema], {});
+            const result = index.flatProfile(leafSchema);
+
+            expect(result.fields?.onset).toMatchObject({
+                choices: ["onsetDateTime"],
+                prohibited: ["onsetPeriod", "onsetRange", "onsetAge"],
+            });
+        });
+
         it("should throw error when no non-constraint schema is found", () => {
             const constraintSchema = {
                 identifier: {

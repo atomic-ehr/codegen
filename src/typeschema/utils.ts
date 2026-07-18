@@ -8,6 +8,7 @@ import {
     type BindingIdentifier,
     type BindingTypeSchema,
     type CanonicalUrl,
+    type ChoiceFieldDeclaration,
     type ChoiceFieldInstance,
     type ComplexTypeIdentifier,
     type ComplexTypeTypeSchema,
@@ -503,15 +504,49 @@ export const mkTypeSchemaIndex = (
     const narrowMergedChoiceDeclarations = (
         mergedFields: Record<string, Field>,
         constraintSchemas: TypeSchema[],
+        baseFields: Record<string, Field>,
     ): Record<string, Field> => {
         const result = { ...mergedFields };
+
+        const choiceUniverse = (declName: string, declField: ChoiceFieldDeclaration): string[] => {
+            const baseDeclaration = baseFields[declName];
+            const baseChoices = isChoiceDeclarationField(baseDeclaration) ? baseDeclaration.choices : [];
+            const presentChoices = Object.entries(result)
+                .filter(
+                    ([_, field]) =>
+                        isChoiceInstanceField(field) && (field as ChoiceFieldInstance).choiceOf === declName,
+                )
+                .map(([name]) => name);
+            return [...new Set([...baseChoices, ...declField.choices, ...presentChoices])];
+        };
+
         for (const [declName, declField] of Object.entries(result)) {
             if (!isChoiceDeclarationField(declField) || declField.excluded) continue;
+
+            const effectiveSlicingRules = constraintSchemas
+                .map((schema) => (schema as SpecializationTypeSchema).fields?.[declName])
+                .find((field) => isChoiceDeclarationField(field) && field.slicing?.rules !== undefined)?.slicing?.rules;
+            if (effectiveSlicingRules === "open") {
+                const explicitlyExcluded = new Set(
+                    Object.entries(result)
+                        .filter(
+                            ([_, field]) =>
+                                isChoiceInstanceField(field) && field.choiceOf === declName && field.excluded === true,
+                        )
+                        .map(([name]) => name),
+                );
+                result[declName] = {
+                    ...declField,
+                    choices: choiceUniverse(declName, declField).filter((name) => !explicitlyExcluded.has(name)),
+                };
+                continue;
+            }
 
             for (const cSchema of constraintSchemas) {
                 const sFields = (cSchema as SpecializationTypeSchema).fields;
                 if (!sFields) continue;
-                if (sFields[declName] && isChoiceDeclarationField(sFields[declName])) continue;
+                const schemaDeclaration = sFields[declName];
+                if (schemaDeclaration && isChoiceDeclarationField(schemaDeclaration)) break;
 
                 const instancesInSchema = Object.entries(sFields)
                     .filter(([_, f]) => isChoiceInstanceField(f) && (f as ChoiceFieldInstance).choiceOf === declName)
@@ -528,14 +563,10 @@ export const mkTypeSchemaIndex = (
         for (const [declName, declField] of Object.entries(result)) {
             if (!isChoiceDeclarationField(declField)) continue;
             const permitted = new Set(declField.excluded ? [] : declField.choices);
-            const prohibited = Object.entries(result)
-                .filter(
-                    (e): e is [string, ChoiceFieldInstance] =>
-                        isChoiceInstanceField(e[1]) && e[1].choiceOf === declName,
-                )
-                .filter(([name]) => !permitted.has(name))
-                .map(([name]) => name);
-            if (prohibited.length > 0) result[declName] = { ...declField, prohibited };
+            const prohibited = choiceUniverse(declName, declField).filter((name) => !permitted.has(name));
+            const { prohibited: _, ...declarationWithoutProhibited } = declField;
+            result[declName] =
+                prohibited.length > 0 ? { ...declarationWithoutProhibited, prohibited } : declarationWithoutProhibited;
         }
 
         return result;
@@ -570,7 +601,11 @@ export const mkTypeSchemaIndex = (
             }
         }
 
-        const narrowedFields = narrowMergedChoiceDeclarations(mergedFields, constraintSchemas);
+        const narrowedFields = narrowMergedChoiceDeclarations(
+            mergedFields,
+            constraintSchemas,
+            (nonConstraintSchema as SpecializationTypeSchema).fields ?? {},
+        );
 
         const dependencies = Object.values(
             Object.fromEntries(

@@ -96,6 +96,52 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
         });
     });
 
+    describe("TypeScript Generation with open type-sliced choice", async () => {
+        const result = await new APIBuilder({ logger: mkSilentLogger() })
+            .localStructureDefinitions(localPackageConfig)
+            .typeSchema({
+                treeShake: {
+                    "example.folder.structures": {
+                        "http://example.org/fhir/StructureDefinition/ExampleOpenChoiceCondition": {},
+                        "http://example.org/fhir/StructureDefinition/ExampleClosedChoiceCondition": {},
+                    },
+                    "hl7.fhir.r4.core": {
+                        "http://hl7.org/fhir/StructureDefinition/Condition": {},
+                    },
+                },
+            })
+            .typescript({ inMemoryOnly: true, generateProfile: true, withDebugComment: false })
+            .generate();
+
+        it("should keep every open-sliced choice variant permitted", () => {
+            expect(result.success).toBeTrue();
+
+            const profileFile =
+                result.filesGenerated.typescript![
+                    "generated/types/example-folder-structures/profiles/Condition_ExampleOpenChoiceCondition.ts"
+                ];
+            expect(profileFile).toBeDefined();
+            expect(profileFile).not.toContain('validateExcluded(res, profileName, "onsetDateTime")');
+            expect(profileFile).not.toContain('validateExcluded(res, profileName, "onsetPeriod")');
+            expect(profileFile).not.toContain('validateExcluded(res, profileName, "onsetRange")');
+            expect(profileFile).not.toContain('validateExcluded(res, profileName, "onsetString")');
+            expect(profileFile).not.toContain('validateExcluded(res, profileName, "onsetAge")');
+        });
+
+        it("should exclude every base variant not allowed by closed slicing", () => {
+            const profileFile =
+                result.filesGenerated.typescript![
+                    "generated/types/example-folder-structures/profiles/Condition_ExampleClosedChoiceCondition.ts"
+                ];
+            expect(profileFile).toBeDefined();
+            expect(profileFile).toContain('validateExcluded(res, profileName, "onsetDateTime")');
+            expect(profileFile).toContain('validateExcluded(res, profileName, "onsetPeriod")');
+            expect(profileFile).toContain('validateExcluded(res, profileName, "onsetRange")');
+            expect(profileFile).toContain('validateExcluded(res, profileName, "onsetString")');
+            expect(profileFile).not.toContain('validateExcluded(res, profileName, "onsetAge")');
+        });
+    });
+
     describe("Python Generation", async () => {
         const result = await new APIBuilder({ logger: mkSilentLogger() })
             .localStructureDefinitions(localPackageConfig)

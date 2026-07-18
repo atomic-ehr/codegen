@@ -96,14 +96,11 @@ export const generateValidateMethod = (
         const errors: string[] = [];
         const warnings: string[] = [];
         for (const [name, field] of Object.entries(fields)) {
-            if (isChoiceInstanceField(field)) {
-                const decl = fields[field.choiceOf];
-                if (decl && isChoiceDeclarationField(decl) && decl.prohibited?.includes(name))
-                    errors.push(`...validateExcluded(res, profileName, ${JSON.stringify(name)})`);
-                continue;
-            }
+            if (isChoiceInstanceField(field)) continue;
 
             if (isChoiceDeclarationField(field)) {
+                for (const prohibitedName of field.prohibited ?? [])
+                    errors.push(`...validateExcluded(res, profileName, ${JSON.stringify(prohibitedName)})`);
                 if (field.required)
                     errors.push(`...validateChoiceRequired(res, profileName, ${JSON.stringify(field.choices)})`);
                 continue;
