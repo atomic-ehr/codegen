@@ -408,6 +408,8 @@ export class USCoreBloodPressureProfile {
                 ...validateFixedValue(res, profileName, "code", {"coding":[{"system":"http://loinc.org","code":"85354-9"}]}),
                 ...validateRequired(res, profileName, "subject"),
                 ...validateReference(res, profileName, "subject", ["Patient"]),
+                ...validateExcluded(res, profileName, "effectiveTiming"),
+                ...validateExcluded(res, profileName, "effectiveInstant"),
                 ...validateChoiceRequired(res, profileName, ["effectiveDateTime","effectivePeriod"]),
                 ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
                 ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),

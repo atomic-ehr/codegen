@@ -18,7 +18,13 @@
 
 ### Skipped Canonicals
 
+- `http://example.org/fhir/StructureDefinition/ExampleClosedChoiceCondition`
+- `http://example.org/fhir/StructureDefinition/ExampleInheritedOpenChoiceCondition`
 - `http://example.org/fhir/StructureDefinition/ExampleNotebook`
+- `http://example.org/fhir/StructureDefinition/ExampleOpenChoiceCondition`
+- `http://example.org/fhir/StructureDefinition/ExampleOpenEffectiveObservation`
+- `http://example.org/fhir/StructureDefinition/ExampleRestrictedEffectiveObservation`
+- `http://example.org/fhir/StructureDefinition/ExampleRootRestrictedChoiceCondition`
 - `http://example.org/fhir/StructureDefinition/ExampleTypedBundle`
 - `http://example.org/fhir/StructureDefinition/PatientMetaRequired`
 

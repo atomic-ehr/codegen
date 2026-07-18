@@ -290,6 +290,8 @@ export class observation_bpProfile {
                 ...validateFixedValue(res, profileName, "code", {"coding":[{"code":"85354-9","system":"http://loinc.org"}]}),
                 ...validateRequired(res, profileName, "subject"),
                 ...validateReference(res, profileName, "subject", ["Patient"]),
+                ...validateExcluded(res, profileName, "effectiveTiming"),
+                ...validateExcluded(res, profileName, "effectiveInstant"),
                 ...validateChoiceRequired(res, profileName, ["effectiveDateTime","effectivePeriod"]),
                 ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
                 ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),

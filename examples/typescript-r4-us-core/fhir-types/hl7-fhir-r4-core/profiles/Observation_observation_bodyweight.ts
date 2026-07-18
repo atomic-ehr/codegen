@@ -209,6 +209,8 @@ export class observation_bodyweightProfile {
                 ...validateFixedValue(res, profileName, "code", {"coding":[{"code":"29463-7","system":"http://loinc.org"}]}),
                 ...validateRequired(res, profileName, "subject"),
                 ...validateReference(res, profileName, "subject", ["Patient"]),
+                ...validateExcluded(res, profileName, "effectiveTiming"),
+                ...validateExcluded(res, profileName, "effectiveInstant"),
                 ...validateChoiceRequired(res, profileName, ["effectiveDateTime","effectivePeriod"]),
                 ...validateReference(res, profileName, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]),
                 ...validateReference(res, profileName, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]),
