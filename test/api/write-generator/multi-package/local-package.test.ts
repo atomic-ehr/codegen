@@ -104,6 +104,8 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
                     "example.folder.structures": {
                         "http://example.org/fhir/StructureDefinition/ExampleOpenChoiceCondition": {},
                         "http://example.org/fhir/StructureDefinition/ExampleClosedChoiceCondition": {},
+                        "http://example.org/fhir/StructureDefinition/ExampleInheritedOpenChoiceCondition": {},
+                        "http://example.org/fhir/StructureDefinition/ExampleOpenEffectiveObservation": {},
                     },
                     "hl7.fhir.r4.core": {
                         "http://hl7.org/fhir/StructureDefinition/Condition": {},
@@ -139,6 +141,31 @@ describe("Local Package Folder - Multi-Package Generation", async () => {
             expect(profileFile).toContain('validateExcluded(res, profileName, "onsetRange")');
             expect(profileFile).toContain('validateExcluded(res, profileName, "onsetString")');
             expect(profileFile).not.toContain('validateExcluded(res, profileName, "onsetAge")');
+        });
+
+        it("should inherit open slicing when a leaf only declares a typed slice", () => {
+            const profileFile =
+                result.filesGenerated.typescript![
+                    "generated/types/example-folder-structures/profiles/Condition_ExampleInheritedOpenChoiceCondition.ts"
+                ];
+            expect(profileFile).toBeDefined();
+            expect(profileFile).not.toContain('validateExcluded(res, profileName, "onsetDateTime")');
+            expect(profileFile).not.toContain('validateExcluded(res, profileName, "onsetPeriod")');
+            expect(profileFile).not.toContain('validateExcluded(res, profileName, "onsetRange")');
+            expect(profileFile).not.toContain('validateExcluded(res, profileName, "onsetString")');
+            expect(profileFile).not.toContain('validateExcluded(res, profileName, "onsetAge")');
+        });
+
+        it("should not widen an inherited choice restriction through open slicing", () => {
+            const profileFile =
+                result.filesGenerated.typescript![
+                    "generated/types/example-folder-structures/profiles/Observation_ExampleOpenEffectiveObservation.ts"
+                ];
+            expect(profileFile).toBeDefined();
+            expect(profileFile).not.toContain('validateExcluded(res, profileName, "effectiveDateTime")');
+            expect(profileFile).not.toContain('validateExcluded(res, profileName, "effectivePeriod")');
+            expect(profileFile).toContain('validateExcluded(res, profileName, "effectiveTiming")');
+            expect(profileFile).toContain('validateExcluded(res, profileName, "effectiveInstant")');
         });
     });
 

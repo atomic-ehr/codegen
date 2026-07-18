@@ -544,7 +544,7 @@ describe("TypeSchema Index", () => {
             expect((result.fields?.fieldA as RegularField).type).toEqual(numberType);
         });
 
-        it("keeps explicitly excluded instances prohibited in an open-sliced choice", () => {
+        it("keeps explicitly excluded instances prohibited in open-like sliced choices", () => {
             const baseSchema: SpecializationTypeSchema = {
                 identifier: {
                     name: "Base" as Name,
@@ -554,33 +554,35 @@ describe("TypeSchema Index", () => {
                     url: "http://example.org/StructureDefinition/Base" as CanonicalUrl,
                 },
             };
-            const constraintSchema: ProfileTypeSchema = {
-                identifier: {
-                    name: "Constraint" as Name,
-                    package: "test",
-                    kind: "profile",
-                    version: "1.0.0",
-                    url: "http://example.org/StructureDefinition/Constraint" as CanonicalUrl,
-                },
-                base: baseSchema.identifier,
-                fields: {
-                    onset: {
-                        choices: ["onsetAge"],
-                        slicing: { rules: "open" },
+            for (const rules of ["open", "openAtEnd"]) {
+                const constraintSchema: ProfileTypeSchema = {
+                    identifier: {
+                        name: `Constraint${rules}` as Name,
+                        package: "test",
+                        kind: "profile",
+                        version: "1.0.0",
+                        url: `http://example.org/StructureDefinition/Constraint${rules}` as CanonicalUrl,
                     },
-                    onsetDateTime: { choiceOf: "onset", type: stringType },
-                    onsetPeriod: { choiceOf: "onset", type: stringType, excluded: true },
-                    onsetAge: { choiceOf: "onset", type: stringType },
-                },
-            };
+                    base: baseSchema.identifier,
+                    fields: {
+                        onset: {
+                            choices: ["onsetAge"],
+                            slicing: { rules },
+                        },
+                        onsetDateTime: { choiceOf: "onset", type: stringType },
+                        onsetPeriod: { choiceOf: "onset", type: stringType, excluded: true },
+                        onsetAge: { choiceOf: "onset", type: stringType },
+                    },
+                };
 
-            const index = mkTypeSchemaIndex([baseSchema, constraintSchema], {});
-            const result = index.flatProfile(constraintSchema);
+                const index = mkTypeSchemaIndex([baseSchema, constraintSchema], {});
+                const result = index.flatProfile(constraintSchema);
 
-            expect(result.fields?.onset).toMatchObject({
-                choices: ["onsetAge", "onsetDateTime"],
-                prohibited: ["onsetPeriod"],
-            });
+                expect(result.fields?.onset).toMatchObject({
+                    choices: ["onsetAge", "onsetDateTime"],
+                    prohibited: ["onsetPeriod"],
+                });
+            }
         });
 
         it("keeps undeclared instances prohibited in a closed-sliced choice", () => {

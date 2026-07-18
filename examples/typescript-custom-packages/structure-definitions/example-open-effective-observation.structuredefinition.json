@@ -1,0 +1,48 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "example-open-effective-observation",
+  "url": "http://example.org/fhir/StructureDefinition/ExampleOpenEffectiveObservation",
+  "version": "0.0.1",
+  "name": "ExampleOpenEffectiveObservation",
+  "title": "Example Open Effective Observation",
+  "status": "draft",
+  "date": "2024-01-01",
+  "publisher": "Atomic Example Studio",
+  "description": "An Observation profile that openly slices an inherited restricted effective[x].",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Observation",
+  "baseDefinition": "http://example.org/fhir/StructureDefinition/ExampleRestrictedEffectiveObservation",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Observation.effective[x]",
+        "path": "Observation.effective[x]",
+        "slicing": {
+          "discriminator": [
+            {
+              "type": "type",
+              "path": "$this"
+            }
+          ],
+          "rules": "open",
+          "ordered": false
+        }
+      },
+      {
+        "id": "Observation.effective[x]:effectivePeriod",
+        "path": "Observation.effective[x]",
+        "sliceName": "effectivePeriod",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "Period"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -367,6 +367,68 @@ export type TypeSchemaIndex = {
 
 type EntityTree = Record<PkgName, Record<TypeIdentifier["kind"], Record<CanonicalUrl, object>>>;
 
+const isOpenLikeChoiceSlicing = (rules: string | undefined): boolean => rules === "open" || rules === "openAtEnd";
+
+const choiceInstances = (fields: Record<string, Field>, declName: string): [string, ChoiceFieldInstance][] =>
+    Object.entries(fields).filter(
+        (entry): entry is [string, ChoiceFieldInstance] =>
+            isChoiceInstanceField(entry[1]) && entry[1].choiceOf === declName,
+    );
+
+const choiceUniverse = (
+    fields: Record<string, Field>,
+    baseFields: Record<string, Field>,
+    declName: string,
+    declField: ChoiceFieldDeclaration,
+): string[] => {
+    const baseDeclaration = baseFields[declName];
+    const baseChoices = isChoiceDeclarationField(baseDeclaration) ? baseDeclaration.choices : [];
+    return [
+        ...new Set([...baseChoices, ...declField.choices, ...choiceInstances(fields, declName).map(([name]) => name)]),
+    ];
+};
+
+type ChoiceConstraintState = {
+    permitted: Set<string>;
+    effectiveSlicingRules?: string;
+};
+
+const applyChoiceConstraint = (
+    state: ChoiceConstraintState,
+    fields: Record<string, Field>,
+    declName: string,
+): ChoiceConstraintState => {
+    let permitted = new Set(state.permitted);
+    for (const [name, field] of choiceInstances(fields, declName)) {
+        if (field.excluded) permitted.delete(name);
+    }
+
+    const declaration = fields[declName];
+    if (!isChoiceDeclarationField(declaration)) {
+        const instances = choiceInstances(fields, declName);
+        if (instances.length === 0 || isOpenLikeChoiceSlicing(state.effectiveSlicingRules))
+            return { ...state, permitted };
+        const declaredChoices = new Set(instances.map(([name]) => name));
+        return { ...state, permitted: new Set([...permitted].filter((name) => declaredChoices.has(name))) };
+    }
+
+    const explicitRules = declaration.slicing?.rules;
+    const effectiveSlicingRules = explicitRules ?? state.effectiveSlicingRules;
+    if (declaration.excluded) return { permitted: new Set(), effectiveSlicingRules };
+
+    const continuesInheritedOpenSlicing =
+        explicitRules === undefined &&
+        isOpenLikeChoiceSlicing(effectiveSlicingRules) &&
+        declaration.slicing !== undefined;
+    if (isOpenLikeChoiceSlicing(explicitRules) || continuesInheritedOpenSlicing) {
+        return { permitted, effectiveSlicingRules };
+    }
+
+    const declaredChoices = new Set(declaration.choices);
+    permitted = new Set([...permitted].filter((name) => declaredChoices.has(name)));
+    return { permitted, effectiveSlicingRules };
+};
+
 export const mkTypeSchemaIndex = (
     schemas: TypeSchema[],
     {
@@ -498,9 +560,10 @@ export const mkTypeSchemaIndex = (
         return findLastSpecialization(resolved).identifier;
     };
 
-    /** Narrow choice declarations by finding the most derived schema that constrains each choice group.
-     *  When a child profile declares only specific choice instances without re-declaring the declaration,
-     *  restrict the declaration's choices array to only the allowed instances. */
+    /** Resolve the permitted choice variants through the profile hierarchy.
+     *  Open slicing retains the inherited ceiling; closed declarations and ordinary
+     *  choice constraints may narrow it, but no child profile may reintroduce a
+     *  variant excluded by an ancestor. */
     const narrowMergedChoiceDeclarations = (
         mergedFields: Record<string, Field>,
         constraintSchemas: TypeSchema[],
@@ -508,62 +571,29 @@ export const mkTypeSchemaIndex = (
     ): Record<string, Field> => {
         const result = { ...mergedFields };
 
-        const choiceUniverse = (declName: string, declField: ChoiceFieldDeclaration): string[] => {
-            const baseDeclaration = baseFields[declName];
-            const baseChoices = isChoiceDeclarationField(baseDeclaration) ? baseDeclaration.choices : [];
-            const presentChoices = Object.entries(result)
-                .filter(
-                    ([_, field]) =>
-                        isChoiceInstanceField(field) && (field as ChoiceFieldInstance).choiceOf === declName,
-                )
-                .map(([name]) => name);
-            return [...new Set([...baseChoices, ...declField.choices, ...presentChoices])];
-        };
-
         for (const [declName, declField] of Object.entries(result)) {
             if (!isChoiceDeclarationField(declField) || declField.excluded) continue;
 
-            const effectiveSlicingRules = constraintSchemas
-                .map((schema) => (schema as SpecializationTypeSchema).fields?.[declName])
-                .find((field) => isChoiceDeclarationField(field) && field.slicing?.rules !== undefined)?.slicing?.rules;
-            if (effectiveSlicingRules === "open") {
-                const explicitlyExcluded = new Set(
-                    Object.entries(result)
-                        .filter(
-                            ([_, field]) =>
-                                isChoiceInstanceField(field) && field.choiceOf === declName && field.excluded === true,
-                        )
-                        .map(([name]) => name),
-                );
-                result[declName] = {
-                    ...declField,
-                    choices: choiceUniverse(declName, declField).filter((name) => !explicitlyExcluded.has(name)),
-                };
-                continue;
+            const universe = choiceUniverse(result, baseFields, declName, declField);
+            const baseDeclaration = baseFields[declName];
+            let state: ChoiceConstraintState = {
+                permitted: new Set(isChoiceDeclarationField(baseDeclaration) ? baseDeclaration.choices : universe),
+            };
+            for (const schema of constraintSchemas.slice().reverse()) {
+                const fields = (schema as SpecializationTypeSchema).fields;
+                if (fields) state = applyChoiceConstraint(state, fields, declName);
             }
 
-            for (const cSchema of constraintSchemas) {
-                const sFields = (cSchema as SpecializationTypeSchema).fields;
-                if (!sFields) continue;
-                const schemaDeclaration = sFields[declName];
-                if (schemaDeclaration && isChoiceDeclarationField(schemaDeclaration)) break;
-
-                const instancesInSchema = Object.entries(sFields)
-                    .filter(([_, f]) => isChoiceInstanceField(f) && (f as ChoiceFieldInstance).choiceOf === declName)
-                    .map(([name]) => name);
-                if (instancesInSchema.length === 0) continue;
-
-                const allowed = new Set(instancesInSchema);
-                result[declName] = { ...declField, choices: declField.choices.filter((c) => allowed.has(c)) };
-                break;
-            }
+            result[declName] = { ...declField, choices: universe.filter((name) => state.permitted.has(name)) };
         }
 
         // Compute prohibited for all choice declarations
         for (const [declName, declField] of Object.entries(result)) {
             if (!isChoiceDeclarationField(declField)) continue;
             const permitted = new Set(declField.excluded ? [] : declField.choices);
-            const prohibited = choiceUniverse(declName, declField).filter((name) => !permitted.has(name));
+            const prohibited = choiceUniverse(result, baseFields, declName, declField).filter(
+                (name) => !permitted.has(name),
+            );
             const { prohibited: _, ...declarationWithoutProhibited } = declField;
             result[declName] =
                 prohibited.length > 0 ? { ...declarationWithoutProhibited, prohibited } : declarationWithoutProhibited;
