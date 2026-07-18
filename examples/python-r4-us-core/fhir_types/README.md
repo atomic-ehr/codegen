@@ -3632,8 +3632,8 @@ and check `<pkg>/collisions/<name>/1.json, 2.json, ...` files.
   - Version 3: Consent (hl7.fhir.r4.examples#4.0.1)
 - `urn:fhir:binding:ConsentContentClass` (4 versions)
   - Version 1 (auto): Consent (hl7.fhir.r4.core#4.0.1), Consent (hl7.fhir.r4.core#4.0.1), Consent (hl7.fhir.r4.core#4.0.1), Consent (hl7.fhir.r4.core#4.0.1), Consent (hl7.fhir.r4.core#4.0.1), Consent (hl7.fhir.r4.core#4.0.1), Consent (hl7.fhir.r4.core#4.0.1), Consent (hl7.fhir.r4.core#4.0.1), Consent (hl7.fhir.r4.core#4.0.1), Consent (hl7.fhir.r4.core#4.0.1), Consent (hl7.fhir.r4.core#4.0.1), Contract (hl7.fhir.r4.core#4.0.1), Contract (hl7.fhir.r4.core#4.0.1), Contract (hl7.fhir.r4.core#4.0.1), Contract (hl7.fhir.r4.core#4.0.1), Contract (hl7.fhir.r4.core#4.0.1), Contract (hl7.fhir.r4.core#4.0.1), Contract (hl7.fhir.r4.core#4.0.1), Contract (hl7.fhir.r4.core#4.0.1), Contract (hl7.fhir.r4.core#4.0.1), Contract (hl7.fhir.r4.core#4.0.1), Contract (hl7.fhir.r4.core#4.0.1)
-  - Version 2: Contract (hl7.fhir.r5.core#5.0.0), Contract (hl7.fhir.r5.core#5.0.0), Contract (hl7.fhir.r5.core#5.0.0)
-  - Version 3: Consent (hl7.fhir.r5.core#5.0.0), Consent (hl7.fhir.r5.core#5.0.0), Consent (hl7.fhir.r5.core#5.0.0)
+  - Version 2: Consent (hl7.fhir.r5.core#5.0.0), Consent (hl7.fhir.r5.core#5.0.0), Consent (hl7.fhir.r5.core#5.0.0)
+  - Version 3: Contract (hl7.fhir.r5.core#5.0.0), Contract (hl7.fhir.r5.core#5.0.0), Contract (hl7.fhir.r5.core#5.0.0)
   - Version 4: Consent (hl7.fhir.r4.examples#4.0.1), Contract (hl7.fhir.r4.examples#4.0.1)
 - `urn:fhir:binding:ConsentContentCode` (3 versions)
   - Version 1 (auto): Consent (hl7.fhir.r4.core#4.0.1), Consent (hl7.fhir.r4.core#4.0.1), Consent (hl7.fhir.r4.core#4.0.1), Consent (hl7.fhir.r4.core#4.0.1), Consent (hl7.fhir.r4.core#4.0.1), Consent (hl7.fhir.r4.core#4.0.1), Consent (hl7.fhir.r4.core#4.0.1), Consent (hl7.fhir.r4.core#4.0.1), Consent (hl7.fhir.r4.core#4.0.1), Consent (hl7.fhir.r4.core#4.0.1), Consent (hl7.fhir.r4.core#4.0.1)
@@ -4171,8 +4171,8 @@ and check `<pkg>/collisions/<name>/1.json, 2.json, ...` files.
   - Version 3: FamilyMemberHistory (hl7.fhir.r4.examples#4.0.1)
 - `urn:fhir:binding:FHIRAllTypes` (3 versions)
   - Version 1 (auto): DataRequirement (hl7.fhir.r4.core#4.0.1), DataRequirement (hl7.fhir.r4.core#4.0.1), DataRequirement (hl7.fhir.r4.core#4.0.1), DataRequirement (hl7.fhir.r4.core#4.0.1), DataRequirement (hl7.fhir.r4.core#4.0.1), DataRequirement (hl7.fhir.r4.core#4.0.1), DataRequirement (hl7.fhir.r4.core#4.0.1), DataRequirement (hl7.fhir.r4.core#4.0.1), DataRequirement (hl7.fhir.r4.core#4.0.1), DataRequirement (hl7.fhir.r4.core#4.0.1), DataRequirement (hl7.fhir.r4.core#4.0.1), OperationDefinition (hl7.fhir.r4.core#4.0.1), OperationDefinition (hl7.fhir.r4.core#4.0.1), OperationDefinition (hl7.fhir.r4.core#4.0.1), OperationDefinition (hl7.fhir.r4.core#4.0.1), OperationDefinition (hl7.fhir.r4.core#4.0.1), OperationDefinition (hl7.fhir.r4.core#4.0.1), OperationDefinition (hl7.fhir.r4.core#4.0.1), OperationDefinition (hl7.fhir.r4.core#4.0.1), OperationDefinition (hl7.fhir.r4.core#4.0.1), OperationDefinition (hl7.fhir.r4.core#4.0.1), OperationDefinition (hl7.fhir.r4.core#4.0.1), ParameterDefinition (hl7.fhir.r4.core#4.0.1), ParameterDefinition (hl7.fhir.r4.core#4.0.1), ParameterDefinition (hl7.fhir.r4.core#4.0.1), ParameterDefinition (hl7.fhir.r4.core#4.0.1), ParameterDefinition (hl7.fhir.r4.core#4.0.1), ParameterDefinition (hl7.fhir.r4.core#4.0.1), ParameterDefinition (hl7.fhir.r4.core#4.0.1), ParameterDefinition (hl7.fhir.r4.core#4.0.1), ParameterDefinition (hl7.fhir.r4.core#4.0.1), ParameterDefinition (hl7.fhir.r4.core#4.0.1), ParameterDefinition (hl7.fhir.r4.core#4.0.1)
-  - Version 2: OperationDefinition (hl7.fhir.r5.core#5.0.0), OperationDefinition (hl7.fhir.r5.core#5.0.0), OperationDefinition (hl7.fhir.r5.core#5.0.0)
-  - Version 3: DataRequirement (hl7.fhir.r4.examples#4.0.1), OperationDefinition (hl7.fhir.r4.examples#4.0.1), ParameterDefinition (hl7.fhir.r4.examples#4.0.1)
+  - Version 2: DataRequirement (hl7.fhir.r4.examples#4.0.1), OperationDefinition (hl7.fhir.r4.examples#4.0.1), ParameterDefinition (hl7.fhir.r4.examples#4.0.1)
+  - Version 3: OperationDefinition (hl7.fhir.r5.core#5.0.0), OperationDefinition (hl7.fhir.r5.core#5.0.0), OperationDefinition (hl7.fhir.r5.core#5.0.0)
 - `urn:fhir:binding:FHIRDefinedType` (2 versions)
   - Version 1 (auto): TestScript (hl7.fhir.r4.core#4.0.1), TestScript (hl7.fhir.r4.core#4.0.1), TestScript (hl7.fhir.r4.core#4.0.1), TestScript (hl7.fhir.r4.core#4.0.1), TestScript (hl7.fhir.r4.core#4.0.1), TestScript (hl7.fhir.r4.core#4.0.1), TestScript (hl7.fhir.r4.core#4.0.1), TestScript (hl7.fhir.r4.core#4.0.1), TestScript (hl7.fhir.r4.core#4.0.1), TestScript (hl7.fhir.r4.core#4.0.1), TestScript (hl7.fhir.r4.core#4.0.1)
   - Version 2: TestScript (hl7.fhir.r4.examples#4.0.1)
@@ -4724,8 +4724,8 @@ and check `<pkg>/collisions/<name>/1.json, 2.json, ...` files.
 - `urn:fhir:binding:NoteType` (4 versions)
   - Version 1 (auto): ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), PaymentReconciliation (hl7.fhir.r4.core#4.0.1), PaymentReconciliation (hl7.fhir.r4.core#4.0.1), PaymentReconciliation (hl7.fhir.r4.core#4.0.1), PaymentReconciliation (hl7.fhir.r4.core#4.0.1), PaymentReconciliation (hl7.fhir.r4.core#4.0.1), PaymentReconciliation (hl7.fhir.r4.core#4.0.1), PaymentReconciliation (hl7.fhir.r4.core#4.0.1), PaymentReconciliation (hl7.fhir.r4.core#4.0.1), PaymentReconciliation (hl7.fhir.r4.core#4.0.1), PaymentReconciliation (hl7.fhir.r4.core#4.0.1), PaymentReconciliation (hl7.fhir.r4.core#4.0.1)
   - Version 2: ClaimResponse (hl7.fhir.r5.core#5.0.0), ClaimResponse (hl7.fhir.r5.core#5.0.0), ClaimResponse (hl7.fhir.r5.core#5.0.0), ExplanationOfBenefit (hl7.fhir.r5.core#5.0.0), ExplanationOfBenefit (hl7.fhir.r5.core#5.0.0), ExplanationOfBenefit (hl7.fhir.r5.core#5.0.0)
-  - Version 3: PaymentReconciliation (hl7.fhir.r5.core#5.0.0), PaymentReconciliation (hl7.fhir.r5.core#5.0.0), PaymentReconciliation (hl7.fhir.r5.core#5.0.0)
-  - Version 4: ClaimResponse (hl7.fhir.r4.examples#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.examples#4.0.1), PaymentReconciliation (hl7.fhir.r4.examples#4.0.1)
+  - Version 3: ClaimResponse (hl7.fhir.r4.examples#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.examples#4.0.1), PaymentReconciliation (hl7.fhir.r4.examples#4.0.1)
+  - Version 4: PaymentReconciliation (hl7.fhir.r5.core#5.0.0), PaymentReconciliation (hl7.fhir.r5.core#5.0.0), PaymentReconciliation (hl7.fhir.r5.core#5.0.0)
 - `urn:fhir:binding:NutrientModifier` (3 versions)
   - Version 1 (auto): NutritionOrder (hl7.fhir.r4.core#4.0.1), NutritionOrder (hl7.fhir.r4.core#4.0.1), NutritionOrder (hl7.fhir.r4.core#4.0.1), NutritionOrder (hl7.fhir.r4.core#4.0.1), NutritionOrder (hl7.fhir.r4.core#4.0.1), NutritionOrder (hl7.fhir.r4.core#4.0.1), NutritionOrder (hl7.fhir.r4.core#4.0.1), NutritionOrder (hl7.fhir.r4.core#4.0.1), NutritionOrder (hl7.fhir.r4.core#4.0.1), NutritionOrder (hl7.fhir.r4.core#4.0.1), NutritionOrder (hl7.fhir.r4.core#4.0.1)
   - Version 2: NutritionOrder (hl7.fhir.r5.core#5.0.0), NutritionOrder (hl7.fhir.r5.core#5.0.0), NutritionOrder (hl7.fhir.r5.core#5.0.0)
@@ -5546,8 +5546,8 @@ and check `<pkg>/collisions/<name>/1.json, 2.json, ...` files.
   - Version 3: Timing (hl7.fhir.r4.examples#4.0.1)
 - `urn:fhir:binding:UsageContextType` (4 versions)
   - Version 1 (auto): UsageContext (hl7.fhir.r4.core#4.0.1), UsageContext (hl7.fhir.r4.core#4.0.1), UsageContext (hl7.fhir.r4.core#4.0.1), UsageContext (hl7.fhir.r4.core#4.0.1), UsageContext (hl7.fhir.r4.core#4.0.1), UsageContext (hl7.fhir.r4.core#4.0.1), UsageContext (hl7.fhir.r4.core#4.0.1), UsageContext (hl7.fhir.r4.core#4.0.1), UsageContext (hl7.fhir.r4.core#4.0.1), UsageContext (hl7.fhir.r4.core#4.0.1), UsageContext (hl7.fhir.r4.core#4.0.1), sdc-usagecontext (hl7.fhir.uv.sdc#3.0.0), sdc-usagecontext (hl7.fhir.uv.sdc#3.0.0)
-  - Version 2: UsageContext (hl7.fhir.r5.core#5.0.0), UsageContext (hl7.fhir.r5.core#5.0.0), UsageContext (hl7.fhir.r5.core#5.0.0)
-  - Version 3: EvidenceVariable (hl7.fhir.r5.core#5.0.0), EvidenceVariable (hl7.fhir.r5.core#5.0.0), EvidenceVariable (hl7.fhir.r5.core#5.0.0)
+  - Version 2: EvidenceVariable (hl7.fhir.r5.core#5.0.0), EvidenceVariable (hl7.fhir.r5.core#5.0.0), EvidenceVariable (hl7.fhir.r5.core#5.0.0)
+  - Version 3: UsageContext (hl7.fhir.r5.core#5.0.0), UsageContext (hl7.fhir.r5.core#5.0.0), UsageContext (hl7.fhir.r5.core#5.0.0)
   - Version 4: UsageContext (hl7.fhir.r4.examples#4.0.1)
 - `urn:fhir:binding:Use` (3 versions)
   - Version 1 (auto): Claim (hl7.fhir.r4.core#4.0.1), Claim (hl7.fhir.r4.core#4.0.1), Claim (hl7.fhir.r4.core#4.0.1), Claim (hl7.fhir.r4.core#4.0.1), Claim (hl7.fhir.r4.core#4.0.1), Claim (hl7.fhir.r4.core#4.0.1), Claim (hl7.fhir.r4.core#4.0.1), Claim (hl7.fhir.r4.core#4.0.1), Claim (hl7.fhir.r4.core#4.0.1), Claim (hl7.fhir.r4.core#4.0.1), Claim (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ClaimResponse (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1), ExplanationOfBenefit (hl7.fhir.r4.core#4.0.1)
@@ -5700,7 +5700,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:AdjunctDiagnosis": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/lipidprofile",
+            canonical: "http://hl7.org/fhir/StructureDefinition/DiagnosticReport",
         },
         "urn:fhir:binding:AdministrativeGender": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -5864,7 +5864,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:BenefitCategory": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/CoverageEligibilityRequest",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Claim",
         },
         "urn:fhir:binding:BenefitCostApplicability": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -5888,7 +5888,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:BindingStrength": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/OperationDefinition",
+            canonical: "http://hl7.org/fhir/StructureDefinition/ElementDefinition",
         },
         "urn:fhir:binding:BiologicallyDerivedProductCategory": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -5908,11 +5908,11 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:BodyLengthUnits": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/headcircum",
+            canonical: "http://hl7.org/fhir/StructureDefinition/bodyheight",
         },
         "urn:fhir:binding:BodySite": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/Observation",
+            canonical: "http://hl7.org/fhir/StructureDefinition/ActivityDefinition",
         },
         "urn:fhir:binding:BodyStructureCode": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -5932,7 +5932,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:BundleType": {
             package: "hl7.fhir.r5.core#5.0.0",
-            canonical: "http://hl7.org/fhir/StructureDefinition/transaction-bundle",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Bundle",
         },
         "urn:fhir:binding:can-push-updates": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -5967,8 +5967,8 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
             canonical: "http://hl7.org/fhir/StructureDefinition/CarePlan",
         },
         "urn:fhir:binding:CarePlanCategory": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-careplan",
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/CarePlan",
         },
         "urn:fhir:binding:CarePlanIntent": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -6144,7 +6144,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:ConceptDesignationUse": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/ValueSet",
+            canonical: "http://hl7.org/fhir/StructureDefinition/CodeSystem",
         },
         "urn:fhir:binding:ConceptMapEquivalence": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -6163,8 +6163,8 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
             canonical: "http://hl7.org/fhir/StructureDefinition/CapabilityStatement",
         },
         "urn:fhir:binding:ConditionCategory": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis",
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Condition",
         },
         "urn:fhir:binding:ConditionClinicalStatus": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -6212,7 +6212,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:ConsentContentClass": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/Contract",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Consent",
         },
         "urn:fhir:binding:ConsentContentCode": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -6411,8 +6411,8 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
             canonical: "http://hl7.org/fhir/StructureDefinition/Coverage",
         },
         "urn:fhir:binding:CoverageStatus": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-coverage",
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Coverage",
         },
         "urn:fhir:binding:CoverageType": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -6428,11 +6428,11 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:DaysOfWeek": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/PractitionerRole",
+            canonical: "http://hl7.org/fhir/StructureDefinition/HealthcareService",
         },
         "urn:fhir:binding:DefinitionTopic": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/EventDefinition",
+            canonical: "http://hl7.org/fhir/StructureDefinition/ActivityDefinition",
         },
         "urn:fhir:binding:DetectedIssueCategory": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -6484,7 +6484,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:DeviceNameType": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/DeviceDefinition",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Device",
         },
         "urn:fhir:binding:DeviceRequestParticipantRole": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -6516,7 +6516,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:DiagnosisRole": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/EpisodeOfCare",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Encounter",
         },
         "urn:fhir:binding:DiagnosisType": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -6524,15 +6524,15 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:DiagnosticReportCodes": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/lipidprofile",
+            canonical: "http://hl7.org/fhir/StructureDefinition/DiagnosticReport",
         },
         "urn:fhir:binding:DiagnosticReportStatus": {
             package: "hl7.fhir.r4.core#4.0.1",
             canonical: "http://hl7.org/fhir/StructureDefinition/DiagnosticReport",
         },
         "urn:fhir:binding:DiagnosticServiceSection": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab",
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/DiagnosticReport",
         },
         "urn:fhir:binding:DICOMMediaType": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -6547,8 +6547,8 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
             canonical: "http://hl7.org/fhir/StructureDefinition/ElementDefinition",
         },
         "urn:fhir:binding:DocumentC80Class": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-adi-documentreference",
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/DocumentReference",
         },
         "urn:fhir:binding:DocumentC80FacilityType": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -6584,7 +6584,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:DocumentReferenceStatus": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/DocumentReference",
+            canonical: "http://hl7.org/fhir/StructureDefinition/DocumentManifest",
         },
         "urn:fhir:binding:DocumentRelationshipType": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -6627,24 +6627,24 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
             canonical: "http://hl7.org/fhir/StructureDefinition/Questionnaire",
         },
         "urn:fhir:binding:EncounterClass": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter",
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Encounter",
         },
         "urn:fhir:binding:EncounterLocationStatus": {
             package: "hl7.fhir.r4.core#4.0.1",
             canonical: "http://hl7.org/fhir/StructureDefinition/Encounter",
         },
         "urn:fhir:binding:EncounterReason": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter",
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Encounter",
         },
         "urn:fhir:binding:EncounterServiceType": {
             package: "hl7.fhir.r4.core#4.0.1",
             canonical: "http://hl7.org/fhir/StructureDefinition/Encounter",
         },
         "urn:fhir:binding:EncounterStatus": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter",
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Encounter",
         },
         "urn:fhir:binding:EncounterType": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -6756,7 +6756,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:FamilialRelationship": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/familymemberhistory-genetic",
+            canonical: "http://hl7.org/fhir/StructureDefinition/FamilyMemberHistory",
         },
         "urn:fhir:binding:FamilyHistoryAbsentReason": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -6804,7 +6804,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:FHIRTypes": {
             package: "hl7.fhir.r5.core#5.0.0",
-            canonical: "http://hl7.org/fhir/StructureDefinition/OperationDefinition",
+            canonical: "http://hl7.org/fhir/StructureDefinition/GraphDefinition",
         },
         "urn:fhir:binding:FHIRVersion": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -6812,7 +6812,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:FilterOperator": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/ValueSet",
+            canonical: "http://hl7.org/fhir/StructureDefinition/CodeSystem",
         },
         "urn:fhir:binding:FlagCategory": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7032,11 +7032,11 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:Jurisdiction": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/EventDefinition",
+            canonical: "http://hl7.org/fhir/StructureDefinition/ActivityDefinition",
         },
         "urn:fhir:binding:Language": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/ValueSet",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Attachment",
         },
         "urn:fhir:binding:Laterality": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7048,7 +7048,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:LibraryType": {
             package: "hl7.fhir.r5.core#5.0.0",
-            canonical: "http://hl7.org/fhir/StructureDefinition/modelinfolibrary",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Library",
         },
         "urn:fhir:binding:LinkageType": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7087,8 +7087,8 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
             canonical: "http://hl7.org/fhir/StructureDefinition/Location",
         },
         "urn:fhir:binding:LocationStatus": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-location",
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Location",
         },
         "urn:fhir:binding:LocationType": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7199,8 +7199,8 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
             canonical: "http://hl7.org/fhir/StructureDefinition/MedicationDispense",
         },
         "urn:fhir:binding:MedicationDispenseStatus": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationdispense",
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/MedicationDispense",
         },
         "urn:fhir:binding:MedicationDispenseType": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7208,15 +7208,15 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:MedicationForm": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/MedicationKnowledge",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Medication",
         },
         "urn:fhir:binding:MedicationFormalRepresentation": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/MedicationKnowledge",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Medication",
         },
         "urn:fhir:binding:MedicationIntendedSubstitutionReason": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/MedicationRequest",
+            canonical: "http://hl7.org/fhir/StructureDefinition/MedicationDispense",
         },
         "urn:fhir:binding:MedicationIntendedSubstitutionType": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7235,8 +7235,8 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
             canonical: "http://hl7.org/fhir/StructureDefinition/MedicationStatement",
         },
         "urn:fhir:binding:MedicationRequestCategory": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest",
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/MedicationRequest",
         },
         "urn:fhir:binding:MedicationRequestCourseOfTherapy": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7312,7 +7312,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:MimeType": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/Binary",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Attachment",
         },
         "urn:fhir:binding:MissingReason": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7320,7 +7320,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:Modifiers": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/CoverageEligibilityRequest",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Claim",
         },
         "urn:fhir:binding:NameUse": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7359,12 +7359,12 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
             canonical: "http://hl7.org/fhir/StructureDefinition/NutritionOrder",
         },
         "urn:fhir:binding:ObservationCategory": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-average-blood-pressure",
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Observation",
         },
         "urn:fhir:binding:ObservationCode": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-average-blood-pressure",
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Observation",
         },
         "urn:fhir:binding:ObservationDataType": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7395,16 +7395,16 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
             canonical: "http://hl7.org/fhir/StructureDefinition/Observation",
         },
         "urn:fhir:binding:ObservationStatus": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-average-blood-pressure",
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Observation",
         },
         "urn:fhir:binding:ObservationUnit": {
             package: "hl7.fhir.r4.core#4.0.1",
             canonical: "http://hl7.org/fhir/StructureDefinition/ObservationDefinition",
         },
         "urn:fhir:binding:ObservationValueAbsentReason": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-average-blood-pressure",
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Observation",
         },
         "urn:fhir:binding:OperationalStatus": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7459,8 +7459,8 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
             canonical: "http://hl7.org/fhir/StructureDefinition/AppointmentResponse",
         },
         "urn:fhir:binding:ParticipantType": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter",
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Appointment",
         },
         "urn:fhir:binding:ParticipationStatus": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7468,7 +7468,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:PatientDiet": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/NutritionOrder",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Encounter",
         },
         "urn:fhir:binding:PatientRelationshipType": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7504,7 +7504,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:PhysicalType": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/Location",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Encounter",
         },
         "urn:fhir:binding:PlanDefinitionType": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7580,7 +7580,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:ProcessPriority": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/CoverageEligibilityRequest",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Claim",
         },
         "urn:fhir:binding:Program": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7636,7 +7636,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:PublicationStatus": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/EventDefinition",
+            canonical: "http://hl7.org/fhir/StructureDefinition/ActivityDefinition",
         },
         "urn:fhir:binding:PurposeOfUse": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7668,7 +7668,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:QuantityComparator": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/SimpleQuantity",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Quantity",
         },
         "urn:fhir:binding:QuestionnaireConcept": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7683,8 +7683,8 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
             canonical: "http://hl7.org/fhir/StructureDefinition/Questionnaire",
         },
         "urn:fhir:binding:QuestionnaireResponseStatus": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse",
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/QuestionnaireResponse",
         },
         "urn:fhir:binding:ReAdmissionType": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7724,7 +7724,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:RemittanceOutcome": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/EnrollmentResponse",
+            canonical: "http://hl7.org/fhir/StructureDefinition/ClaimResponse",
         },
         "urn:fhir:binding:repositoryType": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7736,7 +7736,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:RequestPriority": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/PlanDefinition",
+            canonical: "http://hl7.org/fhir/StructureDefinition/ActivityDefinition",
         },
         "urn:fhir:binding:RequestStatus": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7808,7 +7808,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:RouteOfAdministration": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/Dosage",
+            canonical: "http://hl7.org/fhir/StructureDefinition/AllergyIntolerance",
         },
         "urn:fhir:binding:Safety": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7868,23 +7868,23 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:ServiceProduct": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/CoverageEligibilityRequest",
+            canonical: "http://hl7.org/fhir/StructureDefinition/Claim",
         },
         "urn:fhir:binding:ServiceProvisionConditions": {
             package: "hl7.fhir.r4.core#4.0.1",
             canonical: "http://hl7.org/fhir/StructureDefinition/HealthcareService",
         },
         "urn:fhir:binding:ServiceRequestCategory": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest",
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/ServiceRequest",
         },
         "urn:fhir:binding:ServiceRequestCode": {
             package: "hl7.fhir.r4.core#4.0.1",
             canonical: "http://hl7.org/fhir/StructureDefinition/ServiceRequest",
         },
         "urn:fhir:binding:ServiceRequestIntent": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest",
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/ServiceRequest",
         },
         "urn:fhir:binding:ServiceRequestLocation": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7903,12 +7903,12 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
             canonical: "http://hl7.org/fhir/StructureDefinition/ServiceRequest",
         },
         "urn:fhir:binding:ServiceRequestStatus": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest",
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/ServiceRequest",
         },
         "urn:fhir:binding:Sex": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/familymemberhistory-genetic",
+            canonical: "http://hl7.org/fhir/StructureDefinition/FamilyMemberHistory",
         },
         "urn:fhir:binding:SignatureType": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -7971,8 +7971,8 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
             canonical: "http://hl7.org/fhir/StructureDefinition/VerificationResult",
         },
         "urn:fhir:binding:Status": {
-            package: "hl7.fhir.us.core#8.0.1",
-            canonical: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-vital-signs",
+            package: "hl7.fhir.r4.core#4.0.1",
+            canonical: "http://hl7.org/fhir/StructureDefinition/vitalsigns",
         },
         "urn:fhir:binding:strandType": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -8040,7 +8040,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:SubstanceCode": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/Substance",
+            canonical: "http://hl7.org/fhir/StructureDefinition/AllergyIntolerance",
         },
         "urn:fhir:binding:SupplementType": {
             package: "hl7.fhir.r4.core#4.0.1",
@@ -8224,7 +8224,7 @@ Add to `.typeSchema({ resolveCollisions: { ... } })` to resolve remaining collis
         },
         "urn:fhir:binding:VitalSigns": {
             package: "hl7.fhir.r4.core#4.0.1",
-            canonical: "http://hl7.org/fhir/StructureDefinition/vitalsigns",
+            canonical: "http://hl7.org/fhir/StructureDefinition/bmi",
         },
         "urn:fhir:binding:XPathUsageType": {
             package: "hl7.fhir.r4.core#4.0.1",

@@ -11,6 +11,7 @@
  */
 
 import type { CodegenLog } from "@root/utils/log";
+import { compareCollisionSources, compareCollisionVariants } from "./collision-order";
 import { transformFhirSchema, transformValueSet } from "./core/transformer";
 import type { ResolveCollisionsConf, TypeSchemaCollisions } from "./ir/types";
 import type { Register } from "./register";
@@ -54,7 +55,13 @@ const deduplicateSchemas = (
     const collisions: TypeSchemaCollisions = {};
 
     for (const versions of Object.values(groups)) {
-        const sorted = Object.values(versions).sort((a, b) => b.sources.length - a.sources.length);
+        const sorted = Object.entries(versions)
+            .map(([schemaHash, version]) => ({
+                ...version,
+                schemaHash,
+                sources: [...version.sources].sort(compareCollisionSources),
+            }))
+            .sort(compareCollisionVariants);
         const best = sorted[0];
         if (!best) continue;
 

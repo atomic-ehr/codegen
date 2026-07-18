@@ -1,5 +1,6 @@
 import type { CanonicalUrl, PkgName } from "@root/typeschema/types";
-import { extractNameFromCanonical } from "@root/typeschema/types";
+import { extractNameFromCanonical, hashSchema } from "@root/typeschema/types";
+import { compareCollisionSources, compareCollisionVariants } from "../collision-order";
 import type {
     CollisionResolution,
     IrReport,
@@ -68,12 +69,19 @@ type VersionGroup = { entries: CollisionEntry[]; mark: VersionMark };
 const groupCollisionVersions = (entries: CollisionEntry[], resolution?: CollisionResolution): VersionGroup[] => {
     const uniqueSchemas = new Map<string, CollisionEntry[]>();
     for (const entry of entries) {
-        const key = JSON.stringify(entry.typeSchema);
+        const key = hashSchema(entry.typeSchema);
         if (!uniqueSchemas.has(key)) uniqueSchemas.set(key, []);
         uniqueSchemas.get(key)?.push(entry);
     }
 
-    const sorted = [...uniqueSchemas.values()].sort((a, b) => b.length - a.length);
+    const sorted = [...uniqueSchemas.entries()]
+        .map(([schemaHash, group]) => ({
+            entries: [...group].sort(compareCollisionSources),
+            schemaHash,
+            sources: group,
+        }))
+        .sort(compareCollisionVariants)
+        .map((group) => group.entries);
     const markVersion = (group: CollisionEntry[], i: number): VersionMark => {
         if (resolution)
             return group.some(
