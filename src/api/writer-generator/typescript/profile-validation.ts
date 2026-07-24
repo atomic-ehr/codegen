@@ -18,7 +18,7 @@ export const collectRegularFieldValidation = (
     field: RegularField | ChoiceFieldInstance,
     resolveRef: (ref: TypeIdentifier) => TypeIdentifier,
     canonicalUrlExpr?: { url: string; expr: string },
-    tsIndex?: TypeSchemaIndex,
+    _tsIndex?: TypeSchemaIndex,
     fieldSlicing?: FieldSlicing,
 ) => {
     if (field.excluded) {
@@ -60,17 +60,10 @@ export const collectRegularFieldValidation = (
                     `...validateSliceCardinality(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(match)}, ${JSON.stringify(sliceName)}, ${min}, ${max})`,
                 );
             }
-            // Collect required fields within the slice element
-            const sliceRequiredFields: string[] = [];
-            const matchKeys = new Set(Object.keys(match));
-            for (const rf of slice.required ?? []) {
-                if (!matchKeys.has(rf)) sliceRequiredFields.push(rf);
-            }
-            // Constrained choice: the single variant is required
-            if (tsIndex && field.type && slice.elements) {
-                const cc = tsIndex.constrainedChoice(field.type.package, field.type, slice.elements);
-                if (cc) sliceRequiredFields.push(cc.variant);
-            }
+            // Required fields within the slice element; for a constrained
+            // choice the single variant is required
+            const sliceRequiredFields = [...(slice.effectiveRequired ?? [])];
+            if (slice.constrainedChoice) sliceRequiredFields.push(slice.constrainedChoice.variant);
             if (sliceRequiredFields.length > 0) {
                 errors.push(
                     `...validateSliceFields(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(match)}, ${JSON.stringify(sliceName)}, ${JSON.stringify(sliceRequiredFields)})`,

@@ -175,10 +175,17 @@ export const collectProfileFactoryInfo = (
 
         if (isNotChoiceDeclarationField(field)) {
             const sliceNames = collectRequiredSliceNames(field, flatProfile.slicing?.[name]);
-            if (sliceNames) {
+            // Extension profiles populate `extension` via sub-extension slice
+            // setters — keep it optional in create() even when no slice is
+            // auto-stubbable (mirrors the optional `extension` in the TS Raw type).
+            const slicedExtensionProfileField =
+                name === "extension" &&
+                flatProfile.base.name === "Extension" &&
+                flatProfile.slicing?.extension?.slices !== undefined;
+            if (sliceNames || slicedExtensionProfileField) {
                 if (field.type) {
                     const pyType = fieldPyType(field, resolveRef, tsIndex);
-                    sliceAutoFields.push({ name, pyType, typeId: field.type, sliceNames });
+                    sliceAutoFields.push({ name, pyType, typeId: field.type, sliceNames: sliceNames ?? [] });
                     autoAccessors.push({ name, pyType, typeId: field.type, refComment: pyReferenceComment(field) });
                 }
                 continue;
@@ -269,7 +276,9 @@ export const generateCreateResource = (
         for (const f of factoryInfo.sliceAutoFields) {
             const fieldName = pyFieldName(f.name, fmt);
             const matchRefs = f.sliceNames.map((s) => `cls.${pySliceStaticName(s)}`);
-            if (matchRefs.length === 1) {
+            if (matchRefs.length === 0) {
+                w.line(`${fieldName}_with_defaults = list(${fieldName} or [])`);
+            } else if (matchRefs.length === 1) {
                 w.line(`${fieldName}_with_defaults = ensure_slice_defaults(list(${fieldName} or []), ${matchRefs[0]})`);
             } else {
                 w.line(`${fieldName}_with_defaults = ensure_slice_defaults(`);

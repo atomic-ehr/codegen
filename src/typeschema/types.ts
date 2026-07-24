@@ -333,6 +333,17 @@ export interface FieldSlice {
     excluded?: string[];
     elements?: string[];
     nameCandidates: NameCandidates;
+
+    // Derived facts, populated on profile snapshots at snapshot-build time so
+    // writers share one implementation instead of re-deriving them per language.
+    /** `required` minus match keys and choice-declaration base names */
+    effectiveRequired?: string[];
+    /** The single choice variant this slice constrains (e.g. BP component → valueQuantity) */
+    constrainedChoice?: ConstrainedChoiceInfo;
+    /** Slice can be auto-populated with just the discriminator match values */
+    autoStub?: boolean;
+    /** Matched resource type for type-discriminated slices (e.g. Bundle entry → "Patient") */
+    resourceType?: string;
 }
 
 export interface ExtensionSubField {
