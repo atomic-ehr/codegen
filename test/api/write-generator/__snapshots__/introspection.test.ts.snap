@@ -3163,7 +3163,8 @@ exports[`IntrospectionWriter - flat profile output Check bodyweight flat profile
               "CategoryVSCatSlice"
             ],
             "recommended": "VSCat"
-          }
+          },
+          "autoStub": true
         }
       }
     }
