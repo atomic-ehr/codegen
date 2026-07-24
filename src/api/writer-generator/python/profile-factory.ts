@@ -1,3 +1,4 @@
+import { isExtensionOwnedField } from "@root/api/writer-generator/utils";
 import {
     type ChoiceFieldInstance,
     type Field,
@@ -174,7 +175,10 @@ export const collectProfileFactoryInfo = (
         }
 
         if (isNotChoiceDeclarationField(field)) {
-            const sliceNames = collectRequiredSliceNames(field, flatProfile.slicing?.[name]);
+            const sliceNames =
+                isExtensionOwnedField(name) && flatProfile.base.name !== "Extension"
+                    ? undefined
+                    : collectRequiredSliceNames(field, flatProfile.slicing?.[name]);
             // Extension profiles populate `extension` via sub-extension slice
             // setters — keep it optional in create() even when no slice is
             // auto-stubbable (mirrors the optional `extension` in the TS Raw type).

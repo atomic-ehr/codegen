@@ -1,3 +1,4 @@
+import { isExtensionOwnedField } from "@root/api/writer-generator/utils";
 import {
     type ConstrainedChoiceInfo,
     type FieldSlicing,
@@ -92,6 +93,7 @@ export const normalizeMatchForPython = (
 
 export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: SnapshotProfileTypeSchema): SliceDef[] => {
     return Object.entries(flatProfile.slicing ?? {}).flatMap(([fieldName, fieldSlicing]) => {
+        if (isExtensionOwnedField(fieldName) && flatProfile.base.name !== "Extension") return [];
         const field = flatProfile.fields[fieldName];
         if (!isNotChoiceDeclarationField(field) || !fieldSlicing.slices || !field.type) return [];
         const baseSchema = tsIndex.resolveType(field.type);

@@ -1,3 +1,4 @@
+import { isExtensionOwnedField } from "@root/api/writer-generator/utils";
 import {
     type ConstrainedChoiceInfo,
     type FieldSlicing,
@@ -26,6 +27,7 @@ export const collectTypesFromSlices = (
     addType: (typeId: TypeIdentifier) => void,
 ) => {
     for (const [fieldName, fieldSlicing] of Object.entries(snapshot.slicing ?? {})) {
+        if (isExtensionOwnedField(fieldName) && snapshot.base.name !== "Extension") continue;
         const field = snapshot.fields[fieldName];
         if (!isNotChoiceDeclarationField(field) || !fieldSlicing.slices || !field.type) continue;
         for (const slice of Object.values(fieldSlicing.slices)) {
@@ -84,6 +86,7 @@ export type SliceDef = {
 
 export const collectSliceDefs = (_tsIndex: TypeSchemaIndex, snapshot: SnapshotProfileTypeSchema): SliceDef[] =>
     Object.entries(snapshot.slicing ?? {}).flatMap(([fieldName, fieldSlicing]) => {
+        if (isExtensionOwnedField(fieldName) && snapshot.base.name !== "Extension") return [];
         const field = snapshot.fields[fieldName];
         if (!isNotChoiceDeclarationField(field) || !fieldSlicing.slices || !field.type) return [];
         const baseType = tsTypeFromIdentifier(field.type);

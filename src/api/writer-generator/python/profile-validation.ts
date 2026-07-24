@@ -1,3 +1,4 @@
+import { isExtensionOwnedField } from "@root/api/writer-generator/utils";
 import {
     type ChoiceFieldInstance,
     type FieldSlicing,
@@ -61,7 +62,9 @@ export const collectValidateBody = (
         }
         collectRegularFieldValidation(
             field,
-            flatProfile.slicing?.[name],
+            isExtensionOwnedField(name) && flatProfile.base.name !== "Extension"
+                ? undefined
+                : flatProfile.slicing?.[name],
             pyName,
             helpers,
             errorLines,

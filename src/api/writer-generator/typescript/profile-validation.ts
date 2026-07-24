@@ -1,3 +1,4 @@
+import { isExtensionOwnedField } from "@root/api/writer-generator/utils";
 import {
     type ChoiceFieldInstance,
     type FieldSlicing,
@@ -109,7 +110,9 @@ export const generateValidateMethod = (
                 tsIndex.findLastSpecializationByIdentifier,
                 canonicalUrlExpr,
                 tsIndex,
-                snapshot.slicing?.[name],
+                isExtensionOwnedField(name) && snapshot.base.name !== "Extension"
+                    ? undefined
+                    : snapshot.slicing?.[name],
             );
         }
 

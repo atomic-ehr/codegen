@@ -2236,7 +2236,14 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
       "rules": "open",
       "slices": {
         "Feststellungsdatum": {
+          "min": 0,
           "max": 1,
+          "match": {
+            "kind": "value",
+            "value": {
+              "url": "http://hl7.org/fhir/StructureDefinition/condition-assertedDate"
+            }
+          },
           "nameCandidates": {
             "candidates": [
               "Feststellungsdatum",
@@ -3051,7 +3058,14 @@ exports[`KBV Condition Diagnosis generation (kbv.basis@1.9.0) TypeSchema: KBV_PR
       "rules": "open",
       "slices": {
         "Feststellungsdatum": {
+          "min": 0,
           "max": 1,
+          "match": {
+            "kind": "value",
+            "value": {
+              "url": "http://hl7.org/fhir/StructureDefinition/condition-assertedDate"
+            }
+          },
           "nameCandidates": {
             "candidates": [
               "Feststellungsdatum",
