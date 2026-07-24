@@ -637,8 +637,23 @@ export const mkTypeSchemaIndex = (
         const mergedSlicing = {} as Record<string, FieldSlicing>;
         for (const anySchema of constraintSchemas.slice().reverse()) {
             const schema = anySchema as SpecializationTypeSchema;
-            // Leaf-most slicing wins per field, mirroring the field merge below.
-            if (schema.slicing) Object.assign(mergedSlicing, schema.slicing);
+            // Slice-level merge: a re-slicing profile refines the inherited slice
+            // set — its header and same-name slices win, inherited slices survive.
+            if (schema.slicing) {
+                for (const [fieldName, fieldSlicing] of Object.entries(schema.slicing)) {
+                    const base = mergedSlicing[fieldName];
+                    if (!base) {
+                        mergedSlicing[fieldName] = fieldSlicing;
+                        continue;
+                    }
+                    const slices = { ...base.slices, ...fieldSlicing.slices };
+                    mergedSlicing[fieldName] = {
+                        ...base,
+                        ...fieldSlicing,
+                        ...(Object.keys(slices).length > 0 ? { slices } : {}),
+                    };
+                }
+            }
             if (!schema.fields) continue;
 
             for (const [fieldName, fieldConstraints] of Object.entries(schema.fields)) {

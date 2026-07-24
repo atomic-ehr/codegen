@@ -123,3 +123,80 @@ describe("slice enrichment on profile snapshots", async () => {
         expect(slice?.autoStub).toBeUndefined();
     });
 });
+
+describe("slicing merge across the profile chain", async () => {
+    const r4 = await mkR4Register();
+    const logger = mkErrorLogger();
+
+    registerFs(r4, {
+        url: "http://example.org/StructureDefinition/SlicedParent",
+        name: "SlicedParent",
+        base: "http://hl7.org/fhir/StructureDefinition/Observation",
+        derivation: "constraint",
+        kind: "resource",
+        elements: {
+            category: {
+                type: "CodeableConcept",
+                array: true,
+                slicing: {
+                    discriminator: [{ type: "pattern", path: "$this" }],
+                    rules: "open",
+                    slices: {
+                        FromParent: { min: 1, max: 1, match: { coding: [{ code: "parent" }] } },
+                    },
+                },
+            },
+        },
+    });
+
+    registerFs(r4, {
+        url: "http://example.org/StructureDefinition/SlicedChild",
+        name: "SlicedChild",
+        base: "http://example.org/StructureDefinition/SlicedParent",
+        derivation: "constraint",
+        kind: "resource",
+        elements: {
+            category: {
+                type: "CodeableConcept",
+                array: true,
+                slicing: {
+                    discriminator: [{ type: "pattern", path: "$this" }],
+                    rules: "open",
+                    slices: {
+                        FromChild: { max: 1, match: { coding: [{ code: "child" }] } },
+                        FromParent: { min: 0, max: 1, match: { coding: [{ code: "parent-refined" }] } },
+                    },
+                },
+            },
+        },
+    });
+
+    const schemas: TypeSchema[] = [];
+    for (const [pkg, url] of [
+        [myPkg, "http://example.org/StructureDefinition/SlicedParent"],
+        [myPkg, "http://example.org/StructureDefinition/SlicedChild"],
+        [r4Package, "http://hl7.org/fhir/StructureDefinition/Observation"],
+        [r4Package, "http://hl7.org/fhir/StructureDefinition/DomainResource"],
+        [r4Package, "http://hl7.org/fhir/StructureDefinition/Resource"],
+    ] as const) {
+        schemas.push(...(await resolveTs(r4, pkg, url as CanonicalUrl, logger)));
+    }
+    const tsIndex = mkTypeSchemaIndex(schemas, { register: r4, logger });
+
+    const childSnapshot = () => {
+        const snap = tsIndex.collectSnapshotProfiles().find((s) => s.identifier.name === "SlicedChild");
+        if (!snap) throw new Error("No snapshot for SlicedChild");
+        return snap;
+    };
+
+    it("re-slicing keeps inherited slices and adds new ones", () => {
+        const slices = childSnapshot().slicing?.category?.slices ?? {};
+        expect(Object.keys(slices).sort()).toEqual(["FromChild", "FromParent"]);
+    });
+
+    it("same-name slices from the leaf win", () => {
+        const fromParent = childSnapshot().slicing?.category?.slices?.FromParent;
+        expect(fromParent?.match?.value).toEqual({ coding: [{ code: "parent-refined" }] });
+        expect(fromParent?.min).toBe(0);
+    });
+});
