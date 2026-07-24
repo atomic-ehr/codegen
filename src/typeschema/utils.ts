@@ -739,7 +739,7 @@ export const mkTypeSchemaIndex = (
     /** Compute the derived facts for one slice; returns a copy — the source
      *  profile schemas stay untouched. */
     const enrichSlice = (slice: FieldSlice, ctx: SliceEnrichmentContext): FieldSlice => {
-        const matchKeys = new Set(Object.keys(slice.match ?? {}));
+        const matchKeys = new Set(Object.keys(slice.match?.value ?? {}));
         const required = slice.required ?? [];
         const effectiveRequired = required.filter((n) => !matchKeys.has(n) && !ctx.choiceBaseNames.has(n));
         // Stub eligibility keeps choice-base names: a slice requiring its
@@ -749,7 +749,7 @@ export const mkTypeSchemaIndex = (
             !ctx.typeDiscriminated && (slice.min ?? 0) >= 1 && matchKeys.size > 0 && requiredBeyondMatch.length === 0;
         const cc =
             ctx.fieldType && slice.elements ? constrainedChoice(ctx.pkgName, ctx.fieldType, slice.elements) : undefined;
-        const resourceType = ctx.typeDiscriminated ? extractResourceTypeFromMatch(slice.match ?? {}) : undefined;
+        const resourceType = ctx.typeDiscriminated ? extractResourceTypeFromMatch(slice.match?.value ?? {}) : undefined;
         return {
             ...slice,
             ...(effectiveRequired.length > 0 ? { effectiveRequired } : {}),

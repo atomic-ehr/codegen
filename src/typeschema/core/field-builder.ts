@@ -20,6 +20,7 @@ import type {
     ProfileIdentifier,
     RegularField,
     RichFHIRSchema,
+    SliceMatch,
     TypeIdentifier,
     ValueConstraint,
 } from "../types";
@@ -294,16 +295,19 @@ export const buildSlicing = (fieldName: string, element: FHIRSchemaElement): Fie
     const slicing = element.slicing;
     if (!slicing) return undefined;
 
+    const matchKind: SliceMatch["kind"] = slicing.discriminator?.some((d) => d.type === "type") ? "type" : "value";
     const slices: Record<string, FieldSlice> = {};
     for (const [name, slice] of Object.entries(slicing.slices ?? {})) {
         if (!slice) continue;
         const { required, excluded, elements } = slice.schema ? extractSliceFieldNames(slice.schema) : {};
+        const matchValue = isEmptyMatch(slice.match)
+            ? computeMatchFromSchema(slicing.discriminator ?? [], slice.schema)
+            : (slice.match as Record<string, unknown> | undefined);
         slices[name] = {
             min: slice.min,
             max: slice.max,
-            match: isEmptyMatch(slice.match)
-                ? computeMatchFromSchema(slicing.discriminator ?? [], slice.schema)
-                : (slice.match as Record<string, unknown> | undefined),
+            match:
+                matchValue && Object.keys(matchValue).length > 0 ? { kind: matchKind, value: matchValue } : undefined,
             required,
             excluded,
             elements,

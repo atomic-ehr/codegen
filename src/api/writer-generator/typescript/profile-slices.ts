@@ -29,7 +29,7 @@ export const collectTypesFromSlices = (
         const field = snapshot.fields[fieldName];
         if (!isNotChoiceDeclarationField(field) || !fieldSlicing.slices || !field.type) continue;
         for (const slice of Object.values(fieldSlicing.slices)) {
-            if (Object.keys(slice.match ?? {}).length > 0) {
+            if (slice.match !== undefined) {
                 addType(field.type);
                 if (slice.constrainedChoice) addType(slice.constrainedChoice.variantType);
                 // For type discriminator slices, also import the matched resource type
@@ -89,7 +89,7 @@ export const collectSliceDefs = (_tsIndex: TypeSchemaIndex, snapshot: SnapshotPr
         const baseType = tsTypeFromIdentifier(field.type);
         const isTypeDisc = isTypeDiscriminated(fieldSlicing);
         return Object.entries(fieldSlicing.slices)
-            .filter(([_, slice]) => Object.keys(slice.match ?? {}).length > 0)
+            .filter(([_, slice]) => slice.match !== undefined)
             .map(([sliceName, slice]) => {
                 const cc = slice.constrainedChoice;
                 // Skip flattening for primitive types — can't intersect object with boolean/string/etc.
@@ -101,7 +101,7 @@ export const collectSliceDefs = (_tsIndex: TypeSchemaIndex, snapshot: SnapshotPr
                     typedBaseType,
                     sliceName,
                     baseName: slice.nameCandidates.recommended,
-                    match: slice.match ?? {},
+                    match: slice.match?.value ?? {},
                     required: slice.effectiveRequired ?? [],
                     excluded: slice.excluded ?? [],
                     array: Boolean(field.array),

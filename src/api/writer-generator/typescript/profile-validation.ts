@@ -51,8 +51,8 @@ export const collectRegularFieldValidation = (
 
     if (fieldSlicing?.slices) {
         for (const [sliceName, slice] of Object.entries(fieldSlicing.slices)) {
-            const match = slice.match ?? {};
-            if (Object.keys(match).length === 0) continue;
+            const match = slice.match?.value;
+            if (!match) continue;
             if (slice.min !== undefined || slice.max !== undefined) {
                 const min = slice.min ?? 0;
                 const max = slice.max ?? 0;

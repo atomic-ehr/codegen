@@ -97,7 +97,7 @@ export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: Snapshot
         const baseSchema = tsIndex.resolveType(field.type);
         const typeDiscriminated = isTypeDiscriminated(fieldSlicing);
         return Object.entries(fieldSlicing.slices)
-            .filter(([_, slice]) => Object.keys(slice.match ?? {}).length > 0)
+            .filter(([_, slice]) => slice.match !== undefined)
             .map(([sliceName, slice]) => {
                 const cc = slice.constrainedChoice;
                 // Skip flattening for primitive types — can't wrap/unwrap under a variant key.
@@ -105,7 +105,7 @@ export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: Snapshot
                 return {
                     fieldName,
                     sliceName,
-                    match: normalizeMatchForPython(tsIndex, slice.match ?? {}, baseSchema),
+                    match: normalizeMatchForPython(tsIndex, slice.match?.value ?? {}, baseSchema),
                     required: slice.effectiveRequired ?? [],
                     array: Boolean(field.array),
                     max: slice.max ?? 0,

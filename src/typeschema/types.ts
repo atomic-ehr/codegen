@@ -325,10 +325,20 @@ export type NameCandidates = {
     recommended: string;
 };
 
+/** How a slice is recognized in instance data. `value` holds the discriminator
+ *  values keyed by element name and is used verbatim for runtime matching;
+ *  `kind` says where those values come from — fixed/pattern discriminator
+ *  values (`"value"`) or a resource-type discriminator (`"type"`, e.g.
+ *  Bundle.entry sliced by entry.resource resourceType). */
+export type SliceMatch = {
+    kind: "value" | "type";
+    value: Record<string, unknown>;
+};
+
 export interface FieldSlice {
     min?: number;
     max?: number;
-    match?: Record<string, unknown>;
+    match?: SliceMatch;
     required?: string[];
     excluded?: string[];
     elements?: string[];
