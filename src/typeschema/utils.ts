@@ -729,9 +729,38 @@ export const mkTypeSchemaIndex = (
         return undefined;
     };
 
+    type SliceEnrichmentContext = {
+        pkgName: PkgName;
+        fieldType: TypeIdentifier | undefined;
+        choiceBaseNames: Set<string>;
+        typeDiscriminated: boolean;
+    };
+
+    /** Compute the derived facts for one slice; returns a copy — the source
+     *  profile schemas stay untouched. */
+    const enrichSlice = (slice: FieldSlice, ctx: SliceEnrichmentContext): FieldSlice => {
+        const matchKeys = new Set(Object.keys(slice.match ?? {}));
+        const required = slice.required ?? [];
+        const effectiveRequired = required.filter((n) => !matchKeys.has(n) && !ctx.choiceBaseNames.has(n));
+        // Stub eligibility keeps choice-base names: a slice requiring its
+        // choice (e.g. BP component value[x]) needs user data, not a stub.
+        const requiredBeyondMatch = required.filter((n) => !matchKeys.has(n));
+        const autoStub =
+            !ctx.typeDiscriminated && (slice.min ?? 0) >= 1 && matchKeys.size > 0 && requiredBeyondMatch.length === 0;
+        const cc =
+            ctx.fieldType && slice.elements ? constrainedChoice(ctx.pkgName, ctx.fieldType, slice.elements) : undefined;
+        const resourceType = ctx.typeDiscriminated ? extractResourceTypeFromMatch(slice.match ?? {}) : undefined;
+        return {
+            ...slice,
+            ...(effectiveRequired.length > 0 ? { effectiveRequired } : {}),
+            ...(cc ? { constrainedChoice: cc } : {}),
+            ...(autoStub ? { autoStub } : {}),
+            ...(resourceType ? { resourceType } : {}),
+        };
+    };
+
     /** Populate the derived per-slice facts (effectiveRequired, constrainedChoice,
-     *  autoStub, resourceType) on a snapshot's slicing map. Slices are copied —
-     *  the source profile schemas stay untouched. */
+     *  autoStub, resourceType) on a snapshot's slicing map. */
     const enrichSliceInfo = (
         slicing: Record<string, FieldSlicing>,
         fields: Record<string, Field>,
@@ -751,28 +780,15 @@ export const mkTypeSchemaIndex = (
                     ? Object.keys(typeSchema.fields).filter((n) => isChoiceDeclarationField(typeSchema.fields?.[n]))
                     : [],
             );
-            const typeDisc = isTypeDiscriminated(fieldSlicing);
-            const slices: Record<string, FieldSlice> = {};
-            for (const [sliceName, slice] of Object.entries(fieldSlicing.slices)) {
-                const matchKeys = new Set(Object.keys(slice.match ?? {}));
-                const required = slice.required ?? [];
-                const effectiveRequired = required.filter((n) => !matchKeys.has(n) && !choiceBaseNames.has(n));
-                // Stub eligibility keeps choice-base names: a slice requiring its
-                // choice (e.g. BP component value[x]) needs user data, not a stub.
-                const requiredBeyondMatch = required.filter((n) => !matchKeys.has(n));
-                const autoStub =
-                    !typeDisc && (slice.min ?? 0) >= 1 && matchKeys.size > 0 && requiredBeyondMatch.length === 0;
-                const cc =
-                    fieldType && slice.elements ? constrainedChoice(pkgName, fieldType, slice.elements) : undefined;
-                const resourceType = typeDisc ? extractResourceTypeFromMatch(slice.match ?? {}) : undefined;
-                slices[sliceName] = {
-                    ...slice,
-                    ...(effectiveRequired.length > 0 ? { effectiveRequired } : {}),
-                    ...(cc ? { constrainedChoice: cc } : {}),
-                    ...(autoStub ? { autoStub } : {}),
-                    ...(resourceType ? { resourceType } : {}),
-                };
-            }
+            const ctx: SliceEnrichmentContext = {
+                pkgName,
+                fieldType,
+                choiceBaseNames,
+                typeDiscriminated: isTypeDiscriminated(fieldSlicing),
+            };
+            const slices = Object.fromEntries(
+                Object.entries(fieldSlicing.slices).map(([sliceName, slice]) => [sliceName, enrichSlice(slice, ctx)]),
+            );
             result[fieldName] = { ...fieldSlicing, slices };
         }
         return result;
