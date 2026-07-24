@@ -209,9 +209,9 @@ export class USCoreTribalAffiliationExtensionProfile {
             errors: [
                 ...validateRequired(res, profileName, "extension"),
                 ...validateSliceCardinality(res, profileName, "extension", {"url":"tribalAffiliation"}, "tribalAffiliation", 1, 1),
-                ...validateSliceFields(res, profileName, "extension", {"url":"tribalAffiliation"}, "tribalAffiliation", ["value","valueCodeableConcept"]),
+                ...validateSliceFields(res, profileName, "extension", {"url":"tribalAffiliation"}, "tribalAffiliation", ["valueCodeableConcept"]),
                 ...validateSliceCardinality(res, profileName, "extension", {"url":"isEnrolled"}, "isEnrolled", 0, 1),
-                ...validateSliceFields(res, profileName, "extension", {"url":"isEnrolled"}, "isEnrolled", ["value","valueBoolean"]),
+                ...validateSliceFields(res, profileName, "extension", {"url":"isEnrolled"}, "isEnrolled", ["valueBoolean"]),
                 ...validateRequired(res, profileName, "url"),
                 ...validateFixedValue(res, profileName, "url", USCoreTribalAffiliationExtensionProfile.canonicalUrl),
             ],

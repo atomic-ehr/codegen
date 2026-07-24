@@ -47,7 +47,7 @@ class UscoreEthnicityExtension:
 
     @classmethod
     def create_resource(cls, *, extension: list[Extension] | None = None) -> Extension:
-        extension_with_defaults = ensure_slice_defaults(list(extension or []), cls._text_slice_match)
+        extension_with_defaults = list(extension or [])
 
         return build_resource(Extension, url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity", extension=extension_with_defaults)
 
@@ -217,16 +217,16 @@ class UscoreEthnicityExtension:
         errors.extend(validate_slice_cardinality(self._resource, profile_name, "extension", {"url":"ombCategory"}, "ombCategory", 0, 1))
         errors.extend(
             validate_slice_fields(self._resource, profile_name, "extension", {"url":"ombCategory"}, "ombCategory", [
-                "value","valueCoding"
+                "valueCoding"
         ]))
         errors.extend(
             validate_slice_fields(self._resource, profile_name, "extension", {"url":"detailed"}, "detailed", [
-                "value","valueCoding"
+                "valueCoding"
         ]))
         errors.extend(validate_slice_cardinality(self._resource, profile_name, "extension", {"url":"text"}, "text", 1, 1))
         errors.extend(
             validate_slice_fields(self._resource, profile_name, "extension", {"url":"text"}, "text", [
-                "value","valueString"
+                "valueString"
         ]))
         errors.extend(validate_required(self._resource, profile_name, "url"))
         errors.extend(validate_fixed_value(self._resource, profile_name, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"))

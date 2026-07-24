@@ -10,7 +10,8 @@ from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.hl7_fhir_r4_core.base import CodeableConcept, Period
 from fhir_types.profile_helpers import (
-    _get_key, build_resource, get_extension_value, is_extension, push_extension, validate_fixed_value, validate_required
+    _get_key, build_resource, ensure_slice_defaults, get_extension_value, is_extension, push_extension, validate_fixed_value, \
+    validate_required
 )
 
 
@@ -38,15 +39,24 @@ class NationalityExtension:
         return cls(resource)
 
     @classmethod
-    def create_resource(cls) -> Extension:
-        return build_resource(Extension, url="http://hl7.org/fhir/StructureDefinition/patient-nationality")
+    def create_resource(cls, *, extension: list[Extension] | None = None) -> Extension:
+        extension_with_defaults = list(extension or [])
+
+        return build_resource(Extension, url="http://hl7.org/fhir/StructureDefinition/patient-nationality", extension=extension_with_defaults)
 
     @classmethod
-    def create(cls) -> "NationalityExtension":
-        return cls.apply(cls.create_resource())
+    def create(cls, *, extension: list[Extension] | None = None) -> "NationalityExtension":
+        return cls.apply(cls.create_resource(extension=extension))
 
     def to_resource(self) -> Extension:
         return self._resource
+
+    def get_extension(self) -> list[Extension] | None:
+        return cast('list[Extension] | None', getattr(self._resource, "extension", None))
+
+    def set_extension(self, value: list[Extension]) -> "NationalityExtension":
+        setattr(self._resource, "extension", value)
+        return self
 
     def get_url(self) -> str | None:
         return cast('str | None', getattr(self._resource, "url", None))
