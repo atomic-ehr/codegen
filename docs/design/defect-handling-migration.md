@@ -31,6 +31,18 @@ the optional P2.2 helper-factory relocation). Develop Phase 0 against the local 
 checkout, validate end-to-end via `npm link` / `bun link` or a `file:` dependency, then
 publish and pin the exact version in codegen before starting Phase 1.
 
+### Status & as-built deviations (2026-07-29)
+
+**Phase 0 is done** — shipped in CM `0.0.25` (`packageIndex` mode, the patch + exclusion runtime, `manager.report()`, docs). **Phase 1 is done** — PR #176 (helpers module `src/api/patches.ts`, all three examples migrated off `preprocessPackage`, `patches` and `packageIndex` threaded through `APIBuilder`; P2.1.6 — kbv on `packageIndex: "recover"` — was pulled forward into it).
+
+The shipped CM API diverges from the target design below in several ways. Where they conflict, **the shipped CM `0.0.25` types and PR #176 are authoritative**; the sections below are kept as written for the rationale and for the still-open Phase 2 work.
+
+- **Phase-split patch model, not a unified `Patch`.** There is no single `(ctx, report)` patch with a `kind` discriminator (§1.1–1.2). CM ships three handler types — `PackagePatch(pkg, packageJson, report)`, `EntryPatch(pkg, entry, report)` (return `null` to drop), `ResourcePatch(pkg, resource, report)` — and `Config.patches?: Partial<Patches>` where `Patches = { packageJson, indexEntry, fhirResource }` (per-phase handler arrays).
+- **Runtime exports.** `applyPatches` (not `composePatches`), `matchPackage`/`PackageMatch`, and `excludeCanonical` are exported from the `@atomic-ehr/fhir-canonical-manager/patch` subpath.
+- **Report sink.** The sink is called directly — `report(entry)` — there is no `report.note()`. `manager.report()` returns `ReportEntry[]` (no wrapper object). Note it is cache-sensitive: entries only accumulate for packages actually (re)processed, so a warm cache yields an empty report.
+- **`ReportEntry` is a closed union of `index-recovery | exclusion | deprecation`.** The planned `patch`/`patch-error` kinds (§1.4) did not ship, so transform helpers currently cannot report what they fixed — P1.7 is blocked on adding such a kind (or an open union) in a CM release.
+- **Helper factories are codegen-side** (§1.3 describes them as CM-shipped; relocation remains optional P2.2). They live in `src/api/patches.ts`, and the scoping combinators are named `inPackage`/`inResource` (plan: `whenPackage`/`forResource`).
+
 ---
 
 ## Scope: what moves vs. what stays
@@ -464,6 +476,8 @@ the step. Verify each step with `bun run typecheck && bun run lint && bun test`,
 
 ### Phase 0 — CM foundations (start here)
 
+> **Done — shipped in CM `0.0.25`** (with the API deviations listed in the Status section above).
+
 Four CM-side steps (`…/fhir-canonical-manager`, on a feature branch), shipped as one
 release. P0.1 (packageIndex) is independent; P0.2 (types) → P0.3 (runtime) are ordered;
 P0.4 (docs) is last before tagging. P0.2 is types-only (dormant until P0.3 wires it),
@@ -583,6 +597,8 @@ the codegen side (P2.3).
 
 ### Phase 1 — Build & debug helpers in codegen (on CM's patch runtime)
 
+> **Done — PR #176** (P1.0–P1.6, on CM `0.0.25`; helper module is `src/api/patches.ts`, combinators named `inPackage`/`inResource`). P1.7 remains open, blocked on a `patch` `ReportEntry` kind (see Status above).
+
 The CM patch runtime + `excludeCanonical` shipped in P0.3, so codegen passes its
 patches via CM's `patches` config directly (no `preprocessPackage` adapter). Helpers
 are codegen-side **factory functions** in a new module (`src/api/patches/`) — debugged
@@ -643,7 +659,7 @@ needs no further CM release. It's the risky step — gate on snapshots.
      and calls in `transformer.ts:9,51` and `index.ts:115`.
   5. Migrate `test/unit/typeschema/skip-hack.test.ts`; add a codegen field-drop test
      **and** a negative test: a non-excluded unresolvable type still errors (guards #2).
-  6. Replace `ignorePackageIndex: true` in `kbv-r4/generate.ts:33` with `packageIndex: "recover"`.
+  6. ~~Replace `ignorePackageIndex: true` in `kbv-r4/generate.ts:33` with `packageIndex: "recover"`.~~ Done — pulled forward into PR #176.
 
   Gate the whole step on **unchanged example snapshots** (US Core, CCDA, Norge, KBV).
 - **P2.2 (optional) Promote helper factories to CM.** Move the codegen transform-helper
