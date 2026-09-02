@@ -1,3 +1,4 @@
+import { isExtensionOwnedField } from "@root/api/writer-generator/utils";
 import {
     type ChoiceFieldInstance,
     type FieldSlicing,
@@ -61,7 +62,9 @@ export const collectValidateBody = (
         }
         collectRegularFieldValidation(
             field,
-            flatProfile.slicing?.[name],
+            isExtensionOwnedField(name) && flatProfile.base.name !== "Extension"
+                ? undefined
+                : flatProfile.slicing?.[name],
             pyName,
             helpers,
             errorLines,
@@ -128,24 +131,22 @@ const collectRegularFieldValidation = (
             pushListValidation(errorLines, "errors", "validate_reference", [JSON.stringify(pyName)], allowed);
         }
         if (fieldSlicing?.slices) {
-            collectSliceValidation(field, fieldSlicing, pyName, helpers, errorLines, tsIndex, formatName);
+            collectSliceValidation(fieldSlicing, pyName, helpers, errorLines, formatName);
         }
     }
 };
 
 const collectSliceValidation = (
-    field: RegularField | ChoiceFieldInstance,
     fieldSlicing: FieldSlicing,
     name: string,
     helpers: Set<string>,
     errorLines: string[],
-    tsIndex: TypeSchemaIndex,
     formatName: (s: string) => string,
 ): void => {
     if (!fieldSlicing.slices) return;
     for (const [sliceName, slice] of Object.entries(fieldSlicing.slices)) {
-        const match = slice.match ?? {};
-        if (Object.keys(match).length === 0) continue;
+        const match = slice.match?.value;
+        if (!match) continue;
         if (slice.min !== undefined || slice.max !== undefined) {
             const min = slice.min ?? 0;
             const max = slice.max ?? 0;
@@ -154,17 +155,10 @@ const collectSliceValidation = (
                 `errors.extend(validate_slice_cardinality(self._resource, profile_name, ${JSON.stringify(name)}, ${JSON.stringify(match)}, ${JSON.stringify(sliceName)}, ${min}, ${max}))`,
             );
         }
-        // Collect required fields within the slice element
-        const sliceRequiredFields: string[] = [];
-        const matchKeys = new Set(Object.keys(match));
-        for (const rf of slice.required ?? []) {
-            if (!matchKeys.has(rf)) sliceRequiredFields.push(pyFieldName(rf, formatName));
-        }
-        // Constrained choice: the single variant is required
-        if (field.type && slice.elements) {
-            const cc = tsIndex.constrainedChoice(field.type.package, field.type, slice.elements);
-            if (cc) sliceRequiredFields.push(pyFieldName(cc.variant, formatName));
-        }
+        // Required fields within the slice element; for a constrained choice
+        // the single variant is required
+        const sliceRequiredFields = (slice.effectiveRequired ?? []).map((rf) => pyFieldName(rf, formatName));
+        if (slice.constrainedChoice) sliceRequiredFields.push(pyFieldName(slice.constrainedChoice.variant, formatName));
         if (sliceRequiredFields.length > 0) {
             helpers.add("validate_slice_fields");
             pushListValidation(

@@ -20,6 +20,7 @@ import type {
     ProfileIdentifier,
     RegularField,
     RichFHIRSchema,
+    SliceMatch,
     TypeIdentifier,
     ValueConstraint,
 } from "../types";
@@ -290,20 +291,38 @@ const computeMatchFromSchema = (
     return result;
 };
 
+/** Extension-style slices carry their discriminator value as `schema.url`
+ *  (fhirschema convention) rather than under `elements` — recover the match
+ *  when the slicing discriminates on `url`. */
+const extensionUrlMatch = (
+    discriminators: FHIRSchemaDiscriminator[],
+    schema: FHIRSchemaElement | undefined,
+): Record<string, unknown> | undefined => {
+    if (!schema || typeof schema.url !== "string") return undefined;
+    const byUrl = discriminators.some((d) => (d.type === "value" || d.type === "pattern") && d.path === "url");
+    return byUrl ? { url: schema.url } : undefined;
+};
+
 export const buildSlicing = (fieldName: string, element: FHIRSchemaElement): FieldSlicing | undefined => {
     const slicing = element.slicing;
     if (!slicing) return undefined;
 
+    const discriminators = slicing.discriminator ?? [];
+    const matchKind: SliceMatch["kind"] = discriminators.some((d) => d.type === "type") ? "type" : "value";
     const slices: Record<string, FieldSlice> = {};
     for (const [name, slice] of Object.entries(slicing.slices ?? {})) {
         if (!slice) continue;
         const { required, excluded, elements } = slice.schema ? extractSliceFieldNames(slice.schema) : {};
+        const computed = isEmptyMatch(slice.match)
+            ? computeMatchFromSchema(discriminators, slice.schema)
+            : (slice.match as Record<string, unknown> | undefined);
+        const matchValue = isEmptyMatch(computed) ? extensionUrlMatch(discriminators, slice.schema) : computed;
         slices[name] = {
-            min: slice.min,
-            max: slice.max,
-            match: isEmptyMatch(slice.match)
-                ? computeMatchFromSchema(slicing.discriminator ?? [], slice.schema)
-                : (slice.match as Record<string, unknown> | undefined),
+            // Extension-style slices keep their cardinality on the slice schema.
+            min: slice.min ?? slice.schema?.min,
+            max: slice.max ?? slice.schema?.max,
+            match:
+                matchValue && Object.keys(matchValue).length > 0 ? { kind: matchKind, value: matchValue } : undefined,
             required,
             excluded,
             elements,

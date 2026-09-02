@@ -63,3 +63,8 @@ export function deepEqual<T>(obj1: T, obj2: T): boolean {
 
     return keys1.every((key) => keys2.includes(key) && deepEqual(obj1[key], obj2[key]));
 }
+
+/** Slices on `extension`/`modifierExtension` are owned by the ProfileExtension
+ *  mechanism — the generic slice machinery must not double-generate for them. */
+export const isExtensionOwnedField = (fieldName: string): boolean =>
+    fieldName === "extension" || fieldName === "modifierExtension";

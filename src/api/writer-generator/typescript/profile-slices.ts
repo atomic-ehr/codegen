@@ -1,7 +1,7 @@
+import { isExtensionOwnedField } from "@root/api/writer-generator/utils";
 import {
     type ConstrainedChoiceInfo,
     type FieldSlicing,
-    isChoiceDeclarationField,
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
     isTypeDiscriminated,
@@ -21,54 +21,25 @@ import {
 import { tsGet, tsTypeFromIdentifier } from "./utils";
 import type { TypeScript } from "./writer";
 
-/** Collect choice declaration field names from a base type schema */
-const collectChoiceBaseNames = (tsIndex: TypeSchemaIndex, typeId: TypeIdentifier): Set<string> => {
-    const names = new Set<string>();
-    const schema = tsIndex.resolveType(typeId);
-    if (schema && "fields" in schema && schema.fields) {
-        for (const [name, f] of Object.entries(schema.fields)) {
-            if (isChoiceDeclarationField(f)) names.add(name);
-        }
-    }
-    return names;
-};
-
-/** Extract resource type name from a type-discriminator match (e.g. {"resource":{"resourceType":"Patient"}} → "Patient") */
-export const extractResourceTypeFromMatch = (match: Record<string, unknown>): string | undefined => {
-    for (const value of Object.values(match)) {
-        if (typeof value !== "object" || value === null) continue;
-        const obj = value as Record<string, unknown>;
-        if (typeof obj.resourceType === "string") return obj.resourceType;
-        const nested = extractResourceTypeFromMatch(obj);
-        if (nested) return nested;
-    }
-    return undefined;
-};
-
 export const collectTypesFromSlices = (
     tsIndex: TypeSchemaIndex,
     snapshot: SnapshotProfileTypeSchema,
     addType: (typeId: TypeIdentifier) => void,
 ) => {
-    const pkgName = snapshot.identifier.package;
     for (const [fieldName, fieldSlicing] of Object.entries(snapshot.slicing ?? {})) {
+        if (isExtensionOwnedField(fieldName) && snapshot.base.name !== "Extension") continue;
         const field = snapshot.fields[fieldName];
         if (!isNotChoiceDeclarationField(field) || !fieldSlicing.slices || !field.type) continue;
-        const isTypeDisc = isTypeDiscriminated(fieldSlicing);
         for (const slice of Object.values(fieldSlicing.slices)) {
-            if (Object.keys(slice.match ?? {}).length > 0) {
+            if (slice.match !== undefined) {
                 addType(field.type);
-                const cc = slice.elements ? tsIndex.constrainedChoice(pkgName, field.type, slice.elements) : undefined;
-                if (cc) addType(cc.variantType);
+                if (slice.constrainedChoice) addType(slice.constrainedChoice.variantType);
                 // For type discriminator slices, also import the matched resource type
-                if (isTypeDisc && slice.match) {
-                    const resourceTypeName = extractResourceTypeFromMatch(slice.match);
-                    if (resourceTypeName) {
-                        const resourceSchema = tsIndex.schemas.find(
-                            (s) => s.identifier.name === resourceTypeName && s.identifier.kind === "resource",
-                        );
-                        if (resourceSchema) addType(resourceSchema.identifier);
-                    }
+                if (slice.resourceType) {
+                    const resourceSchema = tsIndex.schemas.find(
+                        (s) => s.identifier.name === slice.resourceType && s.identifier.kind === "resource",
+                    );
+                    if (resourceSchema) addType(resourceSchema.identifier);
                 }
             }
         }
@@ -87,14 +58,8 @@ export const collectRequiredSliceNames = (
     fieldSlicing: FieldSlicing | undefined,
 ): string[] | undefined => {
     if (!field.array || !fieldSlicing?.slices) return undefined;
-    if (isTypeDiscriminated(fieldSlicing)) return undefined;
     const names = Object.entries(fieldSlicing.slices)
-        .filter(([_, s]) => {
-            if (s.min === undefined || s.min < 1 || !s.match || Object.keys(s.match).length === 0) return false;
-            const matchKeys = new Set(Object.keys(s.match));
-            const requiredBeyondMatch = (s.required ?? []).filter((name) => !matchKeys.has(name));
-            return requiredBeyondMatch.length === 0;
-        })
+        .filter(([_, s]) => s.autoStub)
         .map(([name]) => name);
     return names.length > 0 ? names : undefined;
 };
@@ -119,34 +84,28 @@ export type SliceDef = {
     max: number;
 };
 
-export const collectSliceDefs = (tsIndex: TypeSchemaIndex, snapshot: SnapshotProfileTypeSchema): SliceDef[] =>
+export const collectSliceDefs = (_tsIndex: TypeSchemaIndex, snapshot: SnapshotProfileTypeSchema): SliceDef[] =>
     Object.entries(snapshot.slicing ?? {}).flatMap(([fieldName, fieldSlicing]) => {
+        if (isExtensionOwnedField(fieldName) && snapshot.base.name !== "Extension") return [];
         const field = snapshot.fields[fieldName];
         if (!isNotChoiceDeclarationField(field) || !fieldSlicing.slices || !field.type) return [];
         const baseType = tsTypeFromIdentifier(field.type);
-        const pkgName = snapshot.identifier.package;
-        const choiceBaseNames = collectChoiceBaseNames(tsIndex, field.type);
         const isTypeDisc = isTypeDiscriminated(fieldSlicing);
         return Object.entries(fieldSlicing.slices)
-            .filter(([_, slice]) => Object.keys(slice.match ?? {}).length > 0)
+            .filter(([_, slice]) => slice.match !== undefined)
             .map(([sliceName, slice]) => {
-                const matchFields = Object.keys(slice.match ?? {});
-                const required = (slice.required ?? []).filter(
-                    (name) => !matchFields.includes(name) && !choiceBaseNames.has(name),
-                );
-                const cc = slice.elements ? tsIndex.constrainedChoice(pkgName, field.type, slice.elements) : undefined;
+                const cc = slice.constrainedChoice;
                 // Skip flattening for primitive types — can't intersect object with boolean/string/etc.
                 const constrainedChoice = cc && !isPrimitiveIdentifier(cc.variantType) ? cc : undefined;
-                const resourceType = isTypeDisc ? extractResourceTypeFromMatch(slice.match ?? {}) : undefined;
-                const typedBaseType = resourceType ? `${baseType}<${resourceType}>` : baseType;
+                const typedBaseType = slice.resourceType ? `${baseType}<${slice.resourceType}>` : baseType;
                 return {
                     fieldName,
                     baseType,
                     typedBaseType,
                     sliceName,
                     baseName: slice.nameCandidates.recommended,
-                    match: slice.match ?? {},
-                    required,
+                    match: slice.match?.value ?? {},
+                    required: slice.effectiveRequired ?? [],
                     excluded: slice.excluded ?? [],
                     array: Boolean(field.array),
                     constrainedChoice,

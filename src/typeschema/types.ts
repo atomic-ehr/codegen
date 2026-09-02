@@ -325,14 +325,35 @@ export type NameCandidates = {
     recommended: string;
 };
 
+/** How a slice is recognized in instance data. `value` holds the discriminator
+ *  values keyed by element name and is used verbatim for runtime matching;
+ *  `kind` says where those values come from — fixed/pattern discriminator
+ *  values (`"value"`) or a resource-type discriminator (`"type"`, e.g.
+ *  Bundle.entry sliced by entry.resource resourceType). */
+export type SliceMatch = {
+    kind: "value" | "type";
+    value: Record<string, unknown>;
+};
+
 export interface FieldSlice {
     min?: number;
     max?: number;
-    match?: Record<string, unknown>;
+    match?: SliceMatch;
     required?: string[];
     excluded?: string[];
     elements?: string[];
     nameCandidates: NameCandidates;
+
+    // Derived facts, populated on profile snapshots at snapshot-build time so
+    // writers share one implementation instead of re-deriving them per language.
+    /** `required` minus match keys and choice-declaration base names */
+    effectiveRequired?: string[];
+    /** The single choice variant this slice constrains (e.g. BP component → valueQuantity) */
+    constrainedChoice?: ConstrainedChoiceInfo;
+    /** Slice can be auto-populated with just the discriminator match values */
+    autoStub?: boolean;
+    /** Matched resource type for type-discriminated slices (e.g. Bundle entry → "Patient") */
+    resourceType?: string;
 }
 
 export interface ExtensionSubField {

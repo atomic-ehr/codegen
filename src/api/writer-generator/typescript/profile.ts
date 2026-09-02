@@ -1,4 +1,4 @@
-import { pascalCase, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
+import { isExtensionOwnedField, pascalCase, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import {
     type CanonicalUrl,
     isChoiceDeclarationField,
@@ -166,7 +166,10 @@ export const collectProfileFactoryInfo = (
         }
 
         if (isNotChoiceDeclarationField(field)) {
-            const sliceNames = collectRequiredSliceNames(field, snapshot.slicing?.[name]);
+            const sliceNames =
+                isExtensionOwnedField(name) && snapshot.base.name !== "Extension"
+                    ? undefined
+                    : collectRequiredSliceNames(field, snapshot.slicing?.[name]);
             if (sliceNames) {
                 if (field.type) {
                     const tsType = fieldTsType(field, resolveRef, isFamilyType);

@@ -254,10 +254,10 @@ export class USCoreEthnicityExtensionProfile {
             errors: [
                 ...validateRequired(res, profileName, "extension"),
                 ...validateSliceCardinality(res, profileName, "extension", {"url":"ombCategory"}, "ombCategory", 0, 1),
-                ...validateSliceFields(res, profileName, "extension", {"url":"ombCategory"}, "ombCategory", ["value","valueCoding"]),
-                ...validateSliceFields(res, profileName, "extension", {"url":"detailed"}, "detailed", ["value","valueCoding"]),
+                ...validateSliceFields(res, profileName, "extension", {"url":"ombCategory"}, "ombCategory", ["valueCoding"]),
+                ...validateSliceFields(res, profileName, "extension", {"url":"detailed"}, "detailed", ["valueCoding"]),
                 ...validateSliceCardinality(res, profileName, "extension", {"url":"text"}, "text", 1, 1),
-                ...validateSliceFields(res, profileName, "extension", {"url":"text"}, "text", ["value","valueString"]),
+                ...validateSliceFields(res, profileName, "extension", {"url":"text"}, "text", ["valueString"]),
                 ...validateRequired(res, profileName, "url"),
                 ...validateFixedValue(res, profileName, "url", USCoreEthnicityExtensionProfile.canonicalUrl),
             ],

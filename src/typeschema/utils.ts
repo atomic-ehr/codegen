@@ -15,6 +15,7 @@ import {
     type ConstrainedChoiceInfo,
     concatIdentifiers,
     type Field,
+    type FieldSlice,
     type FieldSlicing,
     type GenericParam,
     type Identifier,
@@ -25,12 +26,14 @@ import {
     isLogicalTypeSchema,
     isNestedIdentifier,
     isNestedTypeSchema,
+    isNotChoiceDeclarationField,
     isProfileTypeSchema,
     isResourceIdentifier,
     isResourceTypeSchema,
     isSnapshotProfileIdentifier,
     isSnapshotProfileTypeSchema,
     isSpecializationTypeSchema,
+    isTypeDiscriminated,
     type LogicalIdentifier,
     type LogicalTypeSchema,
     type NestedIdentifier,
@@ -634,8 +637,23 @@ export const mkTypeSchemaIndex = (
         const mergedSlicing = {} as Record<string, FieldSlicing>;
         for (const anySchema of constraintSchemas.slice().reverse()) {
             const schema = anySchema as SpecializationTypeSchema;
-            // Leaf-most slicing wins per field, mirroring the field merge below.
-            if (schema.slicing) Object.assign(mergedSlicing, schema.slicing);
+            // Slice-level merge: a re-slicing profile refines the inherited slice
+            // set — its header and same-name slices win, inherited slices survive.
+            if (schema.slicing) {
+                for (const [fieldName, fieldSlicing] of Object.entries(schema.slicing)) {
+                    const base = mergedSlicing[fieldName];
+                    if (!base) {
+                        mergedSlicing[fieldName] = fieldSlicing;
+                        continue;
+                    }
+                    const slices = { ...base.slices, ...fieldSlicing.slices };
+                    mergedSlicing[fieldName] = {
+                        ...base,
+                        ...fieldSlicing,
+                        ...(Object.keys(slices).length > 0 ? { slices } : {}),
+                    };
+                }
+            }
             if (!schema.fields) continue;
 
             for (const [fieldName, fieldConstraints] of Object.entries(schema.fields)) {
@@ -690,6 +708,107 @@ export const mkTypeSchemaIndex = (
         };
     };
 
+    const constrainedChoice = (
+        pkgName: PkgName,
+        baseTypeId: TypeIdentifier,
+        sliceElements: string[],
+    ): ConstrainedChoiceInfo | undefined => {
+        const baseSchema = resolveByUrl(pkgName, baseTypeId.url as CanonicalUrl);
+        if (!baseSchema || !("fields" in baseSchema) || !baseSchema.fields) return undefined;
+        for (const [fieldName, field] of Object.entries(baseSchema.fields)) {
+            if (!isChoiceDeclarationField(field)) continue;
+            const matchingVariants = field.choices.filter((c) => sliceElements.includes(c));
+            if (matchingVariants.length !== 1) continue;
+            const variantName = matchingVariants[0] as string;
+            const variantField = baseSchema.fields[variantName];
+            if (!variantField || !isChoiceInstanceField(variantField)) continue;
+            return {
+                choiceBase: fieldName,
+                variant: variantName,
+                variantType: variantField.type,
+                allChoiceNames: field.choices,
+            };
+        }
+        return undefined;
+    };
+
+    /** Extract the matched resource type from a type-discriminator match (e.g. {"resource":{"resourceType":"Patient"}}) */
+    const extractResourceTypeFromMatch = (match: Record<string, unknown>): string | undefined => {
+        for (const value of Object.values(match)) {
+            if (typeof value !== "object" || value === null) continue;
+            const obj = value as Record<string, unknown>;
+            if (typeof obj.resourceType === "string") return obj.resourceType;
+            const nested = extractResourceTypeFromMatch(obj);
+            if (nested) return nested;
+        }
+        return undefined;
+    };
+
+    type SliceEnrichmentContext = {
+        pkgName: PkgName;
+        fieldType: TypeIdentifier | undefined;
+        choiceBaseNames: Set<string>;
+        typeDiscriminated: boolean;
+    };
+
+    /** Compute the derived facts for one slice; returns a copy — the source
+     *  profile schemas stay untouched. */
+    const enrichSlice = (slice: FieldSlice, ctx: SliceEnrichmentContext): FieldSlice => {
+        const matchKeys = new Set(Object.keys(slice.match?.value ?? {}));
+        const required = slice.required ?? [];
+        const effectiveRequired = required.filter((n) => !matchKeys.has(n) && !ctx.choiceBaseNames.has(n));
+        // Stub eligibility keeps choice-base names: a slice requiring its
+        // choice (e.g. BP component value[x]) needs user data, not a stub.
+        const requiredBeyondMatch = required.filter((n) => !matchKeys.has(n));
+        const autoStub =
+            !ctx.typeDiscriminated && (slice.min ?? 0) >= 1 && matchKeys.size > 0 && requiredBeyondMatch.length === 0;
+        const cc =
+            ctx.fieldType && slice.elements ? constrainedChoice(ctx.pkgName, ctx.fieldType, slice.elements) : undefined;
+        const resourceType = ctx.typeDiscriminated ? extractResourceTypeFromMatch(slice.match?.value ?? {}) : undefined;
+        return {
+            ...slice,
+            ...(effectiveRequired.length > 0 ? { effectiveRequired } : {}),
+            ...(cc ? { constrainedChoice: cc } : {}),
+            ...(autoStub ? { autoStub } : {}),
+            ...(resourceType ? { resourceType } : {}),
+        };
+    };
+
+    /** Populate the derived per-slice facts (effectiveRequired, constrainedChoice,
+     *  autoStub, resourceType) on a snapshot's slicing map. */
+    const enrichSliceInfo = (
+        slicing: Record<string, FieldSlicing>,
+        fields: Record<string, Field>,
+        pkgName: PkgName,
+    ): Record<string, FieldSlicing> => {
+        const result: Record<string, FieldSlicing> = {};
+        for (const [fieldName, fieldSlicing] of Object.entries(slicing)) {
+            if (!fieldSlicing.slices) {
+                result[fieldName] = fieldSlicing;
+                continue;
+            }
+            const field = fields[fieldName];
+            const fieldType = field && isNotChoiceDeclarationField(field) ? field.type : undefined;
+            const typeSchema = fieldType ? resolveType(fieldType) : undefined;
+            const choiceBaseNames = new Set(
+                typeSchema && "fields" in typeSchema && typeSchema.fields
+                    ? Object.keys(typeSchema.fields).filter((n) => isChoiceDeclarationField(typeSchema.fields?.[n]))
+                    : [],
+            );
+            const ctx: SliceEnrichmentContext = {
+                pkgName,
+                fieldType,
+                choiceBaseNames,
+                typeDiscriminated: isTypeDiscriminated(fieldSlicing),
+            };
+            const slices = Object.fromEntries(
+                Object.entries(fieldSlicing.slices).map(([sliceName, slice]) => [sliceName, enrichSlice(slice, ctx)]),
+            );
+            result[fieldName] = { ...fieldSlicing, slices };
+        }
+        return result;
+    };
+
     const buildProfileSnapshot = (schema: ProfileTypeSchema): SnapshotProfileTypeSchema => {
         const flat = flatProfile(schema);
         const flatFields = flat.fields ?? {};
@@ -735,7 +854,7 @@ export const mkTypeSchemaIndex = (
             base: flat.base,
             description: flat.description,
             fields: flatFields,
-            slicing: flat.slicing,
+            slicing: flat.slicing ? enrichSliceInfo(flat.slicing, flatFields, schema.identifier.package) : undefined,
             inheritedRequiredFields: inheritedRequiredFields.length > 0 ? inheritedRequiredFields : undefined,
             extensions: flat.extensions,
             dependencies: flat.dependencies,
@@ -757,30 +876,6 @@ export const mkTypeSchemaIndex = (
 
     const collectSnapshotProfiles = (): SnapshotProfileTypeSchema[] =>
         Object.values(snapshotIndex).flatMap((byPkg) => Object.values(byPkg));
-
-    const constrainedChoice = (
-        pkgName: PkgName,
-        baseTypeId: TypeIdentifier,
-        sliceElements: string[],
-    ): ConstrainedChoiceInfo | undefined => {
-        const baseSchema = resolveByUrl(pkgName, baseTypeId.url as CanonicalUrl);
-        if (!baseSchema || !("fields" in baseSchema) || !baseSchema.fields) return undefined;
-        for (const [fieldName, field] of Object.entries(baseSchema.fields)) {
-            if (!isChoiceDeclarationField(field)) continue;
-            const matchingVariants = field.choices.filter((c) => sliceElements.includes(c));
-            if (matchingVariants.length !== 1) continue;
-            const variantName = matchingVariants[0] as string;
-            const variantField = baseSchema.fields[variantName];
-            if (!variantField || !isChoiceInstanceField(variantField)) continue;
-            return {
-                choiceBase: fieldName,
-                variant: variantName,
-                variantType: variantField.type,
-                allChoiceNames: field.choices,
-            };
-        }
-        return undefined;
-    };
 
     const isWithMetaField = (profile: ProfileTypeSchema | SnapshotProfileTypeSchema): boolean => {
         const genealogy = tryHierarchy(profile);

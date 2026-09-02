@@ -1,7 +1,7 @@
+import { isExtensionOwnedField } from "@root/api/writer-generator/utils";
 import {
     type ConstrainedChoiceInfo,
     type FieldSlicing,
-    isChoiceDeclarationField,
     isNotChoiceDeclarationField,
     isPrimitiveIdentifier,
     isTypeDiscriminated,
@@ -40,10 +40,8 @@ export const collectRequiredSliceNames = (
     fieldSlicing: FieldSlicing | undefined,
 ): string[] | undefined => {
     if (!field.array || !fieldSlicing?.slices) return undefined;
-    // Type-discriminated slices ("type" discriminator) require explicit typed setters — no stubs.
-    if (isTypeDiscriminated(fieldSlicing)) return undefined;
     const names = Object.entries(fieldSlicing.slices)
-        .filter(([_, s]) => s.min !== undefined && s.min >= 1 && s.match && Object.keys(s.match).length > 0)
+        .filter(([_, s]) => s.autoStub)
         .map(([name]) => name);
     return names.length > 0 ? names : undefined;
 };
@@ -93,52 +91,24 @@ export const normalizeMatchForPython = (
     return result;
 };
 
-const extractTypeDiscriminatorResource = (
-    isTypeDiscriminated: boolean,
-    rawMatch: Record<string, unknown> | undefined,
-): string | undefined => {
-    if (!isTypeDiscriminated || !rawMatch) return undefined;
-    for (const val of Object.values(rawMatch)) {
-        if (val !== null && typeof val === "object" && !Array.isArray(val)) {
-            const rt = (val as Record<string, unknown>).resourceType;
-            if (typeof rt === "string") return rt;
-        }
-    }
-    return undefined;
-};
-
 export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: SnapshotProfileTypeSchema): SliceDef[] => {
-    const pkgName = flatProfile.identifier.package;
     return Object.entries(flatProfile.slicing ?? {}).flatMap(([fieldName, fieldSlicing]) => {
+        if (isExtensionOwnedField(fieldName) && flatProfile.base.name !== "Extension") return [];
         const field = flatProfile.fields[fieldName];
         if (!isNotChoiceDeclarationField(field) || !fieldSlicing.slices || !field.type) return [];
-        const choiceBaseNames = new Set<string>();
         const baseSchema = tsIndex.resolveType(field.type);
-        if (baseSchema && "fields" in baseSchema && baseSchema.fields) {
-            for (const [n, f] of Object.entries(baseSchema.fields)) {
-                if (isChoiceDeclarationField(f)) choiceBaseNames.add(n);
-            }
-        }
+        const typeDiscriminated = isTypeDiscriminated(fieldSlicing);
         return Object.entries(fieldSlicing.slices)
-            .filter(([_, slice]) => Object.keys(slice.match ?? {}).length > 0)
+            .filter(([_, slice]) => slice.match !== undefined)
             .map(([sliceName, slice]) => {
-                const matchFields = Object.keys(slice.match ?? {});
-                const required = (slice.required ?? []).filter(
-                    (name) => !matchFields.includes(name) && !choiceBaseNames.has(name),
-                );
-                const cc = slice.elements ? tsIndex.constrainedChoice(pkgName, field.type, slice.elements) : undefined;
+                const cc = slice.constrainedChoice;
                 // Skip flattening for primitive types — can't wrap/unwrap under a variant key.
                 const constrainedChoice = cc && !isPrimitiveIdentifier(cc.variantType) ? cc : undefined;
-                const typeDiscriminated = isTypeDiscriminated(fieldSlicing);
-                const typeDiscriminatorResource = extractTypeDiscriminatorResource(
-                    typeDiscriminated,
-                    slice.match as Record<string, unknown> | undefined,
-                );
                 return {
                     fieldName,
                     sliceName,
-                    match: normalizeMatchForPython(tsIndex, slice.match ?? {}, baseSchema),
-                    required,
+                    match: normalizeMatchForPython(tsIndex, slice.match?.value ?? {}, baseSchema),
+                    required: slice.effectiveRequired ?? [],
                     array: Boolean(field.array),
                     max: slice.max ?? 0,
                     constrainedChoice,
@@ -146,7 +116,7 @@ export const collectSliceDefs = (tsIndex: TypeSchemaIndex, flatProfile: Snapshot
                         field.type && !isPrimitiveIdentifier(field.type) ? pyTypeFromIdentifier(field.type) : undefined,
                     elementTypeId: field.type && !isPrimitiveIdentifier(field.type) ? field.type : undefined,
                     isTypeDiscriminated: typeDiscriminated,
-                    typeDiscriminatorResource,
+                    typeDiscriminatorResource: slice.resourceType,
                     nameCandidates: slice.nameCandidates,
                 };
             });

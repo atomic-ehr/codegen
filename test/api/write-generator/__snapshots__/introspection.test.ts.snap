@@ -3143,12 +3143,15 @@ exports[`IntrospectionWriter - flat profile output Check bodyweight flat profile
           "min": 1,
           "max": 1,
           "match": {
-            "coding": [
-              {
-                "code": "vital-signs",
-                "system": "http://terminology.hl7.org/CodeSystem/observation-category"
-              }
-            ]
+            "kind": "value",
+            "value": {
+              "coding": [
+                {
+                  "code": "vital-signs",
+                  "system": "http://terminology.hl7.org/CodeSystem/observation-category"
+                }
+              ]
+            }
           },
           "required": [
             "coding"
@@ -3163,7 +3166,8 @@ exports[`IntrospectionWriter - flat profile output Check bodyweight flat profile
               "CategoryVSCatSlice"
             ],
             "recommended": "VSCat"
-          }
+          },
+          "autoStub": true
         }
       }
     }
