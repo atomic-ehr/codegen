@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { isVirtualFhirBaseCanonical } from "@root/typeschema/register";
 import { type CanonicalUrl, isLogicalTypeSchema, type Name } from "@root/typeschema/types";
 import type { PFS } from "@typeschema-test/utils";
 import { mkR4Register, mkR5Register, mkTestLogger, registerFsAndMkTs } from "@typeschema-test/utils";
@@ -46,6 +47,27 @@ describe("TypeSchema: logical model specializing FHIR Base (R4, virtual root)", 
         await expect(registerFsAndMkTs(r4, doc, logger)).rejects.toThrow(
             "Base resource not found 'http://example.org/StructureDefinition/MissingParent'",
         );
+    });
+
+    // An explicitly R5+ versioned Base is not virtual: R5 ships a physical
+    // StructureDefinition-Base, so failing to resolve it is a real defect.
+    it("rejects an R5-versioned Base parent", async () => {
+        const doc = mkDocument("http://hl7.org/fhir/StructureDefinition/Base|5.0.0", "DocumentR5Ref");
+        await expect(registerFsAndMkTs(r4, doc, logger)).rejects.toThrow(
+            "Base resource not found 'http://hl7.org/fhir/StructureDefinition/Base|5.0.0'",
+        );
+    });
+});
+
+describe("isVirtualFhirBaseCanonical", () => {
+    it("matches only R4-family Base references", () => {
+        expect(isVirtualFhirBaseCanonical("http://hl7.org/fhir/StructureDefinition/Base")).toBeTrue();
+        expect(isVirtualFhirBaseCanonical("http://hl7.org/fhir/StructureDefinition/Base|4.0.1")).toBeTrue();
+        expect(isVirtualFhirBaseCanonical("http://hl7.org/fhir/StructureDefinition/Base|4.3.0")).toBeTrue();
+        expect(isVirtualFhirBaseCanonical("Base|4.0.1")).toBeTrue();
+        expect(isVirtualFhirBaseCanonical("http://hl7.org/fhir/StructureDefinition/Base|5.0.0")).toBeFalse();
+        expect(isVirtualFhirBaseCanonical("http://hl7.org/fhir/StructureDefinition/Base|6.0.0-ballot3")).toBeFalse();
+        expect(isVirtualFhirBaseCanonical("http://example.org/StructureDefinition/Base|4.0.1")).toBeFalse();
     });
 });
 
