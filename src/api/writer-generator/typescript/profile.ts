@@ -154,7 +154,7 @@ export const collectProfileFactoryInfo = (
             continue;
         }
 
-        if (field.valueConstraint) {
+        if (field.valueConstraint && !field.valueConstraint.validateOnly) {
             const value = JSON.stringify(field.valueConstraint.value);
             autoFields.push({ name, value: field.array ? `[${value}]` : value });
             fixedFields.add(name);

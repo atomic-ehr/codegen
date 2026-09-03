@@ -397,16 +397,18 @@ export const mkField = (
         valueConstraint = { kind: "fixed", type: element.fixed.type, value: element.fixed.value };
     }
 
-    // Auto-populate valueConstraint only when required coding slices fully fix
-    // each Coding. A discriminator-only match (for example a fixed system with
-    // a required user-supplied code) constrains the slice but does not fix the
-    // parent CodeableConcept value.
+    // Auto-populate valueConstraint from required coding slices. Slices that
+    // fully fix each Coding (system + code) fix the parent CodeableConcept
+    // value. A discriminator-only match (for example a fixed system with a
+    // required user-supplied code) constrains the slice without fixing the
+    // parent value — it is validated as a containment pattern but stays a
+    // regular input (validateOnly).
     // Uses rawElement because the resolved element snapshot has sub-elements stripped.
     const elemForCodingCheck = rawElement ?? element;
     if (!valueConstraint && elemForCodingCheck.elements?.coding?.slicing?.slices) {
         const codingSlices = elemForCodingCheck.elements.coding.slicing.slices;
         const allSliceValues = Object.values(codingSlices);
-        const allRequired =
+        const allRequiredWithSystem =
             allSliceValues.length > 0 &&
             allSliceValues.every(
                 (s) =>
@@ -414,18 +416,14 @@ export const mkField = (
                     s.min >= 1 &&
                     s.match &&
                     typeof s.match === "object" &&
-                    typeof (s.match as FHIRCoding).system === "string" &&
-                    typeof (s.match as FHIRCoding).code === "string",
+                    typeof (s.match as FHIRCoding).system === "string",
             );
-        if (allRequired) {
+        if (allRequiredWithSystem) {
             const codingValues = allSliceValues.flatMap((s) => (s.match ? [s.match as FHIRCoding] : []));
-            valueConstraint = {
-                kind: "fixed",
-                type: "CodeableConcept",
-                value: {
-                    coding: codingValues,
-                },
-            };
+            const fullyFixed = allSliceValues.every((s) => typeof (s.match as FHIRCoding).code === "string");
+            valueConstraint = fullyFixed
+                ? { kind: "fixed", type: "CodeableConcept", value: { coding: codingValues } }
+                : { kind: "pattern", type: "CodeableConcept", value: { coding: codingValues }, validateOnly: true };
         }
     }
 
