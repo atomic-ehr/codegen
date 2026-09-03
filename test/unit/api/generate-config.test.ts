@@ -598,5 +598,6 @@ describe("describeGenerateConfig", () => {
         expect(plan).toContain("input: package hl7.fhir.r4.core@4.0.1");
         expect(plan).toContain("generators: typescript");
         expect(plan).toContain(`outputTo: ${Path.join(CONFIG_DIR, "out/core")}`);
+        expect(plan).toContain("cleanOutput: true (default) — removes outputTo before generation");
     });
 });

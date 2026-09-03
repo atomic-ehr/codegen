@@ -55,6 +55,11 @@ export type GenerateConfigBuilder = {
     csharp?: Partial<CSharpGeneratorOptions>;
     /** Output directory, resolved against the config file's directory. */
     outputTo: string;
+    /**
+     * Remove `outputTo` recursively before generation. Defaults to `true`
+     * (APIBuilder's default), so point `outputTo` at a dedicated directory —
+     * never at a directory holding anything else.
+     */
     cleanOutput?: boolean;
     throwException?: boolean;
 };
@@ -695,7 +700,10 @@ export const describeGenerateConfig = (config: GenerateConfig): string => {
         lines.push(`     generators: ${generators.length > 0 ? generators.join(", ") : "none"}`);
         if (builder.typeSchema) lines.push(`     typeSchema: ${Object.keys(builder.typeSchema).join(", ")}`);
         lines.push(`     outputTo: ${builder.outputTo}`);
-        if (builder.cleanOutput !== undefined) lines.push(`     cleanOutput: ${builder.cleanOutput}`);
+        const cleanOutput = builder.cleanOutput ?? true;
+        lines.push(
+            `     cleanOutput: ${cleanOutput}${builder.cleanOutput === undefined ? " (default)" : ""}${cleanOutput ? " — removes outputTo before generation" : ""}`,
+        );
     });
     return lines.join("\n");
 };
