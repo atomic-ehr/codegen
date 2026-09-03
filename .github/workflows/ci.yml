@@ -150,3 +150,51 @@ jobs:
             exit 1
           fi
           echo "type-tree.json exists ($(wc -c < /tmp/test-install/output/type-tree.json) bytes)"
+
+      - name: Run CLI
+        working-directory: /tmp/test-install
+        run: |
+          cat > codegen.json <<'CONFIG'
+          {
+              "version": 1,
+              "builders": [
+                  {
+                      "name": "core",
+                      "fromPackages": [{ "name": "hl7.fhir.r4.core", "version": "4.0.1" }],
+                      "typescript": {},
+                      "outputTo": "./cli-output"
+                  }
+              ]
+          }
+          CONFIG
+
+          run_cli() {
+            if [ "${{ matrix.package-manager }}" == "bun" ]; then
+              bun node_modules/.bin/atomic-codegen "$@"
+            elif [ "${{ matrix.package-manager }}" == "npm" ]; then
+              npx atomic-codegen "$@"
+            else
+              pnpm exec atomic-codegen "$@"
+            fi
+          }
+
+          run_cli --version
+
+          # The command must run exactly once: a duplicate entry point in the
+          # bundle used to execute every CLI command twice under bun/Node 24+.
+          run_cli generate --config ./codegen.json --dry-run | tee plan.txt
+          plans=$(grep -c "Generate plan" plan.txt || true)
+          if [ "$plans" != "1" ]; then
+            echo "expected exactly one generate plan, saw $plans"
+            exit 1
+          fi
+
+          run_cli generate --config ./codegen.json
+
+      - name: Verify CLI output
+        run: |
+          if [ ! -f /tmp/test-install/cli-output/hl7-fhir-r4-core/Patient.ts ]; then
+            echo "CLI generation output missing"
+            exit 1
+          fi
+          echo "CLI output OK ($(find /tmp/test-install/cli-output -name '*.ts' | wc -l) TypeScript files)"
