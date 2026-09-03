@@ -104,11 +104,10 @@ const collectRegularFieldValidation = (
         errorLines.push(`errors.extend(validate_required(self._resource, profile_name, ${JSON.stringify(pyName)}))`);
     }
     if (field.valueConstraint) {
-        helpers.add("validate_fixed_value");
+        const fn = field.valueConstraint.validateOnly ? "validate_pattern_value" : "validate_fixed_value";
+        helpers.add(fn);
         const value = JSON.stringify(field.valueConstraint.value);
-        errorLines.push(
-            `errors.extend(validate_fixed_value(self._resource, profile_name, ${JSON.stringify(pyName)}, ${value}))`,
-        );
+        errorLines.push(`errors.extend(${fn}(self._resource, profile_name, ${JSON.stringify(pyName)}, ${value}))`);
     }
     if (isNotChoiceDeclarationField(field)) {
         if (field.enum) {
