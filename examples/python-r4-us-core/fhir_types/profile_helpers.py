@@ -417,6 +417,20 @@ def validate_fixed_value(res: object, profile_name: str, field: str, expected: o
     )
 
 
+def validate_pattern_value(res: object, profile_name: str, field: str, expected: object) -> list[str]:
+    """Containment constraint for a field that may be absent: absence is
+    ``validate_required``'s concern, so an absent field passes; a present one
+    must structurally contain ``expected``."""
+    actual = _get_field(res, field)
+    if actual is None:
+        return []
+    return (
+        []
+        if matches_value(actual, expected)
+        else [f"{profile_name}: field '{field}' does not match expected pattern"]
+    )
+
+
 def validate_slice_cardinality(
     res: object,
     profile_name: str,
