@@ -204,6 +204,14 @@ const INPUT_KEYS = ["fromPackages", "fromPackageRefs", "localTgzPackages", "loca
 
 const GENERATOR_KEYS = ["introspection", "typescript", "python", "csharp"] as const;
 
+/** How `b` relates to `a` when both are absolute, normalized directories. */
+const outputOverlap = (a: string, b: string): string | undefined => {
+    if (a === b) return "duplicates";
+    if (b.startsWith(a + Path.sep)) return "is nested inside";
+    if (a.startsWith(b + Path.sep)) return "contains";
+    return undefined;
+};
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     typeof value === "object" && value !== null && !Array.isArray(value);
 
@@ -490,6 +498,20 @@ export const parseGenerateConfig = (raw: unknown, configPath: string): GenerateC
         if (seen.has(builder.name))
             report(ctx, `builders[${index}].name`, `duplicate builder name "${builder.name}"; names must be unique`);
         seen.add(builder.name);
+    });
+
+    // outputTo values are absolute by now; overlapping directories would let a
+    // later builder's cleanOutput remove an earlier builder's freshly written files.
+    builders.forEach((builder, index) => {
+        for (const other of builders.slice(0, index)) {
+            const relation = outputOverlap(other.outputTo, builder.outputTo);
+            if (!relation) continue;
+            report(
+                ctx,
+                `builders[${index}].outputTo`,
+                `${relation} the output directory of builder "${other.name}"; output directories must not overlap`,
+            );
+        }
     });
 
     if (ctx.issues.length > 0) throw new GenerateConfigError(ctx.issues);
