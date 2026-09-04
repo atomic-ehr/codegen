@@ -51,6 +51,13 @@ const INVALID_PACKAGE_DIR_RUN_RE = /[^a-z0-9-]+/g;
 const PACKAGE_DIR_EDGE_RE = /^-+|-+$/g;
 const TS_IDENTIFIER_START_RE = /^[A-Za-z_$]/;
 
+/**
+ * User-supplied attestation of how a package's content was verified, stamped
+ * verbatim on its entries. `"unverifiable"` also suppresses codes and
+ * displays; packages without an attestation are stamped `"not-recorded"`.
+ */
+export type TerminologyVerification = "registry-integrity" | "unverifiable" | (string & {});
+
 export type TypeScriptOptions = {
     lineWidth?: number;
     /** openResourceTypeSet -- for resource families (Resource, DomainResource) use open set for resourceType field.
@@ -80,8 +87,8 @@ export type TypeScriptOptions = {
          * which for real closures (VSAC, hl7.terminology, ...) can be huge.
          */
         packages?: string[];
-        /** Optional map of `name@version` package refs to a closure verification state. */
-        packageVerification?: Record<string, string>;
+        /** Attestation per `name@version` package ref; see {@link TerminologyVerification}. */
+        packageVerification?: Record<string, TerminologyVerification>;
     };
 } & WriterOptions;
 
