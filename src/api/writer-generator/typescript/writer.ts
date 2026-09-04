@@ -74,6 +74,12 @@ export type TypeScriptOptions = {
     terminology?: {
         /** Emit one terminology module for every resolved package. Defaults to false. */
         enabled?: boolean;
+        /**
+         * Limit terminology modules to these `name@version` package refs.
+         * When omitted, every resolved package in the closure emits one —
+         * which for real closures (VSAC, hl7.terminology, ...) can be huge.
+         */
+        packages?: string[];
         /** Optional map of `name@version` package refs to a closure verification state. */
         packageVerification?: Record<string, string>;
     };
@@ -587,8 +593,13 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             ...tsIndex.collectLogicalModels(),
             ...(this.opts.generateProfile ? tsIndex.collectSnapshotProfiles() : []),
         ];
+        const terminologyPackages = this.opts.terminology?.packages;
         const terminology = this.opts.terminology?.enabled
-            ? (tsIndex.register?.allTerminology() ?? []).filter(({ resources }) => resources.length > 0)
+            ? (tsIndex.register?.allTerminology() ?? []).filter(
+                  ({ packageMeta: pkg, resources }) =>
+                      resources.length > 0 &&
+                      (terminologyPackages === undefined || terminologyPackages.includes(packageMetaToNpm(pkg))),
+              )
             : [];
         const logicalUnits = new Map<
             string,
