@@ -504,20 +504,27 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             matching.push(resource);
             resourcesByCanonical.set(key, matching);
         }
-        const duplicate = [...resourcesByCanonical]
-            .filter(([, matching]) => matching.length > 1)
-            .sort(([left], [right]) => left.localeCompare(right))[0];
-        if (duplicate) {
-            const resource = duplicate[1][0];
-            if (!resource) throw new Error(`Duplicate terminology resource has no representative`);
-            const identities = duplicate[1]
-                .map((candidate) => candidate.id ?? candidate.name ?? candidate.url)
-                .sort((left, right) => left.localeCompare(right));
-            throw new Error(
-                `Package ${packageMetaToNpm(pkg)} contains duplicate ${resource.resourceType} canonical URL ${JSON.stringify(resource.url)} for resources ${identities.join(", ")}`,
-            );
+        // Real packages ship duplicate canonicals (hl7.terminology carries
+        // urn:iso:std:iso:3166:-2 twice).
+        const dedupedResources: TerminologyResource[] = [];
+        for (const matching of resourcesByCanonical.values()) {
+            const candidates = matching
+                .slice()
+                .sort((left, right) =>
+                    terminologyResourceIdentity(left).localeCompare(terminologyResourceIdentity(right)),
+                );
+            const winner = candidates[0];
+            if (!winner) continue;
+            if (candidates.length > 1) {
+                const identities = candidates.map((candidate) => candidate.id ?? candidate.name ?? candidate.url);
+                this.logger()?.dryWarn(
+                    "#duplicateCanonical",
+                    `Package ${packageMetaToNpm(pkg)} contains duplicate ${winner.resourceType} canonical URL ${JSON.stringify(winner.url)} for resources ${identities.join(", ")}; keeping ${winner.id ?? winner.name ?? winner.url}`,
+                );
+            }
+            dedupedResources.push(winner);
         }
-        const sortedResources = resources.slice().sort((left, right) => {
+        const sortedResources = dedupedResources.slice().sort((left, right) => {
             if (left.resourceType !== right.resourceType) return left.resourceType.localeCompare(right.resourceType);
             const symbolOrder = terminologySymbolName(left).localeCompare(terminologySymbolName(right));
             if (symbolOrder !== 0) return symbolOrder;
