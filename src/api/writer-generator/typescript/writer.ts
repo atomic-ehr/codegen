@@ -50,6 +50,19 @@ const INVALID_PACKAGE_DIR_RUN_RE = /[^a-z0-9-]+/g;
 const PACKAGE_DIR_EDGE_RE = /^-+|-+$/g;
 const TS_IDENTIFIER_START_RE = /^[A-Za-z_$]/;
 
+/**
+ * How a package's terminology content was verified — a free-form attestation
+ * label stamped verbatim into the generated modules. The generator performs
+ * no verification itself, and exactly one value changes behavior:
+ * `"unverifiable"` keeps the package to identity and provenance, with no
+ * codes or displays emitted. Packages absent from the map are stamped
+ * `"not-recorded"`. Any other label (a QA stage, a vendoring date, a digest)
+ * passes through unchanged, for downstream trust policies and audit trails.
+ * `(string & {})` keeps the known labels in autocomplete without closing the
+ * vocabulary.
+ */
+export type TerminologyVerification = "registry-integrity" | "unverifiable" | (string & {});
+
 export type TypeScriptOptions = {
     lineWidth?: number;
     /** openResourceTypeSet -- for resource families (Resource, DomainResource) use open set for resourceType field.
@@ -79,8 +92,8 @@ export type TypeScriptOptions = {
          * which for real closures (VSAC, hl7.terminology, ...) can be huge.
          */
         packages?: string[];
-        /** Optional map of `name@version` package refs to a closure verification state. */
-        packageVerification?: Record<string, string>;
+        /** Attestation per `name@version` package ref; see {@link TerminologyVerification}. */
+        packageVerification?: Record<string, TerminologyVerification>;
     };
 } & WriterOptions;
 
