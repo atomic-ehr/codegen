@@ -1,4 +1,8 @@
+import * as Path from "node:path";
+import { fileURLToPath } from "node:url";
+import { pascalCase, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
+import type { PackageTerminology, TerminologyConcept, TerminologyResource } from "@root/typeschema/register";
 import {
     type CanonicalUrl,
     isChoiceDeclarationField,
@@ -10,8 +14,10 @@ import {
     isSnapshotProfileTypeSchema,
     isSpecializationTypeSchema,
     type NestedTypeSchema,
+    type PackageMeta,
     packageMeta,
     packageMetaToFhir,
+    packageMetaToNpm,
     type SpecializationTypeSchema,
     type TypeIdentifier,
     type TypeSchema,
@@ -22,7 +28,6 @@ import {
     tsFieldName,
     tsModuleFileName,
     tsModuleName,
-    tsModulePath,
     tsNameFromCanonical,
     tsPackageDir,
     tsProfileModuleFileName,
@@ -39,6 +44,13 @@ const leafOf = (path: string[]): string => path[path.length - 1] ?? "";
 // `generic.params` (if any, computed via structural propagation) must be ignored at reference sites
 // so we don't emit `<T>` args clashing with the hardcoded `T extends string` declaration.
 const TS_HARDCODED_GENERIC_NAMES = new Set(["Reference", "Coding", "CodeableConcept"]);
+const CODE_SYSTEM_SUFFIX_RE = /CodeSystem$/;
+const CHOICE_SUFFIX_RE = /\[x\]/g;
+const INVALID_TS_IDENTIFIER_RUN_RE = /[^A-Za-z0-9_$]+/g;
+const PACKAGE_PATH_SEPARATOR_RE = /\\/g;
+const INVALID_PACKAGE_DIR_RUN_RE = /[^a-z0-9-]+/g;
+const PACKAGE_DIR_EDGE_RE = /^-+|-+$/g;
+const TS_IDENTIFIER_START_RE = /^[A-Za-z_$]/;
 
 export type TypeScriptOptions = {
     lineWidth?: number;
@@ -51,11 +63,87 @@ export type TypeScriptOptions = {
     primitiveTypeExtension: boolean;
     extensionGetterDefault?: "flat" | "profile" | "raw";
     sliceGetterDefault?: "flat" | "raw";
+    terminology?: {
+        /** Emit one terminology module for every resolved package. Defaults to false. */
+        enabled?: boolean;
+        /** Optional map of `name@version` package refs to a closure verification state. */
+        packageVerification?: Record<string, string>;
+    };
 } & WriterOptions;
 
+const validTsIdentifier = (source: string): string => {
+    const normalized = source.replace(CHOICE_SUFFIX_RE, "_x_").replace(INVALID_TS_IDENTIFIER_RUN_RE, "_");
+    return TS_IDENTIFIER_START_RE.test(normalized) ? normalized : `_${normalized}`;
+};
+
+const terminologySymbolName = (resource: TerminologyResource): string => {
+    const sourceName = resource.name ?? resource.id ?? tsNameFromCanonical(resource.url) ?? "Terminology";
+    return validTsIdentifier(`${uppercaseFirstLetter(sourceName)}${resource.resourceType}`);
+};
+
+const terminologyResourceIdentity = (resource: TerminologyResource): string =>
+    `${resource.id ?? ""}\u0000${resource.name ?? ""}`;
+
+const safeTsPackageDir = (source: string): string => {
+    const normalized = tsPackageDir(source.replace(PACKAGE_PATH_SEPARATOR_RE, "_"));
+    return normalized.replace(INVALID_PACKAGE_DIR_RUN_RE, "-").replace(PACKAGE_DIR_EDGE_RE, "") || "package";
+};
+
+const allocateTerminologySymbols = (
+    resources: TerminologyResource[],
+): { resource: TerminologyResource; symbol: string }[] => {
+    const baseNames = resources.map(terminologySymbolName);
+    const counts: Record<string, number> = {};
+    for (const name of baseNames) counts[name] = (counts[name] ?? 0) + 1;
+    const used = new Set<string>();
+
+    return resources.map((resource, index) => {
+        const baseName = baseNames[index] ?? "Terminology";
+        const localIdentity = resource.id ?? tsNameFromCanonical(resource.url) ?? "Resource";
+        const desired =
+            counts[baseName] === 1 ? baseName : validTsIdentifier(`${baseName}_${pascalCase(localIdentity)}`);
+        let symbol = desired;
+        let suffix = 2;
+        while (used.has(symbol)) {
+            symbol = `${desired}_${suffix}`;
+            suffix += 1;
+        }
+        used.add(symbol);
+        return { resource, symbol };
+    });
+};
+
+const flattenConcepts = (concepts: TerminologyConcept[] | undefined): TerminologyConcept[] => {
+    const flattened: TerminologyConcept[] = [];
+    const stack = [...(concepts ?? [])].reverse();
+    while (stack.length > 0) {
+        const concept = stack.pop();
+        if (!concept) continue;
+        flattened.push(concept);
+        if (concept.concept) {
+            for (let index = concept.concept.length - 1; index >= 0; index -= 1) {
+                const nested = concept.concept[index];
+                if (nested) stack.push(nested);
+            }
+        }
+    }
+    return flattened;
+};
+
 export class TypeScript extends Writer<TypeScriptOptions> {
+    private packageDirectories = new Map<string, string>();
+
     constructor(options: TypeScriptOptions) {
         super({ lineWidth: 120, ...options, resolveAssets: options.resolveAssets ?? resolveTsAssets });
+    }
+
+    packageDirectory(physical: PackageMeta | TypeIdentifier): string {
+        const pkg = "package" in physical ? { name: physical.package, version: physical.version } : physical;
+        return this.packageDirectories.get(packageMetaToNpm(pkg)) ?? safeTsPackageDir(pkg.name);
+    }
+
+    modulePath(identifier: TypeIdentifier): string {
+        return `${this.packageDirectory(identifier)}/${tsModuleName(identifier)}`;
     }
 
     ifElseChain(branches: { cond: string; body: () => void }[], elseBody?: () => void) {
@@ -94,8 +182,9 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         }
     }
 
-    generateFhirPackageIndexFile(schemas: TypeSchema[]) {
+    generateFhirPackageIndexFile(schemas: TypeSchema[], hasTerminology = false) {
         this.cat("index.ts", () => {
+            if (hasTerminology) this.lineSM(`export * from "./terminology"`);
             const profiles = schemas.filter(isSnapshotProfileTypeSchema);
             if (profiles.length > 0) {
                 this.lineSM(`export * from "./profiles"`);
@@ -151,7 +240,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             for (const dep of schema.dependencies) {
                 if (["complex-type", "resource", "logical"].includes(dep.kind)) {
                     imports.push({
-                        tsPackage: `${importPrefix}${tsModulePath(dep)}`,
+                        tsPackage: `${importPrefix}${this.modulePath(dep)}`,
                         name: tsResourceName(dep),
                         dep: dep,
                     });
@@ -177,7 +266,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 const element = tsIndex.resolveByUrl(schema.identifier.package, elementUrl);
                 if (!element) throw new Error(`'${elementUrl}' not found for ${schema.identifier.package}.`);
 
-                this.tsImport(`${importPrefix}${tsModulePath(element.identifier)}`, "Element", { typeOnly: true });
+                this.tsImport(`${importPrefix}${this.modulePath(element.identifier)}`, "Element", { typeOnly: true });
             }
         }
     }
@@ -187,7 +276,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         if (complexTypeDeps && complexTypeDeps.length > 0) {
             for (const dep of complexTypeDeps) {
                 this.debugComment(dep);
-                this.lineSM(`export type { ${tsResourceName(dep)} } from "${`../${tsModulePath(dep)}`}"`);
+                this.lineSM(`export type { ${tsResourceName(dep)} } from "${`../${this.modulePath(dep)}`}"`);
             }
             this.line();
         }
@@ -365,6 +454,84 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         }
     }
 
+    generateTerminologyModule(packageTerminology: PackageTerminology) {
+        const { packageMeta: pkg, resources } = packageTerminology;
+        const verification = this.opts.terminology?.packageVerification?.[packageMetaToNpm(pkg)] ?? "not-recorded";
+        const resourcesByCanonical = new Map<string, TerminologyResource[]>();
+        for (const resource of resources) {
+            const key = `${resource.resourceType}\u0000${resource.url}`;
+            const matching = resourcesByCanonical.get(key) ?? [];
+            matching.push(resource);
+            resourcesByCanonical.set(key, matching);
+        }
+        const duplicate = [...resourcesByCanonical]
+            .filter(([, matching]) => matching.length > 1)
+            .sort(([left], [right]) => left.localeCompare(right))[0];
+        if (duplicate) {
+            const resource = duplicate[1][0];
+            if (!resource) throw new Error(`Duplicate terminology resource has no representative`);
+            const identities = duplicate[1]
+                .map((candidate) => candidate.id ?? candidate.name ?? candidate.url)
+                .sort((left, right) => left.localeCompare(right));
+            throw new Error(
+                `Package ${packageMetaToNpm(pkg)} contains duplicate ${resource.resourceType} canonical URL ${JSON.stringify(resource.url)} for resources ${identities.join(", ")}`,
+            );
+        }
+        const sortedResources = resources.slice().sort((left, right) => {
+            if (left.resourceType !== right.resourceType) return left.resourceType.localeCompare(right.resourceType);
+            const symbolOrder = terminologySymbolName(left).localeCompare(terminologySymbolName(right));
+            if (symbolOrder !== 0) return symbolOrder;
+            const canonicalOrder = left.url.localeCompare(right.url);
+            if (canonicalOrder !== 0) return canonicalOrder;
+            return terminologyResourceIdentity(left).localeCompare(terminologyResourceIdentity(right));
+        });
+        const allocatedResources = allocateTerminologySymbols(sortedResources);
+
+        this.cat("terminology.ts", () => {
+            this.generateDisclaimer();
+            allocatedResources.forEach(({ resource, symbol }, index) => {
+                const concepts = flattenConcepts(resource.concept);
+                const emitsConcepts =
+                    resource.resourceType === "CodeSystem" &&
+                    resource.content === "complete" &&
+                    verification !== "unverifiable";
+                if (emitsConcepts) {
+                    const seenCodes = new Set<string>();
+                    for (const concept of concepts) {
+                        if (seenCodes.has(concept.code))
+                            throw new Error(`CodeSystem ${resource.url} repeats code ${JSON.stringify(concept.code)}`);
+                        seenCodes.add(concept.code);
+                    }
+                }
+
+                this.curlyBlock(["export", "const", symbol, "="], () => {
+                    this.line(`canonicalUrl: ${JSON.stringify(resource.url)},`);
+                    this.line(`packageId: ${JSON.stringify(pkg.name)},`);
+                    this.line(`packageVersion: ${JSON.stringify(pkg.version)},`);
+                    this.line(`verification: ${JSON.stringify(verification)},`);
+                    this.line(`resourceType: ${JSON.stringify(resource.resourceType)},`);
+                    this.line(
+                        `contentMode: ${resource.content === undefined ? "null" : JSON.stringify(resource.content)},`,
+                    );
+                    if (emitsConcepts) {
+                        this.line(`codes: [${concepts.map(({ code }) => JSON.stringify(code)).join(", ")}],`);
+                        this.curlyBlock(["displays:"], () => {
+                            for (const concept of concepts) {
+                                if (concept.display !== undefined)
+                                    this.line(`[${JSON.stringify(concept.code)}]: ${JSON.stringify(concept.display)},`);
+                            }
+                        }, [","]);
+                    }
+                }, [" as const;"]);
+                if (emitsConcepts)
+                    this.lineSM(
+                        `export type ${symbol.replace(CODE_SYSTEM_SUFFIX_RE, "Code")} = (typeof ${symbol}.codes)[number]`,
+                    );
+                if (index < allocatedResources.length - 1) this.line();
+            });
+        });
+    }
+
     override async generate(tsIndex: TypeSchemaIndex) {
         // Only generate code for schemas from focused packages
         const typesToGenerate = [
@@ -373,7 +540,88 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             ...tsIndex.collectLogicalModels(),
             ...(this.opts.generateProfile ? tsIndex.collectSnapshotProfiles() : []),
         ];
-        const grouped = groupByPackages(typesToGenerate);
+        const terminology = this.opts.terminology?.enabled
+            ? (tsIndex.register?.allTerminology() ?? []).filter(({ resources }) => resources.length > 0)
+            : [];
+        const logicalUnits = new Map<
+            string,
+            { packageMeta: PackageMeta; packageSchemas: TypeSchema[]; terminology?: PackageTerminology }
+        >();
+        for (const schema of typesToGenerate) {
+            const pkg = packageMeta(schema);
+            const identity = packageMetaToNpm(pkg);
+            const unit = logicalUnits.get(identity) ?? { packageMeta: pkg, packageSchemas: [] };
+            unit.packageSchemas.push(schema);
+            logicalUnits.set(identity, unit);
+        }
+        for (const packageTerminology of terminology) {
+            const identity = packageMetaToNpm(packageTerminology.packageMeta);
+            const unit = logicalUnits.get(identity) ?? {
+                packageMeta: packageTerminology.packageMeta,
+                packageSchemas: [],
+            };
+            unit.terminology = packageTerminology;
+            logicalUnits.set(identity, unit);
+        }
+
+        const identitiesByPackageName = new Map<string, string[]>();
+        for (const [identity, { packageMeta: pkg }] of logicalUnits) {
+            const identities = identitiesByPackageName.get(pkg.name) ?? [];
+            identities.push(identity);
+            identitiesByPackageName.set(pkg.name, identities);
+        }
+
+        const unitsByBaseDir = new Map<
+            string,
+            { identity: string; packageSchemas: TypeSchema[]; terminology?: PackageTerminology }[]
+        >();
+        for (const [identity, { packageMeta: pkg, packageSchemas, terminology: packageTerminology }] of logicalUnits) {
+            const directorySource =
+                (identitiesByPackageName.get(pkg.name)?.length ?? 0) > 1 ? packageMetaToNpm(pkg) : pkg.name;
+            const baseDir = safeTsPackageDir(directorySource);
+            const units = unitsByBaseDir.get(baseDir) ?? [];
+            const schemasByIdentity = new Map(
+                packageSchemas.map((schema) => [JSON.stringify(schema.identifier), schema]),
+            );
+            const sortedSchemas = [...schemasByIdentity.values()].sort((left, right) =>
+                left.identifier.name.localeCompare(right.identifier.name),
+            );
+            units.push({ identity, packageSchemas: sortedSchemas, terminology: packageTerminology });
+            unitsByBaseDir.set(baseDir, units);
+        }
+
+        const generationUnits = new Map<string, { packageSchemas: TypeSchema[]; terminology?: PackageTerminology }>();
+        const usedPackageDirs = new Set<string>();
+        for (const [baseDir, units] of unitsByBaseDir) {
+            if (units.length !== 1) continue;
+            const unit = units[0];
+            if (!unit) continue;
+            generationUnits.set(baseDir, unit);
+            usedPackageDirs.add(baseDir);
+        }
+        for (const [baseDir, units] of [...unitsByBaseDir].sort(([left], [right]) => left.localeCompare(right))) {
+            if (units.length < 2) continue;
+            let suffix = 1;
+            for (const unit of units.sort((left, right) => left.identity.localeCompare(right.identity))) {
+                let packageDir = `${baseDir}--${suffix}`;
+                while (usedPackageDirs.has(packageDir)) {
+                    suffix += 1;
+                    packageDir = `${baseDir}--${suffix}`;
+                }
+                generationUnits.set(packageDir, unit);
+                usedPackageDirs.add(packageDir);
+                suffix += 1;
+            }
+        }
+        this.packageDirectories = new Map(
+            [...generationUnits].flatMap(([packageDir, unit]) => {
+                if (unit.terminology) {
+                    return [[packageMetaToNpm(unit.terminology.packageMeta), packageDir] as const];
+                }
+                const schema = unit.packageSchemas[0];
+                return schema ? [[packageMetaToNpm(packageMeta(schema)), packageDir] as const] : [];
+            }),
+        );
 
         const hasProfiles = this.opts.generateProfile && typesToGenerate.some(isSnapshotProfileTypeSchema);
 
@@ -382,14 +630,16 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 this.cp("profile-helpers.ts", "profile-helpers.ts");
             }
 
-            for (const [packageName, packageSchemas] of Object.entries(grouped)) {
-                const packageDir = tsPackageDir(packageName);
+            for (const [packageDir, { packageSchemas, terminology }] of [...generationUnits].sort(([left], [right]) =>
+                left.localeCompare(right),
+            )) {
                 this.cd(packageDir, () => {
                     for (const schema of packageSchemas) {
                         this.generateResourceModule(tsIndex, schema);
                     }
                     generateProfileIndexFile(this, tsIndex, packageSchemas.filter(isSnapshotProfileTypeSchema));
-                    this.generateFhirPackageIndexFile(packageSchemas);
+                    if (terminology) this.generateTerminologyModule(terminology);
+                    this.generateFhirPackageIndexFile(packageSchemas, terminology !== undefined);
                 });
             }
         });

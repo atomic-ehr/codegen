@@ -35,6 +35,8 @@ export type Register = {
     allFs(): RichFHIRSchema[];
     /** Returns all ValueSets from all packages in the resolver */
     allVs(): RichValueSet[];
+    /** Returns raw terminology resources grouped by their originating package. */
+    allTerminology(): PackageTerminology[];
     resolveVs(_pkg: PackageMeta, canonicalUrl: CanonicalUrl): RichValueSet | undefined;
     resolveAny(canonicalUrl: CanonicalUrl): any | undefined;
     resolveElementSnapshot(fhirSchema: RichFHIRSchema, path: string[]): FHIRSchemaElement;
@@ -60,6 +62,120 @@ type PkgId = string;
 type PkgName = string;
 type FocusedResource = StructureDefinition | ValueSet | CodeSystem;
 
+export type TerminologyConcept = {
+    code: string;
+    display?: string;
+    concept?: TerminologyConcept[];
+};
+
+export type TerminologyResource = {
+    resourceType: "CodeSystem" | "ValueSet" | "NamingSystem";
+    id?: string;
+    name?: string;
+    url: string;
+    content?: string;
+    concept?: TerminologyConcept[];
+};
+
+export type PackageTerminology = {
+    packageMeta: PackageMeta;
+    resources: TerminologyResource[];
+};
+
+const projectTerminologyConcepts = (concepts: unknown): TerminologyConcept[] | undefined => {
+    if (!Array.isArray(concepts)) return undefined;
+    const projected: TerminologyConcept[] = [];
+    const stack: {
+        source: unknown[];
+        target: TerminologyConcept[];
+        index: number;
+        parent?: TerminologyConcept;
+    }[] = [{ source: concepts, target: projected, index: 0 }];
+
+    while (stack.length > 0) {
+        const frame = stack[stack.length - 1];
+        if (!frame) break;
+        if (frame.index >= frame.source.length) {
+            if (frame.parent && frame.target.length === 0) delete frame.parent.concept;
+            stack.pop();
+            continue;
+        }
+        const concept = frame.source[frame.index];
+        frame.index += 1;
+        if (concept === null || typeof concept !== "object") continue;
+        const candidate = concept as { code?: unknown; display?: unknown; concept?: unknown };
+        if (typeof candidate.code !== "string") continue;
+        const copy: TerminologyConcept = {
+            code: candidate.code,
+            ...(typeof candidate.display === "string" ? { display: candidate.display } : {}),
+        };
+        frame.target.push(copy);
+        if (Array.isArray(candidate.concept)) {
+            const nested: TerminologyConcept[] = [];
+            copy.concept = nested;
+            stack.push({ source: candidate.concept, target: nested, index: 0, parent: copy });
+        }
+    }
+
+    return projected;
+};
+
+const namingSystemIdentity = (
+    candidate: { id?: unknown; name?: unknown; uniqueId?: unknown },
+    logger?: CodegenLog,
+): string | undefined => {
+    const uniqueIds = Array.isArray(candidate.uniqueId)
+        ? candidate.uniqueId.filter(
+              (identifier): identifier is { type: string; value: string; preferred?: boolean } =>
+                  identifier !== null &&
+                  typeof identifier === "object" &&
+                  typeof (identifier as { type?: unknown }).type === "string" &&
+                  typeof (identifier as { value?: unknown }).value === "string" &&
+                  (identifier as { value: string }).value.length > 0,
+          )
+        : [];
+    const preferred = uniqueIds.filter(({ preferred }) => preferred === true);
+    const candidates = preferred.length > 0 ? preferred : uniqueIds;
+    const identifier = candidates.find(({ type }) => type === "uri") ?? candidates[0];
+    if (identifier) {
+        if (identifier.type === "oid" && !identifier.value.startsWith("urn:oid:")) return `urn:oid:${identifier.value}`;
+        if (identifier.type === "uuid" && !identifier.value.startsWith("urn:uuid:"))
+            return `urn:uuid:${identifier.value}`;
+        return identifier.value;
+    }
+    if (typeof candidate.id === "string" && candidate.id.length > 0) return `NamingSystem/${candidate.id}`;
+    if (typeof candidate.name === "string" && candidate.name.length > 0) return `NamingSystem/${candidate.name}`;
+    logger?.dryWarn("NamingSystem has no uniqueId, id, or name and cannot be emitted.");
+    return undefined;
+};
+
+const asTerminologyResource = (resource: unknown, logger?: CodegenLog): TerminologyResource | undefined => {
+    if (resource === null || typeof resource !== "object") return undefined;
+    const candidate = resource as {
+        resourceType?: unknown;
+        id?: unknown;
+        name?: unknown;
+        url?: unknown;
+        content?: unknown;
+        concept?: unknown;
+        uniqueId?: unknown;
+    };
+    if (!["CodeSystem", "ValueSet", "NamingSystem"].includes(String(candidate.resourceType))) return undefined;
+    const resourceType = candidate.resourceType as TerminologyResource["resourceType"];
+    let url = typeof candidate.url === "string" && candidate.url.length > 0 ? candidate.url : undefined;
+    if (url === undefined && resourceType === "NamingSystem") url = namingSystemIdentity(candidate, logger);
+    if (typeof url !== "string" || url.length === 0) return undefined;
+    const concepts = projectTerminologyConcepts(candidate.concept);
+    return {
+        resourceType,
+        ...(typeof candidate.id === "string" ? { id: candidate.id } : {}),
+        ...(typeof candidate.name === "string" ? { name: candidate.name } : {}),
+        url,
+        ...(typeof candidate.content === "string" ? { content: candidate.content } : {}),
+        ...(concepts && concepts.length > 0 ? { concept: concepts } : {}),
+    };
+};
+
 type CanonicalResolution<T> = {
     deep: number;
     pkg: PackageMeta;
@@ -72,6 +188,7 @@ type PackageIndex = {
     canonicalResolution: Record<CanonicalUrl, CanonicalResolution<FocusedResource>[]>;
     fhirSchemas: Record<CanonicalUrl, RichFHIRSchema>;
     valueSets: Record<CanonicalUrl, RichValueSet>;
+    terminology: TerminologyResource[];
 };
 
 type PackageAwareResolver = Record<PkgId, PackageIndex>;
@@ -83,6 +200,7 @@ const mkEmptyPkgIndex = (pkg: PackageMeta): PackageIndex => {
         canonicalResolution: {},
         fhirSchemas: {},
         valueSets: {},
+        terminology: [],
     };
 };
 
@@ -100,6 +218,8 @@ const mkPackageAwareResolver = async (
     const index = mkEmptyPkgIndex(pkg);
     acc[pkgId] = index;
     for (const resource of await manager.search({ package: pkg })) {
+        const terminologyResource = asTerminologyResource(resource, logger);
+        if (terminologyResource) index.terminology.push(terminologyResource);
         const rawUrl = resource.url;
         if (!rawUrl) continue;
         if (!(isStructureDefinition(resource) || isValueSet(resource) || isCodeSystem(resource))) continue;
@@ -316,6 +436,12 @@ export const registerFromManager = async (
                 .sort((sd1, sd2) => sd1.url.localeCompare(sd2.url)),
         allFs: () => Object.values(resolver).flatMap((pkgIndex) => Object.values(pkgIndex.fhirSchemas)),
         allVs: () => Object.values(resolver).flatMap((pkgIndex) => Object.values(pkgIndex.valueSets)),
+        allTerminology: () =>
+            Object.values(resolver)
+                .map(({ pkg, terminology }) => ({ packageMeta: pkg, resources: terminology }))
+                .sort((left, right) =>
+                    packageMetaToNpm(left.packageMeta).localeCompare(packageMetaToNpm(right.packageMeta)),
+                ),
         resolveVs,
         resolveAny: (canonicalUrl: CanonicalUrl) => packageAgnosticResolveCanonical(resolver, canonicalUrl, logger),
         resolveElementSnapshot,

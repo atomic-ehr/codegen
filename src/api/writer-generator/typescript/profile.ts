@@ -17,9 +17,7 @@ import {
     tsCamelCase,
     tsExtensionFlatTypeName,
     tsFieldName,
-    tsModulePath,
     tsNameFromCanonical,
-    tsPackageDir,
     tsProfileClassName,
     tsProfileModuleName,
     tsResourceName,
@@ -316,9 +314,9 @@ export const generateProfileImports = (
     const getModulePath = (typeId: TypeIdentifier): string => {
         if (isNestedIdentifier(typeId)) {
             const path = tsNameFromCanonical(typeId.url, true);
-            if (path) return `../../${tsPackageDir(typeId.package)}/${pascalCase(path)}`;
+            if (path) return `../../${w.packageDirectory(typeId)}/${pascalCase(path)}`;
         }
-        return `../../${tsModulePath(typeId)}`;
+        return `../../${w.modulePath(typeId)}`;
     };
 
     const addType = (typeId: TypeIdentifier) => {

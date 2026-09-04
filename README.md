@@ -157,6 +157,12 @@ const builder = new APIBuilder()
         generateProfile?: boolean,
         withDebugComment?: boolean,
         openResourceTypeSet?: boolean,
+        terminology?: {
+            enabled: true,
+            packageVerification: {
+                "hl7.fhir.r4.core@4.0.1": "registry-integrity",
+            },
+        },
     })
     .python({                                   // Python generator
         client?: "fhirpy" | "none",            // client integration (default: fhirpy)
@@ -204,6 +210,10 @@ Each language generator accepts its own option object. All options are optional;
 | `sliceGetterDefault` | `"flat" \| "raw"` | `"flat"` | Default return shape for generated slice getters (`flat` strips discriminators, `raw` returns the full FHIR element). |
 | `lineWidth` | `number` | `120` | Maximum line width before wrapping. |
 | `withDebugComment` | `boolean` | `false` | Emit comments tracing each generated type back to its source schema. |
+| `terminology.enabled` | `boolean` | `false` | Emit a `terminology.ts` module for every package in the resolved closure. |
+| `terminology.packageVerification` | `Record<string, string>` | `{}` | Map package references such as `hl7.fhir.r4.core@4.0.1` to a closure verification state (`registry-integrity`, `unverifiable`, ...). Absent entries record `not-recorded`. |
+
+When terminology generation is enabled, each exported symbol includes its canonical identity, source package and version, declared content mode, and verification state. Only CodeSystems declaring `content: "complete"` emit code unions and display maps. ValueSet expansions are never promoted to constants, and an `unverifiable` package emits identity and provenance without concept content.
 
 **Python** — `.python({ ... })`
 
