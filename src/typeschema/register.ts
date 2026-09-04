@@ -6,7 +6,13 @@ import {
     isStructureDefinition,
     type StructureDefinition,
 } from "@atomic-ehr/fhirschema";
-import { type CodeSystem, isCodeSystem, isValueSet, type ValueSet } from "@root/fhir-types/hl7-fhir-r4-core";
+import {
+    type CodeSystem,
+    type CodeSystemConcept,
+    isCodeSystem,
+    isValueSet,
+    type ValueSet,
+} from "@root/fhir-types/hl7-fhir-r4-core";
 import type { CodegenLog } from "@root/utils/log";
 import type {
     CanonicalUrl,
@@ -71,19 +77,14 @@ type PkgId = string;
 type PkgName = string;
 type FocusedResource = StructureDefinition | ValueSet | CodeSystem;
 
-export type TerminologyConcept = {
-    code: string;
-    display?: string;
-    concept?: TerminologyConcept[];
-};
-
 export type TerminologyResource = {
     resourceType: "CodeSystem" | "ValueSet" | "NamingSystem";
     id?: string;
     name?: string;
     url: string;
-    content?: string;
-    concept?: TerminologyConcept[];
+    /** Declared CodeSystem content mode; malformed packages may carry other strings. */
+    content?: CodeSystem["content"] | (string & {});
+    concept?: CodeSystemConcept[];
 };
 
 export type PackageTerminology = {
@@ -91,14 +92,14 @@ export type PackageTerminology = {
     resources: TerminologyResource[];
 };
 
-const projectTerminologyConcepts = (concepts: unknown): TerminologyConcept[] | undefined => {
+const projectTerminologyConcepts = (concepts: unknown): CodeSystemConcept[] | undefined => {
     if (!Array.isArray(concepts)) return undefined;
-    const projected: TerminologyConcept[] = [];
+    const projected: CodeSystemConcept[] = [];
     const stack: {
         source: unknown[];
-        target: TerminologyConcept[];
+        target: CodeSystemConcept[];
         index: number;
-        parent?: TerminologyConcept;
+        parent?: CodeSystemConcept;
     }[] = [{ source: concepts, target: projected, index: 0 }];
 
     while (stack.length > 0) {
@@ -114,13 +115,13 @@ const projectTerminologyConcepts = (concepts: unknown): TerminologyConcept[] | u
         if (concept === null || typeof concept !== "object") continue;
         const candidate = concept as { code?: unknown; display?: unknown; concept?: unknown };
         if (typeof candidate.code !== "string") continue;
-        const copy: TerminologyConcept = {
+        const copy: CodeSystemConcept = {
             code: candidate.code,
             ...(typeof candidate.display === "string" ? { display: candidate.display } : {}),
         };
         frame.target.push(copy);
         if (Array.isArray(candidate.concept)) {
-            const nested: TerminologyConcept[] = [];
+            const nested: CodeSystemConcept[] = [];
             copy.concept = nested;
             stack.push({ source: candidate.concept, target: nested, index: 0, parent: copy });
         }
@@ -159,29 +160,33 @@ const namingSystemIdentity = (
 };
 
 const asTerminologyResource = (resource: unknown, logger?: CodegenLog): TerminologyResource | undefined => {
+    if (isCodeSystem(resource) || isValueSet(resource)) {
+        // The guards narrow the declared type; the runtime checks stay because
+        // package JSON is untrusted and may not honor it.
+        if (typeof resource.url !== "string" || resource.url.length === 0) return undefined;
+        const concepts = isCodeSystem(resource) ? projectTerminologyConcepts(resource.concept) : undefined;
+        return {
+            resourceType: resource.resourceType,
+            ...(typeof resource.id === "string" ? { id: resource.id } : {}),
+            ...(typeof resource.name === "string" ? { name: resource.name } : {}),
+            url: resource.url,
+            ...(isCodeSystem(resource) && typeof resource.content === "string" ? { content: resource.content } : {}),
+            ...(concepts && concepts.length > 0 ? { concept: concepts } : {}),
+        };
+    }
     if (resource === null || typeof resource !== "object") return undefined;
-    const candidate = resource as {
-        resourceType?: unknown;
-        id?: unknown;
-        name?: unknown;
-        url?: unknown;
-        content?: unknown;
-        concept?: unknown;
-        uniqueId?: unknown;
-    };
-    if (!["CodeSystem", "ValueSet", "NamingSystem"].includes(String(candidate.resourceType))) return undefined;
-    const resourceType = candidate.resourceType as TerminologyResource["resourceType"];
-    let url = typeof candidate.url === "string" && candidate.url.length > 0 ? candidate.url : undefined;
-    if (url === undefined && resourceType === "NamingSystem") url = namingSystemIdentity(candidate, logger);
-    if (typeof url !== "string" || url.length === 0) return undefined;
-    const concepts = projectTerminologyConcepts(candidate.concept);
+    const candidate = resource as { resourceType?: unknown; id?: unknown; name?: unknown; url?: unknown };
+    if (candidate.resourceType !== "NamingSystem") return undefined;
+    const url =
+        typeof candidate.url === "string" && candidate.url.length > 0
+            ? candidate.url
+            : namingSystemIdentity(candidate, logger);
+    if (url === undefined || url.length === 0) return undefined;
     return {
-        resourceType,
+        resourceType: "NamingSystem",
         ...(typeof candidate.id === "string" ? { id: candidate.id } : {}),
         ...(typeof candidate.name === "string" ? { name: candidate.name } : {}),
         url,
-        ...(typeof candidate.content === "string" ? { content: candidate.content } : {}),
-        ...(concepts && concepts.length > 0 ? { concept: concepts } : {}),
     };
 };
 
