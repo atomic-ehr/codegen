@@ -20,6 +20,17 @@ if (require.main === module) {
             withDebugComment: false,
             generateProfile: true,
             openResourceTypeSet: false,
+            // Opt-in per-package terminology surface: runtime code lists and
+            // display maps for CodeSystems that declare `content: complete`.
+            // The allowlist keeps it to US Core — without it, every package in
+            // the closure (VSAC, hl7.terminology, ...) emits a module.
+            terminology: {
+                enabled: true,
+                packages: ["hl7.fhir.us.core@8.0.1"],
+                packageVerification: {
+                    "hl7.fhir.us.core@8.0.1": "registry-integrity",
+                },
+            },
         })
         .typeSchema({
             treeShake: {
