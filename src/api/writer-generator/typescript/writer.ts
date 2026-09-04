@@ -1,6 +1,7 @@
 import { pascalCase, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
-import type { PackageTerminology, TerminologyConcept, TerminologyResource } from "@root/typeschema/register";
+import type { CodeSystemConcept } from "@root/fhir-types/hl7-fhir-r4-core";
+import type { PackageTerminology, TerminologyResource } from "@root/typeschema/register";
 import {
     type CanonicalUrl,
     isChoiceDeclarationField,
@@ -134,8 +135,8 @@ const allocateTerminologySymbols = (
     });
 };
 
-const flattenConcepts = (concepts: TerminologyConcept[] | undefined): TerminologyConcept[] => {
-    const flattened: TerminologyConcept[] = [];
+const flattenConcepts = (concepts: CodeSystemConcept[] | undefined): CodeSystemConcept[] => {
+    const flattened: CodeSystemConcept[] = [];
     const stack = [...(concepts ?? [])].reverse();
     while (stack.length > 0) {
         const concept = stack.pop();
