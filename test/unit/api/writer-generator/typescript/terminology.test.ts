@@ -356,6 +356,23 @@ describe("TypeScript terminology surface", () => {
         expect(output).not.toContain('"second"');
     });
 
+    it("emits no terminology module for packages outside the allowlist", async () => {
+        const manager = {
+            packageJson: async () => ({ ...packageMeta, dependencies: {} }),
+            search: async () => resources,
+        } as unknown as Parameters<typeof registerFromManager>[0];
+        const register = await registerFromManager(manager, { focusedPackages: [packageMeta] });
+
+        const result = await new APIBuilder({ register, logger: mkErrorLogger() })
+            .typescript({
+                inMemoryOnly: true,
+                terminology: { enabled: true, packages: ["some.other.package@9.9.9"] },
+            })
+            .generate();
+
+        expect(result.filesGenerated.typescript?.["generated/types/fixture-ig/terminology.ts"]).toBeUndefined();
+    });
+
     it("emits no concept content for an unverifiable package", async () => {
         const output = await generateTerminology("unverifiable");
 
