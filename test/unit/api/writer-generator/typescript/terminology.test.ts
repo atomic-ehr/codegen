@@ -330,8 +330,8 @@ describe("TypeScript terminology surface", () => {
         );
     });
 
-    it("fails deterministically when one package repeats a resource type and canonical URL", async () => {
-        const generation = generateTerminology("registry-integrity", [
+    it("keeps a deterministic winner when one package repeats a resource type and canonical URL", async () => {
+        const output = await generateTerminology("registry-integrity", [
             {
                 resourceType: "CodeSystem",
                 id: "first-duplicate",
@@ -350,9 +350,10 @@ describe("TypeScript terminology surface", () => {
             },
         ]);
 
-        await expect(generation).rejects.toThrow(
-            'Package fixture.ig@1.2.3 contains duplicate CodeSystem canonical URL "http://example.test/CodeSystem/duplicate-canonical" for resources first-duplicate, second-duplicate',
-        );
+        expect(output).toContain("export const FirstDuplicateCodeSystem");
+        expect(output).toContain('codes: ["first"]');
+        expect(output).not.toContain("SecondDuplicate");
+        expect(output).not.toContain('"second"');
     });
 
     it("emits no concept content for an unverifiable package", async () => {
