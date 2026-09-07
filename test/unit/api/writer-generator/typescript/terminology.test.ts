@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import { APIBuilder } from "@root/api/builder";
-import { mkTerminologyEntries, registerFromManager } from "@root/typeschema/register";
+import { mkTerminologyEntries, registerFromManager, registerFromPackageMetas } from "@root/typeschema/register";
 import { enrichFHIRSchema } from "@root/typeschema/types";
 import { mkErrorLogger, mkR5Register } from "@typeschema-test/utils";
 
@@ -109,6 +109,36 @@ describe("terminology surface against an R5 closure", () => {
         expect(types).toContain('import type { CodeSystem } from "./hl7-fhir-r5-core/CodeSystem"');
         const module =
             Object.entries(files).find(([path]) => path.endsWith("hl7-fhir-r5-core/terminology.ts"))?.[1] ?? "";
+        expect(module).toContain('export type AdministrativeGenderCode = "male" | "female" | "other" | "unknown"');
+        expect(module).toContain("satisfies CodedTerminologyEntry<AdministrativeGenderCode>");
+    });
+});
+
+describe("terminology surface against an R6 closure", () => {
+    it("derives the emitted types from the R6 ballot package", async () => {
+        const register = await registerFromPackageMetas([{ name: "hl7.fhir.r6.core", version: "6.0.0-ballot3" }], {});
+        const result = await new APIBuilder({ register, logger: mkErrorLogger() })
+            .typeSchema({
+                treeShake: { "hl7.fhir.r6.core": { "http://hl7.org/fhir/StructureDefinition/Patient": {} } },
+            })
+            .typescript({
+                inMemoryOnly: true,
+                generateProfile: false,
+                terminology: {
+                    enabled: true,
+                    packages: ["hl7.fhir.r6.core@6.0.0-ballot3"],
+                    packageVerification: { "hl7.fhir.r6.core@6.0.0-ballot3": "registry-integrity" },
+                },
+            })
+            .generate();
+
+        expect(result.success).toBeTrue();
+        const files = result.filesGenerated.typescript ?? {};
+        expect(Object.keys(files).some((path) => path.endsWith("hl7-fhir-r6-core/CodeSystem.ts"))).toBeTrue();
+        const types = Object.entries(files).find(([path]) => path.endsWith("terminology-types.ts"))?.[1] ?? "";
+        expect(types).toContain('import type { CodeSystem } from "./hl7-fhir-r6-core/CodeSystem"');
+        const module =
+            Object.entries(files).find(([path]) => path.endsWith("hl7-fhir-r6-core/terminology.ts"))?.[1] ?? "";
         expect(module).toContain('export type AdministrativeGenderCode = "male" | "female" | "other" | "unknown"');
         expect(module).toContain("satisfies CodedTerminologyEntry<AdministrativeGenderCode>");
     });
