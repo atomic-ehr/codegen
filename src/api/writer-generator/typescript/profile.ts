@@ -240,13 +240,12 @@ export const generateProfileIndexFile = (
             const exports: Map<string, string> = new Map();
             for (const snapshot of snapshots) {
                 const className = tsProfileClassName(snapshot);
-                const moduleName = tsProfileModuleName(tsIndex, snapshot);
                 if (!exports.has(className)) {
-                    exports.set(className, `export { ${className} } from "./${moduleName}"`);
+                    exports.set(className, tsProfileModuleName(tsIndex, snapshot));
                 }
             }
-            for (const exp of [...exports.values()].sort()) {
-                w.lineSM(exp);
+            for (const className of [...exports.keys()].sort()) {
+                w.tsExport(`./${exports.get(className)}`, className);
             }
         });
     });
@@ -318,7 +317,7 @@ export const generateProfileImports = (
     const getModulePath = (typeId: TypeIdentifier): string => {
         if (isNestedIdentifier(typeId)) {
             const path = tsNameFromCanonical(typeId.url, true);
-            if (path) return `../../${w.packageDirectory(typeId)}/${pascalCase(path)}`;
+            if (path) return `../../${w.packageDir(typeId)}/${pascalCase(path)}`;
         }
         return `../../${w.modulePath(typeId)}`;
     };
