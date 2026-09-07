@@ -6,7 +6,7 @@ import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import { APIBuilder } from "@root/api/builder";
 import { mkTerminologyEntries, registerFromManager } from "@root/typeschema/register";
 import { enrichFHIRSchema } from "@root/typeschema/types";
-import { mkErrorLogger } from "@typeschema-test/utils";
+import { mkErrorLogger, mkR5Register } from "@typeschema-test/utils";
 
 const packageMeta = { name: "fixture.ig", version: "1.2.3" };
 
@@ -81,6 +81,38 @@ const generateTerminology = async (
     if (output === undefined) throw new Error("terminology module was not generated");
     return output;
 };
+
+describe("terminology surface against an R5 closure", () => {
+    it("derives the emitted types from the R5 core package", async () => {
+        const register = await mkR5Register();
+        const result = await new APIBuilder({ register, logger: mkErrorLogger() })
+            .typeSchema({
+                treeShake: { "hl7.fhir.r5.core": { "http://hl7.org/fhir/StructureDefinition/Patient": {} } },
+            })
+            .typescript({
+                inMemoryOnly: true,
+                generateProfile: false,
+                terminology: {
+                    enabled: true,
+                    packages: ["hl7.fhir.r5.core@5.0.0"],
+                    packageVerification: { "hl7.fhir.r5.core@5.0.0": "registry-integrity" },
+                },
+            })
+            .generate();
+
+        expect(result.success).toBeTrue();
+        const files = result.filesGenerated.typescript ?? {};
+        // The force-include pulled the R5 CodeSystem type in, and the emitted
+        // terminology types derive from it — no version branching anywhere.
+        expect(Object.keys(files).some((path) => path.endsWith("hl7-fhir-r5-core/CodeSystem.ts"))).toBeTrue();
+        const types = Object.entries(files).find(([path]) => path.endsWith("terminology-types.ts"))?.[1] ?? "";
+        expect(types).toContain('import type { CodeSystem } from "./hl7-fhir-r5-core/CodeSystem"');
+        const module =
+            Object.entries(files).find(([path]) => path.endsWith("hl7-fhir-r5-core/terminology.ts"))?.[1] ?? "";
+        expect(module).toContain('export type AdministrativeGenderCode = "male" | "female" | "other" | "unknown"');
+        expect(module).toContain("satisfies CodedTerminologyEntry<AdministrativeGenderCode>");
+    });
+});
 
 describe("register terminology entries", () => {
     const collect = async (sourceResources: readonly object[] = resources) => {
