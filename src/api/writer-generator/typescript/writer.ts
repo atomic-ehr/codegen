@@ -1,7 +1,11 @@
 import { pascalCase, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
-import type { CodeSystemConcept } from "@root/fhir-types/hl7-fhir-r4-core";
-import type { PackageTerminology, TerminologyResource } from "@root/typeschema/register";
+import {
+    mkTerminologyEntries,
+    type PackageTerminology,
+    type TerminologyResource,
+    type TerminologyVerification,
+} from "@root/typeschema/register";
 import {
     type CanonicalUrl,
     isChoiceDeclarationField,
@@ -50,19 +54,6 @@ const PACKAGE_PATH_SEPARATOR_RE = /\\/g;
 const INVALID_PACKAGE_DIR_RUN_RE = /[^a-z0-9-]+/g;
 const PACKAGE_DIR_EDGE_RE = /^-+|-+$/g;
 const TS_IDENTIFIER_START_RE = /^[A-Za-z_$]/;
-
-/**
- * How a package's terminology content was verified — a free-form attestation
- * label stamped verbatim into the generated modules. The generator performs
- * no verification itself, and exactly one value changes behavior:
- * `"unverifiable"` keeps the package to identity and provenance, with no
- * codes or displays emitted. Packages absent from the map are stamped
- * `"not-recorded"`. Any other label (a QA stage, a vendoring date, a digest)
- * passes through unchanged, for downstream trust policies and audit trails.
- * `(string & {})` keeps the known labels in autocomplete without closing the
- * vocabulary.
- */
-export type TerminologyVerification = "registry-integrity" | "unverifiable" | (string & {});
 
 export type TypeScriptOptions = {
     lineWidth?: number;
@@ -138,23 +129,6 @@ const allocateTerminologySymbols = (
         used.add(symbol);
         return { resource, symbol };
     });
-};
-
-const flattenConcepts = (concepts: CodeSystemConcept[] | undefined): CodeSystemConcept[] => {
-    const flattened: CodeSystemConcept[] = [];
-    const stack = [...(concepts ?? [])].reverse();
-    while (stack.length > 0) {
-        const concept = stack.pop();
-        if (!concept) continue;
-        flattened.push(concept);
-        if (concept.concept) {
-            for (let index = concept.concept.length - 1; index >= 0; index -= 1) {
-                const nested = concept.concept[index];
-                if (nested) stack.push(nested);
-            }
-        }
-    }
-    return flattened;
 };
 
 export class TypeScript extends Writer<TypeScriptOptions> {
@@ -554,36 +528,12 @@ export class TypeScript extends Writer<TypeScriptOptions> {
     }
 
     generateTerminologyModule(packageTerminology: PackageTerminology) {
-        const { packageMeta: pkg, resources } = packageTerminology;
+        const { packageMeta: pkg } = packageTerminology;
         const verification = this.opts.terminology?.packageVerification?.[packageMetaToNpm(pkg)] ?? "not-recorded";
-        const resourcesByCanonical = new Map<string, TerminologyResource[]>();
-        for (const resource of resources) {
-            const key = `${resource.resourceType}\u0000${resource.url}`;
-            const matching = resourcesByCanonical.get(key) ?? [];
-            matching.push(resource);
-            resourcesByCanonical.set(key, matching);
-        }
-        // Real packages ship duplicate canonicals (hl7.terminology carries
-        // urn:iso:std:iso:3166:-2 twice).
-        const dedupedResources: TerminologyResource[] = [];
-        for (const matching of resourcesByCanonical.values()) {
-            const candidates = matching
-                .slice()
-                .sort((left, right) =>
-                    terminologyResourceIdentity(left).localeCompare(terminologyResourceIdentity(right)),
-                );
-            const winner = candidates[0];
-            if (!winner) continue;
-            if (candidates.length > 1) {
-                const identities = candidates.map((candidate) => candidate.id ?? candidate.name ?? candidate.url);
-                this.logger()?.dryWarn(
-                    "#duplicateCanonical",
-                    `Package ${packageMetaToNpm(pkg)} contains duplicate ${winner.resourceType} canonical URL ${JSON.stringify(winner.url)} for resources ${identities.join(", ")}; keeping ${winner.id ?? winner.name ?? winner.url}`,
-                );
-            }
-            dedupedResources.push(winner);
-        }
-        const sortedResources = dedupedResources.slice().sort((left, right) => {
+        // The register builds the normalized entries (dedup, code embedding
+        // policy); this writer only allocates symbols and serializes them.
+        const dedupedEntries = mkTerminologyEntries(packageTerminology, verification, this.logger());
+        const sortedResources = dedupedEntries.slice().sort(({ resource: left }, { resource: right }) => {
             if (left.resourceType !== right.resourceType) return left.resourceType.localeCompare(right.resourceType);
             const symbolOrder = terminologySymbolName(left).localeCompare(terminologySymbolName(right));
             if (symbolOrder !== 0) return symbolOrder;
@@ -591,64 +541,51 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             if (canonicalOrder !== 0) return canonicalOrder;
             return terminologyResourceIdentity(left).localeCompare(terminologyResourceIdentity(right));
         });
-        const allocatedResources = allocateTerminologySymbols(sortedResources);
+        const allocated = allocateTerminologySymbols(sortedResources.map(({ resource }) => resource));
+        const allocatedEntries = sortedResources.map(({ entry }, index) => ({
+            entry,
+            symbol: allocated[index]?.symbol ?? "Terminology",
+        }));
 
         this.cat("terminology.ts", () => {
             this.generateDisclaimer();
-            const anyCoded = allocatedResources.some(
-                ({ resource }) =>
-                    resource.resourceType === "CodeSystem" &&
-                    resource.content === "complete" &&
-                    verification !== "unverifiable",
-            );
+            const anyCoded = allocatedEntries.some(({ entry }) => "codes" in entry);
             const typeImports = anyCoded ? ["TerminologyEntry", "CodedTerminologyEntry"] : ["TerminologyEntry"];
             this.tsImport("../terminology-types", ...typeImports, { typeOnly: true });
             this.line();
-            allocatedResources.forEach(({ resource, symbol }, index) => {
-                const concepts = flattenConcepts(resource.concept);
-                const emitsConcepts =
-                    resource.resourceType === "CodeSystem" &&
-                    resource.content === "complete" &&
-                    verification !== "unverifiable";
-                if (emitsConcepts) {
-                    const seenCodes = new Set<string>();
-                    for (const concept of concepts) {
-                        if (seenCodes.has(concept.code))
-                            throw new Error(`CodeSystem ${resource.url} repeats code ${JSON.stringify(concept.code)}`);
-                        seenCodes.add(concept.code);
-                    }
-                }
-
+            allocatedEntries.forEach(({ entry, symbol }, index) => {
+                const coded = "codes" in entry;
                 const codeName = symbol.endsWith("CodeSystem")
                     ? symbol.replace(CODE_SYSTEM_SUFFIX_RE, "Code")
                     : `${symbol}Code`;
-                if (emitsConcepts) {
-                    const union = concepts.map(({ code }) => JSON.stringify(code)).join(" | ") || "never";
+                if (coded) {
+                    const union = entry.codes.map((code) => JSON.stringify(code)).join(" | ") || "never";
                     this.lineSM(`export type ${codeName} = ${union}`);
                 }
-                const satisfiesClause = emitsConcepts
+                const satisfiesClause = coded
                     ? ` as const satisfies CodedTerminologyEntry<${codeName}>;`
                     : " as const satisfies TerminologyEntry;";
                 this.curlyBlock(["export", "const", symbol, "="], () => {
-                    this.line(`canonicalUrl: ${JSON.stringify(resource.url)},`);
-                    this.line(`packageId: ${JSON.stringify(pkg.name)},`);
-                    this.line(`packageVersion: ${JSON.stringify(pkg.version)},`);
-                    this.line(`verification: ${JSON.stringify(verification)},`);
-                    this.line(`resourceType: ${JSON.stringify(resource.resourceType)},`);
+                    this.line(`canonicalUrl: ${JSON.stringify(entry.canonicalUrl)},`);
+                    this.line(`packageId: ${JSON.stringify(entry.packageId)},`);
+                    this.line(`packageVersion: ${JSON.stringify(entry.packageVersion)},`);
+                    this.line(`verification: ${JSON.stringify(entry.verification)},`);
+                    this.line(`resourceType: ${JSON.stringify(entry.resourceType)},`);
                     this.line(
-                        `contentMode: ${resource.content === undefined ? "null" : JSON.stringify(resource.content)},`,
+                        `contentMode: ${entry.contentMode === null ? "null" : JSON.stringify(entry.contentMode)},`,
                     );
-                    if (emitsConcepts) {
-                        this.line(`codes: [${concepts.map(({ code }) => JSON.stringify(code)).join(", ")}],`);
+                    if (coded) {
+                        this.line(`codes: [${entry.codes.map((code) => JSON.stringify(code)).join(", ")}],`);
                         this.curlyBlock(["displays:"], () => {
-                            for (const concept of concepts) {
-                                if (concept.display !== undefined)
-                                    this.line(`[${JSON.stringify(concept.code)}]: ${JSON.stringify(concept.display)},`);
+                            for (const code of entry.codes) {
+                                const display = entry.displays[code];
+                                if (display !== undefined)
+                                    this.line(`[${JSON.stringify(code)}]: ${JSON.stringify(display)},`);
                             }
                         }, [","]);
                     }
                 }, [satisfiesClause]);
-                if (index < allocatedResources.length - 1) this.line();
+                if (index < allocatedEntries.length - 1) this.line();
             });
         });
     }

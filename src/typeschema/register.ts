@@ -92,6 +92,130 @@ export type PackageTerminology = {
     resources: TerminologyResource[];
 };
 
+/**
+ * How a package's terminology content was verified — a free-form attestation
+ * label stamped verbatim into generated modules. The generator performs no
+ * verification itself, and exactly one value changes behavior: `"unverifiable"`
+ * keeps the package to identity and provenance, with no codes or displays.
+ * Packages absent from the map are stamped `"not-recorded"`. `(string & {})`
+ * keeps the known labels in autocomplete without closing the vocabulary.
+ */
+export type TerminologyVerification = "registry-integrity" | "unverifiable" | (string & {});
+
+/**
+ * Normalized projection of one terminology resource, plus package provenance.
+ * This is the same shape every generator emits (the TypeScript writer's
+ * generated `terminology-types.ts` mirrors it), so writers serialize entries
+ * instead of re-deriving the policy.
+ */
+export type TerminologyEntry = {
+    canonicalUrl: string;
+    packageId: string;
+    packageVersion: string;
+    verification: TerminologyVerification;
+    resourceType: TerminologyResource["resourceType"];
+    contentMode: CodeSystem["content"] | (string & {}) | null;
+};
+
+/** A complete CodeSystem whose codes are embedded: the simplified runtime surface. */
+export type CodedTerminologyEntry<Code extends string = string> = TerminologyEntry & {
+    resourceType: "CodeSystem";
+    contentMode: "complete";
+    codes: readonly Code[];
+    displays: Readonly<Partial<Record<Code, string>>>;
+};
+
+const flattenTerminologyConcepts = (concepts: readonly CodeSystemConcept[] | undefined): CodeSystemConcept[] => {
+    const flattened: CodeSystemConcept[] = [];
+    const stack = [...(concepts ?? [])].reverse();
+    while (stack.length > 0) {
+        const concept = stack.pop();
+        if (!concept) continue;
+        flattened.push(concept);
+        if (concept.concept) {
+            for (let index = concept.concept.length - 1; index >= 0; index -= 1) {
+                const nested = concept.concept[index];
+                if (nested) stack.push(nested);
+            }
+        }
+    }
+    return flattened;
+};
+
+/**
+ * The language-neutral half of terminology emission: dedup duplicate canonicals
+ * to a deterministic winner, decide which resources embed their codes, and
+ * build the normalized entries. Writers only allocate symbols and serialize.
+ */
+export const mkTerminologyEntries = (
+    packageTerminology: PackageTerminology,
+    verification: TerminologyVerification,
+    logger?: CodegenLog,
+): { resource: TerminologyResource; entry: TerminologyEntry | CodedTerminologyEntry }[] => {
+    const { packageMeta: pkg, resources } = packageTerminology;
+    const byCanonical = new Map<string, TerminologyResource[]>();
+    for (const resource of resources) {
+        const key = `${resource.resourceType}\u0000${resource.url}`;
+        const matching = byCanonical.get(key) ?? [];
+        matching.push(resource);
+        byCanonical.set(key, matching);
+    }
+    const identity = (resource: TerminologyResource) => `${resource.id ?? ""}\u0000${resource.name ?? ""}`;
+    const deduped: TerminologyResource[] = [];
+    for (const matching of byCanonical.values()) {
+        const candidates = matching.slice().sort((left, right) => identity(left).localeCompare(identity(right)));
+        const winner = candidates[0];
+        if (!winner) continue;
+        if (candidates.length > 1) {
+            const identities = candidates.map((candidate) => candidate.id ?? candidate.name ?? candidate.url);
+            logger?.dryWarn(
+                "#duplicateCanonical",
+                `Package ${packageMetaToNpm(pkg)} contains duplicate ${winner.resourceType} canonical URL ${JSON.stringify(winner.url)} for resources ${identities.join(", ")}; keeping ${winner.id ?? winner.name ?? winner.url}`,
+            );
+        }
+        deduped.push(winner);
+    }
+
+    return deduped.map((resource) => {
+        const base: TerminologyEntry = {
+            canonicalUrl: resource.url,
+            packageId: pkg.name,
+            packageVersion: pkg.version,
+            verification,
+            resourceType: resource.resourceType,
+            contentMode: resource.content ?? null,
+        };
+        const embedsCodes =
+            resource.resourceType === "CodeSystem" &&
+            resource.content === "complete" &&
+            verification !== "unverifiable";
+        if (!embedsCodes) return { resource, entry: base };
+        const concepts = flattenTerminologyConcepts(resource.concept);
+        const seenCodes = new Set<string>();
+        const displays: Partial<Record<string, string>> = {};
+        for (const concept of concepts) {
+            if (seenCodes.has(concept.code))
+                throw new Error(`CodeSystem ${resource.url} repeats code ${JSON.stringify(concept.code)}`);
+            seenCodes.add(concept.code);
+            if (concept.display !== undefined)
+                Object.defineProperty(displays, concept.code, {
+                    value: concept.display,
+                    enumerable: true,
+                    writable: true,
+                    configurable: true,
+                });
+        }
+        const entry: CodedTerminologyEntry = {
+            ...base,
+            resourceType: "CodeSystem",
+            contentMode: "complete",
+            codes: concepts.map(({ code }) => code),
+            displays,
+        };
+        return { resource, entry };
+    });
+};
+
 const projectTerminologyConcepts = (concepts: unknown): CodeSystemConcept[] | undefined => {
     if (!Array.isArray(concepts)) return undefined;
     const projected: CodeSystemConcept[] = [];

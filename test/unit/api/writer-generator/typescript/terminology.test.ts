@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import { APIBuilder } from "@root/api/builder";
-import { registerFromManager } from "@root/typeschema/register";
+import { mkTerminologyEntries, registerFromManager } from "@root/typeschema/register";
 import { enrichFHIRSchema } from "@root/typeschema/types";
 import { mkErrorLogger } from "@typeschema-test/utils";
 
@@ -81,6 +81,62 @@ const generateTerminology = async (
     if (output === undefined) throw new Error("terminology module was not generated");
     return output;
 };
+
+describe("register terminology entries", () => {
+    const collect = async (sourceResources: readonly object[] = resources) => {
+        const manager = {
+            packageJson: async () => ({ ...packageMeta, dependencies: {} }),
+            search: async () => sourceResources,
+        } as unknown as Parameters<typeof registerFromManager>[0];
+        const register = await registerFromManager(manager, { focusedPackages: [packageMeta] });
+        const packageTerminology = register.allTerminology()[0];
+        if (!packageTerminology) throw new Error("no terminology collected");
+        return packageTerminology;
+    };
+
+    it("embeds codes and displays only for complete CodeSystems", async () => {
+        const entries = mkTerminologyEntries(await collect(), "registry-integrity");
+        const bySymbolic = new Map(entries.map(({ resource, entry }) => [resource.name ?? resource.url, entry]));
+
+        const complete = bySymbolic.get("CompleteExample");
+        if (!complete || !("codes" in complete)) throw new Error("expected a coded entry");
+        expect(complete.codes).toEqual(["second", "first"]);
+        expect(complete.displays).toEqual({ second: "Second display", first: "First display" });
+        expect(complete.contentMode).toBe("complete");
+
+        const notPresent = bySymbolic.get("NotPresentExample");
+        expect(notPresent && "codes" in notPresent).toBeFalse();
+        expect(notPresent?.contentMode).toBe("not-present");
+
+        const valueSet = bySymbolic.get("ExpandedValueSet");
+        expect(valueSet?.resourceType).toBe("ValueSet");
+        expect(valueSet?.contentMode).toBeNull();
+    });
+
+    it("keeps every entry provenance-only under an unverifiable attestation", async () => {
+        const entries = mkTerminologyEntries(await collect(), "unverifiable");
+
+        expect(entries.some(({ entry }) => "codes" in entry)).toBeFalse();
+        for (const { entry } of entries) expect(entry.verification).toBe("unverifiable");
+    });
+
+    it("throws on a repeated code across the concept tree", async () => {
+        const packageTerminology = await collect([
+            {
+                resourceType: "CodeSystem",
+                id: "duplicate-code",
+                name: "DuplicateCode",
+                url: "http://example.test/CodeSystem/duplicate-code",
+                content: "complete",
+                concept: [{ code: "same", concept: [{ code: "same" }] }],
+            },
+        ]);
+
+        expect(() => mkTerminologyEntries(packageTerminology, "registry-integrity")).toThrow(
+            'CodeSystem http://example.test/CodeSystem/duplicate-code repeats code "same"',
+        );
+    });
+});
 
 describe("TypeScript terminology surface", () => {
     it("does not emit terminology unless explicitly enabled", async () => {
