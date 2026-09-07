@@ -18,6 +18,7 @@ export type CodegenTag =
     | "#skipCanonical"
     | "#duplicateSchema"
     | "#duplicateCanonical"
+    | "#terminologyDepth"
     | "#resolveBase"
     | "#resolveCollisionMiss"
     | "#nonMonotonicChoice";

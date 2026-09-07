@@ -82,6 +82,8 @@ export type TerminologyResource = {
     id?: string;
     name?: string;
     url: string;
+    /** Declared publication status; malformed packages may carry other strings. */
+    status?: CodeSystem["status"] | (string & {});
     /** Declared CodeSystem content mode; malformed packages may carry other strings. */
     content?: CodeSystem["content"] | (string & {});
     concept?: CodeSystemConcept[];
@@ -170,6 +172,7 @@ const asTerminologyResource = (resource: unknown, logger?: CodegenLog): Terminol
             ...(typeof resource.id === "string" ? { id: resource.id } : {}),
             ...(typeof resource.name === "string" ? { name: resource.name } : {}),
             url: resource.url,
+            ...(typeof resource.status === "string" ? { status: resource.status } : {}),
             ...(isCodeSystem(resource) && typeof resource.content === "string" ? { content: resource.content } : {}),
             ...(concepts && concepts.length > 0 ? { concept: concepts } : {}),
         };

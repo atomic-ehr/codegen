@@ -82,6 +82,34 @@ const generateTerminology = async (
     return output;
 };
 
+/** Evaluate generated TypeScript at runtime (type-only imports are erased). */
+const importGenerated = async (source: string) => {
+    const javascript = new Bun.Transpiler({ loader: "ts" }).transformSync(source);
+    return import(`data:text/javascript;base64,${Buffer.from(javascript).toString("base64")}`);
+};
+
+/** The generated support module: adjusted types plus the runtime concept helpers. */
+const generateTerminologySupport = async (
+    verification = "registry-integrity",
+    sourceResources: readonly object[] = resources,
+) => {
+    const manager = {
+        packageJson: async () => ({ ...packageMeta, dependencies: {} }),
+        search: async () => sourceResources,
+    } as unknown as Parameters<typeof registerFromManager>[0];
+    const register = await registerFromManager(manager, { focusedPackages: [packageMeta] });
+    const result = await new APIBuilder({ register, logger: mkErrorLogger() })
+        .typescript({
+            inMemoryOnly: true,
+            terminology: { enabled: true, packageVerification: { "fixture.ig@1.2.3": verification } },
+        })
+        .generate();
+    if (!result.success) throw new Error(`generation failed: ${result.errors.join(", ")}`);
+    const support = result.filesGenerated.typescript!["generated/types/terminology-types.ts"];
+    if (support === undefined) throw new Error("terminology-types module was not generated");
+    return support;
+};
+
 describe("TypeScript terminology surface", () => {
     it("does not emit terminology unless explicitly enabled", async () => {
         const manager = {
@@ -103,20 +131,25 @@ describe("TypeScript terminology surface", () => {
           // GitHub: https://github.com/atomic-ehr/codegen
           // Any manual changes made to this file may be overwritten.
 
+          import type { TerminologyCodeSystem, TerminologyEntry, TerminologyProvenance } from "../terminology-types";
+
+          export type CompleteExampleCode = "second" | "first";
           export const CompleteExampleCodeSystem = {
-              canonicalUrl: "http://example.test/CodeSystem/complete",
+              resourceType: "CodeSystem",
+              url: "http://example.test/CodeSystem/complete",
+              name: "CompleteExample",
+              status: "unknown",
+              content: "complete",
+              concept: [
+                  { code: "second", display: "Second display" },
+                  { code: "first", display: "First display" },
+              ],
+          } as const satisfies TerminologyCodeSystem<CompleteExampleCode>;
+          export const CompleteExampleCodeSystemMeta = {
               packageId: "fixture.ig",
               packageVersion: "1.2.3",
               verification: "registry-integrity",
-              resourceType: "CodeSystem",
-              contentMode: "complete",
-              codes: ["second", "first"],
-              displays: {
-                  ["second"]: "Second display",
-                  ["first"]: "First display",
-              },
-          } as const;
-          export type CompleteExampleCode = (typeof CompleteExampleCodeSystem.codes)[number];
+          } as const satisfies TerminologyProvenance;
 
           export const ExampleContentCodeSystem = {
               canonicalUrl: "http://example.test/CodeSystem/example",
@@ -125,7 +158,7 @@ describe("TypeScript terminology surface", () => {
               verification: "registry-integrity",
               resourceType: "CodeSystem",
               contentMode: "example",
-          } as const;
+          } as const satisfies TerminologyEntry;
 
           export const NotPresentExampleCodeSystem = {
               canonicalUrl: "http://example.test/CodeSystem/not-present",
@@ -134,7 +167,7 @@ describe("TypeScript terminology surface", () => {
               verification: "registry-integrity",
               resourceType: "CodeSystem",
               contentMode: "not-present",
-          } as const;
+          } as const satisfies TerminologyEntry;
 
           export const LocalIdentifiersNamingSystem = {
               canonicalUrl: "http://example.test/NamingSystem/local-identifiers",
@@ -143,7 +176,7 @@ describe("TypeScript terminology surface", () => {
               verification: "registry-integrity",
               resourceType: "NamingSystem",
               contentMode: null,
-          } as const;
+          } as const satisfies TerminologyEntry;
 
           export const ExpandedValueSetValueSet = {
               canonicalUrl: "http://example.test/ValueSet/expanded",
@@ -152,7 +185,7 @@ describe("TypeScript terminology surface", () => {
               verification: "registry-integrity",
               resourceType: "ValueSet",
               contentMode: null,
-          } as const;
+          } as const satisfies TerminologyEntry;
           "
         `);
     });
@@ -224,14 +257,18 @@ describe("TypeScript terminology surface", () => {
     });
 
     it("preserves complete CodeSystem concept order and exact displays", async () => {
-        const output = await generateTerminology();
+        const [generated, support] = await Promise.all([
+            generateTerminology().then(importGenerated),
+            generateTerminologySupport().then(importGenerated),
+        ]);
         const sourceConcepts = resources[0].concept;
 
-        expect(output.indexOf(JSON.stringify(sourceConcepts[0].code))).toBeLessThan(
-            output.indexOf(JSON.stringify(sourceConcepts[1].code)),
+        expect(support.conceptCodes(generated.CompleteExampleCodeSystem)).toEqual(
+            sourceConcepts.map(({ code }) => code),
         );
+        const displays = support.conceptDisplays(generated.CompleteExampleCodeSystem);
         for (const concept of sourceConcepts) {
-            expect(output).toContain(`[${JSON.stringify(concept.code)}]: ${JSON.stringify(concept.display)}`);
+            expect(displays[concept.code]).toBe(concept.display);
         }
     });
 
@@ -246,9 +283,9 @@ describe("TypeScript terminology surface", () => {
                 concept: [{ code: "__proto__", display: "Prototype display" }],
             },
         ]);
-        const javascript = new Bun.Transpiler({ loader: "ts" }).transformSync(output);
-        const generated = await import(`data:text/javascript;base64,${Buffer.from(javascript).toString("base64")}`);
-        const displays = generated.ProtoDisplayCodeSystem.displays;
+        const generated = await importGenerated(output);
+        const support = await importGenerated(await generateTerminologySupport());
+        const displays = support.conceptDisplays(generated.ProtoDisplayCodeSystem);
 
         expect(Object.hasOwn(displays, "__proto__")).toBeTrue();
         expect(Reflect.get(displays, "__proto__")).toBe("Prototype display");
@@ -273,13 +310,20 @@ describe("TypeScript terminology surface", () => {
             },
         ]);
 
-        expect(output).toContain('codes: ["parent", "child", "sibling"]');
-        expect(output.indexOf('["parent"]: "Parent display"')).toBeLessThan(
-            output.indexOf('["child"]: "Child display"'),
-        );
-        expect(output.indexOf('["child"]: "Child display"')).toBeLessThan(
-            output.indexOf('["sibling"]: "Sibling display"'),
-        );
+        // The resource keeps its hierarchy; the helpers flatten it on demand.
+        const [generated, support] = await Promise.all([
+            importGenerated(output),
+            generateTerminologySupport().then(importGenerated),
+        ]);
+        const system = generated.HierarchicalCodeSystem;
+
+        expect(system.concept[0].concept[0].code).toBe("child");
+        expect(support.conceptCodes(system)).toEqual(["parent", "child", "sibling"]);
+        expect(support.conceptDisplays(system)).toEqual({
+            parent: "Parent display",
+            child: "Child display",
+            sibling: "Sibling display",
+        });
     });
 
     it("handles deeply nested concepts without exhausting the stack", async () => {
@@ -307,8 +351,15 @@ describe("TypeScript terminology surface", () => {
             },
         ]);
 
-        expect(output).toContain('codes: ["code-0", "code-1"');
-        expect(output).toContain(`["code-${depth}"]: "Display ${depth}"`);
+        const [generated, support] = await Promise.all([
+            importGenerated(output),
+            generateTerminologySupport().then(importGenerated),
+        ]);
+        const codes = support.conceptCodes(generated.DeepHierarchyCodeSystem);
+
+        expect(codes.length).toBe(depth + 1);
+        expect(codes[0]).toBe("code-0");
+        expect(codes[depth]).toBe(`code-${depth}`);
     });
 
     it("fails deterministically when hierarchical concepts repeat a code", async () => {
@@ -351,7 +402,7 @@ describe("TypeScript terminology surface", () => {
         ]);
 
         expect(output).toContain("export const FirstDuplicateCodeSystem");
-        expect(output).toContain('codes: ["first"]');
+        expect(output).toContain('code: "first"');
         expect(output).not.toContain("SecondDuplicate");
         expect(output).not.toContain('"second"');
     });

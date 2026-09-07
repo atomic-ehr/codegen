@@ -513,6 +513,192 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         }
     }
 
+    /** Terminology types adjusted from the generated FHIR types for our purpose:
+     *  `url` made required (entries without one are never emitted), arrays made
+     *  readonly, `concept.code` narrowed to the per-system literal union. A
+     *  closure without a FHIR core package gets a structural stand-in instead. */
+    generateTerminologyTypes(codeSystemImport: string | undefined) {
+        this.cat("terminology-types.ts", () => {
+            this.generateDisclaimer();
+            if (codeSystemImport)
+                this.tsImport(codeSystemImport, "CodeSystem", "CodeSystemConcept", { typeOnly: true });
+            this.line();
+            this.lineSM(`export type TerminologyVerification = "registry-integrity" | "unverifiable" | (string & {})`);
+            this.line();
+            this.line("/** Which package an emitted terminology resource came from, and how it was attested. */");
+            this.curlyBlock(["export", "type", "TerminologyProvenance", "="], () => {
+                this.lineSM("packageId: string");
+                this.lineSM("packageVersion: string");
+                this.lineSM("verification: TerminologyVerification");
+            }, [";"]);
+            this.line();
+            const contentType = codeSystemImport
+                ? `CodeSystem["content"]`
+                : `("not-present" | "example" | "fragment" | "complete" | "supplement")`;
+            this.line("/** Provenance entry for resources whose content is not embedded. */");
+            this.curlyBlock(["export", "type", "TerminologyEntry", "=", "TerminologyProvenance", "&"], () => {
+                this.lineSM("canonicalUrl: string");
+                this.lineSM(`resourceType: "CodeSystem" | "ValueSet" | "NamingSystem"`);
+                this.lineSM(`contentMode: ${contentType} | null`);
+            }, [";"]);
+            this.line();
+            if (codeSystemImport) {
+                this.curlyBlock([
+                    "export",
+                    "type",
+                    "TerminologyConcept<Code extends string = string>",
+                    "=",
+                    `Omit<CodeSystemConcept, "code" | "concept">`,
+                    "&",
+                ], () => {
+                    this.lineSM("readonly code: Code");
+                    this.lineSM("readonly concept?: readonly TerminologyConcept<Code>[]");
+                }, [";"]);
+                this.line();
+                this.line("/** A real FHIR CodeSystem, adjusted: required url, readonly, codes narrowed. */");
+                this.curlyBlock([
+                    "export",
+                    "type",
+                    "TerminologyCodeSystem<Code extends string = string>",
+                    "=",
+                    `Omit<CodeSystem, "url" | "concept">`,
+                    "&",
+                ], () => {
+                    this.lineSM("readonly url: string");
+                    this.lineSM("readonly concept?: readonly TerminologyConcept<Code>[]");
+                }, [";"]);
+            } else {
+                this.curlyBlock(["export", "type", "TerminologyConcept<Code extends string = string>", "="], () => {
+                    this.lineSM("readonly code: Code");
+                    this.lineSM("readonly display?: string");
+                    this.lineSM("readonly concept?: readonly TerminologyConcept<Code>[]");
+                }, [";"]);
+                this.line();
+                this.line("/** Structural stand-in: the closure ships no FHIR core package to derive from. */");
+                this.curlyBlock(["export", "type", "TerminologyCodeSystem<Code extends string = string>", "="], () => {
+                    this.lineSM(`readonly resourceType: "CodeSystem"`);
+                    this.lineSM("readonly url: string");
+                    this.lineSM("readonly name?: string");
+                    this.lineSM(`readonly status: "draft" | "active" | "retired" | "unknown" | (string & {})`);
+                    this.lineSM(`readonly content: ${contentType}`);
+                    this.lineSM("readonly concept?: readonly TerminologyConcept<Code>[]");
+                }, [";"]);
+            }
+            this.line();
+            this.line("/** Flatten the concept tree into its codes, in document order. */");
+            this.curlyBlock([
+                "export",
+                "const",
+                "conceptCodes",
+                "=",
+                "<Code extends string>(system: TerminologyCodeSystem<Code>): Code[] =>",
+            ], () => {
+                this.lineSM("const codes: Code[] = []");
+                this.lineSM("const stack = [...(system.concept ?? [])].reverse()");
+                this.curlyBlock(["while (stack.length > 0)"], () => {
+                    this.lineSM("const concept = stack.pop()");
+                    this.lineSM("if (!concept) continue");
+                    this.lineSM("codes.push(concept.code)");
+                    this.lineSM("if (concept.concept) stack.push(...[...concept.concept].reverse())");
+                });
+                this.lineSM("return codes");
+            }, [";"]);
+            this.line();
+            this.line("/** Flatten the concept tree into a code → display lookup. */");
+            this.curlyBlock([
+                "export",
+                "const",
+                "conceptDisplays",
+                "=",
+                "<Code extends string>(system: TerminologyCodeSystem<Code>): Partial<Record<Code, string>> =>",
+            ], () => {
+                this.lineSM("const displays: Partial<Record<Code, string>> = {}");
+                this.lineSM("const stack = [...(system.concept ?? [])].reverse()");
+                this.curlyBlock(["while (stack.length > 0)"], () => {
+                    this.lineSM("const concept = stack.pop()");
+                    this.lineSM("if (!concept) continue");
+                    // Object.defineProperty keeps "__proto__" an own key.
+                    this.curlyBlock(["if (concept.display !== undefined)"], () => {
+                        this.lineSM(
+                            "Object.defineProperty(displays, concept.code, { value: concept.display, enumerable: true, writable: true, configurable: true })",
+                        );
+                    });
+                    this.lineSM("if (concept.concept) stack.push(...[...concept.concept].reverse())");
+                });
+                this.lineSM("return displays");
+            }, [";"]);
+        });
+    }
+
+    /** JS engines parse nested object literals recursively, so a pathologically
+     *  deep concept tree cannot even be evaluated by a consumer. Beyond this
+     *  depth the tree is emitted flattened (document order kept, nesting lost). */
+    private static readonly MAX_CONCEPT_LITERAL_DEPTH = 256;
+
+    private static conceptTreeDepth(concepts: readonly CodeSystemConcept[]): number {
+        let max = 0;
+        const stack: { list: readonly CodeSystemConcept[]; depth: number }[] = [{ list: concepts, depth: 1 }];
+        while (stack.length > 0) {
+            const frame = stack.pop();
+            if (!frame) break;
+            if (frame.depth > max) max = frame.depth;
+            for (const concept of frame.list) {
+                if (concept.concept && concept.concept.length > 0)
+                    stack.push({ list: concept.concept, depth: frame.depth + 1 });
+            }
+        }
+        return max;
+    }
+
+    /** Emit the (possibly deep) concept tree iteratively — real hierarchies can
+     *  nest far beyond the call stack. Leaves render compact. */
+    private emitTerminologyConcepts(concepts: readonly CodeSystemConcept[]) {
+        // Indentation is capped: real hierarchies can nest thousands deep, and
+        // per-level indentation would make whitespace quadratic in the depth.
+        const maxIndentDepth = 16;
+        let depth = 0;
+        const push = () => {
+            if (depth < maxIndentDepth) this.indent();
+            depth += 1;
+        };
+        const pop = () => {
+            depth -= 1;
+            if (depth < maxIndentDepth) this.deindent();
+        };
+        this.line("concept: [");
+        push();
+        const stack: { list: readonly CodeSystemConcept[]; index: number }[] = [{ list: concepts, index: 0 }];
+        while (stack.length > 0) {
+            const frame = stack[stack.length - 1];
+            if (!frame) break;
+            if (frame.index >= frame.list.length) {
+                stack.pop();
+                pop();
+                this.line("],");
+                if (stack.length > 0) {
+                    pop();
+                    this.line("},");
+                }
+                continue;
+            }
+            const concept = frame.list[frame.index];
+            frame.index += 1;
+            if (!concept) continue;
+            if (concept.concept && concept.concept.length > 0) {
+                this.line("{");
+                push();
+                this.line(`code: ${JSON.stringify(concept.code)},`);
+                if (concept.display !== undefined) this.line(`display: ${JSON.stringify(concept.display)},`);
+                this.line("concept: [");
+                push();
+                stack.push({ list: concept.concept, index: 0 });
+            } else {
+                const display = concept.display !== undefined ? `, display: ${JSON.stringify(concept.display)}` : "";
+                this.line(`{ code: ${JSON.stringify(concept.code)}${display} },`);
+            }
+        }
+    }
+
     generateTerminologyModule(packageTerminology: PackageTerminology) {
         const { packageMeta: pkg, resources } = packageTerminology;
         const verification = this.opts.terminology?.packageVerification?.[packageMetaToNpm(pkg)] ?? "not-recorded";
@@ -555,44 +741,68 @@ export class TypeScript extends Writer<TypeScriptOptions> {
 
         this.cat("terminology.ts", () => {
             this.generateDisclaimer();
+            const isCoded = (resource: TerminologyResource) =>
+                resource.resourceType === "CodeSystem" &&
+                resource.content === "complete" &&
+                verification !== "unverifiable";
+            const anyCoded = allocatedResources.some(({ resource }) => isCoded(resource));
+            const typeImports = anyCoded
+                ? ["TerminologyCodeSystem", "TerminologyEntry", "TerminologyProvenance"]
+                : ["TerminologyEntry"];
+            this.tsImport("../terminology-types", ...typeImports, { typeOnly: true });
+            this.line();
             allocatedResources.forEach(({ resource, symbol }, index) => {
-                const concepts = flattenConcepts(resource.concept);
-                const emitsConcepts =
-                    resource.resourceType === "CodeSystem" &&
-                    resource.content === "complete" &&
-                    verification !== "unverifiable";
-                if (emitsConcepts) {
+                if (isCoded(resource)) {
+                    const concepts = flattenConcepts(resource.concept);
                     const seenCodes = new Set<string>();
                     for (const concept of concepts) {
                         if (seenCodes.has(concept.code))
                             throw new Error(`CodeSystem ${resource.url} repeats code ${JSON.stringify(concept.code)}`);
                         seenCodes.add(concept.code);
                     }
-                }
-
-                this.curlyBlock(["export", "const", symbol, "="], () => {
-                    this.line(`canonicalUrl: ${JSON.stringify(resource.url)},`);
-                    this.line(`packageId: ${JSON.stringify(pkg.name)},`);
-                    this.line(`packageVersion: ${JSON.stringify(pkg.version)},`);
-                    this.line(`verification: ${JSON.stringify(verification)},`);
-                    this.line(`resourceType: ${JSON.stringify(resource.resourceType)},`);
-                    this.line(
-                        `contentMode: ${resource.content === undefined ? "null" : JSON.stringify(resource.content)},`,
-                    );
-                    if (emitsConcepts) {
-                        this.line(`codes: [${concepts.map(({ code }) => JSON.stringify(code)).join(", ")}],`);
-                        this.curlyBlock(["displays:"], () => {
-                            for (const concept of concepts) {
-                                if (concept.display !== undefined)
-                                    this.line(`[${JSON.stringify(concept.code)}]: ${JSON.stringify(concept.display)},`);
-                            }
-                        }, [","]);
+                    const codeName = symbol.endsWith("CodeSystem")
+                        ? symbol.replace(CODE_SYSTEM_SUFFIX_RE, "Code")
+                        : `${symbol}Code`;
+                    const union = concepts.map(({ code }) => JSON.stringify(code)).join(" | ") || "never";
+                    this.lineSM(`export type ${codeName} = ${union}`);
+                    let conceptTree: readonly CodeSystemConcept[] = resource.concept ?? [];
+                    if (TypeScript.conceptTreeDepth(conceptTree) > TypeScript.MAX_CONCEPT_LITERAL_DEPTH) {
+                        this.logger()?.dryWarn(
+                            "#terminologyDepth",
+                            `CodeSystem ${resource.url} nests concepts deeper than ${TypeScript.MAX_CONCEPT_LITERAL_DEPTH}; emitting the flattened list — document order kept, hierarchy dropped.`,
+                        );
+                        conceptTree = concepts.map(({ code, display }) => ({
+                            code,
+                            ...(display !== undefined ? { display } : {}),
+                        }));
                     }
-                }, [" as const;"]);
-                if (emitsConcepts)
-                    this.lineSM(
-                        `export type ${symbol.replace(CODE_SYSTEM_SUFFIX_RE, "Code")} = (typeof ${symbol}.codes)[number]`,
-                    );
+                    // The emitted value is a real FHIR CodeSystem: serializable,
+                    // guard-compatible, and checked against the adjusted type.
+                    this.curlyBlock(["export", "const", symbol, "="], () => {
+                        this.line(`resourceType: "CodeSystem",`);
+                        this.line(`url: ${JSON.stringify(resource.url)},`);
+                        if (resource.name !== undefined) this.line(`name: ${JSON.stringify(resource.name)},`);
+                        this.line(`status: ${JSON.stringify(resource.status ?? "unknown")},`);
+                        this.line(`content: "complete",`);
+                        if (conceptTree.length > 0) this.emitTerminologyConcepts(conceptTree);
+                    }, [` as const satisfies TerminologyCodeSystem<${codeName}>;`]);
+                    this.curlyBlock(["export", "const", `${symbol}Meta`, "="], () => {
+                        this.line(`packageId: ${JSON.stringify(pkg.name)},`);
+                        this.line(`packageVersion: ${JSON.stringify(pkg.version)},`);
+                        this.line(`verification: ${JSON.stringify(verification)},`);
+                    }, [" as const satisfies TerminologyProvenance;"]);
+                } else {
+                    this.curlyBlock(["export", "const", symbol, "="], () => {
+                        this.line(`canonicalUrl: ${JSON.stringify(resource.url)},`);
+                        this.line(`packageId: ${JSON.stringify(pkg.name)},`);
+                        this.line(`packageVersion: ${JSON.stringify(pkg.version)},`);
+                        this.line(`verification: ${JSON.stringify(verification)},`);
+                        this.line(`resourceType: ${JSON.stringify(resource.resourceType)},`);
+                        this.line(
+                            `contentMode: ${resource.content === undefined ? "null" : JSON.stringify(resource.content)},`,
+                        );
+                    }, [" as const satisfies TerminologyEntry;"]);
+                }
                 if (index < allocatedResources.length - 1) this.line();
             });
         });
@@ -699,6 +909,14 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         this.cd("/", () => {
             if (hasProfiles) {
                 this.cp("profile-helpers.ts", "profile-helpers.ts");
+            }
+            if (terminology.length > 0) {
+                const codeSystemSchema = typesToGenerate.find(
+                    (schema) => schema.identifier.url === "http://hl7.org/fhir/StructureDefinition/CodeSystem",
+                );
+                this.generateTerminologyTypes(
+                    codeSystemSchema ? `./${this.packageDir(codeSystemSchema.identifier)}/CodeSystem` : undefined,
+                );
             }
 
             for (const [packageDir, { packageSchemas, terminology }] of [...generationUnits].sort(([left], [right]) =>
