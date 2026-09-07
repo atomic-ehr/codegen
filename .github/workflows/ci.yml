@@ -140,7 +140,7 @@ jobs:
           elif [ "${{ matrix.package-manager }}" == "npm" ]; then
             npx tsx generate.ts
           else
-            pnpm dlx tsx generate.ts
+            pnpm --allow-build=esbuild dlx tsx generate.ts
           fi
 
       - name: Verify output
