@@ -152,7 +152,7 @@ export const collectProfileFactoryInfo = (
             continue;
         }
 
-        if (field.valueConstraint) {
+        if (field.valueConstraint && !field.valueConstraint.validateOnly) {
             const value = JSON.stringify(field.valueConstraint.value);
             autoFields.push({ name, value: field.array ? `[${value}]` : value });
             fixedFields.add(name);
@@ -298,6 +298,10 @@ const generateProfileHelpersImport = (
             "validateChoiceProhibited",
             "validateMustSupport",
         );
+    const hasPatternConstraint = Object.values(snapshot.fields).some(
+        (field) => "valueConstraint" in field && field.valueConstraint?.validateOnly === true,
+    );
+    if (hasPatternConstraint) imports.push("validatePatternValue");
     if (imports.length > 0) {
         w.tsImport("../../profile-helpers", ...imports);
         w.line();

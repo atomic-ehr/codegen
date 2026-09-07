@@ -377,6 +377,17 @@ export const validateFixedValue = (res: object, profileName: string, field: stri
 };
 
 /**
+ * Containment constraint for a field that may be absent: absence is
+ * `validateRequired`'s concern, so an absent field passes; a present one must
+ * structurally contain `expected`.
+ */
+export const validatePatternValue = (res: object, profileName: string, field: string, expected: unknown): string[] => {
+    const value = (res as Record<string, unknown>)[field];
+    if (value === undefined || value === null) return [];
+    return matchesValue(value, expected) ? [] : [`${profileName}: field '${field}' does not match expected pattern`];
+};
+
+/**
  * Checks that the number of array elements matching `match` (a slice
  * discriminator) falls within [`min`, `max`].  Pass `max = 0` for unbounded.
  */

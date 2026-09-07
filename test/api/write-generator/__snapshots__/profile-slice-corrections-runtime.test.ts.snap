@@ -1,0 +1,13 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`system-only coding slice runtime validation bodySite coded from the wrong system 1`] = `
+[
+  "SystemOnlyCodingObservation: field 'bodySite' does not match expected pattern",
+]
+`;
+
+exports[`system-only coding slice runtime validation optional method coded from the wrong system 1`] = `
+[
+  "SystemOnlyCodingObservation: field 'method' does not match expected pattern",
+]
+`;

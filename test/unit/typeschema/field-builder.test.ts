@@ -195,7 +195,7 @@ describe("Field Builder Core Logic", async () => {
             expect(field.type?.name).toBe("string" as Name);
         });
 
-        it("does not fix a CodeableConcept from a system-only required coding slice", () => {
+        it("keeps a system-only required coding slice as a validate-only pattern", () => {
             const codingSlice = {
                 min: 1,
                 match: { system: "http://snomed.info/sct" },
@@ -228,7 +228,12 @@ describe("Field Builder Core Logic", async () => {
                 rawElement,
             ) as RegularField;
 
-            expect(field.valueConstraint).toBeUndefined();
+            expect(field.valueConstraint).toEqual({
+                kind: "pattern",
+                type: "CodeableConcept",
+                value: { coding: [{ system: "http://snomed.info/sct" }] },
+                validateOnly: true,
+            });
         });
 
         it("should handle min and max constraints", async () => {

@@ -29,6 +29,8 @@ export type ValueConstraint = {
     kind: "pattern" | "fixed";
     type: string;
     value: FS.FHIRValue;
+    /** Containment constraint only: validated on resources but not injected into created ones. */
+    validateOnly?: boolean;
 };
 
 export type PkgName = string;

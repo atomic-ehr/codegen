@@ -497,6 +497,7 @@ import {
     validateChoiceRequired,
     validateChoiceProhibited,
     validateMustSupport,
+    validatePatternValue,
 } from "../../profile-helpers";
 
 export type KjConditionComplicationsOfAnesthesiaProfileRaw = {
@@ -824,6 +825,7 @@ export class KjConditionComplicationsOfAnesthesiaProfile {
                 ...validateRequired(res, profileName, "category"),
                 ...validateEnum(res, profileName, "category", ["4","5"]),
                 ...validateRequired(res, profileName, "code"),
+                ...validatePatternValue(res, profileName, "code", {"coding":[{"system":"http://nhn.no/kj/fhir/CodeSystem/SubcategoriesOfCriticalInformation"}]}),
                 ...validateRequired(res, profileName, "subject"),
                 ...validateReference(res, profileName, "subject", ["Patient"]),
                 ...validateChoiceProhibited(res, profileName, ["onsetPeriod","onsetRange","onsetString"]),
@@ -1234,6 +1236,7 @@ import {
     validateChoiceRequired,
     validateChoiceProhibited,
     validateMustSupport,
+    validatePatternValue,
 } from "../../profile-helpers";
 
 export type KjConditionInfectionProfileRaw = {
@@ -1559,6 +1562,7 @@ export class KjConditionInfectionProfile {
                 ...validateRequired(res, profileName, "category"),
                 ...validateEnum(res, profileName, "category", ["3","4","5","7","10"]),
                 ...validateRequired(res, profileName, "code"),
+                ...validatePatternValue(res, profileName, "code", {"coding":[{"system":"http://nhn.no/kj/fhir/CodeSystem/TypeOfInfection"}]}),
                 ...validateRequired(res, profileName, "subject"),
                 ...validateReference(res, profileName, "subject", ["Patient"]),
                 ...validateChoiceProhibited(res, profileName, ["onsetPeriod","onsetRange","onsetString"]),
@@ -1611,6 +1615,7 @@ import {
     validateChoiceRequired,
     validateChoiceProhibited,
     validateMustSupport,
+    validatePatternValue,
 } from "../../profile-helpers";
 
 export type KjConditionTransplantsAndOtherForeignBodiesProfileRaw = {
@@ -1935,6 +1940,7 @@ export class KjConditionTransplantsAndOtherForeignBodiesProfile {
                 ...validateEnum(res, profileName, "verificationStatus", ["confirmed","refuted","entered-in-error"]),
                 ...validateRequired(res, profileName, "category"),
                 ...validateRequired(res, profileName, "code"),
+                ...validatePatternValue(res, profileName, "code", {"coding":[{"system":"http://nhn.no/kj/fhir/CodeSystem/SubcategoriesOfCriticalInformation"}]}),
                 ...validateRequired(res, profileName, "subject"),
                 ...validateReference(res, profileName, "subject", ["Patient"]),
                 ...validateChoiceProhibited(res, profileName, ["onsetPeriod","onsetRange","onsetString"]),
@@ -2658,6 +2664,7 @@ import {
     validateChoiceRequired,
     validateChoiceProhibited,
     validateMustSupport,
+    validatePatternValue,
 } from "../../profile-helpers";
 
 export type KjDeviceProfileRaw = {
@@ -2735,6 +2742,7 @@ export class KjDeviceProfile {
                 ...validateReference(res, profileName, "definition", ["DeviceDefinition"]),
                 ...validateEnum(res, profileName, "status", ["active","inactive","entered-in-error","unknown"]),
                 ...validateRequired(res, profileName, "type"),
+                ...validatePatternValue(res, profileName, "type", {"coding":[{"system":"http://nhn.no/kj/fhir/CodeSystem/ImplantsAndOtherForeignBodies"}]}),
                 ...validateReference(res, profileName, "patient", ["Patient"]),
                 ...validateReference(res, profileName, "owner", ["Organization"]),
                 ...validateReference(res, profileName, "location", ["Location"]),
@@ -3852,6 +3860,7 @@ import {
     validateChoiceRequired,
     validateChoiceProhibited,
     validateMustSupport,
+    validatePatternValue,
 } from "../../profile-helpers";
 
 export type KjFlagProfileRaw = {
@@ -4164,6 +4173,7 @@ export class KjFlagProfile {
                 ...validateEnum(res, profileName, "status", ["active","inactive","entered-in-error"]),
                 ...validateSliceCardinality(res, profileName, "category", {"coding":{"system":"http://nhn.no/kj/fhir/CodeSystem/SubcategoriesOfCriticalInformation"}}, "KjCategory", 1, 1),
                 ...validateRequired(res, profileName, "code"),
+                ...validatePatternValue(res, profileName, "code", {"coding":[{"system":"http://nhn.no/kj/fhir/CodeSystem/OtherProceduralChanges"}]}),
                 ...validateRequired(res, profileName, "subject"),
                 ...validateReference(res, profileName, "subject", ["Patient"]),
                 ...validateRequired(res, profileName, "period"),
@@ -4203,6 +4213,7 @@ import {
     validateChoiceRequired,
     validateChoiceProhibited,
     validateMustSupport,
+    validatePatternValue,
 } from "../../profile-helpers";
 
 export type KjPractitionerRoleProfileRaw = {
@@ -4304,6 +4315,7 @@ export class KjPractitionerRoleProfile {
                 ...validateRequired(res, profileName, "organization"),
                 ...validateReference(res, profileName, "organization", ["Organization"]),
                 ...validateRequired(res, profileName, "code"),
+                ...validatePatternValue(res, profileName, "code", {"coding":[{"system":"http://nhn.no/kj/fhir/CodeSystem/CategoriesOfHealthProfessionals"}]}),
                 ...validateReference(res, profileName, "location", ["Location"]),
                 ...validateReference(res, profileName, "healthcareService", ["HealthcareService"]),
                 ...validateReference(res, profileName, "endpoint", ["Endpoint"]),
@@ -4356,6 +4368,7 @@ import {
     validateChoiceRequired,
     validateChoiceProhibited,
     validateMustSupport,
+    validatePatternValue,
 } from "../../profile-helpers";
 
 export type KjProcedureProfileRaw = {
@@ -4694,7 +4707,9 @@ export class KjProcedureProfile {
                 ...validateRequired(res, profileName, "status"),
                 ...validateEnum(res, profileName, "status", ["in-progress","entered-in-error","completed"]),
                 ...validateRequired(res, profileName, "category"),
+                ...validatePatternValue(res, profileName, "category", {"coding":[{"system":"http://nhn.no/kj/fhir/CodeSystem/SubcategoriesOfCriticalInformation"}]}),
                 ...validateRequired(res, profileName, "code"),
+                ...validatePatternValue(res, profileName, "code", {"coding":[{"system":"http://nhn.no/kj/fhir/CodeSystem/OngoingTreatment"}]}),
                 ...validateRequired(res, profileName, "subject"),
                 ...validateReference(res, profileName, "subject", ["Patient"]),
                 ...validateChoiceProhibited(res, profileName, ["performedPeriod","performedString","performedRange"]),
