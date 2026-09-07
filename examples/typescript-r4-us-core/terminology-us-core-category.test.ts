@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { type USCoreCategoryCode, USCoreCategoryCodeSystem } from "./fhir-types/hl7-fhir-us-core/terminology";
+import type { CodedTerminologyEntry, TerminologyEntry } from "./fhir-types/terminology-types";
 
 // The terminology surface complements the compile-time code unions with
 // runtime data: one generated `as const` object carries the code list, the
@@ -33,6 +34,19 @@ describe("demo: US Core screening category picker", () => {
         if (isUSCoreCategory(incoming)) {
             expect(USCoreCategoryCodeSystem.displays[incoming]).toBe("Disability Status");
         }
+    });
+
+    it("supports generic consumers via the normalized types", () => {
+        // Before the normalized types, every entry was an anonymous object —
+        // reusable helpers like these were impossible to type. `Code` flows
+        // through, so the option list below is typed over USCoreCategoryCode.
+        const pickerOptions = <Code extends string>(entry: CodedTerminologyEntry<Code>) =>
+            entry.codes.map((code) => ({ code, label: entry.displays[code] ?? code }));
+        const trustedForDisplay = (entry: TerminologyEntry, trusted: ReadonlySet<string>) =>
+            trusted.has(entry.verification);
+
+        expect(pickerOptions(USCoreCategoryCodeSystem)).toContainEqual({ code: "sdoh", label: "SDOH" });
+        expect(trustedForDisplay(USCoreCategoryCodeSystem, new Set(["registry-integrity"]))).toBeTrue();
     });
 
     it("carries provenance for a display-trust policy", () => {

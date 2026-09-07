@@ -58,6 +58,7 @@ hl7.fhir.r4.core:
     http://hl7.org/fhir/StructureDefinition/UsageContext: {}
   resource:
     http://hl7.org/fhir/StructureDefinition/Bundle: {}
+    http://hl7.org/fhir/StructureDefinition/CodeSystem: {}
     http://hl7.org/fhir/StructureDefinition/DomainResource: {}
     http://hl7.org/fhir/StructureDefinition/Observation: {}
     http://hl7.org/fhir/StructureDefinition/OperationOutcome: {}
@@ -113,6 +114,9 @@ shared:
     urn:fhir:binding:AdministrativeGender: {}
     urn:fhir:binding:BodySite: {}
     urn:fhir:binding:BundleType: {}
+    urn:fhir:binding:CodeSystemContentMode: {}
+    urn:fhir:binding:CodeSystemHierarchyMeaning: {}
+    urn:fhir:binding:ConceptDesignationUse: {}
     urn:fhir:binding:ContactPointSystem: {}
     urn:fhir:binding:ContactPointUse: {}
     urn:fhir:binding:ContactRelationship: {}
@@ -124,12 +128,14 @@ shared:
     urn:fhir:binding:ExpressionLanguage: {}
     urn:fhir:binding:FHIRAllTypes: {}
     urn:fhir:binding:FHIRResourceTypeExt: {}
+    urn:fhir:binding:FilterOperator: {}
     urn:fhir:binding:HTTPVerb: {}
     urn:fhir:binding:IdentifierType: {}
     urn:fhir:binding:IdentifierUse: {}
     urn:fhir:binding:IssueDetails: {}
     urn:fhir:binding:IssueSeverity: {}
     urn:fhir:binding:IssueType: {}
+    urn:fhir:binding:Jurisdiction: {}
     urn:fhir:binding:Language: {}
     urn:fhir:binding:LinkType: {}
     urn:fhir:binding:MaritalStatus: {}
@@ -147,6 +153,8 @@ shared:
     urn:fhir:binding:ObservationStatus: {}
     urn:fhir:binding:ObservationValueAbsentReason: {}
     urn:fhir:binding:ParameterUse: {}
+    urn:fhir:binding:PropertyType: {}
+    urn:fhir:binding:PublicationStatus: {}
     urn:fhir:binding:QuantityComparator: {}
     urn:fhir:binding:RelatedArtifactType: {}
     urn:fhir:binding:RouteOfAdministration: {}

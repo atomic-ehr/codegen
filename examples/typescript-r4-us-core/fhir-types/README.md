@@ -2276,8 +2276,6 @@
 - `urn:fhir:binding:ClinicalUseDefinitionCategory`
 - `urn:fhir:binding:ClinicalUseDefinitionType`
 - `urn:fhir:binding:CodeSearchSupport`
-- `urn:fhir:binding:CodeSystemContentMode`
-- `urn:fhir:binding:CodeSystemHierarchyMeaning`
 - `urn:fhir:binding:CollectedSpecimenType`
 - `urn:fhir:binding:CombinedDoseForm`
 - `urn:fhir:binding:CommunicationCategory`
@@ -2296,7 +2294,6 @@
 - `urn:fhir:binding:CompositionAttestationMode`
 - `urn:fhir:binding:CompositionSectionType`
 - `urn:fhir:binding:CompositionStatus`
-- `urn:fhir:binding:ConceptDesignationUse`
 - `urn:fhir:binding:ConceptMapEquivalence`
 - `urn:fhir:binding:ConceptMapGroupUnmappedMode`
 - `urn:fhir:binding:ConceptMapRelationship`
@@ -2506,7 +2503,6 @@
 - `urn:fhir:binding:FamilyHistoryReason`
 - `urn:fhir:binding:FamilyHistoryStatus`
 - `urn:fhir:binding:FamilyMemberHistoryParticipantFunction`
-- `urn:fhir:binding:FilterOperator`
 - `urn:fhir:binding:FlagCategory`
 - `urn:fhir:binding:FlagCode`
 - `urn:fhir:binding:FlagStatus`
@@ -2583,7 +2579,6 @@
 - `urn:fhir:binding:InvoicePriceComponentType`
 - `urn:fhir:binding:InvoiceStatus`
 - `urn:fhir:binding:ItemDescriptionLanguage`
-- `urn:fhir:binding:Jurisdiction`
 - `urn:fhir:binding:LDLCodes`
 - `urn:fhir:binding:LL1040-6`
 - `urn:fhir:binding:LL2938-0`
@@ -2771,7 +2766,6 @@
 - `urn:fhir:binding:ProgramEligibility`
 - `urn:fhir:binding:PropertyCharacteristic`
 - `urn:fhir:binding:PropertyRepresentation`
-- `urn:fhir:binding:PropertyType`
 - `urn:fhir:binding:ProvenanceActivity`
 - `urn:fhir:binding:ProvenanceAgentRole`
 - `urn:fhir:binding:ProvenanceAgentType`
@@ -2780,7 +2774,6 @@
 - `urn:fhir:binding:ProvenanceHistoryRecordActivity`
 - `urn:fhir:binding:ProvenanceReason`
 - `urn:fhir:binding:ProviderQualification`
-- `urn:fhir:binding:PublicationStatus`
 - `urn:fhir:binding:PublishedInType`
 - `urn:fhir:binding:Purpose`
 - `urn:fhir:binding:PurposeOfUse`
