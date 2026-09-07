@@ -61,6 +61,15 @@ export type TypeScriptOptions = {
      */
     openResourceTypeSet: boolean;
     primitiveTypeExtension: boolean;
+    /** How relative import/export specifiers are written in generated modules.
+     *
+     * - "extensionless" (default): `"./profiles"`, `"../Patient"` — resolved by
+     *   bundlers, TypeScript and Bun.
+     * - "node-esm": explicit file targets (`"./profiles/index.js"`,
+     *   `"../Patient.js"`), so output transpiled to plain `.js` modules under
+     *   `"type": "module"` loads under Node's ESM resolver.
+     */
+    moduleSpecifierStyle?: "extensionless" | "node-esm";
     extensionGetterDefault?: "flat" | "profile" | "raw";
     sliceGetterDefault?: "flat" | "raw";
     terminology?: {
@@ -146,6 +155,16 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         return `${this.packageDirectory(identifier)}/${tsModuleName(identifier)}`;
     }
 
+    moduleSpecifier(specifier: string): string {
+        if (this.opts.moduleSpecifierStyle !== "node-esm" || !specifier.startsWith(".")) return specifier;
+        return specifier.endsWith(".js") ? specifier : `${specifier}.js`;
+    }
+
+    directorySpecifier(specifier: string): string {
+        if (this.opts.moduleSpecifierStyle !== "node-esm" || !specifier.startsWith(".")) return specifier;
+        return `${specifier}/index.js`;
+    }
+
     ifElseChain(branches: { cond: string; body: () => void }[], elseBody?: () => void) {
         branches.forEach((branch, i) => {
             const prefix = i === 0 ? "if" : "} else if";
@@ -170,7 +189,8 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         const typeOnly = typeof last === "object" ? last.typeOnly : false;
         const entities = (typeof last === "object" ? rest.slice(0, -1) : rest) as string[];
         const keyword = typeOnly ? "import type" : "import";
-        const singleLine = `${keyword} { ${entities.join(", ")} } from "${tsPackageName}"`;
+        const specifier = this.moduleSpecifier(tsPackageName);
+        const singleLine = `${keyword} { ${entities.join(", ")} } from "${specifier}"`;
         if (singleLine.length <= (this.opts.lineWidth ?? 120)) {
             this.lineSM(singleLine);
         } else {
@@ -178,16 +198,16 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 for (const entity of entities) {
                     this.line(`${entity},`);
                 }
-            }, [` from "${tsPackageName}";`]);
+            }, [` from "${specifier}";`]);
         }
     }
 
     generateFhirPackageIndexFile(schemas: TypeSchema[], hasTerminology = false) {
         this.cat("index.ts", () => {
-            if (hasTerminology) this.lineSM(`export * from "./terminology"`);
+            if (hasTerminology) this.lineSM(`export * from "${this.moduleSpecifier("./terminology")}"`);
             const profiles = schemas.filter(isSnapshotProfileTypeSchema);
             if (profiles.length > 0) {
-                this.lineSM(`export * from "./profiles"`);
+                this.lineSM(`export * from "${this.directorySpecifier("./profiles")}"`);
             }
 
             let exports = schemas
@@ -223,11 +243,12 @@ export class TypeScript extends Writer<TypeScriptOptions> {
 
             for (const exp of exports) {
                 this.debugComment(exp.identifier);
+                const specifier = this.moduleSpecifier(`./${exp.tsPackageName}`);
                 if (exp.typeExports.length > 0) {
-                    this.lineSM(`export type { ${exp.typeExports.join(", ")} } from "./${exp.tsPackageName}"`);
+                    this.lineSM(`export type { ${exp.typeExports.join(", ")} } from "${specifier}"`);
                 }
                 if (exp.valueExports.length > 0) {
-                    this.lineSM(`export { ${exp.valueExports.join(", ")} } from "./${exp.tsPackageName}"`);
+                    this.lineSM(`export { ${exp.valueExports.join(", ")} } from "${specifier}"`);
                 }
             }
         });
@@ -276,7 +297,9 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         if (complexTypeDeps && complexTypeDeps.length > 0) {
             for (const dep of complexTypeDeps) {
                 this.debugComment(dep);
-                this.lineSM(`export type { ${tsResourceName(dep)} } from "${`../${this.modulePath(dep)}`}"`);
+                this.lineSM(
+                    `export type { ${tsResourceName(dep)} } from "${this.moduleSpecifier(`../${this.modulePath(dep)}`)}"`,
+                );
             }
             this.line();
         }
