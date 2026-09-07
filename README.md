@@ -113,6 +113,29 @@ yarn add @atomic-ehr/codegen
     - `bun run generate-types.ts`
     - `pnpm exec tsx generate-types.ts`
 
+Alternatively, drive the same pipeline from a JSON config file, with no script at all:
+
+```json
+{
+    "version": 1,
+    "builders": [
+        {
+            "name": "core",
+            "fromPackages": [{ "name": "hl7.fhir.r4.core", "version": "4.0.1" }],
+            "typescript": {},
+            "outputTo": "./fhir-types"
+        }
+    ]
+}
+```
+
+```bash
+atomic-codegen generate --config ./codegen.json            # run every builder
+atomic-codegen generate --config ./codegen.json --dry-run  # print the plan without generating
+```
+
+Relative paths resolve against the config file's directory, unknown keys are rejected with the full list of problems, and `outputTo` is removed before generation by default (set `"cleanOutput": false` to keep it). A config may hold several builders: each maps to one `APIBuilder` pipeline (`fromPackages`/`fromPackageRefs`/`localTgzPackages`/`localStructureDefinitions` inputs, `typeSchema` transformations, and `typescript`/`python`/`csharp`/`introspection` generators — see `GenerateConfigBuilder` in `src/api/generate-config.ts`). A failed builder does not stop the others, and the run exits non-zero if any failed.
+
 ### Usage Examples
 
 See the [examples/](examples/) directory for working demonstrations:

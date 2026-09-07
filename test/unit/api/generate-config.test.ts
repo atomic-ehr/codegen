@@ -249,6 +249,34 @@ describe("parseGenerateConfig", () => {
         }
     });
 
+    it("reports a duplicate output directory between builders", () => {
+        const raw = validConfig();
+        raw.builders.push({ ...raw.builders[0]!, name: "other" });
+
+        try {
+            parseGenerateConfig(raw, CONFIG_PATH);
+            throw new Error("expected a GenerateConfigError");
+        } catch (error) {
+            const issue = (error as GenerateConfigError).issues[0]!;
+            expect(issue.path).toBe("builders[1].outputTo");
+            expect(issue.message).toContain('duplicates the output directory of builder "core"');
+        }
+    });
+
+    it("reports an output directory nested inside another builder's output", () => {
+        const raw = validConfig();
+        raw.builders.push({ ...raw.builders[0]!, name: "other", outputTo: "./out/core/nested" });
+
+        try {
+            parseGenerateConfig(raw, CONFIG_PATH);
+            throw new Error("expected a GenerateConfigError");
+        } catch (error) {
+            const issue = (error as GenerateConfigError).issues[0]!;
+            expect(issue.path).toBe("builders[1].outputTo");
+            expect(issue.message).toContain('is nested inside the output directory of builder "core"');
+        }
+    });
+
     it("collects every problem instead of stopping at the first", () => {
         const raw = {
             version: "1",
@@ -570,5 +598,6 @@ describe("describeGenerateConfig", () => {
         expect(plan).toContain("input: package hl7.fhir.r4.core@4.0.1");
         expect(plan).toContain("generators: typescript");
         expect(plan).toContain(`outputTo: ${Path.join(CONFIG_DIR, "out/core")}`);
+        expect(plan).toContain("cleanOutput: true (default) — removes outputTo before generation");
     });
 });

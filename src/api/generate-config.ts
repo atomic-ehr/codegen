@@ -55,6 +55,11 @@ export type GenerateConfigBuilder = {
     csharp?: Partial<CSharpGeneratorOptions>;
     /** Output directory, resolved against the config file's directory. */
     outputTo: string;
+    /**
+     * Remove `outputTo` recursively before generation. Defaults to `true`
+     * (APIBuilder's default), so point `outputTo` at a dedicated directory —
+     * never at a directory holding anything else.
+     */
     cleanOutput?: boolean;
     throwException?: boolean;
 };
@@ -203,6 +208,14 @@ const INTROSPECTION_KEYS = [
 const INPUT_KEYS = ["fromPackages", "fromPackageRefs", "localTgzPackages", "localStructureDefinitions"] as const;
 
 const GENERATOR_KEYS = ["introspection", "typescript", "python", "csharp"] as const;
+
+/** How `b` relates to `a` when both are absolute, normalized directories. */
+const outputOverlap = (a: string, b: string): string | undefined => {
+    if (a === b) return "duplicates";
+    if (b.startsWith(a + Path.sep)) return "is nested inside";
+    if (a.startsWith(b + Path.sep)) return "contains";
+    return undefined;
+};
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     typeof value === "object" && value !== null && !Array.isArray(value);
@@ -492,6 +505,20 @@ export const parseGenerateConfig = (raw: unknown, configPath: string): GenerateC
         seen.add(builder.name);
     });
 
+    // outputTo values are absolute by now; overlapping directories would let a
+    // later builder's cleanOutput remove an earlier builder's freshly written files.
+    builders.forEach((builder, index) => {
+        for (const other of builders.slice(0, index)) {
+            const relation = outputOverlap(other.outputTo, builder.outputTo);
+            if (!relation) continue;
+            report(
+                ctx,
+                `builders[${index}].outputTo`,
+                `${relation} the output directory of builder "${other.name}"; output directories must not overlap`,
+            );
+        }
+    });
+
     if (ctx.issues.length > 0) throw new GenerateConfigError(ctx.issues);
     return { version: GENERATE_CONFIG_VERSION, options, builders };
 };
@@ -673,7 +700,10 @@ export const describeGenerateConfig = (config: GenerateConfig): string => {
         lines.push(`     generators: ${generators.length > 0 ? generators.join(", ") : "none"}`);
         if (builder.typeSchema) lines.push(`     typeSchema: ${Object.keys(builder.typeSchema).join(", ")}`);
         lines.push(`     outputTo: ${builder.outputTo}`);
-        if (builder.cleanOutput !== undefined) lines.push(`     cleanOutput: ${builder.cleanOutput}`);
+        const cleanOutput = builder.cleanOutput ?? true;
+        lines.push(
+            `     cleanOutput: ${cleanOutput}${builder.cleanOutput === undefined ? " (default)" : ""}${cleanOutput ? " — removes outputTo before generation" : ""}`,
+        );
     });
     return lines.join("\n");
 };

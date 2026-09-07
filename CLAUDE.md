@@ -19,7 +19,7 @@ bun run src/cli/index.ts                   # Run CLI in development mode
 
 # CLI Usage
 bun run src/cli/index.ts typeschema generate hl7.fhir.r4.core@4.0.1 -o schemas.ndjson
-bun run src/cli/index.ts generate typescript -i schemas.ndjson -o ./types
+bun run src/cli/index.ts generate --config ./codegen.json
 ```
 
 ## Verification
@@ -69,8 +69,7 @@ FHIR Package → TypeSchema Generator → TypeSchema Format → Code Generators 
 
 ## Configuration
 
-- **Main config**: `atomic-codegen.config.ts` (TypeScript configuration file)
-- **Package config**: Uses `Config` type from `src/config.ts`
+- **CLI config**: JSON file consumed by `atomic-codegen generate --config` (schema and validation in `src/api/generate-config.ts`; relative paths resolve against the config file's directory)
 - **Default packages**: `hl7.fhir.r4.core@4.0.1`
 - **Output dir**: `./generated` by default
 - **Cache**: `.typeschema-cache/` for performance optimization
@@ -326,7 +325,7 @@ Detection uses `mkIsFamilyType(tsIndex)` which checks `schema.typeFamily.resourc
 
 ### Core Logic
 - `src/index.ts` - Main entry point and exports
-- `src/config.ts` - Configuration type definitions
+- `src/api/generate-config.ts` - JSON config schema for the CLI `generate` command
 - `src/api/builder.ts` - APIBuilder implementation
 - `src/typeschema/types.ts` - TypeSchema type definitions
 - `src/typeschema/generator.ts` - TypeSchema generation orchestration

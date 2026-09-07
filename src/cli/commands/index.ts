@@ -92,11 +92,3 @@ export async function runCLI() {
     const cli = createCLI();
     await cli.parseAsync();
 }
-
-// Run CLI if this file is executed directly
-if (import.meta.main) {
-    runCLI().catch((err) => {
-        cliLogger.error(String(err));
-        process.exit(1);
-    });
-}
