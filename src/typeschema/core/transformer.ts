@@ -8,7 +8,7 @@ import assert from "node:assert";
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
 import { shouldSkipCanonical } from "@root/typeschema/skip-hack";
 import type { CodegenLog } from "@root/utils/log";
-import { isFhirBaseCanonical, type Register } from "@typeschema/register";
+import { isVirtualFhirBaseCanonical, type Register } from "@typeschema/register";
 import {
     concatIdentifiers,
     extractExtensionDeps,
@@ -147,7 +147,9 @@ export function transformFhirSchema(register: Register, fhirSchema: RichFHIRSche
         const baseUrl = register.ensureSpecializationCanonicalUrl(fhirSchema.base);
         const baseFs = register.resolveFs(fhirSchema.package_meta, baseUrl);
         const isVirtualLogicalBase =
-            fhirSchema.kind === "logical" && fhirSchema.derivation === "specialization" && isFhirBaseCanonical(baseUrl);
+            fhirSchema.kind === "logical" &&
+            fhirSchema.derivation === "specialization" &&
+            isVirtualFhirBaseCanonical(fhirSchema.base);
         if (!baseFs && !isVirtualLogicalBase)
             throw new Error(
                 `Base resource not found '${fhirSchema.base}' for <${fhirSchema.url}> from ${packageMetaToFhir(fhirSchema.package_meta)}`,

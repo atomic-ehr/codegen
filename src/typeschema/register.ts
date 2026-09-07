@@ -21,7 +21,16 @@ import { enrichFHIRSchema, enrichValueSet, packageMetaToFhir, packageMetaToNpm }
 const BARE_RESOURCE_NAME_RE = /^[a-zA-Z0-9]+$/;
 const FHIR_BASE_CANONICAL = "http://hl7.org/fhir/StructureDefinition/Base";
 
-export const isFhirBaseCanonical = (canonical: string): boolean => canonical.split("|")[0] === FHIR_BASE_CANONICAL;
+// `Base` is a virtual root only in the R4 family: R4/R4B ship no
+// StructureDefinition-Base, while R5+ publish it as a physical resource, so a
+// reference explicitly versioned R5+ must resolve like any other base.
+// Takes the raw base reference (bare name or canonical, optionally versioned).
+export const isVirtualFhirBaseCanonical = (ref: string): boolean => {
+    const [name, version] = ref.split("|") as [string, string | undefined];
+    const canonical = BARE_RESOURCE_NAME_RE.test(name) ? `http://hl7.org/fhir/StructureDefinition/${name}` : name;
+    if (canonical !== FHIR_BASE_CANONICAL) return false;
+    return version === undefined || version.startsWith("4.");
+};
 
 export type Register = {
     testAppendFs(fs: FHIRSchema): void;
@@ -362,7 +371,8 @@ export const registerFromManager = async (
         while (fs?.base) {
             const pkg = fs.package_meta;
             const baseUrl = ensureSpecializationCanonicalUrl(fs.base);
-            if (fs.kind === "logical" && fs.derivation === "specialization" && isFhirBaseCanonical(baseUrl)) break;
+            if (fs.kind === "logical" && fs.derivation === "specialization" && isVirtualFhirBaseCanonical(fs.base))
+                break;
             fs = resolveFs(pkg, baseUrl);
             if (fs === undefined)
                 throw new Error(
