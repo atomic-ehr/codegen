@@ -1,0 +1,19 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`module specifier styles node-esm package index pinned 1`] = `
+"export * from "./profiles/index.js";
+"
+`;
+
+exports[`module specifier styles node-esm profiles barrel pinned 1`] = `
+"export { MinimalRequiredExtensionProfile } from "./Extension_MinimalRequiredExtension.js";
+export { PraxisProposalProvenanceProfile } from "./Provenance_PraxisProposalProvenance.js";
+"
+`;
+
+exports[`module specifier styles node-esm profile module imports pinned 1`] = `
+"import type { CodeableConcept } from "../../hl7-fhir-r4-core/CodeableConcept.js";
+import type { Provenance, ProvenanceAgent } from "../../hl7-fhir-r4-core/Provenance.js";
+import type { Reference } from "../../hl7-fhir-r4-core/Reference.js";
+} from "../../profile-helpers.js";"
+`;
