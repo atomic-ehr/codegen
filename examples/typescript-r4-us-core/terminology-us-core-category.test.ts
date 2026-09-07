@@ -47,6 +47,12 @@ describe("demo: US Core screening category picker", () => {
 
         expect(pickerOptions(USCoreCategoryCodeSystem)).toContainEqual({ code: "sdoh", label: "SDOH" });
         expect(trustedForDisplay(USCoreCategoryCodeSystem, new Set(["registry-integrity"]))).toBeTrue();
+
+        // TerminologyEntry is discriminated by resourceType: after narrowing,
+        // contentMode is the CodeSystem vocabulary — ValueSet entries are null.
+        const contentOf = (entry: TerminologyEntry) =>
+            entry.resourceType === "CodeSystem" ? entry.contentMode : entry.contentMode;
+        expect(contentOf(USCoreCategoryCodeSystem)).toBe("complete");
     });
 
     it("carries provenance for a display-trust policy", () => {

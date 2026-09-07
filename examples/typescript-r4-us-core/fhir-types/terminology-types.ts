@@ -6,19 +6,34 @@ import type { CodeSystem } from "./hl7-fhir-r4-core/CodeSystem";
 
 export type TerminologyVerification = "registry-integrity" | "unverifiable" | (string & {});
 
-/** Normalized projection of one terminology resource, plus package provenance. */
-export type TerminologyEntry = {
+type TerminologyEntryBase = {
     canonicalUrl: string;
     packageId: string;
     packageVersion: string;
     verification: TerminologyVerification;
-    resourceType: "CodeSystem" | "ValueSet" | "NamingSystem";
+};
+
+/** `contentMode` is a CodeSystem concept; the other entry kinds carry null. */
+export type CodeSystemEntry = TerminologyEntryBase & {
+    resourceType: "CodeSystem";
     contentMode: CodeSystem["content"] | null;
 };
 
+export type ValueSetEntry = TerminologyEntryBase & {
+    resourceType: "ValueSet";
+    contentMode: null;
+};
+
+export type NamingSystemEntry = TerminologyEntryBase & {
+    resourceType: "NamingSystem";
+    contentMode: null;
+};
+
+/** One normalized terminology resource, discriminated by `resourceType`. */
+export type TerminologyEntry = CodeSystemEntry | ValueSetEntry | NamingSystemEntry;
+
 /** A complete CodeSystem whose codes are embedded: the simplified runtime surface. */
-export type CodedTerminologyEntry<Code extends string = string> = TerminologyEntry & {
-    resourceType: "CodeSystem";
+export type CodedTerminologyEntry<Code extends string = string> = CodeSystemEntry & {
     contentMode: "complete";
     codes: readonly Code[];
     displays: Readonly<Partial<Record<Code, string>>>;
