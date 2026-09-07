@@ -110,20 +110,18 @@ type TerminologyEntryBase = {
 };
 
 /** `contentMode` is a CodeSystem concept; malformed packages may carry other
- *  strings, and a CodeSystem missing its required `content` projects as null. */
+ *  strings, and a CodeSystem missing its required `content` projects without one. */
 export type CodeSystemEntry = TerminologyEntryBase & {
     resourceType: "CodeSystem";
-    contentMode: CodeSystem["content"] | (string & {}) | null;
+    contentMode?: CodeSystem["content"] | (string & {});
 };
 
 export type ValueSetEntry = TerminologyEntryBase & {
     resourceType: "ValueSet";
-    contentMode: null;
 };
 
 export type NamingSystemEntry = TerminologyEntryBase & {
     resourceType: "NamingSystem";
-    contentMode: null;
 };
 
 /**
@@ -200,13 +198,13 @@ export const mkTerminologyEntries = (
             verification,
         };
         if (resource.resourceType === "ValueSet")
-            return { resource, entry: { ...base, resourceType: resource.resourceType, contentMode: null } };
+            return { resource, entry: { ...base, resourceType: resource.resourceType } };
         if (resource.resourceType === "NamingSystem")
-            return { resource, entry: { ...base, resourceType: resource.resourceType, contentMode: null } };
+            return { resource, entry: { ...base, resourceType: resource.resourceType } };
         const codeSystemEntry: CodeSystemEntry = {
             ...base,
             resourceType: "CodeSystem",
-            contentMode: resource.content ?? null,
+            ...(resource.content !== undefined ? { contentMode: resource.content } : {}),
         };
         const embedsCodes = resource.content === "complete" && verification !== "unverifiable";
         if (!embedsCodes) return { resource, entry: codeSystemEntry };

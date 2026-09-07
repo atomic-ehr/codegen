@@ -507,20 +507,18 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 this.lineSM("verification: TerminologyVerification");
             }, [";"]);
             this.line();
-            this.line("/** `contentMode` is a CodeSystem concept; the other entry kinds carry null. */");
+            this.line("/** `contentMode` is a CodeSystem concept; the other entry kinds have none. */");
             this.curlyBlock(["export", "type", "CodeSystemEntry", "=", "TerminologyEntryBase", "&"], () => {
                 this.lineSM(`resourceType: "CodeSystem"`);
-                this.lineSM(`contentMode: ${contentType} | null`);
+                this.lineSM(`contentMode?: ${contentType}`);
             }, [";"]);
             this.line();
             this.curlyBlock(["export", "type", "ValueSetEntry", "=", "TerminologyEntryBase", "&"], () => {
                 this.lineSM(`resourceType: "ValueSet"`);
-                this.lineSM("contentMode: null");
             }, [";"]);
             this.line();
             this.curlyBlock(["export", "type", "NamingSystemEntry", "=", "TerminologyEntryBase", "&"], () => {
                 this.lineSM(`resourceType: "NamingSystem"`);
-                this.lineSM("contentMode: null");
             }, [";"]);
             this.line();
             this.line("/** One normalized terminology resource, discriminated by `resourceType`. */");
@@ -586,9 +584,8 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                     this.line(`packageVersion: ${JSON.stringify(entry.packageVersion)},`);
                     this.line(`verification: ${JSON.stringify(entry.verification)},`);
                     this.line(`resourceType: ${JSON.stringify(entry.resourceType)},`);
-                    this.line(
-                        `contentMode: ${entry.contentMode === null ? "null" : JSON.stringify(entry.contentMode)},`,
-                    );
+                    if ("contentMode" in entry && entry.contentMode !== undefined)
+                        this.line(`contentMode: ${JSON.stringify(entry.contentMode)},`);
                     if (coded) {
                         this.line(`codes: [${entry.codes.map((code) => JSON.stringify(code)).join(", ")}],`);
                         this.curlyBlock(["displays:"], () => {

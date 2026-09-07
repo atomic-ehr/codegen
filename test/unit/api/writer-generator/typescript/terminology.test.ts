@@ -106,11 +106,11 @@ describe("register terminology entries", () => {
 
         const notPresent = bySymbolic.get("NotPresentExample");
         expect(notPresent && "codes" in notPresent).toBeFalse();
-        expect(notPresent?.contentMode).toBe("not-present");
+        expect(notPresent?.resourceType === "CodeSystem" ? notPresent.contentMode : undefined).toBe("not-present");
 
         const valueSet = bySymbolic.get("ExpandedValueSet");
         expect(valueSet?.resourceType).toBe("ValueSet");
-        expect(valueSet?.contentMode).toBeNull();
+        expect(valueSet !== undefined && "contentMode" in valueSet).toBeFalse();
     });
 
     it("keeps every entry provenance-only under an unverifiable attestation", async () => {
@@ -200,7 +200,6 @@ describe("TypeScript terminology surface", () => {
               packageVersion: "1.2.3",
               verification: "registry-integrity",
               resourceType: "NamingSystem",
-              contentMode: null,
           } as const satisfies TerminologyEntry;
 
           export const ExpandedValueSetValueSet = {
@@ -209,7 +208,6 @@ describe("TypeScript terminology surface", () => {
               packageVersion: "1.2.3",
               verification: "registry-integrity",
               resourceType: "ValueSet",
-              contentMode: null,
           } as const satisfies TerminologyEntry;
           "
         `);
