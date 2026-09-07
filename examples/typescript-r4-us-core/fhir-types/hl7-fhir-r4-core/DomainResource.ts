@@ -11,7 +11,7 @@ export type { Narrative } from "../hl7-fhir-r4-core/Narrative";
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/DomainResource (pkg: hl7.fhir.r4.core#4.0.1)
 export interface DomainResource<T extends Resource = Resource> extends Resource {
-    resourceType: "DomainResource" | "Observation" | "OperationOutcome" | "Patient";
+    resourceType: "CodeSystem" | "DomainResource" | "Observation" | "OperationOutcome" | "Patient";
 
     contained?: T[];
     extension?: Extension[];

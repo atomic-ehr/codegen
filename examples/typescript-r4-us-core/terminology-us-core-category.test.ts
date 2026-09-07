@@ -1,48 +1,59 @@
 import { describe, expect, it } from "bun:test";
-import { type USCoreCategoryCode, USCoreCategoryCodeSystem } from "./fhir-types/hl7-fhir-us-core/terminology";
+import { isCodeSystem } from "./fhir-types/hl7-fhir-r4-core/CodeSystem";
+import {
+    type USCoreCategoryCode,
+    USCoreCategoryCodeSystem,
+    USCoreCategoryCodeSystemMeta,
+} from "./fhir-types/hl7-fhir-us-core/terminology";
+import { conceptCodes, conceptDisplays } from "./fhir-types/terminology-types";
 
-// The terminology surface complements the compile-time code unions with
-// runtime data: one generated `as const` object carries the code list, the
-// display map, and the package provenance. UI options, display lookup and
-// wire validation all derive from that single artifact — no hand-copied code
-// lists that silently drift from the package on upgrade.
+// The terminology surface embeds each complete CodeSystem as a real FHIR
+// resource (typed against the generated CodeSystem, adjusted), with package
+// provenance in a sibling const and runtime helpers deriving the simplified
+// views. UI options, wire validation, generic FHIR tooling and audit policy
+// all work from the same regenerated artifact.
 
 describe("demo: US Core screening category picker", () => {
-    it("derives UI options from the generated code list", () => {
-        // The union type alone can't do this — types are erased at runtime.
-        const options = USCoreCategoryCodeSystem.codes.map((code) => ({
+    it("derives UI options from the concept tree", () => {
+        const displays = conceptDisplays(USCoreCategoryCodeSystem);
+        const options = conceptCodes(USCoreCategoryCodeSystem).map((code) => ({
             code,
-            label: USCoreCategoryCodeSystem.displays[code],
+            label: displays[code] ?? code,
         }));
 
-        expect(options.length).toBe(USCoreCategoryCodeSystem.codes.length);
         expect(options).toContainEqual({ code: "sdoh", label: "SDOH" });
         expect(options).toContainEqual({ code: "functional-status", label: "Functional Status" });
     });
 
     it("validates codes arriving from the wire at runtime", () => {
-        const isUSCoreCategory = (value: string): value is USCoreCategoryCode =>
-            (USCoreCategoryCodeSystem.codes as readonly string[]).includes(value);
+        const codes: readonly string[] = conceptCodes(USCoreCategoryCodeSystem);
+        const isUSCoreCategory = (value: string): value is USCoreCategoryCode => codes.includes(value);
 
         expect(isUSCoreCategory("sdoh")).toBeTrue();
         expect(isUSCoreCategory("sdohh")).toBeFalse();
-
-        // The guard narrows to the generated union, so the display map is
-        // indexable without a cast:
-        const incoming = "disability-status";
-        if (isUSCoreCategory(incoming)) {
-            expect(USCoreCategoryCodeSystem.displays[incoming]).toBe("Disability Status");
-        }
     });
 
-    it("carries provenance for a display-trust policy", () => {
+    it("is a real FHIR resource: guard, serialization, upload-ready", () => {
+        // The emitted value IS a CodeSystem — generic FHIR tooling applies,
+        // and it can be PUT to a terminology server to make the deployed
+        // server agree with the SDK it serves.
+        expect(isCodeSystem(USCoreCategoryCodeSystem)).toBeTrue();
+
+        const wire = JSON.parse(JSON.stringify(USCoreCategoryCodeSystem));
+        expect(wire.url).toBe("http://hl7.org/fhir/us/core/CodeSystem/us-core-category");
+        expect(wire.status).toBe("active");
+        expect(wire.concept.length).toBe(7);
+        // Generator provenance lives beside the resource, never inside it:
+        expect("packageId" in wire).toBeFalse();
+    });
+
+    it("keeps provenance beside the resource for a display-trust policy", () => {
         // Org policy, not generator policy: embedded displays count as
-        // authoritative only when the package attestation is trusted;
-        // otherwise a client would fall back to a terminology server.
+        // authoritative only when the package attestation is trusted.
         const trustedForDisplay = new Set<string>(["registry-integrity"]);
 
-        expect(trustedForDisplay.has(USCoreCategoryCodeSystem.verification)).toBeTrue();
-        expect(USCoreCategoryCodeSystem.packageId).toBe("hl7.fhir.us.core");
-        expect(USCoreCategoryCodeSystem.contentMode).toBe("complete");
+        expect(trustedForDisplay.has(USCoreCategoryCodeSystemMeta.verification)).toBeTrue();
+        expect(USCoreCategoryCodeSystemMeta.packageId).toBe("hl7.fhir.us.core");
+        expect(USCoreCategoryCodeSystem.content).toBe("complete");
     });
 });

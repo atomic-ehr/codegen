@@ -2,82 +2,99 @@
 // GitHub: https://github.com/atomic-ehr/codegen
 // Any manual changes made to this file may be overwritten.
 
+import type { TerminologyCodeSystem, TerminologyEntry, TerminologyProvenance } from "../terminology-types";
+
+export type USCoreCarePlanCategoryExtensionCodesCode = "assess-plan";
 export const USCoreCarePlanCategoryExtensionCodesCodeSystem = {
-    canonicalUrl: "http://hl7.org/fhir/us/core/CodeSystem/careplan-category",
+    resourceType: "CodeSystem",
+    url: "http://hl7.org/fhir/us/core/CodeSystem/careplan-category",
+    name: "USCoreCarePlanCategoryExtensionCodes",
+    status: "active",
+    content: "complete",
+    concept: [
+        { code: "assess-plan", display: "Assessment and Plan of Treatment" },
+    ],
+} as const satisfies TerminologyCodeSystem<USCoreCarePlanCategoryExtensionCodesCode>;
+export const USCoreCarePlanCategoryExtensionCodesCodeSystemMeta = {
     packageId: "hl7.fhir.us.core",
     packageVersion: "8.0.1",
     verification: "registry-integrity",
-    resourceType: "CodeSystem",
-    contentMode: "complete",
-    codes: ["assess-plan"],
-    displays: {
-        ["assess-plan"]: "Assessment and Plan of Treatment",
-    },
-} as const;
-export type USCoreCarePlanCategoryExtensionCodesCode = (typeof USCoreCarePlanCategoryExtensionCodesCodeSystem.codes)[number];
+} as const satisfies TerminologyProvenance;
 
+export type USCoreCategoryCode = "sdoh" | "functional-status" | "disability-status" | "cognitive-status" | "treatment-intervention-preference" | "care-experience-preference" | "observation-adi-documentation";
 export const USCoreCategoryCodeSystem = {
-    canonicalUrl: "http://hl7.org/fhir/us/core/CodeSystem/us-core-category",
+    resourceType: "CodeSystem",
+    url: "http://hl7.org/fhir/us/core/CodeSystem/us-core-category",
+    name: "USCoreCategory",
+    status: "active",
+    content: "complete",
+    concept: [
+        { code: "sdoh", display: "SDOH" },
+        { code: "functional-status", display: "Functional Status" },
+        { code: "disability-status", display: "Disability Status" },
+        { code: "cognitive-status", display: "Cognitive Status" },
+        { code: "treatment-intervention-preference", display: "Treatment Intervention Preference" },
+        { code: "care-experience-preference", display: "Care Experience Preference" },
+        { code: "observation-adi-documentation", display: "Observation ADI Documentation" },
+    ],
+} as const satisfies TerminologyCodeSystem<USCoreCategoryCode>;
+export const USCoreCategoryCodeSystemMeta = {
     packageId: "hl7.fhir.us.core",
     packageVersion: "8.0.1",
     verification: "registry-integrity",
-    resourceType: "CodeSystem",
-    contentMode: "complete",
-    codes: ["sdoh", "functional-status", "disability-status", "cognitive-status", "treatment-intervention-preference", "care-experience-preference", "observation-adi-documentation"],
-    displays: {
-        ["sdoh"]: "SDOH",
-        ["functional-status"]: "Functional Status",
-        ["disability-status"]: "Disability Status",
-        ["cognitive-status"]: "Cognitive Status",
-        ["treatment-intervention-preference"]: "Treatment Intervention Preference",
-        ["care-experience-preference"]: "Care Experience Preference",
-        ["observation-adi-documentation"]: "Observation ADI Documentation",
-    },
-} as const;
-export type USCoreCategoryCode = (typeof USCoreCategoryCodeSystem.codes)[number];
+} as const satisfies TerminologyProvenance;
 
+export type USCoreConditionCategoryExtensionCodesCode = "problem" | "health-concern";
 export const USCoreConditionCategoryExtensionCodesCodeSystem = {
-    canonicalUrl: "http://hl7.org/fhir/us/core/CodeSystem/condition-category",
+    resourceType: "CodeSystem",
+    url: "http://hl7.org/fhir/us/core/CodeSystem/condition-category",
+    name: "USCoreConditionCategoryExtensionCodes",
+    status: "active",
+    content: "complete",
+    concept: [
+        { code: "problem", display: "Problem" },
+        { code: "health-concern", display: "Health Concern" },
+    ],
+} as const satisfies TerminologyCodeSystem<USCoreConditionCategoryExtensionCodesCode>;
+export const USCoreConditionCategoryExtensionCodesCodeSystemMeta = {
     packageId: "hl7.fhir.us.core",
     packageVersion: "8.0.1",
     verification: "registry-integrity",
-    resourceType: "CodeSystem",
-    contentMode: "complete",
-    codes: ["problem", "health-concern"],
-    displays: {
-        ["problem"]: "Problem",
-        ["health-concern"]: "Health Concern",
-    },
-} as const;
-export type USCoreConditionCategoryExtensionCodesCode = (typeof USCoreConditionCategoryExtensionCodesCodeSystem.codes)[number];
+} as const satisfies TerminologyProvenance;
 
+export type USCoreDocumentReferencesCategoryCodesCode = "clinical-note";
 export const USCoreDocumentReferencesCategoryCodesCodeSystem = {
-    canonicalUrl: "http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category",
+    resourceType: "CodeSystem",
+    url: "http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category",
+    name: "USCoreDocumentReferencesCategoryCodes",
+    status: "active",
+    content: "complete",
+    concept: [
+        { code: "clinical-note", display: "Clinical Note" },
+    ],
+} as const satisfies TerminologyCodeSystem<USCoreDocumentReferencesCategoryCodesCode>;
+export const USCoreDocumentReferencesCategoryCodesCodeSystemMeta = {
     packageId: "hl7.fhir.us.core",
     packageVersion: "8.0.1",
     verification: "registry-integrity",
-    resourceType: "CodeSystem",
-    contentMode: "complete",
-    codes: ["clinical-note"],
-    displays: {
-        ["clinical-note"]: "Clinical Note",
-    },
-} as const;
-export type USCoreDocumentReferencesCategoryCodesCode = (typeof USCoreDocumentReferencesCategoryCodesCodeSystem.codes)[number];
+} as const satisfies TerminologyProvenance;
 
+export type USCoreProvenancePaticipantTypeExtensionCodesCode = "transmitter";
 export const USCoreProvenancePaticipantTypeExtensionCodesCodeSystem = {
-    canonicalUrl: "http://hl7.org/fhir/us/core/CodeSystem/us-core-provenance-participant-type",
+    resourceType: "CodeSystem",
+    url: "http://hl7.org/fhir/us/core/CodeSystem/us-core-provenance-participant-type",
+    name: "USCoreProvenancePaticipantTypeExtensionCodes",
+    status: "active",
+    content: "complete",
+    concept: [
+        { code: "transmitter", display: "Transmitter" },
+    ],
+} as const satisfies TerminologyCodeSystem<USCoreProvenancePaticipantTypeExtensionCodesCode>;
+export const USCoreProvenancePaticipantTypeExtensionCodesCodeSystemMeta = {
     packageId: "hl7.fhir.us.core",
     packageVersion: "8.0.1",
     verification: "registry-integrity",
-    resourceType: "CodeSystem",
-    contentMode: "complete",
-    codes: ["transmitter"],
-    displays: {
-        ["transmitter"]: "Transmitter",
-    },
-} as const;
-export type USCoreProvenancePaticipantTypeExtensionCodesCode = (typeof USCoreProvenancePaticipantTypeExtensionCodesCodeSystem.codes)[number];
+} as const satisfies TerminologyProvenance;
 
 export const NarrativeStatusValueSet = {
     canonicalUrl: "http://hl7.org/fhir/us/core/ValueSet/us-core-narrative-status",
@@ -86,7 +103,7 @@ export const NarrativeStatusValueSet = {
     verification: "registry-integrity",
     resourceType: "ValueSet",
     contentMode: null,
-} as const;
+} as const satisfies TerminologyEntry;
 
 export const USCoreClinicalNoteTypeValueSet = {
     canonicalUrl: "http://hl7.org/fhir/us/core/ValueSet/us-core-clinical-note-type",
@@ -95,7 +112,7 @@ export const USCoreClinicalNoteTypeValueSet = {
     verification: "registry-integrity",
     resourceType: "ValueSet",
     contentMode: null,
-} as const;
+} as const satisfies TerminologyEntry;
 
 export const USCoreClinicalResultObservationCategoryValueSet = {
     canonicalUrl: "http://hl7.org/fhir/us/core/ValueSet/us-core-clinical-result-observation-category",
@@ -104,7 +121,7 @@ export const USCoreClinicalResultObservationCategoryValueSet = {
     verification: "registry-integrity",
     resourceType: "ValueSet",
     contentMode: null,
-} as const;
+} as const satisfies TerminologyEntry;
 
 export const USCoreConditionCodesCurrentValueSet = {
     canonicalUrl: "http://hl7.org/fhir/us/core/ValueSet/us-core-condition-code-current",
@@ -113,7 +130,7 @@ export const USCoreConditionCodesCurrentValueSet = {
     verification: "registry-integrity",
     resourceType: "ValueSet",
     contentMode: null,
-} as const;
+} as const satisfies TerminologyEntry;
 
 export const USCoreConditionCodesValueSet = {
     canonicalUrl: "http://hl7.org/fhir/us/core/ValueSet/us-core-condition-code",
@@ -122,7 +139,7 @@ export const USCoreConditionCodesValueSet = {
     verification: "registry-integrity",
     resourceType: "ValueSet",
     contentMode: null,
-} as const;
+} as const satisfies TerminologyEntry;
 
 export const USCoreDiagnosticReportCategoryValueSet = {
     canonicalUrl: "http://hl7.org/fhir/us/core/ValueSet/us-core-diagnosticreport-category",
@@ -131,7 +148,7 @@ export const USCoreDiagnosticReportCategoryValueSet = {
     verification: "registry-integrity",
     resourceType: "ValueSet",
     contentMode: null,
-} as const;
+} as const satisfies TerminologyEntry;
 
 export const USCoreDocumentReferenceCategoryValueSet = {
     canonicalUrl: "http://hl7.org/fhir/us/core/ValueSet/us-core-documentreference-category",
@@ -140,7 +157,7 @@ export const USCoreDocumentReferenceCategoryValueSet = {
     verification: "registry-integrity",
     resourceType: "ValueSet",
     contentMode: null,
-} as const;
+} as const satisfies TerminologyEntry;
 
 export const USCoreDocumentReferenceTypeValueSet = {
     canonicalUrl: "http://hl7.org/fhir/us/core/ValueSet/us-core-documentreference-type",
@@ -149,7 +166,7 @@ export const USCoreDocumentReferenceTypeValueSet = {
     verification: "registry-integrity",
     resourceType: "ValueSet",
     contentMode: null,
-} as const;
+} as const satisfies TerminologyEntry;
 
 export const USCoreGoalCodesValueSet = {
     canonicalUrl: "http://hl7.org/fhir/us/core/ValueSet/us-core-goal-description",
@@ -158,7 +175,7 @@ export const USCoreGoalCodesValueSet = {
     verification: "registry-integrity",
     resourceType: "ValueSet",
     contentMode: null,
-} as const;
+} as const satisfies TerminologyEntry;
 
 export const USCoreLaboratoryTestCodesValueSet = {
     canonicalUrl: "http://hl7.org/fhir/us/core/ValueSet/us-core-laboratory-test-codes",
@@ -167,7 +184,7 @@ export const USCoreLaboratoryTestCodesValueSet = {
     verification: "registry-integrity",
     resourceType: "ValueSet",
     contentMode: null,
-} as const;
+} as const satisfies TerminologyEntry;
 
 export const USCoreNonLaboratoryCodesValueSet = {
     canonicalUrl: "http://hl7.org/fhir/us/core/ValueSet/us-core-diagnosticreport-report-and-note-codes",
@@ -176,7 +193,7 @@ export const USCoreNonLaboratoryCodesValueSet = {
     verification: "registry-integrity",
     resourceType: "ValueSet",
     contentMode: null,
-} as const;
+} as const satisfies TerminologyEntry;
 
 export const USCoreObservationSmokingStatusStatusValueSet = {
     canonicalUrl: "http://hl7.org/fhir/us/core/ValueSet/us-core-observation-smoking-status-status",
@@ -185,7 +202,7 @@ export const USCoreObservationSmokingStatusStatusValueSet = {
     verification: "registry-integrity",
     resourceType: "ValueSet",
     contentMode: null,
-} as const;
+} as const satisfies TerminologyEntry;
 
 export const USCoreProblemOrHealthConcernValueSet = {
     canonicalUrl: "http://hl7.org/fhir/us/core/ValueSet/us-core-problem-or-health-concern",
@@ -194,7 +211,7 @@ export const USCoreProblemOrHealthConcernValueSet = {
     verification: "registry-integrity",
     resourceType: "ValueSet",
     contentMode: null,
-} as const;
+} as const satisfies TerminologyEntry;
 
 export const USCoreProcedureCodesValueSet = {
     canonicalUrl: "http://hl7.org/fhir/us/core/ValueSet/us-core-procedure-code",
@@ -203,7 +220,7 @@ export const USCoreProcedureCodesValueSet = {
     verification: "registry-integrity",
     resourceType: "ValueSet",
     contentMode: null,
-} as const;
+} as const satisfies TerminologyEntry;
 
 export const USCoreProvenancePaticipantTypeCodesValueSet = {
     canonicalUrl: "http://hl7.org/fhir/us/core/ValueSet/us-core-provenance-participant-type",
@@ -212,7 +229,7 @@ export const USCoreProvenancePaticipantTypeCodesValueSet = {
     verification: "registry-integrity",
     resourceType: "ValueSet",
     contentMode: null,
-} as const;
+} as const satisfies TerminologyEntry;
 
 export const USCoreScreeningAssessmentConditionCategoryValueSet = {
     canonicalUrl: "http://hl7.org/fhir/us/core/ValueSet/us-core-screening-assessment-condition-category",
@@ -221,7 +238,7 @@ export const USCoreScreeningAssessmentConditionCategoryValueSet = {
     verification: "registry-integrity",
     resourceType: "ValueSet",
     contentMode: null,
-} as const;
+} as const satisfies TerminologyEntry;
 
 export const USCoreScreeningAssessmentObservationCategoryValueSet = {
     canonicalUrl: "http://hl7.org/fhir/us/core/ValueSet/us-core-screening-assessment-observation-category",
@@ -230,7 +247,7 @@ export const USCoreScreeningAssessmentObservationCategoryValueSet = {
     verification: "registry-integrity",
     resourceType: "ValueSet",
     contentMode: null,
-} as const;
+} as const satisfies TerminologyEntry;
 
 export const USCoreScreeningAssessmentObservationMaximumCategoryValueSet = {
     canonicalUrl: "http://hl7.org/fhir/us/core/ValueSet/us-core-screening-assessment-observation-maximum-category",
@@ -239,7 +256,7 @@ export const USCoreScreeningAssessmentObservationMaximumCategoryValueSet = {
     verification: "registry-integrity",
     resourceType: "ValueSet",
     contentMode: null,
-} as const;
+} as const satisfies TerminologyEntry;
 
 export const USCoreServiceRequestCategoryCodesValueSet = {
     canonicalUrl: "http://hl7.org/fhir/us/core/ValueSet/us-core-servicerequest-category",
@@ -248,7 +265,7 @@ export const USCoreServiceRequestCategoryCodesValueSet = {
     verification: "registry-integrity",
     resourceType: "ValueSet",
     contentMode: null,
-} as const;
+} as const satisfies TerminologyEntry;
 
 export const USCoreSimpleObservationCategoryValueSet = {
     canonicalUrl: "http://hl7.org/fhir/us/core/ValueSet/us-core-simple-observation-category",
@@ -257,7 +274,7 @@ export const USCoreSimpleObservationCategoryValueSet = {
     verification: "registry-integrity",
     resourceType: "ValueSet",
     contentMode: null,
-} as const;
+} as const satisfies TerminologyEntry;
 
 export const USCoreSpecimenConditionValueSet = {
     canonicalUrl: "http://hl7.org/fhir/us/core/ValueSet/us-core-specimen-condition",
@@ -266,4 +283,4 @@ export const USCoreSpecimenConditionValueSet = {
     verification: "registry-integrity",
     resourceType: "ValueSet",
     contentMode: null,
-} as const;
+} as const satisfies TerminologyEntry;
