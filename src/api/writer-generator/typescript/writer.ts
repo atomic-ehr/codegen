@@ -1,7 +1,11 @@
 import { pascalCase, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
-import type { CodeSystemConcept } from "@root/fhir-types/hl7-fhir-r4-core";
-import type { PackageTerminology, TerminologyResource } from "@root/typeschema/register";
+import {
+    mkTerminologyEntries,
+    type PackageTerminology,
+    type TerminologyResource,
+    type TerminologyVerification,
+} from "@root/typeschema/register";
 import {
     type CanonicalUrl,
     isChoiceDeclarationField,
@@ -51,13 +55,6 @@ const PACKAGE_PATH_SEPARATOR_RE = /\\/g;
 const INVALID_PACKAGE_DIR_RUN_RE = /[^a-z0-9-]+/g;
 const PACKAGE_DIR_EDGE_RE = /^-+|-+$/g;
 const TS_IDENTIFIER_START_RE = /^[A-Za-z_$]/;
-
-/**
- * User-supplied attestation of how a package's content was verified, stamped
- * verbatim on its entries. `"unverifiable"` also suppresses codes and
- * displays; packages without an attestation are stamped `"not-recorded"`.
- */
-export type TerminologyVerification = "registry-integrity" | "unverifiable" | (string & {});
 
 export type TypeScriptOptions = {
     lineWidth?: number;
@@ -133,23 +130,6 @@ const allocateTerminologySymbols = (
         used.add(symbol);
         return { resource, symbol };
     });
-};
-
-const flattenConcepts = (concepts: CodeSystemConcept[] | undefined): CodeSystemConcept[] => {
-    const flattened: CodeSystemConcept[] = [];
-    const stack = [...(concepts ?? [])].reverse();
-    while (stack.length > 0) {
-        const concept = stack.pop();
-        if (!concept) continue;
-        flattened.push(concept);
-        if (concept.concept) {
-            for (let index = concept.concept.length - 1; index >= 0; index -= 1) {
-                const nested = concept.concept[index];
-                if (nested) stack.push(nested);
-            }
-        }
-    }
-    return flattened;
 };
 
 export class TypeScript extends Writer<TypeScriptOptions> {
@@ -508,37 +488,66 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         }
     }
 
+    /** Normalized terminology types: the FHIR vocabulary comes from the generated
+     *  CodeSystem type when the closure provides one; a package-free closure gets
+     *  a self-contained copy of the R4/R5 content-mode vocabulary instead. */
+    generateTerminologyTypes(codeSystemImport: string | undefined) {
+        this.cat("terminology-types.ts", () => {
+            this.generateDisclaimer();
+            if (codeSystemImport) this.tsImport(codeSystemImport, "CodeSystem", { typeOnly: true });
+            this.line();
+            const contentType = codeSystemImport
+                ? `CodeSystem["content"]`
+                : `("not-present" | "example" | "fragment" | "complete" | "supplement")`;
+            this.lineSM(`export type TerminologyVerification = "registry-integrity" | "unverifiable" | (string & {})`);
+            this.line();
+            this.curlyBlock(["type", "TerminologyEntryBase", "="], () => {
+                this.lineSM("canonicalUrl: string");
+                this.lineSM("packageId: string");
+                this.lineSM("packageVersion: string");
+                this.lineSM("verification: TerminologyVerification");
+            }, [";"]);
+            this.line();
+            this.line("/** `contentMode` is a CodeSystem concept; the other entry kinds have none. */");
+            this.curlyBlock(["export", "type", "CodeSystemEntry", "=", "TerminologyEntryBase", "&"], () => {
+                this.lineSM(`resourceType: "CodeSystem"`);
+                this.lineSM(`contentMode?: ${contentType}`);
+            }, [";"]);
+            this.line();
+            this.curlyBlock(["export", "type", "ValueSetEntry", "=", "TerminologyEntryBase", "&"], () => {
+                this.lineSM(`resourceType: "ValueSet"`);
+            }, [";"]);
+            this.line();
+            this.curlyBlock(["export", "type", "NamingSystemEntry", "=", "TerminologyEntryBase", "&"], () => {
+                this.lineSM(`resourceType: "NamingSystem"`);
+            }, [";"]);
+            this.line();
+            this.line("/** One normalized terminology resource, discriminated by `resourceType`. */");
+            this.lineSM("export type TerminologyEntry = CodeSystemEntry | ValueSetEntry | NamingSystemEntry");
+            this.line();
+            this.line("/** A complete CodeSystem whose codes are embedded: the simplified runtime surface. */");
+            this.curlyBlock([
+                "export",
+                "type",
+                "CodedTerminologyEntry<Code extends string = string>",
+                "=",
+                "CodeSystemEntry",
+                "&",
+            ], () => {
+                this.lineSM(`contentMode: "complete"`);
+                this.lineSM("codes: readonly Code[]");
+                this.lineSM("displays: Readonly<Partial<Record<Code, string>>>");
+            }, [";"]);
+        });
+    }
+
     generateTerminologyModule(packageTerminology: PackageTerminology) {
-        const { packageMeta: pkg, resources } = packageTerminology;
+        const { packageMeta: pkg } = packageTerminology;
         const verification = this.opts.terminology?.packageVerification?.[packageMetaToNpm(pkg)] ?? "not-recorded";
-        const resourcesByCanonical = new Map<string, TerminologyResource[]>();
-        for (const resource of resources) {
-            const key = `${resource.resourceType}\u0000${resource.url}`;
-            const matching = resourcesByCanonical.get(key) ?? [];
-            matching.push(resource);
-            resourcesByCanonical.set(key, matching);
-        }
-        // Real packages ship duplicate canonicals (hl7.terminology carries
-        // urn:iso:std:iso:3166:-2 twice).
-        const dedupedResources: TerminologyResource[] = [];
-        for (const matching of resourcesByCanonical.values()) {
-            const candidates = matching
-                .slice()
-                .sort((left, right) =>
-                    terminologyResourceIdentity(left).localeCompare(terminologyResourceIdentity(right)),
-                );
-            const winner = candidates[0];
-            if (!winner) continue;
-            if (candidates.length > 1) {
-                const identities = candidates.map((candidate) => candidate.id ?? candidate.name ?? candidate.url);
-                this.logger()?.dryWarn(
-                    "#duplicateCanonical",
-                    `Package ${packageMetaToNpm(pkg)} contains duplicate ${winner.resourceType} canonical URL ${JSON.stringify(winner.url)} for resources ${identities.join(", ")}; keeping ${winner.id ?? winner.name ?? winner.url}`,
-                );
-            }
-            dedupedResources.push(winner);
-        }
-        const sortedResources = dedupedResources.slice().sort((left, right) => {
+        // The register builds the normalized entries (dedup, code embedding
+        // policy); this writer only allocates symbols and serializes them.
+        const dedupedEntries = mkTerminologyEntries(packageTerminology, verification, this.logger());
+        const sortedResources = dedupedEntries.slice().sort(({ resource: left }, { resource: right }) => {
             if (left.resourceType !== right.resourceType) return left.resourceType.localeCompare(right.resourceType);
             const symbolOrder = terminologySymbolName(left).localeCompare(terminologySymbolName(right));
             if (symbolOrder !== 0) return symbolOrder;
@@ -546,49 +555,50 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             if (canonicalOrder !== 0) return canonicalOrder;
             return terminologyResourceIdentity(left).localeCompare(terminologyResourceIdentity(right));
         });
-        const allocatedResources = allocateTerminologySymbols(sortedResources);
+        const allocated = allocateTerminologySymbols(sortedResources.map(({ resource }) => resource));
+        const allocatedEntries = sortedResources.map(({ entry }, index) => ({
+            entry,
+            symbol: allocated[index]?.symbol ?? "Terminology",
+        }));
 
         this.cat("terminology.ts", () => {
             this.generateDisclaimer();
-            allocatedResources.forEach(({ resource, symbol }, index) => {
-                const concepts = flattenConcepts(resource.concept);
-                const emitsConcepts =
-                    resource.resourceType === "CodeSystem" &&
-                    resource.content === "complete" &&
-                    verification !== "unverifiable";
-                if (emitsConcepts) {
-                    const seenCodes = new Set<string>();
-                    for (const concept of concepts) {
-                        if (seenCodes.has(concept.code))
-                            throw new Error(`CodeSystem ${resource.url} repeats code ${JSON.stringify(concept.code)}`);
-                        seenCodes.add(concept.code);
-                    }
+            const anyCoded = allocatedEntries.some(({ entry }) => "codes" in entry);
+            const typeImports = anyCoded ? ["TerminologyEntry", "CodedTerminologyEntry"] : ["TerminologyEntry"];
+            this.tsImport("../terminology-types", ...typeImports, { typeOnly: true });
+            this.line();
+            allocatedEntries.forEach(({ entry, symbol }, index) => {
+                const coded = "codes" in entry;
+                const codeName = symbol.endsWith("CodeSystem")
+                    ? symbol.replace(CODE_SYSTEM_SUFFIX_RE, "Code")
+                    : `${symbol}Code`;
+                if (coded) {
+                    const union = entry.codes.map((code) => JSON.stringify(code)).join(" | ") || "never";
+                    this.lineSM(`export type ${codeName} = ${union}`);
                 }
-
+                const satisfiesClause = coded
+                    ? ` as const satisfies CodedTerminologyEntry<${codeName}>;`
+                    : " as const satisfies TerminologyEntry;";
                 this.curlyBlock(["export", "const", symbol, "="], () => {
-                    this.line(`canonicalUrl: ${JSON.stringify(resource.url)},`);
-                    this.line(`packageId: ${JSON.stringify(pkg.name)},`);
-                    this.line(`packageVersion: ${JSON.stringify(pkg.version)},`);
-                    this.line(`verification: ${JSON.stringify(verification)},`);
-                    this.line(`resourceType: ${JSON.stringify(resource.resourceType)},`);
-                    this.line(
-                        `contentMode: ${resource.content === undefined ? "null" : JSON.stringify(resource.content)},`,
-                    );
-                    if (emitsConcepts) {
-                        this.line(`codes: [${concepts.map(({ code }) => JSON.stringify(code)).join(", ")}],`);
+                    this.line(`canonicalUrl: ${JSON.stringify(entry.canonicalUrl)},`);
+                    this.line(`packageId: ${JSON.stringify(entry.packageId)},`);
+                    this.line(`packageVersion: ${JSON.stringify(entry.packageVersion)},`);
+                    this.line(`verification: ${JSON.stringify(entry.verification)},`);
+                    this.line(`resourceType: ${JSON.stringify(entry.resourceType)},`);
+                    if ("contentMode" in entry && entry.contentMode !== undefined)
+                        this.line(`contentMode: ${JSON.stringify(entry.contentMode)},`);
+                    if (coded) {
+                        this.line(`codes: [${entry.codes.map((code) => JSON.stringify(code)).join(", ")}],`);
                         this.curlyBlock(["displays:"], () => {
-                            for (const concept of concepts) {
-                                if (concept.display !== undefined)
-                                    this.line(`${tsObjectKey(concept.code)}: ${JSON.stringify(concept.display)},`);
+                            for (const code of entry.codes) {
+                                const display = entry.displays[code];
+                                if (display === undefined) continue;
+                                this.line(`${tsObjectKey(code)}: ${JSON.stringify(display)},`);
                             }
                         }, [","]);
                     }
-                }, [" as const;"]);
-                if (emitsConcepts)
-                    this.lineSM(
-                        `export type ${symbol.replace(CODE_SYSTEM_SUFFIX_RE, "Code")} = (typeof ${symbol}.codes)[number]`,
-                    );
-                if (index < allocatedResources.length - 1) this.line();
+                }, [satisfiesClause]);
+                if (index < allocatedEntries.length - 1) this.line();
             });
         });
     }
@@ -694,6 +704,14 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         this.cd("/", () => {
             if (hasProfiles) {
                 this.cp("profile-helpers.ts", "profile-helpers.ts");
+            }
+            if (terminology.length > 0) {
+                const codeSystemSchema = typesToGenerate.find(
+                    (schema) => schema.identifier.url === "http://hl7.org/fhir/StructureDefinition/CodeSystem",
+                );
+                this.generateTerminologyTypes(
+                    codeSystemSchema ? `./${this.packageDir(codeSystemSchema.identifier)}/CodeSystem` : undefined,
+                );
             }
 
             for (const [packageDir, { packageSchemas, terminology }] of [...generationUnits].sort(([left], [right]) =>

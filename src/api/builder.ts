@@ -283,6 +283,7 @@ export class APIBuilder {
             ...defaultTsOpts,
             ...Object.fromEntries(Object.entries(userOpts).filter(([_, v]) => v !== undefined)),
         };
+        if (opts.terminology?.enabled) this.wantsTerminologyTypes = true;
         const generator = new TypeScript(opts);
         this.generators.push({ name: "typescript", writer: generator });
         this.logger.debug(`Configured TypeScript generator (${JSON.stringify(opts, undefined, 2)})`);
@@ -388,6 +389,11 @@ export class APIBuilder {
         return this;
     }
 
+    /** Set when a TypeScript generator wants terminology modules: the emitted
+     *  terminology types are derived from the generated CodeSystem type, so it
+     *  must survive tree shaking even when the user's rules don't ask for it. */
+    private wantsTerminologyTypes = false;
+
     typeSchema(cfg: IrConf) {
         this.options.typeSchema ??= {};
         if (cfg.treeShake) {
@@ -484,12 +490,18 @@ export class APIBuilder {
             };
             const tsIndexOpts = { register, irReport, logger: tsLogger };
             let tsIndex = mkTypeSchemaIndex(typeSchemas, tsIndexOpts);
-            if (this.options.typeSchema?.treeShake)
-                tsIndex = treeShake(
-                    tsIndex,
-                    this.options.typeSchema.treeShake,
-                    this.options.typeSchema.treeShakeDefaults,
-                );
+            if (this.options.typeSchema?.treeShake) {
+                let shake = this.options.typeSchema.treeShake;
+                if (this.wantsTerminologyTypes) {
+                    const codeSystemCanonical = "http://hl7.org/fhir/StructureDefinition/CodeSystem";
+                    const provider = tsIndex.schemas.find((schema) => schema.identifier.url === codeSystemCanonical);
+                    if (provider) {
+                        const pkg = provider.identifier.package;
+                        shake = { ...shake, [pkg]: { ...(shake[pkg] ?? {}), [codeSystemCanonical]: {} } };
+                    }
+                }
+                tsIndex = treeShake(tsIndex, shake, this.options.typeSchema.treeShakeDefaults);
+            }
             if (this.options.typeSchema?.promoteLogical)
                 tsIndex = promoteLogical(tsIndex, this.options.typeSchema.promoteLogical);
 

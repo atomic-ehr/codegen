@@ -4,9 +4,9 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import { APIBuilder } from "@root/api/builder";
-import { registerFromManager } from "@root/typeschema/register";
+import { mkTerminologyEntries, registerFromManager, registerFromPackageMetas } from "@root/typeschema/register";
 import { enrichFHIRSchema } from "@root/typeschema/types";
-import { mkErrorLogger } from "@typeschema-test/utils";
+import { mkErrorLogger, mkR5Register } from "@typeschema-test/utils";
 
 const packageMeta = { name: "fixture.ig", version: "1.2.3" };
 
@@ -82,6 +82,124 @@ const generateTerminology = async (
     return output;
 };
 
+describe("terminology surface against an R5 closure", () => {
+    it("derives the emitted types from the R5 core package", async () => {
+        const register = await mkR5Register();
+        const result = await new APIBuilder({ register, logger: mkErrorLogger() })
+            .typeSchema({
+                treeShake: { "hl7.fhir.r5.core": { "http://hl7.org/fhir/StructureDefinition/Patient": {} } },
+            })
+            .typescript({
+                inMemoryOnly: true,
+                generateProfile: false,
+                terminology: {
+                    enabled: true,
+                    packages: ["hl7.fhir.r5.core@5.0.0"],
+                    packageVerification: { "hl7.fhir.r5.core@5.0.0": "registry-integrity" },
+                },
+            })
+            .generate();
+
+        expect(result.success).toBeTrue();
+        const files = result.filesGenerated.typescript ?? {};
+        // The force-include pulled the R5 CodeSystem type in, and the emitted
+        // terminology types derive from it — no version branching anywhere.
+        expect(Object.keys(files).some((path) => path.endsWith("hl7-fhir-r5-core/CodeSystem.ts"))).toBeTrue();
+        const types = Object.entries(files).find(([path]) => path.endsWith("terminology-types.ts"))?.[1] ?? "";
+        expect(types).toContain('import type { CodeSystem } from "./hl7-fhir-r5-core/CodeSystem"');
+        const module =
+            Object.entries(files).find(([path]) => path.endsWith("hl7-fhir-r5-core/terminology.ts"))?.[1] ?? "";
+        expect(module).toContain('export type AdministrativeGenderCode = "male" | "female" | "other" | "unknown"');
+        expect(module).toContain("satisfies CodedTerminologyEntry<AdministrativeGenderCode>");
+    });
+});
+
+describe("terminology surface against an R6 closure", () => {
+    it("derives the emitted types from the R6 ballot package", async () => {
+        const register = await registerFromPackageMetas([{ name: "hl7.fhir.r6.core", version: "6.0.0-ballot3" }], {});
+        const result = await new APIBuilder({ register, logger: mkErrorLogger() })
+            .typeSchema({
+                treeShake: { "hl7.fhir.r6.core": { "http://hl7.org/fhir/StructureDefinition/Patient": {} } },
+            })
+            .typescript({
+                inMemoryOnly: true,
+                generateProfile: false,
+                terminology: {
+                    enabled: true,
+                    packages: ["hl7.fhir.r6.core@6.0.0-ballot3"],
+                    packageVerification: { "hl7.fhir.r6.core@6.0.0-ballot3": "registry-integrity" },
+                },
+            })
+            .generate();
+
+        expect(result.success).toBeTrue();
+        const files = result.filesGenerated.typescript ?? {};
+        expect(Object.keys(files).some((path) => path.endsWith("hl7-fhir-r6-core/CodeSystem.ts"))).toBeTrue();
+        const types = Object.entries(files).find(([path]) => path.endsWith("terminology-types.ts"))?.[1] ?? "";
+        expect(types).toContain('import type { CodeSystem } from "./hl7-fhir-r6-core/CodeSystem"');
+        const module =
+            Object.entries(files).find(([path]) => path.endsWith("hl7-fhir-r6-core/terminology.ts"))?.[1] ?? "";
+        expect(module).toContain('export type AdministrativeGenderCode = "male" | "female" | "other" | "unknown"');
+        expect(module).toContain("satisfies CodedTerminologyEntry<AdministrativeGenderCode>");
+    });
+});
+
+describe("register terminology entries", () => {
+    const collect = async (sourceResources: readonly object[] = resources) => {
+        const manager = {
+            packageJson: async () => ({ ...packageMeta, dependencies: {} }),
+            search: async () => sourceResources,
+        } as unknown as Parameters<typeof registerFromManager>[0];
+        const register = await registerFromManager(manager, { focusedPackages: [packageMeta] });
+        const packageTerminology = register.allTerminology()[0];
+        if (!packageTerminology) throw new Error("no terminology collected");
+        return packageTerminology;
+    };
+
+    it("embeds codes and displays only for complete CodeSystems", async () => {
+        const entries = mkTerminologyEntries(await collect(), "registry-integrity");
+        const bySymbolic = new Map(entries.map(({ resource, entry }) => [resource.name ?? resource.url, entry]));
+
+        const complete = bySymbolic.get("CompleteExample");
+        if (!complete || !("codes" in complete)) throw new Error("expected a coded entry");
+        expect(complete.codes).toEqual(["second", "first"]);
+        expect(complete.displays).toEqual({ second: "Second display", first: "First display" });
+        expect(complete.contentMode).toBe("complete");
+
+        const notPresent = bySymbolic.get("NotPresentExample");
+        expect(notPresent && "codes" in notPresent).toBeFalse();
+        expect(notPresent?.resourceType === "CodeSystem" ? notPresent.contentMode : undefined).toBe("not-present");
+
+        const valueSet = bySymbolic.get("ExpandedValueSet");
+        expect(valueSet?.resourceType).toBe("ValueSet");
+        expect(valueSet !== undefined && "contentMode" in valueSet).toBeFalse();
+    });
+
+    it("keeps every entry provenance-only under an unverifiable attestation", async () => {
+        const entries = mkTerminologyEntries(await collect(), "unverifiable");
+
+        expect(entries.some(({ entry }) => "codes" in entry)).toBeFalse();
+        for (const { entry } of entries) expect(entry.verification).toBe("unverifiable");
+    });
+
+    it("throws on a repeated code across the concept tree", async () => {
+        const packageTerminology = await collect([
+            {
+                resourceType: "CodeSystem",
+                id: "duplicate-code",
+                name: "DuplicateCode",
+                url: "http://example.test/CodeSystem/duplicate-code",
+                content: "complete",
+                concept: [{ code: "same", concept: [{ code: "same" }] }],
+            },
+        ]);
+
+        expect(() => mkTerminologyEntries(packageTerminology, "registry-integrity")).toThrow(
+            'CodeSystem http://example.test/CodeSystem/duplicate-code repeats code "same"',
+        );
+    });
+});
+
 describe("TypeScript terminology surface", () => {
     it("does not emit terminology unless explicitly enabled", async () => {
         const manager = {
@@ -103,6 +221,9 @@ describe("TypeScript terminology surface", () => {
           // GitHub: https://github.com/atomic-ehr/codegen
           // Any manual changes made to this file may be overwritten.
 
+          import type { TerminologyEntry, CodedTerminologyEntry } from "../terminology-types";
+
+          export type CompleteExampleCode = "second" | "first";
           export const CompleteExampleCodeSystem = {
               canonicalUrl: "http://example.test/CodeSystem/complete",
               packageId: "fixture.ig",
@@ -115,8 +236,7 @@ describe("TypeScript terminology surface", () => {
                   second: "Second display",
                   first: "First display",
               },
-          } as const;
-          export type CompleteExampleCode = (typeof CompleteExampleCodeSystem.codes)[number];
+          } as const satisfies CodedTerminologyEntry<CompleteExampleCode>;
 
           export const ExampleContentCodeSystem = {
               canonicalUrl: "http://example.test/CodeSystem/example",
@@ -125,7 +245,7 @@ describe("TypeScript terminology surface", () => {
               verification: "registry-integrity",
               resourceType: "CodeSystem",
               contentMode: "example",
-          } as const;
+          } as const satisfies TerminologyEntry;
 
           export const NotPresentExampleCodeSystem = {
               canonicalUrl: "http://example.test/CodeSystem/not-present",
@@ -134,7 +254,7 @@ describe("TypeScript terminology surface", () => {
               verification: "registry-integrity",
               resourceType: "CodeSystem",
               contentMode: "not-present",
-          } as const;
+          } as const satisfies TerminologyEntry;
 
           export const LocalIdentifiersNamingSystem = {
               canonicalUrl: "http://example.test/NamingSystem/local-identifiers",
@@ -142,8 +262,7 @@ describe("TypeScript terminology surface", () => {
               packageVersion: "1.2.3",
               verification: "registry-integrity",
               resourceType: "NamingSystem",
-              contentMode: null,
-          } as const;
+          } as const satisfies TerminologyEntry;
 
           export const ExpandedValueSetValueSet = {
               canonicalUrl: "http://example.test/ValueSet/expanded",
@@ -151,8 +270,7 @@ describe("TypeScript terminology surface", () => {
               packageVersion: "1.2.3",
               verification: "registry-integrity",
               resourceType: "ValueSet",
-              contentMode: null,
-          } as const;
+          } as const satisfies TerminologyEntry;
           "
         `);
     });
