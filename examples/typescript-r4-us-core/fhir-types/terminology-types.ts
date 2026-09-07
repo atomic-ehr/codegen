@@ -13,20 +13,18 @@ type TerminologyEntryBase = {
     verification: TerminologyVerification;
 };
 
-/** `contentMode` is a CodeSystem concept; the other entry kinds carry null. */
+/** `contentMode` is a CodeSystem concept; the other entry kinds have none. */
 export type CodeSystemEntry = TerminologyEntryBase & {
     resourceType: "CodeSystem";
-    contentMode: CodeSystem["content"] | null;
+    contentMode?: CodeSystem["content"];
 };
 
 export type ValueSetEntry = TerminologyEntryBase & {
     resourceType: "ValueSet";
-    contentMode: null;
 };
 
 export type NamingSystemEntry = TerminologyEntryBase & {
     resourceType: "NamingSystem";
-    contentMode: null;
 };
 
 /** One normalized terminology resource, discriminated by `resourceType`. */

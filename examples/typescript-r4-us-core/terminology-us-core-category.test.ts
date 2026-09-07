@@ -48,10 +48,10 @@ describe("demo: US Core screening category picker", () => {
         expect(pickerOptions(USCoreCategoryCodeSystem)).toContainEqual({ code: "sdoh", label: "SDOH" });
         expect(trustedForDisplay(USCoreCategoryCodeSystem, new Set(["registry-integrity"]))).toBeTrue();
 
-        // TerminologyEntry is discriminated by resourceType: after narrowing,
-        // contentMode is the CodeSystem vocabulary — ValueSet entries are null.
+        // TerminologyEntry is discriminated by resourceType: contentMode only
+        // exists on CodeSystem entries, so access requires narrowing.
         const contentOf = (entry: TerminologyEntry) =>
-            entry.resourceType === "CodeSystem" ? entry.contentMode : entry.contentMode;
+            entry.resourceType === "CodeSystem" ? entry.contentMode : undefined;
         expect(contentOf(USCoreCategoryCodeSystem)).toBe("complete");
     });
 

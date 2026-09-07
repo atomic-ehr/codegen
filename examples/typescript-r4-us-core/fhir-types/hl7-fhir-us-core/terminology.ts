@@ -87,7 +87,6 @@ export const NarrativeStatusValueSet = {
     packageVersion: "8.0.1",
     verification: "registry-integrity",
     resourceType: "ValueSet",
-    contentMode: null,
 } as const satisfies TerminologyEntry;
 
 export const USCoreClinicalNoteTypeValueSet = {
@@ -96,7 +95,6 @@ export const USCoreClinicalNoteTypeValueSet = {
     packageVersion: "8.0.1",
     verification: "registry-integrity",
     resourceType: "ValueSet",
-    contentMode: null,
 } as const satisfies TerminologyEntry;
 
 export const USCoreClinicalResultObservationCategoryValueSet = {
@@ -105,7 +103,6 @@ export const USCoreClinicalResultObservationCategoryValueSet = {
     packageVersion: "8.0.1",
     verification: "registry-integrity",
     resourceType: "ValueSet",
-    contentMode: null,
 } as const satisfies TerminologyEntry;
 
 export const USCoreConditionCodesCurrentValueSet = {
@@ -114,7 +111,6 @@ export const USCoreConditionCodesCurrentValueSet = {
     packageVersion: "8.0.1",
     verification: "registry-integrity",
     resourceType: "ValueSet",
-    contentMode: null,
 } as const satisfies TerminologyEntry;
 
 export const USCoreConditionCodesValueSet = {
@@ -123,7 +119,6 @@ export const USCoreConditionCodesValueSet = {
     packageVersion: "8.0.1",
     verification: "registry-integrity",
     resourceType: "ValueSet",
-    contentMode: null,
 } as const satisfies TerminologyEntry;
 
 export const USCoreDiagnosticReportCategoryValueSet = {
@@ -132,7 +127,6 @@ export const USCoreDiagnosticReportCategoryValueSet = {
     packageVersion: "8.0.1",
     verification: "registry-integrity",
     resourceType: "ValueSet",
-    contentMode: null,
 } as const satisfies TerminologyEntry;
 
 export const USCoreDocumentReferenceCategoryValueSet = {
@@ -141,7 +135,6 @@ export const USCoreDocumentReferenceCategoryValueSet = {
     packageVersion: "8.0.1",
     verification: "registry-integrity",
     resourceType: "ValueSet",
-    contentMode: null,
 } as const satisfies TerminologyEntry;
 
 export const USCoreDocumentReferenceTypeValueSet = {
@@ -150,7 +143,6 @@ export const USCoreDocumentReferenceTypeValueSet = {
     packageVersion: "8.0.1",
     verification: "registry-integrity",
     resourceType: "ValueSet",
-    contentMode: null,
 } as const satisfies TerminologyEntry;
 
 export const USCoreGoalCodesValueSet = {
@@ -159,7 +151,6 @@ export const USCoreGoalCodesValueSet = {
     packageVersion: "8.0.1",
     verification: "registry-integrity",
     resourceType: "ValueSet",
-    contentMode: null,
 } as const satisfies TerminologyEntry;
 
 export const USCoreLaboratoryTestCodesValueSet = {
@@ -168,7 +159,6 @@ export const USCoreLaboratoryTestCodesValueSet = {
     packageVersion: "8.0.1",
     verification: "registry-integrity",
     resourceType: "ValueSet",
-    contentMode: null,
 } as const satisfies TerminologyEntry;
 
 export const USCoreNonLaboratoryCodesValueSet = {
@@ -177,7 +167,6 @@ export const USCoreNonLaboratoryCodesValueSet = {
     packageVersion: "8.0.1",
     verification: "registry-integrity",
     resourceType: "ValueSet",
-    contentMode: null,
 } as const satisfies TerminologyEntry;
 
 export const USCoreObservationSmokingStatusStatusValueSet = {
@@ -186,7 +175,6 @@ export const USCoreObservationSmokingStatusStatusValueSet = {
     packageVersion: "8.0.1",
     verification: "registry-integrity",
     resourceType: "ValueSet",
-    contentMode: null,
 } as const satisfies TerminologyEntry;
 
 export const USCoreProblemOrHealthConcernValueSet = {
@@ -195,7 +183,6 @@ export const USCoreProblemOrHealthConcernValueSet = {
     packageVersion: "8.0.1",
     verification: "registry-integrity",
     resourceType: "ValueSet",
-    contentMode: null,
 } as const satisfies TerminologyEntry;
 
 export const USCoreProcedureCodesValueSet = {
@@ -204,7 +191,6 @@ export const USCoreProcedureCodesValueSet = {
     packageVersion: "8.0.1",
     verification: "registry-integrity",
     resourceType: "ValueSet",
-    contentMode: null,
 } as const satisfies TerminologyEntry;
 
 export const USCoreProvenancePaticipantTypeCodesValueSet = {
@@ -213,7 +199,6 @@ export const USCoreProvenancePaticipantTypeCodesValueSet = {
     packageVersion: "8.0.1",
     verification: "registry-integrity",
     resourceType: "ValueSet",
-    contentMode: null,
 } as const satisfies TerminologyEntry;
 
 export const USCoreScreeningAssessmentConditionCategoryValueSet = {
@@ -222,7 +207,6 @@ export const USCoreScreeningAssessmentConditionCategoryValueSet = {
     packageVersion: "8.0.1",
     verification: "registry-integrity",
     resourceType: "ValueSet",
-    contentMode: null,
 } as const satisfies TerminologyEntry;
 
 export const USCoreScreeningAssessmentObservationCategoryValueSet = {
@@ -231,7 +215,6 @@ export const USCoreScreeningAssessmentObservationCategoryValueSet = {
     packageVersion: "8.0.1",
     verification: "registry-integrity",
     resourceType: "ValueSet",
-    contentMode: null,
 } as const satisfies TerminologyEntry;
 
 export const USCoreScreeningAssessmentObservationMaximumCategoryValueSet = {
@@ -240,7 +223,6 @@ export const USCoreScreeningAssessmentObservationMaximumCategoryValueSet = {
     packageVersion: "8.0.1",
     verification: "registry-integrity",
     resourceType: "ValueSet",
-    contentMode: null,
 } as const satisfies TerminologyEntry;
 
 export const USCoreServiceRequestCategoryCodesValueSet = {
@@ -249,7 +231,6 @@ export const USCoreServiceRequestCategoryCodesValueSet = {
     packageVersion: "8.0.1",
     verification: "registry-integrity",
     resourceType: "ValueSet",
-    contentMode: null,
 } as const satisfies TerminologyEntry;
 
 export const USCoreSimpleObservationCategoryValueSet = {
@@ -258,7 +239,6 @@ export const USCoreSimpleObservationCategoryValueSet = {
     packageVersion: "8.0.1",
     verification: "registry-integrity",
     resourceType: "ValueSet",
-    contentMode: null,
 } as const satisfies TerminologyEntry;
 
 export const USCoreSpecimenConditionValueSet = {
@@ -267,5 +247,4 @@ export const USCoreSpecimenConditionValueSet = {
     packageVersion: "8.0.1",
     verification: "registry-integrity",
     resourceType: "ValueSet",
-    contentMode: null,
 } as const satisfies TerminologyEntry;
