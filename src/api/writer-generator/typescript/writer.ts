@@ -500,15 +500,31 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 : `("not-present" | "example" | "fragment" | "complete" | "supplement")`;
             this.lineSM(`export type TerminologyVerification = "registry-integrity" | "unverifiable" | (string & {})`);
             this.line();
-            this.line("/** Normalized projection of one terminology resource, plus package provenance. */");
-            this.curlyBlock(["export", "type", "TerminologyEntry", "="], () => {
+            this.curlyBlock(["type", "TerminologyEntryBase", "="], () => {
                 this.lineSM("canonicalUrl: string");
                 this.lineSM("packageId: string");
                 this.lineSM("packageVersion: string");
                 this.lineSM("verification: TerminologyVerification");
-                this.lineSM(`resourceType: "CodeSystem" | "ValueSet" | "NamingSystem"`);
+            }, [";"]);
+            this.line();
+            this.line("/** `contentMode` is a CodeSystem concept; the other entry kinds carry null. */");
+            this.curlyBlock(["export", "type", "CodeSystemEntry", "=", "TerminologyEntryBase", "&"], () => {
+                this.lineSM(`resourceType: "CodeSystem"`);
                 this.lineSM(`contentMode: ${contentType} | null`);
             }, [";"]);
+            this.line();
+            this.curlyBlock(["export", "type", "ValueSetEntry", "=", "TerminologyEntryBase", "&"], () => {
+                this.lineSM(`resourceType: "ValueSet"`);
+                this.lineSM("contentMode: null");
+            }, [";"]);
+            this.line();
+            this.curlyBlock(["export", "type", "NamingSystemEntry", "=", "TerminologyEntryBase", "&"], () => {
+                this.lineSM(`resourceType: "NamingSystem"`);
+                this.lineSM("contentMode: null");
+            }, [";"]);
+            this.line();
+            this.line("/** One normalized terminology resource, discriminated by `resourceType`. */");
+            this.lineSM("export type TerminologyEntry = CodeSystemEntry | ValueSetEntry | NamingSystemEntry");
             this.line();
             this.line("/** A complete CodeSystem whose codes are embedded: the simplified runtime surface. */");
             this.curlyBlock([
@@ -516,10 +532,9 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 "type",
                 "CodedTerminologyEntry<Code extends string = string>",
                 "=",
-                "TerminologyEntry",
+                "CodeSystemEntry",
                 "&",
             ], () => {
-                this.lineSM(`resourceType: "CodeSystem"`);
                 this.lineSM(`contentMode: "complete"`);
                 this.lineSM("codes: readonly Code[]");
                 this.lineSM("displays: Readonly<Partial<Record<Code, string>>>");

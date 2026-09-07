@@ -102,24 +102,40 @@ export type PackageTerminology = {
  */
 export type TerminologyVerification = "registry-integrity" | "unverifiable" | (string & {});
 
-/**
- * Normalized projection of one terminology resource, plus package provenance.
- * This is the same shape every generator emits (the TypeScript writer's
- * generated `terminology-types.ts` mirrors it), so writers serialize entries
- * instead of re-deriving the policy.
- */
-export type TerminologyEntry = {
+type TerminologyEntryBase = {
     canonicalUrl: string;
     packageId: string;
     packageVersion: string;
     verification: TerminologyVerification;
-    resourceType: TerminologyResource["resourceType"];
+};
+
+/** `contentMode` is a CodeSystem concept; malformed packages may carry other
+ *  strings, and a CodeSystem missing its required `content` projects as null. */
+export type CodeSystemEntry = TerminologyEntryBase & {
+    resourceType: "CodeSystem";
     contentMode: CodeSystem["content"] | (string & {}) | null;
 };
 
+export type ValueSetEntry = TerminologyEntryBase & {
+    resourceType: "ValueSet";
+    contentMode: null;
+};
+
+export type NamingSystemEntry = TerminologyEntryBase & {
+    resourceType: "NamingSystem";
+    contentMode: null;
+};
+
+/**
+ * Normalized projection of one terminology resource, plus package provenance —
+ * discriminated by `resourceType`. This is the same shape every generator
+ * emits (the TypeScript writer's generated `terminology-types.ts` mirrors it),
+ * so writers serialize entries instead of re-deriving the policy.
+ */
+export type TerminologyEntry = CodeSystemEntry | ValueSetEntry | NamingSystemEntry;
+
 /** A complete CodeSystem whose codes are embedded: the simplified runtime surface. */
-export type CodedTerminologyEntry<Code extends string = string> = TerminologyEntry & {
-    resourceType: "CodeSystem";
+export type CodedTerminologyEntry<Code extends string = string> = CodeSystemEntry & {
     contentMode: "complete";
     codes: readonly Code[];
     displays: Readonly<Partial<Record<Code, string>>>;
@@ -177,19 +193,23 @@ export const mkTerminologyEntries = (
     }
 
     return deduped.map((resource) => {
-        const base: TerminologyEntry = {
+        const base: TerminologyEntryBase = {
             canonicalUrl: resource.url,
             packageId: pkg.name,
             packageVersion: pkg.version,
             verification,
-            resourceType: resource.resourceType,
+        };
+        if (resource.resourceType === "ValueSet")
+            return { resource, entry: { ...base, resourceType: resource.resourceType, contentMode: null } };
+        if (resource.resourceType === "NamingSystem")
+            return { resource, entry: { ...base, resourceType: resource.resourceType, contentMode: null } };
+        const codeSystemEntry: CodeSystemEntry = {
+            ...base,
+            resourceType: "CodeSystem",
             contentMode: resource.content ?? null,
         };
-        const embedsCodes =
-            resource.resourceType === "CodeSystem" &&
-            resource.content === "complete" &&
-            verification !== "unverifiable";
-        if (!embedsCodes) return { resource, entry: base };
+        const embedsCodes = resource.content === "complete" && verification !== "unverifiable";
+        if (!embedsCodes) return { resource, entry: codeSystemEntry };
         const concepts = flattenTerminologyConcepts(resource.concept);
         const seenCodes = new Set<string>();
         const displays: Partial<Record<string, string>> = {};
@@ -206,8 +226,7 @@ export const mkTerminologyEntries = (
                 });
         }
         const entry: CodedTerminologyEntry = {
-            ...base,
-            resourceType: "CodeSystem",
+            ...codeSystemEntry,
             contentMode: "complete",
             codes: concepts.map(({ code }) => code),
             displays,
