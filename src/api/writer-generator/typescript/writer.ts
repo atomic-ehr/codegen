@@ -513,6 +513,46 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         }
     }
 
+    /** Normalized terminology types: the FHIR vocabulary comes from the generated
+     *  CodeSystem type when the closure provides one; a package-free closure gets
+     *  a self-contained copy of the R4/R5 content-mode vocabulary instead. */
+    generateTerminologyTypes(codeSystemImport: string | undefined) {
+        this.cat("terminology-types.ts", () => {
+            this.generateDisclaimer();
+            if (codeSystemImport) this.tsImport(codeSystemImport, "CodeSystem", { typeOnly: true });
+            this.line();
+            const contentType = codeSystemImport
+                ? `CodeSystem["content"]`
+                : `("not-present" | "example" | "fragment" | "complete" | "supplement")`;
+            this.lineSM(`export type TerminologyVerification = "registry-integrity" | "unverifiable" | (string & {})`);
+            this.line();
+            this.line("/** Normalized projection of one terminology resource, plus package provenance. */");
+            this.curlyBlock(["export", "type", "TerminologyEntry", "="], () => {
+                this.lineSM("canonicalUrl: string");
+                this.lineSM("packageId: string");
+                this.lineSM("packageVersion: string");
+                this.lineSM("verification: TerminologyVerification");
+                this.lineSM(`resourceType: "CodeSystem" | "ValueSet" | "NamingSystem"`);
+                this.lineSM(`contentMode: ${contentType} | null`);
+            }, [";"]);
+            this.line();
+            this.line("/** A complete CodeSystem whose codes are embedded: the simplified runtime surface. */");
+            this.curlyBlock([
+                "export",
+                "type",
+                "CodedTerminologyEntry<Code extends string = string>",
+                "=",
+                "TerminologyEntry",
+                "&",
+            ], () => {
+                this.lineSM(`resourceType: "CodeSystem"`);
+                this.lineSM(`contentMode: "complete"`);
+                this.lineSM("codes: readonly Code[]");
+                this.lineSM("displays: Readonly<Partial<Record<Code, string>>>");
+            }, [";"]);
+        });
+    }
+
     generateTerminologyModule(packageTerminology: PackageTerminology) {
         const { packageMeta: pkg, resources } = packageTerminology;
         const verification = this.opts.terminology?.packageVerification?.[packageMetaToNpm(pkg)] ?? "not-recorded";
@@ -555,6 +595,15 @@ export class TypeScript extends Writer<TypeScriptOptions> {
 
         this.cat("terminology.ts", () => {
             this.generateDisclaimer();
+            const anyCoded = allocatedResources.some(
+                ({ resource }) =>
+                    resource.resourceType === "CodeSystem" &&
+                    resource.content === "complete" &&
+                    verification !== "unverifiable",
+            );
+            const typeImports = anyCoded ? ["TerminologyEntry", "CodedTerminologyEntry"] : ["TerminologyEntry"];
+            this.tsImport("../terminology-types", ...typeImports, { typeOnly: true });
+            this.line();
             allocatedResources.forEach(({ resource, symbol }, index) => {
                 const concepts = flattenConcepts(resource.concept);
                 const emitsConcepts =
@@ -570,6 +619,16 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                     }
                 }
 
+                const codeName = symbol.endsWith("CodeSystem")
+                    ? symbol.replace(CODE_SYSTEM_SUFFIX_RE, "Code")
+                    : `${symbol}Code`;
+                if (emitsConcepts) {
+                    const union = concepts.map(({ code }) => JSON.stringify(code)).join(" | ") || "never";
+                    this.lineSM(`export type ${codeName} = ${union}`);
+                }
+                const satisfiesClause = emitsConcepts
+                    ? ` as const satisfies CodedTerminologyEntry<${codeName}>;`
+                    : " as const satisfies TerminologyEntry;";
                 this.curlyBlock(["export", "const", symbol, "="], () => {
                     this.line(`canonicalUrl: ${JSON.stringify(resource.url)},`);
                     this.line(`packageId: ${JSON.stringify(pkg.name)},`);
@@ -588,11 +647,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                             }
                         }, [","]);
                     }
-                }, [" as const;"]);
-                if (emitsConcepts)
-                    this.lineSM(
-                        `export type ${symbol.replace(CODE_SYSTEM_SUFFIX_RE, "Code")} = (typeof ${symbol}.codes)[number]`,
-                    );
+                }, [satisfiesClause]);
                 if (index < allocatedResources.length - 1) this.line();
             });
         });
@@ -699,6 +754,14 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         this.cd("/", () => {
             if (hasProfiles) {
                 this.cp("profile-helpers.ts", "profile-helpers.ts");
+            }
+            if (terminology.length > 0) {
+                const codeSystemSchema = typesToGenerate.find(
+                    (schema) => schema.identifier.url === "http://hl7.org/fhir/StructureDefinition/CodeSystem",
+                );
+                this.generateTerminologyTypes(
+                    codeSystemSchema ? `./${this.packageDir(codeSystemSchema.identifier)}/CodeSystem` : undefined,
+                );
             }
 
             for (const [packageDir, { packageSchemas, terminology }] of [...generationUnits].sort(([left], [right]) =>

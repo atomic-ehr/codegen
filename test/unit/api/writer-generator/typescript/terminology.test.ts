@@ -103,6 +103,9 @@ describe("TypeScript terminology surface", () => {
           // GitHub: https://github.com/atomic-ehr/codegen
           // Any manual changes made to this file may be overwritten.
 
+          import type { TerminologyEntry, CodedTerminologyEntry } from "../terminology-types";
+
+          export type CompleteExampleCode = "second" | "first";
           export const CompleteExampleCodeSystem = {
               canonicalUrl: "http://example.test/CodeSystem/complete",
               packageId: "fixture.ig",
@@ -115,8 +118,7 @@ describe("TypeScript terminology surface", () => {
                   ["second"]: "Second display",
                   ["first"]: "First display",
               },
-          } as const;
-          export type CompleteExampleCode = (typeof CompleteExampleCodeSystem.codes)[number];
+          } as const satisfies CodedTerminologyEntry<CompleteExampleCode>;
 
           export const ExampleContentCodeSystem = {
               canonicalUrl: "http://example.test/CodeSystem/example",
@@ -125,7 +127,7 @@ describe("TypeScript terminology surface", () => {
               verification: "registry-integrity",
               resourceType: "CodeSystem",
               contentMode: "example",
-          } as const;
+          } as const satisfies TerminologyEntry;
 
           export const NotPresentExampleCodeSystem = {
               canonicalUrl: "http://example.test/CodeSystem/not-present",
@@ -134,7 +136,7 @@ describe("TypeScript terminology surface", () => {
               verification: "registry-integrity",
               resourceType: "CodeSystem",
               contentMode: "not-present",
-          } as const;
+          } as const satisfies TerminologyEntry;
 
           export const LocalIdentifiersNamingSystem = {
               canonicalUrl: "http://example.test/NamingSystem/local-identifiers",
@@ -143,7 +145,7 @@ describe("TypeScript terminology surface", () => {
               verification: "registry-integrity",
               resourceType: "NamingSystem",
               contentMode: null,
-          } as const;
+          } as const satisfies TerminologyEntry;
 
           export const ExpandedValueSetValueSet = {
               canonicalUrl: "http://example.test/ValueSet/expanded",
@@ -152,7 +154,7 @@ describe("TypeScript terminology surface", () => {
               verification: "registry-integrity",
               resourceType: "ValueSet",
               contentMode: null,
-          } as const;
+          } as const satisfies TerminologyEntry;
           "
         `);
     });
