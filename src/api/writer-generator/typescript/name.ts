@@ -44,10 +44,6 @@ export const tsModuleFileName = (id: TypeIdentifier): string => {
     return `${tsModuleName(id)}.ts`;
 };
 
-export const tsModulePath = (id: TypeIdentifier): string => {
-    return `${tsPackageDir(id.package)}/${tsModuleName(id)}`;
-};
-
 export const tsNameFromCanonical = (canonical: string | undefined, dropFragment = true) => {
     if (!canonical) return undefined;
     const localName = extractNameFromCanonical(canonical as CanonicalUrl, dropFragment);

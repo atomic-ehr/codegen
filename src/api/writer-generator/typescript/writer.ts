@@ -1,5 +1,3 @@
-import * as Path from "node:path";
-import { fileURLToPath } from "node:url";
 import { pascalCase, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
 import type { PackageTerminology, TerminologyConcept, TerminologyResource } from "@root/typeschema/register";
@@ -22,7 +20,7 @@ import {
     type TypeIdentifier,
     type TypeSchema,
 } from "@root/typeschema/types";
-import { groupByPackages, type TypeSchemaIndex } from "@root/typeschema/utils";
+import type { TypeSchemaIndex } from "@root/typeschema/utils";
 import { resolveGeneratorAsset } from "../assets";
 import {
     tsFieldName,
@@ -93,7 +91,7 @@ const terminologySymbolName = (resource: TerminologyResource): string => {
 const terminologyResourceIdentity = (resource: TerminologyResource): string =>
     `${resource.id ?? ""}\u0000${resource.name ?? ""}`;
 
-const safeTsPackageDir = (source: string): string => {
+const safePackageDir = (source: string): string => {
     const normalized = tsPackageDir(source.replace(PACKAGE_PATH_SEPARATOR_RE, "_"));
     return normalized.replace(INVALID_PACKAGE_DIR_RUN_RE, "-").replace(PACKAGE_DIR_EDGE_RE, "") || "package";
 };
@@ -146,21 +144,25 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         super({ lineWidth: 120, ...options, resolveAssets: options.resolveAssets ?? resolveTsAssets });
     }
 
-    packageDirectory(physical: PackageMeta | TypeIdentifier): string {
+    /** The package's physical output directory: consults the collision-suffix
+     *  map, so it can differ from the logical `tsPackageDir(name)` in name.ts
+     *  (e.g. `hl7-fhir-r4-core--2`). Unprefixed = stateful writer method. */
+    packageDir(physical: PackageMeta | TypeIdentifier): string {
         const pkg = "package" in physical ? { name: physical.package, version: physical.version } : physical;
-        return this.packageDirectories.get(packageMetaToNpm(pkg)) ?? safeTsPackageDir(pkg.name);
+        return this.packageDirectories.get(packageMetaToNpm(pkg)) ?? safePackageDir(pkg.name);
     }
 
+    /** The module's physical position in the output tree: `packageDir/ModuleName`. */
     modulePath(identifier: TypeIdentifier): string {
-        return `${this.packageDirectory(identifier)}/${tsModuleName(identifier)}`;
+        return `${this.packageDir(identifier)}/${tsModuleName(identifier)}`;
     }
 
-    moduleSpecifier(specifier: string): string {
+    private moduleSpecifier(specifier: string): string {
         if (this.opts.moduleSpecifierStyle !== "node-esm" || !specifier.startsWith(".")) return specifier;
         return specifier.endsWith(".js") ? specifier : `${specifier}.js`;
     }
 
-    directorySpecifier(specifier: string): string {
+    private directorySpecifier(specifier: string): string {
         if (this.opts.moduleSpecifierStyle !== "node-esm" || !specifier.startsWith(".")) return specifier;
         return `${specifier}/index.js`;
     }
@@ -202,12 +204,28 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         }
     }
 
+    tsExport(from: string, ...entities: string[]): void;
+    tsExport(from: string, ...args: [...string[], { typeOnly: boolean }]): void;
+    tsExport(from: string, ...rest: (string | { typeOnly: boolean })[]) {
+        const last = rest[rest.length - 1];
+        const typeOnly = typeof last === "object" ? last.typeOnly : false;
+        const entities = (typeof last === "object" ? rest.slice(0, -1) : rest) as string[];
+        const keyword = typeOnly ? "export type" : "export";
+        this.lineSM(`${keyword} { ${entities.join(", ")} } from "${this.moduleSpecifier(from)}"`);
+    }
+
+    /** `export * from` a module, or a directory barrel when `barrel` is set. */
+    tsExportAll(from: string, opts?: { barrel?: boolean }): void {
+        const specifier = opts?.barrel ? this.directorySpecifier(from) : this.moduleSpecifier(from);
+        this.lineSM(`export * from "${specifier}"`);
+    }
+
     generateFhirPackageIndexFile(schemas: TypeSchema[], hasTerminology = false) {
         this.cat("index.ts", () => {
-            if (hasTerminology) this.lineSM(`export * from "${this.moduleSpecifier("./terminology")}"`);
+            if (hasTerminology) this.tsExportAll("./terminology");
             const profiles = schemas.filter(isSnapshotProfileTypeSchema);
             if (profiles.length > 0) {
-                this.lineSM(`export * from "${this.directorySpecifier("./profiles")}"`);
+                this.tsExportAll("./profiles", { barrel: true });
             }
 
             let exports = schemas
@@ -243,12 +261,12 @@ export class TypeScript extends Writer<TypeScriptOptions> {
 
             for (const exp of exports) {
                 this.debugComment(exp.identifier);
-                const specifier = this.moduleSpecifier(`./${exp.tsPackageName}`);
+                const from = `./${exp.tsPackageName}`;
                 if (exp.typeExports.length > 0) {
-                    this.lineSM(`export type { ${exp.typeExports.join(", ")} } from "${specifier}"`);
+                    this.tsExport(from, ...exp.typeExports, { typeOnly: true });
                 }
                 if (exp.valueExports.length > 0) {
-                    this.lineSM(`export { ${exp.valueExports.join(", ")} } from "${specifier}"`);
+                    this.tsExport(from, ...exp.valueExports);
                 }
             }
         });
@@ -297,9 +315,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         if (complexTypeDeps && complexTypeDeps.length > 0) {
             for (const dep of complexTypeDeps) {
                 this.debugComment(dep);
-                this.lineSM(
-                    `export type { ${tsResourceName(dep)} } from "${this.moduleSpecifier(`../${this.modulePath(dep)}`)}"`,
-                );
+                this.tsExport(`../${this.modulePath(dep)}`, tsResourceName(dep), { typeOnly: true });
             }
             this.line();
         }
@@ -601,7 +617,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         for (const [identity, { packageMeta: pkg, packageSchemas, terminology: packageTerminology }] of logicalUnits) {
             const directorySource =
                 (identitiesByPackageName.get(pkg.name)?.length ?? 0) > 1 ? packageMetaToNpm(pkg) : pkg.name;
-            const baseDir = safeTsPackageDir(directorySource);
+            const baseDir = safePackageDir(directorySource);
             const units = unitsByBaseDir.get(baseDir) ?? [];
             const schemasByIdentity = new Map(
                 packageSchemas.map((schema) => [JSON.stringify(schema.identifier), schema]),
