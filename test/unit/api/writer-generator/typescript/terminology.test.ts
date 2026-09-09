@@ -6,7 +6,7 @@ import type { FHIRSchema } from "@atomic-ehr/fhirschema";
 import { APIBuilder } from "@root/api/builder";
 import { mkTerminologyEntries, registerFromManager, registerFromPackageMetas } from "@root/typeschema/register";
 import { enrichFHIRSchema } from "@root/typeschema/types";
-import { mkErrorLogger, mkR5Register } from "@typeschema-test/utils";
+import { mkErrorLogger, mkR4Register, mkR5Register, type PFS, registerFs } from "@typeschema-test/utils";
 
 const packageMeta = { name: "fixture.ig", version: "1.2.3" };
 
@@ -141,6 +141,100 @@ describe("terminology surface against an R6 closure", () => {
             Object.entries(files).find(([path]) => path.endsWith("hl7-fhir-r6-core/terminology.ts"))?.[1] ?? "";
         expect(module).toContain('export type AdministrativeGenderCode = "male" | "female" | "other" | "unknown"');
         expect(module).toContain("satisfies CodedTerminologyEntry<AdministrativeGenderCode>");
+    });
+});
+
+describe("enum validation linked to emitted terminology", () => {
+    it("references the emitted system codes instead of inlining literals", async () => {
+        const register = await mkR4Register();
+        const profile: PFS = {
+            derivation: "constraint",
+            type: "Observation",
+            name: "LinkedCategoryObservation",
+            kind: "resource",
+            url: "http://example.org/StructureDefinition/linked-category",
+            base: "http://hl7.org/fhir/StructureDefinition/Observation",
+            package_meta: { name: "codegen.test", version: "1.0.0" },
+            elements: {
+                category: {
+                    type: "CodeableConcept",
+                    binding: {
+                        strength: "required",
+                        valueSet: "http://hl7.org/fhir/ValueSet/observation-category",
+                        bindingName: "LinkedObservationCategory",
+                    },
+                },
+            },
+        };
+        registerFs(register, profile);
+
+        const result = await new APIBuilder({ register, logger: mkErrorLogger() })
+            .typescript({
+                inMemoryOnly: true,
+                generateProfile: true,
+                openResourceTypeSet: false,
+                terminology: { enabled: true, packages: ["hl7.fhir.r4.core@4.0.1"] },
+            })
+            .generate();
+
+        expect(result.success).toBeTrue();
+        const files = result.filesGenerated.typescript ?? {};
+        const module =
+            Object.entries(files).find(([path]) =>
+                path.endsWith("profiles/Observation_LinkedCategoryObservation.ts"),
+            )?.[1] ?? "";
+        // Cross-package value import: profile lives in codegen.test, codes in r4 core.
+        expect(module).toContain(
+            'import { ObservationCategoryCodesCodeSystem_ObservationCategory } from "../../hl7-fhir-r4-core/terminology"',
+        );
+        expect(module).toContain(
+            'validateEnum(res, profileName, "category", [...ObservationCategoryCodesCodeSystem_ObservationCategory.codes])',
+        );
+        expect(module).not.toContain('"social-history"');
+    });
+
+    it("keeps inline literals when the system is not emitted", async () => {
+        const register = await mkR4Register();
+        const profile: PFS = {
+            derivation: "constraint",
+            type: "Observation",
+            name: "UnlinkedCategoryObservation",
+            kind: "resource",
+            url: "http://example.org/StructureDefinition/unlinked-category",
+            base: "http://hl7.org/fhir/StructureDefinition/Observation",
+            package_meta: { name: "codegen.test", version: "1.0.0" },
+            elements: {
+                category: {
+                    type: "CodeableConcept",
+                    binding: {
+                        strength: "required",
+                        valueSet: "http://hl7.org/fhir/ValueSet/observation-category",
+                        bindingName: "UnlinkedObservationCategory",
+                    },
+                },
+            },
+        };
+        registerFs(register, profile);
+
+        const result = await new APIBuilder({ register, logger: mkErrorLogger() })
+            .typescript({
+                inMemoryOnly: true,
+                generateProfile: true,
+                openResourceTypeSet: false,
+                terminology: { enabled: true, packages: ["codegen.test@1.0.0"] },
+            })
+            .generate();
+
+        expect(result.success).toBeTrue();
+        const files = result.filesGenerated.typescript ?? {};
+        const module =
+            Object.entries(files).find(([path]) =>
+                path.endsWith("profiles/Observation_UnlinkedCategoryObservation.ts"),
+            )?.[1] ?? "";
+        expect(module).toContain(
+            'validateEnum(res, profileName, "category", ["social-history","vital-signs","imaging","laboratory","procedure","survey","exam","therapy","activity"])',
+        );
+        expect(module).not.toContain("hl7-fhir-r4-core/terminology");
     });
 });
 

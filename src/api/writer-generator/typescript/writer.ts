@@ -1,13 +1,17 @@
 import { pascalCase, uppercaseFirstLetter } from "@root/api/writer-generator/utils";
 import { Writer, type WriterOptions } from "@root/api/writer-generator/writer";
+import { extractValueSetConceptsByUrl } from "@root/typeschema/core/binding";
 import {
+    type CodedTerminologyEntry,
     mkTerminologyEntries,
     type PackageTerminology,
+    type TerminologyEntry,
     type TerminologyResource,
     type TerminologyVerification,
 } from "@root/typeschema/register";
 import {
     type CanonicalUrl,
+    type Field,
     isChoiceDeclarationField,
     isComplexTypeIdentifier,
     isLogicalTypeSchema,
@@ -21,6 +25,7 @@ import {
     packageMeta,
     packageMetaToFhir,
     packageMetaToNpm,
+    type SnapshotProfileTypeSchema,
     type SpecializationTypeSchema,
     type TypeIdentifier,
     type TypeSchema,
@@ -118,7 +123,8 @@ const allocateTerminologySymbols = (
 
     return resources.map((resource, index) => {
         const baseName = baseNames[index] ?? "Terminology";
-        const localIdentity = resource.id ?? tsNameFromCanonical(resource.url) ?? "Resource";
+        // Prefer the canonical-derived name: package ids can be content hashes.
+        const localIdentity = tsNameFromCanonical(resource.url) ?? resource.id ?? "Resource";
         const desired =
             counts[baseName] === 1 ? baseName : validTsIdentifier(`${baseName}_${pascalCase(localIdentity)}`);
         let symbol = desired;
@@ -541,7 +547,24 @@ export class TypeScript extends Writer<TypeScriptOptions> {
         });
     }
 
-    generateTerminologyModule(packageTerminology: PackageTerminology) {
+    /** Emitted terminology, resolved ahead of module generation so profile
+     *  emission can reference the allocated symbols. Keyed by package dir. */
+    private terminologyModules = new Map<
+        string,
+        { entry: TerminologyEntry | CodedTerminologyEntry; symbol: string }[]
+    >();
+    /** Coded systems across every emitted terminology module, by canonical URL. */
+    private terminologyCodeIndex = new Map<string, { moduleDir: string; symbol: string; codes: ReadonlySet<string> }>();
+
+    private prepareTerminology(generationUnits: Map<string, { terminology?: PackageTerminology }>) {
+        this.terminologyModules = new Map();
+        this.terminologyCodeIndex = new Map();
+        for (const [packageDir, unit] of [...generationUnits].sort(([left], [right]) => left.localeCompare(right))) {
+            if (unit.terminology) this.prepareTerminologyModule(packageDir, unit.terminology);
+        }
+    }
+
+    prepareTerminologyModule(packageDir: string, packageTerminology: PackageTerminology) {
         const { packageMeta: pkg } = packageTerminology;
         const verification = this.opts.terminology?.packageVerification?.[packageMetaToNpm(pkg)] ?? "not-recorded";
         // The register builds the normalized entries (dedup, code embedding
@@ -560,6 +583,103 @@ export class TypeScript extends Writer<TypeScriptOptions> {
             entry,
             symbol: allocated[index]?.symbol ?? "Terminology",
         }));
+        this.terminologyModules.set(packageDir, allocatedEntries);
+        for (const { entry, symbol } of allocatedEntries) {
+            if ("codes" in entry && !this.terminologyCodeIndex.has(entry.canonicalUrl))
+                this.terminologyCodeIndex.set(entry.canonicalUrl, {
+                    moduleDir: packageDir,
+                    symbol,
+                    codes: new Set(entry.codes),
+                });
+        }
+    }
+
+    /** Enum validations whose value lists are fully explained by emitted coded
+     *  systems reference those systems' `codes` instead of inlining literals.
+     *  Returns the replacement expression per field and the value imports the
+     *  profile module needs. Only whole-system matches convert; anything else
+     *  stays an inline literal, so unlinked output is unchanged. */
+    private linkFieldEnum(
+        tsIndex: TypeSchemaIndex,
+        field: Field,
+    ): { expr: string; imports: Map<string, Set<string>> } | undefined {
+        if (isChoiceDeclarationField(field)) return undefined;
+        if (!field.enum || field.enum.values.length === 0 || !field.binding) return undefined;
+        const binding = tsIndex.resolveByUrl(field.binding.package, field.binding.url);
+        if (!binding) return undefined;
+        let concepts = "concept" in binding ? binding.concept : undefined;
+        if (!concepts) {
+            // Binding schemas carry the enum values only; the concepts — with
+            // their systems — live on the ValueSet the binding depends on.
+            const dependencies = "dependencies" in binding ? (binding.dependencies ?? []) : [];
+            const valueSets = dependencies.filter((dep) => dep.kind === "value-set");
+            const valueSetId = valueSets.length === 1 ? valueSets[0] : undefined;
+            const valueSet = valueSetId ? tsIndex.resolveByUrl(valueSetId.package, valueSetId.url) : undefined;
+            concepts = valueSet && "concept" in valueSet ? valueSet.concept : undefined;
+            if (!concepts && valueSetId && tsIndex.register) {
+                // Tree shaking drops ValueSet schemas the output doesn't need;
+                // the register still resolves the concepts from the package.
+                concepts = extractValueSetConceptsByUrl(
+                    tsIndex.register,
+                    { name: valueSetId.package, version: valueSetId.version },
+                    valueSetId.url,
+                    this.logger(),
+                );
+            }
+        }
+        if (!concepts || concepts.length === 0) return undefined;
+        // The enum must be exactly the binding's concept set, else the two
+        // were derived differently (truncation, filters) — don't link.
+        const conceptCodes = new Set(concepts.map(({ code }) => code));
+        const values = field.enum.values;
+        if (values.length !== conceptCodes.size || !values.every((value) => conceptCodes.has(value))) return undefined;
+        const bySystem = new Map<string, Set<string>>();
+        for (const concept of concepts) {
+            if (!concept.system) continue;
+            const codes = bySystem.get(concept.system) ?? new Set<string>();
+            codes.add(concept.code);
+            bySystem.set(concept.system, codes);
+        }
+        const spreads: string[] = [];
+        const covered = new Set<string>();
+        const imports = new Map<string, Set<string>>();
+        for (const [system, codes] of bySystem) {
+            const indexed = this.terminologyCodeIndex.get(system);
+            if (!indexed) continue;
+            if (codes.size !== indexed.codes.size || ![...codes].every((code) => indexed.codes.has(code))) continue;
+            spreads.push(`...${indexed.symbol}.codes`);
+            for (const code of codes) covered.add(code);
+            const symbols = imports.get(indexed.moduleDir) ?? new Set<string>();
+            symbols.add(indexed.symbol);
+            imports.set(indexed.moduleDir, symbols);
+        }
+        if (spreads.length === 0) return undefined;
+        const literals = values.filter((value) => !covered.has(value)).map((value) => JSON.stringify(value));
+        return { expr: `[${[...spreads, ...literals].join(", ")}]`, imports };
+    }
+
+    enumTerminologyLinks(
+        tsIndex: TypeSchemaIndex,
+        snapshot: SnapshotProfileTypeSchema,
+    ): { exprs: Map<string, string>; imports: Map<string, Set<string>> } {
+        const exprs = new Map<string, string>();
+        const imports = new Map<string, Set<string>>();
+        if (this.terminologyCodeIndex.size === 0) return { exprs, imports };
+        for (const [name, field] of Object.entries(snapshot.fields)) {
+            const link = this.linkFieldEnum(tsIndex, field);
+            if (!link) continue;
+            exprs.set(name, link.expr);
+            for (const [dir, symbols] of link.imports) {
+                const merged = imports.get(dir) ?? new Set<string>();
+                for (const symbol of symbols) merged.add(symbol);
+                imports.set(dir, merged);
+            }
+        }
+        return { exprs, imports };
+    }
+
+    generateTerminologyModule(packageDir: string) {
+        const allocatedEntries = this.terminologyModules.get(packageDir) ?? [];
 
         this.cat("terminology.ts", () => {
             this.generateDisclaimer();
@@ -701,6 +821,8 @@ export class TypeScript extends Writer<TypeScriptOptions> {
 
         const hasProfiles = this.opts.generateProfile && typesToGenerate.some(isSnapshotProfileTypeSchema);
 
+        this.prepareTerminology(generationUnits);
+
         this.cd("/", () => {
             if (hasProfiles) {
                 this.cp("profile-helpers.ts", "profile-helpers.ts");
@@ -722,7 +844,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                         this.generateResourceModule(tsIndex, schema);
                     }
                     generateProfileIndexFile(this, tsIndex, packageSchemas.filter(isSnapshotProfileTypeSchema));
-                    if (terminology) this.generateTerminologyModule(terminology);
+                    if (terminology) this.generateTerminologyModule(packageDir);
                     this.generateFhirPackageIndexFile(packageSchemas, terminology !== undefined);
                 });
             }
