@@ -6,7 +6,13 @@ import {
     isStructureDefinition,
     type StructureDefinition,
 } from "@atomic-ehr/fhirschema";
-import { type CodeSystem, isCodeSystem, isValueSet, type ValueSet } from "@root/fhir-types/hl7-fhir-r4-core";
+import {
+    type CodeSystem,
+    type CodeSystemConcept,
+    isCodeSystem,
+    isValueSet,
+    type ValueSet,
+} from "@root/fhir-types/hl7-fhir-r4-core";
 import type { CodegenLog } from "@root/utils/log";
 import type {
     CanonicalUrl,
@@ -71,19 +77,14 @@ type PkgId = string;
 type PkgName = string;
 type FocusedResource = StructureDefinition | ValueSet | CodeSystem;
 
-export type TerminologyConcept = {
-    code: string;
-    display?: string;
-    concept?: TerminologyConcept[];
-};
-
 export type TerminologyResource = {
     resourceType: "CodeSystem" | "ValueSet" | "NamingSystem";
     id?: string;
     name?: string;
     url: string;
-    content?: string;
-    concept?: TerminologyConcept[];
+    /** Declared CodeSystem content mode; malformed packages may carry other strings. */
+    content?: CodeSystem["content"] | (string & {});
+    concept?: CodeSystemConcept[];
 };
 
 export type PackageTerminology = {
@@ -91,14 +92,147 @@ export type PackageTerminology = {
     resources: TerminologyResource[];
 };
 
-const projectTerminologyConcepts = (concepts: unknown): TerminologyConcept[] | undefined => {
+/**
+ * User-supplied attestation of how a package's content was verified, stamped
+ * verbatim on its entries. `"unverifiable"` also suppresses codes and
+ * displays; packages without an attestation are stamped `"not-recorded"`.
+ */
+export type TerminologyVerification = "registry-integrity" | "unverifiable" | (string & {});
+
+type TerminologyEntryBase = {
+    canonicalUrl: string;
+    packageId: string;
+    packageVersion: string;
+    verification: TerminologyVerification;
+};
+
+/** `contentMode` is a CodeSystem concept; malformed packages may carry other
+ *  strings, and a CodeSystem missing its required `content` projects without one. */
+export type CodeSystemEntry = TerminologyEntryBase & {
+    resourceType: "CodeSystem";
+    contentMode?: CodeSystem["content"] | (string & {});
+};
+
+export type ValueSetEntry = TerminologyEntryBase & {
+    resourceType: "ValueSet";
+};
+
+export type NamingSystemEntry = TerminologyEntryBase & {
+    resourceType: "NamingSystem";
+};
+
+/**
+ * Normalized projection of one terminology resource, plus package provenance —
+ * discriminated by `resourceType`. This is the same shape every generator
+ * emits (the TypeScript writer's generated `terminology-types.ts` mirrors it),
+ * so writers serialize entries instead of re-deriving the policy.
+ */
+export type TerminologyEntry = CodeSystemEntry | ValueSetEntry | NamingSystemEntry;
+
+/** A complete CodeSystem whose codes are embedded: the simplified runtime surface. */
+export type CodedTerminologyEntry<Code extends string = string> = CodeSystemEntry & {
+    contentMode: "complete";
+    codes: readonly Code[];
+    displays: Readonly<Partial<Record<Code, string>>>;
+};
+
+const flattenTerminologyConcepts = (concepts: readonly CodeSystemConcept[] | undefined): CodeSystemConcept[] => {
+    const flattened: CodeSystemConcept[] = [];
+    const stack = [...(concepts ?? [])].reverse();
+    while (stack.length > 0) {
+        const concept = stack.pop();
+        if (!concept) continue;
+        flattened.push(concept);
+        if (concept.concept) {
+            for (let index = concept.concept.length - 1; index >= 0; index -= 1) {
+                const nested = concept.concept[index];
+                if (nested) stack.push(nested);
+            }
+        }
+    }
+    return flattened;
+};
+
+export const mkTerminologyEntries = (
+    packageTerminology: PackageTerminology,
+    verification: TerminologyVerification,
+    logger?: CodegenLog,
+): { resource: TerminologyResource; entry: TerminologyEntry | CodedTerminologyEntry }[] => {
+    const { packageMeta: pkg, resources } = packageTerminology;
+    const byCanonical = new Map<string, TerminologyResource[]>();
+    for (const resource of resources) {
+        const key = `${resource.resourceType}\u0000${resource.url}`;
+        const matching = byCanonical.get(key) ?? [];
+        matching.push(resource);
+        byCanonical.set(key, matching);
+    }
+    const identity = (resource: TerminologyResource) => `${resource.id ?? ""}\u0000${resource.name ?? ""}`;
+    const deduped: TerminologyResource[] = [];
+    for (const matching of byCanonical.values()) {
+        const candidates = matching.slice().sort((left, right) => identity(left).localeCompare(identity(right)));
+        const winner = candidates[0];
+        if (!winner) continue;
+        if (candidates.length > 1) {
+            const identities = candidates.map((candidate) => candidate.id ?? candidate.name ?? candidate.url);
+            logger?.dryWarn(
+                "#duplicateCanonical",
+                `Package ${packageMetaToNpm(pkg)} contains duplicate ${winner.resourceType} canonical URL ${JSON.stringify(winner.url)} for resources ${identities.join(", ")}; keeping ${winner.id ?? winner.name ?? winner.url}`,
+            );
+        }
+        deduped.push(winner);
+    }
+
+    return deduped.map((resource) => {
+        const base: TerminologyEntryBase = {
+            canonicalUrl: resource.url,
+            packageId: pkg.name,
+            packageVersion: pkg.version,
+            verification,
+        };
+        if (resource.resourceType === "ValueSet")
+            return { resource, entry: { ...base, resourceType: resource.resourceType } };
+        if (resource.resourceType === "NamingSystem")
+            return { resource, entry: { ...base, resourceType: resource.resourceType } };
+        const codeSystemEntry: CodeSystemEntry = {
+            ...base,
+            resourceType: "CodeSystem",
+            ...(resource.content !== undefined ? { contentMode: resource.content } : {}),
+        };
+        const embedsCodes = resource.content === "complete" && verification !== "unverifiable";
+        if (!embedsCodes) return { resource, entry: codeSystemEntry };
+        const concepts = flattenTerminologyConcepts(resource.concept);
+        const seenCodes = new Set<string>();
+        const displays: Partial<Record<string, string>> = {};
+        for (const concept of concepts) {
+            if (seenCodes.has(concept.code))
+                throw new Error(`CodeSystem ${resource.url} repeats code ${JSON.stringify(concept.code)}`);
+            seenCodes.add(concept.code);
+            if (concept.display !== undefined)
+                Object.defineProperty(displays, concept.code, {
+                    value: concept.display,
+                    enumerable: true,
+                    writable: true,
+                    configurable: true,
+                });
+        }
+        const entry: CodedTerminologyEntry = {
+            ...codeSystemEntry,
+            contentMode: "complete",
+            codes: concepts.map(({ code }) => code),
+            displays,
+        };
+        return { resource, entry };
+    });
+};
+
+const projectTerminologyConcepts = (concepts: unknown): CodeSystemConcept[] | undefined => {
     if (!Array.isArray(concepts)) return undefined;
-    const projected: TerminologyConcept[] = [];
+    const projected: CodeSystemConcept[] = [];
     const stack: {
         source: unknown[];
-        target: TerminologyConcept[];
+        target: CodeSystemConcept[];
         index: number;
-        parent?: TerminologyConcept;
+        parent?: CodeSystemConcept;
     }[] = [{ source: concepts, target: projected, index: 0 }];
 
     while (stack.length > 0) {
@@ -114,13 +248,13 @@ const projectTerminologyConcepts = (concepts: unknown): TerminologyConcept[] | u
         if (concept === null || typeof concept !== "object") continue;
         const candidate = concept as { code?: unknown; display?: unknown; concept?: unknown };
         if (typeof candidate.code !== "string") continue;
-        const copy: TerminologyConcept = {
+        const copy: CodeSystemConcept = {
             code: candidate.code,
             ...(typeof candidate.display === "string" ? { display: candidate.display } : {}),
         };
         frame.target.push(copy);
         if (Array.isArray(candidate.concept)) {
-            const nested: TerminologyConcept[] = [];
+            const nested: CodeSystemConcept[] = [];
             copy.concept = nested;
             stack.push({ source: candidate.concept, target: nested, index: 0, parent: copy });
         }
@@ -159,29 +293,31 @@ const namingSystemIdentity = (
 };
 
 const asTerminologyResource = (resource: unknown, logger?: CodegenLog): TerminologyResource | undefined => {
+    if (isCodeSystem(resource) || isValueSet(resource)) {
+        if (typeof resource.url !== "string" || resource.url.length === 0) return undefined;
+        const concepts = isCodeSystem(resource) ? projectTerminologyConcepts(resource.concept) : undefined;
+        return {
+            resourceType: resource.resourceType,
+            ...(typeof resource.id === "string" ? { id: resource.id } : {}),
+            ...(typeof resource.name === "string" ? { name: resource.name } : {}),
+            url: resource.url,
+            ...(isCodeSystem(resource) && typeof resource.content === "string" ? { content: resource.content } : {}),
+            ...(concepts && concepts.length > 0 ? { concept: concepts } : {}),
+        };
+    }
     if (resource === null || typeof resource !== "object") return undefined;
-    const candidate = resource as {
-        resourceType?: unknown;
-        id?: unknown;
-        name?: unknown;
-        url?: unknown;
-        content?: unknown;
-        concept?: unknown;
-        uniqueId?: unknown;
-    };
-    if (!["CodeSystem", "ValueSet", "NamingSystem"].includes(String(candidate.resourceType))) return undefined;
-    const resourceType = candidate.resourceType as TerminologyResource["resourceType"];
-    let url = typeof candidate.url === "string" && candidate.url.length > 0 ? candidate.url : undefined;
-    if (url === undefined && resourceType === "NamingSystem") url = namingSystemIdentity(candidate, logger);
-    if (typeof url !== "string" || url.length === 0) return undefined;
-    const concepts = projectTerminologyConcepts(candidate.concept);
+    const candidate = resource as { resourceType?: unknown; id?: unknown; name?: unknown; url?: unknown };
+    if (candidate.resourceType !== "NamingSystem") return undefined;
+    const url =
+        typeof candidate.url === "string" && candidate.url.length > 0
+            ? candidate.url
+            : namingSystemIdentity(candidate, logger);
+    if (url === undefined || url.length === 0) return undefined;
     return {
-        resourceType,
+        resourceType: "NamingSystem",
         ...(typeof candidate.id === "string" ? { id: candidate.id } : {}),
         ...(typeof candidate.name === "string" ? { name: candidate.name } : {}),
         url,
-        ...(typeof candidate.content === "string" ? { content: candidate.content } : {}),
-        ...(concepts && concepts.length > 0 ? { concept: concepts } : {}),
     };
 };
 
