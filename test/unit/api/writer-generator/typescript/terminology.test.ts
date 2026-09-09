@@ -112,8 +112,8 @@ describe("TypeScript terminology surface", () => {
               contentMode: "complete",
               codes: ["second", "first"],
               displays: {
-                  ["second"]: "Second display",
-                  ["first"]: "First display",
+                  second: "Second display",
+                  first: "First display",
               },
           } as const;
           export type CompleteExampleCode = (typeof CompleteExampleCodeSystem.codes)[number];
@@ -231,7 +231,7 @@ describe("TypeScript terminology surface", () => {
             output.indexOf(JSON.stringify(sourceConcepts[1].code)),
         );
         for (const concept of sourceConcepts) {
-            expect(output).toContain(`[${JSON.stringify(concept.code)}]: ${JSON.stringify(concept.display)}`);
+            expect(output).toContain(`${concept.code}: ${JSON.stringify(concept.display)}`);
         }
     });
 
@@ -274,12 +274,8 @@ describe("TypeScript terminology surface", () => {
         ]);
 
         expect(output).toContain('codes: ["parent", "child", "sibling"]');
-        expect(output.indexOf('["parent"]: "Parent display"')).toBeLessThan(
-            output.indexOf('["child"]: "Child display"'),
-        );
-        expect(output.indexOf('["child"]: "Child display"')).toBeLessThan(
-            output.indexOf('["sibling"]: "Sibling display"'),
-        );
+        expect(output.indexOf('parent: "Parent display"')).toBeLessThan(output.indexOf('child: "Child display"'));
+        expect(output.indexOf('child: "Child display"')).toBeLessThan(output.indexOf('sibling: "Sibling display"'));
     });
 
     it("handles deeply nested concepts without exhausting the stack", async () => {
@@ -308,7 +304,7 @@ describe("TypeScript terminology surface", () => {
         ]);
 
         expect(output).toContain('codes: ["code-0", "code-1"');
-        expect(output).toContain(`["code-${depth}"]: "Display ${depth}"`);
+        expect(output).toContain(`"code-${depth}": "Display ${depth}"`);
     });
 
     it("fails deterministically when hierarchical concepts repeat a code", async () => {

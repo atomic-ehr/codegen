@@ -103,3 +103,13 @@ export const tsExtensionFlatTypeName = (profileName: string, extensionName: stri
 export const tsSliceStaticName = (name: string): string => name.replace(/\[x\]/g, "").replace(/[^a-zA-Z0-9_$]/g, "_");
 
 export const tsValueFieldName = (id: TypeIdentifier): string => `value${uppercaseFirstLetter(id.name)}`;
+
+const TS_IDENTIFIER_RE = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
+
+/** An object-literal property key for emitted value code: bare when it is a
+ *  valid identifier, quoted otherwise — and computed for "__proto__", whose
+ *  plain form is the prototype setter and would not create an own property. */
+export const tsObjectKey = (key: string): string => {
+    if (key === "__proto__") return '["__proto__"]';
+    return TS_IDENTIFIER_RE.test(key) ? key : JSON.stringify(key);
+};

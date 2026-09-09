@@ -27,6 +27,7 @@ import {
     tsModuleFileName,
     tsModuleName,
     tsNameFromCanonical,
+    tsObjectKey,
     tsPackageDir,
     tsProfileModuleFileName,
     tsResourceName,
@@ -557,7 +558,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                         this.curlyBlock(["displays:"], () => {
                             for (const concept of concepts) {
                                 if (concept.display !== undefined)
-                                    this.line(`[${JSON.stringify(concept.code)}]: ${JSON.stringify(concept.display)},`);
+                                    this.line(`${tsObjectKey(concept.code)}: ${JSON.stringify(concept.display)},`);
                             }
                         }, [","]);
                     }
