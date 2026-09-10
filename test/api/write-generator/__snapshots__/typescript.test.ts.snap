@@ -2220,7 +2220,7 @@ export class USCoreRaceExtensionProfile {
     }
 
     static createResource (args: USCoreRaceExtensionProfileRaw | USCoreRaceExtensionProfileFlat) : Extension {
-        const resolvedExtensions = USCoreRaceExtensionProfile.resolveInput(args ?? {});
+        const resolvedExtensions = USCoreRaceExtensionProfile.resolveInput(args);
 
         const resource: Extension = {
             url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
