@@ -5,7 +5,7 @@
  */
 
 import type { FHIRCoding, FHIRSchemaDiscriminator, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import type { Register } from "@root/typeschema/register";
+import { isVirtualFhirBaseCanonical, type Register } from "@root/typeschema/register";
 import type { CodegenLog } from "@root/utils/log";
 import { isProfileIdentifier, packageMetaToFhir } from "@typeschema/types";
 import type {
@@ -335,6 +335,12 @@ export function buildFieldType(
     if (element.type) {
         const url = register.ensureSpecializationCanonicalUrl(element.type);
         const fieldFs = register.resolveFs(fhirSchema.package_meta, url);
+        const isVirtualLogicalBase =
+            !fieldFs &&
+            fhirSchema.kind === "logical" &&
+            fhirSchema.derivation === "specialization" &&
+            isVirtualFhirBaseCanonical(element.type);
+        if (isVirtualLogicalBase) return undefined;
         if (!fieldFs) {
             const pkgId = packageMetaToFhir(fhirSchema.package_meta);
             const fieldPath = path.join(".");
@@ -383,8 +389,16 @@ export const mkField = (
     }
 
     const fieldType = buildFieldType(register, fhirSchema, path, element, logger);
+    const fieldTypeUrl = element.type ? register.ensureSpecializationCanonicalUrl(element.type) : undefined;
+    const fieldTypeFs = fieldTypeUrl ? register.resolveFs(fhirSchema.package_meta, fieldTypeUrl) : undefined;
+    const isVirtualLogicalBase =
+        !fieldTypeFs &&
+        fhirSchema.kind === "logical" &&
+        fhirSchema.derivation === "specialization" &&
+        element.type !== undefined &&
+        isVirtualFhirBaseCanonical(element.type);
     // TODO: should be an exception
-    if (!fieldType)
+    if (!fieldType && !isVirtualLogicalBase)
         logger?.dryWarn(
             "#fieldTypeNotFound",
             `Field type not found for '${fhirSchema.url}#${path.join(".")}' (${fhirSchema.derivation})`,

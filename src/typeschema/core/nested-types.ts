@@ -5,7 +5,12 @@
  */
 
 import type { FHIRSchema, FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import { mergeFsElementProps, type Register, resolveFsElementGenealogy } from "@root/typeschema/register";
+import {
+    isVirtualFhirBaseCanonical,
+    mergeFsElementProps,
+    type Register,
+    resolveFsElementGenealogy,
+} from "@root/typeschema/register";
 import type { CodegenLog } from "@root/utils/log";
 import type {
     CanonicalUrl,
@@ -35,9 +40,17 @@ const hasStructuralElements = (register: Register, fhirSchema: RichFHIRSchema, p
     let typeKeys: Set<string> | undefined;
     if (elemType) {
         const typeUrl = register.ensureSpecializationCanonicalUrl(elemType);
-        const typeGenealogy = register.resolveFsGenealogy(fhirSchema.package_meta, typeUrl);
-        const keys = typeGenealogy.flatMap((fs) => Object.keys(fs.elements ?? {}));
-        if (keys.length > 0) typeKeys = new Set(keys);
+        const typeFs = register.resolveFs(fhirSchema.package_meta, typeUrl);
+        const isVirtualLogicalBase =
+            !typeFs &&
+            fhirSchema.kind === "logical" &&
+            fhirSchema.derivation === "specialization" &&
+            isVirtualFhirBaseCanonical(elemType);
+        if (!isVirtualLogicalBase) {
+            const typeGenealogy = register.resolveFsGenealogy(fhirSchema.package_meta, typeUrl);
+            const keys = typeGenealogy.flatMap((fs) => Object.keys(fs.elements ?? {}));
+            if (keys.length > 0) typeKeys = new Set(keys);
+        }
     }
 
     for (const elem of elemGens) {
@@ -188,20 +201,27 @@ export function mkNestedTypes(
         }
         const baseUrl = register.ensureSpecializationCanonicalUrl(baseName);
         const baseFs = register.resolveFs(fhirSchema.package_meta, baseUrl);
-        if (!baseFs) throw new Error(`Could not resolve base type ${baseName}`);
-        const base: TypeIdentifier = {
-            kind: "complex-type",
-            package: baseFs.package_meta.name,
-            version: baseFs.package_meta.version,
-            name: baseName,
-            url: baseUrl,
-        };
+        const isVirtualLogicalBase =
+            !baseFs &&
+            fhirSchema.kind === "logical" &&
+            fhirSchema.derivation === "specialization" &&
+            isVirtualFhirBaseCanonical(baseName);
+        if (!baseFs && !isVirtualLogicalBase) throw new Error(`Could not resolve base type ${baseName}`);
+        const base: TypeIdentifier | undefined = baseFs
+            ? {
+                  kind: "complex-type",
+                  package: baseFs.package_meta.name,
+                  version: baseFs.package_meta.version,
+                  name: baseName,
+                  url: baseUrl,
+              }
+            : undefined;
 
         const { fields, slicing } = transformNestedElements(register, fhirSchema, path, element.elements ?? {}, logger);
 
         const nestedType: NestedTypeSchema = {
             identifier,
-            base,
+            ...(base ? { base } : {}),
             fields,
             slicing,
         };

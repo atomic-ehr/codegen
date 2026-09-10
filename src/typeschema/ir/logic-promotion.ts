@@ -54,7 +54,7 @@ export const promoteLogical = (tsIndex: TypeSchemaIndex, promotes: LogicalPromot
             cloned.nested = cloned.nested?.map((n: NestedTypeSchema) => {
                 return {
                     ...n,
-                    base: replace(n.base),
+                    base: n.base ? replace(n.base) : undefined,
                     fields: replaceInFields(n.fields),
                 };
             });

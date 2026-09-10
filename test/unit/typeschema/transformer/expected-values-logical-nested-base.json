@@ -1,0 +1,14 @@
+{
+  "test_tree": "test",
+  "expected_values": [
+    {
+      "name": "R4 virtual Base nested structure",
+      "value": "DocumentWithNestedBase",
+      "source_kind": "ig_profile",
+      "source": "https://hl7.org/fhir/R4/types.html#Base",
+      "test_path": "test/unit/typeschema/transformer/logical-base.test.ts",
+      "ig_canonical": "http://hl7.org/fhir/StructureDefinition/Base|4.0.1",
+      "element": "Base"
+    }
+  ]
+}

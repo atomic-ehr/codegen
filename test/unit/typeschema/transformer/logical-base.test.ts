@@ -26,6 +26,66 @@ describe("TypeSchema: logical model specializing FHIR Base (R4, virtual root)", 
     const r4 = await mkR4Register();
     const logger = mkTestLogger();
 
+    it("emits a structural nested type whose declared type is virtual Base", async () => {
+        // Expected values are derived from the R4 Base definition, where Base is
+        // the virtual root rather than a published StructureDefinition:
+        // https://hl7.org/fhir/R4/types.html#Base
+        // http://hl7.org/fhir/StructureDefinition/Base|4.0.1 element Base
+        const doc: PFS = {
+            base: "http://hl7.org/fhir/StructureDefinition/Base|4.0.1",
+            url: "http://example.org/StructureDefinition/DocumentWithNestedBase",
+            name: "DocumentWithNestedBase",
+            kind: "logical",
+            derivation: "specialization",
+            elements: {
+                extension: { type: "Base" },
+                part: {
+                    type: "Base",
+                    elements: {
+                        label: { type: "string" },
+                    },
+                },
+            },
+        };
+
+        expect(await registerFsAndMkTs(r4, doc, logger)).toMatchObject([
+            {
+                identifier: { kind: "logical", name: "DocumentWithNestedBase" },
+                fields: {
+                    extension: {},
+                    part: {
+                        type: { kind: "nested", name: "part" },
+                    },
+                },
+                nested: [
+                    {
+                        identifier: { kind: "nested", name: "part" },
+                        fields: {
+                            label: { type: { kind: "primitive-type", name: "string" } },
+                        },
+                    },
+                ],
+            },
+        ]);
+    });
+
+    it("still rejects an unknown non-Base direct field type", async () => {
+        const doc: PFS = {
+            base: "http://hl7.org/fhir/StructureDefinition/Base|4.0.1",
+            url: "http://example.org/StructureDefinition/DocumentWithMissingFieldType",
+            name: "DocumentWithMissingFieldType",
+            kind: "logical",
+            derivation: "specialization",
+            elements: {
+                extension: { type: "MissingFieldType" },
+            },
+        };
+
+        await expect(registerFsAndMkTs(r4, doc, logger)).rejects.toThrow(
+            "Could not resolve field type:\n  package: mypackage#0.0.0\n  schema:  http://example.org/StructureDefinition/DocumentWithMissingFieldType\n  field:   extension\n  type:    MissingFieldType",
+        );
+    });
+
     it("versioned Base parent", async () => {
         const doc = mkDocument("http://hl7.org/fhir/StructureDefinition/Base|4.0.1", "DocumentVersioned");
         const outcome = await registerFsAndMkTs(r4, doc, logger).catch((e: unknown) =>

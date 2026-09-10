@@ -585,7 +585,8 @@ export const mkTypeSchemaIndex = (
     const findLastSpecializationByIdentifier = (id: TypeIdentifier): TypeIdentifier => {
         const resolved = resolveType(id);
         if (!resolved) return id;
-        if (isNestedTypeSchema(resolved)) return findLastSpecializationByIdentifier(resolved.base);
+        if (isNestedTypeSchema(resolved))
+            return resolved.base ? findLastSpecializationByIdentifier(resolved.base) : resolved.identifier;
         return findLastSpecialization(resolved).identifier;
     };
 
