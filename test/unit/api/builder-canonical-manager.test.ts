@@ -56,6 +56,20 @@ describe("APIBuilder canonicalManager options", () => {
         expect(warnings[0]).toContain("'manager' is deprecated");
     });
 
+    it("threads exclusions from .typeSchema() into the builder options", () => {
+        const { logger } = mkWarnSpy();
+        const exclusion = { package: "my.pkg", url: "http://example.test/X", reason: "r" };
+
+        const builder = new APIBuilder({ logger }).typeSchema({
+            builtinExclusions: false,
+            excludedCanonicals: [exclusion as never],
+        });
+
+        const conf = (builder as unknown as { options: { typeSchema?: Record<string, unknown> } }).options.typeSchema;
+        expect(conf?.builtinExclusions).toBe(false);
+        expect(conf?.excludedCanonicals).toEqual([exclusion]);
+    });
+
     it("throws when an option is set in both styles", () => {
         const { logger } = mkWarnSpy();
 

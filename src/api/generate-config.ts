@@ -143,6 +143,8 @@ const LOCAL_SD_KEYS = [
 ] as const satisfies readonly (keyof GenerateConfigLocalStructureDefinitions)[];
 
 const IR_CONF_KEYS = [
+    "excludedCanonicals",
+    "builtinExclusions",
     "treeShake",
     "treeShakeDefaults",
     "promoteLogical",

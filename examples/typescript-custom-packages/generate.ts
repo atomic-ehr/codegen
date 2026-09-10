@@ -46,6 +46,21 @@ const sqlReport = await new APIBuilder()
     .outputTo("./examples/typescript-custom-packages/sql-on-fhir-types")
     .introspection({ typeTree: "tree.yaml" })
     .typeSchema({
+        // Instead of the builtin exclusions, declare the known-broken R5 canonicals by hand —
+        // this demonstrates (and continuously exercises) the fully manual configuration.
+        builtinExclusions: false,
+        excludedCanonicals: [
+            {
+                package: "hl7.fhir.r5.core#5.0.0",
+                url: "http://hl7.org/fhir/StructureDefinition/shareablecodesystem",
+                reason: "Broken CodeSystem.concept.concept content (ElementReference).",
+            },
+            {
+                package: "hl7.fhir.r5.core#5.0.0",
+                url: "http://hl7.org/fhir/StructureDefinition/publishablecodesystem",
+                reason: "Uses R5-only base types not available in R4 generation.",
+            },
+        ],
         treeShake: {
             "org.sql-on-fhir.ig": {
                 "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition": {},

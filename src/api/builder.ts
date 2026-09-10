@@ -21,6 +21,7 @@ import {
 import { CSharp, type CSharpGeneratorOptions } from "@root/api/writer-generator/csharp/csharp";
 import { Python, type PythonGeneratorOptions } from "@root/api/writer-generator/python/writer";
 import { generateTypeSchemas } from "@root/typeschema";
+import { resolveExclusions } from "@root/typeschema/exclusions";
 import { promoteLogical } from "@root/typeschema/ir/logic-promotion";
 import { treeShake } from "@root/typeschema/ir/tree-shake";
 import type { IrConf } from "@root/typeschema/ir/types";
@@ -494,6 +495,17 @@ export class APIBuilder {
 
     typeSchema(cfg: IrConf) {
         this.options.typeSchema ??= {};
+        if (cfg.excludedCanonicals) {
+            assert(
+                this.options.typeSchema.excludedCanonicals === undefined,
+                "excludedCanonicals option is already set",
+            );
+            this.options.typeSchema.excludedCanonicals = cfg.excludedCanonicals;
+        }
+        if (cfg.builtinExclusions !== undefined) {
+            assert(this.options.typeSchema.builtinExclusions === undefined, "builtinExclusions option is already set");
+            this.options.typeSchema.builtinExclusions = cfg.builtinExclusions;
+        }
         if (cfg.treeShake) {
             assert(this.options.typeSchema.treeShake === undefined, "treeShake option is already set");
             this.options.typeSchema.treeShake = cfg.treeShake;
@@ -581,6 +593,7 @@ export class APIBuilder {
                 register,
                 this.options.typeSchema?.resolveCollisions,
                 tsLogger,
+                resolveExclusions(this.options.typeSchema ?? {}),
             );
 
             const irReport = {

@@ -13,14 +13,14 @@
 import type { CodegenLog } from "@root/utils/log";
 import { compareCollisionSources, compareCollisionVariants } from "./collision-order";
 import { transformFhirSchema, transformValueSet } from "./core/transformer";
+import { builtinExclusions, type CanonicalExclusion, findExclusion } from "./exclusions";
 import type { ResolveCollisionsConf, TypeSchemaCollisions } from "./ir/types";
 import type { Register } from "./register";
-import { shouldSkipCanonical } from "./skip-hack";
 import type { CanonicalUrl, PkgName } from "./types";
 import { hashSchema, packageMetaToFhir, type TypeSchema } from "./types";
 
 // Re-export core dependencies
-export { shouldSkipCanonical, skipList } from "./skip-hack";
+export { builtinExclusions, type CanonicalExclusion, type CanonicalExclusionInput, findExclusion } from "./exclusions";
 export type { TypeIdentifier as Identifier, TypeSchema } from "./types";
 
 export interface GenerateTypeSchemasResult {
@@ -113,15 +113,16 @@ export const generateTypeSchemas = async (
     register: Register,
     resolveCollisions?: ResolveCollisionsConf,
     logger?: CodegenLog,
+    exclusions: CanonicalExclusion[] = builtinExclusions,
 ): Promise<GenerateTypeSchemasResult> => {
     const schemasWithSources: { schema: TypeSchema; sourcePackage: PkgName; sourceCanonical: CanonicalUrl }[] = [];
 
     for (const fhirSchema of register.allFs()) {
         const pkgId = packageMetaToFhir(fhirSchema.package_meta);
 
-        const skipCheck = shouldSkipCanonical(fhirSchema.package_meta, fhirSchema.url);
-        if (skipCheck.shouldSkip) {
-            logger?.dryWarn("#skipCanonical", `Skip ${fhirSchema.url} from ${pkgId}. Reason: ${skipCheck.reason}`);
+        const exclusion = findExclusion(exclusions, fhirSchema.package_meta, fhirSchema.url);
+        if (exclusion) {
+            logger?.dryWarn("#skipCanonical", `Skip ${fhirSchema.url} from ${pkgId}. Reason: ${exclusion.reason}`);
             continue;
         }
 
