@@ -1,36 +1,19 @@
-import type { PreprocessContext } from "@atomic-ehr/fhir-canonical-manager";
+import { ensureDependency, inPackage } from "@atomic-ehr/fhir-canonical-manager/patch";
 import { APIBuilder, prettyReport } from "../../../src/api/builder";
-
-const preprocessPackage = (ctx: PreprocessContext): PreprocessContext => {
-    if (ctx.kind !== "package") return ctx;
-    const json = ctx.packageJson;
-    const name = json.name as string;
-
-    // de.basisprofil.r4 doesn't declare hl7.fhir.r4.core as a dependency
-    if (name === "de.basisprofil.r4") {
-        const deps = (json.dependencies as Record<string, string>) || {};
-        if (!deps["hl7.fhir.r4.core"]) {
-            return {
-                ...ctx,
-                kind: "package",
-                packageJson: {
-                    ...json,
-                    dependencies: { ...deps, "hl7.fhir.r4.core": "4.0.1" },
-                },
-            };
-        }
-    }
-
-    return ctx;
-};
 
 if (require.main === module) {
     console.log("Generating KBV R4 types...");
 
     const builder = new APIBuilder({
-        preprocessPackage,
-        registry: "https://packages.simplifier.net",
-        ignorePackageIndex: true,
+        canonicalManager: {
+            registry: "https://packages.simplifier.net",
+            // de.basisprofil.r4 ships a broken .index.json; heal it with a directory scan.
+            packageIndex: "recover",
+            // de.basisprofil.r4 references core types without declaring hl7.fhir.r4.core.
+            patches: {
+                packageJson: [inPackage("de.basisprofil.r4", [ensureDependency({ "hl7.fhir.r4.core": "4.0.1" })])],
+            },
+        },
     })
         .fromPackage("kbv.ita.for", "1.3.1")
         .fromPackage("de.basisprofil.r4", "1.6.0-ballot2")

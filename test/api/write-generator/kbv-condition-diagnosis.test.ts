@@ -16,8 +16,10 @@ const fileBySuffix = (files: Record<string, string>, suffix: string): string => 
 // TypeSchema, and generated TypeScript — for the profile and its base Condition.
 describe("KBV Condition Diagnosis generation (kbv.basis@1.9.0)", async () => {
     const result = await new APIBuilder({
-        registry: "https://packages.simplifier.net",
-        ignorePackageIndex: true,
+        canonicalManager: {
+            registry: "https://packages.simplifier.net",
+            packageIndex: "regenerate",
+        },
         logger: mkErrorLogger(),
     })
         .fromPackage("kbv.basis", "1.9.0")
