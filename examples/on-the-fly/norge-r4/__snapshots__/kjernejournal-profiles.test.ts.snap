@@ -4315,7 +4315,7 @@ export class KjPractitionerRoleProfile {
                 ...validateRequired(res, profileName, "organization"),
                 ...validateReference(res, profileName, "organization", ["Organization"]),
                 ...validateRequired(res, profileName, "code"),
-                ...validatePatternValue(res, profileName, "code", {"coding":[{"system":"http://nhn.no/kj/fhir/CodeSystem/CategoriesOfHealthProfessionals"}]}),
+                ...validatePatternValue(res, profileName, "code", [{"coding":[{"system":"http://nhn.no/kj/fhir/CodeSystem/CategoriesOfHealthProfessionals"}]}]),
                 ...validateReference(res, profileName, "location", ["Location"]),
                 ...validateReference(res, profileName, "healthcareService", ["HealthcareService"]),
                 ...validateReference(res, profileName, "endpoint", ["Endpoint"]),
