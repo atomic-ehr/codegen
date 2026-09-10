@@ -151,7 +151,7 @@ The JSON `typescript` options also accept `moduleSpecifierStyle` (`"extensionles
 }
 ```
 
-Terminology options require a boolean `enabled`, an array of strings for `packages`, and string values in `packageVerification` when supplied. Unknown nested keys and invalid values are reported with their full configuration paths.
+All terminology fields are optional. When supplied, `enabled` must be a boolean, `packages` must be an array of strings, and `packageVerification` must contain string values. Unknown nested keys and invalid values are reported with their full configuration paths.
 
 ### Usage Examples
 
