@@ -1,0 +1,40 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "optional-category-service-request",
+  "url": "http://example.test/StructureDefinition/optional-category-service-request",
+  "version": "0.1.0",
+  "name": "OptionalCategoryServiceRequest",
+  "status": "active",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "ServiceRequest",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/ServiceRequest",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "ServiceRequest.doNotPerform",
+        "path": "ServiceRequest.doNotPerform",
+        "min": 0,
+        "fixedBoolean": false
+      },
+      {
+        "id": "ServiceRequest.category",
+        "path": "ServiceRequest.category",
+        "min": 0,
+        "max": "*",
+        "mustSupport": true,
+        "patternCodeableConcept": {
+          "coding": [{ "system": "http://example.test/category", "code": "example" }]
+        }
+      },
+      {
+        "id": "ServiceRequest.intent",
+        "path": "ServiceRequest.intent",
+        "min": 1,
+        "fixedCode": "order"
+      }
+    ]
+  }
+}
