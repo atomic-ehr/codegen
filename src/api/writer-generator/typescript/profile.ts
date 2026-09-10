@@ -32,6 +32,7 @@ import {
     generateExtensionMethods,
     resolveExtensionProfile,
 } from "./profile-extensions";
+import { tryResolveProfileResourceType } from "./profile-resource-type";
 import {
     collectRequiredSliceNames,
     collectSliceDefs,
@@ -826,6 +827,16 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, sn
     w.comment("CanonicalURL:", canonicalUrl, `(pkg: ${packageMetaToFhir(packageMeta(snapshot))})`);
 
     w.curlyBlock(["export", "class", profileClassName], () => {
+        if (isResourceIdentifier(snapshot.base)) {
+            const resolved = tryResolveProfileResourceType(snapshot.base);
+            if ("resourceType" in resolved) {
+                w.lineSM(`static readonly resourceType = ${JSON.stringify(resolved.resourceType)}`);
+            } else {
+                w.logger()?.error(
+                    `Cannot emit static resourceType for profile '${profileClassName}': ${resolved.error}`,
+                );
+            }
+        }
         w.lineSM(`static readonly canonicalUrl = ${JSON.stringify(canonicalUrl)}`);
         w.line();
         generateStaticSliceFields(w, sliceDefs);
