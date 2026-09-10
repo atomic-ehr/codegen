@@ -95,7 +95,7 @@ export class USCoreTribalAffiliationExtensionProfile {
     }
 
     static createResource (args: USCoreTribalAffiliationExtensionProfileRaw | USCoreTribalAffiliationExtensionProfileFlat) : Extension {
-        const resolvedExtensions = USCoreTribalAffiliationExtensionProfile.resolveInput(args ?? {});
+        const resolvedExtensions = USCoreTribalAffiliationExtensionProfile.resolveInput(args);
 
         const resource: Extension = {
             url: USCoreTribalAffiliationExtensionProfile.canonicalUrl,

@@ -107,7 +107,7 @@ export class USCoreRaceExtensionProfile {
     }
 
     static createResource (args: USCoreRaceExtensionProfileRaw | USCoreRaceExtensionProfileFlat) : Extension {
-        const resolvedExtensions = USCoreRaceExtensionProfile.resolveInput(args ?? {});
+        const resolvedExtensions = USCoreRaceExtensionProfile.resolveInput(args);
 
         const resource: Extension = {
             url: USCoreRaceExtensionProfile.canonicalUrl,
