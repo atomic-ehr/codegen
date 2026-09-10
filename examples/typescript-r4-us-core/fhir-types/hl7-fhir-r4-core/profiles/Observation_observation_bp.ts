@@ -50,6 +50,7 @@ export type observation_bpProfileRaw = {
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/bp (pkg: hl7.fhir.r4.core#4.0.1)
 export class observation_bpProfile {
+    static readonly resourceType = "Observation";
     static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bp";
 
     private static readonly VSCatSliceMatch: Record<string, unknown> = {

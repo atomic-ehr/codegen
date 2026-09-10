@@ -544,6 +544,7 @@ export type observation_bodyweightProfileRaw = {
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/bodyweight (pkg: hl7.fhir.r4.core#4.0.1)
 export class observation_bodyweightProfile {
+    static readonly resourceType = "Observation";
     static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bodyweight";
 
     private static readonly VSCatSliceMatch: Record<string, unknown> = {
@@ -786,6 +787,7 @@ export type observation_bpProfileRaw = {
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/bp (pkg: hl7.fhir.r4.core#4.0.1)
 export class observation_bpProfile {
+    static readonly resourceType = "Observation";
     static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bp";
 
     private static readonly VSCatSliceMatch: Record<string, unknown> = {
@@ -1101,6 +1103,7 @@ export type USCorePatientProfileRaw = {
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient (pkg: hl7.fhir.us.core#8.0.1)
 export class USCorePatientProfile {
+    static readonly resourceType = "Patient";
     static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient";
 
     private resource: Patient;
@@ -1371,6 +1374,7 @@ export type USCoreBloodPressureProfileRaw = {
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure (pkg: hl7.fhir.us.core#8.0.1)
 export class USCoreBloodPressureProfile {
+    static readonly resourceType = "Observation";
     static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure";
 
     private static readonly VSCatSliceMatch: Record<string, unknown> = {
@@ -1799,6 +1803,7 @@ export type USCoreBodyWeightProfileRaw = {
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight (pkg: hl7.fhir.us.core#8.0.1)
 export class USCoreBodyWeightProfile {
+    static readonly resourceType = "Observation";
     static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight";
 
     private static readonly VSCatSliceMatch: Record<string, unknown> = {

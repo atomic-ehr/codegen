@@ -40,6 +40,7 @@ export type observation_vitalsignsProfileRaw = {
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/vitalsigns (pkg: hl7.fhir.r4.core#4.0.1)
 export class observation_vitalsignsProfile {
+    static readonly resourceType = "Observation";
     static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/vitalsigns";
 
     private static readonly VSCatSliceMatch: Record<string, unknown> = {

@@ -3567,6 +3567,7 @@ export type KBV_PR_Base_Condition_DiagnosisProfileRaw = {
 
 // CanonicalURL: https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Condition_Diagnosis (pkg: kbv.basis#1.9.0)
 export class KBV_PR_Base_Condition_DiagnosisProfile {
+    static readonly resourceType = "Condition";
     static readonly canonicalUrl = "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Condition_Diagnosis";
 
     private resource: Condition;

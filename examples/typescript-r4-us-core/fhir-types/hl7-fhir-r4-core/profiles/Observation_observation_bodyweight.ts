@@ -41,6 +41,7 @@ export type observation_bodyweightProfileRaw = {
 
 // CanonicalURL: http://hl7.org/fhir/StructureDefinition/bodyweight (pkg: hl7.fhir.r4.core#4.0.1)
 export class observation_bodyweightProfile {
+    static readonly resourceType = "Observation";
     static readonly canonicalUrl = "http://hl7.org/fhir/StructureDefinition/bodyweight";
 
     private static readonly VSCatSliceMatch: Record<string, unknown> = {
