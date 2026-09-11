@@ -160,6 +160,7 @@ Reference example: `examples/typescript-r4-us-core/profile-r4-bodyweight.test.ts
 - Handles profiles and extensions (US Core in development)
 - Caches parsed schemas for performance
 - Multi-package dependency resolution via Canonical Manager
+- Package defects are fixed declaratively at the loader: `canonicalManager.patches` repairs raw package data and `excludeCanonical` drops known-broken canonicals at the index (helpers from `@atomic-ehr/fhir-canonical-manager/patch`; shipped `builtinPatches` in `src/api/builtin-patches.ts` apply to every builder-constructed loader unless `builtinPatches: false`) — never add ad-hoc workarounds in transformer code
 
 ### TypeSchema Format
 - Intermediate representation between FHIR and target languages
