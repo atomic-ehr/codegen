@@ -1,13 +1,12 @@
 import { describe, expect, it } from "bun:test";
 import * as Path from "node:path";
-import type { PreprocessContext } from "@atomic-ehr/fhir-canonical-manager";
 import type { GenerationReport } from "@root/api/builder";
 import {
     type BuilderFactoryOptions,
     describeGenerateConfig,
     GenerateConfigError,
     type GenerationBuilder,
-    mkForceDependenciesPreprocessor,
+    mkForceDependenciesPatch,
     parseGenerateConfig,
     runGenerateConfig,
 } from "@root/api/generate-config";
@@ -485,88 +484,64 @@ describe("runGenerateConfig", () => {
 
         await runGenerateConfig(config, { createBuilder: factory.createBuilder });
 
-        expect(factory.seen[0]!.registry).toBe("https://example.org/pkgs/");
-        expect(factory.seen[0]!.ignorePackageIndex).toBe(true);
-        expect(factory.seen[0]!.dropCanonicalManagerCache).toBe(true);
-        expect(factory.seen[0]!.preprocessPackage).toBeUndefined();
+        expect(factory.seen[0]!.canonicalManager?.registry).toBe("https://example.org/pkgs/");
+        expect(factory.seen[0]!.canonicalManager?.packageIndex).toBe("regenerate");
+        expect(factory.seen[0]!.canonicalManager?.dropCache).toBe(true);
+        expect(factory.seen[0]!.canonicalManager?.patches).toBeUndefined();
     });
 });
 
 describe("forceDependencies", () => {
-    const packageContext = (dependencies: Record<string, string>): PreprocessContext => ({
-        kind: "package",
-        package: { name: "example.package", version: "1.0.0" },
-        packageJson: { name: "example.package", version: "1.0.0", dependencies },
+    const examplePkg = { name: "example.package", version: "1.0.0" };
+    const pkgJson = (dependencies: Record<string, string>) => ({
+        name: "example.package",
+        version: "1.0.0",
+        dependencies,
     });
+    const noReport = () => undefined;
 
     it("rewrites a declared dependency version", () => {
-        const preprocess = mkForceDependenciesPreprocessor({ "de.basisprofil.r4": "1.6.0-ballot2" });
+        const patch = mkForceDependenciesPatch({ "de.basisprofil.r4": "1.6.0-ballot2" });
 
-        const result = preprocess(packageContext({ "de.basisprofil.r4": "1.5.4", "hl7.fhir.r4.core": "4.0.1" }));
+        const result = patch(
+            examplePkg,
+            pkgJson({ "de.basisprofil.r4": "1.5.4", "hl7.fhir.r4.core": "4.0.1" }),
+            noReport,
+        );
 
-        expect(result.kind).toBe("package");
-        expect(result.kind === "package" && result.packageJson.dependencies).toEqual({
+        expect(result?.dependencies).toEqual({
             "de.basisprofil.r4": "1.6.0-ballot2",
             "hl7.fhir.r4.core": "4.0.1",
         });
     });
 
     it("does not add a dependency the package never declared", () => {
-        const preprocess = mkForceDependenciesPreprocessor({ "de.basisprofil.r4": "1.6.0-ballot2" });
+        const patch = mkForceDependenciesPatch({ "de.basisprofil.r4": "1.6.0-ballot2" });
 
-        const result = preprocess(packageContext({ "hl7.fhir.r4.core": "4.0.1" }));
+        const result = patch(examplePkg, pkgJson({ "hl7.fhir.r4.core": "4.0.1" }), noReport);
 
-        expect(result.kind === "package" && result.packageJson.dependencies).toEqual({ "hl7.fhir.r4.core": "4.0.1" });
+        expect(result).toBeUndefined();
     });
 
-    it("leaves resource contexts untouched", () => {
-        const preprocess = mkForceDependenciesPreprocessor({ "de.basisprofil.r4": "1.6.0-ballot2" });
-        const context: PreprocessContext = {
-            kind: "resource",
-            package: { name: "example.package", version: "1.0.0" },
-            resource: { resourceType: "StructureDefinition", url: "http://example.org/sd" } as never,
-        };
+    it("reports no change when the declared version already matches", () => {
+        const patch = mkForceDependenciesPatch({ "de.basisprofil.r4": "1.6.0-ballot2" });
 
-        expect(preprocess(context)).toBe(context);
+        const result = patch(examplePkg, pkgJson({ "de.basisprofil.r4": "1.6.0-ballot2" }), noReport);
+
+        expect(result).toBeUndefined();
     });
 
-    it("is equivalent to the hand-written preprocessPackage callback", () => {
-        const handWritten = (context: PreprocessContext): PreprocessContext => {
-            if (context.kind !== "package") return context;
-            const dependencies = context.packageJson.dependencies as Record<string, string> | undefined;
-            if (!dependencies?.["de.basisprofil.r4"]) return context;
-            return {
-                ...context,
-                packageJson: {
-                    ...context.packageJson,
-                    dependencies: { ...dependencies, "de.basisprofil.r4": "1.6.0-ballot2" },
-                },
-            };
-        };
-        const fromConfig = mkForceDependenciesPreprocessor({ "de.basisprofil.r4": "1.6.0-ballot2" });
-
-        const cases: Record<string, string>[] = [
-            { "de.basisprofil.r4": "1.5.4", "hl7.fhir.r4.core": "4.0.1" },
-            { "hl7.fhir.r4.core": "4.0.1" },
-            { "de.basisprofil.r4": "1.6.0-ballot2" },
-        ];
-        for (const dependencies of cases) {
-            const context = packageContext(dependencies);
-            expect(fromConfig(context)).toEqual(handWritten(context));
-        }
-    });
-
-    it("is handed to the builder factory when the config declares it", async () => {
+    it("is handed to the builder factory as a packageJson patch", async () => {
         const raw = { ...validConfig(), options: { forceDependencies: { "de.basisprofil.r4": "1.6.0-ballot2" } } };
         const config = parseGenerateConfig(raw, CONFIG_PATH);
         const factory = mkFactory();
 
         await runGenerateConfig(config, { createBuilder: factory.createBuilder });
-        const preprocess = factory.seen[0]!.preprocessPackage;
+        const patch = factory.seen[0]!.canonicalManager?.patches?.packageJson?.[0];
 
-        expect(preprocess).toBeDefined();
-        const rewritten = preprocess!(packageContext({ "de.basisprofil.r4": "1.5.4" }));
-        expect(rewritten.kind === "package" && rewritten.packageJson.dependencies).toEqual({
+        expect(patch).toBeDefined();
+        const rewritten = patch!(examplePkg, pkgJson({ "de.basisprofil.r4": "1.5.4" }), noReport);
+        expect(rewritten?.dependencies).toEqual({
             "de.basisprofil.r4": "1.6.0-ballot2",
         });
     });

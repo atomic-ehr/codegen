@@ -15,12 +15,17 @@
  */
 
 import * as Path from "node:path";
-import type { PreprocessContext } from "@atomic-ehr/fhir-canonical-manager";
+import type { PackagePatch } from "@atomic-ehr/fhir-canonical-manager";
 import type { CSharpGeneratorOptions } from "@root/api/writer-generator/csharp/csharp";
 import type { PythonGeneratorOptions } from "@root/api/writer-generator/python/writer";
 import type { IrConf, TreeShakeRule } from "@root/typeschema/ir/types";
 import type { CodegenLogManager } from "@root/utils/log";
-import { APIBuilder, type GenerationReport, type LocalStructureDefinitionConfig } from "./builder";
+import {
+    APIBuilder,
+    type CanonicalManagerOptions,
+    type GenerationReport,
+    type LocalStructureDefinitionConfig,
+} from "./builder";
 import type { IntrospectionWriterOptions } from "./writer-generator/introspection";
 import type { TypeScriptOptions } from "./writer-generator/typescript/writer";
 import type { WriterOptions } from "./writer-generator/writer";
@@ -76,8 +81,8 @@ export type GenerateConfigOptions = {
      *
      * Every package whose `package.json` declares one of these dependencies has the declared
      * version rewritten to the given one before the canonical manager resolves it, so two
-     * packages asking for different versions of the same dependency cannot pull both in. This is
-     * the declarative form of the `preprocessPackage` callback.
+     * packages asking for different versions of the same dependency cannot pull both in. Applied
+     * as a `packageJson` patch on the canonical manager.
      */
     forceDependencies?: Record<string, string>;
 };
@@ -143,6 +148,8 @@ const LOCAL_SD_KEYS = [
 ] as const satisfies readonly (keyof GenerateConfigLocalStructureDefinitions)[];
 
 const IR_CONF_KEYS = [
+    "excludedCanonicals",
+    "builtinExclusions",
     "treeShake",
     "treeShakeDefaults",
     "promoteLogical",
@@ -524,18 +531,17 @@ export const parseGenerateConfig = (raw: unknown, configPath: string): GenerateC
 };
 
 /**
- * Build the `preprocessPackage` callback that `forceDependencies` stands for.
+ * Build the `packageJson` patch that `forceDependencies` stands for.
  *
  * Only dependencies a package already declares are rewritten; the map never adds a dependency to
  * a package that does not ask for it, so the closure keeps its shape and only its versions are
  * pinned.
  */
-export const mkForceDependenciesPreprocessor =
-    (forced: Record<string, string>) =>
-    (context: PreprocessContext): PreprocessContext => {
-        if (context.kind !== "package") return context;
-        const declared = context.packageJson.dependencies;
-        if (!isRecord(declared)) return context;
+export const mkForceDependenciesPatch =
+    (forced: Record<string, string>): PackagePatch =>
+    (_pkg, pkgJson) => {
+        const declared = pkgJson.dependencies;
+        if (!isRecord(declared)) return undefined;
 
         let changed = false;
         const dependencies: Record<string, unknown> = { ...declared };
@@ -545,8 +551,8 @@ export const mkForceDependenciesPreprocessor =
             dependencies[name] = version;
             changed = true;
         }
-        if (!changed) return context;
-        return { ...context, packageJson: { ...context.packageJson, dependencies } };
+        if (!changed) return undefined;
+        return { ...pkgJson, dependencies };
     };
 
 /** The subset of `APIBuilder` a config-driven run uses. Lets callers and tests substitute it. */
@@ -567,10 +573,7 @@ export type GenerationBuilder = {
 };
 
 export type BuilderFactoryOptions = {
-    registry?: string;
-    dropCanonicalManagerCache?: boolean;
-    ignorePackageIndex?: boolean;
-    preprocessPackage?: (context: PreprocessContext) => PreprocessContext;
+    canonicalManager?: CanonicalManagerOptions;
     logger?: CodegenLogManager;
 };
 
@@ -597,16 +600,20 @@ const runBuilder = async (
     createBuilder: BuilderFactory,
     logger: CodegenLogManager | undefined,
 ): Promise<BuilderRunResult> => {
-    const preprocessPackage = options.forceDependencies
-        ? mkForceDependenciesPreprocessor(options.forceDependencies)
-        : undefined;
+    const canonicalManager: CanonicalManagerOptions = {
+        registry: options.registry,
+        dropCache: options.dropCanonicalManagerCache,
+        patches: options.forceDependencies
+            ? { packageJson: [mkForceDependenciesPatch(options.forceDependencies)] }
+            : undefined,
+    };
+    // The config keeps the legacy boolean; translate it the way CM's own alias does.
+    if (options.ignorePackageIndex !== undefined)
+        canonicalManager.packageIndex = options.ignorePackageIndex ? "regenerate" : "use";
 
     try {
         const builder = createBuilder({
-            registry: options.registry,
-            dropCanonicalManagerCache: options.dropCanonicalManagerCache,
-            ignorePackageIndex: options.ignorePackageIndex,
-            preprocessPackage,
+            canonicalManager,
             logger,
         });
 

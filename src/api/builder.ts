@@ -11,12 +11,17 @@ import * as Path from "node:path";
 import {
     CanonicalManager,
     type LocalPackageConfig,
+    type PackageId,
+    type PackageIndexMode,
+    type Patches,
     type PreprocessContext,
+    type ReportEntry,
     type TgzPackageConfig,
 } from "@atomic-ehr/fhir-canonical-manager";
 import { CSharp, type CSharpGeneratorOptions } from "@root/api/writer-generator/csharp/csharp";
 import { Python, type PythonGeneratorOptions } from "@root/api/writer-generator/python/writer";
 import { generateTypeSchemas } from "@root/typeschema";
+import { resolveExclusions } from "@root/typeschema/exclusions";
 import { promoteLogical } from "@root/typeschema/ir/logic-promotion";
 import { treeShake } from "@root/typeschema/ir/tree-shake";
 import type { IrConf } from "@root/typeschema/ir/types";
@@ -33,19 +38,59 @@ import { TypeScript, type TypeScriptOptions } from "./writer-generator/typescrip
 import type { FileBuffer, FileSystemWriter, FileSystemWriterOptions, WriterOptions } from "./writer-generator/writer";
 
 /**
- * Configuration options for the API builder
+ * Configuration of the CanonicalManager package loader. Everything in this block is forwarded
+ * verbatim to the CanonicalManager the builder constructs; it is ignored when a prebuilt
+ * `manager`/`register` is injected (they own their own configuration).
  */
+export type CanonicalManagerOptions = {
+    /** Custom FHIR package registry URL (default: https://fs.get-ig.org/pkgs/). */
+    registry?: string;
+    /** How a package's shipped `.index.json` is treated: trust it (`"use"`, default), heal a
+     *  broken one with a directory scan (`"recover"`), or rebuild it unconditionally (`"regenerate"`). */
+    packageIndex?: PackageIndexMode;
+    /** Drop the CanonicalManager cache before loading packages. */
+    dropCache?: boolean;
+    /** Per-phase patch handlers (package-defect fixes; helpers on the `@atomic-ehr/fhir-canonical-manager/patch` subpath). */
+    patches?: Partial<Patches>;
+};
+
+/** Stored generator configuration — read throughout a generation run. */
 export interface APIBuilderOptions {
     outputDir: string;
     cleanOutput: boolean;
     throwException: boolean;
     typeSchema?: IrConf;
-
-    /** Custom FHIR package registry URL (default: https://fs.get-ig.org/pkgs/) */
-    registry: string | undefined;
-    /** Drop the canonical manager cache */
-    dropCanonicalManagerCache: boolean;
 }
+
+/** Old spellings of the loader configuration, each mapped onto `canonicalManager` with a
+ *  deprecation warning; the whole block is deleted together in a future release. */
+type DeprecatedLoaderOptions = {
+    /** @deprecated Use `canonicalManager: { registry }`. */
+    registry?: string;
+    /** @deprecated Use `canonicalManager: { dropCache }`. */
+    dropCanonicalManagerCache?: boolean;
+    /** @deprecated Use `canonicalManager: { patches }`. */
+    patches?: Partial<Patches>;
+    /** @deprecated Use `canonicalManager: { patches }` with the CM `/patch` subpath helpers. */
+    preprocessPackage?: (context: PreprocessContext) => PreprocessContext;
+    /** @deprecated Use `canonicalManager: { packageIndex }`. */
+    packageIndex?: PackageIndexMode;
+    /** @deprecated Use `canonicalManager: { packageIndex: "regenerate" }`. */
+    ignorePackageIndex?: boolean;
+    /** @deprecated Pass the instance via `canonicalManager` instead. */
+    manager?: ReturnType<typeof CanonicalManager>;
+};
+
+/** What the constructor accepts: stored options, input wiring, and the deprecated spellings. */
+export type APIBuilderInput = Partial<APIBuilderOptions> &
+    DeprecatedLoaderOptions & {
+        /** The package loader: either its configuration (registry, packageIndex, dropCache,
+         *  patches) for the manager the builder constructs, or a prebuilt CanonicalManager
+         *  instance — interchangeable from the caller's side. */
+        canonicalManager?: CanonicalManagerOptions | ReturnType<typeof CanonicalManager>;
+        register?: Register;
+        logger?: CodegenLogManager;
+    };
 
 export type GenerationReport = {
     success: boolean;
@@ -55,6 +100,9 @@ export type GenerationReport = {
     errors: string[];
     warnings: string[];
     duration: number;
+    /** CanonicalManager input-fix diagnostics (exclusions, index recoveries, deprecations).
+     *  Absent when a prebuilt `register` is used; empty for packages served from cache. */
+    inputReport?: ReportEntry[];
 };
 
 function countLinesByMatches(text: string): number {
@@ -74,11 +122,31 @@ export interface PrettyReportOptions {
     fileLimit?: number;
 }
 
+const formatReportEntry = (entry: ReportEntry): string => {
+    const pkg = (p: PackageId): string => `${p.name}@${p.version}`;
+    switch (entry.kind) {
+        case "exclusion":
+            return `excluded ${entry.url} (${pkg(entry.package)}): ${entry.reason}`;
+        case "index-recovery":
+            return `recovered index for ${pkg(entry.package)}: ${entry.reason}, ${entry.recovered} resources`;
+        case "deprecation":
+            return `deprecation: ${entry.message}`;
+        default:
+            return JSON.stringify(entry);
+    }
+};
+
 export const prettyReport = (report: GenerationReport, options: PrettyReportOptions = {}): string => {
-    const { success, filesGenerated, errors, warnings, duration } = report;
+    const { success, filesGenerated, errors, warnings, duration, inputReport } = report;
     const fileLimit = options.fileLimit ?? 20;
     const errorsStr = errors.length > 0 ? `Errors: ${errors.join(", ")}` : undefined;
     const warningsStr = warnings.length > 0 ? `Warnings: ${warnings.join(", ")}` : undefined;
+    const inputFixesStr =
+        inputReport && inputReport.length > 0
+            ? [`Input fixes (${inputReport.length}):`, ...inputReport.map((e) => `  - ${formatReportEntry(e)}`)].join(
+                  "\n",
+              )
+            : undefined;
 
     let totalFiles = 0;
     let totalLoc = 0;
@@ -124,6 +192,7 @@ export const prettyReport = (report: GenerationReport, options: PrettyReportOpti
     return [
         `Generated files (${totalFiles} files, ${formatLoc(totalLoc)}):`,
         ...groupStrs,
+        inputFixesStr,
         errorsStr,
         warningsStr,
         `Duration: ${Math.round(duration)}ms`,
@@ -167,38 +236,22 @@ export class APIBuilder {
     private logger: CodegenLogManager;
     private generators: { name: string; writer: FileSystemWriter }[] = [];
 
-    constructor(
-        userOpts: Partial<APIBuilderOptions> & {
-            manager?: ReturnType<typeof CanonicalManager>;
-            register?: Register;
-            preprocessPackage?: (context: PreprocessContext) => PreprocessContext;
-            ignorePackageIndex?: boolean;
-            logger?: CodegenLogManager;
-        } = {},
-    ) {
+    constructor(userOpts: APIBuilderInput = {}) {
         const defaultOpts: APIBuilderOptions = {
             outputDir: "./generated",
             cleanOutput: true,
             throwException: false,
-            registry: undefined,
-            dropCanonicalManagerCache: false,
         };
         const apiBuilderKeys: (keyof APIBuilderOptions)[] = [
             "outputDir",
             "cleanOutput",
             "throwException",
             "typeSchema",
-            "registry",
-            "dropCanonicalManagerCache",
         ];
         const opts: APIBuilderOptions = {
             ...defaultOpts,
             ...Object.fromEntries(apiBuilderKeys.filter((k) => userOpts[k] !== undefined).map((k) => [k, userOpts[k]])),
         };
-
-        if (userOpts.manager && userOpts.register) {
-            throw new Error("Cannot provide both 'manager' and 'register' options. Use one or the other.");
-        }
 
         this.managerInput = {
             npmPackages: [],
@@ -206,17 +259,63 @@ export class APIBuilder {
             localTgzPackages: [],
         };
         this.prebuiltRegister = userOpts.register;
-        this.manager =
+        this.logger = userOpts.logger ?? mkLogger({ prefix: "api" });
+
+        // `canonicalManager` takes either the loader's configuration or a prebuilt instance.
+        const isManagerInstance = (
+            value: CanonicalManagerOptions | ReturnType<typeof CanonicalManager>,
+        ): value is ReturnType<typeof CanonicalManager> => typeof (value as { init?: unknown }).init === "function";
+        if (userOpts.manager)
+            this.logger.warn("'manager' is deprecated; pass the instance via 'canonicalManager' instead.");
+        const injectedManager =
             userOpts.manager ??
+            (userOpts.canonicalManager && isManagerInstance(userOpts.canonicalManager)
+                ? userOpts.canonicalManager
+                : undefined);
+        if (injectedManager && userOpts.register) {
+            throw new Error("Cannot provide both a CanonicalManager instance and 'register'. Use one or the other.");
+        }
+        const cmOptions =
+            userOpts.canonicalManager && !isManagerInstance(userOpts.canonicalManager)
+                ? userOpts.canonicalManager
+                : undefined;
+
+        // Fold the deprecated flat loader options into `canonicalManager`, warning per option so
+        // callers migrate; setting an option in both styles is a conflict, not a preference.
+        const cm: CanonicalManagerOptions = { ...cmOptions };
+        const deprecatedCmOptions = [
+            ["registry", "registry", userOpts.registry],
+            ["packageIndex", "packageIndex", userOpts.packageIndex],
+            ["dropCache", "dropCanonicalManagerCache", userOpts.dropCanonicalManagerCache],
+            ["patches", "patches", userOpts.patches],
+        ] as const;
+        for (const [key, oldName, value] of deprecatedCmOptions) {
+            if (value === undefined) continue;
+            if (cm[key] !== undefined)
+                throw new Error(`Cannot set both 'canonicalManager.${key}' and the deprecated '${oldName}'.`);
+            this.logger.warn(
+                `'${oldName}' is deprecated; use 'canonicalManager: { ${key} }' — it configures the CanonicalManager package loader.`,
+            );
+            (cm as Record<string, unknown>)[key] = value;
+        }
+
+        this.manager =
+            injectedManager ??
             CanonicalManager({
                 packages: [],
                 workingDir: ".codegen-cache/canonical-manager-cache",
-                registry: userOpts.registry,
-                dropCache: userOpts.dropCanonicalManagerCache,
+                registry: cm.registry,
+                dropCache: cm.dropCache,
+                patches: cm.patches,
                 preprocessPackage: userOpts.preprocessPackage,
+                packageIndex: cm.packageIndex,
                 ignorePackageIndex: userOpts.ignorePackageIndex,
             });
-        this.logger = userOpts.logger ?? mkLogger({ prefix: "api" });
+        // Loader configuration only applies to a CM that this builder constructs; an injected
+        // manager/register owns its own wiring.
+        if (cmOptions && (injectedManager || userOpts.register)) {
+            this.logger.warn("loader configuration is ignored when a prebuilt manager/`register` is provided.");
+        }
         this.options = opts;
     }
 
@@ -396,6 +495,17 @@ export class APIBuilder {
 
     typeSchema(cfg: IrConf) {
         this.options.typeSchema ??= {};
+        if (cfg.excludedCanonicals) {
+            assert(
+                this.options.typeSchema.excludedCanonicals === undefined,
+                "excludedCanonicals option is already set",
+            );
+            this.options.typeSchema.excludedCanonicals = cfg.excludedCanonicals;
+        }
+        if (cfg.builtinExclusions !== undefined) {
+            assert(this.options.typeSchema.builtinExclusions === undefined, "builtinExclusions option is already set");
+            this.options.typeSchema.builtinExclusions = cfg.builtinExclusions;
+        }
         if (cfg.treeShake) {
             assert(this.options.typeSchema.treeShake === undefined, "treeShake option is already set");
             this.options.typeSchema.treeShake = cfg.treeShake;
@@ -474,6 +584,7 @@ export class APIBuilder {
                     logger: this.logger.fork("reg"),
                     focusedPackages: packageMetas,
                 });
+                result.inputReport = this.manager.report();
             }
 
             const tsLogger = this.logger.fork("ts");
@@ -482,6 +593,7 @@ export class APIBuilder {
                 register,
                 this.options.typeSchema?.resolveCollisions,
                 tsLogger,
+                resolveExclusions(this.options.typeSchema ?? {}),
             );
 
             const irReport = {

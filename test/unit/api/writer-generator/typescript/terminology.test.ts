@@ -111,7 +111,7 @@ describe("terminology surface against an R5 closure", () => {
             Object.entries(files).find(([path]) => path.endsWith("hl7-fhir-r5-core/terminology.ts"))?.[1] ?? "";
         expect(module).toContain('export type AdministrativeGenderCode = "male" | "female" | "other" | "unknown"');
         expect(module).toContain("satisfies CodedTerminologyEntry<AdministrativeGenderCode>");
-    });
+    }, 120_000); // cold CI caches download the core package inside the test
 });
 
 describe("terminology surface against an R6 closure", () => {
@@ -141,7 +141,7 @@ describe("terminology surface against an R6 closure", () => {
             Object.entries(files).find(([path]) => path.endsWith("hl7-fhir-r6-core/terminology.ts"))?.[1] ?? "";
         expect(module).toContain('export type AdministrativeGenderCode = "male" | "female" | "other" | "unknown"');
         expect(module).toContain("satisfies CodedTerminologyEntry<AdministrativeGenderCode>");
-    });
+    }, 120_000); // cold CI caches download the core package inside the test
 });
 
 describe("enum validation linked to emitted terminology", () => {

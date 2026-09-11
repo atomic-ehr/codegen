@@ -136,6 +136,18 @@ atomic-codegen generate --config ./codegen.json --dry-run  # print the plan with
 
 Relative paths resolve against the config file's directory, unknown keys are rejected with the full list of problems, and `outputTo` is removed before generation by default (set `"cleanOutput": false` to keep it). A config may hold several builders: each maps to one `APIBuilder` pipeline (`fromPackages`/`fromPackageRefs`/`localTgzPackages`/`localStructureDefinitions` inputs, `typeSchema` transformations, and `typescript`/`python`/`csharp`/`introspection` generators — see `GenerateConfigBuilder` in `src/api/generate-config.ts`). A failed builder does not stop the others, and the run exits non-zero if any failed.
 
+### Fixing defective packages
+
+Real FHIR packages ship defects — missing dependencies, typo'd names and canonicals, bindings to unavailable ValueSets, incomplete CodeSystems. Fixes are declared, not hand-coded:
+
+- **Canonical exclusions** — drop a known-broken canonical from generation while the package data stays untouched and resolvable: `.typeSchema({ excludedCanonicals: [{ package, url, reason }] })`. Codegen ships `builtinExclusions` (generation-breaking content in HL7's own packages, e.g. `hl7.fhir.r5.core` profiles that break R4-compatible generation); they always apply on top of your own, and `.typeSchema({ builtinExclusions: false })` is the explicit opt-out.
+- **Custom patches** — per-phase handlers built from the helpers on the `@atomic-ehr/fhir-canonical-manager/patch` subpath (`ensureDependency`, `renamePackage`, `replaceText`, `ensureCodes`, scoped by `inPackage`/`inResource`), passed as `new APIBuilder({ canonicalManager: { patches: {...} } })`. In the CLI config, `"options": { "forceDependencies": {...} }` pins declared dependency versions across the closure.
+- **Broken package index** — `canonicalManager: { packageIndex: "recover" }` heals a corrupt `.index.json` by falling back to a directory scan (always with a warning); `"regenerate"` ignores the shipped index entirely.
+
+Loader settings (`registry`, `packageIndex`, `dropCache`, `patches`) live under the builder's `canonicalManager` option — they configure the CanonicalManager package loader, not the generator. The old flat options are deprecated and warn.
+
+Applied fixes surface in the generation report's "Input fixes" section.
+
 ### Usage Examples
 
 See the [examples/](examples/) directory for working demonstrations:

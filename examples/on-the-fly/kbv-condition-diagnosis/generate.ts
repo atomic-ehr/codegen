@@ -11,8 +11,10 @@ if (require.main === module) {
     console.log("Generating KBV Condition Diagnosis types...");
 
     const builder = new APIBuilder({
-        registry: "https://packages.simplifier.net",
-        ignorePackageIndex: true,
+        canonicalManager: {
+            registry: "https://packages.simplifier.net",
+            packageIndex: "regenerate",
+        },
     })
         .fromPackage("kbv.basis", "1.9.0")
         .throwException()

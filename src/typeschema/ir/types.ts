@@ -1,3 +1,4 @@
+import type { CanonicalExclusionInput } from "../exclusions";
 import type { CanonicalUrl, PkgName, TypeSchema } from "../types";
 
 export type TypeSchemaCollisions = Record<
@@ -16,6 +17,12 @@ export type CollisionResolution = { package: string; canonical: string };
 export type ResolveCollisionsConf = Record<string, CollisionResolution>;
 
 export type IrConf = {
+    /** Project-declared canonicals to drop from generation (the package data itself is
+     *  untouched and stays resolvable). Applied on top of the shipped `builtinExclusions`. */
+    excludedCanonicals?: CanonicalExclusionInput[];
+    /** Apply the shipped exclusions (generation-breaking content in HL7's own packages).
+     *  Defaults to true; `false` is the explicit opt-out. */
+    builtinExclusions?: boolean;
     treeShake?: TreeShakeConf;
     /** Rule defaults applied to every treeShake root; a rule's own value wins. */
     treeShakeDefaults?: TreeShakeDefaults;

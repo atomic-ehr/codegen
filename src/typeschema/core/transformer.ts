@@ -6,7 +6,7 @@
 
 import assert from "node:assert";
 import type { FHIRSchemaElement } from "@atomic-ehr/fhirschema";
-import { shouldSkipCanonical } from "@root/typeschema/skip-hack";
+import { builtinExclusions, findExclusion } from "@root/typeschema/exclusions";
 import type { CodegenLog } from "@root/utils/log";
 import { isVirtualFhirBaseCanonical, type Register } from "@typeschema/register";
 import {
@@ -50,11 +50,9 @@ export function mkFields(
         const path = [...parentPath, key];
         const elemSnapshot = register.resolveElementSnapshot(fhirSchema, path);
         const fcurl = elemSnapshot.type ? register.ensureSpecializationCanonicalUrl(elemSnapshot.type) : undefined;
-        if (fcurl && shouldSkipCanonical(fhirSchema.package_meta, fcurl).shouldSkip) {
-            logger?.warn(
-                "#skipCanonical",
-                `Skipping field ${path} for ${fcurl} due to skip hack ${shouldSkipCanonical(fhirSchema.package_meta, fcurl).reason}`,
-            );
+        const exclusion = fcurl && findExclusion(builtinExclusions, fhirSchema.package_meta, fcurl);
+        if (exclusion) {
+            logger?.warn("#skipCanonical", `Skipping field ${path} for ${fcurl} due to exclusion: ${exclusion.reason}`);
             continue;
         }
         if (isNestedElement(register, fhirSchema, path, elemSnapshot, elements[key])) {
