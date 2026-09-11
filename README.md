@@ -136,6 +136,23 @@ atomic-codegen generate --config ./codegen.json --dry-run  # print the plan with
 
 Relative paths resolve against the config file's directory, unknown keys are rejected with the full list of problems, and `outputTo` is removed before generation by default (set `"cleanOutput": false` to keep it). A config may hold several builders: each maps to one `APIBuilder` pipeline (`fromPackages`/`fromPackageRefs`/`localTgzPackages`/`localStructureDefinitions` inputs, `typeSchema` transformations, and `typescript`/`python`/`csharp`/`introspection` generators — see `GenerateConfigBuilder` in `src/api/generate-config.ts`). A failed builder does not stop the others, and the run exits non-zero if any failed.
 
+The JSON `typescript` options also accept `moduleSpecifierStyle` (`"extensionless"` or `"node-esm"`) and `terminology`. For Node ESM imports and terminology output restricted to selected packages, replace `"typescript": {}` with:
+
+```json
+"typescript": {
+    "moduleSpecifierStyle": "node-esm",
+    "terminology": {
+        "enabled": true,
+        "packages": ["hl7.fhir.r4.core@4.0.1"],
+        "packageVerification": {
+            "hl7.fhir.r4.core@4.0.1": "registry-integrity"
+        }
+    }
+}
+```
+
+All terminology fields are optional. When supplied, `enabled` must be a boolean, `packages` must be an array of strings, and `packageVerification` must contain string values. Unknown nested keys and invalid values are reported with their full configuration paths.
+
 ### Usage Examples
 
 See the [examples/](examples/) directory for working demonstrations:

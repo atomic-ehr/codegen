@@ -108,6 +108,78 @@ describe("parseGenerateConfig", () => {
         expect(config.builders[0]!.name).toBe("core");
     });
 
+    it("accepts package verification provenance for TypeScript terminology", () => {
+        const raw = validConfig();
+        raw.builders[0]!.typescript = {
+            terminology: {
+                enabled: true,
+                packageVerification: {
+                    "hl7.fhir.r4.core@4.0.1": "registry-integrity",
+                    "bfarm.terminologien.icd10gm@2026.0.0": "unverifiable",
+                },
+            },
+        };
+
+        const config = parseGenerateConfig(raw, CONFIG_PATH);
+
+        expect(config.builders[0]!.typescript).toEqual(raw.builders[0]!.typescript);
+    });
+
+    it("rejects invalid TypeScript module and terminology option values", () => {
+        const raw = validConfig();
+        raw.builders[0]!.typescript = {
+            moduleSpecifierStyle: "commonjs",
+            terminology: { enabled: true, packages: ["fixture.ig@1.2.3", 42] },
+        };
+
+        try {
+            parseGenerateConfig(raw, CONFIG_PATH);
+            throw new Error("expected a GenerateConfigError");
+        } catch (error) {
+            const issues = (error as GenerateConfigError).issues;
+            expect(issues.map((issue) => issue.path)).toEqual([
+                "builders[0].typescript.moduleSpecifierStyle",
+                "builders[0].typescript.terminology.packages[1]",
+            ]);
+            expect(issues[0]!.message).toContain("extensionless, node-esm");
+            expect(issues[1]!.message).toContain("expected a string");
+        }
+    });
+
+    it.each(["extensionless", "node-esm"])("accepts the %s TypeScript module style", (moduleSpecifierStyle) => {
+        const raw = validConfig();
+        raw.builders[0]!.typescript = { moduleSpecifierStyle };
+
+        expect(parseGenerateConfig(raw, CONFIG_PATH).builders[0]!.typescript).toEqual({ moduleSpecifierStyle });
+    });
+
+    it.each([
+        [{ moduleSpecifierStyle: true }, "moduleSpecifierStyle", "expected a string"],
+        [{ terminology: [] }, "terminology", "expected an object"],
+        [{ terminology: { enable: true } }, "terminology.enable", "unknown key"],
+        [{ terminology: { enabled: "true" } }, "terminology.enabled", "expected a boolean"],
+        [{ terminology: { packages: "fixture.ig@1.2.3" } }, "terminology.packages", "expected an array"],
+        [{ terminology: { packageVerification: [] } }, "terminology.packageVerification", "expected an object"],
+        [
+            { terminology: { packageVerification: { fixture: false } } },
+            "terminology.packageVerification.fixture",
+            "expected a string",
+        ],
+    ])("rejects malformed TypeScript options %j", (typescript, path, message) => {
+        const raw = validConfig();
+        raw.builders[0]!.typescript = typescript;
+
+        try {
+            parseGenerateConfig(raw, CONFIG_PATH);
+            throw new Error("expected a GenerateConfigError");
+        } catch (error) {
+            expect(error).toBeInstanceOf(GenerateConfigError);
+            expect((error as GenerateConfigError).issues).toEqual([
+                { path: `builders[0].typescript.${path}`, message: expect.stringContaining(message) },
+            ]);
+        }
+    });
+
     it("rejects an unknown key in a builder and names it", () => {
         const raw = validConfig();
         (raw.builders[0] as Record<string, unknown>).typscript = {};
@@ -337,6 +409,29 @@ describe("parseGenerateConfig", () => {
 });
 
 describe("runGenerateConfig", () => {
+    it("passes TypeScript module and terminology options from JSON to generation", async () => {
+        const raw = validConfig();
+        raw.builders[0]!.typescript = {
+            moduleSpecifierStyle: "node-esm",
+            terminology: {
+                enabled: true,
+                packages: ["fixture.ig@1.2.3", "restricted.ig@2.0.0"],
+                packageVerification: {
+                    "fixture.ig@1.2.3": "publisher-signature",
+                    "restricted.ig@2.0.0": "unverifiable",
+                },
+            },
+        };
+        const config = parseGenerateConfig(raw, CONFIG_PATH);
+        const factory = mkFactory();
+
+        await runGenerateConfig(config, { createBuilder: factory.createBuilder });
+
+        expect(factory.recordings[0]!.calls.find((call) => call.method === "typescript")!.args).toEqual([
+            raw.builders[0]!.typescript,
+        ]);
+    });
+
     it("applies one builder's configuration in a fixed order", async () => {
         const config = parseGenerateConfig(
             {
