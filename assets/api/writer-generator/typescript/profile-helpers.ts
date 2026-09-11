@@ -507,7 +507,9 @@ export const validateEnum = (res: object, profileName: string, field: string, al
 /**
  * Checks that a Reference field points to one of the `allowed` resource
  * types.  Extracts the type from the `reference` string (the part before
- * the first `/`).  Skips validation when the field or reference is absent.
+ * the first `/`).  The abstract `Resource` target accepts any concrete
+ * resource type; explicit targets remain exact restrictions.  Skips
+ * validation when the field or reference is absent.
  */
 export const validateReference = (res: object, profileName: string, field: string, allowed: string[]): string[] => {
     const value = (res as Record<string, unknown>)[field];
@@ -517,7 +519,7 @@ export const validateReference = (res: object, profileName: string, field: strin
     const slashIdx = ref.indexOf("/");
     if (slashIdx === -1) return [];
     const refType = ref.slice(0, slashIdx);
-    return allowed.includes(refType)
+    return allowed.includes("Resource") || allowed.includes(refType)
         ? []
         : [`${profileName}: field '${field}' references '${refType}' but only ${allowed.join(", ")} are allowed`];
 };
