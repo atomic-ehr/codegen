@@ -489,6 +489,7 @@ const generateFactoryMethods = (
     // widen createResource and create to accept Input | Raw
     const subSlicesForInput = snapshot.base.name === "Extension" ? collectSubExtensionSlices(snapshot) : [];
     const hasInputHelper = subSlicesForInput.length > 0;
+    const requiresFactoryInput = hasParams || subSlicesForInput.some((sub) => sub.isRequired);
 
     if (hasInputHelper) {
         const rawInputTypeName = `${profileClassName}Raw`;
@@ -532,11 +533,26 @@ const generateFactoryMethods = (
         w.line();
 
         // createResource — accepts Input | Raw
-        const createResourceSig = hasParams
+        const createResourceSig = requiresFactoryInput
             ? `args: ${rawInputTypeName} | ${inputTypeName}`
             : `args?: ${rawInputTypeName} | ${inputTypeName}`;
         w.curlyBlock(["static", "createResource", `(${createResourceSig})`, `: ${tsBaseResourceName}`], () => {
-            w.lineSM(`const resolvedExtensions = ${profileClassName}.resolveInput(args ?? {})`);
+            const inputExpression = requiresFactoryInput ? "args" : "args ?? {}";
+            w.lineSM(`const resolvedExtensions = ${profileClassName}.resolveInput(${inputExpression})`);
+            for (const field of factoryInfo.sliceAutoFields) {
+                if (field.name === "extension") continue;
+                const matchRefs = field.sliceNames.map(
+                    (sliceName) => `${profileClassName}.${tsSliceStaticName(sliceName)}SliceMatch`,
+                );
+                w.line(`const ${field.name}WithDefaults = ensureSliceDefaults(`);
+                w.indentBlock(() => {
+                    w.line(`[...(args.${field.name} ?? [])],`);
+                    for (const ref of matchRefs) {
+                        w.line(`${ref},`);
+                    }
+                });
+                w.lineSM(")");
+            }
             const extSliceField = factoryInfo.sliceAutoFields.find((f) => f.name === "extension");
             if (extSliceField) {
                 const matchRefs = extSliceField.sliceNames.map(
@@ -577,7 +593,7 @@ const generateFactoryMethods = (
         w.line();
 
         // create — accepts Input | Raw, delegates to createResource
-        const createSig = hasParams
+        const createSig = requiresFactoryInput
             ? `args: ${rawInputTypeName} | ${inputTypeName}`
             : `args?: ${rawInputTypeName} | ${inputTypeName}`;
         w.curlyBlock(["static", "create", `(${createSig})`, `: ${profileClassName}`], () => {
@@ -793,16 +809,34 @@ const generateRawType = (w: TypeScript, snapshot: SnapshotProfileTypeSchema, fac
     w.line();
 };
 
-const generateFlatInputType = (w: TypeScript, snapshot: SnapshotProfileTypeSchema) => {
+const generateFlatInputType = (w: TypeScript, snapshot: SnapshotProfileTypeSchema, factoryInfo: ProfileFactoryInfo) => {
     const subSlices = snapshot.base.name === "Extension" ? collectSubExtensionSlices(snapshot) : [];
     if (subSlices.length === 0) return;
 
     const flatInputTypeName = `${tsProfileClassName(snapshot)}Flat`;
+    const flatFields = [
+        ...factoryInfo.params
+            .filter((param) => param.name !== "extension")
+            .map((param) => ({ name: param.name, optional: false, tsType: param.tsType })),
+        ...factoryInfo.sliceAutoFields
+            .filter((field) => field.name !== "extension")
+            .map((field) => ({ name: field.name, optional: true, tsType: field.tsType })),
+        ...subSlices.map((sub) => ({
+            name: sub.name,
+            optional: !sub.isRequired,
+            tsType: `${sub.tsType}${sub.isArray ? "[]" : ""}`,
+        })),
+    ];
+    const seen = new Set<string>();
+    for (const field of flatFields) {
+        if (seen.has(field.name)) {
+            throw new Error(`Flat input field collision for ${flatInputTypeName}: ${field.name}`);
+        }
+        seen.add(field.name);
+    }
     w.curlyBlock(["export", "type", flatInputTypeName, "="], () => {
-        for (const sub of subSlices) {
-            const opt = sub.isRequired ? "" : "?";
-            const arr = sub.isArray ? "[]" : "";
-            w.lineSM(`${sub.name}${opt}: ${sub.tsType}${arr}`);
+        for (const field of flatFields) {
+            w.lineSM(`${field.name}${field.optional ? "?" : ""}: ${field.tsType}`);
         }
     });
     w.line();
@@ -820,7 +854,7 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, sn
     generateProfileHelpersImport(w, tsIndex, snapshot, sliceDefs, factoryInfo);
 
     generateRawType(w, snapshot, factoryInfo);
-    generateFlatInputType(w, snapshot);
+    generateFlatInputType(w, snapshot, factoryInfo);
 
     const canonicalUrl = snapshot.identifier.url;
     w.comment("CanonicalURL:", canonicalUrl, `(pkg: ${packageMetaToFhir(packageMeta(snapshot))})`);
