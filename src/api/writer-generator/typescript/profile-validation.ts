@@ -66,10 +66,11 @@ export const collectRegularFieldValidation = (
     if (field.required) errors.push(`...validateRequired(res, profileName, ${JSON.stringify(name)})`);
 
     if (field.valueConstraint) {
-        const valueExpr =
+        const constrainedValueExpr =
             canonicalUrlExpr && name === "url" && field.valueConstraint.value === canonicalUrlExpr.url
                 ? canonicalUrlExpr.expr
                 : JSON.stringify(field.valueConstraint.value);
+        const valueExpr = field.array ? `[${constrainedValueExpr}]` : constrainedValueExpr;
         const fn = field.valueConstraint.validateOnly ? "validatePatternValue" : "validateFixedValue";
         errors.push(`...${fn}(res, profileName, ${JSON.stringify(name)}, ${valueExpr})`);
     }
