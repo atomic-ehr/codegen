@@ -53,7 +53,7 @@ const fieldTypeResolutionHint = (register: Register, pkg: PackageMeta, type: str
     if (!dependsOnR4Core(register, pkg)) return "";
     return (
         `\n  hint:    '${type}' is an R5+ type and is not available when generating against R4.` +
-        `\n           Either skip this canonical via skip-hack.ts, or upgrade the target to R5.`
+        `\n           Either exclude this canonical via a CanonicalManager patch (excludeCanonical; see src/api/builtin-patches.ts), or upgrade the target to R5.`
     );
 };
 

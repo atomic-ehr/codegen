@@ -5,6 +5,7 @@ import { CanonicalManager } from "@atomic-ehr/fhir-canonical-manager";
 import { ensureCodes, inPackage, inResource, replaceText } from "@atomic-ehr/fhir-canonical-manager/patch";
 import { registerFromManager } from "@root/typeschema/register";
 import { APIBuilder, prettyReport } from "../../../src/api/builder";
+import { builtinPatches } from "../../../src/api/builtin-patches";
 
 if (require.main === module) {
     console.log("📦 Generating CCDA Types...");
@@ -13,6 +14,9 @@ if (require.main === module) {
         packages: [],
         workingDir: ".codegen-cache/canonical-manager-cache",
         patches: {
+            // A hand-built manager owns its wiring: apply the shipped input fixes explicitly
+            // (the builder does this automatically for the loaders it constructs).
+            indexEntry: builtinPatches.indexEntry,
             fhirResource: [
                 // IVL_TS is a typo'd canonical in hl7.cda.uv.core (should be IVL-TS).
                 inPackage("hl7.cda.uv.core", [

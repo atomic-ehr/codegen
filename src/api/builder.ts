@@ -18,6 +18,7 @@ import {
     type ReportEntry,
     type TgzPackageConfig,
 } from "@atomic-ehr/fhir-canonical-manager";
+import { builtinPatches } from "@root/api/builtin-patches";
 import { CSharp, type CSharpGeneratorOptions } from "@root/api/writer-generator/csharp/csharp";
 import { Python, type PythonGeneratorOptions } from "@root/api/writer-generator/python/writer";
 import { generateTypeSchemas } from "@root/typeschema";
@@ -87,6 +88,9 @@ export type APIBuilderInput = Partial<APIBuilderOptions> &
          *  patches) for the manager the builder constructs, or a prebuilt CanonicalManager
          *  instance — interchangeable from the caller's side. */
         canonicalManager?: CanonicalManagerOptions | ReturnType<typeof CanonicalManager>;
+        /** Apply the shipped input fixes (`src/api/builtin-patches.ts`) to the constructed
+         *  loader. Defaults to true; `false` is the explicit opt-out. */
+        builtinPatches?: boolean;
         register?: Register;
         logger?: CodegenLogManager;
     };
@@ -305,7 +309,14 @@ export class APIBuilder {
                 workingDir: ".codegen-cache/canonical-manager-cache",
                 registry: cm.registry,
                 dropCache: cm.dropCache,
-                patches: cm.patches,
+                patches: {
+                    packageJson: cm.patches?.packageJson ?? [],
+                    indexEntry: [
+                        ...((userOpts.builtinPatches ?? true) ? (builtinPatches.indexEntry ?? []) : []),
+                        ...(cm.patches?.indexEntry ?? []),
+                    ],
+                    fhirResource: cm.patches?.fhirResource ?? [],
+                },
                 preprocessPackage: userOpts.preprocessPackage,
                 packageIndex: cm.packageIndex,
                 ignorePackageIndex: userOpts.ignorePackageIndex,

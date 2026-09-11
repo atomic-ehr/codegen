@@ -15,12 +15,10 @@ import { compareCollisionSources, compareCollisionVariants } from "./collision-o
 import { transformFhirSchema, transformValueSet } from "./core/transformer";
 import type { ResolveCollisionsConf, TypeSchemaCollisions } from "./ir/types";
 import type { Register } from "./register";
-import { shouldSkipCanonical } from "./skip-hack";
 import type { CanonicalUrl, PkgName } from "./types";
 import { hashSchema, packageMetaToFhir, type TypeSchema } from "./types";
 
 // Re-export core dependencies
-export { shouldSkipCanonical, skipList } from "./skip-hack";
 export type { TypeIdentifier as Identifier, TypeSchema } from "./types";
 
 export interface GenerateTypeSchemasResult {
@@ -118,12 +116,6 @@ export const generateTypeSchemas = async (
 
     for (const fhirSchema of register.allFs()) {
         const pkgId = packageMetaToFhir(fhirSchema.package_meta);
-
-        const skipCheck = shouldSkipCanonical(fhirSchema.package_meta, fhirSchema.url);
-        if (skipCheck.shouldSkip) {
-            logger?.dryWarn("#skipCanonical", `Skip ${fhirSchema.url} from ${pkgId}. Reason: ${skipCheck.reason}`);
-            continue;
-        }
 
         for (const schema of transformFhirSchema(register, fhirSchema, logger)) {
             schemasWithSources.push({
