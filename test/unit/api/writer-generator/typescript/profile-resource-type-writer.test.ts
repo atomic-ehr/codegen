@@ -34,7 +34,7 @@ const primitiveSchema: PrimitiveTypeSchema = {
     base: elementBase,
 };
 
-const makeBase = (kind: "resource" | "complex-type", name: string): TypeIdentifier => ({
+const makeBase = (kind: "resource" | "complex-type" | "profile", name: string): TypeIdentifier => ({
     kind,
     name: name as Name,
     package: "hl7.fhir.r4.core",
@@ -65,6 +65,9 @@ const extensionSchema: ComplexTypeTypeSchema = {
 };
 const datatypeSchema: ComplexTypeTypeSchema = {
     identifier: datatypeBase as ComplexTypeTypeSchema["identifier"],
+};
+const elementSchema: ComplexTypeTypeSchema = {
+    identifier: elementBase as ComplexTypeTypeSchema["identifier"],
 };
 const generateProfile = (
     snapshot: SnapshotProfileTypeSchema,
@@ -102,14 +105,24 @@ describe("TypeScript profile writer resourceType descriptor", () => {
     // Complex and primitive profiles do not
     // represent FHIR resources and must not expose a resourceType descriptor.
     test.each([
-        ["ExtensionProfile", extensionBase, extensionSchema],
-        ["AddressProfile", datatypeBase, datatypeSchema],
-        ["PrimitiveProfile", primitiveBase, primitiveSchema],
-    ])("omits static resourceType for non-resource profile %s", (name, base, schema) => {
-        const { logger, generated } = generateProfile(makeSnapshot(name, base), [schema]);
+        ["ExtensionProfile", extensionBase, [extensionSchema]],
+        ["AddressProfile", datatypeBase, [datatypeSchema]],
+        ["PrimitiveProfile", primitiveBase, [primitiveSchema, elementSchema]],
+    ] as const)("omits static resourceType for non-resource profile %s", (name, base, schemas) => {
+        const { logger, generated } = generateProfile(makeSnapshot(name, base), [...schemas]);
 
         expect(logger.buffer().filter((entry) => entry.level === "ERROR")).toEqual([]);
         expect(generated).toContain(`export class ${name}`);
+        expect(generated).not.toContain("static readonly resourceType");
+    });
+
+    test("logs an error when a profile base does not resolve to a specialization", () => {
+        const unresolvableBase = makeBase("profile", "USCoreObservation");
+        const { logger, generated } = generateProfile(makeSnapshot("Orphan", unresolvableBase), [resourceSchema]);
+
+        const errors = logger.buffer().filter((entry) => entry.level === "ERROR");
+        expect(errors).toHaveLength(1);
+        expect(errors[0]?.message).toContain("Cannot emit static resourceType for profile 'OrphanProfile'");
         expect(generated).not.toContain("static readonly resourceType");
     });
 });
