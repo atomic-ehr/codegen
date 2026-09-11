@@ -47,6 +47,7 @@ export type USCorePatientProfileRaw = {
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient (pkg: hl7.fhir.us.core#8.0.1)
 export class USCorePatientProfile {
+    static readonly resourceType = "Patient";
     static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient";
 
     private resource: Patient;

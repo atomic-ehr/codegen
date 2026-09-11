@@ -491,6 +491,15 @@ Templates enable flexible code generation for any language or format (Go, Rust, 
 
 When generating TypeScript with `generateProfile: true`, the generator creates profile wrapper classes that provide a fluent API for working with FHIR profiles. These classes handle complex profile constraints like slicing and extensions automatically.
 
+Resource profile classes expose `static readonly resourceType` alongside `canonicalUrl`, `from()` and `createResource()`. A generic FHIR client can use the class itself as a structural descriptor. The resource type comes from the resolved snapshot base; Extension and datatype profile classes do not expose `resourceType`.
+
+```typescript
+import { observation_bodyweightProfile } from "./profiles/Observation_observation_bodyweight";
+
+observation_bodyweightProfile.resourceType; // "Observation"
+observation_bodyweightProfile.canonicalUrl; // "http://hl7.org/fhir/StructureDefinition/bodyweight"
+```
+
 ```typescript
 import { observation_bpProfile as bpProfile } from "./profiles/Observation_observation_bp";
 

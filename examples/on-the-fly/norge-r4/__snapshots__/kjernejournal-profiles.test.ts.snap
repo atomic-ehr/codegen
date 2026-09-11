@@ -80,6 +80,7 @@ export type KjAllergyIntoleranceProfileRaw = {
 
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjAllergyIntolerance (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjAllergyIntoleranceProfile {
+    static readonly resourceType = "AllergyIntolerance";
     static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjAllergyIntolerance";
 
     private resource: AllergyIntolerance;
@@ -512,6 +513,7 @@ export type KjConditionComplicationsOfAnesthesiaProfileRaw = {
 
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjConditionComplicationsOfAnesthesia (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjConditionComplicationsOfAnesthesiaProfile {
+    static readonly resourceType = "Condition";
     static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjConditionComplicationsOfAnesthesia";
 
     private static readonly possibilityForVentilationWithMaskSliceMatch: Record<string, unknown> = {
@@ -895,6 +897,7 @@ export type KjConditionCriticalMedicalConditionProfileRaw = {
 
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjConditionCriticalMedicalCondition (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjConditionCriticalMedicalConditionProfile {
+    static readonly resourceType = "Condition";
     static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjConditionCriticalMedicalCondition";
 
     private resource: Condition;
@@ -1251,6 +1254,7 @@ export type KjConditionInfectionProfileRaw = {
 
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjConditionInfection (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjConditionInfectionProfile {
+    static readonly resourceType = "Condition";
     static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjConditionInfection";
 
     private resource: Condition;
@@ -1630,6 +1634,7 @@ export type KjConditionTransplantsAndOtherForeignBodiesProfileRaw = {
 
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjConditionTransplantsAndOtherForeignBodies (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjConditionTransplantsAndOtherForeignBodiesProfile {
+    static readonly resourceType = "Condition";
     static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjConditionTransplantsAndOtherForeignBodies";
 
     private resource: Condition;
@@ -2009,6 +2014,7 @@ export type KjConsentProfileRaw = {
 
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjConsent (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjConsentProfile {
+    static readonly resourceType = "Consent";
     static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjConsent";
 
     private resource: Consent;
@@ -2371,6 +2377,7 @@ export type KjDeviceUseStatementProfileRaw = {
 
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjDeviceUseStatement (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjDeviceUseStatementProfile {
+    static readonly resourceType = "DeviceUseStatement";
     static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjDeviceUseStatement";
 
     private resource: DeviceUseStatement;
@@ -2673,6 +2680,7 @@ export type KjDeviceProfileRaw = {
 
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjDevice (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjDeviceProfile {
+    static readonly resourceType = "Device";
     static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjDevice";
 
     private resource: Device;
@@ -3874,6 +3882,7 @@ export type KjFlagProfileRaw = {
 
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjFlag (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjFlagProfile {
+    static readonly resourceType = "Flag";
     static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjFlag";
 
     private static readonly KjCategorySliceMatch: Record<string, unknown> = {
@@ -4224,6 +4233,7 @@ export type KjPractitionerRoleProfileRaw = {
 
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjPractitionerRoleProfile {
+    static readonly resourceType = "PractitionerRole";
     static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjPractitionerRole";
 
     private resource: PractitionerRole;
@@ -4381,6 +4391,7 @@ export type KjProcedureProfileRaw = {
 
 // CanonicalURL: http://nhn.no/kj/fhir/StructureDefinition/KjProcedure (pkg: nhn.fhir.no.kjernejournal#1.0.0)
 export class KjProcedureProfile {
+    static readonly resourceType = "Procedure";
     static readonly canonicalUrl = "http://nhn.no/kj/fhir/StructureDefinition/KjProcedure";
 
     private resource: Procedure;

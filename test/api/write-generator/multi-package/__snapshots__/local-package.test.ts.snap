@@ -70,6 +70,7 @@ export type ExampleTypedBundleProfileRaw = {
 
 // CanonicalURL: http://example.org/fhir/StructureDefinition/ExampleTypedBundle (pkg: example.folder.structures#0.0.1)
 export class ExampleTypedBundleProfile {
+    static readonly resourceType = "Bundle";
     static readonly canonicalUrl = "http://example.org/fhir/StructureDefinition/ExampleTypedBundle";
 
     private static readonly PatientEntrySliceMatch: Record<string, unknown> = {"resource":{"resourceType":"Patient"}};

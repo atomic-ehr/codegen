@@ -44,6 +44,7 @@ export type USCoreBodyWeightProfileRaw = {
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight (pkg: hl7.fhir.us.core#8.0.1)
 export class USCoreBodyWeightProfile {
+    static readonly resourceType = "Observation";
     static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight";
 
     private static readonly VSCatSliceMatch: Record<string, unknown> = {

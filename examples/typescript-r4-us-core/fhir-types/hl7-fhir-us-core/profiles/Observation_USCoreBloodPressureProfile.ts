@@ -53,6 +53,7 @@ export type USCoreBloodPressureProfileRaw = {
 
 // CanonicalURL: http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure (pkg: hl7.fhir.us.core#8.0.1)
 export class USCoreBloodPressureProfile {
+    static readonly resourceType = "Observation";
     static readonly canonicalUrl = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure";
 
     private static readonly VSCatSliceMatch: Record<string, unknown> = {

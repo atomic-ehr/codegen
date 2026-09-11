@@ -46,6 +46,7 @@ export type SystemOnlyCodingObservationProfileRaw = {
 
 // CanonicalURL: http://example.org/StructureDefinition/system-only-coding (pkg: codegen.test#1.0.0)
 export class SystemOnlyCodingObservationProfile {
+    static readonly resourceType = "Observation";
     static readonly canonicalUrl = "http://example.org/StructureDefinition/system-only-coding";
 
     private resource: Observation;
@@ -185,6 +186,7 @@ export type CollidingSliceObservationProfileRaw = {
 
 // CanonicalURL: http://example.org/StructureDefinition/colliding-slice (pkg: codegen.test#1.0.0)
 export class CollidingSliceObservationProfile {
+    static readonly resourceType = "Observation";
     static readonly canonicalUrl = "http://example.org/StructureDefinition/colliding-slice";
 
     private static readonly categorySliceMatch: Record<string, unknown> = {
@@ -357,6 +359,7 @@ export type InheritedCollisionObservationProfileRaw = {
 
 // CanonicalURL: http://example.org/StructureDefinition/inherited-collision (pkg: codegen.test#1.0.0)
 export class InheritedCollisionObservationProfile {
+    static readonly resourceType = "Observation";
     static readonly canonicalUrl = "http://example.org/StructureDefinition/inherited-collision";
 
     private static readonly categorySliceMatch: Record<string, unknown> = {
