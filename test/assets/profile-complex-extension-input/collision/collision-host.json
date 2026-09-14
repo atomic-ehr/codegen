@@ -1,0 +1,50 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "collision-host",
+  "url": "http://example.test/StructureDefinition/collision-host",
+  "version": "0.1.0",
+  "name": "CollisionHost",
+  "status": "active",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Patient",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Patient",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Patient",
+        "path": "Patient"
+      },
+      {
+        "id": "Patient.extension",
+        "path": "Patient.extension",
+        "slicing": {
+          "discriminator": [
+            {
+              "type": "value",
+              "path": "url"
+            }
+          ],
+          "rules": "open"
+        }
+      },
+      {
+        "id": "Patient.extension:colliding",
+        "path": "Patient.extension",
+        "sliceName": "colliding",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "http://example.test/StructureDefinition/colliding-complex-extension"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "complex-extension-host",
+  "url": "http://example.test/StructureDefinition/complex-extension-host",
+  "version": "0.1.0",
+  "name": "ComplexExtensionHost",
+  "status": "active",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Patient",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Patient",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Patient",
+        "path": "Patient"
+      },
+      {
+        "id": "Patient.extension",
+        "path": "Patient.extension",
+        "slicing": {
+          "discriminator": [
+            {
+              "type": "value",
+              "path": "url"
+            }
+          ],
+          "rules": "open"
+        }
+      },
+      {
+        "id": "Patient.extension:identifiedComplex",
+        "path": "Patient.extension",
+        "sliceName": "identifiedComplex",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "http://example.test/StructureDefinition/identified-complex-extension"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Patient.extension:animal",
+        "path": "Patient.extension",
+        "sliceName": "animal",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "http://hl7.org/fhir/StructureDefinition/patient-animal"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

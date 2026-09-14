@@ -69,6 +69,60 @@
         ]
       },
       {
+        "id": "Extension.extension:requiredNote",
+        "path": "Extension.extension",
+        "sliceName": "requiredNote",
+        "min": 1,
+        "max": "1"
+      },
+      {
+        "id": "Extension.extension:requiredNote.extension",
+        "path": "Extension.extension.extension",
+        "max": "0"
+      },
+      {
+        "id": "Extension.extension:requiredNote.url",
+        "path": "Extension.extension.url",
+        "fixedUri": "requiredNote"
+      },
+      {
+        "id": "Extension.extension:requiredNote.value[x]",
+        "path": "Extension.extension.value[x]",
+        "min": 1,
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      },
+      {
+        "id": "Extension.extension:hyphenated-note",
+        "path": "Extension.extension",
+        "sliceName": "hyphenated-note",
+        "min": 0,
+        "max": "1"
+      },
+      {
+        "id": "Extension.extension:hyphenated-note.extension",
+        "path": "Extension.extension.extension",
+        "max": "0"
+      },
+      {
+        "id": "Extension.extension:hyphenated-note.url",
+        "path": "Extension.extension.url",
+        "fixedUri": "hyphenated-note"
+      },
+      {
+        "id": "Extension.extension:hyphenated-note.value[x]",
+        "path": "Extension.extension.value[x]",
+        "min": 1,
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      },
+      {
         "id": "Extension.url",
         "path": "Extension.url",
         "fixedUri": "http://example.test/StructureDefinition/identified-complex-extension"
