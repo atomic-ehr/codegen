@@ -47,6 +47,7 @@ export type NotedComplexExtensionProfileRaw = {
 }
 
 export type NotedComplexExtensionProfileFlat = {
+    id: string;
     note: string;
     detail?: string;
 }
@@ -98,7 +99,7 @@ export class NotedComplexExtensionProfile {
     }
 
     static createResource (args: NotedComplexExtensionProfileRaw | NotedComplexExtensionProfileFlat) : Extension {
-        const resolvedExtensions = NotedComplexExtensionProfile.resolveInput(args ?? {});
+        const resolvedExtensions = NotedComplexExtensionProfile.resolveInput(args);
 
         const resource: Extension = {
             url: "http://example.test/StructureDefinition/noted-complex-extension",

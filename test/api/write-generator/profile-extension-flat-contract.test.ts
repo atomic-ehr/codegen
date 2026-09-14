@@ -80,17 +80,15 @@ describe("Complex extension flat contract", async () => {
         expect(extensionSource).toMatchSnapshot();
     });
 
-    // The flat input carries only the sub-extension slices, but the factory
-    // assigns the required ordinary field from the same argument.
-    it("does not typecheck: the factory reads a field the flat input lacks", () => {
-        expect(typecheck().join("\n")).toContain(
-            "Property 'id' does not exist on type 'NotedComplexExtensionProfileRaw | NotedComplexExtensionProfileFlat'.",
-        );
+    // The flat input now carries the required ordinary field the factory assigns.
+    it("typechecks", () => {
+        expect(typecheck()).toEqual([]);
     });
 
-    // The parent's flat getter is typed with the same flat type, but extraction
-    // only ever fills sub-extension values — so a required member can be absent.
-    it("returns a flat value missing a member its type declares as required", () => {
+    // The parent's flat getter is typed with that same flat type while
+    // extraction only ever fills sub-extension values, so every member the type
+    // declares as required can be absent — now including the ordinary field.
+    it("returns a flat value missing the members its type declares as required", () => {
         const NotedPatient = instantiate(patientSource, "NotedPatientProfile");
         const patient = NotedPatient.apply({
             resourceType: "Patient",
@@ -100,5 +98,6 @@ describe("Complex extension flat contract", async () => {
         const flat = patient.getNoted();
         expect(flat).toEqual({ detail: "d" });
         expect(flat.note).toBeUndefined();
+        expect(flat.id).toBeUndefined();
     });
 });
