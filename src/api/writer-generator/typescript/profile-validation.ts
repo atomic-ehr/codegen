@@ -83,10 +83,25 @@ export const collectRegularFieldValidation = (
     if (field.mustSupport && !field.required)
         warnings.push(`...validateMustSupport(res, profileName, ${JSON.stringify(name)})`);
 
-    if (field.reference && field.reference.resource.length > 0)
+    if (field.reference && field.reference.resource.length > 0) {
+        // An abstract family target (e.g. Resource) stands for its member
+        // resources, so expand it into them. Abstract members — the root and
+        // any family type among them — are left out: no instance carries such
+        // a resourceType, so a reference can never name one.
+        const allowed = field.reference.resource.flatMap((ref) => {
+            const resolved = resolveRef(ref);
+            const target = tsIndex?.resolveType(resolved);
+            const family = target && "typeFamily" in target ? (target.typeFamily?.resources ?? []) : [];
+            if (family.length === 0) return [resolved.name];
+            return family
+                .filter((member) => !tsIndex?.isFamilyType(member))
+                .map((member) => member.name)
+                .sort((a, b) => a.localeCompare(b));
+        });
         errors.push(
-            `...validateReference(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify(field.reference.resource.map((ref) => resolveRef(ref).name))})`,
+            `...validateReference(res, profileName, ${JSON.stringify(name)}, ${JSON.stringify([...new Set(allowed)])})`,
         );
+    }
 
     if (fieldSlicing?.slices) {
         for (const [sliceName, slice] of Object.entries(fieldSlicing.slices)) {
