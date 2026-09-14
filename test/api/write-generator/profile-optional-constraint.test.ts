@@ -65,7 +65,7 @@ describe("Optional constrained profile fields", async () => {
         expect(() => profile.from(withoutIntent)).toThrow("required field 'intent' is missing");
     });
 
-    it.each([null, false, 0, "", [{ coding: [{ system: "http://example.test/category", code: "other" }] }]])(
+    it.each([false, 0, "", [{ coding: [{ system: "http://example.test/category", code: "other" }] }]])(
         "rejects a present mismatching optional pattern: %j",
         (category) => {
             expect(() => profile.from({ ...resource, category })).toThrow(
@@ -73,6 +73,12 @@ describe("Optional constrained profile fields", async () => {
             );
         },
     );
+
+    // A null value is treated as absent, matching validatePatternValue and
+    // validateRequired: absence of an optional element is not a mismatch.
+    it("accepts a null optional pattern", () => {
+        expect(() => profile.from({ ...resource, category: null })).not.toThrow();
+    });
 
     it("rejects a present mismatching required fixed value", () => {
         expect(() => profile.from({ ...resource, intent: "plan" })).toThrow(

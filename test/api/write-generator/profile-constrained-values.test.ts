@@ -75,11 +75,23 @@ describe("Profile constrained values", async () => {
         expect(errorsFor({ ...resource, doNotPerform: false, category: [MATCHING, MATCHING] })).toEqual([]);
     });
 
-    // FHIR applies a pattern on a repeating element to every repetition, but
-    // the wrapped constraint reuses matchesValue's containment rule, so one
-    // matching repetition satisfies the check whatever the others hold.
-    it("accepts a repeating pattern where one repetition does not match", () => {
-        expect(errorsFor({ ...resource, doNotPerform: false, category: [MATCHING, OTHER] })).toEqual([]);
+    // A pattern on a repeating element applies to every repetition.
+    it("rejects a repeating pattern where one repetition does not match", () => {
+        expect(errorsFor({ ...resource, doNotPerform: false, category: [MATCHING, OTHER] })).toContain(
+            "ConstrainedValuesServiceRequest: field 'category' does not match expected fixed value",
+        );
+    });
+
+    it("rejects an empty repeating element with a constraint", () => {
+        expect(errorsFor({ ...resource, doNotPerform: false, category: [] })).toContain(
+            "ConstrainedValuesServiceRequest: field 'category' does not match expected fixed value",
+        );
+    });
+
+    it("rejects an array supplied for a single-valued constrained element", () => {
+        expect(errorsFor({ ...resource, doNotPerform: [false], category: [MATCHING] })).toContain(
+            "ConstrainedValuesServiceRequest: field 'doNotPerform' does not match expected fixed value",
+        );
     });
 
     it("rejects a repeating pattern where no repetition matches", () => {
