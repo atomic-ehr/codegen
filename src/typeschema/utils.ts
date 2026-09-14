@@ -353,6 +353,7 @@ export type TypeSchemaIndex = {
     hierarchy: (schema: TypeSchema) => TypeSchema[];
     findLastSpecialization: (schema: TypeSchema) => TypeSchema;
     findLastSpecializationByIdentifier: (id: TypeIdentifier) => TypeIdentifier;
+    isFamilyType: (id: TypeIdentifier) => boolean;
     flatProfile: (schema: ProfileTypeSchema) => ProfileTypeSchema;
     constrainedChoice: (
         pkgName: PkgName,
@@ -586,6 +587,15 @@ export const mkTypeSchemaIndex = (
         if (!resolved) return id;
         if (isNestedTypeSchema(resolved)) return findLastSpecializationByIdentifier(resolved.base);
         return findLastSpecialization(resolved).identifier;
+    };
+
+    /** True when `id` resolves to a family root — a specialization with concrete
+     *  resource descendants (e.g. Resource, DomainResource), where a reference
+     *  target admits any member of the family. */
+    const isFamilyType = (id: TypeIdentifier): boolean => {
+        const schema = resolveType(id);
+        if (!schema || !("typeFamily" in schema)) return false;
+        return (schema.typeFamily?.resources?.length ?? 0) > 0;
     };
 
     /** Resolve the permitted choice variants monotonically through the profile hierarchy.
@@ -859,6 +869,7 @@ export const mkTypeSchemaIndex = (
         hierarchy,
         findLastSpecialization,
         findLastSpecializationByIdentifier,
+        isFamilyType,
         flatProfile,
         constrainedChoice,
         sliceChoiceVariants,

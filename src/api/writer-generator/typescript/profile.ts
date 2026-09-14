@@ -119,14 +119,6 @@ const tryPromoteChoice = (
     promotedChoices.add(choiceName);
 };
 
-export const mkIsFamilyType =
-    (tsIndex: TypeSchemaIndex) =>
-    (ref: TypeIdentifier): boolean => {
-        const schema = tsIndex.resolveType(ref);
-        if (!schema || !("typeFamily" in schema)) return false;
-        return (schema.typeFamily?.resources?.length ?? 0) > 0;
-    };
-
 export const collectProfileFactoryInfo = (
     tsIndex: TypeSchemaIndex,
     snapshot: SnapshotProfileTypeSchema,
@@ -139,7 +131,7 @@ export const collectProfileFactoryInfo = (
     const fields = snapshot.fields;
     const promotedChoices = new Set<string>();
     const resolveRef = tsIndex.findLastSpecializationByIdentifier;
-    const isFamilyType = mkIsFamilyType(tsIndex);
+    const isFamilyType = tsIndex.isFamilyType;
 
     if (isResourceIdentifier(snapshot.base)) {
         autoFields.push({ name: "resourceType", value: JSON.stringify(snapshot.base.name) });

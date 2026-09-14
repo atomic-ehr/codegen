@@ -286,7 +286,7 @@ Single-element slices (`max: 1`) keep the existing single-item API.
 
 When a reference target is a family type (e.g. `Resource`, `DomainResource`), the generated type uses `Reference<string /* Resource */>` instead of `Reference<"Resource">`. This makes narrower profile references like `Reference<"Patient">` assignable to the base type field.
 
-Detection uses `mkIsFamilyType(tsIndex)` which checks `schema.typeFamily.resources.length > 0`.
+Detection uses `tsIndex.isFamilyType` which checks `schema.typeFamily.resources.length > 0`.
 
 ### Slice Field Validation
 

@@ -42,7 +42,7 @@ import {
     tsProfileModuleFileName,
     tsResourceName,
 } from "./name";
-import { generateProfileClass, generateProfileImports, generateProfileIndexFile, mkIsFamilyType } from "./profile";
+import { generateProfileClass, generateProfileImports, generateProfileIndexFile } from "./profile";
 import { resolveFieldTsType } from "./utils";
 
 export const resolveTsAssets = (fn: string) => resolveGeneratorAsset(import.meta.url, "typescript", fn);
@@ -475,7 +475,7 @@ export class TypeScript extends Writer<TypeScriptOptions> {
                 });
             });
         } else if (isSpecializationTypeSchema(schema)) {
-            const isFamilyType = mkIsFamilyType(tsIndex);
+            const isFamilyType = tsIndex.isFamilyType;
             this.cat(`${tsModuleFileName(schema.identifier)}`, () => {
                 this.generateDisclaimer();
                 this.generateDependenciesImports(tsIndex, schema);

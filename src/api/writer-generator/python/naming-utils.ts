@@ -133,13 +133,8 @@ export const pyReferenceTypeParam = (
     tsIndex: TypeSchemaIndex,
 ): string | undefined => {
     if (!field.reference || field.reference.resource.length === 0) return undefined;
-    const isFamilyType = (ref: TypeIdentifier): boolean => {
-        const schema = tsIndex.resolveType(ref);
-        if (!schema || !("typeFamily" in schema)) return false;
-        return (schema.typeFamily?.resources?.length ?? 0) > 0;
-    };
     const resolved = field.reference.resource.map((ref) => tsIndex.findLastSpecializationByIdentifier(ref));
-    if (resolved.some(isFamilyType)) return undefined;
+    if (resolved.some(tsIndex.isFamilyType)) return undefined;
     const names = [...new Set(resolved.map((ref) => ref.name))];
     return `Literal[${names.map((n) => JSON.stringify(n)).join(", ")}]`;
 };
