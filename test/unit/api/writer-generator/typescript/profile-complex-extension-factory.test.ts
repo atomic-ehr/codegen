@@ -137,12 +137,19 @@ describe("TypeScript extension profile Flat factory input", () => {
         expect(Profile.createResource({ valueCode: "compact" }).component).toEqual([{ url: "requiredComponent" }]);
     });
 
-    test("rejects flat field names that collide with ordinary required inputs", () => {
-        expect(() =>
-            generateProfile(extensionSnapshot("RenderingEngineViewHintsCollision", { collidingSubSlice: true }), [
-                extensionSchema,
-                codeSchema,
-            ]),
-        ).toThrow(/Flat input field collision.*valueCode/);
+    test("falls back to raw-only input when flat fields collide with ordinary required inputs", () => {
+        const { logger, generated } = generateProfile(
+            extensionSnapshot("RenderingEngineViewHintsCollision", { collidingSubSlice: true }),
+            [extensionSchema, codeSchema],
+        );
+        const diagnostic = logger.buffer().find((entry) => entry.level === "ERROR")?.message;
+        expect(diagnostic).toBe(
+            "Flat input field collision for profile 'http://example.org/StructureDefinition/RenderingEngineViewHintsCollision': 'valueCode'. Flat input is disabled; use RenderingEngineViewHintsCollisionProfileRaw with an explicit extension array.",
+        );
+        expect(generated).toContain("export type RenderingEngineViewHintsCollisionProfileFlat = never;");
+        expect(generated).toContain(`export type RenderingEngineViewHintsCollisionProfileRaw = {
+    valueCode: string;
+    extension: Extension[];
+}`);
     });
 });
