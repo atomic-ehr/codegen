@@ -1,5 +1,6 @@
 import * as Path from "node:path";
 import { fileURLToPath } from "node:url";
+import { excludeCanonical } from "@atomic-ehr/fhir-canonical-manager/patch";
 import { APIBuilder, prettyReport } from "../../src/api";
 
 const __dirname = Path.dirname(fileURLToPath(import.meta.url));
@@ -36,7 +37,28 @@ console.log(prettyReport(localReport));
 if (!localReport.success) process.exit(1);
 
 // 2. Remote .tgz package by URL (.fromPackageRef) — SQL-on-FHIR → ./sql-on-fhir-types
-const sqlReport = await new APIBuilder()
+const sofReport = await new APIBuilder({
+    // Instead of the shipped builtin patches, declare the known-broken R5 canonicals by hand —
+    // this demonstrates (and continuously exercises) the fully manual loader configuration.
+    // Index patches apply at scan time, so a cached closure needs a cache drop to pick them up.
+    builtinPatches: false,
+    canonicalManager: {
+        patches: {
+            indexEntry: [
+                excludeCanonical({
+                    package: { name: "hl7.fhir.r5.core", version: "5.0.0" },
+                    url: "http://hl7.org/fhir/StructureDefinition/shareablecodesystem",
+                    reason: "Broken CodeSystem.concept.concept content (ElementReference).",
+                }),
+                excludeCanonical({
+                    package: { name: "hl7.fhir.r5.core", version: "5.0.0" },
+                    url: "http://hl7.org/fhir/StructureDefinition/publishablecodesystem",
+                    reason: "Uses R5-only base types not available in R4 generation.",
+                }),
+            ],
+        },
+    },
+})
     .throwException()
     .typescript({ withDebugComment: false, generateProfile: false })
     // The IG references R5 core resources (e.g. ViewDefinition's base chain reaches Library)
@@ -55,7 +77,7 @@ const sqlReport = await new APIBuilder()
     .cleanOutput(true)
     .generate();
 
-console.log(prettyReport(sqlReport));
-if (!sqlReport.success) process.exit(1);
+console.log(prettyReport(sofReport));
+if (!sofReport.success) process.exit(1);
 
 console.log("✅ FHIR types generated successfully!");
