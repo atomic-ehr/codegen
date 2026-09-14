@@ -27,7 +27,10 @@ export const mkR4Register = async () =>
         // logger: createLogger({ verbose: true, prefix: "TEST" })
     });
 
-export const r4Manager = await mkR4Register();
+let r4ManagerPromise: Promise<Register> | undefined;
+// Lazy + memoized: most test files import this module without touching the
+// shared registers, so loading the package eagerly taxed every test process.
+export const r4Manager = () => (r4ManagerPromise ??= mkR4Register());
 
 export const r5Package = { name: "hl7.fhir.r5.core", version: "5.0.0" };
 
@@ -43,7 +46,8 @@ export const mkCCDARegister = async () =>
         // logger: createLogger({ verbose: true, prefix: "TEST" })
     });
 
-export const ccdaManager = await mkCCDARegister();
+let ccdaManagerPromise: Promise<Register> | undefined;
+export const ccdaManager = () => (ccdaManagerPromise ??= mkCCDARegister());
 
 export const registerFs = (register: Register, fs: PFS) => {
     const pkg = fs.package_meta ?? { name: "mypackage", version: "0.0.0" };

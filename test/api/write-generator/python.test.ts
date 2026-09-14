@@ -3,7 +3,7 @@ import { APIBuilder } from "@root/api/builder";
 import { mkErrorLogger, r4Manager } from "@typeschema-test/utils";
 
 describe("Python Writer Generator", async () => {
-    const result = await new APIBuilder({ register: r4Manager, logger: mkErrorLogger() })
+    const result = await new APIBuilder({ register: await r4Manager(), logger: mkErrorLogger() })
         .python({
             inMemoryOnly: true,
             client: "none",
@@ -112,7 +112,7 @@ describe("Python Writer Generator", async () => {
 
 describe("Python R4 Example (with generateProfile)", async () => {
     const logger = mkErrorLogger();
-    const result = await new APIBuilder({ register: r4Manager, logger })
+    const result = await new APIBuilder({ register: await r4Manager(), logger })
         .python({
             inMemoryOnly: true,
             generateProfile: true,
@@ -191,7 +191,7 @@ describe("Python US Core Example", async () => {
 
 describe("Python client option", async () => {
     const gen = async (opts: { client?: "fhirpy" | "none"; fhirpyClient?: boolean }) => {
-        const result = await new APIBuilder({ register: r4Manager, logger: mkErrorLogger() })
+        const result = await new APIBuilder({ register: await r4Manager(), logger: mkErrorLogger() })
             .python({ inMemoryOnly: true, ...opts })
             .generate();
         return result.filesGenerated.python!;

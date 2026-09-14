@@ -3,7 +3,7 @@ import { APIBuilder } from "@root/api/builder";
 import { mkErrorLogger, r4Manager } from "@typeschema-test/utils";
 
 describe("Mustache Template Based Generation", async () => {
-    const report = await new APIBuilder({ register: r4Manager, logger: mkErrorLogger() })
+    const report = await new APIBuilder({ register: await r4Manager(), logger: mkErrorLogger() })
         .mustache("./examples/mustache/java", {
             debug: "COMPACT",
             inMemoryOnly: true,

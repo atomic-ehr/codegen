@@ -48,8 +48,13 @@ export type CanonicalManagerOptions = {
     /** How a package's shipped `.index.json` is treated: trust it (`"use"`, default), heal a
      *  broken one with a directory scan (`"recover"`), or rebuild it unconditionally (`"regenerate"`). */
     packageIndex?: PackageIndexMode;
-    /** Drop the CanonicalManager cache before loading packages. */
+    /** Drop the CanonicalManager cache before loading packages. Note that this wipes the whole
+     *  working directory, every cached package set included — pair it with a dedicated
+     *  `workingDir` so unrelated callers keep their downloads. */
     dropCache?: boolean;
+    /** Directory holding the downloaded packages and their processed cache
+     *  (default: `.codegen-cache/canonical-manager-cache`). */
+    workingDir?: string;
     /** Per-phase patch handlers (package-defect fixes; helpers on the `@atomic-ehr/fhir-canonical-manager/patch` subpath). */
     patches?: Partial<Patches>;
 };
@@ -306,7 +311,7 @@ export class APIBuilder {
             injectedManager ??
             CanonicalManager({
                 packages: [],
-                workingDir: ".codegen-cache/canonical-manager-cache",
+                workingDir: cm.workingDir ?? ".codegen-cache/canonical-manager-cache",
                 registry: cm.registry,
                 dropCache: cm.dropCache,
                 patches: {
@@ -556,7 +561,10 @@ export class APIBuilder {
 
         this.logger.debug(`Starting generation with ${this.generators.length} generators`);
         try {
-            if (this.options.cleanOutput) await cleanup(this.options, this.logger);
+            // An all-in-memory run writes nothing, so wiping the output directory would only
+            // destroy a previous run's files (and, for concurrent runs, each other's).
+            const writesToDisk = this.generators.some((gen) => !gen.writer.opts.inMemoryOnly);
+            if (this.options.cleanOutput && writesToDisk) await cleanup(this.options, this.logger);
 
             let register: Register;
             if (this.prebuiltRegister) {

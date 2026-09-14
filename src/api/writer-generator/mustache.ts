@@ -165,7 +165,6 @@ export class MustacheGenerator extends FileSystemWriter<MustacheGeneratorOptions
             .forEach(this._renderResource.bind(this));
 
         this._renderUtility(modelFactory.createUtility());
-        this.copyStaticFiles();
 
         if (this.opts.shouldRunHooks) {
             await this._runHooks(this.opts.hooks.afterGenerate);
@@ -173,7 +172,15 @@ export class MustacheGenerator extends FileSystemWriter<MustacheGeneratorOptions
         return;
     }
 
+    /** Static files bypass the write buffer, so they are copied once generation is done and
+     *  `opts.inMemoryOnly` reflects the caller again rather than `generateAsync`'s buffering. */
+    override async generateAsync(tsIndex: TypeSchemaIndex): Promise<void> {
+        await super.generateAsync(tsIndex);
+        this.copyStaticFiles();
+    }
+
     copyStaticFiles() {
+        if (this.opts.inMemoryOnly) return;
         const staticDir = Path.resolve(this.opts.sources.staticSource);
         if (!staticDir) {
             throw new Error("staticDir must be set in subclass.");

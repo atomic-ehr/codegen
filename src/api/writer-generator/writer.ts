@@ -121,7 +121,7 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
             absPath: Path.resolve(destination),
             tokens: [content],
         };
-        fs.cpSync(source, destination);
+        if (!this.opts.inMemoryOnly) fs.cpSync(source, destination);
     }
 
     cp(source: string, destination: string) {
@@ -134,7 +134,7 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
             absPath: Path.resolve(destination),
             tokens: [content],
         };
-        fs.cpSync(source, destination);
+        if (!this.opts.inMemoryOnly) fs.cpSync(source, destination);
     }
 
     abstract generate(_tsIndex: TypeSchemaIndex): Promise<void>;
@@ -148,6 +148,7 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
     }
 
     async flushAsync(): Promise<void> {
+        if (this.opts.inMemoryOnly) return;
         const files = this.writtenFiles();
         const dirs = new Set<string>();
 

@@ -20,7 +20,7 @@ const appendValueSet = (register: Register, pkg: PackageMeta, valueSet: PVS) => 
 };
 
 describe("TypeScript Writer Generator", async () => {
-    const result = await new APIBuilder({ register: r4Manager, logger: mkErrorLogger() })
+    const result = await new APIBuilder({ register: await r4Manager(), logger: mkErrorLogger() })
         .typescript({
             inMemoryOnly: true,
         })
@@ -181,7 +181,7 @@ describe("TypeScript profile fixed CodeableConcept semantics", async () => {
 });
 
 describe("TypeScript CDA with Logical Model Promotion to Resource", async () => {
-    const result = await new APIBuilder({ register: ccdaManager, logger: mkErrorLogger() })
+    const result = await new APIBuilder({ register: await ccdaManager(), logger: mkErrorLogger() })
         .typeSchema({
             promoteLogical: {
                 "hl7.cda.uv.core": ["http://hl7.org/cda/stds/core/StructureDefinition/Material" as CanonicalUrl],
@@ -209,7 +209,7 @@ describe("TypeScript CDA with Logical Model Promotion to Resource", async () => 
 
 describe("TypeScript R4 Example (with generateProfile)", async () => {
     const logger = mkErrorLogger();
-    const result = await new APIBuilder({ register: r4Manager, logger })
+    const result = await new APIBuilder({ register: await r4Manager(), logger })
         .typescript({
             inMemoryOnly: true,
             withDebugComment: false,
