@@ -369,10 +369,36 @@ export const validateExcluded = (res: object, profileName: string, field: string
         : [];
 };
 
-/** Checks that a present `field` structurally contains the expected fixed value. */
-export const validateFixedValue = (res: object, profileName: string, field: string, expected: unknown): string[] => {
+/**
+ * Shared body for the `fixed[x]`/`pattern[x]` checks, keeping FHIR's two array
+ * rules apart:
+ *
+ * - Across repetitions: a constraint declared on a repeating element applies to
+ *   all repetitions, so every one of them must match and the element must
+ *   actually be an array.
+ * - Inside one value: arrays nested in the constraint keep `matchesValue`'s
+ *   "each constraint entry matches at least one instance entry" rule.
+ */
+const matchesConstrainedValue = (value: unknown, expected: unknown, repeating: boolean): boolean =>
+    repeating
+        ? Array.isArray(value) && value.length > 0 && value.every((item) => matchesValue(item, expected))
+        : !Array.isArray(value) && matchesValue(value, expected);
+
+/**
+ * Checks that a present `field` structurally contains the expected fixed value.
+ * Absence passes — `fixed[x]` applies "if present", so a missing element is
+ * `validateRequired`'s concern. Pass `repeating` for an element with max > 1.
+ */
+export const validateFixedValue = (
+    res: object,
+    profileName: string,
+    field: string,
+    expected: unknown,
+    repeating = false,
+): string[] => {
     const value = (res as Record<string, unknown>)[field];
-    return value === undefined || matchesValue(value, expected)
+    if (value === undefined || value === null) return [];
+    return matchesConstrainedValue(value, expected, repeating)
         ? []
         : [`${profileName}: field '${field}' does not match expected fixed value`];
 };
@@ -380,12 +406,20 @@ export const validateFixedValue = (res: object, profileName: string, field: stri
 /**
  * Containment constraint for a field that may be absent: absence is
  * `validateRequired`'s concern, so an absent field passes; a present one must
- * structurally contain `expected`.
+ * structurally contain `expected` — every repetition, when `repeating`.
  */
-export const validatePatternValue = (res: object, profileName: string, field: string, expected: unknown): string[] => {
+export const validatePatternValue = (
+    res: object,
+    profileName: string,
+    field: string,
+    expected: unknown,
+    repeating = false,
+): string[] => {
     const value = (res as Record<string, unknown>)[field];
     if (value === undefined || value === null) return [];
-    return matchesValue(value, expected) ? [] : [`${profileName}: field '${field}' does not match expected pattern`];
+    return matchesConstrainedValue(value, expected, repeating)
+        ? []
+        : [`${profileName}: field '${field}' does not match expected pattern`];
 };
 
 /**
