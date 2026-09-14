@@ -30,6 +30,7 @@ import {
     collectSubExtensionSlices,
     collectTypesFromExtensions,
     collectTypesFromFlatInput,
+    collectUnrepresentableSubExtensionNames,
     generateExtensionMethods,
     resolveExtensionProfile,
 } from "./profile-extensions";
@@ -410,6 +411,28 @@ const generateStaticSliceFields = (w: TypeScript, sliceDefs: SliceDef[]) => {
     if (sliceDefs.length > 0) w.line();
 };
 
+const collectProfileSliceSurfaces = (
+    snapshot: SnapshotProfileTypeSchema,
+    sliceDefs: SliceDef[],
+): { accessorSliceDefs: SliceDef[]; staticSliceDefs: SliceDef[] } => {
+    if (snapshot.base.name !== "Extension") return { accessorSliceDefs: sliceDefs, staticSliceDefs: sliceDefs };
+
+    const unrepresentableNames = new Set(collectUnrepresentableSubExtensionNames(snapshot));
+    if (unrepresentableNames.size === 0) return { accessorSliceDefs: sliceDefs, staticSliceDefs: sliceDefs };
+
+    const accessorSliceDefs = sliceDefs.filter(
+        (sliceDef) => !unrepresentableNames.has(tsCamelCase(sliceDef.sliceName) || sliceDef.sliceName),
+    );
+    const staticRepresentatives = new Map<string, SliceDef>();
+    for (const sliceDef of [...sliceDefs].sort((left, right) => left.sliceName.localeCompare(right.sliceName))) {
+        const normalizedName = tsCamelCase(sliceDef.sliceName) || sliceDef.sliceName;
+        if (!unrepresentableNames.has(normalizedName) || !staticRepresentatives.has(normalizedName)) {
+            staticRepresentatives.set(normalizedName, sliceDef);
+        }
+    }
+    return { accessorSliceDefs, staticSliceDefs: [...staticRepresentatives.values()] };
+};
+
 const generateFactoryMethods = (
     w: TypeScript,
     tsIndex: TypeSchemaIndex,
@@ -473,7 +496,9 @@ const generateFactoryMethods = (
             }
         }
         for (const f of factoryInfo.sliceAutoFields) {
-            const matchRefs = f.sliceNames.map((s) => `${profileClassName}.${tsSliceStaticName(s)}SliceMatch`);
+            const matchRefs = [
+                ...new Set(f.sliceNames.map((s) => `${profileClassName}.${tsSliceStaticName(s)}SliceMatch`)),
+            ];
             w.line(`resource.${f.name} = ensureSliceDefaults(`);
             w.indentBlock(() => {
                 w.line(`[...(resource.${f.name} ?? [])],`);
@@ -550,9 +575,13 @@ const generateFactoryMethods = (
             w.lineSM(`const resolvedExtensions = ${profileClassName}.resolveInput(${inputExpression})`);
             for (const field of factoryInfo.sliceAutoFields) {
                 if (field.name === "extension") continue;
-                const matchRefs = field.sliceNames.map(
-                    (sliceName) => `${profileClassName}.${tsSliceStaticName(sliceName)}SliceMatch`,
-                );
+                const matchRefs = [
+                    ...new Set(
+                        field.sliceNames.map(
+                            (sliceName) => `${profileClassName}.${tsSliceStaticName(sliceName)}SliceMatch`,
+                        ),
+                    ),
+                ];
                 w.line(`const ${field.name}WithDefaults = ensureSliceDefaults(`);
                 w.indentBlock(() => {
                     w.line(`[...(args.${field.name} ?? [])],`);
@@ -564,9 +593,11 @@ const generateFactoryMethods = (
             }
             const extSliceField = factoryInfo.sliceAutoFields.find((f) => f.name === "extension");
             if (extSliceField) {
-                const matchRefs = extSliceField.sliceNames.map(
-                    (s) => `${profileClassName}.${tsSliceStaticName(s)}SliceMatch`,
-                );
+                const matchRefs = [
+                    ...new Set(
+                        extSliceField.sliceNames.map((s) => `${profileClassName}.${tsSliceStaticName(s)}SliceMatch`),
+                    ),
+                ];
                 w.line("const extensionWithDefaults = ensureSliceDefaults(");
                 w.indentBlock(() => {
                     w.line("resolvedExtensions,");
@@ -612,7 +643,9 @@ const generateFactoryMethods = (
         // Standard createResource / create (no Input helper)
         w.curlyBlock(["static", "createResource", `(${paramSignature})`, `: ${tsBaseResourceName}`], () => {
             for (const f of factoryInfo.sliceAutoFields) {
-                const matchRefs = f.sliceNames.map((s) => `${profileClassName}.${tsSliceStaticName(s)}SliceMatch`);
+                const matchRefs = [
+                    ...new Set(f.sliceNames.map((s) => `${profileClassName}.${tsSliceStaticName(s)}SliceMatch`)),
+                ];
                 w.line(`const ${f.name}WithDefaults = ensureSliceDefaults(`);
                 w.indentBlock(() => {
                     w.line(`[...(args.${f.name} ?? [])],`);
@@ -868,10 +901,11 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, sn
     const tsBaseResourceName = tsTypeFromIdentifier(snapshot.base);
     const profileClassName = tsProfileClassName(snapshot);
     const sliceDefs = collectSliceDefs(tsIndex, snapshot);
+    const { accessorSliceDefs, staticSliceDefs } = collectProfileSliceSurfaces(snapshot, sliceDefs);
     const factoryInfo = collectProfileFactoryInfo(tsIndex, snapshot);
 
     generateInlineExtensionInputTypes(w, tsIndex, snapshot);
-    generateSliceInputTypes(w, snapshot, sliceDefs);
+    generateSliceInputTypes(w, snapshot, accessorSliceDefs);
 
     generateProfileHelpersImport(w, tsIndex, snapshot, sliceDefs, factoryInfo);
 
@@ -884,7 +918,7 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, sn
     w.curlyBlock(["export", "class", profileClassName], () => {
         w.lineSM(`static readonly canonicalUrl = ${JSON.stringify(canonicalUrl)}`);
         w.line();
-        generateStaticSliceFields(w, sliceDefs);
+        generateStaticSliceFields(w, staticSliceDefs);
         w.lineSM(`private resource: ${tsBaseResourceName}`);
         w.line();
         generateFactoryMethods(w, tsIndex, snapshot, factoryInfo);
@@ -894,8 +928,8 @@ export const generateProfileClass = (w: TypeScript, tsIndex: TypeSchemaIndex, sn
         generateExtensionMethods(w, tsIndex, snapshot);
 
         w.line("// Slices");
-        generateSliceSetters(w, sliceDefs, snapshot);
-        generateSliceGetters(w, sliceDefs, snapshot);
+        generateSliceSetters(w, accessorSliceDefs, snapshot);
+        generateSliceGetters(w, accessorSliceDefs, snapshot);
 
         w.line("// Validation");
         generateValidateMethod(w, tsIndex, snapshot);

@@ -107,13 +107,23 @@ export const collectFlatInputCollisionNames = (
     extProfile: SnapshotProfileTypeSchema,
     ordinaryFieldNames: string[],
 ): string[] => {
-    const seen = new Set<string>();
+    const seen = new Set<string>(["extension"]);
     const collisions = new Set<string>();
     for (const name of [...ordinaryFieldNames, ...collectSubExtensionSlices(extProfile).map((sub) => sub.name)]) {
         if (seen.has(name)) collisions.add(name);
         seen.add(name);
     }
     return [...collisions].sort();
+};
+
+export const collectUnrepresentableSubExtensionNames = (extProfile: SnapshotProfileTypeSchema): string[] => {
+    const seen = new Set<string>(["extension"]);
+    const unrepresentable = new Set<string>();
+    for (const { name } of collectSubExtensionSlices(extProfile)) {
+        if (seen.has(name)) unrepresentable.add(name);
+        seen.add(name);
+    }
+    return [...unrepresentable].sort();
 };
 
 /**
@@ -232,6 +242,7 @@ type ExtensionMethodInfo = {
     targetPath: string[];
     extProfileInfo: ExtensionProfileInfo | undefined;
     extProfileFlatInputCollisions: string[];
+    extProfileUnrepresentableSubExtensionNames: string[];
 };
 
 // Complex extension — has sub-extensions (e.g., Race with ombCategory, detailed, text)
@@ -305,12 +316,22 @@ const generateComplexExtensionSetter = (w: TypeScript, info: ExtensionMethodInfo
 };
 
 const generateComplexExtensionGetter = (w: TypeScript, info: ExtensionMethodInfo) => {
-    const { ext, snapshot, getMethodName, targetPath, extProfileInfo, extProfileFlatInputCollisions } = info;
+    const {
+        ext,
+        snapshot,
+        getMethodName,
+        targetPath,
+        extProfileInfo,
+        extProfileFlatInputCollisions,
+        extProfileUnrepresentableSubExtensionNames,
+    } = info;
     const tsProfileName = tsResourceName(snapshot.identifier);
     const inputTypeName = tsExtensionFlatTypeName(tsProfileName, ext.name);
     const profileSubSlices = extProfileInfo ? collectSubExtensionSlices(extProfileInfo.snapshot) : [];
+    const unrepresentableNames = new Set(extProfileUnrepresentableSubExtensionNames);
+    const outputSubSlices = profileSubSlices.filter((sub) => !unrepresentableNames.has(sub.name));
     const extProfileHasFlatInput = profileSubSlices.length > 0;
-    const structuralOutputType = `{ ${profileSubSlices
+    const structuralOutputType = `{ ${outputSubSlices
         .map((sub) => `${JSON.stringify(sub.name)}: ${sub.tsType}${sub.isArray ? "[]" : ""}`)
         .join("; ")} }`;
     let flatOutputType = `Partial<${inputTypeName}>`;
@@ -429,8 +450,11 @@ export const generateExtensionMethods = (
     tsIndex: TypeSchemaIndex,
     snapshot: SnapshotProfileTypeSchema,
 ) => {
+    const unrepresentableOwnExtensionNames =
+        snapshot.base.name === "Extension" ? new Set(collectUnrepresentableSubExtensionNames(snapshot)) : undefined;
     for (const ext of snapshot.extensions ?? []) {
         if (!ext.url) continue;
+        if (unrepresentableOwnExtensionNames?.has(tsCamelCase(ext.name) || ext.name)) continue;
         const baseName = ext.nameCandidates.recommended;
         const targetPath = ext.path.split(".").filter((segment) => segment !== "extension");
         const extProfileInfo = resolveExtensionProfile(tsIndex, snapshot.identifier.package, ext.url);
@@ -448,6 +472,9 @@ export const generateExtensionMethods = (
                           .map((field) => field.name),
                   ])
                 : [];
+        const extProfileUnrepresentableSubExtensionNames = extProfileInfo
+            ? collectUnrepresentableSubExtensionNames(extProfileInfo.snapshot)
+            : [];
         const info: ExtensionMethodInfo = {
             ext,
             snapshot,
@@ -456,6 +483,7 @@ export const generateExtensionMethods = (
             targetPath,
             extProfileInfo,
             extProfileFlatInputCollisions,
+            extProfileUnrepresentableSubExtensionNames,
         };
 
         if (ext.isComplex && ext.subExtensions) {
