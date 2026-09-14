@@ -1,7 +1,11 @@
 AIDBOX_LICENSE_ID ?=
 
-# Unit test files run in separate bun processes.
-TEST_JOBS ?= 2
+# Unit test files run in separate bun processes. Keep this at 1 unless the
+# package cache is already warm: on a cold cache several processes install the
+# same FHIR package set into the same directory at once and corrupt it. The
+# speedup is within noise anyway — the heavy tests are IO-bound and throttle
+# each other, so concurrent jobs do not shorten the critical path.
+TEST_JOBS ?= 1
 # bun ignores the `timeout` key in bunfig.toml, so pass it on the command line:
 # generation-heavy tests exceed the 5s default once jobs compete for CPU.
 TEST_TIMEOUT ?= 30000
