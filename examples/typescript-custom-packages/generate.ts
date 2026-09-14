@@ -37,7 +37,7 @@ console.log(prettyReport(localReport));
 if (!localReport.success) process.exit(1);
 
 // 2. Remote .tgz package by URL (.fromPackageRef) — SQL-on-FHIR → ./sql-on-fhir-types
-const sqlReport = await new APIBuilder({
+const sofReport = await new APIBuilder({
     // Instead of the shipped builtin patches, declare the known-broken R5 canonicals by hand —
     // this demonstrates (and continuously exercises) the fully manual loader configuration.
     // Index patches apply at scan time, so a cached closure needs a cache drop to pick them up.
@@ -77,7 +77,7 @@ const sqlReport = await new APIBuilder({
     .cleanOutput(true)
     .generate();
 
-console.log(prettyReport(sqlReport));
-if (!sqlReport.success) process.exit(1);
+console.log(prettyReport(sofReport));
+if (!sofReport.success) process.exit(1);
 
 console.log("✅ FHIR types generated successfully!");
