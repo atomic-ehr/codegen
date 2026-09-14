@@ -1,5 +1,10 @@
 AIDBOX_LICENSE_ID ?=
 
+# Unit test files run in separate bun processes. Keep this at 1: several tests
+# generate into the shared ./generated directory and clean it, so they clobber
+# each other when run concurrently.
+TEST_JOBS ?= 1
+
 TYPECHECK = bunx tsc --noEmit
 
 VERSION = $(shell cat package.json | grep version | sed -E 's/ *"version": "//' | sed -E 's/",.*//')
@@ -34,7 +39,7 @@ typecheck:
 
 test: typecheck
 	@find test -name "*.test.ts" -not -path "*/multi-package/*" | sort | \
-		xargs -P 1 -I{} sh -c 'echo "==> {}" && bun test {} || exit 255'
+		xargs -P $(TEST_JOBS) -I{} sh -c 'out=$$(bun test {} 2>&1); st=$$?; printf "==> %s\n%s\n" "{}" "$$out"; [ $$st -eq 0 ] || exit 255'
 
 test-multi-package: typecheck
 	bun test test/api/write-generator/multi-package/cda.test.ts
