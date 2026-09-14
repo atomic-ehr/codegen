@@ -1,0 +1,25 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`demo: record provenance for a resource build a provenance resource targeting a Patient 1`] = `
+{
+  "agent": [
+    {
+      "who": {
+        "reference": "Practitioner/pr-1",
+      },
+    },
+  ],
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance",
+    ],
+  },
+  "recorded": "2024-06-15T10:00:00Z",
+  "resourceType": "Provenance",
+  "target": [
+    {
+      "reference": "Patient/pt-1",
+    },
+  ],
+}
+`;

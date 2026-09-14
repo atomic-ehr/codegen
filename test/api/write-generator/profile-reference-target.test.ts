@@ -46,9 +46,13 @@ describe("Reference target validation", async () => {
         expect(profileSource).toMatchSnapshot();
     });
 
-    it("rejects a concrete reference for the abstract Resource target", () => {
-        expect(() => profile.from({ ...resource, focus: { reference: "Organization/synthetic" } })).toThrow(
-            "field 'focus' references 'Organization' but only Resource are allowed",
+    it("accepts a concrete reference for the abstract Resource target", () => {
+        expect(() => profile.from({ ...resource, focus: { reference: "Organization/synthetic" } })).not.toThrow();
+    });
+
+    it("rejects a reference to a type that is not a resource", () => {
+        expect(() => profile.from({ ...resource, focus: { reference: "NotAResource/synthetic" } })).toThrow(
+            "field 'focus' references 'NotAResource'",
         );
     });
 
