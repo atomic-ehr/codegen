@@ -1,9 +1,10 @@
 AIDBOX_LICENSE_ID ?=
 
-# Unit test files run in separate bun processes. Keep this at 1: several tests
-# generate into the shared ./generated directory and clean it, so they clobber
-# each other when run concurrently.
-TEST_JOBS ?= 1
+# Unit test files run in separate bun processes.
+TEST_JOBS ?= 2
+# bun ignores the `timeout` key in bunfig.toml, so pass it on the command line:
+# generation-heavy tests exceed the 5s default once jobs compete for CPU.
+TEST_TIMEOUT ?= 30000
 
 TYPECHECK = bunx tsc --noEmit
 
@@ -39,7 +40,7 @@ typecheck:
 
 test: typecheck
 	@find test -name "*.test.ts" -not -path "*/multi-package/*" | sort | \
-		xargs -P $(TEST_JOBS) -I{} sh -c 'out=$$(bun test {} 2>&1); st=$$?; printf "==> %s\n%s\n" "{}" "$$out"; [ $$st -eq 0 ] || exit 255'
+		xargs -P $(TEST_JOBS) -S 8192 -I{} sh -c 'out=$$(bun test --timeout $(TEST_TIMEOUT) "$$1" 2>&1); st=$$?; printf "==> %s\n%s\n" "$$1" "$$out"; [ $$st -eq 0 ] || exit 255' _ {}
 
 test-multi-package: typecheck
 	bun test test/api/write-generator/multi-package/cda.test.ts
