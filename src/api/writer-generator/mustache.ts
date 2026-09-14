@@ -178,7 +178,7 @@ export class MustacheGenerator extends FileSystemWriter<MustacheGeneratorOptions
         if (!staticDir) {
             throw new Error("staticDir must be set in subclass.");
         }
-        fs.cpSync(staticDir, this.opts.outputDir, { recursive: true });
+        if (this.persistOutput) fs.cpSync(staticDir, this.opts.outputDir, { recursive: true });
     }
 
     private async _runHooks(hooks?: HookType[]) {

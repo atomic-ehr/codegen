@@ -23,6 +23,9 @@ export type FileBuffer = { relPath: string; absPath: string; content: string };
 
 export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileSystemWriterOptions> {
     opts: T;
+    /** The caller's own `inMemoryOnly`, inverted: `generateAsync` forces `opts.inMemoryOnly`
+     *  on while it buffers, so steps that run after generation consult this instead. */
+    persistOutput = true;
     currentDir?: string;
     currentFile?: { relPath: string; descriptor: number };
     writtenFilesBuffer: Record<string, FileBufferInternal> = {};
@@ -121,7 +124,7 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
             absPath: Path.resolve(destination),
             tokens: [content],
         };
-        fs.cpSync(source, destination);
+        if (!this.opts.inMemoryOnly) fs.cpSync(source, destination);
     }
 
     cp(source: string, destination: string) {
@@ -134,7 +137,7 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
             absPath: Path.resolve(destination),
             tokens: [content],
         };
-        fs.cpSync(source, destination);
+        if (!this.opts.inMemoryOnly) fs.cpSync(source, destination);
     }
 
     abstract generate(_tsIndex: TypeSchemaIndex): Promise<void>;
@@ -148,6 +151,7 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
     }
 
     async flushAsync(): Promise<void> {
+        if (!this.persistOutput) return;
         const files = this.writtenFiles();
         const dirs = new Set<string>();
 
@@ -162,6 +166,7 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
 
     async generateAsync(tsIndex: TypeSchemaIndex): Promise<void> {
         const originalInMemoryOnly = this.opts.inMemoryOnly;
+        this.persistOutput = !originalInMemoryOnly;
         this.opts.inMemoryOnly = true;
 
         try {

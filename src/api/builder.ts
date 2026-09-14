@@ -561,7 +561,10 @@ export class APIBuilder {
 
         this.logger.debug(`Starting generation with ${this.generators.length} generators`);
         try {
-            if (this.options.cleanOutput) await cleanup(this.options, this.logger);
+            // An all-in-memory run writes nothing, so wiping the output directory would only
+            // destroy a previous run's files (and, for concurrent runs, each other's).
+            const writesToDisk = this.generators.some((gen) => !gen.writer.opts.inMemoryOnly);
+            if (this.options.cleanOutput && writesToDisk) await cleanup(this.options, this.logger);
 
             let register: Register;
             if (this.prebuiltRegister) {
