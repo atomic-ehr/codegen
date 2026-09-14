@@ -26,6 +26,7 @@ import {
     tsSliceStaticName,
 } from "./name";
 import {
+    collectFlatInputCollisionNames,
     collectSubExtensionSlices,
     collectTypesFromExtensions,
     collectTypesFromFlatInput,
@@ -489,16 +490,23 @@ const generateFactoryMethods = (
     // widen createResource and create to accept Input | Raw
     const subSlicesForInput = snapshot.base.name === "Extension" ? collectSubExtensionSlices(snapshot) : [];
     const hasInputHelper = subSlicesForInput.length > 0;
-    const requiresFactoryInput = hasParams || subSlicesForInput.some((sub) => sub.isRequired);
+    const flatInputCollisions = collectFlatInputCollisionNames(snapshot, [
+        ...factoryInfo.params.filter((field) => field.name !== "extension").map((field) => field.name),
+        ...factoryInfo.sliceAutoFields.filter((field) => field.name !== "extension").map((field) => field.name),
+    ]);
+    const usesRawOnlyInput = flatInputCollisions.length > 0;
+    const requiresFactoryInput = usesRawOnlyInput || hasParams || subSlicesForInput.some((sub) => sub.isRequired);
 
     if (hasInputHelper) {
         const rawInputTypeName = `${profileClassName}Raw`;
         const inputTypeName = `${profileClassName}Flat`;
 
         // Private helper: converts Input to Extension[], passes through Raw.extension
-        w.curlyBlock(
-            ["private static", "resolveInput", `(args: ${rawInputTypeName} | ${inputTypeName})`, ": Extension[]"],
-            () => {
+        const resolveInputType = usesRawOnlyInput ? rawInputTypeName : `${rawInputTypeName} | ${inputTypeName}`;
+        w.curlyBlock(["private static", "resolveInput", `(args: ${resolveInputType})`, ": Extension[]"], () => {
+            if (usesRawOnlyInput) {
+                w.lineSM("return args.extension");
+            } else {
                 w.ifElseChain(
                     [
                         {
@@ -528,13 +536,14 @@ const generateFactoryMethods = (
                         w.lineSM("return result");
                     },
                 );
-            },
-        );
+            }
+        });
         w.line();
 
         // createResource — accepts Input | Raw
+        const createResourceInputType = usesRawOnlyInput ? rawInputTypeName : `${rawInputTypeName} | ${inputTypeName}`;
         const createResourceSig = requiresFactoryInput
-            ? `args: ${rawInputTypeName} | ${inputTypeName}`
+            ? `args: ${createResourceInputType}`
             : `args?: ${rawInputTypeName} | ${inputTypeName}`;
         w.curlyBlock(["static", "createResource", `(${createResourceSig})`, `: ${tsBaseResourceName}`], () => {
             const inputExpression = requiresFactoryInput ? "args" : "args ?? {}";
@@ -594,7 +603,7 @@ const generateFactoryMethods = (
 
         // create — accepts Input | Raw, delegates to createResource
         const createSig = requiresFactoryInput
-            ? `args: ${rawInputTypeName} | ${inputTypeName}`
+            ? `args: ${createResourceInputType}`
             : `args?: ${rawInputTypeName} | ${inputTypeName}`;
         w.curlyBlock(["static", "create", `(${createSig})`, `: ${profileClassName}`], () => {
             w.lineSM(`return ${profileClassName}.apply(${profileClassName}.createResource(args))`);
@@ -792,18 +801,23 @@ const generateRawType = (w: TypeScript, snapshot: SnapshotProfileTypeSchema, fac
     if (!hasParams && subSlices.length === 0) return;
 
     const createArgsTypeName = `${tsProfileClassName(snapshot)}Raw`;
+    const flatInputCollisions = collectFlatInputCollisionNames(snapshot, [
+        ...factoryInfo.params.filter((field) => field.name !== "extension").map((field) => field.name),
+        ...factoryInfo.sliceAutoFields.filter((field) => field.name !== "extension").map((field) => field.name),
+    ]);
+    const usesRawOnlyInput = flatInputCollisions.length > 0;
     w.curlyBlock(["export", "type", createArgsTypeName, "="], () => {
         for (const p of factoryInfo.params) {
             w.lineSM(`${p.name}: ${p.tsType}`);
         }
         for (const f of factoryInfo.sliceAutoFields) {
-            w.lineSM(`${f.name}?: ${f.tsType}`);
+            w.lineSM(`${f.name}${usesRawOnlyInput && f.name === "extension" ? "" : "?"}: ${f.tsType}`);
         }
         const extensionCovered =
             factoryInfo.params.some((p) => p.name === "extension") ||
             factoryInfo.sliceAutoFields.some((f) => f.name === "extension");
         if (subSlices.length > 0 && !extensionCovered) {
-            w.lineSM("extension?: Extension[]");
+            w.lineSM(`extension${usesRawOnlyInput ? "" : "?"}: Extension[]`);
         }
     });
     w.line();
@@ -814,6 +828,21 @@ const generateFlatInputType = (w: TypeScript, snapshot: SnapshotProfileTypeSchem
     if (subSlices.length === 0) return;
 
     const flatInputTypeName = `${tsProfileClassName(snapshot)}Flat`;
+    const ordinaryFieldNames = [
+        ...factoryInfo.params.filter((field) => field.name !== "extension").map((field) => field.name),
+        ...factoryInfo.sliceAutoFields.filter((field) => field.name !== "extension").map((field) => field.name),
+    ];
+    const collisions = collectFlatInputCollisionNames(snapshot, ordinaryFieldNames);
+    if (collisions.length > 0) {
+        for (const name of collisions) {
+            w.logger()?.error(
+                `Flat input field collision for profile '${snapshot.identifier.url}': '${name}'. Flat input is disabled; use ${tsProfileClassName(snapshot)}Raw with an explicit extension array.`,
+            );
+        }
+        w.lineSM(`export type ${flatInputTypeName} = never`);
+        w.line();
+        return;
+    }
     const flatFields = [
         ...factoryInfo.params
             .filter((param) => param.name !== "extension")
@@ -827,13 +856,6 @@ const generateFlatInputType = (w: TypeScript, snapshot: SnapshotProfileTypeSchem
             tsType: `${sub.tsType}${sub.isArray ? "[]" : ""}`,
         })),
     ];
-    const seen = new Set<string>();
-    for (const field of flatFields) {
-        if (seen.has(field.name)) {
-            throw new Error(`Flat input field collision for ${flatInputTypeName}: ${field.name}`);
-        }
-        seen.add(field.name);
-    }
     w.curlyBlock(["export", "type", flatInputTypeName, "="], () => {
         for (const field of flatFields) {
             w.lineSM(`${field.name}${field.optional ? "?" : ""}: ${field.tsType}`);
