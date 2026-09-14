@@ -14,8 +14,11 @@ if (require.main === module) {
         packages: [],
         workingDir: ".codegen-cache/canonical-manager-cache",
         patches: {
-            // A hand-built manager owns its wiring: apply the shipped input fixes explicitly
-            // (the builder does this automatically for the loaders it constructs).
+            // The builder injects builtinPatches only into loaders it constructs itself.
+            // This manager is built by hand (we need the register up front to select the
+            // CDA logical models for promoteLogical), and CM patches are constructor-time
+            // configuration that cannot be attached afterwards — so the shipped input
+            // fixes are applied explicitly here.
             indexEntry: builtinPatches.indexEntry,
             fhirResource: [
                 // IVL_TS is a typo'd canonical in hl7.cda.uv.core (should be IVL-TS).
