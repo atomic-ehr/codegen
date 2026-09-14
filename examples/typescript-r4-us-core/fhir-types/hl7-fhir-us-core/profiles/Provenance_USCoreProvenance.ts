@@ -173,7 +173,7 @@ export class USCoreProvenanceProfile {
         return {
             errors: [
                 ...validateRequired(res, profileName, "target"),
-                ...validateReference(res, profileName, "target", ["Resource"]),
+                ...validateReference(res, profileName, "target", ["Bundle","CodeSystem","Observation","OperationOutcome","Patient","Provenance"]),
                 ...validateRequired(res, profileName, "recorded"),
                 ...validateRequired(res, profileName, "agent"),
             ],
