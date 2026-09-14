@@ -4,6 +4,7 @@ export { USCoreEthnicityExtensionProfile } from "./Extension_USCoreEthnicityExte
 export { USCoreIndividualSexExtensionProfile } from "./Extension_USCoreIndividualSexExtension";
 export { USCoreInterpreterNeededExtensionProfile } from "./Extension_USCoreInterpreterNeededExtension";
 export { USCorePatientProfile } from "./Patient_USCorePatientProfile";
+export { USCoreProvenanceProfile } from "./Provenance_USCoreProvenance";
 export { USCoreRaceExtensionProfile } from "./Extension_USCoreRaceExtension";
 export { USCoreTribalAffiliationExtensionProfile } from "./Extension_USCoreTribalAffiliationExtension";
 export { USCoreVitalSignsProfile } from "./Observation_USCoreVitalSignsProfile";

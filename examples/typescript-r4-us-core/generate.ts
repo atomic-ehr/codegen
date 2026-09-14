@@ -54,6 +54,9 @@ if (require.main === module) {
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient": {},
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure": {},
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight": {},
+                    // Restates Provenance.target, whose base type is Reference(Any):
+                    // the only profile here with an abstract reference target.
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance": {},
                 },
             },
             resolveCollisions: {

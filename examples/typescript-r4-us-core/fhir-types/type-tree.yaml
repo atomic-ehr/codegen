@@ -63,6 +63,7 @@ hl7.fhir.r4.core:
     http://hl7.org/fhir/StructureDefinition/Observation: {}
     http://hl7.org/fhir/StructureDefinition/OperationOutcome: {}
     http://hl7.org/fhir/StructureDefinition/Patient: {}
+    http://hl7.org/fhir/StructureDefinition/Provenance: {}
     http://hl7.org/fhir/StructureDefinition/Resource: {}
   value-set: {}
   nested: {}
@@ -87,6 +88,7 @@ hl7.fhir.us.core:
     http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure#code_binding: {}
     http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight#code_binding: {}
     http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient#communication.language_binding: {}
+    http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance#agent.type_binding: {}
     http://hl7.org/fhir/us/core/StructureDefinition/us-core-vital-signs#code_binding: {}
     http://hl7.org/fhir/us/core/StructureDefinition/us-core-vital-signs#component.code_binding: {}
   profile:
@@ -96,6 +98,7 @@ hl7.fhir.us.core:
     http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex: {}
     http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed: {}
     http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient: {}
+    http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance: {}
     http://hl7.org/fhir/us/core/StructureDefinition/us-core-race: {}
     http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation: {}
     http://hl7.org/fhir/us/core/StructureDefinition/us-core-vital-signs: {}
@@ -154,6 +157,11 @@ shared:
     urn:fhir:binding:ObservationValueAbsentReason: {}
     urn:fhir:binding:ParameterUse: {}
     urn:fhir:binding:PropertyType: {}
+    urn:fhir:binding:ProvenanceActivity: {}
+    urn:fhir:binding:ProvenanceAgentRole: {}
+    urn:fhir:binding:ProvenanceAgentType: {}
+    urn:fhir:binding:ProvenanceEntityRole: {}
+    urn:fhir:binding:ProvenanceReason: {}
     urn:fhir:binding:PublicationStatus: {}
     urn:fhir:binding:QuantityComparator: {}
     urn:fhir:binding:RelatedArtifactType: {}
