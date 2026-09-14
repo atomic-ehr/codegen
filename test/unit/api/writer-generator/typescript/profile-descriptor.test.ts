@@ -28,7 +28,7 @@ void [_descriptor, _resourceType];
 
 describe("generated profile structural descriptor", () => {
     test("a generated profile class is assignable to a generic FHIR client descriptor", async () => {
-        const result = await new APIBuilder({ register: r4Manager, logger: mkErrorLogger() })
+        const result = await new APIBuilder({ register: await r4Manager(), logger: mkErrorLogger() })
             .typeSchema({
                 treeShake: {
                     "hl7.fhir.r4.core": {

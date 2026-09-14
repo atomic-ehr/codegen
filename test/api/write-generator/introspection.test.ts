@@ -3,7 +3,7 @@ import { APIBuilder } from "@root/api/builder";
 import { mkErrorLogger, r4Manager } from "@typeschema-test/utils";
 
 describe("IntrospectionWriter - Fhir Schema Output", async () => {
-    const result = await new APIBuilder({ register: r4Manager, logger: mkErrorLogger() })
+    const result = await new APIBuilder({ register: await r4Manager(), logger: mkErrorLogger() })
         .introspection({ fhirSchemas: "introspection" })
         .introspection({ fhirSchemas: "introspection.ndjson" })
         .generate();
@@ -30,7 +30,7 @@ describe("IntrospectionWriter - Fhir Schema Output", async () => {
 });
 
 describe("IntrospectionWriter - TypeSchema output", async () => {
-    const result = await new APIBuilder({ register: r4Manager, logger: mkErrorLogger() })
+    const result = await new APIBuilder({ register: await r4Manager(), logger: mkErrorLogger() })
         .typeSchema({
             treeShake: {
                 "hl7.fhir.r4.core": {
@@ -91,7 +91,7 @@ describe("IntrospectionWriter - TypeSchema output", async () => {
 });
 
 describe("IntrospectionWriter - flat profile output", async () => {
-    const result = await new APIBuilder({ register: r4Manager, logger: mkErrorLogger() })
+    const result = await new APIBuilder({ register: await r4Manager(), logger: mkErrorLogger() })
         .typeSchema({
             treeShake: {
                 "hl7.fhir.r4.core": {
@@ -135,7 +135,7 @@ describe("IntrospectionWriter - flat profile output", async () => {
 });
 
 describe("IntrospectionWriter - typeTree", async () => {
-    const result = await new APIBuilder({ register: r4Manager, logger: mkErrorLogger() })
+    const result = await new APIBuilder({ register: await r4Manager(), logger: mkErrorLogger() })
         .typeSchema({
             treeShake: {
                 "hl7.fhir.r4.core": {
@@ -164,7 +164,7 @@ describe("IntrospectionWriter - typeTree", async () => {
 });
 
 describe("IntrospectionWriter - StructureDefinition output", async () => {
-    const result = await new APIBuilder({ register: r4Manager, logger: mkErrorLogger() })
+    const result = await new APIBuilder({ register: await r4Manager(), logger: mkErrorLogger() })
         .typeSchema({
             treeShake: {
                 "hl7.fhir.r4.core": {
