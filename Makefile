@@ -40,7 +40,7 @@ typecheck:
 
 test: typecheck
 	@find test -name "*.test.ts" -not -path "*/multi-package/*" | sort | \
-		xargs -P $(TEST_JOBS) -S 8192 -I{} sh -c 'out=$$(bun test --timeout $(TEST_TIMEOUT) "$$1" 2>&1); st=$$?; printf "==> %s\n%s\n" "$$1" "$$out"; [ $$st -eq 0 ] || exit 255' _ {}
+		xargs -P $(TEST_JOBS) -I{} sh -c 'out=$$(bun test --timeout $(TEST_TIMEOUT) "$$1" 2>&1); st=$$?; printf "==> %s\n%s\n" "$$1" "$$out"; [ $$st -eq 0 ] || exit 255' _ {}
 
 test-multi-package: typecheck
 	bun test test/api/write-generator/multi-package/cda.test.ts
