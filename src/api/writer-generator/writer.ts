@@ -23,8 +23,10 @@ export type FileBuffer = { relPath: string; absPath: string; content: string };
 
 export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileSystemWriterOptions> {
     opts: T;
-    /** The caller's own `inMemoryOnly`, inverted: `generateAsync` forces `opts.inMemoryOnly`
-     *  on while it buffers, so steps that run after generation consult this instead. */
+    /** The caller's own `inMemoryOnly`, inverted. `generateAsync` forces `opts.inMemoryOnly` on
+     *  for the duration of `generate()`, so anything called from inside it — `copyStaticFiles`
+     *  and friends, which bypass the write buffer — cannot read the caller's intent from `opts`.
+     *  Steps that run after `generate()` returns can: the flag is restored by then. */
     persistOutput = true;
     currentDir?: string;
     currentFile?: { relPath: string; descriptor: number };
@@ -151,7 +153,7 @@ export abstract class FileSystemWriter<T extends FileSystemWriterOptions = FileS
     }
 
     async flushAsync(): Promise<void> {
-        if (!this.persistOutput) return;
+        if (this.opts.inMemoryOnly) return;
         const files = this.writtenFiles();
         const dirs = new Set<string>();
 
