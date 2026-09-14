@@ -70,9 +70,12 @@ export const collectRegularFieldValidation = (
             canonicalUrlExpr && name === "url" && field.valueConstraint.value === canonicalUrlExpr.url
                 ? canonicalUrlExpr.expr
                 : JSON.stringify(field.valueConstraint.value);
-        const valueExpr = field.array ? `[${constrainedValueExpr}]` : constrainedValueExpr;
         const fn = field.valueConstraint.validateOnly ? "validatePatternValue" : "validateFixedValue";
-        errors.push(`...${fn}(res, profileName, ${JSON.stringify(name)}, ${valueExpr})`);
+        // A constraint on a repeating element applies to every repetition, so
+        // the helper needs the declared arity: the instance shape alone cannot
+        // tell an array-valued element from a wrong value on a single one.
+        const repeating = field.array ? ", true" : "";
+        errors.push(`...${fn}(res, profileName, ${JSON.stringify(name)}, ${constrainedValueExpr}${repeating})`);
     }
 
     if (field.enum) {
