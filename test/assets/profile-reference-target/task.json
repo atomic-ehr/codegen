@@ -1,0 +1,37 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "reference-target-task",
+  "url": "http://example.test/StructureDefinition/reference-target-task",
+  "version": "0.1.0",
+  "name": "ReferenceTargetTask",
+  "status": "active",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Task",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Task",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Task",
+        "path": "Task"
+      },
+      {
+        "id": "Task.focus",
+        "path": "Task.focus",
+        "mustSupport": true
+      },
+      {
+        "id": "Task.requester",
+        "path": "Task.requester",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": ["http://hl7.org/fhir/StructureDefinition/Practitioner"]
+          }
+        ]
+      }
+    ]
+  }
+}
